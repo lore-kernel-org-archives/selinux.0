@@ -1,56 +1,527 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3HIsKl5003716
-	for <selinux@tycho.nsa.gov>; Fri, 17 Apr 2009 14:54:21 -0400
-Received: from mail-qy0-f131.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3HIsKfm002372
-	for <selinux@tycho.nsa.gov>; Fri, 17 Apr 2009 18:54:20 GMT
-Received: by qyk37 with SMTP id 37so1206712qyk.32
-        for <selinux@tycho.nsa.gov>; Fri, 17 Apr 2009 11:54:20 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 17 Apr 2009 11:54:19 -0700
-Message-ID: <dd18b0c30904171154s571bc232q34dd4b6274f0b88d@mail.gmail.com>
-Subject: SELinux: unrecognized netlink message
-From: Justin Mattock <justinmattock@gmail.com>
-To: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Fwd: [LTP] [PATCH] Create $SELINUXTMPDIR in each of the tests
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Reply-To: subrata@linux.vnet.ibm.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: ltp-list <ltp-list@lists.sf.net>, SE Linux <selinux@tycho.nsa.gov>,
+        Jiri Palecek <jpalecek@web.de>, James Morris <jmorris@namei.org>
+Content-Type: text/plain
+Date: Sun, 19 Apr 2009 00:17:37 +0530
+Message-Id: <1240080458.5108.18.camel@subratamodak.linux.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm seeing this in dmesg:
-(as I add the allow rules to a new machine)
+Stephen,
 
-[   13.769513] SELinux: initialized (dev tmpfs, type tmpfs), uses
-transition SIDs
-[   19.025365] ndiswrapper version 1.54-2.6.27.7 loaded (smp=yes, preempt=no)
-[   19.329584] ndiswrapper: driver bcmwl5 (Broadcom,03/21/2008,
-4.170.77.3) loaded
-[   19.330401] ndiswrapper 0000:03:00.0: power state changed by ACPI to D0
-[   19.330571] ndiswrapper 0000:03:00.0: PCI INT A -> Link[Z00F] ->
-GSI 22 (level, low) -> IRQ 22
-[   19.330856] ndiswrapper 0000:03:00.0: power state changed by ACPI to D0
-[   19.330973] ndiswrapper 0000:03:00.0: setting latency timer to 64
-[   19.344429] ndiswrapper: using IRQ 22
-[   19.570301] wlan0 (ndiswrapper): not using net_device_ops yet
-[   19.570825] wlan0: ethernet device 00:1f:f3:bd:f0:98 using NDIS
-driver: bcmwl5, version: 0x4aa4d03, NDIS version: 0x501, vendor: 'NDIS
-Network Adapter', 14E4:432B.5.conf
-[   19.570876] wlan0: encryption modes supported: WEP; TKIP with WPA,
-WPA2, WPA2PSK; AES/CCMP with WPA, WPA2, WPA2PSK
-[   19.572385] usbcore: registered new interface driver ndiswrapper
-[   23.017545] type=1401 audit(1239994223.882:3): SELinux:
-unrecognized netlink message type=28265 for sclass=43
-[   23.017547]
-[   23.017574] type=1300 audit(1239994223.882:3): arch=40000003
-syscall=4 success=yes exit=18 a0=2 a1=8064c17 a2=12 a3=12 items=0
-ppid=1690 pid=1780 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0
-egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="ip"
-exe="/sbin/ip" subj=system_u:system_r:ifconfig_t:s0 key=(null)
+Would you like to say something about the following Patch ?
+
+Regards--
+Subrata
+
+-------- Forwarded Message --------
+From: Jiri Palecek > <<jirka@debian.POK.IBM.COM>
+Cc: ltp-list@lists.sourceforge.net <ltp-list@lists.sourceforge.net>
+Subject: [LTP] [PATCH] Create $SELINUXTMPDIR in each of the tests
+Date: Thu, 16 Apr 2009 12:52:05 +0200
+
+Hello,
+
+while running the selinux tests, I was contemplating the way the $SELINUXTMPDIR is created. It seems to me that creating it in each test individually would allow running the tests in parallel, make some hacks needed to prevent interference of the tests unnecessary, allow the tests to be run directly from ltpmenu et al., and wouldn't add much more code. What do you think about this?
+
+PS: This patch still has issues, namely, the cleanup is denied sometimes.
+
+Regards
+ Jiri Palecek
 
 
-Hopefully I can start the system in full enforcement.
+Signed-off-by: Jiri Palecek <jpalecek@web.de>
+---
+ .../tests/bounds/selinux_bounds.sh                 |    7 +++----
+ .../tests/capable_file/selinux_capable_file.sh     |    8 +++-----
+ .../tests/capable_sys/selinux_capable_sys.sh       |    8 ++++----
+ .../tests/entrypoint/selinux_entrypoint.sh         |    7 +++----
+ .../execute_no_trans/selinux_execute_no_trans.sh   |    7 +++----
+ .../tests/fdreceive/selinux_fdreceive.sh           |    7 +++----
+ .../selinux-testsuite/tests/file/selinux_file.sh   |   14 ++++----------
+ .../tests/inherit/selinux_inherit.sh               |    8 +++-----
+ .../selinux-testsuite/tests/ioctl/selinux_ioctl.sh |    5 ++++-
+ .../selinux-testsuite/tests/link/selinux_link.sh   |    7 +++----
+ .../selinux-testsuite/tests/mkdir/selinux_mkdir.sh |    7 +++----
+ .../selinux-testsuite/tests/open/selinux_open.sh   |    7 +++----
+ .../tests/readlink/selinux_readlink.sh             |    7 +++----
+ .../tests/relabel/selinux_relabel.sh               |    7 +++----
+ .../tests/rename/selinux_rename.sh                 |    7 +++----
+ .../selinux-testsuite/tests/rxdir/selinux_rxdir.sh |    7 +++----
+ .../tests/setattr/selinux_setattr.sh               |    7 +++----
+ .../selinux-testsuite/tests/stat/selinux_stat.sh   |    7 +++----
+ 18 files changed, 57 insertions(+), 77 deletions(-)
 
--- 
-Justin P. Mattock
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh b/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
+index fb0876e..5a3fa06 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
+@@ -14,8 +14,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=4
+
+-	# Remove any leftover test directories from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/bounds_file*
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create test files
+ 	dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file      count=1
+@@ -141,8 +141,7 @@ test06()
+
+ cleanup()
+ {
+-	# Cleanup
+-	rm -rf $SELINUXTMPDIR/bounds_file*
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:	main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/capable_file/selinux_capable_file.sh b/testcases/kernel/security/selinux-testsuite/tests/capable_file/selinux_capable_file.sh
+index 86d89a1..f5f1040 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/capable_file/selinux_capable_file.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/capable_file/selinux_capable_file.sh
+@@ -17,9 +17,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=10
+
+-	# Clean up from a previous run
+-	rm -f $SELINUXTMPDIR/temp_file 2>&1
+-	rm -f $SELINUXTMPDIR/temp_file2 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+ }
+
+ #
+@@ -233,8 +232,7 @@ test10()
+
+ cleanup()
+ {
+-	rm -f $SELINUXTMPDIR/temp_file 2>&1
+-	rm -f $SELINUXTMPDIR/temp_file2 2>&1
++    rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/capable_sys/selinux_capable_sys.sh b/testcases/kernel/security/selinux-testsuite/tests/capable_sys/selinux_capable_sys.sh
+index da880b3..1965142 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/capable_sys/selinux_capable_sys.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/capable_sys/selinux_capable_sys.sh
+@@ -17,8 +17,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=8
+
+-        # Clean up from a previous run
+-        rm -f $SELINUXTMPDIR/temp_file 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+ }
+
+ #
+@@ -195,8 +195,7 @@ test08()
+
+ cleanup()
+ {
+-	# Remove files
+-	rm -f $SELINUXTMPDIR/temp_file 2>&1
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+@@ -215,6 +214,7 @@ test02 || EXIT_VAL=$RC
+ test03 || EXIT_VAL=$RC
+ test04 || EXIT_VAL=$RC
+ cleanup
++setup
+ test05 || EXIT_VAL=$RC
+ test06 || EXIT_VAL=$RC
+ test07 || EXIT_VAL=$RC
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh b/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
+index 4ae880a..bd58845 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=2
+
+-        # Clean up from a previous run
+-        rm -f $SELINUXTMPDIR/true 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+ }
+
+ test01()
+@@ -63,8 +63,7 @@ test02()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -f $SELINUXTMPDIR/true
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/execute_no_trans/selinux_execute_no_trans.sh b/testcases/kernel/security/selinux-testsuite/tests/execute_no_trans/selinux_execute_no_trans.sh
+index 2c58fe1..67bfe6f 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/execute_no_trans/selinux_execute_no_trans.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/execute_no_trans/selinux_execute_no_trans.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=2
+
+-        # Clean up from a previous run
+-        rm -f $SELINUXTMPDIR/true 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+ }
+
+ test01()
+@@ -66,8 +66,7 @@ test02()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -f $SELINUXTMPDIR/true
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/fdreceive/selinux_fdreceive.sh b/testcases/kernel/security/selinux-testsuite/tests/fdreceive/selinux_fdreceive.sh
+index 4ec7f2e..76bbedd 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/fdreceive/selinux_fdreceive.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/fdreceive/selinux_fdreceive.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=3
+
+-	# Remove any leftover test file from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file $SELINUXTMPDIR/test_file2 $SELINUXTMPDIR/test_sock
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create and label the test files.
+ 	touch $SELINUXTMPDIR/test_file $SELINUXTMPDIR/test_file2
+@@ -100,8 +100,7 @@ cleanup()
+ 	# Kill the server.
+ 	kill -s TERM $PID
+
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file $SELINUXTMPDIR/test_file2 $SELINUXTMPDIR/test_sock
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh b/testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh
+index 0c88e9b..71b09dd 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh
+@@ -17,10 +17,9 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=14
+
+-	# Clean up from a previous run
+-	rm -f $SELINUXTMPDIR/temp_file 2>&1
+-	rm -f $SELINUXTMPDIR/temp_file2 2>&1
+-	rm -f $SELINUXTMPDIR/temp_file3 2>&1
++	LTPBIN=$LTPROOT/testcases/bin
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	#
+ 	# Create the temp files
+@@ -361,12 +360,7 @@ test14()
+
+ cleanup()
+ {
+-	#
+-	# Delete the temp files
+-	#
+-	rm -f $basedir/temp_file 2>&1
+-	rm -f $basedir/temp_file2 2>&1
+-	rm -f $basedir/temp_file3 2>&1
++	rm -rf $SELINUXTMPDIR
+ }
+
+ #
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/inherit/selinux_inherit.sh b/testcases/kernel/security/selinux-testsuite/tests/inherit/selinux_inherit.sh
+index 8a48185..13defc8 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/inherit/selinux_inherit.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/inherit/selinux_inherit.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=3
+
+-	# Clean up from a previous run
+-	rm -f $SELINUXTMPDIR/test_file 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file with the test_inherit_file_t type 
+ 	# for use in the tests.
+@@ -97,9 +97,7 @@ test03()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file
+-	cd $SAVEPWD
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.sh b/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.sh
+index a46a8f9..61bfacd 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.sh
+@@ -17,6 +17,9 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=2
+
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
++
+ 	# Create a temporary file for testing
+ 	rm -f $SELINUXTMPDIR/temp_file 2>&1
+ 	touch $SELINUXTMPDIR/temp_file 2>&1
+@@ -65,7 +68,7 @@ test02()
+
+ cleanup()
+ {
+-	rm -f $SELINUXTMPDIR/temp_file 2>&1
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/link/selinux_link.sh b/testcases/kernel/security/selinux-testsuite/tests/link/selinux_link.sh
+index b78a2df..b666320 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/link/selinux_link.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/link/selinux_link.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=6
+
+-	# Clean up from a previous run
+-	rm -f $SELINUXTMPDIR/test_dir 2>&1
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test directory with the test_addname_dir_t type 
+ 	# for use in the tests.
+@@ -157,8 +157,7 @@ test06()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_dir
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/mkdir/selinux_mkdir.sh b/testcases/kernel/security/selinux-testsuite/tests/mkdir/selinux_mkdir.sh
+index 79f1c57..a8b8eb7 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/mkdir/selinux_mkdir.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/mkdir/selinux_mkdir.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=5
+
+-	# Remove any leftover test directory from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_dir
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test directory with the test_mkdir_dir_t type 
+ 	# for use in the tests.
+@@ -129,8 +129,7 @@ test05()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_dir
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/open/selinux_open.sh b/testcases/kernel/security/selinux-testsuite/tests/open/selinux_open.sh
+index de7be4c..edd5922 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/open/selinux_open.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/open/selinux_open.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=8
+
+-	# Remove any leftover test directories from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file.
+ 	touch $SELINUXTMPDIR/test_file
+@@ -180,8 +180,7 @@ test08()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/readlink/selinux_readlink.sh b/testcases/kernel/security/selinux-testsuite/tests/readlink/selinux_readlink.sh
+index 2c4a885..11e6c29 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/readlink/selinux_readlink.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/readlink/selinux_readlink.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=3
+
+-	# Remove any leftover test files from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file $SELINUXTMPDIR/test_symlink
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file.  
+ 	touch $SELINUXTMPDIR/test_file 2>&1
+@@ -86,8 +86,7 @@ test03()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file $SELINUXTMPDIR/test_symlink
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh b/testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh
+index 8d8bad3..076228d 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=3
+
+-	# Remove any leftover test file from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file with the test_relabel_oldtype_t
+ 	# type for use in the tests.
+@@ -90,8 +90,7 @@ test03()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/rename/selinux_rename.sh b/testcases/kernel/security/selinux-testsuite/tests/rename/selinux_rename.sh
+index 36e2485..ca9e409 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/rename/selinux_rename.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/rename/selinux_rename.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=9
+
+-	# Remove any leftover test directories from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/src_dir $SELINUXTMPDIR/dst_dir
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create the source and destination test directories for the rename.
+ 	mkdir --context=system_u:object_r:test_rename_src_dir_t $SELINUXTMPDIR/src_dir 2>&1
+@@ -231,8 +231,7 @@ test09()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/src_dir $SELINUXTMPDIR/dst_dir
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/rxdir/selinux_rxdir.sh b/testcases/kernel/security/selinux-testsuite/tests/rxdir/selinux_rxdir.sh
+index 82c335e..7d836ce 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/rxdir/selinux_rxdir.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/rxdir/selinux_rxdir.sh
+@@ -15,8 +15,8 @@ setup()
+         export TST_COUNT=0
+ 	export TST_TOTAL=4
+
+-	# Remove any leftover test directory from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_dir
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test dir with the test_rxdir_dir_t type
+ 	# for use in the tests.
+@@ -102,8 +102,7 @@ test04()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_dir
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/setattr/selinux_setattr.sh b/testcases/kernel/security/selinux-testsuite/tests/setattr/selinux_setattr.sh
+index dd30179..2ab6070 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/setattr/selinux_setattr.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/setattr/selinux_setattr.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=4
+
+-	# Remove any leftover test file from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file with the test_setattr_file_t type
+ 	# for use in the tests.
+@@ -100,8 +100,7 @@ test04()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+diff --git a/testcases/kernel/security/selinux-testsuite/tests/stat/selinux_stat.sh b/testcases/kernel/security/selinux-testsuite/tests/stat/selinux_stat.sh
+index 98ed91f..3a13122 100755
+--- a/testcases/kernel/security/selinux-testsuite/tests/stat/selinux_stat.sh
++++ b/testcases/kernel/security/selinux-testsuite/tests/stat/selinux_stat.sh
+@@ -15,8 +15,8 @@ setup()
+ 	export TST_COUNT=0 
+ 	export TST_TOTAL=2
+
+-	# Remove any leftover test file from prior failed runs.
+-	rm -rf $SELINUXTMPDIR/test_file
++	SELINUXTMPDIR=$(mktemp -d)
++	chcon -t test_file_t $SELINUXTMPDIR
+
+ 	# Create a test file with the test_stat_file_t type
+ 	# for use in the tests.
+@@ -64,8 +64,7 @@ test02()
+
+ cleanup()
+ {
+-	# Cleanup.
+-	rm -rf $SELINUXTMPDIR/test_file
++	rm -rf $SELINUXTMPDIR
+ }
+
+ # Function:     main
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
