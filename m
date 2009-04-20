@@ -1,28 +1,32 @@
-Date: Sun, 19 Apr 2009 20:32:43 -0500
+Date: Sun, 19 Apr 2009 20:35:34 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Subrata Modak <subrata@linux.vnet.ibm.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, ltp-list <ltp-list@lists.sf.net>,
         SE Linux <selinux@tycho.nsa.gov>, Jiri Palecek <jpalecek@web.de>
 Subject: Re: [LTP] Fwd:  [PATCH] Create $SELINUXTMPDIR in each of the tests
-Message-ID: <20090420013243.GB20228@us.ibm.com>
-References: <1240080458.5108.18.camel@subratamodak.linux.ibm.com>
+Message-ID: <20090420013534.GA20896@us.ibm.com>
+References: <1240080458.5108.18.camel@subratamodak.linux.ibm.com> <20090420013243.GB20228@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1240080458.5108.18.camel@subratamodak.linux.ibm.com>
+In-Reply-To: <20090420013243.GB20228@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
-> Stephen,
+Quoting Serge E. Hallyn (serue@us.ibm.com):
+> Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
+> > Stephen,
+> > 
+> > Would you like to say something about the following Patch ?
 > 
-> Would you like to say something about the following Patch ?
+> If the motivation is to support multiple concurrent ltp runs, wouldn't
+> it be better to have selinux-testsuite/tests/runtest.sh set/export
+> SELINUXTMPDIR to a per-run tempdir?  Even as simple as
+> /tmp/selinux-$pid.
+> 
+> Well, and testscripts/test_selinux.sh I guess...
 
-If the motivation is to support multiple concurrent ltp runs, wouldn't
-it be better to have selinux-testsuite/tests/runtest.sh set/export
-SELINUXTMPDIR to a per-run tempdir?  Even as simple as
-/tmp/selinux-$pid.
-
-Well, and testscripts/test_selinux.sh I guess...
+Hmm, no, bc at that level you can't easily support multiple policy
+module loads anyway.  Never mind.
 
 -serge
 
