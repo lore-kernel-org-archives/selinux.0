@@ -1,88 +1,129 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KK8D70015322
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 16:08:13 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3KK8COt019934
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 20:08:12 GMT
-Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <49D965CA.4030908@ak.jp.nec.com>
-References: <49D1DA85.1030902@ak.jp.nec.com>
-	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>
-	 <1238684951.32379.311.camel@gorn.columbia.tresys.com>
-	 <49D563A9.1000607@ak.jp.nec.com>  <49D965CA.4030908@ak.jp.nec.com>
+Subject: Re: access(2) vs. SELinux
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Eric Paris <eparis@redhat.com>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1240256989.2562.201.camel@localhost.localdomain>
+References: <C60D0537.A684E%csellers@tresys.com>
+	 <49EC8841.7050305@manicmethod.com>
+	 <1240240273.2562.67.camel@localhost.localdomain>
+	 <1240253727.2841.53.camel@moss-lions.epoch.ncsc.mil>
+	 <1240254515.2562.113.camel@localhost.localdomain>
+	 <1240255715.2841.67.camel@moss-lions.epoch.ncsc.mil>
+	 <1240256989.2562.201.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 20 Apr 2009 16:07:24 -0400
-Message-Id: <1240258044.19211.767.camel@gorn.columbia.tresys.com>
+Date: Mon, 20 Apr 2009 16:41:49 -0400
+Message-Id: <1240260109.2841.114.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-04-06 at 11:15 +0900, KaiGai Kohei wrote:
-> The attached patch provides some of reworks and bugfuxes
-> except for new object classes and permissions.
+On Mon, 2009-04-20 at 15:49 -0400, Eric Paris wrote:
+> On Mon, 2009-04-20 at 15:28 -0400, James Carter wrote:
+> > On Mon, 2009-04-20 at 15:08 -0400, Eric Paris wrote:
+> > > On Mon, 2009-04-20 at 14:55 -0400, James Carter wrote:
+> > > > On Mon, 2009-04-20 at 11:11 -0400, Eric Paris wrote:
+> > >  
+> > > > > I strongly and vehemently oppose any solution that is a blanket
+> > > > > dontaudit on access calls, even if there is a flag to dontdonaudit.
+> > > > > This might be fine in "secure" shops where everyone understands and is
+> > > > > willing to suffer some extra SELinux pain but not here.  If SELinux gets
+> > > > > in the way it better scream to high heavens for my customers.
+> > > > > 
+> > > > 
+> > > > I think that what we need is a check to see if the domain is allowed to
+> > > > call access() on the object.  If it is not allowed, then a denial is
+> > > > generated; if it is, then the results of the desired permission check is
+> > > > returned, but denials are not audited.
+> > > > 
+> > > > This would better reflect what is actually happening.  When a domain
+> > > > calls access(), it is really reading the security properties of the
+> > > > object.
+> > > 
+> > > Your still just talking about a big global dontaudit hammer on the
+> > > EACCESS people get back from access().  Not only that, you propose a new
+> > > permission every domain needs of which I don't see any security benefit
+> > > (outside of maybe helping make sure people can't probe policy willy
+> > > nilly).
+> > > 
+> > If you don't care whether or not someone is probing the policy, then why
+> > not just always use the _noaudit interfaces?
 > 
-> - rework: Add a comment of "not currently in use" for deprecated
->   permissions, but its definitions are not removed.
-
-"deprecated" should be sufficient.
-
-> - bugfix: MCS policy did not constrain the following permissions.
->     db_database:{getattr}
->     db_table:{getattr lock}
->     db_column:{getattr}
->     db_procedure:{drop getattr setattr}
->     db_blob:{getattr import export}
-
-Looks ok to me.
-
-> - rework: All the newly created database objects by unprivileged
->   clients are prefixed with "user_", and these are controled via
->   sepgsql_enable_users_ddl.
-
-I don't think we should be mixing user content with other unpriv
-clients.
-
->   The current policy allows httpd_t to created a function labeled
->   as sepgsql_proc_t which is also allowed to be installed as a
->   system internal entity (db_procedure:{install}).
->   It is a potentially risk for trojan horse.
+> >From where I sit, I don't care if people probe the policy.  The problem
+> I want to solve is that we have dontaudit rules against what I consider
+> valuable resources.  (eg: shadow and krb5 files)
 > 
-> - rework: postgresql_role() shares most part of postgresql_unpriv_client().
-
-See above comment.
-
-> - bugfix: some of permissions in db_procedure class are allowed
->   on sepgsql_trusted_proc_t, but it is a domain, not a procedure.
->   It should allow them on sepgsql_trusted_proc_exec_t.
->   I also aliased sepgsql_proc_t as sepgsql_proc_exec_t to avoid
->   such kind of confusion, as Chris suggested before.
+> But, I certainly understand why others might care (which is the lesser
+> of the two reasons I don't like the _noaudit, interface on access()).
+> So I think my kernel patch prototype allows the policy to decide where
+> it cares about probing and where it doesn't.
 > 
-> - rework: we should not allow db_procedure:{install} on the
->   sepgsql_trusted_proc_exec_t, because of a risk to invoke trusted
->   procedure implicitly.
+> > What is the security benefit of the access_* permissions?  It looks like
+> > they are only going to be used to determine if a denial should be
+> > generated.
 > 
-> - rework: db_table:{lock} is moved to reader side, because it makes
->   impossible to refer read-only table with foreign-key constraint.
->   (FK checks internally acquire explicit locks.)
+> Very little security benefit other than we can remove all of the
+> dontaudit rules trying to read shadow_t.  Instead we'll have dontaudit
+> rules for trying to probe if you can read shadow_t.  Actually trying to
+> read shadow_t would begin to generate a denial.  Today neither activity
+> would generate a denial.  access_* permissions would have NO meaning
+> other than in the dontaudit case (could also do auditallow)
 > 
-> - bugfix: MLS policy dealt db_blob:{export} as writer-side permission,
->   but it is required whrn the largeobject is refered.
+> Let me summarize where I'm coming from.
 > 
-> - bugfix: MLS policy didn't constrain the db_procedure class.
+> Problem:
+> Many programs use access() to chose which code path to use thus
+> requesting permissions granted by DAC, but we choose to deny through
+> SELinux policy.  Thus we currently must dontaudit all read, write, and
+> execute for these situations.
+> 
+> Eric's Restrictions on solutions:
+> If SELinux denies access SELinux must is some way inform the user that
+> it denied access.
+> 
+> Other's Restrictions:
+> Do not make tool chain significantly more brittle?
+> Maintain ability to detect probing of security policy?
+> 
+> Am I missing something?  Does my latest kernel prototype meet these
+> needs?
+> 
+I think that it would.  My comments about the tool chain refer to
+earlier comments, rather than your patch, so that is not a problem.
 
-Seems ok.
+The only issues are (1) whether we need access_read, access_write, and
+access_execute, or if just "access" would work; and (2) I don't really
+like the idea of permissions that are just for dontaudit rules. 
 
-It would be helpful to break up the patch into a set to make it easier
-to review in the future.
+This is how the situation looks to me:
+1) If we would never care when access() is called, then we would just
+use the _noaudit interfaces.  (But we do sometimes care)
+2) If we always care when access() is called, then we would just leave
+things as they are.  (But we don't always care)
+3a) If we sometimes care when access() is called, then we should have a
+permission to check whether we should care.  (What you propose)
+3b) If we sometimes care when access() is called, then we should control
+whether it is called or not.  (What I propose)
 
+There are advantages to your approach.  One major one being that nothing
+happens if the domain calling access() has the requested permissions.
+
+What I propose seems more logical to me for what is actually happening.
+The process is seeking information about the security policy, so that
+attempt at access should be controlled.
+
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
