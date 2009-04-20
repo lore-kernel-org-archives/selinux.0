@@ -1,80 +1,71 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KJaK7l010950
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 15:36:21 -0400
-Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3KJaKOt016094
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 19:36:20 GMT
-Subject: Re: genhomedircon errors with NIS
-From: Bandan Das <bandan.das@stratus.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux <selinux@tycho.nsa.gov>,
-        "Johnson, Richard" <Richard.Johnson@stratus.com>
-In-Reply-To: <49ECC813.5050403@redhat.com>
-References: <1240253643.7743.78.camel@BSD.mno.stratus.com>
-	 <49ECC813.5050403@redhat.com>
+Subject: Re: [RFC PATCH] access(2) vs. SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: Chad Sellers <csellers@tresys.com>,
+        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1240251074.2562.80.camel@localhost.localdomain>
+References: <C6122AAA.A6957%csellers@tresys.com>
+	 <1240251074.2562.80.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 20 Apr 2009 15:36:05 -0400
-Message-Id: <1240256165.7743.92.camel@BSD.mno.stratus.com>
+Date: Mon, 20 Apr 2009 15:41:46 -0400
+Message-Id: <1240256506.1678.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-04-20 at 15:08 -0400, Daniel J Walsh wrote:
-> On 04/20/2009 02:54 PM, Bandan Das wrote:
-> > Hello,
-> >
-> > This is a RHEL 5.3 system with SELinux configured in the targeted mode.
-> > Whenever genhomedircon is invoked, either as part of loading a new
-> > policy module or anything else, genhomedircon will report errors going
-> > through the NIS database :
-> >
-> > bdas homedir /h/bdas or its parent directory conflicts with a
-> > defined context in /etc/selinux/targeted/contexts/files/file_contexts,
-> > /usr/sbin/genhomedircon will not create a new context. This usually
-> > indicates an incorrectly defined system account.  If it is a system
-> > account please make sure its login shell is /sbin/nologin.
-> >
-> > /h is where the NIS home directory is automounted and the above message
-> > appears for all the NIS users.
-> >
-> > As expected, running genhomedircon manually with the "-n" switch will
-> > not spew these messages. If I look at file_contexts, I do not find any
-> > specified context for /h.
-> >
-> >
-> > Any ideas ?
-> >
-> >
-> >
-> genhomedircon is trying to label the directory above /h "/" to be 
-> home_root_t.  It sees this directory and complains.  I think the problem 
-> here is you actually have a user /h.  
-I am sure I don't have a user "/h" on my local system. I also did a
-"ypcat passwd" and scanned all the users to see if there is anyone with
-name "h" or "\h". 
-
-> What does the homedir of one of 
-> the users look like?
-Do you mean on the NIS server ?
-Here is one of the entries from "ypcat passwd" :
-
-name:x:22832:263:First Last:/h/name:/bin/tcsh
-
-> We have the ability to disable genhomedircon in Fedora 10 and beyond.
+On Mon, 2009-04-20 at 14:11 -0400, Eric Paris wrote:
+> On Mon, 2009-04-20 at 13:35 -0400, Chad Sellers wrote:
+> > On 4/20/09 1:21 PM, "Eric Paris" <eparis@redhat.com> wrote:
+> > <snip>
+> > > 
+> > > I'm going to spend a couple minutes and try to prototype an all in
+> > > kernel solution such that on access() we will check the permission:
+> > > 
+> > > allow process_t file_t:file read
+> > > 
+> > > if there is a dontaudit rule for EITHER "read" or "access_read" we will
+> > > NOT print an avc denial.
+> > > 
+> > > on the actual usage we will ONLY check for the "read" dontaudit.
+> > > 
+> > That sounds like a better solution than anything we've talked about so far.
+> > It would mean the policy author would only have to worry about the access_*
+> > perms if they cared about the issue they're designed to solve. Hopefully you
+> > can find an acceptable way to pull it off in the kernel. I'm rooting for
+> > you!
 > 
-Can I somehow prevent genhomedircon from touching /h at all ? Using the
-"-n" switch does make things different but I am not sure if it's going
-to create any other problems.
+> So James, Stephen what do we think of something like this?  Lot of code
+> bloat and pain on the access+denial path, but shouldn't hurt us any in
+> the hot case...
+> 
+> ---
+> diff --git a/fs/open.c b/fs/open.c
+> index 377eb25..485cfd8 100644
+> --- a/fs/open.c
+> +++ b/fs/open.c
+> @@ -493,7 +493,7 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
+>  			goto out_path_release;
+>  	}
+>  
+> -	res = inode_permission(inode, mode | MAY_ACCESS);
+> +	res = inode_access_permission(inode, mode | MAY_ACCESS);
 
-Rich, I had found another similar bug :
-https://bugzilla.redhat.com/show_bug.cgi?id=186594 but it appears to be
-a different problem.
+I had forgotten that there is already a MAY_ACCESS flag defined and used
+by the vfs.  So why can't we just pass that on to the security modules
+and use that to distinguish access(2) from open(2)?  Looks like it gets
+used on chdir(2) and chroot(2) as well, which is unfortunate, and I
+don't quite understand why.  Maybe we need to look back at the origins
+of the MAY_ACCESS flag and its rationale.
 
-Thanks!
-Bandan
+>  	/* SuS v2 requires we report a read only fs too */
+>  	if (res || !(mode & S_IWOTH) || special_file(inode->i_mode))
+>  		goto out_path_release;
 
 -- 
-BSD
+Stephen Smalley
+National Security Agency
 
 
 --
