@@ -1,101 +1,89 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KK2qRH014542
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 16:02:52 -0400
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3KK2pOt019340
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 20:02:51 GMT
-Message-ID: <49ECD200.8000104@redhat.com>
-Date: Mon, 20 Apr 2009 15:50:24 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Bandan Das <bandan.das@stratus.com>
-CC: selinux <selinux@tycho.nsa.gov>,
-        "Johnson, Richard" <Richard.Johnson@stratus.com>
-Subject: Re: genhomedircon errors with NIS
-References: <1240253643.7743.78.camel@BSD.mno.stratus.com>	 <49ECC813.5050403@redhat.com> <1240256165.7743.92.camel@BSD.mno.stratus.com>
-In-Reply-To: <1240256165.7743.92.camel@BSD.mno.stratus.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KK8D70015322
+	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 16:08:13 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3KK8COt019934
+	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 20:08:12 GMT
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <49D965CA.4030908@ak.jp.nec.com>
+References: <49D1DA85.1030902@ak.jp.nec.com>
+	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>
+	 <1238684951.32379.311.camel@gorn.columbia.tresys.com>
+	 <49D563A9.1000607@ak.jp.nec.com>  <49D965CA.4030908@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Mon, 20 Apr 2009 16:07:24 -0400
+Message-Id: <1240258044.19211.767.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/20/2009 03:36 PM, Bandan Das wrote:
-> On Mon, 2009-04-20 at 15:08 -0400, Daniel J Walsh wrote:
->> On 04/20/2009 02:54 PM, Bandan Das wrote:
->>> Hello,
->>>
->>> This is a RHEL 5.3 system with SELinux configured in the targeted mode.
->>> Whenever genhomedircon is invoked, either as part of loading a new
->>> policy module or anything else, genhomedircon will report errors going
->>> through the NIS database :
->>>
->>> bdas homedir /h/bdas or its parent directory conflicts with a
->>> defined context in /etc/selinux/targeted/contexts/files/file_contexts,
->>> /usr/sbin/genhomedircon will not create a new context. This usually
->>> indicates an incorrectly defined system account.  If it is a system
->>> account please make sure its login shell is /sbin/nologin.
->>>
->>> /h is where the NIS home directory is automounted and the above message
->>> appears for all the NIS users.
->>>
->>> As expected, running genhomedircon manually with the "-n" switch will
->>> not spew these messages. If I look at file_contexts, I do not find any
->>> specified context for /h.
->>>
->>>
->>> Any ideas ?
->>>
->>>
->>>
->> genhomedircon is trying to label the directory above /h "/" to be
->> home_root_t.  It sees this directory and complains.  I think the problem
->> here is you actually have a user /h.
-> I am sure I don't have a user "/h" on my local system. I also did a
-> "ypcat passwd" and scanned all the users to see if there is anyone with
-> name "h" or "\h".
->
->> What does the homedir of one of
->> the users look like?
-> Do you mean on the NIS server ?
-> Here is one of the entries from "ypcat passwd" :
->
-> name:x:22832:263:First Last:/h/name:/bin/tcsh
->
->> We have the ability to disable genhomedircon in Fedora 10 and beyond.
->>
-> Can I somehow prevent genhomedircon from touching /h at all ? Using the
-> "-n" switch does make things different but I am not sure if it's going
-> to create any other problems.
->
-> Rich, I had found another similar bug :
-> https://bugzilla.redhat.com/show_bug.cgi?id=186594 but it appears to be
-> a different problem.
->
-> Thanks!
-> Bandan
->
-genhomedircon on RHEL5 is a python script so you can edit it and have it 
-exit on start or ignore /h
+On Mon, 2009-04-06 at 11:15 +0900, KaiGai Kohei wrote:
+> The attached patch provides some of reworks and bugfuxes
+> except for new object classes and permissions.
+> 
+> - rework: Add a comment of "not currently in use" for deprecated
+>   permissions, but its definitions are not removed.
 
-But if we update policycoreutils, you changes would get overwritten.
+"deprecated" should be sufficient.
 
-I believe this works but I never tried it.
+> - bugfix: MCS policy did not constrain the following permissions.
+>     db_database:{getattr}
+>     db_table:{getattr lock}
+>     db_column:{getattr}
+>     db_procedure:{drop getattr setattr}
+>     db_blob:{getattr import export}
 
-Add the following to /etc/selinux/semanage.conf and it will use the 
-alternate script instead of the standard
+Looks ok to me.
 
+> - rework: All the newly created database objects by unprivileged
+>   clients are prefixed with "user_", and these are controled via
+>   sepgsql_enable_users_ddl.
 
-[genhomedircon]
-path = /usr/local/sbin/genhomedircon_modified args = -t $@
-[end]
+I don't think we should be mixing user content with other unpriv
+clients.
 
+>   The current policy allows httpd_t to created a function labeled
+>   as sepgsql_proc_t which is also allowed to be installed as a
+>   system internal entity (db_procedure:{install}).
+>   It is a potentially risk for trojan horse.
+> 
+> - rework: postgresql_role() shares most part of postgresql_unpriv_client().
 
+See above comment.
 
+> - bugfix: some of permissions in db_procedure class are allowed
+>   on sepgsql_trusted_proc_t, but it is a domain, not a procedure.
+>   It should allow them on sepgsql_trusted_proc_exec_t.
+>   I also aliased sepgsql_proc_t as sepgsql_proc_exec_t to avoid
+>   such kind of confusion, as Chris suggested before.
+> 
+> - rework: we should not allow db_procedure:{install} on the
+>   sepgsql_trusted_proc_exec_t, because of a risk to invoke trusted
+>   procedure implicitly.
+> 
+> - rework: db_table:{lock} is moved to reader side, because it makes
+>   impossible to refer read-only table with foreign-key constraint.
+>   (FK checks internally acquire explicit locks.)
+> 
+> - bugfix: MLS policy dealt db_blob:{export} as writer-side permission,
+>   but it is required whrn the largeobject is refered.
+> 
+> - bugfix: MLS policy didn't constrain the db_procedure class.
 
-[genhomedircon]
-path = /usr/bin/true args = -t $@
-[end]
+Seems ok.
 
-would cause it to always succeed and do nothing.  ( I think.)
+It would be helpful to break up the patch into a set to make it easier
+to review in the future.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
