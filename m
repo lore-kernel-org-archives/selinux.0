@@ -1,71 +1,93 @@
-Subject: Re: [RFC PATCH] access(2) vs. SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: Chad Sellers <csellers@tresys.com>,
-        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+Subject: Re: access(2) vs. SELinux
+From: Eric Paris <eparis@redhat.com>
+To: jwcart2@epoch.ncsc.mil
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
         James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
         Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1240251074.2562.80.camel@localhost.localdomain>
-References: <C6122AAA.A6957%csellers@tresys.com>
-	 <1240251074.2562.80.camel@localhost.localdomain>
+In-Reply-To: <1240255715.2841.67.camel@moss-lions.epoch.ncsc.mil>
+References: <C60D0537.A684E%csellers@tresys.com>
+	 <49EC8841.7050305@manicmethod.com>
+	 <1240240273.2562.67.camel@localhost.localdomain>
+	 <1240253727.2841.53.camel@moss-lions.epoch.ncsc.mil>
+	 <1240254515.2562.113.camel@localhost.localdomain>
+	 <1240255715.2841.67.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 20 Apr 2009 15:41:46 -0400
-Message-Id: <1240256506.1678.11.camel@localhost.localdomain>
+Date: Mon, 20 Apr 2009 15:49:49 -0400
+Message-Id: <1240256989.2562.201.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-04-20 at 14:11 -0400, Eric Paris wrote:
-> On Mon, 2009-04-20 at 13:35 -0400, Chad Sellers wrote:
-> > On 4/20/09 1:21 PM, "Eric Paris" <eparis@redhat.com> wrote:
-> > <snip>
+On Mon, 2009-04-20 at 15:28 -0400, James Carter wrote:
+> On Mon, 2009-04-20 at 15:08 -0400, Eric Paris wrote:
+> > On Mon, 2009-04-20 at 14:55 -0400, James Carter wrote:
+> > > On Mon, 2009-04-20 at 11:11 -0400, Eric Paris wrote:
+> >  
+> > > > I strongly and vehemently oppose any solution that is a blanket
+> > > > dontaudit on access calls, even if there is a flag to dontdonaudit.
+> > > > This might be fine in "secure" shops where everyone understands and is
+> > > > willing to suffer some extra SELinux pain but not here.  If SELinux gets
+> > > > in the way it better scream to high heavens for my customers.
+> > > > 
 > > > 
-> > > I'm going to spend a couple minutes and try to prototype an all in
-> > > kernel solution such that on access() we will check the permission:
+> > > I think that what we need is a check to see if the domain is allowed to
+> > > call access() on the object.  If it is not allowed, then a denial is
+> > > generated; if it is, then the results of the desired permission check is
+> > > returned, but denials are not audited.
 > > > 
-> > > allow process_t file_t:file read
-> > > 
-> > > if there is a dontaudit rule for EITHER "read" or "access_read" we will
-> > > NOT print an avc denial.
-> > > 
-> > > on the actual usage we will ONLY check for the "read" dontaudit.
-> > > 
-> > That sounds like a better solution than anything we've talked about so far.
-> > It would mean the policy author would only have to worry about the access_*
-> > perms if they cared about the issue they're designed to solve. Hopefully you
-> > can find an acceptable way to pull it off in the kernel. I'm rooting for
-> > you!
-> 
-> So James, Stephen what do we think of something like this?  Lot of code
-> bloat and pain on the access+denial path, but shouldn't hurt us any in
-> the hot case...
-> 
-> ---
-> diff --git a/fs/open.c b/fs/open.c
-> index 377eb25..485cfd8 100644
-> --- a/fs/open.c
-> +++ b/fs/open.c
-> @@ -493,7 +493,7 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
->  			goto out_path_release;
->  	}
->  
-> -	res = inode_permission(inode, mode | MAY_ACCESS);
-> +	res = inode_access_permission(inode, mode | MAY_ACCESS);
+> > > This would better reflect what is actually happening.  When a domain
+> > > calls access(), it is really reading the security properties of the
+> > > object.
+> > 
+> > Your still just talking about a big global dontaudit hammer on the
+> > EACCESS people get back from access().  Not only that, you propose a new
+> > permission every domain needs of which I don't see any security benefit
+> > (outside of maybe helping make sure people can't probe policy willy
+> > nilly).
+> > 
+> If you don't care whether or not someone is probing the policy, then why
+> not just always use the _noaudit interfaces?
 
-I had forgotten that there is already a MAY_ACCESS flag defined and used
-by the vfs.  So why can't we just pass that on to the security modules
-and use that to distinguish access(2) from open(2)?  Looks like it gets
-used on chdir(2) and chroot(2) as well, which is unfortunate, and I
-don't quite understand why.  Maybe we need to look back at the origins
-of the MAY_ACCESS flag and its rationale.
+>From where I sit, I don't care if people probe the policy.  The problem
+I want to solve is that we have dontaudit rules against what I consider
+valuable resources.  (eg: shadow and krb5 files)
 
->  	/* SuS v2 requires we report a read only fs too */
->  	if (res || !(mode & S_IWOTH) || special_file(inode->i_mode))
->  		goto out_path_release;
+But, I certainly understand why others might care (which is the lesser
+of the two reasons I don't like the _noaudit, interface on access()).
+So I think my kernel patch prototype allows the policy to decide where
+it cares about probing and where it doesn't.
 
--- 
-Stephen Smalley
-National Security Agency
+> What is the security benefit of the access_* permissions?  It looks like
+> they are only going to be used to determine if a denial should be
+> generated.
+
+Very little security benefit other than we can remove all of the
+dontaudit rules trying to read shadow_t.  Instead we'll have dontaudit
+rules for trying to probe if you can read shadow_t.  Actually trying to
+read shadow_t would begin to generate a denial.  Today neither activity
+would generate a denial.  access_* permissions would have NO meaning
+other than in the dontaudit case (could also do auditallow)
+
+Let me summarize where I'm coming from.
+
+Problem:
+Many programs use access() to chose which code path to use thus
+requesting permissions granted by DAC, but we choose to deny through
+SELinux policy.  Thus we currently must dontaudit all read, write, and
+execute for these situations.
+
+Eric's Restrictions on solutions:
+If SELinux denies access SELinux must is some way inform the user that
+it denied access.
+
+Other's Restrictions:
+Do not make tool chain significantly more brittle?
+Maintain ability to detect probing of security policy?
+
+Am I missing something?  Does my latest kernel prototype meet these
+needs?
 
 
 --
