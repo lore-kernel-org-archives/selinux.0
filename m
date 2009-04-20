@@ -1,94 +1,101 @@
-Subject: Re: access(2) vs. SELinux
-From: Eric Paris <eparis@redhat.com>
-To: jwcart2@epoch.ncsc.mil
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1240255715.2841.67.camel@moss-lions.epoch.ncsc.mil>
-References: <C60D0537.A684E%csellers@tresys.com>
-	 <49EC8841.7050305@manicmethod.com>
-	 <1240240273.2562.67.camel@localhost.localdomain>
-	 <1240253727.2841.53.camel@moss-lions.epoch.ncsc.mil>
-	 <1240254515.2562.113.camel@localhost.localdomain>
-	 <1240255715.2841.67.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 20 Apr 2009 15:49:49 -0400
-Message-Id: <1240256989.2562.201.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KK2qRH014542
+	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 16:02:52 -0400
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3KK2pOt019340
+	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 20:02:51 GMT
+Message-ID: <49ECD200.8000104@redhat.com>
+Date: Mon, 20 Apr 2009 15:50:24 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Bandan Das <bandan.das@stratus.com>
+CC: selinux <selinux@tycho.nsa.gov>,
+        "Johnson, Richard" <Richard.Johnson@stratus.com>
+Subject: Re: genhomedircon errors with NIS
+References: <1240253643.7743.78.camel@BSD.mno.stratus.com>	 <49ECC813.5050403@redhat.com> <1240256165.7743.92.camel@BSD.mno.stratus.com>
+In-Reply-To: <1240256165.7743.92.camel@BSD.mno.stratus.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-04-20 at 15:28 -0400, James Carter wrote:
-> On Mon, 2009-04-20 at 15:08 -0400, Eric Paris wrote:
-> > On Mon, 2009-04-20 at 14:55 -0400, James Carter wrote:
-> > > On Mon, 2009-04-20 at 11:11 -0400, Eric Paris wrote:
-> >  
-> > > > I strongly and vehemently oppose any solution that is a blanket
-> > > > dontaudit on access calls, even if there is a flag to dontdonaudit.
-> > > > This might be fine in "secure" shops where everyone understands and is
-> > > > willing to suffer some extra SELinux pain but not here.  If SELinux gets
-> > > > in the way it better scream to high heavens for my customers.
-> > > > 
-> > > 
-> > > I think that what we need is a check to see if the domain is allowed to
-> > > call access() on the object.  If it is not allowed, then a denial is
-> > > generated; if it is, then the results of the desired permission check is
-> > > returned, but denials are not audited.
-> > > 
-> > > This would better reflect what is actually happening.  When a domain
-> > > calls access(), it is really reading the security properties of the
-> > > object.
-> > 
-> > Your still just talking about a big global dontaudit hammer on the
-> > EACCESS people get back from access().  Not only that, you propose a new
-> > permission every domain needs of which I don't see any security benefit
-> > (outside of maybe helping make sure people can't probe policy willy
-> > nilly).
-> > 
-> If you don't care whether or not someone is probing the policy, then why
-> not just always use the _noaudit interfaces?
+On 04/20/2009 03:36 PM, Bandan Das wrote:
+> On Mon, 2009-04-20 at 15:08 -0400, Daniel J Walsh wrote:
+>> On 04/20/2009 02:54 PM, Bandan Das wrote:
+>>> Hello,
+>>>
+>>> This is a RHEL 5.3 system with SELinux configured in the targeted mode.
+>>> Whenever genhomedircon is invoked, either as part of loading a new
+>>> policy module or anything else, genhomedircon will report errors going
+>>> through the NIS database :
+>>>
+>>> bdas homedir /h/bdas or its parent directory conflicts with a
+>>> defined context in /etc/selinux/targeted/contexts/files/file_contexts,
+>>> /usr/sbin/genhomedircon will not create a new context. This usually
+>>> indicates an incorrectly defined system account.  If it is a system
+>>> account please make sure its login shell is /sbin/nologin.
+>>>
+>>> /h is where the NIS home directory is automounted and the above message
+>>> appears for all the NIS users.
+>>>
+>>> As expected, running genhomedircon manually with the "-n" switch will
+>>> not spew these messages. If I look at file_contexts, I do not find any
+>>> specified context for /h.
+>>>
+>>>
+>>> Any ideas ?
+>>>
+>>>
+>>>
+>> genhomedircon is trying to label the directory above /h "/" to be
+>> home_root_t.  It sees this directory and complains.  I think the problem
+>> here is you actually have a user /h.
+> I am sure I don't have a user "/h" on my local system. I also did a
+> "ypcat passwd" and scanned all the users to see if there is anyone with
+> name "h" or "\h".
+>
+>> What does the homedir of one of
+>> the users look like?
+> Do you mean on the NIS server ?
+> Here is one of the entries from "ypcat passwd" :
+>
+> name:x:22832:263:First Last:/h/name:/bin/tcsh
+>
+>> We have the ability to disable genhomedircon in Fedora 10 and beyond.
+>>
+> Can I somehow prevent genhomedircon from touching /h at all ? Using the
+> "-n" switch does make things different but I am not sure if it's going
+> to create any other problems.
+>
+> Rich, I had found another similar bug :
+> https://bugzilla.redhat.com/show_bug.cgi?id=186594 but it appears to be
+> a different problem.
+>
+> Thanks!
+> Bandan
+>
+genhomedircon on RHEL5 is a python script so you can edit it and have it 
+exit on start or ignore /h
 
->From where I sit, I don't care if people probe the policy.  The problem
-I want to solve is that we have dontaudit rules against what I consider
-valuable resources.  (eg: shadow and krb5 files)
+But if we update policycoreutils, you changes would get overwritten.
 
-But, I certainly understand why others might care (which is the lesser
-of the two reasons I don't like the _noaudit, interface on access()).
-So I think my kernel patch prototype allows the policy to decide where
-it cares about probing and where it doesn't.
+I believe this works but I never tried it.
 
-> What is the security benefit of the access_* permissions?  It looks like
-> they are only going to be used to determine if a denial should be
-> generated.
+Add the following to /etc/selinux/semanage.conf and it will use the 
+alternate script instead of the standard
 
-Very little security benefit other than we can remove all of the
-dontaudit rules trying to read shadow_t.  Instead we'll have dontaudit
-rules for trying to probe if you can read shadow_t.  Actually trying to
-read shadow_t would begin to generate a denial.  Today neither activity
-would generate a denial.  access_* permissions would have NO meaning
-other than in the dontaudit case (could also do auditallow)
 
-Let me summarize where I'm coming from.
+[genhomedircon]
+path = /usr/local/sbin/genhomedircon_modified args = -t $@
+[end]
 
-Problem:
-Many programs use access() to chose which code path to use thus
-requesting permissions granted by DAC, but we choose to deny through
-SELinux policy.  Thus we currently must dontaudit all read, write, and
-execute for these situations.
 
-Eric's Restrictions on solutions:
-If SELinux denies access SELinux must is some way inform the user that
-it denied access.
 
-Other's Restrictions:
-Do not make tool chain significantly more brittle?
-Maintain ability to detect probing of security policy?
 
-Am I missing something?  Does my latest kernel prototype meet these
-needs?
+[genhomedircon]
+path = /usr/bin/true args = -t $@
+[end]
 
+would cause it to always succeed and do nothing.  ( I think.)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
