@@ -1,81 +1,62 @@
-Subject: Re: [LTP] Fwd: [PATCH] Fix an errorneous using of a different
-	return value in selinux_entrypoint test
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Reply-To: subrata@linux.vnet.ibm.com
-To: Jiri Palecek <jpalecek@web.de>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        ltp-list <ltp-list@lists.sf.net>, "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <20090420012348.GA20228@us.ibm.com>
-References: <1240080684.5108.21.camel@subratamodak.linux.ibm.com>
-	 <20090420012348.GA20228@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 21 Apr 2009 15:19:43 +0530
-Message-Id: <1240307383.5630.9.camel@subratamodak.linux.ibm.com>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3L9s5O0032698
+	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 05:54:05 -0400
+Received: from atoll.udmvt.ru (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3L9s1rL018847
+	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 09:54:04 GMT
+Received: from ruber.office.udmvt.ru (ruber.office.udmvt.ru [192.168.21.33])
+	by atoll.udmvt.ru (8.13.6/8.13.6/Izhcom-V1.1e) with SMTP id n3L9rssQ003632
+	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 14:53:57 +0500 (SAMST)
+	(envelope-from spg@udmvt.ru)
+Date: Tue, 21 Apr 2009 14:53:54 +0500
+From: Alexey S <selinux@udmvt.ru>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Bandan Das <bandan.das@stratus.com>, selinux <selinux@tycho.nsa.gov>,
+        "Johnson, Richard" <Richard.Johnson@stratus.com>
+Subject: Re: genhomedircon errors with NIS
+Message-ID: <20090421095354.GG9889@ruber.office.udmvt.ru>
+References: <1240253643.7743.78.camel@BSD.mno.stratus.com> <49ECC813.5050403@redhat.com> <1240256165.7743.92.camel@BSD.mno.stratus.com> <49ECD200.8000104@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <49ECD200.8000104@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2009-04-19 at 20:23 -0500, Serge E. Hallyn wrote:
-> Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
-> > Stephen ??
-> 
-> Heh, this isn't an selinux issue, just trivially correct.
-> 
-> Acked-by: Serge Hallyn <serue@us.ibm.com>
+On Mon, Apr 20, 2009 at 03:50:24PM -0400, Daniel J Walsh wrote:
+> On 04/20/2009 03:36 PM, Bandan Das wrote:
+>> ...
+> genhomedircon on RHEL5 is a python script so you can edit it and have it  
+> exit on start or ignore /h
+>
+> But if we update policycoreutils, you changes would get overwritten.
+>
+> I believe this works but I never tried it.
+>
+> Add the following to /etc/selinux/semanage.conf and it will use the  
+> alternate script instead of the standard
+>
+>
+> [genhomedircon]
+> path = /usr/local/sbin/genhomedircon_modified args = -t $@
+> [end]
+>
+>
+>
+>
+> [genhomedircon]
+> path = /usr/bin/true args = -t $@
+> [end]
+>
+> would cause it to always succeed and do nothing.  ( I think.)
+Wouldn't it be better to not try to autogenerate the list of directories to be labeled
+with home_root_t ?
+Why is that impossible to generate that list once and save it somewhere in /etc/ and allow
+sysadmin to edit that list to suit his needs?
+Make the first autogeneration loud and verbose and document that config everywhere.
+You can't guess every possible system's configuration anyway.
 
-Thanks.
-
-> 
-> -serge
-> 
-> > -------- Forwarded Message --------
-> > From: Jiri Palecek > <<jirka@debian.POK.IBM.COM>
-> > Cc: ltp-list@lists.sourceforge.net <ltp-list@lists.sourceforge.net>
-> > Subject: [LTP] [PATCH] Fix an errorneous using of a different return
-> > value in selinux_entrypoint test
-> > Date: Thu, 16 Apr 2009 17:59:00 +0200
-> > 
-> > Hello,
-> > 
-> > I have been trying to run the selinux tests on Debian and discovered a small flaw. The test was using a return value variable which wasn't set by the test.
-> > 
-> > I've coma across another strange (at least to me) fact - when you execute a program without path, it is searched for in $PATH. However, if the program is in one directory if $PATH and selinux rejects to run the file, the following directories in $PATH are search, and the call can succeed. Is this behavior planned? I know it can't tamper the security of selinux, but it can lead to surprising results.
-> > 
-> > Also, I've found some uses of macros not present in Debian's refpolicy. Should I send a patch for them?
-> > 
-> > Regards
-> >     Jiri Palecek
-> > 
-> > Signed-off-by: Jiri Palecek <jpalecek@web.de>
-> > ---
-> >  .../tests/entrypoint/selinux_entrypoint.sh         |    1 +
-> >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh b/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
-> > index bd58845..4680491 100755
-> > --- a/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
-> > +++ b/testcases/kernel/security/selinux-testsuite/tests/entrypoint/selinux_entrypoint.sh
-> > @@ -52,6 +52,7 @@ test02()
-> > 
-> >  	# Verify that test_entrypoint_t can be entered via this program.
-> >  	runcon -t test_entrypoint_t $SELINUXTMPDIR/true
-> > +	RC=$?
-> >          if [ $RC -ne 0 ]
-> >          then
-> >  		echo "$TCID   FAIL : entrypoint failed."
-> > 
-> > 
-> > ------------------------------------------------------------------------------
-> > Stay on top of everything new and different, both inside and 
-> > around Java (TM) technology - register by April 22, and save
-> > $200 on the JavaOne (SM) conference, June 2-5, 2009, San Francisco.
-> > 300 plus technical and hands-on sessions. Register today. 
-> > Use priority code J9JMT32. http://p.sf.net/sfu/p
-> > _______________________________________________
-> > Ltp-list mailing list
-> > Ltp-list@lists.sourceforge.net
-> > https://lists.sourceforge.net/lists/listinfo/ltp-list
-
+-- 
+Alexey S
 
 --
 This message was distributed to subscribers of the selinux mailing list.
