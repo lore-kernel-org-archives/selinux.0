@@ -1,36 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3KNAiOL006440
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 19:10:50 -0400
-Received: from mail-qy0-f113.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3KNAiDa021493
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 23:10:44 GMT
-Received: by qyk11 with SMTP id 11so440835qyk.32
-        for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 16:10:43 -0700 (PDT)
-MIME-Version: 1.0
-Date: Mon, 20 Apr 2009 16:10:42 -0700
-Message-ID: <dd18b0c30904201610s5248e8e1w69f10aa7ad452911@mail.gmail.com>
-Subject: newrole and pam.d/*
-From: Justin Mattock <justinmattock@gmail.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [RFC PATCH] access(2) vs. SELinux
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Chad Sellers <csellers@tresys.com>,
+        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1240266265.2562.411.camel@localhost.localdomain>
+References: <C6122AAA.A6957%csellers@tresys.com>
+	 <1240251074.2562.80.camel@localhost.localdomain>
+	 <1240256506.1678.11.camel@localhost.localdomain>
+	 <1240266265.2562.411.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 20 Apr 2009 20:57:18 -0400
+Message-Id: <1240275438.2562.412.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-quick question:
-Is there a way to configure pam.d/*
-for a one time password for the session, so when I use newrole
-I don't have to give a password each time?
+On Mon, 2009-04-20 at 18:24 -0400, Eric Paris wrote:
+> On Mon, 2009-04-20 at 15:41 -0400, Stephen Smalley wrote:
 
-The reason for this is, is I'm trying to
-configure all of my apps in the menu bar of
-fluxbox, so when I click on any app in there
-the app will automatically open in the specified role.
-(rather than opening a terminal etc...)
+> > > diff --git a/fs/open.c b/fs/open.c
+> > > index 377eb25..485cfd8 100644
+> > > --- a/fs/open.c
+> > > +++ b/fs/open.c
+> > > @@ -493,7 +493,7 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
+> > >  			goto out_path_release;
+> > >  	}
+> > >  
+> > > -	res = inode_permission(inode, mode | MAY_ACCESS);
+> > > +	res = inode_access_permission(inode, mode | MAY_ACCESS);
+> > 
+> > I had forgotten that there is already a MAY_ACCESS flag defined and used
+> > by the vfs.  So why can't we just pass that on to the security modules
+> > and use that to distinguish access(2) from open(2)?  Looks like it gets
+> > used on chdir(2) and chroot(2) as well, which is unfortunate, and I
+> > don't quite understand why.  Maybe we need to look back at the origins
+> > of the MAY_ACCESS flag and its rationale.
+> 
+> Actually since both of those should be S_ISDIR we should still be able
+> to tell in the case we care about.
 
-regards,
+I'm not sure what I was smoking when I thought this...  Can we just
+pretend that line of that e-mail was never sent?
 
--- 
-Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
