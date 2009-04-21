@@ -1,91 +1,88 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3L120sS015261
-	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 21:02:00 -0400
-Received: from tyo200.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3L11vf9021816
-	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 01:01:58 GMT
-Received: from tyo202.gate.nec.co.jp ([10.7.69.202])
-	by tyo200.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id n3KNS9pR013095
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 08:28:09 +0900 (JST)
-Message-ID: <49ED04DF.8050306@ak.jp.nec.com>
-Date: Tue, 21 Apr 2009 08:27:27 +0900
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3L25gaS020650
+	for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2009 22:05:42 -0400
+Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3L25egx006405
+	for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2009 02:05:41 GMT
+Message-ID: <49ED29CC.6080507@ak.jp.nec.com>
+Date: Tue, 21 Apr 2009 11:05:00 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
-References: <49D1DA85.1030902@ak.jp.nec.com>	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>	 <1238684951.32379.311.camel@gorn.columbia.tresys.com>	 <49D563A9.1000607@ak.jp.nec.com>  <49D965CA.4030908@ak.jp.nec.com> <1240258044.19211.767.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1240258044.19211.767.camel@gorn.columbia.tresys.com>
+CC: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>, dwalsh@redhat.com
+Subject: Re: daemons and MCS categories
+References: <200605220930.05483.russell@coker.com.au> <1148910738.14262.67.camel@sgc.columbia.tresys.com> <49EC1F11.6040003@ak.jp.nec.com>
+In-Reply-To: <49EC1F11.6040003@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2009-04-06 at 11:15 +0900, KaiGai Kohei wrote:
->> The attached patch provides some of reworks and bugfuxes
->> except for new object classes and permissions.
->>
->> - rework: Add a comment of "not currently in use" for deprecated
->>   permissions, but its definitions are not removed.
+KaiGai Kohei wrote:
+> Sorry for opening the old discussion again.
 > 
-> "deprecated" should be sufficient.
-
-OK
-
->> - rework: All the newly created database objects by unprivileged
->>   clients are prefixed with "user_", and these are controled via
->>   sepgsql_enable_users_ddl.
+> If you don't ML logs in local, please see the archives:
+>   http://marc.info/?t=114825463100001&r=1&w=2
 > 
-> I don't think we should be mixing user content with other unpriv
-> clients.
-
-I would like to discriminate between a procedure declared by unpriv
-client and by administrative client, because the policy allows the
-unprefixed "sepgsql_proc_exec_t" to be installed as a system internal
-component, but it is undesirable to install unpriv-user defined
-procedures as is.
-
-If the "user_" prefix is unpreferable, how do you think other prefixes
-something like "anon_", "unpriv_" and so on?
-
->>   The current policy allows httpd_t to created a function labeled
->>   as sepgsql_proc_t which is also allowed to be installed as a
->>   system internal entity (db_procedure:{install}).
->>   It is a potentially risk for trojan horse.
+> Christopher J. PeBenito wrote:
+>> I agree with James on this, I don't think we want to impose semantics in
+>> the MCS categories, and that this
 >>
->> - rework: postgresql_role() shares most part of postgresql_unpriv_client().
+>>> Another possibility is to have the ability to configure which categories are 
+>>> assigned to a daemon via run_init or some similar program.  It would not be 
+>>> difficult to read a config file that maps the domain of a daemon to the range 
+>>> that should be granted to it.
+>> is useful so that if users do want to run a daemon with categories, they
+>> can.
 > 
-> See above comment.
-> 
->> - bugfix: some of permissions in db_procedure class are allowed
->>   on sepgsql_trusted_proc_t, but it is a domain, not a procedure.
->>   It should allow them on sepgsql_trusted_proc_exec_t.
->>   I also aliased sepgsql_proc_t as sepgsql_proc_exec_t to avoid
->>   such kind of confusion, as Chris suggested before.
->>
->> - rework: we should not allow db_procedure:{install} on the
->>   sepgsql_trusted_proc_exec_t, because of a risk to invoke trusted
->>   procedure implicitly.
->>
->> - rework: db_table:{lock} is moved to reader side, because it makes
->>   impossible to refer read-only table with foreign-key constraint.
->>   (FK checks internally acquire explicit locks.)
->>
->> - bugfix: MLS policy dealt db_blob:{export} as writer-side permission,
->>   but it is required whrn the largeobject is refered.
->>
->> - bugfix: MLS policy didn't constrain the db_procedure class.
-> 
-> Seems ok.
-> 
-> It would be helpful to break up the patch into a set to make it easier
-> to review in the future.
+> Is it still unavailable on the current SELinux userspace utilities, isn't it?
 
-OK,
+Shall we start to implement an extention of run_init and others based on
+the above Russell's idea?
+
+Now, I have a plan to store configuration files at:
+  /etc/selinux/${POLICY_TYPE}/contexts/initrc/${DAEMON}
+   or
+  /etc/selinux/${POLICY_TYPE}/contexts/initrc_contexts with format extensions
+
+and, add a new option to run_init as:
+  run_init [-n <daemon>] <script> [<args> ...]
+
+  It intends to see the per-daemon default range, instead of the initrc_contexts.
+
+and, add a bit of hacks on the /etc/rc.d/rc script which launches daemon scripts
+when run-level is changed. (Maybe, it is necessary to launch them via "runcon -l"
+when the given daemon has its own range.)
+
+The last also need to have a discussion in the Fedora developer's list.
+Dan, do you think it is a hopefull proposition?
 
 Thanks,
+
+> If we could start the init-scripts via runcon by hand, it seems to me the
+> daemon processes performs with multi categories.
+> 
+>  | [root@saba ~]# runcon -l s0-s0:c0.c255 /etc/init.d/httpd restart
+>  | Stopping httpd:                                            [  OK  ]
+>  | Starting httpd:                                            [  OK  ]
+>  | [root@saba ~]# ps -AZ | grep httpd
+>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6458 ? 00:00:00 httpd
+>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6460 ? 00:00:00 httpd
+>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6461 ? 00:00:00 httpd
+>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6462 ? 00:00:00 httpd
+>  |      :
+> 
+> But it is unavailable when the system kicks init-script on startup time.
+> Is there any good idea?
+> 
+> In the recent days, I'm working for an apache module (mod_selinux.so) which
+> launches web application handler under an individual security context based
+> on http-authentication.
+> I'm looking for the way to assign a few dozens of categories on httpd server
+> processes which are launched at system startup time.
+> 
+> Thanks,
+
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
