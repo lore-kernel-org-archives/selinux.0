@@ -1,38 +1,99 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3MGcpFl031987
-	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 12:38:51 -0400
-Received: from mail-qy0-f113.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3MGcpuk010852
-	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 16:38:51 GMT
-Received: by qyk11 with SMTP id 11so119120qyk.32
-        for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 09:38:49 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 22 Apr 2009 09:38:48 -0700
-Message-ID: <dd18b0c30904220938y781d0009y7c2229aa28952c2e@mail.gmail.com>
-Subject: runcon cant really run(constraint issue?)
-From: Justin Mattock <justinmattock@gmail.com>
-To: tresys <refpolicy@oss.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 22 Apr 2009 17:08:07 -0400
+Subject: Re: Help with python seobject.loginRecords
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <C614FF77.A6A74%csellers@tresys.com>
+In-Reply-To: <49B90E2D.9010400@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-looking into using runcon
-it seems I'm confronted with an
-avc, that just keeps showing up:
-allow staff_t user_t:process { siginh rlimitinh transition noatsecure };
-(even after adding this to the policy).
+On 3/12/09 9:29 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-What I'm doing is this:
-runcon name:user_r:user_t:s0-s0:c0.c255 firefox
-the initial role I'm in is staff_r(transitioning to user_r for
-firefox to run in)
+> On 03/11/2009 05:00 PM, Stephen Smalley wrote:
+>> On Wed, 2009-03-11 at 16:49 -0400, Daniel J Walsh wrote:
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>> 
+>>> Joe Nall wrote:
+>>>> On Mar 11, 2009, at 2:35 PM, Daniel J Walsh wrote:
+>>>> 
+>>>>> On 03/11/2009 12:15 PM, Joe Nall wrote:
+>>>>>> I need to add login mappings in python firstboot modules during system
+>>>>>> configuration. In my first module a simple:
+>>>>>> 
+>>>>>> seobject.loginRecords().add(username, "siterep_u",
+>>>>>> "SystemLow-SystemHigh")
+>>>>>> 
+>>>>>> works. In subsequent modules, I get an exception:
+>>>>>> 
+>>>>>> libsemanage.enter_rw: this operation requires a transaction
+>>>>>> libsemanage.enter_rw: could not enter read-write section
+>>>>>> Traceback (most recent call last):
+>>>>>> File "./t", line 6, in<module>
+>>>>>> seobject.loginRecords().add("test3", "sysadm_u", "SystemLow-SystemHigh")
+>>>>>> File "/usr/lib64/python2.5/site-packages/seobject.py", line 442, in add
+>>>>>> raise error
+>>>>>> ValueError: Could not add login mapping for test3
+>>>>>> 
+>>>>>> What is the right way to do this?
+>>>>>> 
+>>>>>> joe
+>>>>>> 
+>>>>>> 
+>>>>>> --
+>>>>>> This message was distributed to subscribers of the selinux mailing list.
+>>>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>>>>>> with
+>>>>>> the words "unsubscribe selinux" without quotes as the message.
+>>>>> Probably an MLS issue.  firtstboot is running in a context that is not
+>>>>> allowed to lock/manage selinux.
+>>>> I'm installing in permissive and switching to enforcing after firstboot.
+>>>> You are correct that firstboot_t doesn't have the policy for all the
+>>>> stuff I'm trying to do yet.
+>>>> 
+>>>>> You probably should exec semanage rather then calling seobject so you
+>>>>> could do a transition and not have to give a huge app like first boot
+>>>>> the ability to manage security policy.
+>>>> That is what is installing right now. I would still like an
+>>>> explanation/code snippet of correct usage for future use
+>>>> 
+>>>> joe
+>>>> 
+>>>> 
+>>> This works on F10 Targeted policy
+>>> 
+>>> # python -c "import seobject; seobject.loginRecords().add("pwalsh",
+>>> "staff_u", "s0")
+>>> # python -c 'import seobject; seobject.loginRecords().delete("pwalsh")'
+>>> 
+>>> Could it be a translation problem?
+>> 
+>> Try running multiple calls within the same python interpreter.
+>> I think seobject.py isn't using libsemanage correctly.  For example, in
+>> add(), you do:
+>>                         self.begin()
+>>                          self.__add(name, sename, serange)
+>>                          self.commit()
+>> but begin() only ever invokes semanage_begin_transaction() the very
+>> first time:
+>>         def begin(self):
+>>                 if self.transaction:
+>>                        return
+>>                 rc = semanage_begin_transaction(self.sh)
+>> 
+>> So after the first commit(), you'll start failing.
+>> 
+> I think this patch fixes the transaction patch in semanage.
 
-Does this seem like the right thing to do,
-or do I need to use newrole -r *
-for something like firefox?
+Patch looks good to me.
 
--- 
-Justin P. Mattock
+Acked-by: Chad Sellers <csellers@tresys.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
