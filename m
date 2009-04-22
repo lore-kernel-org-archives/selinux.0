@@ -1,49 +1,125 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3MLOtk3007296
-	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 17:24:55 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3MM3bXm010643
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 18:03:37 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3MLOsoj017121
-	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 21:24:54 GMT
-Date: Wed, 22 Apr 2009 17:24:53 -0400
-Subject: Re: sepolgen typo fix
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3MM3boj020998
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 22:03:37 GMT
+Date: Wed, 22 Apr 2009 18:03:32 -0400
+Subject: Re: patch to policycoreutils
 From: Chad Sellers <csellers@tresys.com>
-To: Marshall Miller <mmiller@tresys.com>, <selinux@tycho.nsa.gov>
-Message-ID: <C6150365.A6A77%csellers@tresys.com>
-In-Reply-To: <1238528520.18182.338.camel@hostmachine.tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C6150C74.A6A7C%csellers@tresys.com>
+In-Reply-To: <49D375E3.3010800@redhat.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 3/31/09 3:42 PM, "Marshall Miller" <mmiller@tresys.com> wrote:
+On 4/1/09 10:10 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> Commit b3b3f8186ed6d56c48c4e0f997d6e6b3fd90be37 attempted to fix a bug,
-> but didn't.  The following patch should do it.
+> Multiple patches to policycoreutils.
 > 
+> First added /root/.ssh and /root/.ssh/*  to allow people to place keys
+> in /root directory and have them labeled by restorcond
 > 
-> Marshall Miller
+> Fix transaction handling in semanage so you can update multiple records
+> simultaniously.
 > 
-> ---
-> diff --git a/sepolgen/src/sepolgen/access.py
-> b/sepolgen/src/sepolgen/access.py
-> index 6de919a..71121d7 100644
-> --- a/sepolgen/src/sepolgen/access.py
-> +++ b/sepolgen/src/sepolgen/access.py
-> @@ -313,7 +313,7 @@ class RoleTypeSet:
+> Clean up permissive domains creation in semanage so it does not leave
+> crap in /var/lib/selinux
+> 
+> diff --exclude-from=exclude --exclude=sepolgen-1.0.16 --exclude=gui
+> --exclude=po -N -u -r nsapolicycoreutils/restorecond/restorecond.conf
+> policycoreutils-2.0.62/restorecond/restorecond.conf
+> --- nsapolicycoreutils/restorecond/restorecond.conf    2009-02-18
+> 16:44:47.000000000 -0500
+> +++ policycoreutils-2.0.62/restorecond/restorecond.conf    2009-02-23
+> 11:32:21.000000000 -0500
+> @@ -5,3 +5,7 @@
+>  /var/run/utmp
+>  /var/log/wtmp
+>  ~/*
+> +/root/.ssh
+> +/root/.ssh/*
+> +
+> +
+> diff --exclude-from=exclude --exclude=sepolgen-1.0.16 --exclude=gui
+> --exclude=po -N -u -r nsapolicycoreutils/scripts/fixfiles
+> policycoreutils-2.0.62/scripts/fixfiles
+> --- nsapolicycoreutils/scripts/fixfiles    2009-02-18 16:44:47.000000000 -0500
+> +++ policycoreutils-2.0.62/scripts/fixfiles    2009-02-19 10:07:49.000000000
+> -0500
+> @@ -122,7 +122,7 @@
+>  fi
+>  if [ ! -z "$RPMFILES" ]; then
+>      for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
+> -    rpmlist $i | ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -i -f - 2>&1 >>
+> $LOGFILE
+> +    rpmlist $i | ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -R -i -f - 2>&1 >>
+> $LOGFILE
+>      done
+>      exit $?
+>  fi
+Not sure I understand this one, and it didn't seem to be mentioned in your
+comment. You're changing fixfiles to relabel recursively when it's fixing
+files from an rpm? Wouldn't an rpm already list all the files it owned?
+
+<snip due to previously ack'd patch>
+> @@ -303,6 +308,12 @@
+>                 if rc < 0:
+>                        raise ValueError(_("Could not commit semanage
+> transaction"))
 >  
->      def __len__(self):
->          """Return the unique number of role allow statements."""
-> -        return len(self.role_type.keys())
-> +        return len(self.role_types.keys())
+> +        def finish(self):
+> +               if not self.transaction:
+> +                      raise ValueError(_("Semanage transaction not in
+> progress"))
+> +               self.transaction = False
+> +               self.commit()
+> +
+>  class permissiveRecords(semanageRecords):
+>      def __init__(self, store):
+>                 semanageRecords.__init__(self, store)
+> @@ -328,6 +339,7 @@
 >  
->      def add(self, role, type):
->          if self.role_types.has_key(role):
-> 
-Looks fine.
+>  
+>      def add(self, type):
+> +               import glob
+>                 name = "permissive_%s" % type
+>                 dirname = "/var/lib/selinux"
+>                 os.chdir(dirname)
+> @@ -351,16 +363,19 @@
+>                 fd.close()
+>  
+>                 rc = semanage_module_install(self.sh, data, len(data));
+> -               if rc < 0:
+> -            raise ValueError(_("Could not set permissive domain %s (module
+> installation failed)") % name)
+> -
+> -               self.commit()
+> +               if rc >= 0:
+> +                      self.commit()
+>  
+>                 for root, dirs, files in os.walk("tmp", topdown=False):
+>                        for name in files:
+>                               os.remove(os.path.join(root, name))
+>                        for name in dirs:
+>                               os.rmdir(os.path.join(root, name))
+> +               os.removedirs("tmp")
+> +               for i in glob.glob("permissive_%s.*" % type):
+> +                      os.remove(i)
+> +               if rc < 0:
+> +            raise ValueError(_("Could not set permissive domain %s (module
+> installation failed)") % name)
+>  
+>      def delete(self, name):
+>                 for n in name.split():
 
-Acked-by: Chad Sellers <csellers@tresys.com>
+Other than that one thing, this looks fine to me.
 
+Thanks,
+Chad
 
 
 --
