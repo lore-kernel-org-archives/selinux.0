@@ -1,35 +1,49 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3MFfm4x021405
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 11:41:48 -0400
+Received: from mail-ew0-f177.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3MFfl5h017788
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 15:41:47 GMT
+Received: by ewy25 with SMTP id 25so42380ewy.18
+        for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 08:41:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <49EE529A.3030908@tycho.nsa.gov>
-References: <faa16b610904141142v1d1e92ddxd78d5e1a0fbb0be7@mail.gmail.com>
-	 <49E5CFD8.6060903@redhat.com>
-	 <1239800627.27560.34.camel@localhost.localdomain>
-	 <49E7D1BF.2010405@tycho.nsa.gov>
-	 <1239973084.15304.17.camel@localhost.localdomain>
-	 <49EE2D59.3080403@manicmethod.com>
-	 <1240346499.1678.33.camel@localhost.localdomain>
-	 <49EE529A.3030908@tycho.nsa.gov>
-Date: Wed, 22 Apr 2009 11:19:02 -0400
-Message-ID: <faa16b610904220819m111f79adx8fbd3d39e2ffff91@mail.gmail.com>
-Subject: Re: libselinux behavior in permissive mode wrt invalid domains
-From: Colin Walters <walters@verbum.org>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <9f066ee90904220426g563d2ebpa708ef8b6e1a4378@mail.gmail.com>
+References: <9f066ee90904220426g563d2ebpa708ef8b6e1a4378@mail.gmail.com>
+Date: Wed, 22 Apr 2009 10:41:44 -0500
+Message-ID: <cadfc0e40904220841u6d305caj233f0bbfee09ea2b@mail.gmail.com>
+Subject: Re: labeled network aware kernel
+From: Xavier Toth <txtoth@gmail.com>
+To: Mark Webb <elihusmails@gmail.com>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 21, 2009 at 7:11 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+On Wed, Apr 22, 2009 at 6:26 AM, Mark Webb <elihusmails@gmail.com> wrote:
+> I am interested in experimenting with the labeled networking that SE
+> Linux offers.  I am reading through Josh Brindle's blog
 >
-> FWIW, the following patch to D-Bus should help:
+> http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/
 >
+> My question is, how do I know if my kernel is capable of supporting
+> this?  I am currently running Fedora 10 with all the latest updates
+> but not sure how to check.
 >
-> bfo21072 - Log SELinux denials better by checking errno for the cause
+> Also if I compile a kernel from source, is there anything that needs
+> to be done in the configuring of the kernel build to enable the
+> labeled networking?
 >
->    Note that this does not fully address the bug report since
->    EINVAL can still be returned in permissive mode.  However the log
->    messages will now reflect the proper cause of the denial.
+> Thanks,
+> Mark
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-Applied, thank you!
+netlabel is in the kernel and you'll need to use netlabeltcl from
+netlabel_tools to configure it.
 
 
 --
