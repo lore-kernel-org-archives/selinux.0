@@ -1,98 +1,49 @@
-Date: Wed, 22 Apr 2009 17:08:07 -0400
-Subject: Re: Help with python seobject.loginRecords
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3MLOtk3007296
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 17:24:55 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3MLOsoj017121
+	for <selinux@tycho.nsa.gov>; Wed, 22 Apr 2009 21:24:54 GMT
+Date: Wed, 22 Apr 2009 17:24:53 -0400
+Subject: Re: sepolgen typo fix
 From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Message-ID: <C614FF77.A6A74%csellers@tresys.com>
-In-Reply-To: <49B90E2D.9010400@redhat.com>
+To: Marshall Miller <mmiller@tresys.com>, <selinux@tycho.nsa.gov>
+Message-ID: <C6150365.A6A77%csellers@tresys.com>
+In-Reply-To: <1238528520.18182.338.camel@hostmachine.tresys.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 3/12/09 9:29 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+On 3/31/09 3:42 PM, "Marshall Miller" <mmiller@tresys.com> wrote:
 
-> On 03/11/2009 05:00 PM, Stephen Smalley wrote:
->> On Wed, 2009-03-11 at 16:49 -0400, Daniel J Walsh wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>> 
->>> Joe Nall wrote:
->>>> On Mar 11, 2009, at 2:35 PM, Daniel J Walsh wrote:
->>>> 
->>>>> On 03/11/2009 12:15 PM, Joe Nall wrote:
->>>>>> I need to add login mappings in python firstboot modules during system
->>>>>> configuration. In my first module a simple:
->>>>>> 
->>>>>> seobject.loginRecords().add(username, "siterep_u",
->>>>>> "SystemLow-SystemHigh")
->>>>>> 
->>>>>> works. In subsequent modules, I get an exception:
->>>>>> 
->>>>>> libsemanage.enter_rw: this operation requires a transaction
->>>>>> libsemanage.enter_rw: could not enter read-write section
->>>>>> Traceback (most recent call last):
->>>>>> File "./t", line 6, in<module>
->>>>>> seobject.loginRecords().add("test3", "sysadm_u", "SystemLow-SystemHigh")
->>>>>> File "/usr/lib64/python2.5/site-packages/seobject.py", line 442, in add
->>>>>> raise error
->>>>>> ValueError: Could not add login mapping for test3
->>>>>> 
->>>>>> What is the right way to do this?
->>>>>> 
->>>>>> joe
->>>>>> 
->>>>>> 
->>>>>> --
->>>>>> This message was distributed to subscribers of the selinux mailing list.
->>>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>>>>> with
->>>>>> the words "unsubscribe selinux" without quotes as the message.
->>>>> Probably an MLS issue.  firtstboot is running in a context that is not
->>>>> allowed to lock/manage selinux.
->>>> I'm installing in permissive and switching to enforcing after firstboot.
->>>> You are correct that firstboot_t doesn't have the policy for all the
->>>> stuff I'm trying to do yet.
->>>> 
->>>>> You probably should exec semanage rather then calling seobject so you
->>>>> could do a transition and not have to give a huge app like first boot
->>>>> the ability to manage security policy.
->>>> That is what is installing right now. I would still like an
->>>> explanation/code snippet of correct usage for future use
->>>> 
->>>> joe
->>>> 
->>>> 
->>> This works on F10 Targeted policy
->>> 
->>> # python -c "import seobject; seobject.loginRecords().add("pwalsh",
->>> "staff_u", "s0")
->>> # python -c 'import seobject; seobject.loginRecords().delete("pwalsh")'
->>> 
->>> Could it be a translation problem?
->> 
->> Try running multiple calls within the same python interpreter.
->> I think seobject.py isn't using libsemanage correctly.  For example, in
->> add(), you do:
->>                         self.begin()
->>                          self.__add(name, sename, serange)
->>                          self.commit()
->> but begin() only ever invokes semanage_begin_transaction() the very
->> first time:
->>         def begin(self):
->>                 if self.transaction:
->>                        return
->>                 rc = semanage_begin_transaction(self.sh)
->> 
->> So after the first commit(), you'll start failing.
->> 
-> I think this patch fixes the transaction patch in semanage.
-
-Patch looks good to me.
+> Commit b3b3f8186ed6d56c48c4e0f997d6e6b3fd90be37 attempted to fix a bug,
+> but didn't.  The following patch should do it.
+> 
+> 
+> Marshall Miller
+> 
+> ---
+> diff --git a/sepolgen/src/sepolgen/access.py
+> b/sepolgen/src/sepolgen/access.py
+> index 6de919a..71121d7 100644
+> --- a/sepolgen/src/sepolgen/access.py
+> +++ b/sepolgen/src/sepolgen/access.py
+> @@ -313,7 +313,7 @@ class RoleTypeSet:
+>  
+>      def __len__(self):
+>          """Return the unique number of role allow statements."""
+> -        return len(self.role_type.keys())
+> +        return len(self.role_types.keys())
+>  
+>      def add(self, role, type):
+>          if self.role_types.has_key(role):
+> 
+Looks fine.
 
 Acked-by: Chad Sellers <csellers@tresys.com>
+
 
 
 --
