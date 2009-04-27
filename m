@@ -2,26 +2,31 @@ Subject: Re: is it possible to use type_transition with every class?
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <744BEBDD-41C4-4AAD-97C2-DEF07A6A49CA@gmail.com>
+In-Reply-To: <1240835652.18249.4.camel@localhost.localdomain>
 References: <744BEBDD-41C4-4AAD-97C2-DEF07A6A49CA@gmail.com>
+	 <1240835652.18249.4.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 27 Apr 2009 08:34:12 -0400
-Message-Id: <1240835652.18249.4.camel@localhost.localdomain>
+Date: Mon, 27 Apr 2009 08:41:53 -0400
+Message-Id: <1240836113.18249.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-04-24 at 14:16 +0200, Sebastian Pfaff wrote:
-> hello,
+On Mon, 2009-04-27 at 08:34 -0400, Stephen Smalley wrote:
+> On Fri, 2009-04-24 at 14:16 +0200, Sebastian Pfaff wrote:
+> > hello,
+> > 
+> > is it possible to use a type_transition with every (object) class, or  
+> > are there some limitations?
+> > 
+> > So far i only used domain and file transitions.
 > 
-> is it possible to use a type_transition with every (object) class, or  
-> are there some limitations?
-> 
-> So far i only used domain and file transitions.
+> They are only used when there is both a subject and a related object
+> from which the new subject or object might inherit attributes.  At
+> present, only for processes (domains), files, and msgs.
 
-They are only used when there is both a subject and a related object
-from which the new subject or object might inherit attributes.  At
-present, only for processes (domains), files, and msgs.
+Plus some userspace object classes, like several of the database (db_*)
+classes and the X server (x_*) classes.
 
 -- 
 Stephen Smalley
