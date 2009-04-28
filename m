@@ -1,46 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3RNMH4r021745
-	for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2009 19:22:17 -0400
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3RNMGNn029507
-	for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2009 23:22:16 GMT
-Date: Tue, 28 Apr 2009 09:22:07 +1000
-From: Scott Radvan <sradvan@redhat.com>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux managing-confined-services guide - call for review
-Message-ID: <20090428092207.267f28a7@redhat.com>
-In-Reply-To: <8F6D2CAD-4CA1-421A-815B-B5AC40814C38@gmail.com>
-References: <20090423142545.189129ea@redhat.com>
-	<8F6D2CAD-4CA1-421A-815B-B5AC40814C38@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3S5t7MR031670
+	for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2009 01:55:07 -0400
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3S5t526021985
+	for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2009 05:55:06 GMT
+Message-ID: <49F69A33.2070601@ak.jp.nec.com>
+Date: Tue, 28 Apr 2009 14:54:59 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+CC: Refpolicy <refpolicy@oss.tresys.com>
+Subject: [RFC] mod_selinux security policy
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 23 Apr 2009 17:55:01 +0200
-Sebastian Pfaff <sebastian.pfaff@gmail.com> wrote:
+Folks,
 
-> i only did a fast and incomplete rewiew. but i found another small  
-> typo/conversion error (p. 35 between step 4 and 5):
-> 
-> 100%[=======================gt;] 84          --.-K/s   in 0s
-> 
-> this should be correct:
-> 
-> 100%[=======================>] 84          --.-K/s   in 0s
-> 
-> 
-> --
-> Sebastian Pfaff
+Nowadays, I'm also under development for a loadable module on apache/httpd,
+named as mod_selinux.so. It enables to launch web-applications with an
+individual security context based on http-authenticated users.
+It internally uses a one-time worker thread for each connections to perform
+as a restrictive domain bounded to httpd_t due to the hard-wired rule for
+multi-threading process.
 
+In the LCA2009 demonstration, all we can show was individual MCS category
+per http-users because of lack of TE policy.
+The following ugly policy is an example of TE policy for mod_selinux.so.
 
-Thanks for spotting that, fixed. 
+ http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.te
+ http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.if
 
+We needed to remain a minimum set of privileges on the bounded domains because
+they also perform as a part of the daemon process, although they are restricted
+to access to the web contents or database objects.
+(Thus, it allows webapp_type to write on log files, for example.)
+
+In my hope, if we can have a interface to assign the minimum set of privileges
+on the bounded domain, it will be helpfull for authors of web applications
+which provide its own security policy. It will enables them to focus on writing
+their policy for web contents.
+
+Could you tell me your opinions?
+
+Thanks,
 -- 
-Scott Radvan
-Content Author, Platform (Installation and Deployment)
-Red Hat Asia Pacific (Brisbane) http://www.apac.redhat.com
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
