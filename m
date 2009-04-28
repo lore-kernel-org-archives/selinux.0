@@ -1,76 +1,43 @@
-Subject: Re: [LTP] [PATCH] Fix running of the selinux tests
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: "Jiri Palecek >" <"<jirka"@debian.POK.IBM.COM>,
-        "ltp-list@lists.sourceforge.net" <ltp-list@lists.sourceforge.net>,
-        SELinux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <20090427231421.GA2262@us.ibm.com>
-References: <200904240037.n3O0b1CT023612@e6.ny.us.ibm.com>
-	 <20090427231421.GA2262@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 28 Apr 2009 08:22:47 -0400
-Message-Id: <1240921367.18249.17.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3SF5vRX020085
+	for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2009 11:05:57 -0400
+Received: from m15-30.126.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3SF5sro006348
+	for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2009 15:05:56 GMT
+Date: Tue, 28 Apr 2009 23:05:46 +0800 (CST)
+From: sixiaolin0 <sixiaolin067@126.com>
+To: selinux <selinux@tycho.nsa.gov>
+Message-ID: <2194562.1294281240931146322.JavaMail.coremail@bj126app30.126.com>
+Subject: the system can't be started after I configure the
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_344790_7892892.1240931146320"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-04-27 at 18:14 -0500, Serge E. Hallyn wrote:
-> Quoting Jiri Palecek > ("<jirka"@debian.POK.IBM.COM):
-> > Hello,
-> > 
-> > while running the ltp selinux tests on Debian, I found some problems:
-> > 
-> > 1) the testdomain attribute cannot have setcurrent permission to itself. This is because in Debian refpolicy, only domains with attribute set_curr_context can have setcurrent permission on own processes (otherwise, it's forbidden by neverallow). And AFAIK, it's impossible to specify that domains having attribute testdomain also have attribute set_curr_context. Moreover, I found only two tests (dyntrans and dyntrace) that actually need it so far, so I'm not convinced it has to be granted globally.
-> > 
-> > 2) the testscripts (eg. selinux_file.sh) have the test_file_t context, but they are to be run as sysadm_t. Sysadm_t therefore needs execute_no_trans permission on the test files.
-> > 
-> > Please correct me if I'm wrong.
-> 
-> Well we knew from the start that this method of trying to distribute
-> test policy wasn't going to be sustainable, but I think it's at the
-> point where we have to address it.
-> 
-> The way we were trying to handle policy changes over time was by
-> having 'misc/update_policy.sh' make distro- and version-specific
-> changes to the base refpolicy/ directory.  Jiri, if your part (1)
-> is a debian-specific fix, then another patch under misc/ probably
-> should've been used.  But as I say I think it's time to stop that
-> nonsense.  (I also notice a patch applied on Feb 2 by James which
-> makes some of the changes which misc/sbin_deprecated.patch also
-> does, thereby breaking its application.)
-> 
-> Chris, is it at all possible to distribute a module, never built
-> into the policy, but shipped with the sources, for the testsuite?
-> Then anyone who wanted to run the ltp testcases would install the
-> distro policy sources (yum install selinux-policy-sources,
-> apt-get source selinux-policy, whatever), compile the selinux-test
-> module, and the testsuite would
-> 
-> 	semodule -i selinux-test.pp; run-tests; semodule -r selinux-test
-> 
-> ?
-> 
-> The testcases don't really change (as far as i know) so that's not
-> where the churn is.  (If it was, then keeping them in uptream policy
-> would be more painful)  The policy just needs to change to reflect
-> changes in the base policy.
+------=_Part_344790_7892892.1240931146320
+Content-Type: text/plain; charset=gbk
+Content-Transfer-Encoding: 7bit
 
-While I think that would be a better way forward for maintainability, it
-won't help with the continued use of the ltp selinux tests as a
-regression test on updates to existing distribution releases (e.g. RHEL
-4.x and 5.x).  So we'll at least have to keep a legacy test policy in
-the ltp tree for that purpose.
+hello everyone:
+ After I had installed the refpolicy in my fedora 10 system,when I change the configure file pocicy form target to refpolicy ,the system can't start!
+I don't konw why! 
+Waiting for your help!
+------=_Part_344790_7892892.1240931146320
+Content-Type: text/html; charset=gbk
+Content-Transfer-Encoding: quoted-printable
 
-Also, I expect it will be painful to convert the current test policy
-into a form fully acceptable to refpolicy, as it was never fully
-converted over to using interfaces for all references to external types
-and doing so requires creating a number of interfaces that will only
-ever be used by the test policy.
-
--- 
-Stephen Smalley
-National Security Agency
+<DIV>hello everyone:</DIV>
+<DIV>&nbsp;After I had installed the refpolicy in my fedora 10 system,when =
+I change the configure file pocicy form target to refpolicy ,the system can=
+'t start!</DIV>
+<DIV>I don't konw why! </DIV>
+<DIV>Waiting for your help!</DIV><br><!-- footer --><br><span title=3D"nete=
+asefooter"/><hr/>
+<a href=3D"http://email.163.com">=CD=F8=D2=D7=D3=CA=CF=E4=A3=AC=D6=D0=B9=FA=
+=B5=DA=D2=BB=B4=F3=B5=E7=D7=D3=D3=CA=BC=FE=B7=FE=CE=F1=C9=CC</a>
+</span>
+------=_Part_344790_7892892.1240931146320--
 
 
 --
