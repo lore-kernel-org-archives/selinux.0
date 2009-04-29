@@ -1,88 +1,89 @@
-Subject: Re: [LTP] LTP SELinux policy error
+Subject: Re: [LTP] [PATCH] Fix running of the selinux tests
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: subrata@linux.vnet.ibm.com
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        ltp-list@lists.sourceforge.net, selinux@tycho.nsa.gov,
-        "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <1233581984.5934.39.camel@subratamodak.linux.ibm.com>
-References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
-	 <1233236562.9697.3.camel@gorn.columbia.tresys.com>
-	 <1233247899.13403.23.camel@gorn.columbia.tresys.com>
-	 <1233581984.5934.39.camel@subratamodak.linux.ibm.com>
+To: Jiri Palecek <jpalecek@web.de>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "ltp-list@lists.sourceforge.net" <ltp-list@lists.sourceforge.net>,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200904281303.20594.jpalecek@web.de>
+References: <200904240037.n3O0b1CT023612@e6.ny.us.ibm.com>
+	 <20090427231421.GA2262@us.ibm.com>  <200904281303.20594.jpalecek@web.de>
 Content-Type: text/plain
-Date: Wed, 29 Apr 2009 14:39:04 -0400
-Message-Id: <1241030344.18249.270.camel@localhost.localdomain>
+Date: Wed, 29 Apr 2009 14:57:45 -0400
+Message-Id: <1241031465.18249.276.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-02-02 at 19:09 +0530, Subrata Modak wrote:
-> Thanks.
-> 
-> Regards--
-> Subrata
-
-Subrata - this patch never should have been applied.  Chris said that it
-was incomplete, and I noted that it conflicted with Serge's
-conditionally applied patch.  Please revert this, as it breaks the
-selinux ltp testsuite and the resulting policy will not build.
-
-> 
-> On Thu, 2009-01-29 at 11:51 -0500, Christopher J. PeBenito wrote:
-> > On Thu, 2009-01-29 at 08:42 -0500, Christopher J. PeBenito wrote:
-> > > On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
-> > > > I'm trying to run the LTP SELinux tests using the latest CVS version of 
-> > > > LTP and current Fedora development, and get the following policy 
-> > > > compilation error:
-> > > > 
-> > > > ----
-> > > > Compiling targeted test_policy module
-> > > > 
-> > > > test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
-> > > > test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
-> > > > [lots of warnings similar to the above]
-> > > > 
-> > > > /usr/bin/checkmodule:  loading policy configuration from 
-> > > > tmp/test_policy.tmp
-> > > > test_policy.te":16:ERROR 'syntax error' at token 
-> > > > 'userdom_use_sysadm_terms' on line 3198:
-> > > > userdom_use_sysadm_terms(testdomain)
-> > > > # This allows read and write sysadm ttys and ptys.
-> > > > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> > > > make[1]: *** [tmp/test_policy.mod] Error 1
-> > > > make[1]: Leaving directory `/usr/share/selinux/devel'
-> > > > make: *** [load] Error 2
-> > > > Failed to build and load test_policy module, aborting test run.
-> > > > ----
-> > > > 
-> > > > Is this likely to be fixed soon, and/or any suggestions for a workaround?
+On Tue, 2009-04-28 at 13:03 +0200, Jiri Palecek wrote:
+> On Tuesday 28 April 2009 01:14:21 Serge E. Hallyn wrote:
+> > Quoting Jiri Palecek > (jpalecek@web.de):
+> > > Hello,
 > > > 
-> > > It won't compile with the current trunk refpolicy, since the current
-> > > release was a major, API breaking change.  I'll try to get a patch out
-> > > shortly.
+> > > while running the ltp selinux tests on Debian, I found some problems:
+> > > 
+> > > 1) the testdomain attribute cannot have setcurrent permission to itself. This is because in Debian refpolicy, only domains with attribute set_curr_context can have setcurrent permission on own processes (otherwise, it's forbidden by neverallow). And AFAIK, it's impossible to specify that domains having attribute testdomain also have attribute set_curr_context. Moreover, I found only two tests (dyntrans and dyntrace) that actually need it so far, so I'm not convinced it has to be granted globally.
+> > > 
+> > > 2) the testscripts (eg. selinux_file.sh) have the test_file_t context, but they are to be run as sysadm_t. Sysadm_t therefore needs execute_no_trans permission on the test files.
+> > > 
+> > > Please correct me if I'm wrong.
 > > 
-> > I updated the policy since its fairly old, though I didn't convert its
-> > raw rules over to use interfaces.  However this didn't completely fix
-> > it, as there is usage of a "unconfined_runs_test()", which isn't in the
-> > upstream refpolicy nor the fedora policy, as far as I can see.  One of
-> > the updates includes use of sysadm_entry_spec_domtrans_to(), which is in
-> > the upstream refpolicy, but doesn't seem to have made its way downstream
-> > to the fedora policy.  I have attached my work so someone familiar with
-> > the LTP test cases can use it to complete the fix.
+> > Well we knew from the start that this method of trying to distribute
+> > test policy wasn't going to be sustainable, but I think it's at the
+> > point where we have to address it.
 > > 
-> > ------------------------------------------------------------------------------
-> > This SF.net email is sponsored by:
-> > SourcForge Community
-> > SourceForge wants to tell your story.
-> > http://p.sf.net/sfu/sf-spreadtheword
-> > _______________________________________________ Ltp-list mailing list Ltp-list@lists.sourceforge.net https://lists.sourceforge.net/lists/listinfo/ltp-list
+> > The way we were trying to handle policy changes over time was by
+> > having 'misc/update_policy.sh' make distro- and version-specific
+> > changes to the base refpolicy/ directory.  Jiri, if your part (1)
+> > is a debian-specific fix,
 > 
+> Note that I'm not sure about this; I just assume it's Debian specific,
+> because I assume it works for everybody else :) On the second sight, I
+> just checked upstream refpolicy and it seems the offending neverallow
+> was there at lest from 2006.
+
+That's why the selinux-testsuite/README says you have to put
+expand-check=0 in your /etc/selinux/semanage.conf file, which
+test_selinux.sh does automatically.
+
+> 
+> > then another patch under misc/ probably
+> > should've been used.  But as I say I think it's time to stop that
+> > nonsense.  (I also notice a patch applied on Feb 2 by James which
+> > makes some of the changes which misc/sbin_deprecated.patch also
+> > does, thereby breaking its application.)
+> > 
+> > Chris, is it at all possible to distribute a module, never built
+> > into the policy, but shipped with the sources, for the testsuite?
+> > Then anyone who wanted to run the ltp testcases would install the
+> > distro policy sources (yum install selinux-policy-sources,
+> > apt-get source selinux-policy, whatever), compile the selinux-test
+> > module, and the testsuite would
+> > 
+> > 	semodule -i selinux-test.pp; run-tests; semodule -r selinux-test
+> > 
+> > ?
+> 
+> It isn't like this now? I had the impression most of the policy needed to run ltp selinux tests was build from the ltp sources and loaded by
+> 
+>   semodule -i test_policy.pp
+> 
+> There are some remnants of the test policy in refpolicy, but these are only few macros and types.
+> 
+> > The testcases don't really change (as far as i know) so that's not
+> > where the churn is.  (If it was, then keeping them in uptream policy
+> > would be more painful)  The policy just needs to change to reflect
+> > changes in the base policy.
+> 
+> Regards
+>     Jiri Palecek
 > 
 > ------------------------------------------------------------------------------
-> This SF.net email is sponsored by:
-> SourcForge Community
-> SourceForge wants to tell your story.
-> http://p.sf.net/sfu/sf-spreadtheword
+> Register Now & Save for Velocity, the Web Performance & Operations 
+> Conference from O'Reilly Media. Velocity features a full day of 
+> expert-led, hands-on workshops and two days of sessions from industry 
+> leaders in dedicated Performance & Operations tracks. Use code vel09scf 
+> and Save an extra 15% before 5/3. http://p.sf.net/sfu/velocityconf
 > _______________________________________________
 > Ltp-list mailing list
 > Ltp-list@lists.sourceforge.net
