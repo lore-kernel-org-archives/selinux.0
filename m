@@ -1,89 +1,92 @@
-Subject: Re: load_policy.c:351:1: error: "MNT_DETACH" redefined
+Subject: Re: [LTP] LTP SELinux policy error
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <dd18b0c30904290755s603d6549o6b1866ecd68915a@mail.gmail.com>
-References: <dd18b0c30904282217y10fc6c6coe115e83e89ce1536@mail.gmail.com>
-	 <1241005910.18249.124.camel@localhost.localdomain>
-	 <dd18b0c30904290755s603d6549o6b1866ecd68915a@mail.gmail.com>
+To: subrata@linux.vnet.ibm.com
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        ltp-list@lists.sourceforge.net, selinux@tycho.nsa.gov,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+In-Reply-To: <1233581984.5934.39.camel@subratamodak.linux.ibm.com>
+References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
+	 <1233236562.9697.3.camel@gorn.columbia.tresys.com>
+	 <1233247899.13403.23.camel@gorn.columbia.tresys.com>
+	 <1233581984.5934.39.camel@subratamodak.linux.ibm.com>
 Content-Type: text/plain
-Date: Wed, 29 Apr 2009 14:26:09 -0400
-Message-Id: <1241029569.18249.260.camel@localhost.localdomain>
+Date: Wed, 29 Apr 2009 14:39:04 -0400
+Message-Id: <1241030344.18249.270.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-04-29 at 07:55 -0700, Justin Mattock wrote:
-> On Wed, Apr 29, 2009 at 4:51 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Tue, 2009-04-28 at 22:17 -0700, Justin Mattock wrote:
-> >> I get an error while compiling libselinux
-> >> with a simple "make"
-> >>
-> >> load_policy.c:351:1: error: "MNT_DETACH" redefined
-> >> In file included from load_policy.c:5:
-> >> /usr/include/sys/mount.h:102:1: error: this is the location of the
-> >> previous definition
-> >> make[1]: *** [load_policy.o] Error 1
-> >> make[1]: Leaving directory `/home/name/LFS/SELinux/libselinux-2.0.79/src'
-> >> make: *** [all] Error 2
-> >>
-> >> but if I:
-> >> make CC="/usr/bin/i686-pc-linux-gnu-gcc-4.4.0" CFLAGS="-march=core2
-> >> -mtune=core2 -pipe -O2 -fomit-frame-pointer" CXXFLAGS="${CFLAGS}"
-> >> MAKEOPTS="{-j3}"
-> >> libselinux will compiled with just a:
-> >>
-> >> load_policy.c:351:1: warning: "MNT_DETACH" redefined
-> >> In file included from load_policy.c:5:
-> >> /usr/include/sys/mount.h:102:1: warning: this is the location of the
-> >> previous definition
-> >>
-> >>
-> >> if I change load_policy.c(to the best of my knowledge)
-> >> with the attached patch
-> >> and then run make normally
-> >> libselinux will compile
-> >
-> > Your patch doesn't make sense - defining a symbol to itself.  If the
-> > symbol were always defined in sys/mount.h, one would just remove the
-> > duplicate definition from load_policy.c.  But it isn't defined in
-> > sys/mount.h in any version of glibc that I can see, and thus has to at
-> > least be conditionally defined in load_policy.c.  Now, you could bracket
-> > it with:
-> > #ifndef MNT_DETACH
-> > #define MNT_DETACH 2
-> > #endif
-> >
-> > Then it will build correctly with either set of headers.
-> > Out of curiosity, where are you obtaining your sys/mount.h from?
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
+On Mon, 2009-02-02 at 19:09 +0530, Subrata Modak wrote:
+> Thanks.
 > 
-> yeah I admit it, I frantically looked in sys/mount.h
-> for any kind of hints(which lead to what I had created).
+> Regards--
+> Subrata
+
+Subrata - this patch never should have been applied.  Chris said that it
+was incomplete, and I noted that it conflicted with Serge's
+conditionally applied patch.  Please revert this, as it breaks the
+selinux ltp testsuite and the resulting policy will not build.
+
 > 
-> As for what version I have, sounds like these are headers
-> from libc. In that case,  it's the latest from:
-> ftp://sources.redhat.com/pub/glibc/snapshots/
-> version glibc-2.9-20090427.tar.bz2
-
-I see - the definition was added 5 days ago to the glibc source tree.
-So, yes, we'll want to wrap the definition of MNT_DETACH as above, but
-we still need to keep the fallback definition for older glibc and for
-alternative libc implementations that lack the definition altogether.
-
-> As for you're idea: bracketing it, well
-> this is why you make the big bucks,
-> and I'm stuck working at MCDonalds
-> ;^)
-
-Hey, at least you have happy customers.
-
+> On Thu, 2009-01-29 at 11:51 -0500, Christopher J. PeBenito wrote:
+> > On Thu, 2009-01-29 at 08:42 -0500, Christopher J. PeBenito wrote:
+> > > On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
+> > > > I'm trying to run the LTP SELinux tests using the latest CVS version of 
+> > > > LTP and current Fedora development, and get the following policy 
+> > > > compilation error:
+> > > > 
+> > > > ----
+> > > > Compiling targeted test_policy module
+> > > > 
+> > > > test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
+> > > > test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
+> > > > [lots of warnings similar to the above]
+> > > > 
+> > > > /usr/bin/checkmodule:  loading policy configuration from 
+> > > > tmp/test_policy.tmp
+> > > > test_policy.te":16:ERROR 'syntax error' at token 
+> > > > 'userdom_use_sysadm_terms' on line 3198:
+> > > > userdom_use_sysadm_terms(testdomain)
+> > > > # This allows read and write sysadm ttys and ptys.
+> > > > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> > > > make[1]: *** [tmp/test_policy.mod] Error 1
+> > > > make[1]: Leaving directory `/usr/share/selinux/devel'
+> > > > make: *** [load] Error 2
+> > > > Failed to build and load test_policy module, aborting test run.
+> > > > ----
+> > > > 
+> > > > Is this likely to be fixed soon, and/or any suggestions for a workaround?
+> > > 
+> > > It won't compile with the current trunk refpolicy, since the current
+> > > release was a major, API breaking change.  I'll try to get a patch out
+> > > shortly.
+> > 
+> > I updated the policy since its fairly old, though I didn't convert its
+> > raw rules over to use interfaces.  However this didn't completely fix
+> > it, as there is usage of a "unconfined_runs_test()", which isn't in the
+> > upstream refpolicy nor the fedora policy, as far as I can see.  One of
+> > the updates includes use of sysadm_entry_spec_domtrans_to(), which is in
+> > the upstream refpolicy, but doesn't seem to have made its way downstream
+> > to the fedora policy.  I have attached my work so someone familiar with
+> > the LTP test cases can use it to complete the fix.
+> > 
+> > ------------------------------------------------------------------------------
+> > This SF.net email is sponsored by:
+> > SourcForge Community
+> > SourceForge wants to tell your story.
+> > http://p.sf.net/sfu/sf-spreadtheword
+> > _______________________________________________ Ltp-list mailing list Ltp-list@lists.sourceforge.net https://lists.sourceforge.net/lists/listinfo/ltp-list
+> 
+> 
+> ------------------------------------------------------------------------------
+> This SF.net email is sponsored by:
+> SourcForge Community
+> SourceForge wants to tell your story.
+> http://p.sf.net/sfu/sf-spreadtheword
+> _______________________________________________
+> Ltp-list mailing list
+> Ltp-list@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/ltp-list
 -- 
 Stephen Smalley
 National Security Agency
