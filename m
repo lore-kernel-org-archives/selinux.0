@@ -1,53 +1,89 @@
-Subject: Re: [PATCH] SELinux: drop secondary_ops->sysctl
+Subject: Re: load_policy.c:351:1: error: "MNT_DETACH" redefined
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20090429180025.22109.45638.stgit@paris.rdu.redhat.com>
-References: <20090429180025.22109.45638.stgit@paris.rdu.redhat.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Chad Sellers <csellers@tresys.com>
+In-Reply-To: <dd18b0c30904290755s603d6549o6b1866ecd68915a@mail.gmail.com>
+References: <dd18b0c30904282217y10fc6c6coe115e83e89ce1536@mail.gmail.com>
+	 <1241005910.18249.124.camel@localhost.localdomain>
+	 <dd18b0c30904290755s603d6549o6b1866ecd68915a@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 29 Apr 2009 14:11:07 -0400
-Message-Id: <1241028667.18249.254.camel@localhost.localdomain>
+Date: Wed, 29 Apr 2009 14:26:09 -0400
+Message-Id: <1241029569.18249.260.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-04-29 at 14:00 -0400, Eric Paris wrote:
-> We are still calling secondary_ops->sysctl even though the capabilities
-> module does not define a sysctl operation.
+On Wed, 2009-04-29 at 07:55 -0700, Justin Mattock wrote:
+> On Wed, Apr 29, 2009 at 4:51 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On Tue, 2009-04-28 at 22:17 -0700, Justin Mattock wrote:
+> >> I get an error while compiling libselinux
+> >> with a simple "make"
+> >>
+> >> load_policy.c:351:1: error: "MNT_DETACH" redefined
+> >> In file included from load_policy.c:5:
+> >> /usr/include/sys/mount.h:102:1: error: this is the location of the
+> >> previous definition
+> >> make[1]: *** [load_policy.o] Error 1
+> >> make[1]: Leaving directory `/home/name/LFS/SELinux/libselinux-2.0.79/src'
+> >> make: *** [all] Error 2
+> >>
+> >> but if I:
+> >> make CC="/usr/bin/i686-pc-linux-gnu-gcc-4.4.0" CFLAGS="-march=core2
+> >> -mtune=core2 -pipe -O2 -fomit-frame-pointer" CXXFLAGS="${CFLAGS}"
+> >> MAKEOPTS="{-j3}"
+> >> libselinux will compiled with just a:
+> >>
+> >> load_policy.c:351:1: warning: "MNT_DETACH" redefined
+> >> In file included from load_policy.c:5:
+> >> /usr/include/sys/mount.h:102:1: warning: this is the location of the
+> >> previous definition
+> >>
+> >>
+> >> if I change load_policy.c(to the best of my knowledge)
+> >> with the attached patch
+> >> and then run make normally
+> >> libselinux will compile
+> >
+> > Your patch doesn't make sense - defining a symbol to itself.  If the
+> > symbol were always defined in sys/mount.h, one would just remove the
+> > duplicate definition from load_policy.c.  But it isn't defined in
+> > sys/mount.h in any version of glibc that I can see, and thus has to at
+> > least be conditionally defined in load_policy.c.  Now, you could bracket
+> > it with:
+> > #ifndef MNT_DETACH
+> > #define MNT_DETACH 2
+> > #endif
+> >
+> > Then it will build correctly with either set of headers.
+> > Out of curiosity, where are you obtaining your sys/mount.h from?
+> >
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> >
+> >
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-And repeating what I said back in January when the other calls to
-secondary_ops were removed:
-
-At that point secondary_ops would only be used by selinux_init() to save
-the original security_ops pointer for use by selinux_disable() to
-restore the original pointer, which ideally would be handled by the
-security framework instead (possibly by restoring a limited
-unregister_security() that resets to the default_security_ops).
-
-> ---
+> yeah I admit it, I frantically looked in sys/mount.h
+> for any kind of hints(which lead to what I had created).
 > 
->  security/selinux/hooks.c |    4 ----
->  1 files changed, 0 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 796c16f..9af6624 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2050,10 +2050,6 @@ static int selinux_sysctl(ctl_table *table, int op)
->  	u32 tsid, sid;
->  	int rc;
->  
-> -	rc = secondary_ops->sysctl(table, op);
-> -	if (rc)
-> -		return rc;
-> -
->  	sid = current_sid();
->  
->  	rc = selinux_sysctl_get_sid(table, (op == 0001) ?
+> As for what version I have, sounds like these are headers
+> from libc. In that case,  it's the latest from:
+> ftp://sources.redhat.com/pub/glibc/snapshots/
+> version glibc-2.9-20090427.tar.bz2
+
+I see - the definition was added 5 days ago to the glibc source tree.
+So, yes, we'll want to wrap the definition of MNT_DETACH as above, but
+we still need to keep the fallback definition for older glibc and for
+alternative libc implementations that lack the definition altogether.
+
+> As for you're idea: bracketing it, well
+> this is why you make the big bucks,
+> and I'm stuck working at MCDonalds
+> ;^)
+
+Hey, at least you have happy customers.
+
 -- 
 Stephen Smalley
 National Security Agency
