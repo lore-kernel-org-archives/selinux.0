@@ -1,69 +1,76 @@
-Subject: Re: labeled network aware kernel
+Subject: Re: [LTP] Fwd:  [PATCH] Create $SELINUXTMPDIR in each of the tests
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mark Webb <elihusmails@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <9f066ee90904292005i282d1339ld060cd90fa9e9dae@mail.gmail.com>
-References: <9f066ee90904220426g563d2ebpa708ef8b6e1a4378@mail.gmail.com>
-	 <C61510C5.A6A7F%csellers@tresys.com>
-	 <9f066ee90904222001xb31b39ajf6953ca0767f3494@mail.gmail.com>
-	 <1240609446.13724.20.camel@faith.austin.ibm.com>
-	 <9f066ee90904292005i282d1339ld060cd90fa9e9dae@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 30 Apr 2009 08:01:11 -0400
-Message-Id: <1241092871.27331.3.camel@localhost.localdomain>
+To: =?UTF-8?Q?Ji=C5=99=C3=AD_Pale=C4=8Dek?= <jpalecek@web.de>
+Cc: subrata@linux.vnet.ibm.com, ltp-list <ltp-list@lists.sf.net>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <op.us51ezmiu2flwt@debian>
+References: <1240080458.5108.18.camel@subratamodak.linux.ibm.com>
+	 <1241032058.18249.277.camel@localhost.localdomain>
+	 <op.us5xofaeu2flwt@debian>
+	 <1241034001.18249.298.camel@localhost.localdomain>
+	 <op.us51ezmiu2flwt@debian>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 30 Apr 2009 08:45:30 -0400
+Message-Id: <1241095530.27331.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-04-29 at 23:05 -0400, Mark Webb wrote:
-> I am working to get the labelled IPSec working, following Josh
-> Brindle's blog post
-> (http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux).
->  I just want to get the client and server running on loopback, using a
-> fully patched Fedora 10 machine.
+On Wed, 2009-04-29 at 22:48 +0200, Jiří Paleček wrote:
+> On Wed, 29 Apr 2009 21:40:01 +0200, Stephen Smalley <sds@tycho.nsa.gov>  
+> wrote:
 > 
-> I have the following keyfile that I pass into setkey:
-> ----------
-> spdflush;
+> > On Wed, 2009-04-29 at 21:27 +0200, Jiří Paleček wrote:
+> >> On Wed, 29 Apr 2009 21:07:38 +0200, Stephen Smalley <sds@tycho.nsa.gov>
+> >> wrote:
+> >>
+> >> > On Sun, 2009-04-19 at 00:17 +0530, Subrata Modak wrote:
+> >> >> Stephen,
+> >> >>
+> >> >> Would you like to say something about the following Patch ?
+> >> >
+> >> > Yes, it breaks the selinux testsuite for me.  Please revert.
+> >>
+> >> How exactly does it break it?
+> >
+> > Running it via test_selinux.sh was generating errors like:
+> > cd: /testcases/bin: No such file or directory
+> > in selinux.outfile, producing a couple bogus FAILs.
 > 
-> flush;
-> 
-> spdadd 127.0.0.1 127.0.0.1 any
-> -ctx 1 1 "system_u:object_r:default_t:s0"
-> -P in ipsec esp/transport//require;
-> 
-> spdadd 127.0.0.1 127.0.0.1 any
-> -ctx 1 1 "system_u:object_r:default_t:s0"
-> -P out ipsec esp/transport//require;
-> ----------
-> 
-> I enter the following commands:
-> 
-> --- Terminal 1 ---
-> setenforce 0
-> setkey -f <keyfile>
-> ./server
-> 
-> --- Terminal 2 ---
-> # ./client 127.0.0.1
-> getpeercon: Protocol not available
-> Received: Hello, (null) from (null)
-> 
-> --- Terminal 1 ---
-> getsockopt: Protocol not available
-> server: got connection from 127.0.0.1, (null)
-> 
-> Not sure what I am missing.  I have installed ipsec-tools and started
-> /etc/init.d/racoon.
-> 
-> Any help would be appreciated.
+> This is probably caused by the line setting LTPBIN (which shouldn't have  
+> been there in the first place, my fault), does the attached patch fix it  
+> for you?
 
-IPSEC and loopback don't generally get along very well.  Try:
-echo 0 > /proc/sys/net/ipv4/conf/lo/disable_policy
-echo 0 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
+Your patch doesn't apply - looks like it is relative to further local
+changes you have made in your own git repo (extra args to mktemp).  But
+applying the corresponding change here does fix that problem for me,
+yes.  Diff below is relative to ltp cvs.
 
-Might want to also read through an old bug report on this issue,
-https://bugzilla.redhat.com/show_bug.cgi?id=218386
+Fix LTPBIN definition in selinux_file.sh
+
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh
+===================================================================
+RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh,v
+retrieving revision 1.5
+diff -u -r1.5 selinux_file.sh
+--- testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh	21 Apr 2009 09:39:58 -0000	1.5
++++ testcases/kernel/security/selinux-testsuite/tests/file/selinux_file.sh	30 Apr 2009 12:50:35 -0000
+@@ -17,7 +17,7 @@
+ 	export TST_COUNT=0
+ 	export TST_TOTAL=14
+ 
+-	LTPBIN=$LTPROOT/testcases/bin
++	LTPBIN=${LTPBIN:-$LTPROOT/testcases/bin}
+ 	SELINUXTMPDIR=$(mktemp -d)
+ 	chcon -t test_file_t $SELINUXTMPDIR
+ 
 
 -- 
 Stephen Smalley
