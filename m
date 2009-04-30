@@ -1,45 +1,46 @@
-Date: Thu, 30 Apr 2009 08:49:32 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: drop secondary_ops->sysctl
-In-Reply-To: <1241028667.18249.254.camel@localhost.localdomain>
-Message-ID: <alpine.LRH.2.00.0904300849080.17014@tundra.namei.org>
-References: <20090429180025.22109.45638.stgit@paris.rdu.redhat.com> <1241028667.18249.254.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3U34QjV018928
+	for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2009 23:04:27 -0400
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3U34PlR002952
+	for <selinux@tycho.nsa.gov>; Thu, 30 Apr 2009 03:04:26 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n3U34NbL016357
+	for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2009 23:04:23 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n3U34MLb023419
+	for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2009 23:04:22 -0400
+Received: from localhost.localdomain (dhcp-1-16.bne.redhat.com [10.64.1.16])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n3U34JZ6005190
+	for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2009 23:04:21 -0400
+Date: Thu, 30 Apr 2009 13:04:17 +1000
+From: Scott Radvan <sradvan@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: SELinux managing-confined-services guide - call for review
+Message-ID: <20090430130417.4bd58e71@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 29 Apr 2009, Stephen Smalley wrote:
+Hi all,
 
-> On Wed, 2009-04-29 at 14:00 -0400, Eric Paris wrote:
-> > We are still calling secondary_ops->sysctl even though the capabilities
-> > module does not define a sysctl operation.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Applied.
+The Fedora SELinux Managing Confined Services guide is taking shape,
+any comments on it would be greatly appreciated.
 
-> 
-> And repeating what I said back in January when the other calls to
-> secondary_ops were removed:
-> 
-> At that point secondary_ops would only be used by selinux_init() to save
-> the original security_ops pointer for use by selinux_disable() to
-> restore the original pointer, which ideally would be handled by the
-> security framework instead (possibly by restoring a limited
-> unregister_security() that resets to the default_security_ops).
+In particular, I would like to make sure the Booleans and the examples
+are accurate and complete.
 
-It's listed in the TODO list:
+http://sradvan.fedorapeople.org/SELinux_Managing_Confined_Services/en-US/
 
-http://selinuxproject.org/page/Kernel_Development
+
+Thanks,
 
 -- 
-James Morris
-<jmorris@namei.org>
+Scott Radvan
+Content Author, Platform (Installation and Deployment)
+Red Hat Asia Pacific (Brisbane) http://www.apac.redhat.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
