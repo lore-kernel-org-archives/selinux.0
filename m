@@ -1,45 +1,26 @@
-Subject: [PATCH] selinux:  Fix send_sigiotask hook
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov, David Howells <dhowells@redhat.com>
-Content-Type: text/plain
-Date: Mon, 04 May 2009 15:43:18 -0400
-Message-Id: <1241466198.3023.237.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1241466198.3023.237.camel@localhost.localdomain>
+References: <1241466198.3023.237.camel@localhost.localdomain>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: Fix send_sigiotask hook
+Date: Tue, 05 May 2009 13:47:21 +0100
+Message-ID: <31955.1241527641@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The CRED patch incorrectly converted the SELinux send_sigiotask hook to
-use the current task SID rather than the target task SID in its
-permission check, yielding the wrong permission check.  This fixes the
-hook function.  Detected by the ltp selinux testsuite and confirmed to
-correct the test failure.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> The CRED patch incorrectly converted the SELinux send_sigiotask hook to
+> use the current task SID rather than the target task SID in its
+> permission check, yielding the wrong permission check.  This fixes the
+> hook function.  Detected by the ltp selinux testsuite and confirmed to
+> correct the test failure.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
----
-
- security/selinux/hooks.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ba808ef..2fcad7c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3153,7 +3153,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
- 				       struct fown_struct *fown, int signum)
- {
- 	struct file *file;
--	u32 sid = current_sid();
-+	u32 sid = task_sid(tsk);
- 	u32 perm;
- 	struct file_security_struct *fsec;
- 
-
--- 
-Stephen Smalley
-National Security Agency
-
+Acked-by: David Howells <dhowells@redhat.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
