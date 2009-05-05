@@ -1,46 +1,40 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n45JQfBs015958
-	for <selinux@tycho.nsa.gov>; Tue, 5 May 2009 15:26:41 -0400
-Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n45JQci8001989
-	for <selinux@tycho.nsa.gov>; Tue, 5 May 2009 19:26:40 GMT
-Subject: Using interfaces defined elsewhere
-From: Bandan Das <bandan.das@stratus.com>
-To: selinux <selinux@tycho.nsa.gov>
-Cc: "Johnson, Richard" <Richard.Johnson@stratus.com>
-Content-Type: text/plain
-Date: Tue, 05 May 2009 15:25:56 -0400
-Message-Id: <1241551556.23813.80.camel@BSD.mno.stratus.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Date: Tue, 5 May 2009 15:31:36 -0400
+Message-ID: <150846cc0905051231w77e0eda2y52f72c382182226c@mail.gmail.com>
+Subject: SETRANS + libavg = SIGSEGV on Hardy
+From: Caleb Case <calebcase@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Kees Cook <kees@ubuntu.com>, jbrindle@tresys.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+https://bugs.launchpad.net/ubuntu/+source/libselinux/+bug/237156
 
-Here's what I am trying to do :
+Basically things are seg faulting during fini, but I don't see how
+this could be happening.
 
-I have a mySNMP policy with sources: mysnmp.te mysnmp.fc mysnmp.if and a
-dummyapp policy with sources: dummyapp.te dummyapp.fc and dummyapp.if.
-The SNMP policy interface file has an interface called
-mysnmp_config_read_access() and I would like to use it in my dummyapp
-policy sources : mysnmp_config_read_access(dummyapp_t)
+There is a patch there:
 
-What's the best way to do this ? Not just for the above example for a
-case where I have multiple custom interface files. 
-
-I tried copying the SNMP interface file
-to /usr/share/selinux/include/mysnmp. But the problem with this approach
-is that I have to be root to be able to do this. Can I ask make to use
-multiple interface files (dummyapp.if and mysnmp.if) when compiling the
-dummyapp policy module ? 
-
-Thanks,
-Bandan
-
- 
--- 
-BSD
-
+diff --git a/libselinux-2.0.59/src/setrans_client.c
+b/libselinux-2.0.59/src/setrans_client.c
+index 1426e98..a2d0d34 100644
+--- a/libselinux-2.0.59/src/setrans_client.c
++++ b/libselinux-2.0.59/src/setrans_client.c
+@@ -217,6 +217,12 @@ hidden void fini_context_translations(void)
+ hidden int init_context_translations(void)
+ {
+ 	mls_enabled = is_selinux_mls_enabled();
++	// set initial values to work around crash from very late first
+reference in fini.
++	// The "static __thread .. = NULL" initialization isn't working.
++	prev_r2t_trans = NULL;
++	prev_r2t_raw = NULL;
++	prev_t2r_trans = NULL;
++	prev_t2r_raw = NULL;
+ 	return 0;
+ }
 
 --
 This message was distributed to subscribers of the selinux mailing list.
