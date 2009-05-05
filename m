@@ -1,133 +1,45 @@
-Subject: [PATCH] Update selinux ioctl test
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ltp-list <ltp-list@lists.sf.net>,
-        Subrata Modak <subrata@linux.vnet.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, selinux@tycho.nsa.gov
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n45JQfBs015958
+	for <selinux@tycho.nsa.gov>; Tue, 5 May 2009 15:26:41 -0400
+Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n45JQci8001989
+	for <selinux@tycho.nsa.gov>; Tue, 5 May 2009 19:26:40 GMT
+Subject: Using interfaces defined elsewhere
+From: Bandan Das <bandan.das@stratus.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: "Johnson, Richard" <Richard.Johnson@stratus.com>
 Content-Type: text/plain
-Date: Tue, 05 May 2009 10:29:32 -0400
-Message-Id: <1241533772.3023.324.camel@localhost.localdomain>
+Date: Tue, 05 May 2009 15:25:56 -0400
+Message-Id: <1241551556.23813.80.camel@BSD.mno.stratus.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Update the selinux ioctl test in ltp to reflect the revised
-selinux_file_ioctl() logic in the kernel.  Also requires the
-corresponding ltp selinux test policy update.
+Hello,
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Here's what I am trying to do :
 
----
+I have a mySNMP policy with sources: mysnmp.te mysnmp.fc mysnmp.if and a
+dummyapp policy with sources: dummyapp.te dummyapp.fc and dummyapp.if.
+The SNMP policy interface file has an interface called
+mysnmp_config_read_access() and I would like to use it in my dummyapp
+policy sources : mysnmp_config_read_access(dummyapp_t)
 
- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.c   |   13 +++
- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c |   33 ++++++----
- 2 files changed, 33 insertions(+), 13 deletions(-)
+What's the best way to do this ? Not just for the above example for a
+case where I have multiple custom interface files. 
 
+I tried copying the SNMP interface file
+to /usr/share/selinux/include/mysnmp. But the problem with this approach
+is that I have to be root to be able to do this. Can I ask make to use
+multiple interface files (dummyapp.if and mysnmp.if) when compiling the
+dummyapp policy module ? 
 
-Index: testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.c
-===================================================================
-RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.c,v
-retrieving revision 1.2
-diff -u -r1.2 selinux_ioctl.c
---- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.c	26 Feb 2009 12:02:31 -0000	1.2
-+++ testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_ioctl.c	1 May 2009 13:29:14 -0000
-@@ -35,7 +35,7 @@
-     exit(1);
-   }
- 
--  /* This one should hit the FILE__GETATTR test */
-+  /* This one should hit the FILE__IOCTL test */
-   rc = ioctl(fd, FIGETBSZ, &val);
-   if( rc != 0 ) {
-     perror("test_ioctl:FIGETBSZ");
-@@ -49,15 +49,22 @@
-     exit(1);
-   }
- 
--  /* This one should hit the normal file descriptor use test */
-+  /* This one should hit the FILE__IOCTL test */
-   rc = ioctl(fd, FIONBIO, &val);
-   if( rc != 0 ) {
-     perror("test_ioctl:FIONBIO");
-     exit(1);
-   }
- 
-+  /* This one should hit the FILE__READ test */
-+  rc = ioctl(fd, EXT2_IOC_GETVERSION, &val);
-+  if( rc != 0 ) {
-+    perror("test_ioctl:EXT2_IOC_GETVERSION");
-+    exit(1);
-+  }
-+
-+  /* This one should hit the FILE__WRITE test */
-   val = 0;
--  /* This one should hit the FILE__SETATTR test */
-   rc = ioctl(fd, EXT2_IOC_SETVERSION, &val);
-   if( rc != 0 ) {
-     perror("test_ioctl:EXT2_IOC_SETVERSION");
-Index: testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c
-===================================================================
-RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c,v
-retrieving revision 1.2
-diff -u -r1.2 selinux_noioctl.c
---- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	26 Feb 2009 12:02:31 -0000	1.2
-+++ testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	1 May 2009 13:29:14 -0000
-@@ -37,29 +37,42 @@
-     exit(1);
-   }
- 
--  /* This one should hit the normal file descriptor use test; expect success */
--  rc = ioctl(fd, FIONBIO, &val);
--  if( rc != 0 ) {
--    perror("test_noioctl:FIONBIO");
--    exit(1);
-+  /* This one should hit the FILE__IOCTL test and fail. */
-+  rc = ioctl(fd, FIGETBSZ, &val);
-+  if( rc == 0 ) {
-+      printf("test_noioctl:FIGETBSZ");
-+      exit(1);
-   }
- 
--  /* This one should hit the FILE__GETATTR test; expect failure */
--  rc = ioctl(fd, FIGETBSZ, &val);
-+  /* This one should hit the FILE__IOCTL test and fail. */
-+  rc = ioctl(fd, FIOCLEX);
-   if( rc == 0 ) {
-+    printf("test_noioctl:FIOCLEX");
-     exit(1);
-   }
- 
--  /* This one should hit the FILE__IOCTL test */
--  rc = ioctl(fd, FIOCLEX);
-+  /* This one should hit the FILE__IOCTL test and fail. */
-+  rc = ioctl(fd, FIONBIO, &val);
-   if( rc == 0 ) {
-+    printf("test_noioctl:FIONBIO");
-+    exit(1);
-+  }
-+
-+  /*
-+   * This one should hit the FILE__READ test and succeed since
-+   * read permission had to be granted in order to open the file.
-+   */
-+  rc = ioctl(fd, EXT2_IOC_GETVERSION, &val);
-+  if( rc != 0 ) {
-+    perror("test_noioctl:EXT2_IOC_GETVERSION");
-     exit(1);
-   }
- 
-+  /* This one should hit the FILE__WRITE test and fail. */
-   val = 0;
--  /* This one should hit the FILE__SETATTR test; expect failure */
-   rc = ioctl(fd, EXT2_IOC_SETVERSION, &val);
-   if( rc == 0 ) {
-+    perror("test_noioctl:EXT2_IOC_SETVERSION");
-     exit(1);
-   }
- 
+Thanks,
+Bandan
 
+ 
 -- 
-Stephen Smalley
-National Security Agency
+BSD
 
 
 --
