@@ -1,40 +1,123 @@
-MIME-Version: 1.0
-Date: Tue, 5 May 2009 15:31:36 -0400
-Message-ID: <150846cc0905051231w77e0eda2y52f72c382182226c@mail.gmail.com>
-Subject: SETRANS + libavg = SIGSEGV on Hardy
-From: Caleb Case <calebcase@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: Kees Cook <kees@ubuntu.com>, jbrindle@tresys.com,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH] Fix ltp selinux testsuite for rhel5
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: ltp-list <ltp-list@lists.sf.net>,
+        Subrata Modak <subrata@linux.vnet.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 05 May 2009 15:41:13 -0400
+Message-Id: <1241552473.3023.370.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-https://bugs.launchpad.net/ubuntu/+source/libselinux/+bug/237156
+Some changes on top of the prior patches to enable the ltp selinux
+testsuite to run successfully on rhel5.  Changes:
+- Fix the extraction of the release version to exclude
+Client/Server/etc.
+- Make the ioctl test detect kernel version and adjust the test logic to
+match the expected selinux_file_ioctl() logic.
+- Prevent runcon from consuming the options to chcon in
+selinux_relabel.sh.
 
-Basically things are seg faulting during fini, but I don't see how
-this could be happening.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-There is a patch there:
+---
 
-diff --git a/libselinux-2.0.59/src/setrans_client.c
-b/libselinux-2.0.59/src/setrans_client.c
-index 1426e98..a2d0d34 100644
---- a/libselinux-2.0.59/src/setrans_client.c
-+++ b/libselinux-2.0.59/src/setrans_client.c
-@@ -217,6 +217,12 @@ hidden void fini_context_translations(void)
- hidden int init_context_translations(void)
- {
- 	mls_enabled = is_selinux_mls_enabled();
-+	// set initial values to work around crash from very late first
-reference in fini.
-+	// The "static __thread .. = NULL" initialization isn't working.
-+	prev_r2t_trans = NULL;
-+	prev_r2t_raw = NULL;
-+	prev_t2r_trans = NULL;
-+	prev_t2r_raw = NULL;
- 	return 0;
- }
+ testcases/kernel/security/selinux-testsuite/refpolicy/Makefile               |    2 
+ testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c    |   28 +++++++---
+ testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh |    2 
+ 3 files changed, 23 insertions(+), 9 deletions(-)
+
+diff -u testcases/kernel/security/selinux-testsuite/refpolicy/Makefile testcases/kernel/security/selinux-testsuite/refpolicy/Makefile
+--- testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	5 May 2009 13:47:43 -0000
++++ testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	5 May 2009 19:30:39 -0000
+@@ -1,5 +1,5 @@
+ REDHAT_RELEASE=$(shell rpm -q redhat-release)
+-REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-")
++REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
+ POLICYDEVEL = /usr/share/selinux/devel
+ SEMODULE = /usr/sbin/semodule
+ CHECKPOLICY = /usr/bin/checkpolicy
+diff -u testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c
+--- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	1 May 2009 13:29:14 -0000
++++ testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	5 May 2009 19:30:39 -0000
+@@ -16,6 +16,7 @@
+ #include<sys/stat.h>
+ #include<linux/fs.h>
+ #include<linux/ext2_fs.h>
++#include <sys/utsname.h>
+ 
+ /*
+  * Test the ioctl() calls on a file whose name is given as the first
+@@ -25,11 +26,19 @@
+  * acess to the given file.
+  */
+ int main(int argc, char **argv) {
+-
++  struct utsname uts;
+   int fd;
+-  int rc;
++  int rc, oldkernel = 1;
+   int val;
+ 
++  if (uname(&uts) < 0) {
++    perror("uname");
++    exit(1);
++  }
++
++  if (strverscmp(uts.release, "2.6.27") >= 0)
++    oldkernel = 0;
++
+   fd = open(argv[1], O_RDONLY, 0);
+  
+   if(fd == -1) {
+@@ -51,19 +60,24 @@
+     exit(1);
+   }
+ 
+-  /* This one should hit the FILE__IOCTL test and fail. */
++  /*
++   * This one depends on kernel version:
++   * New:  Should hit the FILE__IOCTL test and fail.
++   * Old:  Should only check FD__USE and succeed.
++   */
+   rc = ioctl(fd, FIONBIO, &val);
+-  if( rc == 0 ) {
++  if( !rc == !oldkernel ) {
+     printf("test_noioctl:FIONBIO");
+     exit(1);
+   }
+ 
+   /*
+-   * This one should hit the FILE__READ test and succeed since
+-   * read permission had to be granted in order to open the file.
++   * This one depends on kernel version:
++   * New:  Should hit the FILE__READ test and succeed.
++   * Old:  Should hit the FILE__GETATTR test and fail.
+    */
+   rc = ioctl(fd, EXT2_IOC_GETVERSION, &val);
+-  if( rc != 0 ) {
++  if( !rc != !oldkernel ) {
+     perror("test_noioctl:EXT2_IOC_GETVERSION");
+     exit(1);
+   }
+diff -u testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh
+--- testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh	30 Apr 2009 15:18:04 -0000
++++ testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh	5 May 2009 19:30:39 -0000
+@@ -31,7 +31,7 @@
+ 	RC=0
+ 
+ 	# Verify that test_relabel_t can relabel the file.
+-	runcon -t test_relabel_t chcon -t test_relabel_newtype_t $SELINUXTMPDIR/test_file 2>&1
++	runcon -t test_relabel_t -- chcon -t test_relabel_newtype_t $SELINUXTMPDIR/test_file 2>&1
+         RC=$?
+         if [ $RC -eq 0 ]
+         then
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
