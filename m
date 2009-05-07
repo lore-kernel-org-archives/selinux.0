@@ -1,43 +1,30 @@
-Date: Thu, 7 May 2009 14:57:29 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, viro@ZenIV.linux.org.uk,
-        sds@tycho.nsa.gov
-Subject: Re: SELinux and access(2), we want to know.
-Message-ID: <20090507195729.GA21104@us.ibm.com>
-References: <1241723924.2791.107.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1241723924.2791.107.camel@localhost.localdomain>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n47K5pBI020929
+	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 16:05:51 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n47K4CwP018511
+	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 20:04:12 GMT
+Date: Thu, 07 May 2009 16:05:49 -0400
+Subject: Re: We have moved matchpathcon to /sbin from /usr/sbin
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C628B75D.A6FB2%csellers@tresys.com>
+In-Reply-To: <49D37881.6040102@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Eric Paris (eparis@redhat.com):
-> 3) I've also heard it hinted that we could do this with audit by just
-> having audit drop the denials that include the access(2) syscall and the
-> scontext and tcontext for the slew of things the SELinux policy writers
-> know we are not interested in.  And while it seems good, now we have
+On 4/1/09 10:21 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-What is the difference whether an attacker does access(2) to check for
-/etc/shadow rights, or does a failed open()?
+> Some init scripts wanted to use matchpathcon before /usr is mounted.
 
-Either you care that someone is poking around, or you don't.  Right?
+Looks fine except for adding the now split out matchpathcon to the clean
+target. I'll fix that in the merge.
 
-> SELinux 'policy' in places other than the policy, harder to distribute,
-> and it requires that everyone who turns on SELinux also turns on syscall
-> auditing with its associated overhead.
-> 
-> Obviously I think the right thing to decide if an LSM wants to send a
-> denial message or not is the LSM.  The only problem I have is that the
-> LSM doesn't know today when it is getting different types or requests
-> and so can't make that decision.
+Acked-by: Chad Sellers <csellers@tresys.com>
 
-I think the problem is that you want to guess the intent, and you
-can't do that.  Knowing that a process did access instead of open
-really isn't sufficient.
-
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
