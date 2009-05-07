@@ -1,122 +1,63 @@
-Message-ID: <4A023AC0.9080207@ak.jp.nec.com>
-Date: Thu, 07 May 2009 10:34:56 +0900
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n473v4pB005762
+	for <selinux@tycho.nsa.gov>; Wed, 6 May 2009 23:57:06 -0400
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n473v2rC010407
+	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 03:57:03 GMT
+Message-ID: <4A025C03.50907@ak.jp.nec.com>
+Date: Thu, 07 May 2009 12:56:51 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, Andy Warner <warner@rubix.com>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: Some ideas in SE-PostgreSQL enhancement (Re: The status of SE-PostgreSQL)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49C9E101.1050400@rubix.com> <49CA6D24.3040007@manicmethod.com> <49CA8934.1040200@rubix.com> <49CCF41D.4090603@manicmethod.com> <49CCFDF6.9050603@rubix.com> <49CD0995.9050205@manicmethod.com> <49CD12CD.1000205@rubix.com> <49CD1710.6000108@manicmethod.com> <49CD1F74.9030906@rubix.com> <49CD2EB3.2000809@manicmethod.com> <49CD687C.9080401@kaigai.gr.jp> <49CDCF07.1020900@rubix.com> <49D018A3.2090304@ak.jp.nec.com> <49D08105.2090607@ak.jp.nec.com> <49EE5FE3.7010601@tycho.nsa.gov> <49EE9619.6090602@ak.jp.nec.com> <49FA80A2.7060804@tycho.nsa.gov>
-In-Reply-To: <49FA80A2.7060804@tycho.nsa.gov>
+To: SELinux <selinux@tycho.nsa.gov>
+CC: Refpolicy <refpolicy@oss.tresys.com>
+Subject: Re: [refpolicy] [RFC] mod_selinux security policy
+References: <49F69A33.2070601@ak.jp.nec.com>
+In-Reply-To: <49F69A33.2070601@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry for late reply due to the spring vacation season in Japan.
-
->>> But let's step back and take a look at how the file system uses file
->>> contexts. Files are labeled in three ways:
->>>
->>> 1. The normal, preferred way, through a type transition on a subject
->>> (domain) and target (parent directory). The database analog to this:
->>> through a type transition on a subject (domain) and target (parent
->>> table, schema, or other object).
->>>     
->> Yes, we can basically cover all the database object which have its
->> parent object. But the root database obejct does not have its parent.
->> It is the first issue.
->>   
+KaiGai Kohei wrote:
+> Folks,
 > 
-> How are databases stored on disk? Is there a file or directory that
-> could serve as the parent object?
-
-In PostgreSQL, all the database files are indeed stored in a single root
-directory ($PGDATA), however, it depends on the current implementation.
-
->>> 2. For files that are NOT persistent, such as /proc and /sys, by
->>> genfscon rules, which are basically the same as file_contexts. So if
->>> there are non-persistent database objects (such as the pg_temp
->>> mentioned) and there really is no parent object to label from in a type
->>> transition, using selabel lookups could make sense.
->>>     
->> I think the setfscreatecon is better analogy than the genfscon.
->>   
+> Nowadays, I'm also under development for a loadable module on apache/httpd,
+> named as mod_selinux.so. It enables to launch web-applications with an
+> individual security context based on http-authenticated users.
+> It internally uses a one-time worker thread for each connections to perform
+> as a restrictive domain bounded to httpd_t due to the hard-wired rule for
+> multi-threading process.
 > 
-> I don't agree here - setfscreatecon is analogous to SECURITY_LABEL=xxx,
-> where the client (not the object manager) can override the default
-> context for its own purposes. Label lookups, on the other hand, come
-> from a fixed configuration file in /etc/selinux and they are done by the
-> object manager, not the client. It's more like a matchpathcon() or a
-> genfscon.
+> In the LCA2009 demonstration, all we can show was individual MCS category
+> per http-users because of lack of TE policy.
+> The following ugly policy is an example of TE policy for mod_selinux.so.
 > 
-> That said, I don't have a strong objection to this and I do think the
-> selabel support has some valid uses for Postgres.
-
-Hmm... it seems to me you are correct.
-This behavior of selbalel_lookup() may not have appropriate analogy in
-filesystem.
-
->> A schema object is deployed under a database object, so we can compute
->> a default security context using type transition rules, but I also want
->> to set a characteristic default on pg_temp due to its feature.
->> It is the second issue how individual security contexts can be set on
->> objects within same object class.
->> 
+>  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.te
+>  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.if
 > 
-> SE-Postgres should be able to detect when a temp table is being created
-> and only do the selabel lookup in that case.
+> We needed to remain a minimum set of privileges on the bounded domains because
+> they also perform as a part of the daemon process, although they are restricted
+> to access to the web contents or database objects.
+> (Thus, it allows webapp_type to write on log files, for example.)
 > 
-> Actually, if the temp tables are visible to other clients you may need
-> to do an selabel lookup followed by a type transition. Such as
-> temp_schema_t (from lookup) -> type transition -> user_temp_schema_t.
-> Otherwise the temp table could be accessible to other domains. Another
-> alternative would be to use UBAC. If the temp table is not shared
-> between sessions then it doesn't matter.
+> In my hope, if we can have a interface to assign the minimum set of privileges
+> on the bounded domain, it will be helpfull for authors of web applications
+> which provide its own security policy. It will enables them to focus on writing
+> their policy for web contents.
 
-It seems to me this kind of special case handling can give us confusion...
+One possible idea is to define a new attribute (e.g httpd_server_type) which
+contains httpd_t and other domains for built-in web applications.
+A minimum set of privileges to perform as a web server process is allowed
+on the httpd_server_type, and rest of permissions are allowed on individual
+types.
 
->> (Or, defines db_schema_temp class? I'm not sure whether other DBMSs
->> shares the concept of schamas to store temporary objects.)
->>   
-> 
-> This may work. Whether to define a separate object class depends on the
-> complexity it would add to the policy writing and object manager code,
-> versus looking it up in selabel. I wouldn't worry about whether other
-> DBMS would use the class. If they don't need it they can simply ignore it.
+Or, add a new template/interface to allow minimum privilges to perform as
+a web server process (e.g httpd_server_domain), then httpd_t and other
+domains for built-in web applications uses this template/interface.
 
-Indeed, we discussed about differences between SE-PostgreSQL and
-RUBIX before, and agreed to ignore db_catalog class in SE-PostgreSQL.
+Anyway, the mod_selinux currently copies and pastes a part of policies for
+apache, but it is not basically good due to the code duplication.
 
-At least, it has a benefit compared to selabel in UBAC handling,
-so it might be necessary to consider the option.
-
->> The selabel_lookup(3) for database tries to solve two issues in same time.
->> The one is the default to the root of database objects which does not have
->> any parent object. The other is also the default to certain characteristic
->> objects.
->> If we can consider the selabel as analogy of setfscreatecon (automatically
->> set up) for the second issue, I don't think its priority should be moved
->> to the behind of type transition.
->>
->> An aside, the pg_temp schema is implicitly created when CREATE TEMP TABLE
->> statement is given, so we cannot apply SECURITY_LABEL=xxx here. :(
->>   
-> 
-> Understood.
-> 
-> I'll probably push the patch next week sometime, unless I hear otherwise.
-
-Please wait for a while.
-
-As I noted before, the selabel patch tries to solve two matters.
- - The default label for db_database class.
- - The default label for temporary schame.
-
-If we can have db_schema_temp class, the only remaining matter is the default
-in db_database class. It can be solved using a file which store a default label
-for SE-PostgreSQL's db_database objects, as if run_init uses initrc_context.
-
-It makes sense for me, and clear its behavior from the viewpoint of the analogy.
+I would like to get any comments prior to the pushing the package to Fedora.
 
 Thanks,
 -- 
