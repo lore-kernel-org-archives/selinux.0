@@ -1,69 +1,127 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n46MDj0K001720
-	for <selinux@tycho.nsa.gov>; Wed, 6 May 2009 18:13:45 -0400
-Received: from tundra.namei.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n46MDi7e024417
-	for <selinux@tycho.nsa.gov>; Wed, 6 May 2009 22:13:44 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by tundra.namei.org (8.13.1/8.13.1) with ESMTP id n46MDYcw022049
-	for <selinux@tycho.nsa.gov>; Wed, 6 May 2009 18:13:35 -0400
-Date: Thu, 7 May 2009 08:13:34 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 2/2] x86-64: seccomp: fix 32/64 syscall hole (fwd)
-Message-ID: <alpine.LRH.2.00.0905070813020.21675@tundra.namei.org>
+Message-ID: <4A023AC0.9080207@ak.jp.nec.com>
+Date: Thu, 07 May 2009 10:34:56 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Joshua Brindle <method@manicmethod.com>, Andy Warner <warner@rubix.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: Some ideas in SE-PostgreSQL enhancement (Re: The status of SE-PostgreSQL)
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49C9E101.1050400@rubix.com> <49CA6D24.3040007@manicmethod.com> <49CA8934.1040200@rubix.com> <49CCF41D.4090603@manicmethod.com> <49CCFDF6.9050603@rubix.com> <49CD0995.9050205@manicmethod.com> <49CD12CD.1000205@rubix.com> <49CD1710.6000108@manicmethod.com> <49CD1F74.9030906@rubix.com> <49CD2EB3.2000809@manicmethod.com> <49CD687C.9080401@kaigai.gr.jp> <49CDCF07.1020900@rubix.com> <49D018A3.2090304@ak.jp.nec.com> <49D08105.2090607@ak.jp.nec.com> <49EE5FE3.7010601@tycho.nsa.gov> <49EE9619.6090602@ak.jp.nec.com> <49FA80A2.7060804@tycho.nsa.gov>
+In-Reply-To: <49FA80A2.7060804@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Looks like the google chrome folk are considering using SELinux if it's 
-available.
+Sorry for late reply due to the spring vacation season in Japan.
 
----------- Forwarded message ----------
-Date: Wed, 6 May 2009 14:46:02 -0700
-From: "Markus Gutschke (???)" <markus@google.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-    Roland McGrath <roland@redhat.com>,
-    Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
-    linux-kernel@vger.kernel.org, stable@kernel.org, linux-mips@linux-mips.org,
-    sparclinux@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 2/2] x86-64: seccomp: fix 32/64 syscall hole
+>>> But let's step back and take a look at how the file system uses file
+>>> contexts. Files are labeled in three ways:
+>>>
+>>> 1. The normal, preferred way, through a type transition on a subject
+>>> (domain) and target (parent directory). The database analog to this:
+>>> through a type transition on a subject (domain) and target (parent
+>>> table, schema, or other object).
+>>>     
+>> Yes, we can basically cover all the database object which have its
+>> parent object. But the root database obejct does not have its parent.
+>> It is the first issue.
+>>   
+> 
+> How are databases stored on disk? Is there a file or directory that
+> could serve as the parent object?
 
-On Wed, May 6, 2009 at 14:29, Ingo Molnar <mingo@elte.hu> wrote:
-> That's a pretty interesting usage. What would be fallback mode you
-> are using if the kernel doesnt have seccomp built in? Completely
-> non-sandboxed? Or a ptrace/PTRACE_SYSCALL based sandbox?
+In PostgreSQL, all the database files are indeed stored in a single root
+directory ($PGDATA), however, it depends on the current implementation.
 
-Ptrace has performance and/or reliability problems when used to
-sandbox threaded applications due to potential race conditions when
-inspecting system call arguments. We hope that we can avoid this
-problem with seccomp. It is very attractive that kernel automatically
-terminates any application that violates the very well-defined
-constraints of the sandbox.
+>>> 2. For files that are NOT persistent, such as /proc and /sys, by
+>>> genfscon rules, which are basically the same as file_contexts. So if
+>>> there are non-persistent database objects (such as the pg_temp
+>>> mentioned) and there really is no parent object to label from in a type
+>>> transition, using selabel lookups could make sense.
+>>>     
+>> I think the setfscreatecon is better analogy than the genfscon.
+>>   
+> 
+> I don't agree here - setfscreatecon is analogous to SECURITY_LABEL=xxx,
+> where the client (not the object manager) can override the default
+> context for its own purposes. Label lookups, on the other hand, come
+> from a fixed configuration file in /etc/selinux and they are done by the
+> object manager, not the client. It's more like a matchpathcon() or a
+> genfscon.
+> 
+> That said, I don't have a strong objection to this and I do think the
+> selabel support has some valid uses for Postgres.
 
-In general, we are currently exploring different options based on
-general availability, functionality, and complexity of implementation.
-Seccomp is a good middle ground that we expect to be able to use in
-the medium term to provide an acceptable solution for a large segment
-of Linux users. Although the restriction to just four unfiltered
-system calls is painful.
+Hmm... it seems to me you are correct.
+This behavior of selbalel_lookup() may not have appropriate analogy in
+filesystem.
 
-We are still discussing what fallback options we have, and they are
-likely on different schedules.
+>> A schema object is deployed under a database object, so we can compute
+>> a default security context using type transition rules, but I also want
+>> to set a characteristic default on pg_temp due to its feature.
+>> It is the second issue how individual security contexts can be set on
+>> objects within same object class.
+>> 
+> 
+> SE-Postgres should be able to detect when a temp table is being created
+> and only do the selabel lookup in that case.
+> 
+> Actually, if the temp tables are visible to other clients you may need
+> to do an selabel lookup followed by a type transition. Such as
+> temp_schema_t (from lookup) -> type transition -> user_temp_schema_t.
+> Otherwise the temp table could be accessible to other domains. Another
+> alternative would be to use UBAC. If the temp table is not shared
+> between sessions then it doesn't matter.
 
-For instance, on platforms that have AppArmor or SELinux, we might be
-able to use them as part of our sandboxing solution. Although we are
-still investigating whether they meet all of our needs.
+It seems to me this kind of special case handling can give us confusion...
 
+>> (Or, defines db_schema_temp class? I'm not sure whether other DBMSs
+>> shares the concept of schamas to store temporary objects.)
+>>   
+> 
+> This may work. Whether to define a separate object class depends on the
+> complexity it would add to the policy writing and object manager code,
+> versus looking it up in selabel. I wouldn't worry about whether other
+> DBMS would use the class. If they don't need it they can simply ignore it.
 
-Markus
---
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Indeed, we discussed about differences between SE-PostgreSQL and
+RUBIX before, and agreed to ignore db_catalog class in SE-PostgreSQL.
+
+At least, it has a benefit compared to selabel in UBAC handling,
+so it might be necessary to consider the option.
+
+>> The selabel_lookup(3) for database tries to solve two issues in same time.
+>> The one is the default to the root of database objects which does not have
+>> any parent object. The other is also the default to certain characteristic
+>> objects.
+>> If we can consider the selabel as analogy of setfscreatecon (automatically
+>> set up) for the second issue, I don't think its priority should be moved
+>> to the behind of type transition.
+>>
+>> An aside, the pg_temp schema is implicitly created when CREATE TEMP TABLE
+>> statement is given, so we cannot apply SECURITY_LABEL=xxx here. :(
+>>   
+> 
+> Understood.
+> 
+> I'll probably push the patch next week sometime, unless I hear otherwise.
+
+Please wait for a while.
+
+As I noted before, the selabel patch tries to solve two matters.
+ - The default label for db_database class.
+ - The default label for temporary schame.
+
+If we can have db_schema_temp class, the only remaining matter is the default
+in db_database class. It can be solved using a file which store a default label
+for SE-PostgreSQL's db_database objects, as if run_init uses initrc_context.
+
+It makes sense for me, and clear its behavior from the viewpoint of the analogy.
+
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
