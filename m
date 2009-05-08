@@ -1,44 +1,97 @@
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Message-Id: <BD1A2654-EA16-4D95-9A0C-405210896E37@gmail.com>
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1241784499.6452.175.camel@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: Re: does this picture reflect the basics of the current selinux architecture?
-Date: Fri, 8 May 2009 15:30:56 +0200
-References: <4D851E45-B2C0-4392-872A-CC329013FC73@gmail.com> <1241784499.6452.175.camel@localhost.localdomain>
+Subject: Re: SELinux and access(2), we want to know.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, viro@ZenIV.linux.org.uk
+In-Reply-To: <1241723924.2791.107.camel@localhost.localdomain>
+References: <1241723924.2791.107.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 08 May 2009 09:29:38 -0400
+Message-Id: <1241789378.6452.219.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> ...
->
-> - Remove "user" as you suggest, as it incorrectly suggests that  
-> SELinux
-> operates at per-user granularity like DAC.
->
-> - Yes, SELinux runs as a security module in the address space of the
-> kernel.
->
-> - The policy is simply configuration data loaded into the security
-> server.
+On Thu, 2009-05-07 at 15:18 -0400, Eric Paris wrote:
+> SELinux (and I assume all LSMs) have a bit of a problem with with the
+> access(2) call.  If a process calls access("/etc/shadow", R_OK) I claim
+> that we darn sure better return the same result that open("/etc/shadow",
+> O_RDONLY) would return.  I'm guessing noone is going to argue that
+> point.  Lets me also say this is only interesting if DAC allows a given
+> operation but MAC disallows it.  If DAC denies the request none of this
+> matters.
+> 
+> The only way to tell the right result for access() is for SELinux to
+> actually do the checks between (subject, file, read).  Again not a lot
+> of controversy here.
+> 
+> Lets say that the LSM does not allow read for the given subject
+> to /etc/shadow.  SELinux just denied an operation.  Today we log that a
+> process was just denied the ability to read /etc/shadow.  But the
+> process didn't actually try to read it.  If you surf with nautilus
+> to /etc it's going to call access() on everything to decide what kind of
+> little icons to put up there.  This could generate hundreds of SELinux
+> denials that nautilus tried to read everything in /etc.
+> 
+> What SELinux has to do today for programs like this is to not audit the
+> permission check (subject, file, read).  The problem here is that if the
+> program does act badly, and actually tries to read the file rather than
+> just call access() SELinux won't notify us, or report the denial in the
+> audit log.
+> 
+> I want/need a way for SELinux to know that a particular check can from
+> access() rather than from a truly misbehaving program.  That way I can
+> not send denial messages to the log if people just call access(2) but
+> will send a denial if the program does something illegal.  We had a long
+> discussion on the SELinux list about how we want to handle and log the
+> differences, but from the point of view of the VFS all that matters is
+> that we want to know when inode_permission is being called in access()
+> or from somewhere else.  The discussion was between not logging ANY
+> denials SELiunx causes from the access() call and being smarter about
+> only not logging those we really don't care about in a more fine grained
+> manor (I plan to go with fine grained version of not logging denials).
+> The philosophical question is really if there is (and I claim there is)
+> a difference between access() and open() and if we agree there is a
+> difference SELinux needs to know about it so logging those is different.
+> 
+> I propose 2 possible solutions.
+> 1) a new VFS flag next to MAY_READ, MAY_WRITE and friends possibly
+> called "FROM_ACCESS" which we pass down to the LSM in faccessat during
+> the inode_permission call.
 
+This seems to be the simplest approach, and I don't see any downside to
+it.  Just requires adding the flag, passing it down through
+inode_permission and to security_inode_permission, and then updating the
+Smack and SELinux hook functions to handle it properly.  Then Casey can
+even ignore requests from access(2) if he wants in Smack and have it
+only return the DAC result if that is his preference...
 
-1st, tnx for your quick answer!
-
-i have tried to improve the picture as you have suggested. what do you  
-think about this the following one?
-
-IMPROVED PICTURE:
-
-http://3.bp.blogspot.com/_OR3mMHaW6Iw/SgQyRwblcRI/AAAAAAAAAAc/C9HOanHgINs/s1600-h/sel_1_1_eng.png
-
-The policy is now located "within" the security server, i hope this  
-one refelcts more the actual state.
-
---
-Sebastian Pfaff
-
+> 2) a new LSM hook.  security_inode_access_permission() which is called
+> from inode_permission() along with associated flags and such to
+> inode_permissions so the LSM knows where this call is coming from.
+> 
+> 3) I've also heard it hinted that we could do this with audit by just
+> having audit drop the denials that include the access(2) syscall and the
+> scontext and tcontext for the slew of things the SELinux policy writers
+> know we are not interested in.  And while it seems good, now we have
+> SELinux 'policy' in places other than the policy, harder to distribute,
+> and it requires that everyone who turns on SELinux also turns on syscall
+> auditing with its associated overhead.
+> 
+> Obviously I think the right thing to decide if an LSM wants to send a
+> denial message or not is the LSM.  The only problem I have is that the
+> LSM doesn't know today when it is getting different types or requests
+> and so can't make that decision.
+> 
+> -Eric
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
