@@ -1,48 +1,187 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n483pmuY008716
-	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 23:51:48 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n483tQ7N028807
-	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 03:55:27 GMT
-Message-ID: <4A03AC41.1040505@schaufler-ca.com>
-Date: Thu, 07 May 2009 20:51:29 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n483uS21009183
+	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 23:56:28 -0400
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n484067N029902
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 04:00:07 GMT
+Message-ID: <4A03AD55.8020207@ak.jp.nec.com>
+Date: Fri, 08 May 2009 12:56:05 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        viro@ZenIV.linux.org.uk, sds@tycho.nsa.gov
-Subject: Re: SELinux and access(2), we want to know.
-References: <1241723924.2791.107.camel@localhost.localdomain> <20090507195729.GA21104@us.ibm.com>
-In-Reply-To: <20090507195729.GA21104@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+References: <49D1DA85.1030902@ak.jp.nec.com>	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>	 <1238684951.32379.311.camel@gorn.columbia.tresys.com>	 <49D563A9.1000607@ak.jp.nec.com>  <49D965CA.4030908@ak.jp.nec.com>	 <1240258044.19211.767.camel@gorn.columbia.tresys.com>	 <49ED04DF.8050306@ak.jp.nec.com> <1241699079.19211.1251.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1241699079.19211.1251.camel@gorn.columbia.tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------030800070606020106030606"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> Quoting Eric Paris (eparis@redhat.com):
->   
->> 3) I've also heard it hinted that we could do this with audit by just
->> having audit drop the denials that include the access(2) syscall and the
->> scontext and tcontext for the slew of things the SELinux policy writers
->> know we are not interested in.  And while it seems good, now we have
->>     
->
-> What is the difference whether an attacker does access(2) to check for
-> /etc/shadow rights, or does a failed open()?
->   
+This is a multi-part message in MIME format.
+--------------030800070606020106030606
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-I have been studiously ignoring the discussions on the SELinux list because
-in the end it really doesn't matter, as Serge (appears to) point out here.
-The access() system call was a major thorn in the side of the POSIX security
-working group because its behavior is not really very rational. By design
-it does not take into account read-only file systems, ACLs, MAC labels,
-TOMOYO policy, or anything other than the mode bits. A successful return
-from access() gives you no assurance whatever that if you actually try the
-operation it will succeed. My recollection is that every version of
-"trusted unix" written treats the system call the same way it would a
-call to lstat(), because that's really all it is doing.
+>>>> - rework: All the newly created database objects by unprivileged
+>>>>   clients are prefixed with "user_", and these are controled via
+>>>>   sepgsql_enable_users_ddl.
+>>> I don't think we should be mixing user content with other unpriv
+>>> clients.
+>> I would like to discriminate between a procedure declared by unpriv
+>> client and by administrative client, because the policy allows the
+>> unprefixed "sepgsql_proc_exec_t" to be installed as a system internal
+>> component, but it is undesirable to install unpriv-user defined
+>> procedures as is.
+>>
+>> If the "user_" prefix is unpreferable, how do you think other prefixes
+>> something like "anon_", "unpriv_" and so on?
+> 
+> I think we should go with unpriv_ for now.
 
+OK, the attached patch adds the following types for unprivileged clients.
+ - unpriv_sepgsql_table_t
+ - unpriv_sepgsql_sysobj_t
+ - unpriv_sepgsql_proc_exec_t
+ - unpriv_sepgsql_blob_t
+
+These types are the default for unprivileged and unprefixed domains,
+such as httpd_t and others.
+
+In addition, TYPE_TRANSITION rules are moved to outside of tunable
+of the sepgsql_enable_users_ddl. IIRC, it was enclosed within the
+tunable because UBAC domains (user_t and so on) were allowed to
+create sepgsql_table_t, and its default was pointed to this type
+when sepgsql_enable_users_ddl is disabled.
+However, it has different meanings now, so the TYPE_TRANSITION rules
+should be unconditional.
+
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------030800070606020106030606
+Content-Type: text/x-patch;
+ name="refpolicy-sepgsql-1-unpriv-types.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="refpolicy-sepgsql-1-unpriv-types.patch"
+
+Index: policy/modules/services/postgresql.if
+===================================================================
+--- policy/modules/services/postgresql.if	(revision 2982)
++++ policy/modules/services/postgresql.if	(working copy)
+@@ -47,18 +47,17 @@
+ 
+ 	tunable_policy(`sepgsql_enable_users_ddl',`
+ 		allow $2 user_sepgsql_table_t:db_table { create drop };
+-		type_transition $2 sepgsql_database_type:db_table user_sepgsql_table_t;
+-
+ 		allow $2 user_sepgsql_table_t:db_column { create drop };
+-
+ 		allow $2 user_sepgsql_sysobj_t:db_tuple { update insert delete };
+-		type_transition $2 sepgsql_sysobj_table_type:db_tuple user_sepgsql_sysobj_t;
+ 	')
+ 
+ 	allow $2 user_sepgsql_table_t:db_table  { getattr setattr use select update insert delete lock };
+ 	allow $2 user_sepgsql_table_t:db_column { getattr setattr use select update insert };
+ 	allow $2 user_sepgsql_table_t:db_tuple	{ use select update insert delete };
++	type_transition $2 sepgsql_database_type:db_table user_sepgsql_table_t;
++
+ 	allow $2 user_sepgsql_sysobj_t:db_tuple	{ use select };
++	type_transition $2 sepgsql_sysobj_table_type:db_tuple user_sepgsql_sysobj_t;
+ 
+ 	allow $2 user_sepgsql_proc_exec_t:db_procedure { create drop getattr setattr execute };
+ 	type_transition $2 sepgsql_database_type:db_procedure user_sepgsql_proc_exec_t;
+@@ -313,24 +312,55 @@
+ #
+ interface(`postgresql_unpriv_client',`
+ 	gen_require(`
++		class db_database all_db_database_perms;
+ 		class db_table all_db_table_perms;
+ 		class db_procedure all_db_procedure_perms;
++		class db_column all_db_column_perms;
++		class db_tuple all_db_tuple_perms;
+ 		class db_blob all_db_blob_perms;
+ 
+ 		attribute sepgsql_client_type;
++		attribute sepgsql_database_type, sepgsql_sysobj_table_type;
+ 
+-		type sepgsql_db_t, sepgsql_table_t, sepgsql_proc_exec_t, sepgsql_blob_t;
+ 		type sepgsql_trusted_proc_t, sepgsql_trusted_proc_exec_t;
++		type unpriv_sepgsql_blob_t, unpriv_sepgsql_proc_exec_t;
++		type unpriv_sepgsql_sysobj_t, unpriv_sepgsql_table_t;
+ 	')
+ 
++	########################################
++	#
++	# Declarations
++	#
++
+ 	typeattribute $1 sepgsql_client_type;
+ 
+-	type_transition $1 sepgsql_db_t:db_table sepgsql_table_t;
+-	type_transition $1 sepgsql_db_t:db_procedure sepgsql_proc_exec_t;
+-	type_transition $1 sepgsql_db_t:db_blob sepgsql_blob_t;
++	########################################
++	#
++	# Client local policy
++	#
+ 
+ 	type_transition $1 sepgsql_trusted_proc_exec_t:process sepgsql_trusted_proc_t;
+ 	allow $1 sepgsql_trusted_proc_t:process transition;
++
++	tunable_policy(`sepgsql_enable_users_ddl',`
++		allow $1 unpriv_sepgsql_table_t:db_table { create drop setattr };
++		allow $1 unpriv_sepgsql_table_t:db_column { create drop setattr };
++		allow $1 unpriv_sepgsql_sysobj_t:db_tuple { update insert delete };
++	')
++
++	allow $1 unpriv_sepgsql_table_t:db_table { getattr use select update insert delete lock };
++	allow $1 unpriv_sepgsql_table_t:db_column { getattr use select update insert };
++	allow $1 unpriv_sepgsql_table_t:db_tuple { use select update insert delete };
++	type_transition $1 sepgsql_database_type:db_table unpriv_sepgsql_table_t;
++
++	allow $1 unpriv_sepgsql_sysobj_t:db_tuple { use select };
++	type_transition $1 sepgsql_sysobj_table_type:db_tuple unpriv_sepgsql_sysobj_t;
++
++	allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { create drop getattr setattr execute };
++	type_transition $1 sepgsql_database_type:db_procedure unpriv_sepgsql_proc_exec_t;
++
++	allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
++	type_transition $1 sepgsql_database_type:db_blob unpriv_sepgsql_blob_t;
+ ')
+ 
+ ########################################
+Index: policy/modules/services/postgresql.te
+===================================================================
+--- policy/modules/services/postgresql.te	(revision 2982)
++++ policy/modules/services/postgresql.te	(working copy)
+@@ -97,6 +97,20 @@
+ postgresql_unconfined(sepgsql_trusted_proc_t)
+ role system_r types sepgsql_trusted_proc_t;
+ 
++# Types for unprivileged client
++type unpriv_sepgsql_blob_t;
++postgresql_blob_object(unpriv_sepgsql_blob_t)
++
++type unpriv_sepgsql_proc_exec_t;
++postgresql_procedure_object(unpriv_sepgsql_proc_exec_t)
++
++type unpriv_sepgsql_sysobj_t;
++postgresql_system_table_object(unpriv_sepgsql_sysobj_t)
++
++type unpriv_sepgsql_table_t;
++postgresql_table_object(unpriv_sepgsql_table_t)
++
++# Types for UBAC
+ type user_sepgsql_blob_t;
+ typealias user_sepgsql_blob_t alias { staff_sepgsql_blob_t sysadm_sepgsql_blob_t };
+ typealias user_sepgsql_blob_t alias { auditadm_sepgsql_blob_t secadm_sepgsql_blob_t };
+
+--------------030800070606020106030606--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
