@@ -1,11 +1,15 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4845GCx009910
-	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 00:05:16 -0400
-Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4848s7N001476
-	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 04:08:55 GMT
-Message-ID: <4A03AF73.4040407@ak.jp.nec.com>
-Date: Fri, 08 May 2009 13:05:07 +0900
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n484CSTD010530
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 00:12:28 -0400
+Received: from tyo200.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n484G6W9002533
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 04:16:07 GMT
+Received: from tyo202.gate.nec.co.jp ([10.7.69.202])
+	by tyo200.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id n484CQEl019020
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 13:12:26 +0900 (JST)
+Message-ID: <4A03B121.9040700@ak.jp.nec.com>
+Date: Fri, 08 May 2009 13:12:17 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
@@ -15,29 +19,25 @@ Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
 References: <49D1DA85.1030902@ak.jp.nec.com>		<49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>		<1238684951.32379.311.camel@gorn.columbia.tresys.com>		<49D563A9.1000607@ak.jp.nec.com> <49D965CA.4030908@ak.jp.nec.com>		<1240258044.19211.767.camel@gorn.columbia.tresys.com>		<49ED04DF.8050306@ak.jp.nec.com>	<1241699079.19211.1251.camel@gorn.columbia.tresys.com> <4A03AD55.8020207@ak.jp.nec.com>
 In-Reply-To: <4A03AD55.8020207@ak.jp.nec.com>
 Content-Type: multipart/mixed;
- boundary="------------020404050004030005070701"
+ boundary="------------040300020409000707080308"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020404050004030005070701
+--------------040300020409000707080308
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
-The attached patch fixes incorrect behavior in sepgsql_enable_users_ddl.
+The attached patch allows unprivileged clients to export from or import
+to the largeobject owned by themselves.
 
-The current policy allows users/unprivs to run ALTER TABLE statement
-unconditionally, because db_table/db_column:{setattr} is allowed outside
-of the boolean. It should be moved to conditional section.
+The current security policy does not allow them to import/export any
+largeobjects without any clear reason.
 
-In addition, they are also allowed to db_procedure:{create drop setattr}
-for xxxx_sepgsql_proc_exec_t, but it means we allows them to create, drop
-or alter definition of the functions unconditionally. So, it also should
-be moved to conditional section.
-
-The postgresql.te allows sepgsql_client_type to modify sepgsql_table_t
-and sepgsql_sysobj_t when sepgsql_enable_users_ddl is enabled, but
-it should not be allowed.
+NOTE: Export of the largeobject means that it dumps whole of the
+largeobject into a local file, so SE-PostgreSQL checks both of
+db_blob:{read export} on the largeobject and file:{write} on the
+local file. Import is a reversal behavior.
 
 Thanks,
 
@@ -75,80 +75,49 @@ KaiGai Kohei wrote:
 > should be unconditional.
 > 
 > Thanks,
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> refpolicy mailing list
+> refpolicy@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/refpolicy
+
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
 
---------------020404050004030005070701
+--------------040300020409000707080308
 Content-Type: text/x-patch;
- name="refpolicy-sepgsql-2-correct-sepgsql_enable_users_ddl.patch"
+ name="refpolicy-sepgsql-3-db_blob-import-export.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename*0="refpolicy-sepgsql-2-correct-sepgsql_enable_users_ddl.patch"
+ filename="refpolicy-sepgsql-3-db_blob-import-export.patch"
 
---- policy/modules/services/postgresql.if	2009-05-08 12:32:51.000000000 +0900
-+++ policy/modules/services/postgresql.if.2	2009-05-08 11:58:46.000000000 +0900
-@@ -46,20 +46,21 @@
- 	#
- 
- 	tunable_policy(`sepgsql_enable_users_ddl',`
--		allow $2 user_sepgsql_table_t:db_table { create drop };
--		allow $2 user_sepgsql_table_t:db_column { create drop };
-+		allow $2 user_sepgsql_table_t:db_table { create drop setattr };
-+		allow $2 user_sepgsql_table_t:db_column { create drop setattr };
- 		allow $2 user_sepgsql_sysobj_t:db_tuple { update insert delete };
-+		allow $2 user_sepgsql_proc_exec_t:db_procedure { create drop setattr };
- 	')
- 
--	allow $2 user_sepgsql_table_t:db_table  { getattr setattr use select update insert delete lock };
--	allow $2 user_sepgsql_table_t:db_column { getattr setattr use select update insert };
-+	allow $2 user_sepgsql_table_t:db_table  { setattr use select update insert delete lock };
-+	allow $2 user_sepgsql_table_t:db_column { setattr use select update insert };
- 	allow $2 user_sepgsql_table_t:db_tuple	{ use select update insert delete };
- 	type_transition $2 sepgsql_database_type:db_table user_sepgsql_table_t;
- 
- 	allow $2 user_sepgsql_sysobj_t:db_tuple	{ use select };
- 	type_transition $2 sepgsql_sysobj_table_type:db_tuple user_sepgsql_sysobj_t;
- 
--	allow $2 user_sepgsql_proc_exec_t:db_procedure { create drop getattr setattr execute };
-+	allow $2 user_sepgsql_proc_exec_t:db_procedure { getattr execute };
+--- policy/modules/services/postgresql.if.2	2009-05-08 11:58:46.000000000 +0900
++++ policy/modules/services/postgresql.if.3	2009-05-08 11:59:28.000000000 +0900
+@@ -63,7 +63,7 @@
+ 	allow $2 user_sepgsql_proc_exec_t:db_procedure { getattr execute };
  	type_transition $2 sepgsql_database_type:db_procedure user_sepgsql_proc_exec_t;
  
- 	allow $2 user_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
-@@ -346,6 +347,7 @@
- 		allow $1 unpriv_sepgsql_table_t:db_table { create drop setattr };
- 		allow $1 unpriv_sepgsql_table_t:db_column { create drop setattr };
- 		allow $1 unpriv_sepgsql_sysobj_t:db_tuple { update insert delete };
-+		allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { create drop setattr };
- 	')
+-	allow $2 user_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
++	allow $2 user_sepgsql_blob_t:db_blob { create drop getattr setattr read write import export };
+ 	type_transition $2 sepgsql_database_type:db_blob user_sepgsql_blob_t;
  
- 	allow $1 unpriv_sepgsql_table_t:db_table { getattr use select update insert delete lock };
-@@ -356,7 +358,7 @@
- 	allow $1 unpriv_sepgsql_sysobj_t:db_tuple { use select };
- 	type_transition $1 sepgsql_sysobj_table_type:db_tuple unpriv_sepgsql_sysobj_t;
- 
--	allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { create drop getattr setattr execute };
-+	allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { getattr execute };
+ 	allow $2 sepgsql_trusted_proc_t:process transition;
+@@ -361,7 +361,7 @@
+ 	allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { getattr execute };
  	type_transition $1 sepgsql_database_type:db_procedure unpriv_sepgsql_proc_exec_t;
  
- 	allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
---- policy/modules/services/postgresql.te	2009-05-08 12:38:30.000000000 +0900
-+++ policy/modules/services/postgresql.te.2	2009-05-08 12:39:10.000000000 +0900
-@@ -338,12 +338,6 @@
- # Therefore, the following rule is applied for any domains which can connect SE-PostgreSQL.
- dontaudit { postgresql_t sepgsql_client_type sepgsql_unconfined_type } { sepgsql_table_type -sepgsql_sysobj_table_type }:db_tuple { use select update insert delete };
+-	allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
++	allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write import export };
+ 	type_transition $1 sepgsql_database_type:db_blob unpriv_sepgsql_blob_t;
+ ')
  
--tunable_policy(`sepgsql_enable_users_ddl',`
--	allow sepgsql_client_type sepgsql_table_t:db_table { create drop setattr };
--	allow sepgsql_client_type sepgsql_table_t:db_column { create drop setattr };
--	allow sepgsql_client_type sepgsql_sysobj_t:db_tuple { update insert delete };
--')
--
- ########################################
- #
- # Unconfined access to this module
 
---------------020404050004030005070701--
+--------------040300020409000707080308--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
