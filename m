@@ -1,98 +1,45 @@
+Date: Fri, 8 May 2009 09:17:55 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        viro@ZenIV.linux.org.uk, Jamie Lokier <jamie@shareable.org>
 Subject: Re: SELinux and access(2), we want to know.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, viro@ZenIV.linux.org.uk
-In-Reply-To: <1241723924.2791.107.camel@localhost.localdomain>
-References: <1241723924.2791.107.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 08 May 2009 09:29:38 -0400
-Message-Id: <1241789378.6452.219.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <20090508141755.GB19721@us.ibm.com>
+References: <1241723924.2791.107.camel@localhost.localdomain> <20090507195729.GA21104@us.ibm.com> <4A03AC41.1040505@schaufler-ca.com> <1241785627.6452.193.camel@localhost.localdomain> <4A0429A7.7060507@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4A0429A7.7060507@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-05-07 at 15:18 -0400, Eric Paris wrote:
-> SELinux (and I assume all LSMs) have a bit of a problem with with the
-> access(2) call.  If a process calls access("/etc/shadow", R_OK) I claim
-> that we darn sure better return the same result that open("/etc/shadow",
-> O_RDONLY) would return.  I'm guessing noone is going to argue that
-> point.  Lets me also say this is only interesting if DAC allows a given
-> operation but MAC disallows it.  If DAC denies the request none of this
-> matters.
-> 
-> The only way to tell the right result for access() is for SELinux to
-> actually do the checks between (subject, file, read).  Again not a lot
-> of controversy here.
-> 
-> Lets say that the LSM does not allow read for the given subject
-> to /etc/shadow.  SELinux just denied an operation.  Today we log that a
-> process was just denied the ability to read /etc/shadow.  But the
-> process didn't actually try to read it.  If you surf with nautilus
-> to /etc it's going to call access() on everything to decide what kind of
-> little icons to put up there.  This could generate hundreds of SELinux
-> denials that nautilus tried to read everything in /etc.
-> 
-> What SELinux has to do today for programs like this is to not audit the
-> permission check (subject, file, read).  The problem here is that if the
-> program does act badly, and actually tries to read the file rather than
-> just call access() SELinux won't notify us, or report the denial in the
-> audit log.
-> 
-> I want/need a way for SELinux to know that a particular check can from
-> access() rather than from a truly misbehaving program.  That way I can
-> not send denial messages to the log if people just call access(2) but
-> will send a denial if the program does something illegal.  We had a long
-> discussion on the SELinux list about how we want to handle and log the
-> differences, but from the point of view of the VFS all that matters is
-> that we want to know when inode_permission is being called in access()
-> or from somewhere else.  The discussion was between not logging ANY
-> denials SELiunx causes from the access() call and being smarter about
-> only not logging those we really don't care about in a more fine grained
-> manor (I plan to go with fine grained version of not logging denials).
-> The philosophical question is really if there is (and I claim there is)
-> a difference between access() and open() and if we agree there is a
-> difference SELinux needs to know about it so logging those is different.
-> 
-> I propose 2 possible solutions.
-> 1) a new VFS flag next to MAY_READ, MAY_WRITE and friends possibly
-> called "FROM_ACCESS" which we pass down to the LSM in faccessat during
-> the inode_permission call.
+Quoting Daniel J Walsh (dwalsh@redhat.com):
+> Totally useless and gives the SELinux SUCKS crowd more ammunition. If  
+> the MLS people want to treat ACCESS==OPEN then we are going to have a  
+> big boolean/tunable flag for their paranoia.  For everyone else.  Lets  
+> try to figure out when an application is actually doing something evil.
 
-This seems to be the simplest approach, and I don't see any downside to
-it.  Just requires adding the flag, passing it down through
-inode_permission and to security_inode_permission, and then updating the
-Smack and SELinux hook functions to handle it properly.  Then Casey can
-even ignore requests from access(2) if he wants in Smack and have it
-only return the DAC result if that is his preference...
+I'm really not here to be difficult, but if you believe that a failed
+open is a problem bc an attacker can poke around the fs, and you believe
+that nautilus can be hacked, then ignoring access just doesn't make
+sense.  The fact that users are being inconvenienced doesn't change
+that.
 
-> 2) a new LSM hook.  security_inode_access_permission() which is called
-> from inode_permission() along with associated flags and such to
-> inode_permissions so the LSM knows where this call is coming from.
-> 
-> 3) I've also heard it hinted that we could do this with audit by just
-> having audit drop the denials that include the access(2) syscall and the
-> scontext and tcontext for the slew of things the SELinux policy writers
-> know we are not interested in.  And while it seems good, now we have
-> SELinux 'policy' in places other than the policy, harder to distribute,
-> and it requires that everyone who turns on SELinux also turns on syscall
-> auditing with its associated overhead.
-> 
-> Obviously I think the right thing to decide if an LSM wants to send a
-> denial message or not is the LSM.  The only problem I have is that the
-> LSM doesn't know today when it is getting different types or requests
-> and so can't make that decision.
-> 
-> -Eric
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
--- 
-Stephen Smalley
-National Security Agency
+Jamie's point (obscured in code because it is implemented through
+the use of fsuid) that for DAC purposes access and open use different
+creds, is useful.  I can buy that audit should spit out a slightly
+different message to show that MAC failed on real cred attempt
+instead of subj...  (Even though the values of uid, euid, and fsuid
+in the audit msg should make that clear).
 
+So in that case, given how the code is structured currently in
+fs/{open,namei}.c and through inode_permission, an extra flag
+which selinux simply uses to judge which audit msg (if any) to
+spit out seems the simplest way to do it.
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
