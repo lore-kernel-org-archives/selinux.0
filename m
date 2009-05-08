@@ -1,57 +1,48 @@
-Date: Thu, 7 May 2009 16:28:24 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, viro@ZenIV.linux.org.uk,
-        sds@tycho.nsa.gov
-Subject: Re: SELinux and access(2), we want to know.
-Message-ID: <20090507212824.GA23955@us.ibm.com>
-References: <1241723924.2791.107.camel@localhost.localdomain> <20090507195729.GA21104@us.ibm.com> <1241729838.2791.127.camel@localhost.localdomain>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n483pmuY008716
+	for <selinux@tycho.nsa.gov>; Thu, 7 May 2009 23:51:48 -0400
+Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n483tQ7N028807
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 03:55:27 GMT
+Message-ID: <4A03AC41.1040505@schaufler-ca.com>
+Date: Thu, 07 May 2009 20:51:29 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1241729838.2791.127.camel@localhost.localdomain>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        viro@ZenIV.linux.org.uk, sds@tycho.nsa.gov
+Subject: Re: SELinux and access(2), we want to know.
+References: <1241723924.2791.107.camel@localhost.localdomain> <20090507195729.GA21104@us.ibm.com>
+In-Reply-To: <20090507195729.GA21104@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Eric Paris (eparis@redhat.com):
+Serge E. Hallyn wrote:
+> Quoting Eric Paris (eparis@redhat.com):
+>   
+>> 3) I've also heard it hinted that we could do this with audit by just
+>> having audit drop the denials that include the access(2) syscall and the
+>> scontext and tcontext for the slew of things the SELinux policy writers
+>> know we are not interested in.  And while it seems good, now we have
+>>     
+>
+> What is the difference whether an attacker does access(2) to check for
+> /etc/shadow rights, or does a failed open()?
+>   
 
-...
+I have been studiously ignoring the discussions on the SELinux list because
+in the end it really doesn't matter, as Serge (appears to) point out here.
+The access() system call was a major thorn in the side of the POSIX security
+working group because its behavior is not really very rational. By design
+it does not take into account read-only file systems, ACLs, MAC labels,
+TOMOYO policy, or anything other than the mode bits. A successful return
+from access() gives you no assurance whatever that if you actually try the
+operation it will succeed. My recollection is that every version of
+"trusted unix" written treats the system call the same way it would a
+call to lstat(), because that's really all it is doing.
 
-> Your suggestion is the equivalent of knowing that your friend John might
-> look in your window to see if you are home but shouldn't ever try to
-> kick down the door.  In the current situation you can't tell the
-> difference between the window and the door so you won't call the police
-> even if John tries to kick down the door.
-
-I don't buy this analogy, unless there a side effect to a failed open()
-which I'm not thinking of?
-
-> When in reality it would be a
-> lot better to not call the police if John looks in the window even
-> though you don't know his intent.  He might be looking in the window to
-> see if you are home and if not he'll try to kick down the door.  But
-> that situation of not knowing his intent and still not always calling
-> the policy is a heck of a lot better than NEVER calling the police.  And
-> I'm glad you see my side of the SELinux argument that this dontaudit
-> needs to be per domain, not global for all access calls, since knowing
-
-Yes.  It should be distinguishable per domain (and it is, using
-dontaudit, right?).  But I don't yet see any reason why it's worth
-distinguishing between access() and open().
-
-> John might look in the window has nothing to do with Jake and we
-> probably want to call the policy if he does either!
-> 
-> Often the right thing to do here is to fix the application to not
-> request things it doesn't need, but at least in the case of Nautilus it
-> needs to learn everything just so it can draw it's icons, not much we
-> can do about that example.
-
-If policy lets Nautilus poke around all under /usr without auditing,
-then it (and anyone who attacks it) gets to do that...  catching opens
-and not accesses doesn't imo buy you anything.
-
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
