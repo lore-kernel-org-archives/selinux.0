@@ -1,61 +1,326 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n485r3AY021886
-	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 01:53:03 -0400
-Received: from qw-out-1920.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n485pOet005177
-	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 05:51:24 GMT
-Received: by qw-out-1920.google.com with SMTP id 9so886835qwj.30
-        for <selinux@tycho.nsa.gov>; Thu, 07 May 2009 22:53:02 -0700 (PDT)
-Date: Fri, 8 May 2009 01:56:08 -0400
-From: max <maximilianbianco@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: SELinux and access(2), we want to know.
-Message-ID: <20090508055607.GA3175@vertex.ga.at.cox.net>
-References: <1241723924.2791.107.camel@localhost.localdomain> <20090507195729.GA21104@us.ibm.com> <1241729838.2791.127.camel@localhost.localdomain>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n486TeXW025171
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 02:29:40 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n486Rwet013157
+	for <selinux@tycho.nsa.gov>; Fri, 8 May 2009 06:27:59 GMT
+Message-ID: <4A03D145.2040901@ak.jp.nec.com>
+Date: Fri, 08 May 2009 15:29:25 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1241729838.2791.127.camel@localhost.localdomain>
+To: Refpolicy <refpolicy@oss.tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: [PATCH] An interface to allow web-apps minimum privileges (Re: [RFC]
+ mod_selinux security policy)
+References: <49F69A33.2070601@ak.jp.nec.com> <4A025C03.50907@ak.jp.nec.com>
+In-Reply-To: <4A025C03.50907@ak.jp.nec.com>
+Content-Type: multipart/mixed;
+ boundary="------------060106080709090804030009"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 07, 2009 at 04:57:18PM -0400, Eric Paris wrote:
-> On Thu, 2009-05-07 at 14:57 -0500, Serge E. Hallyn wrote:
-> > Quoting Eric Paris (eparis@redhat.com):
-> > > 3) I've also heard it hinted that we could do this with audit by just
-> > > having audit drop the denials that include the access(2) syscall and the
-> > > scontext and tcontext for the slew of things the SELinux policy writers
-> > > know we are not interested in.  And while it seems good, now we have
-> > 
-> > What is the difference whether an attacker does access(2) to check for
-> > /etc/shadow rights, or does a failed open()?
-> > 
-> > Either you care that someone is poking around, or you don't.  Right?
+This is a multi-part message in MIME format.
+--------------060106080709090804030009
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-Yes.
- 
-> No, sadly not true.  Sometimes people have a reason to poke....
+The purpose of the attached patch is a proof of the concent, and I don't
+intend it to be commited soon.
 
-This statement is also true. For example(true story), recently a guy claiming to be from the census bureau was poking around my folks neighborhood. One of the neighbors saw the car going up and down the road, stopping at the top of driveways, wandering down, looking around, being nosy and generally acting suspicious, so the neighbor, she gets a little nervous when the guy decides to stop in her driveway and starts moving toward the door.This is out in the country mind you, so she grabs the shotgun and opens the door before he gets there, asks him what the hell he wants,this guy sees the shotgun blurts out he is with the census bureau and hauls ass. I trust you see my point, just because he ran when he saw the shotgun doesn't mean he wasn't legit.  
+This patch provides two new interfaces to apache.if which enables to allow
+a web application domain shares minimum necessary privileges to perform
+as a part of the web server process (httpd_t).
 
-Personally as a user, I would like to know if a program is misbehaving or if someone is up to no good but as a novice in software development I recognize that this is not going to be even remotely easy. Just like writing policy without understanding what the program does behind the scenes. I could just look at the audit trail to see what it wants but without looking at the code I don't know if its really legit or malicious or just poorly coded.Good admins are hard to find and ones well versed in kernel internals to boot, even harder still.
+When we assign an individual security context on a web application handler,
+it needs to be bounded to httpd_t due to the hardwired constraint for
+multi-threading process.
 
-So really your skirting the issue of whether or not to add some IDS functionality to SELinux.
+The mod_selinux.so is a loadable module for apache web server, which enables
+to assign a bounded security context (based on http authentication) prior to
+invocations of web application handler.
+However, it also performs as a part of web server process, so needs minimum
+necessary privileges to play a role as a web server process, not only web
+application instance. For example, if web application instance writes out
+a log message, it means the thread should have a set of privileges to append
+a record on /var/log/httpd/error_log.
 
-Now in some cases like /etc/shadow the answer will be fairly obvious, you might be allowed to look but only one program should really need to write to this place. Grub might be another, I can't think of any legitamate reason, right now, why any program other than grub or any user other than root might need to modify grub. So in the obvious cases a big flare should go up telling me that I should absolutely consult with the list or another professional before allowing this access. Skull and cross-bones, big red letters, etc....
+Most of the apache_base_webapp() come from apache.te with a bit modification.
+(So, there is no assurance whether it is really minimum necessary privileges,
+or not.) It allows a domain to perform as a part of web server process. If we
+have such kind of interface in the upstream policy, it will enable policy
+authors to focus on access controls for web contents.
 
-In other cases you may have to let SELinux learn if certain behavior is acceptable, now this has its own drawbacks but if users are just going to "allow according to SETroubleshoot" anyway then I don't see that your much worse off in the end. If SELinux can learn based perhaps on the origination point of the call whether or not it should be *audited* then maybe we are getting somewhere. Of course I have no idea at this point how one might go about such a thing or if its even feasible to do so. I am working my way through the code but its going to take me some time to sort this all out.
+What is your opinion? Any comments please,
 
-Now as far as overhead goes, sooner or later, you are going to have to pay the piper somewhere along the line but the kernel stuff I will leave, for now, to the resident wizards. The question I have is this: Is the audit daemon as efficient as it can be? I have auditd running and rsyslog by default on this box. Why two services for what amounts to the same job? I mean from a security perspective isn't every event a potential security issue? Perhaps the whole approach to auditing needs to be revisited. 
+Thanks,
 
-In the end I think, at the very least, your going to have to have some sort of IDS style functionality for certain key areas so the effect of a don't audit is less potentially catastrophic. Allowing a potentially dangerous access to go unaudited even if your certain of denial is not really desirable from an auditing standpoint. I need to know if anyone is attempting to abuse the system.  
+KaiGai Kohei wrote:
+> KaiGai Kohei wrote:
+>> Folks,
+>>
+>> Nowadays, I'm also under development for a loadable module on apache/httpd,
+>> named as mod_selinux.so. It enables to launch web-applications with an
+>> individual security context based on http-authenticated users.
+>> It internally uses a one-time worker thread for each connections to perform
+>> as a restrictive domain bounded to httpd_t due to the hard-wired rule for
+>> multi-threading process.
+>>
+>> In the LCA2009 demonstration, all we can show was individual MCS category
+>> per http-users because of lack of TE policy.
+>> The following ugly policy is an example of TE policy for mod_selinux.so.
+>>
+>>  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.te
+>>  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.if
+>>
+>> We needed to remain a minimum set of privileges on the bounded domains because
+>> they also perform as a part of the daemon process, although they are restricted
+>> to access to the web contents or database objects.
+>> (Thus, it allows webapp_type to write on log files, for example.)
+>>
+>> In my hope, if we can have a interface to assign the minimum set of privileges
+>> on the bounded domain, it will be helpfull for authors of web applications
+>> which provide its own security policy. It will enables them to focus on writing
+>> their policy for web contents.
+> 
+> One possible idea is to define a new attribute (e.g httpd_server_type) which
+> contains httpd_t and other domains for built-in web applications.
+> A minimum set of privileges to perform as a web server process is allowed
+> on the httpd_server_type, and rest of permissions are allowed on individual
+> types.
+> 
+> Or, add a new template/interface to allow minimum privilges to perform as
+> a web server process (e.g httpd_server_domain), then httpd_t and other
+> domains for built-in web applications uses this template/interface.
+> 
+> Anyway, the mod_selinux currently copies and pastes a part of policies for
+> apache, but it is not basically good due to the code duplication.
+> 
+> I would like to get any comments prior to the pushing the package to Fedora.
+> 
+> Thanks,
 
 -- 
-"Any fool can know. The point is to understand" --Albert Einstein
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-Bored??
-http://fiction.wikia.com/wiki/Fuqwit1.0
+--------------060106080709090804030009
+Content-Type: text/x-patch;
+ name="refpolicy-webapp-interface.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="refpolicy-webapp-interface.patch"
 
-http://fiction.wikia.com/wiki/Coding_the_Magic_into_the_Eight_Ball
+Index: apache.te
+===================================================================
+--- apache.te	(revision 2982)
++++ apache.te	(working copy)
+@@ -111,6 +111,9 @@
+ attribute httpdcontent;
+ attribute httpd_user_content_type;
+ 
++# domains that can perform as a server process
++attribute httpd_server_domains;
++
+ # domains that can exec all users scripts
+ attribute httpd_exec_scripts;
+ 
+@@ -123,6 +126,7 @@
+ type httpd_t;
+ type httpd_exec_t;
+ init_daemon_domain(httpd_t, httpd_exec_t)
++typeattribute httpd_t httpd_server_domains;
+ role system_r types httpd_t;
+ 
+ # httpd_cache_t is the type given to the /var/cache/httpd
+Index: apache.if
+===================================================================
+--- apache.if	(revision 2982)
++++ apache.if	(working copy)
+@@ -308,6 +308,182 @@
+ 
+ ########################################
+ ## <summary>
++##	Allow a domain to perform as a web server process
++##	with necessary minimum privileges.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`apache_base_webapp',`
++	gen_require(`
++		attribute httpd_server_domains;
++		type httpd_t;
++		type httpd_config_t;
++		type httpd_log_t;
++		type httpd_sys_content_t;
++		type httpd_suexec_exec_t;
++	')
++	########################################
++	#
++	# Local declarations
++	#
++	typeattribute $1 httpd_server_domains;
++
++	typebounds httpd_t $1;
++
++	allow httpd_t $1:process { dyntransition };
++	role system_r types $1;
++
++	########################################
++	#
++	# Minimum privileges to perform as a part of httpd
++	#
++	allow $1 httpd_server_domains:process ~{ ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap };
++	allow $1 httpd_server_domains:fd use;
++	allow $1 httpd_server_domains:sock_file read_sock_file_perms;
++	allow $1 httpd_server_domains:fifo_file rw_fifo_file_perms;
++	allow $1 httpd_server_domains:shm rw_shm_perms;
++	allow $1 httpd_server_domains:sem rw_sem_perms;
++	allow $1 httpd_server_domains:msgq rw_msgq_perms;
++	allow $1 httpd_server_domains:msg { send receive };
++	allow $1 httpd_server_domains:unix_dgram_socket { rw_socket_perms sendto };
++	allow $1 httpd_server_domains:unix_stream_socket { rw_socket_perms connectto };
++	allow $1 httpd_server_domains:tcp_socket rw_socket_perms;
++	allow $1 httpd_server_domains:udp_socket rw_socket_perms;
++
++	# allow to read the web servers config files
++	allow $1 httpd_config_t:dir list_dir_perms;
++	read_files_pattern($1, httpd_config_t, httpd_config_t)
++	read_lnk_files_pattern($1, httpd_config_t, httpd_config_t)
++
++	# allow to append the web servers log files
++	allow $1 httpd_log_t:dir setattr;
++	create_files_pattern($1, httpd_log_t, httpd_log_t)
++	append_files_pattern($1, httpd_log_t, httpd_log_t)
++	read_files_pattern($1, httpd_log_t, httpd_log_t)
++	read_lnk_files_pattern($1, httpd_log_t, httpd_log_t)
++	logging_log_filetrans($1, httpd_log_t, file)
++
++	# SuExec
++	allow $1 httpd_suexec_exec_t:file read_file_perms;
++
++	# Read-only accesses to system contents
++	allow $1 httpd_sys_content_t:dir list_dir_perms;
++	read_files_pattern($1, httpd_sys_content_t, httpd_sys_content_t)
++	read_lnk_files_pattern($1, httpd_sys_content_t, httpd_sys_content_t)
++
++	# /proc
++	allow $1 httpd_server_domains:dir list_dir_perms;
++	kernel_read_kernel_sysctls($1)
++	kernel_read_system_state($1)
++
++	# allow to communicate via core-networks
++	corenet_all_recvfrom_unlabeled($1)
++	corenet_all_recvfrom_netlabel($1)
++	corenet_tcp_sendrecv_generic_if($1)
++	corenet_udp_sendrecv_generic_if($1)
++	corenet_tcp_sendrecv_generic_node($1)
++	corenet_udp_sendrecv_generic_node($1)
++	corenet_tcp_sendrecv_all_ports($1)
++	corenet_udp_sendrecv_all_ports($1)
++	corenet_sendrecv_http_server_packets($1)
++	corenet_tcp_connect_http_port($1)
++
++	# device nodes
++	dev_read_sysfs($1)
++	dev_read_rand($1)
++	dev_read_urand($1)
++	dev_rw_crypto($1)
++
++	# filesystems
++	fs_getattr_all_fs($1)
++	fs_search_auto_mountpoints($1)
++
++	# misc permissions
++	domain_use_interactive_fds($1)
++
++	files_read_usr_files($1)
++	files_list_mnt($1)
++	files_search_spool($1)
++	files_read_var_lib_files($1)
++	files_search_home($1)
++	files_getattr_home_dir($1)
++	# for modules that want to access /etc/mtab
++	files_read_etc_runtime_files($1)
++	# Allow httpd_t to have access to files such as nisswitch.conf
++	files_read_etc_files($1)
++
++	libs_read_lib_files($1)
++
++	logging_send_syslog_msg($1)
++
++	miscfiles_read_localization($1)
++	miscfiles_read_fonts($1)
++	miscfiles_read_public_files($1)
++	miscfiles_read_certs($1)
++
++	seutil_dontaudit_search_config($1)
++
++	userdom_use_unpriv_users_fds($1)
++')
++
++########################################
++## <summary>
++##	Allos a domain to access UBAC types for web contents
++## </summary>
++## <param name="prefix">
++##	<summary>
++##	The prefix to be used for deriving type names.
++##	</summary>
++## </param>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`apache_user_webapp',`
++	gen_require(`
++		type httpd_$1_content_t;
++		type httpd_$1_htaccess_t;
++		type httpd_$1_script_t;
++		type httpd_$1_script_exec_t;
++		type httpd_$1_script_ro_t;
++		type httpd_$1_script_rw_t;
++		type httpd_$1_script_ra_t;
++	')
++
++	# .htaccess files
++	allow $2 httpd_$1_htaccess_t:file read_file_perms;
++
++	# httpd_builtin_scripting controls them
++	manage_dirs_pattern($2, httpd_$1_script_rw_t, httpd_$1_script_rw_t)
++	manage_files_pattern($2, httpd_$1_script_rw_t, httpd_$1_script_rw_t)
++	manage_lnk_files_pattern($2, httpd_$1_script_rw_t, httpd_$1_script_rw_t)
++	rw_sock_files_pattern($2, httpd_$1_script_rw_t, httpd_$1_script_rw_t)
++
++	allow $2 httpd_$1_script_ra_t:dir { list_dir_perms add_entry_dir_perms };
++	read_files_pattern($2, httpd_$1_script_ra_t, httpd_$1_script_ra_t)
++	append_files_pattern($2, httpd_$1_script_ra_t, httpd_$1_script_ra_t)
++	read_lnk_files_pattern($2, httpd_$1_script_ra_t, httpd_$1_script_ra_t)
++
++	allow $2 httpd_$1_script_ro_t:dir list_dir_perms;
++	read_files_pattern($2, httpd_$1_script_ro_t, httpd_$1_script_ro_t)
++	read_lnk_files_pattern($2, httpd_$1_script_ro_t, httpd_$1_script_ro_t)
++
++	allow $2 httpd_$1_content_t:dir list_dir_perms;
++	read_files_pattern($2, httpd_$1_content_t, httpd_$1_content_t)
++	read_lnk_files_pattern($2, httpd_$1_content_t, httpd_$1_content_t)
++
++	# httpd_enable_cgi controls them
++	domtrans_pattern($2, httpd_$1_script_exec_t, httpd_$1_script_t)
++')
++
++########################################
++## <summary>
+ ##	Read httpd user scripts executables.
+ ## </summary>
+ ## <param name="domain">
+
+--------------060106080709090804030009--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
