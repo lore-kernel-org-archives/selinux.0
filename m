@@ -1,129 +1,161 @@
-Subject: Re: [PATCH] Fix ltp selinux testsuite for rhel5
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Reply-To: subrata@linux.vnet.ibm.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: ltp-list <ltp-list@lists.sf.net>, "Serge E. Hallyn" <serue@us.ibm.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1241552473.3023.370.camel@localhost.localdomain>
-References: <1241552473.3023.370.camel@localhost.localdomain>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4BCbmDs013064
+	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 08:37:48 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n4BCbkPB013692
+	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 12:37:46 GMT
+Subject: Re: daemons and MCS categories
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: dwalsh@redhat.com, method@manicmethod.com, russell@coker.com.au,
+        SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4A07B36C.1080305@ak.jp.nec.com>
+References: <200605220930.05483.russell@coker.com.au>
+	 <1148910738.14262.67.camel@sgc.columbia.tresys.com>
+	 <49EC1F11.6040003@ak.jp.nec.com> <49ED29CC.6080507@ak.jp.nec.com>
+	 <49EED77F.5060407@ak.jp.nec.com>  <4A07B36C.1080305@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Mon, 11 May 2009 14:46:42 +0530
-Message-Id: <1242033402.6102.98.camel@subratamodak.linux.ibm.com>
+Date: Mon, 11 May 2009 08:37:36 -0400
+Message-Id: <1242045456.5102.3.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-05-05 at 15:41 -0400, Stephen Smalley wrote: 
-> Some changes on top of the prior patches to enable the ltp selinux
-> testsuite to run successfully on rhel5.  Changes:
-> - Fix the extraction of the release version to exclude
-> Client/Server/etc.
-> - Make the ioctl test detect kernel version and adjust the test logic to
-> match the expected selinux_file_ioctl() logic.
-> - Prevent runcon from consuming the options to chcon in
-> selinux_relabel.sh.
+On Mon, 2009-05-11 at 14:11 +0900, KaiGai Kohei wrote:
+> Are anyone interested in the daemon process with mcs categories?
 > 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> My proposition tries to cover general daemon processes, but my
+> major concern is apache/httpd performing without any categories.
+> If we focus on the apache/httpd, we can add the following policy
+> within the mod_selinux.pp, and it enables to run httpd_t with
+> mcs categories.
+> 
+>   optional_policy(`
+>       init_ranged_daemon_domain(httpd_t,httpd_exec_t,s0 - mcs_systemhigh)
+>   ')
+> 
+> The mod_selinux.so is an apache/httpd module which enables to
+> change its own security context prior to launching contents
+> handler. We can set up the module to drop all the categories
+> for unauthorized http clients, and rest of requests to perform
+> with appropriate categories.
+> 
+> The above rule will be available only when mod_selinux is installed.
+> I don't think it gives any impact for existing stuffs.
 
-Thanks.
+I think we should leave this up to the users.  Apache should only be
+given the set of categories which is the union of all of the categories
+used by mod_selinux, which can only be determined by the users.
 
-Regards--
-Subrata
-
+> KaiGai Kohei wrote:
+> > The attached patch is a proof-of-concept for the facility to launch
+> > daemon processes with a certaon mcs ranges.
+> > 
+> > The selinux-daemon-mcs-run_init.patch add run_init a new option which
+> > specifies the name of daemon.
+> > 
+> >   # run_init -n httpd /etc/init.d/httpd restart
+> > 
+> > When -n option is given, run_init lookups under the
+> > /etc/selinux/<policy type>/contexts/initrc/<daemon>, and replaces the
+> > range to be assigned on the init script.
+> > 
+> >   [root@saba run_init]# cat /etc/selinux/targeted/contexts/initrc/httpd
+> >   s0-s0:c0.c31
+> >   [root@saba run_init]# ./run_init -n httpd /etc/init.d/httpd restart
+> >   Authenticating kaigai.
+> >   Password:
+> >   Stopping httpd:                                            [  OK  ]
+> >   Starting httpd:                                            [  OK  ]
+> >   [root@saba run_init]# ps -AZ | grep httpd
+> >   system_u:system_r:httpd_t:s0-s0:c0.c31 11303 ? 00:00:00 httpd
+> >   system_u:system_r:httpd_t:s0-s0:c0.c31 11305 ? 00:00:00 httpd
+> >   system_u:system_r:httpd_t:s0-s0:c0.c31 11308 ? 00:00:00 httpd
+> >   system_u:system_r:httpd_t:s0-s0:c0.c31 11309 ? 00:00:00 httpd
+> >   system_u:system_r:httpd_t:s0-s0:c0.c31 11310 ? 00:00:00 httpd
+> >      :
+> > 
+> > The selinux-daemon-mcs-rc-script.patch is a short hack to the system
+> > init script. It launches the required script with "runcon -l", if
+> > per-daemon range is configured.
+> > 
+> > These reworks typicall enable web-application (launched by httpd) to
+> > perform in a certain restrictive category of MCS.
+> > Currently, mod_selinux's security policy module assigns "mcssetcats"
+> > on httpd_t, but it is fundamentally denger and nonsense. :(
+> > 
+> > So, I would like to see the daemon processes with appropriate categories.
+> > 
+> > Thanks,
+> > 
+> > KaiGai Kohei wrote:
+> >> KaiGai Kohei wrote:
+> >>> Sorry for opening the old discussion again.
+> >>>
+> >>> If you don't ML logs in local, please see the archives:
+> >>>   http://marc.info/?t=114825463100001&r=1&w=2
+> >>>
+> >>> Christopher J. PeBenito wrote:
+> >>>> I agree with James on this, I don't think we want to impose semantics in
+> >>>> the MCS categories, and that this
+> >>>>
+> >>>>> Another possibility is to have the ability to configure which categories are 
+> >>>>> assigned to a daemon via run_init or some similar program.  It would not be 
+> >>>>> difficult to read a config file that maps the domain of a daemon to the range 
+> >>>>> that should be granted to it.
+> >>>> is useful so that if users do want to run a daemon with categories, they
+> >>>> can.
+> >>> Is it still unavailable on the current SELinux userspace utilities, isn't it?
+> >> Shall we start to implement an extention of run_init and others based on
+> >> the above Russell's idea?
+> >>
+> >> Now, I have a plan to store configuration files at:
+> >>   /etc/selinux/${POLICY_TYPE}/contexts/initrc/${DAEMON}
+> >>    or
+> >>   /etc/selinux/${POLICY_TYPE}/contexts/initrc_contexts with format extensions
+> >>
+> >> and, add a new option to run_init as:
+> >>   run_init [-n <daemon>] <script> [<args> ...]
+> >>
+> >>   It intends to see the per-daemon default range, instead of the initrc_contexts.
+> >>
+> >> and, add a bit of hacks on the /etc/rc.d/rc script which launches daemon scripts
+> >> when run-level is changed. (Maybe, it is necessary to launch them via "runcon -l"
+> >> when the given daemon has its own range.)
+> >>
+> >> The last also need to have a discussion in the Fedora developer's list.
+> >> Dan, do you think it is a hopefull proposition?
+> >>
+> >> Thanks,
+> >>
+> >>> If we could start the init-scripts via runcon by hand, it seems to me the
+> >>> daemon processes performs with multi categories.
+> >>>
+> >>>  | [root@saba ~]# runcon -l s0-s0:c0.c255 /etc/init.d/httpd restart
+> >>>  | Stopping httpd:                                            [  OK  ]
+> >>>  | Starting httpd:                                            [  OK  ]
+> >>>  | [root@saba ~]# ps -AZ | grep httpd
+> >>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6458 ? 00:00:00 httpd
+> >>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6460 ? 00:00:00 httpd
+> >>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6461 ? 00:00:00 httpd
+> >>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6462 ? 00:00:00 httpd
+> >>>  |      :
+> >>>
+> >>> But it is unavailable when the system kicks init-script on startup time.
+> >>> Is there any good idea?
+> >>>
+> >>> In the recent days, I'm working for an apache module (mod_selinux.so) which
+> >>> launches web application handler under an individual security context based
+> >>> on http-authentication.
+> >>> I'm looking for the way to assign a few dozens of categories on httpd server
+> >>> processes which are launched at system startup time.
+> >>>
+> >>> Thanks,
 > 
-> ---
-> 
->  testcases/kernel/security/selinux-testsuite/refpolicy/Makefile               |    2 
->  testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c    |   28 +++++++---
->  testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh |    2 
->  3 files changed, 23 insertions(+), 9 deletions(-)
-> 
-> diff -u testcases/kernel/security/selinux-testsuite/refpolicy/Makefile testcases/kernel/security/selinux-testsuite/refpolicy/Makefile
-> --- testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	5 May 2009 13:47:43 -0000
-> +++ testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	5 May 2009 19:30:39 -0000
-> @@ -1,5 +1,5 @@
->  REDHAT_RELEASE=$(shell rpm -q redhat-release)
-> -REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-")
-> +REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
->  POLICYDEVEL = /usr/share/selinux/devel
->  SEMODULE = /usr/sbin/semodule
->  CHECKPOLICY = /usr/bin/checkpolicy
-> diff -u testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c
-> --- testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	1 May 2009 13:29:14 -0000
-> +++ testcases/kernel/security/selinux-testsuite/tests/ioctl/selinux_noioctl.c	5 May 2009 19:30:39 -0000
-> @@ -16,6 +16,7 @@
->  #include<sys/stat.h>
->  #include<linux/fs.h>
->  #include<linux/ext2_fs.h>
-> +#include <sys/utsname.h>
-> 
->  /*
->   * Test the ioctl() calls on a file whose name is given as the first
-> @@ -25,11 +26,19 @@
->   * acess to the given file.
->   */
->  int main(int argc, char **argv) {
-> -
-> +  struct utsname uts;
->    int fd;
-> -  int rc;
-> +  int rc, oldkernel = 1;
->    int val;
-> 
-> +  if (uname(&uts) < 0) {
-> +    perror("uname");
-> +    exit(1);
-> +  }
-> +
-> +  if (strverscmp(uts.release, "2.6.27") >= 0)
-> +    oldkernel = 0;
-> +
->    fd = open(argv[1], O_RDONLY, 0);
->   
->    if(fd == -1) {
-> @@ -51,19 +60,24 @@
->      exit(1);
->    }
-> 
-> -  /* This one should hit the FILE__IOCTL test and fail. */
-> +  /*
-> +   * This one depends on kernel version:
-> +   * New:  Should hit the FILE__IOCTL test and fail.
-> +   * Old:  Should only check FD__USE and succeed.
-> +   */
->    rc = ioctl(fd, FIONBIO, &val);
-> -  if( rc == 0 ) {
-> +  if( !rc == !oldkernel ) {
->      printf("test_noioctl:FIONBIO");
->      exit(1);
->    }
-> 
->    /*
-> -   * This one should hit the FILE__READ test and succeed since
-> -   * read permission had to be granted in order to open the file.
-> +   * This one depends on kernel version:
-> +   * New:  Should hit the FILE__READ test and succeed.
-> +   * Old:  Should hit the FILE__GETATTR test and fail.
->     */
->    rc = ioctl(fd, EXT2_IOC_GETVERSION, &val);
-> -  if( rc != 0 ) {
-> +  if( !rc != !oldkernel ) {
->      perror("test_noioctl:EXT2_IOC_GETVERSION");
->      exit(1);
->    }
-> diff -u testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh
-> --- testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh	30 Apr 2009 15:18:04 -0000
-> +++ testcases/kernel/security/selinux-testsuite/tests/relabel/selinux_relabel.sh	5 May 2009 19:30:39 -0000
-> @@ -31,7 +31,7 @@
->  	RC=0
-> 
->  	# Verify that test_relabel_t can relabel the file.
-> -	runcon -t test_relabel_t chcon -t test_relabel_newtype_t $SELINUXTMPDIR/test_file 2>&1
-> +	runcon -t test_relabel_t -- chcon -t test_relabel_newtype_t $SELINUXTMPDIR/test_file 2>&1
->          RC=$?
->          if [ $RC -eq 0 ]
->          then
-> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
