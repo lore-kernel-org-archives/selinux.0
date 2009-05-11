@@ -1,32 +1,42 @@
-Subject: Re: EOF missing newline bug in squid.fc / toolchain
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4BCmklQ015140
+	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 08:48:46 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n4BCmmgH004989
+	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 12:48:49 GMT
+Subject: Re: [refpolicy] how to enable gconf(arole_dbus_t errors) and all
+ of the gnome goodies
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <4A04BCDC.2020106@tycho.nsa.gov>
-References: <4A04BCDC.2020106@tycho.nsa.gov>
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+In-Reply-To: <1241804968.1819.9.camel@unix>
+References: <1241804968.1819.9.camel@unix>
 Content-Type: text/plain
-Date: Mon, 11 May 2009 08:45:42 -0400
-Message-Id: <1242045942.5102.10.camel@gorn.columbia.tresys.com>
+Date: Mon, 11 May 2009 08:48:40 -0400
+Message-Id: <1242046120.5102.11.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-05-08 at 19:14 -0400, Eamon Walsh wrote:
-> The file squid.fc in refpolicy has no newline at the end.
+On Fri, 2009-05-08 at 10:49 -0700, Justin P. Mattock wrote:
+> with the latest policy:
+> I'm wondering what would be the best way to
+> allow gconf,evolution,nautilus,etc..
 > 
-> The toolchain doesn't correct for this, and squid.pp retains the missing
-> newline, all the way to the finished file_contexts where I'm ending up with
-> /var/squidGuard(/.*)?   system_u:object_r:squid_cache_t:s0#
+> If I start any of these during boot I'll
+> get system_dbus_t(which gets allowed)
+> but if I start evolution, nautilus, etc..
+> normally once Ive booted up I get an error 
+> with checkpolicy.(due to arole_dbus_t instead of
+> system_dbus_t)
 > 
-> (an empty comment line got mashed on), and setfiles verification fails
-> with invalid MLS field.
+> Should I try and compile these programs
+> without orbit support(if possible), gconf support
+> and dbus support?
+> 
+> is there a boolean that I'm missing?
 
-I fixed this in refpolicy trunk.  I'll look into making sure there is an
-extra endline at the end of file contexts when building a module.
-However, the toolchain should probably add a newline between each of the
-modules' file contexts when they're concatenated, since it isn't
-required to use refpolicy infrastructure to build .pp's.
+Can you provide the exact error messages?
 
 -- 
 Chris PeBenito
