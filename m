@@ -1,106 +1,178 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4BJQlHD023531
-	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 15:26:48 -0400
-Received: from rv-out-0708.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4BJQlq7001044
-	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 19:26:47 GMT
-Received: by rv-out-0708.google.com with SMTP id b17so2293697rvf.54
-        for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 12:26:45 -0700 (PDT)
-Subject: Re: [refpolicy] how to enable gconf(arole_dbus_t errors) and all
- of the gnome goodies
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4C0LocO027367
+	for <selinux@tycho.nsa.gov>; Mon, 11 May 2009 20:21:51 -0400
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4C0Lp6T009280
+	for <selinux@tycho.nsa.gov>; Tue, 12 May 2009 00:21:52 GMT
+Message-ID: <4A08C0DC.30108@ak.jp.nec.com>
+Date: Tue, 12 May 2009 09:20:44 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-In-Reply-To: <1242068307.27235.25.camel@gorn>
-References: <1241804968.1819.9.camel@unix>
-	 <1242046120.5102.11.camel@gorn.columbia.tresys.com>
-	 <dd18b0c30905110751hbc3f36n741bad8e57eeb1be@mail.gmail.com>
-	 <1242068307.27235.25.camel@gorn>
-Content-Type: text/plain
-Date: Mon, 11 May 2009 12:26:56 -0700
-Message-Id: <1242070017.1991.7.camel@unix>
-Mime-Version: 1.0
+CC: dwalsh@redhat.com, method@manicmethod.com, russell@coker.com.au,
+        SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: daemons and MCS categories
+References: <200605220930.05483.russell@coker.com.au>	 <1148910738.14262.67.camel@sgc.columbia.tresys.com>	 <49EC1F11.6040003@ak.jp.nec.com> <49ED29CC.6080507@ak.jp.nec.com>	 <49EED77F.5060407@ak.jp.nec.com>  <4A07B36C.1080305@ak.jp.nec.com> <1242045456.5102.3.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1242045456.5102.3.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-05-11 at 14:58 -0400, Christopher J. PeBenito wrote:
-> On Mon, 2009-05-11 at 07:51 -0700, Justin Mattock wrote:
-> > On Mon, May 11, 2009 at 5:48 AM, Christopher J. PeBenito
-> > <cpebenito@tresys.com> wrote:
-> > > On Fri, 2009-05-08 at 10:49 -0700, Justin P. Mattock wrote:
-> > >> with the latest policy:
-> > >> I'm wondering what would be the best way to
-> > >> allow gconf,evolution,nautilus,etc..
-> > >>
-> > >> If I start any of these during boot I'll
-> > >> get system_dbus_t(which gets allowed)
-> > >> but if I start evolution, nautilus, etc..
-> > >> normally once Ive booted up I get an error
-> > >> with checkpolicy.(due to arole_dbus_t instead of
-> > >> system_dbus_t)
-> > >>
-> > >> Should I try and compile these programs
-> > >> without orbit support(if possible), gconf support
-> > >> and dbus support?
-> > >>
-> > >> is there a boolean that I'm missing?
-> > >
-> > > Can you provide the exact error messages?
-> > >
-> > If I start the system, and gather avc's
-> > for(example) gnom-volume-control
-> > (some of them below, then write them into the policy)
-> > 
-> > allow user_dbusd_t default_t:chr_file { read write getattr open ioctl };
-> > allow user_dbusd_t gconf_etc_t:dir { search getattr };
-> > allow user_dbusd_t gconf_home_t:dir { write search read remove_name
-> > open getattr add_name };
-> > allow user_dbusd_t gconf_home_t:file { rename setattr read create
-> > write getattr unlink open append };
-> > allow user_dbusd_t gconfd_exec_t:file { read execute open execute_no_trans };
-> > allow user_dbusd_t mozilla_t:unix_stream_socket connectto;
-> > allow user_dbusd_t self:process getsched;
-> > 
-> > the error is this:
-> > 
-> > m4 -D enable_mcs -D distro_redhat -D mls_num_sens=16 -D
-> > mls_num_cats=256 -D mcs_num_cats=256 -D hide_broken_symptoms -D
-> > self_contained_policy policy/support/file_patterns.spt
-> > policy/support/ipc_patterns.spt policy/support/loadable_module.spt
-> > policy/support/misc_macros.spt policy/support/misc_patterns.spt
-> > policy/support/mls_mcs_macros.spt policy/support/obj_perm_sets.spt
-> > tmp/generated_definitions.conf policy/global_booleans
-> > policy/global_tunables > tmp/global_bools.conf
-> > Creating mcs policy.conf
-> > cat tmp/pre_te_files.conf tmp/all_attrs_types.conf
-> > tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_post.conf >
-> > policy.conf
-> > Compiling mcs policy.22
-> > /usr/bin/checkpolicy -M -c 22 -U deny policy.conf -o policy.22
-> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> > policy/modules/services/xserver.te":1042:ERROR 'type user_dbusd_t is
-> > not within scope' at token ';' on line 2597865:
-> > 
-> > allow user_dbusd_t default_t:chr_file { read write getattr open ioctl };
-> > checkpolicy:  error(s) encountered while parsing configuration
-> > make: *** [policy.22] Error 1
+Christopher J. PeBenito wrote:
+> On Mon, 2009-05-11 at 14:11 +0900, KaiGai Kohei wrote:
+>> Are anyone interested in the daemon process with mcs categories?
+>>
+>> My proposition tries to cover general daemon processes, but my
+>> major concern is apache/httpd performing without any categories.
+>> If we focus on the apache/httpd, we can add the following policy
+>> within the mod_selinux.pp, and it enables to run httpd_t with
+>> mcs categories.
+>>
+>>   optional_policy(`
+>>       init_ranged_daemon_domain(httpd_t,httpd_exec_t,s0 - mcs_systemhigh)
+>>   ')
+>>
+>> The mod_selinux.so is an apache/httpd module which enables to
+>> change its own security context prior to launching contents
+>> handler. We can set up the module to drop all the categories
+>> for unauthorized http clients, and rest of requests to perform
+>> with appropriate categories.
+>>
+>> The above rule will be available only when mod_selinux is installed.
+>> I don't think it gives any impact for existing stuffs.
 > 
-> user_dbusd_t is optionally declared, and the invocation is in
-> policy/modules/roles/unprivuser.te line 37 (in current refpolicy trunk).
-> You would have to put rules in that optional, otherwise the rule is out
-> of scope.
-> 
+> I think we should leave this up to the users.  Apache should only be
+> given the set of categories which is the union of all of the categories
+> used by mod_selinux, which can only be determined by the users.
 
-Cool, I'll have a look.
-(sorry for bringing this up again, 
-I've been going crazy with this for a while)
+Yes, I also think it is more preferable than (mostly) wired mcs_systemhigh.
+However, the matter is the way to start up httpd with certain categories.
+The run_init invokes all the daemon process with a security context
+configured in /etc/selinux/$POLICYTYPE/contexts/initrc_context, and
+the case when system startup script kicks them also does not care anything.
 
-As for the policy, been running it for a while
-(without any gnome support) but then decided to
-add some sugar and spice to the system.
+What is a preferable idea?
 
-Justin P. Mattock
+Here is one other idea I noticed yesterday.
+1. The mod_selinux package installs mod_selinux.pp which adds a range_transition
+   rule to mcs_systemhigh on httpd_t and httpd_exec_t as I noted above.
+2. The mod_selinux.so (loadable module for httpd) drops unnecessary categories
+   at the ap_run_post_config() hook which gives modules a change to verify
+   global configuration.
 
+It is Apache/httpd specific solution, but 99% of my concern will be solved.
+
+Thanks,
+
+>> KaiGai Kohei wrote:
+>>> The attached patch is a proof-of-concept for the facility to launch
+>>> daemon processes with a certaon mcs ranges.
+>>>
+>>> The selinux-daemon-mcs-run_init.patch add run_init a new option which
+>>> specifies the name of daemon.
+>>>
+>>>   # run_init -n httpd /etc/init.d/httpd restart
+>>>
+>>> When -n option is given, run_init lookups under the
+>>> /etc/selinux/<policy type>/contexts/initrc/<daemon>, and replaces the
+>>> range to be assigned on the init script.
+>>>
+>>>   [root@saba run_init]# cat /etc/selinux/targeted/contexts/initrc/httpd
+>>>   s0-s0:c0.c31
+>>>   [root@saba run_init]# ./run_init -n httpd /etc/init.d/httpd restart
+>>>   Authenticating kaigai.
+>>>   Password:
+>>>   Stopping httpd:                                            [  OK  ]
+>>>   Starting httpd:                                            [  OK  ]
+>>>   [root@saba run_init]# ps -AZ | grep httpd
+>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11303 ? 00:00:00 httpd
+>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11305 ? 00:00:00 httpd
+>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11308 ? 00:00:00 httpd
+>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11309 ? 00:00:00 httpd
+>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11310 ? 00:00:00 httpd
+>>>      :
+>>>
+>>> The selinux-daemon-mcs-rc-script.patch is a short hack to the system
+>>> init script. It launches the required script with "runcon -l", if
+>>> per-daemon range is configured.
+>>>
+>>> These reworks typicall enable web-application (launched by httpd) to
+>>> perform in a certain restrictive category of MCS.
+>>> Currently, mod_selinux's security policy module assigns "mcssetcats"
+>>> on httpd_t, but it is fundamentally denger and nonsense. :(
+>>>
+>>> So, I would like to see the daemon processes with appropriate categories.
+>>>
+>>> Thanks,
+>>>
+>>> KaiGai Kohei wrote:
+>>>> KaiGai Kohei wrote:
+>>>>> Sorry for opening the old discussion again.
+>>>>>
+>>>>> If you don't ML logs in local, please see the archives:
+>>>>>   http://marc.info/?t=114825463100001&r=1&w=2
+>>>>>
+>>>>> Christopher J. PeBenito wrote:
+>>>>>> I agree with James on this, I don't think we want to impose semantics in
+>>>>>> the MCS categories, and that this
+>>>>>>
+>>>>>>> Another possibility is to have the ability to configure which categories are 
+>>>>>>> assigned to a daemon via run_init or some similar program.  It would not be 
+>>>>>>> difficult to read a config file that maps the domain of a daemon to the range 
+>>>>>>> that should be granted to it.
+>>>>>> is useful so that if users do want to run a daemon with categories, they
+>>>>>> can.
+>>>>> Is it still unavailable on the current SELinux userspace utilities, isn't it?
+>>>> Shall we start to implement an extention of run_init and others based on
+>>>> the above Russell's idea?
+>>>>
+>>>> Now, I have a plan to store configuration files at:
+>>>>   /etc/selinux/${POLICY_TYPE}/contexts/initrc/${DAEMON}
+>>>>    or
+>>>>   /etc/selinux/${POLICY_TYPE}/contexts/initrc_contexts with format extensions
+>>>>
+>>>> and, add a new option to run_init as:
+>>>>   run_init [-n <daemon>] <script> [<args> ...]
+>>>>
+>>>>   It intends to see the per-daemon default range, instead of the initrc_contexts.
+>>>>
+>>>> and, add a bit of hacks on the /etc/rc.d/rc script which launches daemon scripts
+>>>> when run-level is changed. (Maybe, it is necessary to launch them via "runcon -l"
+>>>> when the given daemon has its own range.)
+>>>>
+>>>> The last also need to have a discussion in the Fedora developer's list.
+>>>> Dan, do you think it is a hopefull proposition?
+>>>>
+>>>> Thanks,
+>>>>
+>>>>> If we could start the init-scripts via runcon by hand, it seems to me the
+>>>>> daemon processes performs with multi categories.
+>>>>>
+>>>>>  | [root@saba ~]# runcon -l s0-s0:c0.c255 /etc/init.d/httpd restart
+>>>>>  | Stopping httpd:                                            [  OK  ]
+>>>>>  | Starting httpd:                                            [  OK  ]
+>>>>>  | [root@saba ~]# ps -AZ | grep httpd
+>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6458 ? 00:00:00 httpd
+>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6460 ? 00:00:00 httpd
+>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6461 ? 00:00:00 httpd
+>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6462 ? 00:00:00 httpd
+>>>>>  |      :
+>>>>>
+>>>>> But it is unavailable when the system kicks init-script on startup time.
+>>>>> Is there any good idea?
+>>>>>
+>>>>> In the recent days, I'm working for an apache module (mod_selinux.so) which
+>>>>> launches web application handler under an individual security context based
+>>>>> on http-authentication.
+>>>>> I'm looking for the way to assign a few dozens of categories on httpd server
+>>>>> processes which are launched at system startup time.
+>>>>>
+>>>>> Thanks,
+
+
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
