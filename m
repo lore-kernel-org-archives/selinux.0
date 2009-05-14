@@ -1,61 +1,94 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4EIc1YU011471
-	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 14:38:01 -0400
-Received: from yw-out-1718.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4EIbwVe028316
-	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 18:37:59 GMT
-Received: by yw-out-1718.google.com with SMTP id 9so787209ywk.84
-        for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 11:38:00 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <dd18b0c30905140951x72877a78g67ad0a893b210278@mail.gmail.com>
-References: <dd18b0c30905140951x72877a78g67ad0a893b210278@mail.gmail.com>
-Date: Thu, 14 May 2009 11:38:00 -0700
-Message-ID: <dd18b0c30905141138l5e530487o18a6938357b84ee8@mail.gmail.com>
-Subject: Re: make: *** No rule to make target with latest svn
-From: Justin Mattock <justinmattock@gmail.com>
-To: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4EK5b3h026662
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 16:05:37 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n4EK5eW3016369
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 20:05:40 GMT
+Date: Thu, 14 May 2009 16:05:35 -0400
+Subject: Re: Patch to getdefaultcon to print just the correct match and add
+ verbose option
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C631F1CF.A721D%csellers@tresys.com>
+In-Reply-To: <49AEE781.5030301@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 14, 2009 at 9:51 AM, Justin Mattock <justinmattock@gmail.com> wrote:
-> I've seen this with earlier versions of refpolicy(when making mcs)
->
-> Validating mcs  file_contexts.
-> /sbin/setfiles -q -c /etc/selinux/mcs/policy/policy.22 file_contexts
-> Installing file_contexts.
-> install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
-> install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
-> python -E support/genhomedircon -d /etc/selinux -t mcs
-> The user "staff_u" is not present in the passwd file, skipping...
-> The user "sysadm_u" is not present in the passwd file, skipping...
-> The user "unconfined_u" is not present in the passwd file, skipping...
-> make: *** No rule to make target
-> `/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
-> Stop.
->
-> when making the policy
-> I have the policy in my home directory
-> usually do a chown -R name:name refpolicy
-> (before building)
-> then:
-> make conf
-> make policy
-> sudo make install
->
-> do I need to build this thing always as root?
->
-> --
-> Justin P. Mattock
->
+On 3/4/09 3:41 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-my bad, I guess you can't
-compile a new refpolicy as mcs
-first(using standard first compiled
-cleanly)
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I really want to rename this to selinuxdefaultcon, which is what we ship
+> in Fedora.
+> 
+> Also exit with proper error on failure.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.9 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkmu54AACgkQrlYvE4MpobNoZACdHgQDP2Hp/KDBpGCD7G08HjOX
+> p68An25Uu83SlOqjKyy9EG8ZgdIcuTCB
+> =L6UU
+> -----END PGP SIGNATURE-----
+> --- nsalibselinux/utils/getdefaultcon.c 2008-08-28 09:34:24.000000000 -0400
+> +++ libselinux-2.0.78/utils/getdefaultcon.c 2009-03-04 15:23:52.000000000
+> -0500
+> @@ -22,8 +22,9 @@
+> security_context_t usercon = NULL, cur_context = NULL;
+> char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL, *dlevel=NULL;
+> int ret, opt;
+> + int verbose = 0;
+>  
+> - while ((opt = getopt(argc, argv, "l:r:")) > 0) {
+> + while ((opt = getopt(argc, argv, "l:r:v")) > 0) {
+> switch (opt) {
+> case 'l':
+> level = strdup(optarg);
+> @@ -31,6 +32,9 @@
+> case 'r':
+> role = strdup(optarg);
+> break;
+> +  case 'v':
+> +   verbose = 1;
+> +   break;
+> default:
+> usage(argv[0], "invalid option", 1);
+> }
+> @@ -66,9 +70,13 @@
+> }
+> if (ret < 0)
+> perror(argv[0]);
+> - else
+> -  printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context,
+> seuser, role, level, usercon);
+> -
+> + else {
+> +  if (verbose) {
+> +   printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context,
+> seuser, role, level, usercon);
+> +  } else {
+> +   printf("%s", usercon);
+> +  }
+> + }
+>  
+> free(role);
+> free(seuser);
+> @@ -76,5 +84,5 @@
+> free(dlevel);
+> free(usercon);
+>  
+> - return 0;
+> + return ret >= 0;
+>  }
 
--- 
-Justin P. Mattock
+Looks good to me.
+
+Acked-by: Chad Sellers <csellers@tresys.com>
+
 
 
 --
