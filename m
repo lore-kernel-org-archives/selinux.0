@@ -1,91 +1,49 @@
-Subject: Re: the problem about  install refpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: hechao55429 <hechao55429@126.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <27009633.1151091242307171349.JavaMail.coremail@bj126app104.126.com>
-References: 
-	 <27009633.1151091242307171349.JavaMail.coremail@bj126app104.126.com>
-Content-Type: text/plain
-Date: Thu, 14 May 2009 09:52:16 -0400
-Message-Id: <1242309136.21772.36.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4EGp5on019176
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 12:51:05 -0400
+Received: from yx-out-1718.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4EGp2Ve020017
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 16:51:03 GMT
+Received: by yx-out-1718.google.com with SMTP id 34so752795yxf.84
+        for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 09:51:04 -0700 (PDT)
+MIME-Version: 1.0
+Date: Thu, 14 May 2009 09:51:04 -0700
+Message-ID: <dd18b0c30905140951x72877a78g67ad0a893b210278@mail.gmail.com>
+Subject: make: *** No rule to make target with latest svn
+From: Justin Mattock <justinmattock@gmail.com>
+To: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-05-14 at 21:19 +0800, hechao55429 wrote:
-> 
-> hello everyone :
->   In the  fedora 10,the selinux policy is  targeted .
+I've seen this with earlier versions of refpolicy(when making mcs)
 
-Fedora 10 has a merged targeted/strict policy - you can get most of the
-behavior of strict policy just by mapping users to confined roles using
-semanage or system-config-selinux, and you can completely migrate to
-strict policy by removing the unconfined policy module (but that
-requires a reboot, and needs to be done in permissive mode).
+Validating mcs  file_contexts.
+/sbin/setfiles -q -c /etc/selinux/mcs/policy/policy.22 file_contexts
+Installing file_contexts.
+install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
+install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
+python -E support/genhomedircon -d /etc/selinux -t mcs
+The user "staff_u" is not present in the passwd file, skipping...
+The user "sysadm_u" is not present in the passwd file, skipping...
+The user "unconfined_u" is not present in the passwd file, skipping...
+make: *** No rule to make target
+`/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
+Stop.
 
-> But I want to switch it to refpolicy,so I install the refpolicy
-> policy ,according to the approach as follows:
-> 
-> 1.# tar -jxvf refpolicy-20071214.tar.bz2 -C /tmp
+when making the policy
+I have the policy in my home directory
+usually do a chown -R name:name refpolicy
+(before building)
+then:
+make conf
+make policy
+sudo make install
 
-The Fedora policy is actually already based on refpolicy, just with a
-set of patches and specific configuration settings. You can customize
-the Fedora policy to provide strict-like behavior without needing to
-perform a complete switch to upstream refpolicy.  Do you really need to
-switch to upstream refpolicy for some reason?  If so, at least use a
-more recent version than 20071214!  Starting from the
-selinux-policy .src.rpm will improve your compatibility with the Fedora
-policy,
-http://danwalsh.livejournal.com/26428.html
-
-> # cd /tmp/refpolicy
-> # make install-src
-> 2. 
-> 
-> Edit the policy build.conf file
-> (/etc/selinux/refpolicy/src/policy/buildconf). Near the top of the
-> file, the policy has a few build options. The DISTRO option needs to
-> be uncommented and set to redhat, and DIRECT_INITRC should be set to
-> y. 
-> 
-> 3.# make install
-> 4. Modify the /etc/selinux/config file, and set SELINUXTYPE to
-> refpolicy.
->
-> 5.# touch /.autorelabel
-> # shutdown -r now
-> The approach comes from
-> http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
-> 
-> But when I restart the computer,the problem comes forth as follows :
-> 
->   Reading all physical volunmes,this may take a while...
-> 
-> Found volume group "VolGroup00" using Metadata type lvm2
-> 
-> 2 logical volume(s) in volune group "VolGroup00" now active
-> 
-> init: rcS main process(515) terminated with status 1
-> 
-> init: rcS post-stop process(518) terminated with status 1
-> 
-> it stopped in here and can't restart. can anybody tell me why?
-
-It is likely that the file security contexts on disk left from the
-Fedora policy are not valid under the refpolicy that you have built, and
-thus are being mapped to unlabeled_t and causing permission denials.
-
-When performing a complete policy switch, you should generally reboot
-single-user in permissive mode (enforcing=0 single) and forcibly relabel
-your filesystems (fixfiles -F relabel), and then reboot.  Even then
-certain mount point directories may need manual relabeling.
-
-But I'm not really sure why you are switching policies here.
+do I need to build this thing always as root?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
