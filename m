@@ -1,230 +1,96 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4D49PlJ025708
-	for <selinux@tycho.nsa.gov>; Wed, 13 May 2009 00:09:26 -0400
-Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4D49NX7003321
-	for <selinux@tycho.nsa.gov>; Wed, 13 May 2009 04:09:23 GMT
-Message-ID: <4A0A4793.1070800@ak.jp.nec.com>
-Date: Wed, 13 May 2009 13:07:47 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4EDJoPD012027
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 09:19:50 -0400
+Received: from m14-19.126.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n4EDJqk4009230
+	for <selinux@tycho.nsa.gov>; Thu, 14 May 2009 13:19:53 GMT
+Date: Thu, 14 May 2009 21:19:31 +0800 (CST)
+From: hechao55429 <hechao55429@126.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <27009633.1151091242307171349.JavaMail.coremail@bj126app104.126.com>
+Subject: the problem about  install refpolicy
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: dwalsh@redhat.com, method@manicmethod.com, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: daemons and MCS categories
-References: <200605220930.05483.russell@coker.com.au>	 <1148910738.14262.67.camel@sgc.columbia.tresys.com>	 <49EC1F11.6040003@ak.jp.nec.com> <49ED29CC.6080507@ak.jp.nec.com>	 <49EED77F.5060407@ak.jp.nec.com>  <4A07B36C.1080305@ak.jp.nec.com> <1242045456.5102.3.camel@gorn.columbia.tresys.com> <4A08C0DC.30108@ak.jp.nec.com>
-In-Reply-To: <4A08C0DC.30108@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: multipart/alternative;
+	boundary="----=_Part_306239_16388515.1242307171348"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
->> On Mon, 2009-05-11 at 14:11 +0900, KaiGai Kohei wrote:
->>> Are anyone interested in the daemon process with mcs categories?
->>>
->>> My proposition tries to cover general daemon processes, but my
->>> major concern is apache/httpd performing without any categories.
->>> If we focus on the apache/httpd, we can add the following policy
->>> within the mod_selinux.pp, and it enables to run httpd_t with
->>> mcs categories.
->>>
->>>   optional_policy(`
->>>       init_ranged_daemon_domain(httpd_t,httpd_exec_t,s0 - mcs_systemhigh)
->>>   ')
->>>
->>> The mod_selinux.so is an apache/httpd module which enables to
->>> change its own security context prior to launching contents
->>> handler. We can set up the module to drop all the categories
->>> for unauthorized http clients, and rest of requests to perform
->>> with appropriate categories.
->>>
->>> The above rule will be available only when mod_selinux is installed.
->>> I don't think it gives any impact for existing stuffs.
->> I think we should leave this up to the users.  Apache should only be
->> given the set of categories which is the union of all of the categories
->> used by mod_selinux, which can only be determined by the users.
-> 
-> Yes, I also think it is more preferable than (mostly) wired mcs_systemhigh.
-> However, the matter is the way to start up httpd with certain categories.
-> The run_init invokes all the daemon process with a security context
-> configured in /etc/selinux/$POLICYTYPE/contexts/initrc_context, and
-> the case when system startup script kicks them also does not care anything.
-> 
-> What is a preferable idea?
-> 
-> Here is one other idea I noticed yesterday.
-> 1. The mod_selinux package installs mod_selinux.pp which adds a range_transition
->    rule to mcs_systemhigh on httpd_t and httpd_exec_t as I noted above.
-> 2. The mod_selinux.so (loadable module for httpd) drops unnecessary categories
->    at the ap_run_post_config() hook which gives modules a change to verify
->    global configuration.
-> 
-> It is Apache/httpd specific solution, but 99% of my concern will be solved.
-
-I tried to implement the idea, and it seems to me it works correctly.
-  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.c#123
-
-o /etc/httpd/conf.d/mod_selinux.conf
-    :
-  selinuxServerDomain     *:s0-s0:c0.c15
-    :
-
-  This global directive specifies a domain/range pair to be performed as.
-
-o /var/log/httpd/error_log
-      :
-  [Wed May 13 12:48:32 2009] [notice] SELinux policy enabled; \
-    httpd running as context system_u:system_r:httpd_t:s0-s0:c0.c1023
-      :
-  [Wed May 13 12:48:32 2009] [debug] mod_selinux.c(154): SELinux: \
-    replace server domain: system_u:system_r:httpd_t:s0-s0:c0.c1023/*:s0-s0:c0.c15
-      :
-
-  The log message said the apache/httpd was initially started up with
-  system_u:system_r:httpd_t:s0-s0:c0.c1023, then mod_selinux dropped
-  unnecessary categories according to the selinuxServerDomain .
-  (mod_selinux.pp add a range_transition rule.)
-
-o ps -AZ
-  [root@saba ~]# ps -AZ | grep httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 2994 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 2997 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 2998 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 2999 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 3000 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 3001 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 3002 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 3003 ?  00:00:00 httpd
-  system_u:system_r:httpd_t:s0-s0:c0.c15 3004 ?  00:00:00 httpd
-
-  It can assign content handler a category between c0 and c15
-  based on the http authentication.
-
-I think 80% of the package is ready to push for Fedora Project.
-The remaining issue is the following ugly policy:
-  http://code.google.com/p/sepgsql/source/browse/misc/mod_selinux/mod_selinux.if
-
-If possible, I would like services/apache.if to provide an interface to
-assign minimum set of privileges to perform as a part of httpd process.
-It enables web-application authors to focus on access controls for
-web contents.
-
-Thanks,
-
-> Thanks,
-> 
->>> KaiGai Kohei wrote:
->>>> The attached patch is a proof-of-concept for the facility to launch
->>>> daemon processes with a certaon mcs ranges.
->>>>
->>>> The selinux-daemon-mcs-run_init.patch add run_init a new option which
->>>> specifies the name of daemon.
->>>>
->>>>   # run_init -n httpd /etc/init.d/httpd restart
->>>>
->>>> When -n option is given, run_init lookups under the
->>>> /etc/selinux/<policy type>/contexts/initrc/<daemon>, and replaces the
->>>> range to be assigned on the init script.
->>>>
->>>>   [root@saba run_init]# cat /etc/selinux/targeted/contexts/initrc/httpd
->>>>   s0-s0:c0.c31
->>>>   [root@saba run_init]# ./run_init -n httpd /etc/init.d/httpd restart
->>>>   Authenticating kaigai.
->>>>   Password:
->>>>   Stopping httpd:                                            [  OK  ]
->>>>   Starting httpd:                                            [  OK  ]
->>>>   [root@saba run_init]# ps -AZ | grep httpd
->>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11303 ? 00:00:00 httpd
->>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11305 ? 00:00:00 httpd
->>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11308 ? 00:00:00 httpd
->>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11309 ? 00:00:00 httpd
->>>>   system_u:system_r:httpd_t:s0-s0:c0.c31 11310 ? 00:00:00 httpd
->>>>      :
->>>>
->>>> The selinux-daemon-mcs-rc-script.patch is a short hack to the system
->>>> init script. It launches the required script with "runcon -l", if
->>>> per-daemon range is configured.
->>>>
->>>> These reworks typicall enable web-application (launched by httpd) to
->>>> perform in a certain restrictive category of MCS.
->>>> Currently, mod_selinux's security policy module assigns "mcssetcats"
->>>> on httpd_t, but it is fundamentally denger and nonsense. :(
->>>>
->>>> So, I would like to see the daemon processes with appropriate categories.
->>>>
->>>> Thanks,
->>>>
->>>> KaiGai Kohei wrote:
->>>>> KaiGai Kohei wrote:
->>>>>> Sorry for opening the old discussion again.
->>>>>>
->>>>>> If you don't ML logs in local, please see the archives:
->>>>>>   http://marc.info/?t=114825463100001&r=1&w=2
->>>>>>
->>>>>> Christopher J. PeBenito wrote:
->>>>>>> I agree with James on this, I don't think we want to impose semantics in
->>>>>>> the MCS categories, and that this
->>>>>>>
->>>>>>>> Another possibility is to have the ability to configure which categories are 
->>>>>>>> assigned to a daemon via run_init or some similar program.  It would not be 
->>>>>>>> difficult to read a config file that maps the domain of a daemon to the range 
->>>>>>>> that should be granted to it.
->>>>>>> is useful so that if users do want to run a daemon with categories, they
->>>>>>> can.
->>>>>> Is it still unavailable on the current SELinux userspace utilities, isn't it?
->>>>> Shall we start to implement an extention of run_init and others based on
->>>>> the above Russell's idea?
->>>>>
->>>>> Now, I have a plan to store configuration files at:
->>>>>   /etc/selinux/${POLICY_TYPE}/contexts/initrc/${DAEMON}
->>>>>    or
->>>>>   /etc/selinux/${POLICY_TYPE}/contexts/initrc_contexts with format extensions
->>>>>
->>>>> and, add a new option to run_init as:
->>>>>   run_init [-n <daemon>] <script> [<args> ...]
->>>>>
->>>>>   It intends to see the per-daemon default range, instead of the initrc_contexts.
->>>>>
->>>>> and, add a bit of hacks on the /etc/rc.d/rc script which launches daemon scripts
->>>>> when run-level is changed. (Maybe, it is necessary to launch them via "runcon -l"
->>>>> when the given daemon has its own range.)
->>>>>
->>>>> The last also need to have a discussion in the Fedora developer's list.
->>>>> Dan, do you think it is a hopefull proposition?
->>>>>
->>>>> Thanks,
->>>>>
->>>>>> If we could start the init-scripts via runcon by hand, it seems to me the
->>>>>> daemon processes performs with multi categories.
->>>>>>
->>>>>>  | [root@saba ~]# runcon -l s0-s0:c0.c255 /etc/init.d/httpd restart
->>>>>>  | Stopping httpd:                                            [  OK  ]
->>>>>>  | Starting httpd:                                            [  OK  ]
->>>>>>  | [root@saba ~]# ps -AZ | grep httpd
->>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6458 ? 00:00:00 httpd
->>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6460 ? 00:00:00 httpd
->>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6461 ? 00:00:00 httpd
->>>>>>  | unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255 6462 ? 00:00:00 httpd
->>>>>>  |      :
->>>>>>
->>>>>> But it is unavailable when the system kicks init-script on startup time.
->>>>>> Is there any good idea?
->>>>>>
->>>>>> In the recent days, I'm working for an apache module (mod_selinux.so) which
->>>>>> launches web application handler under an individual security context based
->>>>>> on http-authentication.
->>>>>> I'm looking for the way to assign a few dozens of categories on httpd server
->>>>>> processes which are launched at system startup time.
->>>>>>
->>>>>> Thanks,
-> 
-> 
+------=_Part_306239_16388515.1242307171348
+Content-Type: text/plain; charset=gbk
+Content-Transfer-Encoding: 7bit
 
 
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+hello everyone :
+  In the  fedora 10,the selinux policy is  targeted .But I want to switch it to refpolicy,so I install the refpolicy  policy ,according to the approach as follows:
+
+1.# tar -jxvf refpolicy-20071214.tar.bz2 -C /tmp
+# cd /tmp/refpolicy
+# make install-src
+2. 
+
+Edit the policy build.conf file (/etc/selinux/refpolicy/src/policy/build.conf). Near the top of the file, the policy has a few build options. The DISTRO option needs to be uncommented and set to redhat, and DIRECT_INITRC should be set to y. 
+
+3.# make install
+4. Modify the /etc/selinux/config file, and set SELINUXTYPE to refpolicy. 
+
+5.# touch /.autorelabel
+# shutdown -r now
+The approach comes from http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy
+
+But when I restart the computer,the problem comes forth as follows :
+
+  Reading all physical volunmes,this may take a while...
+
+Found volume group "VolGroup00" using Metadata type lvm2
+
+2 logical volume(s) in volune group "VolGroup00" now active
+
+init: rcS main process(515) terminated with status 1
+
+init: rcS post-stop process(518) terminated with status 1
+
+it stopped in here and can't restart. can anybody tell me why?
+
+
+
+------=_Part_306239_16388515.1242307171348
+Content-Type: text/html; charset=gbk
+Content-Transfer-Encoding: quoted-printable
+
+<DIV><BR>
+<DIV>hello everyone :</DIV>
+<DIV>&nbsp;&nbsp;In the &nbsp;fedora 10,the selinux policy is &nbsp;targete=
+d .But I want to switch it to refpolicy,so I install the refpolicy&nbsp; po=
+licy ,according to the approach as follows:<BR><BR>1.# tar -jxvf refpolicy-=
+20071214.tar.bz2 -C /tmp<BR># cd /tmp/refpolicy<BR># make install-src<BR>2.=
+=20
+<P>Edit the policy build.conf file (/etc/selinux/refpolicy/src/policy/build=
+conf). Near the top of the file, the policy has a few build options. The D=
+ISTRO option needs to be uncommented and set to redhat, and DIRECT_INITRC s=
+hould be set to y. </P>
+<P>3.# make install<BR>4. Modify the /etc/selinux/config file, and set SELI=
+NUXTYPE to refpolicy. </P>
+<P>5.# touch /.autorelabel<BR># shutdown -r now<BR>The approach comes from =
+<A href=3D"http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy" targ=
+et=3D"_blank">http://oss.tresys.com/projects/refpolicy/wiki/UseRefpolicy</A=
+></P>
+<P>But when I restart the computer,the problem comes forth as follows&nbsp;=
+:</P>
+<P>&nbsp; Reading all physical volunmes,this may take a while...</P>
+<P>Found volume group "VolGroup00" using Metadata type lvm2</P>
+<P>2 logical volume(s) in volune group "VolGroup00" now active</P>
+<P>init: rcS main process(515) terminated with status 1</P>
+<P>init: rcS post-stop process(518) terminated with status 1</P>
+<P>it&nbsp;stopped in&nbsp;here&nbsp;and can't restart.&nbsp;can anybody&nb=
+sp;tell me why?</P><BR></DIV></DIV><br><!-- footer --><br><span title=3D"ne=
+teasefooter"/><hr/>
+<a href=3D"http://512.mail.163.com/mailstamp/stamp/dz/activity.do?from=3Dfo=
+oter">=B4=A9=D4=BD=B5=D8=D5=F0=B4=F8 =BC=CD=C4=EE=E3=EB=B4=A8=B5=D8=D5=F0=
+=D2=BB=D6=DC=C4=EA</a>
+</span>
+------=_Part_306239_16388515.1242307171348--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
