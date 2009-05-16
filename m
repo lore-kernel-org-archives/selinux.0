@@ -1,58 +1,103 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4GG6EDE028434
-	for <selinux@tycho.nsa.gov>; Sat, 16 May 2009 12:06:14 -0400
-Received: from mho-02-ewr.mailhop.org (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4GG6JpR011406
-	for <selinux@tycho.nsa.gov>; Sat, 16 May 2009 16:06:19 GMT
-Cc: dwalsh@redhat.com, method@manicmethod.com,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-Message-Id: <86170769-8CD9-4A99-9C14-624611280E55@nall.com>
-From: Joe Nall <joe@nall.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-In-Reply-To: <4A07B36C.1080305@ak.jp.nec.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v935.3)
-Subject: Re: daemons and MCS categories
-Date: Sat, 16 May 2009 11:05:56 -0500
-References: <200605220930.05483.russell@coker.com.au> <1148910738.14262.67.camel@sgc.columbia.tresys.com> <49EC1F11.6040003@ak.jp.nec.com> <49ED29CC.6080507@ak.jp.nec.com> <49EED77F.5060407@ak.jp.nec.com> <4A07B36C.1080305@ak.jp.nec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4GGPRna029795
+	for <selinux@tycho.nsa.gov>; Sat, 16 May 2009 12:25:28 -0400
+Received: from ey-out-1920.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4GGPWrm016673
+	for <selinux@tycho.nsa.gov>; Sat, 16 May 2009 16:25:32 GMT
+Received: by ey-out-1920.google.com with SMTP id 3so641243eyh.30
+        for <selinux@tycho.nsa.gov>; Sat, 16 May 2009 09:25:25 -0700 (PDT)
+Subject: Re: write selinux policy
+From: Dominick Grift <domg472@gmail.com>
+To: hechao55429 <hechao55429@126.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <17697801.901261242485650930.JavaMail.coremail@bj126app52.126.com>
+References: 
+	 <17697801.901261242485650930.JavaMail.coremail@bj126app52.126.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sat, 16 May 2009 18:25:22 +0200
+Message-Id: <1242491122.22621.17.camel@notebook2.grift.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2009-05-16 at 22:54 +0800, hechao55429 wrote:
+> hello everyone:
+>    I'm now studying selinux policy on fedora 10  .  I wrote a policy
+> module like this:
+>         myapp.if
+> ## <summary>this si to constraint gedit</summary>
+>         myapp.te
+> policy_module(myapp,1.0.0) 
+> type myapp_t;
+> # Access to shared libraries
+> libs_use_ld_so(myapp_t)
+> libs_use_shared_libs(myapp_t)
+> miscfiles_read_localization(myapp_t)
+> type myapp_exec_t;
+> type myapp_rw_t;
+> files_type(myapp_exec_t)
+> files_type(myapp_rw_t)
+> init_domain(myapp_t,myapp_exec_t)  
+> allow myapp_t myapp_rw_t :file ~{write};
+>   myapp.fc
+> /usr/bin/gedit -- gen_context(system_u:object_r:myapp_exec_t,s0)  
+> /root/share/a/as -- gen_context(system_u:object_r:myapp_rw_t,s0)
+> Then i compiled it and it created myapp.pp with no error.
+> And then i used the command that semodule -i myapp.pp and it succeeded
+>  Then i relabeled the files by using the restorecon command and
+> reboot .
+> But after it reboot ,the  /usr/bin/gedit  still  ran on the
+> unconfined_t domain. 
+> why?
+One reason is because you do not have a proper transition rule.
 
-On May 11, 2009, at 12:11 AM, KaiGai Kohei wrote:
+Below you see an example that confines Gedit for an unconfined user.
+This example only gets you started and it in this example Gedit is an
+permissive domain. The example only has a few declaration and minimum
+policy to achieve the goal of confining it for unconfined users.
 
-> Are anyone interested in the daemon process with mcs categories?
->
-> My proposition tries to cover general daemon processes, but my
-> major concern is apache/httpd performing without any categories.
-> If we focus on the apache/httpd, we can add the following policy
-> within the mod_selinux.pp, and it enables to run httpd_t with
-> mcs categories.
->
->  optional_policy(`
->      init_ranged_daemon_domain(httpd_t,httpd_exec_t,s0 -  
-> mcs_systemhigh)
->  ')
->
-> The mod_selinux.so is an apache/httpd module which enables to
-> change its own security context prior to launching contents
-> handler. We can set up the module to drop all the categories
-> for unauthorized http clients, and rest of requests to perform
-> with appropriate categories.
->
-> The above rule will be available only when mod_selinux is installed.
-> I don't think it gives any impact for existing stuffs.
->
-> Any comments?
+~/mygedit/mygedit.te file:
 
-FWIW, we run apache 1.3 out of xinetd at multiple contexts using  
-labeled networking. HTTP performance is surprisingly good. HTTPS  
-performance is unacceptable, so we are using an HTTPS reverse proxy in  
-a DMZ for single level network services to the 'enterprise'.
+policy_module(mygedit, 0.0.1)
+type gedit_t;
+type gedit_exec_t;
+application_executable_file(gedit_exec_t)
+application_domain(gedit_t, gedit_exec_t)
+role unconfined_r types gedit_t;
+permissive gedit_t;
+require { type unconfined_t; }
+domain_auto_trans(unconfined_t, gedit_exec_t, gedit_t)
 
-joe
+~/mygedit/mygedit.fc file:
 
+/usr/bin/gedit -- gen_context(system_u:object_r:gedit_exec_t, s0)
+
+compile & install:
+
+cd ~/mygedit; make -f /usr/share/selinux/devel/Makefile;
+sudo semodule -i mygedit.pp;
+sudo restorecon -v /usr/bin/gedit
+
+If all was well then, when you (an unconfined user) executes gedit, the
+process should transition to gedit_t.
+You can verify this with ps -auxZ | grep gedit
+Now you can accumulate avc_denials and extend you policy to your liking.
+Once you are done with testing and extending, you should comment the
+line that says: permissive gedit_t; or remove it from policy. Then
+rebuild the module and reinstall.
+
+By the way, we also have a few friendly IRC channels on irc.freenode.org
+(#selinux and #fedora-selinux) where you can get some more personal
+assistence and where you can have friendly SELinux related chats!
+
+Good luck
+
+> 
+> 
+> 
+> 
+> ______________________________________________________________________
+> 穿越地震带 纪念汶川地震一周年
 
 
 --
