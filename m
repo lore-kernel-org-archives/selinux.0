@@ -1,71 +1,78 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4I8WScU032151
-	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 04:32:29 -0400
-Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4I8WXNB025119
-	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 08:32:34 GMT
-Message-ID: <4A111CD5.1000109@ak.jp.nec.com>
-Date: Mon, 18 May 2009 17:31:17 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Date: Mon, 18 May 2009 13:53:24 +0500
+From: selinux@udmvt.ru
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Dropping SELinux privileges
+Message-ID: <20090518085324.GB10816@ruber.office.udmvt.ru>
+References: <3453b4110905151046s27022fb4jf9975fa4523572fa@mail.gmail.com> <3453b4110905151100n5afb13c8q56b75bd25eac571f@mail.gmail.com> <4A0DB579.9080807@manicmethod.com>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: dwalsh@redhat.com, method@manicmethod.com,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: daemons and MCS categories
-References: <200605220930.05483.russell@coker.com.au> <1148910738.14262.67.camel@sgc.columbia.tresys.com> <49EC1F11.6040003@ak.jp.nec.com> <49ED29CC.6080507@ak.jp.nec.com> <49EED77F.5060407@ak.jp.nec.com> <4A07B36C.1080305@ak.jp.nec.com> <86170769-8CD9-4A99-9C14-624611280E55@nall.com>
-In-Reply-To: <86170769-8CD9-4A99-9C14-624611280E55@nall.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4A0DB579.9080807@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joe Nall wrote:
-> 
-> On May 11, 2009, at 12:11 AM, KaiGai Kohei wrote:
-> 
->> Are anyone interested in the daemon process with mcs categories?
+On Fri, May 15, 2009 at 02:33:29PM -0400, Joshua Brindle wrote:
+> Sebastien Raveau wrote:
+>> Hi everybody!
 >>
->> My proposition tries to cover general daemon processes, but my
->> major concern is apache/httpd performing without any categories.
->> If we focus on the apache/httpd, we can add the following policy
->> within the mod_selinux.pp, and it enables to run httpd_t with
->> mcs categories.
 >>
->>  optional_policy(`
->>      init_ranged_daemon_domain(httpd_t,httpd_exec_t,s0 - mcs_systemhigh)
->>  ')
+>> As a personal challenge I am trying to reach "state of the art"
+>> security on my home router... and for that I'm using SELinux of course
+>> ;-)
 >>
->> The mod_selinux.so is an apache/httpd module which enables to
->> change its own security context prior to launching contents
->> handler. We can set up the module to drop all the categories
->> for unauthorized http clients, and rest of requests to perform
->> with appropriate categories.
+>> I have everything setup and working, but what intrigues me is: isn't
+>> there a way to drop SELinux privileges?
 >>
->> The above rule will be available only when mod_selinux is installed.
->> I don't think it gives any impact for existing stuffs.
+>> I mean, many programs require privileges only during their startup
+>> phase, and restricting their rights from the outside proves
+>> impossible; that's why volontary chroot(), setgid() and setuid() are
+>> so useful: the program decides when to relinquish its privileges.
 >>
->> Any comments?
-> 
-> FWIW, we run apache 1.3 out of xinetd at multiple contexts using labeled 
-> networking. HTTP performance is surprisingly good. HTTPS performance is 
-> unacceptable, so we are using an HTTPS reverse proxy in a DMZ for single 
-> level network services to the 'enterprise'.
+>> For example, a program like OpenVPN should only be allowed network
+>> I/O, but because its initialization invokes shell commands, we have to
+>> give it many more rights than it actually needs. Granted, in the case
+>> of OpenVPN the combination with setuid and chroot solves the shell
+>> commands problem, but this still makes policy files too complex...
+>>
+>> Maximum (theoretical) security could be reached if a program could be
+>> allowed to switch from some policy to an even more restrictive policy,
+>> and very simple policy files could be written if a program could be
+>> allowed to start unconfined and when ready apply a policy to itself,
+>> which is basically the same.
+>>
+>>
+>> I couldn't find such a thing in the SELinux API: have I misread? Or it
+>> does not exist and perhaps I could contribute it? :-)
+>>
+>> Best regards,
+>>
+>
+> SELinux has a concept of type transitions to change the type (or domain) 
+> of a process over an exec(). So the openvpn example would type transition 
+> when it runs the shell commands and the shell commands would run in a 
+> less privileged domain.
+>
+> There is also a way to change the domain of a process at runtime called 
+> setcon() though we prefer transitions over exec() because they can be 
+> enforced and less state is passed over exec than available in a running 
+> process.
+By the way, why there is no type transition on fork? It would help a lot
+on confining traditional unix services with minimum effort, don't you think?
+Everybody knows that there is some common model - parent is listener, children
+are workers, but all code resides in one binary. Splitting it into separate
+programs requires some effort, you know. One extra file in /proc will easily
+help to "convert" such applications to SELinux.
+You will have to just change the starup script: after parent is started you just write
+to /proc file the required children's context (assuming it is the same across all forks),
+and that's it, no extra patches to application is needed, no recompilation.
+Isn't it easy and robust solution? Am I wrong or what?
+Or maybe such thing already present somewhere?
 
-Are you saying that xinetd can launch multiple apache/httpd daemon processes
-with individual security context? If so, unfortunatelly, it is different from
-what I would like to achieve. :(
-
-I guess the security context of the daemon process is determined prior to
-receiving http-requests come from users, but the security context to be
-assigned on web application depends on the authentication-header within
-the http-request-headers, so we cannot know who connected to on xinetd time.
-
-Or, are we talking about topics in different layer?
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
