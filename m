@@ -1,89 +1,80 @@
-Subject: Re: Authorization Workflow for Message Queueing Platform
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Kramer <josh@globalherald.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4A09ABEF.50605@globalherald.net>
-References: <4A09ABEF.50605@globalherald.net>
-Content-Type: text/plain
-Date: Mon, 18 May 2009 10:15:46 -0400
-Message-Id: <1242656146.20082.20.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: move SELINUX_MAGIC into magic.h
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@redhat.com
+Date: Mon, 18 May 2009 10:26:10 -0400
+Message-ID: <20090518142609.31208.20946.stgit@dhcp231-142.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-05-12 at 13:03 -0400, Joshua Kramer wrote:
-> Hello,
-> 
-> In considering the authorization workflow for a message queueing 
-> platform - specifically, apache qpid - I came up with the following.  
-> Please let me know how I can improve this.
-> 
-> Thanks,
-> -Josh
-> 
->  I.Definitions
->  A.In this narrative, "this Subject" means the process connecting to qpid.
->  II.Determine the Action.
->  A.If ACT_CREATE, ACT_DELETE:
->  i.Determine the object type.  If OBJ_QUEUE, determine if it is a 
-> server-side or client-side queue.
->  ii.Determine if the Context of this Subject permits to CREATE or DELETE 
-> Objects in the parent Object?  (i.e. are we allowed to create queues  in 
-> this broker?)
->  a)Determine this by searching the SELinux context list first by finding 
-> the map corresponding to object_type, then the map corresponding to the 
-> parent's name. TODO: how do we determine the parent from this object as 
-> passed in the Acl::authorise call?)
+The selinuxfs superblock magic is used inside the IMA code, but is being
+defined in two places and could someday get out of sync.  This patch moves the
+declaration into magic.h so it is only done once.
 
-SELinux is not an ACL scheme, and thus you don't want to search a list
-of security contexts associated with the object to decide whether
-something is permitted.  Instead, you want to perform a SELinux
-permission check using avc_has_perm() and friends, as is done by Xorg,
-D-BUS, and SE-PostgreSQL.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
->  b)If this is not permitted, deny and return.
->  iii.If command is create and Context does permit object creation:
->  a)If this is OBJ_QUEUE
-> Does the Context of this Subject permit it to CREATE or DELETE queues of 
-> the type noted in i above?  TODO: how do we represent "permitted to 
-> create server queue" and "permitted to create client queue" in the 
-> SELinux context list?
-> If Context does permit creation:
-> Add an item in the SELinux context list for this object.
-> Inherit this Object's context from the parent, OR
+ include/linux/magic.h               |    1 +
+ security/integrity/ima/ima_policy.c |    8 +++-----
+ security/selinux/include/security.h |    3 +--
+ 3 files changed, 5 insertions(+), 7 deletions(-)
 
-Compute the default label using the security_compute_create(3) function.
-This consults the security policy, particularly the type_transition
-rules for the object class.
-
-> Label according to the arguments passed in on the create call.
-> Create the Object
-> Return control
-> Otherwise deny creation of object.
->  b)If this is an OBJ_EXCHANGE,
-> Add an item in the SELinux context list for this object.
-> Inherit this Object's context from the parent, OR
-> Label according to the arguments passed in on the create call.
-> Create the Exchange.
->  iv.If command is delete and Context does permit object deletion:
-> Delete object as specified by method call.
-> Delete object's reference in the SELinux context list.
->  B.If ACT_CONSUME, ACT_PUBLISH, ACT_ACCESS, ACT_BIND, ACT_UNBIND,  
-> ACT_DELETE, ACT_PURGE, ACT_UPDATE:
->  i.Determine if the Context of this Subject permits the noted action on 
-> the target Object:
->  a)Search the map of object types; when the target Object's Type is found,
->  b)Search the resulting map for this Object's ID.
->  c)Call security_compute_av to determine if this Subject is permitted to 
-> access the target Object with the Subject's context.
->  ii.If Yes: Allow
->  iii.If No: Deny
-
-Use the avc functions rather than directly calling security_compute_av.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/include/linux/magic.h b/include/linux/magic.h
+index 4596c9e..2fb570c 100644
+--- a/include/linux/magic.h
++++ b/include/linux/magic.h
+@@ -10,6 +10,7 @@
+ #define DEBUGFS_MAGIC		0x64626720
+ #define SYSFS_MAGIC		0x62656572
+ #define SECURITYFS_MAGIC	0x73636673
++#define SELINUX_MAGIC		0xf97cff8c
+ #define TMPFS_MAGIC		0x01021994
+ #define SQUASHFS_MAGIC		0x73717368
+ #define EFS_SUPER_MAGIC		0x414A53
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index dec6dcb..31d677f 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -49,14 +49,12 @@ struct ima_measure_rule_entry {
+  * written in terms of .action, .func, .mask, .fsmagic, and .uid
+  */
+ static struct ima_measure_rule_entry default_rules[] = {
+-	{.action = DONT_MEASURE,.fsmagic = PROC_SUPER_MAGIC,
+-	 .flags = IMA_FSMAGIC},
++	{.action = DONT_MEASURE,.fsmagic = PROC_SUPER_MAGIC,.flags = IMA_FSMAGIC},
+ 	{.action = DONT_MEASURE,.fsmagic = SYSFS_MAGIC,.flags = IMA_FSMAGIC},
+ 	{.action = DONT_MEASURE,.fsmagic = DEBUGFS_MAGIC,.flags = IMA_FSMAGIC},
+ 	{.action = DONT_MEASURE,.fsmagic = TMPFS_MAGIC,.flags = IMA_FSMAGIC},
+-	{.action = DONT_MEASURE,.fsmagic = SECURITYFS_MAGIC,
+-	 .flags = IMA_FSMAGIC},
+-	{.action = DONT_MEASURE,.fsmagic = 0xF97CFF8C,.flags = IMA_FSMAGIC},
++	{.action = DONT_MEASURE,.fsmagic = SECURITYFS_MAGIC,.flags = IMA_FSMAGIC},
++	{.action = DONT_MEASURE,.fsmagic = SELINUX_MAGIC,.flags = IMA_FSMAGIC},
+ 	{.action = MEASURE,.func = FILE_MMAP,.mask = MAY_EXEC,
+ 	 .flags = IMA_FUNC | IMA_MASK},
+ 	{.action = MEASURE,.func = BPRM_CHECK,.mask = MAY_EXEC,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index a7be3f0..ca83579 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -8,14 +8,13 @@
+ #ifndef _SELINUX_SECURITY_H_
+ #define _SELINUX_SECURITY_H_
+ 
++#include <linux/magic.h>
+ #include "flask.h"
+ 
+ #define SECSID_NULL			0x00000000 /* unspecified SID */
+ #define SECSID_WILD			0xffffffff /* wildcard SID */
+ #define SECCLASS_NULL			0x0000 /* no class */
+ 
+-#define SELINUX_MAGIC 0xf97cff8c
+-
+ /* Identify specific policy version changes */
+ #define POLICYDB_VERSION_BASE		15
+ #define POLICYDB_VERSION_BOOL		16
 
 
 --
