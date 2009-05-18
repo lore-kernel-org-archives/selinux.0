@@ -1,80 +1,147 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH] SELinux: move SELINUX_MAGIC into magic.h
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@redhat.com
-Date: Mon, 18 May 2009 10:26:10 -0400
-Message-ID: <20090518142609.31208.20946.stgit@dhcp231-142.rdu.redhat.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4IFTP0e003648
+	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 11:29:25 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4IFTWVb017144
+	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 15:29:32 GMT
+Message-ID: <4A117ED3.9060709@manicmethod.com>
+Date: Mon, 18 May 2009 11:29:23 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: Chad Sellers <csellers@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: patch to policycoreutils
+References: <C6164175.A6B07%csellers@tresys.com>
+In-Reply-To: <C6164175.A6B07%csellers@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The selinuxfs superblock magic is used inside the IMA code, but is being
-defined in two places and could someday get out of sync.  This patch moves the
-declaration into magic.h so it is only done once.
+Chad Sellers wrote:
+> On 4/22/09 9:50 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+> 
+>> On 04/22/2009 06:03 PM, Chad Sellers wrote:
+>>> On 4/1/09 10:10 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
+>>>
+>>>> Multiple patches to policycoreutils.
+>>>>
+>>>> First added /root/.ssh and /root/.ssh/*  to allow people to place keys
+>>>> in /root directory and have them labeled by restorcond
+>>>>
+>>>> Fix transaction handling in semanage so you can update multiple records
+>>>> simultaniously.
+>>>>
+>>>> Clean up permissive domains creation in semanage so it does not leave
+>>>> crap in /var/lib/selinux
+>>>>
+>>>> diff --exclude-from=exclude --exclude=sepolgen-1.0.16 --exclude=gui
+>>>> --exclude=po -N -u -r nsapolicycoreutils/restorecond/restorecond.conf
+>>>> policycoreutils-2.0.62/restorecond/restorecond.conf
+>>>> --- nsapolicycoreutils/restorecond/restorecond.conf    2009-02-18
+>>>> 16:44:47.000000000 -0500
+>>>> +++ policycoreutils-2.0.62/restorecond/restorecond.conf    2009-02-23
+>>>> 11:32:21.000000000 -0500
+>>>> @@ -5,3 +5,7 @@
+>>>>   /var/run/utmp
+>>>>   /var/log/wtmp
+>>>>   ~/*
+>>>> +/root/.ssh
+>>>> +/root/.ssh/*
+>>>> +
+>>>> +
+>>>> diff --exclude-from=exclude --exclude=sepolgen-1.0.16 --exclude=gui
+>>>> --exclude=po -N -u -r nsapolicycoreutils/scripts/fixfiles
+>>>> policycoreutils-2.0.62/scripts/fixfiles
+>>>> --- nsapolicycoreutils/scripts/fixfiles    2009-02-18 16:44:47.000000000
+>>>> -0500
+>>>> +++ policycoreutils-2.0.62/scripts/fixfiles    2009-02-19 10:07:49.000000000
+>>>> -0500
+>>>> @@ -122,7 +122,7 @@
+>>>>   fi
+>>>>   if [ ! -z "$RPMFILES" ]; then
+>>>>       for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
+>>>> -    rpmlist $i | ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -i -f - 2>&1>>
+>>>> $LOGFILE
+>>>> +    rpmlist $i | ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -R -i -f -
+>>>> 2>&1>>
+>>>> $LOGFILE
+>>>>       done
+>>>>       exit $?
+>>>>   fi
+>>> Not sure I understand this one, and it didn't seem to be mentioned in your
+>>> comment. You're changing fixfiles to relabel recursively when it's fixing
+>>> files from an rpm? Wouldn't an rpm already list all the files it owned?
+>>>
+>>> <snip due to previously ack'd patch>
+>>>> @@ -303,6 +308,12 @@
+>>>>                  if rc<  0:
+>>>>                         raise ValueError(_("Could not commit semanage
+>>>> transaction"))
+>>>>
+>>>> +        def finish(self):
+>>>> +               if not self.transaction:
+>>>> +                      raise ValueError(_("Semanage transaction not in
+>>>> progress"))
+>>>> +               self.transaction = False
+>>>> +               self.commit()
+>>>> +
+>>>>   class permissiveRecords(semanageRecords):
+>>>>       def __init__(self, store):
+>>>>                  semanageRecords.__init__(self, store)
+>>>> @@ -328,6 +339,7 @@
+>>>>
+>>>>
+>>>>       def add(self, type):
+>>>> +               import glob
+>>>>                  name = "permissive_%s" % type
+>>>>                  dirname = "/var/lib/selinux"
+>>>>                  os.chdir(dirname)
+>>>> @@ -351,16 +363,19 @@
+>>>>                  fd.close()
+>>>>
+>>>>                  rc = semanage_module_install(self.sh, data, len(data));
+>>>> -               if rc<  0:
+>>>> -            raise ValueError(_("Could not set permissive domain %s (module
+>>>> installation failed)") % name)
+>>>> -
+>>>> -               self.commit()
+>>>> +               if rc>= 0:
+>>>> +                      self.commit()
+>>>>
+>>>>                  for root, dirs, files in os.walk("tmp", topdown=False):
+>>>>                         for name in files:
+>>>>                                os.remove(os.path.join(root, name))
+>>>>                         for name in dirs:
+>>>>                                os.rmdir(os.path.join(root, name))
+>>>> +               os.removedirs("tmp")
+>>>> +               for i in glob.glob("permissive_%s.*" % type):
+>>>> +                      os.remove(i)
+>>>> +               if rc<  0:
+>>>> +            raise ValueError(_("Could not set permissive domain %s (module
+>>>> installation failed)") % name)
+>>>>
+>>>>       def delete(self, name):
+>>>>                  for n in name.split():
+>>> Other than that one thing, this looks fine to me.
+>>>
+>>> Thanks,
+>>> Chad
+>>>
+>>>
+>>> --
+>>> This message was distributed to subscribers of the selinux mailing list.
+>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>>> the words "unsubscribe selinux" without quotes as the message.
+>> If a package owned a directory like /var/lib/libvirt/images, when it is
+>> relabeling we would want it to relabel not only the directory but the
+>> contents of the directory
+> 
+> Makes sense.
+> 
+> Acked-by: Chad Sellers <csellers@tresys.com>
+> 
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
-
- include/linux/magic.h               |    1 +
- security/integrity/ima/ima_policy.c |    8 +++-----
- security/selinux/include/security.h |    3 +--
- 3 files changed, 5 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/magic.h b/include/linux/magic.h
-index 4596c9e..2fb570c 100644
---- a/include/linux/magic.h
-+++ b/include/linux/magic.h
-@@ -10,6 +10,7 @@
- #define DEBUGFS_MAGIC		0x64626720
- #define SYSFS_MAGIC		0x62656572
- #define SECURITYFS_MAGIC	0x73636673
-+#define SELINUX_MAGIC		0xf97cff8c
- #define TMPFS_MAGIC		0x01021994
- #define SQUASHFS_MAGIC		0x73717368
- #define EFS_SUPER_MAGIC		0x414A53
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index dec6dcb..31d677f 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -49,14 +49,12 @@ struct ima_measure_rule_entry {
-  * written in terms of .action, .func, .mask, .fsmagic, and .uid
-  */
- static struct ima_measure_rule_entry default_rules[] = {
--	{.action = DONT_MEASURE,.fsmagic = PROC_SUPER_MAGIC,
--	 .flags = IMA_FSMAGIC},
-+	{.action = DONT_MEASURE,.fsmagic = PROC_SUPER_MAGIC,.flags = IMA_FSMAGIC},
- 	{.action = DONT_MEASURE,.fsmagic = SYSFS_MAGIC,.flags = IMA_FSMAGIC},
- 	{.action = DONT_MEASURE,.fsmagic = DEBUGFS_MAGIC,.flags = IMA_FSMAGIC},
- 	{.action = DONT_MEASURE,.fsmagic = TMPFS_MAGIC,.flags = IMA_FSMAGIC},
--	{.action = DONT_MEASURE,.fsmagic = SECURITYFS_MAGIC,
--	 .flags = IMA_FSMAGIC},
--	{.action = DONT_MEASURE,.fsmagic = 0xF97CFF8C,.flags = IMA_FSMAGIC},
-+	{.action = DONT_MEASURE,.fsmagic = SECURITYFS_MAGIC,.flags = IMA_FSMAGIC},
-+	{.action = DONT_MEASURE,.fsmagic = SELINUX_MAGIC,.flags = IMA_FSMAGIC},
- 	{.action = MEASURE,.func = FILE_MMAP,.mask = MAY_EXEC,
- 	 .flags = IMA_FUNC | IMA_MASK},
- 	{.action = MEASURE,.func = BPRM_CHECK,.mask = MAY_EXEC,
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index a7be3f0..ca83579 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -8,14 +8,13 @@
- #ifndef _SELINUX_SECURITY_H_
- #define _SELINUX_SECURITY_H_
- 
-+#include <linux/magic.h>
- #include "flask.h"
- 
- #define SECSID_NULL			0x00000000 /* unspecified SID */
- #define SECSID_WILD			0xffffffff /* wildcard SID */
- #define SECCLASS_NULL			0x0000 /* no class */
- 
--#define SELINUX_MAGIC 0xf97cff8c
--
- /* Identify specific policy version changes */
- #define POLICYDB_VERSION_BASE		15
- #define POLICYDB_VERSION_BOOL		16
+Merged in policycoreutils-2.0.63
 
 
 --
