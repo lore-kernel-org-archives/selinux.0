@@ -1,41 +1,31 @@
-Message-ID: <4A11AE8B.6030600@tycho.nsa.gov>
-Date: Mon, 18 May 2009 14:52:59 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Date: Tue, 19 May 2009 08:20:39 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: move SELINUX_MAGIC into magic.h
+In-Reply-To: <20090518142609.31208.20946.stgit@dhcp231-142.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.0905190820230.5433@tundra.namei.org>
+References: <20090518142609.31208.20946.stgit@dhcp231-142.rdu.redhat.com>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: avc: denied null
-References: <1242641994.470.5.camel@notebook2.grift.internal>	 <1242651013.29973.197.camel@localhost.localdomain> <1242651553.1057.0.camel@notebook2.grift.internal>
-In-Reply-To: <1242651553.1057.0.camel@notebook2.grift.internal>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dominick Grift wrote:
-> On Mon, 2009-05-18 at 08:50 -0400, Stephen Smalley wrote:
->   
->> rpm -q -f /usr/bin/Xorg /etc/selinux
->>     
->
-> xorg-x11-server-Xorg-1.6.1-11.fc11.x86_64
-> selinux-policy-3.6.12-36.fc11.noarch
->
->
->   
+On Mon, 18 May 2009, Eric Paris wrote:
 
-Hmm, I thought this was fixed earlier:
-https://bugzilla.redhat.com/show_bug.cgi?id=485609
+> The selinuxfs superblock magic is used inside the IMA code, but is being
+> defined in two places and could someday get out of sync.  This patch moves the
+> declaration into magic.h so it is only done once.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-But I'll try to track this down.  The "null" denials won't break
-anything they just cause log noise.
-
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
