@@ -1,39 +1,98 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4IFUaut003898
-	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 11:30:36 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4IFWX1Z004354
+	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 11:32:33 -0400
 Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4IFUWnR011255
-	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 15:30:32 GMT
-Message-ID: <4A117F1A.6050605@manicmethod.com>
-Date: Mon, 18 May 2009 11:30:34 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4IFWeVb018779
+	for <selinux@tycho.nsa.gov>; Mon, 18 May 2009 15:32:40 GMT
+Message-ID: <4A117F8F.2050803@manicmethod.com>
+Date: Mon, 18 May 2009 11:32:31 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Chad Sellers <csellers@tresys.com>
-CC: Hiroshi Shinji <hiroshi.shinji@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Memory leak in libselinux/src/label_file.c
-References: <C628ACBB.A6FA6%csellers@tresys.com>
-In-Reply-To: <C628ACBB.A6FA6%csellers@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to getdefaultcon to print just the correct match and add
+ verbose option
+References: <C631F1CF.A721D%csellers@tresys.com>
+In-Reply-To: <C631F1CF.A721D%csellers@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Chad Sellers wrote:
-> On 4/3/09 12:58 AM, "Hiroshi Shinji" <hiroshi.shinji@gmail.com> wrote:
+> On 3/4/09 3:41 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 > 
->> Hi,
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> I found memory leak in libselinux/src/label_file.c.
->> Please fix it.
+>> I really want to rename this to selinuxdefaultcon, which is what we ship
+>> in Fedora.
 >>
->> Regards,
+>> Also exit with proper error on failure.
+>> -----BEGIN PGP SIGNATURE-----
+>> Version: GnuPG v1.4.9 (GNU/Linux)
+>> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>>
+>> iEYEARECAAYFAkmu54AACgkQrlYvE4MpobNoZACdHgQDP2Hp/KDBpGCD7G08HjOX
+>> p68An25Uu83SlOqjKyy9EG8ZgdIcuTCB
+>> =L6UU
+>> -----END PGP SIGNATURE-----
+>> --- nsalibselinux/utils/getdefaultcon.c 2008-08-28 09:34:24.000000000 -0400
+>> +++ libselinux-2.0.78/utils/getdefaultcon.c 2009-03-04 15:23:52.000000000
+>> -0500
+>> @@ -22,8 +22,9 @@
+>> security_context_t usercon = NULL, cur_context = NULL;
+>> char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL, *dlevel=NULL;
+>> int ret, opt;
+>> + int verbose = 0;
+>>  
+>> - while ((opt = getopt(argc, argv, "l:r:")) > 0) {
+>> + while ((opt = getopt(argc, argv, "l:r:v")) > 0) {
+>> switch (opt) {
+>> case 'l':
+>> level = strdup(optarg);
+>> @@ -31,6 +32,9 @@
+>> case 'r':
+>> role = strdup(optarg);
+>> break;
+>> +  case 'v':
+>> +   verbose = 1;
+>> +   break;
+>> default:
+>> usage(argv[0], "invalid option", 1);
+>> }
+>> @@ -66,9 +70,13 @@
+>> }
+>> if (ret < 0)
+>> perror(argv[0]);
+>> - else
+>> -  printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context,
+>> seuser, role, level, usercon);
+>> -
+>> + else {
+>> +  if (verbose) {
+>> +   printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context,
+>> seuser, role, level, usercon);
+>> +  } else {
+>> +   printf("%s", usercon);
+>> +  }
+>> + }
+>>  
+>> free(role);
+>> free(seuser);
+>> @@ -76,5 +84,5 @@
+>> free(dlevel);
+>> free(usercon);
+>>  
+>> - return 0;
+>> + return ret >= 0;
+>>  }
 > 
-> This looks good to me.
+> Looks good to me.
 > 
 > Acked-by: Chad Sellers <csellers@tresys.com>
 > 
 
 Merged in libselinux-2.0.81
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
