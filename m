@@ -1,53 +1,35 @@
-Date: Wed, 20 May 2009 00:09:47 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Minor issue with reading selinuxfs booleans.
-In-Reply-To: <1242738143.20082.169.camel@localhost.localdomain>
-Message-ID: <alpine.LRH.2.00.0905200009360.13191@tundra.namei.org>
-References: <4A122FF0.3010609@tycho.nsa.gov> <1242738143.20082.169.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4JGGjHV012827
+	for <selinux@tycho.nsa.gov>; Tue, 19 May 2009 12:16:45 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n4JGGqOp008146
+	for <selinux@tycho.nsa.gov>; Tue, 19 May 2009 16:16:53 GMT
+Date: Tue, 19 May 2009 12:16:37 -0400
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C63853A5.A735D%csellers@tresys.com>
+In-Reply-To: <4A11A48A.1020307@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 19 May 2009, Stephen Smalley wrote:
+On 5/18/09 2:10 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> Basically we need to search for all interfaces that return an int and
+> set those up as python exception handlers.
 
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+I presume this supercedes the patch submitted on March 4 titled "Patch to
+python bindings" which used a single generic exception handler. Is that
+correct? Why the switch from a generic exception handler to a shell script
+to generate lots of specific exception handlers?
 
-> 
-> ---
-> 
->  security/selinux/selinuxfs.c |    4 ----
->  1 file changed, 4 deletions(-)
-> 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 2d5136e..35b447b 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -803,10 +803,6 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
->  		goto out;
->  	}
->  
-> -	if (count > PAGE_SIZE) {
-> -		ret = -EINVAL;
-> -		goto out;
-> -	}
->  	page = (char *)get_zeroed_page(GFP_KERNEL);
->  	if (!page) {
->  		ret = -ENOMEM;
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
+Thanks,
+Chad 
 
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
