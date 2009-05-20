@@ -1,44 +1,80 @@
-Subject: Re: Policy loading problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dennis Wronka <linuxweb@gmx.net>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200905202344.16667.linuxweb@gmx.net>
-References: <1242641994.470.5.camel@notebook2.grift.internal>
-	 <200905202257.08555.linuxweb@gmx.net>
-	 <1242831553.20082.406.camel@localhost.localdomain>
-	 <200905202344.16667.linuxweb@gmx.net>
-Content-Type: text/plain
-Date: Wed, 20 May 2009 12:44:48 -0400
-Message-Id: <1242837888.20082.419.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4KH8FqN023648
+	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 13:08:15 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4KH8BlR019024
+	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 17:08:11 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n4KH8EPE014788
+	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 13:08:14 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n4KH8C3O010940
+	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 13:08:13 -0400
+Received: from localhost.localdomain (vpn-10-93.bos.redhat.com [10.16.10.93])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n4KH8BJb026888
+	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 13:08:12 -0400
+Message-ID: <4A1438FE.2000207@redhat.com>
+Date: Wed, 20 May 2009 13:08:14 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: setfiles will only put out a "*" if > 1000 files are fixed.
+Content-Type: multipart/mixed;
+ boundary="------------060703010302050108020802"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-05-20 at 23:44 +0800, Dennis Wronka wrote:
-> Just an idea:
-> Wouldn't it be possible to split CONFIG_SECURITY_SELINUX_DEVELOP into two 
-> options, pretty much like CONFIG_SECURITY_SELINUX_BOOTPARAM and 
-> CONFIG_SECURITY_SELINUX_DISABLE?
-> 
-> I like the idea because it would prevent somebody that has physical access to 
-> set SELinux to permissive (and thus practically disabling its protection) on 
-> boot, but still keep the option for root (either as sysadm_r or, preferably, 
-> as secadm_r) to switch to permissive mode after boot.
+This is a multi-part message in MIME format.
+--------------060703010302050108020802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Possible, yes.  Useful, I don't think so.  If you want to prevent users
-with physical access from specifying selinux=0 or enforcing=0, then use
-a grub password (and more, if you are really concerned about physical
-access).
+setfiles was always putting out a \n, even when not many files were 
+being fixed. yum transactions were being desturbed by this.
 
-A more likely scenario is that people want to be able to boot permissive
-without being able to switch to permissive at runtime.  But that can be
-enforced by not allowing setenforce permission to any domain in your
-policy.
+--------------060703010302050108020802
+Content-Type: text/plain;
+ name="policycoreutils-setfiles.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="policycoreutils-setfiles.patch"
 
--- 
-Stephen Smalley
-National Security Agency
+--- nsapolicycoreutils/setfiles/setfiles.c	2008-08-28 09:34:24.000000000 -0400
++++ policycoreutils-2.0.62/setfiles/setfiles.c	2009-05-14 11:05:15.000000000 -0400
+@@ -29,6 +29,8 @@
+ static int mass_relabel;
+ static int mass_relabel_errs;
+ 
++#define STAR_COUNT 1000
++
+ static FILE *outfile = NULL;
+ static int force = 0;
+ #define STAT_BLOCK_SIZE 1
+@@ -444,11 +446,11 @@
+ 
+ 	if (progress) {
+ 		count++;
+-		if (count % 80000 == 0) {
++		if (count % (80 * STAR_COUNT) == 0) {
+ 			fprintf(stdout, "\n");
+ 			fflush(stdout);
+ 		}
+-		if (count % 1000 == 0) {
++		if (count % STAR_COUNT == 0) {
+ 			fprintf(stdout, "*");
+ 			fflush(stdout);
+ 		}
+@@ -1017,7 +1019,7 @@
+ 		free(excludeArray[i].directory);
+ 	}
+ 
+-       if (progress)
++       if (progress && count >= STAR_COUNT)
+                printf("\n");
+ 	exit(errors);
+ }
 
+--------------060703010302050108020802--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
