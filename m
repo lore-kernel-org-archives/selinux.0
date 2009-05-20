@@ -1,82 +1,88 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4KDXEct017643
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 09:33:14 -0400
-Received: from mail-gx0-f180.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4KDXN5d018143
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 13:33:23 GMT
-Received: by gxk28 with SMTP id 28so602609gxk.18
-        for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 06:33:13 -0700 (PDT)
+From: Dennis Wronka <linuxweb@gmx.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov
+Subject: Re: Policy loading problem
+Date: Wed, 20 May 2009 21:46:50 +0800
+References: <1242641994.470.5.camel@notebook2.grift.internal> <20090520072118.226550@gmx.net> <1242820009.20082.374.camel@localhost.localdomain>
+In-Reply-To: <1242820009.20082.374.camel@localhost.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <4A13FE02.5050701@redhat.com>
-References: <12675062.1102781242816752701.JavaMail.coremail@bj126app52.126.com>
-	 <4A13FE02.5050701@redhat.com>
-Date: Wed, 20 May 2009 06:33:13 -0700
-Message-ID: <dd18b0c30905200633j772cd1e4t59673e671359e201@mail.gmail.com>
-Subject: Re: selinux policy for gedit
-From: Justin Mattock <justinmattock@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: hechao55429 <hechao55429@126.com>, selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart2219355.pDvJ5j9IAm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <200905202146.54559.linuxweb@gmx.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-2009/5/20 Daniel J Walsh <dwalsh@redhat.com>:
-> On 05/20/2009 06:52 AM, hechao55429 wrote:
->>
->> hello everyone :
->>   I'm learning the selinux policy.I wrote a selinux policy module for
->> gedit a few days ago .When I loaded the policy into the target policy runing
->> on the fedora 10 and ran the gedit application , I encountered the following
->> problems:
->>
->> [root@localhost ~]# gedit
->> (gedit:2697): Pango-CRITICAL **: No fonts found:
->> This probably means that the fontconfig
->> library is not correctly configured. You may need to
->> edit the fonts.conf configuration file. More information
->> about fontconfig can be found in the fontconfig(3) manual
->> page and on http://fontconfig.org
->> (gedit:2697): Pango-WARNING **: failed to find shape engine, expect ugly
->> output. engine-type='PangoRenderFc', script='han'
->> (gedit:2697): Pango-WARNING **: failed to find shape engine, expect ugly
->> output. engine-type='PangoRenderFc', script='latin'
->> (gedit:2697): Pango-WARNING **: failed to find shape engine, expect ugly
->> output. engine-type='PangoRenderFc', script='common'
->> (gedit:2697): Pango-CRITICAL **: _pango_engine_shape_covers: assertion
->> `PANGO_IS_FONT (font)' failed
->> [root@localhost ~]#
->> Here is a screenshot:
->>
->>
->>
-> You need to give gedit the ability to read fonts.
+--nextPart2219355.pDvJ5j9IAm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+I have actually tried both.
+The way it's usually done is through a patched init, which used to work som=
+e=20
+time ago (I don't remember which version of the kernel, the policy and the=
+=20
+SELinux-tools/-libraries I used then, as everything always is being updated=
+=20
+and I worked on a lot of other stuff in between).
+I also tried the approach Fedora uses, pretty much taking apart their initr=
+d=20
+and reimplementing the load_policy-command from nash into a seperate progra=
+m=20
+as I had trouble compiling nash). I got it partially working later, but not=
+ in=20
+the way I used to do it and not the way it's supposed to be.
+
+So, as said, the it's supposed to be is a patched init, although I could li=
+ve=20
+with doing it in my initramfs (I use that instead of an initrd, but it's=20
+basically the same anyway).
+
+Still I find it quite confusing that the policy gets loaded when I set SELi=
+nux=20
+to enforcing, but not when I set it to permissive.
+
+On Wednesday 20 May 2009 19:46:49 you wrote:
+> On Wed, 2009-05-20 at 09:21 +0200, Dennis Wronka wrote:
+> > Hello folks,
+> >
+> > currently I am experiencing quite a strange problem during system-boot.
+> > The problem is that the policy only gets loaded when I boot into
+> > enforcing-mode. Booting into permissive mode (doesn't matter if via
+> > kernel-parameter or config-file) does not load the policy at all.
+> >
+> > I am using Kernel 2.6.29.3 and Reference Policy 2.20081210.
+> > Did anything change in the latest kernel or policy that triggers this? =
+Is
+> > it possible to create a policy that cannot be loaded in permissive mode?
+> >
+> > Any help or suggestion would be great.
 >
-> miscfiles_read_fonts(gedit_t)
+> What mechanism are you using to perform the initial policy load (Fedora
+> originally patched /sbin/init then migrated to performing the load from
+> the initrd; Ubuntu does the load from initrd but in a different manner;
+> Debian still uses a patched init I believe)?
 >
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
->
+> Can you post the logic for your initial policy load, whether it is a
+> patch to /sbin/init or an initrd script?
 
-if you look in /etc/fonts/fonts.conf
-you should see:
 
-<!-- Font directory list -->
 
-        <dir>/usr/share/fonts</dir>
+--nextPart2219355.pDvJ5j9IAm
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-        <dir>~/.fonts</dir>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.10 (GNU/Linux)
 
-you should have something in
-/usr/share/fonts/*
-(or wherever there located on your system)
+iEYEABECAAYFAkoUCc4ACgkQ1sXw8/2VziRnvQCaAoi86YPOzVaOvkIsoBfVQljm
+0iYAn2FGtHpo7cdgeFhp1f0t13WfCF8I
+=mgta
+-----END PGP SIGNATURE-----
 
--- 
-Justin P. Mattock
-
+--nextPart2219355.pDvJ5j9IAm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
