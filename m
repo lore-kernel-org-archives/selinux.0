@@ -1,82 +1,37 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@parisplace.org>
-Subject: Re: [PATCH] SELinux: BUG in SELinux compat_net code
-Date: Tue, 19 May 2009 18:01:06 -0400
-Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@kernel.org, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sds@tycho.nsa.gov, manoj.iyer@canonical.com
-References: <1242769318.2763.22.camel@dhcp231-142.rdu.redhat.com> <7e0fb38c0905191453w611e1eaas45b20ce7c4030e59@mail.gmail.com>
-In-Reply-To: <7e0fb38c0905191453w611e1eaas45b20ce7c4030e59@mail.gmail.com>
+Message-ID: <4A1374D5.6080504@tycho.nsa.gov>
+Date: Tue, 19 May 2009 23:11:17 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200905191801.07388.paul.moore@hp.com>
+To: Dominick Grift <domg472@gmail.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: avc: denied null
+References: <1242641994.470.5.camel@notebook2.grift.internal>	 <1242651013.29973.197.camel@localhost.localdomain> <1242651553.1057.0.camel@notebook2.grift.internal>
+In-Reply-To: <1242651553.1057.0.camel@notebook2.grift.internal>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 19 May 2009 05:53:52 pm Eric Paris wrote:
-> Sometimes I'm an idiot, messed up TWO e-mail addresses....   stable
-> and selinux, so I'm hitting both of those lists with this reply...
+Dominick Grift wrote:
+> On Mon, 2009-05-18 at 08:50 -0400, Stephen Smalley wrote:
+>   
+>> rpm -q -f /usr/bin/Xorg /etc/selinux
+>>     
+>
+> xorg-x11-server-Xorg-1.6.1-11.fc11.x86_64
+> selinux-policy-3.6.12-36.fc11.noarch
+>   
 
-... and I fell for it too when ack'ing the patch.  I may write buggy code but 
-at least I submit it to the write addresses ;)
+I found the cause of the "x_device" null avc's.  It was a bad hook call.
 
-Anyway, looks good to me.
+I'm still stumped on the GLXMakeCurrent null avc's though.  I can't
+reproduce the problem here running glxinfo/glxgears.  I suspect it
+depends on the video driver / acceleration architecture being used.
 
-Acked-by: Paul Moore <paul.moore@hp.com>
-
-> On Tue, May 19, 2009 at 5:41 PM, Eric Paris <eparis@redhat.com> wrote:
-> > This patch is not applicable to Linus's tree as the code in question has
-> > been removed for 2.6.30.  I'm sending in case any of the stable
-> > maintainers would like to push to their branches (which I think anything
-> > pre 2.6.30 would like to do).
-> >
-> > Ubuntu users were experiencing a kernel panic when they enabled SELinux
-> > due to an old bug in our handling of the compatibility mode network
-> > controls, introduced Jan 1 2008 effad8df44261031a882e1a895415f7186a5098e
-> > Most distros have not used the compat_net code since the new code was
-> > introduced and so noone has hit this problem before.  Ubuntu is the only
-> > distro I know that enabled that legacy cruft by default.  But, I was ask
-> > to look at it and found that the above patch changed a call to
-> > avc_has_perm from if(send_perm) to if(!send_perm) in
-> > selinux_ip_postroute_iptables_compat().  The result is that users who
-> > turn on SELinux and have compat_net set can (and oftern will) BUG() in
-> > avc_has_perm_noaudit since they are requesting 0 permissions.
-> >
-> > This patch corrects that accidental bug introduction.
-> >
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> >
-> > ---
-> >
-> >  security/selinux/hooks.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff -up linux-source-2.6.28/security/selinux/hooks.c.pre.send
-> > linux-source-2.6.28/security/selinux/hooks.c ---
-> > linux-source-2.6.28/security/selinux/hooks.c.pre.send       2009-05-18
-> > 13:23:16.043632602 -0400 +++ linux-source-2.6.28/security/selinux/hooks.c
-> >        2009-05-18 13:23:27.899632772 -0400 @@ -4561,7 +4561,7 @@ static
-> > int selinux_ip_postroute_iptables
-> >        if (err)
-> >                return err;
-> >
-> > -       if (send_perm != 0)
-> > +       if (!send_perm)
-> >                return 0;
-> >
-> >        err = sel_netport_sid(sk->sk_protocol,
-> >
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-paul moore
-linux @ hp
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
