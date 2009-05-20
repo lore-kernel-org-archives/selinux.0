@@ -1,29 +1,50 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4KJ12Ej011871
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 15:01:02 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4KJ19fV027844
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 19:01:09 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n4KJ0uWj011801
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 15:00:56 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n4KJ0tlZ021223
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 15:00:56 -0400
-Received: from localhost.localdomain (vpn-10-93.bos.redhat.com [10.16.10.93])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n4KJ0tMh023167
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 15:00:55 -0400
-Message-ID: <4A14536A.4020402@redhat.com>
-Date: Wed, 20 May 2009 15:00:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: chcat fixes
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 20 May 2009 22:01:07 +0100
+From: Paul Howarth <paul@city-fan.org>
+To: SELinux@tycho.nsa.gov
+Subject: Re: Policy loading problem
+Message-ID: <20090520220107.008b2f91@metropolis.intra.city-fan.org>
+In-Reply-To: <1242837888.20082.419.camel@localhost.localdomain>
+References: <1242641994.470.5.camel@notebook2.grift.internal>
+	<200905202257.08555.linuxweb@gmx.net>
+	<1242831553.20082.406.camel@localhost.localdomain>
+	<200905202344.16667.linuxweb@gmx.net>
+	<1242837888.20082.419.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Expansion of categores is still broken.  Here is a patch to fix.
+On Wed, 20 May 2009 12:44:48 -0400
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Wed, 2009-05-20 at 23:44 +0800, Dennis Wronka wrote:
+> > Just an idea:
+> > Wouldn't it be possible to split CONFIG_SECURITY_SELINUX_DEVELOP
+> > into two options, pretty much like
+> > CONFIG_SECURITY_SELINUX_BOOTPARAM and
+> > CONFIG_SECURITY_SELINUX_DISABLE?
+> > 
+> > I like the idea because it would prevent somebody that has physical
+> > access to set SELinux to permissive (and thus practically disabling
+> > its protection) on boot, but still keep the option for root (either
+> > as sysadm_r or, preferably, as secadm_r) to switch to permissive
+> > mode after boot.
+> 
+> Possible, yes.  Useful, I don't think so.  If you want to prevent
+> users with physical access from specifying selinux=0 or enforcing=0,
+> then use a grub password (and more, if you are really concerned about
+> physical access).
+> 
+> A more likely scenario is that people want to be able to boot
+> permissive without being able to switch to permissive at runtime.
+> But that can be enforced by not allowing setenforce permission to any
+> domain in your policy.
+
+One might also get into a state where the system wouldn't boot in
+enforcing mode due to some labelling gone wrong, so you'd want to boot
+in permissive mode to fix that.
+
+Paul.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
