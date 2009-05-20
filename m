@@ -1,38 +1,32 @@
-Message-ID: <4A1374D5.6080504@tycho.nsa.gov>
-Date: Tue, 19 May 2009 23:11:17 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 20 May 2009 09:21:18 +0200
+From: "Dennis Wronka" <linuxweb@gmx.net>
+In-Reply-To: <4A1374D5.6080504@tycho.nsa.gov>
+Message-ID: <20090520072118.226550@gmx.net>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: avc: denied null
-References: <1242641994.470.5.camel@notebook2.grift.internal>	 <1242651013.29973.197.camel@localhost.localdomain> <1242651553.1057.0.camel@notebook2.grift.internal>
-In-Reply-To: <1242651553.1057.0.camel@notebook2.grift.internal>
-Content-Type: text/plain; charset=UTF-8
+References: <1242641994.470.5.camel@notebook2.grift.internal>	
+ <1242651013.29973.197.camel@localhost.localdomain>
+ <1242651553.1057.0.camel@notebook2.grift.internal>
+ <4A1374D5.6080504@tycho.nsa.gov>
+Subject: Policy loading problem
+To: SELinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dominick Grift wrote:
-> On Mon, 2009-05-18 at 08:50 -0400, Stephen Smalley wrote:
->   
->> rpm -q -f /usr/bin/Xorg /etc/selinux
->>     
->
-> xorg-x11-server-Xorg-1.6.1-11.fc11.x86_64
-> selinux-policy-3.6.12-36.fc11.noarch
->   
+Hello folks,
 
-I found the cause of the "x_device" null avc's.  It was a bad hook call.
+currently I am experiencing quite a strange problem during system-boot.
+The problem is that the policy only gets loaded when I boot into enforcing-mode. Booting into permissive mode (doesn't matter if via kernel-parameter or config-file) does not load the policy at all.
 
-I'm still stumped on the GLXMakeCurrent null avc's though.  I can't
-reproduce the problem here running glxinfo/glxgears.  I suspect it
-depends on the video driver / acceleration architecture being used.
+I am using Kernel 2.6.29.3 and Reference Policy 2.20081210.
+Did anything change in the latest kernel or policy that triggers this? Is it possible to create a policy that cannot be loaded in permissive mode?
 
+Any help or suggestion would be great.
 
+Thanks,
+Dennis
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+Neu: GMX FreeDSL Komplettanschluss mit DSL 6.000 Flatrate + Telefonanschluss für nur 17,95 Euro/mtl.!* http://dslspecial.gmx.de/freedsl-surfflat/?ac=OM.AD.PD003K11308T4569a
 
 --
 This message was distributed to subscribers of the selinux mailing list.
