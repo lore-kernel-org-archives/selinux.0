@@ -1,44 +1,43 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4KG8eF1013470
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 12:08:40 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n4KG8lg5014043
-	for <selinux@tycho.nsa.gov>; Wed, 20 May 2009 16:08:48 GMT
-Date: Wed, 20 May 2009 12:08:32 -0400
-Subject: Re: SELinux context patch
-From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Caleb Case <ccase@tresys.com>, Joshua Brindle <method@manicmethod.com>
-Message-ID: <C639A340.A73BA%csellers@tresys.com>
-In-Reply-To: <4A11A5EC.9000904@redhat.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: Re: Policy loading problem
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Dennis Wronka <linuxweb@gmx.net>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200905202344.16667.linuxweb@gmx.net>
+References: <1242641994.470.5.camel@notebook2.grift.internal>
+	 <200905202257.08555.linuxweb@gmx.net>
+	 <1242831553.20082.406.camel@localhost.localdomain>
+	 <200905202344.16667.linuxweb@gmx.net>
+Content-Type: text/plain
+Date: Wed, 20 May 2009 12:44:48 -0400
+Message-Id: <1242837888.20082.419.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 5/18/09 2:16 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+On Wed, 2009-05-20 at 23:44 +0800, Dennis Wronka wrote:
+> Just an idea:
+> Wouldn't it be possible to split CONFIG_SECURITY_SELINUX_DEVELOP into two 
+> options, pretty much like CONFIG_SECURITY_SELINUX_BOOTPARAM and 
+> CONFIG_SECURITY_SELINUX_DISABLE?
+> 
+> I like the idea because it would prevent somebody that has physical access to 
+> set SELinux to permissive (and thus practically disabling its protection) on 
+> boot, but still keep the option for root (either as sysadm_r or, preferably, 
+> as secadm_r) to switch to permissive mode after boot.
 
-> This patch adds context files for virtual_domain and virtual_image,
-> these are both being used to locat the default context to be executed by
-> svirt.
-> 
-> I also included the subs patch which I submitted before.  This patch
-> allows us to substitute prefixes to matchpathcon.
-> 
-> So we can say /export/home == /home
-> 
-> and
-> 
-> /web == /var/www
+Possible, yes.  Useful, I don't think so.  If you want to prevent users
+with physical access from specifying selinux=0 or enforcing=0, then use
+a grub password (and more, if you are really concerned about physical
+access).
 
-I'm surprised that the subs patch didn't get much discussion before. Any
-thoughts on this? Any worries that it might not meld well with the work
-currently being done to integrate FCGlob?
+A more likely scenario is that people want to be able to boot permissive
+without being able to switch to permissive at runtime.  But that can be
+enforced by not allowing setenforce permission to any domain in your
+policy.
 
-Thanks,
-Chad
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
