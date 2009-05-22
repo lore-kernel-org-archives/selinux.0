@@ -1,62 +1,119 @@
-Subject: Re: avc: denied null
-From: Dominick Grift <domg472@gmail.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <4A14BE43.7070505@tycho.nsa.gov>
-References: <1242641994.470.5.camel@notebook2.grift.internal>
-	 <1242651013.29973.197.camel@localhost.localdomain>
-	 <1242651553.1057.0.camel@notebook2.grift.internal>
-	 <4A1374D5.6080504@tycho.nsa.gov>
-	 <1242817716.14664.3.camel@notebook2.grift.internal>
-	 <4A14BE43.7070505@tycho.nsa.gov>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4MDcUjX032694
+	for <selinux@tycho.nsa.gov>; Fri, 22 May 2009 09:38:30 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n4MDcKeD018156
+	for <selinux@tycho.nsa.gov>; Fri, 22 May 2009 13:38:25 GMT
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <4A03B121.9040700@ak.jp.nec.com>
+References: <49D1DA85.1030902@ak.jp.nec.com>
+	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>
+	 <1238684951.32379.311.camel@gorn.columbia.tresys.com>
+	 <49D563A9.1000607@ak.jp.nec.com> <49D965CA.4030908@ak.jp.nec.com>
+	 <1240258044.19211.767.camel@gorn.columbia.tresys.com>
+	 <49ED04DF.8050306@ak.jp.nec.com>
+	 <1241699079.19211.1251.camel@gorn.columbia.tresys.com>
+	 <4A03AD55.8020207@ak.jp.nec.com>  <4A03B121.9040700@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Thu, 21 May 2009 22:15:03 +0200
-Message-Id: <1242936903.3383.6.camel@notebook2.grift.internal>
+Date: Fri, 22 May 2009 09:38:12 -0400
+Message-Id: <1242999492.14733.39.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-05-20 at 22:36 -0400, Eamon Walsh wrote:
-
-> If you're willing to compile the X server from source, you could apply
-> the attached patch and use gdb to attach to the running X server (this
-> has to be done over an ssh connection). 
+On Fri, 2009-05-08 at 13:12 +0900, KaiGai Kohei wrote:
+> The attached patch allows unprivileged clients to export from or
+> import
+> to the largeobject owned by themselves.
 > 
-> Break on the SELinuxNullPermissionHappened function and reproduce the
-> GLXMakeCurrent avc, hopefully the breakpoint will fire and you can get a
-> backtrace.
+> The current security policy does not allow them to import/export any
+> largeobjects without any clear reason.
 > 
-> Also there is another patch that will fix the x_device null avc's
-> (attached).
+> NOTE: Export of the largeobject means that it dumps whole of the
+> largeobject into a local file, so SE-PostgreSQL checks both of
+> db_blob:{read export} on the largeobject and file:{write} on the
+> local file. Import is a reversal behavior.
+
+Merged.
+
+> KaiGai Kohei wrote:
+> >>>>> - rework: All the newly created database objects by unprivileged
+> >>>>>   clients are prefixed with "user_", and these are controled via
+> >>>>>   sepgsql_enable_users_ddl.
+> >>>> I don't think we should be mixing user content with other unpriv
+> >>>> clients.
+> >>> I would like to discriminate between a procedure declared by
+> unpriv
+> >>> client and by administrative client, because the policy allows the
+> >>> unprefixed "sepgsql_proc_exec_t" to be installed as a system
+> internal
+> >>> component, but it is undesirable to install unpriv-user defined
+> >>> procedures as is.
+> >>>
+> >>> If the "user_" prefix is unpreferable, how do you think other
+> prefixes
+> >>> something like "anon_", "unpriv_" and so on?
+> >> I think we should go with unpriv_ for now.
+> > 
+> > OK, the attached patch adds the following types for unprivileged
+> clients.
+> >  - unpriv_sepgsql_table_t
+> >  - unpriv_sepgsql_sysobj_t
+> >  - unpriv_sepgsql_proc_exec_t
+> >  - unpriv_sepgsql_blob_t
+> > 
+> > These types are the default for unprivileged and unprefixed domains,
+> > such as httpd_t and others.
+> > 
+> > In addition, TYPE_TRANSITION rules are moved to outside of tunable
+> > of the sepgsql_enable_users_ddl. IIRC, it was enclosed within the
+> > tunable because UBAC domains (user_t and so on) were allowed to
+> > create sepgsql_table_t, and its default was pointed to this type
+> > when sepgsql_enable_users_ddl is disabled.
+> > However, it has different meanings now, so the TYPE_TRANSITION rules
+> > should be unconditional.
+> > 
+
 > 
-I tried it again this time with some hints from eparis. It got me a little bit further:
-
-(gdb) break SELinuxNullPermissionHappened
-Breakpoint 1 at 0x7f86941f9370: file xselinux.c, line 433.
-(gdb) continue
-Continuing.
-
-Program received signal SIGPIPE, Broken pipe.
-0x00000030040d67ab in writev () from /lib64/libc.so.6
-(gdb) bt
-#0  0x00000030040d67ab in writev () from /lib64/libc.so.6
-#1  0x00000000004eedec in _XSERVTransSocketWritev (
-    ciptr=<value optimized out>, buf=0x7fff9c426f00, size=1)
-    at /usr/include/X11/Xtrans/Xtranssock.c:2184
-#2  0x00000000004ea85d in FlushClient (who=<value optimized out>, 
-    oc=<value optimized out>, __extraBuf=<value optimized out>, 
-    extraCount=<value optimized out>) at io.c:899
-#3  0x00000000004eb301 in FlushAllOutput () at io.c:649
-#4  0x0000000000446d75 in Dispatch () at dispatch.c:456
-#5  0x000000000042d0d5 in main (argc=<value optimized out>, 
-    argv=0x7fff9c427198, envp=<value optimized out>) at main.c:397
-(gdb) quit
-The program is running.  Quit anyway (and detach it)? (y or n) y
-LND: Sending signal 13 to process 2456
-Detaching from program: /usr/bin/Xorg, process 2456
-
-
+> 
+> 
+> 
+> 
+> 
+> differences
+> between files
+> attachment
+> (refpolicy-sepgsql-3-db_blob-import-export.patch)
+> 
+> --- policy/modules/services/postgresql.if.2     2009-05-08 11:58:46.000000000 +0900
+> +++ policy/modules/services/postgresql.if.3     2009-05-08 11:59:28.000000000 +0900
+> @@ -63,7 +63,7 @@
+>         allow $2 user_sepgsql_proc_exec_t:db_procedure { getattr execute };
+>         type_transition $2 sepgsql_database_type:db_procedure user_sepgsql_proc_exec_t;
+>  
+> -       allow $2 user_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
+> +       allow $2 user_sepgsql_blob_t:db_blob { create drop getattr setattr read write import export };
+>         type_transition $2 sepgsql_database_type:db_blob user_sepgsql_blob_t;
+>  
+>         allow $2 sepgsql_trusted_proc_t:process transition;
+> @@ -361,7 +361,7 @@
+>         allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { getattr execute };
+>         type_transition $1 sepgsql_database_type:db_procedure unpriv_sepgsql_proc_exec_t;
+>  
+> -       allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write };
+> +       allow $1 unpriv_sepgsql_blob_t:db_blob { create drop getattr setattr read write import export };
+>         type_transition $1 sepgsql_database_type:db_blob unpriv_sepgsql_blob_t;
+>  ')
+>  
+> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
