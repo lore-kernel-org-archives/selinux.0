@@ -1,36 +1,31 @@
-Subject: Re: selinux and sctp
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nigel Rumens <wooky@btconnect.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
-In-Reply-To: <4A1A96BD.5050500@btconnect.com>
-References: <4A191AAC.4000500@btconnect.com> <4A1A7DF6.8080706@redhat.com>
-	 <4A1A96BD.5050500@btconnect.com>
-Content-Type: text/plain
-Date: Tue, 26 May 2009 10:40:52 -0400
-Message-Id: <1243348852.19066.9.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4QFY34T016426
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 11:34:03 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n4QFYEYO021053
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 15:34:15 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n4QFXsdB029625
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 11:33:54 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n4QFXr2E010580
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 11:33:54 -0400
+Received: from localhost.localdomain (vpn-10-13.bos.redhat.com [10.16.10.13])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n4QFXq5s011235
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 11:33:53 -0400
+Message-ID: <4A1C0BC7.2@redhat.com>
+Date: Tue, 26 May 2009 11:33:27 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Introducing SELinux Sanbox
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-05-25 at 14:01 +0100, Nigel Rumens wrote:
-> Thanks. I will do just that.
-> 
-> In the meantime though would it be possible to create a local policy 
-> module to allow this access? (with audit2allow?) Maybe even limiting it 
-> to just a particular set of processes by creating a new label and 
-> labeling the relevant executables?
+For those who do not ordinarily read my blog.
 
-Yes, you should be able to do that.
-
-Prior discussions of sctp and selinux:
-http://marc.info/?l=fedora-selinux-list&w=2&r=1&s=sctp&q=b
-
-I don't see sctp support on the selinux kernel todo list.
-
--- 
-Stephen Smalley
-National Security Agency
+http://danwalsh.livejournal.com/28545.html
 
 
 --
