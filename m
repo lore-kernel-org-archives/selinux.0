@@ -1,52 +1,35 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4Q0Iqek023802
-	for <selinux@tycho.nsa.gov>; Mon, 25 May 2009 20:18:52 -0400
-Received: from mail-fx0-f212.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4Q0Ilgn004459
-	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 00:18:47 GMT
-Received: by fxm8 with SMTP id 8so4089196fxm.18
-        for <selinux@tycho.nsa.gov>; Mon, 25 May 2009 17:18:51 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4QBd8wL011156
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 07:39:08 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4QBd2JO028375
+	for <selinux@tycho.nsa.gov>; Tue, 26 May 2009 11:39:03 GMT
+Message-ID: <4A1BD4A9.9010608@redhat.com>
+Date: Tue, 26 May 2009 07:38:17 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <4A1A96BD.5050500@btconnect.com>
-References: <4A191AAC.4000500@btconnect.com> <4A1A7DF6.8080706@redhat.com>
-	 <4A1A96BD.5050500@btconnect.com>
-Date: Mon, 25 May 2009 20:18:50 -0400
-Message-ID: <9f066ee90905251718j1b4f9942ndc7ef7058886017@mail.gmail.com>
-Subject: Re: selinux and sctp
-From: Mark Webb <elihusmails@gmail.com>
 To: Nigel Rumens <wooky@btconnect.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: selinux and sctp
+References: <4A191AAC.4000500@btconnect.com> <4A1A7DF6.8080706@redhat.com> <4A1A96BD.5050500@btconnect.com>
+In-Reply-To: <4A1A96BD.5050500@btconnect.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You are not an idiot at all.  I would like to see the policy posted
-here and others can work to refine it.  You might get a more relaxed
-policy using audit2allow than you would like, but its certainly a good
-start.
-
-I would suggest using SLIDE from Tresys and develop a policy from
-scratch to better learn policy development.
-
-...just my 2 cents
-Mark
-
-
-On Mon, May 25, 2009 at 9:01 AM, Nigel Rumens <wooky@btconnect.com> wrote:
+On 05/25/2009 09:01 AM, Nigel Rumens wrote:
 > Thanks. I will do just that.
 >
-> In the meantime though would it be possible to create a local policy module
-> to allow this access? (with audit2allow?) Maybe even limiting it to just a
-> particular set of processes by creating a new label and labeling the
-> relevant executables?
+> In the meantime though would it be possible to create a local policy
+> module to allow this access? (with audit2allow?) Maybe even limiting it
+> to just a particular set of processes by creating a new label and
+> labeling the relevant executables?
 >
-> Feel free to call me an idiot if you think I am being one. I am pretty new
-> to selinux.
+> Feel free to call me an idiot if you think I am being one. I am pretty
+> new to selinux.
 >
 > On 05/25/2009 12:16 PM, Daniel J Walsh wrote:
->>
 >> On 05/24/2009 06:00 AM, Nigel Rumens wrote:
->>>
 >>> Hi,
 >>>
 >>> Does selinux understand sctp?
@@ -70,10 +53,10 @@ On Mon, May 25, 2009 at 9:01 AM, Nigel Rumens <wooky@btconnect.com> wrote:
 >>> fedora-selinux-list mailing list
 >>> fedora-selinux-list@redhat.com
 >>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
->>
 >> Well it treats it as a rawip, I am not that familiar with the sctp
->> protocol, if you believe we should do more to handle it you probably need to
->> discuss with the SELinux developers on the SELinux developers mail list
+>> protocol, if you believe we should do more to handle it you probably
+>> need to discuss with the SELinux developers on the SELinux developers
+>> mail list
 >>
 >> selinux@tycho.nsa.gov
 >>
@@ -85,7 +68,17 @@ On Mon, May 25, 2009 at 9:01 AM, Nigel Rumens <wooky@btconnect.com> wrote:
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
 > with
 > the words "unsubscribe selinux" without quotes as the message.
->
+Yes you can develop a policy for this tool using rawip sockets.  You use 
+either slide or system-config-selinux/polgengui to build a policy for 
+it.  With SELinux you can write policy for just about any process on the 
+system.  The real problem is whether or not you can define your security 
+goals, and whether or not the security goals make your system more 
+secure.   Writing policy for emacs and saying it has to be able to 
+read/write every file on the system, does not make sense to me.  Since 
+the security goal is too broad.
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
