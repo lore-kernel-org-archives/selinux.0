@@ -1,63 +1,59 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4RBTncB003865
-	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 07:29:49 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4RBSvJS011928
-	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 11:29:23 GMT
-Message-ID: <4A1D23C8.6010300@redhat.com>
-Date: Wed, 27 May 2009 07:28:08 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Ioannis Aslanidis <iaslanidis@flumotion.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Problem with SELinux and glusterfs when trying to allow memprotect/mmap_zero
-References: <4A1D10AE.7020009@flumotion.com>
-In-Reply-To: <4A1D10AE.7020009@flumotion.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: selinux and sctp
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Nigel Rumens <wooky@btconnect.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <200905261832.44705.paul.moore@hp.com>
+References: <4A191AAC.4000500@btconnect.com> <4A1A7DF6.8080706@redhat.com>
+	 <200905261832.44705.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Wed, 27 May 2009 08:12:05 -0400
+Message-Id: <1243426325.19066.30.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/27/2009 06:06 AM, Ioannis Aslanidis wrote:
-> Hello,
->
-> I am trying to allow the following audit message through, but it says
-> that there is a violation. Can anyone explain what exactly is going on?
->
-> Thank you,
->
-> Ioannis
->
-> # cat messages.audit
-> May 27 01:51:13 streamer012 kernel: audit(1243381873.876:60): avc:
-> denied  { mmap_zero } for  pid=3155 comm="glusterfs2"
-> scontext=system_u:system_r:mount_t:s0
-> tcontext=system_u:system_r:mount_t:s0 tclass=memprotect
->
->
-> # cat selinuxglusterfs.te
->
-> module selinuxglusterfs 1.0;
->
-> require {
-> 	type mount_t;
-> 	class memprotect mmap_zero;
-> }
->
-> #============= mount_t ==============
-> allow mount_t self:memprotect mmap_zero;
->
-Add
-domain_mmap_low_type(mount_t)
-Will make this problem go away.  But I don't beleieve glusetfs should be 
-causing the mount command to need to mmap_zero.  Seems like a kernerl 
-problem.
->
-> #  semodule -i selinuxglusterfs.pp
-> libsepol.check_assertion_helper: assertion on line 0 violated by allow
-> mount_t mount_t:memprotect { mmap_zero };
-> libsepol.check_assertions: 1 assertion violations occured
-> libsemanage.semanage_expand_sandbox: Expand module failed
-> semodule:  Failed!
+On Tue, 2009-05-26 at 18:32 -0400, Paul Moore wrote:
+> On Monday 25 May 2009 07:16:06 am Daniel J Walsh wrote:
+> > On 05/24/2009 06:00 AM, Nigel Rumens wrote:
+> > > Hi,
+> > >
+> > > Does selinux understand sctp?
+> > >
+> > > When I run (for example)
+> > >
+> > > sctp_darn -H 0 -P 9876 -l
+> > >
+> > > It results in an avc denial message which tells me the target object is
+> > > of type None[rawip_socket]
+> > >
+> > > Also semanage port -l shows only udp and tcp
+> > >
+> > > Machine tested on was F11 (fully updated) - I also tried it F10 with the
+> > > same results
+> 
+> Hi Nigel,
+> 
+> Can you send us the AVC denial messages?  If you are running a recent kernel 
+> (F11/Rawhide should qualify and F10 will likely as well) there should only be 
+> a handful of areas where you should be hitting transport protocol specific 
+> code that isn't SCTP aware in the kernel, it would be nice to verify that so 
+> we could better identify what work needs to be done.
+
+- Need to define a sctp_socket class in the policy and kernel (presently
+they get mapped to rawip_socket).
+- Need to extend the node_bind/name_bind checking to handle multiple
+address binding for SCTP.
+- Need to extend the name_connect checking to support SCTP.
+- Need to add getpeersec support (also missing for DCCP).
+- Need to extend selinux_parse_skb* to handle it.
+- Need to update libsepol/libsemanage, checkpolicy, and semanage to
+support it.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
