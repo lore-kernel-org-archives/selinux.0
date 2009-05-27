@@ -1,56 +1,96 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4RJaufs026628
-	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 15:36:56 -0400
-Received: from g1t0028.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4RJaoE4015918
-	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 19:36:50 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: Nigel Rumens <wooky@btconnect.com>
-Subject: Re: selinux and sctp
-Date: Wed, 27 May 2009 15:36:47 -0400
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <4A191AAC.4000500@btconnect.com> <200905261832.44705.paul.moore@hp.com> <4A1D6CDB.5030905@btconnect.com>
-In-Reply-To: <4A1D6CDB.5030905@btconnect.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200905271536.47821.paul.moore@hp.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Clip] Unexpected role change from custom role back to user_r
+Date: Wed, 27 May 2009 12:44:38 -0700
+Message-ID: <FA8938DBA959E546BF6527F085F22FF804C16C93@AZ25EXM04.gddsi.com>
+In-Reply-To: <000901c9deff$a7c08a90$f7419fb0$@com>
+References: <FA8938DBA959E546BF6527F085F22FF804C16BB4@AZ25EXM04.gddsi.com> <1243446033.2752.19.camel@localhost.localdomain> <000901c9deff$a7c08a90$f7419fb0$@com>
+From: "West, Gary-P55389" <Gary.West@gdc4s.com>
+To: "Brian Williams" <brian@bri3001.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <clip@oss1.tresys.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 27 May 2009 12:39:55 pm Nigel Rumens wrote:
-> On 05/26/2009 11:32 PM, Paul Moore wrote:
-> > Hi Nigel,
-> >
-> > Can you send us the AVC denial messages?  If you are running a recent
-> > kernel (F11/Rawhide should qualify and F10 will likely as well) there
-> > should only be a handful of areas where you should be hitting transport
-> > protocol specific code that isn't SCTP aware in the kernel, it would be
-> > nice to verify that so we could better identify what work needs to be
-> > done.
->
-> Certainly - here you are.
+System is mls
+System is currently in permissive mode
+Policy is modular but all modules are in the base policy
 
-...
+Files changed with custom role:
 
-> Raw Audit Messages :
->
-> node=bear.cwb.uk type=AVC msg=audit(1242974819.377:32014): avc: denied {
-> name_bind } for pid=14773 comm="sctp_darn" src=9876
-> scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:port_t:s0 tclass=rawip_socket
-> node=bear.cwb.uk type=SYSCALL msg=audit(1242974819.377:32014):
-> arch=c000003e syscall=49 success=no exit=-13 a0=3 a1=7fff08b0bdd0 a2=10
-> a3=7fff08b0bdc0 items=0 ppid=14732 pid=14773 auid=500 uid=500 gid=500
-> euid=500 suid=500 fsuid=500 egid=500 sgid=500 fsgid=500 tty=pts2 ses=51
-> comm="sctp_darn" exe="/usr/bin/sctp_darn"
-> subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null)
+src/config/appconfig-mls/default_type --------------------
+app_pso_r:app_pso_t
 
-Thanks!
+src/config/appconfig-mls/default_contexts ----------------
+system_r:xdm_t:s0	user_r:user_t:s0 staff_r:staff_t:s0
+sysadm_r:sysadm_t:s0 unconfined_r:unconfined_t:s0 app_pso_r:app_pso_t:s0
 
--- 
-paul moore
-linux @ hp
+src/config/appconfig-mls/app_pso_u_default_contexts ------
+system_r:xdm_t:s0	app_pso_r:app_pso_t:s0
+
+src/policy/rolemap ---------------------------------------
+app_pso_r app_pso app_pso_t
+
+src/policy/users -----------------------------------------
+gen_user(app_pso_u, app_pso, app_pso_r , s0, s0 - mls_systemhigh,
+mcs_allcats)
+
+src/policy/modules/app/app_pso.te ------------------------
+
+policy_module(app_pso,1.0.0)
+
+role app_pso_r;
+
+userdom_unpriv_user_template(app_pso)
+ 
+Working on logs I can send to mailing list
+
+Gary West
+-----Original Message-----
+From: Brian Williams [mailto:brian@bri3001.com] 
+Sent: Wednesday, May 27, 2009 12:17 PM
+To: 'Stephen Smalley'; West, Gary-P55389
+Cc: clip@oss1.tresys.com; selinux@tycho.nsa.gov
+Subject: RE: [Clip] Unexpected role change from custom role back to
+user_r
+
+> -----Original Message-----
+> From: clip-bounces@oss.tresys.com [mailto:clip-bounces@oss.tresys.com]
+> On Behalf Of Stephen Smalley
+> Sent: Wednesday, May 27, 2009 1:41 PM
+> To: West, Gary-P55389
+> Cc: clip@oss1.tresys.com; selinux@tycho.nsa.gov
+> Subject: Re: [Clip] Unexpected role change from custom role back to 
+> user_r
+> 
+> On Wed, 2009-05-27 at 10:23 -0700, West, Gary-P55389 wrote:
+> > I have a custom SELinux policy (based on clip), user and role that 
+> > will login through X windows. When the user logs in, see the 
+> > USER_ROLE_CHANGE to the desired role. All X clients have the user_r 
+> > and user_t and not the custom role and type shown in the 
+> > USER_ROLE_CHANGE message. Can someone explain how this secondary 
+> > role change would happen?
+> 
+> Not offhand.  Can you supply more details, please?
+> 
+
+Please include not only details on the policy but also the
+default_contexts file.  This file tells X what roles and types to try
+when users log in.  If a role is not in this file, there is a chance
+that xdm (or whatever is logging you in) could not even try the custom
+role and type because it is not in the list to try.  
+
+> --
+> Stephen Smalley
+> National Security Agency
+> 
+> _______________________________________________
+> Clip mailing list
+> Clip@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/clip
+
+
 
 
 --
