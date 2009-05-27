@@ -1,29 +1,56 @@
-Subject: Re: Unexpected role change from custom role back to user_r
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "West, Gary-P55389" <Gary.West@gdc4s.com>
-Cc: selinux@tycho.nsa.gov, clip@oss1.tresys.com
-In-Reply-To: <FA8938DBA959E546BF6527F085F22FF804C16BB4@AZ25EXM04.gddsi.com>
-References: <FA8938DBA959E546BF6527F085F22FF804C16BB4@AZ25EXM04.gddsi.com>
-Content-Type: text/plain
-Date: Wed, 27 May 2009 13:40:33 -0400
-Message-Id: <1243446033.2752.19.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4RJaufs026628
+	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 15:36:56 -0400
+Received: from g1t0028.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4RJaoE4015918
+	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 19:36:50 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Nigel Rumens <wooky@btconnect.com>
+Subject: Re: selinux and sctp
+Date: Wed, 27 May 2009 15:36:47 -0400
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <4A191AAC.4000500@btconnect.com> <200905261832.44705.paul.moore@hp.com> <4A1D6CDB.5030905@btconnect.com>
+In-Reply-To: <4A1D6CDB.5030905@btconnect.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <200905271536.47821.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-05-27 at 10:23 -0700, West, Gary-P55389 wrote:
-> I have a custom SELinux policy (based on clip), user and role that
-> will login through X windows. When the user logs in, see the
-> USER_ROLE_CHANGE to the desired role. All X clients have the user_r
-> and user_t and not the custom role and type shown in the
-> USER_ROLE_CHANGE message. Can someone explain how this secondary role
-> change would happen?
+On Wednesday 27 May 2009 12:39:55 pm Nigel Rumens wrote:
+> On 05/26/2009 11:32 PM, Paul Moore wrote:
+> > Hi Nigel,
+> >
+> > Can you send us the AVC denial messages?  If you are running a recent
+> > kernel (F11/Rawhide should qualify and F10 will likely as well) there
+> > should only be a handful of areas where you should be hitting transport
+> > protocol specific code that isn't SCTP aware in the kernel, it would be
+> > nice to verify that so we could better identify what work needs to be
+> > done.
+>
+> Certainly - here you are.
 
-Not offhand.  Can you supply more details, please?
+...
+
+> Raw Audit Messages :
+>
+> node=bear.cwb.uk type=AVC msg=audit(1242974819.377:32014): avc: denied {
+> name_bind } for pid=14773 comm="sctp_darn" src=9876
+> scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> tcontext=system_u:object_r:port_t:s0 tclass=rawip_socket
+> node=bear.cwb.uk type=SYSCALL msg=audit(1242974819.377:32014):
+> arch=c000003e syscall=49 success=no exit=-13 a0=3 a1=7fff08b0bdd0 a2=10
+> a3=7fff08b0bdc0 items=0 ppid=14732 pid=14773 auid=500 uid=500 gid=500
+> euid=500 suid=500 fsuid=500 egid=500 sgid=500 fsgid=500 tty=pts2 ses=51
+> comm="sctp_darn" exe="/usr/bin/sctp_darn"
+> subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null)
+
+Thanks!
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
