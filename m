@@ -1,65 +1,53 @@
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4S0GDG5005250
+	for <selinux@tycho.nsa.gov>; Wed, 27 May 2009 20:16:14 -0400
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4S0G7tn010104
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 00:16:08 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.195])
+	by tyo202.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id n4S0FmWX028611
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 09:15:48 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id n4S0FmS08881 for selinux@tycho.nsa.gov; Thu, 28 May 2009 09:15:48 +0900 (JST)
+Received: from mailsv.linux.bs1.fc.nec.co.jp (mailsv.linux.bs1.fc.nec.co.jp [10.34.125.2])
+	by mailsv4.nec.co.jp (8.13.8/8.13.4) with ESMTP id n4S0Fl5q021891
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 09:15:47 +0900 (JST)
+Received: from [10.19.71.82] (unknown [10.19.71.82])
+	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with ESMTP id A1984E48280
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 09:15:47 +0900 (JST)
+Message-ID: <4A1DD7B3.2040603@ak.jp.nec.com>
+Date: Thu, 28 May 2009 09:15:47 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [Clip] Unexpected role change from custom role back to user_r
-Date: Wed, 27 May 2009 13:45:00 -0700
-Message-ID: <FA8938DBA959E546BF6527F085F22FF804C16CEC@AZ25EXM04.gddsi.com>
-In-Reply-To: <1243453645.2752.33.camel@localhost.localdomain>
-References: <FA8938DBA959E546BF6527F085F22FF804C16BB4@AZ25EXM04.gddsi.com> <1243446033.2752.19.camel@localhost.localdomain> <000901c9deff$a7c08a90$f7419fb0$@com> <FA8938DBA959E546BF6527F085F22FF804C16C93@AZ25EXM04.gddsi.com> <1243453645.2752.33.camel@localhost.localdomain>
-From: "West, Gary-P55389" <Gary.West@gdc4s.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Brian Williams" <brian@bri3001.com>, <clip@oss1.tresys.com>,
-        <selinux@tycho.nsa.gov>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: [ANN] Apache/SELinux plus release
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I believe the selinux default context overrides the default context
-without the user.
+It is an announcement of Apache/SELinux plus.
 
-While trying to generate logs. I have noticed that sometimes the
-processes come up with the correct selinux user (app_pso_u) and
-sometimes it comes up with user_u. It is consistant across reboots but
-when ever I update a policy, it may or may not change.
+Now, it shall be getting available at Fedora 11, packaged as mod_selinux.
+  https://admin.fedoraproject.org/pkgdb/packages/name/mod_selinux
 
-The same policy rpm when loaded with the current policy files removed
-before the install may produce different results.
+The source tarballs are also available at:
+  http://code.google.com/p/sepgsql/downloads/list
 
-I have several policy rpm files on the target. I am trying to get some
-consistant results.
+It is an extra module for apache/httpd-2.2.x series, and enables to
+launch web application instance with individual security context based
+on the http authentication (or other factors).
+It means SELinux getting available to control accesses depending on
+notion of web-users, not only os-users, in other words.
+It is a part of our efforts named LAPP/SELinux which tries to improve
+whole of the web-system's security using SELinux.
 
-Gary
+See the wiki article for more details:
+  http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Wednesday, May 27, 2009 12:47 PM
-To: West, Gary-P55389
-Cc: Brian Williams; clip@oss1.tresys.com; selinux@tycho.nsa.gov
-Subject: RE: [Clip] Unexpected role change from custom role back to
-user_r
-
-On Wed, 2009-05-27 at 12:44 -0700, West, Gary-P55389 wrote:
-> System is mls
-> System is currently in permissive mode Policy is modular but all 
-> modules are in the base policy
-> 
-> Files changed with custom role:
-> 
-> src/config/appconfig-mls/default_type -------------------- 
-> app_pso_r:app_pso_t
-> 
-> src/config/appconfig-mls/default_contexts ----------------
-> system_r:xdm_t:s0	user_r:user_t:s0 staff_r:staff_t:s0
-> sysadm_r:sysadm_t:s0 unconfined_r:unconfined_t:s0 
-> app_pso_r:app_pso_t:s0
-
-Doesn't this cause you to still default to user_r (if the user is
-authorized for both user_r and app_pso_r), since user_r is listed first?
-
---
-Stephen Smalley
-National Security Agency
-
-
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
