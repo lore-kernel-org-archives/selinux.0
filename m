@@ -1,86 +1,76 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4SLtPD2028978
-	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 17:55:25 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4SLtIVa001621
-	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 21:55:18 GMT
-Date: Fri, 29 May 2009 07:54:02 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-cc: fedora-selinux-list@redhat.com, lwn@lwn.net,
-        selinux-devel@lists.alioth.debian.org,
-        ubuntu-hardened@lists.ubuntu.com, fmac-discuss@opensolaris.org,
-        gentoo-hardened@lists.gentoo.org, editors@h-online.com,
-        "C. Craig Ross" <ccr@linuxfoundation.org>
-Subject: [ANN] 2009 SELinux Developer Summit Call for Participation
-Message-ID: <alpine.LRH.2.00.0905290747090.8037@tundra.namei.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4SMXKHF000552
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 18:33:20 -0400
+Received: from mail-qy0-f134.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4SMXDVa012751
+	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 22:33:13 GMT
+Received: by qyk40 with SMTP id 40so252865qyk.32
+        for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 15:33:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <4A1D23C8.6010300@redhat.com>
+References: <4A1D10AE.7020009@flumotion.com> <4A1D23C8.6010300@redhat.com>
+Date: Thu, 28 May 2009 18:33:19 -0400
+Message-ID: <7e0fb38c0905281533q260224c2mfb16143997f1c525@mail.gmail.com>
+Subject: Re: Problem with SELinux and glusterfs when trying to allow
+	memprotect/mmap_zero
+From: Eric Paris <eparis@parisplace.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ioannis Aslanidis <iaslanidis@flumotion.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The call for participation for the 2009 SELinux Developer Summit is now 
-open.  The summit will be held Sunday September 20th in Portland as part 
-of LinuxCon [1].  Note that all attendees must be registered as attendees 
-of LinuxCon.
+On Wed, May 27, 2009 at 7:28 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> On 05/27/2009 06:06 AM, Ioannis Aslanidis wrote:
+>>
+>> Hello,
+>>
+>> I am trying to allow the following audit message through, but it says
+>> that there is a violation. Can anyone explain what exactly is going on?
+>>
+>> Thank you,
+>>
+>> Ioannis
+>>
+>> # cat messages.audit
+>> May 27 01:51:13 streamer012 kernel: audit(1243381873.876:60): avc:
+>> denied  { mmap_zero } for  pid=3155 comm="glusterfs2"
+>> scontext=system_u:system_r:mount_t:s0
+>> tcontext=system_u:system_r:mount_t:s0 tclass=memprotect
+>>
+>>
+>> # cat selinuxglusterfs.te
+>>
+>> module selinuxglusterfs 1.0;
+>>
+>> require {
+>>        type mount_t;
+>>        class memprotect mmap_zero;
+>> }
+>>
+>> #============= mount_t ==============
+>> allow mount_t self:memprotect mmap_zero;
+>>
+> Add
+> domain_mmap_low_type(mount_t)
+> Will make this problem go away.  But I don't beleieve glusetfs should be
+> causing the mount command to need to mmap_zero.  Seems like a kernerl
+> problem.
 
-Primary topics for this year's summit will be extensibility and usability, 
-with a flexible format to include interactive talks and development 
-sessions.
+Come on now, don't blame the kernel for enforcing things.
 
-Extensibility topics of interest include (but are not limited to) storage, 
-virtualization, databases, web applications, and the desktop environment.
+If I had to guess the mount command is calling a helper application
+which is stupidly doing
 
-Usability topics of interest include (but are not limited to) policy 
-development and deployment, system administration, and high-level tools.
+mmap(NULL, MAP_FIXED ....)
 
-Other topics relating to SELinux technology, flexible mandatory access 
-control, and its application to real-world problems are also of interest 
-for this symposium. Such topics might include:
+And it is this mount helper program that should be fixed.  Do you have
+an /sbin/mount.glusetfs ?
 
-    * Updates on the various Linux distributions using SELinux
-    * Flexible MAC in other operating systems
-    * Case studies and application experience with flexible MAC
-    * User and customer concerns and needs
+You very very very likely don't need this permission, you need to fix
+the app....
 
-Forms of participation include:
-
-    * Interactive technical presentations (30 minutes each, papers are optional)
-    * Lightning talks
-    * Development sessions
-
-Proposals may be sent to the organizing team at:
-
-    sel-dev-summit-pc AT selinuxproject.org
-
-In your proposal, please identify the form of participation, the amount of 
-time you expect to need, and a title and abstract describing the topic you 
-wish to cover.
-
-If you wish to attend the summit in any capacity, please subscribe to the 
-mailing list [2] so the organizers can estimate numbers as well as provide 
-you with updated event information.
-
-Please also visit the summit wiki page [3] for more details on the event and
-location.
-
-Important dates:
-
-    * CFP ends:                  1st July 2009
-    * Speaker notifications:     15th July 2009
-    * Publish schedule:          1st August 2009 
-
-Note that early bird registration for LinuxCon ends on June 1st, and
-standard registration ends on August 14th.
-
-URLs:
-[1] LinuxCon, http://events.linuxfoundation.org/events/linuxcon
-[2] Mailing list, http://selinuxproject.org/mailman/listinfo/selinux-developer-summit-2009
-[3] SELinux Developer Summit page, http://selinuxproject.org/page/Developer_Summit_2009
-
-----------------------------------------------------------------------------
-
-
+-Eric
 
 
 --
