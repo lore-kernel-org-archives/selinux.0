@@ -1,76 +1,138 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n4SMXKHF000552
-	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 18:33:20 -0400
-Received: from mail-qy0-f134.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n4SMXDVa012751
-	for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 22:33:13 GMT
-Received: by qyk40 with SMTP id 40so252865qyk.32
-        for <selinux@tycho.nsa.gov>; Thu, 28 May 2009 15:33:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4A1D23C8.6010300@redhat.com>
-References: <4A1D10AE.7020009@flumotion.com> <4A1D23C8.6010300@redhat.com>
-Date: Thu, 28 May 2009 18:33:19 -0400
-Message-ID: <7e0fb38c0905281533q260224c2mfb16143997f1c525@mail.gmail.com>
-Subject: Re: Problem with SELinux and glusterfs when trying to allow
-	memprotect/mmap_zero
-From: Eric Paris <eparis@parisplace.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ioannis Aslanidis <iaslanidis@flumotion.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Clip] Unexpected role change from custom role back to user_r SOLVED
+Date: Fri, 29 May 2009 13:38:10 -0700
+Message-ID: <FA8938DBA959E546BF6527F085F22FF804C17431@AZ25EXM04.gddsi.com>
+In-Reply-To: <001201c9df27$4e1dbc60$ea593520$@com>
+References: <FA8938DBA959E546BF6527F085F22FF804C16BB4@AZ25EXM04.gddsi.com> <1243446033.2752.19.camel@localhost.localdomain> <000901c9deff$a7c08a90$f7419fb0$@com> <FA8938DBA959E546BF6527F085F22FF804C16C93@AZ25EXM04.gddsi.com> <1243453645.2752.33.camel@localhost.localdomain> <FA8938DBA959E546BF6527F085F22FF804C16CEC@AZ25EXM04.gddsi.com> <001201c9df27$4e1dbc60$ea593520$@com>
+From: "West, Gary-P55389" <Gary.West@gdc4s.com>
+To: "Brian Williams" <brian@bri3001.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <clip@oss1.tresys.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 27, 2009 at 7:28 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> On 05/27/2009 06:06 AM, Ioannis Aslanidis wrote:
->>
->> Hello,
->>
->> I am trying to allow the following audit message through, but it says
->> that there is a violation. Can anyone explain what exactly is going on?
->>
->> Thank you,
->>
->> Ioannis
->>
->> # cat messages.audit
->> May 27 01:51:13 streamer012 kernel: audit(1243381873.876:60): avc:
->> denied  { mmap_zero } for  pid=3155 comm="glusterfs2"
->> scontext=system_u:system_r:mount_t:s0
->> tcontext=system_u:system_r:mount_t:s0 tclass=memprotect
->>
->>
->> # cat selinuxglusterfs.te
->>
->> module selinuxglusterfs 1.0;
->>
->> require {
->>        type mount_t;
->>        class memprotect mmap_zero;
->> }
->>
->> #============= mount_t ==============
->> allow mount_t self:memprotect mmap_zero;
->>
-> Add
-> domain_mmap_low_type(mount_t)
-> Will make this problem go away.  But I don't beleieve glusetfs should be
-> causing the mount command to need to mmap_zero.  Seems like a kernerl
-> problem.
+FYI
 
-Come on now, don't blame the kernel for enforcing things.
+The file /etc/selinux/clip/seusers had permissions of 600.
+This prevented libselinux from getting the correct selinux user.
+The default user was used.
 
-If I had to guess the mount command is calling a helper application
-which is stupidly doing
+Thanks for all the suggestions.
 
-mmap(NULL, MAP_FIXED ....)
+Gary 
 
-And it is this mount helper program that should be fixed.  Do you have
-an /sbin/mount.glusetfs ?
-
-You very very very likely don't need this permission, you need to fix
-the app....
-
--Eric
+> -----Original Message-----
+> From: Brian Williams [mailto:brian@bri3001.com] 
+> Sent: Wednesday, May 27, 2009 5:00 PM
+> To: West, Gary-P55389; 'Stephen Smalley'
+> Cc: clip@oss1.tresys.com; selinux@tycho.nsa.gov
+> Subject: RE: [Clip] Unexpected role change from custom role 
+> back to user_r
+> 
+> > -----Original Message-----
+> > From: West, Gary-P55389 [mailto:Gary.West@gdc4s.com]
+> > Sent: Wednesday, May 27, 2009 4:45 PM
+> > To: Stephen Smalley
+> > Cc: Brian Williams; clip@oss1.tresys.com; selinux@tycho.nsa.gov
+> > Subject: RE: [Clip] Unexpected role change from custom role back to 
+> > user_r
+> > 
+> > I believe the selinux default context overrides the default context 
+> > without the user.
+> 
+> The app_pso_u_default_contexts file should automagically 
+> change to app_pso_u on the installed system, if that works 
+> than any linux user that gets that SELinux user should get 
+> the correct role.  If that fails I think it dumps to 
+> default_contexts to try those next.  I am fairly sure it 
+> doesn't just try user_r as a fallback, but it might.  So in 
+> all, it checks 
+> /etc/selinux/clip/contexts/users/SELinux_user_name, then 
+> /etc/selinux/clip/contexts/default_contexts.  I am not 100% 
+> on the order if that fails.  Honestly I find it easier to 
+> just throw everything in default_contexts, I find it rare 
+> that there is more than one role per SELinux user, at least 
+> for logging in.
+> 
+> > 
+> > While trying to generate logs. I have noticed that sometimes the 
+> > processes come up with the correct selinux user (app_pso_u) and 
+> > sometimes it comes up with user_u. It is consistant across 
+> reboots but 
+> > when ever I update a policy, it may or may not change.
+> 
+> Sounds odd, check semanage to see what users should be 
+> picked. Also are the user_r logins getting user_u or 
+> app_pso_u?  Also I normally use monolithic policy, if all of 
+> your modules are in base why are you using modular?  Do you 
+> intend on users adding modules on the fly or do you just want 
+> to use semanage at runtime?
+> 
+> > 
+> > The same policy rpm when loaded with the current policy 
+> files removed 
+> > before the install may produce different results.
+> > 
+> > I have several policy rpm files on the target. I am trying 
+> to get some 
+> > consistant results.
+> > 
+> 
+> If you can do a build on the actual system, I'd suggest 
+> trying that to rule out any rpm/time madness.  I am not 100% 
+> clear what you mean by several policy RPMs. I do know that 
+> sometimes you can run into the install process not 
+> overwriting files that are currently on the system.  I 
+> believe this is on purpose because if you want to update a 
+> policy on RHEL and do a yum update, you might want it to keep 
+> the current default_contexts and local_users since they might 
+> be custom for the system.  It's just important to make sure 
+> the files on the system are the ones that were supposed to 
+> install, switching the policy name to something different 
+> makes sure of that but is also a huge hassle.  Also I have 
+> seen policy files not being overwritten because of timestamp 
+> problems where the time on the build system was so far in the 
+> past it always thought the files on the target system were 
+> newer and didn't install them.
+> 
+> > Gary
+> > 
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > Sent: Wednesday, May 27, 2009 12:47 PM
+> > To: West, Gary-P55389
+> > Cc: Brian Williams; clip@oss1.tresys.com; selinux@tycho.nsa.gov
+> > Subject: RE: [Clip] Unexpected role change from custom role back to 
+> > user_r
+> > 
+> > On Wed, 2009-05-27 at 12:44 -0700, West, Gary-P55389 wrote:
+> > > System is mls
+> > > System is currently in permissive mode Policy is modular but all 
+> > > modules are in the base policy
+> > >
+> > > Files changed with custom role:
+> > >
+> > > src/config/appconfig-mls/default_type -------------------- 
+> > > app_pso_r:app_pso_t
+> > >
+> > > src/config/appconfig-mls/default_contexts ----------------
+> > > system_r:xdm_t:s0	user_r:user_t:s0 staff_r:staff_t:s0
+> > > sysadm_r:sysadm_t:s0 unconfined_r:unconfined_t:s0 
+> > > app_pso_r:app_pso_t:s0
+> > 
+> > Doesn't this cause you to still default to user_r (if the user is 
+> > authorized for both user_r and app_pso_r), since user_r is listed 
+> > first?
+> > 
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> 
+> 
+> 
+> 
 
 
 --
