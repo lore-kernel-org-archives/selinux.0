@@ -1,53 +1,71 @@
-Date: Wed, 3 Jun 2009 07:45:40 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, linux-audit@redhat.com, sds@tycho.nsa.gov,
-        sgrubb@redhat.com, viro@ZenIV.linux.org.uk
-Subject: Re: [PATCH] SELinux: define audit permissions for audit tree netlink
- messages
-In-Reply-To: <20090602210115.8797.11063.stgit@dhcp231-142.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.0906030745310.18780@tundra.namei.org>
-References: <20090602210115.8797.11063.stgit@dhcp231-142.rdu.redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n54JDKNT011655
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2009 15:13:20 -0400
+Received: from mail-px0-f172.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n54JDBV0000768
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2009 19:13:12 GMT
+Received: by pxi2 with SMTP id 2so345492pxi.32
+        for <selinux@tycho.nsa.gov>; Thu, 04 Jun 2009 12:13:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <C639A340.A73BA%csellers@tresys.com>
+References: <4A11A5EC.9000904@redhat.com> <C639A340.A73BA%csellers@tresys.com>
+Date: Thu, 4 Jun 2009 15:13:17 -0400
+Message-ID: <150846cc0906041213n79e5e51ex3c72ab2cacb0ce64@mail.gmail.com>
+Subject: Re: SELinux context patch
+From: Caleb Case <ccase@tresys.com>
+To: Chad Sellers <csellers@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <method@manicmethod.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2 Jun 2009, Eric Paris wrote:
+On Wed, May 20, 2009 at 12:08 PM, Chad Sellers <csellers@tresys.com> wrote:
+> On 5/18/09 2:16 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+>
+>> This patch adds context files for virtual_domain and virtual_image,
+>> these are both being used to locat the default context to be executed by
+>> svirt.
+>>
+>> I also included the subs patch which I submitted before.  This patch
+>> allows us to substitute prefixes to matchpathcon.
+>>
+>> So we can say /export/home == /home
+>>
+>> and
+>>
+>> /web == /var/www
+>
+> I'm surprised that the subs patch didn't get much discussion before. Any
+> thoughts on this? Any worries that it might not meld well with the work
+> currently being done to integrate FCGlob?
+>
+> Thanks,
+> Chad
+>
 
-> Audit trees defined 2 new netlink messages but the netlink mapping tables for
-> selinux permissions were not set up.  This patch maps these 2 new operations
-> to AUDIT_WRITE.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+I don't think it will adversely affect FCGlob integration.
 
+It is going to make it harder to understand what a file will get labeled though.
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+Might be useful for genhomedircon to generate a .subs file and for
+refpolicy to provide labeling on a selinux user basis for home
+directories:
 
-> ---
-> 
->  security/selinux/nlmsgtab.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-> index c6875fd..dd7cc6d 100644
-> --- a/security/selinux/nlmsgtab.c
-> +++ b/security/selinux/nlmsgtab.c
-> @@ -112,6 +112,8 @@ static struct nlmsg_perm nlmsg_audit_perms[] =
->  	{ AUDIT_DEL_RULE,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
->  	{ AUDIT_USER,		NETLINK_AUDIT_SOCKET__NLMSG_RELAY    },
->  	{ AUDIT_SIGNAL_INFO,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
-> +	{ AUDIT_TRIM,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
-> +	{ AUDIT_MAKE_EQUIV,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
->  	{ AUDIT_TTY_GET,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
->  	{ AUDIT_TTY_SET,	NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT	},
->  };
-> 
+/root
+/home/unconfined_u
+/home/sysadm_u
+...
 
--- 
-James Morris
-<jmorris@namei.org>
+with a .subs:
+
+/home/bob /home/unconfined_u
+/home/sally /home/sysadm_u
+...
+
+It doesn't support directories with spaces in them.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
