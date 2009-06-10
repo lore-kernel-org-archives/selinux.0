@@ -1,115 +1,59 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5A3eCM2017885
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jun 2009 23:40:12 -0400
-Received: from smtp108.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n5A3eW34000038
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 03:40:33 GMT
-Message-ID: <4A2F2B08.40701@schaufler-ca.com>
-Date: Tue, 09 Jun 2009 20:39:52 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Linux Containers <containers@lists.osdl.org>,
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5ADwXOx008273
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 09:58:34 -0400
+Received: from e2.ny.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5ADwMK8019643
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 13:58:22 GMT
+Received: from d01relay07.pok.ibm.com (d01relay07.pok.ibm.com [9.56.227.147])
+	by e2.ny.us.ibm.com (8.13.1/8.13.1) with ESMTP id n5ADs3HW004155
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 09:54:03 -0400
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d01relay07.pok.ibm.com (8.13.8/8.13.8/NCO v9.2) with ESMTP id n5ADwUUU1224862
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 09:58:31 -0400
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n5ADwPap015332
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jun 2009 07:58:27 -0600
+Date: Wed, 10 Jun 2009 08:58:33 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Linux Containers <containers@lists.osdl.org>,
         Oren Laadan <orenl@cs.columbia.edu>,
         David Howells <dhowells@redhat.com>,
         Alexey Dobriyan <adobriyan@gmail.com>,
         Andrew Morgan <morgan@kernel.org>, SELinux <selinux@tycho.nsa.gov>
 Subject: Re: [PATCH 10/10] cr: lsm: restore file->f_security
-References: <20090610014412.GA5628@us.ibm.com> <20090610014704.GI5658@us.ibm.com>
-In-Reply-To: <20090610014704.GI5658@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <20090610135833.GA14218@us.ibm.com>
+References: <20090610014412.GA5628@us.ibm.com> <20090610014704.GI5658@us.ibm.com> <4A2F2B08.40701@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4A2F2B08.40701@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> file->f_cred is the cred of the task which opened it.  file->f_security
-> can be separately set by the LSM.  Checkpoint the file->f_security,
-> and at restart ask the LSM, using security_file_restore, based on the current
-> task's context and the checkpointed f_security, which f_security to apply (or
-> whether to refuse the restart altogether).
->
-> For Smack, accept the checkpointed label if the restarting task has
-> CAP_MAC_ADMIN.
->
-> For SELinux, I currently ignore the checkpointed label and call
-> file_alloc_security().  Do we want to have 'restore' permission for
-> class file?
->
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> ---
->  checkpoint/files.c             |   33 +++++++++++++++++++++++++++++++++
->  include/linux/checkpoint_hdr.h |    1 +
->  include/linux/security.h       |   13 +++++++++++++
->  security/capability.c          |    6 ++++++
->  security/security.c            |    5 +++++
->  security/selinux/hooks.c       |   11 +++++++++++
->  security/smack/smack_lsm.c     |   26 +++++++++++++++++++++++++-
->  7 files changed, 94 insertions(+), 1 deletions(-)
->
->   
+Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > @@ -1630,7 +1654,6 @@ static int smack_msg_msg_restore_security(struct msg_msg *msg,
+> >  		msg->security = str;
+> >  	}
+> >  	return 0;
+> > -	return 0;
+> >   
+> 
+> Looks like you caught that. Thank you
 
-> ...
+Huh.  No, I didn't :)  I'm guessing that both the original problem
+and this accidental fix came about through my inexperience with
+resolving conflicts in git-rebase...
 
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index dfc0f7a..7bcdfde 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -831,6 +831,30 @@ static int smack_file_alloc_security(struct file *file)
->  }
->  
->  /**
-> + * smack_file_restore_security - assign a file security blob
-> + * @file: the object
-> + * @stored: the label stored in the checkpoint file
-> + *
-> + * Returns 0
->   
+Thanks for taking a look, I will address all of your comments in
+the next posting.
 
-Or -EINVAL if the label is not acceptable
+For the next version I may split up the smack, selinux, and
+tomoyo hooks into separate patches from the core LSM patch
+(and nix the rather silly split of the security_file_restore
+hook) for easier review...
 
-> + */
-> +static int smack_file_restore_security(struct file *file, void *stored)
-> +{
-> +	char *str = smk_import(stored, 0);
-> +
-> +	if (str == NULL)
-> +		return -EINVAL;
-> +
-> +	file->f_security = current_security();
-> +	if (current_security() != str) {
-> +		if (!capable(CAP_MAC_ADMIN))
-> +			return -EPERM;
-> +		file->f_security = str;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/**
->   * smack_file_free_security - clear a file security blob
->   * @file: the object
->   *
-> @@ -1630,7 +1654,6 @@ static int smack_msg_msg_restore_security(struct msg_msg *msg,
->  		msg->security = str;
->  	}
->  	return 0;
-> -	return 0;
->   
-
-Looks like you caught that. Thank you
-
->  }
->  
->  /**
-> @@ -2996,6 +3019,7 @@ struct security_operations smack_ops = {
->  
->  	.file_permission = 		smack_file_permission,
->  	.file_alloc_security = 		smack_file_alloc_security,
-> +	.file_restore_security =	smack_file_restore_security,
->  	.file_free_security = 		smack_file_free_security,
->  	.file_ioctl = 			smack_file_ioctl,
->  	.file_lock = 			smack_file_lock,
->   
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
