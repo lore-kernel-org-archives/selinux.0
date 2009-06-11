@@ -1,105 +1,359 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5BJfIC4002874
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2009 15:41:18 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n5BJf74M003249
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2009 19:41:07 GMT
-Date: Thu, 11 Jun 2009 15:41:16 -0400
-Subject: Re: Problems with freeing thread local storage in libselinux
-From: Chad Sellers <csellers@tresys.com>
-To: Tomas Mraz <tmraz@redhat.com>,
-        Manoj Srivastava <srivasta@golden-gryphon.com>
-CC: <selinux@tycho.nsa.gov>, <505920-forwarded@bgs.debian.org>,
-        Kees Cook <kees@debian.org>, <505920-submitter@bugs.debian.org>,
-        <selinux-devel-owner@lists.alioth.debian.org>
-Message-ID: <C656D61C.A7DF2%csellers@tresys.com>
-In-Reply-To: <1241606316.25946.182.camel@vespa.frost.loc>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5BM3h8s022955
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2009 18:03:43 -0400
+Received: from yw-out-1718.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5BM3Wpe027288
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2009 22:03:33 GMT
+Received: by yw-out-1718.google.com with SMTP id 5so820886ywr.84
+        for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2009 15:03:42 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <dd18b0c30906111029q50526f8eo620768e9647d4ec9@mail.gmail.com>
+References: <dd18b0c30906101326l7f017005p7b581c74da4e83a3@mail.gmail.com>
+	 <1244732999.21565.750.camel@gorn.columbia.tresys.com>
+	 <dd18b0c30906110906j1667e794qc1b0aed3c95a676e@mail.gmail.com>
+	 <dd18b0c30906111029q50526f8eo620768e9647d4ec9@mail.gmail.com>
+Date: Thu, 11 Jun 2009 15:03:42 -0700
+Message-ID: <dd18b0c30906111503n31651346p47f87e647aba6f56@mail.gmail.com>
+Subject: Re: [refpolicy] problem when compiling svn policy
+From: Justin Mattock <justinmattock@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 5/6/09 6:38 AM, "Tomas Mraz" <tmraz@redhat.com> wrote:
+On Thu, Jun 11, 2009 at 10:29 AM, Justin Mattock<justinmattock@gmail.com> wrote:
+> On Thu, Jun 11, 2009 at 9:06 AM, Justin Mattock<justinmattock@gmail.com> wrote:
+>> On Thu, Jun 11, 2009 at 8:09 AM, Christopher J.
+>> PeBenito<cpebenito@tresys.com> wrote:
+>>> On Wed, 2009-06-10 at 20:26 +0000, Justin Mattock wrote:
+>>>> I seem to be running into an issue while compiling
+>>>> the latest svn(just pulled, Ill test it out for you guys)
+>>>> I see this:
+>>>
+>>> Can you provide more detail as to the build.conf settings?  I am not
+>>> able to reproduce this.
+>>>
+>>>> make: *** No rule to make target
+>>>> `/etc/selinux/refpolicy/contexts/users/appconfig-standard', needed by
+>>>> `install'.  Stop.
+>>>>
+>>>> if I copy config/appconfig-standard to /etc/selinux/refpolicy/*
+>>>> then the policy will compile all together.
+>>>> should I just  wait and pull the policy  later?
+>>>>
+>>>> Also when doing make relabel I see this:
+>>>>
+>>>> Relabeling filesystem types: ext2 ext3 xfs jfs
+>>>> /sbin/setfiles /etc/selinux/refpolicy/contexts/files/file_contexts /
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/XBS5_ILP32_OFFBIG and /usr/bin/getconf, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/POSIX_V7_ILP32_OFF32 and
+>>>> /usr/lib/glibc/getconf/XBS5_ILP32_OFFBIG, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/POSIX_V6_ILP32_OFFBIG and
+>>>> /usr/lib/glibc/getconf/POSIX_V7_ILP32_OFF32, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/XBS5_ILP32_OFF32 and
+>>>> /usr/lib/glibc/getconf/POSIX_V6_ILP32_OFFBIG, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/POSIX_V7_ILP32_OFFBIG and
+>>>> /usr/lib/glibc/getconf/XBS5_ILP32_OFF32, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_add:  conflicting specifications for
+>>>> /usr/lib/glibc/getconf/POSIX_V6_ILP32_OFF32 and
+>>>> /usr/lib/glibc/getconf/POSIX_V7_ILP32_OFFBIG, using
+>>>> system_u:object_r:bin_t.
+>>>> filespec_eval:  hash table stats: 163158 elements, 29863/65536 buckets
+>>>> used, longest chain length 11
+>>>>
+>>>> should I bee concerned, or is this something still being worked out?
+>>>
+>>> It would seem that /usr/lib/glibc/getconf/XBS5_ILP32_OFFBIG
+>>> and /usr/bin/getconf are hardlinked, which is why there is a conflict
+>>> since they are lib_t and bin_t, respectively.  Which distribution?
+>>>
+>>> --
+>>> Chris PeBenito
+>>> Tresys Technology, LLC
+>>> (410) 290-1411 x150
+>>>
+>>>
+>>
+>> sure,
+>> Below is build.conf
+>> I'm not sure but I think
+>> choosing
+>> DISTRO = redhat
+>> might be causing these build errors.
+>> (The system right now is an LFS system, I chose
+>> redhat due to having /etc/rc.d/init.d/*)
+>>
+>> As for reproducing these build errors:
+>> If I load a fresh policy in my home directory
+>> (choose mcs) then compile then once installing
+>> I get errors(mainly file not found errors).
+>> maybe I have something wrong with the "install"
+>> command.
+>> But If I compile the policy as a standard policy
+>> seems to go through(except yesterday with some
+>> appconfig-standard confusion)
+>>
+>> seems this issue is a bit on and off, almost as if
+>> the system needs to be in a correct state to properly
+>> compile, or maybe because choosing redhat as the distro causes
+>> confusion.(but still am not certain why I'm hitting this).
+>>
+>> build.conf:
+>>
+>> ########################################
+>> #
+>> # Policy build options
+>> #
+>>
+>> # Policy version
+>> # By default, checkpolicy will create the highest
+>> # version policy it supports.  Setting this will
+>> # override the version.  This only has an
+>> # effect for monolithic policies.
+>> OUTPUT_POLICY = 22
+>>
+>> # Policy Type
+>> # standard, mls, mcs
+>> TYPE = standard
+>>
+>> # Policy Name
+>> # If set, this will be used as the policy
+>> # name.  Otherwise the policy type will be
+>> # used for the name.
+>> NAME = refpolicy
+>>
+>> # Distribution
+>> # Some distributions have portions of policy
+>> # for programs or configurations specific to the
+>> # distribution.  Setting this will enable options
+>> # for the distribution.
+>> # redhat, gentoo, debian, suse, and rhel4 are current options.
+>> # Fedora users should enable redhat.
+>> DISTRO = redhat
+>>
+>> # Unknown Permissions Handling
+>> # The behavior for handling permissions defined in the
+>> # kernel but missing from the policy.  The permissions
+>> # can either be allowed, denied, or the policy loading
+>> # can be rejected.
+>> # allow, deny, and reject are current options.
+>> UNK_PERMS = deny
+>>
+>> # Direct admin init
+>> # Setting this will allow sysadm to directly
+>> # run init scripts, instead of requring run_init.
+>> # This is a build option, as role transitions do
+>> # not work in conditional policy.
+>> DIRECT_INITRC = n
+>>
+>> # Build monolithic policy.  Putting n here
+>> # will build a loadable module policy.
+>> MONOLITHIC = y
+>>
+>> # User-based access control (UBAC)
+>> # Enable UBAC for role separations.
+>> UBAC = y
+>>
+>> # Number of MLS Sensitivities
+>> # The sensitivities will be s0 to s(MLS_SENS-1).
+>> # Dominance will be in increasing numerical order
+>> # with s0 being lowest.
+>> MLS_SENS = 16
+>>
+>> # Number of MLS Categories
+>> # The categories will be c0 to c(MLS_CATS-1).
+>> MLS_CATS = 256
+>>
+>> # Number of MCS Categories
+>> # The categories will be c0 to c(MLS_CATS-1).
+>> MCS_CATS = 256
+>>
+>> # Set this to y to only display status messages
+>> # during build.
+>> QUIET = n
+>>
+>> As for any other adjustments, only
+>> policy/users(for adding the user)
+>> and default_contexts local_login
+>> for the starting role.
+>> then adding allow rules, and that's it
+>> (I mainly am running the policy as set by you
+>> guys, without any tweaks to it as much as possible).
+>>
+>> I'll go ahead and try and recreate these errors
+>> so you can get an idea of what I'm seeing.
+>>
+>> --
+>> Justin P. Mattock
+>>
+>
+> This is what I see when using the same build.conf
+> above, except just changing:
+> TYPE = mcs
+> NAME = mcs
+> (then issue the following commands: make clean,
+> make conf, make policy, sudo make install)
+> results:
+>
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
+> install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t mcs
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
+> Stop.
+>
+> if I do the same above
+> except
+> sudo make install-src
+> make conf
+> make policy
+> sudo make install
+>
+> I see:
+>
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
+> install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t mcs
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
+> Stop.
+>
+>
+> Now leaving the build.conf the same except for
+> changing DISTRO = redhat to
+> #DISTRO = redhat
+> (make clean, make conf, make policy,
+> sudo make install)
+>
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
+> install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t mcs
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
+> Stop.
+>
+> Now same as above just adding
+> sudo make install-src before build.conf
+>
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/mcs/contexts/files/file_contexts
+> install -m 644 homedir_template /etc/selinux/mcs/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t mcs
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/mcs/contexts/default_contexts', needed by `install'.
+> Stop.
+>
+> Now if I change the build.conf to:
+> TYPE = standard
+> NAME = refpolicy
+> #DISTRO = redhat
+> I see:
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/refpolicy/contexts/files/file_contexts
+> install -m 644 homedir_template
+> /etc/selinux/refpolicy/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t refpolicy
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/refpolicy/contexts/default_contexts', needed by
+> `install'.  Stop.
+>
+> then changing:
+> TYPE = standard
+> NAME = refpolicy
+> DISTRO = redhat
+> I see:
+>
+> Installing file_contexts.
+> install -m 644 file_contexts /etc/selinux/refpolicy/contexts/files/file_contexts
+> install -m 644 homedir_template
+> /etc/selinux/refpolicy/contexts/files/homedir_template
+> python -E support/genhomedircon -d /etc/selinux -t refpolicy
+> grep: /etc/libuser.conf: No such file or directory
+> You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+> The user "staff_u" is not present in the passwd file, skipping...
+> The user "sysadm_u" is not present in the passwd file, skipping...
+> The user "unconfined_u" is not present in the passwd file, skipping...
+> make: *** No rule to make target
+> `/etc/selinux/refpolicy/contexts/default_contexts', needed by
+> `install'.  Stop.
+>
+>
+> To get mcs to properly go through the whole install process
+> I have to issue these commands:
+> (inside refpolicy tree)
+> sudo cp -Rv appconfig-mcs/* /etc/selinux/mcs/contexts
+> sudo cp -Rv config/appconfig-mcs /etc/selinux/mcs/contexts/users
+> sudo touch -v /etc/selinux/mcs/contexts/files/media
+> (then make clean,make conf,make policy,
+> sudo make install)
+>
+> For some reason the proper files are not being created,
+> and not going to the right location.
+> (seems when I loaded svn only mcs would produce this,
+> standard would follow through and install properly).
+>
+> As for libuser.conf, probably not pertaining to this.
+> (but could be wrong).
+>
+> --
+> Justin P. Mattock
+>
 
-> On Wed, 2009-05-06 at 01:32 -0500, Manoj Srivastava wrote:
->> Hi folks,
->> 
->>         There have been numerous reports in Debian and derivatives of
->>  programs linked with libselinux intermittently getting segfaults.
->>  There is, for instance, the Debian report 505920[0], and Ubuntu
->>  reports[1], [3] and [5], and Gnome [2]. I have not been able to
->>  reproduce the error myself, though I have run the test cases a number
->>  of times.
->> 
->>         The common thread in unclutter, libavg, gst-inspect et al. is a
->>  segmentation fault in libselinux1, in the 'fini' destructor functions,
->>  referencing the thread local variables.
->> 
->>         The Ubuntu bug log reference my old patch for libselinux from
->>  1.X days, where I replaced the thread local storage with regular
->>  variables and mutexes, and people report success with that.  I suspect
->>  that something is corrupting the thread local storage. From the ubuntu
->>  report:
->> --8<---------------cut here---------------start------------->8---
->> Valgrind reports:
->> =29183== Invalid read of size 8
->> ==29183== at 0xE29B9DD: fini_context_translations (setrans_client.c:211)
->> ==29183== by 0xE28F1F1: (within /lib/libselinux.so.1)
->> ==29183== by 0xE29D040: (within /lib/libselinux.so.1)
->> ==29183== by 0x570010F: exit (exit.c:75)
->> 505920==29183== by 0x56E91CA: (below main) (libc-start.c:252)
->> ==29183== Address 0x80 is not stack'd, malloc'd or (recently) free'd
->> ==29183==
->> ==29183== Process terminating with default action of signal 11 (SIGSEGV):
->> dumping core
->> ==29183== Access not within mapped region at address 0x80
->> ==29183== at 0xE29B9DD: fini_context_translations (setrans_client.c:211)
->> ==29183== by 0xE28F1F1: (within /lib/libselinux.so.1)
->> ==29183== by 0xE29D040: (within /lib/libselinux.so.1)==29183== by 0x570010F:
->> exit (exit.c:75)
->> ==29183== by 0x56E91CA: (below main) (libc-start.c:252)
->> 
->> 
->> (gdb) bt
->> #0 0x00007f3ae812a9dd in fini_context_translations () at setrans_client.c:211
->> #1 0x00007f3ae811e1f2 in __do_global_dtors_aux () from /lib/libselinux.so.1
->> #2 0x00007ffff9097700 in ?? ()
->> #3 0x00007f3ae812c041 in _fini () from /lib/libselinux.so.1
->> #4 0x00007ffff9097700 in ?? ()
->> #5 0x00007f3af0e88796 in _dl_fini () from /lib64/ld-linux-x86-64.so.2
->> Backtrace stopped: previous frame inner to this frame (corrupt stack?)
->> --8<---------------cut here---------------end--------------->8---
->> 
->>         There have been two sets of patches proposed for this; first one
->>  merely initializes the variables in the init function, and this works
->>  for a number of people, but at least one person has reported a second
->>  segfault even with the patch installed[6]
->> 
->>         The second patch below converts a thread local cache to a
->>  process wide cache, with mutex guards, which makes the cache slower,
->>  and non-thread local caches means that cache misses are more likely.
->> 
->>         I'll try and follow up with people who can reproduce the
->>  problems to see if either one of the patches solve their problems
->>  without triggering other segmentation faults, but I'd appreciate
->>  comments if anyone has insight into the issue.
-> 
-> The problem is with freeing storage referenced by TLS variables in
-> destructors. The destructor is called only in one of the threads and the
-> variables might not be even properly initialized in that thread. One
-> possibility is to not free the storage at all but that will leak memory
-> if the libselinux is loaded/unloaded multiple times in a process.
-> 
-> The only proper way is to use TSD (pthread_key_create,
-> pthread_setspecific etc.) to store the pointers to the cached contexts.
-> 
-> The attached patch implements this. I did not test it thoroughly though.
+Well I don't get it
+I have two machines here
+same system(created one, then just made
+a copy for the other) same kernel.
 
-I did some testing on this and it seems to work well.
+downloaded two copies of refpolicy svn(today)
+and on one machine refpolicy compiles perfectly,
+and on the other I'm hitting this error.
+I must have something missing, or did something
+to the machine that doesn't want to compile the policy.
+(I guess out of desperation I'll just copy the good compiled policy
+over to the other machine).
 
-Acked-by: Chad Sellers <csellers@tresys.com>
 
+-- 
+Justin P. Mattock
 
 
 --
