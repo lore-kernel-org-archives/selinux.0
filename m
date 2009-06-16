@@ -1,44 +1,46 @@
+From: Steve Grubb <sgrubb@redhat.com>
+To: Eric Paris <eparis@redhat.com>
 Subject: Re: type bounds audit messages
-From: Eric Paris <eparis@redhat.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, sgrubb@redhat.com,
+Date: Tue, 16 Jun 2009 10:40:51 -0400
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
         Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4A36EAA7.5090408@ak.jp.nec.com>
-References: <1244730288.10762.120.camel@localhost.localdomain>
-	 <4A31A33F.2040504@ak.jp.nec.com>
-	 <1244807594.18947.62.camel@localhost.localdomain>
-	 <4A35F091.6000202@ak.jp.nec.com>
-	 <1245071835.3247.57.camel@dhcp231-142.rdu.redhat.com>
-	 <1245074488.4078.18.camel@localhost.localdomain>
-	 <4A36EAA7.5090408@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Tue, 16 Jun 2009 10:26:46 -0400
-Message-Id: <1245162406.2848.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+References: <1244730288.10762.120.camel@localhost.localdomain> <4A36EAA7.5090408@ak.jp.nec.com> <1245162406.2848.2.camel@localhost.localdomain>
+In-Reply-To: <1245162406.2848.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <200906161040.52279.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-06-16 at 09:43 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
+On Tuesday 16 June 2009 10:26:46 am Eric Paris wrote:
+> On Tue, 2009-06-16 at 09:43 +0900, KaiGai Kohei wrote:
+> > Stephen Smalley wrote:
+> >
+> > For example, how do you feel the example on security_compute_av() time?
+> >
+> > type=SELINUX_INFO msg=audit(1245046106.725:65):       \
+> >   op=security_compute_av masked=bounds                \
+> >   scontext=system_u:system_r:user_webapp_t:s0         \
+> >   tcontext=system_u:object_r:httpd_sys_content_t:s0   \
+> >   tclass=file { setattr write }
+>
+> I feel good for all but the { setattr write }
+>
+> It's a new message, we have no parsers which need the old format, how
+> would others feel about
+>
+> perm="setattr,write"   ?
 
-> For example, how do you feel the example on security_compute_av() time?
-> 
-> type=SELINUX_INFO msg=audit(1245046106.725:65):       \
->   op=security_compute_av masked=bounds                \
->   scontext=system_u:system_r:user_webapp_t:s0         \
->   tcontext=system_u:object_r:httpd_sys_content_t:s0   \
->   tclass=file { setattr write }
+I'd recommend losing the quotes. I think you are doing this because of 
+untrusted_string, but I doubt the user can influence this.
 
-I feel good for all but the { setattr write }
+But I am also wondering if SELINUX_INFO is the most descriptive type name for 
+what the record really means? Does this also result in a syscall record if 
+audit is enabled?
 
-It's a new message, we have no parsers which need the old format, how
-would others feel about
-
-perm="setattr,write"   ?
-
--Eric
-
+-Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
