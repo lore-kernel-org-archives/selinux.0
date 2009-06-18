@@ -1,11 +1,11 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5IJbhlX001406
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 15:37:43 -0400
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5IJcRpL003475
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 15:38:27 -0400
 Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5IJc9HF000960
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 19:38:09 GMT
-Message-ID: <4A3A9781.8090209@redhat.com>
-Date: Thu, 18 Jun 2009 15:37:37 -0400
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5IJcEko015591
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 19:38:15 GMT
+Message-ID: <4A3A97B0.6030407@redhat.com>
+Date: Thu, 18 Jun 2009 15:38:24 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Joshua Brindle <method@manicmethod.com>
@@ -32,15 +32,11 @@ On 06/18/2009 09:48 AM, Joshua Brindle wrote:
 >> This patch does not affect the behavior of getseuserbyname(), how is
 >> this expected to work with existing applications?
 >>
+I think it only affects pam_selinux.
 >
 > Also, what is the format of this file? What should service be to test
 > this on F11?
 >
-pam service, I believe.
-
-/etc/pam.d/sshd  - sshd
-/etc/pam.d/login - login
-
 > --
 > This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
