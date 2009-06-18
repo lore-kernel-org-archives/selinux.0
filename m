@@ -1,54 +1,57 @@
-Date: Fri, 19 Jun 2009 00:18:29 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        Steve Grubb <sgrubb@redhat.com>, selinux@tycho.nsa.gov,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, jdennis@redhat.com
-Subject: Re: type bounds audit messages
-In-Reply-To: <4A39FA25.8050400@ak.jp.nec.com>
-Message-ID: <alpine.LRH.2.00.0906190018020.26343@tundra.namei.org>
-References: <1244730288.10762.120.camel@localhost.localdomain>  <200906161040.52279.sgrubb@redhat.com>  <1245164133.2848.12.camel@localhost.localdomain>  <200906161123.52932.sgrubb@redhat.com>  <1245166869.2848.21.camel@localhost.localdomain>
- <4A38727F.7090705@ak.jp.nec.com> <1245243187.29288.19.camel@localhost.localdomain> <4A39FA25.8050400@ak.jp.nec.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5IENPeb029852
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 10:23:25 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5IENrDv001658
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 14:23:53 GMT
+Message-ID: <4A3A4DC6.4070105@manicmethod.com>
+Date: Thu, 18 Jun 2009 10:23:02 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+References: <C63853A5.A735D%csellers@tresys.com> <4A12EDFC.6020305@redhat.com>
+In-Reply-To: <4A12EDFC.6020305@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Jun 2009, KaiGai Kohei wrote:
+Daniel J Walsh wrote:
+> On 05/19/2009 12:16 PM, Chad Sellers wrote:
+>> On 5/18/09 2:10 PM, "Daniel J Walsh"<dwalsh@redhat.com> wrote:
+>>
+>>> Basically we need to search for all interfaces that return an int and
+>>> set those up as python exception handlers.
+>>
+>> I presume this supercedes the patch submitted on March 4 titled "Patch to
+>> python bindings" which used a single generic exception handler. Is that
+>> correct? Why the switch from a generic exception handler to a shell
+>> script
+>> to generate lots of specific exception handlers?
+>>
+>> Thanks,
+>> Chad
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to
+>> majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+> Yes, that patch caused certain interfaces to not work if they did not
+> return int.
+>
 
-> [PATCH] Add audit messages on type boundary violations
-> 
-> The attached patch adds support to generate audit messages on two cases.
-> 
-> The first one is a case when a multi-thread process tries to switch its
-> performing security context using setcon(3), but new security context is
-> not bounded by the old one.
-> 
->   type=SELINUX_ERR msg=audit(1245311998.599:17):        \
->       op=security_bounded_transition result=denied      \
->       oldcontext=system_u:system_r:httpd_t:s0           \
->       newcontext=system_u:system_r:guest_webapp_t:s0
-> 
-> The other one is a case when security_compute_av() masked any permissions
-> due to the type boundary violation.
-> 
->   type=SELINUX_ERR msg=audit(1245312836.035:32):	\
->       op=security_compute_av reason=bounds              \
->       scontext=system_u:object_r:user_webapp_t:s0       \
->       tcontext=system_u:object_r:shadow_t:s0:c0         \
->       tclass=file perms=getattr,open
-> 
-> 
->  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+This doesn't strike me as the best way to handle it. Assuming all functions that 
+return an int returns it as a return code is a little overzealous. For example 
+selinux_file_context_cmp() returns 1, 0, -1 for comparison. It is only not 
+included in the exception.sh output by accident it appears (it is defined as int 
+selinux_file_context_cmp(...) rather than extern int.
 
-
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
-
-
--- 
-James Morris
-<jmorris@namei.org>
+Which brings up the next point, there are a handful of functions in selinux.h 
+that don't have extern which means exception handlers aren't made for them.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
