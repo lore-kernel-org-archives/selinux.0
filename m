@@ -1,34 +1,39 @@
-Message-ID: <4A39FC54.3080801@ak.jp.nec.com>
-Date: Thu, 18 Jun 2009 17:35:32 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5IBsWeL004337
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 07:54:32 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5IBsJCm004721
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 11:54:19 GMT
+Date: Thu, 18 Jun 2009 21:54:28 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] cleanup in ss/services.c
+In-Reply-To: <4A39FB0F.4090701@ak.jp.nec.com>
+Message-ID: <alpine.LRH.2.00.0906182154060.25135@tundra.namei.org>
+References: <4A39FB0F.4090701@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, jdennis@redhat.com
-Subject: Re: type bounds audit messages
-References: <1244730288.10762.120.camel@localhost.localdomain>	 <200906161040.52279.sgrubb@redhat.com>	 <1245164133.2848.12.camel@localhost.localdomain>	 <200906161123.52932.sgrubb@redhat.com>	 <1245166869.2848.21.camel@localhost.localdomain>	 <4A38727F.7090705@ak.jp.nec.com> <1245243187.29288.19.camel@localhost.localdomain>
-In-Reply-To: <1245243187.29288.19.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-By the way, we can find 8 of AUDIT_SELINUX_ERR messages more than
-type_attribute_bounds_av(), such as:
+On Thu, 18 Jun 2009, KaiGai Kohei wrote:
 
- at selinux/hooks.c:4316
+> It is a cleanup patch to cut down a line within 80 columns.
+> 
+>  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+> --
+>  security/selinux/ss/services.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
 
-   audit_log(current->audit_context, GFP_KERNEL, AUDIT_SELINUX_ERR,
-             "SELinux:  unrecognized netlink message"
-             " type=%hu for sclass=%hu\n",
-             nlh->nlmsg_type, isec->sclass);
 
-Should it be replaced to <key>=<value> style?
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
-Thanks,
+
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+James Morris <jmorris@namei.org>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
