@@ -1,62 +1,31 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5I8UAF0001392
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 04:30:10 -0400
-Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5I8TvCm028055
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 08:29:57 GMT
-Received: from mailgate3.nec.co.jp ([10.7.69.160])
-	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id n5I8U8Pp019152
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 17:30:08 +0900 (JST)
-Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
-	id n5I8U8H28495 for selinux@tycho.nsa.gov; Thu, 18 Jun 2009 17:30:08 +0900 (JST)
-Received: from mailsv.linux.bs1.fc.nec.co.jp (mailsv.linux.bs1.fc.nec.co.jp [10.34.125.2])
-	by mailsv3.nec.co.jp (8.13.8/8.13.4) with ESMTP id n5I8U8ds012743
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 17:30:08 +0900 (JST)
-Received: from [10.19.71.82] (unknown [10.19.71.82])
-	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with ESMTP id DDF0CE482DD
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 17:30:07 +0900 (JST)
-Message-ID: <4A39FB0F.4090701@ak.jp.nec.com>
-Date: Thu, 18 Jun 2009 17:30:07 +0900
+Message-ID: <4A39FC54.3080801@ak.jp.nec.com>
+Date: Thu, 18 Jun 2009 17:35:32 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] cleanup in ss/services.c
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>, jdennis@redhat.com
+Subject: Re: type bounds audit messages
+References: <1244730288.10762.120.camel@localhost.localdomain>	 <200906161040.52279.sgrubb@redhat.com>	 <1245164133.2848.12.camel@localhost.localdomain>	 <200906161123.52932.sgrubb@redhat.com>	 <1245166869.2848.21.camel@localhost.localdomain>	 <4A38727F.7090705@ak.jp.nec.com> <1245243187.29288.19.camel@localhost.localdomain>
+In-Reply-To: <1245243187.29288.19.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It is a cleanup patch to cut down a line within 80 columns.
+By the way, we can find 8 of AUDIT_SELINUX_ERR messages more than
+type_attribute_bounds_av(), such as:
 
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- security/selinux/ss/services.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ at selinux/hooks.c:4316
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 500e6f7..c601ea4 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -480,7 +480,7 @@ static int context_struct_compute_av(struct context *scontext,
- 		if ((constraint->permissions & (avd->allowed)) &&
- 		    !constraint_expr_eval(scontext, tcontext, NULL,
- 					  constraint->expr)) {
--			avd->allowed = (avd->allowed) & ~(constraint->permissions);
-+			avd->allowed &= ~(constraint->permissions);
- 		}
- 		constraint = constraint->next;
- 	}
-@@ -499,8 +499,8 @@ static int context_struct_compute_av(struct context *scontext,
- 				break;
- 		}
- 		if (!ra)
--			avd->allowed = (avd->allowed) & ~(PROCESS__TRANSITION |
--							PROCESS__DYNTRANSITION);
-+			avd->allowed &= ~(PROCESS__TRANSITION |
-+					  PROCESS__DYNTRANSITION);
- 	}
+   audit_log(current->audit_context, GFP_KERNEL, AUDIT_SELINUX_ERR,
+             "SELinux:  unrecognized netlink message"
+             " type=%hu for sclass=%hu\n",
+             nlh->nlmsg_type, isec->sclass);
 
- 	/*
+Should it be replaced to <key>=<value> style?
 
+Thanks,
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
