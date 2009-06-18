@@ -1,38 +1,87 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5IBsWeL004337
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 07:54:32 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5IBsJCm004721
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2009 11:54:19 GMT
-Date: Thu, 18 Jun 2009 21:54:28 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] cleanup in ss/services.c
-In-Reply-To: <4A39FB0F.4090701@ak.jp.nec.com>
-Message-ID: <alpine.LRH.2.00.0906182154060.25135@tundra.namei.org>
-References: <4A39FB0F.4090701@ak.jp.nec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Possible bug with fd class?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jason Johnson <jason.johnson.081@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <aa22f0200906172153n2c67abcj1309a76208c5b96e@mail.gmail.com>
+References: <aa22f0200906152148g77b0c37fo56c78fc5bb7dfa71@mail.gmail.com>
+	 <4A372B2F.9000804@ak.jp.nec.com>
+	 <aa22f0200906161031o1bce77a4hce55bdcc95ea8dc4@mail.gmail.com>
+	 <1245182462.2512.58.camel@localhost.localdomain>
+	 <aa22f0200906161413j5c9ffc8eo60ae175b3c8dd16@mail.gmail.com>
+	 <1245241613.29288.1.camel@localhost.localdomain>
+	 <aa22f0200906171128k7e4ed8ame6af9b34be654a41@mail.gmail.com>
+	 <1245266012.3033.63.camel@localhost.localdomain>
+	 <aa22f0200906172153n2c67abcj1309a76208c5b96e@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 18 Jun 2009 08:48:12 -0400
+Message-Id: <1245329292.3033.89.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Jun 2009, KaiGai Kohei wrote:
-
-> It is a cleanup patch to cut down a line within 80 columns.
+On Thu, 2009-06-18 at 06:53 +0200, Jason Johnson wrote:
+> On Wed, Jun 17, 2009 at 9:13 PM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+>         > On Wed, Jun 17, 2009 at 2:26 PM, Stephen
+>         Smalley<sds@tycho.nsa.gov> wrote:
+>         > >> >
+>         
+>         
+>         This just means that logrotate invoked syslog-ng while holding
+>         open a
+>         descriptor to /dev/null.  Nothing more.
+>         
+>         
+>         --
+>         Stephen Smalley
+>         National Security Agency
+>         
+>         
 > 
->  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
-> --
->  security/selinux/ss/services.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
+> Ah!  I checked the logrotate configuration and I do see that daily it
+> invokes:
+> 
+> /usr/sbin/invoke-rc.d syslog-ng reload >/dev/null
+> 
+> So that makes the /dev/null file descriptor that fd 2 (stdout) is
+> opened to be logrotate_t?  Thanks very much for helping me understand
+> how this is happening.
+> 
+> My one concern here is the solution.  What I would want to say from a
+> high level is: "logrotate is allowed to run syslog-ng" or even more
+> correct "logrotate is allowed to run the init.d syslog-ng script".
+> What I actually have to say is: "syslog-ng is allowed to write to
+> filedescriptors owned by logrotate".
+> 
+> I understand now why this situation happens, it just strikes me as an
+> extremely low level interface.  What I have to do to allow logrotate
+> to run syslog doesn't look very much like "let logrotate run
+> syslog-ng's init.d script".  Further, since file descriptors are
+> always inherited from the parent, wouldn't any program ran from any
+> other program have a similar situation?  For example, if I took out
+> the redirect to /dev/null then I would expect to get the same deny on
+> whatever tty or file logrotate has connected to stdout.  Thoughts?
+> 
+> And thanks again everyone for your responses.
 
+(restored cc line)
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+The policy already has rules to allow the transition from logrotate_t to
+initrc_t when executing an init script, and from initrc_t to syslogd_t
+when executing syslog-ng.  Further, the policy already has rules to
+allow the initrc_t to inherit a descriptor from logrotate_t, and to
+allow syslogd_t to inherit a descriptor from initrc_t.  What is missing
+is a rule to allow syslogd_t to inherit a descriptor originally opened
+by logrotate_t, as that is an indirect relationship.
 
+If you really don't want to use the fd use controls, and only care about
+the checks on the actual files, then you can disable the fd use controls
+by enabling the allow_domain_fd_use boolean (at least in the Fedora
+policy).
 
 -- 
-James Morris <jmorris@namei.org>
+Stephen Smalley
+National Security Agency
 
 
 --
