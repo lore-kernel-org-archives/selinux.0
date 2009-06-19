@@ -1,165 +1,62 @@
-Message-ID: <4A3BDB47.8080208@redhat.com>
-Date: Fri, 19 Jun 2009 14:39:03 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5JJV5sC014884
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jun 2009 15:31:05 -0400
+Received: from QMTA09.westchester.pa.mail.comcast.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5JJVYbA012781
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jun 2009 19:31:34 GMT
 Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A3BD53A.5050908@manicmethod.com> <4A3BD7DB.9030106@redhat.com> <4A3BD88E.5010103@manicmethod.com> <4A3BD944.7090608@redhat.com> <4A3BD987.70602@manicmethod.com>
-In-Reply-To: <4A3BD987.70602@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <4A3BD905.3030401@redhat.com>
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com>
+	 <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com>
+	 <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com>
+	 <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com>
+	 <4A3BD53A.5050908@manicmethod.com>  <4A3BD905.3030401@redhat.com>
+Content-Type: text/plain
+Date: Fri, 19 Jun 2009 15:30:46 -0400
+Message-Id: <1245439846.3574.12.camel@defiant.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/19/2009 02:31 PM, Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> On 06/19/2009 02:27 PM, Joshua Brindle wrote:
->>> Daniel J Walsh wrote:
->>>> On 06/19/2009 02:13 PM, Joshua Brindle wrote:
->>>>> Daniel J Walsh wrote:
->>>>>> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
->>>>>>> Daniel J Walsh wrote:
->>>>>>>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
->>>>>>>>> Daniel J Walsh wrote:
->>>>>>>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
->>>>>>>>>>> Joshua Brindle wrote:
->>>>>>>>>>>> Daniel J Walsh wrote:
->>>>>>>>>>>>> The idea here is to break the seusers file up into lots of
->>>>>>>>>>>>> little
->>>>>>>>>>>>> seusers file that can be user specific, also adds the service
->>>>>>>>>>>>> field to
->>>>>>>>>>>>> be used by tools like pam_selinux to choose which is the
->>>>>>>>>>>>> correct
->>>>>>>>>>>>> context
->>>>>>>>>>>>> to log a user in as.
->>>>>>>>>>>>>
->>>>>>>>>>>>> Patch was added to facilitate IPA handing out SELinux content
->>>>>>>>>>>>> for
->>>>>>>>>>>>> selection of roles at login.
->>>>>>>>>>>>>
->>>>>>>>>>>>
->>>>>>>>>>>> This patch does not affect the behavior of getseuserbyname(),
->>>>>>>>>>>> how is
->>>>>>>>>>>> this expected to work with existing applications?
->>>>>>>>>>>>
->>>>>>>>>> I think it only affects pam_selinux.
->>>>>>>>>
->>>>>>>>> The function name is very confusing if its only used for
->>>>>>>>> pam_selinux,
->>>>>>>>> I'd like it renamed but seeing that pam_selinux is already
->>>>>>>>> deployed
->>>>>>>>> with
->>>>>>>>> it I suppose that isn't an option.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
->>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> Also, what is the format of this file? What should service be to
->>>>>>>>>>> test
->>>>>>>>>>> this on F11?
->>>>>>>>>>>
->>>>>>>> It is not only for pam_selinux, but that is currently the only
->>>>>>>> user.
->>>>>>>>
->>>>>>>> Really all this function does is add a second variable when
->>>>>>>> selecting a
->>>>>>>> users default context. service is just a string that the caller can
->>>>>>>> specify. It just allows you to change the default context you would
->>>>>>>> get
->>>>>>>> on entry to the system. So I guess you could get use similar
->>>>>>>> calls to
->>>>>>>> get different context depending on whether or not you are on the
->>>>>>>> console. Imagine a dbus service which would run with one context if
->>>>>>>> you
->>>>>>>> we logged onto the console versus a different context if you were
->>>>>>>> logged
->>>>>>>> in via ssh.
->>>>>>>>
->>>>>>>
->>>>>>> On looking at this further, I don't like the format of the file
->>>>>>> either,
->>>>>>> why did you choose to make it use colons and not tolerate spaces?
->>>>>>> First
->>>>>>> when I tried root: staff_u: s0 it logged me in as system_u and then
->>>>>>> when
->>>>>>> I tried root:staff_u:s0 I got logged in correctly. This is a little
->>>>>>> fragile to expect editing by users and getting unexpectedly logged
->>>>>>> in as
->>>>>>> system_u.
->>>>>>>
->>>>>>> --
->>>>>> The : separated list matches seusers and /etc/passwd so I think it
->>>>>> makes
->>>>>> sense. THe file should require all three fields, that is a bug.
->>>>>>
->>>>>
->>>>> Ok, This is also yet-another-way to map users in SELinux, and its
->>>>> different from everything else. We use contexts to map other
->>>>> services to
->>>>> users ala contexts/default_contexts and contexts/users/*. Why should
->>>>> this be any different? If there are multiple sshd's running, eg., on a
->>>>> high nic and low nic then they'd need to map contexts via context
->>>>> rather
->>>>> than "service" name.
->>>>>
->>>>> I still haven't figured out what this is solving.
->>>>>
->>>>> --
->>>>> This message was distributed to subscribers of the selinux mailing
->>>>> list.
->>>>> If you no longer wish to subscribe, send mail to
->>>>> majordomo@tycho.nsa.gov
->>>>> with
->>>>> the words "unsubscribe selinux" without quotes as the message.
->>>>
->>>>
->>>> I want to say that on these 50 machines dwalsh logs in via ssh as
->>>> guest_t:SystemLow
->>>>
->>>> If he logs in via the console he logs in as
->>>> staff_t:SystemLow-SystemHigh
->>>>
->>>> Now distribute this out to hundreds of thousands of machines.
->>>>
->>>
->>> How is this different from distributing the contexts/users/dwalsh file?
->>>
->>> [root@localhost contexts]# cat users/dwalsh
->>> system_r:local_login_t:s0 staff_r:staff_t:s0
->>> system_r:sshd_t:s0 guest_r:guest_t:s0
->>>
->>>
->> That is an SELinux users file not a UID users file
->>
->> The dwalsh user does not exist.
->>
->
-> Oops, you are right.
->
-> Will this cause confusion if semanage login -l doesn't read this file
-> and report its contents as well?
->
-> Are you sure we should be using the service name and not the context of
-> the service, for the reason I pointed out above?
-We user the SELINUXUser from the seusers file now and the level.
+On Fri, 2009-06-19 at 14:29 -0400, Daniel J Walsh wrote:
+> Basically this is the exact same file as the seusers file except it one 
+> per Linux User where is the seusers file is one record per Linux User.
+> 
+> If I have a distributed environment, I need to say stuff like
+> 
+> engineers logging into people.redhat.com get guest_t:s0
+> Admins logging in get unconfined_t:SystemLow-SystemHigh
+> 
+> In addition on some machines dwalsh is an admin and on others he is a 
+> peon.  So using IPA we generate a mapping from MACHINE to User
+> 
+> dwalsh on dwalsh_laptop gets unconfined_t
+> dwalsh on desktop gets user_t
+> dwalsh on people gets guest_t
+> 
+> There is a potential use for service but it will probably default to * 
+> for now.
 
-This is the same thing, except instead of creating a massive seusers 
-file when the user loggs in, they are copying down a small file 
-indicating what the user should do
+I don't have a problem with this idea, but I do have a problem with this
+not replacing the current seuser behavior.  Having two ways to map linux
+users to selinux users is an administration nightmare.  People will be
+confused about which one to use and you'll need to know precedence.
+What you describe above with the contents of each file just having a *
+service would be the same as the current seuser behavior.
 
-pam_ipa sucks down the new dwalsh_seuser file
-pam_selinux read dwalsh_seuser file and attempts to set the SELinux User 
-and level
-
-I login in.
-
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 
 --
