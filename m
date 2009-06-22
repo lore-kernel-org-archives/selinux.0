@@ -1,39 +1,37 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5MGPlcn014148
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 12:25:47 -0400
-Received: from e37.co.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5MGQH00011815
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 16:26:17 GMT
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5MHo7Ja026314
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 13:50:07 -0400
+Received: from e31.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5MHnsCg022415
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 17:49:54 GMT
 Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e37.co.us.ibm.com (8.13.1/8.13.1) with ESMTP id n5MGOxws019931
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 10:24:59 -0600
+	by e31.co.us.ibm.com (8.13.1/8.13.1) with ESMTP id n5MHjaNV003245
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 11:45:36 -0600
 Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v9.2) with ESMTP id n5MGPVg5229246
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 10:25:38 -0600
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v9.2) with ESMTP id n5MHo6ke247678
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 11:50:06 -0600
 Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n5MGPQlZ029447
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 10:25:27 -0600
-Date: Mon, 22 Jun 2009 11:25:24 -0500
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n5MHo1So012693
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 11:50:06 -0600
+Date: Mon, 22 Jun 2009 12:50:03 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: Linux Containers <containers@lists.osdl.org>,
         linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@epoch.ncsc.mil>,
         Alexey Dobriyan <adobriyan@gmail.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Andrew Morgan <morgan@kernel.org>
 Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
-Message-ID: <20090622162524.GA926@us.ibm.com>
-References: <20090620013216.GA4435@us.ibm.com> <alpine.LRH.2.00.0906221537190.19585@tundra.namei.org>
+Message-ID: <20090622175003.GA2416@us.ibm.com>
+References: <20090620013216.GA4435@us.ibm.com> <1245682025.3033.178.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LRH.2.00.0906221537190.19585@tundra.namei.org>
+In-Reply-To: <1245682025.3033.178.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting James Morris (jmorris@namei.org):
-> On Fri, 19 Jun 2009, Serge E. Hallyn wrote:
-> 
+Quoting Stephen Smalley (sds@epoch.ncsc.mil):
+> On Fri, 2009-06-19 at 20:32 -0500, Serge E. Hallyn wrote:
 > > Here is the next version of the patch implementing checkpoint
 > > and restore of LSM contexts.  This is just handling IPC objects
 > > as a proof of concept.  But actually, looking ahead and both
@@ -42,33 +40,101 @@ Quoting James Morris (jmorris@namei.org):
 > > sid, exec sid, create sid, keycreate_sid, and sockcreate_sid.
 > > So I guess I'll have to ask the LSM for how many secids it wants
 > > to checkpoint, then checkpoint an array of contexts?
+
+Again thanks for taking a look, Stephen.
+
+> You will need to support checkpointing multiple secids/contexts per
+> object, but what about other state that might live in the security
+> structs, e.g. flags fields, policy seqno, etc.
+
+I think the LSM should handle things like sb_flags and sclass
+automatically as the objects are restored.  Allowing them to be
+specified in the checkpoint image only increases the number of ways in
+which a corrupted checkpoint image can mess with the kernel.  (Note that
+at the moment the restart code doesn't address mounts and it's undecide
+whether that will be done manually in userspace, or done in the kernel
+by the restart code).  As for seqno, see below.
+
+> > >From 19669b07cdfef4d377f3f188e2421c4124e38708 Mon Sep 17 00:00:00 2001
+> > From: Serge E. Hallyn <serue@us.ibm.com>
+> > Date: Wed, 17 Jun 2009 12:00:21 -0400
+> > Subject: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
 > > 
+> > Introduce a cache of secids for checkpoint and restart.
 > 
-> Can you please explain exactly what checkpoint/restart is?
+> Not sure you need to cache them in the cr layer (vs. just using the
+> mapping functions provided by the LSM hook interface, and letting the
+> security module handle caching internally).
 
-Take a container or (it is still subject to debate whether to allow
-this) any process tree, freeze it, record the state of the tasks,
-all objects they own, and the filesystem.  The result is a checkpoint
-image file for later use.  Unfreeze, and either continue running or
-kill.  Later, restart from the checkpoint image, which will create
-a new container containing all of the needed objects (IPC semaphores,
-open files, sockets, etc) and restart all tasks exactly where they
-left off.
+Do I understand correctly that secids are supposed to be consistent
+across machines and reboots, but not across policy versions?
 
-While it seems very likely that in the end (when it hits upstream)
-we will require privilege to use restart at all, we are doing our
-best to design it so that it is safe for unprivileged users.  That
-means that every object creation must be contingent on the authorization
-of the task calling sys_restart().  After all, it is a trivial matter
-to call sys_checkpoint() on your own vim process, edit the checkpoint
-file to change the filename to /etc/passwd and the process uid to 0,
-and then call sys_restart() on the result.
+There are several ways we could handle this.  One is to have
+security_checkpoint_object() spit out an arbitrary void* which
+describes the *full* security context, with the checkpoint/restart
+layer completely unaware about the meaning of the contents.
 
-Since we don't want to talk about any 'trusted' user in SELinux at
-all, the same mindset required to support unprivileged restart for the
-DAC perms very much applies to c/r of SELinux state.
+Another is to have security_checkpoint_header() output the policy
+version, and for each checkpointed object just write out an array
+of secids.  If any file has a seqno which is not the same as the
+rest of the container's, then refuse the checkpoint?
 
-I'll add an explanation to the next version of the patch.
+A third, which is what I was doing here, is to write out textual
+context representations, and expect the LSM on _restore() to
+know of a single meaningful interpretation for the context_str.
+Maybe adding a security_checkpoint_header() at the top of the
+checkpoint file would help with that (so that in the general case,
+if policy version at restart is different from the checkpointed one,
+we refuse restart, assuming that we can't meaningfully intepret
+even system_u:object_r:user_file_t).
+
+> > At checkpoint, it takes a secid, stores the corresponding
+> > context string, and stores the objref for later use.
+> > At restart, read the context from checkpoint image,
+> > ask the security module for a secid, and store the secid
+> > on the objhash.
+> > 
+> > The per-object security c/r code will be responsible for
+> > getting secid from void*security at checkpoint time, and
+> > converting secid to void*security at restore time.
+> > 
+> > The code to c/r contexts for IPC objects is also in this
+> > patch.
+> > 
+> > For Smack, assign the label of the process doing sys_restart()
+> > if !capable(CAP_MAC_ADMIN), otherwise use the checkpointed
+> > label.
+> > 
+> > For SELinux, define a new 'restore' permission for ipc objects.
+> > (A corresponding trival policy patch adding 'restore' to the
+> > common flask permissions for refpolicy is also needed).  The
+> > caller of sys_restart() must have the class:restore permission
+> > to assign the checkpointed label, else restart will be refused.
+> > 
+> > Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> 
+> > diff --git a/include/linux/checkpoint_hdr.h b/include/linux/checkpoint_hdr.h
+> > index e42e0db..e3fb9b3 100644
+> > --- a/include/linux/checkpoint_hdr.h
+> > +++ b/include/linux/checkpoint_hdr.h
+> > @@ -418,7 +426,7 @@ struct ckpt_hdr_ipc_perms {
+> >  	__u32 cuid;
+> >  	__u32 cgid;
+> >  	__u32 mode;
+> > -	__u32 _padding;
+> > +	__s32 secref;
+> 
+> Why s32 vs u32?  secids are u32 and 0 means they aren't supported by the
+> security module.
+
+The secref is a reference to an object in the checkpoint/restart
+object hashtable, not a secid.  Those are signed, with <0 meaning
+error and 0 being a special case (in this case, 'not applicable')
+
+If we write out the secids directly, which it sounds like you are
+advocating, and not the secid_to_secctx string, then we can store
+a u32 numsecs followed by __u32 secid[] which will have numsecs
+entries.
 
 thanks,
 -serge
