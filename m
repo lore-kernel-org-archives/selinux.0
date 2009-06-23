@@ -1,57 +1,92 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NI8cie021889
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 14:08:39 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5NI99CG026104
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 18:09:09 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n5NI2CiH022282
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:02:13 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n5NHqB0O025419
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 12:52:11 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
-To: selinux@tycho.nsa.gov
-Subject: Failure to build policycoreutils from git
-Date: Tue, 23 Jun 2009 12:52:11 -0500
-Message-ID: <87zlbyrg6s.fsf@anzu.internal.golden-gryphon.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NIIAOL023511
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 14:18:10 -0400
+Received: from e36.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5NIHurs007886
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 18:17:56 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e36.co.us.ibm.com (8.13.1/8.13.1) with ESMTP id n5NIGfaq028450
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 12:16:41 -0600
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v9.2) with ESMTP id n5NII8M7262366
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 12:18:08 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n5NII6DO002498
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 12:18:07 -0600
+Date: Tue, 23 Jun 2009 13:18:10 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Andrew Morgan <morgan@kernel.org>
+Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
+Message-ID: <20090623181810.GA23644@us.ibm.com>
+References: <20090620013216.GA4435@us.ibm.com> <1245779751.27538.14.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1245779751.27538.14.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Quoting Stephen Smalley (sds@epoch.ncsc.mil):
+> On Fri, 2009-06-19 at 20:32 -0500, Serge E. Hallyn wrote:
+> > diff --git a/ipc/checkpoint_msg.c b/ipc/checkpoint_msg.c
+> > index 51385b0..ca55339 100644
+> > --- a/ipc/checkpoint_msg.c
+> > +++ b/ipc/checkpoint_msg.c
+> <snip>
+> > @@ -175,11 +183,26 @@ static int load_ipc_msg_hdr(struct ckpt_ctx *ctx,
+> >  			    struct msg_queue *msq)
+> >  {
+> >  	int ret = 0;
+> > +	int secid = 0;
+> >  
+> >  	ret = restore_load_ipc_perms(&h->perms, &msq->q_perm);
+> >  	if (ret < 0)
+> >  		return ret;
+> >  
+> > +	if (h->perms.secref) {
+> > +		struct sec_store *s;
+> > +		s = ckpt_obj_fetch(ctx, h->perms.secref, CKPT_OBJ_SECURITY);
+> > +		if (IS_ERR(s))
+> > +			return PTR_ERR(s);
+> > +		secid = s->secid;
+> > +	}
+> > +	ret = security_msg_queue_alloc(msq);
+> > +	if (ret)
+> > +		return ret;
+> > +	ret = security_msg_queue_restore(msq, secid);
+> > +	if (ret < 0)
+> > +		return ret;
+> 
+> I don't think you want to call security_msg_queue_alloc() here, as that
+> both allocates the security struct and performs the create check.  So I
+> would just call the _restore() function, and let it internally call
+> ipc_alloc_security() to allocate the struct but then apply its own
+> distinct restore check.  Likewise for the rest of them.
 
-__> tar zvvfx /usr/local/src/selinux-dev-release/policycoreutils-2.0.64.tar.gz
-__> cd policycoreutils-2.0.64
-__> make
-make[1]: Entering directory `/tmp/policycoreutils-2.0.64/setfiles'
-cc -Werror -Wall -W -D_FILE_OFFSET_BITS=64 -I/usr/include   -c -o setfiles.o setfiles.c
-cc   setfiles.o  -lselinux -lsepol -L/usr/lib -o setfiles
+Ok, will change that.
 
-  …
+> Also, where do we get to veto attempts to checkpoint the task in the
+> first place?  If ptrace, I think we'd want it treated as a
+> PTRACE_MODE_ATTACH (also used for /proc/pid/mem) rather than just
+> PTRACE_MODE_READ (reading other /proc/pid info).
 
-cc   setsebool.o  -lsepol -lselinux -lsemanage -L/usr/lib -o setsebool
-make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/setsebool'
-make[1]: Entering directory `/tmp/policycoreutils-2.0.64/po'
-make[1]: *** No rule to make target `../gui/booleansPage.py', needed by `policycoreutils.pot'.  Stop.
-make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/po'
-make: *** [all] Error 1
+The checkpointing of ipc objects goes through an ipcperms(perm, S_IROTH)
+check in ipc/checkpoint (at top of
+http://git.ncl.cs.columbia.edu/?p=linux-cr.git;a=blob;f=ipc/checkpoint.c;h=88996e2b7abf328bd1b263400798ed5bd4924f48;hb=HEAD
+)
 
+But yes, for the task itself we check PTRACE_MODE_READ (line 280 in
+http://git.ncl.cs.columbia.edu/?p=linux-cr.git;a=blob;f=checkpoint/checkpoint.c;h=a6dee4fb1085a47095f24443c48683a7fbc8ac59;hb=HEAD )
+I had thought that PTRACE_MODE_ATTACH implied the permission to
+actually modify the task.  If it also can imply a "very invasive" read 
+then changing it certainly seems right.
 
-        Indeed, there is no policycoreutils-2.0.64/gui directory at
- all. I think the pot file needs to be redone, without any extraneos
- directories, or a means for generating the gui dir should be given.
-
-        Thanks,
-
-        manoj
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
