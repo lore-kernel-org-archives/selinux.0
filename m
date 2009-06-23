@@ -1,49 +1,36 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5N3AlUm013072
-	for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2009 23:10:47 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n5N3BHCP003521
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 03:11:17 GMT
-Message-ID: <4A4047A9.8020202@schaufler-ca.com>
-Date: Mon, 22 Jun 2009 20:10:33 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NH6Kq5011544
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:06:22 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5NH6mCG007793
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 17:06:51 GMT
+Message-ID: <4A410B85.8020307@manicmethod.com>
+Date: Tue, 23 Jun 2009 13:06:13 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morgan <morgan@kernel.org>
-Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
-References: <20090620013216.GA4435@us.ibm.com>	 <1245682025.3033.178.camel@localhost.localdomain>	 <20090622175003.GA2416@us.ibm.com> <1245695023.12493.7.camel@localhost.localdomain>
-In-Reply-To: <1245695023.12493.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: chcat fixes
+References: <C639DAB6.A73D6%csellers@tresys.com> <4A154566.3090006@redhat.com>
+In-Reply-To: <4A154566.3090006@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2009-06-22 at 12:50 -0500, Serge E. Hallyn wrote:
->   
->> Quoting Stephen Smalley (sds@epoch.ncsc.mil):
->>     
->>> Not sure you need to cache them in the cr layer (vs. just using the
->>> mapping functions provided by the LSM hook interface, and letting the
->>> security module handle caching internally).
->>>       
->> Do I understand correctly that secids are supposed to be consistent
->> across machines and reboots, but not across policy versions?
->>     
->
-> No, secids are temporal - they are dynamically allocated at runtime like
-> file descriptors.  You should only store security contexts in the
-> images.
->   
+Daniel J Walsh wrote:
+> On 05/20/2009 04:05 PM, Chad Sellers wrote:
+>> On 5/20/09 3:00 PM, "Daniel J Walsh"<dwalsh@redhat.com> wrote:
+>>
+>>> Expansion of categores is still broken. Here is a patch to fix.
+>>>
+>> This message appears to be missing a patch.
+>>
+>> Thanks,
+>> Chad
+>>
 
-Like he said. Smack would be happier if secid's went away, but
-there's too much left over from the era when SELinux was the only
-LSM for that to happen without crying and gnashing of teeth. A
-secid is good only for the current invocation of the current
-instance of the kernel.
+Merged in policycoreutils 2.0.64
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
