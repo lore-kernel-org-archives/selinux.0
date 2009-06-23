@@ -1,67 +1,56 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NHtlHL019552
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:55:47 -0400
-Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Andrew Morgan <morgan@kernel.org>
-In-Reply-To: <20090620013216.GA4435@us.ibm.com>
-References: <20090620013216.GA4435@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 23 Jun 2009 13:55:51 -0400
-Message-Id: <1245779751.27538.14.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NI8cie021889
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 14:08:39 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5NI99CG026104
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 18:09:09 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n5NI2CiH022282
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:02:13 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n5NHqB0O025419
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 12:52:11 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Failure to build policycoreutils from git
+Date: Tue, 23 Jun 2009 12:52:11 -0500
+Message-ID: <87zlbyrg6s.fsf@anzu.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-06-19 at 20:32 -0500, Serge E. Hallyn wrote:
-> diff --git a/ipc/checkpoint_msg.c b/ipc/checkpoint_msg.c
-> index 51385b0..ca55339 100644
-> --- a/ipc/checkpoint_msg.c
-> +++ b/ipc/checkpoint_msg.c
-<snip>
-> @@ -175,11 +183,26 @@ static int load_ipc_msg_hdr(struct ckpt_ctx *ctx,
->  			    struct msg_queue *msq)
->  {
->  	int ret = 0;
-> +	int secid = 0;
->  
->  	ret = restore_load_ipc_perms(&h->perms, &msq->q_perm);
->  	if (ret < 0)
->  		return ret;
->  
-> +	if (h->perms.secref) {
-> +		struct sec_store *s;
-> +		s = ckpt_obj_fetch(ctx, h->perms.secref, CKPT_OBJ_SECURITY);
-> +		if (IS_ERR(s))
-> +			return PTR_ERR(s);
-> +		secid = s->secid;
-> +	}
-> +	ret = security_msg_queue_alloc(msq);
-> +	if (ret)
-> +		return ret;
-> +	ret = security_msg_queue_restore(msq, secid);
-> +	if (ret < 0)
-> +		return ret;
+Hi,
 
-I don't think you want to call security_msg_queue_alloc() here, as that
-both allocates the security struct and performs the create check.  So I
-would just call the _restore() function, and let it internally call
-ipc_alloc_security() to allocate the struct but then apply its own
-distinct restore check.  Likewise for the rest of them.
+__> tar zvvfx /usr/local/src/selinux-dev-release/policycoreutils-2.0.64.tar.gz
+__> cd policycoreutils-2.0.64
+__> make
+make[1]: Entering directory `/tmp/policycoreutils-2.0.64/setfiles'
+cc -Werror -Wall -W -D_FILE_OFFSET_BITS=64 -I/usr/include   -c -o setfiles.o setfiles.c
+cc   setfiles.o  -lselinux -lsepol -L/usr/lib -o setfiles
 
-Also, where do we get to veto attempts to checkpoint the task in the
-first place?  If ptrace, I think we'd want it treated as a
-PTRACE_MODE_ATTACH (also used for /proc/pid/mem) rather than just
-PTRACE_MODE_READ (reading other /proc/pid info).
+  …
 
+cc   setsebool.o  -lsepol -lselinux -lsemanage -L/usr/lib -o setsebool
+make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/setsebool'
+make[1]: Entering directory `/tmp/policycoreutils-2.0.64/po'
+make[1]: *** No rule to make target `../gui/booleansPage.py', needed by `policycoreutils.pot'.  Stop.
+make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/po'
+make: *** [all] Error 1
+
+
+        Indeed, there is no policycoreutils-2.0.64/gui directory at
+ all. I think the pot file needs to be redone, without any extraneos
+ directories, or a means for generating the gui dir should be given.
+
+        Thanks,
+
+        manoj
 -- 
-Stephen Smalley
-National Security Agency
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 
 --
