@@ -1,40 +1,67 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NHs97U019284
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:54:09 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n5NHsdCG022214
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 17:54:39 GMT
-Subject: [ANN] CDS Framework 3.6
-From: Dave Sugar <dsugar@tresys.com>
-To: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NHtlHL019552
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:55:47 -0400
+Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Andrew Morgan <morgan@kernel.org>
+In-Reply-To: <20090620013216.GA4435@us.ibm.com>
+References: <20090620013216.GA4435@us.ibm.com>
 Content-Type: text/plain
-Date: Tue, 23 Jun 2009 13:54:08 -0400
-Message-Id: <1245779648.8071.100.camel@localhost.localdomain>
+Date: Tue, 23 Jun 2009 13:55:51 -0400
+Message-Id: <1245779751.27538.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Version 3.6 of the CDS Framework Toolkit from Tresys Technology is now
-available for download from the Tresys Open Source website at
-http://oss.tresys.com/projects/cdsframework
+On Fri, 2009-06-19 at 20:32 -0500, Serge E. Hallyn wrote:
+> diff --git a/ipc/checkpoint_msg.c b/ipc/checkpoint_msg.c
+> index 51385b0..ca55339 100644
+> --- a/ipc/checkpoint_msg.c
+> +++ b/ipc/checkpoint_msg.c
+<snip>
+> @@ -175,11 +183,26 @@ static int load_ipc_msg_hdr(struct ckpt_ctx *ctx,
+>  			    struct msg_queue *msq)
+>  {
+>  	int ret = 0;
+> +	int secid = 0;
+>  
+>  	ret = restore_load_ipc_perms(&h->perms, &msq->q_perm);
+>  	if (ret < 0)
+>  		return ret;
+>  
+> +	if (h->perms.secref) {
+> +		struct sec_store *s;
+> +		s = ckpt_obj_fetch(ctx, h->perms.secref, CKPT_OBJ_SECURITY);
+> +		if (IS_ERR(s))
+> +			return PTR_ERR(s);
+> +		secid = s->secid;
+> +	}
+> +	ret = security_msg_queue_alloc(msq);
+> +	if (ret)
+> +		return ret;
+> +	ret = security_msg_queue_restore(msq, secid);
+> +	if (ret < 0)
+> +		return ret;
 
-The CDS Framework Toolkit is an Eclipse plug-in that allows engineers to
-graphically design a system's security architecture, targeting
-information flow security goals. The toolkit uses the security
-architecture diagram to generate SELinux policy based on the Reference
-Policy or CLIP policy. It integrates with SLIDE to provide additional
-SELinux policy development capabilities.
+I don't think you want to call security_msg_queue_alloc() here, as that
+both allocates the security struct and performs the create check.  So I
+would just call the _restore() function, and let it internally call
+ipc_alloc_security() to allocate the struct but then apply its own
+distinct restore check.  Likewise for the rest of them.
 
+Also, where do we get to veto attempts to checkpoint the task in the
+first place?  If ptrace, I think we'd want it treated as a
+PTRACE_MODE_ATTACH (also used for /proc/pid/mem) rather than just
+PTRACE_MODE_READ (reading other /proc/pid info).
 
-CDS Framework version 3.6 - highlights:
-
- * Adds feature to hide secondary information flows.
- * Adds quick fix support added to audit view to fix denials by
-modifying the security architecture diagram.
-
-Dave Sugar
-Tresys Technology, LLC
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
