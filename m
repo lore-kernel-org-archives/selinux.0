@@ -1,54 +1,41 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NHA6Yq011992
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:10:06 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5NH9prs008323
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 17:09:51 GMT
-Message-ID: <4A410C6B.4020406@manicmethod.com>
-Date: Tue, 23 Jun 2009 13:10:03 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux context patch
-References: <C64DB16C.A7B20%csellers@tresys.com>
-In-Reply-To: <C64DB16C.A7B20%csellers@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5NHs97U019284
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 13:54:09 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n5NHsdCG022214
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jun 2009 17:54:39 GMT
+Subject: [ANN] CDS Framework 3.6
+From: Dave Sugar <dsugar@tresys.com>
+To: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 23 Jun 2009 13:54:08 -0400
+Message-Id: <1245779648.8071.100.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Sellers wrote:
-> On 5/18/09 2:16 PM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->
->> This patch adds context files for virtual_domain and virtual_image,
->> these are both being used to locat the default context to be executed by
->> svirt.
->>
->> I also included the subs patch which I submitted before.  This patch
->> allows us to substitute prefixes to matchpathcon.
->>
->> So we can say /export/home == /home
->>
->> and
->>
->> /web == /var/www
->
-> The only problem I see with the patch is:
->
-> +                       sub->dst=strdup(dst);
-> +                       if (! sub->dst) {
-> +                               free(sub);
-> +                               free(sub->src);
-> +                               return -1;
-> +                       }
->
-> the free()'s should be reversed in order. Other than that the patch looks
-> fine. I'll fix this in the merge.
->
-> Acked-by: Chad Sellers<csellers@tresys.com>
->
+Version 3.6 of the CDS Framework Toolkit from Tresys Technology is now
+available for download from the Tresys Open Source website at
+http://oss.tresys.com/projects/cdsframework
 
-Merged in libselinux 2.0.82
+The CDS Framework Toolkit is an Eclipse plug-in that allows engineers to
+graphically design a system's security architecture, targeting
+information flow security goals. The toolkit uses the security
+architecture diagram to generate SELinux policy based on the Reference
+Policy or CLIP policy. It integrates with SLIDE to provide additional
+SELinux policy development capabilities.
+
+
+CDS Framework version 3.6 - highlights:
+
+ * Adds feature to hide secondary information flows.
+ * Adds quick fix support added to audit view to fix denials by
+modifying the security architecture diagram.
+
+Dave Sugar
+Tresys Technology, LLC
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
