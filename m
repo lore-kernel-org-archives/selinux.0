@@ -1,78 +1,66 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5OEhmrF030050
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jun 2009 10:43:48 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5OEhW7e017557
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jun 2009 14:43:34 GMT
-Message-ID: <4A423B85.9080803@manicmethod.com>
-Date: Wed, 24 Jun 2009 10:43:17 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: selinux@tycho.nsa.gov, Manoj Srivastava <srivasta@golden-gryphon.com>
-Subject: Re: Failure to build policycoreutils from git
-References: <87zlbyrg6s.fsf@anzu.internal.golden-gryphon.com> <4A4127B0.4010801@manicmethod.com> <4A422886.2000406@redhat.com>
-In-Reply-To: <4A422886.2000406@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: [PATCH libselinux] check /proc/filesystems before /proc/mounts for
+ selinuxfs
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: viro@ZenIV.linux.org.uk, method@manicmethod.com, sds@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 24 Jun 2009 15:54:05 -0400
+Message-Id: <1245873245.11046.6.camel@dhcp235-23.rdu.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> On 06/23/2009 03:06 PM, Joshua Brindle wrote:
->> Manoj Srivastava wrote:
->>> Hi,
->>>
->>> __> tar zvvfx
->>> /usr/local/src/selinux-dev-release/policycoreutils-2.0.64.tar.gz
->>> __> cd policycoreutils-2.0.64
->>> __> make
->>> make[1]: Entering directory `/tmp/policycoreutils-2.0.64/setfiles'
->>> cc -Werror -Wall -W -D_FILE_OFFSET_BITS=64 -I/usr/include -c -o
->>> setfiles.o setfiles.c
->>> cc setfiles.o -lselinux -lsepol -L/usr/lib -o setfiles
->>>
->>> …
->>>
->>> cc setsebool.o -lsepol -lselinux -lsemanage -L/usr/lib -o setsebool
->>> make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/setsebool'
->>> make[1]: Entering directory `/tmp/policycoreutils-2.0.64/po'
->>> make[1]: *** No rule to make target `../gui/booleansPage.py', needed
->>> by `policycoreutils.pot'. Stop.
->>> make[1]: Leaving directory `/tmp/policycoreutils-2.0.64/po'
->>> make: *** [all] Error 1
->>>
->>>
->>> Indeed, there is no policycoreutils-2.0.64/gui directory at
->>> all. I think the pot file needs to be redone, without any extraneos
->>> directories, or a means for generating the gui dir should be given.
->>>
->>> Thanks,
->>>
->>> manoj
->>
->> Hrm, those entries were added to POTFILES last September and haven't
->> seemed to cause a problem. When I build I always build from the top of
->> the repo and this didn't happen at all but indeed when I built from the
->> policycoreutils directory it did.
->>
->> I don't really know anything about POTFILES or generating it, the po
->> patches were pretty much accepted blindly, perhaps a mistake in
->> hindsight.
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->> with
->> the words "unsubscribe selinux" without quotes as the message.
-> Yes you should remove the gui lines from the Makefile.* and probably
-> POTFILES.*
->
-> Some one is working on a system-config-selinux package to remove the gui
-> from policycoreutils and make it a separate package.
->
+Al was complaining that he has selinux disabled and has 100,000+ mounts
+in /proc/mounts.  Every time he runs ls the thing takes 5 seconds
+because the libselinux constructor runs the entirety of his /proc/mounts
+looking for selinuxfs, which doesn't exist.  Speed things up by first
+checking for selinuxfs in /proc/filesystems, only if the fs is even
+registered should we bother to run all of /proc/mounts.
 
-Ok, I removed the gui stuff from Makefile and POTFILES and regenerated the .po 
-files, commited as policycoreutils 2.0.65. Thanks for pointing this out.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+
+or alternatively I'd be find if we just bailed when it wasn't /selinux,
+but that's just me.  Does anyone actually put it anywhere else?
+
+diff -up libselinux-2.0.80/src/init.c.pre.filesystems libselinux-2.0.80/src/init.c
+--- libselinux-2.0.80/src/init.c.pre.filesystems	2009-06-24 15:34:25.712802612 -0400
++++ libselinux-2.0.80/src/init.c	2009-06-24 15:39:35.767163619 -0400
+@@ -28,6 +28,7 @@ static void init_selinuxmnt(void)
+ 	int rc;
+ 	size_t len;
+ 	ssize_t num;
++	int exists = 0;
+ 
+ 	if (selinux_mnt)
+ 		return;
+@@ -44,6 +45,23 @@ static void init_selinuxmnt(void)
+ 		}
+ 	} 
+ 
++	/* Drop back to detecting it the long way. */
++	fp = fopen("/proc/filesystems", "r");
++	if (!fp)
++		return;
++
++	__fsetlocking(fp, FSETLOCKING_BYCALLER);
++	while ((num = getline(&buf, &len, fp)) != -1) {
++		if (strstr(buf, "selinuxfs")) {
++			exists = 1;
++			break;
++		}
++	}
++	fclose(fp);
++
++	if (!exists)
++		return;
++
+ 	/* At this point, the usual spot doesn't have an selinuxfs so
+ 	 * we look around for it */
+ 	fp = fopen("/proc/mounts", "r");
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
