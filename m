@@ -1,86 +1,60 @@
-Subject: Re: [PATCH libselinux] check /proc/filesystems before /proc/mounts
- for selinuxfs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, viro@ZenIV.linux.org.uk, method@manicmethod.com
-In-Reply-To: <1245873245.11046.6.camel@dhcp235-23.rdu.redhat.com>
-References: <1245873245.11046.6.camel@dhcp235-23.rdu.redhat.com>
-Content-Type: text/plain
-Date: Wed, 24 Jun 2009 16:18:36 -0400
-Message-Id: <1245874716.9669.50.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4A429655.1020306@manicmethod.com>
+Date: Wed, 24 Jun 2009 17:10:45 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Chris PeBenito <pebenito@gentoo.org>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: This patch add seusers support to SELinux
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com>	 <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com>	 <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com>	 <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com>	 <4A3BD53A.5050908@manicmethod.com>  <4A3BD905.3030401@redhat.com>	 <1245439846.3574.12.camel@defiant.pebenito.net>	 <4A3BEC4B.5080504@redhat.com> <1245442170.3574.23.camel@defiant.pebenito.net>
+In-Reply-To: <1245442170.3574.23.camel@defiant.pebenito.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-06-24 at 15:54 -0400, Eric Paris wrote:
-> Al was complaining that he has selinux disabled and has 100,000+ mounts
-> in /proc/mounts.  Every time he runs ls the thing takes 5 seconds
-> because the libselinux constructor runs the entirety of his /proc/mounts
-> looking for selinuxfs, which doesn't exist.  Speed things up by first
-> checking for selinuxfs in /proc/filesystems, only if the fs is even
-> registered should we bother to run all of /proc/mounts.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Chris PeBenito wrote:
+> On Fri, 2009-06-19 at 15:51 -0400, Daniel J Walsh wrote:
+>> On 06/19/2009 03:30 PM, Chris PeBenito wrote:
+>>> On Fri, 2009-06-19 at 14:29 -0400, Daniel J Walsh wrote:
+>>>> Basically this is the exact same file as the seusers file except it one
+>>>> per Linux User where is the seusers file is one record per Linux User.
+>>>>
+>>>> If I have a distributed environment, I need to say stuff like
+>>>>
+>>>> engineers logging into people.redhat.com get guest_t:s0
+>>>> Admins logging in get unconfined_t:SystemLow-SystemHigh
+>>>>
+>>>> In addition on some machines dwalsh is an admin and on others he is a
+>>>> peon.  So using IPA we generate a mapping from MACHINE to User
+>>>>
+>>>> dwalsh on dwalsh_laptop gets unconfined_t
+>>>> dwalsh on desktop gets user_t
+>>>> dwalsh on people gets guest_t
+>>>>
+>>>> There is a potential use for service but it will probably default to *
+>>>> for now.
+>>> I don't have a problem with this idea, but I do have a problem with this
+>>> not replacing the current seuser behavior.  Having two ways to map linux
+>>> users to selinux users is an administration nightmare.  People will be
+>>> confused about which one to use and you'll need to know precedence.
+>>> What you describe above with the contents of each file just having a *
+>>> service would be the same as the current seuser behavior.
+>>>
+>> Well I don't see administrators editing the new format, we have not even
+>> used it yet, since IPA has not shipped this functionality yet.
+>
+> I don't see how IPA's usage matters.  If we go this way, in the future
+> there will be two ways for the seusers mapping, which is confusing.
+>
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Ping, does anyone else have an opinion on this using the context of the service 
+rather than the pam name of the service? I still think the context is more 
+appropriate.
 
-> 
-> ---
-> 
-> or alternatively I'd be find if we just bailed when it wasn't /selinux,
-> but that's just me.  Does anyone actually put it anywhere else?
-
-That may make sense at this point, given that we now perform the initial
-mount of selinuxfs from a libselinux function, and since it seems
-unlikely that we will ever change the mount location given that scripts
-and users now expect it to live at /selinux.  No strong opinion.
-
-> diff -up libselinux-2.0.80/src/init.c.pre.filesystems libselinux-2.0.80/src/init.c
-> --- libselinux-2.0.80/src/init.c.pre.filesystems	2009-06-24 15:34:25.712802612 -0400
-> +++ libselinux-2.0.80/src/init.c	2009-06-24 15:39:35.767163619 -0400
-> @@ -28,6 +28,7 @@ static void init_selinuxmnt(void)
->  	int rc;
->  	size_t len;
->  	ssize_t num;
-> +	int exists = 0;
->  
->  	if (selinux_mnt)
->  		return;
-> @@ -44,6 +45,23 @@ static void init_selinuxmnt(void)
->  		}
->  	} 
->  
-> +	/* Drop back to detecting it the long way. */
-> +	fp = fopen("/proc/filesystems", "r");
-> +	if (!fp)
-> +		return;
-> +
-> +	__fsetlocking(fp, FSETLOCKING_BYCALLER);
-> +	while ((num = getline(&buf, &len, fp)) != -1) {
-> +		if (strstr(buf, "selinuxfs")) {
-> +			exists = 1;
-> +			break;
-> +		}
-> +	}
-> +	fclose(fp);
-> +
-> +	if (!exists)
-> +		return;
-> +
->  	/* At this point, the usual spot doesn't have an selinuxfs so
->  	 * we look around for it */
->  	fp = fopen("/proc/mounts", "r");
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
-
+Also, if we do this I think we should get rid of the old way of having seusers 
+since it isn't clear where to do seuser updates anymore and it isn't even noted 
+which of these take precedence.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
