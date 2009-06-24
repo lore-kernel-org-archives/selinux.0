@@ -1,27 +1,33 @@
+Date: Thu, 25 Jun 2009 08:30:08 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Thomas Liu <tliu@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, eparis@parisplace.org
 Subject: Re: [PATCH -v2] selinux: clean up avc node cache when disabling
  selinux
-From: Eric Paris <eparis@redhat.com>
-To: Thomas Liu <tliu@redhat.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
-        eparis@parisplace.org
 In-Reply-To: <1245880685.27271.2.camel@Ares>
-References: <1245880456.26725.5.camel@Ares>  <1245880685.27271.2.camel@Ares>
-Content-Type: text/plain
-Date: Wed, 24 Jun 2009 18:08:18 -0400
-Message-Id: <1245881298.11046.31.camel@dhcp235-23.rdu.redhat.com>
-Mime-Version: 1.0
+Message-ID: <alpine.LRH.2.00.0906250829570.30013@tundra.namei.org>
+References: <1245880456.26725.5.camel@Ares> <1245880685.27271.2.camel@Ares>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-06-24 at 17:58 -0400, Thomas Liu wrote:
+On Wed, 24 Jun 2009, Thomas Liu wrote:
+
 > Added a call to free the avc_node_cache when inside selinux_disable because
 > it should not waste resources allocated during avc_init if SELinux is disabled
 > and the cache will never be used.
 > 
 > Signed-off-by: Thomas Liu <tliu@redhat.com>
 
-Acked-by: Eric Paris <eparis@redhat.com>
 
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
