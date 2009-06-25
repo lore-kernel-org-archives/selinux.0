@@ -1,99 +1,103 @@
-Subject: Re: This patch add seusers support to SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Chris PeBenito <pebenito@gentoo.org>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <4A429655.1020306@manicmethod.com>
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com>
-	 <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com>
-	 <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com>
-	 <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com>
-	 <4A3BD53A.5050908@manicmethod.com>  <4A3BD905.3030401@redhat.com>
-	 <1245439846.3574.12.camel@defiant.pebenito.net>
-	 <4A3BEC4B.5080504@redhat.com>
-	 <1245442170.3574.23.camel@defiant.pebenito.net>
-	 <4A429655.1020306@manicmethod.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5PCYcWh009437
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jun 2009 08:34:38 -0400
+Subject: Re: [PATCH 1/1] cr: lsm: restore LSM contexts for ipc objects
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Andrew Morgan <morgan@kernel.org>
+In-Reply-To: <20090624220736.GA21134@us.ibm.com>
+References: <20090620013216.GA4435@us.ibm.com>
+	 <1245779751.27538.14.camel@localhost.localdomain>
+	 <20090623181810.GA23644@us.ibm.com> <20090623195703.GA25469@us.ibm.com>
+	 <1245849008.9669.13.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090624220736.GA21134@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 25 Jun 2009 08:31:41 -0400
-Message-Id: <1245933101.9669.98.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 25 Jun 2009 08:34:35 -0400
+Message-Id: <1245933275.9669.100.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-06-24 at 17:10 -0400, Joshua Brindle wrote:
-> Chris PeBenito wrote:
-> > On Fri, 2009-06-19 at 15:51 -0400, Daniel J Walsh wrote:
-> >> On 06/19/2009 03:30 PM, Chris PeBenito wrote:
-> >>> On Fri, 2009-06-19 at 14:29 -0400, Daniel J Walsh wrote:
-> >>>> Basically this is the exact same file as the seusers file except it one
-> >>>> per Linux User where is the seusers file is one record per Linux User.
-> >>>>
-> >>>> If I have a distributed environment, I need to say stuff like
-> >>>>
-> >>>> engineers logging into people.redhat.com get guest_t:s0
-> >>>> Admins logging in get unconfined_t:SystemLow-SystemHigh
-> >>>>
-> >>>> In addition on some machines dwalsh is an admin and on others he is a
-> >>>> peon.  So using IPA we generate a mapping from MACHINE to User
-> >>>>
-> >>>> dwalsh on dwalsh_laptop gets unconfined_t
-> >>>> dwalsh on desktop gets user_t
-> >>>> dwalsh on people gets guest_t
-> >>>>
-> >>>> There is a potential use for service but it will probably default to *
-> >>>> for now.
-> >>> I don't have a problem with this idea, but I do have a problem with this
-> >>> not replacing the current seuser behavior.  Having two ways to map linux
-> >>> users to selinux users is an administration nightmare.  People will be
-> >>> confused about which one to use and you'll need to know precedence.
-> >>> What you describe above with the contents of each file just having a *
-> >>> service would be the same as the current seuser behavior.
-> >>>
-> >> Well I don't see administrators editing the new format, we have not even
-> >> used it yet, since IPA has not shipped this functionality yet.
-> >
-> > I don't see how IPA's usage matters.  If we go this way, in the future
-> > there will be two ways for the seusers mapping, which is confusing.
-> >
+On Wed, 2009-06-24 at 17:07 -0500, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@epoch.ncsc.mil):
+> > On Tue, 2009-06-23 at 14:57 -0500, Serge E. Hallyn wrote:
+> > > Quoting Serge E. Hallyn (serue@us.ibm.com):
+> > > > Quoting Stephen Smalley (sds@epoch.ncsc.mil):
+> > > > > On Fri, 2009-06-19 at 20:32 -0500, Serge E. Hallyn wrote:
+> > > > > > diff --git a/ipc/checkpoint_msg.c b/ipc/checkpoint_msg.c
+> > > > > > index 51385b0..ca55339 100644
+> > > > > > --- a/ipc/checkpoint_msg.c
+> > > > > > +++ b/ipc/checkpoint_msg.c
+> > > > > <snip>
+> > > > > > @@ -175,11 +183,26 @@ static int load_ipc_msg_hdr(struct ckpt_ctx *ctx,
+> > > > > >  			    struct msg_queue *msq)
+> > > > > >  {
+> > > > > >  	int ret = 0;
+> > > > > > +	int secid = 0;
+> > > > > >  
+> > > > > >  	ret = restore_load_ipc_perms(&h->perms, &msq->q_perm);
+> > > > > >  	if (ret < 0)
+> > > > > >  		return ret;
+> > > > > >  
+> > > > > > +	if (h->perms.secref) {
+> > > > > > +		struct sec_store *s;
+> > > > > > +		s = ckpt_obj_fetch(ctx, h->perms.secref, CKPT_OBJ_SECURITY);
+> > > > > > +		if (IS_ERR(s))
+> > > > > > +			return PTR_ERR(s);
+> > > > > > +		secid = s->secid;
+> > > > > > +	}
+> > > > > > +	ret = security_msg_queue_alloc(msq);
+> > > > > > +	if (ret)
+> > > > > > +		return ret;
+> > > > > > +	ret = security_msg_queue_restore(msq, secid);
+> > > > > > +	if (ret < 0)
+> > > > > > +		return ret;
+> > > > > 
+> > > > > I don't think you want to call security_msg_queue_alloc() here, as that
+> > > > > both allocates the security struct and performs the create check.  So I
+> > > > > would just call the _restore() function, and let it internally call
+> > > > > ipc_alloc_security() to allocate the struct but then apply its own
+> > > > > distinct restore check.  Likewise for the rest of them.
+> > > > 
+> > > > Ok, will change that.
+> > > 
+> > > Hmm, but that means that if there is some new LSM which allocates memory
+> > > in security_msg_queue_alloc(), but which does not define
+> > > security_msg_queue_restore() (for some stupid reason), it'll end up
+> > > causing a bug.
+> > > 
+> > > It's something we can certainly catch through code review, but do we
+> > > want to set such a scenario up at all?
+> > > 
+> > > Speaking just for SELinux, the security_msg_queue_alloc() hook would
+> > > return -EPERM only if the task calling sys_restart() wasn't allowed
+> > > to create a msg queue with its own type, right?  Is that something
+> > > which is often disallowed?
+> > 
+> > Certainly some program domains lack permission to create ipc objects.
+> > The ipc _alloc hooks are unusual in that they combine both allocation
+> > and create checking unlike the rest of the object alloc hooks.  I think
+> > that was discussed at the time, but people didn't want two different
+> > hook calls at the same call site.
 > 
-> Ping, does anyone else have an opinion on this using the context of the service 
-> rather than the pam name of the service? I still think the context is more 
-> appropriate.
+> Oh, no.  I wasn't thinking right.
+> 
+> The objects are actually restored through calls to do_shmget() etc,
+> so that security_xyz_alloc() already gets called.
 
-Pros of using pam service name:
-- Familiar to regular Linux admins (which we expect to configure
-seusers, not just policy admins, right?),
-- Can distinguish cases where multiple services run in the same context,
-even unconfined services.
+Does this mean that the objects temporarily exist in the wrong security
+context and are accessible to other threads during the interval between
+creation and when they get "restored" to the right security context?
 
-Pros of using the server daemon context (ala default_contexts):
-- Consistent with default_contexts,
-- Can distinguish cases where the same service runs in multiple
-contexts.
-
-But default_contexts has been a source of significant confusion and
-misconfiguration.
-
-> Also, if we do this I think we should get rid of the old way of having seusers 
-> since it isn't clear where to do seuser updates anymore and it isn't even noted 
-> which of these take precedence.
-
-Not sure what you mean by "get rid of".  You want getseuserbyname() to
-also search the new files and use them if present, using "*" as the
-service name?  IOW, directly pull the getseuserbyname() logic into
-getseuser() and turn getseuserbyname() into a simple wrapper for
-getseuser()?  And then do something on the semanage side for these new
-files?
-
-Are we sure that this new functionality is ever actually going to get
-used?  Is it really too late to just drop this interface and remove the
-call from pam_selinux upstream (only gets built if it detects the
-interface in the libselinux against which it is built already).
-
-What we need to do is to overhaul the way the entire user context
-computation happens, not just add new ways to further confuse matters.
-The full generality of get_ordered_context_list is in retrospect
-overkill and prone to misconfiguration.
+> So I think we'll just leave it as is right now, acknowledging that
+> it might become problematic if we want to confine a restart_t domain
+> to be able to restore but not alloc any ipcs.  The actual ramifications
+> of that still somewhat escape me, but I do prefer having the common
+> helpers used whenever possible to recreate objects.
 
 -- 
 Stephen Smalley
