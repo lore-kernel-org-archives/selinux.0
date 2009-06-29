@@ -1,48 +1,52 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5S4o4Vd032719
-	for <selinux@tycho.nsa.gov>; Sun, 28 Jun 2009 00:50:04 -0400
-Received: from pobox.globalherald.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5S4obMB026174
-	for <selinux@tycho.nsa.gov>; Sun, 28 Jun 2009 04:50:37 GMT
-Received: from [192.168.2.3] (unknown [192.168.2.3])
-	by pobox.globalherald.net (Postfix) with ESMTP id 57F341FD089
-	for <selinux@tycho.nsa.gov>; Sun, 28 Jun 2009 01:56:15 -0400 (EDT)
-Date: Sun, 28 Jun 2009 01:56:14 -0400 (EDT)
-From: Joshua Kramer <josh@globalherald.net>
-To: selinux@tycho.nsa.gov
-Subject: Can RHEL 5 set Context of Threads?
-Message-ID: <alpine.LFD.2.00.0906280155390.13671@home-av-server.home-av>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5T0J5K5013308
+	for <selinux@tycho.nsa.gov>; Sun, 28 Jun 2009 20:19:06 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5T0JctA004982
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jun 2009 00:19:39 GMT
+Message-ID: <4A480871.5050403@ak.jp.nec.com>
+Date: Mon, 29 Jun 2009 09:18:57 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Joshua Kramer <josh@globalherald.net>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Can RHEL 5 set Context of Threads?
+References: <alpine.LFD.2.00.0906280155390.13671@home-av-server.home-av>
+In-Reply-To: <alpine.LFD.2.00.0906280155390.13671@home-av-server.home-av>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Kramer wrote:
+> 
+> Hello,
+> 
+> In this document, KaiGai outlines his SELinux Apache module.
+> 
+> http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
+> 
+> Under the 'Internals' section, he notes that kernel versions > 2.6.28 
+> have the capability to set an individual security context for each thread.
+> 
+> Has RedHat backported this capability to the 2.6.18 included with RHEL5? 
+> Or do we have to wait for RHEL6?
+> 
+> Thanks!
+> -Josh
 
-Hello,
+As Stephen noted here,
+  http://marc.info/?l=selinux&m=124265539924989&w=2
 
-In this document, KaiGai outlines his SELinux Apache module.
+It also requires libsepol >= 2.0.34 and checkpolicy >= 2.0.17 to build
+and install security policy module with bounds domain.
 
-http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
+I'm not a person in RedHat, however, it seems to me it is better to wait
+for RHEL6 rather than porting them into RHEL5 from now.
 
-Under the 'Internals' section, he notes that kernel versions > 2.6.28 have the 
-capability to set an individual security context for each thread.
-
-Has RedHat backported this capability to the 2.6.18 included with RHEL5? Or do 
-we have to wait for RHEL6?
-
-Thanks!
--Josh
-
+Thanks,
 -- 
-
------
-http://www.globalherald.net/jb01
-GlobalHerald.NET, the Smarter Social Network! (tm)
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
