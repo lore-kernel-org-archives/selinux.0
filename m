@@ -1,76 +1,100 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5ULZ63j006845
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 17:35:06 -0400
-Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5ULYnHr017759
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:49 GMT
-Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
-	by g1t0027.austin.hp.com (Postfix) with ESMTP id 35CE538839
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:35 +0000 (UTC)
-Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
-	by g1t0038.austin.hp.com (Postfix) with ESMTP id 070AE30046
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:34 +0000 (UTC)
-Received: from localhost (ldl.fc.hp.com [127.0.0.1])
-	by ldl.fc.hp.com (Postfix) with ESMTP id 314A239C007
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 15:34:34 -0600 (MDT)
-Received: from ldl.fc.hp.com ([127.0.0.1])
-	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UcXWHqHGWwNG for <selinux@tycho.nsa.gov>;
-	Tue, 30 Jun 2009 15:34:32 -0600 (MDT)
-Received: from flek.localnet (squirrel.fc.hp.com [15.11.146.57])
-	by ldl.fc.hp.com (Postfix) with ESMTP id B2B6A39C003
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 15:34:32 -0600 (MDT)
-From: Paul Moore <paul.moore@hp.com>
-To: selinux@tycho.nsa.gov
-Subject: The problem with TUN/TAP devices
-Date: Tue, 30 Jun 2009 17:34:31 -0400
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <200906301734.31986.paul.moore@hp.com>
+In-Reply-To: <1246390647.13464.119.camel@moss-pluto.epoch.ncsc.mil>
+References: <4c4ba1530906301153s5b8e4e93q4a1c970e1e96ea61@mail.gmail.com>
+	 <1246390647.13464.119.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 30 Jun 2009 14:44:36 -0700
+Message-ID: <4c4ba1530906301444w2b6842f8vbc07c6827bd14c4b@mail.gmail.com>
+Subject: Re: "Policy inclusion" tool ... ?
+From: Tom London <selinux@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Unfortunately we have a problem with the network access controls and TUN/TAP 
-devices.  The basic issue is that packets entering the stack via a TUN device, 
-e.g. QEMU/KVM guest instance operating with a bridged network configuration, 
-do not have a fully initialized sock associated with them.  I say "fully 
-initialized" because the basic initialization has been done (memory allocated, 
-initial values set to SECINITSID_UNLABELED, etc.) but the last step where we 
-assign the sock a label/SID never happens.  Why?  Because the TUN driver code 
-only calls sk_alloc() and nothing else in the TUN code paths finish the 
-SELinux sock setup.
+On Tue, Jun 30, 2009 at 12:37 PM, Stephen Smalley<sds@tycho.nsa.gov> wrote:
+> On Tue, 2009-06-30 at 11:53 -0700, Tom London wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> I quite often am testing the latest Fedora selinux-policy packages
+>> against Fedora Rawhide.
+>>
+>> When I bump into SELinux policy "slippage" with new packages and
+>> components, I typically email off the evidence to Dan Walsh, and
+>> create some local policy "fixes" to patch around the potholes.
+>>
+>> Typically, Dan fixes these pretty quickly.  I am then left with the
+>> following question: Does the currently installed policy "include" the
+>> rules added by my local .{te,pp} fixes.
+>>
+>> Of course, I can "semodule -r" the local module and then try to
+>> recreate the trigger, but this is sometimes not all that easy to do.
+>>
+>> What would be handy would be a tool that would check a .{te,pp} file
+>> against the currently running  policy, something like "se-is-included
+>> localfoo.{te,pp}".
+>>
+>> I would think this could be of interest beyond my use case.
+>>
+>> As a quick and dirty hack, I composed the following shell script to
+>> leverage "sesearch":
+>>
+>> #!/bin/bash
+>>
+>> while read a b c d e
+>> do
+>>        if [ "$a" == "allow" ]; then
+>>                source=$b
+>>                target=${c%%:*}
+>>                class=${c##*:}
+>>                if [ "$target" == "self" ]; then
+>>                        target=$source
+>>                fi
+>>                echo "sesearch --allow -s $source -t $target -c $class"
+>>                sesearch --allow -s $source -t $target -c $class
+>>        fi
+>> done
+>>
+>> Is something like this more generally interesting/useful?  Of course,
+>> I'm certain there are better ways to implement this (e.g., parse the
+>> .pp file instead of the .te file, handle more stuff from the modules,
+>> etc.) but is the use of interest?
+>
+> Yes, that seems useful.
+>
+> I wouldn't invest in parsing .pp files at this point, as we anticipate
+> phasing them out in favor of source modules.
+>
+> What your script won't presently handle are things like adding a type
+> attribute to a type in your module and thereby changing the expansion of
+> an allow rule in another module.  At present, I think the only way to
+> truly check that the module is completely subsumed by the policy would
+> be to take the policy before and after module insertion and sediff it.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+Sounds reasonable.
 
-Okay, so what?  Well, the problem is that the SELinux IP postrouting code 
-treats the packet's sock label (the one that is still set as unlabeled_t in 
-the TUN case) as the originating peer label; in short it looks like packets 
-sent from your QEMU/KVM instance are unlabeled_t instead of my_guest_t:s3.  
-Needless to say this is not ideal.
+So a "policy inclusion tool" could look something like:
 
-So how do we fix it?  Well, there are a two options that I can think of right 
-now (feel free to add to the list):
+1. remove "local.pp" if it in the current policy
+2. capture policy, say in "current.policy"
+3. "semodule -i local.pp"
+4. capture policy, say in "newer.policy"
+5. "sediff current.policy \; newer.policy"
+6. recover to current.policy, if appropriate
 
-1. Set the sock's label/SID in sk_alloc()
-2. Introduce a new hook to set the label/SID of a sock and call it from
-   tun_set_iff()
+Do I understand your suggestion?
 
-The problem with #2 is that it introduces a new (basically TUN specific) hook 
-to do something silly.  Important, but still kinda silly.  The problem with #1 
-is that we currently set the sock's label/SID in selinux_socket_post_create() 
-and match it with the inode's label/SID which has the potential to get ugly (I 
-haven't verified all of those cases yet).  However, there may be an 
-alternative, call it #1a, where set label the sock in sk_alloc() and then use 
-the sock's label to set the inode's label in socket_post_create(); this should 
-solve the potential ugliness.
+I notice reference to "stores" in some of the se-tools.  Are they useful here?
 
-Thoughts?
-
-There is also a somewhat related issue involving persistent TUN/TAP devices 
-but I'd like to resolve this before getting deeper into that problem.
-
+tom
 -- 
-paul moore
-linux @ hp
+Tom London
 
 
 --
