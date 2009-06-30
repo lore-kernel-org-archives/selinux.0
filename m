@@ -1,74 +1,41 @@
-Subject: Re: "Policy inclusion" tool ... ?
+Subject: Re: [PATCH] setfiles converted to fts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom London <selinux@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <4c4ba1530906301153s5b8e4e93q4a1c970e1e96ea61@mail.gmail.com>
-References: <4c4ba1530906301153s5b8e4e93q4a1c970e1e96ea61@mail.gmail.com>
+To: Thomas Liu <tliu@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1246390368.2856.2.camel@Ares>
+References: <1246390368.2856.2.camel@Ares>
 Content-Type: text/plain
-Date: Tue, 30 Jun 2009 15:37:27 -0400
-Message-Id: <1246390647.13464.119.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 30 Jun 2009 15:47:31 -0400
+Message-Id: <1246391251.13464.126.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-06-30 at 11:53 -0700, Tom London wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I quite often am testing the latest Fedora selinux-policy packages
-> against Fedora Rawhide.
-> 
-> When I bump into SELinux policy "slippage" with new packages and
-> components, I typically email off the evidence to Dan Walsh, and
-> create some local policy "fixes" to patch around the potholes.
-> 
-> Typically, Dan fixes these pretty quickly.  I am then left with the
-> following question: Does the currently installed policy "include" the
-> rules added by my local .{te,pp} fixes.
-> 
-> Of course, I can "semodule -r" the local module and then try to
-> recreate the trigger, but this is sometimes not all that easy to do.
-> 
-> What would be handy would be a tool that would check a .{te,pp} file
-> against the currently running  policy, something like "se-is-included
-> localfoo.{te,pp}".
-> 
-> I would think this could be of interest beyond my use case.
-> 
-> As a quick and dirty hack, I composed the following shell script to
-> leverage "sesearch":
-> 
-> #!/bin/bash
-> 
-> while read a b c d e
-> do
->        if [ "$a" == "allow" ]; then
->                source=$b
->                target=${c%%:*}
->                class=${c##*:}
->                if [ "$target" == "self" ]; then
->                        target=$source
->                fi
->                echo "sesearch --allow -s $source -t $target -c $class"
->                sesearch --allow -s $source -t $target -c $class
->        fi
-> done
-> 
-> Is something like this more generally interesting/useful?  Of course,
-> I'm certain there are better ways to implement this (e.g., parse the
-> .pp file instead of the .te file, handle more stuff from the modules,
-> etc.) but is the use of interest?
+On Tue, 2009-06-30 at 15:32 -0400, Thomas Liu wrote:
+> This patch converted setfiles/restorecon to using fts instead of nftw.
+> It also removed forking, pipes and pre_stat because Dan Walsh and I
+> could not figure out what it was for.
 
-Yes, that seems useful.
+See:
+http://marc.info/?l=selinux&m=113627973615236&w=2
+for the rationale for that logic.
 
-I wouldn't invest in parsing .pp files at this point, as we anticipate
-phasing them out in favor of source modules.
+Did you run any measurements to assess the impact of your changes on setfiles?
 
-What your script won't presently handle are things like adding a type
-attribute to a type in your module and thereby changing the expansion of
-an allow rule in another module.  At present, I think the only way to
-truly check that the module is completely subsumed by the policy would
-be to take the policy before and after module insertion and sediff it.
+Did you compare with the implementation of setfsmac.c in FreeBSD, which
+likewise started life as setfiles and was then rewritten to use fts()?
+
+What improvements do we get from the changes?
+
+Should we be using fts_path or fts_accpath when performing operations on
+the files, like lsetfilecon()?  I suspect the latter would be more
+efficient and less prone to simultaneous changes to the file tree if fts
+switches the cwd as it walks the tree.
+
+IIRC, we called lstat() within apply_spec() even though a struct stat
+was supplied as an argument because in the case of symlinks, we were
+getting the stat of the referenced file rather than of the symlink file.
+Is this true of fts?
 
 -- 
 Stephen Smalley
