@@ -1,117 +1,76 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5UAKOhk023216
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 06:20:24 -0400
-Received: from mail-px0-f197.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n5UAKweK023439
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 10:20:58 GMT
-Received: by pxi35 with SMTP id 35so17727pxi.32
-        for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 03:20:23 -0700 (PDT)
+Message-ID: <4A4A2CE1.5060204@manicmethod.com>
+Date: Tue, 30 Jun 2009 11:18:57 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-In-Reply-To: <200906301730.13780.linuxweb@gmx.net>
-References: <alpine.LRH.2.00.0906301854280.15745@tundra.namei.org>
-	 <200906301730.13780.linuxweb@gmx.net>
-Date: Tue, 30 Jun 2009 16:20:22 +0600
-Message-ID: <7b740b700906300320m239b4d1cjce0a2902faa10246@mail.gmail.com>
-Subject: Re: "Big Thanks To The SELinux Team"
-From: Shaz <shazalive@gmail.com>
-To: Dennis Wronka <linuxweb@gmx.net>
-Cc: James Morris <jmorris@namei.org>, fedora-selinux-list@redhat.com,
-        selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001485f9a4ae88f0ae046d8e27ba
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: This patch add seusers support to SELinux
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com>
+In-Reply-To: <4A3BACE9.6000403@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---001485f9a4ae88f0ae046d8e27ba
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-On Tue, Jun 30, 2009 at 3:30 PM, Dennis Wronka <linuxweb@gmx.net> wrote:
-
-> I didn't encounter anything annoying since I started using Fedora with
-> Fedora
-> 7.
-> Sure, in some cases I needed to add labeling-rules (like having all files
-> in my
-> ~/Download/cd-images labeled as virt_image_t so that KVM can use them) but
-> nothing serious.
->
-> So, I join in on this: Thank you to all the people who work to make SELinux
-> better. From my own work with it I know it can be hard.
->
-
-I am using SELinux with Ubuntu 9.04 and its pretty friendly, although the
-directory structure is a bit different and the packages are handled and
-named differently but its very usable indeed.
-
-Earlier the SELinux networking was very messy (Fedora 5-6 era) but soon I
-will be working on it again and hope its also as smooth as other SELinux
-utilities and configurations.
-
-
-
->
-> >
-> http://californiaquantum.wordpress.com/2009/06/30/big-thanks-to-the-selinux
-> >-team/
-> >
-> >   "Ive now been running Fedora 11 for three weeks and havent had a single
-> >    SELinux issue at all.  Maybe I am unique, but from what I can tell
-> >    SELinux with Fedora 11 no longer has any annoying issues while running
-> >    in enforcing mode."
->
-
-
-
--- 
-Shaz
-
---001485f9a4ae88f0ae046d8e27ba
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<br><br><div class=3D"gmail_quote">On Tue, Jun 30, 2009 at 3:30 PM, Dennis =
-Wronka <span dir=3D"ltr">&lt;<a href=3D"mailto:linuxweb@gmx.net">linuxweb@g=
-mx.net</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"=
-border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; paddi=
-ng-left: 1ex;">
-I didn&#39;t encounter anything annoying since I started using Fedora with =
-Fedora<br>
-7.<br>
-Sure, in some cases I needed to add labeling-rules (like having all files i=
-n my<br>
-~/Download/cd-images labeled as virt_image_t so that KVM can use them) but<=
-br>
-nothing serious.<br>
-<br>
-So, I join in on this: Thank you to all the people who work to make SELinux=
-<br>
-better. From my own work with it I know it can be hard.<br>
-<div><div></div><div class=3D"h5"></div></div></blockquote><div><br>I am us=
-ing SELinux with Ubuntu 9.04 and its pretty friendly, although the director=
-y structure is a bit different and the packages are handled and named diffe=
-rently but its very usable indeed.<br>
-<br>Earlier the SELinux networking was very messy (Fedora 5-6 era) but soon=
- I will be working on it again and hope its also as smooth as other SELinux=
- utilities and configurations.<br><br>=A0</div><blockquote class=3D"gmail_q=
-uote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0=
-pt 0.8ex; padding-left: 1ex;">
-<div><div class=3D"h5"><br>
-&gt; <a href=3D"http://californiaquantum.wordpress.com/2009/06/30/big-thank=
-s-to-the-selinux" target=3D"_blank">http://californiaquantum.wordpress.com/=
-2009/06/30/big-thanks-to-the-selinux</a><br>
-&gt;-team/<br>
-&gt;<br>
-&gt; =A0 &quot;Ive now been running Fedora 11 for three weeks and havent ha=
-d a single<br>
-&gt; =A0 =A0SELinux issue at all. =A0Maybe I am unique, but from what I can=
- tell<br>
-&gt; =A0 =A0SELinux with Fedora 11 no longer has any annoying issues while =
-running<br>
-&gt; =A0 =A0in enforcing mode.&quot;<br>
-</div></div></blockquote></div><br><br clear=3D"all"><br>-- <br>Shaz<br><br=
+Daniel J Walsh wrote:
+> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
+>>>> Daniel J Walsh wrote:
+>>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
+>>>>>> Joshua Brindle wrote:
+>>>>>>> Daniel J Walsh wrote:
+>>>>>>>> The idea here is to break the seusers file up into lots of little
+>>>>>>>> seusers file that can be user specific, also adds the service
+>>>>>>>> field to
+>>>>>>>> be used by tools like pam_selinux to choose which is the correct
+>>>>>>>> context
+>>>>>>>> to log a user in as.
+>>>>>>>>
+>>>>>>>> Patch was added to facilitate IPA handing out SELinux content for
+>>>>>>>> selection of roles at login.
+>>>>>>>>
+>>>>>>>
+>>>>>>> This patch does not affect the behavior of getseuserbyname(), how is
+>>>>>>> this expected to work with existing applications?
+>>>>>>>
+>>>>> I think it only affects pam_selinux.
+>>>>
+>>>> The function name is very confusing if its only used for pam_selinux,
+>>>> I'd like it renamed but seeing that pam_selinux is already deployed
+>>>> with
+>>>> it I suppose that isn't an option.
+>>>>
+>>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
+>>>>
+>>>>>>
+>>>>>> Also, what is the format of this file? What should service be to test
+>>>>>> this on F11?
+>>>>>>
+>>> It is not only for pam_selinux, but that is currently the only user.
+>>>
+>>> Really all this function does is add a second variable when selecting a
+>>> users default context. service is just a string that the caller can
+>>> specify. It just allows you to change the default context you would get
+>>> on entry to the system. So I guess you could get use similar calls to
+>>> get different context depending on whether or not you are on the
+>>> console. Imagine a dbus service which would run with one context if you
+>>> we logged onto the console versus a different context if you were logged
+>>> in via ssh.
+>>>
+>>
+>> On looking at this further, I don't like the format of the file either,
+>> why did you choose to make it use colons and not tolerate spaces? First
+>> when I tried root: staff_u: s0 it logged me in as system_u and then when
+>> I tried root:staff_u:s0 I got logged in correctly. This is a little
+>> fragile to expect editing by users and getting unexpectedly logged in as
+>> system_u.
+>>
+> The : separated list matches seusers and /etc/passwd so I think it makes
+> sense. THe file should require all three fields, that is a bug.
 >
 
---001485f9a4ae88f0ae046d8e27ba--
+Are you going to resubmit this patch with the bug fixed?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
