@@ -1,76 +1,80 @@
-Message-ID: <4A4A2CE1.5060204@manicmethod.com>
-Date: Tue, 30 Jun 2009 11:18:57 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5UIr9J9016313
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 14:53:09 -0400
+Received: from mail-yx0-f191.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5UIqpCl011719
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 18:52:52 GMT
+Received: by yxe29 with SMTP id 29so464385yxe.32
+        for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 11:53:08 -0700 (PDT)
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com>
-In-Reply-To: <4A3BACE9.6000403@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 30 Jun 2009 11:53:06 -0700
+Message-ID: <4c4ba1530906301153s5b8e4e93q4a1c970e1e96ea61@mail.gmail.com>
+Subject: "Policy inclusion" tool ... ?
+From: Tom London <selinux@gmail.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
->>>> Daniel J Walsh wrote:
->>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
->>>>>> Joshua Brindle wrote:
->>>>>>> Daniel J Walsh wrote:
->>>>>>>> The idea here is to break the seusers file up into lots of little
->>>>>>>> seusers file that can be user specific, also adds the service
->>>>>>>> field to
->>>>>>>> be used by tools like pam_selinux to choose which is the correct
->>>>>>>> context
->>>>>>>> to log a user in as.
->>>>>>>>
->>>>>>>> Patch was added to facilitate IPA handing out SELinux content for
->>>>>>>> selection of roles at login.
->>>>>>>>
->>>>>>>
->>>>>>> This patch does not affect the behavior of getseuserbyname(), how is
->>>>>>> this expected to work with existing applications?
->>>>>>>
->>>>> I think it only affects pam_selinux.
->>>>
->>>> The function name is very confusing if its only used for pam_selinux,
->>>> I'd like it renamed but seeing that pam_selinux is already deployed
->>>> with
->>>> it I suppose that isn't an option.
->>>>
->>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
->>>>
->>>>>>
->>>>>> Also, what is the format of this file? What should service be to test
->>>>>> this on F11?
->>>>>>
->>> It is not only for pam_selinux, but that is currently the only user.
->>>
->>> Really all this function does is add a second variable when selecting a
->>> users default context. service is just a string that the caller can
->>> specify. It just allows you to change the default context you would get
->>> on entry to the system. So I guess you could get use similar calls to
->>> get different context depending on whether or not you are on the
->>> console. Imagine a dbus service which would run with one context if you
->>> we logged onto the console versus a different context if you were logged
->>> in via ssh.
->>>
->>
->> On looking at this further, I don't like the format of the file either,
->> why did you choose to make it use colons and not tolerate spaces? First
->> when I tried root: staff_u: s0 it logged me in as system_u and then when
->> I tried root:staff_u:s0 I got logged in correctly. This is a little
->> fragile to expect editing by users and getting unexpectedly logged in as
->> system_u.
->>
-> The : separated list matches seusers and /etc/passwd so I think it makes
-> sense. THe file should require all three fields, that is a bug.
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Are you going to resubmit this patch with the bug fixed?
+I quite often am testing the latest Fedora selinux-policy packages
+against Fedora Rawhide.
+
+When I bump into SELinux policy "slippage" with new packages and
+components, I typically email off the evidence to Dan Walsh, and
+create some local policy "fixes" to patch around the potholes.
+
+Typically, Dan fixes these pretty quickly.  I am then left with the
+following question: Does the currently installed policy "include" the
+rules added by my local .{te,pp} fixes.
+
+Of course, I can "semodule -r" the local module and then try to
+recreate the trigger, but this is sometimes not all that easy to do.
+
+What would be handy would be a tool that would check a .{te,pp} file
+against the currently running  policy, something like "se-is-included
+localfoo.{te,pp}".
+
+I would think this could be of interest beyond my use case.
+
+As a quick and dirty hack, I composed the following shell script to
+leverage "sesearch":
+
+#!/bin/bash
+
+while read a b c d e
+do
+       if [ "$a" == "allow" ]; then
+               source=$b
+               target=${c%%:*}
+               class=${c##*:}
+               if [ "$target" == "self" ]; then
+                       target=$source
+               fi
+               echo "sesearch --allow -s $source -t $target -c $class"
+               sesearch --allow -s $source -t $target -c $class
+       fi
+done
+
+Is something like this more generally interesting/useful?  Of course,
+I'm certain there are better ways to implement this (e.g., parse the
+.pp file instead of the .te file, handle more stuff from the modules,
+etc.) but is the use of interest?
+
+tom
+- --
+Tom London
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkpKXxAACgkQuCS0flj2OB2WhwCcCwO+vxDLOCuPXmU4cJAUuhY6
+xZ8AoK0fGxQDutBo/xA/BIRHJ8qSBIw7
+=N68U
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
