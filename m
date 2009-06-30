@@ -1,53 +1,76 @@
-Message-ID: <4A4A7C29.5060807@redhat.com>
-Date: Tue, 30 Jun 2009 16:57:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n5ULZ63j006845
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 17:35:06 -0400
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n5ULYnHr017759
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:49 GMT
+Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
+	by g1t0027.austin.hp.com (Postfix) with ESMTP id 35CE538839
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:35 +0000 (UTC)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by g1t0038.austin.hp.com (Postfix) with ESMTP id 070AE30046
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 21:34:34 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl.fc.hp.com (Postfix) with ESMTP id 314A239C007
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 15:34:34 -0600 (MDT)
+Received: from ldl.fc.hp.com ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UcXWHqHGWwNG for <selinux@tycho.nsa.gov>;
+	Tue, 30 Jun 2009 15:34:32 -0600 (MDT)
+Received: from flek.localnet (squirrel.fc.hp.com [15.11.146.57])
+	by ldl.fc.hp.com (Postfix) with ESMTP id B2B6A39C003
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 15:34:32 -0600 (MDT)
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+Subject: The problem with TUN/TAP devices
+Date: Tue, 30 Jun 2009 17:34:31 -0400
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Thomas Liu <tliu@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] setfiles converted to fts
-References: <1246390368.2856.2.camel@Ares> <1246391251.13464.126.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1246391251.13464.126.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <200906301734.31986.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/30/2009 03:47 PM, Stephen Smalley wrote:
-> On Tue, 2009-06-30 at 15:32 -0400, Thomas Liu wrote:
->> This patch converted setfiles/restorecon to using fts instead of nftw.
->> It also removed forking, pipes and pre_stat because Dan Walsh and I
->> could not figure out what it was for.
->
-> See:
-> http://marc.info/?l=selinux&m=113627973615236&w=2
-> for the rationale for that logic.
-But this does not seem to be much benefit since fts files come with the 
-stat already filled out.  Thomas removed all stat/lstat calls since you 
-are not allowed to use the -D_FILE_OFFSET_BITS=64 with fts.
->
-> Did you run any measurements to assess the impact of your changes on setfiles?
->
-I think the biggest impact on speed comes from not trying to read past a 
-failed directory.
+Unfortunately we have a problem with the network access controls and TUN/TAP 
+devices.  The basic issue is that packets entering the stack via a TUN device, 
+e.g. QEMU/KVM guest instance operating with a bridged network configuration, 
+do not have a fully initialized sock associated with them.  I say "fully 
+initialized" because the basic initialization has been done (memory allocated, 
+initial values set to SECINITSID_UNLABELED, etc.) but the last step where we 
+assign the sock a label/SID never happens.  Why?  Because the TUN driver code 
+only calls sk_alloc() and nothing else in the TUN code paths finish the 
+SELinux sock setup.
 
-One thing that would be helpful to add would be to check if a directory 
-is on a files system that supports labeling, if not then the directory 
-should be skipped.  I think with this patch the tool would walk a nfs_t 
-file system unless it is called as setfiles.
-> Did you compare with the implementation of setfsmac.c in FreeBSD, which
-> likewise started life as setfiles and was then rewritten to use fts()?
->
-> What improvements do we get from the changes?
->
-> Should we be using fts_path or fts_accpath when performing operations on
-> the files, like lsetfilecon()?  I suspect the latter would be more
-> efficient and less prone to simultaneous changes to the file tree if fts
-> switches the cwd as it walks the tree.
->
-> IIRC, we called lstat() within apply_spec() even though a struct stat
-> was supplied as an argument because in the case of symlinks, we were
-> getting the stat of the referenced file rather than of the symlink file.
-> Is this true of fts?
->
+Okay, so what?  Well, the problem is that the SELinux IP postrouting code 
+treats the packet's sock label (the one that is still set as unlabeled_t in 
+the TUN case) as the originating peer label; in short it looks like packets 
+sent from your QEMU/KVM instance are unlabeled_t instead of my_guest_t:s3.  
+Needless to say this is not ideal.
+
+So how do we fix it?  Well, there are a two options that I can think of right 
+now (feel free to add to the list):
+
+1. Set the sock's label/SID in sk_alloc()
+2. Introduce a new hook to set the label/SID of a sock and call it from
+   tun_set_iff()
+
+The problem with #2 is that it introduces a new (basically TUN specific) hook 
+to do something silly.  Important, but still kinda silly.  The problem with #1 
+is that we currently set the sock's label/SID in selinux_socket_post_create() 
+and match it with the inode's label/SID which has the potential to get ugly (I 
+haven't verified all of those cases yet).  However, there may be an 
+alternative, call it #1a, where set label the sock in sk_alloc() and then use 
+the sock's label to set the inode's label in socket_post_create(); this should 
+solve the potential ugliness.
+
+Thoughts?
+
+There is also a somewhat related issue involving persistent TUN/TAP devices 
+but I'd like to resolve this before getting deeper into that problem.
+
+-- 
+paul moore
+linux @ hp
 
 
 --
