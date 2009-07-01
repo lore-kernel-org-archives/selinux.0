@@ -1,23 +1,36 @@
-Subject: Re: Access control between kernel modules?
+Subject: Re: [Fwd: [Patch] libsemanage: remember and retrieve dontaudit
+ settings]
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Shaz <shazalive@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <7b740b700907010013t617de21cif539f5001fd9739a@mail.gmail.com>
-References: <7b740b700907010013t617de21cif539f5001fd9739a@mail.gmail.com>
+To: Christopher Pardy <cpardy@redhat.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4A4B656D.1030004@redhat.com>
+References: <4A4B656D.1030004@redhat.com>
 Content-Type: text/plain
-Date: Wed, 01 Jul 2009 10:04:06 -0400
-Message-Id: <1246457046.13464.159.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 01 Jul 2009 10:06:56 -0400
+Message-Id: <1246457216.13464.162.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-07-01 at 13:13 +0600, Shaz wrote:
-> Dear list,
+On Wed, 2009-07-01 at 09:32 -0400, Christopher Pardy wrote:
+> Creates a empty file disable_dontaudit in the polciy directory
+> (/etc/selinux/<policytype>). Checks for the existance of this file to
+> set the sepol disable don't audit upon handle creation. Also provides
+> the function "int semanage_get_disable_dontaudit()" which returns the
+> don't audit property of the current policy.
 > 
-> Is it possible with SELinux to restrict one kernel module to call upon
-> the functions of another kernel module?
+> Signed-off-by: Christopher Pardy <cpardy@redhat.com>
 
-No.
+Your patch is not correctly generated.  Please read
+http://userweb.kernel.org/~akpm/stuff/tpp.txt
+
+In your description, please explain the rationale for the patch, not
+just what it does - we can discover the latter from reading the code,
+but not the former.
+
+Why do we want this functionality?  Why is it better than the existing
+semodule -DB to disable dontaudit rules and semodule -B to re-enable
+them?
 
 -- 
 Stephen Smalley
