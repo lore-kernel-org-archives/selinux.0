@@ -1,66 +1,109 @@
-Subject: Re: The problem with TUN/TAP devices
+Subject: Re: "Policy inclusion" tool ... ?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200906301734.31986.paul.moore@hp.com>
-References: <200906301734.31986.paul.moore@hp.com>
+To: Tom London <selinux@gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <4c4ba1530906301444w2b6842f8vbc07c6827bd14c4b@mail.gmail.com>
+References: <4c4ba1530906301153s5b8e4e93q4a1c970e1e96ea61@mail.gmail.com>
+	 <1246390647.13464.119.camel@moss-pluto.epoch.ncsc.mil>
+	 <4c4ba1530906301444w2b6842f8vbc07c6827bd14c4b@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 01 Jul 2009 09:44:39 -0400
-Message-Id: <1246455879.13464.144.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 01 Jul 2009 09:46:52 -0400
+Message-Id: <1246456012.13464.147.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-06-30 at 17:34 -0400, Paul Moore wrote:
-> Unfortunately we have a problem with the network access controls and TUN/TAP 
-> devices.  The basic issue is that packets entering the stack via a TUN device, 
-> e.g. QEMU/KVM guest instance operating with a bridged network configuration, 
-> do not have a fully initialized sock associated with them.  I say "fully 
-> initialized" because the basic initialization has been done (memory allocated, 
-> initial values set to SECINITSID_UNLABELED, etc.) but the last step where we 
-> assign the sock a label/SID never happens.  Why?  Because the TUN driver code 
-> only calls sk_alloc() and nothing else in the TUN code paths finish the 
-> SELinux sock setup.
+On Tue, 2009-06-30 at 14:44 -0700, Tom London wrote:
+> On Tue, Jun 30, 2009 at 12:37 PM, Stephen Smalley<sds@tycho.nsa.gov> wrote:
+> > On Tue, 2009-06-30 at 11:53 -0700, Tom London wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
+> >>
+> >> I quite often am testing the latest Fedora selinux-policy packages
+> >> against Fedora Rawhide.
+> >>
+> >> When I bump into SELinux policy "slippage" with new packages and
+> >> components, I typically email off the evidence to Dan Walsh, and
+> >> create some local policy "fixes" to patch around the potholes.
+> >>
+> >> Typically, Dan fixes these pretty quickly.  I am then left with the
+> >> following question: Does the currently installed policy "include" the
+> >> rules added by my local .{te,pp} fixes.
+> >>
+> >> Of course, I can "semodule -r" the local module and then try to
+> >> recreate the trigger, but this is sometimes not all that easy to do.
+> >>
+> >> What would be handy would be a tool that would check a .{te,pp} file
+> >> against the currently running  policy, something like "se-is-included
+> >> localfoo.{te,pp}".
+> >>
+> >> I would think this could be of interest beyond my use case.
+> >>
+> >> As a quick and dirty hack, I composed the following shell script to
+> >> leverage "sesearch":
+> >>
+> >> #!/bin/bash
+> >>
+> >> while read a b c d e
+> >> do
+> >>        if [ "$a" == "allow" ]; then
+> >>                source=$b
+> >>                target=${c%%:*}
+> >>                class=${c##*:}
+> >>                if [ "$target" == "self" ]; then
+> >>                        target=$source
+> >>                fi
+> >>                echo "sesearch --allow -s $source -t $target -c $class"
+> >>                sesearch --allow -s $source -t $target -c $class
+> >>        fi
+> >> done
+> >>
+> >> Is something like this more generally interesting/useful?  Of course,
+> >> I'm certain there are better ways to implement this (e.g., parse the
+> >> .pp file instead of the .te file, handle more stuff from the modules,
+> >> etc.) but is the use of interest?
+> >
+> > Yes, that seems useful.
+> >
+> > I wouldn't invest in parsing .pp files at this point, as we anticipate
+> > phasing them out in favor of source modules.
+> >
+> > What your script won't presently handle are things like adding a type
+> > attribute to a type in your module and thereby changing the expansion of
+> > an allow rule in another module.  At present, I think the only way to
+> > truly check that the module is completely subsumed by the policy would
+> > be to take the policy before and after module insertion and sediff it.
+> >
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> >
+> >
+> Sounds reasonable.
 > 
-> Okay, so what?  Well, the problem is that the SELinux IP postrouting code 
-> treats the packet's sock label (the one that is still set as unlabeled_t in 
-> the TUN case) as the originating peer label; in short it looks like packets 
-> sent from your QEMU/KVM instance are unlabeled_t instead of my_guest_t:s3.  
-> Needless to say this is not ideal.
+> So a "policy inclusion tool" could look something like:
 > 
-> So how do we fix it?  Well, there are a two options that I can think of right 
-> now (feel free to add to the list):
+> 1. remove "local.pp" if it in the current policy
+> 2. capture policy, say in "current.policy"
+> 3. "semodule -i local.pp"
+> 4. capture policy, say in "newer.policy"
+> 5. "sediff current.policy \; newer.policy"
+> 6. recover to current.policy, if appropriate
 > 
-> 1. Set the sock's label/SID in sk_alloc()
+> Do I understand your suggestion?
 
-This seems to be the right choice; not sure why we didn't do it that way
-in the first place (maybe we did in the original LSM patches, but it
-fell out when the original networking hooks were rejected).
+I think that's too heavyweight.  I think your script is fine for the
+short term, and then once we have a reworked policy infrastructure, it
+should become easier to perform that kind of analysis using it.  Just
+wanted to note limitations of the script in its current form.
 
-> 2. Introduce a new hook to set the label/SID of a sock and call it from
->    tun_set_iff()
-> 
-> The problem with #2 is that it introduces a new (basically TUN specific) hook 
-> to do something silly.  Important, but still kinda silly.  The problem with #1 
-> is that we currently set the sock's label/SID in selinux_socket_post_create() 
-> and match it with the inode's label/SID which has the potential to get ugly (I 
-> haven't verified all of those cases yet).  However, there may be an 
-> alternative, call it #1a, where set label the sock in sk_alloc() and then use 
-> the sock's label to set the inode's label in socket_post_create(); this should 
-> solve the potential ugliness.
+> I notice reference to "stores" in some of the se-tools.  Are they useful here?
 
-Wouldn't it be a bug if they didn't match?  So I'd add the sk_alloc()
-hook, set the label/SID for the sock there, and remove the setting of
-the sock label/SID from post_create.  And then just add a BUG_ON to
-post_create to assert that the inode SID should be the same as the sock
-SID and if they don't match something has gone wrong.
+That just lets you operate on a different policy than the active one,
+e.g. semodule -s mls -i foo.pp will install foo.pp to the mls policy
+store.  But it presumes that the store already exists and has been
+initially populated.
 
-> 
-> Thoughts?
-> 
-> There is also a somewhat related issue involving persistent TUN/TAP devices 
-> but I'd like to resolve this before getting deeper into that problem.
-> 
 -- 
 Stephen Smalley
 National Security Agency
