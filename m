@@ -1,5 +1,5 @@
-Message-ID: <4A4B99E7.7030101@redhat.com>
-Date: Wed, 01 Jul 2009 13:16:23 -0400
+Message-ID: <4A4B9FA8.1040606@redhat.com>
+Date: Wed, 01 Jul 2009 13:40:56 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -7,9 +7,15 @@ CC: Christopher Pardy <cpardy@redhat.com>, selinux@tycho.nsa.gov
 Subject: Re: [Fwd: [Patch] libsemanage: remember and retrieve dontaudit settings]
 References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com> <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
 In-Reply-To: <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed;
+ boundary="------------040403070209040907000901"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+This is a multi-part message in MIME format.
+--------------040403070209040907000901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 On 07/01/2009 01:04 PM, Stephen Smalley wrote:
 > On Wed, 2009-07-01 at 11:57 -0400, Daniel J Walsh wrote:
@@ -33,10 +39,44 @@ On 07/01/2009 01:04 PM, Stephen Smalley wrote:
 > With the patch, the latter step will not re-enable dontaudit rules
 > unless you also change semodule, right?
 >
-Ok you are right, We need to change semodule -B to enable set turn the 
-flag off.
+Patch for semodule command
+
+semodule -B
+
+Will now turn on dontaudit rules
+
+semodule -DB
+
+Will turn off dontaudit rules.
+
+With other patch all other semanage commands will maintain state.
 
 
+
+--------------040403070209040907000901
+Content-Type: text/plain;
+ name="policycoreutils-dontaudit.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="policycoreutils-dontaudit.patch"
+
+diff -up policycoreutils-2.0.64/semodule/semodule.c~ policycoreutils-2.0.64/semodule/semodule.c
+--- policycoreutils-2.0.64/semodule/semodule.c~	2009-06-23 15:36:25.000000000 -0400
++++ policycoreutils-2.0.64/semodule/semodule.c	2009-07-01 13:34:42.027229000 -0400
+@@ -417,8 +418,10 @@ int main(int argc, char *argv[])
+ 			printf("Committing changes:\n");
+ 		if (no_reload)
+ 			semanage_set_reload(sh, 0);
+-		if (build)
++		if (build) {
++			semanage_set_disable_dontaudit(sh, 0);
+ 			semanage_set_rebuild(sh, 1);
++		}
+ 		if (disable_dontaudit)
+ 			semanage_set_disable_dontaudit(sh, 1);
+ 		result = semanage_commit(sh);
+
+--------------040403070209040907000901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
