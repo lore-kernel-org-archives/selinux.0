@@ -1,50 +1,76 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n613AxiZ024883
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 23:10:59 -0400
-Received: from rv-out-0708.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n613BY9Y009606
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 03:11:34 GMT
-Received: by rv-out-0708.google.com with SMTP id k29so1373877rvb.2
-        for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 20:10:58 -0700 (PDT)
-Message-ID: <4A4AD404.5020500@gmail.com>
-Date: Tue, 30 Jun 2009 20:12:04 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n613WrHA026610
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 23:32:53 -0400
+Received: from smtp108.prem.mail.ac4.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n613WcdJ003652
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 03:32:38 GMT
+Message-ID: <4A4AD8CE.3000604@schaufler-ca.com>
+Date: Tue, 30 Jun 2009 20:32:30 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmill@redhat.com>,
-        Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: SELinux Developer Summit 2009: CfP ends TODAY
-References: <alpine.LRH.2.00.0906301909090.11802@file.bos.redhat.com> <4A4AA033.2080603@gmail.com> <alpine.LRH.2.00.0907011134100.21035@tundra.namei.org>
-In-Reply-To: <alpine.LRH.2.00.0907011134100.21035@tundra.namei.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Paul Moore <paul.moore@hp.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: The problem with TUN/TAP devices
+References: <200906301734.31986.paul.moore@hp.com>
+In-Reply-To: <200906301734.31986.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 30 Jun 2009, Justin P. Mattock wrote:
->
->    
->>>
->>>        
->> be nice to attend, just one problem
->> "$", will there be videos available?
->>      
->
-> Probably not; this is an interactive developer event.  It's possible that
-> minutes will be published.
->
->
->    
-Cool,
-Well in that case maybe one of
-these days.
-Asied note when will an event like
-this be in the los angeles, or
-san jose area?
+Paul Moore wrote:
+> Unfortunately we have a problem with the network access controls and TUN/TAP 
+> devices.  The basic issue is that packets entering the stack via a TUN device, 
+> e.g. QEMU/KVM guest instance operating with a bridged network configuration, 
+> do not have a fully initialized sock associated with them.  I say "fully 
+> initialized" because the basic initialization has been done (memory allocated, 
+> initial values set to SECINITSID_UNLABELED, etc.) but the last step where we 
+> assign the sock a label/SID never happens.  Why?  Because the TUN driver code 
+> only calls sk_alloc() and nothing else in the TUN code paths finish the 
+> SELinux sock setup.
+>   
 
-Justin P. Mattock
+So what should it be calling and why is the fact that it isn't not a bug
+in the TUN driver?
+
+> Okay, so what?  Well, the problem is that the SELinux IP postrouting code 
+> treats the packet's sock label (the one that is still set as unlabeled_t in 
+> the TUN case) as the originating peer label; in short it looks like packets 
+> sent from your QEMU/KVM instance are unlabeled_t instead of my_guest_t:s3.  
+> Needless to say this is not ideal.
+>
+> So how do we fix it?  Well, there are a two options that I can think of right 
+> now (feel free to add to the list):
+>
+> 1. Set the sock's label/SID in sk_alloc()
+> 2. Introduce a new hook to set the label/SID of a sock and call it from
+>    tun_set_iff()
+>
+> The problem with #2 is that it introduces a new (basically TUN specific) hook 
+> to do something silly.  Important, but still kinda silly.  The problem with #1 
+> is that we currently set the sock's label/SID in selinux_socket_post_create() 
+> and match it with the inode's label/SID which has the potential to get ugly (I 
+> haven't verified all of those cases yet).  However, there may be an 
+> alternative, call it #1a, where set label the sock in sk_alloc() and then use 
+> the sock's label to set the inode's label in socket_post_create(); this should 
+> solve the potential ugliness.
+>
+> Thoughts?
+>
+>   
+
+As this would appear to be a flaw in the TUN driver, get the TUN
+developers to fix their broken driver. I certainly dislike a special
+purpose LSM hook for this.
+
+Do you see this as a problem for all users of labeled networking,
+or is it isolated to SELinux?
+
+> There is also a somewhat related issue involving persistent TUN/TAP devices 
+> but I'd like to resolve this before getting deeper into that problem.
+>
+>   
+
+Oh joy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
