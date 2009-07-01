@@ -1,40 +1,53 @@
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61F6vSq001065
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 11:06:57 -0400
+Received: from g5t0007.atlanta.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n61F7S4N024295
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 15:07:30 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
 Subject: Re: The problem with TUN/TAP devices
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-In-Reply-To: <7e0fb38c0907010801n7516d4e3ib5f11716a0bf6293@mail.gmail.com>
-References: <200906301734.31986.paul.moore@hp.com>
-	 <1246455879.13464.144.camel@moss-pluto.epoch.ncsc.mil>
-	 <7e0fb38c0907010801n7516d4e3ib5f11716a0bf6293@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 01 Jul 2009 11:06:51 -0400
-Message-Id: <1246460811.13464.182.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 1 Jul 2009 11:06:47 -0400
+Cc: selinux@tycho.nsa.gov
+References: <200906301734.31986.paul.moore@hp.com> <alpine.LRH.2.00.0907010817480.19282@tundra.namei.org>
+In-Reply-To: <alpine.LRH.2.00.0907010817480.19282@tundra.namei.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200907011106.47427.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-07-01 at 11:01 -0400, Eric Paris wrote:
-> On Wed, Jul 1, 2009 at 9:44 AM, Stephen Smalley<sds@tycho.nsa.gov> wrote:
-> > On Tue, 2009-06-30 at 17:34 -0400, Paul Moore wrote:
-> 
-> > Wouldn't it be a bug if they didn't match?  So I'd add the sk_alloc()
-> > hook, set the label/SID for the sock there, and remove the setting of
-> > the sock label/SID from post_create.  And then just add a BUG_ON to
-> > post_create to assert that the inode SID should be the same as the sock
-> > SID and if they don't match something has gone wrong.
+On Tuesday 30 June 2009 06:19:04 pm James Morris wrote:
+> On Tue, 30 Jun 2009, Paul Moore wrote:
+> > So how do we fix it?  Well, there are a two options that I can think of
+> > right now (feel free to add to the list):
 > >
-> 
-> I've got a system all set up to test anything you want/have/need....
-> Maybe this afternoon I'll even give this suggestion a try just to see
-> what happens, the networking hooks are ummmm, special?
+> > 1. Set the sock's label/SID in sk_alloc()
+> > 2. Introduce a new hook to set the label/SID of a sock and call it from
+> >    tun_set_iff()
+> >
+> > The problem with #2 is that it introduces a new (basically TUN specific)
+> > hook to do something silly.  Important, but still kinda silly.  The
+> > problem with #1 is that we currently set the sock's label/SID in
+> > selinux_socket_post_create() and match it with the inode's label/SID
+> > which has the potential to get ugly (I haven't verified all of those
+> > cases yet).  However, there may be an alternative, call it #1a, where set
+> > label the sock in sk_alloc() and then use the sock's label to set the
+> > inode's label in socket_post_create(); this should solve the potential
+> > ugliness.
+> >
+> > Thoughts?
+>
+> I'm not sure, but we probably need to include the netdev list in the
+> discussion.
 
-Wait - we already have a sk_alloc_security hook.  And IIRC, we don't set
-the SID/label there because that can happen when a new connection sock
-is created, and thus outside of process context.
+Yep, I was just hoping to have a little discussion here first to make sure we 
+at least agreed on what should be done from a security point of view ...
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
