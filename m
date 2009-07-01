@@ -1,70 +1,32 @@
-Subject: Re: [PATCH] setfiles converted to fts
-From: Thomas Liu <tliu@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <1246455879.13464.144.camel@moss-pluto.epoch.ncsc.mil>
+References: <200906301734.31986.paul.moore@hp.com>
+	 <1246455879.13464.144.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 1 Jul 2009 11:01:06 -0400
+Message-ID: <7e0fb38c0907010801n7516d4e3ib5f11716a0bf6293@mail.gmail.com>
+Subject: Re: The problem with TUN/TAP devices
+From: Eric Paris <eparis@parisplace.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1246458707.13464.171.camel@moss-pluto.epoch.ncsc.mil>
-References: <1246390368.2856.2.camel@Ares>
-	 <1246458707.13464.171.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 01 Jul 2009 10:41:23 -0400
-Message-Id: <1246459283.4023.1.camel@Ares>
-Mime-Version: 1.0
+Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for the feedback!  I will look into all of the suggestions and
-then send another patch with more information.
+On Wed, Jul 1, 2009 at 9:44 AM, Stephen Smalley<sds@tycho.nsa.gov> wrote:
+> On Tue, 2009-06-30 at 17:34 -0400, Paul Moore wrote:
 
--Thomas Liu
+> Wouldn't it be a bug if they didn't match?  So I'd add the sk_alloc()
+> hook, set the label/SID for the sock there, and remove the setting of
+> the sock label/SID from post_create.  And then just add a BUG_ON to
+> post_create to assert that the inode SID should be the same as the sock
+> SID and if they don't match something has gone wrong.
+>
 
-On Wed, 2009-07-01 at 10:31 -0400, Stephen Smalley wrote:
-> On Tue, 2009-06-30 at 15:32 -0400, Thomas Liu wrote:
-> > This patch converted setfiles/restorecon to using fts instead of nftw.
-> > It also removed forking, pipes and pre_stat because Dan Walsh and I
-> > could not figure out what it was for.
-> 
-> Also, please inline your patch as per:
-> http://lxr.linux.no/linux/Documentation/SubmittingPatches
-> so that it will be included in the reply for commenting on it.
-> 
-> A couple of comments below.
-> 
-> -static int restore(const char *file)
-> +static int restore(const char *file, struct stat *sb)
->  {
->         char *my_file = strdupa(file);
-> -       struct stat my_sb;
-> +       struct stat my_sb =  *sb;
->         int ret;
->         char *context, *newcon;
->         int user_only_changed = 0;
-> 
-> If we truly don't need a private stat struct anymore (i.e. fts will pass
-> us the true stat structure even for symlinks), then just replace all
-> occurrences of my_sb with sb and remove my_sb altogether.
-> 
-> @@ -549,42 +542,38 @@ static int restore(const char *file)
->         if (ret) {
->                 fprintf(stderr, "%s set context %s->%s failed:'%s'\n",
->                         progname, my_file, newcon, strerror(errno));
-> -               goto out;
-> +               goto skip;
->         }
-> +      skip:
-> +       freecon(newcon);
-> +       return SKIP; 
-> 
-> This looks wrong - it means that you return SKIP in the success path as
-> well.  I think you wanted skip: to follow the return 0 of the out: path?
-> 
->        out:
->         freecon(newcon);
->         return 0;
->        err:
->         freecon(newcon);
-> -       return -1;
-> +       return ERR;
->  }
+I've got a system all set up to test anything you want/have/need....
+Maybe this afternoon I'll even give this suggestion a try just to see
+what happens, the networking hooks are ummmm, special?
+
+-Eric
 
 
 --
