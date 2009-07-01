@@ -1,369 +1,213 @@
-Subject: [PATCH v2] setfiles converted to fts
-From: Thomas Liu <tliu@redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61MD9Cx007861
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 18:13:09 -0400
+Received: from g1t0029.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n61MCrU8011297
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 22:12:53 GMT
+Received: from g4t0009.houston.hp.com (g4t0009.houston.hp.com [16.234.32.26])
+	by g1t0029.austin.hp.com (Postfix) with ESMTP id 2CEA838229
+	for <selinux@tycho.nsa.gov>; Wed,  1 Jul 2009 22:13:08 +0000 (UTC)
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v1] There is a problem where packets being sent by the TUN
+	driver are not
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Content-Type: text/plain
-Date: Wed, 01 Jul 2009 16:39:38 -0400
-Message-Id: <1246480778.2771.0.camel@Ares>
-Mime-Version: 1.0
+Date: Wed, 01 Jul 2009 18:12:58 -0400
+Message-ID: <20090701221257.7590.75518.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here is an updated version of the fts setfiles patch.
+correctly handled by SELinux in the postrouting code.  The issue is that
+the SELinux network access controls rely on a packet's associated sock, when
+present, for it's security label.  The TUN driver does create a sock to send
+network traffic but it only calls into the LSM/SELinux code once via the
+security_sk_alloc() hook which never fully initializes the sock's label.  This
+patch attempts to correct this problem by adding additional checks in the
+SELinux security_sk_alloc() alloc code to determine if the TUN driver is
+allocating a socket and if so, set the socket's label.
 
-I have confirmed that the stat struct that fts returns for a symlink when using
-the FTS_PHYSICAL flag is in fact the stat struct for the symlink, not the file
-it points to (st_size is 8 bytes).
-
-Instead of using fts_path for getfilecon/setfilecon it now uses fts_accpath,
-which should be more efficient since fts walks the file hierarchy for us.
-
-FreeBSD setfsmac uses fts in a similar way to how this patch does and one
-thing that I took from it was to pass the FTSENT pointer around instead of
-the names, because although fts_accpath is more efficient for get/setfilecon,
-it is less helpful in verbose output (fts_path will give the entire path).
-
-Here is the output from running restorecon on /
-
-(nftw version)
-restorecon -Rv / 2>/dev/null
-restorecon reset /dev/pts/ptmx context system_u:object_r:devpts_t:s0->system_u:object_r:ptmx_t:s0
-
-(new version)
-./restorecon -Rv / 2>/dev/null
-./restorecon reset /dev/pts/ptmx context system_u:object_r:devpts_t:s0->system_u:object_r:ptmx_t:s0
-
-Here are some benchmarks each was run twice from a fresh
-boot in single user mode (shown are the second runs).
-
-(nftw version)
-restorecon -Rv /usr
-real	1m56.392s
-user	1m49.559s
-sys	0m6.012s
-
-(new version)
-./restorecon -Rv /usr
-real	1m55.102s
-user	1m50.427s
-sys	0m4.656s
-
-So not much of a change, though some work has been pushed from kernel space
-to user space.
-
-Finally the exclude functionality has been edited to work with fts so that
-fts will not go down paths that the user wanted to exclude.
-
-We're looking into skipping folders that are mounted under file systems
-that do not have the seclabel flag for the next patch.
-
-Signed-off-by: Thomas Liu <tliu@redhat.com>
+NOTE: this is an RFC patch intended to demonstrate a possible solution not
+discussed earlier; it is crude, untested and only deals with SELinux.  Please
+take a look and see if this approach is even worth pursuing ... thanks.
 ---
-diff -up setfiles/Makefile.old setfiles/Makefile
---- setfiles/Makefile.old	2009-06-30 15:28:17.031437301 -0400
-+++ setfiles/Makefile	2009-06-30 15:08:11.057436336 -0400
-@@ -3,11 +3,10 @@ PREFIX ?= ${DESTDIR}/usr
- SBINDIR ?= $(DESTDIR)/sbin
- MANDIR = $(PREFIX)/share/man
- LIBDIR ?= $(PREFIX)/lib
--
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+
+ include/linux/security.h |    7 ++++---
+ net/core/sock.c          |    2 +-
+ security/capability.c    |    2 +-
+ security/security.c      |    4 ++--
+ security/selinux/hooks.c |   43 ++++++++++++++++++++++++-------------------
+ 5 files changed, 32 insertions(+), 26 deletions(-)
+
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5eff459..3b9ea6e 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -44,6 +44,7 @@
  
- CFLAGS = -Werror -Wall -W
--override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
-+override CFLAGS += -I$(PREFIX)/include
- LDLIBS = -lselinux -lsepol -L$(LIBDIR)
- 
- ifeq (${AUDITH}, /usr/include/libaudit.h)
-diff -up setfiles/setfiles.c.old setfiles/setfiles.c
---- setfiles/setfiles.c.old	2009-06-30 15:28:24.899436710 -0400
-+++ setfiles/setfiles.c	2009-07-01 16:35:17.851501571 -0400
-@@ -12,7 +12,9 @@
- #include <regex.h>
- #include <sys/vfs.h>
- #define __USE_XOPEN_EXTENDED 1	/* nftw */
--#include <ftw.h>
-+#define SKIP -2
-+#define ERR -1
-+#include <fts.h>
- #include <limits.h>
- #include <sepol/sepol.h>
- #include <selinux/selinux.h>
-@@ -34,7 +36,6 @@ static int mass_relabel_errs;
- static FILE *outfile = NULL;
- static int force = 0;
- #define STAT_BLOCK_SIZE 1
--static int pipe_fds[2] = { -1, -1 };
- static int progress = 0;
- static unsigned long long count = 0;
- 
-@@ -73,7 +74,7 @@ static int iamrestorecon;
- static int expand_realpath;  /* Expand paths via realpath. */
- static int abort_on_error; /* Abort the file tree walk upon an error. */
- static int add_assoc; /* Track inode associations for conflict detection. */
--static int nftw_flags; /* Flags to nftw, e.g. follow links, follow mounts */
-+static int fts_flags; /* Flags to fts, e.g. follow links, follow mounts */
- static int ctx_validate; /* Validate contexts */
- static const char *altpath; /* Alternate path to file_contexts */
- 
-@@ -292,22 +293,10 @@ static int exclude(const char *file)
- 
- int match(const char *name, struct stat *sb, char **con)
- {
--	int ret;
- 	char path[PATH_MAX + 1];
- 
--	if (excludeCtr > 0) {
--		if (exclude(name)) {
--			return -1;
--		}
--	}
--	ret = lstat(name, sb);
--	if (ret) {
--		if (ignore_enoent && errno == ENOENT)
--			return 0;
--		fprintf(stderr, "%s:  unable to stat file %s: %s\n", progname,
--			name, strerror(errno));
--		return -1;
--	}
-+
-+	
- 
- 	if (expand_realpath) {
- 		if (S_ISLNK(sb->st_mode)) {
-@@ -425,22 +414,14 @@ static int only_changed_user(const char 
- 	return (strcmp(rest_a, rest_b) == 0);
- }
- 
--static int restore(const char *file)
-+static int restore(FTSENT *ftsent)
- {
--	char *my_file = strdupa(file);
--	struct stat my_sb;
-+	char *my_file = strdupa(ftsent->fts_path);
- 	int ret;
- 	char *context, *newcon;
- 	int user_only_changed = 0;
--	size_t len = strlen(my_file);
- 
--	/* Skip the extra slashes at the beginning and end, if present. */
--	if (file[0] == '/' && file[1] == '/')
--		my_file++;
--	if (len > 1 && my_file[len - 1] == '/')
--		my_file[len - 1] = 0;
--
--	if (match(my_file, &my_sb, &newcon) < 0)
-+	if (match(my_file, ftsent->fts_statp, &newcon) < 0)
- 		/* Check for no matching specification. */
- 		return (errno == ENOENT) ? 0 : -1;
- 
-@@ -463,7 +444,7 @@ static int restore(const char *file)
- 	 * then use the last matching specification.
- 	 */
- 	if (add_assoc) {
--		ret = filespec_add(my_sb.st_ino, newcon, my_file);
-+		ret = filespec_add(ftsent->fts_statp->st_ino, newcon, my_file);
- 		if (ret < 0)
- 			goto err;
- 
-@@ -477,7 +458,7 @@ static int restore(const char *file)
- 	}
- 
- 	/* Get the current context of the file. */
--	ret = lgetfilecon_raw(my_file, &context);
-+	ret = lgetfilecon_raw(ftsent->fts_accpath, &context);
- 	if (ret < 0) {
- 		if (errno == ENODATA) {
- 			context = NULL;
-@@ -545,46 +526,43 @@ static int restore(const char *file)
- 	/*
- 	 * Relabel the file to the specified context.
- 	 */
--	ret = lsetfilecon(my_file, newcon);
-+	ret = lsetfilecon(ftsent->fts_accpath, newcon);
- 	if (ret) {
- 		fprintf(stderr, "%s set context %s->%s failed:'%s'\n",
- 			progname, my_file, newcon, strerror(errno));
--		goto out;
-+		goto skip;
- 	}
-       out:
- 	freecon(newcon);
- 	return 0;
-+      skip:
-+	freecon(newcon);
-+	return SKIP; 
-+
-       err:
- 	freecon(newcon);
--	return -1;
-+	return ERR;
- }
+ struct ctl_table;
+ struct audit_krule;
++struct proto;
  
  /*
-  * Apply the last matching specification to a file.
-- * This function is called by nftw on each file during
-+ * This function is called by fts on each file during
-  * the directory traversal.
-  */
--static int apply_spec(const char *file,
--		      const struct stat *sb_unused __attribute__ ((unused)),
--		      int flag, struct FTW *s_unused __attribute__ ((unused)))
--{
--	char buf[STAT_BLOCK_SIZE];
--	if (pipe_fds[0] != -1
--	    && read(pipe_fds[0], buf, STAT_BLOCK_SIZE) != STAT_BLOCK_SIZE) {
--		fprintf(stderr, "Read error on pipe.\n");
--		pipe_fds[0] = -1;
--	}
--
--	if (flag == FTW_DNR) {
-+static int apply_spec(FTSENT *ftsent)
-+{
-+	if (ftsent->fts_info == FTS_DNR) {
- 		fprintf(stderr, "%s:  unable to read directory %s\n",
--			progname, file);
--		return 0;
-+			progname, ftsent->fts_path);
-+		return SKIP;
- 	}
- 
--	errors |= restore(file);
--	if (abort_on_error && errors)
--		return -1;
--	return 0;
-+	int rc = restore(ftsent);
-+	if (rc == ERR) {
-+		if(!abort_on_error) 
-+			return SKIP;
-+	}		
-+	return rc;
+  * These functions are in security/capability.c and are used
+@@ -1562,7 +1563,7 @@ struct security_operations {
+ 	int (*socket_sock_rcv_skb) (struct sock *sk, struct sk_buff *skb);
+ 	int (*socket_getpeersec_stream) (struct socket *sock, char __user *optval, int __user *optlen, unsigned len);
+ 	int (*socket_getpeersec_dgram) (struct socket *sock, struct sk_buff *skb, u32 *secid);
+-	int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority);
++	int (*sk_alloc_security) (struct sock *sk, int family, const struct proto *prot, gfp_t priority);
+ 	void (*sk_free_security) (struct sock *sk);
+ 	void (*sk_clone_security) (const struct sock *sk, struct sock *newsk);
+ 	void (*sk_getsecid) (struct sock *sk, u32 *secid);
+@@ -2545,7 +2546,7 @@ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len);
+ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
+-int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
++int security_sk_alloc(struct sock *sk, int family, const struct proto *prot, gfp_t priority);
+ void security_sk_free(struct sock *sk);
+ void security_sk_clone(const struct sock *sk, struct sock *newsk);
+ void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
+@@ -2667,7 +2668,7 @@ static inline int security_socket_getpeersec_dgram(struct socket *sock, struct s
+ 	return -ENOPROTOOPT;
  }
  
- void set_rootpath(const char *arg)
-@@ -626,67 +604,40 @@ int canoncon(char **contextp)
- 	return rc;
- }
- 
--static int pre_stat(const char *file_unused __attribute__ ((unused)),
--		    const struct stat *sb_unused __attribute__ ((unused)),
--		    int flag_unused __attribute__ ((unused)),
--		    struct FTW *s_unused __attribute__ ((unused)))
--{
--	char buf[STAT_BLOCK_SIZE];
--	if (write(pipe_fds[1], buf, STAT_BLOCK_SIZE) != STAT_BLOCK_SIZE) {
--		fprintf(stderr, "Error writing to stat pipe, child exiting.\n");
--		exit(1);
--	}
--	return 0;
--}
--
- static int process_one(char *name)
+-static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
++static inline int security_sk_alloc(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
  {
--	struct stat sb;
--	int rc;
+ 	return 0;
+ }
+diff --git a/net/core/sock.c b/net/core/sock.c
+index b0ba569..327513c 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -947,7 +947,7 @@ static struct sock *sk_prot_alloc(struct proto *prot, gfp_t priority,
+ 	if (sk != NULL) {
+ 		kmemcheck_annotate_bitfield(sk, flags);
+ 
+-		if (security_sk_alloc(sk, family, priority))
++		if (security_sk_alloc(sk, family, prot, priority))
+ 			goto out_free;
+ 
+ 		if (!try_module_get(prot->owner))
+diff --git a/security/capability.c b/security/capability.c
+index 21b6cea..a57eb88 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -674,7 +674,7 @@ static int cap_socket_getpeersec_dgram(struct socket *sock,
+ 	return -ENOPROTOOPT;
+ }
+ 
+-static int cap_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
++static int cap_sk_alloc_security(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+ {
+ 	return 0;
+ }
+diff --git a/security/security.c b/security/security.c
+index dc7674f..17c5419 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1060,9 +1060,9 @@ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
+-int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
++int security_sk_alloc(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+ {
+-	return security_ops->sk_alloc_security(sk, family, priority);
++	return security_ops->sk_alloc_security(sk, family, prot, priority);
+ }
+ 
+ void security_sk_free(struct sock *sk)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 15c2a08..dde57d1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -298,16 +298,21 @@ static void superblock_free_security(struct super_block *sb)
+ 	kfree(sbsec);
+ }
+ 
+-static int sk_alloc_security(struct sock *sk, int family, gfp_t priority)
++static int sk_alloc_security(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+ {
+ 	struct sk_security_struct *ssec;
++	const struct task_security_struct *tsec = current_security();
+ 
+ 	ssec = kzalloc(sizeof(*ssec), priority);
+ 	if (!ssec)
+ 		return -ENOMEM;
+ 
++	if (strcmp(prot->name, "tun") == 0) {
++		ssec->sid = (tsec->sockcreate_sid ? : tsec->sid);
++		/* XXX - probably want to label the socket here too */
++	} else
++		ssec->sid = SECINITSID_UNLABELED;
+ 	ssec->peer_sid = SECINITSID_UNLABELED;
+-	ssec->sid = SECINITSID_UNLABELED;
+ 	sk->sk_security = ssec;
+ 
+ 	selinux_netlbl_sk_security_reset(ssec);
+@@ -3673,32 +3678,32 @@ out:
+ static int selinux_socket_post_create(struct socket *sock, int family,
+ 				      int type, int protocol, int kern)
+ {
+-	const struct cred *cred = current_cred();
+-	const struct task_security_struct *tsec = cred->security;
+-	struct inode_security_struct *isec;
++	const struct task_security_struct *tsec = current_security();
++	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
+ 	struct sk_security_struct *sksec;
+-	u32 sid, newsid;
++	u32 sid;
+ 	int err = 0;
+ 
+-	sid = tsec->sid;
+-	newsid = tsec->sockcreate_sid;
 -
-+	int rc = 0;	
-+	FTS *fts_handle = NULL;
-+	const char * namelist[2] = {NULL, NULL}; 
-+	namelist[0] = name;
- 	if (!strcmp(name, "/"))
- 		mass_relabel = 1;
+-	isec = SOCK_INODE(sock)->i_security;
++	if (sock->sk)
++		sksec = sock->sk->sk_security;
++	else
++		sksec = NULL;
  
--	rc = lstat(name, &sb);
--	if (rc < 0) {
--		if (ignore_enoent && errno == ENOENT)
--			return 0;
--		fprintf(stderr, "%s:  stat error on %s:  %s\n",
--			progname, name, strerror(errno));
-+	if ((fts_handle = fts_open((char **)namelist, fts_flags, NULL)) == NULL) { 
-+		fprintf(stderr,
-+			"%s: error while labeling %s:  %s\n",
-+			progname, namelist[0], strerror(errno));
- 		goto err;
+ 	if (kern)
+-		isec->sid = SECINITSID_KERNEL;
+-	else if (newsid)
+-		isec->sid = newsid;
++		sid = SECINITSID_KERNEL;
++	else if (sksec && sksec->sid != SECINITSID_UNLABELED)
++		sid = sksec->sid;
+ 	else
+-		isec->sid = sid;
++		sid = (tsec->sockcreate_sid ? : tsec->sid);
+ 
+ 	isec->sclass = socket_type_to_security_class(family, type, protocol);
+ 	isec->initialized = 1;
+ 
+-	if (sock->sk) {
+-		sksec = sock->sk->sk_security;
+-		sksec->sid = isec->sid;
++	if (sksec) {
++		/* XXX - end up changing this if kern is true - problem? */
++		sksec->sid = sid;
+ 		sksec->sclass = isec->sclass;
++		/* XXX - this will be tricky depending on how things work out */
+ 		err = selinux_netlbl_socket_post_create(sock->sk, family);
  	}
  
--	if (S_ISDIR(sb.st_mode) && recurse) {
--		if (pipe(pipe_fds) < 0) {
--			fprintf(stderr, "%s:  pipe error on %s:  %s\n",
--				progname, name, strerror(errno));
--			goto err;
--		}
--		rc = fork();
--		if (rc < 0) {
--			fprintf(stderr, "%s:  fork error on %s:  %s\n",
--				progname, name, strerror(errno));
--			goto err;
--		}
--		if (rc == 0) {
--			/* Child:  pre-stat the files. */
--			close(pipe_fds[0]);
--			nftw(name, pre_stat, 1024, nftw_flags);
--			exit(0);
--		}
--		/* Parent:  Check and label the files. */
--		rc = 0;
--		close(pipe_fds[1]);
--		if (nftw(name, apply_spec, 1024, nftw_flags)) {
--			fprintf(stderr,
--				"%s:  error while labeling %s:  %s\n",
--				progname, name, strerror(errno));
--			goto err;
-+	FTSENT *ftsent;
-+	while ((ftsent = fts_read(fts_handle)) != NULL){
-+		// Skip the post order nodes.
-+		if (ftsent->fts_info == FTS_DP)
-+			continue;
-+		if (excludeCtr > 0) {
-+			if (exclude(ftsent->fts_path)) {
-+				fts_set(fts_handle, ftsent, FTS_SKIP);
-+				continue;
-+			}
- 		}
--	} else {
--		rc = restore(name);
--		if (rc)
-+		int rc = apply_spec(ftsent);
-+		if (rc == SKIP)
-+			fts_set(fts_handle, ftsent, FTS_SKIP);
-+		if (rc == ERR)
- 			goto err;
-+		if (!recurse)
-+			break;
- 	}
+@@ -4187,9 +4192,9 @@ out:
+ 	return 0;
+ }
  
- 	if (!strcmp(name, "/"))
-@@ -698,8 +649,9 @@ out:
- 			filespec_eval();
- 		filespec_destroy();
- 	}
--
--	return rc;
-+	if (fts_handle)
-+		fts_close(fts_handle);
-+	return rc; 
+-static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
++static int selinux_sk_alloc_security(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+ {
+-	return sk_alloc_security(sk, family, priority);
++	return sk_alloc_security(sk, family, prot, priority);
+ }
  
- err:
- 	if (!strcmp(name, "/"))
-@@ -777,7 +729,7 @@ int main(int argc, char **argv)
- 		expand_realpath = 0;
- 		abort_on_error = 1;
- 		add_assoc = 1;
--		nftw_flags = FTW_PHYS | FTW_MOUNT;
-+		fts_flags = FTS_PHYSICAL | FTS_XDEV;
- 		ctx_validate = 1;
- 	} else {
- 		/*
-@@ -796,7 +748,7 @@ int main(int argc, char **argv)
- 		expand_realpath = 1;
- 		abort_on_error = 0;
- 		add_assoc = 0;
--		nftw_flags = FTW_PHYS;
-+		fts_flags = FTS_PHYSICAL;
- 		ctx_validate = 0;
- 
- 		/* restorecon only:  silent exit if no SELinux.
-
+ static void selinux_sk_free_security(struct sock *sk)
 
 
 --
