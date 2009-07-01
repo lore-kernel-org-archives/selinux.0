@@ -1,29 +1,32 @@
-Date: Thu, 2 Jul 2009 08:42:36 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
 Subject: Re: The problem with TUN/TAP devices
-In-Reply-To: <200907011234.52011.paul.moore@hp.com>
-Message-ID: <alpine.LRH.2.00.0907020841540.32336@tundra.namei.org>
-References: <200906301734.31986.paul.moore@hp.com> <200907011119.11108.paul.moore@hp.com> <1246462939.13464.185.camel@moss-pluto.epoch.ncsc.mil> <200907011234.52011.paul.moore@hp.com>
+Date: Wed, 1 Jul 2009 18:58:22 -0400
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        selinux@tycho.nsa.gov
+References: <200906301734.31986.paul.moore@hp.com> <200907011234.52011.paul.moore@hp.com> <alpine.LRH.2.00.0907020841540.32336@tundra.namei.org>
+In-Reply-To: <alpine.LRH.2.00.0907020841540.32336@tundra.namei.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200907011858.22635.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Jul 2009, Paul Moore wrote:
+On Wednesday 01 July 2009 06:42:36 pm James Morris wrote:
+> On Wed, 1 Jul 2009, Paul Moore wrote:
+> > Well, if we can't do it in sk_alloc() then I think we are stuck with a
+> > new hook; which just seems wrong.
+>
+> Why isn't the TUN driver calling the same code as other socket creating
+> code?
 
-> Well, if we can't do it in sk_alloc() then I think we are stuck with a new 
-> hook; which just seems wrong.
+The other socket creating code handles the final setup/initialization in the 
+security_socket_post_create() hook which operates on sockets not socks.
 
-Why isn't the TUN driver calling the same code as other socket creating 
-code?
-
-
-- James
 -- 
-James Morris <jmorris@namei.org>
+paul moore
+linux @ hp
 
 
 --
