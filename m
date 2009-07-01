@@ -1,66 +1,107 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61CQLHD000923
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 08:26:21 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n61CQ5vn011533
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 12:26:05 GMT
-Message-ID: <4A4B55C9.4040402@redhat.com>
-Date: Wed, 01 Jul 2009 08:25:45 -0400
+Message-ID: <4A4B5A27.9000704@redhat.com>
+Date: Wed, 01 Jul 2009 08:44:23 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-CC: Andy <hewanxiang@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Problem about PAM-selinux
-References: <2cd8d8530906302109g57ece921i8a9fcd72261c6f88@mail.gmail.com> <4A4AEE64.3040105@gmail.com>
-In-Reply-To: <4A4AEE64.3040105@gmail.com>
+To: Joshua Brindle <method@manicmethod.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: This patch add seusers support to SELinux
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com>
+In-Reply-To: <4A4A2CE1.5060204@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/01/2009 01:04 AM, Justin P. Mattock wrote:
-> Andy wrote:
->> Hi, all,
->> I have a pam-selinux problem. I know I should post it to pam list, but
->> no response from them.
+On 06/30/2009 11:18 AM, Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
+>>> Daniel J Walsh wrote:
+>>>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
+>>>>> Daniel J Walsh wrote:
+>>>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
+>>>>>>> Joshua Brindle wrote:
+>>>>>>>> Daniel J Walsh wrote:
+>>>>>>>>> The idea here is to break the seusers file up into lots of little
+>>>>>>>>> seusers file that can be user specific, also adds the service
+>>>>>>>>> field to
+>>>>>>>>> be used by tools like pam_selinux to choose which is the correct
+>>>>>>>>> context
+>>>>>>>>> to log a user in as.
+>>>>>>>>>
+>>>>>>>>> Patch was added to facilitate IPA handing out SELinux content for
+>>>>>>>>> selection of roles at login.
+>>>>>>>>>
+>>>>>>>>
+>>>>>>>> This patch does not affect the behavior of getseuserbyname(),
+>>>>>>>> how is
+>>>>>>>> this expected to work with existing applications?
+>>>>>>>>
+>>>>>> I think it only affects pam_selinux.
+>>>>>
+>>>>> The function name is very confusing if its only used for pam_selinux,
+>>>>> I'd like it renamed but seeing that pam_selinux is already deployed
+>>>>> with
+>>>>> it I suppose that isn't an option.
+>>>>>
+>>>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
+>>>>>
+>>>>>>>
+>>>>>>> Also, what is the format of this file? What should service be to
+>>>>>>> test
+>>>>>>> this on F11?
+>>>>>>>
+>>>> It is not only for pam_selinux, but that is currently the only user.
+>>>>
+>>>> Really all this function does is add a second variable when selecting a
+>>>> users default context. service is just a string that the caller can
+>>>> specify. It just allows you to change the default context you would get
+>>>> on entry to the system. So I guess you could get use similar calls to
+>>>> get different context depending on whether or not you are on the
+>>>> console. Imagine a dbus service which would run with one context if you
+>>>> we logged onto the console versus a different context if you were
+>>>> logged
+>>>> in via ssh.
+>>>>
+>>>
+>>> On looking at this further, I don't like the format of the file either,
+>>> why did you choose to make it use colons and not tolerate spaces? First
+>>> when I tried root: staff_u: s0 it logged me in as system_u and then when
+>>> I tried root:staff_u:s0 I got logged in correctly. This is a little
+>>> fragile to expect editing by users and getting unexpectedly logged in as
+>>> system_u.
+I am not sure what is going on here, since it should never match on root 
+:  or root:
+
+This should be falling through to the default user of the 
+/etc/selinux/targeted/seusers file.  Since you did not specify a valid 
+"service" name.
+
+The interface is looking for something that looks like:
+
+*:staff_u:s0
+or
+sshd:guest_u:s0
+login:staff_u:so-s0:c0-c1023
+xdm:user_u:so
+
+I don not currently intend this to be edited by a human, the goal was to 
+allow tools like IPA or other scripting tools to populate these files. 
+The library should return the content as it does, but libselinux or 
+pam_selinux should deny login if the machine is in enforcing mode.  The 
+fact that it is giving you a bogus login is a bug in current SELinux.
+>>>
+>> The : separated list matches seusers and /etc/passwd so I think it makes
+>> sense. THe file should require all three fields, that is a bug.
 >>
->> Things happened like this:
->> I want to upgrade my pam in Fedora Core 6, when I make my
->> Linux-PAM-1.1.0, I encountered a error.
->>
->> pam_selinux.c: In function `mls_range_allowed':
->> pam_selinux.c:239: error: `CONTEXT__CONTAINS' undeclared (first use in
->> this function)
->> pam_selinux.c:239: error: (Each undeclared identifier is reported only
->> once
->> pam_selinux.c:239: error: for each function it appears in.)
->> pam_selinux.c:246: error: `SECCLASS_CONTEXT' undeclared (first use in
->> this function)
->>
->> And I grep "CONTEXT__CONTAINS" in the whole Linux-PAM-1.1.0 source
->> code packet, nowhere defines it.
->> It seems to be some issues about selinux.
->> Anybody can give me a help ? Thanks.
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to
->> majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
-> looks like an old *.h file somewhere
-> try updating all the SELinux packages,
-> (and kernel if need be)
 >
-> Justin P. Mattock
->
+> Are you going to resubmit this patch with the bug fixed?
 >
 > --
 > This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
 > with
 > the words "unsubscribe selinux" without quotes as the message.
-CONTEXT__CONTAINS is defined in libselinux.  I think you need to update 
-to a later version of libselinux.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
