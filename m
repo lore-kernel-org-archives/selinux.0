@@ -1,46 +1,23 @@
-Subject: Re: RBAC with SELinux MCS
+Subject: Re: Access control between kernel modules?
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Shaz <shazalive@gmail.com>
 Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
-References: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
+In-Reply-To: <7b740b700907010013t617de21cif539f5001fd9739a@mail.gmail.com>
+References: <7b740b700907010013t617de21cif539f5001fd9739a@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 01 Jul 2009 10:03:53 -0400
-Message-Id: <1246457033.13464.158.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 01 Jul 2009 10:04:06 -0400
+Message-Id: <1246457046.13464.159.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-07-01 at 11:15 +0600, Shaz wrote:
+On Wed, 2009-07-01 at 13:13 +0600, Shaz wrote:
 > Dear list,
 > 
-> I was studying some earlier work on RBAC and came across Kuhn98 [1],
-> which says that RBAC can be implemented if some interface function is
-> used to map privilege sets of RBAC with MCS. James Moris blog article
-> on MCS [2] states that MCS is just dicretionary like DAC if
-> hierarchies like of MLS levels are not used. It might be because of
-> the implementation of current LSPP on Linux distros. So my question is
-> that can RBAC be used with SELinux if the mapping function is
-> provided?
-> 
-> Some further literature or existing work being pointed out will be
-> appreciated.
-> 
-> Thank you.
-> 
-> [1]
-> http://csrc.nist.gov/groups/SNS/rbac/documents/design_implementation/kuhn-98.pdf
-> [2] http://james-morris.livejournal.com/5583.html
+> Is it possible with SELinux to restrict one kernel module to call upon
+> the functions of another kernel module?
 
-SELinux implements its own RBAC model, described here:
-http://www.nsa.gov/research/_files/selinux/papers/policy2/x86.shtml
-
-By coupling RBAC with TE (which is a mandatory scheme), we can directly
-bind roles to processes and enforce RBAC restrictions at the operating
-system level.  We also address some of the limitations of traditional
-RBAC through TE.
-
-RBAC and MCS don't have anything to do with each other.
+No.
 
 -- 
 Stephen Smalley
