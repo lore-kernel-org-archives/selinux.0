@@ -1,56 +1,48 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61FCB0I002750
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 11:12:11 -0400
-Received: from g4t0014.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n61FCa4N028613
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 15:12:39 GMT
 From: Paul Moore <paul.moore@hp.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: The problem with TUN/TAP devices
-Date: Wed, 1 Jul 2009 11:11:47 -0400
-Cc: selinux@tycho.nsa.gov
-References: <200906301734.31986.paul.moore@hp.com> <4A4AD8CE.3000604@schaufler-ca.com>
-In-Reply-To: <4A4AD8CE.3000604@schaufler-ca.com>
+Date: Wed, 1 Jul 2009 11:19:11 -0400
+Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+References: <200906301734.31986.paul.moore@hp.com> <7e0fb38c0907010801n7516d4e3ib5f11716a0bf6293@mail.gmail.com> <1246460811.13464.182.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1246460811.13464.182.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200907011111.48002.paul.moore@hp.com>
+  charset="iso-8859-15"
+Message-Id: <200907011119.11108.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 30 June 2009 11:32:30 pm Casey Schaufler wrote:
-> Paul Moore wrote:
-> > Unfortunately we have a problem with the network access controls and
-> > TUN/TAP devices.  The basic issue is that packets entering the stack via
-> > a TUN device, e.g. QEMU/KVM guest instance operating with a bridged
-> > network configuration, do not have a fully initialized sock associated
-> > with them.  I say "fully initialized" because the basic initialization
-> > has been done (memory allocated, initial values set to
-> > SECINITSID_UNLABELED, etc.) but the last step where we assign the sock a
-> > label/SID never happens.  Why?  Because the TUN driver code only calls
-> > sk_alloc() and nothing else in the TUN code paths finish the SELinux sock
-> > setup.
+On Wednesday 01 July 2009 11:06:51 am Stephen Smalley wrote:
+> On Wed, 2009-07-01 at 11:01 -0400, Eric Paris wrote:
+> > On Wed, Jul 1, 2009 at 9:44 AM, Stephen Smalley<sds@tycho.nsa.gov> wrote:
+> > > On Tue, 2009-06-30 at 17:34 -0400, Paul Moore wrote:
+> > >
+> > > Wouldn't it be a bug if they didn't match?  So I'd add the sk_alloc()
+> > > hook, set the label/SID for the sock there, and remove the setting of
+> > > the sock label/SID from post_create.  And then just add a BUG_ON to
+> > > post_create to assert that the inode SID should be the same as the sock
+> > > SID and if they don't match something has gone wrong.
+> >
+> > I've got a system all set up to test anything you want/have/need....
+> > Maybe this afternoon I'll even give this suggestion a try just to see
+> > what happens, the networking hooks are ummmm, special?
 >
-> So what should it be calling and why is the fact that it isn't not a bug
-> in the TUN driver?
+> Wait - we already have a sk_alloc_security hook.
 
-...
+Yep, this is where we would set the sock's label/SID.
 
-> As this would appear to be a flaw in the TUN driver, get the TUN
-> developers to fix their broken driver. I certainly dislike a special
-> purpose LSM hook for this.
+> And IIRC, we don't set the SID/label there because that can happen when a
+> new connection sock is created, and thus outside of process context.
 
-I do too.
+This gets back to my original comments about "ugliness".  New incoming 
+connection sockets should get labeled correctly before use through the 
+inet_conn_request() and inet_csk_clone() hooks.  While admittedly, there is 
+the potential for the sock to be labeled incorrectly immediately after 
+allocation, but this is not very different from what we have today (sock is 
+initially labeled with unlabeled_t).
 
-> Do you see this as a problem for all users of labeled networking,
-> or is it isolated to SELinux?
-
-The issue first came up with respect to SELinux so that is where I've been 
-looking/thinking.  While there is a potential for Smack to be affected I doubt 
-that will be he case since Smack doesn't really care about stuff at the 
-postrouting level; although Smack may want to enforce some level of access 
-control but I need to go re-remember how Smack does outbound access control.  
-TOMOYO should be unaffected since they don't mess with labels.
+I'll put something together and post an RFC this afternoon, the patch should 
+be relatively small.
 
 -- 
 paul moore
