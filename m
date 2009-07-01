@@ -1,44 +1,46 @@
-Subject: Re: Problem about PAM-selinux
+Subject: Re: RBAC with SELinux MCS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andy <hewanxiang@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <2cd8d8530906302109g57ece921i8a9fcd72261c6f88@mail.gmail.com>
-References: <2cd8d8530906302109g57ece921i8a9fcd72261c6f88@mail.gmail.com>
+To: Shaz <shazalive@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
+References: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 01 Jul 2009 09:58:52 -0400
-Message-Id: <1246456732.13464.153.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 01 Jul 2009 10:03:53 -0400
+Message-Id: <1246457033.13464.158.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-07-01 at 12:09 +0800, Andy wrote:
-> Hi, all,
-> I have a pam-selinux problem. I know I should post it to pam list, but
-> no response from them.
+On Wed, 2009-07-01 at 11:15 +0600, Shaz wrote:
+> Dear list,
 > 
-> Things happened like this:
-> I want to upgrade my pam in Fedora Core 6,  when I make my
-> Linux-PAM-1.1.0, I encountered a error.
+> I was studying some earlier work on RBAC and came across Kuhn98 [1],
+> which says that RBAC can be implemented if some interface function is
+> used to map privilege sets of RBAC with MCS. James Moris blog article
+> on MCS [2] states that MCS is just dicretionary like DAC if
+> hierarchies like of MLS levels are not used. It might be because of
+> the implementation of current LSPP on Linux distros. So my question is
+> that can RBAC be used with SELinux if the mapping function is
+> provided?
 > 
-> pam_selinux.c: In function `mls_range_allowed':
-> pam_selinux.c:239: error: `CONTEXT__CONTAINS' undeclared (first use in
-> this function)
-> pam_selinux.c:239: error: (Each undeclared identifier is reported only once
-> pam_selinux.c:239: error: for each function it appears in.)
-> pam_selinux.c:246: error: `SECCLASS_CONTEXT' undeclared (first use in
-> this function)
+> Some further literature or existing work being pointed out will be
+> appreciated.
 > 
-> And I grep "CONTEXT__CONTAINS" in the whole Linux-PAM-1.1.0 source
-> code packet, nowhere defines it.
-> It seems to be some issues about selinux.
-> Anybody can give me a help ?  Thanks.
+> Thank you.
+> 
+> [1]
+> http://csrc.nist.gov/groups/SNS/rbac/documents/design_implementation/kuhn-98.pdf
+> [2] http://james-morris.livejournal.com/5583.html
 
-Fedora Core 6 is ancient and unsupported.  Considered updating to a
-shiny new Fedora 11?
+SELinux implements its own RBAC model, described here:
+http://www.nsa.gov/research/_files/selinux/papers/policy2/x86.shtml
 
-Regardless, you'd need a new version of libselinux if you were to build
-a newer version of pam_selinux.  And all the rest of the SELinux
-userland.
+By coupling RBAC with TE (which is a mandatory scheme), we can directly
+bind roles to processes and enforce RBAC restrictions at the operating
+system level.  We also address some of the limitations of traditional
+RBAC through TE.
+
+RBAC and MCS don't have anything to do with each other.
 
 -- 
 Stephen Smalley
