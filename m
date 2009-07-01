@@ -1,64 +1,78 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: The problem with TUN/TAP devices
-Date: Wed, 1 Jul 2009 12:34:51 -0400
-Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-References: <200906301734.31986.paul.moore@hp.com> <200907011119.11108.paul.moore@hp.com> <1246462939.13464.185.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1246462939.13464.185.camel@moss-pluto.epoch.ncsc.mil>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61GaHC7019124
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 12:36:17 -0400
+Received: from mail-pz0-f177.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n61GZxlM003532
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 16:35:59 GMT
+Received: by pzk7 with SMTP id 7so613324pzk.32
+        for <selinux@tycho.nsa.gov>; Wed, 01 Jul 2009 09:36:15 -0700 (PDT)
+Message-ID: <4A4B90BE.5070205@gmail.com>
+Date: Wed, 01 Jul 2009 09:37:18 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200907011234.52011.paul.moore@hp.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Andy <hewanxiang@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Problem about PAM-selinux
+References: <2cd8d8530906302109g57ece921i8a9fcd72261c6f88@mail.gmail.com> <4A4AEE64.3040105@gmail.com> <4A4B55C9.4040402@redhat.com>
+In-Reply-To: <4A4B55C9.4040402@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 01 July 2009 11:42:19 am Stephen Smalley wrote:
-> On Wed, 2009-07-01 at 11:19 -0400, Paul Moore wrote:
-> > On Wednesday 01 July 2009 11:06:51 am Stephen Smalley wrote:
-> > > On Wed, 2009-07-01 at 11:01 -0400, Eric Paris wrote:
-> > > > On Wed, Jul 1, 2009 at 9:44 AM, Stephen Smalley<sds@tycho.nsa.gov> 
-wrote:
-> > > > > On Tue, 2009-06-30 at 17:34 -0400, Paul Moore wrote:
-> > > > >
-> > > > > Wouldn't it be a bug if they didn't match?  So I'd add the
-> > > > > sk_alloc() hook, set the label/SID for the sock there, and remove
-> > > > > the setting of the sock label/SID from post_create.  And then just
-> > > > > add a BUG_ON to post_create to assert that the inode SID should be
-> > > > > the same as the sock SID and if they don't match something has gone
-> > > > > wrong.
-> > > >
-> > > > I've got a system all set up to test anything you want/have/need....
-> > > > Maybe this afternoon I'll even give this suggestion a try just to see
-> > > > what happens, the networking hooks are ummmm, special?
-> > >
-> > > Wait - we already have a sk_alloc_security hook.
-> >
-> > Yep, this is where we would set the sock's label/SID.
-> >
-> > > And IIRC, we don't set the SID/label there because that can happen when
-> > > a new connection sock is created, and thus outside of process context.
-> >
-> > This gets back to my original comments about "ugliness".  New incoming
-> > connection sockets should get labeled correctly before use through the
-> > inet_conn_request() and inet_csk_clone() hooks.  While admittedly, there
-> > is the potential for the sock to be labeled incorrectly immediately after
-> > allocation, but this is not very different from what we have today (sock
-> > is initially labeled with unlabeled_t).
+Daniel J Walsh wrote:
+> On 07/01/2009 01:04 AM, Justin P. Mattock wrote:
+>> Andy wrote:
+>>> Hi, all,
+>>> I have a pam-selinux problem. I know I should post it to pam list, but
+>>> no response from them.
+>>>
+>>> Things happened like this:
+>>> I want to upgrade my pam in Fedora Core 6, when I make my
+>>> Linux-PAM-1.1.0, I encountered a error.
+>>>
+>>> pam_selinux.c: In function `mls_range_allowed':
+>>> pam_selinux.c:239: error: `CONTEXT__CONTAINS' undeclared (first use in
+>>> this function)
+>>> pam_selinux.c:239: error: (Each undeclared identifier is reported only
+>>> once
+>>> pam_selinux.c:239: error: for each function it appears in.)
+>>> pam_selinux.c:246: error: `SECCLASS_CONTEXT' undeclared (first use in
+>>> this function)
+>>>
+>>> And I grep "CONTEXT__CONTAINS" in the whole Linux-PAM-1.1.0 source
+>>> code packet, nowhere defines it.
+>>> It seems to be some issues about selinux.
+>>> Anybody can give me a help ? Thanks.
+>>>
+>>> -- 
+>>> This message was distributed to subscribers of the selinux mailing 
+>>> list.
+>>> If you no longer wish to subscribe, send mail to
+>>> majordomo@tycho.nsa.gov with
+>>> the words "unsubscribe selinux" without quotes as the message.
+>>>
+>> looks like an old *.h file somewhere
+>> try updating all the SELinux packages,
+>> (and kernel if need be)
+>>
+>> Justin P. Mattock
+>>
+>>
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>> with
+>> the words "unsubscribe selinux" without quotes as the message.
+> CONTEXT__CONTAINS is defined in libselinux.  I think you need to 
+> update to a later version of libselinux.
 >
-> unlabeled_t is easily noticeable in denials (as in this case) and
-> correctly reflects the state of the socket - it isn't yet labeled.
-> Setting the sid from the task sid of some random task that happens to be
-> referenced by current when the new connection is initiated seems a
-> little more prone to danger if it happens to not get set by the other
-> hooks later.
+Here is the address to the SELinux userpsace project:
+http://userspace.selinuxproject.org/trac/wiki/Releases
+you can either compile the .tar.balls
+or in the search bar type "git" to
+use the git interface(preferred approach).
 
-Well, if we can't do it in sk_alloc() then I think we are stuck with a new 
-hook; which just seems wrong.
-
--- 
-paul moore
-linux @ hp
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
