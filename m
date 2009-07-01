@@ -1,107 +1,124 @@
-Message-ID: <4A4B5A27.9000704@redhat.com>
-Date: Wed, 01 Jul 2009 08:44:23 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61DWWTe010248
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:32 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n61DX84N028994
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 13:33:09 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n61DWV9M014796
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:31 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n61DWUo9022986
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:30 -0400
+Received: from [10.16.3.86] (dhcp-100-3-86.bos.redhat.com [10.16.3.86])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n61DWU8r026830
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:30 -0400
+Message-ID: <4A4B656D.1030004@redhat.com>
+Date: Wed, 01 Jul 2009 09:32:29 -0400
+From: Christopher Pardy <cpardy@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com>
-In-Reply-To: <4A4A2CE1.5060204@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+Subject: [Fwd: [Patch] libsemanage: remember and retrieve dontaudit settings]
+Content-Type: multipart/mixed;
+ boundary="------------040107070101060206070901"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/30/2009 11:18 AM, Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
->>> Daniel J Walsh wrote:
->>>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
->>>>> Daniel J Walsh wrote:
->>>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
->>>>>>> Joshua Brindle wrote:
->>>>>>>> Daniel J Walsh wrote:
->>>>>>>>> The idea here is to break the seusers file up into lots of little
->>>>>>>>> seusers file that can be user specific, also adds the service
->>>>>>>>> field to
->>>>>>>>> be used by tools like pam_selinux to choose which is the correct
->>>>>>>>> context
->>>>>>>>> to log a user in as.
->>>>>>>>>
->>>>>>>>> Patch was added to facilitate IPA handing out SELinux content for
->>>>>>>>> selection of roles at login.
->>>>>>>>>
->>>>>>>>
->>>>>>>> This patch does not affect the behavior of getseuserbyname(),
->>>>>>>> how is
->>>>>>>> this expected to work with existing applications?
->>>>>>>>
->>>>>> I think it only affects pam_selinux.
->>>>>
->>>>> The function name is very confusing if its only used for pam_selinux,
->>>>> I'd like it renamed but seeing that pam_selinux is already deployed
->>>>> with
->>>>> it I suppose that isn't an option.
->>>>>
->>>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
->>>>>
->>>>>>>
->>>>>>> Also, what is the format of this file? What should service be to
->>>>>>> test
->>>>>>> this on F11?
->>>>>>>
->>>> It is not only for pam_selinux, but that is currently the only user.
->>>>
->>>> Really all this function does is add a second variable when selecting a
->>>> users default context. service is just a string that the caller can
->>>> specify. It just allows you to change the default context you would get
->>>> on entry to the system. So I guess you could get use similar calls to
->>>> get different context depending on whether or not you are on the
->>>> console. Imagine a dbus service which would run with one context if you
->>>> we logged onto the console versus a different context if you were
->>>> logged
->>>> in via ssh.
->>>>
->>>
->>> On looking at this further, I don't like the format of the file either,
->>> why did you choose to make it use colons and not tolerate spaces? First
->>> when I tried root: staff_u: s0 it logged me in as system_u and then when
->>> I tried root:staff_u:s0 I got logged in correctly. This is a little
->>> fragile to expect editing by users and getting unexpectedly logged in as
->>> system_u.
-I am not sure what is going on here, since it should never match on root 
-:  or root:
+This is a multi-part message in MIME format.
+--------------040107070101060206070901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This should be falling through to the default user of the 
-/etc/selinux/targeted/seusers file.  Since you did not specify a valid 
-"service" name.
+Creates a empty file disable_dontaudit in the polciy directory
+(/etc/selinux/<policytype>). Checks for the existance of this file to
+set the sepol disable don't audit upon handle creation. Also provides
+the function "int semanage_get_disable_dontaudit()" which returns the
+don't audit property of the current policy.
 
-The interface is looking for something that looks like:
+Signed-off-by: Christopher Pardy <cpardy@redhat.com>
 
-*:staff_u:s0
-or
-sshd:guest_u:s0
-login:staff_u:so-s0:c0-c1023
-xdm:user_u:so
+--------------040107070101060206070901
+Content-Type: text/plain;
+ name="libsemanage.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libsemanage.patch"
 
-I don not currently intend this to be edited by a human, the goal was to 
-allow tools like IPA or other scripting tools to populate these files. 
-The library should return the content as it does, but libselinux or 
-pam_selinux should deny login if the machine is in enforcing mode.  The 
-fact that it is giving you a bogus login is a bug in current SELinux.
->>>
->> The : separated list matches seusers and /etc/passwd so I think it makes
->> sense. THe file should require all three fields, that is a bug.
->>
->
-> Are you going to resubmit this patch with the bug fixed?
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+diff -r selinux/libsemanage/include/semanage/handle.h selinux.old/libsemanage/include/semanage/handle.h
+72,74d71
+< /* Get the whether or not dontaudits are disabled upon commit */
+< int semanage_get_disable_dontudit();
+< 
+Only in selinux/libsemanage/src: boolean_record.o
+Only in selinux/libsemanage/src: booleans_activedb.o
+Only in selinux/libsemanage/src: booleans_active.o
+Only in selinux/libsemanage/src: booleans_file.o
+Only in selinux/libsemanage/src: booleans_local.o
+Only in selinux/libsemanage/src: booleans_policydb.o
+Only in selinux/libsemanage/src: booleans_policy.o
+Only in selinux/libsemanage/src: context_record.o
+Only in selinux/libsemanage/src: database_activedb.o
+Only in selinux/libsemanage/src: database_file.o
+Only in selinux/libsemanage/src: database_join.o
+Only in selinux/libsemanage/src: database_llist.o
+Only in selinux/libsemanage/src: database.o
+Only in selinux/libsemanage/src: database_policydb.o
+Only in selinux/libsemanage/src: debug.o
+Only in selinux/libsemanage/src: direct_api.o
+Only in selinux/libsemanage/src: fcontext_record.o
+Only in selinux/libsemanage/src: fcontexts_file.o
+Only in selinux/libsemanage/src: fcontexts_local.o
+Only in selinux/libsemanage/src: fcontexts_policy.o
+diff -r selinux/libsemanage/src/handle.c selinux.old/libsemanage/src/handle.c
+30d29
+< #include <unistd.h>
+80,82d78
+< 	/* Set disable dontaudit */
+< 	sepol_set_disable_dontaudit(sh->sepolh,semanage_get_disable_dontaudit())
+< 
+117,135d112
+< int semanage_get_disable_dontaudit()
+< {
+< 	/*get the policy type*/
+< 	char *poltype;
+< 	selinux_getpolicytype(&poltype);
+< 	/*create a pathname*/
+< 	char path[255];
+< 	strcpy(path,"/etc/selinux/");
+< 	strcat(path,poltype);
+< 	strcat(path,"/disable_dontaudit");
+< 	/*free the string poltype string*/
+< 	free(poltype);
+< 	/*check for the files existance*/
+< 	if (access(path,F_OK) == 0)
+< 		return 1;
+< 	else
+< 		return 0;
+< }
+< 
+141,158d117
+< 	/*get the policy type*/
+< 	char *poltype;
+< 	selinux_getpolicytype(&poltype);
+< 	/*create a pathname*/
+< 	char path[255];
+< 	strcpy(path,"/etc/selinux/");
+< 	strcat(path,poltype);
+< 	strcat(path,"/disable_dontaudit");
+< 	/*free the string poltype string*/
+< 	free(poltype);
+< 	/*touch or delete the file*/
+< 	if (disable_dontaudit != 0){
+< 		FILE *touch;
+< 		touch = fopen(path,"w");
+< 		fclose(touch);
+< 	}else
+< 		remove(path);
+< 
+Only in selinux/libsepol/tests: debug.o
 
+
+--------------040107070101060206070901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
