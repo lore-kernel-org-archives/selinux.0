@@ -1,61 +1,55 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n615Wk00004715
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 01:32:46 -0400
-Received: from rv-out-0708.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n615WS1Y006079
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 05:32:29 GMT
-Received: by rv-out-0708.google.com with SMTP id c5so211892rvf.54
-        for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 22:32:44 -0700 (PDT)
-Message-ID: <4A4AF53E.50006@gmail.com>
-Date: Tue, 30 Jun 2009 22:33:50 -0700
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6160Z0k007944
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 02:00:43 -0400
+Received: from mail-px0-f197.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6161AdA016183
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 06:01:10 GMT
+Received: by pxi35 with SMTP id 35so553687pxi.32
+        for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2009 23:00:34 -0700 (PDT)
+Message-ID: <4A4AFBC5.2010905@gmail.com>
+Date: Tue, 30 Jun 2009 23:01:41 -0700
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmill@redhat.com>,
-        Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: SELinux Developer Summit 2009: CfP ends TODAY
-References: <alpine.LRH.2.00.0906301909090.11802@file.bos.redhat.com> <4A4AA033.2080603@gmail.com> <alpine.LRH.2.00.0907011134100.21035@tundra.namei.org> <4A4AD404.5020500@gmail.com> <alpine.LRH.2.00.0907011458300.22162@tundra.namei.org>
-In-Reply-To: <alpine.LRH.2.00.0907011458300.22162@tundra.namei.org>
+To: Shaz <shazalive@gmail.com>
+CC: selinux <selinux@tycho.nsa.gov>
+Subject: Re: RBAC with SELinux MCS
+References: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
+In-Reply-To: <7b740b700906302215n2a6eb4f3y8e2e15419af33191@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 30 Jun 2009, Justin P. Mattock wrote:
+Shaz wrote:
+> Dear list,
 >
->    
->> Cool,
->> Well in that case maybe one of
->> these days.
->> Asied note when will an event like
->> this be in the los angeles, or
->> san jose area?
->>      
+> I was studying some earlier work on RBAC and came across Kuhn98 [1], 
+> which says that RBAC can be implemented if some interface function is 
+> used to map privilege sets of RBAC with MCS. James Moris blog article 
+> on MCS [2] states that MCS is just dicretionary like DAC if 
+> hierarchies like of MLS levels are not used. It might be because of 
+> the implementation of current LSPP on Linux distros. So my question is 
+> that can RBAC be used with SELinux if the mapping function is provided?
 >
-> If there's a major Linux developer event there, it could happen.
-> Currently, the way it works us by co-locating with a larger event, and
-> many of the core developers are on the East coast.
+> Some further literature or existing work being pointed out will be 
+> appreciated.
 >
-> You might be able to find others in the area and set up a user group --
-> this is what happened in Japan -- and possibly co-host an event with
-> SCALE.  It seems they have provision for this:
+> Thank you.
 >
-> http://scale7x.socallinuxexpo.org/conference-info/special-events
+> [1] 
+> http://csrc.nist.gov/groups/SNS/rbac/documents/design_implementation/kuhn-98.pdf
+> [2] http://james-morris.livejournal.com/5583.html
 >
+> -- 
+> Shaz
 >
->    
-
-Ill have to look and see what/or if there's anything
-within a reachable distance from  here.
-(driving to silicon valley is not bad, but in the mid summer
-without A.C. forget it).
+Im guessing the mapping function is "newrole" right!
+if then yeah you should be able too i.g.
+newrole -r  *_r -- -c /usr/bin/* (or wherever/whatever your
+wanting to use in that role).
+might get complicated with the sensitivity
+levels and categories(that is if you really tweak them).
 
 Justin P. Mattock
-
-
-
 
 
 --
