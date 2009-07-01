@@ -1,124 +1,79 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n61DWWTe010248
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:32 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n61DX84N028994
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 13:33:09 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n61DWV9M014796
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:31 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n61DWUo9022986
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:30 -0400
-Received: from [10.16.3.86] (dhcp-100-3-86.bos.redhat.com [10.16.3.86])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n61DWU8r026830
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 09:32:30 -0400
-Message-ID: <4A4B656D.1030004@redhat.com>
-Date: Wed, 01 Jul 2009 09:32:29 -0400
-From: Christopher Pardy <cpardy@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [Fwd: [Patch] libsemanage: remember and retrieve dontaudit settings]
-Content-Type: multipart/mixed;
- boundary="------------040107070101060206070901"
+Subject: Re: [PATCH] setfiles converted to fts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Thomas Liu <tliu@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4A4A7C29.5060807@redhat.com>
+References: <1246390368.2856.2.camel@Ares>
+	 <1246391251.13464.126.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4A7C29.5060807@redhat.com>
+Content-Type: text/plain
+Date: Wed, 01 Jul 2009 09:41:59 -0400
+Message-Id: <1246455719.13464.141.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040107070101060206070901
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2009-06-30 at 16:57 -0400, Daniel J Walsh wrote:
+> On 06/30/2009 03:47 PM, Stephen Smalley wrote:
+> > On Tue, 2009-06-30 at 15:32 -0400, Thomas Liu wrote:
+> >> This patch converted setfiles/restorecon to using fts instead of nftw.
+> >> It also removed forking, pipes and pre_stat because Dan Walsh and I
+> >> could not figure out what it was for.
+> >
+> > See:
+> > http://marc.info/?l=selinux&m=113627973615236&w=2
+> > for the rationale for that logic.
+> But this does not seem to be much benefit since fts files come with the 
+> stat already filled out.  Thomas removed all stat/lstat calls since you 
+> are not allowed to use the -D_FILE_OFFSET_BITS=64 with fts.
 
-Creates a empty file disable_dontaudit in the polciy directory
-(/etc/selinux/<policytype>). Checks for the existance of this file to
-set the sepol disable don't audit upon handle creation. Also provides
-the function "int semanage_get_disable_dontaudit()" which returns the
-don't audit property of the current policy.
+I'm open to considering the change, but I'd like to see actual
+measurements before and after the changes.
 
-Signed-off-by: Christopher Pardy <cpardy@redhat.com>
+I'd also like answers to the questions I posed regarding use of fts_path
+vs. fts_accpath (I think we should be using the latter for calls to
+getfilecon and setfilecon at least), whether the removal of the extra
+lstat call changes behavior for symlinks (nftw would pass the stat
+struct of the referenced file rather than the symlink, and the man page
+for fts suggests that it may do likewise, which may change how we end up
+labeling symlinks due to the different modes), and whether you looked at
+the FreeBSD setfsmac.c implementation to see if we can learn anything
+useful from it.
 
---------------040107070101060206070901
-Content-Type: text/plain;
- name="libsemanage.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="libsemanage.patch"
+> > Did you run any measurements to assess the impact of your changes on setfiles?
+> >
+> I think the biggest impact on speed comes from not trying to read past a 
+> failed directory.
+> 
+> One thing that would be helpful to add would be to check if a directory 
+> is on a files system that supports labeling, if not then the directory 
+> should be skipped.  I think with this patch the tool would walk a nfs_t 
+> file system unless it is called as setfiles.
+> > Did you compare with the implementation of setfsmac.c in FreeBSD, which
+> > likewise started life as setfiles and was then rewritten to use fts()?
+> >
+> > What improvements do we get from the changes?
+> >
+> > Should we be using fts_path or fts_accpath when performing operations on
+> > the files, like lsetfilecon()?  I suspect the latter would be more
+> > efficient and less prone to simultaneous changes to the file tree if fts
+> > switches the cwd as it walks the tree.
+> >
+> > IIRC, we called lstat() within apply_spec() even though a struct stat
+> > was supplied as an argument because in the case of symlinks, we were
+> > getting the stat of the referenced file rather than of the symlink file.
+> > Is this true of fts?
+> >
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
-diff -r selinux/libsemanage/include/semanage/handle.h selinux.old/libsemanage/include/semanage/handle.h
-72,74d71
-< /* Get the whether or not dontaudits are disabled upon commit */
-< int semanage_get_disable_dontudit();
-< 
-Only in selinux/libsemanage/src: boolean_record.o
-Only in selinux/libsemanage/src: booleans_activedb.o
-Only in selinux/libsemanage/src: booleans_active.o
-Only in selinux/libsemanage/src: booleans_file.o
-Only in selinux/libsemanage/src: booleans_local.o
-Only in selinux/libsemanage/src: booleans_policydb.o
-Only in selinux/libsemanage/src: booleans_policy.o
-Only in selinux/libsemanage/src: context_record.o
-Only in selinux/libsemanage/src: database_activedb.o
-Only in selinux/libsemanage/src: database_file.o
-Only in selinux/libsemanage/src: database_join.o
-Only in selinux/libsemanage/src: database_llist.o
-Only in selinux/libsemanage/src: database.o
-Only in selinux/libsemanage/src: database_policydb.o
-Only in selinux/libsemanage/src: debug.o
-Only in selinux/libsemanage/src: direct_api.o
-Only in selinux/libsemanage/src: fcontext_record.o
-Only in selinux/libsemanage/src: fcontexts_file.o
-Only in selinux/libsemanage/src: fcontexts_local.o
-Only in selinux/libsemanage/src: fcontexts_policy.o
-diff -r selinux/libsemanage/src/handle.c selinux.old/libsemanage/src/handle.c
-30d29
-< #include <unistd.h>
-80,82d78
-< 	/* Set disable dontaudit */
-< 	sepol_set_disable_dontaudit(sh->sepolh,semanage_get_disable_dontaudit())
-< 
-117,135d112
-< int semanage_get_disable_dontaudit()
-< {
-< 	/*get the policy type*/
-< 	char *poltype;
-< 	selinux_getpolicytype(&poltype);
-< 	/*create a pathname*/
-< 	char path[255];
-< 	strcpy(path,"/etc/selinux/");
-< 	strcat(path,poltype);
-< 	strcat(path,"/disable_dontaudit");
-< 	/*free the string poltype string*/
-< 	free(poltype);
-< 	/*check for the files existance*/
-< 	if (access(path,F_OK) == 0)
-< 		return 1;
-< 	else
-< 		return 0;
-< }
-< 
-141,158d117
-< 	/*get the policy type*/
-< 	char *poltype;
-< 	selinux_getpolicytype(&poltype);
-< 	/*create a pathname*/
-< 	char path[255];
-< 	strcpy(path,"/etc/selinux/");
-< 	strcat(path,poltype);
-< 	strcat(path,"/disable_dontaudit");
-< 	/*free the string poltype string*/
-< 	free(poltype);
-< 	/*touch or delete the file*/
-< 	if (disable_dontaudit != 0){
-< 		FILE *touch;
-< 		touch = fopen(path,"w");
-< 		fclose(touch);
-< 	}else
-< 		remove(path);
-< 
-Only in selinux/libsepol/tests: debug.o
-
-
---------------040107070101060206070901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
