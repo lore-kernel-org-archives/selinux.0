@@ -1,123 +1,61 @@
-Message-ID: <4A4CBDB0.8040001@redhat.com>
-Date: Thu, 02 Jul 2009 10:01:20 -0400
-From: Christopher Pardy <cpardy@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [Patch 0/2] libsemanage: remember and retrieve dontaudit settings
-References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>	 <4A4B9FA8.1040606@redhat.com>  <4A4C168C.2040900@redhat.com> <1246538026.13464.262.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1246538026.13464.262.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: multipart/alternative;
- boundary="------------050005090406090105060607"
+Subject: Re: [Patch 2/2] libsemanage: remember and retrieve dontaudit
+ settings
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christopher Pardy <cpardy@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4A4CBC6C.5090709@redhat.com>
+References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>
+	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>
+	 <4A4C17D1.3060208@redhat.com>
+	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CBC6C.5090709@redhat.com>
+Content-Type: text/plain
+Date: Thu, 02 Jul 2009 10:13:24 -0400
+Message-Id: <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050005090406090105060607
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2009-07-02 at 09:55 -0400, Christopher Pardy wrote:
+> It's not that a program would use this that couldn't link against
+> libsemanage the functionality just seemed closer to that of the
+> functions in libselinux, I've been doing alot of work on fedora stuff
+> It seems to me  that 90% of the code in libsemanage is handle
+> dependent functions. libselinux seems to be more of a global setting
+> kind of deal. so it made sense to put it here. Let me know if this
+> isn't the case
 
-On 07/02/2009 08:33 AM, Stephen Smalley wrote:
-> On Wed, 2009-07-01 at 22:08 -0400, Christopher Pardy wrote:
->    
->> This is a heavily modified version of the patch I recently submitted. It
->> provides 3 new functions: in libsepol sepol_get_disable_dontaudit; in
->> libsemanage semanage_get_disable_dontaudit; in libselinux
->> is_dontaudit_disabled. It also fixes issues with the previous patch.
->>
->> The justification for this patch is the same as the one I posted
->> earlier. Simply, there is currently no way to know if dontaudit rules
->> are  enabled. Additionally once don't audit rules are turned they turn
->> themselves off after policy rebuild (is that the desired functionality?)
->>      
->
-> semodule -DB should still strip dontaudit rules from the policy, and
-> semodule -B should still restore them.  The only thing that should
-> change IIUC is that semodule -DB should persist across any other
-> semodule or semanage operations other than semodule -B.
->
->    
-See Dan Walsh's patch to policycoreutils for this functionality. I need 
-the functionality I'm creating with this persistence in some gui work 
-I'm doing and I believe it's much more intuitive if things stay turned 
-off till they're turned back on.
->> This patch provides  a way to check on both the current and pending
->> state of the dontaudit rules and it maintains this state between policy
->> rebuilds.
->>
->> Signed-off-by Christopher Pardy<cpardy@redhat.com>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>      
+Unless you envision this interface being called by non-management
+programs, I think it is reasonable to require them to link against
+libsemanage and use an interface provided by it.
 
+> > This doesn't make sense to me - we check whether we've already set
+> > disable dontaudit and use that to decide whether to create the file?
+> > But the existence of the file is what would have triggered setting
+> > disable dontaudit in the first place.  Round and round we go...
+> >   
+> When we create the handle we set it's default property to the system
+> default. When we commit a handle we set the system default property to
+> the handles property. In between it is fully possible to that we have
+> called a set_disable_dontaudit to change the value in the handle. If
+> you would rather I checked if the two were different first I can.
 
---------------050005090406090105060607
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hmmm...but if the flag file is private to the store, then you can just
+create or remove it directly from semanage_set_disable_dontaudit(), and
+you won't need to do this at commit.  At which point you seemingly don't
+need the libsepol or libsemanage get functions.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="Content-Type">
-</head>
-<body text="#000000" bgcolor="#ffffff">
-On 07/02/2009 08:33 AM, Stephen Smalley wrote:
-<blockquote
- cite="mid:1246538026.13464.262.camel@moss-pluto.epoch.ncsc.mil"
- type="cite">
-  <pre wrap="">On Wed, 2009-07-01 at 22:08 -0400, Christopher Pardy wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">This is a heavily modified version of the patch I recently submitted. It 
-provides 3 new functions: in libsepol sepol_get_disable_dontaudit; in 
-libsemanage semanage_get_disable_dontaudit; in libselinux 
-is_dontaudit_disabled. It also fixes issues with the previous patch.
+BTW, to create a new file in the store, you'll want to extend
+semanage_sandbox_defs in semanage_store.h with a
+SEMANAGE_DISABLE_DONTAUDIT value and use
+semanage_fname(SEMANAGE_DISABLE_DONTAUDIT) to obtain the pathname to the
+flag file.
 
-The justification for this patch is the same as the one I posted 
-earlier. Simply, there is currently no way to know if dontaudit rules 
-are  enabled. Additionally once don't audit rules are turned they turn 
-themselves off after policy rebuild (is that the desired functionality?) 
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-semodule -DB should still strip dontaudit rules from the policy, and
-semodule -B should still restore them.  The only thing that should
-change IIUC is that semodule -DB should persist across any other
-semodule or semanage operations other than semodule -B.
+-- 
+Stephen Smalley
+National Security Agency
 
-  </pre>
-</blockquote>
-See Dan Walsh's patch to policycoreutils for this functionality. I need
-the functionality I'm creating with this persistence in some gui work
-I'm doing and I believe it's much more intuitive if things stay turned
-off till they're turned back on.<br>
-<blockquote
- cite="mid:1246538026.13464.262.camel@moss-pluto.epoch.ncsc.mil"
- type="cite">
-  <pre wrap=""></pre>
-  <blockquote type="cite">
-    <pre wrap="">This patch provides  a way to check on both the current and pending 
-state of the dontaudit rules and it maintains this state between policy 
-rebuilds.
-
-Signed-off-by Christopher Pardy <a class="moz-txt-link-rfc2396E" href="mailto:cpardy@redhat.com">&lt;cpardy@redhat.com&gt;</a>
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to <a class="moz-txt-link-abbreviated" href="mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with
-the words "unsubscribe selinux" without quotes as the message.
-    </pre>
-  </blockquote>
-</blockquote>
-<br>
-</body>
-</html>
-
---------------050005090406090105060607--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
