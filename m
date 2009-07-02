@@ -1,2703 +1,2370 @@
-Subject: [PATCH 3/4] Namespacing of security/selinux
+Subject: [PATCH 1/4] Namespacing of security/selinux
 From: Thomas Liu <tliu@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Content-Type: text/plain
-Date: Thu, 02 Jul 2009 16:55:08 -0400
-Message-Id: <1246568108.2480.29.camel@Ares>
+Date: Thu, 02 Jul 2009 16:55:03 -0400
+Message-Id: <1246568103.2480.27.camel@Ares>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Namespacing of security/selinux/ss/policydb.h.
+This patch namespaces the functions in security/selinux, prefixing 
+with selinux_ and prefixing items in security/selinux/ss with
+selinux_ss.
+
+Patch 1 includes namespacing of the security/selinux folder, not 
+including security/selinux/ss.
+
+Added selinux_ as a prefix to non static functions, and
+swapped security_ with selinux_ss_.
 
 Signed-off-by: Thomas Liu <tliu@redhat.com>
 ---
- security/selinux/ss/avtab.c       |    4 +-
- security/selinux/ss/avtab.h       |    6 +-
- security/selinux/ss/conditional.c |   26 ++--
- security/selinux/ss/conditional.h |   12 +-
- security/selinux/ss/context.h     |   20 ++--
- security/selinux/ss/mls.c         |   62 +++++-----
- security/selinux/ss/mls.h         |   50 ++++----
- security/selinux/ss/policydb.c    |  164 +++++++++++-----------
- security/selinux/ss/policydb.h    |   86 ++++++------
- security/selinux/ss/services.c    |  270
-++++++++++++++++++------------------
- security/selinux/ss/services.h    |    2 +-
- security/selinux/ss/sidtab.c      |   52 ++++----
- security/selinux/ss/sidtab.h      |   34 +++---
- security/selinux/ss/symtab.c      |    2 +-
- security/selinux/ss/symtab.h      |    4 +-
- 15 files changed, 397 insertions(+), 397 deletions(-)
+ security/selinux/avc.c                 |   36 +++---
+ security/selinux/exports.c             |    4 +-
+ security/selinux/hooks.c               |  242 ++++++++++++++++----------------
+ security/selinux/include/avc.h         |   16 +-
+ security/selinux/include/avc_ss.h      |    2 +-
+ security/selinux/include/conditional.h |    6 +-
+ security/selinux/include/netnode.h     |    2 +-
+ security/selinux/include/netport.h     |    2 +-
+ security/selinux/include/security.h    |   60 ++++----
+ security/selinux/netif.c               |    6 +-
+ security/selinux/netlabel.c            |   12 +-
+ security/selinux/netnode.c             |   20 ++--
+ security/selinux/netport.c             |    8 +-
+ security/selinux/selinuxfs.c           |   68 +++++-----
+ security/selinux/ss/services.c         |   90 ++++++------
+ security/selinux/xfrm.c                |   18 ++--
+ 16 files changed, 296 insertions(+), 296 deletions(-)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index fec765d..44d8167 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -323,7 +323,7 @@ static uint16_t spec_order[] = {
- 	AVTAB_MEMBER
- };
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 236aaa2..33dd9b5 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -203,7 +203,7 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+ 	char *scontext;
+ 	u32 scontext_len;
  
--int selinux_ss_avtab_read_item(struct selinux_ss_avtab *a, void *fp,
-struct policydb *pol,
-+int selinux_ss_avtab_read_item(struct selinux_ss_avtab *a, void *fp,
-struct selinux_ss_policydb *pol,
- 		    int (*insertf)(struct selinux_ss_avtab *a, struct
-selinux_ss_avtab_key *k,
- 				   struct selinux_ss_avtab_datum *d, void *p),
- 		    void *p)
-@@ -457,7 +457,7 @@ static int avtab_insertf(struct selinux_ss_avtab *a,
-struct selinux_ss_avtab_key
- 	return avtab_insert(a, k, d);
- }
- 
--int selinux_ss_avtab_read(struct selinux_ss_avtab *a, void *fp, struct
-policydb *pol)
-+int selinux_ss_avtab_read(struct selinux_ss_avtab *a, void *fp, struct
-selinux_ss_policydb *pol)
- {
- 	int rc;
- 	__le32 buf[1];
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index a7752bb..70b39c1 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -64,13 +64,13 @@ struct selinux_ss_avtab_datum
-*selinux_ss_avtab_search(struct selinux_ss_avtab *
- void selinux_ss_avtab_destroy(struct selinux_ss_avtab *h);
- void selinux_ss_avtab_hash_eval(struct selinux_ss_avtab *h, char *tag);
- 
--struct policydb;
--int selinux_ss_avtab_read_item(struct selinux_ss_avtab *a, void *fp,
-struct policydb *pol,
-+struct selinux_ss_policydb;
-+int selinux_ss_avtab_read_item(struct selinux_ss_avtab *a, void *fp,
-struct selinux_ss_policydb *pol,
- 			       int (*insert)(struct selinux_ss_avtab *a, struct
-selinux_ss_avtab_key *k,
- 			       struct selinux_ss_avtab_datum *d, void *p),
- 			       void *p);
- 
--int selinux_ss_avtab_read(struct selinux_ss_avtab *a, void *fp, struct
-policydb *pol);
-+int selinux_ss_avtab_read(struct selinux_ss_avtab *a, void *fp, struct
-selinux_ss_policydb *pol);
- 
- struct selinux_ss_avtab_node *selinux_ss_avtab_insert_nonunique(struct
-selinux_ss_avtab *h, struct selinux_ss_avtab_key *key,
- 								struct selinux_ss_avtab_datum *datum);
-diff --git a/security/selinux/ss/conditional.c
-b/security/selinux/ss/conditional.c
-index 306ef50..c48f1c2 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -22,7 +22,7 @@
-  * or undefined (-1). Undefined occurs when the expression
-  * exceeds the stack depth of COND_EXPR_MAXDEPTH.
-  */
--static int cond_evaluate_expr(struct policydb *p, struct
-selinux_ss_cond_expr *expr)
-+static int cond_evaluate_expr(struct selinux_ss_policydb *p, struct
-selinux_ss_cond_expr *expr)
- {
- 
- 	struct selinux_ss_cond_expr *cur;
-@@ -86,7 +86,7 @@ static int cond_evaluate_expr(struct policydb *p,
-struct selinux_ss_cond_expr *e
-  * list appropriately. If the result of the expression is undefined
-  * all of the rules are disabled for safety.
-  */
--int selinux_ss_evaluate_cond_node(struct policydb *p, struct
-selinux_ss_cond_node *node)
-+int selinux_ss_evaluate__cond_node(struct selinux_ss_policydb *p,
-struct selinux_ss_cond_node *node)
- {
- 	int new_state;
- 	struct selinux_ss_cond_av_list *cur;
-@@ -115,7 +115,7 @@ int selinux_ss_evaluate_cond_node(struct policydb
-*p, struct selinux_ss_cond_nod
- 	return 0;
- }
- 
--int selinux_ss_cond_policydb_init(struct policydb *p)
-+int selinux_ss_cond_policydb_init(struct selinux_ss_policydb *p)
- {
- 	p->bool_val_to_struct = NULL;
- 	p->cond_list = NULL;
-@@ -161,14 +161,14 @@ static void cond_list_destroy(struct
-selinux_ss_cond_node *list)
+-	rc = security_sid_to_context(ssid, &scontext, &scontext_len);
++	rc = selinux_ss_sid_to_context(ssid, &scontext, &scontext_len);
+ 	if (rc)
+ 		audit_log_format(ab, "ssid=%d", ssid);
+ 	else {
+@@ -211,7 +211,7 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+ 		kfree(scontext);
  	}
- }
  
--void selinux_ss_cond_policydb_destroy(struct policydb *p)
-+void selinux_ss_cond_policydb_destroy(struct selinux_ss_policydb *p)
- {
- 	kfree(p->bool_val_to_struct);
- 	selinux_ss_avtab_destroy(&p->te_cond_avtab);
- 	cond_list_destroy(p->cond_list);
- }
- 
--int selinux_ss_cond_init_bool_indexes(struct policydb *p)
-+int selinux_ss_cond_init_bool_indexes(struct selinux_ss_policydb *p)
- {
- 	kfree(p->bool_val_to_struct);
- 	p->bool_val_to_struct = (struct selinux_ss_cond_bool_datum **)
-@@ -187,7 +187,7 @@ int selinux_ss_cond_destroy_bool(void *key, void
-*datum, void *p)
- 
- int selinux_ss_cond_index_bool(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
-+	struct selinux_ss_policydb *p;
- 	struct selinux_ss_cond_bool_datum *booldatum;
- 
- 	booldatum = datum;
-@@ -209,7 +209,7 @@ static int bool_isvalid(struct
-selinux_ss_cond_bool_datum *b)
- 	return 1;
- }
- 
--int selinux_ss_cond_read_bool(struct policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
-+int selinux_ss_cond_read_bool(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
- 	struct selinux_ss_cond_bool_datum *booldatum;
-@@ -250,7 +250,7 @@ err:
- }
- 
- struct cond_insertf_data {
--	struct policydb *p;
-+	struct selinux_ss_policydb *p;
- 	struct selinux_ss_cond_av_list *other;
- 	struct selinux_ss_cond_av_list *head;
- 	struct selinux_ss_cond_av_list *tail;
-@@ -259,7 +259,7 @@ struct cond_insertf_data {
- static int cond_insertf(struct selinux_ss_avtab *a, struct
-selinux_ss_avtab_key *k, struct selinux_ss_avtab_datum *d, void *ptr)
- {
- 	struct cond_insertf_data *data = ptr;
--	struct policydb *p = data->p;
-+	struct selinux_ss_policydb *p = data->p;
- 	struct selinux_ss_cond_av_list *other = data->other, *list, *cur;
- 	struct selinux_ss_avtab_node *node_ptr;
- 	u8 found;
-@@ -334,7 +334,7 @@ err:
- 	return -1;
- }
- 
--static int cond_read_av_list(struct policydb *p, void *fp, struct
-selinux_ss_cond_av_list **ret_list, struct selinux_ss_cond_av_list
-*other)
-+static int cond_read_av_list(struct selinux_ss_policydb *p, void *fp,
-struct selinux_ss_cond_av_list **ret_list, struct
-selinux_ss_cond_av_list *other)
- {
- 	int i, rc;
- 	__le32 buf[1];
-@@ -368,7 +368,7 @@ static int cond_read_av_list(struct policydb *p,
-void *fp, struct selinux_ss_con
- 	return 0;
- }
- 
--static int expr_isvalid(struct policydb *p, struct selinux_ss_cond_expr
-*expr)
-+static int expr_isvalid(struct selinux_ss_policydb *p, struct
-selinux_ss_cond_expr *expr)
- {
- 	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
- 		printk(KERN_ERR "SELinux: conditional expressions uses unknown
-operator.\n");
-@@ -382,7 +382,7 @@ static int expr_isvalid(struct policydb *p, struct
-selinux_ss_cond_expr *expr)
- 	return 1;
- }
- 
--static int cond_read_node(struct policydb *p, struct
-selinux_ss_cond_node *node, void *fp)
-+static int cond_read_node(struct selinux_ss_policydb *p, struct
-selinux_ss_cond_node *node, void *fp)
- {
- 	__le32 buf[2];
- 	u32 len, i;
-@@ -437,7 +437,7 @@ err:
- 	return -1;
- }
- 
--int selinux_ss_cond_read_list(struct policydb *p, void *fp)
-+int selinux_ss_cond_read_list(struct selinux_ss_policydb *p, void *fp)
- {
- 	struct selinux_ss_cond_node *node, *last = NULL;
- 	__le32 buf[1];
-diff --git a/security/selinux/ss/conditional.h
-b/security/selinux/ss/conditional.h
-index e593277..cccee8a 100644
---- a/security/selinux/ss/conditional.h
-+++ b/security/selinux/ss/conditional.h
-@@ -59,19 +59,19 @@ struct selinux_ss_cond_node {
- 	struct selinux_ss_cond_node *next;
- };
- 
--int selinux_ss_cond_policydb_init(struct policydb *p);
--void selinux_ss_cond_policydb_destroy(struct policydb *p);
-+int selinux_ss_cond_policydb_init(struct selinux_ss_policydb *p);
-+void selinux_ss_cond_policydb_destroy(struct selinux_ss_policydb *p);
- 
--int selinux_ss_cond_init_bool_indexes(struct policydb *p);
-+int selinux_ss_cond_init_bool_indexes(struct selinux_ss_policydb *p);
- int selinux_ss_cond_destroy_bool(void *key, void *datum, void *p);
- 
- int selinux_ss_cond_index_bool(void *key, void *datum, void *datap);
- 
--int selinux_ss_cond_read_bool(struct policydb *p, struct
-selinux_ss_hashtab *h, void *fp);
--int selinux_ss_cond_read_list(struct policydb *p, void *fp);
-+int selinux_ss_cond_read_bool(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp);
-+int selinux_ss_cond_read_list(struct selinux_ss_policydb *p, void *fp);
- 
- void selinux_ss_cond_compute_av(struct selinux_ss_avtab *ctab, struct
-selinux_ss_avtab_key *key, struct av_decision *avd);
- 
--int selinux_ss_evaluate_cond_node(struct policydb *p, struct
-selinux_ss_cond_node *node);
-+int selinux_ss_evaluate_cond_node(struct selinux_ss_policydb *p, struct
-selinux_ss_cond_node *node);
- 
- #endif /* _CONDITIONAL_H_ */
-diff --git a/security/selinux/ss/context.h
-b/security/selinux/ss/context.h
-index 78a37bf..489865f 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -23,7 +23,7 @@
-  * A security context consists of an authenticated user
-  * identity, a role, a type and a MLS range.
+-	rc = security_sid_to_context(tsid, &scontext, &scontext_len);
++	rc = selinux_ss_sid_to_context(tsid, &scontext, &scontext_len);
+ 	if (rc)
+ 		audit_log_format(ab, " tsid=%d", tsid);
+ 	else {
+@@ -228,7 +228,7 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+  *
+  * Initialize the access vector cache.
   */
--struct context {
-+struct selinux_ss_context {
- 	u32 user;
- 	u32 role;
- 	u32 type;
-@@ -32,12 +32,12 @@ struct context {
- 	char *str;	/* string representation if context cannot be mapped. */
- };
- 
--static inline void mls_context_init(struct context *c)
-+static inline void mls_context_init(struct selinux_ss_context *c)
+-void __init avc_init(void)
++void __init selinux_avc_init(void)
  {
- 	memset(&c->range, 0, sizeof(c->range));
- }
- 
--static inline int mls_context_cpy(struct context *dst, struct context
-*src)
-+static inline int mls_context_cpy(struct selinux_ss_context *dst,
-struct selinux_ss_context *src)
- {
- 	int rc;
- 
-@@ -60,7 +60,7 @@ out:
- /*
-  * Sets both levels in the MLS range of 'dst' to the low level of
-'src'.
-  */
--static inline int mls_context_cpy_low(struct context *dst, struct
-context *src)
-+static inline int mls_context_cpy_low(struct selinux_ss_context *dst,
-struct selinux_ss_context *src)
- {
- 	int rc;
- 
-@@ -80,7 +80,7 @@ out:
- 	return rc;
- }
- 
--static inline int mls_context_cmp(struct context *c1, struct context
-*c2)
-+static inline int mls_context_cmp(struct selinux_ss_context *c1, struct
-selinux_ss_context *c2)
- {
- 	if (!selinux_mls_enabled)
- 		return 1;
-@@ -91,7 +91,7 @@ static inline int mls_context_cmp(struct context *c1,
-struct context *c2)
- 		selinux_ss_ebitmap_cmp(&c1->range.level[1].cat,
-&c2->range.level[1].cat));
- }
- 
--static inline void mls_context_destroy(struct context *c)
-+static inline void mls_context_destroy(struct selinux_ss_context *c)
- {
- 	if (!selinux_mls_enabled)
- 		return;
-@@ -101,12 +101,12 @@ static inline void mls_context_destroy(struct
-context *c)
- 	mls_context_init(c);
- }
- 
--static inline void context_init(struct context *c)
-+static inline void context_init(struct selinux_ss_context *c)
- {
- 	memset(c, 0, sizeof(*c));
- }
- 
--static inline int context_cpy(struct context *dst, struct context *src)
-+static inline int context_cpy(struct selinux_ss_context *dst, struct
-selinux_ss_context *src)
- {
- 	int rc;
- 
-@@ -130,7 +130,7 @@ static inline int context_cpy(struct context *dst,
-struct context *src)
- 	return 0;
- }
- 
--static inline void context_destroy(struct context *c)
-+static inline void context_destroy(struct selinux_ss_context *c)
- {
- 	c->user = c->role = c->type = 0;
- 	kfree(c->str);
-@@ -139,7 +139,7 @@ static inline void context_destroy(struct context
-*c)
- 	mls_context_destroy(c);
- }
- 
--static inline int context_cmp(struct context *c1, struct context *c2)
-+static inline int context_cmp(struct selinux_ss_context *c1, struct
-selinux_ss_context *c2)
- {
- 	if (c1->len && c2->len)
- 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 7f08105..e884269 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -32,7 +32,7 @@
-  * Return the length in bytes for the MLS fields of the
-  * security context string representation of `context'.
-  */
--int mls_compute_context_len(struct context *context)
-+int mls_compute_context_len(struct selinux_ss_context *context)
- {
- 	int i, l, len, head, prev;
- 	char *nm;
-@@ -85,7 +85,7 @@ int mls_compute_context_len(struct context *context)
-  * the MLS fields of `context' into the string `*scontext'.
-  * Update `*scontext' to point to the end of the MLS fields.
-  */
--void mls_sid_to_context(struct context *context,
-+void mls_sid_to_context(struct selinux_ss_context *context,
- 			char **scontext)
- {
- 	char *scontextp, *nm;
-@@ -157,9 +157,9 @@ void mls_sid_to_context(struct context *context,
- 	return;
- }
- 
--int mls_level_isvalid(struct policydb *p, struct mls_level *l)
-+int mls_level_isvalid(struct selinux_ss_policydb *p, struct mls_level
-*l)
- {
--	struct level_datum *levdatum;
-+	struct selinux_ss_level_datum *levdatum;
- 	struct selinux_ss_ebitmap_node *node;
  	int i;
  
-@@ -185,7 +185,7 @@ int mls_level_isvalid(struct policydb *p, struct
-mls_level *l)
- 	return 1;
+@@ -245,7 +245,7 @@ void __init avc_init(void)
+ 	audit_log(current->audit_context, GFP_KERNEL, AUDIT_KERNEL, "AVC INITIALIZED\n");
  }
  
--int mls_range_isvalid(struct policydb *p, struct mls_range *r)
-+int mls_range_isvalid(struct selinux_ss_policydb *p, struct mls_range
-*r)
+-int avc_get_hash_stats(char *page)
++int selinux_avc_get_hash_stats(char *page)
  {
- 	return (mls_level_isvalid(p, &r->level[0]) &&
- 		mls_level_isvalid(p, &r->level[1]) &&
-@@ -196,9 +196,9 @@ int mls_range_isvalid(struct policydb *p, struct
-mls_range *r)
-  * Return 1 if the MLS fields in the security context
-  * structure `c' are valid.  Return 0 otherwise.
-  */
--int mls_context_isvalid(struct policydb *p, struct context *c)
-+int mls_context_isvalid(struct selinux_ss_policydb *p, struct
-selinux_ss_context *c)
- {
--	struct user_datum *usrdatum;
-+	struct selinux_ss_user_datum *usrdatum;
- 
- 	if (!selinux_mls_enabled)
- 		return 1;
-@@ -239,18 +239,18 @@ int mls_context_isvalid(struct policydb *p, struct
-context *c)
-  * Policy read-lock must be held for sidtab lookup.
+ 	int i, chain_len, max_chain_len, slots_used;
+ 	struct avc_node *node;
+@@ -448,7 +448,7 @@ static int avc_latest_notif_update(int seqno, int is_insert)
+  * (@ssid, @tsid) and class @tclass.
+  * The access vectors and the sequence number are
+  * normally provided by the security server in
+- * response to a security_compute_av() call.  If the
++ * response to a selinux_ss_compute_av() call.  If the
+  * sequence number @avd->seqno is not less than the latest
+  * revocation notification, then the function copies
+  * the access vectors into a cache entry, returns
+@@ -523,14 +523,14 @@ static inline void avc_print_ipv4_addr(struct audit_buffer *ab, __be32 addr,
   *
+  * Audit the granting or denial of permissions in accordance
+  * with the policy.  This function is typically called by
+- * avc_has_perm() after a permission check, but can also be
+- * called directly by callers who use avc_has_perm_noaudit()
++ * selinux_avc_has_perm() after a permission check, but can also be
++ * called directly by callers who use selinux_avc_has_perm_noaudit()
+  * in order to separate the permission check from the auditing.
+  * For example, this separation is useful when the permission check must
+  * be performed under a lock, to allow the lock to be released
+  * before calling the auditing code.
   */
--int mls_context_to_sid(struct policydb *pol,
-+int mls_context_to_sid(struct selinux_ss_policydb *pol,
- 		       char oldc,
- 		       char **scontext,
--		       struct context *context,
--		       struct sidtab *s,
-+		       struct selinux_ss_context *context,
-+		       struct selinux_ss_sidtab *s,
- 		       u32 def_sid)
+-void avc_audit(u32 ssid, u32 tsid,
++void selinux_avc_audit(u32 ssid, u32 tsid,
+ 	       u16 tclass, u32 requested,
+ 	       struct av_decision *avd, int result, struct avc_audit_data *a)
  {
- 
- 	char delim;
- 	char *scontextp, *p, *rngptr;
--	struct level_datum *levdatum;
--	struct cat_datum *catdatum, *rngdatum;
-+	struct selinux_ss_level_datum *levdatum;
-+	struct selinux_ss_cat_datum *catdatum, *rngdatum;
- 	int l, rc = -EINVAL;
- 
- 	if (!selinux_mls_enabled) {
-@@ -264,12 +264,12 @@ int mls_context_to_sid(struct policydb *pol,
- 	 * default if provided.
- 	 */
- 	if (!oldc) {
--		struct context *defcon;
-+		struct selinux_ss_context *defcon;
- 
- 		if (def_sid == SECSID_NULL)
- 			goto out;
- 
--		defcon = sidtab_search(s, def_sid);
-+		defcon = selinux_ss_sidtab_search(s, def_sid);
- 		if (!defcon)
- 			goto out;
- 
-@@ -382,7 +382,7 @@ out:
-  * the string `str'.  This function will allocate temporary memory with
-the
-  * given constraints of gfp_mask.
+@@ -706,7 +706,7 @@ void avc_audit(u32 ssid, u32 tsid,
+  * @perms based on @tclass.  Returns %0 on success or
+  * -%ENOMEM if insufficient memory exists to add the callback.
   */
--int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
-+int mls_from_string(char *str, struct selinux_ss_context *context,
-gfp_t gfp_mask)
+-int avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
++int selinux_avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
+ 				     u16 tclass, u32 perms,
+ 				     u32 *out_retained),
+ 		     u32 events, u32 ssid, u32 tsid,
+@@ -827,7 +827,7 @@ out:
+  * avc_ss_reset - Flush the cache and revalidate migrated permissions.
+  * @seqno: policy sequence number
+  */
+-int avc_ss_reset(u32 seqno)
++int selinux_avc_ss_reset(u32 seqno)
  {
- 	char *tmpstr, *freestr;
+ 	struct avc_callback_node *c;
+ 	int i, rc = 0, tmprc;
+@@ -883,12 +883,12 @@ int avc_ss_reset(u32 seqno)
+  * a new decision and add it to the cache.  Return a copy of the decisions
+  * in @avd.  Return %0 if all @requested permissions are granted,
+  * -%EACCES if any permissions are denied, or another -errno upon
+- * other errors.  This function is typically called by avc_has_perm(),
++ * other errors.  This function is typically called by selinux_avc_has_perm(),
+  * but may also be called directly to separate permission checking from
+  * auditing, e.g. in cases where a lock must be held for the check but
+  * should be released for the auditing.
+  */
+-int avc_has_perm_noaudit(u32 ssid, u32 tsid,
++int selinux_avc_has_perm_noaudit(u32 ssid, u32 tsid,
+ 			 u16 tclass, u32 requested,
+ 			 unsigned flags,
+ 			 struct av_decision *in_avd)
+@@ -911,7 +911,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+ 		else
+ 			avd = &avd_entry;
+ 
+-		rc = security_compute_av(ssid, tsid, tclass, requested, avd);
++		rc = selinux_ss_compute_av(ssid, tsid, tclass, requested, avd);
+ 		if (rc)
+ 			goto out;
+ 		rcu_read_lock();
+@@ -955,23 +955,23 @@ out:
+  * permissions are granted, -%EACCES if any permissions are denied, or
+  * another -errno upon other errors.
+  */
+-int avc_has_perm(u32 ssid, u32 tsid, u16 tclass,
++int selinux_avc_has_perm(u32 ssid, u32 tsid, u16 tclass,
+ 		 u32 requested, struct avc_audit_data *auditdata)
+ {
+ 	struct av_decision avd;
  	int rc;
-@@ -407,7 +407,7 @@ int mls_from_string(char *str, struct context
-*context, gfp_t gfp_mask)
- /*
-  * Copies the MLS range `range' into `context'.
-  */
--static inline int mls_range_set(struct context *context,
-+static inline int mls_range_set(struct selinux_ss_context *context,
- 				struct mls_range *range)
- {
- 	int l, rc = 0;
-@@ -424,8 +424,8 @@ static inline int mls_range_set(struct context
-*context,
+ 
+-	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, 0, &avd);
+-	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
++	rc = selinux_avc_has_perm_noaudit(ssid, tsid, tclass, requested, 0, &avd);
++	selinux_avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
  	return rc;
  }
  
--int mls_setup_user_range(struct context *fromcon, struct user_datum
-*user,
--			 struct context *usercon)
-+int mls_setup_user_range(struct selinux_ss_context *fromcon, struct
-selinux_ss_user_datum *user,
-+			 struct selinux_ss_context *usercon)
+-u32 avc_policy_seqno(void)
++u32 selinux_avc_policy_seqno(void)
  {
- 	if (selinux_mls_enabled) {
- 		struct mls_level *fromcon_sen = &(fromcon->range.level[0]);
-@@ -467,12 +467,12 @@ int mls_setup_user_range(struct context *fromcon,
-struct user_datum *user,
-  * structure `c' from the values specified in the
-  * policy `oldp' to the values specified in the policy `newp'.
-  */
--int mls_convert_context(struct policydb *oldp,
--			struct policydb *newp,
--			struct context *c)
-+int mls_convert_context(struct selinux_ss_policydb *oldp,
-+			struct selinux_ss_policydb *newp,
-+			struct selinux_ss_context *c)
- {
--	struct level_datum *levdatum;
--	struct cat_datum *catdatum;
-+	struct selinux_ss_level_datum *levdatum;
-+	struct selinux_ss_cat_datum *catdatum;
- 	struct selinux_ss_ebitmap bitmap;
- 	struct selinux_ss_ebitmap_node *node;
- 	int l, i;
-@@ -507,13 +507,13 @@ int mls_convert_context(struct policydb *oldp,
- 	return 0;
+ 	return avc_cache.latest_notif;
  }
  
--int mls_compute_sid(struct context *scontext,
--		    struct context *tcontext,
-+int mls_compute_sid(struct selinux_ss_context *scontext,
-+		    struct selinux_ss_context *tcontext,
- 		    u16 tclass,
- 		    u32 specified,
--		    struct context *newcontext)
-+		    struct selinux_ss_context *newcontext)
+-void avc_disable(void)
++void selinux_avc_disable(void)
  {
--	struct range_trans *rtr;
-+	struct selinux_ss_range_trans *rtr;
- 
- 	if (!selinux_mls_enabled)
+ 	if (avc_node_cachep)
+ 		kmem_cache_destroy(avc_node_cachep);
+diff --git a/security/selinux/exports.c b/security/selinux/exports.c
+index c73aeaa..aad7bc5 100644
+--- a/security/selinux/exports.c
++++ b/security/selinux/exports.c
+@@ -28,7 +28,7 @@ extern atomic_t selinux_secmark_refcount;
+ int selinux_string_to_sid(char *str, u32 *sid)
+ {
+ 	if (selinux_enabled)
+-		return security_context_to_sid(str, strlen(str), sid);
++		return selinux_ss_context_to_sid(str, strlen(str), sid);
+ 	else {
+ 		*sid = 0;
  		return 0;
-@@ -558,7 +558,7 @@ int mls_compute_sid(struct context *scontext,
-  * NetLabel MLS sensitivity level field.
-  *
-  */
--void mls_export_netlbl_lvl(struct context *context,
-+void mls_export_netlbl_lvl(struct selinux_ss_context *context,
- 			   struct netlbl_lsm_secattr *secattr)
- {
- 	if (!selinux_mls_enabled)
-@@ -578,7 +578,7 @@ void mls_export_netlbl_lvl(struct context *context,
-  * NetLabel MLS sensitivity level into the context.
-  *
-  */
--void mls_import_netlbl_lvl(struct context *context,
-+void mls_import_netlbl_lvl(struct selinux_ss_context *context,
- 			   struct netlbl_lsm_secattr *secattr)
- {
- 	if (!selinux_mls_enabled)
-@@ -598,7 +598,7 @@ void mls_import_netlbl_lvl(struct context *context,
-  * MLS category field.  Returns zero on success, negative values on
-failure.
-  *
-  */
--int mls_export_netlbl_cat(struct context *context,
-+int mls_export_netlbl_cat(struct selinux_ss_context *context,
- 			  struct netlbl_lsm_secattr *secattr)
- {
+@@ -45,7 +45,7 @@ int selinux_secmark_relabel_packet_permission(u32 sid)
+ 		__tsec = current_security();
+ 		tsid = __tsec->sid;
+ 
+-		return avc_has_perm(tsid, sid, SECCLASS_PACKET,
++		return selinux_avc_has_perm(tsid, sid, SECCLASS_PACKET,
+ 				    PACKET__RELABELTO, NULL);
+ 	}
+ 	return 0;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2081055..b1c409a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -373,12 +373,12 @@ static int may_context_mount_sb_relabel(u32 sid,
+ 	const struct task_security_struct *tsec = cred->security;
  	int rc;
-@@ -626,7 +626,7 @@ int mls_export_netlbl_cat(struct context *context,
-  * negative values on failure.
-  *
-  */
--int mls_import_netlbl_cat(struct context *context,
-+int mls_import_netlbl_cat(struct selinux_ss_context *context,
- 			  struct netlbl_lsm_secattr *secattr)
+ 
+-	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
++	rc = selinux_avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
++	rc = selinux_avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELTO, NULL);
+ 	return rc;
+ }
+@@ -389,12 +389,12 @@ static int may_context_mount_inode_relabel(u32 sid,
  {
+ 	const struct task_security_struct *tsec = cred->security;
  	int rc;
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 1276715..4eeca61 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -24,60 +24,60 @@
- #include "context.h"
- #include "policydb.h"
+-	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
++	rc = selinux_avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+ 		return rc;
  
--int mls_compute_context_len(struct context *context);
--void mls_sid_to_context(struct context *context, char **scontext);
--int mls_context_isvalid(struct policydb *p, struct context *c);
--int mls_range_isvalid(struct policydb *p, struct mls_range *r);
--int mls_level_isvalid(struct policydb *p, struct mls_level *l);
-+int mls_compute_context_len(struct selinux_ss_context *context);
-+void mls_sid_to_context(struct selinux_ss_context *context, char
-**scontext);
-+int mls_context_isvalid(struct selinux_ss_policydb *p, struct
-selinux_ss_context *c);
-+int mls_range_isvalid(struct selinux_ss_policydb *p, struct mls_range
-*r);
-+int mls_level_isvalid(struct selinux_ss_policydb *p, struct mls_level
-*l);
+-	rc = avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM,
++	rc = selinux_avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__ASSOCIATE, NULL);
+ 	return rc;
+ }
+@@ -525,21 +525,21 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
  
--int mls_context_to_sid(struct policydb *p,
-+int mls_context_to_sid(struct selinux_ss_policydb *p,
- 		       char oldc,
- 		       char **scontext,
--		       struct context *context,
--		       struct sidtab *s,
-+		       struct selinux_ss_context *context,
-+		       struct selinux_ss_sidtab *s,
- 		       u32 def_sid);
+ 	i = 0;
+ 	if (sbsec->flags & FSCONTEXT_MNT) {
+-		rc = security_sid_to_context(sbsec->sid, &context, &len);
++		rc = selinux_ss_sid_to_context(sbsec->sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+ 		opts->mnt_opts[i] = context;
+ 		opts->mnt_opts_flags[i++] = FSCONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & CONTEXT_MNT) {
+-		rc = security_sid_to_context(sbsec->mntpoint_sid, &context, &len);
++		rc = selinux_ss_sid_to_context(sbsec->mntpoint_sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+ 		opts->mnt_opts[i] = context;
+ 		opts->mnt_opts_flags[i++] = CONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & DEFCONTEXT_MNT) {
+-		rc = security_sid_to_context(sbsec->def_sid, &context, &len);
++		rc = selinux_ss_sid_to_context(sbsec->def_sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+ 		opts->mnt_opts[i] = context;
+@@ -549,7 +549,7 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 		struct inode *root = sbsec->sb->s_root->d_inode;
+ 		struct inode_security_struct *isec = root->i_security;
  
--int mls_from_string(char *str, struct context *context, gfp_t
-gfp_mask);
-+int mls_from_string(char *str, struct selinux_ss_context *context,
-gfp_t gfp_mask);
+-		rc = security_sid_to_context(isec->sid, &context, &len);
++		rc = selinux_ss_sid_to_context(isec->sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+ 		opts->mnt_opts[i] = context;
+@@ -652,7 +652,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
  
--int mls_convert_context(struct policydb *oldp,
--			struct policydb *newp,
--			struct context *context);
-+int mls_convert_context(struct selinux_ss_policydb *oldp,
-+			struct selinux_ss_policydb *newp,
-+			struct selinux_ss_context *context);
+ 		if (flags[i] == SE_SBLABELSUPP)
+ 			continue;
+-		rc = security_context_to_sid(mount_options[i],
++		rc = selinux_ss_context_to_sid(mount_options[i],
+ 					     strlen(mount_options[i]), &sid);
+ 		if (rc) {
+ 			printk(KERN_WARNING "SELinux: security_context_to_sid"
+@@ -717,9 +717,9 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		sbsec->flags |= SE_SBPROC;
  
--int mls_compute_sid(struct context *scontext,
--		    struct context *tcontext,
-+int mls_compute_sid(struct selinux_ss_context *scontext,
-+		    struct selinux_ss_context *tcontext,
- 		    u16 tclass,
- 		    u32 specified,
--		    struct context *newcontext);
-+		    struct selinux_ss_context *newcontext);
+ 	/* Determine the labeling behavior to use for this filesystem type. */
+-	rc = security_fs_use((sbsec->flags & SE_SBPROC) ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
++	rc = selinux_ss_fs_use((sbsec->flags & SE_SBPROC) ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
+ 	if (rc) {
+-		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
++		printk(KERN_WARNING "%s: selinux_ss_fs_use(%s) returned %d\n",
+ 		       __func__, sb->s_type->name, rc);
+ 		goto out;
+ 	}
+@@ -1201,7 +1201,7 @@ static int selinux_proc_get_sid(struct proc_dir_entry *de,
+ 		path = end;
+ 		de = de->parent;
+ 	}
+-	rc = security_genfs_sid("proc", path, tclass, sid);
++	rc = selinux_ss_genfs_sid("proc", path, tclass, sid);
+ 	free_page((unsigned long)buffer);
+ 	return rc;
+ }
+@@ -1318,7 +1318,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			sid = sbsec->def_sid;
+ 			rc = 0;
+ 		} else {
+-			rc = security_context_to_sid_default(context, rc, &sid,
++			rc = selinux_ss_context_to_sid_default(context, rc, &sid,
+ 							     sbsec->def_sid,
+ 							     GFP_NOFS);
+ 			if (rc) {
+@@ -1353,7 +1353,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
  
--int mls_setup_user_range(struct context *fromcon, struct user_datum
-*user,
--			 struct context *usercon);
-+int mls_setup_user_range(struct selinux_ss_context *fromcon, struct
-selinux_ss_user_datum *user,
-+			 struct selinux_ss_context *usercon);
+ 		/* Try to obtain a transition SID. */
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+-		rc = security_transition_sid(isec->task_sid,
++		rc = selinux_ss_transition_sid(isec->task_sid,
+ 					     sbsec->sid,
+ 					     isec->sclass,
+ 					     &sid);
+@@ -1430,7 +1430,7 @@ static int cred_has_perm(const struct cred *actor,
+ {
+ 	u32 asid = cred_sid(actor), tsid = cred_sid(target);
+ 
+-	return avc_has_perm(asid, tsid, SECCLASS_PROCESS, perms, NULL);
++	return selinux_avc_has_perm(asid, tsid, SECCLASS_PROCESS, perms, NULL);
+ }
+ 
+ /*
+@@ -1450,7 +1450,7 @@ static int task_has_perm(const struct task_struct *tsk1,
+ 	__tsec1 = __task_cred(tsk1)->security;	sid1 = __tsec1->sid;
+ 	__tsec2 = __task_cred(tsk2)->security;	sid2 = __tsec2->sid;
+ 	rcu_read_unlock();
+-	return avc_has_perm(sid1, sid2, SECCLASS_PROCESS, perms, NULL);
++	return selinux_avc_has_perm(sid1, sid2, SECCLASS_PROCESS, perms, NULL);
+ }
+ 
+ /*
+@@ -1466,7 +1466,7 @@ static int current_has_perm(const struct task_struct *tsk,
+ 
+ 	sid = current_sid();
+ 	tsid = task_sid(tsk);
+-	return avc_has_perm(sid, tsid, SECCLASS_PROCESS, perms, NULL);
++	return selinux_avc_has_perm(sid, tsid, SECCLASS_PROCESS, perms, NULL);
+ }
+ 
+ #if CAP_LAST_CAP > 63
+@@ -1502,9 +1502,9 @@ static int task_has_capability(struct task_struct *tsk,
+ 		BUG();
+ 	}
+ 
+-	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
++	rc = selinux_avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+ 	if (audit == SECURITY_CAP_AUDIT)
+-		avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
++		selinux_avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+ 	return rc;
+ }
+ 
+@@ -1514,7 +1514,7 @@ static int task_has_system(struct task_struct *tsk,
+ {
+ 	u32 sid = task_sid(tsk);
+ 
+-	return avc_has_perm(sid, SECINITSID_KERNEL,
++	return selinux_avc_has_perm(sid, SECINITSID_KERNEL,
+ 			    SECCLASS_SYSTEM, perms, NULL);
+ }
+ 
+@@ -1542,7 +1542,7 @@ static int inode_has_perm(const struct cred *cred,
+ 		ad.u.fs.inode = inode;
+ 	}
+ 
+-	return avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
++	return selinux_avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
+ }
+ 
+ /* Same as inode_has_perm, but pass explicit audit data containing
+@@ -1584,7 +1584,7 @@ static int file_has_perm(const struct cred *cred,
+ 	ad.u.fs.path = file->f_path;
+ 
+ 	if (sid != fsec->sid) {
+-		rc = avc_has_perm(sid, fsec->sid,
++		rc = selinux_avc_has_perm(sid, fsec->sid,
+ 				  SECCLASS_FD,
+ 				  FD__USE,
+ 				  &ad);
+@@ -1623,23 +1623,23 @@ static int may_create(struct inode *dir,
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.path.dentry = dentry;
+ 
+-	rc = avc_has_perm(sid, dsec->sid, SECCLASS_DIR,
++	rc = selinux_avc_has_perm(sid, dsec->sid, SECCLASS_DIR,
+ 			  DIR__ADD_NAME | DIR__SEARCH,
+ 			  &ad);
+ 	if (rc)
+ 		return rc;
+ 
+ 	if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
+-		rc = security_transition_sid(sid, dsec->sid, tclass, &newsid);
++		rc = selinux_ss_transition_sid(sid, dsec->sid, tclass, &newsid);
+ 		if (rc)
+ 			return rc;
+ 	}
+ 
+-	rc = avc_has_perm(sid, newsid, tclass, FILE__CREATE, &ad);
++	rc = selinux_avc_has_perm(sid, newsid, tclass, FILE__CREATE, &ad);
+ 	if (rc)
+ 		return rc;
+ 
+-	return avc_has_perm(newsid, sbsec->sid,
++	return selinux_avc_has_perm(newsid, sbsec->sid,
+ 			    SECCLASS_FILESYSTEM,
+ 			    FILESYSTEM__ASSOCIATE, &ad);
+ }
+@@ -1650,7 +1650,7 @@ static int may_create_key(u32 ksid,
+ {
+ 	u32 sid = task_sid(ctx);
+ 
+-	return avc_has_perm(sid, ksid, SECCLASS_KEY, KEY__CREATE, NULL);
++	return selinux_avc_has_perm(sid, ksid, SECCLASS_KEY, KEY__CREATE, NULL);
+ }
+ 
+ #define MAY_LINK	0
+@@ -1677,7 +1677,7 @@ static int may_link(struct inode *dir,
+ 
+ 	av = DIR__SEARCH;
+ 	av |= (kind ? DIR__REMOVE_NAME : DIR__ADD_NAME);
+-	rc = avc_has_perm(sid, dsec->sid, SECCLASS_DIR, av, &ad);
++	rc = selinux_avc_has_perm(sid, dsec->sid, SECCLASS_DIR, av, &ad);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1697,7 +1697,7 @@ static int may_link(struct inode *dir,
+ 		return 0;
+ 	}
+ 
+-	rc = avc_has_perm(sid, isec->sid, isec->sclass, av, &ad);
++	rc = selinux_avc_has_perm(sid, isec->sid, isec->sclass, av, &ad);
+ 	return rc;
+ }
+ 
+@@ -1721,16 +1721,16 @@ static inline int may_rename(struct inode *old_dir,
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 
+ 	ad.u.fs.path.dentry = old_dentry;
+-	rc = avc_has_perm(sid, old_dsec->sid, SECCLASS_DIR,
++	rc = selinux_avc_has_perm(sid, old_dsec->sid, SECCLASS_DIR,
+ 			  DIR__REMOVE_NAME | DIR__SEARCH, &ad);
+ 	if (rc)
+ 		return rc;
+-	rc = avc_has_perm(sid, old_isec->sid,
++	rc = selinux_avc_has_perm(sid, old_isec->sid,
+ 			  old_isec->sclass, FILE__RENAME, &ad);
+ 	if (rc)
+ 		return rc;
+ 	if (old_is_dir && new_dir != old_dir) {
+-		rc = avc_has_perm(sid, old_isec->sid,
++		rc = selinux_avc_has_perm(sid, old_isec->sid,
+ 				  old_isec->sclass, DIR__REPARENT, &ad);
+ 		if (rc)
+ 			return rc;
+@@ -1740,13 +1740,13 @@ static inline int may_rename(struct inode *old_dir,
+ 	av = DIR__ADD_NAME | DIR__SEARCH;
+ 	if (new_dentry->d_inode)
+ 		av |= DIR__REMOVE_NAME;
+-	rc = avc_has_perm(sid, new_dsec->sid, SECCLASS_DIR, av, &ad);
++	rc = selinux_avc_has_perm(sid, new_dsec->sid, SECCLASS_DIR, av, &ad);
+ 	if (rc)
+ 		return rc;
+ 	if (new_dentry->d_inode) {
+ 		new_isec = new_dentry->d_inode->i_security;
+ 		new_is_dir = S_ISDIR(new_dentry->d_inode->i_mode);
+-		rc = avc_has_perm(sid, new_isec->sid,
++		rc = selinux_avc_has_perm(sid, new_isec->sid,
+ 				  new_isec->sclass,
+ 				  (new_is_dir ? DIR__RMDIR : FILE__UNLINK), &ad);
+ 		if (rc)
+@@ -1766,7 +1766,7 @@ static int superblock_has_perm(const struct cred *cred,
+ 	u32 sid = cred_sid(cred);
+ 
+ 	sbsec = sb->s_security;
+-	return avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
++	return selinux_avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
+ }
+ 
+ /* Convert a Linux mode and permission mask to an access vector. */
+@@ -1866,7 +1866,7 @@ static int selinux_ptrace_access_check(struct task_struct *child,
+ 	if (mode == PTRACE_MODE_READ) {
+ 		u32 sid = current_sid();
+ 		u32 csid = task_sid(child);
+-		return avc_has_perm(sid, csid, SECCLASS_FILE, FILE__READ, NULL);
++		return selinux_avc_has_perm(sid, csid, SECCLASS_FILE, FILE__READ, NULL);
+ 	}
+ 
+ 	return current_has_perm(child, PROCESS__PTRACE);
+@@ -1966,7 +1966,7 @@ static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
+ 	end -= 4;
+ 	memcpy(end, "/sys", 4);
+ 	path = end;
+-	rc = security_genfs_sid("proc", path, tclass, sid);
++	rc = selinux_ss_genfs_sid("proc", path, tclass, sid);
+ out_free:
+ 	free_page((unsigned long)buffer);
+ out:
+@@ -1992,7 +1992,7 @@ static int selinux_sysctl(ctl_table *table, int op)
+ 	/* The op values are "defined" in sysctl.c, thereby creating
+ 	 * a bad coupling between this module and sysctl.c */
+ 	if (op == 001) {
+-		error = avc_has_perm(sid, tsid,
++		error = selinux_avc_has_perm(sid, tsid,
+ 				     SECCLASS_DIR, DIR__SEARCH, NULL);
+ 	} else {
+ 		av = 0;
+@@ -2001,7 +2001,7 @@ static int selinux_sysctl(ctl_table *table, int op)
+ 		if (op & 002)
+ 			av |= FILE__WRITE;
+ 		if (av)
+-			error = avc_has_perm(sid, tsid,
++			error = selinux_avc_has_perm(sid, tsid,
+ 					     SECCLASS_FILE, av, NULL);
+ 	}
+ 
+@@ -2132,7 +2132,7 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 		new_tsec->exec_sid = 0;
+ 	} else {
+ 		/* Check for a default transition on this program. */
+-		rc = security_transition_sid(old_tsec->sid, isec->sid,
++		rc = selinux_ss_transition_sid(old_tsec->sid, isec->sid,
+ 					     SECCLASS_PROCESS, &new_tsec->sid);
+ 		if (rc)
+ 			return rc;
+@@ -2145,25 +2145,25 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 		new_tsec->sid = old_tsec->sid;
+ 
+ 	if (new_tsec->sid == old_tsec->sid) {
+-		rc = avc_has_perm(old_tsec->sid, isec->sid,
++		rc = selinux_avc_has_perm(old_tsec->sid, isec->sid,
+ 				  SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
+ 		if (rc)
+ 			return rc;
+ 	} else {
+ 		/* Check permissions for the transition. */
+-		rc = avc_has_perm(old_tsec->sid, new_tsec->sid,
++		rc = selinux_avc_has_perm(old_tsec->sid, new_tsec->sid,
+ 				  SECCLASS_PROCESS, PROCESS__TRANSITION, &ad);
+ 		if (rc)
+ 			return rc;
+ 
+-		rc = avc_has_perm(new_tsec->sid, isec->sid,
++		rc = selinux_avc_has_perm(new_tsec->sid, isec->sid,
+ 				  SECCLASS_FILE, FILE__ENTRYPOINT, &ad);
+ 		if (rc)
+ 			return rc;
+ 
+ 		/* Check for shared state */
+ 		if (bprm->unsafe & LSM_UNSAFE_SHARE) {
+-			rc = avc_has_perm(old_tsec->sid, new_tsec->sid,
++			rc = selinux_avc_has_perm(old_tsec->sid, new_tsec->sid,
+ 					  SECCLASS_PROCESS, PROCESS__SHARE,
+ 					  NULL);
+ 			if (rc)
+@@ -2187,7 +2187,7 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 			rcu_read_unlock();
+ 
+ 			if (ptsid != 0) {
+-				rc = avc_has_perm(ptsid, new_tsec->sid,
++				rc = selinux_avc_has_perm(ptsid, new_tsec->sid,
+ 						  SECCLASS_PROCESS,
+ 						  PROCESS__PTRACE, NULL);
+ 				if (rc)
+@@ -2216,7 +2216,7 @@ static int selinux_bprm_secureexec(struct linux_binprm *bprm)
+ 		/* Enable secure mode for SIDs transitions unless
+ 		   the noatsecure permission is granted between
+ 		   the two SIDs, i.e. ahp returns 0. */
+-		atsecure = avc_has_perm(osid, sid,
++		atsecure = selinux_avc_has_perm(osid, sid,
+ 					SECCLASS_PROCESS,
+ 					PROCESS__NOATSECURE, NULL);
+ 	}
+@@ -2351,7 +2351,7 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+ 	 * higher than the default soft limit for cases where the default is
+ 	 * lower than the hard limit, e.g. RLIMIT_CORE or RLIMIT_STACK.
+ 	 */
+-	rc = avc_has_perm(new_tsec->osid, new_tsec->sid, SECCLASS_PROCESS,
++	rc = selinux_avc_has_perm(new_tsec->osid, new_tsec->sid, SECCLASS_PROCESS,
+ 			  PROCESS__RLIMITINH, NULL);
+ 	if (rc) {
+ 		for (i = 0; i < RLIM_NLIMITS; i++) {
+@@ -2387,7 +2387,7 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ 	 * This must occur _after_ the task SID has been updated so that any
+ 	 * kill done after the flush will be checked against the new SID.
+ 	 */
+-	rc = avc_has_perm(osid, sid, SECCLASS_PROCESS, PROCESS__SIGINH, NULL);
++	rc = selinux_avc_has_perm(osid, sid, SECCLASS_PROCESS, PROCESS__SIGINH, NULL);
+ 	if (rc) {
+ 		memset(&itimer, 0, sizeof itimer);
+ 		for (i = 0; i < 3; i++)
+@@ -2595,7 +2595,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	newsid = tsec->create_sid;
+ 
+ 	if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
+-		rc = security_transition_sid(sid, dsec->sid,
++		rc = selinux_ss_transition_sid(sid, dsec->sid,
+ 					     inode_mode_to_security_class(inode->i_mode),
+ 					     &newsid);
+ 		if (rc) {
+@@ -2627,7 +2627,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	}
+ 
+ 	if (value && len) {
+-		rc = security_sid_to_context_force(newsid, &context, &clen);
++		rc = selinux_ss_sid_to_context_force(newsid, &context, &clen);
+ 		if (rc) {
+ 			kfree(namep);
+ 			return rc;
+@@ -2772,31 +2772,31 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.path.dentry = dentry;
+ 
+-	rc = avc_has_perm(sid, isec->sid, isec->sclass,
++	rc = selinux_avc_has_perm(sid, isec->sid, isec->sclass,
+ 			  FILE__RELABELFROM, &ad);
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = security_context_to_sid(value, size, &newsid);
++	rc = selinux_ss_context_to_sid(value, size, &newsid);
+ 	if (rc == -EINVAL) {
+ 		if (!capable(CAP_MAC_ADMIN))
+ 			return rc;
+-		rc = security_context_to_sid_force(value, size, &newsid);
++		rc = selinux_ss_context_to_sid_force(value, size, &newsid);
+ 	}
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = avc_has_perm(sid, newsid, isec->sclass,
++	rc = selinux_avc_has_perm(sid, newsid, isec->sclass,
+ 			  FILE__RELABELTO, &ad);
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = security_validate_transition(isec->sid, newsid, sid,
++	rc = selinux_ss_validate_transition(isec->sid, newsid, sid,
+ 					  isec->sclass);
+ 	if (rc)
+ 		return rc;
+ 
+-	return avc_has_perm(newsid,
++	return selinux_avc_has_perm(newsid,
+ 			    sbsec->sid,
+ 			    SECCLASS_FILESYSTEM,
+ 			    FILESYSTEM__ASSOCIATE,
+@@ -2817,7 +2817,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 		return;
+ 	}
+ 
+-	rc = security_context_to_sid_force(value, size, &newsid);
++	rc = selinux_ss_context_to_sid_force(value, size, &newsid);
+ 	if (rc) {
+ 		printk(KERN_ERR "SELinux:  unable to map context to SID"
+ 		       "for (%s, %lu), rc=%d\n",
+@@ -2880,10 +2880,10 @@ static int selinux_inode_getsecurity(const struct inode *inode, const char *name
+ 	error = selinux_capable(current, current_cred(), CAP_MAC_ADMIN,
+ 				SECURITY_CAP_NOAUDIT);
+ 	if (!error)
+-		error = security_sid_to_context_force(isec->sid, &context,
++		error = selinux_ss_sid_to_context_force(isec->sid, &context,
+ 						      &size);
+ 	else
+-		error = security_sid_to_context(isec->sid, &context, &size);
++		error = selinux_ss_sid_to_context(isec->sid, &context, &size);
+ 	if (error)
+ 		return error;
+ 	error = size;
+@@ -2909,7 +2909,7 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 	if (!value || !size)
+ 		return -EACCES;
+ 
+-	rc = security_context_to_sid((void *)value, size, &newsid);
++	rc = selinux_ss_context_to_sid((void *)value, size, &newsid);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -2958,7 +2958,7 @@ static int selinux_file_permission(struct file *file, int mask)
+ 		return 0;
+ 
+ 	if (sid == fsec->sid && fsec->isid == isec->sid &&
+-	    fsec->pseqno == avc_policy_seqno())
++	    fsec->pseqno == selinux_avc_policy_seqno())
+ 		/* No change since dentry_open check. */
+ 		return 0;
+ 
+@@ -3035,7 +3035,7 @@ static int selinux_file_mmap(struct file *file, unsigned long reqprot,
+ 	u32 sid = current_sid();
+ 
+ 	if (addr < mmap_min_addr)
+-		rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
++		rc = selinux_avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
+ 				  MEMPROTECT__MMAP_ZERO, NULL);
+ 	if (rc || addr_only)
+ 		return rc;
+@@ -3164,7 +3164,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
+ 	else
+ 		perm = signal_to_av(signum);
+ 
+-	return avc_has_perm(fsec->fown_sid, sid,
++	return selinux_avc_has_perm(fsec->fown_sid, sid,
+ 			    SECCLASS_PROCESS, perm, NULL);
+ }
+ 
+@@ -3192,7 +3192,7 @@ static int selinux_dentry_open(struct file *file, const struct cred *cred)
+ 	 * struct as its SID.
+ 	 */
+ 	fsec->isid = isec->sid;
+-	fsec->pseqno = avc_policy_seqno();
++	fsec->pseqno = selinux_avc_policy_seqno();
+ 	/*
+ 	 * Since the inode label or policy seqno may have changed
+ 	 * between the selinux_inode_permission check and the saving
+@@ -3250,7 +3250,7 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+-	ret = avc_has_perm(sid, secid,
++	ret = selinux_avc_has_perm(sid, secid,
+ 			   SECCLASS_KERNEL_SERVICE,
+ 			   KERNEL_SERVICE__USE_AS_OVERRIDE,
+ 			   NULL);
+@@ -3274,7 +3274,7 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+-	ret = avc_has_perm(sid, isec->sid,
++	ret = selinux_avc_has_perm(sid, isec->sid,
+ 			   SECCLASS_KERNEL_SERVICE,
+ 			   KERNEL_SERVICE__CREATE_FILES_AS,
+ 			   NULL);
+@@ -3377,7 +3377,7 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
+ 	else
+ 		perm = signal_to_av(sig);
+ 	if (secid)
+-		rc = avc_has_perm(secid, task_sid(p),
++		rc = selinux_avc_has_perm(secid, task_sid(p),
+ 				  SECCLASS_PROCESS, perm, NULL);
+ 	else
+ 		rc = current_has_perm(p, perm);
+@@ -3619,7 +3619,7 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+ 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 	selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
+ 
+-	err = security_net_peersid_resolve(nlbl_sid, nlbl_type, xfrm_sid, sid);
++	err = selinux_ss_net_peersid_resolve(nlbl_sid, nlbl_type, xfrm_sid, sid);
+ 	if (unlikely(err)) {
+ 		printk(KERN_WARNING
+ 		       "SELinux: failure in selinux_skb_peerlbl_sid(),"
+@@ -3647,7 +3647,7 @@ static int socket_has_perm(struct task_struct *task, struct socket *sock,
+ 
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = sock->sk;
+-	err = avc_has_perm(sid, isec->sid, isec->sclass, perms, &ad);
++	err = selinux_avc_has_perm(sid, isec->sid, isec->sclass, perms, &ad);
+ 
+ out:
+ 	return err;
+@@ -3669,7 +3669,7 @@ static int selinux_socket_create(int family, int type,
+ 	newsid = tsec->sockcreate_sid ?: sid;
+ 
+ 	secclass = socket_type_to_security_class(family, type, protocol);
+-	err = avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
++	err = selinux_avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
+ 
+ out:
+ 	return err;
+@@ -3757,14 +3757,14 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 			inet_get_local_port_range(&low, &high);
+ 
+ 			if (snum < max(PROT_SOCK, low) || snum > high) {
+-				err = sel_netport_sid(sk->sk_protocol,
++				err = selinux_netport_sid(sk->sk_protocol,
+ 						      snum, &sid);
+ 				if (err)
+ 					goto out;
+ 				AVC_AUDIT_DATA_INIT(&ad, NET);
+ 				ad.u.net.sport = htons(snum);
+ 				ad.u.net.family = family;
+-				err = avc_has_perm(isec->sid, sid,
++				err = selinux_avc_has_perm(isec->sid, sid,
+ 						   isec->sclass,
+ 						   SOCKET__NAME_BIND, &ad);
+ 				if (err)
+@@ -3790,7 +3790,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 			break;
+ 		}
+ 
+-		err = sel_netnode_sid(addrp, family, &sid);
++		err = selinux_netnode_sid(addrp, family, &sid);
+ 		if (err)
+ 			goto out;
+ 
+@@ -3803,7 +3803,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		else
+ 			ipv6_addr_copy(&ad.u.net.v6info.saddr, &addr6->sin6_addr);
+ 
+-		err = avc_has_perm(isec->sid, sid,
++		err = selinux_avc_has_perm(isec->sid, sid,
+ 				   isec->sclass, node_perm, &ad);
+ 		if (err)
+ 			goto out;
+@@ -3846,7 +3846,7 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
+ 			snum = ntohs(addr6->sin6_port);
+ 		}
+ 
+-		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
++		err = selinux_netport_sid(sk->sk_protocol, snum, &sid);
+ 		if (err)
+ 			goto out;
+ 
+@@ -3856,7 +3856,7 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
+ 		AVC_AUDIT_DATA_INIT(&ad, NET);
+ 		ad.u.net.dport = htons(snum);
+ 		ad.u.net.family = sk->sk_family;
+-		err = avc_has_perm(isec->sid, sid, isec->sclass, perm, &ad);
++		err = selinux_avc_has_perm(isec->sid, sid, isec->sclass, perm, &ad);
+ 		if (err)
+ 			goto out;
+ 	}
+@@ -3952,7 +3952,7 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = other->sk;
+ 
+-	err = avc_has_perm(isec->sid, other_isec->sid,
++	err = selinux_avc_has_perm(isec->sid, other_isec->sid,
+ 			   isec->sclass,
+ 			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
+ 	if (err)
+@@ -3965,7 +3965,7 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+ 	/* server child socket */
+ 	ssec = newsk->sk_security;
+ 	ssec->peer_sid = isec->sid;
+-	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
++	err = selinux_ss_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
+ 
+ 	return err;
+ }
+@@ -3984,7 +3984,7 @@ static int selinux_socket_unix_may_send(struct socket *sock,
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = other->sk;
+ 
+-	err = avc_has_perm(isec->sid, other_isec->sid,
++	err = selinux_avc_has_perm(isec->sid, other_isec->sid,
+ 			   isec->sclass, SOCKET__SENDTO, &ad);
+ 	if (err)
+ 		return err;
+@@ -4003,15 +4003,15 @@ static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
+ 	err = sel_netif_sid(ifindex, &if_sid);
+ 	if (err)
+ 		return err;
+-	err = avc_has_perm(peer_sid, if_sid,
++	err = selinux_avc_has_perm(peer_sid, if_sid,
+ 			   SECCLASS_NETIF, NETIF__INGRESS, ad);
+ 	if (err)
+ 		return err;
+ 
+-	err = sel_netnode_sid(addrp, family, &node_sid);
++	err = selinux_netnode_sid(addrp, family, &node_sid);
+ 	if (err)
+ 		return err;
+-	return avc_has_perm(peer_sid, node_sid,
++	return selinux_avc_has_perm(peer_sid, node_sid,
+ 			    SECCLASS_NODE, NODE__RECVFROM, ad);
+ }
+ 
+@@ -4033,7 +4033,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 		return err;
+ 
+ 	if (selinux_secmark_enabled()) {
+-		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++		err = selinux_avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+ 		if (err)
+ 			return err;
+@@ -4043,7 +4043,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
+ 		if (err)
+ 			return err;
+-		err = avc_has_perm(sk_sid, peer_sid,
++		err = selinux_avc_has_perm(sk_sid, peer_sid,
+ 				   SECCLASS_PEER, PEER__RECV, &ad);
+ 		if (err)
+ 			selinux_netlbl_err(skb, err, 0);
+@@ -4106,14 +4106,14 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 			selinux_netlbl_err(skb, err, 0);
+ 			return err;
+ 		}
+-		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
++		err = selinux_avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
+ 				   PEER__RECV, &ad);
+ 		if (err)
+ 			selinux_netlbl_err(skb, err, 0);
+ 	}
+ 
+ 	if (secmark_active) {
+-		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++		err = selinux_avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+ 		if (err)
+ 			return err;
+@@ -4144,7 +4144,7 @@ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *op
+ 		goto out;
+ 	}
+ 
+-	err = security_sid_to_context(peer_sid, &scontext, &scontext_len);
++	err = selinux_ss_sid_to_context(peer_sid, &scontext, &scontext_len);
+ 
+ 	if (err)
+ 		goto out;
+@@ -4256,7 +4256,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 		req->secid = sksec->sid;
+ 		req->peer_secid = SECSID_NULL;
+ 	} else {
+-		err = security_sid_mls_copy(sksec->sid, peersid, &newsid);
++		err = selinux_ss_sid_mls_copy(sksec->sid, peersid, &newsid);
+ 		if (err)
+ 			return err;
+ 		req->secid = newsid;
+@@ -4322,7 +4322,7 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 				  "SELinux:  unrecognized netlink message"
+ 				  " type=%hu for sclass=%hu\n",
+ 				  nlh->nlmsg_type, isec->sclass);
+-			if (!selinux_enforcing || security_get_allow_unknown())
++			if (!selinux_enforcing || selinux_ss_get_allow_unknown())
+ 				err = 0;
+ 		}
+ 
+@@ -4378,7 +4378,7 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 	}
+ 
+ 	if (secmark_active)
+-		if (avc_has_perm(peer_sid, skb->secmark,
++		if (selinux_avc_has_perm(peer_sid, skb->secmark,
+ 				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
+ 			return NF_DROP;
+ 
+@@ -4465,7 +4465,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 		return NF_DROP;
+ 
+ 	if (selinux_secmark_enabled())
+-		if (avc_has_perm(sksec->sid, skb->secmark,
++		if (selinux_avc_has_perm(sksec->sid, skb->secmark,
+ 				 SECCLASS_PACKET, PACKET__SEND, &ad))
+ 			return NF_DROP;
+ 
+@@ -4548,7 +4548,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 		return NF_DROP;
+ 
+ 	if (secmark_active)
+-		if (avc_has_perm(peer_sid, skb->secmark,
++		if (selinux_avc_has_perm(peer_sid, skb->secmark,
+ 				 SECCLASS_PACKET, secmark_perm, &ad))
+ 			return NF_DROP;
+ 
+@@ -4558,13 +4558,13 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 
+ 		if (sel_netif_sid(ifindex, &if_sid))
+ 			return NF_DROP;
+-		if (avc_has_perm(peer_sid, if_sid,
++		if (selinux_avc_has_perm(peer_sid, if_sid,
+ 				 SECCLASS_NETIF, NETIF__EGRESS, &ad))
+ 			return NF_DROP;
+ 
+-		if (sel_netnode_sid(addrp, family, &node_sid))
++		if (selinux_netnode_sid(addrp, family, &node_sid))
+ 			return NF_DROP;
+-		if (avc_has_perm(peer_sid, node_sid,
++		if (selinux_avc_has_perm(peer_sid, node_sid,
+ 				 SECCLASS_NODE, NODE__SENDTO, &ad))
+ 			return NF_DROP;
+ 	}
+@@ -4620,7 +4620,7 @@ static int selinux_netlink_recv(struct sk_buff *skb, int capability)
+ 	AVC_AUDIT_DATA_INIT(&ad, CAP);
+ 	ad.u.cap = capability;
+ 
+-	return avc_has_perm(NETLINK_CB(skb).sid, NETLINK_CB(skb).sid,
++	return selinux_avc_has_perm(NETLINK_CB(skb).sid, NETLINK_CB(skb).sid,
+ 			    SECCLASS_CAPABILITY, CAP_TO_MASK(capability), &ad);
+ }
+ 
+@@ -4684,7 +4684,7 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = ipc_perms->key;
+ 
+-	return avc_has_perm(sid, isec->sid, isec->sclass, perms, &ad);
++	return selinux_avc_has_perm(sid, isec->sid, isec->sclass, perms, &ad);
+ }
+ 
+ static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
+@@ -4714,7 +4714,7 @@ static int selinux_msg_queue_alloc_security(struct msg_queue *msq)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = msq->q_perm.key;
+ 
+-	rc = avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
++	rc = selinux_avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
+ 			  MSGQ__CREATE, &ad);
+ 	if (rc) {
+ 		ipc_free_security(&msq->q_perm);
+@@ -4739,7 +4739,7 @@ static int selinux_msg_queue_associate(struct msg_queue *msq, int msqflg)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = msq->q_perm.key;
+ 
+-	return avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
++	return selinux_avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
+ 			    MSGQ__ASSOCIATE, &ad);
+ }
+ 
+@@ -4790,7 +4790,7 @@ static int selinux_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg,
+ 		 * Compute new sid based on current process and
+ 		 * message queue this message will be stored in
+ 		 */
+-		rc = security_transition_sid(sid, isec->sid, SECCLASS_MSG,
++		rc = selinux_ss_transition_sid(sid, isec->sid, SECCLASS_MSG,
+ 					     &msec->sid);
+ 		if (rc)
+ 			return rc;
+@@ -4800,15 +4800,15 @@ static int selinux_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg,
+ 	ad.u.ipc_id = msq->q_perm.key;
+ 
+ 	/* Can this process write to the queue? */
+-	rc = avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
++	rc = selinux_avc_has_perm(sid, isec->sid, SECCLASS_MSGQ,
+ 			  MSGQ__WRITE, &ad);
+ 	if (!rc)
+ 		/* Can this process send the message */
+-		rc = avc_has_perm(sid, msec->sid, SECCLASS_MSG,
++		rc = selinux_avc_has_perm(sid, msec->sid, SECCLASS_MSG,
+ 				  MSG__SEND, &ad);
+ 	if (!rc)
+ 		/* Can the message be put in the queue? */
+-		rc = avc_has_perm(msec->sid, isec->sid, SECCLASS_MSGQ,
++		rc = selinux_avc_has_perm(msec->sid, isec->sid, SECCLASS_MSGQ,
+ 				  MSGQ__ENQUEUE, &ad);
+ 
+ 	return rc;
+@@ -4830,10 +4830,10 @@ static int selinux_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = msq->q_perm.key;
+ 
+-	rc = avc_has_perm(sid, isec->sid,
++	rc = selinux_avc_has_perm(sid, isec->sid,
+ 			  SECCLASS_MSGQ, MSGQ__READ, &ad);
+ 	if (!rc)
+-		rc = avc_has_perm(sid, msec->sid,
++		rc = selinux_avc_has_perm(sid, msec->sid,
+ 				  SECCLASS_MSG, MSG__RECEIVE, &ad);
+ 	return rc;
+ }
+@@ -4855,7 +4855,7 @@ static int selinux_shm_alloc_security(struct shmid_kernel *shp)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = shp->shm_perm.key;
+ 
+-	rc = avc_has_perm(sid, isec->sid, SECCLASS_SHM,
++	rc = selinux_avc_has_perm(sid, isec->sid, SECCLASS_SHM,
+ 			  SHM__CREATE, &ad);
+ 	if (rc) {
+ 		ipc_free_security(&shp->shm_perm);
+@@ -4880,7 +4880,7 @@ static int selinux_shm_associate(struct shmid_kernel *shp, int shmflg)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = shp->shm_perm.key;
+ 
+-	return avc_has_perm(sid, isec->sid, SECCLASS_SHM,
++	return selinux_avc_has_perm(sid, isec->sid, SECCLASS_SHM,
+ 			    SHM__ASSOCIATE, &ad);
+ }
+ 
+@@ -4947,7 +4947,7 @@ static int selinux_sem_alloc_security(struct sem_array *sma)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = sma->sem_perm.key;
+ 
+-	rc = avc_has_perm(sid, isec->sid, SECCLASS_SEM,
++	rc = selinux_avc_has_perm(sid, isec->sid, SECCLASS_SEM,
+ 			  SEM__CREATE, &ad);
+ 	if (rc) {
+ 		ipc_free_security(&sma->sem_perm);
+@@ -4972,7 +4972,7 @@ static int selinux_sem_associate(struct sem_array *sma, int semflg)
+ 	AVC_AUDIT_DATA_INIT(&ad, IPC);
+ 	ad.u.ipc_id = sma->sem_perm.key;
+ 
+-	return avc_has_perm(sid, isec->sid, SECCLASS_SEM,
++	return selinux_avc_has_perm(sid, isec->sid, SECCLASS_SEM,
+ 			    SEM__ASSOCIATE, &ad);
+ }
+ 
+@@ -5095,7 +5095,7 @@ static int selinux_getprocattr(struct task_struct *p,
+ 	if (!sid)
+ 		return 0;
+ 
+-	error = security_sid_to_context(sid, value, &len);
++	error = selinux_ss_sid_to_context(sid, value, &len);
+ 	if (error)
+ 		return error;
+ 	return len;
+@@ -5147,11 +5147,11 @@ static int selinux_setprocattr(struct task_struct *p,
+ 			str[size-1] = 0;
+ 			size--;
+ 		}
+-		error = security_context_to_sid(value, size, &sid);
++		error = selinux_ss_context_to_sid(value, size, &sid);
+ 		if (error == -EINVAL && !strcmp(name, "fscreate")) {
+ 			if (!capable(CAP_MAC_ADMIN))
+ 				return error;
+-			error = security_context_to_sid_force(value, size,
++			error = selinux_ss_context_to_sid_force(value, size,
+ 							      &sid);
+ 		}
+ 		if (error)
+@@ -5188,13 +5188,13 @@ static int selinux_setprocattr(struct task_struct *p,
+ 		/* Only allow single threaded processes to change context */
+ 		error = -EPERM;
+ 		if (!is_single_threaded(p)) {
+-			error = security_bounded_transition(tsec->sid, sid);
++			error = selinux_ss_bounded_transition(tsec->sid, sid);
+ 			if (error)
+ 				goto abort_change;
+ 		}
+ 
+ 		/* Check permissions for the transition. */
+-		error = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
++		error = selinux_avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
+ 				     PROCESS__DYNTRANSITION, NULL);
+ 		if (error)
+ 			goto abort_change;
+@@ -5209,7 +5209,7 @@ static int selinux_setprocattr(struct task_struct *p,
+ 		task_unlock(p);
+ 
+ 		if (tracer) {
+-			error = avc_has_perm(ptsid, sid, SECCLASS_PROCESS,
++			error = selinux_avc_has_perm(ptsid, sid, SECCLASS_PROCESS,
+ 					     PROCESS__PTRACE, NULL);
+ 			if (error)
+ 				goto abort_change;
+@@ -5231,12 +5231,12 @@ abort_change:
+ 
+ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ {
+-	return security_sid_to_context(secid, secdata, seclen);
++	return selinux_ss_sid_to_context(secid, secdata, seclen);
+ }
+ 
+ static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+-	return security_context_to_sid(secdata, seclen, secid);
++	return selinux_ss_context_to_sid(secdata, seclen, secid);
+ }
+ 
+ static void selinux_release_secctx(char *secdata, u32 seclen)
+@@ -5293,7 +5293,7 @@ static int selinux_key_permission(key_ref_t key_ref,
+ 	key = key_ref_to_ptr(key_ref);
+ 	ksec = key->security;
+ 
+-	return avc_has_perm(sid, ksec->sid, SECCLASS_KEY, perm, NULL);
++	return selinux_avc_has_perm(sid, ksec->sid, SECCLASS_KEY, perm, NULL);
+ }
+ 
+ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+@@ -5303,7 +5303,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ 	unsigned len;
+ 	int rc;
+ 
+-	rc = security_sid_to_context(ksec->sid, &context, &len);
++	rc = selinux_ss_sid_to_context(ksec->sid, &context, &len);
+ 	if (!rc)
+ 		rc = len;
+ 	*_buffer = context;
+@@ -5518,7 +5518,7 @@ static __init int selinux_init(void)
+ 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
+ 					    sizeof(struct inode_security_struct),
+ 					    0, SLAB_PANIC, NULL);
+-	avc_init();
++	selinux_avc_init();
+ 
+ 	secondary_ops = security_ops;
+ 	if (!secondary_ops)
+@@ -5684,7 +5684,7 @@ int selinux_disable(void)
+ 	selinux_enabled = 0;
+ 
+ 	/* Try to destroy the avc node cache */
+-	avc_disable();
++	selinux_avc_disable();
+ 
+ 	/* Reset security_ops to the secondary module, dummy or capability. */
+ 	security_ops = secondary_ops;
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index ae4c3a0..3979cb4 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -94,23 +94,23 @@ struct avc_cache_stats {
+  * AVC operations
+  */
+ 
+-void __init avc_init(void);
++void __init selinux_avc_init(void);
+ 
+-void avc_audit(u32 ssid, u32 tsid,
++void selinux_avc_audit(u32 ssid, u32 tsid,
+ 	       u16 tclass, u32 requested,
+ 	       struct av_decision *avd, int result, struct avc_audit_data *auditdata);
+ 
+ #define AVC_STRICT 1 /* Ignore permissive mode. */
+-int avc_has_perm_noaudit(u32 ssid, u32 tsid,
++int selinux_avc_has_perm_noaudit(u32 ssid, u32 tsid,
+ 			 u16 tclass, u32 requested,
+ 			 unsigned flags,
+ 			 struct av_decision *avd);
+ 
+-int avc_has_perm(u32 ssid, u32 tsid,
++int selinux_avc_has_perm(u32 ssid, u32 tsid,
+ 		 u16 tclass, u32 requested,
+ 		 struct avc_audit_data *auditdata);
+ 
+-u32 avc_policy_seqno(void);
++u32 selinux_avc_policy_seqno(void);
+ 
+ #define AVC_CALLBACK_GRANT		1
+ #define AVC_CALLBACK_TRY_REVOKE		2
+@@ -121,18 +121,18 @@ u32 avc_policy_seqno(void);
+ #define AVC_CALLBACK_AUDITDENY_ENABLE	64
+ #define AVC_CALLBACK_AUDITDENY_DISABLE	128
+ 
+-int avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
++int selinux_avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
+ 				     u16 tclass, u32 perms,
+ 				     u32 *out_retained),
+ 		     u32 events, u32 ssid, u32 tsid,
+ 		     u16 tclass, u32 perms);
+ 
+ /* Exported to selinuxfs */
+-int avc_get_hash_stats(char *page);
++int selinux_avc_get_hash_stats(char *page);
+ extern unsigned int avc_cache_threshold;
+ 
+ /* Attempt to free avc node cache */
+-void avc_disable(void);
++void selinux_avc_disable(void);
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
+ DECLARE_PER_CPU(struct avc_cache_stats, avc_cache_stats);
+diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
+index bb1ec80..330bcf8 100644
+--- a/security/selinux/include/avc_ss.h
++++ b/security/selinux/include/avc_ss.h
+@@ -8,7 +8,7 @@
+ 
+ #include "flask.h"
+ 
+-int avc_ss_reset(u32 seqno);
++int selinux_avc_ss_reset(u32 seqno);
+ 
+ struct av_perm_to_string {
+ 	u16 tclass;
+diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
+index 67ce7a8..821a4a0 100644
+--- a/security/selinux/include/conditional.h
++++ b/security/selinux/include/conditional.h
+@@ -13,10 +13,10 @@
+ #ifndef _SELINUX_CONDITIONAL_H_
+ #define _SELINUX_CONDITIONAL_H_
+ 
+-int security_get_bools(int *len, char ***names, int **values);
++int selinux_get_bools(int *len, char ***names, int **values);
+ 
+-int security_set_bools(int len, int *values);
++int selinux_set_bools(int len, int *values);
+ 
+-int security_get_bool_value(int bool);
++int selinux_get_bool_value(int bool);
+ 
+ #endif
+diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
+index 1b94450..a31c65e 100644
+--- a/security/selinux/include/netnode.h
++++ b/security/selinux/include/netnode.h
+@@ -27,6 +27,6 @@
+ #ifndef _SELINUX_NETNODE_H
+ #define _SELINUX_NETNODE_H
+ 
+-int sel_netnode_sid(void *addr, u16 family, u32 *sid);
++int selinux_netnode_sid(void *addr, u16 family, u32 *sid);
+ 
+ #endif
+diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
+index 8991752..9d56bfb 100644
+--- a/security/selinux/include/netport.h
++++ b/security/selinux/include/netport.h
+@@ -26,6 +26,6 @@
+ #ifndef _SELINUX_NETPORT_H
+ #define _SELINUX_NETPORT_H
+ 
+-int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
++int selinux_netport_sid(u8 protocol, u16 pnum, u32 *sid);
+ 
+ #endif
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ca83579..b7bd2f4 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -80,9 +80,9 @@ extern int selinux_policycap_openperm;
+ /* limitation of boundary depth  */
+ #define POLICYDB_BOUNDS_MAXDEPTH	4
+ 
+-int security_load_policy(void *data, size_t len);
++int selinux_ss_load_policy(void *data, size_t len);
+ 
+-int security_policycap_supported(unsigned int req_cap);
++int selinux_ss_policycap_supported(unsigned int req_cap);
+ 
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+@@ -96,58 +96,58 @@ struct av_decision {
+ /* definitions of av_decision.flags */
+ #define AVD_FLAGS_PERMISSIVE	0x0001
+ 
+-int security_compute_av(u32 ssid, u32 tsid,
++int selinux_ss_compute_av(u32 ssid, u32 tsid,
+ 	u16 tclass, u32 requested,
+ 	struct av_decision *avd);
+ 
+-int security_transition_sid(u32 ssid, u32 tsid,
++int selinux_ss_transition_sid(u32 ssid, u32 tsid,
+ 	u16 tclass, u32 *out_sid);
+ 
+-int security_member_sid(u32 ssid, u32 tsid,
++int selinux_ss_member_sid(u32 ssid, u32 tsid,
+ 	u16 tclass, u32 *out_sid);
+ 
+-int security_change_sid(u32 ssid, u32 tsid,
++int selinux_ss_change_sid(u32 ssid, u32 tsid,
+ 	u16 tclass, u32 *out_sid);
+ 
+-int security_sid_to_context(u32 sid, char **scontext,
++int selinux_ss_sid_to_context(u32 sid, char **scontext,
+ 	u32 *scontext_len);
+ 
+-int security_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len);
++int selinux_ss_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len);
+ 
+-int security_context_to_sid(const char *scontext, u32 scontext_len,
++int selinux_ss_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
+ 
+-int security_context_to_sid_default(const char *scontext, u32 scontext_len,
++int selinux_ss_context_to_sid_default(const char *scontext, u32 scontext_len,
+ 				    u32 *out_sid, u32 def_sid, gfp_t gfp_flags);
+ 
+-int security_context_to_sid_force(const char *scontext, u32 scontext_len,
++int selinux_ss_context_to_sid_force(const char *scontext, u32 scontext_len,
+ 				  u32 *sid);
+ 
+-int security_get_user_sids(u32 callsid, char *username,
++int selinux_ss_get_user_sids(u32 callsid, char *username,
+ 			   u32 **sids, u32 *nel);
+ 
+-int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
++int selinux_ss_port_sid(u8 protocol, u16 port, u32 *out_sid);
+ 
+-int security_netif_sid(char *name, u32 *if_sid);
++int selinux_ss_netif_sid(char *name, u32 *if_sid);
+ 
+-int security_node_sid(u16 domain, void *addr, u32 addrlen,
++int selinux_ss_node_sid(u16 domain, void *addr, u32 addrlen,
+ 	u32 *out_sid);
+ 
+-int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
++int selinux_ss_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 				 u16 tclass);
+ 
+-int security_bounded_transition(u32 oldsid, u32 newsid);
++int selinux_ss_bounded_transition(u32 oldsid, u32 newsid);
+ 
+-int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
++int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+ 
+-int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
++int selinux_ss_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
+ 				 u32 xfrm_sid,
+ 				 u32 *peer_sid);
+ 
+-int security_get_classes(char ***classes, int *nclasses);
+-int security_get_permissions(char *class, char ***perms, int *nperms);
+-int security_get_reject_unknown(void);
+-int security_get_allow_unknown(void);
++int selinux_ss_get_classes(char ***classes, int *nclasses);
++int selinux_ss_get_permissions(char *class, char ***perms, int *nperms);
++int selinux_ss_get_reject_unknown(void);
++int selinux_ss_get_allow_unknown(void);
+ 
+ #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+ #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+@@ -156,34 +156,34 @@ int security_get_allow_unknown(void);
+ #define SECURITY_FS_USE_NONE		5 /* no labeling support */
+ #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
+ 
+-int security_fs_use(const char *fstype, unsigned int *behavior,
++int selinux_ss_fs_use(const char *fstype, unsigned int *behavior,
+ 	u32 *sid);
+ 
+-int security_genfs_sid(const char *fstype, char *name, u16 sclass,
++int selinux_ss_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
  
  #ifdef CONFIG_NETLABEL
--void mls_export_netlbl_lvl(struct context *context,
-+void mls_export_netlbl_lvl(struct selinux_ss_context *context,
- 			   struct netlbl_lsm_secattr *secattr);
--void mls_import_netlbl_lvl(struct context *context,
-+void mls_import_netlbl_lvl(struct selinux_ss_context *context,
- 			   struct netlbl_lsm_secattr *secattr);
--int mls_export_netlbl_cat(struct context *context,
-+int mls_export_netlbl_cat(struct selinux_ss_context *context,
- 			  struct netlbl_lsm_secattr *secattr);
--int mls_import_netlbl_cat(struct context *context,
-+int mls_import_netlbl_cat(struct selinux_ss_context *context,
- 			  struct netlbl_lsm_secattr *secattr);
+-int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
++int selinux_ss_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 				   u32 *sid);
+ 
+-int security_netlbl_sid_to_secattr(u32 sid,
++int selinux_ss_netlbl_sid_to_secattr(u32 sid,
+ 				   struct netlbl_lsm_secattr *secattr);
  #else
--static inline void mls_export_netlbl_lvl(struct context *context,
-+static inline void mls_export_netlbl_lvl(struct selinux_ss_context
-*context,
- 					 struct netlbl_lsm_secattr *secattr)
+-static inline int security_netlbl_secattr_to_sid(
++static inline int selinux_ss_netlbl_secattr_to_sid(
+ 					    struct netlbl_lsm_secattr *secattr,
+ 					    u32 *sid)
  {
- 	return;
+ 	return -EIDRM;
  }
--static inline void mls_import_netlbl_lvl(struct context *context,
-+static inline void mls_import_netlbl_lvl(struct selinux_ss_context
-*context,
- 					 struct netlbl_lsm_secattr *secattr)
+ 
+-static inline int security_netlbl_sid_to_secattr(u32 sid,
++static inline int selinux_ss_netlbl_sid_to_secattr(u32 sid,
+ 					   struct netlbl_lsm_secattr *secattr)
  {
- 	return;
+ 	return -ENOENT;
  }
--static inline int mls_export_netlbl_cat(struct context *context,
-+static inline int mls_export_netlbl_cat(struct selinux_ss_context
-*context,
- 					struct netlbl_lsm_secattr *secattr)
- {
- 	return -ENOMEM;
- }
--static inline int mls_import_netlbl_cat(struct context *context,
-+static inline int mls_import_netlbl_cat(struct selinux_ss_context
-*context,
- 					struct netlbl_lsm_secattr *secattr)
- {
- 	return -ENOMEM;
-diff --git a/security/selinux/ss/policydb.c
-b/security/selinux/ss/policydb.c
-index 776635a..c415b47 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -65,14 +65,14 @@ static unsigned int symtab_sizes[SYM_NUM] = {
- 	16,
- };
+ #endif /* CONFIG_NETLABEL */
  
--struct policydb_compat_info {
-+struct selinux_ss_policydb_compat_info {
- 	int version;
- 	int sym_num;
- 	int ocon_num;
- };
+-const char *security_get_initial_sid_context(u32 sid);
++const char *selinux_ss_get_initial_sid_context(u32 sid);
  
- /* These need to be updated if SYM_NUM or OCON_NUM changes */
--static struct policydb_compat_info policydb_compat[] = {
-+static struct selinux_ss_policydb_compat_info policydb_compat[] = {
- 	{
- 		.version	= POLICYDB_VERSION_BASE,
- 		.sym_num	= SYM_NUM - 3,
-@@ -125,10 +125,10 @@ static struct policydb_compat_info
-policydb_compat[] = {
- 	},
- };
+ #endif /* _SELINUX_SECURITY_H_ */
  
--static struct policydb_compat_info *policydb_lookup_compat(int version)
-+static struct selinux_ss_policydb_compat_info
-*policydb_lookup_compat(int version)
- {
- 	int i;
--	struct policydb_compat_info *info = NULL;
-+	struct selinux_ss_policydb_compat_info *info = NULL;
- 
- 	for (i = 0; i < ARRAY_SIZE(policydb_compat); i++) {
- 		if (policydb_compat[i].version == version) {
-@@ -142,11 +142,11 @@ static struct policydb_compat_info
-*policydb_lookup_compat(int version)
- /*
-  * Initialize the role table.
-  */
--static int roles_init(struct policydb *p)
-+static int roles_init(struct selinux_ss_policydb *p)
- {
- 	char *key = NULL;
- 	int rc;
--	struct role_datum *role;
-+	struct selinux_ss_role_datum *role;
- 
- 	role = kzalloc(sizeof(*role), GFP_KERNEL);
- 	if (!role) {
-@@ -180,14 +180,14 @@ out_free_role:
- /*
-  * Initialize a policy database structure.
-  */
--static int policydb_init(struct policydb *p)
-+static int policydb_init(struct selinux_ss_policydb *p)
- {
- 	int i, rc;
- 
- 	memset(p, 0, sizeof(*p));
- 
- 	for (i = 0; i < SYM_NUM; i++) {
--		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
-+		rc = selinux_ss_symtab_init(&p->symtab[i], symtab_sizes[i]);
- 		if (rc)
- 			goto out_free_symtab;
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index b4e14bc..23fc05a 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -175,7 +175,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
+ 		ret = -ENOMEM;
+ 		goto out;
  	}
-@@ -228,8 +228,8 @@ out_free_symtab:
+-	ret = security_netif_sid(dev->name, &new->nsec.sid);
++	ret = selinux_ss_netif_sid(dev->name, &new->nsec.sid);
+ 	if (ret != 0)
+ 		goto out;
+ 	new->nsec.ifindex = ifindex;
+@@ -307,10 +307,10 @@ static __init int sel_netif_init(void)
  
- static int common_index(void *key, void *datum, void *datap)
+ 	register_netdevice_notifier(&sel_netif_netdev_notifier);
+ 
+-	err = avc_add_callback(sel_netif_avc_callback, AVC_CALLBACK_RESET,
++	err = selinux_avc_add_callback(sel_netif_avc_callback, AVC_CALLBACK_RESET,
+ 			       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
+ 	if (err)
+-		panic("avc_add_callback() failed, error %d\n", err);
++		panic("selinux_avc_add_callback() failed, error %d\n", err);
+ 
+ 	return err;
+ }
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 2e98441..0a8a0ce 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -58,7 +58,7 @@ static int selinux_netlbl_sidlookup_cached(struct sk_buff *skb,
  {
--	struct policydb *p;
--	struct common_datum *comdatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_common_datum *comdatum;
+ 	int rc;
  
- 	comdatum = datum;
- 	p = datap;
-@@ -241,8 +241,8 @@ static int common_index(void *key, void *datum, void
-*datap)
- 
- static int class_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct class_datum *cladatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_class_datum *cladatum;
- 
- 	cladatum = datum;
- 	p = datap;
-@@ -255,8 +255,8 @@ static int class_index(void *key, void *datum, void
-*datap)
- 
- static int role_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct role_datum *role;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_role_datum *role;
- 
- 	role = datum;
- 	p = datap;
-@@ -271,8 +271,8 @@ static int role_index(void *key, void *datum, void
-*datap)
- 
- static int type_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct type_datum *typdatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_type_datum *typdatum;
- 
- 	typdatum = datum;
- 	p = datap;
-@@ -291,8 +291,8 @@ static int type_index(void *key, void *datum, void
-*datap)
- 
- static int user_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct user_datum *usrdatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_user_datum *usrdatum;
- 
- 	usrdatum = datum;
- 	p = datap;
-@@ -307,8 +307,8 @@ static int user_index(void *key, void *datum, void
-*datap)
- 
- static int sens_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct level_datum *levdatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_level_datum *levdatum;
- 
- 	levdatum = datum;
- 	p = datap;
-@@ -325,8 +325,8 @@ static int sens_index(void *key, void *datum, void
-*datap)
- 
- static int cat_index(void *key, void *datum, void *datap)
- {
--	struct policydb *p;
--	struct cat_datum *catdatum;
-+	struct selinux_ss_policydb *p;
-+	struct selinux_ss_cat_datum *catdatum;
- 
- 	catdatum = datum;
- 	p = datap;
-@@ -359,7 +359,7 @@ static int (*index_f[SYM_NUM]) (void *key, void
-*datum, void *datap) =
+-	rc = security_netlbl_secattr_to_sid(secattr, sid);
++	rc = selinux_ss_netlbl_secattr_to_sid(secattr, sid);
+ 	if (rc == 0 &&
+ 	    (secattr->flags & NETLBL_SECATTR_CACHEABLE) &&
+ 	    (secattr->flags & NETLBL_SECATTR_CACHE))
+@@ -89,7 +89,7 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk)
+ 	secattr = netlbl_secattr_alloc(GFP_ATOMIC);
+ 	if (secattr == NULL)
+ 		return NULL;
+-	rc = security_netlbl_sid_to_secattr(sksec->sid, secattr);
++	rc = selinux_ss_netlbl_sid_to_secattr(sksec->sid, secattr);
+ 	if (rc != 0) {
+ 		netlbl_secattr_free(secattr);
+ 		return NULL;
+@@ -118,7 +118,7 @@ void selinux_netlbl_cache_invalidate(void)
+  * @gateway: true if host is acting as a gateway, false otherwise
   *
-  * Caller must clean up upon failure.
-  */
--static int policydb_index_classes(struct policydb *p)
-+static int policydb_index_classes(struct selinux_ss_policydb *p)
- {
- 	int rc;
- 
-@@ -394,7 +394,7 @@ out:
- }
- 
- #ifdef DEBUG_HASHES
--static void symtab_hash_eval(struct symtab *s)
-+static void symtab_hash_eval(struct selinux_ss_symtab *s)
- {
- 	int i;
- 
-@@ -416,7 +416,7 @@ static void symtab_hash_eval(struct symtab *s)
-  *
-  * Caller must clean up on failure.
-  */
--static int policydb_index_others(struct policydb *p)
-+static int policydb_index_others(struct selinux_ss_policydb *p)
- {
- 	int i, rc = 0;
- 
-@@ -495,7 +495,7 @@ static int perm_destroy(void *key, void *datum, void
-*p)
- 
- static int common_destroy(void *key, void *datum, void *p)
- {
--	struct common_datum *comdatum;
-+	struct selinux_ss_common_datum *comdatum;
- 
- 	kfree(key);
- 	comdatum = datum;
-@@ -507,7 +507,7 @@ static int common_destroy(void *key, void *datum,
-void *p)
- 
- static int cls_destroy(void *key, void *datum, void *p)
- {
--	struct class_datum *cladatum;
-+	struct selinux_ss_class_datum *cladatum;
- 	struct selinux_ss_constraint_node *constraint, *ctemp;
- 	struct selinux_ss_constraint_expr *e, *etmp;
- 
-@@ -550,7 +550,7 @@ static int cls_destroy(void *key, void *datum, void
-*p)
- 
- static int role_destroy(void *key, void *datum, void *p)
- {
--	struct role_datum *role;
-+	struct selinux_ss_role_datum *role;
- 
- 	kfree(key);
- 	role = datum;
-@@ -569,7 +569,7 @@ static int type_destroy(void *key, void *datum, void
-*p)
- 
- static int user_destroy(void *key, void *datum, void *p)
- {
--	struct user_datum *usrdatum;
-+	struct selinux_ss_user_datum *usrdatum;
- 
- 	kfree(key);
- 	usrdatum = datum;
-@@ -583,7 +583,7 @@ static int user_destroy(void *key, void *datum, void
-*p)
- 
- static int sens_destroy(void *key, void *datum, void *p)
- {
--	struct level_datum *levdatum;
-+	struct selinux_ss_level_datum *levdatum;
- 
- 	kfree(key);
- 	levdatum = datum;
-@@ -612,7 +612,7 @@ static int (*destroy_f[SYM_NUM]) (void *key, void
-*datum, void *datap) =
- 	cat_destroy,
- };
- 
--static void ocontext_destroy(struct ocontext *c, int i)
-+static void ocontext_destroy(struct selinux_ss_ocontext *c, int i)
- {
- 	context_destroy(&c->context[0]);
- 	context_destroy(&c->context[1]);
-@@ -625,14 +625,14 @@ static void ocontext_destroy(struct ocontext *c,
-int i)
- /*
-  * Free any memory allocated by a policy database structure.
-  */
--void policydb_destroy(struct policydb *p)
-+void policydb_destroy(struct selinux_ss_policydb *p)
- {
--	struct ocontext *c, *ctmp;
--	struct genfs *g, *gtmp;
-+	struct selinux_ss_ocontext *c, *ctmp;
-+	struct selinux_ss_genfs *g, *gtmp;
- 	int i;
--	struct role_allow *ra, *lra = NULL;
--	struct role_trans *tr, *ltr = NULL;
--	struct range_trans *rt, *lrt = NULL;
-+	struct selinux_ss_role_allow *ra, *lra = NULL;
-+	struct selinux_ss_role_trans *tr, *ltr = NULL;
-+	struct selinux_ss_range_trans *rt, *lrt = NULL;
- 
- 	for (i = 0; i < SYM_NUM; i++) {
- 		cond_resched();
-@@ -724,12 +724,12 @@ void policydb_destroy(struct policydb *p)
-  * Load the initial SIDs specified in a policy database
-  * structure into a SID table.
-  */
--int policydb_load_isids(struct policydb *p, struct sidtab *s)
-+int policydb_load_isids(struct selinux_ss_policydb *p, struct
-selinux_ss_sidtab *s)
- {
--	struct ocontext *head, *c;
-+	struct selinux_ss_ocontext *head, *c;
- 	int rc;
- 
--	rc = sidtab_init(s);
-+	rc = selinux_ss_sidtab_init(s);
- 	if (rc) {
- 		printk(KERN_ERR "SELinux:  out of memory on SID table init\n");
- 		goto out;
-@@ -743,7 +743,7 @@ int policydb_load_isids(struct policydb *p, struct
-sidtab *s)
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		if (sidtab_insert(s, c->sid[0], &c->context[0])) {
-+		if (selinux_ss_sidtab_insert(s, c->sid[0], &c->context[0])) {
- 			printk(KERN_ERR "SELinux:  unable to load initial "
- 			       "SID %s.\n", c->u.name);
- 			rc = -EINVAL;
-@@ -754,21 +754,21 @@ out:
- 	return rc;
- }
- 
--int policydb_class_isvalid(struct policydb *p, unsigned int class)
-+int policydb_class_isvalid(struct selinux_ss_policydb *p, unsigned int
-class)
- {
- 	if (!class || class > p->p_classes.nprim)
+  * Description:
+- * When a packet is dropped due to a call to avc_has_perm() pass the error
++ * When a packet is dropped due to a call to selinux_avc_has_perm() pass the error
+  * code to the NetLabel subsystem so any protocol specific processing can be
+  * done.  This is safe to call even if you are unsure if NetLabel labeling is
+  * present on the packet, NetLabel is smart enough to only act when it should.
+@@ -228,7 +228,7 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
+ 	if (secattr == NULL) {
+ 		secattr = &secattr_storage;
+ 		netlbl_secattr_init(secattr);
+-		rc = security_netlbl_sid_to_secattr(sid, secattr);
++		rc = selinux_ss_netlbl_sid_to_secattr(sid, secattr);
+ 		if (rc != 0)
+ 			goto skbuff_setsid_return;
+ 	}
+@@ -261,7 +261,7 @@ int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family)
  		return 0;
- 	return 1;
- }
  
--int policydb_role_isvalid(struct policydb *p, unsigned int role)
-+int policydb_role_isvalid(struct selinux_ss_policydb *p, unsigned int
-role)
- {
- 	if (!role || role > p->p_roles.nprim)
+ 	netlbl_secattr_init(&secattr);
+-	rc = security_netlbl_sid_to_secattr(req->secid, &secattr);
++	rc = selinux_ss_netlbl_sid_to_secattr(req->secid, &secattr);
+ 	if (rc != 0)
+ 		goto inet_conn_request_return;
+ 	rc = netlbl_req_setattr(req, &secattr);
+@@ -373,7 +373,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 		perm = RAWIP_SOCKET__RECVFROM;
+ 	}
+ 
+-	rc = avc_has_perm(sksec->sid, nlbl_sid, sksec->sclass, perm, ad);
++	rc = selinux_avc_has_perm(sksec->sid, nlbl_sid, sksec->sclass, perm, ad);
+ 	if (rc == 0)
  		return 0;
- 	return 1;
+ 
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 7100072..5e7593f 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -199,7 +199,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
  }
- 
--int policydb_type_isvalid(struct policydb *p, unsigned int type)
-+int policydb_type_isvalid(struct selinux_ss_policydb *p, unsigned int
-type)
- {
- 	if (!type || type > p->p_types.nprim)
- 		return 0;
-@@ -779,10 +779,10 @@ int policydb_type_isvalid(struct policydb *p,
-unsigned int type)
-  * Return 1 if the fields in the security context
-  * structure `c' are valid.  Return 0 otherwise.
-  */
--int policydb_context_isvalid(struct policydb *p, struct context *c)
-+int policydb_context_isvalid(struct selinux_ss_policydb *p, struct
-selinux_ss_context *c)
- {
--	struct role_datum *role;
--	struct user_datum *usrdatum;
-+	struct selinux_ss_role_datum *role;
-+	struct selinux_ss_user_datum *usrdatum;
- 
- 	if (!c->role || c->role > p->p_roles.nprim)
- 		return 0;
-@@ -886,8 +886,8 @@ bad_high:
-  * Read and validate a security context structure
-  * from a policydb binary representation file.
-  */
--static int context_read_and_validate(struct context *c,
--				     struct policydb *p,
-+static int context_read_and_validate(struct selinux_ss_context *c,
-+				     struct selinux_ss_policydb *p,
- 				     void *fp)
- {
- 	__le32 buf[3];
-@@ -925,10 +925,10 @@ out:
-  * binary representation file.
-  */
- 
--static int perm_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int perm_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct perm_datum *perdatum;
-+	struct selinux_ss_perm_datum *perdatum;
- 	int rc;
- 	__le32 buf[2];
- 	u32 len;
-@@ -966,10 +966,10 @@ bad:
- 	goto out;
- }
- 
--static int common_read(struct policydb *p, struct selinux_ss_hashtab
-*h, void *fp)
-+static int common_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct common_datum *comdatum;
-+	struct selinux_ss_common_datum *comdatum;
- 	__le32 buf[4];
- 	u32 len, nel;
- 	int i, rc;
-@@ -987,7 +987,7 @@ static int common_read(struct policydb *p, struct
-selinux_ss_hashtab *h, void *f
- 	len = le32_to_cpu(buf[0]);
- 	comdatum->value = le32_to_cpu(buf[1]);
- 
--	rc = symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE);
-+	rc = selinux_ss_symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE);
- 	if (rc)
- 		goto bad;
- 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
-@@ -1101,10 +1101,10 @@ static int read_cons_helper(struct
-selinux_ss_constraint_node **nodep, int ncons
- 	return 0;
- }
- 
--static int class_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int class_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct class_datum *cladatum;
-+	struct selinux_ss_class_datum *cladatum;
- 	__le32 buf[6];
- 	u32 len, len2, ncons, nel;
- 	int i, rc;
-@@ -1123,7 +1123,7 @@ static int class_read(struct policydb *p, struct
-selinux_ss_hashtab *h, void *fp
- 	len2 = le32_to_cpu(buf[1]);
- 	cladatum->value = le32_to_cpu(buf[2]);
- 
--	rc = symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE);
-+	rc = selinux_ss_symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE);
- 	if (rc)
- 		goto bad;
- 	cladatum->permissions.nprim = le32_to_cpu(buf[3]);
-@@ -1194,10 +1194,10 @@ bad:
- 	goto out;
- }
- 
--static int role_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int role_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct role_datum *role;
-+	struct selinux_ss_role_datum *role;
- 	int rc, to_read = 2;
- 	__le32 buf[3];
- 	u32 len;
-@@ -1259,10 +1259,10 @@ bad:
- 	goto out;
- }
- 
--static int type_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int type_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct type_datum *typdatum;
-+	struct selinux_ss_type_datum *typdatum;
- 	int rc, to_read = 3;
- 	__le32 buf[4];
- 	u32 len;
-@@ -1346,10 +1346,10 @@ bad:
- 	return -EINVAL;
- }
- 
--static int user_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int user_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct user_datum *usrdatum;
-+	struct selinux_ss_user_datum *usrdatum;
- 	int rc, to_read = 2;
- 	__le32 buf[3];
- 	u32 len;
-@@ -1405,10 +1405,10 @@ bad:
- 	goto out;
- }
- 
--static int sens_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int sens_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct level_datum *levdatum;
-+	struct selinux_ss_level_datum *levdatum;
- 	int rc;
- 	__le32 buf[2];
- 	u32 len;
-@@ -1456,10 +1456,10 @@ bad:
- 	goto out;
- }
- 
--static int cat_read(struct policydb *p, struct selinux_ss_hashtab *h,
-void *fp)
-+static int cat_read(struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp)
- {
- 	char *key = NULL;
--	struct cat_datum *catdatum;
-+	struct selinux_ss_cat_datum *catdatum;
- 	int rc;
- 	__le32 buf[3];
- 	u32 len;
-@@ -1499,7 +1499,7 @@ bad:
- 	goto out;
- }
- 
--static int (*read_f[SYM_NUM]) (struct policydb *p, struct
-selinux_ss_hashtab *h, void *fp) =
-+static int (*read_f[SYM_NUM]) (struct selinux_ss_policydb *p, struct
-selinux_ss_hashtab *h, void *fp) =
- {
- 	common_read,
- 	class_read,
-@@ -1513,8 +1513,8 @@ static int (*read_f[SYM_NUM]) (struct policydb *p,
-struct selinux_ss_hashtab *h,
- 
- static int user_bounds_sanity_check(void *key, void *datum, void
-*datap)
- {
--	struct user_datum *upper, *user;
--	struct policydb *p = datap;
-+	struct selinux_ss_user_datum *upper, *user;
-+	struct selinux_ss_policydb *p = datap;
- 	int depth = 0;
- 
- 	upper = user = datum;
-@@ -1550,8 +1550,8 @@ static int user_bounds_sanity_check(void *key,
-void *datum, void *datap)
- 
- static int role_bounds_sanity_check(void *key, void *datum, void
-*datap)
- {
--	struct role_datum *upper, *role;
--	struct policydb *p = datap;
-+	struct selinux_ss_role_datum *upper, *role;
-+	struct selinux_ss_policydb *p = datap;
- 	int depth = 0;
- 
- 	upper = role = datum;
-@@ -1587,8 +1587,8 @@ static int role_bounds_sanity_check(void *key,
-void *datum, void *datap)
- 
- static int type_bounds_sanity_check(void *key, void *datum, void
-*datap)
- {
--	struct type_datum *upper, *type;
--	struct policydb *p = datap;
-+	struct selinux_ss_type_datum *upper, *type;
-+	struct selinux_ss_policydb *p = datap;
- 	int depth = 0;
- 
- 	upper = type = datum;
-@@ -1613,7 +1613,7 @@ static int type_bounds_sanity_check(void *key,
-void *datum, void *datap)
- 	return 0;
- }
- 
--static int policydb_bounds_sanity_check(struct policydb *p)
-+static int policydb_bounds_sanity_check(struct selinux_ss_policydb *p)
- {
- 	int rc;
- 
-@@ -1644,19 +1644,19 @@ extern int ss_initialized;
-  * Read the configuration data from a policy database binary
-  * representation file into a policy database structure.
-  */
--int policydb_read(struct policydb *p, void *fp)
-+int policydb_read(struct selinux_ss_policydb *p, void *fp)
- {
--	struct role_allow *ra, *lra;
--	struct role_trans *tr, *ltr;
--	struct ocontext *l, *c, *newc;
--	struct genfs *genfs_p, *genfs, *newgenfs;
-+	struct selinux_ss_role_allow *ra, *lra;
-+	struct selinux_ss_role_trans *tr, *ltr;
-+	struct selinux_ss_ocontext *l, *c, *newc;
-+	struct selinux_ss_genfs *genfs_p, *genfs, *newgenfs;
- 	int i, j, rc;
- 	__le32 buf[4];
- 	u32 nodebuf[8];
- 	u32 len, len2, config, nprim, nel, nel2;
- 	char *policydb_str;
--	struct policydb_compat_info *info;
--	struct range_trans *rt, *lrt;
-+	struct selinux_ss_policydb_compat_info *info;
-+	struct selinux_ss_range_trans *rt, *lrt;
- 
- 	config = 0;
- 
-diff --git a/security/selinux/ss/policydb.h
-b/security/selinux/ss/policydb.h
-index b1a3ffd..cb16f9f 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -38,49 +38,49 @@
-  */
- 
- /* Permission attributes */
--struct perm_datum {
-+struct selinux_ss_perm_datum {
- 	u32 value;		/* permission bit + 1 */
- };
- 
- /* Attributes of a common prefix for access vectors */
--struct common_datum {
-+struct selinux_ss_common_datum {
- 	u32 value;			/* internal common value */
--	struct symtab permissions;	/* common permissions */
-+	struct selinux_ss_symtab permissions;	/* common permissions */
- };
- 
- /* Class attributes */
--struct class_datum {
-+struct selinux_ss_class_datum {
- 	u32 value;			/* class value */
- 	char *comkey;			/* common name */
--	struct common_datum *comdatum;	/* common datum */
--	struct symtab permissions;	/* class-specific permission symbol table
-*/
-+	struct selinux_ss_common_datum *comdatum;	/* common datum */
-+	struct selinux_ss_symtab permissions;	/* class-specific permission
-symbol table */
- 	struct selinux_ss_constraint_node *constraints;	/* constraints on
-class permissions */
- 	struct selinux_ss_constraint_node *validatetrans;	/* special
-transition rules */
- };
- 
- /* Role attributes */
--struct role_datum {
-+struct selinux_ss_role_datum {
- 	u32 value;			/* internal role value */
- 	u32 bounds;			/* boundary of role */
- 	struct selinux_ss_ebitmap dominates;	/* set of roles dominated by this
-role */
- 	struct selinux_ss_ebitmap types;		/* set of authorized types for role
-*/
- };
- 
--struct role_trans {
-+struct selinux_ss_role_trans {
- 	u32 role;		/* current role */
- 	u32 type;		/* program executable type */
- 	u32 new_role;		/* new role */
--	struct role_trans *next;
-+	struct selinux_ss_role_trans *next;
- };
- 
--struct role_allow {
-+struct selinux_ss_role_allow {
- 	u32 role;		/* current role */
- 	u32 new_role;		/* new role */
--	struct role_allow *next;
-+	struct selinux_ss_role_allow *next;
- };
- 
- /* Type attributes */
--struct type_datum {
-+struct selinux_ss_type_datum {
- 	u32 value;		/* internal type value */
- 	u32 bounds;		/* boundary of type */
- 	unsigned char primary;	/* primary name? */
-@@ -88,7 +88,7 @@ struct type_datum {
- };
- 
- /* User attributes */
--struct user_datum {
-+struct selinux_ss_user_datum {
- 	u32 value;			/* internal user value */
- 	u32 bounds;			/* bounds of user */
- 	struct selinux_ss_ebitmap roles;		/* set of authorized roles for user
-*/
-@@ -98,23 +98,23 @@ struct user_datum {
- 
- 
- /* Sensitivity attributes */
--struct level_datum {
-+struct selinux_ss_level_datum {
- 	struct mls_level *level;	/* sensitivity and associated categories */
- 	unsigned char isalias;	/* is this sensitivity an alias for another? */
- };
- 
- /* Category attributes */
--struct cat_datum {
-+struct selinux_ss_cat_datum {
- 	u32 value;		/* internal category bit + 1 */
- 	unsigned char isalias;  /* is this category an alias for another? */
- };
- 
--struct range_trans {
-+struct selinux_ss_range_trans {
- 	u32 source_type;
- 	u32 target_type;
- 	u32 target_class;
- 	struct mls_range target_range;
--	struct range_trans *next;
-+	struct selinux_ss_range_trans *next;
- };
- 
- /* Boolean data type */
-@@ -132,7 +132,7 @@ struct selinux_ss_cond_node;
-  * relevant data for one such entry.  Entries of the same kind
-  * (e.g. all initial SIDs) are linked together into a list.
-  */
--struct ocontext {
-+struct selinux_ss_ocontext {
- 	union {
- 		char *name;	/* name of initial SID, fs, netif, fstype, path */
- 		struct {
-@@ -153,15 +153,15 @@ struct ocontext {
- 		u32 sclass;  /* security class for genfs */
- 		u32 behavior;  /* labeling behavior for fs_use */
- 	} v;
--	struct context context[2];	/* security context(s) */
-+	struct selinux_ss_context context[2];	/* security context(s) */
- 	u32 sid[2];	/* SID(s) */
--	struct ocontext *next;
-+	struct selinux_ss_ocontext *next;
- };
- 
--struct genfs {
-+struct selinux_ss_genfs {
- 	char *fstype;
--	struct ocontext *head;
--	struct genfs *next;
-+	struct selinux_ss_ocontext *head;
-+	struct selinux_ss_genfs *next;
- };
- 
- /* symbol table array indices */
-@@ -186,9 +186,9 @@ struct genfs {
- #define OCON_NUM   7
- 
- /* The policy database */
--struct policydb {
-+struct selinux_ss_policydb {
- 	/* symbol tables */
--	struct symtab symtab[SYM_NUM];
-+	struct selinux_ss_symtab symtab[SYM_NUM];
- #define p_commons symtab[SYM_COMMONS]
- #define p_classes symtab[SYM_CLASSES]
- #define p_roles symtab[SYM_ROLES]
-@@ -210,16 +210,16 @@ struct policydb {
- #define p_cat_val_to_name sym_val_to_name[SYM_CATS]
- 
- 	/* class, role, and user attributes indexed by (value - 1) */
--	struct class_datum **class_val_to_struct;
--	struct role_datum **role_val_to_struct;
--	struct user_datum **user_val_to_struct;
--	struct type_datum **type_val_to_struct;
-+	struct selinux_ss_class_datum **class_val_to_struct;
-+	struct selinux_ss_role_datum **role_val_to_struct;
-+	struct selinux_ss_user_datum **user_val_to_struct;
-+	struct selinux_ss_type_datum **type_val_to_struct;
- 
- 	/* type enforcement access vectors and transitions */
- 	struct selinux_ss_avtab te_avtab;
- 
- 	/* role transitions */
--	struct role_trans *role_tr;
-+	struct selinux_ss_role_trans *role_tr;
- 
- 	/* bools indexed by (value - 1) */
- 	struct selinux_ss_cond_bool_datum **bool_val_to_struct;
-@@ -229,19 +229,19 @@ struct policydb {
- 	struct selinux_ss_cond_node *cond_list;
- 
- 	/* role allows */
--	struct role_allow *role_allow;
-+	struct selinux_ss_role_allow *role_allow;
- 
- 	/* security contexts of initial SIDs, unlabeled file systems,
- 	   TCP or UDP port numbers, network interfaces and nodes */
--	struct ocontext *ocontexts[OCON_NUM];
-+	struct selinux_ss_ocontext *ocontexts[OCON_NUM];
- 
- 	/* security contexts for files in filesystems that cannot support
- 	   a persistent label mapping or use another
- 	   fixed labeling behavior. */
--	struct genfs *genfs;
-+	struct selinux_ss_genfs *genfs;
- 
- 	/* range transitions */
--	struct range_trans *range_tr;
-+	struct selinux_ss_range_trans *range_tr;
- 
- 	/* type -> attribute reverse mapping */
- 	struct selinux_ss_ebitmap *type_attr_map;
-@@ -257,13 +257,13 @@ struct policydb {
- 	u32 *undefined_perms;
- };
- 
--extern void policydb_destroy(struct policydb *p);
--extern int policydb_load_isids(struct policydb *p, struct sidtab *s);
--extern int policydb_context_isvalid(struct policydb *p, struct context
-*c);
--extern int policydb_class_isvalid(struct policydb *p, unsigned int
-class);
--extern int policydb_type_isvalid(struct policydb *p, unsigned int
-type);
--extern int policydb_role_isvalid(struct policydb *p, unsigned int
-role);
--extern int policydb_read(struct policydb *p, void *fp);
-+extern void policydb_destroy(struct selinux_ss_policydb *p);
-+extern int policydb_load_isids(struct selinux_ss_policydb *p, struct
-selinux_ss_sidtab *s);
-+extern int policydb_context_isvalid(struct selinux_ss_policydb *p,
-struct selinux_ss_context *c);
-+extern int policydb_class_isvalid(struct selinux_ss_policydb *p,
-unsigned int class);
-+extern int policydb_type_isvalid(struct selinux_ss_policydb *p,
-unsigned int type);
-+extern int policydb_role_isvalid(struct selinux_ss_policydb *p,
-unsigned int role);
-+extern int policydb_read(struct selinux_ss_policydb *p, void *fp);
- 
- #define PERM_SYMTAB_SIZE 32
- 
-@@ -279,12 +279,12 @@ extern int policydb_read(struct policydb *p, void
-*fp);
- #define POLICYDB_MAGIC SELINUX_MAGIC
- #define POLICYDB_STRING "SE Linux"
- 
--struct policy_file {
-+struct selinux_ss_policy_file {
- 	char *data;
- 	size_t len;
- };
- 
--static inline int next_entry(void *buf, struct policy_file *fp, size_t
-bytes)
-+static inline int next_entry(void *buf, struct selinux_ss_policy_file
-*fp, size_t bytes)
- {
- 	if (bytes > fp->len)
- 		return -EINVAL;
-diff --git a/security/selinux/ss/services.c
-b/security/selinux/ss/services.c
-index 82b8c18..ec85a56 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -77,8 +77,8 @@ extern const struct selinux_class_perm
-selinux_class_perm;
- 
- static DEFINE_RWLOCK(policy_rwlock);
- 
--static struct sidtab sidtab;
--struct policydb policydb;
-+static struct selinux_ss_sidtab sidtab;
-+struct selinux_ss_policydb policydb;
- int ss_initialized;
- 
- /*
-@@ -90,11 +90,11 @@ int ss_initialized;
- static u32 latest_granting;
- 
- /* Forward declaration. */
--static int context_struct_to_string(struct context *context, char
-**scontext,
-+static int context_struct_to_string(struct selinux_ss_context *context,
-char **scontext,
- 				    u32 *scontext_len);
- 
--static int context_struct_compute_av(struct context *scontext,
--				     struct context *tcontext,
-+static int context_struct_compute_av(struct selinux_ss_context
-*scontext,
-+				     struct selinux_ss_context *tcontext,
- 				     u16 tclass,
- 				     u32 requested,
- 				     struct av_decision *avd);
-@@ -109,14 +109,14 @@ static int context_struct_compute_av(struct
-context *scontext,
-  * of the process performing the transition.  All other callers of
-  * constraint_expr_eval should pass in NULL for xcontext.
-  */
--static int constraint_expr_eval(struct context *scontext,
--				struct context *tcontext,
--				struct context *xcontext,
-+static int constraint_expr_eval(struct selinux_ss_context *scontext,
-+				struct selinux_ss_context *tcontext,
-+				struct selinux_ss_context *xcontext,
- 				struct selinux_ss_constraint_expr *cexpr)
- {
- 	u32 val1, val2;
--	struct context *c;
--	struct role_datum *r1, *r2;
-+	struct selinux_ss_context *c;
-+	struct selinux_ss_role_datum *r1, *r2;
- 	struct mls_level *l1, *l2;
- 	struct selinux_ss_constraint_expr *e;
- 	int s[CEXPR_MAXDEPTH];
-@@ -289,7 +289,7 @@ mls_ops:
-  */
- static int dump_masked_av_helper(void *k, void *d, void *args)
- {
--	struct perm_datum *pdatum = d;
-+	struct selinux_ss_perm_datum *pdatum = d;
- 	char **permission_names = args;
- 
- 	BUG_ON(pdatum->value < 1 || pdatum->value > 32);
-@@ -299,14 +299,14 @@ static int dump_masked_av_helper(void *k, void *d,
-void *args)
- 	return 0;
- }
- 
--static void security_dump_masked_av(struct context *scontext,
--				    struct context *tcontext,
-+static void security_dump_masked_av(struct selinux_ss_context
-*scontext,
-+				    struct selinux_ss_context *tcontext,
- 				    u16 tclass,
- 				    u32 permissions,
- 				    const char *reason)
- {
--	struct common_datum *common_dat;
--	struct class_datum *tclass_dat;
-+	struct selinux_ss_common_datum *common_dat;
-+	struct selinux_ss_class_datum *tclass_dat;
- 	struct audit_buffer *ab;
- 	char *tclass_name;
- 	char *scontext_name = NULL;
-@@ -376,18 +376,18 @@ out:
-  * security_boundary_permission - drops violated permissions
-  * on boundary constraint.
-  */
--static void type_attribute_bounds_av(struct context *scontext,
--				     struct context *tcontext,
-+static void type_attribute_bounds_av(struct selinux_ss_context
-*scontext,
-+				     struct selinux_ss_context *tcontext,
- 				     u16 tclass,
- 				     u32 requested,
- 				     struct av_decision *avd)
- {
--	struct context lo_scontext;
--	struct context lo_tcontext;
-+	struct selinux_ss_context lo_scontext;
-+	struct selinux_ss_context lo_tcontext;
- 	struct av_decision lo_avd;
--	struct type_datum *source
-+	struct selinux_ss_type_datum *source
- 		= policydb.type_val_to_struct[scontext->type - 1];
--	struct type_datum *target
-+	struct selinux_ss_type_datum *target
- 		= policydb.type_val_to_struct[tcontext->type - 1];
- 	u32 masked = 0;
- 
-@@ -454,17 +454,17 @@ static void type_attribute_bounds_av(struct
-context *scontext,
-  * Compute access vectors based on a context structure pair for
-  * the permissions in a particular class.
-  */
--static int context_struct_compute_av(struct context *scontext,
--				     struct context *tcontext,
-+static int context_struct_compute_av(struct selinux_ss_context
-*scontext,
-+				     struct selinux_ss_context *tcontext,
- 				     u16 tclass,
- 				     u32 requested,
- 				     struct av_decision *avd)
- {
- 	struct selinux_ss_constraint_node *constraint;
--	struct role_allow *ra;
-+	struct selinux_ss_role_allow *ra;
- 	struct selinux_ss_avtab_key avkey;
- 	struct selinux_ss_avtab_node *node;
--	struct class_datum *tclass_datum;
-+	struct selinux_ss_class_datum *tclass_datum;
- 	struct selinux_ss_ebitmap *sattr, *tattr;
- 	struct selinux_ss_ebitmap_node *snode, *tnode;
- 	const struct selinux_class_perm *kdefs = &selinux_class_perm;
-@@ -607,9 +607,9 @@ inval_class:
- 	return 0;
- }
- 
--static int security_validtrans_handle_fail(struct context *ocontext,
--					   struct context *ncontext,
--					   struct context *tcontext,
-+static int security_validtrans_handle_fail(struct selinux_ss_context
-*ocontext,
-+					   struct selinux_ss_context *ncontext,
-+					   struct selinux_ss_context *tcontext,
- 					   u16 tclass)
- {
- 	char *o = NULL, *n = NULL, *t = NULL;
-@@ -638,10 +638,10 @@ out:
- int selinux_ss_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 				 u16 tclass)
- {
--	struct context *ocontext;
--	struct context *ncontext;
--	struct context *tcontext;
--	struct class_datum *tclass_datum;
-+	struct selinux_ss_context *ocontext;
-+	struct selinux_ss_context *ncontext;
-+	struct selinux_ss_context *tcontext;
-+	struct selinux_ss_class_datum *tclass_datum;
- 	struct selinux_ss_constraint_node *constraint;
- 	int rc = 0;
- 
-@@ -669,7 +669,7 @@ int selinux_ss_validate_transition(u32 oldsid, u32
-newsid, u32 tasksid,
- 	}
- 	tclass_datum = policydb.class_val_to_struct[tclass - 1];
- 
--	ocontext = sidtab_search(&sidtab, oldsid);
-+	ocontext = selinux_ss_sidtab_search(&sidtab, oldsid);
- 	if (!ocontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, oldsid);
-@@ -677,7 +677,7 @@ int selinux_ss_validate_transition(u32 oldsid, u32
-newsid, u32 tasksid,
- 		goto out;
- 	}
- 
--	ncontext = sidtab_search(&sidtab, newsid);
-+	ncontext = selinux_ss_sidtab_search(&sidtab, newsid);
- 	if (!ncontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, newsid);
-@@ -685,7 +685,7 @@ int selinux_ss_validate_transition(u32 oldsid, u32
-newsid, u32 tasksid,
- 		goto out;
- 	}
- 
--	tcontext = sidtab_search(&sidtab, tasksid);
-+	tcontext = selinux_ss_sidtab_search(&sidtab, tasksid);
- 	if (!tcontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, tasksid);
-@@ -720,21 +720,21 @@ out:
-  */
- int selinux_ss_bounded_transition(u32 old_sid, u32 new_sid)
- {
--	struct context *old_context, *new_context;
--	struct type_datum *type;
-+	struct selinux_ss_context *old_context, *new_context;
-+	struct selinux_ss_type_datum *type;
- 	int index;
- 	int rc = -EINVAL;
- 
- 	read_lock(&policy_rwlock);
- 
--	old_context = sidtab_search(&sidtab, old_sid);
-+	old_context = selinux_ss_sidtab_search(&sidtab, old_sid);
- 	if (!old_context) {
- 		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
- 		       __func__, old_sid);
- 		goto out;
- 	}
- 
--	new_context = sidtab_search(&sidtab, new_sid);
-+	new_context = selinux_ss_sidtab_search(&sidtab, new_sid);
- 	if (!new_context) {
- 		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
- 		       __func__, new_sid);
-@@ -811,7 +811,7 @@ int selinux_ss_compute_av(u32 ssid,
- 			u32 requested,
- 			struct av_decision *avd)
- {
--	struct context *scontext = NULL, *tcontext = NULL;
-+	struct selinux_ss_context *scontext = NULL, *tcontext = NULL;
- 	int rc = 0;
- 
- 	if (!ss_initialized) {
-@@ -824,14 +824,14 @@ int selinux_ss_compute_av(u32 ssid,
- 
- 	read_lock(&policy_rwlock);
- 
--	scontext = sidtab_search(&sidtab, ssid);
-+	scontext = selinux_ss_sidtab_search(&sidtab, ssid);
- 	if (!scontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, ssid);
- 		rc = -EINVAL;
- 		goto out;
- 	}
--	tcontext = sidtab_search(&sidtab, tsid);
-+	tcontext = selinux_ss_sidtab_search(&sidtab, tsid);
- 	if (!tcontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, tsid);
-@@ -857,7 +857,7 @@ out:
-  * to point to this string and set `*scontext_len' to
-  * the length of the string.
-  */
--static int context_struct_to_string(struct context *context, char
-**scontext, u32 *scontext_len)
-+static int context_struct_to_string(struct selinux_ss_context *context,
-char **scontext, u32 *scontext_len)
- {
- 	char *scontextp;
- 
-@@ -914,7 +914,7 @@ const char *selinux_ss_get_initial_sid_context(u32
-sid)
- static int security_sid_to_context_core(u32 sid, char **scontext,
- 					u32 *scontext_len, int force)
- {
--	struct context *context;
-+	struct selinux_ss_context *context;
- 	int rc = 0;
- 
- 	*scontext = NULL;
-@@ -941,9 +941,9 @@ static int security_sid_to_context_core(u32 sid,
-char **scontext,
- 	}
- 	read_lock(&policy_rwlock);
- 	if (force)
--		context = sidtab_search_force(&sidtab, sid);
-+		context = selinux_ss_sidtab_search_force(&sidtab, sid);
- 	else
--		context = sidtab_search(&sidtab, sid);
-+		context = selinux_ss_sidtab_search(&sidtab, sid);
- 	if (!context) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, sid);
-@@ -981,16 +981,16 @@ int selinux_ss_sid_to_context_force(u32 sid, char
-**scontext, u32 *scontext_len)
- /*
-  * Caveat:  Mutates scontext.
-  */
--static int string_to_context_struct(struct policydb *pol,
--				    struct sidtab *sidtabp,
-+static int string_to_context_struct(struct selinux_ss_policydb *pol,
-+				    struct selinux_ss_sidtab *sidtabp,
- 				    char *scontext,
- 				    u32 scontext_len,
--				    struct context *ctx,
-+				    struct selinux_ss_context *ctx,
- 				    u32 def_sid)
- {
--	struct role_datum *role;
--	struct type_datum *typdatum;
--	struct user_datum *usrdatum;
-+	struct selinux_ss_role_datum *role;
-+	struct selinux_ss_type_datum *typdatum;
-+	struct selinux_ss_user_datum *usrdatum;
- 	char *scontextp, *p, oldc;
- 	int rc = 0;
- 
-@@ -1071,7 +1071,7 @@ static int security_context_to_sid_core(const char
-*scontext, u32 scontext_len,
- 					int force)
- {
- 	char *scontext2, *str = NULL;
--	struct context context;
-+	struct selinux_ss_context context;
- 	int rc = 0;
- 
- 	if (!ss_initialized) {
-@@ -1114,7 +1114,7 @@ static int security_context_to_sid_core(const char
-*scontext, u32 scontext_len,
- 		str = NULL;
- 	} else if (rc)
- 		goto out;
--	rc = sidtab_context_to_sid(&sidtab, &context, sid);
-+	rc = selinux_ss_sidtab_context_to_sid(&sidtab, &context, sid);
- 	context_destroy(&context);
- out:
- 	read_unlock(&policy_rwlock);
-@@ -1173,10 +1173,10 @@ int selinux_ss_context_to_sid_force(const char
-*scontext, u32 scontext_len,
- }
- 
- static int compute_sid_handle_invalid_context(
--	struct context *scontext,
--	struct context *tcontext,
-+	struct selinux_ss_context *scontext,
-+	struct selinux_ss_context *tcontext,
- 	u16 tclass,
--	struct context *newcontext)
-+	struct selinux_ss_context *newcontext)
- {
- 	char *s = NULL, *t = NULL, *n = NULL;
- 	u32 slen, tlen, nlen;
-@@ -1208,8 +1208,8 @@ static int security_compute_sid(u32 ssid,
- 				u32 specified,
- 				u32 *out_sid)
- {
--	struct context *scontext = NULL, *tcontext = NULL, newcontext;
--	struct role_trans *roletr = NULL;
-+	struct selinux_ss_context *scontext = NULL, *tcontext = NULL,
-newcontext;
-+	struct selinux_ss_role_trans *roletr = NULL;
- 	struct selinux_ss_avtab_key avkey;
- 	struct selinux_ss_avtab_datum *avdatum;
- 	struct selinux_ss_avtab_node *node;
-@@ -1231,14 +1231,14 @@ static int security_compute_sid(u32 ssid,
- 
- 	read_lock(&policy_rwlock);
- 
--	scontext = sidtab_search(&sidtab, ssid);
-+	scontext = selinux_ss_sidtab_search(&sidtab, ssid);
- 	if (!scontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, ssid);
- 		rc = -EINVAL;
- 		goto out_unlock;
- 	}
--	tcontext = sidtab_search(&sidtab, tsid);
-+	tcontext = selinux_ss_sidtab_search(&sidtab, tsid);
- 	if (!tcontext) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, tsid);
-@@ -1332,7 +1332,7 @@ static int security_compute_sid(u32 ssid,
- 			goto out_unlock;
- 	}
- 	/* Obtain the sid for the context. */
--	rc = sidtab_context_to_sid(&sidtab, &newcontext, out_sid);
-+	rc = selinux_ss_sidtab_context_to_sid(&sidtab, &newcontext, out_sid);
- out_unlock:
- 	read_unlock(&policy_rwlock);
- 	context_destroy(&newcontext);
-@@ -1407,16 +1407,16 @@ int selinux_ss_change_sid(u32 ssid,
-  * Verify that each kernel class that is defined in the
-  * policy is correct
-  */
--static int validate_classes(struct policydb *p)
-+static int validate_classes(struct selinux_ss_policydb *p)
- {
- 	int i, j;
--	struct class_datum *cladatum;
--	struct perm_datum *perdatum;
-+	struct selinux_ss_class_datum *cladatum;
-+	struct selinux_ss_perm_datum *perdatum;
- 	u32 nprim, tmp, common_pts_len, perm_val, pol_val;
- 	u16 class_val;
- 	const struct selinux_class_perm *kdefs = &selinux_class_perm;
- 	const char *def_class, *def_perm, *pol_class;
--	struct symtab *perms;
-+	struct selinux_ss_symtab *perms;
- 	bool print_unknown_handle = 0;
- 
- 	if (p->allow_unknown) {
-@@ -1542,15 +1542,15 @@ static int validate_classes(struct policydb *p)
- 
- /* Clone the SID into the new SID table. */
- static int clone_sid(u32 sid,
--		     struct context *context,
-+		     struct selinux_ss_context *context,
- 		     void *arg)
- {
--	struct sidtab *s = arg;
-+	struct selinux_ss_sidtab *s = arg;
- 
--	return sidtab_insert(s, sid, context);
-+	return selinux_ss_sidtab_insert(s, sid, context);
- }
- 
--static inline int convert_context_handle_invalid_context(struct context
-*context)
-+static inline int convert_context_handle_invalid_context(struct
-selinux_ss_context *context)
- {
- 	int rc = 0;
- 
-@@ -1571,8 +1571,8 @@ static inline int
-convert_context_handle_invalid_context(struct context *context
- }
- 
- struct convert_context_args {
--	struct policydb *oldp;
--	struct policydb *newp;
-+	struct selinux_ss_policydb *oldp;
-+	struct selinux_ss_policydb *newp;
- };
- 
- /*
-@@ -1583,14 +1583,14 @@ struct convert_context_args {
-  * context is valid under the new policy.
-  */
- static int convert_context(u32 key,
--			   struct context *c,
-+			   struct selinux_ss_context *c,
- 			   void *p)
- {
- 	struct convert_context_args *args;
--	struct context oldc;
--	struct role_datum *role;
--	struct type_datum *typdatum;
--	struct user_datum *usrdatum;
-+	struct selinux_ss_context oldc;
-+	struct selinux_ss_role_datum *role;
-+	struct selinux_ss_type_datum *typdatum;
-+	struct selinux_ss_user_datum *usrdatum;
- 	char *s;
- 	u32 len;
- 	int rc;
-@@ -1598,7 +1598,7 @@ static int convert_context(u32 key,
- 	args = p;
- 
- 	if (c->str) {
--		struct context ctx;
-+		struct selinux_ss_context ctx;
- 		s = kstrdup(c->str, GFP_KERNEL);
- 		if (!s) {
- 			rc = -ENOMEM;
-@@ -1694,7 +1694,7 @@ static void selinux_load_policycaps(void)
- }
- 
- extern void selinux_complete_init(void);
--static int security_preserve_bools(struct policydb *p);
-+static int security_preserve_bools(struct selinux_ss_policydb *p);
  
  /**
-  * selinux_load_policy - Load a security policy configuration.
-@@ -1708,12 +1708,12 @@ static int security_preserve_bools(struct
-policydb *p);
+- * sel_netnode_sid_slow - Lookup the SID of a network address using the policy
++ * selinux_netnode_sid_slow - Lookup the SID of a network address using the policy
+  * @addr: the IP address
+  * @family: the address family
+  * @sid: node SID
+@@ -211,7 +211,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
+  * failure.
+  *
   */
- int selinux_ss_load_policy(void *data, size_t len)
+-static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
++static int selinux_netnode_sid_slow(void *addr, u16 family, u32 *sid)
  {
--	struct policydb oldpolicydb, newpolicydb;
--	struct sidtab oldsidtab, newsidtab;
-+	struct selinux_ss_policydb oldpolicydb, newpolicydb;
-+	struct selinux_ss_sidtab oldsidtab, newsidtab;
- 	struct convert_context_args args;
- 	u32 seqno;
- 	int rc = 0;
--	struct policy_file file = { data, len }, *fp = &file;
-+	struct selinux_ss_policy_file file = { data, len }, *fp = &file;
- 
- 	if (!ss_initialized) {
- 		selinux_ss_avtab_cache_init();
-@@ -1730,7 +1730,7 @@ int selinux_ss_load_policy(void *data, size_t len)
- 		if (validate_classes(&policydb)) {
- 			printk(KERN_ERR
- 			       "SELinux:  the definition of a class is incorrect\n");
--			sidtab_destroy(&sidtab);
-+			selinux_ss_sidtab_destroy(&sidtab);
- 			policydb_destroy(&policydb);
- 			selinux_ss_avtab_cache_destroy();
- 			return -EINVAL;
-@@ -1748,13 +1748,13 @@ int selinux_ss_load_policy(void *data, size_t
-len)
+ 	int ret = -ENOMEM;
+ 	struct sel_netnode *node;
+@@ -229,12 +229,12 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+ 		goto out;
+ 	switch (family) {
+ 	case PF_INET:
+-		ret = security_node_sid(PF_INET,
++		ret = selinux_ss_node_sid(PF_INET,
+ 					addr, sizeof(struct in_addr), sid);
+ 		new->nsec.addr.ipv4 = *(__be32 *)addr;
+ 		break;
+ 	case PF_INET6:
+-		ret = security_node_sid(PF_INET6,
++		ret = selinux_ss_node_sid(PF_INET6,
+ 					addr, sizeof(struct in6_addr), sid);
+ 		ipv6_addr_copy(&new->nsec.addr.ipv6, addr);
+ 		break;
+@@ -252,7 +252,7 @@ out:
+ 	spin_unlock_bh(&sel_netnode_lock);
+ 	if (unlikely(ret)) {
+ 		printk(KERN_WARNING
+-		       "SELinux: failure in sel_netnode_sid_slow(),"
++		       "SELinux: failure in selinux_netnode_sid_slow(),"
+ 		       " unable to determine network node label\n");
+ 		kfree(new);
  	}
- 
- #if 0
--	sidtab_hash_eval(&sidtab, "sids");
-+	selinux_ss_sidtab_hash_eval(&sidtab, "sids");
- #endif
- 
- 	if (policydb_read(&newpolicydb, fp))
- 		return -EINVAL;
- 
--	if (sidtab_init(&newsidtab)) {
-+	if (selinux_ss_sidtab_init(&newsidtab)) {
- 		policydb_destroy(&newpolicydb);
- 		return -ENOMEM;
- 	}
-@@ -1774,8 +1774,8 @@ int selinux_ss_load_policy(void *data, size_t len)
- 	}
- 
- 	/* Clone the SID table. */
--	sidtab_shutdown(&sidtab);
--	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
-+	selinux_ss_sidtab_shutdown(&sidtab);
-+	if (selinux_ss_sidtab_map(&sidtab, clone_sid, &newsidtab)) {
- 		rc = -ENOMEM;
- 		goto err;
- 	}
-@@ -1786,18 +1786,18 @@ int selinux_ss_load_policy(void *data, size_t
-len)
- 	 */
- 	args.oldp = &policydb;
- 	args.newp = &newpolicydb;
--	rc = sidtab_map(&newsidtab, convert_context, &args);
-+	rc = selinux_ss_sidtab_map(&newsidtab, convert_context, &args);
- 	if (rc)
- 		goto err;
- 
- 	/* Save the old policydb and SID table to free later. */
- 	memcpy(&oldpolicydb, &policydb, sizeof policydb);
--	sidtab_set(&oldsidtab, &sidtab);
-+	selinux_ss_sidtab_set(&oldsidtab, &sidtab);
- 
- 	/* Install the new policydb and SID table. */
- 	write_lock_irq(&policy_rwlock);
- 	memcpy(&policydb, &newpolicydb, sizeof policydb);
--	sidtab_set(&sidtab, &newsidtab);
-+	selinux_ss_sidtab_set(&sidtab, &newsidtab);
- 	selinux_load_policycaps();
- 	seqno = ++latest_granting;
- 	policydb_loaded_version = policydb.policyvers;
-@@ -1805,7 +1805,7 @@ int selinux_ss_load_policy(void *data, size_t len)
- 
- 	/* Free the old policydb and SID table. */
- 	policydb_destroy(&oldpolicydb);
--	sidtab_destroy(&oldsidtab);
-+	selinux_ss_sidtab_destroy(&oldsidtab);
- 
- 	selinux_avc_ss_reset(seqno);
- 	selnl_notify_policyload(seqno);
-@@ -1815,7 +1815,7 @@ int selinux_ss_load_policy(void *data, size_t len)
- 	return 0;
- 
- err:
--	sidtab_destroy(&newsidtab);
-+	selinux_ss_sidtab_destroy(&newsidtab);
- 	policydb_destroy(&newpolicydb);
- 	return rc;
- 
-@@ -1829,7 +1829,7 @@ err:
-  */
- int selinux_ss_port_sid(u8 protocol, u16 port, u32 *out_sid)
- {
--	struct ocontext *c;
-+	struct selinux_ss_ocontext *c;
- 	int rc = 0;
- 
- 	read_lock(&policy_rwlock);
-@@ -1845,7 +1845,7 @@ int selinux_ss_port_sid(u8 protocol, u16 port, u32
-*out_sid)
- 
- 	if (c) {
- 		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(&sidtab,
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 						   &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
-@@ -1869,7 +1869,7 @@ out:
- int selinux_ss_netif_sid(char *name, u32 *if_sid)
- {
- 	int rc = 0;
--	struct ocontext *c;
-+	struct selinux_ss_ocontext *c;
- 
- 	read_lock(&policy_rwlock);
- 
-@@ -1882,12 +1882,12 @@ int selinux_ss_netif_sid(char *name, u32
-*if_sid)
- 
- 	if (c) {
- 		if (!c->sid[0] || !c->sid[1]) {
--			rc = sidtab_context_to_sid(&sidtab,
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 						  &c->context[0],
- 						  &c->sid[0]);
- 			if (rc)
- 				goto out;
--			rc = sidtab_context_to_sid(&sidtab,
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 						   &c->context[1],
- 						   &c->sid[1]);
- 			if (rc)
-@@ -1928,7 +1928,7 @@ int selinux_ss_node_sid(u16 domain,
- 		      u32 *out_sid)
- {
- 	int rc = 0;
--	struct ocontext *c;
-+	struct selinux_ss_ocontext *c;
- 
- 	read_lock(&policy_rwlock);
- 
-@@ -1973,7 +1973,7 @@ int selinux_ss_node_sid(u16 domain,
- 
- 	if (c) {
- 		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(&sidtab,
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 						   &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
-@@ -2010,11 +2010,11 @@ int selinux_ss_get_user_sids(u32 fromsid,
- 			   u32 **sids,
- 			   u32 *nel)
- {
--	struct context *fromcon, usercon;
-+	struct selinux_ss_context *fromcon, usercon;
- 	u32 *mysids = NULL, *mysids2, sid;
- 	u32 mynel = 0, maxnel = SIDS_NEL;
--	struct user_datum *user;
--	struct role_datum *role;
-+	struct selinux_ss_user_datum *user;
-+	struct selinux_ss_role_datum *role;
- 	struct selinux_ss_ebitmap_node *rnode, *tnode;
- 	int rc = 0, i, j;
- 
-@@ -2028,7 +2028,7 @@ int selinux_ss_get_user_sids(u32 fromsid,
- 
- 	context_init(&usercon);
- 
--	fromcon = sidtab_search(&sidtab, fromsid);
-+	fromcon = selinux_ss_sidtab_search(&sidtab, fromsid);
- 	if (!fromcon) {
- 		rc = -EINVAL;
- 		goto out_unlock;
-@@ -2056,7 +2056,7 @@ int selinux_ss_get_user_sids(u32 fromsid,
- 			if (mls_setup_user_range(fromcon, user, &usercon))
- 				continue;
- 
--			rc = sidtab_context_to_sid(&sidtab, &usercon, &sid);
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab, &usercon, &sid);
- 			if (rc)
- 				goto out_unlock;
- 			if (mynel < maxnel) {
-@@ -2123,8 +2123,8 @@ int selinux_ss_genfs_sid(const char *fstype,
- 		       u32 *sid)
- {
- 	int len;
--	struct genfs *genfs;
--	struct ocontext *c;
-+	struct selinux_ss_genfs *genfs;
-+	struct selinux_ss_ocontext *c;
- 	int rc = 0, cmp = 0;
- 
- 	while (path[0] == '/' && path[1] == '/')
-@@ -2158,7 +2158,7 @@ int selinux_ss_genfs_sid(const char *fstype,
- 	}
- 
- 	if (!c->sid[0]) {
--		rc = sidtab_context_to_sid(&sidtab,
-+		rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 					   &c->context[0],
- 					   &c->sid[0]);
- 		if (rc)
-@@ -2183,7 +2183,7 @@ int selinux_ss_fs_use(
- 	u32 *sid)
- {
- 	int rc = 0;
--	struct ocontext *c;
-+	struct selinux_ss_ocontext *c;
- 
- 	read_lock(&policy_rwlock);
- 
-@@ -2197,7 +2197,7 @@ int selinux_ss_fs_use(
- 	if (c) {
- 		*behavior = c->v.behavior;
- 		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(&sidtab,
-+			rc = selinux_ss_sidtab_context_to_sid(&sidtab,
- 						   &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
-@@ -2333,7 +2333,7 @@ out:
- 	return rc;
+@@ -260,7 +260,7 @@ out:
  }
  
--static int security_preserve_bools(struct policydb *p)
-+static int security_preserve_bools(struct selinux_ss_policydb *p)
- {
- 	int rc, nbools = 0, *bvalues = NULL, i;
- 	char **bnames = NULL;
-@@ -2370,9 +2370,9 @@ out:
+ /**
+- * sel_netnode_sid - Lookup the SID of a network address
++ * selinux_netnode_sid - Lookup the SID of a network address
+  * @addr: the IP address
+  * @family: the address family
+  * @sid: node SID
+@@ -273,7 +273,7 @@ out:
+  * on failure.
+  *
   */
- int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
+-int sel_netnode_sid(void *addr, u16 family, u32 *sid)
++int selinux_netnode_sid(void *addr, u16 family, u32 *sid)
  {
--	struct context *context1;
--	struct context *context2;
--	struct context newcon;
-+	struct selinux_ss_context *context1;
-+	struct selinux_ss_context *context2;
-+	struct selinux_ss_context newcon;
- 	char *s;
- 	u32 len;
- 	int rc = 0;
-@@ -2385,7 +2385,7 @@ int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid,
-u32 *new_sid)
- 	context_init(&newcon);
+ 	struct sel_netnode *node;
  
- 	read_lock(&policy_rwlock);
--	context1 = sidtab_search(&sidtab, sid);
-+	context1 = selinux_ss_sidtab_search(&sidtab, sid);
- 	if (!context1) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, sid);
-@@ -2393,7 +2393,7 @@ int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid,
-u32 *new_sid)
- 		goto out_unlock;
+@@ -286,7 +286,7 @@ int sel_netnode_sid(void *addr, u16 family, u32 *sid)
+ 	}
+ 	rcu_read_unlock();
+ 
+-	return sel_netnode_sid_slow(addr, family, sid);
++	return selinux_netnode_sid_slow(addr, family, sid);
+ }
+ 
+ /**
+@@ -336,10 +336,10 @@ static __init int sel_netnode_init(void)
+ 		sel_netnode_hash[iter].size = 0;
  	}
  
--	context2 = sidtab_search(&sidtab, mls_sid);
-+	context2 = selinux_ss_sidtab_search(&sidtab, mls_sid);
- 	if (!context2) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, mls_sid);
-@@ -2415,7 +2415,7 @@ int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid,
-u32 *new_sid)
- 			goto bad;
+-	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET,
++	ret = selinux_avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET,
+ 			       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
+ 	if (ret != 0)
+-		panic("avc_add_callback() failed, error %d\n", ret);
++		panic("selinux_avc_add_callback() failed, error %d\n", ret);
+ 
+ 	return ret;
+ }
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index fe7fba6..61c4cc6 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -174,7 +174,7 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
+ 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+ 	if (new == NULL)
+ 		goto out;
+-	ret = security_port_sid(protocol, pnum, sid);
++	ret = selinux_ss_port_sid(protocol, pnum, sid);
+ 	if (ret != 0)
+ 		goto out;
+ 
+@@ -207,7 +207,7 @@ out:
+  * future queries.  Returns zero on success, negative values on failure.
+  *
+  */
+-int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid)
++int selinux_netport_sid(u8 protocol, u16 pnum, u32 *sid)
+ {
+ 	struct sel_netport *port;
+ 
+@@ -270,10 +270,10 @@ static __init int sel_netport_init(void)
+ 		sel_netport_hash[iter].size = 0;
  	}
  
--	rc = sidtab_context_to_sid(&sidtab, &newcon, new_sid);
-+	rc = selinux_ss_sidtab_context_to_sid(&sidtab, &newcon, new_sid);
- 	goto out_unlock;
+-	ret = avc_add_callback(sel_netport_avc_callback, AVC_CALLBACK_RESET,
++	ret = selinux_avc_add_callback(sel_netport_avc_callback, AVC_CALLBACK_RESET,
+ 			       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
+ 	if (ret != 0)
+-		panic("avc_add_callback() failed, error %d\n", ret);
++		panic("selinux_avc_add_callback() failed, error %d\n", ret);
  
- bad:
-@@ -2457,8 +2457,8 @@ int selinux_ss_net_peersid_resolve(u32 nlbl_sid,
-u32 nlbl_type,
- 				 u32 *peer_sid)
- {
- 	int rc;
--	struct context *nlbl_ctx;
--	struct context *xfrm_ctx;
-+	struct selinux_ss_context *nlbl_ctx;
-+	struct selinux_ss_context *xfrm_ctx;
+ 	return ret;
+ }
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index b4fc506..78c6e82 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -88,7 +88,7 @@ static int task_has_security(struct task_struct *tsk,
+ 	if (!tsec)
+ 		return -EACCES;
  
- 	/* handle the common (which also happens to be the set of easy) cases
- 	 * right away, these two if statements catch everything involving a
-@@ -2485,14 +2485,14 @@ int selinux_ss_net_peersid_resolve(u32 nlbl_sid,
-u32 nlbl_type,
+-	return avc_has_perm(sid, SECINITSID_SECURITY,
++	return selinux_avc_has_perm(sid, SECINITSID_SECURITY,
+ 			    SECCLASS_SECURITY, perms, NULL);
+ }
  
- 	read_lock(&policy_rwlock);
- 
--	nlbl_ctx = sidtab_search(&sidtab, nlbl_sid);
-+	nlbl_ctx = selinux_ss_sidtab_search(&sidtab, nlbl_sid);
- 	if (!nlbl_ctx) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, nlbl_sid);
- 		rc = -EINVAL;
- 		goto out_slowpath;
+@@ -169,7 +169,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			audit_get_sessionid(current));
+ 		selinux_enforcing = new_value;
+ 		if (selinux_enforcing)
+-			avc_ss_reset(0);
++			selinux_avc_ss_reset(0);
+ 		selnl_notify_setenforce(selinux_enforcing);
  	}
--	xfrm_ctx = sidtab_search(&sidtab, xfrm_sid);
-+	xfrm_ctx = selinux_ss_sidtab_search(&sidtab, xfrm_sid);
- 	if (!xfrm_ctx) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, xfrm_sid);
-@@ -2517,7 +2517,7 @@ out_slowpath:
+ 	length = count;
+@@ -193,7 +193,7 @@ static ssize_t sel_read_handle_unknown(struct file *filp, char __user *buf,
+ 	ssize_t length;
+ 	ino_t ino = filp->f_path.dentry->d_inode->i_ino;
+ 	int handle_unknown = (ino == SEL_REJECT_UNKNOWN) ?
+-		security_get_reject_unknown() : !security_get_allow_unknown();
++		selinux_ss_get_reject_unknown() : !selinux_ss_get_allow_unknown();
  
- static int get_classes_callback(void *k, void *d, void *args)
- {
--	struct class_datum *datum = d;
-+	struct selinux_ss_class_datum *datum = d;
- 	char *name = k, **classes = args;
- 	int value = datum->value - 1;
+ 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", handle_unknown);
+ 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+@@ -320,7 +320,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+ 	if (copy_from_user(data, buf, count) != 0)
+ 		goto out;
  
-@@ -2555,7 +2555,7 @@ out:
+-	length = security_load_policy(data, count);
++	length = selinux_ss_load_policy(data, count);
+ 	if (length)
+ 		goto out;
  
- static int get_permissions_callback(void *k, void *d, void *args)
- {
--	struct perm_datum *datum = d;
-+	struct selinux_ss_perm_datum *datum = d;
- 	char *name = k, **perms = args;
- 	int value = datum->value - 1;
+@@ -367,11 +367,11 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
+ 	if (length)
+ 		return length;
  
-@@ -2569,7 +2569,7 @@ static int get_permissions_callback(void *k, void
-*d, void *args)
- int selinux_ss_get_permissions(char *class, char ***perms, int *nperms)
- {
- 	int rc = -ENOMEM, i;
--	struct class_datum *match;
-+	struct selinux_ss_class_datum *match;
+-	length = security_context_to_sid(buf, size, &sid);
++	length = selinux_ss_context_to_sid(buf, size, &sid);
+ 	if (length < 0)
+ 		return length;
  
- 	read_lock(&policy_rwlock);
+-	length = security_sid_to_context(sid, &canon, &len);
++	length = selinux_ss_sid_to_context(sid, &canon, &len);
+ 	if (length < 0)
+ 		return length;
  
-@@ -2643,7 +2643,7 @@ int selinux_ss_policycap_supported(unsigned int
-req_cap)
+@@ -515,14 +515,14 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
+ 	if (sscanf(buf, "%s %s %hu %x", scon, tcon, &tclass, &req) != 4)
+ 		goto out2;
  
- struct selinux_audit_rule {
- 	u32 au_seqno;
--	struct context au_ctxt;
-+	struct selinux_ss_context au_ctxt;
- };
+-	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
++	length = selinux_ss_context_to_sid(scon, strlen(scon)+1, &ssid);
+ 	if (length < 0)
+ 		goto out2;
+-	length = security_context_to_sid(tcon, strlen(tcon)+1, &tsid);
++	length = selinux_ss_context_to_sid(tcon, strlen(tcon)+1, &tsid);
+ 	if (length < 0)
+ 		goto out2;
  
- void selinux_audit_rule_free(void *vrule)
-@@ -2659,9 +2659,9 @@ void selinux_audit_rule_free(void *vrule)
- int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void
-**vrule)
- {
- 	struct selinux_audit_rule *tmprule;
--	struct role_datum *roledatum;
--	struct type_datum *typedatum;
--	struct user_datum *userdatum;
-+	struct selinux_ss_role_datum *roledatum;
-+	struct selinux_ss_type_datum *typedatum;
-+	struct selinux_ss_user_datum *userdatum;
- 	struct selinux_audit_rule **rule = (struct selinux_audit_rule
-**)vrule;
- 	int rc = 0;
+-	length = security_compute_av(ssid, tsid, tclass, req, &avd);
++	length = selinux_ss_compute_av(ssid, tsid, tclass, req, &avd);
+ 	if (length < 0)
+ 		goto out2;
  
-@@ -2777,7 +2777,7 @@ int selinux_audit_rule_known(struct audit_krule
-*rule)
- int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
- 			     struct audit_context *actx)
- {
--	struct context *ctxt;
-+	struct selinux_ss_context *ctxt;
- 	struct mls_level *level;
- 	struct selinux_audit_rule *rule = vrule;
- 	int match = 0;
-@@ -2797,7 +2797,7 @@ int selinux_audit_rule_match(u32 sid, u32 field,
-u32 op, void *vrule,
+@@ -564,18 +564,18 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
+ 		goto out2;
+ 
+-	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
++	length = selinux_ss_context_to_sid(scon, strlen(scon)+1, &ssid);
+ 	if (length < 0)
+ 		goto out2;
+-	length = security_context_to_sid(tcon, strlen(tcon)+1, &tsid);
++	length = selinux_ss_context_to_sid(tcon, strlen(tcon)+1, &tsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_transition_sid(ssid, tsid, tclass, &newsid);
++	length = selinux_ss_transition_sid(ssid, tsid, tclass, &newsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_sid_to_context(newsid, &newcon, &len);
++	length = selinux_ss_sid_to_context(newsid, &newcon, &len);
+ 	if (length < 0)
+ 		goto out2;
+ 
+@@ -623,18 +623,18 @@ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
+ 	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
+ 		goto out2;
+ 
+-	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
++	length = selinux_ss_context_to_sid(scon, strlen(scon)+1, &ssid);
+ 	if (length < 0)
+ 		goto out2;
+-	length = security_context_to_sid(tcon, strlen(tcon)+1, &tsid);
++	length = selinux_ss_context_to_sid(tcon, strlen(tcon)+1, &tsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_change_sid(ssid, tsid, tclass, &newsid);
++	length = selinux_ss_change_sid(ssid, tsid, tclass, &newsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_sid_to_context(newsid, &newcon, &len);
++	length = selinux_ss_sid_to_context(newsid, &newcon, &len);
+ 	if (length < 0)
+ 		goto out2;
+ 
+@@ -680,18 +680,18 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
+ 	if (sscanf(buf, "%s %s", con, user) != 2)
+ 		goto out2;
+ 
+-	length = security_context_to_sid(con, strlen(con)+1, &sid);
++	length = selinux_ss_context_to_sid(con, strlen(con)+1, &sid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_get_user_sids(sid, user, &sids, &nsids);
++	length = selinux_ss_get_user_sids(sid, user, &sids, &nsids);
+ 	if (length < 0)
+ 		goto out2;
+ 
+ 	length = sprintf(buf, "%u", nsids) + 1;
+ 	ptr = buf + length;
+ 	for (i = 0; i < nsids; i++) {
+-		rc = security_sid_to_context(sids[i], &newcon, &len);
++		rc = selinux_ss_sid_to_context(sids[i], &newcon, &len);
+ 		if (rc) {
+ 			length = rc;
+ 			goto out3;
+@@ -741,18 +741,18 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+ 	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
+ 		goto out2;
+ 
+-	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
++	length = selinux_ss_context_to_sid(scon, strlen(scon)+1, &ssid);
+ 	if (length < 0)
+ 		goto out2;
+-	length = security_context_to_sid(tcon, strlen(tcon)+1, &tsid);
++	length = selinux_ss_context_to_sid(tcon, strlen(tcon)+1, &tsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_member_sid(ssid, tsid, tclass, &newsid);
++	length = selinux_ss_member_sid(ssid, tsid, tclass, &newsid);
+ 	if (length < 0)
+ 		goto out2;
+ 
+-	length = security_sid_to_context(newsid, &newcon, &len);
++	length = selinux_ss_sid_to_context(newsid, &newcon, &len);
+ 	if (length < 0)
+ 		goto out2;
+ 
+@@ -809,7 +809,7 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
  		goto out;
  	}
  
--	ctxt = sidtab_search(&sidtab, sid);
-+	ctxt = selinux_ss_sidtab_search(&sidtab, sid);
- 	if (!ctxt) {
- 		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
- 			  "selinux_audit_rule_match: unrecognized SID %d\n",
-@@ -2962,8 +2962,8 @@ int selinux_ss_netlbl_secattr_to_sid(struct
-netlbl_lsm_secattr *secattr,
+-	cur_enforcing = security_get_bool_value(index);
++	cur_enforcing = selinux_get_bool_value(index);
+ 	if (cur_enforcing < 0) {
+ 		ret = cur_enforcing;
+ 		goto out;
+@@ -924,7 +924,7 @@ static ssize_t sel_commit_bools_write(struct file *filep,
+ 		goto out;
+ 
+ 	if (new_value && bool_pending_values)
+-		security_set_bools(bool_num, bool_pending_values);
++		selinux_set_bools(bool_num, bool_pending_values);
+ 
+ 	length = count;
+ 
+@@ -990,7 +990,7 @@ static int sel_make_bools(void)
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+-	ret = security_get_bools(&num, &names, &values);
++	ret = selinux_get_bools(&num, &names, &values);
+ 	if (ret != 0)
+ 		goto out;
+ 
+@@ -1015,7 +1015,7 @@ static int sel_make_bools(void)
+ 			goto err;
+ 		}
+ 		isec = (struct inode_security_struct *)inode->i_security;
+-		ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
++		ret = selinux_ss_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
+ 		if (ret)
+ 			goto err;
+ 		isec->sid = sid;
+@@ -1116,7 +1116,7 @@ static ssize_t sel_read_avc_hash_stats(struct file *filp, char __user *buf,
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	ret = avc_get_hash_stats(page);
++	ret = selinux_avc_get_hash_stats(page);
+ 	if (ret >= 0)
+ 		ret = simple_read_from_buffer(buf, count, ppos, page, ret);
+ 	free_page((unsigned long)page);
+@@ -1244,7 +1244,7 @@ static ssize_t sel_read_initcon(struct file *file, char __user *buf,
+ 
+ 	inode = file->f_path.dentry->d_inode;
+ 	sid = inode->i_ino&SEL_INO_MASK;
+-	ret = security_sid_to_context(sid, &con, &len);
++	ret = selinux_ss_sid_to_context(sid, &con, &len);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1264,7 +1264,7 @@ static int sel_make_initcon_files(struct dentry *dir)
+ 	for (i = 1; i <= SECINITSID_NUM; i++) {
+ 		struct inode *inode;
+ 		struct dentry *dentry;
+-		dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
++		dentry = d_alloc_name(dir, selinux_ss_get_initial_sid_context(i));
+ 		if (!dentry) {
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -1364,7 +1364,7 @@ static ssize_t sel_read_policycap(struct file *file, char __user *buf,
+ 	ssize_t length;
+ 	unsigned long i_ino = file->f_path.dentry->d_inode->i_ino;
+ 
+-	value = security_policycap_supported(i_ino & SEL_INO_MASK);
++	value = selinux_ss_policycap_supported(i_ino & SEL_INO_MASK);
+ 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
+ 
+ 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+@@ -1380,7 +1380,7 @@ static int sel_make_perm_files(char *objclass, int classvalue,
+ 	int i, rc = 0, nperms;
+ 	char **perms;
+ 
+-	rc = security_get_permissions(objclass, &perms, &nperms);
++	rc = selinux_ss_get_permissions(objclass, &perms, &nperms);
+ 	if (rc)
+ 		goto out;
+ 
+@@ -1484,7 +1484,7 @@ static int sel_make_classes(void)
+ 	/* delete any existing entries */
+ 	sel_remove_classes();
+ 
+-	rc = security_get_classes(&classes, &nclasses);
++	rc = selinux_ss_get_classes(&classes, &nclasses);
+ 	if (rc < 0)
+ 		goto out;
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index ff17820..11fc12f 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -635,7 +635,7 @@ out:
+ 	return -EPERM;
+ }
+ 
+-int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
++int selinux_ss_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 				 u16 tclass)
+ {
+ 	struct context *ocontext;
+@@ -718,7 +718,7 @@ out:
+  * @oldsid : current security identifier
+  * @newsid : destinated security identifier
+  */
+-int security_bounded_transition(u32 old_sid, u32 new_sid)
++int selinux_ss_bounded_transition(u32 old_sid, u32 new_sid)
+ {
+ 	struct context *old_context, *new_context;
+ 	struct type_datum *type;
+@@ -805,7 +805,7 @@ out:
+  * Return -%EINVAL if any of the parameters are invalid or %0
+  * if the access vector decisions were computed successfully.
+  */
+-int security_compute_av(u32 ssid,
++int selinux_ss_compute_av(u32 ssid,
+ 			u32 tsid,
+ 			u16 tclass,
+ 			u32 requested,
+@@ -904,7 +904,7 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+ 
+ #include "initial_sid_to_string.h"
+ 
+-const char *security_get_initial_sid_context(u32 sid)
++const char *selinux_ss_get_initial_sid_context(u32 sid)
+ {
+ 	if (unlikely(sid > SECINITSID_NUM))
+ 		return NULL;
+@@ -968,12 +968,12 @@ out:
+  * into a dynamically allocated string of the correct size.  Set @scontext
+  * to point to this string and set @scontext_len to the length of the string.
+  */
+-int security_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
++int selinux_ss_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
+ {
+ 	return security_sid_to_context_core(sid, scontext, scontext_len, 0);
+ }
+ 
+-int security_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len)
++int selinux_ss_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len)
+ {
+ 	return security_sid_to_context_core(sid, scontext, scontext_len, 1);
+ }
+@@ -1134,7 +1134,7 @@ out:
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
++int selinux_ss_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 					    sid, SECSID_NULL, GFP_KERNEL, 0);
+@@ -1158,14 +1158,14 @@ int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid_default(const char *scontext, u32 scontext_len,
++int selinux_ss_context_to_sid_default(const char *scontext, u32 scontext_len,
+ 				    u32 *sid, u32 def_sid, gfp_t gfp_flags)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 					    sid, def_sid, gfp_flags, 1);
+ }
+ 
+-int security_context_to_sid_force(const char *scontext, u32 scontext_len,
++int selinux_ss_context_to_sid_force(const char *scontext, u32 scontext_len,
+ 				  u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+@@ -1353,7 +1353,7 @@ out:
+  * if insufficient memory is available, or %0 if the new SID was
+  * computed successfully.
+  */
+-int security_transition_sid(u32 ssid,
++int selinux_ss_transition_sid(u32 ssid,
+ 			    u32 tsid,
+ 			    u16 tclass,
+ 			    u32 *out_sid)
+@@ -1374,7 +1374,7 @@ int security_transition_sid(u32 ssid,
+  * if insufficient memory is available, or %0 if the SID was
+  * computed successfully.
+  */
+-int security_member_sid(u32 ssid,
++int selinux_ss_member_sid(u32 ssid,
+ 			u32 tsid,
+ 			u16 tclass,
+ 			u32 *out_sid)
+@@ -1395,7 +1395,7 @@ int security_member_sid(u32 ssid,
+  * if insufficient memory is available, or %0 if the SID was
+  * computed successfully.
+  */
+-int security_change_sid(u32 ssid,
++int selinux_ss_change_sid(u32 ssid,
+ 			u32 tsid,
+ 			u16 tclass,
+ 			u32 *out_sid)
+@@ -1536,7 +1536,7 @@ static int validate_classes(struct policydb *p)
+ 	}
+ 	if (print_unknown_handle)
+ 		printk(KERN_INFO "SELinux: the above unknown classes and permissions will be %s\n",
+-			(security_get_allow_unknown() ? "allowed" : "denied"));
++			(selinux_ss_get_allow_unknown() ? "allowed" : "denied"));
+ 	return 0;
+ }
+ 
+@@ -1685,7 +1685,7 @@ bad:
+ 	goto out;
+ }
+ 
+-static void security_load_policycaps(void)
++static void selinux_load_policycaps(void)
+ {
+ 	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_NETPEER);
+@@ -1697,7 +1697,7 @@ extern void selinux_complete_init(void);
+ static int security_preserve_bools(struct policydb *p);
+ 
+ /**
+- * security_load_policy - Load a security policy configuration.
++ * selinux_load_policy - Load a security policy configuration.
+  * @data: binary policy data
+  * @len: length of data in bytes
+  *
+@@ -1706,7 +1706,7 @@ static int security_preserve_bools(struct policydb *p);
+  * This function will flush the access vector cache after
+  * loading the new policy.
+  */
+-int security_load_policy(void *data, size_t len)
++int selinux_ss_load_policy(void *data, size_t len)
+ {
+ 	struct policydb oldpolicydb, newpolicydb;
+ 	struct sidtab oldsidtab, newsidtab;
+@@ -1735,12 +1735,12 @@ int security_load_policy(void *data, size_t len)
+ 			avtab_cache_destroy();
+ 			return -EINVAL;
+ 		}
+-		security_load_policycaps();
++		selinux_load_policycaps();
+ 		policydb_loaded_version = policydb.policyvers;
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+ 		selinux_complete_init();
+-		avc_ss_reset(seqno);
++		selinux_avc_ss_reset(seqno);
+ 		selnl_notify_policyload(seqno);
+ 		selinux_netlbl_cache_invalidate();
+ 		selinux_xfrm_notify_policyload();
+@@ -1798,7 +1798,7 @@ int security_load_policy(void *data, size_t len)
+ 	write_lock_irq(&policy_rwlock);
+ 	memcpy(&policydb, &newpolicydb, sizeof policydb);
+ 	sidtab_set(&sidtab, &newsidtab);
+-	security_load_policycaps();
++	selinux_load_policycaps();
+ 	seqno = ++latest_granting;
+ 	policydb_loaded_version = policydb.policyvers;
+ 	write_unlock_irq(&policy_rwlock);
+@@ -1807,7 +1807,7 @@ int security_load_policy(void *data, size_t len)
+ 	policydb_destroy(&oldpolicydb);
+ 	sidtab_destroy(&oldsidtab);
+ 
+-	avc_ss_reset(seqno);
++	selinux_avc_ss_reset(seqno);
+ 	selnl_notify_policyload(seqno);
+ 	selinux_netlbl_cache_invalidate();
+ 	selinux_xfrm_notify_policyload();
+@@ -1827,7 +1827,7 @@ err:
+  * @port: port number
+  * @out_sid: security identifier
+  */
+-int security_port_sid(u8 protocol, u16 port, u32 *out_sid)
++int selinux_ss_port_sid(u8 protocol, u16 port, u32 *out_sid)
+ {
+ 	struct ocontext *c;
+ 	int rc = 0;
+@@ -1866,7 +1866,7 @@ out:
+  * @name: interface name
+  * @if_sid: interface SID
+  */
+-int security_netif_sid(char *name, u32 *if_sid)
++int selinux_ss_netif_sid(char *name, u32 *if_sid)
+ {
+ 	int rc = 0;
+ 	struct ocontext *c;
+@@ -1922,7 +1922,7 @@ static int match_ipv6_addrmask(u32 *input, u32 *addr, u32 *mask)
+  * @addrlen: address length in bytes
+  * @out_sid: security identifier
+  */
+-int security_node_sid(u16 domain,
++int selinux_ss_node_sid(u16 domain,
+ 		      void *addrp,
+ 		      u32 addrlen,
+ 		      u32 *out_sid)
+@@ -2005,7 +2005,7 @@ out:
+  * number of elements in the array.
+  */
+ 
+-int security_get_user_sids(u32 fromsid,
++int selinux_ss_get_user_sids(u32 fromsid,
+ 			   char *username,
+ 			   u32 **sids,
+ 			   u32 *nel)
+@@ -2090,7 +2090,7 @@ out_unlock:
+ 		goto out;
+ 	}
+ 	for (i = 0, j = 0; i < mynel; i++) {
+-		rc = avc_has_perm_noaudit(fromsid, mysids[i],
++		rc = selinux_avc_has_perm_noaudit(fromsid, mysids[i],
+ 					  SECCLASS_PROCESS,
+ 					  PROCESS__TRANSITION, AVC_STRICT,
+ 					  NULL);
+@@ -2117,7 +2117,7 @@ out:
+  * cannot support xattr or use a fixed labeling behavior like
+  * transition SIDs or task SIDs.
+  */
+-int security_genfs_sid(const char *fstype,
++int selinux_ss_genfs_sid(const char *fstype,
+ 		       char *path,
+ 		       u16 sclass,
+ 		       u32 *sid)
+@@ -2177,7 +2177,7 @@ out:
+  * @behavior: labeling behavior
+  * @sid: SID for filesystem (superblock)
+  */
+-int security_fs_use(
++int selinux_ss_fs_use(
+ 	const char *fstype,
+ 	unsigned int *behavior,
+ 	u32 *sid)
+@@ -2205,7 +2205,7 @@ int security_fs_use(
+ 		}
+ 		*sid = c->sid[0];
+ 	} else {
+-		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
++		rc = selinux_ss_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
+ 		if (rc) {
+ 			*behavior = SECURITY_FS_USE_NONE;
+ 			rc = 0;
+@@ -2219,7 +2219,7 @@ out:
+ 	return rc;
+ }
+ 
+-int security_get_bools(int *len, char ***names, int **values)
++int selinux_get_bools(int *len, char ***names, int **values)
+ {
+ 	int i, rc = -ENOMEM;
+ 
+@@ -2265,7 +2265,7 @@ err:
+ }
+ 
+ 
+-int security_set_bools(int len, int *values)
++int selinux_set_bools(int len, int *values)
+ {
+ 	int i, rc = 0;
+ 	int lenp, seqno = 0;
+@@ -2307,14 +2307,14 @@ int security_set_bools(int len, int *values)
+ out:
+ 	write_unlock_irq(&policy_rwlock);
+ 	if (!rc) {
+-		avc_ss_reset(seqno);
++		selinux_avc_ss_reset(seqno);
+ 		selnl_notify_policyload(seqno);
+ 		selinux_xfrm_notify_policyload();
+ 	}
+ 	return rc;
+ }
+ 
+-int security_get_bool_value(int bool)
++int selinux_get_bool_value(int bool)
+ {
+ 	int rc = 0;
+ 	int len;
+@@ -2340,7 +2340,7 @@ static int security_preserve_bools(struct policydb *p)
+ 	struct cond_bool_datum *booldatum;
+ 	struct cond_node *cur;
+ 
+-	rc = security_get_bools(&nbools, &bnames, &bvalues);
++	rc = selinux_get_bools(&nbools, &bnames, &bvalues);
+ 	if (rc)
+ 		goto out;
+ 	for (i = 0; i < nbools; i++) {
+@@ -2365,10 +2365,10 @@ out:
+ }
+ 
+ /*
+- * security_sid_mls_copy() - computes a new sid based on the given
++ * selinux_ss_sid_mls_copy() - computes a new sid based on the given
+  * sid and the mls portion of mls_sid.
+  */
+-int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
++int selinux_ss_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
+ {
+ 	struct context *context1;
+ 	struct context *context2;
+@@ -2452,7 +2452,7 @@ out:
+  *   multiple, inconsistent labels |    -<errno>     |    SECSID_NULL
+  *
+  */
+-int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
++int selinux_ss_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
+ 				 u32 xfrm_sid,
+ 				 u32 *peer_sid)
+ {
+@@ -2528,7 +2528,7 @@ static int get_classes_callback(void *k, void *d, void *args)
+ 	return 0;
+ }
+ 
+-int security_get_classes(char ***classes, int *nclasses)
++int selinux_ss_get_classes(char ***classes, int *nclasses)
+ {
+ 	int rc = -ENOMEM;
+ 
+@@ -2566,7 +2566,7 @@ static int get_permissions_callback(void *k, void *d, void *args)
+ 	return 0;
+ }
+ 
+-int security_get_permissions(char *class, char ***perms, int *nperms)
++int selinux_ss_get_permissions(char *class, char ***perms, int *nperms)
+ {
+ 	int rc = -ENOMEM, i;
+ 	struct class_datum *match;
+@@ -2610,12 +2610,12 @@ err:
+ 	return rc;
+ }
+ 
+-int security_get_reject_unknown(void)
++int selinux_ss_get_reject_unknown(void)
+ {
+ 	return policydb.reject_unknown;
+ }
+ 
+-int security_get_allow_unknown(void)
++int selinux_ss_get_allow_unknown(void)
+ {
+ 	return policydb.allow_unknown;
+ }
+@@ -2630,7 +2630,7 @@ int security_get_allow_unknown(void)
+  * supported, false (0) if it isn't supported.
+  *
+  */
+-int security_policycap_supported(unsigned int req_cap)
++int selinux_ss_policycap_supported(unsigned int req_cap)
+ {
+ 	int rc;
+ 
+@@ -2902,10 +2902,10 @@ static int __init aurule_init(void)
+ {
+ 	int err;
+ 
+-	err = avc_add_callback(aurule_avc_callback, AVC_CALLBACK_RESET,
++	err = selinux_avc_add_callback(aurule_avc_callback, AVC_CALLBACK_RESET,
+ 			       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
+ 	if (err)
+-		panic("avc_add_callback() failed, error %d\n", err);
++		panic("selinux_avc_add_callback() failed, error %d\n", err);
+ 
+ 	return err;
+ }
+@@ -2958,7 +2958,7 @@ static void security_netlbl_cache_add(struct netlbl_lsm_secattr *secattr,
+  * failure.
+  *
+  */
+-int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
++int selinux_ss_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
  				   u32 *sid)
  {
  	int rc = -EIDRM;
--	struct context *ctx;
--	struct context ctx_new;
-+	struct selinux_ss_context *ctx;
-+	struct selinux_ss_context ctx_new;
- 
- 	if (!ss_initialized) {
- 		*sid = SECSID_NULL;
-@@ -2979,7 +2979,7 @@ int selinux_ss_netlbl_secattr_to_sid(struct
-netlbl_lsm_secattr *secattr,
- 		*sid = secattr->attr.secid;
- 		rc = 0;
- 	} else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
--		ctx = sidtab_search(&sidtab, SECINITSID_NETMSG);
-+		ctx = selinux_ss_sidtab_search(&sidtab, SECINITSID_NETMSG);
- 		if (ctx == NULL)
- 			goto netlbl_secattr_to_sid_return;
- 
-@@ -2999,7 +2999,7 @@ int selinux_ss_netlbl_secattr_to_sid(struct
-netlbl_lsm_secattr *secattr,
- 		if (mls_context_isvalid(&policydb, &ctx_new) != 1)
- 			goto netlbl_secattr_to_sid_return_cleanup;
- 
--		rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
-+		rc = selinux_ss_sidtab_context_to_sid(&sidtab, &ctx_new, sid);
- 		if (rc != 0)
- 			goto netlbl_secattr_to_sid_return_cleanup;
- 
-@@ -3032,13 +3032,13 @@ netlbl_secattr_to_sid_return_cleanup:
- int selinux_ss_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr
-*secattr)
+@@ -3029,7 +3029,7 @@ netlbl_secattr_to_sid_return_cleanup:
+  * Returns zero on success, negative values on failure.
+  *
+  */
+-int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
++int selinux_ss_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
  {
  	int rc;
--	struct context *ctx;
-+	struct selinux_ss_context *ctx;
- 
- 	if (!ss_initialized)
+ 	struct context *ctx;
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 72b1845..37fb280 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -95,7 +95,7 @@ int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+ 		 */
  		return 0;
  
- 	read_lock(&policy_rwlock);
--	ctx = sidtab_search(&sidtab, sid);
-+	ctx = selinux_ss_sidtab_search(&sidtab, sid);
- 	if (ctx == NULL) {
- 		rc = -ENOENT;
- 		goto netlbl_sid_to_secattr_failure;
-diff --git a/security/selinux/ss/services.h
-b/security/selinux/ss/services.h
-index e8d907e..9d42e9d 100644
---- a/security/selinux/ss/services.h
-+++ b/security/selinux/ss/services.h
-@@ -9,7 +9,7 @@
- #include "policydb.h"
- #include "sidtab.h"
+-	rc = avc_has_perm(fl_secid, sel_sid, SECCLASS_ASSOCIATION,
++	rc = selinux_avc_has_perm(fl_secid, sel_sid, SECCLASS_ASSOCIATION,
+ 			  ASSOCIATION__POLMATCH,
+ 			  NULL);
  
--extern struct policydb policydb;
-+extern struct selinux_ss_policydb policydb;
+@@ -137,7 +137,7 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *
+ 	if (fl->secid != state_sid)
+ 		return 0;
  
- #endif	/* _SS_SERVICES_H_ */
+-	rc = avc_has_perm(fl->secid, state_sid, SECCLASS_ASSOCIATION,
++	rc = selinux_avc_has_perm(fl->secid, state_sid, SECCLASS_ASSOCIATION,
+ 			  ASSOCIATION__SENDTO,
+ 			  NULL)? 0:1;
  
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index e817989..294ede4 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -14,7 +14,7 @@
- #define SIDTAB_HASH(sid) \
- (sid & SIDTAB_HASH_MASK)
+@@ -229,7 +229,7 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
+ 	       uctx+1,
+ 	       str_len);
+ 	ctx->ctx_str[str_len] = 0;
+-	rc = security_context_to_sid(ctx->ctx_str,
++	rc = selinux_ss_context_to_sid(ctx->ctx_str,
+ 				     str_len,
+ 				     &ctx->ctx_sid);
  
--int sidtab_init(struct sidtab *s)
-+int selinux_ss_sidtab_init(struct selinux_ss_sidtab *s)
- {
- 	int i;
- 
-@@ -30,10 +30,10 @@ int sidtab_init(struct sidtab *s)
- 	return 0;
- }
- 
--int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
-+int selinux_ss_sidtab_insert(struct selinux_ss_sidtab *s, u32 sid,
-struct selinux_ss_context *context)
- {
- 	int hvalue, rc = 0;
--	struct sidtab_node *prev, *cur, *newnode;
-+	struct selinux_ss_sidtab_node *prev, *cur, *newnode;
- 
- 	if (!s) {
- 		rc = -ENOMEM;
-@@ -82,10 +82,10 @@ out:
+@@ -239,7 +239,7 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
+ 	/*
+ 	 * Does the subject have permission to set security context?
+ 	 */
+-	rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
++	rc = selinux_avc_has_perm(tsec->sid, ctx->ctx_sid,
+ 			  SECCLASS_ASSOCIATION,
+ 			  ASSOCIATION__SETCONTEXT, NULL);
+ 	if (rc)
+@@ -248,7 +248,7 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
  	return rc;
- }
  
--static struct context *sidtab_search_core(struct sidtab *s, u32 sid,
-int force)
-+static struct selinux_ss_context *selinux_ss_sidtab_search_core(struct
-selinux_ss_sidtab *s, u32 sid, int force)
- {
- 	int hvalue;
--	struct sidtab_node *cur;
-+	struct selinux_ss_sidtab_node *cur;
- 
- 	if (!s)
- 		return NULL;
-@@ -112,24 +112,24 @@ static struct context *sidtab_search_core(struct
-sidtab *s, u32 sid, int force)
- 	return &cur->context;
- }
- 
--struct context *sidtab_search(struct sidtab *s, u32 sid)
-+struct selinux_ss_context *selinux_ss_sidtab_search(struct
-selinux_ss_sidtab *s, u32 sid)
- {
--	return sidtab_search_core(s, sid, 0);
-+	return selinux_ss_sidtab_search_core(s, sid, 0);
- }
- 
--struct context *sidtab_search_force(struct sidtab *s, u32 sid)
-+struct selinux_ss_context *selinux_ss_sidtab_search_force(struct
-selinux_ss_sidtab *s, u32 sid)
- {
--	return sidtab_search_core(s, sid, 1);
-+	return selinux_ss_sidtab_search_core(s, sid, 1);
- }
- 
--int sidtab_map(struct sidtab *s,
-+int selinux_ss_sidtab_map(struct selinux_ss_sidtab *s,
- 	       int (*apply) (u32 sid,
--			     struct context *context,
-+			     struct selinux_ss_context *context,
- 			     void *args),
- 	       void *args)
- {
- 	int i, rc = 0;
--	struct sidtab_node *cur;
-+	struct selinux_ss_sidtab_node *cur;
- 
- 	if (!s)
+ not_from_user:
+-	rc = security_sid_to_context(sid, &ctx_str, &str_len);
++	rc = selinux_ss_sid_to_context(sid, &ctx_str, &str_len);
+ 	if (rc)
  		goto out;
-@@ -147,11 +147,11 @@ out:
+ 
+@@ -337,7 +337,7 @@ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *ctx)
+ 	int rc = 0;
+ 
+ 	if (ctx) {
+-		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
++		rc = selinux_avc_has_perm(tsec->sid, ctx->ctx_sid,
+ 				  SECCLASS_ASSOCIATION,
+ 				  ASSOCIATION__SETCONTEXT, NULL);
+ 		if (rc == 0)
+@@ -383,7 +383,7 @@ int selinux_xfrm_state_delete(struct xfrm_state *x)
+ 	int rc = 0;
+ 
+ 	if (ctx) {
+-		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
++		rc = selinux_avc_has_perm(tsec->sid, ctx->ctx_sid,
+ 				  SECCLASS_ASSOCIATION,
+ 				  ASSOCIATION__SETCONTEXT, NULL);
+ 		if (rc == 0)
+@@ -428,7 +428,7 @@ int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
+ 	 * explicitly allowed by policy.
+ 	 */
+ 
+-	rc = avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
++	rc = selinux_avc_has_perm(isec_sid, sel_sid, SECCLASS_ASSOCIATION,
+ 			  ASSOCIATION__RECVFROM, ad);
+ 
  	return rc;
- }
+@@ -482,7 +482,7 @@ int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
+ 	 * explicitly allowed by policy.
+ 	 */
  
--static inline u32 sidtab_search_context(struct sidtab *s,
--						  struct context *context)
-+static inline u32 selinux_ss_sidtab_search_context(struct
-selinux_ss_sidtab *s,
-+						  struct selinux_ss_context *context)
- {
- 	int i;
--	struct sidtab_node *cur;
-+	struct selinux_ss_sidtab_node *cur;
- 
- 	for (i = 0; i < SIDTAB_SIZE; i++) {
- 		cur = s->htable[i];
-@@ -164,8 +164,8 @@ static inline u32 sidtab_search_context(struct
-sidtab *s,
- 	return 0;
- }
- 
--int sidtab_context_to_sid(struct sidtab *s,
--			  struct context *context,
-+int selinux_ss_sidtab_context_to_sid(struct selinux_ss_sidtab *s,
-+			  struct selinux_ss_context *context,
- 			  u32 *out_sid)
- {
- 	u32 sid;
-@@ -174,11 +174,11 @@ int sidtab_context_to_sid(struct sidtab *s,
- 
- 	*out_sid = SECSID_NULL;
- 
--	sid = sidtab_search_context(s, context);
-+	sid = selinux_ss_sidtab_search_context(s, context);
- 	if (!sid) {
- 		spin_lock_irqsave(&s->lock, flags);
- 		/* Rescan now that we hold the lock. */
--		sid = sidtab_search_context(s, context);
-+		sid = selinux_ss_sidtab_search_context(s, context);
- 		if (sid)
- 			goto unlock_out;
- 		/* No SID exists for the context.  Allocate a new one. */
-@@ -191,7 +191,7 @@ int sidtab_context_to_sid(struct sidtab *s,
- 			printk(KERN_INFO
- 		       "SELinux:  Context %s is not valid (left unmapped).\n",
- 			       context->str);
--		ret = sidtab_insert(s, sid, context);
-+		ret = selinux_ss_sidtab_insert(s, sid, context);
- 		if (ret)
- 			s->next_sid--;
- unlock_out:
-@@ -205,10 +205,10 @@ unlock_out:
- 	return 0;
- }
- 
--void sidtab_hash_eval(struct sidtab *h, char *tag)
-+void selinux_ss_sidtab_hash_eval(struct selinux_ss_sidtab *h, char
-*tag)
- {
- 	int i, chain_len, slots_used, max_chain_len;
--	struct sidtab_node *cur;
-+	struct selinux_ss_sidtab_node *cur;
- 
- 	slots_used = 0;
- 	max_chain_len = 0;
-@@ -232,10 +232,10 @@ void sidtab_hash_eval(struct sidtab *h, char *tag)
- 	       max_chain_len);
- }
- 
--void sidtab_destroy(struct sidtab *s)
-+void selinux_ss_sidtab_destroy(struct selinux_ss_sidtab *s)
- {
- 	int i;
--	struct sidtab_node *cur, *temp;
-+	struct selinux_ss_sidtab_node *cur, *temp;
- 
- 	if (!s)
- 		return;
-@@ -256,7 +256,7 @@ void sidtab_destroy(struct sidtab *s)
- 	s->next_sid = 1;
- }
- 
--void sidtab_set(struct sidtab *dst, struct sidtab *src)
-+void selinux_ss_sidtab_set(struct selinux_ss_sidtab *dst, struct
-selinux_ss_sidtab *src)
- {
- 	unsigned long flags;
- 
-@@ -268,7 +268,7 @@ void sidtab_set(struct sidtab *dst, struct sidtab
-*src)
- 	spin_unlock_irqrestore(&src->lock, flags);
- }
- 
--void sidtab_shutdown(struct sidtab *s)
-+void selinux_ss_sidtab_shutdown(struct selinux_ss_sidtab *s)
- {
- 	unsigned long flags;
- 
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-index 64ea5b1..a48ab7f 100644
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -9,10 +9,10 @@
- 
- #include "context.h"
- 
--struct sidtab_node {
-+struct selinux_ss_sidtab_node {
- 	u32 sid;		/* security identifier */
--	struct context context;	/* security context structure */
--	struct sidtab_node *next;
-+	struct selinux_ss_context context;	/* security context structure */
-+	struct selinux_ss_sidtab_node *next;
- };
- 
- #define SIDTAB_HASH_BITS 7
-@@ -21,33 +21,33 @@ struct sidtab_node {
- 
- #define SIDTAB_SIZE SIDTAB_HASH_BUCKETS
- 
--struct sidtab {
--	struct sidtab_node **htable;
-+struct selinux_ss_sidtab {
-+	struct selinux_ss_sidtab_node **htable;
- 	unsigned int nel;	/* number of elements */
- 	unsigned int next_sid;	/* next SID to allocate */
- 	unsigned char shutdown;
- 	spinlock_t lock;
- };
- 
--int sidtab_init(struct sidtab *s);
--int sidtab_insert(struct sidtab *s, u32 sid, struct context *context);
--struct context *sidtab_search(struct sidtab *s, u32 sid);
--struct context *sidtab_search_force(struct sidtab *s, u32 sid);
-+int selinux_ss_sidtab_init(struct selinux_ss_sidtab *s);
-+int selinux_ss_sidtab_insert(struct selinux_ss_sidtab *s, u32 sid,
-struct selinux_ss_context *context);
-+struct selinux_ss_context *selinux_ss_sidtab_search(struct
-selinux_ss_sidtab *s, u32 sid);
-+struct selinux_ss_context *selinux_ss_sidtab_search_force(struct
-selinux_ss_sidtab *s, u32 sid);
- 
--int sidtab_map(struct sidtab *s,
-+int selinux_ss_sidtab_map(struct selinux_ss_sidtab *s,
- 	       int (*apply) (u32 sid,
--			     struct context *context,
-+			     struct selinux_ss_context *context,
- 			     void *args),
- 	       void *args);
- 
--int sidtab_context_to_sid(struct sidtab *s,
--			  struct context *context,
-+int selinux_ss_sidtab_context_to_sid(struct selinux_ss_sidtab *s,
-+			  struct selinux_ss_context *context,
- 			  u32 *sid);
- 
--void sidtab_hash_eval(struct sidtab *h, char *tag);
--void sidtab_destroy(struct sidtab *s);
--void sidtab_set(struct sidtab *dst, struct sidtab *src);
--void sidtab_shutdown(struct sidtab *s);
-+void selinux_ss_sidtab_hash_eval(struct selinux_ss_sidtab *h, char
-*tag);
-+void selinux_ss_sidtab_destroy(struct selinux_ss_sidtab *s);
-+void selinux_ss_sidtab_set(struct selinux_ss_sidtab *dst, struct
-selinux_ss_sidtab *src);
-+void selinux_ss_sidtab_shutdown(struct selinux_ss_sidtab *s);
- 
- #endif	/* _SS_SIDTAB_H_ */
- 
-diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-index 7ef607d..4a8a122 100644
---- a/security/selinux/ss/symtab.c
-+++ b/security/selinux/ss/symtab.c
-@@ -33,7 +33,7 @@ static int symcmp(struct selinux_ss_hashtab *h, const
-void *key1, const void *ke
- }
- 
- 
--int symtab_init(struct symtab *s, unsigned int size)
-+int selinux_ss_symtab_init(struct selinux_ss_symtab *s, unsigned int
-size)
- {
- 	s->table = selinux_ss_hashtab_create(symhash, symcmp, size);
- 	if (!s->table)
-diff --git a/security/selinux/ss/symtab.h b/security/selinux/ss/symtab.h
-index 4166ae4..80aa9e6 100644
---- a/security/selinux/ss/symtab.h
-+++ b/security/selinux/ss/symtab.h
-@@ -11,12 +11,12 @@
- 
- #include "hashtab.h"
- 
--struct symtab {
-+struct selinux_ss_symtab {
- 	struct selinux_ss_hashtab *table;	/* hash table (keyed on a string) */
- 	u32 nprim;		/* number of primary names in table */
- };
- 
--int symtab_init(struct symtab *s, unsigned int size);
-+int selinux_ss_symtab_init(struct selinux_ss_symtab *s, unsigned int
-size);
- 
- #endif	/* _SS_SYMTAB_H_ */
- 
+-	rc = avc_has_perm(isec_sid, SECINITSID_UNLABELED, SECCLASS_ASSOCIATION,
++	rc = selinux_avc_has_perm(isec_sid, SECINITSID_UNLABELED, SECCLASS_ASSOCIATION,
+ 			  ASSOCIATION__SENDTO, ad);
+ out:
+ 	return rc;
 -- 
 1.6.2.5
 
