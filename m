@@ -1,191 +1,148 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n625WELV013559
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 01:32:14 -0400
-Received: from mail-pz0-f177.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n625VvvW014604
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 05:31:57 GMT
-Received: by pzk7 with SMTP id 7so1000314pzk.32
-        for <selinux@tycho.nsa.gov>; Wed, 01 Jul 2009 22:32:12 -0700 (PDT)
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH 7/8] SELinux selinuxfs.c non trivial fixes.
-Date: Wed,  1 Jul 2009 22:32:46 -0700
-Message-Id: <1246512767-2999-8-git-send-email-justinmattock@gmail.com>
-In-Reply-To: <1246512767-2999-1-git-send-email-justinmattock@gmail.com>
-References: <1246512767-2999-1-git-send-email-justinmattock@gmail.com>
+Subject: Re: [RFC PATCH v1] There is a problem where packets being sent by
+ the TUN driver are not
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20090701221257.7590.75518.stgit@flek.lan>
+References: <20090701221257.7590.75518.stgit@flek.lan>
+Content-Type: text/plain
+Date: Thu, 02 Jul 2009 08:07:27 -0400
+Message-Id: <1246536447.13464.245.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
+On Wed, 2009-07-01 at 18:12 -0400, Paul Moore wrote:
+> correctly handled by SELinux in the postrouting code.  The issue is that
+> the SELinux network access controls rely on a packet's associated sock, when
+> present, for it's security label.  The TUN driver does create a sock to send
+> network traffic but it only calls into the LSM/SELinux code once via the
+> security_sk_alloc() hook which never fully initializes the sock's label.  This
+> patch attempts to correct this problem by adding additional checks in the
+> SELinux security_sk_alloc() alloc code to determine if the TUN driver is
+> allocating a socket and if so, set the socket's label.
+> 
+> NOTE: this is an RFC patch intended to demonstrate a possible solution not
+> discussed earlier; it is crude, untested and only deals with SELinux.  Please
+> take a look and see if this approach is even worth pursuing ... thanks.
+> ---
+> 
+>  include/linux/security.h |    7 ++++---
+>  net/core/sock.c          |    2 +-
+>  security/capability.c    |    2 +-
+>  security/security.c      |    4 ++--
+>  security/selinux/hooks.c |   43 ++++++++++++++++++++++++-------------------
+>  5 files changed, 32 insertions(+), 26 deletions(-)
+> 
 
-Fix some comments.
-Fix some debug messages.
----
- security/selinux/selinuxfs.c |   61 +++++++++++++++++++++--------------------
- 1 files changed, 31 insertions(+), 30 deletions(-)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 15c2a08..dde57d1 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -298,16 +298,21 @@ static void superblock_free_security(struct super_block *sb)
+>  	kfree(sbsec);
+>  }
+>  
+> -static int sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+> +static int sk_alloc_security(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+>  {
+>  	struct sk_security_struct *ssec;
+> +	const struct task_security_struct *tsec = current_security();
+>  
+>  	ssec = kzalloc(sizeof(*ssec), priority);
+>  	if (!ssec)
+>  		return -ENOMEM;
+>  
+> +	if (strcmp(prot->name, "tun") == 0) {
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index b4fc506..97d728b 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -58,17 +58,17 @@ __setup("checkreqprot=", checkreqprot_setup);
- 
- static DEFINE_MUTEX(sel_mutex);
- 
--/* global data for booleans */
-+/* Global data for booleans. */
- static struct dentry *bool_dir;
- static int bool_num;
- static char **bool_pending_names;
- static int *bool_pending_values;
- 
--/* global data for classes */
-+/* Global data for classes. */
- static struct dentry *class_dir;
- static unsigned long last_class_ino;
- 
--/* global data for policy capabilities */
-+/* Global data for policy capabilities. */
- static struct dentry *policycap_dir;
- 
- extern void selnl_notify_setenforce(int val);
-@@ -94,23 +94,23 @@ static int task_has_security(struct task_struct *tsk,
- 
- enum sel_inos {
- 	SEL_ROOT_INO = 2,
--	SEL_LOAD,	/* load policy */
--	SEL_ENFORCE,	/* get or set enforcing status */
-+	SEL_LOAD,	/* Load policy. */
-+	SEL_ENFORCE,	/* Get or set enforcing status. */
- 	SEL_CONTEXT,	/* validate context */
--	SEL_ACCESS,	/* compute access decision */
--	SEL_CREATE,	/* compute create labeling decision */
--	SEL_RELABEL,	/* compute relabeling decision */
--	SEL_USER,	/* compute reachable user contexts */
--	SEL_POLICYVERS,	/* return policy version for this kernel */
--	SEL_COMMIT_BOOLS, /* commit new boolean values */
--	SEL_MLS,	/* return if MLS policy is enabled */
--	SEL_DISABLE,	/* disable SELinux until next reboot */
--	SEL_MEMBER,	/* compute polyinstantiation membership decision */
--	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
--	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
--	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
--	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
--	SEL_INO_NEXT,	/* The next inode number to use */
-+	SEL_ACCESS,	/* Compute access decision. */
-+	SEL_CREATE,	/* Compute create labeling decision. */
-+	SEL_RELABEL,	/* Compute relabeling decision. */
-+	SEL_USER,	/* Compute reachable user contexts. */
-+	SEL_POLICYVERS,	/* Return policy version for this kernel. */
-+	SEL_COMMIT_BOOLS, /* Commit new boolean values. */
-+	SEL_MLS,	/* Return if MLS policy is enabled. */
-+	SEL_DISABLE,	/* Disable SELinux until next reboot. */
-+	SEL_MEMBER,	/* Compute polyinstantiation membership decision. */
-+	SEL_CHECKREQPROT, /* Check requested protection, not kernel-applied one. */
-+	SEL_COMPAT_NET,	/* Whether to use old compat network packet controls. */
-+	SEL_REJECT_UNKNOWN, /* Export unknown reject handling to userspace. */
-+	SEL_DENY_UNKNOWN, /* Export unknown deny handling to userspace. */
-+	SEL_INO_NEXT,	/* The next inode number to use. */
- };
- 
- static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
-@@ -267,7 +267,7 @@ static const struct file_operations sel_policyvers_ops = {
- 	.read		= sel_read_policyvers,
- };
- 
--/* declaration for sel_write_load */
-+/* Declaration for sel_write_load. */
- static int sel_make_bools(void);
- static int sel_make_classes(void);
- static int sel_make_policycap(void);
-@@ -377,7 +377,7 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
- 
- 	if (len > SIMPLE_TRANSACTION_LIMIT) {
- 		printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
--			"payload max\n", __func__, len);
-+			"payload max.\n", __func__, len);
- 		length = -ERANGE;
- 		goto out;
- 	}
-@@ -581,7 +581,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
- 
- 	if (len > SIMPLE_TRANSACTION_LIMIT) {
- 		printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
--			"payload max\n", __func__, len);
-+			"payload max.\n", __func__, len);
- 		length = -ERANGE;
- 		goto out3;
- 	}
-@@ -978,7 +978,7 @@ static int sel_make_bools(void)
- 	int *values = NULL;
- 	u32 sid;
- 
--	/* remove any existing files */
-+	/* Remove any existing files. */
- 	kfree(bool_pending_names);
- 	kfree(bool_pending_values);
- 	bool_pending_names = NULL;
-@@ -1400,7 +1400,8 @@ static int sel_make_perm_files(char *objclass, int classvalue,
- 			goto out1;
- 		}
- 		inode->i_fop = &sel_perm_ops;
--		/* i+1 since perm values are 1-indexed */
-+		/* i+1 Since perm values are 1-indexed. */
-+
- 		inode->i_ino = sel_perm_to_ino(classvalue, i+1);
- 		d_add(dentry, inode);
- 	}
-@@ -1481,14 +1482,14 @@ static int sel_make_classes(void)
- 	int rc = 0, nclasses, i;
- 	char **classes;
- 
--	/* delete any existing entries */
-+	/* Delete any existing entries. */
- 	sel_remove_classes();
- 
- 	rc = security_get_classes(&classes, &nclasses);
- 	if (rc < 0)
- 		goto out;
- 
--	/* +2 since classes are 1-indexed */
-+	/* +2 Since classes are 1-indexed. */
- 	last_class_ino = sel_class_to_ino(nclasses+2);
- 
- 	for (i = 0; i < nclasses; i++) {
-@@ -1564,10 +1565,10 @@ static int sel_make_dir(struct inode *dir, struct dentry *dentry,
- 	inode->i_op = &simple_dir_inode_operations;
- 	inode->i_fop = &simple_dir_operations;
- 	inode->i_ino = ++(*ino);
--	/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+	/* Directory inodes start off with i_nlink == 2 (for "." entry). */
- 	inc_nlink(inode);
- 	d_add(dentry, inode);
--	/* bump link count on parent directory, too */
-+	/* Bump link count on parent directory, too. */
- 	inc_nlink(dir);
- out:
- 	return ret;
-@@ -1692,7 +1693,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- out:
- 	return ret;
- err:
--	printk(KERN_ERR "SELinux: %s:  failed while creating inodes\n",
-+	printk(KERN_ERR "SELinux: %s:  Failed while creating inodes.\n",
- 		__func__);
- 	goto out;
- }
-@@ -1722,7 +1723,7 @@ static int __init init_sel_fs(void)
- 	if (!err) {
- 		selinuxfs_mount = kern_mount(&sel_fs_type);
- 		if (IS_ERR(selinuxfs_mount)) {
--			printk(KERN_ERR "selinuxfs:  could not mount!\n");
-+			printk(KERN_ERR "selinuxfs:  Could not mount!\n");
- 			err = PTR_ERR(selinuxfs_mount);
- 			selinuxfs_mount = NULL;
- 		}
+I'm sure that won't go over well.
+
+Question:  The allocated sock is then associated with a struct socket in
+the tun_struct.  Should that socket get set up in the usual way?
+
+> +		ssec->sid = (tsec->sockcreate_sid ? : tsec->sid);
+> +		/* XXX - probably want to label the socket here too */
+
+Not associated yet, so we can't.
+
+> +	} else
+> +		ssec->sid = SECINITSID_UNLABELED;
+>  	ssec->peer_sid = SECINITSID_UNLABELED;
+> -	ssec->sid = SECINITSID_UNLABELED;
+>  	sk->sk_security = ssec;
+>  
+>  	selinux_netlbl_sk_security_reset(ssec);
+> @@ -3673,32 +3678,32 @@ out:
+>  static int selinux_socket_post_create(struct socket *sock, int family,
+>  				      int type, int protocol, int kern)
+>  {
+> -	const struct cred *cred = current_cred();
+> -	const struct task_security_struct *tsec = cred->security;
+> -	struct inode_security_struct *isec;
+> +	const struct task_security_struct *tsec = current_security();
+> +	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
+>  	struct sk_security_struct *sksec;
+> -	u32 sid, newsid;
+> +	u32 sid;
+>  	int err = 0;
+>  
+> -	sid = tsec->sid;
+> -	newsid = tsec->sockcreate_sid;
+> -
+> -	isec = SOCK_INODE(sock)->i_security;
+> +	if (sock->sk)
+> +		sksec = sock->sk->sk_security;
+> +	else
+> +		sksec = NULL;
+>  
+>  	if (kern)
+> -		isec->sid = SECINITSID_KERNEL;
+> -	else if (newsid)
+> -		isec->sid = newsid;
+> +		sid = SECINITSID_KERNEL;
+> +	else if (sksec && sksec->sid != SECINITSID_UNLABELED)
+> +		sid = sksec->sid;
+>  	else
+> -		isec->sid = sid;
+> +		sid = (tsec->sockcreate_sid ? : tsec->sid);
+
+Something went wrong here - isec->sid never gets set now.
+>  
+>  	isec->sclass = socket_type_to_security_class(family, type, protocol);
+>  	isec->initialized = 1;
+>  
+> -	if (sock->sk) {
+> -		sksec = sock->sk->sk_security;
+> -		sksec->sid = isec->sid;
+> +	if (sksec) {
+> +		/* XXX - end up changing this if kern is true - problem? */
+> +		sksec->sid = sid;
+>  		sksec->sclass = isec->sclass;
+> +		/* XXX - this will be tricky depending on how things work out */
+>  		err = selinux_netlbl_socket_post_create(sock->sk, family);
+>  	}
+>  
+> @@ -4187,9 +4192,9 @@ out:
+>  	return 0;
+>  }
+>  
+> -static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+> +static int selinux_sk_alloc_security(struct sock *sk, int family, const struct proto *prot, gfp_t priority)
+>  {
+> -	return sk_alloc_security(sk, family, priority);
+> +	return sk_alloc_security(sk, family, prot, priority);
+>  }
+>  
+>  static void selinux_sk_free_security(struct sock *sk)
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-1.6.3.2
+Stephen Smalley
+National Security Agency
 
 
 --
