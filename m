@@ -1,62 +1,106 @@
-Subject: Re: request for review of, and collaboration on SELinux models
- wiki entry
+Subject: Re: [Patch 2/2] libsemanage: create a don't audit flag
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dominick Grift <domg472@gmail.com>
-Cc: Sebastian Pfaff <sebastian.pfaff@gmail.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1246549788.26320.42.camel@notebook2.grift.internal>
-References: <1246542053.26320.15.camel@notebook2.grift.internal>
-	 <1246544997.13464.314.camel@moss-pluto.epoch.ncsc.mil>
-	 <7DB3E8B4-9FFF-4FE1-873D-1A99C6EEF0AA@gmail.com>
-	 <1246549788.26320.42.camel@notebook2.grift.internal>
+To: Christopher Pardy <cpardy@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4A4CD320.2090706@redhat.com>
+References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>
+	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>
+	 <4A4C17D1.3060208@redhat.com>
+	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CBC6C.5090709@redhat.com>
+	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CC469.3050805@redhat.com>
+	 <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CD320.2090706@redhat.com>
 Content-Type: text/plain
-Date: Thu, 02 Jul 2009 13:03:12 -0400
-Message-Id: <1246554192.13464.350.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 02 Jul 2009 13:09:14 -0400
+Message-Id: <1246554554.13464.356.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-02 at 17:49 +0200, Dominick Grift wrote:
-> On Thu, 2009-07-02 at 17:25 +0200, Sebastian Pfaff wrote:
-> > hello,
-> > 
-> > from http://selinuxproject.org/page/SELinux_models (Multi Category  
-> > Security):
-> > 
-> > [...] Multi Category Security and Multi Level Security are mutually  
-> > exclusive.
-> > 
-> > > - MCS and MLS are just particular configurations of constraints for  
-> > > the
-> > > MLS engine and thus share the same field and engine logic.  MCS was an
-> > > attempt to make the MLS field and engine useful for general users, and
-> > > is being leveraged by sandbox and by svirt for separating multiple
-> > > instances of sandboxes or guest VMs.
-> > 
-> > In other words: MCS and MLS are not mutally exclusiv?! Not in SELinux  
-> > and not in gernal? For me, MCS in SELinux is an "extra",  which  you  
-> > can use with MLS (or MLS engine) at the same time. Please correct me,  
-> > if i'm wrong.
-> > 
-> > Imho, MCS uses "compartments" or categories to realize the need to  
-> > know principle and MLS uses vertical levels to achieve (at least in  
-> > SELinux) confidentiality (BLP model). Imo compartments and levels are  
-> > not mutally exclusive.
-> 
-> MCS and MLS are SELinux models (MCS and MLS are just particular
-> configurations of constraints for the MLS engine and thus share the same
-> field and engine logic.)
-> 
-> The MCS configuration of constraints conflict with the MLS configuration
-> of constraints.
-> 
-> In MCS the usage of assigned compartments is to the discretion of the
-> user
-> 
-> In MLS the usage of assigned compartments is mandatory.
-> 
-> As far as i know MCS and MLS are mutually exclusive. 
+On Thu, 2009-07-02 at 11:32 -0400, Christopher Pardy wrote:
+> Stephen, Josh: I think this might address all your concerns.
+> Changes: No more code in libselinux, new handles have their 
+> disable_dontaudit flag set to 0 upon creation (old way), 
+> set_disable_dontaudit creates a file in the sandbox to make the setting 
+> visible after commits.
+> Justification: After turning off dontaudit rules there is currently no 
+> way for the system to see that this change has been made, this creates a 
+> flag file which can be used as an indicator.
 
-Correct.
+Include the original patch description and then summarize changes or
+incorporate into the description.
+
+> Note: still depends on patch 1/2
+> 
+> Signed-off-by: Christopher Pardy <cpardy@redhat.com>
+
+Add "---" followed by diffstat -p1 output here.
+
+Still getting whitespace mangled by thunderbird - need to configure it.
+
+> diff -urpN selinux.orig2/libsemanage/src/handle.c selinux/libsemanage/src/handle.c
+> 
+> --- selinux.orig2/libsemanage/src/handle.c    2009-07-01 21:15:17.288238017 -0400
+> 
+> +++ selinux/libsemanage/src/handle.c    2009-07-02 11:29:20.740267205 -0400
+> @@ -75,7 +76,12 @@ semanage_handle_t *semanage_handle_creat
+> 
+>       /* Set callback */
+> 
+>       sh->msg_callback = semanage_msg_default_handler;
+> 
+>       sh->msg_callback_arg = NULL;
+> 
+> -
+> 
+> +
+> 
+> +    /*set the flag to be deleted*/
+> 
+> +    char path[PATH_MAX];
+> 
+> +    path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT)
+
+Missing semicolon?  And you don't need to allocate a buffer, just a
+const char * - semanage_fname() returns a pointer to the pathname.
+
+> 
+> +    remove(path);
+
+Unconditional removal of the flag file whenever a handle is created?
+
+>   void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
+> 
+>   {
+> 
+> +    char path[PATH_MAX];
+> 
+> +    path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT)
+
+Same issue here.
+
+> 
+> +        if(disable_dontaudit(sh) == 1){
+
+What is this?
+
+> 
+> +            FILE *touch;
+> 
+> +            touch = fopen(path,"w");
+> 
+> +            fclose(touch);
+> 
+> +        }else
+> 
+> +            remove(path);
+> 
+>       return;
+> 
+>   }
 
 -- 
 Stephen Smalley
