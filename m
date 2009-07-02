@@ -1,97 +1,112 @@
-Subject: Re: [Patch 2/2] libsemanage: remember and retrieve dontaudit
- settings
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christopher Pardy <cpardy@redhat.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4A4CC469.3050805@redhat.com>
-References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>
-	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>
-	 <4A4C17D1.3060208@redhat.com>
-	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4CBC6C.5090709@redhat.com>
-	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4CC469.3050805@redhat.com>
-Content-Type: text/plain
-Date: Thu, 02 Jul 2009 10:35:28 -0400
-Message-Id: <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: request for review of, and collaboration on SELinux models
+ wiki entry
+From: Dominick Grift <domg472@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1246544997.13464.314.camel@moss-pluto.epoch.ncsc.mil>
+References: <1246542053.26320.15.camel@notebook2.grift.internal>
+	 <1246544997.13464.314.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-1bRNoB3oCv7YG/BKhOHS"
+Date: Thu, 02 Jul 2009 16:54:46 +0200
+Message-Id: <1246546486.26320.30.camel@notebook2.grift.internal>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-02 at 10:30 -0400, Christopher Pardy wrote:
-> On 07/02/2009 10:13 AM, Stephen Smalley wrote: 
-> > On Thu, 2009-07-02 at 09:55 -0400, Christopher Pardy wrote:
-> >   
-> > > It's not that a program would use this that couldn't link against
-> > > libsemanage the functionality just seemed closer to that of the
-> > > functions in libselinux, I've been doing alot of work on fedora stuff
-> > > It seems to me  that 90% of the code in libsemanage is handle
-> > > dependent functions. libselinux seems to be more of a global setting
-> > > kind of deal. so it made sense to put it here. Let me know if this
-> > > isn't the case
-> > >     
-> > 
-> > Unless you envision this interface being called by non-management
-> > programs, I think it is reasonable to require them to link against
-> > libsemanage and use an interface provided by it.
-> > 
-> >   
-> If I'm not mistaken disabling dontaudit rules will cause more AVCs, if
-> this is the case then programs like SETroubleshoot would want to know
-> if dontaudit rules are turned on. Additionally see my previous
-> explaination as to why the two are separated.
 
-Not sure about setroubleshoot - I'll let Dan speak to that.  But putting
-it outside of libsemanage means that it isn't atomic with policy
-transactions, which seems undesirable, and one can manipulate it without
-going through libsemanage (in which case libsemanage may get out of sync
-with it and not catch up until the next transaction).
+--=-1bRNoB3oCv7YG/BKhOHS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > > > This doesn't make sense to me - we check whether we've already set
-> > > > disable dontaudit and use that to decide whether to create the file?
-> > > > But the existence of the file is what would have triggered setting
-> > > > disable dontaudit in the first place.  Round and round we go...
-> > > >   
-> > > >       
-> > > When we create the handle we set it's default property to the system
-> > > default. When we commit a handle we set the system default property to
-> > > the handles property. In between it is fully possible to that we have
-> > > called a set_disable_dontaudit to change the value in the handle. If
-> > > you would rather I checked if the two were different first I can.
-> > >     
-> > 
-> > Hmmm...but if the flag file is private to the store, then you can just
-> > create or remove it directly from semanage_set_disable_dontaudit(), and
-> > you won't need to do this at commit.  At which point you seemingly don't
-> > need the libsepol or libsemanage get functions.
-> > 
-> >   
-> If the flag file was created at time of
-> semanage_set_disable_dontaudit() it would reflect a pending state and
-> not an actual state, if for some reason commit was never called or
-> simply failed it would incorrectly reflect the state of the system. By
-> creating the file only after a successful commit the file correctly
-> identifies our actual state. While the get functions correctly
-> identify our pending state.
+On Thu, 2009-07-02 at 10:29 -0400, Stephen Smalley wrote:
+> On Thu, 2009-07-02 at 15:40 +0200, Dominick Grift wrote:
+> > Recently
+> > http://www.nsa.gov/research/_files/selinux/papers/policy2/x86.shtml cam=
+e
+> > to my attention and i noticed that this article does not reflect the
+> > current available SELinux models. Also the descriptions seem a bit
+> > technical to me.
+> >=20
+> > Today i decided to make a new introduction to SELinux models with MCS,
+> > MLS and UBAC included for the selinuxproject Wiki. The attempt was to
+> > keep it as easy to read for humans as possible.
+> >=20
+> > I am sure that my entry has mistakes and could use improvements,
+> > therefore i ask you to review the entry and submit any improvements.
+> >=20
+> > You can also send suggestions directly to me.
+> >=20
+> > http://selinuxproject.org/page/SELinux_models
+> >=20
+> > Once we feel comfortable with the content we can add a link on the User
+> > Resource front page.
+>=20
+> - Security contexts are assigned to more than just processes and files.
 
-No - if the flag file lives in the store, it will be in the sandbox that
-gets created when you start a transaction, and won't be made active
-until you commit.  That's the whole point of the store - atomic
-transactions on policy.
+You and i know that but for a common user i think just separation of
+files and processes should suffice.
 
-> > BTW, to create a new file in the store, you'll want to extend
-> > semanage_sandbox_defs in semanage_store.h with a
-> > SEMANAGE_DISABLE_DONTAUDIT value and use
-> > semanage_fname(SEMANAGE_DISABLE_DONTAUDIT) to obtain the pathname to the
-> > flag file.
-> > 
-> >   
-> Thanks for that, I'll get a new version of the patch out shortly.
--- 
-Stephen Smalley
-National Security Agency
+When all is said and done a Linux system is just a bunch of files
+
+I will edit it to read processes and objects although personally i think
+objects sound a bit technical.
+
+> - MLS/MCS has a single attribute, the MLS/MCS range, which has the
+> syntax:
+> lowsensitivity[:lowcategory,...][-highsensitivity[:highcategory,...]]
+>=20
+> This is a pair of levels (which in the degenerate case where low=3D=3Dhig=
+h
+> is displayed as a single level for conciseness) where each level
+> consists of a sensitivity value and a category set.
+
+I will edit it to reflect this. I must say that reading a security
+context and its fields suggests otherwise: user:role:type:level:category
+
+if each field is a seperate attribute then the context suggests
+categories are a separate attribute.
+
+> - The motivation of UBAC (which started as rbacsep) was to eliminate the
+> need for per-role derived domains for programs and derived types for
+> files.  It isn't really its own distinct model per se, just a particular
+> configuration of constraints based on SELinux user identity.
+
+Maybe a it is a concept, like SELinux user identities? maybe i should
+explain the difference between models and concepts although i feel that
+would make things more complicated than needed.
+
+I noted that it is not a distinct model i think by suggesting that it is
+an extension to SELinux User identities.
+
+> - MCS and MLS are just particular configurations of constraints for the
+> MLS engine and thus share the same field and engine logic.  MCS was an
+> attempt to make the MLS field and engine useful for general users, and
+> is being leveraged by sandbox and by svirt for separating multiple
+> instances of sandboxes or guest VMs.
+
+I think i touched on that by saying: Multi Category Security is a
+implementation of Multi Level Security where the use of assigned
+Security Categories is to the discretion of the user.
+
+I will think about ways to clear this up.
+
+Thanks for your suggestions. I will apply the corrections soon.
+
+Also feel free to edit the page.
+
+--=-1bRNoB3oCv7YG/BKhOHS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkpMyigACgkQMlxVo39jgT+cuQCgtfgJoQY3u9WJ7GzSIMJ6sgrq
+gr0An3Bn7tNuntG8Ts0ZdWG+50ysCQvt
+=etF7
+-----END PGP SIGNATURE-----
+
+--=-1bRNoB3oCv7YG/BKhOHS--
 
 
 --
