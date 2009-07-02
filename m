@@ -1,17 +1,17 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n625WA29013532
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 01:32:10 -0400
-Received: from wa-out-1112.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n625VmvX014582
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 05:31:54 GMT
-Received: by wa-out-1112.google.com with SMTP id k17so271606waf.18
-        for <selinux@tycho.nsa.gov>; Wed, 01 Jul 2009 22:32:09 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n625W1Rw013476
+	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 01:32:01 -0400
+Received: from mail-px0-f202.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n625VYvZ014527
+	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 05:31:44 GMT
+Received: by mail-px0-f202.google.com with SMTP id 40so129340pxi.32
+        for <selinux@tycho.nsa.gov>; Wed, 01 Jul 2009 22:32:00 -0700 (PDT)
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: selinux@tycho.nsa.gov, "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH 6/8] SELinux netport.c non trivial fixes.
-Date: Wed,  1 Jul 2009 22:32:45 -0700
-Message-Id: <1246512767-2999-7-git-send-email-justinmattock@gmail.com>
+Subject: [PATCH 3/8] SELinux netif.c non trivial fixes.
+Date: Wed,  1 Jul 2009 22:32:42 -0700
+Message-Id: <1246512767-2999-4-git-send-email-justinmattock@gmail.com>
 In-Reply-To: <1246512767-2999-1-git-send-email-justinmattock@gmail.com>
 References: <1246512767-2999-1-git-send-email-justinmattock@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -19,52 +19,52 @@ List-Id: selinux@tycho.nsa.gov
 
 Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
 
-Fix some debug comments.
 Fix some comments.
 ---
- security/selinux/netport.c |   12 ++++++------
+ security/selinux/netif.c |   12 ++++++------
  1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index fe7fba6..61a88b3 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -56,11 +56,11 @@ struct sel_netport {
- 	struct rcu_head rcu;
- };
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index b4e14bc..dc6dc37 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -71,8 +71,8 @@ static inline struct sel_netif *sel_netif_find(int ifindex)
+ 	struct sel_netif *netif;
  
--/* NOTE: we are using a combined hash table for both IPv4 and IPv6, the reason
-+/* NOTE: We are using a combined hash table for both IPv4 and IPv6, the reason
-  * for this is that I suspect most users will not make heavy use of both
-  * address families at the same time so one table will usually end up wasted,
-  * if this becomes a problem we can always add a hash table for each address
-- * family later */
-+ * family later. */
+ 	list_for_each_entry_rcu(netif, &sel_netif_hash[idx], list)
+-		/* all of the devices should normally fit in the hash, so we
+-		 * optimize for that case */
++		/* All of the devices should normally fit in the hash, so we
++		 * optimize for that case. */
+ 		if (likely(netif->nsec.ifindex == ifindex))
+ 			return netif;
  
- static LIST_HEAD(sel_netport_list);
- static DEFINE_SPINLOCK(sel_netport_lock);
-@@ -131,8 +131,8 @@ static void sel_netport_insert(struct sel_netport *port)
- {
- 	unsigned int idx;
+@@ -152,13 +152,13 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
+ 	struct sel_netif *new = NULL;
+ 	struct net_device *dev;
  
--	/* we need to impose a limit on the growth of the hash table so check
--	 * this bucket to make sure it is within the specified bounds */
-+	/* We need to impose a limit on the growth of the hash table so check
-+	 * this bucket to make sure it is within the specified bounds. */
- 	idx = sel_netport_hashfn(port->psec.port);
- 	list_add_rcu(&port->list, &sel_netport_hash[idx].list);
- 	if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
-@@ -187,8 +187,8 @@ out:
- 	spin_unlock_bh(&sel_netport_lock);
+-	/* NOTE: we always use init's network namespace since we don't
+-	 * currently support containers */
++	/* NOTE: We always use init's network namespace since we don't
++	 * currently support containers. */
+ 
+ 	dev = dev_get_by_index(&init_net, ifindex);
+ 	if (unlikely(dev == NULL)) {
+ 		printk(KERN_WARNING
+-		       "SELinux: failure in sel_netif_sid_slow(),"
++		       "SELinux: Failure in sel_netif_sid_slow(),"
+ 		       " invalid network interface (%d)\n", ifindex);
+ 		return -ENOENT;
+ 	}
+@@ -189,7 +189,7 @@ out:
+ 	dev_put(dev);
  	if (unlikely(ret)) {
  		printk(KERN_WARNING
--		       "SELinux: failure in sel_netport_sid_slow(),"
--		       " unable to determine network port label\n");
-+		       "SELinux: Failure in sel_netport_sid_slow(),"
-+		       " unable to determine network port label.\n");
+-		       "SELinux: failure in sel_netif_sid_slow(),"
++		       "SELinux: Failure in sel_netif_sid_slow(),"
+ 		       " unable to determine network interface label (%d)\n",
+ 		       ifindex);
  		kfree(new);
- 	}
- 	return ret;
 -- 
 1.6.3.2
 
