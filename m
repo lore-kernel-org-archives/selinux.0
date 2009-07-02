@@ -1,13 +1,12 @@
 Subject: Re: [PATCH v2] setfiles converted to fts
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Thomas Liu <tliu@redhat.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
 In-Reply-To: <1246480778.2771.0.camel@Ares>
 References: <1246480778.2771.0.camel@Ares>
 Content-Type: text/plain
-Date: Thu, 02 Jul 2009 08:11:51 -0400
-Message-Id: <1246536711.13464.249.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 02 Jul 2009 08:13:13 -0400
+Message-Id: <1246536793.13464.251.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -32,20 +31,24 @@ On Wed, 2009-07-01 at 16:39 -0400, Thomas Liu wrote:
 > (nftw version)
 > restorecon -Rv / 2>/dev/null
 > restorecon reset /dev/pts/ptmx context system_u:object_r:devpts_t:s0->system_u:object_r:ptmx_t:s0
-
-That's interesting, but for a reason other than your patch.  There
-didn't used to be a /dev/pts/ptmx device, just /dev/ptmx.  I guess this
-came out of the containers work and eventually /dev/ptmx will become a
-symlink to /dev/pts/ptmx to support per-container ptmx devices?  But as
-devpts is a pseudo filesystem that is dynamically generated, we'll
-either need to restorecon /dev/pts/ptmx from rc.sysinit or we'll need to
-somehow make SELinux know that the ptmx node requires different labeling
-(presently all of /dev/pts uses type transitions for the nodes).
-
+> 
 > (new version)
 > ./restorecon -Rv / 2>/dev/null
 > ./restorecon reset /dev/pts/ptmx context system_u:object_r:devpts_t:s0->system_u:object_r:ptmx_t:s0
-> 
+
+I tried invoking it as setfiles, which also checks for multiple hard
+links to the same file with conflicting context specifications.  And saw
+this:
+./setfiles -v /etc/selinux/targeted/contexts/files/file_contexts /
+filespec_add:  conflicting specifications for /usr/share/m17n/pa-jhelum.mim and /dev, using system_u:object_r:device_t:s0.
+./setfiles reset /nfshome context system_u:object_r:nfs_t:s0->system_u:object_r:default_t:s0
+./setfiles set context /nfshome->system_u:object_r:default_t:s0 failed:'Operation not supported'
+filespec_add:  conflicting specifications for /boot and /, using system_u:object_r:root_t:s0.
+filespec_add:  conflicting specifications for /etc/grub.conf and /nfshome, using system_u:object_r:default_t:s0.
+filespec_eval:  hash table stats: 339774 elements, 65536/65536 buckets used, longest chain length 6
+
+So something has gone wrong there.
+
 > Here are some benchmarks each was run twice from a fresh
 > boot in single user mode (shown are the second runs).
 > 
