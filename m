@@ -1,87 +1,76 @@
-Subject: Re: request for review of, and collaboration on SELinux models
- wiki entry
-From: Dominick Grift <domg472@gmail.com>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <7DB3E8B4-9FFF-4FE1-873D-1A99C6EEF0AA@gmail.com>
-References: <1246542053.26320.15.camel@notebook2.grift.internal>
-	 <1246544997.13464.314.camel@moss-pluto.epoch.ncsc.mil>
-	 <7DB3E8B4-9FFF-4FE1-873D-1A99C6EEF0AA@gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-tfh8TyEHql8FqogB+Pgo"
-Date: Thu, 02 Jul 2009 17:49:48 +0200
-Message-Id: <1246549788.26320.42.camel@notebook2.grift.internal>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v1] There is a problem where packets being sent by the TUN driver are not
+Date: Thu, 2 Jul 2009 12:57:58 -0400
+Cc: selinux@tycho.nsa.gov
+References: <20090701221257.7590.75518.stgit@flek.lan> <1246536447.13464.245.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1246536447.13464.245.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <200907021257.58213.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thursday 02 July 2009 08:07:27 am Stephen Smalley wrote:
+> On Wed, 2009-07-01 at 18:12 -0400, Paul Moore wrote:
+> > correctly handled by SELinux in the postrouting code.  The issue is that
+> > the SELinux network access controls rely on a packet's associated sock,
+> > when present, for it's security label.  The TUN driver does create a sock
+> > to send network traffic but it only calls into the LSM/SELinux code once
+> > via the security_sk_alloc() hook which never fully initializes the sock's
+> > label.  This patch attempts to correct this problem by adding additional
+> > checks in the SELinux security_sk_alloc() alloc code to determine if the
+> > TUN driver is allocating a socket and if so, set the socket's label.
+> >
+> > NOTE: this is an RFC patch intended to demonstrate a possible solution
+> > not discussed earlier; it is crude, untested and only deals with SELinux.
+> >  Please take a look and see if this approach is even worth pursuing ...
+> > thanks. ---
+> >
+> >  include/linux/security.h |    7 ++++---
+> >  net/core/sock.c          |    2 +-
+> >  security/capability.c    |    2 +-
+> >  security/security.c      |    4 ++--
+> >  security/selinux/hooks.c |   43
+> > ++++++++++++++++++++++++------------------- 5 files changed, 32
+> > insertions(+), 26 deletions(-)
+> >
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 15c2a08..dde57d1 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -298,16 +298,21 @@ static void superblock_free_security(struct
+> > super_block *sb) kfree(sbsec);
+> >  }
+> >
+> > -static int sk_alloc_security(struct sock *sk, int family, gfp_t
+> > priority) +static int sk_alloc_security(struct sock *sk, int family,
+> > const struct proto *prot, gfp_t priority) {
+> >  	struct sk_security_struct *ssec;
+> > +	const struct task_security_struct *tsec = current_security();
+> >
+> >  	ssec = kzalloc(sizeof(*ssec), priority);
+> >  	if (!ssec)
+> >  		return -ENOMEM;
+> >
+> > +	if (strcmp(prot->name, "tun") == 0) {
+>
+> I'm sure that won't go over well.
 
---=-tfh8TyEHql8FqogB+Pgo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yeah, I'm not real excited about that either.
 
-On Thu, 2009-07-02 at 17:25 +0200, Sebastian Pfaff wrote:
-> hello,
->=20
-> from http://selinuxproject.org/page/SELinux_models (Multi Category =20
-> Security):
->=20
-> [...] Multi Category Security and Multi Level Security are mutually =20
-> exclusive.
->=20
-> > - MCS and MLS are just particular configurations of constraints for =20
-> > the
-> > MLS engine and thus share the same field and engine logic.  MCS was an
-> > attempt to make the MLS field and engine useful for general users, and
-> > is being leveraged by sandbox and by svirt for separating multiple
-> > instances of sandboxes or guest VMs.
->=20
-> In other words: MCS and MLS are not mutally exclusiv?! Not in SELinux =20
-> and not in gernal? For me, MCS in SELinux is an "extra",  which  you =20
-> can use with MLS (or MLS engine) at the same time. Please correct me, =20
-> if i'm wrong.
->=20
-> Imho, MCS uses "compartments" or categories to realize the need to =20
-> know principle and MLS uses vertical levels to achieve (at least in =20
-> SELinux) confidentiality (BLP model). Imo compartments and levels are =20
-> not mutally exclusive.
+> Question:  The allocated sock is then associated with a struct socket in
+> the tun_struct.  Should that socket get set up in the usual way?
 
-MCS and MLS are SELinux models (MCS and MLS are just particular
-configurations of constraints for the MLS engine and thus share the same
-field and engine logic.)
+For some reason I completely missed the socket in tun_struct, I was fixated on 
+the sock.  Let me think about this a bit more and I'll send out another patch, 
+probably next week.
 
-The MCS configuration of constraints conflict with the MLS configuration
-of constraints.
-
-In MCS the usage of assigned compartments is to the discretion of the
-user
-
-In MLS the usage of assigned compartments is mandatory.
-
-As far as i know MCS and MLS are mutually exclusive.=20
-
-> --
-> Sebastian Pfaff
->=20
->=20
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov =
-with
-> the words "unsubscribe selinux" without quotes as the message.
-
---=-tfh8TyEHql8FqogB+Pgo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkpM1xYACgkQMlxVo39jgT9V4QCgmrKCxMU9TRtELR0Wsb+CWaju
-rkYAn1JK4kwhwvnMUeawub+NUTTAwg7v
-=m5x4
------END PGP SIGNATURE-----
-
---=-tfh8TyEHql8FqogB+Pgo--
+-- 
+paul moore
+linux @ hp
 
 
 --
