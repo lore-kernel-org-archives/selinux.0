@@ -1,41 +1,44 @@
-Date: Thu, 2 Jul 2009 09:53:30 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
-Subject: Re: The problem with TUN/TAP devices
-In-Reply-To: <200907011858.22635.paul.moore@hp.com>
-Message-ID: <alpine.LRH.2.00.0907020951280.338@tundra.namei.org>
-References: <200906301734.31986.paul.moore@hp.com> <200907011234.52011.paul.moore@hp.com> <alpine.LRH.2.00.0907020841540.32336@tundra.namei.org> <200907011858.22635.paul.moore@hp.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6228HnR030452
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 22:08:17 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6227xfq023210
+	for <selinux@tycho.nsa.gov>; Thu, 2 Jul 2009 02:08:00 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n6228ECb029938
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 22:08:16 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n6228DMH015976
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 22:08:13 -0400
+Received: from [10.16.10.57] (vpn-10-57.bos.redhat.com [10.16.10.57])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n6228Cxo023134
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jul 2009 22:08:12 -0400
+Message-ID: <4A4C168C.2040900@redhat.com>
+Date: Wed, 01 Jul 2009 22:08:12 -0400
+From: Christopher Pardy <cpardy@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Subject: Re:[Patch 0/2] libsemanage: remember and retrieve dontaudit settings
+References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com> <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil> <4A4B9FA8.1040606@redhat.com>
+In-Reply-To: <4A4B9FA8.1040606@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Jul 2009, Paul Moore wrote:
+This is a heavily modified version of the patch I recently submitted. It 
+provides 3 new functions: in libsepol sepol_get_disable_dontaudit; in 
+libsemanage semanage_get_disable_dontaudit; in libselinux 
+is_dontaudit_disabled. It also fixes issues with the previous patch.
 
-> On Wednesday 01 July 2009 06:42:36 pm James Morris wrote:
-> > On Wed, 1 Jul 2009, Paul Moore wrote:
-> > > Well, if we can't do it in sk_alloc() then I think we are stuck with a
-> > > new hook; which just seems wrong.
-> >
-> > Why isn't the TUN driver calling the same code as other socket creating
-> > code?
-> 
-> The other socket creating code handles the final setup/initialization in the 
-> security_socket_post_create() hook which operates on sockets not socks.
+The justification for this patch is the same as the one I posted 
+earlier. Simply, there is currently no way to know if dontaudit rules 
+are  enabled. Additionally once don't audit rules are turned they turn 
+themselves off after policy rebuild (is that the desired functionality?) 
+This patch provides  a way to check on both the current and pending 
+state of the dontaudit rules and it maintains this state between policy 
+rebuilds.
 
-I wonder if passing a flag might be better than the prot argument, which 
-allows the caller to indicate what kind of initialization it's doing, 
-rather than what will be seen as another protocol layering violation (i.e. 
-the security model poking around to find out what kind of protocol & 
-changing its behaviour).
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Signed-off-by Christopher Pardy <cpardy@redhat.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
