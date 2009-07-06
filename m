@@ -1,65 +1,87 @@
-Subject: Re: request for review of, and collaboration on SELinux models
- wiki entry
+Subject: Re: [RFC PATCH v2] selinux: Fix a problem with socket labels and
+ the TUN driver
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
+To: Paul Moore <paul.moore@hp.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <04BE01E3-B511-4CDF-8FDE-253048E6D94A@gmail.com>
-References: <1246542053.26320.15.camel@notebook2.grift.internal>
-	 <1246544997.13464.314.camel@moss-pluto.epoch.ncsc.mil>
-	 <7DB3E8B4-9FFF-4FE1-873D-1A99C6EEF0AA@gmail.com>
-	 <1246549788.26320.42.camel@notebook2.grift.internal>
-	 <1246554192.13464.350.camel@moss-pluto.epoch.ncsc.mil>
-	 <04BE01E3-B511-4CDF-8FDE-253048E6D94A@gmail.com>
+In-Reply-To: <20090702212724.7080.70214.stgit@flek.lan>
+References: <20090702212724.7080.70214.stgit@flek.lan>
 Content-Type: text/plain
-Date: Mon, 06 Jul 2009 08:42:00 -0400
-Message-Id: <1246884120.27287.23.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 06 Jul 2009 08:58:45 -0400
+Message-Id: <1246885125.27287.38.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-02 at 20:12 +0200, Sebastian Pfaff wrote:
-> I think this implies that i'm wrong :/
+On Thu, 2009-07-02 at 17:27 -0400, Paul Moore wrote:
+> There is a problem where packets being sent by the TUN driver are not
+> correctly handled by SELinux in the postrouting code.  The issue is that
+> the SELinux network access controls rely on a packet's associated sock, when
+> present, for it's security label.  The TUN driver does create a sock to send
+> network traffic but it only calls into the LSM/SELinux code once via the
+> security_sk_alloc() hook which never fully initializes the sock's label.  This
+> patch attempts to correct this problem by adding the normal LSM socket
+> creation hooks to the TUN driver.
 > 
-> If MLS and MCS are mutally exclusive, why is it possible to use  
-> categories _and_ levels with MLS policy? Isn't this a conflict?
+> NOTE: this is an RFC patch intended to demonstrate a possible solution
+> completely different from the v1 patch, but it is still crude, untested and
+> not fully hashed out just yet.  Please take a look and see if this approach
+> is even worth pursuing ... thanks.
+> ---
 > 
-> Is MCS something similar which is generally referred to as  
-> Multilateral-Security?
+>  drivers/net/tun.c |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
 > 
-> Look here (excerpt from book Information Security - Priciples and  
-> Practice):
-> 
-> http://books.google.com/books?id=Bh45pU0_E_4C&lpg=PP1&dq=Information%20security%20principles&pg=PA185
-> 
-> So far i find the term MCS only or mainly in the context with SELinux,  
-> so i think it is (maybe) something SELinux specific which does  
-> neccessarily has something to do with Multilateral-Security.
-> 
-> I would be appreciate, if someone could give me some hints on what is  
-> wrong with my point of view.
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 11a0ba4..7db4b13 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -946,6 +946,10 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+>  		if (!capable(CAP_NET_ADMIN))
+>  			return -EPERM;
+>  
+> +		err = security_socket_create(AF_UNSPEC, SOCK_RAW, 0, 0);
+> +		if (err < 0)
+> +			return err;
+> +
 
-MCS was invented by James Morris,
-http://james-morris.livejournal.com/5583.html
+This is a permission checking hook only, so it isn't necessary to
+setting up the socket security state, and it is questionable as to
+whether we can add such a check unconditionally (it may cause denial
+under existing policies that would have previously been allowed), or
+whether it is necessary given that the process must have net_admin
+capability.
 
-It doesn't really correspond to anything in the literature; it just
-leverages the MLS label field and policy engine.
+>  		/* Set dev type */
+>  		if (ifr->ifr_flags & IFF_TUN) {
+>  			/* TUN device */
+> @@ -987,6 +991,12 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+>  		tun->sk = sk;
+>  		container_of(sk, struct tun_sock, sk)->tun = tun;
+>  
+> +		/* XXX - correct placement? */
+> +		err = security_socket_post_create(tun->socket,
+> +						  AF_UNSPEC, SOCK_RAW, 0, 0);
+> +		if (err < 0)
+> +			goto err_free_sk;
+> +
 
-MCS and MLS are just different configurations of the MLS policy engine.
-The MCS configuration only defines a single sensitivity, while the MLS
-configuration defines multiple sensitivities (16 in the Fedora policy).
-Both define and use categories (1024 in the Fedora policies).  Under
-MCS, the "low level" in the process' range is always s0, and the process
-may at its discretion label files with any category from its "high
-level" and may access files whose category sets are within the process
-"high level".  Under MLS, the "low level" in the process' range
-represents its active/current level, any files created by the process
-must be labeled at that level, and it may only read-down and write-at
-that level unless it has specific type attributes that allow it to
-override the usual MLS constraints.  The "high level" under MLS
-represents the user's max clearance, with the process able to elevate
-its low level up to that max via newrole -l (depending on
-configuration).
+Current socket_post_create() hook presumes that the socket has an inode
+with an allocated security struct, which I don't think we have here.
 
+Wondering if it ought to just call sock_create_lite(), although that
+will mark it as a kernel socket.  How do we actually want the socket
+labeled - based on creating process or as a kernel-private socket?
+
+
+>  		tun_net_init(dev);
+>  
+>  		if (strchr(dev->name, '%')) {
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
