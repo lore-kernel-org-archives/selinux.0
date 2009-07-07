@@ -1,62 +1,66 @@
-Message-ID: <4A537790.8030209@redhat.com>
-Date: Tue, 07 Jul 2009 12:28:00 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n67GUv2w011393
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 12:30:57 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n67GValO014381
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 16:31:36 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n67GUtYu021741
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 12:30:55 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n67GUtSM010357
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 12:30:55 -0400
+Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n67GUqPO002340
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 12:30:54 -0400
+Message-ID: <4A53783C.5080509@redhat.com>
+Date: Tue, 07 Jul 2009 12:30:52 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com> <4A4B5A27.9000704@redhat.com> <4A536ECD.3050103@manicmethod.com> <4A53725A.5050209@manicmethod.com>
-In-Reply-To: <4A53725A.5050209@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Matchpathcon patch to print <<none>> when it gets enoent.
+Content-Type: multipart/mixed;
+ boundary="------------060800010502020809040904"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/07/2009 12:05 PM, Joshua Brindle wrote:
-> Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> The interface is looking for something that looks like:
->>>
->>> *:staff_u:s0
->>> or
->>> sshd:guest_u:s0
->>> login:staff_u:so-s0:c0-c1023
->>> xdm:user_u:so
->>>
->>> I don not currently intend this to be edited by a human, the goal was to
->>> allow tools like IPA or other scripting tools to populate these files.
->>> The library should return the content as it does, but libselinux or
->>> pam_selinux should deny login if the machine is in enforcing mode. The
->>> fact that it is giving you a bogus login is a bug in current SELinux.
->>>>>>
->>>>> The : separated list matches seusers and /etc/passwd so I think it
->>>>> makes
->>>>> sense. THe file should require all three fields, that is a bug.
->>>>>
->>>>
->>
->> Patch merged in libselinux 2.0.84.
->>
->
-> Even though I merged this I'm a little concerned about how fragile it
-> is. For example, I added:
->
-> sshd:staff_u:SystemLow
->
-> to /etc/selinux/targeted/logins/root
->
-> and when I rebooted and logged in I was unconfined_u. The problem was
-> that mcstrans hadn't been started. The fact that I can essentially get
-> unconfined access by bringing mcstrans down somehow is _very_
-> concerning. Granted this only happens if you are using translated levels
-> but I think that will be very common in practice (so that the IPA
-> infrastructure doesn't need to know the label encodings of every system).
->
-> This is badness waiting to happen :\
-But the bug here is returning an invalid context.  We should return an 
-error and not let you login.
+This is a multi-part message in MIME format.
+--------------060800010502020809040904
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
+
+--------------060800010502020809040904
+Content-Type: text/plain;
+ name="libselinux-matchpathcon.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libselinux-matchpathcon.patch"
+
+Subject: [PATCH] refpolicy: nsalibselinux_utils_matchpathcon.c changes
+--text follows this line--
+--- nsalibselinux/utils/matchpathcon.c	2009-07-07 11:10:42.033956000 -0400
++++ libselinux-2.0.83/utils/matchpathcon.c	2009-07-07 12:22:39.395209000 -0400
+@@ -22,9 +22,13 @@
+ 	char *buf;
+ 	int rc = matchpathcon(path, mode, &buf);
+ 	if (rc < 0) {
+-		fprintf(stderr, "matchpathcon(%s) failed: %s\n", path,
+-			strerror(errno));
+-		return 1;
++		if (errno == ENOENT) {
++			buf=strdup("<<none>>");
++		} else {
++			fprintf(stderr, "matchpathcon(%s) failed: %s\n", path,
++				strerror(errno));
++			return 1;
++		}
+ 	}
+ 	if (header)
+ 		printf("%s\t%s\n", path, buf);
+
+--------------060800010502020809040904--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
