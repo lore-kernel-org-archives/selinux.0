@@ -1,73 +1,91 @@
-Subject: Re: [Patch 2/2 v3] libsemanage: maintain disable dontaudit state
- between handle commits
+Subject: Re: [RFC PATCH v2] selinux: Fix a problem with socket labels and
+ the TUN driver
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christopher Pardy <cpardy@redhat.com>
+To: Paul Moore <paul.moore@hp.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1246908628.28321.135.camel@moss-pluto.epoch.ncsc.mil>
-References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>
-	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>
-	 <4A4C17D1.3060208@redhat.com>
-	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4CBC6C.5090709@redhat.com>
-	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4CC469.3050805@redhat.com>
-	 <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A4CD320.2090706@redhat.com>
-	 <1246554554.13464.356.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A51ED89.8010001@redhat.com>  <4A51EEA5.4070802@redhat.com>
-	 <1246888018.28321.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <1246888326.28321.26.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A520D47.4040708@redhat.com> <4A52100C.3010302@redhat.com>
-	 <4A523652.2040603@redhat.com>  <4A524C27.7020601@redhat.com>
-	 <1246908628.28321.135.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <200907061643.08855.paul.moore@hp.com>
+References: <20090702212724.7080.70214.stgit@flek.lan>
+	 <1246885125.27287.38.camel@moss-pluto.epoch.ncsc.mil>
+	 <200907061643.08855.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Tue, 07 Jul 2009 07:45:53 -0400
-Message-Id: <1246967153.28321.152.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 07 Jul 2009 07:51:13 -0400
+Message-Id: <1246967473.28321.158.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-07-06 at 15:30 -0400, Stephen Smalley wrote:
-> On Mon, 2009-07-06 at 15:10 -0400, Christopher Pardy wrote:
-> > Currently any changes made to the policy which require committing a handle cause dontaudit rules to be disabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is created. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules.
-> >  
-> > Stephen Smalley: No longer attempt to create or destroy the file in the handle create, all store functionality has been moved to direct_api.c all functions now use sepol versions. The reason for needing to create the file in the commit statement is because changes to the flag in sepol directly may be reflected in the commited policy but not the flags.
-> > 
-> > Signed-off-by: Christopher Pardy <cpardy@redhat.com>
-> > 
-> > ---
-> >  libsemanage/include/semanage/handle.h |    3 +++
-> >  libsemanage/src/direct_api.c          |   33 +++++++++++++++++++++++++++++++++
-> >  libsemanage/src/direct_api.h          |    4 ++++
-> >  libsemanage/src/handle.c              |   19 +++++++++++++++++--
-> >  libsemanage/src/libsemanage.map       |    2 +-
-> >  libsemanage/src/semanage_store.c      |    1 +
-> >  libsemanage/src/semanage_store.h      |    1 +
-> >  7 files changed, 60 insertions(+), 3 deletions(-)
-
-> > +{
-> > +	const char *path;
-> > +
-> > +	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
-> > +	if(setting == 1){
-> > +		FILE *touch;
-> > +		touch = fopen(path,"w");
+On Mon, 2009-07-06 at 16:43 -0400, Paul Moore wrote:
+> On Monday 06 July 2009 08:58:45 am Stephen Smalley wrote:
+> > On Thu, 2009-07-02 at 17:27 -0400, Paul Moore wrote:
+> > > There is a problem where packets being sent by the TUN driver are not
+> > > correctly handled by SELinux in the postrouting code.  The issue is that
+> > > the SELinux network access controls rely on a packet's associated sock,
+> > > when present, for it's security label.  The TUN driver does create a sock
+> > > to send network traffic but it only calls into the LSM/SELinux code once
+> > > via the security_sk_alloc() hook which never fully initializes the sock's
+> > > label.  This patch attempts to correct this problem by adding the normal
+> > > LSM socket creation hooks to the TUN driver.
+> > >
+> > > NOTE: this is an RFC patch intended to demonstrate a possible solution
+> > > completely different from the v1 patch, but it is still crude, untested
+> > > and not fully hashed out just yet.  Please take a look and see if this
+> > > approach is even worth pursuing ... thanks.
 > 
-> I suspect we want to log an ERR() if this fails.
-
-Actually, I think we want to not only log an error (via ERR) but also
-return an error to the caller (i.e. the function needs to return an
-error status) so that we can ultimately indicate to semodule that
-semodule -DB or semodule -B failed.
-
+> [I'm replying out of order here since your last comment seemed most important]
 > 
-> > +		if (touch != NULL)
-> > +			fclose(touch);
-> > +	}else
-> > +		remove(path);
+> > > @@ -987,6 +991,12 @@ static int tun_set_iff(struct net *net, struct file
+> > > *file, struct ifreq *ifr) tun->sk = sk;
+> > >  		container_of(sk, struct tun_sock, sk)->tun = tun;
+> > >
+> > > +		/* XXX - correct placement? */
+> > > +		err = security_socket_post_create(tun->socket,
+> > > +						  AF_UNSPEC, SOCK_RAW, 0, 0);
+> > > +		if (err < 0)
+> > > +			goto err_free_sk;
+> > > +
+> >
+> > Current socket_post_create() hook presumes that the socket has an inode
+> > with an allocated security struct, which I don't think we have here.
+> >
+> > Wondering if it ought to just call sock_create_lite(), although that
+> > will mark it as a kernel socket.  How do we actually want the socket
+> > labeled - based on creating process or as a kernel-private socket?
 > 
-> Ditto.
+> I've been working under the assumption that we want the socket labeled based 
+> on the creating process as that would ensure that any traffic coming from that 
+> process through the TUN driver would be treated as if it had come from the 
+> creating process.  Labeling the socket as a kernel socket robs us of the 
+> ability to provide decent access control and labeling for traffic passing 
+> through the TUN driver.
+> 
+> Unfortunately, this gets a little sticky with persistent TUN/TAP devices but 
+> the problem should be solvable with some additional access checks when 
+> attaching to existing TUN/TAP devices.
+> 
+> > > @@ -946,6 +946,10 @@ static int tun_set_iff(struct net *net, struct file
+> > > *file, struct ifreq *ifr) if (!capable(CAP_NET_ADMIN))
+> > >  			return -EPERM;
+> > >
+> > > +		err = security_socket_create(AF_UNSPEC, SOCK_RAW, 0, 0);
+> > > +		if (err < 0)
+> > > +			return err;
+> > > +
+> >
+> > This is a permission checking hook only, so it isn't necessary to
+> > setting up the socket security state, and it is questionable as to
+> > whether we can add such a check unconditionally (it may cause denial
+> > under existing policies that would have previously been allowed), or
+> > whether it is necessary given that the process must have net_admin
+> > capability.
+> 
+> My thinking was that a permission check might not be a bad thing here since we 
+> may want the ability to restrict the creation of TUN/TAP devices to certain 
+> domains.  True, you could do that to some extent with the /dev/tun file but 
+> that is pretty coarse.
+
+Ok.  Well, what if sock_create_lite() took a kern flag like
+__sock_create() does - could we then use it here to set up the tun
+socket?
 
 -- 
 Stephen Smalley
