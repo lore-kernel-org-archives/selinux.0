@@ -1,46 +1,26 @@
-Subject: Re: [Patch 2/2 v7] libsemanage: maintain disable dontaudit state
- between handle commits
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christopher Pardy <cpardy@redhat.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1246990657.28321.282.camel@moss-pluto.epoch.ncsc.mil>
-References: <4A5386C0.8070802@redhat.com>
-	 <1246989452.28321.277.camel@moss-pluto.epoch.ncsc.mil>
-	 <1246990001.28321.281.camel@moss-pluto.epoch.ncsc.mil>
-	 <1246990657.28321.282.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 07 Jul 2009 14:32:14 -0400
-Message-Id: <1246991534.28321.283.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n67Jm1Rd005401
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 15:48:01 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n67JmflO024840
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 19:48:41 GMT
+Message-ID: <4A53A665.8020003@manicmethod.com>
+Date: Tue, 07 Jul 2009 15:47:49 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: libsemanage direct_api can return errors < 0.
+References: <4A2D618F.2050509@redhat.com>
+In-Reply-To: <4A2D618F.2050509@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-07-07 at 14:17 -0400, Stephen Smalley wrote:
-> On Tue, 2009-07-07 at 14:06 -0400, Stephen Smalley wrote:
-> > On Tue, 2009-07-07 at 13:57 -0400, Stephen Smalley wrote:
-> > > On Tue, 2009-07-07 at 13:32 -0400, Christopher Pardy wrote:
-> > > > Currently any changes made to the policy which require committing a handle cause dontaudit rules to be re-enabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is connected. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules. In the event that a the file cannot be created a call to commit will fail.
-> > > >    
-> > > > Signed-off-by: Christopher Pardy <cpardy@redhat.com>
-> > > 
-> > > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > > 
-> > > I'll fix up the duplicate diff (you have a spelling correction that was
-> > > already committed) and clean up a couple of minor things when I commit
-> > > it along with the libsepol and semodule patches.
-> > 
-> > Oops.  I made a mistake - semanage_fname() is only the file suffix.
-> > I'll switch it to use semanage_path(SEMANAGE_TMP,
-> > SEMANAGE_DISABLE_DONTAUDIT).
-> 
-> Final version of the patch.
+Daniel J Walsh wrote:
 
-Merged in libsepol 2.0.37, libsemanage 2.0.33, and policycoreutils 2.0.67.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Merged.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
