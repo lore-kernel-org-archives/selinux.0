@@ -1,64 +1,57 @@
-Message-ID: <4A536F78.1080309@manicmethod.com>
-Date: Tue, 07 Jul 2009 11:53:28 -0400
+Message-ID: <4A53725A.5050209@manicmethod.com>
+Date: Tue, 07 Jul 2009 12:05:46 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Dennis Wronka <linuxweb@gmx.net>, SELinux@tycho.nsa.gov,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>
-Subject: Re: Policy loading problem
-References: <1242641994.470.5.camel@notebook2.grift.internal>	 <200905202242.37606.linuxweb@gmx.net>	 <1242830433.20082.402.camel@localhost.localdomain>	 <200905202257.08555.linuxweb@gmx.net> <1242832214.20082.410.camel@localhost.localdomain>
-In-Reply-To: <1242832214.20082.410.camel@localhost.localdomain>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: This patch add seusers support to SELinux
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com> <4A4B5A27.9000704@redhat.com> <4A536ECD.3050103@manicmethod.com>
+In-Reply-To: <4A536ECD.3050103@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2009-05-20 at 22:57 +0800, Dennis Wronka wrote:
->> Okay, here we go:
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> The interface is looking for something that looks like:
 >>
->> I unmounted /selinux and then got this:
->> load_policy: Can't load policy: Invalid argument
+>> *:staff_u:s0
+>> or
+>> sshd:guest_u:s0
+>> login:staff_u:so-s0:c0-c1023
+>> xdm:user_u:so
 >>
->> I attached my kernel-config and the two traces (trace1 for the "Device or
->> resource busy"-error, trace2 for the "Invalid argument"-error).
+>> I don not currently intend this to be edited by a human, the goal was to
+>> allow tools like IPA or other scripting tools to populate these files.
+>> The library should return the content as it does, but libselinux or
+>> pam_selinux should deny login if the machine is in enforcing mode. The
+>> fact that it is giving you a bogus login is a bug in current SELinux.
+>>>>>
+>>>> The : separated list matches seusers and /etc/passwd so I think it
+>>>> makes
+>>>> sense. THe file should require all three fields, that is a bug.
+>>>>
+>>>
 >
-> Possible patch for libselinux to a) gracefully handle the situation
-> where selinuxfs is already mounted, b) report errors when switching to
-> permissive, and c) proceed with the policy load even if we cannot switch
-> to permissive mode as requested, as proceeding without a policy when the
-> kernel only supports enforcing mode is not desirable.
->
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index a3a28a0..a7800da 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -369,7 +369,7 @@ int selinux_init_load_policy(int *enforce)
->   	 * Check for the existence of SELinux via selinuxfs, and
->   	 * mount it if present for use in the calls below.
->   	 */
-> -	if (mount("none", SELINUXMNT, "selinuxfs", 0, 0)<  0) {
-> +	if (mount("none", SELINUXMNT, "selinuxfs", 0, 0)<  0&&  errno != EBUSY) {
->   		if (errno == ENODEV) {
->   			/*
->   			 * SELinux was disabled in the kernel, either
-> @@ -416,8 +416,11 @@ int selinux_init_load_policy(int *enforce)
->   		goto noload;
->   	if (orig_enforce != *enforce) {
->   		rc = security_setenforce(*enforce);
-> -		if (rc<  0)
-> -			goto noload;
-> +		if (rc<  0) {
-> +			fprintf(stderr, "SELinux:  Unable to switch to %s mode:  %s\n", (*enforce ? "enforcing" : "permissive"), strerror(errno));
-> +			if (*enforce)
-> +				goto noload;
-> +		}
->   	}
->
->   	/* Load the policy. */
+> Patch merged in libselinux 2.0.84.
 >
 
-Merged in libselinux 2.0.84.
+Even though I merged this I'm a little concerned about how fragile it is. For 
+example, I added:
+
+sshd:staff_u:SystemLow
+
+to /etc/selinux/targeted/logins/root
+
+and when I rebooted and logged in I was unconfined_u. The problem was that 
+mcstrans hadn't been started. The fact that I can essentially get unconfined 
+access by bringing mcstrans down somehow is _very_ concerning. Granted this only 
+happens if you are using translated levels but I think that will be very common 
+in practice (so that the IPA infrastructure doesn't need to know the label 
+encodings of every system).
+
+This is badness waiting to happen :\
 
 --
 This message was distributed to subscribers of the selinux mailing list.
