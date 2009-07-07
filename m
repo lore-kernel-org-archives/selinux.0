@@ -1,241 +1,79 @@
-Message-ID: <4A535E80.3040502@redhat.com>
-Date: Tue, 07 Jul 2009 10:41:04 -0400
-From: Christopher Pardy <cpardy@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
 Subject: Re: [Patch 2/2 v4] libsemanage: maintain disable dontaudit state
  between handle commits
-References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>	 <4A4C17D1.3060208@redhat.com>	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CBC6C.5090709@redhat.com>	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CC469.3050805@redhat.com>	 <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CD320.2090706@redhat.com>	 <1246554554.13464.356.camel@moss-pluto.epoch.ncsc.mil>	 <4A51ED89.8010001@redhat.com>  <4A51EEA5.4070802@redhat.com>	 <1246888018.28321.23.camel@moss-pluto.epoch.ncsc.mil>	 <1246888326.28321.26.camel@moss-pluto.epoch.ncsc.mil>	 <4A520D47.4040708@redhat.com> <4A52100C.3010302@redhat.com>	 <4A523652.2040603@redhat.com> <4A524C27.7020601@redhat.com>	 <4A535240.1000900@redhat.com> <1246976446.28321.228.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1246976446.28321.228.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christopher Pardy <cpardy@redhat.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <4A535E80.3040502@redhat.com>
+References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>
+	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>
+	 <4A4C17D1.3060208@redhat.com>
+	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CBC6C.5090709@redhat.com>
+	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CC469.3050805@redhat.com>
+	 <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A4CD320.2090706@redhat.com>
+	 <1246554554.13464.356.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A51ED89.8010001@redhat.com>  <4A51EEA5.4070802@redhat.com>
+	 <1246888018.28321.23.camel@moss-pluto.epoch.ncsc.mil>
+	 <1246888326.28321.26.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A520D47.4040708@redhat.com> <4A52100C.3010302@redhat.com>
+	 <4A523652.2040603@redhat.com> <4A524C27.7020601@redhat.com>
+	 <4A535240.1000900@redhat.com>
+	 <1246976446.28321.228.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A535E80.3040502@redhat.com>
+Content-Type: text/plain
+Date: Tue, 07 Jul 2009 10:53:25 -0400
+Message-Id: <1246978405.28321.241.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/07/2009 10:20 AM, Stephen Smalley wrote:
-> On Tue, 2009-07-07 at 09:48 -0400, Christopher Pardy wrote:
->> Currently any changes made to the policy which require committing a handle cause dontaudit rules to be disabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is created. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules. In the event that a the file cannot be created the dontaudit rules dont change and errors are set.
->>  
->> Signed-off-by: Christopher Pardy <cpardy@redhat.com>
+On Tue, 2009-07-07 at 10:41 -0400, Christopher Pardy wrote:
+> On 07/07/2009 10:20 AM, Stephen Smalley wrote:
+> > On Tue, 2009-07-07 at 09:48 -0400, Christopher Pardy wrote:
+> >> Currently any changes made to the policy which require committing a handle cause dontaudit rules to be disabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is created. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules. In the event that a the file cannot be created the dontaudit rules dont change and errors are set.
+> >>  
+> >> Signed-off-by: Christopher Pardy <cpardy@redhat.com>
+> > 
+> > As before:
+> > 1.  Move the logic to initialize the flag from semanage_handle_create()
+> > to semanage_direct_connect() after the semanage_access_check() call.
+> > 2.  Justify why we need to call set_disable_dontaudit_flag() from
+> > semanage_commit() - it should have been initialized upon connect and can
+> > only change upon semanage_set_disable_dontaudit() and thus should
+> > already be correct.  If we truly do need it, move to
+> > semanage_direct_commit(), but explain why first please - I don't see the
+> > rationale (better yet, test without it and demonstrate that it doesn't
+> > work otherwise!).
 > 
-> As before:
-> 1.  Move the logic to initialize the flag from semanage_handle_create()
-> to semanage_direct_connect() after the semanage_access_check() call.
-> 2.  Justify why we need to call set_disable_dontaudit_flag() from
-> semanage_commit() - it should have been initialized upon connect and can
-> only change upon semanage_set_disable_dontaudit() and thus should
-> already be correct.  If we truly do need it, move to
-> semanage_direct_commit(), but explain why first please - I don't see the
-> rationale (better yet, test without it and demonstrate that it doesn't
-> work otherwise!).
+> 1. If I do that then the disable_dontaudit handle will not be
+> correctly set when the handle is created and the
+> semanage_get_disable_dontaudit value will be wrong. More importantly
+> it may change when semanage_connect() is called. That behavior would
+> be incorrect.
 
-1. If I do that then the disable_dontaudit handle will not be correctly set when the handle is created and the semanage_get_disable_dontaudit value will be wrong. More importantly it may change when semanage_connect() is called. That behavior would be incorrect.
-2. We must call set_disable_dontaudit_flag() following a commit because although the flag will correctly represent the changes made via libsemanage any changes via libsepol will not be reflected. I'll move this call to semanage_direct_commit().
+Why?  semanage_connect() has to be called before you first access the
+file store.  No other file in the file store is even read up until that
+time.  And, no, it cannot be changed before semanage_connect() is called
+- that has to happen before you do anything else.
 
-> 
-> And your coding style isn't quite right - add a space between if and (,
-> between ) and {, and between { and else in
-> semanage_set_disable_dontaudit.  And no extraneous whitespace in the
-> patch (you add an extra empty line to semanage_handle_create after
-> sh->do_reload gets set).
->
+> 2. We must call set_disable_dontaudit_flag() following a commit
+> because although the flag will correctly represent the changes made
+> via libsemanage any changes via libsepol will not be reflected. I'll
+> move this call to semanage_direct_commit().
 
-I'll fix these up.
- 
-> Thanks.
-> 
->> ---
->>  libsemanage/include/semanage/handle.h |    8 +++++-
->>  libsemanage/src/direct_api.c          |   40 ++++++++++++++++++++++++++++++++++
->>  libsemanage/src/direct_api.h          |    5 ++++
->>  libsemanage/src/handle.c              |   21 ++++++++++++++++-
->>  libsemanage/src/libsemanage.map       |    2 -
->>  libsemanage/src/semanage_store.c      |    1 
->>  libsemanage/src/semanage_store.h      |    1 
->>  7 files changed, 74 insertions(+), 4 deletions(-)
->>
->> diff -urpN selinux.orig2/libsemanage/include/semanage/handle.h selinux.orig3/libsemanage/include/semanage/handle.h
->> --- selinux.orig2/libsemanage/include/semanage/handle.h	2009-07-01 21:15:17.224235939 -0400
->> +++ selinux.orig3/libsemanage/include/semanage/handle.h	2009-07-07 09:37:35.888570766 -0400
->> @@ -69,7 +69,13 @@ void semanage_set_rebuild(semanage_handl
->>   * 1 for yes, 0 for no (default) */
->>  void semanage_set_create_store(semanage_handle_t * handle, int create_store);
->>  
->> -/* Set whether or not to disable dontaudits upon commit */
->> +/*Get whether or not to dontaudits will be disabled upon commit */
->> +int semanage_get_disable_dontaudit(semanage_handle_t * handle);
->> +
->> +/* Set whether or not to disable dontaudits upon commit
->> + * Sets errno to 0 if successful. Otherwise sets errno
->> + * to any of the errors specified by fopen,fclose, or remove.
->> + */
->>  void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
->>  
->>  /* Check whether policy is managed via libsemanage on this system.
->> diff -urpN selinux.orig2/libsemanage/src/direct_api.c selinux.orig3/libsemanage/src/direct_api.c
->> --- selinux.orig2/libsemanage/src/direct_api.c	2009-07-01 21:15:17.264236347 -0400
->> +++ selinux.orig3/libsemanage/src/direct_api.c	2009-07-07 09:19:28.174321784 -0400
->> @@ -293,6 +293,46 @@ static int semanage_direct_begintrans(se
->>  	return 0;
->>  }
->>  
->> +/*********Dont audit functions*************/
->> +
->> +/* Creates, removes, and tests for the existance of a dont audit flag.
->> + */
->> +
->> +int get_disable_dontaudit_flag(void)
->> +{
->> +	const char *path;
->> +	
->> +	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
->> +	if(access(path,F_OK) == 0)
->> +		return 1;
->> +	else
->> +		return 0;
->> +}
->> +
->> +int set_disable_dontaudit_flag(int setting)
->> +{
->> +	const char *path;
->> +	int retcode;
->> +
->> +	retcode = 0;
->> +
->> +	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
->> +	if(setting == 1){
->> +		FILE *touch;
->> +		touch = fopen(path,"w");
->> +		if (touch != NULL)
->> +			if(fclose(touch) != 0)
->> +				retcode = -1;
->> +		else
->> +			retcode = -1;
->> +	}else
->> +		if(remove(path) == -1 && errno != ENOENT)
->> +			retcode = -1
->> +	
->> +	return retcode;
->> +}
->> +
->> +
->>  /********************* utility functions *********************/
->>  
->>  /* Takes a module stored in 'module_data' and parses its headers.
->> diff -urpN selinux.orig2/libsemanage/src/direct_api.h selinux.orig3/libsemanage/src/direct_api.h
->> --- selinux.orig2/libsemanage/src/direct_api.h	2009-07-01 21:15:17.270235734 -0400
->> +++ selinux.orig3/libsemanage/src/direct_api.h	2009-07-07 08:50:24.620326359 -0400
->> @@ -39,6 +39,11 @@ int semanage_direct_access_check(struct 
->>  
->>  int semanage_direct_mls_enabled(struct semanage_handle *sh);
->>  
->> +int get_disable_dontaudit_flag(void);
->> +
->> +/*returns a 0 on success*/
->> +int set_disable_dontaudit_flag(int setting);
->> +
->>  #include <stdio.h>
->>  #include <unistd.h>
->>  ssize_t bunzip(FILE *f, char **data);
->> diff -urpN selinux.orig2/libsemanage/src/handle.c selinux.orig3/libsemanage/src/handle.c
->> --- selinux.orig2/libsemanage/src/handle.c	2009-07-01 21:15:17.288238017 -0400
->> +++ selinux.orig3/libsemanage/src/handle.c	2009-07-07 09:44:23.677572218 -0400
->> @@ -23,6 +23,7 @@
->>  
->>  #include <selinux/selinux.h>
->>  
->> +#include <errno.h>
->>  #include <stdarg.h>
->>  #include <assert.h>
->>  #include <stdlib.h>
->> @@ -59,6 +60,9 @@ semanage_handle_t *semanage_handle_creat
->>  		goto err;
->>  	sepol_msg_set_callback(sh->sepolh, semanage_msg_relay_handler, sh);
->>  
->> +	/*set the disable dontaudit flag to system defaults*/
->> +	sepol_set_disable_dontaudit(sh->sepolh,get_disable_dontaudit_flag());
->> +
->>  	/* By default do not rebuild the policy on commit
->>  	 * If any changes are made, this flag is ignored */
->>  	sh->do_rebuild = 0;
->> @@ -66,6 +70,7 @@ semanage_handle_t *semanage_handle_creat
->>  	/* By default always reload policy after commit if SELinux is enabled. */
->>  	sh->do_reload = (is_selinux_enabled() > 0);
->>  
->> +
->>  	/* By default do not create store */
->>  	sh->create_store = 0;
->>  
->> @@ -110,11 +115,22 @@ void semanage_set_create_store(semanage_
->>  	return;
->>  }
->>  
->> +int semanage_get_disable_dontaudit(semanage_handle_t * sh)
->> +{
->> +	assert(sh != NULL);
->> +
->> +	return sepol_get_disable_dontaudit(sh->sepolh);
->> +}
->> +
->>  void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
->>  {
->>  	assert(sh != NULL);
->> +	if(set_disable_dontaudit_flag(disable_dontaudit) == 0){
->> +		sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
->> +		errno = 0;
->> +	}else
->> +		ERR(sh,"Could not set disable dontaudit flag of handle.");
->>  	
->> -	sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
->>  	return;
->>  }
->>  
->> @@ -264,9 +280,10 @@ int semanage_commit(semanage_handle_t * 
->>  	assert(sh != NULL && sh->funcs != NULL && sh->funcs->commit != NULL);
->>  	if (!sh->is_in_transaction) {
->>  		ERR(sh,
->> -		    "Will not commit because caller does not have a tranaction lock yet.");
->> +		    "Will not commit because caller does not have a transaction lock yet.");
->>  		return -1;
->>  	}
->> +	set_disable_dontaudit_flag(sepol_get_disable_dontaudit(sh->sepolh));
->>  	retval = sh->funcs->commit(sh);
->>  	sh->is_in_transaction = 0;
->>  	sh->modules_modified = 0;
->> diff -urpN selinux.orig2/libsemanage/src/libsemanage.map selinux.orig3/libsemanage/src/libsemanage.map
->> --- selinux.orig2/libsemanage/src/libsemanage.map	2009-07-01 21:15:17.290237650 -0400
->> +++ selinux.orig3/libsemanage/src/libsemanage.map	2009-07-06 13:26:53.591167982 -0400
->> @@ -15,7 +15,7 @@ LIBSEMANAGE_1.0 {
->>  	  semanage_iface_*; semanage_port_*; semanage_context_*;
->>  	  semanage_node_*;
->>  	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
->> -	  semanage_is_connected; semanage_set_disable_dontaudit;
->> +	  semanage_is_connected; semanage_get_disable_dontaudit; semanage_set_disable_dontaudit;
->>  	  semanage_mls_enabled;
->>    local: *;
->>  };
->> diff -urpN selinux.orig2/libsemanage/src/semanage_store.c selinux.orig3/libsemanage/src/semanage_store.c
->> --- selinux.orig2/libsemanage/src/semanage_store.c	2009-07-01 21:15:17.271236564 -0400
->> +++ selinux.orig3/libsemanage/src/semanage_store.c	2009-07-06 13:26:53.598164077 -0400
->> @@ -114,6 +114,7 @@ static const char *semanage_sandbox_path
->>  	"/users_extra",
->>  	"/netfilter_contexts",
->>  	"/file_contexts.homedirs",
->> +	"/disable_dontaudit",
->>  };
->>  
->>  /* A node used in a linked list of file contexts; used for sorting.
->> diff -urpN selinux.orig2/libsemanage/src/semanage_store.h selinux.orig3/libsemanage/src/semanage_store.h
->> --- selinux.orig2/libsemanage/src/semanage_store.h	2009-07-01 21:15:17.262235597 -0400
->> +++ selinux.orig3/libsemanage/src/semanage_store.h	2009-07-06 13:26:53.626166474 -0400
->> @@ -58,6 +58,7 @@ enum semanage_sandbox_defs {
->>  	SEMANAGE_USERS_EXTRA,
->>  	SEMANAGE_NC,
->>  	SEMANAGE_FC_HOMEDIRS,
->> +	SEMANAGE_DISABLE_DONTAUDIT,
->>  	SEMANAGE_STORE_NUM_PATHS
->>  };
->>  
+The application doesn't get the libsepol handle and can't affect it
+directly.  The libsepol handle is private to libsemanage.  It can't
+happen.   Really.
+
+You might try listening to the people who have been maintaining the code
+for a long time, you know...
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
