@@ -1,55 +1,107 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v2] selinux: Fix a problem with socket labels and the TUN driver
-Date: Tue, 7 Jul 2009 11:40:54 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20090702212724.7080.70214.stgit@flek.lan> <200907061643.08855.paul.moore@hp.com> <1246967473.28321.158.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1246967473.28321.158.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <4A536ECD.3050103@manicmethod.com>
+Date: Tue, 07 Jul 2009 11:50:37 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200907071140.55383.paul.moore@hp.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: This patch add seusers support to SELinux
+References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com> <4A4B5A27.9000704@redhat.com>
+In-Reply-To: <4A4B5A27.9000704@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 07 July 2009 07:51:13 am Stephen Smalley wrote:
-> On Mon, 2009-07-06 at 16:43 -0400, Paul Moore wrote:
-> > On Monday 06 July 2009 08:58:45 am Stephen Smalley wrote:
-> > > On Thu, 2009-07-02 at 17:27 -0400, Paul Moore wrote:
-> > > > @@ -946,6 +946,10 @@ static int tun_set_iff(struct net *net, struct
-> > > > file *file, struct ifreq *ifr) if (!capable(CAP_NET_ADMIN))
-> > > >  			return -EPERM;
-> > > >
-> > > > +		err = security_socket_create(AF_UNSPEC, SOCK_RAW, 0, 0);
-> > > > +		if (err < 0)
-> > > > +			return err;
-> > > > +
-> > >
-> > > This is a permission checking hook only, so it isn't necessary to
-> > > setting up the socket security state, and it is questionable as to
-> > > whether we can add such a check unconditionally (it may cause denial
-> > > under existing policies that would have previously been allowed), or
-> > > whether it is necessary given that the process must have net_admin
-> > > capability.
-> >
-> > My thinking was that a permission check might not be a bad thing here
-> > since we may want the ability to restrict the creation of TUN/TAP devices
-> > to certain domains.  True, you could do that to some extent with the
-> > /dev/tun file but that is pretty coarse.
+Daniel J Walsh wrote:
+> On 06/30/2009 11:18 AM, Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> On 06/19/2009 11:08 AM, Joshua Brindle wrote:
+>>>> Daniel J Walsh wrote:
+>>>>> On 06/18/2009 04:14 PM, Joshua Brindle wrote:
+>>>>>> Daniel J Walsh wrote:
+>>>>>>> On 06/18/2009 09:48 AM, Joshua Brindle wrote:
+>>>>>>>> Joshua Brindle wrote:
+>>>>>>>>> Daniel J Walsh wrote:
+>>>>>>>>>> The idea here is to break the seusers file up into lots of little
+>>>>>>>>>> seusers file that can be user specific, also adds the service
+>>>>>>>>>> field to
+>>>>>>>>>> be used by tools like pam_selinux to choose which is the correct
+>>>>>>>>>> context
+>>>>>>>>>> to log a user in as.
+>>>>>>>>>>
+>>>>>>>>>> Patch was added to facilitate IPA handing out SELinux content for
+>>>>>>>>>> selection of roles at login.
+>>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> This patch does not affect the behavior of getseuserbyname(),
+>>>>>>>>> how is
+>>>>>>>>> this expected to work with existing applications?
+>>>>>>>>>
+>>>>>>> I think it only affects pam_selinux.
+>>>>>>
+>>>>>> The function name is very confusing if its only used for pam_selinux,
+>>>>>> I'd like it renamed but seeing that pam_selinux is already deployed
+>>>>>> with
+>>>>>> it I suppose that isn't an option.
+>>>>>>
+>>>>>> Signed-off-by: Joshua Brindle <method@manicmethod.com>
+>>>>>>
+>>>>>>>>
+>>>>>>>> Also, what is the format of this file? What should service be to
+>>>>>>>> test
+>>>>>>>> this on F11?
+>>>>>>>>
+>>>>> It is not only for pam_selinux, but that is currently the only user.
+>>>>>
+>>>>> Really all this function does is add a second variable when
+>>>>> selecting a
+>>>>> users default context. service is just a string that the caller can
+>>>>> specify. It just allows you to change the default context you would
+>>>>> get
+>>>>> on entry to the system. So I guess you could get use similar calls to
+>>>>> get different context depending on whether or not you are on the
+>>>>> console. Imagine a dbus service which would run with one context if
+>>>>> you
+>>>>> we logged onto the console versus a different context if you were
+>>>>> logged
+>>>>> in via ssh.
+>>>>>
+>>>>
+>>>> On looking at this further, I don't like the format of the file either,
+>>>> why did you choose to make it use colons and not tolerate spaces? First
+>>>> when I tried root: staff_u: s0 it logged me in as system_u and then
+>>>> when
+>>>> I tried root:staff_u:s0 I got logged in correctly. This is a little
+>>>> fragile to expect editing by users and getting unexpectedly logged
+>>>> in as
+>>>> system_u.
+> I am not sure what is going on here, since it should never match on root
+> : or root:
 >
-> Ok.  Well, what if sock_create_lite() took a kern flag like
-> __sock_create() does - could we then use it here to set up the tun
-> socket?
+> This should be falling through to the default user of the
+> /etc/selinux/targeted/seusers file. Since you did not specify a valid
+> "service" name.
+>
+> The interface is looking for something that looks like:
+>
+> *:staff_u:s0
+> or
+> sshd:guest_u:s0
+> login:staff_u:so-s0:c0-c1023
+> xdm:user_u:so
+>
+> I don not currently intend this to be edited by a human, the goal was to
+> allow tools like IPA or other scripting tools to populate these files.
+> The library should return the content as it does, but libselinux or
+> pam_selinux should deny login if the machine is in enforcing mode. The
+> fact that it is giving you a bogus login is a bug in current SELinux.
+>>>>
+>>> The : separated list matches seusers and /etc/passwd so I think it makes
+>>> sense. THe file should require all three fields, that is a bug.
+>>>
+>>
 
-Well, sock_create_lite() relies on an inode which still remains problematic.  
-Unfortunately, I think we are back to TUN specific hooks but I'm growing less 
-upset by this idea with each day, the TUN code really is "special" in every 
-sense of the word.
-
--- 
-paul moore
-linux @ hp
-
+Patch merged in libselinux 2.0.84.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
