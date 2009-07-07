@@ -1,141 +1,182 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n67ICZT3026472
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 14:12:35 -0400
-Received: from g5t0008.atlanta.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n67ICHOj010052
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 18:12:17 GMT
-Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
-	by g5t0008.atlanta.hp.com (Postfix) with ESMTP id E2DD4240ED
-	for <selinux@tycho.nsa.gov>; Tue,  7 Jul 2009 18:12:33 +0000 (UTC)
-From: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH] selinux: Cleanup the socket handling functions
-To: selinux@tycho.nsa.gov
-Date: Tue, 07 Jul 2009 14:12:22 -0400
-Message-ID: <20090707181222.8063.54143.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [Patch 2/2 v7] libsemanage: maintain disable dontaudit state
+ between handle commits
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christopher Pardy <cpardy@redhat.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1246990001.28321.281.camel@moss-pluto.epoch.ncsc.mil>
+References: <4A5386C0.8070802@redhat.com>
+	 <1246989452.28321.277.camel@moss-pluto.epoch.ncsc.mil>
+	 <1246990001.28321.281.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 07 Jul 2009 14:17:37 -0400
+Message-Id: <1246990657.28321.282.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A few small cleanups to the SELinux sock/socket hooks:
+On Tue, 2009-07-07 at 14:06 -0400, Stephen Smalley wrote:
+> On Tue, 2009-07-07 at 13:57 -0400, Stephen Smalley wrote:
+> > On Tue, 2009-07-07 at 13:32 -0400, Christopher Pardy wrote:
+> > > Currently any changes made to the policy which require committing a handle cause dontaudit rules to be re-enabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is connected. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules. In the event that a the file cannot be created a call to commit will fail.
+> > >    
+> > > Signed-off-by: Christopher Pardy <cpardy@redhat.com>
+> > 
+> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > 
+> > I'll fix up the duplicate diff (you have a spelling correction that was
+> > already committed) and clean up a couple of minor things when I commit
+> > it along with the libsepol and semodule patches.
+> 
+> Oops.  I made a mistake - semanage_fname() is only the file suffix.
+> I'll switch it to use semanage_path(SEMANAGE_TMP,
+> SEMANAGE_DISABLE_DONTAUDIT).
 
- * Remove sk_alloc_security() by moving the code into the
-   selinux_sk_alloc_security() hook, move the
-   selinux_netlbl_sk_security_reset() up above the sk->sk_security assignment
-   while we are at it
- * Remove sk_free_security() by movingthe code into the
-   selinux_sk_free_security() hook
- * Make use of current_security() in selinux_socket_create() and
-   selinux_socket_post_create()
+Final version of the patch.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
-
- security/selinux/hooks.c |   59 ++++++++++++++++------------------------------
- 1 files changed, 21 insertions(+), 38 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 15c2a08..aa2d3fd 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -298,32 +298,6 @@ static void superblock_free_security(struct super_block *sb)
- 	kfree(sbsec);
+diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+index 0123d1d..d56db9d 100644
+--- a/libsemanage/include/semanage/handle.h
++++ b/libsemanage/include/semanage/handle.h
+@@ -69,6 +69,9 @@ void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
+  * 1 for yes, 0 for no (default) */
+ void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+ 
++/*Get whether or not dontaudits will be disabled upon commit */
++int semanage_get_disable_dontaudit(semanage_handle_t * handle);
++
+ /* Set whether or not to disable dontaudits upon commit */
+ void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+ 
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index cfc1fed..56f7b05 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <sepol/module.h>
++#include <sepol/handle.h>
+ #include <selinux/selinux.h>
+ 
+ #include <assert.h>
+@@ -111,6 +112,7 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
+ int semanage_direct_connect(semanage_handle_t * sh)
+ {
+ 	char polpath[PATH_MAX];
++	const char *path;
+ 
+ 	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+ 		 sh->conf->store_path);
+@@ -223,6 +225,13 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 	if (bool_activedb_dbase_init(sh, semanage_bool_dbase_active(sh)) < 0)
+ 		goto err;
+ 
++	/* set the disable dontaudit value */
++	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
++	if (access(path, F_OK) == 0)
++		sepol_set_disable_dontaudit(sh->sepolh, 1);
++	else
++		sepol_set_disable_dontaudit(sh->sepolh, 0);
++
+ 	return STATUS_SUCCESS;
+ 
+       err:
+@@ -645,7 +654,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	char **mod_filenames = NULL;
+ 	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
+ 	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+-	const char *linked_filename = NULL, *ofilename = NULL;
++	const char *linked_filename = NULL, *ofilename = NULL, *path;
+ 	sepol_module_package_t *base = NULL;
+ 	int retval = -1, num_modfiles = 0, i;
+ 	sepol_policydb_t *out = NULL;
+@@ -669,6 +678,27 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	dbase_config_t *pfcontexts = semanage_fcontext_dbase_policy(sh);
+ 	dbase_config_t *seusers = semanage_seuser_dbase_local(sh);
+ 
++	/* Create or remove the disable_dontaudit flag file. */
++	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
++	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
++		FILE *touch;
++		touch = fopen(path, "w");
++		if (touch != NULL) {
++			if (fclose(touch) != 0) {
++				ERR(sh, "Error attempting to create disable_dontaudit flag.");
++				goto cleanup;
++			}
++		} else {
++			ERR(sh, "Error attempting to create disable_dontaudit flag.");
++			goto cleanup;
++		}
++	} else {
++		if (remove(path) == -1 && errno != ENOENT) {
++			ERR(sh, "Error removing the disable_dontaudit flag.");
++			goto cleanup;
++		}
++	}
++
+ 	/* Before we do anything else, flush the join to its component parts.
+ 	 * This *does not* flush to disk automatically */
+ 	if (users->dtable->is_modified(users->dbase)) {
+diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+index d677d3d..0605402 100644
+--- a/libsemanage/src/handle.c
++++ b/libsemanage/src/handle.c
+@@ -110,6 +110,13 @@ void semanage_set_create_store(semanage_handle_t * sh, int create_store)
+ 	return;
  }
  
--static int sk_alloc_security(struct sock *sk, int family, gfp_t priority)
--{
--	struct sk_security_struct *ssec;
--
--	ssec = kzalloc(sizeof(*ssec), priority);
--	if (!ssec)
--		return -ENOMEM;
--
--	ssec->peer_sid = SECINITSID_UNLABELED;
--	ssec->sid = SECINITSID_UNLABELED;
--	sk->sk_security = ssec;
--
--	selinux_netlbl_sk_security_reset(ssec);
--
--	return 0;
--}
--
--static void sk_free_security(struct sock *sk)
--{
--	struct sk_security_struct *ssec = sk->sk_security;
--
--	sk->sk_security = NULL;
--	selinux_netlbl_sk_security_free(ssec);
--	kfree(ssec);
--}
--
- /* The security server must be initialized before
-    any labeling or access decisions can be provided. */
- extern int ss_initialized;
-@@ -3651,30 +3625,24 @@ out:
- static int selinux_socket_create(int family, int type,
- 				 int protocol, int kern)
- {
--	const struct cred *cred = current_cred();
--	const struct task_security_struct *tsec = cred->security;
-+	const struct task_security_struct *tsec = current_security();
- 	u32 sid, newsid;
- 	u16 secclass;
--	int err = 0;
- 
- 	if (kern)
--		goto out;
-+		return 0;
- 
- 	sid = tsec->sid;
- 	newsid = tsec->sockcreate_sid ?: sid;
--
- 	secclass = socket_type_to_security_class(family, type, protocol);
--	err = avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
- 
--out:
--	return err;
-+	return avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
- }
- 
- static int selinux_socket_post_create(struct socket *sock, int family,
- 				      int type, int protocol, int kern)
- {
--	const struct cred *cred = current_cred();
--	const struct task_security_struct *tsec = cred->security;
-+	const struct task_security_struct *tsec = current_security();
- 	struct inode_security_struct *isec;
- 	struct sk_security_struct *sksec;
- 	u32 sid, newsid;
-@@ -4189,12 +4157,27 @@ out:
- 
- static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
- {
--	return sk_alloc_security(sk, family, priority);
-+	struct sk_security_struct *ssec;
++int semanage_get_disable_dontaudit(semanage_handle_t * sh)
++{
++	assert(sh != NULL);
 +
-+	ssec = kzalloc(sizeof(*ssec), priority);
-+	if (!ssec)
-+		return -ENOMEM;
++	return sepol_get_disable_dontaudit(sh->sepolh);
++}
 +
-+	ssec->peer_sid = SECINITSID_UNLABELED;
-+	ssec->sid = SECINITSID_UNLABELED;
-+	selinux_netlbl_sk_security_reset(ssec);
-+	sk->sk_security = ssec;
-+
-+	return 0;
- }
- 
- static void selinux_sk_free_security(struct sock *sk)
+ void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
  {
--	sk_free_security(sk);
-+	struct sk_security_struct *ssec = sk->sk_security;
-+
-+	sk->sk_security = NULL;
-+	selinux_netlbl_sk_security_free(ssec);
-+	kfree(ssec);
- }
+ 	assert(sh != NULL);
+diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
+index b091344..4c2996e 100644
+--- a/libsemanage/src/libsemanage.map
++++ b/libsemanage/src/libsemanage.map
+@@ -15,7 +15,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_iface_*; semanage_port_*; semanage_context_*;
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+-	  semanage_is_connected; semanage_set_disable_dontaudit;
++	  semanage_is_connected; semanage_get_disable_dontaudit; semanage_set_disable_dontaudit;
+ 	  semanage_mls_enabled;
+   local: *;
+ };
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 35999e0..6d4c3ce 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -114,6 +114,7 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
+ 	"/users_extra",
+ 	"/netfilter_contexts",
+ 	"/file_contexts.homedirs",
++	"/disable_dontaudit",
+ };
  
- static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
+ /* A node used in a linked list of file contexts; used for sorting.
+diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+index 3cf33ac..112edb6 100644
+--- a/libsemanage/src/semanage_store.h
++++ b/libsemanage/src/semanage_store.h
+@@ -58,6 +58,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_USERS_EXTRA,
+ 	SEMANAGE_NC,
+ 	SEMANAGE_FC_HOMEDIRS,
++	SEMANAGE_DISABLE_DONTAUDIT,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
+ 
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
