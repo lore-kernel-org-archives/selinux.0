@@ -1,71 +1,346 @@
-Message-ID: <4A53857C.7000401@redhat.com>
-Date: Tue, 07 Jul 2009 13:27:24 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n67HUtRo020096
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 13:30:55 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n67HUaOj019504
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 17:30:37 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n67HUstw007203
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 13:30:54 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n67HUr9L031045
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 13:30:53 -0400
+Received: from [10.16.3.86] (dhcp-100-3-86.bos.redhat.com [10.16.3.86])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n67HUrKK013395
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jul 2009 13:30:53 -0400
+Message-ID: <4A538647.4020905@redhat.com>
+Date: Tue, 07 Jul 2009 13:30:47 -0400
+From: Christopher Pardy <cpardy@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com> <4A4B5A27.9000704@redhat.com> <4A536ECD.3050103@manicmethod.com> <4A53725A.5050209@manicmethod.com> <4A537790.8030209@redhat.com> <4A53830A.7000602@manicmethod.com>
-In-Reply-To: <4A53830A.7000602@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+Subject: Re: [Patch 2/2 v6] libsemanage: maintain disable dontaudit state
+ between handle commits
+References: <4A4B656D.1030004@redhat.com>  <4A4B874E.8020402@redhat.com>	 <1246467842.13464.192.camel@moss-pluto.epoch.ncsc.mil>	 <4A4B9FA8.1040606@redhat.com> <4A4C168C.2040900@redhat.com>	 <4A4C17D1.3060208@redhat.com>	 <1246538797.13464.277.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CBC6C.5090709@redhat.com>	 <1246544004.13464.299.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CC469.3050805@redhat.com>	 <1246545328.13464.317.camel@moss-pluto.epoch.ncsc.mil>	 <4A4CD320.2090706@redhat.com>	 <1246554554.13464.356.camel@moss-pluto.epoch.ncsc.mil>	 <4A51ED89.8010001@redhat.com>  <4A51EEA5.4070802@redhat.com>	 <1246888018.28321.23.camel@moss-pluto.epoch.ncsc.mil> <1246888326.28321.26.camel@moss-pluto.epoch.ncsc.mil> <4A520D47.4040708@redhat.com> <4A52100C.3010302@redhat.com> <4A523652.2040603@redhat.com> <4A524C27.7020601@redhat.com> <4A535240.1000900@redhat.com> <4A5372D6.80405@redhat.com>
+In-Reply-To: <4A5372D6.80405@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------010404020303030505040307"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/07/2009 01:16 PM, Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> On 07/07/2009 12:05 PM, Joshua Brindle wrote:
->>> Joshua Brindle wrote:
->>>> Daniel J Walsh wrote:
->>>>> The interface is looking for something that looks like:
->>>>>
->>>>> *:staff_u:s0
->>>>> or
->>>>> sshd:guest_u:s0
->>>>> login:staff_u:so-s0:c0-c1023
->>>>> xdm:user_u:so
->>>>>
->>>>> I don not currently intend this to be edited by a human, the goal
->>>>> was to
->>>>> allow tools like IPA or other scripting tools to populate these files.
->>>>> The library should return the content as it does, but libselinux or
->>>>> pam_selinux should deny login if the machine is in enforcing mode. The
->>>>> fact that it is giving you a bogus login is a bug in current SELinux.
->>>>>>>>
->>>>>>> The : separated list matches seusers and /etc/passwd so I think it
->>>>>>> makes
->>>>>>> sense. THe file should require all three fields, that is a bug.
->>>>>>>
->>>>>>
->>>>
->>>> Patch merged in libselinux 2.0.84.
->>>>
->>>
->>> Even though I merged this I'm a little concerned about how fragile it
->>> is. For example, I added:
->>>
->>> sshd:staff_u:SystemLow
->>>
->>> to /etc/selinux/targeted/logins/root
->>>
->>> and when I rebooted and logged in I was unconfined_u. The problem was
->>> that mcstrans hadn't been started. The fact that I can essentially get
->>> unconfined access by bringing mcstrans down somehow is _very_
->>> concerning. Granted this only happens if you are using translated levels
->>> but I think that will be very common in practice (so that the IPA
->>> infrastructure doesn't need to know the label encodings of every
->>> system).
->>>
->>> This is badness waiting to happen :\
->> But the bug here is returning an invalid context. We should return an
->> error and not let you login.
->
-> Are you going to do this or do you need me to?
-If you set the flag
+This is a multi-part message in MIME format.
+--------------010404020303030505040307
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-REQUIRESEUSERS=1
+Currently any changes made to the policy which require committing a handle cause dontaudit rules to be disabled. This is confusing, and frustrating for users who want to edit policy with dontaudit rules turned off. This patch allows semanage to remember the last state of the dontaudit rules and apply them as default whenever a handle is connected. Additionally other functions may check for the file semanage creates to determine if dontaudit rules are turned on. This knowledge can be useful for tools like SETroubleshoot which may want to change their behavior depending on the state of the dontaudit rules. In the event that a the file cannot be created a call to commit will fail.
+   
+Signed-off-by: Christopher Pardy <cpardy@redhat.com>
 
-in /etc/selinux/config.  Does it reject the login?
+---
+ libsemanage/include/semanage/handle.h |    3 +++
+ libsemanage/src/direct_api.c          |   32 +++++++++++++++++++++++++++++++-
+ libsemanage/src/handle.c              |    9 ++++++++-
+ libsemanage/src/libsemanage.map       |    2 +-
+ libsemanage/src/semanage_store.c      |    1 +
+ libsemanage/src/semanage_store.h      |    1 +
+ 6 files changed, 45 insertions(+), 3 deletions(-)
+
+
+diff -urpN selinux.orig2/libsemanage/include/semanage/handle.h selinux.orig3/libsemanage/include/semanage/handle.h
+--- selinux.orig2/libsemanage/include/semanage/handle.h	2009-07-01 21:15:17.224235939 -0400
++++ selinux.orig3/libsemanage/include/semanage/handle.h	2009-07-07 13:27:46.543350374 -0400
+@@ -69,6 +69,9 @@ void semanage_set_rebuild(semanage_handl
+  * 1 for yes, 0 for no (default) */
+ void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+ 
++/*Get whether or not to dontaudits will be disabled upon commit */
++int semanage_get_disable_dontaudit(semanage_handle_t * handle);
++
+ /* Set whether or not to disable dontaudits upon commit */
+ void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+ 
+diff -urpN selinux.orig2/libsemanage/src/direct_api.c selinux.orig3/libsemanage/src/direct_api.c
+--- selinux.orig2/libsemanage/src/direct_api.c	2009-07-01 21:15:17.264236347 -0400
++++ selinux.orig3/libsemanage/src/direct_api.c	2009-07-07 13:26:25.135320503 -0400
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <sepol/module.h>
++#include <sepol/handle.h>
+ #include <selinux/selinux.h>
+ 
+ #include <assert.h>
+@@ -111,6 +112,7 @@ int semanage_direct_is_managed(semanage_
+ int semanage_direct_connect(semanage_handle_t * sh)
+ {
+ 	char polpath[PATH_MAX];
++	const char *path;
+ 
+ 	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+ 		 sh->conf->store_path);
+@@ -223,6 +225,13 @@ int semanage_direct_connect(semanage_han
+ 	if (bool_activedb_dbase_init(sh, semanage_bool_dbase_active(sh)) < 0)
+ 		goto err;
+ 
++	/* set the disable dontaudit value */
++	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
++	if(access(path,F_OK) == 0)
++		sepol_set_disable_dontaudit(sh->sepolh,1);
++	else
++		sepol_set_disable_dontaudit(sh->sepolh,0);
++
+ 	return STATUS_SUCCESS;
+ 
+       err:
+@@ -645,7 +654,7 @@ static int semanage_direct_commit(semana
+ 	char **mod_filenames = NULL;
+ 	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
+ 	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+-	const char *linked_filename = NULL, *ofilename = NULL;
++	const char *linked_filename = NULL, *ofilename = NULL, *path;
+ 	sepol_module_package_t *base = NULL;
+ 	int retval = -1, num_modfiles = 0, i;
+ 	sepol_policydb_t *out = NULL;
+@@ -669,6 +678,27 @@ static int semanage_direct_commit(semana
+ 	dbase_config_t *pfcontexts = semanage_fcontext_dbase_policy(sh);
+ 	dbase_config_t *seusers = semanage_seuser_dbase_local(sh);
+ 
++	/* Immediently create the disable_dontaudit flag */
++	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
++	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
++		FILE *touch;
++		touch = fopen(path,"w");
++		if (touch != NULL) {
++			if (fclose(touch) != 0) {
++				ERR(sh,"Error attempting to create disable_dontaudit flag.");
++				goto cleanup;
++			}
++		} else {
++			ERR(sh,"Error attempting to create disable_dontaudit flag.");
++			goto cleanup;
++		}
++	} else {
++		if (remove(path) == -1 && errno != ENOENT) {
++			ERR(sh,"Error removing the disable_dontaudit flag.");
++			goto cleanup;
++		}
++	}
++
+ 	/* Before we do anything else, flush the join to its component parts.
+ 	 * This *does not* flush to disk automatically */
+ 	if (users->dtable->is_modified(users->dbase)) {
+diff -urpN selinux.orig2/libsemanage/src/handle.c selinux.orig3/libsemanage/src/handle.c
+--- selinux.orig2/libsemanage/src/handle.c	2009-07-01 21:15:17.288238017 -0400
++++ selinux.orig3/libsemanage/src/handle.c	2009-07-07 12:05:02.964347072 -0400
+@@ -110,6 +110,13 @@ void semanage_set_create_store(semanage_
+ 	return;
+ }
+ 
++int semanage_get_disable_dontaudit(semanage_handle_t * sh)
++{
++	assert(sh != NULL);
++
++	return sepol_get_disable_dontaudit(sh->sepolh);
++}
++
+ void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
+ {
+ 	assert(sh != NULL);
+@@ -264,7 +271,7 @@ int semanage_commit(semanage_handle_t * 
+ 	assert(sh != NULL && sh->funcs != NULL && sh->funcs->commit != NULL);
+ 	if (!sh->is_in_transaction) {
+ 		ERR(sh,
+-		    "Will not commit because caller does not have a tranaction lock yet.");
++		    "Will not commit because caller does not have a transaction lock yet.");
+ 		return -1;
+ 	}
+ 	retval = sh->funcs->commit(sh);
+diff -urpN selinux.orig2/libsemanage/src/libsemanage.map selinux.orig3/libsemanage/src/libsemanage.map
+--- selinux.orig2/libsemanage/src/libsemanage.map	2009-07-01 21:15:17.290237650 -0400
++++ selinux.orig3/libsemanage/src/libsemanage.map	2009-07-06 13:26:53.591167982 -0400
+@@ -15,7 +15,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_iface_*; semanage_port_*; semanage_context_*;
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+-	  semanage_is_connected; semanage_set_disable_dontaudit;
++	  semanage_is_connected; semanage_get_disable_dontaudit; semanage_set_disable_dontaudit;
+ 	  semanage_mls_enabled;
+   local: *;
+ };
+diff -urpN selinux.orig2/libsemanage/src/semanage_store.c selinux.orig3/libsemanage/src/semanage_store.c
+--- selinux.orig2/libsemanage/src/semanage_store.c	2009-07-01 21:15:17.271236564 -0400
++++ selinux.orig3/libsemanage/src/semanage_store.c	2009-07-06 13:26:53.598164077 -0400
+@@ -114,6 +114,7 @@ static const char *semanage_sandbox_path
+ 	"/users_extra",
+ 	"/netfilter_contexts",
+ 	"/file_contexts.homedirs",
++	"/disable_dontaudit",
+ };
+ 
+ /* A node used in a linked list of file contexts; used for sorting.
+diff -urpN selinux.orig2/libsemanage/src/semanage_store.h selinux.orig3/libsemanage/src/semanage_store.h
+--- selinux.orig2/libsemanage/src/semanage_store.h	2009-07-01 21:15:17.262235597 -0400
++++ selinux.orig3/libsemanage/src/semanage_store.h	2009-07-06 13:26:53.626166474 -0400
+@@ -58,6 +58,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_USERS_EXTRA,
+ 	SEMANAGE_NC,
+ 	SEMANAGE_FC_HOMEDIRS,
++	SEMANAGE_DISABLE_DONTAUDIT,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
+
+--------------010404020303030505040307
+Content-Type: text/plain;
+ name="selinux.patch2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="selinux.patch2"
+
+diff -urpN selinux.orig2/libsemanage/include/semanage/handle.h selinux.orig3/libsemanage/include/semanage/handle.h
+--- selinux.orig2/libsemanage/include/semanage/handle.h	2009-07-01 21:15:17.224235939 -0400
++++ selinux.orig3/libsemanage/include/semanage/handle.h	2009-07-07 13:27:46.543350374 -0400
+@@ -69,6 +69,9 @@ void semanage_set_rebuild(semanage_handl
+  * 1 for yes, 0 for no (default) */
+ void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+ 
++/*Get whether or not to dontaudits will be disabled upon commit */
++int semanage_get_disable_dontaudit(semanage_handle_t * handle);
++
+ /* Set whether or not to disable dontaudits upon commit */
+ void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+ 
+diff -urpN selinux.orig2/libsemanage/src/direct_api.c selinux.orig3/libsemanage/src/direct_api.c
+--- selinux.orig2/libsemanage/src/direct_api.c	2009-07-01 21:15:17.264236347 -0400
++++ selinux.orig3/libsemanage/src/direct_api.c	2009-07-07 13:26:25.135320503 -0400
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <sepol/module.h>
++#include <sepol/handle.h>
+ #include <selinux/selinux.h>
+ 
+ #include <assert.h>
+@@ -111,6 +112,7 @@ int semanage_direct_is_managed(semanage_
+ int semanage_direct_connect(semanage_handle_t * sh)
+ {
+ 	char polpath[PATH_MAX];
++	const char *path;
+ 
+ 	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+ 		 sh->conf->store_path);
+@@ -223,6 +225,13 @@ int semanage_direct_connect(semanage_han
+ 	if (bool_activedb_dbase_init(sh, semanage_bool_dbase_active(sh)) < 0)
+ 		goto err;
+ 
++	/* set the disable dontaudit value */
++	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
++	if(access(path,F_OK) == 0)
++		sepol_set_disable_dontaudit(sh->sepolh,1);
++	else
++		sepol_set_disable_dontaudit(sh->sepolh,0);
++
+ 	return STATUS_SUCCESS;
+ 
+       err:
+@@ -645,7 +654,7 @@ static int semanage_direct_commit(semana
+ 	char **mod_filenames = NULL;
+ 	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
+ 	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+-	const char *linked_filename = NULL, *ofilename = NULL;
++	const char *linked_filename = NULL, *ofilename = NULL, *path;
+ 	sepol_module_package_t *base = NULL;
+ 	int retval = -1, num_modfiles = 0, i;
+ 	sepol_policydb_t *out = NULL;
+@@ -669,6 +678,27 @@ static int semanage_direct_commit(semana
+ 	dbase_config_t *pfcontexts = semanage_fcontext_dbase_policy(sh);
+ 	dbase_config_t *seusers = semanage_seuser_dbase_local(sh);
+ 
++	/* Immediently create the disable_dontaudit flag */
++	path = semanage_fname(SEMANAGE_DISABLE_DONTAUDIT);
++	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
++		FILE *touch;
++		touch = fopen(path,"w");
++		if (touch != NULL) {
++			if (fclose(touch) != 0) {
++				ERR(sh,"Error attempting to create disable_dontaudit flag.");
++				goto cleanup;
++			}
++		} else {
++			ERR(sh,"Error attempting to create disable_dontaudit flag.");
++			goto cleanup;
++		}
++	} else {
++		if (remove(path) == -1 && errno != ENOENT) {
++			ERR(sh,"Error removing the disable_dontaudit flag.");
++			goto cleanup;
++		}
++	}
++
+ 	/* Before we do anything else, flush the join to its component parts.
+ 	 * This *does not* flush to disk automatically */
+ 	if (users->dtable->is_modified(users->dbase)) {
+diff -urpN selinux.orig2/libsemanage/src/handle.c selinux.orig3/libsemanage/src/handle.c
+--- selinux.orig2/libsemanage/src/handle.c	2009-07-01 21:15:17.288238017 -0400
++++ selinux.orig3/libsemanage/src/handle.c	2009-07-07 12:05:02.964347072 -0400
+@@ -110,6 +110,13 @@ void semanage_set_create_store(semanage_
+ 	return;
+ }
+ 
++int semanage_get_disable_dontaudit(semanage_handle_t * sh)
++{
++	assert(sh != NULL);
++
++	return sepol_get_disable_dontaudit(sh->sepolh);
++}
++
+ void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disable_dontaudit)
+ {
+ 	assert(sh != NULL);
+@@ -264,7 +271,7 @@ int semanage_commit(semanage_handle_t * 
+ 	assert(sh != NULL && sh->funcs != NULL && sh->funcs->commit != NULL);
+ 	if (!sh->is_in_transaction) {
+ 		ERR(sh,
+-		    "Will not commit because caller does not have a tranaction lock yet.");
++		    "Will not commit because caller does not have a transaction lock yet.");
+ 		return -1;
+ 	}
+ 	retval = sh->funcs->commit(sh);
+diff -urpN selinux.orig2/libsemanage/src/libsemanage.map selinux.orig3/libsemanage/src/libsemanage.map
+--- selinux.orig2/libsemanage/src/libsemanage.map	2009-07-01 21:15:17.290237650 -0400
++++ selinux.orig3/libsemanage/src/libsemanage.map	2009-07-06 13:26:53.591167982 -0400
+@@ -15,7 +15,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_iface_*; semanage_port_*; semanage_context_*;
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+-	  semanage_is_connected; semanage_set_disable_dontaudit;
++	  semanage_is_connected; semanage_get_disable_dontaudit; semanage_set_disable_dontaudit;
+ 	  semanage_mls_enabled;
+   local: *;
+ };
+diff -urpN selinux.orig2/libsemanage/src/semanage_store.c selinux.orig3/libsemanage/src/semanage_store.c
+--- selinux.orig2/libsemanage/src/semanage_store.c	2009-07-01 21:15:17.271236564 -0400
++++ selinux.orig3/libsemanage/src/semanage_store.c	2009-07-06 13:26:53.598164077 -0400
+@@ -114,6 +114,7 @@ static const char *semanage_sandbox_path
+ 	"/users_extra",
+ 	"/netfilter_contexts",
+ 	"/file_contexts.homedirs",
++	"/disable_dontaudit",
+ };
+ 
+ /* A node used in a linked list of file contexts; used for sorting.
+diff -urpN selinux.orig2/libsemanage/src/semanage_store.h selinux.orig3/libsemanage/src/semanage_store.h
+--- selinux.orig2/libsemanage/src/semanage_store.h	2009-07-01 21:15:17.262235597 -0400
++++ selinux.orig3/libsemanage/src/semanage_store.h	2009-07-06 13:26:53.626166474 -0400
+@@ -58,6 +58,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_USERS_EXTRA,
+ 	SEMANAGE_NC,
+ 	SEMANAGE_FC_HOMEDIRS,
++	SEMANAGE_DISABLE_DONTAUDIT,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
+ 
+
+--------------010404020303030505040307--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
