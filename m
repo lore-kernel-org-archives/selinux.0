@@ -1,91 +1,69 @@
-Subject: Re: [RFC PATCH v2] selinux: Fix a problem with socket labels and
- the TUN driver
+Subject: Re: [PATCH 1/4 -v2] Namespacing of security/selinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200907061643.08855.paul.moore@hp.com>
-References: <20090702212724.7080.70214.stgit@flek.lan>
-	 <1246885125.27287.38.camel@moss-pluto.epoch.ncsc.mil>
-	 <200907061643.08855.paul.moore@hp.com>
+To: Thomas Liu <tliu@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1246909386.28321.148.camel@moss-pluto.epoch.ncsc.mil>
+References: <1246906718.2460.12.camel@Ares>
+	 <1246909386.28321.148.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 07 Jul 2009 07:51:13 -0400
-Message-Id: <1246967473.28321.158.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 07 Jul 2009 08:06:34 -0400
+Message-Id: <1246968394.28321.171.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-07-06 at 16:43 -0400, Paul Moore wrote:
-> On Monday 06 July 2009 08:58:45 am Stephen Smalley wrote:
-> > On Thu, 2009-07-02 at 17:27 -0400, Paul Moore wrote:
-> > > There is a problem where packets being sent by the TUN driver are not
-> > > correctly handled by SELinux in the postrouting code.  The issue is that
-> > > the SELinux network access controls rely on a packet's associated sock,
-> > > when present, for it's security label.  The TUN driver does create a sock
-> > > to send network traffic but it only calls into the LSM/SELinux code once
-> > > via the security_sk_alloc() hook which never fully initializes the sock's
-> > > label.  This patch attempts to correct this problem by adding the normal
-> > > LSM socket creation hooks to the TUN driver.
-> > >
-> > > NOTE: this is an RFC patch intended to demonstrate a possible solution
-> > > completely different from the v1 patch, but it is still crude, untested
-> > > and not fully hashed out just yet.  Please take a look and see if this
-> > > approach is even worth pursuing ... thanks.
+On Mon, 2009-07-06 at 15:43 -0400, Stephen Smalley wrote:
+> On Mon, 2009-07-06 at 14:58 -0400, Thomas Liu wrote:
+> > This patch namespaces the functions in security/selinux, prefixing
+> > non static functions with selinux_
+> > 
+> > Patch 1 includes namespacing of the security/selinux folder,
+> > not including security/selinux/ss.
+> > 
+> > Added selinux_ as a prefix to non static functions, not including
+> > functions beginning with avc_.  Swapped security_ with selinux_.
+> > 
+> > Signed-off-by: Thomas Liu <tliu@redhat.com>
+> > ---
+> > This new set of patches no longer uses selinux_ss_ and no longer
+> > puts the selinux_ prefix in front of avc_.
+> > 
+> > Also fixed a minor mishap with a double underscore not compiling.
 > 
-> [I'm replying out of order here since your last comment seemed most important]
+> Two things:
+> 1) The goal is for the kernel to build and work after each patch in a
+> patch series, particularly to avoid breaking git bisect.  Yes, that's
+> hard to achieve, and it may just mean folding all of the patches into
+> one if you can't find a logical way to split them up that meets that
+> requirement.  Or you could follow the original outline I gave, i.e. one
+> patch to rename just the security_ functions to selinux_, then one to
+> rename certain key global variables, and then progress to the rest of
+> the code.
+> 2) scripts/checkpatch.pl in the kernel tree warns about lines over 80
+> characters, which are introduced as a result of the renaming and may
+> require breaking and reformatting existing lines.
 > 
-> > > @@ -987,6 +991,12 @@ static int tun_set_iff(struct net *net, struct file
-> > > *file, struct ifreq *ifr) tun->sk = sk;
-> > >  		container_of(sk, struct tun_sock, sk)->tun = tun;
-> > >
-> > > +		/* XXX - correct placement? */
-> > > +		err = security_socket_post_create(tun->socket,
-> > > +						  AF_UNSPEC, SOCK_RAW, 0, 0);
-> > > +		if (err < 0)
-> > > +			goto err_free_sk;
-> > > +
-> >
-> > Current socket_post_create() hook presumes that the socket has an inode
-> > with an allocated security struct, which I don't think we have here.
-> >
-> > Wondering if it ought to just call sock_create_lite(), although that
-> > will mark it as a kernel socket.  How do we actually want the socket
-> > labeled - based on creating process or as a kernel-private socket?
-> 
-> I've been working under the assumption that we want the socket labeled based 
-> on the creating process as that would ensure that any traffic coming from that 
-> process through the TUN driver would be treated as if it had come from the 
-> creating process.  Labeling the socket as a kernel socket robs us of the 
-> ability to provide decent access control and labeling for traffic passing 
-> through the TUN driver.
-> 
-> Unfortunately, this gets a little sticky with persistent TUN/TAP devices but 
-> the problem should be solvable with some additional access checks when 
-> attaching to existing TUN/TAP devices.
-> 
-> > > @@ -946,6 +946,10 @@ static int tun_set_iff(struct net *net, struct file
-> > > *file, struct ifreq *ifr) if (!capable(CAP_NET_ADMIN))
-> > >  			return -EPERM;
-> > >
-> > > +		err = security_socket_create(AF_UNSPEC, SOCK_RAW, 0, 0);
-> > > +		if (err < 0)
-> > > +			return err;
-> > > +
-> >
-> > This is a permission checking hook only, so it isn't necessary to
-> > setting up the socket security state, and it is questionable as to
-> > whether we can add such a check unconditionally (it may cause denial
-> > under existing policies that would have previously been allowed), or
-> > whether it is necessary given that the process must have net_admin
-> > capability.
-> 
-> My thinking was that a permission check might not be a bad thing here since we 
-> may want the ability to restrict the creation of TUN/TAP devices to certain 
-> domains.  True, you could do that to some extent with the /dev/tun file but 
-> that is pretty coarse.
+> Also, it would be good at this point to get others' opinions on the
+> scope of the renaming.  Renaming the SELinux security_ functions is
+> useful to avoid confusion/conflicts with the security framework.
+> Renaming ss_initialized, policydb and sidtab is likewise useful to avoid
+> conflicts.  Not as sure about the generic data structures and their
+> functions, which do at least have some prefix already.
 
-Ok.  Well, what if sock_create_lite() took a kern flag like
-__sock_create() does - could we then use it here to set up the tun
-socket?
+Ok, why don't we proceed this way:
+1)  Create one patch that only renames security_ functions within
+selinux to sel_ or selinux_ (I don't care which; Paul seemed to prefer
+sel_ - James or Eric?).  That should be non-controversial and easy to
+merge.
+2) Create a second patch that renames key global variables
+(ss_initialized, policydb, sidtab, others?) to have the same prefix.
+But don't yet rename the data types.
+
+For both patches, check them with checkpatch.pl and reformat any lines
+that are too long as a result.
+Then wait on the changing the rest, until we have some consensus on what
+is desired.
 
 -- 
 Stephen Smalley
