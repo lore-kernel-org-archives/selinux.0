@@ -1,78 +1,57 @@
-Message-ID: <4A54A794.2020705@manicmethod.com>
-Date: Wed, 08 Jul 2009 10:05:08 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This patch add seusers support to SELinux
-References: <4A11A6EE.3070903@redhat.com> <4A3A4366.3010606@manicmethod.com> <4A3A45B0.4070803@manicmethod.com> <4A3A97B0.6030407@redhat.com> <4A3AA03E.4010208@manicmethod.com> <4A3B6110.8010308@redhat.com> <4A3BA9DC.2060406@manicmethod.com> <4A3BACE9.6000403@redhat.com> <4A4A2CE1.5060204@manicmethod.com> <4A4B5A27.9000704@redhat.com> <4A536ECD.3050103@manicmethod.com> <4A53725A.5050209@manicmethod.com> <4A537790.8030209@redhat.com> <4A53830A.7000602@manicmethod.com> <4A53857C.7000401@redhat.com>
-In-Reply-To: <4A53857C.7000401@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n68HuMd6011105
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jul 2009 13:56:22 -0400
+Received: from bosmailout08.eigbox.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n68Hv2Cj013957
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jul 2009 17:57:02 GMT
+Received: from bosmailscan14.eigbox.net ([10.20.15.14])
+	by bosmailout08.eigbox.net with esmtp (Exim)
+	id 1MObNV-0003Kw-Bb
+	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:21 -0400
+Received: from bosimpout01.eigbox.net ([10.20.55.1])
+	by bosmailscan14.eigbox.net with esmtp (Exim)
+	id 1MObNV-0007b8-6a
+	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:21 -0400
+Received: from [64.17.255.138] (helo=BrianKrusicW.logan.internal)
+	by bosauthsmtp06.eigbox.net with esmtpa (Exim)
+	id 1MObNU-0006aD-DR
+	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:20 -0400
+Message-Id: <5C85BC70-8118-4E7D-8D96-ADAE9F14A905@krusic.com>
+From: Brian Krusic <brian@krusic.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: removing context
+Date: Wed, 8 Jul 2009 10:56:13 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> On 07/07/2009 01:16 PM, Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> On 07/07/2009 12:05 PM, Joshua Brindle wrote:
->>>> Joshua Brindle wrote:
->>>>> Daniel J Walsh wrote:
->>>>>> The interface is looking for something that looks like:
->>>>>>
->>>>>> *:staff_u:s0
->>>>>> or
->>>>>> sshd:guest_u:s0
->>>>>> login:staff_u:so-s0:c0-c1023
->>>>>> xdm:user_u:so
->>>>>>
->>>>>> I don not currently intend this to be edited by a human, the goal
->>>>>> was to
->>>>>> allow tools like IPA or other scripting tools to populate these
->>>>>> files.
->>>>>> The library should return the content as it does, but libselinux or
->>>>>> pam_selinux should deny login if the machine is in enforcing mode.
->>>>>> The
->>>>>> fact that it is giving you a bogus login is a bug in current SELinux.
->>>>>>>>>
->>>>>>>> The : separated list matches seusers and /etc/passwd so I think it
->>>>>>>> makes
->>>>>>>> sense. THe file should require all three fields, that is a bug.
->>>>>>>>
->>>>>>>
->>>>>
->>>>> Patch merged in libselinux 2.0.84.
->>>>>
->>>>
->>>> Even though I merged this I'm a little concerned about how fragile it
->>>> is. For example, I added:
->>>>
->>>> sshd:staff_u:SystemLow
->>>>
->>>> to /etc/selinux/targeted/logins/root
->>>>
->>>> and when I rebooted and logged in I was unconfined_u. The problem was
->>>> that mcstrans hadn't been started. The fact that I can essentially get
->>>> unconfined access by bringing mcstrans down somehow is _very_
->>>> concerning. Granted this only happens if you are using translated
->>>> levels
->>>> but I think that will be very common in practice (so that the IPA
->>>> infrastructure doesn't need to know the label encodings of every
->>>> system).
->>>>
->>>> This is badness waiting to happen :\
->>> But the bug here is returning an invalid context. We should return an
->>> error and not let you login.
->>
->> Are you going to do this or do you need me to?
-> If you set the flag
->
-> REQUIRESEUSERS=1
->
-> in /etc/selinux/config. Does it reject the login?
->
+Hi,
 
-No, log in works fine, with the incorrect context.
+Unsure if this is the right place to post so I apologize in advance.
+
+When doing an ls -lZ, some files show a security context like;
+
+root:object_r:user_home_t:s0
+
+... while some don't.  I do not of selinux enabled although at one  
+point I did.
+
+Does any one know how to remove this context either on a file, dir or  
+file system level?
+
+The reason I ask is that while dump/restore work over NFS, they don't  
+work with selinux context so I keep getting errors like;
+
+restore: ./etc/ysyconfig/network-scripts/ifcfg-eth0: EA set  
+security.selinux:system_u:object_r:etc_t:s0 failed: Operation not  
+supported.
+
+And while the dump/restore work and the files get copied, this error  
+causes my incremental backs to work as full backups.
+
+Thanks in advance,
+- Brian
 
 --
 This message was distributed to subscribers of the selinux mailing list.
