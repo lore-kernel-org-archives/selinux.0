@@ -1,57 +1,87 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n68HuMd6011105
-	for <selinux@tycho.nsa.gov>; Wed, 8 Jul 2009 13:56:22 -0400
-Received: from bosmailout08.eigbox.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n68Hv2Cj013957
-	for <selinux@tycho.nsa.gov>; Wed, 8 Jul 2009 17:57:02 GMT
-Received: from bosmailscan14.eigbox.net ([10.20.15.14])
-	by bosmailout08.eigbox.net with esmtp (Exim)
-	id 1MObNV-0003Kw-Bb
-	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:21 -0400
-Received: from bosimpout01.eigbox.net ([10.20.55.1])
-	by bosmailscan14.eigbox.net with esmtp (Exim)
-	id 1MObNV-0007b8-6a
-	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:21 -0400
-Received: from [64.17.255.138] (helo=BrianKrusicW.logan.internal)
-	by bosauthsmtp06.eigbox.net with esmtpa (Exim)
-	id 1MObNU-0006aD-DR
-	for selinux@tycho.nsa.gov; Wed, 08 Jul 2009 13:56:20 -0400
-Message-Id: <5C85BC70-8118-4E7D-8D96-ADAE9F14A905@krusic.com>
-From: Brian Krusic <brian@krusic.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: removing context
-Date: Wed, 8 Jul 2009 10:56:13 -0700
+Subject: [PATCH 2/3] Make lsm_priv union in lsm_audit.h anonymous
+From: Thomas Liu <tliu@redhat.com>
+To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: chrisw@sous-sol.org, sds@tycho.nsa.gov, eparis@parisplace.org,
+        jmorris@namei.org, etienne.basset@numericable.fr,
+        casey@schaufler-ca.com
+Content-Type: text/plain
+Date: Thu, 09 Jul 2009 10:00:30 -0400
+Message-Id: <1247148030.2276.10.camel@Ares>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Made the lsm_priv union in include/linux/lsm_audit.h
+anonymous.
 
-Unsure if this is the right place to post so I apologize in advance.
+Signed-off-by: Thomas Liu <tliu@redhat.com>
+---
 
-When doing an ls -lZ, some files show a security context like;
+ include/linux/lsm_audit.h     |    2 +-
+ security/smack/smack.h        |    2 +-
+ security/smack/smack_access.c |   10 +++++-----
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-root:object_r:user_home_t:s0
 
-... while some don't.  I do not of selinux enabled although at one  
-point I did.
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index 68f7bce..40d1b84 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
+@@ -86,7 +86,7 @@ struct common_audit_data {
+ 			struct av_decision *avd;
+ 			int result;
+ 		} selinux_audit_data;
+-	} lsm_priv;
++	};
+ 	/* these callback will be implemented by a specific LSM */
+ 	void (*lsm_pre_audit)(struct audit_buffer *, void *);
+ 	void (*lsm_post_audit)(struct audit_buffer *, void *);
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index ff180ed..c6e9aca 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -275,7 +275,7 @@ static inline void smk_ad_init(struct smk_audit_info *a, const char *func,
+ {
+ 	memset(a, 0, sizeof(*a));
+ 	a->a.type = type;
+-	a->a.lsm_priv.smack_audit_data.function = func;
++	a->a.smack_audit_data.function = func;
+ }
+ 
+ static inline void smk_ad_setfield_u_tsk(struct smk_audit_info *a,
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index dd84877..0f9ac81 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -240,9 +240,9 @@ static inline void smack_str_from_perm(char *string, int access)
+ static void smack_log_callback(struct audit_buffer *ab, void *a)
+ {
+ 	struct common_audit_data *ad = a;
+-	struct smack_audit_data *sad = &ad->lsm_priv.smack_audit_data;
++	struct smack_audit_data *sad = &ad->smack_audit_data;
+ 	audit_log_format(ab, "lsm=SMACK fn=%s action=%s",
+-			 ad->lsm_priv.smack_audit_data.function,
++			 ad->smack_audit_data.function,
+ 			 sad->result ? "denied" : "granted");
+ 	audit_log_format(ab, " subject=");
+ 	audit_log_untrustedstring(ab, sad->subject);
+@@ -275,11 +275,11 @@ void smack_log(char *subject_label, char *object_label, int request,
+ 	if (result == 0 && (log_policy & SMACK_AUDIT_ACCEPT) == 0)
+ 		return;
+ 
+-	if (a->lsm_priv.smack_audit_data.function == NULL)
+-		a->lsm_priv.smack_audit_data.function = "unknown";
++	if (a->smack_audit_data.function == NULL)
++		a->smack_audit_data.function = "unknown";
+ 
+ 	/* end preparing the audit data */
+-	sad = &a->lsm_priv.smack_audit_data;
++	sad = &a->smack_audit_data;
+ 	smack_str_from_perm(request_buffer, request);
+ 	sad->subject = subject_label;
+ 	sad->object  = object_label;
 
-Does any one know how to remove this context either on a file, dir or  
-file system level?
 
-The reason I ask is that while dump/restore work over NFS, they don't  
-work with selinux context so I keep getting errors like;
-
-restore: ./etc/ysyconfig/network-scripts/ifcfg-eth0: EA set  
-security.selinux:system_u:object_r:etc_t:s0 failed: Operation not  
-supported.
-
-And while the dump/restore work and the files get copied, this error  
-causes my incremental backs to work as full backups.
-
-Thanks in advance,
-- Brian
 
 --
 This message was distributed to subscribers of the selinux mailing list.
