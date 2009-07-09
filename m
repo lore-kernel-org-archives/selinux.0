@@ -1,44 +1,69 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n69Ep21D022236
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 10:51:03 -0400
-Received: from smtp105.prem.mail.ac4.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n69Eoh3J003106
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 14:50:43 GMT
-Message-ID: <4A5603BF.6010809@schaufler-ca.com>
-Date: Thu, 09 Jul 2009 07:50:39 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Thomas Liu <tliu@redhat.com>, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, chrisw@sous-sol.org, sds@tycho.nsa.gov,
-        jmorris@namei.org, eparis@parisplace.org,
-        etienne.basset@numericable.fr
-Subject: Re: [PATCH 1/3] Move variable function in lsm_audit.h into SMACK
- private space
-References: <1247148029.2276.9.camel@Ares> <4A55FBFC.20306@schaufler-ca.com> <1247149402.2830.16.camel@dhcp235-23.rdu.redhat.com>
-In-Reply-To: <1247149402.2830.16.camel@dhcp235-23.rdu.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 09 Jul 2009 11:03:05 -0400
+Subject: [RFC] Install SELinux policies from rpm package header
+From: Chad Sellers <csellers@tresys.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        Steve Lawrence <slawrence@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Message-ID: <C67B7EE9.A8979%csellers@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> On Thu, 2009-07-09 at 07:17 -0700, Casey Schaufler wrote:
->   
->> Thomas Liu wrote:
->>     
->>> Moved variable function in include/linux/lsm_audit.h into the
->>> smack_audit_data struct since it is never used outside of it.
->>>   
->>>       
->> What value does this change provide?
->>     
->
-> By itself, none other than proper abstracting.  ->function is a smack
-> specific object so it shouldn't be in the generic space.  Along with
-> patch #3 it saves memory on systems that choose to build without SMACK.
->   
+RPM currently has support for security policies to be stored in an rpm
+header but it doesn't currently do anything with the policies. Instead,
+SELinux policy is usually installed through %post scripts. We're planning to
+work with the RPM community to get integrated support for SELinux policy,
+and we'd like to get some feedback on our plans from the SELinux community.
 
-I don't see any problems with it then.
+First, a bit of background. SELinux policy is currently installed through
+%post scripts. This presents several problems. First, this means that policy
+for a given application may not be loaded at the time the files are written
+to disk, preventing those files from being labeled properly, because the
+symbols used to label files need to be in the policy loaded into the kernel.
+Secondly, this means that if multiple packages install policy, each of their
+%post scripts will reload the policy, which is a very expensive operation.
+Consequently, policy is generally kept in a single package to avoid this,
+despite containing many application specific policy modules that might be
+more suited to be included in their application package. There are many
+other problems with the current RPM support which I'd be happy to get into
+as well, but I'll leave them out for now to prevent this email from getting
+too long.
+
+So, what we would like to do is to start including SELinux policy as part of
+the rpm and have rpm install all policies together before files start to hit
+the disk. To do this, we would like to use the already supported %policy
+directive, which stores the policy in the RPM archive header.
+
+We would then install the policy very early (before pretrans). This policy
+load would involve gathering all the policies to be installed from all
+packages, writing them to a temporary location, and calling out to semodule
+to install the SELinux policy modules.
+
+This new support will enable application packages to include their policy
+within their package (e.g. bind includes the bind policy module in the bind
+rpm), which would make it much easier to ensure that the appropriate policy
+version is installed for a given application version. Note that while it is
+possible to include policy within application packages, it is not necessary.
+This new support would still allow a single policy RPM to contain many
+policy modules as we have today. Those policy modules could then be slowly
+split out to be included with the applications they confine as it makes
+sense.
+
+Obviously I'm glossing over many implementation details that would need to
+be worked out. The point of this email is strictly to get feedback on our
+approach. You can see a proof of concept patch that begins this
+implementation, as well as some of our conversation with the RPM community
+here:
+
+http://lists.rpm.org/pipermail/rpm-maint/2009-July/002452.html
+
+Thanks,
+Chad Sellers
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
