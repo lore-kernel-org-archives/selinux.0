@@ -1,69 +1,55 @@
-Date: Thu, 09 Jul 2009 11:03:05 -0400
-Subject: [RFC] Install SELinux policies from rpm package header
-From: Chad Sellers <csellers@tresys.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n69K7EYJ028622
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:14 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n69K7s1f013946
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 20:07:54 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n69K7CtB008741
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:12 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n69K7BAU030935
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:12 -0400
+Received: from localhost.localdomain (vpn-12-24.rdu.redhat.com [10.11.12.24])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n69K76PF022820
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:06 -0400
+Message-ID: <4A564DE2.30200@redhat.com>
+Date: Thu, 09 Jul 2009 16:06:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>,
-        Steve Lawrence <slawrence@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-Message-ID: <C67B7EE9.A8979%csellers@tresys.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Subject: Fixfiles has a bug when looking at btrfs file systems.
+Content-Type: multipart/mixed;
+ boundary="------------060507010503000302050805"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-RPM currently has support for security policies to be stored in an rpm
-header but it doesn't currently do anything with the policies. Instead,
-SELinux policy is usually installed through %post scripts. We're planning to
-work with the RPM community to get integrated support for SELinux policy,
-and we'd like to get some feedback on our plans from the SELinux community.
+This is a multi-part message in MIME format.
+--------------060507010503000302050805
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-First, a bit of background. SELinux policy is currently installed through
-%post scripts. This presents several problems. First, this means that policy
-for a given application may not be loaded at the time the files are written
-to disk, preventing those files from being labeled properly, because the
-symbols used to label files need to be in the policy loaded into the kernel.
-Secondly, this means that if multiple packages install policy, each of their
-%post scripts will reload the policy, which is a very expensive operation.
-Consequently, policy is generally kept in a single package to avoid this,
-despite containing many application specific policy modules that might be
-more suited to be included in their application package. There are many
-other problems with the current RPM support which I'd be happy to get into
-as well, but I'll leave them out for now to prevent this email from getting
-too long.
 
-So, what we would like to do is to start including SELinux policy as part of
-the rpm and have rpm install all policies together before files start to hit
-the disk. To do this, we would like to use the already supported %policy
-directive, which stores the policy in the RPM archive header.
+--------------060507010503000302050805
+Content-Type: text/plain;
+ name="policycoreutils-fixfiles.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="policycoreutils-fixfiles.patch"
 
-We would then install the policy very early (before pretrans). This policy
-load would involve gathering all the policies to be installed from all
-packages, writing them to a temporary location, and calling out to semodule
-to install the SELinux policy modules.
+--- nsapolicycoreutils/scripts/fixfiles	2009-06-23 15:36:07.000000000 -0400
++++ policycoreutils-2.0.67/scripts/fixfiles	2009-07-07 16:47:35.000000000 -0400
+@@ -129,7 +129,7 @@
+ if [ ! -z "$FILEPATH" ]; then
+     if [ -x /usr/bin/find ]; then
+ 	/usr/bin/find "$FILEPATH" \
+-	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o fstype btrfs \) -prune  -o -print0 | \
++	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o -print0 | \
+ 	    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
+     else
+ 	${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
 
-This new support will enable application packages to include their policy
-within their package (e.g. bind includes the bind policy module in the bind
-rpm), which would make it much easier to ensure that the appropriate policy
-version is installed for a given application version. Note that while it is
-possible to include policy within application packages, it is not necessary.
-This new support would still allow a single policy RPM to contain many
-policy modules as we have today. Those policy modules could then be slowly
-split out to be included with the applications they confine as it makes
-sense.
-
-Obviously I'm glossing over many implementation details that would need to
-be worked out. The point of this email is strictly to get feedback on our
-approach. You can see a proof of concept patch that begins this
-implementation, as well as some of our conversation with the RPM community
-here:
-
-http://lists.rpm.org/pipermail/rpm-maint/2009-July/002452.html
-
-Thanks,
-Chad Sellers
-
+--------------060507010503000302050805--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
