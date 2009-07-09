@@ -1,55 +1,125 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n69K7EYJ028622
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:14 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n69K7s1f013946
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 20:07:54 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n69K7CtB008741
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:12 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n69K7BAU030935
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:12 -0400
-Received: from localhost.localdomain (vpn-12-24.rdu.redhat.com [10.11.12.24])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n69K76PF022820
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2009 16:07:06 -0400
-Message-ID: <4A564DE2.30200@redhat.com>
-Date: Thu, 09 Jul 2009 16:06:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Fixfiles has a bug when looking at btrfs file systems.
-Content-Type: multipart/mixed;
- boundary="------------060507010503000302050805"
+Date: Thu, 9 Jul 2009 21:10:19 +0100
+From: Paul Howarth <paul@city-fan.org>
+To: Chad Sellers <csellers@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        Steve Lawrence <slawrence@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: [RFC] Install SELinux policies from rpm package header
+Message-ID: <20090709211019.518eeb3b@metropolis.intra.city-fan.org>
+In-Reply-To: <C67B7EE9.A8979%csellers@tresys.com>
+References: <C67B7EE9.A8979%csellers@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060507010503000302050805
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, 09 Jul 2009 11:03:05 -0400
+Chad Sellers <csellers@tresys.com> wrote:
+
+> RPM currently has support for security policies to be stored in an rpm
+> header but it doesn't currently do anything with the policies.
+> Instead, SELinux policy is usually installed through %post scripts.
+> We're planning to work with the RPM community to get integrated
+> support for SELinux policy, and we'd like to get some feedback on our
+> plans from the SELinux community.
+> 
+> First, a bit of background. SELinux policy is currently installed
+> through %post scripts. This presents several problems. First, this
+> means that policy for a given application may not be loaded at the
+> time the files are written to disk, preventing those files from being
+> labeled properly, because the symbols used to label files need to be
+> in the policy loaded into the kernel. Secondly, this means that if
+> multiple packages install policy, each of their %post scripts will
+> reload the policy, which is a very expensive operation. Consequently,
+> policy is generally kept in a single package to avoid this, despite
+> containing many application specific policy modules that might be
+> more suited to be included in their application package. There are
+> many other problems with the current RPM support which I'd be happy
+> to get into as well, but I'll leave them out for now to prevent this
+> email from getting too long.
+> 
+> So, what we would like to do is to start including SELinux policy as
+> part of the rpm and have rpm install all policies together before
+> files start to hit the disk. To do this, we would like to use the
+> already supported %policy directive, which stores the policy in the
+> RPM archive header.
+> 
+> We would then install the policy very early (before pretrans). This
+> policy load would involve gathering all the policies to be installed
+> from all packages, writing them to a temporary location, and calling
+> out to semodule to install the SELinux policy modules.
+> 
+> This new support will enable application packages to include their
+> policy within their package (e.g. bind includes the bind policy
+> module in the bind rpm), which would make it much easier to ensure
+> that the appropriate policy version is installed for a given
+> application version. Note that while it is possible to include policy
+> within application packages, it is not necessary. This new support
+> would still allow a single policy RPM to contain many policy modules
+> as we have today. Those policy modules could then be slowly split out
+> to be included with the applications they confine as it makes sense.
+> 
+> Obviously I'm glossing over many implementation details that would
+> need to be worked out. The point of this email is strictly to get
+> feedback on our approach. You can see a proof of concept patch that
+> begins this implementation, as well as some of our conversation with
+> the RPM community here:
+> 
+> http://lists.rpm.org/pipermail/rpm-maint/2009-July/002452.html
+
+In addition to the discussion on the RPM list, some accumulated wisdom
+on integrating policy modules with existing RPM infrastructure can be
+found on the Fedora wiki:
+
+https://fedoraproject.org/wiki/SELinux_Policy_Modules_Packaging_Draft
+
+A few things spring to mind straight away:
+
+1. Package Removal
+
+At package removal time, it's important that policy stays around until
+files have been removed *and* in the case of packages for daemons,
+processes killed. Removing policy underneath a running process can
+result in unlabeled processes that are unkillable.
+
+2. Dependencies
+
+Policy modules include interfaces, and call the interfaces of other
+modules. In order to ensure that all required interfaces are present,
+packages will have to grow another set of dependencies on the packages
+that provide these interfaces. Since policy is generally written to
+encompass everything that an application *might* need to be able to do,
+it follows that more packages will be pulled in as dependencies as a
+result of policy than would have been pulled in in the absence of the
+bundled policy. A way around this might be to package the policy in
+subpackages rather than the main packages, and the likely result of
+this is having vast swathes of policy subpackages installed but not the
+main packages that go with them because they're not actually needed,
+which is not too far away from where we are today except that all of
+those policy modules are in a single package today - and I rather
+suspect that would be more efficient in terms of metadata/disk space
+etc.
+
+It's also important to realise that policy module dependencies would
+have to be versioned, with a version bump when there's an interface
+change as per shared libraries.
+
+3. I've encountered problems in the past when installing RPMs
+containing SELinux policy when either:
+(a) the policy module package was built against a newer version of base
+policy - hence the versioning requirement in packaging draft above, or
+(b) a policy module I've developed locally is merged to or otherwise
+conflicts with the main selinux-policy package
+This can result in policy not loading. I know how to resolve issues
+like these manually but if policy is going to be spread more widely
+between packages, issues like these need to be resolved in a better
+(automagic?) way.
+
+Paul.
 
 
---------------060507010503000302050805
-Content-Type: text/plain;
- name="policycoreutils-fixfiles.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="policycoreutils-fixfiles.patch"
 
---- nsapolicycoreutils/scripts/fixfiles	2009-06-23 15:36:07.000000000 -0400
-+++ policycoreutils-2.0.67/scripts/fixfiles	2009-07-07 16:47:35.000000000 -0400
-@@ -129,7 +129,7 @@
- if [ ! -z "$FILEPATH" ]; then
-     if [ -x /usr/bin/find ]; then
- 	/usr/bin/find "$FILEPATH" \
--	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o fstype btrfs \) -prune  -o -print0 | \
-+	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o -print0 | \
- 	    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
-     else
- 	${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
-
---------------060507010503000302050805--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
