@@ -1,47 +1,39 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Chad Sellers <csellers@tresys.com>
-Subject: Re: [RFC] Install SELinux policies from rpm package header
-Date: Fri, 10 Jul 2009 17:17:02 -0400
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Paul Howarth <paul@city-fan.org>,
-        SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Steve Lawrence <slawrence@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-References: <C67BD5B0.A89C1%csellers@tresys.com>
-In-Reply-To: <C67BD5B0.A89C1%csellers@tresys.com>
+Date: Mon, 13 Jul 2009 07:56:46 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Thomas Liu <tliu@redhat.com>
+cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        eparis@parisplace.org
+Subject: Re: [PATCH -v2] SELinux: Convert avc_audit to use lsm_audit.h
+In-Reply-To: <1247236264.2226.3.camel@Ares>
+Message-ID: <alpine.LRH.2.00.0907130756300.29074@tundra.namei.org>
+References: <1247171811.2276.13.camel@Ares>  <1247172234.2927.4.camel@dhcp235-23.rdu.redhat.com> <1247236264.2226.3.camel@Ares>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200907101717.02530.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 09 July 2009 05:13:20 pm Chad Sellers wrote:
-> On 7/9/09 4:48 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
-> <snip>
->
-> > A couple of other problems with including policy with each rpm.  How do
-> > you handle different packaging.  MLS, Targeted, minimal.
->
-> That is a problem we'll have to solve, but I don't think it will be too
-> difficult. We could easily provide an option to the %policy directive that
-> could direct rpm to use a particular policy store.
+On Fri, 10 Jul 2009, Thomas Liu wrote:
 
-Would that mean we could end up in a situation where a RPM only installs 
-policy modules for a particular policy type, e.g. apache only installs a 
-targeted policy module?  That seems like it could lead to real problems down 
-the line as individual RPMs get this wrong.  Also, what happens at the unknown 
-point in the future when we change from targeted as the de-facto default to 
-some other name?
+> Convert avc_audit in security/selinux/avc.c to use lsm_audit.h,
+> for better maintainability and for less code duplication.
+> 
+>  - changed selinux to use common_audit_data instead of
+>    avc_audit_data
+>  - eliminated code in avc.c and used code from lsm_audit.h instead.
+> 
+> I have tested to make sure that the avcs look the same before and
+> after this patch.
+> 
+> Signed-off-by: Thomas Liu <tliu@redhat.com>
 
-I like what you are trying to do here, it just scares me a little bit thinking 
-about all the details (and I'm sure I'm only thinking about a small number of 
-them too).
+
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
 
 -- 
-paul moore
-linux @ hp
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
