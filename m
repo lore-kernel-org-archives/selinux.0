@@ -1,51 +1,87 @@
-Message-ID: <4A5B466B.9060905@manicmethod.com>
-Date: Mon, 13 Jul 2009 10:36:27 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Paul Moore <paul.moore@hp.com>
-CC: Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
+Subject: RE: [RFC] Install SELinux policies from rpm package header
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
         Paul Howarth <paul@city-fan.org>, SE Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Steve Lawrence <slawrence@tresys.com>,
+        Stephen Lawrence <slawrence@tresys.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: [RFC] Install SELinux policies from rpm package header
-References: <C67BD5B0.A89C1%csellers@tresys.com> <200907101717.02530.paul.moore@hp.com>
-In-Reply-To: <200907101717.02530.paul.moore@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E012CD8FB@exchange2.columbia.tresys.com>
+References: <C67BD5B0.A89C1%csellers@tresys.com>
+	 <4A575664.4040805@manicmethod.com>
+	 <1247241489.30551.86.camel@moss-lions.epoch.ncsc.mil>
+	 <06A6610D4F464D4EBEAFBF2C5F86911E012CD8FB@exchange2.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 13 Jul 2009 10:55:19 -0400
+Message-Id: <1247496919.2588.91.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> On Thursday 09 July 2009 05:13:20 pm Chad Sellers wrote:
->> On 7/9/09 4:48 PM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->> <snip>
->>
->>> A couple of other problems with including policy with each rpm.  How do
->>> you handle different packaging.  MLS, Targeted, minimal.
->> That is a problem we'll have to solve, but I don't think it will be too
->> difficult. We could easily provide an option to the %policy directive that
->> could direct rpm to use a particular policy store.
->
-> Would that mean we could end up in a situation where a RPM only installs
-> policy modules for a particular policy type, e.g. apache only installs a
-> targeted policy module?  That seems like it could lead to real problems down
-> the line as individual RPMs get this wrong.  Also, what happens at the unknown
-> point in the future when we change from targeted as the de-facto default to
-> some other name?
->
+On Fri, 2009-07-10 at 16:26 -0400, Joshua Brindle wrote:
+> > From: James Carter [mailto:jwcart2@tycho.nsa.gov] 
+> > 
+> > > Its alot worse than that. What about files on backup 
+> > drives? Offline drives? 
+> > > transient files that will get relabeled to something inappropriate? 
+> > > I'm not confortable relabeling databases with potentially sensitive 
+> > > data to var_lib_t because mysql was uninstalled.
+> > > 
+> > 
+> > The argument seems to be for removing the ability to remove modules.
+> > It would be the roach motel style of policy management.
+> > 
+> 
+> I like it, policies check in but don't check out. I haven't heard an
+> argument about 1) how I'm crazy and wrong or 2) how to keep systems
+> running as expected otherwise though.
+> 
+1)
+I'll let your co-workers comment on your insanity or lack thereof.
 
-I think if you don't list a store name explicitly it goes to default, I suspect 
-that will be used in most cases. Regardless of this work we need some standard 
-store names because otherwise instructions and blog entries and wherever else 
-people get information about installing minimal or mls policies will be wrong.
+You're not wrong.
 
-> I like what you are trying to do here, it just scares me a little bit thinking
-> about all the details (and I'm sure I'm only thinking about a small number of
-> them too).
->
+The general problem here is how two systems using different policies
+interoperate.  For one of the systems to access a resource labeled under
+the second system's policy, the request must be translated in a way that
+is consistent with the overall security goals of the two systems.  There
+is no way to automatically do this for arbitrary policies.
 
-There are devils in the details for sure, we are just talking first steps for now.
+Anytime the system policy is changed (loading or unloading modules,
+updating policy, etc) we have two systems (past and present) using
+different policies.  The labels of the old policy must be translated so
+that the overall security goals are met with the new policy.  
+
+Often the reason for the change is that the old policy was found to be
+more restrictive than the overall security goals, so the new policy is
+more permissive and no labels are required to be changed.  No
+translation is usually necessary in this case, just load the new
+policy.  
+
+When making more radical changes, more elaborate translation steps are
+needed.  As an example, to remove the unconfined module one needs to
+switch the system to permissive mode, set the system up to relabel on
+the next reboot, remove the unconfined module, and reboot.  In this
+example, the translation between the two policies is done by rebooting
+the system and relabeling the filesystem.  This example also shows that
+temporary policy changes (setting permissive mode) might be necessary
+during the period of translation.
+
+2)
+So to keep systems running, there needs to be a way to do the steps
+required to translate between the two policies.  That could require
+loading additional policy, switching the system to permissive mode,
+setting the system up to relabel the filesystem, and requesting that the
+user reboots the system.
+
+Again, this is not a problem specific to policy packages.
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
