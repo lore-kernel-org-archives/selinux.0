@@ -1,116 +1,34 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC] Install SELinux policies from rpm package header
-Date: Mon, 13 Jul 2009 14:52:54 -0400
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E012CDA82@exchange2.columbia.tresys.com>
-In-Reply-To: <789CDC33-514C-4816-AF43-BBD629075BA5@nall.com>
-References: <C680D5CD.A8AD7%csellers@tresys.com> <9DB3FF14-CCB5-445C-BE63-1EBE84125E6A@nall.com> <4A5B7180.8080909@manicmethod.com> <789CDC33-514C-4816-AF43-BBD629075BA5@nall.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Joe Nall" <joe@nall.com>, "Joshua Brindle" <method@manicmethod.com>
-Cc: "Chad Sellers" <csellers@tresys.com>, <jwcart2@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Paul Howarth" <paul@city-fan.org>, "SE Linux" <selinux@tycho.nsa.gov>,
-        "Stephen Lawrence" <slawrence@tresys.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6DJsQgx004993
+	for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2009 15:54:26 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n6DJtBj9018955
+	for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2009 19:55:11 GMT
+Subject: refpolicy moved to git
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: refpolicy@oss1.tresys.com
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Mon, 13 Jul 2009 15:55:39 -0400
+Message-Id: <1247514939.31521.30.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Joe Nall [mailto:joe@nall.com] 
-> 
-> On Jul 13, 2009, at 12:40 PM, Joshua Brindle wrote:
-> 
-> > Joe Nall wrote:
-> >>
-> >> On Jul 13, 2009, at 11:15 AM, Chad Sellers wrote:
-> >>
-> >>> On 7/10/09 4:26 PM, "Joshua Brindle" <jbrindle@tresys.com> wrote:
-> >>>
-> >>>>> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
-> >>>>>
-> >>>>>> Its alot worse than that. What about files on backup
-> >>>>> drives? Offline drives?
-> >>>>>> transient files that will get relabeled to something 
-> >>>>>> inappropriate?
-> >>>>>> I'm not confortable relabeling databases with potentially 
-> >>>>>> sensitive data to var_lib_t because mysql was uninstalled.
-> >>>>>>
-> >>>>>
-> >>>>> The argument seems to be for removing the ability to remove 
-> >>>>> modules.
-> >>>>> It would be the roach motel style of policy management.
-> >>>>>
-> >>>>
-> >>>> I like it, policies check in but don't check out. I 
-> haven't heard 
-> >>>> an argument about 1) how I'm crazy and wrong or 2) how to keep 
-> >>>> systems running as expected otherwise though.
-> >>>
-> >>> There's certainly a case for leaving all policy 
-> installed. Policy is 
-> >>> configuration data, which RPM also leaves installed when removing 
-> >>> packages.
-> >>> We could easily treat policy the same.
-> >>
-> >> Our app has 140 rpms that install policy. They install in 
-> the %post 
-> >> and do a restorecon of the relevant installed files and 
-> >> /etc/selinux/mls/modules. Daemons are stopped in the 
-> %preun. Policy 
-> >> is removed in the %postun and more restorecon occurs. The biggest 
-> >> annoyance with this approach is the 140 individual 
-> transactions are 
-> >> ssllooww.
-> >>
-> >
-> > Yes, if you want to test out the patch sent to the rpm list 
-> and report 
-> > results with lots of policy packages that would be awesome :)
-> >
-> >> I would really like to see policy batched up and installed 
-> early in 
-> >> the transaction. I think blindly leaving the policy behind on 
-> >> uninstall is configuration management insanity. When an rpm is 
-> >> removed, all of the unmodified installation should be removed with 
-> >> it. Files should be relabeled to match the post 
-> installation policy. 
-> >> That way a subsequent install behaves the way you would 
-> intuitively 
-> >> expect.
-> >>
-> >
-> > I see the claim but I don't see the argument. A subsequent install 
-> > will either replace the old module or do nothing (if its 
-> the same) and 
-> > all the old files will already be labeled properly, in fact this is 
-> > the main reason I want to leave old policies around. Note 
-> that users 
-> > will always be able to remove policies themselves, I just 
-> don't think 
-> > we can make rpm smart enough to know the users intentions 
-> (perhaps if 
-> > it was written in python we could just import psychic :) )
-> 
-> We are going to have to disagree on what is proper. Based on 
-> our experience with multiple policies, I think you are going 
-> to get into trouble with policy upgrades when type 
-> declarations move or multiple rpms declare the same type in 
-> policy. You have to think about how policies and rpms evolve 
-> over time.
-> 
+The Reference Policy repository has been moved over to git.  The new
+repository can be cloned by:
 
-So renames are a different issue that we are thinking about. Eg., if a
-module claims to replace a module meaning it provides the same
-type-space and behavior then we need some facility for telling rpm so it
-can remove the old and add the new during the same transaction, this is
-already a work in progress.
+git clone http://oss.tresys.com/git/refpolicy.git
 
-Removing a policy entirely is what the above thread was about, and I
-still maintain that automated removal of policies is a bad idea,
-violates the principle of least surprise and has the potential of
-leaking sensitive data or leaving the system inconsisten or
-non-functional.
+The subversion repository will remain as it still has history on old
+branches and a few other items which were not propagated over to the git
+repository.  However the subversion repository will no longer be
+updated.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
