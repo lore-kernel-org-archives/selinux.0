@@ -1,42 +1,45 @@
-Subject: RE: [RFC] Install SELinux policies from rpm package header
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        Paul Howarth <paul@city-fan.org>, SE Linux <selinux@tycho.nsa.gov>,
+Date: Mon, 13 Jul 2009 12:15:09 -0400
+Subject: Re: [RFC] Install SELinux policies from rpm package header
+From: Chad Sellers <csellers@tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>, <jwcart2@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Paul Howarth <paul@city-fan.org>,
+        SE Linux <selinux@tycho.nsa.gov>,
         Stephen Lawrence <slawrence@tresys.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <1247496919.2588.91.camel@moss-lions.epoch.ncsc.mil>
-References: <C67BD5B0.A89C1%csellers@tresys.com>
-	 <4A575664.4040805@manicmethod.com>
-	 <1247241489.30551.86.camel@moss-lions.epoch.ncsc.mil>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E012CD8FB@exchange2.columbia.tresys.com>
-	 <1247496919.2588.91.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 13 Jul 2009 11:38:30 -0400
-Message-Id: <1247499510.2588.98.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <C680D5CD.A8AD7%csellers@tresys.com>
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E012CD8FB@exchange2.columbia.tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-07-13 at 10:55 -0400, James Carter wrote:
+On 7/10/09 4:26 PM, "Joshua Brindle" <jbrindle@tresys.com> wrote:
+
+>> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
+>> 
+>>> Its alot worse than that. What about files on backup
+>> drives? Offline drives?
+>>> transient files that will get relabeled to something inappropriate?
+>>> I'm not confortable relabeling databases with potentially sensitive
+>>> data to var_lib_t because mysql was uninstalled.
+>>> 
+>> 
+>> The argument seems to be for removing the ability to remove modules.
+>> It would be the roach motel style of policy management.
+>> 
 > 
-> 2)
-> So to keep systems running, there needs to be a way to do the steps
-> required to translate between the two policies.  That could require
-> loading additional policy, switching the system to permissive mode,
-> setting the system up to relabel the filesystem, and requesting that the
-> user reboots the system.
+> I like it, policies check in but don't check out. I haven't heard an
+> argument about 1) how I'm crazy and wrong or 2) how to keep systems
+> running as expected otherwise though.
 
-Or there needs to be a way to specify when RPM isn't capable of doing
-the necessary translation, so the admin can be informed of what did and
-did not happen and (ideally) what he needs to do.
+There's certainly a case for leaving all policy installed. Policy is
+configuration data, which RPM also leaves installed when removing packages.
+We could easily treat policy the same.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+Chad
 
 
 --
