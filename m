@@ -1,31 +1,116 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6DL1s1g013551
-	for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2009 17:01:54 -0400
-Received: from mail-bw0-f219.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6DL1WDW027934
-	for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2009 21:01:33 GMT
-Received: by bwz19 with SMTP id 19so626763bwz.18
-        for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2009 14:01:52 -0700 (PDT)
-Message-Id: <DD037C53-64FB-4F01-83F8-4EA6FB9DD220@gmail.com>
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <BD36183D-4FEF-4F73-87F9-82A1C23C6E11@gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v935.3)
-Subject: Re: request for comments: is this (MLS/SELinux) picture right?
-Date: Mon, 13 Jul 2009 23:01:49 +0200
-References: <BD36183D-4FEF-4F73-87F9-82A1C23C6E11@gmail.com>
+Message-ID: <4A5C7809.3020205@redhat.com>
+Date: Tue, 14 Jul 2009 08:20:25 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Joe Nall <joe@nall.com>, Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>, jwcart2@tycho.nsa.gov,
+        Paul Howarth <paul@city-fan.org>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Lawrence <slawrence@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: [RFC] Install SELinux policies from rpm package header
+References: <C680D5CD.A8AD7%csellers@tresys.com> <9DB3FF14-CCB5-445C-BE63-1EBE84125E6A@nall.com> <4A5B7180.8080909@manicmethod.com> <789CDC33-514C-4816-AF43-BBD629075BA5@nall.com> <06A6610D4F464D4EBEAFBF2C5F86911E012CDA82@exchange2.columbia.tresys.com>
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E012CDA82@exchange2.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If it is more convenient, here the URL to the pic (format: PNG):
+On 07/13/2009 02:52 PM, Joshua Brindle wrote:
+>> From: Joe Nall [mailto:joe@nall.com]
+>>
+>> On Jul 13, 2009, at 12:40 PM, Joshua Brindle wrote:
+>>
+>>> Joe Nall wrote:
+>>>> On Jul 13, 2009, at 11:15 AM, Chad Sellers wrote:
+>>>>
+>>>>> On 7/10/09 4:26 PM, "Joshua Brindle"<jbrindle@tresys.com>  wrote:
+>>>>>
+>>>>>>> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
+>>>>>>>
+>>>>>>>> Its alot worse than that. What about files on backup
+>>>>>>> drives? Offline drives?
+>>>>>>>> transient files that will get relabeled to something
+>>>>>>>> inappropriate?
+>>>>>>>> I'm not confortable relabeling databases with potentially
+>>>>>>>> sensitive data to var_lib_t because mysql was uninstalled.
+>>>>>>>>
+>>>>>>> The argument seems to be for removing the ability to remove
+>>>>>>> modules.
+>>>>>>> It would be the roach motel style of policy management.
+>>>>>>>
+>>>>>> I like it, policies check in but don't check out. I
+>> haven't heard
+>>>>>> an argument about 1) how I'm crazy and wrong or 2) how to keep
+>>>>>> systems running as expected otherwise though.
+>>>>> There's certainly a case for leaving all policy
+>> installed. Policy is
+>>>>> configuration data, which RPM also leaves installed when removing
+>>>>> packages.
+>>>>> We could easily treat policy the same.
+>>>> Our app has 140 rpms that install policy. They install in
+>> the %post
+>>>> and do a restorecon of the relevant installed files and
+>>>> /etc/selinux/mls/modules. Daemons are stopped in the
+>> %preun. Policy
+>>>> is removed in the %postun and more restorecon occurs. The biggest
+>>>> annoyance with this approach is the 140 individual
+>> transactions are
+>>>> ssllooww.
+>>>>
+>>> Yes, if you want to test out the patch sent to the rpm list
+>> and report
+>>> results with lots of policy packages that would be awesome :)
+>>>
+>>>> I would really like to see policy batched up and installed
+>> early in
+>>>> the transaction. I think blindly leaving the policy behind on
+>>>> uninstall is configuration management insanity. When an rpm is
+>>>> removed, all of the unmodified installation should be removed with
+>>>> it. Files should be relabeled to match the post
+>> installation policy.
+>>>> That way a subsequent install behaves the way you would
+>> intuitively
+>>>> expect.
+>>>>
+>>> I see the claim but I don't see the argument. A subsequent install
+>>> will either replace the old module or do nothing (if its
+>> the same) and
+>>> all the old files will already be labeled properly, in fact this is
+>>> the main reason I want to leave old policies around. Note
+>> that users
+>>> will always be able to remove policies themselves, I just
+>> don't think
+>>> we can make rpm smart enough to know the users intentions
+>> (perhaps if
+>>> it was written in python we could just import psychic :) )
+>> We are going to have to disagree on what is proper. Based on
+>> our experience with multiple policies, I think you are going
+>> to get into trouble with policy upgrades when type
+>> declarations move or multiple rpms declare the same type in
+>> policy. You have to think about how policies and rpms evolve
+>> over time.
+>>
+>
+> So renames are a different issue that we are thinking about. Eg., if a
+> module claims to replace a module meaning it provides the same
+> type-space and behavior then we need some facility for telling rpm so it
+> can remove the old and add the new during the same transaction, this is
+> already a work in progress.
+>
+> Removing a policy entirely is what the above thread was about, and I
+> still maintain that automated removal of policies is a bad idea,
+> violates the principle of least surprise and has the potential of
+> leaking sensitive data or leaving the system inconsisten or
+> non-functional.
+One Idea I had was to have two policies.  One for install and one for 
+uninstall, the uninstall policy takes all of the types defined in the 
+install and typealias them to some base name.
 
-http://3.bp.blogspot.com/_OR3mMHaW6Iw/Slufq7V2PHI/AAAAAAAAAAk/i0I18vkGR_8/s1600-h/Bild+3.png
+httpd_exec_t == bin_t
+httpd_var_run_t == var_run_t
 
-TNX in advance
-
---
-Sebastian Pfaff
+...
 
 
 
