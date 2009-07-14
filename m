@@ -1,219 +1,130 @@
-Message-ID: <4A5CC564.3090408@redhat.com>
-Date: Tue, 14 Jul 2009 13:50:28 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Thomas Liu <tliu@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, eparis@parisplace.org
-Subject: Re: [PATCH] policycoreutils: get setfiles to skip mounts without
- seclabel
-References: <1247580944.2266.1.camel@Ares>	 <1247585401.28321.336.camel@moss-pluto.epoch.ncsc.mil> <1247587468.2164.17.camel@Ares>
-In-Reply-To: <1247587468.2164.17.camel@Ares>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [RFC] Common Intermediary Language
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Caleb Case <ccase@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        mgoldman@tresys.com, jbrindle@tresys.com
+In-Reply-To: <150846cc0907141021k36388ef8h31ff3b24609d2ea6@mail.gmail.com>
+References: <150846cc0907141021k36388ef8h31ff3b24609d2ea6@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 14 Jul 2009 16:34:15 -0400
+Message-Id: <1247603655.2551.14.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/14/2009 12:04 PM, Thomas Liu wrote:
-> On Tue, 2009-07-14 at 11:30 -0400, Stephen Smalley wrote:
->> On Tue, 2009-07-14 at 10:15 -0400, Thomas Liu wrote:
->>> Get setfiles to check paths for seclabel and skip them
->>> if it is not supported.
->>>
->>> Parse /proc/mounts and add paths that do not have seclabel
->>> to the exclude list.  If another path shows up that does
->>> have seclabel, remove it from the exclude list, since setfiles
->>> will try and when it fails it will skip it.
->>>
->>> Also made one of the error messages in add_exclude more
->>> descriptive.
->>>
->>> Signed-off-by: Thomas Liu <tliu@redhat.com>
->>> Signed-off-by: Dan Walsh <dwalsh@redhat.com>
->>> ---
->>>
->>>  policycoreutils/setfiles/setfiles.c |   80 ++++++++++++++++++++++++++++++++++-
->>>  1 files changed, 77 insertions(+), 3 deletions(-)
->>>
->>>
->>> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
->>> index 1356fb9..9f27a1d 100644
->>> --- a/policycoreutils/setfiles/setfiles.c
->>> +++ b/policycoreutils/setfiles/setfiles.c
->>> @@ -11,6 +11,7 @@
->>>  #include <ctype.h>
->>>  #include <regex.h>
->>>  #include <sys/vfs.h>
->>> +#include <sys/utsname.h>
->>>  #define __USE_XOPEN_EXTENDED 1	/* nftw */
->>>  #define SKIP -2
->>>  #define ERR -1
->>> @@ -39,7 +40,7 @@ static int force = 0;
->>>  static int progress = 0;
->>>  static unsigned long long count = 0;
->>>  
->>> -#define MAX_EXCLUDES 100
->>> +#define MAX_EXCLUDES 1000
->>>  static int excludeCtr = 0;
->>>  struct edir {
->>>  	char *directory;
->>> @@ -243,8 +244,8 @@ static int add_exclude(const char *directory)
->>>  		return 1;
->>>  	}
->>>  	if (lstat(directory, &sb)) {
->>> -		fprintf(stderr, "Directory \"%s\" not found, ignoring.\n",
->>> -			directory);
->>> +		fprintf(stderr, "Can't stat directory \"%s\", %s.\n",
->>> +			directory, strerror(errno));
->> Might want to keep the "ignoring" part as otherwise this appears to be a
->> fatal error.
->>
->>>  		return 0;
->>>  	}
->>>  	if ((sb.st_mode & S_IFDIR) == 0) {
->>> @@ -275,6 +276,20 @@ static int add_exclude(const char *directory)
->>>  	return 0;
->>>  }
->>>  
->>> +static void remove_exclude(const char *directory)
->>> +{
->>> +	int i = 0;
->>> +	for (i = 0; i < excludeCtr; i++) {
->>> +		if (strcmp(directory, excludeArray[i].directory) == 0) {
->>> +			if (i != excludeCtr-1)
->>> +				excludeArray[i] = excludeArray[excludeCtr-1];
->>> +			excludeCtr--;
->>> +			return;
->>> +		}
-> It doesn't only work if removing the last entry.  If the current entry
-> matches the directory we passed in, it swaps it with the last one and
-> then decrements excludeCtr, "removing" the current entry.
->> The function name and interface doesn't clearly indicate that this
->> function only works if removing the last entry (and if so, why are we
->> scanning the entire array)?  But see below as well.
->>
->>> +	}
->>> +	return;
->>> +}
->>> +
->>>  static int exclude(const char *file)
->>>  {
->>>  	int i = 0;
->>> @@ -699,6 +714,62 @@ static void maybe_audit_mass_relabel(void)
->>>  #endif
->>>  }
->>>  
->>> +/*
->>> +   Search /proc mounts for all file systems that do not support extended
->>> +   attributes and add them to the exclude directory table.  File systems
->>> +   support seclabel are labeled seclabel
->>> +*/
->>> +static void exclude_non_seclabel_mounts()
->>> +{
->>> +	struct utsname uts;
->>> +	FILE *fp = fopen("/proc/mounts", "r");
->>> +	size_t len;
->>> +	ssize_t num;
->>> +	int index = 0, found = 0;
->>> +	char *mount_info[4];
->>> +	char *buf = NULL, *item;
->>> +	/* Check to see if the kernel supports seclabel */
->>> +	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
->>> +		return;
->> Move the fopen down here, or fclose(fp) before returning above.
->>
->>> +	if (!fp)
->>> +		return;
->>> +
->>> +	while ((num = getline(&buf, &len, fp)) != -1) {
->>> +		found = 0;
->>> +		index = 0;
->>> +		item = strtok(buf, " ");
->>> +		while (item != NULL) {
->>> +			mount_info[index] = item;
->>> +			if (index == 3)
->>> +				break;
->>> +			index++;
->>> +			item = strtok(NULL, " ");
->>> +		}
->>> +		if (index < 3) {
->>> +			fprintf(stderr,
->>> +				"/proc/mounts record \"%s\" has incorrect format.\n",
->>> +				buf);
->>> +			continue;
->>> +		}
->>> +
->>> +		/* remove pre-existing entry */
->>> +		remove_exclude(mount_info[1]);
-> Our impression is that it is needed, because of bind mounts or if two
-> things are just mounted in the same place.
+On Tue, 2009-07-14 at 13:21 -0400, Caleb Case wrote:
+> The current kernel policy language has a number of limitations. These
+> limitations make it difficult for the needs of policy writers to be
+> met.
 > 
-> Although it seems that maybe the logic should be always add and remove
-> if found instead of always removing and adding if not found.
+> An example of this is an administrator who wants to create an Apache
+> policy that is based on the default Apache policy. The administrator
+> wants to tweak the policy a little, but also wants to track changes
+> from the distribution to the original Apache policy.
 > 
-> Thoughts?
->
-If you mount  /tmp with ext3 and then mount nfs over /tmp then we want to remove the /tmp directory.  Currently when this happens there are two entries in the /proc/mounts directory.  rootfs mounts as / as no support for seclabel and the another entry which supports seclabel, so we need to remove the first.  
+> Another example is an administrator that wants to take a permissive
+> distribution policy and tighten it down. The administrator doesn't
+> want to replace the entire policy, just remove a few permissions from
+> it (maybe even removing permissions that aren't there already).
+> 
+> This is just the problems from the administrator's point of view.
+> Consider the problems from a 3rd party software provider, the
+> distribution, and individual software users.
+> 
+> For example, a distribution wants to ship a policy that works for a
+> broad range of uses, but that compromises some security for
+> flexibility. The administrator of a system only needs a limited set of
+> that flexibility, but also wants to get policy updates from the
+> distribution.
+> 
+> The current language also makes it difficult to integrate well with
+> High Level Languages (HLL). HLL needs a more featureful language to
+> target, but adding these features to the kernel policy language would
+> unnecessarily complicate the kernel security server.
+> 
+> The current module language suffers from the order dependence of
+> policy resulting in the base policy problem. All policy modules are
+> dependent on it, it can't be easily upgraded, and some features end up
+> baked into the base policy.
+> 
+> The Common Intermediary Language (CIL) is designed to solve these
+> problems and many others that come up during policy development. It
+> provides a common target for higher-level/domain-specific languages.
+> It is not intended as a language that most policy developers will
+> write in.
+> 
+> The CIL is the combination of two languages: a transformation language
+> and a policy language.
+> 
+> The transformation language provides a number of useful features. For
+> example, it allows you to copy existing policy and rename it (as if it
+> were a template). Another example: it allows distributions to ship
+> _read-only_ policy while still allowing administrators to make changes
+> to it. The transform language acts similar to a semantic diff. The
+> supported operations are add, delete, move, and copy with the
+> potential add new operations as required. It is an embedded language
+> that exists inline with the policy language.
+> 
+> The policy language is a mid-level language that incorporates aspects
+> of the kernel policy language and provides some additional features
+> over the current policy language:
+> 
+> * symbol scoping and protection
+> 
+> The policy language is hierarchical in nature. Because of this policy
+> can be written such that private types are protected from use by other
+> modules (such as in an allow rule).
+> 
+> * parameterized blocks of policy
+> 
+> Policy can be grouped into blocks that take arguments. They are
+> similar in concept to interfaces in Reference Policy.
+> 
+> * generic sets
+> 
+> Sets of types, roles, users, and other policy elements can be
+> represented. They are similar to attributes in the kernel language.
+> 
+> * selections
+> 
+> Policy elements can be selected with a syntax similar to that of
+> FCGlob or XPath.
+> 
+> * labeling
+> 
+> Labeling is integrated into the policy language. This maintains the
+> relationship between policy rules and associated labeling.
+> 
+> * debug support
+> 
+> The CIL supports debugging symbols that allow tracing back generated
+> CIL to its original source files.
+> 
+> * order independence
+> 
+> The CIL is completely order independent.
+> 
+> * policy access control
+> 
+> The CIL's hierarchical nature lends itself to policy access control.
+> Policy access control will be able to not only dictate which types,
+> roles, etc. you can use, but which semantic chunks of policy you can
+> edit and how you can edit them. Furthermore, modifications can be kept
+> separate from the original policy source.
+> 
 
-We are making an assumption that the last entry is always the final say.  Which may or may not be the case.
+Sound good so far.  
+
+Did you just want comments on the general description given above at
+this time, or are you planning on sending a more detailed proposal to
+the list?
+
+Some examples to show what the CIL would look like might be helpful.
  
->> Do we really need this?  Are there multiple entries on the same mount
->> point directory with different option lists?  Is this to handle special
->> cases like rootfs (which should likely just get ignored)?
->>
->>> +
->>> +		item = strtok(mount_info[3], ",");
->>> +		while (item != NULL) {
->>> +			if (strcmp(item, "seclabel") == 0) {
->>> +				found = 1;
->>> +				break;
->>> +			}
->>> +			item = strtok(NULL, ",");
->>> +		}
->>> +
->>> +		/* exclude mount points with out seclabel flag */
->>> +		if (!found)
->>> +			add_exclude(mount_info[1]);
->>> +	}
->>> +}
->>> +
->>>  int main(int argc, char **argv)
->>>  {
->>>  	struct stat sb;
->>> @@ -766,6 +837,9 @@ int main(int argc, char **argv)
->>>  			exit(0);
->>>  	}
->>>  
->>> +	/* This must happen before getops */
->>> +	exclude_non_seclabel_mounts();
-> That's true.  I guess I could either have add_exclude check to see if it's
-> already in the list or just always remove first.
-> 
->> What happens if a directory gets excluded by both this logic and via
->> explicit option?  We don't want multiple entries in the array for that.
->>
-It would end up being in the list multiple times, which would not be a problem unless you wanted to pathologically cause problems.
-
--e /etc -e /etc -e /etc -e /etc -e /usr
-
-Would cause each directory looked at too search multiple entries as upposed to slowing down startup by checking for duplicates.
-
-remove_exlcude()
-add_exclude()
-
-Would fix.  
-
->>> +
->>>  	/* Process any options. */
->>>  	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
->>>  		switch (opt) {
->>>
->>>
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>> the words "unsubscribe selinux" without quotes as the message.
-> 
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
