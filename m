@@ -1,162 +1,142 @@
-Subject: [PATCH] policycoreutils: get setfiles to skip mounts without
- seclabel
-From: Thomas Liu <tliu@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
-        dwalsh@redhat.com
-Content-Type: text/plain
-Date: Tue, 14 Jul 2009 10:15:44 -0400
-Message-Id: <1247580944.2266.1.camel@Ares>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC] Install SELinux policies from rpm package header
+Date: Tue, 14 Jul 2009 10:36:44 -0400
+Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E012CDB7F@exchange2.columbia.tresys.com>
+In-Reply-To: <4A5C7809.3020205@redhat.com>
+References: <C680D5CD.A8AD7%csellers@tresys.com> <9DB3FF14-CCB5-445C-BE63-1EBE84125E6A@nall.com> <4A5B7180.8080909@manicmethod.com> <789CDC33-514C-4816-AF43-BBD629075BA5@nall.com> <06A6610D4F464D4EBEAFBF2C5F86911E012CDA82@exchange2.columbia.tresys.com> <4A5C7809.3020205@redhat.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Joe Nall" <joe@nall.com>, "Joshua Brindle" <method@manicmethod.com>,
+        "Chad Sellers" <csellers@tresys.com>, <jwcart2@tycho.nsa.gov>,
+        "Paul Howarth" <paul@city-fan.org>, "SE Linux" <selinux@tycho.nsa.gov>,
+        "Stephen Lawrence" <slawrence@tresys.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Get setfiles to check paths for seclabel and skip them
-if it is not supported.
+> From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
+> 
+> On 07/13/2009 02:52 PM, Joshua Brindle wrote:
+> >> From: Joe Nall [mailto:joe@nall.com]
+> >>
+> >> On Jul 13, 2009, at 12:40 PM, Joshua Brindle wrote:
+> >>
+> >>> Joe Nall wrote:
+> >>>> On Jul 13, 2009, at 11:15 AM, Chad Sellers wrote:
+> >>>>
+> >>>>> On 7/10/09 4:26 PM, "Joshua 
+> Brindle"<jbrindle@tresys.com>  wrote:
+> >>>>>
+> >>>>>>> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
+> >>>>>>>
+> >>>>>>>> Its alot worse than that. What about files on backup
+> >>>>>>> drives? Offline drives?
+> >>>>>>>> transient files that will get relabeled to something 
+> >>>>>>>> inappropriate?
+> >>>>>>>> I'm not confortable relabeling databases with potentially 
+> >>>>>>>> sensitive data to var_lib_t because mysql was uninstalled.
+> >>>>>>>>
+> >>>>>>> The argument seems to be for removing the ability to remove 
+> >>>>>>> modules.
+> >>>>>>> It would be the roach motel style of policy management.
+> >>>>>>>
+> >>>>>> I like it, policies check in but don't check out. I
+> >> haven't heard
+> >>>>>> an argument about 1) how I'm crazy and wrong or 2) how to keep 
+> >>>>>> systems running as expected otherwise though.
+> >>>>> There's certainly a case for leaving all policy
+> >> installed. Policy is
+> >>>>> configuration data, which RPM also leaves installed 
+> when removing 
+> >>>>> packages.
+> >>>>> We could easily treat policy the same.
+> >>>> Our app has 140 rpms that install policy. They install in
+> >> the %post
+> >>>> and do a restorecon of the relevant installed files and 
+> >>>> /etc/selinux/mls/modules. Daemons are stopped in the
+> >> %preun. Policy
+> >>>> is removed in the %postun and more restorecon occurs. 
+> The biggest 
+> >>>> annoyance with this approach is the 140 individual
+> >> transactions are
+> >>>> ssllooww.
+> >>>>
+> >>> Yes, if you want to test out the patch sent to the rpm list
+> >> and report
+> >>> results with lots of policy packages that would be awesome :)
+> >>>
+> >>>> I would really like to see policy batched up and installed
+> >> early in
+> >>>> the transaction. I think blindly leaving the policy behind on 
+> >>>> uninstall is configuration management insanity. When an rpm is 
+> >>>> removed, all of the unmodified installation should be 
+> removed with 
+> >>>> it. Files should be relabeled to match the post
+> >> installation policy.
+> >>>> That way a subsequent install behaves the way you would
+> >> intuitively
+> >>>> expect.
+> >>>>
+> >>> I see the claim but I don't see the argument. A 
+> subsequent install 
+> >>> will either replace the old module or do nothing (if its
+> >> the same) and
+> >>> all the old files will already be labeled properly, in 
+> fact this is 
+> >>> the main reason I want to leave old policies around. Note
+> >> that users
+> >>> will always be able to remove policies themselves, I just
+> >> don't think
+> >>> we can make rpm smart enough to know the users intentions
+> >> (perhaps if
+> >>> it was written in python we could just import psychic :) )
+> >> We are going to have to disagree on what is proper. Based on our 
+> >> experience with multiple policies, I think you are going 
+> to get into 
+> >> trouble with policy upgrades when type declarations move 
+> or multiple 
+> >> rpms declare the same type in policy. You have to think about how 
+> >> policies and rpms evolve over time.
+> >>
+> >
+> > So renames are a different issue that we are thinking 
+> about. Eg., if a 
+> > module claims to replace a module meaning it provides the same 
+> > type-space and behavior then we need some facility for 
+> telling rpm so 
+> > it can remove the old and add the new during the same transaction, 
+> > this is already a work in progress.
+> >
+> > Removing a policy entirely is what the above thread was 
+> about, and I 
+> > still maintain that automated removal of policies is a bad idea, 
+> > violates the principle of least surprise and has the potential of 
+> > leaking sensitive data or leaving the system inconsisten or 
+> > non-functional.
+> One Idea I had was to have two policies.  One for install and 
+> one for uninstall, the uninstall policy takes all of the 
+> types defined in the install and typealias them to some base name.
+> 
+> httpd_exec_t == bin_t
+> httpd_var_run_t == var_run_t
+> 
 
-Parse /proc/mounts and add paths that do not have seclabel
-to the exclude list.  If another path shows up that does
-have seclabel, remove it from the exclude list, since setfiles
-will try and when it fails it will skip it.
+Yes, that is an option. Karl talked about using the type hierarchy to
+gracefully degrade types automatically in the past, I doubt this is
+practical though since the type hierarchy used for security dominance is
+unlikely to also represent some functional degradation of types. Further
+I suspect that bin_t, for example, isn't currently a superset of all
+exec types.
 
-Also made one of the error messages in add_exclude more
-descriptive.
-
-Signed-off-by: Thomas Liu <tliu@redhat.com>
-Signed-off-by: Dan Walsh <dwalsh@redhat.com>
----
-
- policycoreutils/setfiles/setfiles.c |   80 ++++++++++++++++++++++++++++++++++-
- 1 files changed, 77 insertions(+), 3 deletions(-)
-
-
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 1356fb9..9f27a1d 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -11,6 +11,7 @@
- #include <ctype.h>
- #include <regex.h>
- #include <sys/vfs.h>
-+#include <sys/utsname.h>
- #define __USE_XOPEN_EXTENDED 1	/* nftw */
- #define SKIP -2
- #define ERR -1
-@@ -39,7 +40,7 @@ static int force = 0;
- static int progress = 0;
- static unsigned long long count = 0;
- 
--#define MAX_EXCLUDES 100
-+#define MAX_EXCLUDES 1000
- static int excludeCtr = 0;
- struct edir {
- 	char *directory;
-@@ -243,8 +244,8 @@ static int add_exclude(const char *directory)
- 		return 1;
- 	}
- 	if (lstat(directory, &sb)) {
--		fprintf(stderr, "Directory \"%s\" not found, ignoring.\n",
--			directory);
-+		fprintf(stderr, "Can't stat directory \"%s\", %s.\n",
-+			directory, strerror(errno));
- 		return 0;
- 	}
- 	if ((sb.st_mode & S_IFDIR) == 0) {
-@@ -275,6 +276,20 @@ static int add_exclude(const char *directory)
- 	return 0;
- }
- 
-+static void remove_exclude(const char *directory)
-+{
-+	int i = 0;
-+	for (i = 0; i < excludeCtr; i++) {
-+		if (strcmp(directory, excludeArray[i].directory) == 0) {
-+			if (i != excludeCtr-1)
-+				excludeArray[i] = excludeArray[excludeCtr-1];
-+			excludeCtr--;
-+			return;
-+		}
-+	}
-+	return;
-+}
-+
- static int exclude(const char *file)
- {
- 	int i = 0;
-@@ -699,6 +714,62 @@ static void maybe_audit_mass_relabel(void)
- #endif
- }
- 
-+/*
-+   Search /proc mounts for all file systems that do not support extended
-+   attributes and add them to the exclude directory table.  File systems
-+   support seclabel are labeled seclabel
-+*/
-+static void exclude_non_seclabel_mounts()
-+{
-+	struct utsname uts;
-+	FILE *fp = fopen("/proc/mounts", "r");
-+	size_t len;
-+	ssize_t num;
-+	int index = 0, found = 0;
-+	char *mount_info[4];
-+	char *buf = NULL, *item;
-+	/* Check to see if the kernel supports seclabel */
-+	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
-+		return;
-+	if (!fp)
-+		return;
-+
-+	while ((num = getline(&buf, &len, fp)) != -1) {
-+		found = 0;
-+		index = 0;
-+		item = strtok(buf, " ");
-+		while (item != NULL) {
-+			mount_info[index] = item;
-+			if (index == 3)
-+				break;
-+			index++;
-+			item = strtok(NULL, " ");
-+		}
-+		if (index < 3) {
-+			fprintf(stderr,
-+				"/proc/mounts record \"%s\" has incorrect format.\n",
-+				buf);
-+			continue;
-+		}
-+
-+		/* remove pre-existing entry */
-+		remove_exclude(mount_info[1]);
-+
-+		item = strtok(mount_info[3], ",");
-+		while (item != NULL) {
-+			if (strcmp(item, "seclabel") == 0) {
-+				found = 1;
-+				break;
-+			}
-+			item = strtok(NULL, ",");
-+		}
-+
-+		/* exclude mount points with out seclabel flag */
-+		if (!found)
-+			add_exclude(mount_info[1]);
-+	}
-+}
-+
- int main(int argc, char **argv)
- {
- 	struct stat sb;
-@@ -766,6 +837,9 @@ int main(int argc, char **argv)
- 			exit(0);
- 	}
- 
-+	/* This must happen before getops */
-+	exclude_non_seclabel_mounts();
-+
- 	/* Process any options. */
- 	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
- 		switch (opt) {
-
+This is sort of like my uninstall template idea except that I was
+thinking the types would stick around and allow rules that allowed
+admins and backup programs to continue the access would be put in place.
+If someone was willing to do uninstall sections of all the policies I
+suppose this idea could work. This may be worth considering for the new
+intermediate language work.
 
 
 --
