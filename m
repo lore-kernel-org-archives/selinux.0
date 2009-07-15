@@ -1,72 +1,70 @@
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6GBQrnr021715
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 07:26:53 -0400
+Received: from mail-ew0-f217.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6GBRbuk022418
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 11:27:38 GMT
+Received: by ewy17 with SMTP id 17so52565ewy.18
+        for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 04:26:50 -0700 (PDT)
 Subject: RE: /etc/selinux/  directory structure...
 From: Dominick Grift <domg472@gmail.com>
 To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
 Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D06F02F2C@de01exm68.ds.mot.com>
-References: <D06FE0A2807BC145B0D38744789D4F5D06817A56@de01exm68.ds.mot.com>
-	 <13D6E9E0302C0E4B9EE667132D21766C02B8342F@ala-mail09.corp.ad.wrs.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D06F02EC0@de01exm68.ds.mot.com>
-	 <1247673423.9960.10.camel@notebook2.grift.internal>
-	 <D06FE0A2807BC145B0D38744789D4F5D06F02F2C@de01exm68.ds.mot.com>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-9qUeMS1JcxodzRvuOofg"
-Date: Wed, 15 Jul 2009 18:28:57 +0200
-Message-Id: <1247675337.9960.21.camel@notebook2.grift.internal>
+In-Reply-To: <810e01ca0573$9e8300db$6608b00a@ds.mot.com>
+References: <810e01ca0573$9e8300db$6608b00a@ds.mot.com>
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-DiccEN9g+Ge6+MHrzEft"
+Date: Wed, 15 Jul 2009 20:29:12 +0200
+Message-Id: <1247682552.9960.22.camel@notebook2.grift.internal>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-9qUeMS1JcxodzRvuOofg
+--=-DiccEN9g+Ge6+MHrzEft
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2009-07-15 at 12:09 -0400, Hasan Rezaul-CHR010 wrote:
+On Wed, 2009-07-15 at 12:42 -0500, Hasan Rezaul-CHR010 wrote:
+> Also, would you kindly give me an idea of approximately when the "strict"=
+ policy framework was merged into the "targeted" framework ?  Please provid=
+e specific selinux package version(s) when this was first done.  Thanks.
+
+http://oss.tresys.com/projects/refpolicy/ticket/35
+
+Merged into trunk at revision 2437.
+
+>=20
+>=20
+> -----Original Message-----
+> From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+> To: "Dominick Grift" <domg472@gmail.com>
+> Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>; "Daniel J Walsh" <dw=
+alsh@redhat.com>; "Stephen Smalley" <sds@tycho.nsa.gov>
+> Sent: 7/15/2009 11:13 AM
+> Subject: RE: /etc/selinux/  directory structure...
+>=20
 > Interesting.  Thanks so much for your response.
 >=20
 > Is there some place I can get more useful info about how best to take my
 > current set of 'strict' policies, and sort of migrate them onto the new
 > improved targeted policy framework.
-
-Well the way to do it is pretty much the same. But policy itself has
-evolved in the meantime. So some of your custom policy may not longer be
-applicable.
-
+>=20
 > I am not dying to use 'strict' policies... The reasons why I was pushed
 > in this direction were:
-> - I wrote some policies (custom.pp)=20
-> to deny certain accesses by certain
+> - I wrote some policies (custom.pp) to deny certain accesses by certain
 > users. The targeted policy didn't seem to be restricting those
 > operations, as I had intended. But the strict policy, did.
-
-Now you can use both strict users and unrestricted users or you can
-choose to make your targeted policy strict by uninstalling the
-unconfined module.
-
 > - I wanted the philosophy of, "when in doubt, block the operation", as
 > opposed to "when in doubt, allow the operation".  I felt that the
 > 'strict' policy better aligns with that goal. Perhaps I am wrong, and
 > either option is viable ?
-
-I like to think least privilege. If i am in doubt i will block until
-proven otherwise.
-
+>=20
 > In any case, I guess I would have to develop my policies again to fit
 > with the targeted policy framework now. Any suggestions on a good
 > starting point.. Documentation, training materials for developing custom
 > policies ?   Thanks again for the help.
-
-Reference policy itself is the best documentation around in my view. It
-is full of examples. There is also danwalsh.livejournal.com where dwalsh
-pretty much covered all new features. Also the selinux, fedora-selinux
-and tresys-refpolicy mail list archives have good information. You can
-also get help by joining our irc chat rooms.
-
-Here is a neat summary of some SELinux resources:
-
-http://selinuxproject.org/page/User_Resources
-
-
+>=20
 >=20
 > -----Original Message-----
 > From: Dominick Grift [mailto:domg472@gmail.com]=20
@@ -167,20 +165,27 @@ http://selinuxproject.org/page/User_Resources
 > > If you no longer wish to subscribe, send mail to=20
 > > majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
 > quotes as the message.
+>=20
+>=20
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov =
+with
+> the words "unsubscribe selinux" without quotes as the message.
 
---=-9qUeMS1JcxodzRvuOofg
+--=-DiccEN9g+Ge6+MHrzEft
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEUEABECAAYFAkpeA8QACgkQMlxVo39jgT/9IACgz6i5rxjz+gSiRiItFFSwmPx+
-DrAAmKAgIUw48LsDQM44fEpLIsSGpMk=
-=EPLR
+iEYEABECAAYFAkpeH+8ACgkQMlxVo39jgT9g/wCdFsqU14KehuBZNU+eqHE2TNUv
+k4oAn2cBTE8JPsV2bwXHnXQr11OVuGlL
+=Pgje
 -----END PGP SIGNATURE-----
 
---=-9qUeMS1JcxodzRvuOofg--
+--=-DiccEN9g+Ge6+MHrzEft--
 
 
 --
