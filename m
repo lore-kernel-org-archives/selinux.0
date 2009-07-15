@@ -1,68 +1,33 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6FEb3UA030346
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2009 10:37:03 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6FEbmuM006396
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2009 14:37:49 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n6FEb1Cc004964
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2009 10:37:02 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n6FEb0Fw015880
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2009 10:37:01 -0400
-Received: from localhost.localdomain (vpn-12-115.rdu.redhat.com [10.11.12.115])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n6FEb00v024669
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2009 10:37:00 -0400
-Message-ID: <4A5DE96B.7080400@redhat.com>
-Date: Wed, 15 Jul 2009 10:36:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: libsemanage patch
-Content-Type: multipart/mixed;
- boundary="------------070100060303060807060501"
+Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on
+ sysfs files, directories, and symlinks.
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: jmorris@namei.org
+Cc: sds@tycho.nsa.gov, gregkh@susa.de, casey@schaufler-ca.com,
+        ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+In-Reply-To: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 15 Jul 2009 10:28:55 -0400
+Message-Id: <1247668135.4398.387.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070100060303060807060501
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+For some odd reason guilt and git-send-email doesn't allow me to specify
+a summary email for when there is a single patch in the patch set. So I
+will put the comments here.
 
-If you have a homedir that ends in '/', genhomedircon gets confused.
+This is revision two of the sysfs security xattr support patch. It has
+taken Eric's suggestion and adds a new structure which holds all the
+optional sysfs_dirent inode metadata. This is allocated when either the
+security label or some other inode property is changed. I still believe
+that a secid is the way to go here and that the hooks proposed for sysfs
+are usable by other psudo file systems and where to store the secid will
+have to be assessed on a case by case basis.
 
-# useradd -h /home2/dwalsh/ dwalsh
-# genhomedircon
+Dave
 
-Check out the labeling.  genhomedircon thinks dwalsh is a toplevel home root.  
-
-We should just get rid of this command...  :^)
-
-Patch removes all trailing '/' from homedir.
-
---------------070100060303060807060501
-Content-Type: text/plain;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="libsemanage-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c	2008-08-28 09:34:24.000000000 -0400
-+++ libsemanage-2.0.33/src/genhomedircon.c	2009-07-15 10:32:20.000000000 -0400
-@@ -304,6 +304,10 @@
- 			continue;
- 		if (!semanage_list_find(shells, pwbuf->pw_shell))
- 			continue;
-+		int len = strlen(pwbuf->pw_dir) -1;
-+		for(; len > 0 && pwbuf->pw_dir[len]=='/'; len--) {
-+			pwbuf->pw_dir[len]=0;
-+		}
- 		if (strcmp(pwbuf->pw_dir, "/") == 0)
- 			continue;
- 		if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
-
---------------070100060303060807060501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
