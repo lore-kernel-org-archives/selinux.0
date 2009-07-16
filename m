@@ -1,90 +1,132 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6GBtnB5028201
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 07:55:50 -0400
-Received: from ey-out-1920.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6GBtSS6012679
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 11:55:28 GMT
-Received: by ey-out-1920.google.com with SMTP id 3so16522eyh.30
-        for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 04:55:48 -0700 (PDT)
-Message-ID: <4A5E4E8A.3090407@gmail.com>
-Date: Wed, 15 Jul 2009 14:47:54 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [refpolicy] refpolicy moved to git
-References: <1247514939.31521.30.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1247514939.31521.30.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6GHv31d019889
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 13:57:03 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n6GHvnsR005941
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2009 17:57:49 GMT
+Date: Thu, 16 Jul 2009 13:57:01 -0400
+Subject: Re: Patch to semanage
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C684E22D.A8D06%csellers@tresys.com>
+In-Reply-To: <4A564ED7.2020206@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> The Reference Policy repository has been moved over to git.  The new
-> repository can be cloned by:
->
-> git clone http://oss.tresys.com/git/refpolicy.git
->
-> The subversion repository will remain as it still has history on old
-> branches and a few other items which were not propagated over to the git
-> repository.  However the subversion repository will no longer be
-> updated.
->
->    
-Alright finally no more svn(hated to compile that from source)
-SELinux looks good:
+On 7/9/09 4:11 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-  uname -r
-2.6.31-rc3-00040-g78d802d
+> Allows semanage to use equivalence.
+> 
+> Also adds better support for booleans and modules, add support for setting
+> dontaudit rules.
+> --- nsapolicycoreutils/semanage/semanage    2009-05-18 13:53:14.000000000
+> -0400
+> +++ policycoreutils-2.0.67/semanage/semanage    2009-07-07 16:47:35.000000000
+> -0400
+> @@ -44,16 +44,17 @@
+>                 text = _("""
+>  semanage [ -S store ] -i [ input_file | - ]
+>  
+> -semanage {boolean|login|user|port|interface|node|fcontext|translation} -{l|D}
+> [-n]
+> +semanage {module,boolean|login|user|port|interface|node|fcontext|translation}
+> -{l|D} [-n]
+>  semanage login -{a|d|m} [-sr] login_name | %groupname
+>  semanage user -{a|d|m} [-LrRP] selinux_name
+>  semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
+>  semanage interface -{a|d|m} [-tr] interface_spec
+>  semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask] addr
+> -semanage fcontext -{a|d|m} [-frst] file_spec
+> +semanage fcontext -{a|d|m} [-frst] [-e path ] file_spec
+>  semanage translation -{a|d|m} [-T] level
+>  semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
+> -semanage permissive -{d|a} type
+> +semanage permissive -{a|d} type
+> +semanage module -{a|d|} module
+>  
+So, you're adding module support to semanage, duplicating what semodule
+already does? Are you proposing that we deprecate semodule or is there a
+reason we need duplicate functionality? Or am I missing something?
 
-dmesg | grep SELinux
+>  Primary Options:
+>  
+> @@ -68,6 +69,7 @@
+>      -h, --help       Display this message
+>      -n, --noheading  Do not print heading when listing OBJECTS
+>          -S, --store      Select and alternate SELinux store to manage
+> +        --dontaudit      Turn on or off dontaudit rules
+>  
+>  Object-specific Options (see above):
+>  
+> @@ -84,6 +86,7 @@
+>          -F, --file       Treat target as an input file for command, change
+> multiple settings
+>      -p, --proto      Port protocol (tcp or udp) or internet protocol version
+> of node (ipv4 or ipv6)
+>      -M, --mask       Netmask
+> +        -e, --equil      Make target equil to this paths labeling
 
-[    0.000692] SELinux:  Initializing.
-[    0.000706] SELinux:  Starting in enforcing mode.
-[    0.573419] SELinux:  Registering netfilter hooks.
-[    2.224123] SELinux: 8192 avtab hash slots, 156371 rules.
-[    2.360334] SELinux: 8192 avtab hash slots, 156371 rules.
-[    2.595788] SELinux:  7 users, 13 roles, 2840 types, 105 bools
-[    2.612247] SELinux:  74 classes, 156371 rules
-[    2.637378] SELinux:  Completing initialization.
-[    2.654067] SELinux:  Setting up existing superblocks.
-[    2.698848] SELinux: Initialized (dev sda3, type ext3), uses xattr
-[    2.716222] SELinux: Initialized (dev selinuxfs, type selinuxfs), 
-uses genfs_contexts
-[    2.733764] SELinux: Initialized (dev mqueue, type mqueue), uses 
-transition SIDs
-[    2.751185] SELinux: Initialized (dev hugetlbfs, type hugetlbfs), 
-uses genfs_contexts
-[    2.768865] SELinux: Initialized (dev devpts, type devpts), uses 
-transition SIDs
-[    2.786455] SELinux: Initialized (dev inotifyfs, type inotifyfs), 
-uses genfs_contexts
-[    2.804309] SELinux: Initialized (dev tmpfs, type tmpfs), uses 
-transition SIDs
-[    2.822384] SELinux: Initialized (dev anon_inodefs, type 
-anon_inodefs), uses genfs_contexts
-[    2.840813] SELinux: Initialized (dev pipefs, type pipefs), uses task 
-SIDs
-[    2.840822] SELinux: Initialized (dev debugfs, type debugfs), uses 
-genfs_contexts
-[    2.841061] SELinux: Initialized (dev sockfs, type sockfs), uses task 
-SIDs
-[    2.841071] SELinux: Initialized (dev proc, type proc), uses 
-genfs_contexts
-[    2.841082] SELinux: Initialized (dev bdev, type bdev), uses 
-genfs_contexts
-[    2.841088] SELinux: Initialized (dev rootfs, type rootfs), uses 
-genfs_contexts
-[    2.841099] SELinux: Initialized (dev sysfs, type sysfs), uses 
-genfs_contexts
-[    5.141632] SELinux: Initialized (dev tmpfs, type tmpfs), uses 
-transition SIDs
-[    8.541464] SELinux: Initialized (dev tmpfs, type tmpfs), uses 
-transition SIDs
+Did you mean for this to be "equal" instead of "equil?" Perhaps I'm missing
+something, but dictionary.com turned up no results for equil. That said, I
+like the idea as this seems to be a nice convenience feature.
 
-If I find anything(other than grammar fixes) I'll send a post..
+<snip> 
+> @@ -323,6 +342,9 @@
+>          
+>          if object == "boolean":
+>              OBJECT = seobject.booleanRecords(store)
+> +
+> +        if object == "module":
+> +            OBJECT = seobject.moduleRecords(store)
+>          
+The moduleRecords() method does not seem to exist anywhere that I can find
+it. I'm guessing there is a corresponding patch to seobject.py?
 
-Justin P. Mattock
+>          if object == "translation":
+>              OBJECT = seobject.setransRecords()
+> @@ -341,6 +363,13 @@
+>              OBJECT.deleteall()
+>                          return
+>              
+> +        if dontaudit != "":
+> +            if object == "module":
+> +                               OBJECT.dontaudit(dontaudit)
+> +                        else:
+> +                               raise ValueError(_("%s bad option") % o)
+> +                        return
+> +
+>          if len(cmds) != 1:
+>                         raise ValueError(_("%s bad option") % o)
+>                  
+> @@ -362,11 +391,17 @@
+>              if object == "interface":
+>                  OBJECT.add(target, serange, setype)
+>  
+> +            if object == "module":
+> +                OBJECT.add(target)
+> +
+>              if object == "node":
+>                  OBJECT.add(target, mask, proto, serange, setype)
+>  
+>              if object == "fcontext":
+> -                OBJECT.add(target, setype, ftype, serange, seuser)
+> +                                if equil == "":
+> +                                       OBJECT.add(target, setype, ftype,
+> serange, seuser)
+> +                                else:
+> +                                       OBJECT.add_equil(target, equil)
+
+The add_equil() method does not seem to exist either. I'm guessing there are
+more missing methods as well.
+
+Thanks,
+Chad
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
