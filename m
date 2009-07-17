@@ -1,175 +1,185 @@
-Subject: [PATCH -v2] policycoreutils: get setfiles to skip mounts without
- seclabel
-From: Thomas Liu <tliu@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, eparis@parisplace.org
-In-Reply-To: <4A5CC564.3090408@redhat.com>
-References: <1247580944.2266.1.camel@Ares>
-	 <1247585401.28321.336.camel@moss-pluto.epoch.ncsc.mil>
-	 <1247587468.2164.17.camel@Ares>  <4A5CC564.3090408@redhat.com>
+Subject: Re: [RFC] Common Intermediary Language
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Caleb Case <ccase@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        mgoldman@tresys.com, jbrindle@tresys.com
+In-Reply-To: <150846cc0907141021k36388ef8h31ff3b24609d2ea6@mail.gmail.com>
+References: <150846cc0907141021k36388ef8h31ff3b24609d2ea6@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 17 Jul 2009 10:48:31 -0400
-Message-Id: <1247842112.2096.0.camel@Ares>
+Date: Fri, 17 Jul 2009 11:02:00 -0400
+Message-Id: <1247842920.9257.101.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Get setfiles to check paths for seclabel and skip them
-if it is not supported.
+On Tue, 2009-07-14 at 13:21 -0400, Caleb Case wrote:
+> The current kernel policy language has a number of limitations. These
+> limitations make it difficult for the needs of policy writers to be
+> met.
+> 
+The rest of this is really talking about the module language that
+Refpolicy is written in not the kernel policy language.
 
-Parse /proc/mounts and add paths that do not have seclabel
-to the exclude list.  If another path shows up that does
-have seclabel, remove it from the exclude list, since setfiles
-will try and when it fails it will skip it.
+> An example of this is an administrator who wants to create an Apache
+> policy that is based on the default Apache policy. The administrator
+> wants to tweak the policy a little, but also wants to track changes
+> from the distribution to the original Apache policy.
+> 
+> Another example is an administrator that wants to take a permissive
+> distribution policy and tighten it down. The administrator doesn't
+> want to replace the entire policy, just remove a few permissions from
+> it (maybe even removing permissions that aren't there already).
+> 
+I believe that the ability to keep the distribution policy and local
+customizations separate, while allowing permissions to be either added
+or removed will be very helpful.
 
-Also made one of the error messages in add_exclude more
-descriptive.
+To remove permissions currently requires the admin to modify the
+distribution policy sources (unless they want to entirely rewrite the
+module.)  It hasn't been a big problem since most people are customizing
+the policy to make it more permissive.  They aren't concerned with
+locking things down tighter, they just want their system to work.
 
-Signed-off-by: Thomas Liu <tliu@redhat.com>
-Signed-off-by: Dan Walsh <dwalsh@redhat.com>
----
-Fixed up a few things based on suggestions.
- policycoreutils/setfiles/setfiles.c |   82 ++++++++++++++++++++++++++++++++++-
- 1 files changed, 79 insertions(+), 3 deletions(-)
+> This is just the problems from the administrator's point of view.
+> Consider the problems from a 3rd party software provider, the
+> distribution, and individual software users.
+> 
+> For example, a distribution wants to ship a policy that works for a
+> broad range of uses, but that compromises some security for
+> flexibility. The administrator of a system only needs a limited set of
+> that flexibility, but also wants to get policy updates from the
+> distribution.
+> 
+> The current language also makes it difficult to integrate well with
+> High Level Languages (HLL). HLL needs a more featureful language to
+> target, but adding these features to the kernel policy language would
+> unnecessarily complicate the kernel security server.
+> 
+I can testify that it is a pain to target the current module language.  
 
+I think that higher level languages are the key to reducing the size and
+complexities of the policy.  So anything that will make it easier to
+design them and experiment with them is a good thing.
 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 1356fb9..00dfd87 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -11,6 +11,7 @@
- #include <ctype.h>
- #include <regex.h>
- #include <sys/vfs.h>
-+#include <sys/utsname.h>
- #define __USE_XOPEN_EXTENDED 1	/* nftw */
- #define SKIP -2
- #define ERR -1
-@@ -39,7 +40,7 @@ static int force = 0;
- static int progress = 0;
- static unsigned long long count = 0;
- 
--#define MAX_EXCLUDES 100
-+#define MAX_EXCLUDES 1000
- static int excludeCtr = 0;
- struct edir {
- 	char *directory;
-@@ -243,8 +244,8 @@ static int add_exclude(const char *directory)
- 		return 1;
- 	}
- 	if (lstat(directory, &sb)) {
--		fprintf(stderr, "Directory \"%s\" not found, ignoring.\n",
--			directory);
-+		fprintf(stderr, "Can't stat directory \"%s\", %s.\n",
-+			directory, strerror(errno));
- 		return 0;
- 	}
- 	if ((sb.st_mode & S_IFDIR) == 0) {
-@@ -275,6 +276,20 @@ static int add_exclude(const char *directory)
- 	return 0;
- }
- 
-+static void remove_exclude(const char *directory)
-+{
-+	int i = 0;
-+	for (i = 0; i < excludeCtr; i++) {
-+		if (strcmp(directory, excludeArray[i].directory) == 0) {
-+			if (i != excludeCtr-1)
-+				excludeArray[i] = excludeArray[excludeCtr-1];
-+			excludeCtr--;
-+			return;
-+		}
-+	}
-+	return;
-+}
-+
- static int exclude(const char *file)
- {
- 	int i = 0;
-@@ -699,6 +714,63 @@ static void maybe_audit_mass_relabel(void)
- #endif
- }
- 
-+/*
-+   Search /proc mounts for all file systems that do not support extended
-+   attributes and add them to the exclude directory table.  File systems
-+   support seclabel are labeled seclabel
-+*/
-+static void exclude_non_seclabel_mounts()
-+{
-+	struct utsname uts;
-+	FILE *fp;
-+	size_t len;
-+	ssize_t num;
-+	int index = 0, found = 0;
-+	char *mount_info[4];
-+	char *buf = NULL, *item;
-+	/* Check to see if the kernel supports seclabel */
-+	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
-+		return;
-+	fp = fopen("/proc/mounts", "r");
-+	if (!fp)
-+		return;
-+
-+	while ((num = getline(&buf, &len, fp)) != -1) {
-+		found = 0;
-+		index = 0;
-+		item = strtok(buf, " ");
-+		while (item != NULL) {
-+			mount_info[index] = item;
-+			if (index == 3)
-+				break;
-+			index++;
-+			item = strtok(NULL, " ");
-+		}
-+		if (index < 3) {
-+			fprintf(stderr,
-+				"/proc/mounts record \"%s\" has incorrect format.\n",
-+				buf);
-+			continue;
-+		}
-+
-+		/* remove pre-existing entry */
-+		remove_exclude(mount_info[1]);
-+
-+		item = strtok(mount_info[3], ",");
-+		while (item != NULL) {
-+			if (strcmp(item, "seclabel") == 0) {
-+				found = 1;
-+				break;
-+			}
-+			item = strtok(NULL, ",");
-+		}
-+
-+		/* exclude mount points with out seclabel flag */
-+		if (!found)
-+			add_exclude(mount_info[1]);
-+	}
-+}
-+
- int main(int argc, char **argv)
- {
- 	struct stat sb;
-@@ -766,6 +838,9 @@ int main(int argc, char **argv)
- 			exit(0);
- 	}
- 
-+	/* This must happen before getops */
-+	exclude_non_seclabel_mounts();
-+
- 	/* Process any options. */
- 	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
- 		switch (opt) {
-@@ -802,6 +877,7 @@ int main(int argc, char **argv)
- 				break;
- 			}
- 		case 'e':
-+			remove_exclude(optarg);
- 			if (add_exclude(optarg))
- 				exit(1);
- 			break;
+> The current module language suffers from the order dependence of
+> policy resulting in the base policy problem. All policy modules are
+> dependent on it, it can't be easily upgraded, and some features end up
+> baked into the base policy.
+> 
 
+Is the goal to make all modules equal?  It seems like there will still
+be a need for something like a base policy even if it only contained the
+flask declarations.  Would the xserver module contain all of the xserver
+classes and permissions?
+
+> The Common Intermediary Language (CIL) is designed to solve these
+> problems and many others that come up during policy development. It
+> provides a common target for higher-level/domain-specific languages.
+> It is not intended as a language that most policy developers will
+> write in.
+> 
+One of the nice things about a about a CIL is that it would allow for
+different parts of the policy to be written in different languages.  (I
+guess we sort of have that now, if you count the core network interfaces
+being written in m4, but I don't.)
+
+> The CIL is the combination of two languages: a transformation language
+> and a policy language.
+> 
+> The transformation language provides a number of useful features. For
+> example, it allows you to copy existing policy and rename it (as if it
+> were a template). Another example: it allows distributions to ship
+> _read-only_ policy while still allowing administrators to make changes
+> to it. The transform language acts similar to a semantic diff. The
+> supported operations are add, delete, move, and copy with the
+> potential add new operations as required. It is an embedded language
+> that exists inline with the policy language.
+> 
+
+The transformation language is the most important part as far as I am
+concerned.  It would provide the building blocks for higher level
+language contructs.  Without that support, a higher level language may
+have to parse the whole policy to be able to apply its constructs.
+
+> The policy language is a mid-level language that incorporates aspects
+> of the kernel policy language and provides some additional features
+> over the current policy language:
+> 
+> * symbol scoping and protection
+> 
+> The policy language is hierarchical in nature. Because of this policy
+> can be written such that private types are protected from use by other
+> modules (such as in an allow rule).
+> 
+
+This is a continuation of what Refpolicy is trying to do.
+
+> * parameterized blocks of policy
+> 
+> Policy can be grouped into blocks that take arguments. They are
+> similar in concept to interfaces in Reference Policy.
+> 
+
+Moving away from m4 macros will be good.  Death to type mangling!
+Death to treating arguments as text!  (In the call "I(A-B)" is "A-B" a
+set operation or a MLS range?)
+
+> * generic sets
+> 
+> Sets of types, roles, users, and other policy elements can be
+> represented. They are similar to attributes in the kernel language.
+> 
+
+Not that I would propose to do so, but it seems like you could do many
+(perhaps all) set operations with add and delete operations.  That
+would, however, add order dependencies.
+
+I would hope that the CIL also cleans up the many, many different lists.
+
+> * selections
+> 
+> Policy elements can be selected with a syntax similar to that of
+> FCGlob or XPath.
+> 
+
+This is definitely more powerful and flexible then just using a global
+or even a per-module namespace.  But I wonder if all that power will be
+used.
+
+> * labeling
+> 
+> Labeling is integrated into the policy language. This maintains the
+> relationship between policy rules and associated labeling.
+> 
+> * debug support
+> 
+> The CIL supports debugging symbols that allow tracing back generated
+> CIL to its original source files.
+> 
+> * order independence
+> 
+> The CIL is completely order independent.
+> 
+> * policy access control
+> 
+> The CIL's hierarchical nature lends itself to policy access control.
+> Policy access control will be able to not only dictate which types,
+> roles, etc. you can use, but which semantic chunks of policy you can
+> edit and how you can edit them. Furthermore, modifications can be kept
+> separate from the original policy source.
+
+Is there some sort of priority of which features would be implemented
+first?
+
+I think that this is good.  The key will be in keeping all of these
+powerful features and flexibility from turning it into a complex,
+heavy-weight beast that makes one wish for simpler days.  I believe it
+can be done, but caution is needed.
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
