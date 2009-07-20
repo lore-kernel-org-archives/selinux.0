@@ -1,53 +1,44 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6KHOkts027571
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 13:24:46 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n6KHPYhp017619
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 17:25:35 GMT
-Subject: Re: adding human understandable, and translatable description
- support to selinux
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Christopher Pardy <cpardy@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4A648075.3090402@redhat.com>
-References: <4A648075.3090402@redhat.com>
-Content-Type: text/plain
-Date: Mon, 20 Jul 2009 13:27:17 -0400
-Message-Id: <1248110839.23783.721.camel@gorn>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6KIQWMt004384
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 14:26:34 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6KIQ973011480
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 18:26:09 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n6KIQVXU028896
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 14:26:31 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n6KIQU93022150
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 14:26:30 -0400
+Received: from [10.16.3.86] (dhcp-100-3-86.bos.redhat.com [10.16.3.86])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n6KIQTLH013831
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jul 2009 14:26:29 -0400
+Message-ID: <4A64B6D4.6070205@redhat.com>
+Date: Mon, 20 Jul 2009 14:26:28 -0400
+From: Christopher Pardy <cpardy@redhat.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: adding human understandable, and translatable description support
+ to selinux
+References: <4A648075.3090402@redhat.com> <1248110839.23783.721.camel@gorn>	 <4A64ADA3.6020105@redhat.com> <1248114027.23783.725.camel@gorn>
+In-Reply-To: <1248114027.23783.725.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-07-20 at 10:34 -0400, Christopher Pardy wrote:
-> I'm currently working on improving the gui tools for managing
-> selinux(the ones that ship with fedora). One of the things that has
-> already come up is a need for more plain English descriptions of
-> various policy components. Currently this capability exists in the
-> policy.xml for booleans however this file is not rebuilt at policy
-> compile time so changes and even the installation of modules is not
-> reflected in this. I'd like to propose that a documentation section be
-> added to each policy directory, "/etc/selinux/<policyname>/docs/".
-> This would contain locale specific documentation files that would
-> store information in key-value pairs. ie: {users.guest_u:"A guest user
-> who can only (etc)"}. An interface to this store would be built for
-> libselinux and support for setting and getting documentation would be
-> added to some of the command line tools or given it's own tool.
-> Additionally a method would need to be created for policy authors to
-> define descriptions in there policy (similar to the policy.xml method)
-> Before I get started on this I wanted to see what the general opinion
-> on both the need and the best implementation would be. So what do you
-> guys think?
+> 
+> Did you forget to do reply to all?
+> 
 
-Why can't we just build on the policy.xml stuff instead of making a
-whole new format?  Refpolicy devel headers already installs sufficient
-xml to rebuild the policy.xml.  The xml portion of the headers could be
-separated out into a -docs pakage.  Why not just formalize the
-(re)building of the xml in the infrastructure?
+yes!
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+If that's the best way to go fine, however the xml file is only
+generated when I acutually compile the modules if I install a module
+through semanage any data that module adds will be left out. I
+certainly wouldn't be opposed to extending policy.xml as part of this
+but there needs to be a way for installed modules to work too.
+Additionally if we're going to continue the trend of using policy.xml
+for management rather than development we really should move it.
 
 
 --
