@@ -1,47 +1,148 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6LHu9vT010522
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jul 2009 13:56:09 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6LHtkQq007695
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jul 2009 17:55:46 GMT
-Message-ID: <4A66012E.60801@manicmethod.com>
-Date: Tue, 21 Jul 2009 13:55:58 -0400
-From: Joshua Brindle <method@manicmethod.com>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH -v2 1/2] VM/SELinux: require CAP_SYS_RAWIO for all mmap_zero
+	operations
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, spender@grsecurity.net,
+        dwalsh@redhat.com, cl@linux-foundation.org, arjan@infradead.org,
+        alan@lxorguk.ukuu.org.uk, kyle@mcmartin.ca, cpardy@redhat.com,
+        arnd@arndb.de
+Date: Tue, 21 Jul 2009 19:03:39 -0400
+Message-ID: <20090721230339.20180.99803.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: Christopher Pardy <cpardy@redhat.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: adding human understandable, and translatable description support
- to selinux
-References: <4A648075.3090402@redhat.com> <1248110839.23783.721.camel@gorn>	 <4A64ADA3.6020105@redhat.com> <1248114027.23783.725.camel@gorn> <4A64B6D4.6070205@redhat.com>
-In-Reply-To: <4A64B6D4.6070205@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher Pardy wrote:
->> Did you forget to do reply to all?
->>
->
-> yes!
->
-> If that's the best way to go fine, however the xml file is only
-> generated when I acutually compile the modules if I install a module
-> through semanage any data that module adds will be left out. I
-> certainly wouldn't be opposed to extending policy.xml as part of this
-> but there needs to be a way for installed modules to work too.
-> Additionally if we're going to continue the trend of using policy.xml
-> for management rather than development we really should move it.
->
+Currently non-SELinux systems need CAP_SYS_RAWIO for an application to mmap
+the 0 page.  On SELinux systems they need a specific SELinux permission,
+but do not need CAP_SYS_RAWIO.  This has proved to be a poor decision by
+the SELinux team as, by default, SELinux users are logged in unconfined and
+thus a malicious non-root has nothing stopping them from mapping the 0 page
+of virtual memory.
 
-One of the things that we want CIL to do is have the ability to embed 
-documentation for purposes such as debugging into the language. This would allow 
-the documentation to make it all the way into the module store and would be 
-retrievable by tools.
+On a non-SELinux system, a malicious non-root user is unable to do this, as
+they need CAP_SYS_RAWIO.
 
-For reference we started talking about CIL here:
-http://marc.info/?l=selinux&m=124784581623125&w=2
+This patch checks CAP_SYS_RAWIO for all operations which attemt to map a
+page below mmap_min_addr.
 
-though we haven't gotten very far in the discussion.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+ include/linux/security.h |    2 --
+ mm/mmap.c                |   11 +++++++++++
+ mm/mremap.c              |    8 ++++++++
+ mm/nommu.c               |    3 +++
+ security/capability.c    |    2 --
+ 5 files changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 1459091..f7d198a 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -2197,8 +2197,6 @@ static inline int security_file_mmap(struct file *file, unsigned long reqprot,
+ 				     unsigned long addr,
+ 				     unsigned long addr_only)
+ {
+-	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
+-		return -EACCES;
+ 	return 0;
+ }
+ 
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 34579b2..3bc88c4 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1050,6 +1050,10 @@ unsigned long do_mmap_pgoff(struct file *file, unsigned long addr,
+ 	error = security_file_mmap(file, reqprot, prot, flags, addr, 0);
+ 	if (error)
+ 		return error;
++
++	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++		return -EACCES;
++
+ 	error = ima_file_mmap(file, prot);
+ 	if (error)
+ 		return error;
+@@ -1657,10 +1661,14 @@ static int expand_downwards(struct vm_area_struct *vma,
+ 		return -ENOMEM;
+ 
+ 	address &= PAGE_MASK;
++
+ 	error = security_file_mmap(NULL, 0, 0, 0, address, 1);
+ 	if (error)
+ 		return error;
+ 
++	if ((address < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++		return -EACCES;
++
+ 	anon_vma_lock(vma);
+ 
+ 	/*
+@@ -2002,6 +2010,9 @@ unsigned long do_brk(unsigned long addr, unsigned long len)
+ 	if (error)
+ 		return error;
+ 
++	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++		return -EACCES;
++
+ 	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
+ 
+ 	error = arch_mmap_check(addr, len, flags);
+diff --git a/mm/mremap.c b/mm/mremap.c
+index a39b7b9..fc866c3 100644
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -303,6 +303,10 @@ unsigned long do_mremap(unsigned long addr,
+ 		if (ret)
+ 			goto out;
+ 
++		ret = -EACCES;
++		if ((new_addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++			goto out;
++
+ 		ret = do_munmap(mm, new_addr, new_len);
+ 		if (ret)
+ 			goto out;
+@@ -410,6 +414,10 @@ unsigned long do_mremap(unsigned long addr,
+ 			ret = security_file_mmap(NULL, 0, 0, 0, new_addr, 1);
+ 			if (ret)
+ 				goto out;
++
++			ret = -EACCES;
++			if ((new_addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++				goto out;
+ 		}
+ 		ret = move_vma(vma, addr, old_len, new_len, new_addr);
+ 	}
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 53cab10..891ed70 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -999,6 +999,9 @@ static int validate_mmap_request(struct file *file,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
++		return -EACCES;
++
+ 	/* looks okay */
+ 	*_capabilities = capabilities;
+ 	return 0;
+diff --git a/security/capability.c b/security/capability.c
+index f218dd3..a3a5d9b 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -334,8 +334,6 @@ static int cap_file_mmap(struct file *file, unsigned long reqprot,
+ 			 unsigned long prot, unsigned long flags,
+ 			 unsigned long addr, unsigned long addr_only)
+ {
+-	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
+-		return -EACCES;
+ 	return 0;
+ }
+ 
 
 
 --
