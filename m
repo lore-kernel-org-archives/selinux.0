@@ -1,143 +1,64 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 1/2] VM/SELinux: require CAP_SYS_RAWIO for all mmap_zero
-	operations
-To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, spender@grsecurity.net,
-        dwalsh@redhat.com, cl@linux-foundation.org, arjan@infradead.org,
-        alan@lxorguk.ukuu.org.uk, kyle@mcmartin.ca, cpardy@redhat.com,
-        arnd@arndb.de
-Date: Tue, 21 Jul 2009 10:41:58 -0400
-Message-ID: <20090721144157.14159.23439.stgit@paris.rdu.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: mmap_min_addr and your local LSM (ok, just SELinux)
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: James Morris <jmorris@namei.org>
+Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>, spender@grsecurity.net,
+        Daniel J Walsh <dwalsh@redhat.com>, cl@linux-foundation.org,
+        Arjan van de Ven <arjan@infradead.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, kees@outflux.net
+In-Reply-To: <alpine.LRH.2.00.0907211258110.32400@tundra.namei.org>
+References: <1248132223.2654.278.camel@localhost>
+	 <alpine.LRH.2.00.0907211258110.32400@tundra.namei.org>
+Content-Type: text/plain
+Date: Tue, 21 Jul 2009 10:44:42 -0400
+Message-Id: <1248187482.19456.90.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently non-SELinux systems need CAP_SYS_RAWIO for an application to mmap
-the 0 page.  On SELinux systems they need a specific SELinux permission,
-but do not need CAP_SYS_RAWIO.  This has proved to be a poor decision by
-the SELinux team as, by default, SELinux users are logged in unconfined and
-thus a malicious non-root has nothing stopping them from mapping the 0 page
-of virtual memory.
+On Tue, 2009-07-21 at 13:45 +1000, James Morris wrote:
+> I strongly believe that we need to maintain the principle, in SELinux and 
+> LSM generally, that the interface is restrictive, i.e. that it can only 
+> further restrict access.  It should be impossible, from a design point of 
+> view at least, for any LSM module to authorize more privilege than 
+> standard DAC.  This has always been a specific design goal of LSM.  (The 
+> capability module is an exception, as it has a fixed security policy and 
+> implements legacy DAC behavior; there's no way to "fix" this).
+> 
+> In this case, we're not dealing with a standard form of access control, 
+> where access to a userland object is being mediated.  We're trying to 
+> mediate the ability of a subject to bypass a separate mechanism which aims 
+> to protect the kernel itself from attack via a more fundamental system 
+> flaw.  The LSM module didn't create that vulnerability directly, but it 
+> must not allow the vulnerability to be more easily exploited.
+> 
+> The security policy writer should have a guarantee that the worst mistake 
+> they can make is to mess up their own security model; if they can mess up 
+> the base DAC security with MAC policy, we break that guarantee.  There's 
+> also an issue of user confidence in the LSM modules, in that they should 
+> not be any worse off security-wise if they enable an enhanced protection 
+> mechanism.
 
-On a non-SELinux system, a malicious non-root user is unable to do this, as
-they need CAP_SYS_RAWIO.
+Agreed.  That guarantee has been stated from the very beginning for
+SELinux; we shouldn't move away from it.  Are there other places where
+having an LSM weakens security by default?
 
-This patch checks CAP_SYS_RAWIO for all operations which attemt to map a
-page below mmap_min_addr.
+At least in this case, the guarantee was broke because it was desired to
+provide a stronger default.  Eric could have made the default be no
+protection at all.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
+Looking at the thread for the original patch at
+http://marc.info/?l=selinux&m=118056208425164&w=4
+Steve suggested that the sysctl could be controlled in SELinux by
+labeling it.  I am guessing that a new class and permission was created
+so that there could be finer-grained controls?  But if 16 bit wine apps
+are all that need this, then do we really need such fine control?
 
- include/linux/security.h |    2 --
- mm/mmap.c                |   10 ++++++++++
- mm/mremap.c              |    8 ++++++++
- mm/nommu.c               |    3 +++
- security/capability.c    |    2 --
- 5 files changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 1459091..f7d198a 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -2197,8 +2197,6 @@ static inline int security_file_mmap(struct file *file, unsigned long reqprot,
- 				     unsigned long addr,
- 				     unsigned long addr_only)
- {
--	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
--		return -EACCES;
- 	return 0;
- }
- 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 34579b2..37fdc90 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1047,6 +1047,9 @@ unsigned long do_mmap_pgoff(struct file *file, unsigned long addr,
- 		}
- 	}
- 
-+	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+		return -EACCES;
-+
- 	error = security_file_mmap(file, reqprot, prot, flags, addr, 0);
- 	if (error)
- 		return error;
-@@ -1657,6 +1660,10 @@ static int expand_downwards(struct vm_area_struct *vma,
- 		return -ENOMEM;
- 
- 	address &= PAGE_MASK;
-+
-+	if ((address < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+		return -EACCES;
-+
- 	error = security_file_mmap(NULL, 0, 0, 0, address, 1);
- 	if (error)
- 		return error;
-@@ -1998,6 +2005,9 @@ unsigned long do_brk(unsigned long addr, unsigned long len)
- 	if (is_hugepage_only_range(mm, addr, len))
- 		return -EINVAL;
- 
-+	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+		return -EACCES;
-+
- 	error = security_file_mmap(NULL, 0, 0, 0, addr, 1);
- 	if (error)
- 		return error;
-diff --git a/mm/mremap.c b/mm/mremap.c
-index a39b7b9..066e73d 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -299,6 +299,10 @@ unsigned long do_mremap(unsigned long addr,
- 		if ((addr <= new_addr) && (addr+old_len) > new_addr)
- 			goto out;
- 
-+		ret = -EACCES;
-+		if ((new_addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+			goto out;
-+
- 		ret = security_file_mmap(NULL, 0, 0, 0, new_addr, 1);
- 		if (ret)
- 			goto out;
-@@ -407,6 +411,10 @@ unsigned long do_mremap(unsigned long addr,
- 				goto out;
- 			}
- 
-+			ret = -EACCES;
-+			if ((new_addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+				goto out;
-+
- 			ret = security_file_mmap(NULL, 0, 0, 0, new_addr, 1);
- 			if (ret)
- 				goto out;
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 53cab10..c1f3eff 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -995,6 +995,9 @@ static int validate_mmap_request(struct file *file,
- 	}
- 
- 	/* allow the security API to have its say */
-+	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
-+		return -EACCES;
-+
- 	ret = security_file_mmap(file, reqprot, prot, flags, addr, 0);
- 	if (ret < 0)
- 		return ret;
-diff --git a/security/capability.c b/security/capability.c
-index f218dd3..a3a5d9b 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -334,8 +334,6 @@ static int cap_file_mmap(struct file *file, unsigned long reqprot,
- 			 unsigned long prot, unsigned long flags,
- 			 unsigned long addr, unsigned long addr_only)
- {
--	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
--		return -EACCES;
- 	return 0;
- }
- 
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
