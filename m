@@ -1,64 +1,67 @@
-Subject: Re: mmap_min_addr and your local LSM (ok, just SELinux)
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: James Morris <jmorris@namei.org>
-Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, spender@grsecurity.net,
-        Daniel J Walsh <dwalsh@redhat.com>, cl@linux-foundation.org,
-        Arjan van de Ven <arjan@infradead.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, kees@outflux.net
-In-Reply-To: <alpine.LRH.2.00.0907211258110.32400@tundra.namei.org>
-References: <1248132223.2654.278.camel@localhost>
-	 <alpine.LRH.2.00.0907211258110.32400@tundra.namei.org>
+Subject: Re: [PATCH 1/2] VM/SELinux: require CAP_SYS_RAWIO for all
+ mmap_zero operations
+From: Eric Paris <eparis@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, sds@tycho.nsa.gov,
+        jmorris@namei.org, spender@grsecurity.net, dwalsh@redhat.com,
+        cl@linux-foundation.org, arjan@infradead.org, kyle@mcmartin.ca,
+        cpardy@redhat.com, arnd@arndb.de
+In-Reply-To: <20090721160437.5bda68b4@lxorguk.ukuu.org.uk>
+References: <20090721144157.14159.23439.stgit@paris.rdu.redhat.com>
+	 <20090721160437.5bda68b4@lxorguk.ukuu.org.uk>
 Content-Type: text/plain
-Date: Tue, 21 Jul 2009 10:44:42 -0400
-Message-Id: <1248187482.19456.90.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 21 Jul 2009 11:18:44 -0400
+Message-Id: <1248189524.2654.301.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-07-21 at 13:45 +1000, James Morris wrote:
-> I strongly believe that we need to maintain the principle, in SELinux and 
-> LSM generally, that the interface is restrictive, i.e. that it can only 
-> further restrict access.  It should be impossible, from a design point of 
-> view at least, for any LSM module to authorize more privilege than 
-> standard DAC.  This has always been a specific design goal of LSM.  (The 
-> capability module is an exception, as it has a fixed security policy and 
-> implements legacy DAC behavior; there's no way to "fix" this).
+On Tue, 2009-07-21 at 16:04 +0100, Alan Cox wrote:
+> On Tue, 21 Jul 2009 10:41:58 -0400
+> Eric Paris <eparis@redhat.com> wrote:
 > 
-> In this case, we're not dealing with a standard form of access control, 
-> where access to a userland object is being mediated.  We're trying to 
-> mediate the ability of a subject to bypass a separate mechanism which aims 
-> to protect the kernel itself from attack via a more fundamental system 
-> flaw.  The LSM module didn't create that vulnerability directly, but it 
-> must not allow the vulnerability to be more easily exploited.
+> > Currently non-SELinux systems need CAP_SYS_RAWIO for an application to mmap
+> > the 0 page.  On SELinux systems they need a specific SELinux permission,
+> > but do not need CAP_SYS_RAWIO.  This has proved to be a poor decision by
+> > the SELinux team as, by default, SELinux users are logged in unconfined and
+> > thus a malicious non-root has nothing stopping them from mapping the 0 page
+> > of virtual memory.
 > 
-> The security policy writer should have a guarantee that the worst mistake 
-> they can make is to mess up their own security model; if they can mess up 
-> the base DAC security with MAC policy, we break that guarantee.  There's 
-> also an issue of user confidence in the LSM modules, in that they should 
-> not be any worse off security-wise if they enable an enhanced protection 
-> mechanism.
+> So the poor decision is in fact that the SELinux users start as
+> unconfined rather than taking away a few things like the the min map
+> stuff which can then be given back to specific apps.
 
-Agreed.  That guarantee has been stated from the very beginning for
-SELinux; we shouldn't move away from it.  Are there other places where
-having an LSM weakens security by default?
+See Fedora Core 2 of an example why confining users causes people to
+just turn off SELinux.  In F10 we had around 90% SELinux enforcing of
+machines the reported to smolt for more than 3 months.  We are trying to
+slowly reign people in with SELinux and confining the user is one of
+those near impossibilities without breaking every power user out
+there....
 
-At least in this case, the guarantee was broke because it was desired to
-provide a stronger default.  Eric could have made the default be no
-protection at all.
+> > On a non-SELinux system, a malicious non-root user is unable to do this, as
+> > they need CAP_SYS_RAWIO.
+> > 
+> > This patch checks CAP_SYS_RAWIO for all operations which attemt to map a
+> > page below mmap_min_addr.
+> 
+> So "wine" now needs to run with CAP_SYS_RAWIO or you turn all the
+> security off.
 
-Looking at the thread for the original patch at
-http://marc.info/?l=selinux&m=118056208425164&w=4
-Steve suggested that the sysctl could be controlled in SELinux by
-labeling it.  I am guessing that a new class and permission was created
-so that there could be finer-grained controls?  But if 16 bit wine apps
-are all that need this, then do we really need such fine control?
+Now, as in today, yes.  To run wine today it either needs CAP_SYS_RAWIO
+or you disable for the whole system.  I noted that I believe ubuntu just
+turns it off for the whole system when you install WINE.  This patch
+doesn't change that fact.  All it does is add that requirement to
+SELinux systems that already exists on non-selinux systems.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> Am I missing something here, this "solution" sounds completely brain
+> dead ?
+
+Well, with patch 2/2 you still get your SELinux protections (only for 1
+page) even if you disable it for the whole system.  So in the end, you
+have better protection than you have today with this series....
+
+-Eric
 
 
 --
