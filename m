@@ -8,15 +8,14 @@ Cc: sds@tycho.nsa.gov, gregkh@susa.de, casey@schaufler-ca.com,
 In-Reply-To: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 21 Jul 2009 12:29:27 -0400
-Message-Id: <1248193767.10726.21.camel@localhost>
+Date: Tue, 21 Jul 2009 12:34:27 -0400
+Message-Id: <1248194067.10726.22.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Its been almost a week and I haven't heard any additional feedback on
-this patch. Are there any other complaints or should Greg take the
-patch?
+I've found a problem with the patch that I want to fix. So I will be
+posting another version of it soon.
 
 Dave
 
