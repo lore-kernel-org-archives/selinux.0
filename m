@@ -1,39 +1,40 @@
-Date: Wed, 22 Jul 2009 20:06:47 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: James Carter <jwcart2@tycho.nsa.gov>
-cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, spender@grsecurity.net,
-        Daniel J Walsh <dwalsh@redhat.com>, cl@linux-foundation.org,
-        Arjan van de Ven <arjan@infradead.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, kees@outflux.net,
-        Chad Sellers <csellers@tresys.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: mmap_min_addr and your local LSM (ok, just SELinux)
-In-Reply-To: <1248187482.19456.90.camel@moss-lions.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.2.00.0907221953190.15799@tundra.namei.org>
-References: <1248132223.2654.278.camel@localhost>  <alpine.LRH.2.00.0907211258110.32400@tundra.namei.org> <1248187482.19456.90.camel@moss-lions.epoch.ncsc.mil>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6MAI8sQ018459
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2009 06:18:08 -0400
+Received: from snt0-omc3-s34.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6MAIvM0019666
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2009 10:18:57 GMT
+Message-ID: <SNT115-W60065DFB4C91354C52FD4FC11B0@phx.gbl>
+From: Stefano Carucci <stecarucci@hotmail.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Policy database
+Date: Wed, 22 Jul 2009 10:13:15 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 21 Jul 2009, James Carter wrote:
 
-> Agreed.  That guarantee has been stated from the very beginning for
-> SELinux; we shouldn't move away from it.  Are there other places where
-> having an LSM weakens security by default?
+Hello all!
+ 
+I would like to ask you experts some details about how the policy is managed (stored and retrieved) by the security server. 
+If you can recommend some documentation where these topics are addressed in details I would be very grateful. 
 
-There's a similar form of hook in vm_enough_memory, but the SELinux module 
-calls the DAC capability check first, so it seems ok from a policy 
-writer's point of view (i.e. worst case is they revert to DAC).
+These are the ideas I (haven't) got while looking through the code.
+If the needed policy rule is not present in the AVC, then it has to be retrieved by... the Access Vector Table (ss/avtab.h/c), right?
+The avtab is a "simple" hash-table, where all rules are stored and searched through the key {ssid,tsid,obj_class} for the access vector. Is it correct? 
+What I expected was something faster to search... like a database...
+On the other side, the policy should be stored in a binary policy file. So how is the set of rules retrieved from this binary file?
+I also read about a policy database, that, as far as I understood is meant for configuration parameters only. It doesn't work as a rules repository, right?
 
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+I would be very thankful guys if you can help me understand this mechanism.
+ 
+Thank you in advance.
+ 
+Stefano
+_________________________________________________________________
+Con Windows Live, puoi organizzare, modificare e condividere le tue foto.
+http://www.microsoft.com/italy/windows/windowslive/products/photo-gallery-edit.aspx
 
 --
 This message was distributed to subscribers of the selinux mailing list.
