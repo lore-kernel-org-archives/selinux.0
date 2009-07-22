@@ -1,40 +1,40 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6MAI8sQ018459
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2009 06:18:08 -0400
-Received: from snt0-omc3-s34.snt0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6MAIvM0019666
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2009 10:18:57 GMT
-Message-ID: <SNT115-W60065DFB4C91354C52FD4FC11B0@phx.gbl>
-From: Stefano Carucci <stecarucci@hotmail.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Policy database
-Date: Wed, 22 Jul 2009 10:13:15 +0000
-Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 22 Jul 2009 23:53:44 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, sds@tycho.nsa.gov,
+        spender@grsecurity.net, dwalsh@redhat.com, cl@linux-foundation.org,
+        arjan@infradead.org, alan@lxorguk.ukuu.org.uk, kyle@mcmartin.ca,
+        cpardy@redhat.com, arnd@arndb.de
+Subject: Re: [PATCH -v2 1/2] VM/SELinux: require CAP_SYS_RAWIO for all
+ mmap_zero operations
+In-Reply-To: <20090721230339.20180.99803.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.0907222345530.17486@tundra.namei.org>
+References: <20090721230339.20180.99803.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 21 Jul 2009, Eric Paris wrote:
 
-Hello all!
- 
-I would like to ask you experts some details about how the policy is managed (stored and retrieved) by the security server. 
-If you can recommend some documentation where these topics are addressed in details I would be very grateful. 
+>  	error = security_file_mmap(file, reqprot, prot, flags, addr, 0);
+>  	if (error)
+>  		return error;
+> +
+> +	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
+> +		return -EACCES;
+> +
 
-These are the ideas I (haven't) got while looking through the code.
-If the needed policy rule is not present in the AVC, then it has to be retrieved by... the Access Vector Table (ss/avtab.h/c), right?
-The avtab is a "simple" hash-table, where all rules are stored and searched through the key {ssid,tsid,obj_class} for the access vector. Is it correct? 
-What I expected was something faster to search... like a database...
-On the other side, the policy should be stored in a binary policy file. So how is the set of rules retrieved from this binary file?
-I also read about a policy database, that, as far as I understood is meant for configuration parameters only. It doesn't work as a rules repository, right?
+These DAC checks should happen before the LSM hook, in keeping with the 
+general design goal of LSM of "DAC before MAC", so that application 
+behavior remains as consistent as possible.
 
-I would be very thankful guys if you can help me understand this mechanism.
- 
-Thank you in advance.
- 
-Stefano
-_________________________________________________________________
-Con Windows Live, puoi organizzare, modificare e condividere le tue foto.
-http://www.microsoft.com/italy/windows/windowslive/products/photo-gallery-edit.aspx
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
