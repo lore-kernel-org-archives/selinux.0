@@ -1,73 +1,57 @@
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6OC6aoL010835
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 08:06:36 -0400
+Received: from mail-fx0-f215.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6OC7PAm015428
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 12:07:26 GMT
+Received: by fxm11 with SMTP id 11so1442358fxm.18
+        for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 05:06:34 -0700 (PDT)
+Message-Id: <30C6B5E7-49A2-4C0D-8C78-87F267A49862@gmail.com>
+From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <7b740b700907240246l28d05097y500a22e478fa018@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v935.3)
 Subject: Re: what is an object manager?!
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <97B8FB97-31B2-4D18-A69B-7EBA6C745181@gmail.com>
-References: <97B8FB97-31B2-4D18-A69B-7EBA6C745181@gmail.com>
-Content-Type: text/plain
-Date: Fri, 24 Jul 2009 07:47:54 -0400
-Message-Id: <1248436074.28321.646.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 24 Jul 2009 14:06:32 +0200
+References: <97B8FB97-31B2-4D18-A69B-7EBA6C745181@gmail.com> <7b740b700907240246l28d05097y500a22e478fa018@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-07-24 at 10:18 +0200, Sebastian Pfaff wrote:
-> hello,
-> 
-> "Object managers are responsible for enforcing the policy decisions of  
-> the security server for the set
-> of resources they manage. For the kernel, you can think of object  
-> managers as kernel subsystems that
-> create and manage kernel-level objects. Examples of kernel object  
-> managers include the filesystem,
-> process management, and System V interprocess communication (IPC). In  
-> the LSM architecture, the
-> object managers are represented by the LSM hooks (!!!); these hooks  
-> are scattered throughout the kernel
-> subsystems and call the SELinux LSM module for access decisions. The  
-> LSM hooks then enforce
-> those decisions by allowing or denying access to the kernel  
-> resource." [1]
-> 
-> this basically says we have dozens of object managers, since every LSM  
-> hook is one!
-> 
-> but here stephen smalley wrote:
-> 
-> An object manager gets access decisions from its AVC, which consults  
-> the security server when the decision isn't already cached. Meanwhile,  
-> if a policy change occurs, the security server needs to notify the  
-> AVCs of all object managers of the change so that their state can be  
-> updated (in simplest form, by flushing the caches). There can be any  
-> number of object managers. In Linux, the entire kernel is really a  
-> single object manager, but in earlier microkernel-based systems, there  
-> were separate object managers for process management, filesystems, and  
-> networking.
-> 
-> http://marc.info/?l=selinux&m=115955074232032&w=2
-> 
-> 
-> What is an object manager and who says the truth? ;)
-> 
-> "Every LSM hook object manager" vs "1 single Object Manager"
+tnx for answer,
 
-I don't think they intended to imply that each hook was a discrete
-object manager in their book.  The original terminology here comes from
-the Flask paper,
-http://www.nsa.gov/research/_files/selinux/papers/flask-abs.shtml
+ok, you're trying to tell me that a lsm hook is something similar to  
+what an object manager is in FLASK architecture. But in general, all  
+LSM hooks as a whole can be considered as one object manager, since in  
+the monolithic linux kernel there are no different object managers.
 
-An object manager is a component that manages a set of resources and
-that enforces policy decisions over those resources.  The policy
-decisions are obtained from the security server.
+>
+> Now there is one object manager and libselinux exports an interface  
+> to the userspace object managers.
 
-The Linux kernel is a single object manager, although logically you can
-view it as a collection of object managers (process management,
-filesystem, networking, IPC) as mentioned above.  The X server is
-another object manager, as is the D-BUS daemon.
+> Stephen is referening to FLASK/FLUKE a predecessor of SELinux on  
+> micrkernel architecture.
+>
 
--- 
-Stephen Smalley
-National Security Agency
+I'm not not sure, if stephen was referreing to FLASK. For me, he  
+referred to the current state in linux.
+
+> X server is an object manager for its own resources that it manages  
+> and so is Gconf. Dbus is object manager of its IPC objects. The in  
+> kernel security server is the PDP for all while the PEPs are kernel  
+> object managers and the userspace object manager (some mentioned  
+> earlier).
+>
+
+what is PDP und what is PEP(s)?
+
+> I hope these examples will clear things.
+
+me too ;)
+
+--
+Sebastian Pfaff
+
 
 
 --
