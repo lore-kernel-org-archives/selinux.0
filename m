@@ -1,50 +1,74 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6OAEfxT031661
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 06:14:41 -0400
-Received: from qw-out-1920.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6OAEIgi008068
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 10:14:18 GMT
-Received: by qw-out-1920.google.com with SMTP id 4so853398qwk.30
-        for <selinux@tycho.nsa.gov>; Fri, 24 Jul 2009 03:14:41 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 24 Jul 2009 16:14:41 +0600
-Message-ID: <7b740b700907240314i613d2a1fn256c7b8dfe6b6ada@mail.gmail.com>
-Subject: Cross Domain equivalences
-From: Shaz <shazalive@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=0016362852525bc953046f70df17
+Subject: Re: what is an object manager?!
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <97B8FB97-31B2-4D18-A69B-7EBA6C745181@gmail.com>
+References: <97B8FB97-31B2-4D18-A69B-7EBA6C745181@gmail.com>
+Content-Type: text/plain
+Date: Fri, 24 Jul 2009 07:47:54 -0400
+Message-Id: <1248436074.28321.646.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016362852525bc953046f70df17
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Fri, 2009-07-24 at 10:18 +0200, Sebastian Pfaff wrote:
+> hello,
+> 
+> "Object managers are responsible for enforcing the policy decisions of  
+> the security server for the set
+> of resources they manage. For the kernel, you can think of object  
+> managers as kernel subsystems that
+> create and manage kernel-level objects. Examples of kernel object  
+> managers include the filesystem,
+> process management, and System V interprocess communication (IPC). In  
+> the LSM architecture, the
+> object managers are represented by the LSM hooks (!!!); these hooks  
+> are scattered throughout the kernel
+> subsystems and call the SELinux LSM module for access decisions. The  
+> LSM hooks then enforce
+> those decisions by allowing or denying access to the kernel  
+> resource." [1]
+> 
+> this basically says we have dozens of object managers, since every LSM  
+> hook is one!
+> 
+> but here stephen smalley wrote:
+> 
+> An object manager gets access decisions from its AVC, which consults  
+> the security server when the decision isn't already cached. Meanwhile,  
+> if a policy change occurs, the security server needs to notify the  
+> AVCs of all object managers of the change so that their state can be  
+> updated (in simplest form, by flushing the caches). There can be any  
+> number of object managers. In Linux, the entire kernel is really a  
+> single object manager, but in earlier microkernel-based systems, there  
+> were separate object managers for process management, filesystems, and  
+> networking.
+> 
+> http://marc.info/?l=selinux&m=115955074232032&w=2
+> 
+> 
+> What is an object manager and who says the truth? ;)
+> 
+> "Every LSM hook object manager" vs "1 single Object Manager"
 
-Dear list,
+I don't think they intended to imply that each hook was a discrete
+object manager in their book.  The original terminology here comes from
+the Flask paper,
+http://www.nsa.gov/research/_files/selinux/papers/flask-abs.shtml
 
-I was curious about how cross domain policy/attribute equivalences are
-managed by existing technology and future plans with SELinux. Please point
-out some reading in this regards. Some work (CDS by Tresys) that I have come
-across only stress on the filtering of information flows through proper
-channels. Some articles or explanations can help.
+An object manager is a component that manages a set of resources and
+that enforces policy decisions over those resources.  The policy
+decisions are obtained from the security server.
 
-Thanks.
+The Linux kernel is a single object manager, although logically you can
+view it as a collection of object managers (process management,
+filesystem, networking, IPC) as mentioned above.  The X server is
+another object manager, as is the D-BUS daemon.
 
 -- 
-Shaz
+Stephen Smalley
+National Security Agency
 
---0016362852525bc953046f70df17
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Dear list,<br><br>I was curious about how cross domain policy/attribute equ=
-ivalences are managed by existing technology and future plans with SELinux.=
- Please point out some reading in this regards. Some work (CDS by Tresys) t=
-hat I have come across only stress on the filtering of information flows th=
-rough proper channels. Some articles or explanations can help.<br>
-<br>Thanks.<br clear=3D"all"><br>-- <br>Shaz<br><br>
-
---0016362852525bc953046f70df17--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
