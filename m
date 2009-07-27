@@ -1,78 +1,42 @@
-Subject: Re: [PATCH -v2] policycoreutils: get setfiles to skip mounts
- without seclabel
+Subject: Re: "Error! Unable to set executable context."
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Liu <tliu@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, eparis@parisplace.org
-In-Reply-To: <1248466334.3465.15.camel@moss-pluto.epoch.ncsc.mil>
-References: <1247580944.2266.1.camel@Ares>
-	 <1247585401.28321.336.camel@moss-pluto.epoch.ncsc.mil>
-	 <1247587468.2164.17.camel@Ares>  <4A5CC564.3090408@redhat.com>
-	 <1247842112.2096.0.camel@Ares>
-	 <1248466334.3465.15.camel@moss-pluto.epoch.ncsc.mil>
+To: Larry Ross <selinux.larry@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <81092d890907251241k5ef56a87p2f6d6f763b25b70@mail.gmail.com>
+References: <81092d890907251241k5ef56a87p2f6d6f763b25b70@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 27 Jul 2009 09:21:34 -0400
-Message-Id: <1248700894.3465.39.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 27 Jul 2009 09:45:34 -0400
+Message-Id: <1248702334.3465.45.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-07-24 at 16:12 -0400, Stephen Smalley wrote:
-> On Fri, 2009-07-17 at 10:48 -0400, Thomas Liu wrote:
-> > Get setfiles to check paths for seclabel and skip them
-> > if it is not supported.
-> > 
-> > Parse /proc/mounts and add paths that do not have seclabel
-> > to the exclude list.  If another path shows up that does
-> > have seclabel, remove it from the exclude list, since setfiles
-> > will try and when it fails it will skip it.
-> > 
-> > Also made one of the error messages in add_exclude more
-> > descriptive.
-> > 
-> > Signed-off-by: Thomas Liu <tliu@redhat.com>
-> > Signed-off-by: Dan Walsh <dwalsh@redhat.com>
-> > ---
-> 
-> Thanks, merged in policycoreutils 2.0.68.
+On Sat, 2009-07-25 at 12:41 -0700, Larry Ross wrote:
+> I am trying to create a custom selinux user for the strict policy on
+> RHEL5.3
+> I want logins that are mapped to this user to be able to login via
+> gdm, but when they do I get an error "Error! Unable to set executable
+> context."
+>  
+> What does this error message mean?
+>  
+> I am able to login via gdm with logins that are mapped to user_u.  I
+> have run the AVCs generated when I login in permissive mode (which
+> succeeds) through audit2allow and gotten to the point where it doesn't
+> seem that I am getting any killer AVCs.  What am I missing that is
+> needed for a custom user to use X-Windows?  Is there some place I can
+> look to determine what is causing the error?
 
-Applied this patch on top to free the buffer allocated by getline() and
-to free any removed entries from the excludeArray.  valgrind
---leak-check=full then shows no leakage.
+I see that you've resolved the problem now, but could you describe what
+you had to do to get it to work for future reference?  That way the next
+time someone comes along with the same issue, they can find the answer
+in the mailing list archives.
 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 1c780a4..5e5d957 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -281,6 +281,7 @@ static void remove_exclude(const char *directory)
- 	int i = 0;
- 	for (i = 0; i < excludeCtr; i++) {
- 		if (strcmp(directory, excludeArray[i].directory) == 0) {
-+			free(excludeArray[i].directory);
- 			if (i != excludeCtr-1)
- 				excludeArray[i] = excludeArray[excludeCtr-1];
- 			excludeCtr--;
-@@ -728,9 +729,11 @@ static void exclude_non_seclabel_mounts()
- 	int index = 0, found = 0;
- 	char *mount_info[4];
- 	char *buf = NULL, *item;
-+
- 	/* Check to see if the kernel supports seclabel */
- 	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
- 		return;
-+
- 	fp = fopen("/proc/mounts", "r");
- 	if (!fp)
- 		return;
-@@ -769,6 +772,8 @@ static void exclude_non_seclabel_mounts()
- 		if (!found)
- 			add_exclude(mount_info[1]);
- 	}
-+
-+	free(buf);
- }
- 
- int main(int argc, char **argv)
+BTW, "executable context" in the error message means that the attempts
+by gdm to invoke setexeccon(3) failed.  setexecon(3) is the libselinux
+interface to set the security context to which the process will
+transition upon the next execve(2) call.  Usually a setexeccon(3) error
+means that the security context was invalid under the current policy.
 
 -- 
 Stephen Smalley
