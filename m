@@ -1,132 +1,39 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6TB5LxJ032244
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2009 07:05:21 -0400
-Received: from ey-out-1920.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6TB4t8W015784
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2009 11:04:56 GMT
-Received: by ey-out-1920.google.com with SMTP id 3so156499eyh.30
-        for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2009 04:05:19 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 29 Jul 2009 15:35:19 +0430
-Message-ID: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
-Subject: compiling errors!
-From: mina elnino <potushka@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=0016e6d99eadab98b7046fd62954
+Subject: Re: compiling errors!
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: mina elnino <potushka@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
+References: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 29 Jul 2009 07:57:47 -0400
+Message-Id: <1248868667.11627.35.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e6d99eadab98b7046fd62954
-Content-Type: multipart/alternative; boundary=0016e6d99eadab98b1046fd62952
+On Wed, 2009-07-29 at 15:35 +0430, mina elnino wrote:
+> dear list;
+> i'd like to make some changes in checkpolicy package according to a
+> project in my college. 
+> so i clone the git repo and "make install".
+> 
+> $ git clone http://oss.tresys.com/git/selinux.git
+> $ cd selinux
+> $ make DESTDIR=~/obj install
+> 
+> but it makes some errors, which i have attached them (in result file).
+> i have to say that my os is fc11 and i have installed "Development
+> Libraries".
+> i'd be appreciated if you could help me.
+> best regards.
 
---0016e6d99eadab98b1046fd62952
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+You need to install the ustr library headers, by running:
+	yum install ustr-devel 
 
-dear list;
-i'd like to make some changes in checkpolicy package according to a project
-in my college.
-so i clone the git repo and "make install".
+-- 
+Stephen Smalley
+National Security Agency
 
-$ git clone http://oss.tresys.com/git/selinux.git
-$ cd selinux
-$ make DESTDIR=~/obj install
-
-but it makes some errors, which i have attached them (in result file).
-i have to say that my os is fc11 and i have installed "Development
-Libraries".
-i'd be appreciated if you could help me.
-best regards.
-
---0016e6d99eadab98b1046fd62952
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-dear list;<br>i&#39;d like to make some changes in checkpolicy package acco=
-rding to a project in my college. <br>so i clone the git repo and &quot;mak=
-e install&quot;.<br><br>$ git clone <a href=3D"http://oss.tresys.com/git/se=
-linux.git" target=3D"_blank">http://oss.tresys.com/git/selinux.git</a><br>
-
-$ cd selinux<br>
-$ make DESTDIR=3D~/obj install<br><br>but it makes some errors, which i hav=
-e attached them (in result file).<br>i have to say that my os is fc11 and i=
- have installed &quot;Development Libraries&quot;.<br>i&#39;d be appreciate=
-d if you could help me.<br>
-best regards.<br>
-
---0016e6d99eadab98b1046fd62952--
-
---0016e6d99eadab98b7046fd62954
-Content-Type: application/octet-stream; name=result
-Content-Disposition: attachment; filename=result
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fxq7q9wo0
-
-Z2VuaG9tZWRpcmNvbi5jOjM3OjE4OiBlcnJvcjogdXN0ci5oOiBObyBzdWNoIGZpbGUgb3IgZGly
-ZWN0b3J5CmdlbmhvbWVkaXJjb24uYzogSW4gZnVuY3Rpb24g4oCYZmNvbnRleHRfbWF0Y2hlc+KA
-mToKZ2VuaG9tZWRpcmNvbi5jOjE3Njogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2Yg
-ZnVuY3Rpb24g4oCYdXN0cl9kdXBfY3N0cuKAmQpnZW5ob21lZGlyY29uLmM6MTc2OiB3YXJuaW5n
-OiBhc3NpZ25tZW50IG1ha2VzIHBvaW50ZXIgZnJvbSBpbnRlZ2VyIHdpdGhvdXQgYSBjYXN0Cmdl
-bmhvbWVkaXJjb24uYzoxNzc6IGVycm9yOiDigJhVU1RSX05VTEzigJkgdW5kZWNsYXJlZCAoZmly
-c3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24uYzoxNzc6IGVycm9yOiAoRWFj
-aCB1bmRlY2xhcmVkIGlkZW50aWZpZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlCmdlbmhvbWVkaXJj
-b24uYzoxNzc6IGVycm9yOiBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBlYXJzIGluLikKZ2VuaG9t
-ZWRpcmNvbi5jOjE3OTogd2FybmluZzogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24g
-4oCYdXN0cl9hZGRfY3N0cuKAmQpnZW5ob21lZGlyY29uLmM6MTgzOiB3YXJuaW5nOiBpbXBsaWNp
-dCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJh1c3RyX2NtcF9zdWZmaXhfY3N0cl9lceKAmQpn
-ZW5ob21lZGlyY29uLmM6MTg1OiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5j
-dGlvbiDigJh1c3RyX2RlbOKAmQpnZW5ob21lZGlyY29uLmM6MjA1OiB3YXJuaW5nOiBpbXBsaWNp
-dCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJh1c3RyX2NzdHLigJkKZ2VuaG9tZWRpcmNvbi5j
-OjIwNTogd2FybmluZzogcGFzc2luZyBhcmd1bWVudCAyIG9mIOKAmHJlZ2NvbXDigJkgbWFrZXMg
-cG9pbnRlciBmcm9tIGludGVnZXIgd2l0aG91dCBhIGNhc3QKL3Vzci9pbmNsdWRlL3JlZ2V4Lmg6
-NTU2OiBub3RlOiBleHBlY3RlZCDigJhjb25zdCBjaGFyICogX19yZXN0cmljdF9f4oCZIGJ1dCBh
-cmd1bWVudCBpcyBvZiB0eXBlIOKAmGludOKAmQpnZW5ob21lZGlyY29uLmM6MjE0OiB3YXJuaW5n
-OiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJh1c3RyX2ZyZWXigJkKZ2VuaG9t
-ZWRpcmNvbi5jOiBBdCB0b3AgbGV2ZWw6CmdlbmhvbWVkaXJjb24uYzo0MjQ6IGVycm9yOiBleHBl
-Y3RlZCDigJg94oCZLCDigJgs4oCZLCDigJg74oCZLCDigJhhc23igJkgb3Ig4oCYX19hdHRyaWJ1
-dGVfX+KAmSBiZWZvcmUg4oCYKuKAmSB0b2tlbgpnZW5ob21lZGlyY29uLmM6NDQ1OiBlcnJvcjog
-ZXhwZWN0ZWQg4oCYKeKAmSBiZWZvcmUg4oCYKuKAmSB0b2tlbgpnZW5ob21lZGlyY29uLmM6NDYx
-OiBlcnJvcjogZXhwZWN0ZWQgZGVjbGFyYXRpb24gc3BlY2lmaWVycyBvciDigJguLi7igJkgYmVm
-b3JlIOKAmFVzdHLigJkKZ2VuaG9tZWRpcmNvbi5jOiBJbiBmdW5jdGlvbiDigJhjaGVja19saW5l
-4oCZOgpnZW5ob21lZGlyY29uLmM6NDY3OiB3YXJuaW5nOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBv
-ZiBmdW5jdGlvbiDigJhleHRyYWN0X2NvbnRleHTigJkKZ2VuaG9tZWRpcmNvbi5jOjQ2NzogZXJy
-b3I6IOKAmGxpbmXigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCmdl
-bmhvbWVkaXJjb24uYzo0Njc6IHdhcm5pbmc6IGFzc2lnbm1lbnQgbWFrZXMgcG9pbnRlciBmcm9t
-IGludGVnZXIgd2l0aG91dCBhIGNhc3QKZ2VuaG9tZWRpcmNvbi5jOiBJbiBmdW5jdGlvbiDigJh3
-cml0ZV9ob21lX2Rpcl9jb250ZXh04oCZOgpnZW5ob21lZGlyY29uLmM6NDk1OiBlcnJvcjog4oCY
-VXN0cuKAmSB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlvbikKZ2VuaG9tZWRp
-cmNvbi5jOjQ5NTogZXJyb3I6IOKAmGxpbmXigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRo
-aXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24uYzo0OTU6IGVycm9yOiDigJhVU1RSX05VTEzigJkg
-dW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24uYzo1
-MDE6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIOKAmHJlcGxhY2Vf
-YWxs4oCZCmdlbmhvbWVkaXJjb24uYzo1MDQ6IGVycm9yOiB0b28gbWFueSBhcmd1bWVudHMgdG8g
-ZnVuY3Rpb24g4oCYY2hlY2tfbGluZeKAmQpnZW5ob21lZGlyY29uLmM6NTA1OiB3YXJuaW5nOiBp
-bXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJh1c3RyX2lvX3B1dGZpbGVsaW5l4oCZ
-CmdlbmhvbWVkaXJjb24uYzo1MDg6IHdhcm5pbmc6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1
-bmN0aW9uIOKAmHVzdHJfc2NfZnJlZeKAmQpnZW5ob21lZGlyY29uLmM6IEluIGZ1bmN0aW9uIOKA
-mHdyaXRlX2hvbWVfcm9vdF9jb250ZXh04oCZOgpnZW5ob21lZGlyY29uLmM6NTI0OiBlcnJvcjog
-4oCYVXN0cuKAmSB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlvbikKZ2VuaG9t
-ZWRpcmNvbi5jOjUyNDogZXJyb3I6IOKAmGxpbmXigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGlu
-IHRoaXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24uYzo1MjQ6IGVycm9yOiDigJhVU1RSX05VTEzi
-gJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24u
-Yzo1MzA6IGVycm9yOiB0b28gbWFueSBhcmd1bWVudHMgdG8gZnVuY3Rpb24g4oCYY2hlY2tfbGlu
-ZeKAmQpnZW5ob21lZGlyY29uLmM6IEluIGZ1bmN0aW9uIOKAmHdyaXRlX3VzZXJfY29udGV4dOKA
-mToKZ2VuaG9tZWRpcmNvbi5jOjU1MzogZXJyb3I6IOKAmFVzdHLigJkgdW5kZWNsYXJlZCAoZmly
-c3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCmdlbmhvbWVkaXJjb24uYzo1NTM6IGVycm9yOiDigJhs
-aW5l4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpnZW5ob21lZGly
-Y29uLmM6NTUzOiBlcnJvcjog4oCYVVNUUl9OVUxM4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBp
-biB0aGlzIGZ1bmN0aW9uKQpnZW5ob21lZGlyY29uLmM6NTU5OiBlcnJvcjogdG9vIG1hbnkgYXJn
-dW1lbnRzIHRvIGZ1bmN0aW9uIOKAmGNoZWNrX2xpbmXigJkKZ2VuaG9tZWRpcmNvbi5jOiBJbiBm
-dW5jdGlvbiDigJh3cml0ZV9jb250ZXh0X2ZpbGXigJk6CmdlbmhvbWVkaXJjb24uYzo4OTM6IGVy
-cm9yOiDigJhVc3Ry4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKQpn
-ZW5ob21lZGlyY29uLmM6ODkzOiBlcnJvcjog4oCYdGVtcOKAmSB1bmRlY2xhcmVkIChmaXJzdCB1
-c2UgaW4gdGhpcyBmdW5jdGlvbikKZ2VuaG9tZWRpcmNvbi5jOjkwNTogd2FybmluZzogcGFzc2lu
-ZyBhcmd1bWVudCA2IG9mIOKAmHdyaXRlX2hvbWVfZGlyX2NvbnRleHTigJkgbWFrZXMgcG9pbnRl
-ciBmcm9tIGludGVnZXIgd2l0aG91dCBhIGNhc3QKZ2VuaG9tZWRpcmNvbi5jOjQ4NDogbm90ZTog
-ZXhwZWN0ZWQg4oCYY29uc3QgY2hhciAq4oCZIGJ1dCBhcmd1bWVudCBpcyBvZiB0eXBlIOKAmGlu
-dOKAmQptYWtlWzJdOiAqKiogW2dlbmhvbWVkaXJjb24ub10gRXJyb3IgMQptYWtlWzFdOiAqKiog
-W2luc3RhbGxdIEVycm9yIDIKbWFrZTogKioqIFtpbnN0YWxsXSBFcnJvciAxCg==
---0016e6d99eadab98b7046fd62954--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
