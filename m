@@ -1,109 +1,60 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
+Subject: [PATCH -v3 2/3] SELinux: call cap_file_mmap in selinux_file_mmap
 To: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov
 Cc: jwcart2@tycho.nsa.gov, eparis@redhat.com, sds@tycho.nsa.gov,
         spender@grsecurity.net, dwalsh@redhat.com, cl@linux-foundation.org,
         arjan@infradead.org, alan@lxorguk.ukuu.org.uk, kees@outflux.net,
         csellers@tresys.com, penguin-kernel@i-love.sakura.ne.jp
-Date: Wed, 29 Jul 2009 14:56:20 -0400
-Message-ID: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
+Date: Wed, 29 Jul 2009 14:56:27 -0400
+Message-ID: <20090729185627.21757.92301.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
+References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
-security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
-into commoncap.c and then calls that function directly from
-security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
-checks are done.
+Currently SELinux does not check CAP_SYS_RAWIO in the file_mmap hook.  This
+means there is no DAC check on the ability to mmap low addresses in the
+memory space.  This function adds the DAC check for CAP_SYS_RAWIO while
+maintaining the selinux check on mmap_zero.  This means that processes
+which need to mmap low memory will need CAP_SYS_RAWIO and mmap_zero but will
+NOT need the SELinux sys_rawio capability.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- include/linux/security.h |    7 ++++---
- security/capability.c    |    9 ---------
- security/commoncap.c     |   24 ++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 12 deletions(-)
+ security/selinux/hooks.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 1459091..963a48f 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -66,6 +66,9 @@ extern int cap_inode_setxattr(struct dentry *dentry, const char *name,
- extern int cap_inode_removexattr(struct dentry *dentry, const char *name);
- extern int cap_inode_need_killpriv(struct dentry *dentry);
- extern int cap_inode_killpriv(struct dentry *dentry);
-+extern int cap_file_mmap(struct file *file, unsigned long reqprot,
-+			 unsigned long prot, unsigned long flags,
-+			 unsigned long addr, unsigned long addr_only);
- extern int cap_task_fix_setuid(struct cred *new, const struct cred *old, int flags);
- extern int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			  unsigned long arg4, unsigned long arg5);
-@@ -2197,9 +2200,7 @@ static inline int security_file_mmap(struct file *file, unsigned long reqprot,
- 				     unsigned long addr,
- 				     unsigned long addr_only)
- {
--	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
--		return -EACCES;
--	return 0;
-+	return cap_file_mmap(file, reqprot, prot, flags, addr, addr_only);
- }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e65677d..8a78f58 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3034,9 +3034,21 @@ static int selinux_file_mmap(struct file *file, unsigned long reqprot,
+ 	int rc = 0;
+ 	u32 sid = current_sid();
  
- static inline int security_file_mprotect(struct vm_area_struct *vma,
-diff --git a/security/capability.c b/security/capability.c
-index f218dd3..ec05730 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -330,15 +330,6 @@ static int cap_file_ioctl(struct file *file, unsigned int command,
- 	return 0;
- }
- 
--static int cap_file_mmap(struct file *file, unsigned long reqprot,
--			 unsigned long prot, unsigned long flags,
--			 unsigned long addr, unsigned long addr_only)
--{
--	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
--		return -EACCES;
--	return 0;
--}
--
- static int cap_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
- 			     unsigned long prot)
- {
-diff --git a/security/commoncap.c b/security/commoncap.c
-index aa97704..9a731d7 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -984,3 +984,27 @@ int cap_vm_enough_memory(struct mm_struct *mm, long pages)
- 		cap_sys_admin = 1;
- 	return __vm_enough_memory(mm, pages, cap_sys_admin);
- }
+-	if (addr < mmap_min_addr)
++	/*
++	 * notice that we are intentionally putting the SELinux check before
++	 * the secondary cap_file_mmap check.  This is such a likely attempt
++	 * at bad behaviour/exploit that we always want to get the AVC, even
++	 * if DAC would have also denied the operation.
++	 */
++	if (addr < mmap_min_addr) {
+ 		rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
+ 				  MEMPROTECT__MMAP_ZERO, NULL);
++		if (rc)
++			return rc;
++	}
 +
-+/*
-+ * cap_file_mmap - check if able to map given addr
-+ * @file: unused
-+ * @reqprot: unused
-+ * @prot: unused
-+ * @flags: unused
-+ * @addr: address attempting to be mapped
-+ * @addr_only: unused
-+ *
-+ * If the process is attempting to map memory below mmap_min_addr they need
-+ * CAP_SYS_RAWIO.  The other parameters to this function are unused by the
-+ * capability security module.  Returns 0 if this mapping should be allowed
-+ * -EPERM if not.
-+ */
-+int cap_file_mmap(struct file *file, unsigned long reqprot,
-+		  unsigned long prot, unsigned long flags,
-+		  unsigned long addr, unsigned long addr_only)
-+{
-+	if (addr < mmap_min_addr)
-+		return cap_capable(current, current_cred(), CAP_SYS_RAWIO,
-+				   SECURITY_CAP_AUDIT);
-+	return 0;
-+}
++	/* do DAC check on address space usage */
++	rc = cap_file_mmap(file, reqprot, prot, flags, addr, addr_only);
+ 	if (rc || addr_only)
+ 		return rc;
+ 
 
 
 --
