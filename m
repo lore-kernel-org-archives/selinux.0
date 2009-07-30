@@ -1,163 +1,255 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6UDWMr6025570
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 09:32:22 -0400
-Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n6UDXGgj014519
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 13:33:17 GMT
-Received: by ewy7 with SMTP id 7so282383ewy.18
-        for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 06:32:20 -0700 (PDT)
+Message-ID: <4A71AD1A.5030406@ii.net>
+Date: Thu, 30 Jul 2009 22:24:26 +0800
+From: Cliffe <cliffe@ii.net>
 MIME-Version: 1.0
-In-Reply-To: <1248956559.11627.105.camel@moss-pluto.epoch.ncsc.mil>
-References: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
-	 <CIEOKAFOMGPNJIPMMMAHMELCCBAA.remmolt@zwartsenberg.eu>
-	 <f7d5075c0907290626t1c772fd3l9f60c7a710c6152@mail.gmail.com>
-	 <f7d5075c0907290704x9b2b426sb6c3bb928a11a98b@mail.gmail.com>
-	 <1248882850.11627.64.camel@moss-pluto.epoch.ncsc.mil>
-	 <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>
-	 <1248956559.11627.105.camel@moss-pluto.epoch.ncsc.mil>
-Date: Thu, 30 Jul 2009 18:02:08 +0430
-Message-ID: <f7d5075c0907300632w49548c5an90f4e62aa978bb3e@mail.gmail.com>
-Subject: Re: compiling errors!
-From: mina elnino <potushka@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=0016e64c2740948572046fec54da
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        slide@tresys.com
+Subject: Re: Help with SELinux policy for Usability Study
+References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>	 <4A711890.2030101@ii.net> <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: multipart/alternative;
+ boundary="------------060906060003040502070808"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e64c2740948572046fec54da
-Content-Type: multipart/alternative; boundary=0016e64c2740948568046fec54d8
+This is a multi-part message in MIME format.
+--------------060906060003040502070808
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
---0016e64c2740948568046fec54d8
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-to build it:
 
-$ make conf
-$ make policy
-
-the second make made an error (in the attached file).
-and also it generated policy.conf
-
-On Thu, Jul 30, 2009 at 4:52 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Thu, 2009-07-30 at 09:51 +0430, mina elnino wrote:
-> > well, i have to say that i went through the steps in:
-> >
-> > http://danwalsh.livejournal.com/26428.html
-> >
-> > and at last i realized that this page is for the ones who want to make
-> > policies from the source. now i have packages:
-> >
-> > $ ls ~/rpmbuild/RPMS/noarch/
-> > selinux-policy-3.6.12-62.fc11.noarch.rpm
-> > selinux-policy-doc-3.6.12-62.fc11.noarch.rpm
-> > selinux-policy-minimum-3.6.12-62.fc11.noarch.rpm
-> > selinux-policy-mls-3.6.12-62.fc11.noarch.rpm
-> > selinux-policy-targeted-3.6.12-62.fc11.noarch.rpm
-> >
-> > none of them is the source policy package. i mean i need that old m4
-> > macros, "*.te" files and "policy.conf" which could be installed by
-> > "selinux-policy-targeted-source" or "selinux-policy-strict-source" in
-> > fc4.
+Stephen Smalley wrote:
+> On Thu, 2009-07-30 at 11:50 +0800, Cliffe wrote:
+>   
+>> Dear SELinux Gurus,
+>>
+>> I am a PhD candidate conducting research into the usability of security 
+>> mechanisms. I would really appreciate some help regarding the use of 
+>> SELinux. Let me know if this is not the right place to be asking these 
+>> types of questions.
+>>     
 >
-> If you want to just unpack the source tree along with any
-> Fedora-specific patches applied, you can do:
-> rpm -i selinux-policy*.src.rpm
-> cd ~/rpmbuild/SPECS
-> rpmbuild -bp selinux-policy.spec
-> cd ../BUILD/serefpolicy*
-> Then you can build it in the usual manner.
+> General usability questions, yes.  polgengui however is Fedora-specific
+> and thus fedora-selinux-list may be a more suitable choice.
 >
-> You can also clone the upstream refpolicy repository if you want:
-> git clone http://oss.tresys.com/git/refpolicy.git
-> cd refpolicy
+> You should also take a look at SLIDE, an Eclipse plugin for creating
+> SELinux policies.  The upstream home page is at:
+> http://oss.tresys.com/projects/slide/
+> and the software should be available in Fedora via:
+> yum install eclipse-slide
 >
-> Note however that Fedora policy is built modular rather than monolithic,
-> so there is no policy.conf file per se.  But if you run make with the
-> default build.conf, you'll end up with a policy.conf file.
+>   
+>> I generated a policy for opera using polgengui. I then ran the generated 
+>> ./opera.sh.
+>>
+>> Although SELinux was still set to enforcing mode opera seemed to run 
+>> unconfined. The executable and process was labelled as expected 
+>> (unconfined_u:unconfined_r:opera_t). AVCs were generated, but not enforced.
+>>
+>> I added to opera.te using
+>> grep opera /var/log/audit/audit.log | audit2allow >> opera.te
+>> and reran ./opera.sh
+>> until no AVCs were generated.
+>>
+>> Looking at opera.te I noticed the line “permissive opera_t”, and not 
+>> knowing exactly what this line does, I thought it may be placing this 
+>> domain into permissive mode (although the gui tools suggest otherwise). 
+>> Removing the line causes “/bin/sh: /usr/bin/opera: Permission denied”. 
+>> No AVCs are generated.
+>>     
 >
-> --
-> Stephen Smalley
-> National Security Agency
+> Yes, permissive opera_t causes the domain to run in permissive mode
+> while leaving the rest of the system enforcing.  Per-domain permissive
+> mode was introduced in Fedora 10, I think.
 >
+>   
+>> So I am not sure why opera seams to be unconfined, or if removing the 
+>> permissive line was on the right track. Any advice?
+>>     
 >
+> Yes, removing the permissive line is the right track to take when you
+> are ready to test in enforcing mode.  If you don't see any AVC denials,
+> then try running semodule -DB to strip all dontaudit rules from policy
+> and then re-test, followed by semodule -B again to restore the dontaudit
+> rules.  This will generate a _lot_ of denials, some of which are
+> irrelevant, but should then show you all denials.  dontaudit rules are
+> used to suppress denials that come from harmless application or library
+> probing (e.g. getcwd) that are not required for operation of the
+> application, but may sometimes mask real denials.
+>
+> I'm not sure why polgengui is automatically adding a permissive line in
+> this case but not in the case of kwrite - Dan?  It should be consistent,
+> and it really only should do that with user consent as the user needs to
+> know that the domain is permissive. 
+>   
 
---0016e64c2740948568046fec54d8
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+It adds the permissive line to both (I am not sure why kwrite seemed to 
+be in enforcing mode). But the gui does not make this clear. I have 
+mentioned this to the fedora-selinux mailing list.
 
-to build it:<br><br>$ make conf<br>$ make policy<br><br>the second make mad=
-e an error (in the attached file).<br>and also it generated policy.conf<br>=
-<br><div class=3D"gmail_quote">On Thu, Jul 30, 2009 at 4:52 PM, Stephen Sma=
-lley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.n=
-sa.gov</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
-204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div class=3D"im"=
->On Thu, 2009-07-30 at 09:51 +0430, mina elnino wrote:<br>
-&gt; well, i have to say that i went through the steps in:<br>
-&gt;<br>
-&gt; <a href=3D"http://danwalsh.livejournal.com/26428.html" target=3D"_blan=
-k">http://danwalsh.livejournal.com/26428.html</a><br>
-&gt;<br>
-&gt; and at last i realized that this page is for the ones who want to make=
+>   
+>> Also I tried creating a policy for kwrite. This time the created policy 
+>> seemed to be in effect as soon as I ran the kwrite.sh script. I set 
+>> setenforce 0 and added to kwrite.te (as above for opera) until no error 
+>> msgs were generated. Then I reran ./kwrite.sh. Now kwrite exists with 
+>> “kwrite(2533): Couldn’t register name ‘”org.kate-editor.kwrite-2533’” 
+>> with DBUS – another process owns it already!”. When setenforce 0 it runs 
+>> without AVCs.
+>>     
+>
+> Sounds like you are getting a DBUS denial, so look for USER_AVC messages
+> e.g.
+> /sbin/ausearch -i -m USER_AVC.
+>   
+
+None there. It turns out they were in /var/log/messages
+
+so
+
+grep kwrite /var/log/audit/audit.log | audit2allow >> kwrite.te
+
+did the trick. It is strange that some AVCs go to /var/log/messages 
+while others goto
+
+/var/log/audit/audit.log
+
+Thanks for all your advice, it has helped a lot.
+
+Cliffe.
+
+
+--------------060906060003040502070808
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
 <br>
-&gt; policies from the source. now i have packages:<br>
-&gt;<br>
-&gt; $ ls ~/rpmbuild/RPMS/noarch/<br>
-&gt; selinux-policy-3.6.12-62.fc11.noarch.rpm<br>
-&gt; selinux-policy-doc-3.6.12-62.fc11.noarch.rpm<br>
-&gt; selinux-policy-minimum-3.6.12-62.fc11.noarch.rpm<br>
-&gt; selinux-policy-mls-3.6.12-62.fc11.noarch.rpm<br>
-&gt; selinux-policy-targeted-3.6.12-62.fc11.noarch.rpm<br>
-&gt;<br>
-&gt; none of them is the source policy package. i mean i need that old m4<b=
-r>
-&gt; macros, &quot;*.te&quot; files and &quot;policy.conf&quot; which could=
- be installed by<br>
-&gt; &quot;selinux-policy-targeted-source&quot; or &quot;selinux-policy-str=
-ict-source&quot; in<br>
-&gt; fc4.<br>
 <br>
-</div>If you want to just unpack the source tree along with any<br>
-Fedora-specific patches applied, you can do:<br>
-rpm -i selinux-policy*.src.rpm<br>
-cd ~/rpmbuild/SPECS<br>
-rpmbuild -bp selinux-policy.spec<br>
-cd ../BUILD/serefpolicy*<br>
-Then you can build it in the usual manner.<br>
-<br>
-You can also clone the upstream refpolicy repository if you want:<br>
-git clone <a href=3D"http://oss.tresys.com/git/refpolicy.git" target=3D"_bl=
-ank">http://oss.tresys.com/git/refpolicy.git</a><br>
-cd refpolicy<br>
-<br>
-Note however that Fedora policy is built modular rather than monolithic,<br=
->
-so there is no policy.conf file per se. =A0But if you run make with the<br>
-default build.conf, you&#39;ll end up with a policy.conf file.<br>
-<font color=3D"#888888"><br>
---<br>
-</font><div><div></div><div class=3D"h5">Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</div></div></blockquote></div><br>
+Stephen Smalley wrote:
+<blockquote
+ cite="mid:1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil"
+ type="cite">
+  <pre wrap="">On Thu, 2009-07-30 at 11:50 +0800, Cliffe wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Dear SELinux Gurus,
 
---0016e64c2740948568046fec54d8--
+I am a PhD candidate conducting research into the usability of security 
+mechanisms. I would really appreciate some help regarding the use of 
+SELinux. Let me know if this is not the right place to be asking these 
+types of questions.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+General usability questions, yes.  polgengui however is Fedora-specific
+and thus fedora-selinux-list may be a more suitable choice.
 
---0016e64c2740948572046fec54da
-Content-Type: application/octet-stream; name=result
-Content-Disposition: attachment; filename=result
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fxriwkr40
+You should also take a look at SLIDE, an Eclipse plugin for creating
+SELinux policies.  The upstream home page is at:
+<a class="moz-txt-link-freetext" href="http://oss.tresys.com/projects/slide/">http://oss.tresys.com/projects/slide/</a>
+and the software should be available in Fedora via:
+yum install eclipse-slide
 
-bTQ6cG9saWN5L21vZHVsZXMvc2VydmljZXMvcmF6b3IudGU6OTogV2FybmluZzogZXhjZXNzIGFy
-Z3VtZW50cyB0byBidWlsdGluIGBpZmRlZicgaWdub3JlZApwb2xpY3kvbW9kdWxlcy9zZXJ2aWNl
-cy9oYWwudGUiOjExOkVSUk9SICdzeW50YXggZXJyb3InIGF0IHRva2VuICd0eXBlYXR0cmlidXRl
-JyBvbiBsaW5lIDEwMzUzMDM6CiNsaW5lIDExCgl0eXBlYXR0cmlidXRlIGhhbGRfdCBkYWVtb247
-CmNoZWNrcG9saWN5OiAgZXJyb3IocykgZW5jb3VudGVyZWQgd2hpbGUgcGFyc2luZyBjb25maWd1
-cmF0aW9uCm1ha2U6ICoqKiBbcG9saWN5LjI0XSBFcnJvciAxCg==
---0016e64c2740948572046fec54da--
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">I generated a policy for opera using polgengui. I then ran the generated 
+./opera.sh.
+
+Although SELinux was still set to enforcing mode opera seemed to run 
+unconfined. The executable and process was labelled as expected 
+(unconfined_u:unconfined_r:opera_t). AVCs were generated, but not enforced.
+
+I added to opera.te using
+grep opera /var/log/audit/audit.log | audit2allow &gt;&gt; opera.te
+and reran ./opera.sh
+until no AVCs were generated.
+
+Looking at opera.te I noticed the line “permissive opera_t”, and not 
+knowing exactly what this line does, I thought it may be placing this 
+domain into permissive mode (although the gui tools suggest otherwise). 
+Removing the line causes “/bin/sh: /usr/bin/opera: Permission denied”. 
+No AVCs are generated.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Yes, permissive opera_t causes the domain to run in permissive mode
+while leaving the rest of the system enforcing.  Per-domain permissive
+mode was introduced in Fedora 10, I think.
+
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">So I am not sure why opera seams to be unconfined, or if removing the 
+permissive line was on the right track. Any advice?
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Yes, removing the permissive line is the right track to take when you
+are ready to test in enforcing mode.  If you don't see any AVC denials,
+then try running semodule -DB to strip all dontaudit rules from policy
+and then re-test, followed by semodule -B again to restore the dontaudit
+rules.  This will generate a _lot_ of denials, some of which are
+irrelevant, but should then show you all denials.  dontaudit rules are
+used to suppress denials that come from harmless application or library
+probing (e.g. getcwd) that are not required for operation of the
+application, but may sometimes mask real denials.
+
+I'm not sure why polgengui is automatically adding a permissive line in
+this case but not in the case of kwrite - Dan?  It should be consistent,
+and it really only should do that with user consent as the user needs to
+know that the domain is permissive. 
+  </pre>
+</blockquote>
+<br>
+It adds the permissive line to both (I am not sure why kwrite seemed to
+be in enforcing mode). But the gui does not make this clear. I have
+mentioned this to the fedora-selinux mailing list.<br>
+<br>
+<blockquote
+ cite="mid:1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil"
+ type="cite">
+  <pre wrap="">
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Also I tried creating a policy for kwrite. This time the created policy 
+seemed to be in effect as soon as I ran the kwrite.sh script. I set 
+setenforce 0 and added to kwrite.te (as above for opera) until no error 
+msgs were generated. Then I reran ./kwrite.sh. Now kwrite exists with 
+“kwrite(2533): Couldn’t register name ‘”org.kate-editor.kwrite-2533’” 
+with DBUS – another process owns it already!”. When setenforce 0 it runs 
+without AVCs.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Sounds like you are getting a DBUS denial, so look for USER_AVC messages
+e.g.
+/sbin/ausearch -i -m USER_AVC.
+  </pre>
+</blockquote>
+<br>
+None there. It turns out they were in /var/log/messages<br>
+<br>
+so <br>
+<pre wrap="">grep kwrite /var/log/audit/audit.log | audit2allow &gt;&gt; kwrite.te</pre>
+did the trick. It is strange that some AVCs go to /var/log/messages
+while others goto <br>
+<pre wrap="">/var/log/audit/audit.log
+
+Thanks for all your advice, it has helped a lot.
+
+Cliffe.
+</pre>
+</body>
+</html>
+
+--------------060906060003040502070808--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
