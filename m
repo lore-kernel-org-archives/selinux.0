@@ -1,56 +1,45 @@
-Subject: Re: compiling errors!
+Subject: Re: is it safe to use ext4 for SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: mina elnino <potushka@gmail.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>
-References: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
-	 <CIEOKAFOMGPNJIPMMMAHMELCCBAA.remmolt@zwartsenberg.eu>
-	 <f7d5075c0907290626t1c772fd3l9f60c7a710c6152@mail.gmail.com>
-	 <f7d5075c0907290704x9b2b426sb6c3bb928a11a98b@mail.gmail.com>
-	 <1248882850.11627.64.camel@moss-pluto.epoch.ncsc.mil>
-	 <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4A7083DB.4000003@gmail.com>
+References: <4A7083DB.4000003@gmail.com>
 Content-Type: text/plain
-Date: Thu, 30 Jul 2009 08:22:39 -0400
-Message-Id: <1248956559.11627.105.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 30 Jul 2009 09:02:16 -0400
+Message-Id: <1248958936.11627.122.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 09:51 +0430, mina elnino wrote:
-> well, i have to say that i went through the steps in:
-> 
-> http://danwalsh.livejournal.com/26428.html
-> 
-> and at last i realized that this page is for the ones who want to make
-> policies from the source. now i have packages:
-> 
-> $ ls ~/rpmbuild/RPMS/noarch/
-> selinux-policy-3.6.12-62.fc11.noarch.rpm
-> selinux-policy-doc-3.6.12-62.fc11.noarch.rpm
-> selinux-policy-minimum-3.6.12-62.fc11.noarch.rpm
-> selinux-policy-mls-3.6.12-62.fc11.noarch.rpm
-> selinux-policy-targeted-3.6.12-62.fc11.noarch.rpm
-> 
-> none of them is the source policy package. i mean i need that old m4
-> macros, "*.te" files and "policy.conf" which could be installed by
-> "selinux-policy-targeted-source" or "selinux-policy-strict-source" in
-> fc4.
+On Wed, 2009-07-29 at 10:16 -0700, Justin P. Mattock wrote:
+> I've just downloaded the fedora 11 livecd and am installing it on an
+> imac. during the partition scheme should I use ext4,
+> or stick with ext3 for SELinux to function properly?
 
-If you want to just unpack the source tree along with any
-Fedora-specific patches applied, you can do:
-rpm -i selinux-policy*.src.rpm
-cd ~/rpmbuild/SPECS
-rpmbuild -bp selinux-policy.spec
-cd ../BUILD/serefpolicy*
-Then you can build it in the usual manner.
+The current policy is configured to use xattrs on any of these
+filesystems:
+$ grep '^fs_use_xattr' policy.conf 
+fs_use_xattr btrfs system_u:object_r:fs_t;
+fs_use_xattr encfs system_u:object_r:fs_t;
+fs_use_xattr ext2 system_u:object_r:fs_t;
+fs_use_xattr ext3 system_u:object_r:fs_t;
+fs_use_xattr ext4 system_u:object_r:fs_t;
+fs_use_xattr ext4dev system_u:object_r:fs_t;
+fs_use_xattr gfs system_u:object_r:fs_t;
+fs_use_xattr gfs2 system_u:object_r:fs_t;
+fs_use_xattr jffs2 system_u:object_r:fs_t;
+fs_use_xattr jfs system_u:object_r:fs_t;
+fs_use_xattr lustre system_u:object_r:fs_t;
+fs_use_xattr xfs system_u:object_r:fs_t;
 
-You can also clone the upstream refpolicy repository if you want:
-git clone http://oss.tresys.com/git/refpolicy.git
-cd refpolicy
+As to whether or not they all truly work, I don't know.
+I have used ext4 though without any selinux problems, and btrfs has been
+reported to work as well.
 
-Note however that Fedora policy is built modular rather than monolithic,
-so there is no policy.conf file per se.  But if you run make with the
-default build.conf, you'll end up with a policy.conf file.
+I also saw some fixes for reiserfs support for security.* attributes get
+committed earlier this year, so possibly we could move reiserfs back to
+the fs_use_xattr list.
 
 -- 
 Stephen Smalley
