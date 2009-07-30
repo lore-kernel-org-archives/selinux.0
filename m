@@ -1,85 +1,75 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6UIjhX2029101
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 14:45:43 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n6UIjHXi010623
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 18:45:17 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 30 Jul 2009 14:45:52 -0400
-Message-Id: <1248979554.24705.21.camel@gorn>
-Mime-Version: 1.0
+Message-ID: <4A71ED69.8090306@redhat.com>
+Date: Thu, 30 Jul 2009 14:58:49 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>
+Subject: Re: [RFC][PATCH] setfiles:  only call realpath if the path is relative
+References: <1248967075.11627.170.camel@moss-pluto.epoch.ncsc.mil>	 <4A71D2C2.5080102@redhat.com> <1248974915.11627.180.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1248974915.11627.180.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on
-the Tresys OSS site, http://oss.tresys.com.  This release primarily
-focused on general policy development for supporting new applications
-and improving support of current ones.  In addition, support for labeled
-Booleans was added.
+On 07/30/2009 01:28 PM, Stephen Smalley wrote:
+> On Thu, 2009-07-30 at 13:05 -0400, Daniel J Walsh wrote:
+>> On 07/30/2009 11:17 AM, Stephen Smalley wrote:
+>>> Since we can now safely use restorecon -R / on kernels >= 2.6.30 without
+>>> concern about restorecon descending into filesystems that do not support
+>>> labeling, I wanted to compare it against running setfiles on the list of
+>>> filesystems that support labeling.  I noticed a significant difference
+>>> in performance that I traced to the use of realpath() when setfiles is
+>>> called as restorecon.
+>>>
+>>> When called as restorecon, setfiles calls realpath() so that sequences
+>>> like:
+>>> 	cd /etc
+>>> 	restorecon shadow gshadow
+>>> will work as expected.
+>>>
+>>> This patch changes the logic to only apply realpath() if the pathname is
+>>> relative, which covers the above case.  However, if a user runs
+>>> restorecon /a/b/c and any of the components is a symlink, restorecon
+>>> won't apply realpath after this patch and thus may not match the correct
+>>> file contexts entry.  Thoughts?
+>>>
+>>> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+>>> index 5e5d957..996d230 100644
+>>> --- a/policycoreutils/setfiles/setfiles.c
+>>> +++ b/policycoreutils/setfiles/setfiles.c
+>>> @@ -311,7 +311,7 @@ int match(const char *name, struct stat *sb, char **con)
+>>>  {
+>>>  	char path[PATH_MAX + 1];
+>>>  
+>>> -	if (expand_realpath) {
+>>> +	if (expand_realpath && name[0] != '/') {
+>>>  		if (S_ISLNK(sb->st_mode)) {
+>>>  			if (verbose > 1)
+>>>  				fprintf(stderr,
+>>>
+>>>
+>> The place where this is a problem is
+>>
+>> restorecon -Rv /etc/init.d
+>> versus
+>> restorecon -Rv /etc/rc.d/init.d
+>>
+>> What happens to the labeling?
+> 
+> Yes, that's a concern.  restorecon -Rv /etc/init.d appears to stop
+> immediately since it doesn't follow symlinks, but restorecon
+> -Rv /etc/init.d/ did descend and reset the labels incorrectly.
+> 
+> Possibly we could apply realpath() only to the user-supplied pathnames
+> before calling fts_open(), so that we would rewrite any of the
+> user-supplied pathname prefixes to eliminate symlinks and relative paths
+> up front, and then fts will just do the right thing afterward.  That
+> eliminates the overhead of calling realpath() on each file down inside
+> of match().
+> 
 
-The complete change log for this release follows at the end of the
-email.
-
-For people interested in helping Reference Policy development, the X
-desktop and role separation needs testing.
-
-* Thu Jul 30 2009 Chris PeBenito <selinux@tresys.com> - 2.20090730
-- Gentoo fixes for init scripts and system startup.
-- Remove read_default_t tunable.
-- Greylist milter from Paul Howarth.
-- Crack db access for su to handle password expiration, from Brandon Whalen.
-- Misc fixes for unix_update from Brandon Whalen.
-- Add x_device permissions for XI2 functions, from Eamon Walsh.
-- MLS constraints for the x_selection class, from Eamon Walsh.
-- Postgresql updates from KaiGai Kohei.
-- Milter state directory patch from Paul Howarth.
-- Add MLS constrains for ingress/egress and secmark from Paul Moore.
-- Drop write permission from fs_read_rpc_sockets().
-- Remove unused udev_runtime_t type.
-- Patch for RadSec port from Glen Turner.
-- Enable network_peer_controls policy capability from Paul Moore.
-- Btrfs xattr support from Paul Moore.
-- Add db_procedure install permission from KaiGai Kohei.
-- Add support for network interfaces with access controlled by a Boolean
-  from the CLIP project.
-- Several fixes from the CLIP project.
-- Add support for labeled Booleans.
-- Remove node definitions and change node usage to generic nodes.
-- Add kernel_service access vectors, from Stephen Smalley.
-- Added modules:
-        certmaster (Dan Walsh)
-        cpufreqselector (Dan Walsh)
-        devicekit (Dan Walsh)
-        fprintd (Dan Walsh)
-        git (Dan Walsh)
-        gpsd (Miroslav Grepl)
-        guest (Dan Walsh)
-        ifplugd (Dan Walsh)
-        lircd (Miroslav Grepl)
-        logadm (Dan Walsh)
-        pads (Dan Walsh)
-        pingd (Dan Walsh)
-        policykit (Dan Walsh)
-        pulseaudio (Dan Walsh)
-        psad (Dan Walsh)
-        portreserve (Dan Walsh)
-        sssd (Dan Walsh)
-        ulogd (Dan Walsh)
-        varnishd (Dan Walsh)
-        webadm (Dan Walsh)
-        wm (Dan Walsh)
-        xguest (Dan Walsh)
-        zosremote (Dan Walsh)
-
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+That sounds like a good compromise.  I just do not want the user to be surprised.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
