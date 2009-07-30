@@ -1,94 +1,56 @@
-Subject: Re: Help with SELinux policy for Usability Study
+Subject: Re: compiling errors!
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Cliffe <cliffe@ii.net>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        slide@tresys.com
-In-Reply-To: <4A711890.2030101@ii.net>
-References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>
-	 <4A711890.2030101@ii.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 30 Jul 2009 08:02:38 -0400
-Message-Id: <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>
+To: mina elnino <potushka@gmail.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>
+References: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>
+	 <CIEOKAFOMGPNJIPMMMAHMELCCBAA.remmolt@zwartsenberg.eu>
+	 <f7d5075c0907290626t1c772fd3l9f60c7a710c6152@mail.gmail.com>
+	 <f7d5075c0907290704x9b2b426sb6c3bb928a11a98b@mail.gmail.com>
+	 <1248882850.11627.64.camel@moss-pluto.epoch.ncsc.mil>
+	 <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 30 Jul 2009 08:22:39 -0400
+Message-Id: <1248956559.11627.105.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 11:50 +0800, Cliffe wrote:
-> Dear SELinux Gurus,
+On Thu, 2009-07-30 at 09:51 +0430, mina elnino wrote:
+> well, i have to say that i went through the steps in:
 > 
-> I am a PhD candidate conducting research into the usability of security 
-> mechanisms. I would really appreciate some help regarding the use of 
-> SELinux. Let me know if this is not the right place to be asking these 
-> types of questions.
-
-General usability questions, yes.  polgengui however is Fedora-specific
-and thus fedora-selinux-list may be a more suitable choice.
-
-You should also take a look at SLIDE, an Eclipse plugin for creating
-SELinux policies.  The upstream home page is at:
-http://oss.tresys.com/projects/slide/
-and the software should be available in Fedora via:
-yum install eclipse-slide
-
-> I generated a policy for opera using polgengui. I then ran the generated 
-> ./opera.sh.
+> http://danwalsh.livejournal.com/26428.html
 > 
-> Although SELinux was still set to enforcing mode opera seemed to run 
-> unconfined. The executable and process was labelled as expected 
-> (unconfined_u:unconfined_r:opera_t). AVCs were generated, but not enforced.
+> and at last i realized that this page is for the ones who want to make
+> policies from the source. now i have packages:
 > 
-> I added to opera.te using
-> grep opera /var/log/audit/audit.log | audit2allow >> opera.te
-> and reran ./opera.sh
-> until no AVCs were generated.
+> $ ls ~/rpmbuild/RPMS/noarch/
+> selinux-policy-3.6.12-62.fc11.noarch.rpm
+> selinux-policy-doc-3.6.12-62.fc11.noarch.rpm
+> selinux-policy-minimum-3.6.12-62.fc11.noarch.rpm
+> selinux-policy-mls-3.6.12-62.fc11.noarch.rpm
+> selinux-policy-targeted-3.6.12-62.fc11.noarch.rpm
 > 
-> Looking at opera.te I noticed the line “permissive opera_t”, and not 
-> knowing exactly what this line does, I thought it may be placing this 
-> domain into permissive mode (although the gui tools suggest otherwise). 
-> Removing the line causes “/bin/sh: /usr/bin/opera: Permission denied”. 
-> No AVCs are generated.
+> none of them is the source policy package. i mean i need that old m4
+> macros, "*.te" files and "policy.conf" which could be installed by
+> "selinux-policy-targeted-source" or "selinux-policy-strict-source" in
+> fc4.
 
-Yes, permissive opera_t causes the domain to run in permissive mode
-while leaving the rest of the system enforcing.  Per-domain permissive
-mode was introduced in Fedora 10, I think.
+If you want to just unpack the source tree along with any
+Fedora-specific patches applied, you can do:
+rpm -i selinux-policy*.src.rpm
+cd ~/rpmbuild/SPECS
+rpmbuild -bp selinux-policy.spec
+cd ../BUILD/serefpolicy*
+Then you can build it in the usual manner.
 
-> So I am not sure why opera seams to be unconfined, or if removing the 
-> permissive line was on the right track. Any advice?
+You can also clone the upstream refpolicy repository if you want:
+git clone http://oss.tresys.com/git/refpolicy.git
+cd refpolicy
 
-Yes, removing the permissive line is the right track to take when you
-are ready to test in enforcing mode.  If you don't see any AVC denials,
-then try running semodule -DB to strip all dontaudit rules from policy
-and then re-test, followed by semodule -B again to restore the dontaudit
-rules.  This will generate a _lot_ of denials, some of which are
-irrelevant, but should then show you all denials.  dontaudit rules are
-used to suppress denials that come from harmless application or library
-probing (e.g. getcwd) that are not required for operation of the
-application, but may sometimes mask real denials.
-
-I'm not sure why polgengui is automatically adding a permissive line in
-this case but not in the case of kwrite - Dan?  It should be consistent,
-and it really only should do that with user consent as the user needs to
-know that the domain is permissive. 
-
-> Also I tried creating a policy for kwrite. This time the created policy 
-> seemed to be in effect as soon as I ran the kwrite.sh script. I set 
-> setenforce 0 and added to kwrite.te (as above for opera) until no error 
-> msgs were generated. Then I reran ./kwrite.sh. Now kwrite exists with 
-> “kwrite(2533): Couldn’t register name ‘”org.kate-editor.kwrite-2533’” 
-> with DBUS – another process owns it already!”. When setenforce 0 it runs 
-> without AVCs.
-
-Sounds like you are getting a DBUS denial, so look for USER_AVC messages
-e.g.
-/sbin/ausearch -i -m USER_AVC
-
-> Again I am sure I am missing something simple and your advice will help 
-> a lot.
-> 
-> I need to resolve this asap and will really appreciate any advice.
-> 
-> Soon I will be running a comparative study comparing a number of 
-> security mechanisms and I need to sort this out.
+Note however that Fedora policy is built modular rather than monolithic,
+so there is no policy.conf file per se.  But if you run make with the
+default build.conf, you'll end up with a policy.conf file.
 
 -- 
 Stephen Smalley
