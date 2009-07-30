@@ -1,75 +1,128 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6U5FDEN018505
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 01:15:13 -0400
-Received: from rv-out-0708.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n6U5ElX3015607
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 05:14:47 GMT
-Received: by rv-out-0708.google.com with SMTP id c5so314366rvf.54
-        for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2009 22:15:11 -0700 (PDT)
-Subject: Re: is it safe to use ext4 for SELinux
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Christopher Pardy <cpardy@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4A711BA7.6010308@redhat.com>
-References: <4A7083DB.4000003@gmail.com> <4A70894E.7000701@redhat.com>
-	 <4A708F41.2070902@gmail.com>  <4A711BA7.6010308@redhat.com>
-Content-Type: text/plain
-Date: Wed, 29 Jul 2009 22:14:55 -0700
-Message-Id: <1248930895.3374.8.camel@unix>
-Mime-Version: 1.0
+Date: Thu, 30 Jul 2009 00:14:26 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, sds@tycho.nsa.gov,
+        spender@grsecurity.net, dwalsh@redhat.com, cl@linux-foundation.org,
+        arjan@infradead.org, alan@lxorguk.ukuu.org.uk, kees@outflux.net,
+        csellers@tresys.com, penguin-kernel@i-love.sakura.ne.jp
+Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
+Message-ID: <20090730051426.GA6082@us.ibm.com>
+References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 00:03 -0400, Daniel J Walsh wrote:
-> On 07/29/2009 02:04 PM, Justin P. Mattock wrote:
-> > Christopher Pardy wrote:
-> >> On 07/29/2009 01:16 PM, Justin P. Mattock wrote:
-> >>   
-> >>> I've just downloaded the fedora 11 livecd and am installing it on an
-> >>> imac. during the partition scheme should I use ext4,
-> >>> or stick with ext3 for SELinux to function properly?
-> >>>
-> >>> Justin P. Mattock
-> >>>
-> >>> -- 
-> >>> This message was distributed to subscribers of the selinux mailing list.
-> >>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> >>> with
-> >>> the words "unsubscribe selinux" without quotes as the message.
-> >>>      
-> >>
-> >> OMG wrong list!!!! send fedora related stuff to fedora-selinux please!
-> >> Also.... No, use ext4.
-> >>
-> >>    
-> > 
-> > I'll have to search for the lists to join.
-> > in the meantime it is possible to have
-> > SELinux on ext4
-> >
-> Yes SELinux should work on any file system that supports extended attributes.
->  
-> > Justin P. Mattock
-> > 
-> > -- 
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with
-> > the words "unsubscribe selinux" without quotes as the message.
+Quoting Eric Paris (eparis@redhat.com):
+> Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
+> security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
+> into commoncap.c and then calls that function directly from
+> security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
+> checks are done.
+
+It also
+
+	1. changes the return value in error case from -EACCES to
+	   -EPERM
+	2. no onger sets PF_SUPERPRIV in t->flags if the capability
+	   is used.
+
+Do we care about these?
+
+-serge
+
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
 > 
-
-I must admit that I'm out of the loop with new stuff.
-(thought ext4 was not yet ready for SELinux).
-
-Side note: fedora sure does run nice with SELinux
-you can't even tell the policy/SELinux is turned on.
-(I think I'm going to convert).
-
-Thanks for the response on this, and
-it is true about learning something new everyday!!
-
-Justin P. Mattock
-
+>  include/linux/security.h |    7 ++++---
+>  security/capability.c    |    9 ---------
+>  security/commoncap.c     |   24 ++++++++++++++++++++++++
+>  3 files changed, 28 insertions(+), 12 deletions(-)
+> 
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 1459091..963a48f 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -66,6 +66,9 @@ extern int cap_inode_setxattr(struct dentry *dentry, const char *name,
+>  extern int cap_inode_removexattr(struct dentry *dentry, const char *name);
+>  extern int cap_inode_need_killpriv(struct dentry *dentry);
+>  extern int cap_inode_killpriv(struct dentry *dentry);
+> +extern int cap_file_mmap(struct file *file, unsigned long reqprot,
+> +			 unsigned long prot, unsigned long flags,
+> +			 unsigned long addr, unsigned long addr_only);
+>  extern int cap_task_fix_setuid(struct cred *new, const struct cred *old, int flags);
+>  extern int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+>  			  unsigned long arg4, unsigned long arg5);
+> @@ -2197,9 +2200,7 @@ static inline int security_file_mmap(struct file *file, unsigned long reqprot,
+>  				     unsigned long addr,
+>  				     unsigned long addr_only)
+>  {
+> -	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
+> -		return -EACCES;
+> -	return 0;
+> +	return cap_file_mmap(file, reqprot, prot, flags, addr, addr_only);
+>  }
+> 
+>  static inline int security_file_mprotect(struct vm_area_struct *vma,
+> diff --git a/security/capability.c b/security/capability.c
+> index f218dd3..ec05730 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -330,15 +330,6 @@ static int cap_file_ioctl(struct file *file, unsigned int command,
+>  	return 0;
+>  }
+> 
+> -static int cap_file_mmap(struct file *file, unsigned long reqprot,
+> -			 unsigned long prot, unsigned long flags,
+> -			 unsigned long addr, unsigned long addr_only)
+> -{
+> -	if ((addr < mmap_min_addr) && !capable(CAP_SYS_RAWIO))
+> -		return -EACCES;
+> -	return 0;
+> -}
+> -
+>  static int cap_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
+>  			     unsigned long prot)
+>  {
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index aa97704..9a731d7 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -984,3 +984,27 @@ int cap_vm_enough_memory(struct mm_struct *mm, long pages)
+>  		cap_sys_admin = 1;
+>  	return __vm_enough_memory(mm, pages, cap_sys_admin);
+>  }
+> +
+> +/*
+> + * cap_file_mmap - check if able to map given addr
+> + * @file: unused
+> + * @reqprot: unused
+> + * @prot: unused
+> + * @flags: unused
+> + * @addr: address attempting to be mapped
+> + * @addr_only: unused
+> + *
+> + * If the process is attempting to map memory below mmap_min_addr they need
+> + * CAP_SYS_RAWIO.  The other parameters to this function are unused by the
+> + * capability security module.  Returns 0 if this mapping should be allowed
+> + * -EPERM if not.
+> + */
+> +int cap_file_mmap(struct file *file, unsigned long reqprot,
+> +		  unsigned long prot, unsigned long flags,
+> +		  unsigned long addr, unsigned long addr_only)
+> +{
+> +	if (addr < mmap_min_addr)
+> +		return cap_capable(current, current_cred(), CAP_SYS_RAWIO,
+> +				   SECURITY_CAP_AUDIT);
+> +	return 0;
+> +}
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
