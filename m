@@ -1,85 +1,49 @@
-Message-ID: <4A71AEB1.8010503@ii.net>
-Date: Thu, 30 Jul 2009 22:31:13 +0800
-From: Cliffe <cliffe@ii.net>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        slide@tresys.com
-Subject: Re: Help with SELinux policy for Usability Study
-References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>	 <4A711890.2030101@ii.net> <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil> <4A71AD1A.5030406@ii.net>
-In-Reply-To: <4A71AD1A.5030406@ii.net>
-Content-Type: multipart/alternative;
- boundary="------------090207050001070907080300"
+Subject: Re: is it safe to use ext4 for SELinux
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1248959202.2597.68.camel@localhost>
+References: <4A7083DB.4000003@gmail.com>
+	 <1248958936.11627.122.camel@moss-pluto.epoch.ncsc.mil>
+	 <1248959202.2597.68.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 30 Jul 2009 07:40:07 -0700
+Message-Id: <1248964807.6584.6.camel@unix>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090207050001070907080300
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2009-07-30 at 09:06 -0400, Eric Paris wrote:
+> On Thu, 2009-07-30 at 09:02 -0400, Stephen Smalley wrote:
+> > On Wed, 2009-07-29 at 10:16 -0700, Justin P. Mattock wrote:
+> > > I've just downloaded the fedora 11 livecd and am installing it on an
+> > > imac. during the partition scheme should I use ext4,
+> > > or stick with ext3 for SELinux to function properly?
+> > 
+> 
+> > As to whether or not they all truly work, I don't know.
+> > I have used ext4 though without any selinux problems, and btrfs has been
+> > reported to work as well.
+> 
+> If you have problems with ext3, ext4, gfs2, or btrfs please file a
+> bugzilla and it will be a high priority for us to fix.
+> 
+> -Eric
+> 
 
 
+Yeah I thought SELinux support was only for ext3,
 
-Cliffe wrote:
-> Stephen Smalley wrote:
->> Sounds like you are getting a DBUS denial, so look for USER_AVC messages
->> e.g.
->> /sbin/ausearch -i -m USER_AVC.
->>     
-> None there. It turns out they were in /var/log/messages so grep kwrite 
-> /var/log/audit/audit.log | audit2allow >> kwrite.te did the trick. It 
-> is strange that some AVCs go to /var/log/messages while others goto 
-> /var/log/audit/audit.log
-> Thanks for all your advice, it has helped a lot.
->
-> Cliffe.
->   
-(sorry, typo should read:)
+Anyways At the moment I need to get the hang of this system, 
+then later on experiment with the latest refpolicy.
 
-grep kwrite /var/log/messages | audit2allow >> kwrite.te
+As for any issues with any of the files system, no problem
+I'll send a post to the appropriate vendor, about any issue,
+if I run into such a thing.
 
-did the trick.
 
---------------090207050001070907080300
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<br>
-<br>
-Cliffe wrote:
-<blockquote cite="mid:4A71AD1A.5030406@ii.net" type="cite">
-  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type">
-Stephen Smalley wrote:
-  <blockquote
- cite="mid:1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil"
- type="cite">
-    <pre wrap="">Sounds like you are getting a DBUS denial, so look for USER_AVC messages
-e.g.
-/sbin/ausearch -i -m USER_AVC.
-    </pre>
-  </blockquote>
-None there. It turns out they were in /var/log/messages so grep kwrite
-/var/log/audit/audit.log | audit2allow &gt;&gt; kwrite.te
-did the trick. It is strange that some AVCs go to /var/log/messages
-while others goto /var/log/audit/audit.log<br>
-  <pre wrap="">Thanks for all your advice, it has helped a lot.
-
-Cliffe.
-  </pre>
-</blockquote>
-(sorry, typo should read:)<br>
-<pre wrap="">grep kwrite /var/log/messages | audit2allow &gt;&gt; kwrite.te</pre>
-did the trick.<br>
-</body>
-</html>
-
---------------090207050001070907080300--
+Justin P. Mattock
 
 
 --
