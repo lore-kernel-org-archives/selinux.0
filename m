@@ -1,27 +1,22 @@
-Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+Date: Thu, 30 Jul 2009 15:01:44 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         jwcart2@tycho.nsa.gov, spender@grsecurity.net, dwalsh@redhat.com,
         cl@linux-foundation.org, arjan@infradead.org, alan@lxorguk.ukuu.org.uk,
         kees@outflux.net, csellers@tresys.com,
-        penguin-kernel@i-love.sakura.ne.jp
+        penguin-kernel@i-love.sakura.ne.jp, Andrew Morgan <morgan@kernel.org>
+Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
+Message-ID: <20090730200144.GB20292@us.ibm.com>
+References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com> <20090730051426.GA6082@us.ibm.com> <1248968428.2597.79.camel@localhost> <20090730155403.GA13939@us.ibm.com> <1248969492.11627.172.camel@moss-pluto.epoch.ncsc.mil> <1248976252.2771.1.camel@localhost> <1248982958.11627.187.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <1248982958.11627.187.camel@moss-pluto.epoch.ncsc.mil>
-References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
-	 <20090730051426.GA6082@us.ibm.com> <1248968428.2597.79.camel@localhost>
-	 <20090730155403.GA13939@us.ibm.com>
-	 <1248969492.11627.172.camel@moss-pluto.epoch.ncsc.mil>
-	 <1248976252.2771.1.camel@localhost>
-	 <1248982958.11627.187.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 30 Jul 2009 15:54:52 -0400
-Message-Id: <1248983692.11627.194.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 15:42 -0400, Stephen Smalley wrote:
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
 > On Thu, 2009-07-30 at 13:50 -0400, Eric Paris wrote:
 > > On Thu, 2009-07-30 at 11:58 -0400, Stephen Smalley wrote:
 > > > On Thu, 2009-07-30 at 10:54 -0500, Serge E. Hallyn wrote:
@@ -89,14 +84,25 @@ On Thu, 2009-07-30 at 15:42 -0400, Stephen Smalley wrote:
 > SELinux would not apply its capability check against policy.  But the
 > first two are unclear to me.
 
-Sorry, the vm_enough_memory case was about auditing, not about applying
-the check itself.  Which might have been rendered moot by your later
-changes to introduce SECURITY_CAP_NOAUDIT.
+cap_inh_is_capped:
 
--- 
-Stephen Smalley
-National Security Agency
+I'm not sure why it's cap_capable() instead of capable().  However, if we
+switch to using capable(), then we should switch the conditions in the caller
+around, since at the moment just because the capable() check returned true
+doesn't mean that we actually end up needing it.
 
+(CC:ing Andrew Morgan as I believe he wrote this and may have had a reason)
+
+cap_task_prctl: I don't see any reason why that shouldn't be capable().
+
+cap_vm_enough_memory(): I seem to recall we explicitly decided that we
+did not want PF_SUPERPRIV set in this case.
+
+cap_file_mmap(): well now that you mention it, it does seem like SELinux
+would want a say in whether the task gets CAP_SYS_RAWIO here, so maybe
+it should be capable() after all?
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
