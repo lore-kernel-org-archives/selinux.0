@@ -1,78 +1,59 @@
-Subject: Re: [RFC][PATCH] setfiles:  only call realpath if the path is
- relative
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <4A71D2C2.5080102@redhat.com>
-References: <1248967075.11627.170.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A71D2C2.5080102@redhat.com>
-Content-Type: text/plain
-Date: Thu, 30 Jul 2009 13:28:35 -0400
-Message-Id: <1248974915.11627.180.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4A71D8CE.1010700@redhat.com>
+Date: Thu, 30 Jul 2009 13:30:54 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Cliffe <cliffe@ii.net>, selinux@tycho.nsa.gov, slide@tresys.com
+Subject: Re: Help with SELinux policy for Usability Study
+References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>	 <4A711890.2030101@ii.net>	 <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>	 <4A71AD1A.5030406@ii.net> <1248965089.11627.137.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1248965089.11627.137.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 13:05 -0400, Daniel J Walsh wrote:
-> On 07/30/2009 11:17 AM, Stephen Smalley wrote:
-> > Since we can now safely use restorecon -R / on kernels >= 2.6.30 without
-> > concern about restorecon descending into filesystems that do not support
-> > labeling, I wanted to compare it against running setfiles on the list of
-> > filesystems that support labeling.  I noticed a significant difference
-> > in performance that I traced to the use of realpath() when setfiles is
-> > called as restorecon.
-> > 
-> > When called as restorecon, setfiles calls realpath() so that sequences
-> > like:
-> > 	cd /etc
-> > 	restorecon shadow gshadow
-> > will work as expected.
-> > 
-> > This patch changes the logic to only apply realpath() if the pathname is
-> > relative, which covers the above case.  However, if a user runs
-> > restorecon /a/b/c and any of the components is a symlink, restorecon
-> > won't apply realpath after this patch and thus may not match the correct
-> > file contexts entry.  Thoughts?
-> > 
-> > diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-> > index 5e5d957..996d230 100644
-> > --- a/policycoreutils/setfiles/setfiles.c
-> > +++ b/policycoreutils/setfiles/setfiles.c
-> > @@ -311,7 +311,7 @@ int match(const char *name, struct stat *sb, char **con)
-> >  {
-> >  	char path[PATH_MAX + 1];
-> >  
-> > -	if (expand_realpath) {
-> > +	if (expand_realpath && name[0] != '/') {
-> >  		if (S_ISLNK(sb->st_mode)) {
-> >  			if (verbose > 1)
-> >  				fprintf(stderr,
-> > 
-> > 
-> The place where this is a problem is
+On 07/30/2009 10:44 AM, Stephen Smalley wrote:
+> On Thu, 2009-07-30 at 22:24 +0800, Cliffe wrote:
+>> It adds the permissive line to both (I am not sure why kwrite seemed
+>> to be in enforcing mode). But the gui does not make this clear. I have
+>> mentioned this to the fedora-selinux mailing list.
 > 
-> restorecon -Rv /etc/init.d
-> versus
-> restorecon -Rv /etc/rc.d/init.d
+> Perhaps kwrite isn't actually running in kwrite_t at all.  Note that kde
+> has historically had a problem with launching all applications via a
+> single kde-init program, thereby preventing automatic domain transitions
+> on the specific application from working.  Not sure if that has been
+> fixed.  I don't use KDE.
 > 
-> What happens to the labeling?
+>> None there. It turns out they were in /var/log/messages
+>>
+>> so 
+>> grep kwrite /var/log/audit/audit.log | audit2allow >> kwrite.te
+>> did the trick. It is strange that some AVCs go to /var/log/messages
+>> while others goto 
+>> /var/log/audit/audit.log
+> 
+> That seems like a bug to me in dbus.
+> 
+> Again, I'd suggest that you also include SLIDE in your study - it will
+> add a further data point and is a more flexible solution, even if it may
+> be slightly harder to get started.
+> 
 
-Yes, that's a concern.  restorecon -Rv /etc/init.d appears to stop
-immediately since it doesn't follow symlinks, but restorecon
--Rv /etc/init.d/ did descend and reset the labels incorrectly.
+BTW, if you use the sepolgen command line that is in F11 and Rawhide, it has new features to examine the executable and rpm information to generate more data automatigically.  It is using the same framework that polgengui is using. 
 
-Possibly we could apply realpath() only to the user-supplied pathnames
-before calling fts_open(), so that we would rewrite any of the
-user-supplied pathname prefixes to eliminate symlinks and relative paths
-up front, and then fts will just do the right thing afterward.  That
-eliminates the overhead of calling realpath() on each file down inside
-of match().
+You can execute
 
--- 
-Stephen Smalley
-National Security Agency
+sepolgen /usr/sbin/myapp
 
+And it will generate the myapp,te, if, fc, sh file automatically, No gui to walk though.
+
+For example it will look for paths in the rpm that match /var/run/myapp, /var/lib/myapp ... and create proper types.
+It also runs nm -D /usr/sbin/myapp looking for function calls that it knows require certain interfaces,  If it find syslog it will add the 
+
+logging_send_syslog_msg(myapp_t) 
+
+call.
+
+I have not merged this stuff back into the GUI yet.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
