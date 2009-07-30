@@ -1,52 +1,44 @@
-Subject: [RFC][PATCH] setfiles:  only call realpath if the path is relative
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
+From: Eric Paris <eparis@redhat.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, sds@tycho.nsa.gov,
+        spender@grsecurity.net, dwalsh@redhat.com, cl@linux-foundation.org,
+        arjan@infradead.org, alan@lxorguk.ukuu.org.uk, kees@outflux.net,
+        csellers@tresys.com, penguin-kernel@i-love.sakura.ne.jp
+In-Reply-To: <20090730051426.GA6082@us.ibm.com>
+References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
+	 <20090730051426.GA6082@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 30 Jul 2009 11:17:55 -0400
-Message-Id: <1248967075.11627.170.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 30 Jul 2009 11:40:28 -0400
+Message-Id: <1248968428.2597.79.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since we can now safely use restorecon -R / on kernels >= 2.6.30 without
-concern about restorecon descending into filesystems that do not support
-labeling, I wanted to compare it against running setfiles on the list of
-filesystems that support labeling.  I noticed a significant difference
-in performance that I traced to the use of realpath() when setfiles is
-called as restorecon.
+On Thu, 2009-07-30 at 00:14 -0500, Serge E. Hallyn wrote:
+> Quoting Eric Paris (eparis@redhat.com):
+> > Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
+> > security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
+> > into commoncap.c and then calls that function directly from
+> > security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
+> > checks are done.
+> 
+> It also
+> 
+> 	1. changes the return value in error case from -EACCES to
+> 	   -EPERM
+> 	2. no onger sets PF_SUPERPRIV in t->flags if the capability
+> 	   is used.
+> 
+> Do we care about these?
 
-When called as restorecon, setfiles calls realpath() so that sequences
-like:
-	cd /etc
-	restorecon shadow gshadow
-will work as expected.
+Personally, not really, but I'll gladly put them back if you care.   #2
+seems more interesting to me than number 1.   I actually kinda like
+getting EPERM from caps rather than EACCES since them I know if I was
+denied by selinux or by caps.....
 
-This patch changes the logic to only apply realpath() if the pathname is
-relative, which covers the above case.  However, if a user runs
-restorecon /a/b/c and any of the components is a symlink, restorecon
-won't apply realpath after this patch and thus may not match the correct
-file contexts entry.  Thoughts?
-
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 5e5d957..996d230 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -311,7 +311,7 @@ int match(const char *name, struct stat *sb, char **con)
- {
- 	char path[PATH_MAX + 1];
- 
--	if (expand_realpath) {
-+	if (expand_realpath && name[0] != '/') {
- 		if (S_ISLNK(sb->st_mode)) {
- 			if (verbose > 1)
- 				fprintf(stderr,
-
-
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
