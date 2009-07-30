@@ -1,44 +1,48 @@
-Subject: Re: Help with SELinux policy for Usability Study
+Subject: [RFC][PATCH] setfiles:  only call realpath if the path is relative
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Cliffe <cliffe@ii.net>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        slide@tresys.com
-In-Reply-To: <4A71AD1A.5030406@ii.net>
-References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>
-	 <4A711890.2030101@ii.net>
-	 <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A71AD1A.5030406@ii.net>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
 Content-Type: text/plain
-Date: Thu, 30 Jul 2009 10:44:49 -0400
-Message-Id: <1248965089.11627.137.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 30 Jul 2009 11:17:55 -0400
+Message-Id: <1248967075.11627.170.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 22:24 +0800, Cliffe wrote:
-> It adds the permissive line to both (I am not sure why kwrite seemed
-> to be in enforcing mode). But the gui does not make this clear. I have
-> mentioned this to the fedora-selinux mailing list.
+Since we can now safely use restorecon -R / on kernels >= 2.6.30 without
+concern about restorecon descending into filesystems that do not support
+labeling, I wanted to compare it against running setfiles on the list of
+filesystems that support labeling.  I noticed a significant difference
+in performance that I traced to the use of realpath() when setfiles is
+called as restorecon.
 
-Perhaps kwrite isn't actually running in kwrite_t at all.  Note that kde
-has historically had a problem with launching all applications via a
-single kde-init program, thereby preventing automatic domain transitions
-on the specific application from working.  Not sure if that has been
-fixed.  I don't use KDE.
+When called as restorecon, setfiles calls realpath() so that sequences
+like:
+	cd /etc
+	restorecon shadow gshadow
+will work as expected.
 
-> None there. It turns out they were in /var/log/messages
-> 
-> so 
-> grep kwrite /var/log/audit/audit.log | audit2allow >> kwrite.te
-> did the trick. It is strange that some AVCs go to /var/log/messages
-> while others goto 
-> /var/log/audit/audit.log
+This patch changes the logic to only apply realpath() if the pathname is
+relative, which covers the above case.  However, if a user runs
+restorecon /a/b/c and any of the components is a symlink, restorecon
+won't apply realpath after this patch and thus may not match the correct
+file contexts entry.  Thoughts?
 
-That seems like a bug to me in dbus.
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 5e5d957..996d230 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -311,7 +311,7 @@ int match(const char *name, struct stat *sb, char **con)
+ {
+ 	char path[PATH_MAX + 1];
+ 
+-	if (expand_realpath) {
++	if (expand_realpath && name[0] != '/') {
+ 		if (S_ISLNK(sb->st_mode)) {
+ 			if (verbose > 1)
+ 				fprintf(stderr,
 
-Again, I'd suggest that you also include SLIDE in your study - it will
-add a further data point and is a more flexible solution, even if it may
-be slightly harder to get started.
 
 -- 
 Stephen Smalley
