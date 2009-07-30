@@ -1,91 +1,84 @@
-Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        jwcart2@tycho.nsa.gov, spender@grsecurity.net, dwalsh@redhat.com,
-        cl@linux-foundation.org, arjan@infradead.org, alan@lxorguk.ukuu.org.uk,
-        kees@outflux.net, csellers@tresys.com,
-        penguin-kernel@i-love.sakura.ne.jp
-In-Reply-To: <1248976252.2771.1.camel@localhost>
-References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
-	 <20090730051426.GA6082@us.ibm.com> <1248968428.2597.79.camel@localhost>
-	 <20090730155403.GA13939@us.ibm.com>
-	 <1248969492.11627.172.camel@moss-pluto.epoch.ncsc.mil>
-	 <1248976252.2771.1.camel@localhost>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n6UIjhX2029101
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 14:45:43 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n6UIjHXi010623
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2009 18:45:17 GMT
+Subject: ANN: Reference Policy Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 30 Jul 2009 14:31:19 -0400
-Message-Id: <1248978679.2771.24.camel@localhost>
+Date: Thu, 30 Jul 2009 14:45:52 -0400
+Message-Id: <1248979554.24705.21.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 13:50 -0400, Eric Paris wrote:
-> On Thu, 2009-07-30 at 11:58 -0400, Stephen Smalley wrote:
-> > On Thu, 2009-07-30 at 10:54 -0500, Serge E. Hallyn wrote:
-> > > Quoting Eric Paris (eparis@redhat.com):
-> > > > On Thu, 2009-07-30 at 00:14 -0500, Serge E. Hallyn wrote:
-> > > > > Quoting Eric Paris (eparis@redhat.com):
-> > > > > > Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
-> > > > > > security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
-> > > > > > into commoncap.c and then calls that function directly from
-> > > > > > security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
-> > > > > > checks are done.
-> > > > > 
-> > > > > It also
-> > > > > 
-> > > > > 	1. changes the return value in error case from -EACCES to
-> > > > > 	   -EPERM
-> > > > > 	2. no onger sets PF_SUPERPRIV in t->flags if the capability
-> > > > > 	   is used.
-> > > > > 
-> > > > > Do we care about these?
-> > > > 
-> > > > Personally, not really, but I'll gladly put them back if you care.   #2
-> > > > seems more interesting to me than number 1.   I actually kinda like
-> > > > getting EPERM from caps rather than EACCES since them I know if I was
-> > > > denied by selinux or by caps.....
-> > > > 
-> > > > -Eric
-> > > 
-> > > Yup, I asked bc I didn't particularly care myself.
-> > > 
-> > > I think I agree with you about -EPERM being better anyway.  However I
-> > > (now) think in this case PF_SUPERPRIV definately should be set, as this
-> > > is a clear use of a capability to do something that couldn't have been
-> > > done without it.
-> > 
-> > On a related but different note, we should consider all current uses of
-> > cap_capable(), as they represent capability checks that will not be
-> > subject to a further restrictive check by other security modules.  In
-> > this case and in the vm_enough_memory case, that is intentional, but not
-> > so clear for other uses in commoncap.c.
-> 
-> Most of commoncap.c is called either as a secondary hook from the active
-> lsm (aka selinux calls the commoncap.c functions) or in the !
-> CONFIG_SECURITY case.
-> 
-> I'll audit this afternoon to see which of them might not fit these
-> rules....
+A new release of the SELinux Reference Policy is now available on
+the Tresys OSS site, http://oss.tresys.com.  This release primarily
+focused on general policy development for supporting new applications
+and improving support of current ones.  In addition, support for labeled
+Booleans was added.
 
-I just went through all of the cap_* function in commoncap.c to see
-which of them are being or are not being called from the selinux hooks.
-Only 3 of them look interesting.
+The complete change log for this release follows at the end of the
+email.
 
-cap_inode_setxattr
-cap_inode_removexattr
-cap_vm_enough_memory
+For people interested in helping Reference Policy development, the X
+desktop and role separation needs testing.
 
-All of the other functions are either called from hooks.c or SELinux
-does not define that LSM hook, so it just defaults to the cap_* hook.
+* Thu Jul 30 2009 Chris PeBenito <selinux@tresys.com> - 2.20090730
+- Gentoo fixes for init scripts and system startup.
+- Remove read_default_t tunable.
+- Greylist milter from Paul Howarth.
+- Crack db access for su to handle password expiration, from Brandon Whalen.
+- Misc fixes for unix_update from Brandon Whalen.
+- Add x_device permissions for XI2 functions, from Eamon Walsh.
+- MLS constraints for the x_selection class, from Eamon Walsh.
+- Postgresql updates from KaiGai Kohei.
+- Milter state directory patch from Paul Howarth.
+- Add MLS constrains for ingress/egress and secmark from Paul Moore.
+- Drop write permission from fs_read_rpc_sockets().
+- Remove unused udev_runtime_t type.
+- Patch for RadSec port from Glen Turner.
+- Enable network_peer_controls policy capability from Paul Moore.
+- Btrfs xattr support from Paul Moore.
+- Add db_procedure install permission from KaiGai Kohei.
+- Add support for network interfaces with access controlled by a Boolean
+  from the CLIP project.
+- Several fixes from the CLIP project.
+- Add support for labeled Booleans.
+- Remove node definitions and change node usage to generic nodes.
+- Add kernel_service access vectors, from Stephen Smalley.
+- Added modules:
+        certmaster (Dan Walsh)
+        cpufreqselector (Dan Walsh)
+        devicekit (Dan Walsh)
+        fprintd (Dan Walsh)
+        git (Dan Walsh)
+        gpsd (Miroslav Grepl)
+        guest (Dan Walsh)
+        ifplugd (Dan Walsh)
+        lircd (Miroslav Grepl)
+        logadm (Dan Walsh)
+        pads (Dan Walsh)
+        pingd (Dan Walsh)
+        policykit (Dan Walsh)
+        pulseaudio (Dan Walsh)
+        psad (Dan Walsh)
+        portreserve (Dan Walsh)
+        sssd (Dan Walsh)
+        ulogd (Dan Walsh)
+        varnishd (Dan Walsh)
+        webadm (Dan Walsh)
+        wm (Dan Walsh)
+        xguest (Dan Walsh)
+        zosremote (Dan Walsh)
 
-These 3 are all a bit odd because the logic inside the cap_ hook is
-duplicated inside the selinux_ hook.  I'd much rather see the selinux_
-hook call the cap_ hook.  I'm going to think on that topic, but it's a
-different set of patches and I don't see missing checks today as the
-logic seems to line up.
 
--Eric
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
