@@ -1,123 +1,171 @@
-Subject: Re: [PATCH -v3 1/3] Capabilities: move cap_file_mmap to commoncap.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        jwcart2@tycho.nsa.gov, spender@grsecurity.net, dwalsh@redhat.com,
-        cl@linux-foundation.org, arjan@infradead.org, alan@lxorguk.ukuu.org.uk,
-        kees@outflux.net, csellers@tresys.com,
-        penguin-kernel@i-love.sakura.ne.jp, Andrew Morgan <morgan@kernel.org>
-In-Reply-To: <20090730200144.GB20292@us.ibm.com>
-References: <20090729185620.21757.44366.stgit@paris.rdu.redhat.com>
-	 <20090730051426.GA6082@us.ibm.com> <1248968428.2597.79.camel@localhost>
-	 <20090730155403.GA13939@us.ibm.com>
-	 <1248969492.11627.172.camel@moss-pluto.epoch.ncsc.mil>
-	 <1248976252.2771.1.camel@localhost>
-	 <1248982958.11627.187.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090730200144.GB20292@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 30 Jul 2009 16:05:01 -0400
-Message-Id: <1248984301.11627.199.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4A724FA0.9010001@ii.net>
+Date: Fri, 31 Jul 2009 09:57:52 +0800
+From: Cliffe <cliffe@ii.net>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        slide@tresys.com, Christopher Pardy <cpardy@redhat.com>
+Subject: Re: Help with SELinux policy for Usability Study
+References: <200907300352.n6U3qvAC012682@tarius.tycho.ncsc.mil>	 <4A711890.2030101@ii.net>	 <1248955358.11627.91.camel@moss-pluto.epoch.ncsc.mil>	 <4A71AD1A.5030406@ii.net> <1248965089.11627.137.camel@moss-pluto.epoch.ncsc.mil> <4A71D8CE.1010700@redhat.com>
+In-Reply-To: <4A71D8CE.1010700@redhat.com>
+Content-Type: multipart/alternative;
+ boundary="------------080803060207040905080208"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-07-30 at 15:01 -0500, Serge E. Hallyn wrote:
-> Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > On Thu, 2009-07-30 at 13:50 -0400, Eric Paris wrote:
-> > > On Thu, 2009-07-30 at 11:58 -0400, Stephen Smalley wrote:
-> > > > On Thu, 2009-07-30 at 10:54 -0500, Serge E. Hallyn wrote:
-> > > > > Quoting Eric Paris (eparis@redhat.com):
-> > > > > > On Thu, 2009-07-30 at 00:14 -0500, Serge E. Hallyn wrote:
-> > > > > > > Quoting Eric Paris (eparis@redhat.com):
-> > > > > > > > Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
-> > > > > > > > security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
-> > > > > > > > into commoncap.c and then calls that function directly from
-> > > > > > > > security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
-> > > > > > > > checks are done.
-> > > > > > > 
-> > > > > > > It also
-> > > > > > > 
-> > > > > > > 	1. changes the return value in error case from -EACCES to
-> > > > > > > 	   -EPERM
-> > > > > > > 	2. no onger sets PF_SUPERPRIV in t->flags if the capability
-> > > > > > > 	   is used.
-> > > > > > > 
-> > > > > > > Do we care about these?
-> > > > > > 
-> > > > > > Personally, not really, but I'll gladly put them back if you care.   #2
-> > > > > > seems more interesting to me than number 1.   I actually kinda like
-> > > > > > getting EPERM from caps rather than EACCES since them I know if I was
-> > > > > > denied by selinux or by caps.....
-> > > > > > 
-> > > > > > -Eric
-> > > > > 
-> > > > > Yup, I asked bc I didn't particularly care myself.
-> > > > > 
-> > > > > I think I agree with you about -EPERM being better anyway.  However I
-> > > > > (now) think in this case PF_SUPERPRIV definately should be set, as this
-> > > > > is a clear use of a capability to do something that couldn't have been
-> > > > > done without it.
-> > > > 
-> > > > On a related but different note, we should consider all current uses of
-> > > > cap_capable(), as they represent capability checks that will not be
-> > > > subject to a further restrictive check by other security modules.  In
-> > > > this case and in the vm_enough_memory case, that is intentional, but not
-> > > > so clear for other uses in commoncap.c.
-> > > 
-> > > Most of commoncap.c is called either as a secondary hook from the active
-> > > lsm (aka selinux calls the commoncap.c functions) or in the !
-> > > CONFIG_SECURITY case.
-> > > 
-> > > I'll audit this afternoon to see which of them might not fit these
-> > > rules....
-> > 
-> > That isn't what I meant.  Most of the commoncap functions call capable()
-> > rather than directly calling cap_capable(), thereby causing:
-> > - PF_SUPERPRIV to be set, and
-> > - The primary security module (e.g. SELinux) to apply its own
-> > restrictive check.
-> > 
-> > That is useful as it allows SELinux or AppArmor or TOMOYO to veto e.g.
-> > CAP_SYS_PTRACE without replicating the same logic within its own hook.
-> > 
-> > The current exceptions are:
-> > cap_inh_is_capped() called from cap_capset(),
-> > cap_task_prctl() in the PR_SET_SECUREBITS case,
-> > cap_vm_enough_memory(),
-> > cap_file_mmap() after your patch.
-> > 
-> > The latter two are indeed cases where we made a conscious choice that
-> > SELinux would not apply its capability check against policy.  But the
-> > first two are unclear to me.
-> 
-> cap_inh_is_capped:
-> 
-> I'm not sure why it's cap_capable() instead of capable().  However, if we
-> switch to using capable(), then we should switch the conditions in the caller
-> around, since at the moment just because the capable() check returned true
-> doesn't mean that we actually end up needing it.
-> 
-> (CC:ing Andrew Morgan as I believe he wrote this and may have had a reason)
-> 
-> cap_task_prctl: I don't see any reason why that shouldn't be capable().
-> 
-> cap_vm_enough_memory(): I seem to recall we explicitly decided that we
-> did not want PF_SUPERPRIV set in this case.
+This is a multi-part message in MIME format.
+--------------080803060207040905080208
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes - that one was intentional, as it gets applied to all tasks that
-allocate mappings.  For the same reason, we don't audit that check in
-SELinux.
+Daniel J Walsh wrote:
+> BTW, if you use the sepolgen command line that is in F11 and Rawhide, it has new features to examine the executable and rpm information to generate more data automatigically.  It is using the same framework that polgengui is using. 
+>
+> You can execute
+>
+> sepolgen /usr/sbin/myapp
+>
+> And it will generate the myapp,te, if, fc, sh file automatically, No gui to walk though.
+>
+> For example it will look for paths in the rpm that match /var/run/myapp, /var/lib/myapp ... and create proper types.
+> It also runs nm -D /usr/sbin/myapp looking for function calls that it knows require certain interfaces,  If it find syslog it will add the 
+>
+> logging_send_syslog_msg(myapp_t) 
+>
+> call.
+>
+> I have not merged this stuff back into the GUI yet.
+>   
 
-> cap_file_mmap(): well now that you mention it, it does seem like SELinux
-> would want a say in whether the task gets CAP_SYS_RAWIO here, so maybe
-> it should be capable() after all?
+Thanks. They sound like helpful features. They sound similar to some of 
+the techniques my own tool uses.
 
-No, we apply our own specific permission check for it.
+I tested sepolgen with a few apps. Since the results still require a 
+very similar amount of manual editing it is probably fairest to use the 
+gui tool as much as possible as the other systems participants will use 
+all use gui policy management tools.
 
--- 
-Stephen Smalley
-National Security Agency
+Some information about the study:
+    - Participants will be shown a prerecorded explanation and 
+demonstration of SELinux
+    - And have a limited amount of time to confine some programs
+    - I don't want to go into too much detail here until the study is 
+complete
+
+Justification for using polgengui:
+    - It ships standard with fedora
+    - It has a gui (like the other tools they will be using)
+    - It has a short learning curve (as opposed to perhaps SLIDE, which 
+appears to be a more comprehensive tool for policy design but maybe not 
+as suited to the average user)
+
+Some questions:
+Does SLIDE automate more of the process, such as adding to the created 
+policy?
+Is there a tool or command to put a domain into enforcing mode rather 
+than manually editing the .te file? (system-config-selinux seems to 
+think it is already in enforcing mode)
+
+Some suggestions:
+It might be a good idea to make the gui tools such as setroubleshoot 
+aware of permissive domains, as it simply says that selinux enforcing 
+mode is on.
+It may be a good idea to create a gui tool which steps users through the 
+process of adding to a .te file using audit2allow (if one doesn't exist 
+already).
+
+Christopher Pardy wrote:
+> Please CC me any results you find as well as any issues with the gui tools as I'm revamping them for F12.
+>   
+Sure. Participants will give feedback such as suggestions for improvement.
+
+Thanks again everyone for your advice and suggestions,
+
+Cliffe.
+
+--------------080803060207040905080208
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+Daniel J Walsh wrote:
+<blockquote cite="mid:4A71D8CE.1010700@redhat.com" type="cite">
+  <pre wrap=""><!---->BTW, if you use the sepolgen command line that is in F11 and Rawhide, it has new features to examine the executable and rpm information to generate more data automatigically.  It is using the same framework that polgengui is using. 
+
+You can execute
+
+sepolgen /usr/sbin/myapp
+
+And it will generate the myapp,te, if, fc, sh file automatically, No gui to walk though.
+
+For example it will look for paths in the rpm that match /var/run/myapp, /var/lib/myapp ... and create proper types.
+It also runs nm -D /usr/sbin/myapp looking for function calls that it knows require certain interfaces,  If it find syslog it will add the 
+
+logging_send_syslog_msg(myapp_t) 
+
+call.
+
+I have not merged this stuff back into the GUI yet.
+  </pre>
+</blockquote>
+<br>
+Thanks. They sound like helpful features. They sound similar to some of
+the techniques my own tool uses.<br>
+<br>
+I tested sepolgen with a few apps. Since the results still require a
+very similar amount of manual editing it is probably fairest to use the
+gui tool as much as possible as the other systems participants will use
+all use gui policy management tools. <br>
+<br>
+Some information about the study:<br>
+&nbsp;&nbsp;&nbsp; - Participants will be shown a prerecorded explanation and
+demonstration of SELinux<br>
+&nbsp;&nbsp;&nbsp; - And have a limited amount of time to confine some programs<br>
+&nbsp;&nbsp;&nbsp; - I don't want to go into too much detail here until the study is
+complete<br>
+<br>
+Justification for using polgengui:<br>
+&nbsp;&nbsp;&nbsp; - It ships standard with fedora<br>
+&nbsp;&nbsp;&nbsp; - It has a gui (like the other tools they will be using)<br>
+&nbsp;&nbsp;&nbsp; - It has a short learning curve (as opposed to perhaps SLIDE, which
+appears to be a more comprehensive tool for policy design but maybe not
+as suited to the average user)<br>
+<br>
+Some questions:<br>
+Does SLIDE automate more of the process, such as adding to the created
+policy?<br>
+Is there a tool or command to put a domain into enforcing mode rather
+than manually editing the .te file? (system-config-selinux seems to
+think it is already in enforcing mode)<br>
+<br>
+Some suggestions:<br>
+It might be a good idea to make the gui tools such as setroubleshoot
+aware of permissive domains, as it simply says that selinux enforcing
+mode is on.<br>
+It may be a good idea to create a gui tool which steps users through
+the process of adding to a .te file using audit2allow (if one doesn't
+exist already).<br>
+<br>
+Christopher Pardy wrote:
+<blockquote cite="mid:4A7209A5.80205@redhat.com" type="cite">
+  <pre wrap="">Please CC me any results you find as well as any issues with the gui tools as I'm revamping them for F12.
+  </pre>
+</blockquote>
+Sure. Participants will give feedback such as suggestions for
+improvement.<br>
+<br>
+Thanks again everyone for your advice and suggestions,<br>
+<br>
+Cliffe.<br>
+</body>
+</html>
+
+--------------080803060207040905080208--
 
 
 --
