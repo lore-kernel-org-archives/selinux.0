@@ -1,145 +1,119 @@
-Subject: [PATCH] setfiles:  only call realpath() on user-supplied pathnames
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
-Content-Type: text/plain
-Date: Mon, 03 Aug 2009 09:34:52 -0400
-Message-Id: <1249306492.7050.11.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n73ENo96000816
+	for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2009 10:23:50 -0400
+Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n73EOl8m003215
+	for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2009 14:24:47 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3) with ESMTP id n73EN0J7005059
+	for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2009 10:23:00 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3/Submit) id n73EN0tI005057
+	for selinux@tycho.nsa.gov; Mon, 3 Aug 2009 10:23:00 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n73EJufL000325
+	for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2009 10:19:56 -0400
+Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n73EKq8m001962
+	for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2009 14:20:53 GMT
+Received: by ewy7 with SMTP id 7so1147273ewy.18
+        for <selinux@tycho.nsa.gov>; Mon, 03 Aug 2009 07:19:54 -0700 (PDT)
+Message-ID: <4A76F20D.4090601@gmail.com>
+Date: Mon, 03 Aug 2009 07:19:57 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: mina elnino <potushka@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: compiling errors!
+References: <f7d5075c0907290405x4d851cbnaf30980f8fadb308@mail.gmail.com>	 <CIEOKAFOMGPNJIPMMMAHMELCCBAA.remmolt@zwartsenberg.eu>	 <f7d5075c0907290626t1c772fd3l9f60c7a710c6152@mail.gmail.com>	 <f7d5075c0907290704x9b2b426sb6c3bb928a11a98b@mail.gmail.com>	 <1248882850.11627.64.camel@moss-pluto.epoch.ncsc.mil>	 <f7d5075c0907292221m3f04a942xd6216033e923cab6@mail.gmail.com>	 <1248956559.11627.105.camel@moss-pluto.epoch.ncsc.mil>	 <f7d5075c0907300632w49548c5an90f4e62aa978bb3e@mail.gmail.com> <f7d5075c0907300742q8745ec7pd17fd59677af1e86@mail.gmail.com>
+In-Reply-To: <f7d5075c0907300742q8745ec7pd17fd59677af1e86@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change setfiles/restorecon to only call realpath() on the user-supplied
-pathnames prior to invoking fts_open().  This ensures that commands such
-as restorecon -R /etc/init.d and (cd /etc && restorecon shadow gshadow)
-will work as expected while avoiding the overhead of calling realpath()
-on each file during a file tree walk.
+mina elnino wrote:
+> and also when i compile the policy.conf the same error arises:
+>
+> $ ./obj/usr/bin/checkpolicy 
+> ./rpmbuild/BUILD/serefpolicy-3.6.12/policy.conf
+> ./obj/usr/bin/checkpolicy:  loading policy configuration from 
+> ./rpmbuild/BUILD/serefpolicy-3.6.12/policy.conf
+> policy/modules/services/hal.te":11:ERROR 'syntax error' at token 
+> 'typeattribute' on line 1035303:
+> #line 11
+>     typeattribute hald_t daemon;
+> checkpolicy:  error(s) encountered while parsing configuration
+>
+> is it importanr? if it is not, i'd better comment it!
+>
+> On Thu, Jul 30, 2009 at 6:02 PM, mina elnino <potushka@gmail.com 
+> <mailto:potushka@gmail.com>> wrote:
+>
+>     to build it:
+>
+>     $ make conf
+>     $ make policy
+>
+>     the second make made an error (in the attached file).
+>     and also it generated policy.conf
+>
+>
+>     On Thu, Jul 30, 2009 at 4:52 PM, Stephen Smalley
+>     <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>> wrote:
+>
+>         On Thu, 2009-07-30 at 09:51 +0430, mina elnino wrote:
+>         > well, i have to say that i went through the steps in:
+>         >
+>         > http://danwalsh.livejournal.com/26428.html
+>         >
+>         > and at last i realized that this page is for the ones who
+>         want to make
+>         > policies from the source. now i have packages:
+>         >
+>         > $ ls ~/rpmbuild/RPMS/noarch/
+>         > selinux-policy-3.6.12-62.fc11.noarch.rpm
+>         > selinux-policy-doc-3.6.12-62.fc11.noarch.rpm
+>         > selinux-policy-minimum-3.6.12-62.fc11.noarch.rpm
+>         > selinux-policy-mls-3.6.12-62.fc11.noarch.rpm
+>         > selinux-policy-targeted-3.6.12-62.fc11.noarch.rpm
+>         >
+>         > none of them is the source policy package. i mean i need
+>         that old m4
+>         > macros, "*.te" files and "policy.conf" which could be
+>         installed by
+>         > "selinux-policy-targeted-source" or
+>         "selinux-policy-strict-source" in
+>         > fc4.
+>
+>         If you want to just unpack the source tree along with any
+>         Fedora-specific patches applied, you can do:
+>         rpm -i selinux-policy*.src.rpm
+>         cd ~/rpmbuild/SPECS
+>         rpmbuild -bp selinux-policy.spec
+>         cd ../BUILD/serefpolicy*
+>         Then you can build it in the usual manner.
+>
+>         You can also clone the upstream refpolicy repository if you want:
+>         git clone http://oss.tresys.com/git/refpolicy.git
+>         cd refpolicy
+>
+>         Note however that Fedora policy is built modular rather than
+>         monolithic,
+>         so there is no policy.conf file per se.  But if you run make
+>         with the
+>         default build.conf, you'll end up with a policy.conf file.
+>
+>         --
+>         Stephen Smalley
+>         National Security Agency
+>
+>
+>
+I think this might be due to checkpolicy
+being built with not a certain *.h file, or lib.
+(but could be wrong).
 
-Since we are now only acting on user-supplied pathnames, drop the
-special case handling of symlinks (when a user invokes restorecon
--R /etc/init.d he truly wants it to descend /etc/rc.d/init.d).  We can
-also defer allocation of the pathname buffer to libc by passing NULL
-(freeing on the out path) and we can drop the redundant exclude() check
-as it will now get handled on the normal path.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 5e5d957..d219225 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -309,65 +309,6 @@ static int exclude(const char *file)
- 
- int match(const char *name, struct stat *sb, char **con)
- {
--	char path[PATH_MAX + 1];
--
--	if (expand_realpath) {
--		if (S_ISLNK(sb->st_mode)) {
--			if (verbose > 1)
--				fprintf(stderr,
--					"Warning! %s refers to a symbolic link, not following last component.\n",
--					name);
--			char *p = NULL, *file_sep;
--			char *tmp_path = strdupa(name);
--			size_t len = 0;
--			if (!tmp_path) {
--				fprintf(stderr, "strdupa on %s failed:  %s\n", name,
--					strerror(errno));
--				return -1;
--			}
--			file_sep = strrchr(tmp_path, '/');
--			if (file_sep == tmp_path) {
--				file_sep++;
--				p = strcpy(path, "");
--			} else if (file_sep) {
--				*file_sep = 0;
--				file_sep++;
--				p = realpath(tmp_path, path);
--			} else {
--				file_sep = tmp_path;
--				p = realpath("./", path);
--			}
--			if (p)
--				len = strlen(p);
--			if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
--				fprintf(stderr, "realpath(%s) failed %s\n", name,
--					strerror(errno));
--				return -1;
--			}
--			p += len;
--			/* ensure trailing slash of directory name */
--			if (len == 0 || *(p - 1) != '/') {
--				*p = '/';
--				p++;
--			}
--			strcpy(p, file_sep);
--			name = path;
--			if (excludeCtr > 0 && exclude(name))
--				return -1;
--		} else {
--			char *p;
--			p = realpath(name, path);
--			if (!p) {
--				fprintf(stderr, "realpath(%s) failed %s\n", name,
--					strerror(errno));
--				return -1;
--			}
--			name = p;
--			if (excludeCtr > 0 && exclude(name))
--				return -1;
--		}
--	}
--
- 	if (NULL != rootpath) {
- 		if (0 != strncmp(rootpath, name, rootpathlen)) {
- 			fprintf(stderr, "%s:  %s is not located in %s\n",
-@@ -619,14 +560,28 @@ int canoncon(char **contextp)
- static int process_one(char *name)
- {
- 	int rc = 0;
--	const char *namelist[2] = {name, NULL};
-+	const char *namelist[2];
- 	dev_t dev_num = 0;
- 	FTS *fts_handle;
- 	FTSENT *ftsent;
- 
-+	if (expand_realpath) {
-+		char *p;
-+		p = realpath(name, NULL);
-+		if (!p) {
-+			fprintf(stderr, "realpath(%s) failed %s\n", name,
-+				strerror(errno));
-+			return -1;
-+		}
-+		name = p;
-+	}
-+
-+
- 	if (!strcmp(name, "/"))
- 		mass_relabel = 1;
- 
-+	namelist[0] = name;
-+	namelist[1] = NULL;
- 	fts_handle = fts_open((char **)namelist, fts_flags, NULL);
- 	if (fts_handle  == NULL) {
- 		fprintf(stderr,
-@@ -676,6 +631,8 @@ out:
- 	}
- 	if (fts_handle)
- 		fts_close(fts_handle);
-+	if (expand_realpath)
-+		free(name);
- 	return rc;
- 
- err:
-
-
--- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
