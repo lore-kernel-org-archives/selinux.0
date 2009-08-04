@@ -1,48 +1,76 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n74C6Ntk016319
-	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 08:06:23 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n74C5dQQ025006
-	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 12:05:41 GMT
-Subject: Re: Just a quick thought.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4A781970.7000106@redhat.com>
-References: <4A781970.7000106@redhat.com>
+Subject: Re: A question about selinux userspace tools
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: TaurusHarry <harrytaurus2002@hotmail.com>
+Cc: selinux-mailing-list <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <COL109-W24536BCBD1CB8DA1812599AB0C0@phx.gbl>
+References: <COL109-W24536BCBD1CB8DA1812599AB0C0@phx.gbl>
 Content-Type: text/plain
-Date: Tue, 04 Aug 2009 08:05:56 -0400
-Message-Id: <1249387556.2932.4.camel@gorn.columbia.tresys.com>
+Date: Tue, 04 Aug 2009 08:13:33 -0400
+Message-Id: <1249388013.9193.52.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-08-04 at 07:20 -0400, Daniel J Walsh wrote:
-> Now that we have labelling equivalence should we just add a 
+On Tue, 2009-08-04 at 03:11 +0000, TaurusHarry wrote:
+> Hi all,
 > 
-> /lib64 /lib
-> /usr/lib64 /usr/lib
-> /usr/local/lib64 /usr/local/lib
+> I am a newcomer to SELinux and have a question about the latest
+> SELinux userspace tools.
 > 
-> Seems we could simplify policy and prevent many mistakes.  Might speed up regex matching a little bit.
+> Before I try to install the latest refpolicy-20090730 from tresys
+> website on Ubuntu 8.10 on Dell 6101 laptop(x86_32), I have installed
+> the below latest SELinux userspace tools on the laptop:
 > 
+> libsepol-2.0.37
+> libselinux-2.0.85
+> libsemanage-2.0.33
+> policycoreutils-2.0.69
+> checkpolicy-2.0.19
+> sepolgen-1.0.17
 > 
-> grep 64 /etc/selinux/targeted/contexts/files/file_contexts | wc
->     259     735   18694
+> If I specify MONOLITHIC=n in build.conf and compile refpolicy-20090730
+> by the latest SELinux userspace tools and then do "make load", I would
+> run into following error message in the end:
 > 
+> libsepol.sepol_module_package_read: out of memory
+> libsemanage.semanage_load_module: Error while reading from module
+> file /etc/selinux/refpolicy-20090730/modules/tmp/base.pp.
+> /usr/sbin/semodule:  Failed!
+> make: *** [load] Error 1
 > 
-> If were were more agressive
+> The same error would crop up when I try out following
+> second-to-the-latest SELinux userspace tools(also ! from tresys
+> website):
 > 
-> /usr/local /usr
-> /opt /usr
+> libsepol-2.0.36
+> libselinux-2.0.79
+> libsemanage-2.0.31
+> policycoreutils-2.0.62
+> checkpolicy-2.0.19
+> sepolgen-1.0.16
+> 
+> Only if I degrade libsemanage from 2.0.31 to 2.0.27, and
+> policycoreutils from 2.0.62 to 2.0.55, would the "make load" finish
+> uneventfully, then I could do "semanage login/user -l" and "semodule
+> -l" successfully.
+> 
+> So far I have very shallow experience on SELinux userspace tools
+> implementation and couldn't find out the reason  why the latest stable
+> version would have above error message on my laptop, has anyone run
+> into the same problem before? Any suggestions are greatly appreciated!
 
-Makes sense to me.  But is there a way for the policy to specify an
-equivalence, or is it currently limited to the semanage cli?
+Things that would help debug:
+1) A copy of the base.pp file on which it failed,
+2) The amount of memory and swap configured on your laptop,
+
+Possibly this could be due to the introduction of policy module
+compression (bzip) support in libsemanage 2.0.31.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
