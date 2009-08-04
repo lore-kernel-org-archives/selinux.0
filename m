@@ -1,93 +1,48 @@
-Subject: Re: A question about installing refpolicy-2.10081210
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: TaurusHarry <harrytaurus2002@hotmail.com>
-Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <COL109-W23743BA1B690A08216533AB0C0@phx.gbl>
-References: <COL109-W23743BA1B690A08216533AB0C0@phx.gbl>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n74C6Ntk016319
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 08:06:23 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n74C5dQQ025006
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 12:05:41 GMT
+Subject: Re: Just a quick thought.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4A781970.7000106@redhat.com>
+References: <4A781970.7000106@redhat.com>
 Content-Type: text/plain
-Date: Tue, 04 Aug 2009 08:00:20 -0400
-Message-Id: <1249387220.9193.41.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 04 Aug 2009 08:05:56 -0400
+Message-Id: <1249387556.2932.4.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-08-04 at 03:00 +0000, TaurusHarry wrote:
-> Hi all,
+On Tue, 2009-08-04 at 07:20 -0400, Daniel J Walsh wrote:
+> Now that we have labelling equivalence should we just add a 
 > 
-> I have a question about the error messages when installing
-> refpolicy-2.20081210 from the tresys website on dell 610(x86_32)
-> laptop. I have installed and compiled refpolicy-2.20081210 by the
-> following selinux user space tools:
+> /lib64 /lib
+> /usr/lib64 /usr/lib
+> /usr/local/lib64 /usr/local/lib
 > 
-> libsepol-2.0.36
-> libselinux-2.0.79
-> libsemanage-2.0.27
-> policycoreutils-2.0.55
-> checkpolicy-2.0.19
-> sepolgen-1.0.16
+> Seems we could simplify policy and prevent many mistakes.  Might speed up regex matching a little bit.
 > 
-> Then I use kernel cmdline of "root=/dev/sda1 rw init=/bin/bash
-> selinux=1" to boot into a shell with selinux enabled so that I could
-> setup proper security contexts for the whole file system in the shell
-> before the next time I would let kernel boot into normal /sbin/init
-> program and start everything with correct security context. Then I do
-> the following commands:
 > 
-> mount -t proc none /proc
-> mount -t sysfs none /sys
-> mount -t selinuxfs none /selinux
-> SELINUXTYPE=refpolicy-20081210
-> /usr/sbin/load_policy -q /etc/selinux/$SELINUXTYPE/policy/policy.24
-> sed -i "s/^SELINUXTYPE=.*/SELINUXTYPE=$S!
-> ELINUXTYPE/" /etc/selinux/config
-> /usr/sbin/restorecon -v -R /
+> grep 64 /etc/selinux/targeted/contexts/files/file_contexts | wc
+>     259     735   18694
 > 
-> The "load_policy -q" would pop up a message of:
-> type=1403 audit(1255195933.120:2): policy loaded auid=4294967295
-> ses=4294967295
 > 
-> so I guess the policy.24 has been loaded successfully, and the
-> "restorecon" could run successfully. However, when I change the kernel
-> cmdline with "init=/sbin/init" I could see hundreds of error messages
-> about udev and mingetty such as:
+> If were were more agressive
 > 
-> udevd-event[1252]: selinux_setfscreatecon: matchpathcon(/dev/.tmp-8-0)
-> failed
-> udevd-event[1215]: selinux_setfilecon: matchpathcon(/dev/ram12) failed
+> /usr/local /usr
+> /opt /usr
 
-What did you end up with as
-your /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts file?
-
-> and 
-> 
-> type=1400 audit(1248303983.579:5559): avc:  denied  { open } for
-> pid=3283 comm="mingetty" name="var" dev=sda1 ino=103169
-> scontext=system_u:system_r:getty_t:s0-s15:c0.c255
-> tcontext=system_u:object_r:var_t:s0 tclass=dir
-> type=1400 audit(1248303983.598:5560): avc:  denied  { open } for
-> pid=3282 comm="mingetty" name="var" dev=sda1 ! ino=103169
-> scontext=system_u:system_r:getty_t:s0-s15:c0.c255 tcontext=
-> system_u:object_r:var_t:s0 tclass=dir
-
-That's a kernel bug.  Kernel version?  Fixed by:
-http://marc.info/?l=git-commits-head&m=123049921710331&w=2
-http://marc.info/?l=git-commits-head&m=123809417718576&w=2
-
-If you can't fix your kernel, then disable open permission in your
-policy (remove policycap open_perms; from policy/policy_capabilities).
-
-> with "INIT: no more processes left in this runlevel" in the end when I
-> try to login through serial console.
-> 
-> I guess above error messages may have resulted in the file system
-> having not been labeled correctly, does anyone know what I may have
-> missed out when trying to relabeling the file system when first time
-> booting into the shell?
+Makes sense to me.  But is there a way for the policy to specify an
+equivalence, or is it currently limited to the semanage cli?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
