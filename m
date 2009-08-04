@@ -1,92 +1,32 @@
-Subject: Re: A question about selinux userspace tools
+Subject: [PATCH v2] libsemanage:  Enable configuration of bzip behavior
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: TaurusHarry <harrytaurus2002@hotmail.com>
 Cc: selinux-mailing-list <selinux@tycho.nsa.gov>,
         Daniel J Walsh <dwalsh@redhat.com>,
         Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1249389656.9193.73.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1249392325.9193.76.camel@moss-pluto.epoch.ncsc.mil>
 References: <COL109-W24536BCBD1CB8DA1812599AB0C0@phx.gbl>
 	 <1249388013.9193.52.camel@moss-pluto.epoch.ncsc.mil>
 	 <1249389656.9193.73.camel@moss-pluto.epoch.ncsc.mil>
+	 <1249392325.9193.76.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 04 Aug 2009 09:25:25 -0400
-Message-Id: <1249392325.9193.76.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 04 Aug 2009 10:08:00 -0400
+Message-Id: <1249394880.9193.80.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-On Tue, 2009-08-04 at 08:40 -0400, Stephen Smalley wrote:
-> On Tue, 2009-08-04 at 08:13 -0400, Stephen Smalley wrote:
-> > On Tue, 2009-08-04 at 03:11 +0000, TaurusHarry wrote:
-> > > Hi all,
-> > > 
-> > > I am a newcomer to SELinux and have a question about the latest
-> > > SELinux userspace tools.
-> > > 
-> > > Before I try to install the latest refpolicy-20090730 from tresys
-> > > website on Ubuntu 8.10 on Dell 6101 laptop(x86_32), I have installed
-> > > the below latest SELinux userspace tools on the laptop:
-> > > 
-> > > libsepol-2.0.37
-> > > libselinux-2.0.85
-> > > libsemanage-2.0.33
-> > > policycoreutils-2.0.69
-> > > checkpolicy-2.0.19
-> > > sepolgen-1.0.17
-> > > 
-> > > If I specify MONOLITHIC=n in build.conf and compile refpolicy-20090730
-> > > by the latest SELinux userspace tools and then do "make load", I would
-> > > run into following error message in the end:
-> > > 
-> > > libsepol.sepol_module_package_read: out of memory
-> > > libsemanage.semanage_load_module: Error while reading from module
-> > > file /etc/selinux/refpolicy-20090730/modules/tmp/base.pp.
-> > > /usr/sbin/semodule:  Failed!
-> > > make: *** [load] Error 1
-> > > 
-> > > The same error would crop up when I try out following
-> > > second-to-the-latest SELinux userspace tools(also ! from tresys
-> > > website):
-> > > 
-> > > libsepol-2.0.36
-> > > libselinux-2.0.79
-> > > libsemanage-2.0.31
-> > > policycoreutils-2.0.62
-> > > checkpolicy-2.0.19
-> > > sepolgen-1.0.16
-> > > 
-> > > Only if I degrade libsemanage from 2.0.31 to 2.0.27, and
-> > > policycoreutils from 2.0.62 to 2.0.55, would the "make load" finish
-> > > uneventfully, then I could do "semanage login/user -l" and "semodule
-> > > -l" successfully.
-> > > 
-> > > So far I have very shallow experience on SELinux userspace tools
-> > > implementation and couldn't find out the reason  why the latest stable
-> > > version would have above error message on my laptop, has anyone run
-> > > into the same problem before? Any suggestions are greatly appreciated!
-> > 
-> > Things that would help debug:
-> > 1) A copy of the base.pp file on which it failed,
-> > 2) The amount of memory and swap configured on your laptop,
-> > 
-> > Possibly this could be due to the introduction of policy module
-> > compression (bzip) support in libsemanage 2.0.31.
-> 
-> Some quick observations on the code:
-> - direct_api.c:bzip() always passes 9 as the blocksize to
-> BZ2_bzWriteOpen().  I'd suggest making that tunable via semanage.conf or
-> something so that we can balance memory use against compression level.
-> 
-> - direct_api.c:bunzip() always passes 0 as the small flag to
-> BZ2_bzReadOpen().  I'd likewise make that tunable via semanage.conf so
-> that we can balance memory use against runtime performance.
 
 Allow the administrator to customize the bzip block size and "small"
 flag via semanage.conf.  After applying you can add entries like these
 to your /etc/selinux/semanage.conf to trade off memory vs disk space
 (block size) and to trade off memory vs runtime (small):
+
 bzip-blocksize=4
 bzip-small=1
+
+You can also disable bzip compression altogether for your module store
+via:
+bzip-blocksize=0
 
 Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
@@ -151,7 +91,7 @@ index faa0aeb..8af5137 100644
  "[setfiles]"      return SETFILES_START;
  "[verify module]" return VERIFY_MOD_START;
 diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index bd13387..780ba14 100644
+index bd13387..92799ad 100644
 --- a/libsemanage/src/direct_api.c
 +++ b/libsemanage/src/direct_api.c
 @@ -401,7 +401,9 @@ static int parse_base_headers(semanage_handle_t * sh,
@@ -165,16 +105,25 @@ index bd13387..780ba14 100644
  	BZFILE* b;
  	size_t  size = 1<<16;
  	int     bzerror;
-@@ -413,7 +415,7 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
+@@ -413,7 +415,16 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
  		return -1;
  	}
  
 -	b = BZ2_bzWriteOpen( &bzerror, f, 9, 0, 0);
++	if (!sh->conf->bzip_blocksize) {
++		if (fwrite(data, 1, num_bytes, f) < num_bytes) {
++			fclose(f);
++			return -1;
++		}
++		fclose(f);
++		return num_bytes;
++	}
++
 +	b = BZ2_bzWriteOpen( &bzerror, f, sh->conf->bzip_blocksize, 0, 0);
  	if (bzerror != BZ_OK) {
  		BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
  		return -1;
-@@ -443,7 +445,8 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
+@@ -443,15 +454,19 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
  
  /* bunzip() a file to '*data', returning the total number of uncompressed bytes
   * in the file.  Returns -1 if file could not be decompressed. */
@@ -184,16 +133,19 @@ index bd13387..780ba14 100644
  	BZFILE* b;
  	size_t  nBuf;
  	char    buf[1<<18];
-@@ -451,7 +454,7 @@ ssize_t bunzip(FILE *f, char **data) {
+ 	size_t  size = sizeof(buf);
  	int     bzerror;
  	size_t  total=0;
++
++	if (!sh->conf->bzip_blocksize)
++		return -1;
  	
 -	b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0 );
 +	b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
  	if ( bzerror != BZ_OK ) {
  		BZ2_bzReadClose ( &bzerror, b );
  		return -1;
-@@ -486,11 +489,12 @@ ssize_t bunzip(FILE *f, char **data) {
+@@ -486,11 +501,12 @@ ssize_t bunzip(FILE *f, char **data) {
   * the file into '*data'.
   * Returns the total number of bytes in memory .
   * Returns -1 if file could not be opened or mapped. */
@@ -208,7 +160,7 @@ index bd13387..780ba14 100644
  		*data = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
  		if (*data == MAP_FAILED) {
  			free(uncompress);
-@@ -997,7 +1001,7 @@ static int semanage_direct_install(semanage_handle_t * sh,
+@@ -997,7 +1013,7 @@ static int semanage_direct_install(semanage_handle_t * sh,
  					   &filename)) != 0) {
  		goto cleanup;
  	}
@@ -217,7 +169,7 @@ index bd13387..780ba14 100644
  		ERR(sh, "Error while writing to %s.", filename);
  		retval = -3;
  		goto cleanup;
-@@ -1029,7 +1033,7 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+@@ -1029,7 +1045,7 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
  		return -1;
  	}
  
@@ -226,7 +178,7 @@ index bd13387..780ba14 100644
  		goto cleanup;
  	}
  		
-@@ -1127,7 +1131,7 @@ static int semanage_direct_upgrade(semanage_handle_t * sh,
+@@ -1127,7 +1143,7 @@ static int semanage_direct_upgrade(semanage_handle_t * sh,
  						 data, data_len, 
  						 &filename);
  	if (retval == 0) {
@@ -235,7 +187,7 @@ index bd13387..780ba14 100644
  			ERR(sh, "Error while writing to %s.", filename);
  			retval = -3;
  		}
-@@ -1155,7 +1159,7 @@ static int semanage_direct_upgrade_file(semanage_handle_t * sh,
+@@ -1155,7 +1171,7 @@ static int semanage_direct_upgrade_file(semanage_handle_t * sh,
  		return -1;
  	}
  
@@ -244,7 +196,7 @@ index bd13387..780ba14 100644
  		goto cleanup;
  	}
  
-@@ -1197,7 +1201,7 @@ static int semanage_direct_install_base(semanage_handle_t * sh,
+@@ -1197,7 +1213,7 @@ static int semanage_direct_install_base(semanage_handle_t * sh,
  	if ((filename = semanage_path(SEMANAGE_TMP, SEMANAGE_BASE)) == NULL) {
  		goto cleanup;
  	}
@@ -253,7 +205,7 @@ index bd13387..780ba14 100644
  		ERR(sh, "Error while writing to %s.", filename);
  		retval = -3;
  		goto cleanup;
-@@ -1225,7 +1229,7 @@ static int semanage_direct_install_base_file(semanage_handle_t * sh,
+@@ -1225,7 +1241,7 @@ static int semanage_direct_install_base_file(semanage_handle_t * sh,
  		return -1;
  	}
  
@@ -262,7 +214,7 @@ index bd13387..780ba14 100644
  		goto cleanup;
  	}
  		
-@@ -1347,7 +1351,7 @@ static int semanage_direct_list(semanage_handle_t * sh,
+@@ -1347,7 +1363,7 @@ static int semanage_direct_list(semanage_handle_t * sh,
  		ssize_t size;
  		char *data = NULL;
  
@@ -309,6 +261,7 @@ index 6d4c3ce..a3b0819 100644
  		fclose(fp);
  		fp = fmemopen(data, size, "rb");
  		if (!fp) {
+
 
 -- 
 Stephen Smalley
