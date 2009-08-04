@@ -1,297 +1,275 @@
-Subject: Re: [PATCH v3] libsemanage:  Enable configuration of bzip behavior
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: TaurusHarry <harrytaurus2002@hotmail.com>,
-        selinux-mailing-list <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4A78527D.8000407@redhat.com>
-References: <COL109-W24536BCBD1CB8DA1812599AB0C0@phx.gbl>
-	 <1249388013.9193.52.camel@moss-pluto.epoch.ncsc.mil>
-	 <1249389656.9193.73.camel@moss-pluto.epoch.ncsc.mil>
-	 <1249392325.9193.76.camel@moss-pluto.epoch.ncsc.mil>
-	 <1249394880.9193.80.camel@moss-pluto.epoch.ncsc.mil>
-	 <1249396731.9193.97.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A78527D.8000407@redhat.com>
-Content-Type: text/plain
-Date: Tue, 04 Aug 2009 12:07:39 -0400
-Message-Id: <1249402059.9193.104.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n74LMMr4003618
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 17:22:22 -0400
+Received: from g5t0009.atlanta.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n74LNKeI018314
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 21:23:20 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v1 2/2] selinux: Support for the new TUN LSM hooks
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Date: Tue, 04 Aug 2009 17:22:04 -0400
+Message-ID: <20090804212204.10798.53727.stgit@flek.lan>
+In-Reply-To: <20090804211304.10798.65601.stgit@flek.lan>
+References: <20090804211304.10798.65601.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-08-04 at 11:23 -0400, Daniel J Walsh wrote:
-> On 08/04/2009 10:38 AM, Stephen Smalley wrote:
-> > Allow the administrator to customize the bzip block size and "small"
-> > flag via semanage.conf.  After applying you can add entries like these
-> > to your /etc/selinux/semanage.conf to trade off memory vs disk space
-> > (block size) and to trade off memory vs runtime (small):
-> > 
-> > bzip-blocksize=4
-> > bzip-small=true
-> > 
-> > You can also disable bzip compression altogether for your module store
-> > via:
-> > bzip-blocksize=0
-> > 
-> > The semanage.conf entries are now validated against legal value ranges
-> > at handle creation time.
-> > 
-> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > 
-> > diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> > index 2001afb..f2473aa 100644
-> > --- a/libsemanage/src/conf-parse.y
-> > +++ b/libsemanage/src/conf-parse.y
-> > @@ -58,6 +58,7 @@ static int parse_errors;
-> >  
-> >  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED
-> >  %token LOAD_POLICY_START SETFILES_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN
-> > +%token BZIP_BLOCKSIZE BZIP_SMALL
-> >  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
-> >  %token PROG_PATH PROG_ARGS
-> >  %token <s> ARG
-> > @@ -82,6 +83,8 @@ single_opt:     module_store
-> >          |       save_linked
-> >          |       disable_genhomedircon
-> >          |       handle_unknown
-> > +	|	bzip_blocksize
-> > +	|	bzip_small
-> >          ;
-> >  
-> >  module_store:   MODULE_STORE '=' ARG {
-> > @@ -163,6 +166,26 @@ handle_unknown: HANDLE_UNKNOWN '=' ARG {
-> >  	free($3);
-> >   }
-> >  
-> > +bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
-> > +	int blocksize = atoi($3);
-> > +	free($3);
-> > +	if (blocksize > 9)
-> > +		yyerror("bzip-blocksize can only be in the range 0-9");
-> > +	else
-> > +		current_conf->bzip_blocksize = blocksize;
-> > +}
-> > +	
-> > +bzip_small:  BZIP_SMALL '=' ARG {
-> > +	if (strcasecmp($3, "false") == 0) {
-> > +		current_conf->bzip_small = 0;
-> > +	} else if (strcasecmp($3, "true") == 0) {
-> > +		current_conf->bzip_small = 1;
-> > +	} else {
-> > +		yyerror("bzip-small can only be 'true' or 'false'");
-> > +	}
-> > +	free($3);
-> > +}
-> > +
-> >  command_block: 
-> >                  command_start external_opts BLOCK_END  {
-> >                          if (new_external->path == NULL) {
-> > @@ -230,6 +253,8 @@ static int semanage_conf_init(semanage_conf_t * conf)
-> >  	conf->expand_check = 1;
-> >  	conf->handle_unknown = -1;
-> >  	conf->file_mode = 0644;
-> > +	conf->bzip_blocksize = 9;
-> > +	conf->bzip_small = 0;
-> >  
-> >  	conf->save_previous = 0;
-> >  	conf->save_linked = 0;
-> > diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-> > index faa0aeb..8af5137 100644
-> > --- a/libsemanage/src/conf-scan.l
-> > +++ b/libsemanage/src/conf-scan.l
-> > @@ -47,6 +47,8 @@ save-previous     return SAVE_PREVIOUS;
-> >  save-linked       return SAVE_LINKED;
-> >  disable-genhomedircon return DISABLE_GENHOMEDIRCON;
-> >  handle-unknown    return HANDLE_UNKNOWN;
-> > +bzip-blocksize	return BZIP_BLOCKSIZE;
-> > +bzip-small	return BZIP_SMALL;
-> >  "[load_policy]"   return LOAD_POLICY_START;
-> >  "[setfiles]"      return SETFILES_START;
-> >  "[verify module]" return VERIFY_MOD_START;
-> > diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> > index bd13387..92799ad 100644
-> > --- a/libsemanage/src/direct_api.c
-> > +++ b/libsemanage/src/direct_api.c
-> > @@ -401,7 +401,9 @@ static int parse_base_headers(semanage_handle_t * sh,
-> >  
-> >  /* bzip() a data to a file, returning the total number of compressed bytes
-> >   * in the file.  Returns -1 if file could not be compressed. */
-> > -static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
-> > +static ssize_t bzip(semanage_handle_t *sh, const char *filename, char *data,
-> > +			size_t num_bytes) 
-> > +{
-> >  	BZFILE* b;
-> >  	size_t  size = 1<<16;
-> >  	int     bzerror;
-> > @@ -413,7 +415,16 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
-> >  		return -1;
-> >  	}
-> >  
-> > -	b = BZ2_bzWriteOpen( &bzerror, f, 9, 0, 0);
-> > +	if (!sh->conf->bzip_blocksize) {
-> > +		if (fwrite(data, 1, num_bytes, f) < num_bytes) {
-> > +			fclose(f);
-> > +			return -1;
-> > +		}
-> > +		fclose(f);
-> > +		return num_bytes;
-> > +	}
-> > +
-> > +	b = BZ2_bzWriteOpen( &bzerror, f, sh->conf->bzip_blocksize, 0, 0);
-> >  	if (bzerror != BZ_OK) {
-> >  		BZ2_bzWriteClose ( &bzerror, b, 1, 0, 0 );
-> >  		return -1;
-> > @@ -443,15 +454,19 @@ static ssize_t bzip(const char *filename, char *data, size_t num_bytes) {
-> >  
-> >  /* bunzip() a file to '*data', returning the total number of uncompressed bytes
-> >   * in the file.  Returns -1 if file could not be decompressed. */
-> > -ssize_t bunzip(FILE *f, char **data) {
-> > +ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
-> > +{
-> >  	BZFILE* b;
-> >  	size_t  nBuf;
-> >  	char    buf[1<<18];
-> >  	size_t  size = sizeof(buf);
-> >  	int     bzerror;
-> >  	size_t  total=0;
-> > +
-> > +	if (!sh->conf->bzip_blocksize)
-> > +		return -1;
-> >  	
-> > -	b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0 );
-> > +	b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
-> >  	if ( bzerror != BZ_OK ) {
-> >  		BZ2_bzReadClose ( &bzerror, b );
-> >  		return -1;
-> > @@ -486,11 +501,12 @@ ssize_t bunzip(FILE *f, char **data) {
-> >   * the file into '*data'.
-> >   * Returns the total number of bytes in memory .
-> >   * Returns -1 if file could not be opened or mapped. */
-> > -static ssize_t map_file(int fd, char **data, int *compressed)
-> > +static ssize_t map_file(semanage_handle_t *sh, int fd, char **data,
-> > +			int *compressed)
-> >  {
-> >  	ssize_t size = -1;
-> >  	char *uncompress;
-> > -	if ((size = bunzip(fdopen(fd, "r"), &uncompress)) > 0) {
-> > +	if ((size = bunzip(sh, fdopen(fd, "r"), &uncompress)) > 0) {
-> >  		*data = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
-> >  		if (*data == MAP_FAILED) {
-> >  			free(uncompress);
-> > @@ -997,7 +1013,7 @@ static int semanage_direct_install(semanage_handle_t * sh,
-> >  					   &filename)) != 0) {
-> >  		goto cleanup;
-> >  	}
-> > -	if (bzip(filename, data, data_len) <= 0) {
-> > +	if (bzip(sh, filename, data, data_len) <= 0) {
-> >  		ERR(sh, "Error while writing to %s.", filename);
-> >  		retval = -3;
-> >  		goto cleanup;
-> > @@ -1029,7 +1045,7 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
-> >  		return -1;
-> >  	}
-> >  
-> > -	if ((data_len = map_file(in_fd, &data, &compressed)) <= 0) {
-> > +	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
-> >  		goto cleanup;
-> >  	}
-> >  		
-> > @@ -1127,7 +1143,7 @@ static int semanage_direct_upgrade(semanage_handle_t * sh,
-> >  						 data, data_len, 
-> >  						 &filename);
-> >  	if (retval == 0) {
-> > -		if (bzip(filename, data, data_len) <= 0) {
-> > +		if (bzip(sh, filename, data, data_len) <= 0) {
-> >  			ERR(sh, "Error while writing to %s.", filename);
-> >  			retval = -3;
-> >  		}
-> > @@ -1155,7 +1171,7 @@ static int semanage_direct_upgrade_file(semanage_handle_t * sh,
-> >  		return -1;
-> >  	}
-> >  
-> > -	if ((data_len = map_file(in_fd, &data, &compressed)) <= 0) {
-> > +	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
-> >  		goto cleanup;
-> >  	}
-> >  
-> > @@ -1197,7 +1213,7 @@ static int semanage_direct_install_base(semanage_handle_t * sh,
-> >  	if ((filename = semanage_path(SEMANAGE_TMP, SEMANAGE_BASE)) == NULL) {
-> >  		goto cleanup;
-> >  	}
-> > -	if (bzip(filename, base_data, data_len) <= 0) {
-> > +	if (bzip(sh, filename, base_data, data_len) <= 0) {
-> >  		ERR(sh, "Error while writing to %s.", filename);
-> >  		retval = -3;
-> >  		goto cleanup;
-> > @@ -1225,7 +1241,7 @@ static int semanage_direct_install_base_file(semanage_handle_t * sh,
-> >  		return -1;
-> >  	}
-> >  
-> > -	if ((data_len = map_file(in_fd, &data, &compressed)) <= 0) {
-> > +	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
-> >  		goto cleanup;
-> >  	}
-> >  		
-> > @@ -1347,7 +1363,7 @@ static int semanage_direct_list(semanage_handle_t * sh,
-> >  		ssize_t size;
-> >  		char *data = NULL;
-> >  
-> > -		if ((size = bunzip(fp, &data)) > 0) {
-> > +		if ((size = bunzip(sh, fp, &data)) > 0) {
-> >  			fclose(fp);
-> >  			fp = fmemopen(data, size, "rb");
-> >  			if (!fp) {
-> > diff --git a/libsemanage/src/direct_api.h b/libsemanage/src/direct_api.h
-> > index 1ad7d1d..e56107b 100644
-> > --- a/libsemanage/src/direct_api.h
-> > +++ b/libsemanage/src/direct_api.h
-> > @@ -41,6 +41,6 @@ int semanage_direct_mls_enabled(struct semanage_handle *sh);
-> >  
-> >  #include <stdio.h>
-> >  #include <unistd.h>
-> > -ssize_t bunzip(FILE *f, char **data);
-> > +ssize_t bunzip(struct semanage_handle *sh, FILE *f, char **data);
-> >  
-> >  #endif
-> > diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-> > index 7ee139f..4118910 100644
-> > --- a/libsemanage/src/semanage_conf.h
-> > +++ b/libsemanage/src/semanage_conf.h
-> > @@ -40,6 +40,8 @@ typedef struct semanage_conf {
-> >  	int disable_genhomedircon;
-> >  	int handle_unknown;
-> >  	mode_t file_mode;
-> > +	int bzip_blocksize;
-> > +	int bzip_small;
-> >  	struct external_prog *load_policy;
-> >  	struct external_prog *setfiles;
-> >  	struct external_prog *mod_prog, *linked_prog, *kernel_prog;
-> > diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-> > index 6d4c3ce..a3b0819 100644
-> > --- a/libsemanage/src/semanage_store.c
-> > +++ b/libsemanage/src/semanage_store.c
-> > @@ -1529,7 +1529,7 @@ static int semanage_load_module(semanage_handle_t * sh, const char *filename,
-> >  	ssize_t size;
-> >  	char *data = NULL;
-> >  
-> > -	if ((size = bunzip(fp, &data)) > 0) {
-> > +	if ((size = bunzip(sh, fp, &data)) > 0) {
-> >  		fclose(fp);
-> >  		fp = fmemopen(data, size, "rb");
-> >  		if (!fp) {
-> > 
-> I just want to make sure that if I change the size in semanage.conf, it will still handle all sizes of bzipped files.
-> So if we ship xguest.pp.bz2 format it will work.
+Add support for the new TUN LSM hooks: security_tun_dev_create(),
+security_tun_dev_post_create() and security_tun_dev_attach().  This includes
+the addition of a new object class, tun_socket, which represents the socks
+associated with TUN devices.  The _tun_dev_create() and _tun_dev_post_create()
+hooks are fairly similar to the standard socket functions but _tun_dev_attach()
+is a bit special.  The _tun_dev_attach() is unique because it involves a
+domain attaching to an existing TUN device and its associated tun_socket
+object, an operation which does not exist with standard sockets and most
+closely resembles a relabel operation.
 
-Yes, it will only affect the block size used when libsemanage writes
-modules to the store.  It doesn't affect the ability to read any block
-size.  And the compile-time defaults will remain blocksize=9 (900k) and
-small=0 so you'd only need to set the values in semanage.conf if you
-wanted a different setting.
+This patch also includes a new policy capability, tun_perms, to ensure that
+the new access controls do not affect older SELinux policies.
 
--- 
-Stephen Smalley
-National Security Agency
+--
+
+NOTE: This relies on some changes to the policy to add the new object class
+      and its associated permissions, I will ensure that the policy is sorted
+      and merged before pushing this patch upstream.  Also, you will notice
+      that the new tun_socket object class simply inherits the base socket
+      object class, thoughts?
+---
+
+ security/selinux/hooks.c                   |   76 +++++++++++++++++++++++++++-
+ security/selinux/include/av_inherit.h      |    1 
+ security/selinux/include/av_permissions.h  |   22 ++++++++
+ security/selinux/include/class_to_string.h |    1 
+ security/selinux/include/flask.h           |    1 
+ security/selinux/include/security.h        |    2 +
+ security/selinux/selinuxfs.c               |    3 +
+ security/selinux/ss/services.c             |    3 +
+ 8 files changed, 106 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 15c2a08..6ba99c2 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -13,8 +13,8 @@
+  *					   Eric Paris <eparis@redhat.com>
+  *  Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  *			    <dgoeddel@trustedcs.com>
+- *  Copyright (C) 2006, 2007 Hewlett-Packard Development Company, L.P.
+- *		Paul Moore <paul.moore@hp.com>
++ *  Copyright (C) 2006, 2007, 2009 Hewlett-Packard Development Company, L.P.
++ *	Paul Moore <paul.moore@hp.com>
+  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
+  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
+  *
+@@ -4296,6 +4296,75 @@ static void selinux_req_classify_flow(const struct request_sock *req,
+ 	fl->secid = req->secid;
+ }
+ 
++static int selinux_tun_dev_create(void)
++{
++	u32 sid;
++	int err;
++
++	err = cap_tun_dev_create();
++	if (err)
++		return err;
++
++	if (!selinux_policycap_tunperm)
++		return 0;
++
++	/* we aren't taking into account the "sockcreate" SID since the socket
++	 * that is being created here is not a socket in the traditional sense,
++	 * instead it is a private sock, accessible only to the kernel, and
++	 * representing a wide range of network traffic spanning multiple
++	 * connections unlike traditional sockets - check the TUN driver to
++	 * get a better understand of why this socket is special */
++
++	sid = current_sid();
++	return avc_has_perm(sid, sid, SECCLASS_TUN_SOCKET, TUN_SOCKET__CREATE,
++			    NULL);
++}
++
++static void selinux_tun_dev_post_create(struct sock *tun_sk)
++{
++	struct sk_security_struct *sksec = tun_sk->sk_security;
++
++	/* see the comments in _tun_dev_create() about why we don't use the
++	 * sockcreate SID here */
++
++	/* we don't currently perform any NetLabel based labeling here and it
++	 * isn't clear that we would want to do so anyway: while we could apply
++	 * labeling without the support of the TUN user the resulting labeled
++	 * traffic from the other end of the connection would almost certainly
++	 * cause confusion to the TUN user that had no idea network labeling
++	 * protocols were being used */
++
++	sksec->sid = current_sid();
++	sksec->sclass = SECCLASS_TUN_SOCKET;
++}
++
++static int selinux_tun_dev_attach(struct sock *tun_sk)
++{
++	struct sk_security_struct *tun_sksec = tun_sk->sk_security;
++	u32 sid;
++	int err;
++
++	err = cap_tun_dev_attach();
++	if (err)
++		return err;
++
++	if (!selinux_policycap_tunperm)
++		return 0;
++
++	sid = current_sid();
++	err = avc_has_perm(sid, tun_sksec->sid, SECCLASS_TUN_SOCKET,
++			   TUN_SOCKET__RELABELFROM, NULL);
++	if (err)
++		return err;
++	err = avc_has_perm(sid, sid, SECCLASS_RAWIP_SOCKET,
++			   TUN_SOCKET__RELABELTO, NULL);
++	if (err)
++		return err;
++	tun_sksec->sid = sid;
++
++	return 0;
++}
++
+ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int err = 0;
+@@ -5464,6 +5533,9 @@ static struct security_operations selinux_ops = {
+ 	.inet_csk_clone =		selinux_inet_csk_clone,
+ 	.inet_conn_established =	selinux_inet_conn_established,
+ 	.req_classify_flow =		selinux_req_classify_flow,
++	.tun_dev_create =		selinux_tun_dev_create,
++	.tun_dev_post_create = 		selinux_tun_dev_post_create,
++	.tun_dev_attach =		selinux_tun_dev_attach,
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+ 	.xfrm_policy_alloc_security =	selinux_xfrm_policy_alloc,
+diff --git a/security/selinux/include/av_inherit.h b/security/selinux/include/av_inherit.h
+index 8377a4b..abedcd7 100644
+--- a/security/selinux/include/av_inherit.h
++++ b/security/selinux/include/av_inherit.h
+@@ -15,6 +15,7 @@
+    S_(SECCLASS_KEY_SOCKET, socket, 0x00400000UL)
+    S_(SECCLASS_UNIX_STREAM_SOCKET, socket, 0x00400000UL)
+    S_(SECCLASS_UNIX_DGRAM_SOCKET, socket, 0x00400000UL)
++   S_(SECCLASS_TUN_SOCKET, socket, 0x00400000UL)
+    S_(SECCLASS_IPC, ipc, 0x00000200UL)
+    S_(SECCLASS_SEM, ipc, 0x00000200UL)
+    S_(SECCLASS_MSGQ, ipc, 0x00000200UL)
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index d645192..0b41ad5 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -423,6 +423,28 @@
+ #define UNIX_DGRAM_SOCKET__RECV_MSG               0x00080000UL
+ #define UNIX_DGRAM_SOCKET__SEND_MSG               0x00100000UL
+ #define UNIX_DGRAM_SOCKET__NAME_BIND              0x00200000UL
++#define TUN_SOCKET__IOCTL                         0x00000001UL
++#define TUN_SOCKET__READ                          0x00000002UL
++#define TUN_SOCKET__WRITE                         0x00000004UL
++#define TUN_SOCKET__CREATE                        0x00000008UL
++#define TUN_SOCKET__GETATTR                       0x00000010UL
++#define TUN_SOCKET__SETATTR                       0x00000020UL
++#define TUN_SOCKET__LOCK                          0x00000040UL
++#define TUN_SOCKET__RELABELFROM                   0x00000080UL
++#define TUN_SOCKET__RELABELTO                     0x00000100UL
++#define TUN_SOCKET__APPEND                        0x00000200UL
++#define TUN_SOCKET__BIND                          0x00000400UL
++#define TUN_SOCKET__CONNECT                       0x00000800UL
++#define TUN_SOCKET__LISTEN                        0x00001000UL
++#define TUN_SOCKET__ACCEPT                        0x00002000UL
++#define TUN_SOCKET__GETOPT                        0x00004000UL
++#define TUN_SOCKET__SETOPT                        0x00008000UL
++#define TUN_SOCKET__SHUTDOWN                      0x00010000UL
++#define TUN_SOCKET__RECVFROM                      0x00020000UL
++#define TUN_SOCKET__SENDTO                        0x00040000UL
++#define TUN_SOCKET__RECV_MSG                      0x00080000UL
++#define TUN_SOCKET__SEND_MSG                      0x00100000UL
++#define TUN_SOCKET__NAME_BIND                     0x00200000UL
+ #define PROCESS__FORK                             0x00000001UL
+ #define PROCESS__TRANSITION                       0x00000002UL
+ #define PROCESS__SIGCHLD                          0x00000004UL
+diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+index 21ec786..7ab9299 100644
+--- a/security/selinux/include/class_to_string.h
++++ b/security/selinux/include/class_to_string.h
+@@ -77,3 +77,4 @@
+     S_(NULL)
+     S_(NULL)
+     S_("kernel_service")
++    S_("tun_socket")
+diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+index 882f27d..f248500 100644
+--- a/security/selinux/include/flask.h
++++ b/security/selinux/include/flask.h
+@@ -53,6 +53,7 @@
+ #define SECCLASS_PEER                                    68
+ #define SECCLASS_CAPABILITY2                             69
+ #define SECCLASS_KERNEL_SERVICE                          74
++#define SECCLASS_TUN_SOCKET                              75
+ 
+ /*
+  * Security identifier indices for initial entities
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ca83579..188af8d 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -63,12 +63,14 @@ extern int selinux_mls_enabled;
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
++	POLICYDB_CAPABILITY_TUNPERM,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
++extern int selinux_policycap_tunperm;
+ 
+ /*
+  * type_datum properties
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index b4fc506..770e059 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -42,7 +42,8 @@
+ /* Policy capability filenames */
+ static char *policycap_names[] = {
+ 	"network_peer_controls",
+-	"open_perms"
++	"open_perms",
++	"tun_perms"
+ };
+ 
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 500e6f7..adbe6d5 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -64,6 +64,7 @@ unsigned int policydb_loaded_version;
+ 
+ int selinux_policycap_netpeer;
+ int selinux_policycap_openperm;
++int selinux_policycap_tunperm;
+ 
+ /*
+  * This is declared in avc.c
+@@ -1593,6 +1594,8 @@ static void security_load_policycaps(void)
+ 						  POLICYDB_CAPABILITY_NETPEER);
+ 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_OPENPERM);
++	selinux_policycap_tunperm = ebitmap_get_bit(&policydb.policycaps,
++						   POLICYDB_CAPABILITY_TUNPERM);
+ }
+ 
+ extern void selinux_complete_init(void);
 
 
 --
