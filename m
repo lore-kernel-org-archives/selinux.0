@@ -1,100 +1,53 @@
-Subject: Re: A question about selinux userspace tools
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: TaurusHarry <harrytaurus2002@hotmail.com>
-Cc: selinux-mailing-list <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1249388013.9193.52.camel@moss-pluto.epoch.ncsc.mil>
-References: <COL109-W24536BCBD1CB8DA1812599AB0C0@phx.gbl>
-	 <1249388013.9193.52.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 04 Aug 2009 08:40:56 -0400
-Message-Id: <1249389656.9193.73.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n74Cj2q9023306
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 08:45:02 -0400
+Received: from goalkeeper.city-fan.org (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n74Cjwh1028471
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 12:45:59 GMT
+Message-ID: <4A782D39.5040101@city-fan.org>
+Date: Tue, 04 Aug 2009 13:44:41 +0100
+From: Paul Howarth <paul@city-fan.org>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Just a quick thought.
+References: <4A781970.7000106@redhat.com>
+In-Reply-To: <4A781970.7000106@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-08-04 at 08:13 -0400, Stephen Smalley wrote:
-> On Tue, 2009-08-04 at 03:11 +0000, TaurusHarry wrote:
-> > Hi all,
-> > 
-> > I am a newcomer to SELinux and have a question about the latest
-> > SELinux userspace tools.
-> > 
-> > Before I try to install the latest refpolicy-20090730 from tresys
-> > website on Ubuntu 8.10 on Dell 6101 laptop(x86_32), I have installed
-> > the below latest SELinux userspace tools on the laptop:
-> > 
-> > libsepol-2.0.37
-> > libselinux-2.0.85
-> > libsemanage-2.0.33
-> > policycoreutils-2.0.69
-> > checkpolicy-2.0.19
-> > sepolgen-1.0.17
-> > 
-> > If I specify MONOLITHIC=n in build.conf and compile refpolicy-20090730
-> > by the latest SELinux userspace tools and then do "make load", I would
-> > run into following error message in the end:
-> > 
-> > libsepol.sepol_module_package_read: out of memory
-> > libsemanage.semanage_load_module: Error while reading from module
-> > file /etc/selinux/refpolicy-20090730/modules/tmp/base.pp.
-> > /usr/sbin/semodule:  Failed!
-> > make: *** [load] Error 1
-> > 
-> > The same error would crop up when I try out following
-> > second-to-the-latest SELinux userspace tools(also ! from tresys
-> > website):
-> > 
-> > libsepol-2.0.36
-> > libselinux-2.0.79
-> > libsemanage-2.0.31
-> > policycoreutils-2.0.62
-> > checkpolicy-2.0.19
-> > sepolgen-1.0.16
-> > 
-> > Only if I degrade libsemanage from 2.0.31 to 2.0.27, and
-> > policycoreutils from 2.0.62 to 2.0.55, would the "make load" finish
-> > uneventfully, then I could do "semanage login/user -l" and "semodule
-> > -l" successfully.
-> > 
-> > So far I have very shallow experience on SELinux userspace tools
-> > implementation and couldn't find out the reason  why the latest stable
-> > version would have above error message on my laptop, has anyone run
-> > into the same problem before? Any suggestions are greatly appreciated!
-> 
-> Things that would help debug:
-> 1) A copy of the base.pp file on which it failed,
-> 2) The amount of memory and swap configured on your laptop,
-> 
-> Possibly this could be due to the introduction of policy module
-> compression (bzip) support in libsemanage 2.0.31.
+On 04/08/09 12:20, Daniel J Walsh wrote:
+> Now that we have labelling equivalence should we just add a
+>
+> /lib64 /lib
+> /usr/lib64 /usr/lib
+> /usr/local/lib64 /usr/local/lib
+>
+> Seems we could simplify policy and prevent many mistakes.  Might speed up regex matching a little bit.
 
-Some quick observations on the code:
-- direct_api.c:bzip() always passes 9 as the blocksize to
-BZ2_bzWriteOpen().  I'd suggest making that tunable via semanage.conf or
-something so that we can balance memory use against compression level.
+It would also remove the need for the /lib(64)? style regexes 
+altogether, which are unfortunately close to the start of the pathname 
+and cause these patterns to score poorly when being considered as a 
+possible match for a filename.
 
-- direct_api.c:bunzip() always passes 0 as the small flag to
-BZ2_bzReadOpen().  I'd likewise make that tunable via semanage.conf so
-that we can balance memory use against runtime performance.
+> grep 64 /etc/selinux/targeted/contexts/files/file_contexts | wc
+>      259     735   18694
+>
+>
+> If were were more aggressive
+>
+> /usr/local /usr
 
-- What is the rationale for the buffer size (1<<18) in bunzip()?
+That looks sane.
 
-- Doubling the buffer size within the loop in bunzip() may be too
-greedy; possibly it should just increment by a fixed chunk size.
+> /opt /usr
 
-- We're effectively allocating the memory twice - inside bunzip() we
-allocate a buffer and fill it, and then in map_file() we mmap memory and
-copy into it.  I assume that was to avoid changing the exit paths of the
-callers so that they can always just munmap it, but we might want to
-reconsider it as it temporarily puts us in a position of holding twice
-the required memory.
+Don't agree with that one. /opt tends to fill with things like 
+/opt/appname and only then the regular structure underneath there with 
+/bin, /man etc.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Paul.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
