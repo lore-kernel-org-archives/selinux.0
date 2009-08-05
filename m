@@ -1,43 +1,38 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n75DA3O9031397
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 09:10:03 -0400
-Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n75D9ZLE018041
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 13:09:35 GMT
-Received: by ewy7 with SMTP id 7so90065ewy.18
-        for <selinux@tycho.nsa.gov>; Wed, 05 Aug 2009 06:10:02 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 5 Aug 2009 17:39:58 +0430
-Message-ID: <f7d5075c0908050609g59705ba4y88a55963c4f4f5f8@mail.gmail.com>
-Subject: module that checks each access
-From: mina elnino <potushka@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001485f6cd6651ac55047064b8ed
+Subject: Re: module that checks each access
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: mina elnino <potushka@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <f7d5075c0908050609g59705ba4y88a55963c4f4f5f8@mail.gmail.com>
+References: <f7d5075c0908050609g59705ba4y88a55963c4f4f5f8@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 05 Aug 2009 09:34:15 -0400
+Message-Id: <1249479255.21455.47.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---001485f6cd6651ac55047064b8ed
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Wed, 2009-08-05 at 17:39 +0430, mina elnino wrote:
+> dear list,
+> i need to know if there is a special module in source code of selinux
+> which is responsible to check every access to resources of the system.
+> i mean is there a specific function that reads binary policy file and
+> according to it, grants or prohibits the action.
+> regards.
 
-dear list,
-i need to know if there is a special module in source code of selinux which
-is responsible to check every access to resources of the system. i mean is
-there a specific function that reads binary policy file and according to it,
-grants or prohibits the action.
-regards.
+Sounds like you need to do some reading on the architecture and
+implementation of SELinux, e.g.:
+http://www.nsa.gov/research/_files/selinux/papers/slinux-abs.shtml
+http://www.nsa.gov/research/_files/selinux/papers/module-abs.shtml
 
---001485f6cd6651ac55047064b8ed
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+The SELinux by Example book may be a useful resource.
 
-dear list,<br>i need to know if there is a special module in source code of=
- selinux which is responsible to check every access to resources of the sys=
-tem. i mean is there a specific function that reads binary policy file and =
-according to it, grants or prohibits the action.<br>
-regards.<br>
+You may find this recent thread to be informative:
+http://marc.info/?t=124816978000005&r=1&w=2
 
---001485f6cd6651ac55047064b8ed--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
