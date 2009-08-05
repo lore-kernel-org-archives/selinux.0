@@ -1,52 +1,43 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n75D6vis030803
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 09:06:57 -0400
-Received: from mail-vw0-f187.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n75D6TLE016733
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 13:06:29 GMT
-Received: by vws17 with SMTP id 17so55284vws.30
-        for <selinux@tycho.nsa.gov>; Wed, 05 Aug 2009 06:06:56 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n75DA3O9031397
+	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 09:10:03 -0400
+Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n75D9ZLE018041
+	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 13:09:35 GMT
+Received: by ewy7 with SMTP id 7so90065ewy.18
+        for <selinux@tycho.nsa.gov>; Wed, 05 Aug 2009 06:10:02 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20090804212204.10798.53727.stgit@flek.lan>
-References: <20090804211304.10798.65601.stgit@flek.lan>
-	 <20090804212204.10798.53727.stgit@flek.lan>
-Date: Wed, 5 Aug 2009 09:06:56 -0400
-Message-ID: <7e0fb38c0908050606o2aa1a718x599c101592ec1ce8@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 2/2] selinux: Support for the new TUN LSM hooks
-From: Eric Paris <eparis@parisplace.org>
-To: Paul Moore <paul.moore@hp.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 5 Aug 2009 17:39:58 +0430
+Message-ID: <f7d5075c0908050609g59705ba4y88a55963c4f4f5f8@mail.gmail.com>
+Subject: module that checks each access
+From: mina elnino <potushka@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001485f6cd6651ac55047064b8ed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 4, 2009 at 5:22 PM, Paul Moore<paul.moore@hp.com> wrote:
-> Add support for the new TUN LSM hooks: security_tun_dev_create(),
-> security_tun_dev_post_create() and security_tun_dev_attach().  This includes
-> the addition of a new object class, tun_socket, which represents the socks
-> associated with TUN devices.  The _tun_dev_create() and _tun_dev_post_create()
-> hooks are fairly similar to the standard socket functions but _tun_dev_attach()
-> is a bit special.  The _tun_dev_attach() is unique because it involves a
-> domain attaching to an existing TUN device and its associated tun_socket
-> object, an operation which does not exist with standard sockets and most
-> closely resembles a relabel operation.
->
-> This patch also includes a new policy capability, tun_perms, to ensure that
-> the new access controls do not affect older SELinux policies.
+--001485f6cd6651ac55047064b8ed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I think we finally have the first patch where the 'handle_unknown'
-stuff fits better than the policy capabilities work!  First time for
-everything!  I'd suggest dropping the policy capability all together
-and the checks will be applied when the class and perm is defined in
-the loaded policy.  If the class+perm isn't defined in policy the
-policy handle_unknown setting will define the result of the security
-check.
+dear list,
+i need to know if there is a special module in source code of selinux which
+is responsible to check every access to resources of the system. i mean is
+there a specific function that reads binary policy file and according to it,
+grants or prohibits the action.
+regards.
 
-whoo hoo, saves 32bits of memory and 2 branches on low use operations!
+--001485f6cd6651ac55047064b8ed
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--Eric
+dear list,<br>i need to know if there is a special module in source code of=
+ selinux which is responsible to check every access to resources of the sys=
+tem. i mean is there a specific function that reads binary policy file and =
+according to it, grants or prohibits the action.<br>
+regards.<br>
 
+--001485f6cd6651ac55047064b8ed--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
