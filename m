@@ -1,50 +1,55 @@
-Subject: Re: [patch] libsemanage:  do not hard link files
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1249485568.21455.85.camel@moss-pluto.epoch.ncsc.mil>
-References: <1249485568.21455.85.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 05 Aug 2009 15:00:19 -0400
-Message-Id: <1249498819.5213.10.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n75Lwk99013203
+	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 17:58:46 -0400
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n75LwIbL026511
+	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 21:58:18 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>, eparis@redhat.com
+Subject: Re: [RFC PATCH v1 1/2] lsm: Add hooks to the TUN driver
+Date: Wed, 5 Aug 2009 17:58:38 -0400
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+References: <20090804211304.10798.65601.stgit@flek.lan> <20090804212158.10798.34592.stgit@flek.lan> <20090805141350.GA353@us.ibm.com>
+In-Reply-To: <20090805141350.GA353@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200908051758.39051.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-08-05 at 11:19 -0400, Stephen Smalley wrote:
-> Remove the support for hard linking files in semanage_copy_file, as it
-> is unsafe and can leave the active store corrupted if something goes
-> wrong during the transaction.  It also can leave the installed policy
-> files with incorrect file modes or security contexts.
-> 
-> To do this safely, we would need to change all functions that write to
-> the sandbox files to first unlink the destination file.  This was done
-> in the original patch for the write_file helper but not for other cases.
-> It would need to be done for all functions that open.*O_CREAT or
-> fopen.*w on a file in the sandbox.
-> 
-> We also don't want this applied to the installed policy files, as they
-> need to be created with appropriate file modes and security contexts
-> that may differ from the sandbox files.  At present, the hard link
-> support will only affect the installed policy files when they are first
-> created; afterward the link() call will always fail with EEXIST since
-> they are not unlinked prior to installation (nor would that be safe as
-> it could leave the system without a policy - rename would make more
-> sense in that situation).  If we were to re-introduce hard link support,
-> we ought to use different helpers or flags for installing the policy
-> files than for copying the active store to the temporary sandbox to
-> avoid affecting both.
+On Wednesday 05 August 2009 10:13:50 am Serge E. Hallyn wrote:
+> Quoting Paul Moore (paul.moore@hp.com):
 
-BTW, I noticed that the Fedora libsemanage has a patch that moves the
-link() call from semanage_copy_file() to semanage_copy_dir() within the
-S_ISREG() conditional, so that link() is only being applied when
-creating the temporary sandbox, and not when installing the system
-policy files.  Which is better, but still broken.
+[NOTE: my email has been out all day due to some mysterious FS issue so my 
+apologies for not replying sooner]
+
+...
+
+> The checks before and after this patch are not equivalent.  Post-patch,
+> one must always have CAP_NET_ADMIN to do the attach, whereas pre-patch
+> you only needed those if current_cred() did not own the tun device.  Is
+> that intentional?
+
+Nope, just a goof on my part; I misread the booleans and haven't fully tested 
+the patch yet so it slipped out, thanks for catching it.  This brings up a 
+good point, would we rather move the TUN owner/group checks into the cap_tun_* 
+functions or move the capable() call back into the TUN driver?  The answer 
+wasn't clear to me when I was looking at the code before and the uniqueness of 
+the TUN driver doesn't help much in this regard.
+
+> Also as Eric said this patch needs to set the cap_ hooks.  This patch
+> isn't yet introducing the selinux hooks, so iiuc actually this patch should
+> always oops if CONFIG_SECURITY=y.
+
+Yep, another symptom of not enough testing as I mentioned out in the original 
+posting, thanks to both of you for pointing this out ... now somebody just 
+needs to fix Rawhide so I can actually get a KVM instance running :)
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
