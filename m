@@ -1,38 +1,41 @@
-Date: Wed, 5 Aug 2009 09:42:06 +1000 (EST)
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n750h7uQ027188
+	for <selinux@tycho.nsa.gov>; Tue, 4 Aug 2009 20:43:07 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n750gfN8011009
+	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 00:42:41 GMT
+Date: Wed, 5 Aug 2009 10:43:03 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, James Carter <jwcart2@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, spender@grsecurity.net,
-        Daniel J Walsh <dwalsh@redhat.com>, cl@linux-foundation.org,
-        Arjan van de Ven <arjan@infradead.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, kees@outflux.net,
-        Chad Sellers <csellers@tresys.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        "Serge E. Hallyn" <serue@us.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH -v4 1/3] Capabilities: move cap_file_mmap to
- commoncap.c
-In-Reply-To: <20090731165358.20992.14757.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.0908050938320.28805@tundra.namei.org>
-References: <20090731165358.20992.14757.stgit@paris.rdu.redhat.com>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v1 0/2] The Long Lost TUN LSM Hooks
+In-Reply-To: <20090804211304.10798.65601.stgit@flek.lan>
+Message-ID: <alpine.LRH.2.00.0908051035530.29562@tundra.namei.org>
+References: <20090804211304.10798.65601.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 31 Jul 2009, Eric Paris wrote:
+On Tue, 4 Aug 2009, Paul Moore wrote:
 
-> Currently we duplicate the mmap_min_addr test in cap_file_mmap and in
-> security_file_mmap if !CONFIG_SECURITY.  This patch moves cap_file_mmap
-> into commoncap.c and then calls that function directly from
-> security_file_mmap ifndef CONFIG_SECURITY like all of the other capability
-> checks are done.
+> While drivers in general aren't good places for LSM hooks the TUN driver is
+> a bit different because of how it handles sockets and network traffic.  The
+> problem lies in the fact that the TUN driver creates a sock structure to use
+> when sending network traffic but the sock is never put through the same LSM
+> setup/control as other sock structures on the system which makes enforcing
+> security on TUN generated traffic difficult for some LSMs.  This patch set
+> adds three new LSM hooks, all specific to the TUN driver (none of the existing
+> hooks made sense, trust me we tried), to control and monitor the creating and
+> attachment of TUN devices.
 
-These patches could do with more review / ack / signoff.  Anyone?  Bueller?
+Looks ok to me in principle.
 
-However, if there are no further comments, I'll likely apply these to 
-security-testing#next.
+For netdev reviewers: we're lacking proper LSM control over tun devices 
+because they're not created like normal sockets, and subsequently don't 
+get labeled appropriately.  They also behave differently to normal sockets 
+and need special handling for security per Paul's notes.
 
 
 - James
