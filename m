@@ -1,87 +1,72 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n75EDtOq012910
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 10:13:55 -0400
-Received: from e2.ny.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n75EEs0R020779
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 14:14:54 GMT
-Received: from d01relay07.pok.ibm.com (d01relay07.pok.ibm.com [9.56.227.147])
-	by e2.ny.us.ibm.com (8.14.3/8.13.1) with ESMTP id n75E8DHk020843
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 10:08:13 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d01relay07.pok.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n75EDoP22457694
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 10:13:51 -0400
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n75EDm1n006497
-	for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2009 08:13:50 -0600
-Date: Wed, 5 Aug 2009 09:13:50 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH v1 1/2] lsm: Add hooks to the TUN driver
-Message-ID: <20090805141350.GA353@us.ibm.com>
-References: <20090804211304.10798.65601.stgit@flek.lan> <20090804212158.10798.34592.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20090804212158.10798.34592.stgit@flek.lan>
+Subject: [patch] libsemanage:  do not hard link files
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain
+Date: Wed, 05 Aug 2009 11:19:28 -0400
+Message-Id: <1249485568.21455.85.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Paul Moore (paul.moore@hp.com):
-...
->  static int tun_attach(struct tun_struct *tun, struct file *file)
->  {
->  	struct tun_file *tfile = file->private_data;
-> -	const struct cred *cred = current_cred();
-> -	int err;
-> +	int err = 0;
-> 
->  	ASSERT_RTNL();
-> 
-> -	/* Check permissions */
-> -	if (((tun->owner != -1 && cred->euid != tun->owner) ||
-> -	     (tun->group != -1 && !in_egroup_p(tun->group))) &&
-> -		!capable(CAP_NET_ADMIN))
-> -		return -EPERM;
-...
+Remove the support for hard linking files in semanage_copy_file, as it
+is unsafe and can leave the active store corrupted if something goes
+wrong during the transaction.  It also can leave the installed policy
+files with incorrect file modes or security contexts.
 
-> @@ -935,6 +930,13 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
->  		else
->  			return -EINVAL;
-> 
-> +		if ((tun->owner != -1 && cred->euid != tun->owner) ||
-> +		    (tun->group != -1 && !in_egroup_p(tun->group)))
-> +			return -EPERM;
-> +		err = security_tun_dev_attach(tun->sk);
-> +		if (err < 0)
-> +			return err;
-> +
+To do this safely, we would need to change all functions that write to
+the sandbox files to first unlink the destination file.  This was done
+in the original patch for the write_file helper but not for other cases.
+It would need to be done for all functions that open.*O_CREAT or
+fopen.*w on a file in the sandbox.
 
-...
+We also don't want this applied to the installed policy files, as they
+need to be created with appropriate file modes and security contexts
+that may differ from the sandbox files.  At present, the hard link
+support will only affect the installed policy files when they are first
+created; afterward the link() call will always fail with EEXIST since
+they are not unlinked prior to installation (nor would that be safe as
+it could leave the system without a policy - rename would make more
+sense in that situation).  If we were to re-introduce hard link support,
+we ought to use different helpers or flags for installing the policy
+files than for copying the active store to the temporary sandbox to
+avoid affecting both.
 
-> +/**
-> + * cap_tun_dev_attach - Determine if attaching to an TUN device is allowed
-> + *
-> + * Determine if the user is allowed to attach to an existing persistent TUN
-> + * device, historically this has always required the CAP_NET_ADMIN permission.
-> + */
-> +int cap_tun_dev_attach(void)
-> +{
-> +	if (!capable(CAP_NET_ADMIN))
-> +		return -EPERM;
-> +	return 0;
-> +}
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The checks before and after this patch are not equivalent.  Post-patch,
-one must always have CAP_NET_ADMIN to do the attach, whereas pre-patch
-you only needed those if current_cred() did not own the tun device.  Is
-that intentional?
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 855226a..d563841 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -559,8 +559,6 @@ static int write_file(semanage_handle_t * sh,
+ {
+ 	int out;
+ 
+-	/* Unlink no matter what, incase this file is a hard link, ignore error */
+-	unlink(filename);
+ 	if ((out =
+ 	     open(filename, O_WRONLY | O_CREAT | O_TRUNC,
+ 		  S_IRUSR | S_IWUSR)) == -1) {
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index a3b0819..f8c1145 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -441,8 +441,6 @@ static int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+ 	char tmp[PATH_MAX];
+ 	char buf[4192];
+ 
+-	if (link(src,dst) == 0) return 0;
+-
+ 	n = snprintf(tmp, PATH_MAX, "%s.tmp", dst);
+ 	if (n < 0 || n >= PATH_MAX)
+ 		return -1;
 
-Also as Eric said this patch needs to set the cap_ hooks.  This patch
-isn't yet introducing the selinux hooks, so iiuc actually this patch should
-always oops if CONFIG_SECURITY=y.
 
--serge
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
