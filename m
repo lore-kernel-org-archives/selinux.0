@@ -1,50 +1,72 @@
-Message-ID: <4A806D3C.1070407@tycho.nsa.gov>
-Date: Mon, 10 Aug 2009 14:55:56 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Justin Mattock <justinmattock@gmail.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: compiling SELinux in xserver seems to not find /lib64
-References: <dd18b0c30908101127m38999d83h655a0e58751138cf@mail.gmail.com>
-In-Reply-To: <dd18b0c30908101127m38999d83h655a0e58751138cf@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Patch setfiles to only warn if add_remove fails to lstat on
+ user initiated excludes.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4A803935.3040407@redhat.com>
+References: <4A803935.3040407@redhat.com>
+Content-Type: text/plain
+Date: Mon, 10 Aug 2009 16:03:13 -0400
+Message-Id: <1249934593.2422.77.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/10/2009 02:27 PM, Justin Mattock wrote:
-> seems I'm hitting this error while building
-> the xserver:(with enabling selinux)
->
-> make[4]: *** No rule to make target `-lselinux', needed by `Xorg'.  Stop.
->
-> here's how I compiled the xserver:
->
->
->   ./configure --enable-install-setuid
-> --with-dri-driver-path="/usr/lib64/xorg/modules/dri"
-> --with-fontdir="/usr/share/fonts"  --with-log-dir=/var/log
-> --enable-secure-rpc --enable-xcsecurity --enable-xselinux
-> --enable-config-dbus --prefix=/usr --libdir=/usr/lib64
-> --sysconfdir=/etc --localstatedir=/var LDFLAGS=-L/lib64 LIBS=-L/lib64
-> CFLAGS=" -m64 -mtune=core2 -march=core2 -mfpmath=both  -O2 -pipe
-> -fomit-frame-pointer -fstack-protector" CXXFLAGS="${CFLAGS}"
-> MAKEOPTS="{-j3}" PKG_CONFIG_PATH=/usr/lib64/pkgconfig LDFLAGS=-L/lib64
-> LIBS=-L/lib64
->
-> even giving this twice seems to make no difference.
-> LDFLAGS=-L/lib64 LIBS=-L/lib64
->
-> any ideas?
->
->    
+On Mon, 2009-08-10 at 11:13 -0400, Daniel J Walsh wrote:
+> Currently in F12 if you have file systems that root can not read
+> 
+> # restorecon -R -v /var/lib/libvirt/
+> Can't stat directory "/home/dwalsh/.gvfs", Permission denied.
+> Can't stat directory "/home/dwalsh/redhat", Permission denied.
+> 
+> After patch
+> 
+> # ./restorecon -R -v /var/lib/libvirt/
+
+But if you were to run
+./restorecon -R /home/dwalsh
+that would try to descend into .gvfs and redhat, right?
+
+I think you want instead to ignore the lstat error if the error was
+permission denied and add the entry to the exclude list so that
+restorecon will not try to descend into it.  It is ok to exclude a
+directory to which you lack permission.  Try this:
+
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index d219225..4190ded 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -243,17 +243,18 @@ static int add_exclude(const char *directory)
+ 			directory);
+ 		return 1;
+ 	}
+-	if (lstat(directory, &sb)) {
++	if (lstat(directory, &sb) == 0) {
++		if ((sb.st_mode & S_IFDIR) == 0) {
++			fprintf(stderr,
++				"\"%s\" is not a Directory: mode %o, ignoring\n",
++				directory, sb.st_mode);
++			return 0;
++		}
++	} else if (errno != EACCES) {
+ 		fprintf(stderr, "Can't stat directory \"%s\", %s.\n",
+ 			directory, strerror(errno));
+ 		return 0;
+ 	}
+-	if ((sb.st_mode & S_IFDIR) == 0) {
+-		fprintf(stderr,
+-			"\"%s\" is not a Directory: mode %o, ignoring\n",
+-			directory, sb.st_mode);
+-		return 0;
+-	}
+ 
+ 	if (excludeCtr == MAX_EXCLUDES) {
+ 		fprintf(stderr, "Maximum excludes %d exceeded.\n",
 
 
-Can you save the build output to a file and send it as an attachment?
-Configure with --disable-shave or use "V=1" on the make command line to 
-disable the abbreviated kernel-style output.
 
 -- 
-Eamon Walsh<ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
