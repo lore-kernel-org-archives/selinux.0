@@ -1,270 +1,58 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7DHa17S015682
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 13:36:02 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7DHZWIS009411
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 17:35:32 GMT
-Message-ID: <4A844EFD.7030000@redhat.com>
-Date: Thu, 13 Aug 2009 13:35:57 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Thu, 13 Aug 2009 12:54:05 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        sds@tycho.nsa.gov, davem@davemloft.net,
+        shemminger@linux-foundation.org, kees@ubuntu.com, morgan@kernel.org,
+        casey@schaufler-ca.com, dwalsh@redhat.com
+Subject: Re: [PATCH 2/3] security: introducing security_request_module
+Message-ID: <20090813175405.GA6824@us.ibm.com>
+References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com> <20090813134457.29186.7182.stgit@paris.rdu.redhat.com> <20090813140306.GC30731@us.ibm.com> <1250177334.2182.88.camel@dhcp231-106.rdu.redhat.com>
 MIME-Version: 1.0
-To: Justin Mattock <justinmattock@gmail.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: error: too many arguments to function 'security_getenforce'
-References: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
-In-Reply-To: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1250177334.2182.88.camel@dhcp231-106.rdu.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/12/2009 11:30 PM, Justin Mattock wrote:
-> Hello,
-> I've spent the past few days trying to
-> find a correct patch for sysvinit-2.86 to load
-> the policy. but seems to keep hitting errors.
+Quoting Eric Paris (eparis@redhat.com):
+> On Thu, 2009-08-13 at 09:03 -0500, Serge E. Hallyn wrote:
+> > Quoting Eric Paris (eparis@redhat.com):
+> > > Calling request_module() will trigger a userspace upcall which will load a
+> > > new module into the kernel.  This can be a dangerous event if the process
+> > > able to trigger request_module() is able to control either the modprobe
+> > > binary or the module binary.  This patch adds a new security hook to
+> > > request_module() which can be used by an LSM to control a processes ability
+> > > to call request_module().
+> > 
+> > Is there a specific case in which you'd want to deny this ability
+> > from a real task?
 > 
-> I've made it as far as this:
-> gcc -c -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX  init.c
-> init.c: In function 'load_policy':
-> init.c:107:3: error: too many arguments to function 'security_getenforce'
-> init.c:120:0: warning: "MNT_DETACH" redefined
-> /usr/include/sys/mount.h:102:0: note: this is the location of the
-> previous definition
-> init.c:130:7: warning: too many arguments for format
-> init.c:206:3: warning: passing argument 3 of 'sepol_genbools' discards
-> qualifiers from pointer target type
-> /usr/include/sepol/booleans.h:16:12: note: expected 'char *' but
-> argument is of type 'const char *'
-> init.c: In function 're_exec':
-> init.c:2040:2: warning: missing sentinel in function call
-> make: *** [init.o] Error 1
-> make: Leaving directory `/home/justin/LFS/sysv/sysvinit-2.86/src'
-> 
-> seems this is the only error showing up if I use the -i option
-> from make.
-> 
-> the patch looks like this:
-> (only init.c/Makefile for now until I can get this
-> correct)
-> 
-> starting at line 83
-> 
-> 		} while(0)
-> 
-> #ifdef WITH_SELINUX
-> #include <sys/mman.h>
-> #include <selinux/selinux.h>
-> #include <sepol/sepol.h>
-> #include <sys/mount.h>
-> 
-> /* Mount point for selinuxfs. */
-> #define SELINUXMNT "/selinux/"
-> int enforcing = -1;            /* SELinux enforcing mode */
-> 
-> 
-> static int load_policy(int *enforce)
-> {
->   int fd=-1,ret=-1;
->   int rc=0, orig_enforce;
->   struct stat sb;
->   void *map;
->   char policy_file[PATH_MAX];
->   int policy_version=0;
->   extern char *selinux_mnt;
->   FILE *cfg;
->   char buf[4096];
->   int seconfig = -2;
-> 
->   security_getenforce(&seconfig);
-> 
->   mount("none", "/proc", "proc", 0, 0);
->  cfg = fopen("/proc/cmdline","r");
->   if (cfg) {
->     char *tmp;
->     if (fgets(buf,4096,cfg) && (tmp = strstr(buf,"enforcing="))) {
->       if (tmp == buf || isspace(*(tmp-1))) {
->         enforcing=atoi(tmp+10);
->       }
->     }
->     fclose(cfg);
->   }
-> #define MNT_DETACH 2
->   umount2("/proc",MNT_DETACH);
-> 
->   if (enforcing >=0)
->     *enforce = enforcing;
->   else if (seconfig == 1)
->     *enforce = 1;
-> 
->   if (mount("none", SELINUXMNT, "selinuxfs", 0, 0) < 0) {
->     if (errno == ENODEV) {
->       printf("SELinux not supported by kernel:
-> %s\n",SELINUXMNT,strerror(errno));
->       *enforce = 0;
->     } else {
->       printf("Failed to mount %s: %s\n",SELINUXMNT,strerror(errno));
->     }
->     return ret;
->   }
-> 
->   selinux_mnt = SELINUXMNT; /* set manually since we mounted it */
-> 
->   policy_version=security_policyvers();
->   if (policy_version < 0) {
->     printf( "Can't get policy version: %s\n", strerror(errno));
->     goto UMOUNT;
->   }
-> 
->   orig_enforce = rc = security_getenforce();
->   if (rc < 0) {
->     printf( "Can't get SELinux enforcement flag: %s\n", strerror(errno));
->     goto UMOUNT;
->   }
->   if (enforcing >= 0) {
->     *enforce = enforcing;
->   } else if (seconfig == -1) {
->     *enforce = 0;
->     rc = security_disable();
->     if (rc == 0) umount(SELINUXMNT);
->    if (rc < 0) {
->      rc = security_setenforce(0);
->      if (rc < 0) {
->        printf("Can't disable SELinux: %s\n", strerror(errno));
->        goto UMOUNT;
->       }
->     }
->     ret = 0;
->     goto UMOUNT;
->   } else if (seconfig >= 0) {
->     *enforce = seconfig;
->     if (orig_enforce != *enforce) {
->       rc = security_setenforce(seconfig);
->       if (rc < 0) {
->         printf("Can't set SELinux enforcement flag: %s\n", strerror(errno));
->         goto UMOUNT;
->       }
->    }
->   }
-> 
->   snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version);
->   fd = open(policy_file, O_RDONLY);
->   if (fd < 0) {
->     /* Check previous version to see if old policy is available
->      */
->     snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version-1);
->     fd = open(policy_file, O_RDONLY);
->     if (fd < 0) {
->       printf( "Can't open '%s.%d':  %s\n",
->           selinux_binary_policy_path(),policy_version,strerror(errno));
->       goto UMOUNT;
->     }
->   }
-> 
->   if (fstat(fd, &sb) < 0) {
->   printf("Can't stat '%s':  %s\n",
->         policy_file, strerror(errno));
->    goto UMOUNT;
->  }
-> 
->   map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
->   if (map == MAP_FAILED) {
->     printf( "Can't map '%s':  %s\n",
->        policy_file, strerror(errno));
->     goto UMOUNT;
->   }
-> 
-> 
->   /* Set booleans based on a booleans configuration file. */
->   ret = sepol_genbools(map, sb.st_size, selinux_booleans_path());
->   if (ret < 0) {
->     if (errno == ENOENT || errno == EINVAL) {
->       /* No booleans file or stale booleans in the file; non-fatal. */
->       printf("Warning!  Error while setting booleans:  %s\n"
->           , strerror(errno));
->     } else {
->       printf("Error while setting booleans:  %s\n",
->           strerror(errno));
->       goto UMOUNT;
->     }
->  }
->   printf("Loading security policy\n");
->   ret=security_load_policy(map, sb.st_size);
->   if (ret < 0) {
->     printf("security_load_policy failed\n");
->   }
-> 
->  UMOUNT:
->   /*umount(SELINUXMNT); */
->   if ( fd >= 0) {
->     close(fd);
->  }
->   return(ret);
-> }
-> #endif
-> 
-> /* Version information */
-> 
-> 
-> line 2818
-> #ifdef WITH_SELINUX
->        if (getenv("SELINUX_INIT") == NULL) {
->          putenv("SELINUX_INIT=YES");
->          if (load_policy(&enforcing) == 0 ) {
->            execv(myname, argv);
->          } else {
->            if (enforcing > 0) {
->              /* SELinux in enforcing mode but load_policy failed */
->              /* At this point, we probably can't open /dev/console, so
-> log() won't work */
->                    fprintf(stderr,"Enforcing mode requested but no
-> policy loaded. Halting now.\n");
->              exit(1);
->            }
->          }
->        }
-> #endif
-> 
-> 
-> 
-> and the Makefile has these in it:
-> 
-> line 12
-> CFLAGS	= -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX
-> 
-> line 52
-> 
-> ifeq ($(WITH_SELINUX),yes)
->   SELINUX_DEF=-DWITH_SELINUX
->   INIT_SELIBS=-lsepol -lselinux
->   SULOGIN_SELIBS=-lselinux
-> else
->   SELINUX_DEF=
->   INIT_SELIBS=
->   SULOGIN_SELIBS=
-> endif
-> 
-> 
-> line 71
-> init:		init.o init_utmp.o
-> 		$(CC) $(LDFLAGS) $(STATIC) -o $@ init.o init_utmp.o $(INIT_SELIBS)
-> 
-> line 103
-> init.o:		init.c init.h set.h reboot.h initreq.h
-> 		$(CC) -c $(CFLAGS) $(SELINUX_DEF) init.c
-> 
-> 
-> Seems I found a patch from 2003 that
-> did load the policy but segfaulted after that.
-> 
-> should I even bother with this since there are
-> newer approaches?
-> 
-> 
-Does
+> qemu and any network facing daemon are all programs I don't want to be
+> able to even ask the kernel to load a module.  Clearly you are right,
 
-selinux_mkload_policy(1);
+...  What if the network facing daemon might want to use a kernel crypto
+module?  What if qemu needs the tun module loaded?
 
-Work for you?
+> that the best protection is done by controlling access to modprobe and
+> the modules on disk (which we are working to fix vs what happened in the
+> xen fb exploit I showed earlier) but stopping it from the other
+> direction is, I feel, a useful defense in depth.
+> 
+> If they can't get modprobe called, they can't take over the system
+> directly, even if they did change a module or change modprobe.  I agree
+> it's not strong security as if they can change modprobe or modules they
+> might be able to just wait until something else calls modprobe (next
+> reboot maybe?) to take over the system.  But I'd find it very
+> interesting to know that a high threat target tried to do anything which
+> attempted to load a module....
+> 
+> -Eric
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
