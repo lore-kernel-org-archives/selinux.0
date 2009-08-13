@@ -1,291 +1,213 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7D5nDhb010286
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 01:49:13 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7DCSZf6031841
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 08:28:35 -0400
 Received: from mail-yx0-f177.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7D5mipp015461
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 05:48:44 GMT
-Received: by yxe7 with SMTP id 7so699424yxe.32
-        for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 22:49:13 -0700 (PDT)
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7DCS57J013020
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 12:28:05 GMT
+Received: by yxe7 with SMTP id 7so861448yxe.32
+        for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 05:28:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
-References: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
-Date: Thu, 13 Aug 2009 14:49:12 +0900
-Message-ID: <f71a82820908122249k2c4c3397hc941ee3a3a0a75a7@mail.gmail.com>
-Subject: Re: error: too many arguments to function 'security_getenforce'
-From: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-To: Justin Mattock <justinmattock@gmail.com>, selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 13 Aug 2009 08:28:34 -0400
+Message-ID: <2cb3b7090908130528q1c9d1c48l50f3ecc6f409fa00@mail.gmail.com>
+Subject: Cron job fails to transition
+From: Dan <carbonneau@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001636c9356afd9c1904710512fa
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- security_getenforce(&seconfig);
+--001636c9356afd9c1904710512fa
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-is wrong.
+Hi,
 
-see
+I'm working on a SELinux policy for AIDE on REHL 5.3 running in Strict
+mode.  I am able to transition to aide_t fine when executed manually.  I am
+having trouble transitioning to aide_t when executing from a cron job.
+The cron job is trying to do the following transition:
+FROM: root:sysadm_r:sysadm_crond_t:s0-s0:c0.c1023 TO:
+root:system_r:aide_t:s0-s0:c0.c1023
 
-[fujiwara@notepc ~]$ cat -n /usr/include/selinux/selinux.h|grep
-security_getenforce
-   314	extern int security_getenforce(void);
+Here's a snipplet of the important rules I have in place for the transition
+in my aide.te:
 
+# When an administrator executes a process with the type of
+# $1_exec_t, the process transitions from sysadm_r to system_r.
+role sysadm_r;
+allow sysadm_r system_r;
+role_transition sysadm_r aide_exec_t system_r;
+role system_r types aide_t;
+allow sysadm_crond_t aide_t:process transition;
+# Allow crontab to transition to aide_t
+domain_auto_trans(system_crond_t, aide_exec_t, aide_t)
+When the cronjob runs, it does not transition to aide_t in enforcing mode.
+Audit2Allow keeps suggesting "allow sysadm_crond_t aide_t:process
+transition;" even though I already have the rule in the policy.  It looks
+like its having trouble transitioning from sysadm_r to system_r (I have the
+rules for that in the policy also).
 
-2009/8/13 Justin Mattock <justinmattock@gmail.com>:
-> Hello,
-> I've spent the past few days trying to
-> find a correct patch for sysvinit-2.86 to load
-> the policy. but seems to keep hitting errors.
->
-> I've made it as far as this:
-> gcc -c -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX  init.c
-> init.c: In function 'load_policy':
-> init.c:107:3: error: too many arguments to function 'security_getenforce'
-> init.c:120:0: warning: "MNT_DETACH" redefined
-> /usr/include/sys/mount.h:102:0: note: this is the location of the
-> previous definition
-> init.c:130:7: warning: too many arguments for format
-> init.c:206:3: warning: passing argument 3 of 'sepol_genbools' discards
-> qualifiers from pointer target type
-> /usr/include/sepol/booleans.h:16:12: note: expected 'char *' but
-> argument is of type 'const char *'
-> init.c: In function 're_exec':
-> init.c:2040:2: warning: missing sentinel in function call
-> make: *** [init.o] Error 1
-> make: Leaving directory `/home/justin/LFS/sysv/sysvinit-2.86/src'
->
-> seems this is the only error showing up if I use the -i option
-> from make.
->
-> the patch looks like this:
-> (only init.c/Makefile for now until I can get this
-> correct)
->
-> starting at line 83
->
->                } while(0)
->
-> #ifdef WITH_SELINUX
-> #include <sys/mman.h>
-> #include <selinux/selinux.h>
-> #include <sepol/sepol.h>
-> #include <sys/mount.h>
->
-> /* Mount point for selinuxfs. */
-> #define SELINUXMNT "/selinux/"
-> int enforcing = -1;            /* SELinux enforcing mode */
->
->
-> static int load_policy(int *enforce)
-> {
->  int fd=-1,ret=-1;
->  int rc=0, orig_enforce;
->  struct stat sb;
->  void *map;
->  char policy_file[PATH_MAX];
->  int policy_version=0;
->  extern char *selinux_mnt;
->  FILE *cfg;
->  char buf[4096];
->  int seconfig = -2;
->
->  security_getenforce(&seconfig);
->
->  mount("none", "/proc", "proc", 0, 0);
->  cfg = fopen("/proc/cmdline","r");
->  if (cfg) {
->    char *tmp;
->    if (fgets(buf,4096,cfg) && (tmp = strstr(buf,"enforcing="))) {
->      if (tmp == buf || isspace(*(tmp-1))) {
->        enforcing=atoi(tmp+10);
->      }
->    }
->    fclose(cfg);
->  }
-> #define MNT_DETACH 2
->  umount2("/proc",MNT_DETACH);
->
->  if (enforcing >=0)
->    *enforce = enforcing;
->  else if (seconfig == 1)
->    *enforce = 1;
->
->  if (mount("none", SELINUXMNT, "selinuxfs", 0, 0) < 0) {
->    if (errno == ENODEV) {
->      printf("SELinux not supported by kernel:
-> %s\n",SELINUXMNT,strerror(errno));
->      *enforce = 0;
->    } else {
->      printf("Failed to mount %s: %s\n",SELINUXMNT,strerror(errno));
->    }
->    return ret;
->  }
->
->  selinux_mnt = SELINUXMNT; /* set manually since we mounted it */
->
->  policy_version=security_policyvers();
->  if (policy_version < 0) {
->    printf( "Can't get policy version: %s\n", strerror(errno));
->    goto UMOUNT;
->  }
->
->  orig_enforce = rc = security_getenforce();
->  if (rc < 0) {
->    printf( "Can't get SELinux enforcement flag: %s\n", strerror(errno));
->    goto UMOUNT;
->  }
->  if (enforcing >= 0) {
->    *enforce = enforcing;
->  } else if (seconfig == -1) {
->    *enforce = 0;
->    rc = security_disable();
->    if (rc == 0) umount(SELINUXMNT);
->   if (rc < 0) {
->     rc = security_setenforce(0);
->     if (rc < 0) {
->       printf("Can't disable SELinux: %s\n", strerror(errno));
->       goto UMOUNT;
->      }
->    }
->    ret = 0;
->    goto UMOUNT;
->  } else if (seconfig >= 0) {
->    *enforce = seconfig;
->    if (orig_enforce != *enforce) {
->      rc = security_setenforce(seconfig);
->      if (rc < 0) {
->        printf("Can't set SELinux enforcement flag: %s\n", strerror(errno));
->        goto UMOUNT;
->      }
->   }
->  }
->
->  snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version);
->  fd = open(policy_file, O_RDONLY);
->  if (fd < 0) {
->    /* Check previous version to see if old policy is available
->     */
->    snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version-1);
->    fd = open(policy_file, O_RDONLY);
->    if (fd < 0) {
->      printf( "Can't open '%s.%d':  %s\n",
->          selinux_binary_policy_path(),policy_version,strerror(errno));
->      goto UMOUNT;
->    }
->  }
->
->  if (fstat(fd, &sb) < 0) {
->  printf("Can't stat '%s':  %s\n",
->        policy_file, strerror(errno));
->   goto UMOUNT;
->  }
->
->  map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
->  if (map == MAP_FAILED) {
->    printf( "Can't map '%s':  %s\n",
->       policy_file, strerror(errno));
->    goto UMOUNT;
->  }
->
->
->  /* Set booleans based on a booleans configuration file. */
->  ret = sepol_genbools(map, sb.st_size, selinux_booleans_path());
->  if (ret < 0) {
->    if (errno == ENOENT || errno == EINVAL) {
->      /* No booleans file or stale booleans in the file; non-fatal. */
->      printf("Warning!  Error while setting booleans:  %s\n"
->          , strerror(errno));
->    } else {
->      printf("Error while setting booleans:  %s\n",
->          strerror(errno));
->      goto UMOUNT;
->    }
->  }
->  printf("Loading security policy\n");
->  ret=security_load_policy(map, sb.st_size);
->  if (ret < 0) {
->    printf("security_load_policy failed\n");
->  }
->
->  UMOUNT:
->  /*umount(SELINUXMNT); */
->  if ( fd >= 0) {
->    close(fd);
->  }
->  return(ret);
-> }
-> #endif
->
-> /* Version information */
->
->
-> line 2818
-> #ifdef WITH_SELINUX
->       if (getenv("SELINUX_INIT") == NULL) {
->         putenv("SELINUX_INIT=YES");
->         if (load_policy(&enforcing) == 0 ) {
->           execv(myname, argv);
->         } else {
->           if (enforcing > 0) {
->             /* SELinux in enforcing mode but load_policy failed */
->             /* At this point, we probably can't open /dev/console, so
-> log() won't work */
->                   fprintf(stderr,"Enforcing mode requested but no
-> policy loaded. Halting now.\n");
->             exit(1);
->           }
->         }
->       }
-> #endif
->
->
->
-> and the Makefile has these in it:
->
-> line 12
-> CFLAGS  = -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX
->
-> line 52
->
-> ifeq ($(WITH_SELINUX),yes)
->  SELINUX_DEF=-DWITH_SELINUX
->  INIT_SELIBS=-lsepol -lselinux
->  SULOGIN_SELIBS=-lselinux
-> else
->  SELINUX_DEF=
->  INIT_SELIBS=
->  SULOGIN_SELIBS=
-> endif
->
->
-> line 71
-> init:           init.o init_utmp.o
->                $(CC) $(LDFLAGS) $(STATIC) -o $@ init.o init_utmp.o $(INIT_SELIBS)
->
-> line 103
-> init.o:         init.c init.h set.h reboot.h initreq.h
->                $(CC) -c $(CFLAGS) $(SELINUX_DEF) init.c
->
->
-> Seems I found a patch from 2003 that
-> did load the policy but segfaulted after that.
->
-> should I even bother with this since there are
-> newer approaches?
->
->
-> --
-> Justin P. Mattock
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+Heres a few output that might be usefull:
 
+# crontab -l
+5 8 * * * /opt/security/aide_scan/bin/aide_scan.sh
+/opt/security/aide_scan/cfg/aide_scan.conf > /dev/null 2>&1
 
+# ls -lZ /opt/security/aide_scan/bin/
+-rwxr-x---  root root root:object_r:aide_exec_t        aide_scan.sh
+# ls -lZ /var/spool/cron/root
+-rw-------  root root system_u:object_r:sysadm_cron_spool_t
+/var/spool/cron/root
 
--- 
-http://intrajp.no-ip.com/ Home Page
+# ls -lZ
+/etc/crontab
 
+-rw-r--r--  root root system_u:object_r:system_cron_spool_t /etc/crontab
+
+# cat /var/log/audit/audit.log
+
+type=AVC msg=audit(1250165101.793:1843): avc:  denied  { transition } for
+pid=16995 comm="sh" path="/opt/security/aide_scan/bin/aide_scan.sh" dev=dm-0
+ino=589841 scontext=root:sysadm_r:sysadm_crond_t:s0-s0:c0.c1023
+tcontext=root:system_r:aide_t:s0-s0:c0.c1023 tclass=process
+type=SYSCALL msg=audit(1250165101.793:1843): arch=c000003e syscall=59
+success=yes exit=0 a0=c07d0b0 a1=c07cff0 a2=c07c0d0 a3=3 items=0 ppid=16993
+pid=16995 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
+tty=(none) ses=239 comm="aide_scan.sh" exe="/bin/bash"
+subj=root:system_r:aide_t:s0-s0:c0.c1023 key=(null)
+type=CRED_DISP msg=audit(1250165101.800:1844): user pid=16990 uid=0 auid=0
+subj=system_u:system_r:crond_t:s0-s0:c0.c1023 msg='PAM: setcred acct="root"
+: exe="/usr/sbin/crond" (hostname=?, addr=?, terminal=cron res=success)'
+type=USER_END msg=audit(1250165101.800:1845): user pid=16990 uid=0 auid=0
+subj=system_u:system_r:crond_t:s0-s0:c0.c1023 msg='PAM: session close
+acct="root" : exe="/usr/sbin/crond" (hostname=?, addr=?, terminal=cron
+res=success)'
+
+# ps -eafZ | grep aide
+
+system_u:system_r:crond_t:SystemLow-SystemHigh root 17128 11042  0 08:16 ?
+00:00:00 crond
+
+root:sysadm_r:sysadm_crond_t:SystemLow-SystemHigh root 17129 17128  0 08:16
+? 00:00:00 /bin/sh -c /opt/security/aide_scan/bin/aide_scan.sh
+/opt/security/aide_scan/cfg/aide_scan.conf > /dev/null 2>&1
+
+root:system_r:aide_t:SystemLow-SystemHigh root 17130 17129  0 08:16 ?
+00:00:00 /bin/sh /opt/security/aide_scan/bin/aide_scan.sh
+/opt/security/aide_scan/cfg/aide_scan.conf
+
+root:system_r:aide_t:SystemLow-SystemHigh root 17155 17130 99 08:16 ?
+00:01:07 /usr/sbin/aide --config=/opt/security/aide_scan/cfg/aide.conf
+--check
+
+(As you can see, the process did transition to aide_t correctly in
+permissive mode.  However in enforcing mode, aide does not start at all from
+the cron job.)
+Anybody out there can shed some light on this problem?
+
+Thanks,
+
+Dan
+
+--001636c9356afd9c1904710512fa
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>Hi,</div>
+<div>=A0</div>
+<div>I&#39;m working on a SELinux policy for AIDE on REHL 5.3 running in St=
+rict mode.=A0 I am able to transition to aide_t fine when executed manually=
+.=A0 I am having trouble transitioning to aide_t when executing from a cron=
+ job.=A0 </div>
+
+<div>The cron job is trying to do the following transition:</div>
+<div>FROM: root:sysadm_r:sysadm_crond_t:s0-s0:c0.c1023 TO: root:system_r:ai=
+de_t:s0-s0:c0.c1023</div>
+<div>=A0</div>
+<div>Here&#39;s a snipplet of the important rules I have in place for the t=
+ransition in my aide.te:</div>
+<div>=A0</div>
+<div># When an administrator executes a process with the type of <br># $1_e=
+xec_t, the process transitions from sysadm_r to system_r. <br>role sysadm_r=
+;<br>allow sysadm_r system_r;<br>role_transition sysadm_r aide_exec_t syste=
+m_r;=A0 <br>
+role system_r types aide_t;<br>allow sysadm_crond_t aide_t:process transiti=
+on;</div>
+<div># Allow crontab to transition to aide_t<br>domain_auto_trans(system_cr=
+ond_t, aide_exec_t, aide_t)<br></div>
+<div>When the cronjob runs, it does not transition to aide_t in enforcing m=
+ode.=A0 Audit2Allow keeps suggesting &quot;allow sysadm_crond_t aide_t:proc=
+ess transition;&quot; even though I already have the rule in the policy.=A0=
+ It looks like its having trouble transitioning from sysadm_r to system_r (=
+I have the rules for that in the policy also).</div>
+
+<div>=A0</div>
+<div>Heres a few output that might be usefull:</div>
+<div>=A0</div># crontab -l<br>5 8 * * * /opt/security/aide_scan/bin/aide_sc=
+an.sh /opt/security/aide_scan/cfg/aide_scan.conf &gt; /dev/null 2&gt;&amp;1=
+<br>
+<div>=A0</div>
+<div># ls -lZ /opt/security/aide_scan/bin/<br>-rwxr-x---=A0 root root root:=
+object_r:aide_exec_t=A0=A0=A0=A0=A0=A0=A0 aide_scan.sh<br></div>
+<div># ls -lZ /var/spool/cron/root <br>-rw-------=A0 root root system_u:obj=
+ect_r:sysadm_cron_spool_t /var/spool/cron/root</div>
+<div>=A0</div>
+<div># ls -lZ /etc/crontab=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 <br>-rw-r--r--=A0 root =
+root system_u:object_r:system_cron_spool_t /etc/crontab</div>
+<div>=A0</div>
+<div># cat /var/log/audit/audit.log</div>
+<div>=A0</div>
+<div>type=3DAVC msg=3Daudit(1250165101.793:1843): avc:=A0 denied=A0 { trans=
+ition } for=A0 pid=3D16995 comm=3D&quot;sh&quot; path=3D&quot;/opt/security=
+/aide_scan/bin/aide_scan.sh&quot; dev=3Ddm-0 ino=3D589841 scontext=3Droot:s=
+ysadm_r:sysadm_crond_t:s0-s0:c0.c1023 tcontext=3Droot:system_r:aide_t:s0-s0=
+:c0.c1023 tclass=3Dprocess<br>
+type=3DSYSCALL msg=3Daudit(1250165101.793:1843): arch=3Dc000003e syscall=3D=
+59 success=3Dyes exit=3D0 a0=3Dc07d0b0 a1=3Dc07cff0 a2=3Dc07c0d0 a3=3D3 ite=
+ms=3D0 ppid=3D16993 pid=3D16995 auid=3D0 uid=3D0 gid=3D0 euid=3D0 suid=3D0 =
+fsuid=3D0 egid=3D0 sgid=3D0 fsgid=3D0 tty=3D(none) ses=3D239 comm=3D&quot;a=
+ide_scan.sh&quot; exe=3D&quot;/bin/bash&quot; subj=3Droot:system_r:aide_t:s=
+0-s0:c0.c1023 key=3D(null)<br>
+type=3DCRED_DISP msg=3Daudit(1250165101.800:1844): user pid=3D16990 uid=3D0=
+ auid=3D0 subj=3Dsystem_u:system_r:crond_t:s0-s0:c0.c1023 msg=3D&#39;PAM: s=
+etcred acct=3D&quot;root&quot; : exe=3D&quot;/usr/sbin/crond&quot; (hostnam=
+e=3D?, addr=3D?, terminal=3Dcron res=3Dsuccess)&#39;<br>
+type=3DUSER_END msg=3Daudit(1250165101.800:1845): user pid=3D16990 uid=3D0 =
+auid=3D0 subj=3Dsystem_u:system_r:crond_t:s0-s0:c0.c1023 msg=3D&#39;PAM: se=
+ssion close acct=3D&quot;root&quot; : exe=3D&quot;/usr/sbin/crond&quot; (ho=
+stname=3D?, addr=3D?, terminal=3Dcron res=3Dsuccess)&#39;</div>
+
+<div>=A0</div>
+<div># ps -eafZ | grep aide</div>
+<div>=A0</div>
+<div>system_u:system_r:crond_t:SystemLow-SystemHigh root 17128 11042=A0 0 0=
+8:16 ? 00:00:00 crond</div>
+<div><br>root:sysadm_r:sysadm_crond_t:SystemLow-SystemHigh root 17129 17128=
+=A0 0 08:16 ? 00:00:00 /bin/sh -c /opt/security/aide_scan/bin/aide_scan.sh =
+/opt/security/aide_scan/cfg/aide_scan.conf &gt; /dev/null 2&gt;&amp;1</div>
+
+<div><br>root:system_r:aide_t:SystemLow-SystemHigh root 17130 17129=A0 0 08=
+:16 ?=A0 </div>
+<div>00:00:00 /bin/sh /opt/security/aide_scan/bin/aide_scan.sh /opt/securit=
+y/aide_scan/cfg/aide_scan.conf</div>
+<div><br>root:system_r:aide_t:SystemLow-SystemHigh root 17155 17130 99 08:1=
+6 ?=A0 00:01:07 /usr/sbin/aide --config=3D/opt/security/aide_scan/cfg/aide.=
+conf --check</div>
+<div>=A0</div>
+<div>(As you can see, the process did transition to aide_t correctly in per=
+missive mode.=A0 However in enforcing mode, aide does not start at all from=
+ the cron job.)<br></div>
+<div>Anybody out there can shed some light on this problem?</div>
+<div>=A0</div>
+<div>Thanks,</div>
+<div>=A0</div>
+<div>Dan</div>
+
+--001636c9356afd9c1904710512fa--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
