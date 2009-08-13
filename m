@@ -1,138 +1,270 @@
-Message-ID: <4A844ABB.3050001@redhat.com>
-Date: Thu, 13 Aug 2009 13:17:47 -0400
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7DHa17S015682
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 13:36:02 -0400
+Received: from mx2.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7DHZWIS009411
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 17:35:32 GMT
+Message-ID: <4A844EFD.7030000@redhat.com>
+Date: Thu, 13 Aug 2009 13:35:57 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        sds@tycho.nsa.gov, davem@davemloft.net,
-        shemminger@linux-foundation.org, kees@ubuntu.com, morgan@kernel.org,
-        casey@schaufler-ca.com
-Subject: Re: [PATCH 2/3] security: introducing security_request_module
-References: <20090813033537.27287.18981.stgit@paris.rdu.redhat.com> <20090813033543.27287.95970.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20090813033543.27287.95970.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain; charset=UTF-8
+To: Justin Mattock <justinmattock@gmail.com>
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: error: too many arguments to function 'security_getenforce'
+References: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
+In-Reply-To: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/12/2009 11:35 PM, Eric Paris wrote:
-> Calling request_module() will trigger a userspace upcall which will load a
-> new module into the kernel.  This can be a dangerous event if the process
-> able to trigger request_module() is able to control either the modprobe
-> binary or the module binary.  This patch adds a new security hook to
-> request_module() which can be used by an LSM to control a processes ability
-> to call request_module().
+On 08/12/2009 11:30 PM, Justin Mattock wrote:
+> Hello,
+> I've spent the past few days trying to
+> find a correct patch for sysvinit-2.86 to load
+> the policy. but seems to keep hitting errors.
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
+> I've made it as far as this:
+> gcc -c -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX  init.c
+> init.c: In function 'load_policy':
+> init.c:107:3: error: too many arguments to function 'security_getenforce'
+> init.c:120:0: warning: "MNT_DETACH" redefined
+> /usr/include/sys/mount.h:102:0: note: this is the location of the
+> previous definition
+> init.c:130:7: warning: too many arguments for format
+> init.c:206:3: warning: passing argument 3 of 'sepol_genbools' discards
+> qualifiers from pointer target type
+> /usr/include/sepol/booleans.h:16:12: note: expected 'char *' but
+> argument is of type 'const char *'
+> init.c: In function 're_exec':
+> init.c:2040:2: warning: missing sentinel in function call
+> make: *** [init.o] Error 1
+> make: Leaving directory `/home/justin/LFS/sysv/sysvinit-2.86/src'
 > 
->  include/linux/security.h |   10 ++++++++++
->  kernel/kmod.c            |    4 ++++
->  security/capability.c    |    6 ++++++
->  security/security.c      |    5 +++++
->  4 files changed, 25 insertions(+), 0 deletions(-)
+> seems this is the only error showing up if I use the -i option
+> from make.
 > 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index d5f6578..34c5465 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -678,6 +678,9 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	@inode points to the inode to use as a reference.
->   *	The current task must be the one that nominated @inode.
->   *	Return 0 if successful.
-> + * @kernel_module_request:
-> + *	Ability to trigger the kernel to automatically upcall to userspace for
-> + *	userspace to load a kernel module with the given name.
->   * @task_setuid:
->   *	Check permission before setting one or more of the user identity
->   *	attributes of the current process.  The @flags parameter indicates
-> @@ -1500,6 +1503,7 @@ struct security_operations {
->  	void (*cred_commit)(struct cred *new, const struct cred *old);
->  	int (*kernel_act_as)(struct cred *new, u32 secid);
->  	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
-> +	int (*kernel_module_request)(void);
->  	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
->  	int (*task_fix_setuid) (struct cred *new, const struct cred *old,
->  				int flags);
-> @@ -1755,6 +1759,7 @@ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
->  void security_commit_creds(struct cred *new, const struct cred *old);
->  int security_kernel_act_as(struct cred *new, u32 secid);
->  int security_kernel_create_files_as(struct cred *new, struct inode *inode);
-> +int security_kernel_module_request(void);
->  int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
->  int security_task_fix_setuid(struct cred *new, const struct cred *old,
->  			     int flags);
-> @@ -2306,6 +2311,11 @@ static inline int security_kernel_create_files_as(struct cred *cred,
->  	return 0;
+> the patch looks like this:
+> (only init.c/Makefile for now until I can get this
+> correct)
+> 
+> starting at line 83
+> 
+> 		} while(0)
+> 
+> #ifdef WITH_SELINUX
+> #include <sys/mman.h>
+> #include <selinux/selinux.h>
+> #include <sepol/sepol.h>
+> #include <sys/mount.h>
+> 
+> /* Mount point for selinuxfs. */
+> #define SELINUXMNT "/selinux/"
+> int enforcing = -1;            /* SELinux enforcing mode */
+> 
+> 
+> static int load_policy(int *enforce)
+> {
+>   int fd=-1,ret=-1;
+>   int rc=0, orig_enforce;
+>   struct stat sb;
+>   void *map;
+>   char policy_file[PATH_MAX];
+>   int policy_version=0;
+>   extern char *selinux_mnt;
+>   FILE *cfg;
+>   char buf[4096];
+>   int seconfig = -2;
+> 
+>   security_getenforce(&seconfig);
+> 
+>   mount("none", "/proc", "proc", 0, 0);
+>  cfg = fopen("/proc/cmdline","r");
+>   if (cfg) {
+>     char *tmp;
+>     if (fgets(buf,4096,cfg) && (tmp = strstr(buf,"enforcing="))) {
+>       if (tmp == buf || isspace(*(tmp-1))) {
+>         enforcing=atoi(tmp+10);
+>       }
+>     }
+>     fclose(cfg);
+>   }
+> #define MNT_DETACH 2
+>   umount2("/proc",MNT_DETACH);
+> 
+>   if (enforcing >=0)
+>     *enforce = enforcing;
+>   else if (seconfig == 1)
+>     *enforce = 1;
+> 
+>   if (mount("none", SELINUXMNT, "selinuxfs", 0, 0) < 0) {
+>     if (errno == ENODEV) {
+>       printf("SELinux not supported by kernel:
+> %s\n",SELINUXMNT,strerror(errno));
+>       *enforce = 0;
+>     } else {
+>       printf("Failed to mount %s: %s\n",SELINUXMNT,strerror(errno));
+>     }
+>     return ret;
+>   }
+> 
+>   selinux_mnt = SELINUXMNT; /* set manually since we mounted it */
+> 
+>   policy_version=security_policyvers();
+>   if (policy_version < 0) {
+>     printf( "Can't get policy version: %s\n", strerror(errno));
+>     goto UMOUNT;
+>   }
+> 
+>   orig_enforce = rc = security_getenforce();
+>   if (rc < 0) {
+>     printf( "Can't get SELinux enforcement flag: %s\n", strerror(errno));
+>     goto UMOUNT;
+>   }
+>   if (enforcing >= 0) {
+>     *enforce = enforcing;
+>   } else if (seconfig == -1) {
+>     *enforce = 0;
+>     rc = security_disable();
+>     if (rc == 0) umount(SELINUXMNT);
+>    if (rc < 0) {
+>      rc = security_setenforce(0);
+>      if (rc < 0) {
+>        printf("Can't disable SELinux: %s\n", strerror(errno));
+>        goto UMOUNT;
+>       }
+>     }
+>     ret = 0;
+>     goto UMOUNT;
+>   } else if (seconfig >= 0) {
+>     *enforce = seconfig;
+>     if (orig_enforce != *enforce) {
+>       rc = security_setenforce(seconfig);
+>       if (rc < 0) {
+>         printf("Can't set SELinux enforcement flag: %s\n", strerror(errno));
+>         goto UMOUNT;
+>       }
+>    }
+>   }
+> 
+>   snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version);
+>   fd = open(policy_file, O_RDONLY);
+>   if (fd < 0) {
+>     /* Check previous version to see if old policy is available
+>      */
+>     snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version-1);
+>     fd = open(policy_file, O_RDONLY);
+>     if (fd < 0) {
+>       printf( "Can't open '%s.%d':  %s\n",
+>           selinux_binary_policy_path(),policy_version,strerror(errno));
+>       goto UMOUNT;
+>     }
+>   }
+> 
+>   if (fstat(fd, &sb) < 0) {
+>   printf("Can't stat '%s':  %s\n",
+>         policy_file, strerror(errno));
+>    goto UMOUNT;
 >  }
->  
-> +static inline int security_kernel_module_request(void)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline int security_task_setuid(uid_t id0, uid_t id1, uid_t id2,
->  				       int flags)
->  {
-> diff --git a/kernel/kmod.c b/kernel/kmod.c
-> index 385c31a..5a7ae57 100644
-> --- a/kernel/kmod.c
-> +++ b/kernel/kmod.c
-> @@ -78,6 +78,10 @@ int __request_module(bool wait, const char *fmt, ...)
->  #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
->  	static int kmod_loop_msg;
->  
-> +	ret = security_kernel_module_request();
-> +	if (ret)
-> +		return ret;
-> +
->  	va_start(args, fmt);
->  	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
->  	va_end(args);
-> diff --git a/security/capability.c b/security/capability.c
-> index 4f23f4f..06400cf 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -396,6 +396,11 @@ static int cap_kernel_create_files_as(struct cred *new, struct inode *inode)
->  	return 0;
->  }
->  
-> +static int cap_kernel_module_request(void)
-> +{
-> +	return 0;
-> +}
-> +
->  static int cap_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
->  {
->  	return 0;
-> @@ -961,6 +966,7 @@ void security_fixup_ops(struct security_operations *ops)
->  	set_to_cap_if_null(ops, cred_commit);
->  	set_to_cap_if_null(ops, kernel_act_as);
->  	set_to_cap_if_null(ops, kernel_create_files_as);
-> +	set_to_cap_if_null(ops, kernel_module_request);
->  	set_to_cap_if_null(ops, task_setuid);
->  	set_to_cap_if_null(ops, task_fix_setuid);
->  	set_to_cap_if_null(ops, task_setgid);
-> diff --git a/security/security.c b/security/security.c
-> index b98c684..f88eaf6 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -709,6 +709,11 @@ int security_kernel_create_files_as(struct cred *new, struct inode *inode)
->  	return security_ops->kernel_create_files_as(new, inode);
->  }
->  
-> +int security_kernel_module_request(void)
-> +{
-> +	return security_ops->kernel_module_request();
-> +}
-> +
->  int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
->  {
->  	return security_ops->task_setuid(id0, id1, id2, flags);
 > 
-Every domain that I know of that currently causes this sys_module has net_admin privs, so this will allow us to run a tighter policy.
+>   map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+>   if (map == MAP_FAILED) {
+>     printf( "Can't map '%s':  %s\n",
+>        policy_file, strerror(errno));
+>     goto UMOUNT;
+>   }
+> 
+> 
+>   /* Set booleans based on a booleans configuration file. */
+>   ret = sepol_genbools(map, sb.st_size, selinux_booleans_path());
+>   if (ret < 0) {
+>     if (errno == ENOENT || errno == EINVAL) {
+>       /* No booleans file or stale booleans in the file; non-fatal. */
+>       printf("Warning!  Error while setting booleans:  %s\n"
+>           , strerror(errno));
+>     } else {
+>       printf("Error while setting booleans:  %s\n",
+>           strerror(errno));
+>       goto UMOUNT;
+>     }
+>  }
+>   printf("Loading security policy\n");
+>   ret=security_load_policy(map, sb.st_size);
+>   if (ret < 0) {
+>     printf("security_load_policy failed\n");
+>   }
+> 
+>  UMOUNT:
+>   /*umount(SELINUXMNT); */
+>   if ( fd >= 0) {
+>     close(fd);
+>  }
+>   return(ret);
+> }
+> #endif
+> 
+> /* Version information */
+> 
+> 
+> line 2818
+> #ifdef WITH_SELINUX
+>        if (getenv("SELINUX_INIT") == NULL) {
+>          putenv("SELINUX_INIT=YES");
+>          if (load_policy(&enforcing) == 0 ) {
+>            execv(myname, argv);
+>          } else {
+>            if (enforcing > 0) {
+>              /* SELinux in enforcing mode but load_policy failed */
+>              /* At this point, we probably can't open /dev/console, so
+> log() won't work */
+>                    fprintf(stderr,"Enforcing mode requested but no
+> policy loaded. Halting now.\n");
+>              exit(1);
+>            }
+>          }
+>        }
+> #endif
+> 
+> 
+> 
+> and the Makefile has these in it:
+> 
+> line 12
+> CFLAGS	= -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX
+> 
+> line 52
+> 
+> ifeq ($(WITH_SELINUX),yes)
+>   SELINUX_DEF=-DWITH_SELINUX
+>   INIT_SELIBS=-lsepol -lselinux
+>   SULOGIN_SELIBS=-lselinux
+> else
+>   SELINUX_DEF=
+>   INIT_SELIBS=
+>   SULOGIN_SELIBS=
+> endif
+> 
+> 
+> line 71
+> init:		init.o init_utmp.o
+> 		$(CC) $(LDFLAGS) $(STATIC) -o $@ init.o init_utmp.o $(INIT_SELIBS)
+> 
+> line 103
+> init.o:		init.c init.h set.h reboot.h initreq.h
+> 		$(CC) -c $(CFLAGS) $(SELINUX_DEF) init.c
+> 
+> 
+> Seems I found a patch from 2003 that
+> did load the policy but segfaulted after that.
+> 
+> should I even bother with this since there are
+> newer approaches?
+> 
+> 
+Does
 
+selinux_mkload_policy(1);
 
+Work for you?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
