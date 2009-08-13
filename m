@@ -1,4 +1,4 @@
-Date: Thu, 13 Aug 2009 09:01:58 -0500
+Date: Thu, 13 Aug 2009 09:03:06 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Eric Paris <eparis@redhat.com>
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -6,114 +6,27 @@ Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         sds@tycho.nsa.gov, davem@davemloft.net,
         shemminger@linux-foundation.org, kees@ubuntu.com, morgan@kernel.org,
         casey@schaufler-ca.com, dwalsh@redhat.com
-Subject: Re: [PATCH 1/3] Networking: use CAP_NET_ADMIN when deciding to
-	call request_module
-Message-ID: <20090813140158.GB30731@us.ibm.com>
-References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com>
+Subject: Re: [PATCH 2/3] security: introducing security_request_module
+Message-ID: <20090813140306.GC30731@us.ibm.com>
+References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com> <20090813134457.29186.7182.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20090813134457.29186.7182.stgit@paris.rdu.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting Eric Paris (eparis@redhat.com):
-> The networking code checks CAP_SYS_MODULE before using request_module() to
-> try to load a kernel module.  While this seems reasonable it's actually
-> weakening system security since we have to allow CAP_SYS_MODULE for things
-> like /sbin/ip and bluetoothd which need to be able to trigger module loads.
-> CAP_SYS_MODULE actually grants those binaries the ability to directly load
-> any code into the kernel.  We should instead be protecting modprobe and the
-> modules on disk, rather than granting random programs the ability to load code
-> directly into the kernel.  Instead we are going to gate those networking checks
-> on CAP_NET_ADMIN which still limits them to root but which does not grant
-> those processes the ability to load arbitrary code into the kernel.
+> Calling request_module() will trigger a userspace upcall which will load a
+> new module into the kernel.  This can be a dangerous event if the process
+> able to trigger request_module() is able to control either the modprobe
+> binary or the module binary.  This patch adds a new security hook to
+> request_module() which can be used by an LSM to control a processes ability
+> to call request_module().
 
-Right, so we want to check that the caller has the rights to perform the
-action which (in the end) requires the module load, not the module load
-itself.  CAP_SYS_MODULE should be reserved for callers which specify a
-module (full pathname) to load.
+Is there a specific case in which you'd want to deny this ability
+from a real task?
 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-
-Acked-by: Serge Hallyn <serue@us.ibm.com>
-
-> ---
-> 
->  drivers/staging/comedi/comedi_fops.c |    8 ++++----
->  net/core/dev.c                       |    2 +-
->  net/ipv4/tcp_cong.c                  |    4 ++--
->  3 files changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/staging/comedi/comedi_fops.c b/drivers/staging/comedi/comedi_fops.c
-> index 42e4bc4..f54bb9b 100644
-> --- a/drivers/staging/comedi/comedi_fops.c
-> +++ b/drivers/staging/comedi/comedi_fops.c
-> @@ -1772,12 +1772,12 @@ static int comedi_open(struct inode *inode, struct file *file)
->  	mutex_lock(&dev->mutex);
->  	if (dev->attached)
->  		goto ok;
-> -	if (!capable(CAP_SYS_MODULE) && dev->in_request_module) {
-> +	if (!capable(CAP_NET_ADMIN) && dev->in_request_module) {
->  		DPRINTK("in request module\n");
->  		mutex_unlock(&dev->mutex);
->  		return -ENODEV;
->  	}
-> -	if (capable(CAP_SYS_MODULE) && dev->in_request_module)
-> +	if (capable(CAP_NET_ADMIN) && dev->in_request_module)
->  		goto ok;
-> 
->  	dev->in_request_module = 1;
-> @@ -1790,8 +1790,8 @@ static int comedi_open(struct inode *inode, struct file *file)
-> 
->  	dev->in_request_module = 0;
-> 
-> -	if (!dev->attached && !capable(CAP_SYS_MODULE)) {
-> -		DPRINTK("not attached and not CAP_SYS_MODULE\n");
-> +	if (!dev->attached && !capable(CAP_NET_ADMIN)) {
-> +		DPRINTK("not attached and not CAP_NET_ADMIN\n");
->  		mutex_unlock(&dev->mutex);
->  		return -ENODEV;
->  	}
-> diff --git a/net/core/dev.c b/net/core/dev.c
-> index 09fb03f..2604db9 100644
-> --- a/net/core/dev.c
-> +++ b/net/core/dev.c
-> @@ -1031,7 +1031,7 @@ void dev_load(struct net *net, const char *name)
->  	dev = __dev_get_by_name(net, name);
->  	read_unlock(&dev_base_lock);
-> 
-> -	if (!dev && capable(CAP_SYS_MODULE))
-> +	if (!dev && capable(CAP_NET_ADMIN))
->  		request_module("%s", name);
->  }
-> 
-> diff --git a/net/ipv4/tcp_cong.c b/net/ipv4/tcp_cong.c
-> index e92beb9..6428b34 100644
-> --- a/net/ipv4/tcp_cong.c
-> +++ b/net/ipv4/tcp_cong.c
-> @@ -116,7 +116,7 @@ int tcp_set_default_congestion_control(const char *name)
->  	spin_lock(&tcp_cong_list_lock);
->  	ca = tcp_ca_find(name);
->  #ifdef CONFIG_MODULES
-> -	if (!ca && capable(CAP_SYS_MODULE)) {
-> +	if (!ca && capable(CAP_NET_ADMIN)) {
->  		spin_unlock(&tcp_cong_list_lock);
-> 
->  		request_module("tcp_%s", name);
-> @@ -246,7 +246,7 @@ int tcp_set_congestion_control(struct sock *sk, const char *name)
-> 
->  #ifdef CONFIG_MODULES
->  	/* not found attempt to autoload module */
-> -	if (!ca && capable(CAP_SYS_MODULE)) {
-> +	if (!ca && capable(CAP_NET_ADMIN)) {
->  		rcu_read_unlock();
->  		request_module("tcp_%s", name);
->  		rcu_read_lock();
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
