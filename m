@@ -1,77 +1,143 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7DIxk49025482
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 14:59:47 -0400
-Received: from rv-out-0708.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7DIxFIS009719
-	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 18:59:15 GMT
-Received: by rv-out-0708.google.com with SMTP id c5so267434rvf.54
-        for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 11:59:45 -0700 (PDT)
-Message-ID: <4A8462B6.7020503@gmail.com>
-Date: Thu, 13 Aug 2009 12:00:06 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Date: Fri, 14 Aug 2009 08:55:53 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        Stephen Smalley <sds@tycho.nsa.gov>, shemminger@linux-foundation.org,
+        kees@ubuntu.com, morgan@kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 1/3] Networking: use CAP_NET_ADMIN when deciding to call
+ request_module
+In-Reply-To: <200908131445.37263.paul.moore@hp.com>
+Message-ID: <alpine.LRH.2.00.0908140854410.11550@tundra.namei.org>
+References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com> <200908131445.37263.paul.moore@hp.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: error: too many arguments to function 'security_getenforce'
-References: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com> <4A844EFD.7030000@redhat.com> <4A845612.1070907@gmail.com> <4A8457D9.60908@redhat.com>
-In-Reply-To: <4A8457D9.60908@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> On 08/13/2009 02:06 PM, Justin P. Mattock wrote:
->    
->> Daniel J Walsh wrote:
->>      
->>> Does
->>>
->>> selinux_mkload_policy(1);
->>>
->>> Work for you?
->>>
->>>
->>>        
->> I clipped part of the message to keep
->> things clean.
->>
->> I'm going to be honest, I'm not that yet skilled
->> in fixing something like this.
->>
->> with selinux_mkload_policy(1)
->> were would I put this?
->>
->> Justin P. Mattock
->>
->>
->>
->> -- 
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->> with
->> the words "unsubscribe selinux" without quotes as the message.
->>      
->
-> Actually the function you probably want
-> selinux_init_load_policy
->
-> I attached the patch we used to use for sysvinit, before we moved to loading policy in the initrd.
->
->
->
->    
-you are the renaissance man...
+Any nacks/acks from netdev folk?
 
-finally after racking my brain around this one
-init finally loads the policy, of course  with your assistance.
+It looks like the right thing to me.
 
-I owe you a nice cold one, just let me know if your
-ever in the ventura county area.
-(or if I head up to silicon valley just name your location of choice).
+On Thu, 13 Aug 2009, Paul Moore wrote:
 
-Thank you for this.
+> On Thursday 13 August 2009 09:44:51 am Eric Paris wrote:
+> > The networking code checks CAP_SYS_MODULE before using request_module() to
+> > try to load a kernel module.  While this seems reasonable it's actually
+> > weakening system security since we have to allow CAP_SYS_MODULE for things
+> > like /sbin/ip and bluetoothd which need to be able to trigger module loads.
+> > CAP_SYS_MODULE actually grants those binaries the ability to directly load
+> > any code into the kernel.  We should instead be protecting modprobe and the
+> > modules on disk, rather than granting random programs the ability to load
+> > code directly into the kernel.  Instead we are going to gate those
+> > networking checks on CAP_NET_ADMIN which still limits them to root but
+> > which does not grant those processes the ability to load arbitrary code
+> > into the kernel.
+> >
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> Sounds and looks reasonable to me.
+> 
+> Acked-by: Paul Moore <paul.moore@hp.com>
+> 
+> > ---
+> >
+> >  drivers/staging/comedi/comedi_fops.c |    8 ++++----
+> >  net/core/dev.c                       |    2 +-
+> >  net/ipv4/tcp_cong.c                  |    4 ++--
+> >  3 files changed, 7 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/drivers/staging/comedi/comedi_fops.c
+> > b/drivers/staging/comedi/comedi_fops.c index 42e4bc4..f54bb9b 100644
+> > --- a/drivers/staging/comedi/comedi_fops.c
+> > +++ b/drivers/staging/comedi/comedi_fops.c
+> > @@ -1772,12 +1772,12 @@ static int comedi_open(struct inode *inode, struct
+> > file *file) mutex_lock(&dev->mutex);
+> >  	if (dev->attached)
+> >  		goto ok;
+> > -	if (!capable(CAP_SYS_MODULE) && dev->in_request_module) {
+> > +	if (!capable(CAP_NET_ADMIN) && dev->in_request_module) {
+> >  		DPRINTK("in request module\n");
+> >  		mutex_unlock(&dev->mutex);
+> >  		return -ENODEV;
+> >  	}
+> > -	if (capable(CAP_SYS_MODULE) && dev->in_request_module)
+> > +	if (capable(CAP_NET_ADMIN) && dev->in_request_module)
+> >  		goto ok;
+> >
+> >  	dev->in_request_module = 1;
+> > @@ -1790,8 +1790,8 @@ static int comedi_open(struct inode *inode, struct
+> > file *file)
+> >
+> >  	dev->in_request_module = 0;
+> >
+> > -	if (!dev->attached && !capable(CAP_SYS_MODULE)) {
+> > -		DPRINTK("not attached and not CAP_SYS_MODULE\n");
+> > +	if (!dev->attached && !capable(CAP_NET_ADMIN)) {
+> > +		DPRINTK("not attached and not CAP_NET_ADMIN\n");
+> >  		mutex_unlock(&dev->mutex);
+> >  		return -ENODEV;
+> >  	}
+> > diff --git a/net/core/dev.c b/net/core/dev.c
+> > index 09fb03f..2604db9 100644
+> > --- a/net/core/dev.c
+> > +++ b/net/core/dev.c
+> > @@ -1031,7 +1031,7 @@ void dev_load(struct net *net, const char *name)
+> >  	dev = __dev_get_by_name(net, name);
+> >  	read_unlock(&dev_base_lock);
+> >
+> > -	if (!dev && capable(CAP_SYS_MODULE))
+> > +	if (!dev && capable(CAP_NET_ADMIN))
+> >  		request_module("%s", name);
+> >  }
+> >
+> > diff --git a/net/ipv4/tcp_cong.c b/net/ipv4/tcp_cong.c
+> > index e92beb9..6428b34 100644
+> > --- a/net/ipv4/tcp_cong.c
+> > +++ b/net/ipv4/tcp_cong.c
+> > @@ -116,7 +116,7 @@ int tcp_set_default_congestion_control(const char
+> > *name) spin_lock(&tcp_cong_list_lock);
+> >  	ca = tcp_ca_find(name);
+> >  #ifdef CONFIG_MODULES
+> > -	if (!ca && capable(CAP_SYS_MODULE)) {
+> > +	if (!ca && capable(CAP_NET_ADMIN)) {
+> >  		spin_unlock(&tcp_cong_list_lock);
+> >
+> >  		request_module("tcp_%s", name);
+> > @@ -246,7 +246,7 @@ int tcp_set_congestion_control(struct sock *sk, const
+> > char *name)
+> >
+> >  #ifdef CONFIG_MODULES
+> >  	/* not found attempt to autoload module */
+> > -	if (!ca && capable(CAP_SYS_MODULE)) {
+> > +	if (!ca && capable(CAP_NET_ADMIN)) {
+> >  		rcu_read_unlock();
+> >  		request_module("tcp_%s", name);
+> >  		rcu_read_lock();
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-security-module" in the body of a message to
+> > majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> -- 
+> paul moore
+> linux @ hp
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Justin P. Mattock
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
