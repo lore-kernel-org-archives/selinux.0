@@ -1,88 +1,265 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7CN7prk013553
-	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 19:07:51 -0400
-Received: from e39.co.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7CN7M5k011516
-	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 23:07:22 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e39.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n7CN2pKk017374
-	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 17:02:51 -0600
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n7CN7kg5179460
-	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 17:07:46 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n7CN7jlV023379
-	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 17:07:45 -0600
-Date: Wed, 12 Aug 2009 18:07:49 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH v2 2/2] selinux: Support for the new TUN LSM hooks
-Message-ID: <20090812230749.GA11633@us.ibm.com>
-References: <20090810172238.7946.34247.stgit@flek.lan> <20090810172850.7946.25175.stgit@flek.lan> <20090812221440.GA8524@us.ibm.com> <200908121855.24061.paul.moore@hp.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7D3UBxA032581
+	for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 23:30:11 -0400
+Received: from mail-yx0-f177.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7D3VFtt019848
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 03:31:15 GMT
+Received: by yxe7 with SMTP id 7so639445yxe.32
+        for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2009 20:30:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200908121855.24061.paul.moore@hp.com>
+Date: Wed, 12 Aug 2009 20:30:10 -0700
+Message-ID: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com>
+Subject: error: too many arguments to function 'security_getenforce'
+From: Justin Mattock <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Paul Moore (paul.moore@hp.com):
-> On Wednesday 12 August 2009 06:14:40 pm Serge E. Hallyn wrote:
-> > Quoting Paul Moore (paul.moore@hp.com):
-> > > +static int selinux_tun_dev_attach(struct sock *sk)
-> > > +{
-> > > +	struct sk_security_struct *sksec = sk->sk_security;
-> > > +	u32 sid = current_sid();
-> > > +	int err;
-> > > +
-> > > +	err = avc_has_perm(sid, sksec->sid, SECCLASS_TUN_SOCKET,
-> > > +			   TUN_SOCKET__RELABELFROM, NULL);
-> > > +	if (err)
-> > > +		return err;
-> > > +	err = avc_has_perm(sid, sid, SECCLASS_RAWIP_SOCKET,
-> >
-> > Was RAWIP on purpose here?
-> 
-> Nope, a mistake on my part that I hadn't caught yet.  Thanks.
-> 
-> > > +			   TUN_SOCKET__RELABELTO, NULL);
-> > > +	if (err)
-> > > +		return err;
-> > > +
-> > > +	sksec->sid = sid;
-> > > +
-> > > +	return 0;
-> > > +}
-> >
-> > IIUC it is possible for multiple processes to attach to the same
-> > tun device.  Will it get confusing/incorrect to have each attach
-> > potentially (if tasks have different sids) relabel?
-> 
-> I may be reading the code wrong, but in drivers/net/tun.c:tun_attach() the 
-> code checks to see if the TUN device is already in use and if it is then the 
-> attach fails with -EBUSY (check where the tun_device->tfile is examined).  I 
+Hello,
+I've spent the past few days trying to
+find a correct patch for sysvinit-2.86 to load
+the policy. but seems to keep hitting errors.
 
-Ah yes, you're right - I saw the check for (ifr->ifr_flags & IFF_TUN_EXCL) in
-the attach path in tun_set_iff, and missed this one.
+I've made it as far as this:
+gcc -c -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX  init.c
+init.c: In function 'load_policy':
+init.c:107:3: error: too many arguments to function 'security_getenforce'
+init.c:120:0: warning: "MNT_DETACH" redefined
+/usr/include/sys/mount.h:102:0: note: this is the location of the
+previous definition
+init.c:130:7: warning: too many arguments for format
+init.c:206:3: warning: passing argument 3 of 'sepol_genbools' discards
+qualifiers from pointer target type
+/usr/include/sepol/booleans.h:16:12: note: expected 'char *' but
+argument is of type 'const char *'
+init.c: In function 're_exec':
+init.c:2040:2: warning: missing sentinel in function call
+make: *** [init.o] Error 1
+make: Leaving directory `/home/justin/LFS/sysv/sysvinit-2.86/src'
 
-> believe this should ensure that only one process at a time has access to the 
-> TUN device so we shouldn't have to worry about a TUN socket getting relabeled 
-> while it is currently in use.  As far as persistent TUN devices getting 
-> relabeled when a new process attaches to them, that is what we are trying to 
-> accomplish here so that the network traffic being sent via the TUN device is 
-> labeled according to the currently attached process; this is consistent with 
-> how SELinux currently labels locally generated outbound traffic - outbound 
-> packets inherit their security label from the sending process via the 
-> originating socket/sock.
+seems this is the only error showing up if I use the -i option
+from make.
 
-Ok, thanks.  To my untrained eye the class addition looks right too, so
-with the trivial change:
+the patch looks like this:
+(only init.c/Makefile for now until I can get this
+correct)
 
-Acked-by: Serge Hallyn <serue@us.ibm.com>
+starting at line 83
 
-thanks,
--serge
+		} while(0)
+
+#ifdef WITH_SELINUX
+#include <sys/mman.h>
+#include <selinux/selinux.h>
+#include <sepol/sepol.h>
+#include <sys/mount.h>
+
+/* Mount point for selinuxfs. */
+#define SELINUXMNT "/selinux/"
+int enforcing = -1;            /* SELinux enforcing mode */
+
+
+static int load_policy(int *enforce)
+{
+  int fd=-1,ret=-1;
+  int rc=0, orig_enforce;
+  struct stat sb;
+  void *map;
+  char policy_file[PATH_MAX];
+  int policy_version=0;
+  extern char *selinux_mnt;
+  FILE *cfg;
+  char buf[4096];
+  int seconfig = -2;
+
+  security_getenforce(&seconfig);
+
+  mount("none", "/proc", "proc", 0, 0);
+ cfg = fopen("/proc/cmdline","r");
+  if (cfg) {
+    char *tmp;
+    if (fgets(buf,4096,cfg) && (tmp = strstr(buf,"enforcing="))) {
+      if (tmp == buf || isspace(*(tmp-1))) {
+        enforcing=atoi(tmp+10);
+      }
+    }
+    fclose(cfg);
+  }
+#define MNT_DETACH 2
+  umount2("/proc",MNT_DETACH);
+
+  if (enforcing >=0)
+    *enforce = enforcing;
+  else if (seconfig == 1)
+    *enforce = 1;
+
+  if (mount("none", SELINUXMNT, "selinuxfs", 0, 0) < 0) {
+    if (errno == ENODEV) {
+      printf("SELinux not supported by kernel:
+%s\n",SELINUXMNT,strerror(errno));
+      *enforce = 0;
+    } else {
+      printf("Failed to mount %s: %s\n",SELINUXMNT,strerror(errno));
+    }
+    return ret;
+  }
+
+  selinux_mnt = SELINUXMNT; /* set manually since we mounted it */
+
+  policy_version=security_policyvers();
+  if (policy_version < 0) {
+    printf( "Can't get policy version: %s\n", strerror(errno));
+    goto UMOUNT;
+  }
+
+  orig_enforce = rc = security_getenforce();
+  if (rc < 0) {
+    printf( "Can't get SELinux enforcement flag: %s\n", strerror(errno));
+    goto UMOUNT;
+  }
+  if (enforcing >= 0) {
+    *enforce = enforcing;
+  } else if (seconfig == -1) {
+    *enforce = 0;
+    rc = security_disable();
+    if (rc == 0) umount(SELINUXMNT);
+   if (rc < 0) {
+     rc = security_setenforce(0);
+     if (rc < 0) {
+       printf("Can't disable SELinux: %s\n", strerror(errno));
+       goto UMOUNT;
+      }
+    }
+    ret = 0;
+    goto UMOUNT;
+  } else if (seconfig >= 0) {
+    *enforce = seconfig;
+    if (orig_enforce != *enforce) {
+      rc = security_setenforce(seconfig);
+      if (rc < 0) {
+        printf("Can't set SELinux enforcement flag: %s\n", strerror(errno));
+        goto UMOUNT;
+      }
+   }
+  }
+
+  snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version);
+  fd = open(policy_file, O_RDONLY);
+  if (fd < 0) {
+    /* Check previous version to see if old policy is available
+     */
+    snprintf(policy_file,sizeof(policy_file),"%s.%d",selinux_binary_policy_path(),policy_version-1);
+    fd = open(policy_file, O_RDONLY);
+    if (fd < 0) {
+      printf( "Can't open '%s.%d':  %s\n",
+          selinux_binary_policy_path(),policy_version,strerror(errno));
+      goto UMOUNT;
+    }
+  }
+
+  if (fstat(fd, &sb) < 0) {
+  printf("Can't stat '%s':  %s\n",
+        policy_file, strerror(errno));
+   goto UMOUNT;
+ }
+
+  map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+  if (map == MAP_FAILED) {
+    printf( "Can't map '%s':  %s\n",
+       policy_file, strerror(errno));
+    goto UMOUNT;
+  }
+
+
+  /* Set booleans based on a booleans configuration file. */
+  ret = sepol_genbools(map, sb.st_size, selinux_booleans_path());
+  if (ret < 0) {
+    if (errno == ENOENT || errno == EINVAL) {
+      /* No booleans file or stale booleans in the file; non-fatal. */
+      printf("Warning!  Error while setting booleans:  %s\n"
+          , strerror(errno));
+    } else {
+      printf("Error while setting booleans:  %s\n",
+          strerror(errno));
+      goto UMOUNT;
+    }
+ }
+  printf("Loading security policy\n");
+  ret=security_load_policy(map, sb.st_size);
+  if (ret < 0) {
+    printf("security_load_policy failed\n");
+  }
+
+ UMOUNT:
+  /*umount(SELINUXMNT); */
+  if ( fd >= 0) {
+    close(fd);
+ }
+  return(ret);
+}
+#endif
+
+/* Version information */
+
+
+line 2818
+#ifdef WITH_SELINUX
+       if (getenv("SELINUX_INIT") == NULL) {
+         putenv("SELINUX_INIT=YES");
+         if (load_policy(&enforcing) == 0 ) {
+           execv(myname, argv);
+         } else {
+           if (enforcing > 0) {
+             /* SELinux in enforcing mode but load_policy failed */
+             /* At this point, we probably can't open /dev/console, so
+log() won't work */
+                   fprintf(stderr,"Enforcing mode requested but no
+policy loaded. Halting now.\n");
+             exit(1);
+           }
+         }
+       }
+#endif
+
+
+
+and the Makefile has these in it:
+
+line 12
+CFLAGS	= -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE -DWITH_SELINUX
+
+line 52
+
+ifeq ($(WITH_SELINUX),yes)
+  SELINUX_DEF=-DWITH_SELINUX
+  INIT_SELIBS=-lsepol -lselinux
+  SULOGIN_SELIBS=-lselinux
+else
+  SELINUX_DEF=
+  INIT_SELIBS=
+  SULOGIN_SELIBS=
+endif
+
+
+line 71
+init:		init.o init_utmp.o
+		$(CC) $(LDFLAGS) $(STATIC) -o $@ init.o init_utmp.o $(INIT_SELIBS)
+
+line 103
+init.o:		init.c init.h set.h reboot.h initreq.h
+		$(CC) -c $(CFLAGS) $(SELINUX_DEF) init.c
+
+
+Seems I found a patch from 2003 that
+did load the policy but segfaulted after that.
+
+should I even bother with this since there are
+newer approaches?
+
+
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
