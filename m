@@ -1,4 +1,4 @@
-Date: Thu, 13 Aug 2009 13:31:24 -0500
+Date: Thu, 13 Aug 2009 13:40:09 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Eric Paris <eparis@redhat.com>
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -7,52 +7,141 @@ Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         shemminger@linux-foundation.org, kees@ubuntu.com, morgan@kernel.org,
         casey@schaufler-ca.com, dwalsh@redhat.com
 Subject: Re: [PATCH 2/3] security: introducing security_request_module
-Message-ID: <20090813183124.GA8171@us.ibm.com>
-References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com> <20090813134457.29186.7182.stgit@paris.rdu.redhat.com> <20090813140306.GC30731@us.ibm.com> <1250177334.2182.88.camel@dhcp231-106.rdu.redhat.com> <20090813175405.GA6824@us.ibm.com> <1250187550.2115.19.camel@dhcp231-106.rdu.redhat.com>
+Message-ID: <20090813184009.GA8391@us.ibm.com>
+References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com> <20090813134457.29186.7182.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1250187550.2115.19.camel@dhcp231-106.rdu.redhat.com>
+In-Reply-To: <20090813134457.29186.7182.stgit@paris.rdu.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting Eric Paris (eparis@redhat.com):
-> On Thu, 2009-08-13 at 12:54 -0500, Serge E. Hallyn wrote:
-> > Quoting Eric Paris (eparis@redhat.com):
-> > > On Thu, 2009-08-13 at 09:03 -0500, Serge E. Hallyn wrote:
-> > > > Quoting Eric Paris (eparis@redhat.com):
-> > > > > Calling request_module() will trigger a userspace upcall which will load a
-> > > > > new module into the kernel.  This can be a dangerous event if the process
-> > > > > able to trigger request_module() is able to control either the modprobe
-> > > > > binary or the module binary.  This patch adds a new security hook to
-> > > > > request_module() which can be used by an LSM to control a processes ability
-> > > > > to call request_module().
-> > > > 
-> > > > Is there a specific case in which you'd want to deny this ability
-> > > > from a real task?
-> > > 
-> > > qemu and any network facing daemon are all programs I don't want to be
-> > > able to even ask the kernel to load a module.  Clearly you are right,
-> > 
-> > ...  What if the network facing daemon might want to use a kernel crypto
-> > module?  What if qemu needs the tun module loaded?
+> Calling request_module() will trigger a userspace upcall which will load a
+> new module into the kernel.  This can be a dangerous event if the process
+> able to trigger request_module() is able to control either the modprobe
+> binary or the module binary.  This patch adds a new security hook to
+> request_module() which can be used by an LSM to control a processes ability
+> to call request_module().
 > 
-> Loading code into the kernel is a dangerous operation.  We should find
-> the places where high risk processes are doing this and either choose to
-> accept the security risk or make sure they are loaded before the
-> dangerous code is run, aka libvirt knows if the guest needs the tun
-> device and it should be allowed to trigger it's loading.  It's shouldn't
-> be the guest doing the triggering.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Well, I continue to be dubious, but the hook does no harm so in case
-it sounded otherwise, I don't object.
+Looks fine code-wise.
 
-Mind you the right thing to do would be i.e. in the qemu case to have
-a more privileged helper load the needed modules and then fire off a
-qemu unable to cause module loads.  If userspace is willing to jump
-through that rather minimal hoop then this could be useful I suppose.
+Just to match the rest of the documentation, the description in
+security.h should probably mention 'Return 0 if allowed'.
 
-thanks,
--serge
+Acked-by: Serge Hallyn <serue@us.ibm.com>
+
+> ---
+> 
+>  include/linux/security.h |   10 ++++++++++
+>  kernel/kmod.c            |    4 ++++
+>  security/capability.c    |    6 ++++++
+>  security/security.c      |    5 +++++
+>  4 files changed, 25 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index d5f6578..34c5465 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -678,6 +678,9 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+>   *	@inode points to the inode to use as a reference.
+>   *	The current task must be the one that nominated @inode.
+>   *	Return 0 if successful.
+> + * @kernel_module_request:
+> + *	Ability to trigger the kernel to automatically upcall to userspace for
+> + *	userspace to load a kernel module with the given name.
+>   * @task_setuid:
+>   *	Check permission before setting one or more of the user identity
+>   *	attributes of the current process.  The @flags parameter indicates
+> @@ -1500,6 +1503,7 @@ struct security_operations {
+>  	void (*cred_commit)(struct cred *new, const struct cred *old);
+>  	int (*kernel_act_as)(struct cred *new, u32 secid);
+>  	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+> +	int (*kernel_module_request)(void);
+>  	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+>  	int (*task_fix_setuid) (struct cred *new, const struct cred *old,
+>  				int flags);
+> @@ -1755,6 +1759,7 @@ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+>  void security_commit_creds(struct cred *new, const struct cred *old);
+>  int security_kernel_act_as(struct cred *new, u32 secid);
+>  int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+> +int security_kernel_module_request(void);
+>  int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
+>  int security_task_fix_setuid(struct cred *new, const struct cred *old,
+>  			     int flags);
+> @@ -2306,6 +2311,11 @@ static inline int security_kernel_create_files_as(struct cred *cred,
+>  	return 0;
+>  }
+> 
+> +static inline int security_kernel_module_request(void)
+> +{
+> +	return 0;
+> +}
+> +
+>  static inline int security_task_setuid(uid_t id0, uid_t id1, uid_t id2,
+>  				       int flags)
+>  {
+> diff --git a/kernel/kmod.c b/kernel/kmod.c
+> index 385c31a..5a7ae57 100644
+> --- a/kernel/kmod.c
+> +++ b/kernel/kmod.c
+> @@ -78,6 +78,10 @@ int __request_module(bool wait, const char *fmt, ...)
+>  #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+>  	static int kmod_loop_msg;
+> 
+> +	ret = security_kernel_module_request();
+> +	if (ret)
+> +		return ret;
+> +
+>  	va_start(args, fmt);
+>  	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+>  	va_end(args);
+> diff --git a/security/capability.c b/security/capability.c
+> index 4f23f4f..06400cf 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -396,6 +396,11 @@ static int cap_kernel_create_files_as(struct cred *new, struct inode *inode)
+>  	return 0;
+>  }
+> 
+> +static int cap_kernel_module_request(void)
+> +{
+> +	return 0;
+> +}
+> +
+>  static int cap_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+>  {
+>  	return 0;
+> @@ -961,6 +966,7 @@ void security_fixup_ops(struct security_operations *ops)
+>  	set_to_cap_if_null(ops, cred_commit);
+>  	set_to_cap_if_null(ops, kernel_act_as);
+>  	set_to_cap_if_null(ops, kernel_create_files_as);
+> +	set_to_cap_if_null(ops, kernel_module_request);
+>  	set_to_cap_if_null(ops, task_setuid);
+>  	set_to_cap_if_null(ops, task_fix_setuid);
+>  	set_to_cap_if_null(ops, task_setgid);
+> diff --git a/security/security.c b/security/security.c
+> index b98c684..f88eaf6 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -709,6 +709,11 @@ int security_kernel_create_files_as(struct cred *new, struct inode *inode)
+>  	return security_ops->kernel_create_files_as(new, inode);
+>  }
+> 
+> +int security_kernel_module_request(void)
+> +{
+> +	return security_ops->kernel_module_request();
+> +}
+> +
+>  int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+>  {
+>  	return security_ops->task_setuid(id0, id1, id2, flags);
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
