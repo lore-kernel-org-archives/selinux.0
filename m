@@ -1,50 +1,46 @@
-Subject: Re: [PATCH 2/3] security: introducing security_request_module
-From: Eric Paris <eparis@redhat.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        sds@tycho.nsa.gov, davem@davemloft.net,
-        shemminger@linux-foundation.org, kees@ubuntu.com, morgan@kernel.org,
-        casey@schaufler-ca.com, dwalsh@redhat.com
-In-Reply-To: <20090813140306.GC30731@us.ibm.com>
-References: <20090813134451.29186.41664.stgit@paris.rdu.redhat.com>
-	 <20090813134457.29186.7182.stgit@paris.rdu.redhat.com>
-	 <20090813140306.GC30731@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 13 Aug 2009 11:28:54 -0400
-Message-Id: <1250177334.2182.88.camel@dhcp231-106.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7DFcG8G031482
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 11:38:16 -0400
+Received: from mail-pz0-f172.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7DFbMOr013256
+	for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 15:39:18 GMT
+Received: by pzk2 with SMTP id 2so615807pzk.30
+        for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2009 08:36:17 -0700 (PDT)
+Message-ID: <4A843305.5070601@gmail.com>
+Date: Thu, 13 Aug 2009 08:36:37 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+CC: selinux <selinux@tycho.nsa.gov>
+Subject: Re: error: too many arguments to function 'security_getenforce'
+References: <dd18b0c30908122030l3e950054r1f3907a6dcde8db0@mail.gmail.com> <f71a82820908122249k2c4c3397hc941ee3a3a0a75a7@mail.gmail.com>
+In-Reply-To: <f71a82820908122249k2c4c3397hc941ee3a3a0a75a7@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-08-13 at 09:03 -0500, Serge E. Hallyn wrote:
-> Quoting Eric Paris (eparis@redhat.com):
-> > Calling request_module() will trigger a userspace upcall which will load a
-> > new module into the kernel.  This can be a dangerous event if the process
-> > able to trigger request_module() is able to control either the modprobe
-> > binary or the module binary.  This patch adds a new security hook to
-> > request_module() which can be used by an LSM to control a processes ability
-> > to call request_module().
-> 
-> Is there a specific case in which you'd want to deny this ability
-> from a real task?
+Shintaro Fujiwara wrote:
+>   security_getenforce(&seconfig);
+>
+> is wrong.
+>
+> see
+>
+> [fujiwara@notepc ~]$ cat -n /usr/include/selinux/selinux.h|grep
+> security_getenforce
+>     314	extern int security_getenforce(void);
+>
+>    
+Great,
 
-qemu and any network facing daemon are all programs I don't want to be
-able to even ask the kernel to load a module.  Clearly you are right,
-that the best protection is done by controlling access to modprobe and
-the modules on disk (which we are working to fix vs what happened in the
-xen fb exploit I showed earlier) but stopping it from the other
-direction is, I feel, a useful defense in depth.
+Can you or somebody help me in  finding
+a correct patch to load the policy at boot.
 
-If they can't get modprobe called, they can't take over the system
-directly, even if they did change a module or change modprobe.  I agree
-it's not strong security as if they can change modprobe or modules they
-might be able to just wait until something else calls modprobe (next
-reboot maybe?) to take over the system.  But I'd find it very
-interesting to know that a high threat target tried to do anything which
-attempted to load a module....
+I find it hard to believe that such a security policy
+  would be lacking  in this area.
 
--Eric
+Justin P. Mattock
+
 
 
 --
