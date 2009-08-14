@@ -1,42 +1,68 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7ELUVMn024139
-	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:31 -0400
-Received: from relay1.gtri.gatech.edu (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7ELU2tl016881
-	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 21:30:02 GMT
-Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195])
-	by relay1.gtri.gatech.edu (Spam Firewall) with ESMTP id C10FF6A4A6D
-	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:28 -0400 (EDT)
-Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195]) by relay1.gtri.gatech.edu with ESMTP id 4Idn6ABs6dBBHKge for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:28 -0400 (EDT)
-Subject: Not quite MLS.
-From: rob myers <rob.myers@gtri.gatech.edu>
-To: <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 14 Aug 2009 17:30:26 -0400
-Message-ID: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
+        Stephen Smalley <sds@tycho.nsa.gov>, gregkh@susa.de,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
+	<4A84EF1D.8060408@schaufler-ca.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 14 Aug 2009 15:02:25 -0700
+In-Reply-To: <4A84EF1D.8060408@schaufler-ca.com> (Casey Schaufler's message of "Thu\, 13 Aug 2009 21\:59\:09 -0700")
+Message-ID: <m1my62xde6.fsf@fess.ebiederm.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on sysfs files, directories, and symlinks.
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I would like to create a login that has access to one category at the
-highest sensitivity level, but in another category only has access at a
-lower sensitivity level.  For example, on a system where SystemHigh is
-s0-s3:c0.c3, one login could be defined as something similar to:
-s0-s1:c0.c3, s2:c2.c3, s3:c3, while another login could be defined as
-s0-s2:c0.c3, s3:c0.c2 .
 
-Am I correct that MLS policy cannot support this scenario?
+>From a long term maintenance perspective I have to say I like Casey's
+version that doesn't require any magic security module compression
+hooks to implement this.
 
-Is this possible under any old, current, or developmental SELinux
-policy?
+>From an implementation point of view Stephen's comments seem accurate.
 
-Would it be possible to write such a policy with the existing SELinux
-user/kernel land?
+Is there any debate that Casey's version will get the job done?
 
-Thanks for any pointers,
+If not the only real question is how do we store xattrs efficiently for
+in memory filesystems.  
 
-rob.
+Let me propose a different xattr compression scheme instead of making
+the security module responsible for compression.
 
+How about we have:
+struct sysfs_xattr *sysfs_store_xattr(const char *name, const void *value, size_t size);
+void sysfs_release_xattr(struct sysfs_xattr *xattr);
+
+Where sysfs_xattr looks something like:
+struct sysfs_xattr {
+       struct hlist_node list;
+       atomic_t count;
+       const char *name;
+       const void *value;
+       size_t size;
+}
+
+And then at the end of of what is today s_iattr we have something like:
+struct sysfs_xattr *xattrs[2];
+
+
+The key point here is that sysfs_store_xattr will look to see in a
+hash table to see if another inode/dentry has already stored the
+specified xattr and if so increment the count of sysfs_xattr count
+and return it.
+
+My design assumption is that the set of xattrs that people want to
+apply to filesystems is small.
+
+By optimizing for a small number of distinct xattrs we keep the
+storage size small (even for those filesystems who want to label
+everything), and we keep the generality by not making storage of
+xattrs a security module responsibility.
+
+Does that sound like it will work?
+
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
