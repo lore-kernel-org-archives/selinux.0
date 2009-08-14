@@ -1,60 +1,41 @@
-Subject: Re: [PATCH 1/2 -v3] Namespacing of security/selinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Glenn Faden <Glenn.Faden@sun.com>
-Cc: Thomas Liu <tliu@redhat.com>, selinux@tycho.nsa.gov, jmorris@namei.org,
-        eparis@parisplace.org
-In-Reply-To: <4A859EC2.2030807@sun.com>
-References: <1246906718.2460.12.camel@Ares>
-	 <1246909386.28321.148.camel@moss-pluto.epoch.ncsc.mil>
-	 <1246968394.28321.171.camel@moss-pluto.epoch.ncsc.mil>
-	 <1247003355.2149.2.camel@Ares>
-	 <1250263220.3629.34.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A859EC2.2030807@sun.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7ELUVMn024139
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:31 -0400
+Received: from relay1.gtri.gatech.edu (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7ELU2tl016881
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 21:30:02 GMT
+Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195])
+	by relay1.gtri.gatech.edu (Spam Firewall) with ESMTP id C10FF6A4A6D
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:28 -0400 (EDT)
+Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195]) by relay1.gtri.gatech.edu with ESMTP id 4Idn6ABs6dBBHKge for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 17:30:28 -0400 (EDT)
+Subject: Not quite MLS.
+From: rob myers <rob.myers@gtri.gatech.edu>
+To: <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 14 Aug 2009 13:47:24 -0400
-Message-Id: <1250272044.3629.68.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 14 Aug 2009 17:30:26 -0400
+Message-ID: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-08-14 at 10:28 -0700, Glenn Faden wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2009-07-07 at 17:49 -0400, Thomas Liu wrote:
-> >   
-> >> This includes namespacing of all items originally labeled
-> >> security_ with sel_.
-> >>
-> >> In addition, the functions sel_netif_sid and security_netif_sid
-> >> have been renamed because the namespacing would cause a conflict.
-> >>
-> >> sel_netif_sid has been renamed to sel_netif_sid_by_index, and
-> >> security_netif_sid has been renamed to sel_netif_sid_by_name
-> >>     
-> >
-> > This patch has a minor reject against the current security-testing tree.
-> >
-> > However, I'm having second thoughts about the renaming idea.  There are
-> > a rather large number of documents, not to mention the userspace API,
-> > that talk about security_compute_av() and friends, and thus I'm a bit
-> > hesitant to render them all obsolete.
-> >   
-> Changing the namespace from security_ to sel_ or selinux_ makes it more 
-> difficult for Solaris and other non-linux systems which may be 
-> supporting Flask, to be compatible at the library level with policy 
-> management applications.
+I would like to create a login that has access to one category at the
+highest sensitivity level, but in another category only has access at a
+lower sensitivity level.  For example, on a system where SystemHigh is
+s0-s3:c0.c3, one login could be defined as something similar to:
+s0-s1:c0.c3, s2:c2.c3, s3:c3, while another login could be defined as
+s0-s2:c0.c3, s3:c0.c2 .
 
-Yes.  Just to be clear, this patch was only renaming the kernel-internal
-functions in an effort to avoid any future collisions between the
-security framework (LSM) and SELinux-specific functions.  It wouldn't
-have changed the kernel interface or userspace in any manner.  But I
-like having consistent names for the security server interfaces in the
-kernel and in userspace, and all the existing literature uses those
-names, so I'm inclined against changing them.  We were using those names
-before LSM existed, of course.
+Am I correct that MLS policy cannot support this scenario?
 
--- 
-Stephen Smalley
-National Security Agency
+Is this possible under any old, current, or developmental SELinux
+policy?
+
+Would it be possible to write such a policy with the existing SELinux
+user/kernel land?
+
+Thanks for any pointers,
+
+rob.
 
 
 --
