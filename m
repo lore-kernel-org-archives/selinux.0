@@ -1,155 +1,47 @@
-Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on
- sysfs files, directories, and symlinks.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
-        Greg Kroah-Hartman <greg@kroah.com>, ebiederm@xmission.com,
-        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1250252411.2422.177.camel@moss-pluto.epoch.ncsc.mil>
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <4A84EF1D.8060408@schaufler-ca.com>
-	 <1250252411.2422.177.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 14 Aug 2009 08:40:51 -0400
-Message-Id: <1250253651.2422.183.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7ECeECY011942
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 08:40:14 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7ECdiCQ021621
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 12:39:44 GMT
+Date: Fri, 14 Aug 2009 22:40:12 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stefano Carucci <stecarucci@hotmail.com>
+cc: selinux@tycho.nsa.gov
+Subject: RE: SElinux protection
+In-Reply-To: <SNT115-W34F722C08C53D234FB37CEC1020@phx.gbl>
+Message-ID: <alpine.LRH.2.00.0908142229560.18040@tundra.namei.org>
+References: <SNT115-W6FF8468946D002609BC73C1020@phx.gbl> <alpine.LRH.2.00.0908142117440.17571@tundra.namei.org> <SNT115-W34F722C08C53D234FB37CEC1020@phx.gbl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-08-14 at 08:20 -0400, Stephen Smalley wrote:
-> On Thu, 2009-08-13 at 21:59 -0700, Casey Schaufler wrote:
-> > From: Casey Schaufler <casey@schaufler-ca.com>
-> > 
-> > This patch is in response to David P. Quigley's proposal from
-> > July of this year. That patch provided special case handling of
-> > LSM xattrs in the security name space.
-> > 
-> > This patch provides an in memory representation of general
-> > xattrs. It currently only allows xattrs in the security namespace,
-> > but that is only because the support of ACLs is beyond the
-> > day's needs. The list of xattrs for a given file is created on
-> > demand and a system that does not use xattrs should be pretty
-> > well oblivious to the changes. On the down side, this requires
-> > an unpleasant locking scheme. Improvements would of course be
-> > welcome.
-> > 
-> > This scheme should generalize to any memory based file system,
-> > although I have not attempted to create a generic implementation
-> > here.
-> 
-> I don't understand the benefits of this scheme compared to David's patch
-> - can you explain?  It seems worse in terms of locking, memory use, and
-> is no more general than David's patch.  More specific comments below.
-> 
-> > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> > 
-> > ---
-> > 
-> >  fs/sysfs/dir.c     |    4 
-> >  fs/sysfs/inode.c   |  210 +++++++++++++++++++++++++++++++++++++++++++
-> >  fs/sysfs/symlink.c |   10 +-
-> >  fs/sysfs/sysfs.h   |   16 +++
-> >  4 files changed, 237 insertions(+), 3 deletions(-)
-> 
-> > diff -uprN -X linux-2.6/Documentation/dontdiff linux-2.6/fs/sysfs/inode.c linux-0812/fs/sysfs/inode.c
-> > --- linux-2.6/fs/sysfs/inode.c	2009-03-28 13:47:33.000000000 -0700
-> > +++ linux-0812/fs/sysfs/inode.c	2009-08-12 11:08:28.000000000 -0700
-> > @@ -104,6 +110,210 @@ int sysfs_setattr(struct dentry * dentry
-> >  	return error;
-> >  }
-> >  
-> > +/*
-> > + * Extended attributes are stored on a list off of the dirent.
-> > + * The list head itself is allocated when needed so that a file
-> > + * with no xattrs does not have the overhead of a list head.
-> > + * Unfortunately, to lock the xattr list for each dentry would
-> > + * require a lock in each dentry, which would defeat the purpose
-> > + * of allocating the list head. So one big sysfs xattr lock.
-> > + *
-> > + * A better solution would be welcome.
-> 
-> What was wrong with David's approach of wrapping the iattr with a
-> containing structure that could also include the security attribute?
-> 
-> > + */
-> > +static DEFINE_MUTEX(sysfs_xattr_lock);
-> > +
-> > +static struct sysfs_xattr *new_xattr(const char *name, const void *value,
-> > +					size_t size)
-> > +{
-> > +	struct sysfs_xattr *nxattr;
-> > +	void *nvalue;
-> > +	char *nname;
-> > +
-> > +	nxattr = kzalloc(sizeof(*nxattr), GFP_KERNEL);
-> > +	if (!nxattr)
-> > +		return NULL;
-> > +	nvalue = kzalloc(size, GFP_KERNEL);
-> > +	if (!nvalue) {
-> > +		kfree(nxattr);
-> > +		return NULL;
-> > +	}
-> > +	nname = kzalloc(strlen(name) + 1, GFP_KERNEL);
-> > +	if (!nname) {
-> > +		kfree(nxattr);
-> > +		kfree(nvalue);
-> > +		return NULL;
-> > +	}
-> > +	memcpy(nvalue, value, size);
-> > +	strcpy(nname, name);
-> > +	nxattr->sx_name = nname;
-> > +	nxattr->sx_value = nvalue;
-> > +	nxattr->sx_size = size;
-> 
-> Storing the name/value pairs here is redundant - the security module
-> already has to store the value in some form (potentially smaller, like a
-> secid + struct in the SELinux case).  This wastes memory.
-
-Sorry - to clarify, I understand that we have to store a representation
-of the security attribute in the backing data structure so that it can
-be restored later, but that representation should come from the security
-module rather than being the original (name, value, size) triple.  Which
-is what David's patch does - he obtains a secid from the security module
-for storage in the wrapped iattr structure.
+On Fri, 14 Aug 2009, Stefano Carucci wrote:
 
 > 
-> > +
-> > +	return nxattr;
-> > +}
-> > +
-> > +int sysfs_setxattr(struct dentry *dentry, const char *name,
-> > +			const void *value, size_t size, int flags)
-> > +{
-> > +	struct sysfs_dirent *sd = dentry->d_fsdata;
-> > +	struct list_head *xlist;
-> > +	struct sysfs_xattr *nxattr;
-> > +	void *nvalue;
-> > +	int rc = 0;
-> > +
-> > +	/*
-> > +	 * Only support the security namespace.
-> > +	 * Only allow privileged processes to set them.
-> > +	 * It has to be OK with the LSM, if any, as well.
-> > +	 */
-> > +	if (strncmp(name, XATTR_SECURITY_PREFIX,
-> > +			sizeof XATTR_SECURITY_PREFIX - 1))
-> > +		return -ENOTSUPP;
-> > +
-> > +	if (!capable(CAP_SYS_ADMIN))
-> > +		return -EPERM;
 > 
-> SELinux does not require CAP_SYS_ADMIN to set its attributes, so this
-> breaks its security model.
+> Two further questions:
+> 
+> 1. Does SELinux provide any countermeasure against buffer overflows attacks? 
 
-And you don't need to apply any permission check here, as it gets
-covered by the security_inode_setxattr() hook in vfs_setxattr() prior to
-invoking i_op->setxattr.
+Here's some information on memory protection checks which may be 
+controlled via SELinux policy:
 
+http://people.redhat.com/drepper/selinux-mem.html
+
+
+> 2. I read about the possibility of keeping processes from forking. 
+> Wouldn't you consider this as a protection from DoS attacks?
+
+That could be effective in this case (as would resource limits), but 
+SELinux is not generally designed to counteract DoS attacks.
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
