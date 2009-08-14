@@ -1,44 +1,51 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: linux-audit@redhat.com
-Subject: Re: [PATCH -v3] SELinux: Convert avc_audit to use lsm_audit.h
-Date: Fri, 14 Aug 2009 10:57:32 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Thomas Liu <tliu@redhat.com>,
-        eparis@parisplace.org, jmorris@namei.org, selinux@tycho.nsa.gov
-References: <1247588049.2164.22.camel@Ares> <1250261501.3629.5.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1250261501.3629.5.camel@moss-pluto.epoch.ncsc.mil>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7EFBZV4021638
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 11:11:35 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7EFCd5T018330
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 15:12:39 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n7EF6pRh001812
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 10:06:58 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n7EExkns030595
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 09:59:47 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
+Date: Fri, 14 Aug 2009 09:59:46 -0500
+Message-ID: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200908141057.33626.sgrubb@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 14 August 2009 10:51:41 am Stephen Smalley wrote:
-> BTW, it looks to my untrained eye as if dump_common_audit_data() allows
-> one to pass a separate target task in the union, in which case we'll get
-> two sets of pid= and comm=  data in the same record, one for the subject
-> and one for the target/object.  It appears that Smack is already using
-> that facility for things like ptrace, kill, etc, whereas SELinux is not.
+Hi,
 
-They should not be doing that. When another process is the object, we have 
-specific auxiliary audit records to record this. We have to do this for CAPP so 
-MAC systems should not have to do this. See AUDIT_OBJ_PID.
+        I am running into an issue with sepolgen on Debian. Debian ships
+ more than one  version of the refpolicy, a default one, and a
+ MLS enabled one. So, the include files live in either
+ /usr/share/selinux/{default,mls}/include
 
-> Two questions:
-> 1) Will the multiple pid= comm= entries get handled correctly by auditd
-> and the audit tools? Do we need separate names for the target vs source
-> pid/comm values?
+        sepolgen (in src/sepolgen/defaults.py) sets refpolicy_devel() to
+ a single location -- and thus, only one version of the security policy
+ may be supported. So, sepolgen-ifgen from policycoreutils can only work
+ with one policy, which may not be the one installed on the target
+ machine. Could this be made configurable, somehow? As far as I can
+ see, sepolgen's python library does not offer any way to set the value.
 
-Yes, we need to record the object information. But we have a record type for 
-that already AUDIT_OBJ_PID.
+        It would be nice if the location of the include directory could
+ be looked for from a PATH like variable setting, to make it easier for
+ distributions to ship more than one policy, or for end users to
+ experiment with other policies without have to overwrite the single
+ default. 
 
-> 2) Should we start using ad.u.tsk in SELinux as well to capture the
-> target of a ptrace, kill, wait, ... in the avc audit record?
-
-It should be captured. I thought it was for the LSPP work we did. If for some 
-reason its not recorded, then audit_log_pid_context() should be called.
-
--Steve
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
