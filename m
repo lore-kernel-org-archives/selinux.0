@@ -1,68 +1,369 @@
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
-        Stephen Smalley <sds@tycho.nsa.gov>, gregkh@susa.de,
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7F1L8Km007843
+	for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2009 21:21:08 -0400
+Received: from smtp109.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7F1MCPk009121
+	for <selinux@tycho.nsa.gov>; Sat, 15 Aug 2009 01:22:12 GMT
+Message-ID: <4A860D0F.7020205@schaufler-ca.com>
+Date: Fri, 14 Aug 2009 18:19:11 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
+        Greg Kroah-Hartman <greg@kroah.com>, ebiederm@xmission.com,
         linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-	<4A84EF1D.8060408@schaufler-ca.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 14 Aug 2009 15:02:25 -0700
-In-Reply-To: <4A84EF1D.8060408@schaufler-ca.com> (Casey Schaufler's message of "Thu\, 13 Aug 2009 21\:59\:09 -0700")
-Message-ID: <m1my62xde6.fsf@fess.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on sysfs files, directories, and symlinks.
+Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on sysfs
+ files, directories, and symlinks.
+References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>	 <4A84EF1D.8060408@schaufler-ca.com> <1250252411.2422.177.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1250252411.2422.177.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Thu, 2009-08-13 at 21:59 -0700, Casey Schaufler wrote:
+>   
+>> From: Casey Schaufler <casey@schaufler-ca.com>
+>>
+>> This patch is in response to David P. Quigley's proposal from
+>> July of this year. That patch provided special case handling of
+>> LSM xattrs in the security name space.
+>>
+>> This patch provides an in memory representation of general
+>> xattrs. It currently only allows xattrs in the security namespace,
+>> but that is only because the support of ACLs is beyond the
+>> day's needs. The list of xattrs for a given file is created on
+>> demand and a system that does not use xattrs should be pretty
+>> well oblivious to the changes. On the down side, this requires
+>> an unpleasant locking scheme. Improvements would of course be
+>> welcome.
+>>
+>> This scheme should generalize to any memory based file system,
+>> although I have not attempted to create a generic implementation
+>> here.
+>>     
+>
+> I don't understand the benefits of this scheme compared to David's patch
+> - can you explain?
 
->From a long term maintenance perspective I have to say I like Casey's
-version that doesn't require any magic security module compression
-hooks to implement this.
+Sure, you bet. David's scheme requires as LSM and is only capable
+of supporting security namespace attributes. It is further not a
+reasonable model for other memory based filesystems. If all you
+ever want to support is SELinux, it would be fine, but an LSM
+that uses multiple xattrs (Smack only uses multiple xattrs on
+sockets, but it does use them) would be hard pressed to work off
+of a secid. This is a swag at real xattr support, which is the
+right thing to do for any filesystem. Special purpose interfaces
+to solve a single instance of a problem are for squares.
 
->From an implementation point of view Stephen's comments seem accurate.
+>   It seems worse in terms of locking,
 
-Is there any debate that Casey's version will get the job done?
+I'll buy that, and happily incorporate improvements. The
+crude locking is an artifact of keeping memory usage down.
 
-If not the only real question is how do we store xattrs efficiently for
-in memory filesystems.  
+>  memory use,
 
-Let me propose a different xattr compression scheme instead of making
-the security module responsible for compression.
+There are less than 12,000 entries in /sys on my machine.
+Is that really an issue?
 
-How about we have:
-struct sysfs_xattr *sysfs_store_xattr(const char *name, const void *value, size_t size);
-void sysfs_release_xattr(struct sysfs_xattr *xattr);
+>  and
+> is no more general than David's patch.
 
-Where sysfs_xattr looks something like:
-struct sysfs_xattr {
-       struct hlist_node list;
-       atomic_t count;
-       const char *name;
-       const void *value;
-       size_t size;
-}
+Except that one could (fix the locking and) port this code to
+other memory based file systems, such as smackfs or selinuxfs
+without much bother. You'd have to implement new LSM hooks for
+each file system you ported the other approach for. It
+can be used without an LSM, it could support multiple security
+xattrs and it can support other namespaces.
 
-And then at the end of of what is today s_iattr we have something like:
-struct sysfs_xattr *xattrs[2];
+>   More specific comments below.
+>
+>   
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>
+>> ---
+>>
+>>  fs/sysfs/dir.c     |    4 
+>>  fs/sysfs/inode.c   |  210 +++++++++++++++++++++++++++++++++++++++++++
+>>  fs/sysfs/symlink.c |   10 +-
+>>  fs/sysfs/sysfs.h   |   16 +++
+>>  4 files changed, 237 insertions(+), 3 deletions(-)
+>>     
+>
+>   
+>> diff -uprN -X linux-2.6/Documentation/dontdiff linux-2.6/fs/sysfs/inode.c linux-0812/fs/sysfs/inode.c
+>> --- linux-2.6/fs/sysfs/inode.c	2009-03-28 13:47:33.000000000 -0700
+>> +++ linux-0812/fs/sysfs/inode.c	2009-08-12 11:08:28.000000000 -0700
+>> @@ -104,6 +110,210 @@ int sysfs_setattr(struct dentry * dentry
+>>  	return error;
+>>  }
+>>  
+>> +/*
+>> + * Extended attributes are stored on a list off of the dirent.
+>> + * The list head itself is allocated when needed so that a file
+>> + * with no xattrs does not have the overhead of a list head.
+>> + * Unfortunately, to lock the xattr list for each dentry would
+>> + * require a lock in each dentry, which would defeat the purpose
+>> + * of allocating the list head. So one big sysfs xattr lock.
+>> + *
+>> + * A better solution would be welcome.
+>>     
+>
+> What was wrong with David's approach of wrapping the iattr with a
+> containing structure that could also include the security attribute?
+>   
+
+Nothing really. Once I abandoned the notion of starting from David's
+code I didn't look back at it.
 
 
-The key point here is that sysfs_store_xattr will look to see in a
-hash table to see if another inode/dentry has already stored the
-specified xattr and if so increment the count of sysfs_xattr count
-and return it.
+>> + */
+>> +static DEFINE_MUTEX(sysfs_xattr_lock);
+>> +
+>> +static struct sysfs_xattr *new_xattr(const char *name, const void *value,
+>> +					size_t size)
+>> +{
+>> +	struct sysfs_xattr *nxattr;
+>> +	void *nvalue;
+>> +	char *nname;
+>> +
+>> +	nxattr = kzalloc(sizeof(*nxattr), GFP_KERNEL);
+>> +	if (!nxattr)
+>> +		return NULL;
+>> +	nvalue = kzalloc(size, GFP_KERNEL);
+>> +	if (!nvalue) {
+>> +		kfree(nxattr);
+>> +		return NULL;
+>> +	}
+>> +	nname = kzalloc(strlen(name) + 1, GFP_KERNEL);
+>> +	if (!nname) {
+>> +		kfree(nxattr);
+>> +		kfree(nvalue);
+>> +		return NULL;
+>> +	}
+>> +	memcpy(nvalue, value, size);
+>> +	strcpy(nname, name);
+>> +	nxattr->sx_name = nname;
+>> +	nxattr->sx_value = nvalue;
+>> +	nxattr->sx_size = size;
+>>     
+>
+> Storing the name/value pairs here is redundant - the security module
+> already has to store the value in some form (potentially smaller, like a
+> secid + struct in the SELinux case).  This wastes memory.
+>   
 
-My design assumption is that the set of xattrs that people want to
-apply to filesystems is small.
+Only in the case where you have an LSM and the attribute you're
+dealing with is the attribute that the LSM presents when you ask
+the inode for the secid. I realize that that is the case that
+SELinux finds compelling. That. David's code optimizes that case
+like nobody's business at the expense of supporting any other case.
 
-By optimizing for a small number of distinct xattrs we keep the
-storage size small (even for those filesystems who want to label
-everything), and we keep the generality by not making storage of
-xattrs a security module responsibility.
+Again, this is xattr support. SELinux and Smack are LSMs that use
+xattrs, but they are not the only use for xattrs.
 
-Does that sound like it will work?
+>> +
+>> +	return nxattr;
+>> +}
+>> +
+>> +int sysfs_setxattr(struct dentry *dentry, const char *name,
+>> +			const void *value, size_t size, int flags)
+>> +{
+>> +	struct sysfs_dirent *sd = dentry->d_fsdata;
+>> +	struct list_head *xlist;
+>> +	struct sysfs_xattr *nxattr;
+>> +	void *nvalue;
+>> +	int rc = 0;
+>> +
+>> +	/*
+>> +	 * Only support the security namespace.
+>> +	 * Only allow privileged processes to set them.
+>> +	 * It has to be OK with the LSM, if any, as well.
+>> +	 */
+>> +	if (strncmp(name, XATTR_SECURITY_PREFIX,
+>> +			sizeof XATTR_SECURITY_PREFIX - 1))
+>> +		return -ENOTSUPP;
+>> +
+>> +	if (!capable(CAP_SYS_ADMIN))
+>> +		return -EPERM;
+>>     
+>
+> SELinux does not require CAP_SYS_ADMIN to set its attributes, so this
+> breaks its security model.
+>   
 
-Eric
+That'll have to get fixed then.
+
+>> +
+>> +	mutex_lock(&sysfs_xattr_lock);
+>> +
+>> +	if (!sd->s_xattr) {
+>> +		sd->s_xattr = kzalloc(sizeof(*xlist), GFP_KERNEL);
+>> +		if (!sd->s_xattr) {
+>> +			rc = -ENOMEM;
+>> +			goto unlock_out;
+>> +		}
+>> +		INIT_LIST_HEAD(sd->s_xattr);
+>> +	}
+>> +	xlist = sd->s_xattr;
+>> +
+>> +	list_for_each_entry(nxattr, xlist, list) {
+>> +		if (!strcmp(nxattr->sx_name, name)) {
+>> +			if (flags & XATTR_CREATE) {
+>> +				rc = -EEXIST;
+>> +				goto unlock_out;
+>> +			}
+>> +			nvalue = kzalloc(size, GFP_KERNEL);
+>> +			if (!nvalue) {
+>> +				rc = -ENOMEM;
+>> +				goto unlock_out;
+>> +			}
+>> +			memcpy(nvalue, value, size);
+>> +			kfree(nxattr->sx_value);
+>> +			nxattr->sx_value = nvalue;
+>> +			nxattr->sx_size = size;
+>> +			rc = 0;
+>> +			goto unlock_out;
+>> +		}
+>> +	}
+>> +	if (flags & XATTR_REPLACE) {
+>> +		rc = -ENOENT;
+>> +		goto unlock_out;
+>> +	}
+>> +	nxattr = new_xattr(name, value, size);
+>> +	list_add_tail(&nxattr->list, xlist);
+>> +
+>> +unlock_out:
+>> +	mutex_unlock(&sysfs_xattr_lock);
+>> +	return rc;
+>> +}
+>> +
+>> +ssize_t sysfs_getxattr(struct dentry *dentry, const char *name,
+>> +			void *value, size_t size)
+>> +{
+>> +	struct sysfs_dirent *sd = dentry->d_fsdata;
+>> +	struct list_head *xlist = sd->s_xattr;
+>> +	struct sysfs_xattr *nxattr;
+>> +	int rc = -ENODATA;
+>> +
+>> +	if (!xlist)
+>> +		return -ENODATA;
+>> +
+>> +	mutex_lock(&sysfs_xattr_lock);
+>> +
+>> +	list_for_each_entry(nxattr, xlist, list) {
+>> +		if (!strcmp(nxattr->sx_name, name)) {
+>> +			if (size <= 0) {
+>> +				rc = nxattr->sx_size;
+>> +				goto unlock_out;
+>> +			}
+>> +			if (nxattr->sx_size > size) {
+>> +				rc = -ERANGE;
+>> +				goto unlock_out;
+>> +			}
+>> +			memcpy(value, nxattr->sx_value, nxattr->sx_size);
+>> +			rc = nxattr->sx_size;
+>> +			goto unlock_out;
+>> +		}
+>> +	}
+>> +
+>> +unlock_out:
+>> +	mutex_unlock(&sysfs_xattr_lock);
+>> +	return rc;
+>> +}
+>> +
+>> +ssize_t sysfs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+>> +{
+>> +	struct sysfs_dirent *sd = dentry->d_fsdata;
+>> +	struct list_head *xlist = sd->s_xattr;
+>> +	struct sysfs_xattr *nxattr;
+>> +	ssize_t total = 0;
+>> +	char *cp = buffer;
+>> +
+>> +	if (!xlist)
+>> +		return 0;
+>> +
+>> +	mutex_lock(&sysfs_xattr_lock);
+>> +
+>> +	list_for_each_entry(nxattr, xlist, list)
+>> +		total += strlen(nxattr->sx_name) + 1;
+>> +
+>> +	if (total > size) {
+>> +		total = -ERANGE;
+>> +		goto unlock_out;
+>> +	}
+>> +
+>> +	list_for_each_entry(nxattr, xlist, list) {
+>> +		strcpy(cp, nxattr->sx_name);
+>> +		cp += strlen(nxattr->sx_name) + 1;
+>> +	}
+>> +
+>> +unlock_out:
+>> +	mutex_unlock(&sysfs_xattr_lock);
+>> +	return total;
+>> +}
+>>     
+>
+> You are duplicating a lot of machinery that is already supported via the
+> vfs fallback behavior for the security namespace.  We can already
+> support getxattr, listxattr, setxattr of security atttributes on in
+> memory filesystems via those fallbacks.  The only thing we lack is the
+> ability to preserve attributes when an inode is evicted from memory,
+> which is only an issue when the inodes are not pinned (as in the sysfs
+> case).  
+
+Wouldn't be the first time I ripped out code at your suggestion.
+
+> And there all we need is support for saving the attribute in the
+> backing data structure, which is precisely what David's patch is about.
+>
+>   
+
+Once again, you are assuming the presence of an LSM and the desire
+to support exactly one xattr in the security namespace.
+
+>> +int sysfs_removexattr(struct dentry *dentry, const char *name)
+>> +{
+>> +	struct sysfs_dirent *sd = dentry->d_fsdata;
+>> +	struct list_head *xlist = sd->s_xattr;
+>> +	struct sysfs_xattr *nxattr;
+>> +	int rc = -ENODATA;
+>> +
+>> +	if (!xlist)
+>> +		return -ENODATA;
+>> +
+>> +	mutex_lock(&sysfs_xattr_lock);
+>> +
+>> +	list_for_each_entry(nxattr, xlist, list) {
+>> +		if (!strcmp(nxattr->sx_name, name)) {
+>> +			list_del(&nxattr->list);
+>> +			if (list_empty(xlist)) {
+>> +				kfree(xlist);
+>> +				sd->s_xattr = NULL;
+>> +			}
+>> +			kfree(nxattr->sx_name);
+>> +			kfree(nxattr->sx_value);
+>> +			kfree(nxattr);
+>> +			rc = 0;
+>> +			goto unlock_out;
+>> +		}
+>> +	}
+>> +
+>> +unlock_out:
+>> +	mutex_unlock(&sysfs_xattr_lock);
+>> +	return rc;
+>> +}
+>> +
+>> +
+>>  static inline void set_default_inode_attr(struct inode * inode, mode_t mode)
+>>  {
+>>  	inode->i_mode = mode
+
+Thank you for the kind suggestions. The next version should be
+much cleaner.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
