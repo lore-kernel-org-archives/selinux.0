@@ -1,46 +1,172 @@
-Subject: Re: Push mmap_min_addr changes to Linus
-From: Eric Paris <eparis@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <alpine.LRH.2.00.0908151944390.24683@tundra.namei.org>
-References: <1250254869.2068.19.camel@dhcp231-106.rdu.redhat.com>
-	 <alpine.LRH.2.00.0908151944390.24683@tundra.namei.org>
-Content-Type: text/plain
-Date: Sat, 15 Aug 2009 19:28:08 -0400
-Message-Id: <1250378888.14501.97.camel@dhcp231-106.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7GF1b1r012753
+	for <selinux@tycho.nsa.gov>; Sun, 16 Aug 2009 11:01:37 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7GF15Cq025453
+	for <selinux@tycho.nsa.gov>; Sun, 16 Aug 2009 15:01:05 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n7GF0p3G008769
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Sun, 16 Aug 2009 10:00:53 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n7GEqfN2010617
+	for <selinux@tycho.nsa.gov>; Sun, 16 Aug 2009 09:52:42 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
+References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>
+	<878whm1gr5.fsf@anzu.internal.golden-gryphon.com>
+Date: Sun, 16 Aug 2009 09:52:41 -0500
+In-Reply-To: <878whm1gr5.fsf@anzu.internal.golden-gryphon.com> (Manoj
+	Srivastava's message of "Fri, 14 Aug 2009 11:50:54 -0500")
+Message-ID: <87iqgn7qva.fsf@anzu.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2009-08-15 at 19:46 +1000, James Morris wrote:
-> On Fri, 14 Aug 2009, Eric Paris wrote:
-> 
-> > I'm tired of these recent exploits and SELinux being weaker against
-> > local user priv escalation bugs using NULL pointers.  Can we push 
-> > 
-> > 7c73875e7dda627040b12c19b01db634fa7f0fd1
-> > 84336d1a77ccd2c06a730ddd38e695c2324a7386
-> > a2551df7ec568d87793d2eea4ca744e86318f205
-> > 47d439e9fb8a81a90022cfa785bf1c36c4e2aff6
-> > 
-> > To linus?  It's fixing a clear security bug in that we are not checking
-> > DAC before granting mmap_min_addr.  If need be I'll write another
-> > smaller patch which just does the DAC check in the SELinux security
-> > hook, but I'd rather see the true separation.
-> 
-> Probably best to make the smallest possible change now, so I suggest the 
-> latter (which might be useful for distro backporting).
+On Fri, Aug 14 2009, Manoj Srivastava wrote:
 
-I thought about it overnight and decided that I am unwilling to go that
-route.  Tieing both CAP_SYS_RAWIO and mmap_zero to the same /proc
-tunable would reduce security when people have to set it to 0.  While we
-fix the current SELinux weakness compared to non-SELinux systems we
-would be giving up the current SELinux strengths.
+> Hi,
+>
+> On Fri, Aug 14 2009, Manoj Srivastava wrote:
+>
+>>         I am running into an issue with sepolgen on Debian. Debian ships
+>>  more than one  version of the refpolicy, a default one, and a
+>>  MLS enabled one. So, the include files live in either
+>>  /usr/share/selinux/{default,mls}/include
+>>
+>>         sepolgen (in src/sepolgen/defaults.py) sets refpolicy_devel() to
+>>  a single location -- and thus, only one version of the security policy
+>>  may be supported. So, sepolgen-ifgen from policycoreutils can only work
+>>  with one policy, which may not be the one installed on the target
+>>  machine. Could this be made configurable, somehow? As far as I can
+>>  see, sepolgen's python library does not offer any way to set the value.
+>>
+>>         It would be nice if the location of the include directory could
+>>  be looked for from a PATH like variable setting, to make it easier for
+>>  distributions to ship more than one policy, or for end users to
+>>  experiment with other policies without have to overwrite the single
+>>  default. 
+>
+>         Well, here is a kind of proof-of-concept patch (python is not my
+>  strong suit), and I have only tested in that it allows the package to
+>  compile, and the following code works:
+>  compile, and the following code works:
+> --8<---------------cut here---------------start------------->8---
+> import defaults
+>
+> # The following looks for /etc/selinux/sepolgen.conf that 
+> # does not exist
+> print defaults.refpolicy_makefile()
+> print defaults.headers()
+>
+> # Create a configuration file
+> testfd = open("/tmp/pathchooser.conf", "w")
+> print >>testfd, "# This is a comment"
+> print >>testfd, "  # An empty line will follow"
+> print >>testfd, ""
+> print >>testfd, "SELINUX_DEVEL_PATH = /:/etc:/usr/share/selinux/default:/usr/share/selinux/mls:/usr/share/selinux/devel"
+> print >>testfd, "FOO= bar:baz"
+> testfd.close()
+>
+> # Specify a non default config file, that has /etc in it
+> chooser = defaults.PathChoooser("/tmp/pathchooser.conf")
+> print chooser("passwd")
+> --8<---------------cut here---------------end--------------->8---
+>
+>         manoj
+>
+> Signed-off-by: Enrico Zini <enrico@debian.org>
+> Signed-off-by: Manoj Srivastava <srivasta@debian.org>
+> ---
+>  src/sepolgen/defaults.py |   47 +++++++++++++++++++++++++++++++++++++++------
+>  1 files changed, 40 insertions(+), 7 deletions(-)
+>
+> diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
+> index 45ce61a..906c058 100644
+> --- a/src/sepolgen/defaults.py
+> +++ b/src/sepolgen/defaults.py
+> @@ -1,6 +1,6 @@
+>  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>  #
+> -# Copyright (C) 2006 Red Hat 
+> +# Copyright (C) 2006 Red Hat
+>  # see file 'COPYING' for use and warranty information
+>  #
+>  # This program is free software; you can redistribute it and/or
+> @@ -17,6 +17,40 @@
+>  # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+>  #
+>
+> +import os
+> +import re
+> +
+> +# Select the correct location for the development files based on a
+> +# path variable (optionally read from a configuration file)
+> +class PathChoooser(object):
+> +    def __init__(self, pathname):
+> +        self.config = dict()
+> +        if not os.path.exists(pathname):
+> +            self.config_pathname = "(defaults)"
+> +            self.config["SELINUX_DEVEL_PATH"] = "/usr/share/selinux/default:/usr/share/selinux/mls:/usr/share/selinux/devel"
+> +            return
+> +        self.config_pathname = pathname
+> +        ignore = re.compile(r"^\s*(?:#.+)?$")
+> +        consider = re.compile(r"^\s*(\w+)\s*=\s*(.+?)\s*$")
+> +        for lineno, line in enumerate(open(pathname)):
+> +            if ignore.match(line): continue
+> +            mo = consider.match(line)
+> +            if not mo:
+> +                raise ValueError, "%s:%d: line is not in key = value format" % (pathname, lineno+1)
+> +            self.config[mo.group(1)] = mo.group(2)
+> +
+> +    # We're only exporting one useful function, so why not be a function
+> +    def __call__(self, testfilename, pathset="SELINUX_DEVEL_PATH"):
+> +        paths = self.config.get(pathset, None)
+> +        if paths is None:
+> +            raise ValueError, "%s was not in %s" % (pathset, self.config_pathname)
+> +        paths = paths.split(":")
+> +        for p in paths:
+> +            target = os.path.join(p, testfilename)
+> +            if os.path.exists(target): return target
+> +        return os.path.join(paths[0], testfilename)
+> +
+> +
+>  """
+>  Various default settings, including file and directory locations.
+>  """
+> @@ -30,12 +64,11 @@ def perm_map():
+>  def interface_info():
+>      return data_dir() + "/interface_info"
+>
+> -def refpolicy_devel():
+> -    return "/usr/share/selinux/devel"
+> -
+>  def refpolicy_makefile():
+> -    return refpolicy_devel() + "/Makefile"
+> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
+> +    return chooser("Makefile")
+>
+>  def headers():
+> -    return refpolicy_devel() + "/include"
+> -    
+> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
+> +    return chooser("include")
+> +
+> -- 
+> 1.6.3.3
 
-Please push these as they stand.
+        To follow up, this has not been tested, and with this sepolgen-ifgen
+ from policycoreutils does work. Unless there are objections (or flaws
+ that people point out), I am planning on applying this patch on the
+ next Debian upload.
 
--Eric
-
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
