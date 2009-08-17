@@ -1,116 +1,250 @@
-Subject: Re: Not quite MLS.
-From: rob myers <rob.myers@gtri.gatech.edu>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil>
-References: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
-	 <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 17 Aug 2009 17:38:24 -0400
-Message-ID: <1250545104.3588.149.camel@rxm-581b.stl.gtri.gatech.edu>
-MIME-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7HLjAdx019336
+	for <selinux@tycho.nsa.gov>; Mon, 17 Aug 2009 17:45:10 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n7HLicDf019163
+	for <selinux@tycho.nsa.gov>; Mon, 17 Aug 2009 21:44:38 GMT
+Date: Mon, 17 Aug 2009 17:45:08 -0400
+Subject: Re: Patch to semanage
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C6AF47A4.A9CE7%csellers@tresys.com>
+In-Reply-To: <4A604E1D.2020202@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-08-17 at 07:40 -0400, Stephen Smalley wrote:
-> On Fri, 2009-08-14 at 17:30 -0400, rob myers wrote:
-> > I would like to create a login that has access to one category at the
-> > highest sensitivity level, but in another category only has access at a
-> > lower sensitivity level.  For example, on a system where SystemHigh is
-> > s0-s3:c0.c3, one login could be defined as something similar to:
-> > s0-s1:c0.c3, s2:c2.c3, s3:c3, while another login could be defined as
-> > s0-s2:c0.c3, s3:c0.c2 .
-> > 
-> > Am I correct that MLS policy cannot support this scenario?
-> > 
-> > Is this possible under any old, current, or developmental SELinux
-> > policy?
-> > 
-> > Would it be possible to write such a policy with the existing SELinux
-> > user/kernel land?
-> > 
-> > Thanks for any pointers,
+On 7/17/09 6:10 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+
+> Ok lets try the patch again.
 > 
-> I'm not clear on what you are trying to achieve
+> Added equal patch (spelled correctly.)
+> Beginning to add modules support to consolidate on one management command.
+> Eventually replace semodule/setsebool with semanage command.
+> Some white space fixing in seobject.py
 
-Let me try and be more clear, or at least state things in a different
-way.
+As I said previously, I've split this patch into the 3 separate patches
+(whitespace, equal, modules) for review purposes, as it was too difficult to
+get through with the 3 different patches interspersed. Please try to split
+up functional patches in the future.
 
-I want to build a system that stores category 0 (c0) data at each
-sensitivity level (s0-s3).  The system also stores category 1 (c1),
-category 2 (c2), and category 3 (c3) data at each sensitivity level
-(s0-s3).  Therefore the data on the system falls into the s0-s3:c0.c3
-range.
+This message will apply to the modules patch only.
 
-Next, I want to add users to this system.  UserA has access to all
-categories at the s0 and s1 levels.  At the s2 level UserA has access to
-categories 2 and 3.  At the s3 level UserA has access to category 3
-data.  UserA's access to data could be thought of as this set of
-{ s0-s1:c0.c3, s2:c2.c3, s3:c3 } ranges.  As you can see, UserA should
-not be able to read category 0 or 1 data at the s2 level even though
-UserA can read category 3 data at the s3 range.
+> diff --git a/policycoreutils/semanage/semanage
+> b/policycoreutils/semanage/semanage
+> index 1688d85..072453d 100644
+> --- a/policycoreutils/semanage/semanage
+> +++ b/policycoreutils/semanage/semanage
+> @@ -44,7 +44,7 @@ if __name__ == '__main__':
+>                 text = _("""
+>  semanage [ -S store ] -i [ input_file | - ]
+>  
+> -semanage {boolean|login|user|port|interface|node|fcontext|translation} -{l|D}
+> [-n]
+> +semanage {module,boolean|login|user|port|interface|node|fcontext|translation}
+> -{l|D} [-n]
+>  semanage login -{a|d|m} [-sr] login_name | %groupname
+>  semanage user -{a|d|m} [-LrRP] selinux_name
+>  semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
+> @@ -53,7 +53,8 @@ semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask]
+> addr
+>  semanage fcontext -{a|d|m} [-frst] [-e path ] file_spec
+>  semanage translation -{a|d|m} [-T] level
+>  semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
+> -semanage permissive -{d|a} type
+> +semanage permissive -{a|d} type
+> +semanage module -{a|d|} module
+>  
+>  Primary Options:
+>  
+> @@ -68,6 +69,7 @@ Primary Options:
+>      -h, --help       Display this message
+>      -n, --noheading  Do not print heading when listing OBJECTS
+>          -S, --store      Select and alternate SELinux store to manage
+> +        --dontaudit      Turn on or off dontaudit rules
+>  
+Need to specify that this takes an integer argument (1 or 0) here. Also,
+need to specify which command this is valid for, which appears to be the
+module command. Why is this an option for the module command? It doesn't
+seem to have anything to do with a particular module. Should this just be
+its own command?
 
-Similarly UserB has access to all categories at the s0, s1 and s2
-sensitivity levels.  At the s3 level UserB has access to categories 0,
-1, and 2.  UserB's access to data could be thought of as this set of
-{ s0-s2:c0.c3, s3:c0.c2 } ranges.  As you can see, UserB should not be
-able to read category 3 data at the s3 level even though UserB has
-access to category 3 data at lower sensitivity levels and has access to
-other sensitivity level 3 data.
+>  Object-specific Options (see above):
+>  
+> @@ -121,6 +123,8 @@ Object-specific Options (see above):
+>          valid_option["translation"] += valid_everyone + [ '-T', '--trans' ]
+>          valid_option["boolean"] = []
+>          valid_option["boolean"] += valid_everyone + [ '--on', "--off", "-1",
+> "-0", "-F", "--file"]
+> +        valid_option["module"] = []
+> +        valid_option["module"] += [ '-a', '--add', '-d', '--delete', '-l',
+> '--list', '-h', '--help', '-n', '--noheading', '--dontaudit']
+>          valid_option["permissive"] = []
+>          valid_option["permissive"] += [ '-a', '--add', '-d', '--delete',
+> '-l', '--list', '-h', '--help', '-n', '--noheading', '-D', '--deleteall' ]
+>          return valid_option
+> @@ -194,6 +198,7 @@ Object-specific Options (see above):
+>          use_file = False
+>                  store = ""
+>                  equal = ""
+> +                dontaudit = ""
+>          
+>          object = argv[0]
+>          option_dict=get_options()
+> @@ -207,6 +212,7 @@ Object-specific Options (see above):
+>                          ['add',
+>                           'delete',
+>                           'deleteall',
+> +                         'dontaudit=',
+>                           'equal=',
+>                           'ftype=',
+>                           'file',
+> @@ -259,6 +265,9 @@ Object-specific Options (see above):
+>              if o == "-F"  or o == "--file":
+>                  use_file = True
+>  
+> +            if o == "--dontaudit":
+> +                                dontaudit = not int(a)
+> +
+>              if o == "-h" or o == "--help":
+>                                 raise ValueError(_("%s bad option") % o)
+>  
+> @@ -331,6 +340,9 @@ Object-specific Options (see above):
+>          
+>          if object == "boolean":
+>              OBJECT = seobject.booleanRecords(store)
+> +
+> +        if object == "module":
+> +            OBJECT = seobject.moduleRecords(store)
+>          
+>          if object == "translation":
+>              OBJECT = seobject.setransRecords()
+> @@ -349,6 +361,13 @@ Object-specific Options (see above):
+>              OBJECT.deleteall()
+>                          return
+>              
+> +        if dontaudit != "":
+> +            if object == "module":
+> +                               OBJECT.dontaudit(dontaudit)
+> +                        else:
+> +                               raise ValueError(_("%s bad option") % o)
+> +                        return
+> +
+>          if len(cmds) != 1:
+>                         raise ValueError(_("%s bad option") % o)
+>                  
+> @@ -370,6 +389,9 @@ Object-specific Options (see above):
+>              if object == "interface":
+>                  OBJECT.add(target, serange, setype)
+>  
+> +            if object == "module":
+> +                OBJECT.add(target)
+> +
+>              if object == "node":
+>                  OBJECT.add(target, mask, proto, serange, setype)
+>  
+> @@ -397,6 +419,9 @@ Object-specific Options (see above):
+>                  rlist = roles.split()
+>                  OBJECT.modify(target, rlist, selevel, serange, prefix)
+>  
+> +            if object == "module":
+> +                OBJECT.modify(target)
+> +
+>              if object == "port":
+>                  OBJECT.modify(target, proto, serange, setype)
+>  
+> diff --git a/policycoreutils/semanage/semanage.8
+> b/policycoreutils/semanage/semanage.8
+> index 31e98c7..56208d8 100644
+> --- a/policycoreutils/semanage/semanage.8
+> +++ b/policycoreutils/semanage/semanage.8
+> @@ -21,6 +21,8 @@ semanage \- SELinux Policy Management tool
+>  .br
+>  .B semanage permissive \-{a|d} type
+>  .br
+> +.B semanage module \-{a|d} policy_package
+> +.br
+>  .B semanage translation \-{a|d|m} [\-T] level
+>  .P
+>  
+> diff --git a/policycoreutils/semanage/seobject.py
+> b/policycoreutils/semanage/seobject.py
+> index 94bdf7f..7f911a9 100644
+> --- a/policycoreutils/semanage/seobject.py
+> +++ b/policycoreutils/semanage/seobject.py
+> @@ -314,6 +314,49 @@ class semanageRecords:
+>                 self.transaction = False
+>                 self.commit()
+>  
+> +class moduleRecords(semanageRecords):
+> +    def __init__(self, store):
+> +               semanageRecords.__init__(self, store)
+> +
+> +    def get_all(self):
+> +               l = []
+> +               (rc, mlist, number) = semanage_module_list(self.sh)
+> +               if rc < 0:
+> +                      raise ValueError(_("Could not list SELinux modules"))
+> +
+> +               for i in range(number):
+> +                      mod = semanage_module_list_nth(mlist, i)
+> +                      name = semanage_module_get_name(mod)
+> +                      l.append(name)
+> +               return l
+> +
+> +    def dontaudit(self, dontaudit = 0):
+> +               self.begin()
+> +               rc = semanage_set_disable_dontaudit(self.sh, dontaudit)
+> +               self.commit()
+> +               rc = semanage_reload_policy(self.sh)
+> +
+> +    def list(self, heading = 1, locallist = 0):
+> +        if heading:
+> +            print "\n%-25s\n" % (_("Modules"))
+> +                for t in self.get_all():
+> +                       print t
+> +
+> +    def add(self, modules):
+> +               import glob
+> +               for m in modules.split():
+> +                      rc = semanage_module_install_file(self.sh, m);
+> +               if rc >= 0:
+> +                      self.commit()
+> +
+Why import glob here? It doesn't look like you use it.
 
-Perhaps a better way to express this is on a per category per user
-basis:
+> +    def delete(self, modules):
+> +               for m in modules.split():
+> +                      rc = semanage_module_remove(self.sh, m)
+> +                      if rc < 0:
+> +                             raise ValueError(_("Could not remove module %s
+> (remove failed)") % name)
+> +                
+> +               self.commit()
+> +            
+>  class permissiveRecords(semanageRecords):
+>      def __init__(self, store):
+>                 semanageRecords.__init__(self, store)
 
-UserA's access matrix:
+Other than that, I have no problem with the code in the patch. The bigger
+problem with this is that it's still incomplete at this point. There's still
+no support for:
+- base modules
+- build (without changing anything)
+- reload (without changing anything)
+- module version number in listing
+- install/upgrade distinction (though I'm perfectly fine with ditching this)
 
-category, sl0, sl1, sl2, sl3
-       0, yes, yes, no , no 
-       1, yes, yes, no , no 
-       2, yes, yes, yes, no 
-       3, yes, yes, yes, yes 
+I'm not comfortable merging this before at least base modules are supported.
+Having an additional tool that doesn't meet the basic requirements for users
+will just lead to confusion.
 
-UserB's access matrix:
+Thanks,
+Chad
 
-category, sl0, sl1, sl2, sl3
-       0, yes, yes, yes, yes
-       1, yes, yes, yes, yes
-       2, yes, yes, yes, yes
-       3, yes, yes, yes, no 
-
-
-I believe the difference between SELinux with MLS policy and what I am
-trying to build is that I want higher sensitivity levels to dominate
-lower sensitivity levels only on a per category basis.
-
-For example, it is my understanding that under MLS UserB must have
-sensitivity level 3 access to category 3 because UserB has access to
-sensitivity level 3 access to other categories.  Another possibility
-under MLS would be to remove UserB's access to category 3 for all
-sensitivities.  Neither of these is what I want the system to do.
-
-Is that more clear about what my goals are?
-
-> At present, the kernel policy configuration specifies a default level
-> and a (single) range for each SELinux user identity defined in the
-> policy.  It also defines what categories can be associated with what
-> sensitivities, so that you could specify that e.g. c3 can only ever be
-> associated with s3, although the current refpolicy merely automatically
-> generates a list of all categories for each sensitivity.
-
-Ok, thanks for pointing that out.
-
-> The userland configuration specifies a SELinux user and a (single) range
-> for each Linux user / login.  That range has to be a subset of the one
-> authorized for the SELinux user.  That lets you specify subranges for
-> individual Linux users without having to define each of them within the
-> kernel policy.
-
-Perhaps what I'm describing is multiple ranges for each user / login.
-Could that be achieved with user space modifications only?
-
-Thanks for reading this far,
-
-rob.
 
 
 --
