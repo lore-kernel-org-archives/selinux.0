@@ -1,50 +1,99 @@
-Subject: Re: Not quite MLS.
+Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on
+ sysfs files, directories, and symlinks.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: rob myers <rob.myers@gtri.gatech.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
-References: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
+        Greg Kroah-Hartman <greg@kroah.com>, ebiederm@xmission.com,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+In-Reply-To: <4A860D0F.7020205@schaufler-ca.com>
+References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
+	 <4A84EF1D.8060408@schaufler-ca.com>
+	 <1250252411.2422.177.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A860D0F.7020205@schaufler-ca.com>
 Content-Type: text/plain
-Date: Mon, 17 Aug 2009 07:40:52 -0400
-Message-Id: <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 17 Aug 2009 07:53:13 -0400
+Message-Id: <1250509993.3629.93.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-08-14 at 17:30 -0400, rob myers wrote:
-> I would like to create a login that has access to one category at the
-> highest sensitivity level, but in another category only has access at a
-> lower sensitivity level.  For example, on a system where SystemHigh is
-> s0-s3:c0.c3, one login could be defined as something similar to:
-> s0-s1:c0.c3, s2:c2.c3, s3:c3, while another login could be defined as
-> s0-s2:c0.c3, s3:c0.c2 .
+On Fri, 2009-08-14 at 18:19 -0700, Casey Schaufler wrote:
+> Stephen Smalley wrote:
+> > On Thu, 2009-08-13 at 21:59 -0700, Casey Schaufler wrote:
+> >   
+> >> From: Casey Schaufler <casey@schaufler-ca.com>
+> >>
+> >> This patch is in response to David P. Quigley's proposal from
+> >> July of this year. That patch provided special case handling of
+> >> LSM xattrs in the security name space.
+> >>
+> >> This patch provides an in memory representation of general
+> >> xattrs. It currently only allows xattrs in the security namespace,
+> >> but that is only because the support of ACLs is beyond the
+> >> day's needs. The list of xattrs for a given file is created on
+> >> demand and a system that does not use xattrs should be pretty
+> >> well oblivious to the changes. On the down side, this requires
+> >> an unpleasant locking scheme. Improvements would of course be
+> >> welcome.
+> >>
+> >> This scheme should generalize to any memory based file system,
+> >> although I have not attempted to create a generic implementation
+> >> here.
+> >>     
+> >
+> > I don't understand the benefits of this scheme compared to David's patch
+> > - can you explain?
 > 
-> Am I correct that MLS policy cannot support this scenario?
-> 
-> Is this possible under any old, current, or developmental SELinux
-> policy?
-> 
-> Would it be possible to write such a policy with the existing SELinux
-> user/kernel land?
-> 
-> Thanks for any pointers,
+> Sure, you bet. David's scheme requires as LSM and is only capable
+> of supporting security namespace attributes. It is further not a
+> reasonable model for other memory based filesystems. If all you
+> ever want to support is SELinux, it would be fine, but an LSM
+> that uses multiple xattrs (Smack only uses multiple xattrs on
+> sockets, but it does use them) would be hard pressed to work off
+> of a secid. This is a swag at real xattr support, which is the
+> right thing to do for any filesystem. Special purpose interfaces
+> to solve a single instance of a problem are for squares.
 
-I'm not clear on what you are trying to achieve, but I think the answer
-is that you would have to modify at least the userland and possibly the
-kernel logic for what you describe.
+I don't see that one particularly wants full xattr support on sysfs
+nodes (or other in-memory filesystems).  Why would one support e.g.
+user.* attributes on such nodes?  Why would one support filesystem
+capabilities on such nodes (careful - last thing we want is a repeat of
+suid bit on proc nodes)?  And if you want ACL support, you'll need code
+to actually enforce those ACLs within the filesystem, not just generic
+xattr handler code - see the tmpfs code in mm/shmem.c for an example of
+ACL support for in-memory filesystems.
 
-At present, the kernel policy configuration specifies a default level
-and a (single) range for each SELinux user identity defined in the
-policy.  It also defines what categories can be associated with what
-sensitivities, so that you could specify that e.g. c3 can only ever be
-associated with s3, although the current refpolicy merely automatically
-generates a list of all categories for each sensitivity.
+> >   It seems worse in terms of locking,
+> 
+> I'll buy that, and happily incorporate improvements. The
+> crude locking is an artifact of keeping memory usage down.
 
-The userland configuration specifies a SELinux user and a (single) range
-for each Linux user / login.  That range has to be a subset of the one
-authorized for the SELinux user.  That lets you specify subranges for
-individual Linux users without having to define each of them within the
-kernel policy.
+But you don't need any extra locking if you just directly use the
+existing memory storage provided by the security module.
+
+> >  memory use,
+> 
+> There are less than 12,000 entries in /sys on my machine.
+> Is that really an issue?
+> 
+> >  and
+> > is no more general than David's patch.
+> 
+> Except that one could (fix the locking and) port this code to
+> other memory based file systems, such as smackfs or selinuxfs
+> without much bother. You'd have to implement new LSM hooks for
+> each file system you ported the other approach for. It
+> can be used without an LSM, it could support multiple security
+> xattrs and it can support other namespaces.
+
+The hooks proposed by David would work with other in-memory filesystems
+that likewise need to save the attribute in a backing data structure -
+only the particular backing data structure and placement of the hooks
+would be specific to the filesystem, and that is unavoidable.
+
+For in-memory filesystems that pin the inodes, we already have all the
+support we require by virtue of the existing vfs fallbacks.
 
 -- 
 Stephen Smalley
