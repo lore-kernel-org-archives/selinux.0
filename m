@@ -1,211 +1,117 @@
-MIME-Version: 1.0
-In-Reply-To: <81092d890908170755n2f5df6c2h3ca57faff998e6d6@mail.gmail.com>
-References: <81092d890908161153h38ae37fdx9123ecea3adb6d51@mail.gmail.com>
-	 <1250512198.3629.110.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890908170747s305cf9f2uc734f5a3fefd4efc@mail.gmail.com>
-	 <1250521053.3629.117.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890908170755n2f5df6c2h3ca57faff998e6d6@mail.gmail.com>
-Date: Mon, 17 Aug 2009 13:38:57 -0700
-Message-ID: <81092d890908171338j36a27012h3b87c5828f1d24ab@mail.gmail.com>
-Subject: Re: checking user status
-From: Larry Ross <selinux.larry@gmail.com>
+Subject: Re: Not quite MLS.
+From: rob myers <rob.myers@gtri.gatech.edu>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=0015174736ac1e769c04715c644d
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil>
+References: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu>
+	 <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 17 Aug 2009 17:38:24 -0400
+Message-ID: <1250545104.3588.149.camel@rxm-581b.stl.gtri.gatech.edu>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0015174736ac1e769c04715c644d
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, 2009-08-17 at 07:40 -0400, Stephen Smalley wrote:
+> On Fri, 2009-08-14 at 17:30 -0400, rob myers wrote:
+> > I would like to create a login that has access to one category at the
+> > highest sensitivity level, but in another category only has access at a
+> > lower sensitivity level.  For example, on a system where SystemHigh is
+> > s0-s3:c0.c3, one login could be defined as something similar to:
+> > s0-s1:c0.c3, s2:c2.c3, s3:c3, while another login could be defined as
+> > s0-s2:c0.c3, s3:c0.c2 .
+> > 
+> > Am I correct that MLS policy cannot support this scenario?
+> > 
+> > Is this possible under any old, current, or developmental SELinux
+> > policy?
+> > 
+> > Would it be possible to write such a policy with the existing SELinux
+> > user/kernel land?
+> > 
+> > Thanks for any pointers,
+> 
+> I'm not clear on what you are trying to achieve
 
-On Mon, Aug 17, 2009 at 7:55 AM, Larry Ross <selinux.larry@gmail.com> wrote:
+Let me try and be more clear, or at least state things in a different
+way.
 
->   On Mon, Aug 17, 2009 at 7:57 AM, Stephen Smalley <sds@tycho.nsa.gov>wrote:
->
->>  On Mon, 2009-08-17 at 07:47 -0700, Larry Ross wrote:
->> > On Mon, Aug 17, 2009 at 5:29 AM, Stephen Smalley <sds@tycho.nsa.gov>
->> > wrote:
->> >         On Sun, 2009-08-16 at 11:53 -0700, Larry Ross wrote:
->> >         > Using the RHEL5.3 strict policy I am trying to allow a
->> >         custom selinux
->> >         > user permission to use the passwd and chage commands to get
->> >         the status
->> >         > of a local user.
->> >         >
->> >         > With selinux in permissive it works as expected, with
->> >         selinux in
->> >         > enforcing, all I get are cryptic error messages.  I
->> >         installed the
->> >         > enableaudit.pp base policy module, still no denials.
->> >         >
->> >         > Does anyone know what permissions I need to add or what I
->> >         could
->> >         > be doing wrong?  Is this even possible?
->> >
->> > Stephen,
->> > Thank you for your response.
->> >
->> >
->> >         Did you allow the :passwd permission to the custom selinux
->> >         user's
->> >         domain?
->> >
->> >         allow <userdomain> self:passwd { passwd };
->> >
->> > I would have if I had know about it, is this documented somewhere?.
->> >
->> > That worked for "passwd -S", is there something similar to allow a
->> > user to use the chage command?
->>
->> Looks like that is using rootok, although it ought to use a permission
->> of its own rather than overlapping with pam_rootok.
->>
->> So:
->>        allow <userdomain> self:passwd { passwd rootok };
->
->
-Similar issue.  I have created a new user and used chage to expire their
-password so they are required to create a new one on their first login.
+I want to build a system that stores category 0 (c0) data at each
+sensitivity level (s0-s3).  The system also stores category 1 (c1),
+category 2 (c2), and category 3 (c3) data at each sensitivity level
+(s0-s3).  Therefore the data on the system falls into the s0-s3:c0.c3
+range.
 
-Logging in to the Gnome Greeter, with SELinux permissive, there is no issue,
-with SELinux enforcing (still the strict policy, a custom user), I get a
-message that says "The change of the authentication token failed.  Please
-try again later or contact the system administrator."
+Next, I want to add users to this system.  UserA has access to all
+categories at the s0 and s1 levels.  At the s2 level UserA has access to
+categories 2 and 3.  At the s3 level UserA has access to category 3
+data.  UserA's access to data could be thought of as this set of
+{ s0-s1:c0.c3, s2:c2.c3, s3:c3 } ranges.  As you can see, UserA should
+not be able to read category 0 or 1 data at the s2 level even though
+UserA can read category 3 data at the s3 range.
 
-No SELinux denials.
+Similarly UserB has access to all categories at the s0, s1 and s2
+sensitivity levels.  At the s3 level UserB has access to categories 0,
+1, and 2.  UserB's access to data could be thought of as this set of
+{ s0-s2:c0.c3, s3:c0.c2 } ranges.  As you can see, UserB should not be
+able to read category 3 data at the s3 level even though UserB has
+access to category 3 data at lower sensitivity levels and has access to
+other sensitivity level 3 data.
 
-Two questions:
-1. Anyone know what permission or permissions are required so this works and
-which domain or domains need it?
-2. Anyone have any direction on how I can answer these questions for myself?
+Perhaps a better way to express this is on a per category per user
+basis:
 
-  Thank you,
-  Larry
+UserA's access matrix:
+
+category, sl0, sl1, sl2, sl3
+       0, yes, yes, no , no 
+       1, yes, yes, no , no 
+       2, yes, yes, yes, no 
+       3, yes, yes, yes, yes 
+
+UserB's access matrix:
+
+category, sl0, sl1, sl2, sl3
+       0, yes, yes, yes, yes
+       1, yes, yes, yes, yes
+       2, yes, yes, yes, yes
+       3, yes, yes, yes, no 
 
 
+I believe the difference between SELinux with MLS policy and what I am
+trying to build is that I want higher sensitivity levels to dominate
+lower sensitivity levels only on a per category basis.
 
+For example, it is my understanding that under MLS UserB must have
+sensitivity level 3 access to category 3 because UserB has access to
+sensitivity level 3 access to other categories.  Another possibility
+under MLS would be to remove UserB's access to category 3 for all
+sensitivities.  Neither of these is what I want the system to do.
 
+Is that more clear about what my goals are?
 
->
->>
->> These programs ought to be converted to using the userspace AVC so that
->> they emit proper avc messages on denials.
->
->
-> I will agree with that.  Thank you for your help.
->
->   -- Larry
->
->
->>
->>
->> --
->>   Stephen Smalley
->> National Security Agency
->>
->>
->
+> At present, the kernel policy configuration specifies a default level
+> and a (single) range for each SELinux user identity defined in the
+> policy.  It also defines what categories can be associated with what
+> sensitivities, so that you could specify that e.g. c3 can only ever be
+> associated with s3, although the current refpolicy merely automatically
+> generates a list of all categories for each sensitivity.
 
---0015174736ac1e769c04715c644d
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Ok, thanks for pointing that out.
 
-<div class=3D"gmail_quote">On Mon, Aug 17, 2009 at 7:55 AM, Larry Ross <spa=
-n dir=3D"ltr">&lt;<a href=3D"mailto:selinux.larry@gmail.com">selinux.larry@=
-gmail.com</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div class=3D"gmail_quote">
-<div>
-<div></div>
-<div class=3D"h5">On Mon, Aug 17, 2009 at 7:57 AM, Stephen Smalley <span di=
-r=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@ty=
-cho.nsa.gov</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div>
-<div></div>
-<div>On Mon, 2009-08-17 at 07:47 -0700, Larry Ross wrote:<br>&gt; On Mon, A=
-ug 17, 2009 at 5:29 AM, Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.nsa=
-.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;<br>&gt; wrote:<br>&gt; =
-=A0 =A0 =A0 =A0 On Sun, 2009-08-16 at 11:53 -0700, Larry Ross wrote:<br>
-&gt; =A0 =A0 =A0 =A0 &gt; Using the RHEL5.3 strict policy I am trying to al=
-low a<br>&gt; =A0 =A0 =A0 =A0 custom selinux<br>&gt; =A0 =A0 =A0 =A0 &gt; u=
-ser permission to use the passwd and chage commands to get<br>&gt; =A0 =A0 =
-=A0 =A0 the status<br>&gt; =A0 =A0 =A0 =A0 &gt; of a local user.<br>
-&gt; =A0 =A0 =A0 =A0 &gt;<br>&gt; =A0 =A0 =A0 =A0 &gt; With selinux in perm=
-issive it works as expected, with<br>&gt; =A0 =A0 =A0 =A0 selinux in<br>&gt=
-; =A0 =A0 =A0 =A0 &gt; enforcing, all I get are cryptic error messages. =A0=
-I<br>&gt; =A0 =A0 =A0 =A0 installed the<br>
-&gt; =A0 =A0 =A0 =A0 &gt; enableaudit.pp base policy module, still no denia=
-ls.<br>&gt; =A0 =A0 =A0 =A0 &gt;<br>&gt; =A0 =A0 =A0 =A0 &gt; Does anyone k=
-now what permissions I need to add or what I<br>&gt; =A0 =A0 =A0 =A0 could<=
-br>&gt; =A0 =A0 =A0 =A0 &gt; be doing wrong? =A0Is this even possible?<br>
-&gt;<br>&gt; Stephen,<br>&gt; Thank you for your response.<br>&gt;<br>&gt;<=
-br>&gt; =A0 =A0 =A0 =A0 Did you allow the :passwd permission to the custom =
-selinux<br>&gt; =A0 =A0 =A0 =A0 user&#39;s<br>&gt; =A0 =A0 =A0 =A0 domain?<=
-br>&gt;<br>&gt; =A0 =A0 =A0 =A0 allow &lt;userdomain&gt; self:passwd { pass=
-wd };<br>
-&gt;<br>&gt; I would have if I had know about it, is this documented somewh=
-ere?.<br>&gt;<br>&gt; That worked for &quot;passwd -S&quot;, is there somet=
-hing similar to allow a<br>&gt; user to use the chage command?<br><br></div=
->
-</div>Looks like that is using rootok, although it ought to use a permissio=
-n<br>of its own rather than overlapping with pam_rootok.<br><br>So:<br>=A0 =
-=A0 =A0 =A0allow &lt;userdomain&gt; self:passwd { passwd rootok };</blockqu=
-ote>
-</div></div></div></blockquote>
-<div>=A0</div>
-<div>Similar issue.=A0 I have created a new user and used chage to expire t=
-heir password so they are required to create a new one on=A0their first log=
-in.=A0 =A0</div>
-<div>=A0</div>
-<div>Logging in to the Gnome Greeter, with SELinux permissive, there is no =
-issue, with SELinux enforcing (still the strict policy, a custom user), I g=
-et a message that says &quot;The change of the authentication token failed.=
-=A0 Please try again later or contact the system administrator.&quot;</div>
+> The userland configuration specifies a SELinux user and a (single) range
+> for each Linux user / login.  That range has to be a subset of the one
+> authorized for the SELinux user.  That lets you specify subranges for
+> individual Linux users without having to define each of them within the
+> kernel policy.
 
-<div>=A0</div>
-<div>No SELinux denials.</div>
-<div>=A0</div>
-<div>Two questions:</div>
-<div>1. Anyone know what permission or permissions=A0are required so this w=
-orks and which domain or domains=A0need it?</div>
-<div>2. Anyone have any direction on how I can answer these questions for m=
-yself?</div>
-<div>=A0</div>
-<div>=A0 Thank you,</div>
-<div>=A0 Larry</div>
-<div>=A0</div>
-<div>=A0</div>
-<div>=A0</div>
-<div>=A0</div>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div class=3D"gmail_quote">
-<div>
-<div class=3D"h5">
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><span id=3D""></span><br><br>The=
-se programs ought to be converted to using the userspace AVC so that<br>the=
-y emit proper avc messages on denials.</blockquote>
+Perhaps what I'm describing is multiple ranges for each user / login.
+Could that be achieved with user space modifications only?
 
-<div>=A0</div></div></div>
-<div>I will agree with that.=A0 Thank you for your help.</div>
-<div>=A0</div>
-<div>=A0 -- Larry</div>
-<div>=A0</div>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><span></span><br><font color=3D"=
-#888888"><br>--<br></font>
-<div class=3D"im">
-<div>
-<div></div>
-<div>Stephen Smalley<br>National Security Agency<br><br></div></div></div><=
-/blockquote></div><br></blockquote></div><br>
+Thanks for reading this far,
 
---0015174736ac1e769c04715c644d--
+rob.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
