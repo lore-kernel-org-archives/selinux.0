@@ -1,64 +1,111 @@
-Subject: Re: [PATCH] Security/sysfs: v2 - Enable security xattrs to be set
- on sysfs files, directories, and symlinks.
+Subject: Re: checking user status
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
-        gregkh@suse.de, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <4A8A2616.8020809@schaufler-ca.com>
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <4A84EF1D.8060408@schaufler-ca.com> <m1my62xde6.fsf@fess.ebiederm.org>
-	 <4A861291.1030404@schaufler-ca.com> <m1tz09j00q.fsf@fess.ebiederm.org>
-	 <4A864008.50907@schaufler-ca.com> <m1my61sjie.fsf@fess.ebiederm.org>
-	 <4A8A2616.8020809@schaufler-ca.com>
+To: Larry Ross <selinux.larry@gmail.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <81092d890908171338j36a27012h3b87c5828f1d24ab@mail.gmail.com>
+References: <81092d890908161153h38ae37fdx9123ecea3adb6d51@mail.gmail.com>
+	 <1250512198.3629.110.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170747s305cf9f2uc734f5a3fefd4efc@mail.gmail.com>
+	 <1250521053.3629.117.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170755n2f5df6c2h3ca57faff998e6d6@mail.gmail.com>
+	 <81092d890908171338j36a27012h3b87c5828f1d24ab@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 18 Aug 2009 08:14:20 -0400
-Message-Id: <1250597660.3629.204.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 18 Aug 2009 08:19:21 -0400
+Message-Id: <1250597961.3629.209.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-08-17 at 20:55 -0700, Casey Schaufler wrote:
-> From: Casey Schaufler <casey@schaufler-ca.com>
-> 
-> Another approach to limited xattr support in sysfs.
-> 
-> I tried to listen to the objections to a linked list representation
-> and I think that I understand that there isn't really any interest
-> in supporting xattrs for real, only for those maintained by LSMs.
-> I also looked carefully into the claims that memory usage is
-> critical and that the code I had before was duplicating effort.
-> 
-> This version lets the surrounding code do as much of the work as
-> possible. Unlike the initial proposal for sysfs xattrs, it does not
-> introduce any new LSM hooks, it uses hooks that already exist. It
-> does not support any attributes on its own, it only provides for
-> the attribute advertised by security_inode_listsecurity(). It could
-> easily be used by other filesystems to provide the same LSM xattr
-> support. It could also be extended to do the list based support for
-> arbitrary xattrs without too much effort.
-> 
-> Probably the oddest bit is that the inode_getsecurity hooks need to
-> check to see if they are getting called before the inode is instantiated
-> and return -ENODATA in that event. It would be possible to do a
-> filesystem specific check instead, but this way provides for generally
-> correct behavior at small cost.
-> 
-> This has been tested with Smack, but not SELinux. I think that
-> SELinux will work correctly, but it could be that a labeling
-> behavior that is different than the "usual" instantiation labeling
-> is actually desired. That would be an easy change.
-> 
-> As always, let me know if I missed something obvious or if there's a
-> fatal flaw in the scheme.
+On Mon, 2009-08-17 at 13:38 -0700, Larry Ross wrote:
+> On Mon, Aug 17, 2009 at 7:55 AM, Larry Ross <selinux.larry@gmail.com>
+> wrote:
+>         
+>         On Mon, Aug 17, 2009 at 7:57 AM, Stephen Smalley
+>         <sds@tycho.nsa.gov> wrote:
+>                 
+>                 On Mon, 2009-08-17 at 07:47 -0700, Larry Ross wrote:
+>                 > On Mon, Aug 17, 2009 at 5:29 AM, Stephen Smalley
+>                 <sds@tycho.nsa.gov>
+>                 > wrote:
+>                 >         On Sun, 2009-08-16 at 11:53 -0700, Larry
+>                 Ross wrote:
+>                 >         > Using the RHEL5.3 strict policy I am
+>                 trying to allow a
+>                 >         custom selinux
+>                 >         > user permission to use the passwd and
+>                 chage commands to get
+>                 >         the status
+>                 >         > of a local user.
+>                 >         >
+>                 >         > With selinux in permissive it works as
+>                 expected, with
+>                 >         selinux in
+>                 >         > enforcing, all I get are cryptic error
+>                 messages.  I
+>                 >         installed the
+>                 >         > enableaudit.pp base policy module, still
+>                 no denials.
+>                 >         >
+>                 >         > Does anyone know what permissions I need
+>                 to add or what I
+>                 >         could
+>                 >         > be doing wrong?  Is this even possible?
+>                 >
+>                 > Stephen,
+>                 > Thank you for your response.
+>                 >
+>                 >
+>                 >         Did you allow the :passwd permission to the
+>                 custom selinux
+>                 >         user's
+>                 >         domain?
+>                 >
+>                 >         allow <userdomain> self:passwd { passwd };
+>                 >
+>                 > I would have if I had know about it, is this
+>                 documented somewhere?.
+>                 >
+>                 > That worked for "passwd -S", is there something
+>                 similar to allow a
+>                 > user to use the chage command?
+>                 
+>                 
+>                 Looks like that is using rootok, although it ought to
+>                 use a permission
+>                 of its own rather than overlapping with pam_rootok.
+>                 
+>                 So:
+>                        allow <userdomain> self:passwd { passwd
+>                 rootok };
+>  
+> Similar issue.  I have created a new user and used chage to expire
+> their password so they are required to create a new one on their first
+> login.   
+>  
+> Logging in to the Gnome Greeter, with SELinux permissive, there is no
+> issue, with SELinux enforcing (still the strict policy, a custom
+> user), I get a message that says "The change of the authentication
+> token failed.  Please try again later or contact the system
+> administrator."
+>  
+> No SELinux denials.
+>  
+> Two questions:
+> 1. Anyone know what permission or permissions are required so this
+> works and which domain or domains need it?
+> 2. Anyone have any direction on how I can answer these questions for
+> myself?
 
-The point of the David's patch was to provide a way to save the security
-xattr in the backing data structure for sysfs entries when an attribute
-value is set from userspace so that the value can be preserved if the
-inode is evicted from memory and later re-instantiated.  AFAICS, your
-patch completely misses the problem.  How about we just go back to
-David's patch?
+If this is another manifestation of the same problem, then the easiest
+approach would be to grab the libselinux .src.rpm, patch
+libselinux/src/checkAccess.c to syslog() a message whenever there is a
+denial, build and install your patched libselinux, and then retry and
+look for the log message.
+
+Dan - we should really convert those programs over to using the avc so
+that we'll get AVC denials.  Look to xselinux.c in Xorg as the canonical
+modern example.  Not sure if dbusd or nscd have really been updated to
+the latest interfaces.
 
 -- 
 Stephen Smalley
