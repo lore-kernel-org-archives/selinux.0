@@ -1,111 +1,29 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7IM9lh8002533
-	for <selinux@tycho.nsa.gov>; Tue, 18 Aug 2009 18:09:48 -0400
-Received: from mx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7IM9EwX008818
-	for <selinux@tycho.nsa.gov>; Tue, 18 Aug 2009 22:09:15 GMT
-Message-ID: <4A8B26A7.4080509@redhat.com>
-Date: Tue, 18 Aug 2009 18:09:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Wed, 19 Aug 2009 08:14:09 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Huang Weiyi <weiyi.huang@gmail.com>
+cc: eparis@redhat.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Security/SELinux: remove duplicated #include
+In-Reply-To: <1250603833-3972-1-git-send-email-weiyi.huang@gmail.com>
+Message-ID: <alpine.LRH.2.00.0908190813520.15789@tundra.namei.org>
+References: <1250603833-3972-1-git-send-email-weiyi.huang@gmail.com>
 MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to semanage
-References: <C6B0983D.A9D92%csellers@tresys.com>
-In-Reply-To: <C6B0983D.A9D92%csellers@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/18/2009 05:41 PM, Chad Sellers wrote:
-> On 8/18/09 5:35 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
-> 
->> On 08/17/2009 05:45 PM, Chad Sellers wrote:
->>> On 7/17/09 6:10 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
->>>
->>>> Ok lets try the patch again.
->>>>
->>>> Added equal patch (spelled correctly.)
->>>> Beginning to add modules support to consolidate on one management command.
->>>> Eventually replace semodule/setsebool with semanage command.
->>>> Some white space fixing in seobject.py
->>>
->>> As I said previously, I've split this patch into the 3 separate patches
->>> (whitespace, equal, modules) for review purposes, as it was too difficult to
->>> get through with the 3 different patches interspersed. Please try to split
->>> up functional patches in the future.
->>>
->>> This message will apply to the modules patch only.
->>>
->>>> diff --git a/policycoreutils/semanage/semanage
->>>> b/policycoreutils/semanage/semanage
->>>> index 1688d85..072453d 100644
->>>> --- a/policycoreutils/semanage/semanage
->>>> +++ b/policycoreutils/semanage/semanage
->>>> @@ -44,7 +44,7 @@ if __name__ == '__main__':
->>>>                 text = _("""
->>>>  semanage [ -S store ] -i [ input_file | - ]
->>>>  
->>>> -semanage {boolean|login|user|port|interface|node|fcontext|translation}
->>>> -{l|D}
->>>> [-n]
->>>> +semanage 
->>>> {module,boolean|login|user|port|interface|node|fcontext|translation}
->>>> -{l|D} [-n]
->>>>  semanage login -{a|d|m} [-sr] login_name | %groupname
->>>>  semanage user -{a|d|m} [-LrRP] selinux_name
->>>>  semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
->>>> @@ -53,7 +53,8 @@ semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask]
->>>> addr
->>>>  semanage fcontext -{a|d|m} [-frst] [-e path ] file_spec
->>>>  semanage translation -{a|d|m} [-T] level
->>>>  semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
->>>> -semanage permissive -{d|a} type
->>>> +semanage permissive -{a|d} type
->>>> +semanage module -{a|d|} module
->>>>  
->>>>  Primary Options:
->>>>  
->>>> @@ -68,6 +69,7 @@ Primary Options:
->>>>      -h, --help       Display this message
->>>>      -n, --noheading  Do not print heading when listing OBJECTS
->>>>          -S, --store      Select and alternate SELinux store to manage
->>>> +        --dontaudit      Turn on or off dontaudit rules
->>>>  
->>> Need to specify that this takes an integer argument (1 or 0) here. Also,
->>> need to specify which command this is valid for, which appears to be the
->>> module command. Why is this an option for the module command? It doesn't
->>> seem to have anything to do with a particular module. Should this just be
->>> its own command?
->>>
->> I think it should be just for the modules command.
-> 
-> Care to explain why? As your usage above shows, the module command is for
-> adding or deleting modules. This functionality has nothing to do with that.
-> --dontaudit is for specifying globally that dontaudit's should be turned
-> on/off. It's not an option that modifies the behavior of adding or deleting
-> a module, it's a completely separate thing.
-> 
-No I don't care to explain why, now that you shot down my idea. :^)
+On Tue, 18 Aug 2009, Huang Weiyi wrote:
 
-I guess it should be a separate command
-
-What do you think of.
-
-semanage dontaudit -a
-semanage dontaudit -d
-
-> Thanks,
-> Chad
+> Remove duplicated #include('s) in
+>   kernel/sysctl.c
 > 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-> 
+> Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
 
+
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
+-- 
+James Morris <jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
