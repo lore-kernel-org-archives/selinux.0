@@ -1,99 +1,142 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7IGFDCS029510
-	for <selinux@tycho.nsa.gov>; Tue, 18 Aug 2009 12:15:13 -0400
-Received: from zucker.argus-systems.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7IGGK9K026223
-	for <selinux@tycho.nsa.gov>; Tue, 18 Aug 2009 16:16:20 GMT
-Received: from [192.0.0.172] (chaos.argus-systems.com [66.209.209.174])
-	by zucker.argus-systems.com (Postfix) with ESMTP id 2999323C93
-	for <selinux@tycho.nsa.gov>; Tue, 18 Aug 2009 11:13:26 -0500 (CDT)
-Message-ID: <4A8AD3A1.30109@argus-systems.com>
-Date: Tue, 18 Aug 2009 11:15:29 -0500
-From: Paul McNabb <mcnabb@argus-systems.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Not quite MLS.
-References: <1250285426.3588.87.camel@rxm-581b.stl.gtri.gatech.edu> <1250509252.3629.84.camel@moss-pluto.epoch.ncsc.mil> <1250545104.3588.149.camel@rxm-581b.stl.gtri.gatech.edu> <4A89F878.1040604@sun.com>
-In-Reply-To: <4A89F878.1040604@sun.com>
-Content-Type: multipart/mixed;
- boundary="------------010902030206090403020606"
+In-Reply-To: <1250599197.3629.210.camel@moss-pluto.epoch.ncsc.mil>
+References: <81092d890908161153h38ae37fdx9123ecea3adb6d51@mail.gmail.com>
+	 <1250512198.3629.110.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170747s305cf9f2uc734f5a3fefd4efc@mail.gmail.com>
+	 <1250521053.3629.117.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170755n2f5df6c2h3ca57faff998e6d6@mail.gmail.com>
+	 <81092d890908171338j36a27012h3b87c5828f1d24ab@mail.gmail.com>
+	 <1250597961.3629.209.camel@moss-pluto.epoch.ncsc.mil>
+	 <1250599197.3629.210.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 18 Aug 2009 10:15:23 -0700
+Message-ID: <81092d890908181015j71ce6b62tdc5f5251220d84a9@mail.gmail.com>
+Subject: Re: checking user status
+From: Larry Ross <selinux.larry@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=00151747af9af06ece04716da90c
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010902030206090403020606
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--00151747af9af06ece04716da90c
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Glenn is right that the Mitre LEF can only work on a per-system rather 
-than a per-user basis for disallowing certain classification and 
-compartment/category constraints.  The only MLS system that I know of 
-that did what you are asking for is the old Addamax B1st system.  That 
-MLS system had user clearances as a set of labels and label ranges that 
-allowed a specific user clearance to be something like:
+On Tue, Aug 18, 2009 at 5:39 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-{ unc - ts:1,2,3; unc:4 - sec:4 ; con:5 }
+> On Tue, 2009-08-18 at 08:19 -0400, Stephen Smalley wrote:
+> > If this is another manifestation of the same problem, then the easiest
+> > approach would be to grab the libselinux .src.rpm, patch
+> > libselinux/src/checkAccess.c to syslog() a message whenever there is a
+> > denial, build and install your patched libselinux, and then retry and
+> > look for the log message.
+>
+> Something like this patch (un-tested, against the current upstream
+> libselinux):
+>
+> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> index c1982c7..cae1626 100644
+> --- a/libselinux/src/checkAccess.c
+> +++ b/libselinux/src/checkAccess.c
+> @@ -2,6 +2,7 @@
+>  #include <sys/types.h>
+>  #include <stdlib.h>
+>  #include <errno.h>
+> +#include <syslog.h>
+>  #include "selinux_internal.h"
+>  #include <selinux/flask.h>
+>  #include <selinux/av_permissions.h>
+> @@ -29,7 +30,15 @@ int selinux_check_passwd_access(access_vector_t
+> requested)
+>
+>                if ((retval == 0) && ((requested & avd.allowed) ==
+> requested)) {
+>                        status = 0;
+> +               } else {
+> +                       syslog(LOG_ERR,
+> +                              "avc:  denied { %s } for scontext=%s "
+> +                              "tcontext=%s tclass=passwd\n",
+> +                              security_av_perm_to_string(passwd_class,
+> +                                                         requested),
+> +                              user_context, user_context);
+>                }
+> +
+>                freecon(user_context);
+>         }
+>
 
-which would allow the user to be cleared from unc to ts in categories 1, 
-2, and 3 but have only a unc to sec clearance in category 4 and only con 
-for category 5.
+Where does the passwd_class come from?
 
-Strictly speaking, a system can be "fully MLS" regardless of the 
-clearance functionality.  Some MLS systems have been built (and bought) 
-without any notion of a user clearance at all, particularly some MLS 
-systems built to the first generation of TCSEC requirements.
+  -- Larry
 
-paul
 
-Glenn Faden wrote:
-> rob myers wrote:
->>
->> I believe the difference between SELinux with MLS policy and what I am
->> trying to build is that I want higher sensitivity levels to dominate
->> lower sensitivity levels only on a per category basis.
->>
->> For example, it is my understanding that under MLS UserB must have
->> sensitivity level 3 access to category 3 because UserB has access to
->> sensitivity level 3 access to other categories.  Another possibility
->> under MLS would be to remove UserB's access to category 3 for all
->> sensitivities.  Neither of these is what I want the system to do.
->>   
-> For MLS systems based on the Mitre/DIA label encodings format it is 
-> possible to exclude specific categories on a per sensitivity label 
-> basis from the User Accreditation Range. For an example, see:
+
+
 >
 >
-> So it is possible to specify a User Accreditation Range conforming to 
-> either the UserA or UserB matrix. However, the format only provides 
-> for a single User Accreditiation Range that would apply to all users. 
-> In MLS systems I'm familiar with, there is no facility to exclude 
-> categories from the kernel dominance checks.
 >
-> --Glenn
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
---------------010902030206090403020606
-Content-Type: text/x-vcard; charset=utf-8;
- name="mcnabb.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="mcnabb.vcf"
+--00151747af9af06ece04716da90c
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-begin:vcard
-fn:Paul McNabb
-n:McNabb;Paul
-org:Argus Systems Group
-adr:;;1809 Woodfield Drive;Savoy;IL;61874-9505;USA
-email;internet:mcnabb@argus-systems.com
-title:Chief Security Architect
-tel;work:+1 217-355-6308
-tel;fax:+1 217-355-1433
-tel;cell:+1 217-493-3818
-url:http://www.argus-systems.com
-version:2.1
-end:vcard
+<div class=3D"gmail_quote">On Tue, Aug 18, 2009 at 5:39 AM, Stephen Smalley=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.g=
+ov</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
+<div class=3D"im">On Tue, 2009-08-18 at 08:19 -0400, Stephen Smalley wrote:=
+<br>&gt; If this is another manifestation of the same problem, then the eas=
+iest<br>&gt; approach would be to grab the libselinux .src.rpm, patch<br>
+&gt; libselinux/src/checkAccess.c to syslog() a message whenever there is a=
+<br>&gt; denial, build and install your patched libselinux, and then retry =
+and<br>&gt; look for the log message.<br><br></div>Something like this patc=
+h (un-tested, against the current upstream<br>
+libselinux):<br><br>diff --git a/libselinux/src/checkAccess.c b/libselinux/=
+src/checkAccess.c<br>index c1982c7..cae1626 100644<br>--- a/libselinux/src/=
+checkAccess.c<br>+++ b/libselinux/src/checkAccess.c<br>@@ -2,6 +2,7 @@<br>
+=A0#include &lt;sys/types.h&gt;<br>=A0#include &lt;stdlib.h&gt;<br>=A0#incl=
+ude &lt;errno.h&gt;<br>+#include &lt;syslog.h&gt;<br>=A0#include &quot;seli=
+nux_internal.h&quot;<br>=A0#include &lt;selinux/flask.h&gt;<br>=A0#include =
+&lt;selinux/av_permissions.h&gt;<br>
+@@ -29,7 +30,15 @@ int selinux_check_passwd_access(access_vector_t requeste=
+d)<br><br>=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if ((retval =3D=3D 0) &amp;&amp; (=
+(requested &amp; avd.allowed) =3D=3D requested)) {<br>=A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0status =3D 0;<br>+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 }=
+ else {<br>
++ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 syslog(LOG_ERR,<br>+ =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0&quot;avc: =A0denied { %=
+s } for scontext=3D%s &quot;<br>+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0&quot;tcontext=3D%s tclass=3Dpasswd\n&quot;,<br>+ =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0security_av_perm_to_=
+string(passwd_class,<br>
++ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 requested),<br>+ =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0user_context, user_context);<br>=
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}<br>+<br>=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0fre=
+econ(user_context);<br>
+<div>
+<div></div>
+<div class=3D"h5">=A0 =A0 =A0 =A0}</div></div></blockquote>
+<div>=A0</div>
+<div>Where does the passwd_class come from?</div>
+<div>=A0</div>
+<div>=A0 -- Larry</div>
+<div>=A0</div>
+<div>=A0</div>
+<div>=A0</div>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
+<div>
+<div class=3D"h5"><span id=3D""></span><br><br><br>--<br>Stephen Smalley<br=
+>National Security Agency<br><br></div></div></blockquote></div><br>
 
-
---------------010902030206090403020606--
+--00151747af9af06ece04716da90c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
