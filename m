@@ -1,118 +1,104 @@
-Subject: Re: [PATCH] Security/sysfs: v2 - Enable security xattrs to be set
- on sysfs files, directories, and symlinks.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
-        gregkh@suse.de, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <4A8B81A0.6070206@schaufler-ca.com>
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <4A84EF1D.8060408@schaufler-ca.com> <m1my62xde6.fsf@fess.ebiederm.org>
-	 <4A861291.1030404@schaufler-ca.com> <m1tz09j00q.fsf@fess.ebiederm.org>
-	 <4A864008.50907@schaufler-ca.com> <m1my61sjie.fsf@fess.ebiederm.org>
-	 <4A8A2616.8020809@schaufler-ca.com>
-	 <1250597660.3629.204.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A8AB6B0.8010800@schaufler-ca.com>
-	 <1250605386.3629.236.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A8B81A0.6070206@schaufler-ca.com>
-Content-Type: text/plain
-Date: Wed, 19 Aug 2009 07:58:09 -0400
-Message-Id: <1250683089.3629.268.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JDrnoU008801
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 09:53:49 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JDsthX019550
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 13:54:55 GMT
+Message-ID: <4A8C03E4.7090300@manicmethod.com>
+Date: Wed, 19 Aug 2009 09:53:40 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to semanage
+References: <C6B0983D.A9D92%csellers@tresys.com> <4A8B26A7.4080509@redhat.com>
+In-Reply-To: <4A8B26A7.4080509@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-08-18 at 21:37 -0700, Casey Schaufler wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2009-08-18 at 07:12 -0700, Casey Schaufler wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Mon, 2009-08-17 at 20:55 -0700, Casey Schaufler wrote:
-> >>>   
-> >>>       
-> >>>> From: Casey Schaufler <casey@schaufler-ca.com>
-> >>>>
-> >>>> Another approach to limited xattr support in sysfs.
-> >>>>
-> >>>> I tried to listen to the objections to a linked list representation
-> >>>> and I think that I understand that there isn't really any interest
-> >>>> in supporting xattrs for real, only for those maintained by LSMs.
-> >>>> I also looked carefully into the claims that memory usage is
-> >>>> critical and that the code I had before was duplicating effort.
-> >>>>
-> >>>> This version lets the surrounding code do as much of the work as
-> >>>> possible. Unlike the initial proposal for sysfs xattrs, it does not
-> >>>> introduce any new LSM hooks, it uses hooks that already exist. It
-> >>>> does not support any attributes on its own, it only provides for
-> >>>> the attribute advertised by security_inode_listsecurity(). It could
-> >>>> easily be used by other filesystems to provide the same LSM xattr
-> >>>> support. It could also be extended to do the list based support for
-> >>>> arbitrary xattrs without too much effort.
-> >>>>
-> >>>> Probably the oddest bit is that the inode_getsecurity hooks need to
-> >>>> check to see if they are getting called before the inode is instantiated
-> >>>> and return -ENODATA in that event. It would be possible to do a
-> >>>> filesystem specific check instead, but this way provides for generally
-> >>>> correct behavior at small cost.
-> >>>>
-> >>>> This has been tested with Smack, but not SELinux. I think that
-> >>>> SELinux will work correctly, but it could be that a labeling
-> >>>> behavior that is different than the "usual" instantiation labeling
-> >>>> is actually desired. That would be an easy change.
-> >>>>
-> >>>> As always, let me know if I missed something obvious or if there's a
-> >>>> fatal flaw in the scheme.
-> >>>>     
-> >>>>         
-> >>> The point of the David's patch was to provide a way to save the security
-> >>> xattr in the backing data structure for sysfs entries when an attribute
-> >>> value is set from userspace so that the value can be preserved if the
-> >>> inode is evicted from memory and later re-instantiated.  AFAICS, your
-> >>> patch completely misses the problem.  How about we just go back to
-> >>> David's patch?
-> >>>   
-> >>>       
-> >> Oh no, that would use too much memory!
-> >>
-> >> Either you care about the value the user set, in which case you
-> >> want to save the value the user set, or you don't. If you do, you
-> >> have to save that value, not an LSM's interpretation of that value.
-> >> No secids. No new hooks.
-> >>     
-> >
-> > As the security module is the only component of the kernel that
-> > uses/interprets that value, it isn't unreasonable for the security
-> > module's interpretation of that value to be considered canonical.  In
-> > fact, that is already the case - the hooks within vfs_getxattr() enable
-> > the security module to override/replace the actual security xattr value
-> > returned to userspace.
-> >
-> > In the case of Smack, Smack could just provide a pointer to its own
-> > internal copy of the string, and that could be stored in the wrapped
-> > iattr.  In the case of SELinux, we could provide a secid that could be
-> > stored in the wrapped iattr.  The hook interface could just handle it as
-> > a blob if you prefer.  But either way we don't need extra storage aside
-> > from a pointer-size field in the wrapped iattr.
-> >   
-> 
-> So how often is the SELinux label going to get explicitly set in /sys ?
-> I'm grappling with the value of going hog-wild in optimizing this. If
-> it is something that's quite rare I can see the concern with expanding
-> the d_entry. If it is common, the storage associated with storing the
-> xattr could be an issue. If it is uncommon but not rare there's another
-> story again.
-> 
-> I'm looking at addressing the issues. Thank you.
+Daniel J Walsh wrote:
+> On 08/18/2009 05:41 PM, Chad Sellers wrote:
+>> On 8/18/09 5:35 PM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
+>>
+>>> On 08/17/2009 05:45 PM, Chad Sellers wrote:
+>>>> On 7/17/09 6:10 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
+>>>>
+>>>>> Ok lets try the patch again.
+>>>>>
+>>>>> Added equal patch (spelled correctly.)
+>>>>> Beginning to add modules support to consolidate on one management command.
+>>>>> Eventually replace semodule/setsebool with semanage command.
+>>>>> Some white space fixing in seobject.py
+>>>> As I said previously, I've split this patch into the 3 separate patches
+>>>> (whitespace, equal, modules) for review purposes, as it was too difficult to
+>>>> get through with the 3 different patches interspersed. Please try to split
+>>>> up functional patches in the future.
+>>>>
+>>>> This message will apply to the modules patch only.
+>>>>
+>>>>> diff --git a/policycoreutils/semanage/semanage
+>>>>> b/policycoreutils/semanage/semanage
+>>>>> index 1688d85..072453d 100644
+>>>>> --- a/policycoreutils/semanage/semanage
+>>>>> +++ b/policycoreutils/semanage/semanage
+>>>>> @@ -44,7 +44,7 @@ if __name__ == '__main__':
+>>>>>                  text = _("""
+>>>>>   semanage [ -S store ] -i [ input_file | - ]
+>>>>>
+>>>>> -semanage {boolean|login|user|port|interface|node|fcontext|translation}
+>>>>> -{l|D}
+>>>>> [-n]
+>>>>> +semanage
+>>>>> {module,boolean|login|user|port|interface|node|fcontext|translation}
+>>>>> -{l|D} [-n]
+>>>>>   semanage login -{a|d|m} [-sr] login_name | %groupname
+>>>>>   semanage user -{a|d|m} [-LrRP] selinux_name
+>>>>>   semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
+>>>>> @@ -53,7 +53,8 @@ semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask]
+>>>>> addr
+>>>>>   semanage fcontext -{a|d|m} [-frst] [-e path ] file_spec
+>>>>>   semanage translation -{a|d|m} [-T] level
+>>>>>   semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
+>>>>> -semanage permissive -{d|a} type
+>>>>> +semanage permissive -{a|d} type
+>>>>> +semanage module -{a|d|} module
+>>>>>
+>>>>>   Primary Options:
+>>>>>
+>>>>> @@ -68,6 +69,7 @@ Primary Options:
+>>>>>       -h, --help       Display this message
+>>>>>       -n, --noheading  Do not print heading when listing OBJECTS
+>>>>>           -S, --store      Select and alternate SELinux store to manage
+>>>>> +        --dontaudit      Turn on or off dontaudit rules
+>>>>>
+>>>> Need to specify that this takes an integer argument (1 or 0) here. Also,
+>>>> need to specify which command this is valid for, which appears to be the
+>>>> module command. Why is this an option for the module command? It doesn't
+>>>> seem to have anything to do with a particular module. Should this just be
+>>>> its own command?
+>>>>
+>>> I think it should be just for the modules command.
+>> Care to explain why? As your usage above shows, the module command is for
+>> adding or deleting modules. This functionality has nothing to do with that.
+>> --dontaudit is for specifying globally that dontaudit's should be turned
+>> on/off. It's not an option that modifies the behavior of adding or deleting
+>> a module, it's a completely separate thing.
+>>
+> No I don't care to explain why, now that you shot down my idea. :^)
+>
+> I guess it should be a separate command
+>
+> What do you think of.
+>
+> semanage dontaudit -a
+> semanage dontaudit -d
+>
 
-I'd expect most sysfs nodes to be left in the default label, although we
-don't really know as this would be the first time that people have the
-option of finer-grained control to sysfs.
-
--- 
-Stephen Smalley
-National Security Agency
+I like it being a separate command since it really is a global thing but the 
+syntax above seems very confusing. Can we depart from the add/remove paradigm 
+for this one and use something more appropriate, like on/off, enable/disable, 
+audit/dontaudit, or something similar?
 
 
 --
