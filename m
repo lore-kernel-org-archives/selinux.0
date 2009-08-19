@@ -1,104 +1,106 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JDrnoU008801
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 09:53:49 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JDsthX019550
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 13:54:55 GMT
-Message-ID: <4A8C03E4.7090300@manicmethod.com>
-Date: Wed, 19 Aug 2009 09:53:40 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
+Subject: Re: checking user status
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to semanage
-References: <C6B0983D.A9D92%csellers@tresys.com> <4A8B26A7.4080509@redhat.com>
-In-Reply-To: <4A8B26A7.4080509@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Larry Ross <selinux.larry@gmail.com>, selinux@tycho.nsa.gov,
+        Steve Grubb <sgrubb@redhat.com>
+In-Reply-To: <4A8AEE9E.1020102@redhat.com>
+References: <81092d890908161153h38ae37fdx9123ecea3adb6d51@mail.gmail.com>
+	 <1250512198.3629.110.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170747s305cf9f2uc734f5a3fefd4efc@mail.gmail.com>
+	 <1250521053.3629.117.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908170755n2f5df6c2h3ca57faff998e6d6@mail.gmail.com>
+	 <81092d890908171338j36a27012h3b87c5828f1d24ab@mail.gmail.com>
+	 <1250597961.3629.209.camel@moss-pluto.epoch.ncsc.mil>
+	 <1250599197.3629.210.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890908181015j71ce6b62tdc5f5251220d84a9@mail.gmail.com>
+	 <4A8AEE9E.1020102@redhat.com>
+Content-Type: text/plain
+Date: Wed, 19 Aug 2009 10:34:21 -0400
+Message-Id: <1250692461.3629.309.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> On 08/18/2009 05:41 PM, Chad Sellers wrote:
->> On 8/18/09 5:35 PM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->>
->>> On 08/17/2009 05:45 PM, Chad Sellers wrote:
->>>> On 7/17/09 6:10 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->>>>
->>>>> Ok lets try the patch again.
->>>>>
->>>>> Added equal patch (spelled correctly.)
->>>>> Beginning to add modules support to consolidate on one management command.
->>>>> Eventually replace semodule/setsebool with semanage command.
->>>>> Some white space fixing in seobject.py
->>>> As I said previously, I've split this patch into the 3 separate patches
->>>> (whitespace, equal, modules) for review purposes, as it was too difficult to
->>>> get through with the 3 different patches interspersed. Please try to split
->>>> up functional patches in the future.
->>>>
->>>> This message will apply to the modules patch only.
->>>>
->>>>> diff --git a/policycoreutils/semanage/semanage
->>>>> b/policycoreutils/semanage/semanage
->>>>> index 1688d85..072453d 100644
->>>>> --- a/policycoreutils/semanage/semanage
->>>>> +++ b/policycoreutils/semanage/semanage
->>>>> @@ -44,7 +44,7 @@ if __name__ == '__main__':
->>>>>                  text = _("""
->>>>>   semanage [ -S store ] -i [ input_file | - ]
->>>>>
->>>>> -semanage {boolean|login|user|port|interface|node|fcontext|translation}
->>>>> -{l|D}
->>>>> [-n]
->>>>> +semanage
->>>>> {module,boolean|login|user|port|interface|node|fcontext|translation}
->>>>> -{l|D} [-n]
->>>>>   semanage login -{a|d|m} [-sr] login_name | %groupname
->>>>>   semanage user -{a|d|m} [-LrRP] selinux_name
->>>>>   semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
->>>>> @@ -53,7 +53,8 @@ semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask]
->>>>> addr
->>>>>   semanage fcontext -{a|d|m} [-frst] [-e path ] file_spec
->>>>>   semanage translation -{a|d|m} [-T] level
->>>>>   semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
->>>>> -semanage permissive -{d|a} type
->>>>> +semanage permissive -{a|d} type
->>>>> +semanage module -{a|d|} module
->>>>>
->>>>>   Primary Options:
->>>>>
->>>>> @@ -68,6 +69,7 @@ Primary Options:
->>>>>       -h, --help       Display this message
->>>>>       -n, --noheading  Do not print heading when listing OBJECTS
->>>>>           -S, --store      Select and alternate SELinux store to manage
->>>>> +        --dontaudit      Turn on or off dontaudit rules
->>>>>
->>>> Need to specify that this takes an integer argument (1 or 0) here. Also,
->>>> need to specify which command this is valid for, which appears to be the
->>>> module command. Why is this an option for the module command? It doesn't
->>>> seem to have anything to do with a particular module. Should this just be
->>>> its own command?
->>>>
->>> I think it should be just for the modules command.
->> Care to explain why? As your usage above shows, the module command is for
->> adding or deleting modules. This functionality has nothing to do with that.
->> --dontaudit is for specifying globally that dontaudit's should be turned
->> on/off. It's not an option that modifies the behavior of adding or deleting
->> a module, it's a completely separate thing.
->>
-> No I don't care to explain why, now that you shot down my idea. :^)
->
-> I guess it should be a separate command
->
-> What do you think of.
->
-> semanage dontaudit -a
-> semanage dontaudit -d
->
+On Tue, 2009-08-18 at 14:10 -0400, Daniel J Walsh wrote:
+> On 08/18/2009 01:15 PM, Larry Ross wrote:
+> > On Tue, Aug 18, 2009 at 5:39 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > 
+> >> On Tue, 2009-08-18 at 08:19 -0400, Stephen Smalley wrote:
+> >>> If this is another manifestation of the same problem, then the easiest
+> >>> approach would be to grab the libselinux .src.rpm, patch
+> >>> libselinux/src/checkAccess.c to syslog() a message whenever there is a
+> >>> denial, build and install your patched libselinux, and then retry and
+> >>> look for the log message.
+> >>
+> >> Something like this patch (un-tested, against the current upstream
+> >> libselinux):
+> >>
+> >> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> >> index c1982c7..cae1626 100644
+> >> --- a/libselinux/src/checkAccess.c
+> >> +++ b/libselinux/src/checkAccess.c
+> >> @@ -2,6 +2,7 @@
+> >>  #include <sys/types.h>
+> >>  #include <stdlib.h>
+> >>  #include <errno.h>
+> >> +#include <syslog.h>
+> >>  #include "selinux_internal.h"
+> >>  #include <selinux/flask.h>
+> >>  #include <selinux/av_permissions.h>
+> >> @@ -29,7 +30,15 @@ int selinux_check_passwd_access(access_vector_t
+> >> requested)
+> >>
+> >>                if ((retval == 0) && ((requested & avd.allowed) ==
+> >> requested)) {
+> >>                        status = 0;
+> >> +               } else {
+> >> +                       syslog(LOG_ERR,
+> >> +                              "avc:  denied { %s } for scontext=%s "
+> >> +                              "tcontext=%s tclass=passwd\n",
+> >> +                              security_av_perm_to_string(passwd_class,
+> >> +                                                         requested),
+> >> +                              user_context, user_context);
+> >>                }
+> >> +
+> >>                freecon(user_context);
+> >>         }
+> >>
+> > 
+> > Where does the passwd_class come from?
+> > 
+> >   -- Larry
+> > 
+> > 
+> > 
+> > 
+> >>
+> >>
+> >>
+> >> --
+> >> Stephen Smalley
+> >> National Security Agency
+> >>
+> >>
+> > 
+> 
+> This is not the responsibility of the library to log this fact, it is the responsibility of the tool (passwd) to log 
+> any denials.  I am surprised that we do not audit this event.  Since I think a MAC denial on changing a security sensitive object should probably be audited.
 
-I like it being a separate command since it really is a global thing but the 
-syntax above seems very confusing. Can we depart from the add/remove paradigm 
-for this one and use something more appropriate, like on/off, enable/disable, 
-audit/dontaudit, or something similar?
+But only the library function has all the necessary information to
+generate an audit or log record that can be processed by e.g.
+audit2allow (the source and target contexts, class, and permission).
+
+I do agree that the callers should be modified to use the userspace AVC;
+then they would pick up the normal avc auditing support (but would need
+to set up the proper callback to invoke the audit interfaces, just like
+dbusd does).
+
+I think the bug would be against shadow-utils.  Did anyone already open
+it?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
