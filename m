@@ -1,20 +1,29 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JJpsET017049
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:54 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JJv9SS017634
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:57:09 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JJpKZv024498
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 19:51:21 GMT
-Subject: [PATCH 1/2] policycoreutils: share setfiles restore function with
- restorecond
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JJuaZv026348
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 19:56:36 GMT
+Date: Wed, 19 Aug 2009 15:57:06 -0400 (EDT)
 From: Thomas Liu <tliu@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: kangchao@WPI.EDU
-Content-Type: text/plain
-Date: Wed, 19 Aug 2009 15:51:44 -0400
-Message-Id: <1250711504.2835.26.camel@Hephaestus>
-Mime-Version: 1.0
+Message-ID: <518960698.2197801250711826669.JavaMail.root@zmail05.collab.prod.int.phx2.redhat.com>
+In-Reply-To: <1250711504.2835.26.camel@Hephaestus>
+Subject: Re: [PATCH 1/2] policycoreutils: share setfiles restore function
+ with restorecond
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Sorry about the duplicate email -- I'd just like to confirm that there is no difference.
+----- Original Message -----
+From: "Thomas Liu" <tliu@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: kangchao@WPI.EDU
+Sent: Wednesday, August 19, 2009 3:51:44 PM GMT -05:00 US/Canada Eastern
+Subject: [PATCH 1/2] policycoreutils: share setfiles restore function with restorecond
 
 This is the first of two patches.
 
@@ -1529,6 +1538,11 @@ index 4c47f21..3721c17 100644
  }
 
 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
