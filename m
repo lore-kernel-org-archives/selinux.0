@@ -1,145 +1,1008 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JJpqWQ017046
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:52 -0400
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JJpsET017049
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:54 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JJqxtQ008436
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 19:52:59 GMT
-Received: from int-mx04.intmail.prod.int.phx2.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.17])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n7JJpojr026859
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:50 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx04.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n7JJpn99009644
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:50 -0400
-Received: from [10.16.2.243] (dhcp-100-2-243.bos.redhat.com [10.16.2.243])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n7JJpmck011966
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 15:51:48 -0400
-Subject: [PATCH 2/2] policAycoreutils: share setfiles restore function with
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7JJpKZv024498
+	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 19:51:21 GMT
+Subject: [PATCH 1/2] policycoreutils: share setfiles restore function with
  restorecond
 From: Thomas Liu <tliu@redhat.com>
 To: selinux@tycho.nsa.gov
+Cc: kangchao@WPI.EDU
 Content-Type: text/plain
-Date: Wed, 19 Aug 2009 15:47:31 -0400
-Message-Id: <1250711251.2835.25.camel@Hephaestus>
+Date: Wed, 19 Aug 2009 15:51:44 -0400
+Message-Id: <1250711504.2835.26.camel@Hephaestus>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch edits restorecond to use the shared restore
+This is the first of two patches.
 
-functions split out from the first patch in this series.
+This patch splits all of the restore functionality in setfiles
+into another two files, restore.c and restore.h.
+
+The reason for this is shown in the next patch, which patches
+restorecond to share this code.
+
+To use it, instantiate a restore_opts struct with the proper options
+and then pass a pointer to it into restore_init, and call restore_destroy
+later.
 
 Signed-off-by: Thomas Liu <tliu@redhat.com>
 Signed-off-by: Dan Walsh <dwalsh@redhat.com>
 ---
+I've CC'd my other email address, kangchao@wpi.edu here because
+I will be returning to school soon and my red hat accounts will
+be disabled at the end of this week.
 
- policycoreutils/restorecond/Makefile         |   20 +
- policycoreutils/restorecond/restorecond.c    |  423 +++++---------------------
- policycoreutils/restorecond/restorecond.conf |    5 
- policycoreutils/restorecond/restorecond.h    |   19 +
- 4 files changed, 109 insertions(+), 358 deletions(-)
+ policycoreutils/setfiles/Makefile   |    4 
+ policycoreutils/setfiles/restore.c  |  531 ++++++++++++++++++++++++++++
+ policycoreutils/setfiles/restore.h  |   50 +++
+ policycoreutils/setfiles/setfiles.c |  672 ++++-------------------------------
+ 4 files changed, 661 insertions(+), 596 deletions(-)
+ create mode 100644 policycoreutils/setfiles/restore.c
+ create mode 100644 policycoreutils/setfiles/restore.h
 
 
-diff --git a/policycoreutils/restorecond/Makefile b/policycoreutils/restorecond/Makefile
-index 3f235e6..52ee252 100644
---- a/policycoreutils/restorecond/Makefile
-+++ b/policycoreutils/restorecond/Makefile
-@@ -2,16 +2,23 @@
- PREFIX ?= ${DESTDIR}/usr
- SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
-+AUTOSTARTDIR = $(DESTDIR)/etc/xdg/autostart
-+DBUSSERVICEDIR = $(DESTDIR)/usr/share/dbus-1/services
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
+index 8600f58..26a965f 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
+ LIBDIR ?= $(PREFIX)/lib
+ AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+ 
+-CFLAGS = -Werror -Wall -W
++CFLAGS = -g -Werror -Wall -W
+ override CFLAGS += -I$(PREFIX)/include
+ LDLIBS = -lselinux -lsepol -L$(LIBDIR)
+ 
+@@ -16,7 +16,7 @@ endif
+ 
+ all: setfiles restorecon
+ 
+-setfiles:  setfiles.o 
++setfiles:  setfiles.o restore.o
+ 
+ restorecon: setfiles
+ 	ln -sf setfiles restorecon
+diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
+new file mode 100644
+index 0000000..62dd261
+--- /dev/null
++++ b/policycoreutils/setfiles/restore.c
+@@ -0,0 +1,531 @@
++#include "restore.h"
 +
-+autostart_DATA = sealertauto.desktop
- INITDIR = $(DESTDIR)/etc/rc.d/init.d
- SELINUXDIR = $(DESTDIR)/etc/selinux
- 
- CFLAGS ?= -g -Werror -Wall -W
--override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+override CFLAGS += -I$(PREFIX)/include -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/lib/dbus-1.0/include -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/lib/glib-2.0/include
++#define SKIP -2
++#define ERR -1
++#define MAX_EXCLUDES 1000
 +
-+LDLIBS += -lselinux -ldbus-glib-1 -lglib-2.0 -L$(LIBDIR)
- 
- all: restorecond
- 
--restorecond:  restorecond.o utmpwatcher.o stringslist.o
-+restorecond.o utmpwatcher.o stringslist.o user.o watch.o: restorecond.h 
++/*
++ * The hash table of associations, hashed by inode number.
++ * Chaining is used for collisions, with elements ordered
++ * by inode number in each bucket.  Each hash bucket has a dummy 
++ * header.
++ */
++#define HASH_BITS 16
++#define HASH_BUCKETS (1 << HASH_BITS)
++#define HASH_MASK (HASH_BUCKETS-1)
 +
-+restorecond:  ../setfiles/restore.o restorecond.o utmpwatcher.o stringslist.o user.o watch.o
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- install: all
-@@ -22,7 +29,12 @@ install: all
- 	-mkdir -p $(INITDIR)
- 	install -m 755 restorecond.init $(INITDIR)/restorecond
- 	-mkdir -p $(SELINUXDIR)
--	install -m 600 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond_user.conf $(SELINUXDIR)/restorecond_user.conf
-+	-mkdir -p $(AUTOSTARTDIR)
-+	install -m 644 restorecond.desktop $(AUTOSTARTDIR)/restorecond.desktop
-+	-mkdir -p $(DBUSSERVICEDIR)
-+	install -m 600 org.selinux.Restorecond.service  $(DBUSSERVICEDIR)/org.selinux.Restorecond.service
- 
- relabel: install
- 	/sbin/restorecon $(SBINDIR)/restorecond 
-diff --git a/policycoreutils/restorecond/restorecond.c b/policycoreutils/restorecond/restorecond.c
-index 58774e6..0f0abe5 100644
---- a/policycoreutils/restorecond/restorecond.c
-+++ b/policycoreutils/restorecond/restorecond.c
-@@ -48,294 +48,39 @@
- #include <signal.h>
- #include <string.h>
- #include <unistd.h>
--#include <ctype.h>
-+#include "../setfiles/restore.h"
- #include <sys/types.h>
--#include <sys/stat.h>
- #include <syslog.h>
- #include <limits.h>
-+#include <pwd.h>
-+#include <sys/stat.h>
++/*
++ * An association between an inode and a context.
++ */
++typedef struct file_spec {
++	ino_t ino;		/* inode number */
++	char *con;		/* matched context */
++	char *file;		/* full pathname */
++	struct file_spec *next;	/* next association in hash bucket chain */
++} file_spec_t;
++
++struct edir {
++	char *directory;
++	size_t size;
++};
++
++
++static file_spec_t *fl_head;
++static int exclude(const char *file);
++static int filespec_add(ino_t ino, const security_context_t con, const char *file);
++static int only_changed_user(const char *a, const char *b);
++struct restore_opts *r_opts = NULL;
++static void filespec_destroy(void);
++static void filespec_eval(void);
++static int excludeCtr = 0;
++static struct edir excludeArray[MAX_EXCLUDES];
++
++void remove_exclude(const char *directory)
++{
++	int i = 0;
++	for (i = 0; i < excludeCtr; i++) {
++		if (strcmp(directory, excludeArray[i].directory) == 0) {
++			if (i != excludeCtr-1)
++				excludeArray[i] = excludeArray[excludeCtr-1];
++			excludeCtr--;
++			return;
++		}
++	}
++	return;
++
++}
++
++void restore_init(struct restore_opts *opts)
++{	
++	r_opts = opts;
++	struct selinux_opt selinux_opts[] = {
++		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
++		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path }
++	};
++	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 2);
++	if (!r_opts->hnd) {
++		perror(r_opts->selabel_opt_path);
++		exit(1);
++	}	
++}
++
++void restore_finish()
++{
++	int i;
++	for (i = 0; i < excludeCtr; i++) {
++		free(excludeArray[i].directory);
++	}
++}
++
++static int match(const char *name, struct stat *sb, char **con)
++{
++	if (!(r_opts->hard_links) && !S_ISDIR(sb->st_mode) && (sb->st_nlink > 1)) {
++		fprintf(stderr, "Warning! %s refers to a hard link, not fixing hard links.\n",
++					name);
++		return -1;
++	}
++	
++	if (NULL != r_opts->rootpath) {
++		if (0 != strncmp(r_opts->rootpath, name, r_opts->rootpathlen)) {
++			fprintf(stderr, "%s:  %s is not located in %s\n",
++				r_opts->progname, name, r_opts->rootpath);
++			return -1;
++		}
++		name += r_opts->rootpathlen;
++	}
++
++	if (r_opts->rootpath != NULL && name[0] == '\0')
++		/* this is actually the root dir of the alt root */
++		return selabel_lookup_raw(r_opts->hnd, con, "/", sb->st_mode);
++	else
++		return selabel_lookup_raw(r_opts->hnd, con, name, sb->st_mode);
++}
++static int restore(FTSENT *ftsent)
++{
++	char *my_file = strdupa(ftsent->fts_path);
++	int ret;
++	char *context, *newcon;
++	int user_only_changed = 0;
++
++	if (match(my_file, ftsent->fts_statp, &newcon) < 0)
++		/* Check for no matching specification. */
++		return (errno == ENOENT) ? 0 : -1;
++
++	if (r_opts->progress) {
++		r_opts->count++;
++		if (r_opts->count % (80 * STAR_COUNT) == 0) {
++			fprintf(stdout, "\n");
++			fflush(stdout);
++		}
++		if (r_opts->count % STAR_COUNT == 0) {
++			fprintf(stdout, "*");
++			fflush(stdout);
++		}
++	}
++
++	/*
++	 * Try to add an association between this inode and
++	 * this specification.  If there is already an association
++	 * for this inode and it conflicts with this specification,
++	 * then use the last matching specification.
++	 */
++	if (r_opts->add_assoc) {
++		ret = filespec_add(ftsent->fts_statp->st_ino, newcon, my_file);
++		if (ret < 0)
++			goto err;
++
++		if (ret > 0)
++			/* There was already an association and it took precedence. */
++			goto out;
++	}
++
++	if (r_opts->debug) {
++		printf("%s:  %s matched by %s\n", r_opts->progname, my_file, newcon);
++	}
++
++	/* Get the current context of the file. */
++	ret = lgetfilecon_raw(ftsent->fts_accpath, &context);
++	if (ret < 0) {
++		if (errno == ENODATA) {
++			context = NULL;
++		} else {
++			fprintf(stderr, "%s get context on %s failed: '%s'\n",
++				r_opts->progname, my_file, strerror(errno));
++			goto err;
++		}
++		user_only_changed = 0;
++	} else
++		user_only_changed = only_changed_user(context, newcon);
++	/* lgetfilecon returns number of characters and ret needs to be reset
++	 * to 0.
++	 */
++	ret = 0;
++
++	/*
++	 * Do not relabel the file if the matching specification is 
++	 * <<none>> or the file is already labeled according to the 
++	 * specification.
++	 */
++	if ((strcmp(newcon, "<<none>>") == 0) ||
++	    (context && (strcmp(context, newcon) == 0))) {
++		freecon(context);
++		goto out;
++	}
++
++	if (!r_opts->force && context && (is_context_customizable(context) > 0)) {
++		if (r_opts->verbose > 1) {
++			fprintf(stderr,
++				"%s: %s not reset customized by admin to %s\n",
++				r_opts->progname, my_file, context);
++		}
++		freecon(context);
++		goto out;
++	}
++
++	if (r_opts->verbose) {
++		/* If we're just doing "-v", trim out any relabels where
++		 * the user has r_opts->changed but the role and type are the
++		 * same.  For "-vv", emit everything. */
++		if (r_opts->verbose > 1 || !user_only_changed) {
++			printf("%s reset %s context %s->%s\n",
++			       r_opts->progname, my_file, context ?: "", newcon);
++		}
++	}
++
++	if (r_opts->logging && !user_only_changed) {
++		if (context)
++			syslog(LOG_INFO, "relabeling %s from %s to %s\n",
++			       my_file, context, newcon);
++		else
++			syslog(LOG_INFO, "labeling %s to %s\n",
++			       my_file, newcon);
++	}
++
++	if (r_opts->outfile && !user_only_changed)
++		fprintf(r_opts->outfile, "%s\n", my_file);
++
++	if (context)
++		freecon(context);
++
++	/*
++	 * Do not relabel the file if -n was used.
++	 */
++	if (!r_opts->change || user_only_changed)
++		goto out;
++
++	/*
++	 * Relabel the file to the specified context.
++	 */
++	ret = lsetfilecon(ftsent->fts_accpath, newcon);
++	if (ret) {
++		fprintf(stderr, "%s set context %s->%s failed:'%s'\n",
++			r_opts->progname, my_file, newcon, strerror(errno));
++		goto skip;
++	}
++	ret = 1;
++out:
++	freecon(newcon);
++	return ret;
++skip:
++	freecon(newcon);
++	return SKIP;
++err:
++	freecon(newcon);
++	return ERR;
++}
++/*
++ * Apply the last matching specification to a file.
++ * This function is called by fts on each file during
++ * the directory traversal.
++ */
++static int apply_spec(FTSENT *ftsent)
++{
++	if (ftsent->fts_info == FTS_DNR) {
++		fprintf(stderr, "%s:  unable to read directory %s\n",
++			r_opts->progname, ftsent->fts_path);
++		return SKIP;
++	}
++	
++	int rc = restore(ftsent);
++	if (rc == ERR) {
++		if (!r_opts->abort_on_error)
++			return SKIP;
++	}
++	return rc;
++}
++
++int process_one(char *name, int recurse)
++{
++	int rc = 0;
++	const char *namelist[2] = {name, NULL};
++	dev_t dev_num = 0;
++	FTS *fts_handle;
++	FTSENT *ftsent;
++	
++	if (r_opts->expand_realpath) {
++		char *p;
++		p = realpath(name, NULL);
++		if (!p) {
++			fprintf(stderr, "realpath(%s) failed %s\n", name,
++				strerror(errno));
++			return -1;
++		}
++		name = p;
++	}
++
++	if (r_opts == NULL){
++		fprintf(stderr,
++			"Must call initialize first!");
++		goto err;
++	}
++
++	fts_handle = fts_open((char **)namelist, r_opts->fts_flags, NULL);
++	if (fts_handle  == NULL) {
++		fprintf(stderr,
++			"%s: error while labeling %s:  %s\n",
++			r_opts->progname, namelist[0], strerror(errno));
++		goto err;
++	}
++
++
++	ftsent = fts_read(fts_handle);
++	if (ftsent != NULL) {
++		/* Keep the inode of the first one. */
++		dev_num = ftsent->fts_statp->st_dev;
++	}
++
++	do {
++		rc = 0;
++		/* Skip the post order nodes. */
++		if (ftsent->fts_info == FTS_DP)
++			continue;
++		/* If the XDEV flag is set and the device is different */
++		if (ftsent->fts_statp->st_dev != dev_num &&
++		    FTS_XDEV == (r_opts->fts_flags & FTS_XDEV))
++			continue;
++		if (excludeCtr > 0) {
++			if (exclude(ftsent->fts_path)) {
++				fts_set(fts_handle, ftsent, FTS_SKIP);
++				continue;
++			}
++		}
++		rc = apply_spec(ftsent);
++		if (rc == SKIP)
++			fts_set(fts_handle, ftsent, FTS_SKIP);
++		if (rc == ERR)
++			goto err;
++		if (!recurse)
++			break;
++	} while ((ftsent = fts_read(fts_handle)) != NULL);
++
++
++out:
++	if (r_opts->add_assoc) {
++		if (!r_opts->quiet)
++			filespec_eval();
++		filespec_destroy();
++	}
++	if (fts_handle)
++		fts_close(fts_handle);
++	return rc;
++
++err:
++	rc = -1;
++	goto out;
++}
++
++static int exclude(const char *file)
++{
++	int i = 0;
++	for (i = 0; i < excludeCtr; i++) {
++		if (strncmp
++		    (file, excludeArray[i].directory,
++		     excludeArray[i].size) == 0) {
++			if (file[excludeArray[i].size] == 0
++			    || file[excludeArray[i].size] == '/') {
++				return 1;
++			}
++		}
++	}
++	return 0;
++}
++
++int add_exclude(const char *directory)
++{
++	size_t len = 0;
++
++	if (directory == NULL || directory[0] != '/') {
++		fprintf(stderr, "Full path required for exclude: %s.\n",
++			directory);
++		return 1;
++	}
++	if (excludeCtr == MAX_EXCLUDES) {
++		fprintf(stderr, "Maximum excludes %d exceeded.\n",
++			MAX_EXCLUDES);
++		return 1;
++	}
++
++	len = strlen(directory);
++	while (len > 1 && directory[len - 1] == '/') {
++		len--;
++	}
++	excludeArray[excludeCtr].directory = strndup(directory, len);
++
++	if (excludeArray[excludeCtr].directory == NULL) {
++		fprintf(stderr, "Out of memory.\n");
++		return 1;
++	}
++	excludeArray[excludeCtr++].size = len;
++
++	return 0;
++}
++
++/* Compare two contexts to see if their differences are "significant",
++ * or whether the only difference is in the user. */
++static int only_changed_user(const char *a, const char *b)
++{
++	char *rest_a, *rest_b;	/* Rest of the context after the user */
++	if (r_opts->force)
++		return 0;
++	if (!a || !b)
++		return 0;
++	rest_a = strchr(a, ':');
++	rest_b = strchr(b, ':');
++	if (!rest_a || !rest_b)
++		return 0;
++	return (strcmp(rest_a, rest_b) == 0);
++}
++
++/*
++ * Evaluate the association hash table distribution.
++ */
++static void filespec_eval(void)
++{
++	file_spec_t *fl;
++	int h, used, nel, len, longest;
++
++	if (!fl_head)
++		return;
++
++	used = 0;
++	longest = 0;
++	nel = 0;
++	for (h = 0; h < HASH_BUCKETS; h++) {
++		len = 0;
++		for (fl = fl_head[h].next; fl; fl = fl->next) {
++			len++;
++		}
++		if (len)
++			used++;
++		if (len > longest)
++			longest = len;
++		nel += len;
++	}
++
++	if (r_opts->verbose > 1)
++		printf
++		    ("%s:  hash table stats: %d elements, %d/%d buckets used, longest chain length %d\n",
++		     __FUNCTION__, nel, used, HASH_BUCKETS, longest);
++}
++
++/*
++ * Destroy the association hash table.
++ */
++static void filespec_destroy(void)
++{
++	file_spec_t *fl, *tmp;
++	int h;
++
++	if (!fl_head)
++		return;
++
++	for (h = 0; h < HASH_BUCKETS; h++) {
++		fl = fl_head[h].next;
++		while (fl) {
++			tmp = fl;
++			fl = fl->next;
++			freecon(tmp->con);
++			free(tmp->file);
++			free(tmp);
++		}
++		fl_head[h].next = NULL;
++	}
++	free(fl_head);
++	fl_head = NULL;
++}
++/*
++ * Try to add an association between an inode and a context.
++ * If there is a different context that matched the inode,
++ * then use the first context that matched.
++ */
++static int filespec_add(ino_t ino, const security_context_t con, const char *file)
++{
++	file_spec_t *prevfl, *fl;
++	int h, ret;
++	struct stat sb;
++
++	if (!fl_head) {
++		fl_head = malloc(sizeof(file_spec_t) * HASH_BUCKETS);
++		if (!fl_head)
++			goto oom;
++		memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
++	}
++
++	h = (ino + (ino >> HASH_BITS)) & HASH_MASK;
++	for (prevfl = &fl_head[h], fl = fl_head[h].next; fl;
++	     prevfl = fl, fl = fl->next) {
++		if (ino == fl->ino) {
++			ret = lstat(fl->file, &sb);
++			if (ret < 0 || sb.st_ino != ino) {
++				freecon(fl->con);
++				free(fl->file);
++				fl->file = strdup(file);
++				if (!fl->file)
++					goto oom;
++				fl->con = strdup(con);
++				if (!fl->con)
++					goto oom;
++				return 1;
++			}
++
++			if (strcmp(fl->con, con) == 0)
++				return 1;
++
++			fprintf(stderr,
++				"%s:  conflicting specifications for %s and %s, using %s.\n",
++				__FUNCTION__, file, fl->file, fl->con);
++			free(fl->file);
++			fl->file = strdup(file);
++			if (!fl->file)
++				goto oom;
++			return 1;
++		}
++
++		if (ino > fl->ino)
++			break;
++	}
++
++	fl = malloc(sizeof(file_spec_t));
++	if (!fl)
++		goto oom;
++	fl->ino = ino;
++	fl->con = strdup(con);
++	if (!fl->con)
++		goto oom_freefl;
++	fl->file = strdup(file);
++	if (!fl->file)
++		goto oom_freefl;
++	fl->next = prevfl->next;
++	prevfl->next = fl;
++	return 0;
++      oom_freefl:
++	free(fl);
++      oom:
++	fprintf(stderr,
++		"%s:  insufficient memory for file label entry for %s\n",
++		__FUNCTION__, file);
++	return -1;
++}
++
++
++
+diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
+new file mode 100644
+index 0000000..b81215e
+--- /dev/null
++++ b/policycoreutils/setfiles/restore.h
+@@ -0,0 +1,50 @@
++#ifndef RESTORE_H
++#define RESTORE_H
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <fts.h>
++#include <errno.h>
 +#include <string.h>
 +#include <stdio.h>
++#include <syslog.h>
++#include <sys/stat.h>
++#include <sepol/sepol.h>
++#include <selinux/selinux.h>
++#include <selinux/label.h>
++#include <stdlib.h>
++#include <limits.h>
++
++#define STAR_COUNT 1000
++
++/* Things that need to be init'd */
++struct restore_opts {
++	int add_assoc; /* Track inode associations for conflict detection. */
++	int progress;
++	unsigned long long count;
++	int debug;
++	int change;
++	int hard_links;
++	int verbose;
++	int logging;
++	char *rootpath;
++	int rootpathlen;
++	char *progname;
++	FILE *outfile;
++	int force;
++	struct selabel_handle *hnd;
++	int expand_realpath;  /* Expand paths via realpath. */
++	int abort_on_error; /* Abort the file tree walk upon an error. */
++	int quiet;
++	int fts_flags; /* Flags to fts, e.g. follow links, follow mounts */
++	const char *selabel_opt_validate;
++	const char *selabel_opt_path;
++};
++
++void restore_init(struct restore_opts *opts);
++void restore_finish();
++int add_exclude(const char *directory);
++void remove_exclude(const char *directory);
++int process_one(char *name, int recurse);
++
++#endif
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 4c47f21..3721c17 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -1,26 +1,12 @@
+-#ifndef _GNU_SOURCE
+-#define _GNU_SOURCE
+-#endif
++#include "restore.h"
+ #include <unistd.h>
+-#include <stdlib.h>
  #include <fcntl.h>
--
- #include "restorecond.h"
--#include "stringslist.h"
- #include "utmpwatcher.h"
- 
--extern char *dirname(char *path);
-+const char *homedir;
- static int master_fd = -1;
--static int master_wd = -1;
--static int terminate = 0;
--
+-#include <stdio.h>
+ #include <stdio_ext.h>
+-#include <string.h>
+-#include <errno.h>
+ #include <ctype.h>
+ #include <regex.h>
+ #include <sys/vfs.h>
+ #include <sys/utsname.h>
+ #define __USE_XOPEN_EXTENDED 1	/* nftw */
+-#define SKIP -2
+-#define ERR -1
+-#include <fts.h>
+-#include <limits.h>
+-#include <sepol/sepol.h>
 -#include <selinux/selinux.h>
--#include <utmp.h>
+-#include <selinux/label.h>
+-#include <syslog.h>
+ #include <libgen.h>
+ #ifdef USE_AUDIT
+ #include <libaudit.h>
+@@ -32,287 +18,28 @@
+ static int mass_relabel;
+ static int mass_relabel_errs;
+ 
+-#define STAR_COUNT 1000
 -
--/* size of the event structure, not counting name */
--#define EVENT_SIZE  (sizeof (struct inotify_event))
--/* reasonable guess as to size of 1024 events */
--#define BUF_LEN        (1024 * (EVENT_SIZE + 16))
--
--static int debug_mode = 0;
--static int verbose_mode = 0;
--
--static void restore(const char *filename, int exact);
--
--struct watchList {
--	struct watchList *next;
--	int wd;
--	char *dir;
--	struct stringsList *files;
+-static FILE *outfile = NULL;
+-static int force = 0;
+-#define STAT_BLOCK_SIZE 1
+-static int progress = 0;
+-static unsigned long long count = 0;
+ 
+-#define MAX_EXCLUDES 1000
+-static int excludeCtr = 0;
+-struct edir {
+-	char *directory;
+-	size_t size;
 -};
--struct watchList *firstDir = NULL;
+-static struct edir excludeArray[MAX_EXCLUDES];
++/* cmdline opts*/
+ 
+-/*
+- * Command-line options.
+- */
+ static char *policyfile = NULL;
+-static int debug = 0;
+-static int change = 1;
+-static int quiet = 0;
+-static int ignore_enoent;
+-static int verbose = 0;
+-static int logging = 0;
+ static int warn_no_match = 0;
+ static int null_terminated = 0;
+-static char *rootpath = NULL;
+-static int rootpathlen = 0;
+-static int recurse; /* Recursive descent. */
+ static int errors;
++static int ignore_enoent;
++static struct restore_opts r_opts;
++
++#define STAT_BLOCK_SIZE 1
++
+ 
+-static char *progname;
+ 
+ #define SETFILES "setfiles"
+ #define RESTORECON "restorecon"
+ static int iamrestorecon;
+ 
+ /* Behavior flags determined based on setfiles vs. restorecon */
+-static int expand_realpath;  /* Expand paths via realpath. */
+-static int abort_on_error; /* Abort the file tree walk upon an error. */
+-static int add_assoc; /* Track inode associations for conflict detection. */
+-static int fts_flags; /* Flags to fts, e.g. follow links, follow mounts */
+ static int ctx_validate; /* Validate contexts */
+ static const char *altpath; /* Alternate path to file_contexts */
+ 
+-/* Label interface handle */
+-static struct selabel_handle *hnd;
 -
+-/*
+- * An association between an inode and a context.
+- */
+-typedef struct file_spec {
+-	ino_t ino;		/* inode number */
+-	char *con;		/* matched context */
+-	char *file;		/* full pathname */
+-	struct file_spec *next;	/* next association in hash bucket chain */
+-} file_spec_t;
+-
+-/*
+- * The hash table of associations, hashed by inode number.
+- * Chaining is used for collisions, with elements ordered
+- * by inode number in each bucket.  Each hash bucket has a dummy 
+- * header.
+- */
+-#define HASH_BITS 16
+-#define HASH_BUCKETS (1 << HASH_BITS)
+-#define HASH_MASK (HASH_BUCKETS-1)
+-static file_spec_t *fl_head;
+-
+-/*
+- * Try to add an association between an inode and a context.
+- * If there is a different context that matched the inode,
+- * then use the first context that matched.
+- */
+-int filespec_add(ino_t ino, const security_context_t con, const char *file)
+-{
+-	file_spec_t *prevfl, *fl;
+-	int h, ret;
+-	struct stat sb;
+-
+-	if (!fl_head) {
+-		fl_head = malloc(sizeof(file_spec_t) * HASH_BUCKETS);
+-		if (!fl_head)
+-			goto oom;
+-		memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
+-	}
+-
+-	h = (ino + (ino >> HASH_BITS)) & HASH_MASK;
+-	for (prevfl = &fl_head[h], fl = fl_head[h].next; fl;
+-	     prevfl = fl, fl = fl->next) {
+-		if (ino == fl->ino) {
+-			ret = lstat(fl->file, &sb);
+-			if (ret < 0 || sb.st_ino != ino) {
+-				freecon(fl->con);
+-				free(fl->file);
+-				fl->file = strdup(file);
+-				if (!fl->file)
+-					goto oom;
+-				fl->con = strdup(con);
+-				if (!fl->con)
+-					goto oom;
+-				return 1;
+-			}
+-
+-			if (strcmp(fl->con, con) == 0)
+-				return 1;
+-
+-			fprintf(stderr,
+-				"%s:  conflicting specifications for %s and %s, using %s.\n",
+-				__FUNCTION__, file, fl->file, fl->con);
+-			free(fl->file);
+-			fl->file = strdup(file);
+-			if (!fl->file)
+-				goto oom;
+-			return 1;
+-		}
+-
+-		if (ino > fl->ino)
+-			break;
+-	}
+-
+-	fl = malloc(sizeof(file_spec_t));
+-	if (!fl)
+-		goto oom;
+-	fl->ino = ino;
+-	fl->con = strdup(con);
+-	if (!fl->con)
+-		goto oom_freefl;
+-	fl->file = strdup(file);
+-	if (!fl->file)
+-		goto oom_freefl;
+-	fl->next = prevfl->next;
+-	prevfl->next = fl;
+-	return 0;
+-      oom_freefl:
+-	free(fl);
+-      oom:
+-	fprintf(stderr,
+-		"%s:  insufficient memory for file label entry for %s\n",
+-		__FUNCTION__, file);
+-	return -1;
+-}
+-
+-/*
+- * Evaluate the association hash table distribution.
+- */
+-void filespec_eval(void)
+-{
+-	file_spec_t *fl;
+-	int h, used, nel, len, longest;
+-
+-	if (!fl_head)
+-		return;
+-
+-	used = 0;
+-	longest = 0;
+-	nel = 0;
+-	for (h = 0; h < HASH_BUCKETS; h++) {
+-		len = 0;
+-		for (fl = fl_head[h].next; fl; fl = fl->next) {
+-			len++;
+-		}
+-		if (len)
+-			used++;
+-		if (len > longest)
+-			longest = len;
+-		nel += len;
+-	}
+-
+-	printf
+-	    ("%s:  hash table stats: %d elements, %d/%d buckets used, longest chain length %d\n",
+-	     __FUNCTION__, nel, used, HASH_BUCKETS, longest);
+-}
+-
+-/*
+- * Destroy the association hash table.
+- */
+-void filespec_destroy(void)
+-{
+-	file_spec_t *fl, *tmp;
+-	int h;
+-
+-	if (!fl_head)
+-		return;
+-
+-	for (h = 0; h < HASH_BUCKETS; h++) {
+-		fl = fl_head[h].next;
+-		while (fl) {
+-			tmp = fl;
+-			fl = fl->next;
+-			freecon(tmp->con);
+-			free(tmp->file);
+-			free(tmp);
+-		}
+-		fl_head[h].next = NULL;
+-	}
+-	free(fl_head);
+-	fl_head = NULL;
+-}
+-
+-static int add_exclude(const char *directory)
+-{
+-	size_t len = 0;
+-
+-	if (directory == NULL || directory[0] != '/') {
+-		fprintf(stderr, "Full path required for exclude: %s.\n",
+-			directory);
+-		return 1;
+-	}
+-	if (excludeCtr == MAX_EXCLUDES) {
+-		fprintf(stderr, "Maximum excludes %d exceeded.\n",
+-			MAX_EXCLUDES);
+-		return 1;
+-	}
+-
+-	len = strlen(directory);
+-	while (len > 1 && directory[len - 1] == '/') {
+-		len--;
+-	}
+-	excludeArray[excludeCtr].directory = strndup(directory, len);
+-
+-	if (excludeArray[excludeCtr].directory == NULL) {
+-		fprintf(stderr, "Out of memory.\n");
+-		return 1;
+-	}
+-	excludeArray[excludeCtr++].size = len;
+-
+-	return 0;
+-}
+-
+-static void remove_exclude(const char *directory)
+-{
+-	int i = 0;
+-	for (i = 0; i < excludeCtr; i++) {
+-		if (strcmp(directory, excludeArray[i].directory) == 0) {
+-			free(excludeArray[i].directory);
+-			if (i != excludeCtr-1)
+-				excludeArray[i] = excludeArray[excludeCtr-1];
+-			excludeCtr--;
+-			return;
+-		}
+-	}
+-	return;
+-}
+-
+-static int exclude(const char *file)
+-{
+-	int i = 0;
+-	for (i = 0; i < excludeCtr; i++) {
+-		if (strncmp
+-		    (file, excludeArray[i].directory,
+-		     excludeArray[i].size) == 0) {
+-			if (file[excludeArray[i].size] == 0
+-			    || file[excludeArray[i].size] == '/') {
+-				return 1;
+-			}
+-		}
+-	}
+-	return 0;
+-}
+-
+-int match(const char *name, struct stat *sb, char **con)
+-{
+-	if (NULL != rootpath) {
+-		if (0 != strncmp(rootpath, name, rootpathlen)) {
+-			fprintf(stderr, "%s:  %s is not located in %s\n",
+-				progname, name, rootpath);
+-			return -1;
+-		}
+-		name += rootpathlen;
+-	}
+-
+-	if (rootpath != NULL && name[0] == '\0')
+-		/* this is actually the root dir of the alt root */
+-		return selabel_lookup_raw(hnd, con, "/", sb->st_mode);
+-	else
+-		return selabel_lookup_raw(hnd, con, name, sb->st_mode);
+-}
+-
+ void usage(const char *const name)
+ {
+ 	if (iamrestorecon) {
+@@ -334,194 +61,30 @@ static int nerr = 0;
+ void inc_err()
+ {
+ 	nerr++;
+-	if (nerr > 9 && !debug) {
++	if (nerr > 9 && !r_opts.debug) {
+ 		fprintf(stderr, "Exiting after 10 errors.\n");
+ 		exit(1);
+ 	}
+ }
+ 
 -/* Compare two contexts to see if their differences are "significant",
 - * or whether the only difference is in the user. */
 -static int only_changed_user(const char *a, const char *b)
 -{
 -	char *rest_a, *rest_b;	/* Rest of the context after the user */
+-	if (force)
+-		return 0;
 -	if (!a || !b)
 -		return 0;
 -	rest_a = strchr(a, ':');
@@ -148,345 +1011,289 @@ index 58774e6..0f0abe5 100644
 -		return 0;
 -	return (strcmp(rest_a, rest_b) == 0);
 -}
--
--/* 
--   A file was in a direcroty has been created. This function checks to 
--   see if it is one that we are watching.
--*/
--
--static int watch_list_find(int wd, const char *file)
+ 
+-static int restore(FTSENT *ftsent)
 -{
--	struct watchList *ptr = NULL;
--	ptr = firstDir;
+-	char *my_file = strdupa(ftsent->fts_path);
+-	int ret;
+-	char *context, *newcon;
+-	int user_only_changed = 0;
 -
--	if (debug_mode)
--		printf("%d: File=%s\n", wd, file);
--	while (ptr != NULL) {
--		if (ptr->wd == wd) {
--			int exact=0;
--			if (strings_list_find(ptr->files, file, &exact) == 0) {
--				char *path = NULL;
--				if (asprintf(&path, "%s/%s", ptr->dir, file) <
--				    0)
--					exitApp("Error allocating memory.");
--				restore(path, exact);
--				free(path);
--				return 0;
--			}
--			if (debug_mode)
--				strings_list_print(ptr->files);
+-	if (match(my_file, ftsent->fts_statp, &newcon) < 0)
+-		/* Check for no matching specification. */
+-		return (errno == ENOENT) ? 0 : -1;
 -
--			/* Not found in this directory */
+-	if (progress) {
+-		count++;
+-		if (count % (80 * STAR_COUNT) == 0) {
+-			fprintf(stdout, "\n");
+-			fflush(stdout);
+-		}
+-		if (count % STAR_COUNT == 0) {
+-			fprintf(stdout, "*");
+-			fflush(stdout);
+-		}
+-	}
+-
+-	/*
+-	 * Try to add an association between this inode and
+-	 * this specification.  If there is already an association
+-	 * for this inode and it conflicts with this specification,
+-	 * then use the last matching specification.
+-	 */
+-	if (add_assoc) {
+-		ret = filespec_add(ftsent->fts_statp->st_ino, newcon, my_file);
+-		if (ret < 0)
+-			goto err;
+-
+-		if (ret > 0)
+-			/* There was already an association and it took precedence. */
+-			goto out;
+-	}
+-
+-	if (debug) {
+-		printf("%s:  %s matched by %s\n", progname, my_file, newcon);
+-	}
+-
+-	/* Get the current context of the file. */
+-	ret = lgetfilecon_raw(ftsent->fts_accpath, &context);
+-	if (ret < 0) {
+-		if (errno == ENODATA) {
+-			context = NULL;
+-		} else {
+-			fprintf(stderr, "%s get context on %s failed: '%s'\n",
+-				progname, my_file, strerror(errno));
+-			goto err;
+-		}
+-		user_only_changed = 0;
+-	} else
+-		user_only_changed = only_changed_user(context, newcon);
+-
+-	/*
+-	 * Do not relabel the file if the matching specification is 
+-	 * <<none>> or the file is already labeled according to the 
+-	 * specification.
+-	 */
+-	if ((strcmp(newcon, "<<none>>") == 0) ||
+-	    (context && (strcmp(context, newcon) == 0))) {
+-		freecon(context);
+-		goto out;
+-	}
+-
+-	if (!force && context && (is_context_customizable(context) > 0)) {
+-		if (verbose > 1) {
+-			fprintf(stderr,
+-				"%s: %s not reset customized by admin to %s\n",
+-				progname, my_file, context);
+-		}
+-		freecon(context);
+-		goto out;
+-	}
+-
+-	if (verbose) {
+-		/* If we're just doing "-v", trim out any relabels where
+-		 * the user has changed but the role and type are the
+-		 * same.  For "-vv", emit everything. */
+-		if (verbose > 1 || !user_only_changed) {
+-			printf("%s reset %s context %s->%s\n",
+-			       progname, my_file, context ?: "", newcon);
+-		}
+-	}
+-
+-	if (logging && !user_only_changed) {
+-		if (context)
+-			syslog(LOG_INFO, "relabeling %s from %s to %s\n",
+-			       my_file, context, newcon);
+-		else
+-			syslog(LOG_INFO, "labeling %s to %s\n",
+-			       my_file, newcon);
+-	}
+-
+-	if (outfile && !user_only_changed)
+-		fprintf(outfile, "%s\n", my_file);
+-
+-	if (context)
+-		freecon(context);
+-
+-	/*
+-	 * Do not relabel the file if -n was used.
+-	 */
+-	if (!change || user_only_changed)
+-		goto out;
+-
+-	/*
+-	 * Relabel the file to the specified context.
+-	 */
+-	ret = lsetfilecon(ftsent->fts_accpath, newcon);
+-	if (ret) {
+-		fprintf(stderr, "%s set context %s->%s failed:'%s'\n",
+-			progname, my_file, newcon, strerror(errno));
+-		goto skip;
+-	}
+-out:
+-	freecon(newcon);
+-	return 0;
+-skip:
+-	freecon(newcon);
+-	return SKIP;
+-err:
+-	freecon(newcon);
+-	return ERR;
+-}
+-
+-/*
+- * Apply the last matching specification to a file.
+- * This function is called by fts on each file during
+- * the directory traversal.
+- */
+-static int apply_spec(FTSENT *ftsent)
+-{
+-	if (ftsent->fts_info == FTS_DNR) {
+-		fprintf(stderr, "%s:  unable to read directory %s\n",
+-			progname, ftsent->fts_path);
+-		return SKIP;
+-	}
+-
+-	int rc = restore(ftsent);
+-	if (rc == ERR) {
+-		if (!abort_on_error)
+-			return SKIP;
+-	}
+-	return rc;
+-}
+ 
+ void set_rootpath(const char *arg)
+ {
+ 	int len;
+ 
+-	rootpath = strdup(arg);
+-	if (NULL == rootpath) {
+-		fprintf(stderr, "%s:  insufficient memory for rootpath\n",
+-			progname);
++	r_opts.rootpath = strdup(arg);
++	if (NULL == r_opts.rootpath) {
++		fprintf(stderr, "%s:  insufficient memory for r_opts.rootpath\n",
++			r_opts.progname);
+ 		exit(1);
+ 	}
+ 
+ 	/* trim trailing /, if present */
+-	len = strlen(rootpath);
+-	while (len && ('/' == rootpath[len - 1]))
+-		rootpath[--len] = 0;
+-	rootpathlen = len;
++	len = strlen(r_opts.rootpath);
++	while (len && ('/' == r_opts.rootpath[len - 1]))
++		r_opts.rootpath[--len] = 0;
++	r_opts.rootpathlen = len;
+ }
+ 
+ int canoncon(char **contextp)
+@@ -545,90 +108,7 @@ int canoncon(char **contextp)
+ 	return rc;
+ }
+ 
+-static int process_one(char *name)
+-{
+-	int rc = 0;
+-	const char *namelist[2];
+-	dev_t dev_num = 0;
+-	FTS *fts_handle;
+-	FTSENT *ftsent;
+-
+-	if (expand_realpath) {
+-		char *p;
+-		p = realpath(name, NULL);
+-		if (!p) {
+-			fprintf(stderr, "realpath(%s) failed %s\n", name,
+-				strerror(errno));
 -			return -1;
 -		}
--		ptr = ptr->next;
--	}
--	/* Did not find a directory */
--	return -1;
--}
--
--static void watch_list_free(int fd)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	ptr = firstDir;
--
--	while (ptr != NULL) {
--		inotify_rm_watch(fd, ptr->wd);
--		strings_list_free(ptr->files);
--		free(ptr->dir);
--		prev = ptr;
--		ptr = ptr->next;
--		free(prev);
--	}
--	firstDir = NULL;
--}
--
--/* 
--   Set the file context to the default file context for this system.
--   Same as restorecon.
--*/
--static void restore(const char *filename, int exact)
--{
--	int retcontext = 0;
--	security_context_t scontext = NULL;
--	security_context_t prev_context = NULL;
--	struct stat st;
--	int fd = -1;
--	if (debug_mode)
--		printf("restore %s\n", filename);
--
--	fd = open(filename, O_NOFOLLOW | O_RDONLY);
--	if (fd < 0) {
--		if (verbose_mode)
--			syslog(LOG_ERR, "Unable to open file (%s) %s\n",
--			       filename, strerror(errno));
--		return;
+-		name = p;
 -	}
 -
--	if (fstat(fd, &st) != 0) {
--		syslog(LOG_ERR, "Unable to stat file (%s) %s\n", filename,
--		       strerror(errno));
--		close(fd);
--		return;
+-
+-	if (!strcmp(name, "/"))
+-		mass_relabel = 1;
+-
+-	namelist[0] = name;
+-	namelist[1] = NULL;
+-	fts_handle = fts_open((char **)namelist, fts_flags, NULL);
+-	if (fts_handle  == NULL) {
+-		fprintf(stderr,
+-			"%s: error while labeling %s:  %s\n",
+-			progname, namelist[0], strerror(errno));
+-		goto err;
 -	}
 -
--	if (!(st.st_mode & S_IFDIR) && st.st_nlink > 1) {
--		if (exact) { 
--			syslog(LOG_ERR,
--			       "Will not restore a file with more than one hard link (%s) %s\n",
--			       filename, strerror(errno));
--		}
--		close(fd);
--		return;
+-
+-	ftsent = fts_read(fts_handle);
+-	if (ftsent != NULL) {
+-		/* Keep the inode of the first one. */
+-		dev_num = ftsent->fts_statp->st_dev;
 -	}
 -
--	if (matchpathcon(filename, st.st_mode, &scontext) < 0) {
--		if (errno == ENOENT)
--			return;
--		syslog(LOG_ERR, "matchpathcon(%s) failed %s\n", filename,
--		       strerror(errno));
--		return;
--	}
--	retcontext = fgetfilecon_raw(fd, &prev_context);
--
--	if (retcontext >= 0 || errno == ENODATA) {
--		if (retcontext < 0)
--			prev_context = NULL;
--		if (retcontext < 0 || (strcmp(prev_context, scontext) != 0)) {
--
--			if (only_changed_user(scontext, prev_context) != 0) {
--				free(scontext);
--				free(prev_context);
--				close(fd);
--				return;
--			}
--
--			if (fsetfilecon(fd, scontext) < 0) {
--				if (errno != EOPNOTSUPP) 
--					syslog(LOG_ERR,
--					       "set context %s->%s failed:'%s'\n",
--					       filename, scontext, strerror(errno));
--				if (retcontext >= 0)
--					free(prev_context);
--				free(scontext);
--				close(fd);
--				return;
--			}
--			syslog(LOG_WARNING, "Reset file context %s: %s->%s\n",
--			       filename, prev_context, scontext);
--		}
--		if (retcontext >= 0)
--			free(prev_context);
--	} else {
--		if (errno != EOPNOTSUPP) 
--			syslog(LOG_ERR, "get context on %s failed: '%s'\n",
--			       filename, strerror(errno));
--	}
--	free(scontext);
--	close(fd);
--}
--
--static void process_config(int fd, FILE * cfg)
--{
--	char *line_buf = NULL;
--	size_t len = 0;
--
--	while (getline(&line_buf, &len, cfg) > 0) {
--		char *buffer = line_buf;
--		while (isspace(*buffer))
--			buffer++;
--		if (buffer[0] == '#')
+-	do {
+-		/* Skip the post order nodes. */
+-		if (ftsent->fts_info == FTS_DP)
 -			continue;
--		int l = strlen(buffer) - 1;
--		if (l <= 0)
+-		/* If the XDEV flag is set and the device is different */
+-		if (ftsent->fts_statp->st_dev != dev_num &&
+-		    FTS_XDEV == (fts_flags & FTS_XDEV))
 -			continue;
--		buffer[l] = 0;
--		if (buffer[0] == '~')
--			utmpwatcher_add(fd, &buffer[1]);
--		else {
--			watch_list_add(fd, buffer);
--		}
--	}
--	free(line_buf);
--}
--
--/* 
--   Read config file ignoring Comment lines 
--   Files specified one per line.  Files with "~" will be expanded to the logged in users
--   homedirs.
--*/
--
--static void read_config(int fd)
--{
--	char *watch_file_path = "/etc/selinux/restorecond.conf";
- 
--	FILE *cfg = NULL;
--	if (debug_mode)
--		printf("Read Config\n");
--
--	watch_list_free(fd);
--
--	cfg = fopen(watch_file_path, "r");
--	if (!cfg)
--		exitApp("Error reading config file.");
--	process_config(fd, cfg);
--	fclose(cfg);
--
--	inotify_rm_watch(fd, master_wd);
--	master_wd =
--	    inotify_add_watch(fd, watch_file_path, IN_MOVED_FROM | IN_MODIFY);
--	if (master_wd == -1)
--		exitApp("Error watching config file.");
--}
-+static char *server_watch_file  = "/etc/selinux/restorecond.conf";
-+static char *user_watch_file  = "/etc/selinux/restorecond_user.conf";
-+static char *watch_file;
-+static struct restore_opts r_opts;
- 
--/* 
--   Inotify watch loop 
--*/
--static int watch(int fd)
--{
--	char buf[BUF_LEN];
--	int len, i = 0;
--	len = read(fd, buf, BUF_LEN);
--	if (len < 0) {
--		if (terminate == 0) {
--			syslog(LOG_ERR, "Read error (%s)", strerror(errno));
--			return 0;
--		}
--		syslog(LOG_ERR, "terminated");
--		return -1;
--	} else if (!len)
--		/* BUF_LEN too small? */
--		return -1;
--	while (i < len) {
--		struct inotify_event *event;
--		event = (struct inotify_event *)&buf[i];
--		if (debug_mode)
--			printf("wd=%d mask=%u cookie=%u len=%u\n",
--			       event->wd, event->mask,
--			       event->cookie, event->len);
--		if (event->wd == master_wd)
--			read_config(fd);
--		else {
--			switch (utmpwatcher_handle(fd, event->wd)) {
--			case -1:	/* Message was not for utmpwatcher */
--				if (event->len)
--					watch_list_find(event->wd, event->name);
--				break;
-+#include <selinux/selinux.h>
- 
--			case 1:	/* utmp has changed need to reload */
--				read_config(fd);
--				break;
-+int debug_mode = 0;
-+int verbose_mode = 0;
-+int terminate = 0;
-+int master_wd = -1;
-+int run_as_user = 0;
- 
--			default:	/* No users logged in or out */
--				break;
+-		if (excludeCtr > 0) {
+-			if (exclude(ftsent->fts_path)) {
+-				fts_set(fts_handle, ftsent, FTS_SKIP);
+-				continue;
 -			}
 -		}
+-		int rc = apply_spec(ftsent);
+-		if (rc == SKIP)
+-			fts_set(fts_handle, ftsent, FTS_SKIP);
+-		if (rc == ERR)
+-			goto err;
+-		if (!recurse)
+-			break;
+-	} while ((ftsent = fts_read(fts_handle)) != NULL);
 -
--		i += EVENT_SIZE + event->len;
+-	if (!strcmp(name, "/"))
+-		mass_relabel_errs = 0;
+ 
+-out:
+-	if (add_assoc) {
+-		if (!quiet)
+-			filespec_eval();
+-		filespec_destroy();
 -	}
--	return 0;
-+static void done(void) {
-+	watch_list_free(master_fd);
-+	close(master_fd);
-+	utmpwatcher_free();
-+	matchpathcon_fini();
- }
- 
- static const char *pidfile = "/var/run/restorecond.pid";
-@@ -374,7 +119,7 @@ static void term_handler()
- 
- static void usage(char *program)
- {
--	printf("%s [-d] [-v] \n", program);
-+	printf("%s [-d] [-s] [-f restorecond_file ] [-v] \n", program);
- 	exit(0);
- }
- 
-@@ -390,74 +135,35 @@ void exitApp(const char *msg)
-    to see if it is one that we are watching.
- */
- 
--void watch_list_add(int fd, const char *path)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	char *x = strdup(path);
--	if (!x)
--		exitApp("Out of Memory");
--	char *dir = dirname(x);
--	char *file = basename(path);
--	ptr = firstDir;
+-	if (fts_handle)
+-		fts_close(fts_handle);
+-	if (expand_realpath)
+-		free(name);
+-	return rc;
 -
--	restore(path, 1);
--
--	while (ptr != NULL) {
--		if (strcmp(dir, ptr->dir) == 0) {
--			strings_list_add(&ptr->files, file);
--			free(x);
--			return;
--		}
--		prev = ptr;
--		ptr = ptr->next;
--	}
--	ptr = calloc(1, sizeof(struct watchList));
--
--	if (!ptr)
--		exitApp("Out of Memory");
--
--	ptr->wd = inotify_add_watch(fd, dir, IN_CREATE | IN_MOVED_TO);
--	if (ptr->wd == -1) {
--		free(ptr);
--		syslog(LOG_ERR, "Unable to watch (%s) %s\n",
--		       path, strerror(errno));
--		return;
--	}
--
--	ptr->dir = strdup(dir);
--	if (!ptr->dir)
--		exitApp("Out of Memory");
--
--	strings_list_add(&ptr->files, file);
--	if (prev)
--		prev->next = ptr;
--	else
--		firstDir = ptr;
--
--	if (debug_mode)
--		printf("%d: Dir=%s, File=%s\n", ptr->wd, ptr->dir, file);
--
--	free(x);
+-err:
+-	if (!strcmp(name, "/"))
+-		mass_relabel_errs = 1;
+-	rc = -1;
+-	goto out;
 -}
--
- int main(int argc, char **argv)
- {
- 	int opt;
- 	struct sigaction sa;
  
--#ifndef DEBUG
--	/* Make sure we are root */
--	if (getuid() != 0) {
--		fprintf(stderr, "You must be root to run this program.\n");
--		return 1;
--	}
--#endif
--	/* Make sure we are root */
--	if (is_selinux_enabled() != 1) {
--		fprintf(stderr, "Daemon requires SELinux be enabled to run.\n");
--		return 1;
--	}
+ #ifndef USE_AUDIT
+ static void maybe_audit_mass_relabel(void)
+@@ -729,21 +209,32 @@ int main(int argc, char **argv)
+ 	int use_input_file = 0;
+ 	char *buf = NULL;
+ 	size_t buf_len;
++	int recurse; /* Recursive descent. */
+ 	char *base;
+-	struct selinux_opt opts[] = {
+-		{ SELABEL_OPT_VALIDATE, NULL },
+-		{ SELABEL_OPT_PATH, NULL }
+-	};
++	
 +	memset(&r_opts, 0, sizeof(r_opts));
 +
++	/* Initialize variables */
 +	r_opts.progress = 0;
 +	r_opts.count = 0;
 +	r_opts.debug = 0;
@@ -494,135 +1301,232 @@ index 58774e6..0f0abe5 100644
 +	r_opts.verbose = 0;
 +	r_opts.logging = 0;
 +	r_opts.rootpath = NULL;
-+	r_opts.expand_realpath = 0;
 +	r_opts.rootpathlen = 0;
 +	r_opts.outfile = NULL;
 +	r_opts.force = 0;
-+	r_opts.hard_links = 0;
-+	r_opts.expand_realpath = 1;
-+	r_opts.abort_on_error = 0;
-+	r_opts.add_assoc = 0;
-+	r_opts.fts_flags = FTS_PHYSICAL;
-+	r_opts.selabel_opt_validate = NULL;
-+	r_opts.selabel_opt_path = NULL;
-+	
-+	restore_init(&r_opts);
-+	/* If we are not running SELinux then just exit */
-+	if (is_selinux_enabled() != 1) return 0;
++	r_opts.hard_links = 1;
  
- 	/* Register sighandlers */
- 	sa.sa_flags = 0;
-@@ -467,15 +173,18 @@ int main(int argc, char **argv)
+-	memset(excludeArray, 0, sizeof(excludeArray));
+ 	altpath = NULL;
  
- 	set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
+-	progname = strdup(argv[0]);
+-	if (!progname) {
++	r_opts.progname = strdup(argv[0]);
++	if (!r_opts.progname) {
+ 		fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
+ 		exit(1);
+ 	}
+-	base = basename(progname);
++	base = basename(r_opts.progname);
+ 	
+ 	if (!strcmp(base, SETFILES)) {
+ 		/* 
+@@ -757,10 +248,10 @@ int main(int argc, char **argv)
+ 		 */
+ 		iamrestorecon = 0;
+ 		recurse = 1;
+-		expand_realpath = 0;
+-		abort_on_error = 1;
+-		add_assoc = 1;
+-		fts_flags = FTS_PHYSICAL | FTS_XDEV;
++		r_opts.expand_realpath = 0;
++		r_opts.abort_on_error = 1;
++		r_opts.add_assoc = 1;
++		r_opts.fts_flags = FTS_PHYSICAL | FTS_XDEV;
+ 		ctx_validate = 1;
+ 	} else {
+ 		/*
+@@ -772,14 +263,14 @@ int main(int argc, char **argv)
+ 		 * Follows mounts,
+ 		 * Does lazy validation of contexts upon use. 
+ 		 */
+-		if (strcmp(base, RESTORECON) && !quiet) 
++		if (strcmp(base, RESTORECON) && !r_opts.quiet) 
+ 			printf("Executed with an unrecognized name (%s), defaulting to %s behavior.\n", base, RESTORECON);
+ 		iamrestorecon = 1;
+ 		recurse = 0;
+-		expand_realpath = 1;
+-		abort_on_error = 0;
+-		add_assoc = 0;
+-		fts_flags = FTS_PHYSICAL;
++		r_opts.expand_realpath = 1;
++		r_opts.abort_on_error = 0;
++		r_opts.add_assoc = 0;
++		r_opts.fts_flags = FTS_PHYSICAL;
+ 		ctx_validate = 0;
  
--	master_fd = inotify_init();
--	if (master_fd < 0)
--		exitApp("inotify_init");
--
--	while ((opt = getopt(argc, argv, "dv")) > 0) {
-+	atexit( done );
-+	while ((opt = getopt(argc, argv, "uf:dv")) > 0) {
- 		switch (opt) {
+ 		/* restorecon only:  silent exit if no SELinux.
+@@ -828,11 +319,6 @@ int main(int argc, char **argv)
+ 			}
+ 		case 'e':
+ 			remove_exclude(optarg);
+-			if (lstat(optarg, &sb) < 0 && errno != EACCES) {
+-				fprintf(stderr, "Can't stat exclude path \"%s\", %s - ignoring.\n",
+-					optarg, strerror(errno));
+-				break;
+-			}
+ 			if (add_exclude(optarg))
+ 				exit(1);
+ 			break;
+@@ -841,37 +327,37 @@ int main(int argc, char **argv)
+ 			input_filename = optarg;
+ 			break;			
  		case 'd':
- 			debug_mode = 1;
+-			debug = 1;
++			r_opts.debug = 1;
  			break;
-+		case 'f':
-+			watch_file = optarg;
-+			break;
-+		case 'u':
-+			run_as_user = 1;
-+			break;
+ 		case 'i':
+ 			ignore_enoent = 1;
+ 			break;
+ 		case 'l':
+-			logging = 1;
++			r_opts.logging = 1;
+ 			break;
+ 		case 'F':
+-			force = 1;
++			r_opts.force = 1;
+ 			break;
+ 		case 'n':
+-			change = 0;
++			r_opts.change = 0;
+ 			break;
+ 		case 'o':
+ 			if (strcmp(optarg, "-") == 0) {
+-				outfile = stdout;
++				r_opts.outfile = stdout;
+ 				break;
+ 			}
+ 
+-			outfile = fopen(optarg, "w");
+-			if (!outfile) {
++			r_opts.outfile = fopen(optarg, "w");
++			if (!r_opts.outfile) {
+ 				fprintf(stderr, "Error opening %s: %s\n",
+ 					optarg, strerror(errno));
+ 
+ 				usage(argv[0]);
+ 			}
+-			__fsetlocking(outfile, FSETLOCKING_BYCALLER);
++			__fsetlocking(r_opts.outfile, FSETLOCKING_BYCALLER);
+ 			break;
+ 		case 'q':
+-			quiet = 1;
++			r_opts.quiet = 1;
+ 			break;
+ 		case 'R':
+ 		case 'r':
+@@ -880,11 +366,11 @@ int main(int argc, char **argv)
+ 				break;
+ 			}
+ 			if (optind + 1 >= argc) {
+-				fprintf(stderr, "usage:  %s -r rootpath\n",
++				fprintf(stderr, "usage:  %s -r r_opts.rootpath\n",
+ 					argv[0]);
+ 				exit(1);
+ 			}
+-			if (NULL != rootpath) {
++			if (NULL != r_opts.rootpath) {
+ 				fprintf(stderr,
+ 					"%s: only one -r can be specified\n",
+ 					argv[0]);
+@@ -895,23 +381,23 @@ int main(int argc, char **argv)
+ 		case 's':
+ 			use_input_file = 1;
+ 			input_filename = "-";
+-			add_assoc = 0;
++			r_opts.add_assoc = 0;
+ 			break;
  		case 'v':
- 			verbose_mode = 1;
+-			if (progress) {
++			if (r_opts.progress) {
+ 				fprintf(stderr,
+ 					"Progress and Verbose mutually exclusive\n");
+ 				exit(1);
+ 			}
+-			verbose++;
++			r_opts.verbose++;
  			break;
-@@ -483,22 +192,40 @@ int main(int argc, char **argv)
- 			usage(argv[0]);
+ 		case 'p':
+-			if (verbose) {
++			if (r_opts.verbose) {
+ 				fprintf(stderr,
+ 					"Progress and Verbose mutually exclusive\n");
+ 				usage(argv[0]);
+ 			}
+-			progress = 1;
++			r_opts.progress = 1;
+ 			break;
+ 		case 'W':
+ 			warn_no_match = 1;
+@@ -959,18 +445,13 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	/* Load the file contexts configuration and check it. */
+-	opts[0].value = (ctx_validate ? (char*)1 : NULL);
+-	opts[1].value = altpath;
+-
+-	hnd = selabel_open(SELABEL_CTX_FILE, opts, 2);
+-	if (!hnd) {
+-		perror(altpath);
+-		exit(1);
+-	}
++	r_opts.selabel_opt_validate = (ctx_validate ? (char *)1 : NULL);
++	r_opts.selabel_opt_path = altpath;
+ 
+ 	if (nerr)
+ 		exit(1);
+ 
++	restore_init(&r_opts);
+ 	if (use_input_file) {
+ 		FILE *f = stdin;
+ 		ssize_t len;
+@@ -987,31 +468,34 @@ int main(int argc, char **argv)
+ 		delim = (null_terminated != 0) ? '\0' : '\n';
+ 		while ((len = getdelim(&buf, &buf_len, delim, f)) > 0) {
+ 			buf[len - 1] = 0;
+-			errors |= process_one(buf);
++			if (!strcmp(buf, "/"))
++				mass_relabel = 1;
++			errors |= process_one(buf, recurse) < 0;
+ 		}
+ 		if (strcmp(input_filename, "-") != 0)
+ 			fclose(f);
+ 	} else {
+ 		for (i = optind; i < argc; i++) {
+-			errors |= process_one(argv[i]);
++			if (!strcmp(argv[i], "/"))
++				mass_relabel = 1;
++			errors |= process_one(argv[i], recurse) < 0;
  		}
  	}
--	read_config(master_fd);
-+
-+	master_fd = inotify_init();
-+	if (master_fd < 0)
-+		exitApp("inotify_init");
-+
-+	uid_t uid = getuid();
-+	struct passwd *pwd = getpwuid(uid);
-+	homedir = pwd->pw_dir;
-+	if (uid != 0) {
-+		if (run_as_user)
-+			return server(master_fd, user_watch_file);
-+		if (start() != 0) 
-+			return server(master_fd, user_watch_file);
-+		return 0;
-+	}
-+
-+	watch_file = server_watch_file;
-+	read_config(master_fd, watch_file);
+-
++	
++	if (mass_relabel)
++		mass_relabel_errs = errors;
+ 	maybe_audit_mass_relabel();
  
- 	if (!debug_mode)
- 		daemon(0, 0);
+ 	if (warn_no_match)
+-		selabel_stats(hnd);
++		selabel_stats(r_opts.hnd);
  
- 	write_pid_file();
+-	selabel_close(hnd);
++	selabel_close(r_opts.hnd);
++	restore_finish();
  
--	while (watch(master_fd) == 0) {
-+	while (watch(master_fd, watch_file) == 0) {
- 	};
+-	if (outfile)
+-		fclose(outfile);
+-
+-	for (i = 0; i < excludeCtr; i++) {
+-		free(excludeArray[i].directory);
+-	}
++	if (r_opts.outfile)
++		fclose(r_opts.outfile);
  
- 	watch_list_free(master_fd);
- 	close(master_fd);
- 	matchpathcon_fini();
--	utmpwatcher_free();
- 	if (pidfile)
- 		unlink(pidfile);
- 
- 	return 0;
+-       if (progress && count >= STAR_COUNT)
++       if (r_opts.progress && r_opts.count >= STAR_COUNT)
+                printf("\n");
+ 	exit(errors);
  }
-+
-+
-diff --git a/policycoreutils/restorecond/restorecond.conf b/policycoreutils/restorecond/restorecond.conf
-index 3fc9376..58b723a 100644
---- a/policycoreutils/restorecond/restorecond.conf
-+++ b/policycoreutils/restorecond/restorecond.conf
-@@ -4,8 +4,5 @@
- /etc/mtab
- /var/run/utmp
- /var/log/wtmp
--~/*
--/root/.ssh
-+/root/*
- /root/.ssh/*
--
--
-diff --git a/policycoreutils/restorecond/restorecond.h b/policycoreutils/restorecond/restorecond.h
-index e1666bf..140e9df 100644
---- a/policycoreutils/restorecond/restorecond.h
-+++ b/policycoreutils/restorecond/restorecond.h
-@@ -24,7 +24,22 @@
- #ifndef RESTORED_CONFIG_H
- #define RESTORED_CONFIG_H
- 
--void exitApp(const char *msg);
--void watch_list_add(int inotify_fd, const char *path);
-+extern int debug_mode;
-+extern int verbose_mode;
-+extern const char *homedir;
-+extern int terminate;
-+extern int master_wd;
-+extern int run_as_user;
-+
-+extern int start(void);
-+extern int server(int, const char *watch_file);
-+
-+extern void exitApp(const char *msg);
-+extern void read_config(int fd,	const char *watch_file);
-+
-+extern int watch(int fd, const char *watch_file);
-+extern void watch_list_add(int inotify_fd, const char *path);
-+extern int watch_list_find(int wd, const char *file);
-+extern void watch_list_free(int fd);
- 
- #endif
 
 
 
