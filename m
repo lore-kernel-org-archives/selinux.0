@@ -1,26 +1,45 @@
-Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on
- sysfs files, directories, and symlinks.
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: jmorris@namei.org
-Cc: sds@tycho.nsa.gov, gregkh@suse.de, casey@schaufler-ca.com,
-        ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Thu, 20 Aug 2009 09:18:05 -0400
-Message-Id: <1250774285.2542.72.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7KEFwm5003988
+	for <selinux@tycho.nsa.gov>; Thu, 20 Aug 2009 10:15:58 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7KEFP1j005906
+	for <selinux@tycho.nsa.gov>; Thu, 20 Aug 2009 14:15:26 GMT
+Message-ID: <4A8D5A8F.8060306@manicmethod.com>
+Date: Thu, 20 Aug 2009 10:15:43 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Thomas Liu <tliu@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 2/2] policAycoreutils: share setfiles restore function
+ with restorecond
+References: <1250711251.2835.25.camel@Hephaestus> <4A8C683F.8070005@manicmethod.com> <4A8C6F26.6080304@redhat.com>
+In-Reply-To: <4A8C6F26.6080304@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since Casey has withdrawn his NAK for the patch I guess the only other
-concern was about the generality of the solution from Eric. Did Steve's
-response adequately address this or are there any other questions that
-people need answered before Greg can take the patch.
+Daniel J Walsh wrote:
+> On 08/19/2009 05:01 PM, Joshua Brindle wrote:
+>> Thomas Liu wrote:
+>>> This patch edits restorecond to use the shared restore
+>>>
+>>> functions split out from the first patch in this series.
+>>>
+>> Is the DBus stuff in here suppose to be here? It looks like you are
+>> adding libdbus and include dirs but I don't see any dbus usage.
+>>
+<snip>
+>>
+> restorcond -u is a dbus session bus service.
+>
+> The idea is to run restorecond as your UID when you log into a console session.
+>
 
-Dave
+Maybe I don't get how DBus works. Why are the include dirs added to CFLAGS but 
+no apparent dbus #includes?
 
+Further, will this _only_ work with DBus after this patch? If so there needs to 
+be a way to not build it if dbus isn't present on the system (embedded).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
