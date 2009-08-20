@@ -1,131 +1,47 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7JNxO2O007109
-	for <selinux@tycho.nsa.gov>; Wed, 19 Aug 2009 19:59:26 -0400
-Received: from smtp108.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7K00WAM029936
-	for <selinux@tycho.nsa.gov>; Thu, 20 Aug 2009 00:00:32 GMT
-Message-ID: <4A8C91D4.3070308@schaufler-ca.com>
-Date: Wed, 19 Aug 2009 16:59:16 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
         "David P. Quigley" <dpquigl@tycho.nsa.gov>, jmorris@namei.org,
         gregkh@suse.de, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH] Security/sysfs: v2 - Enable security xattrs to be set
- on sysfs files, directories, and symlinks.
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>	 <4A84EF1D.8060408@schaufler-ca.com> <m1my62xde6.fsf@fess.ebiederm.org>	 <4A861291.1030404@schaufler-ca.com> <m1tz09j00q.fsf@fess.ebiederm.org>	 <4A864008.50907@schaufler-ca.com> <m1my61sjie.fsf@fess.ebiederm.org>	 <4A8A2616.8020809@schaufler-ca.com>	 <1250597660.3629.204.camel@moss-pluto.epoch.ncsc.mil>	 <4A8AB6B0.8010800@schaufler-ca.com>	 <1250605386.3629.236.camel@moss-pluto.epoch.ncsc.mil>	 <4A8B81A0.6070206@schaufler-ca.com> <1250683089.3629.268.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1250683089.3629.268.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov>
+	<4A84EF1D.8060408@schaufler-ca.com> <m1my62xde6.fsf@fess.ebiederm.org>
+	<4A861291.1030404@schaufler-ca.com> <m1tz09j00q.fsf@fess.ebiederm.org>
+	<4A864008.50907@schaufler-ca.com> <m1my61sjie.fsf@fess.ebiederm.org>
+	<4A8A2616.8020809@schaufler-ca.com>
+	<1250597660.3629.204.camel@moss-pluto.epoch.ncsc.mil>
+	<4A8AB6B0.8010800@schaufler-ca.com>
+	<1250605386.3629.236.camel@moss-pluto.epoch.ncsc.mil>
+	<4A8B81A0.6070206@schaufler-ca.com>
+	<1250683089.3629.268.camel@moss-pluto.epoch.ncsc.mil>
+	<4A8C91D4.3070308@schaufler-ca.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 19 Aug 2009 19:41:41 -0700
+In-Reply-To: <4A8C91D4.3070308@schaufler-ca.com> (Casey Schaufler's message of "Wed\, 19 Aug 2009 16\:59\:16 -0700")
+Message-ID: <m1skfni4uy.fsf@fess.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] Security/sysfs: v2 - Enable security xattrs to be set on sysfs files, directories, and symlinks.
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2009-08-18 at 21:37 -0700, Casey Schaufler wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Tue, 2009-08-18 at 07:12 -0700, Casey Schaufler wrote:
->>>   
->>>       
->>>> Stephen Smalley wrote:
->>>>     
->>>>         
->>>>> On Mon, 2009-08-17 at 20:55 -0700, Casey Schaufler wrote:
->>>>>   
->>>>>       
->>>>>           
->>>>>> From: Casey Schaufler <casey@schaufler-ca.com>
->>>>>>
->>>>>> Another approach to limited xattr support in sysfs.
->>>>>>
->>>>>> I tried to listen to the objections to a linked list representation
->>>>>> and I think that I understand that there isn't really any interest
->>>>>> in supporting xattrs for real, only for those maintained by LSMs.
->>>>>> I also looked carefully into the claims that memory usage is
->>>>>> critical and that the code I had before was duplicating effort.
->>>>>>
->>>>>> This version lets the surrounding code do as much of the work as
->>>>>> possible. Unlike the initial proposal for sysfs xattrs, it does not
->>>>>> introduce any new LSM hooks, it uses hooks that already exist. It
->>>>>> does not support any attributes on its own, it only provides for
->>>>>> the attribute advertised by security_inode_listsecurity(). It could
->>>>>> easily be used by other filesystems to provide the same LSM xattr
->>>>>> support. It could also be extended to do the list based support for
->>>>>> arbitrary xattrs without too much effort.
->>>>>>
->>>>>> Probably the oddest bit is that the inode_getsecurity hooks need to
->>>>>> check to see if they are getting called before the inode is instantiated
->>>>>> and return -ENODATA in that event. It would be possible to do a
->>>>>> filesystem specific check instead, but this way provides for generally
->>>>>> correct behavior at small cost.
->>>>>>
->>>>>> This has been tested with Smack, but not SELinux. I think that
->>>>>> SELinux will work correctly, but it could be that a labeling
->>>>>> behavior that is different than the "usual" instantiation labeling
->>>>>> is actually desired. That would be an easy change.
->>>>>>
->>>>>> As always, let me know if I missed something obvious or if there's a
->>>>>> fatal flaw in the scheme.
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> The point of the David's patch was to provide a way to save the security
->>>>> xattr in the backing data structure for sysfs entries when an attribute
->>>>> value is set from userspace so that the value can be preserved if the
->>>>> inode is evicted from memory and later re-instantiated.  AFAICS, your
->>>>> patch completely misses the problem.  How about we just go back to
->>>>> David's patch?
->>>>>   
->>>>>       
->>>>>           
->>>> Oh no, that would use too much memory!
->>>>
->>>> Either you care about the value the user set, in which case you
->>>> want to save the value the user set, or you don't. If you do, you
->>>> have to save that value, not an LSM's interpretation of that value.
->>>> No secids. No new hooks.
->>>>     
->>>>         
->>> As the security module is the only component of the kernel that
->>> uses/interprets that value, it isn't unreasonable for the security
->>> module's interpretation of that value to be considered canonical.  In
->>> fact, that is already the case - the hooks within vfs_getxattr() enable
->>> the security module to override/replace the actual security xattr value
->>> returned to userspace.
->>>
->>> In the case of Smack, Smack could just provide a pointer to its own
->>> internal copy of the string, and that could be stored in the wrapped
->>> iattr.  In the case of SELinux, we could provide a secid that could be
->>> stored in the wrapped iattr.  The hook interface could just handle it as
->>> a blob if you prefer.  But either way we don't need extra storage aside
->>> from a pointer-size field in the wrapped iattr.
->>>   
->>>       
->> So how often is the SELinux label going to get explicitly set in /sys ?
->> I'm grappling with the value of going hog-wild in optimizing this. If
->> it is something that's quite rare I can see the concern with expanding
->> the d_entry. If it is common, the storage associated with storing the
->> xattr could be an issue. If it is uncommon but not rare there's another
->> story again.
->>
->> I'm looking at addressing the issues. Thank you.
->>     
->
-> I'd expect most sysfs nodes to be left in the default label, although we
-> don't really know as this would be the first time that people have the
-> option of finer-grained control to sysfs.
->
->   
+Casey Schaufler <casey@schaufler-ca.com> writes:
 
-So I still don't like the way it exposes LSM internal data to the
-file system code, but given how long it's taking for me to create
-a better solution I don't think that I can in all fairness say NAK
-to David Quigley's sysfs patch any longer. I withdraw my objection,
-while maintaining my reservations.
+> So I still don't like the way it exposes LSM internal data to the
+> file system code, but given how long it's taking for me to create
+> a better solution I don't think that I can in all fairness say NAK
+> to David Quigley's sysfs patch any longer. I withdraw my objection,
+> while maintaining my reservations.
 
+Until I see it wired up against another filesystem I retain my
+objections.  When I asked he pretty much told me that it doesn't
+generalize to other filesystems well and it is a sysfs special case.
+
+The way sysctl and proc are wired as special cases into the lsm
+has been a maintenance disaster so far, and I think it a very bad
+idea to add yet another lsm special case, that supports only one
+filesystem.
+
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
