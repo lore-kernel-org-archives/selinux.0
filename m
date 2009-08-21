@@ -1,102 +1,58 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7LCbJN8032262
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 08:37:19 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7LCcOFD004767
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 12:38:26 GMT
-Subject: Re: [refpolicy] SELinux policy for the new TUN hooks
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
-In-Reply-To: <200908201838.29478.paul.moore@hp.com>
-References: <200908201838.29478.paul.moore@hp.com>
+Subject: object context records for Xen
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
+        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 21 Aug 2009 08:36:25 -0400
-Message-Id: <1250858185.6222.43.camel@gorn.columbia.tresys.com>
+Date: Fri, 21 Aug 2009 10:42:13 -0400
+Message-Id: <1250865733.2390.85.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-08-20 at 18:38 -0400, Paul Moore wrote:
-> First off, my apologies for posting to both the SELinux and refpolicy lists, 
-> but I think this is a topic that bears a bit wider audience than just 
-> refpolicy ...
+Hi,
 
-Object class changes should go to both lists anyway, so its ok.
+Xen needs its own object context (ocontext) records in the policy for
+various resources (pirq, iomem, ioport, device), and has no need for the
+Linux object context records other than initial SIDs.  Thus, rather than
+just add new OCON_ indices and waste space in both the Linux and Xen
+policies, I'd like to be able to interpret OCON_ indices differently
+depending on some other value in the policy that identifies the target
+kernel (Linux, Xen, FreeBSD, Solaris, ...). Possible ways to identify
+the target kernel within the policy image:
 
-> As you may have seen on the various lists, there is a problem where network 
-> traffic sent via a TUN device is not labeled correctly due to missing hooks in 
-> the TUN driver.  I believe we've reached a point where the LSM hooks are 
-> relatively sorted so now it is time to start thinking about the SELinux policy 
-> to go behind the hooks.
-> 
-> My current approach has been to label the individual TUN device (actually the 
-> sock associated with the TUN device) based on the domain which has attached 
-> itself to the device (only one process can attach to a device at any given 
-> time).  This has the conceptual advantage that packets sent from the device 
-> are labeled based on the domain but the disadvantage that attaching to a 
-> persistent TUN device requires a relabel operation.
+- Use different policydb strings ("SE Linux", "Xen Flask", ...) in the
+header.  I already introduced support for at least one other policydb
+string ("Flask") in policydb_read() in libsepol so that we didn't have
+to use "SE Linux" as the string in the OpenSolaris FMAC policy files.
+Each kernel would only need to support reading files with its own string
+identifier and would reject all others.  Only libsepol would support all
+of them for reading and writing.
 
-Seems ok to me.
+- Use the config flags in the header.  We are presently only using 3
+bits in the config field (MLS, reject_unknown, allow_unknown), so we can
+easily use a bit for each target kernel.  Not very general/scalable, but
+it isn't clear that we need this for very many cases.
 
->   With the current patches, 
-> the basic policy for creating and attaching to a TUN device are shown below:
-> 
-> 	# create a new tun device
-> 	allow foo_t self:tun_socket { create };
-> 
-> 	# attach to an existing persistent tun device
-> 	allow bar_t foo_t:tun_socket { relabel_from };
-> 	allow bar_t self:tun_socket { relabel_to };
+- Introduce an entirely new field to the header to select the target
+kernel.  In which case it could just be an unsigned integer with defined
+values for Linux, Solaris, Xen, FreeBSD, etc.  This is the only one that
+absolutely requires a new policy version (policy.25).
 
-The perms should be relabelfrom and relabelto for consistency with all
-the other relabeling perms in the policy.
+Other aspects of the policy might likewise get interpreted differently
+based on the target kernel, such as policy capabilities (the current
+ones are very Linux-specific).
 
-> My first question is does this policy still sound reasonable?  My second 
-> question is what refpolicy changes do we want to see?  As it stands I'm 
-> thinking of the following refpolicy changes:
-> 
-> 1. Add a new socket class, "tun_socket", which inherits from the socket class.
-> 2. Create a new interface, "corenet_create_tun_tap_dev($1)", which would grant 
-> the given domain the tun_socket/create permission.
+Then we'd have to decide how we want to drive selection of the target
+kernel when building the policy; it could be an option to
+checkpolicy/checkmodule (ala MLS and handle_unknown behavior) or it
+could be an actual directive within the source policy configuration.
 
-I don't see why we need this since its just going to be a create on
-self.
-
-> 3. Another new interface to grant permission for a domain to attach itself to 
-> an existing persistent TUN device.
-> 
-> Step #3 is where I seem to be having problems.  If we only allow one argument, 
-> the requesting domain, we are forced to allow it to attach to _all_ TUN 
-> devices.  If we allow two arguments, both the requesting domain and the type 
-> of the persistent TUN device, doesn't that pose a problem with directly 
-> accessing the persistent TUN device type?  We could also go with another 
-> option that would introduce another interface to assign persistent TUN devices 
-> an attribute which would allow them to be attached later with a single 
-> argument attach interface.  Thoughts?
-
-Each domain that has this behavior would have its own interface.  So
-using your above example, foo.te would have:
-
-allow foo_t self:tun_socket create;
-
-foo.if would have (simplified for brevity):
-
-interface foo_tun_attach(`
-	allow $1 foo_t:tun_socket relabelfrom;
-	allow $1 self:tun_socket relabelto;
-')
-
-and bar.te would have:
-
-allow bar_t self:tun_socket { read write };
-foo_tun_attach(bar_t)
-
+Thoughts?
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
