@@ -1,51 +1,102 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7L3cHjB014441
-	for <selinux@tycho.nsa.gov>; Thu, 20 Aug 2009 23:38:17 -0400
-Received: from smtp103.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n7L3bj9O022991
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 03:37:45 GMT
-Message-ID: <4A8E169E.70009@schaufler-ca.com>
-Date: Thu, 20 Aug 2009 20:38:06 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-CC: jmorris@namei.org, sds@tycho.nsa.gov, gregkh@suse.de,
-        ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH] Security/sysfs: Enable security xattrs to be set on sysfs
- files, directories, and symlinks.
-References: <1247665721-2619-1-git-send-email-dpquigl@tycho.nsa.gov> <1250774285.2542.72.camel@moss-terrapins.epoch.ncsc.mil>
-In-Reply-To: <1250774285.2542.72.camel@moss-terrapins.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7LCbJN8032262
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 08:37:19 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7LCcOFD004767
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 12:38:26 GMT
+Subject: Re: [refpolicy] SELinux policy for the new TUN hooks
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
+In-Reply-To: <200908201838.29478.paul.moore@hp.com>
+References: <200908201838.29478.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Fri, 21 Aug 2009 08:36:25 -0400
+Message-Id: <1250858185.6222.43.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David P. Quigley wrote:
-> Since Casey has withdrawn his NAK for the patch I guess the only other
-> concern was about the generality of the solution from Eric. Did Steve's
-> response adequately address this or are there any other questions that
-> people need answered before Greg can take the patch.
->   
+On Thu, 2009-08-20 at 18:38 -0400, Paul Moore wrote:
+> First off, my apologies for posting to both the SELinux and refpolicy lists, 
+> but I think this is a topic that bears a bit wider audience than just 
+> refpolicy ...
 
-Well, I've withdrawn the NAK, but I would still like to see:
+Object class changes should go to both lists anyway, so its ok.
 
-Use the xattr, not a secid. Really. An LSM that has multiple attributes
-is going to get bitten by that one. Also, any LSM that does neither
-networking nor audit has no need for secids, so I would be happier if
-the use of secids didn't expand into the file system space. Plus,
-if it is going to be rare for an xattr to be set in sysfs (Stephen's
-claim, which is consistent with my experience) saving a real xattr
-should be no big deal.
+> As you may have seen on the various lists, there is a problem where network 
+> traffic sent via a TUN device is not labeled correctly due to missing hooks in 
+> the TUN driver.  I believe we've reached a point where the LSM hooks are 
+> relatively sorted so now it is time to start thinking about the SELinux policy 
+> to go behind the hooks.
+> 
+> My current approach has been to label the individual TUN device (actually the 
+> sock associated with the TUN device) based on the domain which has attached 
+> itself to the device (only one process can attach to a device at any given 
+> time).  This has the conceptual advantage that packets sent from the device 
+> are labeled based on the domain but the disadvantage that attaching to a 
+> persistent TUN device requires a relabel operation.
 
-Replace the security_xattr_to_secid hook in any case. All this is doing
-is exposing what should be a strictly LSM internal function. You can
-do it with a combination of existing hooks, if you have the time to code
-up the error conditions.
+Seems ok to me.
 
-You can ignore these objections if you feel you must. I'll still buy
-a round in Portland.
+>   With the current patches, 
+> the basic policy for creating and attaching to a TUN device are shown below:
+> 
+> 	# create a new tun device
+> 	allow foo_t self:tun_socket { create };
+> 
+> 	# attach to an existing persistent tun device
+> 	allow bar_t foo_t:tun_socket { relabel_from };
+> 	allow bar_t self:tun_socket { relabel_to };
 
+The perms should be relabelfrom and relabelto for consistency with all
+the other relabeling perms in the policy.
+
+> My first question is does this policy still sound reasonable?  My second 
+> question is what refpolicy changes do we want to see?  As it stands I'm 
+> thinking of the following refpolicy changes:
+> 
+> 1. Add a new socket class, "tun_socket", which inherits from the socket class.
+> 2. Create a new interface, "corenet_create_tun_tap_dev($1)", which would grant 
+> the given domain the tun_socket/create permission.
+
+I don't see why we need this since its just going to be a create on
+self.
+
+> 3. Another new interface to grant permission for a domain to attach itself to 
+> an existing persistent TUN device.
+> 
+> Step #3 is where I seem to be having problems.  If we only allow one argument, 
+> the requesting domain, we are forced to allow it to attach to _all_ TUN 
+> devices.  If we allow two arguments, both the requesting domain and the type 
+> of the persistent TUN device, doesn't that pose a problem with directly 
+> accessing the persistent TUN device type?  We could also go with another 
+> option that would introduce another interface to assign persistent TUN devices 
+> an attribute which would allow them to be attached later with a single 
+> argument attach interface.  Thoughts?
+
+Each domain that has this behavior would have its own interface.  So
+using your above example, foo.te would have:
+
+allow foo_t self:tun_socket create;
+
+foo.if would have (simplified for brevity):
+
+interface foo_tun_attach(`
+	allow $1 foo_t:tun_socket relabelfrom;
+	allow $1 self:tun_socket relabelto;
+')
+
+and bar.te would have:
+
+allow bar_t self:tun_socket { read write };
+foo_tun_attach(bar_t)
+
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
