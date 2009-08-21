@@ -1,58 +1,57 @@
-Subject: object context records for Xen
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
-        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 21 Aug 2009 10:42:13 -0400
-Message-Id: <1250865733.2390.85.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7LFrYp9024482
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 11:53:34 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7LFsgFD000896
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 15:54:42 GMT
+Received: from int-mx07.intmail.prod.int.phx2.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n7LFrW56022071
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 11:53:32 -0400
+Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
+	by int-mx07.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n7LFrVnL008545
+	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 11:53:32 -0400
+Message-ID: <4A8EC2F9.3040707@redhat.com>
+Date: Fri, 21 Aug 2009 11:53:29 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Semodule syntax is broken.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Currently when rpm ships, it does an 
 
-Xen needs its own object context (ocontext) records in the policy for
-various resources (pirq, iomem, ioport, device), and has no need for the
-Linux object context records other than initial SIDs.  Thus, rather than
-just add new OCON_ indices and waste space in both the Linux and Xen
-policies, I'd like to be able to interpret OCON_ indices differently
-depending on some other value in the policy that identifies the target
-kernel (Linux, Xen, FreeBSD, Solaris, ...). Possible ways to identify
-the target kernel within the policy image:
+semodule -b base.pp -i a.pp b,pp c.pp
 
-- Use different policydb strings ("SE Linux", "Xen Flask", ...) in the
-header.  I already introduced support for at least one other policydb
-string ("Flask") in policydb_read() in libsepol so that we didn't have
-to use "SE Linux" as the string in the OpenSolaris FMAC policy files.
-Each kernel would only need to support reading files with its own string
-identifier and would reject all others.  Only libsepol would support all
-of them for reading and writing.
+It should be able to do 
 
-- Use the config flags in the header.  We are presently only using 3
-bits in the config field (MLS, reject_unknown, allow_unknown), so we can
-easily use a bit for each target kernel.  Not very general/scalable, but
-it isn't clear that we need this for very many cases.
+semodule -b base.pp -u a.pp b.pp c.pp
 
-- Introduce an entirely new field to the header to select the target
-kernel.  In which case it could just be an unsigned integer with defined
-values for Linux, Solaris, Xen, FreeBSD, etc.  This is the only one that
-absolutely requires a new policy version (policy.25).
+But -u blows up if c.pp was not previously installed.  It should follow the rpm -U syntax; upgrade if the previous package exists and install if it does not.  If we want to add a -F (freshen) this could only upgrade pre-existing modules, and ignore others.
 
-Other aspects of the policy might likewise get interpreted differently
-based on the target kernel, such as policy capabilities (the current
-ones are very Linux-specific).
+If I was to change to -u, I would need to add a fourth field to policy modules and upgrade it each time I added a patch.  It would be a pain, but I guess I could deal with it.
 
-Then we'd have to decide how we want to drive selection of the target
-kernel when building the policy; it could be an option to
-checkpolicy/checkmodule (ala MLS and handle_unknown behavior) or it
-could be an actual directive within the source policy configuration.
+BUT  A bigger problem is how to deal with an administrator that wants to remove a package and ensure it does not get reinstalled.  If an administrator decides he does not want to install unconfined.pp, we do not want an selinux-policy upgrade to re-install the package.
 
-Thoughts?
+semodule -r should set a flag when a package gets removed.  Then semodule -u or semodule -i would not install the package unless the  administrator specifies a -f.
 
--- 
-Stephen Smalley
-National Security Agency
+semodule -r unconfined
+
+Would create a file in the policy store /etc/selinux/targeted/modules/active/modules/unconfined.exclude.  
+
+semodule -u and semodule -i would respect, and just print out an error message.
+
+semodule -u unconfined.pp
+Warning: unconfined.pp is excluded from the policy store, use -f to force the install
+
+Add -q qualifier to quiet this message
+
+# semodule -f -u unconfined.pp
+Would install the package and remove the flag.
+
+
+I would like to get consensus on this before I implement.  Or others can implement.
 
 
 --
