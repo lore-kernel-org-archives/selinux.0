@@ -1,55 +1,56 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7M3q28T022694
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 23:52:02 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7M3pS1x026306
-	for <selinux@tycho.nsa.gov>; Sat, 22 Aug 2009 03:51:28 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n7M3gfF9011013
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 22:42:43 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n7M3R2vO019037
-	for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2009 22:27:02 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7M9XATr017898
+	for <selinux@tycho.nsa.gov>; Sat, 22 Aug 2009 05:33:10 -0400
+Received: from mail-ew0-f207.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7M9YH61025308
+	for <selinux@tycho.nsa.gov>; Sat, 22 Aug 2009 09:34:18 GMT
+Received: by ewy3 with SMTP id 3so1360264ewy.42
+        for <selinux@tycho.nsa.gov>; Sat, 22 Aug 2009 02:33:08 -0700 (PDT)
+Date: Sat, 22 Aug 2009 11:33:05 +0200
+From: Dominick Grift <domg472@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: Semodule syntax is broken.
-References: <4A8EC2F9.3040707@redhat.com>
-	<87eir5rv3e.fsf@anzu.internal.golden-gryphon.com>
-	<4A8EDE77.3050003@redhat.com>
-Date: Fri, 21 Aug 2009 22:27:02 -0500
-In-Reply-To: <4A8EDE77.3050003@redhat.com> (Daniel J. Walsh's message of "Fri,
-	21 Aug 2009 13:50:47 -0400")
-Message-ID: <87ocq834vt.fsf@anzu.internal.golden-gryphon.com>
+Subject: SELinux: Invalid object class mapping, disabling SELinux support.
+	(XACE)
+Message-ID: <20090822093304.GA2530@notebook3.grift.internal>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 21 2009, Daniel J Walsh wrote:
+
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+I just want to report that it seems SELinux support gets disabled with the Intel Xorg driver (in rawhide)
+
+[root@notebook3 ~]# grep -i selinux /var/log/Xorg.0.log
+(II) Loading extension SELinux
+SELinux: Invalid object class mapping, disabling SELinux support.
+
+(**) |-->Screen "Builtin Default intel Screen 0" (0)
+(**) |   |-->Device "Builtin Default intel Device 0"
+(==) No monitor specified for screen "Builtin Default intel Screen 0".
+(II) LoadModule: "intel"
+(II) Loading /usr/lib64/xorg/modules/drivers/intel_drv.so
+(II) Module intel: vendor="X.Org Foundation"
+(II) intel: Driver for Intel Integrated Graphics Chipsets: i810,
 
 
-> So proposal
->
-> semodule -r : No Change in default behaviour
->	 -F : Permanantly removes policy package, leaving POLICY.exclude
->	      flag in module store 
->
-> semodule -u : Install if package not installed, upgrade otherwise)
-> semodule -f : Only upgrade modules that are currently installed)
-> semodule -i : No change.
->	All will get a warning message if a module they are trying to
->	install has a POLICY.exclude flag 
->          -q : Shut up Warning messages
->          -F : Remove POLICY.exclude flag and install the package
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-        Sounds good to me.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-        manoj
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+iEYEARECAAYFAkqPu1AACgkQMlxVo39jgT96zgCfbyGxhNTeVRWLBo0vsTg4GnuL
+60wAoK8jKnZb2JmSKuYBloCmQENTOm3B
+=mUsN
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
