@@ -1,59 +1,51 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7OD4r54003562
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 09:04:53 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7OD4Ikb002814
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 13:04:19 GMT
-Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n7OD4p0p017754
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 09:04:51 -0400
-Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
-	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n7OD4pKX032243
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 09:04:51 -0400
-Message-ID: <4A928FF2.7000101@redhat.com>
-Date: Mon, 24 Aug 2009 09:04:50 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7ODbuX3009044
+	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 09:37:56 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7ODd6sa029882
+	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 13:39:07 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: policycoreutils: audit2allow -l doesn't work with dmesg pipe
+Date: Mon, 24 Aug 2009 23:37:41 +1000
+Cc: selinux@tycho.nsa.gov, 503252-forwarded@bugs.debian.org
+References: <87d46mvb33.fsf@anzu.internal.golden-gryphon.com> <200908240611.58935.russell@coker.com.au> <4A928943.3040609@redhat.com>
+In-Reply-To: <4A928943.3040609@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Semodule syntax is broken.
-References: <4A8EC2F9.3040707@redhat.com>	<87eir5rv3e.fsf@anzu.internal.golden-gryphon.com>	<4A8EDE77.3050003@redhat.com> <87ocq834vt.fsf@anzu.internal.golden-gryphon.com>
-In-Reply-To: <87ocq834vt.fsf@anzu.internal.golden-gryphon.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200908242337.51448.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/21/2009 11:27 PM, Manoj Srivastava wrote:
-> On Fri, Aug 21 2009, Daniel J Walsh wrote:
-> 
-> 
->> So proposal
->>
->> semodule -r : No Change in default behaviour
->> 	 -F : Permanantly removes policy package, leaving POLICY.exclude
->> 	      flag in module store 
->>
->> semodule -u : Install if package not installed, upgrade otherwise)
->> semodule -f : Only upgrade modules that are currently installed)
->> semodule -i : No change.
->> 	All will get a warning message if a module they are trying to
->> 	install has a POLICY.exclude flag 
->>          -q : Shut up Warning messages
->>          -F : Remove POLICY.exclude flag and install the package
-> 
->         Sounds good to me.
-> 
->         manoj
-After talking to Chris P, on IRC, I have rethought these changes.   He mentioned that they are looking into "disabling" modules.  So I think we should follow that line of thinking.
+On Mon, 24 Aug 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252
+> >>
+> >> audit2allow -l is looking for the load_policy message which does not go
+> >> to the dmesg, /var/log/messages.  Therefore the tool has no idea when
+> >> policy was last loaded.
+> >
+> > That would be a kernel bug then.
+>
+> Well I believe the messages that are intercepted by the audit.log do not go
+> into dmesg, by design. Although Steve, James or Eric could probably say for
+> sure.
 
-semodule -r (--remove) : No Change in default behaviour
-semodule -u (--upgrade): Install if package not installed, upgrade otherwise)
-semodule -f (--freshen): Only upgrade modules that are currently installed)
-semodule -i (--install): No change.
-semodule -q (--quier): Shut up Warning messages
-semodule -d (--disable) : Disable policy module, Store policy module as POLICY.pp.disabled in /etc/selinux/TYPE/modules/active/modules
-semodule -e (--enable) : Rename POLICY.pp.disabled to POLICY.pp and rebuild
+When auditd is not running on a Debian system with CentOS kernel 
+2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing 
+goes to the kernel message log which is interpreted by audit2allow as a 
+candidate for the "-l" functionality.
 
-libsemanage would then not build policy modules that were disabled.  It would look for POLICY.pp.disabled when installing or upgrading modules and maintain the name.  --remove would remove both disabled, and enabled modules.  List would now list the disabled modules with a flag indicating they are disabled. 
+It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l" 
+gives no output.  But if all AVC messages other than the load_policy message 
+go to the kernel message log then it's a bug.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
