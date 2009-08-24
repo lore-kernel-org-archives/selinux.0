@@ -1,143 +1,79 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7OFM1GU021091
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 11:22:01 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7OFNBsa007623
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 15:23:12 GMT
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n7OFLxOR005454
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 11:21:59 -0400
-Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n7OFLw5I006308
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 11:21:59 -0400
-Message-ID: <4A92B016.1080804@redhat.com>
-Date: Mon, 24 Aug 2009 11:21:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: This is a patch to both libsemanage and policycoreutils to change
- the behaviour of --upgrade
-Content-Type: multipart/mixed;
- boundary="------------020909060102020802070205"
+Subject: Re: object context records for Xen
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+        Chad Sellers <csellers@tresys.com>,
+        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
+In-Reply-To: <4A92AFB9.6070004@manicmethod.com>
+References: <1250865733.2390.85.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A92A981.8000608@manicmethod.com>  <4A92AC4D.7080503@manicmethod.com>
+	 <1251127167.2428.44.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A92AFB9.6070004@manicmethod.com>
+Content-Type: text/plain
+Date: Mon, 24 Aug 2009 12:57:42 -0400
+Message-Id: <1251133062.2428.57.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020909060102020802070205
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, 2009-08-24 at 11:20 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Mon, 2009-08-24 at 11:05 -0400, Joshua Brindle wrote:
+> >> Joshua Brindle wrote:
+> >>> Stephen Smalley wrote:
+> <snip>>>>
+> >> Also, is it an error condition if there are ocon's unrelated to the target
+> >> platform? Is it possible to create a general policy that may work on multiple
+> >> platforms and therefore have a superset of the ocons for each possible platform?
+> >
+> > I would plan to have checkpolicy reject invalid ocons for the specified
+> > target platform, much as it rejects mls statements (or requires them)
+> > depending on the MLS flag.
+> >
+> 
+> In retrospect I'm not sure it was a great idea to make it reject mls statements 
+> rather than just ignoring them :).
 
-Currently -u will fail if a package does not exists,  This patch will install if a module does not exist
+This way the user gets an error that the source configuration that was
+specified won't be honored in the generated policy.  I think you'd at
+least want a warning, and we know what usually happens to warning
+messages (i.e. they get silenced).
 
-semodule -u ABC.pp XYZ.pp
+> > There really isn't any sharing possible between the Xen policy and the
+> > Linux policy, given the significantly different resources and operations
+> > (thus classes and permissions), so I don't think it would be useful to
+> > support a unified policy.
+> >
+> > In the case of Linux, Solaris, and FreeBSD, it isn't clear that they
+> > actually need distinct ocontext records since they do happen to share
+> > the same Unix abstractions for the most part.
+> >
+> 
+> So even if they had same/similar policies they'd have to be rebuilt with a new 
+> --target? Would each have ocon sets that just happen to be the same?
+> 
+> The massive amount of branching in the current reader/writer is fairly 
+> discouraging, I hope we can do this in a flexible but straightforward way.
 
-Currently fails if ABC.pp exists and XYZ.pp does not
+The branching only needs to happen for ocontext records that differ
+between the target platforms.  So for Xen, it would disable all of the
+Linux ones except for initial SIDs and add its own set.  For Solaris and
+FreeBSD, the ones that are in common could always be enabled and only
+the divergent ones (if any) would need to be branched based on the
+target.
 
-After this patch. it will succeed, if the version of ABC.pp is newer the XYZ.pp
+Realistically though I don't think we can share the same/similar
+policies among them regardless.  The SEBSD experience suggested that
+only the high level form of application policies could be shared but
+much of the core system policy had to be custom and of course the
+classes/access vectors will differ at least somewhat for each platform.
+So the apache.te file might be the same but the raw statements fed into
+checkpolicy/checkmodule and the resulting output will differ.
 
-Copying the behaviour of rpm.
+-- 
+Stephen Smalley
+National Security Agency
 
-Do you want these as two separate patches (libsemanage and policycoreutils) or just as the git diff?
-
---------------020909060102020802070205
-Content-Type: text/plain;
- name="semodule-upgrade.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="semodule-upgrade.patch"
-
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index d563841..e5ca59b 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -1087,7 +1087,7 @@ static int get_direct_upgrade_filename(semanage_handle_t * sh,
- 	if (semanage_direct_list(sh, &modinfo, &num_modules) < 0) {
- 		goto cleanup;
- 	}
--	retval = -4;
-+	retval = -5;
- 	for (i = 0; i < num_modules; i++) {
- 		semanage_module_info_t *m =
- 		    semanage_module_list_nth(modinfo, i);
-@@ -1104,10 +1104,6 @@ static int get_direct_upgrade_filename(semanage_handle_t * sh,
- 			}
- 		}
- 	}
--	if (retval == -4) {
--		ERR(sh, "There does not already exist a module named %s.",
--		    module_name);
--	}
-       cleanup:
- 	free(version);
- 	free(module_name);
-@@ -1130,8 +1126,8 @@ static int get_direct_upgrade_filename(semanage_handle_t * sh,
-  * module is an older version then the one in 'data'.  Returns 0 on
-  * success, -1 if out of memory, -2 if the data does not represent a
-  * valid module file, -3 if error while writing file or reading
-- * modules directory, -4 if there does not exist an older module or if
-- * the previous module is same or newer than 'data'.
-+ * modules directory, -4 if the previous module is same or newer than 'data', 
-+ * -5 if there does not exist an older module.
-  */
- static int semanage_direct_upgrade(semanage_handle_t * sh,
- 				   char *data, size_t data_len)
-diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-index d5975c8..d99ee5b 100644
---- a/libsemanage/src/modules.c
-+++ b/libsemanage/src/modules.c
-@@ -87,7 +87,11 @@ int semanage_module_upgrade(semanage_handle_t * sh,
- 		}
- 	}
- 	sh->modules_modified = 1;
--	return sh->funcs->upgrade(sh, module_data, data_len);
-+	int rc = sh->funcs->upgrade(sh, module_data, data_len);
-+	if (rc == -5) /* module did not exist */
-+		rc = sh->funcs->install(sh, module_data, data_len);
-+	return rc;
-+	
- }
- 
- int semanage_module_upgrade_file(semanage_handle_t * sh,
-@@ -106,7 +110,10 @@ int semanage_module_upgrade_file(semanage_handle_t * sh,
- 		}
- 	}
- 	sh->modules_modified = 1;
--	return sh->funcs->upgrade_file(sh, module_name);
-+	int rc = sh->funcs->upgrade_file(sh, module_name);
-+	if (rc == -5) /* module did not exist */
-+		rc = sh->funcs->install_file(sh, module_name);
-+	return rc;
- }
- 
- int semanage_module_install_base(semanage_handle_t * sh,
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index 4d3d288..1c1d206 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -30,7 +30,7 @@ Temporarily remove dontaudits from policy.  Reverts whenever policy is rebuilt
- install/replace a module package
- .TP
- .B  \-u,\-\-upgrade=MODULE_PKG
--upgrade an existing module package
-+upgrade an existing module package, or install if the module does not exist
- .TP
- .B  \-b,\-\-base=MODULE_PKG   
- install/replace base module package
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index f74a04a..ad6adca 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -104,7 +104,7 @@ static void usage(char *progname)
- 	printf("  -R, --reload		    reload policy\n");
- 	printf("  -B, --build		    build and reload policy\n");
- 	printf("  -i,--install=MODULE_PKG   install a new module\n");
--	printf("  -u,--upgrade=MODULE_PKG   upgrade existing module\n");
-+	printf("  -u,--upgrade=MODULE_PKG   upgrades or install module to a newer version\n");
- 	printf("  -b,--base=MODULE_PKG      install new base module\n");
- 	printf("  -r,--remove=MODULE_NAME   remove existing module\n");
- 	printf
-
---------------020909060102020802070205--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
