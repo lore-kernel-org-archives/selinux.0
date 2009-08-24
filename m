@@ -1,74 +1,95 @@
-Subject: Re: object context records for Xen
+Subject: Re: libsemanage issue with bzip-blocksize=0 and compressed modules
+ in store
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
-In-Reply-To: <4A92AFB9.6070004@manicmethod.com>
-References: <1250865733.2390.85.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A92A981.8000608@manicmethod.com>  <4A92AC4D.7080503@manicmethod.com>
-	 <1251127167.2428.44.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A92AFB9.6070004@manicmethod.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1251125875.2916.25.camel@defiant.pebenito.net>
+References: <1251122072.2916.16.camel@defiant.pebenito.net>
+	 <1251122651.2428.23.camel@moss-pluto.epoch.ncsc.mil>
+	 <1251125875.2916.25.camel@defiant.pebenito.net>
 Content-Type: text/plain
-Date: Mon, 24 Aug 2009 12:57:42 -0400
-Message-Id: <1251133062.2428.57.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 24 Aug 2009 14:00:27 -0400
+Message-Id: <1251136827.2428.90.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-08-24 at 11:20 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Mon, 2009-08-24 at 11:05 -0400, Joshua Brindle wrote:
-> >> Joshua Brindle wrote:
-> >>> Stephen Smalley wrote:
-> <snip>>>>
-> >> Also, is it an error condition if there are ocon's unrelated to the target
-> >> platform? Is it possible to create a general policy that may work on multiple
-> >> platforms and therefore have a superset of the ocons for each possible platform?
-> >
-> > I would plan to have checkpolicy reject invalid ocons for the specified
-> > target platform, much as it rejects mls statements (or requires them)
-> > depending on the MLS flag.
-> >
+On Mon, 2009-08-24 at 10:57 -0400, Chris PeBenito wrote:
+> On Mon, 2009-08-24 at 10:04 -0400, Stephen Smalley wrote:
+> > On Mon, 2009-08-24 at 09:54 -0400, Chris PeBenito wrote:
+> > > I took the current release of libsemanage and added the patch to add a
+> > > bzip blocksize option[1].  The modules in my store were already
+> > > compressed with the stock release.  I put bzip-blocksize=0 in my
+> > > semanage.conf and I do semodule -B and get:
+> > > 
+> > > libsepol.module_package_read_offsets: wrong magic number for module
+> > > package:  expected 0xf97cff8f, got 0x39685a42 (No such file or
+> > > directory).
+> > > libsemanage.semanage_load_module: Error while reading from module
+> > > file /etc/selinux/strict/modules/tmp/modules/apm.pp. (No such file or
+> > > directory).
+> > > semodule:  Failed!
+> > > 
+> > > If I do semodule -l, it will also get the magic number error.  If I
+> > > remove the blocksize option, it works again.  I was able to reinsert all
+> > > of the modules to get it working again with the blocksize 0 option.
+> > > 
+> > > [1] http://userspace.selinuxproject.org/trac/changeset/ee9827000137fed2d3300124115fc1572acafe2f
+> > 
+> > Yes, that's what I would expect.  The expectation is that either one
+> > would set that option before installing the policy for the first time,
+> > or that one completely re-installs the policy after setting that option.
 > 
-> In retrospect I'm not sure it was a great idea to make it reject mls statements 
-> rather than just ignoring them :).
+> Can we have a little better handling of this case?  I don't mind
+> reinstalling the policy, but the error messages aren't helpful.  In
+> addition, with semodule -l being broken, I have to look into the module
+> store to see what modules are installed or guess.
 
-This way the user gets an error that the source configuration that was
-specified won't be honored in the generated policy.  I think you'd at
-least want a warning, and we know what usually happens to warning
-messages (i.e. they get silenced).
+Seems like it is just as easy to just support pre-existing compressed
+modules, see below.
 
-> > There really isn't any sharing possible between the Xen policy and the
-> > Linux policy, given the significantly different resources and operations
-> > (thus classes and permissions), so I don't think it would be useful to
-> > support a unified policy.
-> >
-> > In the case of Linux, Solaris, and FreeBSD, it isn't clear that they
-> > actually need distinct ocontext records since they do happen to share
-> > the same Unix abstractions for the most part.
-> >
-> 
-> So even if they had same/similar policies they'd have to be rebuilt with a new 
-> --target? Would each have ocon sets that just happen to be the same?
-> 
-> The massive amount of branching in the current reader/writer is fairly 
-> discouraging, I hope we can do this in a flexible but straightforward way.
+Explicitly probe for the bzip2 magic string prefix and fall through to
+BZ2_bzReadOpen() if the module is bzipped even if bzip-blocksize=0.
+Thus bzip-blocksize=0 will prevent any further compression of
+subsequently installed/updated modules, but will continue to function
+with existing compressed modules.
 
-The branching only needs to happen for ocontext records that differ
-between the target platforms.  So for Xen, it would disable all of the
-Linux ones except for initial SIDs and add its own set.  For Solaris and
-FreeBSD, the ones that are in common could always be enabled and only
-the divergent ones (if any) would need to be branched based on the
-target.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Realistically though I don't think we can share the same/similar
-policies among them regardless.  The SEBSD experience suggested that
-only the high level form of application policies could be shared but
-much of the core system policy had to be custom and of course the
-classes/access vectors will differ at least somewhat for each platform.
-So the apache.te file might be the same but the raw statements fed into
-checkpolicy/checkmodule and the resulting output will differ.
+---
+
+ libsemanage/src/direct_api.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index d563841..068061f 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -452,6 +452,9 @@ static ssize_t bzip(semanage_handle_t *sh, const char *filename, char *data,
+ 	return total;
+ }
+ 
++#define BZ2_MAGICSTR "BZh"
++#define BZ2_MAGICLEN (sizeof(BZ2_MAGICSTR)-1)
++
+ /* bunzip() a file to '*data', returning the total number of uncompressed bytes
+  * in the file.  Returns -1 if file could not be decompressed. */
+ ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
+@@ -463,8 +466,13 @@ ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
+ 	int     bzerror;
+ 	size_t  total=0;
+ 
+-	if (!sh->conf->bzip_blocksize)
+-		return -1;
++	if (!sh->conf->bzip_blocksize) {
++		bzerror = fread(buf, 1, BZ2_MAGICLEN, f);
++		rewind(f);
++		if ((bzerror != BZ2_MAGICLEN) || memcmp(buf, BZ2_MAGICSTR, BZ2_MAGICLEN))
++			return -1;
++		/* fall through */
++	}
+ 	
+ 	b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
+ 	if ( bzerror != BZ_OK ) {
 
 -- 
 Stephen Smalley
