@@ -1,69 +1,55 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7OKJL2F022927
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 16:19:21 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n7OKIlkS010090
-	for <selinux@tycho.nsa.gov>; Mon, 24 Aug 2009 20:18:47 GMT
-Date: Mon, 24 Aug 2009 16:19:20 -0400
-Subject: Re: Semodule syntax is broken.
-From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
-Message-ID: <C6B86E08.AA01D%csellers@tresys.com>
-In-Reply-To: <4A928FF2.7000101@redhat.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7PLCZ59017957
+	for <selinux@tycho.nsa.gov>; Tue, 25 Aug 2009 17:12:35 -0400
+Received: from g1t0026.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7PLC11W010621
+	for <selinux@tycho.nsa.gov>; Tue, 25 Aug 2009 21:12:01 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v1 1/2] refpol: Add the "tun_socket" object class flask
+	definitions
+To: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
+Date: Tue, 25 Aug 2009 17:12:32 -0400
+Message-ID: <20090825211232.6250.84117.stgit@flek.lan>
+In-Reply-To: <20090825210647.6250.56266.stgit@flek.lan>
+References: <20090825210647.6250.56266.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/24/09 9:04 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+Add the new "tun_socket" class to the flask definitions.  The "tun_socket"
+object class is used by the new TUN driver hooks which allow policy to control
+access to TUN/TAP devices.
+---
 
-> On 08/21/2009 11:27 PM, Manoj Srivastava wrote:
->> On Fri, Aug 21 2009, Daniel J Walsh wrote:
->> 
->> 
->>> So proposal
->>> 
->>> semodule -r : No Change in default behaviour
->>> -F : Permanantly removes policy package, leaving POLICY.exclude
->>>      flag in module store
->>> 
->>> semodule -u : Install if package not installed, upgrade otherwise)
->>> semodule -f : Only upgrade modules that are currently installed)
->>> semodule -i : No change.
->>> All will get a warning message if a module they are trying to
->>> install has a POLICY.exclude flag
->>>          -q : Shut up Warning messages
->>>          -F : Remove POLICY.exclude flag and install the package
->> 
->>         Sounds good to me.
->> 
->>         manoj
-> After talking to Chris P, on IRC, I have rethought these changes.   He
-> mentioned that they are looking into "disabling" modules.  So I think we
-> should follow that line of thinking.
-> 
-> semodule -r (--remove) : No Change in default behaviour
-> semodule -u (--upgrade): Install if package not installed, upgrade otherwise)
-> semodule -f (--freshen): Only upgrade modules that are currently installed)
-> semodule -i (--install): No change.
-> semodule -q (--quier): Shut up Warning messages
-> semodule -d (--disable) : Disable policy module, Store policy module as
-> POLICY.pp.disabled in /etc/selinux/TYPE/modules/active/modules
-> semodule -e (--enable) : Rename POLICY.pp.disabled to POLICY.pp and rebuild
-> 
-> libsemanage would then not build policy modules that were disabled.  It would
-> look for POLICY.pp.disabled when installing or upgrading modules and maintain
-> the name.  --remove would remove both disabled, and enabled modules.  List
-> would now list the disabled modules with a flag indicating they are disabled.
-> 
-I like this idea very much, as -u has always bothered me. So, this looks
-good to me, though it's a bit odd to add features to semodule while at the
-same time working to deprecate it in favor of everything going through
-semanage.
+ policy/flask/access_vectors   |    2 ++
+ policy/flask/security_classes |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-Thanks,
-Chad
+diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+index ef4c063..6292db5 100644
+--- a/policy/flask/access_vectors
++++ b/policy/flask/access_vectors
+@@ -251,6 +251,8 @@ inherits socket
+ class unix_dgram_socket
+ inherits socket
+ 
++class tun_socket
++inherits socket
+ 
+ #
+ # Define the access vector interpretation for process-related objects
+diff --git a/policy/flask/security_classes b/policy/flask/security_classes
+index 9e1bf1a..2bd1bf6 100644
+--- a/policy/flask/security_classes
++++ b/policy/flask/security_classes
+@@ -119,4 +119,6 @@ class x_application_data	# userspace
+ # kernel services that need to override task security, e.g. cachefiles
+ class kernel_service 
+ 
++class tun_socket
++
+ # FLASK
 
 
 --
