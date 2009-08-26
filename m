@@ -1,145 +1,65 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7QFYFrP011930
-	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 11:34:15 -0400
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7QFXfAx002260
-	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 15:33:41 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3) with ESMTP id n7QFVtvD020008
-	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 11:31:55 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3/Submit) id n7QFVtVU020006
-	for selinux@tycho.nsa.gov; Wed, 26 Aug 2009 11:31:55 -0400
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7QBNYT6005046
-	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 07:23:34 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7QBMv8c007163
-	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 11:22:58 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Manoj Srivastava <srivasta@debian.org>
-Subject: Debian policy package
-Date: Wed, 26 Aug 2009 21:23:18 +1000
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7QG9MvN015460
+	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 12:09:22 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7QGAYnN003911
+	for <selinux@tycho.nsa.gov>; Wed, 26 Aug 2009 16:10:34 GMT
+Message-ID: <4A955E29.4030703@manicmethod.com>
+Date: Wed, 26 Aug 2009 12:09:13 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ssRlKkjphCOw5lu"
-Message-Id: <200908262123.24527.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: "Anamitra Dutta Majumdar (anmajumd)" <anmajumd@cisco.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Adding AV assertion to selinux policy in RHEL5
+References: <c63e41180908211425s3a66c448g1a81865c9f14bcc@mail.gmail.com>	<alpine.LRH.2.00.0908241149000.21562@tundra.namei.org> <4EF101F7236DB443A8FABF8164BFBD0C084801CF@xmb-sjc-223.amer.cisco.com> <4A952BA3.7050401@redhat.com>
+In-Reply-To: <4A952BA3.7050401@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_ssRlKkjphCOw5lu
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Daniel J Walsh wrote:
+> On 08/25/2009 06:43 PM, Anamitra Dutta Majumdar (anmajumd) wrote:
+>>
+>>
+>> We are looking for a well documented procedure to add AV assertion to
+>> selinux policy on RHEL5.
+>> So far all SELinux URL links refer to the fact that the AV assertion
+>> needs to be added to assert.te file under $SELINUX_SRC folder.
+>> This appears to be true only for RHEL4 not RHEL5 since there is no src
+>> folder under /etc/selinux/targeted that contains the source policies in
+>> RHEL5.
+>> We have installed and built the selinux-policy-2.4.6-248.el5.src.rpm on
+>> our RHEL5.4 box and we did not find any assert.te file.
+>> Can someone help us with the exact method as to what needs to be done to
+>> add an AV assertion rule to our policy.
+>>
+>> Thanks
+>> Anamitra&  Radha
+>>
+>> --
+>> fedora-selinux-list mailing list
+>> fedora-selinux-list@redhat.com
+>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+> questions like this should be asked on the SELinux<selinux@tycho.nsa.gov>  Mail List.
+>
+> I am not sure what you are asking for.
 
-I've attached my current working patch against the latest unstable policy, 
-it's not much but it makes it possible to restart hal.
 
-Where did all those reads of /dev/urandom in unstable come from?  Has some 
-sort of randomised stack been enabled in many things?
+assert.te was the old place for neverallow rules in the example policy. In the 
+reference policy neverallows are put in their appropriate place (you could grep 
+for them in the source policy if you want to see).
 
-I think that the code which has a mapping of package names to policy modules 
-should be in a separate script (not in the postinst).  Then you could have 
-scripts like "find-necessary-policy.default" and "find-necessary-policy.mls" 
-that take a list of package names on stdin and output a list of policy 
-modules on stdout.  Such scripts could be used for initial configuration of 
-the policy and for installing new packages.
+However, with RHEL5 and greater distros you can just insert policy modules to 
+add rules (including assertions). So just follow the RHEL5 instructions on 
+adding a policy and you can add neverallows there.
 
-apt-get has the ability to list all packages that it would install (including 
-dependencies and recommends if it's configured to install them).  We need a 
-way to have a single command load SE Linux policy modules first and then have 
-apt install the packages later.  NB I don't consider it a problem if the 
-policy modules remain installed after apt aborts.
+You also need to enable assertion checking by adding this line to 
+/etc/selinux/semanage.conf
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+expand-check = 1
 
---Boundary-00=_ssRlKkjphCOw5lu
-Content-Type: text/x-diff;
-  charset="iso 8859-15";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
 
-diff -ru refpolicy-0.2.20090730-bak/debian/changelog refpolicy-0.2.20090730/debian/changelog
---- refpolicy-0.2.20090730-bak/debian/changelog	2009-08-26 18:43:26.000000000 +1000
-+++ refpolicy-0.2.20090730/debian/changelog	2009-08-26 18:57:41.000000000 +1000
-@@ -1,3 +1,12 @@
-+refpolicy (2:0.2.20090730-2.1) unstable; urgency=low
-+
-+  * Build policykit policy and default to loading it when the policykit
-+    package is installed.
-+  * Default to loading the consolekit module when the consolekit package is
-+    installed.
-+
-+ -- Russell Coker <russell@coker.com.au>  Wed, 26 Aug 2009 18:55:23 +1000
-+
- refpolicy (2:0.2.20090730-2) unstable; urgency=low
- 
-   * Bug fix: "selinux policy violation &quot;Unknown&quot; fo rs2ram
-diff -ru refpolicy-0.2.20090730-bak/debian/modules.conf.default refpolicy-0.2.20090730/debian/modules.conf.default
---- refpolicy-0.2.20090730-bak/debian/modules.conf.default	2009-08-26 18:43:26.000000000 +1000
-+++ refpolicy-0.2.20090730/debian/modules.conf.default	2009-08-26 18:54:29.000000000 +1000
-@@ -1334,6 +1334,14 @@
- pingd = module
- 
- # Layer: services
-+# Module: policykit
-+#
-+# PolicyKit is an application-level toolkit for defining and handling the policy
-+# that allows unprivileged processes to speak to privileged processes.
-+# 
-+policykit = module
-+
-+# Layer: services
- # Module: portmap
- #
- # RPC port mapping service.
-diff -ru refpolicy-0.2.20090730-bak/debian/modules.conf.mls refpolicy-0.2.20090730/debian/modules.conf.mls
---- refpolicy-0.2.20090730-bak/debian/modules.conf.mls	2009-08-26 18:43:26.000000000 +1000
-+++ refpolicy-0.2.20090730/debian/modules.conf.mls	2009-08-26 18:54:36.000000000 +1000
-@@ -1334,6 +1334,14 @@
- pingd = module
- 
- # Layer: services
-+# Module: policykit
-+#
-+# PolicyKit is an application-level toolkit for defining and handling the policy
-+# that allows unprivileged processes to speak to privileged processes.
-+#
-+policykit = module
-+
-+# Layer: services
- # Module: portmap
- #
- # RPC port mapping service.
-diff -ru refpolicy-0.2.20090730-bak/debian/postinst.policy refpolicy-0.2.20090730/debian/postinst.policy
---- refpolicy-0.2.20090730-bak/debian/postinst.policy	2009-08-26 18:43:26.000000000 +1000
-+++ refpolicy-0.2.20090730/debian/postinst.policy	2009-08-26 18:55:12.000000000 +1000
-@@ -75,6 +75,7 @@
-            'cdrecord'      => [ 'wodim' ],
-            'clamav'        => [ 'clamav' ],
-            'courier'       => [ 'courier*' ],
-+           'consolekit'    => [ 'consolekit' ],
-            'cups'          => [ 'cupsys*' ],
-            'cyrus'         => [ 'cyrus*' ],
-            'dovecot'       => [ 'dovecot-imapd', 'dovecot-pop3d' ],
-@@ -103,6 +104,7 @@
-            'nagios'        => [ 'nagios*' ],
-            'netutils'      => [ 'arping', 'nmap', '*-ping', 'traceroute*' ],
-            'pcmcia'        => [ 'pcmciautils' ],
-+           'policykit'     => [ 'policykit' ],
-            'pythonsupport' => [ 'python-support' ],
-            'radius'        => [ 'freeradius*', 'radiusd*' ],
-            'raid'          => [ 'mdadm' ],
-
---Boundary-00=_ssRlKkjphCOw5lu--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
