@@ -1,64 +1,116 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7RLCGKb013636
-	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 17:12:16 -0400
-Received: from columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7RLDTFl020431
-	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 21:13:29 GMT
-From: Chad Sellers <csellers@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com, jbrindle@tresys.com, Chad Sellers <csellers@tresys.com>
-Subject: [PATCH] Fix semanage_direct_commit() to notice disable_dontaudit
-Date: Thu, 20 Aug 2009 14:29:17 -0400
-Message-Id: <1250792957-20920-1-git-send-email-csellers@tresys.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7RLdZYP016019
+	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 17:39:35 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7RLd063025564
+	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 21:39:01 GMT
+Message-ID: <4A96FD0F.6070000@redhat.com>
+Date: Thu, 27 Aug 2009 17:39:27 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Chad Sellers <csellers@tresys.com>
+CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to semanage
+References: <C6BC696A.AA1D4%csellers@tresys.com>
+In-Reply-To: <C6BC696A.AA1D4%csellers@tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------060300070501010501010607"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add code to semanage_direct_commit() to notice that the disable_dontaudit
-flag has been changed and rebuild the policy if so.
+This is a multi-part message in MIME format.
+--------------060300070501010501010607
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Currently, libsemanage doesn't notice that the disable_dontaudit flag is
-set so it does not rebuild the policy. semodule got around this by calling
-semanage_set_rebuild() explicitly, but libsemanage should really notice
-that this has changed and rebuild appropriately.
----
- libsemanage/src/direct_api.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
+Redone to match man page and remove reload_policy.
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index d563841..0eab399 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -675,7 +675,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Declare some variables */
- 	int modified = 0, fcontexts_modified, ports_modified,
--	    seusers_modified, users_extra_modified;
-+	    seusers_modified, users_extra_modified, dontaudit_modified;
- 	dbase_config_t *users = semanage_user_dbase_local(sh);
- 	dbase_config_t *users_base = semanage_user_base_dbase_local(sh);
- 	dbase_config_t *pusers_base = semanage_user_base_dbase_policy(sh);
-@@ -694,6 +694,10 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Create or remove the disable_dontaudit flag file. */
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
-+	if (access(path, F_OK) == 0)
-+		dontaudit_modified = !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
-+	else
-+		dontaudit_modified = (sepol_get_disable_dontaudit(sh->sepolh) == 1);
- 	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
- 		FILE *touch;
- 		touch = fopen(path, "w");
-@@ -734,6 +738,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	modified |= bools->dtable->is_modified(bools->dbase);
- 	modified |= ifaces->dtable->is_modified(ifaces->dbase);
- 	modified |= nodes->dtable->is_modified(nodes->dbase);
-+	modified |= dontaudit_modified;
- 
- 	/* If there were policy changes, or explicitly requested, rebuild the policy */
- 	if (sh->do_rebuild || modified) {
--- 
-1.6.2.5
+--------------060300070501010501010607
+Content-Type: text/plain;
+ name="policycoreutils-dontaudit.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="policycoreutils-dontaudit.patch"
 
+diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+index c4c957c..2285489 100644
+--- a/policycoreutils/semanage/semanage
++++ b/policycoreutils/semanage/semanage
+@@ -54,6 +54,7 @@ semanage fcontext -{a|d|m} [-frst] file_spec
+ semanage translation -{a|d|m} [-T] level
+ semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
+ semanage permissive -{d|a} type
++semanage dontaudit [ on | off ]
+ 
+ Primary Options:
+ 
+@@ -116,6 +117,7 @@ Object-specific Options (see above):
+ 		valid_option["node"] += valid_everyone + [ '-M', '--mask', '-t', '--type', '-r', '--range', '-p', '--protocol']
+ 		valid_option["fcontext"] = []
+ 		valid_option["fcontext"] += valid_everyone + [ '-f', '--ftype', '-s', '--seuser',  '-t', '--type', '-r', '--range'] 
++		valid_option["dontaudit"] = [ '-S', '--store' ]
+ 		valid_option["translation"] = []
+ 		valid_option["translation"] += valid_everyone + [ '-T', '--trans' ] 
+ 		valid_option["boolean"] = []
+@@ -346,6 +348,12 @@ Object-specific Options (see above):
+                         
+                 target = cmds[0]
+ 
++
++		if object == "dontaudit":
++			OBJECT = seobject.dontauditClass(store)
++                        OBJECT.toggle(target)
++                        return
++                              
+ 		if add:
+ 			if object == "login":
+ 				OBJECT.add(target, seuser, serange)
+diff --git a/policycoreutils/semanage/semanage.8 b/policycoreutils/semanage/semanage.8
+index d0726cf..d83e94e 100644
+--- a/policycoreutils/semanage/semanage.8
++++ b/policycoreutils/semanage/semanage.8
+@@ -21,6 +21,8 @@ semanage \- SELinux Policy Management tool
+ .br
+ .B semanage permissive \-{a|d} type
+ .br
++.B semanage dontaudit [ on | off ]
++.br
+ .B semanage translation \-{a|d|m} [\-T] level
+ .P
+ 
+@@ -117,6 +119,8 @@ $ semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
+ $ semanage port -a -t http_port_t -p tcp 81
+ # Change apache to a permissive domain
+ $ semanage permissive -a httpd_t
++# Turn off dontaudit rules
++$ semanage dontaudit off
+ .fi
+ 
+ .SH "AUTHOR"
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index 20bd205..bc329e1 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -314,6 +314,17 @@ class semanageRecords:
+                self.transaction = False
+                self.commit()
+ 
++class dontauditClass(semanageRecords):
++	def __init__(self, store):
++               semanageRecords.__init__(self, store)
++
++	def toggle(self, dontaudit):
++               if dontaudit not in [ "on", "off" ]:
++                      raise ValueError(_("dontaudit requires either 'on' or 'off'"))
++               self.begin()
++               rc = semanage_set_disable_dontaudit(self.sh, dontaudit == "off")
++               self.commit()
++               
+ class permissiveRecords(semanageRecords):
+ 	def __init__(self, store):
+                semanageRecords.__init__(self, store)
+
+--------------060300070501010501010607--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
