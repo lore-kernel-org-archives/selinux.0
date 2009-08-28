@@ -1,116 +1,119 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7RLdZYP016019
-	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 17:39:35 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7RLd063025564
-	for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2009 21:39:01 GMT
-Message-ID: <4A96FD0F.6070000@redhat.com>
-Date: Thu, 27 Aug 2009 17:39:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to semanage
-References: <C6BC696A.AA1D4%csellers@tresys.com>
-In-Reply-To: <C6BC696A.AA1D4%csellers@tresys.com>
-Content-Type: multipart/mixed;
- boundary="------------060300070501010501010607"
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7SCZ9lr004421
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 08:35:09 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7SCaM9N007055
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 12:36:22 GMT
+Subject: Re: [refpolicy] [RFC PATCH v1 2/2] refpol: Policy for the new TUN
+ driver  access	controls
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
+In-Reply-To: <200908271008.03693.paul.moore@hp.com>
+References: <20090825210647.6250.56266.stgit@flek.lan>
+	 <200908261032.10377.paul.moore@hp.com>
+	 <1251381268.8357.43.camel@gorn.columbia.tresys.com>
+	 <200908271008.03693.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Fri, 28 Aug 2009 08:33:23 -0400
+Message-Id: <1251462803.8357.97.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060300070501010501010607
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, 2009-08-27 at 10:08 -0400, Paul Moore wrote:
+> On Thursday 27 August 2009 09:54:28 am Christopher J. PeBenito wrote:
+> > On Wed, 2009-08-26 at 10:32 -0400, Paul Moore wrote:
+> > > On Wednesday 26 August 2009 08:49:14 am Christopher J. PeBenito wrote:
+> > > > On Tue, 2009-08-25 at 17:12 -0400, Paul Moore wrote:
+> > > > > Add policy for the new TUN driver access controls which allow policy
+> > > > > to control which domains have the ability to create and attach to
+> > > > > TUN/TAP devices.
+> > > > >
+> > > > > +########################################
+> > > > > +## <summary>
+> > > > > +##	Allow domain to attach to admin created TUN devices
+> > > > > +## </summary>
+> > > > > +## <param name="domain">
+> > > > > +##	<summary>
+> > > > > +##	Domain allowed access.
+> > > > > +##	</summary>
+> > > > > +## </param>
+> > > > > +#
+> > > > > +interface(`userdom_tun_attach',`
+> > > > > +	gen_require(`
+> > > > > +		attribute admin_tun_type;
+> > > > > +	')
+> > > > > +
+> > > > > +	allow $1 admin_tun_type:tun_socket relabelfrom;
+> > > > > +	allow $1 self:tun_socket relabelto;
+> > > > > +')
+> > > >
+> > > > Why are only admin roles allowed to create tun_sockets?  Either the
+> > > > interface name should be changed to reflect that its not all user
+> > > > domains, or it should be expanded to cover all user domains.
+> > >
+> > > Considering the nature of TUN/TAP devices and the fact that you must have
+> > > CAP_NET_ADMIN to create a new device it seemed reasonable to restrict the
+> > > tun_socket/create permission to admin roles.  However, we do want to
+> > > allow non-admin roles the ability to attach (tun_socket/relabel{from,to}
+> > > permissions) to existing persistent TUN/TAP devices - this is why the
+> > > interface above does not have "admin" anywhere in the name.
+> > >
+> > > Does that make sense?
+> >
+> > I'm fine with only attaching to admin domains, but the interface name
+> > needs to be changed.  Its critical that the interface names are
+> > consistent with the interface implementation.  So if the implementation
+> > is only for attaching to admin domains, the interface name has to
+> > reflect that.
+> 
+> Okay, I thought the interface name was consistent based on the other 
+> userdomain.if interfaces but I'm obviously missing something :)  How about 
+> "admin_tun_attach"?  If that isn't right I would appreciate a suggestion ...
 
-Redone to match man page and remove reload_policy.
+userdom_attach_admin_tun_sockets()
 
---------------060300070501010501010607
-Content-Type: text/plain;
- name="policycoreutils-dontaudit.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="policycoreutils-dontaudit.patch"
+At first I wasn't going to add sockets at the end, but
+"userdom_attach_admin_tuns()" didn't sound right to me.  The virt
+interface should be similarly changed: virt_attach_tun_sockets()
 
-diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-index c4c957c..2285489 100644
---- a/policycoreutils/semanage/semanage
-+++ b/policycoreutils/semanage/semanage
-@@ -54,6 +54,7 @@ semanage fcontext -{a|d|m} [-frst] file_spec
- semanage translation -{a|d|m} [-T] level
- semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
- semanage permissive -{d|a} type
-+semanage dontaudit [ on | off ]
- 
- Primary Options:
- 
-@@ -116,6 +117,7 @@ Object-specific Options (see above):
- 		valid_option["node"] += valid_everyone + [ '-M', '--mask', '-t', '--type', '-r', '--range', '-p', '--protocol']
- 		valid_option["fcontext"] = []
- 		valid_option["fcontext"] += valid_everyone + [ '-f', '--ftype', '-s', '--seuser',  '-t', '--type', '-r', '--range'] 
-+		valid_option["dontaudit"] = [ '-S', '--store' ]
- 		valid_option["translation"] = []
- 		valid_option["translation"] += valid_everyone + [ '-T', '--trans' ] 
- 		valid_option["boolean"] = []
-@@ -346,6 +348,12 @@ Object-specific Options (see above):
-                         
-                 target = cmds[0]
- 
-+
-+		if object == "dontaudit":
-+			OBJECT = seobject.dontauditClass(store)
-+                        OBJECT.toggle(target)
-+                        return
-+                              
- 		if add:
- 			if object == "login":
- 				OBJECT.add(target, seuser, serange)
-diff --git a/policycoreutils/semanage/semanage.8 b/policycoreutils/semanage/semanage.8
-index d0726cf..d83e94e 100644
---- a/policycoreutils/semanage/semanage.8
-+++ b/policycoreutils/semanage/semanage.8
-@@ -21,6 +21,8 @@ semanage \- SELinux Policy Management tool
- .br
- .B semanage permissive \-{a|d} type
- .br
-+.B semanage dontaudit [ on | off ]
-+.br
- .B semanage translation \-{a|d|m} [\-T] level
- .P
- 
-@@ -117,6 +119,8 @@ $ semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
- $ semanage port -a -t http_port_t -p tcp 81
- # Change apache to a permissive domain
- $ semanage permissive -a httpd_t
-+# Turn off dontaudit rules
-+$ semanage dontaudit off
- .fi
- 
- .SH "AUTHOR"
-diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-index 20bd205..bc329e1 100644
---- a/policycoreutils/semanage/seobject.py
-+++ b/policycoreutils/semanage/seobject.py
-@@ -314,6 +314,17 @@ class semanageRecords:
-                self.transaction = False
-                self.commit()
- 
-+class dontauditClass(semanageRecords):
-+	def __init__(self, store):
-+               semanageRecords.__init__(self, store)
-+
-+	def toggle(self, dontaudit):
-+               if dontaudit not in [ "on", "off" ]:
-+                      raise ValueError(_("dontaudit requires either 'on' or 'off'"))
-+               self.begin()
-+               rc = semanage_set_disable_dontaudit(self.sh, dontaudit == "off")
-+               self.commit()
-+               
- class permissiveRecords(semanageRecords):
- 	def __init__(self, store):
-                semanageRecords.__init__(self, store)
+> > > > > diff --git a/policy/modules/system/xen.te
+> > > > > b/policy/modules/system/xen.te index 40410a7..6c4b06d 100644
+> > > > > --- a/policy/modules/system/xen.te
+> > > > > +++ b/policy/modules/system/xen.te
+> > > > > @@ -88,6 +88,7 @@ allow xend_t self:unix_dgram_socket
+> > > > > create_socket_perms; allow xend_t self:netlink_route_socket
+> > > > > r_netlink_socket_perms;
+> > > > >  allow xend_t self:tcp_socket create_stream_socket_perms;
+> > > > >  allow xend_t self:packet_socket create_socket_perms;
+> > > > > +allow xend_t self:tun_socket create;
+> > > > >
+> > > > >  allow xend_t xen_image_t:dir list_dir_perms;
+> > > > >  manage_dirs_pattern(xend_t, xen_image_t, xen_image_t)
+> > > >
+> > > > No attach?
+> > >
+> > > I'm not a Xen expert, but I assumed from discussions with some
+> > > virtualization folks that if you are running Xen then the xend_t domain
+> > > would handle the creation of any TUN/TAP devices it may need, hence no
+> > > need to attach to an existing TUN/TAP device created by another domain. 
+> > > Yes?  No?
+> >
+> > I'd rather wait on adding this rule until we can get confirmation on if
+> > its needed.
+> 
+> Yep, that is why I didn't add the code for attaching, just creation - or are 
+> you talking about removing the creation rule too?
 
---------------060300070501010501010607--
+Oh I got a little confused.  If the create is certain, then it can stay.
+The attach can be omitted until we get confirmation if its needed.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
