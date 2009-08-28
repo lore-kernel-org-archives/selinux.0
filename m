@@ -1,124 +1,84 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7SEmUE3017683
-	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 10:48:30 -0400
-Received: from g5t0007.atlanta.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7SEltWh025074
-	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 14:47:55 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [refpolicy] [RFC PATCH v1 2/2] refpol: Policy for the new TUN driver
- =?iso-8859-15?q?access=09controls?=
-Date: Fri, 28 Aug 2009 10:48:26 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7SFpY5D024681
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 11:51:35 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n7SFp0Wh017573
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 15:51:00 GMT
+Subject: Re: [refpolicy] [RFC PATCH v1 2/2] refpol: Policy for the new TUN
+ driver  access	controls
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
 Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
-References: <20090825210647.6250.56266.stgit@flek.lan> <200908271008.03693.paul.moore@hp.com> <1251462803.8357.97.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1251462803.8357.97.camel@gorn.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200908281048.26513.paul.moore@hp.com>
+In-Reply-To: <200908281048.26513.paul.moore@hp.com>
+References: <20090825210647.6250.56266.stgit@flek.lan>
+	 <200908271008.03693.paul.moore@hp.com>
+	 <1251462803.8357.97.camel@gorn.columbia.tresys.com>
+	 <200908281048.26513.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Fri, 28 Aug 2009 11:49:47 -0400
+Message-Id: <1251474587.8357.117.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 28 August 2009 08:33:23 am Christopher J. PeBenito wrote:
-> On Thu, 2009-08-27 at 10:08 -0400, Paul Moore wrote:
-> > On Thursday 27 August 2009 09:54:28 am Christopher J. PeBenito wrote:
-> > > On Wed, 2009-08-26 at 10:32 -0400, Paul Moore wrote:
-> > > > On Wednesday 26 August 2009 08:49:14 am Christopher J. PeBenito wrote:
-> > > > > On Tue, 2009-08-25 at 17:12 -0400, Paul Moore wrote:
-> > > > > > Add policy for the new TUN driver access controls which allow
-> > > > > > policy to control which domains have the ability to create and
-> > > > > > attach to TUN/TAP devices.
-> > > > > >
-> > > > > > +########################################
-> > > > > > +## <summary>
-> > > > > > +##	Allow domain to attach to admin created TUN devices
-> > > > > > +## </summary>
-> > > > > > +## <param name="domain">
-> > > > > > +##	<summary>
-> > > > > > +##	Domain allowed access.
-> > > > > > +##	</summary>
-> > > > > > +## </param>
-> > > > > > +#
-> > > > > > +interface(`userdom_tun_attach',`
-> > > > > > +	gen_require(`
-> > > > > > +		attribute admin_tun_type;
-> > > > > > +	')
-> > > > > > +
-> > > > > > +	allow $1 admin_tun_type:tun_socket relabelfrom;
-> > > > > > +	allow $1 self:tun_socket relabelto;
-> > > > > > +')
-> > > > >
-> > > > > Why are only admin roles allowed to create tun_sockets?  Either the
-> > > > > interface name should be changed to reflect that its not all user
-> > > > > domains, or it should be expanded to cover all user domains.
-> > > >
-> > > > Considering the nature of TUN/TAP devices and the fact that you must
-> > > > have CAP_NET_ADMIN to create a new device it seemed reasonable to
-> > > > restrict the tun_socket/create permission to admin roles.  However,
-> > > > we do want to allow non-admin roles the ability to attach
-> > > > (tun_socket/relabel{from,to} permissions) to existing persistent
-> > > > TUN/TAP devices - this is why the interface above does not have
-> > > > "admin" anywhere in the name.
-> > > >
-> > > > Does that make sense?
-> > >
-> > > I'm fine with only attaching to admin domains, but the interface name
-> > > needs to be changed.  Its critical that the interface names are
-> > > consistent with the interface implementation.  So if the implementation
-> > > is only for attaching to admin domains, the interface name has to
-> > > reflect that.
+On Fri, 2009-08-28 at 10:48 -0400, Paul Moore wrote:
+> On Friday 28 August 2009 08:33:23 am Christopher J. PeBenito wrote:
+> > On Thu, 2009-08-27 at 10:08 -0400, Paul Moore wrote:
+> > > On Thursday 27 August 2009 09:54:28 am Christopher J. PeBenito wrote:
+> > > > On Wed, 2009-08-26 at 10:32 -0400, Paul Moore wrote:
+> > > > > On Wednesday 26 August 2009 08:49:14 am Christopher J. PeBenito wrote:
+> > > > > > On Tue, 2009-08-25 at 17:12 -0400, Paul Moore wrote:
+> > > > > > > Add policy for the new TUN driver access controls which allow
+> > > > > > > policy to control which domains have the ability to create and
+> > > > > > > attach to TUN/TAP devices.
+[...]
+> > > > > > > +interface(`userdom_tun_attach',`
+[...]
+> > > Okay, I thought the interface name was consistent based on the other
+> > > userdomain.if interfaces but I'm obviously missing something :)  How
+> > > about "admin_tun_attach"?  If that isn't right I would appreciate a
+> > > suggestion ...
 > >
-> > Okay, I thought the interface name was consistent based on the other
-> > userdomain.if interfaces but I'm obviously missing something :)  How
-> > about "admin_tun_attach"?  If that isn't right I would appreciate a
-> > suggestion ...
->
-> userdom_attach_admin_tun_sockets()
->
-> At first I wasn't going to add sockets at the end, but
-> "userdom_attach_admin_tuns()" didn't sound right to me.  The virt
-> interface should be similarly changed: virt_attach_tun_sockets()
-
-Okay.  I agree "*_admin_tuns()" sounds a little weird but sockets seems not 
-quite right to me - how about "*_attach_admin_tun_iface()"?
-
-> > > > > > diff --git a/policy/modules/system/xen.te
-> > > > > > b/policy/modules/system/xen.te index 40410a7..6c4b06d 100644
-> > > > > > --- a/policy/modules/system/xen.te
-> > > > > > +++ b/policy/modules/system/xen.te
-> > > > > > @@ -88,6 +88,7 @@ allow xend_t self:unix_dgram_socket
-> > > > > > create_socket_perms; allow xend_t self:netlink_route_socket
-> > > > > > r_netlink_socket_perms;
-> > > > > >  allow xend_t self:tcp_socket create_stream_socket_perms;
-> > > > > >  allow xend_t self:packet_socket create_socket_perms;
-> > > > > > +allow xend_t self:tun_socket create;
-> > > > > >
-> > > > > >  allow xend_t xen_image_t:dir list_dir_perms;
-> > > > > >  manage_dirs_pattern(xend_t, xen_image_t, xen_image_t)
-> > > > >
-> > > > > No attach?
-> > > >
-> > > > I'm not a Xen expert, but I assumed from discussions with some
-> > > > virtualization folks that if you are running Xen then the xend_t
-> > > > domain would handle the creation of any TUN/TAP devices it may need,
-> > > > hence no need to attach to an existing TUN/TAP device created by
-> > > > another domain. Yes?  No?
-> > >
-> > > I'd rather wait on adding this rule until we can get confirmation on if
-> > > its needed.
+> > userdom_attach_admin_tun_sockets()
 > >
-> > Yep, that is why I didn't add the code for attaching, just creation - or
-> > are you talking about removing the creation rule too?
->
-> Oh I got a little confused.  If the create is certain, then it can stay.
-> The attach can be omitted until we get confirmation if its needed.
+> > At first I wasn't going to add sockets at the end, but
+> > "userdom_attach_admin_tuns()" didn't sound right to me.  The virt
+> > interface should be similarly changed: virt_attach_tun_sockets()
+> 
+> Okay.  I agree "*_admin_tuns()" sounds a little weird but sockets seems not 
+> quite right to me - how about "*_attach_admin_tun_iface()"?
 
-Okay.  FWIW, I'm not 100% certain about the create as I don't have working Xen 
-system to test, I've included it based on discussions I've had.
+I think I can go with that.
+
+
+> > > > > > > +allow xend_t self:tun_socket create;
+
+> > > > > I'm not a Xen expert, but I assumed from discussions with some
+> > > > > virtualization folks that if you are running Xen then the xend_t
+> > > > > domain would handle the creation of any TUN/TAP devices it may need,
+> > > > > hence no need to attach to an existing TUN/TAP device created by
+> > > > > another domain. Yes?  No?
+> > > >
+> > > > I'd rather wait on adding this rule until we can get confirmation on if
+> > > > its needed.
+> > >
+> > > Yep, that is why I didn't add the code for attaching, just creation - or
+> > > are you talking about removing the creation rule too?
+> >
+> > Oh I got a little confused.  If the create is certain, then it can stay.
+> > The attach can be omitted until we get confirmation if its needed.
+> 
+> Okay.  FWIW, I'm not 100% certain about the create as I don't have working Xen 
+> system to test, I've included it based on discussions I've had.
+
+Then in that case, I'd prefer to keep it all out for now, only because
+its easier to add rules than to remove them.
 
 -- 
-paul moore
-linux @ hp
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
