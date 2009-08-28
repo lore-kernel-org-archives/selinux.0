@@ -1,118 +1,72 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7SCZ9lr004421
-	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 08:35:09 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7SCaM9N007055
-	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 12:36:22 GMT
-Subject: Re: [refpolicy] [RFC PATCH v1 2/2] refpol: Policy for the new TUN
- driver  access	controls
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
-In-Reply-To: <200908271008.03693.paul.moore@hp.com>
-References: <20090825210647.6250.56266.stgit@flek.lan>
-	 <200908261032.10377.paul.moore@hp.com>
-	 <1251381268.8357.43.camel@gorn.columbia.tresys.com>
-	 <200908271008.03693.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Fri, 28 Aug 2009 08:33:23 -0400
-Message-Id: <1251462803.8357.97.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7SEHNwG008151
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 10:17:23 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7SEIXSF024105
+	for <selinux@tycho.nsa.gov>; Fri, 28 Aug 2009 14:18:36 GMT
+Message-ID: <4A97E6D9.8010306@manicmethod.com>
+Date: Fri, 28 Aug 2009 10:16:57 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Chad Sellers <csellers@tresys.com>
+CC: selinux@tycho.nsa.gov, dwalsh@redhat.com, jbrindle@tresys.com
+Subject: Re: [PATCH] Fix semanage_direct_commit() to notice disable_dontaudit
+References: <1250792957-20920-1-git-send-email-csellers@tresys.com>
+In-Reply-To: <1250792957-20920-1-git-send-email-csellers@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-08-27 at 10:08 -0400, Paul Moore wrote:
-> On Thursday 27 August 2009 09:54:28 am Christopher J. PeBenito wrote:
-> > On Wed, 2009-08-26 at 10:32 -0400, Paul Moore wrote:
-> > > On Wednesday 26 August 2009 08:49:14 am Christopher J. PeBenito wrote:
-> > > > On Tue, 2009-08-25 at 17:12 -0400, Paul Moore wrote:
-> > > > > Add policy for the new TUN driver access controls which allow policy
-> > > > > to control which domains have the ability to create and attach to
-> > > > > TUN/TAP devices.
-> > > > >
-> > > > > +########################################
-> > > > > +## <summary>
-> > > > > +##	Allow domain to attach to admin created TUN devices
-> > > > > +## </summary>
-> > > > > +## <param name="domain">
-> > > > > +##	<summary>
-> > > > > +##	Domain allowed access.
-> > > > > +##	</summary>
-> > > > > +## </param>
-> > > > > +#
-> > > > > +interface(`userdom_tun_attach',`
-> > > > > +	gen_require(`
-> > > > > +		attribute admin_tun_type;
-> > > > > +	')
-> > > > > +
-> > > > > +	allow $1 admin_tun_type:tun_socket relabelfrom;
-> > > > > +	allow $1 self:tun_socket relabelto;
-> > > > > +')
-> > > >
-> > > > Why are only admin roles allowed to create tun_sockets?  Either the
-> > > > interface name should be changed to reflect that its not all user
-> > > > domains, or it should be expanded to cover all user domains.
-> > >
-> > > Considering the nature of TUN/TAP devices and the fact that you must have
-> > > CAP_NET_ADMIN to create a new device it seemed reasonable to restrict the
-> > > tun_socket/create permission to admin roles.  However, we do want to
-> > > allow non-admin roles the ability to attach (tun_socket/relabel{from,to}
-> > > permissions) to existing persistent TUN/TAP devices - this is why the
-> > > interface above does not have "admin" anywhere in the name.
-> > >
-> > > Does that make sense?
-> >
-> > I'm fine with only attaching to admin domains, but the interface name
-> > needs to be changed.  Its critical that the interface names are
-> > consistent with the interface implementation.  So if the implementation
-> > is only for attaching to admin domains, the interface name has to
-> > reflect that.
-> 
-> Okay, I thought the interface name was consistent based on the other 
-> userdomain.if interfaces but I'm obviously missing something :)  How about 
-> "admin_tun_attach"?  If that isn't right I would appreciate a suggestion ...
+Chad Sellers wrote:
+> Add code to semanage_direct_commit() to notice that the disable_dontaudit
+> flag has been changed and rebuild the policy if so.
+>
+> Currently, libsemanage doesn't notice that the disable_dontaudit flag is
+> set so it does not rebuild the policy. semodule got around this by calling
+> semanage_set_rebuild() explicitly, but libsemanage should really notice
+> that this has changed and rebuild appropriately.
+> ---
 
-userdom_attach_admin_tun_sockets()
+nit: I'd rather have a flag in memory that says it changed than probing the 
+filesystem over and over, but that is just my personal preference.
 
-At first I wasn't going to add sockets at the end, but
-"userdom_attach_admin_tuns()" didn't sound right to me.  The virt
-interface should be similarly changed: virt_attach_tun_sockets()
+Acked-By: Joshua Brindle <method@manicmethod.com>
 
-> > > > > diff --git a/policy/modules/system/xen.te
-> > > > > b/policy/modules/system/xen.te index 40410a7..6c4b06d 100644
-> > > > > --- a/policy/modules/system/xen.te
-> > > > > +++ b/policy/modules/system/xen.te
-> > > > > @@ -88,6 +88,7 @@ allow xend_t self:unix_dgram_socket
-> > > > > create_socket_perms; allow xend_t self:netlink_route_socket
-> > > > > r_netlink_socket_perms;
-> > > > >  allow xend_t self:tcp_socket create_stream_socket_perms;
-> > > > >  allow xend_t self:packet_socket create_socket_perms;
-> > > > > +allow xend_t self:tun_socket create;
-> > > > >
-> > > > >  allow xend_t xen_image_t:dir list_dir_perms;
-> > > > >  manage_dirs_pattern(xend_t, xen_image_t, xen_image_t)
-> > > >
-> > > > No attach?
-> > >
-> > > I'm not a Xen expert, but I assumed from discussions with some
-> > > virtualization folks that if you are running Xen then the xend_t domain
-> > > would handle the creation of any TUN/TAP devices it may need, hence no
-> > > need to attach to an existing TUN/TAP device created by another domain. 
-> > > Yes?  No?
-> >
-> > I'd rather wait on adding this rule until we can get confirmation on if
-> > its needed.
-> 
-> Yep, that is why I didn't add the code for attaching, just creation - or are 
-> you talking about removing the creation rule too?
-
-Oh I got a little confused.  If the create is certain, then it can stay.
-The attach can be omitted until we get confirmation if its needed.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>   libsemanage/src/direct_api.c |    7 ++++++-
+>   1 files changed, 6 insertions(+), 1 deletions(-)
+>
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index d563841..0eab399 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -675,7 +675,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>
+>   	/* Declare some variables */
+>   	int modified = 0, fcontexts_modified, ports_modified,
+> -	    seusers_modified, users_extra_modified;
+> +	    seusers_modified, users_extra_modified, dontaudit_modified;
+>   	dbase_config_t *users = semanage_user_dbase_local(sh);
+>   	dbase_config_t *users_base = semanage_user_base_dbase_local(sh);
+>   	dbase_config_t *pusers_base = semanage_user_base_dbase_policy(sh);
+> @@ -694,6 +694,10 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>
+>   	/* Create or remove the disable_dontaudit flag file. */
+>   	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
+> +	if (access(path, F_OK) == 0)
+> +		dontaudit_modified = !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
+> +	else
+> +		dontaudit_modified = (sepol_get_disable_dontaudit(sh->sepolh) == 1);
+>   	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
+>   		FILE *touch;
+>   		touch = fopen(path, "w");
+> @@ -734,6 +738,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>   	modified |= bools->dtable->is_modified(bools->dbase);
+>   	modified |= ifaces->dtable->is_modified(ifaces->dbase);
+>   	modified |= nodes->dtable->is_modified(nodes->dbase);
+> +	modified |= dontaudit_modified;
+>
+>   	/* If there were policy changes, or explicitly requested, rebuild the policy */
+>   	if (sh->do_rebuild || modified) {
 
 
 --
