@@ -1,32 +1,89 @@
-Message-ID: <4A996106.4060604@martinorr.name>
-Date: Sat, 29 Aug 2009 18:10:30 +0100
-From: Martin Orr <martin@martinorr.name>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7TMNtSQ017845
+	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 18:23:55 -0400
+Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7TMP8l7001782
+	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 22:25:08 GMT
+Date: Sat, 29 Aug 2009 17:41:47 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
+        David Howells <dhowells@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 3/5] cr: add generic LSM c/r support
+Message-ID: <20090829224147.GA12549@hallyn.com>
+References: <20090828210041.GA27878@us.ibm.com> <20090828210417.GC28048@us.ibm.com> <4A98AEDE.1000105@schaufler-ca.com>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: restorecon and symbolic links
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4A98AEDE.1000105@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With policycoreutils 2.0.71, "restorecon /dev/stdin" fails if stdin is a pipe:
-martin@caligula:~$ echo hi | sudo restorecon /dev/stdin
-realpath(/dev/stdin) failed No such file or directory
+Quoting Casey Schaufler (casey@schaufler-ca.com):
+> Serge E. Hallyn wrote:
+...
+> > Briefly, all security fields must be exported by the LSM as a simple
+> > null-terminated string.  They are checkpointed through the
+> > security_checkpoint_obj() helper, because we must pass it an extra
+> > sectype field.  Splitting SECURITY_OBJ_SEC into one type per object
+> > type would not work because, in Smack, one void* security is used for
+> > all object types.
+> 
+> I do not understand why the Smack behavior is a limitation here.
 
-Why would you want to do this?
-The Debian udev init script does
-ln -s /proc/self/fd/0 /dev/stdin
-restorecon /dev/stdin
-I am not sure why stdin is a pipe here but it is some consequence of the
-boot process.
+Well it's not the Smack behavior, it's the combination of Smack's
+and SELinux's behavior :)
 
-The intention here (and what happened with policycoreutils 2.0.69) is to
-relabel the symbolic link.  But the recent realpath patch changed this, and
-I don't think there is a way now to ask restorecon to relabel an individual
-symlink.
+In the end what I have here is probably best anyway - what is
+stored in the object hash is not a security struct as known
+by any LSM, but a generic object label.  So at
+object_hash_types[CKPT_OBJ_SEC]->restore(), we don't re-create
+an actual security struct, but just a string which is later
+used by security_xyztype_restore() to create an actual label.
 
--- 
-Martin Orr
+> >   But we must pass the sectype field because in
+> > SELinux a different type of structure is stashed in each object type.
+> 
+> But each can be expressed as a context, can't it?
+
+A set of contexts (root_u:root_r:root_t:::system_u:system_r\
+:system_t::...).
+
+There would be a problem if it were stored as a more
+structured type, and if the ->restore handler wanted to
+re-create an actual task_security_struct, ipc_security_struct,
+etc.  So the last paragraph in the patch intro was just trying to
+explain why the intermediate layer, storing a generic string on
+the c/r object hash, needs to be there.  The thing that is
+not possible is to place the actual void *security or a struct
+task_security_struct on the objhash.
+
+...
+
+> > +	/* str will be alloc'ed for us by the LSM.  We will free it when
+> > +	 * we clear out our hashtable */
+> >   
+> 
+> Why do you think that you need a copy? Sure, SELinux always gives you
+> a copy, but Smack keeps "contexts" around and making a copy is not only
+> unnecessary, but wasteful. If you free the "context" with the appropriate
+> call (security_release_secctx) you will get the "free allocated memory"
+> behavior desired by SELinux and the "do nothing" behavior of Smack. For
+> free, assuming that you also fix your Smack hook so that it works in the
+> way Smack deems "Correct".
+
+Hmm, that should be doable.  Mind you these are not the same as
+secctx's returned by secid_to_secctx.  Though selinux_release_secctx 
+is implemented as a simple kfree, so it would 'just work.'  I'm
+not sure if it's better to just re-use it, or introduce a new
+security_release_context() that does the same thing...
+
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
