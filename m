@@ -1,106 +1,56 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7TMfUXN018755
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 18:41:30 -0400
-Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7TMeslj021717
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 22:40:54 GMT
-Date: Sat, 29 Aug 2009 17:59:23 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
-        David Howells <dhowells@redhat.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 2/5] cr: checkpoint the active LSM and add
-	RESTART_KEEP_LSM flag
-Message-ID: <20090829225923.GB12549@hallyn.com>
-References: <20090828210041.GA27878@us.ibm.com> <20090828210208.GA28048@us.ibm.com> <4A98B1D7.9050108@schaufler-ca.com>
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Cc: 544215-forwarded@bugs.debian.org, Martin Orr <martin@martinorr.name>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: restorecon and symbolic links
+References: <4A996106.4060604@martinorr.name>
+Date: Sat, 29 Aug 2009 18:19:31 -0500
+In-Reply-To: <4A996106.4060604@martinorr.name> (Martin Orr's message of "Sat,
+	29 Aug 2009 18:10:30 +0100")
+Message-ID: <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4A98B1D7.9050108@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Casey Schaufler (casey@schaufler-ca.com):
-> Serge E. Hallyn wrote:
-> > [ patch 1 was a trivial non-security patch so if you didn't see
-> > it, you didn't miss anything ]
-> >
-> > The RESTART_KEEP_LSM flag indicates that the LSM should
-> > attempt to reuse checkpointed security labels.  It is always
-> > invalid when the LSM at restart differs from that at checkpoint.
-> > It is currently only usable for capabilities.
-> >   
-> 
-> Can you imagine a scenario in which restoring a process on a
-> system with a different LSM configuration makes any sense at all?
+On Sat, Aug 29 2009, Martin Orr wrote:
 
-Without RESTART_KEEP_LSM absolutely.
+> With policycoreutils 2.0.71, "restorecon /dev/stdin" fails if stdin is a pipe:
+> martin@caligula:~$ echo hi | sudo restorecon /dev/stdin
+> realpath(/dev/stdin) failed No such file or directory
+>
+> Why would you want to do this?
+> The Debian udev init script does
+> ln -s /proc/self/fd/0 /dev/stdin
+> restorecon /dev/stdin
+> I am not sure why stdin is a pipe here but it is some consequence of the
+> boot process.
+>
+> The intention here (and what happened with policycoreutils 2.0.69) is to
+> relabel the symbolic link.  But the recent realpath patch changed this, and
+> I don't think there is a way now to ask restorecon to relabel an individual
+> symlink.
 
-With RESTART_KEEP_LSM, on a system with a different LSM loaded,
-certainly not.
+        There are consequences to this change not mentioned above: when
+ booting with policycoreutils 2.0.71 /dev/pts (and several other device
+ nodes) are not created which causes all sorts of trouble.
 
-With RESTART_KEEP_LSM, on a system with the same LSM but a different
-policy, yes I do.  If any checkpointed contexts have been invalidated
-in the new policy, then restart with RESTART_KEEP_LSM should fail (*1).
-If the contexts are still valid, then it seems reasonable to
-assume that bin_t, user_t, etc, still basically mean what they
-meant before.  No reason to refuse restart just because I loaded
-a policy module for postfix, imo.
+ This is a consequence of the realpath changes in restorecon, because
+ when /lib/udev/create_static_nodes does
+         ln -s /proc/self/fd/0 /dev/stdin
+         restorecon /dev/stdin
+ it now fails with the error
+         realpath(/dev/stdin) failed No such file or directory
+ This causes create_static_nodes to exit (due to set -e) before creating
+ /dev/pts.
 
-I could add both an lsm-module and lsm-policy version to the
-checkpoint header, where the lsm-policy might be a sha1sum of
-the whole policy, but that seems like overkill, a lot of
-overhead, and probably a maintenance headache for the lsm-module
-version.
+        I am planning on reverting the removal of special treatment of
+ symlinks from the debian  unstable version until this is resolved.
 
-> Goodness gracious, even if the "old" environment and the "new"
-> are both SELinux and the policies are different I can't see how
-> you could make any sort of claim that restoring the process is
-> safe.
-
-In what sense do you mean 'unsafe'?  The initial creation or
-access to any checkpointed resource always happens with the
-sys_restart() caller's and existing object's contexts, so there
-should be no opportunity for accessing data which the old policy
-allowed but the new does not.  It's possible that the task will
-fail because of a more restrictive new policy, but so be it.
-
->  The same goes for having file based capabilities on one
-> and not on the other.
-
-A task running as uid 500 with cap_dac_read_search=ep could have
-been started at least 3 ways:
-	1. a uid 500 task executing a file with cap_dac_read_search=ep
-	file caps
-	2. a root task executing a file which does prctl(PR_SET_KEEPCAPS),
-	setuid(500), and drops the other caps,
-	3. a uid 500 task executing a setuid root version of the
-	file in (2).
-
-When we are restarting a task, we don't really care which of
-the above ways it might have gotten its privileges.
-
-I certainly could be overlooking something - what do you see as the
-safety problem?
-
-> It seems that the check you've chosen is necessary, but far from
-> sufficient.
-
-Thanks much for giving this some thought.  Without doubt this
-is tricky business, and I was definately hoping for some serious
-discussion.
-
-thanks,
--serge
-
-*1 - Hmm, in Smack, if the caller has CAP_MAC_ADMIN, then he
-can load new, currently undefined types, right?  I guess that
-could be a problem, though again I assume the new type should
-simply have no accesses and so shouldn't be unsafe.
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
