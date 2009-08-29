@@ -1,44 +1,32 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7T4wwOR023956
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 00:58:58 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7T50BO1014070
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 05:00:12 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 3814D1810D
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 14:58:54 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: text books and computer security
-Date: Sat, 29 Aug 2009 14:58:43 +1000
+Message-ID: <4A996106.4060604@martinorr.name>
+Date: Sat, 29 Aug 2009 18:10:30 +0100
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200908291458.49392.russell@coker.com.au>
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: restorecon and symbolic links
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://about.ck12.org/
+With policycoreutils 2.0.71, "restorecon /dev/stdin" fails if stdin is a pipe:
+martin@caligula:~$ echo hi | sudo restorecon /dev/stdin
+realpath(/dev/stdin) failed No such file or directory
 
-The CK12 project to create free (CC by SA) text books for the K-12 market is 
-interesting and seems to have a lot of potential.
+Why would you want to do this?
+The Debian udev init script does
+ln -s /proc/self/fd/0 /dev/stdin
+restorecon /dev/stdin
+I am not sure why stdin is a pipe here but it is some consequence of the
+boot process.
 
-http://authors.ck12.org/wiki/
-
-One of the ways that you can submit content is via a wiki.  I think it would 
-be good to have a free high-school text book about computer security.  I 
-don't have time to do it all on my own, but I would definitely be involved if 
-others were doing it too.
-
-http://etbe.coker.com.au/2009/08/29/free-k-12-text-books/
-
-I've blogged about this idea at the above URL.
+The intention here (and what happened with policycoreutils 2.0.69) is to
+relabel the symbolic link.  But the recent realpath patch changed this, and
+I don't think there is a way now to ask restorecon to relabel an individual
+symlink.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
