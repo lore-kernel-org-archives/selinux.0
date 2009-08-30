@@ -1,91 +1,134 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7UDe28H007555
-	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 09:40:02 -0400
-Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7UDfGWJ001767
-	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 13:41:16 GMT
-Date: Sun, 30 Aug 2009 08:58:00 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
-        David Howells <dhowells@redhat.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 3/5] cr: add generic LSM c/r support
-Message-ID: <20090830135800.GC14699@hallyn.com>
-References: <20090828210041.GA27878@us.ibm.com> <20090828210417.GC28048@us.ibm.com> <4A98AEDE.1000105@schaufler-ca.com> <20090829224147.GA12549@hallyn.com> <4A99BC58.9040205@schaufler-ca.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7UFWbm3018141
+	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 11:32:37 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7UFW0Wh007115
+	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 15:32:00 GMT
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Cc: 543915-forwarded@bugs.debian.org, Max Kellermann <max@duempel.org>
+Subject: [libsepol] Unchecked input leades to integer underflow
+Date: Sun, 30 Aug 2009 10:19:33 -0500
+Message-ID: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4A99BC58.9040205@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Casey Schaufler (casey@schaufler-ca.com):
-> Serge E. Hallyn wrote:
-> > Quoting Casey Schaufler (casey@schaufler-ca.com):
-> >> But each can be expressed as a context, can't it?
-> >>     
-> >
-> > A set of contexts (root_u:root_r:root_t:::system_u:system_r\
-> > :system_t::...).
-> >
-> > There would be a problem if it were stored as a more
-> > structured type, and if the ->restore handler wanted to
-> > re-create an actual task_security_struct, ipc_security_struct,
-> > etc.  So the last paragraph in the patch intro was just trying to
-> > explain why the intermediate layer, storing a generic string on
-> > the c/r object hash, needs to be there.  The thing that is
-> > not possible is to place the actual void *security or a struct
-> > task_security_struct on the objhash.
-> >   
-> 
-> Right. Now why do you need a set of contexts?
+Hi,
 
-Because for SELinux, for instance, when checkpointing a security
-context for a task, we want to checkpoint the actual context,
-the fscreate context, the sockcreate context, keycreate context,
-and the task create (exec_create) context.
+        This bug was discovered, and the analysis done, buy Max
+ Kellermann. I have never been able to replicate the problem, so I can't
+ help debug this error.
 
-> > ...
-> >
-> >   
-> >>> +	/* str will be alloc'ed for us by the LSM.  We will free it when
-> >>> +	 * we clear out our hashtable */
-> >>>   
-> >>>       
-> >> Why do you think that you need a copy? Sure, SELinux always gives you
-> >> a copy, but Smack keeps "contexts" around and making a copy is not only
-> >> unnecessary, but wasteful. If you free the "context" with the appropriate
-> >> call (security_release_secctx) you will get the "free allocated memory"
-> >> behavior desired by SELinux and the "do nothing" behavior of Smack. For
-> >> free, assuming that you also fix your Smack hook so that it works in the
-> >> way Smack deems "Correct".
-> >>     
-> >
-> > Hmm, that should be doable.  Mind you these are not the same as
-> > secctx's returned by secid_to_secctx.
-> 
-> Now why is that? If they are different things, what are they?
-> 
-> What is the difference between a secctx and a context?
-> I got a bit confused because the word "context" has been
-> used to refer to the thing represented by a secctx for a
-> long time.
+ Strace:
+--8<---------------cut here---------------start------------->8---
+brk(0x3233000)                          = 0x3233000
+mmap(NULL, 18446744073703178240, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
+mmap(NULL, 18446744073703313408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
+mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0x7fdfda316000
+--8<---------------cut here---------------end--------------->8---
 
-I know, I know,  I should come up with a better name.  But while
-an selinux context would be
+> 0xffffffffff9ec000 == 18446744073703178240 (the size of the first
+> large allocation).  It's also equal to -6373376.  This just looks like
+> an integer underflow, doesn't it?
 
-  root_u:root_r:root_t
+--8<---------------cut here---------------start------------->8---
+ Breakpoint 4, 0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
+ (gdb) p $rsi
+ $25 = -6373376
+ (gdb) bt
+ #0  0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
+ #1  0x00007f9bc4baf6bb in _int_malloc () from /lib/libc.so.6
+ #2  0x00007f9bc4bb0a78 in malloc () from /lib/libc.so.6
+ #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
+ #4  0x00007f9bc4ea7838 in ?? () from /lib/libsemanage.so.1
 
-the blob I have to checkpoint for a task would perhaps be
+ (gdb) frame 3
+ #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
+ 533     module.c: No such file or directory.
+         in module.c
+ (gdb) p len
+ $26 = 18446744073703176358
+ (gdb) p i
+ $27 = 3
+ (gdb) p nsec
+ $30 = 4
+ (gdb) p offsets[i+1] 
+ $28 = 8192
+ (gdb) p offsets[i]
+ $29 = 6383450
+--8<---------------cut here---------------end--------------->8---
 
-  root_u:root_r:root_t:::null:::null::null:::user_u:serge_r:serge_t:::null
+> line 456:
+> len = offsets[i + 1] - offsets[i];
 
-thanks,
--serge
+> Voila, integer underflow.  The function module_package_read_offsets()
+> reads the offsets from the input file, but does not verify them.
+>         off[nsec] = policy_file_length(file);
+> Here, the check is missing.
+
+        We should probably have:
+--8<---------------cut here---------------start------------->8---
+	off[nsec] = policy_file_length(file);
+        if (off[nsec] < off[nsec-1]) {
+		ERR(file->handle, "file size smaller than previous offset (at %u, "
+		    "offset %zu -> %zu", nsec, off[nsec - 1],
+		    off[nsec]);
+		return -1;
+	}
+--8<---------------cut here---------------end--------------->8---
+
+> But why is the file length 8192?  My base.pp has 6383597 bytes
+> (compressed), not 8192.  Let's break in policy_file_length():
+
+--8<---------------cut here---------------start------------->8---
+ (gdb) p prev_offset 
+ $4 = 28
+ (gdb) p end_offset 
+ $5 = 8192
+ (gdb) p fp->fp
+ $6 = (FILE *) 0x1c42350
+ $7 = -1
+--8<---------------cut here---------------end--------------->8---
+
+> But why is the file descriptor negative?  sepol_module_package_read()
+> is called by semanage_load_module(), which bunzips the file, closes
+> it, reopens it with fmemopen().
+
+        I don't understand this part. Upon successful completion
+ fmemopen() returns a FILE pointer.  Otherwise, NULL is returned, and
+ that is checked for in In semanage_store.c:
+--8<---------------cut here---------------start------------->8---
+	ssize_t size;
+	char *data = NULL;
+
+	if ((size = bunzip(sh, fp, &data)) > 0) {
+		fclose(fp);
+		fp = fmemopen(data, size, "rb");
+		if (!fp) {
+			ERR(sh, "Out of memory!");
+			goto cleanup;
+		}
+	}
+--8<---------------cut here---------------end--------------->8---
+
+         According to the man page, ever since glibc 2.9, the letter 'b'
+ may be specified as the second character in mode.  This provides
+ "binary" mode: writes don't implicitly add a terminating null byte, and
+ fseek(3) SEEK_END is relative to the end of the buffer (i.e., the value
+ specified by the size argument), rather than the current string length.
+
+        Anyway, I think that adding a defensive check when we set
+ off[nsec] seems to be in order, and would not harm anything; and would
+ have prevented the huge memory allocation issue, and perhaps given a
+ better error message.
+
+        manoj
+
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
