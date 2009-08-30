@@ -1,157 +1,78 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7U03GNj023072
-	for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 20:03:16 -0400
-Received: from smtp107.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n7U04Sl7019219
-	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 00:04:29 GMT
-Message-ID: <4A99C1B6.6080504@schaufler-ca.com>
-Date: Sat, 29 Aug 2009 17:03:02 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serge@hallyn.com>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>, Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
-        David Howells <dhowells@redhat.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 2/5] cr: checkpoint the active LSM and add	RESTART_KEEP_LSM
- flag
-References: <20090828210041.GA27878@us.ibm.com> <20090828210208.GA28048@us.ibm.com> <4A98B1D7.9050108@schaufler-ca.com> <20090829225923.GB12549@hallyn.com>
-In-Reply-To: <20090829225923.GB12549@hallyn.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7U6uWdq013683
+	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 02:56:32 -0400
+Received: from mail-yw0-f187.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7U6ttjQ023032
+	for <selinux@tycho.nsa.gov>; Sun, 30 Aug 2009 06:55:55 GMT
+Received: by ywh17 with SMTP id 17so4547959ywh.3
+        for <selinux@tycho.nsa.gov>; Sat, 29 Aug 2009 23:56:31 -0700 (PDT)
+Date: Sun, 30 Aug 2009 14:56:26 +0800
+From: "zheyeung" <zheyeung@gmail.com>
+To: "selinux" <selinux@tycho.nsa.gov>
+Cc: "refpolicy" <refpolicy@oss1.tresys.com>
+Subject: I've got a problem in my installing selinux
+Message-ID: <200908301456154069423@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="=====003_Dragon101623344630_====="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> Quoting Casey Schaufler (casey@schaufler-ca.com):
->   
->> Serge E. Hallyn wrote:
->>     
->>> [ patch 1 was a trivial non-security patch so if you didn't see
->>> it, you didn't miss anything ]
->>>
->>> The RESTART_KEEP_LSM flag indicates that the LSM should
->>> attempt to reuse checkpointed security labels.  It is always
->>> invalid when the LSM at restart differs from that at checkpoint.
->>> It is currently only usable for capabilities.
->>>   
->>>       
->> Can you imagine a scenario in which restoring a process on a
->> system with a different LSM configuration makes any sense at all?
->>     
->
-> Without RESTART_KEEP_LSM absolutely.
->   
 
-Wow. I run a program on a system with the default LSM and get all
-sorts of passwords for network based services, then take it to an
-SELinux system that has a different firewall configuration based on
-the assumption that SELinux will prevent the program from getting
-that information. You'd allow that?
+This is a multi-part message in MIME format.
 
-> With RESTART_KEEP_LSM, on a system with a different LSM loaded,
-> certainly not.
->
-> With RESTART_KEEP_LSM, on a system with the same LSM but a different
-> policy, yes I do.  If any checkpointed contexts have been invalidated
-> in the new policy, then restart with RESTART_KEEP_LSM should fail (*1).
-> If the contexts are still valid, then it seems reasonable to
-> assume that bin_t, user_t, etc, still basically mean what they
-> meant before.  No reason to refuse restart just because I loaded
-> a policy module for postfix, imo.
->   
+--=====003_Dragon101623344630_=====
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Again, Wow. How can you tell that a process that ran for a while
-under another policy can not have done anything that would make
-it unsafe under the current policy? And what if the program is the
-very one with the changed policy? How can you tell?
+Hi,everybody, I'm a beginner . I've got a problem in selinux installing.
 
-> I could add both an lsm-module and lsm-policy version to the
-> checkpoint header, where the lsm-policy might be a sha1sum of
-> the whole policy, but that seems like overkill, a lot of
-> overhead, and probably a maintenance headache for the lsm-module
-> version.
->
->   
->> Goodness gracious, even if the "old" environment and the "new"
->> are both SELinux and the policies are different I can't see how
->> you could make any sort of claim that restoring the process is
->> safe.
->>     
->
-> In what sense do you mean 'unsafe'?  The initial creation or
-> access to any checkpointed resource always happens with the
-> sys_restart() caller's and existing object's contexts, so there
-> should be no opportunity for accessing data which the old policy
-> allowed but the new does not.  It's possible that the task will
-> fail because of a more restrictive new policy, but so be it.
->   
+At first, I install from selinux-policy-targeted.f11.rpm (which in release CD), then edit /etc/ selinux/config. change the mode to (enforcing,targeted),restart. everything is ok.
 
-Now I'm no expert on SELinux policies, but if the change in policy
-was made to prevent the program from doing something that it has
-already done under the old policy so that it can safely allow the
-program to do something it hasn't done prior to being checkpointed,
-you have a big problem.
+Then ,I download refpolicy.tar.gz from tresys.com. make and make install it  by Eclipse-Slide. Here the problem comes. No matter I running selinux in enforcing or in permissive, my F11 failed in rebooting .It stop at Init process, which can not enter the graphic terminal.
 
-That's a big sentence. Let me clarify a little:
+I guess , is there extra work I should do but I didn't ?
 
-Let's say that my program, placebo, needs to do one of two
-dangerous things, either thing A early in the execution or
-thing B late in the execution. It would be perfectly safe for
-placebo to do either, but really dreadfully bad for it to do
-both. The program is of course oblivious to the policy, so it
-will try to do both even though it really only needs to do one.
+2009-08-30 
 
-The old policy allows placebo to do A and not B. The new policy
-allows B but not A. Either is safe. If I run placebo under the
-old policy, checkpoint it, and restart it under the new policy
-Bad Things happen. Even with both the old and the new policies
-being demonstrably safe.
 
->>  The same goes for having file based capabilities on one
->> and not on the other.
->>     
->
-> A task running as uid 500 with cap_dac_read_search=ep could have
-> been started at least 3 ways:
-> 	1. a uid 500 task executing a file with cap_dac_read_search=ep
-> 	file caps
-> 	2. a root task executing a file which does prctl(PR_SET_KEEPCAPS),
-> 	setuid(500), and drops the other caps,
-> 	3. a uid 500 task executing a setuid root version of the
-> 	file in (2).
->
-> When we are restarting a task, we don't really care which of
-> the above ways it might have gotten its privileges.
->
-> I certainly could be overlooking something - what do you see as the
-> safety problem?
->
->   
->> It seems that the check you've chosen is necessary, but far from
->> sufficient.
->>     
->
-> Thanks much for giving this some thought.  Without doubt this
-> is tricky business, and I was definately hoping for some serious
-> discussion.
->
-> thanks,
-> -serge
->
-> *1 - Hmm, in Smack, if the caller has CAP_MAC_ADMIN, then he
-> can load new, currently undefined types, right?  I guess that
-> could be a problem, though again I assume the new type should
-> simply have no accesses and so shouldn't be unsafe.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
->   
+
+zheyeung 
+
+--=====003_Dragon101623344630_=====
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=Content-Type content="text/html; charset=us-ascii">
+<META content="MSHTML 6.00.6000.16809" name=GENERATOR><LINK 
+href="BLOCKQUOTE{margin-Top: 0px; margin-Bottom: 0px; margin-Left: 2em}" 
+rel=stylesheet></HEAD>
+<BODY style="FONT-SIZE: 10pt; MARGIN: 10px; FONT-FAMILY: verdana">
+<DIV><FONT size=2>Hi,everybody, I'm a beginner . I've got a problem in selinux 
+installing.</FONT></DIV>
+<DIV><FONT size=2></FONT>&nbsp;</DIV>
+<DIV><FONT size=2>At first, I install from selinux-policy-targeted.f11.rpm 
+(which in release CD),&nbsp;then edit /etc/ selinux/config. change the mode 
+to&nbsp;(enforcing,targeted),restart. everything is ok.</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then ,I download refpolicy.tar.gz from tresys.com. make and make install it 
+&nbsp;by Eclipse-Slide. Here the problem comes. No matter I running&nbsp;selinux 
+in enforcing or in permissive, my F11 failed in rebooting .It&nbsp;stop at Init 
+process, which can not enter the graphic terminal.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>I guess , is there extra work I should do&nbsp;but I didn't ?</DIV>
+<DIV><FONT size=2></FONT>&nbsp;</DIV>
+<DIV align=left><FONT color=#c0c0c0 size=2>2009-08-30 </FONT></DIV><FONT size=2>
+<HR style="WIDTH: 122px; HEIGHT: 2px" align=left SIZE=2>
+
+<DIV><FONT color=#c0c0c0 size=2><SPAN>zheyeung</SPAN> 
+</FONT></DIV></FONT></BODY></HTML>
+
+--=====003_Dragon101623344630_=====--
 
 
 --
