@@ -1,95 +1,56 @@
-Subject: Re: [libsepol] Unchecked input leades to integer underflow
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Manoj Srivastava <srivasta@golden-gryphon.com>
-Cc: selinux@tycho.nsa.gov, 543915-forwarded@bugs.debian.org,
-        Max Kellermann <max@duempel.org>
-In-Reply-To: <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
-References: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
-	 <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 31 Aug 2009 09:56:38 -0400
-Message-Id: <1251726998.16143.95.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7VDbFpZ010809
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 09:40:21 -0400
+Received: from e34.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n7VDaSXG018822
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 13:36:28 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e34.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n7VDWxtD020211
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:32:59 -0600
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n7VDavWe260468
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:36:59 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n7VDasJV026613
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:36:56 -0600
+Date: Mon, 31 Aug 2009 08:36:56 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
+        David Howells <dhowells@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 2/5] cr: checkpoint the active LSM and add
+	RESTART_KEEP_LSM flag
+Message-ID: <20090831133656.GC4837@us.ibm.com>
+References: <20090828210041.GA27878@us.ibm.com> <20090828210208.GA28048@us.ibm.com> <4A98B1D7.9050108@schaufler-ca.com> <20090829225923.GB12549@hallyn.com> <4A99C1B6.6080504@schaufler-ca.com> <20090830134809.GA14699@hallyn.com> <4A9ACBD4.4020804@schaufler-ca.com> <20090830202412.GA16222@hallyn.com> <4A9AF28D.2030803@schaufler-ca.com> <20090831132258.GB4837@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20090831132258.GB4837@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-08-31 at 08:38 -0400, Stephen Smalley wrote:
-> On Sun, 2009-08-30 at 10:19 -0500, Manoj Srivastava wrote:
-> > Hi,
-> > 
-> >         This bug was discovered, and the analysis done, buy Max
-> >  Kellermann. I have never been able to replicate the problem, so I can't
-> >  help debug this error.
-> > 
-> >  Strace:
-> > --8<---------------cut here---------------start------------->8---
-> > brk(0x3233000)                          = 0x3233000
-> > mmap(NULL, 18446744073703178240, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> > mmap(NULL, 18446744073703313408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> > mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0x7fdfda316000
-> > --8<---------------cut here---------------end--------------->8---
-> > 
-> > > 0xffffffffff9ec000 == 18446744073703178240 (the size of the first
-> > > large allocation).  It's also equal to -6373376.  This just looks like
-> > > an integer underflow, doesn't it?
-> > 
-> > --8<---------------cut here---------------start------------->8---
-> >  Breakpoint 4, 0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
-> >  (gdb) p $rsi
-> >  $25 = -6373376
-> >  (gdb) bt
-> >  #0  0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
-> >  #1  0x00007f9bc4baf6bb in _int_malloc () from /lib/libc.so.6
-> >  #2  0x00007f9bc4bb0a78 in malloc () from /lib/libc.so.6
-> >  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
-> >  #4  0x00007f9bc4ea7838 in ?? () from /lib/libsemanage.so.1
-> > 
-> >  (gdb) frame 3
-> >  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
-> >  533     module.c: No such file or directory.
-> >          in module.c
-> >  (gdb) p len
-> >  $26 = 18446744073703176358
-> >  (gdb) p i
-> >  $27 = 3
-> >  (gdb) p nsec
-> >  $30 = 4
-> >  (gdb) p offsets[i+1] 
-> >  $28 = 8192
-> >  (gdb) p offsets[i]
-> >  $29 = 6383450
-> > --8<---------------cut here---------------end--------------->8---
-> > 
-> > > line 456:
-> > > len = offsets[i + 1] - offsets[i];
-> > 
-> > > Voila, integer underflow.  The function module_package_read_offsets()
-> > > reads the offsets from the input file, but does not verify them.
-> > >         off[nsec] = policy_file_length(file);
-> > > Here, the check is missing.
-> > 
-> >         We should probably have:
-> > --8<---------------cut here---------------start------------->8---
-> > 	off[nsec] = policy_file_length(file);
-> >         if (off[nsec] < off[nsec-1]) {
-> > 		ERR(file->handle, "file size smaller than previous offset (at %u, "
-> > 		    "offset %zu -> %zu", nsec, off[nsec - 1],
-> > 		    off[nsec]);
-> > 		return -1;
-> > 	}
-> > --8<---------------cut here---------------end--------------->8---
+Quoting Serge E. Hallyn (serue@us.ibm.com):
+> Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > Serge E. Hallyn wrote:
+> > > Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > > So do you think that adding a policy version check in the kernel
+> > > at restart would help this?
 > 
-> Perhaps I am missing something, but module_package_read_offsets()
-> already checks that the offsets are increasing and aborts if not.
+> For the moment I intend to add a patch on top of these adding two
+> security calls:
+> 
+> 	security_may_checkpoint(ctx) which will authorize the
+> 		ability to checkpoint at all, and
 
-Never mind, I see the problem.  So we can fix that, but obviously
-something went badly wrong earlier in the processing to have yielded
-this state.
+I meant:
 
--- 
-Stephen Smalley
-National Security Agency
+	security_may_restore(ctx).
 
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
