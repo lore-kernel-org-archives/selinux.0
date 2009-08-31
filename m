@@ -1,132 +1,67 @@
-Subject: Re: [libsepol] Unchecked input leades to integer underflow
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Manoj Srivastava <srivasta@golden-gryphon.com>
-Cc: selinux@tycho.nsa.gov, 543915-forwarded@bugs.debian.org,
-        Max Kellermann <max@duempel.org>
-In-Reply-To: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
-References: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7VCgi55000520
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 08:42:44 -0400
+Subject: Re: [PATCH 3/5] cr: add generic LSM c/r support
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+        Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        James Morris <jmorris@namei.org>, David Howells <dhowells@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>
+In-Reply-To: <4A9ACD0A.9050004@schaufler-ca.com>
+References: <20090828210041.GA27878@us.ibm.com>
+	 <20090828210417.GC28048@us.ibm.com> <4A98AEDE.1000105@schaufler-ca.com>
+	 <20090829224147.GA12549@hallyn.com> <4A99BC58.9040205@schaufler-ca.com>
+	 <20090830135800.GC14699@hallyn.com>  <4A9ACD0A.9050004@schaufler-ca.com>
 Content-Type: text/plain
-Date: Mon, 31 Aug 2009 08:38:10 -0400
-Message-Id: <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 31 Aug 2009 08:45:50 -0400
+Message-Id: <1251722750.16143.31.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2009-08-30 at 10:19 -0500, Manoj Srivastava wrote:
-> Hi,
+On Sun, 2009-08-30 at 12:03 -0700, Casey Schaufler wrote:
+> Serge E. Hallyn wrote:
+> > Quoting Casey Schaufler (casey@schaufler-ca.com):
+> >   
+> >> Serge E. Hallyn wrote:
+> >>     
+> >>> Quoting Casey Schaufler (casey@schaufler-ca.com):
+> >>>       
+> >>>> But each can be expressed as a context, can't it?
+> >>>>     
+> >>>>         
+> >>> A set of contexts (root_u:root_r:root_t:::system_u:system_r\
+> >>> :system_t::...).
+> >>>
+> >>> There would be a problem if it were stored as a more
+> >>> structured type, and if the ->restore handler wanted to
+> >>> re-create an actual task_security_struct, ipc_security_struct,
+> >>> etc.  So the last paragraph in the patch intro was just trying to
+> >>> explain why the intermediate layer, storing a generic string on
+> >>> the c/r object hash, needs to be there.  The thing that is
+> >>> not possible is to place the actual void *security or a struct
+> >>> task_security_struct on the objhash.
+> >>>   
+> >>>       
+> >> Right. Now why do you need a set of contexts?
+> >>     
+> >
+> > Because for SELinux, for instance, when checkpointing a security
+> > context for a task, we want to checkpoint the actual context,
+> > the fscreate context, the sockcreate context, keycreate context,
+> > and the task create (exec_create) context.
+> >   
 > 
->         This bug was discovered, and the analysis done, buy Max
->  Kellermann. I have never been able to replicate the problem, so I can't
->  help debug this error.
-> 
->  Strace:
-> --8<---------------cut here---------------start------------->8---
-> brk(0x3233000)                          = 0x3233000
-> mmap(NULL, 18446744073703178240, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> mmap(NULL, 18446744073703313408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0x7fdfda316000
-> --8<---------------cut here---------------end--------------->8---
-> 
-> > 0xffffffffff9ec000 == 18446744073703178240 (the size of the first
-> > large allocation).  It's also equal to -6373376.  This just looks like
-> > an integer underflow, doesn't it?
-> 
-> --8<---------------cut here---------------start------------->8---
->  Breakpoint 4, 0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
->  (gdb) p $rsi
->  $25 = -6373376
->  (gdb) bt
->  #0  0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
->  #1  0x00007f9bc4baf6bb in _int_malloc () from /lib/libc.so.6
->  #2  0x00007f9bc4bb0a78 in malloc () from /lib/libc.so.6
->  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
->  #4  0x00007f9bc4ea7838 in ?? () from /lib/libsemanage.so.1
-> 
->  (gdb) frame 3
->  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
->  533     module.c: No such file or directory.
->          in module.c
->  (gdb) p len
->  $26 = 18446744073703176358
->  (gdb) p i
->  $27 = 3
->  (gdb) p nsec
->  $30 = 4
->  (gdb) p offsets[i+1] 
->  $28 = 8192
->  (gdb) p offsets[i]
->  $29 = 6383450
-> --8<---------------cut here---------------end--------------->8---
-> 
-> > line 456:
-> > len = offsets[i + 1] - offsets[i];
-> 
-> > Voila, integer underflow.  The function module_package_read_offsets()
-> > reads the offsets from the input file, but does not verify them.
-> >         off[nsec] = policy_file_length(file);
-> > Here, the check is missing.
-> 
->         We should probably have:
-> --8<---------------cut here---------------start------------->8---
-> 	off[nsec] = policy_file_length(file);
->         if (off[nsec] < off[nsec-1]) {
-> 		ERR(file->handle, "file size smaller than previous offset (at %u, "
-> 		    "offset %zu -> %zu", nsec, off[nsec - 1],
-> 		    off[nsec]);
-> 		return -1;
-> 	}
-> --8<---------------cut here---------------end--------------->8---
+> My. That is quite a lot of contexts to keep track of.
 
-Perhaps I am missing something, but module_package_read_offsets()
-already checks that the offsets are increasing and aborts if not.
+Doesn't Smack also have at least one case where it supports multiple
+distinct contexts for different purposes on a single object (e.g.
+sockets)?
 
-> > But why is the file length 8192?  My base.pp has 6383597 bytes
-> > (compressed), not 8192.  Let's break in policy_file_length():
-> 
-> --8<---------------cut here---------------start------------->8---
->  (gdb) p prev_offset 
->  $4 = 28
->  (gdb) p end_offset 
->  $5 = 8192
->  (gdb) p fp->fp
->  $6 = (FILE *) 0x1c42350
->  $7 = -1
-> --8<---------------cut here---------------end--------------->8---
-> 
-> > But why is the file descriptor negative?  sepol_module_package_read()
-> > is called by semanage_load_module(), which bunzips the file, closes
-> > it, reopens it with fmemopen().
-> 
->         I don't understand this part. Upon successful completion
->  fmemopen() returns a FILE pointer.  Otherwise, NULL is returned, and
->  that is checked for in In semanage_store.c:
-> --8<---------------cut here---------------start------------->8---
-> 	ssize_t size;
-> 	char *data = NULL;
-> 
-> 	if ((size = bunzip(sh, fp, &data)) > 0) {
-> 		fclose(fp);
-> 		fp = fmemopen(data, size, "rb");
-> 		if (!fp) {
-> 			ERR(sh, "Out of memory!");
-> 			goto cleanup;
-> 		}
-> 	}
-> --8<---------------cut here---------------end--------------->8---
-> 
->          According to the man page, ever since glibc 2.9, the letter 'b'
->  may be specified as the second character in mode.  This provides
->  "binary" mode: writes don't implicitly add a terminating null byte, and
->  fseek(3) SEEK_END is relative to the end of the buffer (i.e., the value
->  specified by the size argument), rather than the current string length.
-> 
->         Anyway, I think that adding a defensive check when we set
->  off[nsec] seems to be in order, and would not harm anything; and would
->  have prevented the huge memory allocation issue, and perhaps given a
->  better error message.
-> 
->         manoj
-> 
 -- 
 Stephen Smalley
 National Security Agency
