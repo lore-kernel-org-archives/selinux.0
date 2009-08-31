@@ -1,86 +1,120 @@
-Message-ID: <4A9BCE45.7060704@martinorr.name>
-Date: Mon, 31 Aug 2009 14:21:09 +0100
-From: Martin Orr <martin@martinorr.name>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7VDN3kF008276
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 09:23:03 -0400
+Received: from e32.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7VDOIhX017810
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 13:24:18 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e32.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n7VDILkV001482
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:18:21 -0600
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n7VDMw43174730
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:23:00 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n7VDMu4p029279
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 07:22:57 -0600
+Date: Mon, 31 Aug 2009 08:22:58 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@namei.org>,
+        David Howells <dhowells@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 2/5] cr: checkpoint the active LSM and add
+	RESTART_KEEP_LSM flag
+Message-ID: <20090831132258.GB4837@us.ibm.com>
+References: <20090828210041.GA27878@us.ibm.com> <20090828210208.GA28048@us.ibm.com> <4A98B1D7.9050108@schaufler-ca.com> <20090829225923.GB12549@hallyn.com> <4A99C1B6.6080504@schaufler-ca.com> <20090830134809.GA14699@hallyn.com> <4A9ACBD4.4020804@schaufler-ca.com> <20090830202412.GA16222@hallyn.com> <4A9AF28D.2030803@schaufler-ca.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Manoj Srivastava <srivasta@golden-gryphon.com>, selinux@tycho.nsa.gov,
-        544215-forwarded@bugs.debian.org
-Subject: Re: restorecon and symbolic links
-References: <4A996106.4060604@martinorr.name>	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com> <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4A9AF28D.2030803@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 31/08/09 13:17, Stephen Smalley wrote:
-> On Sat, 2009-08-29 at 18:19 -0500, Manoj Srivastava wrote:
->> On Sat, Aug 29 2009, Martin Orr wrote:
->>
->>> With policycoreutils 2.0.71, "restorecon /dev/stdin" fails if stdin is a pipe:
->>> martin@caligula:~$ echo hi | sudo restorecon /dev/stdin
->>> realpath(/dev/stdin) failed No such file or directory
->>>
->>> Why would you want to do this?
->>> The Debian udev init script does
->>> ln -s /proc/self/fd/0 /dev/stdin
->>> restorecon /dev/stdin
->>> I am not sure why stdin is a pipe here but it is some consequence of the
->>> boot process.
->>>
->>> The intention here (and what happened with policycoreutils 2.0.69) is to
->>> relabel the symbolic link.  But the recent realpath patch changed this, and
->>> I don't think there is a way now to ask restorecon to relabel an individual
->>> symlink.
->>         There are consequences to this change not mentioned above: when
->>  booting with policycoreutils 2.0.71 /dev/pts (and several other device
->>  nodes) are not created which causes all sorts of trouble.
->>
->>  This is a consequence of the realpath changes in restorecon, because
->>  when /lib/udev/create_static_nodes does
->>          ln -s /proc/self/fd/0 /dev/stdin
->>          restorecon /dev/stdin
->>  it now fails with the error
->>          realpath(/dev/stdin) failed No such file or directory
->>  This causes create_static_nodes to exit (due to set -e) before creating
->>  /dev/pts.
->>
->>         I am planning on reverting the removal of special treatment of
->>  symlinks from the debian  unstable version until this is resolved.
-> 
-> The particular commit was:
-> 
-> commit 37c5c30998b73d9c6efe53fd0534256463991c5e
-> Author: Stephen Smalley <sds@tycho.nsa.gov>
-> Date:   Mon Aug 3 09:34:52 2009 -0400
-> 
->     setfiles: only call realpath() on user-supplied pathnames
->     
->     Change setfiles/restorecon to only call realpath() on the user-supplied
->     pathnames prior to invoking fts_open().  This ensures that commands such
->     as restorecon -R /etc/init.d and (cd /etc && restorecon shadow gshadow)
->     will work as expected while avoiding the overhead of calling realpath()
->     on each file during a file tree walk.
->     
->     Since we are now only acting on user-supplied pathnames, drop the
->     special case handling of symlinks (when a user invokes restorecon
->     -R /etc/init.d he truly wants it to descend /etc/rc.d/init.d).  We can
->     also defer allocation of the pathname buffer to libc by passing NULL
->     (freeing on the out path) and we can drop the redundant exclude() check
->     as it will now get handled on the normal path.
->     
->     Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> What behavior would you like instead?  I'd still like to have restorecon
-> -R /etc/init.d to do what the user expects, which isn't just relabel the
-> symlink.
+Quoting Casey Schaufler (casey@schaufler-ca.com):
+> Serge E. Hallyn wrote:
+> > Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > So do you think that adding a policy version check in the kernel
+> > at restart would help this?
 
-True, but I would expect restorecon -R /etc/init.d to relabel the symlink as
-well as descend into the directory.  On the whole I would expect it not to
-relabel the target of the symlink itself but I don't have a strong opinion
-on that, as long as it doesn't fail if the symlink is broken.
+For the moment I intend to add a patch on top of these adding two
+security calls:
 
--- 
-Martin Orr
+	security_may_checkpoint(ctx) which will authorize the
+		ability to checkpoint at all, and
+	security_write_checkpoint_hdr(ctx) will for now do nothing
+		in any lsm, but will reserve a spot in the checkpoint
+		header for an lsm-defined blob to write some policy
+		info if it wants (i.e. a sha1sum of the policy).
+		This way if it is decided that selinux or smack wants
+		to do that, we won't need a change of the policy
+		format.
+
+> > Do you think providing a recipe for userspace to do the policy
+> > checks would help?
+> 
+> If you are willing to trust the user space tools to get it right.
+> It gets things really complicated building trust relationships when
+> you have multiple policies to deal with. Look at the issues that
+> labeled NFS is trying to deal with. How would the user space program
+> know what the policy may have been when the process last ran?
+
+It could query the lsm somehow (cat /smack/load | sha1sum?) and
+store the result in a file sitting next to the checkpoint image.
+
+Or, if we implement security_write_checkpoint_hdr() above, then
+it could simply read the info out of the checkpoint file itself.
+
+As for trusting user space tools to get it right, as it is
+user space tools are required to get file labeling and policy
+loads right.  So if we have the above two hooks, then selinux
+could forbid any domain but restore_t from doing a sys_restart()
+where the only program allowed to enter into restore_t does a
+check for valid policy.  And/or, it could check at security_may_checkpoint()
+to make sure that the context file is of type checkpoint_file_t,
+where only an admin-approved /bin/checkpoint of type checkpoint_t
+is allowed to create or write to files of type checkpoint_file_t.
+
+> >   Along with a security_may_restart() hook
+> > so that LSM policy can force restart to go through a helper
+> > that does these checks, if it wants to enforce that?
+> >   
+> 
+> 
+> I really don't know. As you're well aware, I've never bought
+> into the sophistication of the SELinux policy mechanism. One
+> of my major concerns has always been that the policy on two
+> machines may be different. With CR you have a case where the
+> policy on the same machine can be different over the life of
+> a process.
+
+Right, or you can just consider it migrating to a different
+machine, where the different machine could be the same machine
+after a lot of system and policy updates.
+
+> I am much less concerned with Smack because all the protection
+> it provides are subject/object relationships and those are
+> pretty straight forward. Even there, if the old rule set allowed
+> the process to read from a label the new rule set doesn't allow
+> you could get burned.
+> 
+> In the end, I don't suppose that anything stronger than "requires
+> privilege" is going to result in a system that's useful. So maybe
+> your best bet is security_may_restart(), and let the LSM decide.
+> Smack will most likely require CAP_MAC_ADMIN where as SELinux will
+> do a check based on the half-dozen contexts mentioned elsewhere.
+> I still don't think it is safe, but upon further reflection I'm
+> convinced that from a security standpoint it can never be safe to
+> do a restore. So we're debating one case, and a fringe one at that.
+> 
+> Let 'er rip.
+
+:)
+
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
