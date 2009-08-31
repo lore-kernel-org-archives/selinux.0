@@ -1,154 +1,136 @@
-Subject: Re: [libsepol] Unchecked input leades to integer underflow
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Manoj Srivastava <srivasta@golden-gryphon.com>
-Cc: selinux@tycho.nsa.gov, 543915-forwarded@bugs.debian.org,
-        Max Kellermann <max@duempel.org>, Chad Sellers <csellers@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <87r5ushyu7.fsf@anzu.internal.golden-gryphon.com>
-References: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
-	 <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
-	 <87r5ushyu7.fsf@anzu.internal.golden-gryphon.com>
-Content-Type: text/plain
-Date: Mon, 31 Aug 2009 16:37:40 -0400
-Message-Id: <1251751060.27334.10.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n7VKp8kK011048
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 16:51:08 -0400
+Received: from mail-iw0-f203.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n7VKqM0Z005761
+	for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 20:52:23 GMT
+Received: by iwn41 with SMTP id 41so1868306iwn.32
+        for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2009 13:51:07 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <4A9BD7F3.8090709@redhat.com>
+References: <1250792957-20920-1-git-send-email-csellers@tresys.com>
+	 <f71a82820908310522o779d0caaq2798a99e5f5543e5@mail.gmail.com>
+	 <4A9BC252.7020803@redhat.com>
+	 <f71a82820908310602u35fdedb3n88de450de4894b02@mail.gmail.com>
+	 <4A9BD7F3.8090709@redhat.com>
+Date: Tue, 1 Sep 2009 05:51:07 +0900
+Message-ID: <f71a82820908311351v3e833393o17082697cfcdd5f0@mail.gmail.com>
+Subject: Re: [PATCH] Fix semanage_direct_commit() to notice disable_dontaudit
+From: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>, method@manicmethod.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-08-31 at 08:55 -0500, Manoj Srivastava wrote:
-> On Mon, Aug 31 2009, Stephen Smalley wrote:
-> 
-> > On Sun, 2009-08-30 at 10:19 -0500, Manoj Srivastava wrote:
-> >> Hi,
-> >> 
-> >>         This bug was discovered, and the analysis done, buy Max
-> >>  Kellermann. I have never been able to replicate the problem, so I can't
-> >>  help debug this error.
-> >> 
-> >>  Strace:
-> >> --8<---------------cut here---------------start------------->8---
-> >> brk(0x3233000)                          = 0x3233000
-> >> mmap(NULL, 18446744073703178240, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> >> mmap(NULL, 18446744073703313408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
-> >> mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0x7fdfda316000
-> >> --8<---------------cut here---------------end--------------->8---
-> >> 
-> >> > 0xffffffffff9ec000 == 18446744073703178240 (the size of the first
-> >> > large allocation).  It's also equal to -6373376.  This just looks like
-> >> > an integer underflow, doesn't it?
-> >> 
-> >> --8<---------------cut here---------------start------------->8---
-> >>  Breakpoint 4, 0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
-> >>  (gdb) p $rsi
-> >>  $25 = -6373376
-> >>  (gdb) bt
-> >>  #0  0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
-> >>  #1  0x00007f9bc4baf6bb in _int_malloc () from /lib/libc.so.6
-> >>  #2  0x00007f9bc4bb0a78 in malloc () from /lib/libc.so.6
-> >>  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
-> >>  #4  0x00007f9bc4ea7838 in ?? () from /lib/libsemanage.so.1
-> >> 
-> >>  (gdb) frame 3
-> >>  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
-> >>  533     module.c: No such file or directory.
-> >>          in module.c
-> >>  (gdb) p len
-> >>  $26 = 18446744073703176358
-> >>  (gdb) p i
-> >>  $27 = 3
-> >>  (gdb) p nsec
-> >>  $30 = 4
-> >>  (gdb) p offsets[i+1] 
-> >>  $28 = 8192
-> >>  (gdb) p offsets[i]
-> >>  $29 = 6383450
-> >> --8<---------------cut here---------------end--------------->8---
-> >> 
-> >> > line 456:
-> >> > len = offsets[i + 1] - offsets[i];
-> >> 
-> >> > Voila, integer underflow.  The function module_package_read_offsets()
-> >> > reads the offsets from the input file, but does not verify them.
-> >> >         off[nsec] = policy_file_length(file);
-> >> > Here, the check is missing.
-> >> 
-> >>         We should probably have:
-> >> --8<---------------cut here---------------start------------->8---
-> >> 	off[nsec] = policy_file_length(file);
-> >>         if (off[nsec] < off[nsec-1]) {
-> >> 		ERR(file->handle, "file size smaller than previous offset (at %u, "
-> >> 		    "offset %zu -> %zu", nsec, off[nsec - 1],
-> >> 		    off[nsec]);
-> >> 		return -1;
-> >> 	}
-> >> --8<---------------cut here---------------end--------------->8---
-> >
-> > Perhaps I am missing something, but module_package_read_offsets()
-> > already checks that the offsets are increasing and aborts if not.
-> 
->         Well, almost. It does check for most of the offsets:
-> --8<---------------cut here---------------start------------->8---
-> 
-> 406	for (i = 0; i < nsec; i++) {
-> 407		off[i] = le32_to_cpu(buf[i]);
-> 408		if (i && off[i] < off[i - 1]) {
-> 409			ERR(file->handle, "offsets are not increasing (at %u, "
-> 410			    "offset %zu -> %zu", i, off[i - 1],
-> 411			    off[i]);
-> 412			return -1;
-> 413		}
-> 414	}
-> --8<---------------cut here---------------end--------------->8---
->         So far, so good.
-> --8<---------------cut here---------------start------------->8---
-> 415
-> 416	free(buf); 	
-> 417	off[nsec] = policy_file_length(file);
-> 418	*offsets = off;
-> 419	return 0;
-> --8<---------------cut here---------------end--------------->8---
-> 
->         The problem is line 417, where there is no check; and in the
->  case reported, the file length was less than the previous offset, and
->  this resulted in a negative number passed to the memory allocator,
->  which resulted in a huge allocation request.
-> 
->         Above, I just propose adding a check after line 417.
+I understand.
 
-Check the last offset against the file size, and ensure that we free the
-buffer and offset array in the error cases.
+Good work.
 
-diff --git a/libsepol/src/module.c b/libsepol/src/module.c
-index 3337808..bd3e215 100644
---- a/libsepol/src/module.c
-+++ b/libsepol/src/module.c
-@@ -409,13 +409,19 @@ static int module_package_read_offsets(sepol_module_package_t * mod,
- 			ERR(file->handle, "offsets are not increasing (at %u, "
- 			    "offset %zu -> %zu", i, off[i - 1],
- 			    off[i]);
--			return -1;
-+			goto err;
- 		}
- 	}
- 
--	free(buf); 	
- 	off[nsec] = policy_file_length(file);
-+	if (nsec && off[nsec] < off[nsec-1]) {
-+		ERR(file->handle, "offset greater than file size (at %u, "
-+		    "offset %zu -> %zu", nsec, off[nsec - 1],
-+		    off[nsec]);
-+		goto err;
-+	}
- 	*offsets = off;
-+	free(buf); 	
- 	return 0;
- 
- err:
+Thanks.
+
+2009/8/31 Daniel J Walsh <dwalsh@redhat.com>:
+> On 08/31/2009 09:02 AM, Shintaro Fujiwara wrote:
+>> Well, in F11 I typed,
+>>
+>> seinfo --permissive but got an error...
+>>
+>> I basically understand that I should take care of permissive module, though.
+>>
+>>
+> Yes this is in Rawhide/F12
+>
+>>
+>> 2009/8/31 Daniel J Walsh <dwalsh@redhat.com>:
+>>> On 08/31/2009 08:22 AM, Shintaro Fujiwara wrote:
+>>>> Thanks digging in topic that I pinted some time ago.
+>>>>
+>>>> Why don't you fix semodule to notice which module has permissive.
+>>>>
+>>>> I notice administrators in my program, i.e. segatex, when listing
+>>>> modules, list permissive modules.
+>>>>
+>>>> We tend to forget after we set some module permissive and it's quite
+>>>> convenient to set permissive when we get certain denied messages, but
+>>>> it's sad when we forgot we set certain module permissive.
+>>>>
+>>>> So, I think it's better to let administrators know which module has
+>>>> permissive module now when he typed "semodule -l ".
+>>>>
+>>>> Can anybody fix semodule to echo permissive module at the top and
+>>>> still echo list ?
+>>>>
+>>>>
+>>>> 2009/8/21 Chad Sellers <csellers@tresys.com>:
+>>>>> Add code to semanage_direct_commit() to notice that the disable_dontaudit
+>>>>> flag has been changed and rebuild the policy if so.
+>>>>>
+>>>>> Currently, libsemanage doesn't notice that the disable_dontaudit flag is
+>>>>> set so it does not rebuild the policy. semodule got around this by calling
+>>>>> semanage_set_rebuild() explicitly, but libsemanage should really notice
+>>>>> that this has changed and rebuild appropriately.
+>>>>> ---
+>>>>>  libsemanage/src/direct_api.c |    7 ++++++-
+>>>>>  1 files changed, 6 insertions(+), 1 deletions(-)
+>>>>>
+>>>>> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+>>>>> index d563841..0eab399 100644
+>>>>> --- a/libsemanage/src/direct_api.c
+>>>>> +++ b/libsemanage/src/direct_api.c
+>>>>> @@ -675,7 +675,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>>>>
+>>>>>        /* Declare some variables */
+>>>>>        int modified = 0, fcontexts_modified, ports_modified,
+>>>>> -           seusers_modified, users_extra_modified;
+>>>>> +           seusers_modified, users_extra_modified, dontaudit_modified;
+>>>>>        dbase_config_t *users = semanage_user_dbase_local(sh);
+>>>>>        dbase_config_t *users_base = semanage_user_base_dbase_local(sh);
+>>>>>        dbase_config_t *pusers_base = semanage_user_base_dbase_policy(sh);
+>>>>> @@ -694,6 +694,10 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>>>>
+>>>>>        /* Create or remove the disable_dontaudit flag file. */
+>>>>>        path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
+>>>>> +       if (access(path, F_OK) == 0)
+>>>>> +               dontaudit_modified = !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
+>>>>> +       else
+>>>>> +               dontaudit_modified = (sepol_get_disable_dontaudit(sh->sepolh) == 1);
+>>>>>        if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
+>>>>>                FILE *touch;
+>>>>>                touch = fopen(path, "w");
+>>>>> @@ -734,6 +738,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>>>>        modified |= bools->dtable->is_modified(bools->dbase);
+>>>>>        modified |= ifaces->dtable->is_modified(ifaces->dbase);
+>>>>>        modified |= nodes->dtable->is_modified(nodes->dbase);
+>>>>> +       modified |= dontaudit_modified;
+>>>>>
+>>>>>        /* If there were policy changes, or explicitly requested, rebuild the policy */
+>>>>>        if (sh->do_rebuild || modified) {
+>>>>> --
+>>>>> 1.6.2.5
+>>>>>
+>>>>>
+>>>>> --
+>>>>> This message was distributed to subscribers of the selinux mailing list.
+>>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>>>>> the words "unsubscribe selinux" without quotes as the message.
+>>>>>
+>>>>
+>>>>
+>>>>
+>>> seinfo --permissive
+>>>
+>>> Will do this.
+>>>
+>>
+>>
+>>
+>
+>
+
 
 
 -- 
-Stephen Smalley
-National Security Agency
+http://intrajp.no-ip.com/ Home Page
 
 
 --
