@@ -1,90 +1,95 @@
-Message-ID: <4A9BCEFF.8080600@martinorr.name>
-Date: Mon, 31 Aug 2009 14:24:15 +0100
-From: Martin Orr <martin@martinorr.name>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Manoj Srivastava <srivasta@golden-gryphon.com>, selinux@tycho.nsa.gov,
-        544215-forwarded@bugs.debian.org
-Subject: Re: restorecon and symbolic links
-References: <4A996106.4060604@martinorr.name>	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil> <1251721236.16143.18.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1251721236.16143.18.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [libsepol] Unchecked input leades to integer underflow
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Manoj Srivastava <srivasta@golden-gryphon.com>
+Cc: selinux@tycho.nsa.gov, 543915-forwarded@bugs.debian.org,
+        Max Kellermann <max@duempel.org>
+In-Reply-To: <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
+References: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
+	 <1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 31 Aug 2009 09:56:38 -0400
+Message-Id: <1251726998.16143.95.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 31/08/09 13:20, Stephen Smalley wrote:
-> On Mon, 2009-08-31 at 08:17 -0400, Stephen Smalley wrote:
->> On Sat, 2009-08-29 at 18:19 -0500, Manoj Srivastava wrote:
->>> On Sat, Aug 29 2009, Martin Orr wrote:
->>>
->>>> With policycoreutils 2.0.71, "restorecon /dev/stdin" fails if stdin is a pipe:
->>>> martin@caligula:~$ echo hi | sudo restorecon /dev/stdin
->>>> realpath(/dev/stdin) failed No such file or directory
->>>>
->>>> Why would you want to do this?
->>>> The Debian udev init script does
->>>> ln -s /proc/self/fd/0 /dev/stdin
->>>> restorecon /dev/stdin
->>>> I am not sure why stdin is a pipe here but it is some consequence of the
->>>> boot process.
->>>>
->>>> The intention here (and what happened with policycoreutils 2.0.69) is to
->>>> relabel the symbolic link.  But the recent realpath patch changed this, and
->>>> I don't think there is a way now to ask restorecon to relabel an individual
->>>> symlink.
->>>         There are consequences to this change not mentioned above: when
->>>  booting with policycoreutils 2.0.71 /dev/pts (and several other device
->>>  nodes) are not created which causes all sorts of trouble.
->>>
->>>  This is a consequence of the realpath changes in restorecon, because
->>>  when /lib/udev/create_static_nodes does
->>>          ln -s /proc/self/fd/0 /dev/stdin
->>>          restorecon /dev/stdin
->>>  it now fails with the error
->>>          realpath(/dev/stdin) failed No such file or directory
->>>  This causes create_static_nodes to exit (due to set -e) before creating
->>>  /dev/pts.
->>>
->>>         I am planning on reverting the removal of special treatment of
->>>  symlinks from the debian  unstable version until this is resolved.
->> The particular commit was:
->>
->> commit 37c5c30998b73d9c6efe53fd0534256463991c5e
->> Author: Stephen Smalley <sds@tycho.nsa.gov>
->> Date:   Mon Aug 3 09:34:52 2009 -0400
->>
->>     setfiles: only call realpath() on user-supplied pathnames
->>     
->>     Change setfiles/restorecon to only call realpath() on the user-supplied
->>     pathnames prior to invoking fts_open().  This ensures that commands such
->>     as restorecon -R /etc/init.d and (cd /etc && restorecon shadow gshadow)
->>     will work as expected while avoiding the overhead of calling realpath()
->>     on each file during a file tree walk.
->>     
->>     Since we are now only acting on user-supplied pathnames, drop the
->>     special case handling of symlinks (when a user invokes restorecon
->>     -R /etc/init.d he truly wants it to descend /etc/rc.d/init.d).  We can
->>     also defer allocation of the pathname buffer to libc by passing NULL
->>     (freeing on the out path) and we can drop the redundant exclude() check
->>     as it will now get handled on the normal path.
->>     
->>     Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>
->> What behavior would you like instead?  I'd still like to have restorecon
->> -R /etc/init.d to do what the user expects, which isn't just relabel the
->> symlink.
+On Mon, 2009-08-31 at 08:38 -0400, Stephen Smalley wrote:
+> On Sun, 2009-08-30 at 10:19 -0500, Manoj Srivastava wrote:
+> > Hi,
+> > 
+> >         This bug was discovered, and the analysis done, buy Max
+> >  Kellermann. I have never been able to replicate the problem, so I can't
+> >  help debug this error.
+> > 
+> >  Strace:
+> > --8<---------------cut here---------------start------------->8---
+> > brk(0x3233000)                          = 0x3233000
+> > mmap(NULL, 18446744073703178240, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
+> > mmap(NULL, 18446744073703313408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = -1 ENOMEM (Cannot allocate memory)
+> > mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0x7fdfda316000
+> > --8<---------------cut here---------------end--------------->8---
+> > 
+> > > 0xffffffffff9ec000 == 18446744073703178240 (the size of the first
+> > > large allocation).  It's also equal to -6373376.  This just looks like
+> > > an integer underflow, doesn't it?
+> > 
+> > --8<---------------cut here---------------start------------->8---
+> >  Breakpoint 4, 0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
+> >  (gdb) p $rsi
+> >  $25 = -6373376
+> >  (gdb) bt
+> >  #0  0x00007f9bc4c05400 in mmap64 () from /lib/libc.so.6
+> >  #1  0x00007f9bc4baf6bb in _int_malloc () from /lib/libc.so.6
+> >  #2  0x00007f9bc4bb0a78 in malloc () from /lib/libc.so.6
+> >  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
+> >  #4  0x00007f9bc4ea7838 in ?? () from /lib/libsemanage.so.1
+> > 
+> >  (gdb) frame 3
+> >  #3  0x00007f9bc5301a8e in sepol_module_package_read (mod=0xb1d170, spf=0xb202e0, verbose=0) at module.c:533
+> >  533     module.c: No such file or directory.
+> >          in module.c
+> >  (gdb) p len
+> >  $26 = 18446744073703176358
+> >  (gdb) p i
+> >  $27 = 3
+> >  (gdb) p nsec
+> >  $30 = 4
+> >  (gdb) p offsets[i+1] 
+> >  $28 = 8192
+> >  (gdb) p offsets[i]
+> >  $29 = 6383450
+> > --8<---------------cut here---------------end--------------->8---
+> > 
+> > > line 456:
+> > > len = offsets[i + 1] - offsets[i];
+> > 
+> > > Voila, integer underflow.  The function module_package_read_offsets()
+> > > reads the offsets from the input file, but does not verify them.
+> > >         off[nsec] = policy_file_length(file);
+> > > Here, the check is missing.
+> > 
+> >         We should probably have:
+> > --8<---------------cut here---------------start------------->8---
+> > 	off[nsec] = policy_file_length(file);
+> >         if (off[nsec] < off[nsec-1]) {
+> > 		ERR(file->handle, "file size smaller than previous offset (at %u, "
+> > 		    "offset %zu -> %zu", nsec, off[nsec - 1],
+> > 		    off[nsec]);
+> > 		return -1;
+> > 	}
+> > --8<---------------cut here---------------end--------------->8---
 > 
-> Also, I'm a little unclear as to why we need the restorecon /dev/stdin
-> above.  Why isn't /dev/stdin created in the right type to begin with?
+> Perhaps I am missing something, but module_package_read_offsets()
+> already checks that the offsets are increasing and aborts if not.
 
-The same script creates various links, directories and device nodes which
-need to be created before udev starts.  Some of these do need to be
-relabelled, and it would increase complexity to relabel some but not others.
- Just doing restorecon -R /dev at the end of the script might be an
-alternative however.
+Never mind, I see the problem.  So we can fix that, but obviously
+something went badly wrong earlier in the processing to have yielded
+this state.
 
 -- 
-Martin Orr
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
