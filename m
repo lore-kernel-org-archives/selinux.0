@@ -1,86 +1,76 @@
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n82Gaee8014230
+	for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2009 12:36:40 -0400
+Received: from smtp103.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n82Ga3hM022669
+	for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2009 16:36:03 GMT
+Message-ID: <4A9E9F14.2010103@schaufler-ca.com>
+Date: Wed, 02 Sep 2009 09:36:36 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH] libselinux: disable refcounting in the userspace AVC
-Date: Wed, 2 Sep 2009 12:35:53 -0400
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E01459A64@exchange2.columbia.tresys.com>
-In-Reply-To: <1251899679.2785.101.camel@moss-pluto.epoch.ncsc.mil>
-References: <4A9DE7FE.9000008@tycho.nsa.gov> <1251892824.2785.83.camel@moss-pluto.epoch.ncsc.mil> <06A6610D4F464D4EBEAFBF2C5F86911E014599D7@exchange2.columbia.tresys.com> <1251899679.2785.101.camel@moss-pluto.epoch.ncsc.mil>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
-        "SELinux List" <selinux@tycho.nsa.gov>,
-        "KaiGai Kohei" <kaigai@kaigai.gr.jp>
+To: russell@coker.com.au
+CC: "Serge E. Hallyn" <serge@hallyn.com>, Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        David Howells <dhowells@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 2/5] cr: checkpoint the active LSM and add RESTART_KEEP_LSM
+ flag
+References: <20090828210041.GA27878@us.ibm.com> <20090830134809.GA14699@hallyn.com> <4A9ACBD4.4020804@schaufler-ca.com> <200909012229.48973.russell@coker.com.au>
+In-Reply-To: <200909012229.48973.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> 
-> On Wed, 2009-09-02 at 09:35 -0400, Joshua Brindle wrote:
-> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > >
-> > > On Tue, 2009-09-01 at 23:35 -0400, Eamon Walsh wrote:
-> > > > The userspace AVC currently has refcounted SID's.  This patch
-> strips
-> > > out
-> > > > the refcounting under the following justifications:
-> > > >
-> > > > 1.  Managing the refcounts by calling sidput() and sidget() as
-> > > > appropriate is a difficult and bug-prone task for users of the
-> > > library.
-> > > >
-> > > > 2.  The userspace AVC doesn't currently make use of the
-refcounts
-> to
-> > > > reclaim unused SID's unless avc_cleanup() is explicitly called.
-> > > >
-> > > > 3.  The kernel itself no longer uses refcounting for it's own
-> SID's.
-> > >
-> > > Just to clarify on this point:  Early on we had discussed
-> introducing
-> > > refcounting of kernel SIDs to enable reclaiming unused ones, but
-> this
-> > > became less important once the user/kernel interface was converted
-> > from
-> > > passing SIDs to passing security contexts.  In that case we were
-> > > dealing
-> > > with a global (wrt a system) resource and kernel memory, whereas
-in
-> > the
-> > > userspace AVC we are only dealing with a per-object-manager SID
-> table
-> > > and the application's virtual memory.
-> > >
-> >
-> > So is the purpose of the patch just to remove unnecessary
-> complication
-> > in the userspace sidtab? Will this affect multithreaded applications
-> > that share a sidtab?
-> 
-> Unnecessary complication for the userspace object managers - they no
-> longer have to keep SID refcounts accurate via sidget() and sidput()
-> calls when storing SIDs in their data structures.
-> 
-> No affect on multithreaded apps; they will still work (locking is
-> unaffected).
-> 
-> > IIRC sepostgres reimplemented its sidtab and avc because our current
-> one
-> > wasn't very friendly to multithread/multiprocess object managers.
-> 
-> Looking back, I think KaiGai's reasons were:
-> - he didn't see benefit to the indirection of the AVC SID table since
-> PostgreSQL has to directly manage security contexts for persistent
-> labeling,
-> - he wanted to enable sharing of the AVC (via shared memory) and the
-> netlink thread among all PostgreSQL instances (processes, not just
-> threads).
-> 
-> So I don't think this makes any difference there.
-> 
+Russell Coker wrote:
+> On Mon, 31 Aug 2009, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>   
+>> I seem to be having some trouble presenting my point. It's not about
+>> the passwords. It's not about the firewall configuration. It's not
+>> even really about the SELinux policy. It's about the total security
+>> configuration of the system. This is a problem with checkpoint/restart
+>> in general and there isn't much we can do about reassigning user id
+>> and other bad things that can happen.
+>>
+>> If the admin decides that an action is acceptable because the SELinux
+>> policy prevents some other action it had better be the case that a
+>> process was never allowed to perform that "other action". If you allow
+>> restart across policy changes you can't be sure that the process has
+>> not performed such an "other action". Processes are not stateless.
+>>     
+>
+> Of course we potentially have the same issue when changing a boolean, and when 
+> loading a new policy on a running system.  In a realistic scenario, if you 
+> make a change that allows a process context to write to a public data store 
+> while at the same time denying read access to secret data then you also need 
+> to purge the contents of any files that the process may open for read/write.
+>
+> Similar problems can also occur using Unix permissions and certain 
+> combinations of chmod with setuid/setgid bits.  Of course most potential 
+> cases of triggering this issue with Unix permissions are extremely contrived 
+> and wouldn't be a likely attack scenario.  The best example I can think of 
+> with Unix permissions is access to sound devices.  If a system is configured 
+> to add the "audio" supplementary group to a user's session when they login at 
+> the console then they can keep a detached process running to maintain access 
+> to the audio devices (and anything else permitted to that group).
+>   
 
-Ok, seems fair.
+Checkpoint/restart has traditionally been interesting in the
+mainframe and supercomputer space. These environments have very
+different security profiles from a user desktop. No one at the
+[.......] National Supercomputer Centre cares if you can save
+your rogue game as soon as you pick up the Amulet of Yendor and
+restart it if you get killed on the way up. These environments
+are concerned with leaking data between the groups that have
+funded the facility, which is why they are very often customers
+of advanced access control technologies. I don't know that I see
+a really good security story for C/R in the desktop space, and
+as Russell points out, there are plenty of opportunities to
+exploit the feature. This is of course well outside the scope of
+what goes on within an LSM, where the specific issues are more
+or less contained.
 
 
 --
