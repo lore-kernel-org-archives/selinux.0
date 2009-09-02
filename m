@@ -1,40 +1,32 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n81GBjcW019563
-	for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2009 12:11:45 -0400
-Received: from pobox.globalherald.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n81GB8P5017271
-	for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2009 16:11:08 GMT
-Received: from [192.168.2.3] (unknown [192.168.2.3])
-	by pobox.globalherald.net (Postfix) with ESMTP id 6373A1FD082
-	for <selinux@tycho.nsa.gov>; Tue,  1 Sep 2009 13:31:57 -0400 (EDT)
-Date: Tue, 1 Sep 2009 13:31:56 -0400 (EDT)
-From: josh@globalherald.net
-To: selinux@tycho.nsa.gov
-Subject: Re: CentOS / RHEL5: where is setrans.conf?
-In-Reply-To: <alpine.LFD.2.00.0909011317390.26878@home-av-server.home-av>
-Message-ID: <alpine.LFD.2.00.0909011330320.26878@home-av-server.home-av>
-References: <alpine.LFD.2.00.0909011317390.26878@home-av-server.home-av>
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [libsepol] Unchecked input leades to integer underflow
+References: <878wh1jpmi.fsf@anzu.internal.golden-gryphon.com>
+	<1251722290.16143.27.camel@moss-pluto.epoch.ncsc.mil>
+	<1251726998.16143.95.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 01 Sep 2009 19:19:26 -0500
+In-Reply-To: <1251726998.16143.95.camel@moss-pluto.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Mon, 31 Aug 2009 09:56:38 -0400")
+Message-ID: <87skf6nqpd.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
 
-> IOError: [Errno 2] No such file or directory: 
-> '/etc/selinux/clip/setrans.conf'
+        Thanks for the fix; I have uploaded the new version to
+ Debian. And yes, while the proximate cause has been detected and
+ handled, I am asking the bug reporter for additional information to
+ help identify what went wrong to cause the file pointer to be NULL.
 
-Answering myself: page 743 of the RHEL Deployment Guide provides the 
-answer here.  If the file doesn't exist, create it.  Example contents are 
-listed below.
+        I'll keep y'all posted.
 
-Thanks,
--Josh
-
-s0:c0=Marketing
-s0:c1=Finance
-s0:c2=Payroll
-s0:c3=Personnel
-
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
