@@ -1,122 +1,339 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8237CdY010842
-	for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2009 23:07:12 -0400
-Received: from mail-px0-f193.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8236ZKX022595
-	for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2009 03:06:35 GMT
-Received: by pxi31 with SMTP id 31so493996pxi.3
-        for <selinux@tycho.nsa.gov>; Tue, 01 Sep 2009 20:07:11 -0700 (PDT)
-Date: Wed, 2 Sep 2009 11:07:12 +0800
-From: "zheyeung" <zheyeung@gmail.com>
-To: "fedora-selinux-list" <fedora-selinux-list@redhat.com>
-Cc: "selinux" <selinux@tycho.nsa.gov>
-Subject: I cannot change my shell context
-Message-ID: <200909021107080933047@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="=====003_Dragon383518832085_====="
+Message-ID: <4A9DE7FE.9000008@tycho.nsa.gov>
+Date: Tue, 01 Sep 2009 23:35:26 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>
+Subject: [PATCH] libselinux: disable refcounting in the userspace AVC
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The userspace AVC currently has refcounted SID's.  This patch strips out 
+the refcounting under the following justifications:
 
-This is a multi-part message in MIME format.
+1.  Managing the refcounts by calling sidput() and sidget() as 
+appropriate is a difficult and bug-prone task for users of the library.
 
---=====003_Dragon383518832085_=====
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+2.  The userspace AVC doesn't currently make use of the refcounts to 
+reclaim unused SID's unless avc_cleanup() is explicitly called.
 
-hi , every body ,I install selinux-policy-targeted in my F11,and run in enforce mode.
-now I want to change selinux context of /tmp/test,but  failed.I thought current shell domain was unconfined_t. then I intend to change my shell context to root:sysadm_r: sysadm_t ,but also failed. 
-my project team plan to develop selinux policy for our system based on selinux-policy.src.rpm. I guess is  this package have not been developed? If it has been developed ,why I cannot change to sysadm_r: sysadm_t? 
+3.  The kernel itself no longer uses refcounting for it's own SID's.
 
-----------------------------------------------------------------------------
+The implication of this change is that SID's (basically malloc'ed copies 
+of security contexts) will persist in the AVC's SID table until the next 
+call to avc_destroy().  This presents the potential for increased memory 
+usage, but in practice I don't believe this will be an issue.  ABI 
+compatibility is preserved: the avc_cleanup(), sidput(), and sidget() 
+calls are changed to no-ops.
 
-[root@localhost ~]# ls -lZ /tmp/testselinux
-root root unconfined_u:object_r:user_t:user_tmp_t: s0 /tmp/testselinux
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
 
-[root@localhost ~]#chcon unconfined_u:object_r:mytest_t /tmp/testselinux
-chcon:failed to change context of '/tmp/testselinux' to 'unconfined_u:object_r:testselinux: s0 : permission denied
-
-## here mytest_t defined in myapp.pp,which has successfully loaded by "semodule -i myapp.pp"
-
-[root@localhost ~]# newrole -r sysadm_r -t sysadm_t
-unconfined_u:unconfined_r:unconfined_t: s0 is not valid context
-
-[root@localhost ~]# semanage login -m -s root -r s0-s0:c0.c1023 root
-
-after reboot, graphic terminal cannot run. audit says that system_u:system_r: xdm_t require "read" permission for system_u:object_r:httpd_sys_content_t.
-
-[root@localhost ~]# id
-context= root:unconfined_r:unconfined_t: s0-s0:c0-c1023
-
-[root@localhost ~]#  newrole -r sysadm_r -t sysadm_t
-failed to exec shell: permission denied
-2009-09-02 
+  avc.c          |  122 +++++++--------------------------------------------------
+  avc_internal.h |   11 -----
+  avc_sidtab.c   |   42 -------------------
+  avc_sidtab.h   |    2
+  4 files changed, 16 insertions(+), 161 deletions(-)
 
 
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index f0e2d33..1c62fa3 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -71,8 +71,6 @@ int avc_context_to_sid_raw(security_context_t ctx, security_id_t * sid)
+  	int rc;
+  	avc_get_lock(avc_lock);
+  	rc = sidtab_context_to_sid(&avc_sidtab, ctx, sid);
+-	if (!rc)
+-		(*sid)->refcnt++;
+  	avc_release_lock(avc_lock);
+  	return rc;
+  }
+@@ -97,13 +95,8 @@ int avc_sid_to_context_raw(security_id_t sid, security_context_t * ctx)
+  	int rc;
+  	*ctx = NULL;
+  	avc_get_lock(avc_lock);
+-	if (sid->refcnt>  0) {
+-		*ctx = strdup(sid->ctx);	/* caller must free via freecon */
+-		rc = *ctx ? 0 : -1;
+-	} else {
+-		errno = EINVAL;	/* bad reference count */
+-		rc = -1;
+-	}
++	*ctx = strdup(sid->ctx);	/* caller must free via freecon */
++	rc = *ctx ? 0 : -1;
+  	avc_release_lock(avc_lock);
+  	return rc;
+  }
+@@ -123,24 +116,14 @@ int avc_sid_to_context(security_id_t sid, security_context_t * ctx)
+  	return ret;
+  }
 
-zheyeung 
+-int sidget(security_id_t sid)
++int sidget(security_id_t sid __attribute__((unused)))
+  {
+-	int rc;
+-	avc_get_lock(avc_lock);
+-	rc = sid_inc_refcnt(sid);
+-	avc_release_lock(avc_lock);
+-	return rc;
++	return 1;
+  }
 
---=====003_Dragon383518832085_=====
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+-int sidput(security_id_t sid)
++int sidput(security_id_t sid __attribute__((unused)))
+  {
+-	int rc;
+-	if (!sid)
+-	    return 0;
+-	avc_get_lock(avc_lock);
+-	rc = sid_dec_refcnt(sid);
+-	avc_release_lock(avc_lock);
+-	return rc;
++	return 1;
+  }
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=Content-Type content="text/html; charset=us-ascii">
-<META content="MSHTML 6.00.6000.16809" name=GENERATOR><LINK 
-href="BLOCKQUOTE{margin-Top: 0px; margin-Bottom: 0px; margin-Left: 2em}" 
-rel=stylesheet></HEAD>
-<BODY style="FONT-SIZE: 10pt; MARGIN: 10px; FONT-FAMILY: verdana">
-<DIV><FONT face=Verdana size=2>hi , every body ,I install 
-selinux-policy-targeted in my F11,and run in enforce mode.</FONT></DIV>
-<DIV>now I want to change selinux context of /tmp/test,but&nbsp; failed.I 
-thought current shell domain was unconfined_t. then I intend to change my shell 
-context to root:sysadm_r: sysadm_t&nbsp;,but also failed.&nbsp;</DIV>
-<DIV>my project team plan to develop selinux policy for our system based on 
-selinux-policy.src.rpm.&nbsp;I guess is&nbsp; this package have not been 
-developed?&nbsp;If&nbsp;it&nbsp;has been 
-developed&nbsp;,why&nbsp;I&nbsp;cannot&nbsp;change to sysadm_r: 
-sysadm_t?&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>----------------------------------------------------------------------------</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]# ls -lZ /tmp/testselinux</DIV>
-<DIV>root root unconfined_u:object_r:user_t:user_tmp_t: s0 
-/tmp/testselinux</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]#chcon unconfined_u:object_r:mytest_t 
-/tmp/testselinux</DIV>
-<DIV>chcon:failed to change context of '/tmp/testselinux' to 
-'unconfined_u:object_r:testselinux: s0 : permission denied</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>## here mytest_t defined in myapp.pp,which has successfully loaded by 
-"semodule -i myapp.pp"</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]# newrole -r sysadm_r -t sysadm_t</DIV>
-<DIV>unconfined_u:unconfined_r:unconfined_t: s0 is not valid context</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]# semanage login -m -s root -r s0-s0:c0.c1023 root</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>after&nbsp;reboot, graphic terminal cannot run. audit says that 
-system_u&#65306;system_r: xdm_t&nbsp;require "read" permission for 
-system_u:object_r:httpd_sys_content_t.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]# id</DIV>
-<DIV>context= root:unconfined_r:unconfined_t: s0-s0:c0-c1023</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>[root@localhost ~]#&nbsp; newrole -r sysadm_r -t sysadm_t</DIV>
-<DIV>failed to exec shell: permission denied</DIV>
-<DIV align=left><FONT face=Verdana color=#c0c0c0 size=2>2009-09-02 
-</FONT></DIV><FONT face=Verdana size=2>
-<HR style="WIDTH: 122px; HEIGHT: 2px" align=left SIZE=2>
+  int avc_get_initial_sid(const char * name, security_id_t * sid)
+@@ -505,57 +488,8 @@ static int avc_insert(security_id_t ssid, security_id_t tsid,
+  	return rc;
+  }
 
-<DIV><FONT face=Verdana color=#c0c0c0 size=2><SPAN>zheyeung</SPAN> 
-</FONT></DIV></FONT></BODY></HTML>
+-/**
+- * avc_remove - Remove AVC and sidtab entries for SID.
+- * @sid: security identifier to be removed
+- *
+- * Remove all AVC entries containing @sid as source, target, or
+- * create_sid, and remove @sid from the SID table.
+- * Free the memory allocated for the structure corresponding
+- * to @sid.  After this function has been called, @sid must
+- * not be used until another call to avc_context_to_sid() has
+- * been made for this SID.
+- */
+-static void avc_remove(security_id_t sid)
+-{
+-	struct avc_node *prev, *cur, *tmp;
+-	int i;
+-
+-	for (i = 0; i<  AVC_CACHE_SLOTS; i++) {
+-		cur = avc_cache.slots[i];
+-		prev = NULL;
+-		while (cur) {
+-			if (sid == cur->ae.ssid || sid == cur->ae.tsid ||
+-			    sid == cur->ae.create_sid) {
+-				if (prev)
+-					prev->next = cur->next;
+-				else
+-					avc_cache.slots[i] = cur->next;
+-				tmp = cur;
+-				cur = cur->next;
+-				avc_clear_avc_entry(&tmp->ae);
+-				tmp->next = avc_node_freelist;
+-				avc_node_freelist = tmp;
+-				avc_cache.active_nodes--;
+-			} else {
+-				prev = cur;
+-				cur = cur->next;
+-			}
+-		}
+-	}
+-	sidtab_remove(&avc_sidtab, sid);
+-}
+-
+  void avc_cleanup(void)
+  {
+-	security_id_t sid;
+-
+-	avc_get_lock(avc_lock);
+-
+-	while (NULL != (sid = sidtab_claim_sid(&avc_sidtab)))
+-		avc_remove(sid);
+-
+-	avc_release_lock(avc_lock);
+  }
 
---=====003_Dragon383518832085_=====--
+  hidden_def(avc_cleanup)
+@@ -745,15 +679,8 @@ static void avc_dump_query(security_id_t ssid, security_id_t tsid,
+  {
+  	avc_get_lock(avc_lock);
+
+-	if (ssid->refcnt>  0)
+-		log_append(avc_audit_buf, "scontext=%s", ssid->ctx);
+-	else
+-		log_append(avc_audit_buf, "ssid=%p", ssid);
+-
+-	if (tsid->refcnt>  0)
+-		log_append(avc_audit_buf, " tcontext=%s", tsid->ctx);
+-	else
+-		log_append(avc_audit_buf, " tsid=%p", tsid);
++	log_append(avc_audit_buf, "scontext=%s tcontext=%s",
++		   ssid->ctx, tsid->ctx);
+
+  	avc_release_lock(avc_lock);
+  	log_append(avc_audit_buf, " tclass=%s",
+@@ -844,11 +771,6 @@ int avc_has_perm_noaudit(security_id_t ssid,
+  		avc_cache_stats_incr(entry_misses);
+  		rc = avc_lookup(ssid, tsid, tclass, requested, aeref);
+  		if (rc) {
+-			if ((ssid->refcnt<= 0) || (tsid->refcnt<= 0)) {
+-				errno = EINVAL;
+-				rc = -1;
+-				goto out;
+-			}
+  			rc = security_compute_av_flags_raw(ssid->ctx, tsid->ctx,
+  							   tclass, requested,
+  							&entry.avd);
+@@ -911,11 +833,6 @@ int avc_compute_create(security_id_t ssid,  security_id_t tsid,
+  	avc_entry_ref_init(&aeref);
+
+  	avc_get_lock(avc_lock);
+-	if (ssid->refcnt<= 0 || tsid->refcnt<= 0) {
+-		errno = EINVAL;	/* bad reference count */
+-		rc = -1;
+-		goto out;
+-	}
+
+  	/* check for a cached entry */
+  	rc = avc_lookup(ssid, tsid, tclass, 0,&aeref);
+@@ -950,8 +867,6 @@ int avc_compute_create(security_id_t ssid,  security_id_t tsid,
+
+  	rc = 0;
+  out:
+-	if (*newsid)
+-		(*newsid)->refcnt++;
+  	avc_release_lock(avc_lock);
+  	return rc;
+  }
+@@ -960,22 +875,15 @@ int avc_compute_member(security_id_t ssid,  security_id_t tsid,
+  		       security_class_t tclass, security_id_t *newsid)
+  {
+  	int rc;
++	security_context_t ctx = NULL;
+  	*newsid = NULL;
+  	avc_get_lock(avc_lock);
+-	if (ssid->refcnt>  0&&  tsid->refcnt>  0) {
+-		security_context_t ctx = NULL;
+-		rc = security_compute_member_raw(ssid->ctx, tsid->ctx, tclass,
+-						&ctx);
+-		if (rc)
+-			goto out;
+-		rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
+-		if (!rc)
+-			(*newsid)->refcnt++;
+-		freecon(ctx);
+-	} else {
+-		errno = EINVAL;	/* bad reference count */
+-		rc = -1;
+-	}
++
++	rc = security_compute_member_raw(ssid->ctx, tsid->ctx, tclass,&ctx);
++	if (rc)
++		goto out;
++	rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
++	freecon(ctx);
+  out:
+  	avc_release_lock(avc_lock);
+  	return rc;
+diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
+index e9e5772..53610e8 100644
+--- a/libselinux/src/avc_internal.h
++++ b/libselinux/src/avc_internal.h
+@@ -16,17 +16,6 @@
+  #include "callbacks.h"
+  #include "dso.h"
+
+-/* SID reference counter manipulation */
+-static inline int sid_inc_refcnt(security_id_t sid)
+-{
+-	return sid->refcnt = (sid->refcnt>  0) ? sid->refcnt + 1 : 0;
+-}
+-
+-static inline int sid_dec_refcnt(security_id_t sid)
+-{
+-	return sid->refcnt = (sid->refcnt>  0) ? sid->refcnt - 1 : 0;
+-}
+-
+  /* callback pointers */
+  extern void *(*avc_func_malloc) (size_t) hidden;
+  extern void (*avc_func_free) (void *)hidden;
+diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
+index dab5c4e..3ca1d1f 100644
+--- a/libselinux/src/avc_sidtab.c
++++ b/libselinux/src/avc_sidtab.c
+@@ -67,53 +67,13 @@ int sidtab_insert(struct sidtab *s, security_context_t ctx)
+  	hvalue = sidtab_hash(newctx);
+  	newnode->next = s->htable[hvalue];
+  	newnode->sid_s.ctx = newctx;
+-	newnode->sid_s.refcnt = 0;	/* caller should increment */
++	newnode->sid_s.refcnt = 1;	/* unused */
+  	s->htable[hvalue] = newnode;
+  	s->nel++;
+        out:
+  	return rc;
+  }
+
+-void sidtab_remove(struct sidtab *s, security_id_t sid)
+-{
+-	int hvalue;
+-	struct sidtab_node *cur, *prev;
+-
+-	hvalue = sidtab_hash(sid->ctx);
+-	cur = s->htable[hvalue];
+-	prev = NULL;
+-	while (cur) {
+-		if (sid ==&cur->sid_s) {
+-			if (prev)
+-				prev->next = cur->next;
+-			else
+-				s->htable[hvalue] = cur->next;
+-			avc_free(cur);
+-			s->nel--;
+-			return;
+-		} else {
+-			prev = cur;
+-			cur = cur->next;
+-		}
+-	}
+-}
+-
+-security_id_t sidtab_claim_sid(struct sidtab *s)
+-{
+-	int i;
+-	struct sidtab_node *cur;
+-
+-	for (i = 0; i<  SIDTAB_SIZE; i++) {
+-		cur = s->htable[i];
+-		while (cur) {
+-			if (!cur->sid_s.refcnt)
+-				return&cur->sid_s;
+-			cur = cur->next;
+-		}
+-	}
+-	return NULL;
+-}
+-
+  int
+  sidtab_context_to_sid(struct sidtab *s,
+  		      security_context_t ctx, security_id_t * sid)
+diff --git a/libselinux/src/avc_sidtab.h b/libselinux/src/avc_sidtab.h
+index 620a335..29b5d8b 100644
+--- a/libselinux/src/avc_sidtab.h
++++ b/libselinux/src/avc_sidtab.h
+@@ -26,8 +26,6 @@ struct sidtab {
+
+  int sidtab_init(struct sidtab *s) hidden;
+  int sidtab_insert(struct sidtab *s, security_context_t ctx) hidden;
+-void sidtab_remove(struct sidtab *s, security_id_t sid) hidden;
+-security_id_t sidtab_claim_sid(struct sidtab *s) hidden;
+
+  int sidtab_context_to_sid(struct sidtab *s,
+  			  security_context_t ctx, security_id_t * sid) hidden;
+
+
+
+-- 
+Eamon Walsh<ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
