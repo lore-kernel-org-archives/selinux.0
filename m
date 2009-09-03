@@ -1,76 +1,121 @@
-Subject: Re: SELinux Packages and Library interactions...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0731C41F@de01exm68.ds.mot.com>
-References: <4A9DE7FE.9000008@tycho.nsa.gov>
-	 <1251892824.2785.83.camel@moss-pluto.epoch.ncsc.mil>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E014599D7@exchange2.columbia.tresys.com>
-	 <1251899679.2785.101.camel@moss-pluto.epoch.ncsc.mil>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E01459A64@exchange2.columbia.tresys.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D0731C41F@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Thu, 03 Sep 2009 08:52:15 -0400
-Message-Id: <1251982335.13634.69.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n83ExanU018908
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 10:59:36 -0400
+Received: from mail.gmx.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n83EwvID022376
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 14:58:58 GMT
+From: Dennis Wronka <linuxweb@gmx.net>
+To: "Remmolt G. Zwartsenberg" <remmolt@zwartsenberg.eu>
+Subject: Re: I cannot change my shell context
+Date: Thu, 3 Sep 2009 22:59:22 +0800
+Cc: selinux@tycho.nsa.gov
+References: <CIEOKAFOMGPNJIPMMMAHAEDJCCAA.remmolt@zwartsenberg.eu>
+In-Reply-To: <CIEOKAFOMGPNJIPMMMAHAEDJCCAA.remmolt@zwartsenberg.eu>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1277748.cToS2NObgI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <200909032259.29605.linuxweb@gmx.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-02 at 15:37 -0400, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> Can someone point me to a nice diagram that describes the detailed
-> interaction of all the SELinux packages and libraries (policycoreutils,
-> checkpolicy, libselinux, libsepol, libsemanage, etc).
-> 
-> I am just trying to better understands what piece does what and how the
-> pieces interact with each other. 
-> 
-> Thanks in advance.
+--nextPart1277748.cToS2NObgI
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Not sure about a diagram, but the basic descriptions and relationships
-can be summarized as follows:
+Sorry, but I seem to be missing your point.
 
-1. libsepol is the binary policy manipulation library.  It doesn't
-depend upon or use any of the other components.
+> i use python as middleware between Windows and Linux partitions.
+> the only 'root' account is used by cron (and 2 64 bit Intel Xeons, of
+> course)
+>
+> All users scream for windows, this is why i hate userspace issues,
+> especially @ Shell.
+>
+> ~remmolt
+>
+> -----Oorspronkelijk bericht-----
+> Van: owner-selinux@tycho.nsa.gov
+> [mailto:owner-selinux@tycho.nsa.gov]Namens Dennis Wronka
+> Verzonden: Wednesday, September 02, 2009 3:59 PM
+> Aan: zheyeung
+> CC: fedora-selinux-list; selinux
+> Onderwerp: Re: I cannot change my shell context
+>
+>
+> In Fedora users run unconfined, which, from my understand, means more or
+> less
+> without restrictions imposed by SELinux.
+> Thus changing to sysadm_r shouldn't be necessary in the first place.
+>
+> That you cannot change the context probably is because that context isn't
+> defined by the policy.
+>
+> > hi , every body ,I install selinux-policy-targeted in my F11,and run in
+> > enforce mode. now I want to change selinux context of /tmp/test,but
+> > failed.I thought current shell domain was unconfined_t. then I intend to
+> > change my shell context to root:sysadm_r: sysadm_t ,but also failed. my
+> > project team plan to develop selinux policy for our system based on
+> > selinux-policy.src.rpm. I guess is  this package have not been developed?
+> > If it has been developed ,why I cannot change to sysadm_r: sysadm_t?
+> >
+> > -------------------------------------------------------------------------
+> >-
+>
+> -
+>
+> >-
+> >
+> > [root@localhost ~]# ls -lZ /tmp/testselinux
+> > root root unconfined_u:object_r:user_t:user_tmp_t: s0 /tmp/testselinux
+> >
+> > [root@localhost ~]#chcon unconfined_u:object_r:mytest_t /tmp/testselinux
+> > chcon:failed to change context of '/tmp/testselinux' to
+> > 'unconfined_u:object_r:testselinux: s0 : permission denied
+> >
+> > ## here mytest_t defined in myapp.pp,which has successfully loaded by
+> > "semodule -i myapp.pp"
+> >
+> > [root@localhost ~]# newrole -r sysadm_r -t sysadm_t
+> > unconfined_u:unconfined_r:unconfined_t: s0 is not valid context
+> >
+> > [root@localhost ~]# semanage login -m -s root -r s0-s0:c0.c1023 root
+> >
+> > after reboot, graphic terminal cannot run. audit says that
+> > system_u:system_r: xdm_t require "read" permission for
+> > system_u:object_r:httpd_sys_content_t.
+> >
+> > [root@localhost ~]# id
+> > context= root:unconfined_r:unconfined_t: s0-s0:c0-c1023
+> >
+> > [root@localhost ~]#  newrole -r sysadm_r -t sysadm_t
+> > failed to exec shell: permission denied
+> > 2009-09-02
+> >
+> >
+> >
+> > zheyeung
+>
+> Geen virus gevonden in het binnenkomende-bericht.
+> Gecontroleerd door AVG - www.avg.com
+> Versie: 8.5.409 / Virusdatabase: 270.13.76/2343 - datum van uitgifte:
+> 09/03/09 05:50:00
 
-2. checkpolicy is the policy compiler.  It uses libsepol to generate the
-binary policy.  checkpolicy uses the static libsepol since it deals with
-low level details of the policy that have not been
-encapsulated/abstracted by a proper shared library interface.
+--nextPart1277748.cToS2NObgI
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-3. libselinux is the runtime SELinux library that provides interfaces
-(e.g. library functions for the SELinux kernel APIs like getcon(), other
-support functions like getseuserbyname()) to SELinux-aware applications.
-libselinux may use the shared libsepol to manipulate the binary policy
-if necessary (e.g. to downgrade the policy format to an older version
-supported by the kernel) when loading policy.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.12 (GNU/Linux)
 
-4. libsemanage is the policy management library.  It uses libsepol for
-binary policy manipulation and libselinux for interacting with the
-SELinux system.  It also exec's helper programs for loading policy and
-for checking whether the file_contexts configuration is valid
-(load_policy and setfiles from policycoreutils) presently, although this
-may change at least for the bootstrapping case (for rpm).
+iEYEABECAAYFAkqf2dEACgkQ1sXw8/2VziQoQgCfZApEJ4KuCA2cazKAN09gxMnD
+ZZ8An1DyeiLcRjZkgH34/q+1FHfBK7GU
+=FSi3
+-----END PGP SIGNATURE-----
 
-5. sepolgen is a python module/library that forms the core of the modern
-audit2allow (a rewrite).
-
-6. policycoreutils is a collection of policy utilities (originally the
-"core" set of utilities needed to use SELinux, although it has grown a
-bit over time), which have different dependencies. sestatus, secon,
-run_init, and newrole only use libselinux.  load_policy and setfiles
-only use libselinux and libsepol.   semodule and semanage use
-libsemanage (and thus bring in dependencies on libsepol and libselinux
-as well).  setsebool uses libselinux to make non-persistent boolean
-changes (via the kernel interface) and uses libsemanage to make
-persistent boolean changes.  
-
--- 
-Stephen Smalley
-National Security Agency
-
+--nextPart1277748.cToS2NObgI--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
