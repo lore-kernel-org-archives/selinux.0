@@ -1,260 +1,253 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n83Kd5vS029335
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 16:39:05 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n83KeMpW004694
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 20:40:22 GMT
-Date: Thu, 03 Sep 2009 16:39:02 -0400
-Subject: Re: semodule/libsemanage patch to allow enable and disable of
- modules.
-From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Message-ID: <C6C5A1A6.AA5C4%csellers@tresys.com>
-In-Reply-To: <4A981AC6.4040006@redhat.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n83MSq46005929
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 18:28:52 -0400
+Received: from e35.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n83MU9pW024778
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 22:30:10 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e35.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n83MJJsL007133
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 16:19:19 -0600
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n83MSpHn261362
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 16:28:51 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n83MSoRh003445
+	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 16:28:51 -0600
+Date: Thu, 3 Sep 2009 17:28:53 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Oren Laadan <orenl@cs.columbia.edu>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
+Subject: [RFC PATCH 2/2] cr: debug security_checkpoint_header and
+	security_may_restart
+Message-ID: <20090903222853.GA27556@us.ibm.com>
+References: <20090903222824.GB27377@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20090903222824.GB27377@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/28/09 1:58 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+This patch, for debugging only, introduces a silly admin-controlled
+'policy version' for smack.  By default the version is 1.  An
+admin (with CAP_MAC_ADMIN) can change it by echoing a new value
+into /smack/version.
 
-> The general idea is to relabel a disabled policy module as
-> policymodule.pp.disabled
-> 
-> Then make sure -u and -i update this name.
-> 
-> Rebuilding policy does not include .disabled
-> 
-> Listing shows disabled as disabled.
-> 
-> semodule -r will remove disabled modules. If you reinstall they will come
-> back.
-> 
-> # /usr/sbin/semodule -d unconfined
-> # /usr/sbin/semodule -l | grep unc
-> unconfined 3.0.1 Disabled
-> unconfineduser 1.0.0 
-> # ls -lZ /etc/selinux/targeted/modules/active/modules/unconfined.pp*
-> -rw-------. root root staff_u:object_r:semanage_store_t:s0
-> /etc/selinux/targeted/modules/active/modules/unconfined.pp.disabled
-> # /usr/sbin/semodule -i /usr/share/selinux/targeted/unconfined.pp.bz2
-> # /usr/sbin/semodule -l | grep unc
-> unconfined 3.0.1 Disabled
-> unconfineduser 1.0.0 
-> # /usr/sbin/semodule -e unconfined
-> # /usr/sbin/semodule -l | grep unc
-> unconfined 3.0.1 
-> unconfineduser 1.0.0 
-> 
-> This would allow an admin to disable a module and the module will stay
-> disabled until he enables it.
-<snip>
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index f7d65eb..49a2357 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -53,6 +53,8 @@
->  #include "policy.h"
->  #include <sys/mman.h>
->  
-> +static const char *DISABLESTR=".disabled";
-> +
->  static void semanage_direct_destroy(semanage_handle_t * sh);
->  static int semanage_direct_disconnect(semanage_handle_t * sh);
->  static int semanage_direct_begintrans(semanage_handle_t * sh);
-> @@ -66,6 +68,8 @@ static int semanage_direct_upgrade_file(semanage_handle_t *
-> sh, const char *modu
->  static int semanage_direct_install_base(semanage_handle_t * sh, char
-> *base_data,
->                      size_t data_len);
->  static int semanage_direct_install_base_file(semanage_handle_t * sh, const
-> char *module_name);
-> +static int semanage_direct_enable(semanage_handle_t * sh, char *module_name);
-> +static int semanage_direct_disable(semanage_handle_t * sh, char
-> *module_name);
->  static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
->  static int semanage_direct_list(semanage_handle_t * sh,
->                  semanage_module_info_t ** modinfo,
-> @@ -83,6 +87,8 @@ static struct semanage_policy_table direct_funcs = {
->      .upgrade_file = semanage_direct_upgrade_file,
->      .install_base = semanage_direct_install_base,
->      .install_base_file = semanage_direct_install_base_file,
-> +    .enable = semanage_direct_enable,
-> +    .disable = semanage_direct_disable,
->      .remove = semanage_direct_remove,
->      .list = semanage_direct_list
->  };
-> @@ -1002,6 +1008,17 @@ static int semanage_direct_commit(semanage_handle_t *
-> sh)
->      return retval;
->  }
->  
-> +static char * get_store_name(const char *file)
-> +{
-> +    int len = strlen(file) + strlen(DISABLESTR) + 1;
-> +    char *storename = calloc(1, len);
-> +    if (! storename) return NULL;
-> +    snprintf(storename,len, "%s%s", file, DISABLESTR);
-> +    if ( access(storename, F_OK) == 0) return storename;
-> +    free(storename);
-> +    return strdup(file);
-> +}
-> +
->  /* Writes a module to the sandbox's module directory, overwriting any
->   * previous module stored within.  Note that module data are not
->   * free()d by this function; caller is responsible for deallocating it
-> @@ -1019,11 +1036,20 @@ static int semanage_direct_install(semanage_handle_t *
-> sh,
->                         &filename)) != 0) {
->          goto cleanup;
->      }
-> -    if (bzip(sh, filename, data, data_len) <= 0) {
-> +
-> +    char *storename = get_store_name(filename);
-> +    if (!storename) {
-> +        ERR(sh, "Could not allocate memory");
-> +        retval = -1;
-> +        goto cleanup;
-> +    }
-> +    if (bzip(sh, storename, data, data_len) <= 0) {
+It then defines security_checkpoint_header() to add this 'policy
+version' into the checkpoint header, and defines security_may_restart()
+to refuse restart if both:
+	1. the caller asked for RESTART_KEEP_LSM
+and
+	2. the checkpointed version was different from the current.
 
-Should we present some sort of warning to the user if they install/upgrade a
-module that is disabled? This seems to maintain the disabled status
-silently, which might confuse users (e.g. "I just installed that module, why
-isn't the policy working").
+This of course is easy enough to test by doing
 
-Also, I see that you patched direct_install, but not direct_upgrade. So,
-upgrade will try to re-enable the module if it has been disabled.
+	echo 1 > /smack/version
+	ckpt > out
+	mktree < out
+		succeed
+	mktree -k < out
+		succeed
+	echo 2 > /smack/version
+	mktree < out
+		succeed
+	mktree -k < out
+		fail
 
->          ERR(sh, "Error while writing to %s.", filename);
->          retval = -3;
->          goto cleanup;
->      }
-> +    free(storename);
-> +
->      retval = 0;
->        cleanup:
->      free(version);
-> @@ -1268,6 +1294,107 @@ static int
-> semanage_direct_install_base_file(semanage_handle_t * sh,
->      return retval;
->  }
->  
-> +/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-> + * of memory, -2 if module not found or could not be enabled. */
-> +static int semanage_direct_enable(semanage_handle_t * sh, char *module_name)
-> +{
-> +    int i, retval = -1;
-> +    char **module_filenames = NULL;
-> +    int num_mod_files;
-> +    size_t name_len = strlen(module_name);
-> +    if (semanage_get_modules_names(sh, &module_filenames, &num_mod_files) ==
-> +        -1) {
-> +        return -1;
-> +    }
-> +    for (i = 0; i < num_mod_files; i++) {
-> +        char *base = strrchr(module_filenames[i], '/');
-> +        if (base == NULL) {
-> +            ERR(sh, "Could not read module names.");
-> +            retval = -2;
-> +            goto cleanup;
-> +        }
-> +        base++;
-> +        if (memcmp(module_name, base, name_len) == 0 &&
-> +            strcmp(base + name_len + 3, DISABLESTR) == 0) {
-> +            int len = strlen(module_filenames[i]) - strlen(DISABLESTR);
-> +            char *enabled_name = calloc(1, len+1);
-> +            if (!enabled_name) {
-> +                ERR(sh, "Could not allocate memory");
-> +                retval = -1;
-> +                goto cleanup;
-> +            }
-> +
-> +            strncpy(enabled_name, module_filenames[i],len);
-> +
-> +            if (rename(module_filenames[i], enabled_name) == -1) {
-> +                ERR(sh, "Could not enable module file %s.",
-> +                    enabled_name);
-> +                retval = -2;
-> +            }
-> +            retval = 0;
-> +            free(enabled_name);
-> +            goto cleanup;
-> +        }
-> +    }
-> +    ERR(sh, "Module %s was not found.", module_name);
-> +    retval = -2;        /* module not found */
-> +      cleanup:
-> +    for (i = 0; module_filenames != NULL && i < num_mod_files; i++) {
-> +        free(module_filenames[i]);
-> +    }
-> +    free(module_filenames);
-> +    return retval;
-> +}
-> +
-> +/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-> + * of memory, -2 if module not found or could not be enabled. */
-> +static int semanage_direct_disable(semanage_handle_t * sh, char *module_name)
-> +{
-> +    int i, retval = -1;
-> +    char **module_filenames = NULL;
-> +    int num_mod_files;
-> +    size_t name_len = strlen(module_name);
-> +    if (semanage_get_modules_names(sh, &module_filenames, &num_mod_files) ==
-> +        -1) {
-> +        return -1;
-> +    }
-> +    for (i = 0; i < num_mod_files; i++) {
-> +        char *base = strrchr(module_filenames[i], '/');
-> +        if (base == NULL) {
-> +            ERR(sh, "Could not read module names.");
-> +            retval = -2;
-> +            goto cleanup;
-> +        }
-> +        base++;
-> +        if (memcmp(module_name, base, name_len) == 0 &&
-> +            strcmp(base + name_len, ".pp") == 0) {
-> +            char disabled_name[PATH_MAX];
-> +            if (snprintf(disabled_name, PATH_MAX, "%s%s",
-> +                     module_filenames[i], DISABLESTR) == PATH_MAX) {
-> +                ERR(sh, "Could not disable module file %s.",
-> +                    module_filenames[i]);
-> +                retval = -2;
-> +                goto cleanup;
-> +            }
-> +            if (rename(module_filenames[i], disabled_name) == -1) {
-> +                ERR(sh, "Could not disable module file %s.",
-> +                    module_filenames[i]);
-> +                retval = -2;
-> +            }
-> +            retval = 0;
-> +            goto cleanup;
-> +        }
-> +    }
-> +    ERR(sh, "Module %s was not found.", module_name);
-> +    retval = -2;        /* module not found */
-> +      cleanup:
-> +    for (i = 0; module_filenames != NULL && i < num_mod_files; i++) {
-> +        free(module_filenames[i]);
-> +    }
-> +    free(module_filenames);
-> +    return retval;
-> +}
-> +
-While this function does succeed in renaming a file, it does not succeed in
-preventing the module from being linked in. semanage_get_modules_names()
-grabs everything in the modules directory, so the disabled modules here are
-still linked into the policy. A quick sesearch confirms this.
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ security/smack/smack_lsm.c |   46 +++++++++++++++++++++++++++
+ security/smack/smackfs.c   |   75 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 121 insertions(+), 0 deletions(-)
 
-To fix this, you'll either need to modify semanage_filename_select() to
-filter out files ending in .disabled or perhaps just move them from the
-modules directory to a disabled_modules directory (instead of the rename).
-The latter option has the advantage of not requiring filtering that could go
-wrong at some point, so I would lean toward it.
-
-Thanks,
-Chad
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 279fdce..f0d4a08 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -27,6 +27,7 @@
+ #include <linux/udp.h>
+ #include <linux/mutex.h>
+ #include <linux/pipe_fs_i.h>
++#include <linux/checkpoint.h>
+ #include <net/netlabel.h>
+ #include <net/cipso_ipv4.h>
+ #include <linux/audit.h>
+@@ -3111,6 +3112,47 @@ static void smack_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+ 
++#ifdef CONFIG_CHECKPOINT
++extern int smack_version;
++
++static int smack_may_restart(struct ckpt_ctx *ctx)
++{
++	struct ckpt_hdr *h;
++	char *smackv;
++	int v = 0, slen, ret;
++
++	h = ckpt_read_buf_type(ctx, CKPT_LSM_INFO_LEN, CKPT_HDR_LSM_INFO);
++	if (IS_ERR(h))
++		return PTR_ERR(h);
++
++	if (strcmp(ctx->lsm_name, "smack") != 0)
++		return 0;
++
++	smackv = (char *) (h + 1);
++	slen = h->len - sizeof(*h);
++	if (smackv[slen-1] != '\0')
++		smackv[slen-1] = '\0';
++	ret = sscanf(smackv, "%d", &v);
++	ckpt_hdr_put(ctx, h);
++	if (!(ctx->uflags & RESTART_KEEP_LSM))
++		return 0;
++	if (ret != 1 || v != smack_version) {
++		ckpt_debug("Smack version at checkpoint was %d, now is %d\n",
++			v, smack_version);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++static int smack_checkpoint_header(struct ckpt_ctx *ctx)
++{
++	char smackv[10];
++	sprintf(smackv, "%d", smack_version);
++	return ckpt_write_obj_type(ctx, smackv, strlen(smackv)+1,
++				  CKPT_HDR_LSM_INFO);
++}
++#endif
++
+ struct security_operations smack_ops = {
+ 	.name =				"smack",
+ 
+@@ -3245,6 +3287,10 @@ struct security_operations smack_ops = {
+ 	.secid_to_secctx = 		smack_secid_to_secctx,
+ 	.secctx_to_secid = 		smack_secctx_to_secid,
+ 	.release_secctx = 		smack_release_secctx,
++#ifdef CONFIG_CHECKPOINT
++	.may_restart =			smack_may_restart,
++	.checkpoint_header =		smack_checkpoint_header,
++#endif
+ };
+ 
+ 
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index f83a809..7b20ad9 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -42,6 +42,7 @@ enum smk_inos {
+ 	SMK_NETLBLADDR	= 8,	/* single label hosts */
+ 	SMK_ONLYCAP	= 9,	/* the only "capable" label */
+ 	SMK_LOGGING	= 10,	/* logging */
++	SMK_VERSION	= 11,	/* logging */
+ };
+ 
+ /*
+@@ -51,6 +52,7 @@ static DEFINE_MUTEX(smack_list_lock);
+ static DEFINE_MUTEX(smack_cipso_lock);
+ static DEFINE_MUTEX(smack_ambient_lock);
+ static DEFINE_MUTEX(smk_netlbladdr_lock);
++static DEFINE_MUTEX(smack_version_lock);
+ 
+ /*
+  * This is the "ambient" label for network traffic.
+@@ -60,6 +62,11 @@ static DEFINE_MUTEX(smk_netlbladdr_lock);
+ char *smack_net_ambient = smack_known_floor.smk_known;
+ 
+ /*
++ * this is the policy version, a simple integer
++ */
++int smack_version = 1;
++
++/*
+  * This is the level in a CIPSO header that indicates a
+  * smack label is contained directly in the category set.
+  * It can be reset via smackfs/direct
+@@ -1255,6 +1262,72 @@ static const struct file_operations smk_logging_ops = {
+ 	.read		= smk_read_logging,
+ 	.write		= smk_write_logging,
+ };
++
++#define SMK_VERSIONLEN 12
++/**
++ * smk_read_version - read() for /smack/version
++ * @filp: file pointer, not actually used
++ * @buf: where to put the result
++ * @cn: maximum to send along
++ * @ppos: where to start
++ *
++ * Returns number of bytes read or error code, as appropriate
++ */
++static ssize_t smk_read_version(struct file *filp, char __user *buf,
++				size_t count, loff_t *ppos)
++{
++	char temp[SMK_VERSIONLEN];
++
++	if (*ppos != 0)
++		return 0;
++
++	mutex_lock(&smack_version_lock);
++	sprintf(temp, "%d\n", smack_version);
++	mutex_unlock(&smack_version_lock);
++
++	return simple_read_from_buffer(buf, count, ppos, temp, strlen(temp));
++}
++
++/**
++ * smk_write_version - write() for /smack/version
++ * @file: file pointer, not actually used
++ * @buf: where to get the data from
++ * @count: bytes sent
++ * @ppos: where to start
++ *
++ * Returns number of bytes written or error code, as appropriate
++ */
++static ssize_t smk_write_version(struct file *file, const char __user *buf,
++				 size_t count, loff_t *ppos)
++{
++	char in[SMK_VERSIONLEN];
++	int tmp, ret;
++
++	if (!capable(CAP_MAC_ADMIN))
++		return -EPERM;
++
++	if (count >= SMK_VERSIONLEN)
++		return -EINVAL;
++
++	if (copy_from_user(in, buf, count) != 0)
++		return -EFAULT;
++
++	in[count-1] = '\0';
++	ret = sscanf(in, "%d", &tmp);
++	if (ret != 1)
++		return -EINVAL;
++	mutex_lock(&smack_version_lock);
++	smack_version = tmp;
++	mutex_unlock(&smack_version_lock);
++
++	return count;
++}
++
++static const struct file_operations smk_version_ops = {
++	.read		= smk_read_version,
++	.write		= smk_write_version,
++};
++
+ /**
+  * smk_fill_super - fill the /smackfs superblock
+  * @sb: the empty superblock
+@@ -1287,6 +1360,8 @@ static int smk_fill_super(struct super_block *sb, void *data, int silent)
+ 			{"onlycap", &smk_onlycap_ops, S_IRUGO|S_IWUSR},
+ 		[SMK_LOGGING]	=
+ 			{"logging", &smk_logging_ops, S_IRUGO|S_IWUSR},
++		[SMK_VERSION]	=
++			{"version", &smk_version_ops, S_IRUGO|S_IWUSR},
+ 		/* last one */ {""}
+ 	};
+ 
+-- 
+1.6.1
 
 
 --
