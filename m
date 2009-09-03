@@ -1,103 +1,217 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n83725Us021094
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 03:02:05 -0400
-Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8373K7S002193
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 07:03:21 GMT
-Message-ID: <4A9F69E8.3050303@ak.jp.nec.com>
-Date: Thu, 03 Sep 2009 16:02:00 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <4A9F90B1.3000908@martinorr.name>
+Date: Thu, 03 Sep 2009 10:47:29 +0100
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-To: "Remmolt G. Zwartsenberg" <remmolt@zwartsenberg.eu>
-CC: selinux@tycho.nsa.gov, henk.busscher@yahoo.com
-Subject: Re: [PATCH] libselinux: disable refcounting in the userspace AVC
-References: <4A9DE7FE.9000008@tycho.nsa.gov>	 <1251892824.2785.83.camel@moss-pluto.epoch.ncsc.mil>	 <06A6610D4F464D4EBEAFBF2C5F86911E014599D7@exchange2.columbia.tresys.com> <1251899679.2785.101.camel@moss-pluto.epoch.ncsc.mil> <4A9F24D2.9020805@ak.jp.nec.com> <3660A45FD9BC4D52AA7737D1CF2F1F5E@CIMSLAB.NL>
-In-Reply-To: <3660A45FD9BC4D52AA7737D1CF2F1F5E@CIMSLAB.NL>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Manoj Srivastava <srivasta@golden-gryphon.com>, selinux@tycho.nsa.gov,
+        544215-forwarded@bugs.debian.org, Chad Sellers <csellers@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: restorecon and symbolic links
+References: <4A996106.4060604@martinorr.name>	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>	 <4A9BCE45.7060704@martinorr.name>	 <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil>	 <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name>	 <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil>	 <4A9E6406.5000501@martinorr.name> <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remmolt G. Zwartsenberg wrote:
-> Hi KaiGai,
+On 02/09/09 13:52, Stephen Smalley wrote:
+> On Wed, 2009-09-02 at 13:24 +0100, Martin Orr wrote:
+>> The reason I named the function that way was because the function with
+>> _realpath expects a real path as an argument, but if this is confusing or
+>> goes against a convention used elsewhere then it could be changed.
 > 
->>From a mediation and billing perspective, i agree with you.
-> The Network Management part of the OSS system uses URL's that resolve to
-> high-latency authentication, that need no encryption in the columns.
+> Except that symlink_realpath() internally calls realpath().  I think it
+> makes more sense to use process_one_realpath() for the function that
+> invokes realpath(), and process_one() for the function that merely acts
+> on its argument.  
 > 
-> In VOIP tunnels this can lead to congestion, ie in 2-way Irridium
-> conversations. Erroneous frame dragging?
+>> I copied the symlink_realpath code from what used to be in match.  I assumed
+>> that it needed a buffer on the stack because it then concatenates the last
+>> component of the path on to that buffer, and realpath might not allocate a
+>> long enough buffer.
+> 
+> That's fair.
+> 
+>>>> Not sure it is worth warning about the broken symlink case, and that
+>>>> will trigger warnings for your existing users in the
+>>>> restorecon /dev/stdin case, right?
+>> I agree, it is not worth warning about broken symlinks, except maybe if -v
+>> is specified.
+> 
+> If the behavior of restorecon on symlinks is to always relabel the
+> symlink and then if the target exists, relabel it as well, then it isn't
+> truly an error if the target doesn't exist.  It would be a bit clearer
+> if we used an explicit flag like -h, as existing utilities like chown
+> and chcon do, when we want to act on symlinks rather than their targets,
+> but that would break existing usage it seems.
+> 
+> Modified patch below.  Seem reasonable?
 
-Sorry, I'm not sure what do you want to discuss.
+Looks fine to me.
 
-At the previous message, I introduced a workload inside of the PostgreSQL
-which tend to lookup userspace avc with same subject context many times.
-It is not a workload between the client application and RDBMS.
-
-Thanks,
-
-> Kind regards,
+> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+> index 4c47f21..313767a 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -545,7 +545,47 @@ int canoncon(char **contextp)
+>  	return rc;
+>  }
+>  
+> -static int process_one(char *name)
+> +static int symlink_realpath(char *name, char *path)
+> +{
+> +	char *p = NULL, *file_sep;
+> +	char *tmp_path = strdupa(name);
+> +	size_t len = 0;
+> +
+> +	if (!tmp_path) {
+> +		fprintf(stderr, "strdupa on %s failed:  %s\n", name,
+> +			strerror(errno));
+> +		return -1;
+> +	}
+> +	file_sep = strrchr(tmp_path, '/');
+> +	if (file_sep == tmp_path) {
+> +		file_sep++;
+> +		p = strcpy(path, "");
+> +	} else if (file_sep) {
+> +		*file_sep = 0;
+> +		file_sep++;
+> +		p = realpath(tmp_path, path);
+> +	} else {
+> +		file_sep = tmp_path;
+> +		p = realpath("./", path);
+> +	}
+> +	if (p)
+> +		len = strlen(p);
+> +	if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
+> +		fprintf(stderr, "symlink_realpath(%s) failed %s\n", name,
+> +			strerror(errno));
+> +		return -1;
+> +	}
+> +	p += len;
+> +	/* ensure trailing slash of directory name */
+> +	if (len == 0 || *(p - 1) != '/') {
+> +		*p = '/';
+> +		p++;
+> +	}
+> +	strcpy(p, file_sep);
+> +	return 0;
+> +}
+> +
+> +static int process_one(char *name, int recurse_this_path)
+>  {
+>  	int rc = 0;
+>  	const char *namelist[2];
+> @@ -553,18 +593,6 @@ static int process_one(char *name)
+>  	FTS *fts_handle;
+>  	FTSENT *ftsent;
+>  
+> -	if (expand_realpath) {
+> -		char *p;
+> -		p = realpath(name, NULL);
+> -		if (!p) {
+> -			fprintf(stderr, "realpath(%s) failed %s\n", name,
+> -				strerror(errno));
+> -			return -1;
+> -		}
+> -		name = p;
+> -	}
+> -
+> -
+>  	if (!strcmp(name, "/"))
+>  		mass_relabel = 1;
+>  
+> @@ -604,7 +632,7 @@ static int process_one(char *name)
+>  			fts_set(fts_handle, ftsent, FTS_SKIP);
+>  		if (rc == ERR)
+>  			goto err;
+> -		if (!recurse)
+> +		if (!recurse_this_path)
+>  			break;
+>  	} while ((ftsent = fts_read(fts_handle)) != NULL);
+>  
+> @@ -619,8 +647,6 @@ out:
+>  	}
+>  	if (fts_handle)
+>  		fts_close(fts_handle);
+> -	if (expand_realpath)
+> -		free(name);
+>  	return rc;
+>  
+>  err:
+> @@ -630,6 +656,52 @@ err:
+>  	goto out;
+>  }
+>  
+> +static int process_one_realpath(char *name)
+> +{
+> +	int rc = 0;
+> +	char *p;
+> +	struct stat sb;
+> +
+> +	if (!expand_realpath) {
+> +		return process_one(name, recurse);
+> +	} else {
+> +		rc = lstat(name, &sb);
+> +		if (rc < 0) {
+> +			fprintf(stderr, "%s:  lstat(%s) failed:  %s\n",
+> +				progname, name,	strerror(errno));
+> +			return -1;
+> +		}
+> +
+> +		if (S_ISLNK(sb.st_mode)) {
+> +			char path[PATH_MAX + 1];
+> +
+> +			rc = symlink_realpath(name, path);
+> +			if (rc < 0)
+> +				return rc;
+> +			rc = process_one(path, 0);
+> +			if (rc < 0)
+> +				return rc;
+> +
+> +			p = realpath(name, NULL);
+> +			if (p) {
+> +				rc = process_one(p, recurse);
+> +				free(p);
+> +			}
+> +			return rc;
+> +		} else {
+> +			p = realpath(name, NULL);
+> +			if (!p) {
+> +				fprintf(stderr, "realpath(%s) failed %s\n", name,
+> +					strerror(errno));
+> +				return -1;
+> +			}
+> +			rc = process_one(p, recurse);
+> +			free(p);
+> +			return rc;
+> +		}
+> +	}
+> +}
+> +
+>  #ifndef USE_AUDIT
+>  static void maybe_audit_mass_relabel(void)
+>  {
+> @@ -987,13 +1059,13 @@ int main(int argc, char **argv)
+>  		delim = (null_terminated != 0) ? '\0' : '\n';
+>  		while ((len = getdelim(&buf, &buf_len, delim, f)) > 0) {
+>  			buf[len - 1] = 0;
+> -			errors |= process_one(buf);
+> +			errors |= process_one_realpath(buf);
+>  		}
+>  		if (strcmp(input_filename, "-") != 0)
+>  			fclose(f);
+>  	} else {
+>  		for (i = optind; i < argc; i++) {
+> -			errors |= process_one(argv[i]);
+> +			errors |= process_one_realpath(argv[i]);
+>  		}
+>  	}
+>  
 > 
-> ~remmolt 
-> 
-> Philips NEC Business Commumication Systems NL
-> 
-> remmolt@zwartsenberg.eu 
-> 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of KaiGai Kohei
-> Sent: donderdag 3 september 2009 4:07
-> To: Stephen Smalley
-> Cc: Joshua Brindle; Eamon Walsh; SELinux List; KaiGai Kohei
-> Subject: Re: [PATCH] libselinux: disable refcounting in the userspace AVC
-> 
-> Stephen Smalley wrote:
->>> IIRC sepostgres reimplemented its sidtab and avc because our current one
->>> wasn't very friendly to multithread/multiprocess object managers.
->> Looking back, I think KaiGai's reasons were:
->> - he didn't see benefit to the indirection of the AVC SID table since
->> PostgreSQL has to directly manage security contexts for persistent
->> labeling,
-> 
-> Yes, it uses object identifier which is associated with a certain
-> text representation of security context as a key to lookup its
-> userspace avc.
-> 
->> - he wanted to enable sharing of the AVC (via shared memory) and the
->> netlink thread among all PostgreSQL instances (processes, not just
->> threads).
-> 
-> The pgsql-hackers didn't like an idea to deploy userspace avc on the
-> shared memory segment, so I had to change its implementation.
-> Now, it put only a flag to notice avc invalidation for all the server
-> processes. A background netlink process updates the flag on the shared
-> memory segment, then other server processed voluntarily invalidates its
-> userspace avc deployed on the process local memory prior to looking up.
-> 
-> In addition, characteristic of database workload enables to apply more
-> optimization in the performance perspective.
-> The subject security context of the userspace avc deployed on the process
-> local memory is unchanged (except for trusted procedure execution),
-> so SE-PostgreSQL categorizes all the avc entries by subject context to
-> omit comparison of subject context.
-> (Note that subject context is not database object, so it does not have
-> object identifer. It requires strcmp() to compare subject context.)
-> 
-> Because the database workload (with row level security) needs to lookup
-> the avc entry massive times in a short time, this kind of optimization
-> is very important. At the past, I tried to compare subject context to
-> lookup avc entry, then it recorded 50% of transaction-per-second toward
-> the vanilla PostgreSQL. :(
-> 
-> Thus, now, it is not necessary to consider use cases in SE-PostgreSQL
-> to update userspace avc stuff in libselinux.
-> 
-> Thanks,
 
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
