@@ -1,121 +1,69 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n83ExanU018908
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 10:59:36 -0400
-Received: from mail.gmx.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n83EwvID022376
-	for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2009 14:58:58 GMT
-From: Dennis Wronka <linuxweb@gmx.net>
-To: "Remmolt G. Zwartsenberg" <remmolt@zwartsenberg.eu>
-Subject: Re: I cannot change my shell context
-Date: Thu, 3 Sep 2009 22:59:22 +0800
-Cc: selinux@tycho.nsa.gov
-References: <CIEOKAFOMGPNJIPMMMAHAEDJCCAA.remmolt@zwartsenberg.eu>
-In-Reply-To: <CIEOKAFOMGPNJIPMMMAHAEDJCCAA.remmolt@zwartsenberg.eu>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1277748.cToS2NObgI";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <200909032259.29605.linuxweb@gmx.net>
+Subject: Re: restorecon and symbolic links
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Martin Orr <martin@martinorr.name>
+Cc: Manoj Srivastava <srivasta@golden-gryphon.com>, selinux@tycho.nsa.gov,
+        544215-forwarded@bugs.debian.org, Chad Sellers <csellers@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <4A9F90B1.3000908@martinorr.name>
+References: <4A996106.4060604@martinorr.name>
+	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>
+	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9BCE45.7060704@martinorr.name>
+	 <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name>
+	 <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9E6406.5000501@martinorr.name>
+	 <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9F90B1.3000908@martinorr.name>
+Content-Type: text/plain
+Date: Thu, 03 Sep 2009 11:25:48 -0400
+Message-Id: <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---nextPart1277748.cToS2NObgI
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+On Thu, 2009-09-03 at 10:47 +0100, Martin Orr wrote:
+> On 02/09/09 13:52, Stephen Smalley wrote:
+> > On Wed, 2009-09-02 at 13:24 +0100, Martin Orr wrote:
+> >> The reason I named the function that way was because the function with
+> >> _realpath expects a real path as an argument, but if this is confusing or
+> >> goes against a convention used elsewhere then it could be changed.
+> > 
+> > Except that symlink_realpath() internally calls realpath().  I think it
+> > makes more sense to use process_one_realpath() for the function that
+> > invokes realpath(), and process_one() for the function that merely acts
+> > on its argument.  
+> > 
+> >> I copied the symlink_realpath code from what used to be in match.  I assumed
+> >> that it needed a buffer on the stack because it then concatenates the last
+> >> component of the path on to that buffer, and realpath might not allocate a
+> >> long enough buffer.
+> > 
+> > That's fair.
+> > 
+> >>>> Not sure it is worth warning about the broken symlink case, and that
+> >>>> will trigger warnings for your existing users in the
+> >>>> restorecon /dev/stdin case, right?
+> >> I agree, it is not worth warning about broken symlinks, except maybe if -v
+> >> is specified.
+> > 
+> > If the behavior of restorecon on symlinks is to always relabel the
+> > symlink and then if the target exists, relabel it as well, then it isn't
+> > truly an error if the target doesn't exist.  It would be a bit clearer
+> > if we used an explicit flag like -h, as existing utilities like chown
+> > and chcon do, when we want to act on symlinks rather than their targets,
+> > but that would break existing usage it seems.
+> > 
+> > Modified patch below.  Seem reasonable?
+> 
+> Looks fine to me.
 
-Sorry, but I seem to be missing your point.
+Ok, applied as policycoreutils 2.0.72.
 
-> i use python as middleware between Windows and Linux partitions.
-> the only 'root' account is used by cron (and 2 64 bit Intel Xeons, of
-> course)
->
-> All users scream for windows, this is why i hate userspace issues,
-> especially @ Shell.
->
-> ~remmolt
->
-> -----Oorspronkelijk bericht-----
-> Van: owner-selinux@tycho.nsa.gov
-> [mailto:owner-selinux@tycho.nsa.gov]Namens Dennis Wronka
-> Verzonden: Wednesday, September 02, 2009 3:59 PM
-> Aan: zheyeung
-> CC: fedora-selinux-list; selinux
-> Onderwerp: Re: I cannot change my shell context
->
->
-> In Fedora users run unconfined, which, from my understand, means more or
-> less
-> without restrictions imposed by SELinux.
-> Thus changing to sysadm_r shouldn't be necessary in the first place.
->
-> That you cannot change the context probably is because that context isn't
-> defined by the policy.
->
-> > hi , every body ,I install selinux-policy-targeted in my F11,and run in
-> > enforce mode. now I want to change selinux context of /tmp/test,but
-> > failed.I thought current shell domain was unconfined_t. then I intend to
-> > change my shell context to root:sysadm_r: sysadm_t ,but also failed. my
-> > project team plan to develop selinux policy for our system based on
-> > selinux-policy.src.rpm. I guess is  this package have not been developed?
-> > If it has been developed ,why I cannot change to sysadm_r: sysadm_t?
-> >
-> > -------------------------------------------------------------------------
-> >-
->
-> -
->
-> >-
-> >
-> > [root@localhost ~]# ls -lZ /tmp/testselinux
-> > root root unconfined_u:object_r:user_t:user_tmp_t: s0 /tmp/testselinux
-> >
-> > [root@localhost ~]#chcon unconfined_u:object_r:mytest_t /tmp/testselinux
-> > chcon:failed to change context of '/tmp/testselinux' to
-> > 'unconfined_u:object_r:testselinux: s0 : permission denied
-> >
-> > ## here mytest_t defined in myapp.pp,which has successfully loaded by
-> > "semodule -i myapp.pp"
-> >
-> > [root@localhost ~]# newrole -r sysadm_r -t sysadm_t
-> > unconfined_u:unconfined_r:unconfined_t: s0 is not valid context
-> >
-> > [root@localhost ~]# semanage login -m -s root -r s0-s0:c0.c1023 root
-> >
-> > after reboot, graphic terminal cannot run. audit says that
-> > system_u:system_r: xdm_t require "read" permission for
-> > system_u:object_r:httpd_sys_content_t.
-> >
-> > [root@localhost ~]# id
-> > context= root:unconfined_r:unconfined_t: s0-s0:c0-c1023
-> >
-> > [root@localhost ~]#  newrole -r sysadm_r -t sysadm_t
-> > failed to exec shell: permission denied
-> > 2009-09-02
-> >
-> >
-> >
-> > zheyeung
->
-> Geen virus gevonden in het binnenkomende-bericht.
-> Gecontroleerd door AVG - www.avg.com
-> Versie: 8.5.409 / Virusdatabase: 270.13.76/2343 - datum van uitgifte:
-> 09/03/09 05:50:00
+-- 
+Stephen Smalley
+National Security Agency
 
---nextPart1277748.cToS2NObgI
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.12 (GNU/Linux)
-
-iEYEABECAAYFAkqf2dEACgkQ1sXw8/2VziQoQgCfZApEJ4KuCA2cazKAN09gxMnD
-ZZ8An1DyeiLcRjZkgH34/q+1FHfBK7GU
-=FSi3
------END PGP SIGNATURE-----
-
---nextPart1277748.cToS2NObgI--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
