@@ -1,77 +1,37 @@
-Subject: Re: SELinux and SSH Timers ?...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil>
-References: <4A996106.4060604@martinorr.name>
-	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>
-	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9BCE45.7060704@martinorr.name>
-	 <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name>
-	 <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9E6406.5000501@martinorr.name>
-	 <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9F90B1.3000908@martinorr.name>
-	 <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D0731CB89@de01exm68.ds.mot.com>
-	 <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 04 Sep 2009 07:49:04 -0400
-Message-Id: <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n84D2dxX026615
+	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 09:02:39 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n84D3uGl014729
+	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 13:03:56 GMT
+Message-ID: <4AA10FE8.7040109@redhat.com>
+Date: Fri, 04 Sep 2009 09:02:32 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Dennis Wronka <linuxweb@gmx.net>
+CC: "Remmolt G. Zwartsenberg" <remmolt@zwartsenberg.eu>, selinux@tycho.nsa.gov
+Subject: Re: I cannot change my shell context
+References: <CIEOKAFOMGPNJIPMMMAHAEDJCCAA.remmolt@zwartsenberg.eu> <200909032259.29605.linuxweb@gmx.net>
+In-Reply-To: <200909032259.29605.linuxweb@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-09-03 at 16:32 -0400, Stephen Smalley wrote:
-> On Thu, 2009-09-03 at 16:17 -0400, Hasan Rezaul-CHR010 wrote:
-> > Hi All,
-> > 
-> > I have defined policy such that user_t cannot 'write' to certain
-> > files/directories, e.g.  /etc/passwd.
-> > 
-> > I have Selinux Strict policy running in "Permissive" Mode, and lets just
-> > say I am not at liberty to run it in "Enforcing" mode.
-> > 
-> > I also have  /selinux/avc/cache_threshold set to the default  "512".
-> > 
-> > And to test that my policy works, I SSH-login as a user "test" who has
-> > default context  user_u:user_r:user_t
-> > And I attempt to "vi /etc/passwd".
-> > 
-> > Given the above conditions: 
-> > - I understand that SELinux will (and does) report a deny into audit.log
-> > the first time I attempt the "vi /etc/passwd".
-> > 
-> > - The next time I do "vi /etc/passwd" within the same SSH-session, it
-> > does NOT log the deny! I understand this is because of the Permissive
-> > Mode + the cache_threshold value.
-> > 
-> > - If I exit my SSH session, and then create a new SSH-session and login
-> > again with user "test", and then "vi /etc/passwd" again, I thought I
-> > should see a deny in the audit.log ? Since this is a new SSH-Session...
-> > But I DON'T see it ???
-> 
-> No.  In permissive mode, when the denial is encountered, the AVC adds
-> that denied permission into the allowed vector in the corresponding AVC
-> cache entry so that subsequent denials do not get logged.  It remains
-> there until something causes the entry to be evicted, whether that is a
-> due to a policy reload, changing a boolean, toggling enforcing mode, or
-> just needing to reclaim an entry over time.  It doesn't have anything to
-> do with ssh sessions.
-> 
-> You can force an AVC reset at any time by reloading policy, changing a
-> boolean, or toggling enforcing mode.  Or you can set the threshold low
-> to cause nodes to get reclaimed quickly for reuse (that sets the upper
-> limit on the number of nodes to be used by the AVC).  Or you could just
-> patch your kernel to _not_ add the denied permission to the AVC in the
-> first place.
+First off sysadm_r:sysadm_t is only used by people trying to run in a strict policy mode.   Most people use targeted and login as unconfined_t.  If your system has you logging in as something other then unconfined_t then you might have a bug in your configuration.
 
-What kernel version are you using?
+When using SELinux, you usually do not change your "context" manually.  You usually write transition rules.  A transition rules says something like, when unconfined_t domain executes a file labeled firefox_exec_t it will transition to firefox_t.
 
--- 
-Stephen Smalley
-National Security Agency
+So the user does not need to do something like runcon -t firefox_t /usr/bin/firefox.
+
+If you are using commands like runcon to change the context of applications, there are rules in policy that govern what labels you can transition to, and what roles you can change too.
+
+If you are running as unconfined_r, and you try to run an app with a role of sysadm_r, this might get denied.
+
+Finally only certain types can be assigned to a process, you are not allow to assign a file type to a process.  So something like 
+
+rucon -t firefox_exec_t /usr/bin/firefox
+
+Would be rejected since firefox_exec_t is a file type not a process type.
 
 
 --
