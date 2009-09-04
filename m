@@ -1,59 +1,82 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n84DuTwB032602
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 09:56:29 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n84DtpGT021128
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 13:55:52 GMT
-Message-ID: <4AA11C73.6000109@manicmethod.com>
-Date: Fri, 04 Sep 2009 09:56:03 -0400
-From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libsemanage patch
-References: <4A5DE96B.7080400@redhat.com>
-In-Reply-To: <4A5DE96B.7080400@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: SELinux and SSH Timers ?...
+Date: Fri, 4 Sep 2009 10:45:01 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D073602DB@de01exm68.ds.mot.com>
+In-Reply-To: <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil>
+References: <4A996106.4060604@martinorr.name> <87my5ijji4.fsf@anzu.internal.golden-gryphon.com> <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil> <4A9BCE45.7060704@martinorr.name> <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil> <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name> <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil> <4A9E6406.5000501@martinorr.name> <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil> <4A9F90B1.3000908@martinorr.name> <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D0731CB89@de01exm68.ds.mot.com> <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil> <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> If you have a homedir that ends in '/', genhomedircon gets confused.
->
-> # useradd -h /home2/dwalsh/ dwalsh
-> # genhomedircon
->
-> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel home root.
->
-> We should just get rid of this command...  :^)
->
-> Patch removes all trailing '/' from homedir.
+My Linux kernel version is 2.6.21.
+ 
 
-> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
-> --- nsalibsemanage/src/genhomedircon.c	2008-08-28 09:34:24.000000000 -0400
-> +++ libsemanage-2.0.33/src/genhomedircon.c	2009-07-15 10:32:20.000000000 -0400
-> @@ -304,6 +304,10 @@
->  			continue;
->  		if (!semanage_list_find(shells, pwbuf->pw_shell))
->  			continue;
-> +		int len = strlen(pwbuf->pw_dir) -1;
-> +		for(; len > 0 && pwbuf->pw_dir[len]=='/'; len--) {
-> +			pwbuf->pw_dir[len]=0;
-> +		}
->  		if (strcmp(pwbuf->pw_dir, "/") == 0)
->  			continue;
->  		if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Friday, September 04, 2009 6:49 AM
+To: Hasan Rezaul-CHR010
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux and SSH Timers ?...
 
-Why aren't you just doing:
+On Thu, 2009-09-03 at 16:32 -0400, Stephen Smalley wrote:
+> On Thu, 2009-09-03 at 16:17 -0400, Hasan Rezaul-CHR010 wrote:
+> > Hi All,
+> > 
+> > I have defined policy such that user_t cannot 'write' to certain 
+> > files/directories, e.g.  /etc/passwd.
+> > 
+> > I have Selinux Strict policy running in "Permissive" Mode, and lets 
+> > just say I am not at liberty to run it in "Enforcing" mode.
+> > 
+> > I also have  /selinux/avc/cache_threshold set to the default  "512".
+> > 
+> > And to test that my policy works, I SSH-login as a user "test" who 
+> > has default context  user_u:user_r:user_t And I attempt to "vi 
+> > /etc/passwd".
+> > 
+> > Given the above conditions: 
+> > - I understand that SELinux will (and does) report a deny into 
+> > audit.log the first time I attempt the "vi /etc/passwd".
+> > 
+> > - The next time I do "vi /etc/passwd" within the same SSH-session, 
+> > it does NOT log the deny! I understand this is because of the 
+> > Permissive Mode + the cache_threshold value.
+> > 
+> > - If I exit my SSH session, and then create a new SSH-session and 
+> > login again with user "test", and then "vi /etc/passwd" again, I 
+> > thought I should see a deny in the audit.log ? Since this is a new
+SSH-Session...
+> > But I DON'T see it ???
+> 
+> No.  In permissive mode, when the denial is encountered, the AVC adds 
+> that denied permission into the allowed vector in the corresponding 
+> AVC cache entry so that subsequent denials do not get logged.  It 
+> remains there until something causes the entry to be evicted, whether 
+> that is a due to a policy reload, changing a boolean, toggling 
+> enforcing mode, or just needing to reclaim an entry over time.  It 
+> doesn't have anything to do with ssh sessions.
+> 
+> You can force an AVC reset at any time by reloading policy, changing a
 
-len = strlen(pwbuf->pwdir);
-if (pwbuf->pwdir[len] == '/')
-	pwbuf->pwdir[len] = '\0';
+> boolean, or toggling enforcing mode.  Or you can set the threshold low
 
-?
+> to cause nodes to get reclaimed quickly for reuse (that sets the upper
 
-Also, won't this fail if the homedir is set to '/' ? This check should probably 
-go below the strcmp(pwbuf->pw_dir, "/") that is currently below it.
+> limit on the number of nodes to be used by the AVC).  Or you could 
+> just patch your kernel to _not_ add the denied permission to the AVC 
+> in the first place.
+
+What kernel version are you using?
+
+--
+Stephen Smalley
+National Security Agency
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
