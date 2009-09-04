@@ -1,38 +1,35 @@
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Subject: RE: SELinux and SSH Timers ?...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0736036B@de01exm68.ds.mot.com>
-References: <4A996106.4060604@martinorr.name>
-	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>
-	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9BCE45.7060704@martinorr.name>
-	 <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name>
-	 <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9E6406.5000501@martinorr.name>
-	 <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
-	 <4A9F90B1.3000908@martinorr.name>
-	 <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D0731CB89@de01exm68.ds.mot.com>
-	 <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil>
-	 <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D073602DB@de01exm68.ds.mot.com>
-	 <1252076160.13634.291.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D0736036B@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Fri, 04 Sep 2009 12:06:23 -0400
-Message-Id: <1252080383.13634.324.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 4 Sep 2009 12:15:38 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0736043C@de01exm68.ds.mot.com>
+In-Reply-To: <1252080383.13634.324.camel@moss-pluto.epoch.ncsc.mil>
+References: <4A996106.4060604@martinorr.name> <87my5ijji4.fsf@anzu.internal.golden-gryphon.com> <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil> <4A9BCE45.7060704@martinorr.name> <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil> <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name> <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil> <4A9E6406.5000501@martinorr.name> <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil> <4A9F90B1.3000908@martinorr.name> <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D0731CB89@de01exm68.ds.mot.com> <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil> <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D073602DB@de01exm68.ds.mot.com> <1252076160.13634.291.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D0736036B@de01exm68.ds.mot.com> <1252080383.13634.324.camel@moss-pluto.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Awesome. Thanks for the detailed info   :-)
+
+ 
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Friday, September 04, 2009 11:06 AM
+To: Hasan Rezaul-CHR010
+Cc: selinux@tycho.nsa.gov
+Subject: RE: SELinux and SSH Timers ?...
+
 On Fri, 2009-09-04 at 11:17 -0400, Hasan Rezaul-CHR010 wrote:
 > By the way, would patching the kernel this way have the same effect as
-> changing the  /selinux/avc/cache_threshold value to "0" for example ? 
+
+> changing the  /selinux/avc/cache_threshold value to "0" for example ?
 > 
-> If that is the case, which would be the more recommended approach to
-> follow (kernel patch  vs.  Changing cache_threshold)? And would you
+> If that is the case, which would be the more recommended approach to 
+> follow (kernel patch  vs.  Changing cache_threshold)? And would you 
 > kindly explain why the preferred approach is better over the other ?
 > Thanks again for all your help !
 
@@ -63,9 +60,10 @@ individual domains permissive while leaving the rest of the system
 enforcing).  But you'd need a newer kernel (>= 2.6.26) and the right
 version of the SELinux userland for that.
 
--- 
+--
 Stephen Smalley
 National Security Agency
+
 
 
 --
