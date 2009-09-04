@@ -1,60 +1,59 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n84DrPML032226
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 09:53:25 -0400
-Received: from e36.co.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n84DseGl002872
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 13:54:41 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e36.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n84DpXbS025691
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 07:51:33 -0600
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n84Dr1e0123212
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 07:53:03 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n84Dr0jr012839
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 07:53:01 -0600
-Date: Fri, 4 Sep 2009 08:46:11 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [RFC PATCH 2/2] cr: debug security_checkpoint_header and
-	security_may_restart
-Message-ID: <20090904134611.GA11508@us.ibm.com>
-References: <20090903222824.GB27377@us.ibm.com> <20090903222853.GA27556@us.ibm.com> <4AA0A3AE.9040106@schaufler-ca.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n84DuTwB032602
+	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 09:56:29 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n84DtpGT021128
+	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 13:55:52 GMT
+Message-ID: <4AA11C73.6000109@manicmethod.com>
+Date: Fri, 04 Sep 2009 09:56:03 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4AA0A3AE.9040106@schaufler-ca.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: libsemanage patch
+References: <4A5DE96B.7080400@redhat.com>
+In-Reply-To: <4A5DE96B.7080400@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Casey Schaufler (casey@schaufler-ca.com):
-> Serge E. Hallyn wrote:
-> > This patch, for debugging only, introduces a silly admin-controlled
-> > 'policy version' for smack.  By default the version is 1.  An
-> > admin (with CAP_MAC_ADMIN) can change it by echoing a new value
-> > into /smack/version.
-> >   
-> 
-> The scheme you have suggested is just one step off of completely
-> acceptable for real. More detail below, but if you make the "version"
-> a string instead of a number I'm happy with it. In particular, a
-> string that would itself be a valid Smack label makes everything
-> really simple.
+Daniel J Walsh wrote:
+> If you have a homedir that ends in '/', genhomedircon gets confused.
+>
+> # useradd -h /home2/dwalsh/ dwalsh
+> # genhomedircon
+>
+> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel home root.
+>
+> We should just get rid of this command...  :^)
+>
+> Patch removes all trailing '/' from homedir.
 
-Presumably at many sites the version will be a unique string not
-used as a label anywhere else.  That's ok?
+> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+> --- nsalibsemanage/src/genhomedircon.c	2008-08-28 09:34:24.000000000 -0400
+> +++ libsemanage-2.0.33/src/genhomedircon.c	2009-07-15 10:32:20.000000000 -0400
+> @@ -304,6 +304,10 @@
+>  			continue;
+>  		if (!semanage_list_find(shells, pwbuf->pw_shell))
+>  			continue;
+> +		int len = strlen(pwbuf->pw_dir) -1;
+> +		for(; len > 0 && pwbuf->pw_dir[len]=='/'; len--) {
+> +			pwbuf->pw_dir[len]=0;
+> +		}
+>  		if (strcmp(pwbuf->pw_dir, "/") == 0)
+>  			continue;
+>  		if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
 
-> It would take me a few days, but if you're not in a real hurry or
-> you're lazier than I am (yeah, right) I could provide a patch that
-> does it. Or, if I haven't been completely incomprehensible, you
-> could do a revision.
+Why aren't you just doing:
 
-Heh, I'm in no hurry.  I'll mark this to do midway next week, if
-you haven't gotten around to it first.  Thanks!
+len = strlen(pwbuf->pwdir);
+if (pwbuf->pwdir[len] == '/')
+	pwbuf->pwdir[len] = '\0';
 
--serge
+?
+
+Also, won't this fail if the homedir is set to '/' ? This check should probably 
+go below the strcmp(pwbuf->pw_dir, "/") that is currently below it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
