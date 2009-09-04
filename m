@@ -1,327 +1,77 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n845L1A3001390
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 01:21:03 -0400
-Received: from smtp105.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n845KLWT029700
-	for <selinux@tycho.nsa.gov>; Fri, 4 Sep 2009 05:20:23 GMT
-Message-ID: <4AA0A3AE.9040106@schaufler-ca.com>
-Date: Thu, 03 Sep 2009 22:20:46 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC PATCH 2/2] cr: debug security_checkpoint_header and	security_may_restart
-References: <20090903222824.GB27377@us.ibm.com> <20090903222853.GA27556@us.ibm.com>
-In-Reply-To: <20090903222853.GA27556@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: SELinux and SSH Timers ?...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil>
+References: <4A996106.4060604@martinorr.name>
+	 <87my5ijji4.fsf@anzu.internal.golden-gryphon.com>
+	 <1251721031.16143.15.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9BCE45.7060704@martinorr.name>
+	 <1251750471.27334.4.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9D2500.8050008@martinorr.name>  <4A9D30F8.1040707@martinorr.name>
+	 <1251816403.27334.114.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9E6406.5000501@martinorr.name>
+	 <1251895923.2785.94.camel@moss-pluto.epoch.ncsc.mil>
+	 <4A9F90B1.3000908@martinorr.name>
+	 <1251991548.13634.81.camel@moss-pluto.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D0731CB89@de01exm68.ds.mot.com>
+	 <1252009947.13634.203.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 04 Sep 2009 07:49:04 -0400
+Message-Id: <1252064944.13634.207.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> This patch, for debugging only, introduces a silly admin-controlled
-> 'policy version' for smack.  By default the version is 1.  An
-> admin (with CAP_MAC_ADMIN) can change it by echoing a new value
-> into /smack/version.
->   
+On Thu, 2009-09-03 at 16:32 -0400, Stephen Smalley wrote:
+> On Thu, 2009-09-03 at 16:17 -0400, Hasan Rezaul-CHR010 wrote:
+> > Hi All,
+> > 
+> > I have defined policy such that user_t cannot 'write' to certain
+> > files/directories, e.g.  /etc/passwd.
+> > 
+> > I have Selinux Strict policy running in "Permissive" Mode, and lets just
+> > say I am not at liberty to run it in "Enforcing" mode.
+> > 
+> > I also have  /selinux/avc/cache_threshold set to the default  "512".
+> > 
+> > And to test that my policy works, I SSH-login as a user "test" who has
+> > default context  user_u:user_r:user_t
+> > And I attempt to "vi /etc/passwd".
+> > 
+> > Given the above conditions: 
+> > - I understand that SELinux will (and does) report a deny into audit.log
+> > the first time I attempt the "vi /etc/passwd".
+> > 
+> > - The next time I do "vi /etc/passwd" within the same SSH-session, it
+> > does NOT log the deny! I understand this is because of the Permissive
+> > Mode + the cache_threshold value.
+> > 
+> > - If I exit my SSH session, and then create a new SSH-session and login
+> > again with user "test", and then "vi /etc/passwd" again, I thought I
+> > should see a deny in the audit.log ? Since this is a new SSH-Session...
+> > But I DON'T see it ???
+> 
+> No.  In permissive mode, when the denial is encountered, the AVC adds
+> that denied permission into the allowed vector in the corresponding AVC
+> cache entry so that subsequent denials do not get logged.  It remains
+> there until something causes the entry to be evicted, whether that is a
+> due to a policy reload, changing a boolean, toggling enforcing mode, or
+> just needing to reclaim an entry over time.  It doesn't have anything to
+> do with ssh sessions.
+> 
+> You can force an AVC reset at any time by reloading policy, changing a
+> boolean, or toggling enforcing mode.  Or you can set the threshold low
+> to cause nodes to get reclaimed quickly for reuse (that sets the upper
+> limit on the number of nodes to be used by the AVC).  Or you could just
+> patch your kernel to _not_ add the denied permission to the AVC in the
+> first place.
 
-The scheme you have suggested is just one step off of completely
-acceptable for real. More detail below, but if you make the "version"
-a string instead of a number I'm happy with it. In particular, a
-string that would itself be a valid Smack label makes everything
-really simple.
+What kernel version are you using?
 
-It would take me a few days, but if you're not in a real hurry or
-you're lazier than I am (yeah, right) I could provide a patch that
-does it. Or, if I haven't been completely incomprehensible, you
-could do a revision.
-
-
-> It then defines security_checkpoint_header() to add this 'policy
-> version' into the checkpoint header, and defines security_may_restart()
-> to refuse restart if both:
-> 	1. the caller asked for RESTART_KEEP_LSM
-> and
-> 	2. the checkpointed version was different from the current.
->
-> This of course is easy enough to test by doing
->
-> 	echo 1 > /smack/version
-> 	ckpt > out
-> 	mktree < out
-> 		succeed
-> 	mktree -k < out
-> 		succeed
-> 	echo 2 > /smack/version
-> 	mktree < out
-> 		succeed
-> 	mktree -k < out
-> 		fail
->
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> ---
->  security/smack/smack_lsm.c |   46 +++++++++++++++++++++++++++
->  security/smack/smackfs.c   |   75 ++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 121 insertions(+), 0 deletions(-)
->
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 279fdce..f0d4a08 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -27,6 +27,7 @@
->  #include <linux/udp.h>
->  #include <linux/mutex.h>
->  #include <linux/pipe_fs_i.h>
-> +#include <linux/checkpoint.h>
->  #include <net/netlabel.h>
->  #include <net/cipso_ipv4.h>
->  #include <linux/audit.h>
-> @@ -3111,6 +3112,47 @@ static void smack_release_secctx(char *secdata, u32 seclen)
->  {
->  }
->  
-> +#ifdef CONFIG_CHECKPOINT
-> +extern int smack_version;
->   
-
-Make this a char * instead of an int and set it to
-smack_known_floor.smk_known (which will be "_").
-
-
-> +
-> +static int smack_may_restart(struct ckpt_ctx *ctx)
->   
-
-So as to reduce confusion between ctx's and checkpoint thingies,
-
-   static int smack_may_restart(struct ckpt_ctx *ckptx)
-> +{
-> +	struct ckpt_hdr *h;
->   
-
-How about:
-          struct ckpt_hdr *chp;
-
-instead for a little more consistency with Smack code.
-
-> +	char *smackv;
-> +	int v = 0, slen, ret;
-> +
-> +	h = ckpt_read_buf_type(ctx, CKPT_LSM_INFO_LEN, CKPT_HDR_LSM_INFO);
-> +	if (IS_ERR(h))
-> +		return PTR_ERR(h);
-> +
-> +	if (strcmp(ctx->lsm_name, "smack") != 0)
-> +		return 0;
-> +
-> +	smackv = (char *) (h + 1);
->   
-
-And delete from here ...
-
-> +	slen = h->len - sizeof(*h);
-> +	if (smackv[slen-1] != '\0')
-> +		smackv[slen-1] = '\0';
-> +	ret = sscanf(smackv, "%d", &v);
->   
-
-... to here. How about we say that the version name meet the same
-requirements as a label? A call to smk_import() can verify that and
-take care of all the memory allocation business.
-
-> +	ckpt_hdr_put(ctx, h);
-> +	if (!(ctx->uflags & RESTART_KEEP_LSM))
-> +		return 0;
-> +	if (ret != 1 || v != smack_version) {
->   
-
-Make this a strcmp()
-
-> +		ckpt_debug("Smack version at checkpoint was %d, now is %d\n",
->   
-
-%s instead of %d all around.
-
-> +			v, smack_version);
-> +		return -EINVAL;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int smack_checkpoint_header(struct cpt_ctx *ctx)
-> +{
-> +	char smackv[10];
-> +	sprintf(smackv, "%d", smack_version);
->   
-
-You can drop this ...
-
-> +	return ckpt_write_obj_type(ctx, smackv, strlen(smackv)+1,
-> +				  CKPT_HDR_LSM_INFO);
->   
-
-And pass back smack_version, which is a string.
-
-> +}
-> +#endif
-> +
->  struct security_operations smack_ops = {
->  	.name =				"smack",
->  
-> @@ -3245,6 +3287,10 @@ struct security_operations smack_ops = {
->  	.secid_to_secctx = 		smack_secid_to_secctx,
->  	.secctx_to_secid = 		smack_secctx_to_secid,
->  	.release_secctx = 		smack_release_secctx,
-> +#ifdef CONFIG_CHECKPOINT
-> +	.may_restart =			smack_may_restart,
-> +	.checkpoint_header =		smack_checkpoint_header,
-> +#endif
->  };
->  
->  
-> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-> index f83a809..7b20ad9 100644
-> --- a/security/smack/smackfs.c
-> +++ b/security/smack/smackfs.c
-> @@ -42,6 +42,7 @@ enum smk_inos {
->  	SMK_NETLBLADDR	= 8,	/* single label hosts */
->  	SMK_ONLYCAP	= 9,	/* the only "capable" label */
->  	SMK_LOGGING	= 10,	/* logging */
-> +	SMK_VERSION	= 11,	/* logging */
->  };
->  
->  /*
-> @@ -51,6 +52,7 @@ static DEFINE_MUTEX(smack_list_lock);
->  static DEFINE_MUTEX(smack_cipso_lock);
->  static DEFINE_MUTEX(smack_ambient_lock);
->  static DEFINE_MUTEX(smk_netlbladdr_lock);
-> +static DEFINE_MUTEX(smack_version_lock);
->  
->  /*
->   * This is the "ambient" label for network traffic.
-> @@ -60,6 +62,11 @@ static DEFINE_MUTEX(smk_netlbladdr_lock);
->  char *smack_net_ambient = smack_known_floor.smk_known;
->  
->  /*
-> + * this is the policy version, a simple integer
-> + */
-> +int smack_version = 1;
-> +
->   
-
-Make this a char * instead of an int and set it to
-smack_known_floor.smk_known (which will be "_"). As above.
-
-
-> +/*
->   * This is the level in a CIPSO header that indicates a
->   * smack label is contained directly in the category set.
->   * It can be reset via smackfs/direct
-> @@ -1255,6 +1262,72 @@ static const struct file_operations smk_logging_ops = {
->  	.read		= smk_read_logging,
->  	.write		= smk_write_logging,
->  };
-> +
-> +#define SMK_VERSIONLEN 12
->   
-
-    #define SMK_VERSIONLEN SMK_LABELLEN
-
-> +/**
-> + * smk_read_version - read() for /smack/version
-> + * @filp: file pointer, not actually used
-> + * @buf: where to put the result
-> + * @cn: maximum to send along
-> + * @ppos: where to start
-> + *
-> + * Returns number of bytes read or error code, as appropriate
-> + */
-> +static ssize_t smk_read_version(struct file *filp, char __user *buf,
-> +				size_t count, loff_t *ppos)
-> +{
-> +	char temp[SMK_VERSIONLEN];
-> +
-> +	if (*ppos != 0)
-> +		return 0;
-> +
-> +	mutex_lock(&smack_version_lock);
-> +	sprintf(temp, "%d\n", smack_version);
->   
-
-In the scheme I'm suggesting, no need for the sprintf.
-
-> +	mutex_unlock(&smack_version_lock);
-> +
-> +	return simple_read_from_buffer(buf, count, ppos, temp, strlen(temp));
-> +}
-> +
-> +/**
-> + * smk_write_version - write() for /smack/version
-> + * @file: file pointer, not actually used
-> + * @buf: where to get the data from
-> + * @count: bytes sent
-> + * @ppos: where to start
-> + *
-> + * Returns number of bytes written or error code, as appropriate
-> + */
-> +static ssize_t smk_write_version(struct file *file, const char __user *buf,
-> +				 size_t count, loff_t *ppos)
-> +{
-> +	char in[SMK_VERSIONLEN];
-> +	int tmp, ret;
-> +
-> +	if (!capable(CAP_MAC_ADMIN))
-> +		return -EPERM;
-> +
-> +	if (count >= SMK_VERSIONLEN)
-> +		return -EINVAL;
-> +
-> +	if (copy_from_user(in, buf, count) != 0)
-> +		return -EFAULT;
->   
-
-This would become smk_import(), replacing ....
-
-> +
-> +	in[count-1] = '\0';
-> +	ret = sscanf(in, "%d", &tmp);
-> +	if (ret != 1)
-> +		return -EINVAL;
->   
-
-... this
-
-> +	mutex_lock(&smack_version_lock);
-> +	smack_version = tmp;
->   
-
-and smack_version gets the return from smk_import unless it is NULL.
-
-> +	mutex_unlock(&smack_version_lock);
-> +
-> +	return count;
-> +}
-> +
-> +static const struct file_operations smk_version_ops = {
-> +	.read		= smk_read_version,
-> +	.write		= smk_write_version,
-> +};
-> +
->  /**
->   * smk_fill_super - fill the /smackfs superblock
->   * @sb: the empty superblock
-> @@ -1287,6 +1360,8 @@ static int smk_fill_super(struct super_block *sb, void *data, int silent)
->  			{"onlycap", &smk_onlycap_ops, S_IRUGO|S_IWUSR},
->  		[SMK_LOGGING]	=
->  			{"logging", &smk_logging_ops, S_IRUGO|S_IWUSR},
-> +		[SMK_VERSION]	=
-> +			{"version", &smk_version_ops, S_IRUGO|S_IWUSR},
->  		/* last one */ {""}
->  	};
->  
->   
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
