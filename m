@@ -1,111 +1,155 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n87EI1Dg012912
-	for <selinux@tycho.nsa.gov>; Mon, 7 Sep 2009 10:18:01 -0400
-Received: from mail.gmx.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n87EJIQa019550
-	for <selinux@tycho.nsa.gov>; Mon, 7 Sep 2009 14:19:19 GMT
-From: Dennis Wronka <linuxweb@gmx.net>
-To: waqar afridi <afridi.waqar@gmail.com>
-Subject: Re: Problem install Reference Policy
-Date: Mon, 7 Sep 2009 22:17:48 +0800
-Cc: zheyeung@gmail.com, selinux@tycho.nsa.gov
-References: <200909071010066097796@gmail.com> <4AA48895.8030400@gmail.com> <78aaeffc0909062353p428dac47q614eb6b71a2f8ed7@mail.gmail.com>
-In-Reply-To: <78aaeffc0909062353p428dac47q614eb6b71a2f8ed7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10798810.8VD4R15e6h";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <200909072217.52396.linuxweb@gmx.net>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n87EWoVB014708
+	for <selinux@tycho.nsa.gov>; Mon, 7 Sep 2009 10:32:50 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n87EWA1t016900
+	for <selinux@tycho.nsa.gov>; Mon, 7 Sep 2009 14:32:10 GMT
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Cc: Manoj Srivastava <srivasta@debian.org>
+Subject: [PATCH] Add functionality to upstart to load policy early in boot
+Date: Mon,  7 Sep 2009 09:16:32 -0500
+Message-Id: <1252332992-5271-1-git-send-email-srivasta@golden-gryphon.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---nextPart10798810.8VD4R15e6h
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+From: Manoj Srivastava <srivasta@debian.org>
 
-Usually turning off modules shouldn't help to free a lot of memory as they=
-=20
-usually are small things that don't take up much RAM anyway.
 
-How much RAM do you have in your PC?
+         As has been reported, Debian is planning on moving to upstart
+ for the next release. Debian does not require a system to have an
+ initramfs (custom kernels which do not need initramfs and/or modules
+ are supported), so it is desirable to have /sbin/init load policy early
+ in the boot process, and sysvinit has already been patched like this.
+ I am sending this in for comment and review.
 
-> *Thanx zheyeung*, But If I do leave the original *Build.conf* I get the
-> following error
->
-> /usr/bin/checkpolicy policy.conf -o /etc/selinux/refpolicy/policy/policy.=
-23
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> make: *** [/etc/selinux/refpolicy/policy/policy.23] Killed
->
->  Is it due to less memory or some thing else, I also turned off some
-> unwanted modules from *modules.conf*, but didnt help, What should I do?
->
-> On Mon, Sep 7, 2009 at 10:14 AM, Justin P. Mattock
->
-> <justinmattock@gmail.com>wrote:
-> > zheyeung wrote:
-> >> hello waqar, I used to get this problem.after then, i edit file
-> >> build.conf in some way  ,then make . make successfully!
-> >> but I've got another problem . after i install the policy (by editting
-> >> /etc/ selinux/config ,reboot)  ,my graphic user interface failed to
-> >> start up.and i don't kown why.
-> >> I run "semanage login -l" ,found "login" of root is root: sysadm_r.but
-> >> default targeted in Fedora-11. root 's "login" is "unconfined_u:
-> >> unconfined_r".
-> >
-> > you might try  make clean, make enableaudit, make policy
-> > this will generate some more avc's that you might need
-> > to allow to startx.
-> >
-> >  2009-09-07
-> >
-> >> ----------------------------------------------------------------------=
-=2D-
-> >> zheyeung
-> >> ----------------------------------------------------------------------=
-=2D-
-> >> *=E5=8F=91=E4=BB=B6=E4=BA=BA=EF=BC=9A* waqar afridi
-> >> *=E5=8F=91=E9=80=81=E6=97=B6=E9=97=B4=EF=BC=9A* 2009-09-05  15:44:44
-> >> *=E6=94=B6=E4=BB=B6=E4=BA=BA=EF=BC=9A* selinux
-> >> *=E6=8A=84=E9=80=81=EF=BC=9A*
-> >> *=E4=B8=BB=E9=A2=98=EF=BC=9A* Problem install Reference Policy
-> >> Hello Every One,
-> >>
-> >> I am new to selinux, I am using Ubuntu and i am trying to install
-> >> reference Policy on it, after running command make load, I get this
-> >> error, I dont know whats wrong
-> >>
-> >> /usr/bin/checkpolicy policy.conf -o
-> >> /etc/selinux/refpolicy/policy/policy.23
-> >> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> >> policy/modules/services/ifplugd.te":67:ERROR 'type netutils_exec_t is
-> >> not within scope' at token ';' on line 362418:
-> >>    allow ifplugd_t netutils_exec_t:file { getattr open read execute };
-> >> #line 67
-> >> checkpolicy:  error(s) encountered while parsing configuration
-> >> make: *** [/etc/selinux/refpolicy/policy/policy.23] Error 1
-> >>
-> >>
-> >> --
-> >> Waqar Afridi
-> >
-> > Justin P. Mattock
+This patch is applied conditionally, and unless WITH_SELINUX is defined
+when make is called (that is, at compile time), it does nothing. If
+WITH_SELINUX is set to 'yes' at compile time, this patch, analogous to
+that in sysvinit, checks early to see if SELinux is enabled on the
+machine, and then tries to load policy, If loading policy fails,and if
+SELinux is in enforcing mode, it prevents startup.
 
---nextPart10798810.8VD4R15e6h
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+If the machine does not have selinux enabled at run time, nothing
+happens.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.12 (GNU/Linux)
+Signed-off-by: Manoj Srivastava <srivasta@debian.org>
+---
+ init/Makefile.am |   12 ++++++++++--
+ init/Makefile.in |   12 ++++++++++--
+ init/main.c      |   22 ++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 4 deletions(-)
 
-iEYEABECAAYFAkqlFhAACgkQ1sXw8/2VziTL4ACgjIZO6rYtGOiDMKPRnC79jFGs
-nYsAoKTRNnp5Y0TGXLwYil2ab1HNCQ6t
-=Q6KV
------END PGP SIGNATURE-----
+diff --git a/init/Makefile.am b/init/Makefile.am
+index c1a8a3c..6119998 100644
+--- a/init/Makefile.am
++++ b/init/Makefile.am
+@@ -5,7 +5,15 @@ initconfdir = $(sysconfdir)/init
+ AM_CFLAGS = \
+ 	$(DBUS_CFLAGS)
+ 
+-AM_CPPFLAGS = \
++ifeq ($(WITH_SELINUX),yes)
++  SELINUX_DEF=-DWITH_SELINUX
++  INIT_SELIBS=-lsepol -lselinux
++else
++  SELINUX_DEF=
++  INIT_SELIBS=
++endif
++
++AM_CPPFLAGS = $(SELINUX_DEF) \
+ 	-DLOCALEDIR="\"$(localedir)\"" \
+ 	-DCONFFILE="\"$(sysconfdir)/init.conf\"" \
+ 	-DCONFDIR="\"$(initconfdir)\"" \
+@@ -58,7 +66,7 @@ init_LDADD = \
+ 	../nih-dbus/libnih-dbus.la \
+ 	$(LTLIBINTL) \
+ 	$(DBUS_LIBS) \
+-	-lrt
++	$(INIT_SELIBS) -lrt
+ 
+ 
+ com_ubuntu_Upstart_OUTPUTS = \
+diff --git a/init/Makefile.in b/init/Makefile.in
+index 4042358..a0b79cf 100644
+--- a/init/Makefile.in
++++ b/init/Makefile.in
+@@ -426,7 +426,15 @@ initconfdir = $(sysconfdir)/init
+ AM_CFLAGS = \
+ 	$(DBUS_CFLAGS)
+ 
+-AM_CPPFLAGS = \
++ifeq ($(WITH_SELINUX),yes)
++  SELINUX_DEF=-DWITH_SELINUX
++  INIT_SELIBS=-lsepol -lselinux
++else
++  SELINUX_DEF=
++  INIT_SELIBS=
++endif
++
++AM_CPPFLAGS = $(SELINUX_DEF) \
+ 	-DLOCALEDIR="\"$(localedir)\"" \
+ 	-DCONFFILE="\"$(sysconfdir)/init.conf\"" \
+ 	-DCONFDIR="\"$(initconfdir)\"" \
+@@ -477,7 +485,7 @@ init_LDADD = \
+ 	../nih-dbus/libnih-dbus.la \
+ 	$(LTLIBINTL) \
+ 	$(DBUS_LIBS) \
+-	-lrt
++	$(INIT_SELIBS) -lrt
+ 
+ com_ubuntu_Upstart_OUTPUTS = \
+ 	com.ubuntu.Upstart.c \
+diff --git a/init/main.c b/init/main.c
+index 2836583..6e76637 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -58,6 +58,9 @@
+ #include "conf.h"
+ #include "control.h"
+ 
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#endif
+ 
+ /* Prototypes for static functions */
+ #ifndef DEBUG
+@@ -107,6 +110,9 @@ main (int   argc,
+ {
+ 	char **args;
+ 	int    ret;
++#ifdef WITH_SELINUX
++        int    enforce = 0;
++#endif
+ 
+ 	argv0 = argv[0];
+ 	nih_main_init (argv0);
+@@ -137,6 +143,22 @@ main (int   argc,
+ 		exit (1);
+ 	}
+ 
++#ifdef WITH_SELINUX
++        if (getenv("SELINUX_INIT") == NULL && !is_selinux_enabled()) {
++          putenv("SELINUX_INIT=YES");
++          if (selinux_init_load_policy(&enforce) == 0 ) {
++            execv(argv0, argv);
++          } else {
++            if (enforce > 0) {
++              /* SELinux in enforcing mode but load_policy failed */
++              /* At this point, we probably can't open /dev/console, so log() won't work */
++              fprintf(stderr,"Unable to load SELinux Policy. Machine is in enforcing mode. Halting now.\n");
++              exit(1);
++            }
++          }
++        }
++#endif
++
+ 	/* Clear our arguments from the command-line, so that we show up in
+ 	 * ps or top output as /sbin/init, with no extra flags.
+ 	 *
+-- 
+1.6.3.3
 
---nextPart10798810.8VD4R15e6h--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
