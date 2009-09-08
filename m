@@ -1,81 +1,90 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88G4iwV005881
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 12:04:44 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n88G45IT028386
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 16:04:05 GMT
-Date: Tue, 08 Sep 2009 12:04:31 -0400
-Subject: Re: libsemanage patch
-From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>,
-        Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Message-ID: <C6CBF8CF.AA709%csellers@tresys.com>
-In-Reply-To: <4AA4E41F.6040301@redhat.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88Gadkw009352
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 12:36:39 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n88GZw9T012726
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 16:35:59 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id n88GaTMu058100
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 18:36:29 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] ([147.32.84.251])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id n88GaSAX016387
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 18:36:29 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Tue, 8 Sep 2009 18:36:28 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: MCS and default labels
+Message-ID: <20090908163628.GC24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+ <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2JFBq9zoW8cOFH7v"
+In-Reply-To: <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 9/7/09 6:44 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> On 09/04/2009 09:56 AM, Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> If you have a homedir that ends in '/', genhomedircon gets confused.
->>> 
->>> # useradd -h /home2/dwalsh/ dwalsh
->>> # genhomedircon
->>> 
->>> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
->>> home root.
->>> 
->>> We should just get rid of this command...  :^)
->>> 
->>> Patch removes all trailing '/' from homedir.
->> 
->>> diff --exclude-from=exclude -N -u -r
->>> nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
->>> --- nsalibsemanage/src/genhomedircon.c    2008-08-28
->>> 09:34:24.000000000 -0400
->>> +++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
->>> 10:32:20.000000000 -0400
->>> @@ -304,6 +304,10 @@
->>>              continue;
->>>          if (!semanage_list_find(shells, pwbuf->pw_shell))
->>>              continue;
->>> +        int len = strlen(pwbuf->pw_dir) -1;
->>> +        for(; len > 0 && pwbuf->pw_dir[len]=='/'; len--) {
->>> +            pwbuf->pw_dir[len]=0;
->>> +        }
->>>          if (strcmp(pwbuf->pw_dir, "/") == 0)
->>>              continue;
->>>          if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
->> 
->> Why aren't you just doing:
->> 
->> len = strlen(pwbuf->pwdir);
->> if (pwbuf->pwdir[len] == '/')
->>     pwbuf->pwdir[len] = '\0';
->> 
->> ?
->> 
-> What about /home/dwalsh//////
-> Which I believe is legal
->> Also, won't this fail if the homedir is set to '/' ? This check should
->> probably go below the strcmp(pwbuf->pw_dir, "/") that is currently below
->> it.
-> Yes good point.
-> 
-I thought it worked fine with '/'. Since the loop condition is len > 0
-(where len is the index of the last character, not the length of the string,
-which is a bit confusing and should probably be changed), it would never
-reset the first character. And don't you want this before the
-strcmp(pwbuf->pw_dir, "/") in case the path is ///// (which would of course
-be silly, but I believe is legal anyway)?
+--2JFBq9zoW8cOFH7v
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Chad
+Hello,
 
+Stephen Smalley wrote:
+> MCS deviates from this scheme by only using the high level and by
+> requiring the user/application to intentionally label the objects as
+> desired up to their high level - that is part of what makes it
+> discretionary.
+
+It is okay that the system is discretionary, and I don't question that
+fact. I question the way labels get assigned *per default*. In
+comparison to DAC, it would mean that all files are created with an=20
+umask of 000 and are required to change the resulting permissions
+afterwards. You can not expect that every application out there is
+aware of MCS and/or that every user uses chcat thoroughly on all new
+files (plus there are issues like text editors making a copy of a file
+prior to editing).
+
+So in other words DAC nature of MCS is okay it is just that there should
+be some more sensible defaults pointing towards preservation of labels
+on objects in their respective containers. The unix setgid bit can do
+that on directories, as do default ACLs, both being mechanisms of DAC.
+
+Secondly I don't see why a user is not able to discretionarily specify
+his range outright when going via ssh just as he can with roles.=20
+
+> Perhaps you ought to use MLS instead.  Or just use TE and define domains
+> and types for these processes and files.
+
+No. MLS is about strict ordering 0 < 1 < 2 ... I just want a partially
+ordered set. I want compartments, not sensitivities. MCS and MLS are
+orthogonal, at least by their theoretical properties (and SELinux MCS
+strongly resembles the theory in practice).
+
+And TE? Almost any of these models can be simulated by TE, given types
+are granular enough, but I don't want the number of types be a quadratic
+function of compartments plus the hassle associated with that.
+
+With regards,
+Michal Svoboda
+
+--2JFBq9zoW8cOFH7v
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkqmiAwACgkQg/fU9pp1uX7ysgCgpTEIgDURT1VYpfaOPKSdTeRV
+OQIAoJxUH1zfSMTbYCex8HTHe0zymMis
+=qp27
+-----END PGP SIGNATURE-----
+
+--2JFBq9zoW8cOFH7v--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
