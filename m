@@ -1,58 +1,80 @@
-Subject: Re: MCS and default labels
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20090908055806.GA24297@myhost.felk.cvut.cz>
-References: <20090908055806.GA24297@myhost.felk.cvut.cz>
-Content-Type: text/plain
-Date: Tue, 08 Sep 2009 11:35:28 -0400
-Message-Id: <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88G4iwV005881
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 12:04:44 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n88G45IT028386
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 16:04:05 GMT
+Date: Tue, 08 Sep 2009 12:04:31 -0400
+Subject: Re: libsemanage patch
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>,
+        Joshua Brindle <method@manicmethod.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C6CBF8CF.AA709%csellers@tresys.com>
+In-Reply-To: <4AA4E41F.6040301@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-08 at 07:58 +0200, Michal Svoboda wrote:
-> Hello,
+On 9/7/09 6:44 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+
+> On 09/04/2009 09:56 AM, Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> If you have a homedir that ends in '/', genhomedircon gets confused.
+>>> 
+>>> # useradd -h /home2/dwalsh/ dwalsh
+>>> # genhomedircon
+>>> 
+>>> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
+>>> home root.
+>>> 
+>>> We should just get rid of this command...  :^)
+>>> 
+>>> Patch removes all trailing '/' from homedir.
+>> 
+>>> diff --exclude-from=exclude -N -u -r
+>>> nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+>>> --- nsalibsemanage/src/genhomedircon.c    2008-08-28
+>>> 09:34:24.000000000 -0400
+>>> +++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
+>>> 10:32:20.000000000 -0400
+>>> @@ -304,6 +304,10 @@
+>>>              continue;
+>>>          if (!semanage_list_find(shells, pwbuf->pw_shell))
+>>>              continue;
+>>> +        int len = strlen(pwbuf->pw_dir) -1;
+>>> +        for(; len > 0 && pwbuf->pw_dir[len]=='/'; len--) {
+>>> +            pwbuf->pw_dir[len]=0;
+>>> +        }
+>>>          if (strcmp(pwbuf->pw_dir, "/") == 0)
+>>>              continue;
+>>>          if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
+>> 
+>> Why aren't you just doing:
+>> 
+>> len = strlen(pwbuf->pwdir);
+>> if (pwbuf->pwdir[len] == '/')
+>>     pwbuf->pwdir[len] = '\0';
+>> 
+>> ?
+>> 
+> What about /home/dwalsh//////
+> Which I believe is legal
+>> Also, won't this fail if the homedir is set to '/' ? This check should
+>> probably go below the strcmp(pwbuf->pw_dir, "/") that is currently below
+>> it.
+> Yes good point.
 > 
-> I have implemented a simple MCS based system for hosting SVN
-> repositories. I was happy with the performance until I found out that
-> the s0-s0:c1 processes will happily create new revisions (ie. new files)
-> as s0 inside a s0:c1 directory. According to various sources, new files
-> are always created using the lowest security level in the range of the
-> creating process, despite an inheritance mechanism already working for
-> types. What is the reasoning behind this?
+I thought it worked fine with '/'. Since the loop condition is len > 0
+(where len is the index of the last character, not the length of the string,
+which is a bit confusing and should probably be changed), it would never
+reset the first character. And don't you want this before the
+strcmp(pwbuf->pw_dir, "/") in case the path is ///// (which would of course
+be silly, but I believe is legal anyway)?
 
-This may help in understanding:
-http://marc.info/?l=selinux&m=124688422726897&w=2
-
-Understand that MCS is merely an alternative configuration of the MLS
-policy engine. Under MLS, new objects are labeled with the low level of
-the creating process.  In a MLS system, the process would have a low
-level of s0:c1 and thus the files it creates would automatically be
-labeled as such.  MCS deviates from this scheme by only using the high
-level and by requiring the user/application to intentionally label the
-objects as desired up to their high level - that is part of what makes
-it discretionary.
-
-Perhaps you ought to use MLS instead.  Or just use TE and define domains
-and types for these processes and files.
-
-> I tried to mitigate this by forcing a ssh session into a certain MCS
-> range, as in ssh user/foo_r:foo_t:s0:c1, however this only works for
-> changing roles but not for MCS. Not even setting the MCS level in
-> default_contexts works as one would expect. Again, why?
->
-> Running out of ideas, my solution for now is to hope that a s0 process
-> cannot search / modify the s0:c1 directory, even with s0 files present
-> and to periodically "restorecon" the whole dir (no, restorecond does not
-> seem to be working on dirs recursively). So the third question is, are
-> there any better ways?
-> 
-> Regards,
-> Michal Svoboda
--- 
-Stephen Smalley
-National Security Agency
+Chad
 
 
 --
