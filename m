@@ -1,28 +1,40 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88NCbhT022464
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:12:37 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n88NDuxn005164
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 23:13:57 GMT
-Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n88NCZuh006498
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:12:35 -0400
-Received: from localhost.localdomain (vpn-12-151.rdu.redhat.com [10.11.12.151])
-	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n88NCYww032599
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:12:35 -0400
-Message-ID: <4AA6E4E2.1000303@redhat.com>
-Date: Tue, 08 Sep 2009 19:12:34 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88NQAIg023462
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:26:10 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n88NPVXV028000
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 23:25:31 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by tundra.namei.org (8.13.1/8.13.1) with ESMTP id n88NQ9l2020999
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:26:09 -0400
+Date: Wed, 9 Sep 2009 09:26:09 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: RHEL, RHCS, and Selinux : hype, reality or dream?
+In-Reply-To: <alpine.LRH.2.00.0909090747110.20344@tundra.namei.org>
+Message-ID: <alpine.LRH.2.00.0909090922590.20973@tundra.namei.org>
+References: <alpine.LRH.2.00.0909090747110.20344@tundra.namei.org>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setfiles leaks file descriptors
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-https://bugzilla.redhat.com/show_bug.cgi?id=521682
 
-Patch to fix is included.
+> Hi. Sorry in advance for the polemical tone and the topic that is not
+> technical.
+
+Thanks for pointing this out -- I was not aware of this.
+
+This issue is being worked on.
+
+The tracking bz entry for this is:
+https://bugzilla.redhat.com/show_bug.cgi?id=503141
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
