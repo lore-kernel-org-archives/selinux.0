@@ -1,89 +1,55 @@
-Subject: Re: Limitations in modular policy
+Subject: Re: MCS and default labels
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4AA5AB73.6050306@ak.jp.nec.com>
-References: <4AA5AB73.6050306@ak.jp.nec.com>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20090908055806.GA24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
 Content-Type: text/plain
-Date: Tue, 08 Sep 2009 11:20:23 -0400
-Message-Id: <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 08 Sep 2009 11:35:28 -0400
+Message-Id: <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-08 at 09:55 +0900, KaiGai Kohei wrote:
-> Is there any good reason why the current modular policy doesn't, cannot
-> or shouldn't support to contain definitions of object classes and its
-> access vectors except for the base policy?
+On Tue, 2009-09-08 at 07:58 +0200, Michal Svoboda wrote:
+> Hello,
+> 
+> I have implemented a simple MCS based system for hosting SVN
+> repositories. I was happy with the performance until I found out that
+> the s0-s0:c1 processes will happily create new revisions (ie. new files)
+> as s0 inside a s0:c1 directory. According to various sources, new files
+> are always created using the lowest security level in the range of the
+> creating process, despite an inheritance mechanism already working for
+> types. What is the reasoning behind this?
 
-The class and permission values are determined based on declaration
-ordering.  There are no ordering guarantees among modules, and thus any
-order dependent statements have to go into the base module presently.
+This may help in understanding:
+http://marc.info/?l=selinux&m=124688422726897&w=2
 
-Even for modern userspace object managers that dynamically look up the
-class and permission values, we don't yet have a way to atomically roll
-them over to a new set of values upon a policy reload, which could
-easily happen upon module removal or insertion if they are declared in
-individual modules.  I think we'd have to extend avc_reset() to also
-call flush_class_cache() to force rediscovery of the class/permission
-values from selinuxfs and to then call selinux_set_mapping() with the
-original security_class_mapping (to which we would have to save a
-reference upon the earlier selinux_set_mapping call) to re-create the
-mapping.  It would have to be done while holding the AVC lock.
+Understand that MCS is merely an alternative configuration of the MLS
+policy engine. Under MLS, new objects are labeled with the low level of
+the creating process.  In a MLS system, the process would have a low
+level of s0:c1 and thus the files it creates would automatically be
+labeled as such.  MCS deviates from this scheme by only using the high
+level and by requiring the user/application to intentionally label the
+objects as desired up to their high level - that is part of what makes
+it discretionary.
 
-> For example, it seems to me reasonable to have the following statement
-> to support experimental object classes and access vectors.
-> --------------------------------
-> policy_module(sepostgresql-devel, 1.23)
+Perhaps you ought to use MLS instead.  Or just use TE and define domains
+and types for these processes and files.
+
+> I tried to mitigate this by forcing a ssh session into a certain MCS
+> range, as in ssh user/foo_r:foo_t:s0:c1, however this only works for
+> changing roles but not for MCS. Not even setting the MCS level in
+> default_contexts works as one would expect. Again, why?
+>
+> Running out of ideas, my solution for now is to hope that a s0 process
+> cannot search / modify the s0:c1 directory, even with s0 files present
+> and to periodically "restorecon" the whole dir (no, restorecond does not
+> seem to be working on dirs recursively). So the third question is, are
+> there any better ways?
 > 
-> gen_require(`
->     class db_database all_db_database_perms;
->     attribute sepgsql_unconfined_type;
->     type sepgsql_db_t;
-> ')
-> 
-> ## 1. Add an experimental access vector
-> class db_database { superuser };
-> 
-> ## 2. Add an experimental object class
-> class db_schema
-> inherits database
-> {
-> 	search
-> 	add_name
-> 	remove_name
-> };
-> 
-> ## 3. Add an experimental MLS/MCS rules
-> ifdef(`enable_mcs',`
-> 	mlsconstrain db_database { superuser }
-> 		( h1 dom h2 );
-> 	mlsconstrain db_schema { create relabelto }
-> 		(( h1 dom h2 ) and ( l2 eq h2 ));
-> 	mlsconstrain db_schema { drop getattr setattr relabelfrom search add_name remove_name }
-> 		( h1 dom h2 );
-> ')
-> ifdef(`enable_mls`,`
-> 	  :
-> 	<snip>
-> 	  :
-> ')
-> ## 4. avtab rules currently supported
-> type sepgsql_schema_t;
-> 
-> allow sepgsql_unconfined_type sepgsql_db_t : db_database *;
-> allow sepgsql_unconfined_type sepgsql_schema_t : db_schema *;
-> --------------------------------
-> 
-> Currently, SE-PostgreSQL has several experimental object classes and access
-> vectors (such as db_schema class and db_database:{superuser}), but we will
-> need more several months to fix its specifications at least, because progress
-> in the pgsql-hackers too slow.
-> So, we must replace the standard selinux-policy package to run it with full
-> functionalities, but it will get troubled for each "yum update".
-> 
-> Thanks,
+> Regards,
+> Michal Svoboda
 -- 
 Stephen Smalley
 National Security Agency
