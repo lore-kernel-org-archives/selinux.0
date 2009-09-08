@@ -1,58 +1,117 @@
-Subject: Re: [PATCH] Add functionality to upstart to load policy early in
- boot
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Manoj Srivastava <srivasta@golden-gryphon.com>
-Cc: selinux@tycho.nsa.gov, Manoj Srivastava <srivasta@debian.org>
-In-Reply-To: <1252430762.13634.439.camel@moss-pluto.epoch.ncsc.mil>
-References: <1252332992-5271-1-git-send-email-srivasta@golden-gryphon.com>
-	 <1252430762.13634.439.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 08 Sep 2009 13:33:57 -0400
-Message-Id: <1252431237.13634.451.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88K0BGU005304
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 16:00:11 -0400
+Received: from ey-out-1920.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n88K1UUf024870
+	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 20:01:30 GMT
+Received: by ey-out-1920.google.com with SMTP id 3so1130568eyh.32
+        for <selinux@tycho.nsa.gov>; Tue, 08 Sep 2009 13:00:09 -0700 (PDT)
+MIME-Version: 1.0
+Date: Tue, 8 Sep 2009 22:00:08 +0200
+Message-ID: <51af93b70909081300g582d6939g54540ca371095c2d@mail.gmail.com>
+Subject: RHEL, RHCS, and Selinux : hype, reality or dream?
+From: Elia Pinto <andronicus.spiros@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=0016e6d99fb9d5ad73047316693c
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-08 at 13:26 -0400, Stephen Smalley wrote:
-> On Mon, 2009-09-07 at 09:16 -0500, Manoj Srivastava wrote:
-> > From: Manoj Srivastava <srivasta@debian.org>
-> > 
-> > 
-> >          As has been reported, Debian is planning on moving to upstart
-> >  for the next release. Debian does not require a system to have an
-> >  initramfs (custom kernels which do not need initramfs and/or modules
-> >  are supported), so it is desirable to have /sbin/init load policy early
-> >  in the boot process, and sysvinit has already been patched like this.
-> >  I am sending this in for comment and review.
-> > 
-> > This patch is applied conditionally, and unless WITH_SELINUX is defined
-> > when make is called (that is, at compile time), it does nothing. If
-> > WITH_SELINUX is set to 'yes' at compile time, this patch, analogous to
-> > that in sysvinit, checks early to see if SELinux is enabled on the
-> > machine, and then tries to load policy, If loading policy fails,and if
-> > SELinux is in enforcing mode, it prevents startup.
-> > 
-> > If the machine does not have selinux enabled at run time, nothing
-> > happens.
-> 
-> Looks like you followed the sysvinit selinux patch except that you added
-> a test of is_selinux_enabled() that ensures that upstart will not try to
-> load policy a second time if it was already loaded (e.g. by the
-> initramfs).  So it looks good to me.  Not sure about the best way to
-> report errors from upstart - you might look to see if there is a better
-> interface than just fprintf(stderr...) that would be suitable to ensure
-> that the user actually sees that message.
+--0016e6d99fb9d5ad73047316693c
+Content-Type: text/plain; charset=ISO-8859-1
 
-Wondering whether you actually need the putenv() and getenv() calls -
-that was the old way of ensuring that we didn't try to load policy twice
-when we re-exec init.  But if we're now testing is_selinux_enabled() to
-detect whether it was already loaded by initramfs, that may suffice (not
-entirely sure - it depends on whether we have /proc mounted).
+Hi. Sorry in advance for the polemical tone and the topic that is not
+technical.
 
--- 
-Stephen Smalley
-National Security Agency
 
+
+I have found really very interesting the recent indication of RHEL 5.4
+cluster suite manual
+http://www.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5.4/html/Cluster_Administration/index.html
+*
+
+2.7. Red Hat Cluster Suite and SELinux
+*
+
+Red Hat Cluster Suite for Red Hat Enterprise Linux 5 requires that SELinux
+be disabled. Before
+
+configuring a Red Hat cluster, make sure to disable SELinux. For example,
+you can disable SELinux
+
+upon installation of Red Hat Enterprise Linux 5 or you can specify
+*SELINUX=disabled
+*in the */etc/
+
+selinux/config *file.
+
+Yes disable not permissive.
+
+Bearing in mind that most or perhaps all of the companies that use this
+distribution implement forms of HA with thr cluster suite.This is a real
+indication from a distribution to disable selinux anyway, just to have a
+certified product. My concern is the company who makes these statements and
+the fact that redhat cluster suite is really a company product, albeit open
+source. So it should be not so hard to resolve selinux issue.
+
+ Years of work on selinux thwarted by a statement that only a small change
+to the selinux policy could have resolved and may have already solved. Not a
+good thing for selinux.
+
+regards
+
+--0016e6d99fb9d5ad73047316693c
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi. Sorry in advance for the polemical tone and the topic =
+that is not technical. </div>
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr"><br><br>I have found really very interesting the recent in=
+dication of=A0RHEL 5.4 cluster suite manual </div>
+<div dir=3D"ltr"><a href=3D"http://www.redhat.com/docs/en-US/Red_Hat_Enterp=
+rise_Linux/5.4/html/Cluster_Administration/index.html">http://www.redhat.co=
+m/docs/en-US/Red_Hat_Enterprise_Linux/5.4/html/Cluster_Administration/index=
+.html</a></div>
+
+<div dir=3D"ltr"><b><font color=3D"#a80000" size=3D"5" face=3D"LiberationSa=
+ns-Bold"><font color=3D"#a80000" size=3D"5" face=3D"LiberationSans-Bold"><f=
+ont color=3D"#a80000" size=3D"5" face=3D"LiberationSans-Bold">
+<p align=3D"left">2.7. Red Hat Cluster Suite and SELinux</p></font></font><=
+/font></b><font size=3D"2" face=3D"LiberationSans"><font size=3D"2" face=3D=
+"LiberationSans">
+<p align=3D"left">Red Hat Cluster Suite for Red Hat Enterprise Linux 5 requ=
+ires that SELinux be disabled. Before</p>
+<p align=3D"left">configuring a Red Hat cluster, make sure to disable SELin=
+ux. For example, you can disable SELinux</p>
+<p align=3D"left">upon installation of Red Hat Enterprise Linux 5 or you ca=
+n specify </p></font></font><b><font size=3D"2" face=3D"LiberationMono-Bold=
+"><font size=3D"2" face=3D"LiberationMono-Bold">SELINUX=3Ddisabled </font><=
+/font></b><font size=3D"2" face=3D"LiberationSans"><font size=3D"2" face=3D=
+"LiberationSans">in the </font></font><b><font size=3D"2" face=3D"Liberatio=
+nMono-Bold"><font size=3D"2" face=3D"LiberationMono-Bold">/etc/
+<p align=3D"left">selinux/config </p></font></font></b><font size=3D"2" fac=
+e=3D"LiberationSans"><font size=3D"2" face=3D"LiberationSans">file.</font><=
+/font></div>
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr">Yes disable not permissive.</div>
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr">Bearing in mind that most or perhaps all of the companies =
+that use this distribution implement forms of HA with thr cluster=A0suite.T=
+his is a real indication=A0from a=A0distribution to disable selinux anyway,=
+ just to have a certified product. My concern is=A0the company who makes th=
+ese statements and the fact that redhat cluster suite is really a company p=
+roduct, albeit open source. So=A0it should be not so hard to resolve selinu=
+x issue.=A0=A0</div>
+
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr">
+<div dir=3D"ltr" id=3D"result_box">Years of work on selinux thwarted by a s=
+tatement that only a small change to the selinux policy could=A0have resolv=
+ed and may have already solved. Not a good thing for selinux.</div>
+<div dir=3D"ltr">=A0</div>
+<div dir=3D"ltr">regards</div></div>
+
+--0016e6d99fb9d5ad73047316693c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
