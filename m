@@ -1,85 +1,58 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88E9oqp023082
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 10:09:50 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n88E9C8j005393
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 14:09:12 GMT
-Subject: Re: [policy] post a message to logged in users
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1252245920.20898.12.camel@vogon.seekline.net>
-References: <1252180244.2707.6.camel@vogon.seekline.net>
-	 <1252245920.20898.12.camel@vogon.seekline.net>
+Subject: Re: policycoreutils: audit2allow gives bad policy for role
+ violations
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Manoj Srivastava <srivasta@golden-gryphon.com>
+Cc: selinux@tycho.nsa.gov, 498320-forwarded@bugs.debian.org,
+        Russell Coker <russell@coker.com.au>
+In-Reply-To: <878whavayy.fsf@anzu.internal.golden-gryphon.com>
+References: <878whavayy.fsf@anzu.internal.golden-gryphon.com>
 Content-Type: text/plain
-Date: Tue, 08 Sep 2009 10:09:21 -0400
-Message-Id: <1252418961.17700.14.camel@gorn.columbia.tresys.com>
+Date: Tue, 08 Sep 2009 10:17:09 -0400
+Message-Id: <1252419429.13634.352.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2009-09-06 at 16:05 +0200, Stefan Schulze Frielinghaus wrote:
-> On Sat, 2009-09-05 at 21:50 +0200, Stefan Schulze Frielinghaus wrote:
-> > is there an interface available to post a message to every logged in
-> > user, for example generated via /usr/bin/wall?
+On Sun, 2009-08-23 at 09:52 -0500, Manoj Srivastava wrote:
+> Hi,
 > 
-> OK I'm pretty sure there is no interface for just writing to every
-> logged in user, the attached patch solves this.
-> I could use the "term_use_all_terms" interface but this is not really
-> what I wanted because /usr/bin/wall does not need to read all the
-> consoles/ptys/ttys. Write access is enough.
+>         This has been reported against the Debian BTS.
+> =========== ROLES ===============
+> role system_r types ssh_exec_t;
 > 
-> Chris, is this patch OK?
+>         The above policy is given as the output of audit2allow for the
+>  below kernel message:
+> 
+> type=SELINUX_ERR msg=audit(1220928625.787:79): security_compute_sid:
+> invalid context unconfined_u:system_r:user_t:s0-s0:c0.c1023 for
+> scontext=unconfined_u:system_r:inetd_t:s0-s0:c0.c1023
+> tcontext=system_u:object_r:ssh_exec_t:s0 tclass=process
+> 
+>         One possibility is to have the following, although it might be
+>  best to just flag the error and let the sys-admin decide on their own
+>  way of solving it (there are several possibilities that are equally
+>  valid): 
+> 
+>         role_transition system_r ssh_exec_t user_r;
+> 
+>         manoj
+> 
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=498320
 
-Yes.  Merged.
+The current audit2allow/sepolgen yields the following output on the
+above message:
+#============= ROLES ==============
+role system_r types user_t;
 
-> 
-> 
-> 
-> 
-> 
-> differences
-> between files
-> attachment
-> (terminal.if.patch)
-> 
-> --- kernel/terminal.if  2009-09-06 15:04:36.000000000 +0200
-> +++ kernel/terminal.if  2009-09-06 15:09:19.000000000 +0200
-> @@ -178,6 +178,29 @@
->  
->  ########################################
->  ## <summary>
-> +##      Write the console, all
-> +##      ttys and all ptys.
-> +## </summary>
-> +## <param name="domain">
-> +##      <summary>
-> +##      Domain allowed access.
-> +##      </summary>
-> +## </param>
-> +## <rolecap/>
-> +#
-> +interface(`term_write_all_terms',`
-> +       gen_require(`
-> +               attribute ttynode, ptynode;
-> +               type console_device_t, devpts_t, tty_device_t;
-> +       ')
-> +
-> +       dev_list_all_dev_nodes($1)
-> +       allow $1 devpts_t:dir list_dir_perms;
-> +       allow $1 { console_device_t tty_device_t ttynode ptynode }:chr_file write_chr_file_perms;
-> +')
-> +
-> +########################################
-> +## <summary>
->  ##     Write to the console.
->  ## </summary>
->  ## <param name="domain">
-> 
+Thus, the bug (incorrect role-type rule) appears to have already been
+fixed (seemingly in 2.0.50).
+
+Generating role_transition rules has never been supported by
+audit2allow/sepolgen, so that would be a new feature.
+
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
