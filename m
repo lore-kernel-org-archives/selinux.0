@@ -1,40 +1,63 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n88NQAIg023462
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:26:10 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n88NPVXV028000
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 23:25:31 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by tundra.namei.org (8.13.1/8.13.1) with ESMTP id n88NQ9l2020999
-	for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2009 19:26:09 -0400
-Date: Wed, 9 Sep 2009 09:26:09 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: RHEL, RHCS, and Selinux : hype, reality or dream?
-In-Reply-To: <alpine.LRH.2.00.0909090747110.20344@tundra.namei.org>
-Message-ID: <alpine.LRH.2.00.0909090922590.20973@tundra.namei.org>
-References: <alpine.LRH.2.00.0909090747110.20344@tundra.namei.org>
+Message-ID: <4AA6F6C2.6040200@ak.jp.nec.com>
+Date: Wed, 09 Sep 2009 09:28:50 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: Limitations in modular policy
+References: <4AA5AB73.6050306@ak.jp.nec.com> <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Tue, 2009-09-08 at 09:55 +0900, KaiGai Kohei wrote:
+>> Is there any good reason why the current modular policy doesn't, cannot
+>> or shouldn't support to contain definitions of object classes and its
+>> access vectors except for the base policy?
+> 
+> The class and permission values are determined based on declaration
+> ordering.  There are no ordering guarantees among modules, and thus any
+> order dependent statements have to go into the base module presently.
 
-> Hi. Sorry in advance for the polemical tone and the topic that is not
-> technical.
+In other word, it is not impossible to define experimental classes and
+permissions within policy modules, as long as we can guarantee the order
+of existing classes and permissions.
 
-Thanks for pointing this out -- I was not aware of this.
+Since the class and permission values for kernel object classes are
+defined in the base policy module as ABI, we can define their values
+independently from the order of module linking. (The base policy is
+the first base as literal.)
 
-This issue is being worked on.
+# BTW, it may be a time to consider whether the kernel also should lookups
+# object classes and permissions by their names on policy loading, or not.
 
-The tracking bz entry for this is:
-https://bugzilla.redhat.com/show_bug.cgi?id=503141
+However, it is not my intention to take an experimental works which need
+more than several months, so it may be necessary to replace the base policy
+module to support these classes and permissions for a while.
 
+> Even for modern userspace object managers that dynamically look up the
+> class and permission values, we don't yet have a way to atomically roll
+> them over to a new set of values upon a policy reload, which could
+> easily happen upon module removal or insertion if they are declared in
+> individual modules.  I think we'd have to extend avc_reset() to also
+> call flush_class_cache() to force rediscovery of the class/permission
+> values from selinuxfs and to then call selinux_set_mapping() with the
+> original security_class_mapping (to which we would have to save a
+> reference upon the earlier selinux_set_mapping call) to re-create the
+> mapping.  It would have to be done while holding the AVC lock.
 
-- James
+It does not seem to me a difficult matter, because it can be resolved
+with updating libselinux.
+One possible trouble is a case when an application uses the result of
+string_to_security_class() permanently across the policy reloading.
+
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
