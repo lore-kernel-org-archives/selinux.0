@@ -1,57 +1,55 @@
-Subject: Re: MCS and default labels
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20090909135940.GG24297@myhost.felk.cvut.cz>
-References: <20090908055806.GA24297@myhost.felk.cvut.cz>
-	 <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090908163628.GC24297@myhost.felk.cvut.cz>
-	 <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090909100647.GE24297@myhost.felk.cvut.cz>
-	 <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090909131935.GF24297@myhost.felk.cvut.cz>
-	 <1252503271.13634.669.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090909135940.GG24297@myhost.felk.cvut.cz>
-Content-Type: text/plain
-Date: Wed, 09 Sep 2009 10:34:09 -0400
-Message-Id: <1252506849.13634.702.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n89EZjHp027245
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 10:35:45 -0400
+Received: from e38.co.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n89Eb5kE027250
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 14:37:06 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e38.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n89EVouC002876
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 08:31:50 -0600
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n89EZgYU241012
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 08:35:42 -0600
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n89EZfKQ027044
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 08:35:42 -0600
+Date: Wed, 9 Sep 2009 09:35:42 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [RFC PATCH 2/2] cr: debug security_checkpoint_header and
+	security_may_restart
+Message-ID: <20090909143542.GA23322@us.ibm.com>
+References: <20090903222824.GB27377@us.ibm.com> <20090903222853.GA27556@us.ibm.com> <4AA0A3AE.9040106@schaufler-ca.com> <20090904134611.GA11508@us.ibm.com> <4AA55183.4020407@schaufler-ca.com> <20090908041221.GB25161@us.ibm.com> <4AA73278.4030301@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4AA73278.4030301@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-09 at 15:59 +0200, Michal Svoboda wrote:
-> Stephen Smalley wrote:
-> > > Maybe I am not seeing something after all. Suppose I use the full MLS
-> > > variant and give a user the labels c1,c2. How exactly would it happen
-> > > that in a c1 dir he would automatically create c1 files, and in c1,c2
-> > > dir c1,c2 files?
-> > 
-> > He wouldn't.  The first case would violate MLS write-down restrictions.
+Quoting Casey Schaufler (casey@schaufler-ca.com):
+> Serge E. Hallyn wrote:
+> > Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > Sorry, the c/r tree is at:
+> >
+> > git://git.ncl.cs.columbia.edu/pub/git/linux-cr.git
+> >   
 > 
-> Ah, I see the point now. In some literature, categories are
-> discretionary even when sensitivity levels are used. So a s1:c1 process
-> can write to s1, but not to s0:c1.
+> The four patches from 08/28 (2-5) and the two from 09/03
+> are not happy applying to this tree. Am I missing a patch?
 > 
-> > Different people have different views of MCS.  And it hasn't really
-> > worked out the way it was envisioned.  There has been some discussion of
-> > this, including during the SELinux summits (minutes are published).
-> 
-> Thanks, I guess I need to read more on that. I've googled the 2007
-> minutes, but not the other ones. Would you happen to have some links?
 
-I think that is likely the most relevant one.
+There was this patch which was 1/5
+	https://lists.linux-foundation.org/pipermail/containers/2009-August/020212.html
 
-On the other hand, MCS categories are being used by the SELinux sandbox
-tool developed by Dan Walsh and by sVirt as a simple way of separating
-multiple instances of sandboxes and virtual machines from one another
-without requiring user configuration, while using TE to control the
-interactions with the host system.  But note that MCS is being used in
-those cases with low==high (single level).
+But there have also been some changes since that posting to the
+git tree.  You could rewind the git tree to the state it was in
+on aug 28, but I'll need to forward-port my patches anyway, so
+let me do that this afternoon and resend the patchset.
 
--- 
-Stephen Smalley
-National Security Agency
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
