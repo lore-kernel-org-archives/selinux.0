@@ -1,77 +1,87 @@
-Subject: Re: Limitations in modular policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4AA6F6C2.6040200@ak.jp.nec.com>
-References: <4AA5AB73.6050306@ak.jp.nec.com>
-	 <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
-	 <4AA6F6C2.6040200@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Wed, 09 Sep 2009 09:00:56 -0400
-Message-Id: <1252501256.13634.653.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n89DJun0017950
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 09:19:56 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n89DLGkE002958
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 13:21:16 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id n89DJZ8o054477
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 15:19:35 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] ([147.32.84.251])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id n89DJZm1069223
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 15:19:35 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Wed, 9 Sep 2009 15:19:35 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: MCS and default labels
+Message-ID: <20090909131935.GF24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+ <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+ <20090908163628.GC24297@myhost.felk.cvut.cz>
+ <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
+ <20090909100647.GE24297@myhost.felk.cvut.cz>
+ <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="I3tAPq1Rm2pUxvsp"
+In-Reply-To: <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-09 at 09:28 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2009-09-08 at 09:55 +0900, KaiGai Kohei wrote:
-> >> Is there any good reason why the current modular policy doesn't, cannot
-> >> or shouldn't support to contain definitions of object classes and its
-> >> access vectors except for the base policy?
-> > 
-> > The class and permission values are determined based on declaration
-> > ordering.  There are no ordering guarantees among modules, and thus any
-> > order dependent statements have to go into the base module presently.
-> 
-> In other word, it is not impossible to define experimental classes and
-> permissions within policy modules, as long as we can guarantee the order
-> of existing classes and permissions.
-> 
-> Since the class and permission values for kernel object classes are
-> defined in the base policy module as ABI, we can define their values
-> independently from the order of module linking. (The base policy is
-> the first base as literal.)
-> 
-> # BTW, it may be a time to consider whether the kernel also should lookups
-> # object classes and permissions by their names on policy loading, or not.
 
-Yes, I'd be interested in that.  At present we still have a problem with
-the kernel validation of classes/perms upon policy reload that prevents
-us from easily relocating the userspace classes and inserting new kernel
-classes before them (new kernel + old policy => conflict between new
-kernel class and old userspace class definition).  As a result we keep
-having to add the kernel classes at the end.
+--I3tAPq1Rm2pUxvsp
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> However, it is not my intention to take an experimental works which need
-> more than several months, so it may be necessary to replace the base policy
-> module to support these classes and permissions for a while.
-> 
-> > Even for modern userspace object managers that dynamically look up the
-> > class and permission values, we don't yet have a way to atomically roll
-> > them over to a new set of values upon a policy reload, which could
-> > easily happen upon module removal or insertion if they are declared in
-> > individual modules.  I think we'd have to extend avc_reset() to also
-> > call flush_class_cache() to force rediscovery of the class/permission
-> > values from selinuxfs and to then call selinux_set_mapping() with the
-> > original security_class_mapping (to which we would have to save a
-> > reference upon the earlier selinux_set_mapping call) to re-create the
-> > mapping.  It would have to be done while holding the AVC lock.
-> 
-> It does not seem to me a difficult matter, because it can be resolved
-> with updating libselinux.
-> One possible trouble is a case when an application uses the result of
-> string_to_security_class() permanently across the policy reloading.
+Stephen Smalley wrote:
+> setfscreatecon(3) specifies a security context prior to file creation.
 
-I'm not sure there are any such applications.  I think the old userspace
-object managers used the libselinux #define'd symbols for classes and
-permissions exclusively, while the newer ones use selinux_set_mapping().
+Thanks, this might make it doable in the svn server as an alternative.
 
--- 
-Stephen Smalley
-National Security Agency
+> Any change would have to support either model (inherit from source
+> context or inherit from target context), so logically it would be
+> policy-driven.
 
+It can also be derived as the least upper bound of both. If c1-c1,c2
+process creates file in a c2 dir, it would make sense that the new file
+is c1,c2.
+
+Alternatively it could just use the default file context from policy.
+
+> MLS gives you the same end result (the process would be labeled s0:c1
+> and thus its files would get created as such). =20
+
+Maybe I am not seeing something after all. Suppose I use the full MLS
+variant and give a user the labels c1,c2. How exactly would it happen
+that in a c1 dir he would automatically create c1 files, and in c1,c2
+dir c1,c2 files?
+
+> It isn't so odd then to recommend using something other than MCS.
+
+It was meant in the context of the article you linked, where it is
+stated that the goal of MCS is to be more acceptable than MLS for
+general userbase. And the contrast being that first reply that was
+given to me from various sources was 'dont use MCS, use MLS'.
+
+Regards,
+Michal Svoboda
+
+--I3tAPq1Rm2pUxvsp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkqnq2cACgkQg/fU9pp1uX4czACfXEyepza8tkwt6OvWDj46fbQX
+xycAn0x2aTP2olV8Wnn0QNSzIrxMgN+V
+=VDQv
+-----END PGP SIGNATURE-----
+
+--I3tAPq1Rm2pUxvsp--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
