@@ -1,95 +1,72 @@
-Subject: Re: opensuse and SELinux = some dbus roblem with xdm/gdm
+Subject: Re: Limitations in modular policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
-In-Reply-To: <4AA73E25.7080609@gmail.com>
-References: <dd18b0c30909081604i2c0231a8q7abf7156eb8938@mail.gmail.com>
-	 <4AA73E25.7080609@gmail.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <4AA6F6C2.6040200@ak.jp.nec.com>
+References: <4AA5AB73.6050306@ak.jp.nec.com>
+	 <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
+	 <4AA6F6C2.6040200@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Wed, 09 Sep 2009 08:55:02 -0400
-Message-Id: <1252500902.13634.647.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 09 Sep 2009 09:00:56 -0400
+Message-Id: <1252501256.13634.653.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-08 at 22:33 -0700, Justin P. Mattock wrote:
-> Justin Mattock wrote:
-> > Not sure if this is SELinux/refpolicy
-> >
-> > Out of curiosity I wanted to setup the latest
-> > policy with the latest opensuse.
-> > Seems everything has gone o.k. for the moment.
-> >
-> > The proble Im running into is xdm/gdm seems to crap out
-> > with some dbus error message:
-> >
-> > ** (gdm:1566): WARNING **: Couldn't connect to system bus: An SELinux
-> > policy prevents this sender from sending this message to this recipient
-> > (rejected message had sender "(unset)" interface "freedesktop.DBus"
-> > member "Hello"
-> > error name "(unset)" destination "org.freedesktop.DBus")
-> >
-> > The funny thing with this is with the initial policy load
-> > I hadn't relabeled yet, and the system had loaded the policy
-> > just fine and xdm worked then once I relabeled this appeared and xdm/gdm
-> > just craps out.(the policy is all in permissive mode, giving selinux=0
-> > makes the system operate as should).
-> >
-> > Also not sure if this matters but in
-> > /etc/pam.d{gdm,login,xdm) I added
-> > pam_selinux.so open/close but had no idea
-> > where they should be placed.
-> >
-> > Any ideas?
-> >
-> >    
-> Shoot I didn't look, but when I do a
-> ldd /usr/sbin/gdm I see nothing with libselinux nor
-> libaudit.
+On Wed, 2009-09-09 at 09:28 +0900, KaiGai Kohei wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2009-09-08 at 09:55 +0900, KaiGai Kohei wrote:
+> >> Is there any good reason why the current modular policy doesn't, cannot
+> >> or shouldn't support to contain definitions of object classes and its
+> >> access vectors except for the base policy?
+> > 
+> > The class and permission values are determined based on declaration
+> > ordering.  There are no ordering guarantees among modules, and thus any
+> > order dependent statements have to go into the base module presently.
 > 
-> loading an ubuntu livecd results in showing
-> libselinux.
+> In other word, it is not impossible to define experimental classes and
+> permissions within policy modules, as long as we can guarantee the order
+> of existing classes and permissions.
 > 
-> my guess since this is a development version they haven't
-> enabled SELinux support yet with gdm.
+> Since the class and permission values for kernel object classes are
+> defined in the base policy module as ABI, we can define their values
+> independently from the order of module linking. (The base policy is
+> the first base as literal.)
 > 
-> ohh well, I guess Ill leave it at that.
+> # BTW, it may be a time to consider whether the kernel also should lookups
+> # object classes and permissions by their names on policy loading, or not.
 
-The gdm selinux support was obsoleted by the gdm rewrite, so it isn't
-necessary to link it with libselinux anymore.  It all gets handled by
-pam_selinux in /etc/pam.d/gdm.  In Fedora, /etc/pam.d/gdm looks like
-this:
-#%PAM-1.0
-auth     [success=done ignore=ignore default=bad] pam_selinux_permit.so
-auth       required    pam_succeed_if.so user != root quiet
-auth       required    pam_env.so
-auth       substack    system-auth
-auth       optional    pam_gnome_keyring.so
-account    required    pam_nologin.so
-account    include     system-auth
-password   include     system-auth
-session    required    pam_selinux.so close
-session    required    pam_loginuid.so
-session    optional    pam_console.so
-session    required    pam_selinux.so open
-session    optional    pam_keyinit.so force revoke
-session    required    pam_namespace.so
-session    optional    pam_gnome_keyring.so auto_start
-session    include     system-auth
+Yes, I'd be interested in that.  At present we still have a problem with
+the kernel validation of classes/perms upon policy reload that prevents
+us from easily relocating the userspace classes and inserting new kernel
+classes before them (new kernel + old policy => conflict between new
+kernel class and old userspace class definition).  As a result we keep
+having to add the kernel classes at the end.
 
-BTW, I would recommend testing the policy package provided by OpenSUSE
-to see if it works before trying upstream refpolicy.
+> However, it is not my intention to take an experimental works which need
+> more than several months, so it may be necessary to replace the base policy
+> module to support these classes and permissions for a while.
+> 
+> > Even for modern userspace object managers that dynamically look up the
+> > class and permission values, we don't yet have a way to atomically roll
+> > them over to a new set of values upon a policy reload, which could
+> > easily happen upon module removal or insertion if they are declared in
+> > individual modules.  I think we'd have to extend avc_reset() to also
+> > call flush_class_cache() to force rediscovery of the class/permission
+> > values from selinuxfs and to then call selinux_set_mapping() with the
+> > original security_class_mapping (to which we would have to save a
+> > reference upon the earlier selinux_set_mapping call) to re-create the
+> > mapping.  It would have to be done while holding the AVC lock.
+> 
+> It does not seem to me a difficult matter, because it can be resolved
+> with updating libselinux.
+> One possible trouble is a case when an application uses the result of
+> string_to_security_class() permanently across the policy reloading.
 
-And report issues with their SELinux integration to their bugzilla, not
-to us.  It won't get fixed if you just post it here.
-
-Are you following the guidance at:
-http://en.opensuse.org/SELinux
-
-You have to add an additional repository to pick up their policy and associated packages.
-
-The SELinux integration work seems to be getting tracked on this blog:
-http://thetoms-random-thoughts.blogspot.com/search/label/Security
+I'm not sure there are any such applications.  I think the old userspace
+object managers used the libselinux #define'd symbols for classes and
+permissions exclusively, while the newer ones use selinux_set_mapping().
 
 -- 
 Stephen Smalley
