@@ -1,79 +1,66 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n894hf9u018620
-	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 00:43:41 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n894j0xL014791
-	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 04:45:00 GMT
-Message-ID: <4AA73278.4030301@schaufler-ca.com>
-Date: Tue, 08 Sep 2009 21:43:36 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n895XJja022266
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 01:33:19 -0400
+Received: from mail-yx0-f201.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n895YcxL023564
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 05:34:38 GMT
+Received: by yxe39 with SMTP id 39so6920294yxe.18
+        for <selinux@tycho.nsa.gov>; Tue, 08 Sep 2009 22:33:18 -0700 (PDT)
+Message-ID: <4AA73E25.7080609@gmail.com>
+Date: Tue, 08 Sep 2009 22:33:25 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC PATCH 2/2] cr: debug security_checkpoint_header and	security_may_restart
-References: <20090903222824.GB27377@us.ibm.com> <20090903222853.GA27556@us.ibm.com> <4AA0A3AE.9040106@schaufler-ca.com> <20090904134611.GA11508@us.ibm.com> <4AA55183.4020407@schaufler-ca.com> <20090908041221.GB25161@us.ibm.com>
-In-Reply-To: <20090908041221.GB25161@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
+Subject: Re: opensuse and SELinux = some dbus roblem with xdm/gdm
+References: <dd18b0c30909081604i2c0231a8q7abf7156eb8938@mail.gmail.com>
+In-Reply-To: <dd18b0c30909081604i2c0231a8q7abf7156eb8938@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> Quoting Casey Schaufler (casey@schaufler-ca.com):
->   
->> Serge E. Hallyn wrote:
->>     
->>> Quoting Casey Schaufler (casey@schaufler-ca.com):
->>>   
->>>       
->>>> Serge E. Hallyn wrote:
->>>>     
->>>>         
->>>>> This patch, for debugging only, introduces a silly admin-controlled
->>>>> 'policy version' for smack.  By default the version is 1.  An
->>>>> admin (with CAP_MAC_ADMIN) can change it by echoing a new value
->>>>> into /smack/version.
->>>>>   
->>>>>       
->>>>>           
->>>> The scheme you have suggested is just one step off of completely
->>>> acceptable for real. More detail below, but if you make the "version"
->>>> a string instead of a number I'm happy with it. In particular, a
->>>> string that would itself be a valid Smack label makes everything
->>>> really simple.
->>>>     
->>>>         
->>> Presumably at many sites the version will be a unique string not
->>> used as a label anywhere else.  That's ok?
->>>
->>>   
->>>       
->>>> It would take me a few days, but if you're not in a real hurry or
->>>> you're lazier than I am (yeah, right) I could provide a patch that
->>>> does it. Or, if I haven't been completely incomprehensible, you
->>>> could do a revision.
->>>>     
->>>>         
->>> Heh, I'm in no hurry.  I'll mark this to do midway next week, if
->>> you haven't gotten around to it first.  Thanks!
->>>   
->>>       
->> I hate to be a bother, but what tree are you basing these patches on?
->> Suspect that I missed a round of patches along the way, and can't apply
->> the ones I do have.
->>     
+Justin Mattock wrote:
+> Not sure if this is SELinux/refpolicy
 >
-> Sorry, the c/r tree is at:
+> Out of curiosity I wanted to setup the latest
+> policy with the latest opensuse.
+> Seems everything has gone o.k. for the moment.
 >
-> git://git.ncl.cs.columbia.edu/pub/git/linux-cr.git
->   
+> The proble Im running into is xdm/gdm seems to crap out
+> with some dbus error message:
+>
+> ** (gdm:1566): WARNING **: Couldn't connect to system bus: An SELinux
+> policy prevents this sender from sending this message to this recipient
+> (rejected message had sender "(unset)" interface "freedesktop.DBus"
+> member "Hello"
+> error name "(unset)" destination "org.freedesktop.DBus")
+>
+> The funny thing with this is with the initial policy load
+> I hadn't relabeled yet, and the system had loaded the policy
+> just fine and xdm worked then once I relabeled this appeared and xdm/gdm
+> just craps out.(the policy is all in permissive mode, giving selinux=0
+> makes the system operate as should).
+>
+> Also not sure if this matters but in
+> /etc/pam.d{gdm,login,xdm) I added
+> pam_selinux.so open/close but had no idea
+> where they should be placed.
+>
+> Any ideas?
+>
+>    
+Shoot I didn't look, but when I do a
+ldd /usr/sbin/gdm I see nothing with libselinux nor
+libaudit.
 
-The four patches from 08/28 (2-5) and the two from 09/03
-are not happy applying to this tree. Am I missing a patch?
+loading an ubuntu livecd results in showing
+libselinux.
 
+my guess since this is a development version they haven't
+enabled SELinux support yet with gdm.
 
+ohh well, I guess Ill leave it at that.
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
