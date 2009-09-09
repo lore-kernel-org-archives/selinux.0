@@ -1,63 +1,79 @@
-Message-ID: <4AA6F6C2.6040200@ak.jp.nec.com>
-Date: Wed, 09 Sep 2009 09:28:50 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n894hf9u018620
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 00:43:41 -0400
+Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n894j0xL014791
+	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 04:45:00 GMT
+Message-ID: <4AA73278.4030301@schaufler-ca.com>
+Date: Tue, 08 Sep 2009 21:43:36 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: Limitations in modular policy
-References: <4AA5AB73.6050306@ak.jp.nec.com> <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1252423223.13634.389.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Oren Laadan <orenl@cs.columbia.edu>,
+        Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [RFC PATCH 2/2] cr: debug security_checkpoint_header and	security_may_restart
+References: <20090903222824.GB27377@us.ibm.com> <20090903222853.GA27556@us.ibm.com> <4AA0A3AE.9040106@schaufler-ca.com> <20090904134611.GA11508@us.ibm.com> <4AA55183.4020407@schaufler-ca.com> <20090908041221.GB25161@us.ibm.com>
+In-Reply-To: <20090908041221.GB25161@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2009-09-08 at 09:55 +0900, KaiGai Kohei wrote:
->> Is there any good reason why the current modular policy doesn't, cannot
->> or shouldn't support to contain definitions of object classes and its
->> access vectors except for the base policy?
-> 
-> The class and permission values are determined based on declaration
-> ordering.  There are no ordering guarantees among modules, and thus any
-> order dependent statements have to go into the base module presently.
+Serge E. Hallyn wrote:
+> Quoting Casey Schaufler (casey@schaufler-ca.com):
+>   
+>> Serge E. Hallyn wrote:
+>>     
+>>> Quoting Casey Schaufler (casey@schaufler-ca.com):
+>>>   
+>>>       
+>>>> Serge E. Hallyn wrote:
+>>>>     
+>>>>         
+>>>>> This patch, for debugging only, introduces a silly admin-controlled
+>>>>> 'policy version' for smack.  By default the version is 1.  An
+>>>>> admin (with CAP_MAC_ADMIN) can change it by echoing a new value
+>>>>> into /smack/version.
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> The scheme you have suggested is just one step off of completely
+>>>> acceptable for real. More detail below, but if you make the "version"
+>>>> a string instead of a number I'm happy with it. In particular, a
+>>>> string that would itself be a valid Smack label makes everything
+>>>> really simple.
+>>>>     
+>>>>         
+>>> Presumably at many sites the version will be a unique string not
+>>> used as a label anywhere else.  That's ok?
+>>>
+>>>   
+>>>       
+>>>> It would take me a few days, but if you're not in a real hurry or
+>>>> you're lazier than I am (yeah, right) I could provide a patch that
+>>>> does it. Or, if I haven't been completely incomprehensible, you
+>>>> could do a revision.
+>>>>     
+>>>>         
+>>> Heh, I'm in no hurry.  I'll mark this to do midway next week, if
+>>> you haven't gotten around to it first.  Thanks!
+>>>   
+>>>       
+>> I hate to be a bother, but what tree are you basing these patches on?
+>> Suspect that I missed a round of patches along the way, and can't apply
+>> the ones I do have.
+>>     
+>
+> Sorry, the c/r tree is at:
+>
+> git://git.ncl.cs.columbia.edu/pub/git/linux-cr.git
+>   
 
-In other word, it is not impossible to define experimental classes and
-permissions within policy modules, as long as we can guarantee the order
-of existing classes and permissions.
+The four patches from 08/28 (2-5) and the two from 09/03
+are not happy applying to this tree. Am I missing a patch?
 
-Since the class and permission values for kernel object classes are
-defined in the base policy module as ABI, we can define their values
-independently from the order of module linking. (The base policy is
-the first base as literal.)
 
-# BTW, it may be a time to consider whether the kernel also should lookups
-# object classes and permissions by their names on policy loading, or not.
-
-However, it is not my intention to take an experimental works which need
-more than several months, so it may be necessary to replace the base policy
-module to support these classes and permissions for a while.
-
-> Even for modern userspace object managers that dynamically look up the
-> class and permission values, we don't yet have a way to atomically roll
-> them over to a new set of values upon a policy reload, which could
-> easily happen upon module removal or insertion if they are declared in
-> individual modules.  I think we'd have to extend avc_reset() to also
-> call flush_class_cache() to force rediscovery of the class/permission
-> values from selinuxfs and to then call selinux_set_mapping() with the
-> original security_class_mapping (to which we would have to save a
-> reference upon the earlier selinux_set_mapping call) to re-create the
-> mapping.  It would have to be done while holding the AVC lock.
-
-It does not seem to me a difficult matter, because it can be resolved
-with updating libselinux.
-One possible trouble is a case when an application uses the result of
-string_to_security_class() permanently across the policy reloading.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
