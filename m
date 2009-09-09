@@ -1,140 +1,102 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n89CCTEr007870
-	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 08:12:29 -0400
-Received: from mail-ew0-f206.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n89CDmkE004939
-	for <selinux@tycho.nsa.gov>; Wed, 9 Sep 2009 12:13:48 GMT
-Received: by ewy2 with SMTP id 2so3802279ewy.41
-        for <selinux@tycho.nsa.gov>; Wed, 09 Sep 2009 05:12:26 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.00.0909090922590.20973@tundra.namei.org>
-References: <alpine.LRH.2.00.0909090747110.20344@tundra.namei.org>
-	 <alpine.LRH.2.00.0909090922590.20973@tundra.namei.org>
-Date: Wed, 9 Sep 2009 14:12:26 +0200
-Message-ID: <51af93b70909090512sa1dfdf9jb22c3ce48c11aff9@mail.gmail.com>
-Subject: Re: RHEL, RHCS, and Selinux : hype, reality or dream?
-From: Elia Pinto <andronicus.spiros@gmail.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Content-Type: multipart/alternative; boundary=0016e6d7e3620185c0047323ff0c
+Subject: Re: MCS and default labels
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20090909100647.GE24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+	 <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090908163628.GC24297@myhost.felk.cvut.cz>
+	 <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090909100647.GE24297@myhost.felk.cvut.cz>
+Content-Type: text/plain
+Date: Wed, 09 Sep 2009 08:17:40 -0400
+Message-Id: <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e6d7e3620185c0047323ff0c
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, 2009-09-09 at 12:06 +0200, Michal Svoboda wrote:
+> Stephen Smalley wrote:
+> > Unfortunately for you, MCS is using the existing MLS engine, which
+> > doesn't presently support inheritance from parent directory (unlike the
+> > TE engine).  So to support the behavior you want, you'd have to modify
+> > the actual code (and that's kernel code).  Thus, you are more likely to
+> > find success using actual MLS or using TE.
+> 
+> Let me see if I can come up with a simple patch that does the work. It
+> sounds better than rewriting each app to actually change the labels for
+> themselves. (Is there even an API for specifying MCS label prior to file
+> creation? If it has to be changed after the file exists then it's a huge
+> race condition style hole.)
 
-2009/9/9 James Morris <jmorris@namei.org>
+setfscreatecon(3) specifies a security context prior to file creation.
 
->
-> > Hi. Sorry in advance for the polemical tone and the topic that is not
-> > technical.
->
-> Thanks for pointing this out -- I was not aware of this.
->
-> This issue is being worked on.
->
-> The tracking bz entry for this is:
-> https://bugzilla.redhat.com/show_bug.cgi?id=503141
->
->
-> Ok, i already know. BUT now, i that have 100+ RHEL 5.4 with RHCS with
-Selinux enforced in a critical env AND want a certificated configuration
-what i have to do ? Disable it everywhere ? It 'a very bad message, which,
-in my opinion, should be resolved VERY quickly.
+The kernel MLS logic lives in security/selinux/ss/mls.c.  Determining
+the MLS level of a new subject or object is handled by
+mls_compute_sid().  Any change would have to support either model
+(inherit from source context or inherit from target context), so
+logically it would be policy-driven.  Which likely means an extension to
+the policy language and compiler.  Not an entirely trivial undertaking.
 
-BTW, with RHEL5.4 no problem, also minor, with RHCS, but the manual tell me
-to do something different. It 'a very bad message from a selinux product (
-http://magazine.redhat.com/2007/05/04/whats-new-in-selinux-for-red-hat-enterprise-linux-5/
-see
-the last comment)
-, which, in my opinion, should be resolved very quickly. IMHO, should be
-preferable that the rhcs daemon go unconfined, if the selinux policy aren't
-complete, rather than requiring to disable selinux everywhere.
+There is a range_transition statement in the policy that allows one to
+specify a desired level/range for a new subject/object based on the type
+pair and class, but that does not support inheritance of the level from
+the target context.  Possibly it could be extended to do so.
 
-Just for info : this post is already refenced on other mailing list
+> > > Secondly I don't see why a user is not able to discretionarily specify
+> > > his range outright when going via ssh just as he can with roles. 
+> > 
+> > That's another artifact of the MLS model (label preservation /
+> > confinement).
+> 
+> Unfortunately here I have no idea on what code should I look to remove
+> that artifact.
 
-http://archives.neohapsis.com/archives/fulldisclosure/2009-09/0105.html
-http://lists.immunitysec.com/pipermail/dailydave/2009-September/005892.html
+I think it is just lack of support in sshd due to lack of interest in
+supporting it for MLS.  You could add it, but you'd need to make sure
+that it doesn't break the MLS behavior, as that is the one people care
+about.
 
+> > > No. MLS is about strict ordering 0 < 1 < 2 ... I just want a partially
+> > > ordered set. I want compartments, not sensitivities. MCS and MLS are
+> > > orthogonal, at least by their theoretical properties (and SELinux MCS
+> > > strongly resembles the theory in practice).
+> > 
+> > I think you're confused about MLS; it supports a set of hierarchical
+> > sensitivities and a set of non-hierarchical categories, and MCS is
+> > nothing more than a particular configuration of the MLS engine.  So you
+> > are free to just use a single MLS sensitivity and only use its
+> > categories.  
+> 
+> I think I am not confused. There are two principles, sensitivities and
+> categories. Categories do have hierarchy, just not a strictly ordered
+> one. For any two categories one could find a supremal and infimal ones,
+> and that's what contributes to the quadratic number of types should TE
+> be used instead.
+> 
+> A MCS system is then just taking advantage of the categories principle,
+> and not utilising the sensitivities one. That is perfectly what I want,
+> but I just want it to be usable on my use case, ie. files inheriting
+> categories from parent dirs, which I think is perfectly valid. I see
+> this topic recurring and the standard reply "use something else than
+> MCS" is just weird at least.
 
-Regards
+Nothing prevents you from using MLS with a single sensitivity, only
+using categories as the distinguishing element.  But that is not
+identical to MCS, as I've explained - the use of the low/current level
+differs between MLS and MCS (which in turns creates the problem for you
+in terms of file labeling under MCS, but would work under MLS), and the
+set of policy constraints is quite different.
 
+TE gives you the desired labeling behavior (inherit from parent
+directory).  MLS gives you the same end result (the process would be
+labeled s0:c1 and thus its files would get created as such).  MCS does
+not.  It isn't so odd then to recommend using something other than MCS.
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
-
-
-
-> - James
-> --
-> James Morris
-> <jmorris@namei.org>
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
-> the words "unsubscribe selinux" without quotes as the message.
->
-
---0016e6d7e3620185c0047323ff0c
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">2009/9/9 James Morris <span dir=3D"ltr">&lt;<a h=
-ref=3D"mailto:jmorris@namei.org">jmorris@namei.org</a>&gt;</span><br>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div class=3D"im"><br>&gt; Hi. Sorry in advance for the polemical tone and =
-the topic that is not<br>&gt; technical.<br><br></div>Thanks for pointing t=
-his out -- I was not aware of this.<br><br>This issue is being worked on.<b=
-r>
-<br>The tracking bz entry for this is:<br><a href=3D"https://bugzilla.redha=
-t.com/show_bug.cgi?id=3D503141" target=3D"_blank">https://bugzilla.redhat.c=
-om/show_bug.cgi?id=3D503141</a><br><br><br></blockquote>
-<div>Ok, i already know. BUT now, i that have 100+ RHEL 5.4 with RHCS with =
-Selinux enforced in a critical env AND want a certificated configuration wh=
-at i have to do ? Disable it=A0everywhere ? It &#39;a very bad message, whi=
-ch, in my opinion, should be resolved=A0VERY quickly.</div>
-
-<div>=A0</div>
-<div>BTW, with RHEL5.4 no problem, also minor, with RHCS, but the manual te=
-ll me to do something=A0different. It &#39;a very bad message from a selinu=
-x product=A0(=20
-<div><a href=3D"http://magazine.redhat.com/2007/05/04/whats-new-in-selinux-=
-for-red-hat-enterprise-linux-5/">http://magazine.redhat.com/2007/05/04/what=
-s-new-in-selinux-for-red-hat-enterprise-linux-5/</a>=A0see the last comment=
-)</div>
-, which, in my opinion, should be resolved very quickly. IMHO, should be pr=
-eferable that the rhcs daemon go unconfined, if the selinux policy aren&#39=
-;t complete, rather than requiring to disable selinux everywhere.</div>
-
-<div>=A0</div>
-<div>Just for info : this post is already refenced on other mailing list</d=
-iv>
-<div>=A0</div>
-<div><a href=3D"http://archives.neohapsis.com/archives/fulldisclosure/2009-=
-09/0105.html">http://archives.neohapsis.com/archives/fulldisclosure/2009-09=
-/0105.html</a></div>
-<div><a href=3D"http://lists.immunitysec.com/pipermail/dailydave/2009-Septe=
-mber/005892.html">http://lists.immunitysec.com/pipermail/dailydave/2009-Sep=
-tember/005892.html</a></div>
-<div>=A0</div>
-<div>=A0</div>
-<div>Regards</div>
-<div>=A0</div>
-<div>=A0</div>
-<div>=A0</div>
-<div>=A0</div>
-<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
-px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><span id=3D""></span>- James<br>=
---<br>James Morris<br>&lt;<a href=3D"mailto:jmorris@namei.org">jmorris@name=
-i.org</a>&gt;<br>
-<font color=3D"#888888"><br>--<br>This message was distributed to subscribe=
-rs of the selinux mailing list.<br>If you no longer wish to subscribe, send=
- mail to <a href=3D"mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov=
-</a> with<br>
-the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
-></font></blockquote></div><br>
-
---0016e6d7e3620185c0047323ff0c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
