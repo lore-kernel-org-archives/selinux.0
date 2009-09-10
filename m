@@ -1,72 +1,134 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8AIWX5O016236
-	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 14:32:33 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8AIXsjU003041
-	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 18:33:54 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n8AIRAGQ025156
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 13:27:11 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n8AIOH61022977
-	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 13:24:18 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8AJf4HW024091
+	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 15:41:04 -0400
+Received: from mail.seekline.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8AJgOjU022184
+	for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2009 19:42:25 GMT
+Subject: [refpolicy] new policy for dkim-filter
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH]  setools: missing \ in libqpol/src/include/qpol/Makefile.{am,in}
-Date: Thu, 10 Sep 2009 13:24:17 -0500
-Message-ID: <878wgmpsj2.fsf@anzu.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Content-Type: multipart/mixed; boundary="=-ZsMMJF09EJlSo5vA4U7k"
+Date: Thu, 10 Sep 2009 21:40:56 +0200
+Message-Id: <1252611656.2486.44.camel@vogon.seekline.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-        I tried reporting this to bugs@tresys.com, as asked on
- http://oss.tresys.com/projects/setools/wiki/contribute , but I got
- this:
---8<---------------cut here---------------start------------->8---
-This is an automatically generated Delivery Status Notification.
-Delivery to the following recipients failed.
-       bugs@tresys.com
---8<---------------cut here---------------end--------------->8---
+--=-ZsMMJF09EJlSo5vA4U7k
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-        Original mail follows.
+Attached is a new policy for the dkim-filter application.
 
-        manoj
+Chris, is the policy OK/ready for merge?
 
-From: Manoj Srivastava <srivasta@debian.org>
+--=-ZsMMJF09EJlSo5vA4U7k
+Content-Disposition: attachment; filename="dkimfilter.fc"
+Content-Type: text/plain; name="dkimfilter.fc"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-The missing \ truncated the list of files to be installed in
-/usr/include/qpol
+/usr/sbin/dkim-filter	--	gen_context(system_u:object_r:dkimfilter_exec_t,s0)
 
-Signed-off-by: Manoj Srivastava <srivasta@debian.org>
----
- libqpol/include/qpol/Makefile.am |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+/var/db/dkim(/.*)?		gen_context(system_u:object_r:dkimfilter_private_key_t,s0)
+/var/run/dkim-filter(/.*)?	gen_context(system_u:object_r:dkimfilter_var_run_t,s0)
 
-diff --git a/libqpol/include/qpol/Makefile.am b/libqpol/include/qpol/Makefile.am
-index 91dc375..b55acb7 100644
---- a/libqpol/include/qpol/Makefile.am
-+++ b/libqpol/include/qpol/Makefile.am
-@@ -17,7 +17,7 @@ qpol_HEADERS = \
- 	netifcon_query.h \
- 	nodecon_query.h \
- 	permissive_query.h \
--	polcap_query.h
-+	polcap_query.h \
- 	policy.h \
- 	policy_extend.h \
- 	portcon_query.h \
--- 
-1.6.3.3
+--=-ZsMMJF09EJlSo5vA4U7k
+Content-Disposition: attachment; filename="dkimfilter.if"
+Content-Type: text/plain; name="dkimfilter.if"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+########################################
+## <summary>
+##      Connect to dkim-filter over an unix stream socket.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+interface(`dkimfilter_stream_connect',`
+	gen_require(`
+		type dkimfilter_t, dkimfilter_var_run_t;
+	')
+
+	files_search_pids($1)
+	stream_connect_pattern($1, dkimfilter_var_run_t, dkimfilter_var_run_t, dkimfilter_t)
+')
+
+--=-ZsMMJF09EJlSo5vA4U7k
+Content-Disposition: attachment; filename="dkimfilter.te"
+Content-Type: text/plain; name="dkimfilter.te"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
 
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+policy_module(dkimfilter, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type dkimfilter_t;
+type dkimfilter_exec_t;
+init_daemon_domain(dkimfilter_t, dkimfilter_exec_t)
+
+type dkimfilter_var_run_t;
+files_pid_file(dkimfilter_var_run_t)
+
+type dkimfilter_private_key_t;
+files_type(dkimfilter_private_key_t)
+
+########################################
+#
+# Local policy
+#
+
+allow dkimfilter_t self:capability { setgid setuid };
+
+read_files_pattern(dkimfilter_t, dkimfilter_private_key_t, dkimfilter_private_key_t)
+manage_files_pattern(dkimfilter_t, dkimfilter_var_run_t, dkimfilter_var_run_t)
+manage_sock_files_pattern(dkimfilter_t, dkimfilter_var_run_t, dkimfilter_var_run_t)
+
+files_read_etc_files(dkimfilter_t)
+
+libs_read_lib_files(dkimfilter_t)
+
+miscfiles_read_localization(dkimfilter_t)
+
+logging_send_syslog_msg(dkimfilter_t)
+
+dev_read_urand(dkimfilter_t)
+
+kernel_read_kernel_sysctls(dkimfilter_t)
+
+sysnet_dns_name_resolve(dkimfilter_t)
+
+--=-ZsMMJF09EJlSo5vA4U7k
+Content-Disposition: attachment; filename="sendmail.te.diff"
+Content-Type: text/x-patch; name="sendmail.te.diff"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+diff --git a/policy/modules/services/sendmail.te b/policy/modules/services/sendmail.te
+index f3f0d44..c102ecb 100644
+--- a/policy/modules/services/sendmail.te
++++ b/policy/modules/services/sendmail.te
+@@ -130,6 +130,10 @@ optional_policy(`
+ 	udev_read_db(sendmail_t)
+ ')
+ 
++optional_policy(`
++	dkimfilter_stream_connect(sendmail_t)
++')
++
+ ifdef(`TODO',`
+ allow sendmail_t etc_mail_t:dir rw_dir_perms;
+ allow sendmail_t etc_mail_t:file manage_file_perms;
+
+--=-ZsMMJF09EJlSo5vA4U7k--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
