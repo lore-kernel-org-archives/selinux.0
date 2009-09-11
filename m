@@ -1,75 +1,82 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8B7rLv5022297
-	for <selinux@tycho.nsa.gov>; Fri, 11 Sep 2009 03:53:21 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8B8KnSw027361
+	for <selinux@tycho.nsa.gov>; Fri, 11 Sep 2009 04:20:49 -0400
 Received: from mail.seekline.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8B7sg1S029726
-	for <selinux@tycho.nsa.gov>; Fri, 11 Sep 2009 07:54:42 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8B8M9jU008590
+	for <selinux@tycho.nsa.gov>; Fri, 11 Sep 2009 08:22:10 GMT
 Subject: Re: [refpolicy] new policy for dkim-filter
 From: Stefan Schulze Frielinghaus <stefan@seekline.net>
 To: Paul Howarth <paul@city-fan.org>
 Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
+In-Reply-To: <1252655581.2491.12.camel@vogon.seekline.net>
 References: <1252611656.2486.44.camel@vogon.seekline.net>
 	 <20090910210421.150ff80f@metropolis.intra.city-fan.org>
 	 <1252615167.22997.1.camel@vogon.seekline.net>
 	 <1252619448.22997.12.camel@vogon.seekline.net>
 	 <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
-Content-Type: multipart/mixed; boundary="=-xBxEWlo2E7G8bcsw+wFl"
-Date: Fri, 11 Sep 2009 09:53:01 +0200
-Message-Id: <1252655581.2491.12.camel@vogon.seekline.net>
+	 <1252655581.2491.12.camel@vogon.seekline.net>
+Content-Type: multipart/mixed; boundary="=-S5Js2W2zaBxe24lviXiU"
+Date: Fri, 11 Sep 2009 10:20:31 +0200
+Message-Id: <1252657231.2491.18.camel@vogon.seekline.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-xBxEWlo2E7G8bcsw+wFl
+--=-S5Js2W2zaBxe24lviXiU
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Thu, 2009-09-10 at 23:27 +0100, Paul Howarth wrote:
-> On Thu, 10 Sep 2009 23:50:48 +0200
-> Stefan Schulze Frielinghaus <stefan@seekline.net> wrote:
-> 
-> > On Thu, 2009-09-10 at 22:39 +0200, Stefan Schulze Frielinghaus wrote:
-> > > On Thu, 2009-09-10 at 21:04 +0100, Paul Howarth wrote:
-> > > > On Thu, 10 Sep 2009 21:40:56 +0200
-> > > > Stefan Schulze Frielinghaus <stefan@seekline.net> wrote:
-> > > > 
-> > > > > Attached is a new policy for the dkim-filter application.
+On Fri, 2009-09-11 at 09:53 +0200, Stefan Schulze Frielinghaus wrote:
+> On Thu, 2009-09-10 at 23:27 +0100, Paul Howarth wrote:
+> > On Thu, 10 Sep 2009 23:50:48 +0200
+> > Stefan Schulze Frielinghaus <stefan@seekline.net> wrote:
+> > 
+> > > On Thu, 2009-09-10 at 22:39 +0200, Stefan Schulze Frielinghaus wrote:
+> > > > On Thu, 2009-09-10 at 21:04 +0100, Paul Howarth wrote:
+> > > > > On Thu, 10 Sep 2009 21:40:56 +0200
+> > > > > Stefan Schulze Frielinghaus <stefan@seekline.net> wrote:
 > > > > > 
-> > > > > Chris, is the policy OK/ready for merge?
+> > > > > > Attached is a new policy for the dkim-filter application.
+> > > > > > 
+> > > > > > Chris, is the policy OK/ready for merge?
+> > > > > 
+> > > > > I think it would be better to merge it with the milter policy.
+> > > > > That would then need no changes to the sendmail policy and the
+> > > > > milter should work with postfix too.
 > > > > 
-> > > > I think it would be better to merge it with the milter policy.
-> > > > That would then need no changes to the sendmail policy and the
-> > > > milter should work with postfix too.
+> > > > Oh sure, milter_template() is far better for this. I wasn't aware of
+> > > > such a template. I will have a look at it and send a corrected
+> > > > version.
 > > > 
-> > > Oh sure, milter_template() is far better for this. I wasn't aware of
-> > > such a template. I will have a look at it and send a corrected
-> > > version.
+> > > And here we are. Since the milter_template() is pretty straight
+> > > forward I guess we are done now. Thanks again for the tip.
+> > > 
+> > > DKIM-Filter runs fine for me with the new milter policy.
 > > 
-> > And here we are. Since the milter_template() is pretty straight
-> > forward I guess we are done now. Thanks again for the tip.
-> > 
-> > DKIM-Filter runs fine for me with the new milter policy.
+> > Given that the upstream project is called dkim-milter (albeit the
+> > milter part is called dkimfilter), I think the dkimfilter_milter_*
+> > types would be better named as just dkim_milter_*.
 > 
-> Given that the upstream project is called dkim-milter (albeit the
-> milter part is called dkimfilter), I think the dkimfilter_milter_*
-> types would be better named as just dkim_milter_*.
+> I was unsure about that. The upstream project is called dkim-milter
+> indeed but they seem to distinguish between the library and the filter.
+> Here is a quote from the README:
+> 
+> "This package consists of a library that implements the DKIM service and
+> a milter-based filter application that can plug in to the sendmail
+> MTA ..."
+> 
+> So in a strict sense they provide a library and a filter. Nevertheless I
+> changed it.
+> 
+> Attached is a new diff with dkim_milter_* types.
 
-I was unsure about that. The upstream project is called dkim-milter
-indeed but they seem to distinguish between the library and the filter.
-Here is a quote from the README:
+Argl, forgot to change "dkim_private_key_t" to
+"dkim_milter_private_key_t". Seriously this should be the last commit :D
 
-"This package consists of a library that implements the DKIM service and
-a milter-based filter application that can plug in to the sendmail
-MTA ..."
+Tested attached policy again on CentOS 5.3 with strict policy.
 
-So in a strict sense they provide a library and a filter. Nevertheless I
-changed it.
-
-Attached is a new diff with dkim_milter_* types.
-
---=-xBxEWlo2E7G8bcsw+wFl
+--=-S5Js2W2zaBxe24lviXiU
 Content-Disposition: attachment; filename="milter.diff"
 Content-Type: text/x-patch; name="milter.diff"; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
@@ -85,7 +92,7 @@ index 55a3e2f..d4494bc 100644
 +/usr/sbin/milter-regex		--	gen_context(system_u:object_r:regex_milter_exec_t,s0)
  /usr/sbin/spamass-milter	--	gen_context(system_u:object_r:spamass_milter_exec_t,s0)
  
-+/var/db/dkim(/.*)?			gen_context(system_u:object_r:dkim_private_key_t,s0)
++/var/db/dkim(/.*)?			gen_context(system_u:object_r:dkim_milter_private_key_t,s0)
 +
  /var/lib/milter-greylist(/.*)?		gen_context(system_u:object_r:greylist_milter_data_t,s0)
  /var/lib/spamass-milter(/.*)?		gen_context(system_u:object_r:spamass_milter_state_t,s0)
@@ -117,8 +124,8 @@ index ff7cebc..88be485 100644
  milter_template(spamass)
  
 +# Type for the private key of dkim-filter
-+type dkim_private_key_t;
-+files_type(dkim_private_key_t)
++type dkim_milter_private_key_t;
++files_type(dkim_milter_private_key_t)
 +
  # Type for the spamass-milter home directory, under which spamassassin will
  # store system-wide preferences, bayes databases etc. if not configured to
@@ -134,7 +141,7 @@ index ff7cebc..88be485 100644
 +
 +allow dkim_milter_t self:capability { setgid setuid };
 +
-+read_files_pattern(dkim_milter_t, dkim_private_key_t, dkim_private_key_t)
++read_files_pattern(dkim_milter_t, dkim_milter_private_key_t, dkim_milter_private_key_t)
 +
 +files_read_etc_files(dkim_milter_t)
 +
@@ -150,7 +157,7 @@ index ff7cebc..88be485 100644
  #   ensure smtp clients retry mail like real MTAs and not spamware
  #   http://hcpnet.free.fr/milter-greylist/
 
---=-xBxEWlo2E7G8bcsw+wFl--
+--=-S5Js2W2zaBxe24lviXiU--
 
 
 --
