@@ -1,102 +1,162 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8CEib0Q016539
-	for <selinux@tycho.nsa.gov>; Sat, 12 Sep 2009 10:44:37 -0400
-Received: from asmtpout025.mac.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8CEhuYV025051
-	for <selinux@tycho.nsa.gov>; Sat, 12 Sep 2009 14:43:56 GMT
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed; delsp=yes
-Received: from falmouth.jbj.org
- (cpe-069-134-024-120.nc.res.rr.com [69.134.24.120])
- by asmtp025.mac.com (Sun Java(tm) System Messaging Server 6.3-8.01 (built Dec
- 16 2008; 32bit)) with ESMTPSA id <0KPV0088R4YAF540@asmtp025.mac.com> for
- selinux@tycho.nsa.gov; Sat, 12 Sep 2009 07:44:36 -0700 (PDT)
-From: Jeff Johnson <n3npq@mac.com>
-Subject: Installing modular policy using RPM
-Date: Sat, 12 Sep 2009 10:44:33 -0400
-Message-id: <F64B192E-ADFA-42B7-B9AB-3C3855C8F9F5@mac.com>
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8CEwRIS018146
+	for <selinux@tycho.nsa.gov>; Sat, 12 Sep 2009 10:58:27 -0400
+Received: from mail.seekline.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8CEvjYV029181
+	for <selinux@tycho.nsa.gov>; Sat, 12 Sep 2009 14:57:46 GMT
+Subject: Re: [refpolicy] new policy for dkim-filter
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: Paul Howarth <paul@city-fan.org>
+Cc: Chris PeBenito <pebenito@gentoo.org>, selinux@tycho.nsa.gov
+In-Reply-To: <1252759779.2491.13.camel@vogon.seekline.net>
+References: <1252611656.2486.44.camel@vogon.seekline.net>
+	 <20090910210421.150ff80f@metropolis.intra.city-fan.org>
+	 <1252615167.22997.1.camel@vogon.seekline.net>
+	 <1252619448.22997.12.camel@vogon.seekline.net>
+	 <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
+	 <1252655581.2491.12.camel@vogon.seekline.net>
+	 <1252657231.2491.18.camel@vogon.seekline.net>
+	 <1252672214.2937.8.camel@defiant.pebenito.net>
+	 <1252678921.2491.51.camel@vogon.seekline.net>
+	 <4AAA6A3A.9080202@city-fan.org>
+	 <1252759779.2491.13.camel@vogon.seekline.net>
+Content-Type: multipart/mixed; boundary="=-GKFSZCBrZQF7tmvBvjlh"
+Date: Sat, 12 Sep 2009 16:58:12 +0200
+Message-Id: <1252767492.2491.15.camel@vogon.seekline.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Because of Tresys patches, I am forced to look at the
-issues of installing modular policy using RPM @rpm5.org.
 
-The core agenda appears to be make rpm "untrusted" by
-exec'ing semodule.
+--=-GKFSZCBrZQF7tmvBvjlh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-That opens up the issue of how to install in empty chroot's
-where a semodule executable may not be present.
+On Sat, 2009-09-12 at 14:49 +0200, Stefan Schulze Frielinghaus wrote:
+> On Fri, 2009-09-11 at 16:18 +0100, Paul Howarth wrote:
+> > On 11/09/09 15:22, Stefan Schulze Frielinghaus wrote:
+> > > On Fri, 2009-09-11 at 08:30 -0400, Chris PeBenito wrote:
+> > >> On Fri, 2009-09-11 at 10:20 +0200, Stefan Schulze Frielinghaus wrote:
+> > >>>>>>>> On Thu, 10 Sep 2009 21:40:56 +0200
+> > >>>>>>>> Stefan Schulze Frielinghaus<stefan@seekline.net>  wrote:
+> > >>>>>>>>
+> > >>>>>>>>> Attached is a new policy for the dkim-filter application.
+> > >>>>>>>>>
+> > >>>>>>>>> Chris, is the policy OK/ready for merge?
+> > >>
+> > >>> Tested attached policy again on CentOS 5.3 with strict policy.
+> > >>
+> > >> It looks ok.  However I'm starting to get concerned about the milter
+> > >> module getting big.  If you want, say the spamassassin milter, you add
+> > >> the milter module... but then you get rules for a several other milters
+> > >> too.
+> > 
+> > True, but how much of a problem is that, given that any milter user is 
+> > at least going to have also the sendmail/postfix policy and the mta 
+> > policy too?
+> 
+> It's not a huge problem but I prefer only to install policy modules I
+> really need. Everything else is disabled. Also this approach is more
+> compliant with the minimal policy:
+> http://danwalsh.livejournal.com/26759.html
+> 
+> > 
+> > > Attached is a milter version which behaves like the apache_template(). I
+> > > only took care of the dkim-milter but in general this would only mean
+> > > some reorganization of all modules ... nothing more. Any cons about
+> > > that?
+> > 
+> > Splitting each milter out into its own module is certainly do-able; 
+> > doesn't that add overhead (from having more modules) as well though?
+> 
+> Hmm I don't think this will be a problem. I believe it is even easier to
+> manage. If they are separated in several files it's easier to handle
+> them (if there exist really dozens of them).
+> 
+> > 
+> > > If this would be the right way then we could also talk about the
+> > > milter_template() naming convention:
+> > >
+> > > type $1_milter_t
+> > >
+> > > The apache_template generates slightly different type names:
+> > >
+> > > type httpd_$1_script_t
+> > >
+> > > What about changing $1_milter_t to milter_$1_t?
+> > 
+> > That would make sense given that most types in refpolicy are prefixed 
+> > with the module name. There would need to be typealiases added though 
+> > for the old names for the benefit of existing users, wouldn't there?
+> 
+> Good point. I created a couple of aliases.
+> 
+> Attached is the milter policy with all four modules. What do you think
+> about this approach, Paul, Chris?
+> 
+> Tested again on CentOS 5.3 with strict policy.
 
-The approach that will be taken @rpm5.org will be to carry
-a semodule executable within rpm sources located in a
-private bin directory.
+Argl, never say never ... I've installed the latest dkim-milter package
+from EPEL and some file locations changed. Attached policy for
+milter_dkim fixes this ;-)
 
-When installing in empty chroot's, rpm will undertake whatever
-is necessary to bring the executable (with xattr's attached) into
-the empty chroot, either by using mount(2) (my current preference)
-or by copying.
+Tested again on CentOS 5.3 with strict policy.
 
-That solves the core agenda issue of "untrusted" installs afaict.
-And there's the added benefit of __ALWAYS__ being able to rely
-on semodule being present without all the usual RPM assertion/ordering
-baggage to try to ensure that, indeed, an executable can be invoked.
+--=-GKFSZCBrZQF7tmvBvjlh
+Content-Disposition: attachment; filename="milter_dkim.fc"
+Content-Type: text/plain; name="milter_dkim.fc"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-But there are several other issues that are in need of thought.
+/etc/mail/dkim-milter/keys(/.*)		gen_context(system_u:object_r:milter_dkim_private_key_t,s0)
 
-First of all, afaict there are no intergrity checks on *.pp
-modular policy that I've found so far. Blindly installing
-base64 encoded, bzip'd, blobs from an "untrusted" source
-has some fairly obvious flaws. I'd suggest getting some
-integrity check in place, even CRC32, to ensure that the
-blob is indeed as advertised. Some means for RPM to notify -lselinux
-that the signature on the header has been verified
-might help, but the policy blob is still a policy blob
-even if the signature on the header has been verified.
+/usr/sbin/dkim-filter		--	gen_context(system_u:object_r:milter_dkim_exec_t,s0)
 
-Second, installing modular policy within a chroot re-opens
-all the usual issues of chroot(2) path prefixing, as well
-as disabling loading within the chroot (as is being done
-with mock currently). While using mount --bind to mask
-/selinux/load (I apologize if I've gotten the path wrong)
-"works" for the narrow case of mock builds, there will
-likely be a need for a better means of disabling semodule
-policy loads that will have to be undertaken by RPM. Expecting
-the correct CLI options to be present when semodule is invoked
-cannot always be relied on, particularly when there's already
-a great deal of divergence in how RPM is configured.
+/var/db/dkim(/.*)?			gen_context(system_u:object_r:milter_dkim_private_key_t,s0)
 
-There's also the issue of modular policy dependencies (yes
-I've looked at selinux/policycoreutils/semodule_deps in git).
-Modular policy dependencies are rather simple compared to
-what is in RPM's assertion checker. Within the selinux
-namespace, there's a need to ensure that some label is
-already defined so that it can be reused. So modular
-policy dependencies are largely "mention before use",
-no different than say, in C, a variable must be declared
-before it is used.
+/var/run/dkim-filter(/.*)?		gen_context(system_u:object_r:milter_dkim_data_t,s0)
+/var/run/dkim-milter(/.*)?		gen_context(system_u:object_r:milter_dkim_data_t,s0)
+/var/run/dkim-milter\.pid	--	gen_context(system_u:object_r:milter_dkim_data_t,s0)
 
-One rather simple means to do modular policy dependency checking
-would be to add a Bloom filter to *.pp modular policy packages.
-A Bloom filter (if done correctly) should scale nicely across
-numerous modular policy blob's without adding a great deal
-of "bloat". One will have to worry about false positives/negatives w  
-Bloom filters,
-and have Yet Another Means to verify modular policy dependencies
-but you already have explicit dependency checks in semodule afaict. A  
-Bloom filter
-would simply be a means to detect a class of failures sooner
-rather than later, needing only the .pp blob, not all the semodule
-and -lsemanage baggage.
+--=-GKFSZCBrZQF7tmvBvjlh
+Content-Disposition: attachment; filename="milter_dkim.te"
+Content-Type: text/plain; name="milter_dkim.te"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-I will have other comments as I look more deeply into *.pp
-format. While *.pp may be perfectly useful for SELinux needs
-at the moment, the lack of data normalization and the redundancy
-within existing *.pp strings may not be the best means for
-distributing policy. Disclaimer: I haven't started to look at *.pp  
-yet ...
 
-73 de Jeff
+policy_module(milter_dkim, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+milter_template(dkim)
+
+# Type for the private key of dkim-filter
+type milter_dkim_private_key_t;
+files_type(milter_dkim_private_key_t)
+
+########################################
+#
+# Local policy
+#
+
+allow milter_dkim_t self:capability { setgid setuid };
+
+read_files_pattern(milter_dkim_t, milter_dkim_private_key_t, milter_dkim_private_key_t)
+
+files_read_etc_files(milter_dkim_t)
+
+kernel_read_kernel_sysctls(milter_dkim_t)
+
+sysnet_dns_name_resolve(milter_dkim_t)
+
+dev_read_urand(milter_dkim_t)
+
+mta_read_config(milter_dkim_t)
+
+--=-GKFSZCBrZQF7tmvBvjlh--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
