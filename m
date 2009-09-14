@@ -1,23 +1,59 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20090913025409.6583.58777.stgit@paris.rdu.redhat.com>
-References: <20090913025409.6583.58777.stgit@paris.rdu.redhat.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov, jmorris@namei.org, mingo@elte.hu
-Subject: Re: [PATCH 1/3] Creds: creds->security can be NULL is selinux is disabled
-Date: Mon, 14 Sep 2009 12:53:33 +0100
-Message-ID: <11977.1252929213@redhat.com>
+Subject: Re: MCS and default labels
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20090914081910.GL24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+	 <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090908163628.GC24297@myhost.felk.cvut.cz>
+	 <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090909100647.GE24297@myhost.felk.cvut.cz>
+	 <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
+	 <20090914081910.GL24297@myhost.felk.cvut.cz>
+Content-Type: text/plain
+Date: Mon, 14 Sep 2009 08:20:03 -0400
+Message-Id: <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris <eparis@redhat.com> wrote:
-
-> __validate_process_creds should check if selinux is actually enabled before
-> running tests on the selinux portion of the credentials struct.
+On Mon, 2009-09-14 at 10:19 +0200, Michal Svoboda wrote:
+> Stephen Smalley wrote:
+> > The kernel MLS logic lives in security/selinux/ss/mls.c.  Determining
+> > the MLS level of a new subject or object is handled by
+> > mls_compute_sid().  Any change would have to support either model
+> > (inherit from source context or inherit from target context), so
+> > logically it would be policy-driven.  Which likely means an extension to
+> > the policy language and compiler.  Not an entirely trivial undertaking.
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> I have looked at the source code and it seems that in the said function
+> mls_compute_sid(), under the "case AVTAB_CHANGE:" and in the "else" path
+> (tclass != SECCLASS_PROCESS) the statement
+> 
+> mls_context_cpy_low(newcontext, scontext)
+> 
+> would need to be changed to
+> 
+> mls_context_cpy(newcontext, tcontext).
+> 
+> To support the original behavior, I would add a 1/0 readable/writable
+> file to selinuxfs, say "mls_defcontext_inherit" by mimicking the
+> behavior of the "enforce" file and its associated r/w functions. It
+> seems to me that this would suffice enough and it would avoid the need
+> to modify the policy language.
+> 
+> Would this change be acceptable?
 
-Acked-by: David Howells <dhowells@redhat.com>
+I don't think so - the problem with selinuxfs tunables is that they
+can't be changed atomically with a policy change, and this is a property
+that should be tied to a particular policy.  For the same reason,
+properties like handle_unknown and permissive domains are defined in the
+policy itself rather than being selinuxfs tunables.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
