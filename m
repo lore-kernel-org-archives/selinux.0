@@ -1,44 +1,81 @@
-Date: Mon, 14 Sep 2009 12:58:34 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
-        David Howells <dhowells@redhat.com>
-Subject: [GIT] fix creds / SELinux regressions
-In-Reply-To: <20090913025409.6583.58777.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.0909141256530.29020@tundra.namei.org>
-References: <20090913025409.6583.58777.stgit@paris.rdu.redhat.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8E8JS3p022189
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 04:19:28 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8E8Ik5H020265
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 08:18:46 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id n8E8JBWZ052093
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 10:19:11 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] ([147.32.84.251])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id n8E8JAs0078270
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 10:19:11 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Mon, 14 Sep 2009 10:19:10 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: MCS and default labels
+Message-ID: <20090914081910.GL24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+ <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+ <20090908163628.GC24297@myhost.felk.cvut.cz>
+ <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
+ <20090909100647.GE24297@myhost.felk.cvut.cz>
+ <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="asNXdz5DenlsLVVk"
+In-Reply-To: <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Linus, please pull.
 
+--asNXdz5DenlsLVVk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-The following changes since commit 86d710146fb9975f04c505ec78caa43d227c1018:
-  Linus Torvalds (1):
-        Merge git://git.linux-nfs.org/projects/trondmy/nfs-2.6
+Stephen Smalley wrote:
+> The kernel MLS logic lives in security/selinux/ss/mls.c.  Determining
+> the MLS level of a new subject or object is handled by
+> mls_compute_sid().  Any change would have to support either model
+> (inherit from source context or inherit from target context), so
+> logically it would be policy-driven.  Which likely means an extension to
+> the policy language and compiler.  Not an entirely trivial undertaking.
 
-are available in the git repository at:
+I have looked at the source code and it seems that in the said function
+mls_compute_sid(), under the "case AVTAB_CHANGE:" and in the "else" path
+(tclass != SECCLASS_PROCESS) the statement
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6 for-linus
+mls_context_cpy_low(newcontext, scontext)
 
-Eric Paris (3):
-      Creds: creds->security can be NULL is selinux is disabled
-      SELinux: seperate avc_cache flushing
-      SELinux: flush the avc before disabling SELinux
+would need to be changed to
 
- include/linux/cred.h       |   13 ++++++++-----
- include/linux/selinux.h    |    9 +++++++++
- security/selinux/avc.c     |   26 +++++++++++++++++++-------
- security/selinux/exports.c |    6 ++++++
- 4 files changed, 42 insertions(+), 12 deletions(-)
+mls_context_cpy(newcontext, tcontext).
 
--- 
-James Morris
-<jmorris@namei.org>
+To support the original behavior, I would add a 1/0 readable/writable
+file to selinuxfs, say "mls_defcontext_inherit" by mimicking the
+behavior of the "enforce" file and its associated r/w functions. It
+seems to me that this would suffice enough and it would avoid the need
+to modify the policy language.
+
+Would this change be acceptable?
+
+Michal Svoboda
+
+--asNXdz5DenlsLVVk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkqt/H4ACgkQg/fU9pp1uX6m+wCgjW8B9SQ29RyaEpgU/LFT6q++
+lj0AoKAFgITFqEehJbFVFJ+YJgofKDs0
+=06wd
+-----END PGP SIGNATURE-----
+
+--asNXdz5DenlsLVVk--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
