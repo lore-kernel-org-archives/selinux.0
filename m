@@ -1,74 +1,89 @@
-Subject: Re: MCS and default labels
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
-References: <20090908055806.GA24297@myhost.felk.cvut.cz>
-	 <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090908163628.GC24297@myhost.felk.cvut.cz>
-	 <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090909100647.GE24297@myhost.felk.cvut.cz>
-	 <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090914081910.GL24297@myhost.felk.cvut.cz>
-	 <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8ED2GEH029108
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 09:02:16 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n8ED3doN023154
+	for <selinux@tycho.nsa.gov>; Mon, 14 Sep 2009 13:03:39 GMT
+Subject: Re: [refpolicy] new policy for dkim-filter
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Howarth <paul@city-fan.org>
+Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>, selinux@tycho.nsa.gov
+In-Reply-To: <4AAA6A3A.9080202@city-fan.org>
+References: <1252611656.2486.44.camel@vogon.seekline.net>
+	 <20090910210421.150ff80f@metropolis.intra.city-fan.org>
+	 <1252615167.22997.1.camel@vogon.seekline.net>
+	 <1252619448.22997.12.camel@vogon.seekline.net>
+	 <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
+	 <1252655581.2491.12.camel@vogon.seekline.net>
+	 <1252657231.2491.18.camel@vogon.seekline.net>
+	 <1252672214.2937.8.camel@defiant.pebenito.net>
+	 <1252678921.2491.51.camel@vogon.seekline.net>
+	 <4AAA6A3A.9080202@city-fan.org>
 Content-Type: text/plain
-Date: Mon, 14 Sep 2009 09:00:29 -0400
-Message-Id: <1252933229.13634.1009.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 14 Sep 2009 09:01:03 -0400
+Message-Id: <1252933263.7425.113.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-09-14 at 08:20 -0400, Stephen Smalley wrote:
-> On Mon, 2009-09-14 at 10:19 +0200, Michal Svoboda wrote:
-> > Stephen Smalley wrote:
-> > > The kernel MLS logic lives in security/selinux/ss/mls.c.  Determining
-> > > the MLS level of a new subject or object is handled by
-> > > mls_compute_sid().  Any change would have to support either model
-> > > (inherit from source context or inherit from target context), so
-> > > logically it would be policy-driven.  Which likely means an extension to
-> > > the policy language and compiler.  Not an entirely trivial undertaking.
-> > 
-> > I have looked at the source code and it seems that in the said function
-> > mls_compute_sid(), under the "case AVTAB_CHANGE:" and in the "else" path
-> > (tclass != SECCLASS_PROCESS) the statement
-> > 
-> > mls_context_cpy_low(newcontext, scontext)
-> > 
-> > would need to be changed to
-> > 
-> > mls_context_cpy(newcontext, tcontext).
-> > 
-> > To support the original behavior, I would add a 1/0 readable/writable
-> > file to selinuxfs, say "mls_defcontext_inherit" by mimicking the
-> > behavior of the "enforce" file and its associated r/w functions. It
-> > seems to me that this would suffice enough and it would avoid the need
-> > to modify the policy language.
-> > 
-> > Would this change be acceptable?
+On Fri, 2009-09-11 at 16:18 +0100, Paul Howarth wrote:
+> On 11/09/09 15:22, Stefan Schulze Frielinghaus wrote:
+> > On Fri, 2009-09-11 at 08:30 -0400, Chris PeBenito wrote:
+> >> On Fri, 2009-09-11 at 10:20 +0200, Stefan Schulze Frielinghaus wrote:
+> >>>>>>>> On Thu, 10 Sep 2009 21:40:56 +0200
+> >>>>>>>> Stefan Schulze Frielinghaus<stefan@seekline.net>  wrote:
+> >>>>>>>>
+> >>>>>>>>> Attached is a new policy for the dkim-filter application.
+> >>>>>>>>>
+> >>>>>>>>> Chris, is the policy OK/ready for merge?
+> >>
+> >>> Tested attached policy again on CentOS 5.3 with strict policy.
+> >>
+> >> It looks ok.  However I'm starting to get concerned about the milter
+> >> module getting big.  If you want, say the spamassassin milter, you add
+> >> the milter module... but then you get rules for a several other milters
+> >> too.
 > 
-> I don't think so - the problem with selinuxfs tunables is that they
-> can't be changed atomically with a policy change, and this is a property
-> that should be tied to a particular policy.  For the same reason,
-> properties like handle_unknown and permissive domains are defined in the
-> policy itself rather than being selinuxfs tunables.
+> True, but how much of a problem is that, given that any milter user is 
+> at least going to have also the sendmail/postfix policy and the mta 
+> policy too?
 
-Also, in your situation, I don't think you want to change the
-AVTAB_CHANGE behavior but only the AVTAB_TRANSITION behavior.  Thus
-you'd need to change that logic to replicate the AVTAB_CHANGE logic
-under AVTAB_TRANSITION (and no longer fall through), and then change the
-copy under AVTAB_TRANSITION, so that you wouldn't affect the
-AVTAB_CHANGE behavior.
+Perhaps not.  But how many milters are there?  I don't want to get to
+the point where there are 10-20 milters in the same module.
 
-AVTAB_CHANGE is exercised when relabeling the tty/pty at login time to
-match the user's credentials, and there you do not want to stay with the
-current object level but rather use the process' level even for your
-usage.
+> > Attached is a milter version which behaves like the apache_template(). I
+> > only took care of the dkim-milter but in general this would only mean
+> > some reorganization of all modules ... nothing more. Any cons about
+> > that?
+> 
+> Splitting each milter out into its own module is certainly do-able; 
+> doesn't that add overhead (from having more modules) as well though?
 
-AVTAB_TRANSITION is exercised when creating a new subject or object.
-  
+Only a little disk space and some memory during policy linking.  No
+overhead for the final policy, which is what I'm concerned about.
+
+> > If this would be the right way then we could also talk about the
+> > milter_template() naming convention:
+> >
+> > type $1_milter_t
+> >
+> > The apache_template generates slightly different type names:
+> >
+> > type httpd_$1_script_t
+> >
+> > What about changing $1_milter_t to milter_$1_t?
+> 
+> That would make sense given that most types in refpolicy are prefixed 
+> with the module name. There would need to be typealiases added though 
+> for the old names for the benefit of existing users, wouldn't there?
+
+Yes.  But I'd prefer to keep the current naming convention.  I consider
+the apache convention nonstandard.
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
