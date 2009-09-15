@@ -1,77 +1,86 @@
-Date: Tue, 15 Sep 2009 12:32:52 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-cc: Eric Paris <eparis@redhat.com>, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] SELinux: inline selinux_is_enabled in
- !CONFIG_SECURITY_SELINUX
-In-Reply-To: <alpine.LFD.2.01.0909141901160.4950@localhost.localdomain>
-Message-ID: <alpine.LRH.2.00.0909151230240.15017@tundra.namei.org>
-References: <20090915005948.12692.40854.stgit@paris.rdu.redhat.com> <alpine.LRH.2.00.0909151134250.13708@tundra.namei.org> <alpine.LFD.2.01.0909141901160.4950@localhost.localdomain>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8F6WskM026276
+	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 02:32:55 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8F6YH5G025938
+	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 06:34:18 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id n8F6WiIi043040
+	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 08:32:44 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] ([147.32.84.251])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id n8F6WhJt076708
+	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 08:32:44 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Tue, 15 Sep 2009 08:32:42 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: MCS and default labels
+Message-ID: <20090915063242.GM24297@myhost.felk.cvut.cz>
+References: <20090908055806.GA24297@myhost.felk.cvut.cz>
+ <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
+ <20090908163628.GC24297@myhost.felk.cvut.cz>
+ <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
+ <20090909100647.GE24297@myhost.felk.cvut.cz>
+ <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
+ <20090914081910.GL24297@myhost.felk.cvut.cz>
+ <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SqfawxHnX56H7Ukl"
+In-Reply-To: <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 14 Sep 2009, Linus Torvalds wrote:
 
-> 
-> 
-> On Tue, 15 Sep 2009, James Morris wrote:
-> > 
-> > Linus, I'll assume you'll want to apply this directly.
-> 
-> What I want is to just get pull requests that were well tested in the 
-> first place. When I see an error in a pull request, my reaction is to just 
-> reset awat from it, and not wanting to have anything what-so-ever to do 
-> with the git tree I pulled from.
-> 
-> Give me a few days to get over the disgust.
+--SqfawxHnX56H7Ukl
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Sorry about this mess.
+Stephen Smalley wrote:
+> I don't think so - the problem with selinuxfs tunables is that they
+> can't be changed atomically with a policy change, and this is a property
+> that should be tied to a particular policy.  For the same reason,
+> properties like handle_unknown and permissive domains are defined in the
+> policy itself rather than being selinuxfs tunables.
 
-These fixes fix build problems, so here's the latest (also, I'll be 
-on a long haul flight in a few days).  Boot tested with and without 
-SELinux enabled.
+There have been things like compat_net, why can't the inheritance be
+done on the same basis and must be part of the policy instead?
 
+Anyway, I've been looking at the policy loader code, and it seems that
+the easiest way to incorporate this into the policy would be to blend it
+with the config field (which is presently used for MLS and
+handle_unknown flags), perhaps by defining a flag like CATEGORY_INHERIT
+and to check for it right after ALLOW_UNKNOWN and REJECT_UNKNOWN are
+processed. This flag would then go to struct policydb and would be
+checked for in the mls_compute_sid function (I can see direct usage of
+the policydb global variable in that very function, so I guess it
+shouldn't be a problem).
 
-The following changes since commit 86d710146fb9975f04c505ec78caa43d227c1018:
-  Linus Torvalds (1):
-        Merge git://git.linux-nfs.org/projects/trondmy/nfs-2.6
+Perhaps there could also be an upgrade of the policy version number and
+a check for the policy being loaded just to prevent random values being
+present in that bit.
 
-are available in the git repository at:
+There would also need to be a change in libsepol and checkpolicy to
+reflect this; perhaps checkpolicy could accept an additional command
+line argument (as it does with handle_unknown), and a new field defined
+in libsepol's policydb_t and further processed in its write.c.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6 for-linus3
+Michal Svoboda
 
-David Howells (2):
-      CRED: Allow put_cred() to cope with a NULL groups list
-      KEYS: Fix garbage collector
+--SqfawxHnX56H7Ukl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Eric Paris (4):
-      Creds: creds->security can be NULL is selinux is disabled
-      SELinux: seperate avc_cache flushing
-      SELinux: flush the avc before disabling SELinux
-      SELinux: inline selinux_is_enabled in !CONFIG_SECURITY_SELINUX
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-Marc Dionne (1):
-      KEYS: Unlock tasklist when exiting early from keyctl_session_to_parent
+iEYEARECAAYFAkqvNQoACgkQg/fU9pp1uX6mZwCfaqb9LFxHTM//rX7Sb1dauQNx
+HWAAoLZ/wGVLXcOjdz9r1+EnZnpN2MJp
+=CY+e
+-----END PGP SIGNATURE-----
 
- include/linux/cred.h       |   13 ++++---
- include/linux/selinux.h    |    9 +++++
- kernel/cred.c              |    3 +-
- security/keys/gc.c         |   78 ++++++++++++++++++++++++++++---------------
- security/keys/key.c        |    4 +-
- security/keys/keyctl.c     |    3 +-
- security/keys/keyring.c    |   24 +++++++++++---
- security/selinux/avc.c     |   26 +++++++++++----
- security/selinux/exports.c |    6 +++
- 9 files changed, 118 insertions(+), 48 deletions(-)
-
-
--- 
-James Morris
-<jmorris@namei.org>
+--SqfawxHnX56H7Ukl--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
