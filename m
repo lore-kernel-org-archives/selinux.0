@@ -1,54 +1,42 @@
-Subject: Re: [PATCH] libsepol/checkpolicy: Add support for multiple target
- OSes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chad Sellers <csellers@tresys.com>
-Cc: Joshua Brindle <method@manicmethod.com>, pjnuzzi <pjnuzzi@tycho.ncsc.mil>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <C6D54298.AAB22%csellers@tresys.com>
-References: <C6D54298.AAB22%csellers@tresys.com>
-Content-Type: text/plain
-Date: Tue, 15 Sep 2009 13:18:56 -0400
-Message-Id: <1253035136.18198.10.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Caleb Case <ccase@tresys.com>
+To: selinux@tycho.nsa.gov, jbrindle@tresys.com, sds@tycho.nsa.gov
+Cc: Caleb Case <ccase@tresys.com>
+Subject: [PATCH] setfiles fails to relabel if selinux not enabled
+Date: Tue, 15 Sep 2009 15:20:18 -0400
+Message-Id: <1253042418-28141-1-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-15 at 13:09 -0400, Chad Sellers wrote:
-> On 9/14/09 3:33 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
-> 
-> > On Mon, 2009-09-14 at 15:07 -0400, Joshua Brindle wrote:
-> >> On 09/14/2009 09:22 AM, pjnuzzi wrote:
-> >>> Add support for multiple target OSes to libsepol and checkpolicy, where
-> >>>    
-> <snip> 
-> >>> Solaris (e.g. "SolFlask") will be introduced later using this new target
-> >>> mechanism if needed.  The same support can easily be extended for other
-> >>> OSes.
-> > 
-> >> This is a fairly large patch, it might take a while to get through it.
-> >> Splitting it up would have been helpful.
-> > 
-> > Sorry - based on Chad's earlier comment in response to another patch
-> > that a complete single patch against the selinux tree was fine, and
-> > given that this does form a single logical change against a single
-> > repository, I recommended keeping it as a single patch.
-> > 
-> Sorry if I created confusion. I was just meaning splitting on component
-> (libsepol, checkpolicy, etc.) was unnecessary. Splitting into logical pieces
-> is still preferred, and I have a hard time believing that a patch this large
-> could not be split into logical pieces.
+Setfiles now checks the capabilities on the mounted file systems for
+'seclabel' (see setfiles/setfiles.c:723:exclude_non_seclabel_mounts) on
+newer kernels (>=2.6.30 see setfiles.c:734). However the 'seclabel'
+feature is not available if selinux is not enabled. The result is that
+setfiles silently fails to relabel any filesystems.
 
-It was one logical change - adding support for multiple target OSes,
-where the Xen support represented the first new target.  In any event,
-the patch was just re-posted split along component boundaries.  But note
-that one of the reasons for such splitting in the Linux kernel case is
-because different subsystems have different maintainers there.  In the
-case of the selinux userland tree, there is one repo and one set of
-maintainers for the entire tree, so it isn't clear that this is needed.
+The patch below removes the check for seclabel if selinux is disabled.
 
+As an alternative maybe seclabel should be available even if selinux is
+disabled? It seems that whether a fs supports security labels is
+independent of selinux being enabled.
+---
+ policycoreutils/setfiles/setfiles.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 313767a..db2857f 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -750,6 +750,8 @@ static void exclude_non_seclabel_mounts()
+ 	/* Check to see if the kernel supports seclabel */
+ 	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
+ 		return;
++	if (is_selinux_enabled() <= 0)
++		return;
+ 
+ 	fp = fopen("/proc/mounts", "r");
+ 	if (!fp)
 -- 
-Stephen Smalley
-National Security Agency
+1.6.0.4
 
 
 --
