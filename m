@@ -1,84 +1,41 @@
-Subject: Re: [PATCH] libsepol/checkpolicy: Add support for multiple target
- OSes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: pjnuzzi <pjnuzzi@tycho.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <4AAE945B.2020009@manicmethod.com>
-References: <1252934558.2379.14.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4AAE945B.2020009@manicmethod.com>
-Content-Type: text/plain
-Date: Mon, 14 Sep 2009 15:33:55 -0400
-Message-Id: <1252956835.13634.1048.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: inline selinux_is_enabled in !CONFIG_SECURITY_SELINUX
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: torvalds@linux-foundation.org, jmorris@namei.org, sds@tycho.nsa.gov
+Date: Mon, 14 Sep 2009 20:59:48 -0400
+Message-ID: <20090915005948.12692.40854.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-09-14 at 15:07 -0400, Joshua Brindle wrote:
-> On 09/14/2009 09:22 AM, pjnuzzi wrote:
-> > Add support for multiple target OSes to libsepol and checkpolicy, where
-> >    
-> 
-> what about checkmodule?
+Without this patch building a kernel emits millions of warning like:
 
-At present, the patch only deals with monolithic policy. To update for
-modular policy, we'd need to introduce multiple string identifiers in
-the modular format as well.  Which could be done, but I'm not sure it is
-worthwhile given plans for replacing the module format.  The other
-option is to select the output target platform in libsemanage via
-semanage.conf configuration rather than embedding the target in the
-modules.
+include/linux/selinux.h:92: warning: ‘selinux_is_enabled’ defined but not used
 
-> > the particular target OS is selected using a new -t target option to
-> > checkpolicy.  The default target remains SELinux.  A new target and
-> > support is introduced for Xen.  The target OS is identified in the
-> > policy image by using different policy string identifiers in the header.
-> > At present, policy string identifiers are required to have the same
-> > length for ease of parsing the header and to preserve file(1) parsing of
-> >    
-> 
-> That is not the case today. Does file really not have the ability to 
-> read a length and then a string of that length?
+When it is build without CONFIG_SECURITY_SELINUX.  This is harmless, but
+the function should be inlined, so it gets compiled out.
 
-I'm not sure what you mean by "not the case today".  The current
-libsepol code does require a specific length and won't even try to read
-the string if the length does not match the expected value, and the
-existing /usr/share/magic definition for file(1) parsing expects fixed
-offsets for the fields after the string identifier.  We could certainly
-relax that requirement, but then we'd have to update /usr/share/magic
-everywhere.  That seemed unnecessary - a string of 8 characters is
-sufficient to identify the full range of possible target OSes.
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-> > subsequent fields after the string identifier.  For SELinux, the string
-> > identifier remains "SE Linux".  For Xen, the string identifier is
-> > "XenFlask".  The latent support for just "Flask" in the policy reading
-> > code that was introduced for FMAC is dropped; a separate identifier for
-> >    
-> 
-> Was it already in use? I don't think arbitrarily dropping identifiers is 
-> a good idea.
+ include/linux/selinux.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Only in the FMAC checkpolicy program.  Not precisely production code,
-and if we want to customize the policy format for OpenSolaris, we'll
-want a distinctive string identifier anyway, not just a generic "Flask".
-Easy to fix on the OpenSolaris FMAC side if it resumes development.
-
-> > Solaris (e.g. "SolFlask") will be introduced later using this new target
-> > mechanism if needed.  The same support can easily be extended for other
-> > OSes.
-
-> This is a fairly large patch, it might take a while to get through it. 
-> Splitting it up would have been helpful.
-
-Sorry - based on Chad's earlier comment in response to another patch
-that a complete single patch against the selinux tree was fine, and
-given that this does form a single logical change against a single
-repository, I recommended keeping it as a single patch.
-
-FWIW, I have reviewed this patch.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+index 223d06a..82e0f26 100644
+--- a/include/linux/selinux.h
++++ b/include/linux/selinux.h
+@@ -89,7 +89,7 @@ static inline void selinux_secmark_refcount_dec(void)
+ 	return;
+ }
+ 
+-static bool selinux_is_enabled(void)
++static inline bool selinux_is_enabled(void)
+ {
+ 	return false;
+ }
 
 
 --
