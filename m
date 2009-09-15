@@ -1,65 +1,59 @@
-Subject: Re: MCS and default labels
+Subject: Re: [PATCH] libsepol/checkpolicy: Add support for multiple target
+ OSes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <20090915063242.GM24297@myhost.felk.cvut.cz>
-References: <20090908055806.GA24297@myhost.felk.cvut.cz>
-	 <1252424128.13634.404.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090908163628.GC24297@myhost.felk.cvut.cz>
-	 <1252429805.13634.423.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090909100647.GE24297@myhost.felk.cvut.cz>
-	 <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090914081910.GL24297@myhost.felk.cvut.cz>
-	 <1252930803.13634.1002.camel@moss-pluto.epoch.ncsc.mil>
-	 <20090915063242.GM24297@myhost.felk.cvut.cz>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: pjnuzzi <pjnuzzi@tycho.ncsc.mil>, selinux@tycho.nsa.gov
+In-Reply-To: <1252956835.13634.1048.camel@moss-pluto.epoch.ncsc.mil>
+References: <1252934558.2379.14.camel@moss-stripedbass.epoch.ncsc.mil>
+	 <4AAE945B.2020009@manicmethod.com>
+	 <1252956835.13634.1048.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 15 Sep 2009 07:16:24 -0400
-Message-Id: <1253013385.13634.1062.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 15 Sep 2009 09:07:40 -0400
+Message-Id: <1253020060.13634.1080.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-09-15 at 08:32 +0200, Michal Svoboda wrote:
-> Stephen Smalley wrote:
-> > I don't think so - the problem with selinuxfs tunables is that they
-> > can't be changed atomically with a policy change, and this is a property
-> > that should be tied to a particular policy.  For the same reason,
-> > properties like handle_unknown and permissive domains are defined in the
-> > policy itself rather than being selinuxfs tunables.
+On Mon, 2009-09-14 at 15:33 -0400, Stephen Smalley wrote:
+> On Mon, 2009-09-14 at 15:07 -0400, Joshua Brindle wrote:
+> > On 09/14/2009 09:22 AM, pjnuzzi wrote:
+> > > Add support for multiple target OSes to libsepol and checkpolicy, where
+> > >    
+> > 
+> > what about checkmodule?
 > 
-> There have been things like compat_net, why can't the inheritance be
-> done on the same basis and must be part of the policy instead?
-
-compat_net was viewed as a mistake in retrospect, something we don't
-want to repeat.
-
-> Anyway, I've been looking at the policy loader code, and it seems that
-> the easiest way to incorporate this into the policy would be to blend it
-> with the config field (which is presently used for MLS and
-> handle_unknown flags), perhaps by defining a flag like CATEGORY_INHERIT
-> and to check for it right after ALLOW_UNKNOWN and REJECT_UNKNOWN are
-> processed. This flag would then go to struct policydb and would be
-> checked for in the mls_compute_sid function (I can see direct usage of
-> the policydb global variable in that very function, so I guess it
-> shouldn't be a problem).
+> At present, the patch only deals with monolithic policy. To update for
+> modular policy, we'd need to introduce multiple string identifiers in
+> the modular format as well.  Which could be done, but I'm not sure it is
+> worthwhile given plans for replacing the module format.  The other
+> option is to select the output target platform in libsemanage via
+> semanage.conf configuration rather than embedding the target in the
+> modules.
 > 
-> Perhaps there could also be an upgrade of the policy version number and
-> a check for the policy being loaded just to prevent random values being
-> present in that bit.
+> > > the particular target OS is selected using a new -t target option to
+> > > checkpolicy.  The default target remains SELinux.  A new target and
+> > > support is introduced for Xen.  The target OS is identified in the
+> > > policy image by using different policy string identifiers in the header.
+> > > At present, policy string identifiers are required to have the same
+> > > length for ease of parsing the header and to preserve file(1) parsing of
+> > >    
+> > 
+> > That is not the case today. Does file really not have the ability to 
+> > read a length and then a string of that length?
 > 
-> There would also need to be a change in libsepol and checkpolicy to
-> reflect this; perhaps checkpolicy could accept an additional command
-> line argument (as it does with handle_unknown), and a new field defined
-> in libsepol's policydb_t and further processed in its write.c.
+> I'm not sure what you mean by "not the case today".  The current
+> libsepol code does require a specific length and won't even try to read
+> the string if the length does not match the expected value, and the
+> existing /usr/share/magic definition for file(1) parsing expects fixed
+> offsets for the fields after the string identifier.  We could certainly
+> relax that requirement, but then we'd have to update /usr/share/magic
+> everywhere.  That seemed unnecessary - a string of 8 characters is
+> sufficient to identify the full range of possible target OSes.
 
-Sounds about right to me.  It would technically be MLS_RANGE_INHERIT or
-similar since it involves more than just the categories.  It might be
-cleaner to make it an actual statement in the policy language rather
-than a checkpolicy option, so that policy/mls or policy/mcs declares the
-desired default transition behavior for objects, at which point you'd
-generalize it.  The current behavior is copy-low-from-source; you want
-copy-range-from-target.  But others might want copy-high-from-source or
-copy-high-from-target or copy-low-from-target or copy-range-from-source.
+Ah, actually, I see that the patch doesn't handle the modular policy
+case correctly there.  So we'll re-spin the patch and loosen the fixed
+length restriction in our code, even though I expect we'll keep it in
+practice due to existing /usr/share/magic definitions.
 
 -- 
 Stephen Smalley
