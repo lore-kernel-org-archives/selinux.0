@@ -1,104 +1,670 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8FDfG1x017341
-	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 09:41:16 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n8FDgdj5007015
-	for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2009 13:42:40 GMT
-Subject: Re: [refpolicy] new policy for dkim-filter
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Howarth <paul@city-fan.org>
-Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>, selinux@tycho.nsa.gov
-In-Reply-To: <4AAE4802.6050102@city-fan.org>
-References: <1252611656.2486.44.camel@vogon.seekline.net>
-	 <20090910210421.150ff80f@metropolis.intra.city-fan.org>
-	 <1252615167.22997.1.camel@vogon.seekline.net>
-	 <1252619448.22997.12.camel@vogon.seekline.net>
-	 <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
-	 <1252655581.2491.12.camel@vogon.seekline.net>
-	 <1252657231.2491.18.camel@vogon.seekline.net>
-	 <1252672214.2937.8.camel@defiant.pebenito.net>
-	 <1252678921.2491.51.camel@vogon.seekline.net>
-	 <4AAA6A3A.9080202@city-fan.org>
-	 <1252933263.7425.113.camel@gorn.columbia.tresys.com>
-	 <4AAE4802.6050102@city-fan.org>
+Subject: [PATCH 1/3] libsepol: Add support for multiple target OSes
+From: pjnuzzi <pjnuzzi@tycho.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 15 Sep 2009 09:39:47 -0400
-Message-Id: <1253021987.7425.130.camel@gorn.columbia.tresys.com>
+Date: Tue, 15 Sep 2009 12:15:16 -0400
+Message-Id: <1253031316.3209.116.camel@moss-stripedbass.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-09-14 at 14:41 +0100, Paul Howarth wrote:
-> On 14/09/09 14:01, Christopher J. PeBenito wrote:
-> > On Fri, 2009-09-11 at 16:18 +0100, Paul Howarth wrote:
-> >> On 11/09/09 15:22, Stefan Schulze Frielinghaus wrote:
-> >>> On Fri, 2009-09-11 at 08:30 -0400, Chris PeBenito wrote:
-> >>>> On Fri, 2009-09-11 at 10:20 +0200, Stefan Schulze Frielinghaus wrote:
-> >>>>>>>>>> On Thu, 10 Sep 2009 21:40:56 +0200
-> >>>>>>>>>> Stefan Schulze Frielinghaus<stefan@seekline.net>   wrote:
-> >>>>>>>>>>
-> >>>>>>>>>>> Attached is a new policy for the dkim-filter application.
-> >>>>>>>>>>>
-> >>>>>>>>>>> Chris, is the policy OK/ready for merge?
-> >>>>
-> >>>>> Tested attached policy again on CentOS 5.3 with strict policy.
-> >>>>
-> >>>> It looks ok.  However I'm starting to get concerned about the milter
-> >>>> module getting big.  If you want, say the spamassassin milter, you add
-> >>>> the milter module... but then you get rules for a several other milters
-> >>>> too.
-> >>
-> >> True, but how much of a problem is that, given that any milter user is
-> >> at least going to have also the sendmail/postfix policy and the mta
-> >> policy too?
-> >
-> > Perhaps not.  But how many milters are there?  I don't want to get to
-> > the point where there are 10-20 milters in the same module.
-> 
-> Having that many milters is quite conceivable:
-> 
-> https://www.milter.org/milters
-> 
-> >>> Attached is a milter version which behaves like the apache_template(). I
-> >>> only took care of the dkim-milter but in general this would only mean
-> >>> some reorganization of all modules ... nothing more. Any cons about
-> >>> that?
-> >>
-> >> Splitting each milter out into its own module is certainly do-able;
-> >> doesn't that add overhead (from having more modules) as well though?
-> >
-> > Only a little disk space and some memory during policy linking.  No
-> > overhead for the final policy, which is what I'm concerned about.
-> >
-> >>> If this would be the right way then we could also talk about the
-> >>> milter_template() naming convention:
-> >>>
-> >>> type $1_milter_t
-> >>>
-> >>> The apache_template generates slightly different type names:
-> >>>
-> >>> type httpd_$1_script_t
-> >>>
-> >>> What about changing $1_milter_t to milter_$1_t?
-> >>
-> >> That would make sense given that most types in refpolicy are prefixed
-> >> with the module name. There would need to be typealiases added though
-> >> for the old names for the benefit of existing users, wouldn't there?
-> >
-> > Yes.  But I'd prefer to keep the current naming convention.  I consider
-> > the apache convention nonstandard.
-> 
-> Let's split each milter off into its own module then, leaving the type 
-> names unchanged.
+Add support for multiple target OSes to libsepol where
+the particular target OS is selected using a new -t target option to
+checkpolicy.  The default target remains SELinux.  A new target and
+support is introduced for Xen.  The target OS is identified in the
+policy image by using different policy string identifiers in the header.
+The policy string identifiers have been changed to variable length which
+could break file(1) parsing if a string longer than 8 characters is
+introduced into libsepol.  This modification will not affect the output
+from file(1) but future changes to policy strings could.  For SELinux,
+the string identifier remains "SE Linux".  For Xen, the string
+identifier is "XenFlask".  The latent support for just "Flask" in the
+policy reading code that was introduced for FMAC is dropped; a separate
+identifier for Solaris (e.g. "SolFlask") will be introduced later using
+this new target mechanism if needed.  The same support can easily be
+extended for other OSes.
 
-We'll do this for new milters.  The ones that are currently in the
-milter module will stay for now, since its problematic moving types
-between modules.
+Based on the selected target, the source and binary policies may be
+parsed differently.  For SELinux vs. Xen, the current difference is the
+interpretation of object context records.  New object context records
+for object contexts for pirqs, iomem ranges, ioport ranges, and pci
+devices are enabled if building for the Xen target.  The SELinux object
+context records other than initial SIDs are disabled if building for the
+Xen target.  checkpolicy will generate an error if an attempt is made to
+build a policy that has invalid object context records for the selected
+target, and libsepol will likewise reject a binary policy if its object
+context records are invalid for the target identified by its string
+identifier.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+No changes are required to the SELinux kernel code to support this
+change; the SELinux kernel will continue to accept only policies with
+the "SE Linux" identifier.  A patch for the Xen Flask module will be
+submitted after this patch to enable it to accept policies built with
+either string identifier (for compatibility with existing policies),
+where the new object context record support will only be enabled if the
+policy was built for the Xen target.
+
+Support for selecting the target platform for libsemanage will be added
+later. 
+
+Signed-off-by: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
+
+---
+ libsepol/include/sepol/policydb/policydb.h |   28 +++-
+ libsepol/src/expand.c                      |   85 +++++++++++-
+ libsepol/src/policydb.c                    |  197
+++++++++++++++++++++++++-----
+ libsepol/src/policydb_internal.h           |    1
+ libsepol/src/write.c                       |   90 ++++++++++++-
+ 5 files changed, 359 insertions(+), 42 deletions(-)
+
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 0105cf4..2013238 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -276,6 +276,16 @@ typedef struct ocontext {
+ 			uint32_t addr[4]; /* network order */
+ 			uint32_t mask[4]; /* network order */
+ 		} node6;	/* IPv6 node information */
++		uint32_t device;
++		uint16_t pirq;
++		struct {
++			uint32_t low_iomem;
++			uint32_t high_iomem;
++		} iomem;
++		struct {
++			uint32_t low_ioport;
++			uint32_t high_ioport;
++		} ioport;
+ 	} u;
+ 	union {
+ 		uint32_t sclass;	/* security class for genfs */
+@@ -313,6 +323,17 @@ typedef struct genfs {
+ #define OCON_NODE6 6		/* IPv6 nodes */
+ #define OCON_NUM   7
+ 
++/* object context array indices for Xen */
++#define OCON_ISID    0    /* initial SIDs */
++#define OCON_PIRQ    1    /* physical irqs */
++#define OCON_IOPORT  2    /* io ports */
++#define OCON_IOMEM   3    /* io memory */
++#define OCON_DEVICE  4    /* pci devices */
++#define OCON_DUMMY1  5    /* reserved */
++#define OCON_DUMMY2  6    /* reserved */
++#define OCON_NUM     7
++
++
+ /* section: module information */
+ 
+ /* scope_index_t holds all of the symbols that are in scope in a
+@@ -400,6 +421,7 @@ typedef struct policydb {
+ 	uint32_t policy_type;
+ 	char *name;
+ 	char *version;
++	uint32_t target_type;
+ 
+ 	/* Set when the policydb is modified such that writing is unsupported */
+ 	int unsupported_format;
+@@ -593,6 +615,7 @@ extern int avrule_read_list(policydb_t * p, avrule_t ** avrules,
+ 			    struct policy_file *fp);
+ 
+ extern int policydb_write(struct policydb *p, struct policy_file *pf);
++extern int policydb_set_target_platform(policydb_t *p, int platform);
+ 
+ #define PERM_SYMTAB_SIZE 32
+ 
+@@ -651,9 +674,12 @@ extern int policydb_write(struct policydb *p, struct policy_file *pf);
+ 
+ #define POLICYDB_MAGIC SELINUX_MAGIC
+ #define POLICYDB_STRING "SE Linux"
+-#define POLICYDB_ALT_STRING "Flask"
++#define POLICYDB_XEN_STRING "XenFlask"
+ #define POLICYDB_MOD_MAGIC SELINUX_MOD_MAGIC
+ #define POLICYDB_MOD_STRING "SE Linux Module"
++#define SEPOL_TARGET_SELINUX 0
++#define SEPOL_TARGET_XEN     1
++
+ 
+ #endif				/* _POLICYDB_H_ */
+ 
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index e9cd986..38e2481 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1819,9 +1819,9 @@ static int context_copy(context_struct_t * dst, context_struct_t * src,
+ 	return mls_context_cpy(dst, src);
+ }
+ 
+-static int ocontext_copy(expand_state_t * state)
++static int ocontext_copy_xen(expand_state_t *state)
+ {
+-	unsigned int i, j;
++	unsigned int i;
+ 	ocontext_t *c, *n, *l;
+ 
+ 	for (i = 0; i < OCON_NUM; i++) {
+@@ -1833,11 +1833,63 @@ static int ocontext_copy(expand_state_t * state)
+ 				return -1;
+ 			}
+ 			memset(n, 0, sizeof(ocontext_t));
+-			if (l) {
++			if (l)
+ 				l->next = n;
+-			} else {
++			else
+ 				state->out->ocontexts[i] = n;
++			l = n;
++			if (context_copy(&n->context[0], &c->context[0],
++				state)) {
++				ERR(state->handle, "Out of memory!");
++				return -1;
++			}
++			switch (i) {
++			case OCON_ISID:
++				n->sid[0] = c->sid[0];
++				break;
++			case OCON_PIRQ:
++				n->u.pirq = c->u.pirq;
++				break;
++			case OCON_IOPORT:
++				n->u.ioport.low_ioport = c->u.ioport.low_ioport;
++				n->u.ioport.high_ioport =
++					c->u.ioport.high_ioport;
++				break;
++			case OCON_IOMEM:
++				n->u.iomem.low_iomem  = c->u.iomem.low_iomem;
++				n->u.iomem.high_iomem = c->u.iomem.high_iomem;
++				break;
++			case OCON_DEVICE:
++				n->u.device = c->u.device;
++				break;
++			default:
++				/* shouldn't get here */
++				ERR(state->handle, "Unknown ocontext");
++				return -1;
++			}
++		}
++	}
++	return 0;
++}
++
++static int ocontext_copy_selinux(expand_state_t *state)
++{
++	unsigned int i, j;
++	ocontext_t *c, *n, *l;
++
++	for (i = 0; i < OCON_NUM; i++) {
++		l = NULL;
++		for (c = state->base->ocontexts[i]; c; c = c->next) {
++			n = malloc(sizeof(ocontext_t));
++			if (!n) {
++				ERR(state->handle, "Out of memory!");
++				return -1;
+ 			}
++			memset(n, 0, sizeof(ocontext_t));
++			if (l)
++				l->next = n;
++			else
++				state->out->ocontexts[i] = n;
+ 			l = n;
+ 			if (context_copy(&n->context[0], &c->context[0], state)) {
+ 				ERR(state->handle, "Out of memory!");
+@@ -1885,13 +1937,31 @@ static int ocontext_copy(expand_state_t * state)
+ 				break;
+ 			default:
+ 				/* shouldn't get here */
+-				assert(0);
++				ERR(state->handle, "Unknown ocontext");
++				return -1;
+ 			}
+ 		}
+ 	}
+ 	return 0;
+ }
+ 
++static int ocontext_copy(expand_state_t *state, uint32_t target)
++{
++	int rc = -1;
++	switch (target) {
++	case SEPOL_TARGET_SELINUX:
++		rc = ocontext_copy_selinux(state);
++		break;
++	case SEPOL_TARGET_XEN:
++		rc = ocontext_copy_xen(state);
++		break;
++	default:
++		ERR(state->handle, "Unknown target");
++		return -1;
++	}
++	return rc;
++}
++
+ static int genfs_copy(expand_state_t * state)
+ {
+ 	ocontext_t *c, *newc, *l;
+@@ -2418,6 +2488,9 @@ int expand_module(sepol_handle_t * handle,
+ 	out->mls = base->mls;
+ 	out->handle_unknown = base->handle_unknown;
+ 
++	/* Copy target from base to out */
++	out->target_type = base->target_type;
++
+ 	/* Copy policy capabilities */
+ 	if (ebitmap_cpy(&out->policycaps, &base->policycaps)) {
+ 		ERR(handle, "Out of memory!");
+@@ -2576,7 +2649,7 @@ int expand_module(sepol_handle_t * handle,
+ 	evaluate_conds(state.out);
+ 
+ 	/* copy ocontexts */
+-	if (ocontext_copy(&state))
++	if (ocontext_copy(&state, out->target_type))
+ 		goto cleanup;
+ 
+ 	/* copy genfs */
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 85ddefc..3d9bfe0 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -54,6 +54,9 @@
+ #include "debug.h"
+ #include "mls.h"
+ 
++#define POLICYDB_TARGET_SZ   ARRAY_SIZE(policydb_target_strings)
++char *policydb_target_strings[] = { POLICYDB_STRING, POLICYDB_XEN_STRING };
++
+ /* These need to be updated if SYM_NUM or OCON_NUM changes */
+ static struct policydb_compat_info policydb_compat[] = {
+ 	{
+@@ -1079,9 +1082,13 @@ void policydb_destroy(policydb_t * p)
+ 			c = c->next;
+ 			context_destroy(&ctmp->context[0]);
+ 			context_destroy(&ctmp->context[1]);
+-			if (i == OCON_ISID || i == OCON_FS || i == OCON_NETIF
+-			    || i == OCON_FSUSE)
++			if (i == OCON_ISID)
++				free(ctmp->u.name);
++			if (p->target_type == SEPOL_TARGET_SELINUX &&
++				(i == OCON_FS || i == OCON_NETIF ||
++				i == OCON_FSUSE))
+ 				free(ctmp->u.name);
++
+ 			free(ctmp);
+ 		}
+ 	}
+@@ -2102,7 +2109,88 @@ int role_allow_read(role_allow_t ** r, struct policy_file *fp)
+ 	return 0;
+ }
+ 
+-static int ocontext_read(struct policydb_compat_info *info,
++static int ocontext_read_xen(struct policydb_compat_info *info,
++	policydb_t *p, struct policy_file *fp)
++{
++	unsigned int i, j;
++	size_t nel;
++	ocontext_t *l, *c;
++	uint32_t buf[8];
++	int rc;
++
++	for (i = 0; i < info->ocon_num; i++) {
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			return -1;
++		nel = le32_to_cpu(buf[0]);
++		l = NULL;
++		for (j = 0; j < nel; j++) {
++			c = calloc(1, sizeof(ocontext_t));
++			if (!c)
++				return -1;
++			if (l)
++				l->next = c;
++			else
++				p->ocontexts[i] = c;
++			l = c;
++			switch (i) {
++			case OCON_ISID:
++				rc = next_entry(buf, fp, sizeof(uint32_t));
++				if (rc < 0)
++					return -1;
++				c->sid[0] = le32_to_cpu(buf[0]);
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
++			case OCON_PIRQ:
++				rc = next_entry(buf, fp, sizeof(uint32_t));
++				if (rc < 0)
++					return -1;
++				c->u.pirq = le32_to_cpu(buf[0]);
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
++			case OCON_IOPORT:
++				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
++				if (rc < 0)
++					return -1;
++				c->u.ioport.low_ioport = le32_to_cpu(buf[0]);
++				c->u.ioport.high_ioport = le32_to_cpu(buf[1]);
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
++			case OCON_IOMEM:
++				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
++				if (rc < 0)
++					return -1;
++				c->u.iomem.low_iomem = le32_to_cpu(buf[0]);
++				c->u.iomem.high_iomem = le32_to_cpu(buf[1]);
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
++			case OCON_DEVICE:
++				rc = next_entry(buf, fp, sizeof(uint32_t));
++				if (rc < 0)
++					return -1;
++				c->u.device = le32_to_cpu(buf[0]);
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
++			default:
++				/* should never get here */
++				ERR(fp->handle, "Unknown Xen ocontext");
++				return -1;
++			}
++		}
++	}
++	return 0;
++}
++static int ocontext_read_selinux(struct policydb_compat_info *info,
+ 			 policydb_t * p, struct policy_file *fp)
+ {
+ 	unsigned int i, j;
+@@ -2197,23 +2285,25 @@ static int ocontext_read(struct policydb_compat_info *info,
+ 					return -1;
+ 				break;
+ 			case OCON_NODE6:{
+-					int k;
+-
+-					rc = next_entry(buf, fp,
+-							sizeof(uint32_t) * 8);
+-					if (rc < 0)
+-						return -1;
+-					for (k = 0; k < 4; k++)
+-						c->u.node6.addr[k] = buf[k]; /* network order */
+-					for (k = 0; k < 4; k++)
+-						c->u.node6.mask[k] = buf[k + 4]; /* network order */
+-					if (context_read_and_validate
+-					    (&c->context[0], p, fp))
+-						return -1;
+-					break;
++				int k;
++
++				rc = next_entry(buf, fp, sizeof(uint32_t) * 8);
++				if (rc < 0)
++					return -1;
++				for (k = 0; k < 4; k++)
++					 /* network order */
++					c->u.node6.addr[k] = buf[k];
++				for (k = 0; k < 4; k++)
++					/* network order */
++					c->u.node6.mask[k] = buf[k + 4];
++				if (context_read_and_validate
++				    (&c->context[0], p, fp))
++					return -1;
++				break;
+ 				}
+ 			default:{
+-					assert(0);	/* should never get here */
++				ERR(fp->handle, "Unknown SELinux ocontext");
++				return -1;
+ 				}
+ 			}
+ 		}
+@@ -2221,6 +2311,23 @@ static int ocontext_read(struct policydb_compat_info *info,
+ 	return 0;
+ }
+ 
++static int ocontext_read(struct policydb_compat_info *info,
++	policydb_t *p, struct policy_file *fp)
++{
++	int rc = -1;
++	switch (p->target_type) {
++	case SEPOL_TARGET_SELINUX:
++		rc = ocontext_read_selinux(info, p, fp);
++		break;
++	case SEPOL_TARGET_XEN:
++		rc = ocontext_read_xen(info, p, fp);
++		break;
++	default:
++		ERR(fp->handle, "Unknown target");
++	}
++	return rc;
++}
++
+ static int genfs_read(policydb_t * p, struct policy_file *fp)
+ {
+ 	uint32_t buf[1];
+@@ -3070,7 +3177,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 	unsigned int i, j, r_policyvers;
+ 	uint32_t buf[5], config;
+ 	size_t len, nprim, nel;
+-	char *policydb_str, *target_str = NULL, *alt_target_str = NULL;
++	char *policydb_str;
+ 	struct policydb_compat_info *info;
+ 	unsigned int policy_type, bufindex;
+ 	ebitmap_node_t *tnode;
+@@ -3087,11 +3194,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 
+ 	if (buf[0] == POLICYDB_MAGIC) {
+ 		policy_type = POLICY_KERN;
+-		target_str = POLICYDB_STRING;
+-		alt_target_str = POLICYDB_ALT_STRING;
+ 	} else if (buf[0] == POLICYDB_MOD_MAGIC) {
+ 		policy_type = POLICY_MOD;
+-		target_str = POLICYDB_MOD_STRING;
+ 	} else {
+ 		ERR(fp->handle, "policydb magic number %#08x does not "
+ 		    "match expected magic number %#08x or %#08x",
+@@ -3100,10 +3204,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 	}
+ 
+ 	len = buf[1];
+-	if (len != strlen(target_str) &&
+-	    (!alt_target_str || len != strlen(alt_target_str))) {
+-		ERR(fp->handle, "policydb string length %zu does not match "
+-		    "expected length %zu", len, strlen(target_str));
++	if (len > 32) {
++		ERR(fp->handle, "policydb string length too long ");
+ 		return POLICYDB_ERROR;
+ 	}
+ 
+@@ -3120,13 +3222,31 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 		return POLICYDB_ERROR;
+ 	}
+ 	policydb_str[len] = 0;
+-	if (strcmp(policydb_str, target_str) &&
+-	    (!alt_target_str || strcmp(policydb_str, alt_target_str))) {
+-		ERR(fp->handle, "policydb string %s does not match "
+-		    "my string %s", policydb_str, target_str);
+-		free(policydb_str);
+-		return POLICYDB_ERROR;
++
++	if (policy_type == POLICY_KERN) {
++		for (i = 0; i < POLICYDB_TARGET_SZ; i++) {
++			if ((strcmp(policydb_str, policydb_target_strings[i])
++				== 0)) {
++				policydb_set_target_platform(p, i);
++				break;
++			}
++		}
++
++		if (i == POLICYDB_TARGET_SZ) {
++			ERR(fp->handle, "cannot find a valid target for policy "
++				"string %s", policydb_str);
++			free(policydb_str);
++			return POLICYDB_ERROR;
++		}
++	} else {
++		if (strcmp(policydb_str, POLICYDB_MOD_STRING)) {
++			ERR(fp->handle, "invalid string identifier %s",
++				policydb_str);
++			free(policydb_str);
++			return POLICYDB_ERROR;
++		}
+ 	}
++
+ 	/* Done with policydb_str. */
+ 	free(policydb_str);
+ 	policydb_str = NULL;
+@@ -3391,3 +3511,16 @@ void policy_file_init(policy_file_t *pf)
+ {
+ 	memset(pf, 0, sizeof(policy_file_t));
+ }
++
++int policydb_set_target_platform(policydb_t *p, int platform)
++{
++	if (platform == SEPOL_TARGET_SELINUX)
++		p->target_type = SEPOL_TARGET_SELINUX;
++	else if (platform == SEPOL_TARGET_XEN)
++		p->target_type = SEPOL_TARGET_XEN;
++	else
++		return -1;
++
++	return 0;
++}
++
+diff --git a/libsepol/src/policydb_internal.h b/libsepol/src/policydb_internal.h
+index 1eb99e5..8a31506 100644
+--- a/libsepol/src/policydb_internal.h
++++ b/libsepol/src/policydb_internal.h
+@@ -6,4 +6,5 @@
+ 
+ hidden_proto(sepol_policydb_create)
+     hidden_proto(sepol_policydb_free)
++extern char *policydb_target_strings[];
+ #endif
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index 66b35ec..a557c2e 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -1084,10 +1084,79 @@ static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
+ common_write, class_write, role_write, type_write, user_write,
+ 	    cond_write_bool, sens_write, cat_write,};
+ 
+-static int ocontext_write(struct policydb_compat_info *info, policydb_t * p,
++static int ocontext_write_xen(struct policydb_compat_info *info, policydb_t *p,
+ 			  struct policy_file *fp)
+ {
+ 	unsigned int i, j;
++	size_t nel, items;
++	uint32_t buf[32];
++	ocontext_t *c;
++	for (i = 0; i < info->ocon_num; i++) {
++		nel = 0;
++		for (c = p->ocontexts[i]; c; c = c->next)
++			nel++;
++		buf[0] = cpu_to_le32(nel);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++		for (c = p->ocontexts[i]; c; c = c->next) {
++			switch (i) {
++			case OCON_ISID:
++				buf[0] = cpu_to_le32(c->sid[0]);
++				items = put_entry(buf, sizeof(uint32_t), 1, fp);
++				if (items != 1)
++					return POLICYDB_ERROR;
++				if (context_write(p, &c->context[0], fp))
++					return POLICYDB_ERROR;
++				break;
++			case OCON_PIRQ:
++				buf[0] = cpu_to_le32(c->u.pirq);
++				items = put_entry(buf, sizeof(uint32_t), 1, fp);
++				if (items != 1)
++					return POLICYDB_ERROR;
++				if (context_write(p, &c->context[0], fp))
++					return POLICYDB_ERROR;
++				break;
++			case OCON_IOPORT:
++				buf[0] = c->u.ioport.low_ioport;
++				buf[1] = c->u.ioport.high_ioport;
++				for (j = 0; j < 2; j++)
++					buf[j] = cpu_to_le32(buf[j]);
++				items = put_entry(buf, sizeof(uint32_t), 2, fp);
++				if (items != 2)
++					return POLICYDB_ERROR;
++				if (context_write(p, &c->context[0], fp))
++					return POLICYDB_ERROR;
++				break;
++			case OCON_IOMEM:
++				buf[0] = c->u.iomem.low_iomem;
++				buf[1] = c->u.iomem.high_iomem;
++				for (j = 0; j < 2; j++)
++					buf[j] = cpu_to_le32(buf[j]);
++				items = put_entry(buf, sizeof(uint32_t), 2, fp);
++				if (items != 2)
++					return POLICYDB_ERROR;
++				if (context_write(p, &c->context[0], fp))
++					return POLICYDB_ERROR;
++				break;
++			case OCON_DEVICE:
++				buf[0] = cpu_to_le32(c->u.device);
++				items = put_entry(buf, sizeof(uint32_t), 1, fp);
++				if (items != 1)
++					return POLICYDB_ERROR;
++				if (context_write(p, &c->context[0], fp))
++					return POLICYDB_ERROR;
++				break;
++			}
++		}
++	}
++	return POLICYDB_SUCCESS;
++}
++
++static int ocontext_write_selinux(struct policydb_compat_info *info,
++	policydb_t *p, struct policy_file *fp)
++{
++	unsigned int i, j;
+ 	size_t nel, items, len;
+ 	uint32_t buf[32];
+ 	ocontext_t *c;
+@@ -1176,6 +1245,21 @@ static int ocontext_write(struct policydb_compat_info *info, policydb_t * p,
+ 	return POLICYDB_SUCCESS;
+ }
+ 
++static int ocontext_write(struct policydb_compat_info *info, policydb_t * p,
++	struct policy_file *fp)
++{
++	int rc = POLICYDB_ERROR;
++	switch (p->target_type) {
++	case SEPOL_TARGET_SELINUX:
++		rc = ocontext_write_selinux(info, p, fp);
++		break;
++	case SEPOL_TARGET_XEN:
++		rc = ocontext_write_xen(info, p, fp);
++		break;
++	}
++	return rc;
++}
++
+ static int genfs_write(policydb_t * p, struct policy_file *fp)
+ {
+ 	genfs_t *genfs;
+@@ -1610,8 +1694,8 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+ 	items = 0;
+ 	if (p->policy_type == POLICY_KERN) {
+ 		buf[items++] = cpu_to_le32(POLICYDB_MAGIC);
+-		len = strlen(POLICYDB_STRING);
+-		policydb_str = POLICYDB_STRING;
++		len = strlen(policydb_target_strings[p->target_type]);
++		policydb_str = policydb_target_strings[p->target_type];
+ 	} else {
+ 		buf[items++] = cpu_to_le32(POLICYDB_MOD_MAGIC);
+ 		len = strlen(POLICYDB_MOD_STRING);
+
 
 
 --
