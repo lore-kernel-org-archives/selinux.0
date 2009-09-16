@@ -1,50 +1,32 @@
-Message-ID: <4AB154FA.7020305@manicmethod.com>
-Date: Wed, 16 Sep 2009 17:13:30 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GLERW7014263
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 17:14:27 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GLFpwx013959
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 21:15:52 GMT
+Message-ID: <4AB15531.10201@manicmethod.com>
+Date: Wed, 16 Sep 2009 17:14:25 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Caleb Case <ccase@tresys.com>
-CC: selinux@tycho.nsa.gov, jbrindle@tresys.com, sds@tycho.nsa.gov
-Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
-References: <1253042418-28141-1-git-send-email-ccase@tresys.com>
-In-Reply-To: <1253042418-28141-1-git-send-email-ccase@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Chad Sellers <cdselle@tycho.ncsc.mil>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: I think I sent this patch before,  it is the upgrade patch.
+References: <4AAA99B0.4040901@redhat.com>
+In-Reply-To: <4AAA99B0.4040901@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
 
-Caleb Case wrote:
-> Setfiles now checks the capabilities on the mounted file systems for
-> 'seclabel' (see setfiles/setfiles.c:723:exclude_non_seclabel_mounts) on
-> newer kernels (>=2.6.30 see setfiles.c:734). However the 'seclabel'
-> feature is not available if selinux is not enabled. The result is that
-> setfiles silently fails to relabel any filesystems.
+Daniel J Walsh wrote:
+> Basically it makes semodule -u file.pp, install file.pp if it does not exist.  This matches the rpm syntax, and allows us too update/install many packages with a transaction without know whether the package is updated or installed.
 >
-> The patch below removes the check for seclabel if selinux is disabled.
+> Currently we can only do a -i which could hammer a newwer version.
 >
-> As an alternative maybe seclabel should be available even if selinux is
-> disabled? It seems that whether a fs supports security labels is
-> independent of selinux being enabled.
-> ---
->   policycoreutils/setfiles/setfiles.c |    2 ++
->   1 files changed, 2 insertions(+), 0 deletions(-)
->
-> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-> index 313767a..db2857f 100644
-> --- a/policycoreutils/setfiles/setfiles.c
-> +++ b/policycoreutils/setfiles/setfiles.c
-> @@ -750,6 +750,8 @@ static void exclude_non_seclabel_mounts()
->   	/* Check to see if the kernel supports seclabel */
->   	if (uname(&uts) == 0&&  strverscmp(uts.release, "2.6.30")<  0)
->   		return;
-> +	if (is_selinux_enabled()<= 0)
-> +		return;
->
->   	fp = fopen("/proc/mounts", "r");
->   	if (!fp)
 
 
-Merged in policycoreutils 2.0.74
+Merged in libsemanage 2.0.38 and policycoreutils 2.0.74
 
 --
 This message was distributed to subscribers of the selinux mailing list.
