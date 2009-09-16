@@ -1,399 +1,124 @@
-Message-ID: <4AB11CF5.7020604@manicmethod.com>
-Date: Wed, 16 Sep 2009 13:14:29 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
-References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>	<878whm1gr5.fsf@anzu.internal.golden-gryphon.com> <87fxbq30u5.fsf@anzu.internal.golden-gryphon.com> <4AB0FDBD.8030200@manicmethod.com> <4AB11C0D.5040909@redhat.com>
-In-Reply-To: <4AB11C0D.5040909@redhat.com>
-Content-Type: multipart/alternative;
- boundary="------------010004030705010700070107"
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed; delsp=yes
+Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
+From: Jeff Johnson <n3npq@mac.com>
+In-reply-to: <1253111809.18198.104.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 16 Sep 2009 13:21:53 -0400
+Cc: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Message-id: <8695AD02-EDBD-488D-95A1-56EE97D01BDF@mac.com>
+References: <1253042418-28141-1-git-send-email-ccase@tresys.com>
+ <1253043181.18198.62.camel@moss-pluto.epoch.ncsc.mil>
+ <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
+ <1253109741.18198.93.camel@moss-pluto.epoch.ncsc.mil>
+ <D095955D-66A2-4A9E-854A-5A5AF0C92EF3@mac.com>
+ <1253111809.18198.104.camel@moss-pluto.epoch.ncsc.mil>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010004030705010700070107
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
+On Sep 16, 2009, at 10:36 AM, Stephen Smalley wrote:
 
-
-Daniel J Walsh wrote:
-> On 09/16/2009 11:01 AM, Joshua Brindle wrote:
->    
->> Manoj Srivastava wrote:
->>      
->>> On Mon, Aug 17 2009, Christopher J. PeBenito wrote:
->>>
->>>
->>>        
->>>> On Fri, 2009-08-14 at 11:50 -0500, Manoj Srivastava wrote:
->>>>
->>>>          
->>>>> On Fri, Aug 14 2009, Manoj Srivastava wrote:
->>>>>
->>>>>
->>>>>            
->>>>>>           I am running into an issue with sepolgen on Debian. Debian
->>>>>> ships
->>>>>>    more than one  version of the refpolicy, a default one, and a
->>>>>>    MLS enabled one. So, the include files live in either
->>>>>>    /usr/share/selinux/{default,mls}/include
->>>>>>
->>>>>>           sepolgen (in src/sepolgen/defaults.py) sets
->>>>>> refpolicy_devel() to
->>>>>>    a single location -- and thus, only one version of the security
->>>>>> policy
->>>>>>    may be supported. So, sepolgen-ifgen from policycoreutils can
->>>>>> only work
->>>>>>    with one policy, which may not be the one installed on the target
->>>>>>    machine. Could this be made configurable, somehow? As far as I can
->>>>>>    see, sepolgen's python library does not offer any way to set the
->>>>>> value.
->>>>>>
->>>>>>           It would be nice if the location of the include directory
->>>>>> could
->>>>>>    be looked for from a PATH like variable setting, to make it
->>>>>> easier for
->>>>>>    distributions to ship more than one policy, or for end users to
->>>>>>    experiment with other policies without have to overwrite the single
->>>>>>    default.
->>>>>>
->>>>>>              
->>>>>           Well, here is a kind of proof-of-concept patch (python is
->>>>> not my
->>>>>    strong suit), and I have only tested in that it allows the package to
->>>>>    compile, and the following code works:
->>>>>
->>>>>            
->>>> [...]
->>>>
->>>>          
->>>>>    def refpolicy_makefile():
->>>>> -    return refpolicy_devel() + "/Makefile"
->>>>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
->>>>> +    return chooser("Makefile")
->>>>>
->>>>>    def headers():
->>>>> -    return refpolicy_devel() + "/include"
->>>>> -
->>>>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
->>>>> +    return chooser("include")
->>>>> +
->>>>>
->>>>>            
->>>> Why are you making another config file rather than just get the policy
->>>> name from /etc/selinux/config via selinux_getpolicytype()?
->>>>
->>>>          
->>>           This will work well for Debian, since the development files are
->>>    installed under "/usr/share/selinux/" in a subdirectory named after the
->>>    policy. I was not sure that this convention was followed in other
->>>    distributions, though. While I am not certain, google implies that in
->>>    fedora policy type is targeted, but the devel files do not live in
->>>    /usr/share/selinux/targeted.[0]. Given that, perhaps it is better to
->>>    let the user provide guidance about how to map the policy type to a
->>>    directory?
->>>
->>>           Also, I must confess I had forgotten about this call.
->>>
->>>           However, a patch with this is trivial, so an alternate patch
->>>    follows. (Not sure this will work for fedora, so caveat emptor)
->>>
->>>           manoj
->>> [0]
->>> http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html
->>>
->>>
->>> --8<---------------cut here---------------start------------->8---
->>>
->>> If the user installs a policy whose development files do not live under
->>> /usr/share/selinux/devel/include, sepolgen wqould not work. Debian, for
->>> instance, installs under:
->>> /usr/share/selinux/{default,mls}/include
->>>
->>> This patch uses selinux_getpolicytype() to determine the policy type, and
->>> assumes that there is one-on-one correspondence between policytype and
->>> the directory the development files live in.
->>>
->>> Signed-off-by: Manoj Srivastava<srivasta@debian.org>
->>> ---
->>>    src/sepolgen/defaults.py |    4 +++-
->>>    src/sepolgen/module.py   |    2 +-
->>>    2 files changed, 4 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
->>> index 45ce61a..85e5fb0 100644
->>> --- a/src/sepolgen/defaults.py
->>> +++ b/src/sepolgen/defaults.py
->>> @@ -21,6 +21,8 @@
->>>    Various default settings, including file and directory locations.
->>>    """
->>>
->>> +import selinux
->>> +
->>>    def data_dir():
->>>        return "/var/lib/sepolgen"
->>>
->>> @@ -31,7 +33,7 @@ def interface_info():
->>>        return data_dir() + "/interface_info"
->>>
->>>    def refpolicy_devel():
->>> -    return "/usr/share/selinux/devel"
->>> +    return "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]
->>>
->>>    def refpolicy_makefile():
->>>        return refpolicy_devel() + "/Makefile"
->>> diff --git a/src/sepolgen/module.py b/src/sepolgen/module.py
->>> index edd24c6..355c9b8 100644
->>> --- a/src/sepolgen/module.py
->>> +++ b/src/sepolgen/module.py
->>> @@ -120,7 +120,7 @@ class ModuleCompiler:
->>>            self.semodule_package = "/usr/bin/semodule_package"
->>>            self.output = output
->>>            self.last_output = ""
->>> -        self.refpol_makefile = "/usr/share/selinux/devel/Makefile"
->>> +        self.refpol_makefile = "/usr/share/selinux/" +
->>> selinux.selinux_getpolicytype()[1]  + "/Makefile"
->>>            self.make = "/usr/bin/make"
->>>
->>>        def o(self, str):
->>>
->>>        
->> This will break Fedora/RHEL AFAIK. I don't necessarily like that RH has
->> interface files in /usr/share/selinux/devel rather than
->> /usr/share/selinux/<policy>/devel or similar but we can't break them.
+> On Wed, 2009-09-16 at 10:16 -0400, Jeff Johnson wrote:
+>> On Sep 16, 2009, at 10:02 AM, Stephen Smalley wrote:
 >>
->> Dan, any chance you could change the location of the interface files?
+>>>>
+>>>> What is the best we can do? Should we always attempt to relabel if
+>>>> selinux is disabled or not?
+>>>
+>>> The patch is the best we can do - we shouldn't exclude any mounts
+>>> based
+>>> on the absence of seclabel in /proc/mounts if SELinux is disabled.
+>>> Historically setfiles has always supported relabeling filesystems  
+>>> even
+>>> if SELinux was disabled in the host.
 >>
+>> There's a fundamental confusion between the act (of labelling) and  
+>> the
+>> use of selinux labels.
 >>
->>      
-> We could carry a patch although I don't think anyone is  shipping different interfaces for different policies.
+>> The issue shows up when there are multiple (and possibly  
+>> incompatible)
+>> sets of labels, such as in chroot's, or creating an image for a
+>> different
+>> installation.
+>>
+>> One can choose to not install labels condition on whether
+>> is_selinux_enabled()
+>> consistently and methodically.
+>>
+>> Perhaps a simpple example to illustrate:
+>>
+>> 	Should cp(1) always copy security labels or only if  
+>> is_selinux_enabled
+>> ()?
+>>
+>> What I'm hearing is "No. cp(1) should copy labels iff
+>> is_selinux_senabled() is TRUE."
 >
->    
+> That's a different issue.  Here we are talking about a recent change  
+> to
 
-I'm not willing to break upstream behavior and force you to carry a 
-patch for something that previously worked.
+Yes a different issue, but distribution (and the need for relabeling) !=
+the use of the labels, yet applications (like cp(1)) have only  
+is_selinux_enabled()
+or (as in this report) the (non-)existence of sclable in /proc/mounts
+to determine what behavior is "expected".
 
-Perhaps not for distro shipped policies but for custom policies I know 
-interfaces are changed and if the developers on those end systems want 
-to use sepolgen for interface matching they have to over write the 
-distro shipped interface files.
-
-> We could add a link in each policy types back to the devel environment.
-> Or do /usr/share/selinux/POLICYTYPE/devel/Makefile and on RHEL and Fedora systems
->   have /usr/share/selinux/POLICYTYPE/devel ->  /usr/share/selinux/devel/
+> setfiles that was preventing it from relabeling filesystems if SELinux
+> was disabled (because then no filesystems were reporting the seclabel
+> option in /proc/mounts).  As we want setfiles to support relabeling of
+> filesystems even if SELinux is disabled, we want to skip the seclabel
+> option processing in that case as the kernel won't report seclabel
+> information when SELinux is disabled (seclabel means more than just
+> "filesystem has an xattr handler").
 >
->    
+> As far as cp goes, I believe you are correct - it will only preserve
+> security contexts if SELinux is enabled, and even then, only if the
+> caller specified -a or -c.  And in the -a case, it has to be able to
+> gracefully fall back to not preserving the context if not permitted by
+> policy, as not all callers will be able to do so for the security
+> context even if they can do so for the DAC attributes.
+>
 
-wasn't this done in the past? I remember a symlink being there but can't 
-remember why it was removed (unless I'm misremembering)
+I'd suggest changing cp(1) to always copy security.* xattr's if found,
+overriding from CLI options when present.
 
---------------010004030705010700070107
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+But choosing a default behavior that is acceptable to everyone is a  
+difficult
+problem. There's no right or wrong if cp(1) copies security.* xattr's  
+(or not),
+only defacto expectations.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="Content-Type">
-</head>
-<body text="#000000" bgcolor="#ffffff">
-<br>
-<br>
-Daniel J Walsh wrote:
-<blockquote cite="mid:4AB11C0D.5040909@redhat.com" type="cite">
-  <pre wrap="">On 09/16/2009 11:01 AM, Joshua Brindle wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">
-Manoj Srivastava wrote:
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">On Mon, Aug 17 2009, Christopher J. PeBenito wrote:
+But please s/cp(1)/rpm(8)/ and consider what RPM should do if/when  
+installing
+modular policy in a chroot with /proc/selinux unmounted. I nearly  
+implemented
+	Always install security.* xattr's.
+way back when, and (now that modular policy is headed into *.rpm  
+packages somehow)
+I am again considering what "default" behavior in RPM will lead to the  
+fewest
+RPM bug reports. I'm very likely to add a configurable policy install  
+mode that achieves
+	Always copy security.* xattr's when replacing a file.
+with an appropriately automated conflict resolution when matchpathcon()
+and *.pp (either from *.rpm packages or not) and what is currently  
+present on
+the file system all have differnt and incompatible security.* xattr's  
+attached
+to the path.
 
-  
-      </pre>
-      <blockquote type="cite">
-        <pre wrap="">On Fri, 2009-08-14 at 11:50 -0500, Manoj Srivastava wrote:
-    
-        </pre>
-        <blockquote type="cite">
-          <pre wrap="">On Fri, Aug 14 2009, Manoj Srivastava wrote:
+A "best effort" deterministic automation leads to fewer bug reports  
+imho, ymmv.
 
-      
-          </pre>
-          <blockquote type="cite">
-            <pre wrap="">         I am running into an issue with sepolgen on Debian. Debian
-ships
-  more than one  version of the refpolicy, a default one, and a
-  MLS enabled one. So, the include files live in either
-  /usr/share/selinux/{default,mls}/include
+And SELinux tools still relabel which can/will impose whatever labels  
+you
+want everywhere any time you choose. A tad costly, but known to work and
+cannot be avoided. Yet.
 
-         sepolgen (in src/sepolgen/defaults.py) sets
-refpolicy_devel() to
-  a single location -- and thus, only one version of the security
-policy
-  may be supported. So, sepolgen-ifgen from policycoreutils can
-only work
-  with one policy, which may not be the one installed on the target
-  machine. Could this be made configurable, somehow? As far as I can
-  see, sepolgen's python library does not offer any way to set the
-value.
-
-         It would be nice if the location of the include directory
-could
-  be looked for from a PATH like variable setting, to make it
-easier for
-  distributions to ship more than one policy, or for end users to
-  experiment with other policies without have to overwrite the single
-  default.
-         
-            </pre>
-          </blockquote>
-          <pre wrap="">         Well, here is a kind of proof-of-concept patch (python is
-not my
-  strong suit), and I have only tested in that it allows the package to
-  compile, and the following code works:
-       
-          </pre>
-        </blockquote>
-        <pre wrap="">[...]
-    
-        </pre>
-        <blockquote type="cite">
-          <pre wrap="">  def refpolicy_makefile():
--    return refpolicy_devel() + "/Makefile"
-+    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-+    return chooser("Makefile")
-
-  def headers():
--    return refpolicy_devel() + "/include"
--
-+    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-+    return chooser("include")
-+
-       
-          </pre>
-        </blockquote>
-        <pre wrap="">Why are you making another config file rather than just get the policy
-name from /etc/selinux/config via selinux_getpolicytype()?
-     
-        </pre>
-      </blockquote>
-      <pre wrap="">         This will work well for Debian, since the development files are
-  installed under "/usr/share/selinux/" in a subdirectory named after the
-  policy. I was not sure that this convention was followed in other
-  distributions, though. While I am not certain, google implies that in
-  fedora policy type is targeted, but the devel files do not live in
-  /usr/share/selinux/targeted.[0]. Given that, perhaps it is better to
-  let the user provide guidance about how to map the policy type to a
-  directory?
-
-         Also, I must confess I had forgotten about this call.
-
-         However, a patch with this is trivial, so an alternate patch
-  follows. (Not sure this will work for fedora, so caveat emptor)
-
-         manoj
-[0]
-<a class="moz-txt-link-freetext" href="http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html">http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html</a>
-
-
---8&lt;---------------cut here---------------start-------------&gt;8---
-
-If the user installs a policy whose development files do not live under
-/usr/share/selinux/devel/include, sepolgen wqould not work. Debian, for
-instance, installs under:
-/usr/share/selinux/{default,mls}/include
-
-This patch uses selinux_getpolicytype() to determine the policy type, and
-assumes that there is one-on-one correspondence between policytype and
-the directory the development files live in.
-
-Signed-off-by: Manoj Srivastava<a class="moz-txt-link-rfc2396E" href="mailto:srivasta@debian.org">&lt;srivasta@debian.org&gt;</a>
----
-  src/sepolgen/defaults.py |    4 +++-
-  src/sepolgen/module.py   |    2 +-
-  2 files changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
-index 45ce61a..85e5fb0 100644
---- a/src/sepolgen/defaults.py
-+++ b/src/sepolgen/defaults.py
-@@ -21,6 +21,8 @@
-  Various default settings, including file and directory locations.
-  """
-
-+import selinux
-+
-  def data_dir():
-      return "/var/lib/sepolgen"
-
-@@ -31,7 +33,7 @@ def interface_info():
-      return data_dir() + "/interface_info"
-
-  def refpolicy_devel():
--    return "/usr/share/selinux/devel"
-+    return "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]
-
-  def refpolicy_makefile():
-      return refpolicy_devel() + "/Makefile"
-diff --git a/src/sepolgen/module.py b/src/sepolgen/module.py
-index edd24c6..355c9b8 100644
---- a/src/sepolgen/module.py
-+++ b/src/sepolgen/module.py
-@@ -120,7 +120,7 @@ class ModuleCompiler:
-          self.semodule_package = "/usr/bin/semodule_package"
-          self.output = output
-          self.last_output = ""
--        self.refpol_makefile = "/usr/share/selinux/devel/Makefile"
-+        self.refpol_makefile = "/usr/share/selinux/" +
-selinux.selinux_getpolicytype()[1]  + "/Makefile"
-          self.make = "/usr/bin/make"
-
-      def o(self, str):
-   
-      </pre>
-    </blockquote>
-    <pre wrap="">This will break Fedora/RHEL AFAIK. I don't necessarily like that RH has
-interface files in /usr/share/selinux/devel rather than
-/usr/share/selinux/&lt;policy&gt;/devel or similar but we can't break them.
-
-Dan, any chance you could change the location of the interface files?
-
-
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->We could carry a patch although I don't think anyone is  shipping different interfaces for different policies.
-
-  </pre>
-</blockquote>
-<br>
-I'm not willing to break upstream behavior and force you to carry a
-patch for something that previously worked.<br>
-<br>
-Perhaps not for distro shipped policies but for custom policies I know
-interfaces are changed and if the developers on those end systems want
-to use sepolgen for interface matching they have to over write the
-distro shipped interface files.<br>
-<br>
-<blockquote cite="mid:4AB11C0D.5040909@redhat.com" type="cite">
-  <pre wrap="">We could add a link in each policy types back to the devel environment.
-Or do /usr/share/selinux/POLICYTYPE/devel/Makefile and on RHEL and Fedora systems
- have /usr/share/selinux/POLICYTYPE/devel -&gt; /usr/share/selinux/devel/
-
-  </pre>
-</blockquote>
-<br>
-wasn't this done in the past? I remember a symlink being there but
-can't remember why it was removed (unless I'm misremembering)<br>
-</body>
-</html>
-
---------------010004030705010700070107--
+73 de Jeff
 
 --
 This message was distributed to subscribers of the selinux mailing list.
