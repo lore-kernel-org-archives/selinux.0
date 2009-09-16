@@ -1,70 +1,58 @@
-Subject: Re: [GIT] security / creds fixes
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Ingo Molnar <mingo@elte.hu>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1253127829.18198.123.camel@moss-pluto.epoch.ncsc.mil>
-References: <20090914162613.9016.79225.stgit@warthog.procyon.org.uk>
-	 <alpine.LRH.2.00.0909151008440.11936@tundra.namei.org>
-	 <20090916130224.GA27519@elte.hu>
-	 <1253122492.5213.137.camel@dhcp231-106.rdu.redhat.com>
-	 <1253127829.18198.123.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 16 Sep 2009 15:31:12 -0400
-Message-Id: <1253129472.5213.159.camel@dhcp231-106.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GJZctZ003697
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:35:38 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GJYuSM009709
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 19:34:56 GMT
+Message-ID: <4AB13E06.7020308@manicmethod.com>
+Date: Wed, 16 Sep 2009 15:35:34 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com> <4AB139E8.50700@manicmethod.com>
+In-Reply-To: <4AB139E8.50700@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-16 at 15:03 -0400, Stephen Smalley wrote:
-> On Wed, 2009-09-16 at 13:34 -0400, Eric Paris wrote:
-> > On Wed, 2009-09-16 at 15:02 +0200, Ingo Molnar wrote:
-> > > i'm still getting crashes even with latest -git [0cb583f]:
-> > > 
-> > > 
-> > > EXT3-fs: mounted filesystem with ordered data mode.
-> > > VFS: Mounted root (ext3 filesystem) readonly on device 8:6.
-> > > async_waiting @ 1
-> > > async_continuing @ 1 after 0 usec
-> > > debug: unmapping init memory ffffffff81f1e000..ffffffff81fb1000
-> > > SELinux:  Disabled at runtime.
-> > > BUG: unable to handle kernel NULL pointer dereference at (null)
-> > > IP: [<ffffffff81122537>] kmem_cache_alloc+0x9a/0x185
-> > 
-> > sds, I'm not quite sure how to fix this, maybe you have some ideas?
-> > 
-> > One problem is that avc_disable() (which frees everything in the AVC and
-> > then kmem_cache_destroy() the avc_node_cachep) is done before we do the
-> > security_ops = secondary_ops call.  So other tasks could still call
-> > selinux_ functions after the avc_node_cachep is free.  Fixing that
-> > ordering would likely take care of most of the problems but it's not
-> > complete.  We have no idea if anything is already passed the
-> > security_ops->function() call and is just waiting to explode as soon as
-> > the avc_node_cachep is freed.  Any ideas how we can be sure that
-> > everything is out of selinux code so we can finish the free safely?
-> 
-> What if we call synchronize_rcu() before freeing it?
-> 
-> Was it really worth it to free the AVC upon runtime disable in the first
-> place?  If they were really worried about the memory, they can always
-> boot with selinux=0.
 
-Any function that could hit this cache would I guess be done by the time
-a synchronize_rcu() was called.  Talk about eww.
 
-security_ops = secondary_ops;
-synchronize_rcu();
-avc_cache_flush();
-synchronize_rcu();
-kmem_cache_free(avc_node_cachep);
+Joshua Brindle wrote:
+>
+>
+> Daniel J Walsh wrote:
+>> What do you think of this one. Removed excess swig cruft,
+>>
+>> You need to run
+>>
+>> make swigify to generate those changes.
+>>
+>
+> Ok, looking at this now. I don't completely get how it works. I'm trying
+> to reproduce what you are doing by hand but nothing comes out of gcc:
+>
+> [root@localhost src]# echo '#include "../include/selinux/selinux.h"' >
+> temp.c
+> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+> [root@localhost src]# ls temp.*
+> temp.c temp.o
+>
+>
+> What is the purpose of the aux-info thing, and why doesn't it work on my
+> F11 machine?
+>
+> also, I'm not sure if the best place for selinuxswig_exception.i is
+> swigify or pywrap. In the swigify case it shouldn't be in the clean
+> target because if you check out the repo and do make clean; make pywrap
+> you'll get an error. (I can make these fixes, I'm just trying to figure
+> out how it all works first).
+>
 
-(although I think the second sync_rcu can be done adding a flag to the
-avc_node_cachep declaration, that's a separate patch)
-
-Maybe we should just leak some memory when you disable selinux....
-
--Eric
-
+Oh, one more thing, should this be python specific? (E.g, should it be 
+named selinuxswig_python_exception.i ?)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
