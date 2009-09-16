@@ -1,76 +1,63 @@
-Message-ID: <4AAFFD9F.2040908@redhat.com>
-Date: Tue, 15 Sep 2009 16:48:31 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <20090915201759.judby7kakg8k8ock@imap.linux.ibm.com>
+Date: Tue, 15 Sep 2009 20:17:59 -0400
+From: debora@linux.vnet.ibm.com
+To: selinux <SELinux@tycho.nsa.gov>
+Cc: bjacobson@us.ibm.com, dvelarde@us.ibm.com
+Subject: SELinux BOFs at LinuxCon and Linux Plumbers Conference
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
-References: <1253042418-28141-1-git-send-email-ccase@tresys.com> <1253043181.18198.62.camel@moss-pluto.epoch.ncsc.mil> <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/15/2009 04:23 PM, Joshua Brindle wrote:
-> On 2009-09-15 Stephen Smalley wrote:
->> On Tue, 2009-09-15 at 15:20 -0400, Caleb Case wrote:
->>> Setfiles now checks the capabilities on the mounted file systems for
->>> 'seclabel' (see setfiles/setfiles.c:723:exclude_non_seclabel_mounts)
-> on
->>> newer kernels (>=2.6.30 see setfiles.c:734). However the 'seclabel'
->>> feature is not available if selinux is not enabled. The result is
-> that
->>> setfiles silently fails to relabel any filesystems.
->>>
->>> The patch below removes the check for seclabel if selinux is
-> disabled.
->>>
->>> As an alternative maybe seclabel should be available even if selinux
->>> is disabled? It seems that whether a fs supports security labels is
->>> independent of selinux being enabled.
->>
->> That would be difficult as the seclabel option is driven by policy,
->> not just by the presence/absence of xattr handlers (the issue is
->> whether SELinux will honor setxattr operations, which is not the case
->> for filesystems using genfscon or context mount options).
->>
->> So I guess this is the best we can do.
->>
-> 
-> What is the best we can do? Should we always attempt to relabel if
-> selinux is disabled or not?
-> 
->>> ---
->>>  policycoreutils/setfiles/setfiles.c |    2 ++
->>>  1 files changed, 2 insertions(+), 0 deletions(-)
->>> diff --git a/policycoreutils/setfiles/setfiles.c
->>> b/policycoreutils/setfiles/setfiles.c
->>> index 313767a..db2857f 100644
->>> --- a/policycoreutils/setfiles/setfiles.c
->>> +++ b/policycoreutils/setfiles/setfiles.c
->>> @@ -750,6 +750,8 @@ static void exclude_non_seclabel_mounts()
->>>  	/* Check to see if the kernel supports seclabel */
->>>  	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
->>>  		return;
->>> +	if (is_selinux_enabled() <= 0)
->>> +		return;
->>>
->>>  	fp = fopen("/proc/mounts", "r");
->>>  	if (!fp)
-> 
-> 
-> 
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-We want setfiles to work if selinux is disabled.
+Hello,
 
-We have a use case of livecd creation on a box with SELinux disabled for example.
+Bryan Jacobson and myself (both from IBM) have been approved to lead  
+two SELinux BOFs at the upcoming LinuxCon and Linux Plumbers  
+Conference in Portland, Oregon.  The LinuxCon BOF entitled "How to  
+Keep SELinux Turned On" is scheduled for Tuesday, September 22nd at  
+11:15 AM.  The Linux Plumbers Conference BOF entitled "Making SELinux  
+Easier to Use" is set for Thursday, September 24th at 3:00 PM.
+
+Below are the abstracts for both of the BOFs.  If you are unable to  
+attend, but have input you would like to share, we would be very  
+interested in hearing it.
+
+Thanks!
+Debora Velarde
+IBM, Linux Technology Center
+
+
+LinuxCon BOF: How to Keep SELinux Turned On
+
+According to our Linux support team, the number one question they get
+about SELinux is.  How do I turn off SELinux?  This BoF will discuss
+usability problems with SELinux that cause users to turn it off, and
+focus on a small set of near term improvements.
+
+Although many tools for SELinux have been created, there is still a
+perception that SELinux is too complicated to use. How can we change
+that?  We would also like to hear from experienced SELinux users that
+have in depth knowledge of the tools available. Please come share your
+knowledge, concerns, and ideas of what changes you would like to see.
+
+
+
+Linux Plumbers BOF:  Making SELinux Easier to Use (focus on documentation)
+
+SELinux is often disabled immediately or at the first sign of trouble.
+How can we make SELinux something users actually want to leave on?
+
+Inadequate documentation was recently listed as one of problems
+related to using SELinux on the SELinux mailing list. Although many
+tools for SELinux have been created, there is still a perception that
+SELinux is too complicated to use. This talk will present a list of
+possible documentation improvements that can help change this
+perception.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
