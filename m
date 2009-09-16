@@ -1,70 +1,69 @@
-Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeff Johnson <n3npq@mac.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
-        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <8695AD02-EDBD-488D-95A1-56EE97D01BDF@mac.com>
-References: <1253042418-28141-1-git-send-email-ccase@tresys.com>
-	 <1253043181.18198.62.camel@moss-pluto.epoch.ncsc.mil>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
-	 <1253109741.18198.93.camel@moss-pluto.epoch.ncsc.mil>
-	 <D095955D-66A2-4A9E-854A-5A5AF0C92EF3@mac.com>
-	 <1253111809.18198.104.camel@moss-pluto.epoch.ncsc.mil>
-	 <8695AD02-EDBD-488D-95A1-56EE97D01BDF@mac.com>
-Content-Type: text/plain
-Date: Wed, 16 Sep 2009 15:26:29 -0400
-Message-Id: <1253129189.18198.145.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [GIT] security / creds fixes
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Ingo Molnar <mingo@elte.hu>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1253127829.18198.123.camel@moss-pluto.epoch.ncsc.mil>
+References: <20090914162613.9016.79225.stgit@warthog.procyon.org.uk>
+	 <alpine.LRH.2.00.0909151008440.11936@tundra.namei.org>
+	 <20090916130224.GA27519@elte.hu>
+	 <1253122492.5213.137.camel@dhcp231-106.rdu.redhat.com>
+	 <1253127829.18198.123.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 16 Sep 2009 15:31:12 -0400
+Message-Id: <1253129472.5213.159.camel@dhcp231-106.rdu.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-16 at 13:21 -0400, Jeff Johnson wrote:
-> I'd suggest changing cp(1) to always copy security.* xattr's if found,
-> overriding from CLI options when present.
+On Wed, 2009-09-16 at 15:03 -0400, Stephen Smalley wrote:
+> On Wed, 2009-09-16 at 13:34 -0400, Eric Paris wrote:
+> > On Wed, 2009-09-16 at 15:02 +0200, Ingo Molnar wrote:
+> > > i'm still getting crashes even with latest -git [0cb583f]:
+> > > 
+> > > 
+> > > EXT3-fs: mounted filesystem with ordered data mode.
+> > > VFS: Mounted root (ext3 filesystem) readonly on device 8:6.
+> > > async_waiting @ 1
+> > > async_continuing @ 1 after 0 usec
+> > > debug: unmapping init memory ffffffff81f1e000..ffffffff81fb1000
+> > > SELinux:  Disabled at runtime.
+> > > BUG: unable to handle kernel NULL pointer dereference at (null)
+> > > IP: [<ffffffff81122537>] kmem_cache_alloc+0x9a/0x185
+> > 
+> > sds, I'm not quite sure how to fix this, maybe you have some ideas?
+> > 
+> > One problem is that avc_disable() (which frees everything in the AVC and
+> > then kmem_cache_destroy() the avc_node_cachep) is done before we do the
+> > security_ops = secondary_ops call.  So other tasks could still call
+> > selinux_ functions after the avc_node_cachep is free.  Fixing that
+> > ordering would likely take care of most of the problems but it's not
+> > complete.  We have no idea if anything is already passed the
+> > security_ops->function() call and is just waiting to explode as soon as
+> > the avc_node_cachep is freed.  Any ideas how we can be sure that
+> > everything is out of selinux code so we can finish the free safely?
 > 
-> But choosing a default behavior that is acceptable to everyone is a  
-> difficult
-> problem. There's no right or wrong if cp(1) copies security.* xattr's  
-> (or not),
-> only defacto expectations.
-
-No, it would actually be wrong in the common case.  It isn't so
-different from the situation wrt uids - cp(1) does not preserve the uid
-of the original file by default but rather lets the file gets created in
-accordance with the creating process' attributes, and often the caller
-does not have the necessary permissions to force preservation even if it
-wanted to do so (even more so with the SELinux attributes).
-
-> But please s/cp(1)/rpm(8)/ and consider what RPM should do if/when  
-> installing
-> modular policy in a chroot with /proc/selinux unmounted. I nearly  
-> implemented
-> 	Always install security.* xattr's.
-> way back when, and (now that modular policy is headed into *.rpm  
-> packages somehow)
-
-If you can instead just arrange for proc to always be mounted, then we
-can in fact probe for selinux enabled/disabled.  We don't need selinuxfs
-to be mounted for that.
-
-> I am again considering what "default" behavior in RPM will lead to the  
-> fewest
-> RPM bug reports. I'm very likely to add a configurable policy install  
-> mode that achieves
-> 	Always copy security.* xattr's when replacing a file.
-> with an appropriately automated conflict resolution when matchpathcon()
-> and *.pp (either from *.rpm packages or not) and what is currently  
-> present on
-> the file system all have differnt and incompatible security.* xattr's  
-> attached
-> to the path.
+> What if we call synchronize_rcu() before freeing it?
 > 
-> A "best effort" deterministic automation leads to fewer bug reports  
-> imho, ymmv.
+> Was it really worth it to free the AVC upon runtime disable in the first
+> place?  If they were really worried about the memory, they can always
+> boot with selinux=0.
 
--- 
-Stephen Smalley
-National Security Agency
+Any function that could hit this cache would I guess be done by the time
+a synchronize_rcu() was called.  Talk about eww.
+
+security_ops = secondary_ops;
+synchronize_rcu();
+avc_cache_flush();
+synchronize_rcu();
+kmem_cache_free(avc_node_cachep);
+
+(although I think the second sync_rcu can be done adding a flag to the
+avc_node_cachep declaration, that's a separate patch)
+
+Maybe we should just leak some memory when you disable selinux....
+
+-Eric
 
 
 --
