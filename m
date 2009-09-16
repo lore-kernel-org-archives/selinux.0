@@ -1,101 +1,51 @@
-Subject: Re: [PATCH 1/3] libsepol: Add support for multiple target OSes
+Subject: Re: [GIT] security / creds fixes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
-Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1253123098.4348.221.camel@moss-stripedbass.epoch.ncsc.mil>
-References: <1253031316.3209.116.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4AB0EF22.8070003@manicmethod.com>
-	 <1253123098.4348.221.camel@moss-stripedbass.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1253122492.5213.137.camel@dhcp231-106.rdu.redhat.com>
+References: <20090914162613.9016.79225.stgit@warthog.procyon.org.uk>
+	 <alpine.LRH.2.00.0909151008440.11936@tundra.namei.org>
+	 <20090916130224.GA27519@elte.hu>
+	 <1253122492.5213.137.camel@dhcp231-106.rdu.redhat.com>
 Content-Type: text/plain
-Date: Wed, 16 Sep 2009 15:01:20 -0400
-Message-Id: <1253127680.18198.120.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 16 Sep 2009 15:03:49 -0400
+Message-Id: <1253127829.18198.123.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-16 at 13:44 -0400, Paul Nuzzi wrote:
-> On Wed, 2009-09-16 at 09:58 -0400, Joshua Brindle wrote:
+On Wed, 2009-09-16 at 13:34 -0400, Eric Paris wrote:
+> On Wed, 2009-09-16 at 15:02 +0200, Ingo Molnar wrote:
+> > i'm still getting crashes even with latest -git [0cb583f]:
 > > 
-> > pjnuzzi wrote:
 > > 
-> > <snip>
-> > > Signed-off-by: Paul Nuzzi<pjnuzzi@tycho.ncsc.mil>
-> > >
-> > > ---
-> > >   libsepol/include/sepol/policydb/policydb.h |   28 +++-
-> > >   libsepol/src/expand.c                      |   85 +++++++++++-
-> > >   libsepol/src/policydb.c                    |  197
-> > > ++++++++++++++++++++++++-----
-> > >   libsepol/src/policydb_internal.h           |    1
-> > >   libsepol/src/write.c                       |   90 ++++++++++++-
-> > >   5 files changed, 359 insertions(+), 42 deletions(-)
-> > >
-> > > diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-> > > index 0105cf4..2013238 100644
-> > > --- a/libsepol/include/sepol/policydb/policydb.h
-> > > +++ b/libsepol/include/sepol/policydb/policydb.h
-> > > @@ -276,6 +276,16 @@ typedef struct ocontext {
-> > >   			uint32_t addr[4]; /* network order */
-> > >   			uint32_t mask[4]; /* network order */
-> > >   		} node6;	/* IPv6 node information */
-> > > +		uint32_t device;
-> > > +		uint16_t pirq;
-> > > +		struct {
-> > > +			uint32_t low_iomem;
-> > > +			uint32_t high_iomem;
-> > > +		} iomem;
-> > > +		struct {
-> > > +			uint32_t low_ioport;
-> > > +			uint32_t high_ioport;
-> > > +		} ioport;
-> > >    
-> > 
-> > I'd rather have separate ocontext structs for each system. That way it 
-> > is very easy to understand which ones apply to which system and you 
-> > don't get a crazy out of context ocontext struct.
-> > 
+> > EXT3-fs: mounted filesystem with ordered data mode.
+> > VFS: Mounted root (ext3 filesystem) readonly on device 8:6.
+> > async_waiting @ 1
+> > async_continuing @ 1 after 0 usec
+> > debug: unmapping init memory ffffffff81f1e000..ffffffff81fb1000
+> > SELinux:  Disabled at runtime.
+> > BUG: unable to handle kernel NULL pointer dereference at (null)
+> > IP: [<ffffffff81122537>] kmem_cache_alloc+0x9a/0x185
 > 
-> In the beginning I tried implementing a separate ocontext struct for
-> each system but I was having issues.  If we have a separate struct for
-> each platform a lot more code is going to have to be patched to decouple
-> SELinux from being the default ocontext target.  Just a quick search
-> with cscope shows there is 96 references to ocontext_t.  It might be
-> easier to have one big (and confusing) ocontext structure at the expense
-> of refactoring a lot of code.  
+> sds, I'm not quite sure how to fix this, maybe you have some ideas?
 > 
-> A good compromise might be to have an ocontext structure that nests Xen,
-> SELinux, Solaris, etc. structures to make it easier to see which ones
-> apply to the platform.  For example..
-> 
-> struct ocontext {
-> 	struct xen_ocontexts {
-> 		uint32_t device;
-> 			struct {
-> 				uint32_t low_iomem;
-> 				uint32_t high_iomem;
-> 			} iomem;
-> 	} xen;
-> 	struct selinux_ocontexts {
-> 		uint32_t addr[4]; /* network order */
-> 	} selinux;	
-> }
-> 
-> Let me know what would be better.
+> One problem is that avc_disable() (which frees everything in the AVC and
+> then kmem_cache_destroy() the avc_node_cachep) is done before we do the
+> security_ops = secondary_ops call.  So other tasks could still call
+> selinux_ functions after the avc_node_cachep is free.  Fixing that
+> ordering would likely take care of most of the problems but it's not
+> complete.  We have no idea if anything is already passed the
+> security_ops->function() call and is just waiting to explode as soon as
+> the avc_node_cachep is freed.  Any ideas how we can be sure that
+> everything is out of selinux code so we can finish the free safely?
 
-My $0.02 - this particular change isn't worth the trouble.  struct
-ocontext already contains a union where the particular field is selected
-based on the OCON_ index, and adding new fields within that union causes
-no confusion.  Target platforms will always share the fields outside of
-the union (the context, sid, and next fields), and will share the union
-fields as appropriate (e.g. Linux, FreeBSD, and Solaris will share the
-name, port, and node fields).
+What if we call synchronize_rcu() before freeing it?
 
-Most of the other suggested changes sounded reasonable to me.  In
-particular, letting OCON_NUM vary based on target platform would be
-nice.  Note that this means replacing all uses of OCON_NUM with a value
-taken from the policydb compat info structure, and dynamically
-allocating the ocontext array to that size.  Also passing in the target
-platform as a key into policydb_lookup_compat().
+Was it really worth it to free the AVC upon runtime disable in the first
+place?  If they were really worried about the memory, they can always
+boot with selinux=0.
 
 -- 
 Stephen Smalley
