@@ -1,283 +1,123 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GFa4Bk032203
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 11:36:04 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GFth1n002400
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 11:55:43 -0400
 Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GFbQL8019036
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:37:27 GMT
-Message-ID: <4AB105E0.60103@manicmethod.com>
-Date: Wed, 16 Sep 2009 11:36:00 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GFv6L8025891
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:57:06 GMT
+Message-ID: <4AB10A7A.3050006@manicmethod.com>
+Date: Wed, 16 Sep 2009 11:55:38 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: semodule/libsemanage patch to allow enable and disable of modules.
-References: <C6C5A1A6.AA5C4%csellers@tresys.com>
-In-Reply-To: <C6C5A1A6.AA5C4%csellers@tresys.com>
+Subject: Re: libsemanage patch
+References: <C6CBF8CF.AA709%csellers@tresys.com> <4AB102CE.3070102@manicmethod.com>
+In-Reply-To: <4AB102CE.3070102@manicmethod.com>
 Content-Type: multipart/alternative;
- boundary="------------090709050904070301010102"
+ boundary="------------030501040208030606080207"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090709050904070301010102
+--------------030501040208030606080207
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-Chad Sellers wrote:
-> On 8/28/09 1:58 PM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->
->    
->> The general idea is to relabel a disabled policy module as
->> policymodule.pp.disabled
->>
->> Then make sure -u and -i update this name.
->>
->> Rebuilding policy does not include .disabled
->>
->> Listing shows disabled as disabled.
->>
->> semodule -r will remove disabled modules. If you reinstall they will come
->> back.
->>
->> # /usr/sbin/semodule -d unconfined
->> # /usr/sbin/semodule -l | grep unc
->> unconfined 3.0.1 Disabled
->> unconfineduser 1.0.0
->> # ls -lZ /etc/selinux/targeted/modules/active/modules/unconfined.pp*
->> -rw-------. root root staff_u:object_r:semanage_store_t:s0
->> /etc/selinux/targeted/modules/active/modules/unconfined.pp.disabled
->> # /usr/sbin/semodule -i /usr/share/selinux/targeted/unconfined.pp.bz2
->> # /usr/sbin/semodule -l | grep unc
->> unconfined 3.0.1 Disabled
->> unconfineduser 1.0.0
->> # /usr/sbin/semodule -e unconfined
->> # /usr/sbin/semodule -l | grep unc
->> unconfined 3.0.1
->> unconfineduser 1.0.0
->>
->> This would allow an admin to disable a module and the module will stay
->> disabled until he enables it.
->>      
-> <snip>
->    
->> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
->> index f7d65eb..49a2357 100644
->> --- a/libsemanage/src/direct_api.c
->> +++ b/libsemanage/src/direct_api.c
->> @@ -53,6 +53,8 @@
->>   #include "policy.h"
->>   #include<sys/mman.h>
->>
->> +static const char *DISABLESTR=".disabled";
->> +
->>   static void semanage_direct_destroy(semanage_handle_t * sh);
->>   static int semanage_direct_disconnect(semanage_handle_t * sh);
->>   static int semanage_direct_begintrans(semanage_handle_t * sh);
->> @@ -66,6 +68,8 @@ static int semanage_direct_upgrade_file(semanage_handle_t *
->> sh, const char *modu
->>   static int semanage_direct_install_base(semanage_handle_t * sh, char
->> *base_data,
->>                       size_t data_len);
->>   static int semanage_direct_install_base_file(semanage_handle_t * sh, const
->> char *module_name);
->> +static int semanage_direct_enable(semanage_handle_t * sh, char *module_name);
->> +static int semanage_direct_disable(semanage_handle_t * sh, char
->> *module_name);
->>   static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
->>   static int semanage_direct_list(semanage_handle_t * sh,
->>                   semanage_module_info_t ** modinfo,
->> @@ -83,6 +87,8 @@ static struct semanage_policy_table direct_funcs = {
->>       .upgrade_file = semanage_direct_upgrade_file,
->>       .install_base = semanage_direct_install_base,
->>       .install_base_file = semanage_direct_install_base_file,
->> +    .enable = semanage_direct_enable,
->> +    .disable = semanage_direct_disable,
->>       .remove = semanage_direct_remove,
->>       .list = semanage_direct_list
->>   };
->> @@ -1002,6 +1008,17 @@ static int semanage_direct_commit(semanage_handle_t *
->> sh)
->>       return retval;
->>   }
->>
->> +static char * get_store_name(const char *file)
->> +{
->> +    int len = strlen(file) + strlen(DISABLESTR) + 1;
->> +    char *storename = calloc(1, len);
->> +    if (! storename) return NULL;
->> +    snprintf(storename,len, "%s%s", file, DISABLESTR);
->> +    if ( access(storename, F_OK) == 0) return storename;
->> +    free(storename);
->> +    return strdup(file);
->> +}
->> +
->>   /* Writes a module to the sandbox's module directory, overwriting any
->>    * previous module stored within.  Note that module data are not
->>    * free()d by this function; caller is responsible for deallocating it
->> @@ -1019,11 +1036,20 @@ static int semanage_direct_install(semanage_handle_t *
->> sh,
->>                          &filename)) != 0) {
->>           goto cleanup;
->>       }
->> -    if (bzip(sh, filename, data, data_len)<= 0) {
->> +
->> +    char *storename = get_store_name(filename);
->> +    if (!storename) {
->> +        ERR(sh, "Could not allocate memory");
->> +        retval = -1;
->> +        goto cleanup;
->> +    }
->> +    if (bzip(sh, storename, data, data_len)<= 0) {
->>      
->
-> Should we present some sort of warning to the user if they install/upgrade a
-> module that is disabled? This seems to maintain the disabled status
-> silently, which might confuse users (e.g. "I just installed that module, why
-> isn't the policy working").
->
-> Also, I see that you patched direct_install, but not direct_upgrade. So,
-> upgrade will try to re-enable the module if it has been disabled.
->
->    
->>           ERR(sh, "Error while writing to %s.", filename);
->>           retval = -3;
->>           goto cleanup;
->>       }
->> +    free(storename);
->> +
->>       retval = 0;
->>         cleanup:
->>       free(version);
->> @@ -1268,6 +1294,107 @@ static int
->> semanage_direct_install_base_file(semanage_handle_t * sh,
->>       return retval;
->>   }
->>
->> +/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
->> + * of memory, -2 if module not found or could not be enabled. */
->> +static int semanage_direct_enable(semanage_handle_t * sh, char *module_name)
->> +{
->> +    int i, retval = -1;
->> +    char **module_filenames = NULL;
->> +    int num_mod_files;
->> +    size_t name_len = strlen(module_name);
->> +    if (semanage_get_modules_names(sh,&module_filenames,&num_mod_files) ==
->> +        -1) {
->> +        return -1;
->> +    }
->> +    for (i = 0; i<  num_mod_files; i++) {
->> +        char *base = strrchr(module_filenames[i], '/');
->> +        if (base == NULL) {
->> +            ERR(sh, "Could not read module names.");
->> +            retval = -2;
->> +            goto cleanup;
->> +        }
->> +        base++;
->> +        if (memcmp(module_name, base, name_len) == 0&&
->> +            strcmp(base + name_len + 3, DISABLESTR) == 0) {
->> +            int len = strlen(module_filenames[i]) - strlen(DISABLESTR);
->> +            char *enabled_name = calloc(1, len+1);
->> +            if (!enabled_name) {
->> +                ERR(sh, "Could not allocate memory");
->> +                retval = -1;
->> +                goto cleanup;
->> +            }
->> +
->> +            strncpy(enabled_name, module_filenames[i],len);
->> +
->> +            if (rename(module_filenames[i], enabled_name) == -1) {
->> +                ERR(sh, "Could not enable module file %s.",
->> +                    enabled_name);
->> +                retval = -2;
->> +            }
->> +            retval = 0;
->> +            free(enabled_name);
->> +            goto cleanup;
->> +        }
->> +    }
->> +    ERR(sh, "Module %s was not found.", module_name);
->> +    retval = -2;        /* module not found */
->> +      cleanup:
->> +    for (i = 0; module_filenames != NULL&&  i<  num_mod_files; i++) {
->> +        free(module_filenames[i]);
->> +    }
->> +    free(module_filenames);
->> +    return retval;
->> +}
->> +
->> +/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
->> + * of memory, -2 if module not found or could not be enabled. */
->> +static int semanage_direct_disable(semanage_handle_t * sh, char *module_name)
->> +{
->> +    int i, retval = -1;
->> +    char **module_filenames = NULL;
->> +    int num_mod_files;
->> +    size_t name_len = strlen(module_name);
->> +    if (semanage_get_modules_names(sh,&module_filenames,&num_mod_files) ==
->> +        -1) {
->> +        return -1;
->> +    }
->> +    for (i = 0; i<  num_mod_files; i++) {
->> +        char *base = strrchr(module_filenames[i], '/');
->> +        if (base == NULL) {
->> +            ERR(sh, "Could not read module names.");
->> +            retval = -2;
->> +            goto cleanup;
->> +        }
->> +        base++;
->> +        if (memcmp(module_name, base, name_len) == 0&&
->> +            strcmp(base + name_len, ".pp") == 0) {
->> +            char disabled_name[PATH_MAX];
->> +            if (snprintf(disabled_name, PATH_MAX, "%s%s",
->> +                     module_filenames[i], DISABLESTR) == PATH_MAX) {
->> +                ERR(sh, "Could not disable module file %s.",
->> +                    module_filenames[i]);
->> +                retval = -2;
->> +                goto cleanup;
->> +            }
->> +            if (rename(module_filenames[i], disabled_name) == -1) {
->> +                ERR(sh, "Could not disable module file %s.",
->> +                    module_filenames[i]);
->> +                retval = -2;
->> +            }
->> +            retval = 0;
->> +            goto cleanup;
->> +        }
->> +    }
->> +    ERR(sh, "Module %s was not found.", module_name);
->> +    retval = -2;        /* module not found */
->> +      cleanup:
->> +    for (i = 0; module_filenames != NULL&&  i<  num_mod_files; i++) {
->> +        free(module_filenames[i]);
->> +    }
->> +    free(module_filenames);
->> +    return retval;
->> +}
->> +
->>      
-> While this function does succeed in renaming a file, it does not succeed in
-> preventing the module from being linked in. semanage_get_modules_names()
-> grabs everything in the modules directory, so the disabled modules here are
-> still linked into the policy. A quick sesearch confirms this.
->
-> To fix this, you'll either need to modify semanage_filename_select() to
-> filter out files ending in .disabled or perhaps just move them from the
-> modules directory to a disabled_modules directory (instead of the rename).
-> The latter option has the advantage of not requiring filtering that could go
-> wrong at some point, so I would lean toward it.
->
-> Thanks,
-> Chad
+Joshua Brindle wrote:
 >
 >
->    
+> Chad Sellers wrote:
+>> On 9/7/09 6:44 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
+>>
+>>    
+>>> On 09/04/2009 09:56 AM, Joshua Brindle wrote:
+>>>      
+>>>> Daniel J Walsh wrote:
+>>>>        
+>>>>> If you have a homedir that ends in '/', genhomedircon gets confused.
+>>>>>
+>>>>> # useradd -h /home2/dwalsh/ dwalsh
+>>>>> # genhomedircon
+>>>>>
+>>>>> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
+>>>>> home root.
+>>>>>
+>>>>> We should just get rid of this command...  :^)
+>>>>>
+>>>>> Patch removes all trailing '/' from homedir.
+>>>>>          
+>>>>> diff --exclude-from=exclude -N -u -r
+>>>>> nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+>>>>> --- nsalibsemanage/src/genhomedircon.c    2008-08-28
+>>>>> 09:34:24.000000000 -0400
+>>>>> +++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
+>>>>> 10:32:20.000000000 -0400
+>>>>> @@ -304,6 +304,10 @@
+>>>>>               continue;
+>>>>>           if (!semanage_list_find(shells, pwbuf->pw_shell))
+>>>>>               continue;
+>>>>> +        int len = strlen(pwbuf->pw_dir) -1;
+>>>>> +        for(; len>  0&&  pwbuf->pw_dir[len]=='/'; len--) {
+>>>>> +            pwbuf->pw_dir[len]=0;
+>>>>> +        }
+>>>>>           if (strcmp(pwbuf->pw_dir, "/") == 0)
+>>>>>               continue;
+>>>>>           if (semanage_str_count(pwbuf->pw_dir, '/')<= 1)
+>>>>>          
+>>>> Why aren't you just doing:
+>>>>
+>>>> len = strlen(pwbuf->pwdir);
+>>>> if (pwbuf->pwdir[len] == '/')
+>>>>      pwbuf->pwdir[len] = '\0';
+>>>>
+>>>> ?
+>>>>
+>>>>        
+>>> What about /home/dwalsh//////
+>>> Which I believe is legal
+>>>      
+>>>> Also, won't this fail if the homedir is set to '/' ? This check should
+>>>> probably go below the strcmp(pwbuf->pw_dir, "/") that is currently below
+>>>> it.
+>>>>        
+>>> Yes good point.
+>>>
+>>>      
+>> I thought it worked fine with '/'. Since the loop condition is len>  0
+>> (where len is the index of the last character, not the length of the string,
+>> which is a bit confusing and should probably be changed), it would never
+>> reset the first character. And don't you want this before the
+>> strcmp(pwbuf->pw_dir, "/") in case the path is ///// (which would of course
+>> be silly, but I believe is legal anyway)?
+>>
+>> Chad
+>>
+>>    
+>
+> Yep, got it.
+>
+> Acked-By: Joshua Brindle <method@manicmethod.com>
+
+Sorry, premature ack.
+
+I'm not seeing the expected results here. I added a user with a homedir 
+of /home/method///// and the file_contexts.homedirs still has:
+
+/home/method//////.+ staff_u:object_r:user_home_t:s0
 
 
-Do you have an updated version of this?
+Also, you should probably use '\0' rather than 0 when truncating the 
+path. And does this get rid of the need of:
 
---------------090709050904070301010102
+                 semanage_rtrim(path, '/');
+
+a few lines below your patch?
+
+
+
+--------------030501040208030606080207
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -290,269 +130,120 @@ Content-Transfer-Encoding: 7bit
 <body text="#000000" bgcolor="#ffffff">
 <br>
 <br>
+Joshua Brindle wrote:
+<blockquote cite="mid:4AB102CE.3070102@manicmethod.com" type="cite">
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="Content-Type">
+  <br>
+  <br>
 Chad Sellers wrote:
-<blockquote cite="mid:C6C5A1A6.AA5C4%25csellers@tresys.com" type="cite">
-  <pre wrap="">On 8/28/09 1:58 PM, "Daniel J Walsh" <a class="moz-txt-link-rfc2396E" href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
+  <blockquote cite="mid:C6CBF8CF.AA709%25csellers@tresys.com"
+ type="cite">
+    <pre wrap="">On 9/7/09 6:44 AM, "Daniel J Walsh" <a
+ moz-do-not-send="true" class="moz-txt-link-rfc2396E"
+ href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
 
   </pre>
-  <blockquote type="cite">
-    <pre wrap="">The general idea is to relabel a disabled policy module as
-policymodule.pp.disabled
-
-Then make sure -u and -i update this name.
-
-Rebuilding policy does not include .disabled
-
-Listing shows disabled as disabled.
-
-semodule -r will remove disabled modules. If you reinstall they will come
-back.
-
-# /usr/sbin/semodule -d unconfined
-# /usr/sbin/semodule -l | grep unc
-unconfined 3.0.1 Disabled
-unconfineduser 1.0.0 
-# ls -lZ /etc/selinux/targeted/modules/active/modules/unconfined.pp*
--rw-------. root root staff_u:object_r:semanage_store_t:s0
-/etc/selinux/targeted/modules/active/modules/unconfined.pp.disabled
-# /usr/sbin/semodule -i /usr/share/selinux/targeted/unconfined.pp.bz2
-# /usr/sbin/semodule -l | grep unc
-unconfined 3.0.1 Disabled
-unconfineduser 1.0.0 
-# /usr/sbin/semodule -e unconfined
-# /usr/sbin/semodule -l | grep unc
-unconfined 3.0.1 
-unconfineduser 1.0.0 
-
-This would allow an admin to disable a module and the module will stay
-disabled until he enables it.
+    <blockquote type="cite">
+      <pre wrap="">On 09/04/2009 09:56 AM, Joshua Brindle wrote:
     </pre>
-  </blockquote>
-  <pre wrap=""><!---->&lt;snip&gt;
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index f7d65eb..49a2357 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -53,6 +53,8 @@
- #include "policy.h"
- #include &lt;sys/mman.h&gt;
- 
-+static const char *DISABLESTR=".disabled";
-+
- static void semanage_direct_destroy(semanage_handle_t * sh);
- static int semanage_direct_disconnect(semanage_handle_t * sh);
- static int semanage_direct_begintrans(semanage_handle_t * sh);
-@@ -66,6 +68,8 @@ static int semanage_direct_upgrade_file(semanage_handle_t *
-sh, const char *modu
- static int semanage_direct_install_base(semanage_handle_t * sh, char
-*base_data,
-                     size_t data_len);
- static int semanage_direct_install_base_file(semanage_handle_t * sh, const
-char *module_name);
-+static int semanage_direct_enable(semanage_handle_t * sh, char *module_name);
-+static int semanage_direct_disable(semanage_handle_t * sh, char
-*module_name);
- static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
- static int semanage_direct_list(semanage_handle_t * sh,
-                 semanage_module_info_t ** modinfo,
-@@ -83,6 +87,8 @@ static struct semanage_policy_table direct_funcs = {
-     .upgrade_file = semanage_direct_upgrade_file,
-     .install_base = semanage_direct_install_base,
-     .install_base_file = semanage_direct_install_base_file,
-+    .enable = semanage_direct_enable,
-+    .disable = semanage_direct_disable,
-     .remove = semanage_direct_remove,
-     .list = semanage_direct_list
- };
-@@ -1002,6 +1008,17 @@ static int semanage_direct_commit(semanage_handle_t *
-sh)
-     return retval;
- }
- 
-+static char * get_store_name(const char *file)
-+{
-+    int len = strlen(file) + strlen(DISABLESTR) + 1;
-+    char *storename = calloc(1, len);
-+    if (! storename) return NULL;
-+    snprintf(storename,len, "%s%s", file, DISABLESTR);
-+    if ( access(storename, F_OK) == 0) return storename;
-+    free(storename);
-+    return strdup(file);
-+}
-+
- /* Writes a module to the sandbox's module directory, overwriting any
-  * previous module stored within.  Note that module data are not
-  * free()d by this function; caller is responsible for deallocating it
-@@ -1019,11 +1036,20 @@ static int semanage_direct_install(semanage_handle_t *
-sh,
-                        &amp;filename)) != 0) {
-         goto cleanup;
-     }
--    if (bzip(sh, filename, data, data_len) &lt;= 0) {
-+
-+    char *storename = get_store_name(filename);
-+    if (!storename) {
-+        ERR(sh, "Could not allocate memory");
-+        retval = -1;
-+        goto cleanup;
-+    }
-+    if (bzip(sh, storename, data, data_len) &lt;= 0) {
+      <blockquote type="cite">
+        <pre wrap="">Daniel J Walsh wrote:
+      </pre>
+        <blockquote type="cite">
+          <pre wrap="">If you have a homedir that ends in '/', genhomedircon gets confused.
+
+# useradd -h /home2/dwalsh/ dwalsh
+# genhomedircon
+
+Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
+home root.
+
+We should just get rid of this command...  :^)
+
+Patch removes all trailing '/' from homedir.
+        </pre>
+        </blockquote>
+        <blockquote type="cite">
+          <pre wrap="">diff --exclude-from=exclude -N -u -r
+nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+--- nsalibsemanage/src/genhomedircon.c    2008-08-28
+09:34:24.000000000 -0400
++++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
+10:32:20.000000000 -0400
+@@ -304,6 +304,10 @@
+             continue;
+         if (!semanage_list_find(shells, pwbuf-&gt;pw_shell))
+             continue;
++        int len = strlen(pwbuf-&gt;pw_dir) -1;
++        for(; len &gt; 0 &amp;&amp; pwbuf-&gt;pw_dir[len]=='/'; len--) {
++            pwbuf-&gt;pw_dir[len]=0;
++        }
+         if (strcmp(pwbuf-&gt;pw_dir, "/") == 0)
+             continue;
+         if (semanage_str_count(pwbuf-&gt;pw_dir, '/') &lt;= 1)
+        </pre>
+        </blockquote>
+        <pre wrap="">Why aren't you just doing:
+
+len = strlen(pwbuf-&gt;pwdir);
+if (pwbuf-&gt;pwdir[len] == '/')
+    pwbuf-&gt;pwdir[len] = '\0';
+
+?
+
+      </pre>
+      </blockquote>
+      <pre wrap="">What about /home/dwalsh//////
+Which I believe is legal
     </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-Should we present some sort of warning to the user if they install/upgrade a
-module that is disabled? This seems to maintain the disabled status
-silently, which might confuse users (e.g. "I just installed that module, why
-isn't the policy working").
+      <blockquote type="cite">
+        <pre wrap="">Also, won't this fail if the homedir is set to '/' ? This check should
+probably go below the strcmp(pwbuf-&gt;pw_dir, "/") that is currently below
+it.
+      </pre>
+      </blockquote>
+      <pre wrap="">Yes good point.
 
-Also, I see that you patched direct_install, but not direct_upgrade. So,
-upgrade will try to re-enable the module if it has been disabled.
-
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">         ERR(sh, "Error while writing to %s.", filename);
-         retval = -3;
-         goto cleanup;
-     }
-+    free(storename);
-+
-     retval = 0;
-       cleanup:
-     free(version);
-@@ -1268,6 +1294,107 @@ static int
-semanage_direct_install_base_file(semanage_handle_t * sh,
-     return retval;
- }
- 
-+/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-+ * of memory, -2 if module not found or could not be enabled. */
-+static int semanage_direct_enable(semanage_handle_t * sh, char *module_name)
-+{
-+    int i, retval = -1;
-+    char **module_filenames = NULL;
-+    int num_mod_files;
-+    size_t name_len = strlen(module_name);
-+    if (semanage_get_modules_names(sh, &amp;module_filenames, &amp;num_mod_files) ==
-+        -1) {
-+        return -1;
-+    }
-+    for (i = 0; i &lt; num_mod_files; i++) {
-+        char *base = strrchr(module_filenames[i], '/');
-+        if (base == NULL) {
-+            ERR(sh, "Could not read module names.");
-+            retval = -2;
-+            goto cleanup;
-+        }
-+        base++;
-+        if (memcmp(module_name, base, name_len) == 0 &amp;&amp;
-+            strcmp(base + name_len + 3, DISABLESTR) == 0) {
-+            int len = strlen(module_filenames[i]) - strlen(DISABLESTR);
-+            char *enabled_name = calloc(1, len+1);
-+            if (!enabled_name) {
-+                ERR(sh, "Could not allocate memory");
-+                retval = -1;
-+                goto cleanup;
-+            }
-+
-+            strncpy(enabled_name, module_filenames[i],len);
-+
-+            if (rename(module_filenames[i], enabled_name) == -1) {
-+                ERR(sh, "Could not enable module file %s.",
-+                    enabled_name);
-+                retval = -2;
-+            }
-+            retval = 0;
-+            free(enabled_name);
-+            goto cleanup;
-+        }
-+    }
-+    ERR(sh, "Module %s was not found.", module_name);
-+    retval = -2;        /* module not found */
-+      cleanup:
-+    for (i = 0; module_filenames != NULL &amp;&amp; i &lt; num_mod_files; i++) {
-+        free(module_filenames[i]);
-+    }
-+    free(module_filenames);
-+    return retval;
-+}
-+
-+/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-+ * of memory, -2 if module not found or could not be enabled. */
-+static int semanage_direct_disable(semanage_handle_t * sh, char *module_name)
-+{
-+    int i, retval = -1;
-+    char **module_filenames = NULL;
-+    int num_mod_files;
-+    size_t name_len = strlen(module_name);
-+    if (semanage_get_modules_names(sh, &amp;module_filenames, &amp;num_mod_files) ==
-+        -1) {
-+        return -1;
-+    }
-+    for (i = 0; i &lt; num_mod_files; i++) {
-+        char *base = strrchr(module_filenames[i], '/');
-+        if (base == NULL) {
-+            ERR(sh, "Could not read module names.");
-+            retval = -2;
-+            goto cleanup;
-+        }
-+        base++;
-+        if (memcmp(module_name, base, name_len) == 0 &amp;&amp;
-+            strcmp(base + name_len, ".pp") == 0) {
-+            char disabled_name[PATH_MAX];
-+            if (snprintf(disabled_name, PATH_MAX, "%s%s",
-+                     module_filenames[i], DISABLESTR) == PATH_MAX) {
-+                ERR(sh, "Could not disable module file %s.",
-+                    module_filenames[i]);
-+                retval = -2;
-+                goto cleanup;
-+            }
-+            if (rename(module_filenames[i], disabled_name) == -1) {
-+                ERR(sh, "Could not disable module file %s.",
-+                    module_filenames[i]);
-+                retval = -2;
-+            }
-+            retval = 0;
-+            goto cleanup;
-+        }
-+    }
-+    ERR(sh, "Module %s was not found.", module_name);
-+    retval = -2;        /* module not found */
-+      cleanup:
-+    for (i = 0; module_filenames != NULL &amp;&amp; i &lt; num_mod_files; i++) {
-+        free(module_filenames[i]);
-+    }
-+    free(module_filenames);
-+    return retval;
-+}
-+
     </pre>
-  </blockquote>
-  <pre wrap=""><!---->While this function does succeed in renaming a file, it does not succeed in
-preventing the module from being linked in. semanage_get_modules_names()
-grabs everything in the modules directory, so the disabled modules here are
-still linked into the policy. A quick sesearch confirms this.
+    </blockquote>
+    <pre wrap=""><!---->I thought it worked fine with '/'. Since the loop condition is len &gt; 0
+(where len is the index of the last character, not the length of the string,
+which is a bit confusing and should probably be changed), it would never
+reset the first character. And don't you want this before the
+strcmp(pwbuf-&gt;pw_dir, "/") in case the path is ///// (which would of course
+be silly, but I believe is legal anyway)?
 
-To fix this, you'll either need to modify semanage_filename_select() to
-filter out files ending in .disabled or perhaps just move them from the
-modules directory to a disabled_modules directory (instead of the rename).
-The latter option has the advantage of not requiring filtering that could go
-wrong at some point, so I would lean toward it.
-
-Thanks,
 Chad
 
-
   </pre>
-</blockquote>
+  </blockquote>
+  <br>
+Yep, got it. <br>
+  <br>
+Acked-By: Joshua Brindle <a moz-do-not-send="true"
+ class="moz-txt-link-rfc2396E" href="mailto:method@manicmethod.com">&lt;method@manicmethod.com&gt;</a></blockquote>
+<br>
+Sorry, premature ack.<br>
+<br>
+I'm not seeing the expected results here. I added a user with a homedir
+of /home/method///// and the file_contexts.homedirs still has:<br>
+<br>
+/home/method//////.+ staff_u:object_r:user_home_t:s0<br>
 <br>
 <br>
-Do you have an updated version of this?<br>
+Also, you should probably use '\0' rather than 0 when truncating the
+path. And does this get rid of the need of:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; semanage_rtrim(path, '/');<br>
+<br>
+a few lines below your patch?<br>
+<br>
+<br>
 </body>
 </html>
 
---------------090709050904070301010102--
+--------------030501040208030606080207--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
