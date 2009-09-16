@@ -1,152 +1,84 @@
-Message-ID: <4AB0FDBD.8030200@manicmethod.com>
-Date: Wed, 16 Sep 2009 11:01:17 -0400
+Message-ID: <4AB0FE47.3020007@manicmethod.com>
+Date: Wed, 16 Sep 2009 11:03:35 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
-References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>	<878whm1gr5.fsf@anzu.internal.golden-gryphon.com> <87fxbq30u5.fsf@anzu.internal.golden-gryphon.com>
-In-Reply-To: <87fxbq30u5.fsf@anzu.internal.golden-gryphon.com>
+To: russell@coker.com.au
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov, 503252-forwarded@bugs.debian.org,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: policycoreutils: audit2allow -l doesn't work with dmesg pipe
+References: <87d46mvb33.fsf@anzu.internal.golden-gryphon.com>	 <200908240611.58935.russell@coker.com.au> <4A928943.3040609@redhat.com>	 <200908242337.51448.russell@coker.com.au> <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: multipart/alternative;
- boundary="------------050105060903020202050601"
+ boundary="------------010305090303060709090200"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050105060903020202050601
+--------------010305090303060709090200
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-Manoj Srivastava wrote:
-> On Mon, Aug 17 2009, Christopher J. PeBenito wrote:
->
+Stephen Smalley wrote:
+> On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
 >    
->> On Fri, 2009-08-14 at 11:50 -0500, Manoj Srivastava wrote:
+>> On Mon, 24 Aug 2009, Daniel J Walsh<dwalsh@redhat.com>  wrote:
 >>      
->>> On Fri, Aug 14 2009, Manoj Srivastava wrote:
->>>
->>>        
->>>>          I am running into an issue with sepolgen on Debian. Debian ships
->>>>   more than one  version of the refpolicy, a default one, and a
->>>>   MLS enabled one. So, the include files live in either
->>>>   /usr/share/selinux/{default,mls}/include
->>>>
->>>>          sepolgen (in src/sepolgen/defaults.py) sets refpolicy_devel() to
->>>>   a single location -- and thus, only one version of the security policy
->>>>   may be supported. So, sepolgen-ifgen from policycoreutils can only work
->>>>   with one policy, which may not be the one installed on the target
->>>>   machine. Could this be made configurable, somehow? As far as I can
->>>>   see, sepolgen's python library does not offer any way to set the value.
->>>>
->>>>          It would be nice if the location of the include directory could
->>>>   be looked for from a PATH like variable setting, to make it easier for
->>>>   distributions to ship more than one policy, or for end users to
->>>>   experiment with other policies without have to overwrite the single
->>>>   default.
+>>>>>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252
+>>>>>>              
+>>>>> audit2allow -l is looking for the load_policy message which does not go
+>>>>> to the dmesg, /var/log/messages.  Therefore the tool has no idea when
+>>>>> policy was last loaded.
+>>>>>            
+>>>> That would be a kernel bug then.
 >>>>          
->>>          Well, here is a kind of proof-of-concept patch (python is not my
->>>   strong suit), and I have only tested in that it allows the package to
->>>   compile, and the following code works:
+>>> Well I believe the messages that are intercepted by the audit.log do not go
+>>> into dmesg, by design. Although Steve, James or Eric could probably say for
+>>> sure.
 >>>        
->> [...]
->>      
->>>   def refpolicy_makefile():
->>> -    return refpolicy_devel() + "/Makefile"
->>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
->>> +    return chooser("Makefile")
->>>
->>>   def headers():
->>> -    return refpolicy_devel() + "/include"
->>> -
->>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
->>> +    return chooser("include")
->>> +
->>>        
->> Why are you making another config file rather than just get the policy
->> name from /etc/selinux/config via selinux_getpolicytype()?
+>> When auditd is not running on a Debian system with CentOS kernel
+>> 2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing
+>> goes to the kernel message log which is interpreted by audit2allow as a
+>> candidate for the "-l" functionality.
+>>
+>> It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l"
+>> gives no output.  But if all AVC messages other than the load_policy message
+>> go to the kernel message log then it's a bug.
 >>      
 >
->          This will work well for Debian, since the development files are
->   installed under "/usr/share/selinux/" in a subdirectory named after the
->   policy. I was not sure that this convention was followed in other
->   distributions, though. While I am not certain, google implies that in
->   fedora policy type is targeted, but the devel files do not live in
->   /usr/share/selinux/targeted.[0]. Given that, perhaps it is better to
->   let the user provide guidance about how to map the policy type to a
->   directory?
+> Originally audit2allow used the avc: allowed message generated by
+> auditallow statement for load_policy to identify policy reloads.  Later
+> it was switched to use the MAC_POLICY_LOAD events generated by the audit
+> framework.  Those events should still get logged via printk if auditd is
+> not running, but it appears that the code (audit_printk_skb) will then
+> log the type= field as an integer rather than a string, and
+> audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
 >
->          Also, I must confess I had forgotten about this call.
+> So I suspect that this would be resolved by modifying sepolgen/audit.py
+> to also match on type=1403 for load messages.  Try this:
 >
->          However, a patch with this is trivial, so an alternate patch
->   follows. (Not sure this will work for fedora, so caveat emptor)
+> diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
+> index 4717dae..efcc40d 100644
+> --- a/sepolgen/src/sepolgen/audit.py
+> +++ b/sepolgen/src/sepolgen/audit.py
+> @@ -314,7 +314,7 @@ class AuditParser:
+>               elif i == "security_compute_sid:":
+>                   msg = ComputeSidMessage(line)
+>                   found = True
+> -            elif i == "type=MAC_POLICY_LOAD":
+> +            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
+>                   msg = PolicyLoadMessage(line)
+>                   found = True
+>               elif i == "type=AVC_PATH":
 >
->          manoj
-> [0] http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html
->
-> --8<---------------cut here---------------start------------->8---
->
-> If the user installs a policy whose development files do not live under
-> /usr/share/selinux/devel/include, sepolgen wqould not work. Debian, for
-> instance, installs under:
-> /usr/share/selinux/{default,mls}/include
->
-> This patch uses selinux_getpolicytype() to determine the policy type, and
-> assumes that there is one-on-one correspondence between policytype and
-> the directory the development files live in.
->
-> Signed-off-by: Manoj Srivastava<srivasta@debian.org>
-> ---
->   src/sepolgen/defaults.py |    4 +++-
->   src/sepolgen/module.py   |    2 +-
->   2 files changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
-> index 45ce61a..85e5fb0 100644
-> --- a/src/sepolgen/defaults.py
-> +++ b/src/sepolgen/defaults.py
-> @@ -21,6 +21,8 @@
->   Various default settings, including file and directory locations.
->   """
->
-> +import selinux
-> +
->   def data_dir():
->       return "/var/lib/sepolgen"
->
-> @@ -31,7 +33,7 @@ def interface_info():
->       return data_dir() + "/interface_info"
->
->   def refpolicy_devel():
-> -    return "/usr/share/selinux/devel"
-> +    return "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]
->
->   def refpolicy_makefile():
->       return refpolicy_devel() + "/Makefile"
-> diff --git a/src/sepolgen/module.py b/src/sepolgen/module.py
-> index edd24c6..355c9b8 100644
-> --- a/src/sepolgen/module.py
-> +++ b/src/sepolgen/module.py
-> @@ -120,7 +120,7 @@ class ModuleCompiler:
->           self.semodule_package = "/usr/bin/semodule_package"
->           self.output = output
->           self.last_output = ""
-> -        self.refpol_makefile = "/usr/share/selinux/devel/Makefile"
-> +        self.refpol_makefile = "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]  + "/Makefile"
->           self.make = "/usr/bin/make"
->
->       def o(self, str):
 >    
 
-This will break Fedora/RHEL AFAIK. I don't necessarily like that RH has 
-interface files in /usr/share/selinux/devel rather than 
-/usr/share/selinux/<policy>/devel or similar but we can't break them.
+Russel, does this resolve your issue? I don't have a system setup like 
+yours to test on.
 
-Dan, any chance you could change the location of the interface files?
-
-
---------------050105060903020202050601
+--------------010305090303060709090200
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -159,148 +91,80 @@ Content-Transfer-Encoding: 7bit
 <body text="#000000" bgcolor="#ffffff">
 <br>
 <br>
-Manoj Srivastava wrote:
-<blockquote cite="mid:87fxbq30u5.fsf@anzu.internal.golden-gryphon.com"
+Stephen Smalley wrote:
+<blockquote
+ cite="mid:1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil"
  type="cite">
-  <pre wrap="">On Mon, Aug 17 2009, Christopher J. PeBenito wrote:
-
+  <pre wrap="">On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
   </pre>
   <blockquote type="cite">
-    <pre wrap="">On Fri, 2009-08-14 at 11:50 -0500, Manoj Srivastava wrote:
+    <pre wrap="">On Mon, 24 Aug 2009, Daniel J Walsh <a class="moz-txt-link-rfc2396E" href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
     </pre>
     <blockquote type="cite">
-      <pre wrap="">On Fri, Aug 14 2009, Manoj Srivastava wrote:
-
-      </pre>
       <blockquote type="cite">
-        <pre wrap="">        I am running into an issue with sepolgen on Debian. Debian ships
- more than one  version of the refpolicy, a default one, and a
- MLS enabled one. So, the include files live in either
- /usr/share/selinux/{default,mls}/include
-
-        sepolgen (in src/sepolgen/defaults.py) sets refpolicy_devel() to
- a single location -- and thus, only one version of the security policy
- may be supported. So, sepolgen-ifgen from policycoreutils can only work
- with one policy, which may not be the one installed on the target
- machine. Could this be made configurable, somehow? As far as I can
- see, sepolgen's python library does not offer any way to set the value.
-
-        It would be nice if the location of the include directory could
- be looked for from a PATH like variable setting, to make it easier for
- distributions to ship more than one policy, or for end users to
- experiment with other policies without have to overwrite the single
- default. 
+        <blockquote type="cite">
+          <blockquote type="cite">
+            <pre wrap=""><a class="moz-txt-link-freetext" href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252</a>
+            </pre>
+          </blockquote>
+          <pre wrap="">audit2allow -l is looking for the load_policy message which does not go
+to the dmesg, /var/log/messages.  Therefore the tool has no idea when
+policy was last loaded.
+          </pre>
+        </blockquote>
+        <pre wrap="">That would be a kernel bug then.
         </pre>
       </blockquote>
-      <pre wrap="">        Well, here is a kind of proof-of-concept patch (python is not my
- strong suit), and I have only tested in that it allows the package to
- compile, and the following code works:
+      <pre wrap="">Well I believe the messages that are intercepted by the audit.log do not go
+into dmesg, by design. Although Steve, James or Eric could probably say for
+sure.
       </pre>
     </blockquote>
-    <pre wrap="">[...]
-    </pre>
-    <blockquote type="cite">
-      <pre wrap=""> def refpolicy_makefile():
--    return refpolicy_devel() + "/Makefile"
-+    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-+    return chooser("Makefile")
- 
- def headers():
--    return refpolicy_devel() + "/include"
--    
-+    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-+    return chooser("include")
-+
-      </pre>
-    </blockquote>
-    <pre wrap="">Why are you making another config file rather than just get the policy
-name from /etc/selinux/config via selinux_getpolicytype()?
+    <pre wrap="">When auditd is not running on a Debian system with CentOS kernel 
+2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing 
+goes to the kernel message log which is interpreted by audit2allow as a 
+candidate for the "-l" functionality.
+
+It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l" 
+gives no output.  But if all AVC messages other than the load_policy message 
+go to the kernel message log then it's a bug.
     </pre>
   </blockquote>
   <pre wrap=""><!---->
-        This will work well for Debian, since the development files are
- installed under "/usr/share/selinux/" in a subdirectory named after the
- policy. I was not sure that this convention was followed in other
- distributions, though. While I am not certain, google implies that in
- fedora policy type is targeted, but the devel files do not live in
- /usr/share/selinux/targeted.[0]. Given that, perhaps it is better to
- let the user provide guidance about how to map the policy type to a
- directory? 
+Originally audit2allow used the avc: allowed message generated by
+auditallow statement for load_policy to identify policy reloads.  Later
+it was switched to use the MAC_POLICY_LOAD events generated by the audit
+framework.  Those events should still get logged via printk if auditd is
+not running, but it appears that the code (audit_printk_skb) will then
+log the type= field as an integer rather than a string, and
+audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
 
-        Also, I must confess I had forgotten about this call.
+So I suspect that this would be resolved by modifying sepolgen/audit.py
+to also match on type=1403 for load messages.  Try this:
 
-        However, a patch with this is trivial, so an alternate patch
- follows. (Not sure this will work for fedora, so caveat emptor)
+diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
+index 4717dae..efcc40d 100644
+--- a/sepolgen/src/sepolgen/audit.py
++++ b/sepolgen/src/sepolgen/audit.py
+@@ -314,7 +314,7 @@ class AuditParser:
+             elif i == "security_compute_sid:":
+                 msg = ComputeSidMessage(line)
+                 found = True
+-            elif i == "type=MAC_POLICY_LOAD":
++            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
+                 msg = PolicyLoadMessage(line)
+                 found = True
+             elif i == "type=AVC_PATH":
 
-        manoj
-[0] <a class="moz-txt-link-freetext" href="http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html">http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html</a>
-
---8&lt;---------------cut here---------------start-------------&gt;8---
-
-If the user installs a policy whose development files do not live under
-/usr/share/selinux/devel/include, sepolgen wqould not work. Debian, for
-instance, installs under:
-/usr/share/selinux/{default,mls}/include
-
-This patch uses selinux_getpolicytype() to determine the policy type, and
-assumes that there is one-on-one correspondence between policytype and
-the directory the development files live in.
-
-Signed-off-by: Manoj Srivastava <a class="moz-txt-link-rfc2396E" href="mailto:srivasta@debian.org">&lt;srivasta@debian.org&gt;</a>
----
- src/sepolgen/defaults.py |    4 +++-
- src/sepolgen/module.py   |    2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
-index 45ce61a..85e5fb0 100644
---- a/src/sepolgen/defaults.py
-+++ b/src/sepolgen/defaults.py
-@@ -21,6 +21,8 @@
- Various default settings, including file and directory locations.
- """
- 
-+import selinux
-+
- def data_dir():
-     return "/var/lib/sepolgen"
- 
-@@ -31,7 +33,7 @@ def interface_info():
-     return data_dir() + "/interface_info"
- 
- def refpolicy_devel():
--    return "/usr/share/selinux/devel"
-+    return "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]
- 
- def refpolicy_makefile():
-     return refpolicy_devel() + "/Makefile"
-diff --git a/src/sepolgen/module.py b/src/sepolgen/module.py
-index edd24c6..355c9b8 100644
---- a/src/sepolgen/module.py
-+++ b/src/sepolgen/module.py
-@@ -120,7 +120,7 @@ class ModuleCompiler:
-         self.semodule_package = "/usr/bin/semodule_package"
-         self.output = output
-         self.last_output = ""
--        self.refpol_makefile = "/usr/share/selinux/devel/Makefile"
-+        self.refpol_makefile = "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]  + "/Makefile"
-         self.make = "/usr/bin/make"
- 
-     def o(self, str):
   </pre>
 </blockquote>
 <br>
-This will break Fedora/RHEL AFAIK. I don't necessarily like that RH has
-interface files in /usr/share/selinux/devel rather than
-/usr/share/selinux/&lt;policy&gt;/devel or similar but we can't break
-them.<br>
-<br>
-Dan, any chance you could change the location of the interface files?<br>
-<br>
+Russel, does this resolve your issue? I don't have a system setup like
+yours to test on.<br>
 </body>
 </html>
 
---------------050105060903020202050601--
+--------------010305090303060709090200--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
