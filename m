@@ -1,84 +1,103 @@
-Message-ID: <4AB0FE47.3020007@manicmethod.com>
-Date: Wed, 16 Sep 2009 11:03:35 -0400
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GFMwjr030277
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 11:22:58 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GFMFxi013067
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:22:15 GMT
+Message-ID: <4AB102CE.3070102@manicmethod.com>
+Date: Wed, 16 Sep 2009 11:22:54 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov, 503252-forwarded@bugs.debian.org,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: policycoreutils: audit2allow -l doesn't work with dmesg pipe
-References: <87d46mvb33.fsf@anzu.internal.golden-gryphon.com>	 <200908240611.58935.russell@coker.com.au> <4A928943.3040609@redhat.com>	 <200908242337.51448.russell@coker.com.au> <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
+To: Chad Sellers <csellers@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: libsemanage patch
+References: <C6CBF8CF.AA709%csellers@tresys.com>
+In-Reply-To: <C6CBF8CF.AA709%csellers@tresys.com>
 Content-Type: multipart/alternative;
- boundary="------------010305090303060709090200"
+ boundary="------------070500020009080502010609"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010305090303060709090200
+--------------070500020009080502010609
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-Stephen Smalley wrote:
-> On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
+Chad Sellers wrote:
+> On 9/7/09 6:44 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
+>
 >    
->> On Mon, 24 Aug 2009, Daniel J Walsh<dwalsh@redhat.com>  wrote:
+>> On 09/04/2009 09:56 AM, Joshua Brindle wrote:
 >>      
->>>>>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252
->>>>>>              
->>>>> audit2allow -l is looking for the load_policy message which does not go
->>>>> to the dmesg, /var/log/messages.  Therefore the tool has no idea when
->>>>> policy was last loaded.
->>>>>            
->>>> That would be a kernel bug then.
->>>>          
->>> Well I believe the messages that are intercepted by the audit.log do not go
->>> into dmesg, by design. Although Steve, James or Eric could probably say for
->>> sure.
+>>> Daniel J Walsh wrote:
 >>>        
->> When auditd is not running on a Debian system with CentOS kernel
->> 2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing
->> goes to the kernel message log which is interpreted by audit2allow as a
->> candidate for the "-l" functionality.
->>
->> It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l"
->> gives no output.  But if all AVC messages other than the load_policy message
->> go to the kernel message log then it's a bug.
+>>>> If you have a homedir that ends in '/', genhomedircon gets confused.
+>>>>
+>>>> # useradd -h /home2/dwalsh/ dwalsh
+>>>> # genhomedircon
+>>>>
+>>>> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
+>>>> home root.
+>>>>
+>>>> We should just get rid of this command...  :^)
+>>>>
+>>>> Patch removes all trailing '/' from homedir.
+>>>>          
+>>>> diff --exclude-from=exclude -N -u -r
+>>>> nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+>>>> --- nsalibsemanage/src/genhomedircon.c    2008-08-28
+>>>> 09:34:24.000000000 -0400
+>>>> +++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
+>>>> 10:32:20.000000000 -0400
+>>>> @@ -304,6 +304,10 @@
+>>>>               continue;
+>>>>           if (!semanage_list_find(shells, pwbuf->pw_shell))
+>>>>               continue;
+>>>> +        int len = strlen(pwbuf->pw_dir) -1;
+>>>> +        for(; len>  0&&  pwbuf->pw_dir[len]=='/'; len--) {
+>>>> +            pwbuf->pw_dir[len]=0;
+>>>> +        }
+>>>>           if (strcmp(pwbuf->pw_dir, "/") == 0)
+>>>>               continue;
+>>>>           if (semanage_str_count(pwbuf->pw_dir, '/')<= 1)
+>>>>          
+>>> Why aren't you just doing:
+>>>
+>>> len = strlen(pwbuf->pwdir);
+>>> if (pwbuf->pwdir[len] == '/')
+>>>      pwbuf->pwdir[len] = '\0';
+>>>
+>>> ?
+>>>
+>>>        
+>> What about /home/dwalsh//////
+>> Which I believe is legal
 >>      
+>>> Also, won't this fail if the homedir is set to '/' ? This check should
+>>> probably go below the strcmp(pwbuf->pw_dir, "/") that is currently below
+>>> it.
+>>>        
+>> Yes good point.
+>>
+>>      
+> I thought it worked fine with '/'. Since the loop condition is len>  0
+> (where len is the index of the last character, not the length of the string,
+> which is a bit confusing and should probably be changed), it would never
+> reset the first character. And don't you want this before the
+> strcmp(pwbuf->pw_dir, "/") in case the path is ///// (which would of course
+> be silly, but I believe is legal anyway)?
 >
-> Originally audit2allow used the avc: allowed message generated by
-> auditallow statement for load_policy to identify policy reloads.  Later
-> it was switched to use the MAC_POLICY_LOAD events generated by the audit
-> framework.  Those events should still get logged via printk if auditd is
-> not running, but it appears that the code (audit_printk_skb) will then
-> log the type= field as an integer rather than a string, and
-> audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
->
-> So I suspect that this would be resolved by modifying sepolgen/audit.py
-> to also match on type=1403 for load messages.  Try this:
->
-> diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
-> index 4717dae..efcc40d 100644
-> --- a/sepolgen/src/sepolgen/audit.py
-> +++ b/sepolgen/src/sepolgen/audit.py
-> @@ -314,7 +314,7 @@ class AuditParser:
->               elif i == "security_compute_sid:":
->                   msg = ComputeSidMessage(line)
->                   found = True
-> -            elif i == "type=MAC_POLICY_LOAD":
-> +            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
->                   msg = PolicyLoadMessage(line)
->                   found = True
->               elif i == "type=AVC_PATH":
+> Chad
 >
 >    
 
-Russel, does this resolve your issue? I don't have a system setup like 
-yours to test on.
+Yep, got it.
 
---------------010305090303060709090200
+Acked-By: Joshua Brindle <method@manicmethod.com>
+
+--------------070500020009080502010609
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -91,80 +110,93 @@ Content-Transfer-Encoding: 7bit
 <body text="#000000" bgcolor="#ffffff">
 <br>
 <br>
-Stephen Smalley wrote:
-<blockquote
- cite="mid:1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil"
- type="cite">
-  <pre wrap="">On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
+Chad Sellers wrote:
+<blockquote cite="mid:C6CBF8CF.AA709%25csellers@tresys.com" type="cite">
+  <pre wrap="">On 9/7/09 6:44 AM, "Daniel J Walsh" <a class="moz-txt-link-rfc2396E" href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
+
   </pre>
   <blockquote type="cite">
-    <pre wrap="">On Mon, 24 Aug 2009, Daniel J Walsh <a class="moz-txt-link-rfc2396E" href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
+    <pre wrap="">On 09/04/2009 09:56 AM, Joshua Brindle wrote:
     </pre>
     <blockquote type="cite">
+      <pre wrap="">Daniel J Walsh wrote:
+      </pre>
       <blockquote type="cite">
-        <blockquote type="cite">
-          <blockquote type="cite">
-            <pre wrap=""><a class="moz-txt-link-freetext" href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252</a>
-            </pre>
-          </blockquote>
-          <pre wrap="">audit2allow -l is looking for the load_policy message which does not go
-to the dmesg, /var/log/messages.  Therefore the tool has no idea when
-policy was last loaded.
-          </pre>
-        </blockquote>
-        <pre wrap="">That would be a kernel bug then.
+        <pre wrap="">If you have a homedir that ends in '/', genhomedircon gets confused.
+
+# useradd -h /home2/dwalsh/ dwalsh
+# genhomedircon
+
+Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
+home root.
+
+We should just get rid of this command...  :^)
+
+Patch removes all trailing '/' from homedir.
         </pre>
       </blockquote>
-      <pre wrap="">Well I believe the messages that are intercepted by the audit.log do not go
-into dmesg, by design. Although Steve, James or Eric could probably say for
-sure.
+      <blockquote type="cite">
+        <pre wrap="">diff --exclude-from=exclude -N -u -r
+nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
+--- nsalibsemanage/src/genhomedircon.c    2008-08-28
+09:34:24.000000000 -0400
++++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
+10:32:20.000000000 -0400
+@@ -304,6 +304,10 @@
+             continue;
+         if (!semanage_list_find(shells, pwbuf-&gt;pw_shell))
+             continue;
++        int len = strlen(pwbuf-&gt;pw_dir) -1;
++        for(; len &gt; 0 &amp;&amp; pwbuf-&gt;pw_dir[len]=='/'; len--) {
++            pwbuf-&gt;pw_dir[len]=0;
++        }
+         if (strcmp(pwbuf-&gt;pw_dir, "/") == 0)
+             continue;
+         if (semanage_str_count(pwbuf-&gt;pw_dir, '/') &lt;= 1)
+        </pre>
+      </blockquote>
+      <pre wrap="">Why aren't you just doing:
+
+len = strlen(pwbuf-&gt;pwdir);
+if (pwbuf-&gt;pwdir[len] == '/')
+    pwbuf-&gt;pwdir[len] = '\0';
+
+?
+
       </pre>
     </blockquote>
-    <pre wrap="">When auditd is not running on a Debian system with CentOS kernel 
-2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing 
-goes to the kernel message log which is interpreted by audit2allow as a 
-candidate for the "-l" functionality.
+    <pre wrap="">What about /home/dwalsh//////
+Which I believe is legal
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">Also, won't this fail if the homedir is set to '/' ? This check should
+probably go below the strcmp(pwbuf-&gt;pw_dir, "/") that is currently below
+it.
+      </pre>
+    </blockquote>
+    <pre wrap="">Yes good point.
 
-It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l" 
-gives no output.  But if all AVC messages other than the load_policy message 
-go to the kernel message log then it's a bug.
     </pre>
   </blockquote>
-  <pre wrap=""><!---->
-Originally audit2allow used the avc: allowed message generated by
-auditallow statement for load_policy to identify policy reloads.  Later
-it was switched to use the MAC_POLICY_LOAD events generated by the audit
-framework.  Those events should still get logged via printk if auditd is
-not running, but it appears that the code (audit_printk_skb) will then
-log the type= field as an integer rather than a string, and
-audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
+  <pre wrap=""><!---->I thought it worked fine with '/'. Since the loop condition is len &gt; 0
+(where len is the index of the last character, not the length of the string,
+which is a bit confusing and should probably be changed), it would never
+reset the first character. And don't you want this before the
+strcmp(pwbuf-&gt;pw_dir, "/") in case the path is ///// (which would of course
+be silly, but I believe is legal anyway)?
 
-So I suspect that this would be resolved by modifying sepolgen/audit.py
-to also match on type=1403 for load messages.  Try this:
-
-diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
-index 4717dae..efcc40d 100644
---- a/sepolgen/src/sepolgen/audit.py
-+++ b/sepolgen/src/sepolgen/audit.py
-@@ -314,7 +314,7 @@ class AuditParser:
-             elif i == "security_compute_sid:":
-                 msg = ComputeSidMessage(line)
-                 found = True
--            elif i == "type=MAC_POLICY_LOAD":
-+            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
-                 msg = PolicyLoadMessage(line)
-                 found = True
-             elif i == "type=AVC_PATH":
+Chad
 
   </pre>
 </blockquote>
 <br>
-Russel, does this resolve your issue? I don't have a system setup like
-yours to test on.<br>
+Yep, got it. <br>
+<br>
+Acked-By: Joshua Brindle <a class="moz-txt-link-rfc2396E" href="mailto:method@manicmethod.com">&lt;method@manicmethod.com&gt;</a><br>
 </body>
 </html>
 
---------------010305090303060709090200--
+--------------070500020009080502010609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
