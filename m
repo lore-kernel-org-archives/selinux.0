@@ -1,51 +1,70 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GJIY3I001967
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:18:35 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GJJwjq010826
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 19:19:58 GMT
-Message-ID: <4AB139E8.50700@manicmethod.com>
-Date: Wed, 16 Sep 2009 15:18:00 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: This patch fixes the exception handling in libselinux-python
- bindings
-References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com>
-In-Reply-To: <4A830B34.60402@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jeff Johnson <n3npq@mac.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <8695AD02-EDBD-488D-95A1-56EE97D01BDF@mac.com>
+References: <1253042418-28141-1-git-send-email-ccase@tresys.com>
+	 <1253043181.18198.62.camel@moss-pluto.epoch.ncsc.mil>
+	 <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
+	 <1253109741.18198.93.camel@moss-pluto.epoch.ncsc.mil>
+	 <D095955D-66A2-4A9E-854A-5A5AF0C92EF3@mac.com>
+	 <1253111809.18198.104.camel@moss-pluto.epoch.ncsc.mil>
+	 <8695AD02-EDBD-488D-95A1-56EE97D01BDF@mac.com>
+Content-Type: text/plain
+Date: Wed, 16 Sep 2009 15:26:29 -0400
+Message-Id: <1253129189.18198.145.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2009-09-16 at 13:21 -0400, Jeff Johnson wrote:
+> I'd suggest changing cp(1) to always copy security.* xattr's if found,
+> overriding from CLI options when present.
+> 
+> But choosing a default behavior that is acceptable to everyone is a  
+> difficult
+> problem. There's no right or wrong if cp(1) copies security.* xattr's  
+> (or not),
+> only defacto expectations.
 
+No, it would actually be wrong in the common case.  It isn't so
+different from the situation wrt uids - cp(1) does not preserve the uid
+of the original file by default but rather lets the file gets created in
+accordance with the creating process' attributes, and often the caller
+does not have the necessary permissions to force preservation even if it
+wanted to do so (even more so with the SELinux attributes).
 
-Daniel J Walsh wrote:
-> What do you think of this one.  Removed excess swig cruft,
->
-> You need to run
->
-> make swigify to generate those changes.
->
+> But please s/cp(1)/rpm(8)/ and consider what RPM should do if/when  
+> installing
+> modular policy in a chroot with /proc/selinux unmounted. I nearly  
+> implemented
+> 	Always install security.* xattr's.
+> way back when, and (now that modular policy is headed into *.rpm  
+> packages somehow)
 
-Ok, looking at this now. I don't completely get how it works. I'm trying 
-to reproduce what you are doing by hand but nothing comes out of gcc:
+If you can instead just arrange for proc to always be mounted, then we
+can in fact probe for selinux enabled/disabled.  We don't need selinuxfs
+to be mounted for that.
 
-[root@localhost src]# echo '#include "../include/selinux/selinux.h"' > 
-temp.c
-[root@localhost src]# gcc -c temp.c -aux-info temp.aux
-[root@localhost src]# ls temp.*
-temp.c  temp.o
+> I am again considering what "default" behavior in RPM will lead to the  
+> fewest
+> RPM bug reports. I'm very likely to add a configurable policy install  
+> mode that achieves
+> 	Always copy security.* xattr's when replacing a file.
+> with an appropriately automated conflict resolution when matchpathcon()
+> and *.pp (either from *.rpm packages or not) and what is currently  
+> present on
+> the file system all have differnt and incompatible security.* xattr's  
+> attached
+> to the path.
+> 
+> A "best effort" deterministic automation leads to fewer bug reports  
+> imho, ymmv.
 
-
-What is the purpose of the aux-info thing, and why doesn't it work on my 
-F11 machine?
-
-also, I'm not sure if the best place for selinuxswig_exception.i is 
-swigify or pywrap. In the swigify case it shouldn't be in the clean 
-target because if you check out the repo and do make clean; make pywrap 
-you'll get an error. (I can make these fixes, I'm just trying to figure 
-out how it all works first).
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
