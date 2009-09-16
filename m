@@ -1,202 +1,165 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GFMwjr030277
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 11:22:58 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GFMFxi013067
-	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:22:15 GMT
-Message-ID: <4AB102CE.3070102@manicmethod.com>
-Date: Wed, 16 Sep 2009 11:22:54 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libsemanage patch
-References: <C6CBF8CF.AA709%csellers@tresys.com>
-In-Reply-To: <C6CBF8CF.AA709%csellers@tresys.com>
-Content-Type: multipart/alternative;
- boundary="------------070500020009080502010609"
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GFWkF1031583
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 11:32:46 -0400
+Received: from mail.seekline.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GFY8L8017617
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 15:34:09 GMT
+Subject: Re: [refpolicy] new policy for dkim-filter
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Paul Howarth <paul@city-fan.org>, selinux@tycho.nsa.gov
+In-Reply-To: <1253021987.7425.130.camel@gorn.columbia.tresys.com>
+References: <1252611656.2486.44.camel@vogon.seekline.net>
+	 <20090910210421.150ff80f@metropolis.intra.city-fan.org>
+	 <1252615167.22997.1.camel@vogon.seekline.net>
+	 <1252619448.22997.12.camel@vogon.seekline.net>
+	 <20090910232714.2ae22bf2@metropolis.intra.city-fan.org>
+	 <1252655581.2491.12.camel@vogon.seekline.net>
+	 <1252657231.2491.18.camel@vogon.seekline.net>
+	 <1252672214.2937.8.camel@defiant.pebenito.net>
+	 <1252678921.2491.51.camel@vogon.seekline.net>
+	 <4AAA6A3A.9080202@city-fan.org>
+	 <1252933263.7425.113.camel@gorn.columbia.tresys.com>
+	 <4AAE4802.6050102@city-fan.org>
+	 <1253021987.7425.130.camel@gorn.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-OzMWMlNwy6WA14h0r6q3"
+Date: Wed, 16 Sep 2009 17:32:32 +0200
+Message-Id: <1253115152.2503.6.camel@vogon.seekline.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070500020009080502010609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+--=-OzMWMlNwy6WA14h0r6q3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2009-09-15 at 09:39 -0400, Christopher J. PeBenito wrote:
+> On Mon, 2009-09-14 at 14:41 +0100, Paul Howarth wrote:
+> > On 14/09/09 14:01, Christopher J. PeBenito wrote:
+> > > On Fri, 2009-09-11 at 16:18 +0100, Paul Howarth wrote:
+> > >> On 11/09/09 15:22, Stefan Schulze Frielinghaus wrote:
+> > >>> On Fri, 2009-09-11 at 08:30 -0400, Chris PeBenito wrote:
+> > >>>> On Fri, 2009-09-11 at 10:20 +0200, Stefan Schulze Frielinghaus wrote:
+> > >>>>>>>>>> On Thu, 10 Sep 2009 21:40:56 +0200
+> > >>>>>>>>>> Stefan Schulze Frielinghaus<stefan@seekline.net>   wrote:
+> > >>>>>>>>>>
+> > >>>>>>>>>>> Attached is a new policy for the dkim-filter application.
+> > >>>>>>>>>>>
+> > >>>>>>>>>>> Chris, is the policy OK/ready for merge?
+> > >>>>
+> > >>>>> Tested attached policy again on CentOS 5.3 with strict policy.
+> > >>>>
+> > >>>> It looks ok.  However I'm starting to get concerned about the milter
+> > >>>> module getting big.  If you want, say the spamassassin milter, you add
+> > >>>> the milter module... but then you get rules for a several other milters
+> > >>>> too.
+> > >>
+> > >> True, but how much of a problem is that, given that any milter user is
+> > >> at least going to have also the sendmail/postfix policy and the mta
+> > >> policy too?
+> > >
+> > > Perhaps not.  But how many milters are there?  I don't want to get to
+> > > the point where there are 10-20 milters in the same module.
+> > 
+> > Having that many milters is quite conceivable:
+> > 
+> > https://www.milter.org/milters
+> > 
+> > >>> Attached is a milter version which behaves like the apache_template(). I
+> > >>> only took care of the dkim-milter but in general this would only mean
+> > >>> some reorganization of all modules ... nothing more. Any cons about
+> > >>> that?
+> > >>
+> > >> Splitting each milter out into its own module is certainly do-able;
+> > >> doesn't that add overhead (from having more modules) as well though?
+> > >
+> > > Only a little disk space and some memory during policy linking.  No
+> > > overhead for the final policy, which is what I'm concerned about.
+> > >
+> > >>> If this would be the right way then we could also talk about the
+> > >>> milter_template() naming convention:
+> > >>>
+> > >>> type $1_milter_t
+> > >>>
+> > >>> The apache_template generates slightly different type names:
+> > >>>
+> > >>> type httpd_$1_script_t
+> > >>>
+> > >>> What about changing $1_milter_t to milter_$1_t?
+> > >>
+> > >> That would make sense given that most types in refpolicy are prefixed
+> > >> with the module name. There would need to be typealiases added though
+> > >> for the old names for the benefit of existing users, wouldn't there?
+> > >
+> > > Yes.  But I'd prefer to keep the current naming convention.  I consider
+> > > the apache convention nonstandard.
+> > 
+> > Let's split each milter off into its own module then, leaving the type 
+> > names unchanged.
+> 
+> We'll do this for new milters.  The ones that are currently in the
+> milter module will stay for now, since its problematic moving types
+> between modules.
+
+Attached is a policy for DKIM-Milter based on the latest changes. Works
+fine with the default milter policy.
+
+--=-OzMWMlNwy6WA14h0r6q3
+Content-Disposition: attachment; filename="dkim_milter.fc"
+Content-Type: text/plain; name="dkim_milter.fc"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+/etc/mail/dkim-milter/keys(/.*)?	gen_context(system_u:object_r:dkim_milter_private_key_t,s0)
+
+/usr/sbin/dkim-filter		--	gen_context(system_u:object_r:dkim_milter_exec_t,s0)
+
+/var/db/dkim(/.*)?			gen_context(system_u:object_r:dkim_milter_private_key_t,s0)
+
+/var/run/dkim-filter(/.*)?		gen_context(system_u:object_r:dkim_milter_data_t,s0)
+/var/run/dkim-milter(/.*)?		gen_context(system_u:object_r:dkim_milter_data_t,s0)
+/var/run/dkim-milter\.pid	--	gen_context(system_u:object_r:dkim_milter_data_t,s0)
+
+--=-OzMWMlNwy6WA14h0r6q3
+Content-Disposition: attachment; filename="dkim_milter.te"
+Content-Type: text/plain; name="dkim_milter.te"; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 
 
+policy_module(dkim_milter, 1.0.0)
 
-Chad Sellers wrote:
-> On 9/7/09 6:44 AM, "Daniel J Walsh"<dwalsh@redhat.com>  wrote:
->
->    
->> On 09/04/2009 09:56 AM, Joshua Brindle wrote:
->>      
->>> Daniel J Walsh wrote:
->>>        
->>>> If you have a homedir that ends in '/', genhomedircon gets confused.
->>>>
->>>> # useradd -h /home2/dwalsh/ dwalsh
->>>> # genhomedircon
->>>>
->>>> Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
->>>> home root.
->>>>
->>>> We should just get rid of this command...  :^)
->>>>
->>>> Patch removes all trailing '/' from homedir.
->>>>          
->>>> diff --exclude-from=exclude -N -u -r
->>>> nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
->>>> --- nsalibsemanage/src/genhomedircon.c    2008-08-28
->>>> 09:34:24.000000000 -0400
->>>> +++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
->>>> 10:32:20.000000000 -0400
->>>> @@ -304,6 +304,10 @@
->>>>               continue;
->>>>           if (!semanage_list_find(shells, pwbuf->pw_shell))
->>>>               continue;
->>>> +        int len = strlen(pwbuf->pw_dir) -1;
->>>> +        for(; len>  0&&  pwbuf->pw_dir[len]=='/'; len--) {
->>>> +            pwbuf->pw_dir[len]=0;
->>>> +        }
->>>>           if (strcmp(pwbuf->pw_dir, "/") == 0)
->>>>               continue;
->>>>           if (semanage_str_count(pwbuf->pw_dir, '/')<= 1)
->>>>          
->>> Why aren't you just doing:
->>>
->>> len = strlen(pwbuf->pwdir);
->>> if (pwbuf->pwdir[len] == '/')
->>>      pwbuf->pwdir[len] = '\0';
->>>
->>> ?
->>>
->>>        
->> What about /home/dwalsh//////
->> Which I believe is legal
->>      
->>> Also, won't this fail if the homedir is set to '/' ? This check should
->>> probably go below the strcmp(pwbuf->pw_dir, "/") that is currently below
->>> it.
->>>        
->> Yes good point.
->>
->>      
-> I thought it worked fine with '/'. Since the loop condition is len>  0
-> (where len is the index of the last character, not the length of the string,
-> which is a bit confusing and should probably be changed), it would never
-> reset the first character. And don't you want this before the
-> strcmp(pwbuf->pw_dir, "/") in case the path is ///// (which would of course
-> be silly, but I believe is legal anyway)?
->
-> Chad
->
->    
+########################################
+#
+# Declarations
+#
 
-Yep, got it.
+milter_template(dkim)
 
-Acked-By: Joshua Brindle <method@manicmethod.com>
+# Type for the private key of dkim-filter
+type dkim_milter_private_key_t;
+files_type(dkim_milter_private_key_t)
 
---------------070500020009080502010609
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+########################################
+#
+# Local policy
+#
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="Content-Type">
-</head>
-<body text="#000000" bgcolor="#ffffff">
-<br>
-<br>
-Chad Sellers wrote:
-<blockquote cite="mid:C6CBF8CF.AA709%25csellers@tresys.com" type="cite">
-  <pre wrap="">On 9/7/09 6:44 AM, "Daniel J Walsh" <a class="moz-txt-link-rfc2396E" href="mailto:dwalsh@redhat.com">&lt;dwalsh@redhat.com&gt;</a> wrote:
+allow dkim_milter_t self:capability { setgid setuid };
 
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">On 09/04/2009 09:56 AM, Joshua Brindle wrote:
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">Daniel J Walsh wrote:
-      </pre>
-      <blockquote type="cite">
-        <pre wrap="">If you have a homedir that ends in '/', genhomedircon gets confused.
+read_files_pattern(dkim_milter_t, dkim_milter_private_key_t, dkim_milter_private_key_t)
 
-# useradd -h /home2/dwalsh/ dwalsh
-# genhomedircon
+files_read_etc_files(dkim_milter_t)
 
-Check out the labeling.  genhomedircon thinks dwalsh is a toplevel
-home root.
+kernel_read_kernel_sysctls(dkim_milter_t)
 
-We should just get rid of this command...  :^)
+sysnet_dns_name_resolve(dkim_milter_t)
 
-Patch removes all trailing '/' from homedir.
-        </pre>
-      </blockquote>
-      <blockquote type="cite">
-        <pre wrap="">diff --exclude-from=exclude -N -u -r
-nsalibsemanage/src/genhomedircon.c libsemanage-2.0.33/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c    2008-08-28
-09:34:24.000000000 -0400
-+++ libsemanage-2.0.33/src/genhomedircon.c    2009-07-15
-10:32:20.000000000 -0400
-@@ -304,6 +304,10 @@
-             continue;
-         if (!semanage_list_find(shells, pwbuf-&gt;pw_shell))
-             continue;
-+        int len = strlen(pwbuf-&gt;pw_dir) -1;
-+        for(; len &gt; 0 &amp;&amp; pwbuf-&gt;pw_dir[len]=='/'; len--) {
-+            pwbuf-&gt;pw_dir[len]=0;
-+        }
-         if (strcmp(pwbuf-&gt;pw_dir, "/") == 0)
-             continue;
-         if (semanage_str_count(pwbuf-&gt;pw_dir, '/') &lt;= 1)
-        </pre>
-      </blockquote>
-      <pre wrap="">Why aren't you just doing:
+dev_read_urand(dkim_milter_t)
 
-len = strlen(pwbuf-&gt;pwdir);
-if (pwbuf-&gt;pwdir[len] == '/')
-    pwbuf-&gt;pwdir[len] = '\0';
+mta_read_config(dkim_milter_t)
 
-?
+--=-OzMWMlNwy6WA14h0r6q3--
 
-      </pre>
-    </blockquote>
-    <pre wrap="">What about /home/dwalsh//////
-Which I believe is legal
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">Also, won't this fail if the homedir is set to '/' ? This check should
-probably go below the strcmp(pwbuf-&gt;pw_dir, "/") that is currently below
-it.
-      </pre>
-    </blockquote>
-    <pre wrap="">Yes good point.
-
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->I thought it worked fine with '/'. Since the loop condition is len &gt; 0
-(where len is the index of the last character, not the length of the string,
-which is a bit confusing and should probably be changed), it would never
-reset the first character. And don't you want this before the
-strcmp(pwbuf-&gt;pw_dir, "/") in case the path is ///// (which would of course
-be silly, but I believe is legal anyway)?
-
-Chad
-
-  </pre>
-</blockquote>
-<br>
-Yep, got it. <br>
-<br>
-Acked-By: Joshua Brindle <a class="moz-txt-link-rfc2396E" href="mailto:method@manicmethod.com">&lt;method@manicmethod.com&gt;</a><br>
-</body>
-</html>
-
---------------070500020009080502010609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
