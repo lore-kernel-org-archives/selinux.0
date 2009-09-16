@@ -1,79 +1,169 @@
-Subject: Re: [PATCH] setfiles fails to relabel if selinux not enabled
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeff Johnson <n3npq@mac.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
-        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <D095955D-66A2-4A9E-854A-5A5AF0C92EF3@mac.com>
-References: <1253042418-28141-1-git-send-email-ccase@tresys.com>
-	 <1253043181.18198.62.camel@moss-pluto.epoch.ncsc.mil>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E014CEA9F@exchange2.columbia.tresys.com>
-	 <1253109741.18198.93.camel@moss-pluto.epoch.ncsc.mil>
-	 <D095955D-66A2-4A9E-854A-5A5AF0C92EF3@mac.com>
-Content-Type: text/plain
-Date: Wed, 16 Sep 2009 10:36:49 -0400
-Message-Id: <1253111809.18198.104.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8GEl9WG024251
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 10:47:09 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8GEkQxi024403
+	for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2009 14:46:26 GMT
+Message-ID: <4AB0FA6A.7010206@manicmethod.com>
+Date: Wed, 16 Sep 2009 10:47:06 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 2/2] policAycoreutils: share setfiles restore function
+ with restorecond
+References: <1250711251.2835.25.camel@Hephaestus> <4A8C683F.8070005@manicmethod.com> <4A8C6F26.6080304@redhat.com> <4A8D5A8F.8060306@manicmethod.com> <4A8D8BBD.80600@redhat.com>
+In-Reply-To: <4A8D8BBD.80600@redhat.com>
+Content-Type: multipart/alternative;
+ boundary="------------010404050209040805070001"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-16 at 10:16 -0400, Jeff Johnson wrote:
-> On Sep 16, 2009, at 10:02 AM, Stephen Smalley wrote:
-> 
-> >>
-> >> What is the best we can do? Should we always attempt to relabel if
-> >> selinux is disabled or not?
-> >
-> > The patch is the best we can do - we shouldn't exclude any mounts  
-> > based
-> > on the absence of seclabel in /proc/mounts if SELinux is disabled.
-> > Historically setfiles has always supported relabeling filesystems even
-> > if SELinux was disabled in the host.
-> 
-> There's a fundamental confusion between the act (of labelling) and the  
-> use of selinux labels.
-> 
-> The issue shows up when there are multiple (and possibly incompatible)
-> sets of labels, such as in chroot's, or creating an image for a  
-> different
-> installation.
-> 
-> One can choose to not install labels condition on whether  
-> is_selinux_enabled()
-> consistently and methodically.
-> 
-> Perhaps a simpple example to illustrate:
-> 
-> 	Should cp(1) always copy security labels or only if is_selinux_enabled 
-> ()?
-> 
-> What I'm hearing is "No. cp(1) should copy labels iff  
-> is_selinux_senabled() is TRUE."
+This is a multi-part message in MIME format.
+--------------010404050209040805070001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-That's a different issue.  Here we are talking about a recent change to
-setfiles that was preventing it from relabeling filesystems if SELinux
-was disabled (because then no filesystems were reporting the seclabel
-option in /proc/mounts).  As we want setfiles to support relabeling of
-filesystems even if SELinux is disabled, we want to skip the seclabel
-option processing in that case as the kernel won't report seclabel
-information when SELinux is disabled (seclabel means more than just
-"filesystem has an xattr handler").
 
-As far as cp goes, I believe you are correct - it will only preserve
-security contexts if SELinux is enabled, and even then, only if the
-caller specified -a or -c.  And in the -a case, it has to be able to
-gracefully fall back to not preserving the context if not permitted by
-policy, as not all callers will be able to do so for the security
-context even if they can do so for the DAC attributes.
 
-Note that preserving security contexts may be using SELinux-specific
-interfaces (e.g. setfscreatecon(3)) to create the copy directly in the
-desired security context rather than creating the file and then
-relabeling it after creation.
+Daniel J Walsh wrote:
+> On 08/20/2009 10:15 AM, Joshua Brindle wrote:
+>    
+>> Daniel J Walsh wrote:
+>>      
+>>> On 08/19/2009 05:01 PM, Joshua Brindle wrote:
+>>>        
+>>>> Thomas Liu wrote:
+>>>>          
+>>>>> This patch edits restorecond to use the shared restore
+>>>>>
+>>>>> functions split out from the first patch in this series.
+>>>>>
+>>>>>            
+>>>> Is the DBus stuff in here suppose to be here? It looks like you are
+>>>> adding libdbus and include dirs but I don't see any dbus usage.
+>>>>
+>>>>          
+>> <snip>
+>>      
+>>> restorcond -u is a dbus session bus service.
+>>>
+>>> The idea is to run restorecond as your UID when you log into a console
+>>> session.
+>>>
+>>>        
+>> Maybe I don't get how DBus works. Why are the include dirs added to
+>> CFLAGS but no apparent dbus #includes?
+>>
+>> Further, will this _only_ work with DBus after this patch? If so there
+>> needs to be a way to not build it if dbus isn't present on the system
+>> (embedded).
+>>
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>> with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
+>>
+>>      
+> Ok here is another patch with all of the dbus stuff aggregated under a HAVE_DBUS flag.
+>
+> You can build it with or without DBUS support and it should work fine.
+>
+> DBUS is really used to make sure multiple restorecond do not get started.
+>    
+
+This patch got badly broken by a few recent commits, which is totally my 
+fault for not applying it earlier. I'll try to rebase it but my main 
+objection is that restorecond is now using object files from setfiles. I 
+know they are in the same 'package' but they are separate apps. Maybe we 
+should move restore.{c,h} to policycoreutils/common or something.
+
+
+--------------010404050209040805070001
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="Content-Type">
+</head>
+<body text="#000000" bgcolor="#ffffff">
+<br>
+<br>
+Daniel J Walsh wrote:
+<blockquote cite="mid:4A8D8BBD.80600@redhat.com" type="cite">
+  <pre wrap="">On 08/20/2009 10:15 AM, Joshua Brindle wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Daniel J Walsh wrote:
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">On 08/19/2009 05:01 PM, Joshua Brindle wrote:
+      </pre>
+      <blockquote type="cite">
+        <pre wrap="">Thomas Liu wrote:
+        </pre>
+        <blockquote type="cite">
+          <pre wrap="">This patch edits restorecond to use the shared restore
+
+functions split out from the first patch in this series.
+
+          </pre>
+        </blockquote>
+        <pre wrap="">Is the DBus stuff in here suppose to be here? It looks like you are
+adding libdbus and include dirs but I don't see any dbus usage.
+
+        </pre>
+      </blockquote>
+    </blockquote>
+    <pre wrap="">&lt;snip&gt;
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">restorcond -u is a dbus session bus service.
+
+The idea is to run restorecond as your UID when you log into a console
+session.
+
+      </pre>
+    </blockquote>
+    <pre wrap="">Maybe I don't get how DBus works. Why are the include dirs added to
+CFLAGS but no apparent dbus #includes?
+
+Further, will this _only_ work with DBus after this patch? If so there
+needs to be a way to not build it if dbus isn't present on the system
+(embedded).
 
 -- 
-Stephen Smalley
-National Security Agency
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to <a class="moz-txt-link-abbreviated" href="mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov</a>
+with
+the words "unsubscribe selinux" without quotes as the message.
 
+
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->Ok here is another patch with all of the dbus stuff aggregated under a HAVE_DBUS flag.
+
+You can build it with or without DBUS support and it should work fine.
+
+DBUS is really used to make sure multiple restorecond do not get started.
+  </pre>
+</blockquote>
+<br>
+This patch got badly broken by a few recent commits, which is totally
+my fault for not applying it earlier. I'll try to rebase it but my main
+objection is that restorecond is now using object files from setfiles.
+I know they are in the same 'package' but they are separate apps. Maybe
+we should move restore.{c,h} to policycoreutils/common or something.<br>
+<br>
+</body>
+</html>
+
+--------------010404050209040805070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
