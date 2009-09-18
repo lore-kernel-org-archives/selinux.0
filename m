@@ -1,45 +1,51 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8IJtleB009765
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 15:55:47 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8IJvDGJ012491
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 19:57:13 GMT
-Message-ID: <4AB3E5BF.2050806@manicmethod.com>
-Date: Fri, 18 Sep 2009 15:55:43 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8IM2oiu021549
+	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 18:02:50 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8IM26qw001603
+	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 22:02:06 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n8ILuimn027446
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 16:56:45 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n8ILuAWx026277
+	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 16:56:11 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
+References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>
+	<878whm1gr5.fsf@anzu.internal.golden-gryphon.com>
+	<87fxbq30u5.fsf@anzu.internal.golden-gryphon.com>
+	<4AB0FDBD.8030200@manicmethod.com>
+	<87fxamg7pm.fsf@anzu.internal.golden-gryphon.com>
+	<4AB150F1.6030700@manicmethod.com>
+Date: Fri, 18 Sep 2009 16:56:10 -0500
+In-Reply-To: <4AB150F1.6030700@manicmethod.com> (Joshua Brindle's message of
+	"Wed, 16 Sep 2009 16:56:17 -0400")
+Message-ID: <87zl8rex39.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Caleb Case <ccase@tresys.com>, James Carter <jwcart2@epoch.ncsc.mil>
-Subject: CIL infrastructure repo and talks at Summit/LPC
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We've just put up a git repository for the cil (common intermediary 
-language) infrastructure work on oss.tresys.com.
+On Wed, Sep 16 2009, Joshua Brindle wrote:
 
-You can clone it by running:
-# git clone http://oss.tresys.com/git/selinux-cil.git
+>
+> I'm not a fan of fixing things by making them configurable. This
+> really should just use a standard location of
+> /usr/share/selinux/<type>/devel.
 
-We'll be committing to this tree as we get pieces of the new 
-infrastructure done. The repo currently has 4 commits outside of the 
-upstream repo that remove all the records and databases from 
-libsemanage, as well as removing any linkage to libsepol in libsemanage.
+> Would you carry the previous patch that changed the path until RHEL
+> and Fedora get updated then we can merge it upstream?
 
-If you have no idea what I've been talking about and you are going to be 
-at the Linux Plumbers Conference and LinuxCon you can come to the 
-SELinux developers summit[1] and join in on the discussion of the new 
-infrastructure and/or come to James Carter's talk during LPC itself[2].
+        Sure, that would not be a problem.
 
-[1] http://selinuxproject.org/page/Developer_Summit_2009
-[2] http://linuxplumbersconf.org/ocw/proposals/56
-
-Though these first 4 commits didn't go to the mailing list (primarily 
-due to size) the patches from here on will be posted to the list. That 
-will give everyone an opportunity to see what is going on in the 
-infrastructure before it is all done and we want to switch over.
-
-Thanks and I hope to see you at the summit and SELinux talks.
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
