@@ -1,51 +1,49 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8IM2oiu021549
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 18:02:50 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8IM26qw001603
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 22:02:06 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n8ILuimn027446
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 16:56:45 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n8ILuAWx026277
-	for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2009 16:56:11 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
-References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>
-	<878whm1gr5.fsf@anzu.internal.golden-gryphon.com>
-	<87fxbq30u5.fsf@anzu.internal.golden-gryphon.com>
-	<4AB0FDBD.8030200@manicmethod.com>
-	<87fxamg7pm.fsf@anzu.internal.golden-gryphon.com>
-	<4AB150F1.6030700@manicmethod.com>
-Date: Fri, 18 Sep 2009 16:56:10 -0500
-In-Reply-To: <4AB150F1.6030700@manicmethod.com> (Joshua Brindle's message of
-	"Wed, 16 Sep 2009 16:56:17 -0400")
-Message-ID: <87zl8rex39.fsf@anzu.internal.golden-gryphon.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8KMP141023322
+	for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2009 18:25:01 -0400
+Received: from mail-ew0-f206.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8KMQRuq015026
+	for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2009 22:26:28 GMT
+Received: by ewy2 with SMTP id 2so594150ewy.41
+        for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2009 15:24:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 Sep 2009 00:24:59 +0200
+Message-ID: <51af93b70909201524j3993091ajaeaf42924d67ea6b@mail.gmail.com>
+Subject: Naive question on ftp selinux policy
+From: Elia Pinto <andronicus.spiros@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=0016e6d99a21e6e609047409d50f
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 16 2009, Joshua Brindle wrote:
+--0016e6d99a21e6e609047409d50f
+Content-Type: text/plain; charset=ISO-8859-1
 
->
-> I'm not a fan of fixing things by making them configurable. This
-> really should just use a standard location of
-> /usr/share/selinux/<type>/devel.
+A trivial question. There is some reason why the SELinux ref policy provides
+only for ftp access to users' home or to a type accessible to other demons
+confined? Why it is not possible to define a ftp_data_t also ? The
+motivation is simple : whay i have to provide ftp access AND also permit
+other daemon to access ? IMHO, it is not the best as Least privilege.
 
-> Would you carry the previous patch that changed the path until RHEL
-> and Fedora get updated then we can merge it upstream?
+Thanks in advance
 
-        Sure, that would not be a problem.
+--0016e6d99a21e6e609047409d50f
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-        manoj
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+<div>A trivial question. There is some reason why the SELinux ref policy pr=
+ovides only for ftp access to users&#39; home or to a type accessible to ot=
+her demons confined? Why it is not possible to define a ftp_data_t also ? T=
+he motivation is simple : whay i have to provide ftp access AND also permit=
+ other daemon to access ? IMHO, it is not=A0the best as Least privilege.</d=
+iv>
+
+<div>=A0</div>
+<div>Thanks in advance</div>
+<div>=A0</div>
+<div>=A0</div>
+
+--0016e6d99a21e6e609047409d50f--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
