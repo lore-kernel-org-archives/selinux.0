@@ -1,48 +1,127 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8KNtaKY029267
-	for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2009 19:55:36 -0400
-Received: from QMTA10.emeryville.ca.mail.comcast.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8KNv3uq028982
-	for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2009 23:57:03 GMT
-Subject: Re: Naive question on ftp selinux policy
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Elia Pinto <andronicus.spiros@gmail.com>
-Cc: selinux@tycho.nsa.gov, Refpolicy Mailing List <refpolicy@oss1.tresys.com>
-In-Reply-To: <51af93b70909201524j3993091ajaeaf42924d67ea6b@mail.gmail.com>
-References: <51af93b70909201524j3993091ajaeaf42924d67ea6b@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 20 Sep 2009 16:55:02 -0700
-Message-Id: <1253490902.2954.7.camel@defiant.pebenito.net>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: do not destroy the avc_cache_nodep
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, mingo@elte.hu
+Date: Sun, 20 Sep 2009 21:21:10 -0400
+Message-ID: <20090921012110.2315.83945.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-09-21 at 00:24 +0200, Elia Pinto wrote:
-> A trivial question. There is some reason why the SELinux ref policy
-> provides only for ftp access to users' home or to a type accessible to
-> other demons confined? Why it is not possible to define a ftp_data_t
-> also ? The motivation is simple : whay i have to provide ftp access
-> AND also permit other daemon to access ? IMHO, it is not the best as
-> Least privilege.
+The security_ops reset done when SELinux is disabled at run time is done
+after the avc cache is freed and after the kmem_cache for the avc is also
+freed.  This means that between the time the selinux disable code destroys
+the avc_node_cachep another process could make a security request and could
+try to allocate from the cache.  We are just going to leave the cachep around,
+like we always have.
 
-This question is best for the refpolicy list.  But the current policy
-allows reading of the generic public files and conditionally (via
-allow_ftpd_anon_write) it can write them.  There is nothing preventing
-someone from adding something like ftp_ro_data_t and ftp_rw_data_t (or
-just ftp_data_t if separate ro and rw data is not needed) for files that
-are exclusively shared via ftp.
+SELinux:  Disabled at runtime.
+BUG: unable to handle kernel NULL pointer dereference at (null)
+IP: [<ffffffff81122537>] kmem_cache_alloc+0x9a/0x185
+PGD 0
+Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
+last sysfs file:
+CPU 1
+Modules linked in:
+Pid: 12, comm: khelper Not tainted 2.6.31-tip-05525-g0eeacc6-dirty #14819
+System Product Name
+RIP: 0010:[<ffffffff81122537>]  [<ffffffff81122537>]
+kmem_cache_alloc+0x9a/0x185
+RSP: 0018:ffff88003f9258b0  EFLAGS: 00010086
+RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000078c0129e
+RDX: 0000000000000000 RSI: ffffffff8130b626 RDI: ffffffff81122528
+RBP: ffff88003f925900 R08: 0000000078c0129e R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000078c0129e R12: 0000000000000246
+R13: 0000000000008020 R14: ffff88003f8586d8 R15: 0000000000000001
+FS:  0000000000000000(0000) GS:ffff880002b00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000000 CR3: 0000000001001000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: ffffffff827bd420 DR6: 00000000ffff0ff0 DR7: 0000000000000400
+Process khelper (pid: 12, threadinfo ffff88003f924000, task
+ffff88003f928000)
+Stack:
+ 0000000000000246 0000802000000246 ffffffff8130b626 0000000000000001
+<0> 0000000078c0129e 0000000000000000 ffff88003f925a70 0000000000000002
+<0> 0000000000000001 0000000000000001 ffff88003f925960 ffffffff8130b626
+Call Trace:
+ [<ffffffff8130b626>] ? avc_alloc_node+0x36/0x273
+ [<ffffffff8130b626>] avc_alloc_node+0x36/0x273
+ [<ffffffff8130b545>] ? avc_latest_notif_update+0x7d/0x9e
+ [<ffffffff8130b8b4>] avc_insert+0x51/0x18d
+ [<ffffffff8130bcce>] avc_has_perm_noaudit+0x9d/0x128
+ [<ffffffff8130bf20>] avc_has_perm+0x45/0x88
+ [<ffffffff8130f99d>] current_has_perm+0x52/0x6d
+ [<ffffffff8130fbb2>] selinux_task_create+0x2f/0x45
+ [<ffffffff81303bf7>] security_task_create+0x29/0x3f
+ [<ffffffff8105c6ba>] copy_process+0x82/0xdf0
+ [<ffffffff81091578>] ? register_lock_class+0x2f/0x36c
+ [<ffffffff81091a13>] ? mark_lock+0x2e/0x1e1
+ [<ffffffff8105d596>] do_fork+0x16e/0x382
+ [<ffffffff81091578>] ? register_lock_class+0x2f/0x36c
+ [<ffffffff810d9166>] ? probe_workqueue_execution+0x57/0xf9
+ [<ffffffff81091a13>] ? mark_lock+0x2e/0x1e1
+ [<ffffffff810d9166>] ? probe_workqueue_execution+0x57/0xf9
+ [<ffffffff8100cdb2>] kernel_thread+0x82/0xe0
+ [<ffffffff81078b1f>] ? ____call_usermodehelper+0x0/0x139
+ [<ffffffff8100ce10>] ? child_rip+0x0/0x20
+ [<ffffffff81078aea>] ? __call_usermodehelper+0x65/0x9a
+ [<ffffffff8107a5c7>] run_workqueue+0x171/0x27e
+ [<ffffffff8107a573>] ? run_workqueue+0x11d/0x27e
+ [<ffffffff81078a85>] ? __call_usermodehelper+0x0/0x9a
+ [<ffffffff8107a7bc>] worker_thread+0xe8/0x10f
+ [<ffffffff810808e2>] ? autoremove_wake_function+0x0/0x63
+ [<ffffffff8107a6d4>] ? worker_thread+0x0/0x10f
+ [<ffffffff8108042e>] kthread+0x91/0x99
+ [<ffffffff8100ce1a>] child_rip+0xa/0x20
+ [<ffffffff8100c754>] ? restore_args+0x0/0x30
+ [<ffffffff8108039d>] ? kthread+0x0/0x99
+ [<ffffffff8100ce10>] ? child_rip+0x0/0x20
+Code: 0f 85 99 00 00 00 9c 58 66 66 90 66 90 49 89 c4 fa 66 66 90 66 66 90
+e8 83 34 fb ff e8 d7 e9 26 00 48 98 49 8b 94 c6 10 01 00 00 <48> 8b 1a 44
+8b 7a 18 48 85 db 74 0f 8b 42 14 48 8b 04 c3 ff 42
+RIP  [<ffffffff81122537>] kmem_cache_alloc+0x9a/0x185
+ RSP <ffff88003f9258b0>
+CR2: 0000000000000000
+---[ end trace 42f41a982344e606 ]---
 
-If you'd like to submit a patch to add the rules, please send it to the
-refpolicy list.  I don't have a problem with adding this support.
+Reported-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
--- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
+ security/selinux/avc.c |   19 +++++++++++++++----
+ 1 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 1ed0f07..b4b5da1 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -868,8 +868,19 @@ u32 avc_policy_seqno(void)
  
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+ void avc_disable(void)
+ {
+-	avc_flush();
+-	synchronize_rcu();
+-	if (avc_node_cachep)
+-		kmem_cache_destroy(avc_node_cachep);
++	/*
++	 * If you are looking at this because you have realized that we are
++	 * not destroying the avc_node_cachep it might be easy to fix, but
++	 * I don't know the memory barrier semantics well enough to know.  It's
++	 * possible that some other task dereferenced security_ops when
++	 * it still pointed to selinux operations.  If that is the case it's
++	 * possible that it is about to use the avc and is about to need the
++	 * avc_node_cachep.  I know I could wrap the security.c security_ops call
++	 * in an rcu_lock, but seriously, it's not worth it.  Instead I just flush
++	 * the cache and get that memory back.
++	 */
++	if (avc_node_cachep) {
++		avc_flush();
++		/* kmem_cache_destroy(avc_node_cachep); */
++	}
+ }
 
 
 --
