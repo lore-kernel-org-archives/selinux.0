@@ -1,97 +1,137 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8OEn6iZ024223
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 10:49:06 -0400
-Received: from smtp2.u-psud.fr (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8OEoYiO015627
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 14:50:35 GMT
-Received: from smtp2.u-psud.fr (localhost [127.0.0.1])
-	by localhost (MTA) with SMTP id 8586A59E92E
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 16:49:02 +0200 (CEST)
-Received: from [129.175.216.134] (unknown [129.175.216.134])
-	by smtp2.u-psud.fr (MTA) with ESMTP id BDD2F59E938
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 16:49:01 +0200 (CEST)
-Message-ID: <4ABB86EB.3050909@martinorr.name>
-Date: Thu, 24 Sep 2009 15:49:15 +0100
-From: Martin Orr <martin@martinorr.name>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8OIGmaD023796
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 14:16:48 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8OIIGbl028480
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 18:18:16 GMT
+Message-ID: <4ABBB78E.30501@manicmethod.com>
+Date: Thu, 24 Sep 2009 14:16:46 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] restorecond: Ignore IN_IGNORED inotify events
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com> <4AB139E8.50700@manicmethod.com> <4AB13E06.7020308@manicmethod.com> <4AB15164.1020507@redhat.com> <4ABAC3C3.1000100@manicmethod.com>
+In-Reply-To: <4ABAC3C3.1000100@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With kernel 2.6.31, restorecond uses 99% of my CPU.
+Joshua Brindle wrote:
+>
+>
+> Daniel J Walsh wrote:
+>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
+>>>
+>>> Joshua Brindle wrote:
+>>>>
+>>>> Daniel J Walsh wrote:
+>>>>> What do you think of this one. Removed excess swig cruft,
+>>>>>
+>>>>> You need to run
+>>>>>
+>>>>> make swigify to generate those changes.
+>>>>>
+>>>> Ok, looking at this now. I don't completely get how it works. I'm
+>>>> trying
+>>>> to reproduce what you are doing by hand but nothing comes out of gcc:
+>>>>
+>>>> [root@localhost src]# echo '#include "../include/selinux/selinux.h"'>
+>>>> temp.c
+>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+>>>> [root@localhost src]# ls temp.*
+>>>> temp.c temp.o
+>>>>
+>>>>
+>
+> I got this "sort of" working locally. It works when I call it directly
+> on the header but it leaves a .gch file sitting in the include directory.
+>
+> Trying to use stdin I get:
+>
+> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux <
+> ../include/selinux/selinux.h
+> <stdin>:569: internal compiler error: Segmentation fault
+> Please submit a full bug report,
+> with preprocessed source if appropriate.
+> See <http://bugzilla.redhat.com/bugzilla> for instructions.
+>
+>
+> Other comments:
+>
+> The disconnect between swigify and clean targets remains: If make
+> swigify builds this, and it is checked in to the tree then make clean
+> shouldn't remove it, else it should be in the pywrap target and not
+> installed.
+>
+> I'm not sure what the header re-ordering in selinuxswig.i and the
+> copytree/install functions have to do with this patch.
+>
 
-This is because removing and readding the watch on utmp triggers inotify to
-return an IN_IGNORED event for the old watch descriptor.  If the watch gets
-allocated the same wd when it is readded, then restorecond thinks that utmp
-has changed, so removes and readds the watch again, potentially looping.
 
-With kernel <= 2.6.30, this never happened, because the kernel didn't reuse
-watch descriptors.  So the IN_IGNORED event comes with a wd that is no
-longer in use, and gets ignored.  But kernel 2.6.31 reuses the same watch
-descriptor.
+Applied with this diff on top:
 
-This patch fixes that by ignoring inotify events whose only bit set is
-IN_IGNORED.
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 928a1df..74b1e6a 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -16,14 +16,14 @@ LIBVERSION = 1
 
-Note: it is not clear to me why it is necessary to remove and readd the
-watch in the first place.
+  LIBA=libselinux.a
+  TARGET=libselinux.so
+-SWIGIF= selinuxswig_python.i
++SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+  SWIGRUBYIF= selinuxswig_ruby.i
+  SWIGCOUT= selinuxswig_wrap.c
+  SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+  SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+  SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+  SWIGSO=_selinux.so
+-SWIGFILES=$(SWIGSO) selinux.py
++SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+  SWIGRUBYSO=_rubyselinux.so
+  LIBSO=$(TARGET).$(LIBVERSION)
+  AUDIT2WHYSO=audit2why.so
+@@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
+  $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+         $(SWIGRUBY) $^
 
-Note for testing: you need to log in (to cause a change in utmp) after
-starting restorecond to trigger the bug.  In fact you need to log in twice
-before the kernel reuses a watch descriptor.
+-swigify: $(SWIGIF) selinuxswig_python_exception.i
++swigify: $(SWIGIF)
+         $(SWIG) $<
 
----
- policycoreutils/restorecond/restorecond.c |   29 ++++++++++++++++-------------
- 1 files changed, 16 insertions(+), 13 deletions(-)
+  install: all
+@@ -127,7 +127,7 @@ relabel:
+         /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
 
-diff --git a/policycoreutils/restorecond/restorecond.c
-b/policycoreutils/restorecond/restorecond.c
-index 58774e6..4952632 100644
---- a/policycoreutils/restorecond/restorecond.c
-+++ b/policycoreutils/restorecond/restorecond.c
-@@ -315,21 +315,24 @@ static int watch(int fd)
- 			printf("wd=%d mask=%u cookie=%u len=%u\n",
- 			       event->wd, event->mask,
- 			       event->cookie, event->len);
--		if (event->wd == master_wd)
--			read_config(fd);
--		else {
--			switch (utmpwatcher_handle(fd, event->wd)) {
--			case -1:	/* Message was not for utmpwatcher */
--				if (event->len)
--					watch_list_find(event->wd, event->name);
--				break;
+  clean:
+-       -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) 
+$(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
++       -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) 
+$(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
 
--			case 1:	/* utmp has changed need to reload */
-+		if (event->mask & ~IN_IGNORED) {
-+			if (event->wd == master_wd)
- 				read_config(fd);
--				break;
--
--			default:	/* No users logged in or out */
--				break;
-+			else {
-+				switch (utmpwatcher_handle(fd, event->wd)) {
-+				case -1:	/* Message was not for utmpwatcher */
-+					if (event->len)
-+						watch_list_find(event->wd, event->name);
-+					break;
-+
-+				case 1:	/* utmp has changed need to reload */
-+					read_config(fd);
-+					break;
-+
-+				default:	/* No users logged in or out */
-+					break;
-+				}
- 			}
- 		}
-
--- 
-Martin Orr
-
+  distclean: clean
+         rm -f $(GENERATED) $(SWIGFILES)
+diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+old mode 100644
+new mode 100755
+index b2a3799..c3e61a5
+--- a/libselinux/src/exception.sh
++++ b/libselinux/src/exception.sh
+@@ -15,7 +15,6 @@ echo "
+  ;;
+  esac
+  }
+-echo '#include "../include/selinux/selinux.h"' > temp.c
+-gcc -c temp.c -aux-info temp.aux
+-for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ { print $6 
+}' temp.aux`; do except $i ; done
+-rm -f temp.c temp.aux temp.o
++gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
++for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except 
+$i ; done
++rm -f -- temp.aux -.o
 
 --
 This message was distributed to subscribers of the selinux mailing list.
