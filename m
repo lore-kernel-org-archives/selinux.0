@@ -1,134 +1,97 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8O8fufE026214
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 04:41:56 -0400
-Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8O8fB60003297
-	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 08:41:12 GMT
-Message-ID: <4ABB30CD.9060804@ak.jp.nec.com>
-Date: Thu, 24 Sep 2009 17:41:49 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8OEn6iZ024223
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 10:49:06 -0400
+Received: from smtp2.u-psud.fr (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8OEoYiO015627
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 14:50:35 GMT
+Received: from smtp2.u-psud.fr (localhost [127.0.0.1])
+	by localhost (MTA) with SMTP id 8586A59E92E
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 16:49:02 +0200 (CEST)
+Received: from [129.175.216.134] (unknown [129.175.216.134])
+	by smtp2.u-psud.fr (MTA) with ESMTP id BDD2F59E938
+	for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2009 16:49:01 +0200 (CEST)
+Message-ID: <4ABB86EB.3050909@martinorr.name>
+Date: Thu, 24 Sep 2009 15:49:15 +0100
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-To: Stephen Smalley <stephen.smalley@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [RFC][PATCH] selinux:  dynamic class/perm discovery
-References: <1253739220.2870.3.camel@moss-huskers.epoch.ncsc.mil>
-In-Reply-To: <1253739220.2870.3.camel@moss-huskers.epoch.ncsc.mil>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] restorecond: Ignore IN_IGNORED inotify events
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> This needs more testing, but I thought I would circulate it for review.
-> 
-> Modify SELinux to dynamically discover class and permission values
-> upon policy load, based on the dynamic object class/perm discovery
-> logic from libselinux.  A mapping is created between kernel-private
-> class and permission indices used outside the security server and the
-> policy values used within the security server.
+With kernel 2.6.31, restorecond uses 99% of my CPU.
 
-I'm grad to see this patch. I've been unable to pay my efforts for
-a few weeks due to the PostgreSQL works, although I mentioned this
-feature before. Thanks.
+This is because removing and readding the watch on utmp triggers inotify to
+return an IN_IGNORED event for the old watch descriptor.  If the watch gets
+allocated the same wd when it is readded, then restorecond thinks that utmp
+has changed, so removes and readds the watch again, potentially looping.
 
-Some of random comments are bellow.
+With kernel <= 2.6.30, this never happened, because the kernel didn't reuse
+watch descriptors.  So the IN_IGNORED event comes with a wd that is no
+longer in use, and gets ignored.  But kernel 2.6.31 reuses the same watch
+descriptor.
 
-* It is confusable to use "tclass" always.
-When we get this patch, we need to handle the value stored within
-tclass carefully to distinguish whether it means the internal-code
-defined in the flask.h or the external-code defined in the current
-security policy.
+This patch fixes that by ignoring inotify events whose only bit set is
+IN_IGNORED.
 
-In my opinion, we should not use the value of tclass to store the
-external-code, to avoid future possible confusion. For example,
-context_struct_compute_av() requires "tclass", but it implicitly
-assumes the external-code will be given.
-Is it possible to rename all the "tclass" which stores the external
--code into "tclass_ex" instead?
+Note: it is not clear to me why it is necessary to remove and readd the
+watch in the first place.
 
-* Audit denied messages due to the undefined permissions?
-When the loaded security policy does not have a definition of kernel
-object classes and its allow_unknown is false, the required kernel
-permission can be denied.
-In this case, context_struct_compute_av() initializes avd->allowed
-by 0UL and avd->auditdeny by 0xffffffffUL. Then, map_decision() drops
-bits from avd->auditdeny due to the undefined object class/access vector.
-This av_decision is inserted into the kernel AVC, then it will be refered
-at the avc_dump_av(). Finally, this policy will silently prevent kernel
-permissions being not defined in the security policy.
-What is the preferable behavior in this situation?
+Note for testing: you need to log in (to cause a change in utmp) after
+starting restorecond to trigger the bug.  In fact you need to log in twice
+before the kernel reuses a watch descriptor.
 
-* What is the reason why "classmap.h", instead of "classmap.c"?
-The avc.c includes the classmap.h which defines secclass_map array.
-But it seems to me more straightforward manner to add classmap.c
-which provide only secclass_map[] array definition.
+---
+ policycoreutils/restorecond/restorecond.c |   29 ++++++++++++++++-------------
+ 1 files changed, 16 insertions(+), 13 deletions(-)
 
+diff --git a/policycoreutils/restorecond/restorecond.c
+b/policycoreutils/restorecond/restorecond.c
+index 58774e6..4952632 100644
+--- a/policycoreutils/restorecond/restorecond.c
++++ b/policycoreutils/restorecond/restorecond.c
+@@ -315,21 +315,24 @@ static int watch(int fd)
+ 			printf("wd=%d mask=%u cookie=%u len=%u\n",
+ 			       event->wd, event->mask,
+ 			       event->cookie, event->len);
+-		if (event->wd == master_wd)
+-			read_config(fd);
+-		else {
+-			switch (utmpwatcher_handle(fd, event->wd)) {
+-			case -1:	/* Message was not for utmpwatcher */
+-				if (event->len)
+-					watch_list_find(event->wd, event->name);
+-				break;
 
-* May be a short-tempered requirement.
-
-It will be preferable, if userspace object manager can make a query
-using object class and access vectors with text representation, not
-the results of string_to_security_class(), because userspaces cannot
-make sure the string_to_security_class() and security_compute_av()
-are handled atomically.
-
-The security policy may be reloaded between the string_to_security_class()
-and security_compute_av() in a corner case.
-BTW, SE-PostgreSQL checks sequencial number of security policy, and redo
-checks if the security policy reloaded. But it is not perfect. The netlink
-socket message can be delayed. :-(
-  http://code.google.com/p/sepgsql/source/browse/branches/pgsql-8.4.x/sepgsql/src/backend/security/sepgsql/avc.c#565
-
-If the text -> code translation and lookups of security policy can be done
-within a single read_lock(&policy_rwlock) block, we can guarantee
-security_compute_av() is not invoked based on incorrect object class code.
-
-Thanks,
-
-> The mappings are only applied upon kernel-internal computations;
-> similar mappings for the private indices of userspace object managers
-> is handled on a per-object manager basis by the userspace AVC.  The
-> interfaces for compute_av and transition_sid are split for kernel
-> vs. userspace; the userspace functions are distinguished by a _user
-> suffix.
-> 
-> The kernel-private class indices are no longer tied to the policy
-> values and thus do not need to skip indices for userspace classes;
-> thus the kernel class index values are compressed.  The flask.h
-> definitions were regenerated by deleting the userspace classes from
-> refpolicy's definitions and then regenerating the headers.  Going
-> forward, we can just maintain the flask.h, av_permissions.h, and
-> classmap.h definitions separately from policy as they are no longer
-> tied to the policy values.  It would likely help to create a script
-> to emit the flask.h and av_permissions.h files from the classmap.h
-> definitions.
-> 
-> The older kernel class and permission string tables are removed and
-> replaced by a single security class mapping table that is walked at
-> policy load to generate the mapping.  The old kernel class validation
-> logic is completely replaced by the mapping logic.
-> 
-> The handle unknown logic is reworked.  reject_unknown=1 is handled
-> when the mappings are computed at policy load time, similar to the old
-> handling by the class validation logic.  allow_unknown=1 is handled
-> when computing and mapping decisions - if the permission was not able
-> to be mapped (i.e. undefined, mapped to zero), then it is
-> automatically added to the allowed vector.  If the class was not able
-> to be mapped (i.e. undefined, mapped to zero), then all permissions
-> are allowed for it if allow_unknown=1.
-> 
-> avc_audit leverages the new security class mapping table to lookup the
-> class and permission names from the kernel-private indices.
-> 
-> The mdp program is updated to use the new table when generating the
-> class definitions and allow rules for a minimal boot policy for the
-> kernel.  It should be noted that this policy will not include any
-> userspace classes, nor will its policy index values for the kernel
-> classes correspond with the ones in refpolicy (they will instead match
-> the kernel-private indices).
+-			case 1:	/* utmp has changed need to reload */
++		if (event->mask & ~IN_IGNORED) {
++			if (event->wd == master_wd)
+ 				read_config(fd);
+-				break;
+-
+-			default:	/* No users logged in or out */
+-				break;
++			else {
++				switch (utmpwatcher_handle(fd, event->wd)) {
++				case -1:	/* Message was not for utmpwatcher */
++					if (event->len)
++						watch_list_find(event->wd, event->name);
++					break;
++
++				case 1:	/* utmp has changed need to reload */
++					read_config(fd);
++					break;
++
++				default:	/* No users logged in or out */
++					break;
++				}
+ 			}
+ 		}
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Martin Orr
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
