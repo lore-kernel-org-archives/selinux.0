@@ -1,44 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: MCS and default labels
-Date: Sun, 27 Sep 2009 17:34:21 +1000
-Cc: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>, selinux@tycho.nsa.gov
-References: <20090908055806.GA24297@myhost.felk.cvut.cz> <20090909100647.GE24297@myhost.felk.cvut.cz> <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1252498660.13634.618.camel@moss-pluto.epoch.ncsc.mil>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8RMjQRK030665
+	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 18:45:26 -0400
+Received: from mail-yx0-f174.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8RMifGX004539
+	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 22:44:41 GMT
+Received: by yxe4 with SMTP id 4so4759316yxe.32
+        for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 15:45:25 -0700 (PDT)
+Message-ID: <4ABFEB08.5080606@gmail.com>
+Date: Sun, 27 Sep 2009 15:45:28 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200909271734.23340.russell@coker.com.au>
+To: Dominick Grift <domg472@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: pam_namespace context inside of name.inst
+References: <dd18b0c30909262312l1c5a82dfxf9270ecc33b9d64a@mail.gmail.com> <20090927131307.GA4502@notebook2.grift.internal> <4ABF8148.4010108@gmail.com> <20090927160540.GA7217@notebook3.grift.internal>
+In-Reply-To: <20090927160540.GA7217@notebook3.grift.internal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 9 Sep 2009, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > Secondly I don't see why a user is not able to discretionarily
-> > > > specify his range outright when going via ssh just as he can with
-> > > > roles.
-> > >
-> > > That's another artifact of the MLS model (label preservation /
-> > > confinement).
-> >
-> > Unfortunately here I have no idea on what code should I look to remove
-> > that artifact.
->
-> I think it is just lack of support in sshd due to lack of interest in
-> supporting it for MLS.  You could add it, but you'd need to make sure
-> that it doesn't break the MLS behavior, as that is the one people care
-> about.
+Well this is confusing to me
+the first initial start created
+/home/name/name.inst
 
-If a user has a default range of A and they request a range of B then the same 
-checks could be applied as for a runcon -l B operation when the source range 
-was A.
+then if I move name.inst that directory
+just for some reason isn't being recreated after login.
+But if I change the location to:
+/home/name.inst that directory can be
+deleted, and a new one created upon every login.
 
-How could that break anything?
+As for the context in name.inst
+for some reason one system created
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+name:object_r:user_home_dir_t_name
+as the directory name, but
+then other directories created are:
+system_u:object_r:file_t_name
+(which seems right, but am unsure)
+
+I think if Ill leave namespace.conf to
+/home/name.inst because everything runs as is.
+
+Justin P. Mattock
+
+
+
 
 
 --
