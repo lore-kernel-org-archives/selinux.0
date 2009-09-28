@@ -1,69 +1,147 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8SGLB0D020959
-	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 12:21:11 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8SJ7ADn022045
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 15:07:10 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8SGKPjm007414
-	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 16:20:25 GMT
-Message-ID: <4708CC8D.5030803@redhat.com>
-Date: Sun, 07 Oct 2007 08:09:49 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8SJ8eOR024316
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 19:08:40 GMT
+Message-ID: <4AC1095A.9070504@redhat.com>
+Date: Mon, 28 Sep 2009 15:07:06 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Jim Meyering <jim@meyering.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: is any use of runcon by arbitrary users valid when enforcing?
-References: <87fy0n9zn3.fsf@rho.meyering.net>
-In-Reply-To: <87fy0n9zn3.fsf@rho.meyering.net>
-Content-Type: text/plain; charset=us-ascii
+To: Joshua Brindle <method@manicmethod.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com> <4AB139E8.50700@manicmethod.com> <4AB13E06.7020308@manicmethod.com> <4AB15164.1020507@redhat.com> <4ABAC3C3.1000100@manicmethod.com> <4ABBB78E.30501@manicmethod.com> <4ABBC642.8020709@manicmethod.com>
+In-Reply-To: <4ABBC642.8020709@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 09/24/2009 03:19 PM, Joshua Brindle wrote:
+> Joshua Brindle wrote:
+>> Joshua Brindle wrote:
+>>>
+>>>
+>>> Daniel J Walsh wrote:
+>>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
+>>>>>
+>>>>> Joshua Brindle wrote:
+>>>>>>
+>>>>>> Daniel J Walsh wrote:
+>>>>>>> What do you think of this one. Removed excess swig cruft,
+>>>>>>>
+>>>>>>> You need to run
+>>>>>>>
+>>>>>>> make swigify to generate those changes.
+>>>>>>>
+>>>>>> Ok, looking at this now. I don't completely get how it works. I'm
+>>>>>> trying
+>>>>>> to reproduce what you are doing by hand but nothing comes out of gcc:
+>>>>>>
+>>>>>> [root@localhost src]# echo '#include "../include/selinux/selinux.h"'>
+>>>>>> temp.c
+>>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+>>>>>> [root@localhost src]# ls temp.*
+>>>>>> temp.c temp.o
+>>>>>>
+>>>>>>
+>>>
+>>> I got this "sort of" working locally. It works when I call it directly
+>>> on the header but it leaves a .gch file sitting in the include
+>>> directory.
+>>>
+>>> Trying to use stdin I get:
+>>>
+>>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux <
+>>> ../include/selinux/selinux.h
+>>> <stdin>:569: internal compiler error: Segmentation fault
+>>> Please submit a full bug report,
+>>> with preprocessed source if appropriate.
+>>> See <http://bugzilla.redhat.com/bugzilla> for instructions.
+>>>
+>>>
+>>> Other comments:
+>>>
+>>> The disconnect between swigify and clean targets remains: If make
+>>> swigify builds this, and it is checked in to the tree then make clean
+>>> shouldn't remove it, else it should be in the pywrap target and not
+>>> installed.
+>>>
+>>> I'm not sure what the header re-ordering in selinuxswig.i and the
+>>> copytree/install functions have to do with this patch.
+>>>
+>>
+>>
+>> Applied with this diff on top:
+>>
+>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>> index 928a1df..74b1e6a 100644
+>> --- a/libselinux/src/Makefile
+>> +++ b/libselinux/src/Makefile
+>> @@ -16,14 +16,14 @@ LIBVERSION = 1
+>>
+>> LIBA=libselinux.a
+>> TARGET=libselinux.so
+>> -SWIGIF= selinuxswig_python.i
+>> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+>> SWIGRUBYIF= selinuxswig_ruby.i
+>> SWIGCOUT= selinuxswig_wrap.c
+>> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+>> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+>> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+>> SWIGSO=_selinux.so
+>> -SWIGFILES=$(SWIGSO) selinux.py
+>> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+>> SWIGRUBYSO=_rubyselinux.so
+>> LIBSO=$(TARGET).$(LIBVERSION)
+>> AUDIT2WHYSO=audit2why.so
+>> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
+>> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+>> $(SWIGRUBY) $^
+>>
+>> -swigify: $(SWIGIF) selinuxswig_python_exception.i
+>> +swigify: $(SWIGIF)
+>> $(SWIG) $<
+>>
+>> install: all
+>> @@ -127,7 +127,7 @@ relabel:
+>> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+>>
+>> clean:
+>> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
+>> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
+>>
+>> distclean: clean
+>> rm -f $(GENERATED) $(SWIGFILES)
+>> diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+>> old mode 100644
+>> new mode 100755
+>> index b2a3799..c3e61a5
+>> --- a/libselinux/src/exception.sh
+>> +++ b/libselinux/src/exception.sh
+>> @@ -15,7 +15,6 @@ echo "
+>> ;;
+>> esac
+>> }
+>> -echo '#include "../include/selinux/selinux.h"' > temp.c
+>> -gcc -c temp.c -aux-info temp.aux
+>> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ { print $6
+>> }' temp.aux`; do except $i ; done
+>> -rm -f temp.c temp.aux temp.o
+>> +gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
+>> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except
+>> $i ; done
+>> +rm -f -- temp.aux -.o
+>>
+> 
+> 
+> Merged in libselinux-2.0.87
 
-Jim Meyering wrote:
-> In a simple test of runcon for coreutils test suite, I used the following,
-> but see that it's failing in an enforcing F8t3 environment:
-> [from coreutils/tests/misc/runcon]
-> 
->     ...
->     cat <<\EOF > exp || framework_failure
->     runcon: runcon may be used only on a SELinux kernel
->     EOF
-> 
->     fail=0
-> 
->     # This test works even on systems without SELinux.
->     # On such a system it fails with the above diagnostic, which is fine.
->     # Before the no-reorder change, it would have failed with a diagnostic
->     # about -j being an invalid option.
->     runcon -t unconfined_t true -j 2> out && : > exp
-> 
->     compare out exp || fail=1
-> 
->     (exit $fail); exit $fail
-> 
-> Is there any similar use of runcon that can be expected to succeed?
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-This would only work on a system that allowed the running domain to
-transition to unconfined_t.  If this is an automated test, then it is
-probably running in initrc_t.  So for your test environment I would load
-a policy module that would allow the transition from initrc_t to
-unconfined_t or any other transitions that you need.  This is what the
-internel test suites at Red Hat do, to eliminate avc's caused by the
-test environment.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHCMyNrlYvE4MpobMRAis2AKCXrQq5c2bi1qUlRezIKKTL5F/vtwCdGaAi
-88T9O+oAHVsW0dOnnI1KT0A=
-=yqe9
------END PGP SIGNATURE-----
-
+I have VERSION 2.0.86 in git?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
