@@ -1,51 +1,72 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8RMjQRK030665
-	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 18:45:26 -0400
-Received: from mail-yx0-f174.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8RMifGX004539
-	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 22:44:41 GMT
-Received: by yxe4 with SMTP id 4so4759316yxe.32
-        for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 15:45:25 -0700 (PDT)
-Message-ID: <4ABFEB08.5080606@gmail.com>
-Date: Sun, 27 Sep 2009 15:45:28 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8S37Zpq000853
+	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 23:07:36 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8S36m6B027386
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 03:06:49 GMT
+Message-ID: <4AC02871.9060608@ak.jp.nec.com>
+Date: Mon, 28 Sep 2009 12:07:29 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
 CC: selinux@tycho.nsa.gov
-Subject: Re: pam_namespace context inside of name.inst
-References: <dd18b0c30909262312l1c5a82dfxf9270ecc33b9d64a@mail.gmail.com> <20090927131307.GA4502@notebook2.grift.internal> <4ABF8148.4010108@gmail.com> <20090927160540.GA7217@notebook3.grift.internal>
-In-Reply-To: <20090927160540.GA7217@notebook3.grift.internal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC][PATCH v2 2/2] selinux:  generate flask headers during kernel
+ build
+References: <1253833647.2452.4.camel@moss-aggies>
+In-Reply-To: <1253833647.2452.4.camel@moss-aggies>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well this is confusing to me
-the first initial start created
-/home/name/name.inst
+Stephen Smalley wrote:
+> Add a simple utility (scripts/selinux/genheaders) and invoke it to
+> generate the kernel-private class and permission indices in flask.h
+> and av_permissions.h automatically during the kernel build from the
+> security class mapping definitions in classmap.h.  Adding new kernel
+> classes and permissions can then be done just by adding them to classmap.h.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> ---
+>  scripts/selinux/Makefile                  |    4 +-
+>  scripts/selinux/genheaders/Makefile       |    5 +
+>  scripts/selinux/genheaders/genheaders.c   |  118 ++++
+>  security/selinux/Makefile                 |    3 +
+>  security/selinux/include/av_permissions.h |  870 -----------------------------
+>  security/selinux/include/flask.h          |   91 ---
+>  6 files changed, 128 insertions(+), 963 deletions(-)
+>  create mode 100644 scripts/selinux/genheaders/Makefile
+>  create mode 100644 scripts/selinux/genheaders/genheaders.c
+>  delete mode 100644 security/selinux/include/av_permissions.h
+>  delete mode 100644 security/selinux/include/flask.h
 
-then if I move name.inst that directory
-just for some reason isn't being recreated after login.
-But if I change the location to:
-/home/name.inst that directory can be
-deleted, and a new one created upon every login.
+It seems to me flask.h and av_permissions.h are not generated prior to
+compile source files, such as avc.c.
 
-As for the context in name.inst
-for some reason one system created
+[kaigai@saba selinux-2.6]$ make
+  CHK     include/linux/version.h
+   :
+  CC      security/selinux/avc.o
+In file included from security/selinux/avc.c:32:
+security/selinux/include/avc.h:20:19: error: flask.h: No such file or directory
+security/selinux/include/avc.h:21:28: error: av_permissions.h: No such file or directory
+make[2]: *** [security/selinux/avc.o] Error 1
+make[1]: *** [security/selinux] Error 2
+make: *** [security] Error 2
 
-name:object_r:user_home_dir_t_name
-as the directory name, but
-then other directories created are:
-system_u:object_r:file_t_name
-(which seems right, but am unsure)
+BTW, it needs to be built prior to the building mdp.c?
 
-I think if Ill leave namespace.conf to
-/home/name.inst because everything runs as is.
+  HOSTCC  scripts/selinux/mdp/mdp
+scripts/selinux/mdp/mdp.c:32:19: error: flask.h: No such file or directory
+make[3]: *** [scripts/selinux/mdp/mdp] Error 1
+make[2]: *** [scripts/selinux/mdp] Error 2
+make[1]: *** [scripts/selinux] Error 2
+make: *** [scripts] Error 2
 
-Justin P. Mattock
-
-
-
-
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
