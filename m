@@ -1,72 +1,60 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8S37Zpq000853
-	for <selinux@tycho.nsa.gov>; Sun, 27 Sep 2009 23:07:36 -0400
-Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8S36m6B027386
-	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 03:06:49 GMT
-Message-ID: <4AC02871.9060608@ak.jp.nec.com>
-Date: Mon, 28 Sep 2009 12:07:29 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8SAjJUN026259
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 06:45:20 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8SAiV9q015045
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 10:44:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Zbynek Houska <zbynek.houska@gmail.com>
+Subject: Re: Final year project ideas
+Date: Mon, 28 Sep 2009 11:23:20 +1000
+Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+References: <761f67170909271125t493e9e2dx96158194dbd2f279@mail.gmail.com>
+In-Reply-To: <761f67170909271125t493e9e2dx96158194dbd2f279@mail.gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <stephen.smalley@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [RFC][PATCH v2 2/2] selinux:  generate flask headers during kernel
- build
-References: <1253833647.2452.4.camel@moss-aggies>
-In-Reply-To: <1253833647.2452.4.camel@moss-aggies>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200909281123.22364.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> Add a simple utility (scripts/selinux/genheaders) and invoke it to
-> generate the kernel-private class and permission indices in flask.h
-> and av_permissions.h automatically during the kernel build from the
-> security class mapping definitions in classmap.h.  Adding new kernel
-> classes and permissions can then be done just by adding them to classmap.h.
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> ---
->  scripts/selinux/Makefile                  |    4 +-
->  scripts/selinux/genheaders/Makefile       |    5 +
->  scripts/selinux/genheaders/genheaders.c   |  118 ++++
->  security/selinux/Makefile                 |    3 +
->  security/selinux/include/av_permissions.h |  870 -----------------------------
->  security/selinux/include/flask.h          |   91 ---
->  6 files changed, 128 insertions(+), 963 deletions(-)
->  create mode 100644 scripts/selinux/genheaders/Makefile
->  create mode 100644 scripts/selinux/genheaders/genheaders.c
->  delete mode 100644 security/selinux/include/av_permissions.h
->  delete mode 100644 security/selinux/include/flask.h
+On Mon, 28 Sep 2009, Zbynek Houska <zbynek.houska@gmail.com> wrote:
+> write a few (new) policies for software of my choice.  I intend to use
+> honeypots running Fedora 11 as my base system. However, I'm not sure if
+> college class B network will produce conclusive results.
+>
+> Thus, I would appreciate support, guidance and comments from (seasoned)
+> SELinux gurus, developers and practitioners on this list in order to point
+> me in the right direction when it comes to sourcing literature, white
+> papers, research work other people might already have conducted and
+> overcoming pitfalls related to such testing environments.
 
-It seems to me flask.h and av_permissions.h are not generated prior to
-compile source files, such as avc.c.
+Firstly firewall all traffic from the system in question - other than that 
+which is required for it to be vulnerable to the attacks you desire.  If you 
+allow ICMP echo access then someone will try and ping-flood other systems.  
+If you allow outbound TCP connections then your system may be used to 
+compromise others.
 
-[kaigai@saba selinux-2.6]$ make
-  CHK     include/linux/version.h
-   :
-  CC      security/selinux/avc.o
-In file included from security/selinux/avc.c:32:
-security/selinux/include/avc.h:20:19: error: flask.h: No such file or directory
-security/selinux/include/avc.h:21:28: error: av_permissions.h: No such file or directory
-make[2]: *** [security/selinux/avc.o] Error 1
-make[1]: *** [security/selinux] Error 2
-make: *** [security] Error 2
+Probably the best way to run honeypots is to use Xen or KVM to run virtual 
+machines.  This means that you have lots of good options for monitoring the 
+machines while they are attacked.  But don't assume that Xvn or KVM is 
+flawless - IE don't have any sensitive data on the same physical machine.
 
-BTW, it needs to be built prior to the building mdp.c?
+The purpose of a honeypot is to attract attack, running the latest versions of 
+software is going to make it more difficult for attackers and partially 
+defeats this goal.  Maybe running Fedora 10 (or earlier) with no updates 
+would be a better option.  Of course you will probably want to back-port the 
+latest SE Linux policy before you do this (which shouldn't be difficult).
 
-  HOSTCC  scripts/selinux/mdp/mdp
-scripts/selinux/mdp/mdp.c:32:19: error: flask.h: No such file or directory
-make[3]: *** [scripts/selinux/mdp/mdp] Error 1
-make[2]: *** [scripts/selinux/mdp] Error 2
-make[1]: *** [scripts/selinux] Error 2
-make: *** [scripts] Error 2
+It's been a while since anyone ran a SE Linux Play Machine on Fedora, I would 
+be happy to offer detailed advice and some testing if you want to run one.
 
-Thanks,
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
