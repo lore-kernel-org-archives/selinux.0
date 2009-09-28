@@ -1,147 +1,60 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8SJ7ADn022045
-	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 15:07:10 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8SJ8eOR024316
-	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 19:08:40 GMT
-Message-ID: <4AC1095A.9070504@redhat.com>
-Date: Mon, 28 Sep 2009 15:07:06 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8SJmdbZ030860
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 15:48:39 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8SJo5OR014748
+	for <selinux@tycho.nsa.gov>; Mon, 28 Sep 2009 19:50:10 GMT
+Message-ID: <4AC1130D.8000601@manicmethod.com>
+Date: Mon, 28 Sep 2009 15:48:29 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: This patch fixes the exception handling in libselinux-python
- bindings
-References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com> <4AB139E8.50700@manicmethod.com> <4AB13E06.7020308@manicmethod.com> <4AB15164.1020507@redhat.com> <4ABAC3C3.1000100@manicmethod.com> <4ABBB78E.30501@manicmethod.com> <4ABBC642.8020709@manicmethod.com>
-In-Reply-To: <4ABBC642.8020709@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: fedora-selinux-list@redhat.com, SE Linux <selinux@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@tresys.com>,
+        Kathy Shonaiya <Shonaiya@tresys.com>
+Subject: The SELinux Documentation Project [Request for topics] 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/24/2009 03:19 PM, Joshua Brindle wrote:
-> Joshua Brindle wrote:
->> Joshua Brindle wrote:
->>>
->>>
->>> Daniel J Walsh wrote:
->>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
->>>>>
->>>>> Joshua Brindle wrote:
->>>>>>
->>>>>> Daniel J Walsh wrote:
->>>>>>> What do you think of this one. Removed excess swig cruft,
->>>>>>>
->>>>>>> You need to run
->>>>>>>
->>>>>>> make swigify to generate those changes.
->>>>>>>
->>>>>> Ok, looking at this now. I don't completely get how it works. I'm
->>>>>> trying
->>>>>> to reproduce what you are doing by hand but nothing comes out of gcc:
->>>>>>
->>>>>> [root@localhost src]# echo '#include "../include/selinux/selinux.h"'>
->>>>>> temp.c
->>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
->>>>>> [root@localhost src]# ls temp.*
->>>>>> temp.c temp.o
->>>>>>
->>>>>>
->>>
->>> I got this "sort of" working locally. It works when I call it directly
->>> on the header but it leaves a .gch file sitting in the include
->>> directory.
->>>
->>> Trying to use stdin I get:
->>>
->>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux <
->>> ../include/selinux/selinux.h
->>> <stdin>:569: internal compiler error: Segmentation fault
->>> Please submit a full bug report,
->>> with preprocessed source if appropriate.
->>> See <http://bugzilla.redhat.com/bugzilla> for instructions.
->>>
->>>
->>> Other comments:
->>>
->>> The disconnect between swigify and clean targets remains: If make
->>> swigify builds this, and it is checked in to the tree then make clean
->>> shouldn't remove it, else it should be in the pywrap target and not
->>> installed.
->>>
->>> I'm not sure what the header re-ordering in selinuxswig.i and the
->>> copytree/install functions have to do with this patch.
->>>
->>
->>
->> Applied with this diff on top:
->>
->> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->> index 928a1df..74b1e6a 100644
->> --- a/libselinux/src/Makefile
->> +++ b/libselinux/src/Makefile
->> @@ -16,14 +16,14 @@ LIBVERSION = 1
->>
->> LIBA=libselinux.a
->> TARGET=libselinux.so
->> -SWIGIF= selinuxswig_python.i
->> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
->> SWIGRUBYIF= selinuxswig_ruby.i
->> SWIGCOUT= selinuxswig_wrap.c
->> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
->> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
->> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
->> SWIGSO=_selinux.so
->> -SWIGFILES=$(SWIGSO) selinux.py
->> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
->> SWIGRUBYSO=_rubyselinux.so
->> LIBSO=$(TARGET).$(LIBVERSION)
->> AUDIT2WHYSO=audit2why.so
->> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
->> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
->> $(SWIGRUBY) $^
->>
->> -swigify: $(SWIGIF) selinuxswig_python_exception.i
->> +swigify: $(SWIGIF)
->> $(SWIG) $<
->>
->> install: all
->> @@ -127,7 +127,7 @@ relabel:
->> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
->>
->> clean:
->> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
->> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
->> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
->> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
->>
->> distclean: clean
->> rm -f $(GENERATED) $(SWIGFILES)
->> diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
->> old mode 100644
->> new mode 100755
->> index b2a3799..c3e61a5
->> --- a/libselinux/src/exception.sh
->> +++ b/libselinux/src/exception.sh
->> @@ -15,7 +15,6 @@ echo "
->> ;;
->> esac
->> }
->> -echo '#include "../include/selinux/selinux.h"' > temp.c
->> -gcc -c temp.c -aux-info temp.aux
->> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ { print $6
->> }' temp.aux`; do except $i ; done
->> -rm -f temp.c temp.aux temp.o
->> +gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
->> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except
->> $i ; done
->> +rm -f -- temp.aux -.o
->>
-> 
-> 
-> Merged in libselinux-2.0.87
+As we discussed at Linux Plumbers Conference during the 'Making SELinux 
+Easier to Use" talk we have some document deficiencies in the SELinux 
+project.
+
+I volunteered to start an SELinux Documentation Project. The primary 
+purpose of the project would be to get as much documentation as possible 
+on the selinuxproject.org wiki, organized in a fashion that users can 
+understand and consume easily.
+
+As I admitted before, we, the developers, are not always the best people 
+to judge what documentation users need and therefore am requesting 
+users, hopefully from different backgrounds and environments, tell us 
+what documentation they feel is lacking, what questions they've been 
+asked or have asked themselves and couldn't find documentation for.
+
+I think we need basic documentation that tells about SELinux (both 
+beginner and advanced), howto's for specific things (using secmark, 
+using netlabel, etc) and a set of short 'recipes' to accomplish simple 
+tasks.
+
+There are documents all over the place with various information, as well 
+as blog entries and mailing list archives but the effort here is to 
+consolidate all those resources onto selinuxproject.org.
+
+I'd also like to see volunteers in the community to help out with the 
+documentation effort, I know quite a few people already write things 
+like this on blogs, etc and it would be great to see that information 
+moved/copied onto selinuxproject.org.
 
 
-I have VERSION 2.0.86 in git?
+Users:
+
+Please, if you are a user and have run in to lack of documentation 
+respond to this thread, or privately if you aren't comfortable talking 
+on list so that we can collect what the biggest deficiencies are and get 
+to writing documentation as soon as possible.
+
+
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
