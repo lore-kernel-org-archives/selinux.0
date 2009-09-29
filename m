@@ -1,26 +1,51 @@
-Message-ID: <4AC25AAA.8010108@redhat.com>
-Date: Tue, 29 Sep 2009 15:06:18 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Orion Poplawski <orion@cora.nwra.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SElinux troubles
-References: <4AB10AC9.9020006@cora.nwra.com> <4AB1125E.3020402@redhat.com>	 <4AB119F1.4070600@cora.nwra.com> <4AB12199.5090901@redhat.com>	 <4AB7BC55.4060304@cora.nwra.com> <4AB83734.6090805@redhat.com>	 <4AB8DE44.3090907@cora.nwra.com> <4AB8E96D.50801@redhat.com>	 <4AB8F20A.5040409@cora.nwra.com> <4AC1087C.2090800@redhat.com>	 <4AC118EC.6090707@cora.nwra.com>  <4AC119D3.5070107@redhat.com>	 <1254169373.14478.191.camel@moss-pluto.epoch.ncsc.mil>	 <4AC12227.1070006@cora.nwra.com> <1254225540.2252.6.camel@moss-pluto.epoch.ncsc.mil> <4AC21A88.1020109@cora.nwra.com>
-In-Reply-To: <4AC21A88.1020109@cora.nwra.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8TJsULN026422
+	for <selinux@tycho.nsa.gov>; Tue, 29 Sep 2009 15:54:30 -0400
+Subject: Configuring libsemanage to invoke a policy checker
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 29 Sep 2009 15:52:47 -0400
+Message-Id: <1254253967.2252.232.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/29/2009 10:32 AM, Orion Poplawski wrote:
-> On 09/29/2009 05:59 AM, Stephen Smalley wrote:
->> Do you get any avc denial in /var/log/audit/audit.log
->> or /var/log/messages?  If so, what does audit2why say about it?
-> 
-> No denial messages.
-> 
-Any chance you have an acl set on this directory or Immutable
+This came up as a question at the SELinux summit, so I thought I'd also
+post the answer on the list since it is a largely undocumented feature.
+If you want libsemanage to invoke a program to check a policy for some
+property before allowing it to be installed and loaded, then you can
+configure libsemanage as follows.
 
-lsattr /etc/ssh
+Add the following lines to your /etc/selinux/semanage.conf file:
+[verify kernel]
+path = /usr/bin/mypolicychecker
+args = $@
+[end]
+
+Then create /usr/bin/mypolicychecker, e.g.:
+#!/bin/sh
+ls -l $1
+exit 0
+
+chmod +x /usr/bin/mypolicychecker
+
+Subsequent semodule or semanage commands will trigger its execution,
+passing it the path to the kernel policy file in the sandbox before
+installing it. If it returns non-zero, the transaction will abort and
+roll back.
+
+Obviously you would replace mypolicychecker with an actual program that
+applies some set of checks to the policy and exits with an appropriate
+error status based on whether the checks passed.
+
+There is also a variant for running a policy checking program on each
+individual module ([verify module]) but I'm not sure how useful that
+would be.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
