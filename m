@@ -1,55 +1,59 @@
-Message-ID: <4AC26B8E.2020905@redhat.com>
-Date: Tue, 29 Sep 2009 16:18:22 -0400
+Message-ID: <4AC26E8F.8010308@redhat.com>
+Date: Tue, 29 Sep 2009 16:31:11 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Orion Poplawski <orion@cora.nwra.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SElinux troubles
-References: <4AB10AC9.9020006@cora.nwra.com> <4AB1125E.3020402@redhat.com>	 <4AB119F1.4070600@cora.nwra.com> <4AB12199.5090901@redhat.com>	 <4AB7BC55.4060304@cora.nwra.com> <4AB83734.6090805@redhat.com>	 <4AB8DE44.3090907@cora.nwra.com> <4AB8E96D.50801@redhat.com>	 <4AB8F20A.5040409@cora.nwra.com> <4AC1087C.2090800@redhat.com>	 <4AC118EC.6090707@cora.nwra.com>  <4AC119D3.5070107@redhat.com>	 <1254169373.14478.191.camel@moss-pluto.epoch.ncsc.mil>	 <4AC12227.1070006@cora.nwra.com> <1254225540.2252.6.camel@moss-pluto.epoch.ncsc.mil> <4AC21A88.1020109@cora.nwra.com> <4AC25AAA.8010108@redhat.com> <4AC26781.20707@cora.nwra.com>
-In-Reply-To: <4AC26781.20707@cora.nwra.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Configuring libsemanage to invoke a policy checker
+References: <1254253967.2252.232.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1254253967.2252.232.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/29/2009 04:01 PM, Orion Poplawski wrote:
-> On 09/29/2009 01:06 PM, Daniel J Walsh wrote:
->> On 09/29/2009 10:32 AM, Orion Poplawski wrote:
->>> On 09/29/2009 05:59 AM, Stephen Smalley wrote:
->>>> Do you get any avc denial in /var/log/audit/audit.log
->>>> or /var/log/messages?  If so, what does audit2why say about it?
->>>
->>> No denial messages.
->>>
->> Any chance you have an acl set on this directory or Immutable
->>
->> lsattr /etc/ssh
+On 09/29/2009 03:52 PM, Stephen Smalley wrote:
+> This came up as a question at the SELinux summit, so I thought I'd also
+> post the answer on the list since it is a largely undocumented feature.
+> If you want libsemanage to invoke a program to check a policy for some
+> property before allowing it to be installed and loaded, then you can
+> configure libsemanage as follows.
 > 
-> That was it:
+> Add the following lines to your /etc/selinux/semanage.conf file:
+> [verify kernel]
+> path = /usr/bin/mypolicychecker
+> args = $@
+> [end]
 > 
-> # lsattr /etc/ssh
-> s---ia------- /etc/ssh/ssh_host_rsa_key.pub
-> s---ia------- /etc/ssh/ssh_host_dsa_key.pub
-> s---ia------- /etc/ssh/ssh_config
-> s---ia------- /etc/ssh/ssh_host_key
-> s---ia------- /etc/ssh/sshd_config
-> s---ia------- /etc/ssh/moduli
-> s---ia------- /etc/ssh/ssh_host_key.pub
-> s---ia------- /etc/ssh/ssh_known_hosts
-> s---ia------- /etc/ssh/ssh_host_rsa_key
-> s---ia------- /etc/ssh/ssh_host_dsa_key
+> Then create /usr/bin/mypolicychecker, e.g.:
+> #!/bin/sh
+> ls -l $1
+> exit 0
 > 
-> no idea how these got set as this was the first time I've heard of these
-> attributes.
+> chmod +x /usr/bin/mypolicychecker
 > 
-> Thanks!
+> Subsequent semodule or semanage commands will trigger its execution,
+> passing it the path to the kernel policy file in the sandbox before
+> installing it. If it returns non-zero, the transaction will abort and
+> roll back.
 > 
-> -- 
-> Orion Poplawski
-> Technical Manager                     303-415-9701 x222
-> NWRA/CoRA Division                    FAX: 303-415-9702
-> 3380 Mitchell Lane                  orion@cora.nwra.com
-> Boulder, CO 80301              http://www.cora.nwra.com
-And it wasn't even caused by SELinux.  (I hope).
+> Obviously you would replace mypolicychecker with an actual program that
+> applies some set of checks to the policy and exits with an appropriate
+> error status based on whether the checks passed.
+> 
+> There is also a variant for running a policy checking program on each
+> individual module ([verify module]) but I'm not sure how useful that
+> would be.
+> 
+So a better example might be you want to guarantee that no one can write to a shadow_t
+
+#!/bin/sh
+domain_ctr = `sesearch --allow -t shadow_t -c file -p write $1 | wc -l`
+if [ $domain_ctr != 10 ]; then 
+    exit 1
+fi
+exit 0
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
