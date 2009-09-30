@@ -6,101 +6,106 @@ Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>, Paul Moore <paul.moore@hp.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
         Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1254318841.30591.22.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1254322047.30591.52.camel@moss-pluto.epoch.ncsc.mil>
 References: <1254244173.2252.138.camel@moss-pluto.epoch.ncsc.mil>
 	 <1254244459.2252.143.camel@moss-pluto.epoch.ncsc.mil>
 	 <1254247383.2252.192.camel@moss-pluto.epoch.ncsc.mil>
 	 <4AC2C32D.3010405@ak.jp.nec.com>
 	 <1254314361.30591.11.camel@moss-pluto.epoch.ncsc.mil>
 	 <1254318841.30591.22.camel@moss-pluto.epoch.ncsc.mil>
+	 <1254322047.30591.52.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 30 Sep 2009 10:47:27 -0400
-Message-Id: <1254322047.30591.52.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 30 Sep 2009 11:10:53 -0400
+Message-Id: <1254323453.30591.56.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-09-30 at 09:54 -0400, Stephen Smalley wrote:
-> On Wed, 2009-09-30 at 08:39 -0400, Stephen Smalley wrote:
-> > On Wed, 2009-09-30 at 11:32 +0900, KaiGai Kohei wrote:
-> > > Stephen Smalley wrote:
-> > > > There are several legacy permissions that are no longer used by SELinux.
-> > > > We could remove these from the kernel's classmap.h definitions without
-> > > > breaking anything (subsequent permissions would get mapped to policy
-> > > > values appropriately by the new logic), but removing them from the
-> > > > policy would be harder as it would break all kernels that predate these
-> > > > patches.  Thus, I'm not sure we benefit from removing them from
-> > > > classmap.h.
+On Wed, 2009-09-30 at 10:47 -0400, Stephen Smalley wrote:
+> On Wed, 2009-09-30 at 09:54 -0400, Stephen Smalley wrote:
+> > On Wed, 2009-09-30 at 08:39 -0400, Stephen Smalley wrote:
+> > > On Wed, 2009-09-30 at 11:32 +0900, KaiGai Kohei wrote:
+> > > > Stephen Smalley wrote:
+> > > > > There are several legacy permissions that are no longer used by SELinux.
+> > > > > We could remove these from the kernel's classmap.h definitions without
+> > > > > breaking anything (subsequent permissions would get mapped to policy
+> > > > > values appropriately by the new logic), but removing them from the
+> > > > > policy would be harder as it would break all kernels that predate these
+> > > > > patches.  Thus, I'm not sure we benefit from removing them from
+> > > > > classmap.h.
+> > > > > 
+> > > > > The unused permissions include:
+> > > > > # LSM hook never merged to mainline
+> > > > > file swapon
+> > > > > # compat_net=1 checks
+> > > > > socket { recv_msg send_msg }
+> > > > > # Only added so that subsequent permissions (execmod) would get the same value as class file
+> > > > > chr_file { execute_no_trans entrypoint }
+> > > > > # Original socket controls; never merged to mainline
+> > > > > tcp_socket { connectto newconn acceptfrom }
+> > > > > # legacy network or compat_net=1 checks
+> > > > > node { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send enforce_dest dccp_recv dccp_send }
+> > > > > # legacy network or compat_net=1 checks
+> > > > > netif { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv dccp_send }
+> > > > > # Original socket controls; never merged to mainline - only connectto is used
+> > > > > unix_stream_socket { newconn acceptfrom }
+> > > > > # Patches merged prematurely by Fedora, never merged to mainline
+> > > > > packet { flow_in flow_out }
 > > > > 
-> > > > The unused permissions include:
-> > > > # LSM hook never merged to mainline
-> > > > file swapon
-> > > > # compat_net=1 checks
-> > > > socket { recv_msg send_msg }
-> > > > # Only added so that subsequent permissions (execmod) would get the same value as class file
-> > > > chr_file { execute_no_trans entrypoint }
-> > > > # Original socket controls; never merged to mainline
-> > > > tcp_socket { connectto newconn acceptfrom }
-> > > > # legacy network or compat_net=1 checks
-> > > > node { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send enforce_dest dccp_recv dccp_send }
-> > > > # legacy network or compat_net=1 checks
-> > > > netif { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv dccp_send }
-> > > > # Original socket controls; never merged to mainline - only connectto is used
-> > > > unix_stream_socket { newconn acceptfrom }
-> > > > # Patches merged prematurely by Fedora, never merged to mainline
-> > > > packet { flow_in flow_out }
+> > > > It is just a report. I could not reach origin of the matter yet.
+> > > > 
+> > > > When I applies your patch as is, build, install and reboot,
+> > > > I could not find any *obvious* matter (such as boot failed). Good.
+> > > > 
+> > > > Then, I modified the classmap.h for the test purpose.
+> > > > The object classes and access vectors are ramdomized as the
+> > > > attached claasmap.h.
+> > > > This patch enables to map value of them using text identifier,
+> > > > so we can expect it works fine independent from the order of
+> > > > classes and access vectors.
+> > > > 
+> > > > Did you already remove the unused kernel permissions?
+> > > > 
+> > > > -- kernel boot messages
+> > > >    :
+> > > > Creating initial device nodes
+> > > > plymouthd used greatest stack depth: 6532 bytes left
+> > > > async/0 used greatest stack depth: 6284 bytes left
+> > > > async/1 used greatest stack depth: 5828 bytes left
+> > > > input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input4
+> > > > kjournald starting.  Commit interval 5 seconds
+> > > > EXT3-fs: mounted filesystem with ordered data mode.
+> > > > type=1404 audit(1254231627.600:2): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
+> > > > SELinux:  Permission module_request in class system not defined in policy.
+> > > > SELinux: the above unknown classes and permissions will be allowed
+> > > > type=1403 audit(1254231628.088:3): policy loaded auid=4294967295 ses=4294967295
+> > > > type=1400 audit(1254231628.100:4): avc:  denied  { transition } for  pid=58 comm="init" path="/bin/plymouth" dev=rootfs ino=3512 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:root_t:s0 tclass=process
+> > > > type=1400 audit(1254231628.438:5): avc:  denied  { transition } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:init_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=process
+> > > > type=1400 audit(1254231628.458:6): avc:  denied  { entrypoint } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:bin_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
+> > > > init used greatest stack depth: 5684 bytes left
+> > > > init: Not being executed as init
+> > > > ------
 > > > 
-> > > It is just a report. I could not reach origin of the matter yet.
-> > > 
-> > > When I applies your patch as is, build, install and reboot,
-> > > I could not find any *obvious* matter (such as boot failed). Good.
-> > > 
-> > > Then, I modified the classmap.h for the test purpose.
-> > > The object classes and access vectors are ramdomized as the
-> > > attached claasmap.h.
-> > > This patch enables to map value of them using text identifier,
-> > > so we can expect it works fine independent from the order of
-> > > classes and access vectors.
-> > > 
-> > > Did you already remove the unused kernel permissions?
-> > > 
-> > > -- kernel boot messages
-> > >    :
-> > > Creating initial device nodes
-> > > plymouthd used greatest stack depth: 6532 bytes left
-> > > async/0 used greatest stack depth: 6284 bytes left
-> > > async/1 used greatest stack depth: 5828 bytes left
-> > > input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input4
-> > > kjournald starting.  Commit interval 5 seconds
-> > > EXT3-fs: mounted filesystem with ordered data mode.
-> > > type=1404 audit(1254231627.600:2): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
-> > > SELinux:  Permission module_request in class system not defined in policy.
-> > > SELinux: the above unknown classes and permissions will be allowed
-> > > type=1403 audit(1254231628.088:3): policy loaded auid=4294967295 ses=4294967295
-> > > type=1400 audit(1254231628.100:4): avc:  denied  { transition } for  pid=58 comm="init" path="/bin/plymouth" dev=rootfs ino=3512 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:root_t:s0 tclass=process
-> > > type=1400 audit(1254231628.438:5): avc:  denied  { transition } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:init_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=process
-> > > type=1400 audit(1254231628.458:6): avc:  denied  { entrypoint } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:bin_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
-> > > init used greatest stack depth: 5684 bytes left
-> > > init: Not being executed as init
-> > > ------
+> > > Oh, I see why.  The security server internally uses a few class and
+> > > permission symbolic definitions (e.g. SECCLASS_PROCESS,
+> > > PROCESS__TRANSITION, ...), and it expects them to correspond to the
+> > > policy values rather than the kernel-private indices.  So it needs to
+> > > instead use string_to_security_class() and string_to_av_perm() to look
+> > > them up.  Easy enough to fix.
 > > 
-> > Oh, I see why.  The security server internally uses a few class and
-> > permission symbolic definitions (e.g. SECCLASS_PROCESS,
-> > PROCESS__TRANSITION, ...), and it expects them to correspond to the
-> > policy values rather than the kernel-private indices.  So it needs to
-> > instead use string_to_security_class() and string_to_av_perm() to look
-> > them up.  Easy enough to fix.
+> > I applied the patch below on top.  Since we use the process class and
+> > process transition permissions multiple times and even need the process
+> > class value at policy load, I look those values up during policydb_read
+> > and cache them in the policydb.  For the other uses of SECCLASS_ values
+> > within the security server, I just call unmap_class() as needed.
+> > Building it now. I'll fold this into the first patch if it works.
 > 
-> I applied the patch below on top.  Since we use the process class and
-> process transition permissions multiple times and even need the process
-> class value at policy load, I look those values up during policydb_read
-> and cache them in the policydb.  For the other uses of SECCLASS_ values
-> within the security server, I just call unmap_class() as needed.
-> Building it now. I'll fold this into the first patch if it works.
+> Ah, that crashes on boot.  Need to wait until after we've done
+> policydb_index_classes() to call string_to_av_perm().  Let's try this
+> instead:
 
-Ah, that crashes on boot.  Need to wait until after we've done
-policydb_index_classes() to call string_to_av_perm().  Let's try this
-instead:
+Almost, but not quite - need to always unmap the class passed to
+security_genfs_sid().
 
 diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
 index b5407f1..3f2b270 100644
@@ -210,7 +215,7 @@ index 1109505..cdcc570 100644
  #endif	/* _SS_POLICYDB_H_ */
  
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f0522aa..3356128 100644
+index f0522aa..e19baa8 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
 @@ -94,41 +94,6 @@ static int context_struct_compute_av(struct context *scontext,
@@ -403,16 +408,29 @@ index f0522aa..3356128 100644
  					  PROCESS__TRANSITION, AVC_STRICT,
  					  NULL);
  		if (!rc)
-@@ -2281,7 +2236,8 @@ int security_fs_use(
- 		}
- 		*sid = c->sid[0];
- 	} else {
--		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
-+		rc = security_genfs_sid(fstype, "/", unmap_class(SECCLASS_DIR),
-+					sid);
- 		if (rc) {
- 			*behavior = SECURITY_FS_USE_NONE;
- 			rc = 0;
+@@ -2195,10 +2150,11 @@ out:
+  */
+ int security_genfs_sid(const char *fstype,
+ 		       char *path,
+-		       u16 sclass,
++		       u16 orig_sclass,
+ 		       u32 *sid)
+ {
+ 	int len;
++	u16 sclass;
+ 	struct genfs *genfs;
+ 	struct ocontext *c;
+ 	int rc = 0, cmp = 0;
+@@ -2208,6 +2164,8 @@ int security_genfs_sid(const char *fstype,
+ 
+ 	read_lock(&policy_rwlock);
+ 
++	sclass = unmap_class(orig_sclass);
++
+ 	for (genfs = policydb.genfs; genfs; genfs = genfs->next) {
+ 		cmp = strcmp(fstype, genfs->fstype);
+ 		if (cmp <= 0)
+
 
 -- 
 Stephen Smalley
