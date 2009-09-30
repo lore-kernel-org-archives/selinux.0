@@ -1,75 +1,206 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Kyle Moffett <kyle@moffetthome.net>
-Subject: Re: MCS and default labels
-Date: Tue, 29 Sep 2009 16:54:07 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, russell@coker.com.au,
-        Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>,
-        selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-References: <20090908055806.GA24297@myhost.felk.cvut.cz> <1254226904.2252.28.camel@moss-pluto.epoch.ncsc.mil> <f73f7ab80909290654l25863d74n7b5919028cfde66d@mail.gmail.com>
-In-Reply-To: <f73f7ab80909290654l25863d74n7b5919028cfde66d@mail.gmail.com>
+Message-ID: <4AC2C32D.3010405@ak.jp.nec.com>
+Date: Wed, 30 Sep 2009 11:32:13 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <200909291654.07458.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, Paul Moore <paul.moore@hp.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [PATCH v4 2/2] selinux:  generate flask headers during kernel
+ build
+References: <1254244173.2252.138.camel@moss-pluto.epoch.ncsc.mil>	 <1254244459.2252.143.camel@moss-pluto.epoch.ncsc.mil> <1254247383.2252.192.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1254247383.2252.192.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------050206030709090904020406"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 29 September 2009 09:54:56 am Kyle Moffett wrote:
-> The problem is that there is no way to do catch-all rules *based* on
-> the MLS label.  For example, if I have a TopSecret wire and I want to
-> allow (for example) Unclass and TS//SI/TK traffic over it without
-> risking mixing of data or exposure, there is no way for me to set it
-> up without a lot of manual and duplicated configuration.  What I want
-> to happen is:
+This is a multi-part message in MIME format.
+--------------050206030709090904020406
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-Just a few questions so I'm clear on your problem.
+Stephen Smalley wrote:
+> There are several legacy permissions that are no longer used by SELinux.
+> We could remove these from the kernel's classmap.h definitions without
+> breaking anything (subsequent permissions would get mapped to policy
+> values appropriately by the new logic), but removing them from the
+> policy would be harder as it would break all kernels that predate these
+> patches.  Thus, I'm not sure we benefit from removing them from
+> classmap.h.
+> 
+> The unused permissions include:
+> # LSM hook never merged to mainline
+> file swapon
+> # compat_net=1 checks
+> socket { recv_msg send_msg }
+> # Only added so that subsequent permissions (execmod) would get the same value as class file
+> chr_file { execute_no_trans entrypoint }
+> # Original socket controls; never merged to mainline
+> tcp_socket { connectto newconn acceptfrom }
+> # legacy network or compat_net=1 checks
+> node { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send enforce_dest dccp_recv dccp_send }
+> # legacy network or compat_net=1 checks
+> netif { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv dccp_send }
+> # Original socket controls; never merged to mainline - only connectto is used
+> unix_stream_socket { newconn acceptfrom }
+> # Patches merged prematurely by Fedora, never merged to mainline
+> packet { flow_in flow_out }
 
->   (1) If any of 8 different SELinux domains of TS-level processes (IE:
-> s4) try to communicate out the network interface, the policy is "none"
+It is just a report. I could not reach origin of the matter yet.
 
-So any of the eight domains can send network traffic w/o IPsec as long as 
-their MLS label is "s4" ...
+When I applies your patch as is, build, install and reboot,
+I could not find any *obvious* matter (such as boot failed). Good.
 
->   (2) If those *same* SELinux domains with any of TS//SI/TK (s4:c1),
-> TS//BYEMAN (s4:c2) try to communicate, the policy should be
-> "esp/transport//require", using *different* certificates depending on
-> the domain.
+Then, I modified the classmap.h for the test purpose.
+The object classes and access vectors are ramdomized as the
+attached claasmap.h.
+This patch enables to map value of them using text identifier,
+so we can expect it works fine independent from the order of
+classes and access vectors.
 
-... and these same eight domains need to send network traffic using IPsec/ESP 
-when their MLS label is "s4:c1" or "s4:c2" (do you really mean different 
-certificates for each connection, which implies a new phase-1 IKE negotiation 
-or did you simply mean new ESP SAs?)
+Did you already remove the unused kernel permissions?
 
->   (3) Again, if those *same* SELinux domains with U (IE: s1) try to
-> communicate, the policy would be "ah/transport//require", (and yet
-> more certificates).
-
-... and if these same eight domains need to send network traffic using 
-IPsec/AH when their MLS label is "s1" (once again, do you really mean SA 
-instead of cert)?
-
-> If it's possible to do this with the existing tools, that's great, but
-> I played around with it for a good long while and was not able to work
-> out a way to do so.
-
-The different IPsec configurations per label is a little interesting, and not 
-something that I've heard of people using (until just now).  I'd have to go 
-spelunking in the code but I'm pretty sure you can't pick SPD rules based on 
-security labels (you can authorize access to a rule using labels, but I don't 
-believe the label acts as a selector).  I imagine you could get something 
-working with manual SA creation but that is too ugly to spend much time 
-thinking about it.
-
-At this point I have to ask some workaround type questions - can you isolate 
-the traffic using traditional IPsec traffic selectors instead of labels, e.g. 
-protocol/port?  Is there any harm in applying both AH and ESP to all traffic 
-that needs IPsec protection?  Do you need to convey the type information 
-across the wire or is the MLS label sufficient?  Depending on your answers we 
-may be able to arrive at a solution with the existing code.
+-- kernel boot messages
+   :
+Creating initial device nodes
+plymouthd used greatest stack depth: 6532 bytes left
+async/0 used greatest stack depth: 6284 bytes left
+async/1 used greatest stack depth: 5828 bytes left
+input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input4
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+type=1404 audit(1254231627.600:2): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
+SELinux:  Permission module_request in class system not defined in policy.
+SELinux: the above unknown classes and permissions will be allowed
+type=1403 audit(1254231628.088:3): policy loaded auid=4294967295 ses=4294967295
+type=1400 audit(1254231628.100:4): avc:  denied  { transition } for  pid=58 comm="init" path="/bin/plymouth" dev=rootfs ino=3512 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:root_t:s0 tclass=process
+type=1400 audit(1254231628.438:5): avc:  denied  { transition } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:init_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=process
+type=1400 audit(1254231628.458:6): avc:  denied  { entrypoint } for  pid=58 comm="init" path="/sbin/telinit" dev=sda5 ino=621655 scontext=system_u:object_r:bin_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
+init used greatest stack depth: 5684 bytes left
+init: Not being executed as init
+------
 
 -- 
-paul moore
-linux @ hp
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------050206030709090904020406
+Content-Type: text/plain;
+ name="classmap.h"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="classmap.h"
+
+LyogVGhlc2UgZGVmaW5pdGlvbnMgbXVzdCBtYXRjaCB0aGUgZGVmaW5pdGlvbnMgaW4gYXZf
+cGVybWlzc2lvbnMuaC4gKi8KCiNkZWZpbmUgQ09NTU9OX0ZJTEVfUEVSTVMgIm1vdW50b24i
+LCAicXVvdGFvbiIsICJzd2Fwb24iLCAiZXhlY3V0ZSIsICJyZW5hbWUiLCBcCgkgICAgImxp
+bmsiLCAidW5saW5rIiwgImFwcGVuZCIsICJyZWxhYmVsdG8iLCAicmVsYWJlbGZyb20iLCAi
+bG9jayIsIFwKCSAgICAic2V0YXR0ciIsICJnZXRhdHRyIiwgImNyZWF0ZSIsICJ3cml0ZSIs
+ICJyZWFkIiwgImlvY3RsIgoKI2RlZmluZSBDT01NT05fU09DS19QRVJNUyAiYXBwZW5kIiwg
+ImJpbmQiLCAiY29ubmVjdCIsICJsaXN0ZW4iLCAiYWNjZXB0IiwgXAoJImdldG9wdCIsICJz
+ZXRvcHQiLCAic2h1dGRvd24iLCAicmVjdmZyb20iLCBcCgkic2V0YXR0ciIsICJsb2NrIiwg
+InJlbGFiZWxmcm9tIiwgInJlbGFiZWx0byIsIFwKCSJzZW5kdG8iLCAicmVjdl9tc2ciLCAi
+c2VuZF9tc2ciLCAibmFtZV9iaW5kIiwgXAoJImlvY3RsIiwgInJlYWQiLCAid3JpdGUiLCAi
+Y3JlYXRlIiwgImdldGF0dHIiCgpzdHJ1Y3Qgc2VjdXJpdHlfY2xhc3NfbWFwcGluZyBzZWNj
+bGFzc19tYXBbXSA9IHsKCXsgImRpciIsCgkgIHsgQ09NTU9OX0ZJTEVfUEVSTVMsICJhZGRf
+bmFtZSIsICJyZW1vdmVfbmFtZSIsCgkgICAgInJlcGFyZW50IiwgInNlYXJjaCIsICJybWRp
+ciIsICJvcGVuIiwgTlVMTCB9IH0sCgl7ICJmZCIsIHsgInVzZSIsIE5VTEwgfSB9LAoJeyAi
+bG5rX2ZpbGUiLAoJICB7IENPTU1PTl9GSUxFX1BFUk1TLCBOVUxMIH0gfSwKCXsgImNocl9m
+aWxlIiwKCSAgeyBDT01NT05fRklMRV9QRVJNUywKCSAgICAiZXhlY3V0ZV9ub190cmFucyIs
+ICJlbnRyeXBvaW50IiwgImV4ZWNtb2QiLCAib3BlbiIsIE5VTEwgfSB9LAoJeyAiZmlsZSIs
+CgkgIHsgQ09NTU9OX0ZJTEVfUEVSTVMsCgkgICAgImV4ZWN1dGVfbm9fdHJhbnMiLCAiZW50
+cnlwb2ludCIsICJleGVjbW9kIiwgIm9wZW4iLCBOVUxMIH0gfSwKCXsgInBhY2tldCIsCgkg
+IHsgInNlbmQiLCAicmVjdiIsICJyZWxhYmVsdG8iLCAiZmxvd19pbiIsICJmbG93X291dCIs
+CgkgICAgImZvcndhcmRfaW4iLCAiZm9yd2FyZF9vdXQiLCBOVUxMIH0gfSwKCXsgImJsa19m
+aWxlIiwKCSAgeyBDT01NT05fRklMRV9QRVJNUywgIm9wZW4iLCBOVUxMIH0gfSwKCXsgInNv
+Y2tfZmlsZSIsCgkgIHsgQ09NTU9OX0ZJTEVfUEVSTVMsICJvcGVuIiwgTlVMTCB9IH0sCgl7
+ICJmaWZvX2ZpbGUiLAoJICB7IENPTU1PTl9GSUxFX1BFUk1TLCAib3BlbiIsIE5VTEwgfSB9
+LAoJeyAic29ja2V0IiwKCSAgeyBDT01NT05fU09DS19QRVJNUywgTlVMTCB9IH0sCgl7ICJ0
+Y3Bfc29ja2V0IiwKCSAgeyBDT01NT05fU09DS19QRVJNUywKCSAgICAiY29ubmVjdHRvIiwg
+Im5ld2Nvbm4iLCAiYWNjZXB0ZnJvbSIsICJub2RlX2JpbmQiLCAibmFtZV9jb25uZWN0IiwK
+CSAgICBOVUxMIH0gfSwKCXsgInVkcF9zb2NrZXQiLAoJICB7IENPTU1PTl9TT0NLX1BFUk1T
+LAoJICAgICJub2RlX2JpbmQiLCBOVUxMIH0gfSwKCXsgInJhd2lwX3NvY2tldCIsCgkgIHsg
+Q09NTU9OX1NPQ0tfUEVSTVMsCgkgICAgIm5vZGVfYmluZCIsIE5VTEwgfSB9LAoJeyAibmV0
+bGlua19uZmxvZ19zb2NrZXQiLAoJICB7IENPTU1PTl9TT0NLX1BFUk1TLCBOVUxMIH0gfSwK
+CXsgIm5ldGxpbmtfeGZybV9zb2NrZXQiLAoJICB7IENPTU1PTl9TT0NLX1BFUk1TLAoJICAg
+ICJubG1zZ19yZWFkIiwgIm5sbXNnX3dyaXRlIiwgTlVMTCB9IH0sCgl7ICJuZXRsaW5rX3Nl
+bGludXhfc29ja2V0IiwKCSAgeyBDT01NT05fU09DS19QRVJNUywgTlVMTCB9IH0sCgl7ICJu
+ZXRsaW5rX2F1ZGl0X3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMsCgkgICAgIm5s
+bXNnX3JlYWQiLCAibmxtc2dfd3JpdGUiLCAibmxtc2dfcmVsYXkiLCAibmxtc2dfcmVhZHBy
+aXYiLAoJICAgICJubG1zZ190dHlfYXVkaXQiLCBOVUxMIH0gfSwKCXsgIm5ldGxpbmtfaXA2
+Zndfc29ja2V0IiwKCSAgeyBDT01NT05fU09DS19QRVJNUywKCSAgICAibmxtc2dfcmVhZCIs
+ICJubG1zZ193cml0ZSIsIE5VTEwgfSB9LAoJeyAibmV0bGlua19kbnJ0X3NvY2tldCIsCgkg
+IHsgQ09NTU9OX1NPQ0tfUEVSTVMsIE5VTEwgfSB9LAoJeyAiYXNzb2NpYXRpb24iLAoJICB7
+ICJzZW5kdG8iLCAicmVjdmZyb20iLCAic2V0Y29udGV4dCIsICJwb2xtYXRjaCIsIE5VTEwg
+fSB9LAoJeyAibm9kZSIsCgkgIHsgInRjcF9yZWN2IiwgInRjcF9zZW5kIiwgInVkcF9yZWN2
+IiwgInVkcF9zZW5kIiwKCSAgICAicmF3aXBfcmVjdiIsICJyYXdpcF9zZW5kIiwgImVuZm9y
+Y2VfZGVzdCIsCgkgICAgImRjY3BfcmVjdiIsICJkY2NwX3NlbmQiLCAicmVjdmZyb20iLCAi
+c2VuZHRvIiwgTlVMTCB9IH0sCgl7ICJuZXRpZiIsCgkgIHsgICJ0Y3BfcmVjdiIsICJ0Y3Bf
+c2VuZCIsICJ1ZHBfcmVjdiIsICJ1ZHBfc2VuZCIsCgkgICAgICJyYXdpcF9yZWN2IiwgInJh
+d2lwX3NlbmQiLCAiZGNjcF9yZWN2IiwgImRjY3Bfc2VuZCIsCgkgICAgICJpbmdyZXNzIiwg
+ImVncmVzcyIsIE5VTEwgfSB9LAoJeyAibmV0bGlua19zb2NrZXQiLAoJICB7IENPTU1PTl9T
+T0NLX1BFUk1TLCBOVUxMIH0gfSwKCXsgInBhY2tldF9zb2NrZXQiLAoJICB7IENPTU1PTl9T
+T0NLX1BFUk1TLCBOVUxMIH0gfSwKCXsgImtleV9zb2NrZXQiLAoJICB7IENPTU1PTl9TT0NL
+X1BFUk1TLCBOVUxMIH0gfSwKCXsgInVuaXhfc3RyZWFtX3NvY2tldCIsCgkgIHsgQ09NTU9O
+X1NPQ0tfUEVSTVMsICJjb25uZWN0dG8iLCAibmV3Y29ubiIsICJhY2NlcHRmcm9tIiwgTlVM
+TAoJICB9IH0sCgl7ICJ1bml4X2RncmFtX3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVS
+TVMsIE5VTEwKCSAgfSB9LAoJeyAic2VtIiwKCSAgeyAiY3JlYXRlIiwgImRlc3Ryb3kiLCAi
+Z2V0YXR0ciIsICJzZXRhdHRyIiwgInJlYWQiLAoJICAgICJ3cml0ZSIsICJhc3NvY2lhdGUi
+LCAidW5peF9yZWFkIiwgInVuaXhfd3JpdGUiLCBOVUxMIH0gfSwKCXsgIm1zZyIsIHsgInNl
+bmQiLCAicmVjZWl2ZSIsIE5VTEwgfSB9LAoJeyAibXNncSIsCgkgIHsgImNyZWF0ZSIsICJk
+ZXN0cm95IiwgImdldGF0dHIiLCAic2V0YXR0ciIsICJyZWFkIiwKCSAgICAid3JpdGUiLCAi
+YXNzb2NpYXRlIiwgInVuaXhfcmVhZCIsICJ1bml4X3dyaXRlIiwKCSAgICAiZW5xdWV1ZSIs
+IE5VTEwgfSB9LAoJeyAic2htIiwKCSAgeyAiY3JlYXRlIiwgImRlc3Ryb3kiLCAiZ2V0YXR0
+ciIsICJzZXRhdHRyIiwgInJlYWQiLAoJICAgICJ3cml0ZSIsICJhc3NvY2lhdGUiLCAidW5p
+eF9yZWFkIiwgInVuaXhfd3JpdGUiLCAibG9jayIsCgkgICAgTlVMTCB9IH0sCgl7ICJpcGMi
+LAoJICB7ICJjcmVhdGUiLCAiZGVzdHJveSIsICJnZXRhdHRyIiwgInNldGF0dHIiLCAicmVh
+ZCIsCgkgICAgIndyaXRlIiwgImFzc29jaWF0ZSIsICJ1bml4X3JlYWQiLCAidW5peF93cml0
+ZSIsIE5VTEwgfSB9LAoJeyAibmV0bGlua19yb3V0ZV9zb2NrZXQiLAoJICB7IENPTU1PTl9T
+T0NLX1BFUk1TLAoJICAgICJubG1zZ19yZWFkIiwgIm5sbXNnX3dyaXRlIiwgTlVMTCB9IH0s
+Cgl7ICJuZXRsaW5rX2ZpcmV3YWxsX3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMs
+CgkgICAgIm5sbXNnX3JlYWQiLCAibmxtc2dfd3JpdGUiLCBOVUxMIH0gfSwKCXsgIm5ldGxp
+bmtfdGNwZGlhZ19zb2NrZXQiLAoJICB7IENPTU1PTl9TT0NLX1BFUk1TLAoJICAgICJubG1z
+Z19yZWFkIiwgIm5sbXNnX3dyaXRlIiwgTlVMTCB9IH0sCgl7ICJuZXRsaW5rX2tvYmplY3Rf
+dWV2ZW50X3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMsIE5VTEwgfSB9LAoJeyAi
+YXBwbGV0YWxrX3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMsIE5VTEwgfSB9LAoJ
+eyAic2VjdXJpdHkiLAoJICB7ICJjb21wdXRlX2F2IiwgImNvbXB1dGVfY3JlYXRlIiwgImNv
+bXB1dGVfbWVtYmVyIiwKCSAgICAiY2hlY2tfY29udGV4dCIsICJsb2FkX3BvbGljeSIsICJj
+b21wdXRlX3JlbGFiZWwiLAoJICAgICJjb21wdXRlX3VzZXIiLCAic2V0ZW5mb3JjZSIsICJz
+ZXRib29sIiwgInNldHNlY3BhcmFtIiwKCSAgICAic2V0Y2hlY2tyZXFwcm90IiwgTlVMTCB9
+IH0sCgl7ICJwcm9jZXNzIiwKCSAgeyAiZm9yayIsICJ0cmFuc2l0aW9uIiwgInNpZ2NobGQi
+LCAic2lna2lsbCIsCgkgICAgInNpZ3N0b3AiLCAic2lnbnVsbCIsICJzaWduYWwiLCAicHRy
+YWNlIiwgImdldHNjaGVkIiwgInNldHNjaGVkIiwKCSAgICAiZ2V0c2Vzc2lvbiIsICJnZXRw
+Z2lkIiwgInNldHBnaWQiLCAiZ2V0Y2FwIiwgInNldGNhcCIsICJzaGFyZSIsCgkgICAgImdl
+dGF0dHIiLCAic2V0ZXhlYyIsICJzZXRmc2NyZWF0ZSIsICJub2F0c2VjdXJlIiwgInNpZ2lu
+aCIsCgkgICAgInNldHJsaW1pdCIsICJybGltaXRpbmgiLCAiZHludHJhbnNpdGlvbiIsICJz
+ZXRjdXJyZW50IiwKCSAgICAiZXhlY21lbSIsICJleGVjc3RhY2siLCAiZXhlY2hlYXAiLCAi
+c2V0a2V5Y3JlYXRlIiwKCSAgICAic2V0c29ja2NyZWF0ZSIsIE5VTEwgfSB9LAoJeyAic3lz
+dGVtIiwKCSAgeyAiaXBjX2luZm8iLCAic3lzbG9nX3JlYWQiLCAic3lzbG9nX21vZCIsCgkg
+ICAgInN5c2xvZ19jb25zb2xlIiwgIm1vZHVsZV9yZXF1ZXN0IiwgTlVMTCB9IH0sCgl7ICJj
+YXBhYmlsaXR5IiwKCSAgeyAiY2hvd24iLCAiZGFjX292ZXJyaWRlIiwgImRhY19yZWFkX3Nl
+YXJjaCIsCgkgICAgImZvd25lciIsICJmc2V0aWQiLCAia2lsbCIsICJzZXRnaWQiLCAic2V0
+dWlkIiwgInNldHBjYXAiLAoJICAgICJsaW51eF9pbW11dGFibGUiLCAibmV0X2JpbmRfc2Vy
+dmljZSIsICJuZXRfYnJvYWRjYXN0IiwKCSAgICAibmV0X2FkbWluIiwgIm5ldF9yYXciLCAi
+aXBjX2xvY2siLCAiaXBjX293bmVyIiwgInN5c19tb2R1bGUiLAoJICAgICJzeXNfcmF3aW8i
+LCAic3lzX2Nocm9vdCIsICJzeXNfcHRyYWNlIiwgInN5c19wYWNjdCIsICJzeXNfYWRtaW4i
+LAoJICAgICJzeXNfYm9vdCIsICJzeXNfbmljZSIsICJzeXNfcmVzb3VyY2UiLCAic3lzX3Rp
+bWUiLAoJICAgICJzeXNfdHR5X2NvbmZpZyIsICJta25vZCIsICJsZWFzZSIsICJhdWRpdF93
+cml0ZSIsCgkgICAgImF1ZGl0X2NvbnRyb2wiLCAic2V0ZmNhcCIsIE5VTEwgfSB9LAoJeyAi
+ZmlsZXN5c3RlbSIsCgkgIHsgIm1vdW50IiwgInJlbW91bnQiLCAidW5tb3VudCIsICJnZXRh
+dHRyIiwKCSAgICAicmVsYWJlbGZyb20iLCAicmVsYWJlbHRvIiwgInRyYW5zaXRpb24iLCAi
+YXNzb2NpYXRlIiwgInF1b3RhbW9kIiwKCSAgICAicXVvdGFnZXQiLCBOVUxMIH0gfSwKCXsg
+ImtleSIsCgkgIHsgInZpZXciLCAicmVhZCIsICJ3cml0ZSIsICJzZWFyY2giLCAibGluayIs
+ICJzZXRhdHRyIiwgImNyZWF0ZSIsCgkgICAgTlVMTCB9IH0sCgl7ICJkY2NwX3NvY2tldCIs
+CgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMsCgkgICAgIm5vZGVfYmluZCIsICJuYW1lX2Nvbm5l
+Y3QiLCBOVUxMIH0gfSwKCXsgIm1lbXByb3RlY3QiLCB7ICJtbWFwX3plcm8iLCBOVUxMIH0g
+fSwKCXsgInBlZXIiLCB7ICJyZWN2IiwgTlVMTCB9IH0sCgl7ICJjYXBhYmlsaXR5MiIsIHsg
+Im1hY19vdmVycmlkZSIsICJtYWNfYWRtaW4iLCBOVUxMIH0gfSwKCXsgImtlcm5lbF9zZXJ2
+aWNlIiwgeyAidXNlX2FzX292ZXJyaWRlIiwgImNyZWF0ZV9maWxlc19hcyIsIE5VTEwgfSB9
+LAoJeyAidHVuX3NvY2tldCIsCgkgIHsgQ09NTU9OX1NPQ0tfUEVSTVMsIE5VTEwgfSB9LAoJ
+eyBOVUxMIH0KICB9Owo=
+--------------050206030709090904020406--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
