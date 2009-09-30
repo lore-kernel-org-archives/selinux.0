@@ -1,224 +1,190 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8UIXvux021633
-	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 14:33:57 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n8UJlAmZ031717
+	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 15:47:10 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n8UIX9j7023092
-	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 18:33:09 GMT
-Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n8UIXto2016325
-	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 14:33:55 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n8UJmgWi023934
+	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 19:48:42 GMT
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id n8UJl7mE022631
+	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 15:47:08 -0400
 Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
-	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n8UIXtkc007661
-	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 14:33:55 -0400
-Message-ID: <4AC3A494.5010500@redhat.com>
-Date: Wed, 30 Sep 2009 14:33:56 -0400
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id n8UJl6YE009833
+	for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2009 15:47:07 -0400
+Message-ID: <4AC3B5BB.1090708@redhat.com>
+Date: Wed, 30 Sep 2009 15:47:07 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Add modules support to semanage
+Subject: semanage Equal.patch
 Content-Type: multipart/mixed;
- boundary="------------030309000106090809070007"
+ boundary="------------020604040600020008090409"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030309000106090809070007
+--------------020604040600020008090409
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Includes enable and disable.
+This is a patch that provides the fcontext equial to semanage.
 
-
---------------030309000106090809070007
+--------------020604040600020008090409
 Content-Type: text/plain;
- name="modules.patch"
+ name="equal.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="modules.patch"
+ filename="equal.patch"
 
 diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-index 437eca3..128ab47 100644
+index 128ab47..e974d33 100644
 --- a/policycoreutils/semanage/semanage
 +++ b/policycoreutils/semanage/semanage
-@@ -44,11 +44,12 @@ if __name__ == '__main__':
-                text = _("""
- semanage [ -S store ] -i [ input_file | - ]
+@@ -84,6 +84,7 @@ Object-specific Options (see above):
  
--semanage {boolean|login|user|port|interface|node|fcontext} -{l|D} [-n]
-+semanage {boolean|login|user|port|interface|module|node|fcontext} -{l|D} [-n]
- semanage login -{a|d|m} [-sr] login_name | %groupname
- semanage user -{a|d|m} [-LrRP] selinux_name
- semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
- semanage interface -{a|d|m} [-tr] interface_spec
-+semanage module -{a|d|m} [--enable|--disable] module
- semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask] addr
- semanage fcontext -{a|d|m} [-frst] file_spec
- semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
-@@ -90,6 +91,8 @@ Object-specific Options (see above):
- 	-s, --seuser     SELinux User Name
- 	-t, --type       SELinux Type for the object
- 	-r, --range      MLS/MCS Security Range (MLS/MCS Systems only)
-+        --enable         Enable a module
-+        --disable        Disable a module
- """)
-                raise ValueError("%s\n%s" % (text, message))
- 		
-@@ -110,6 +113,8 @@ Object-specific Options (see above):
- 		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--proto' ]
- 		valid_option["interface"] = []
- 		valid_option["interface"] += valid_everyone + [ '-t', '--type', '-r', '--range']
-+		valid_option["module"] = []
-+		valid_option["module"] += valid_everyone + [ '--enable', '--disable']
- 		valid_option["node"] = []
- 		valid_option["node"] += valid_everyone + [ '-M', '--mask', '-t', '--type', '-r', '--range', '-p', '--protocol']
- 		valid_option["fcontext"] = []
-@@ -188,6 +193,8 @@ Object-specific Options (see above):
+         -F, --file       Treat target as an input file for command, change multiple settings
+ 	-p, --proto      Port protocol (tcp or udp) or internet protocol version of node (ipv4 or ipv6)
++        -e, --equal      Make target equal to this paths labeling
+ 	-M, --mask       Netmask
+ 	-P, --prefix     Prefix for home directory labeling
+ 	-L, --level      Default SELinux Level (MLS/MCS Systems only)
+@@ -193,6 +194,7 @@ Object-specific Options (see above):
  		locallist = False
  		use_file = False
                  store = ""
-+                enable = False
-+                disable = False
++                equal=""
+                 enable = False
+                 disable = False
  			
- 		object = argv[0]
- 		option_dict=get_options()
-@@ -240,6 +247,18 @@ Object-specific Options (see above):
- 				if modify:
+@@ -208,6 +210,7 @@ Object-specific Options (see above):
+ 					    ['add',
+ 					     'delete',
+ 					     'deleteall',
++					     'equal=',
+ 					     'ftype=',
+ 					     'file',
+ 					     'help',
+@@ -248,6 +251,9 @@ Object-specific Options (see above):
                                         raise ValueError(_("%s bad option") % o)
  				deleteall = True
-+
-+			if o == "--enable":
-+                                if disable:
-+                                       raise ValueError(_("You can't disable and enable at the same time"))
-+
-+				enable = True
-+
-+			if o == "--disable":
-+                                if enable:
-+                                       raise ValueError(_("You can't disable and enable at the same time"))
-+				disable = True
-+
- 			if o == "-f"  or o == "--ftype":
- 				ftype=a
  
-@@ -307,6 +326,9 @@ Object-specific Options (see above):
- 		if object == "interface":
- 			OBJECT = seobject.interfaceRecords(store)
- 
-+		if object == "module":
-+			OBJECT = seobject.moduleRecords(store)
++			if o == "-e"  or o == "--equal":
++				equal = a
 +
- 		if object == "node":
- 			OBJECT = seobject.nodeRecords(store)
- 
-@@ -355,6 +377,9 @@ Object-specific Options (see above):
- 			if object == "interface":
- 				OBJECT.add(target, serange, setype)
- 
-+			if object == "module":
-+				OBJECT.add(target)
-+
- 			if object == "node":
+ 			if o == "--enable":
+                                 if disable:
+                                        raise ValueError(_("You can't disable and enable at the same time"))
+@@ -384,7 +390,11 @@ Object-specific Options (see above):
  				OBJECT.add(target, mask, proto, serange, setype)
  
-@@ -382,6 +407,14 @@ Object-specific Options (see above):
- 			if object == "interface":
- 				OBJECT.modify(target, serange, setype)
- 
-+			if object == "module":
-+                                if enable:
-+                                       OBJECT.enable(target)
-+                                elif disable:
-+                                       OBJECT.disable(target)
+ 			if object == "fcontext":
+-				OBJECT.add(target, setype, ftype, serange, seuser)
++                                if equal == "":
++                                       OBJECT.add(target, setype, ftype, serange, seuser)
 +                                else:
-+                                       OBJECT.modify(target)
++                                       OBJECT.add_equal(target, equal)
 +
- 			if object == "node":
+ 			if object == "permissive":
+ 				OBJECT.add(target)
+ 
+@@ -419,7 +429,10 @@ Object-specific Options (see above):
  				OBJECT.modify(target, mask, proto, serange, setype)
  
+ 			if object == "fcontext":
+-				OBJECT.modify(target, setype, ftype, serange, seuser)
++                                if equal == "":
++                                       OBJECT.modify(target, setype, ftype, serange, seuser)
++                                else:
++                                       OBJECT.modify_equal(target, equal)
+ 
+                         return
+ 
 diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-index 7c94da0..4d36660 100644
+index 4d36660..d702f2f 100644
 --- a/policycoreutils/semanage/seobject.py
 +++ b/policycoreutils/semanage/seobject.py
-@@ -233,6 +233,77 @@ class semanageRecords:
-                self.transaction = False
-                self.commit()
+@@ -1409,6 +1409,48 @@ class interfaceRecords(semanageRecords):
+ class fcontextRecords(semanageRecords):
+ 	def __init__(self, store = ""):
+ 		semanageRecords.__init__(self, store)
++                self.equiv = {}
++                self.equal_ind = False
++                try:
++                       fd = open(selinux.selinux_file_context_subs_path(), "r")
++                       for i in fd.readlines():
++                              src, dst = i.split()
++                              self.equiv[src] = dst
++                       fd.close()
++                except IOError:
++                       pass
++
++        def commit(self):
++                if self.equal_ind:
++                       subs_file = selinux.selinux_file_context_subs_path()
++                       tmpfile = "%s.tmp" % subs_file
++                       fd = open(tmpfile, "w")
++                       for src in self.equiv.keys():
++                              fd.write("%s %s\n" % (src, self.equiv[src]))
++                       fd.close()
++                       try:
++                              os.chmod(tmpfile, os.stat(subs_file)[stat.ST_MODE])
++                       except:
++                              pass
++                       os.rename(tmpfile,subs_file)
++                       self.equal_ind = False
++		semanageRecords.commit(self)
++
++        def add_equal(self, src, dst):
++                self.begin()
++                if src in self.equiv.keys():
++                       raise ValueError(_("Equivalence class for %s already exists") % src)
++                self.equiv[src] = dst
++                self.equal_ind = True
++                self.commit()
++
++        def modify_equal(self, src, dst):
++                self.begin()
++                if src not in self.equiv.keys():
++                       raise ValueError(_("Equivalence class for %s does not exists") % src)
++                self.equiv[src] = dst
++                self.equal_ind = True
++                self.commit()
  
-+class moduleRecords(semanageRecords):
-+	def __init__(self, store):
-+               semanageRecords.__init__(self, store)
+         def createcon(self, target, seuser = "system_u"):
+                 (rc, con) = semanage_context_create(self.sh)
+@@ -1575,9 +1617,16 @@ class fcontextRecords(semanageRecords):
+                               raise ValueError(_("Could not delete the file context %s") % target)
+                        semanage_fcontext_key_free(k)
+ 	
++                self.equiv = {}
++                self.equal_ind = True
+                 self.commit()
+ 
+ 	def __delete(self, target, ftype):
++                if target in self.equiv.keys():
++                       self.equiv.pop(target)
++                       self.equal_ind = True
++                       return
 +
-+	def get_all(self):
-+               l = []
-+               (rc, mlist, number) = semanage_module_list(self.sh)
-+               if rc < 0:
-+                      raise ValueError(_("Could not list SELinux modules"))
+ 		(rc,k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
+ 		if rc < 0:
+ 			raise ValueError(_("Could not create a key for %s") % target)
+@@ -1633,11 +1682,12 @@ class fcontextRecords(semanageRecords):
+ 		return ddict
+ 			
+ 	def list(self, heading = 1, locallist = 0 ):
+-		if heading:
+-			print "%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context"))
+ 		fcon_dict = self.get_all(locallist)
+                 keys = fcon_dict.keys()
+                 keys.sort()
++                if len(keys) > 0 and heading:
++			print "%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context"))
 +
-+               for i in range(number):
-+                      mod = semanage_module_list_nth(mlist, i)
-+                      l.append((semanage_module_get_name(mod), semanage_module_get_version(mod), semanage_module_get_enabled(mod)))
-+               return l
-+
-+	def list(self, heading = 1, locallist = 0):
-+		if heading:
-+			print "\n%-25s%-10s\n" % (_("Modules Name"), _("Version"))
-+                for t in self.get_all():
-+                       if t[2] == 0:
-+                              disabled = _("Disabled")
-+                       else:
-+                              disabled = ""
-+                       print "%-25s%-10s%s" % (t[0], t[1], disabled)
-+
-+	def add(self, file):
-+               rc = semanage_module_install_file(self.sh, file);
-+               if rc >= 0:
-+                      self.commit()
-+
-+	def disable(self, module):
-+               need_commit = False                      
-+               for m in module.split():
-+                      rc = semanage_module_disable(self.sh, m)
-+                      if rc < 0 and rc != -3:
-+                             raise ValueError(_("Could not disable module %s (remove failed)") % m)
-+                      if rc != -3:
-+                             need_commit = True 
-+               if need_commit:
-+                      self.commit()
-+			
-+	def enable(self, module):
-+               need_commit = False                      
-+               for m in module.split():
-+                      rc = semanage_module_enable(self.sh, m)
-+                      if rc < 0 and rc != -3:
-+                             raise ValueError(_("Could not enable module %s (remove failed)") % m)
-+                      if rc != -3:
-+                             need_commit = True 
-+               if need_commit:
-+                      self.commit()
-+
-+	def modify(self, file):
-+               rc = semanage_module_update_file(self.sh, file);
-+               if rc >= 0:
-+                      self.commit()
-+
-+	def delete(self, module):
-+               for m in module.split():
-+                      rc = semanage_module_remove(self.sh, m)
-+                      if rc < 0 and rc != -2:
-+                             raise ValueError(_("Could not remove module %s (remove failed)") % m)
-+                      
-+               self.commit()
-+			
-+	def deleteall(self):
-+               l = self.get_all()
-+               if len(l) > 0:
-+                      all = " ".join(l[0])
-+                      self.delete(all)
-+
- class dontauditClass(semanageRecords):
- 	def __init__(self, store):
-                semanageRecords.__init__(self, store)
+ 		for k in keys:
+ 			if fcon_dict[k]:
+ 				if is_mls_enabled:
 
---------------030309000106090809070007--
+--------------020604040600020008090409--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
