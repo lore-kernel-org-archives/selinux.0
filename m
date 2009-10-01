@@ -1,38 +1,79 @@
-Subject: Re: [PATCH] selinux:  drop remapping of netlink classes
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <1254422903.30591.123.camel@moss-pluto.epoch.ncsc.mil>
-References: <1254422903.30591.123.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 01 Oct 2009 15:05:26 -0400
-Message-Id: <1254423926.2952.8.camel@dhcp231-106.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n91LZV7w023488
+	for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2009 17:35:31 -0400
+Received: from g5t0009.atlanta.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n91Lb4Oq027398
+	for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2009 21:37:04 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v1] refpol: Add netif,
+	node and peer constraints for MCS based policies
+To: refpolicy@oss1.tresys.com
+Cc: selinux@tycho.nsa.gov, js44352@gmail.com
+Date: Thu, 01 Oct 2009 17:35:27 -0400
+Message-ID: <20091001213527.16869.87442.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-10-01 at 14:48 -0400, Stephen Smalley wrote:
-> Drop remapping of netlink classes and bypass of permission checking
-> based on netlink message type for policy version < 18.  This removes
-> compatibility code introduced when the original single netlink
-> security class used for all netlink sockets was split into
-> finer-grained netlink classes based on netlink protocol and when
-> permission checking was added based on netlink message type in Linux
-> 2.6.8.  The only known distribution that shipped with SELinux and
-> policy < 18 was Fedora Core 2, which was EOL'd on 2005-04-11.
-> 
-> Given that the remapping code was never updated to address the
-> addition of newer netlink classes, that the corresponding userland
-> support was dropped in 2005, and that the assumptions made by the
-> remapping code about the fixed ordering among netlink classes in the
-> policy may be violated in the future due to the dynamic class/perm
-> discovery support, we should drop this compatibility code now.
+Adapt the MLS netif, node and peer networking constraints for MCS.  This patch
+preserves the basic structure of the MLS constraints and converts them to use
+the MCS model which means the "(( l1 dom l2 ) and ( l1 domby h2 ))" constraints
+are converted to "( h1 dom h2 )".
 
-Shouldn't we reject the load of such a policy as well?  No reason to
-leave them with a false sense of working....
+Signed-of-by: Paul Moore <paul.moore@hp.com>
+---
 
--Eric
+ policy/mcs |   36 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 36 insertions(+), 0 deletions(-)
+
+diff --git a/policy/mcs b/policy/mcs
+index b8dc0d6..0759021 100644
+--- a/policy/mcs
++++ b/policy/mcs
+@@ -99,6 +99,42 @@ mlsconstrain process { sigkill sigstop }
+ 	(( h1 dom h2 ) or ( t1 == mcskillall ));
+ 
+ #
++# MCS policy for the network ingress/egress controls
++#
++
++# the netif ingress/egress ops, the ingress permission is a "write" operation
++# because the subject in this particular case is the remote domain which is
++# writing data out the network interface which is acting as the object
++mlsconstrain { netif } { ingress }
++	(( h1 dom h2 ) or ( t1 == mlsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { netif } { egress }
++	(( h1 dom h2 ) or ( t1 == mlsnetoutbound ));
++
++# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
++# because the subject in this particular case is the remote domain which is
++# writing data out the network node which is acting as the object
++mlsconstrain { node } { recvfrom }
++	(( h1 dom h2 ) or ( t1 == mlsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { node } { sendto }
++	(( h1 dom h2 ) or ( t1 == mlsnetoutbound ));
++
++# the forward ops, the forward_in permission is a "write" operation because the
++# subject in this particular case is the remote domain which is writing data
++# to the network with a secmark label, the object in this case
++mlsconstrain { packet } { forward_in }
++	(( h1 dom h2 ) or ( t1 == mlsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { packet } { forward_out }
++	(( h1 dom h2 ) or ( t1 == mlsnetoutbound ) or ( t1 == unlabeled_t ));
++
++#
++# MCS policy for the secmark and peer controls
++#
++
++# the peer/packet recv op
++mlsconstrain { peer packet } { recv }
++	(( h1 dom h2 ) or ( t1 == mlsnetread ));
++
++#
+ # MCS policy for SELinux-enabled databases
+ #
+ 
 
 
 --
