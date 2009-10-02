@@ -1,195 +1,60 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n92D1WfB025766
-	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 09:01:32 -0400
-Subject: Re: [PATCH 3/3] cr: add selinux support (v4)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20091002035250.GC16920@us.ibm.com>
-References: <20091002034916.GA16871@us.ibm.com>
-	 <20091002035250.GC16920@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 02 Oct 2009 08:59:41 -0400
-Message-Id: <1254488381.30591.316.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n92FeIhM012112
+	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 11:40:19 -0400
+Received: from atoll.udmvt.ru (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n92FdUQb017310
+	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 15:39:31 GMT
+Received: from ruber.office.udmvt.ru (ruber.office.udmvt.ru [192.168.21.33])
+	by atoll.udmvt.ru (8.13.6/8.13.6/Izhcom-V1.1e) with SMTP id n92FeCgc051342
+	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 20:40:14 +0500 (SAMST)
+	(envelope-from spg@udmvt.ru)
+Date: Fri, 2 Oct 2009 20:40:12 +0500
+From: selinux@udmvt.ru
+To: selinux@tycho.nsa.gov
+Subject: How to trace why MCS permissions granted?
+Message-ID: <20091002154012.GT4221@ruber.office.udmvt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-10-01 at 22:52 -0500, Serge E. Hallyn wrote:
-> Documentation/checkpoint/readme.txt begins:
-> """
-> Application checkpoint/restart is the ability to save the state
-> of a running application so that it can later resume its execution
-> from the time at which it was checkpointed.
-> """
-> 
-> This patch adds the ability to checkpoint and restore selinux
-> contexts for tasks, open files, and sysvipc objects.  Contexts
-> are checkpointed as strings.  For tasks and files, where a security
-> struct actually points to several contexts, all contexts are
-> written out in one string, separated by ':::'.
+Hello, everyone.
+I'm just playing with MCS and trying to understand the system's behavior.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8d8b69c..4fb8b5d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2961,6 +2962,108 @@ static int selinux_file_permission(struct file *file, int mask)
->  	return selinux_revalidate_file_permission(file, mask);
->  }
->  
-> +/*
-> + * for file context, we print both the fsec->sid and fsec->fown_sid
-> + * as string representations, separated by ':::'
-> + * We don't touch isid - if you wanted that set you shoulda set up the
-> + * fs correctly.
-> + */
-> +static inline char *selinux_file_checkpoint(void *security)
+As far as I have read the theory, categories can be used to limit unwanted user's
+access to your data. So, I am trying to create a file, mark it with a category,
+first time - the same as the process has. Then I write there some data and read it back.
+That works OK and is as expected.
+But when I change file's category to some other, that my testing process don't have,
+to prevent the process from accessing that file, I discover that the process may read,
+but cannot write (append) to that file:
 
-Why are these functions declared inline?  In any event, just let the
-compiler figure out when to make them inline if appropriate.
+	root@selinux1:/tmp# id
+	uid=0(root) gid=0(root) groups=0(root) context=root:sysadm_r:sysadm_t:s0:c0
+	root@selinux1:/tmp# ls -laZ test
+	-rw-r--r-- 1 root root system_u:object_r:sysadm_tmp_t:s0:c1   9 Oct  3 00:44 test
+	root@selinux1:/tmp# cat test
+	asfasdaf
+	root@selinux1:/tmp# cat >> test
+	bash: test: Permission denied
+	root@selinux1:/tmp# setenforce 0
+	root@selinux1:/tmp# cat >> test
+	blabla
+	root@selinux1:/tmp# cat test
+	asfasdaf
+	blabla
 
-> +static inline int selinux_file_restore(struct file *file, char *ctx)
-> +{
-> +	char *s1, *s2;
-> +	__u32 sid1 = 0, sid2 = 0;
-> +	int ret = -EINVAL;
-> +	struct file_security_struct *fsec = file->f_security;
-> +
-> +	/*
-> +	 * Objhash made sure the string is null-terminated.
-> +	 * We make a copy so we can mangle it.
-> +	 */
-> +	s1 = kstrdup(ctx, GFP_KERNEL);
-> +	if (!s1)
-> +		return -ENOMEM;
-> +	s2 = strstr(s1, ":::");
-> +	if (!s2)
-> +		goto out;
-> +
-> +	*s2 = '\0';
-> +	s2 += 3;
-> +	if (*s2 == '\0')
-> +		goto out;
-> +
-> +	/* SECSID_NULL is not valid for file sids */
-> +	if (strlen(s1) == 0 || strlen(s2) == 0)
-> +		goto out;
-> +
-> +	ret = security_context_to_sid(s1, strlen(s1), &sid1);
-> +	if (ret)
-> +		goto out;
-> +	ret = security_context_to_sid(s2, strlen(s2), &sid2);
-> +	if (ret)
-> +		goto out;
-> +
-> +	if (sid1 && fsec->sid != sid1) {
-> +		ret = avc_has_perm(current_sid(), sid1, SECCLASS_FILE,
-> +					FILE__RESTORE, NULL);
-> +		if (ret)
-> +			goto out;
-> +		fsec->sid = sid1;
-> +	}
-> +
-> +#if 0
-> +	/* The following must wait - bc we don't yet support
-> +	 * c/r of fowners. */
-> +	if (sid2 && fsec->fown_sid != sid2) {
-> +		ret = avc_has_perm(current_sid(), sid2, SECCLASS_FILE,
-> +				FILE__FOWN_RESTORE, NULL);
-> +		if (ret)
-> +			goto out;
-> +	       fsec->fown_sid = sid2;
-> +	}
-> +#endif
+When the process is at s0:c0, the file is at s0:c1, and in enforcing mode I expect
+to have no access at all.
 
-I'm not sure why you can't enable this code yet.  From your comment, it
-sounds like c/r doesn't yet handle the uid/euid in the fown_struct, but
-that doesn't mean you can't manage the fown_sid that we store in the
-file.  We just leveraged the fact that a fown_struct is never outside
-the context of a containing struct file (at least from a send_sigio
-context) to avoid introducing a separate security field with its own
-lifecycle there.
+I can only guess, that sysadm_t is in some way marked as a special type for
+bypassing MCS constraints, but how can I proof/check that?
+And if that is true, I still expect to have all access or no access at all,
+but not the read only access.
+Please, if there is nothing wrong with what I am seeing, tell where can I read
+about that more?
 
-> @@ -3219,6 +3322,187 @@ static int selinux_task_create(unsigned long clone_flags)
->  	return current_has_perm(current, PROCESS__FORK);
->  }
->  
-> +#define NUMTASKSIDS 6
-> +/*
-> + * for cred context, we print:
-> + *   osid, sid, exec_sid, create_sid, keycreate_sid, sockcreate_sid;
-> + * as string representations, separated by ':::'
-> + */
-> +static inline char *selinux_cred_checkpoint(void *security)
-> +{
-> +	struct task_security_struct *tsec = security;
-> +	char *stmp, *sfull = NULL;
-> +	__u32 slen, runlen;
-> +	int i, ret;
-> +	__u32 sids[NUMTASKSIDS] = { tsec->osid, tsec->sid, tsec->exec_sid,
-> +		tsec->create_sid, tsec->keycreate_sid, tsec->sockcreate_sid };
-
-Why are you using __u32 rather than just u32?  I think the former is
-only necessary in certain headers that might be shared with userspace?
-
-> +static inline int selinux_cred_restore(struct file *file, struct cred *cred,
-> +					char *ctx)
-> +{
-> +	char *s, *s1, *s2 = NULL;
-> +	int ret = -EINVAL;
-> +	struct task_security_struct *tsec = cred->security;
-> +	int i;
-> +	__u32 sids[NUMTASKSIDS];
-> +	struct inode *ctx_inode = file->f_dentry->d_inode;
-> +	struct avc_audit_data ad;
-
-audit code was refactored in mainline to share common data structures
-and code among security modules, so e.g. this became common_audit_data.
-Not sure what your baseline is, but this happened in July.
-
-> +	/*
-> +	 * Check that these transitions are allowed, and effect them.
-> +	 * XXX: Do these checks suffice?
-> +	 */
-> +	if (tsec->osid != sids[0]) {
-> +		/*
-> +		 * Are any security decisions made based on osid?
-> +		 * Is it worth adding a PROCESS_RESTORE_OSID permission
-> +		 * for this?
-> +		 */
-> +		 tsec->osid = sids[0];
-
-osid is only used in kernel permission checks upon a SID transition, and
-then it has been updated to ->sid prior to the transition.  Userspace
-however may use it in a permission check (obtained via getprevcon) on
-the caller when the program runs in its own domain, e.g. passwd(1).  I
-suppose there should be a check for it, although possibly it could be
-the same as for the ->sid (i.e. PROCESS__RESTORE).
-
-> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-> index 31df1d7..78945e7 100644
-> --- a/security/selinux/include/av_perm_to_string.h
-> +++ b/security/selinux/include/av_perm_to_string.h
-<snip>
-
-Just FYI, this file goes away with the dynamic class/perm discovery
-patch that I've been posting to selinux list.
-
-> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-> index d645192..8e066ac 100644
-> --- a/security/selinux/include/av_permissions.h
-> +++ b/security/selinux/include/av_permissions.h
-<snip>
-
-Likewise, this file goes away and is replaced by an automatically
-generated one from the new classmap.h file, which is the only kernel
-file you'll need to modify to add new permissions.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
