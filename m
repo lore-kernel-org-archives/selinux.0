@@ -1,26 +1,26 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n92GLXKH018514
-	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 12:21:33 -0400
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n92H2bAB026316
+	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 13:02:37 -0400
 Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n92GKiJE006280
-	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 16:20:44 GMT
-Received: by ewy7 with SMTP id 7so1087830ewy.41
-        for <selinux@tycho.nsa.gov>; Fri, 02 Oct 2009 09:21:31 -0700 (PDT)
-Date: Fri, 2 Oct 2009 18:21:28 +0200
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n92H4BCX022363
+	for <selinux@tycho.nsa.gov>; Fri, 2 Oct 2009 17:04:11 GMT
+Received: by ewy7 with SMTP id 7so1109299ewy.41
+        for <selinux@tycho.nsa.gov>; Fri, 02 Oct 2009 10:02:34 -0700 (PDT)
+Date: Fri, 2 Oct 2009 19:02:31 +0200
 From: Dominick Grift <domg472@gmail.com>
 To: selinux@tycho.nsa.gov
 Subject: Re: How to trace why MCS permissions granted?
-Message-ID: <20091002162126.GA3474@notebook3.grift.internal>
+Message-ID: <20091002170230.GB3474@notebook3.grift.internal>
 References: <20091002154012.GT4221@ruber.office.udmvt.ru>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+	protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
 In-Reply-To: <20091002154012.GT4221@ruber.office.udmvt.ru>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -75,34 +75,14 @@ l,
 >=20
 > Thanks.
 
-The tresys reference policy maillist is better suited for this.
+Whoops i was wrong. That was process_read_up not file so i guess it is beca=
+use
 
-http://oss.tresys.com/mailman/listinfo/refpolicy
+userdom_security_admin_template(sysadm_t, sysadm_r)
 
-My guess is that "mls_process_read_up(sysadm_t)" in sysadm.te is responsibl=
-e for the behaviour but i am not sure.
+like ssmalley say's
 
-http://oss.tresys.com/projects/refpolicy/browser/policy/modules/roles/sysad=
-m.te
-
-line 31
-
-looking in the mls module:
-
-http://oss.tresys.com/projects/refpolicy/browser/policy/modules/kernel/mls.=
-if
-
-line 72
-
-http://oss.tresys.com/projects/refpolicy/browser/policy/mcs
-
-line 83
-
-mlsconstrain file { read }
- 	        (( h1 dom h2 ) or ( t2 =3D=3D domain ) or ( t1 =3D=3D mlsfileread=
- ));
- =09
-
+i guess the policy is built with mls enabled.
 >=20
 > --
 > This message was distributed to subscribers of the selinux mailing list.
@@ -110,19 +90,19 @@ mlsconstrain file { read }
 with
 > the words "unsubscribe selinux" without quotes as the message.
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkrGKIYACgkQMlxVo39jgT/yqwCfa1PccTtx85Ak6LHLj5U6B5/6
-2r8AoMXqp424FfTcozZ6q5ttN5x5CP2z
-=BIdY
+iEYEARECAAYFAkrGMiYACgkQMlxVo39jgT+q2QCgi7vGHhW7LkhOCO273mr2YwSO
+j9IAoK3FQCAeGUR3Uk2sQKftuPQpmbWi
+=tXec
 -----END PGP SIGNATURE-----
 
---oyUTqETQ0mS9luUI--
+--9zSXsLTf0vkW971A--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
