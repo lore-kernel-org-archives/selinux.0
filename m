@@ -1,31 +1,32 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n93FDJoP007953
-	for <selinux@tycho.nsa.gov>; Sat, 3 Oct 2009 11:13:19 -0400
-Received: from QMTA04.westchester.pa.mail.comcast.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n93FCVMi029746
-	for <selinux@tycho.nsa.gov>; Sat, 3 Oct 2009 15:12:31 GMT
-Subject: Re: [PATCH v4 2/2] selinux:  generate flask headers during kernel
- build
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1254400360.30591.105.camel@moss-pluto.epoch.ncsc.mil>
-References: <1254244173.2252.138.camel@moss-pluto.epoch.ncsc.mil>
-	 <1254244459.2252.143.camel@moss-pluto.epoch.ncsc.mil>
-	 <1254247383.2252.192.camel@moss-pluto.epoch.ncsc.mil>
-	 <4AC2C32D.3010405@ak.jp.nec.com>
-	 <1254314361.30591.11.camel@moss-pluto.epoch.ncsc.mil>
-	 <1254315215.30591.18.camel@moss-pluto.epoch.ncsc.mil>
-	 <alpine.LRH.2.00.0910010745180.30576@tundra.namei.org>
-	 <1254400360.30591.105.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 02 Oct 2009 20:33:45 -0400
-Message-Id: <1254530025.12997.4.camel@defiant.pebenito.net>
-Mime-Version: 1.0
+Date: Sat, 03 Oct 2009 21:30:49 +0300
+From: =?gb2312?B?xbfn5sv+zqzRxw==?= <octavian.ionescu@huawei.com>
+Subject: RE: [PATCH v4 2/2] selinux:  generate flask headers during kernel build
+In-reply-to: <1254530025.12997.4.camel@defiant.pebenito.net>
+To: "'Chris PeBenito'" <pebenito@gentoo.org>,
+        "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'James Morris'" <jmorris@namei.org>,
+        "'KaiGai Kohei'" <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
+        "'Eric Paris'" <eparis@parisplace.org>,
+        "'Paul Moore'" <paul.moore@hp.com>,
+        "'Joshua Brindle'" <jbrindle@tresys.com>
+Message-id: <000e01ca4457$c52f37d0$efe3540a@china.huawei.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=gb2312
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+
+Hello all,
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Chris PeBenito
+Sent: Saturday, October 03, 2009 3:34 AM
+To: Stephen Smalley
+Cc: James Morris; KaiGai Kohei; selinux@tycho.nsa.gov; Eric Paris; Paul
+Moore; Joshua Brindle
+Subject: Re: [PATCH v4 2/2] selinux: generate flask headers during kernel
+build
 
 On Thu, 2009-10-01 at 08:32 -0400, Stephen Smalley wrote:
 > On Thu, 2009-10-01 at 07:46 +1000, James Morris wrote:
@@ -41,7 +42,8 @@ On Thu, 2009-10-01 at 08:32 -0400, Stephen Smalley wrote:
 > > > 
 > > > I think RHEL4 shipped with policy.18.
 > > 
-> > Was any distro shipped with a lower policy version?  If not, then I think 
+> > Was any distro shipped with a lower policy version?  If not, then I
+think 
 > > it should be ok.
 > 
 > policy.18 was first supported by Linux 2.6.8.
@@ -60,6 +62,19 @@ Hardened Gentoo Linux
  
 Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
 Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+We've agreed!
+
+Best regards,
+
+Octavian Ionescu
+Å·çæËþÎ¬ÑÇ
+Core Network TAC Engineer
+ 
+Huawei Technologies Co. ,Ltd 
+Mobile: +40726691157
+E-mail: octavian.ionescu@huawei.com
+
 
 
 --
