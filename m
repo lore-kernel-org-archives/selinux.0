@@ -1,47 +1,45 @@
-Subject: Re: [PATCH 1/3] libsepol: Add support for multiple target OSes
+Subject: Re: get request context
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <4ACB5247.4000304@manicmethod.com>
-References: <1253031316.3209.116.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4AB0EF22.8070003@manicmethod.com>
-	 <1254233003.2466.59.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4ACB5247.4000304@manicmethod.com>
+To: michel m <michel.mcgregor@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1254916932.2251.176.camel@moss-pluto.epoch.ncsc.mil>
+References: <bb74313d0910070439s6271ebe6ib481aab3f0eca7a6@mail.gmail.com>
+	 <1254916932.2251.176.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 07 Oct 2009 13:37:58 -0400
-Message-Id: <1254937078.2251.286.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 07 Oct 2009 13:38:48 -0400
+Message-Id: <1254937128.2251.288.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-10-06 at 10:20 -0400, Joshua Brindle wrote:
+On Wed, 2009-10-07 at 08:02 -0400, Stephen Smalley wrote:
+> On Wed, 2009-10-07 at 15:09 +0330, michel m wrote:
+> > Hi,
+> > 
+> > Is there any way that I can get context for incoming http requests
+> > from selinux API. that is I want to classify requests based on some
+> > criteria like origin`s IP address or any thing that can help me to
+> > know what context the request is coming from.
+> > 
+> > is there such an API for this is libselinux? If not, how can I have
+> > this knowledge by using existing API?
 > 
-> Paul Nuzzi wrote:
-> > On Wed, 2009-09-16 at 09:58 -0400, Joshua Brindle wrote:
-> <snip>
-> > Thanks for your input.  Below is the updated patch for libsepol.
-> >
+> If using labeled IPSEC to label the connections, you can use
+> getpeercon(3) in libselinux.
 > 
-> A quick look through looks good. I'd like to test it out a bit, do you 
-> have a Xen policy somewhere I can use for testing?
+> http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/
 > 
-> Also, I notice that this only lets you write out a "kernel" policy for 
-> Xen, but it might be beneficial to write out a base policy for testing, 
-> development, analysis, etc.
+> Likewise with NetLabel, although there you are limited to only passing
+> the MLS label at present.  You might be able to do something via the
+> fallback labeling based on IP address.
+> 
+> http://paulmoore.livejournal.com/
 
-The Xen Flask policy lives in the xen-unstable tree; Paul has a patch to
-update the Xen Flask module to support this new policy string identifier
-and the new ocontext records and to update the policy there, but you'd
-have to apply that patch to xen-unstable and build it.
+Also, if you want to deal with it in terms of http authenticated user
+identity rather than connection, you might want to have a look at
+mod_selinux.
 
-In terms of base policy, if you mean modular base policy, we'd have to
-introduce multiple string identifiers for it in the same way as the
-kernel policy format, and I couldn't see the benefit of doing that when
-the module format is going to be replaced in the not-too-distant future.
-And what precisely is the benefit of writing a base policy vs. a kernel
-policy now that policy.24 includes attribute names and preserves
-attributes in allow rules (aside from certain cases, like type set
-exclusion aka minus)?
+http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
 
 -- 
 Stephen Smalley
