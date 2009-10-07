@@ -1,95 +1,53 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n97ILT1l002139
-	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 14:21:29 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n97IKesL011176
-	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 18:20:40 GMT
-Subject: Re: [refpolicy] [RFC PATCH v2] refpol: Add netif, node and peer
- constraints for MCS based policies
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov, js44352@gmail.com
-In-Reply-To: <20091007172556.3117.39527.stgit@flek.lan>
-References: <20091007172556.3117.39527.stgit@flek.lan>
-Content-Type: text/plain
-Date: Wed, 07 Oct 2009 14:20:17 -0400
-Message-Id: <1254939619.29663.3.camel@gorn>
-Mime-Version: 1.0
+Message-ID: <4ACCE272.1070303@manicmethod.com>
+Date: Wed, 07 Oct 2009 14:48:18 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] libsepol: Add support for multiple target OSes
+References: <1253031316.3209.116.camel@moss-stripedbass.epoch.ncsc.mil>	 <4AB0EF22.8070003@manicmethod.com>	 <1254233003.2466.59.camel@moss-stripedbass.epoch.ncsc.mil>	 <4ACB5247.4000304@manicmethod.com> <1254937078.2251.286.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1254937078.2251.286.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-10-07 at 17:25 +0000, Paul Moore wrote:
-> Adapt the MLS netif, node and peer networking constraints for MCS.  This patch
-> preserves the basic structure of the MLS constraints and converts them to use
-> the MCS model which means the "(( l1 dom l2 ) and ( l1 domby h2 ))" constraints
-> are converted to "( h1 dom h2 )".
+Stephen Smalley wrote:
+> On Tue, 2009-10-06 at 10:20 -0400, Joshua Brindle wrote:
+>> Paul Nuzzi wrote:
+>>> On Wed, 2009-09-16 at 09:58 -0400, Joshua Brindle wrote:
+>> <snip>
+>>> Thanks for your input.  Below is the updated patch for libsepol.
+>>>
+>> A quick look through looks good. I'd like to test it out a bit, do you
+>> have a Xen policy somewhere I can use for testing?
+>>
+>> Also, I notice that this only lets you write out a "kernel" policy for
+>> Xen, but it might be beneficial to write out a base policy for testing,
+>> development, analysis, etc.
+>
+> The Xen Flask policy lives in the xen-unstable tree; Paul has a patch to
+> update the Xen Flask module to support this new policy string identifier
+> and the new ocontext records and to update the policy there, but you'd
+> have to apply that patch to xen-unstable and build it.
+>
 
-It still needs the attribute declarations, along with interfaces for
-each of them.
+I'll leave the Xen Flask Module part to you guys, I just wanted to build 
+a Xen policy and do some poking around on it to see if it looks right.
 
-> Signed-of-by: Paul Moore <paul.moore@hp.com>
-> ---
-> 
->  policy/mcs |   36 ++++++++++++++++++++++++++++++++++++
->  1 files changed, 36 insertions(+), 0 deletions(-)
-> 
-> diff --git a/policy/mcs b/policy/mcs
-> index af90ef2..5aedab8 100644
-> --- a/policy/mcs
-> +++ b/policy/mcs
-> @@ -102,6 +102,42 @@ mlsconstrain process { sigkill sigstop }
->  	(( h1 dom h2 ) or ( t1 == mcskillall ));
->  
->  #
-> +# MCS policy for the network ingress/egress controls
-> +#
-> +
-> +# the netif ingress/egress ops, the ingress permission is a "write" operation
-> +# because the subject in this particular case is the remote domain which is
-> +# writing data out the network interface which is acting as the object
-> +mlsconstrain { netif } { ingress }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
-> +mlsconstrain { netif } { egress }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
-> +
-> +# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
-> +# because the subject in this particular case is the remote domain which is
-> +# writing data out the network node which is acting as the object
-> +mlsconstrain { node } { recvfrom }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
-> +mlsconstrain { node } { sendto }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
-> +
-> +# the forward ops, the forward_in permission is a "write" operation because the
-> +# subject in this particular case is the remote domain which is writing data
-> +# to the network with a secmark label, the object in this case
-> +mlsconstrain { packet } { forward_in }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
-> +mlsconstrain { packet } { forward_out }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ) or ( t1 == unlabeled_t ));
-> +
-> +#
-> +# MCS policy for the secmark and peer controls
-> +#
-> +
-> +# the peer/packet recv op
-> +mlsconstrain { peer packet } { recv }
-> +	(( h1 dom h2 ) or ( t1 == mcsnetread ));
-> +
-> +#
->  # MCS policy for SELinux-enabled databases
->  #
->  
-> 
-> _______________________________________________
-> refpolicy mailing list
-> refpolicy@oss.tresys.com
-> http://oss.tresys.com/mailman/listinfo/refpolicy
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
+> In terms of base policy, if you mean modular base policy, we'd have to
+> introduce multiple string identifiers for it in the same way as the
+> kernel policy format, and I couldn't see the benefit of doing that when
+> the module format is going to be replaced in the not-too-distant future.
+> And what precisely is the benefit of writing a base policy vs. a kernel
+> policy now that policy.24 includes attribute names and preserves
+> attributes in allow rules (aside from certain cases, like type set
+> exclusion aka minus)?
+
+That is fine, I was just thinking it is nicer to put a base module into 
+setools than a kernel policy but there is a good chance that won't work 
+anyway since setools won't know about the new ocontexts and might freak 
+out (completely untested).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
