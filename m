@@ -1,49 +1,94 @@
-Subject: Re: get request context
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: michel m <michel.mcgregor@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1254916932.2251.176.camel@moss-pluto.epoch.ncsc.mil>
-References: <bb74313d0910070439s6271ebe6ib481aab3f0eca7a6@mail.gmail.com>
-	 <1254916932.2251.176.camel@moss-pluto.epoch.ncsc.mil>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n97ILT1l002139
+	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 14:21:29 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n97IKesL011176
+	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 18:20:40 GMT
+Subject: Re: [refpolicy] [RFC PATCH v2] refpol: Add netif, node and peer
+ constraints for MCS based policies
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov, js44352@gmail.com
+In-Reply-To: <20091007172556.3117.39527.stgit@flek.lan>
+References: <20091007172556.3117.39527.stgit@flek.lan>
 Content-Type: text/plain
-Date: Wed, 07 Oct 2009 13:38:48 -0400
-Message-Id: <1254937128.2251.288.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 07 Oct 2009 14:20:17 -0400
+Message-Id: <1254939619.29663.3.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-10-07 at 08:02 -0400, Stephen Smalley wrote:
-> On Wed, 2009-10-07 at 15:09 +0330, michel m wrote:
-> > Hi,
-> > 
-> > Is there any way that I can get context for incoming http requests
-> > from selinux API. that is I want to classify requests based on some
-> > criteria like origin`s IP address or any thing that can help me to
-> > know what context the request is coming from.
-> > 
-> > is there such an API for this is libselinux? If not, how can I have
-> > this knowledge by using existing API?
-> 
-> If using labeled IPSEC to label the connections, you can use
-> getpeercon(3) in libselinux.
-> 
-> http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/
-> 
-> Likewise with NetLabel, although there you are limited to only passing
-> the MLS label at present.  You might be able to do something via the
-> fallback labeling based on IP address.
-> 
-> http://paulmoore.livejournal.com/
+On Wed, 2009-10-07 at 17:25 +0000, Paul Moore wrote:
+> Adapt the MLS netif, node and peer networking constraints for MCS.  This patch
+> preserves the basic structure of the MLS constraints and converts them to use
+> the MCS model which means the "(( l1 dom l2 ) and ( l1 domby h2 ))" constraints
+> are converted to "( h1 dom h2 )".
 
-Also, if you want to deal with it in terms of http authenticated user
-identity rather than connection, you might want to have a look at
-mod_selinux.
+It still needs the attribute declarations, along with interfaces for
+each of them.
 
-http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
-
+> Signed-of-by: Paul Moore <paul.moore@hp.com>
+> ---
+> 
+>  policy/mcs |   36 ++++++++++++++++++++++++++++++++++++
+>  1 files changed, 36 insertions(+), 0 deletions(-)
+> 
+> diff --git a/policy/mcs b/policy/mcs
+> index af90ef2..5aedab8 100644
+> --- a/policy/mcs
+> +++ b/policy/mcs
+> @@ -102,6 +102,42 @@ mlsconstrain process { sigkill sigstop }
+>  	(( h1 dom h2 ) or ( t1 == mcskillall ));
+>  
+>  #
+> +# MCS policy for the network ingress/egress controls
+> +#
+> +
+> +# the netif ingress/egress ops, the ingress permission is a "write" operation
+> +# because the subject in this particular case is the remote domain which is
+> +# writing data out the network interface which is acting as the object
+> +mlsconstrain { netif } { ingress }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
+> +mlsconstrain { netif } { egress }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
+> +
+> +# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
+> +# because the subject in this particular case is the remote domain which is
+> +# writing data out the network node which is acting as the object
+> +mlsconstrain { node } { recvfrom }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
+> +mlsconstrain { node } { sendto }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
+> +
+> +# the forward ops, the forward_in permission is a "write" operation because the
+> +# subject in this particular case is the remote domain which is writing data
+> +# to the network with a secmark label, the object in this case
+> +mlsconstrain { packet } { forward_in }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
+> +mlsconstrain { packet } { forward_out }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ) or ( t1 == unlabeled_t ));
+> +
+> +#
+> +# MCS policy for the secmark and peer controls
+> +#
+> +
+> +# the peer/packet recv op
+> +mlsconstrain { peer packet } { recv }
+> +	(( h1 dom h2 ) or ( t1 == mcsnetread ));
+> +
+> +#
+>  # MCS policy for SELinux-enabled databases
+>  #
+>  
+> 
+> _______________________________________________
+> refpolicy mailing list
+> refpolicy@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/refpolicy
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
