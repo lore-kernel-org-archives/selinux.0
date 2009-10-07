@@ -1,85 +1,79 @@
-Subject: Re: [PATCH]: chcon: no longer abort on SELinux disabled kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jim Meyering <jim@meyering.net>
-Cc: CoreutilsBugs <bug-coreutils@gnu.org>,
-        =?UTF-8?Q?Ond=C5=99ej_Va=C5=A1=C3=ADk?= <ovasik@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>, yaneti@declera.com,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <87vdirxr7h.fsf@meyering.net>
-References: <1254727932.3849.8.camel@dhcp-lab-219.englab.brq.redhat.com>
-	 <87zl85bs0e.fsf@meyering.net>
-	 <1254770225.2251.152.camel@moss-pluto.epoch.ncsc.mil>
-	 <87d451boea.fsf@meyering.net> <87r5th7xd0.fsf@meyering.net>
-	 <1254919072.2251.186.camel@moss-pluto.epoch.ncsc.mil>
-	 <871vlfz7x3.fsf@meyering.net>
-	 <1254920045.2251.202.camel@moss-pluto.epoch.ncsc.mil>
-	 <87vdirxr7h.fsf@meyering.net>
-Content-Type: text/plain
-Date: Wed, 07 Oct 2009 11:30:12 -0400
-Message-Id: <1254929412.2251.248.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n97HQ1c7025746
+	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 13:26:01 -0400
+Received: from g1t0028.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n97HPCsL029754
+	for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2009 17:25:12 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v2] refpol: Add netif,
+	node and peer constraints for MCS based policies
+To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
+Cc: js44352@gmail.com
+Date: Wed, 07 Oct 2009 17:25:56 +0000
+Message-ID: <20091007172556.3117.39527.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-10-07 at 15:34 +0200, Jim Meyering wrote:
-> Stephen Smalley wrote:
-> 
-> > On Wed, 2009-10-07 at 14:48 +0200, Jim Meyering wrote:
-> >> Stephen Smalley wrote:
-> >> ...
-> >> > FWIW, there is a subtle difference here:
-> >> > - chcon can in fact work on a SELinux-disabled kernel, as you can still
-> >> > set the security.* extended attributes as long as the filesystem
-> >> > provides handlers for the security.* namespace.
-> >> > - runcon cannot work without a SELinux-enabled kernel, as only a
-> >> > SELinux-enabled kernel allows you to set the security context of a
-> >> > running process.
-> >> >
-> >> > So by preventing chcon from running in the SELinux-disabled case, you
-> >> > are imposing a restriction above and beyond what is strictly required.
-> >> > The user can of course still use setfattr -n security.selinux -v
-> >> > <context> <path> to set a SELinux security context on a file when
-> >> > SELinux is disabled, or can run the setfiles program to set SELinux
-> >> > security contexts on an entire file tree even when SELinux is disabled.
-> >> ...
-> >> >> diff --git a/src/chcon.c b/src/chcon.c
-> >> >> index fbfdb4d..c0da694 100644
-> >> >> --- a/src/chcon.c
-> >> >> +++ b/src/chcon.c
-> >> >> @@ -519,6 +519,10 @@ main (int argc, char **argv)
-> >> >>        usage (EXIT_FAILURE);
-> >> >>      }
-> >> >>
-> >> >> +  if (is_selinux_enabled () != 1)
-> >> >> +    error (EXIT_FAILURE, 0,
-> >> >> +           _("%s may be used only on a SELinux kernel"), program_name);
-> >> >> +
-> >>
-> >> Thanks for the tip.
-> >> I'll revert that part of the patch.
-> >>
-> >> I'll address the original problem by adding
-> >> getfilecon and lgetfilecon wrappers that
-> >> map those unusual cases (10,"unlabeled" and 0,NULL)
-> >> to a return value of -1 with errno == ENOTSUPP.
-> >
-> > I'd suggest ENODATA instead - that means that the filesystem supports
-> > attributes but there was no value set for the particular file.
-> 
-> ENODATA makes sense for the 10,"unlabeled" case.
-> I viewed "using a library so old that its getfilecon
-> can return 0 and set context to NULL" as lacking support (ENOTSUPP).
-> But I'll do whatever is more consistent with the rest of SELinux.
+Adapt the MLS netif, node and peer networking constraints for MCS.  This patch
+preserves the basic structure of the MLS constraints and converts them to use
+the MCS model which means the "(( l1 dom l2 ) and ( l1 domby h2 ))" constraints
+are converted to "( h1 dom h2 )".
 
-Ah, I see - we did change getfilecon() in libselinux in 2007 to check
-for a return value of zero from getxattr() and map that to -1 with errno
-EOPNOTSUPP.  That was to address a change/regression in the kernel that
-caused getxattr() on /proc/sys nodes to return 0.  So I guess EOPNOTSUPP
-aka ENOTSUP is fine for the zero-return case.
+Signed-of-by: Paul Moore <paul.moore@hp.com>
+---
 
--- 
-Stephen Smalley
-National Security Agency
+ policy/mcs |   36 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 36 insertions(+), 0 deletions(-)
+
+diff --git a/policy/mcs b/policy/mcs
+index af90ef2..5aedab8 100644
+--- a/policy/mcs
++++ b/policy/mcs
+@@ -102,6 +102,42 @@ mlsconstrain process { sigkill sigstop }
+ 	(( h1 dom h2 ) or ( t1 == mcskillall ));
+ 
+ #
++# MCS policy for the network ingress/egress controls
++#
++
++# the netif ingress/egress ops, the ingress permission is a "write" operation
++# because the subject in this particular case is the remote domain which is
++# writing data out the network interface which is acting as the object
++mlsconstrain { netif } { ingress }
++	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { netif } { egress }
++	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
++
++# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
++# because the subject in this particular case is the remote domain which is
++# writing data out the network node which is acting as the object
++mlsconstrain { node } { recvfrom }
++	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { node } { sendto }
++	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ));
++
++# the forward ops, the forward_in permission is a "write" operation because the
++# subject in this particular case is the remote domain which is writing data
++# to the network with a secmark label, the object in this case
++mlsconstrain { packet } { forward_in }
++	(( h1 dom h2 ) or ( t1 == mcsnetinbound ) or ( t1 == unlabeled_t ));
++mlsconstrain { packet } { forward_out }
++	(( h1 dom h2 ) or ( t1 == mcsnetoutbound ) or ( t1 == unlabeled_t ));
++
++#
++# MCS policy for the secmark and peer controls
++#
++
++# the peer/packet recv op
++mlsconstrain { peer packet } { recv }
++	(( h1 dom h2 ) or ( t1 == mcsnetread ));
++
++#
+ # MCS policy for SELinux-enabled databases
+ #
+ 
 
 
 --
