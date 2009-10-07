@@ -1,53 +1,119 @@
-Message-ID: <4ACCE272.1070303@manicmethod.com>
-Date: Wed, 07 Oct 2009 14:48:18 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <4ACCE820.4080007@tycho.nsa.gov>
+Date: Wed, 07 Oct 2009 15:12:32 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] libsepol: Add support for multiple target OSes
-References: <1253031316.3209.116.camel@moss-stripedbass.epoch.ncsc.mil>	 <4AB0EF22.8070003@manicmethod.com>	 <1254233003.2466.59.camel@moss-stripedbass.epoch.ncsc.mil>	 <4ACB5247.4000304@manicmethod.com> <1254937078.2251.286.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1254937078.2251.286.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux@tycho.nsa.gov
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: raw string_to_class/string_to_av_perm variants
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2009-10-06 at 10:20 -0400, Joshua Brindle wrote:
->> Paul Nuzzi wrote:
->>> On Wed, 2009-09-16 at 09:58 -0400, Joshua Brindle wrote:
->> <snip>
->>> Thanks for your input.  Below is the updated patch for libsepol.
->>>
->> A quick look through looks good. I'd like to test it out a bit, do you
->> have a Xen policy somewhere I can use for testing?
->>
->> Also, I notice that this only lets you write out a "kernel" policy for
->> Xen, but it might be beneficial to write out a base policy for testing,
->> development, analysis, etc.
->
-> The Xen Flask policy lives in the xen-unstable tree; Paul has a patch to
-> update the Xen Flask module to support this new policy string identifier
-> and the new ocontext records and to update the policy there, but you'd
-> have to apply that patch to xen-unstable and build it.
->
+This is the first patch in a series to add dynamic class and permission 
+remapping support.  The kernel has recently gained support for such 
+remapping, where the class and permission values exposed in 
+/selinux/class may change on policy reload.  Hence libselinux must do 
+its own remapping in response to policy reloads.
 
-I'll leave the Xen Flask Module part to you guys, I just wanted to build 
-a Xen policy and do some poking around on it to see if it looks right.
+This patch adds internal "raw" variants of string_to_security_class() 
+and string_to_av_perm().  These are used by the mapping code when 
+setting up a new mapping.
+
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+  mapping.h   |   11 +++++++++++
+  stringrep.c |   21 +++++++++++++++------
+  2 files changed, 26 insertions(+), 6 deletions(-)
 
 
-> In terms of base policy, if you mean modular base policy, we'd have to
-> introduce multiple string identifiers for it in the same way as the
-> kernel policy format, and I couldn't see the benefit of doing that when
-> the module format is going to be replaced in the not-too-distant future.
-> And what precisely is the benefit of writing a base policy vs. a kernel
-> policy now that policy.24 includes attribute names and preserves
-> attributes in allow rules (aside from certain cases, like type set
-> exclusion aka minus)?
+diff --git a/libselinux/src/mapping.h b/libselinux/src/mapping.h
+index b96756b..b9e9c44 100644
+--- a/libselinux/src/mapping.h
++++ b/libselinux/src/mapping.h
+@@ -7,6 +7,17 @@
+  #define _SELINUX_MAPPING_H_
 
-That is fine, I was just thinking it is nicer to put a base module into 
-setools than a kernel policy but there is a good chance that won't work 
-anyway since setools won't know about the new ocontexts and might freak 
-out (completely untested).
+  #include<selinux/selinux.h>
++#include "dso.h"
++
++/*
++ * Raw stringrep functions
++ */
++
++extern security_class_t
++string_to_security_class_raw(const char *s) hidden;
++
++extern access_vector_t
++string_to_av_perm_raw(security_class_t kclass, const char *s) hidden;
+
+  /*
+   * Get real, kernel values from mapped values
+diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+index b19bce7..c82d07a 100644
+--- a/libselinux/src/stringrep.c
++++ b/libselinux/src/stringrep.c
+@@ -434,7 +434,7 @@ static const char *security_av_perm_to_string_compat(security_class_t tclass,
+  	return NULL;
+  }
+
+-security_class_t string_to_security_class(const char *s)
++security_class_t string_to_security_class_raw(const char *s)
+  {
+  	struct discover_class_node *node;
+
+@@ -453,31 +453,40 @@ security_class_t string_to_security_class(const char *s)
+  		}
+  	}
+
+-	return map_class(node->value);
++	return node->value;
+  }
+
+-access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
++security_class_t string_to_security_class(const char *s)
++{
++	return map_class(string_to_security_class_raw(s));
++}
++
++access_vector_t string_to_av_perm_raw(security_class_t kclass, const char *s)
+  {
+  	struct discover_class_node *node;
+-	security_class_t kclass = unmap_class(tclass);
+
+  	__selinux_once(once, init_obj_class_compat);
+
+  	if (obj_class_compat)
+-		return map_perm(tclass, string_to_av_perm_compat(kclass, s));
++		return string_to_av_perm_compat(kclass, s);
+
+  	node = get_class_cache_entry_value(kclass);
+  	if (node != NULL) {
+  		size_t i;
+  		for (i=0; i<MAXVECTORS&&  node->perms[i] != NULL; i++)
+  			if (strcmp(node->perms[i],s) == 0)
+-				return map_perm(tclass, 1<<i);
++				return 1<<i;
+  	}
+
+  	errno = EINVAL;
+  	return 0;
+  }
+
++access_vector_t string_to_av_perm(security_class_t tclass, const char *s)
++{
++	return map_perm(tclass, string_to_av_perm_raw(map_class(tclass), s));
++}
++
+  const char *security_class_to_string(security_class_t tclass)
+  {
+  	struct discover_class_node *node;
+
+
+-- 
+Eamon Walsh<ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
