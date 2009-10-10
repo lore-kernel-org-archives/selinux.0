@@ -1,64 +1,95 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n99MVLus005045
-	for <selinux@tycho.nsa.gov>; Fri, 9 Oct 2009 18:31:21 -0400
-Received: from e32.co.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n99MWxvC025225
-	for <selinux@tycho.nsa.gov>; Fri, 9 Oct 2009 22:33:00 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e32.co.us.ibm.com (8.14.3/8.13.1) with ESMTP id n99MQOPX027876
-	for <selinux@tycho.nsa.gov>; Fri, 9 Oct 2009 16:26:24 -0600
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id n99MVC5Q186288
-	for <selinux@tycho.nsa.gov>; Fri, 9 Oct 2009 16:31:14 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n99MVBlI021882
-	for <selinux@tycho.nsa.gov>; Fri, 9 Oct 2009 16:31:12 -0600
-Date: Fri, 9 Oct 2009 17:31:11 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Oren Laadan <orenl@cs.columbia.edu>,
-        Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 4/4] cr: add selinux support (v6)
-Message-ID: <20091009223111.GA7951@us.ibm.com>
-References: <20091009205552.GA5778@us.ibm.com> <20091009205731.GC5823@us.ibm.com> <4ACFA7F1.6060209@redhat.com>
+From: Jim Meyering <jim@meyering.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: CoreutilsBugs <bug-coreutils@gnu.org>,
+        =?utf-8?B?T25kxZllaiBWYcWhw61r?=
+ <ovasik@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>, yaneti@declera.com,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH]: chcon: no longer abort on SELinux disabled kernel
+In-Reply-To: <1254929412.2251.248.camel@moss-pluto.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Wed, 07 Oct 2009 11:30:12 -0400")
+References: <1254727932.3849.8.camel@dhcp-lab-219.englab.brq.redhat.com>
+	<87zl85bs0e.fsf@meyering.net>
+	<1254770225.2251.152.camel@moss-pluto.epoch.ncsc.mil>
+	<87d451boea.fsf@meyering.net> <87r5th7xd0.fsf@meyering.net>
+	<1254919072.2251.186.camel@moss-pluto.epoch.ncsc.mil>
+	<871vlfz7x3.fsf@meyering.net>
+	<1254920045.2251.202.camel@moss-pluto.epoch.ncsc.mil>
+	<87vdirxr7h.fsf@meyering.net>
+	<1254929412.2251.248.camel@moss-pluto.epoch.ncsc.mil>
+Date: Sat, 10 Oct 2009 11:59:27 +0200
+Message-ID: <87ljjjh8n4.fsf@meyering.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4ACFA7F1.6060209@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Daniel J Walsh (dwalsh@redhat.com):
-> On 10/09/2009 04:57 PM, Serge E. Hallyn wrote:
-> I think you need to be careful with this.  We do not want the process to
-> start with the same MCS Label as when it stopped in case some other virtual
-> machine has grabbed the MCS Label.  When the image is taken down it should
-> give up probably give up its labels and allow the system to relabel to a
-> known state.  When it starts the image again, new labels should be selected
-> and set on disk and the process resumed with the new label.
+Stephen Smalley wrote:
+> On Wed, 2009-10-07 at 15:34 +0200, Jim Meyering wrote:
+>> Stephen Smalley wrote:
+>>
+>> > On Wed, 2009-10-07 at 14:48 +0200, Jim Meyering wrote:
+>> >> Stephen Smalley wrote:
+>> >> ...
+>> >> > FWIW, there is a subtle difference here:
+>> >> > - chcon can in fact work on a SELinux-disabled kernel, as you can still
+>> >> > set the security.* extended attributes as long as the filesystem
+>> >> > provides handlers for the security.* namespace.
+>> >> > - runcon cannot work without a SELinux-enabled kernel, as only a
+>> >> > SELinux-enabled kernel allows you to set the security context of a
+>> >> > running process.
+>> >> >
+>> >> > So by preventing chcon from running in the SELinux-disabled case, you
+>> >> > are imposing a restriction above and beyond what is strictly required.
+>> >> > The user can of course still use setfattr -n security.selinux -v
+>> >> > <context> <path> to set a SELinux security context on a file when
+>> >> > SELinux is disabled, or can run the setfiles program to set SELinux
+>> >> > security contexts on an entire file tree even when SELinux is disabled.
+>> >> ...
+>> >> >> diff --git a/src/chcon.c b/src/chcon.c
+>> >> >> index fbfdb4d..c0da694 100644
+>> >> >> --- a/src/chcon.c
+>> >> >> +++ b/src/chcon.c
+>> >> >> @@ -519,6 +519,10 @@ main (int argc, char **argv)
+>> >> >>        usage (EXIT_FAILURE);
+>> >> >>      }
+>> >> >>
+>> >> >> +  if (is_selinux_enabled () != 1)
+>> >> >> +    error (EXIT_FAILURE, 0,
+>> >> >> +           _("%s may be used only on a SELinux kernel"), program_name);
+>> >> >> +
+>> >>
+>> >> Thanks for the tip.
+>> >> I'll revert that part of the patch.
+>> >>
+>> >> I'll address the original problem by adding
+>> >> getfilecon and lgetfilecon wrappers that
+>> >> map those unusual cases (10,"unlabeled" and 0,NULL)
+>> >> to a return value of -1 with errno == ENOTSUPP.
+>> >
+>> > I'd suggest ENODATA instead - that means that the filesystem supports
+>> > attributes but there was no value set for the particular file.
+>>
+>> ENODATA makes sense for the 10,"unlabeled" case.
+>> I viewed "using a library so old that its getfilecon
+>> can return 0 and set context to NULL" as lacking support (ENOTSUPP).
+>> But I'll do whatever is more consistent with the rest of SELinux.
+>
+> Ah, I see - we did change getfilecon() in libselinux in 2007 to check
+> for a return value of zero from getxattr() and map that to -1 with errno
+> EOPNOTSUPP.  That was to address a change/regression in the kernel that
+> caused getxattr() on /proc/sys nodes to return 0.  So I guess EOPNOTSUPP
+> aka ENOTSUP is fine for the zero-return case.
 
-With this patchset, the default behavior remains to simply run the
-restarted task in whatever context is calculated by the usual TE
-rules (i.e. current context unless the type of the 'restart' program
-was an entry type to some domain and a domain transition was requested
-or automatic).  The request to restore checkpointed labels is done with
-a special flag.
+I've resolved this via two changes:
+One to add *getfilecon wrappers to gnulib:
 
-What you actually are suggesting is the ability to make fine-grained
-changes to some of the checkpointed labels, but to still restore
-the checkpointed labels (with changes).  I think it is pretty
-generally accepted that such things should be done by editing the
-checkpoint image in userspace.  A pretty simple program could
-run through the image looking for CKPT_HDR_SEC fields and
-change the MCS labels where appropriate.
+    http://thread.gmane.org/gmane.comp.lib.gnulib.bugs/19037
 
-I haven't written such a program (or used MCS), but if you like
-I'll certainly write it and I suspect Oren would be happy to have
-it in user-cr/ (where the checkpoint and restart programs live) as
-an example of how to make such substitutions generally.
+and another to clean up coreutils, now that it can depend on
+the wrappers' API-conforming behavior:
 
-thanks,
--serge
+    http://thread.gmane.org/gmane.comp.gnu.coreutils.bugs/18454
 
 --
 This message was distributed to subscribers of the selinux mailing list.
