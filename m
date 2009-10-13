@@ -1,54 +1,61 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9DBUaSo016415
-	for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2009 07:30:36 -0400
-Received: from mail-ew0-f228.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9DBTisD028420
-	for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2009 11:29:44 GMT
-Received: by ewy28 with SMTP id 28so3574780ewy.18
-        for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2009 04:30:34 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9DCKkQt024278
+	for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2009 08:20:46 -0400
+Received: from mail2.asahi-net.or.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9DCJscs022431
+	for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2009 12:19:55 GMT
+Message-ID: <4AD4709A.6050407@kaigai.gr.jp>
+Date: Tue, 13 Oct 2009 21:20:42 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Date: Tue, 13 Oct 2009 15:00:33 +0330
-Message-ID: <bb74313d0910130430l3f9ff448p42efbcfba5c90d4e@mail.gmail.com>
-Subject: what is http authenticated user?
-From: michel m <michel.mcgregor@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=000e0cdf7632df75940475cf5f17
+To: michel m <michel.mcgregor@gmail.com>
+CC: selinux <selinux@tycho.nsa.gov>
+Subject: Re: what is http authenticated user?
+References: <bb74313d0910130430l3f9ff448p42efbcfba5c90d4e@mail.gmail.com>
+In-Reply-To: <bb74313d0910130430l3f9ff448p42efbcfba5c90d4e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0cdf7632df75940475cf5f17
-Content-Type: text/plain; charset=ISO-8859-1
+michel m wrote:
+> Hi,
+> 
+> in my last mail, I had asked how to get context for incoming requests. 
+> meanwhile studying replies, I got familiar with apache/selinux plus 
+> which labels threads based on identity of user. but I can not understand 
+> how users are authenticated from http requests. who does this 
+> authentication ( is it a service special to apache/httpd that analyzes 
+> http requests) ? I think, an http request in normal form does not 
+> contain any information by which remote user can be authenticated.
+> 
+> may some one explain me more or redirect me to some resources that 
+> clarify things more?
 
-Hi,
+You need to distinguish a web-user from a OS-user.
 
-in my last mail, I had asked how to get context for incoming requests.
-meanwhile studying replies, I got familiar with apache/selinux plus which
-labels threads based on identity of user. but I can not understand how users
-are authenticated from http requests. who does this authentication ( is it a
-service special to apache/httpd that analyzes http requests) ? I think, an
-http request in normal form does not contain any information by which remote
-user can be authenticated.
+When you have a shopping at amazon.com, you were supposed to provide
+your account information (e.g e-mail address and password), but it
+does not mean that a new user account is available on the operating
+system of amazon.com, because all the http requests are handled by
+httpd server process from the viewpoint of operating system.
 
-may some one explain me more or redirect me to some resources that clarify
-things more?
+A web-user is a concept in web or application layer, not OS.
+Its account information is implicitly sent for each http request basically,
+then the http server parses it and applies its authentication.
+(if failed, http server returns an error prior to page references.)
 
-Best regards.
+Apache/SELinux Plus is a module to assign a certain security context
+based on the authorized web-user, not OS-user.
 
---000e0cdf7632df75940475cf5f17
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+However, here is no fundamental differences between httpd and sshd.
+When we connect a host using ssh, we have to provide my account information
+(e.g username/password or public key), then ssh authorizes the connection
+using the given account info, and assigns a certain security context on the
+user login shell.
 
-Hi,<br><br>in my last mail, I had asked how to get context for incoming req=
-uests. meanwhile studying replies, I got familiar with apache/selinux plus =
-which labels threads based on identity of user. but I can not understand ho=
-w users are authenticated from http requests. who does this authentication =
-( is it a service special to apache/httpd that analyzes http requests) ? I =
-think, an http request in normal form does not contain any information by w=
-hich remote user can be authenticated.<br>
-<br>may some one explain me more or redirect me to some resources that clar=
-ify things more?<br><br>Best regards.<br>
-
---000e0cdf7632df75940475cf5f17--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
