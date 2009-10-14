@@ -1,114 +1,149 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9E7iwLD003221
-	for <selinux@tycho.nsa.gov>; Wed, 14 Oct 2009 03:44:58 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9E7i6Ba018531
-	for <selinux@tycho.nsa.gov>; Wed, 14 Oct 2009 07:44:06 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9E7dKoB029441
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 14 Oct 2009 02:39:22 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9E7YxNl006285
-	for <selinux@tycho.nsa.gov>; Wed, 14 Oct 2009 02:35:00 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] restorecond: Ignore IN_IGNORED inotify events
-References: <4ABB86EB.3050909@martinorr.name>
-Date: Wed, 14 Oct 2009 02:34:59 -0500
-In-Reply-To: <4ABB86EB.3050909@martinorr.name> (Martin Orr's message of "Thu,
-	24 Sep 2009 15:49:15 +0100")
-Message-ID: <87d44qpgws.fsf@anzu.internal.golden-gryphon.com>
+Message-ID: <019171877459.1421659970423279236179@mypersonalemail.com>
+From: "Jules Irwin" <sds@tycho.nsa.gov>
+Reply-To: "Jules Irwin" <sds@tycho.nsa.gov>
+To: sds@tycho.nsa.gov
+Subject: ***[SPAM]*** Re[2]: Pulver zur Herstellung einer Creme launcher
+Date: Wed, 14 Oct 2009 13:08:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="----------=_4AD5A4E3.1BB5D199"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 24 2009, Martin Orr wrote:
+This is a multi-part message in MIME format.
 
-> With kernel 2.6.31, restorecond uses 99% of my CPU.
->
-> This is because removing and readding the watch on utmp triggers inotify to
-> return an IN_IGNORED event for the old watch descriptor.  If the watch gets
-> allocated the same wd when it is readded, then restorecond thinks that utmp
-> has changed, so removes and readds the watch again, potentially looping.
->
-> With kernel <= 2.6.30, this never happened, because the kernel didn't reuse
-> watch descriptors.  So the IN_IGNORED event comes with a wd that is no
-> longer in use, and gets ignored.  But kernel 2.6.31 reuses the same watch
-> descriptor.
->
-> This patch fixes that by ignoring inotify events whose only bit set is
-> IN_IGNORED.
->
-> Note: it is not clear to me why it is necessary to remove and readd the
-> watch in the first place.
->
-> Note for testing: you need to log in (to cause a change in utmp) after
-> starting restorecond to trigger the bug.  In fact you need to log in twice
-> before the kernel reuses a watch descriptor.
+------------=_4AD5A4E3.1BB5D199
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-	I can confirm seeing this behaviour, and that the patch fixed
- the problem for me.
+Spam detection software, running on the system "tarius.tycho.ncsc.mil", has
+identified this incoming email as possible spam.  The original message
+has been attached to this so you can view it (if it isn't spam) or label
+similar future email.  If you have any questions, see
+the administrator of that system for details.
 
-        manoj
+Content preview:  sds@tycho.nsa.gov Vol. 9, Nr. 8 Wed, 14 Oct 2009 16:15:34
+  +0500 Die Augen sehen ein Mädchen und erhalten sofort Ihre Waffe in die "ready
+   for action"-Position. Ist es nicht ein Traum? http://northlate.com © Geylfxjr,
+   2001-2009 [...] 
 
-Tested-by: Manoj Srivastava <srivasta@debian.org>
+Content analysis details:   (7.5 points, 3.5 required)
+
+ pts rule name              description
+---- ---------------------- --------------------------------------------------
+-4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
+                             trust
+                            [63.239.67.2 listed in list.dnswl.org]
+ 2.0 URIBL_BLACK            Contains an URL listed in the URIBL blacklist
+                            [URIs: northlate.com]
+ 1.5 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
+                            [URIs: northlate.com]
+ 1.5 URIBL_JP_SURBL         Contains an URL listed in the JP SURBL blocklist
+                            [URIs: northlate.com]
+ 1.1 URIBL_RHS_DOB          Contains an URI of a new domain (Day Old Bread)
+                            [URIs: northlate.com]
+ 2.1 RCVD_NUMERIC_HELO      Received: contains an IP address used for HELO
+ 0.0 HTML_MESSAGE           BODY: HTML included in message
+ 0.7 MPART_ALT_DIFF         BODY: HTML and text parts are different
+ 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
+ 1.5 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                            [score: 0.0000]
+ 1.0 SUBJ_RE_NUM            Subject is faking 'The Bat!' responses
+ 0.0 MISSING_MIMEOLE        Message has X-MSMail-Priority, but no X-MimeOLE
+ 0.0 MIME_HTML_ONLY_MULTI   Multipart message only has text/html MIME parts
+
+The original message was not completely plain text, and may be unsafe to
+open with some email clients; in particular, it may contain a virus,
+or confirm that your address can receive spam.  If you wish to view
+it, it may be safer to save it to a file and open it with an editor.
 
 
-> ---
->  policycoreutils/restorecond/restorecond.c |   29 ++++++++++++++++-------------
->  1 files changed, 16 insertions(+), 13 deletions(-)
->
-> diff --git a/policycoreutils/restorecond/restorecond.c
-> b/policycoreutils/restorecond/restorecond.c
-> index 58774e6..4952632 100644
-> --- a/policycoreutils/restorecond/restorecond.c
-> +++ b/policycoreutils/restorecond/restorecond.c
-> @@ -315,21 +315,24 @@ static int watch(int fd)
->  			printf("wd=%d mask=%u cookie=%u len=%u\n",
->  			       event->wd, event->mask,
->  			       event->cookie, event->len);
-> -		if (event->wd == master_wd)
-> -			read_config(fd);
-> -		else {
-> -			switch (utmpwatcher_handle(fd, event->wd)) {
-> -			case -1:	/* Message was not for utmpwatcher */
-> -				if (event->len)
-> -					watch_list_find(event->wd, event->name);
-> -				break;
->
-> -			case 1:	/* utmp has changed need to reload */
-> +		if (event->mask & ~IN_IGNORED) {
-> +			if (event->wd == master_wd)
->  				read_config(fd);
-> -				break;
-> -
-> -			default:	/* No users logged in or out */
-> -				break;
-> +			else {
-> +				switch (utmpwatcher_handle(fd, event->wd)) {
-> +				case -1:	/* Message was not for utmpwatcher */
-> +					if (event->len)
-> +						watch_list_find(event->wd, event->name);
-> +					break;
-> +
-> +				case 1:	/* utmp has changed need to reload */
-> +					read_config(fd);
-> +					break;
-> +
-> +				default:	/* No users logged in or out */
-> +					break;
-> +				}
->  			}
->  		}
+------------=_4AD5A4E3.1BB5D199
+Content-Type: text/plain; x-spam-type=original
+Content-Description: original message before SpamAssassin
+Content-Disposition: attachment
+Content-Transfer-Encoding: 8bit
 
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+X-Envelope-From: <owner-selinux@tycho.nsa.gov>
+X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
+Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9EAFufV027670
+	Wed, 14 Oct 2009 06:15:56 -0400
+	(envelope-from <owner-selinux@tycho.nsa.gov>
+X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
+X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
+Received: (from mail@localhost)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9EAFu7K027669;
+	Wed, 14 Oct 2009 06:15:56 -0400
+X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9EAFe2L027584;
+	Wed, 14 Oct 2009 06:15:40 -0400
+Received: from 216.180.101.97.cfl.res.rr.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n9EAHKde008838;
+	Wed, 14 Oct 2009 10:17:20 GMT
+Message-ID: <019171877459.1421659970423279236179@mypersonalemail.com>
+From: "Jules Irwin" <sds@tycho.nsa.gov>
+Reply-To: "Jules Irwin" <sds@tycho.nsa.gov>
+To: sds@tycho.nsa.gov
+Subject: Re[2]: Pulver zur Herstellung einer Creme launcher
+Date: Wed, 14 Oct 2009 13:08:34 +0200
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="--=_IlJQjHkflG2O"
+X-Priority: 3
+X-MSMail-Priority: Normal
+Sender: owner-selinux@tycho.nsa.gov
+Precedence: bulk
+X-Mailing-List: selinux-tycho.nsa.gov
+
+----=_IlJQjHkflG2O
+Content-Type: text/html;
+Content-Transfer-Encoding: 7Bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body link="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="8">
+  <tr>
+    <td>&nbsp;</td>
+    <td width="700" bgcolor="#CC9966"><p><font color="#333333" size="4" face="Verdana, Arial, Helvetica, sans-serif">sds@tycho.nsa.gov</font></p>
+    <p><font color="#333333" size="3" face="Verdana, Arial, Helvetica, sans-serif"><font size="2">Vol. 9, Nr. </font><font color="#333333" size="3" face="Verdana, Arial, Helvetica, sans-serif"><font size="2">8</font></font><br>
+    <font size="1">Wed, 14 Oct 2009 16:15:34 +0500</font></font></p></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="700"><font size="3" face="Verdana, Arial, Helvetica, sans-serif">Die Augen sehen ein M&auml;dchen und erhalten sofort Ihre Waffe in die "ready for action"-Position. Ist es nicht ein Traum?</font></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td bgcolor="#333333"><a href="http://northlate.com/index.php?yhtiXBC=npd901fr&lng=de&UMND772759761686&cv=eu&GGD=64784363590378RYEN"><font size="3" face="Verdana, Arial, Helvetica, sans-serif">http://northlate.com</font></a></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td width="700" bgcolor="#FFFFFF"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">&copy; Geylfxjr, 2001-2009</font></td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
+
+
+----=_IlJQjHkflG2O--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
+
+------------=_4AD5A4E3.1BB5D199--
