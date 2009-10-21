@@ -1,59 +1,90 @@
-Subject: Re: [PATCH] pkgconfig support for libsepol, libselinux, and
- libsemanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Caleb Case <ccase@tresys.com>, srivasta@golden-gryphon.com,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1256127809.4061.170.camel@moss-pluto.epoch.ncsc.mil>
-References: <4ADE735D.9020901@tycho.nsa.gov>
-	 <1256127809.4061.170.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 21 Oct 2009 08:31:32 -0400
-Message-Id: <1256128292.4061.174.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LE5IFi032238
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 10:05:18 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LE73Ie028879
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 14:07:04 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9LDxLs9009370
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 08:59:22 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9LDucRC030608
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 08:56:39 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: policycoreutils: audit2allow -l doesn't work with dmesg pipe
+References: <87d46mvb33.fsf@anzu.internal.golden-gryphon.com>
+	<200908240611.58935.russell@coker.com.au>
+	<4A928943.3040609@redhat.com>
+	<200908242337.51448.russell@coker.com.au>
+	<1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 21 Oct 2009 08:56:38 -0500
+In-Reply-To: <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Tue, 08 Sep 2009 10:10:07 -0400")
+Message-ID: <87tyxsvoix.fsf@anzu.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-10-21 at 08:23 -0400, Stephen Smalley wrote:
-> On Tue, 2009-10-20 at 22:35 -0400, Eamon Walsh wrote:
-> > Add pkgconfig files for libsepol, libselinux, and libsemanage.
-> > 
-> > Having a pkgconfig file allows the pkg-config(1) tool to be used to
-> > query the presence of the library (or a particular version of it),
-> > and to obtain the C flags and linker arguments required to use it.
-> > 
-> > Based on Debian patches by Manoj Srivastava<srivasta@debian.org>.
-> > 
-> > Signed-off-by: Eamon Walsh<ewalsh@tycho.nsa.gov>
-> > ---
-> > 
-> > Note that the .pc.in files themselves could use some review to make
-> > sure the Requires and Libs lines are correct.  The sepol and selinux
-> > ones are from the Debian repos; the semanage one I wrote myself.
-> 
-> > diff --git a/libselinux/src/libselinux.pc.in b/libselinux/src/libselinux.pc.in
-> > new file mode 100644
-> > index 0000000..c9608d9
-> > --- /dev/null
-> > +++ b/libselinux/src/libselinux.pc.in
-> > @@ -0,0 +1,13 @@
-> > +prefix=@prefix@
-> > +exec_prefix=${prefix}
-> > +libdir=${exec_prefix}/lib
-> > +includedir=@includedir@
-> > +
-> > +Name: libselinux
-> > +Description: SELinux utility library
-> > +Version: @VERSION@
-> > +URL: http://www.nsa.gov/research/selinux/
+On Tue, Sep 08 2009, Stephen Smalley wrote:
 
-Also the URLs should now point to the userspace.selinuxproject.org site.
+> On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
+>> On Mon, 24 Aug 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> > >>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252
+>> > >>
+>> > >> audit2allow -l is looking for the load_policy message which does not go
+>> > >> to the dmesg, /var/log/messages.  Therefore the tool has no idea when
+>> > >> policy was last loaded.
+>> > >
+>> > > That would be a kernel bug then.
+>> >
+>> > Well I believe the messages that are intercepted by the audit.log do not go
+>> > into dmesg, by design. Although Steve, James or Eric could probably say for
+>> > sure.
+>> 
+>> When auditd is not running on a Debian system with CentOS kernel 
+>> 2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing 
+>> goes to the kernel message log which is interpreted by audit2allow as a 
+>> candidate for the "-l" functionality.
+>> 
+>> It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l" 
+>> gives no output.  But if all AVC messages other than the load_policy message 
+>> go to the kernel message log then it's a bug.
+>
+> Originally audit2allow used the avc: allowed message generated by
+> auditallow statement for load_policy to identify policy reloads.  Later
+> it was switched to use the MAC_POLICY_LOAD events generated by the audit
+> framework.  Those events should still get logged via printk if auditd is
+> not running, but it appears that the code (audit_printk_skb) will then
+> log the type= field as an integer rather than a string, and
+> audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
+>
+> So I suspect that this would be resolved by modifying sepolgen/audit.py
+> to also match on type=1403 for load messages.  Try this:
+>
+> diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
+> index 4717dae..efcc40d 100644
+> --- a/sepolgen/src/sepolgen/audit.py
+> +++ b/sepolgen/src/sepolgen/audit.py
+> @@ -314,7 +314,7 @@ class AuditParser:
+>              elif i == "security_compute_sid:":
+>                  msg = ComputeSidMessage(line)
+>                  found = True
+> -            elif i == "type=MAC_POLICY_LOAD":
+> +            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
+>                  msg = PolicyLoadMessage(line)
+>                  found = True
+>              elif i == "type=AVC_PATH":
 
+        This patch has now been applied in Debian unstable.
+
+        manoj
 -- 
-Stephen Smalley
-National Security Agency
-
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
