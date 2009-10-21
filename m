@@ -1,85 +1,79 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LE5IFi032238
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 10:05:18 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LEFIbI001520
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 10:15:18 -0400
 Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LE73Ie028879
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 14:07:04 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LEH3Ie003321
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 14:17:03 GMT
 Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
 	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9LDxLs9009370
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9LE9Sd3009614
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 08:59:22 -0500
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 09:09:29 -0500
 Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9LDucRC030608
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 08:56:39 -0500
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9LE3uWN031042
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 09:03:56 -0500
 From: Manoj Srivastava <srivasta@golden-gryphon.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: policycoreutils: audit2allow -l doesn't work with dmesg pipe
-References: <87d46mvb33.fsf@anzu.internal.golden-gryphon.com>
-	<200908240611.58935.russell@coker.com.au>
-	<4A928943.3040609@redhat.com>
-	<200908242337.51448.russell@coker.com.au>
-	<1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil>
-Date: Wed, 21 Oct 2009 08:56:38 -0500
-In-Reply-To: <1252419007.13634.346.camel@moss-pluto.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Tue, 08 Sep 2009 10:10:07 -0400")
-Message-ID: <87tyxsvoix.fsf@anzu.internal.golden-gryphon.com>
+Subject: Re: /lib/libsemanage.so.1 links to  /usr/lib/libustr-1.0.so.1
+References: <87aazvu5d4.fsf@anzu.internal.golden-gryphon.com>
+	<4AD489A5.7010708@manicmethod.com>
+	<87k4yypls7.fsf@anzu.internal.golden-gryphon.com>
+	<1255962053.3099.22.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 21 Oct 2009 09:03:56 -0500
+In-Reply-To: <1255962053.3099.22.camel@moss-pluto.epoch.ncsc.mil> (Stephen
+	Smalley's message of "Mon, 19 Oct 2009 10:20:53 -0400")
+Message-ID: <87pr8gvo6r.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Sep 08 2009, Stephen Smalley wrote:
+On Mon, Oct 19 2009, Stephen Smalley wrote:
 
-> On Mon, 2009-08-24 at 23:37 +1000, Russell Coker wrote:
->> On Mon, 24 Aug 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
->> > >>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=503252
->> > >>
->> > >> audit2allow -l is looking for the load_policy message which does not go
->> > >> to the dmesg, /var/log/messages.  Therefore the tool has no idea when
->> > >> policy was last loaded.
->> > >
->> > > That would be a kernel bug then.
+> On Wed, 2009-10-14 at 00:49 -0500, Manoj Srivastava wrote:
+>> On Tue, Oct 13 2009, Joshua Brindle wrote:
+>> 
+>> 
+>> > Yes, I'm not sure why you'd need libsemanage during early boot, we
+>> > probably should apply this:
 >> >
->> > Well I believe the messages that are intercepted by the audit.log do not go
->> > into dmesg, by design. Although Steve, James or Eric could probably say for
->> > sure.
+>> > diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+>> > index cfb9558..c531a2f 100644
+>> > --- a/libsemanage/src/Makefile
+>> > +++ b/libsemanage/src/Makefile
+>> > @@ -1,7 +1,7 @@
+>> >  # Installation directories.
+>> >  PREFIX ?= $(DESTDIR)/usr
+>> >  LIBDIR ?= $(PREFIX)/lib
+>> > -SHLIBDIR ?= $(DESTDIR)/lib
+>> > +SHLIBDIR ?= $(PREFIX)/lib
+>> >  INCLUDEDIR ?= $(PREFIX)/include
+>> >  PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" %
+>> > sys.version_info[0:2]')
+>> >  PYINC ?= /usr/include/${PYLIBVER}
+>> >
 >> 
->> When auditd is not running on a Debian system with CentOS kernel 
->> 2.6.18-92.1.13.el5xen or Debian/Lenny kernel 2.6.26-2-xen-686 then nothing 
->> goes to the kernel message log which is interpreted by audit2allow as a 
->> candidate for the "-l" functionality.
->> 
->> It's OK if all the AVC messages go to the audit log and "dmesg|audit2allow -l" 
->> gives no output.  But if all AVC messages other than the load_policy message 
->> go to the kernel message log then it's a bug.
+>>         I've applied this patch in Debian unstable.
 >
-> Originally audit2allow used the avc: allowed message generated by
-> auditallow statement for load_policy to identify policy reloads.  Later
-> it was switched to use the MAC_POLICY_LOAD events generated by the audit
-> framework.  Those events should still get logged via printk if auditd is
-> not running, but it appears that the code (audit_printk_skb) will then
-> log the type= field as an integer rather than a string, and
-> audit2allow/sepolgen only looks for the string MAC_POLICY_LOAD.
->
-> So I suspect that this would be resolved by modifying sepolgen/audit.py
-> to also match on type=1403 for load messages.  Try this:
->
-> diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
-> index 4717dae..efcc40d 100644
-> --- a/sepolgen/src/sepolgen/audit.py
-> +++ b/sepolgen/src/sepolgen/audit.py
-> @@ -314,7 +314,7 @@ class AuditParser:
->              elif i == "security_compute_sid:":
->                  msg = ComputeSidMessage(line)
->                  found = True
-> -            elif i == "type=MAC_POLICY_LOAD":
-> +            elif i == "type=MAC_POLICY_LOAD" or i == "type=1403":
->                  msg = PolicyLoadMessage(line)
->                  found = True
->              elif i == "type=AVC_PATH":
+> My only concern with relocating libsemanage is whether it will create
+> any compatibility problems for existing binaries previously linked
+> against /lib/libsemanage.so.1.  Also it could get confusing if you
+> build and install the newer version and existing binaries keep using
+> the old library at the old location.  You likely need/want to symlink
+> /lib/libsemanage.so.1 to the new location.
 
-        This patch has now been applied in Debian unstable.
+        As long as the new library location is in the ld.so path, there
+ is no issue, is there?  At run time, ld.so searches the path, loads the
+ shared libraries from the new location, prepares the program to run,
+ and then runs it. At worst, there might be two copies of the library
+ loaded into memory, in case there are programs already running linked
+ with libsemanage.
+
+        If I am wrong, and long running programs might be affected when
+ the library location is yanked out from under them, some mitigating
+ action may be taken. I am not sure there are any daemons yet linked
+ with libsemanage, but I can arrange for any such daemons to be
+ restarted during installation, once I get any bug report.
 
         manoj
 -- 
