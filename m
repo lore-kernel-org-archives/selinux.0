@@ -1,55 +1,40 @@
-Message-ID: <4ADE74F2.8000504@tycho.nsa.gov>
-Date: Tue, 20 Oct 2009 22:41:54 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9L4qtmZ015313
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 00:52:55 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9L4pxmt015056
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 04:52:00 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 4C0B418245
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 15:52:51 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: useradd
+Date: Wed, 21 Oct 2009 15:52:48 +1100
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
-        srivasta@golden-gryphon.com, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] pkgconfig support for libsepol, libselinux, and libsemanage
-References: <4ADE735D.9020901@tycho.nsa.gov>
-In-Reply-To: <4ADE735D.9020901@tycho.nsa.gov>
-Content-Type: multipart/mixed;
- boundary="------------010302040403070402070306"
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200910211552.49980.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010302040403070402070306
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+It seems impossible to have policy that allows useradd to always get the right 
+context for the new home directory.
 
-On 10/20/2009 10:35 PM, Eamon Walsh wrote:
-> Add pkgconfig files for libsepol, libselinux, and libsemanage.
->
-> Having a pkgconfig file allows the pkg-config(1) tool to be used to
-> query the presence of the library (or a particular version of it),
-> and to obtain the C flags and linker arguments required to use it.
->
-> Based on Debian patches by Manoj Srivastava<srivasta@debian.org>.
->
-> Signed-off-by: Eamon Walsh<ewalsh@tycho.nsa.gov>
-> ---
->
-> Note that the .pc.in files themselves could use some review to make
-> sure the Requires and Libs lines are correct.  The sepol and selinux
-> ones are from the Debian repos; the semanage one I wrote myself.
->
->    
+I am thinking of patching useradd such that if the -m option is given then it 
+will spawn the command "restorecon -R /home/$USER" - or alternately putting 
+in SE Linux code to match the context for each file or directory that is 
+copied from /etc/skel .
 
-Re-send with non-mangled patch (attached).
+What do you think?
 
 -- 
-Eamon Walsh<ewalsh@tycho.nsa.gov>
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
-
---------------010302040403070402070306
-Content-Type: text/x-patch;
- name="0001-Add-pkgconfig-files-for-libsepol-libselinux-and-libs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-Add-pkgconfig-files-for-libsepol-libselinux-and-libs.pa";
- filename*1="tch"
-
-
---------------010302040403070402070306--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
