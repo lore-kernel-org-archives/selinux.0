@@ -1,64 +1,29 @@
-Date: Wed, 21 Oct 2009 13:10:47 -0400
-From: Eric Laganowski <eric@laganowski.net>
-Subject: Re: 'make policy' issues
-In-reply-to: <1256145071.4061.224.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <4ADF4301.30705@kutulu.org>
+Date: Wed, 21 Oct 2009 13:21:05 -0400
+From: Mike Edenfield <kutulu@kutulu.org>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Message-id: <4ADF4097.5060702@laganowski.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-References: <4ADF2358.4050606@laganowski.net>
- <1256138160.4061.200.camel@moss-pluto.epoch.ncsc.mil>
- <4ADF2663.2030105@laganowski.net>
- <1256138950.4061.206.camel@moss-pluto.epoch.ncsc.mil>
- <87hbtsvhru.fsf@anzu.internal.golden-gryphon.com>
- <4ADF3D2C.2030408@laganowski.net>
- <1256144567.4061.223.camel@moss-pluto.epoch.ncsc.mil>
- <4ADF3FBD.3010306@laganowski.net>
- <1256145071.4061.224.camel@moss-pluto.epoch.ncsc.mil>
+CC: Eric Laganowski <eric@laganowski.net>, selinux@tycho.nsa.gov
+Subject: Re: 'make policy' issues
+References: <4ADF2358.4050606@laganowski.net>	 <1256138160.4061.200.camel@moss-pluto.epoch.ncsc.mil>	 <4ADF2663.2030105@laganowski.net>	 <1256138950.4061.206.camel@moss-pluto.epoch.ncsc.mil>	 <87hbtsvhru.fsf@anzu.internal.golden-gryphon.com>	 <4ADF3D2C.2030408@laganowski.net> <1256144567.4061.223.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1256144567.4061.223.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2009-10-21 at 13:07 -0400, Eric Laganowski wrote:
->   
->> Stephen Smalley wrote:
->>     
->>>>>>   
->>>>>>         
->>>>>>             
->>>>>        Debian currently carries 13 (though 3 of them need to be
->>>>>  squashed together) patches against 2.5.35. I can make them available if
->>>>>  there is interest.
->>>>>
->>>>>         manoj
->>>>>   
->>>>>       
->>>>>           
->>>> Yes please. Patches would be welcome.
->>>>     
->>>>         
->>> Did you try the three patches that I attached to my email for flex?
->>>
->>>   
->>>       
->> Yes I did: applied patches and rebuilt checkpolicy-2.0.19, which did not 
->> resolve the issue.
->>     
->
-> Curious.  gcc -v?
->
->   
-$ gcc -v
-Using built-in specs.
-Target: i686-pc-linux-gnu
-Configured with: ../gcc-4.4.1/configure --prefix=/usr 
---libexecdir=/usr/lib --enable-shared --enable-threads=posix 
---enable-__cxa_atexit --enable-c99 --enable-long-long 
---enable-clocale=gnu --enable-languages=c,c++ --disable-multilib 
---disable-libstdcxx-pch
-Thread model: posix
-gcc version 4.4.1 (GCC for Cross-LFS 4.4.1.20090722)
+On Wed, Oct 21 2009, Stephen Smalley wrote:
+
+> My impression is that one of the patches carried by the distributions
+> for flex is needed for checkpolicy to work, but no one has ever fully
+> investigated the precise dependency - people just grab the Fedora srpm
+> and apply those patches to flex, and then rebuild checkpolicy and it
+> works.  I haven't seen any complaints from Debian or Gentoo so I presume
+> that they also carry the same patches for flex.
+
+Just for reference, Gentoo only has the gcc44 one in portage (plus two 
+others that seem unrelated), and it build the refpolicy fine here.
+
+--Mike
 
 --
 This message was distributed to subscribers of the selinux mailing list.
