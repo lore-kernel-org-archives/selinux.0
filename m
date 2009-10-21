@@ -1,130 +1,74 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LEtIbv009418
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 10:55:18 -0400
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LEsNY0011459
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 14:54:23 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	(authenticated bits=128)
-	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9LEnLQ0010241
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 09:49:22 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9LEdhvu032152
-	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 09:39:43 -0500
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LF67q0011700
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 11:06:07 -0400
+Received: from mta5.srv.hcvlny.cv.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LF5CY0018469
+	for <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 15:05:12 GMT
+Received: from srv.laga.pri (ool-43568f33.dyn.optonline.net [67.86.143.51])
+ by mta5.srv.hcvlny.cv.net
+ (Sun Java System Messaging Server 6.2-8.04 (built Feb 28 2007))
+ with ESMTP id <0KRV00DX9DY5T180@mta5.srv.hcvlny.cv.net> for
+ selinux@tycho.nsa.gov; Wed, 21 Oct 2009 11:06:05 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])	by srv.laga.pri (Postfix)
+ with ESMTP id 23E6F1B42002	for <selinux@tycho.nsa.gov>; Wed,
+ 21 Oct 2009 11:06:05 -0400 (EDT)
+Received: from srv.laga.pri ([127.0.0.1])
+ by localhost (srv.laga.pri [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 10256-08 for <selinux@tycho.nsa.gov>; Wed,
+ 21 Oct 2009 11:06:04 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])	by srv.laga.pri (Postfix)
+ with ESMTP id 6C3EA1B42003	for <selinux@tycho.nsa.gov>; Wed,
+ 21 Oct 2009 11:06:04 -0400 (EDT)
+Received: from [164.55.144.109] (unknown [164.55.254.106])
+	by srv.laga.pri (Postfix) with ESMTP id 389931B42002	for
+ <selinux@tycho.nsa.gov>; Wed, 21 Oct 2009 11:06:03 -0400 (EDT)
+Date: Wed, 21 Oct 2009 11:06:00 -0400
+From: Eric Laganowski <eric@laganowski.net>
+Subject: 'make policy' issues
 To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] pkgconfig support for libsepol, libselinux, and libsemanage
-References: <4ADE735D.9020901@tycho.nsa.gov>
-	<1256127809.4061.170.camel@moss-pluto.epoch.ncsc.mil>
-Date: Wed, 21 Oct 2009 09:39:43 -0500
-In-Reply-To: <1256127809.4061.170.camel@moss-pluto.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Wed, 21 Oct 2009 08:23:29 -0400")
-Message-ID: <87ljj4vmj4.fsf@anzu.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-id: <4ADF2358.4050606@laganowski.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Oct 21 2009, Stephen Smalley wrote:
+    Hello,
 
-> On Tue, 2009-10-20 at 22:35 -0400, Eamon Walsh wrote:
->> Add pkgconfig files for libsepol, libselinux, and libsemanage.
->> 
->> Having a pkgconfig file allows the pkg-config(1) tool to be used to
->> query the presence of the library (or a particular version of it),
->> and to obtain the C flags and linker arguments required to use it.
->> 
->> Based on Debian patches by Manoj Srivastava<srivasta@debian.org>.
->> 
->> Signed-off-by: Eamon Walsh<ewalsh@tycho.nsa.gov>
->> ---
+ I was trying to build selinux userspace tools on my custom linux build. 
+Everything went fine until I attempted to compile reference policy.
+Could you please help me in understanding what went wrong here.
 
->
-> Requires.private only applies to the static lib, right?  In the shared
-> lib, libsepol is dlopen'd on demand these days and is only needed if
-> loading a policy file whose version is greater than the version
-> supported by the kernel.
+refpolicy-2.20090730
 
-> I'd drop the >= 1.12 or make it more current.  
->
-> libpthread should not be necessary any longer (it was temporarily from
-> libselinux 2.0.82 through 2.0.84); if the program is already linked with
-> libpthread then libselinux will use pthread_once for lazy
-> initialization; otherwise it will fall back to a simple test.
->
-> Not sure if you should specify libdl or if that is implicitly handled.
+$ make policy
+Compiling refpolicy policy.24
+/usr/bin/checkpolicy policy.conf -o policy.24
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+policy/modules/kernel/corenetwork.te":1715:ERROR 'syntax error' at token ':' on line 9122:
+allow corenet_unconfined_type node_type:node *;
 
-        It is implicitly handled. 
->
->> diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
->> new file mode 100644
->> index 0000000..6d0024c
->> --- /dev/null
->> +++ b/libsemanage/src/libsemanage.pc.in
->> @@ -0,0 +1,12 @@
->> +prefix=@prefix@
->> +exec_prefix=${prefix}
->> +libdir=${exec_prefix}/lib
->> +includedir=@includedir@
->> +
->> +Name: libsemanage
->> +Description: SELinux management library
->> +Version: @VERSION@
->> +URL: http://www.nsa.gov/research/selinux/
->> +Requires: libselinux
->> +Libs: -L${libdir} -lsemanage
->> +Cflags: -I${includedir}
->
-> Modern libsemanage requires libsepol, libselinux, libbz2, and libustr.
+checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.24] Error 1
 
-        I need to update that, thanks.
 
-        Also, I have patches now to libselinux/src/Makefile to use
- pkg-config to look for the location of libsepol.a.
+Packages:
 
-     manoj
+checkpolicy-2.0.19
+libselinux-2.0.85
+libsemanage-2.0.33
+libsepol-2.0.37
+policycoreutils-2.0.69
+sepolgen-1.0.17
 
-    [topic--debian]: Add support for cross compilation
-    
-    The Python bindings are always linked against /usr/lib/libsepol.a. This
-    patch allows the specification of the directory one may find libsepol.a
-    in.
-    
-    Signed-off-by: Manoj Srivastava <srivasta@debian.org>
+$ yacc -V
+yacc - 1.9 20090221
+$ flex -V
+flex 2.5.35
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index b68d586..ac4f467 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -52,6 +52,11 @@ ifneq (,$(filter i386,$(ARCH)))
- TLSFLAGS += -mno-tls-direct-seg-refs
- endif
- 
-+LIBSEPOLDIR=$(shell pkg-config --variable=libdir libsepol)
-+ifeq (,$(strip $(LIBSEPOLDIR)))
-+LIBSEPOLDIR=$(LIBDIR)
-+endif
-+
- SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
- 
- SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
-@@ -86,7 +90,7 @@ audit2why.lo: audit2why.c
- 	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
- 
- $(AUDIT2WHYSO): audit2why.lo
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux ${LIBDIR}/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux $(LIBSEPOLDIR)/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
- 
- %.o:  %.c policy.h
- 	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
+-Eric
 
 
 
-
--- 
-Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
