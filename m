@@ -1,133 +1,281 @@
-Message-ID: <A57FFC0249E4486@puertorrico.com>
-From: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-Reply-To: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-To: sds@tycho.nsa.gov
-Subject: ***[SPAM]*** Software - die besten Angebot
-Date: Wed, 21 Oct 2009 05:47:01 +0600
+Message-ID: <4ADE735D.9020901@tycho.nsa.gov>
+Date: Tue, 20 Oct 2009 22:35:09 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_4ADE3F29.611B5ECB"
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, Caleb Case <ccase@tresys.com>,
+        srivasta@golden-gryphon.com, Daniel J Walsh <dwalsh@redhat.com>
+Subject: [PATCH] pkgconfig support for libsepol, libselinux, and libsemanage
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Add pkgconfig files for libsepol, libselinux, and libsemanage.
 
-------------=_4ADE3F29.611B5ECB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Having a pkgconfig file allows the pkg-config(1) tool to be used to
+query the presence of the library (or a particular version of it),
+and to obtain the C flags and linker arguments required to use it.
 
-Spam detection software, running on the system "tarius.tycho.ncsc.mil", has
-identified this incoming email as possible spam.  The original message
-has been attached to this so you can view it (if it isn't spam) or label
-similar future email.  If you have any questions, see
-the administrator of that system for details.
+Based on Debian patches by Manoj Srivastava<srivasta@debian.org>.
 
-Content preview:  Finden Sie Ihren gewu"nschten weich und jetzt herunterladen!
-   Hi Sds! Du suchtest ein Programm, ich weise. Ich kenne eine Seite, wo es
-  eine Haufe verschiedener Programme gibt. Also so viel Programme für PC und
-   Macintosh. Es ist viel Programm Deutsch. Die kosten um 5-10n Mal billiger,
-   als andere, und sind direkt von der Seite zu laden. Du kriegst cool Soft
-  und sparst 400 Euro. [...] 
+Signed-off-by: Eamon Walsh<ewalsh@tycho.nsa.gov>
+---
 
-Content analysis details:   (8.7 points, 3.5 required)
+Note that the .pc.in files themselves could use some review to make
+sure the Requires and Libs lines are correct.  The sepol and selinux
+ones are from the Debian repos; the semanage one I wrote myself.
 
- pts rule name              description
----- ---------------------- --------------------------------------------------
--4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
-                             trust
-                            [63.239.67.1 listed in list.dnswl.org]
- 2.0 URIBL_BLACK            Contains an URL listed in the URIBL blacklist
-                            [URIs: sopriventons.net]
- 1.9 URIBL_AB_SURBL         Contains an URL listed in the AB SURBL blocklist
-                            [URIs: sopriventons.net]
- 1.5 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
-                            [URIs: sopriventons.net]
- 1.5 URIBL_JP_SURBL         Contains an URL listed in the JP SURBL blocklist
-                            [URIs: sopriventons.net]
- 1.1 URIBL_RHS_DOB          Contains an URI of a new domain (Day Old Bread)
-                            [URIs: sopriventons.net]
--0.2 BAYES_40               BODY: Bayesian spam probability is 20 to 40%
-                            [score: 0.3621]
- 0.0 HTML_MESSAGE           BODY: HTML included in message
- 0.7 MPART_ALT_DIFF         BODY: HTML and text parts are different
- 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
- 1.5 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
- 0.0 MISSING_MIMEOLE        Message has X-MSMail-Priority, but no X-MimeOLE
- 0.0 MIME_HTML_ONLY_MULTI   Multipart message only has text/html MIME parts
+  .gitignore                        |    1 +
+  libselinux/src/Makefile           |   11 +++++++++--
+  libselinux/src/libselinux.pc.in   |   13 +++++++++++++
+  libsemanage/src/Makefile          |   11 +++++++++--
+  libsemanage/src/libsemanage.pc.in |   12 ++++++++++++
+  libsepol/src/Makefile             |   12 ++++++++++--
+  libsepol/src/libsepol.pc.in       |   11 +++++++++++
+  7 files changed, 65 insertions(+), 6 deletions(-)
+  create mode 100644 libselinux/src/libselinux.pc.in
+  create mode 100644 libsemanage/src/libsemanage.pc.in
+  create mode 100644 libsepol/src/libsepol.pc.in
 
-The original message was not completely plain text, and may be unsafe to
-open with some email clients; in particular, it may contain a virus,
-or confirm that your address can receive spam.  If you wish to view
-it, it may be safer to save it to a file and open it with an editor.
+diff --git a/.gitignore b/.gitignore
+index c0e010f..9b7ed83 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -9,6 +9,7 @@
+  *.a
+  *.s
+  *.mo
++*.pc
+
+  # Misc
+  *.patch
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 74b1e6a..6623706 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -12,10 +12,12 @@ RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
+  RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+  RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+
++VERSION = $(shell cat ../VERSION)
+  LIBVERSION = 1
+
+  LIBA=libselinux.a
+  TARGET=libselinux.so
++LIBPC=libselinux.pc
+  SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+  SWIGRUBYIF= selinuxswig_ruby.i
+  SWIGCOUT= selinuxswig_wrap.c
+@@ -56,7 +58,7 @@ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+
+  SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+
+-all: $(LIBA) $(LIBSO)
++all: $(LIBA) $(LIBSO) $(LIBPC)
+
+  pywrap: all $(SWIGSO) $(AUDIT2WHYSO)
+
+@@ -82,6 +84,9 @@ $(LIBSO): $(LOBJS)
+  	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -ldl -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+  	ln -sf $@ $(TARGET)
+
++$(LIBPC): $(LIBPC).in
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):'<  $<  >  $@
++
+  selinuxswig_python_exception.i: ../include/selinux/selinux.h
+  	sh exception.sh>  $@
+
+@@ -111,6 +116,8 @@ install: all
+  	install -m 644 $(LIBA) $(LIBDIR)
+  	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
+  	install -m 755 $(LIBSO) $(SHLIBDIR)
++	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
++	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
+  	cd $(LIBDIR)&&  ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
+
+  install-pywrap: pywrap
+@@ -127,7 +134,7 @@ relabel:
+  	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+
+  clean:
+-	-rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
++	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
+
+  distclean: clean
+  	rm -f $(GENERATED) $(SWIGFILES)
+diff --git a/libselinux/src/libselinux.pc.in b/libselinux/src/libselinux.pc.in
+new file mode 100644
+index 0000000..c9608d9
+--- /dev/null
++++ b/libselinux/src/libselinux.pc.in
+@@ -0,0 +1,13 @@
++prefix=@prefix@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=@includedir@
++
++Name: libselinux
++Description: SELinux utility library
++Version: @VERSION@
++URL: http://www.nsa.gov/research/selinux/
++Requires.private: libsepol>= 1.12
++Libs: -L${libdir} -lselinux
++Libs.private: -pthread
++Cflags: -I${includedir}
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index cfb9558..a249f0f 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -23,10 +23,12 @@ LFLAGS = -s
+  YACC = bison
+  YFLAGS = -d
+
++VERSION = $(shell cat ../VERSION)
+  LIBVERSION = 1
+
+  LIBA=libsemanage.a
+  TARGET=libsemanage.so
++LIBPC=libsemanage.pc
+  SWIGIF= semanageswig_python.i
+  SWIGRUBYIF= semanageswig_ruby.i
+  SWIGCOUT= semanageswig_wrap.c
+@@ -53,7 +55,7 @@ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+
+  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) $(wildcard conf-*.[ch])
+
+-all: $(LIBA) $(LIBSO)
++all: $(LIBA) $(LIBSO) $(LIBPC)
+
+  pywrap: all $(SWIGLOBJ) $(SWIGSO)
+
+@@ -79,6 +81,9 @@ $(LIBSO): $(LOBJS)
+  	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
+  	ln -sf $@ $(TARGET)
+
++$(LIBPC): $(LIBPC).in
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):'<  $<  >  $@
++
+  conf-scan.c: conf-scan.l conf-parse.h
+  	$(LEX) $(LFLAGS) -t $<  >  $@
+
+@@ -119,6 +124,8 @@ install: all
+  	install -m 644 $(LIBA) $(LIBDIR)
+  	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
+  	install -m 755 $(LIBSO) $(SHLIBDIR)
++	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
++	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
+  	test -f $(DEFAULT_SEMANAGE_CONF_LOCATION) || install -m 644 -D semanage.conf $(DEFAULT_SEMANAGE_CONF_LOCATION)
+  	cd $(LIBDIR)&&  ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
+
+@@ -134,7 +141,7 @@ relabel:
+  	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+
+  clean:
+-	rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) $(TARGET) conf-parse.c conf-parse.h conf-scan.c
++	rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) $(TARGET) conf-parse.c conf-parse.h conf-scan.c
+
+  distclean: clean
+  	rm -f $(SWIGCOUT) $(SWIGFILES)
+diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
+new file mode 100644
+index 0000000..6d0024c
+--- /dev/null
++++ b/libsemanage/src/libsemanage.pc.in
+@@ -0,0 +1,12 @@
++prefix=@prefix@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=@includedir@
++
++Name: libsemanage
++Description: SELinux management library
++Version: @VERSION@
++URL: http://www.nsa.gov/research/selinux/
++Requires: libselinux
++Libs: -L${libdir} -lsemanage
++Cflags: -I${includedir}
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 608fe0b..3b19e37 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -1,19 +1,22 @@
+  # Installation directories.
+  PREFIX ?= $(DESTDIR)/usr
++INCLUDEDIR ?= $(PREFIX)/include
+  LIBDIR ?= $(PREFIX)/lib
+  SHLIBDIR ?= $(DESTDIR)/lib
+
++VERSION = $(shell cat ../VERSION)
+  LIBVERSION = 1
+
+  LIBA=libsepol.a
+  TARGET=libsepol.so
++LIBPC=libsepol.pc
+  LIBSO=$(TARGET).$(LIBVERSION)
+  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
+  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+  CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
+  override CFLAGS += -I. -I../include -D_GNU_SOURCE
+
+-all: $(LIBA) $(LIBSO)
++all: $(LIBA) $(LIBSO) $(LIBPC)
+
+  $(LIBA):  $(OBJS)
+  	$(AR) rcs $@ $^
+@@ -23,6 +26,9 @@ $(LIBSO): $(LOBJS)
+  	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -Wl,-soname,$(LIBSO),--version-script=libsepol.map,-z,defs
+  	ln -sf $@ $(TARGET)
+
++$(LIBPC): $(LIBPC).in
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):'<  $<  >  $@
++
+  %.o:  %.c
+  	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+
+@@ -34,13 +40,15 @@ install: all
+  	install -m 644 $(LIBA) $(LIBDIR)
+  	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
+  	install -m 755 $(LIBSO) $(SHLIBDIR)
++	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
++	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
+  	cd $(LIBDIR)&&  ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
+
+  relabel:
+  	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+
+  clean:
+-	-rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET)
++	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET)
+
+  indent:
+  	../../scripts/Lindent $(wildcard *.[ch])
+diff --git a/libsepol/src/libsepol.pc.in b/libsepol/src/libsepol.pc.in
+new file mode 100644
+index 0000000..53a6970
+--- /dev/null
++++ b/libsepol/src/libsepol.pc.in
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=@includedir@
++
++Name: libsepol
++Description: SELinux policy library
++Version: @VERSION@
++URL: http://www.nsa.gov/research/selinux/
++Libs: -L${libdir} -lsepol
++Cflags: -I${includedir}
+-- 
+1.6.5.rc2
 
 
-------------=_4ADE3F29.611B5ECB
-Content-Type: text/plain; x-spam-type=original
-Content-Description: original message before SpamAssassin
-Content-Disposition: attachment
-Content-Transfer-Encoding: 8bit
-
-X-Envelope-From: <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
-Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9KMqHCC004823
-	Tue, 20 Oct 2009 18:52:17 -0400
-	(envelope-from <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
-X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
-Received: (from mail@localhost)
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9KMqHRA004822;
-	Tue, 20 Oct 2009 18:52:17 -0400
-X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9KMq3QX004789;
-	Tue, 20 Oct 2009 18:52:03 -0400
-Received: from 201-69-125-164.dial-up.telesp.net.br (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n9KMotRd007615;
-	Tue, 20 Oct 2009 22:51:04 GMT
-Message-ID: <A57FFC0249E4486@puertorrico.com>
-From: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-Reply-To: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-To: sds@tycho.nsa.gov
-Subject: Software - die besten Angebot
-Date: Wed, 21 Oct 2009 05:47:01 +0600
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="--=====8175662419735=_"
-X-Priority: 3
-X-MSMail-Priority: Normal
-Sender: owner-selinux@tycho.nsa.gov
-Precedence: bulk
-X-Mailing-List: selinux-tycho.nsa.gov
-
-----=====8175662419735=_
-Content-Type: text/html;
-Content-Transfer-Encoding: 7Bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Finden Sie Ihren gewu"nschten weich und jetzt herunterladen!</title>
-</head>
-
-<body link="#990000">
-<p><font color="#333333" size="3" face="Times New Roman, Times, serif">Hi Sds!<br>
-  Du suchtest ein  Programm, ich weise. Ich  kenne eine Seite, wo es eine Haufe verschiedener Programme gibt.</font></p>
-<p><font color="#333333" size="3" face="Times New Roman, Times, serif">Also so viel  Programme f&uuml;r PC und Macintosh. Es ist viel Programm Deutsch. Die kosten um  5-10n Mal billiger, als andere, und sind direkt von der Seite zu laden. Du kriegst cool Soft und sparst 400 Euro.</font></p>
-<p><font color="#333333" size="3" face="Times New Roman, Times, serif">Greife das Link <a href="http://sopriventons.net"><strong>http://sopriventons.net</strong></a></font></p>
-</body>
-</html>
-
-
-----=====8175662419735=_--
-
+-- 
+Eamon Walsh<ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
-
-------------=_4ADE3F29.611B5ECB--
