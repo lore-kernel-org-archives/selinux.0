@@ -1,193 +1,81 @@
-Message-ID: <000d01ca52d4$835a2d70$6400a8c0@waspishoh8>
-From: sds@tycho.nsa.gov
-To: <sds@tycho.nsa.gov>
-Subject: ***[SPAM]*** =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
-Date: Thu, 22 Oct 2009 10:00:02 +0500
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9M5tJ3M028484
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 01:55:19 -0400
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9M5sP5V018608
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 05:54:25 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id n9M5nLR9026034
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 00:49:22 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id n9M5lZiI024564
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 00:47:36 -0500
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: 'make policy' issues
+References: <4ADF2358.4050606@laganowski.net>
+	<1256138160.4061.200.camel@moss-pluto.epoch.ncsc.mil>
+	<4ADF2663.2030105@laganowski.net>
+	<1256138950.4061.206.camel@moss-pluto.epoch.ncsc.mil>
+	<87hbtsvhru.fsf@anzu.internal.golden-gryphon.com>
+	<4ADF3D2C.2030408@laganowski.net>
+Date: Thu, 22 Oct 2009 00:47:35 -0500
+In-Reply-To: <4ADF3D2C.2030408@laganowski.net> (Eric Laganowski's message of
+	"Wed, 21 Oct 2009 12:56:12 -0400")
+Message-ID: <87oco0c748.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_4ADFE6F7.AC04000E"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Wed, Oct 21 2009, Eric Laganowski wrote:
 
-------------=_4ADFE6F7.AC04000E
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+> Manoj Srivastava wrote:
+>> On Wed, Oct 21 2009, Stephen Smalley wrote:
+>>   
+>>>> Re flex: What is the requirement for flex from selinux
+>>>> perspective? Is it known what build of flex is "known good"?
+>>>>       
+>>> My impression is that one of the patches carried by the distributions
+>>> for flex is needed for checkpolicy to work, but no one has ever fully
+>>> investigated the precise dependency - people just grab the Fedora srpm
+>>> and apply those patches to flex, and then rebuild checkpolicy and it
+>>> works.  I haven't seen any complaints from Debian or Gentoo so I presume
+>>> that they also carry the same patches for flex.
+>>>
+>>> flex -V here also shows 2.5.35.  But there are three patches in the
+>>> Fedora package.  Attached.
+>>>     
+>>
+>>         Debian currently carries 13 (though 3 of them need to be
+>>  squashed together) patches against 2.5.35. I can make them available if
+>>  there is interest.
+>>
+>>         manoj
+>>   
+> Yes please. Patches would be welcome.
 
-Spam detection software, running on the system "tarius.tycho.ncsc.mil", has
-identified this incoming email as possible spam.  The original message
-has been attached to this so you can view it (if it isn't spam) or label
-similar future email.  If you have any questions, see
-the administrator of that system for details.
+        ok. I have put all the patches at:
+ http://www.golden-gryphon.com/software/misc/flex-patches/
 
-Content preview:  Доброго дня. У нас сейчас появилась в наличии коллекция ФИЛЬМЫ-КАТАСТРОФЫ
-   - 46 фильмов [...] 
+        If you want to browse the git repository and see which topic
+ branches these patches come from, you may browse the repo at:
+   http://git.debian.org/?p=users/srivasta/debian/flex.git
 
-Content analysis details:   (9.3 points, 3.5 required)
+        The upstream sources are in the upstream branch, and the various
+ topic--[!old]foo branches are feature branches, and master is the
+ integration branch that Debian packages are built from.
 
- pts rule name              description
----- ---------------------- --------------------------------------------------
--4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
-                             trust
-                            [63.239.67.1 listed in list.dnswl.org]
- 0.0 STOX_REPLY_TYPE        STOX_REPLY_TYPE
- 0.7 SARE_SUB_ENC_KOI8R     Subject specifies display in non-English lang
- 2.1 RCVD_NUMERIC_HELO      Received: contains an IP address used for HELO
- 3.2 CHARSET_FARAWAY_HEADER A foreign language charset used in headers
- 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
- 3.2 CHARSET_FARAWAY        BODY: Character set indicates a foreign language
--2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                            [score: 0.0000]
- 1.5 BODY_8BITS             BODY: Body includes 8 consecutive 8-bit characters
- 2.5 MIME_CHARSET_FARAWAY   MIME character set indicates foreign language
+        I hope this helps.
 
-
-
-------------=_4ADFE6F7.AC04000E
-Content-Type: text/plain; x-spam-type=original
-Content-Description: original message before SpamAssassin
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-
-X-Envelope-From: <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
-Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9M50YTw022202
-	Thu, 22 Oct 2009 01:00:34 -0400
-	(envelope-from <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
-X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
-Received: (from mail@localhost)
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9M50Y5E022201;
-	Thu, 22 Oct 2009 01:00:34 -0400
-X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9M50N4c022180;
-	Thu, 22 Oct 2009 01:00:23 -0400
-Received: from 121.52.152.193.pern.pk (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9M4xO5V027594;
-	Thu, 22 Oct 2009 04:59:26 GMT
-Received: from localhost by mail.dermcare.com.au; Thu, 22 Oct 2009 10:00:02 +0500
-Message-ID: <000d01ca52d4$835a2d70$6400a8c0@waspishoh8>
-From: sds@tycho.nsa.gov
-To: <sds@tycho.nsa.gov>
-Subject: =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
-Date: Thu, 22 Oct 2009 10:00:02 +0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
-X-Antivirus: avast! (VPS 080512-0, 05/12/2008), Outbound message
-X-Antivirus-Status: Clean
-Sender: owner-selinux@tycho.nsa.gov
-Precedence: bulk
-X-Mailing-List: selinux-tycho.nsa.gov
-
-Доброго дня.
-
-У нас сейчас появилась в наличии коллекция
-
-ФИЛЬМЫ-КАТАСТРОФЫ - 46 фильмов
-
-Такие как: Пocлезавтра, Титаник, Явление, Торнадо в Нью-Йорке,
-Астероид и т.д.
-
-Все фильмы в этoй коллекции очень интересны,
-смотрятся на oднoм дыхании. Сценарий примерно таков:
-Все начинается с мелких проблем, потом данные проблемы все
-заметнее, далее собирается конгресс ученых и властей
-и делается вывод что планете Земля (городу, стране, материку)
-осталось существовать недолго и начинается борьба со стихией
-успешная или не очень
-
-26 DVD дисков, в превосходном качестве!
-Цена коллекции всего 4100 рублей
-
-Доставка налож. платежом почтой РФ 
-Для заказа сообщите ФИО, aдрес и 
-индекс на адрес: katastrscddd@magazsp.com
-
-Каждый диск в DVD-боксах с полиграфией. Наши диски можно ДАРИТЬ!
-
-Оплата при получении в кассе почты РФ.
-На всякий случай, просьба, укажите Ваш контактн. телефон.
-
-Наши гарантии: все диски перед отправкой 
-проверяются на читаемость, на брак.
-Следовательно, отправка брака или чистых DVD сведена к нулю.
-Просим не беспокоиться и за качество, здесь все ОК. 
-Каждый диск в боксах с полиграфией. Наши диски можно ДАРИТЬ!
-прилагается информация о записи к каждому носителю.
-
-Что такое НАЛОЖЕН. ПЛАТЕЖ?
-Через 1-2 недели после отправки на указанный Вами адрес
-придет извещение о том что пришла ценная бандероль первого класса. 
-На нем будет указана стоимость, адрес почтового отделения, 
-куда нужно прийти.
-С этим извещением Вы приходите в это отделение почты России. 
-там Вам Находят бандероль с коллекцией.
-далее Вы оплачиваете при получении в кассе почты России.
-
-Список
-
-1. 11 сентября, отчет комиссии конгресса
-2. Абсолютный ноль
-3. Ад в поднебесье
-4. Апокалипсис последний день
-5. Астероид
-6. Аэропорт
-7. Воздушная скорость
-8. Волна убийца
-9. Вторжение
-10. Вулкан
-11. Гибель Титаника
-12. Гремучие змеи
-13. День когда Земля остановилась
-14. Дни разрушений
-15. Землетрясение
-16. Земля под ударом
-17. Катастрофы века
-18. Конец света BBC
-19. Лавина
-20. Линия разлома
-21. Монстр
-22. Опасная зона
-23. Паника в Нью-Йорке
-24. Париж 2010 Великое наводнение
-25. Перевал Кассандры
-26. Пик Данте
-27. Последние дни
-28. Послезавтра
-29. Призраки бездны. Титаник
-30. Приключения Посейдона 1972
-31. Провал
-32. С точки зрения науки. Внимание, цунами
-33. Слепота
-34. Смерч
-35. Солнечный удар
-36. Супер шторм
-37. Тайна астероида
-38. Титаник
-39. Торнадо в Нью-Йорке
-40. У твоего порога
-41. Хозяин
-42. Цунами
-43. Экспедиция в преисподнюю
-44. Эпицентр
-45. Явление
-46. Ядро Земли
-
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
-
-------------=_4ADFE6F7.AC04000E--
