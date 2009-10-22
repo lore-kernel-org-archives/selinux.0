@@ -1,108 +1,73 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9MJhwPN000495
-	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 15:43:58 -0400
-Received: from asmtpout026.mac.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9MJh3xY018004
-	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 19:43:03 GMT
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed; delsp=yes
-Received: from falmouth.jbj.org
- (cpe-069-134-024-120.nc.res.rr.com [69.134.24.120])
- by asmtp026.mac.com (Sun Java(tm) System Messaging Server 6.3-8.01 (built Dec
- 16 2008; 32bit)) with ESMTPSA id <0KRX008INLG72A40@asmtp026.mac.com> for
- selinux@tycho.nsa.gov; Thu, 22 Oct 2009 12:43:21 -0700 (PDT)
-Subject: Re: RPM support for SELinux
-From: Jeff Johnson <n3npq@mac.com>
-In-reply-to: <4AE0AE8C.8000801@manicmethod.com>
-Date: Thu, 22 Oct 2009 15:43:18 -0400
-Cc: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Message-id: <41960C97-411F-4D37-9F71-9EE3AADEE8CF@mac.com>
-References: <C7061E9C.AB85E%csellers@tresys.com>
- <99964603-25A5-4664-8EE4-99B5C07661C3@mac.com>
- <4AE0AE8C.8000801@manicmethod.com>
-To: Joshua Brindle <method@manicmethod.com>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9MNBYML018590
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 19:11:34 -0400
+Received: from mail-bw0-f220.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n9MNDLAq001633
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 23:13:21 GMT
+Received: by bwz20 with SMTP id 20so728188bwz.34
+        for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 16:11:31 -0700 (PDT)
+MIME-Version: 1.0
+Date: Thu, 22 Oct 2009 21:11:30 -0200
+Message-ID: <d629bb30910221611i4d2c29co4cdc077049d754f2@mail.gmail.com>
+Subject: SELinux : Project (opinions and suggestions)
+From: "Raul da Silva {Sp4wn}" <sp4wn.root@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=00032555817e3c6d1304768e37c4
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--00032555817e3c6d1304768e37c4
+Content-Type: text/plain; charset=ISO-8859-1
 
-On Oct 22, 2009, at 3:12 PM, Joshua Brindle wrote:
+Hi everyone,
 
-> Jeff Johnson wrote:
->>
->> On Oct 22, 2009, at 2:37 PM, Chad Sellers wrote:
->>
->>> I just wanted to let everyone know that we've submitted a patchset  
->>> to add
->>> more robust SELinux support to RPM4. You can view the patchset here:
->>>
->>> http://lists.rpm.org/pipermail/rpm-maint/2009-October/002561.html
->>>
->>> Note that these patches require running on the current trunk of
->>> libselinux
->>> and libsemanage.
->>>
->>> If you're interested in trying out the support or just looking at  
->>> how it
->>> works, we've put up a wiki page talking about it here:
->>>
->>> http://selinuxproject.org/page/RPM
->>>
->>> Comments are welcome.
->>>
->>
->>
->> Just a short reply:
->>
->> The patches will never be included @rpm5.org as is because
->> you missed the abstraction (for packaging) and haven't tied
->> various stray identifiers as in
->> Type: mls targeted
->
-> These should never be "concrete" in RPM. These are identifiers that  
-> are created on end systems and forcing a specific set of them is a  
-> good way to make sure custom solutions won't use this feature in RPM.
->
+I'd like to heard from everyone some opinions and suggestions about my
+"course final paper progress review seminar" of my post graduate course.
+I want to do something about the SELinux in my project, but I thinking in
+realize something that after when I finished the project can be continue by
+selinux community , so it I'd like to share with everyone here the idea of
+this project and know what do you think that SELinux needs ?
 
-The bz2 blobs need to be verifiable even if opaque.
+Are you think SELinux need the something specific to help administration
+like a tool ? Or SELinux needs the other things ?
+Ex: AppArmor
 
-And the tagging (which you've chosen to add to *.rpm) needs
-to be verifiable as being accurate, however that is arranged.
 
-The fundamental design flaw is that you are choosing to distribute
-security sensitive policy tagging without any visible means (other  
-than what
-is provided by bzip2) that the blob's are, in fact, what they are  
-supposed
-to be.
+tks,
 
-The claimed purpose of this patch set (by you) is so that rpm can be  
-labeled
-as "untrusted". I haven't any problem whatsoever with RPM being labeled
-"untrusted". Just that you cannot send "trusted" data through an  
-"untrusted"
-channel without any means of verification and expect anything other than
-	Sh*t happens.
 
->> to anything concrete.
->>
->> There are other and deeper flaws within the highly unnormalized data
->> within the *.bz2 policy blobs.
->>
->
-> Well, you can normalize the data if you want but chances are the  
-> format will be changing from the current binary blob to a text file  
-> parseable only by high level compilers on the end systems in the  
-> near future.
->
 
-So change the format. I can only see what patches you've posted.
-If the flaws are "fixed in the next release", well, I'll patiently  
-wait for
-"the next release". What I see in the current patch set is mis- 
-designed and just
-plain wrong.
+--=============================================--
+Raul da Silva Leite aka ( sp4wn r0ot )
+sp4wn.root@gmail.com
+Red hat Brazil
+RHCE / LPI-II / ITIL / RHCI / RHCA / RHCSS / RHCDS
+--=============================================--
 
-73 de Jeff
+--00032555817e3c6d1304768e37c4
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi everyone,<br><br>I&#39;d like to heard from everyone some opinions and s=
+uggestions about my &quot;course final paper progress review seminar&quot; =
+of my post graduate course.<br>I want to do something about the SELinux in =
+my project, but I thinking in realize something that after when I finished =
+the project can be continue by selinux community , so it I&#39;d like to sh=
+are with everyone here the idea of this project and know what do you think =
+that SELinux needs ?<br>
+<br>Are you think SELinux need the something specific to help administratio=
+n like a tool ? Or SELinux needs the other things ?<br>Ex: AppArmor<br><br>=
+<br>tks,<br><br><br><br>--=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D--<br>
+Raul da Silva Leite aka ( sp4wn r0ot )<br><a href=3D"mailto:sp4wn.root@gmai=
+l.com">sp4wn.root@gmail.com</a><br>Red hat Brazil<br>RHCE / LPI-II /  ITIL =
+/ RHCI / RHCA / RHCSS / RHCDS<br>--=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D--<br>
+
+
+--00032555817e3c6d1304768e37c4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
