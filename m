@@ -1,16 +1,16 @@
-Message-ID: <000d01ca52c1$fcce6170$6400a8c0@lobbyingnnep>
+Message-ID: <000d01ca52d4$835a2d70$6400a8c0@waspishoh8>
 From: sds@tycho.nsa.gov
 To: <sds@tycho.nsa.gov>
 Subject: ***[SPAM]*** =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
-Date: Thu, 22 Oct 2009 09:47:25 +0700
+Date: Thu, 22 Oct 2009 10:00:02 +0500
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_4ADFC7D3.A339EC3D"
+Content-Type: multipart/mixed; boundary="----------=_4ADFE6F7.AC04000E"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------------=_4ADFC7D3.A339EC3D
+------------=_4ADFE6F7.AC04000E
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -24,7 +24,7 @@ the administrator of that system for details.
 Content preview:  Доброго дня. У нас сейчас появилась в наличии коллекция ФИЛЬМЫ-КАТАСТРОФЫ
    - 46 фильмов [...] 
 
-Content analysis details:   (7.2 points, 3.5 required)
+Content analysis details:   (9.3 points, 3.5 required)
 
  pts rule name              description
 ---- ---------------------- --------------------------------------------------
@@ -33,6 +33,7 @@ Content analysis details:   (7.2 points, 3.5 required)
                             [63.239.67.1 listed in list.dnswl.org]
  0.0 STOX_REPLY_TYPE        STOX_REPLY_TYPE
  0.7 SARE_SUB_ENC_KOI8R     Subject specifies display in non-English lang
+ 2.1 RCVD_NUMERIC_HELO      Received: contains an IP address used for HELO
  3.2 CHARSET_FARAWAY_HEADER A foreign language charset used in headers
  2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
  3.2 CHARSET_FARAWAY        BODY: Character set indicates a foreign language
@@ -43,7 +44,7 @@ Content analysis details:   (7.2 points, 3.5 required)
 
 
 
-------------=_4ADFC7D3.A339EC3D
+------------=_4ADFE6F7.AC04000E
 Content-Type: text/plain; x-spam-type=original
 Content-Description: original message before SpamAssassin
 Content-Disposition: inline
@@ -52,27 +53,27 @@ Content-Transfer-Encoding: 8bit
 X-Envelope-From: <owner-selinux@tycho.nsa.gov>
 X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
 Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9M2lgAR009152
-	Wed, 21 Oct 2009 22:47:42 -0400
+	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9M50YTw022202
+	Thu, 22 Oct 2009 01:00:34 -0400
 	(envelope-from <owner-selinux@tycho.nsa.gov>
 X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
 X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
 Received: (from mail@localhost)
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9M2lgQe009151;
-	Wed, 21 Oct 2009 22:47:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9M50Y5E022201;
+	Thu, 22 Oct 2009 01:00:34 -0400
 X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9M2lVRj009113;
-	Wed, 21 Oct 2009 22:47:31 -0400
-Received: from localhost (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9M2kYVm013007;
-	Thu, 22 Oct 2009 02:46:36 GMT
-Received: from localhost by mx2.mail.eds.com; Thu, 22 Oct 2009 09:47:25 +0700
-Message-ID: <000d01ca52c1$fcce6170$6400a8c0@lobbyingnnep>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9M50N4c022180;
+	Thu, 22 Oct 2009 01:00:23 -0400
+Received: from 121.52.152.193.pern.pk (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9M4xO5V027594;
+	Thu, 22 Oct 2009 04:59:26 GMT
+Received: from localhost by mail.dermcare.com.au; Thu, 22 Oct 2009 10:00:02 +0500
+Message-ID: <000d01ca52d4$835a2d70$6400a8c0@waspishoh8>
 From: sds@tycho.nsa.gov
 To: <sds@tycho.nsa.gov>
 Subject: =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
-Date: Thu, 22 Oct 2009 09:47:25 +0700
+Date: Thu, 22 Oct 2009 10:00:02 +0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
@@ -81,8 +82,10 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 8bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+X-Antivirus: avast! (VPS 080512-0, 05/12/2008), Outbound message
+X-Antivirus-Status: Clean
 Sender: owner-selinux@tycho.nsa.gov
 Precedence: bulk
 X-Mailing-List: selinux-tycho.nsa.gov
@@ -187,4 +190,4 @@ This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
 
-------------=_4ADFC7D3.A339EC3D--
+------------=_4ADFE6F7.AC04000E--
