@@ -1,33 +1,37 @@
-Subject: Re: [PATCH] SELinux: add .gitignore files for dynamic classes
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1256224823.2191.51.camel@moss-pluto.epoch.ncsc.mil>
-References: <20091022150859.20503.17193.stgit@paris.rdu.redhat.com>
-	 <1256224823.2191.51.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 22 Oct 2009 11:23:28 -0400
-Message-Id: <1256225008.4443.97.camel@dhcp231-106.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9MIbIxn025091
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 14:37:18 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n9MId4i2004233
+	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 18:39:04 GMT
+Date: Thu, 22 Oct 2009 14:37:16 -0400
+Subject: RPM support for SELinux
+From: Chad Sellers <csellers@tresys.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C7061E9C.AB85E%csellers@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-10-22 at 11:20 -0400, Stephen Smalley wrote:
-> On Thu, 2009-10-22 at 11:08 -0400, Eric Paris wrote:
-> > The SELinux dynamic class work in c6d3aaa4e35c71a32a86ececacd4eea7ecfc316c
-> > creates a number of dynamic header files and scripts.  Add .gitignore files
-> > so git doesn't complain about these.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
-> 
-> I guess we also should add them to Documentation/dontdiff?
+I just wanted to let everyone know that we've submitted a patchset to add
+more robust SELinux support to RPM4. You can view the patchset here:
 
-Sure, I'll send a new version with your ACK on it.  (I didn't even know
-that existed)
+http://lists.rpm.org/pipermail/rpm-maint/2009-October/002561.html
 
--Eric
+Note that these patches require running on the current trunk of libselinux
+and libsemanage.
+
+If you're interested in trying out the support or just looking at how it
+works, we've put up a wiki page talking about it here:
+
+http://selinuxproject.org/page/RPM
+
+Comments are welcome.
+
+Thanks,
+Chad Sellers
 
 
 --
