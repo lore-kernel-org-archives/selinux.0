@@ -1,66 +1,71 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9MJCGS6029541
-	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 15:12:16 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9MJBKxY005872
-	for <selinux@tycho.nsa.gov>; Thu, 22 Oct 2009 19:11:21 GMT
-Message-ID: <4AE0AE8C.8000801@manicmethod.com>
-Date: Thu, 22 Oct 2009 15:12:12 -0400
-From: Joshua Brindle <method@manicmethod.com>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: add .gitignore files for dynamic classes
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Thu, 22 Oct 2009 15:38:26 -0400
+Message-ID: <20091022193826.22879.95307.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: Jeff Johnson <n3npq@mac.com>
-CC: Chad Sellers <csellers@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: RPM support for SELinux
-References: <C7061E9C.AB85E%csellers@tresys.com> <99964603-25A5-4664-8EE4-99B5C07661C3@mac.com>
-In-Reply-To: <99964603-25A5-4664-8EE4-99B5C07661C3@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jeff Johnson wrote:
->
-> On Oct 22, 2009, at 2:37 PM, Chad Sellers wrote:
->
->> I just wanted to let everyone know that we've submitted a patchset to add
->> more robust SELinux support to RPM4. You can view the patchset here:
->>
->> http://lists.rpm.org/pipermail/rpm-maint/2009-October/002561.html
->>
->> Note that these patches require running on the current trunk of
->> libselinux
->> and libsemanage.
->>
->> If you're interested in trying out the support or just looking at how it
->> works, we've put up a wiki page talking about it here:
->>
->> http://selinuxproject.org/page/RPM
->>
->> Comments are welcome.
->>
->
->
-> Just a short reply:
->
-> The patches will never be included @rpm5.org as is because
-> you missed the abstraction (for packaging) and haven't tied
-> various stray identifiers as in
-> Type: mls targeted
+The SELinux dynamic class work in c6d3aaa4e35c71a32a86ececacd4eea7ecfc316c
+creates a number of dynamic header files and scripts.  Add .gitignore files
+so git doesn't complain about these.
 
-These should never be "concrete" in RPM. These are identifiers that are 
-created on end systems and forcing a specific set of them is a good way 
-to make sure custom solutions won't use this feature in RPM.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+Acked-by: Stephen D. Smalley <sds@tycho.nsa.gov>
+---
 
-> to anything concrete.
->
-> There are other and deeper flaws within the highly unnormalized data
-> within the *.bz2 policy blobs.
->
+ Documentation/dontdiff                |    3 +++
+ scripts/selinux/genheaders/.gitignore |    1 +
+ security/selinux/.gitignore           |    2 ++
+ 3 files changed, 6 insertions(+), 0 deletions(-)
+ create mode 100644 scripts/selinux/genheaders/.gitignore
+ create mode 100644 security/selinux/.gitignore
 
-Well, you can normalize the data if you want but chances are the format 
-will be changing from the current binary blob to a text file parseable 
-only by high level compilers on the end systems in the near future.
-
-> Equivalent functionality will be done @rpm5.org instead.
+diff --git a/Documentation/dontdiff b/Documentation/dontdiff
+index bc01a5a..e38ae14 100644
+--- a/Documentation/dontdiff
++++ b/Documentation/dontdiff
+@@ -65,6 +65,7 @@ aicdb.h*
+ asm-offsets.h
+ asm_offsets.h
+ autoconf.h*
++av_permissions.h
+ bbootsect
+ bin2c
+ binkernel.spec
+@@ -94,12 +95,14 @@ docproc
+ elf2ecoff
+ elfconfig.h*
+ fixdep
++flask.h
+ fore200e_mkfirm
+ fore200e_pca_fw.c*
+ gconf
+ gen-devlist
+ gen_crc32table
+ gen_init_cpio
++genheaders
+ genksyms
+ *_gray256.c
+ ihex2fw
+diff --git a/scripts/selinux/genheaders/.gitignore b/scripts/selinux/genheaders/.gitignore
+new file mode 100644
+index 0000000..4c0b646
+--- /dev/null
++++ b/scripts/selinux/genheaders/.gitignore
+@@ -0,0 +1 @@
++genheaders
+diff --git a/security/selinux/.gitignore b/security/selinux/.gitignore
+new file mode 100644
+index 0000000..2e5040a
+--- /dev/null
++++ b/security/selinux/.gitignore
+@@ -0,0 +1,2 @@
++av_permissions.h
++flask.h
 
 
 --
