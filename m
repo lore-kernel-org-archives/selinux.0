@@ -1,211 +1,111 @@
-Message-ID: <000d01ca528a$64664970$6400a8c0@purchasesvv87>
+Date: Wed, 21 Oct 2009 21:05:34 -0300
+Message-Id: <PB5VP9973414.EKHI7ZLLC80851@201.29.94.180.abelintegration.com>
 From: sds@tycho.nsa.gov
-To: <sds@tycho.nsa.gov>
-Subject: ***[SPAM]*** =?koi8-r?B?78jP1MEgLSDV3sXCztnKINfJxMXNwdTF0snBzA==?=
-Date: Wed, 21 Oct 2009 18:09:27 -0300
+To: sds@tycho.nsa.gov
+Subject: Fantastic sale of designer brands
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_4ADF6A8E.F87DFE1A"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------------=_4ADF6A8E.F87DFE1A
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta content="text/html; charset="us-ascii" http-equiv="Content-Type">
+<STYLE></STYLE>
+</head>
+<body>
+<TABLE border=0 cellSpacing=0 cellPadding=0 width=738>
+  <TBODY>
+  <TR>
+    <TD style="BACKGROUND-COLOR: #318ce8">&nbsp;</TD></TR>
+  <TR>
+    <TD bgColor=#666666 width=738>
+      <DIV align=center>
+      <TABLE border=0 cellSpacing=0 cellPadding=0 width=736>
+        <TBODY>
+        <TR>
+          <TD bgColor=#ffffff width=736>
+            <DIV align=center>
+            <TABLE border=0 cellSpacing=10 cellPadding=3 width="95%">
+              <TBODY>
+              <TR>
+                <TD>
+                  <DIV align=center><FONT color=#0000ff size=5 
+                  face="Times New Roman"><U><A 
+                  href="http://nuu506.oqjulbea.cn/?okac=BD4IN4K1D651805cuv7176&myw;oyww=461010255906819720">Ideal gifts for this holiday season </A></U></FONT></DIV></TD></TR></TBODY></TABLE></DIV></TD></TR>
+        <TR>
+          <TD bgColor=#ffffff height=28 width=736>
+            <DIV align=center><FONT color=#015ca5 size=2 
+            face="Verdana, Arial, Helvetica,
 
-Spam detection software, running on the system "tarius.tycho.ncsc.mil", has
-identified this incoming email as possible spam.  The original message
-has been attached to this so you can view it (if it isn't spam) or label
-similar future email.  If you have any questions, see
-the administrator of that system for details.
+sans-serif"><A 
+            href="http://lve060.oqjulbea.cn/?ekjc=QM6211V387184eds580&lbj;dspu=025778839106700576768"><FONT 
+            color=#12569d>Local News</FONT></A>═<FONT 
+            color=#666666>|</FONT>═<A 
+            href="http://aha582.oqjulbea.cn/?yowdgr=38ZGDTDA83686903noe813&wmp;agkjh=2346519712409522173521"><FONT 
+            color=#12569d>Weather</FONT></A><FONT 
+            color=#666666>═|</FONT>═<A 
+            href="http://nwd967.oqjulbea.cn/?rmbctn=54POPRA740266bpq9299&kxv;awhn=521678996491240077843"><FONT 
+            color=#12569d>Traffic</FONT></A><FONT 
+            color=#666666>═|</FONT>═<A 
+            href="http://peu287.oqjulbea.cn/?pbdhpu=HWJ8OAJF444266svy6410&azo;udce=843475615321556124563"><FONT 
+            color=#12569d>Sports</FONT></A>═<FONT 
+            color=#666666>|</FONT>═<A 
+            href="http://wyh919.oqjulbea.cn/?ogdmpn=FKP934Z5227027ssz690&exc;gswr=78847189205523252994"><FONT 
+            color=#12569d>Entertainment</FONT></A>═<FONT 
+            color=#666666>|</FONT>═<A 
+            href="http://xuf125.oqjulbea.cn/?haeouk=62QTF2I6703329mrq228&njs;egexy=782970755014246327"><FONT 
+            color=#12569d>Health/Home</FONT></A>═<FONT 
+            color=#666666>|</FONT>═<A 
+            href="http://dwb299.oqjulbea.cn/?mokg=MCWJZYNNV9408431gss414&zuu;wkpg=57909619451422940086129"><FONT 
+            color=#12569d>Community</FONT></A> 
+      </FONT></DIV></TD></TR></TBODY></TABLE></DIV></TD></TR>
+  <TR>
+    <TD style="BACKGROUND-COLOR: #318ce8" bgColor=#666666 
+  height=5></TD></TR></TBODY></TABLE><A 
+href="http://kyt915.oqjulbea.cn/?tpjivw=5WUJZ0A7A498083krk881&gxu;krxv=957404673954749964957"><FONT 
+color=#12569d>═</FONT></A><!-----------------------start footer-----------------------> 
 
-Content preview:  Приветствую, представляе Вам и Вашим отцам, и дедушкам коллекцию
-   "УЧЕБНОЕ ВИДЕО ОБ ОХОТЕ от ╚Хантерс Видео╩" на 19 DVD --- более 50 часов
-  видео --- Это серия-коллекция учебных фильмов на DVD об охоте в отличном качестве.
-   Это хороший подарок себе или Вашим родителям, дедушке - любителю... Это будет
-   отличный подарок человеку, увлекающемуся охотой [...] 
-
-Content analysis details:   (7.2 points, 3.5 required)
-
- pts rule name              description
----- ---------------------- --------------------------------------------------
--4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
-                             trust
-                            [63.239.67.1 listed in list.dnswl.org]
- 0.0 STOX_REPLY_TYPE        STOX_REPLY_TYPE
- 0.7 SARE_SUB_ENC_KOI8R     Subject specifies display in non-English lang
- 3.2 CHARSET_FARAWAY_HEADER A foreign language charset used in headers
- 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
- 3.2 CHARSET_FARAWAY        BODY: Character set indicates a foreign language
--2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                            [score: 0.0000]
- 1.5 BODY_8BITS             BODY: Body includes 8 consecutive 8-bit characters
- 2.5 MIME_CHARSET_FARAWAY   MIME character set indicates foreign language
-
-
-
-------------=_4ADF6A8E.F87DFE1A
-Content-Type: text/plain; x-spam-type=original
-Content-Description: original message before SpamAssassin
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-
-X-Envelope-From: <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
-Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9LK9jx3025866
-	Wed, 21 Oct 2009 16:09:45 -0400
-	(envelope-from <owner-selinux@tycho.nsa.gov>
-X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
-X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
-Received: (from mail@localhost)
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9LK9jQq025863;
-	Wed, 21 Oct 2009 16:09:45 -0400
-X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9LK9YKc025845;
-	Wed, 21 Oct 2009 16:09:35 -0400
-Received: from 187-5-166-46.bnut3703.e.brasiltelecom.net.br (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9LK8bih021387;
-	Wed, 21 Oct 2009 20:08:39 GMT
-Received: from localhost by smtp.oromail.com; Wed, 21 Oct 2009 18:09:27 -0300
-Message-ID: <000d01ca528a$64664970$6400a8c0@purchasesvv87>
-From: sds@tycho.nsa.gov
-To: <sds@tycho.nsa.gov>
-Subject: =?koi8-r?B?78jP1MEgLSDV3sXCztnKINfJxMXNwdTF0snBzA==?=
-Date: Wed, 21 Oct 2009 18:09:27 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2741.2600
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2741.2600
-Sender: owner-selinux@tycho.nsa.gov
-Precedence: bulk
-X-Mailing-List: selinux-tycho.nsa.gov
-
-Приветствую, 
-
-представляе Вам и Вашим отцам, и дедушкам коллекцию
-"УЧЕБНОЕ ВИДЕО ОБ ОХОТЕ от ╚Хантерс Видео╩" на 19 DVD
-          --- более 50 часов видео ---
-
-Это серия-коллекция учебных фильмов
-на DVD об охоте в отличном качестве.
-Это хороший подарок себе или Вашим родителям, дедушке - любителю...
-Это будет отличный подарок человеку, увлекающемуся охотой
-
-Содержится ряд практических советов по ведению охоты. 
-сюжеты довольно разнообразны.
-Охота с применением огнестрельного оружия как тема, 
-является приоритетной. 
-
-Стоимость коллекции - 3800 руб.
-
-отправляются налож. платежом по почте россии 
-Для заказа сообщите ФИО, aдрес и 
-почтовый индекс на адрес - oxotacd@magazsp.com
-
-Каждый диск в DVD-боксах с полиграфией. Наши диски можно ДАРИТЬ!
-
-Оплата при получении в кассе почты РФ.
-На всякий случай, просьба, укажите Ваш контактн. телефон.
-
-Наши гарантии: все диски перед отправкой 
-проверяются на читаемость, на брак.
-Следовательно, отправка брака или чистых DVD сведена к нулю.
-Просим не беспокоиться и за качество, здесь все ОК. 
-Каждый диск в боксах с полиграфией. Наши диски можно ДАРИТЬ!
-прилагается информация о записи к каждому носителю.
-
-Что такое НАЛОЖЕН. ПЛАТЕЖ?
-Через 1-2 недели после отправки на указанный Вами адрес
-придет извещение о том что пришла ценная бандероль первого класса. 
-На нем будет указана стоимость, адрес почтового отделения, 
-куда нужно прийти.
-С этим извещением Вы приходите в это отделение почты России. 
-там Вам Находят бандероль с коллекцией.
-далее Вы оплачиваете при получении в кассе почты России.
-
-Список:
-
-1 Lord of the Pinnacles 
-2 Охота на оленя скрадом  (На английском языке)
-3 Высокогорная лихорадка 
-4 Лучший трофей в моей жизни 
-5 Kenya Safari 
-6 Охотничья Польша 
-7 Африканские приключения 
-8 Капский буйвол 
-9 Охотничья лихорадка в Новой Зеландии 
-10 Шведские каникулы 
-11 Охота с луком в Южной Африке 
-12 Охота на оленя. Охота на пернатых. 
-13 Охота скрадом на европейскую косулю 
-14 Канада √ очарование Севера 
-15 Европейская Косуля
-16 Охотничье оружие и снаряжение 
-17 Охота скрадом на пятнистого оленя  (На английском языке)
-18 Oхота на оленя 
-19 Охота на черного медведя 
-20 Косуля. Трофеи √ чемпионы
-21 Масаиленд 1
-22 Масаиленд 2
-23 Охота на пернатых в Дании 
-24 Охота на голубя
-25 Охота на слона
-26 Высокогорная мечта
-27 Охота по-норвежски 
-28 Серенгети √ жемчужина Африки 1
-29 Серенгети √ жемчужина Африки 2
-30 Большая четверка 
-31 Аномальная косуля
-32 Лимпопо Сафари 1
-33 Лимпопо Сафари 2
-34 Трофей √ мечта из Венгрии 
-35 Великолепные дни 
-36 Охота на европейскую косулю 
-37 Трофей Макнаба 
-38 Oхота в Танзании
-39 Могучий олень
-40 Зов крови
-41 Мой самый лучший трофей 
-42 Охота в Польше
-43 Охота на голубя в Аргентине
-44 Сибирская косуля и тетерев
-45 Охота на косулю в летом
-46 Точно в цель
-47 Охота на кабана 
-48 Охота с собаками в Швеции 
-49 Классическое сафари 
-50 Рекорд в Аргентине
-51 Охота на лань. Облавная охота
-52 Rifle Hunting in Denmark (На английском языке)
-53 Трофей-мечта
-54 Охота на гуся
-55 Охота на кабана
-56 Охота на косулю в Венгрии
-57 Rough Shooting in Scotland (На английском языке)
-58 Blixen Safari
-59 Hunting with Pointing Dogs
-60 Hunting in Mongolia and Kazakhstan
-61 Big Game in Zimbabwe
-62 На волка
-63 на тетерева зимой
-64 на тетерева летом
-65 На кабана (2 части)
-66 На утку
-
+<TABLE border=0 cellSpacing=0 cellPadding=0 width=738>
+  <TBODY>
+  <TR>
+    <TD 
+    style="BORDER-BOTTOM: #b6b4a6 1px solid; BORDER-LEFT: #b6b4a6 1px solid; BORDER-TOP: #b6b4a6 1px solid; BORDER-RIGHT: #b6b4a6 1px solid" 
+    bgColor=#e5e5e5>
+      <TABLE border=0 cellSpacing=0 cellPadding=5 width=730 align=center>
+        <TBODY>
+        <TR>
+          <TD>
+            <TABLE border=0 cellSpacing=0 cellPadding=0 width=548 
+              align=center><TBODY></TBODY></TABLE></TD></TR>
+        <TR>
+          <TD>
+            <DIV align=center><FONT color=#333333 size=1 
+            face="Verdana, Arial, Helvetica, sans-serif">
+            <P>If you received this email from a friend and would like to 
+            subscribe to this and other newsletters, please <A 
+            href="http://ytk213.oqjulbea.cn/?csjy=D99OXSIQ20957106gmj170&wbh;iblbw=2989170423691831012776"><FONT 
+            color=#12569d>click here</FONT></A> .</P>
+            <P>You are subscribed to this newsletter as: kvachdmitry@gmail.com 
+            <A 
+            href="http://yga991.oqjulbea.cn/?lxnwir=OUIKJNVT0381129aqx578&rnd;pdmp=23507918103176863142"><FONT 
+            color=#12569d>Click here</FONT></A> to update your email 
+            address.</P></FONT></DIV></TD></TR>
+        <TR>
+          <TD>
+            <DIV align=center><FONT color=#333333 size=1 
+            face="Verdana, Arial, Helvetica, sans-serif">To unsubscribe from 
+            this newsletter, please <A 
+            href="http://dml463.oqjulbea.cn/?aswkaj=ZFG4NFGV7493833rbb7062&nou;sfsvo=33184929719737428647"><FONT 
+            color=#12569d>click here</FONT></A> .<BR>Or, send an Unsubscribe 
+            Request C/O WFAA,═610═Aguanga St, 
+            Cayden,═EV 16232.</FONT> 
+        </DIV></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<DIV><FONT size=2 face=Arial></FONT>═</DIV></BODY></body></html>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
-
-------------=_4ADF6A8E.F87DFE1A--
