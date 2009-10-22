@@ -1,111 +1,190 @@
-Date: Wed, 21 Oct 2009 21:05:34 -0300
-Message-Id: <PB5VP9973414.EKHI7ZLLC80851@201.29.94.180.abelintegration.com>
+Message-ID: <000d01ca52c1$fcce6170$6400a8c0@lobbyingnnep>
 From: sds@tycho.nsa.gov
-To: sds@tycho.nsa.gov
-Subject: Fantastic sale of designer brands
-Content-Type: text/html; charset="us-ascii"
+To: <sds@tycho.nsa.gov>
+Subject: ***[SPAM]*** =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
+Date: Thu, 22 Oct 2009 09:47:25 +0700
 MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----------=_4ADFC7D3.A339EC3D"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-<head>
-<meta content="text/html; charset="us-ascii" http-equiv="Content-Type">
-<STYLE></STYLE>
-</head>
-<body>
-<TABLE border=0 cellSpacing=0 cellPadding=0 width=738>
-  <TBODY>
-  <TR>
-    <TD style="BACKGROUND-COLOR: #318ce8">&nbsp;</TD></TR>
-  <TR>
-    <TD bgColor=#666666 width=738>
-      <DIV align=center>
-      <TABLE border=0 cellSpacing=0 cellPadding=0 width=736>
-        <TBODY>
-        <TR>
-          <TD bgColor=#ffffff width=736>
-            <DIV align=center>
-            <TABLE border=0 cellSpacing=10 cellPadding=3 width="95%">
-              <TBODY>
-              <TR>
-                <TD>
-                  <DIV align=center><FONT color=#0000ff size=5 
-                  face="Times New Roman"><U><A 
-                  href="http://nuu506.oqjulbea.cn/?okac=BD4IN4K1D651805cuv7176&myw;oyww=461010255906819720">Ideal gifts for this holiday season </A></U></FONT></DIV></TD></TR></TBODY></TABLE></DIV></TD></TR>
-        <TR>
-          <TD bgColor=#ffffff height=28 width=736>
-            <DIV align=center><FONT color=#015ca5 size=2 
-            face="Verdana, Arial, Helvetica,
+------------=_4ADFC7D3.A339EC3D
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-sans-serif"><A 
-            href="http://lve060.oqjulbea.cn/?ekjc=QM6211V387184eds580&lbj;dspu=025778839106700576768"><FONT 
-            color=#12569d>Local News</FONT></A>═<FONT 
-            color=#666666>|</FONT>═<A 
-            href="http://aha582.oqjulbea.cn/?yowdgr=38ZGDTDA83686903noe813&wmp;agkjh=2346519712409522173521"><FONT 
-            color=#12569d>Weather</FONT></A><FONT 
-            color=#666666>═|</FONT>═<A 
-            href="http://nwd967.oqjulbea.cn/?rmbctn=54POPRA740266bpq9299&kxv;awhn=521678996491240077843"><FONT 
-            color=#12569d>Traffic</FONT></A><FONT 
-            color=#666666>═|</FONT>═<A 
-            href="http://peu287.oqjulbea.cn/?pbdhpu=HWJ8OAJF444266svy6410&azo;udce=843475615321556124563"><FONT 
-            color=#12569d>Sports</FONT></A>═<FONT 
-            color=#666666>|</FONT>═<A 
-            href="http://wyh919.oqjulbea.cn/?ogdmpn=FKP934Z5227027ssz690&exc;gswr=78847189205523252994"><FONT 
-            color=#12569d>Entertainment</FONT></A>═<FONT 
-            color=#666666>|</FONT>═<A 
-            href="http://xuf125.oqjulbea.cn/?haeouk=62QTF2I6703329mrq228&njs;egexy=782970755014246327"><FONT 
-            color=#12569d>Health/Home</FONT></A>═<FONT 
-            color=#666666>|</FONT>═<A 
-            href="http://dwb299.oqjulbea.cn/?mokg=MCWJZYNNV9408431gss414&zuu;wkpg=57909619451422940086129"><FONT 
-            color=#12569d>Community</FONT></A> 
-      </FONT></DIV></TD></TR></TBODY></TABLE></DIV></TD></TR>
-  <TR>
-    <TD style="BACKGROUND-COLOR: #318ce8" bgColor=#666666 
-  height=5></TD></TR></TBODY></TABLE><A 
-href="http://kyt915.oqjulbea.cn/?tpjivw=5WUJZ0A7A498083krk881&gxu;krxv=957404673954749964957"><FONT 
-color=#12569d>═</FONT></A><!-----------------------start footer-----------------------> 
+Spam detection software, running on the system "tarius.tycho.ncsc.mil", has
+identified this incoming email as possible spam.  The original message
+has been attached to this so you can view it (if it isn't spam) or label
+similar future email.  If you have any questions, see
+the administrator of that system for details.
 
-<TABLE border=0 cellSpacing=0 cellPadding=0 width=738>
-  <TBODY>
-  <TR>
-    <TD 
-    style="BORDER-BOTTOM: #b6b4a6 1px solid; BORDER-LEFT: #b6b4a6 1px solid; BORDER-TOP: #b6b4a6 1px solid; BORDER-RIGHT: #b6b4a6 1px solid" 
-    bgColor=#e5e5e5>
-      <TABLE border=0 cellSpacing=0 cellPadding=5 width=730 align=center>
-        <TBODY>
-        <TR>
-          <TD>
-            <TABLE border=0 cellSpacing=0 cellPadding=0 width=548 
-              align=center><TBODY></TBODY></TABLE></TD></TR>
-        <TR>
-          <TD>
-            <DIV align=center><FONT color=#333333 size=1 
-            face="Verdana, Arial, Helvetica, sans-serif">
-            <P>If you received this email from a friend and would like to 
-            subscribe to this and other newsletters, please <A 
-            href="http://ytk213.oqjulbea.cn/?csjy=D99OXSIQ20957106gmj170&wbh;iblbw=2989170423691831012776"><FONT 
-            color=#12569d>click here</FONT></A> .</P>
-            <P>You are subscribed to this newsletter as: kvachdmitry@gmail.com 
-            <A 
-            href="http://yga991.oqjulbea.cn/?lxnwir=OUIKJNVT0381129aqx578&rnd;pdmp=23507918103176863142"><FONT 
-            color=#12569d>Click here</FONT></A> to update your email 
-            address.</P></FONT></DIV></TD></TR>
-        <TR>
-          <TD>
-            <DIV align=center><FONT color=#333333 size=1 
-            face="Verdana, Arial, Helvetica, sans-serif">To unsubscribe from 
-            this newsletter, please <A 
-            href="http://dml463.oqjulbea.cn/?aswkaj=ZFG4NFGV7493833rbb7062&nou;sfsvo=33184929719737428647"><FONT 
-            color=#12569d>click here</FONT></A> .<BR>Or, send an Unsubscribe 
-            Request C/O WFAA,═610═Aguanga St, 
-            Cayden,═EV 16232.</FONT> 
-        </DIV></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
-<DIV><FONT size=2 face=Arial></FONT>═</DIV></BODY></body></html>
+Content preview:  Доброго дня. У нас сейчас появилась в наличии коллекция ФИЛЬМЫ-КАТАСТРОФЫ
+   - 46 фильмов [...] 
+
+Content analysis details:   (7.2 points, 3.5 required)
+
+ pts rule name              description
+---- ---------------------- --------------------------------------------------
+-4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
+                             trust
+                            [63.239.67.1 listed in list.dnswl.org]
+ 0.0 STOX_REPLY_TYPE        STOX_REPLY_TYPE
+ 0.7 SARE_SUB_ENC_KOI8R     Subject specifies display in non-English lang
+ 3.2 CHARSET_FARAWAY_HEADER A foreign language charset used in headers
+ 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
+ 3.2 CHARSET_FARAWAY        BODY: Character set indicates a foreign language
+-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                            [score: 0.0000]
+ 1.5 BODY_8BITS             BODY: Body includes 8 consecutive 8-bit characters
+ 2.5 MIME_CHARSET_FARAWAY   MIME character set indicates foreign language
+
+
+
+------------=_4ADFC7D3.A339EC3D
+Content-Type: text/plain; x-spam-type=original
+Content-Description: original message before SpamAssassin
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+X-Envelope-From: <owner-selinux@tycho.nsa.gov>
+X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
+Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9M2lgAR009152
+	Wed, 21 Oct 2009 22:47:42 -0400
+	(envelope-from <owner-selinux@tycho.nsa.gov>
+X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
+X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
+Received: (from mail@localhost)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9M2lgQe009151;
+	Wed, 21 Oct 2009 22:47:42 -0400
+X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9M2lVRj009113;
+	Wed, 21 Oct 2009 22:47:31 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9M2kYVm013007;
+	Thu, 22 Oct 2009 02:46:36 GMT
+Received: from localhost by mx2.mail.eds.com; Thu, 22 Oct 2009 09:47:25 +0700
+Message-ID: <000d01ca52c1$fcce6170$6400a8c0@lobbyingnnep>
+From: sds@tycho.nsa.gov
+To: <sds@tycho.nsa.gov>
+Subject: =?koi8-r?B?99PFIMbJzNjN2SDLwdTB09TSz8bZIM7BIERWRA==?=
+Date: Thu, 22 Oct 2009 09:47:25 +0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="koi8-r";
+	reply-type=original
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Sender: owner-selinux@tycho.nsa.gov
+Precedence: bulk
+X-Mailing-List: selinux-tycho.nsa.gov
+
+Доброго дня.
+
+У нас сейчас появилась в наличии коллекция
+
+ФИЛЬМЫ-КАТАСТРОФЫ - 46 фильмов
+
+Такие как: Пocлезавтра, Титаник, Явление, Торнадо в Нью-Йорке,
+Астероид и т.д.
+
+Все фильмы в этoй коллекции очень интересны,
+смотрятся на oднoм дыхании. Сценарий примерно таков:
+Все начинается с мелких проблем, потом данные проблемы все
+заметнее, далее собирается конгресс ученых и властей
+и делается вывод что планете Земля (городу, стране, материку)
+осталось существовать недолго и начинается борьба со стихией
+успешная или не очень
+
+26 DVD дисков, в превосходном качестве!
+Цена коллекции всего 4100 рублей
+
+Доставка налож. платежом почтой РФ 
+Для заказа сообщите ФИО, aдрес и 
+индекс на адрес: katastrscddd@magazsp.com
+
+Каждый диск в DVD-боксах с полиграфией. Наши диски можно ДАРИТЬ!
+
+Оплата при получении в кассе почты РФ.
+На всякий случай, просьба, укажите Ваш контактн. телефон.
+
+Наши гарантии: все диски перед отправкой 
+проверяются на читаемость, на брак.
+Следовательно, отправка брака или чистых DVD сведена к нулю.
+Просим не беспокоиться и за качество, здесь все ОК. 
+Каждый диск в боксах с полиграфией. Наши диски можно ДАРИТЬ!
+прилагается информация о записи к каждому носителю.
+
+Что такое НАЛОЖЕН. ПЛАТЕЖ?
+Через 1-2 недели после отправки на указанный Вами адрес
+придет извещение о том что пришла ценная бандероль первого класса. 
+На нем будет указана стоимость, адрес почтового отделения, 
+куда нужно прийти.
+С этим извещением Вы приходите в это отделение почты России. 
+там Вам Находят бандероль с коллекцией.
+далее Вы оплачиваете при получении в кассе почты России.
+
+Список
+
+1. 11 сентября, отчет комиссии конгресса
+2. Абсолютный ноль
+3. Ад в поднебесье
+4. Апокалипсис последний день
+5. Астероид
+6. Аэропорт
+7. Воздушная скорость
+8. Волна убийца
+9. Вторжение
+10. Вулкан
+11. Гибель Титаника
+12. Гремучие змеи
+13. День когда Земля остановилась
+14. Дни разрушений
+15. Землетрясение
+16. Земля под ударом
+17. Катастрофы века
+18. Конец света BBC
+19. Лавина
+20. Линия разлома
+21. Монстр
+22. Опасная зона
+23. Паника в Нью-Йорке
+24. Париж 2010 Великое наводнение
+25. Перевал Кассандры
+26. Пик Данте
+27. Последние дни
+28. Послезавтра
+29. Призраки бездны. Титаник
+30. Приключения Посейдона 1972
+31. Провал
+32. С точки зрения науки. Внимание, цунами
+33. Слепота
+34. Смерч
+35. Солнечный удар
+36. Супер шторм
+37. Тайна астероида
+38. Титаник
+39. Торнадо в Нью-Йорке
+40. У твоего порога
+41. Хозяин
+42. Цунами
+43. Экспедиция в преисподнюю
+44. Эпицентр
+45. Явление
+46. Ядро Земли
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
+
+------------=_4ADFC7D3.A339EC3D--
