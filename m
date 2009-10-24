@@ -1,37 +1,28 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9NNLti6015686
-	for <selinux@tycho.nsa.gov>; Fri, 23 Oct 2009 19:21:55 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id n9NNNgmw021479
-	for <selinux@tycho.nsa.gov>; Fri, 23 Oct 2009 23:23:42 GMT
-Date: Sat, 24 Oct 2009 10:21:51 +1100 (EST)
+Date: Sat, 24 Oct 2009 13:02:03 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: Raul da Silva {Sp4wn} <sp4wn.root@gmail.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux : Project (opinions and suggestions)
-In-Reply-To: <d629bb30910221611i4d2c29co4cdc077049d754f2@mail.gmail.com>
-Message-ID: <alpine.LRH.2.00.0910241018460.13877@tundra.namei.org>
-References: <d629bb30910221611i4d2c29co4cdc077049d754f2@mail.gmail.com>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: add .gitignore files for dynamic classes
+In-Reply-To: <20091022193826.22879.95307.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.0910241301480.14293@tundra.namei.org>
+References: <20091022193826.22879.95307.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 22 Oct 2009, Raul da Silva {Sp4wn} wrote:
+On Thu, 22 Oct 2009, Eric Paris wrote:
 
-> Are you think SELinux need the something specific to help administration
-> like a tool ? Or SELinux needs the other things ?
-> Ex: AppArmor
+> The SELinux dynamic class work in c6d3aaa4e35c71a32a86ececacd4eea7ecfc316c
+> creates a number of dynamic header files and scripts.  Add .gitignore files
+> so git doesn't complain about these.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Acked-by: Stephen D. Smalley <sds@tycho.nsa.gov>
 
-Several projects of this kind already exist.
 
-I think that you could do someting challenging and interesting with some 
-kind of facility which notices an updated app config (vsftpd, httpd etc.) 
-and updates policy to match, within reasonable bounds.
-
-i.e. make it so the admin can modify httpd.conf and SELinux adapts to the 
-config file.
-
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 -- 
 James Morris
