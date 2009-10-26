@@ -1,17 +1,17 @@
-Message-ID: <COD5BQF191213stdhebhoy@edt>
-From: "WINDOWS Shop" <sds@tycho.nsa.gov>
-Reply-To: "WINDOWS Shop" <sds@tycho.nsa.gov>
+Date: Mon, 26 Oct 2009 21:04:41 +0600
+Message-ID: queer<dqhvwzjhbehxwkchgjqbuhyzp@flashmail.com>
+From: "Medikamente jetzt" <sds@tycho.nsa.gov>
+Reply-To: "Medikamente jetzt" <sds@tycho.nsa.gov>
 To: sds@tycho.nsa.gov
-Subject: ***[SPAM]*** >>Re: Es ist Zeit, um Windows auf Ihrem PC zu aktualisieren!
-Date: Sun, 25 Oct 2009 22:48:39 +0100
+Subject: ***[SPAM]*** Real Cazanova von 1 Caplet
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_4AE4BAF2.D8411716"
+Content-Type: multipart/mixed; boundary="----------=_4AE5AD86.8B4241B0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------------=_4AE4BAF2.D8411716
+------------=_4AE5AD86.8B4241B0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -22,36 +22,33 @@ has been attached to this so you can view it (if it isn't spam) or label
 similar future email.  If you have any questions, see
 the administrator of that system for details.
 
-Content preview:  >>Re: Es ist Zeit, um Windows auf Ihrem PC zu aktualisieren!
-   Die populärsten Programme für PC und Mac. Die niedrigen Preise werden Sie
-   angenehm überraschen: Microsoft Adobe Software Microsoft Macromedia Autodesk
-   Corel Office Softwares Audio/Video CD/DVD Burn/Utilites Development Graphic
-   Adobe Macromedia Mac OSX usw. [...] 
+Content preview:  Sds Kann nicht los von Beschwerden? Wir werden mit unseren
+   Produkten helfen, die Preise sind erschwinglich! Besuchen Sie uns [...] 
 
-Content analysis details:   (8.2 points, 3.5 required)
+Content analysis details:   (7.9 points, 3.5 required)
 
  pts rule name              description
 ---- ---------------------- --------------------------------------------------
 -4.0 RCVD_IN_DNSWL_MED      RBL: Sender listed at http://www.dnswl.org/, medium
                              trust
-                            [63.239.67.1 listed in list.dnswl.org]
- 2.0 URIBL_BLACK            Contains an URL listed in the URIBL blacklist
-                            [URIs: shorgiones.net]
- 1.9 URIBL_AB_SURBL         Contains an URL listed in the AB SURBL blocklist
-                            [URIs: shorgiones.net]
- 1.5 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
-                            [URIs: shorgiones.net]
- 1.5 URIBL_JP_SURBL         Contains an URL listed in the JP SURBL blocklist
-                            [URIs: shorgiones.net]
+                            [63.239.67.2 listed in list.dnswl.org]
  1.1 URIBL_RHS_DOB          Contains an URI of a new domain (Day Old Bread)
-                            [URIs: shorgiones.net]
+                            [URIs: oceanrope.com]
+ 2.0 URIBL_BLACK            Contains an URL listed in the URIBL blacklist
+                            [URIs: oceanrope.com]
+ 1.5 URIBL_WS_SURBL         Contains an URL listed in the WS SURBL blocklist
+                            [URIs: oceanrope.com]
+ 1.5 URIBL_JP_SURBL         Contains an URL listed in the JP SURBL blocklist
+                            [URIs: oceanrope.com]
+ 0.6 TVD_RATWARE_MSGID_02   TVD_RATWARE_MSGID_02
+ 1.2 MSGID_SPAM_LETTERS     Spam tool Message-Id: (letters variant)
  0.0 HTML_MESSAGE           BODY: HTML included in message
+ 0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+                            [score: 0.4463]
  0.7 MPART_ALT_DIFF         BODY: HTML and text parts are different
- 2.8 UNWANTED_LANGUAGE_BODY BODY: Message written in an undesired language
  1.5 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
--0.7 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-                            [score: 0.1031]
  0.0 MISSING_MIMEOLE        Message has X-MSMail-Priority, but no X-MimeOLE
+ 1.9 INVALID_MSGID          Message-Id is not valid, according to RFC 2822
  0.0 MIME_HTML_ONLY_MULTI   Multipart message only has text/html MIME parts
 
 The original message was not completely plain text, and may be unsafe to
@@ -60,7 +57,7 @@ or confirm that your address can receive spam.  If you wish to view
 it, it may be safer to save it to a file and open it with an editor.
 
 
-------------=_4AE4BAF2.D8411716
+------------=_4AE5AD86.8B4241B0
 Content-Type: text/plain; x-spam-type=original
 Content-Description: original message before SpamAssassin
 Content-Disposition: attachment
@@ -69,69 +66,63 @@ Content-Transfer-Encoding: 8bit
 X-Envelope-From: <owner-selinux@tycho.nsa.gov>
 X-Envelope-To: <selinux-doit@tarius.tycho.ncsc.mil>
 Received: from tarius.tycho.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9PKs2Fd014114
-	Sun, 25 Oct 2009 16:54:02 -0400
+	by tarius.tycho.ncsc.mil(8.13.0/8.13.0) with SMTP id n9QE8wCS005999
+	Mon, 26 Oct 2009 10:08:58 -0400
 	(envelope-from <owner-selinux@tycho.nsa.gov>
 X-Envelope-To: <selinux-team@tarius.tycho.ncsc.mil>
 X-Envelope-To: <selinux-archive@tarius.tycho.ncsc.mil>
 Received: (from mail@localhost)
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9PKs2wL014113;
-	Sun, 25 Oct 2009 16:54:02 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1/Submit) id n9QE8wUm005998;
+	Mon, 26 Oct 2009 10:08:58 -0400
 X-Authentication-Warning: tarius.tycho.ncsc.mil: mail set sender to owner-selinux@tycho.nsa.gov using -f
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9PKrliO014086;
-	Sun, 25 Oct 2009 16:53:47 -0400
-Received: from 18912141025.user.veloxzone.com.br (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id n9PKqfeK000615;
-	Sun, 25 Oct 2009 20:52:42 GMT
-Message-ID: <COD5BQF191213stdhebhoy@edt>
-From: "WINDOWS Shop" <sds@tycho.nsa.gov>
-Reply-To: "WINDOWS Shop" <sds@tycho.nsa.gov>
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9QE8iFk005960;
+	Mon, 26 Oct 2009 10:08:44 -0400
+Received: from bzq-79-178-193-201.red.bezeqint.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id n9QEARf2014673;
+	Mon, 26 Oct 2009 14:10:29 GMT
+Date: Mon, 26 Oct 2009 21:04:41 +0600
+Message-ID: queer<dqhvwzjhbehxwkchgjqbuhyzp@flashmail.com>
+From: "Medikamente jetzt" <sds@tycho.nsa.gov>
+Reply-To: "Medikamente jetzt" <sds@tycho.nsa.gov>
 To: sds@tycho.nsa.gov
-Subject: >>Re: Es ist Zeit, um Windows auf Ihrem PC zu aktualisieren!
-Date: Sun, 25 Oct 2009 22:48:39 +0100
+Subject: Real Cazanova von 1 Caplet
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="-----=85159_21273_39VCV429U94.72AN260NE"
+	boundary="-----=39457_942345_1LLR854W11.22HH545WUU"
 X-Priority: 3
 X-MSMail-Priority: Normal
 Sender: owner-selinux@tycho.nsa.gov
 Precedence: bulk
 X-Mailing-List: selinux-tycho.nsa.gov
 
--------=85159_21273_39VCV429U94.72AN260NE
+-------=39457_942345_1LLR854W11.22HH545WUU
 Content-Type: text/html;
 Content-Transfer-Encoding: 7Bit
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>>>Re: Es ist Zeit, um Windows auf Ihrem PC zu aktualisieren!</title>
 </head>
 
-<body>
-<p><font size="3" face="Verdana, Arial, Helvetica, sans-serif">Die popul&auml;rsten Programme f&uuml;r PC und Mac.<br>
-    <strong>Die niedrigen Preise werden Sie angenehm &uuml;berraschen:</strong></font></p>
-<ul>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Microsoft</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Adobe Software</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Microsoft Macromedia</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Autodesk</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Corel</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Office Softwares</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Audio/Video CD/DVD Burn/Utilites</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Development Graphic</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Adobe Macromedia</font></li>
-  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Mac OSX usw.</font></li>
-</ul>
-<p><font size="3" face="Verdana, Arial, Helvetica, sans-serif">Sie k&ouml;nnen eine beliebige Sprache. Weitere Informationen finden Sie unter: <a href="http://shorgiones.net"><strong>http://shorgiones.net</strong></a></font></p>
+<body bgcolor="#CCCCCC" link="#006600">
+<table width="60%" border="0" cellpadding="4" cellspacing="0" bgcolor="#FFFFFF">
+  <tr>
+    <td><fieldset style="border: 1px solid rgb(204, 204, 204); background:#FFFFFF"> 
+<legend><strong>Sds</strong></legend>
+<label = fdgdfgdfg><em><br>
+Kann nicht los von Beschwerden? Wir werden mit unseren Produkten helfen, die Preise sind erschwinglich!</em></label>
+<div align="right"><br>
+    <em><font size="3"><a href="http://oceanrope.com/index.php?lng=de&cv=eu&thcdou=706605"><font face="Times New Roman, Times, serif"><strong>Besuchen Sie uns</strong></font></a></font></em></div>
+</fieldset> </td>
+  </tr>
+</table>
 </body>
 </html>
 
 
--------=85159_21273_39VCV429U94.72AN260NE--
+-------=39457_942345_1LLR854W11.22HH545WUU--
 
 
 --
@@ -139,4 +130,4 @@ This message was distributed to subscribers of the selinux mailing list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
 
-------------=_4AE4BAF2.D8411716--
+------------=_4AE5AD86.8B4241B0--
