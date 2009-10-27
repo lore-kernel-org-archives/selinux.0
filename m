@@ -1,79 +1,139 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: Where do I get a good Policy Base ?...
-Date: Mon, 26 Oct 2009 21:16:34 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
-In-Reply-To: <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com> <4AD9AD06.9030309@redhat.com> <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com> <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil> <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com> <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil> <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com> <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9R8nd9d025766
+	for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2009 04:49:39 -0400
+Received: from ey-out-1920.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9R8mhVi006595
+	for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2009 08:48:43 GMT
+Received: by ey-out-1920.google.com with SMTP id 3so2549718eyh.32
+        for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2009 01:49:37 -0700 (PDT)
+Subject: Re: Where do I get a good Policy Base ?...
+From: Dominick Grift <domg472@gmail.com>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
+References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com>
+	 <4AD9AD06.9030309@redhat.com>
+	 <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com>
+	 <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com>
+	 <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com>
+	 <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 27 Oct 2009 09:49:34 +0100
+Message-Id: <1256633374.3090.13.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
+On Mon, 2009-10-26 at 21:16 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi All,
+> 
+> I used to have the following SELinux related package versions on my
+> Linux (2.6.18) system:
+> 
+> Checkpolicy      - 1.33.1
+> Libselinux       - 2.0.13
+> Libsemanage      - 2.0.1
+> Libsepol         - 2.0.3
+> Libsetrans       - 0.1.18
+> Policycoreutils  - 2.0.16
+> 
+> And I used a 'strict' Base policy from Fedora Core 6. Made the
+> modifications I needed on top of that, and I was very happy...
+> 
+> 
+> We get our OS packaged/delivered from a third party company, and we're
+> upgrading to Linux 2.6.27, and as part of this upgrade, we are also
+> migrating to much newer versions of the SELinux packages. They are:
+> 
+> checkpolicy-2.0.19 
+> libselinux-2.0.85 
+> libsemanage-2.0.33 
+> libsepol-2.0.37 
+> policycoreutils-2.0.69 
+> sepolgen-1.0.17 
+> 
+> 
+> My questions are:
+> 
+> 1. I believe the "strict" policy is no longer supported in the above
+> versions of SELinux packages? Is this true ?
 
-I used to have the following SELinux related package versions on my
-Linux (2.6.18) system:
+the "strict" policy model is no longer supported. The strict and target
+policy have merged to a policy model that is called "targeted". You can
+configure the "targeted" policy to behave like old strict policy by
+removing removing the unconfined modules and by mapping your Linux
+logins to strict SELinux users.
 
-Checkpolicy      - 1.33.1
-Libselinux       - 2.0.13
-Libsemanage      - 2.0.1
-Libsepol         - 2.0.3
-Libsetrans       - 0.1.18
-Policycoreutils  - 2.0.16
+> 
+> 2. The entire set of policies that I have fine-tuned over the years
+> under my  /etc/selinux/strict/modules/active/modules/*.pp  directory in
+> my previous older system, can I make any use of that ?? In other words,
+> can that stuff be re-used at all ? Or do I need to develop policy from
+> scratch again ?
 
-And I used a 'strict' Base policy from Fedora Core 6. Made the
-modifications I needed on top of that, and I was very happy...
+I am not sure about this but my opinion is that it should  in most cases
+be possible to use older binary modules in newer policy. Reference
+policy should be compatible in my view.
 
+Please note though that is encouraged to keep the source policy for your
+binary modules so that you can edit policy modules easily later.
+> 
+> 3. What will be a good base policy for me to start policy development on
+> ? Will it be refpolicy, or should I grab the base 'targeted' policy from
+> fedora core 11 for example ?
 
-We get our OS packaged/delivered from a third party company, and we're
-upgrading to Linux 2.6.27, and as part of this upgrade, we are also
-migrating to much newer versions of the SELinux packages. They are:
+This depends on your distro, but generally you should be better of with
+a distro specific policy. Also keep in mind that Fedora has a active
+community, frequent updates and many testers.
 
-checkpolicy-2.0.19 
-libselinux-2.0.85 
-libsemanage-2.0.33 
-libsepol-2.0.37 
-policycoreutils-2.0.69 
-sepolgen-1.0.17 
+> 
+> 4. Assuming 'strict' is no longer supported in the NEW package versions
+> above, and I use a base 'targeted' policy as my starting point... Should
+> I be able to simply remove the "unconfined.pp" policy module from the
+> base targeted policy, and that essentially turns my system into
+> "strict-like" mode ? Is that advisable ?
 
+That is the idea, yes,
 
-My questions are:
+> 
+> 5. If I do continue to use the 'targeted' base policy as is, how can I
+> develop policy on top of that, to make sure I still block specific
+> things that I don't want to take place. For example, I DON'T want a
+> user_t to be able to write to files of type  etc_t  for example. How do
+> I go about accomplishing this  given the 'targeted' framework ? I know
+> how to do this in the old 'strict' framework, not sure how to go about
+> it with the targeted framework. Please shed some light or point me to
+> documents...
 
-1. I believe the "strict" policy is no longer supported in the above
-versions of SELinux packages? Is this true ?
+You can write your own custom policy modules on that of the policy that
+is distributed. Current policy is usually modular. Basically write a
+source policy module, build it and install it using the semanage or the
+semodule command.
 
-2. The entire set of policies that I have fine-tuned over the years
-under my  /etc/selinux/strict/modules/active/modules/*.pp  directory in
-my previous older system, can I make any use of that ?? In other words,
-can that stuff be re-used at all ? Or do I need to develop policy from
-scratch again ?
+e.g. (Fedora/RedHat):
 
-3. What will be a good base policy for me to start policy development on
-? Will it be refpolicy, or should I grab the base 'targeted' policy from
-fedora core 11 for example ?
+echo "policy_module(mytest, 0.0.1)" > mytest.te;
+make -f /usr/share/selinux/devel/Makefile mytest.pp;
+sudo semodule -i mytest.pp
+sudo semodule -l | grep mytest
 
-4. Assuming 'strict' is no longer supported in the NEW package versions
-above, and I use a base 'targeted' policy as my starting point... Should
-I be able to simply remove the "unconfined.pp" policy module from the
-base targeted policy, and that essentially turns my system into
-"strict-like" mode ? Is that advisable ?
+> 
+> Again, Any references or documentation links would be greatly
+> appreciated.
 
-5. If I do continue to use the 'targeted' base policy as is, how can I
-develop policy on top of that, to make sure I still block specific
-things that I don't want to take place. For example, I DON'T want a
-user_t to be able to write to files of type  etc_t  for example. How do
-I go about accomplishing this  given the 'targeted' framework ? I know
-how to do this in the old 'strict' framework, not sure how to go about
-it with the targeted framework. Please shed some light or point me to
-documents...
+www.selinuxproject.org/page/User_Resources
+> 
+> Thanks in advance.
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-Again, Any references or documentation links would be greatly
-appreciated.
-
-Thanks in advance.
 
 
 --
