@@ -1,11 +1,11 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9TE5gWr021397
-	for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2009 10:05:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n9TEEjJN023666
+	for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2009 10:14:45 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9TE4idR005212
-	for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2009 14:04:44 GMT
-Message-ID: <4AE9A131.2030802@redhat.com>
-Date: Thu, 29 Oct 2009 10:05:37 -0400
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id n9TEDldR012285
+	for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2009 14:13:47 GMT
+Message-ID: <4AE9A351.7070602@redhat.com>
+Date: Thu, 29 Oct 2009 10:14:41 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Chad Sellers <csellers@tresys.com>
@@ -22,11 +22,8 @@ On 10/28/2009 04:03 PM, Chad Sellers wrote:
 > I've rebased this so that it will apply to current trunk (which is included below). Looks pretty good to me, though I have 2 questions:
 > 
 > 1) Why remove the free() call in remove_exclude()?
-I have no idea why this would be removed.  I think it should be put back in.
 > 2) Why the new check at the beginning of match()?
 > 
-restorecond and setfiles/restorecon should realize when they hit a hardlinked file with multiple labels and not label them.
-I actually think the code should check every file and if it has hard links, not relabel the link until it finishes the search.  Then check all the links and see if they all have the same label.  Then set the label.
 > Other than that, let me know if anyone spots a rebasing error.
 > 
 > Rebased patch:
@@ -1673,7 +1670,7 @@ I actually think the code should check every file and if it has hard links, not 
 >                 printf("\n");
 >  	exit(errors);
 >  }
-
+Chad, once you have patch 1 in I will send you the restorecond patch, with all the missing files.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
