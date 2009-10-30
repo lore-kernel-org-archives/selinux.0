@@ -1,44 +1,36 @@
-Message-ID: <4AE9EF73.4090209@tycho.nsa.gov>
-Date: Thu, 29 Oct 2009 15:39:31 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Date: Fri, 30 Oct 2009 05:29:29 +0200
+From: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
+Message-ID: <nknqrzkcbnp69807253OXIR@vehicle.bv>
+To: sds@tycho.nsa.gov
+Subject: Re:Entfernen Herz-Kreislauf-Probleme
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        Caleb Case <ccase@tresys.com>, srivasta@golden-gryphon.com,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH -v2] pkgconfig support for libsepol, libselinux, and libsemanage
-References: <4ADE735D.9020901@tycho.nsa.gov>	 <1256127809.4061.170.camel@moss-pluto.epoch.ncsc.mil> <1256128292.4061.174.camel@moss-pluto.epoch.ncsc.mil> <4AE0A8B7.7070009@tycho.nsa.gov>
-In-Reply-To: <4AE0A8B7.7070009@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/html; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/22/2009 02:47 PM, Eamon Walsh wrote:
-> Add pkgconfig files for libsepol, libselinux, and libsemanage.
->
-> Having a pkgconfig file allows the pkg-config tool to be used to
-> query the presence of the library (or a particular version of it),
-> and to obtain the C flags and linker arguments to build with it.
->
-> Based on Debian patches by Manoj Srivastava <srivasta@debian.org>.
->
-> -v2: Corrected URL, fixed requirements for libselinux and libsemanage.
->
->
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
->
->   
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
 
-I have pushed this and bumped the library versions.  This will impact
-downstreams with pkgconfig files patched in themselves.  If anything's
-seriously amiss let me know.
-
-
--- 
-
-Eamon Walsh 
-National Security Agency
+<body bgcolor="#FFFFFF" link="#990000">
+<table width="100%" border="0" cellspacing="0" cellpadding="6">
+  <tr>
+    <td width="70">&nbsp;</td>
+    <td rowspan="2" bgcolor="#FFFFCC"><em><font color="#333333" size="3" face="Times New Roman, Times, serif">Ausgezeichnet, Sds! M&uuml;de oder Husten und Niesen? Wir haben beste Anti-Virus-L&ouml;sungen!</font></em></td>
+    <td width="1%" nowrap bgcolor="#FFFFCC"><font size="3" face="Times New Roman, Times, serif"><a href="http://muchsafe.com/index.php?lng=de&cv=eu"><strong>Medizinische Hilfe</strong></a></font></td>
+    <td width="70">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="70">&nbsp;</td>
+    <td width="1%" nowrap bgcolor="#FFFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">&copy; sds@tycho.nsa.gov, 2009</font></td>
+    <td width="70">&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
 
 
 --
