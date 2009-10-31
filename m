@@ -1,36 +1,40 @@
-Date: Fri, 30 Oct 2009 05:29:29 +0200
-From: "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-Message-ID: <nknqrzkcbnp69807253OXIR@vehicle.bv>
+Message-ID: <yoLCHL1571zykirkpatrick@saran>
+From: "WINDOWS Shop" <sds@tycho.nsa.gov>
+Reply-To: "WINDOWS Shop" <sds@tycho.nsa.gov>
 To: sds@tycho.nsa.gov
-Subject: Re:Entfernen Herz-Kreislauf-Probleme
+Subject: RE: Re[2]: Start von Windows Vista sind vorbei. Windows7!
+Date: Sat, 31 Oct 2009 06:03:01 -0300
 MIME-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
+Content-Type: multipart/alternative;
+	boundary="--=_f7R78EYcjS2SU"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+----=_f7R78EYcjS2SU
+Content-Type: text/html;
+Content-Transfer-Encoding: 7Bit
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>RE: Re[2]: Start von Windows Vista sind vorbei. Windows7!</title>
 </head>
 
-<body bgcolor="#FFFFFF" link="#990000">
-<table width="100%" border="0" cellspacing="0" cellpadding="6">
-  <tr>
-    <td width="70">&nbsp;</td>
-    <td rowspan="2" bgcolor="#FFFFCC"><em><font color="#333333" size="3" face="Times New Roman, Times, serif">Ausgezeichnet, Sds! M&uuml;de oder Husten und Niesen? Wir haben beste Anti-Virus-L&ouml;sungen!</font></em></td>
-    <td width="1%" nowrap bgcolor="#FFFFCC"><font size="3" face="Times New Roman, Times, serif"><a href="http://muchsafe.com/index.php?lng=de&cv=eu"><strong>Medizinische Hilfe</strong></a></font></td>
-    <td width="70">&nbsp;</td>
-  </tr>
-  <tr>
-    <td width="70">&nbsp;</td>
-    <td width="1%" nowrap bgcolor="#FFFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">&copy; sds@tycho.nsa.gov, 2009</font></td>
-    <td width="70">&nbsp;</td>
-  </tr>
-</table>
+<body bgcolor="#FFFFFF">
+<p><font size="3" face="Verdana, Arial, Helvetica, sans-serif">Hallo, Sds<br>
+Was bedeutet die "Software, die sie downloaden k&ouml;nnen"?</font></p>
+<p><font size="3"><strong><font face="Verdana, Arial, Helvetica, sans-serif">Schritt 1 </font></strong><font face="Verdana, Arial, Helvetica, sans-serif">- Archiv downloaden und speichern auf Ihrem Computer.<br>
+    <strong>Schritt 2</strong> - Archiv entpacken.<br>
+    <strong>Schritt 3</strong> - Installieren und benutzen!</font></font></p>
+<p><font size="3" face="Verdana, Arial, Helvetica, sans-serif"><a href="http://krepostandos.net"><strong>Unsere Windows-und MAC-Shop</strong></a></font></p>
+<p><strong><font color="#FF6600" size="3" face="Verdana, Arial, Helvetica, sans-serif">Nur bis zum 31. Oktober k&ouml;nnen Sie sich einen zus&auml;tzlichen Rabatt von 40%!</font></strong></p>
 </body>
 </html>
+
+
+----=_f7R78EYcjS2SU--
 
 
 --
