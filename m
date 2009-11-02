@@ -1,34 +1,104 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nA2MCpnL016382
-	for <selinux@tycho.nsa.gov>; Mon, 2 Nov 2009 17:12:51 -0500
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id nA2MEjTt007930
-	for <selinux@tycho.nsa.gov>; Mon, 2 Nov 2009 22:14:46 GMT
-Date: Mon, 02 Nov 2009 17:12:49 -0500
-Subject: Re: [PATCH 1/2] policycoreutils: share setfiles restore function with
- restorecond
-From: Chad Sellers <csellers@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: <selinux@tycho.nsa.gov>, <kangchao@WPI.EDU>, Thomas Liu <tliu@redhat.com>
-Message-ID: <C714C391.ABA8A%csellers@tresys.com>
-In-Reply-To: <4AE9A351.7070602@redhat.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Date: Mon, 2 Nov 2009 20:26:51 -0300
+Message-Id: <Q4MJUYMKR350121780.K46MS6ZG544094@wikoffcombscpa.com>
+From: Libby Duke <sds@tycho.nsa.gov>
+To: sds@tycho.nsa.gov
+Subject: Save REAL money with OEM soft
+Content-Type: text/html; charset="iso-8859-2"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/29/09 10:14 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> Chad, once you have patch 1 in I will send you the restorecond patch, with all
-> the missing files.
-
-Sounds good. And this will have split out the refactoring patch from the
-functional changes (new options, adding DBUS support), right?
-
-Thanks,
-Chad
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta content="text/html; charset="iso-8859-2" http-equiv="Content-Type">
+<STYLE></STYLE>
+</head>
+<body>
+<TABLE border=0 cellSpacing=0 cellPadding=0 align=center>
+  <TBODY>
+  <TR>
+    <TD 
+    style="PADDING-BOTTOM: 24px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; FONT: 11px Verdana, Arial, Helvetica, sans-serif; COLOR: #333; PADDING-TOP: 8px">
+      <DIV>
+      <DIV 
+      style="MARGIN: 0px 0px 16px; FONT: 13px Arial, Helvetica, sans-serif; COLOR: #333">
+      <TABLE 
+      style="BORDER-BOTTOM: #000000 1px solid; BORDER-LEFT: #000000 1px solid; BORDER-TOP: #000000 1px solid; BORDER-RIGHT: #000000 1px solid" 
+      border=0 cellSpacing=0 cellPadding=0 width=600 align=center>
+        <TBODY>
+        <TR>
+          <TD bgColor=#ffffff vAlign=top align=middle>
+            <TABLE border=0 cellSpacing=0 cellPadding=0 width="100%">
+              <TBODY>
+              <TR>
+                <TD bgColor=#ffffff>&nbsp;</TD></TR>
+              <TR>
+                <TD bgColor=#ffffff></TD></TR>
+              <TR>
+                <TD vAlign=top align=middle>
+                  <TABLE border=0 cellSpacing=0 cellPadding=0 width=568 
+                  align=center>
+                    <TBODY>
+                    <TR>
+                      <TD>
+                        <TABLE border=0 cellSpacing=0 cellPadding=0 
+width="100%">
+                          <TBODY>
+                          <TR>
+                            <TD><A 
+                              href="http://snipurl.com/johnsonzadosa"><IMG 
+                              style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px" 
+                              alt="Single click here to load picture from another source" 
+                              src="http://farm3.static.flickr.com/2714/4053710924_4568171be0_o.jpg"></A><BR><BR></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR>
+              <TR>
+                <TD></TD></TR>
+              <TR>
+                <TD>
+                  <TABLE border=0 cellSpacing=0 cellPadding=0 width="100%">
+                    <TBODY>
+                    <TR>
+                      <TD width=16></TD>
+                      <TD>
+                        <TABLE border=0 cellSpacing=0 cellPadding=0 
+width="100%">
+                          <TBODY>
+                          <TR>
+                            <TD 
+                            style="FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; COLOR: #666666; FONT-SIZE: 10px">
+                              <DIV align=center>Please do not reply to this 
+                              e-mail. To contact us, please <A 
+                              style="COLOR: #0033ff" 
+                              href="http://snipurl.com/johnsonzadosa" 
+                              target=_blank>Click Here</A></DIV></TD></TR>
+                          <TR>
+                            <TD>
+                              <DIV align=center></DIV></TD></TR>
+                          <TR>
+                            <TD 
+                            style="FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; COLOR: #666666; FONT-SIZE: 10px">
+                              <DIV align=center>We hope you enjoy our surveys 
+                              and we'll see you online!</DIV></TD></TR>
+                          <TR>
+                            <TD>
+                              <DIV align=center></DIV></TD></TR>
+                          <TR>
+                            <TD>
+                              <DIV align=center></DIV></TD></TR>
+                          <TR>
+                            <TD 
+                            style="FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; COLOR: #666666; FONT-SIZE: 10px">
+                              <DIV align=center><BR>320  South, 02th Floor<BR>Delaware 
+                              858<BR><BR>If you no longer wish to receive 
+                              offers from MyView, please <A 
+                              style="COLOR: #666666" 
+                              href="http://snipurl.com/johnsonzadosa">Click 
+                              Here</A></DIV></TD></TR></TBODY></TABLE></TD>
+                      <TD width=16> </TD></TR></TBODY></TABLE></TD></TR>
+              <TR>
+                <TD></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></DIV></DIV></TD></TR></TBODY></TABLE>
+<DIV><FONT size=2 face=Arial></FONT></DIV></body></html>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
