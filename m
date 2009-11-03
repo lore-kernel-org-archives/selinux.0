@@ -6,8 +6,8 @@ In-Reply-To: <4AF02C79.30806@redhat.com>
 References: <1257201838.24413.20.camel@tesla.lan>
 	 <4AF02C79.30806@redhat.com>
 Content-Type: text/plain
-Date: Tue, 03 Nov 2009 20:04:22 +0100
-Message-Id: <1257275062.3005.66.camel@tesla.lan>
+Date: Tue, 03 Nov 2009 21:29:04 +0100
+Message-Id: <1257280144.3005.86.camel@tesla.lan>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -19,25 +19,34 @@ On Tue, 03/11/2009 08.13 -0500, Daniel J Walsh wrote:
 > I think you need to start setting the errno if you are going to change the function ENOSUPP for this error versus EPERM for the other error, and then all users (passwd?) of the function need to change to look at the errno.
 > 
 
-Yes, I agree with you. The code in selinux_check_passwd_access() should
-be removed from libselinux (and moved to passwd.c in the passwd package
-or other users).
+Or if the intent is just to remove the hard-coded word "passwd" from the
+libselinux code, then it is possible to use SECCLASS_PASSWD defined in
+flask.h as follows:
 
-At the moment there is no errno provision at all, the function only sets
-its default return value to -1 at the beginning.
+--- libselinux/src/checkAccess.c.orig   2009-11-03 21:11:21.000000000
++0100
++++ libselinux/src/checkAccess.c        2009-11-03 21:13:44.000000000
++0100
+@@ -17,13 +17,9 @@ int selinux_check_passwd_access(access_v
+                struct av_decision avd;
+                int retval;
+ 
+-               passwd_class = string_to_security_class("passwd");
+-               if (passwd_class == 0)
+-                       return 0;
+-
+                retval = security_compute_av_raw(user_context,
+                                                     user_context,
+-                                                    passwd_class,
++                                                    SECCLASS_PASSWD,
+                                                     requested,
+                                                     &avd);
 
-Other than passwd, another user of that code is cronie (see version 1.2
-at line 502 of src/security.c). There is no other users that I am aware
-of.
-
-With a couple of trivial patches (one for passwd and the other for
-cronie) libselinux could be cleaned up of this policy-dependent code. 
-
-I'll send the two patches to your email address as it is probably not
-strictly relevant to this mailing list...
+This solution shortens the code and also avoids the issue that might
+arise if such a security object class is not defined, because the
+library simply won't compile...
 
 Guido
-
 
 
 --
