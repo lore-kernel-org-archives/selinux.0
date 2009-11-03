@@ -1,161 +1,204 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nA3FbGuX026587
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 10:37:16 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nA3FdB3X004760
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 15:39:12 GMT
-Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id nA3FbFkT002238
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 10:37:15 -0500
-Received: from localhost.localdomain (vpn-8-158.rdu.redhat.com [10.11.8.158])
-	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id nA3FbEGx014266
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 10:37:14 -0500
-Message-ID: <4AF04E29.4020101@redhat.com>
-Date: Tue, 03 Nov 2009 10:37:13 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] security: report the module name to security_module_request
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, dwalsh@redhat.com
+Date: Tue, 03 Nov 2009 11:35:32 -0500
+Message-ID: <20091103163532.28449.1998.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: This patch removes OUTPUT from fixfiles which was never used and
- was broken
-Content-Type: multipart/mixed;
- boundary="------------030409080700030409010903"
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030409080700030409010903
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+For SELinux to do better filtering in userspace we send the name of the
+module along with the AVC denial when a program is denied module_request.
 
-Patches come from 
+Example output:
 
-Moray.Henderson@ict.om.org
+type=SYSCALL msg=audit(11/03/2009 10:59:43.510:9) : arch=x86_64 syscall=write success=yes exit=2 a0=3 a1=7fc28c0d56c0 a2=2 a3=7fffca0d7440 items=0 ppid=1727 pid=1729 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=rpc.nfsd exe=/usr/sbin/rpc.nfsd subj=system_u:system_r:nfsd_t:s0 key=(null)
+type=AVC msg=audit(11/03/2009 10:59:43.510:9) : avc:  denied  { module_request } for  pid=1729 comm=rpc.nfsd kmod="net-pf-10" scontext=system_u:system_r:nfsd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system
 
---------------030409080700030409010903
-Content-Type: text/plain;
- name="policoreutils-fixfiles.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="policoreutils-fixfiles.patch"
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index e60ce31..ae519fc 100755
---- a/policycoreutils/scripts/fixfiles
-+++ b/policycoreutils/scripts/fixfiles
-@@ -27,7 +27,6 @@ fullFlag=0
- FORCEFLAG=""
- DIRS=""
- RPMILES=""
--OUTFILES=""
- LOGFILE=`tty`
- if [ $? != 0 ]; then
-     LOGFILE="/dev/null"
-@@ -122,7 +121,7 @@ if [ ! -z "$PREFC" ]; then
- fi
- if [ ! -z "$RPMFILES" ]; then
-     for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
--	rpmlist $i | ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -R -i -f - 2>&1 >> $LOGFILE
-+	rpmlist $i | ${RESTORECON} ${FORCEFLAG} $* -R -i -f - 2>&1 >> $LOGFILE
-     done
-     exit $?
- fi
-@@ -130,14 +129,15 @@ if [ ! -z "$FILEPATH" ]; then
-     if [ -x /usr/bin/find ]; then
- 	/usr/bin/find "$FILEPATH" \
- 	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o -print0 | \
--	    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
-+	    ${RESTORECON} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
-     else
--	${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
-+	${RESTORECON} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
-     fi
-     return
- fi
-+[ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
- LogReadOnly
--${SETFILES} -q ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
-+${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
- rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
- find /tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
- find /var/tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
-@@ -193,10 +193,15 @@ case "$1" in
- esac
+ include/linux/lsm_audit.h |   18 ++++++++++--------
+ include/linux/security.h  |    7 ++++---
+ kernel/kmod.c             |    8 ++++----
+ security/capability.c     |    2 +-
+ security/lsm_audit.c      |    4 ++++
+ security/security.c       |    4 ++--
+ security/selinux/hooks.c  |   13 +++++++++++--
+ 7 files changed, 36 insertions(+), 20 deletions(-)
+
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index 190c378..f78f83d 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
+@@ -26,14 +26,15 @@
+ 
+ /* Auxiliary data to use in generating the audit record. */
+ struct common_audit_data {
+-	char    type;
+-#define LSM_AUDIT_DATA_FS      1
+-#define LSM_AUDIT_DATA_NET     2
+-#define LSM_AUDIT_DATA_CAP     3
+-#define LSM_AUDIT_DATA_IPC     4
+-#define LSM_AUDIT_DATA_TASK    5
+-#define LSM_AUDIT_DATA_KEY     6
+-#define LSM_AUDIT_NO_AUDIT     7
++	char type;
++#define LSM_AUDIT_DATA_FS	1
++#define LSM_AUDIT_DATA_NET	2
++#define LSM_AUDIT_DATA_CAP	3
++#define LSM_AUDIT_DATA_IPC	4
++#define LSM_AUDIT_DATA_TASK	5
++#define LSM_AUDIT_DATA_KEY	6
++#define LSM_AUDIT_NO_AUDIT	7
++#define LSM_AUDIT_DATA_KMOD	8
+ 	struct task_struct *tsk;
+ 	union 	{
+ 		struct {
+@@ -66,6 +67,7 @@ struct common_audit_data {
+ 			char *key_desc;
+ 		} key_struct;
+ #endif
++		char *kmod_name;
+ 	} u;
+ 	/* this union contains LSM specific data */
+ 	union {
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 3f3844a..9c3a43b 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -706,6 +706,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  * @kernel_module_request:
+  *	Ability to trigger the kernel to automatically upcall to userspace for
+  *	userspace to load a kernel module with the given name.
++ *	@kmod_name name of the module requested by the kernel
+  *	Return 0 if successful.
+  * @task_setuid:
+  *	Check permission before setting one or more of the user identity
+@@ -1577,7 +1578,7 @@ struct security_operations {
+ 	void (*cred_transfer)(struct cred *new, const struct cred *old);
+ 	int (*kernel_act_as)(struct cred *new, u32 secid);
+ 	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+-	int (*kernel_module_request)(void);
++	int (*kernel_module_request)(char *kmod_name);
+ 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+ 	int (*task_fix_setuid) (struct cred *new, const struct cred *old,
+ 				int flags);
+@@ -1843,7 +1844,7 @@ void security_commit_creds(struct cred *new, const struct cred *old);
+ void security_transfer_creds(struct cred *new, const struct cred *old);
+ int security_kernel_act_as(struct cred *new, u32 secid);
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+-int security_kernel_module_request(void);
++int security_kernel_module_request(char *kmod_name);
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
+ int security_task_fix_setuid(struct cred *new, const struct cred *old,
+ 			     int flags);
+@@ -2409,7 +2410,7 @@ static inline int security_kernel_create_files_as(struct cred *cred,
+ 	return 0;
  }
- usage() {
--      	echo $"Usage: $0 [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
--	echo or
--      	echo $"Usage: $0 -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
--      	echo $"Usage: $0 onboot"
-+      	echo $"""
-+Usage: $0 [-F] [-l logfile ] { check | restore| [-f] relabel | verify } [[dir/file] ... ] 
-+or
-+Usage: $0 [-F] -R rpmpackage[,rpmpackage...] [-l logfile ] { check | restore | verify }
-+or
-+Usage: $0 [-F] -C PREVIOUS_FILECONTEXT { check | restore | verify }
-+or
-+Usage: $0 onboot
-+"""
+ 
+-static inline int security_kernel_module_request(void)
++static inline int security_kernel_module_request(char *kmod_name)
+ {
+ 	return 0;
  }
+diff --git a/kernel/kmod.c b/kernel/kmod.c
+index 9fcb53a..25b1031 100644
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -80,16 +80,16 @@ int __request_module(bool wait, const char *fmt, ...)
+ #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+ 	static int kmod_loop_msg;
  
- if [ $# = 0 ]; then
-@@ -205,7 +210,7 @@ if [ $# = 0 ]; then
- fi
- 
- # See how we were called.
--while getopts "C:Ffo:R:l:" i; do
-+while getopts "C:FfR:l:" i; do
-     case "$i" in
- 	f)
- 		fullFlag=1
-@@ -213,9 +218,6 @@ while getopts "C:Ffo:R:l:" i; do
-         R)
- 		RPMFILES=$OPTARG
- 		;;
--        o)
--		OUTFILES=$OPTARG
--		;;
-         l)
- 		LOGFILE=$OPTARG
- 		;;
-diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
-index 307ea4c..dfe8aa9 100644
---- a/policycoreutils/scripts/fixfiles.8
-+++ b/policycoreutils/scripts/fixfiles.8
-@@ -3,11 +3,18 @@
- fixfiles \- fix file SELinux security contexts.
- 
- .SH "SYNOPSIS"
--.B fixfiles [-F] [ -R rpmpackagename[,rpmpackagename...] ] [ -C PREVIOUS_FILECONTEXT ] [-l logfile ] [-o outputfile ] { check | restore | [-F] relabel | verify }"
- 
--.B fixfiles [-F] [-l logfile ] [-o outputfile ] { check | restore|[-f] relabel | verify } [[dir/file] ... ] 
-+.B fixfiles 
-+.I [-F] [-l logfile ] { check | restore|[-f] relabel | verify } [[dir/file] ... ] 
- 
--.B fixfiles onboot
-+.B fixfiles 
-+.I [-F] [ -R rpmpackagename[,rpmpackagename...] ] [-l logfile ] { check | restore | verify }
-+
-+.B fixfiles 
-+.I [ -C PREVIOUS_FILECONTEXT ] [-l logfile ] { check | restore | verify }
-+
-+.B fixfiles 
-+.I onboot
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -31,10 +38,6 @@ will setup the machine to relabel on the next reboot.
- .B -l logfile
- Save the output to the specified logfile
- .TP 
--.B -o outputfile
--Save all files that have file_context that differs from the default, in outputfile.
+-	ret = security_kernel_module_request();
+-	if (ret)
+-		return ret;
 -
--.TP 
- .B -F
- Force  reset  of  context to match file_context for customizable files
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+ 	va_end(args);
+ 	if (ret >= MODULE_NAME_LEN)
+ 		return -ENAMETOOLONG;
  
++	ret = security_kernel_module_request(module_name);
++	if (ret)
++		return ret;
++
+ 	/* If modprobe needs a service that is in a module, we get a recursive
+ 	 * loop.  Limit the number of running kmod threads to max_threads/2 or
+ 	 * MAX_KMOD_CONCURRENT, whichever is the smaller.  A cleaner method
+diff --git a/security/capability.c b/security/capability.c
+index d30a8e8..10f23a4 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -421,7 +421,7 @@ static int cap_kernel_create_files_as(struct cred *new, struct inode *inode)
+ 	return 0;
+ }
+ 
+-static int cap_kernel_module_request(void)
++static int cap_kernel_module_request(char *kmod_name)
+ {
+ 	return 0;
+ }
+diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+index e04566a..acba3df 100644
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
+@@ -354,6 +354,10 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+ 		}
+ 		break;
+ #endif
++	case LSM_AUDIT_DATA_KMOD:
++		audit_log_format(ab, " kmod=");
++		audit_log_untrustedstring(ab, a->u.kmod_name);
++		break;
+ 	} /* switch (a->type) */
+ }
+ 
+diff --git a/security/security.c b/security/security.c
+index 48ec2b4..739033e 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -761,9 +761,9 @@ int security_kernel_create_files_as(struct cred *new, struct inode *inode)
+ 	return security_ops->kernel_create_files_as(new, inode);
+ }
+ 
+-int security_kernel_module_request(void)
++int security_kernel_module_request(char *kmod_name)
+ {
+-	return security_ops->kernel_module_request();
++	return security_ops->kernel_module_request(kmod_name);
+ }
+ 
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0c0c1bf..18e2e5b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3338,9 +3338,18 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ 	return 0;
+ }
+ 
+-static int selinux_kernel_module_request(void)
++static int selinux_kernel_module_request(char *kmod_name)
+ {
+-	return task_has_system(current, SYSTEM__MODULE_REQUEST);
++	u32 sid;
++	struct common_audit_data ad;
++
++	sid = task_sid(current);
++
++	COMMON_AUDIT_DATA_INIT(&ad, KMOD);
++	ad.u.kmod_name = kmod_name;
++
++	return avc_has_perm(sid, SECINITSID_KERNEL, SECCLASS_SYSTEM,
++			    SYSTEM__MODULE_REQUEST, &ad);
+ }
+ 
+ static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
 
---------------030409080700030409010903--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
