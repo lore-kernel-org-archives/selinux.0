@@ -1,1330 +1,654 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nA3FHYl6022431
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 10:17:34 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nA3FJT3X023286
-	for <selinux@tycho.nsa.gov>; Tue, 3 Nov 2009 15:19:29 GMT
-Message-ID: <4AF04989.9040504@redhat.com>
-Date: Tue, 03 Nov 2009 10:17:29 -0500
+Message-ID: <4AF04BA5.9050804@redhat.com>
+Date: Tue, 03 Nov 2009 10:26:29 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: setfiles/restorecond patch
-References: <C714C37B.ABA89%csellers@tresys.com>
-In-Reply-To: <C714C37B.ABA89%csellers@tresys.com>
+To: Chad Sellers <cdselle@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+Subject: Here is the sandbox patch for policycoreutils.
 Content-Type: multipart/mixed;
- boundary="------------090804030702020700010201"
+ boundary="------------050407030304060301040904"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090804030702020700010201
+--------------050407030304060301040904
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-This patch includes a minor fix to setfiles
+Adds functionality to run sandbox environment.
 
-process_one_realpath needs to check for initialization
+Described here.
 
-Man pages/usage statements updated to describe -p paramater
+http://danwalsh.livejournal.com/31146.html
 
-Rest of the patch is a rewrite of restorecond to be run as both a system service and as a dbus session bus service.
-
-When run for users it will run as the users UID and users context and watch for file creation in the homedir and homedir/public_html
-Uses a separate restorecond_users.conf file to describe what to watch.
-
-
-
---------------090804030702020700010201
+--------------050407030304060301040904
 Content-Type: text/plain;
- name="restorecond.patch"
+ name="sandbox.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="restorecond.patch"
+ filename="sandbox.patch"
 
-diff --git a/policycoreutils/restorecond/Makefile b/policycoreutils/restorecond/Makefile
-index 3f235e6..24aa266 100644
---- a/policycoreutils/restorecond/Makefile
-+++ b/policycoreutils/restorecond/Makefile
-@@ -1,17 +1,28 @@
- # Installation directories.
- PREFIX ?= ${DESTDIR}/usr
- SBINDIR ?= $(PREFIX)/sbin
-+LIBDIR ?= $(PREFIX)/lib
- MANDIR = $(PREFIX)/share/man
-+AUTOSTARTDIR = $(DESTDIR)/etc/xdg/autostart
-+DBUSSERVICEDIR = $(DESTDIR)/usr/share/dbus-1/services
-+
-+autostart_DATA = sealertauto.desktop
- INITDIR = $(DESTDIR)/etc/rc.d/init.d
- SELINUXDIR = $(DESTDIR)/etc/selinux
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index 538302b..394069a 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
++SUBDIRS = sandbox setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
  
-+DBUSFLAGS = -DHAVE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/lib/dbus-1.0/include 
-+DBUSLIB = -ldbus-glib-1 
-+
- CFLAGS ?= -g -Werror -Wall -W
--override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+override CFLAGS += -I$(PREFIX)/include $(DBUSFLAGS) -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/lib/glib-2.0/include
-+
-+LDLIBS += -lselinux $(DBUSLIB) -lglib-2.0 -L$(LIBDIR)
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
  
- all: restorecond
- 
--restorecond:  restorecond.o utmpwatcher.o stringslist.o
-+restorecond.o utmpwatcher.o stringslist.o user.o watch.o: restorecond.h 
-+
-+restorecond:  ../setfiles/restore.o restorecond.o utmpwatcher.o stringslist.o user.o watch.o
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- install: all
-@@ -22,7 +33,12 @@ install: all
- 	-mkdir -p $(INITDIR)
- 	install -m 755 restorecond.init $(INITDIR)/restorecond
- 	-mkdir -p $(SELINUXDIR)
--	install -m 600 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond_user.conf $(SELINUXDIR)/restorecond_user.conf
-+	-mkdir -p $(AUTOSTARTDIR)
-+	install -m 644 restorecond.desktop $(AUTOSTARTDIR)/restorecond.desktop
-+	-mkdir -p $(DBUSSERVICEDIR)
-+	install -m 600 org.selinux.Restorecond.service  $(DBUSSERVICEDIR)/org.selinux.Restorecond.service
- 
- relabel: install
- 	/sbin/restorecon $(SBINDIR)/restorecond 
-diff --git a/policycoreutils/restorecond/org.selinux.Restorecond.service b/policycoreutils/restorecond/org.selinux.Restorecond.service
+diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
 new file mode 100644
-index 0000000..0ef5f0b
+index 0000000..299276a
 --- /dev/null
-+++ b/policycoreutils/restorecond/org.selinux.Restorecond.service
-@@ -0,0 +1,3 @@
-+[D-BUS Service]
-+Name=org.selinux.Restorecond
-+Exec=/usr/sbin/restorecond -u
-diff --git a/policycoreutils/restorecond/restorecond.8 b/policycoreutils/restorecond/restorecond.8
-index b149dcb..0c14c94 100644
---- a/policycoreutils/restorecond/restorecond.8
-+++ b/policycoreutils/restorecond/restorecond.8
-@@ -3,7 +3,7 @@
- restorecond \- daemon that watches for file creation and then sets the default SELinux file context
- 
- .SH "SYNOPSIS"
--.B restorecond  [\-d]
-+.B restorecond  [\-d] [\-f restorecond_file ] [\-u] [\-v]
- .P
- 
- .SH "DESCRIPTION"
-@@ -19,13 +19,22 @@ the correct file context associated with the policy.
- .B \-d
- Turns on debugging mode.   Application will stay in the foreground and lots of
- debugs messages start printing.
-+.TP 
-+.B \-f restorecond_file
-+Use alternative restorecond.conf file.
-+.TP 
-+.B \-u
-+Turns on user mode.  Runs restorecond in the user session and reads /etc/selinux/restorecond_user.conf.  Uses dbus to make sure only one restorecond is running per user session.
-+.TP 
-+.B \-v
-+Turns on verbose debugging.  (Report missing files)
- 
- .SH "AUTHOR"
--This man page was written by Dan Walsh <dwalsh@redhat.com>.
--The program was written by Dan Walsh <dwalsh@redhat.com>.
-+This man page and program was written by Dan Walsh <dwalsh@redhat.com>.
- 
- .SH "FILES"
- /etc/selinux/restorecond.conf
-+/etc/selinux/restorecond_user.conf
- 
- .SH "SEE ALSO"
- .BR restorecon (8),
-diff --git a/policycoreutils/restorecond/restorecond.c b/policycoreutils/restorecond/restorecond.c
-index 58774e6..3321ec0 100644
---- a/policycoreutils/restorecond/restorecond.c
-+++ b/policycoreutils/restorecond/restorecond.c
-@@ -30,9 +30,11 @@
-  * and makes sure that there security context matches the systems defaults
-  *
-  * USAGE:
-- * restorecond [-d] [-v]
-+ * restorecond [-d] [-u] [-v] [-f restorecond_file ]
-  * 
-  * -d   Run in debug mode
-+ * -f   Use alternative restorecond_file 
-+ * -u   Run in user mode
-  * -v   Run in verbose mode (Report missing files)
-  *
-  * EXAMPLE USAGE:
-@@ -48,294 +50,38 @@
- #include <signal.h>
- #include <string.h>
- #include <unistd.h>
--#include <ctype.h>
-+#include "../setfiles/restore.h"
- #include <sys/types.h>
--#include <sys/stat.h>
- #include <syslog.h>
- #include <limits.h>
++++ b/policycoreutils/sandbox/Makefile
+@@ -0,0 +1,31 @@
++# Installation directories.
++PREFIX ?= ${DESTDIR}/usr
++BINDIR ?= $(PREFIX)/bin
++SBINDIR ?= $(PREFIX)/sbin
++MANDIR ?= $(PREFIX)/share/man
++LOCALEDIR ?= /usr/share/locale
++SHAREDIR ?= $(PREFIX)/share/sandbox
++override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DPACKAGE="\"policycoreutils\""
++LDLIBS += -lselinux -lcap-ng 
++
++all: sandbox seunshare sandboxX.sh 
++
++seunshare: seunshare.o $(EXTRA_OBJS)
++	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++
++install: all
++	-mkdir -p $(BINDIR)
++	install -m 755 sandbox $(BINDIR)
++	-mkdir -p $(MANDIR)/man8
++	install -m 644 sandbox.8 $(MANDIR)/man8/
++	install -m 4755 seunshare $(SBINDIR)/
++	-mkdir -p $(SHAREDIR)
++	install -m 755 sandboxX.sh $(SHAREDIR)
++
++clean:
++	-rm -f seunshare *.o *~
++
++indent:
++	../../scripts/Lindent $(wildcard *.[ch])
++
++relabel:
+diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+new file mode 100644
+index 0000000..bc257bf
+--- /dev/null
++++ b/policycoreutils/sandbox/sandbox
+@@ -0,0 +1,242 @@
++#!/usr/bin/python -E
++import os, sys, getopt, socket, random, fcntl, shutil
++import selinux
++import signal
++
++PROGNAME = "policycoreutils"
++
++import gettext
++gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
++gettext.textdomain(PROGNAME)
++
++try:
++       gettext.install(PROGNAME,
++                       localedir = "/usr/share/locale",
++                       unicode=False,
++                       codeset = 'utf-8')
++except IOError:
++       import __builtin__
++       __builtin__.__dict__['_'] = unicode
++
++
++DEFAULT_TYPE = "sandbox_t"
++DEFAULT_X_TYPE = "sandbox_x_t"
++X_FILES = {}
++
++random.seed(None)
++
++def sighandler(signum, frame):
++    signal.signal(signum,  signal.SIG_IGN)
++    os.kill(0, signum)
++    raise KeyboardInterrupt
++
++def setup_sighandlers():
++    signal.signal(signal.SIGHUP,  sighandler)
++    signal.signal(signal.SIGQUIT, sighandler)
++    signal.signal(signal.SIGTERM, sighandler)
++
++def error_exit(msg):
++    sys.stderr.write("%s: " % sys.argv[0])
++    sys.stderr.write("%s\n" % msg)
++    sys.stderr.flush()
++    sys.exit(1)
++
++def reserve(mcs):
++    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
++    sock.bind("\0%s" % mcs)
++    fcntl.fcntl(sock.fileno(), fcntl.F_SETFD, fcntl.FD_CLOEXEC)
++
++def gen_context(setype):
++    while True:
++        i1 = random.randrange(0, 1024)
++        i2 = random.randrange(0, 1024)
++        if i1 == i2:
++            continue
++        if i1 > i2:
++            tmp = i1
++            i1 = i2
++            i2 = tmp
++        mcs = "s0:c%d,c%d" % (i1, i2)
++        reserve(mcs)
++        try:
++            reserve(mcs)
++        except:
++            continue
++        break
++    con = selinux.getcon()[1].split(":")
++
++    execcon = "%s:%s:%s:%s" % (con[0], con[1], setype, mcs)
++    
++    filecon = "%s:%s:%s:%s" % (con[0], 
++                               "object_r", 
++                               "%s_file_t" % setype[:-2], 
++                               mcs)
++    return execcon, filecon
++
++def copyfile(file, dir, dest):
++       import re
++       if file.startswith(dir):
++              dname = os.path.dirname(file)
++              bname = os.path.basename(file)
++              if dname == dir:
++                     dest = dest + "/" + bname
++              else:
++                     newdir = re.sub(dir, dest, dname)
++                     os.makedirs(newdir)
++                     dest = newdir + "/" + bname
++
++              if os.path.isdir(file):
++                     shutil.copytree(file, dest)
++              else:
++                     shutil.copy2(file, dest)
++              X_FILES[file] = (dest, os.path.getmtime(dest))
++
++def copyfiles(newhomedir, newtmpdir, files):
++       import pwd
++       homedir=pwd.getpwuid(os.getuid()).pw_dir
++       for f in files:
++              copyfile(f,homedir, newhomedir)
++              copyfile(f,"/tmp", newtmpdir)
++
++def savefile(new, orig):
++       import gtk
++       dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
++                               gtk.BUTTONS_YES_NO,
++                               _("Do you want to save changes to '%s' (Y/N): ") % orig)
++       dlg.set_title(_("Sandbox Message"))
++       dlg.set_position(gtk.WIN_POS_MOUSE)
++       dlg.show_all()
++       rc = dlg.run()
++       dlg.destroy()
++       if rc == gtk.RESPONSE_YES:
++              shutil.copy2(new,orig)
++
++if __name__ == '__main__':
++    setup_sighandlers()
++    if selinux.is_selinux_enabled() != 1:
++        error_exit("Requires an SELinux enabled system")
++        
++    init_files = []
++
++    def usage(message = ""):
++        text = _("""
++sandbox [-h] [-I includefile ] [[-i file ] ...] [ -t type ] command
++""")
++        error_exit("%s\n%s" % (message, text))
++
++    setype = DEFAULT_TYPE
++    X_ind = False
++    try:
++           gopts, cmds = getopt.getopt(sys.argv[1:], "i:ht:XI:", 
++                                       ["help",
++                                        "include=", 
++                                        "includefile=", 
++                                        "type="
++                                        ])
++           for o, a in gopts:
++                  if o == "-t" or o == "--type":
++                         setype = a
++                         
++                  if o == "-i" or o == "--include":
++                         rp = os.path.realpath(a)
++                         if rp not in init_files:
++                                init_files.append(rp)
++                         
++                  if o == "-I" or o == "--includefile":
++                         fd = open(a, "r")
++                         for i in fd.read().split("\n"):
++                                if os.path.exists(i):
++                                       rp = os.path.realpath(i)
++                                       if rp not in init_files:
++                                              init_files.append(rp)
++                                       
++                         fd.close
++                         
++                  if o == "-X":
++                         if DEFAULT_TYPE == setype:
++                                setype = DEFAULT_X_TYPE
++                         X_ind = True
++
++                  if o == "-h" or o == "--help":
++                         usage(_("Usage"));
++            
++           if len(cmds) == 0:
++                  usage(_("Command required"))
++
++           execcon, filecon = gen_context(setype)
++           rc = -1
++
++           if cmds[0][0] != "/" and cmds[0][:2] != "./" and cmds[0][:3] != "../":
++                  for i in  os.environ["PATH"].split(':'):
++                         f = "%s/%s" % (i, cmds[0])
++                         if os.access(f, os.X_OK):
++                                cmds[0] = f
++                                break
++
++           try:
++                  newhomedir = None
++                  newtmpdir = None
++                  if X_ind:
++                         if not os.path.exists("/usr/sbin/seunshare"):
++                                raise ValueError("""/usr/sbin/seunshare required for sandbox -X, to install you need to execute 
++#yum install /usr/sbin/seunshare""")
++                         import warnings
++                         warnings.simplefilter("ignore")
++                         newhomedir = os.tempnam(".", ".sandbox%s")
++                         os.mkdir(newhomedir)
++                         selinux.setfilecon(newhomedir, filecon) 
++                         newtmpdir = os.tempnam("/tmp", ".sandbox")
++                         os.mkdir(newtmpdir)
++                         selinux.setfilecon(newtmpdir, filecon)
++                         warnings.resetwarnings()
++                         paths = []
++                         for i in cmds:
++                                f = os.path.realpath(i)
++                                if os.path.exists(f):
++                                       paths.append(f)
++                                else:
++                                       paths.append(i)
++                                       
++                         copyfiles(newhomedir, newtmpdir, init_files + paths)
++                         execfile = newhomedir + "/.sandboxrc"
++                         fd = open(execfile, "w+")
++                         fd.write("""#! /bin/sh
++%s
++""" % " ".join(paths))
++                         fd.close()
++                         os.chmod(execfile, 0700)
++                         
++                         cmds =  ("/usr/sbin/seunshare -t %s -h %s -- %s /usr/share/sandbox/sandboxX.sh" % (newtmpdir, newhomedir, execcon)).split()
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         for i in paths:
++                                if i not in X_FILES:
++                                       continue
++                                (dest, mtime) = X_FILES[i]
++                                if os.path.getmtime(dest) > mtime:
++                                       savefile(dest, i)
++                  else:
++                         selinux.setexeccon(execcon)
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         selinux.setexeccon(None)
++           finally:
++                  if X_ind:
++                         if newhomedir:
++                                shutil.rmtree(newhomedir)
++                         if newtmpdir:
++                                shutil.rmtree(newtmpdir)
++                  
++    except getopt.GetoptError, error:
++           usage(_("Options Error %s ") % error.msg)
++    except OSError, error:
++           error_exit(error.args[1])
++    except ValueError, error:
++           error_exit(error.args[0])
++    except KeyError, error:
++           error_exit(_("Invalid value %s") % error.args[0])
++    except IOError, error:
++           error_exit(error.args[1])
++    except KeyboardInterrupt:
++           rc = 0
++           
++    sys.exit(rc)
++
+diff --git a/policycoreutils/sandbox/sandbox.8 b/policycoreutils/sandbox/sandbox.8
+new file mode 100644
+index 0000000..c3f8a1f
+--- /dev/null
++++ b/policycoreutils/sandbox/sandbox.8
+@@ -0,0 +1,26 @@
++.TH SANDBOX "8" "May 2009" "chcat" "User Commands"
++.SH NAME
++sandbox \- Run cmd under an SELinux sandbox
++.SH SYNOPSIS
++.B sandbox
++[-X] [[-i file ]...] [ -t type ] cmd
++.br
++.SH DESCRIPTION
++.PP
++Run application within a tightly confined SELinux domain,   The default sandbox allows the application to only read and write stdin and stdout along with files handled to it by the shell.  
++Additionaly a -X qualifier allows you to run sandboxed X applications.  These apps will start up their own X Server and create a temporary homedir and /tmp.  The default policy does not allow any capabilities or network access.  Also prevents all access to the users other processes and files.  Any file specified on the command line will be copied into the sandbox.
++.PP
++.TP
++\fB\-t type\fR
++Use alternate sandbox type, defaults to sandbox_t or sandbox_x_t for -X.
++.TP
++\fB\-i file\fR
++Copy this file into the temporary sandbox homedir. Command can be repeated.
++.TP
++\fB\-X\fR
++Create an X based Sandbox for gui apps, temporary files for $HOME and /tmp, seconday Xserver, defaults to sandbox_x_t
++.TP
++.SH "SEE ALSO"
++.TP
++runcon(1)
++.PP
+diff --git a/policycoreutils/sandbox/sandboxX.sh b/policycoreutils/sandbox/sandboxX.sh
+new file mode 100644
+index 0000000..25263cb
+--- /dev/null
++++ b/policycoreutils/sandbox/sandboxX.sh
+@@ -0,0 +1,16 @@
++#!/bin/bash 
++export TITLE="Sandbox: `/usr/bin/tail -1 ~/.sandboxrc | /usr/bin/cut -b1-70`"
++export SCREEN=`/usr/bin/xdpyinfo -display $DISPLAY | /bin/awk '/dimensions/ { print $2 }'`
++
++(/usr/bin/Xephyr -title "$TITLE" -terminate -screen 1000x700 -displayfd 5 5>&1 2>/dev/null) | while read D; do 
++export DISPLAY=:$D
++/usr/bin/matchbox-window-manager -use_titlebar no &
++WM_PID=$!
++~/.sandboxrc &
++CLIENT_PID=$!
++wait $CLIENT_PID
++export EXITCODE=$?
++kill -TERM $WM_PID
++kill -HUP 0
++break
++done
+diff --git a/policycoreutils/sandbox/seunshare.c b/policycoreutils/sandbox/seunshare.c
+new file mode 100644
+index 0000000..16511b4
+--- /dev/null
++++ b/policycoreutils/sandbox/seunshare.c
+@@ -0,0 +1,265 @@
++#include <signal.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <syslog.h>
++#include <sys/mount.h>
 +#include <pwd.h>
-+#include <sys/stat.h>
++#define _GNU_SOURCE
++#include <sched.h>
 +#include <string.h>
 +#include <stdio.h>
- #include <fcntl.h>
--
- #include "restorecond.h"
--#include "stringslist.h"
- #include "utmpwatcher.h"
- 
--extern char *dirname(char *path);
-+const char *homedir;
- static int master_fd = -1;
--static int master_wd = -1;
--static int terminate = 0;
--
--#include <selinux/selinux.h>
--#include <utmp.h>
--
--/* size of the event structure, not counting name */
--#define EVENT_SIZE  (sizeof (struct inotify_event))
--/* reasonable guess as to size of 1024 events */
--#define BUF_LEN        (1024 * (EVENT_SIZE + 16))
--
--static int debug_mode = 0;
--static int verbose_mode = 0;
--
--static void restore(const char *filename, int exact);
--
--struct watchList {
--	struct watchList *next;
--	int wd;
--	char *dir;
--	struct stringsList *files;
--};
--struct watchList *firstDir = NULL;
--
--/* Compare two contexts to see if their differences are "significant",
-- * or whether the only difference is in the user. */
--static int only_changed_user(const char *a, const char *b)
--{
--	char *rest_a, *rest_b;	/* Rest of the context after the user */
--	if (!a || !b)
--		return 0;
--	rest_a = strchr(a, ':');
--	rest_b = strchr(b, ':');
--	if (!rest_a || !rest_b)
--		return 0;
--	return (strcmp(rest_a, rest_b) == 0);
--}
--
--/* 
--   A file was in a direcroty has been created. This function checks to 
--   see if it is one that we are watching.
--*/
--
--static int watch_list_find(int wd, const char *file)
--{
--	struct watchList *ptr = NULL;
--	ptr = firstDir;
--
--	if (debug_mode)
--		printf("%d: File=%s\n", wd, file);
--	while (ptr != NULL) {
--		if (ptr->wd == wd) {
--			int exact=0;
--			if (strings_list_find(ptr->files, file, &exact) == 0) {
--				char *path = NULL;
--				if (asprintf(&path, "%s/%s", ptr->dir, file) <
--				    0)
--					exitApp("Error allocating memory.");
--				restore(path, exact);
--				free(path);
--				return 0;
--			}
--			if (debug_mode)
--				strings_list_print(ptr->files);
--
--			/* Not found in this directory */
--			return -1;
--		}
--		ptr = ptr->next;
--	}
--	/* Did not find a directory */
--	return -1;
--}
--
--static void watch_list_free(int fd)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	ptr = firstDir;
--
--	while (ptr != NULL) {
--		inotify_rm_watch(fd, ptr->wd);
--		strings_list_free(ptr->files);
--		free(ptr->dir);
--		prev = ptr;
--		ptr = ptr->next;
--		free(prev);
--	}
--	firstDir = NULL;
--}
--
--/* 
--   Set the file context to the default file context for this system.
--   Same as restorecon.
--*/
--static void restore(const char *filename, int exact)
--{
--	int retcontext = 0;
--	security_context_t scontext = NULL;
--	security_context_t prev_context = NULL;
--	struct stat st;
--	int fd = -1;
--	if (debug_mode)
--		printf("restore %s\n", filename);
--
--	fd = open(filename, O_NOFOLLOW | O_RDONLY);
--	if (fd < 0) {
--		if (verbose_mode)
--			syslog(LOG_ERR, "Unable to open file (%s) %s\n",
--			       filename, strerror(errno));
--		return;
--	}
--
--	if (fstat(fd, &st) != 0) {
--		syslog(LOG_ERR, "Unable to stat file (%s) %s\n", filename,
--		       strerror(errno));
--		close(fd);
--		return;
--	}
--
--	if (!(st.st_mode & S_IFDIR) && st.st_nlink > 1) {
--		if (exact) { 
--			syslog(LOG_ERR,
--			       "Will not restore a file with more than one hard link (%s) %s\n",
--			       filename, strerror(errno));
--		}
--		close(fd);
--		return;
--	}
--
--	if (matchpathcon(filename, st.st_mode, &scontext) < 0) {
--		if (errno == ENOENT)
--			return;
--		syslog(LOG_ERR, "matchpathcon(%s) failed %s\n", filename,
--		       strerror(errno));
--		return;
--	}
--	retcontext = fgetfilecon_raw(fd, &prev_context);
--
--	if (retcontext >= 0 || errno == ENODATA) {
--		if (retcontext < 0)
--			prev_context = NULL;
--		if (retcontext < 0 || (strcmp(prev_context, scontext) != 0)) {
--
--			if (only_changed_user(scontext, prev_context) != 0) {
--				free(scontext);
--				free(prev_context);
--				close(fd);
--				return;
--			}
--
--			if (fsetfilecon(fd, scontext) < 0) {
--				if (errno != EOPNOTSUPP) 
--					syslog(LOG_ERR,
--					       "set context %s->%s failed:'%s'\n",
--					       filename, scontext, strerror(errno));
--				if (retcontext >= 0)
--					free(prev_context);
--				free(scontext);
--				close(fd);
--				return;
--			}
--			syslog(LOG_WARNING, "Reset file context %s: %s->%s\n",
--			       filename, prev_context, scontext);
--		}
--		if (retcontext >= 0)
--			free(prev_context);
--	} else {
--		if (errno != EOPNOTSUPP) 
--			syslog(LOG_ERR, "get context on %s failed: '%s'\n",
--			       filename, strerror(errno));
--	}
--	free(scontext);
--	close(fd);
--}
--
--static void process_config(int fd, FILE * cfg)
--{
--	char *line_buf = NULL;
--	size_t len = 0;
--
--	while (getline(&line_buf, &len, cfg) > 0) {
--		char *buffer = line_buf;
--		while (isspace(*buffer))
--			buffer++;
--		if (buffer[0] == '#')
--			continue;
--		int l = strlen(buffer) - 1;
--		if (l <= 0)
--			continue;
--		buffer[l] = 0;
--		if (buffer[0] == '~')
--			utmpwatcher_add(fd, &buffer[1]);
--		else {
--			watch_list_add(fd, buffer);
--		}
--	}
--	free(line_buf);
--}
--
--/* 
--   Read config file ignoring Comment lines 
--   Files specified one per line.  Files with "~" will be expanded to the logged in users
--   homedirs.
--*/
--
--static void read_config(int fd)
--{
--	char *watch_file_path = "/etc/selinux/restorecond.conf";
- 
--	FILE *cfg = NULL;
--	if (debug_mode)
--		printf("Read Config\n");
--
--	watch_list_free(fd);
--
--	cfg = fopen(watch_file_path, "r");
--	if (!cfg)
--		exitApp("Error reading config file.");
--	process_config(fd, cfg);
--	fclose(cfg);
--
--	inotify_rm_watch(fd, master_wd);
--	master_wd =
--	    inotify_add_watch(fd, watch_file_path, IN_MOVED_FROM | IN_MODIFY);
--	if (master_wd == -1)
--		exitApp("Error watching config file.");
--}
-+static char *server_watch_file  = "/etc/selinux/restorecond.conf";
-+static char *user_watch_file  = "/etc/selinux/restorecond_user.conf";
-+static char *watch_file;
-+static struct restore_opts r_opts;
- 
--/* 
--   Inotify watch loop 
--*/
--static int watch(int fd)
--{
--	char buf[BUF_LEN];
--	int len, i = 0;
--	len = read(fd, buf, BUF_LEN);
--	if (len < 0) {
--		if (terminate == 0) {
--			syslog(LOG_ERR, "Read error (%s)", strerror(errno));
--			return 0;
--		}
--		syslog(LOG_ERR, "terminated");
--		return -1;
--	} else if (!len)
--		/* BUF_LEN too small? */
--		return -1;
--	while (i < len) {
--		struct inotify_event *event;
--		event = (struct inotify_event *)&buf[i];
--		if (debug_mode)
--			printf("wd=%d mask=%u cookie=%u len=%u\n",
--			       event->wd, event->mask,
--			       event->cookie, event->len);
--		if (event->wd == master_wd)
--			read_config(fd);
--		else {
--			switch (utmpwatcher_handle(fd, event->wd)) {
--			case -1:	/* Message was not for utmpwatcher */
--				if (event->len)
--					watch_list_find(event->wd, event->name);
--				break;
++#include <unistd.h>
++#include <stdlib.h>
++#include <cap-ng.h>
++#include <getopt.h>		/* for getopt_long() form of getopt() */
++#include <limits.h>
++#include <stdlib.h>
++#include <errno.h>
++
 +#include <selinux/selinux.h>
- 
--			case 1:	/* utmp has changed need to reload */
--				read_config(fd);
--				break;
-+int debug_mode = 0;
-+int terminate = 0;
-+int master_wd = -1;
-+int run_as_user = 0;
- 
--			default:	/* No users logged in or out */
--				break;
--			}
--		}
--
--		i += EVENT_SIZE + event->len;
--	}
--	return 0;
-+static void done(void) {
-+	watch_list_free(master_fd);
-+	close(master_fd);
-+	utmpwatcher_free();
-+	matchpathcon_fini();
- }
- 
- static const char *pidfile = "/var/run/restorecond.pid";
-@@ -374,7 +120,7 @@ static void term_handler()
- 
- static void usage(char *program)
- {
--	printf("%s [-d] [-v] \n", program);
-+	printf("%s [-d] [-f restorecond_file ] [-u] [-v] \n", program);
- 	exit(0);
- }
- 
-@@ -390,74 +136,34 @@ void exitApp(const char *msg)
-    to see if it is one that we are watching.
- */
- 
--void watch_list_add(int fd, const char *path)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	char *x = strdup(path);
--	if (!x)
--		exitApp("Out of Memory");
--	char *dir = dirname(x);
--	char *file = basename(path);
--	ptr = firstDir;
--
--	restore(path, 1);
--
--	while (ptr != NULL) {
--		if (strcmp(dir, ptr->dir) == 0) {
--			strings_list_add(&ptr->files, file);
--			free(x);
--			return;
--		}
--		prev = ptr;
--		ptr = ptr->next;
--	}
--	ptr = calloc(1, sizeof(struct watchList));
--
--	if (!ptr)
--		exitApp("Out of Memory");
--
--	ptr->wd = inotify_add_watch(fd, dir, IN_CREATE | IN_MOVED_TO);
--	if (ptr->wd == -1) {
--		free(ptr);
--		syslog(LOG_ERR, "Unable to watch (%s) %s\n",
--		       path, strerror(errno));
--		return;
--	}
--
--	ptr->dir = strdup(dir);
--	if (!ptr->dir)
--		exitApp("Out of Memory");
--
--	strings_list_add(&ptr->files, file);
--	if (prev)
--		prev->next = ptr;
--	else
--		firstDir = ptr;
--
--	if (debug_mode)
--		printf("%d: Dir=%s, File=%s\n", ptr->wd, ptr->dir, file);
--
--	free(x);
--}
--
- int main(int argc, char **argv)
- {
- 	int opt;
- 	struct sigaction sa;
- 
--#ifndef DEBUG
--	/* Make sure we are root */
--	if (getuid() != 0) {
--		fprintf(stderr, "You must be root to run this program.\n");
--		return 1;
--	}
--#endif
--	/* Make sure we are root */
--	if (is_selinux_enabled() != 1) {
--		fprintf(stderr, "Daemon requires SELinux be enabled to run.\n");
--		return 1;
--	}
-+	memset(&r_opts, 0, sizeof(r_opts));
++#include <selinux/context.h>	/* for context-mangling functions */
 +
-+	r_opts.progress = 0;
-+	r_opts.count = 0;
-+	r_opts.debug = 0;
-+	r_opts.change = 1;
-+	r_opts.verbose = 0;
-+	r_opts.logging = 0;
-+	r_opts.rootpath = NULL;
-+	r_opts.rootpathlen = 0;
-+	r_opts.outfile = NULL;
-+	r_opts.force = 0;
-+	r_opts.hard_links = 0;
-+	r_opts.abort_on_error = 0;
-+	r_opts.add_assoc = 0;
-+	r_opts.expand_realpath = 0;
-+	r_opts.fts_flags = FTS_PHYSICAL;
-+	r_opts.selabel_opt_validate = NULL;
-+	r_opts.selabel_opt_path = NULL;
-+	
-+	restore_init(&r_opts);
-+	/* If we are not running SELinux then just exit */
-+	if (is_selinux_enabled() != 1) return 0;
- 
- 	/* Register sighandlers */
- 	sa.sa_flags = 0;
-@@ -467,38 +173,59 @@ int main(int argc, char **argv)
- 
- 	set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
- 
--	master_fd = inotify_init();
--	if (master_fd < 0)
--		exitApp("inotify_init");
--
--	while ((opt = getopt(argc, argv, "dv")) > 0) {
-+	atexit( done );
-+	while ((opt = getopt(argc, argv, "df:uv")) > 0) {
- 		switch (opt) {
- 		case 'd':
- 			debug_mode = 1;
- 			break;
-+		case 'f':
-+			watch_file = optarg;
-+			break;
-+		case 'u':
-+			run_as_user = 1;
-+			break;
- 		case 'v':
--			verbose_mode = 1;
-+			r_opts.verbose++;
- 			break;
- 		case '?':
- 			usage(argv[0]);
- 		}
- 	}
--	read_config(master_fd);
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
 +
-+	master_fd = inotify_init();
-+	if (master_fd < 0)
-+		exitApp("inotify_init");
++/**
++ * This function will drop all capabilities 
++ * Returns zero on success, non-zero otherwise
++ */
++static int drop_capabilities(uid_t uid)
++{
++	capng_clear(CAPNG_SELECT_BOTH);
++
++	if (capng_lock() < 0) 
++		return -1;
++	/* Change uid */
++	if (setresuid(uid, uid, uid)) {
++		fprintf(stderr, "Error changing uid, aborting.\n");
++		return -1;
++	}
++	return capng_apply(CAPNG_SELECT_BOTH);
++}
++
++#define DEFAULT_PATH "/usr/bin:/bin"
++#define TRUE 1
++#define FALSE 0
++
++/**
++ * Take care of any signal setup
++ */
++static int set_signal_handles(void)
++{
++	sigset_t empty;
++
++	/* Empty the signal mask in case someone is blocking a signal */
++	if (sigemptyset(&empty)) {
++		fprintf(stderr, "Unable to obtain empty signal set\n");
++		return -1;
++	}
++
++	(void)sigprocmask(SIG_SETMASK, &empty, NULL);
++
++	/* Terminate on SIGHUP. */
++	if (signal(SIGHUP, SIG_DFL) == SIG_ERR) {
++		perror("Unable to set SIGHUP handler");
++		return -1;
++	}
++
++	return 0;
++}
++#define USAGE_STRING "USAGE: seunshare [ -t tmpdir ] [ -h homedir ] -- CONTEXT executable [args] "
++
++
++
++static int verify_mount(const char *mntdir, struct passwd *pwd) {
++	struct stat sb;
++	if (stat(mntdir, &sb) == -1) {
++		perror("Invalid mount point");
++		return -1;
++	}
++	if (sb.st_uid != pwd->pw_uid) {
++		errno = EPERM;
++		syslog(LOG_AUTHPRIV | LOG_ALERT, "%s attempted to mount an invalid directory, %s", pwd->pw_name, mntdir);
++		perror("Invalid mount point, reporting to administrator");
++		return -1;
++	}
++	return 0;
++}
++
++/**
++ * This function checks to see if the shell is known in /etc/shells.
++ * If so, it returns 1. On error or illegal shell, it returns 0.
++ */
++static int verify_shell(const char *shell_name)
++{
++	int found = 0;
++	const char *buf;
++
++	if (!(shell_name && shell_name[0]))
++		return found;
++
++	while ((buf = getusershell()) != NULL) {
++		/* ignore comments */
++		if (*buf == '#')
++			continue;
++
++		/* check the shell skipping newline char */
++		if (!strcmp(shell_name, buf)) {
++			found = 1;
++			break;
++		}
++	}
++	endusershell();
++	return found;
++}
++
++int main(int argc, char **argv) {
++	int rc;
++	int status = -1;
++
++	security_context_t scontext;
++
++	int flag_index;		/* flag index in argv[] */
++	int clflag;		/* holds codes for command line flags */
++	char *tmpdir_s = NULL;	/* tmpdir spec'd by user in argv[] */
++	char *homedir_s = NULL;	/* homedir spec'd by user in argv[] */
++
++	const struct option long_options[] = {
++		{"homedir", 1, 0, 'h'},
++		{"tmpdir", 1, 0, 't'},
++		{NULL, 0, 0, 0}
++	};
 +
 +	uid_t uid = getuid();
-+	struct passwd *pwd = getpwuid(uid);
-+	homedir = pwd->pw_dir;
-+	if (uid != 0) {
-+		if (run_as_user)
-+			return server(master_fd, user_watch_file);
-+		if (start() != 0) 
-+			return server(master_fd, user_watch_file);
-+		return 0;
-+	}
 +
-+	watch_file = server_watch_file;
-+	read_config(master_fd, watch_file);
- 
- 	if (!debug_mode)
- 		daemon(0, 0);
- 
- 	write_pid_file();
- 
--	while (watch(master_fd) == 0) {
-+	while (watch(master_fd, watch_file) == 0) {
- 	};
- 
- 	watch_list_free(master_fd);
- 	close(master_fd);
- 	matchpathcon_fini();
--	utmpwatcher_free();
- 	if (pidfile)
- 		unlink(pidfile);
- 
- 	return 0;
- }
-+
-+
-diff --git a/policycoreutils/restorecond/restorecond.conf b/policycoreutils/restorecond/restorecond.conf
-index 3fc9376..58b723a 100644
---- a/policycoreutils/restorecond/restorecond.conf
-+++ b/policycoreutils/restorecond/restorecond.conf
-@@ -4,8 +4,5 @@
- /etc/mtab
- /var/run/utmp
- /var/log/wtmp
--~/*
--/root/.ssh
-+/root/*
- /root/.ssh/*
--
--
-diff --git a/policycoreutils/restorecond/restorecond.desktop b/policycoreutils/restorecond/restorecond.desktop
-new file mode 100644
-index 0000000..23ff89d
---- /dev/null
-+++ b/policycoreutils/restorecond/restorecond.desktop
-@@ -0,0 +1,7 @@
-+[Desktop Entry]
-+Name=File Context maintainer
-+Exec=/usr/sbin/restorecond -u
-+Comment=Fix file context in owned by the user
-+Encoding=UTF-8
-+Type=Application
-+StartupNotify=false
-diff --git a/policycoreutils/restorecond/restorecond.h b/policycoreutils/restorecond/restorecond.h
-index e1666bf..f6452ea 100644
---- a/policycoreutils/restorecond/restorecond.h
-+++ b/policycoreutils/restorecond/restorecond.h
-@@ -24,7 +24,21 @@
- #ifndef RESTORED_CONFIG_H
- #define RESTORED_CONFIG_H
- 
--void exitApp(const char *msg);
--void watch_list_add(int inotify_fd, const char *path);
-+extern int debug_mode;
-+extern const char *homedir;
-+extern int terminate;
-+extern int master_wd;
-+extern int run_as_user;
-+
-+extern int start(void);
-+extern int server(int, const char *watch_file);
-+
-+extern void exitApp(const char *msg);
-+extern void read_config(int fd,	const char *watch_file);
-+
-+extern int watch(int fd, const char *watch_file);
-+extern void watch_list_add(int inotify_fd, const char *path);
-+extern int watch_list_find(int wd, const char *file);
-+extern void watch_list_free(int fd);
- 
- #endif
-diff --git a/policycoreutils/restorecond/restorecond.init b/policycoreutils/restorecond/restorecond.init
-index b966db6..4a32e03 100644
---- a/policycoreutils/restorecond/restorecond.init
-+++ b/policycoreutils/restorecond/restorecond.init
-@@ -75,16 +75,15 @@ case "$1" in
- 	status restorecond
- 	RETVAL=$?
- 	;;
--  restart|reload)
-+  force-reload|restart|reload)
- 	restart
- 	;;
-   condrestart)
- 	[ -e /var/lock/subsys/restorecond ] && restart || :
- 	;;
-   *)
--        echo $"Usage: $0 {start|stop|restart|reload|condrestart}"
-+        echo $"Usage: $0 {start|stop|restart|force-reload|status|condrestart}"
-         RETVAL=3
- esac
- 
- exit $RETVAL
--
-diff --git a/policycoreutils/restorecond/restorecond_user.conf b/policycoreutils/restorecond/restorecond_user.conf
-new file mode 100644
-index 0000000..d97bc72
---- /dev/null
-+++ b/policycoreutils/restorecond/restorecond_user.conf
-@@ -0,0 +1,2 @@
-+~/*
-+~/public_html/*
-diff --git a/policycoreutils/restorecond/user.c b/policycoreutils/restorecond/user.c
-new file mode 100644
-index 0000000..0516c23
---- /dev/null
-+++ b/policycoreutils/restorecond/user.c
-@@ -0,0 +1,237 @@
-+/*
-+ * restorecond
-+ *
-+ * Copyright (C) 2006-2009 Red Hat 
-+ * see file 'COPYING' for use and warranty information
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation; either version 2 of
-+ * the License, or (at your option) any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+.* 
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA     
-+ * 02111-1307  USA
-+ *
-+ * Authors:  
-+ *   Dan Walsh <dwalsh@redhat.com>
-+ *
-+*/
-+
-+#define _GNU_SOURCE
-+#include <sys/inotify.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <signal.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <ctype.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <syslog.h>
-+#include <limits.h>
-+#include <fcntl.h>
-+
-+#include "restorecond.h"
-+#include "stringslist.h"
-+#include <glib.h>
-+#ifdef HAVE_DBUS
-+#include <dbus/dbus.h>
-+#include <dbus/dbus-glib.h>
-+#include <dbus/dbus-glib-lowlevel.h>
-+
-+static DBusHandlerResult signal_filter (DBusConnection *connection, DBusMessage *message, void *user_data);
-+
-+static const char *PATH="/org/selinux/Restorecond";
-+//static const char *BUSNAME="org.selinux.Restorecond";
-+static const char *INTERFACE="org.selinux.RestorecondIface";
-+static const char *RULE="type='signal',interface='org.selinux.RestorecondIface'";
-+
-+
-+static DBusHandlerResult
-+signal_filter (DBusConnection *connection  __attribute__ ((__unused__)), DBusMessage *message, void *user_data)
-+{
-+  /* User data is the event loop we are running in */
-+  GMainLoop *loop = user_data;
-+
-+  /* A signal from the bus saying we are about to be disconnected */
-+  if (dbus_message_is_signal 
-+        (message, INTERFACE, "Stop")) {
-+	  
-+      /* Tell the main loop to quit */
-+      g_main_loop_quit (loop);
-+      /* We have handled this message, don't pass it on */
-+      return DBUS_HANDLER_RESULT_HANDLED;
-+  }
-+  /* A Ping signal on the com.burtonini.dbus.Signal interface */
-+  else if (dbus_message_is_signal (message, INTERFACE, "Start")) {
-+    DBusError error;
-+    dbus_error_init (&error);
-+    g_print("Start received\n");
-+    return DBUS_HANDLER_RESULT_HANDLED;
-+  }
-+  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-+}
-+
-+static int dbus_server(GMainLoop *loop) {
-+    DBusConnection *bus;
-+    DBusError error;
-+    dbus_error_init (&error);
-+    bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
-+    if (bus) {
-+	dbus_connection_setup_with_g_main (bus, NULL);
-+	
-+	/* listening to messages from all objects as no path is specified */
-+	dbus_bus_add_match (bus, RULE, &error); // see signals from the given interfacey
-+	dbus_connection_add_filter (bus, signal_filter, loop, NULL);
-+	return 0;
-+    } 
-+    return -1;
-+}
-+
-+#endif
-+#include <selinux/selinux.h>
-+#include <sys/file.h>
-+
-+/* size of the event structure, not counting name */
-+#define EVENT_SIZE  (sizeof (struct inotify_event))
-+/* reasonable guess as to size of 1024 events */
-+#define BUF_LEN        (1024 * (EVENT_SIZE + 16))
-+
-+static gboolean
-+io_channel_callback
-+ (GIOChannel *source,
-+  GIOCondition condition,
-+  gpointer data __attribute__((__unused__)))
-+{
-+
-+  char buffer[BUF_LEN+1];
-+  gsize bytes_read;
-+  unsigned int i = 0;
-+
-+  if (condition & G_IO_IN) {
-+    /* Data is available. */
-+    g_io_channel_read
-+      (source, buffer,
-+       sizeof (buffer),
-+       &bytes_read);
-+
-+    while (i < bytes_read) {
-+	    struct inotify_event *event;
-+	    event = (struct inotify_event *)&buffer[i];
-+	    if (debug_mode)
-+		    printf("wd=%d mask=%u cookie=%u len=%u\n",
-+			   event->wd, event->mask,
-+			   event->cookie, event->len);
-+	    if (event->len)
-+		    watch_list_find(event->wd, event->name);
-+	    
-+	    i += EVENT_SIZE + event->len;
-+    }
-+  }
-+
-+  /* An error happened while reading
-+     the file. */
-+
-+  if (condition & G_IO_NVAL)
-+    return FALSE;
-+
-+  /* We have reached the end of the
-+     file. */
-+
-+  if (condition & G_IO_HUP) {
-+    g_io_channel_close (source);
-+    return FALSE;
-+  }
-+
-+  /* Returning TRUE will make sure
-+     the callback remains associated
-+     to the channel. */
-+
-+  return TRUE;
-+}
-+
-+int start() {
-+#ifdef HAVE_DBUS
-+	DBusConnection *bus;
-+	DBusError error;
-+	DBusMessage *message;
-+	
-+	/* Get a connection to the session bus */
-+	dbus_error_init (&error);
-+	bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
-+	if (!bus) {
-+		if (debug_mode)
-+			g_warning ("Failed to connect to the D-BUS daemon: %s", error.message);
-+		dbus_error_free (&error);
-+		return 1;
-+	}
-+	
-+
-+	/* Create a new signal "Start" on the interface,
-+	 * from the object  */
-+	message = dbus_message_new_signal (PATH,
-+					   INTERFACE, "Start");
-+	/* Send the signal */
-+	dbus_connection_send (bus, message, NULL);
-+	/* Free the signal now we have finished with it */
-+	dbus_message_unref (message);
-+#endif /* HAVE_DBUS */
-+	return 0;
-+}
-+
-+static int local_server() {
-+	// ! dbus, run as local service
-+	char *ptr=NULL;
-+	asprintf(&ptr, "%s/.restorecond", homedir);
-+	int fd = open(ptr, O_CREAT | O_WRONLY | O_NOFOLLOW, S_IRUSR | S_IWUSR);
-+	if (debug_mode)
-+		g_warning ("Lock file: %s", ptr);
-+	
-+	free(ptr);
-+	if (fd < 0) {
-+		if (debug_mode)
-+			perror("open");
++	if (!uid) {
++		fprintf(stderr, "Must not be root");
 +		return -1;
 +	}
-+	if (flock(fd, LOCK_EX | LOCK_NB) < 0) {
-+		if (debug_mode)
-+			perror("flock");
++
++	struct passwd *pwd=getpwuid(uid);
++	if (!pwd) {
++		perror("getpwduid failed");
 +		return -1;
 +	}
-+	return 0;
-+}
 +
-+int server(int master_fd, const char *watch_file) {
-+    GMainLoop *loop;
-+
-+    loop = g_main_loop_new (NULL, FALSE);
-+    
-+#ifdef HAVE_DBUS
-+    if (dbus_server(loop) != 0) 
-+#endif /* HAVE_DBUS */
-+	    if (local_server(loop) != 0) 
-+		    return 0;
-+
-+    read_config(master_fd, watch_file);
-+    
-+    set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
-+    
-+    GIOChannel *c = g_io_channel_unix_new(master_fd);
-+    
-+    g_io_add_watch_full( c,
-+			 G_PRIORITY_HIGH,
-+			 G_IO_IN|G_IO_ERR|G_IO_HUP,
-+			 io_channel_callback, NULL, NULL);
-+    
-+    g_main_loop_run (loop);
-+    return 0;
-+}
-+
-diff --git a/policycoreutils/restorecond/watch.c b/policycoreutils/restorecond/watch.c
-new file mode 100644
-index 0000000..cdd526f
---- /dev/null
-+++ b/policycoreutils/restorecond/watch.c
-@@ -0,0 +1,253 @@
-+#define _GNU_SOURCE
-+#include <sys/inotify.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <ctype.h>
-+#include <sys/types.h>
-+#include <syslog.h>
-+#include "../setfiles/restore.h"
-+#include <glob.h>
-+#include <libgen.h>
-+#include <sys/stat.h>
-+#include <string.h>
-+#include <stdio.h>
-+#include <fcntl.h>
-+#include <selinux/selinux.h>
-+#include "restorecond.h"
-+#include "stringslist.h"
-+#include "utmpwatcher.h"
-+
-+/* size of the event structure, not counting name */
-+#define EVENT_SIZE  (sizeof (struct inotify_event))
-+/* reasonable guess as to size of 1024 events */
-+#define BUF_LEN        (1024 * (EVENT_SIZE + 16))
-+
-+
-+struct watchList {
-+	struct watchList *next;
-+	int wd;
-+	char *dir;
-+	struct stringsList *files;
-+};
-+struct watchList *firstDir = NULL;
-+
-+
-+void watch_list_add(int fd, const char *path)
-+{
-+	struct watchList *ptr = NULL;
-+	size_t i = 0;
-+	struct watchList *prev = NULL;
-+	glob_t globbuf;
-+	char *x = strdup(path);
-+	if (!x) exitApp("Out of Memory");
-+	char *file = basename(x);
-+	char *dir = dirname(x);
-+	ptr = firstDir;
-+
-+	globbuf.gl_offs = 1;
-+	if (glob(path, 
-+		 GLOB_TILDE | GLOB_PERIOD,
-+		 NULL,
-+		 &globbuf) >= 0) {
-+		for (i=0; i < globbuf.gl_pathc; i++) {
-+		  int len = strlen(globbuf.gl_pathv[i]) -2;
-+		  if (len > 0 && strcmp(&globbuf.gl_pathv[i][len--], "/.") == 0) continue;
-+		  if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0) continue;
-+		  if (process_one_realpath(globbuf.gl_pathv[i], 0) > 0)
-+			  process_one_realpath(globbuf.gl_pathv[i], 1);
-+		}
-+		globfree(&globbuf);
++	if (verify_shell(pwd->pw_shell) == 0) {
++		fprintf(stderr, "Error!  Shell is not valid.\n");
++		return -1;
 +	}
 +
-+	while (ptr != NULL) {
-+		if (strcmp(dir, ptr->dir) == 0) {
-+			strings_list_add(&ptr->files, file);
-+			free(x);
-+			return;
-+		}
-+		prev = ptr;
-+		ptr = ptr->next;
-+	}
-+	ptr = calloc(1, sizeof(struct watchList));
++	while (1) {
++		clflag = getopt_long(argc, argv, "h:t:", long_options,
++				     &flag_index);
++		if (clflag == -1)
++			break;
 +
-+	if (!ptr) exitApp("Out of Memory");
-+
-+	ptr->wd = inotify_add_watch(fd, dir, IN_CREATE | IN_MOVED_TO);
-+	if (ptr->wd == -1) {
-+		free(ptr);
-+		free(x);
-+		syslog(LOG_ERR, "Unable to watch (%s) %s\n",
-+		       path, strerror(errno));
-+		return;
-+	}
-+
-+	ptr->dir = strdup(dir);
-+	if (!ptr->dir)
-+		exitApp("Out of Memory");
-+
-+	strings_list_add(&ptr->files, file);
-+	if (prev)
-+		prev->next = ptr;
-+	else
-+		firstDir = ptr;
-+
-+	if (debug_mode)
-+		printf("%d: Dir=%s, File=%s\n", ptr->wd, ptr->dir, file);
-+
-+	free(x);
-+}
-+
-+/* 
-+   A file was in a direcroty has been created. This function checks to 
-+   see if it is one that we are watching.
-+*/
-+
-+int watch_list_find(int wd, const char *file)
-+{
-+	struct watchList *ptr = NULL;
-+	ptr = firstDir;
-+	if (debug_mode)
-+		printf("%d: File=%s\n", wd, file);
-+	while (ptr != NULL) {
-+		if (ptr->wd == wd) {
-+			int exact=0;
-+			if (strings_list_find(ptr->files, file, &exact) == 0) {
-+				char *path = NULL;
-+				if (asprintf(&path, "%s/%s", ptr->dir, file) <
-+				    0)
-+					exitApp("Error allocating memory.");
-+				
-+				process_one_realpath(path, 0);
-+				free(path);
-+				return 0;
-+			}
-+			if (debug_mode)
-+				strings_list_print(ptr->files);
-+
-+			/* Not found in this directory */
++		switch (clflag) {
++		case 't':
++			tmpdir_s = optarg;
++			if (verify_mount(tmpdir_s, pwd) < 0) return -1;
++			break;
++		case 'h':
++			homedir_s = optarg;
++			if (verify_mount(homedir_s, pwd) < 0) return -1;
++			if (verify_mount(pwd->pw_dir, pwd) < 0) return -1;
++			break;
++		default:
++			fprintf(stderr, "%s\n", USAGE_STRING);
 +			return -1;
 +		}
-+		ptr = ptr->next;
 +	}
-+	/* Did not find a directory */
-+	return -1;
-+}
 +
-+void watch_list_free(int fd)
-+{
-+	struct watchList *ptr = NULL;
-+	struct watchList *prev = NULL;
-+	ptr = firstDir;
-+
-+	while (ptr != NULL) {
-+		inotify_rm_watch(fd, ptr->wd);
-+		strings_list_free(ptr->files);
-+		free(ptr->dir);
-+		prev = ptr;
-+		ptr = ptr->next;
-+		free(prev);
-+	}
-+	firstDir = NULL;
-+}
-+
-+/* 
-+   Inotify watch loop 
-+*/
-+int watch(int fd, const char *watch_file)
-+{
-+	char buf[BUF_LEN];
-+	int len, i = 0;
-+	len = read(fd, buf, BUF_LEN);
-+	if (len < 0) {
-+		if (terminate == 0) {
-+			syslog(LOG_ERR, "Read error (%s)", strerror(errno));
-+			return 0;
-+		}
-+		syslog(LOG_ERR, "terminated");
++	if (! homedir_s && ! tmpdir_s) {
++		fprintf(stderr, "Error: tmpdir and/or homedir required \n"
++			"%s\n", USAGE_STRING);
 +		return -1;
-+	} else if (!len)
-+		/* BUF_LEN too small? */
-+		return -1;
-+	while (i < len) {
-+		struct inotify_event *event;
-+		event = (struct inotify_event *)&buf[i];
-+		if (debug_mode)
-+			printf("wd=%d mask=%u cookie=%u len=%u\n",
-+			       event->wd, event->mask,
-+			       event->cookie, event->len);
-+		if (event->wd == master_wd)
-+			read_config(fd, watch_file);
-+		else {
-+			if (event->len)
-+				watch_list_find(event->wd, event->name);
-+		}
-+
-+		i += EVENT_SIZE + event->len;
 +	}
-+	return 0;
-+}
 +
-+static void process_config(int fd, FILE * cfg)
-+{
-+	char *line_buf = NULL;
-+	size_t len = 0;
++	if (argc - optind < 2) {
++		fprintf(stderr, "Error: executable required \n"
++			"%s\n", USAGE_STRING);
++		return -1;
++	}
 +
-+	while (getline(&line_buf, &len, cfg) > 0) {
-+		char *buffer = line_buf;
-+		while (isspace(*buffer))
-+			buffer++;
-+		if (buffer[0] == '#')
-+			continue;
-+		int l = strlen(buffer) - 1;
-+		if (l <= 0)
-+			continue;
-+		buffer[l] = 0;
-+		if (buffer[0] == '~') {
-+			if (run_as_user) {
-+				char *ptr=NULL;
-+				asprintf(&ptr, "%s%s", homedir, &buffer[1]);
-+				watch_list_add(fd, ptr);
-+				free(ptr);
-+			} else {
-+				utmpwatcher_add(fd, &buffer[1]);
++	scontext = argv[optind++];
++	
++	if (set_signal_handles())
++		return -1;
++
++        if (unshare(CLONE_NEWNS) < 0) {
++		perror("Failed to unshare");
++		return -1;
++	}
++
++	if (homedir_s && mount(homedir_s, pwd->pw_dir, NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount HOMEDIR");
++		return -1;
++	}
++
++	if (homedir_s && verify_mount(pwd->pw_dir, pwd) < 0) 
++		return -1;
++
++	if (tmpdir_s && mount(tmpdir_s, "/tmp", NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount /tmp");
++		return -1;
++	}
++
++	if (tmpdir_s && verify_mount("/tmp", pwd) < 0) 
++		return -1;
++
++	if (drop_capabilities(uid)) {
++		perror("Failed to drop all capabilities");
++		return -1;
++	}
++
++	int child = fork();
++	if (!child) {
++		char *display=NULL;
++		/* Construct a new environment */
++		char *d = getenv("DISPLAY");
++		if (d) {
++			display =  strdup(d);
++			if (!display) {
++				perror("Out of memory");
++				exit(-1);
 +			}
-+		} else {
-+			watch_list_add(fd, buffer);
 +		}
++
++		if ((rc = clearenv())) {
++			perror("Unable to clear environment");
++			free(display);
++			exit(-1);
++		}
++		
++		if (setexeccon(scontext)) {
++			fprintf(stderr, "Could not set exec context to %s.\n",
++				scontext);
++			free(display);
++			exit(-1);
++		}
++
++		if (display) 
++			rc |= setenv("DISPLAY", display, 1);
++		rc |= setenv("HOME", pwd->pw_dir, 1);
++		rc |= setenv("SHELL", pwd->pw_shell, 1);
++		rc |= setenv("USER", pwd->pw_name, 1);
++		rc |= setenv("LOGNAME", pwd->pw_name, 1);
++		rc |= setenv("PATH", DEFAULT_PATH, 1);
++		
++		if (chdir(pwd->pw_dir)) {
++			perror("Failed to change dir to homedir");
++			exit(-1);
++		}
++		
++		execv(argv[optind], argv + optind);
++		free(display);
++		perror("execv");
++		exit(-1);
++	} else {
++		waitpid(child, &status, 0);
 +	}
-+	free(line_buf);
++
++	return status;
 +}
-+
-+/* 
-+   Read config file ignoring Comment lines 
-+   Files specified one per line.  Files with "~" will be expanded to the logged in users
-+   homedirs.
-+*/
-+
-+void read_config(int fd, const char *watch_file_path)
-+{
-+
-+	FILE *cfg = NULL;
-+	if (debug_mode)
-+		printf("Read Config\n");
-+
-+	watch_list_free(fd);
-+
-+	cfg = fopen(watch_file_path, "r");
-+	if (!cfg){
-+		perror(watch_file_path);
-+		exitApp("Error reading config file");
-+	}
-+	process_config(fd, cfg);
-+	fclose(cfg);
-+
-+	inotify_rm_watch(fd, master_wd);
-+	master_wd =
-+	    inotify_add_watch(fd, watch_file_path, IN_MOVED_FROM | IN_MODIFY);
-+	if (master_wd == -1)
-+		exitApp("Error watching config file.");
-+}
-+
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index b649d8f..9897732 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -303,6 +303,12 @@ static int process_one(char *name, int recurse_this_path)
- 	FTS *fts_handle;
- 	FTSENT *ftsent;
- 
-+	if (r_opts == NULL){
-+		fprintf(stderr,
-+			"Must call initialize first!");
-+		goto err;
-+	}
-+
- 	fts_handle = fts_open((char **)namelist, r_opts->fts_flags, NULL);
- 	if (fts_handle  == NULL) {
- 		fprintf(stderr,
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 1eb6a43..c8ea4bb 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -4,10 +4,10 @@ restorecon \- restore file(s) default SELinux security contexts.
- 
- .SH "SYNOPSIS"
- .B restorecon
--.I [\-o outfilename ] [\-R] [\-n] [\-v] [\-e directory ] pathname...
-+.I [\-o outfilename ] [\-R] [\-n] [\-p] [\-v] [\-e directory ] pathname...
- .P
- .B restorecon
--.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-v] [\-F]
-+.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-p] [\-v] [\-F]
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -40,6 +40,9 @@ don't change any file labels.
- .TP 
- .B \-o outfilename
- save list of files with incorrect context in outfilename.
-+.TP
-+.B \-p
-+show progress by printing * every 1000 files.
- .TP 
- .B \-v
- show changes in file labels.
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index ac68b94..28f99d9 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -31,6 +31,9 @@ log changes in file labels to syslog.
- .TP
- .B \-n
- don't change any file labels.
-+.TP
-+.B \-p
-+show progress by printing * every 1000 files.
- .TP 
- .B \-q
- suppress non-error output.
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 8f4f663..0082be0 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -44,13 +44,13 @@ void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iFnrRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
-+			"usage:  %s [-iFnprRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
- 			name);
- 	} else {
- 		fprintf(stderr,
- 			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path ] spec_file pathname...\n"
- 			"usage:  %s -c policyfile spec_file\n"
--			"usage:  %s -s [-dnqvW] [-o filename ] spec_file\n", name, name,
-+			"usage:  %s -s [-dnpqvW] [-o filename ] spec_file\n", name, name,
- 			name);
- 	}
- 	exit(1);
-@@ -371,7 +371,7 @@ int main(int argc, char **argv)
- 				break;
- 			}
- 			if (optind + 1 >= argc) {
--				fprintf(stderr, "usage:  %s -r r_opts.rootpath\n",
-+				fprintf(stderr, "usage:  %s -r rootpath\n",
- 					argv[0]);
- 				exit(1);
- 			}
 
---------------090804030702020700010201--
+--------------050407030304060301040904--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
