@@ -1,110 +1,78 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nA4Nvg6g018143
-	for <selinux@tycho.nsa.gov>; Wed, 4 Nov 2009 18:57:42 -0500
-Received: from mail-vw0-f184.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nA4NxcqO028367
-	for <selinux@tycho.nsa.gov>; Wed, 4 Nov 2009 23:59:38 GMT
-Received: by vws14 with SMTP id 14so1861250vws.32
-        for <selinux@tycho.nsa.gov>; Wed, 04 Nov 2009 15:57:42 -0800 (PST)
+Message-ID: <4AF21A47.4000303@ak.jp.nec.com>
+Date: Thu, 05 Nov 2009 09:20:23 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Date: Wed, 4 Nov 2009 15:57:41 -0800
-Message-ID: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
-Subject: "security_compute_sid: invalid context" error when starting/stopping
-	mysqld daemon
-From: Larry Ross <selinux.larry@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=0016e68f9c21574582047794601b
+To: Guido Trentalancia <guido@trentalancia.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: selinux_check_passwd_access() behaviour when passwd class does
+ not exist
+References: <1257201838.24413.20.camel@tesla.lan>	 <4AF02C79.30806@redhat.com> <1257280144.3005.86.camel@tesla.lan>
+In-Reply-To: <1257280144.3005.86.camel@tesla.lan>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e68f9c21574582047794601b
-Content-Type: text/plain; charset=ISO-8859-1
+Guido Trentalancia wrote:
+> On Tue, 03/11/2009 08.13 -0500, Daniel J Walsh wrote:
+> 
+>> I am not sure,  I think it could be argued that this function should not be in libselinux at all, since it hard codes policy into the library.
+>>
+>> I think you need to start setting the errno if you are going to change the function ENOSUPP for this error versus EPERM for the other error, and then all users (passwd?) of the function need to change to look at the errno.
+>>
+> 
+> Or if the intent is just to remove the hard-coded word "passwd" from the
+> libselinux code, then it is possible to use SECCLASS_PASSWD defined in
+> flask.h as follows:
 
-I have two selinux users that need to be able to stop and start the mysql
-daemon, which is started by the initialization scripts.  When the daemon is
-stopped and started by the secadm_u user, it ends up in the context
-secadm_u:secadm_r:mysqld_t.  When it is stopped and started by the dbadm_u
-user, it ends up in the dbadm_u:dbadm_r:mysqld_t context.  When it is
-started by the init scripts it ends up in the system_u:system_r:mysqld_t
-domain.
+It goes against the times.
 
-I would like it to alway end up in the system_r:mysqld_t domain, but can't
-seem to find any documentation that describes how to get that to work.
+The string_to_security_class(3) enables applications to perform correctly
+independent from the security policy.
+In principle, user can provide its own security policy with its own set
+of object classes and permissions. It can have its own code, and it may
+not equivalent to SECCLASS_PASSWD.
 
-If I add a role_transition rule to transition the role to system_r when the
-executable is run:
-role_transition sysadm_r mysqld_safe_exec_t system_r;
-role_transition dbadm_r  mysqld_safe_exec_t system_r;
-I end up getting these errors:
+My suggestion is to apply security_deny_unknown(3) which returns a preferable
+behavior when application requires undefined object classes/permissions.
 
-Nov  4 15:41:36 localhost kernel: type=1401 audit(1257378096.775:46):
-security_compute_sid:  invalid context dbadm_u:system_r:mysqld_safe_t:s0 for
-scontext=dbadm_u:dbadm_r:initrc_t:s0
-tcontext=system_u:object_r:mysqld_safe_exec_t:s0 tclass=process
+Thanks,
 
-I believe I have the rules that should allow this, but obviously I am
-missing something.
-role dbadm_r types mysqld_safe_t;
-role sysadm_r types mysqld_safe_t;
-role system_r types mysqld_safe_t;
-and this:
-allow initrc_t mysqld_safe_t : process transition ;
-which is what the "security_compute_sid" message looks like it is missing.
+> --- libselinux/src/checkAccess.c.orig   2009-11-03 21:11:21.000000000
+> +0100
+> +++ libselinux/src/checkAccess.c        2009-11-03 21:13:44.000000000
+> +0100
+> @@ -17,13 +17,9 @@ int selinux_check_passwd_access(access_v
+>                 struct av_decision avd;
+>                 int retval;
+>  
+> -               passwd_class = string_to_security_class("passwd");
+> -               if (passwd_class == 0)
+> -                       return 0;
+> -
+>                 retval = security_compute_av_raw(user_context,
+>                                                      user_context,
+> -                                                    passwd_class,
+> +                                                    SECCLASS_PASSWD,
+>                                                      requested,
+>                                                      &avd);
+> 
+> This solution shortens the code and also avoids the issue that might
+> arise if such a security object class is not defined, because the
+> library simply won't compile...
+> 
+> Guido
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
-Does anyone know where I can find a good description of how to get a service
-to transistion back into system_r when started by a user or have any idea
-what I am missing?
 
-  Thank you,
-  Larry
-
---0016e68f9c21574582047794601b
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div>I have two selinux users that need to be able to stop and start the my=
-sql daemon, which is started by the initialization scripts.=A0 When the dae=
-mon is stopped and started by the secadm_u user, it ends up in the context =
-secadm_u:secadm_r:mysqld_t.=A0 When it is stopped and started by the dbadm_=
-u user, it ends up in=A0the dbadm_u:dbadm_r:mysqld_t context.=A0 When it is=
- started by the init scripts it ends up in the system_u:system_r:mysqld_t d=
-omain.</div>
-
-<div>=A0</div>
-<div>I would like it to alway end up in the system_r:mysqld_t domain, but c=
-an&#39;t seem to find any documentation that describes how to get that to w=
-ork.</div>
-<div>=A0</div>
-<div>If I add a role_transition rule to transition the role to system_r whe=
-n the executable is run:</div>
-<div>role_transition sysadm_r mysqld_safe_exec_t system_r;<br>role_transiti=
-on dbadm_r=A0 mysqld_safe_exec_t system_r;<br></div>
-<div>I end up getting these errors:</div>
-<div>=A0</div>
-<div>Nov=A0 4 15:41:36 localhost kernel: type=3D1401 audit(1257378096.775:4=
-6): security_compute_sid:=A0 invalid context dbadm_u:system_r:mysqld_safe_t=
-:s0 for scontext=3Ddbadm_u:dbadm_r:initrc_t:s0 tcontext=3Dsystem_u:object_r=
-:mysqld_safe_exec_t:s0 tclass=3Dprocess<br>
-</div>
-<div>=A0</div>
-<div>I believe I have the rules that should allow this, but obviously I am =
-missing something.</div>
-<div>role dbadm_r types mysqld_safe_t;<br>role sysadm_r types mysqld_safe_t=
-;<br>role system_r types mysqld_safe_t;<br></div>
-<div>and this:</div>
-<div>allow initrc_t mysqld_safe_t : process transition ;</div>
-<div>which is what the &quot;security_compute_sid&quot; message looks like =
-it is missing.</div>
-<div>=A0</div>
-<div>Does anyone know where I can find a good description of how to get a s=
-ervice to transistion back into system_r when started by a user or have any=
- idea what I am missing?</div>
-<div>=A0</div>
-<div>=A0 Thank you,</div>
-<div>=A0=A0Larry</div>
-<div>=A0</div>
-
---0016e68f9c21574582047794601b--
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
