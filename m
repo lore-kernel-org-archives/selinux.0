@@ -1,86 +1,84 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nA59dKuL009462
-	for <selinux@tycho.nsa.gov>; Thu, 5 Nov 2009 04:39:20 -0500
-Received: from ey-out-1920.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nA59cK40003552
-	for <selinux@tycho.nsa.gov>; Thu, 5 Nov 2009 09:38:21 GMT
-Received: by ey-out-1920.google.com with SMTP id 3so1686723eyh.32
-        for <selinux@tycho.nsa.gov>; Thu, 05 Nov 2009 01:39:17 -0800 (PST)
-Subject: Re: "security_compute_sid: invalid context" error when
- starting/stopping mysqld daemon
-From: Dominick Grift <domg472@gmail.com>
-To: Larry Ross <selinux.larry@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
-References: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 05 Nov 2009 10:39:14 +0100
-Message-Id: <1257413954.3483.4.camel@localhost>
-Mime-Version: 1.0
+Message-ID: <4AF2E55A.6080502@manicmethod.com>
+Date: Thu, 05 Nov 2009 09:46:50 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: Guido Trentalancia <guido@trentalancia.com>, SELinux@tycho.nsa.gov
+Subject: Re: selinux_check_passwd_access() behaviour when passwd class does
+ not exist
+References: <1257201838.24413.20.camel@tesla.lan>	 <4AF02C79.30806@redhat.com> <1257280144.3005.86.camel@tesla.lan> <4AF21A47.4000303@ak.jp.nec.com>
+In-Reply-To: <4AF21A47.4000303@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-11-04 at 15:57 -0800, Larry Ross wrote:
-> I have two selinux users that need to be able to stop and start the
-> mysql daemon, which is started by the initialization scripts.  When
-> the daemon is stopped and started by the secadm_u user, it ends up in
-> the context secadm_u:secadm_r:mysqld_t.  When it is stopped and
-> started by the dbadm_u user, it ends up in the
-> dbadm_u:dbadm_r:mysqld_t context.  When it is started by the init
-> scripts it ends up in the system_u:system_r:mysqld_t domain.
->  
-> I would like it to alway end up in the system_r:mysqld_t domain, but
-> can't seem to find any documentation that describes how to get that to
-> work.
->  
-> If I add a role_transition rule to transition the role to system_r
-> when the executable is run:
-> role_transition sysadm_r mysqld_safe_exec_t system_r;
-> role_transition dbadm_r  mysqld_safe_exec_t system_r;
+
+
+KaiGai Kohei wrote:
+> Guido Trentalancia wrote:
+>> On Tue, 03/11/2009 08.13 -0500, Daniel J Walsh wrote:
+>>
+>>> I am not sure,  I think it could be argued that this function should not be in libselinux at all, since it hard codes policy into the library.
+>>>
+>>> I think you need to start setting the errno if you are going to change the function ENOSUPP for this error versus EPERM for the other error, and then all users (passwd?) of the function need to change to look at the errno.
+>>>
+>> Or if the intent is just to remove the hard-coded word "passwd" from the
+>> libselinux code, then it is possible to use SECCLASS_PASSWD defined in
+>> flask.h as follows:
 > 
-> I end up getting these errors:
->  
-> Nov  4 15:41:36 localhost kernel: type=1401 audit(1257378096.775:46):
-> security_compute_sid:  invalid context
-> dbadm_u:system_r:mysqld_safe_t:s0 for
-> scontext=dbadm_u:dbadm_r:initrc_t:s0
-> tcontext=system_u:object_r:mysqld_safe_exec_t:s0 tclass=process
+> It goes against the times.
 > 
->  
-> I believe I have the rules that should allow this, but obviously I am
-> missing something.
-> role dbadm_r types mysqld_safe_t;
-> role sysadm_r types mysqld_safe_t;
-> role system_r types mysqld_safe_t;
+> The string_to_security_class(3) enables applications to perform correctly
+> independent from the security policy.
+> In principle, user can provide its own security policy with its own set
+> of object classes and permissions. It can have its own code, and it may
+> not equivalent to SECCLASS_PASSWD.
 > 
-> and this:
-> allow initrc_t mysqld_safe_t : process transition ;
-> which is what the "security_compute_sid" message looks like it is
-> missing.
->  
-> Does anyone know where I can find a good description of how to get a
-> service to transistion back into system_r when started by a user or
-> have any idea what I am missing?
 
-I am not sure but i believe that this piece of policy takes care of the
-init scipt stuff for restricted administators (example from apache).
+Correct, we are moving away from hardcoded offsets and using the values
+for the loaded policy  (exposed by the kernel in /selinux/class)
 
-	init_labeled_script_domtrans($1, httpd_initrc_exec_t)
-	domain_system_change_exemption($1)
-	role_transition $2 httpd_initrc_exec_t system_r;
-	allow $2 system_r;
+> My suggestion is to apply security_deny_unknown(3) which returns a preferable
+> behavior when application requires undefined object classes/permissions.
+> 
 
-You could basically replace the httpd specifics, and the $1 (domain),
-and $2 (role).
+Also agreed.
 
-Also make sure that you map the system_r role to your seuser.
-
-hth, 
->   Thank you,
->   Larry
->  
-
-
+> Thanks,
+> 
+>> --- libselinux/src/checkAccess.c.orig   2009-11-03 21:11:21.000000000
+>> +0100
+>> +++ libselinux/src/checkAccess.c        2009-11-03 21:13:44.000000000
+>> +0100
+>> @@ -17,13 +17,9 @@ int selinux_check_passwd_access(access_v
+>>                  struct av_decision avd;
+>>                  int retval;
+>>
+>> -               passwd_class = string_to_security_class("passwd");
+>> -               if (passwd_class == 0)
+>> -                       return 0;
+>> -
+>>                  retval = security_compute_av_raw(user_context,
+>>                                                       user_context,
+>> -                                                    passwd_class,
+>> +                                                    SECCLASS_PASSWD,
+>>                                                       requested,
+>>                                                       &avd);
+>>
+>> This solution shortens the code and also avoids the issue that might
+>> arise if such a security object class is not defined, because the
+>> library simply won't compile...
+>>
+>> Guido
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
+> 
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
