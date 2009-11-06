@@ -1,84 +1,71 @@
-Message-ID: <4AF2E55A.6080502@manicmethod.com>
-Date: Thu, 05 Nov 2009 09:46:50 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <4AF482CA.4090109@tycho.nsa.gov>
+Date: Fri, 06 Nov 2009 15:10:50 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: Guido Trentalancia <guido@trentalancia.com>, SELinux@tycho.nsa.gov
-Subject: Re: selinux_check_passwd_access() behaviour when passwd class does
- not exist
-References: <1257201838.24413.20.camel@tesla.lan>	 <4AF02C79.30806@redhat.com> <1257280144.3005.86.camel@tesla.lan> <4AF21A47.4000303@ak.jp.nec.com>
-In-Reply-To: <4AF21A47.4000303@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Larry Ross <selinux.larry@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: "security_compute_sid: invalid context" error when starting/stopping
+ 	mysqld daemon
+References: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
+In-Reply-To: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On 11/04/2009 06:57 PM, Larry Ross wrote:
+> I have two selinux users that need to be able to stop and start the
+> mysql daemon, which is started by the initialization scripts.  When
+> the daemon is stopped and started by the secadm_u user, it ends up in
+> the context secadm_u:secadm_r:mysqld_t.  When it is stopped and
+> started by the dbadm_u user, it ends up in the
+> dbadm_u:dbadm_r:mysqld_t context.  When it is started by the init
+> scripts it ends up in the system_u:system_r:mysqld_t domain.
+>  
+> I would like it to alway end up in the system_r:mysqld_t domain, but
+> can't seem to find any documentation that describes how to get that to
+> work.
+>  
+> If I add a role_transition rule to transition the role to system_r
+> when the executable is run:
+> role_transition sysadm_r mysqld_safe_exec_t system_r;
+> role_transition dbadm_r  mysqld_safe_exec_t system_r;
+> I end up getting these errors:
+>  
+> Nov  4 15:41:36 localhost kernel: type=1401 audit(1257378096.775:46):
+> security_compute_sid:  invalid context
+> dbadm_u:system_r:mysqld_safe_t:s0 for
+> scontext=dbadm_u:dbadm_r:initrc_t:s0
+> tcontext=system_u:object_r:mysqld_safe_exec_t:s0 tclass=process
+>  
+> I believe I have the rules that should allow this, but obviously I am
+> missing something.
+> role dbadm_r types mysqld_safe_t;
+> role sysadm_r types mysqld_safe_t;
+> role system_r types mysqld_safe_t;
+> and this:
+> allow initrc_t mysqld_safe_t : process transition ;
+> which is what the "security_compute_sid" message looks like it is missing.
+>  
+> Does anyone know where I can find a good description of how to get a
+> service to transistion back into system_r when started by a user or
+> have any idea what I am missing?
 
 
-KaiGai Kohei wrote:
-> Guido Trentalancia wrote:
->> On Tue, 03/11/2009 08.13 -0500, Daniel J Walsh wrote:
->>
->>> I am not sure,  I think it could be argued that this function should not be in libselinux at all, since it hard codes policy into the library.
->>>
->>> I think you need to start setting the errno if you are going to change the function ENOSUPP for this error versus EPERM for the other error, and then all users (passwd?) of the function need to change to look at the errno.
->>>
->> Or if the intent is just to remove the hard-coded word "passwd" from the
->> libselinux code, then it is possible to use SECCLASS_PASSWD defined in
->> flask.h as follows:
-> 
-> It goes against the times.
-> 
-> The string_to_security_class(3) enables applications to perform correctly
-> independent from the security policy.
-> In principle, user can provide its own security policy with its own set
-> of object classes and permissions. It can have its own code, and it may
-> not equivalent to SECCLASS_PASSWD.
-> 
+The run_init program was designed to solve this problem, take a look at
+the man page.
 
-Correct, we are moving away from hardcoded offsets and using the values
-for the loaded policy  (exposed by the kernel in /selinux/class)
+On Fedora at least, the "service" command calls run_init internally, so
+doing "service mysqld start" should in theory start it up in the
+system_r role.  If you're just running "/etc/init.d/mysld start" it
+won't transition.
 
-> My suggestion is to apply security_deny_unknown(3) which returns a preferable
-> behavior when application requires undefined object classes/permissions.
-> 
 
-Also agreed.
 
-> Thanks,
-> 
->> --- libselinux/src/checkAccess.c.orig   2009-11-03 21:11:21.000000000
->> +0100
->> +++ libselinux/src/checkAccess.c        2009-11-03 21:13:44.000000000
->> +0100
->> @@ -17,13 +17,9 @@ int selinux_check_passwd_access(access_v
->>                  struct av_decision avd;
->>                  int retval;
->>
->> -               passwd_class = string_to_security_class("passwd");
->> -               if (passwd_class == 0)
->> -                       return 0;
->> -
->>                  retval = security_compute_av_raw(user_context,
->>                                                       user_context,
->> -                                                    passwd_class,
->> +                                                    SECCLASS_PASSWD,
->>                                                       requested,
->>                                                       &avd);
->>
->> This solution shortens the code and also avoids the issue that might
->> arise if such a security object class is not defined, because the
->> library simply won't compile...
->>
->> Guido
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
-> 
-> 
+-- 
+
+Eamon Walsh 
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
