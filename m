@@ -1,218 +1,39 @@
-Subject: Re: "security_compute_sid: invalid context" error when
- starting/stopping mysqld daemon
-From: Dominick Grift <domg472@gmail.com>
-To: Larry Ross <selinux.larry@gmail.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        paul@city-fan.org
-In-Reply-To: <81092d890911091254g1b9616e6l54d352ab51610b07@mail.gmail.com>
-References: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
-	 <4AF482CA.4090109@tycho.nsa.gov>
-	 <81092d890911061239t22c15f7p9aa4c907962de8cf@mail.gmail.com>
-	 <20091106221120.GA4921@notebook3.grift.internal>
-	 <4AF4AFFC.9060505@tycho.nsa.gov>
-	 <81092d890911091254g1b9616e6l54d352ab51610b07@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 09 Nov 2009 22:27:24 +0100
-Message-Id: <1257802044.31440.4.camel@localhost>
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <alpine.LRH.2.00.0911040821370.29216@tundra.namei.org>
+References: <20091103163532.28449.1998.stgit@paris.rdu.redhat.com>
+	 <alpine.LRH.2.00.0911040821370.29216@tundra.namei.org>
+Date: Mon, 9 Nov 2009 17:16:54 -0500
+Message-ID: <7e0fb38c0911091416v15250425nc7e98fcc0004871e@mail.gmail.com>
+Subject: Re: [PATCH] security: report the module name to security_module_request
+From: Eric Paris <eparis@parisplace.org>
+To: James Morris <jmorris@namei.org>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-11-09 at 12:54 -0800, Larry Ross wrote:
-> On Fri, Nov 6, 2009 at 3:23 PM, Eamon Walsh <ewalsh@tycho.nsa.gov>
-> wrote:
->         
->         On 11/06/2009 05:11 PM, Dominick Grift wrote:
->         > On Fri, Nov 06, 2009 at 12:39:57PM -0800, Larry Ross wrote:
->         >
->         >> On Fri, Nov 6, 2009 at 12:10 PM, Eamon Walsh
->         <ewalsh@tycho.nsa.gov> wrote:
->         >>
->         >>
->         >>>  On 11/04/2009 06:57 PM, Larry Ross wrote:
->         >>>
->         >>>> I have two selinux users that need to be able to stop and
->         start the
->         >>>> mysql daemon, which is started by the initialization
->         scripts.  When
->         >>>> the daemon is stopped and started by the secadm_u user,
->         it ends up in
->         >>>> the context secadm_u:secadm_r:mysqld_t.  When it is
->         stopped and
->         >>>> started by the dbadm_u user, it ends up in the
->         >>>> dbadm_u:dbadm_r:mysqld_t context.  When it is started by
->         the init
->         >>>> scripts it ends up in the system_u:system_r:mysqld_t
->         domain.
->         >>>>
->         >>>> I would like it to alway end up in the system_r:mysqld_t
->         domain, but
->         >>>> can't seem to find any documentation that describes how
->         to get that to
->         >>>> work.
->         >>>>
->         >>>> If I add a role_transition rule to transition the role to
->         system_r
->         >>>> when the executable is run:
->         >>>> role_transition sysadm_r mysqld_safe_exec_t system_r;
->         >>>> role_transition dbadm_r  mysqld_safe_exec_t system_r;
->         >>>> I end up getting these errors:
->         >>>>
->         >>>> Nov  4 15:41:36 localhost kernel: type=1401
->         audit(1257378096.775:46):
->         >>>> security_compute_sid:  invalid context
->         >>>> dbadm_u:system_r:mysqld_safe_t:s0 for
->         >>>> scontext=dbadm_u:dbadm_r:initrc_t:s0
->         >>>> tcontext=system_u:object_r:mysqld_safe_exec_t:s0
->         tclass=process
->         >>>>
->         >>>> I believe I have the rules that should allow this, but
->         obviously I am
->         >>>> missing something.
->         >>>> role dbadm_r types mysqld_safe_t;
->         >>>> role sysadm_r types mysqld_safe_t;
->         >>>> role system_r types mysqld_safe_t;
->         >>>> and this:
->         >>>> allow initrc_t mysqld_safe_t : process transition ;
->         >>>> which is what the "security_compute_sid" message looks
->         like it is
->         >>>>
->         >>> missing.
->         >>>
->         >>>> Does anyone know where I can find a good description of
->         how to get a
->         >>>> service to transistion back into system_r when started by
->         a user or
->         >>>> have any idea what I am missing?
->         >>>>
->         >>>
->         >>> The run_init program was designed to solve this problem,
->         take a look at
->         >>> the man page.
->         >>>
->         >>> On Fedora at least, the "service" command calls run_init
->         internally, so
->         >>> doing "service mysqld start" should in theory start it up
->         in the
->         >>> system_r role.  If you're just running "/etc/init.d/mysld
->         start" it
->         >>> won't transition.
->         >>>
->         >>>
->         >> That would be great, but I am trying to use this as normal
->         users on a system
->         >> to which the root account is locked.  As far as I know,
->         run_init always asks
->         >> for the root password.  Is there a way to use it without
->         having access to
->         >> the root password?
->         >>
->         > I think you can use pam_rootok in /etc/pam.d/run_init. I
->         dont know the details of the top of my head because i use
->         Fedora and the policy that i posted earlier so that i
->         automatically transition to initrc_t without run_init.
->         >
->         
->         
->         
->         Yes, /etc/pam.d/run_init controls the password check done by
->         run_init.
->         Also, it only asks for the password of whatever user is
->         running it, not
->         always the root password.  The only reason it asks for a
->         password is to
->         verify that a human is present.
->         
->         "run_init id -Z" from sysadm_r should print out
->         "system_u:system_r:initrc_t".  Other roles might need the
->         following line
->         of policy to be able to run run_init (using the example of
->         staff):
->         
->         seutil_run_runinit(staff_t, staff_r)
->         
->         The policy snippet Dominick posted earlier also works.
->  
-> I get a syntax error when I try to use that snippet:
->  
-> # make -f /usr/share/selinux/devel/Makefile
-> Compiling strict appmysql module
-> /usr/bin/checkmodule:  loading policy configuration from
-> tmp/appmysql.tmp
-> appmysql.te:62:ERROR 'syntax error' at token
-> 'init_labeled_script_domtrans' on line 92695:
-> init_labeled_script_domtrans(mysqld_safe_t, mysqld_safe_exec_t)
-> /usr/bin/checkmodule:  error(s) encountered while parsing
-> configuration
-> make: *** [tmp/appmysql.mod] Error 1
-> 
-> is init_labeled_script_domtrans defined for RHEL 5.3?  I see it used
-> in the files below: 
->  
-> /usr/src/redhat/BUILD/serefpolicy-2.4.6/policy/modules/services/virt.if:        init_labeled_script_domtrans($1, virtd_initrc_exec_t)
-> /usr/src/redhat/BUILD/serefpolicy-2.4.6/policy/modules/services/avahi.if:       init_labeled_script_domtrans($1, avahi_initrc_exec_t)
-> /usr/src/redhat/BUILD/serefpolicy-2.4.6/policy/modules/services/spamassassin.if:        init_labeled_script_domtrans($1,spamd_script_exec_t)
-> 
-> but I don't see it defined anywhere.  
+On Tue, Nov 3, 2009 at 4:22 PM, James Morris <jmorris@namei.org> wrote:
+> On Tue, 3 Nov 2009, Eric Paris wrote:
+>
+>> For SELinux to do better filtering in userspace we send the name of the
+>> module along with the AVC denial when a program is denied module_request.
+>>
+>> Example output:
+>>
+>> type=SYSCALL msg=audit(11/03/2009 10:59:43.510:9) : arch=x86_64 syscall=write success=yes exit=2 a0=3 a1=7fc28c0d56c0 a2=2 a3=7fffca0d7440 items=0 ppid=1727 pid=1729 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=rpc.nfsd exe=/usr/sbin/rpc.nfsd subj=system_u:system_r:nfsd_t:s0 key=(null)
+>> type=AVC msg=audit(11/03/2009 10:59:43.510:9) : avc:  denied  { module_request } for  pid=1729 comm=rpc.nfsd kmod="net-pf-10" scontext=system_u:system_r:nfsd_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=system
+>>
+>> Signed-off-by: Eric Paris <eparis@redhat.com>
+>
+> Needs to be reviewed on the LSM list.. (cc'd)
 
-If it is there then it should be defined in init.if.
+Probably no comment since SELinux is the only LSM to implement this
+hook.  Are we good now?
 
-You could simply add this to your mysqladm interface file:
-
-########################################
-## <summary>
-##	Transition to the init script domain
-##	on a specified labeled init script.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	Domain allowed access.
-##	</summary>
-## </param>
-## <param name="init_script_file">
-##	<summary>
-##	Labeled init script file.
-##	</summary>
-## </param>
-#
-interface(`init_labeled_script_domtrans',`
-	gen_require(`
-		type initrc_t;
-	')
-
-	domtrans_pattern($1, $2, initrc_t)
-	files_search_etc($1)
-')
-
-That should atleast make it work for that module. Hopefully the other
-policy in the snippit is supported.
-
->   -- Larry
->  
->         
->         
->         
->         >
->         > BTW, I am using RHEL 5.3, do you know if service there calls
->         run_init
->         > internally?
->         
->         
->         I was mistaken about this, as pointed out by Paul, service
->         doesn't call
->         run_init.
->         
->         
->         
->         --
->         
->         
->         Eamon Walsh
->         National Security Agency
->         
->         
-> 
-
+-Eric
 
 
 --
