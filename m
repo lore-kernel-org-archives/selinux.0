@@ -1,183 +1,452 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAA01nlA031181
-	for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2009 19:01:49 -0500
-Received: from mail55.messagelabs.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAA03nJO028126
-	for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2009 00:03:49 GMT
-Received: from il06exr04.mot.com (il06exr04.mot.com [129.188.137.134])
-	by motgate8.mot.com (8.14.3/8.14.3) with ESMTP id nAA01lkd020447
-	for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2009 17:01:47 -0700 (MST)
-Received: from il06vts02.mot.com (il06vts02.mot.com [129.188.137.142])
-	by il06exr04.mot.com (8.13.1/Vontu) with SMTP id nAA01lv8006629
-	for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2009 18:01:47 -0600 (CST)
-Received: from de01exm68.ds.mot.com (de01exm68.am.mot.com [10.176.8.24])
-	by il06exr04.mot.com (8.13.1/8.13.0) with ESMTP id nAA01l0s006626
-	for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2009 18:01:47 -0600 (CST)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Where do I get a good Policy Base ?...
-Date: Mon, 9 Nov 2009 19:01:24 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com>
-In-Reply-To: <1256633374.3090.13.camel@localhost>
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com> <4AD9AD06.9030309@redhat.com> <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com> <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil> <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com> <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil> <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com> <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com> <1256633374.3090.13.camel@localhost>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Dominick Grift" <domg472@gmail.com>
-Cc: <selinux@tycho.nsa.gov>
+Date: Tue, 10 Nov 2009 16:16:04 -0500
+Subject: Re: load_policy has to be moved to /sbin from /usr/sbin to handle
+ initrd executing load_policy
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <C71F4244.AFD49%csellers@tresys.com>
+In-Reply-To: <4AC3A078.8040404@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for your answers   :-)
+On 9/30/09 2:16 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-A quick follow up question...
+> On 09/30/2009 01:59 PM, Stephen Smalley wrote:
+>> On Wed, 2009-09-30 at 13:56 -0400, Daniel J Walsh wrote:
+>>> Ubunto and Fedora have moved to a model where the initrd executes
+>>> load_policy -i.
+>>> 
+>>> This means load_policy has to be in /sbin since /usr might not be mounted.
+>> 
+>> We had a similar change happen for setfiles, and if you look a little
+>> further down in semanage_conf_init(), you'll see that we call access()
+>> to check whether setfiles lives in /sbin or /usr/sbin and then set it
+>> accordingly.  You'll want to do the same thing here to avoid breakage on
+>> systems that still have it in the old location.
+>> 
+> Fixed patch.
+>
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index 23661bf..931448f 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -263,7 +263,13 @@ static int semanage_conf_init(semanage_conf_t * conf)
+>           calloc(1, sizeof(*(current_conf->load_policy)))) == NULL) {
+>          return -1;
+>      }
+> -    if ((conf->load_policy->path = strdup("/usr/sbin/load_policy")) == NULL)
+> {
+> +
+> +    if (access("/sbin/load_policy", X_OK) == 0) {
+> +        conf->load_policy->path = strdup("/sbin/load_policy");
+> +    } else {
+> +        conf->load_policy->path = strdup("/usr/sbin/load_policy");
+> +    }
+> +    if (conf->load_policy->path == NULL)
 
-What would be the most appropriate Fedora selinux-policy that I can
-start off with as a base to build on top of, Given:
+You're missing a { there (meaning this doesn't compile...).
 
-that I have Linux 2.6.27,  and I have the following latest SELinux
-package versions :
+>          return -1;
+>      }
+>      conf->load_policy->args = NULL;
+> diff --git a/libsemanage/src/semanage.py b/libsemanage/src/semanage.py
+> index 7c05df9..29208dd 100644
+> --- a/libsemanage/src/semanage.py
+> +++ b/libsemanage/src/semanage.py
 
-> checkpolicy-2.0.19
-> libselinux-2.0.85
-> libsemanage-2.0.33
-> libsepol-2.0.37
-> policycoreutils-2.0.69
-> sepolgen-1.0.17
+Did you mean to include all the python stuff here? I'm guessing that was
+included by accident?
 
-Should I use Fedora 11 -   
-download.fedora.redhat.com/pub/fedora/linux/development/i386/os/Packages
-/selinux-policy-3.6.6-5.fc11.noarch.rpm
+> @@ -1,5 +1,5 @@
+>  # This file was automatically generated by SWIG (http://www.swig.org).
+> -# Version 1.3.39
+> +# Version 1.3.40
+>  #
+>  # Do not make changes to this file unless you know what you are doing--modify
+>  # the SWIG interface file instead.
+> @@ -21,7 +21,7 @@ if version_info >= (2,6,0):
+>                  _mod = imp.load_module('_semanage', fp, pathname,
+> description)
+>              finally:
+>                  fp.close()
+> -                return _mod
+> +            return _mod
+>      _semanage = swig_import_helper()
+>      del swig_import_helper
+>  else:
+> @@ -184,6 +184,14 @@ def semanage_module_install_base_file(*args):
+>    return _semanage.semanage_module_install_base_file(*args)
+>  semanage_module_install_base_file =
+> _semanage.semanage_module_install_base_file
+>  
+> +def semanage_module_enable(*args):
+> +  return _semanage.semanage_module_enable(*args)
+> +semanage_module_enable = _semanage.semanage_module_enable
+> +
+> +def semanage_module_disable(*args):
+> +  return _semanage.semanage_module_disable(*args)
+> +semanage_module_disable = _semanage.semanage_module_disable
+> +
+>  def semanage_module_remove(*args):
+>    return _semanage.semanage_module_remove(*args)
+>  semanage_module_remove = _semanage.semanage_module_remove
+> @@ -208,6 +216,10 @@ def semanage_module_get_version(*args):
+>    return _semanage.semanage_module_get_version(*args)
+>  semanage_module_get_version = _semanage.semanage_module_get_version
+>  
+> +def semanage_module_get_enabled(*args):
+> +  return _semanage.semanage_module_get_enabled(*args)
+> +semanage_module_get_enabled = _semanage.semanage_module_get_enabled
+> +
+>  def semanage_context_get_user(*args):
+>    return _semanage.semanage_context_get_user(*args)
+>  semanage_context_get_user = _semanage.semanage_context_get_user
+> diff --git a/libsemanage/src/semanageswig_wrap.c
+> b/libsemanage/src/semanageswig_wrap.c
+> index 09e12aa..2e8946c 100644
+> --- a/libsemanage/src/semanageswig_wrap.c
+> +++ b/libsemanage/src/semanageswig_wrap.c
+> @@ -1,6 +1,6 @@
+>  /* 
+> ----------------------------------------------------------------------------
+>   * This file was automatically generated by SWIG (http://www.swig.org).
+> - * Version 1.3.39
+> + * Version 1.3.40
+>   * 
+>   * This file is not intended to be easily readable and contains a number of
+>   * coding conventions designed to improve portability and efficiency. Do not
+> make
+> @@ -725,7 +725,7 @@ SWIG_UnpackDataName(const char *c, void *ptr, size_t sz,
+> const char *name) {
+>  
+>  
+>  
+> -/* Compatibility marcos for Python 3 */
+> +/* Compatibility macros for Python 3 */
+>  #if PY_VERSION_HEX >= 0x03000000
+>  
+>  #define PyClass_Check(obj) PyObject_IsInstance(obj, (PyObject *)&PyType_Type)
+> @@ -758,7 +758,7 @@ SWIG_Python_str_AsChar(PyObject *str)
+>  #if PY_VERSION_HEX >= 0x03000000
+>    char *cstr;
+>    char *newstr;
+> -  int len;
+> +  Py_ssize_t len;
+>    str = PyUnicode_AsUTF8String(str);
+>    PyBytes_AsStringAndSize(str, &cstr, &len);
+>    newstr = (char *) malloc(len+1);
+> @@ -1448,9 +1448,7 @@ SwigPyObject_repr(SwigPyObject *v, PyObject *args)
+>  #endif
+>  {
+>    const char *name = SWIG_TypePrettyName(v->ty);
+> -  PyObject *hex = SwigPyObject_hex(v);
+> -  PyObject *repr = SWIG_Python_str_FromFormat("<Swig Object of type '%s' at
+> %p>", name, hex);
+> -  Py_DECREF(hex);
+> +  PyObject *repr = SWIG_Python_str_FromFormat("<Swig Object of type '%s' at
+> %p>", name, v);
+>    if (v->next) {
+>  #ifdef METH_NOARGS
+>      PyObject *nrep = SwigPyObject_repr((SwigPyObject *)v->next);
+> @@ -1505,7 +1503,7 @@ SwigPyObject_compare(SwigPyObject *v, SwigPyObject *w)
+>    return (i < j) ? -1 : ((i > j) ? 1 : 0);
+>  }
+>  
+> -/* Added for Python 3.x, whould it also useful for Python 2.x? */
+> +/* Added for Python 3.x, would it also be useful for Python 2.x? */
+>  SWIGRUNTIME PyObject*
+>  SwigPyObject_richcompare(SwigPyObject *v, SwigPyObject *w, int op)
+>  {
+> @@ -1553,7 +1551,7 @@ SwigPyObject_dealloc(PyObject *v)
+>        /* destroy is always a VARARGS method */
+>        PyObject *res;
+>        if (data->delargs) {
+> -    /* we need to create a temporal object to carry the destroy operation */
+> +    /* we need to create a temporary object to carry the destroy operation */
+>      PyObject *tmp = SwigPyObject_New(sobj->ptr, ty, 0);
+>      res = SWIG_Python_CallFunctor(destroy, tmp);
+>      Py_DECREF(tmp);
+> @@ -1754,7 +1752,7 @@ _PySwigObject_type(void) {
+>    if (!type_init) {
+>      const PyTypeObject tmp
+>        = {
+> -    /* PyOjbect header changed in Python 3 */
+> +    /* PyObject header changed in Python 3 */
+>  #if PY_VERSION_HEX >= 0x03000000
+>      PyVarObject_HEAD_INIT(&PyType_Type, 0)
+>  #else    
+> @@ -1773,7 +1771,7 @@ _PySwigObject_type(void) {
+>  #endif
+>      (setattrfunc)0,                /* tp_setattr */
+>  #if PY_VERSION_HEX >= 0x03000000
+> -    0, /* tp_reserved in 3.0.1 */
+> +    0, /* tp_reserved in 3.0.1, tp_compare in 3.0.0 but not used */
+>  #else
+>      (cmpfunc)SwigPyObject_compare,        /* tp_compare */
+>  #endif
+> @@ -1823,7 +1821,7 @@ _PySwigObject_type(void) {
+>  #endif
+>        };
+>      swigpyobject_type = tmp;
+> -    /* for Python 3 we already assigned the ob_type in
+> PyVarObject_HEAD_INIT() */
+> +    /* for Python 3 we already assigned ob_type in PyVarObject_HEAD_INIT() */
+>  #if PY_VERSION_HEX < 0x03000000
+>      swigpyobject_type.ob_type = &PyType_Type;
+>  #endif
+> @@ -2230,10 +2228,10 @@ SWIG_Python_ConvertFunctionPtr(PyObject *obj, void
+> **ptr, swig_type_info *ty) {
+>      /* here we get the method pointer for callbacks */
+>      const char *doc = (((PyCFunctionObject *)obj) -> m_ml -> ml_doc);
+>      const char *desc = doc ? strstr(doc, "swig_ptr: ") : 0;
+> -    if (desc) {
+> +    if (desc)
+>        desc = ty ? SWIG_UnpackVoidPtr(desc + 10, &vptr, ty->name) : 0;
+> -      if (!desc) return SWIG_ERROR;
+> -    }
+> +    if (!desc) 
+> +      return SWIG_ERROR;
+>      if (ty) {
+>        swig_cast_info *tc = SWIG_TypeCheck(desc,ty);
+>        if (tc) {
+> @@ -2271,7 +2269,7 @@ SWIG_Python_ConvertPacked(PyObject *obj, void *ptr,
+> size_t sz, swig_type_info *t
+>   * 
+> -----------------------------------------------------------------------------
+> */
+>  
+>  /*
+> -  Create a new instance object, whitout calling __init__, and set the
+> +  Create a new instance object, without calling __init__, and set the
+>    'this' attribute.
+>  */
+>  
+> @@ -2739,7 +2737,7 @@ static swig_module_info swig_module = {swig_types, 54,
+> 0, 0, 0, 0};
+>  #endif
+>  #define SWIG_name    "_semanage"
+>  
+> -#define SWIGVERSION 0x010339
+> +#define SWIGVERSION 0x010340
+>  #define SWIG_VERSION SWIGVERSION
+>  
+>  
+> @@ -3912,6 +3910,74 @@ fail:
+>  }
+>  
+>  
+> +SWIGINTERN PyObject *_wrap_semanage_module_enable(PyObject
+> *SWIGUNUSEDPARM(self), PyObject *args) {
+> +  PyObject *resultobj = 0;
+> +  semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
+> +  char *arg2 = (char *) 0 ;
+> +  void *argp1 = 0 ;
+> +  int res1 = 0 ;
+> +  int res2 ;
+> +  char *buf2 = 0 ;
+> +  int alloc2 = 0 ;
+> +  PyObject * obj0 = 0 ;
+> +  PyObject * obj1 = 0 ;
+> +  int result;
+> +  
+> +  if (!PyArg_ParseTuple(args,(char
+> *)"OO:semanage_module_enable",&obj0,&obj1)) SWIG_fail;
+> +  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_handle, 0 |  0 );
+> +  if (!SWIG_IsOK(res1)) {
+> +    SWIG_exception_fail(SWIG_ArgError(res1), "in method '"
+> "semanage_module_enable" "', argument " "1"" of type '" "semanage_handle_t
+> *""'"); 
+> +  }
+> +  arg1 = (semanage_handle_t *)(argp1);
+> +  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+> +  if (!SWIG_IsOK(res2)) {
+> +    SWIG_exception_fail(SWIG_ArgError(res2), "in method '"
+> "semanage_module_enable" "', argument " "2"" of type '" "char *""'");
+> +  }
+> +  arg2 = (char *)(buf2);
+> +  result = (int)semanage_module_enable(arg1,arg2);
+> +  resultobj = SWIG_From_int((int)(result));
+> +  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+> +  return resultobj;
+> +fail:
+> +  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+> +  return NULL;
+> +}
+> +
+> +
+> +SWIGINTERN PyObject *_wrap_semanage_module_disable(PyObject
+> *SWIGUNUSEDPARM(self), PyObject *args) {
+> +  PyObject *resultobj = 0;
+> +  semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
+> +  char *arg2 = (char *) 0 ;
+> +  void *argp1 = 0 ;
+> +  int res1 = 0 ;
+> +  int res2 ;
+> +  char *buf2 = 0 ;
+> +  int alloc2 = 0 ;
+> +  PyObject * obj0 = 0 ;
+> +  PyObject * obj1 = 0 ;
+> +  int result;
+> +  
+> +  if (!PyArg_ParseTuple(args,(char
+> *)"OO:semanage_module_disable",&obj0,&obj1)) SWIG_fail;
+> +  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_handle, 0 |  0 );
+> +  if (!SWIG_IsOK(res1)) {
+> +    SWIG_exception_fail(SWIG_ArgError(res1), "in method '"
+> "semanage_module_disable" "', argument " "1"" of type '" "semanage_handle_t
+> *""'"); 
+> +  }
+> +  arg1 = (semanage_handle_t *)(argp1);
+> +  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+> +  if (!SWIG_IsOK(res2)) {
+> +    SWIG_exception_fail(SWIG_ArgError(res2), "in method '"
+> "semanage_module_disable" "', argument " "2"" of type '" "char *""'");
+> +  }
+> +  arg2 = (char *)(buf2);
+> +  result = (int)semanage_module_disable(arg1,arg2);
+> +  resultobj = SWIG_From_int((int)(result));
+> +  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+> +  return resultobj;
+> +fail:
+> +  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+> +  return NULL;
+> +}
+> +
+> +
+>  SWIGINTERN PyObject *_wrap_semanage_module_remove(PyObject
+> *SWIGUNUSEDPARM(self), PyObject *args) {
+>    PyObject *resultobj = 0;
+>    semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
+> @@ -4082,6 +4148,28 @@ fail:
+>  }
+>  
+>  
+> +SWIGINTERN PyObject *_wrap_semanage_module_get_enabled(PyObject
+> *SWIGUNUSEDPARM(self), PyObject *args) {
+> +  PyObject *resultobj = 0;
+> +  semanage_module_info_t *arg1 = (semanage_module_info_t *) 0 ;
+> +  void *argp1 = 0 ;
+> +  int res1 = 0 ;
+> +  PyObject * obj0 = 0 ;
+> +  int result;
+> +  
+> +  if (!PyArg_ParseTuple(args,(char *)"O:semanage_module_get_enabled",&obj0))
+> SWIG_fail;
+> +  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_module_info, 0 |  0
+> );
+> +  if (!SWIG_IsOK(res1)) {
+> +    SWIG_exception_fail(SWIG_ArgError(res1), "in method '"
+> "semanage_module_get_enabled" "', argument " "1"" of type '"
+> "semanage_module_info_t *""'");
+> +  }
+> +  arg1 = (semanage_module_info_t *)(argp1);
+> +  result = (int)semanage_module_get_enabled(arg1);
+> +  resultobj = SWIG_From_int((int)(result));
+> +  return resultobj;
+> +fail:
+> +  return NULL;
+> +}
+> +
+> +
+>  SWIGINTERN PyObject *_wrap_semanage_context_get_user(PyObject
+> *SWIGUNUSEDPARM(self), PyObject *args) {
+>    PyObject *resultobj = 0;
+>    semanage_context_t *arg1 = (semanage_context_t *) 0 ;
+> @@ -11783,12 +11871,15 @@ static PyMethodDef SwigMethods[] = {
+>       { (char *)"semanage_module_upgrade_file",
+> _wrap_semanage_module_upgrade_file, METH_VARARGS, NULL},
+>       { (char *)"semanage_module_install_base",
+> _wrap_semanage_module_install_base, METH_VARARGS, NULL},
+>       { (char *)"semanage_module_install_base_file",
+> _wrap_semanage_module_install_base_file, METH_VARARGS, NULL},
+> +     { (char *)"semanage_module_enable", _wrap_semanage_module_enable,
+> METH_VARARGS, NULL},
+> +     { (char *)"semanage_module_disable", _wrap_semanage_module_disable,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_module_remove", _wrap_semanage_module_remove,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_module_list", _wrap_semanage_module_list,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_module_info_datum_destroy",
+> _wrap_semanage_module_info_datum_destroy, METH_VARARGS, NULL},
+>       { (char *)"semanage_module_list_nth", _wrap_semanage_module_list_nth,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_module_get_name", _wrap_semanage_module_get_name,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_module_get_version",
+> _wrap_semanage_module_get_version, METH_VARARGS, NULL},
+> +     { (char *)"semanage_module_get_enabled",
+> _wrap_semanage_module_get_enabled, METH_VARARGS, NULL},
+>       { (char *)"semanage_context_get_user", _wrap_semanage_context_get_user,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_context_set_user", _wrap_semanage_context_set_user,
+> METH_VARARGS, NULL},
+>       { (char *)"semanage_context_get_role", _wrap_semanage_context_get_role,
+> METH_VARARGS, NULL},
+> @@ -12631,7 +12722,7 @@ extern "C" {
+>          (char *)"swigvarlink",              /* Type name (tp_name) */
+>          sizeof(swig_varlinkobject),         /* Basic size (tp_basicsize) */
+>          0,                                  /* Itemsize (tp_itemsize) */
+> -        (destructor) swig_varlink_dealloc,   /* Deallocator (tp_dealloc) */
+> +        (destructor) swig_varlink_dealloc,  /* Deallocator (tp_dealloc) */
+>          (printfunc) swig_varlink_print,     /* Print (tp_print) */
+>          (getattrfunc) swig_varlink_getattr, /* get attr (tp_getattr) */
+>          (setattrfunc) swig_varlink_setattr, /* Set attr (tp_setattr) */
+> @@ -12642,7 +12733,7 @@ extern "C" {
+>          0,                                  /* tp_as_mapping */
+>          0,                                  /* tp_hash */
+>          0,                                  /* tp_call */
+> -        (reprfunc)swig_varlink_str,        /* tp_str */
+> +        (reprfunc) swig_varlink_str,        /* tp_str */
+>          0,                                  /* tp_getattro */
+>          0,                                  /* tp_setattro */
+>          0,                                  /* tp_as_buffer */
+> @@ -12663,7 +12754,7 @@ extern "C" {
+>  #endif
+>        };
+>        varlink_type = tmp;
+> -      /* for Python 3 we already assigned the ob_type in
+> PyVarObject_HEAD_INIT() */
+> +      /* for Python 3 we already assigned ob_type in PyVarObject_HEAD_INIT()
+> */
+>  #if PY_VERSION_HEX < 0x03000000
+>        varlink_type.ob_type = &PyType_Type;
+>  #endif
+> diff --git a/policycoreutils/load_policy/Makefile
+> b/policycoreutils/load_policy/Makefile
+> index 2dd2943..91dc6c8 100644
+> --- a/policycoreutils/load_policy/Makefile
+> +++ b/policycoreutils/load_policy/Makefile
+> @@ -1,6 +1,7 @@
+>  # Installation directories.
+>  PREFIX ?= ${DESTDIR}/usr
+> -SBINDIR ?= $(PREFIX)/sbin
+> +SBINDIR ?= $(DESTDIR)/sbin
+> +USRSBINDIR ?= $(PREFIX)/sbin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+>  
+> @@ -17,6 +18,8 @@ install: all
+>      install -m 755 $(TARGETS) $(SBINDIR)
+>      test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
+>      install -m 644 load_policy.8 $(MANDIR)/man8/
+> +    -mkdir -p $(USRSBINDIR)
+> +    ln -s /sbin/load_policy $(USRSBINDIR)/load_policy
+>  
+Shouldn't that be ln -sf, to make sure we blow away any old version of load
+policy that might exist in /usr/sbin?
 
-Or should I use Fedora 10 - 
-download.fedora.redhat.com/pub/fedora/linux/updates/10/i386/selinux-poli
-cy-3.5.13-45.fc10.noarch.rpm
+>  clean:
+>      -rm -f $(TARGETS) *.o
 
-Or should I use new RefPolicy from OpenSuSE -
-ftp5.gwdg.de/pub/opensuse/repositories/security:/SELinux/openSUSE_Factor
-y/noarch/selinux-policy-refpolicy-standard-2.20081210-1.8.noarch.rpm
+Assuming you don't want the python stuff, I can make the other two fixes and
+merge.
 
-
-Thanks in advance as usual for all your help.
-
-
------Original Message-----
-From: Dominick Grift [mailto:domg472@gmail.com] 
-Sent: Tuesday, October 27, 2009 3:50 AM
-To: Hasan Rezaul-CHR010
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Where do I get a good Policy Base ?...
-
-On Mon, 2009-10-26 at 21:16 -0400, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> I used to have the following SELinux related package versions on my 
-> Linux (2.6.18) system:
-> 
-> Checkpolicy      - 1.33.1
-> Libselinux       - 2.0.13
-> Libsemanage      - 2.0.1
-> Libsepol         - 2.0.3
-> Libsetrans       - 0.1.18
-> Policycoreutils  - 2.0.16
-> 
-> And I used a 'strict' Base policy from Fedora Core 6. Made the 
-> modifications I needed on top of that, and I was very happy...
-> 
-> 
-> We get our OS packaged/delivered from a third party company, and we're
-
-> upgrading to Linux 2.6.27, and as part of this upgrade, we are also 
-> migrating to much newer versions of the SELinux packages. They are:
-> 
-> checkpolicy-2.0.19
-> libselinux-2.0.85
-> libsemanage-2.0.33
-> libsepol-2.0.37
-> policycoreutils-2.0.69
-> sepolgen-1.0.17
-> 
-> 
-> My questions are:
-> 
-> 1. I believe the "strict" policy is no longer supported in the above 
-> versions of SELinux packages? Is this true ?
-
-the "strict" policy model is no longer supported. The strict and target
-policy have merged to a policy model that is called "targeted". You can
-configure the "targeted" policy to behave like old strict policy by
-removing removing the unconfined modules and by mapping your Linux
-logins to strict SELinux users.
-
-> 
-> 2. The entire set of policies that I have fine-tuned over the years 
-> under my  /etc/selinux/strict/modules/active/modules/*.pp  directory 
-> in my previous older system, can I make any use of that ?? In other 
-> words, can that stuff be re-used at all ? Or do I need to develop 
-> policy from scratch again ?
-
-I am not sure about this but my opinion is that it should  in most cases
-be possible to use older binary modules in newer policy. Reference
-policy should be compatible in my view.
-
-Please note though that is encouraged to keep the source policy for your
-binary modules so that you can edit policy modules easily later.
-> 
-> 3. What will be a good base policy for me to start policy development 
-> on ? Will it be refpolicy, or should I grab the base 'targeted' policy
-
-> from fedora core 11 for example ?
-
-This depends on your distro, but generally you should be better of with
-a distro specific policy. Also keep in mind that Fedora has a active
-community, frequent updates and many testers.
-
-> 
-> 4. Assuming 'strict' is no longer supported in the NEW package 
-> versions above, and I use a base 'targeted' policy as my starting 
-> point... Should I be able to simply remove the "unconfined.pp" policy 
-> module from the base targeted policy, and that essentially turns my 
-> system into "strict-like" mode ? Is that advisable ?
-
-That is the idea, yes,
-
-> 
-> 5. If I do continue to use the 'targeted' base policy as is, how can I
-
-> develop policy on top of that, to make sure I still block specific 
-> things that I don't want to take place. For example, I DON'T want a 
-> user_t to be able to write to files of type  etc_t  for example. How 
-> do I go about accomplishing this  given the 'targeted' framework ? I 
-> know how to do this in the old 'strict' framework, not sure how to go 
-> about it with the targeted framework. Please shed some light or point 
-> me to documents...
-
-You can write your own custom policy modules on that of the policy that
-is distributed. Current policy is usually modular. Basically write a
-source policy module, build it and install it using the semanage or the
-semodule command.
-
-e.g. (Fedora/RedHat):
-
-echo "policy_module(mytest, 0.0.1)" > mytest.te; make -f
-/usr/share/selinux/devel/Makefile mytest.pp; sudo semodule -i mytest.pp
-sudo semodule -l | grep mytest
-
-> 
-> Again, Any references or documentation links would be greatly 
-> appreciated.
-
-www.selinuxproject.org/page/User_Resources
-> 
-> Thanks in advance.
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing
-list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-quotes as the message.
-
+Thanks,
+Chad
 
 
 
