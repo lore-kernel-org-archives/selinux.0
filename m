@@ -1,243 +1,66 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAAMaCwc005284
-	for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2009 17:36:13 -0500
+Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAAMwPMB008256
+	for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2009 17:58:25 -0500
 Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id nAAMZDuC024507
-	for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2009 22:35:13 GMT
-Date: Tue, 10 Nov 2009 17:36:11 -0500
-Subject: Re: Remove setrans management from semanage
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id nAAN0PDc002571
+	for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2009 23:00:25 GMT
+Date: Tue, 10 Nov 2009 17:58:23 -0500
+Subject: Re: Fix boolean handling in semanage
 From: Chad Sellers <csellers@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Message-ID: <C71F550B.AFD50%csellers@tresys.com>
-In-Reply-To: <4AC39E75.9030907@redhat.com>
+Message-ID: <C71F5A3F.AFD53%csellers@tresys.com>
+In-Reply-To: <4AC3A237.3050908@redhat.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 9/30/09 2:07 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+On 9/30/09 2:23 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> This will not work correctly using the current mcstrans code base.  I believe
-> an admin has to edit this code directly and probably should have never been
-> added to semanage.
+> Also fix error message triggered by broken boolean handling.
 > 
-Acked-by: Chad Sellers <csellers@tresys.com>
-
-I'll update the man page as well.
-
 > diff --git a/policycoreutils/semanage/semanage
 > b/policycoreutils/semanage/semanage
-> index 2285489..ffaca5b 100644
+> index ffaca5b..437eca3 100644
 > --- a/policycoreutils/semanage/semanage
 > +++ b/policycoreutils/semanage/semanage
-> @@ -44,14 +44,13 @@ if __name__ == '__main__':
->                 text = _("""
->  semanage [ -S store ] -i [ input_file | - ]
->  
-> -semanage {boolean|login|user|port|interface|node|fcontext|translation} -{l|D}
-> [-n]
-> +semanage {boolean|login|user|port|interface|node|fcontext} -{l|D} [-n]
->  semanage login -{a|d|m} [-sr] login_name | %groupname
->  semanage user -{a|d|m} [-LrRP] selinux_name
->  semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
->  semanage interface -{a|d|m} [-tr] interface_spec
->  semanage node -{a|d|m} [-tr] [ -p protocol ] [-M netmask] addr
->  semanage fcontext -{a|d|m} [-frst] file_spec
-> -semanage translation -{a|d|m} [-T] level
->  semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
->  semanage permissive -{d|a} type
->  semanage dontaudit [ on | off ]
-> @@ -88,8 +87,6 @@ Object-specific Options (see above):
->      -P, --prefix     Prefix for home directory labeling
->      -L, --level      Default SELinux Level (MLS/MCS Systems only)
->      -R, --roles      SELinux Roles (ex: "sysadm_r staff_r")
-> -    -T, --trans      SELinux Level Translation (MLS/MCS Systems only)
-> -
->      -s, --seuser     SELinux User Name
->      -t, --type       SELinux Type for the object
->      -r, --range      MLS/MCS Security Range (MLS/MCS Systems only)
-> @@ -118,8 +115,6 @@ Object-specific Options (see above):
->          valid_option["fcontext"] = []
->          valid_option["fcontext"] += valid_everyone + [ '-f', '--ftype', '-s',
-> '--seuser',  '-t', '--type', '-r', '--range']
->          valid_option["dontaudit"] = [ '-S', '--store' ]
-> -        valid_option["translation"] = []
-> -        valid_option["translation"] += valid_everyone + [ '-T', '--trans' ]
->          valid_option["boolean"] = []
->          valid_option["boolean"] += valid_everyone + [ '--on', "--off", "-1",
-> "-0", "-F", "--file"]
->          valid_option["permissive"] = []
-> @@ -180,7 +175,6 @@ Object-specific Options (see above):
->          selevel = ""
->          setype = ""
->          ftype = ""
-> -        setrans = ""
->          roles = ""
->          seuser = ""
->          prefix = "user"
-> @@ -203,7 +197,7 @@ Object-specific Options (see above):
->          args = argv[1:]
->  
->          gopts, cmds = getopt.getopt(args,
-> -                        '01adf:i:lhmnp:s:FCDR:L:r:t:T:P:S:M:',
-> +                        '01adf:i:lhmnp:s:FCDR:L:r:t:P:S:M:',
->                          ['add',
->                           'delete',
->                           'deleteall',
-> @@ -225,7 +219,6 @@ Object-specific Options (see above):
->                           'level=',
->                           'roles=',
->                           'type=',
-> -                         'trans=',
->                           'prefix=',
->                                               'mask='
->                           ])
-> @@ -297,9 +290,6 @@ Object-specific Options (see above):
->              if o == "-t" or o == "--type":
->                  setype = a
->  
-> -            if o == "-T" or o == "--trans":
-> -                setrans = a
-> -
->                          if o == "--on" or o == "-1":
->                                 value = "on"
->                          if o == "--off" or o == "-0":
-> @@ -326,9 +316,6 @@ Object-specific Options (see above):
+> @@ -315,6 +315,7 @@ Object-specific Options (see above):
+>          
 >          if object == "boolean":
 >              OBJECT = seobject.booleanRecords(store)
+> +                        modify = True
 >          
-> -        if object == "translation":
-> -            OBJECT = seobject.setransRecords()
-> -        
+Not sure I see what was broken here. The usage and man page say you have to
+specify -d or -m to semanage boolean (which is just like all the other
+subcommands). Here you're trying to make that optional, and default to -m if
+not specified (unless I'm guessing wrong at your intentions). I'd be fine
+with that, but you broke -d in the process:
+
+# semanage boolean -d xen_use_nfs
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 461, in <module>
+    process_args(sys.argv[1:])
+  File "/usr/sbin/semanage", line 370, in process_args
+    OBJECT.modify(target, value, use_file)
+  File "/usr/lib/python2.6/site-packages/seobject.py", line 1642, in modify
+    self.__mod(name, value)
+  File "/usr/lib/python2.6/site-packages/seobject.py", line 1610, in __mod
+    if value.upper() in self.dict:
+AttributeError: 'NoneType' object has no attribute 'upper'
+
 >          if object == "permissive":
 >              OBJECT = seobject.permissiveRecords(store)
->          
-> @@ -358,9 +345,6 @@ Object-specific Options (see above):
->              if object == "login":
->                  OBJECT.add(target, seuser, serange)
+> @@ -404,7 +405,7 @@ Object-specific Options (see above):
 >  
-> -            if object == "translation":
-> -                OBJECT.add(target, setrans)
-> -
->              if object == "user":
->                  OBJECT.add(target, roles.split(), selevel, serange, prefix)
+>                          return
 >  
-> @@ -387,9 +371,6 @@ Object-specific Options (see above):
->              if object == "login":
->                  OBJECT.modify(target, seuser, serange)
+> -                raise ValueError(_("Invalid command") % " ".join(argv))
+> +                raise ValueError(_("Invalid command: semanage %s") % "
+> ".join(argv))
 >  
-> -            if object == "translation":
-> -                OBJECT.modify(target, setrans)
-> -
->              if object == "user":
->                  rlist = roles.split()
->                  OBJECT.modify(target, rlist, selevel, serange, prefix)
-> @@ -457,7 +438,6 @@ Object-specific Options (see above):
->                                              'level=',
->                                              'roles=',
->                                              'type=',
-> -                                            'trans=',
->                                              'prefix='
->                                              ])
->                 for o, a in gopts:
-> diff --git a/policycoreutils/semanage/seobject.py
-> b/policycoreutils/semanage/seobject.py
-> index 3272a12..7c94da0 100644
-> --- a/policycoreutils/semanage/seobject.py
-> +++ b/policycoreutils/semanage/seobject.py
-> @@ -195,88 +195,6 @@ def untranslate(trans, prepend = 1):
->      else:
->          return raw
->      
-> -class setransRecords:
-> -    def __init__(self):
-> -        self.filename = selinux.selinux_translations_path()
-> -        try:
-> -            fd = open(self.filename, "r")
-> -            translations = fd.readlines()
-> -            fd.close()
-> -        except IOError, e:
-> -            raise ValueError(_("Unable to open %s: translations not supported
-> on non-MLS machines: %s") % (self.filename, e) )
-> -            
-> -        self.ddict = {}
-> -        self.comments = []
-> -        for r in translations:
-> -            if len(r) == 0:
-> -                continue
-> -            i = r.strip()
-> -            if i == "" or i[0] == "#":
-> -                self.comments.append(r)
-> -                continue
-> -            i = i.split("=")
-> -            if len(i) != 2:
-> -                self.comments.append(r)
-> -                continue
-> -                        if self.ddict.has_key(i[0]) == 0:
-> -                               self.ddict[i[0]] = i[1]
-> -
-> -    def get_all(self):
-> -        return self.ddict
-> -
-> -    def out(self):
-> -        rec = ""
-> -        for c in self.comments:
-> -            rec += c
-> -        keys = self.ddict.keys()
-> -        keys.sort()
-> -        for k in keys:
-> -            rec += "%s=%s\n" %  (k, self.ddict[k])
-> -        return rec
-> -    
-> -    def list(self, heading = 1, locallist = 0):
-> -        if heading:
-> -            print "\n%-25s %s\n" % (_("Level"), _("Translation"))
-> -        keys = self.ddict.keys()
-> -        keys.sort()
-> -        for k in keys:
-> -            print "%-25s %s" % (k, self.ddict[k])
-> -        
-> -    def add(self, raw, trans):
-> -        if trans.find(" ") >= 0:
-> -            raise ValueError(_("Translations can not contain spaces '%s' ") %
-> trans)
-> -
-> -        if validate_level(raw) == None:
-> -            raise ValueError(_("Invalid Level '%s' ") % raw)
-> -        
-> -        if self.ddict.has_key(raw):
-> -            raise ValueError(_("%s already defined in translations") % raw)
-> -        else:
-> -            self.ddict[raw] = trans
-> -        self.save()
-> -    
-> -    def modify(self, raw, trans):
-> -        if trans.find(" ") >= 0:
-> -
-> -            raise ValueError(_("Translations can not contain spaces '%s' ") %
-> trans)
-> -        if self.ddict.has_key(raw):
-> -            self.ddict[raw] = trans
-> -        else:
-> -            raise ValueError(_("%s not defined in translations") % raw)
-> -        self.save()
-> -        
-> -    def delete(self, raw):
-> -        self.ddict.pop(raw)
-> -        self.save()
-> -
-> -    def save(self):
-> -        (fd, newfilename) = tempfile.mkstemp('', self.filename)
-> -        os.write(fd, self.out())
-> -        os.close(fd)
-> -        os.chmod(newfilename, os.stat(self.filename)[stat.ST_MODE])
-> -        os.rename(newfilename, self.filename)
-> -                os.system("/sbin/service mcstrans reload > /dev/null")
-> -
->  class semanageRecords:
->      def __init__(self, store):
->                 global handle
+>      #
+>      # 
 > 
 > 
 
