@@ -1,229 +1,237 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nABNPpOv008711
-	for <selinux@tycho.nsa.gov>; Wed, 11 Nov 2009 18:25:51 -0500
-Received: from mail153.messagelabs.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nABNOo8J002035
-	for <selinux@tycho.nsa.gov>; Wed, 11 Nov 2009 23:24:50 GMT
-Received: from il06exr03.mot.com (il06exr03.mot.com [129.188.137.133])
-	by motgate8.mot.com (8.14.3/8.14.3) with ESMTP id nABNPiDg002453
-	for <selinux@tycho.nsa.gov>; Wed, 11 Nov 2009 16:25:44 -0700 (MST)
-Received: from il06vts04.mot.com (il06vts04.mot.com [129.188.137.144])
-	by il06exr03.mot.com (8.13.1/Vontu) with SMTP id nABNPhm3005270
-	for <selinux@tycho.nsa.gov>; Wed, 11 Nov 2009 17:25:44 -0600 (CST)
-Received: from de01exm68.ds.mot.com (de01exm68.am.mot.com [10.176.8.24])
-	by il06exr03.mot.com (8.13.1/8.13.0) with ESMTP id nABNPhFb005267
-	for <selinux@tycho.nsa.gov>; Wed, 11 Nov 2009 17:25:43 -0600 (CST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Where do I get a good Policy Base ?...
-Date: Wed, 11 Nov 2009 18:25:20 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D0794B597@de01exm68.ds.mot.com>
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com> <4AD9AD06.9030309@redhat.com> <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com> <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil> <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com> <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil> <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com> <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com> <1256633374.3090.13.camel@localhost> <D06FE0A2807BC145B0D38744789D4F5D0790A2A4@de01exm68.ds.mot.com> <4AFB3470.6000400@redhat.com> 
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: <selinux@tycho.nsa.gov>
+In-Reply-To: <4AFA094D.1030701@tycho.nsa.gov>
+References: <81092d890911041557u78860e4ar65d2a1eb6964656e@mail.gmail.com>
+	 <4AF482CA.4090109@tycho.nsa.gov>
+	 <81092d890911061239t22c15f7p9aa4c907962de8cf@mail.gmail.com>
+	 <20091106221120.GA4921@notebook3.grift.internal>
+	 <4AF4AFFC.9060505@tycho.nsa.gov>
+	 <81092d890911091254g1b9616e6l54d352ab51610b07@mail.gmail.com>
+	 <1257802044.31440.4.camel@localhost>
+	 <81092d890911101554u37233080q43523f3069b93a2e@mail.gmail.com>
+	 <4AFA094D.1030701@tycho.nsa.gov>
+Date: Wed, 11 Nov 2009 16:59:54 -0800
+Message-ID: <81092d890911111659h316fe643y65ade32d09253a02@mail.gmail.com>
+Subject: Re: "security_compute_sid: invalid context" error when
+	starting/stopping mysqld daemon
+From: Larry Ross <selinux.larry@gmail.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Dominick Grift <domg472@gmail.com>
+Content-Type: multipart/alternative; boundary=0016368e2fe8bbe6ef0478220fb5
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Dan,
+--0016368e2fe8bbe6ef0478220fb5
+Content-Type: text/plain; charset=ISO-8859-1
 
-I cant seem to find a good place to download the selinux-policy rpm for
-Fedora 12.  Can you point me to an URL link, or tell me how/where I can
-obtain it ?
+On Tue, Nov 10, 2009 at 4:46 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
 
-In general, when looking for what policy to use as a base, is it more
-important to stay consistent about the Linux Kernel version, or is it
-more important to make sure the versions of selinux-packages are
-consistent ?  I am guessing it's the latter.
+> On 11/10/2009 06:54 PM, Larry Ross wrote:
+>
+> [snip]
+> >
+> > I have seen this before, and I find it confusing, I get denials:
+> >
+> > Nov 10 15:03:43 localhost kernel: type=1400 audit(1257894223.988:43):
+> > avc:  denied  { transition } for  pid=3799 comm="mysql"
+> > path="/usr/bin/mysqld_safe" dev=dm-1 ino=460035
+> > scontext=app_dbadm_u:app_dbadm_r:initrc_t:s0
+> > tcontext=app_dbadm_u:system_r:mysqld_safe_t:s0 tclass=process
+> > I run that denial through audit2allow and I get this:
+> > #============= initrc_t ==============
+> > allow initrc_t mysqld_safe_t:process transition;
+> > That rule is already present in the policy:
+> > allow initrc_t mysqld_safe_t:process transition;
+> > Can anyone tell me why this happens?  Am I missing something?  Is
+> > audit2allow confused?  Is the rule not being honored for some reason?
+>
+>
+> There are additional "constrain" statements in the policy that can
+> override allow rules.  They are in the "policy/constraints" file in the
+> policy source.  In this case, I think you are hitting the following
+> constraint:
+>
+> constrain process { transition noatsecure siginh rlimitinh }
+> (
+>        r1 == r2
+>        or ( t1 == can_change_process_role and t2 == process_user_target )
+>        or ( t1 == cron_source_domain and t2 == cron_job_domain )
+>        or ( t1 == can_system_change and r2 == system_r )
+>        or ( t1 == process_uncond_exempt )
+> );
+>
+>
+> Which says you can't transition unless the new role is the same as the
+> old role (first line) or your type meets one of four exceptions
+> (remaining lines).  audit2allow does get confused here because the AVC
+> message doesn't indicate that it's because of a constraint violation.
+> This is a known problem.
+>
 
-Thanks.
-
-
------Original Message-----
-From: Daniel J Walsh [mailto:dwalsh@redhat.com]
-Sent: Wednesday, November 11, 2009 4:02 PM
-To: Hasan Rezaul-CHR010
-Cc: Stephen Smalley; selinux@tycho.nsa.gov
-Subject: Re: Where do I get a good Policy Base ?...
-
-On 11/11/2009 02:37 PM, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> I didn't get an answer to my question below  :-(
->  
-> 
-F12 policy.
-
-
-> -------------------------------
-> 
-> Thanks for your answers   :-)
-> 
-> A quick follow up question...
-> 
-> What would be the most appropriate Fedora selinux-policy that I can 
-> start off with as a base to build on top of, Given:
-> 
-> that I have Linux 2.6.27,  and I have the following latest SELinux 
-> package versions :
-> 
->  checkpolicy-2.0.19
->  libselinux-2.0.85
->  libsemanage-2.0.33
->  libsepol-2.0.37
->  policycoreutils-2.0.69
->  sepolgen-1.0.17
-> 
-> Should I use Fedora 11 -   
-> download.fedora.redhat.com/pub/fedora/linux/development/i386/os/Packag
-> es /selinux-policy-3.6.6-5.fc11.noarch.rpm
-> 
-> Or should I use Fedora 10 -
-> download.fedora.redhat.com/pub/fedora/linux/updates/10/i386/selinux-po
-> li
-> cy-3.5.13-45.fc10.noarch.rpm
-> 
-> Or should I use new RefPolicy from OpenSuSE - 
-> ftp5.gwdg.de/pub/opensuse/repositories/security:/SELinux/openSUSE_Fact
-> or
-> y/noarch/selinux-policy-refpolicy-standard-2.20081210-1.8.noarch.rpm
-> 
-> 
-> Thanks in advance as usual for all your help.
-> 
-> 
-> 
-> 
-> -----Original Message-----
-> From: Dominick Grift [mailto:domg472@gmail.com]
-> Sent: Tuesday, October 27, 2009 3:50 AM
-> To: Hasan Rezaul-CHR010
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: Where do I get a good Policy Base ?...
-> 
-> On Mon, 2009-10-26 at 21:16 -0400, Hasan Rezaul-CHR010 wrote:
->> Hi All,
->>
->> I used to have the following SELinux related package versions on my 
->> Linux (2.6.18) system:
->>
->> Checkpolicy      - 1.33.1
->> Libselinux       - 2.0.13
->> Libsemanage      - 2.0.1
->> Libsepol         - 2.0.3
->> Libsetrans       - 0.1.18
->> Policycoreutils  - 2.0.16
->>
->> And I used a 'strict' Base policy from Fedora Core 6. Made the 
->> modifications I needed on top of that, and I was very happy...
->>
->>
->> We get our OS packaged/delivered from a third party company, and 
->> we're
-> 
->> upgrading to Linux 2.6.27, and as part of this upgrade, we are also 
->> migrating to much newer versions of the SELinux packages. They are:
->>
->> checkpolicy-2.0.19
->> libselinux-2.0.85
->> libsemanage-2.0.33
->> libsepol-2.0.37
->> policycoreutils-2.0.69
->> sepolgen-1.0.17
->>
->>
->> My questions are:
->>
->> 1. I believe the "strict" policy is no longer supported in the above 
->> versions of SELinux packages? Is this true ?
-> 
-> the "strict" policy model is no longer supported. The strict and 
-> target policy have merged to a policy model that is called "targeted".
-> You can configure the "targeted" policy to behave like old strict 
-> policy by removing removing the unconfined modules and by mapping your
-
-> Linux logins to strict SELinux users.
-> 
->>
->> 2. The entire set of policies that I have fine-tuned over the years 
->> under my  /etc/selinux/strict/modules/active/modules/*.pp  directory 
->> in my previous older system, can I make any use of that ?? In other 
->> words, can that stuff be re-used at all ? Or do I need to develop 
->> policy from scratch again ?
-> 
-> I am not sure about this but my opinion is that it should  in most 
-> cases be possible to use older binary modules in newer policy.
-> Reference policy should be compatible in my view.
-> 
-> Please note though that is encouraged to keep the source policy for 
-> your binary modules so that you can edit policy modules easily later.
->>
->> 3. What will be a good base policy for me to start policy development
-
->> on ? Will it be refpolicy, or should I grab the base 'targeted'
->> policy
-> 
->> from fedora core 11 for example ?
-> 
-> This depends on your distro, but generally you should be better of 
-> with a distro specific policy. Also keep in mind that Fedora has a 
-> active community, frequent updates and many testers.
-> 
->>
->> 4. Assuming 'strict' is no longer supported in the NEW package 
->> versions above, and I use a base 'targeted' policy as my starting 
->> point... Should I be able to simply remove the "unconfined.pp" policy
-
->> module from the base targeted policy, and that essentially turns my 
->> system into "strict-like" mode ? Is that advisable ?
-> 
-> That is the idea, yes,
-> 
->>
->> 5. If I do continue to use the 'targeted' base policy as is, how can 
->> I
-> 
->> develop policy on top of that, to make sure I still block specific 
->> things that I don't want to take place. For example, I DON'T want a 
->> user_t to be able to write to files of type  etc_t  for example. How 
->> do I go about accomplishing this  given the 'targeted' framework ? I 
->> know how to do this in the old 'strict' framework, not sure how to go
-
->> about it with the targeted framework. Please shed some light or point
-
->> me to documents...
-> 
-> You can write your own custom policy modules on that of the policy 
-> that is distributed. Current policy is usually modular. Basically 
-> write a source policy module, build it and install it using the 
-> semanage or the semodule command.
-> 
-> e.g. (Fedora/RedHat):
-> 
-> echo "policy_module(mytest, 0.0.1)" > mytest.te; make -f 
-> /usr/share/selinux/devel/Makefile mytest.pp; sudo semodule -i 
-> mytest.pp sudo semodule -l | grep mytest
-> 
->>
->> Again, Any references or documentation links would be greatly 
->> appreciated.
-> 
-> www.selinuxproject.org/page/User_Resources
->>
->> Thanks in advance.
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing
-> list.
->> If you no longer wish to subscribe, send mail to 
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-> quotes as the message.
-> 
-> 
+ Eamon,
+  Thank you for this, it helps a lot.
 
 
+>
+> In the denial above, the source context is initrc_t but running in the
+> app_dbadm_r role.  I think you want to already be in the system_r role
+> when you are running as initrc_t.  Which is what the last three lines of
+> Dominick's snippet do:
+>
+> # When app_dbadm_t runs the mysql init script, change to initrc_t
+> init_labeled_script_domtrans(app_dbadm_t, mysqld_initrc_exec_t)
+>
+
+I had this wrong I had this instead (obviously I misunderstood the arguments
+to that interface):
+init_labeled_script_domtrans(mysqld_safe_t, mysqld_safe_exec_t)
+
+
+
+> # Exempt app_dbadm_t from the role-change constraint (to system_r only)
+> domain_system_change_exemption(app_dbadm_t)
+>
+> # When app_dbadm_r runs the mysqld init script, change to system_r:
+> role_transition app_dbadm_r mysqld_initrc_exec_t system_r;
+> allow app_dbadm_r system_r;
+>
+
+Found it.  I had written rules to transition into the initrc_t domain type
+when executing files with the type initrc_exec_t.  This was happening before
+the execution of mysqld_safe.
+
+So the timeline was:
+service mysql start
+- calls /etc/init.d/mysql
+  (initrc_exec_t, causes transition into initrc_t)
+- calls /usr/bin/mysqld_safe
+  (mysqld_safe_exec_t, causes transition into mysqld_safe_t, attempts to
+transition into system_r and fails)
+so it had tranisitoned into the initrc domain before getting to where
+I thought the problem was.
+
+  Thank you everyone for your insight, I learned a lot.
+  Larry
+
+
+
+>
+>
+> If you do have this policy in place, check the label on the
+> /etc/init.d/mysql script and make sure it corresponds to the one in the
+> policy.
+
+
+>
+> --
+>
+> Eamon Walsh
+> National Security Agency
+>
+>
+
+--0016368e2fe8bbe6ef0478220fb5
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<br><br>
+<div class=3D"gmail_quote">On Tue, Nov 10, 2009 at 4:46 PM, Eamon Walsh <sp=
+an dir=3D"ltr">&lt;<a href=3D"mailto:ewalsh@tycho.nsa.gov">ewalsh@tycho.nsa=
+.gov</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">On 11/10/2009 06:54 PM, Larry Ro=
+ss wrote:<br><br>[snip]<br>
+<div class=3D"im">&gt;<br>&gt; I have seen this before, and I find it confu=
+sing, I get denials:<br>&gt;<br>&gt; Nov 10 15:03:43 localhost kernel: type=
+=3D1400 audit(1257894223.988:43):<br>&gt; avc: =A0denied =A0{ transition } =
+for =A0pid=3D3799 comm=3D&quot;mysql&quot;<br>
+&gt; path=3D&quot;/usr/bin/mysqld_safe&quot; dev=3Ddm-1 ino=3D460035<br>&gt=
+; scontext=3Dapp_dbadm_u:app_dbadm_r:initrc_t:s0<br>&gt; tcontext=3Dapp_dba=
+dm_u:system_r:mysqld_safe_t:s0 tclass=3Dprocess<br>&gt; I run that denial t=
+hrough audit2allow and I get this:<br>
+&gt; #=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D initrc_t =3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D<br>&gt; allow initrc_t mysqld_safe_t:process trans=
+ition;<br>&gt; That rule is already present in the policy:<br>&gt; allow in=
+itrc_t mysqld_safe_t:process transition;<br>&gt; Can anyone tell me why thi=
+s happens? =A0Am I missing something? =A0Is<br>
+&gt; audit2allow confused? =A0Is the rule not being honored for some reason=
+?<br><br><br></div>There are additional &quot;constrain&quot; statements in=
+ the policy that can<br>override allow rules. =A0They are in the &quot;poli=
+cy/constraints&quot; file in the<br>
+policy source. =A0In this case, I think you are hitting the following<br>co=
+nstraint:<br><br>constrain process { transition noatsecure siginh rlimitinh=
+ }<br>(<br>=A0 =A0 =A0 =A0r1 =3D=3D r2<br>=A0 =A0 =A0 =A0or ( t1 =3D=3D can=
+_change_process_role and t2 =3D=3D process_user_target )<br>
+=A0 =A0 =A0 =A0or ( t1 =3D=3D cron_source_domain and t2 =3D=3D cron_job_dom=
+ain )<br>=A0 =A0 =A0 =A0or ( t1 =3D=3D can_system_change and r2 =3D=3D syst=
+em_r )<br>=A0 =A0 =A0 =A0or ( t1 =3D=3D process_uncond_exempt )<br>);<br><b=
+r><br>Which says you can&#39;t transition unless the new role is the same a=
+s the<br>
+old role (first line) or your type meets one of four exceptions<br>(remaini=
+ng lines). =A0audit2allow does get confused here because the AVC<br>message=
+ doesn&#39;t indicate that it&#39;s because of a constraint violation.<br>
+This is a known problem.<br></blockquote>
+<div>=A0</div>
+<div>
+<div>Eamon,</div>
+<div>=A0 Thank you for this, it helps a lot.</div></div>
+<div>=A0</div>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><br>In the denial above, the sou=
+rce context is initrc_t but running in the<br>app_dbadm_r role. =A0I think =
+you want to already be in the system_r role<br>
+when you are running as initrc_t. =A0Which is what the last three lines of<=
+br>Dominick&#39;s snippet do:<br><br># When app_dbadm_t runs the mysql init=
+ script, change to initrc_t<br>init_labeled_script_domtrans(app_dbadm_t, my=
+sqld_initrc_exec_t)<br>
+</blockquote>
+<div>
+<div>=A0</div>
+<div>I had this wrong I had this instead (obviously I misunderstood the arg=
+uments to that interface):</div>
+<div>init_labeled_script_domtrans(mysqld_safe_t, mysqld_safe_exec_t)</div>
+<div>=A0</div>
+<div>=A0</div></div>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"># Exempt app_dbadm_t from the ro=
+le-change constraint (to system_r only)<br>domain_system_change_exemption(a=
+pp_dbadm_t)<br>
+<br># When app_dbadm_r runs the mysqld init script, change to system_r:<br>=
+role_transition app_dbadm_r mysqld_initrc_exec_t system_r;<br>allow app_dba=
+dm_r system_r;<br></blockquote>
+<div>
+<div>=A0</div>
+<div>Found it.=A0 I had written rules to transition into the initrc_t domai=
+n type when executing files with the type initrc_exec_t.=A0 This was happen=
+ing before the execution of mysqld_safe.</div>
+<div>=A0</div>
+<div>So the timeline was:</div>
+<div>service mysql start </div>
+<div>- calls /etc/init.d/mysql </div>
+<div>=A0=A0(initrc_exec_t, causes transition into initrc_t) </div>
+<div>- calls /usr/bin/mysqld_safe </div>
+<div>=A0 (mysqld_safe_exec_t, causes transition into mysqld_safe_t, attempt=
+s to transition into system_r and fails)</div>
+<div>so it had tranisitoned into the initrc domain before getting to=A0wher=
+e I=A0thought the problem was.</div>
+<div>=A0</div>
+<div>=A0 Thank you everyone for your insight, I learned a lot.=A0</div>
+<div>=A0 Larry</div>
+<div>=A0</div></div>
+<div>=A0</div>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><br><br>If you do have this poli=
+cy in place, check the label on the<br>/etc/init.d/mysql script and make su=
+re it corresponds to the one in the<br>
+policy.</blockquote>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid"><font color=3D"#888888"><br><br>=
+--<br></font>
+<div>
+<div></div>
+<div class=3D"h5"><br>Eamon Walsh<br>National Security Agency<br><br></div>=
+</div></blockquote></div><br>
+
+--0016368e2fe8bbe6ef0478220fb5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
