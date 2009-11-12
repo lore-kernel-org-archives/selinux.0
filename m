@@ -1,11 +1,11 @@
 Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nACGjMbB015699
-	for <selinux@tycho.nsa.gov>; Thu, 12 Nov 2009 11:45:22 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nACGkqIl015960
+	for <selinux@tycho.nsa.gov>; Thu, 12 Nov 2009 11:46:52 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nACGiLCC002625
-	for <selinux@tycho.nsa.gov>; Thu, 12 Nov 2009 16:44:22 GMT
-Message-ID: <4AFC3B9F.6070802@redhat.com>
-Date: Thu, 12 Nov 2009 11:45:19 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nACGjqCC003730
+	for <selinux@tycho.nsa.gov>; Thu, 12 Nov 2009 16:45:52 GMT
+Message-ID: <4AFC3BF4.7030301@redhat.com>
+Date: Thu, 12 Nov 2009 11:46:44 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Chad Sellers <csellers@tresys.com>
@@ -14,12 +14,12 @@ Subject: Re: Add modules support to semanage
 References: <C7207217.AFD8F%csellers@tresys.com>
 In-Reply-To: <C7207217.AFD8F%csellers@tresys.com>
 Content-Type: multipart/mixed;
- boundary="------------040404080405040108030201"
+ boundary="------------030407080902040200060009"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040404080405040108030201
+--------------030407080902040200060009
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -35,446 +35,637 @@ On 11/11/2009 01:52 PM, Chad Sellers wrote:
 > Thanks,
 > Chad
 > 
+I have updated the sandbox patch to include a setsid call in seunshare.
 
-This patch is provided the old fashioned way since I am fighting with guilt right now.
-
-Just the enable/disable changes to libsemanage.
-
---------------040404080405040108030201
+--------------030407080902040200060009
 Content-Type: text/plain;
- name="libsemanage-disable.patch"
+ name="policycoretuils-sandbox.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="libsemanage-disable.patch"
+ filename="policycoretuils-sandbox.patch"
 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/include/semanage/modules.h libsemanage-2.0.41/include/semanage/modules.h
---- nsalibsemanage/include/semanage/modules.h	2009-01-13 08:45:35.000000000 -0500
-+++ libsemanage-2.0.41/include/semanage/modules.h	2009-11-12 11:01:10.000000000 -0500
-@@ -40,10 +40,12 @@
- 				 char *module_data, size_t data_len);
- int semanage_module_install_base_file(semanage_handle_t *,
- 				      const char *module_name);
-+int semanage_module_enable(semanage_handle_t *, char *module_name);
-+int semanage_module_disable(semanage_handle_t *, char *module_name);
- int semanage_module_remove(semanage_handle_t *, char *module_name);
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index 538302b..394069a 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
++SUBDIRS = sandbox setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
  
- /* semanage_module_info is for getting information on installed
--   modules, only name and version at this time */
-+   modules, only name and version, and enabled/disabled flag at this time */
- typedef struct semanage_module_info semanage_module_info_t;
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
  
- int semanage_module_list(semanage_handle_t *,
-@@ -53,5 +55,6 @@
- 						 int n);
- const char *semanage_module_get_name(semanage_module_info_t *);
- const char *semanage_module_get_version(semanage_module_info_t *);
-+int semanage_module_get_enabled(semanage_module_info_t *);
- 
- #endif
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/direct_api.c libsemanage-2.0.41/src/direct_api.c
---- nsalibsemanage/src/direct_api.c	2009-09-17 08:59:43.000000000 -0400
-+++ libsemanage-2.0.41/src/direct_api.c	2009-11-12 11:01:10.000000000 -0500
-@@ -66,6 +66,8 @@
- static int semanage_direct_install_base(semanage_handle_t * sh, char *base_data,
- 					size_t data_len);
- static int semanage_direct_install_base_file(semanage_handle_t * sh, const char *module_name);
-+static int semanage_direct_enable(semanage_handle_t * sh, char *module_name);
-+static int semanage_direct_disable(semanage_handle_t * sh, char *module_name);
- static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
- static int semanage_direct_list(semanage_handle_t * sh,
- 				semanage_module_info_t ** modinfo,
-@@ -83,6 +85,8 @@
- 	.upgrade_file = semanage_direct_upgrade_file,
- 	.install_base = semanage_direct_install_base,
- 	.install_base_file = semanage_direct_install_base_file,
-+	.enable = semanage_direct_enable,
-+	.disable = semanage_direct_disable,
- 	.remove = semanage_direct_remove,
- 	.list = semanage_direct_list
- };
-@@ -348,10 +352,17 @@
- 	     semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES)) == NULL) {
- 		return -1;
- 	}
--	if (asprintf(filename, "%s/%s.pp", module_path, *module_name) == -1) {
-+	if (asprintf(filename, "%s/%s.pp%s", module_path, *module_name, DISABLESTR) == -1) {
- 		ERR(sh, "Out of memory!");
- 		return -1;
- 	}
+diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+new file mode 100644
+index 0000000..299276a
+--- /dev/null
++++ b/policycoreutils/sandbox/Makefile
+@@ -0,0 +1,31 @@
++# Installation directories.
++PREFIX ?= ${DESTDIR}/usr
++BINDIR ?= $(PREFIX)/bin
++SBINDIR ?= $(PREFIX)/sbin
++MANDIR ?= $(PREFIX)/share/man
++LOCALEDIR ?= /usr/share/locale
++SHAREDIR ?= $(PREFIX)/share/sandbox
++override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DPACKAGE="\"policycoreutils\""
++LDLIBS += -lselinux -lcap-ng 
 +
-+	if (access(*filename, F_OK) == -1) {
-+		char *ptr = *filename;
-+		int len = strlen(ptr) - strlen(DISABLESTR);
-+		if (len > 0) ptr[len]='\0';
-+	}
++all: sandbox seunshare sandboxX.sh 
 +
- 	return 0;
- }
- 
-@@ -1273,6 +1284,107 @@
- 	return retval;
- }
- 
-+/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-+ * of memory, -2 if module not found or could not be enabled. */
-+static int semanage_direct_enable(semanage_handle_t * sh, char *module_name)
++seunshare: seunshare.o $(EXTRA_OBJS)
++	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++
++install: all
++	-mkdir -p $(BINDIR)
++	install -m 755 sandbox $(BINDIR)
++	-mkdir -p $(MANDIR)/man8
++	install -m 644 sandbox.8 $(MANDIR)/man8/
++	install -m 4755 seunshare $(SBINDIR)/
++	-mkdir -p $(SHAREDIR)
++	install -m 755 sandboxX.sh $(SHAREDIR)
++
++clean:
++	-rm -f seunshare *.o *~
++
++indent:
++	../../scripts/Lindent $(wildcard *.[ch])
++
++relabel:
+diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+new file mode 100644
+index 0000000..bc257bf
+--- /dev/null
++++ b/policycoreutils/sandbox/sandbox
+@@ -0,0 +1,242 @@
++#!/usr/bin/python -E
++import os, sys, getopt, socket, random, fcntl, shutil
++import selinux
++import signal
++
++PROGNAME = "policycoreutils"
++
++import gettext
++gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
++gettext.textdomain(PROGNAME)
++
++try:
++       gettext.install(PROGNAME,
++                       localedir = "/usr/share/locale",
++                       unicode=False,
++                       codeset = 'utf-8')
++except IOError:
++       import __builtin__
++       __builtin__.__dict__['_'] = unicode
++
++
++DEFAULT_TYPE = "sandbox_t"
++DEFAULT_X_TYPE = "sandbox_x_t"
++X_FILES = {}
++
++random.seed(None)
++
++def sighandler(signum, frame):
++    signal.signal(signum,  signal.SIG_IGN)
++    os.kill(0, signum)
++    raise KeyboardInterrupt
++
++def setup_sighandlers():
++    signal.signal(signal.SIGHUP,  sighandler)
++    signal.signal(signal.SIGQUIT, sighandler)
++    signal.signal(signal.SIGTERM, sighandler)
++
++def error_exit(msg):
++    sys.stderr.write("%s: " % sys.argv[0])
++    sys.stderr.write("%s\n" % msg)
++    sys.stderr.flush()
++    sys.exit(1)
++
++def reserve(mcs):
++    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
++    sock.bind("\0%s" % mcs)
++    fcntl.fcntl(sock.fileno(), fcntl.F_SETFD, fcntl.FD_CLOEXEC)
++
++def gen_context(setype):
++    while True:
++        i1 = random.randrange(0, 1024)
++        i2 = random.randrange(0, 1024)
++        if i1 == i2:
++            continue
++        if i1 > i2:
++            tmp = i1
++            i1 = i2
++            i2 = tmp
++        mcs = "s0:c%d,c%d" % (i1, i2)
++        reserve(mcs)
++        try:
++            reserve(mcs)
++        except:
++            continue
++        break
++    con = selinux.getcon()[1].split(":")
++
++    execcon = "%s:%s:%s:%s" % (con[0], con[1], setype, mcs)
++    
++    filecon = "%s:%s:%s:%s" % (con[0], 
++                               "object_r", 
++                               "%s_file_t" % setype[:-2], 
++                               mcs)
++    return execcon, filecon
++
++def copyfile(file, dir, dest):
++       import re
++       if file.startswith(dir):
++              dname = os.path.dirname(file)
++              bname = os.path.basename(file)
++              if dname == dir:
++                     dest = dest + "/" + bname
++              else:
++                     newdir = re.sub(dir, dest, dname)
++                     os.makedirs(newdir)
++                     dest = newdir + "/" + bname
++
++              if os.path.isdir(file):
++                     shutil.copytree(file, dest)
++              else:
++                     shutil.copy2(file, dest)
++              X_FILES[file] = (dest, os.path.getmtime(dest))
++
++def copyfiles(newhomedir, newtmpdir, files):
++       import pwd
++       homedir=pwd.getpwuid(os.getuid()).pw_dir
++       for f in files:
++              copyfile(f,homedir, newhomedir)
++              copyfile(f,"/tmp", newtmpdir)
++
++def savefile(new, orig):
++       import gtk
++       dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
++                               gtk.BUTTONS_YES_NO,
++                               _("Do you want to save changes to '%s' (Y/N): ") % orig)
++       dlg.set_title(_("Sandbox Message"))
++       dlg.set_position(gtk.WIN_POS_MOUSE)
++       dlg.show_all()
++       rc = dlg.run()
++       dlg.destroy()
++       if rc == gtk.RESPONSE_YES:
++              shutil.copy2(new,orig)
++
++if __name__ == '__main__':
++    setup_sighandlers()
++    if selinux.is_selinux_enabled() != 1:
++        error_exit("Requires an SELinux enabled system")
++        
++    init_files = []
++
++    def usage(message = ""):
++        text = _("""
++sandbox [-h] [-I includefile ] [[-i file ] ...] [ -t type ] command
++""")
++        error_exit("%s\n%s" % (message, text))
++
++    setype = DEFAULT_TYPE
++    X_ind = False
++    try:
++           gopts, cmds = getopt.getopt(sys.argv[1:], "i:ht:XI:", 
++                                       ["help",
++                                        "include=", 
++                                        "includefile=", 
++                                        "type="
++                                        ])
++           for o, a in gopts:
++                  if o == "-t" or o == "--type":
++                         setype = a
++                         
++                  if o == "-i" or o == "--include":
++                         rp = os.path.realpath(a)
++                         if rp not in init_files:
++                                init_files.append(rp)
++                         
++                  if o == "-I" or o == "--includefile":
++                         fd = open(a, "r")
++                         for i in fd.read().split("\n"):
++                                if os.path.exists(i):
++                                       rp = os.path.realpath(i)
++                                       if rp not in init_files:
++                                              init_files.append(rp)
++                                       
++                         fd.close
++                         
++                  if o == "-X":
++                         if DEFAULT_TYPE == setype:
++                                setype = DEFAULT_X_TYPE
++                         X_ind = True
++
++                  if o == "-h" or o == "--help":
++                         usage(_("Usage"));
++            
++           if len(cmds) == 0:
++                  usage(_("Command required"))
++
++           execcon, filecon = gen_context(setype)
++           rc = -1
++
++           if cmds[0][0] != "/" and cmds[0][:2] != "./" and cmds[0][:3] != "../":
++                  for i in  os.environ["PATH"].split(':'):
++                         f = "%s/%s" % (i, cmds[0])
++                         if os.access(f, os.X_OK):
++                                cmds[0] = f
++                                break
++
++           try:
++                  newhomedir = None
++                  newtmpdir = None
++                  if X_ind:
++                         if not os.path.exists("/usr/sbin/seunshare"):
++                                raise ValueError("""/usr/sbin/seunshare required for sandbox -X, to install you need to execute 
++#yum install /usr/sbin/seunshare""")
++                         import warnings
++                         warnings.simplefilter("ignore")
++                         newhomedir = os.tempnam(".", ".sandbox%s")
++                         os.mkdir(newhomedir)
++                         selinux.setfilecon(newhomedir, filecon) 
++                         newtmpdir = os.tempnam("/tmp", ".sandbox")
++                         os.mkdir(newtmpdir)
++                         selinux.setfilecon(newtmpdir, filecon)
++                         warnings.resetwarnings()
++                         paths = []
++                         for i in cmds:
++                                f = os.path.realpath(i)
++                                if os.path.exists(f):
++                                       paths.append(f)
++                                else:
++                                       paths.append(i)
++                                       
++                         copyfiles(newhomedir, newtmpdir, init_files + paths)
++                         execfile = newhomedir + "/.sandboxrc"
++                         fd = open(execfile, "w+")
++                         fd.write("""#! /bin/sh
++%s
++""" % " ".join(paths))
++                         fd.close()
++                         os.chmod(execfile, 0700)
++                         
++                         cmds =  ("/usr/sbin/seunshare -t %s -h %s -- %s /usr/share/sandbox/sandboxX.sh" % (newtmpdir, newhomedir, execcon)).split()
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         for i in paths:
++                                if i not in X_FILES:
++                                       continue
++                                (dest, mtime) = X_FILES[i]
++                                if os.path.getmtime(dest) > mtime:
++                                       savefile(dest, i)
++                  else:
++                         selinux.setexeccon(execcon)
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         selinux.setexeccon(None)
++           finally:
++                  if X_ind:
++                         if newhomedir:
++                                shutil.rmtree(newhomedir)
++                         if newtmpdir:
++                                shutil.rmtree(newtmpdir)
++                  
++    except getopt.GetoptError, error:
++           usage(_("Options Error %s ") % error.msg)
++    except OSError, error:
++           error_exit(error.args[1])
++    except ValueError, error:
++           error_exit(error.args[0])
++    except KeyError, error:
++           error_exit(_("Invalid value %s") % error.args[0])
++    except IOError, error:
++           error_exit(error.args[1])
++    except KeyboardInterrupt:
++           rc = 0
++           
++    sys.exit(rc)
++
+diff --git a/policycoreutils/sandbox/sandbox.8 b/policycoreutils/sandbox/sandbox.8
+new file mode 100644
+index 0000000..c3f8a1f
+--- /dev/null
++++ b/policycoreutils/sandbox/sandbox.8
+@@ -0,0 +1,26 @@
++.TH SANDBOX "8" "May 2009" "chcat" "User Commands"
++.SH NAME
++sandbox \- Run cmd under an SELinux sandbox
++.SH SYNOPSIS
++.B sandbox
++[-X] [[-i file ]...] [ -t type ] cmd
++.br
++.SH DESCRIPTION
++.PP
++Run application within a tightly confined SELinux domain,   The default sandbox allows the application to only read and write stdin and stdout along with files handled to it by the shell.  
++Additionaly a -X qualifier allows you to run sandboxed X applications.  These apps will start up their own X Server and create a temporary homedir and /tmp.  The default policy does not allow any capabilities or network access.  Also prevents all access to the users other processes and files.  Any file specified on the command line will be copied into the sandbox.
++.PP
++.TP
++\fB\-t type\fR
++Use alternate sandbox type, defaults to sandbox_t or sandbox_x_t for -X.
++.TP
++\fB\-i file\fR
++Copy this file into the temporary sandbox homedir. Command can be repeated.
++.TP
++\fB\-X\fR
++Create an X based Sandbox for gui apps, temporary files for $HOME and /tmp, seconday Xserver, defaults to sandbox_x_t
++.TP
++.SH "SEE ALSO"
++.TP
++runcon(1)
++.PP
+diff --git a/policycoreutils/sandbox/sandboxX.sh b/policycoreutils/sandbox/sandboxX.sh
+new file mode 100644
+index 0000000..21e6b0d
+--- /dev/null
++++ b/policycoreutils/sandbox/sandboxX.sh
+@@ -0,0 +1,16 @@
++#!/bin/bash 
++export TITLE="Sandbox: `/usr/bin/tail -1 ~/.sandboxrc | /usr/bin/cut -b1-70`"
++export SCREEN=`/usr/bin/xdpyinfo -display $DISPLAY | /bin/awk '/dimensions/ { print $2 }'`
++
++(/usr/bin/Xephyr -title "$TITLE" -terminate -screen 1000x700 -displayfd 5 5>&1 2>/dev/null) | while read D; do 
++    export DISPLAY=:$D
++    /usr/bin/matchbox-window-manager -use_titlebar no &
++    WM_PID=$!
++    ~/.sandboxrc &
++    CLIENT_PID=$!
++    wait $CLIENT_PID
++    export EXITCODE=$?
++    kill -TERM $WM_PID
++    kill -HUP 0
++    break
++done
+diff --git a/policycoreutils/sandbox/seunshare.c b/policycoreutils/sandbox/seunshare.c
+new file mode 100644
+index 0000000..ddf6bf1
+--- /dev/null
++++ b/policycoreutils/sandbox/seunshare.c
+@@ -0,0 +1,265 @@
++#include <signal.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <syslog.h>
++#include <sys/mount.h>
++#include <pwd.h>
++#define _GNU_SOURCE
++#include <sched.h>
++#include <string.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <cap-ng.h>
++#include <getopt.h>		/* for getopt_long() form of getopt() */
++#include <limits.h>
++#include <stdlib.h>
++#include <errno.h>
++
++#include <selinux/selinux.h>
++#include <selinux/context.h>	/* for context-mangling functions */
++
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++
++/**
++ * This function will drop all capabilities 
++ * Returns zero on success, non-zero otherwise
++ */
++static int drop_capabilities(uid_t uid)
 +{
-+	int i, retval = -1;
-+	char **module_filenames = NULL;
-+	int num_mod_files;
-+	size_t name_len = strlen(module_name);
-+	if (semanage_get_modules_names(sh, &module_filenames, &num_mod_files) ==
-+	    -1) {
++	capng_clear(CAPNG_SELECT_BOTH);
++
++	if (capng_lock() < 0) 
++		return -1;
++	/* Change uid */
++	if (setresuid(uid, uid, uid)) {
++		fprintf(stderr, "Error changing uid, aborting.\n");
 +		return -1;
 +	}
-+	for (i = 0; i < num_mod_files; i++) {
-+		char *base = strrchr(module_filenames[i], '/');
-+		if (base == NULL) {
-+			ERR(sh, "Could not read module names.");
-+			retval = -2;
-+			goto cleanup;
-+		}
-+		base++;
-+		if (memcmp(module_name, base, name_len) == 0 &&
-+		    strcmp(base + name_len + 3, DISABLESTR) == 0) {
-+			int len = strlen(module_filenames[i]) - strlen(DISABLESTR);
-+			char *enabled_name = calloc(1, len+1);
-+			if (!enabled_name) {
-+				ERR(sh, "Could not allocate memory");
-+				retval = -1;
-+				goto cleanup;
-+			}
-+
-+			strncpy(enabled_name, module_filenames[i],len);
-+
-+			if (rename(module_filenames[i], enabled_name) == -1) {
-+				ERR(sh, "Could not enable module file %s.",
-+				    enabled_name);
-+				retval = -2;
-+			}
-+			retval = 0;
-+			free(enabled_name);
-+			goto cleanup;
-+		}
-+	}
-+	ERR(sh, "Module %s was not found.", module_name);
-+	retval = -2;		/* module not found */
-+      cleanup:
-+	for (i = 0; module_filenames != NULL && i < num_mod_files; i++) {
-+		free(module_filenames[i]);
-+	}
-+	free(module_filenames);
-+	return retval;
++	return capng_apply(CAPNG_SELECT_BOTH);
 +}
 +
-+/* Enables a module from the sandbox.  Returns 0 on success, -1 if out
-+ * of memory, -2 if module not found or could not be enabled. */
-+static int semanage_direct_disable(semanage_handle_t * sh, char *module_name)
++#define DEFAULT_PATH "/usr/bin:/bin"
++#define TRUE 1
++#define FALSE 0
++
++/**
++ * Take care of any signal setup
++ */
++static int set_signal_handles(void)
 +{
-+	int i, retval = -1;
-+	char **module_filenames = NULL;
-+	int num_mod_files;
-+	size_t name_len = strlen(module_name);
-+	if (semanage_get_modules_names(sh, &module_filenames, &num_mod_files) ==
-+	    -1) {
++	sigset_t empty;
++
++	/* Empty the signal mask in case someone is blocking a signal */
++	if (sigemptyset(&empty)) {
++		fprintf(stderr, "Unable to obtain empty signal set\n");
 +		return -1;
 +	}
-+	for (i = 0; i < num_mod_files; i++) {
-+		char *base = strrchr(module_filenames[i], '/');
-+		if (base == NULL) {
-+			ERR(sh, "Could not read module names.");
-+			retval = -2;
-+			goto cleanup;
-+		}
-+		base++;
-+		if (memcmp(module_name, base, name_len) == 0 &&
-+		    strcmp(base + name_len, ".pp") == 0) {
-+			char disabled_name[PATH_MAX];
-+			if (snprintf(disabled_name, PATH_MAX, "%s%s", 
-+				     module_filenames[i], DISABLESTR) == PATH_MAX) {
-+				ERR(sh, "Could not disable module file %s.",
-+				    module_filenames[i]);
-+				retval = -2;
-+				goto cleanup;
-+			}
-+			if (rename(module_filenames[i], disabled_name) == -1) {
-+				ERR(sh, "Could not disable module file %s.",
-+				    module_filenames[i]);
-+				retval = -2;
-+			}
-+			retval = 0;
-+			goto cleanup;
-+		}
++
++	(void)sigprocmask(SIG_SETMASK, &empty, NULL);
++
++	/* Terminate on SIGHUP. */
++	if (signal(SIGHUP, SIG_DFL) == SIG_ERR) {
++		perror("Unable to set SIGHUP handler");
++		return -1;
 +	}
-+	ERR(sh, "Module %s was not found.", module_name);
-+	retval = -2;		/* module not found */
-+      cleanup:
-+	for (i = 0; module_filenames != NULL && i < num_mod_files; i++) {
-+		free(module_filenames[i]);
++
++	return 0;
++}
++#define USAGE_STRING "USAGE: seunshare [ -t tmpdir ] [ -h homedir ] -- CONTEXT executable [args] "
++
++
++
++static int verify_mount(const char *mntdir, struct passwd *pwd) {
++	struct stat sb;
++	if (stat(mntdir, &sb) == -1) {
++		perror("Invalid mount point");
++		return -1;
 +	}
-+	free(module_filenames);
-+	return retval;
++	if (sb.st_uid != pwd->pw_uid) {
++		errno = EPERM;
++		syslog(LOG_AUTHPRIV | LOG_ALERT, "%s attempted to mount an invalid directory, %s", pwd->pw_name, mntdir);
++		perror("Invalid mount point, reporting to administrator");
++		return -1;
++	}
++	return 0;
 +}
 +
- /* Removes a module from the sandbox.  Returns 0 on success, -1 if out
-  * of memory, -2 if module not found or could not be removed. */
- static int semanage_direct_remove(semanage_handle_t * sh, char *module_name)
-@@ -1293,8 +1405,7 @@
- 			goto cleanup;
- 		}
- 		base++;
--		if (memcmp(module_name, base, name_len) == 0 &&
--		    strcmp(base + name_len, ".pp") == 0) {
-+		if (memcmp(module_name, base, name_len) == 0) {
- 			if (unlink(module_filenames[i]) == -1) {
- 				ERR(sh, "Could not remove module file %s.",
- 				    module_filenames[i]);
-@@ -1369,6 +1480,7 @@
- 		}
- 		ssize_t size;
- 		char *data = NULL;
-+		int enabled = semanage_module_enabled(module_filenames[i]);
- 
- 		if ((size = bunzip(sh, fp, &data)) > 0) {
- 			fclose(fp);
-@@ -1393,6 +1505,7 @@
- 		if (type == SEPOL_POLICY_MOD) {
- 			(*modinfo)[*num_modules].name = name;
- 			(*modinfo)[*num_modules].version = version;
-+			(*modinfo)[*num_modules].enabled = enabled;
- 			(*num_modules)++;
- 		} else {
- 			/* file was not a module, so don't report it */
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/libsemanage.map libsemanage-2.0.41/src/libsemanage.map
---- nsalibsemanage/src/libsemanage.map	2009-10-29 15:21:39.000000000 -0400
-+++ libsemanage-2.0.41/src/libsemanage.map	2009-11-12 11:01:10.000000000 -0500
-@@ -6,10 +6,13 @@
- 	  semanage_module_install; semanage_module_install_file;
- 	  semanage_module_upgrade; semanage_module_upgrade_file;
- 	  semanage_module_install_base; semanage_module_install_base_file;
-+	  semanage_module_enable;
-+	  semanage_module_disable;
- 	  semanage_module_remove;
- 	  semanage_module_list; semanage_module_info_datum_destroy;
- 	  semanage_module_list_nth; semanage_module_get_name;
- 	  semanage_module_get_version; semanage_select_store;
-+	  semanage_module_get_enabled;
- 	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
- 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
- 	  semanage_iface_*; semanage_port_*; semanage_context_*;
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/module_internal.h libsemanage-2.0.41/src/module_internal.h
---- nsalibsemanage/src/module_internal.h	2008-08-28 09:34:24.000000000 -0400
-+++ libsemanage-2.0.41/src/module_internal.h	2009-11-12 11:01:10.000000000 -0500
-@@ -6,6 +6,7 @@
- 
- hidden_proto(semanage_module_get_name)
-     hidden_proto(semanage_module_get_version)
-+    hidden_proto(semanage_module_get_enabled)
-     hidden_proto(semanage_module_info_datum_destroy)
-     hidden_proto(semanage_module_list_nth)
- #endif
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/modules.c libsemanage-2.0.41/src/modules.c
---- nsalibsemanage/src/modules.c	2009-09-17 08:59:43.000000000 -0400
-+++ libsemanage-2.0.41/src/modules.c	2009-11-12 11:01:10.000000000 -0500
-@@ -154,6 +154,40 @@
- 	return sh->funcs->install_base_file(sh, module_name);
- }
- 
-+int semanage_module_enable(semanage_handle_t * sh, char *module_name)
++/**
++ * This function checks to see if the shell is known in /etc/shells.
++ * If so, it returns 1. On error or illegal shell, it returns 0.
++ */
++static int verify_shell(const char *shell_name)
 +{
-+	if (sh->funcs->enable == NULL) {
-+		ERR(sh, "No enable function defined for this connection type.");
++	int found = 0;
++	const char *buf;
++
++	if (!(shell_name && shell_name[0]))
++		return found;
++
++	while ((buf = getusershell()) != NULL) {
++		/* ignore comments */
++		if (*buf == '#')
++			continue;
++
++		/* check the shell skipping newline char */
++		if (!strcmp(shell_name, buf)) {
++			found = 1;
++			break;
++		}
++	}
++	endusershell();
++	return found;
++}
++
++int main(int argc, char **argv) {
++	int rc;
++	int status = -1;
++
++	security_context_t scontext;
++
++	int flag_index;		/* flag index in argv[] */
++	int clflag;		/* holds codes for command line flags */
++	char *tmpdir_s = NULL;	/* tmpdir spec'd by user in argv[] */
++	char *homedir_s = NULL;	/* homedir spec'd by user in argv[] */
++
++	const struct option long_options[] = {
++		{"homedir", 1, 0, 'h'},
++		{"tmpdir", 1, 0, 't'},
++		{NULL, 0, 0, 0}
++	};
++
++	uid_t uid = getuid();
++
++	if (!uid) {
++		fprintf(stderr, "Must not be root");
 +		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
++	}
++
++	struct passwd *pwd=getpwuid(uid);
++	if (!pwd) {
++		perror("getpwduid failed");
 +		return -1;
-+	} else if (!sh->is_in_transaction) {
-+		if (semanage_begin_transaction(sh) < 0) {
++	}
++
++	if (verify_shell(pwd->pw_shell) == 0) {
++		fprintf(stderr, "Error!  Shell is not valid.\n");
++		return -1;
++	}
++
++	while (1) {
++		clflag = getopt_long(argc, argv, "h:t:", long_options,
++				     &flag_index);
++		if (clflag == -1)
++			break;
++
++		switch (clflag) {
++		case 't':
++			tmpdir_s = optarg;
++			if (verify_mount(tmpdir_s, pwd) < 0) return -1;
++			break;
++		case 'h':
++			homedir_s = optarg;
++			if (verify_mount(homedir_s, pwd) < 0) return -1;
++			if (verify_mount(pwd->pw_dir, pwd) < 0) return -1;
++			break;
++		default:
++			fprintf(stderr, "%s\n", USAGE_STRING);
 +			return -1;
 +		}
 +	}
-+	sh->modules_modified = 1;
-+	return sh->funcs->enable(sh, module_name);
-+}
 +
-+int semanage_module_disable(semanage_handle_t * sh, char *module_name)
-+{
-+	if (sh->funcs->disable == NULL) {
-+		ERR(sh, "No disable function defined for this connection type.");
++	if (! homedir_s && ! tmpdir_s) {
++		fprintf(stderr, "Error: tmpdir and/or homedir required \n"
++			"%s\n", USAGE_STRING);
 +		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
-+		return -1;
-+	} else if (!sh->is_in_transaction) {
-+		if (semanage_begin_transaction(sh) < 0) {
-+			return -1;
-+		}
 +	}
-+	sh->modules_modified = 1;
-+	return sh->funcs->disable(sh, module_name);
++
++	if (argc - optind < 2) {
++		fprintf(stderr, "Error: executable required \n"
++			"%s\n", USAGE_STRING);
++		return -1;
++	}
++
++	scontext = argv[optind++];
++	
++	if (set_signal_handles())
++		return -1;
++
++        if (unshare(CLONE_NEWNS) < 0) {
++		perror("Failed to unshare");
++		return -1;
++	}
++
++	if (homedir_s && mount(homedir_s, pwd->pw_dir, NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount HOMEDIR");
++		return -1;
++	}
++
++	if (homedir_s && verify_mount(pwd->pw_dir, pwd) < 0) 
++		return -1;
++
++	if (tmpdir_s && mount(tmpdir_s, "/tmp", NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount /tmp");
++		return -1;
++	}
++
++	if (tmpdir_s && verify_mount("/tmp", pwd) < 0) 
++		return -1;
++
++	if (drop_capabilities(uid)) {
++		perror("Failed to drop all capabilities");
++		return -1;
++	}
++
++	int child = fork();
++	if (!child) {
++		char *display=NULL;
++		/* Construct a new environment */
++		char *d = getenv("DISPLAY");
++		if (d) {
++			display =  strdup(d);
++			if (!display) {
++				perror("Out of memory");
++				exit(-1);
++			}
++		}
++
++		if ((rc = clearenv())) {
++			perror("Unable to clear environment");
++			free(display);
++			exit(-1);
++		}
++		
++		if (setexeccon(scontext)) {
++			fprintf(stderr, "Could not set exec context to %s.\n",
++				scontext);
++			free(display);
++			exit(-1);
++		}
++
++		if (display) 
++			rc |= setenv("DISPLAY", display, 1);
++		rc |= setenv("HOME", pwd->pw_dir, 1);
++		rc |= setenv("SHELL", pwd->pw_shell, 1);
++		rc |= setenv("USER", pwd->pw_name, 1);
++		rc |= setenv("LOGNAME", pwd->pw_name, 1);
++		rc |= setenv("PATH", DEFAULT_PATH, 1);
++		
++		if (chdir(pwd->pw_dir)) {
++			perror("Failed to change dir to homedir");
++			exit(-1);
++		}
++		setsid();
++		execv(argv[optind], argv + optind);
++		free(display);
++		perror("execv");
++		exit(-1);
++	} else {
++		waitpid(child, &status, 0);
++	}
++
++	return status;
 +}
-+
- int semanage_module_remove(semanage_handle_t * sh, char *module_name)
- {
- 	if (sh->funcs->remove == NULL) {
-@@ -209,6 +243,13 @@
- 
- hidden_def(semanage_module_get_name)
- 
-+int semanage_module_get_enabled(semanage_module_info_t * modinfo)
-+{
-+	return modinfo->enabled;
-+}
-+
-+hidden_def(semanage_module_get_enabled)
-+
- const char *semanage_module_get_version(semanage_module_info_t * modinfo)
- {
- 	return modinfo->version;
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/modules.h libsemanage-2.0.41/src/modules.h
---- nsalibsemanage/src/modules.h	2008-08-28 09:34:24.000000000 -0400
-+++ libsemanage-2.0.41/src/modules.h	2009-11-12 11:01:10.000000000 -0500
-@@ -26,6 +26,7 @@
- struct semanage_module_info {
- 	char *name;		/* Key */
- 	char *version;
-+	int enabled;
- };
- 
- #endif
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/policy.h libsemanage-2.0.41/src/policy.h
---- nsalibsemanage/src/policy.h	2009-01-13 08:45:35.000000000 -0500
-+++ libsemanage-2.0.41/src/policy.h	2009-11-12 11:01:10.000000000 -0500
-@@ -58,6 +58,12 @@
- 	/* Upgrade a policy module */
- 	int (*upgrade_file) (struct semanage_handle *, const char *);
- 
-+	/* Enable a policy module */
-+	int (*enable) (struct semanage_handle *, char *);
-+
-+	/* Disable a policy module */
-+	int (*disable) (struct semanage_handle *, char *);
-+
- 	/* Remove a policy module */
- 	int (*remove) (struct semanage_handle *, char *);
- 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.c libsemanage-2.0.41/src/semanage_store.c
---- nsalibsemanage/src/semanage_store.c	2009-10-29 15:21:39.000000000 -0400
-+++ libsemanage-2.0.41/src/semanage_store.c	2009-11-12 11:01:10.000000000 -0500
-@@ -57,6 +57,8 @@
- 
- #include "debug.h"
- 
-+const char *DISABLESTR=".disabled";
-+
- #define SEMANAGE_CONF_FILE "semanage.conf"
- /* relative path names to enum semanage_paths to special files and
-  * directories for the module store */
-@@ -433,6 +435,21 @@
- 	return 1;
- }
- 
-+int semanage_module_enabled(const char *file) {
-+	int len = strlen(file) - strlen(DISABLESTR);
-+	return (len < 0 || strcmp(&file[len], DISABLESTR) != 0);
-+}
-+
-+static int semanage_modulename_select(const struct dirent *d)
-+{
-+	if (d->d_name[0] == '.'
-+	    && (d->d_name[1] == '\0'
-+		|| (d->d_name[1] == '.' && d->d_name[2] == '\0')))
-+		return 0;
-+
-+	return semanage_module_enabled(d->d_name);
-+}
-+
- /* Copies a file from src to dst.  If dst already exists then
-  * overwrite it.  Returns 0 on success, -1 on error. */
- static int semanage_copy_file(const char *src, const char *dst, mode_t mode)
-@@ -599,15 +616,8 @@
- 	return -1;
- }
- 
--/* Scans the modules directory for the current semanage handler.  This
-- * might be the active directory or sandbox, depending upon if the
-- * handler has a transaction lock.  Allocates and fills in *filenames
-- * with an array of module filenames; length of array is stored in
-- * *len.  The caller is responsible for free()ing *filenames and its
-- * individual elements.	 Upon success returns 0, -1 on error.
-- */
--int semanage_get_modules_names(semanage_handle_t * sh, char ***filenames,
--			       int *len)
-+static int semanage_get_modules_names_filter(semanage_handle_t * sh, char ***filenames,
-+				      int *len, int (*filter)(const struct dirent *))
- {
- 	const char *modules_path;
- 	struct dirent **namelist = NULL;
-@@ -622,7 +632,7 @@
- 	*filenames = NULL;
- 	*len = 0;
- 	if ((num_files = scandir(modules_path, &namelist,
--				 semanage_filename_select, alphasort)) == -1) {
-+				 filter, alphasort)) == -1) {
- 		ERR(sh, "Error while scanning directory %s.", modules_path);
- 		goto cleanup;
- 	}
-@@ -663,6 +673,34 @@
- 	return retval;
- }
- 
-+/* Scans the modules directory for the current semanage handler.  This
-+ * might be the active directory or sandbox, depending upon if the
-+ * handler has a transaction lock.  Allocates and fills in *filenames
-+ * with an array of module filenames; length of array is stored in
-+ * *len.  The caller is responsible for free()ing *filenames and its
-+ * individual elements.	 Upon success returns 0, -1 on error.
-+ */
-+int semanage_get_modules_names(semanage_handle_t * sh, char ***filenames,
-+			       int *len)
-+{
-+	return semanage_get_modules_names_filter(sh, filenames,
-+						 len, semanage_filename_select);
-+}
-+
-+/* Scans the modules directory for the current semanage handler.  This
-+ * might be the active directory or sandbox, depending upon if the
-+ * handler has a transaction lock.  Allocates and fills in *filenames
-+ * with an array of module filenames; length of array is stored in
-+ * *len.  The caller is responsible for free()ing *filenames and its
-+ * individual elements.	 Upon success returns 0, -1 on error.
-+ */
-+int semanage_get_active_modules_names(semanage_handle_t * sh, char ***filenames,
-+			       int *len)
-+{
-+	return semanage_get_modules_names_filter(sh, filenames,
-+						 len, semanage_modulename_select);
-+}
-+
- /******************* routines that run external programs *******************/
- 
- /* Appends a single character to a string.  Returns a pointer to the
-@@ -1589,7 +1627,7 @@
- 	}
- 
- 	/* get list of modules and load them */
--	if (semanage_get_modules_names(sh, &module_filenames, &num_modules) ==
-+	if (semanage_get_active_modules_names(sh, &module_filenames, &num_modules) ==
- 	    -1 || semanage_load_module(sh, base_filename, base) == -1) {
- 		goto cleanup;
- 	}
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.h libsemanage-2.0.41/src/semanage_store.h
---- nsalibsemanage/src/semanage_store.h	2009-07-07 15:32:32.000000000 -0400
-+++ libsemanage-2.0.41/src/semanage_store.h	2009-11-12 11:01:10.000000000 -0500
-@@ -128,4 +128,6 @@
- 		     size_t buf_len,
- 		     char **sorted_buf, size_t * sorted_buf_len);
- 
-+extern const char *DISABLESTR;
-+
- #endif
 
---------------040404080405040108030201--
+--------------030407080902040200060009--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
