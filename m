@@ -1,72 +1,37 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAGHZh6Z032265
-	for <selinux@tycho.nsa.gov>; Mon, 16 Nov 2009 12:35:43 -0500
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id nAGHbko8005596
-	for <selinux@tycho.nsa.gov>; Mon, 16 Nov 2009 17:37:46 GMT
-Date: Mon, 16 Nov 2009 12:35:40 -0500
-Subject: Re: get security_class_t for objects
-From: Chad Sellers <csellers@tresys.com>
-To: michel m <michel.mcgregor@gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Message-ID: <C726F79C.AFEDC%csellers@tresys.com>
-In-Reply-To: <bb74313d0911140045s168c2fddq5870920f44352e28@mail.gmail.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+MIME-Version: 1.0
+In-Reply-To: <4ADF4C77.7050109@gmail.com>
+References: <4ADF2358.4050606@laganowski.net>
+	 <1256138160.4061.200.camel@moss-pluto.epoch.ncsc.mil>
+	 <4ADF2663.2030105@laganowski.net>
+	 <1256138950.4061.206.camel@moss-pluto.epoch.ncsc.mil>
+	 <87hbtsvhru.fsf@anzu.internal.golden-gryphon.com>
+	 <4ADF3D2C.2030408@laganowski.net>
+	 <1256144567.4061.223.camel@moss-pluto.epoch.ncsc.mil>
+	 <4ADF4301.30705@kutulu.org> <4ADF4C77.7050109@gmail.com>
+Date: Mon, 16 Nov 2009 14:09:00 -0800
+Message-ID: <dd18b0c30911161409v26919694wb8dc6c6594ae635c@mail.gmail.com>
+Subject: Re: 'make policy' issues
+From: Justin Mattock <justinmattock@gmail.com>
+To: Mike Edenfield <kutulu@kutulu.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Laganowski <eric@laganowski.net>,
+        selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/14/09 3:45 AM, "michel m" <michel.mcgregor@gmail.com> wrote:
+after adding most of the patches, and
+using flex from git, still getting an error from
+checkpolicy. Now after searching
+I ran into this:
+http://aur.archlinux.org/packages.php?ID=13202
+and sure enough after downgrading flex
+the policy went through as it should.
+(as for what/where? not sure, especially after adding
+most if not all patches to the latest flex).
 
-> thanks Chad,
-> but may you explain your tricky solution a bit more.
-> 
-Sure. I mean something like this:
 
-fstat(fd, &statbuf);
-if (S_ISREG(statbuf.st_mode))
-    class_string = "file";
-else if (S_ISCHR(statbuf.st_mode))
-    class_string = "chr_file";
-else if (S_ISBLK(statbuf.st_mode))
-    class_string = "blk_file";
-...
-class = string_to_security_class(class_string);
-
-Hope that helps,
-Chad
-
-> Regards.
-> 
-> On Wed, Nov 11, 2009 at 8:34 PM, Chad Sellers <csellers@tresys.com> wrote:
->> On 11/11/09 7:15 AM, "michel m" <michel.mcgregor@gmail.com> wrote:
->> 
->>> Hi,
->>> as an userspace object manager which uses libselinux, I am trying to use
->>> avc_has_perm(3) for determining access decisions. when I open a file, I can
->>> get its security context and change it to SID by using fgetfilecon(3) and
->>> avc_context_to_sid(3), respectively. but when I want to have access decision
->>> by calling avc_has_perm(3), I am not sure what to pass as the third
->>> argument,that is security_class_t. I would like to know if there is any API
->>> by
->>> which I can determine an already opened file`s class. may some one direct me
->>> to a sample code please
->>> 
->> You generally figure out that third parameter by using
->> string_to_security_class() (found in libselinux, discussed in the
->> selinux_check_passwd_access thread a few days ago). That will convert a
->> string class name to a security_class_t. As far as an API to determine the
->> class of an already opened file, fstat() combined with S_ISREG/S_ISDIR/etc.
->> should do the trick. A bit more work than you might like, but that's how I'd
->> do it.
->> 
->> Thanks,
->> Chad
->> 
-> 
-> 
-
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
