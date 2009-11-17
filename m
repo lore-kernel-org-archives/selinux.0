@@ -1,63 +1,57 @@
-Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHDEfq4003025
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 08:14:41 -0500
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nAHDDdKE008187
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 13:13:39 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3) with ESMTP id nAHDDfmw005455
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 08:13:41 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3/Submit) id nAHDDffY005453
-	for selinux@tycho.nsa.gov; Tue, 17 Nov 2009 08:13:41 -0500
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHCEPaS027884
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 07:14:25 -0500
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAHCGRSO003547
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 12:16:29 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 2C77B1812C
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 23:14:19 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: Debian SSH bugs
-Date: Tue, 17 Nov 2009 23:14:09 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200911172314.16878.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHDeqQl006848
+	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 08:40:52 -0500
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id nAHDgvSO000090
+	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 13:42:57 GMT
+Subject: Re: [refpolicy] No rule to make target `/seusers', needed by
+ `tmp/seusers'. Stop.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
+In-Reply-To: <dd18b0c30911162244o6fd2ba4asdf77d2342fb10326@mail.gmail.com>
+References: <dd18b0c30911162244o6fd2ba4asdf77d2342fb10326@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 17 Nov 2009 08:41:10 -0500
+Message-ID: <1258465270.27504.194.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=556644
+On Mon, 2009-11-16 at 22:44 -0800, Justin Mattock wrote:
+> I've hit something confusing to me.
+> When building a Monolithic policy everything
+> goes good. But as soon as I build a binary I hit this:
+> 
+> m4 -D distro_redhat -D enable_ubac -D mls_num_sens=16 -D
+> mls_num_cats=256 -D mcs_num_cats=256 -D hide_broken_symptoms -D
+> users_extra support/divert.m4 policy/support/file_patterns.spt
+> policy/support/ipc_patterns.spt policy/support/loadable_module.spt
+> policy/support/misc_macros.spt policy/support/misc_patterns.spt
+> policy/support/mls_mcs_macros.spt policy/support/obj_perm_sets.spt
+> support/undivert.m4 policy/users | \
+>                 sed -r -n -e 's/^[[:blank:]]*//g' -e '/^user/p' >
+> tmp/users_extra
+> make: *** No rule to make target `/seusers', needed by `tmp/seusers'.  Stop.
+> 
+> I've looked at the Makefile to make sure
+> I didn't forget anything(python,sed,awk,m4,flex)
+> but still can't seem to figure out what I'm missing
+> to have the policy compile the modules correctly.
+> 
+> Keep in mind I don't want to wast any of your guy's time,
+> so any quick hints are appreciated.
 
-I have just filed the above bug report against the version of openssh-server 
-in Debian/Unstable (Squeeze).  It has a patch that moves the code to set the 
-SE Linux context for the child process before calling chroot.  The same will 
-be needed in Fedora if it's not there yet.
-
-deb http://www.coker.com.au squeeze selinux
-
-I've created the above APT repository for Squeeze which has a package that 
-fixes this bug.
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=498684
-
-The above bug report has a fix for a trivial uninitialised variable bug.  Has 
-this been fixed in Fedora yet?
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=556648
-
-Also I filed the above bug report about the internal version of sftp being 
-incompatible with SE Linux (it doesn't involve an exec so the context doesn't 
-change).
+I can't reproduce this.  My guess is that either your policy sources are
+corrupt or the seusers makefile variable is being changed somehow, eg.
+by environmental variables.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
