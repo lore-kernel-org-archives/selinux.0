@@ -1,67 +1,43 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHFSL8n027531
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 10:28:21 -0500
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id nAHFUQSO022300
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 15:30:26 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 17 Nov 2009 10:28:40 -0500
-Message-ID: <1258471720.27504.253.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHGafFq007781
+	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 11:36:42 -0500
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAHGcijP024630
+	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 16:38:45 GMT
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Cc: Manoj Srivastava <srivasta@debian.org>
+Subject: [PATCH] [typo-fix]: cannnot -> cannot and suport -> support
+Date: Tue, 17 Nov 2009 10:27:57 -0600
+Message-Id: <1258475277-10977-1-git-send-email-srivasta@golden-gryphon.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on
-the Tresys OSS site, http://oss.tresys.com.  This release primarily
-focused on general policy development for supporting new applications
-and improving support of current ones.
+From: Manoj Srivastava <srivasta@debian.org>
 
-The complete change log for this release follows at the end of the
-email.
+This was reported after a lintian check found this on any package
+linked with libsepol.  Closes: #556390
 
-For people interested in helping Reference Policy development, the X
-desktop and role separation needs testing.
+Signed-off-by: Manoj Srivastava <srivasta@debian.org>
+---
+ src/write.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-* Tue Nov 17 2009 Chris PeBenito <selinux@tresys.com> - 2.20091117
-- Add separate x_pointer and x_keyboard classes inheriting from x_device. 
-  From Eamon Walsh.
-- Deprecated the userdom_xwindows_client_template().
-- Misc Gentoo fixes from Corentin Labbe.
-- Debian policykit fixes from Martin Orr.
-- Fix unconfined_r use of unconfined_java_t.
-- Add missing x_device rules for XI2 functions, from Eamon Walsh.
-- Add missing rules to make unconfined_cronjob_t a valid cron job domain.
-- Add btrfs and ext4 to labeling targets.
-- Fix infrastructure to expand macros in initrc_context when installing.
-- Handle unix_chkpwd usage by useradd and groupadd.
-- Add missing compatibility aliases for xdm_xserver*_t types.
-- Added modules:
-        abrt (Dan Walsh)
-        dkim (Stefan Schulze Frielinghaus)
-        gitosis (Miroslav Grepl)
-        gnomeclock (Dan Walsh)
-        hddtemp (Dan Walsh)
-        kdump (Dan Walsh)
-        modemmanager(Dan Walsh)
-        nslcd (Dan Walsh)
-        puppet (Craig Grube)
-        rtkit (Dan Walsh)
-        seunshare (Dan Walsh)
-        shorewall (Dan Walsh)
-        tgtd (Matthew Ife)
-        tuned (Miroslav Grepl)
-        xscreensaver (Corentin Labbe)
-
-
+diff --git a/src/write.c b/src/write.c
+index 9906e35..00c605f 100644
+--- a/src/write.c
++++ b/src/write.c
+@@ -1000,7 +1000,7 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 				buf[items++] = cpu_to_le32(typdatum->flags);
+ 			else if (typdatum->flags & TYPE_FLAGS_PERMISSIVE)
+ 				WARN(fp->handle, "Warning! Module policy "
+-				     "version %d cannnot suport permissive "
++				     "version %d cannot support permissive "
+ 				     "types, but one was defined",
+ 				     p->policyvers);
+ 		}
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+1.6.5.2
 
 
 --
