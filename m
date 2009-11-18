@@ -1,55 +1,96 @@
-Message-ID: <4B042666.1020805@tycho.nsa.gov>
-Date: Wed, 18 Nov 2009 11:52:54 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Bill Chimiak <wch1m1@gmail.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: WIndow Managers
-References: <200911181108.37883.w.chimiak@ieee.org>
-In-Reply-To: <200911181108.37883.w.chimiak@ieee.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from msux-gh1-uea01.nsa.gov (msux-gh1-uea01.nsa.gov [63.239.67.1])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAIKOS2j019644
+	for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2009 15:24:28 -0500
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id nAIKNPwQ022524
+	for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2009 20:23:26 GMT
+Date: Wed, 18 Nov 2009 15:24:24 -0500
+Subject: Re: Add modules support to semanage
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C729C228.AFF6D%csellers@tresys.com>
+In-Reply-To: <4AFC3673.4020505@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/18/2009 11:08 AM, Bill Chimiak wrote:
-> If one is trying to move closer to strict mode for their system,
-> Does it matter if one uses gnome as the window manager,  KDE,
-> or TWM (realizing that window managers make locking systems
-> down very difficult)?
+On 11/12/09 11:23 AM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+
+> On 11/11/2009 01:52 PM, Chad Sellers wrote:
+>> On 9/30/09 2:33 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+>> 
+>>> Includes enable and disable.
+>>> 
+>> I presume I should hold off on this patch until you have a chance to
+>> resubmit the libsemanage support that it relies on. Let me know if that's
+>> not the case.
+>> 
+>> Thanks,
+>> Chad
+>> 
+> Lets do this patch.
+> 
+> 
+> Moves load_policy from /usr/sbin to /sbin
+> 
+> Removed cruft.
 >
-> I notice there is the xace project and the online video presentation
-> of the Plumber's conference was helpful - but that seems gnome-centric,
-> unless I misinterpet something.
->
-> Thanks in advance.
->
->   
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index 23661bf..931448f 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -263,7 +263,13 @@ static int semanage_conf_init(semanage_conf_t * conf)
+>           calloc(1, sizeof(*(current_conf->load_policy)))) == NULL) {
+>          return -1;
+>      }
+> -    if ((conf->load_policy->path = strdup("/usr/sbin/load_policy")) == NULL)
+> {
+> +
+> +    if (access("/sbin/load_policy", X_OK) == 0) {
+> +        conf->load_policy->path = strdup("/sbin/load_policy");
+> +    } else {
+> +        conf->load_policy->path = strdup("/usr/sbin/load_policy");
+> +    }
+> +    if (conf->load_policy->path == NULL)
 
-The policy I showed at Plumber's had a window manager that was
-unconfined on X, and I think this pretty much required, as the window
-manager needs to touch everything on the display to manage it. 
+Still missing a curly brace.
 
-Given this, if you are building a secure system and you have a choice of
-WM, choosing a basic bare-bones one would minimize the chance of
-vulnerability in the WM.  Certainly the desktop seems to be moving
-towards a monolithic all-powerful manager application (e.g. gnome-shell)
-which may be problematic going forward.
+>          return -1;
+>      }
+>      conf->load_policy->args = NULL;
+> diff --git a/policycoreutils/load_policy/Makefile
+> b/policycoreutils/load_policy/Makefile
+> index 2dd2943..91dc6c8 100644
+> --- a/policycoreutils/load_policy/Makefile
+> +++ b/policycoreutils/load_policy/Makefile
+> @@ -1,6 +1,7 @@
+>  # Installation directories.
+>  PREFIX ?= ${DESTDIR}/usr
+> -SBINDIR ?= $(PREFIX)/sbin
+> +SBINDIR ?= $(DESTDIR)/sbin
+> +USRSBINDIR ?= $(PREFIX)/sbin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+>  
+> @@ -17,6 +18,8 @@ install: all
+>      install -m 755 $(TARGETS) $(SBINDIR)
+>      test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
+>      install -m 644 load_policy.8 $(MANDIR)/man8/
+> +    -mkdir -p $(USRSBINDIR)
+> +    ln -s /sbin/load_policy $(USRSBINDIR)/load_policy
+>  
+Still using -s instead of -sf. You never responded to my previous email (
+http://marc.info/?l=selinux&m=125788814205762&w=2 ). Are you ok with these 2
+fixes? If so, I can make the changes and merge this.
 
-One thing you want to avoid with the WM is the ability to run programs
-from it (such as through a context menu) because those programs then run
-in the WM's context unless you take some policy action.  I note that TWM
-does allow this.
+Thanks,
+Chad
 
-The WM in the demo was compiz, which is a good choice because it doesn't
-try to do anything except manage windows.
-
-Hope this helps.
-
-
--- 
-
-Eamon Walsh 
-National Security Agency
+>  clean:
+>      -rm -f $(TARGETS) *.o 
 
 
 --
