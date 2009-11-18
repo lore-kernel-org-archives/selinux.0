@@ -1,244 +1,144 @@
 Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAHKahZc011276
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 15:36:44 -0500
-Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAHKclbC021158
-	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 20:38:47 GMT
-From: Manoj Srivastava <srivasta@golden-gryphon.com>
-To: selinux@tycho.nsa.gov
-Cc: Manoj Srivastava <srivasta@debian.org>
-Subject: [PATCH] libsemanage: Fix the format of the NAME lines
-Date: Tue, 17 Nov 2009 14:28:43 -0600
-Message-Id: <1258489723-15486-1-git-send-email-srivasta@golden-gryphon.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAI2kIAh012532
+	for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2009 21:46:18 -0500
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAI2mLGY029741
+	for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2009 02:48:22 GMT
+Message-ID: <4B035FA4.6080605@ak.jp.nec.com>
+Date: Wed, 18 Nov 2009 11:44:52 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Jacques Thomas <jthomas@cs.purdue.edu>
+CC: SE Linux <selinux@tycho.nsa.gov>, method@manicmethod.com
+Subject: Re: Type boundaries: questions on the semantics / is the enforcement
+ correct ?
+References: <4AF71B05.8030707@cs.purdue.edu>
+In-Reply-To: <4AF71B05.8030707@cs.purdue.edu>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Manoj Srivastava <srivasta@debian.org>
+Sorry for the late response due to my extreme busy days on the last week.
 
-Each manual page should start with a "NAME" section, which lists the
-name and a brief description of the page separated by "\-". These
-sections are parsed by "mandb" and stored in a database for the use of
-"apropos" and "whatis", so they must be in a certain format. These
-manual pages apparently use the wrong format and cannot be parsed by
-"mandb". This commit fixes that.
+Jacques Thomas wrote:
+> Hi All,
+> 
+> I am trying to document the semantics of bounded types, and I am puzzled 
+> by two things:
+> 
+> 
+> 1/ The rationale for type boundaries on *target* types
+> I understand type boundaries on source types: the idea is that, if typeA 
+> is bounded by typeB, then typeA can not exert more permissions than 
+> typeB. This would be declared with the following statement in the source 
+> policy:
+> TYPEBOUND typeB typeA
+> 
+> What is a good use case for type boundaries on target types ?
 
-Signed-off-by: Manoj Srivastava <srivasta@debian.org>
----
- man/man3/semanage_bool.3            |    2 +-
- man/man3/semanage_bool_set_active.3 |    3 +--
- man/man3/semanage_count.3           |    2 +-
- man/man3/semanage_del.3             |    2 +-
- man/man3/semanage_exists.3          |    2 +-
- man/man3/semanage_fcontext.3        |    2 +-
- man/man3/semanage_iface.3           |    2 +-
- man/man3/semanage_iterate.3         |    2 +-
- man/man3/semanage_list.3            |    2 +-
- man/man3/semanage_modify.3          |    2 +-
- man/man3/semanage_node.3            |    2 +-
- man/man3/semanage_port.3            |    2 +-
- man/man3/semanage_query.3           |    2 +-
- man/man3/semanage_seuser.3          |    2 +-
- man/man3/semanage_user.3            |    2 +-
- 15 files changed, 15 insertions(+), 16 deletions(-)
+If a target type (parent) has a few bounded types (children), we can use
+the parent as a shared resource, and children as private types for individual
+source types.
 
-diff --git a/man/man3/semanage_bool.3 b/man/man3/semanage_bool.3
-index 3e38bf6..67da632 100644
---- a/man/man3/semanage_bool.3
-+++ b/man/man3/semanage_bool.3
-@@ -1,7 +1,7 @@
- .TH semanage_bool 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Policy Booleans Management API
-+semanage_bool \- SELinux Policy Booleans Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/boolean_record.h>
-diff --git a/man/man3/semanage_bool_set_active.3 b/man/man3/semanage_bool_set_active.3
-index d5005cb..026e29d 100644
---- a/man/man3/semanage_bool_set_active.3
-+++ b/man/man3/semanage_bool_set_active.3
-@@ -1,7 +1,6 @@
- .TH semanage_bool_set_local 3 "4 January 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- .SH "NAME"
--.B semanage_bool_set_active \- 
--update an existing SELinux boolean in the currently active policy
-+semanage_bool_set_active \- update an existing SELinux boolean in the currently active policy
- 
- .SH "SYNOPSIS"
- .B #include <semanage/booleans_active.h>
-diff --git a/man/man3/semanage_count.3 b/man/man3/semanage_count.3
-index 09894ac..b131cbe 100644
---- a/man/man3/semanage_count.3
-+++ b/man/man3/semanage_count.3
-@@ -1,7 +1,7 @@
- .TH semanage_count 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_count \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following count function is supported for any semanage record.
-diff --git a/man/man3/semanage_del.3 b/man/man3/semanage_del.3
-index ce4b46f..5b11ce3 100644
---- a/man/man3/semanage_del.3
-+++ b/man/man3/semanage_del.3
-@@ -1,7 +1,7 @@
- .TH semanage_del 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_del \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following delete function is supported for any semanage record.
-diff --git a/man/man3/semanage_exists.3 b/man/man3/semanage_exists.3
-index 15f164f..da401c2 100644
---- a/man/man3/semanage_exists.3
-+++ b/man/man3/semanage_exists.3
-@@ -1,7 +1,7 @@
- .TH semanage_exists 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_exists \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following exists function is supported for any semanage record.
-diff --git a/man/man3/semanage_fcontext.3 b/man/man3/semanage_fcontext.3
-index c407899..1f0bf32 100644
---- a/man/man3/semanage_fcontext.3
-+++ b/man/man3/semanage_fcontext.3
-@@ -1,7 +1,7 @@
- .TH semanage_fcontext 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux File Context Management API
-+semanage_fcontext \- SELinux File Context Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/fcontext_record.h>
-diff --git a/man/man3/semanage_iface.3 b/man/man3/semanage_iface.3
-index e4aa631..90af8b4 100644
---- a/man/man3/semanage_iface.3
-+++ b/man/man3/semanage_iface.3
-@@ -1,7 +1,7 @@
- .TH semanage_iface 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Network Interfaces Management API
-+semanage_iface \- SELinux Network Interfaces Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/iface_record.h>
-diff --git a/man/man3/semanage_iterate.3 b/man/man3/semanage_iterate.3
-index 0c9d7d0..8773800 100644
---- a/man/man3/semanage_iterate.3
-+++ b/man/man3/semanage_iterate.3
-@@ -1,7 +1,7 @@
- .TH semanage_iterate 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_iterate \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following iterate function is supported for any semanage record.
-diff --git a/man/man3/semanage_list.3 b/man/man3/semanage_list.3
-index c4d68ba..9376702 100644
---- a/man/man3/semanage_list.3
-+++ b/man/man3/semanage_list.3
-@@ -1,7 +1,7 @@
- .TH semanage_list 3 "16 March 2006" "ivg2@cornell.edu" "SELinux managent API documentation"
- 
- .SH "NAME" 
--SELinux Lists Management API
-+semanage_list \- SELinux Lists Management API
- 
- .SH "SYNOPSIS"
- The following list function is supported for any SELinux managent record.
-diff --git a/man/man3/semanage_modify.3 b/man/man3/semanage_modify.3
-index ddee386..04bd801 100644
---- a/man/man3/semanage_modify.3
-+++ b/man/man3/semanage_modify.3
-@@ -1,7 +1,7 @@
- .TH semanage_modify 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_modify \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following modify function is supported for any semanage record.
-diff --git a/man/man3/semanage_node.3 b/man/man3/semanage_node.3
-index 1098be5..2df7a91 100644
---- a/man/man3/semanage_node.3
-+++ b/man/man3/semanage_node.3
-@@ -1,7 +1,7 @@
- .TH semanage_node 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Network Nodes Management API
-+semanage_node \- SELinux Network Nodes Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/node_record.h>
-diff --git a/man/man3/semanage_port.3 b/man/man3/semanage_port.3
-index b5f3441..3a4e626 100644
---- a/man/man3/semanage_port.3
-+++ b/man/man3/semanage_port.3
-@@ -1,7 +1,7 @@
- .TH semanage_port 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Network Ports Management API
-+semanage_port \- SELinux Network Ports Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/port_record.h>
-diff --git a/man/man3/semanage_query.3 b/man/man3/semanage_query.3
-index b899595..1a6cdb2 100644
---- a/man/man3/semanage_query.3
-+++ b/man/man3/semanage_query.3
-@@ -1,7 +1,7 @@
- .TH semanage_query 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux Management API
-+semanage_query \- SELinux Management API
- 
- .SH "SYNOPSIS"
- The following query function is supported for any semanage record.
-diff --git a/man/man3/semanage_seuser.3 b/man/man3/semanage_seuser.3
-index 9011724..be0fa68 100644
---- a/man/man3/semanage_seuser.3
-+++ b/man/man3/semanage_seuser.3
-@@ -1,7 +1,7 @@
- .TH semanage_seuser 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--Linux UID to SELinux User Management API
-+semanage_seuser \- Linux UID to SELinux User Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/seuser_record.h>
-diff --git a/man/man3/semanage_user.3 b/man/man3/semanage_user.3
-index 5ba60b2..6102dd5 100644
---- a/man/man3/semanage_user.3
-+++ b/man/man3/semanage_user.3
-@@ -1,7 +1,7 @@
- .TH semanage_user 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API documentation"
- 
- .SH "NAME" 
--SELinux User Management API
-+semanage_user \- SELinux User Management API
- 
- .SH "SYNOPSIS"
- .B #include <semanage/user_record.h>
+For example, please assume httpd_user_content_t and httpd_guest_content_t
+are bounded by httpd_sys_content_t. In this example, a domain which tries
+to access to the httpd_user_content_t must have a set of equal or wider
+permissions on the httpd_sys_content_t. Ditto for httpd_guest_content_t.
+If here are two domains ( user_webapp_t and guest_webapp_t ) with its own
+private types individually, we can use the boundaries to restrict permissions
+to be allowed on the child types.
+
+However, we have to admit it is a bit hard to image actual use cases.
+In fact, we can apply same restriction using regular types.
+
+Joshua, do you have any idea for use cases of boundaries in targets?
+
+
+> 2/ The logic of type_attribute_bounds_av in ss/services.c (kernel side)
+> This method is invoked to filter/limit an access vector according to the 
+> type boundaries. Its logic goes as follows:
+> 
+> if(source type has a bound){  // SOURCE
+>    ../..
+>    if(the bound is not violated)
+>        return
+>    ../..
+> }
+> 
+> if(target type has a bound){  // TARGET
+>    ../..
+>    if(the bound is not violated)
+>       return
+>    ../..
+> }
+> 
+> if(target and source types have a bound){ // BOTH
+>    ../..
+>    if(these bounds are not violated)
+>       return
+>    ../..
+> }
+> 
+> if(there was a violation){
+>    send audit message to user space
+> }
+> 
+> The early return statements seem to violate the intent of the code. For 
+> instance, suppose that the source type is bounded and no access bits 
+> violates these bounds, then the code will never evaluate whether bounds 
+> on the target type are violated.
+> 
+> It seems to me that the logic should be:
+> 
+> // BOTH
+> else // SOURCE
+> else // TARGET
+> 
+> Instead of:
+> 
+> // SOURCE
+> // TARGET
+> // BOTH
+
+Assume P(s,t) means a set of permissions allowed between 's' and 't'.
+Assume 'Sc' is bounded by 'Sp', and 'Tc' is bounded by 'Tp'.
+
+In this case,
+- P(Sc,Tp) should be equal or less than P(Sp,Tp) due to the SOURCE check.
+- P(Sp,Tc) should be equal or less than P(Sp,Tp) due to the TARGET check.
+- P(Sc,Tc) should be equal or less than P(Sp,Tp) due to the BOTH check,
+  and should P(Sc,Tc) equal to (P(Sc,Tp) AND P(Sp,Tc)).
+
+However, the current implementation immediately returns when no violations
+between P(Sc,Tp) and P(Sp,Tp) on the SOURCE check, even if both of types
+have its boundaries. The P(Sc,Tc) should be also masked by P(Sc,Tp), but
+it seems to me being bypassed.
+
+If my logic is not incorrect, the implementation should be fixed as follows:
+
+  type_attribute_bounds_av(Sc,Tc, ...)
+  {
+    masked = 0;
+
+    if (Sc has its bounds)
+      masked |= P(Sc,Tc) & ~P(Sp,Tc);
+
+    if (Tc has its bounds)
+      masked |= P(Sc,Tc) & ~P(Sc,Tp);
+
+    avd->allowed &= ~masked;
+  }
+
+Any comments?
+
+I also think we have one other a rough option.
+It simply applies type boundaries on only sources to restrict its privileges,
+and it does not apply any restrictions on target types.
+
+Thanks,
 -- 
-1.6.5.2
-
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
