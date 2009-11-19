@@ -1,196 +1,380 @@
-Received: from msux-gh1-uea02.nsa.gov (msux-gh1-uea02.nsa.gov [63.239.67.2])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAJG7cD9006427
-	for <selinux@tycho.nsa.gov>; Thu, 19 Nov 2009 11:07:38 -0500
-Received: from mailhub130.itcs.purdue.edu (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAJG9hEN029246
-	for <selinux@tycho.nsa.gov>; Thu, 19 Nov 2009 16:09:43 GMT
-Message-ID: <4B056D3D.2050303@cs.purdue.edu>
-Date: Thu, 19 Nov 2009 11:07:25 -0500
-From: Jacques Thomas <jthomas@cs.purdue.edu>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, method@manicmethod.com
-Subject: Re: Type boundaries: questions on the semantics / is the enforcement
- correct ?
-References: <4AF71B05.8030707@cs.purdue.edu> <4B035FA4.6080605@ak.jp.nec.com>
-In-Reply-To: <4B035FA4.6080605@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Subject: [PATCH] kernel: Dynamic port labeling
+From: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 19 Nov 2009 14:07:15 -0500
+Message-Id: <1258657635.2753.8.camel@moss-stripedbass.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Sorry for the late response due to my extreme busy days on the last week.
->   
+Added a mechanism to add/delete/update port labels with an interface in 
+the selinuxfs filesystem.  This will give administrators the ability to
+update port labels faster than reloading the entire policy with
+semanage.  The administrator will also need less privilege since they
+don't have to be authorized to reload the full policy. Let me know what
+you think of the patch.  Not sure if the policy_rwlock semaphore needs
+to be taken before modifying the ocontext list. 
 
-No problem, and thanks for your reply. I should have sent a patch as a
-proposal. I was too busy to make (and test) a patch.
+A listing of all port labels will be output if the file /selinux/rw_port
+is read.  Labels could be added or deleted with the following commands 
 
-> Jacques Thomas wrote:
->   
->> Hi All,
->>
->> I am trying to document the semantics of bounded types, and I am puzzled 
->> by two things:
->>
->>
->> 1/ The rationale for type boundaries on *target* types
->> I understand type boundaries on source types: the idea is that, if typeA 
->> is bounded by typeB, then typeA can not exert more permissions than 
->> typeB. This would be declared with the following statement in the source 
->> policy:
->> TYPEBOUND typeB typeA
->>
->> What is a good use case for type boundaries on target types ?
->>     
->
-> If a target type (parent) has a few bounded types (children), we can use
-> the parent as a shared resource, and children as private types for individual
-> source types.
->
-> For example, please assume httpd_user_content_t and httpd_guest_content_t
-> are bounded by httpd_sys_content_t. In this example, a domain which tries
-> to access to the httpd_user_content_t must have a set of equal or wider
-> permissions on the httpd_sys_content_t. Ditto for httpd_guest_content_t.
-> If here are two domains ( user_webapp_t and guest_webapp_t ) with its own
-> private types individually, we can use the boundaries to restrict permissions
-> to be allowed on the child types.
->
-> However, we have to admit it is a bit hard to image actual use cases.
-> In fact, we can apply same restriction using regular types.
->   
-
-Almost everything can be expressed just in terms of types. The TYPEBOUND
-extension, however, makes it much easier to express the containment
-relationship that you want to establish between the http server *domain*
-and the *domains* of its worker threads (for Apache/SELinux plus ).
-
-Going with your example, what bothers me is that, if I wanted to give
-guest_webapp_t read/write/create access to httpd_guest_content_t, I
-would then have to give guest_webapp_t read/write/create access on
-httpd_sys_content_t. I think the containment relationship should be in
-the other direction: guest_webapp_t can not have more permissions on
-httpd_sys_content_t than it has on httpd_guest_content_t. This reminds
-me of what is called contravariance in type theory.
-
-I think it would be less confusing if boundaries were expressed using
-different keywords for boundaries on domains and boundaries on "data"
-types, even if the boundaries can be enforced using the same
-infrastructure code (which is clearly demonstrated by the current code).
-
-Keeping only the code that enforces boundaries on domains (subjects) is
-the simplest fix, and is adequate if there is no compelling example for
-why we need boundaries on subjects.
-
-> Joshua, do you have any idea for use cases of boundaries in targets?
->
->
->   
->> 2/ The logic of type_attribute_bounds_av in ss/services.c (kernel side)
->> This method is invoked to filter/limit an access vector according to the 
->> type boundaries. Its logic goes as follows:
->>
->> if(source type has a bound){  // SOURCE
->>    ../..
->>    if(the bound is not violated)
->>        return
->>    ../..
->> }
->>
->> if(target type has a bound){  // TARGET
->>    ../..
->>    if(the bound is not violated)
->>       return
->>    ../..
->> }
->>
->> if(target and source types have a bound){ // BOTH
->>    ../..
->>    if(these bounds are not violated)
->>       return
->>    ../..
->> }
->>
->> if(there was a violation){
->>    send audit message to user space
->> }
->>
->> The early return statements seem to violate the intent of the code. For 
->> instance, suppose that the source type is bounded and no access bits 
->> violates these bounds, then the code will never evaluate whether bounds 
->> on the target type are violated.
->>
->> It seems to me that the logic should be:
->>
->> // BOTH
->> else // SOURCE
->> else // TARGET
->>
->> Instead of:
->>
->> // SOURCE
->> // TARGET
->> // BOTH
->>     
->
-> Assume P(s,t) means a set of permissions allowed between 's' and 't'.
-> Assume 'Sc' is bounded by 'Sp', and 'Tc' is bounded by 'Tp'.
->
-> In this case,
-> - P(Sc,Tp) should be equal or less than P(Sp,Tp) due to the SOURCE check.
-> - P(Sp,Tc) should be equal or less than P(Sp,Tp) due to the TARGET check.
-> - P(Sc,Tc) should be equal or less than P(Sp,Tp) due to the BOTH check,
->   and should P(Sc,Tc) equal to (P(Sc,Tp) AND P(Sp,Tc)).
->
-> However, the current implementation immediately returns when no violations
-> between P(Sc,Tp) and P(Sp,Tp) on the SOURCE check, even if both of types
-> have its boundaries. The P(Sc,Tc) should be also masked by P(Sc,Tp), but
-> it seems to me being bypassed.
->   
-
-This is how I read this code too: if the first mask (SOURCE) is empty,
-the other masks are not evaluated.
-
-> If my logic is not incorrect, the implementation should be fixed as follows:
->
->   type_attribute_bounds_av(Sc,Tc, ...)
->   {
->     masked = 0;
->
->     if (Sc has its bounds)
->       masked |= P(Sc,Tc) & ~P(Sp,Tc);
->
->     if (Tc has its bounds)
->       masked |= P(Sc,Tc) & ~P(Sc,Tp);
->
->     avd->allowed &= ~masked;
->   }
->
-> Any comments?
->   
-
-It makes sense.
-
-In the current code, there is also a check that (following your style)
-goes as follows:
-
-    if ((Sc has its bounds) and (Tc has its bounds))
-      masked |= P(Sc,Tc) & ~P(Sp,Tp);
+echo -n "del system_u:object_r:ssh_port_t:s0 6 22" > /selinux/rw_port
+echo -n "add system_u:object_r:telnetd_port_t:s0 6 22" > /selinux/rw_port
 
 
-I am not sure of the meaning of this check.
+Signed-off-by: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
 
-> I also think we have one other a rough option.
-> It simply applies type boundaries on only sources to restrict its privileges,
-> and it does not apply any restrictions on target types.
->   
+---
+ security/selinux/hooks.c            |    1
+ security/selinux/include/classmap.h |    2
+ security/selinux/include/security.h |    9 ++
+ security/selinux/selinuxfs.c        |   96 +++++++++++++++++++++
+ security/selinux/ss/services.c      |  159 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 265 insertions(+), 2 deletions(-)
 
-Unless there is a clear use for bounds on targets, I would favor this
-option. (The "rough" one :-) )
-I see mostly room for confusion with the bounds on target types, because
-of the contravariance issue.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c96d63e..db40101 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1224,7 +1224,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 sid;
+ 	struct dentry *dentry;
+-#define INITCONTEXTLEN 255
+ 	char *context = NULL;
+ 	unsigned len = 0;
+ 	int rc = 0;
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 8b32e95..41baed8 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -16,7 +16,7 @@ struct security_class_mapping secclass_map[] = {
+ 	  { "compute_av", "compute_create", "compute_member",
+ 	    "check_context", "load_policy", "compute_relabel",
+ 	    "compute_user", "setenforce", "setbool", "setsecparam",
+-	    "setcheckreqprot", NULL } },
++	    "setcheckreqprot", "rw_port", NULL } },
+ 	{ "process",
+ 	  { "fork", "transition", "sigchld", "sigkill",
+ 	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 2553266..ce8e8a6 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -169,6 +169,15 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
+ int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
+ 
++int security_ocon_port_add(u32 protocol, u32 low, u32 high, u32 sid,
++			   char *scontext);
++
++int security_ocon_port_del(u32 protocol, u32 low, u32 high, u32 sid,
++			   char *scontext);
++
++int security_ocon_port_read(char **buf);
++#define INITCONTEXTLEN 255
++
+ #ifdef CONFIG_NETLABEL
+ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 				   u32 *sid);
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index fab36fd..e52d81e 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -110,6 +110,7 @@ enum sel_inos {
+ 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
+ 	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
+ 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
++	SEL_OCON_PORT,  /* add OCON_PORT to the list */
+ 	SEL_INO_NEXT,	/* The next inode number to use */
+ };
+ 
+@@ -253,6 +254,100 @@ static const struct file_operations sel_disable_ops = {
+ 	.write		= sel_write_disable,
+ };
+ 
++static ssize_t sel_write_ocon_port(struct file *file, const char __user *buf,
++				 size_t count, loff_t *ppos)
++{
++	ssize_t length;
++	unsigned long low = 0, high = 0, protocol = 0;
++	char *page, *scontext, *command;
++	u32 sid;
++#define OCONCOMMANDLEN 4
++#define OCON_ADD_COMMAND "add"
++#define OCON_DEL_COMMAND "del"
++
++	length = task_has_security(current, SECURITY__RW_PORT);
++	if (length)
++		return length;
++
++	if (count >= PAGE_SIZE)
++		return -ENOMEM;
++	if (*ppos != 0) {
++		/* No partial writes. */
++		return -EINVAL;
++	}
++	page = (char *)get_zeroed_page(GFP_KERNEL);
++	if (!page)
++		goto nomem;
++	scontext = kzalloc(INITCONTEXTLEN, GFP_KERNEL);
++	if (!scontext)
++		goto nomem1;
++	command = kzalloc(OCONCOMMANDLEN, GFP_KERNEL);
++	if (!command)
++		goto nomem2;
++
++	length = -EFAULT;
++	if (copy_from_user(page, buf, count))
++		goto out;
++
++	length = sscanf(page, "%3s %255s %lu %lu %lu", command, scontext,
++			 &protocol, &low, &high);
++	if (length < 5) {
++		length = -EINVAL;
++		goto out;
++	}
++	length = security_context_to_sid(scontext, strlen(scontext), &sid);
++	if (length < 0) {
++		length = -EINVAL;
++		goto out;
++	}
++
++	if (strncmp(OCON_ADD_COMMAND, command, strlen(OCON_ADD_COMMAND)) == 0)
++		length = security_ocon_port_add(protocol, low, high, sid,
++						 scontext);
++	else if (strncmp(OCON_DEL_COMMAND, command, strlen(OCON_DEL_COMMAND))
++		 == 0)
++		length = security_ocon_port_del(protocol, low, high, sid,
++						scontext);
++	else {
++		length = -EINVAL;
++		goto out;
++	}
++	if (length < 0)
++		goto out;
++	length = count;
++out:
++	kfree(command);
++	kfree(scontext);
++	free_page((unsigned long) page);
++	return length;
++
++nomem2:
++	kfree(scontext);
++nomem1:
++	free_page((unsigned long) page);
++nomem:
++	return -ENOMEM;
++}
++
++static ssize_t sel_read_ocon_port(struct file *filp, char __user *buf,
++				   size_t count, loff_t *ppos)
++{
++	ssize_t length;
++	char *buf_tmp = NULL;
++
++	length = task_has_security(current, SECURITY__RW_PORT);
++	if (length)
++		return length;
++
++	length = security_ocon_port_read(&buf_tmp);
++	return simple_read_from_buffer(buf, count, ppos, buf_tmp, length);
++}
++
++static const struct file_operations sel_ocon_port_ops = {
++	.write		= sel_write_ocon_port,
++	.read		= sel_read_ocon_port,
++};
++
+ static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
+ 				   size_t count, loff_t *ppos)
+ {
+@@ -1596,6 +1691,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
+ 		[SEL_REJECT_UNKNOWN] = {"reject_unknown", &sel_handle_unknown_ops, S_IRUGO},
+ 		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
++		[SEL_OCON_PORT] = {"rw_port", &sel_ocon_port_ops, S_IRUSR|S_IWUSR},
+ 		/* last one */ {""}
+ 	};
+ 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 77f6e54..978a332 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1831,6 +1831,165 @@ err:
+ 
+ }
+ 
++int security_ocon_port_add(u32 protocol, u32 low, u32 high, u32 sid,
++							 char *scontext)
++{
++	int rc = 0;
++	struct ocontext *c;
++	struct context ctx;
++	struct ocontext *add = kzalloc(sizeof(struct ocontext), GFP_KERNEL);
++
++	if (!add)
++		return -ENOMEM;
++	if (!high)
++		high = low;
++	else if (low > high) {
++		rc = -EINVAL;
++		goto out;
++	}
++
++	read_lock(&policy_rwlock);
++	rc = string_to_context_struct(&policydb, &sidtab, scontext,
++					 strlen(scontext), &ctx, sid);
++	if (rc) {
++		rc = -EINVAL;
++		goto out;
++	}
++
++	add->u.port.protocol = protocol;
++	add->u.port.low_port = low;
++	add->u.port.high_port = high;
++	add->sid[0] = sid;
++	add->context[0] = ctx;
++	for (c = policydb.ocontexts[OCON_PORT]; c; c = c->next) {
++		if (add->u.port.protocol == c->u.port.protocol &&
++		    add->u.port.low_port == c->u.port.low_port &&
++		    add->u.port.high_port == c->u.port.high_port) {
++			printk(KERN_DEBUG "Duplicate netport %d - %d.. "
++					  "changing permissions\n",
++			       add->u.port.low_port, add->u.port.high_port);
++			c->sid[0] = add->sid[0];
++			context_destroy(&c->context[0]);
++			c->context[0] = add->context[0];
++			context_destroy(&add->context[0]);
++			kfree(add);
++			avc_ss_reset(0);
++			goto out;
++		}
++	}
++
++	add->next = policydb.ocontexts[OCON_PORT];
++	policydb.ocontexts[OCON_PORT] = add;
++	avc_ss_reset(0);
++out:
++	if (rc) {
++		context_destroy(&add->context[0]);
++		kfree(add);
++	}
++	read_unlock(&policy_rwlock);
++	return rc;
++}
++
++int security_ocon_port_del(u32 protocol, u32 low, u32 high, u32 sid,
++							char *scontext)
++{
++	int rc = 0;
++	struct ocontext *c, *before_c;
++	struct context ctx;
++
++	if (!high)
++		high = low;
++	else if (low > high)
++		return -EINVAL;
++
++	read_lock(&policy_rwlock);
++	rc = string_to_context_struct(&policydb, &sidtab, scontext,
++					 strlen(scontext), &ctx, sid);
++	if (rc) {
++		rc = -EINVAL;
++		goto out;
++	}
++	for (before_c = NULL, c = policydb.ocontexts[OCON_PORT]; c;
++	     before_c = c, c = c->next) {
++		if (c->u.port.protocol == protocol &&
++		    c->u.port.low_port == low &&
++		    c->u.port.high_port == high &&
++		    c->context[0].type == ctx.type &&
++		    c->context[0].role == ctx.role &&
++		    c->context[0].user == ctx.user) {
++			if (before_c == NULL)
++				policydb.ocontexts[OCON_PORT] = c->next;
++			else
++				before_c->next = c->next;
++			context_destroy(&c->context[0]);
++			kfree(c);
++			avc_ss_reset(0);
++			break;
++		}
++	}
++	if (c == NULL) {
++		printk(KERN_DEBUG "Netport not found %lu - %lu\n",
++		       (unsigned long) low, (unsigned long) high);
++		rc = -ENXIO;
++	}
++out:
++	context_destroy(&ctx);
++	read_unlock(&policy_rwlock);
++	return rc;
++}
++
++int security_ocon_port_read(char **buf)
++{
++	unsigned int buf_size = 0, old_size = 0, len;
++	struct ocontext *c;
++	char *scontext;
++	char *buf_tmp = NULL;
++	int rc = 0;
++	int line_size = INITCONTEXTLEN + (sizeof(unsigned long) * 3) +
++			 (sizeof(char) * 5);
++	char addline[line_size];
++
++	/* protocol low-high scontext*/
++	read_lock(&policy_rwlock);
++	if (policydb.ocontexts[OCON_PORT] == NULL)
++		goto out;
++
++	for (c = policydb.ocontexts[OCON_PORT]; c; c = c->next) {
++		rc = context_struct_to_string(&(c->context[0]), &scontext,
++					      &len);
++		if (rc < 0) {
++			kfree(buf_tmp);
++			rc = -EINVAL;
++			goto out;
++		}
++		if (len > INITCONTEXTLEN) {
++			kfree(buf_tmp);
++			kfree(scontext);
++			rc = -EOVERFLOW;
++			goto out;
++		}
++		snprintf(addline, line_size, "%u %u-%u %s\n",
++			c->u.port.protocol, c->u.port.low_port,
++			c->u.port.high_port, scontext);
++		kfree(scontext);
++		buf_size += strlen(addline);
++		buf_tmp = krealloc(buf_tmp, buf_size, GFP_KERNEL);
++		if (!buf_tmp) {
++			rc = -ENOMEM;
++			goto out;
++		}
++		for (rc = old_size; rc < buf_size; rc++)
++			buf_tmp[rc] = '\0';
++		strncat(buf_tmp, addline, buf_size);
++		old_size = buf_size;
++	}
++
++	*buf = buf_tmp;
++out:
++	read_unlock(&policy_rwlock);
++	return rc;
++}
++
+ /**
+  * security_port_sid - Obtain the SID for a port.
+  * @protocol: protocol number
 
-Thanks a lot for your time,
-Jacques
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
