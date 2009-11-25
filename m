@@ -1,103 +1,159 @@
-Subject: Re: [PATCH] kernel: Dynamic port labeling
-From: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
-In-Reply-To: <4B070384.3020908@redhat.com>
-References: <1258657635.2753.8.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4B05C148.2080605@redhat.com>
-	 <1258734127.2606.49.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4B070384.3020908@redhat.com>
-Content-Type: text/plain
-Date: Mon, 23 Nov 2009 10:26:27 -0500
-Message-Id: <1258989987.2301.11.camel@moss-stripedbass.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 25 Nov 2009 21:27:27 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: SELinux@tycho.nsa.gov
+Subject: MCS read only cats implemented
+Message-ID: <20091125202727.GD1649@myhost.felk.cvut.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Epv4kl9IRBfg3rk"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-11-20 at 16:00 -0500, Daniel J Walsh wrote:
-> On 11/20/2009 11:22 AM, Paul Nuzzi wrote:
-> > On Thu, 2009-11-19 at 17:06 -0500, Daniel J Walsh wrote: 
-> >> On 11/19/2009 02:07 PM, Paul Nuzzi wrote:
-> >>> Added a mechanism to add/delete/update port labels with an interface in 
-> >>> the selinuxfs filesystem.  This will give administrators the ability to
-> >>> update port labels faster than reloading the entire policy with
-> >>> semanage.  The administrator will also need less privilege since they
-> >>> don't have to be authorized to reload the full policy. Let me know what
-> >>> you think of the patch.  Not sure if the policy_rwlock semaphore needs
-> >>> to be taken before modifying the ocontext list. 
-> >>>
-> >>> A listing of all port labels will be output if the file /selinux/rw_port
-> >>> is read.  Labels could be added or deleted with the following commands 
-> >>>
-> >>> echo -n "del system_u:object_r:ssh_port_t:s0 6 22" > /selinux/rw_port
-> >>> echo -n "add system_u:object_r:telnetd_port_t:s0 6 22" > /selinux/rw_port
-> >>>
-> >>>
-> >> The problem with this type of interface is that it effects
-> >> name_connect and name_bind.
-> >>
-> >> If I had client policy written to allow ssh_t to connect to port
-> >> ssh_port_t (22), but I wanted sshd_t to listen on port 23,
-> >> Your change blows up one or the other app.
-> >>
-> >> What we really need is port labels based on direction. Or label every
-> >> port and allow me to define attributes that group ports.
-> >>
-> >> inbount_ssh_port and outbound_ssh_port
-> > 
-> > I'm not sure I fully understand the problem you might have with your
-> > policy.  Portcon doesn't have inbound or outbound labeling
-> > functionality.  If an admin used this interface to relabel the ports to
-> > what you described above, would this functionality still break your
-> > project?
-> > 
-> >>
-> >>> Signed-off-by: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
-> >>>
-> >>> ---
-> >>>  security/selinux/hooks.c            |    1
-> >>>  security/selinux/include/classmap.h |    2
-> >>>  security/selinux/include/security.h |    9 ++
-> >>>  security/selinux/selinuxfs.c        |   96 +++++++++++++++++++++
-> >>>  security/selinux/ss/services.c      |  159 ++++++++++++++++++++++++++++++++++++
-> >>>  5 files changed, 265 insertions(+), 2 deletions(-)
-> >>>
-> > 
-> > 
-> Well there is nothing specific about this patch.  We control control most of the network access in SELinux based on wheat ports and
-> application can bind to, and which ports it can connect to, based on the type of the port.
-> 
-> So you have a rule like 
-> 
-> allow httpd_t http_port_t:tcp_socket name_bind;
-> allow mozilla_t http_port_t:tcp_socket name_connect;
-> 
-> So if I decide I want apache to only be allowed to bind to port 80, I end up only allowing firefox to connect to port 80.  Which is not what I want.
-> 
 
-In corenet_tcp_bind_http_port there are rules
-
- allow $1 http_port_t:tcp_socket name_bind;
- allow $1 self:capability net_bind_service;
-
-Would that help your problem?  That's the only difference I see between
-corenet_tcp_bind_http_port and corenet_tcp_connect_http_port.  There is
-also 
-
- allow $1 http_port_t:tcp_socket { send_msg recv_msg };
-
-which might be needed.  Check out policy/modules/kernel/corenetwork.if
-in the refpolicy for some more ideas.  
+--4Epv4kl9IRBfg3rk
+Content-Type: multipart/mixed; boundary="J5MfuwkIyy7RmF4Q"
+Content-Disposition: inline
 
 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+--J5MfuwkIyy7RmF4Q
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
+Michal Svoboda wrote:
+> Okay then I will implement this and see how it works.
+
+So I implemented the modification. I am sending the patch for review and
+also in case anyone else is interested in the feature. The patch is
+against debian lenny's policy source files version 2:0.0.20080702-16,
+which slightly differ from what's in refpolicy git master now, but there
+should be no problem with porting the modification.
+
+Just to summarize, what the modification does is that you now can use
+a range of low and high MCS cats on filesystem objects. Now, if the
+user's process dominates the high cat of the file, he's given full
+access (as far as TE permits), if he dominates the low cat, he's
+constrained to read-only operation (even if TE permits writing), and if
+he does not dominate neither low nor high, he's denied access (as per
+normal MCS behavior). If the file has low cat equal to high, the system
+works as in the unmodified MCS.
+
+Example:
+
+files on 'server' in /data/svn/repo are given MCS level s0:c4-s0:c1,c4
+(ie. c4 is the read only cat, and c1,c4 is read-write)
+
+user has been given c4 (read-only access) via semanage:
+
+$ svn checkout svn+ssh://user@server/data/svn/repo
+A    repo/boo.txt
+Checked out revision 5.
+$ cd repo
+$ ls
+boo.txt
+$ cat >> boo.txt
+hello
+^D
+$ svn ci -m ello
+Sending        boo.txt
+Transmitting file data .svn: Commit failed (details follow):
+svn: Can't open file '/data/svn/repo/db/txn-current-lock': Permission denied
+
+user has been given c1,c4 (full access):
+
+$ svn ci -m ello
+Sending        boo.txt
+Transmitting file data .
+Committed revision 6.
+$ svn update
+At revision 6.
+
+revoked c1,c4 from user (no access):
+
+$ svn update
+svn: Can't open file '/data/svn/repo/format': Permission denied
+
+
+--J5MfuwkIyy7RmF4Q
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="duallevel.patch"
+Content-Transfer-Encoding: quoted-printable
+
+--- selinux-policy-src-original/policy/mcs	2009-05-14 08:06:49.000000000 +0=
+200
++++ selinux-policy-src/policy/mcs	2009-11-25 20:52:15.404177100 +0100
+@@ -58,10 +58,11 @@
+ #
+=20
+ #
+-# MCS policy for the file classes
++# Dual-level MCS policy for the file classes
+ #
+ # Constrain file access so that the high range of the process dominates
+-# the high range of the file.  We use the high range of the process so
++# the low range of the file for read-only operations, and high range of
++# the file for modifications.  We use the high range of the process so
+ # that processes can always simply run at s0.
+ #
+ # Note that getattr on files is always permitted.
+@@ -72,19 +73,23 @@
+ mlsconstrain file { write setattr append unlink link rename }
+ 	(( h1 dom h2 ) and ((l1 domby l2) or (t2 =3D=3D mcstrustedobject)));
+=20
+-mlsconstrain dir { create getattr setattr read write link unlink rename se=
+arch add_name remove_name reparent rmdir lock ioctl }
++mlsconstrain dir { create setattr write link unlink rename add_name remove=
+_name reparent rmdir lock ioctl }
+ 	(( h1 dom h2 ) or ( t2 =3D=3D domain ) or ( t1 =3D=3D mlsfileread ));
+=20
++mlsconstrain dir { getattr read search }
++	(( h1 dom l2 ) or ( t2 =3D=3D domain ) or ( t1 =3D=3D mlsfileread ));
++
+ # New filesystem object labels must be dominated by the relabeling subject
+-# clearance, also the objects are single-level.
++# clearance.
+ mlsconstrain file { create relabelto }
+-	(( l2 eq h2 ) and ( h1 dom h2 ) and
++	(( l2 domby h2 ) and ( h1 dom h2 ) and
+ 	((l1 domby l2) or (t2 =3D=3D mcstrustedobject)));
+=20
+ # At this time we do not restrict "ps" type operations via MCS.  This
+-# will probably change in future.
++# will probably change in future. We use l2 instead of h2 to distinguish
++# read and write operations.
+ mlsconstrain file { read }
+-	(( h1 dom h2 ) or ( t2 =3D=3D domain ) or ( t1 =3D=3D mlsfileread ));
++	(( h1 dom l2 ) or ( t2 =3D=3D domain ) or ( t1 =3D=3D mlsfileread ));
+=20
+ # new file labels must be dominated by the relabeling subject clearance
+ mlsconstrain { dir lnk_file chr_file blk_file sock_file fifo_file } { rela=
+belfrom }
+@@ -92,7 +97,7 @@
+=20
+ # not mandatory at this time - can write down
+ mlsconstrain { dir lnk_file chr_file blk_file sock_file fifo_file } { crea=
+te relabelto }
+-	(( h1 dom h2 ) and ( l2 eq h2 ));
++	(( h1 dom h2 ) and ( l2 domby h2 ));
+=20
+ mlsconstrain process { transition dyntransition }
+ 	(( ( h1 dom h2 ) and ((l1 domby l2) or (t1 =3D=3D mcssetlow)) ) or ( t1 =
+=3D=3D mcssetcats ));
+
+--J5MfuwkIyy7RmF4Q--
+
+--4Epv4kl9IRBfg3rk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAksNky8ACgkQg/fU9pp1uX5DCQCgrsUUKDomVTBvkko/VQI8Gfa3
+yC8AoIS8W8YgaF9Rka6GuN4+OwIPr9Nu
+=rydV
+-----END PGP SIGNATURE-----
+
+--4Epv4kl9IRBfg3rk--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
