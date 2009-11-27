@@ -1,176 +1,199 @@
-Message-ID: <4B103097.10502@manicmethod.com>
-Date: Fri, 27 Nov 2009 15:03:35 -0500
+Message-ID: <4B10309C.7040204@manicmethod.com>
+Date: Fri, 27 Nov 2009 15:03:40 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Guido Trentalancia <guido@trentalancia.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: Patch for Ticket #1 [1672486] (checkpolicy/checkmodule)
-References: <1257182068.2916.23.camel@tesla.lan>
-In-Reply-To: <1257182068.2916.23.camel@tesla.lan>
+CC: SELinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
+Subject: Re: Contributed manual pages for libselinux
+References: <1257206276.24413.26.camel@tesla.lan>	 <4B07537B.7070204@tycho.nsa.gov> <1258833077.3002.188.camel@tesla.lan>
+In-Reply-To: <1258833077.3002.188.camel@tesla.lan>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Guido Trentalancia wrote:
-> This patch is proposed to solve Ticket #1 [1672486] (command line
-> binaries should support --version and --help).
+> Hello Eamon !
 >
-> It adds handling of -h, -V and the long formats --help and --version to
-> all binaries (checkpolicy/checkmodule).
+> On Fri, 2009-11-20 at 21:42 -0500, Eamon Walsh wrote:
 >
-> It also adds handling of long options for some of the available options.
+>> Hi, thanks for doing this.  Some quick review below.
 >
-> Manual pages have also been updated accordingly (and a few undocumented
-> options have been documented).
+> You are welcome, I suppose it was a boring task for many...
 >
-> Guido Trentalancia
+> Thanks very much for reviewing the changes. And please accept my
+> apologies for not placing "[PATCH]" in the subject of the original post.
+> I had just subscribed to the list.
 >
+> I left you cc address intact here...
+>
+>> There is too much in matchpathcon(3) now.  It's going to need to be
+>> split up into different pages, perhaps the init/fini/teardown stuff in
+>> one page, the lookup calls in another, and the non-matchpathcon prefixed
+>> calls in a third page.
+>>
+>> Also, .so manpage links are needed for all the calls here.
+>
+> Yes, matchpathcon is a mess. Following your guidelines, I have now
+> splitted the huge and messy page in several different man pages. It's
+> easier to consult and easier to maintain.
+>
+> The first part (page) is strictly related to _init, its variant
+> _init_index, _fini, matchpathcon and its variant matchpathcon_index.
+> Nice and concise. References are provided in the "SEE ALSO" section to
+> the rest.
+>
+> The second page describes the auxiliary lookup calls
+> (matchpathcon_checkmatches) and the inode associations functions
+> (matchpathcon_filespec_{add,destroy,eval}). The reference section points
+> to the main matchpathcon page.
+>
+> A third page has been created for the functions that are used to set the
+> flags (set_matchpathcon_flags) or to configure the behaviour of the main
+> matchpathcon functions (set_matchpathcon_invalidcon and
+> set_matchpathcon_printf).
+>
+> A fourth and fifth page is devoted to functions that should never had
+> ended up in matchpathcon (selinux_file_context_cmp and
+> selinux_file_context_verify in one page and selinux_lsetfilecon_default
+> in another one): we do not really need to save electrons needed for new
+> pages...
+>
+>>
+>>> * print_access_vector
+>>>
+>> Looks good.
+>
+> No modifications.
+>
+>>> * security_disable
+>>>
+>> See the selinux.h comments for this.  It needs to be documented that
+>> this function can only be called at startup time.
+>
+> Ok. I have stressed that now and also mentioned that after the policy
+> has been loaded at startup, then only "setenforce" can be used to alter
+> (not disable) the mode of the SELinux kernel code (for example by
+> placing it into "permissive" mode).
+>
+>>> * security_set_boolean_list
+>>>
+>> a RETURN VALUE section is needed in this page, documenting at least this
+>> call if not the others in that page.
+>
+> I have now added a "RETURN VALUE" section.
+>
+> Also, to avoid confusion, I have rephrased the word "returns" in
+> "provides" when not strictly referring the to the return value of the
+> function (take for example security_get_boolean_names(), strictly
+> speaking the function returns an integer representing 0=success or
+> -1=failure, although from a conceptual point of view it also returns a
+> list trough modification of one of its parameters passed by reference).
+>
+> Usually when an application developer looks at the "RETURN VALUE"
+> section it is because he/she has already planned/coded the call to the
+> function (and thus also the handling to parameters passed by reference)
+> and only needs to check for the function exit status so that it can be
+> handled properly at the call point.
+>
+>>> * selinux_check_passwd_access
+>>>
+>> This is a replacement for the inconsistently named "checkPasswdAccess"
+>> function.  So, the existing description of checkPasswdAccess should be
+>> moved to this function, and checkPasswdAccess should be changed to "this
+>> is a deprecated alias for selinux_check_passwd_access".
+>
+> Yes, I have now mentioned that checkPasswdAccess is deprecated. We are
+> referring to file security_compute_av.3 as the description of these two
+> functions lives there...
+>
+> By the way, it has been pointed out that this function should not
+> hard-code a string. I also agree with him, there is a generic constant
+> for such "passwd" object class, it is defined in flask.h could be used
+> instead of the string, thus avoiding hard-coding and also allowing to
+> save a few cycles and be theoretically future-proof (if ever the name
+> would change, say to "password", "auth-token" or anything else).
+>
+> --- libselinux/src/checkAccess.c.orig   2009-11-21 20:07:21.000000000
+> +0100
+> +++ libselinux/src/checkAccess.c        2009-11-21 20:08:36.000000000
+> +0100
+> @@ -13,17 +13,12 @@ int selinux_check_passwd_access(access_v
+>          if (is_selinux_enabled() == 0)
+>                  return 0;
+>          if (getprevcon_raw(&user_context) == 0) {
+> -               security_class_t passwd_class;
+>                  struct av_decision avd;
+>                  int retval;
+>
+> -               passwd_class = string_to_security_class("passwd");
+> -               if (passwd_class == 0)
+> -                       return 0;
+> -
+>                  retval = security_compute_av_raw(user_context,
+>                                                       user_context,
+> -                                                    passwd_class,
+> +                                                    SECCLASS_PASSWD,
+>                                                       requested,
+>                                                       &avd);
+>
+> Note that the above code, should really live in the application and not
+> in the selinux library. It used to be like that, then for some reason it
+> has been introduced. Redhat's passwd and cronie are calling the library
+> function and thus at the moment they rely on it. But for example,
+> util-linux-ng has the code in it and does not call this function, as I
+> believe it should be. A very minor issue anyway...
+>
+>>> * selinux_init_load_policy
+>>>
+>> A paragraph break is needed in the DESCRIPTION section before this function.
+>
+> Done. I have also added a note to the already mentioned fact that after
+> initial policy load, SELinux cannot be anymore disabled using calls to
+> security_disable(3).
+>
+>>> * selinux_lsetfilecon_default
+>>>
+>> See notes above about the matchpathcon manpage.
+>
+> Yes, separate man page now.
+>
+>>> * selinux_mkload_policy
+>>>
+>> Looks good.
+>
+> No modifications.
+>
+>>> * set_selinuxmnt
+>>>
+>> This manpage includes two static functions that are not part of the
+>> libselinux API (at least, not anymore) and should be removed.
+>>
+>> Also, I'm not comfortable with the description given.  Instead, use the
+>> comments in selinux.h, which are more accurate and verbose.
+>>
+>
+> Please let me know if things are any better now.
+>
+> I did also provide on the same day a patch for beautifying and improving
+> the command-line option parsing of a few utilities (a ticket had been
+> created by somebody). That patch provides those improvement according to
+> GNU-style parsing of "help" and "version" options (including long-option
+> variants). I think it also fixes a couple of typos here and there. Feel
+> free to include that patch too if you like it, so that the ticket can be
+> closed ! I will attach it again in another separate message: it has been
+> slightly modified in order to apply cleanly to the latest git snapshot.
+>
+> More important, I was also thinking about fingerprinting (and
+> subsequently checking) the libraries with some cryptographic hash
+> function such as the NIST-recommended SHA2. It is beginning to be done
+> for security-related projects like OpenSSL, so I believe it is even more
+> essential for SELinux. Ever thought about anything like that ?
+>
+> Best regards,
+>
+> Guido
 
-Merged in checkpolicy 2.0.21
-
-See other email re: using git to format patches
-
-> diff -pru checkpolicy/checkmodule.8 checkpolicy-new/checkmodule.8
-> --- checkpolicy/checkmodule.8   2009-11-01 22:23:01.000000000 +0100
-> +++ checkpolicy-new/checkmodule.8       2009-11-02 17:20:51.000000000
-> +0100
-> @@ -21,23 +21,26 @@ the module package into the module store
->
->   .SH OPTIONS
->   .TP
-> -.B \-b
-> +.B \-b,\-\-binary
->   Read an existing binary policy module file rather than a source policy
->   module file.  This option is a development/debugging aid.
->   .TP
->   .B \-m
->   Generate a non-base policy module.
->   .TP
-> -.B \-M
-> +.B \-M,\-\-mls
->   Enable the MLS/MCS support when checking and compiling the policy
-> module.
->   .TP
-> -.B \-V
-> +.B \-V,\-\-version
->    Show policy versions created by this program
->   .TP
-> -.B \-o filename
-> +.B \-o,\-\-output filename
->   Write a binary policy module file to the specified filename.
->   Otherwise, checkmodule will only check the syntax of the module source
-> file
->   and will not generate a binary module at all.
-> +.TP
-> +.B \-U,\-\-handle-unknown<action>
-> +Specify how the kernel should handle unknown classes or permissions
-> (deny, allow or reject).
->
->   .SH EXAMPLE
->   .nf
-> diff -pru checkpolicy/checkmodule.c checkpolicy-new/checkmodule.c
-> --- checkpolicy/checkmodule.c   2009-11-01 22:23:01.000000000 +0100
-> +++ checkpolicy-new/checkmodule.c       2009-11-02 17:21:19.000000000
-> +0100
-> @@ -163,8 +163,18 @@ int main(int argc, char **argv)
->          int ch;
->          int show_version = 0;
->          policydb_t modpolicydb;
-> +       struct option long_options[] = {
-> +               {"help", no_argument, NULL, 'h'},
-> +               {"output", required_argument, NULL, 'o'},
-> +               {"binary", no_argument, NULL, 'b'},
-> +               {"version", no_argument, NULL, 'V'},
-> +               {"handle-unknown", optional_argument, NULL, 'U'},
-> +               {"debug", no_argument, NULL, 'd'},
-> +               {"mls", no_argument, NULL, 'M'},
-> +               {NULL, 0, NULL, 0}
-> +       };
->
-> -       while ((ch = getopt(argc, argv, "ho:dbVU:mM")) != EOF) {
-> +       while ((ch = getopt_long(argc, argv, "ho:bVU:mM", long_options,
-> NULL)) != -1) {
->                  switch (ch) {
->                  case 'h':
->                          usage(argv[0]);
-> diff -pru checkpolicy/checkpolicy.8 checkpolicy-new/checkpolicy.8
-> --- checkpolicy/checkpolicy.8   2009-11-01 22:23:01.000000000 +0100
-> +++ checkpolicy-new/checkpolicy.8       2009-11-02 17:16:22.000000000
-> +0100
-> @@ -18,20 +18,32 @@ policy.conf or policy, depending on whet
->
->   .SH OPTIONS
->   .TP
-> -.B \-b
-> +.B \-b,\-\-binary
->   Read an existing binary policy file rather than a source policy.conf
-> file.
->   .TP
-> -.B \-d
-> +.B \-d,\-\-debug
->   Enter debug mode after loading the policy.
->   .TP
-> -.B \-M
-> +.B \-M,\-\-mls
->   Enable the MLS policy when checking and compiling the policy.
->   .TP
-> -.B \-o filename
-> +.B \-o,\-\-output filename
->   Write a binary policy file to the specified filename.
->   .TP
->   .B \-c policyvers
->   Specify the policy version, defaults to the latest.
-> +.TP
-> +.B \-t,\-\-target
-> +Specify the target platform (selinux or xen).
-> +.TP
-> +.B \-U,\-\-handle-unknown<action>
-> +Specify how the kernel should handle unknown classes or permissions
-> (deny, allow or reject).
-> +.TP
-> +.B \-V,\-\-version
-> +Show version information.
-> +.TP
-> +.B \-h,\-\-help
-> +Show usage information.
->
->   .SH "SEE ALSO"
->   SELinux documentation at http://www.nsa.gov/selinux,
-> diff -pru checkpolicy/checkpolicy.c checkpolicy-new/checkpolicy.c
-> --- checkpolicy/checkpolicy.c   2009-11-01 22:23:01.000000000 +0100
-> +++ checkpolicy-new/checkpolicy.c       2009-11-02 17:15:05.000000000
-> +0100
-> @@ -392,8 +392,19 @@ int main(int argc, char **argv)
->          int state;
->          int show_version = 0;
->          struct policy_file pf;
-> +       struct option long_options[] = {
-> +               {"output", required_argument, NULL, 'o'},
-> +               {"target", required_argument, NULL, 't'},
-> +               {"binary", no_argument, NULL, 'b'},
-> +               {"debug", no_argument, NULL, 'd'},
-> +               {"version", no_argument, NULL, 'V'},
-> +               {"handle-unknown", optional_argument, NULL, 'U'},
-> +               {"mls", no_argument, NULL, 'M'},
-> +               {"help", no_argument, NULL, 'h'},
-> +               {NULL, 0, NULL, 0}
-> +       };
->
-> -       while ((ch = getopt(argc, argv, "o:t:dbU:MVc:")) != EOF) {
-> +       while ((ch = getopt_long(argc, argv, "o:t:dbU:MVc:h",
-> long_options,
-> NULL)) != -1) {
->                  switch (ch) {
->                  case 'o':
->                          outfile = optarg;
-> @@ -458,6 +469,7 @@ int main(int argc, char **argv)
->                                          policyvers = n;
->                                  break;
->                          }
-> +               case 'h':
->                  default:
->                          usage(argv[0]);
->                  }
+Merged in libselinux 2.0.90
 
 --
 This message was distributed to subscribers of the selinux mailing list.
