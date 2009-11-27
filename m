@@ -1,68 +1,56 @@
-Message-ID: <4B102741.4080507@manicmethod.com>
-Date: Fri, 27 Nov 2009 14:23:45 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nARK3VDk025912
+	for <selinux@tycho.nsa.gov>; Fri, 27 Nov 2009 15:03:35 -0500
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nARK5jMU018963
+	for <selinux@tycho.nsa.gov>; Fri, 27 Nov 2009 20:05:45 GMT
+Message-ID: <4B103095.6000607@manicmethod.com>
+Date: Fri, 27 Nov 2009 15:03:33 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Guido Trentalancia <guido@trentalancia.com>
-CC: SELinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
-Subject: Re: Contributed manual pages for libselinux
-References: <1257206276.24413.26.camel@tesla.lan>	 <4B07537B.7070204@tycho.nsa.gov> <1258833077.3002.188.camel@tesla.lan>
-In-Reply-To: <1258833077.3002.188.camel@tesla.lan>
+To: Manoj Srivastava <srivasta@golden-gryphon.com>
+CC: selinux@tycho.nsa.gov, Manoj Srivastava <srivasta@debian.org>
+Subject: Re: [PATCH] [topic--exception-fix] exception.sh contains bashisms
+References: <1256052880-9147-1-git-send-email-srivasta@golden-gryphon.com>
+In-Reply-To: <1256052880-9147-1-git-send-email-srivasta@golden-gryphon.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Guido Trentalancia wrote:
-> Hello Eamon !
+Manoj Srivastava wrote:
+> From: Manoj Srivastava<srivasta@debian.org>
 >
-> On Fri, 2009-11-20 at 21:42 -0500, Eamon Walsh wrote:
+> Hi folks,
 >
->> Hi, thanks for doing this.  Some quick review below.
-<snip>
-> Yes, I have now mentioned that checkPasswdAccess is deprecated. We are
-> referring to file security_compute_av.3 as the description of these two
-> functions lives there...
+>     The script, src/exception.sh, contains so called bashisms
+>   (constructs not supported by POSIX, but present as bash
+>   extensions). This means when trying to build on systems where /bin/sh
+>   is not bash, the build fails with an error. This patch uses bash to
+>   run exception.sh. This bug affects a significant subset of Debian and
+>   Debian derivative machines.
 >
-> By the way, it has been pointed out that this function should not
-> hard-code a string. I also agree with him, there is a generic constant
-> for such "passwd" object class, it is defined in flask.h could be used
-> instead of the string, thus avoiding hard-coding and also allowing to
-> save a few cycles and be theoretically future-proof (if ever the name
-> would change, say to "password", "auth-token" or anything else).
+> 	manoj
 >
+> Signed-off-by: Manoj Srivastava<srivasta@debian.org>
+> ---
+>   libselinu/xsrc/Makefile |    2 +-
+>   1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 74b1e6a..d0fb0e3 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -83,7 +83,7 @@ $(LIBSO): $(LOBJS)
+>   	ln -sf $@ $(TARGET)
+>
+>   selinuxswig_python_exception.i: ../include/selinux/selinux.h
+> -	sh exception.sh>  $@
+> +	bash exception.sh>  $@
+>
+>   audit2why.lo: audit2why.c
+>   	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
 
-You can see here:
-http://marc.info/?l=selinux&m=118115728003670&w=2
-
-That the way it is now is quite intentional. For many years we relied on 
-the hardcoded offsets in flask.h and it prevented us from removing, or 
-reordering object classes. Therefore we now export the values out of the 
-kernel in /selinux/class and use those values rather than the ones from 
-flask.h (which hopefully could go away some day.)
-
-> --- libselinux/src/checkAccess.c.orig   2009-11-21 20:07:21.000000000
-> +0100
-> +++ libselinux/src/checkAccess.c        2009-11-21 20:08:36.000000000
-> +0100
-> @@ -13,17 +13,12 @@ int selinux_check_passwd_access(access_v
->          if (is_selinux_enabled() == 0)
->                  return 0;
->          if (getprevcon_raw(&user_context) == 0) {
-> -               security_class_t passwd_class;
->                  struct av_decision avd;
->                  int retval;
->
-> -               passwd_class = string_to_security_class("passwd");
-> -               if (passwd_class == 0)
-> -                       return 0;
-> -
->                  retval = security_compute_av_raw(user_context,
->                                                       user_context,
-> -                                                    passwd_class,
-> +                                                    SECCLASS_PASSWD,
->                                                       requested,
->                                                       &avd);
->
-
+Merged in libselinux 2.0.90
 
 --
 This message was distributed to subscribers of the selinux mailing list.
