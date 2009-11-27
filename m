@@ -1,82 +1,68 @@
-Message-ID: <4B102369.6010407@manicmethod.com>
-Date: Fri, 27 Nov 2009 14:07:21 -0500
+Message-ID: <4B102741.4080507@manicmethod.com>
+Date: Fri, 27 Nov 2009 14:23:45 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Guido Trentalancia <guido@trentalancia.com>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux@tycho.nsa.gov
-Subject: Re: [PATCH] Support for long-options in policycoreutils and checkpolicy
- (Ticket #1 [1672486])
-References: <1257206276.24413.26.camel@tesla.lan>	 <4B07537B.7070204@tycho.nsa.gov> <1258841039.3002.214.camel@tesla.lan> <4B101DAC.5080801@manicmethod.com>
-In-Reply-To: <4B101DAC.5080801@manicmethod.com>
+CC: SELinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
+Subject: Re: Contributed manual pages for libselinux
+References: <1257206276.24413.26.camel@tesla.lan>	 <4B07537B.7070204@tycho.nsa.gov> <1258833077.3002.188.camel@tesla.lan>
+In-Reply-To: <1258833077.3002.188.camel@tesla.lan>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Guido Trentalancia wrote:
->> Dear Eamon,
->>
->> here are the two "maintenance" patches that I did post earlier this
->> month (along with the new manual pages). They are intended to close
->> Ticket #1 [1672486] that I found open on Tresys pages
->> (http://userspace.selinuxproject.org/trac/ticket/1).
->>
->> I do apologize for not putting the keyword "[PATCH]" in the original
->> message.
->>
->> Here is a summary of what has been changed for policycoreutils:
->>
->> - introduced proper handling of -h, -V options and their respective long
->> formats --help and --version to all binaries that are produced from C
->> code. The same issue is not tackled for Python-based tools (e.g.
->> semanage);
->> - relative manual pages have also been updated accordingly.
->>
->> And here is what has been changed for checkpolicy/checkmodule:
->>
->> - introduced proper handling of -h, -V and the long formats --help and
->> --version to all binaries (checkpolicy/checkmodule);
->> - introduced the handling of long options for some of the other
->> available options;
->> - manual pages have also been updated accordingly (and a few
->> undocumented options have been documented).
->>
->> One of the original two patches (the one against policycoreutils) did
->> not compile cleanly anymore against the current HEAD of SELinux, so I
->> have created an updated one, which is the one attached here.
->>
->> It's just a matter of some really minor issues, but I hope it helps, at
->> least the ticket can now be closed...
->>
->> Kind regards,
->>
->> Guido
->>
+Guido Trentalancia wrote:
+> Hello Eamon !
 >
+> On Fri, 2009-11-20 at 21:42 -0500, Eamon Walsh wrote:
 >
-> Thank you for doing this. Unfortunately it looks like your mail client
-> decided to base64 encode the attachment.
+>> Hi, thanks for doing this.  Some quick review below.
+<snip>
+> Yes, I have now mentioned that checkPasswdAccess is deprecated. We are
+> referring to file security_compute_av.3 as the description of these two
+> functions lives there...
 >
-> It is always best to use git to generate patch emails, please see:
-> http://andrewprice.me.uk/weblog/entry/generating-patch-emails-with-git
+> By the way, it has been pointed out that this function should not
+> hard-code a string. I also agree with him, there is a generic constant
+> for such "passwd" object class, it is defined in flask.h could be used
+> instead of the string, thus avoiding hard-coding and also allowing to
+> save a few cycles and be theoretically future-proof (if ever the name
+> would change, say to "password", "auth-token" or anything else).
 >
 
-I also have a couple comments about this patch. First I'm not so sure 
-about the:
-"[program name] version [version]."
+You can see here:
+http://marc.info/?l=selinux&m=118115728003670&w=2
 
-format. For people to be able to test versions in shell scripts I think 
-the output should simply be the version.
+That the way it is now is quite intentional. For many years we relied on 
+the hardcoded offsets in flask.h and it prevented us from removing, or 
+reordering object classes. Therefore we now export the values out of the 
+kernel in /selinux/class and use those values rather than the ones from 
+flask.h (which hopefully could go away some day.)
 
-I'm not sure what the "libtool" hack thing is all about, why is that 
-necessary? In fact I'm not sure what the whole opt_program_name thing is 
-about, what are you trying to address here? That change makes the patch 
-very messy since you are going through and replacing every occurrence of 
-argv[0] with program_name. Typically changes should be separated in 
-patches to ease review, I'm not sure what this has to do with adding 
---version to the apps.
+> --- libselinux/src/checkAccess.c.orig   2009-11-21 20:07:21.000000000
+> +0100
+> +++ libselinux/src/checkAccess.c        2009-11-21 20:08:36.000000000
+> +0100
+> @@ -13,17 +13,12 @@ int selinux_check_passwd_access(access_v
+>          if (is_selinux_enabled() == 0)
+>                  return 0;
+>          if (getprevcon_raw(&user_context) == 0) {
+> -               security_class_t passwd_class;
+>                  struct av_decision avd;
+>                  int retval;
+>
+> -               passwd_class = string_to_security_class("passwd");
+> -               if (passwd_class == 0)
+> -                       return 0;
+> -
+>                  retval = security_compute_av_raw(user_context,
+>                                                       user_context,
+> -                                                    passwd_class,
+> +                                                    SECCLASS_PASSWD,
+>                                                       requested,
+>                                                       &avd);
+>
 
-Also, why -V rather than -v ?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
