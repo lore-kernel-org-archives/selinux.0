@@ -8,22 +8,17 @@ References: <1257206276.24413.26.camel@tesla.lan>
 	 <4B07537B.7070204@tycho.nsa.gov> <1258841039.3002.214.camel@tesla.lan>
 	 <4B101DAC.5080801@manicmethod.com>  <4B102369.6010407@manicmethod.com>
 Content-Type: text/plain
-Date: Sat, 28 Nov 2009 02:58:21 +0100
-Message-Id: <1259373502.8296.7.camel@tesla.lan>
+Date: Sat, 28 Nov 2009 02:56:02 +0100
+Message-Id: <1259373363.8296.5.camel@tesla.lan>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Dear Joshua,
 
-in your previous message you were also asking why the option "-V"
-instead of "-v" has been used for getting the version of the program.
-Again, this is according to the GNU coding style (because "-v" is
-generally used for making the program "verbose").
+thanks for your reply and for your comments.
 
-Regards,
-
-Guido
+My reply follows the quoted text.
 
 On Fri, 2009-11-27 at 14:07 -0500, Joshua Brindle wrote:
 > Joshua Brindle wrote:
@@ -91,11 +86,24 @@ On Fri, 2009-11-27 at 14:07 -0500, Joshua Brindle wrote:
 > --version to the apps.
 > 
 > Also, why -V rather than -v ?
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+
+The "[program name] version [version] is the standard (see other GNU
+packages like gcc or binutils). Scripts that only need the "version"
+argument can still filter out the rest using awk or something like that.
+
+The opt_program_name thing has been taken from secon.c. It is intended
+to provide the name of the program without the path to the binary or
+other garbage. It has to do with adding version simply because of the
+standard format mentioned above which requires the name of the program.
+
+If you have not received the patch because of the encoding performed by
+my mail client, I can send it again.
+
+I look forward to hearing from you. Thank you.
+
+Greetings,
+
+Guido Trentalancia
 
 
 
