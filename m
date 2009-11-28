@@ -1,111 +1,46 @@
-Subject: Re: [PATCH] Support for long-options in policycoreutils and
- checkpolicy (Ticket #1 [1672486])
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <4B102369.6010407@manicmethod.com>
-References: <1257206276.24413.26.camel@tesla.lan>
-	 <4B07537B.7070204@tycho.nsa.gov> <1258841039.3002.214.camel@tesla.lan>
-	 <4B101DAC.5080801@manicmethod.com>  <4B102369.6010407@manicmethod.com>
-Content-Type: text/plain
-Date: Sat, 28 Nov 2009 02:56:02 +0100
-Message-Id: <1259373363.8296.5.camel@tesla.lan>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAS2SMc0007786
+	for <selinux@tycho.nsa.gov>; Fri, 27 Nov 2009 21:28:22 -0500
+Received: from ladon.golden-gryphon.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nAS2UXpo025987
+	for <selinux@tycho.nsa.gov>; Sat, 28 Nov 2009 02:30:34 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	(authenticated bits=128)
+	by ladon.golden-gryphon.com (8.14.3/8.14.3/Debian-5) with ESMTP id nAS2NL3G008510
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Fri, 27 Nov 2009 20:23:23 -0600
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.3/8.14.3/Debian-9) with ESMTP id nAS2Irlj004596
+	for <selinux@tycho.nsa.gov>; Fri, 27 Nov 2009 20:18:54 -0600
+From: Manoj Srivastava <srivasta@golden-gryphon.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: A question about genhomedircon
+References: <87vdh5kp0s.fsf@anzu.internal.golden-gryphon.com>
+	<1258747888.27504.624.camel@gorn.columbia.tresys.com>
+Date: Fri, 27 Nov 2009 20:18:53 -0600
+In-Reply-To: <1258747888.27504.624.camel@gorn.columbia.tresys.com>
+	(Christopher J. PeBenito's message of "Fri, 20 Nov 2009 15:11:28
+	-0500")
+Message-ID: <87iqcvwfw2.fsf@anzu.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dear Joshua,
-
-thanks for your reply and for your comments.
-
-My reply follows the quoted text.
-
-On Fri, 2009-11-27 at 14:07 -0500, Joshua Brindle wrote:
-> Joshua Brindle wrote:
-> > Guido Trentalancia wrote:
-> >> Dear Eamon,
-> >>
-> >> here are the two "maintenance" patches that I did post earlier this
-> >> month (along with the new manual pages). They are intended to close
-> >> Ticket #1 [1672486] that I found open on Tresys pages
-> >> (http://userspace.selinuxproject.org/trac/ticket/1).
-> >>
-> >> I do apologize for not putting the keyword "[PATCH]" in the original
-> >> message.
-> >>
-> >> Here is a summary of what has been changed for policycoreutils:
-> >>
-> >> - introduced proper handling of -h, -V options and their respective long
-> >> formats --help and --version to all binaries that are produced from C
-> >> code. The same issue is not tackled for Python-based tools (e.g.
-> >> semanage);
-> >> - relative manual pages have also been updated accordingly.
-> >>
-> >> And here is what has been changed for checkpolicy/checkmodule:
-> >>
-> >> - introduced proper handling of -h, -V and the long formats --help and
-> >> --version to all binaries (checkpolicy/checkmodule);
-> >> - introduced the handling of long options for some of the other
-> >> available options;
-> >> - manual pages have also been updated accordingly (and a few
-> >> undocumented options have been documented).
-> >>
-> >> One of the original two patches (the one against policycoreutils) did
-> >> not compile cleanly anymore against the current HEAD of SELinux, so I
-> >> have created an updated one, which is the one attached here.
-> >>
-> >> It's just a matter of some really minor issues, but I hope it helps, at
-> >> least the ticket can now be closed...
-> >>
-> >> Kind regards,
-> >>
-> >> Guido
-> >>
-> >
-> >
-> > Thank you for doing this. Unfortunately it looks like your mail client
-> > decided to base64 encode the attachment.
-> >
-> > It is always best to use git to generate patch emails, please see:
-> > http://andrewprice.me.uk/weblog/entry/generating-patch-emails-with-git
-> >
-> 
-> I also have a couple comments about this patch. First I'm not so sure 
-> about the:
-> "[program name] version [version]."
-> 
-> format. For people to be able to test versions in shell scripts I think 
-> the output should simply be the version.
-> 
-> I'm not sure what the "libtool" hack thing is all about, why is that 
-> necessary? In fact I'm not sure what the whole opt_program_name thing is 
-> about, what are you trying to address here? That change makes the patch 
-> very messy since you are going through and replacing every occurrence of 
-> argv[0] with program_name. Typically changes should be separated in 
-> patches to ease review, I'm not sure what this has to do with adding 
-> --version to the apps.
-> 
-> Also, why -V rather than -v ?
-
-The "[program name] version [version] is the standard (see other GNU
-packages like gcc or binutils). Scripts that only need the "version"
-argument can still filter out the rest using awk or something like that.
-
-The opt_program_name thing has been taken from secon.c. It is intended
-to provide the name of the program without the path to the binary or
-other garbage. It has to do with adding version simply because of the
-standard format mentioned above which requires the name of the program.
-
-If you have not received the patch because of the encoding performed by
-my mail client, I can send it again.
-
-I look forward to hearing from you. Thank you.
-
-Greetings,
-
-Guido Trentalancia
+On Fri, Nov 20 2009, Christopher J. PeBenito wrote:
 
 
+> Theres no need to reload the policy, as the policy isn't changing.  It
+> does, however, regenerate the file contexts, including the home dir
+> contexts.
+
+        So the behaviour has not changed? In which case, can we bring
+ back the  man page for the command?
+
+        manoj
+-- 
+Manoj Srivastava <srivasta@acm.org> <http://www.golden-gryphon.com/>  
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
