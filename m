@@ -1,648 +1,407 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nAUGDkd7018227
-	for <selinux@tycho.nsa.gov>; Mon, 30 Nov 2009 11:13:46 -0500
-Received: from trauma.tcs-sec.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nAUGCdhY011140
-	for <selinux@tycho.nsa.gov>; Mon, 30 Nov 2009 16:12:39 GMT
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01CA71D8.16FE2447"
-Subject: RE: MLS support for RHEL5?
-Date: Mon, 30 Nov 2009 11:13:43 -0500
-Message-ID: <170D6ABBBA770349AA49582A86FCED1501B7F77A@HAVOC.tcs-sec.com>
-In-Reply-To: <834B41F71BFB1D4385FC5E62CF526DCE01C59D53@XMBIL123.northgrum.com>
-References: <834B41F71BFB1D4385FC5E62CF526DCE01C59D43@XMBIL123.northgrum.com> <170D6ABBBA770349AA49582A86FCED1536F663@HAVOC.tcs-sec.com> <834B41F71BFB1D4385FC5E62CF526DCE01C59D44@XMBIL123.northgrum.com> <170D6ABBBA770349AA49582A86FCED1536F664@HAVOC.tcs-sec.com> <834B41F71BFB1D4385FC5E62CF526DCE01C59D52@XMBIL123.northgrum.com> <170D6ABBBA770349AA49582A86FCED1501B22689@HAVOC.tcs-sec.com> <834B41F71BFB1D4385FC5E62CF526DCE01C59D53@XMBIL123.northgrum.com>
-From: <chanson@TrustedCS.com>
-To: <Mark.Dyson@ngc.com>
-Cc: <selinux@tycho.nsa.gov>
+Subject: [PATCH] Contributed manual pages for libselinux (second and last
+ part)
+From: Guido Trentalancia <guido@trentalancia.com>
+To: SELinux@tycho.nsa.gov
+Cc: "ewalsh@tycho.nsa.gov ; Joshua Brindle" <method@manicmethod.com>
+Content-Type: multipart/mixed; boundary="=-p0VEQMDEbV8Qqk62lF65"
+Date: Mon, 30 Nov 2009 18:47:17 +0100
+Message-Id: <1259603237.2771.18.camel@tesla.lan>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01CA71D8.16FE2447
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+--=-p0VEQMDEbV8Qqk62lF65
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hello again !
+
+I have completed the second and last part of the manual pages that were
+missing for libselinux, as (still) described in
+http://userspace.selinuxproject.org/trac/wiki/Todo
+
+Because I do not generally use git to commit changes, then I have
+attached the patch directly from the output of diff in unified format.
+
+The following manual pages have been created from scratch:
+
+- security_canonicalize_context(3);
+- selinux_customizable_types_path(3);
+- selinux_get_callback(3);
+- selinux_raw_lto_trans_context(3);
+- selinux_trans_to_raw_context(3) as a link to the previous one;
+- selinux_translations_path(3);
+- selinux_users_path(3).
+
+Also, a few typos have been corrected and the author name has been
+included. This patch is the companion of the other patch named
+new-libselinux-manpages.patch that has already been committed.
+
+Comments are much welcomed, so that I can amend any proposed change as
+soon.
+
+By the way, I have noticed that the patch for adding the "version"
+option to checkpolicy has been committed but not the one for
+policycoreutils. Is there any reason for that ?
+
+Regards,
+
+Guido
+
+--=-p0VEQMDEbV8Qqk62lF65
+Content-Disposition: attachment; filename="new-libselinux-manpages-part2.patch"
+Content-Type: text/x-patch; name="new-libselinux-manpages-part2.patch"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+diff -pruN selinux.orig/libselinux/man/man3/init_selinuxmnt.3 selinux.newmanpages/libselinux/man/man3/init_selinuxmnt.3
+--- selinux.orig/libselinux/man/man3/init_selinuxmnt.3	2009-11-30 18:23:35.277113764 +0100
++++ selinux.newmanpages/libselinux/man/man3/init_selinuxmnt.3	2009-11-30 11:33:55.363132406 +0100
+@@ -22,7 +22,7 @@ changes the selinuxfs mountpoint to
+ .I mnt. 
+ 
+ .SH "AUTHOR"
+-This manual page has been written by Guido Trentalancia <guido@trentalancia.com>
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
+ 
+ .SH "SEE ALSO"
+ .BR selinux (8),
+diff -pruN selinux.orig/libselinux/man/man3/security_canonicalize_context.3 selinux.newmanpages/libselinux/man/man3/security_canonicalize_context.3
+--- selinux.orig/libselinux/man/man3/security_canonicalize_context.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/security_canonicalize_context.3	2009-11-30 17:25:07.857111701 +0100
+@@ -0,0 +1,31 @@
++.TH "security_canonicalize_context" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API documentation"
++.SH "NAME"
++security_canonicalize_context \- get the canonical (primary) form of a SELinux security context.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "int security_canonicalize_context(security_context_t " con ", security_context_t * " canoncon ");"
++
++.SH "DESCRIPTION"
++.B security_canonicalize_context
++returns the canonical security context that the kernel is using rather than
++what is stored on disk.
++.sp
++Policies presently define a number of type aliases to provide compatibility
++and allow sharing with other policies, both in the policy itself and in the
++on-disk attributes. Since when attributes are set they are not canonicalized,
++the alias is stored on-disk.
++.sp
++The canonical form of a context is sometimes also referred to as the primary
++form.
++
++.SH "RETURN VALUE"
++.B security_canonicalize_context
++returns zero on success or \-1 on error.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8), " getfilecon "(3), " setfilecon "(3), " freecon "(3), " getfscreatecon "(3), " setfscreatecon "(3), " getcon "(3), " setcon "(3)"
+diff -pruN selinux.orig/libselinux/man/man3/security_disable.3 selinux.newmanpages/libselinux/man/man3/security_disable.3
+--- selinux.orig/libselinux/man/man3/security_disable.3	2009-11-30 18:23:35.286115073 +0100
++++ selinux.newmanpages/libselinux/man/man3/security_disable.3	2009-11-30 17:24:21.900113416 +0100
+@@ -1,4 +1,4 @@
+-.TH "security_disable" "3" "21 Nov 2009" "" "SELinux API documentation"
++.TH "security_disable" "3" "21 Nov 2009" "guido@trentalancia.com" "SELinux API documentation"
+ .SH "NAME"
+ security_disable \- disable the SELinux kernel code at runtime.
+ 
+@@ -22,7 +22,7 @@ but only placed in "permissive" mode by 
+ returns zero on success or \-1 on error.
+ 
+ .SH "AUTHOR"
+-This manual page has been written by Guido Trentalancia <guido@trentalancia.com>
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
+ 
+ .SH "SEE ALSO"
+-.BR selinux (8), " setenforce "(3)
++.BR selinux "(8), " setenforce "(3)
+diff -pruN selinux.orig/libselinux/man/man3/security_load_policy.3 selinux.newmanpages/libselinux/man/man3/security_load_policy.3
+--- selinux.orig/libselinux/man/man3/security_load_policy.3	2009-11-30 18:23:35.288113749 +0100
++++ selinux.newmanpages/libselinux/man/man3/security_load_policy.3	2009-11-30 11:34:38.866113686 +0100
+@@ -51,7 +51,7 @@ in enforcing one).
+ returns zero on success or \-1 on error.
+ 
+ .SH "AUTHOR"
+-This manual page has been written by Guido Trentalancia <guido@trentalancia.com>
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
+ 
+ .SH "SEE ALSO"
+ .BR selinux "(8), " security_disable "(3), " setenforce "(1)
+diff -pruN selinux.orig/libselinux/man/man3/selinux_customizable_types_path.3 selinux.newmanpages/libselinux/man/man3/selinux_customizable_types_path.3
+--- selinux.orig/libselinux/man/man3/selinux_customizable_types_path.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_customizable_types_path.3	2009-11-30 17:23:59.061116446 +0100
+@@ -0,0 +1,63 @@
++.TH "selinux_customizable_types_path" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API documentation"
++.SH "NAME"
++selinux_customizable_types_path \- get the path to the file which defines the customizable types.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "const char * selinux_customizable_types_path(void);"
++
++.SH "DESCRIPTION"
++.B selinux_customizable_types_path
++returns a pointer to a string representing the path to the file which
++defines the customizable types.
++.sp
++A customizable type is a file context type that is usually set on files
++that need to be shared among certain domains and where the administrator
++wants to manually manage the type.
++.sp
++For example, users could choose a directory under
++.I /var
++to share files via http and so they would label it as
++.I httpd_sys_content_t
++and they would define the same type in the customizable types file.
++Then when an autorelabel is triggered, the files under
++.I /var
++would normally get relabeled as
++.I var_t.
++However types that are entries of the customizable types file would
++not get relabelled and their context would be preserved, so in the
++example, the files would remain of the
++.I httpd_sys_content_t
++type. The problem with this approach is that it does not scale well
++and mislabeled files might never get fixed if they are defined as
++customizable types.
++.sp
++Normally
++.B restorecon(8)
++and
++.B
++setfiles(8)
++would not change the context of customizable types.
++However, it should be noted that when 
++.B restorecon(8)
++or
++.B setfiles(8)
++are called with the \-F option ("force" option) they would also
++restore the context of the customizable types.
++.sp
++The use of customizable types is deprecated as the preferred approach
++is now to use
++.B semanage fcontext (8)
++.
++
++.SH "RETURN VALUE"
++.B selinux_customizable_types_path
++returns a pointer to the string value of the path to the file which defines
++the customizable types.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8), " restorecon "(8), " setfiles "(8), " is_context_customizable "(3)
+diff -pruN selinux.orig/libselinux/man/man3/selinux_get_callback.3 selinux.newmanpages/libselinux/man/man3/selinux_get_callback.3
+--- selinux.orig/libselinux/man/man3/selinux_get_callback.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_get_callback.3	2009-11-30 17:25:43.080116063 +0100
+@@ -0,0 +1,34 @@
++.TH "selinux_get_callback" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API documentation"
++.SH "NAME"
++selinux_get_callback \- get the callback function of the given type.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "union selinux_callback selinux_get_callback(int " type ");"
++
++.SH "DESCRIPTION"
++.B selinux_get_callback
++is used to get a pointer to the callback function of the given
++type. Callback functions are set using
++.B selinux_set_callback(3)
++.
++.sp
++All callback functions should return a negative value with
++.I errno
++set appropriately on error.
++.sp
++The following callback function types are defined: log, audit,
++validate, setenforce and policyload (see
++.B selinux_set_callback(3)
++for a detailed description of these types).
++
++.SH "RETURN VALUE"
++.B selinux_get_callback
++returns a pointer to the callback function of the required type.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8), " selinux_set_callback "(3)
+diff -pruN selinux.orig/libselinux/man/man3/selinux_raw_to_trans_context.3 selinux.newmanpages/libselinux/man/man3/selinux_raw_to_trans_context.3
+--- selinux.orig/libselinux/man/man3/selinux_raw_to_trans_context.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_raw_to_trans_context.3	2009-11-30 17:37:31.679116143 +0100
+@@ -0,0 +1,40 @@
++.TH "selinux_raw_to_trans_context" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API"
++.SH "NAME"
++selinux_raw_to_trans_context, selinux_trans_to_raw_context \- perform context translation between raw and human-readable formats.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "int selinux_raw_to_trans_context(security_context_t " raw ", security_context_t * " transp ");"
++.sp
++.BI "int selinux_trans_to_raw_context(security_context_t " trans ", security_context_t * " rawp ");"
++
++.SH "DESCRIPTION"
++.B selinux_raw_to_trans_context
++and
++.B selinux_trans_to_raw_context
++are used to perform security context translation between the
++human-readable ("translated") format and the internal ("raw")
++system format.
++.sp
++Only the MLS range portion of the security context
++(sensitivity and category) is translated and therefore these
++functions only have a meaning when used with the MLS
++(Multi-Level Security) policy or with the MCS (Multiple
++Category Security) policy.
++.sp
++The function
++.B selinux_translations_path(3)
++can be used to get the actual location of the file which
++contains the translations. Such file should not be edited
++manually, but instead the administrator should use
++.B semanage translation(8).
++
++.SH "RETURN VALUE"
++Zero is returned on success and -1 on error.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8), " selinux_translations_path "(3)
+diff -pruN selinux.orig/libselinux/man/man3/selinux_set_callback.3 selinux.newmanpages/libselinux/man/man3/selinux_set_callback.3
+--- selinux.orig/libselinux/man/man3/selinux_set_callback.3	2009-11-30 18:23:35.295111911 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_set_callback.3	2009-11-30 14:28:48.797112709 +0100
+@@ -111,8 +111,9 @@ None.
+ Eamon Walsh <ewalsh@tycho.nsa.gov>
+ 
+ .SH "SEE ALSO"
++.BR selinux_get_callback (3),
+ .BR selabel_open (3),
+ .BR avc_init (3),
+-.BR avc_netlink_open(3),
++.BR avc_netlink_open (3),
+ .BR selinux (8)
+ 
+diff -pruN selinux.orig/libselinux/man/man3/selinux_translations_path.3 selinux.newmanpages/libselinux/man/man3/selinux_translations_path.3
+--- selinux.orig/libselinux/man/man3/selinux_translations_path.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_translations_path.3	2009-11-30 17:29:20.823113396 +0100
+@@ -0,0 +1,28 @@
++.TH "selinux_translations_path" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API"
++.SH "NAME"
++selinux_translations_path \- get the path to the file which specifies the security context translations.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "const char * selinux_translations_path(void);"
++
++.SH "DESCRIPTION"
++.B selinux_translations_path
++returns a pointer to a string representing the path to the file which
++specifies the translations of the security contexts from their "raw"
++representation.
++.sp
++The translation mechanism is only used in conjunction with the MLS
++(Multi-Level Security) or MCS (Multiple Category Security) policies.
++
++.SH "RETURN VALUE"
++.B selinux_translations_path
++returns a pointer to the string value of the path to the file which 
++specifies the translations of the security contexts.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8), " selinux_raw_to_trans_context "(3), " selinux_trans_to_raw_context "(3)
+diff -pruN selinux.orig/libselinux/man/man3/selinux_trans_to_raw_context.3 selinux.newmanpages/libselinux/man/man3/selinux_trans_to_raw_context.3
+--- selinux.orig/libselinux/man/man3/selinux_trans_to_raw_context.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_trans_to_raw_context.3	2009-11-30 14:33:10.104114416 +0100
+@@ -0,0 +1 @@
++.so man3/selinux_raw_to_trans_context.3
+diff -pruN selinux.orig/libselinux/man/man3/selinux_users_path.3 selinux.newmanpages/libselinux/man/man3/selinux_users_path.3
+--- selinux.orig/libselinux/man/man3/selinux_users_path.3	1970-01-01 01:00:00.000000000 +0100
++++ selinux.newmanpages/libselinux/man/man3/selinux_users_path.3	2009-11-30 18:19:01.242131888 +0100
+@@ -0,0 +1,36 @@
++.TH "selinux_users_path" "3" "30 Nov 2009" "guido@trentalancia.com" "SELinux API"
++.SH "NAME"
++selinux_users_path \- get the path to the directory containing the SELinux user identities files.
++
++.SH "SYNOPSIS"
++.B #include <selinux/selinux.h>
++.sp
++.BI "const char * selinux_users_path(void);"
++
++.SH "DESCRIPTION"
++.B selinux_users_path
++returns a pointer to a string representing the path to the directory
++which contains the files that describe the various SELinux user
++identities.
++.sp
++In general, such directory contains a file for each SELinux user
++identity. The file is named after the identity itself and describes
++the role that is assigned to a given user, for example, when the
++login is made (a given user could be assigned a different role
++depending on whether the login is local or remote) or when crontab
++jobs need to be runned on behalf of that user.
++.sp
++Although they might have the same name and are generally matched
++together, SELinux user identities are different from Unix user
++identities.
++
++.SH "RETURN VALUE"
++.B selinux_users_path
++returns a pointer to the string value of the path to the directory which 
++contains the files that describe the various SELinux user identities.
++
++.SH "AUTHOR"
++This manual page has been written by Guido Trentalancia <guido@trentalancia.com>.
++
++.SH "SEE ALSO"
++.BR selinux "(8)
+diff -pruN selinux.orig/libselinux/man/man3/setfilecon.3 selinux.newmanpages/libselinux/man/man3/setfilecon.3
+--- selinux.orig/libselinux/man/man3/setfilecon.3	2009-11-30 18:23:35.298113838 +0100
++++ selinux.newmanpages/libselinux/man/man3/setfilecon.3	2009-11-30 12:59:32.346112764 +0100
+@@ -17,19 +17,19 @@ sets the security context of the file sy
+ 
+ .B lsetfilecon
+ is identical to setfilecon, except in the case of a symbolic link, where the
+-link itself has it's context set, not the file that it refers to.
++link itself has its context set, not the file that it refers to.
+ 
+ .B fsetfilecon
+ is identical to setfilecon, only the open file pointed to by filedes (as
+-returned by open(2)) has it's context set in place of path.
++returned by open(2)) has its context set in place of path.
+ 
+ .SH "RETURN VALUE"
+ On success, zero is returned. On failure, -1 is returned and errno is
+ set appropriately.
+ 
+ If there is insufficient space remaining to store the extended
+-attribute, errno is set to either ENOSPC, or EDQUOT if quota enforce-
+-ment was the cause.
++attribute, errno is set to either ENOSPC, or EDQUOT if quota
++enforcement was the cause.
+ 
+ If extended attributes are not supported by the filesystem, or are dis-
+ abled, errno is set to ENOTSUP.
+
+--=-p0VEQMDEbV8Qqk62lF65--
 
-Hi Mark,
-=20
-I have not yet seen Eamon's presentation, but this work is on the trunk
-of the Xorg and SELinux project from what I recall. I do not believe
-this support exists in RHEL 5 as it was released a long time ago when
-XACE was not yet included in the X server. I believe the inclusion of
-the graphical environment in a newer Fedora release probably still needs
-the assistance of a skilled developer with experience in SELinux policy
-and X window environment. The implementation of non-graphical
-applications straightforward to implement in the MLS environment.
-=20
--Chad
-
-________________________________
-
-From: Dyson, Mark L (IS) [mailto:Mark.Dyson@ngc.com]=20
-Sent: Wednesday, November 25, 2009 7:52 AM
-To: Chad Hanson
-Cc: selinux@tycho.nsa.gov
-Subject: RE: MLS support for RHEL5?
-
-
-
-Chad,
-
-=20
-
-Thanks for the help thus far, and for your patience.  I only have the
-one machine available to me, and it came pre-installed both with RHEL5.3
-and with a proprietary software suite that is eventually supposed to run
-under SELinux (it's a port from Trusted Solaris).  I don't have the RHEL
-install media, and installing the software itself (so I'm given to
-understand) is a major undertaking, so a re-install is very
-unattractive.  I'm also a total neophyte to SELinux, I hadn't even heard
-of it before I was asked to look into this, and I'm not a Linux guru by
-any stretch of the imagination.
-
-=20
-
-The desired end state is to be running Multi-Level Security, and X
-Windowing support is also needed, or so I'm given to understand.  I read
-that was problematic in the books I have, but I understood from the
-mailing list that Eamon Walsh just delivered a paper that seemed to
-indicate it was now supported?  Managing multi-security-level windows in
-a session is one of the specific issues I was asked to look into.
-
-=20
-
-Does there exist a laundry list of the packages that need to be
-installed?  I'm willing to attempt this, if I could get my hands on
-sufficient guidance, and I'd hope not to bend the patience of the folks
-on the list (to which I'm going to CC this thread so as to spread the
-burden a little).  My current sources of information are two books about
-SELinux: The O'Reilly one by Bill McCarty and the Prentice Hall one by
-Frank Mayer, Karl MacMillan, and David Caplan.  That's pretty much it.
-
-=20
-
-So as a more general invitation to chime in: is the mapping from Trusted
-Solaris to SELunix for an X-windows application a realistic path?  Is
-SELinux just not yet ready for such an adventure?
-
-=20
-
-As ever, many thanks,
-
-Mark
-
-=20
-
-=20
-
-=20
-
-From: chanson@TrustedCS.com [mailto:chanson@TrustedCS.com]=20
-Sent: Tuesday, November 24, 2009 3:50 PM
-To: Dyson, Mark L (IS)
-Subject: RE: MLS support for RHEL5?
-
-=20
-
-Hi Mark,
-
-=20
-
-The LSPP functionality can be enabled after installation, however it is
-probably not an easy process depending on your experience level with
-SELinux. You'll need to manually install the MLS Selinux security policy
-rpm. You'll want to make sure the policycoreutils-newrole rpm is
-installed. These are few things I can think of to start with. Really
-this is just trying to manually add software and change config to the
-configuration guide.  Also note the CC LSPP configuration doesn't
-support X windows for example so this would need to be disabled as I
-don't believe it will start in enforcing mode.
-
-=20
-
-It may be worthwhile to install the LSPP version in a virtual machine
-before trying to convert an existing system. This would be a good idea
-for the procedure above as well to verify what will happen with the
-various steps. The would let you see what the system should like after
-the conversion.
-
-=20
-
-Cheers,
-
--Chad
-
-=20
-
-________________________________
-
-From: Dyson, Mark L (IS) [mailto:Mark.Dyson@ngc.com]=20
-Sent: Tuesday, November 24, 2009 11:33 AM
-To: Chad Hanson
-Subject: RE: MLS support for RHEL5?
-
-Chad,
-
-=20
-
-More newbie questions.  I don't currently have the option of installing
-RHEL5, the system came to me pre-installed with the subject application
-installed as well.  Is this LSPP something that can be added after the
-fact?  The main issue I was having was the MLS and Strict options
-weren't available in the SELinux config utility.  Does that mean I'm
-hosed unless I can re-install RHEL5 using the lspp kickstart method?
-
-=20
-
-Thanks in advance,
-
-Mark
-
-=20
-
-From: chanson@TrustedCS.com [mailto:chanson@TrustedCS.com]=20
-Sent: Monday, November 23, 2009 8:30 AM
-To: Dyson, Mark L (IS); selinux@tycho.nsa.gov
-Subject: RE: MLS support for RHEL5?
-
-=20
-
-=20
-
-One of the key components in the lspp rpm is the Configuration Guide.
-This describes the manner in which you should install RHEL 5 and mostly
-isn't hardware specific. The SGI document is for RHEL 5.1. I would
-probably start with that. The Dell version should be for 5.3, but I
-cannot say for sure.
-
--Chad
-
------Original Message-----
-From: Dyson, Mark L (IS) [mailto:Mark.Dyson@ngc.com]
-Sent: Mon 11/23/2009 8:17 AM
-To: Chad Hanson; selinux@tycho.nsa.gov
-Subject: RE: MLS support for RHEL5?
-
-Chad,
-
-
-
-Many thanks!  The download link seems to be divided into Dell, HP, IBM
-and SGI.  The machine I'm using is a SunFire X2200 (AMD processors).
-I'm not sure which of the four available would be the closest match.
-
-
-
-Mark
-
-
-
-From: chanson@TrustedCS.com [mailto:chanson@TrustedCS.com]
-Sent: Monday, November 23, 2009 8:11 AM
-To: Dyson, Mark L (IS); selinux@tycho.nsa.gov
-Subject: RE: MLS support for RHEL5?
-
-
-
-Hi Mark,
-
-MLS is supported in RHEL 5 and been validated against the Common
-Criteria in this configuration as well. See the links below.
-
-http://www.niap-ccevs.org/st/vid10125/
-http://www.niap-ccevs.org/st/vid10165/
-http://www.niap-ccevs.org/st/vid10286/
-
-The supporting software is available for the configuration is available
-from Red Hat.
-http://ftp.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/
-
-Cheers,
--Chad
-
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov on behalf of Dyson, Mark L (IS)
-Sent: Mon 11/23/2009 7:54 AM
-To: selinux@tycho.nsa.gov
-Subject: MLS support for RHEL5?
-
-For the project I'm working on the goal is to run a MLS application in a
-classified environment and the target architecture is Red Hat Enterprise
-Linux 5.  According to the Mayer/MacMillan/Caplan book MLS isn't
-supported as of RHEL4.  Can anyone tell me whether that has been
-resolved somewhat in RHEL5?  Is there a path to implementing MLS in that
-distribution?
-
-Thanks in advance for your help, the information I'm able to turn up
-seems dated at best.
-
-Mark
-
-
-
-
-
-------_=_NextPart_001_01CA71D8.16FE2447
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML xmlns=3D"http://www.w3.org/TR/REC-html40" xmlns:v =3D=20
-"urn:schemas-microsoft-com:vml" xmlns:o =3D=20
-"urn:schemas-microsoft-com:office:office" xmlns:w =3D=20
-"urn:schemas-microsoft-com:office:word" xmlns:m =3D=20
-"http://schemas.microsoft.com/office/2004/12/omml"><HEAD><TITLE>RE: MLS =
-support for RHEL5?</TITLE>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<META content=3D"MSHTML 6.00.2900.5890" name=3DGENERATOR><!--[if !mso]>
-<STYLE>v\:* {
-	BEHAVIOR: url(#default#VML)
-}
-o\:* {
-	BEHAVIOR: url(#default#VML)
-}
-w\:* {
-	BEHAVIOR: url(#default#VML)
-}
-.shape {
-	BEHAVIOR: url(#default#VML)
-}
-</STYLE>
-<![endif]-->
-<STYLE>@font-face {
-	font-family: Calibri;
-}
-@font-face {
-	font-family: Tahoma;
-}
-@page Section1 {size: 8.5in 11.0in; margin: 1.0in 1.0in 1.0in 1.0in; }
-P.MsoNormal {
-	FONT-SIZE: 12pt; MARGIN: 0in 0in 0pt; FONT-FAMILY: "Times New =
-Roman","serif"
-}
-LI.MsoNormal {
-	FONT-SIZE: 12pt; MARGIN: 0in 0in 0pt; FONT-FAMILY: "Times New =
-Roman","serif"
-}
-DIV.MsoNormal {
-	FONT-SIZE: 12pt; MARGIN: 0in 0in 0pt; FONT-FAMILY: "Times New =
-Roman","serif"
-}
-A:link {
-	COLOR: blue; TEXT-DECORATION: underline; mso-style-priority: 99
-}
-SPAN.MsoHyperlink {
-	COLOR: blue; TEXT-DECORATION: underline; mso-style-priority: 99
-}
-A:visited {
-	COLOR: purple; TEXT-DECORATION: underline; mso-style-priority: 99
-}
-SPAN.MsoHyperlinkFollowed {
-	COLOR: purple; TEXT-DECORATION: underline; mso-style-priority: 99
-}
-P {
-	FONT-SIZE: 12pt; MARGIN-LEFT: 0in; MARGIN-RIGHT: 0in; FONT-FAMILY: =
-"Times New Roman","serif"; mso-style-priority: 99; mso-margin-top-alt: =
-auto; mso-margin-bottom-alt: auto
-}
-SPAN.EmailStyle18 {
-	COLOR: #1f497d; FONT-FAMILY: "Calibri","sans-serif"; mso-style-type: =
-personal
-}
-SPAN.EmailStyle19 {
-	COLOR: #1f497d; FONT-FAMILY: "Calibri","sans-serif"; mso-style-type: =
-personal-reply
-}
-.MsoChpDefault {
-	FONT-SIZE: 10pt; mso-style-type: export-only
-}
-DIV.Section1 {
-	page: Section1
-}
-</STYLE>
-<!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <o:shapelayout v:ext=3D"edit">
-  <o:idmap v:ext=3D"edit" data=3D"1" />
- </o:shapelayout></xml><![endif]--></HEAD>
-<BODY lang=3DEN-US vLink=3Dpurple link=3Dblue>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D437005615-30112009><FONT =
-face=3DArial=20
-color=3D#0000ff size=3D2>Hi Mark,</FONT></SPAN></DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D437005615-30112009><FONT =
-face=3DArial=20
-color=3D#0000ff size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D437005615-30112009><FONT =
-face=3DArial=20
-color=3D#0000ff size=3D2>I have not yet seen Eamon's presentation, but =
-this work is=20
-on the trunk of the&nbsp;Xorg and SELinux&nbsp;project from what I=20
-recall.&nbsp;I do not believe this support exists in RHEL 5 as it was =
-released a=20
-long time ago when&nbsp;XACE was not yet included in the&nbsp;X server. =
-I=20
-believe the inclusion of the graphical environment in a newer=20
-Fedora&nbsp;release probably still needs the assistance of a=20
-skilled&nbsp;developer with experience in SELinux policy and&nbsp;X =
-window=20
-environment.&nbsp;The implementation of non-graphical applications=20
-straightforward to implement in the MLS environment.</FONT></SPAN></DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D437005615-30112009><FONT =
-face=3DArial=20
-color=3D#0000ff size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV dir=3Dltr align=3Dleft><SPAN class=3D437005615-30112009><FONT =
-face=3DArial=20
-color=3D#0000ff size=3D2>-Chad</FONT></SPAN></DIV><BR>
-<DIV class=3DOutlookMessageHeader lang=3Den-us dir=3Dltr align=3Dleft>
-<HR tabIndex=3D-1>
-<FONT face=3DTahoma size=3D2><B>From:</B> Dyson, Mark L (IS)=20
-[mailto:Mark.Dyson@ngc.com] <BR><B>Sent:</B> Wednesday, November 25, =
-2009 7:52=20
-AM<BR><B>To:</B> Chad Hanson<BR><B>Cc:</B>=20
-selinux@tycho.nsa.gov<BR><B>Subject:</B> RE: MLS support for=20
-RHEL5?<BR></FONT><BR></DIV>
-<DIV></DIV>
-<DIV class=3DSection1>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Chad,<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Thanks=20
-for the help thus far, and for your patience.&nbsp; I only have the one =
-machine=20
-available to me, and it came pre-installed both with RHEL5.3 and with a=20
-proprietary software suite that is eventually supposed to run under =
-SELinux=20
-(it&#8217;s a port from Trusted Solaris).&nbsp; I don&#8217;t have the =
-RHEL install media,=20
-and installing the software itself (so I&#8217;m given to understand) is =
-a major=20
-undertaking, so a re-install is very unattractive.&nbsp; I&#8217;m also =
-a total=20
-neophyte to SELinux, I hadn&#8217;t even heard of it before I was asked =
-to look into=20
-this, and I&#8217;m not a Linux guru by any stretch of the=20
-imagination.<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">The=20
-desired end state is to be running Multi-Level Security, and X Windowing =
-support=20
-is also needed, or so I&#8217;m given to understand.&nbsp; I read that =
-was problematic=20
-in the books I have, but I understood from the mailing list that Eamon =
-Walsh=20
-just delivered a paper that seemed to indicate it was now =
-supported?&nbsp;=20
-Managing multi-security-level windows in a session is one of the =
-specific issues=20
-I was asked to look into.<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Does=20
-there exist a laundry list of the packages that need to be =
-installed?&nbsp; I&#8217;m=20
-willing to attempt this, if I could get my hands on sufficient guidance, =
-and I&#8217;d=20
-hope not to bend the patience of the folks on the list (to which =
-I&#8217;m going to CC=20
-this thread so as to spread the burden a little).&nbsp; My current =
-sources of=20
-information are two books about SELinux: The O&#8217;Reilly one by Bill =
-McCarty and=20
-the Prentice Hall one by Frank Mayer, Karl MacMillan, and David =
-Caplan.&nbsp;=20
-That&#8217;s pretty much it.<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">So=20
-as a more general invitation to chime in: is the mapping from Trusted =
-Solaris to=20
-SELunix for an X-windows application a realistic path?&nbsp; Is SELinux =
-just not=20
-yet ready for such an adventure?<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">As=20
-ever, many thanks,<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Mark<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<DIV>
-<DIV=20
-style=3D"BORDER-RIGHT: medium none; PADDING-RIGHT: 0in; BORDER-TOP: =
-#b5c4df 1pt solid; PADDING-LEFT: 0in; PADDING-BOTTOM: 0in; BORDER-LEFT: =
-medium none; PADDING-TOP: 3pt; BORDER-BOTTOM: medium none">
-<P class=3DMsoNormal><B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: =
-'Tahoma','sans-serif'">From:</SPAN></B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: 'Tahoma','sans-serif'">=20
-chanson@TrustedCS.com [mailto:chanson@TrustedCS.com] <BR><B>Sent:</B> =
-Tuesday,=20
-November 24, 2009 3:50 PM<BR><B>To:</B> Dyson, Mark L =
-(IS)<BR><B>Subject:</B>=20
-RE: MLS support for RHEL5?<o:p></o:p></SPAN></P></DIV></DIV>
-<P class=3DMsoNormal><o:p>&nbsp;</o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 10pt; COLOR: blue; FONT-FAMILY: =
-'Arial','sans-serif'">Hi=20
-Mark,</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal>&nbsp;<o:p></o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 10pt; COLOR: blue; FONT-FAMILY: =
-'Arial','sans-serif'">The LSPP=20
-functionality can be enabled after installation, however it is probably =
-not an=20
-easy process depending on your experience level with SELinux. You'll =
-need to=20
-manually install the&nbsp;MLS Selinux security policy rpm.&nbsp;You'll =
-want to=20
-make sure the policycoreutils-newrole rpm is installed. These are few =
-things I=20
-can think of to start with. Really this is just trying to manually add =
-software=20
-and change config to the configuration guide.&nbsp; Also note =
-the&nbsp;CC LSPP=20
-configuration doesn't support X windows for example so this would need =
-to be=20
-disabled as I don't believe it will start in enforcing=20
-mode.</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal>&nbsp;<o:p></o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 10pt; COLOR: blue; FONT-FAMILY: =
-'Arial','sans-serif'">It may=20
-be worthwhile to install the LSPP version in a virtual =
-machine&nbsp;before=20
-trying to convert an existing system. This&nbsp;would be a good =
-idea&nbsp;for=20
-the procedure above as well to verify what will happen with the various =
-steps.=20
-The would let you see what the system should like after the=20
-conversion.</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal>&nbsp;<o:p></o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 10pt; COLOR: blue; FONT-FAMILY: =
-'Arial','sans-serif'">Cheers,</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 10pt; COLOR: blue; FONT-FAMILY: =
-'Arial','sans-serif'">-Chad</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal><o:p>&nbsp;</o:p></P>
-<DIV class=3DMsoNormal style=3D"TEXT-ALIGN: center" align=3Dcenter>
-<HR align=3Dcenter width=3D"100%" SIZE=3D2>
-</DIV>
-<P class=3DMsoNormal style=3D"MARGIN-BOTTOM: 12pt"><B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: =
-'Tahoma','sans-serif'">From:</SPAN></B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: 'Tahoma','sans-serif'"> Dyson, =
-Mark L (IS)=20
-[mailto:Mark.Dyson@ngc.com] <BR><B>Sent:</B> Tuesday, November 24, 2009 =
-11:33=20
-AM<BR><B>To:</B> Chad Hanson<BR><B>Subject:</B> RE: MLS support for=20
-RHEL5?</SPAN><o:p></o:p></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Chad,<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">More=20
-newbie questions.&nbsp; I don&#8217;t currently have the option of =
-installing RHEL5,=20
-the system came to me pre-installed with the subject application =
-installed as=20
-well.&nbsp; Is this LSPP something that can be added after the =
-fact?&nbsp; The=20
-main issue I was having was the MLS and Strict options weren&#8217;t =
-available in the=20
-SELinux config utility.&nbsp; Does that mean I&#8217;m hosed unless I =
-can re-install=20
-RHEL5 using the lspp kickstart method?<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Thanks=20
-in advance,<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'">Mark<o:p></o:p></SPAN></P>
-<P class=3DMsoNormal><SPAN=20
-style=3D"FONT-SIZE: 11pt; COLOR: #1f497d; FONT-FAMILY: =
-'Calibri','sans-serif'"><o:p>&nbsp;</o:p></SPAN></P>
-<DIV>
-<DIV=20
-style=3D"BORDER-RIGHT: medium none; PADDING-RIGHT: 0in; BORDER-TOP: =
-#b5c4df 1pt solid; PADDING-LEFT: 0in; PADDING-BOTTOM: 0in; BORDER-LEFT: =
-medium none; PADDING-TOP: 3pt; BORDER-BOTTOM: medium none">
-<P class=3DMsoNormal><B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: =
-'Tahoma','sans-serif'">From:</SPAN></B><SPAN=20
-style=3D"FONT-SIZE: 10pt; FONT-FAMILY: 'Tahoma','sans-serif'">=20
-chanson@TrustedCS.com [mailto:chanson@TrustedCS.com] <BR><B>Sent:</B> =
-Monday,=20
-November 23, 2009 8:30 AM<BR><B>To:</B> Dyson, Mark L (IS);=20
-selinux@tycho.nsa.gov<BR><B>Subject:</B> RE: MLS support for=20
-RHEL5?<o:p></o:p></SPAN></P></DIV></DIV>
-<P class=3DMsoNormal><o:p>&nbsp;</o:p></P>
-<P class=3DMsoNormal><o:p>&nbsp;</o:p></P>
-<P style=3D"MARGIN-BOTTOM: 12pt"><SPAN style=3D"FONT-SIZE: 10pt">One of =
-the key=20
-components in the lspp rpm is the Configuration Guide. This describes =
-the manner=20
-in which you should install RHEL 5 and mostly isn't hardware specific. =
-The SGI=20
-document is for RHEL 5.1. I would probably start with that. The Dell =
-version=20
-should be for 5.3, but I cannot say for =
-sure.<BR><BR>-Chad<BR><BR>-----Original=20
-Message-----<BR>From: Dyson, Mark L (IS) [<A=20
-href=3D"mailto:Mark.Dyson@ngc.com">mailto:Mark.Dyson@ngc.com</A>]<BR>Sent=
-: Mon=20
-11/23/2009 8:17 AM<BR>To: Chad Hanson; selinux@tycho.nsa.gov<BR>Subject: =
-RE: MLS=20
-support for RHEL5?<BR><BR>Chad,<BR><BR><BR><BR>Many thanks!&nbsp; The =
-download=20
-link seems to be divided into Dell, HP, IBM<BR>and SGI.&nbsp; The =
-machine I'm=20
-using is a SunFire X2200 (AMD processors).<BR>I'm not sure which of the =
-four=20
-available would be the closest =
-match.<BR><BR><BR><BR>Mark<BR><BR><BR><BR>From:=20
-chanson@TrustedCS.com [<A=20
-href=3D"mailto:chanson@TrustedCS.com">mailto:chanson@TrustedCS.com</A>]<B=
-R>Sent:=20
-Monday, November 23, 2009 8:11 AM<BR>To: Dyson, Mark L (IS);=20
-selinux@tycho.nsa.gov<BR>Subject: RE: MLS support for =
-RHEL5?<BR><BR><BR><BR>Hi=20
-Mark,<BR><BR>MLS is supported in RHEL 5 and been validated against the=20
-Common<BR>Criteria in this configuration as well. See the links =
-below.<BR><BR><A=20
-href=3D"http://www.niap-ccevs.org/st/vid10125/">http://www.niap-ccevs.org=
-/st/vid10125/</A><BR><A=20
-href=3D"http://www.niap-ccevs.org/st/vid10165/">http://www.niap-ccevs.org=
-/st/vid10165/</A><BR><A=20
-href=3D"http://www.niap-ccevs.org/st/vid10286/">http://www.niap-ccevs.org=
-/st/vid10286/</A><BR><BR>The=20
-supporting software is available for the configuration is =
-available<BR>from Red=20
-Hat.<BR><A=20
-href=3D"http://ftp.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/">http://ft=
-p.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/</A><BR><BR>Cheers,<BR>-Chad=
-<BR><BR><BR>-----Original=20
-Message-----<BR>From: owner-selinux@tycho.nsa.gov on behalf of Dyson, =
-Mark L=20
-(IS)<BR>Sent: Mon 11/23/2009 7:54 AM<BR>To: =
-selinux@tycho.nsa.gov<BR>Subject:=20
-MLS support for RHEL5?<BR><BR>For the project I'm working on the goal is =
-to run=20
-a MLS application in a<BR>classified environment and the target =
-architecture is=20
-Red Hat Enterprise<BR>Linux 5.&nbsp; According to the =
-Mayer/MacMillan/Caplan=20
-book MLS isn't<BR>supported as of RHEL4.&nbsp; Can anyone tell me =
-whether that=20
-has been<BR>resolved somewhat in RHEL5?&nbsp; Is there a path to =
-implementing=20
-MLS in that<BR>distribution?<BR><BR>Thanks in advance for your help, the =
-
-information I'm able to turn up<BR>seems dated at=20
-best.<BR><BR>Mark<BR><BR><BR></SPAN><o:p></o:p></P></DIV></BODY></HTML>
-
-------_=_NextPart_001_01CA71D8.16FE2447--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
