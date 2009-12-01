@@ -1,41 +1,94 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nB1Mpq20019868
-	for <selinux@tycho.nsa.gov>; Tue, 1 Dec 2009 17:51:52 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nB1Ms4Y6027077
-	for <selinux@tycho.nsa.gov>; Tue, 1 Dec 2009 22:54:05 GMT
-Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id nB1Mpo9N028227
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 1 Dec 2009 17:51:50 -0500
-Received: from localhost.localdomain (vpn-10-209.rdu.redhat.com [10.11.10.209])
-	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id nB1Mpnvh005267
-	for <selinux@tycho.nsa.gov>; Tue, 1 Dec 2009 17:51:50 -0500
-Message-ID: <4B159E05.50409@redhat.com>
-Date: Tue, 01 Dec 2009 17:51:49 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: A question about genhomedircon
-References: <87vdh5kp0s.fsf@anzu.internal.golden-gryphon.com>	<1258747888.27504.624.camel@gorn.columbia.tresys.com> <87iqcvwfw2.fsf@anzu.internal.golden-gryphon.com>
-In-Reply-To: <87iqcvwfw2.fsf@anzu.internal.golden-gryphon.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] Dynamic port labeling V2
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200912020450.28965.russell@coker.com.au>
+References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>
+	 <4B14A111.2000703@schaufler-ca.com>
+	 <1259679974.2365.29.camel@moss-terrapins.epoch.ncsc.mil>
+	 <200912020450.28965.russell@coker.com.au>
+Content-Type: text/plain
+Date: Tue, 01 Dec 2009 18:03:53 -0500
+Message-Id: <1259708633.8497.18.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/27/2009 09:18 PM, Manoj Srivastava wrote:
-> On Fri, Nov 20 2009, Christopher J. PeBenito wrote:
+On Wed, 2009-12-02 at 04:50 +1100, Russell Coker wrote:
+> On Wed, 2 Dec 2009, "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
+> > 1) Where is it located?
+> > 2) Is your proposal to implement it as a new fs with a name something
+> > like portfs?
 > 
+> If it's going to be generic to all LSM modules then we can't 
+> use /selinux/ports.  So I guess another filesystem is required.
+
+Well we could, but you'd just have an /selinux/ports directory that's
+empty and mount portfs over /selinux/ports. There are examples of this
+but you may want a /ports mount point if its going to handle the DAC
+part of port permissions as well.
+
 > 
->> Theres no need to reload the policy, as the policy isn't changing.  It
->> does, however, regenerate the file contexts, including the home dir
->> contexts.
+> > 3) How does it get populated initially? Do you have a file for each port
+> > right off the bat? Do you only have files for ports with policy or whose
+> > permissions differ from the default?
 > 
->         So the behaviour has not changed? In which case, can we bring
->  back the  man page for the command?
+> It seems to me that the majority of ports will not have discrete labels.  So 
+> out of the 65535 ports it would probably be uncommon to have more than 200 
+> labels.
 > 
->         manoj
-Sounds good to me.
+> Some aspects of the programming will be easier if we have one file per port.  
+> But then changing the default label would require writing to more than 60,000 
+> files in the common cases.
+
+I can't say that I find this behavior desirable. What I find even less
+desirable is the race conditions created by this. We would want a stack
+or port labels which as each got removed you would fall back to the one
+applied before that. Now if you want to programatically find out what
+labels are on the file and insert a label into this list you would need
+to read the contents of lets say /port/80 modify it and then write back
+to /port/80. If this has changed in the mean time you're potentially
+putting back a label that should have been removed. Since you're using a
+filesystem interface you can't really do a push/pop/insert interface
+using filesystem syscalls alone.
+
+Additionally another huge problem is port ranges. If I want to label
+30000-35000 as mytype_t I now need to iterate over 5k files opening each
+writing the label and closing them. 
+
+> 
+> One possibility would be to have a default label for any port that doesn't 
+> have a specific label.  We could have a file per port that has a specific 
+> label (probably not much more than 1024 entries on typical systems) and then 
+> have a default label for the rest.
+> 
+
+This would be similar to what I did for the sysfs labeling where the
+incore dentry only has a security label when it is different from the
+default. The issue I see is that there is no equivalent to a genfscon
+statement for ports. This causes a problem with setting a default label
+because I don't believe there is currently a construct to do this. There
+are portcon statements in policy but there isn't a way to indicate a
+default for everything in a way that would allow you to differentiate a
+default from just something that came first.
+
+> Setting the port to the default label would be a matter of either unlinking 
+> the file which has the specific label or writing "".
+> 
+> > 4) How do I assign a label to the port? You have an issue here that
+> > these files are objects themselves. You can't just label the file with
+> > what you want the port labeled because now you can't mediate access to
+> > these file objects outside of the label on the port itself.
+> 
+> The files would have to have the labels as their contents.  The advantage of 
+> this is that the permissions needed to set the labels would be independent of 
+> what the labels are.
+> 
+
+Like I mentioned above the race conditions introduced by this make this
+less than ideal.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
