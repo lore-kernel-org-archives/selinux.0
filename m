@@ -1,98 +1,66 @@
+Message-ID: <4B181228.6080600@manicmethod.com>
+Date: Thu, 03 Dec 2009 14:31:52 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
+CC: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        jmorris@namei.org, selinux@tycho.nsa.gov,
+        "George S. Coker, II" <gscoker@alpha.ncsc.mil>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: [PATCH] Dynamic port labeling V2
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>,
-        russell@coker.com.au, selinux@tycho.nsa.gov,
-        LSM <linux-security-module@vger.kernel.org>
-In-Reply-To: <4B173283.30601@schaufler-ca.com>
 References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4B14A111.2000703@schaufler-ca.com>
-	 <1259679974.2365.29.camel@moss-terrapins.epoch.ncsc.mil>
-	 <200912020450.28965.russell@coker.com.au>
-	 <1259694891.2277.4.camel@moss-stripedbass.epoch.ncsc.mil>
-	 <4B159C82.6090408@redhat.com>
-	 <1259708829.8497.22.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4B15FE89.5000208@schaufler-ca.com>
-	 <1259790741.8497.53.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4B173283.30601@schaufler-ca.com>
-Content-Type: text/plain
-Date: Thu, 03 Dec 2009 11:01:09 -0500
-Message-Id: <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-12-02 at 19:37 -0800, Casey Schaufler wrote:
-> David P. Quigley wrote:
-> > On Tue, 2009-12-01 at 21:43 -0800, Casey Schaufler wrote:
-> >   
-> >>> also what happens when other transport protocols come around like sctp
-> >>> for instance. now we need another 65k files for this as well.
-> >>>
-> >>>   
-> >>>       
-> >> Ok, so it would appear that the notion of a fully populated
-> >> portfs has sufficient stumbling blocks to make it a non-starter.
-> >>
-> >> A dynamically maintained version, with default values for unallocated
-> >> ports and memory based xattrs stored on request would still be viable.
-> >>
-> >> Yes, it's more work. I'd rather see a generally useful scheme than an
-> >> SELinux specific one, if for no other reason than it makes the general
-> >> case harder to sell later on.
-> >>
-> >>     
-> >>> Dave
-> >>>
-> >>>
-> >>> --
-> >>>       
-> >
-> > You still need to address my issue with port ranges.
-> 
-> Why does the notions of port ranges make any sense at all? That
-> sounds an awful lot like name based access control from here, and
-> we know the evils of name based access controls. (smiley here)
+Paul Nuzzi wrote:
+> Second version of the dynamic port labeling patch.  Changed the name of
+> the selinuxfs interface to portcon and changed the interface to only
+> allow five arguments instead of the variable four or five.
+>
+> Added a mechanism to add/delete/update port labels with an interface in
+> the selinuxfs filesystem.  This will give administrators the ability to
+> update port labels faster than reloading the entire policy with
+> semanage.  The administrator will also need less privilege since they
+> don't have to be authorized to reload the full policy.
+>
+> A listing of all port labels will be output if the file /selinux/portcon
+> is read.  Labels could be added or deleted with the following commands
+>
+> echo -n "del system_u:object_r:ssh_port_t:s0 6 22 22">  /selinux/portcon
+> echo -n "add system_u:object_r:telnetd_port_t:s0 6 22 22">  /selinux/portcon
+>
 
-Because if I want to have set of ports labeled reserved_port_t or
-no_access_port_t and have a neverallow rule for no_access_port_t I have
-to iterate through every file that I want to have that. That is why a
-port range is useful. It sound nothing what so ever like name based
-access control.
+Aside from the conversation Dave and Casey are having I still think this 
+isn't quite right. First, while you can atomically change a single port 
+label with the add command above you can't atomically change multiple 
+entries, which I think is completely necessary (you don't want to have 
+strange labeling states when changing a set of ports to a new label.
 
-> 
-> >  Also I don't find
-> > this interface generically useful when you have to have intimate
-> > knowledge of the LSM to know what the correct xattrs to set are. You
-> > pointed it out yourself that Smack handles port labeling differently
-> > than SELinux
-> 
-> Nope. Smack does not label ports. Ports are not policy components in
-> Smack. I pointed out that Smack treats sockets differently than SELinux.
-> I did so to address your issue with multiple xattrs on an object. I
-> pointed out that it is easy to do.
-> 
-> >  so to try to shoe horn every LSM that labels ports into a
-> > filesystem interface where the user has to know LSM specific xattrs to
-> > set doesn't seem generic to me.
-> >   
-> 
-> The xattr interface is generic. Yes, you have to know the name of
-> the attribute as well as the value it should have and yes that will
-> differ between LSMs.
-> 
-> > Dave
-> 
-> Now I'm glad the notion has been considered, and I can understand
-> if it seems like too much work or if you just don't see it as a good
-> idea.
-> 
-> How about making it a part of the labeled networking code then?
-> That would seem to be a more focused approach that would also,
-> and perhaps better, address the generality concern.
+Also, if you are dealing with ranges you need to essentially pop off all 
+the specific ports, change the range and push all the specific ports 
+back on. With the current interface I don't see how that is possible at 
+all.
 
-I'd consider talking to Paul Moore about it and getting his input then
-as I'm just a filesystem guy :)
+Also, while having a text parser in the kernel makes it easier to use 
+with echo I think it is alot of code in the kernel for no good reason. 
+There is no reason not to make a userspace tool that converts the 
+textual representation into a serialized struct and feed it to the 
+kernel. We typically tell users not to mess around in /selinux anyway, 
+since we have a libselinux interface to do that.
+
+We also need to be able to get that information back out somehow, and we 
+need to be able to keep the on-disk policy consistent with the changes 
+we are making at runtime. setsebool -P does this, but it rebuilds the 
+policy, which you are trying to avoid. How do you make these portcon 
+changes persist across reboots? I don't imagine very many scenarios 
+where you only want to temporarily change portcons.
+
+It seems like you'd need to manage an on-disk file of all the ports and 
+load them right after loading the policy (which is still racy but the 
+default port sid should prevent any traffic on the ports.
 
 
 --
