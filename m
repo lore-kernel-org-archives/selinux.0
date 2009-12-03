@@ -1,67 +1,51 @@
-Message-ID: <4B181228.6080600@manicmethod.com>
-Date: Thu, 03 Dec 2009 14:31:52 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
-CC: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        jmorris@namei.org, selinux@tycho.nsa.gov,
-        "George S. Coker, II" <gscoker@alpha.ncsc.mil>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+From: Paul Moore <paul.moore@hp.com>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 Subject: Re: [PATCH] Dynamic port labeling V2
-References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>
-In-Reply-To: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Thu, 3 Dec 2009 17:43:42 -0500
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, russell@coker.com.au,
+        selinux@tycho.nsa.gov, LSM <linux-security-module@vger.kernel.org>
+References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil> <4B173283.30601@schaufler-ca.com> <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
+In-Reply-To: <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <200912031743.42195.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Nuzzi wrote:
-> Second version of the dynamic port labeling patch.  Changed the name of
-> the selinuxfs interface to portcon and changed the interface to only
-> allow five arguments instead of the variable four or five.
->
-> Added a mechanism to add/delete/update port labels with an interface in
-> the selinuxfs filesystem.  This will give administrators the ability to
-> update port labels faster than reloading the entire policy with
-> semanage.  The administrator will also need less privilege since they
-> don't have to be authorized to reload the full policy.
->
-> A listing of all port labels will be output if the file /selinux/portcon
-> is read.  Labels could be added or deleted with the following commands
->
-> echo -n "del system_u:object_r:ssh_port_t:s0 6 22 22">  /selinux/portcon
-> echo -n "add system_u:object_r:telnetd_port_t:s0 6 22 22">  /selinux/portcon
->
+On Thursday 03 December 2009 11:01:09 am David P. Quigley wrote:
+> On Wed, 2009-12-02 at 19:37 -0800, Casey Schaufler wrote:
+> > Now I'm glad the notion has been considered, and I can understand
+> > if it seems like too much work or if you just don't see it as a good
+> > idea.
+> >
+> > How about making it a part of the labeled networking code then?
+> > That would seem to be a more focused approach that would also,
+> > and perhaps better, address the generality concern.
+> 
+> I'd consider talking to Paul Moore about it and getting his input then
+> as I'm just a filesystem guy :)
 
-Aside from the conversation Dave and Casey are having I still think this 
-isn't quite right. First, while you can atomically change a single port 
-label with the add command above you can't atomically change multiple 
-entries, which I think is completely necessary (you don't want to have 
-strange labeling states when changing a set of ports to a new label.
+Okay, I stopped following this thread closely several messages ago but I saw 
+"labeled networking" then my name so I figured I should probably say something 
+constructive :) [NOTE: I did actually review the first set of patches to 
+ensure they flushed the SELinux port caches, which they did - good job]
 
-Also, if you are dealing with ranges you need to essentially pop off all 
-the specific ports, change the range and push all the specific ports 
-back on. With the current interface I don't see how that is possible at 
-all.
+Anyway, I digress ... labeling network ports isn't really labeled networking 
+in the sense that labeled networking tends to be about communicating security 
+label information across the network.  While I won't close the door on this 
+completely, I will say that someone is going to have to make a very persuasive 
+argument as to why port labeling belongs in the labeled networking code ... 
+and also preferably how you would establish a LSM agnostic method of labeling 
+ports.
 
-Also, while having a text parser in the kernel makes it easier to use 
-with echo I think it is alot of code in the kernel for no good reason. 
-There is no reason not to make a userspace tool that converts the 
-textual representation into a serialized struct and feed it to the 
-kernel. We typically tell users not to mess around in /selinux anyway, 
-since we have a libselinux interface to do that.
+Good luck with that last bit :) 
 
-We also need to be able to get that information back out somehow, and we 
-need to be able to keep the on-disk policy consistent with the changes 
-we are making at runtime. setsebool -P does this, but it rebuilds the 
-policy, which you are trying to avoid. How do you make these portcon 
-changes persist across reboots? I don't imagine very many scenarios 
-where you only want to temporarily change portcons.
-
-It seems like you'd need to manage an on-disk file of all the ports and 
-load them right after loading the policy (which is still racy but the 
-default port sid should prevent any traffic on the ports.
-
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
