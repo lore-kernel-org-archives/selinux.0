@@ -1,140 +1,132 @@
-Message-ID: <4B1864FD.9070207@ak.jp.nec.com>
-Date: Fri, 04 Dec 2009 10:25:17 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nB42WkeD020823
+	for <selinux@tycho.nsa.gov>; Thu, 3 Dec 2009 21:32:48 -0500
+Received: from smtp106.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id nB42VfD8016150
+	for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2009 02:31:41 GMT
+Message-ID: <4B1874C9.1000508@schaufler-ca.com>
+Date: Thu, 03 Dec 2009 18:32:41 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: SELinux ML <selinux@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Josh Berkus <josh@agliodbs.com>, Bruce Momjian <bruce@momjian.us>
-Subject: Re: [HACKERS] Adding support for SE-Linux security
-References: <200912021616.nB2GGOP24071@momjian.us> <4B16B7BA.3000408@agliodbs.com> <21836.1259786236@sss.pgh.pa.us> <4B183A66.8020002@agliodbs.com>
-In-Reply-To: <4B183A66.8020002@agliodbs.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>,
+        russell@coker.com.au, selinux@tycho.nsa.gov,
+        LSM <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH] Dynamic port labeling V2
+References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil>	 <4B14A111.2000703@schaufler-ca.com>	 <1259679974.2365.29.camel@moss-terrapins.epoch.ncsc.mil>	 <200912020450.28965.russell@coker.com.au>	 <1259694891.2277.4.camel@moss-stripedbass.epoch.ncsc.mil>	 <4B159C82.6090408@redhat.com>	 <1259708829.8497.22.camel@moss-terrapins.epoch.ncsc.mil>	 <4B15FE89.5000208@schaufler-ca.com>	 <1259790741.8497.53.camel@moss-terrapins.epoch.ncsc.mil>	 <4B173283.30601@schaufler-ca.com> <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
+In-Reply-To: <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+David P. Quigley wrote:
+> On Wed, 2009-12-02 at 19:37 -0800, Casey Schaufler wrote:
+>   
+>> David P. Quigley wrote:
+>>     
+>>> On Tue, 2009-12-01 at 21:43 -0800, Casey Schaufler wrote:
+>>>   
+>>>       
+>>>>> also what happens when other transport protocols come around like sctp
+>>>>> for instance. now we need another 65k files for this as well.
+>>>>>
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> Ok, so it would appear that the notion of a fully populated
+>>>> portfs has sufficient stumbling blocks to make it a non-starter.
+>>>>
+>>>> A dynamically maintained version, with default values for unallocated
+>>>> ports and memory based xattrs stored on request would still be viable.
+>>>>
+>>>> Yes, it's more work. I'd rather see a generally useful scheme than an
+>>>> SELinux specific one, if for no other reason than it makes the general
+>>>> case harder to sell later on.
+>>>>
+>>>>     
+>>>>         
+>>>>> Dave
+>>>>>
+>>>>>
+>>>>> --
+>>>>>       
+>>>>>           
+>>> You still need to address my issue with port ranges.
+>>>       
+>> Why does the notions of port ranges make any sense at all? That
+>> sounds an awful lot like name based access control from here, and
+>> we know the evils of name based access controls. (smiley here)
+>>     
+>
+> Because if I want to have set of ports labeled reserved_port_t or
+> no_access_port_t and have a neverallow rule for no_access_port_t I have
+> to iterate through every file that I want to have that. That is why a
+> port range is useful.
 
-Now I've been suggesting a feature to support SELinux in PostgreSQL again.
+If you're going to treat ports as named objects (things
+that require labels) it seems as if the interfaces for
+dealing with them ought not make it easy to make mistakes.
+If you really care you don't want people doing things like
 
-Currently, they are in the development cycle for the next release (v8.5)
-called "commit fest" that is a similar concept to "merge window" in Linux.
-It is a chance to upstream any new features, except for bug fixes.
+     set ports 1-9999 some_port_t
+     set ports 77,802 another_port_t
 
-After the loooong discussion, most of them seems agreed to make progress
-to review for inclusion of the feature as a directionality.
-However, there are technical gaps. PgSQL hackers are conversant with
-PostgreSQL, but not for SELinux.
+and don't even think of trying to say that isn't what is
+going to happen.
 
-So, Josh Berkus (the PgSQL core team lead) suggested me to involve SELinux
-folks to review the patch, to fill in the gaps.
-I'll be happy, if I can see you to help reviewing the SE-PgSQL/Lite patch.
-If you are available, please subscribe the pgsql-hackers ML from:
-  http://archives.postgresql.org/pgsql-hackers/
 
-Bruce Momjian (the PgSQL core team) summalized the current discussion state.
-It is not so bad, compared to two years ago:
-  http://archives.postgresql.org/message-id/200912032146.nB3LkNF29978@momjian.us
-  http://archives.postgresql.org/message-id/200912021616.nB2GGOP24071@momjian.us
+>  It sound nothing what so ever like name based
+> access control.
+>   
 
-Especially, it seems to me they worry about APIs (libselinux) and differences
-in security models. For example, what is the purpose of getpeercon(), why
-it needs a security context, why we cannot put security hooks within DAC
-routines and so on.
-These may be common knowledges in SELinux community, but not in PgSQL.
-They want SELinux community to provide development resources more than I
-to merge SELinux support, when we need to pay hard efforts.
+How is "all ports named 1-1024" different from
+"all files named /etc/net*" ?
 
-BTW, the current proposition is titled as "SE-PgSQL/Lite", because I separated
-a lot of features from the original design of SE-PostgreSQL to reduce burdens
-of reviewers in this stage.
-Due to the historic background, I had been repeatedly pointed out to keep
-the patch size smaller and step-by-step enhancement.
+>   
+>>>  Also I don't find
+>>> this interface generically useful when you have to have intimate
+>>> knowledge of the LSM to know what the correct xattrs to set are. You
+>>> pointed it out yourself that Smack handles port labeling differently
+>>> than SELinux
+>>>       
+>> Nope. Smack does not label ports. Ports are not policy components in
+>> Smack. I pointed out that Smack treats sockets differently than SELinux.
+>> I did so to address your issue with multiple xattrs on an object. I
+>> pointed out that it is easy to do.
+>>
+>>     
+>>>  so to try to shoe horn every LSM that labels ports into a
+>>> filesystem interface where the user has to know LSM specific xattrs to
+>>> set doesn't seem generic to me.
+>>>   
+>>>       
+>> The xattr interface is generic. Yes, you have to know the name of
+>> the attribute as well as the value it should have and yes that will
+>> differ between LSMs.
+>>
+>>     
+>>> Dave
+>>>       
+>> Now I'm glad the notion has been considered, and I can understand
+>> if it seems like too much work or if you just don't see it as a good
+>> idea.
+>>
+>> How about making it a part of the labeled networking code then?
+>> That would seem to be a more focused approach that would also,
+>> and perhaps better, address the generality concern.
+>>     
+>
+> I'd consider talking to Paul Moore about it and getting his input then
+> as I'm just a filesystem guy :)
+>
+>   
 
-It might be complaints for SELinux community, however, a limited support
-is much better than nothing. I'd like to understand the historic background
-in the three year's development.
+Paul responded in the negative, and I respect his judgement, even
+on the occasion where we disagree.
 
-So, the current proposition focuses on very restricted functionalities to
-keep the patch size small, as follows:
+Looks as if y'all are happier with a iptables-ish interface
+than a filesystem-ish interface. Enjoy.
 
-* No access controls except for databases, schemas, tables and columns
-  PgSQL has various kind of database objects except for the four.
-  But it needs to deploy various kind of security hooks in the core routine
-  at once, and makes hard to review, if we try to add comprehensive support
-  in the first stage. So, I separated access controls on other database
-  objects, such as procedures, largeobjects, and so on.
-
-  It is an acceptable compromise. For example, TOMOYO Linux team decided to
-  focus on access controls on filesystem at first without their networking
-  support, then it got successed. A journey of a thousand miles begins with
-  a single step.
-
-* No userspace access vectore cache
-  It is a tradeoff between performance and possibility of acceptance.
-  In my experience, it needs additional 1KL of changeset for the patch,
-  so it makes the hurdle higher instead of the performance in this stage.
-
-  We can anytime add the AVC feature later transparently for users, so
-  this patch always calls security_compute_av() as the most simple way.
-  Note that AVC in libselinux is not an option for us, because it makes
-  a netlink socket for each database connections, but it is not suitable
-  for multi-processing (not multi-thread) servers, such as PostgreSQL.
-
-* No row-level granularity in access controls
-  Currently, PgSQL does not have row-level granularity support in access
-  controls, so we need to develop both of facilities to handle row-level
-  granularity and to make access control decision based on SELinux in same
-  time.
-  However, it is obviously unreasonable from the perspective of changeset
-  scales. So, I plans to propose a feature something like Oracle Virtual
-  Private Database in the v8.6 development cycle, then add a decision making
-  function based on SELinux policy.
-
-* No security identifier support within
-  PgSQL stores metadata of the database objects within special tables
-  called system catalogs. All the managed four database objects (see above)
-  have its own system catalogs.
-  The current patch stores a security context of the managed database objects
-  as a plain text format in tuples of the system catalogs, because a limited
-  number of database objects can have its own label in this version, so no
-  need to provide generic framework more than necessity.
-  In the original design, I inject a security identifier, indicating a text
-  representation of security context on the other system table, within data
-  structure of each database rows. However, it also needs additional 1KL of
-  changeset in the patch.
-
-Also see the developer documentation:
-  http://code.google.com/p/sepgsql/source/browse/trunk/sepgsql/src/backend/security/sepgsql/README
-
-It describes what permissions are defined and implemented in this version.
-It helps to avoid confusion come from differences between the current
-proposition and the original design.
-
-Thanks,
-
-Josh Berkus wrote:
->> In words of one syllable: I do not care at all whether the NSA would use
->> Postgres, if they're not willing to come and help us build it. 
-> 
-> There's several 2-syllable words there.  ;-)
-> 
->  If we
->> tried to build it without their input, we'd probably not produce what
->> they want anyway.
-> 
-> Yeah, the *complete* lack of input/help from the security community
-> aside from the occasional "SE Linux good" posts we've gotten is
-> troubling.  We could end up with a SQL-J.
-> 
-> Kaigai, you've said that you could get SELinux folks involved in the
-> patch review.  I think it's past time that they were; please solicit them.
-> 
-> --Josh Berkus
-> 
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
