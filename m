@@ -1,51 +1,49 @@
-From: Paul Moore <paul.moore@hp.com>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <method@manicmethod.com>
 Subject: Re: [PATCH] Dynamic port labeling V2
-Date: Thu, 3 Dec 2009 17:43:42 -0500
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, russell@coker.com.au,
-        selinux@tycho.nsa.gov, LSM <linux-security-module@vger.kernel.org>
-References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil> <4B173283.30601@schaufler-ca.com> <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
-In-Reply-To: <1259856069.8497.56.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 4 Dec 2009 11:12:41 +1100
+Cc: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, jmorris@namei.org,
+        selinux@tycho.nsa.gov, "George S. Coker, II" <gscoker@alpha.ncsc.mil>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil> <4B181228.6080600@manicmethod.com>
+In-Reply-To: <4B181228.6080600@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200912031743.42195.paul.moore@hp.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200912041112.56570.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 03 December 2009 11:01:09 am David P. Quigley wrote:
-> On Wed, 2009-12-02 at 19:37 -0800, Casey Schaufler wrote:
-> > Now I'm glad the notion has been considered, and I can understand
-> > if it seems like too much work or if you just don't see it as a good
-> > idea.
-> >
-> > How about making it a part of the labeled networking code then?
-> > That would seem to be a more focused approach that would also,
-> > and perhaps better, address the generality concern.
-> 
-> I'd consider talking to Paul Moore about it and getting his input then
-> as I'm just a filesystem guy :)
+On Fri, 4 Dec 2009, Joshua Brindle <method@manicmethod.com> wrote:
+> Aside from the conversation Dave and Casey are having I still think this
+> isn't quite right. First, while you can atomically change a single port
+> label with the add command above you can't atomically change multiple
+> entries, which I think is completely necessary (you don't want to have
+> strange labeling states when changing a set of ports to a new label.
 
-Okay, I stopped following this thread closely several messages ago but I saw 
-"labeled networking" then my name so I figured I should probably say something 
-constructive :) [NOTE: I did actually review the first set of patches to 
-ensure they flushed the SELinux port caches, which they did - good job]
+Why is it necessary to change multiple ports at the same time?
 
-Anyway, I digress ... labeling network ports isn't really labeled networking 
-in the sense that labeled networking tends to be about communicating security 
-label information across the network.  While I won't close the door on this 
-completely, I will say that someone is going to have to make a very persuasive 
-argument as to why port labeling belongs in the labeled networking code ... 
-and also preferably how you would establish a LSM agnostic method of labeling 
-ports.
+We support atomic changes of multiple booleans at the same time due to 
+possible interactions between them.  But I don't think that we have any such 
+issues with port contexts.
 
-Good luck with that last bit :) 
+> Also, while having a text parser in the kernel makes it easier to use
+> with echo I think it is alot of code in the kernel for no good reason.
+> There is no reason not to make a userspace tool that converts the
+> textual representation into a serialized struct and feed it to the
+> kernel. We typically tell users not to mess around in /selinux anyway,
+> since we have a libselinux interface to do that.
+
+It does seem likely that significant code complexity can be avoided by not 
+having a plain text interface in this case.
 
 -- 
-paul moore
-linux @ hp
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
