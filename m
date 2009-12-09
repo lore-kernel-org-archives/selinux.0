@@ -1,57 +1,75 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nB9IGMDm007732
-	for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2009 13:16:22 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nB9IFC76016997
-	for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2009 18:15:12 GMT
-Message-ID: <4B1FE96F.90201@redhat.com>
-Date: Wed, 09 Dec 2009 13:16:15 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nB9Km6Jc016647
+	for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2009 15:48:08 -0500
+Received: from g4t0017.houston.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nB9KoO6g000403
+	for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2009 20:50:24 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: russell@coker.com.au
+Subject: Re: tun/tap and SE Linux in 2.6.32
+Date: Wed, 9 Dec 2009 15:48:03 -0500
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, "SE-Linux" <selinux@tycho.nsa.gov>
+References: <200912091232.26387.russell@coker.com.au>
+In-Reply-To: <200912091232.26387.russell@coker.com.au>
 MIME-Version: 1.0
-To: Zaina AFOULKI <zaina.afoulki@ensi-bourges.fr>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Sample logs of alert types
-References: <1f53dffb3e370e5bafc0c2ed98eed589.squirrel@webmail.ensi-bourges.fr>
-In-Reply-To: <1f53dffb3e370e5bafc0c2ed98eed589.squirrel@webmail.ensi-bourges.fr>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200912091548.03369.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/08/2009 10:04 AM, Zaina AFOULKI wrote:
-> Hello,
+On Tuesday 08 December 2009 08:32:24 pm Russell Coker wrote:
+> ----------  Forwarded Message  ----------
 > 
-> We are trying to develop a graphical interface for SELinux alerts...
-> We noticed that each log for a specific alert is different from the one of
-> other types. For example:
+> Subject: selinux permissive blocking tun/tap device creation in v2.6.32
+> Date: Wed, 9 Dec 2009
+> From: Andrew Worsley <amworsley@gmail.com>
+> To: luv-main@luv.asn.au
 > 
-> type=AVC msg=audit(12/03/2007 12:44:48.301:140) : avc:  denied  { getattr
-> } for  pid=2816 comm=vi path=/root/xorg.conf.new dev=sda1 ino=131104
-> scontext=staff_u:staff_r:staff_sudo_t:s0
-> tcontext=root:object_r:sysadm_home_t:s0 tclass=file
+> I upgraded to the v2.6.32 kernel and I found tunctl would fail with
+> the  ioctl TUNSETIFF rejected with an EINVAL. A real pain when running
+> vpn and kvms which use these.
 > 
+> I don't know where to go from this - so directions as to where to post
+> / look would be appreciated but at least I can now create tap
+> interfaces.
 > 
-> type=SYSCALL msg=audit(12/03/2007 12:44:48.325:141) : arch=i386
-> syscall=access success=yes exit=0 a0=88caaa8 a1=2 a2=1a4 a3=1 items=0
-> ppid=2784 pid=2816 auid=gmarzot uid=root gid=root euid=root suid=root
-> fsuid=root egid=root sgid=root fsgid=root tty=pts0 comm=vi exe=/bin/vi
-> subj=staff_u:staff_r:staff_sudo_t:s0 key=(null)
+> I am looking for suggestions where I should post this to find a fix or
+> other better work around than merely commenting out this code...
 > 
-> Currently we know how the log looks like for the following types:
-> DAEMON_START  ANOM_ABEND AVC CONFIG_CHANGE CRED_ACQ CRED_DISP DAEMON_END
-> LOGIN MAC_STATUS SELINUX_ERR SYSCALL SYSTEM_RUNLEVEL SYSTEM_SHUTDOWN
-> USER_ACCT USER_AUTH USER_AVC USER_CHAUTHTOK USER_CMD USER_END USER_ERR
-> USER_LOGIN USER_ROLE_CHANGE USER_START
+>    Andrew
 > 
-> We really need to know the look of each alert in the log file.
-> Is there a way we can get a sample of each log type?
-> Your help will be greatly appreciated.
-> 
-> Thanks in advance,
+> I eventually traced this via recompiling the tun module with tracing
+> to this code:
 > 
 > 
-I think this is more of an audit question.
+>             printk(KERN_INFO "tun: tun_set_iff () 10\n");
+>                 if (!capable(CAP_NET_ADMIN))
+>                         return -EPERM;
+>             printk(KERN_INFO "tun: tun_set_iff () 11\n");
+> #if 0
+>                 err = security_tun_dev_create();
+>                 if (err < 0)
+>                         return err;
+> #endif
+> 
+>             printk(KERN_INFO "tun: tun_set_iff () 12\n");
+>                 /* Set dev type */
+>                 if (ifr->ifr_flags & IFF_TUN) {
+>                         /* TUN device */
+> 
+> in drivers/net/tun.c (commenting out the above allows the tunctl
+> command to work!)
 
-Are you asking to see what an AVC audit message looks like?
+I imagine this is because the original reporter is using a SELinux policy 
+without the new TUN socket classes/permissions (which is likely the common 
+case at this point).  The unknown class/permission handling that Eric added 
+_should_ protect us from this - Russel do you have any more information about 
+the distribution and policy in use here?  
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
