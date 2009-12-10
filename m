@@ -1,23 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBAJ4b4k023980
-	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 14:04:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBAJCi1B024394
+	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 14:12:44 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBAJ6qbp015908
-	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 19:06:53 GMT
-Message-ID: <4B21463C.1010505@redhat.com>
-Date: Thu, 10 Dec 2009 14:04:28 -0500
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBAJE7bp018211
+	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 19:14:08 GMT
+Message-ID: <4B2147F0.3080706@redhat.com>
+Date: Thu, 10 Dec 2009 14:11:44 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
 CC: selinux@tycho.nsa.gov
 Subject: Re: How to use sepolgen VS. policygentool
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com> <4AD9AD06.9030309@redhat.com> <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com> <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil> <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com> <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil> <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com> <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com> <1256633374.3090.13.camel@localhost> <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com> <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
+References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com> <4AD9AD06.9030309@redhat.com> <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com> <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil> <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com> <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil> <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com> <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com> <1256633374.3090.13.camel@localhost> <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com> <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com> <D06FE0A2807BC145B0D38744789D4F5D07B95030@de01exm68.ds.mot.com>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07B95030@de01exm68.ds.mot.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/09/2009 09:18 PM, Hasan Rezaul-CHR010 wrote:
+On 12/09/2009 09:50 PM, Hasan Rezaul-CHR010 wrote:
+> One more question...
+> 
+> Lets say I used audit2allow to create a custom policy as follows:
+> 
+>   cat deny.log | audit2allow -M test
+>   -- this will create test.te, and test.pp for me
+> 
+> If I wanted to make additional modifications to test.te, how can I
+> compile this new test.te to come up with the new test.pp ??
+> 
+> Note: I don't seem to have the  /usr/share/selinux/devel/Makefile  file
+> present on my setup !?! Is there some alternative way to compile the
+> *.te  files ??  Thanks.
+> 
+>  
+> 
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On Behalf Of Hasan Rezaul-CHR010
+> Sent: Wednesday, December 09, 2009 8:18 PM
+> To: Daniel J Walsh
+> Cc: selinux@tycho.nsa.gov
+> Subject: How to use sepolgen VS. policygentool
+> 
 >  
 > Hi All,
 > 
@@ -97,17 +121,18 @@ On 12/09/2009 09:18 PM, Hasan Rezaul-CHR010 wrote:
 > 
 > Thanks in advance for all your help  :-)
 >    
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with the words "unsubscribe selinux" without quotes as the message.
 
-I think the problem here is upstream has not accepted all of the changes that have been put into Fedora.
+Something like.
 
-sepolgen is part of the policycoreutils-gui package which has not gone upstream yet and should be pulled into another 
-package.  You could grab the fedora src rpms and build them on your machine.
+checkmodule -M -m mypol.te  -o mypol.mod
+semodule_package -m mypol.mod -f mypol.fc -o mypol.pp
 
-neverallow is not the opposite of allow.  neverallow says to the compiler, blow up if a new policy tries to add this rule.
-
-user_t is not allowed by default to write to any of those types.
-
-Everything is denied by default.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
