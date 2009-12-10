@@ -1,69 +1,122 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBAD0UKK000771
-	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 08:00:30 -0500
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBAD2liI011264
-	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 13:02:47 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3) with ESMTP id nBAD0VUS021061
-	for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2009 08:00:31 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3/Submit) id nBAD0VuO021059
-	for selinux@tycho.nsa.gov; Thu, 10 Dec 2009 08:00:31 -0500
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nB9LQ05G018992
-	for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2009 16:26:00 -0500
-Subject: Re: tun/tap and SE Linux in 2.6.32
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: russell@coker.com.au
-Cc: Paul Moore <paul.moore@hp.com>, SE-Linux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
-In-Reply-To: <200912100756.24553.russell@coker.com.au>
-References: <200912091232.26387.russell@coker.com.au>
-	 <200912091548.03369.paul.moore@hp.com>
-	 <200912100756.24553.russell@coker.com.au>
+Subject: Re: How to use sepolgen VS. policygentool
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
+References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com>
+	 <4AD9AD06.9030309@redhat.com>
+	 <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com>
+	 <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com>
+	 <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil>
+	 <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com>
+	 <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
+	 <1256633374.3090.13.camel@localhost>
+	 <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com>
+	 <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Wed, 09 Dec 2009 16:26:30 -0500
-Message-Id: <1260393990.3850.22.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 10 Dec 2009 10:54:54 -0500
+Message-Id: <1260460494.3025.22.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-12-10 at 07:56 +1100, Russell Coker wrote:
-> On Thu, 10 Dec 2009, Paul Moore <paul.moore@hp.com> wrote:
-> > > Subject: selinux PERMISSIVE blocking tun/tap device creation in v2.6.32
-> >
-> > I imagine this is because the original reporter is using a SELinux policy
-> > without the new TUN socket classes/permissions (which is likely the common
-> > case at this point).  The unknown class/permission handling that Eric added
-> > _should_ protect us from this - Russel do you have any more information
-> > about the distribution and policy in use here?
+On Wed, 2009-12-09 at 21:18 -0500, Hasan Rezaul-CHR010 wrote:
+> Hi All,
 > 
-> Sorry, the original message apparently wasn't clear enough (I've added some 
-> caps).
+> I used to have the following SELinux related package versions on my
+> Linux (2.6.18) system:
+>  
+> checkpolicy      - 1.33.1
+> libselinux       - 2.0.13
+> libsemanage      - 2.0.1
+> libsepol         - 2.0.3
+> libsetrans       - 0.1.18
+> policycoreutils  - 2.0.16
+>  
+> On that machine, I used to use  /usr/share/selinux/devel/policygentool
+> to create new custom policy templates, and modified them as necessary,
+> and used to run
 > 
-> The problem occurred in permissive mode.  When the system is in permissive 
-> mode then SE Linux should not deny any action that Unix permissions will 
-> permit.
+>  make -f /usr/share/selinux/devel/Makefile  to compile my  custom.te
+> policies to create custom.pp.
+> 
+> I now have upgraded to Linux 2.6.27 on a non-popular Linux distro, and
+> as part of this upgrade, we also migrated to much newer versions of the
+> SELinux packages. They are:
+>  
+>  checkpolicy-2.0.19
+>  libselinux-2.0.85
+>  libsemanage-2.0.33
+>  libsepol-2.0.37
+>  policycoreutils-2.0.69
+>  sepolgen-1.0.17
+> 
+> My questions are :
+> 
+> 1. On this new system, I don't see policygentool anymore ! Infact, I am
+> missing the whole  /usr/share/selinux/devel/* directory.  Can I install
+> the  selinux-policy-devel  package on this machine ? If so, where should
+> I get it from ? Is policygentool still supported ?
 
-That would require changing avc_has_perm_noaudit() or
-context_struct_compute_av(), which historically have not treated an
-error condition (e.g. invalid SID or class) within *compute_av() in the
-same manner as lack of permission in the policy.  In the error condition
-case, avc_has_perm_noaudit() just propagates the error condition to the
-caller and permissive mode doesn't come into play - it doesn't even look
-at (or cache) the av_decision.
+policygentool and /usr/share/selinux/devel/ is specific to Fedora and
+RHEL - it isn't part of upstream SELinux or reference policy AFAIK.  I
+think reference policy puts its headers
+under /usr/share/selinux/$POLICYTYPE so that you can have multiple sets
+of headers.
 
-That said, we've long since made the invalid SID case unreachable
-(automatic remapping to the unlabeled SID), and we've now made the
-invalid class case only an error if handle_unknown==deny, so possibly we
-could change *compute_av() or avc_has_perm() to treat it the same way as
-a regular permission denial.  We could possibly make *compute_av()
-always "succeed" and just return the empty allowed vector (already
-cleared on entry) on all error conditions, in which case avc_has_perm()
-would always do the right thing.  And *compute_av() would become void
-functions then.
+> 2. I do see this new package "sepolgen", which I am guessing is the
+> newer replacement ? I do see that sepolgen is infact installed on my
+> system:
 
+No, sepolgen is a python module that provides the core logic for
+audit2allow.  Not related to policygentool at all.
+
+> 	root@unknown:/root> rpm -q sepolgen
+> 	sepolgen-1.0.17-1_WR3.0.2as.ppc_e500v2
+> 	root@unknown:/root>
+> 	root@unknown:/root> which sepolgen
+> 	which: no sepolgen in
+> (/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/root/bin)
+> 	root@unknown:/root>
+> 	root@unknown:/root>
+> 	root@unknown:/root> cd /usr/lib/sepolgen/
+> 	root@unknown:/usr/lib/sepolgen> ls
+> 	perm_map
+> 	root@unknown:/usr/lib/sepolgen>
+> 
+> How do I use this sepolgen thing ?  I thought I could run an sepolgen
+> executable as follows: "sepolgen -t <program>"
+> But I don't see where the sepolgen executable is ??? Do I need to
+> install any other packages to use sepolgen ?
+> 
+> 3. Finally, it seems that sepolgen will create a template policy based
+> on a particular process, e.g. /usr/bin/ssh
+> 
+>    What if I wanted to write more generic policy for restricting selinux
+> users. For example:
+> 
+>    neverallow user_t etc_t:file write;
+>    neverallow user_t bin_t:file write;
+>    neverallow user_t proc_t:file write;
+>    neverallow staff_t bin_t:file write;
+>    :
+>    :
+> 
+>    what <program_name> should I supply in the sepolgen command, to
+> create a custom policy template for this purpose ?
+> 
+> 
+> Thanks in advance for all your help  :-)
+>    
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
