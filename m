@@ -1,115 +1,93 @@
-Message-ID: <4B214E46.9070305@redhat.com>
-Date: Thu, 10 Dec 2009 14:38:46 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBBCHdC2007255
+	for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2009 07:17:39 -0500
+Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id nBBCGTGk005334
+	for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2009 12:16:29 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3) with ESMTP id nBBCHYwL003784
+	for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2009 07:17:34 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.3/8.14.3/Submit) id nBBCHYjl003782
+	for selinux@tycho.nsa.gov; Fri, 11 Dec 2009 07:17:34 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBB8VNJE028632
+	for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2009 03:31:29 -0500
+Received: from outbound.icp-qv1-irony-out1.iinet.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBB8XM1m001347
+	for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2009 08:33:27 GMT
+Message-ID: <4B22032F.906@ii.net>
+Date: Fri, 11 Dec 2009 16:30:39 +0800
+From: Cliffe <cliffe@ii.net>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Hasan Rezaul-CHR010 <CHR010@motorola.com>, selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: How to use sepolgen VS. policygentool
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com>	 <4AD9AD06.9030309@redhat.com>	 <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com>	 <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil>	 <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com>	 <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil>	 <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com>	 <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>	 <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>	 <1256633374.3090.13.camel@localhost>	 <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com>	 <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com> <1260460494.3025.22.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1260460494.3025.22.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: apparmor-dev@forge.novell.com, selinux@tycho.nsa.gov,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        fbac-lsm-general@lists.sourceforge.net
+Subject: New security system FBAC-LSM announcement and call for collaborators
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/10/2009 10:54 AM, Stephen Smalley wrote:
-> On Wed, 2009-12-09 at 21:18 -0500, Hasan Rezaul-CHR010 wrote:
->> Hi All,
->>
->> I used to have the following SELinux related package versions on my
->> Linux (2.6.18) system:
->>  
->> checkpolicy      - 1.33.1
->> libselinux       - 2.0.13
->> libsemanage      - 2.0.1
->> libsepol         - 2.0.3
->> libsetrans       - 0.1.18
->> policycoreutils  - 2.0.16
->>  
->> On that machine, I used to use  /usr/share/selinux/devel/policygentool
->> to create new custom policy templates, and modified them as necessary,
->> and used to run
->>
->>  make -f /usr/share/selinux/devel/Makefile  to compile my  custom.te
->> policies to create custom.pp.
->>
->> I now have upgraded to Linux 2.6.27 on a non-popular Linux distro, and
->> as part of this upgrade, we also migrated to much newer versions of the
->> SELinux packages. They are:
->>  
->>  checkpolicy-2.0.19
->>  libselinux-2.0.85
->>  libsemanage-2.0.33
->>  libsepol-2.0.37
->>  policycoreutils-2.0.69
->>  sepolgen-1.0.17
->>
->> My questions are :
->>
->> 1. On this new system, I don't see policygentool anymore ! Infact, I am
->> missing the whole  /usr/share/selinux/devel/* directory.  Can I install
->> the  selinux-policy-devel  package on this machine ? If so, where should
->> I get it from ? Is policygentool still supported ?
-> 
-> policygentool and /usr/share/selinux/devel/ is specific to Fedora and
-> RHEL - it isn't part of upstream SELinux or reference policy AFAIK.  I
-> think reference policy puts its headers
-> under /usr/share/selinux/$POLICYTYPE so that you can have multiple sets
-> of headers.
-> 
->> 2. I do see this new package "sepolgen", which I am guessing is the
->> newer replacement ? I do see that sepolgen is infact installed on my
->> system:
-> 
-> No, sepolgen is a python module that provides the core logic for
-> audit2allow.  Not related to policygentool at all.
-> 
->> 	root@unknown:/root> rpm -q sepolgen
->> 	sepolgen-1.0.17-1_WR3.0.2as.ppc_e500v2
->> 	root@unknown:/root>
->> 	root@unknown:/root> which sepolgen
->> 	which: no sepolgen in
->> (/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/root/bin)
->> 	root@unknown:/root>
->> 	root@unknown:/root>
->> 	root@unknown:/root> cd /usr/lib/sepolgen/
->> 	root@unknown:/usr/lib/sepolgen> ls
->> 	perm_map
->> 	root@unknown:/usr/lib/sepolgen>
->>
->> How do I use this sepolgen thing ?  I thought I could run an sepolgen
->> executable as follows: "sepolgen -t <program>"
->> But I don't see where the sepolgen executable is ??? Do I need to
->> install any other packages to use sepolgen ?
->>
->> 3. Finally, it seems that sepolgen will create a template policy based
->> on a particular process, e.g. /usr/bin/ssh
->>
->>    What if I wanted to write more generic policy for restricting selinux
->> users. For example:
->>
->>    neverallow user_t etc_t:file write;
->>    neverallow user_t bin_t:file write;
->>    neverallow user_t proc_t:file write;
->>    neverallow staff_t bin_t:file write;
->>    :
->>    :
->>
->>    what <program_name> should I supply in the sepolgen command, to
->> create a custom policy template for this purpose ?
->>
->>
->> Thanks in advance for all your help  :-)
->>    
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
-I have added a command line tool sepolgen which uses the polgengui stuff to generate policy.
+In preparation for my LCA talk “A New Paradigm for Restricting 
+Applications and Protecting Yourself from Your Processes”, today I have 
+released the code for FBAC-LSM. This initial development version of 
+FBAC-LSM is functional, but is unstable and slow. It is developed 
+against an older version of the LSM interface (using the AppArmor 
+path-based hooks), and will be updated to work with the new interface in 
+the future. There is quite a bit of work to be done before it is ready 
+for production systems or formal code review.
 
-http://danwalsh.livejournal.com/32430.html
+I developed FBAC-LSM for my PhD research. FBAC-LSM restricts programs 
+based on the features each application provides. Reusable policy 
+abstractions, known as functionalities, can be used to grant the 
+authority to perform high level features (for example using the 
+Web_Browser functionality) or lower level features (such as using the 
+HTTP_Client functionality) or to grant privileges to access any 
+specified resources. Functionalities are parameterised, which allows 
+them to be adapted to the needs of specific applications. 
+Functionalities are also hierarchical; that is, functionalities can 
+contain other functionalities.
+
+Over one hundred applications were analysed, and functionalities and 
+policies were developed. A number of techniques for automating aspects 
+of policy specification were also developed. A usability study comparing 
+FBAC-LSM with SELinux and AppArmor found that the new approach provided 
+significant benefits including higher levels of user satisfaction and of 
+successful policy creation. In the near future I will share the results 
+of the usability study, including suggestions for improving the 
+usability of SELinux and AppArmor.
+
+Currently I am planning on expanding the FBAC-LSM tools to export to and 
+manage AppArmor and SEEdit policies.
+
+I am looking for anyone interested in collaborating on the project. 
+Please contact me. There are a number of problems with the 
+synchronisation in the LSM code, which I hope someone on one of these 
+mailinglists can help with.
+
+Programmed in C and C++, using the LSM and Qt frameworks. Policy 
+abstractions in FBAC-LSM-PL policy language. Licensed GPL.
+
+Check out the FBAC-LSM homepage which has lots more information and videos:
+http://schreuders.org/FBAC-LSM
+
+Pull the sourceforge Git repo (which includes the Linux Security Module 
+(LSM), graphical policy manager, and policies) to your computer with the 
+command:
+git clone git://fbac-lsm.git.sourceforge.net/gitroot/fbac-lsm/fbac-lsm
+
+If you are attending the 2010 linux.conf.au conference, I hope to see 
+you at my talk in room Renouf 2 at 16:45 on Wednesday 20/01/10:
+http://www.lca2010.org.nz/programme/schedule/view_talk/50029?day=wednesday
+
+Thanks,
+
+Z. Cliffe Schreuders
+http://schreuders.org
+PhD Candidate
+Murdoch University
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
