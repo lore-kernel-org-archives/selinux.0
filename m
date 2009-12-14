@@ -1,58 +1,38 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v1] selinux: Fix security_compute_av() to not return unknown class errors when in permissive mode
-Date: Mon, 14 Dec 2009 10:45:37 -0500
-Cc: selinux@tycho.nsa.gov, russell@coker.com.au, amworsley@gmail.com
-References: <20091211214213.5420.59860.stgit@flek.lan> <1260568759.26597.163.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1260568759.26597.163.camel@moss-pluto.epoch.ncsc.mil>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBEGApnd000916
+	for <selinux@tycho.nsa.gov>; Mon, 14 Dec 2009 11:10:58 -0500
+Received: from mail-gx0-f226.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBEGDJJE029433
+	for <selinux@tycho.nsa.gov>; Mon, 14 Dec 2009 16:13:19 GMT
+Received: by gxk26 with SMTP id 26so1716638gxk.19
+        for <selinux@tycho.nsa.gov>; Mon, 14 Dec 2009 08:10:56 -0800 (PST)
+Message-ID: <4B2663A2.6090608@gmail.com>
+Date: Mon, 14 Dec 2009 08:11:14 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <200912141045.37293.paul.moore@hp.com>
+To: Guido Trentalancia <guido@trentalancia.com>
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: avc's generated causes the system to freeze up
+References: <dd18b0c30912111344j65436d86h85f8d74e752e19af@mail.gmail.com>	 <1260722550.2858.13.camel@tesla.lan>  <4B252E41.6070501@gmail.com>	 <1260733223.2858.23.camel@tesla.lan>  <4B254D52.1080602@gmail.com> <1260784575.2853.17.camel@tesla.lan>
+In-Reply-To: <1260784575.2853.17.camel@tesla.lan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 11 December 2009 04:59:19 pm Stephen Smalley wrote:
-> On Fri, 2009-12-11 at 16:42 -0500, Paul Moore wrote:
-> > It is possible security_compute_av() to return -EINVAL, even when in
-> > permissive mode, due to unknown object classes.  This patch fixes this by
-> > first checking to see if SELinux is in permissive mode or if the subject
-> > is a permissive domain, if either of these are true then
-> > security_compute_av() ignores the unknown class error and allows the
-> > operation to proceed.
-> >
-> > Andrew: I've tested this patch to ensure it boots and does not regress my
-> > Fedora/Rawhide system but since I don't have a Debian system handy I'm
-> > not able to verify that this fixes your problem; could you please test
-> > this patch and report back?
-> >
-> > Reported-by: Andrew Worsley <amworsley@gmail.com>
-> > Signed-off-by: Paul Moore <paul.moore@hp.com>
-> > ---
-> >  security/selinux/ss/services.c |   21 +++++++++++++++------
-> >  1 files changed, 15 insertions(+), 6 deletions(-)
+On 12/14/09 01:56, Guido Trentalancia wrote:
+> Have you tried the "-r" option of auditctl ? This would be something
+> similar to the kernel printk_ratelimit(). The default is 0, you should
+> increase it to a positive value representing a messages/second limit.
+>
+> Guido
+>
+>
 
-...
+yeah but remember I have auditd off.
 
-> Can we simplify this at all?  For example, I don't really think
-> sidtab_search() can ever fail anymore (it falls back to the unlabeled
-> SID, which has to be defined by the initial policy load).  I also think
-> we could just clear avd->allowed and return 0 rather than returning
-> -EINVAL in this case so that the existing avc_has_perm() logic would
-> proceed and check permissive mode on its own.  We likely should also
-> move the permissive map test earlier so that it always get applied
-> unconditionally.
+I can try and see...
 
-Sure, I just wanted to get something out sooner rather than later in case this 
-turned out to be something which affected a large number of users and we 
-needed a quick patch for -stable.  I'll admit it ain't pretty but it should at 
-least work in a pinch.
-
-Give me a bit and let me see if I can make it less ugly.
-
--- 
-paul moore
-linux @ hp
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
