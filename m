@@ -1,89 +1,37 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id nBFKfZXx001347
-	for <selinux@tycho.nsa.gov>; Tue, 15 Dec 2009 15:41:35 -0500
-Received: from mailhub5.stratus.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id nBFKhl2d025319
-	for <selinux@tycho.nsa.gov>; Tue, 15 Dec 2009 20:43:47 GMT
-Subject: Re: Policy writing philosophy...
-From: Bandan Das <bandan.das@stratus.com>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07CF6350@de01exm68.ds.mot.com>
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com>
-	 <4AD9AD06.9030309@redhat.com>
-	 <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com>
-	 <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com>
-	 <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com>
-	 <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
-	 <1256633374.3090.13.camel@localhost>
-	 <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
-	 <1260460494.3025.22.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D07CF6350@de01exm68.ds.mot.com>
+Subject: FILE__EXECMOD and other assorted file permission layout issues
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 15 Dec 2009 15:40:11 -0500
-Message-ID: <1260909611.14233.3.camel@aqua.mno.stratus.com>
+Date: Tue, 15 Dec 2009 16:53:04 -0500
+Message-Id: <1260913984.2788.80.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-12-15 at 12:43 -0500, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> I have Linux 2.6.27 on a non-popular Linux distro, and I have the
-> following SELinux package versions :
->   
-> >  checkpolicy-2.0.19
-> >  libselinux-2.0.85
-> >  libsemanage-2.0.33
-> >  libsepol-2.0.37
-> >  policycoreutils-2.0.69
-> >  sepolgen-1.0.17
-> 
-> I know SELinux's is governing framework is that by default everything
-> is
-> DENIED, except all accesses that are explicitly allowed in the
-> policy...
-> 
-> Is there anyway whatsoever to reverse that philosophy ?  In other
-> words,
-> is it possible to configure things and write policy in a way such
-> that:
-> 
-> Only explicit things are disallowed... So whenever no explicit policy
-> exists for an access request it is actually ALLOWED. This way, if I
-> write a new task or process, I don't have to write new policy for it
-> to
-> allow all the things it needs. By default things will just be allowed,
-> unless some of those accesses have been explicitly disallowed in
-> policy
-> ?
-> 
-> My guess is that this CANT be done... But thought I would ask anyway ?
+I started poking around the other day and realized FILE__EXECMOD and how
+it is used can be problematic.  Namely with blk files it is possible to
+cause the kernel to check SECCLASS_BLK_FILE + FILE__EXECMOD.  Turns out
+0x00080000 isn't defined for SECCLASS_BLK_FILE.  It appears at some
+point in history the same thing was found for char files and we added
+EXECUTE_NO_TRANS and ENTRYPOINT to get it to line up.
 
-If you are asking whether SELinux can be used to configure a set of
-"disablities" rather than "capabilites", I guess the answer would be no.
-The reason is the question itself :) It's a different design
-philosophy..
+We can't leave it the way it is for block files as if a perm ever gets
+to there the kernel could check the wrong thing.  The 'easiest' fix is
+to move the EXECMOD declaration into COMMON_FILE_PERMS, and I'm assuming
+you can't call mmap + write + mprotect on a socket, else we need to move
+it to COMMON_FILE_SOCK_PERMS if I understand correctly.
 
-Bandan
+If you agree it's a problem we should address and this is a good method
+I'll look into the details.
 
-> Also can SELinux mappings be created for a Unix Group, as opposed to
-> mapping to individual Linux Users ?
-> 
-> Thanks.
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing
-> list.
-> If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+The other thing I noticed is that we don't use FILE__SWAPON at all.
+Should I just drop SWAPON from the list of kernel perms?
 
+OPEN.  I did the horrid per secclass open perms.  Should I move that
+into COMMON_FILE_SOCK_PERMS and drop all of the special case code?
+
+-Eric
 
 
 --
