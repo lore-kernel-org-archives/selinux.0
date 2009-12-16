@@ -1,66 +1,37 @@
-Subject: Re: Policy writing philosophy...
+Subject: Re: [RFC PATCH v1] selinux: Fix security_compute_av() to not
+ return unknown class errors when in permissive mode
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07CF6350@de01exm68.ds.mot.com>
-References: <81092d890910161715n12f3f523n16e02e08a3834b97@mail.gmail.com>
-	 <4AD9AD06.9030309@redhat.com>
-	 <81092d890910171117i71b699cete972bd9ae4b8834f@mail.gmail.com>
-	 <1255960382.3099.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890910190949t537c00e8t3d7633c9f56a4800@mail.gmail.com>
-	 <1255972389.3099.70.camel@moss-pluto.epoch.ncsc.mil>
-	 <81092d890910191843q4aa20f6ep877f8e739b52ce43@mail.gmail.com>
-	 <1256037508.4061.3.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D077A087F@de01exm68.ds.mot.com>
-	 <1256633374.3090.13.camel@localhost>
-	 <D06FE0A2807BC145B0D38744789D4F5D07909698@de01exm68.ds.mot.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D07B9501F@de01exm68.ds.mot.com>
-	 <1260460494.3025.22.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D07CF6350@de01exm68.ds.mot.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, russell@coker.com.au, amworsley@gmail.com
+In-Reply-To: <200912141722.07456.paul.moore@hp.com>
+References: <20091211214213.5420.59860.stgit@flek.lan>
+	 <1260568759.26597.163.camel@moss-pluto.epoch.ncsc.mil>
+	 <200912141722.07456.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Wed, 16 Dec 2009 09:58:37 -0500
-Message-Id: <1260975517.19290.7.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 16 Dec 2009 09:59:55 -0500
+Message-Id: <1260975595.19290.9.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-12-15 at 12:43 -0500, Hasan Rezaul-CHR010 wrote:
-> Hi All,
+On Mon, 2009-12-14 at 17:22 -0500, Paul Moore wrote:
+> On Friday 11 December 2009 04:59:19 pm Stephen Smalley wrote:
+> > ... For example, I don't really think sidtab_search() can ever fail anymore
+> > (it falls back to the unlabeled SID, which has to be defined by the initial
+> > policy load) ...
 > 
-> I have Linux 2.6.27 on a non-popular Linux distro, and I have the
-> following SELinux package versions :
->   
-> >  checkpolicy-2.0.19
-> >  libselinux-2.0.85
-> >  libsemanage-2.0.33
-> >  libsepol-2.0.37
-> >  policycoreutils-2.0.69
-> >  sepolgen-1.0.17
-> 
-> I know SELinux's is governing framework is that by default everything is
-> DENIED, except all accesses that are explicitly allowed in the policy...
-> 
-> Is there anyway whatsoever to reverse that philosophy ?  In other words,
-> is it possible to configure things and write policy in a way such that:
-> 
-> Only explicit things are disallowed... So whenever no explicit policy
-> exists for an access request it is actually ALLOWED. This way, if I
-> write a new task or process, I don't have to write new policy for it to
-> allow all the things it needs. By default things will just be allowed,
-> unless some of those accesses have been explicitly disallowed in policy
-> ?
-> 
-> My guess is that this CANT be done... But thought I would ask anyway ?
+> I just spent a bit of time looking at the policy loading code and can't seem 
+> to find where it is enforced that there must be an initial SID for the 
+> unlabeled case.  I don't doubt that it is there, but I just spent an hour 
+> staring at the policydb code and I can't seem to find it ... care to toss a 
+> pointer my way :)
 
-Not from a mechanism point of view, no.  But from a policy point of
-view, you can achieve your end by initially declaring a domain as an
-unconfined domain and then removing rules, or by declaring a domain as a
-permissive domain and generating rules for it via audit2allow.
+Hmmm...I think you are correct, although the system would not work very
+well if you did in fact omit such a definition from the policy.  Initial
+SIDs handling needs an overhaul, that's already noted on the todo list.
 
-> Also can SELinux mappings be created for a Unix Group, as opposed to
-> mapping to individual Linux Users ?
-
-Yes - just use %groupname in the seusers configuration.
+So I guess sidtab_search() can possibly fail still, although it won't
+with any correctly configured policy.
 
 -- 
 Stephen Smalley
