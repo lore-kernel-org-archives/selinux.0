@@ -1,153 +1,219 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Kyle Moffett <kyle@moffetthome.net>
-Subject: Re: [PATCH] Dynamic port labeling V2
-Date: Fri, 18 Dec 2009 13:46:40 -0500
-Cc: Joshua Brindle <method@manicmethod.com>,
-        Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, jmorris@namei.org,
-        selinux@tycho.nsa.gov, "George S. Coker, II" <gscoker@alpha.ncsc.mil>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        John Livingston <jlivings@gmail.com>
-References: <1259616460.2444.9.camel@moss-stripedbass.epoch.ncsc.mil> <4B1932EB.9020303@manicmethod.com> <f73f7ab80912172133m4237eba3h706e624d8bd58b99@mail.gmail.com>
-In-Reply-To: <f73f7ab80912172133m4237eba3h706e624d8bd58b99@mail.gmail.com>
+Message-ID: <4B2F901B.1010507@t0mb.net>
+Date: Mon, 21 Dec 2009 15:11:23 +0000
+From: Tom Boland <tom@t0mb.net>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <200912181346.40295.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
+Subject: Re: CentOS 5.4 nfs home directories + cron
+References: <4B225A8D.908@t0mb.net>	 <1260557420.26597.19.camel@moss-pluto.epoch.ncsc.mil>	 <4B27B377.1000506@t0mb.net> <1260975906.19290.15.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1260975906.19290.15.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 18 December 2009 12:33:24 am Kyle Moffett wrote:
-> On Fri, Dec 4, 2009 at 11:03, Joshua Brindle <method@manicmethod.com> wrote:
-> > Paul Nuzzi wrote:
-> >> On Thu, 2009-12-03 at 14:31 -0500, Joshua Brindle wrote:
-> >>> Paul Nuzzi wrote:
-> >>>> Added a mechanism to add/delete/update port labels with an interface
-> >>>> in the selinuxfs filesystem.  This will give administrators the
-> >>>> ability to update port labels faster than reloading the entire policy
-> >>>> with semanage.  The administrator will also need less privilege since
-> >>>> they don't have to be authorized to reload the full policy.
-> >>>>
-> >>>> A listing of all port labels will be output if the file
-> >>>> /selinux/portcon is read.  Labels could be added or deleted with the
-> >>>> following commands
-> >>>>
-> >>>> echo -n "del system_u:object_r:ssh_port_t:s0 6 22 22">
-> >>>> /selinux/portcon echo -n "add system_u:object_r:telnetd_port_t:s0 6 22
-> >>>> 22"> /selinux/portcon
-> >>>
-> >>> Aside from the conversation Dave and Casey are having I still think
-> >>> this isn't quite right. First, while you can atomically change a single
-> >>> port label with the add command above you can't atomically change
-> >>> multiple entries, which I think is completely necessary (you don't want
-> >>> to have strange labeling states when changing a set of ports to a new
-> >>> label.
-> >>
-> >> Can you think of a situation where we would need to atomically change
-> >> multiple entries?  I envisioned a sys admin stopping their application
-> >> or server, relabeling the ports and then restarting them.  Maybe there
-> >> is a specific case you know about that I've overlooked?
-> >
-> > Maybe not, and it isn't like labeling filesystems is atomic so maybe I'm
-> > out in left field here.
-> >
-> > [...]
-> >
-> > I actually was thinking about resizing a range. You just put the system
-> > in a strange state by having to remove alot of labels and then readd
-> > them. It seems most reliable to add the entire set of portcons every time
-> > (using some file on disk and a text parser to parse them in to an
-> > ocontext like struct then feeding it in), that way the ordering is always
-> > exactly like it is in the file and there is a persistent file on disk
-> > that can be loaded at policy load time.
-> >
-> > Users could literally do a setportcon -e to pop up an editor with all the
-> > portcons and reorder, modify, re-range, etc and it would all take effect
-> > at once.
-> 
-> Hrm, wow.... this seems like a whole lot of re-engineering of work
-> that has already been done and works well, specifically iptables.
-> 
-> The iptables code already allows almost any combination of access
-> rules, with conditionals, nested filters, ranges, etc... and it has a
-> design that allows atomic replacement of the entire firewall ruleset.
-> 
-> Furthermore, using tools like Shorewall (http://shorewall.net), I can
-> customize exactly what my filtering and forwarding rules are using
-> simple human-readable configuration files.  Shorewall even generates
-> an iptables restore file so I either get the old set of firewall rules
-> or the new set, nothing halfway in-between.
-> 
-> I know that SELinux labeling is already partially supported through
-> the security table... can't we figure out some way to extend that to
-> this port-based labeling as well?
+Hi there,
 
-The SELinux packet labeling that is done via iptables, Secmark, is different 
-from the SELinux port labeling that is done via policy/semanage.  The key here 
-is that iptables is used by SELinux to label packets, not ports.  This 
-approach seems to be consistent with everything I know about iptables, but if 
-I'm missing something please let me know.
+I've been battling with this, but don't seem to have much luck.  I've 
+added a default file context for the crontabs in /var/spool/crontab, but 
+this doesn't seem to be honoured.  I've also added rules to allow 
+crontab to transition to the user_t type, but it's not choosing to do 
+so.  I also get permission denied when attempting to set the context 
+with the -s option to crontab.   I'm really confused about this.  Here 
+are my rules so far.
 
-> Another thing that would be nice is to be able to apply some amount of
-> discrete access control to firewall rule updates, so that a "network admin"
-> could adjust most firewall rules, while the "security admin" would be
-> responsible for packet and network interface labeling.
+================================================================
 
-This is something that has been discussed in the past, although perhaps in 
-person and not on any mailing lists, but no one has done any serious work on 
-it as far as I know.  As usual, we're always open to patches :)
+module cronusertr 1.0;
 
-> Putting my various admin hats on, what I would *LOVE* to have from a
-> security standpoint would be something along the lines of
-> setroubleshoot, but designed to handle audits from many computer
-> systems and to allow communication between people with different
-> security roles.  Here's an example use-case:
-> 
-> So say a web developer is preparing to roll out a big application
-> install, and needs to add a new HTTP listen port (say, 8083).  She
-> tells apache to listen on that port and gets a "permission denied",
-> along with a notification of some kind that her action has triggered a
-> security warning.  As a result, she goes ahead and fills out a
-> "network security" change request form, and then puts the ticket
-> number into the SETroubleshoot interface tagged to the security
-> warning.
+require {
+    type crond_t;
+    type user_crontab_t;
+    type nfs_t;
+    type user_t;
+    class file { getattr read write execute unlink create lock 
+relabelfrom relabelto rename entrypoint };
+    class dir { add_name remove_name reparent search rmdir };
+    class process { transition };
+};
 
-I'm not really a SETroubleshoot or userspace guru, but I believe at least this 
-part should be possible today ... although the change management 
-infrastructure is left as an exercise for the reader :)
- 
-> A few minutes later, the network security guy sits down and opens up
-> his audit window and sees the warning that his friendly web developer
-> triggered.  He checks the trouble ticket and updates the HTTP
-> type-enforcement rules to allow that port as well, then sends off a
-> notice to the web developer that everything is OK.
+allow crond_t nfs_t:file {getattr read write execute unlink create lock 
+relabelfrom relabelto rename entrypoint };
+allow crond_t nfs_t:dir { add_name remove_name reparent search rmdir };
+allow crond_t user_t:file { getattr read write execute unlink create 
+lock relabelfrom relabelto rename entrypoint };
+allow crond_t user_t:process { transition };
+allow user_crontab_t user_t:file { getattr read write unlink create lock 
+rename entrypoint };
+allow user_crontab_t user_t:process { transition };
 
-I'm pretty sure some of the audit dispatcher/plugin stuff allows for sending 
-security events to a central repository for reporting, analysis and other 
-nefarious purposes.
+================================================================
 
-> The web developer then works with his users to beta-test the web
-> application and discovers that his software is unable to talk to one
-> of its database backends on another server because that database has
-> "sensitive financial" data and requires labelled IPsec connections to
-> access it.  Those audit messages (even from the same server) then go
-> to a separate "data security" person, who must himself add the new
-> labelling rules to allow that software access to some financial data.
+Could someone please let me know if I'm on completely the wrong track?  
+I think I must be, as I'm getting absolutely nowhere seemingly.
 
-Sort of a "wash, rinse, repeat" of the previous issues.
+Cheers.  Tom.
 
-> I could almost build this system today with a bunch of custom
-> userspace firewall management and audit-log filtering software... but
-> I have no real way of actually restricting my "data security" person
-> from fiddling with the HTTP port labelling, nor can I prevent my basic
-> network security guy from changing my fancy labelled IPsec rules.
 
-I'll let the policy guys address this last bit ...
 
--- 
-paul moore
-linux @ hp
+
+Stephen Smalley wrote:
+> On Tue, 2009-12-15 at 16:04 +0000, Tom Boland wrote:
+>   
+>> Hi Stephen,
+>>
+>> Thanks for the reply, and sorry for the spoon feed request here, but I'm 
+>> a bit confused about these contexts.  If you're saying that I can have 
+>> cron run jobs in the users context with the RHEL5 strict policy, or that 
+>> I can emulate this behaviour by adding allow rules? 
+>>
+>> I've tried altering /etc/selinux/strict/contexts/default_contexts:
+>>
+>> system_r:crond_t:s0 user_r:user_crond_t:s0 staff_r:staff_crond_t:s0 
+>> sysadm_r:sysadm_crond_t:s0 system_r:system_crond_t:s0 
+>> mailman_r:user_crond_t:s0
+>>
+>> is now
+>>
+>> system_r:crond_t:s0 user_r:user_t:s0 staff_r:staff_crond_t:s0 
+>> sysadm_r:sysadm_crond_t:s0 system_r:system_crond_t:s0 
+>> mailman_r:user_crond_t:s0
+>>
+>> But this seems to be causing labelling problems with crontab -e still 
+>> creating the users crontab file in the user_crond_t context.  Was I 
+>> missing the point of what you were saying here?
+>>
+>> I also don't have anything other than root in the contexts/users 
+>> folder.  All my users are in LDAP, and I'm happy with the way they work 
+>> apart from the cron thing.
+>>     
+>
+> You will need to add allow rules to your policy to permit the
+> transitions, as the stock RHEL5 strict policy wouldn't support that.
+>
+> Also check /var/log/cron for any errors.
+>
+>   
+>> Many thanks for any assistance.
+>>
+>> Cheers.  Tom.
+>>
+>> Stephen Smalley wrote:
+>>     
+>>> On Fri, 2009-12-11 at 14:43 +0000, Tom Boland wrote:
+>>>   
+>>>       
+>>>> [resending to correct address!]
+>>>>
+>>>> Greetings,
+>>>>
+>>>> I am investigating using RedHats strict selinux policy.  Please accept 
+>>>> my apologies if this isn't the correct place, but I'm hoping someone can 
+>>>> help me clarify one or two things.  Basically, crond seems to run, but 
+>>>> when attempting to run a job for an unprivileged user with their home 
+>>>> folder on an NFS partition, pretty much every action that can interact 
+>>>> with the home directory is denied.  The users themselves do not have the 
+>>>> same problem via ssh, as I have the  'use_nfs_home_dirs' boolean set to 1:
+>>>>
+>>>> *cat /selinux/booleans/use_nfs_home_dirs
+>>>> 1 1
+>>>> *
+>>>> I'm using the setroubleshoot daemon to try and diagnose the problem in 
+>>>> permissive mode, and I have messages such as this when trying to use a 
+>>>> job that simply touches a file in the users home directory: *
+>>>>
+>>>> Dec 11 12:21:01 ssh setroubleshoot: SELinux prevented touch from reading 
+>>>> and writing files stored on a NFS filesytem. For complete SELinux 
+>>>> messages. run sealert -l d445d52e-57bb-4ca6-a2ad-48cbd62f7e03
+>>>>
+>>>> =======
+>>>>
+>>>> Raw Audit Messages          
+>>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
+>>>> denied  { write } for  pid=11342 comm="touch" name="user" dev=0:16 
+>>>> ino=64192517 scontext=user_u:user_r:user_crond_t:s0 
+>>>> tcontext=system_u:object_r:nfs_t:s0 tclass=dir
+>>>>
+>>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
+>>>> denied  { add_name } for  pid=11342 comm="touch" name="afile" 
+>>>> scontext=user_u:user_r:user_crond_t:s0 
+>>>> tcontext=system_u:object_r:nfs_t:s0 tclass=dir
+>>>>
+>>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
+>>>> denied  { create } for  pid=11342 comm="touch" name="afile" 
+>>>> scontext=user_u:user_r:user_crond_t:s0 tcontext=user_u:object_r:nfs_t:s0 
+>>>> tclass=file
+>>>>
+>>>> host=ssh.livedns.co.uk type=SYSCALL msg=audit(1260534061.381:4716): 
+>>>> arch=c000003e syscall=2 success=yes exit=0 a0=7fffa80e7f0a a1=941 a2=1b6 
+>>>> a3=3d0d35210c items=2 ppid=11341 pid=11342 auid=217858 uid=217858 
+>>>> gid=500 euid=217858 suid=217858 fsuid=217858 egid=500 sgid=500 fsgid=500 
+>>>> tty=(none) ses=1129 comm="touch" exe="/bin/touch" 
+>>>> subj=user_u:user_r:user_crond_t:s0 key=(null)
+>>>>
+>>>> host=ssh.livedns.co.uk type=CWD msg=audit(1260534061.381:4716): 
+>>>> cwd="/home/fhlinux142/e/eschelon.co.uk/user"
+>>>>
+>>>> host=ssh.livedns.co.uk type=PATH msg=audit(1260534061.381:4716): item=0 
+>>>> name="/home/webserver/site/user/" inode=64192517 dev=00:16 mode=040701 
+>>>> ouid=217858 ogid=500 rdev=00:00 obj=system_u:object_r:nfs_t:s0
+>>>>
+>>>> host=ssh.livedns.co.uk type=PATH msg=audit(1260534061.381:4716): item=1 
+>>>> name="**/home/webserver/site/user/**afile" inode=64194402 dev=00:16 
+>>>> mode=0100644 ouid=217858 ogid=500 rdev=00:00 obj=system_u:object_r:nfs_t:s0*
+>>>>
+>>>>
+>>>> I haven't pasted everything from sealert, i thought the raw logs would 
+>>>> be enough.  I've used audit2allow to get a basic skeletal policy for 
+>>>> crond+nfs and added a bit to it, which is like:
+>>>>
+>>>> *module crondreadnfs 1.0;
+>>>>
+>>>> require {
+>>>>    type user_crond_t;
+>>>>    type nfs_t;
+>>>>    class dir { read write add_name create getattr search };
+>>>>    class file { read write create getattr };
+>>>> }
+>>>>
+>>>> require {
+>>>>    type crond_t;
+>>>>    type nfs_t;
+>>>>    class dir { read write add_name create getattr search };
+>>>>    class file { read write create getattr };
+>>>> }
+>>>>
+>>>> #============= user_crond_t ==============
+>>>> allow user_crond_t nfs_t:dir { read write add_name create getattr search };
+>>>> allow user_crond_t nfs_t:file { read write create getattr };
+>>>>
+>>>> allow crond_t nfs_t:dir {read write add_name create getattr search };
+>>>> allow crond_t nfs_t:file { read write create getattr };
+>>>> *
+>>>> But I'm actually a bit confused as to why it's necessary.  I thought 
+>>>> cron would be running jobs _as_ the user, and under the users context?  
+>>>> Is there something else wrong?  SSH is fine with the use_nfs_home_dirs 
+>>>> boolean, so why not cron?  If there's a way for this to work without 
+>>>> having to explicitly allow every single operation that cron is allowed 
+>>>> to attempt, and to just run jobs with the access that the user who's 
+>>>> cronjob it is has, I would be most appreciative!!
+>>>>
+>>>> Many thanks.  Tom.
+>>>>     
+>>>>         
+>>> See http://marc.info/?l=selinux&m=121094043113003&w=2
+>>>
+>>> That has subsequently changed since RHEL5 so that user cron jobs just
+>>> run in the user's own domain, I believe.  But you could change your
+>>> policy likewise if that is the behavior you want.
+>>>
+>>> Modify the system_r:crond_t:s0 entry in
+>>> your /etc/selinux/targeted/contexts/default_contexts file and in
+>>> your /etc/selinux/targeted/contexts/users/* files, and add allow rules
+>>> as needed.
+>>>
+>>>   
+>>>       
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
