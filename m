@@ -1,218 +1,390 @@
-Message-ID: <4B2F901B.1010507@t0mb.net>
-Date: Mon, 21 Dec 2009 15:11:23 +0000
-From: Tom Boland <tom@t0mb.net>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, refpolicy@oss1.tresys.com
-Subject: Re: CentOS 5.4 nfs home directories + cron
-References: <4B225A8D.908@t0mb.net>	 <1260557420.26597.19.camel@moss-pluto.epoch.ncsc.mil>	 <4B27B377.1000506@t0mb.net> <1260975906.19290.15.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1260975906.19290.15.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] Dynamic port labeling V3
+From: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        "George S. Coker, II" <gscoker@alpha.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 21 Dec 2009 15:14:40 -0500
+Message-Id: <1261426480.25365.42.camel@moss-stripedbass.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi there,
+I reworked the patch based on Joshua's input after talking to Steve.
+Instead of adding and deleting a port at a time, we can ingest all the
+port labels into the kernel at once.  This takes care of any atomic
+issues that were brought up.  There is no locking mechanism to handle
+multiple users modifying labels.  Whoever writes last wins.
+Unfortunately you can't open up the node in vi/emacs and modify it on
+the fly.
 
-I've been battling with this, but don't seem to have much luck.  I've 
-added a default file context for the crontabs in /var/spool/crontab, but 
-this doesn't seem to be honoured.  I've also added rules to allow 
-crontab to transition to the user_t type, but it's not choosing to do 
-so.  I also get permission denied when attempting to set the context 
-with the -s option to crontab.   I'm really confused about this.  Here 
-are my rules so far.
+Modifications can be done by saving the output of "/selinux/portcon" to
+a file, modify it and then writing changes to a node.  When writing to
+the node there can be no comments or newlines in the file.  If the file
+consists of one newline character than all the port labels are removed.
+If there is a newline in the middle of the file only the labels before
+it will be ingested into the kernel.  I have preliminary patches for
+userspace.  I'll look into trying to get an editor to open that lets the
+user edit everything.  Let me know what you think of it and then I could
+resubmit it to the kernel mailing list.
 
-================================================================
+Signed-off-by: Paul Nuzzi <pjnuzzi@tycho.ncsc.mil>
 
-module cronusertr 1.0;
+--- 
 
-require {
-    type crond_t;
-    type user_crontab_t;
-    type nfs_t;
-    type user_t;
-    class file { getattr read write execute unlink create lock 
-relabelfrom relabelto rename entrypoint };
-    class dir { add_name remove_name reparent search rmdir };
-    class process { transition };
-};
+ security/selinux/hooks.c            |    1
+ security/selinux/include/classmap.h |    2
+ security/selinux/include/security.h |    7 +
+ security/selinux/selinuxfs.c        |   76 ++++++++++++++
+ security/selinux/ss/services.c      |  189
+++++++++++++++++++++++++++++++++++++
+ 5 files changed, 273 insertions(+), 2 deletions(-)
 
-allow crond_t nfs_t:file {getattr read write execute unlink create lock 
-relabelfrom relabelto rename entrypoint };
-allow crond_t nfs_t:dir { add_name remove_name reparent search rmdir };
-allow crond_t user_t:file { getattr read write execute unlink create 
-lock relabelfrom relabelto rename entrypoint };
-allow crond_t user_t:process { transition };
-allow user_crontab_t user_t:file { getattr read write unlink create lock 
-rename entrypoint };
-allow user_crontab_t user_t:process { transition };
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7a374c2..f32bd9b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1224,7 +1224,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 sid;
+ 	struct dentry *dentry;
+-#define INITCONTEXTLEN 255
+ 	char *context = NULL;
+ 	unsigned len = 0;
+ 	int rc = 0;
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 8b32e95..925edb6 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -16,7 +16,7 @@ struct security_class_mapping secclass_map[] = {
+ 	  { "compute_av", "compute_create", "compute_member",
+ 	    "check_context", "load_policy", "compute_relabel",
+ 	    "compute_user", "setenforce", "setbool", "setsecparam",
+-	    "setcheckreqprot", NULL } },
++	    "setcheckreqprot", "portcon", NULL } },
+ 	{ "process",
+ 	  { "fork", "transition", "sigchld", "sigkill",
+ 	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 2553266..c196ef1 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -169,6 +169,13 @@ int security_fs_use(const char *fstype, unsigned int *behavior,
+ int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
+ 
++int security_ocon_port_write(char *buf);
++int security_ocon_port_read(char **buf);
++#define INITCONTEXTLEN 255
++#define OCON_TCP_STR "tcp"
++#define OCON_UDP_STR "udp"
++#define OCON_MAX_PROTOCOL_STR 4
++
+ #ifdef CONFIG_NETLABEL
+ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 				   u32 *sid);
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index fab36fd..5d3bc7b 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -110,6 +110,7 @@ enum sel_inos {
+ 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
+ 	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
+ 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
++	SEL_OCON_PORT,  /* add OCON_PORT to the list */
+ 	SEL_INO_NEXT,	/* The next inode number to use */
+ };
+ 
+@@ -253,6 +254,80 @@ static const struct file_operations sel_disable_ops = {
+ 	.write		= sel_write_disable,
+ };
+ 
++static ssize_t sel_write_ocon_port(struct file *file, const char __user *buf,
++				 size_t count, loff_t *ppos)
++{
++	ssize_t length;
++	char *data;
++#define OCON_PAGE_MAX 16
++
++	mutex_lock(&sel_mutex);
++
++	length = task_has_security(current, SECURITY__PORTCON);
++	if (length) {
++		mutex_unlock(&sel_mutex);
++		return length;
++	}
++
++	if (count > (PAGE_SIZE * OCON_PAGE_MAX) - 1) {
++		mutex_unlock(&sel_mutex);
++		return -EINVAL;
++	}
++	if (*ppos != 0) {
++		/* No partial writes. */
++		mutex_unlock(&sel_mutex);
++		return -EINVAL;
++	}
++
++	data = vmalloc(count + 1);
++	if (!data) {
++		mutex_unlock(&sel_mutex);
++		return -ENOMEM;
++	}
++	memset(data, 0, count + 1);
++
++	length = -EFAULT;
++	if (copy_from_user(data, buf, count) != 0)
++		goto out;
++
++	length = security_ocon_port_write(data);
++	if (length < 0)
++		goto out;
++	length = count;
++out:
++	vfree(data);
++	mutex_unlock(&sel_mutex);
++	return length;
++}
++
++static ssize_t sel_read_ocon_port(struct file *filp, char __user *buf,
++				   size_t count, loff_t *ppos)
++{
++	ssize_t length;
++	char *buf_tmp = NULL;
++
++	mutex_lock(&sel_mutex);
++	length = task_has_security(current, SECURITY__PORTCON);
++	if (length) {
++		mutex_unlock(&sel_mutex);
++		return length;
++	}
++
++	length = security_ocon_port_read(&buf_tmp);
++	if (length > 0) {
++		length = simple_read_from_buffer(buf, count, ppos, buf_tmp,
++						 length);
++		vfree(buf_tmp);
++	}
++	mutex_unlock(&sel_mutex);
++	return length;
++}
++
++static const struct file_operations sel_ocon_port_ops = {
++	.write		= sel_write_ocon_port,
++	.read		= sel_read_ocon_port,
++};
++
+ static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
+ 				   size_t count, loff_t *ppos)
+ {
+@@ -1596,6 +1671,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 		[SEL_CHECKREQPROT] = {"checkreqprot", &sel_checkreqprot_ops, S_IRUGO|S_IWUSR},
+ 		[SEL_REJECT_UNKNOWN] = {"reject_unknown", &sel_handle_unknown_ops, S_IRUGO},
+ 		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
++		[SEL_OCON_PORT] = {"portcon", &sel_ocon_port_ops, S_IRUSR|S_IWUSR},
+ 		/* last one */ {""}
+ 	};
+ 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 07ddc81..fbbccd2 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1838,6 +1838,195 @@ err:
+ 
+ }
+ 
++int security_ocon_port_write(char *buf)
++{
++	int seqno = 0, rc = 0;
++	char *line;
++	char scontext[INITCONTEXTLEN + 1], protocol[OCON_MAX_PROTOCOL_STR];
++	unsigned int low_port, high_port, line_num = 0;
++	struct ocontext *new_list = NULL, **new_list_head = NULL,
++			 *old_list = NULL, *c = NULL;
++	u32 sid;
++	struct context ctx;
++
++	read_lock(&policy_rwlock);
++	while ((line = strsep(&buf, "\n")) != NULL) {
++		line_num++;
++		if (strcmp(line, "") == 0)
++			break;
++
++		if (sscanf(line, "%3s %u-%u %255s",
++			   protocol, &low_port, &high_port, scontext) != 4) {
++			rc = -EINVAL;
++			goto out;
++		}
++		c = kzalloc(sizeof(struct ocontext), GFP_KERNEL);
++		if (!c) {
++			rc = -ENOMEM;
++			goto out;
++		}
++
++		if (low_port > high_port) {
++			rc = -EINVAL;
++			goto out1;
++		}
++		if (low_port >= 65536 || high_port >= 65536) {
++			rc = -EINVAL;
++			goto out1;
++		}
++		c->u.port.low_port = low_port;
++		c->u.port.high_port = high_port;
++
++		if (strcmp(protocol, OCON_TCP_STR) == 0)
++			c->u.port.protocol = IPPROTO_TCP;
++		else if (strcmp(protocol, OCON_UDP_STR) == 0)
++			c->u.port.protocol = IPPROTO_UDP;
++		else {
++			rc = -EINVAL;
++			goto out1;
++		}
++
++		rc = security_context_to_sid(scontext, strlen(scontext), &sid);
++		if (rc < 0) {
++			rc = -EINVAL;
++			goto out1;
++		}
++		c->sid[0] = sid;
++
++		rc = string_to_context_struct(&policydb, &sidtab, scontext,
++					 strlen(scontext), &ctx, sid);
++		if (rc) {
++			rc = -EINVAL;
++			goto out1;
++		}
++		c->context[0] = ctx;
++
++		if (!new_list) {
++			new_list = c;
++			new_list_head = &new_list;
++		} else {
++			(*new_list_head)->next = c;
++			new_list_head = &(*new_list_head)->next;
++		}
++
++	}
++	read_unlock(&policy_rwlock);
++
++	write_lock_irq(&policy_rwlock);
++	old_list = policydb.ocontexts[OCON_PORT];
++	policydb.ocontexts[OCON_PORT] = new_list;
++	write_unlock_irq(&policy_rwlock);
++
++	seqno = ++latest_granting;
++	avc_ss_reset(seqno);
++
++	while (old_list) {
++		context_destroy(&old_list->context[0]);
++		new_list_head = &old_list;
++		old_list = old_list->next;
++		kfree(*new_list_head);
++	}
++	rc = 0;
++
++	return rc;
++
++ out1:
++	kfree(c);
++ out:
++	read_unlock(&policy_rwlock);
++	printk(KERN_DEBUG "SELinux: Invalid line #%i \"%s\"\n", line_num,
++		 line);
++	while (new_list) {
++		context_destroy(&new_list->context[0]);
++		new_list_head = &new_list;
++		new_list = new_list->next;
++		kfree(*new_list_head);
++	}
++	return rc;
++}
++
++int security_ocon_port_read(char **buf)
++{
++	unsigned int buf_size = 0, addline_size = 0, len;
++	struct ocontext *c;
++	char *scontext, protocol_str[OCON_MAX_PROTOCOL_STR];
++	char *buf_tmp = NULL, *buf_ptr = NULL;
++	int rc = 0;
++	int line_size = (sizeof(unsigned int) * 2) + (sizeof(char) * 4) +
++			 OCON_MAX_PROTOCOL_STR;
++	int max_line_size = line_size + INITCONTEXTLEN;
++	char addline[max_line_size];
++
++	/* protocol low-high scontext */
++	read_lock(&policy_rwlock);
++	if (policydb.ocontexts[OCON_PORT] == NULL)
++		goto out;
++
++	for (c = policydb.ocontexts[OCON_PORT]; c; c = c->next) {
++		rc = context_struct_to_string(&(c->context[0]), &scontext,
++					      &len);
++		if (rc < 0) {
++			rc = -EINVAL;
++			goto out;
++		}
++		buf_size += line_size + strlen(scontext);
++		kfree(scontext);
++	}
++
++	buf_ptr = (char *) vmalloc(buf_size + 1);
++	if (!buf_ptr) {
++		rc = -ENOMEM;
++		goto out;
++	}
++	memset(buf_ptr, 0, buf_size + 1);
++	buf_tmp = buf_ptr;
++
++	for (c = policydb.ocontexts[OCON_PORT]; c; c = c->next) {
++		rc = context_struct_to_string(&(c->context[0]), &scontext,
++					      &len);
++		if (rc < 0) {
++			vfree(buf_ptr);
++			rc = -EINVAL;
++			goto out;
++		}
++		if (len > INITCONTEXTLEN) {
++			vfree(buf_ptr);
++			kfree(scontext);
++			rc = -EOVERFLOW;
++			goto out;
++		}
++		if (c->u.port.protocol == IPPROTO_TCP)
++			strcpy(protocol_str, OCON_TCP_STR);
++		else if (c->u.port.protocol == IPPROTO_UDP)
++			strcpy(protocol_str, OCON_UDP_STR);
++		else {
++			vfree(buf_ptr);
++			kfree(scontext);
++			rc = -EINVAL;
++			goto out;
++		}
++		snprintf(addline, max_line_size, "%s %u-%u %s\n",
++			protocol_str, c->u.port.low_port,
++			c->u.port.high_port, scontext);
++		addline_size = strlen(addline);
++		kfree(scontext);
++		if (buf_tmp + addline_size < buf_ptr + buf_size)
++			strcpy(buf_tmp, addline);
++		else {
++			vfree(buf_ptr);
++			rc = -EOVERFLOW;
++			goto out;
++		}
++		buf_tmp += addline_size;
++	}
++
++	*buf = buf_ptr;
++	rc = strlen(buf_ptr);
++out:
++	read_unlock(&policy_rwlock);
++	return rc;
++}
++
+ /**
+  * security_port_sid - Obtain the SID for a port.
+  * @protocol: protocol number
 
-================================================================
-
-Could someone please let me know if I'm on completely the wrong track?  
-I think I must be, as I'm getting absolutely nowhere seemingly.
-
-Cheers.  Tom.
-
-
-
-
-Stephen Smalley wrote:
-> On Tue, 2009-12-15 at 16:04 +0000, Tom Boland wrote:
->   
->> Hi Stephen,
->>
->> Thanks for the reply, and sorry for the spoon feed request here, but I'm 
->> a bit confused about these contexts.  If you're saying that I can have 
->> cron run jobs in the users context with the RHEL5 strict policy, or that 
->> I can emulate this behaviour by adding allow rules? 
->>
->> I've tried altering /etc/selinux/strict/contexts/default_contexts:
->>
->> system_r:crond_t:s0 user_r:user_crond_t:s0 staff_r:staff_crond_t:s0 
->> sysadm_r:sysadm_crond_t:s0 system_r:system_crond_t:s0 
->> mailman_r:user_crond_t:s0
->>
->> is now
->>
->> system_r:crond_t:s0 user_r:user_t:s0 staff_r:staff_crond_t:s0 
->> sysadm_r:sysadm_crond_t:s0 system_r:system_crond_t:s0 
->> mailman_r:user_crond_t:s0
->>
->> But this seems to be causing labelling problems with crontab -e still 
->> creating the users crontab file in the user_crond_t context.  Was I 
->> missing the point of what you were saying here?
->>
->> I also don't have anything other than root in the contexts/users 
->> folder.  All my users are in LDAP, and I'm happy with the way they work 
->> apart from the cron thing.
->>     
->
-> You will need to add allow rules to your policy to permit the
-> transitions, as the stock RHEL5 strict policy wouldn't support that.
->
-> Also check /var/log/cron for any errors.
->
->   
->> Many thanks for any assistance.
->>
->> Cheers.  Tom.
->>
->> Stephen Smalley wrote:
->>     
->>> On Fri, 2009-12-11 at 14:43 +0000, Tom Boland wrote:
->>>   
->>>       
->>>> [resending to correct address!]
->>>>
->>>> Greetings,
->>>>
->>>> I am investigating using RedHats strict selinux policy.  Please accept 
->>>> my apologies if this isn't the correct place, but I'm hoping someone can 
->>>> help me clarify one or two things.  Basically, crond seems to run, but 
->>>> when attempting to run a job for an unprivileged user with their home 
->>>> folder on an NFS partition, pretty much every action that can interact 
->>>> with the home directory is denied.  The users themselves do not have the 
->>>> same problem via ssh, as I have the  'use_nfs_home_dirs' boolean set to 1:
->>>>
->>>> *cat /selinux/booleans/use_nfs_home_dirs
->>>> 1 1
->>>> *
->>>> I'm using the setroubleshoot daemon to try and diagnose the problem in 
->>>> permissive mode, and I have messages such as this when trying to use a 
->>>> job that simply touches a file in the users home directory: *
->>>>
->>>> Dec 11 12:21:01 ssh setroubleshoot: SELinux prevented touch from reading 
->>>> and writing files stored on a NFS filesytem. For complete SELinux 
->>>> messages. run sealert -l d445d52e-57bb-4ca6-a2ad-48cbd62f7e03
->>>>
->>>> =======
->>>>
->>>> Raw Audit Messages          
->>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
->>>> denied  { write } for  pid=11342 comm="touch" name="user" dev=0:16 
->>>> ino=64192517 scontext=user_u:user_r:user_crond_t:s0 
->>>> tcontext=system_u:object_r:nfs_t:s0 tclass=dir
->>>>
->>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
->>>> denied  { add_name } for  pid=11342 comm="touch" name="afile" 
->>>> scontext=user_u:user_r:user_crond_t:s0 
->>>> tcontext=system_u:object_r:nfs_t:s0 tclass=dir
->>>>
->>>> host=ssh.livedns.co.uk type=AVC msg=audit(1260534061.381:4716): avc:  
->>>> denied  { create } for  pid=11342 comm="touch" name="afile" 
->>>> scontext=user_u:user_r:user_crond_t:s0 tcontext=user_u:object_r:nfs_t:s0 
->>>> tclass=file
->>>>
->>>> host=ssh.livedns.co.uk type=SYSCALL msg=audit(1260534061.381:4716): 
->>>> arch=c000003e syscall=2 success=yes exit=0 a0=7fffa80e7f0a a1=941 a2=1b6 
->>>> a3=3d0d35210c items=2 ppid=11341 pid=11342 auid=217858 uid=217858 
->>>> gid=500 euid=217858 suid=217858 fsuid=217858 egid=500 sgid=500 fsgid=500 
->>>> tty=(none) ses=1129 comm="touch" exe="/bin/touch" 
->>>> subj=user_u:user_r:user_crond_t:s0 key=(null)
->>>>
->>>> host=ssh.livedns.co.uk type=CWD msg=audit(1260534061.381:4716): 
->>>> cwd="/home/fhlinux142/e/eschelon.co.uk/user"
->>>>
->>>> host=ssh.livedns.co.uk type=PATH msg=audit(1260534061.381:4716): item=0 
->>>> name="/home/webserver/site/user/" inode=64192517 dev=00:16 mode=040701 
->>>> ouid=217858 ogid=500 rdev=00:00 obj=system_u:object_r:nfs_t:s0
->>>>
->>>> host=ssh.livedns.co.uk type=PATH msg=audit(1260534061.381:4716): item=1 
->>>> name="**/home/webserver/site/user/**afile" inode=64194402 dev=00:16 
->>>> mode=0100644 ouid=217858 ogid=500 rdev=00:00 obj=system_u:object_r:nfs_t:s0*
->>>>
->>>>
->>>> I haven't pasted everything from sealert, i thought the raw logs would 
->>>> be enough.  I've used audit2allow to get a basic skeletal policy for 
->>>> crond+nfs and added a bit to it, which is like:
->>>>
->>>> *module crondreadnfs 1.0;
->>>>
->>>> require {
->>>>    type user_crond_t;
->>>>    type nfs_t;
->>>>    class dir { read write add_name create getattr search };
->>>>    class file { read write create getattr };
->>>> }
->>>>
->>>> require {
->>>>    type crond_t;
->>>>    type nfs_t;
->>>>    class dir { read write add_name create getattr search };
->>>>    class file { read write create getattr };
->>>> }
->>>>
->>>> #============= user_crond_t ==============
->>>> allow user_crond_t nfs_t:dir { read write add_name create getattr search };
->>>> allow user_crond_t nfs_t:file { read write create getattr };
->>>>
->>>> allow crond_t nfs_t:dir {read write add_name create getattr search };
->>>> allow crond_t nfs_t:file { read write create getattr };
->>>> *
->>>> But I'm actually a bit confused as to why it's necessary.  I thought 
->>>> cron would be running jobs _as_ the user, and under the users context?  
->>>> Is there something else wrong?  SSH is fine with the use_nfs_home_dirs 
->>>> boolean, so why not cron?  If there's a way for this to work without 
->>>> having to explicitly allow every single operation that cron is allowed 
->>>> to attempt, and to just run jobs with the access that the user who's 
->>>> cronjob it is has, I would be most appreciative!!
->>>>
->>>> Many thanks.  Tom.
->>>>     
->>>>         
->>> See http://marc.info/?l=selinux&m=121094043113003&w=2
->>>
->>> That has subsequently changed since RHEL5 so that user cron jobs just
->>> run in the user's own domain, I believe.  But you could change your
->>> policy likewise if that is the behavior you want.
->>>
->>> Modify the system_r:crond_t:s0 entry in
->>> your /etc/selinux/targeted/contexts/default_contexts file and in
->>> your /etc/selinux/targeted/contexts/users/* files, and add allow rules
->>> as needed.
->>>
->>>   
->>>       
 
 
 --
