@@ -2,215 +2,121 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 03/13] libsemanage: move the module store to /var/lib/selinux
-Date: Wed, 23 Dec 2009 18:25:50 -0500
-Message-Id: <1261610760-4724-4-git-send-email-ccase@tresys.com>
-In-Reply-To: <1261610760-4724-3-git-send-email-ccase@tresys.com>
+Subject: [PATCH 09/13] libsemanage: provide function to get new base module path
+Date: Wed, 23 Dec 2009 18:25:56 -0500
+Message-Id: <1261610760-4724-10-git-send-email-ccase@tresys.com>
+In-Reply-To: <1261610760-4724-9-git-send-email-ccase@tresys.com>
 References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
  <1261610760-4724-2-git-send-email-ccase@tresys.com>
  <1261610760-4724-3-git-send-email-ccase@tresys.com>
+ <1261610760-4724-4-git-send-email-ccase@tresys.com>
+ <1261610760-4724-5-git-send-email-ccase@tresys.com>
+ <1261610760-4724-6-git-send-email-ccase@tresys.com>
+ <1261610760-4724-7-git-send-email-ccase@tresys.com>
+ <1261610760-4724-8-git-send-email-ccase@tresys.com>
+ <1261610760-4724-9-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch moves the module store from /etc/selinux/<store>/modules to
-/var/lib/selinux/<store>.
-
-This move will allow for the use of a read-only /etc/selinux. Currently
-that is not possible with semanage because of the lock files.
-
-A consequence of this move is that packagers of libsemanage should
-create the /var/lib/selinux directory.
+The base module is being moved in with the other modules so that it can
+benefit from the priority framework. This patch provides a utility
+function for getting the highest priority base module path.
 ---
- libsemanage/src/direct_api.c     |   20 ++----------------
- libsemanage/src/semanage_store.c |   39 ++++++++++++++++++++++++-------------
- libsemanage/src/semanage_store.h |    5 +++-
- 3 files changed, 32 insertions(+), 32 deletions(-)
+ libsemanage/src/semanage_store.c |   61 ++++++++++++++++++++++++++++++++++++++
+ libsemanage/src/semanage_store.h |   10 ++++++
+ 2 files changed, 71 insertions(+), 0 deletions(-)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index f09c7cf..5fb4523 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -89,12 +89,7 @@ static struct semanage_policy_table direct_funcs = {
- 
- int semanage_direct_is_managed(semanage_handle_t * sh)
- {
--	char polpath[PATH_MAX];
--
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
--		 sh->conf->store_path);
--
--	if (semanage_check_init(polpath))
-+	if (semanage_check_init(sh, semanage_root_path()))
- 		goto err;
- 
- 	if (semanage_access_check(sh) < 0)
-@@ -111,13 +106,9 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
-  */
- int semanage_direct_connect(semanage_handle_t * sh)
- {
--	char polpath[PATH_MAX];
- 	const char *path;
- 
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
--		 sh->conf->store_path);
--
--	if (semanage_check_init(polpath))
-+	if (semanage_check_init(sh, semanage_root_path()))
- 		goto err;
- 
- 	if (sh->create_store)
-@@ -1416,12 +1407,7 @@ static int semanage_direct_list(semanage_handle_t * sh,
- 
- int semanage_direct_access_check(semanage_handle_t * sh)
- {
--	char polpath[PATH_MAX];
--
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
--		 sh->conf->store_path);
--
--	if (semanage_check_init(polpath))
-+	if (semanage_check_init(sh, semanage_root_path()))
- 		return -1;
- 
- 	return semanage_store_access_check(sh);
 diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 0a55ce0..049818a 100644
+index 62779b3..6b4c2e0 100644
 --- a/libsemanage/src/semanage_store.c
 +++ b/libsemanage/src/semanage_store.c
-@@ -3,8 +3,9 @@
-  *	    Jason Tang <jtang@tresys.com>
-  *          Christopher Ashworth <cashworth@tresys.com>
-  *          Chris PeBenito <cpebenito@tresys.com>
-+ *	    Caleb Case <ccase@tresys.com>
-  *
-- * Copyright (C) 2004-2006 Tresys Technology, LLC
-+ * Copyright (C) 2004-2006,2009 Tresys Technology, LLC
-  * Copyright (C) 2005 Red Hat, Inc.
-  *
-  *  This library is free software; you can redistribute it and/or
-@@ -88,8 +89,6 @@ static const char *semanage_store_paths[SEMANAGE_NUM_STORES] = {
- 	"/tmp"
- };
- 
--/* this is the module store path relative to selinux_policy_root() */
--#define SEMANAGE_MOD_DIR "/modules"
- /* relative path names to enum sandbox_paths for special files within
-  * a sandbox */
- static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
-@@ -157,14 +156,14 @@ static int semanage_init_paths(const char *root)
- 	if (!root)
- 		return -1;
- 
--	prefix_len = (strlen(root) + strlen(SEMANAGE_MOD_DIR));
-+	prefix_len = strlen(root);
- 
- 	for (i = 0; i < SEMANAGE_NUM_FILES; i++) {
- 		len = (strlen(semanage_relative_files[i]) + prefix_len);
- 		semanage_files[i] = calloc(len + 1, sizeof(char));
- 		if (!semanage_files[i])
- 			return -1;
--		sprintf(semanage_files[i], "%s%s%s", root, SEMANAGE_MOD_DIR,
-+		sprintf(semanage_files[i], "%s%s", root,
- 			semanage_relative_files[i]);
- 	}
- 
-@@ -186,16 +185,11 @@ static int semanage_init_store_paths(const char *root)
- 	int i, j;
- 	size_t len;
- 	size_t prefix_len;
--	char *prefix;
- 
- 	if (!root)
- 		return -1;
- 
--	prefix_len = (strlen(root) + strlen(SEMANAGE_MOD_DIR));
--	prefix = calloc(prefix_len + 1, sizeof(char));
--	if (!prefix)
--		return -1;
--	sprintf(prefix, "%s%s", root, SEMANAGE_MOD_DIR);
-+	prefix_len = strlen(root);
- 
- 	for (i = 0; i < SEMANAGE_NUM_STORES; i++) {
- 		for (j = 0; j < SEMANAGE_STORE_NUM_PATHS; j++) {
-@@ -204,14 +198,13 @@ static int semanage_init_store_paths(const char *root)
- 			semanage_paths[i][j] = calloc(len + 1, sizeof(char));
- 			if (!semanage_paths[i][j])
- 				goto cleanup;
--			sprintf(semanage_paths[i][j], "%s%s%s", prefix,
-+			sprintf(semanage_paths[i][j], "%s%s%s", root,
- 				semanage_store_paths[i],
- 				semanage_sandbox_paths[j]);
- 		}
- 	}
- 
-       cleanup:
--	free(prefix);
- 	return 0;
+@@ -491,6 +491,67 @@ const char *semanage_conf_path(void)
+ 	return "/etc/selinux/semanage.conf";
  }
  
-@@ -223,16 +216,28 @@ static int semanage_init_store_paths(const char *root)
-  *
-  * Note that this function is NOT thread-safe.
-  */
--int semanage_check_init(const char *root)
-+int semanage_check_init(semanage_handle_t *sh, const char *prefix)
- {
- 	int rc;
- 	if (semanage_paths_initialized == 0) {
-+		char root[PATH_MAX];
-+
-+		rc = snprintf(root,
-+			      sizeof(root),
-+			      "%s/%s",
-+			      prefix,
-+			      sh->conf->store_path);
-+		if (rc < 0 || rc >= (int)sizeof(root))
-+			return -1;
-+
- 		rc = semanage_init_paths(root);
- 		if (rc)
- 			return rc;
-+
- 		rc = semanage_init_store_paths(root);
- 		if (rc)
- 			return rc;
-+
- 		semanage_paths_initialized = 1;
- 	}
- 	return 0;
-@@ -259,6 +264,12 @@ const char *semanage_path(enum semanage_store_defs store,
- 	return semanage_paths[store][path_name];
- }
- 
-+/* Return the root of the semanage store. */
-+const char *semanage_root_path(void)
++/* Locates the highest priority enabled base module
++ * and fills @path in with that value. @path must be
++ * pre-allocated with size @len.
++ *
++ * Returns 0 on success and -1 on error.
++ */
++int semanage_base_path(semanage_handle_t *sh,
++		       char *path,
++		       size_t len)
 +{
-+	return "/var/lib/selinux";
++	assert(sh);
++	assert(path);
++
++	int status = 0;
++	int ret = 0;
++
++	semanage_module_info_t *base = NULL;
++
++	/* set key for getting base module */
++	semanage_module_key_t modkey;
++	ret = semanage_module_key_init(sh, &modkey);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	ret = semanage_module_key_set_name(sh, &modkey, "_base");
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* get highest priority base module */
++	ret = semanage_module_get_module_info(sh, &modkey, &base);
++	if (ret != 0) {
++		/* no base module found */
++		status = -1;
++		goto cleanup;
++	}
++
++	/* get the highest priority base module path */
++	ret = semanage_module_get_path(
++			sh,
++			base,
++			SEMANAGE_MODULE_PATH_HLL,
++			path,
++			len);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++cleanup:
++	semanage_module_key_destroy(sh, &modkey);
++
++	semanage_module_info_destroy(sh, base);
++	free(base);
++
++	return status;
 +}
 +
- /* Return a fully-qualified path + filename to the semanage
-  * configuration file.  The caller must not alter the string returned
-  * (and hence why this function return type is const).
+ /**************** functions that create module store ***************/
+ 
+ /* Check that the semanage store exists.  If 'create' is non-zero then
 diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 112edb6..c76ecfe 100644
+index d3fd554..c6711ce 100644
 --- a/libsemanage/src/semanage_store.h
 +++ b/libsemanage/src/semanage_store.h
-@@ -62,11 +62,14 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_STORE_NUM_PATHS
- };
+@@ -150,4 +150,14 @@ int semanage_nc_sort(semanage_handle_t * sh,
+ 		     size_t buf_len,
+ 		     char **sorted_buf, size_t * sorted_buf_len);
  
-+const char *semanage_root_path(void);
++/* Locates the highest priority enabled base module
++ * and fills @path in with that value. @path must be
++ * pre-allocated with size @len.
++ *
++ * Returns 0 on success and -1 on error.
++ */
++int semanage_base_path(semanage_handle_t *sh,
++		       char *path,
++		       size_t len);
 +
- /* FIXME: this needs to be made a module store specific init and the
-  * global configuration moved to another file.
-  */
- const char *semanage_conf_path(void);
--int semanage_check_init(const char *root);
-+
-+int semanage_check_init(semanage_handle_t *sh, const char *prefix);
- 
- extern const char *semanage_fname(enum semanage_sandbox_defs file_enum);
- 
+ #endif
 -- 
 1.6.0.4
 
