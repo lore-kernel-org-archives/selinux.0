@@ -2,365 +2,117 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 13/13] semanage store migration script
-Date: Wed, 23 Dec 2009 18:26:00 -0500
-Message-Id: <1261610760-4724-14-git-send-email-ccase@tresys.com>
-In-Reply-To: <1261610760-4724-13-git-send-email-ccase@tresys.com>
+Subject: [PATCH 05/13] libsemanage: update unit tests for move to /var/lib/selinux
+Date: Wed, 23 Dec 2009 18:25:52 -0500
+Message-Id: <1261610760-4724-6-git-send-email-ccase@tresys.com>
+In-Reply-To: <1261610760-4724-5-git-send-email-ccase@tresys.com>
 References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
  <1261610760-4724-2-git-send-email-ccase@tresys.com>
  <1261610760-4724-3-git-send-email-ccase@tresys.com>
  <1261610760-4724-4-git-send-email-ccase@tresys.com>
  <1261610760-4724-5-git-send-email-ccase@tresys.com>
- <1261610760-4724-6-git-send-email-ccase@tresys.com>
- <1261610760-4724-7-git-send-email-ccase@tresys.com>
- <1261610760-4724-8-git-send-email-ccase@tresys.com>
- <1261610760-4724-9-git-send-email-ccase@tresys.com>
- <1261610760-4724-10-git-send-email-ccase@tresys.com>
- <1261610760-4724-11-git-send-email-ccase@tresys.com>
- <1261610760-4724-12-git-send-email-ccase@tresys.com>
- <1261610760-4724-13-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We created a migration script to ease the burden of transition from the
-old libsemanage store layout to the new. The script will detect all the
-stores in /etc/selinux using the old layout and convert them to the new
-layout in /var/lib/selinux. It also allows you to specify the default
-priority to use with -p and store to operate on with -s. After migration
-the script by default will leave the old store unchanged, but can be
-told to remove the old modules directory with -c.
-
-Examples:
-
-# Migrate all stores to the new layout.
-migrate.py
-
-Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
-Attempting to rebuild policy from /var/lib/selinux
-
-# Migrate only the targeted store.
-migrate.py -s targeted
-
-Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
-Attempting to rebuild policy from /var/lib/selinux
-
-# Migrate all, but install to priority 150.
-migrate.py -p 150
-
-Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
-Attempting to rebuild policy from /var/lib/selinux
+This updates the unit tests to accommodate the change in layout (no top
+level 'modules' directory).
 ---
- libsemanage/utils/semanage_migrate_etc_to_var.py |  301 ++++++++++++++++++++++
- 1 files changed, 301 insertions(+), 0 deletions(-)
- create mode 100755 libsemanage/utils/semanage_migrate_etc_to_var.py
+ libsemanage/tests/test_semanage_store.c |   34 +++++++++++++++---------------
+ 1 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/libsemanage/utils/semanage_migrate_etc_to_var.py b/libsemanage/utils/semanage_migrate_etc_to_var.py
-new file mode 100755
-index 0000000..71dd6f5
---- /dev/null
-+++ b/libsemanage/utils/semanage_migrate_etc_to_var.py
-@@ -0,0 +1,301 @@
-+#!/usr/bin/python -E
-+
-+
-+import os
-+import errno
-+import shutil
-+import sys
-+from optparse import OptionParser
-+
-+import bz2
-+import ctypes
-+
-+sepol = ctypes.cdll.LoadLibrary('libsepol.so')
-+
-+try:
-+	import selinux
-+	import semanage
-+except:
-+	print >> sys.stderr, "You must install libselinux-python and libsemanage-python before running this tool"
-+	exit(1)
-+
-+
-+
-+
-+# For some reason this function doesn't exist in libselinux :\
-+def copy_with_context(src, dst):
-+	if DEBUG:
-+		print "copying %s to %s" % (src, dst)
-+	try:
-+		con = selinux.lgetfilecon_raw(src)[1]
-+	except:
-+		print >> sys.stderr, "Could not get file context of %s" % src
-+		exit(1)
-+
-+	try:
-+		selinux.setfscreatecon_raw(con)
-+	except:
-+		print >> sys.stderr, "Could not set fs create context: %s" %con
-+		exit(1)
-+
-+	try:
-+		shutil.copy2(src, dst)
-+	except OSError as (err, strerr):
-+		print >> sys.stderr, "Could not copy %s to %s, %s" %(src, dst, strerr)
-+
-+def create_dir_from(src, dst, mode):
-+	if DEBUG: print "Making directory %s" % dst
-+	try:
-+		con = selinux.lgetfilecon_raw(src)[1]
-+		selinux.setfscreatecon_raw(con)
-+		os.mkdir(dst, mode)	
-+	except OSError as (err, stderr):
-+		if err == errno.EEXIST:
-+			pass
-+		else:
-+			print >> sys.stderr, "Error creating %s" % dst
-+			exit(1)
-+	
-+def copy_module(store, name, con, base):
-+	if DEBUG: print "Install module %s" % name	
-+	(file, ext) = os.path.splitext(name)
-+	if ext != ".pp":
-+		# Stray non-pp file in modules directory, skip
-+		print >> sys.stderr, "warning: %s has invalid extension, skipping" % name
-+		return
-+	try:
-+		selinux.setfscreatecon_raw(con)
-+	
-+		if base:
-+			root = oldstore_path(store)
-+		else:
-+			root = oldmodules_path(store)
-+
-+		bottomdir = bottomdir_path(store)
-+			
-+		# Special case "base" since you can have modules named base 
-+		if base:
-+			file = "_base"
-+
-+		os.mkdir("%s/%s" % (bottomdir, file))
-+
-+		copy_with_context(os.path.join(root, name), "%s/%s/%s%s" % (bottomdir, file, file, ext))
-+
-+		# This is the ext file that will eventually be used to choose a compiler
-+		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0600)
-+		efile.write("pp")
-+		efile.close()
-+
-+		# This is the version file that stores the version of the module
-+		version = "1.0.0"
-+		if not base:
-+			try:
-+				pf = ctypes.c_void_p()
-+				sepol.sepol_policy_file_create(ctypes.byref(pf))
-+
-+				pbuffer = None
-+				try:
-+					pbuffer = bz2.BZ2File(os.path.join(root, name)).read()
-+				except:
-+					pbuffer = open(os.path.join(root, name)).read()
-+
-+				if (pbuffer == None):
-+					raise Exception("Unable read policy file into memory.")
-+
-+				cbuffer = ctypes.create_string_buffer(pbuffer)
-+				sepol.sepol_policy_file_set_mem(pf, cbuffer, len(cbuffer))
-+
-+				header_file_type = ctypes.c_int()
-+				header_name = ctypes.c_char_p()
-+				header_version = ctypes.c_char_p()
-+
-+				ret = sepol.sepol_module_package_info(pf, ctypes.byref(header_file_type), ctypes.byref(header_name), ctypes.byref(header_version))
-+				if (ret != 0):
-+					raise Exception("Unable to parse package header.")
-+
-+				version = header_version.value
-+
-+				sepol.sepol_policy_file_free(pf)
-+
-+			except Exception as e:
-+				print >> sys.stderr, e
-+				print >> sys.stderr, "warning: unable to determine version, using default value"
-+
-+		efile = open("%s/%s/version" % (bottomdir, file), "w+", 0600)
-+		efile.write(version)
-+		efile.close()
-+
-+	except:
-+		print >> sys.stderr, "Error installing module %s" % name
-+
-+def migrate_store(store):
-+
-+	oldstore = oldstore_path(store);
-+	oldmodules = oldmodules_path(store);
-+	newstore = newstore_path(store);
-+	newmodules = newmodules_path(store);
-+	bottomdir = bottomdir_path(store);
-+
-+	print "Migrating from %s to %s" % (oldstore, newstore)
-+
-+	# Build up new directory structure
-+	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0755)
-+	create_dir_from(oldmodules, newstore, 0700)
-+	create_dir_from(oldstore, newmodules, 0700)
-+	create_dir_from(oldstore, bottomdir, 0700)
-+
-+	# use whatever the file context of bottomdir is for the module directories
-+	con = selinux.lgetfilecon_raw(bottomdir)[1]
-+
-+	# Special case for base since it was in a different location
-+	copy_module(store, "base.pp", con, 1)
-+
-+	# Dir structure built, start copying files
-+	for root, dirs, files in os.walk(oldstore):
-+		if root == oldstore:
-+			# This is the top level directory, need to move 
-+			for name in files:
-+				# Check to see if it is in TOPPATHS and copy if so
-+				if name in TOPPATHS:
-+					copy_with_context(os.path.join(root, name), os.path.join(newstore, name))
-+
-+		elif root == oldmodules:
-+			# This should be the modules directory
-+			for name in files:
-+				copy_module(store, name, con, 0)
-+
-+def rebuild_policy():
-+	# Ok, the modules are loaded, lets try to rebuild the policy
-+	print "Attempting to rebuild policy from %s" % newroot_path()
-+
-+	curstore = selinux.selinux_getpolicytype()[1]
-+
-+	handle = semanage.semanage_handle_create()
-+	if not handle:
-+		print >> sys.stderr, "Could not create semanage handle"
-+		exit(1)
-+
-+	semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
-+
-+	if not semanage.semanage_is_managed(handle):
-+		semanage.semanage_handle_destroy(handle)
-+		print >> sys.stderr, "SELinux policy is not managed or store cannot be accessed."
-+		exit(1)
-+
-+	rc = semanage.semanage_access_check(handle)
-+	if rc < semanage.SEMANAGE_CAN_WRITE:
-+		semanage.semanage_handle_destroy(handle)
-+		print >> sys.stderr, "Cannot write to policy store."
-+		exit(1)
-+
-+	rc = semanage.semanage_connect(handle)
-+	if rc < 0:
-+		semanage.semanage_handle_destroy(handle)
-+		print >> sys.stderr, "Could not establish semanage connection"
-+		exit(1)
-+
-+	semanage.semanage_set_rebuild(handle, 1)
-+
-+	rc = semanage.semanage_begin_transaction(handle)
-+	if rc < 0:
-+		semanage.semanage_handle_destroy(handle)
-+		print >> sys.stderr, "Could not begin transaction"
-+		exit(1)
-+
-+	rc = semanage.semanage_commit(handle)
-+	if rc < 0:
-+		print >> sys.stderr, "Could not commit transaction"
-+
-+	semanage.semanage_handle_destroy(handle)
-+
-+
-+def oldroot_path():
-+	return "/etc/selinux"
-+
-+def oldstore_path(store):
-+	return "%s/%s/modules/active" % (oldroot_path(), store)
-+
-+def oldmodules_path(store):
-+	return "%s/modules" % oldstore_path(store)
-+
-+def newroot_path():
-+	return "/var/lib/selinux"
-+
-+def newstore_path(store):
-+	return "%s/%s/active" % (newroot_path(), store)
-+
-+def newmodules_path(store):
-+	return "%s/modules" % newstore_path(store)
-+
-+def bottomdir_path(store):
-+	return "%s/%s" % (newmodules_path(store), PRIORITY)
-+
-+
-+if __name__ == "__main__":
-+
-+	parser = OptionParser()
-+	parser.add_option("-p", "--priority", dest="priority", default="100",
-+			  help="Set priority of modules in new store (default: 100)")
-+	parser.add_option("-s", "--store", dest="store", default=None,
-+			  help="Store to read from and write to")
-+	parser.add_option("-d", "--debug", dest="debug", action="store_true", default=False,
-+			  help="Output debug information")
-+	parser.add_option("-c", "--clean", dest="clean", action="store_true", default=False,
-+			  help="Clean old modules directory after migrate (default: no)")
-+
-+	(options, args) = parser.parse_args()
-+
-+	DEBUG = options.debug
-+	PRIORITY = options.priority
-+	TYPE = options.store
-+	CLEAN = options.clean
-+
-+	# List of paths that go in the active 'root'
-+	TOPPATHS = [
-+		"file_contexts",
-+		"homedir_template",
-+		"file_contexts.template",
-+		"commit_num",
-+		"ports.local",
-+		"interfaces.local",
-+		"nodes.local",
-+		"booleans.local",
-+		"file_contexts.local",
-+		"seusers",
-+		"users.local",
-+		"users_extra.local",
-+		"seusers.final",
-+		"users_extra",
-+		"netfilter_contexts",
-+		"file_contexts.homedirs",
-+		"disable_dontaudit" ]
-+
-+
-+	create_dir_from(oldroot_path(), newroot_path(), 0755)
-+
-+	stores = None
-+	if TYPE is not None:
-+		stores = [TYPE]
-+	else:
-+		stores = os.listdir(oldroot_path())
-+
-+	# find stores in oldroot and migrate them to newroot if necessary
-+	for store in stores:
-+		if not os.path.isdir(oldmodules_path(store)):
-+			# already migrated or not an selinux store
-+			continue
-+
-+		if os.path.isdir(newstore_path(store)):
-+			# store has already been migrated, but old modules dir still exits
-+			print >> sys.stderr, "warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store
-+			continue
-+
-+		migrate_store(store)
-+
-+		if CLEAN is True:
-+			def remove_error(function, path, execinfo):
-+				print >> sys.stderr, "warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store)
-+			shutil.rmtree(oldmodules_path(store), onerror=remove_error)
-+
-+	rebuild_policy()
-+
+diff --git a/libsemanage/tests/test_semanage_store.c b/libsemanage/tests/test_semanage_store.c
+index e6814e8..2fa94b4 100644
+--- a/libsemanage/tests/test_semanage_store.c
++++ b/libsemanage/tests/test_semanage_store.c
+@@ -44,12 +44,12 @@
+ #include <CUnit/Basic.h>
+ 
+ semanage_handle_t *sh = NULL;
+-const char *polpath = "./test-policy";
+-const char *lockpath = "./test-policy/modules";
+-const char *readlockpath = "./test-policy/modules/semanage.read.LOCK";
+-const char *translockpath = "./test-policy/modules/semanage.trans.LOCK";
+-const char *actpath = "./test-policy/modules/active";
+-const char *modpath = "./test-policy/modules/active/modules";
++const char *rootpath = "./test-policy";
++const char *polpath = "./test-policy/store/";
++const char *readlockpath = "./test-policy/store/semanage.read.LOCK";
++const char *translockpath = "./test-policy/store/semanage.trans.LOCK";
++const char *actpath = "./test-policy/store/active";
++const char *modpath = "./test-policy/store/active/modules";
+ 
+ /* The suite initialization function.
+  * Returns zero on success, non-zero otherwise.
+@@ -59,11 +59,11 @@ int semanage_store_test_init(void)
+ 	int err;
+ 
+ 	/* create directories */
+-	err = mkdir(polpath, S_IRUSR | S_IWUSR | S_IXUSR);
++	err = mkdir(rootpath, S_IRUSR | S_IWUSR | S_IXUSR);
+ 	if (err != 0)
+ 		return -1;
+ 
+-	err = mkdir(lockpath, S_IRUSR | S_IWUSR | S_IXUSR);
++	err = mkdir(polpath, S_IRUSR | S_IWUSR | S_IXUSR);
+ 	if (err != 0)
+ 		return -1;
+ 
+@@ -83,8 +83,12 @@ int semanage_store_test_init(void)
+ 	/* hide error messages */
+ 	sh->msg_callback = test_msg_handler;
+ 
++	/* use our own policy store */
++	free(sh->conf->store_path);
++	sh->conf->store_path = strdup("store");
++
+ 	/* initialize paths */
+-	err = semanage_check_init(polpath);
++	err = semanage_check_init(sh, rootpath);
+ 	if (err != 0)
+ 		return -1;
+ 
+@@ -107,11 +111,11 @@ int semanage_store_test_cleanup(void)
+ 	if (err != 0)
+ 		return -1;
+ 
+-	err = rmdir(lockpath);
++	err = rmdir(polpath);
+ 	if (err != 0)
+ 		return -1;
+ 
+-	err = rmdir(polpath);
++	err = rmdir(rootpath);
+ 	if (err != 0)
+ 		return -1;
+ 
+@@ -217,8 +221,6 @@ void test_semanage_store_access_check(void)
+ 	/* check with no lock file and 000 */
+ 	err = chmod(modpath, 0);
+ 	CU_ASSERT(err == 0);
+-	err = chmod(lockpath, 0);
+-	CU_ASSERT(err == 0);
+ 	err = chmod(polpath, 0);
+ 	CU_ASSERT(err == 0);
+ 
+@@ -228,16 +230,14 @@ void test_semanage_store_access_check(void)
+ 	/* check with no lock file and 500 */
+ 	err = chmod(polpath, S_IRUSR | S_IXUSR);
+ 	CU_ASSERT(err == 0);
+-	err = chmod(lockpath, S_IRUSR | S_IXUSR);
+-	CU_ASSERT(err == 0);
+ 	err = chmod(modpath, S_IRUSR | S_IXUSR);
+ 	CU_ASSERT(err == 0);
+ 
+ 	err = semanage_store_access_check(sh);
+ 	CU_ASSERT(err == 0);
+ 
+-	/* check with no lock file but write in lockpath */
+-	err = chmod(lockpath, S_IRUSR | S_IWUSR | S_IXUSR);
++	/* check with no lock file but write in polpath */
++	err = chmod(polpath, S_IRUSR | S_IWUSR | S_IXUSR);
+ 	CU_ASSERT(err == 0);
+ 
+ 	err = semanage_store_access_check(sh);
 -- 
 1.6.0.4
 
