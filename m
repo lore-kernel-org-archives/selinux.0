@@ -2,10 +2,10 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 08/13] libsemanage: get/set module info and enabled status
-Date: Wed, 23 Dec 2009 18:25:55 -0500
-Message-Id: <1261610760-4724-9-git-send-email-ccase@tresys.com>
-In-Reply-To: <1261610760-4724-8-git-send-email-ccase@tresys.com>
+Subject: [PATCH 13/13] semanage store migration script
+Date: Wed, 23 Dec 2009 18:26:00 -0500
+Message-Id: <1261610760-4724-14-git-send-email-ccase@tresys.com>
+In-Reply-To: <1261610760-4724-13-git-send-email-ccase@tresys.com>
 References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
  <1261610760-4724-2-git-send-email-ccase@tresys.com>
  <1261610760-4724-3-git-send-email-ccase@tresys.com>
@@ -14,1176 +14,353 @@ References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
  <1261610760-4724-6-git-send-email-ccase@tresys.com>
  <1261610760-4724-7-git-send-email-ccase@tresys.com>
  <1261610760-4724-8-git-send-email-ccase@tresys.com>
+ <1261610760-4724-9-git-send-email-ccase@tresys.com>
+ <1261610760-4724-10-git-send-email-ccase@tresys.com>
+ <1261610760-4724-11-git-send-email-ccase@tresys.com>
+ <1261610760-4724-12-git-send-email-ccase@tresys.com>
+ <1261610760-4724-13-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This provides the functions for enabling/disabling modules via a
-semanage_module_key_t and getting/setting module info.
+We created a migration script to ease the burden of transition from the
+old libsemanage store layout to the new. The script will detect all the
+stores in /etc/selinux using the old layout and convert them to the new
+layout in /var/lib/selinux. It also allows you to specify the default
+priority to use with -p and store to operate on with -s. After migration
+the script by default will leave the old store unchanged, but can be
+told to remove the old modules directory with -c.
 
-Enabled/disabled status is indicated by the presence of an empty file in
-the disabled directory:
+Examples:
 
-/var/lib/selinux/<policy type>/disabled/<module name>
+# Migrate all stores to the new layout.
+migrate.py
 
-The presence of a file there indicates that the module is disabled at
-all priorities. Enable/disabling of modules is done across all
-priorities simultaneously to avoid confusion that would likely arise
-from per priority settings.
+Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
+Attempting to rebuild policy from /var/lib/selinux
 
-semanage_module_get_module_info gathers up the on disk information about
-a module indicated by the module key and puts the information into
-module info. In order to facilitate an easy mechanism for getting the
-highest priority module of a given name, the key's priority value may
-be 0 and the highest priority module with the given name will be located.
+# Migrate only the targeted store.
+migrate.py -s targeted
 
-semanage_direct_set_module_info is a helper function that writes module
-info to disk. The unused attribute is used to suppress warnings for
-compilation and is removed in the module install patch later in the
-series.
+Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
+Attempting to rebuild policy from /var/lib/selinux
 
-semanage_module_list_all behaves similar to semanage_module_list except
-it returns all modules at all priorities. semanage_module_list will only
-include the highest priority, enabled, non-base modules (this is its
-current behavior). See the module install patch later in the series for
-the modified semanage_module_list.
+# Migrate all, but install to priority 150.
+migrate.py -p 150
 
-Adds a helper function for creating a directory if it doesn't already
-exist (used to automatically create the disabled, priority, and module
-dirs).
+Migrating from /etc/selinux/targeted/modules/active to /var/lib/selinux/targeted/active
+Attempting to rebuild policy from /var/lib/selinux
 ---
- libsemanage/src/direct_api.c |  908 +++++++++++++++++++++++++++++++++++++++++-
- libsemanage/src/modules.c    |   83 ++++
- libsemanage/src/modules.h    |   44 ++
- libsemanage/src/policy.h     |   21 +
- 4 files changed, 1055 insertions(+), 1 deletions(-)
+ libsemanage/utils/semanage_migrate_etc_to_var.py |  301 ++++++++++++++++++++++
+ 1 files changed, 301 insertions(+), 0 deletions(-)
+ create mode 100755 libsemanage/utils/semanage_migrate_etc_to_var.py
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index e438b87..7964eaa 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -34,6 +34,7 @@
- #include <sys/types.h>
- #include <limits.h>
- #include <errno.h>
-+#include <dirent.h>
- 
- #include "user_internal.h"
- #include "seuser_internal.h"
-@@ -70,6 +71,20 @@ static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
- static int semanage_direct_list(semanage_handle_t * sh,
- 				semanage_module_info_t ** modinfo,
- 				int *num_modules);
-+static int semanage_direct_get_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int *enabled);
-+static int semanage_direct_set_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int enabled);
-+
-+static int semanage_direct_get_module_info(semanage_handle_t *sh,
-+					   const semanage_module_key_t *modkey,
-+					   semanage_module_info_t **modinfo);
-+
-+static int semanage_direct_list_all(semanage_handle_t *sh,
-+				    semanage_module_info_t **modinfo,
-+				    int *num_modules);
- 
- static struct semanage_policy_table direct_funcs = {
- 	.get_serial = semanage_direct_get_serial,
-@@ -84,7 +99,11 @@ static struct semanage_policy_table direct_funcs = {
- 	.install_base = semanage_direct_install_base,
- 	.install_base_file = semanage_direct_install_base_file,
- 	.remove = semanage_direct_remove,
--	.list = semanage_direct_list
-+	.list = semanage_direct_list,
-+	.get_enabled = semanage_direct_get_enabled,
-+	.set_enabled = semanage_direct_set_enabled,
-+	.get_module_info = semanage_direct_get_module_info,
-+	.list_all = semanage_direct_list_all,
- };
- 
- int semanage_direct_is_managed(semanage_handle_t * sh)
-@@ -1453,6 +1472,197 @@ static int semanage_direct_list(semanage_handle_t * sh,
- 	return retval;
- }
- 
-+static int semanage_direct_get_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int *enabled)
-+{
-+	assert(sh);
-+	assert(modkey);
-+	assert(enabled);
-+
-+	int status = 0;
-+	int ret = 0;
-+
-+	char path[PATH_MAX];
-+	struct stat sb;
-+	semanage_module_info_t *modinfo = NULL;
-+
-+	/* get module info */
-+	ret = semanage_module_get_module_info(
-+			sh,
-+			modkey,
-+			&modinfo);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* get disabled file path */
-+	ret = semanage_module_get_path(
-+			sh,
-+			modinfo,
-+			SEMANAGE_MODULE_PATH_DISABLED,
-+			path,
-+			sizeof(path));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (stat(path, &sb) < 0) {
-+		*enabled = 1;
-+	}
-+	else {
-+		*enabled = 0;
-+	}
-+
-+cleanup:
-+	semanage_module_info_destroy(sh, modinfo);
-+	free(modinfo);
-+
-+	return status;
-+}
-+
-+static int semanage_direct_set_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int enabled)
-+{
-+	assert(sh);
-+	assert(modkey);
-+
-+	int status = 0;
-+	int ret = 0;
-+
-+	char fn[PATH_MAX];
-+	const char *path = NULL;
-+	FILE *fp = NULL;
-+	semanage_module_info_t *modinfo = NULL;
-+
-+	/* check transaction */
-+	if (!sh->is_in_transaction) {
-+		if (semanage_begin_transaction(sh) < 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+	/* validate name */
-+	ret = semanage_module_validate_name(modkey->name);
-+	if (ret != 0) {
-+		errno = 0;
-+		ERR(sh, "Name %s is invalid.", modkey->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* validate enabled */
-+	ret = semanage_module_validate_enabled(enabled);
-+	if (ret != 0) {
-+		errno = 0;
-+		ERR(sh, "Enabled status %d is invalid.", enabled);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* check for base module */
-+	if (strcmp(modkey->name, "_base") == 0) {
-+		if (enabled == 0) {
-+			errno = 0;
-+			ERR(sh, "Base module cannot be disabled.");
-+			status = -1;
-+			goto cleanup;
-+		}
-+		else {
-+			errno = 0;
-+			WARN(sh, "Base module is always enabled, redundant enabling of base module requested.");
-+		}
-+	}
-+
-+	/* check for disabled path, create if missing */
-+	path = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES_DISABLED);
-+
-+	ret = semanage_mkdir(sh, path);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* get module info */
-+	ret = semanage_module_get_module_info(
-+			sh,
-+			modkey,
-+			&modinfo);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* get module disabled file */
-+	ret = semanage_module_get_path(
-+			sh,
-+			modinfo,
-+			SEMANAGE_MODULE_PATH_DISABLED,
-+			fn,
-+			sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	switch (enabled) {
-+		case 0: /* disable the module */
-+			fp = fopen(fn, "w");
-+
-+			if (fp == NULL) {
-+				ERR(sh,
-+				    "Unable to disable module %s",
-+				    modkey->name);
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			if (fclose(fp) != 0) {
-+				ERR(sh,
-+				    "Unable to close disabled file for module %s",
-+				    modkey->name);
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			fp = NULL;
-+
-+			break;
-+		case 1: /* enable the module */
-+			if (unlink(fn) < 0) {
-+				if (errno != ENOENT) {
-+					ERR(sh,
-+					    "Unable to enable module %s",
-+					    modkey->name);
-+					status = -1;
-+					goto cleanup;
-+				}
-+				else {
-+					/* module already enabled */
-+					errno = 0;
-+				}
-+			}
-+
-+			break;
-+		case -1: /* warn about ignored setting to default */
-+			WARN(sh,
-+			     "Setting module %s to 'default' state has no effect",
-+			     modkey->name);
-+			break;
-+	}
-+
-+cleanup:
-+	semanage_module_info_destroy(sh, modinfo);
-+	free(modinfo);
-+
-+	if (fp != NULL) fclose(fp);
-+	return status;
-+}
-+
- int semanage_direct_access_check(semanage_handle_t * sh)
- {
- 	if (semanage_check_init(sh, semanage_root_path()))
-@@ -1479,3 +1689,699 @@ cleanup:
- 	sepol_policydb_free(p);
- 	return retval;
- }
-+
-+static int semanage_direct_get_module_info(semanage_handle_t *sh,
-+					   const semanage_module_key_t *modkey,
-+					   semanage_module_info_t **modinfo)
-+{
-+	assert(sh);
-+	assert(modkey);
-+	assert(modinfo);
-+
-+	int status = 0;
-+	int ret = 0;
-+
-+	char fn[PATH_MAX];
-+	FILE *fp = NULL;
-+	const char *modules_path = NULL;
-+	size_t size = 0;
-+	struct stat sb;
-+	char *tmp = NULL;
-+
-+	int i = 0;
-+
-+	semanage_module_info_t *modinfos = NULL;
-+	int modinfos_len = 0;
-+	semanage_module_info_t *highest = NULL;
-+
-+	if (sh->is_in_transaction) {
-+		modules_path = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
-+	} else {
-+		modules_path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
-+	}
-+
-+	/* check module name */
-+	ret = semanage_module_validate_name(modkey->name);
-+	if (ret < 0) {
-+		errno = 0;
-+		ERR(sh, "Name %s is invalid.", modkey->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* if priority == 0, then find the highest priority available */
-+	if (modkey->priority == 0) {
-+		ret = semanage_direct_list_all(sh, &modinfos, &modinfos_len);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		for (i = 0; i < modinfos_len; i++) {
-+			ret = strcmp(modinfos[i].name, modkey->name);
-+			if (ret == 0) {
-+				highest = &modinfos[i];
-+				break;
-+			}
-+		}
-+
-+		if (highest == NULL) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		ret = semanage_module_info_create(sh, modinfo);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		ret = semanage_module_info_clone(sh, highest, *modinfo);
-+		if (ret != 0) {
-+			status = -1;
-+		}
-+
-+		/* skip to cleanup, module was found */
-+		goto cleanup;
-+	}
-+
-+	/* check module priority */
-+	ret = semanage_module_validate_priority(modkey->priority);
-+	if (ret != 0) {
-+		errno = 0;
-+		ERR(sh, "Priority %d is invalid.", modkey->priority);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* copy in key values */
-+	ret = semanage_module_info_create(sh, modinfo);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_info_set_priority(sh, *modinfo, modkey->priority);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_info_set_name(sh, *modinfo, modkey->name);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* lookup module ext */
-+	ret = semanage_module_get_path(sh,
-+				       *modinfo,
-+				       SEMANAGE_MODULE_PATH_LANG_EXT,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = fopen(fn, "r");
-+
-+	if (fp == NULL) {
-+		ERR(sh,
-+		    "Unable to open %s module lang ext file at %s.",
-+		    (*modinfo)->name, fn);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* set module ext */
-+	if (getline(&tmp, &size, fp) < 0) {
-+		ERR(sh,
-+		    "Unable to read %s module lang ext file.",
-+		    (*modinfo)->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_info_set_lang_ext(sh, *modinfo, tmp);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+	free(tmp);
-+	tmp = NULL;
-+
-+	if (fclose(fp) != 0) {
-+		ERR(sh,
-+		    "Unable to close %s module lang ext file.",
-+		    (*modinfo)->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = NULL;
-+
-+	/* lookup module version */
-+	ret = semanage_module_get_path(sh,
-+				       *modinfo,
-+				       SEMANAGE_MODULE_PATH_VERSION,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = fopen(fn, "r");
-+
-+	if (fp == NULL) {
-+		ERR(sh,
-+		    "Unable to open %s module version file.",
-+		    (*modinfo)->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* set module version */
-+	if (getline(&tmp, &size, fp) < 0) {
-+		ERR(sh,
-+		    "Unable to read %s module version file.",
-+		    (*modinfo)->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_info_set_version(sh, (*modinfo), tmp);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+	free(tmp);
-+	tmp = NULL;
-+
-+	if (fclose(fp) != 0) {
-+		ERR(sh,
-+		    "Unable to close %s module version file.",
-+		    (*modinfo)->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = NULL;
-+
-+	/* lookup enabled/disabled status */
-+	ret = semanage_module_get_path(sh,
-+				       *modinfo,
-+				       SEMANAGE_MODULE_PATH_DISABLED,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* set enabled/disabled status */
-+	if (stat(fn, &sb) < 0) {
-+		ret = semanage_module_info_set_enabled(sh, *modinfo, 1);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+	else {
-+		ret = semanage_module_info_set_enabled(sh, *modinfo, 0);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+cleanup:
-+	free(tmp);
-+
-+	if (modinfos != NULL) {
-+		for (i = 0; i < modinfos_len; i++) {
-+			semanage_module_info_destroy(sh, &modinfos[i]);
-+		}
-+		free(modinfos);
-+	}
-+
-+	if (fp != NULL) fclose(fp);
-+	return status;
-+}
-+
-+__attribute__ ((unused))
-+static int semanage_direct_set_module_info(semanage_handle_t *sh,
-+					   const semanage_module_info_t *modinfo)
-+{
-+	int status = 0;
-+	int ret = 0;
-+
-+	char fn[PATH_MAX];
-+	const char *path = NULL;
-+	FILE *fp = NULL;
-+	int enabled = 0;
-+
-+	semanage_module_key_t modkey;
-+	ret = semanage_module_key_init(sh, &modkey);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	semanage_module_info_t *modinfo_tmp = NULL;
-+
-+	/* check transaction */
-+	if (!sh->is_in_transaction) {
-+		if (semanage_begin_transaction(sh) < 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+	/* validate module */
-+	ret = semanage_module_info_validate(modinfo);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* check for base module */
-+	if (strcmp(modinfo->name, "_base") == 0) {
-+		if (modinfo->enabled == 0) {
-+			errno = 0;
-+			ERR(sh, "Base module cannot be disabled.");
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+	sh->modules_modified = 1;
-+
-+	/* check for modules path, create if missing */
-+	path = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
-+
-+	ret = semanage_mkdir(sh, path);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* write priority */
-+	ret = semanage_module_get_path(sh,
-+				       modinfo,
-+				       SEMANAGE_MODULE_PATH_PRIORITY,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_mkdir(sh, fn);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* write name */
-+	ret = semanage_module_get_path(sh,
-+				       modinfo,
-+				       SEMANAGE_MODULE_PATH_NAME,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_mkdir(sh, fn);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* write ext */
-+	ret = semanage_module_get_path(sh,
-+				       modinfo,
-+				       SEMANAGE_MODULE_PATH_LANG_EXT,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = fopen(fn, "w");
-+
-+	if (fp == NULL) {
-+		ERR(sh, "Unable to open %s module ext file.", modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (fputs(modinfo->lang_ext, fp) < 0) {
-+		ERR(sh, "Unable to write %s module ext file.", modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (fclose(fp) != 0) {
-+		ERR(sh, "Unable to close %s module ext file.", modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = NULL;
-+
-+	/* write version */
-+	ret = semanage_module_get_path(sh,
-+				       modinfo,
-+				       SEMANAGE_MODULE_PATH_VERSION,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = fopen(fn, "w");
-+
-+	if (fp == NULL) {
-+		ERR(sh,
-+		    "Unable to open %s module version file.",
-+		    modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (fputs(modinfo->version, fp) < 0) {
-+		ERR(sh,
-+		    "Unable to write %s module version file.",
-+		    modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (fclose(fp) != 0) {
-+		ERR(sh,
-+		    "Unable to close %s module version file.",
-+		    modinfo->name);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	fp = NULL;
-+
-+	/* write enabled/disabled status */
-+
-+	/* check for disabled path, create if missing */
-+	path = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES_DISABLED);
-+
-+	ret = semanage_mkdir(sh, path);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_get_path(sh,
-+				       modinfo,
-+				       SEMANAGE_MODULE_PATH_DISABLED,
-+				       fn,
-+				       sizeof(fn));
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = semanage_module_key_set_name(sh, &modkey, modinfo->name);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	if (modinfo->enabled == -1) {
-+		/* default to enabled */
-+		enabled = 1;
-+
-+		/* check if a module is already installed */
-+		ret = semanage_module_get_module_info(sh,
-+						      &modkey,
-+						      &modinfo_tmp);
-+		if (ret == 0) {
-+			/* set enabled status to current one */
-+			enabled = modinfo_tmp->enabled;
-+		}
-+	}
-+	else {
-+		enabled = modinfo->enabled;
-+	}
-+
-+	ret = semanage_module_set_enabled(sh, &modkey, enabled);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	if (fp != NULL) fclose(fp);
-+
-+	semanage_module_key_destroy(sh, &modkey);
-+
-+	semanage_module_info_destroy(sh, modinfo_tmp);
-+	free(modinfo_tmp);
-+
-+	return status;
-+}
-+
-+static int semanage_priorities_filename_select(const struct dirent *d)
-+{
-+	if (d->d_name[0] == '.' ||
-+	    strcmp(d->d_name, "disabled") == 0)
-+		return 0;
-+	return 1;
-+}
-+
-+static int semanage_modules_filename_select(const struct dirent *d)
-+{
-+	if (d->d_name[0] == '.')
-+		return 0;
-+	return 1;
-+}
-+
-+static int semanage_direct_list_all(semanage_handle_t *sh,
-+				    semanage_module_info_t **modinfos,
-+				    int *modinfos_len)
-+{
-+	assert(sh);
-+	assert(modinfos);
-+	assert(modinfos_len);
-+
-+	int status = 0;
-+	int ret = 0;
-+
-+	int i = 0;
-+	int j = 0;
-+
-+	*modinfos = NULL;
-+	*modinfos_len = 0;
-+	void *tmp = NULL;
-+
-+	const char *toplevel = NULL;
-+
-+	struct dirent **priorities = NULL;
-+	int priorities_len = 0;
-+	char priority_path[PATH_MAX];
-+
-+	struct dirent **modules = NULL;
-+	int modules_len = 0;
-+
-+	uint16_t priority = 0;
-+
-+	semanage_module_info_t modinfo;
-+	ret = semanage_module_info_init(sh, &modinfo);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	semanage_module_info_t *modinfo_tmp = NULL;
-+
-+	if (sh->is_in_transaction) {
-+		toplevel = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
-+	} else {
-+		toplevel = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
-+	}
-+
-+	/* find priorities */
-+	priorities_len = scandir(toplevel,
-+				 &priorities,
-+				 semanage_priorities_filename_select,
-+				 versionsort);
-+	if (priorities_len == -1) {
-+		ERR(sh, "Error while scanning directory %s.", toplevel);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* for each priority directory */
-+	/* loop through in reverse so that highest priority is first */
-+	for (i = priorities_len - 1; i >= 0; i--) {
-+		/* convert priority string to uint16_t */
-+		ret = semanage_string_to_priority(priorities[i]->d_name,
-+						  &priority);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* set our priority */
-+		ret = semanage_module_info_set_priority(sh,
-+							&modinfo,
-+							priority);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* get the priority path */
-+		ret = semanage_module_get_path(sh,
-+					       &modinfo,
-+					       SEMANAGE_MODULE_PATH_PRIORITY,
-+					       priority_path,
-+					       sizeof(priority_path));
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* cleanup old modules */
-+		if (modules != NULL) {
-+			for (j = 0; j < modules_len; j++) {
-+				free(modules[j]);
-+				modules[j] = NULL;
-+			}
-+			free(modules);
-+			modules = NULL;
-+			modules_len = 0;
-+		}
-+
-+		/* find modules at this priority */
-+		modules_len = scandir(priority_path,
-+				      &modules,
-+				      semanage_modules_filename_select,
-+				      versionsort);
-+		if (modules_len == -1) {
-+			ERR(sh,
-+			    "Error while scanning directory %s.",
-+			    priority_path);
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		if (modules_len == 0) continue;
-+
-+		/* add space for modules */
-+		tmp = realloc(*modinfos,
-+			      sizeof(semanage_module_info_t) *
-+				(*modinfos_len + modules_len));
-+		if (tmp == NULL) {
-+			ERR(sh, "Error allocating memory for module array.");
-+			status = -1;
-+			goto cleanup;
-+		}
-+		*modinfos = tmp;
-+
-+		/* for each module directory */
-+		for(j = 0; j < modules_len; j++) {
-+			/* set module name */
-+			ret = semanage_module_info_set_name(
-+					sh,
-+					&modinfo,
-+					modules[j]->d_name);
-+			if (ret != 0) {
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			/* get module values */
-+			ret = semanage_direct_get_module_info(
-+					sh,
-+					(const semanage_module_key_t *)
-+						(&modinfo),
-+					&modinfo_tmp);
-+			if (ret != 0) {
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			/* copy into array */
-+			ret = semanage_module_info_init(
-+					sh,
-+					&((*modinfos)[*modinfos_len]));
-+			if (ret != 0) {
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			ret = semanage_module_info_clone(
-+					sh,
-+					modinfo_tmp,
-+					&((*modinfos)[*modinfos_len]));
-+			if (ret != 0) {
-+				status = -1;
-+				goto cleanup;
-+			}
-+
-+			ret = semanage_module_info_destroy(sh, modinfo_tmp);
-+			if (ret != 0) {
-+				status = -1;
-+				goto cleanup;
-+			}
-+			free(modinfo_tmp);
-+			modinfo_tmp = NULL;
-+
-+			*modinfos_len += 1;
-+		}
-+	}
-+
-+cleanup:
-+	semanage_module_info_destroy(sh, &modinfo);
-+
-+	if (priorities != NULL) {
-+		for (i = 0; i < priorities_len; i++) {
-+			free(priorities[i]);
-+		}
-+		free(priorities);
-+	}
-+
-+	if (modules != NULL) {
-+		for (i = 0; i < modules_len; i++) {
-+			free(modules[i]);
-+		}
-+		free(modules);
-+	}
-+
-+	ret = semanage_module_info_destroy(sh, modinfo_tmp);
-+	if (ret != 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+	free(modinfo_tmp);
-+	modinfo_tmp = NULL;
-+
-+	if (status != 0) {
-+		if (modinfos != NULL) {
-+			for (i = 0; i < *modinfos_len; i++) {
-+				semanage_module_info_destroy(
-+						sh, 
-+						&(*modinfos)[i]);
-+			}
-+			free(*modinfos);
-+			*modinfos = NULL;
-+			*modinfos_len = 0;
-+		}
-+	}
-+
-+	return status;
-+}
-diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-index df0f15c..3f7b652 100644
---- a/libsemanage/src/modules.c
-+++ b/libsemanage/src/modules.c
-@@ -819,6 +819,49 @@ int semanage_module_key_set_priority(semanage_handle_t *sh,
- 	return 0;
- }
- 
-+int semanage_module_get_enabled(semanage_handle_t *sh,
-+				const semanage_module_key_t *modkey,
-+				int *enabled)
-+{
-+	assert(sh);
-+	assert(modkey);
-+	assert(enabled);
-+
-+	if (sh->funcs->get_enabled == NULL) {
-+		ERR(sh,
-+		    "No get_enabled function defined for this connection type.");
-+		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
-+		return -1;
-+	}
-+
-+	return sh->funcs->get_enabled(sh, modkey, enabled);
-+}
-+
-+int semanage_module_set_enabled(semanage_handle_t *sh,
-+				const semanage_module_key_t *modkey,
-+				int enabled)
-+{
-+	assert(sh);
-+	assert(modkey);
-+
-+	if (sh->funcs->set_enabled == NULL) {
-+		ERR(sh,
-+		    "No set_enabled function defined for this connection type.");
-+		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
-+		return -1;
-+	} else if (!sh->is_in_transaction) {
-+		if (semanage_begin_transaction(sh) < 0) {
-+			return -1;
-+		}
-+	}
-+
-+	sh->modules_modified = 1;
-+	return sh->funcs->set_enabled(sh, modkey, enabled);
-+}
- 
- /* Converts a string to a priority
-  *
-@@ -1028,3 +1071,43 @@ exit:
- 	return status;
- }
- 
-+int semanage_module_get_module_info(semanage_handle_t *sh,
-+				    const semanage_module_key_t *modkey,
-+				    semanage_module_info_t **modinfo)
-+{
-+	assert(sh);
-+	assert(modkey);
-+	assert(modinfo);
-+
-+	if (sh->funcs->get_module_info == NULL) {
-+		ERR(sh,
-+		    "No get module info function defined for this connection type.");
-+		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
-+		return -1;
-+	}
-+
-+	return sh->funcs->get_module_info(sh, modkey, modinfo);
-+}
-+
-+int semanage_module_list_all(semanage_handle_t *sh,
-+			     semanage_module_info_t **modinfos,
-+			     int *modinfos_len)
-+{
-+	assert(sh);
-+	assert(modinfos);
-+	assert(modinfos_len);
-+
-+	if (sh->funcs->list_all == NULL) {
-+		ERR(sh,
-+		    "No list all function defined for this connection type.");
-+		return -1;
-+	} else if (!sh->is_connected) {
-+		ERR(sh, "Not connected.");
-+		return -1;
-+	}
-+
-+	return sh->funcs->list_all(sh, modinfos, modinfos_len);
-+}
-+
-diff --git a/libsemanage/src/modules.h b/libsemanage/src/modules.h
-index 7bed3ef..8b5b9b8 100644
---- a/libsemanage/src/modules.h
-+++ b/libsemanage/src/modules.h
-@@ -255,4 +255,48 @@ int semanage_module_get_path(semanage_handle_t *sh,
- 			     char *path,
- 			     size_t len);
- 
-+/* Module Enabled */
-+
-+/* Get module @enabled status from @modkey. Modules are enabled on a per
-+ * module name basis (across all priorities). @modkey only needs to have
-+ * name set (priority is ignored).
-+ *
-+ * Returns 0 on success and -1 on error.
-+ */
-+int semanage_module_get_enabled(semanage_handle_t *sh,
-+				const semanage_module_key_t *modkey,
-+				int *enabled);
-+
-+/* Set module @enabled status from @modkey. Modules are enabled on a per
-+ * module name basis (across all priorities). @modkey only needs to have
-+ * name set (priority is ignored).
-+ *
-+ * Returns 0 on success and -1 on error.
-+ */
-+int semanage_module_set_enabled(semanage_handle_t *sh,
-+				const semanage_module_key_t *modkey,
-+				int enabled);
-+
-+/* Lookup @modinfo by @modkey. Caller should use
-+ * semanage_module_info_destroy and free on @modinfo.
-+ * 
-+ * Returns 0 on success and -1 on error.
-+ */
-+int semanage_module_get_module_info(semanage_handle_t *sh,
-+				    const semanage_module_key_t *modkey,
-+				    semanage_module_info_t **modinfo);
-+
-+/* Create a list of all modules in @modinfos of length @modinfos_len.
-+ * The list will be sorted from high priority to low and alphabetically
-+ * by module name within a priority.
-+ *
-+ * Caller should use semanage_module_info_destroy on each modinfo in
-+ * @modinfos and free on @modinfos.
-+ *
-+ * Returns 0 on success and -1 on error.
-+ */
-+int semanage_module_list_all(semanage_handle_t *sh,
-+			     semanage_module_info_t **modinfos,
-+			     int *modinfos_len);
-+
- #endif
-diff --git a/libsemanage/src/policy.h b/libsemanage/src/policy.h
-index ebefc02..d232ba8 100644
---- a/libsemanage/src/policy.h
-+++ b/libsemanage/src/policy.h
-@@ -70,6 +70,27 @@ struct semanage_policy_table {
- 
- 	/* Install a base module */
- 	int (*install_base_file) (struct semanage_handle *, const char *);
-+
-+	/* Get module enabled status */
-+	int (*get_enabled) (struct semanage_handle *sh,
-+			    const semanage_module_key_t *key,
-+			    int *enabled);
-+
-+	/* Set module enabled status */
-+	int (*set_enabled) (struct semanage_handle *sh,
-+			    const semanage_module_key_t *key,
-+			    int enabled);
-+
-+	/* Get a module info */
-+	int (*get_module_info) (struct semanage_handle *,
-+				const semanage_module_key_t *,
-+				semanage_module_info_t **);
-+
-+	/* List all policy modules */
-+	int (*list_all) (struct semanage_handle *,
-+			 semanage_module_info_t **,
-+			 int *);
-+
- };
- 
- /* Should be backend independent */
+diff --git a/libsemanage/utils/semanage_migrate_etc_to_var.py b/libsemanage/utils/semanage_migrate_etc_to_var.py
+new file mode 100755
+index 0000000..71dd6f5
+--- /dev/null
++++ b/libsemanage/utils/semanage_migrate_etc_to_var.py
+@@ -0,0 +1,301 @@
++#!/usr/bin/python -E
++
++
++import os
++import errno
++import shutil
++import sys
++from optparse import OptionParser
++
++import bz2
++import ctypes
++
++sepol = ctypes.cdll.LoadLibrary('libsepol.so')
++
++try:
++	import selinux
++	import semanage
++except:
++	print >> sys.stderr, "You must install libselinux-python and libsemanage-python before running this tool"
++	exit(1)
++
++
++
++
++# For some reason this function doesn't exist in libselinux :\
++def copy_with_context(src, dst):
++	if DEBUG:
++		print "copying %s to %s" % (src, dst)
++	try:
++		con = selinux.lgetfilecon_raw(src)[1]
++	except:
++		print >> sys.stderr, "Could not get file context of %s" % src
++		exit(1)
++
++	try:
++		selinux.setfscreatecon_raw(con)
++	except:
++		print >> sys.stderr, "Could not set fs create context: %s" %con
++		exit(1)
++
++	try:
++		shutil.copy2(src, dst)
++	except OSError as (err, strerr):
++		print >> sys.stderr, "Could not copy %s to %s, %s" %(src, dst, strerr)
++
++def create_dir_from(src, dst, mode):
++	if DEBUG: print "Making directory %s" % dst
++	try:
++		con = selinux.lgetfilecon_raw(src)[1]
++		selinux.setfscreatecon_raw(con)
++		os.mkdir(dst, mode)	
++	except OSError as (err, stderr):
++		if err == errno.EEXIST:
++			pass
++		else:
++			print >> sys.stderr, "Error creating %s" % dst
++			exit(1)
++	
++def copy_module(store, name, con, base):
++	if DEBUG: print "Install module %s" % name	
++	(file, ext) = os.path.splitext(name)
++	if ext != ".pp":
++		# Stray non-pp file in modules directory, skip
++		print >> sys.stderr, "warning: %s has invalid extension, skipping" % name
++		return
++	try:
++		selinux.setfscreatecon_raw(con)
++	
++		if base:
++			root = oldstore_path(store)
++		else:
++			root = oldmodules_path(store)
++
++		bottomdir = bottomdir_path(store)
++			
++		# Special case "base" since you can have modules named base 
++		if base:
++			file = "_base"
++
++		os.mkdir("%s/%s" % (bottomdir, file))
++
++		copy_with_context(os.path.join(root, name), "%s/%s/%s%s" % (bottomdir, file, file, ext))
++
++		# This is the ext file that will eventually be used to choose a compiler
++		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0600)
++		efile.write("pp")
++		efile.close()
++
++		# This is the version file that stores the version of the module
++		version = "1.0.0"
++		if not base:
++			try:
++				pf = ctypes.c_void_p()
++				sepol.sepol_policy_file_create(ctypes.byref(pf))
++
++				pbuffer = None
++				try:
++					pbuffer = bz2.BZ2File(os.path.join(root, name)).read()
++				except:
++					pbuffer = open(os.path.join(root, name)).read()
++
++				if (pbuffer == None):
++					raise Exception("Unable read policy file into memory.")
++
++				cbuffer = ctypes.create_string_buffer(pbuffer)
++				sepol.sepol_policy_file_set_mem(pf, cbuffer, len(cbuffer))
++
++				header_file_type = ctypes.c_int()
++				header_name = ctypes.c_char_p()
++				header_version = ctypes.c_char_p()
++
++				ret = sepol.sepol_module_package_info(pf, ctypes.byref(header_file_type), ctypes.byref(header_name), ctypes.byref(header_version))
++				if (ret != 0):
++					raise Exception("Unable to parse package header.")
++
++				version = header_version.value
++
++				sepol.sepol_policy_file_free(pf)
++
++			except Exception as e:
++				print >> sys.stderr, e
++				print >> sys.stderr, "warning: unable to determine version, using default value"
++
++		efile = open("%s/%s/version" % (bottomdir, file), "w+", 0600)
++		efile.write(version)
++		efile.close()
++
++	except:
++		print >> sys.stderr, "Error installing module %s" % name
++
++def migrate_store(store):
++
++	oldstore = oldstore_path(store);
++	oldmodules = oldmodules_path(store);
++	newstore = newstore_path(store);
++	newmodules = newmodules_path(store);
++	bottomdir = bottomdir_path(store);
++
++	print "Migrating from %s to %s" % (oldstore, newstore)
++
++	# Build up new directory structure
++	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0755)
++	create_dir_from(oldmodules, newstore, 0700)
++	create_dir_from(oldstore, newmodules, 0700)
++	create_dir_from(oldstore, bottomdir, 0700)
++
++	# use whatever the file context of bottomdir is for the module directories
++	con = selinux.lgetfilecon_raw(bottomdir)[1]
++
++	# Special case for base since it was in a different location
++	copy_module(store, "base.pp", con, 1)
++
++	# Dir structure built, start copying files
++	for root, dirs, files in os.walk(oldstore):
++		if root == oldstore:
++			# This is the top level directory, need to move 
++			for name in files:
++				# Check to see if it is in TOPPATHS and copy if so
++				if name in TOPPATHS:
++					copy_with_context(os.path.join(root, name), os.path.join(newstore, name))
++
++		elif root == oldmodules:
++			# This should be the modules directory
++			for name in files:
++				copy_module(store, name, con, 0)
++
++def rebuild_policy():
++	# Ok, the modules are loaded, lets try to rebuild the policy
++	print "Attempting to rebuild policy from %s" % newroot_path()
++
++	curstore = selinux.selinux_getpolicytype()[1]
++
++	handle = semanage.semanage_handle_create()
++	if not handle:
++		print >> sys.stderr, "Could not create semanage handle"
++		exit(1)
++
++	semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
++
++	if not semanage.semanage_is_managed(handle):
++		semanage.semanage_handle_destroy(handle)
++		print >> sys.stderr, "SELinux policy is not managed or store cannot be accessed."
++		exit(1)
++
++	rc = semanage.semanage_access_check(handle)
++	if rc < semanage.SEMANAGE_CAN_WRITE:
++		semanage.semanage_handle_destroy(handle)
++		print >> sys.stderr, "Cannot write to policy store."
++		exit(1)
++
++	rc = semanage.semanage_connect(handle)
++	if rc < 0:
++		semanage.semanage_handle_destroy(handle)
++		print >> sys.stderr, "Could not establish semanage connection"
++		exit(1)
++
++	semanage.semanage_set_rebuild(handle, 1)
++
++	rc = semanage.semanage_begin_transaction(handle)
++	if rc < 0:
++		semanage.semanage_handle_destroy(handle)
++		print >> sys.stderr, "Could not begin transaction"
++		exit(1)
++
++	rc = semanage.semanage_commit(handle)
++	if rc < 0:
++		print >> sys.stderr, "Could not commit transaction"
++
++	semanage.semanage_handle_destroy(handle)
++
++
++def oldroot_path():
++	return "/etc/selinux"
++
++def oldstore_path(store):
++	return "%s/%s/modules/active" % (oldroot_path(), store)
++
++def oldmodules_path(store):
++	return "%s/modules" % oldstore_path(store)
++
++def newroot_path():
++	return "/var/lib/selinux"
++
++def newstore_path(store):
++	return "%s/%s/active" % (newroot_path(), store)
++
++def newmodules_path(store):
++	return "%s/modules" % newstore_path(store)
++
++def bottomdir_path(store):
++	return "%s/%s" % (newmodules_path(store), PRIORITY)
++
++
++if __name__ == "__main__":
++
++	parser = OptionParser()
++	parser.add_option("-p", "--priority", dest="priority", default="100",
++			  help="Set priority of modules in new store (default: 100)")
++	parser.add_option("-s", "--store", dest="store", default=None,
++			  help="Store to read from and write to")
++	parser.add_option("-d", "--debug", dest="debug", action="store_true", default=False,
++			  help="Output debug information")
++	parser.add_option("-c", "--clean", dest="clean", action="store_true", default=False,
++			  help="Clean old modules directory after migrate (default: no)")
++
++	(options, args) = parser.parse_args()
++
++	DEBUG = options.debug
++	PRIORITY = options.priority
++	TYPE = options.store
++	CLEAN = options.clean
++
++	# List of paths that go in the active 'root'
++	TOPPATHS = [
++		"file_contexts",
++		"homedir_template",
++		"file_contexts.template",
++		"commit_num",
++		"ports.local",
++		"interfaces.local",
++		"nodes.local",
++		"booleans.local",
++		"file_contexts.local",
++		"seusers",
++		"users.local",
++		"users_extra.local",
++		"seusers.final",
++		"users_extra",
++		"netfilter_contexts",
++		"file_contexts.homedirs",
++		"disable_dontaudit" ]
++
++
++	create_dir_from(oldroot_path(), newroot_path(), 0755)
++
++	stores = None
++	if TYPE is not None:
++		stores = [TYPE]
++	else:
++		stores = os.listdir(oldroot_path())
++
++	# find stores in oldroot and migrate them to newroot if necessary
++	for store in stores:
++		if not os.path.isdir(oldmodules_path(store)):
++			# already migrated or not an selinux store
++			continue
++
++		if os.path.isdir(newstore_path(store)):
++			# store has already been migrated, but old modules dir still exits
++			print >> sys.stderr, "warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store
++			continue
++
++		migrate_store(store)
++
++		if CLEAN is True:
++			def remove_error(function, path, execinfo):
++				print >> sys.stderr, "warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store)
++			shutil.rmtree(oldmodules_path(store), onerror=remove_error)
++
++	rebuild_policy()
++
 -- 
 1.6.0.4
 
