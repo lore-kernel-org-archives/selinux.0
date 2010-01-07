@@ -1,86 +1,291 @@
-Message-ID: <4B464986.9070601@redhat.com>
-Date: Thu, 07 Jan 2010 15:52:22 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Hasan Rezaul-CHR010 <CHR010@motorola.com>,
-        "Tomas, Gregg A (IS)" <Gregg.Tomas@ngc.com>, selinux@tycho.nsa.gov
-Subject: Re: Help with an SELinux AVC event...
-References: <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com>	 <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil>	 <D06FE0A2807BC145B0D38744789D4F5D02DF4964@de01exm68.ds.mot.com> <1262897031.2821.88.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1262897031.2821.88.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [RFC][PATCH] selinux:  convert range transition list to a hashtab
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Thu, 07 Jan 2010 15:55:16 -0500
+Message-Id: <1262897716.2821.100.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/07/2010 03:43 PM, Stephen Smalley wrote:
-> On Thu, 2010-01-07 at 15:37 -0500, Hasan Rezaul-CHR010 wrote:
->> Hi All,
->>
->> I have a C application task called "sswd" on my Linux system, that
->> opens up the /var/log/audit/audit.log file every 5 seconds, and checks
->> to see if there are any new AVC denies.
->>
->> I have had this same task doing the same thing for the last few years
->> on a Linux system running selinux. And I have never seen these events
->> in audit.log before complaining about the sswd task... I used to use
->> older selinux packages, and ran the Fedora Core 7 'strict' policy
->> together with some custom policies.
->>
->> Recently we upgraded our SELinux packages to the very latest (similar
->> to Fedora 12), and we are using Refpolicy as a base policy.
->>
->> In the /var/log/audit/audit.log file, I see the following event pop up
->> every 5 seconds, and I am guessing its because "sswd" tries to open up
->> the audit.log file every 5 seconds for reading.
->>
->> 1. Can you help me understand what this event is really saying?
->> 2. I have already taken the audit.log file, and used audit2allow to
->> generate any allow rules necessary, but it didnt help to get rid of
->> this particular event.
->> 3. Can I add any specific policy allow lines or transition rules in my
->> custom policy files to get rid of this repeated event ?
->>
->> Thanks in advance.
->>
->> The event that pops up every 5 seconds in audit.log is:
->>
->> type=SYSCALL msg=audit(1262874266.422:260): arch=14 syscall=5
->> success=yes exit=24 a0=1002b9e4 a1=0 a2=1b6 a3=1b6 items=1 ppid=2463
->> pid=2794 auid=4294967295 uid=0 gid=601 euid=0 suid=0 fsuid=0 egid=601
->> sgid=601 fsgid=601 tty=(none) ses=4294967295 comm="sswd"
->> exe="/usr/app/bin/sswd" subj=system_u:system_r:init_t:s0-s15:c0.c255
->> key="LOG_audit"
->> type=CWD msg=audit(1262874266.422:260):  cwd="/data"
->> type=PATH msg=audit(1262874266.422:260): item=0
->> name="/var/log/audit/audit.log" inode=2061 dev=fd:07 mode=0100600
->> ouid=0 ogid=0 rdev=00:00
->> obj=system_u:object_r:auditd_log_t:s15:c0.c255
-> 
-> That's your audit configuration (/etc/audit/audit.rules), not SELinux.
-> You have an audit rule that says to log all access to the audit log
-> file, presumably copied from the sample audit rules for the CAPP or LSPP
-> configurations.  Looks like this in audit.rules:
-> -w /var/log/audit/ -k LOG_audit
-> 
-> I think you'd be better off using audispd to dispatch audit events to
-> your program rather than directly reading audit.log yourself.
->>
->> root@hapWibbSc2:/var/log/audit# ps -eZ | grep sswd
->> system_u:system_r:init_t:s0-s15:c0.c255 2781 ? 00:00:00 sswd
->>
->> root@hapWibbSc2:/var/log/audit# cd /usr/app/bin
->> root@hapWibbSc2:/usr/app/bin# ls -l sswd
->> -rwxrwxr-x 1 root root 217204 Jan  1 07:49 sswd
->>
->> root@hapWibbSc2:/usr/app/bin# cd /var/log/audit/
->> root@hapWibbSc2:/var/log/audit#
->> root@hapWibbSc2:/var/log/audit# ls -lZ
->> -rw-------  root root system_u:object_r:auditd_log_t:s15:c0.c255
->> audit.log
->>
->>
->>
-You probably want to steal the code in sedisp in the setroubleshoot package, since this is exactly what it does.
+Per https://bugzilla.redhat.com/show_bug.cgi?id=548145
+there are sufficient range transition rules in modern (Fedora) policy to
+make mls_compute_sid a significant factor on the shmem file setup path
+due to the length of the range_tr list.  Replace the simple range_tr
+list with a hashtab inside the security server to help mitigate this
+problem.
+
+Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+
+---
+
+Comments, testing, performance measurements, etc. are welcome.
+Also tuning of the hash function is welcome.  You can see how it is doing by
+removing the leading _ in the #define _DEBUG_HASHES in policydb.c.
+
+ security/selinux/ss/mls.c      |   18 +++----
+ security/selinux/ss/policydb.c |  103 ++++++++++++++++++++++++++++++-----------
+ security/selinux/ss/policydb.h |    6 --
+ 3 files changed, 86 insertions(+), 41 deletions(-)
+
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index e6654b5..443ae73 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -513,7 +513,8 @@ int mls_compute_sid(struct context *scontext,
+ 		    u32 specified,
+ 		    struct context *newcontext)
+ {
+-	struct range_trans *rtr;
++	struct range_trans rtr;
++	struct mls_range *r;
+ 
+ 	if (!selinux_mls_enabled)
+ 		return 0;
+@@ -521,15 +522,12 @@ int mls_compute_sid(struct context *scontext,
+ 	switch (specified) {
+ 	case AVTAB_TRANSITION:
+ 		/* Look for a range transition rule. */
+-		for (rtr = policydb.range_tr; rtr; rtr = rtr->next) {
+-			if (rtr->source_type == scontext->type &&
+-			    rtr->target_type == tcontext->type &&
+-			    rtr->target_class == tclass) {
+-				/* Set the range from the rule */
+-				return mls_range_set(newcontext,
+-						     &rtr->target_range);
+-			}
+-		}
++		rtr.source_type = scontext->type;
++		rtr.target_type = tcontext->type;
++		rtr.target_class = tclass;
++		r = hashtab_search(policydb.range_tr, &rtr);
++		if (r)
++			return mls_range_set(newcontext, r);
+ 		/* Fallthrough */
+ 	case AVTAB_CHANGE:
+ 		if (tclass == policydb.process_class)
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index f036672..5b92c02 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -177,6 +177,21 @@ out_free_role:
+ 	goto out;
+ }
+ 
++static u32 rangetr_hash(struct hashtab *h, const void *k)
++{
++	const struct range_trans *key = k;
++	return (key->source_type + (key->target_type << 3) +
++		(key->target_class << 5)) & (h->size - 1);
++}
++
++static int rangetr_cmp(struct hashtab *h, const void *k1, const void *k2)
++{
++	const struct range_trans *key1 = k1, *key2 = k2;
++	return (key1->source_type != key2->source_type ||
++		key1->target_type != key2->target_type ||
++		key1->target_class != key2->target_class);
++}
++
+ /*
+  * Initialize a policy database structure.
+  */
+@@ -204,6 +219,10 @@ static int policydb_init(struct policydb *p)
+ 	if (rc)
+ 		goto out_free_symtab;
+ 
++	p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
++	if (!p->range_tr)
++		goto out_free_symtab;
++
+ 	ebitmap_init(&p->policycaps);
+ 	ebitmap_init(&p->permissive_map);
+ 
+@@ -408,6 +427,20 @@ static void symtab_hash_eval(struct symtab *s)
+ 		       info.slots_used, h->size, info.max_chain_len);
+ 	}
+ }
++
++static void rangetr_hash_eval(struct hashtab *h)
++{
++	struct hashtab_info info;
++
++	hashtab_stat(h, &info);
++	printk(KERN_DEBUG "SELinux: rangetr:  %d entries and %d/%d buckets used, "
++	       "longest chain length %d\n", h->nel,
++	       info.slots_used, h->size, info.max_chain_len);
++}
++#else
++static inline void rangetr_hash_eval(struct hashtab *h)
++{
++}
+ #endif
+ 
+ /*
+@@ -612,6 +645,17 @@ static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
+ 	cat_destroy,
+ };
+ 
++static int range_tr_destroy(void *key, void *datum, void *p)
++{
++	struct mls_range *rt = datum;
++	kfree(key);
++	ebitmap_destroy(&rt->level[0].cat);
++	ebitmap_destroy(&rt->level[1].cat);
++	kfree(datum);
++	cond_resched();
++	return 0;
++}
++
+ static void ocontext_destroy(struct ocontext *c, int i)
+ {
+ 	context_destroy(&c->context[0]);
+@@ -632,7 +676,6 @@ void policydb_destroy(struct policydb *p)
+ 	int i;
+ 	struct role_allow *ra, *lra = NULL;
+ 	struct role_trans *tr, *ltr = NULL;
+-	struct range_trans *rt, *lrt = NULL;
+ 
+ 	for (i = 0; i < SYM_NUM; i++) {
+ 		cond_resched();
+@@ -693,20 +736,8 @@ void policydb_destroy(struct policydb *p)
+ 	}
+ 	kfree(lra);
+ 
+-	for (rt = p->range_tr; rt; rt = rt->next) {
+-		cond_resched();
+-		if (lrt) {
+-			ebitmap_destroy(&lrt->target_range.level[0].cat);
+-			ebitmap_destroy(&lrt->target_range.level[1].cat);
+-			kfree(lrt);
+-		}
+-		lrt = rt;
+-	}
+-	if (lrt) {
+-		ebitmap_destroy(&lrt->target_range.level[0].cat);
+-		ebitmap_destroy(&lrt->target_range.level[1].cat);
+-		kfree(lrt);
+-	}
++	hashtab_map(p->range_tr, range_tr_destroy, NULL);
++	hashtab_destroy(p->range_tr);
+ 
+ 	if (p->type_attr_map) {
+ 		for (i = 0; i < p->p_types.nprim; i++)
+@@ -1689,7 +1720,8 @@ int policydb_read(struct policydb *p, void *fp)
+ 	u32 len, len2, config, nprim, nel, nel2;
+ 	char *policydb_str;
+ 	struct policydb_compat_info *info;
+-	struct range_trans *rt, *lrt;
++	struct range_trans *rt;
++	struct mls_range *r;
+ 
+ 	config = 0;
+ 
+@@ -2122,44 +2154,61 @@ int policydb_read(struct policydb *p, void *fp)
+ 		if (rc < 0)
+ 			goto bad;
+ 		nel = le32_to_cpu(buf[0]);
+-		lrt = NULL;
+ 		for (i = 0; i < nel; i++) {
+ 			rt = kzalloc(sizeof(*rt), GFP_KERNEL);
+ 			if (!rt) {
+ 				rc = -ENOMEM;
+ 				goto bad;
+ 			}
+-			if (lrt)
+-				lrt->next = rt;
+-			else
+-				p->range_tr = rt;
+ 			rc = next_entry(buf, fp, (sizeof(u32) * 2));
+-			if (rc < 0)
++			if (rc < 0) {
++				kfree(rt);
+ 				goto bad;
++			}
+ 			rt->source_type = le32_to_cpu(buf[0]);
+ 			rt->target_type = le32_to_cpu(buf[1]);
+ 			if (new_rangetr) {
+ 				rc = next_entry(buf, fp, sizeof(u32));
+-				if (rc < 0)
++				if (rc < 0) {
++					kfree(rt);
+ 					goto bad;
++				}
+ 				rt->target_class = le32_to_cpu(buf[0]);
+ 			} else
+ 				rt->target_class = p->process_class;
+ 			if (!policydb_type_isvalid(p, rt->source_type) ||
+ 			    !policydb_type_isvalid(p, rt->target_type) ||
+ 			    !policydb_class_isvalid(p, rt->target_class)) {
++				kfree(rt);
+ 				rc = -EINVAL;
+ 				goto bad;
+ 			}
+-			rc = mls_read_range_helper(&rt->target_range, fp);
+-			if (rc)
++			r = kzalloc(sizeof(*r), GFP_KERNEL);
++			if (!r) {
++				kfree(rt);
++				rc = -ENOMEM;
+ 				goto bad;
+-			if (!mls_range_isvalid(p, &rt->target_range)) {
++			}
++			rc = mls_read_range_helper(r, fp);
++			if (rc) {
++				kfree(rt);
++				kfree(r);
++				goto bad;
++			}
++			if (!mls_range_isvalid(p, r)) {
+ 				printk(KERN_WARNING "SELinux:  rangetrans:  invalid range\n");
++				kfree(rt);
++				kfree(r);
++				goto bad;
++			}
++			rc = hashtab_insert(p->range_tr, rt, r);
++			if (rc) {
++				kfree(rt);
++				kfree(r);
+ 				goto bad;
+ 			}
+-			lrt = rt;
+ 		}
++		rangetr_hash_eval(p->range_tr);
+ 	}
+ 
+ 	p->type_attr_map = kmalloc(p->p_types.nprim*sizeof(struct ebitmap), GFP_KERNEL);
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index cdcc570..193736b 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -113,8 +113,6 @@ struct range_trans {
+ 	u32 source_type;
+ 	u32 target_type;
+ 	u32 target_class;
+-	struct mls_range target_range;
+-	struct range_trans *next;
+ };
+ 
+ /* Boolean data type */
+@@ -240,8 +238,8 @@ struct policydb {
+ 	   fixed labeling behavior. */
+ 	struct genfs *genfs;
+ 
+-	/* range transitions */
+-	struct range_trans *range_tr;
++	/* range transitions table (range_trans_key -> mls_range) */
++	struct hashtab *range_tr;
+ 
+ 	/* type -> attribute reverse mapping */
+ 	struct ebitmap *type_attr_map;
+
+
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
