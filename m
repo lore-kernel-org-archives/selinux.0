@@ -1,122 +1,72 @@
-Subject: Re: [RFC][PATCH] selinux: change the handling of unknown classes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        russell@coker.com.au, amworsley@gmail.com,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <201001080942.33039.paul.moore@hp.com>
-References: <20091218183016.9365.621.stgit@flek.lan>
-	 <1262901683.2821.141.camel@moss-pluto.epoch.ncsc.mil>
-	 <201001080942.33039.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Fri, 08 Jan 2010 09:52:04 -0500
-Message-Id: <1262962324.13162.9.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 04/13] libsemanage: split final files into
+ /var/lib/selinux/tmp
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Caleb Case <ccase@tresys.com>, selinux@tycho.nsa.gov, csellers@tresys.com,
+        kmacmillan@tresys.com, jbrindle@tresys.com
+In-Reply-To: <1262961058.13162.4.camel@moss-pluto.epoch.ncsc.mil>
+References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-2-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-3-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-4-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-5-git-send-email-ccase@tresys.com>
+	 <1262961058.13162.4.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 08 Jan 2010 10:07:56 -0500
+Message-ID: <1262963276.11210.33.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-01-08 at 09:42 -0500, Paul Moore wrote:
-> On Thursday 07 January 2010 05:01:23 pm Stephen Smalley wrote:
-> > If allow_unknown==deny, SELinux treats an undefined kernel security
-> > class as an error condition rather than as a typical permission denial
-> > and thus does not allow permissions on undefined classes even when in
-> > permissive mode.  Change the SELinux logic so that this case is handled
-> > as a typical permission denial, subject to the usual permissive mode
-> > logic.  This change only affects the kernel permission checking;
-> > userspace requests for access computations will still return errors upon
-> > invalid classes, since the userspace AVC handles mapping of classes and
-> > permissions for userspace object managers.
+On Fri, 2010-01-08 at 09:30 -0500, Stephen Smalley wrote:
+> On Wed, 2009-12-23 at 18:25 -0500, Caleb Case wrote:
+> > This patch moves the final files from inside
+> > /var/lib/selinux/<store>/[active|previous|tmp] to
+> > /var/lib/selinux/tmp/<store>. The move is done to facilitate using
+> > source control management on the /var/lib/selinux/<store> directory. If
+> > these files remain in /var/lib/selinux/<store> they will pose a size
+> > problem if an SCM like git is used as we'd be storing lots of binary
+> > diffs. We are suggesting making this change now, rather than later when
+> > source policy, SCM, and CIL[1] support are available, to ease the
+> > migration burden.
 > > 
-> > Also drop the 'requested' argument from security_compute_av() and
-> > helpers as it is a legacy of the original security server interface and
-> > is unused.
+> > These are the files that have been moved:
 > > 
-> > Based in part on a patch by Paul Moore <paul.moore@hp.com>.
+> > /var/lib/selinux/<store>/active/...	/var/lib/selinux/tmp/<store>/...
 > > 
-> > Reported-by: Andrew Worsley <amworsley@gmail.com>
-> > Signed-off-by: Stephen D. Smalley <sds@tycho.nsa.gov>
+> > file_contexts				contexts/files/file_contexts
+> > file_contexts.homedirs			contexts/files/file_contexts.homedirs
+> > file_contexts.local			contexts/files/file_contexts.local
+> > netfilter_contexts			contexts/netfilter_contexts
+> > policy.kern				policy/policy.<policyversion>
+> > seusers.final				seusers
+> > 
+> > The layout of these files in /var/lib/selinux/tmp/<store> is designed to
+> > mirror their locations in /etc/selinux/<store>. This should help clarify
+> > the relationship between these final files and the files installed in
+> > etc.
+> > 
+> > One consequence of this move is that reverting to the previous policy
+> > version requires a policy rebuild. Currently you can revert without
+> > rebuilding.
 > 
-> Thanks :)  I do have one question (below) ...
+> That seems a little worrisome to me, as a rebuild might fail, e.g. what
+> happens if we abort a transaction due to a lack of disk space and then
+> try to revert, requiring a rebuild, only to run out of space during the
+> rebuild?
 > 
-> > @@ -924,56 +899,48 @@ static int security_compute_av_core(u32 ssid,
-> >   * @ssid: source security identifier
-> >   * @tsid: target security identifier
-> >   * @tclass: target security class
-> > - * @requested: requested permissions
-> >   * @avd: access vector decisions
-> >   *
-> >   * Compute a set of access vector decisions based on the
-> >   * SID pair (@ssid, @tsid) for the permissions in @tclass.
-> > - * Return -%EINVAL if any of the parameters are invalid or %0
-> > - * if the access vector decisions were computed successfully.
-> >   */
-> > -int security_compute_av(u32 ssid,
-> > -			u32 tsid,
-> > -			u16 orig_tclass,
-> > -			u32 orig_requested,
-> > -			struct av_decision *avd)
-> > +void security_compute_av(u32 ssid,
-> > +			 u32 tsid,
-> > +			 u16 orig_tclass,
-> > +			 struct av_decision *avd)
-> >  {
-> >  	u16 tclass;
-> > -	u32 requested;
-> > -	int rc;
-> > 
-> >  	read_lock(&policy_rwlock);
-> > 
-> > +	avd->allowed = 0;
-> > +	avd->auditallow = 0;
-> > +	avd->auditdeny = 0xffffffff;
-> > +	avd->seqno = latest_granting;
-> > +	avd->flags = 0;
-> > +
-> >  	if (!ss_initialized)
-> >  		goto allow;
-> > 
-> > -	requested = unmap_perm(orig_tclass, orig_requested);
-> >  	tclass = unmap_class(orig_tclass);
-> >  	if (unlikely(orig_tclass && !tclass)) {
-> >  		if (policydb.allow_unknown)
-> >  			goto allow;
-> > -		rc = -EINVAL;
-> >  		goto out;
-> >  	}
-> 
-> Since we don't check for a permissive domain until security_compute_av_core() 
-> I assume this means that an unknown class will still cause problems for 
-> permissive domains when the system as a whole is in enforcing mode - or am I 
-> missing something?
+If the transaction is aborted then the policy hasn't actually been
+changed, so I don't think that this example would be a problem.  It is
+only after the transaction is complete that everything is written to the
+final location.  Or am I missing something?
 
-That sounds correct.  To address that, we'd have to move the processing
-required to set AVD_FLAGS_PERMISSIVE to the entry of
-security_compute_av(), which means we'd have to perform the lookup of
-the ssid and the ebitmap_get_bit() test in security_compute_av() [and
-security_compute_av_user()].  At which point we might as well inline all
-of security_compute_av_core() into its two callers.  
+It would be a problem only if changes were made to the policy, that
+policy loaded, there were problems, and then the rebuild of the previous
+policy fails.
 
-> 
-> > -	rc = security_compute_av_core(ssid, tsid, tclass, requested, avd);
-> > +	(void) security_compute_av_core(ssid, tsid, tclass, avd);
-> >  	map_decision(orig_tclass, avd, policydb.allow_unknown);
-> >  out:
-> >  	read_unlock(&policy_rwlock);
-> > -	return rc;
-> > +	return;
-> >  allow:
-> >  	avd->allowed = 0xffffffff;
-> > -	avd->auditallow = 0;
-> > -	avd->auditdeny = 0xffffffff;
-> > -	avd->seqno = latest_granting;
-> > -	avd->flags = 0;
-> > -	rc = 0;
-> >  	goto out;
-> >  }
->  
-> 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
