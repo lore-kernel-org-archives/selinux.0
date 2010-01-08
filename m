@@ -1,81 +1,152 @@
-Subject: Re: [PATCH 04/13] libsemanage: split final files into
- /var/lib/selinux/tmp
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jwcart2@tycho.nsa.gov
-Cc: Caleb Case <ccase@tresys.com>, selinux@tycho.nsa.gov, csellers@tresys.com,
-        kmacmillan@tresys.com, jbrindle@tresys.com
-In-Reply-To: <1262963276.11210.33.camel@localhost>
-References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-2-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-3-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-4-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-5-git-send-email-ccase@tresys.com>
-	 <1262961058.13162.4.camel@moss-pluto.epoch.ncsc.mil>
-	 <1262963276.11210.33.camel@localhost>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4AC1095A.9070504@redhat.com>
+References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com>
+	 <4AB139E8.50700@manicmethod.com> <4AB13E06.7020308@manicmethod.com>
+	 <4AB15164.1020507@redhat.com> <4ABAC3C3.1000100@manicmethod.com>
+	 <4ABBB78E.30501@manicmethod.com> <4ABBC642.8020709@manicmethod.com>
+	 <4AC1095A.9070504@redhat.com>
 Content-Type: text/plain
-Date: Fri, 08 Jan 2010 10:28:04 -0500
-Message-Id: <1262964484.13162.20.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 08 Jan 2010 10:32:20 -0500
+Message-Id: <1262964740.13162.24.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-01-08 at 10:07 -0500, James Carter wrote:
-> On Fri, 2010-01-08 at 09:30 -0500, Stephen Smalley wrote:
-> > On Wed, 2009-12-23 at 18:25 -0500, Caleb Case wrote:
-> > > This patch moves the final files from inside
-> > > /var/lib/selinux/<store>/[active|previous|tmp] to
-> > > /var/lib/selinux/tmp/<store>. The move is done to facilitate using
-> > > source control management on the /var/lib/selinux/<store> directory. If
-> > > these files remain in /var/lib/selinux/<store> they will pose a size
-> > > problem if an SCM like git is used as we'd be storing lots of binary
-> > > diffs. We are suggesting making this change now, rather than later when
-> > > source policy, SCM, and CIL[1] support are available, to ease the
-> > > migration burden.
-> > > 
-> > > These are the files that have been moved:
-> > > 
-> > > /var/lib/selinux/<store>/active/...	/var/lib/selinux/tmp/<store>/...
-> > > 
-> > > file_contexts				contexts/files/file_contexts
-> > > file_contexts.homedirs			contexts/files/file_contexts.homedirs
-> > > file_contexts.local			contexts/files/file_contexts.local
-> > > netfilter_contexts			contexts/netfilter_contexts
-> > > policy.kern				policy/policy.<policyversion>
-> > > seusers.final				seusers
-> > > 
-> > > The layout of these files in /var/lib/selinux/tmp/<store> is designed to
-> > > mirror their locations in /etc/selinux/<store>. This should help clarify
-> > > the relationship between these final files and the files installed in
-> > > etc.
-> > > 
-> > > One consequence of this move is that reverting to the previous policy
-> > > version requires a policy rebuild. Currently you can revert without
-> > > rebuilding.
+On Mon, 2009-09-28 at 15:07 -0400, Daniel J Walsh wrote:
+> On 09/24/2009 03:19 PM, Joshua Brindle wrote:
+> > Joshua Brindle wrote:
+> >> Joshua Brindle wrote:
+> >>>
+> >>>
+> >>> Daniel J Walsh wrote:
+> >>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
+> >>>>>
+> >>>>> Joshua Brindle wrote:
+> >>>>>>
+> >>>>>> Daniel J Walsh wrote:
+> >>>>>>> What do you think of this one. Removed excess swig cruft,
+> >>>>>>>
+> >>>>>>> You need to run
+> >>>>>>>
+> >>>>>>> make swigify to generate those changes.
+> >>>>>>>
+> >>>>>> Ok, looking at this now. I don't completely get how it works. I'm
+> >>>>>> trying
+> >>>>>> to reproduce what you are doing by hand but nothing comes out of gcc:
+> >>>>>>
+> >>>>>> [root@localhost src]# echo '#include "../include/selinux/selinux.h"'>
+> >>>>>> temp.c
+> >>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+> >>>>>> [root@localhost src]# ls temp.*
+> >>>>>> temp.c temp.o
+> >>>>>>
+> >>>>>>
+> >>>
+> >>> I got this "sort of" working locally. It works when I call it directly
+> >>> on the header but it leaves a .gch file sitting in the include
+> >>> directory.
+> >>>
+> >>> Trying to use stdin I get:
+> >>>
+> >>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux <
+> >>> ../include/selinux/selinux.h
+> >>> <stdin>:569: internal compiler error: Segmentation fault
+> >>> Please submit a full bug report,
+> >>> with preprocessed source if appropriate.
+> >>> See <http://bugzilla.redhat.com/bugzilla> for instructions.
+> >>>
+> >>>
+> >>> Other comments:
+> >>>
+> >>> The disconnect between swigify and clean targets remains: If make
+> >>> swigify builds this, and it is checked in to the tree then make clean
+> >>> shouldn't remove it, else it should be in the pywrap target and not
+> >>> installed.
+> >>>
+> >>> I'm not sure what the header re-ordering in selinuxswig.i and the
+> >>> copytree/install functions have to do with this patch.
+> >>>
+> >>
+> >>
+> >> Applied with this diff on top:
+> >>
+> >> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> >> index 928a1df..74b1e6a 100644
+> >> --- a/libselinux/src/Makefile
+> >> +++ b/libselinux/src/Makefile
+> >> @@ -16,14 +16,14 @@ LIBVERSION = 1
+> >>
+> >> LIBA=libselinux.a
+> >> TARGET=libselinux.so
+> >> -SWIGIF= selinuxswig_python.i
+> >> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+> >> SWIGRUBYIF= selinuxswig_ruby.i
+> >> SWIGCOUT= selinuxswig_wrap.c
+> >> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+> >> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+> >> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+> >> SWIGSO=_selinux.so
+> >> -SWIGFILES=$(SWIGSO) selinux.py
+> >> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+> >> SWIGRUBYSO=_rubyselinux.so
+> >> LIBSO=$(TARGET).$(LIBVERSION)
+> >> AUDIT2WHYSO=audit2why.so
+> >> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
+> >> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+> >> $(SWIGRUBY) $^
+> >>
+> >> -swigify: $(SWIGIF) selinuxswig_python_exception.i
+> >> +swigify: $(SWIGIF)
+> >> $(SWIG) $<
+> >>
+> >> install: all
+> >> @@ -127,7 +127,7 @@ relabel:
+> >> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+> >>
+> >> clean:
+> >> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+> >> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
+> >> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+> >> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
+> >>
+> >> distclean: clean
+> >> rm -f $(GENERATED) $(SWIGFILES)
+> >> diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+> >> old mode 100644
+> >> new mode 100755
+> >> index b2a3799..c3e61a5
+> >> --- a/libselinux/src/exception.sh
+> >> +++ b/libselinux/src/exception.sh
+> >> @@ -15,7 +15,6 @@ echo "
+> >> ;;
+> >> esac
+> >> }
+> >> -echo '#include "../include/selinux/selinux.h"' > temp.c
+> >> -gcc -c temp.c -aux-info temp.aux
+> >> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ { print $6
+> >> }' temp.aux`; do except $i ; done
+> >> -rm -f temp.c temp.aux temp.o
+> >> +gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
+> >> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except
+> >> $i ; done
+> >> +rm -f -- temp.aux -.o
+> >>
 > > 
-> > That seems a little worrisome to me, as a rebuild might fail, e.g. what
-> > happens if we abort a transaction due to a lack of disk space and then
-> > try to revert, requiring a rebuild, only to run out of space during the
-> > rebuild?
 > > 
-> If the transaction is aborted then the policy hasn't actually been
-> changed, so I don't think that this example would be a problem.  It is
-> only after the transaction is complete that everything is written to the
-> final location.  Or am I missing something?
+> > Merged in libselinux-2.0.87
 > 
-> It would be a problem only if changes were made to the policy, that
-> policy loaded, there were problems, and then the rebuild of the previous
-> policy fails.
+> 
+> I have VERSION 2.0.86 in git?
 
-I'm unclear on what state things would be left in.  I'm also unclear on
-the implications of writing these files to a single tmp/ location rather
-than having separate copies in active/, previous/, and tmp/ - I don't
-want us to unwittingly clobber files or leave them in intermediate
-states (as happened with the earlier attempt to hard link files among
-active/, previous/ and tmp/).
-
-I tried running the code but I seem to see these "final files" still
-under the individual <store> directories in /var/lib/selinux rather than
-under tmp/.
+This seems to break make install-pywrap on the current selinux trunk:
+bash exception.sh > selinuxswig_python_exception.i 
+swig -Wall -python -o selinuxswig_wrap.c -outdir ./ selinuxswig_python.i selinuxswig_python_exception.i
+swig error : Unrecognized option selinuxswig_python.i
+Use 'swig -help' for available options.
 
 -- 
 Stephen Smalley
