@@ -1,114 +1,143 @@
-Subject: Re: [PATCH 04/13] libsemanage: split final files into
- /var/lib/selinux/tmp
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>,
-        selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com
-In-Reply-To: <4B479D49.6090306@manicmethod.com>
-References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-2-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-3-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-4-git-send-email-ccase@tresys.com>
-	 <1261610760-4724-5-git-send-email-ccase@tresys.com>
-	 <1262961058.13162.4.camel@moss-pluto.epoch.ncsc.mil>
-	 <1262963276.11210.33.camel@localhost>
-	 <1262964484.13162.20.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B47933F.4040905@manicmethod.com>
-	 <1262982343.20881.17.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B4795F6.60505@manicmethod.com>  <4B479ACE.80305@manicmethod.com>
-	 <1262984338.20881.22.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B479D49.6090306@manicmethod.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 08 Jan 2010 16:12:11 -0500
-Message-ID: <1262985131.2093.18.camel@localhost>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH 13/13] semanage store migration script
+Date: Fri, 8 Jan 2010 16:27:46 -0500
+Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E0184DDE5@exchange2.columbia.tresys.com>
+In-Reply-To: <1262984376.2093.14.camel@localhost>
+References: <1261610760-4724-1-git-send-email-ccase@tresys.com> <1261610760-4724-2-git-send-email-ccase@tresys.com> <1261610760-4724-3-git-send-email-ccase@tresys.com> <1261610760-4724-4-git-send-email-ccase@tresys.com> <1261610760-4724-5-git-send-email-ccase@tresys.com> <1261610760-4724-6-git-send-email-ccase@tresys.com> <1261610760-4724-7-git-send-email-ccase@tresys.com> <1261610760-4724-8-git-send-email-ccase@tresys.com> <1261610760-4724-9-git-send-email-ccase@tresys.com> <1261610760-4724-10-git-send-email-ccase@tresys.com> <1261610760-4724-11-git-send-email-ccase@tresys.com> <1261610760-4724-12-git-send-email-ccase@tresys.com> <1261610760-4724-13-git-send-email-ccase@tresys.com> <1261610760-4724-14-git-send-email-ccase@tresys.com> <1262964893.13162.27.camel@moss-pluto.epoch.ncsc.mil> <1262984376.2093.14.camel@localhost>
+From: "Caleb Case" <ccase@tresys.com>
+To: <jwcart2@tycho.nsa.gov>, "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Chad Sellers" <csellers@tresys.com>,
+        "Karl MacMillan" <kmacmillan@tresys.com>,
+        "Joshua Brindle" <jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-01-08 at 16:02 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2010-01-08 at 15:51 -0500, Joshua Brindle wrote:
-> >> Joshua Brindle wrote:
-> >>>
-> >>> Stephen Smalley wrote:
-> >>>> On Fri, 2010-01-08 at 15:19 -0500, Joshua Brindle wrote:
-> >> <snip>
-> >>> oops, I foolishly scanned looking for policy.kern.
-> >>>
-> >> No, it is worse than that, I wasn't actually running the code I was
-> >> claiming to (as evidenced by the priority level and hll files)
-> >>
-> >> Up to patch 4 my /var/lib/selinux now looks like this:
-> >>
-> >> [root@F12 active]# find /var/lib/selinux/
-> >> /var/lib/selinux/
-> >> /var/lib/selinux/targeted
-> >> /var/lib/selinux/targeted/semanage.read.LOCK
-> >> /var/lib/selinux/targeted/semanage.trans.LOCK
-> >> /var/lib/selinux/targeted/active
-> >> /var/lib/selinux/targeted/active/modules
-> >> /var/lib/selinux/targeted/active/modules/abrt.pp
-> >> /var/lib/selinux/targeted/active/modules/ada.pp
-> >> ...
-> >> /var/lib/selinux/targeted/active/modules/xguest.pp
-> >> /var/lib/selinux/targeted/active/modules/zabbix.pp
-> >> /var/lib/selinux/targeted/active/modules/zebra.pp
-> >> /var/lib/selinux/targeted/active/modules/zosremote.pp
-> >> /var/lib/selinux/targeted/active/base.pp
-> >> /var/lib/selinux/targeted/active/file_contexts.template
-> >> /var/lib/selinux/targeted/active/homedir_template
-> >> /var/lib/selinux/targeted/active/users_extra
-> >> /var/lib/selinux/targeted/active/commit_num
-> >> /var/lib/selinux/tmp
-> >>
-> >>
-> >> so I don't have any final files in targeted anymore, though I didn't try
-> >> to stop semodule half-way and look in tmp.
+> -----Original Message-----
+> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
+> Sent: Friday, January 08, 2010 4:00 PM
+> To: Stephen Smalley
+> Cc: Caleb Case; selinux@tycho.nsa.gov; Chad Sellers; Karl MacMillan;
+> Joshua Brindle
+> Subject: Re: [PATCH 13/13] semanage store migration script
+> 
+> On Fri, 2010-01-08 at 10:34 -0500, Stephen Smalley wrote:
+> > On Wed, 2009-12-23 at 18:26 -0500, Caleb Case wrote:
+> > > We created a migration script to ease the burden of transition
+from
+> the
+> > > old libsemanage store layout to the new. The script will detect
+all
+> the
+> > > stores in /etc/selinux using the old layout and convert them to
+the
+> new
+> > > layout in /var/lib/selinux. It also allows you to specify the
+default
+> > > priority to use with -p and store to operate on with -s. After
+> migration
+> > > the script by default will leave the old store unchanged, but can
+be
+> > > told to remove the old modules directory with -c.
+> > >
+> > > Examples:
+> > >
+> > > # Migrate all stores to the new layout.
+> > > migrate.py
+> > >
+> > > Migrating from /etc/selinux/targeted/modules/active to
+> /var/lib/selinux/targeted/active
+> > > Attempting to rebuild policy from /var/lib/selinux
+> > >
+> > > # Migrate only the targeted store.
+> > > migrate.py -s targeted
+> > >
+> > > Migrating from /etc/selinux/targeted/modules/active to
+> /var/lib/selinux/targeted/active
+> > > Attempting to rebuild policy from /var/lib/selinux
+> > >
+> > > # Migrate all, but install to priority 150.
+> > > migrate.py -p 150
+> > >
+> > > Migrating from /etc/selinux/targeted/modules/active to
+> /var/lib/selinux/targeted/active
+> > > Attempting to rebuild policy from /var/lib/selinux
 > >
-> > I haven't tried only up through patch 4, only with all 13 patches
-> > applied.
+> > I tried the following:
+> > semanage login -a -s user_u pi
+> > cp -a /etc/selinux /etc/selinux.orig
+> > install new userland
+> > migrate.py
+> > diff -ru /etc/selinux.orig /etc/selinux
 > >
-> > Also, I have all Fedora policies installed (yum install
-> > selinux-policy*), so I have mls, targeted, and minimum, although
-> > targeted is the active one.
+> > The seusers entry for "pi" was dropped from the final seusers file
+in
+> > the rebuilt policy.
 > >
 > 
-> Are you running the migrate script? I believe it is erroneously copying 
-> final files into the store:
+> I saw the same thing.  I added a new login, but it does not show up
+> after the migration with "semanage login -l" even though it is
+> in /var/lib/selinux/targeted/active/seusers and seusers.final.
 > 
-> +	# List of paths that go in the active 'root'
-> +	TOPPATHS = [
-> +		"file_contexts",
-> +		"homedir_template",
-> +		"file_contexts.template",
-> +		"commit_num",
-> +		"ports.local",
-> +		"interfaces.local",
-> +		"nodes.local",
-> +		"booleans.local",
-> +		"file_contexts.local",
-> +		"seusers",
-> +		"users.local",
-> +		"users_extra.local",
-> +		"seusers.final",
-> +		"users_extra",
-> +		"netfilter_contexts",
-> +		"file_contexts.homedirs",
-> +		"disable_dontaudit" ]
-> +
+> booleans, ports, file contexts, and permissive domains all show up
+after
+> the migration, but there are some other issues.
 > 
-That does appear to be the case.  When I remove the final files, they do
-not reappear after I rebuild the policy.
+> 
+> 1)  For booleans I am getting this error:
+> 
+> # semanage boolean --on git_system_use_cifs
+> Traceback (most recent call last):
+>   File "/usr/sbin/semanage", line 460, in <module>
+>     process_args(sys.argv[1:])
+>   File "/usr/sbin/semanage", line 407, in process_args
+>     raise ValueError(_("Invalid command") % " ".join(argv))
+> TypeError: not all arguments converted during string formatting
+> 
+> 
+> 
+> 2)  Either the priority stuff doesn't work or I am doing something
+> wrong.  Shouldn't either of the following not display any modules
+since
+> they are all at priority 100?
+> 
+> "semodule -p 900 -l" or "semodule -p 900; semodule -l"
+> 
+> Both display all modules.
 
+The list command is not affected by the priority setting. Maybe it
+should be? Currently the priority is defaulted to 400 in semodule, but
+we could have it default to 0 and check in the -i/u/r cases for 0 and
+set to 400 and then filter the modules in -l if priority != 0.
+
+> 
+> 
+> 3)  I can't remove the permissive domain created before the migration
+> because the default priority level is 400, but the script put
+everything
+> at priority 100 and I don't know how to change the priority for
+> semanage.
+
+semanage hasn't been updated yet to let you specify priorities.
+
+> 
+> # semanage permissive -d httpd_t
+> libsemanage.semanage_direct_remove_key: Unable to remove module
+> directory
+/var/lib/selinux/targeted/tmp/modules/400/permissive_httpd_t.
+> (No such file or directory).
+> /usr/sbin/semanage: Could not remove permissive domain httpd_t (remove
+> failed)
+> 
+> 
+> Ports and file contexts addition and removal seems to work fine.
+> 
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> James Carter <jwcart2@tycho.nsa.gov>
+> National Security Agency
+> 
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
 
 
 --
