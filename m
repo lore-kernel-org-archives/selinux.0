@@ -1,235 +1,225 @@
-Subject: Re: [PATCH 00/13] RFC libsemanage move to var, enable/disable
- module, and priority support
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Chad Sellers <csellers@tresys.com>
-Cc: Caleb Case <ccase@tresys.com>, selinux@tycho.nsa.gov,
-        kmacmillan@tresys.com, jbrindle@tresys.com,
-        Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <C76BCA26.B1E12%csellers@tresys.com>
-References: <C76BCA26.B1E12%csellers@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 08 Jan 2010 09:30:29 -0500
-Message-ID: <1262961029.11210.6.camel@localhost>
+Subject: Re: [PATCH 03/13] libsemanage: move the module store to
+ /var/lib/selinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com,
+        jwcart2@tycho.nsa.gov, jbrindle@tresys.com
+In-Reply-To: <1261610760-4724-4-git-send-email-ccase@tresys.com>
+References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-2-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-3-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-4-git-send-email-ccase@tresys.com>
+Content-Type: text/plain
+Date: Fri, 08 Jan 2010 09:28:22 -0500
+Message-Id: <1262960902.13162.1.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-01-07 at 17:28 -0500, Chad Sellers wrote:
-> On 12/23/09 6:25 PM, "Caleb Case" <ccase@tresys.com> wrote:
-> 
-> > Our motivations for this patchset are to:
-> > 
-> > * Move the semanage store - the portion of the SELinux configuration
-> >   managed by libsemanage - to a more appropriate location in the
-> >   filesystem. The current location - in /etc - is designated for
-> >   administrator controlled configuration and is sometimes mounted
-> >   read-only. By storing binary, program managed data in /etc libsemanage
-> >   breaks administrator expectations.
-> > 
-> > * Enable the overriding of modules in the module store without require
-> >   the original modules to removed or modified. This allows
-> >   administrators to customize the policy more fully while allowing the
-> >   distribution provided policies to be left unmodified and continue to
-> >   be updated by the package manager.
-> > 
-> > * Provide the ability for an administrator to disable a module without
-> >   removing or overriding that module.
-> > 
-> > [Move to /var/lib/selinux]
-> > 
-> > Move the libsemanage private store
-> > from /etc/selinux/<policy type>/modules
-> > to   /var/lib/selinux/<policy type>
-> > 
-> > The benefits of this are:
-> > 
-> > * Permits the use of a read-only /etc.
-> > 
-> > * Conforms to the Filesystem Hierarchy Standard.
-> > 
-> > An additional change in layout structure moves the temporary space for
-> > the active policy to an external temporary space. This has the benefit
-> > of permitting source control management to be used on the private
-> > policy.
-> > 
-> > [Module Priorities]
-> > 
-> > Module priorities modify libsemanage and the module store to allow
-> > multiple modules with the same name to exist with different priorities.
-> > Only the highest priority module is used to create the final system
-> > policy. The addition of module priorities enables the modification of
-> > the system policy without modifying individual modules. For example, it
-> > allows an administrator to add his own policy module for apache,
-> > completely replacing the distribution provided module, without changing
-> > or removing the distribution policy. This has several benefits:
-> > 
-> > * Distribution provided policy package updates proceed normally - the
-> >   distribution policy is inserted but the administrator provided policy
-> >   remains active.
-> > 
-> > * Multiple levels allows distributors, 3rd party applications, system
-> >   management tools (e.g., puppet), and local administrators to all make
-> >   changes without conflicting.
-> > 
-> > * Semanage modifications of policy (e.g., port labeling) will be able to
-> >   use high priority modules in the future to override defaults (requires
-> >   the CIL[1] language changes).
-> > 
-> > [Enable/Disable Modules]
-> > 
-> > Modules gain an enabled / disabled status. Enabled modules are used by
-> > semanage when building the active policy, and disabled modules are
-> > ignored. The main benefit of this is that modules can be disabled
-> > without out removing them from the store.
-> > 
-> > [Patchset Breakdown]
-> > 
-> > The patchset is broken down as follows:
-> > 
-> > Bug fixes:
-> > 
-> > libsemanage: fix type in tests makefile -o -> -O
-> > 
-> > Move the libsemanage store to /var/lib/selinux:
-> > 
-> > semanage: move permissive module creation to /tmp
-> > libsemanage: move the module store to /var/lib/selinux
-> > libsemanage: split final files into /var/lib/selinux/tmp
-> > libsemanage: update unit tests for move to /var/lib/selinux
-> > 
-> > Implement support for the new libsemanage store layout:
-> > 
-> > libsemanage: add default priority to semanage_handle_t
-> > libsemanage: augment semanage_module_info_t and provide semanage_module_key_t
-> > libsemanage: get/set module info and enabled status
-> > libsemanage: provide function to get new base module path
-> > libsemanage: provide function to get new base module path
-> > libsemanage: installing/upgrading/removing modules via info and key
-> > 
-> > Provide private headers for upstream tools to use:
-> > 
-> > libsemanage: new private api for unstable functions
-> > 
-> > Extend semodule to support enable/disable, priorities, and detailed listings:
-> > 
-> > semodule: add priority, enabled, and extended listing
-> > 
-> > Migration script for moving the libsemanage store:
-> > 
-> > semanage store migration script
-> > 
-> > Thanks for you feedback!
-> > 
-> > Caleb
-> > 
-> > [1] CIL RFC: http://marc.info/?l=selinux&m=124759244409438&w=2
-> > 
-> > Caleb Case (13):
-> >   libsemanage: fix typo in tests makefile -o -> -O
-> >   semanage: move permissive module creation to /tmp
-> >   libsemanage: move the module store to /var/lib/selinux
-> >   libsemanage: split final files into /var/lib/selinux/tmp
-> >   libsemanage: update unit tests for move to /var/lib/selinux
-> >   libsemanage: add default priority to semanage_handle_t
-> >   libsemanage: augment semanage_module_info_t and provide
-> >     semanage_module_key_t
-> >   libsemanage: get/set module info and enabled status
-> >   libsemanage: provide function to get new base module path
-> >   libsemanage: installing/upgrading/removing modules via info and key
-> >   libsemanage: new private api for unstable functions
-> >   semodule: add priority, enabled, and extended listing
-> >   semanage store migration script
-> > 
-> >  libsemanage/include/Makefile                     |    3 +
-> >  libsemanage/include/semanage/private/handle.h    |   31 +
-> >  libsemanage/include/semanage/private/modules.h   |  281 ++++
-> >  libsemanage/include/semanage/private/semanage.h  |   26 +
-> >  libsemanage/src/boolean_internal.h               |    4 +-
-> >  libsemanage/src/booleans_file.c                  |    7 +-
-> >  libsemanage/src/booleans_policydb.c              |    6 +-
-> >  libsemanage/src/database_file.c                  |   45 +-
-> >  libsemanage/src/database_file.h                  |    3 +-
-> >  libsemanage/src/database_policydb.c              |   37 +-
-> >  libsemanage/src/database_policydb.h              |    3 +-
-> >  libsemanage/src/direct_api.c                     | 1652
-> > +++++++++++++++++++---
-> >  libsemanage/src/fcontext_internal.h              |    3 +-
-> >  libsemanage/src/fcontexts_file.c                 |    7 +-
-> >  libsemanage/src/genhomedircon.c                  |    3 +-
-> >  libsemanage/src/handle.c                         |   23 +
-> >  libsemanage/src/handle.h                         |    3 +
-> >  libsemanage/src/handle_internal.h                |    1 +
-> >  libsemanage/src/iface_internal.h                 |    4 +-
-> >  libsemanage/src/interfaces_file.c                |    7 +-
-> >  libsemanage/src/interfaces_policydb.c            |    6 +-
-> >  libsemanage/src/libsemanage.map                  |   26 +
-> >  libsemanage/src/module_internal.h                |   21 +
-> >  libsemanage/src/modules.c                        |  999 +++++++++++++-
-> >  libsemanage/src/modules.h                        |   76 +-
-> >  libsemanage/src/node_internal.h                  |    4 +-
-> >  libsemanage/src/nodes_file.c                     |    7 +-
-> >  libsemanage/src/nodes_policydb.c                 |    6 +-
-> >  libsemanage/src/policy.h                         |   36 +
-> >  libsemanage/src/port_internal.h                  |    4 +-
-> >  libsemanage/src/ports_file.c                     |    7 +-
-> >  libsemanage/src/ports_policydb.c                 |    6 +-
-> >  libsemanage/src/semanage_store.c                 |  794 ++++++++---
-> >  libsemanage/src/semanage_store.h                 |   47 +-
-> >  libsemanage/src/seuser_internal.h                |    4 +-
-> >  libsemanage/src/seusers_file.c                   |    7 +-
-> >  libsemanage/src/user_internal.h                  |    6 +-
-> >  libsemanage/src/users_base_file.c                |    7 +-
-> >  libsemanage/src/users_base_policydb.c            |    6 +-
-> >  libsemanage/src/users_extra_file.c               |    7 +-
-> >  libsemanage/tests/Makefile                       |    2 +-
-> >  libsemanage/tests/test_semanage_store.c          |   34 +-
-> >  libsemanage/utils/semanage_migrate_etc_to_var.py |  301 ++++
-> >  policycoreutils/semanage/seobject.py             |   15 +-
-> >  policycoreutils/semodule/semodule.8              |   25 +-
-> >  policycoreutils/semodule/semodule.c              |  242 +++-
-> >  46 files changed, 4267 insertions(+), 577 deletions(-)
-> >  create mode 100644 libsemanage/include/semanage/private/handle.h
-> >  create mode 100644 libsemanage/include/semanage/private/modules.h
-> >  create mode 100644 libsemanage/include/semanage/private/semanage.h
-> >  create mode 100755 libsemanage/utils/semanage_migrate_etc_to_var.py
-> > 
-> Well, there have been no comments on this patchset. I'm guessing that's
-> because:
-> 
-> 1) We've talked to some of you face to face about it already.
-> 2) It's a big patchset, and you'd want to try it out a bit before
-> commenting.
-> 
-I've been trying it out for the last few days.  I haven't had any
-problems yet.
+On Wed, 2009-12-23 at 18:25 -0500, Caleb Case wrote:
+> This patch moves the module store from /etc/selinux/<store>/modules to
+> /var/lib/selinux/<store>.
 
-> To address #2, I'd like to propose creating an upstream branch for these
-> changes. This patchset is actually just the first patchset in a larger
-> effort to improve policy infrastructure. I think an upstream branch will
-> make it easier for many people to track those changes and try out the new
-> features we're creating. Eventually that branch can be merged back into
-> master.
-> 
-> Thoughts?
+Can the path prefix (i.e. /var/lib/selinux) be made configurable?
 
-I think that creating an upstream branch would be a good idea.
-
+> This move will allow for the use of a read-only /etc/selinux. Currently
+> that is not possible with semanage because of the lock files.
 > 
-> Thanks,
-> Chad Sellers
+> A consequence of this move is that packagers of libsemanage should
+> create the /var/lib/selinux directory.
+> ---
+>  libsemanage/src/direct_api.c     |   20 ++----------------
+>  libsemanage/src/semanage_store.c |   39 ++++++++++++++++++++++++-------------
+>  libsemanage/src/semanage_store.h |    5 +++-
+>  3 files changed, 32 insertions(+), 32 deletions(-)
+> 
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index f09c7cf..5fb4523 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -89,12 +89,7 @@ static struct semanage_policy_table direct_funcs = {
 >  
-> Oh, and in case it wasn't implied:
-> Acked-by: Chad Sellers <csellers@tresys.com>
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
+>  int semanage_direct_is_managed(semanage_handle_t * sh)
+>  {
+> -	char polpath[PATH_MAX];
+> -
+> -	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+> -		 sh->conf->store_path);
+> -
+> -	if (semanage_check_init(polpath))
+> +	if (semanage_check_init(sh, semanage_root_path()))
+>  		goto err;
+>  
+>  	if (semanage_access_check(sh) < 0)
+> @@ -111,13 +106,9 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
+>   */
+>  int semanage_direct_connect(semanage_handle_t * sh)
+>  {
+> -	char polpath[PATH_MAX];
+>  	const char *path;
+>  
+> -	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+> -		 sh->conf->store_path);
+> -
+> -	if (semanage_check_init(polpath))
+> +	if (semanage_check_init(sh, semanage_root_path()))
+>  		goto err;
+>  
+>  	if (sh->create_store)
+> @@ -1416,12 +1407,7 @@ static int semanage_direct_list(semanage_handle_t * sh,
+>  
+>  int semanage_direct_access_check(semanage_handle_t * sh)
+>  {
+> -	char polpath[PATH_MAX];
+> -
+> -	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
+> -		 sh->conf->store_path);
+> -
+> -	if (semanage_check_init(polpath))
+> +	if (semanage_check_init(sh, semanage_root_path()))
+>  		return -1;
+>  
+>  	return semanage_store_access_check(sh);
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index 0a55ce0..049818a 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -3,8 +3,9 @@
+>   *	    Jason Tang <jtang@tresys.com>
+>   *          Christopher Ashworth <cashworth@tresys.com>
+>   *          Chris PeBenito <cpebenito@tresys.com>
+> + *	    Caleb Case <ccase@tresys.com>
+>   *
+> - * Copyright (C) 2004-2006 Tresys Technology, LLC
+> + * Copyright (C) 2004-2006,2009 Tresys Technology, LLC
+>   * Copyright (C) 2005 Red Hat, Inc.
+>   *
+>   *  This library is free software; you can redistribute it and/or
+> @@ -88,8 +89,6 @@ static const char *semanage_store_paths[SEMANAGE_NUM_STORES] = {
+>  	"/tmp"
+>  };
+>  
+> -/* this is the module store path relative to selinux_policy_root() */
+> -#define SEMANAGE_MOD_DIR "/modules"
+>  /* relative path names to enum sandbox_paths for special files within
+>   * a sandbox */
+>  static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
+> @@ -157,14 +156,14 @@ static int semanage_init_paths(const char *root)
+>  	if (!root)
+>  		return -1;
+>  
+> -	prefix_len = (strlen(root) + strlen(SEMANAGE_MOD_DIR));
+> +	prefix_len = strlen(root);
+>  
+>  	for (i = 0; i < SEMANAGE_NUM_FILES; i++) {
+>  		len = (strlen(semanage_relative_files[i]) + prefix_len);
+>  		semanage_files[i] = calloc(len + 1, sizeof(char));
+>  		if (!semanage_files[i])
+>  			return -1;
+> -		sprintf(semanage_files[i], "%s%s%s", root, SEMANAGE_MOD_DIR,
+> +		sprintf(semanage_files[i], "%s%s", root,
+>  			semanage_relative_files[i]);
+>  	}
+>  
+> @@ -186,16 +185,11 @@ static int semanage_init_store_paths(const char *root)
+>  	int i, j;
+>  	size_t len;
+>  	size_t prefix_len;
+> -	char *prefix;
+>  
+>  	if (!root)
+>  		return -1;
+>  
+> -	prefix_len = (strlen(root) + strlen(SEMANAGE_MOD_DIR));
+> -	prefix = calloc(prefix_len + 1, sizeof(char));
+> -	if (!prefix)
+> -		return -1;
+> -	sprintf(prefix, "%s%s", root, SEMANAGE_MOD_DIR);
+> +	prefix_len = strlen(root);
+>  
+>  	for (i = 0; i < SEMANAGE_NUM_STORES; i++) {
+>  		for (j = 0; j < SEMANAGE_STORE_NUM_PATHS; j++) {
+> @@ -204,14 +198,13 @@ static int semanage_init_store_paths(const char *root)
+>  			semanage_paths[i][j] = calloc(len + 1, sizeof(char));
+>  			if (!semanage_paths[i][j])
+>  				goto cleanup;
+> -			sprintf(semanage_paths[i][j], "%s%s%s", prefix,
+> +			sprintf(semanage_paths[i][j], "%s%s%s", root,
+>  				semanage_store_paths[i],
+>  				semanage_sandbox_paths[j]);
+>  		}
+>  	}
+>  
+>        cleanup:
+> -	free(prefix);
+>  	return 0;
+>  }
+>  
+> @@ -223,16 +216,28 @@ static int semanage_init_store_paths(const char *root)
+>   *
+>   * Note that this function is NOT thread-safe.
+>   */
+> -int semanage_check_init(const char *root)
+> +int semanage_check_init(semanage_handle_t *sh, const char *prefix)
+>  {
+>  	int rc;
+>  	if (semanage_paths_initialized == 0) {
+> +		char root[PATH_MAX];
+> +
+> +		rc = snprintf(root,
+> +			      sizeof(root),
+> +			      "%s/%s",
+> +			      prefix,
+> +			      sh->conf->store_path);
+> +		if (rc < 0 || rc >= (int)sizeof(root))
+> +			return -1;
+> +
+>  		rc = semanage_init_paths(root);
+>  		if (rc)
+>  			return rc;
+> +
+>  		rc = semanage_init_store_paths(root);
+>  		if (rc)
+>  			return rc;
+> +
+>  		semanage_paths_initialized = 1;
+>  	}
+>  	return 0;
+> @@ -259,6 +264,12 @@ const char *semanage_path(enum semanage_store_defs store,
+>  	return semanage_paths[store][path_name];
+>  }
+>  
+> +/* Return the root of the semanage store. */
+> +const char *semanage_root_path(void)
+> +{
+> +	return "/var/lib/selinux";
+> +}
+> +
+>  /* Return a fully-qualified path + filename to the semanage
+>   * configuration file.  The caller must not alter the string returned
+>   * (and hence why this function return type is const).
+> diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+> index 112edb6..c76ecfe 100644
+> --- a/libsemanage/src/semanage_store.h
+> +++ b/libsemanage/src/semanage_store.h
+> @@ -62,11 +62,14 @@ enum semanage_sandbox_defs {
+>  	SEMANAGE_STORE_NUM_PATHS
+>  };
+>  
+> +const char *semanage_root_path(void);
+> +
+>  /* FIXME: this needs to be made a module store specific init and the
+>   * global configuration moved to another file.
+>   */
+>  const char *semanage_conf_path(void);
+> -int semanage_check_init(const char *root);
+> +
+> +int semanage_check_init(semanage_handle_t *sh, const char *prefix);
+>  
+>  extern const char *semanage_fname(enum semanage_sandbox_defs file_enum);
+>  
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
