@@ -1,72 +1,166 @@
-Message-ID: <4B4795F6.60505@manicmethod.com>
-Date: Fri, 08 Jan 2010 15:30:46 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <4B47982E.2090000@redhat.com>
+Date: Fri, 08 Jan 2010 15:40:14 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: jwcart2@tycho.nsa.gov, Caleb Case <ccase@tresys.com>,
-        selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com
-Subject: Re: [PATCH 04/13] libsemanage: split final files into /var/lib/selinux/tmp
-References: <1261610760-4724-1-git-send-email-ccase@tresys.com>	 <1261610760-4724-2-git-send-email-ccase@tresys.com>	 <1261610760-4724-3-git-send-email-ccase@tresys.com>	 <1261610760-4724-4-git-send-email-ccase@tresys.com>	 <1261610760-4724-5-git-send-email-ccase@tresys.com>	 <1262961058.13162.4.camel@moss-pluto.epoch.ncsc.mil>	 <1262963276.11210.33.camel@localhost>	 <1262964484.13162.20.camel@moss-pluto.epoch.ncsc.mil>	 <4B47933F.4040905@manicmethod.com> <1262982343.20881.17.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1262982343.20881.17.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Caleb Case <ccase@tresys.com>, Chad Sellers <csellers@tresys.com>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+ bindings
+References: <C6A74D22.A99BD%csellers@tresys.com> <4A830B34.60402@redhat.com>	 <4AB139E8.50700@manicmethod.com> <4AB13E06.7020308@manicmethod.com>	 <4AB15164.1020507@redhat.com> <4ABAC3C3.1000100@manicmethod.com>	 <4ABBB78E.30501@manicmethod.com> <4ABBC642.8020709@manicmethod.com>	 <4AC1095A.9070504@redhat.com>	 <1262964740.13162.24.camel@moss-pluto.epoch.ncsc.mil>	 <1262981188.20881.13.camel@moss-pluto.epoch.ncsc.mil> <1262981971.20881.14.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1262981971.20881.14.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
-Stephen Smalley wrote:
-> On Fri, 2010-01-08 at 15:19 -0500, Joshua Brindle wrote:
->> Stephen Smalley wrote:
->>> On Fri, 2010-01-08 at 10:07 -0500, James Carter wrote:
->> <snip>
->>
->>> I tried running the code but I seem to see these "final files" still
->>> under the individual<store>   directories in /var/lib/selinux rather than
->>> under tmp/.
+On 01/08/2010 03:19 PM, Stephen Smalley wrote:
+> On Fri, 2010-01-08 at 15:06 -0500, Stephen Smalley wrote:
+>> On Fri, 2010-01-08 at 10:32 -0500, Stephen Smalley wrote:
+>>> On Mon, 2009-09-28 at 15:07 -0400, Daniel J Walsh wrote:
+>>>> On 09/24/2009 03:19 PM, Joshua Brindle wrote:
+>>>>> Joshua Brindle wrote:
+>>>>>> Joshua Brindle wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>> Daniel J Walsh wrote:
+>>>>>>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
+>>>>>>>>>
+>>>>>>>>> Joshua Brindle wrote:
+>>>>>>>>>>
+>>>>>>>>>> Daniel J Walsh wrote:
+>>>>>>>>>>> What do you think of this one. Removed excess swig cruft,
+>>>>>>>>>>>
+>>>>>>>>>>> You need to run
+>>>>>>>>>>>
+>>>>>>>>>>> make swigify to generate those changes.
+>>>>>>>>>>>
+>>>>>>>>>> Ok, looking at this now. I don't completely get how it works. I'm
+>>>>>>>>>> trying
+>>>>>>>>>> to reproduce what you are doing by hand but nothing comes out of gcc:
+>>>>>>>>>>
+>>>>>>>>>> [root@localhost src]# echo '#include "../include/selinux/selinux.h"'>
+>>>>>>>>>> temp.c
+>>>>>>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+>>>>>>>>>> [root@localhost src]# ls temp.*
+>>>>>>>>>> temp.c temp.o
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>
+>>>>>>> I got this "sort of" working locally. It works when I call it directly
+>>>>>>> on the header but it leaves a .gch file sitting in the include
+>>>>>>> directory.
+>>>>>>>
+>>>>>>> Trying to use stdin I get:
+>>>>>>>
+>>>>>>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux <
+>>>>>>> ../include/selinux/selinux.h
+>>>>>>> <stdin>:569: internal compiler error: Segmentation fault
+>>>>>>> Please submit a full bug report,
+>>>>>>> with preprocessed source if appropriate.
+>>>>>>> See <http://bugzilla.redhat.com/bugzilla> for instructions.
+>>>>>>>
+>>>>>>>
+>>>>>>> Other comments:
+>>>>>>>
+>>>>>>> The disconnect between swigify and clean targets remains: If make
+>>>>>>> swigify builds this, and it is checked in to the tree then make clean
+>>>>>>> shouldn't remove it, else it should be in the pywrap target and not
+>>>>>>> installed.
+>>>>>>>
+>>>>>>> I'm not sure what the header re-ordering in selinuxswig.i and the
+>>>>>>> copytree/install functions have to do with this patch.
+>>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Applied with this diff on top:
+>>>>>>
+>>>>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>>>>>> index 928a1df..74b1e6a 100644
+>>>>>> --- a/libselinux/src/Makefile
+>>>>>> +++ b/libselinux/src/Makefile
+>>>>>> @@ -16,14 +16,14 @@ LIBVERSION = 1
+>>>>>>
+>>>>>> LIBA=libselinux.a
+>>>>>> TARGET=libselinux.so
+>>>>>> -SWIGIF= selinuxswig_python.i
+>>>>>> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+>>>>>> SWIGRUBYIF= selinuxswig_ruby.i
+>>>>>> SWIGCOUT= selinuxswig_wrap.c
+>>>>>> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+>>>>>> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+>>>>>> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+>>>>>> SWIGSO=_selinux.so
+>>>>>> -SWIGFILES=$(SWIGSO) selinux.py
+>>>>>> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+>>>>>> SWIGRUBYSO=_rubyselinux.so
+>>>>>> LIBSO=$(TARGET).$(LIBVERSION)
+>>>>>> AUDIT2WHYSO=audit2why.so
+>>>>>> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
+>>>>>> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+>>>>>> $(SWIGRUBY) $^
+>>>>>>
+>>>>>> -swigify: $(SWIGIF) selinuxswig_python_exception.i
+>>>>>> +swigify: $(SWIGIF)
+>>>>>> $(SWIG) $<
+>>>>>>
+>>>>>> install: all
+>>>>>> @@ -127,7 +127,7 @@ relabel:
+>>>>>> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+>>>>>>
+>>>>>> clean:
+>>>>>> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
+>>>>>> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
+>>>>>>
+>>>>>> distclean: clean
+>>>>>> rm -f $(GENERATED) $(SWIGFILES)
+>>>>>> diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+>>>>>> old mode 100644
+>>>>>> new mode 100755
+>>>>>> index b2a3799..c3e61a5
+>>>>>> --- a/libselinux/src/exception.sh
+>>>>>> +++ b/libselinux/src/exception.sh
+>>>>>> @@ -15,7 +15,6 @@ echo "
+>>>>>> ;;
+>>>>>> esac
+>>>>>> }
+>>>>>> -echo '#include "../include/selinux/selinux.h"' > temp.c
+>>>>>> -gcc -c temp.c -aux-info temp.aux
+>>>>>> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ { print $6
+>>>>>> }' temp.aux`; do except $i ; done
+>>>>>> -rm -f temp.c temp.aux temp.o
+>>>>>> +gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
+>>>>>> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except
+>>>>>> $i ; done
+>>>>>> +rm -f -- temp.aux -.o
+>>>>>>
+>>>>>
+>>>>>
+>>>>> Merged in libselinux-2.0.87
+>>>>
+>>>>
+>>>> I have VERSION 2.0.86 in git?
 >>>
->> I built patches 1-4 and made a fresh store from whatever was in
->> /etc/selinux and I did not have any final files under
->> /var/lib/selinux/targeted:
+>>> This seems to break make install-pywrap on the current selinux trunk:
+>>> bash exception.sh > selinuxswig_python_exception.i 
+>>> swig -Wall -python -o selinuxswig_wrap.c -outdir ./ selinuxswig_python.i selinuxswig_python_exception.i
+>>> swig error : Unrecognized option selinuxswig_python.i
+>>> Use 'swig -help' for available options.
 >>
->> [root@F12 selinux]# pwd
->> /var/lib/selinux
->> [root@F12 selinux]# find
->> .
->> ./targeted
->> ./targeted/active
->> ./targeted/active/modules
->> ./targeted/active/modules/100
->> ./targeted/active/modules/100/_base
->> ./targeted/active/modules/100/_base/hll
->> ./targeted/active/modules/100/_base/ext
->>
->> ...
->>
->> ./targeted/active/modules/100/milter
->> ./targeted/active/modules/100/milter/hll
->> ./targeted/active/modules/100/milter/ext
->> ./targeted/active/modules/100/permissive_bin_t
->> ./targeted/active/modules/100/permissive_bin_t/hll
->> ./targeted/active/modules/100/permissive_bin_t/ext
->> ./targeted/active/file_contexts.template
->> ./targeted/active/file_contexts
->
-> That's a final file.
->
->> ./targeted/active/homedir_template
->> ./targeted/active/seusers.final
->
-> And there is one.
->
->> ./targeted/active/users_extra
->> ./targeted/active/netfilter_contexts
->
-> And another.
->
->> ./targeted/active/file_contexts.homedirs
->> ./targeted/active/commit_num
+>> This btw prevents use of Caleb's patches on Fedora 12.  If I can't build
+>> and install the python modules from the selinux repo, then there is an
+>> undefined dependency from the Fedora libsemanage-python module on the
+>> upstream libsemanage (some symbol introduced in the Fedora patches to
+>> libsemanage) and thus migrate.py is unable to import semanage and
+>> aborts.
+> 
+> Hmm...if I make swigify, all is well again.  But something seems wrong
+> with the Makefile...
+> 
+Lets stop carrying the patch for swigified c and py file from the package and force you to have to run make swigify in the build procedure.
 
-oops, I foolishly scanned looking for policy.kern.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
