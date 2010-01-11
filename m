@@ -1,81 +1,179 @@
-Subject: RE: Security Context Type Changes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Tomas, Gregg A (IS)" <Gregg.Tomas@ngc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com>
-References: 
-	 <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com>
-	 <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil>
-	 <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com>
-Content-Type: text/plain
-Date: Mon, 11 Jan 2010 14:24:06 -0500
-Message-Id: <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+Subject: RE: [PATCH 13/13] semanage store migration script
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Caleb Case <ccase@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E0184DDE5@exchange2.columbia.tresys.com>
+References: <1261610760-4724-1-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-2-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-3-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-4-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-5-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-6-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-7-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-8-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-9-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-10-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-11-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-12-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-13-git-send-email-ccase@tresys.com>
+	 <1261610760-4724-14-git-send-email-ccase@tresys.com>
+	 <1262964893.13162.27.camel@moss-pluto.epoch.ncsc.mil>
+	 <1262984376.2093.14.camel@localhost>
+	 <06A6610D4F464D4EBEAFBF2C5F86911E0184DDE5@exchange2.columbia.tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 11 Jan 2010 14:53:59 -0500
+Message-ID: <1263239639.2075.9.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2010-01-10 at 17:43 -0600, Tomas, Gregg A (IS) wrote:
-> Thank you Stephen for replying.
+On Fri, 2010-01-08 at 16:27 -0500, Caleb Case wrote:
+> > -----Original Message-----
+> > From: James Carter [mailto:jwcart2@tycho.nsa.gov]
+> > Sent: Friday, January 08, 2010 4:00 PM
+> > To: Stephen Smalley
+> > Cc: Caleb Case; selinux@tycho.nsa.gov; Chad Sellers; Karl MacMillan;
+> > Joshua Brindle
+> > Subject: Re: [PATCH 13/13] semanage store migration script
+> > 
+> > On Fri, 2010-01-08 at 10:34 -0500, Stephen Smalley wrote:
+> > > On Wed, 2009-12-23 at 18:26 -0500, Caleb Case wrote:
+> > > > We created a migration script to ease the burden of transition
+> from
+> > the
+> > > > old libsemanage store layout to the new. The script will detect
+> all
+> > the
+> > > > stores in /etc/selinux using the old layout and convert them to
+> the
+> > new
+> > > > layout in /var/lib/selinux. It also allows you to specify the
+> default
+> > > > priority to use with -p and store to operate on with -s. After
+> > migration
+> > > > the script by default will leave the old store unchanged, but can
+> be
+> > > > told to remove the old modules directory with -c.
+> > > >
+> > > > Examples:
+> > > >
+> > > > # Migrate all stores to the new layout.
+> > > > migrate.py
+> > > >
+> > > > Migrating from /etc/selinux/targeted/modules/active to
+> > /var/lib/selinux/targeted/active
+> > > > Attempting to rebuild policy from /var/lib/selinux
+> > > >
+> > > > # Migrate only the targeted store.
+> > > > migrate.py -s targeted
+> > > >
+> > > > Migrating from /etc/selinux/targeted/modules/active to
+> > /var/lib/selinux/targeted/active
+> > > > Attempting to rebuild policy from /var/lib/selinux
+> > > >
+> > > > # Migrate all, but install to priority 150.
+> > > > migrate.py -p 150
+> > > >
+> > > > Migrating from /etc/selinux/targeted/modules/active to
+> > /var/lib/selinux/targeted/active
+> > > > Attempting to rebuild policy from /var/lib/selinux
+> > >
+> > > I tried the following:
+> > > semanage login -a -s user_u pi
+> > > cp -a /etc/selinux /etc/selinux.orig
+> > > install new userland
+> > > migrate.py
+> > > diff -ru /etc/selinux.orig /etc/selinux
+> > >
+> > > The seusers entry for "pi" was dropped from the final seusers file
+> in
+> > > the rebuilt policy.
+> > >
+> > 
+> > I saw the same thing.  I added a new login, but it does not show up
+> > after the migration with "semanage login -l" even though it is
+> > in /var/lib/selinux/targeted/active/seusers and seusers.final.
+> > 
+> > booleans, ports, file contexts, and permissive domains all show up
+> after
+> > the migration, but there are some other issues.
+> > 
+> > 
+> > 1)  For booleans I am getting this error:
+> > 
+> > # semanage boolean --on git_system_use_cifs
+> > Traceback (most recent call last):
+> >   File "/usr/sbin/semanage", line 460, in <module>
+> >     process_args(sys.argv[1:])
+> >   File "/usr/sbin/semanage", line 407, in process_args
+> >     raise ValueError(_("Invalid command") % " ".join(argv))
+> > TypeError: not all arguments converted during string formatting
+> > 
+> > 
+> > 
+> > 2)  Either the priority stuff doesn't work or I am doing something
+> > wrong.  Shouldn't either of the following not display any modules
+> since
+> > they are all at priority 100?
+> > 
+> > "semodule -p 900 -l" or "semodule -p 900; semodule -l"
+> > 
+> > Both display all modules.
 > 
-> The following is our inittab configuration
+> The list command is not affected by the priority setting. Maybe it
+> should be? Currently the priority is defaulted to 400 in semodule, but
+> we could have it default to 0 and check in the -i/u/r cases for 0 and
+> set to 400 and then filter the modules in -l if priority != 0.
 > 
-> 
-> id:4:initdefault:
-> 
-> ~:S:wait:/sbin/sulogin
-> 
-> # System initialization.
-> si::sysinit:/etc/rc.d/rc.sysinit
-> 
-> l0:0:wait:/etc/rc.d/rc 0
-> l1:1:wait:/etc/rc.d/rc 1
-> l2:2:wait:/etc/rc.d/rc 2
-> l3:3:wait:/etc/rc.d/rc 3
-> l4:4:wait:/etc/rc.d/rc 4
-> l5:5:wait:/etc/rc.d/rc 5
-> l6:6:wait:/etc/rc.d/rc 6
-> 
-> # Things to run in every runlevel.
-> #ud::once:/sbin/update
-> 
-> # Trap CTRL-ALT-DELETE
-> ca::ctrlaltdel:/sbin/shutdown -t3 -r now
-> 
-> # When our UPS tells us power has failed, assume we have a few minutes
-> # of power left.  Schedule a shutdown for 2 minutes from now.
-> # This does, of course, assume you have powerd installed and your
-> # UPS connected and working correctly.
-> pf::powerfail:/sbin/shutdown -f -h +2 "Power Failure; System Shutting Down"
-> 
-> # If power was restored before the shutdown kicked in, cancel it.
-> pr:12345:powerokwait:/sbin/shutdown -c "Power Restored; Shutdown Cancelled"
-> 
-> 
-> # Run gettys in standard runlevels
-> 1:2345:respawn:/sbin/mingetty tty1
-> 2:2345:respawn:/sbin/mingetty tty2
-> #3:2345:respawn:/sbin/mingetty tty3
-> #4:2345:respawn:/sbin/mingetty tty4
-> #5:2345:respawn:/sbin/mingetty tty5
-> #6:2345:respawn:/sbin/mingetty tty6
-> 
-> # Run project specific stuff in runlevel 4
-> # The following script executes the Xserver
-> plo1:4:respawn:/<some directory>/run_xstart.bash
-> 
-> We changed the last line to the following:
-> plo1:4:respawn:runcon -t unconfined_t /testdir/run_xstart.bash
-> 
-> and it changed the security context type from init_t to unconfined_t. It worked but we still don't know why it would changed. RHEL4 did not change the type. None of our scripts have changed.
-> 
-> Thanks for your help.
+It seems like most of the time a person will just want to see the
+enabled modules.  At times, though, they might want to see which
+priority each enabled module is at, or to see all the modules at a given
+priority.
 
-What does run_xstart.bash do?  Normally /sbin/init does not directly
-start the X server, and thus the policy doesn't define any transition on
-it, so it is normal that it would stay in init_t.
+> > 
+> > 
+> > 3)  I can't remove the permissive domain created before the migration
+> > because the default priority level is 400, but the script put
+> everything
+> > at priority 100 and I don't know how to change the priority for
+> > semanage.
+> 
+> semanage hasn't been updated yet to let you specify priorities.
+> 
+I noticed. ;)
+So why does the migration script put everything into priority 100
+instead of the default priority?
+
+> > 
+> > # semanage permissive -d httpd_t
+> > libsemanage.semanage_direct_remove_key: Unable to remove module
+> > directory
+> /var/lib/selinux/targeted/tmp/modules/400/permissive_httpd_t.
+> > (No such file or directory).
+> > /usr/sbin/semanage: Could not remove permissive domain httpd_t (remove
+> > failed)
+> > 
+> > 
+> > Ports and file contexts addition and removal seems to work fine.
+> > 
+> > --
+> > James Carter <jwcart2@tycho.nsa.gov>
+> > National Security Agency
+> > 
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
