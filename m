@@ -1,28 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0C5QnIQ027503
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jan 2010 00:26:49 -0500
-Received: from smtp109.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o0C5TT2n009036
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jan 2010 05:29:29 GMT
-Message-ID: <4B4C0816.3040809@schaufler-ca.com>
-Date: Mon, 11 Jan 2010 21:26:46 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: michel m <michel.mcgregor@gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Subject: Re: benchmark
-References: <bb74313d1001110528g7300a6bauad3a1bd21ac555ed@mail.gmail.com>
-In-Reply-To: <bb74313d1001110528g7300a6bauad3a1bd21ac555ed@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: SELinux questions...
+Date: Tue, 12 Jan 2010 14:37:52 -0500
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D07F0AA3D@de01exm68.ds.mot.com>
+In-Reply-To: <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+References: <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com> <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil> <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com> <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-michel m wrote:
-> Hi,
-> I`d like to know if there is any paper or proof of concept that shows
-> selinux protects integrity and confidentiality of system.
+Hi All,
 
-You might start with the Common Criteria evaluation reports.
+I have a few questions that I had asked in the past, so I apologize in
+advance for the repetition. I had a hard-drive crash recently and lost
+all my old emails  :-(
+
+1. What was the SEMANAGE syntax to add selinux user mappings for a GROUP
+as opposed to creating selinux mappings to a specific Linux user ?
+
+2. What was the link to the "SELinux User Guide" document that a few
+people have been putting together ?
+
+3. Other than the document above, is there any other useful documents
+out there that describe the design details and framework for the latest
+Refpolicy?
+
+Thanks as always for your help...
 
 
 --
