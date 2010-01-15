@@ -1,450 +1,72 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH v3] selinux: change the handling of unknown classes
-Date: Fri, 15 Jan 2010 14:45:51 -0500
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        russell@coker.com.au, amworsley@gmail.com,
-        Eric Paris <eparis@parisplace.org>
-References: <20091218183016.9365.621.stgit@flek.lan> <1262972586.13162.47.camel@moss-pluto.epoch.ncsc.mil> <1263508090.8548.79.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1263508090.8548.79.camel@moss-pluto.epoch.ncsc.mil>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0FMke4n006351
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 17:46:43 -0500
+Received: from mail-ew0-f211.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o0FMnNbO013919
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 22:49:24 GMT
+Received: by ewy3 with SMTP id 3so1377991ewy.33
+        for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 14:46:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201001151445.51537.paul.moore@hp.com>
+From: Richard Bullington-McGuire <richard.bullington-mcguire@threepillarglobal.com>
+Date: Fri, 15 Jan 2010 17:46:20 -0500
+Message-ID: <34e141281001151446p4f11c3b9uaf1a57f7fe98312b@mail.gmail.com>
+Subject: SELinux troubleshooting example
+To: selinux@tycho.nsa.gov, selinux@lists.fedoraproject.org
+Content-Type: multipart/alternative; boundary=0016e6dab11be2c0fd047d3bc6ec
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 14 January 2010 05:28:10 pm Stephen Smalley wrote:
-> If allow_unknown==deny, SELinux treats an undefined kernel security
-> class as an error condition rather than as a typical permission denial
-> and thus does not allow permissions on undefined classes even when in
-> permissive mode.  Change the SELinux logic so that this case is handled
-> as a typical permission denial, subject to the usual permissive mode and
-> permissive domain handling.
-> 
-> Also drop the 'requested' argument from security_compute_av() and
-> helpers as it is a legacy of the original security server interface and
-> is unused.
-> 
-> Changes:
-> - Handle permissive domains consistently by moving up the test for a
-> permissive domain.
-> - Make security_compute_av_user() consistent with security_compute_av();
-> the only difference now is that security_compute_av() performs mapping
-> between the kernel-private class and permission indices and the policy
-> values.  In the userspace case, this mapping is handled by libselinux.
-> - Moved avd_init inside the policy lock.
-> 
-> Based in part on a patch by Paul Moore <paul.moore@hp.com>.
-> 
-> Reported-by: Andrew Worsley <amworsley@gmail.com>
-> Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+--0016e6dab11be2c0fd047d3bc6ec
+Content-Type: text/plain; charset=ISO-8859-1
 
-Looks good to me ... pick whichever seems most appropriate :)
+I'd like to share a blog article I wrote recently on troubleshooting SELinux
+problems. If more people knew how to troubleshoot and remediate permissions
+issues when they came up, fewer people would react by disabling SELinux at
+the first sign of trouble.
 
-Reviewed-by: Paul Moore <paul.moore@hp.com>
-Acked-by: Paul Moore <paul.moore@hp.com>
+ Don't Leave the Barn Door Open: Troubleshooting SELinux Issues
+ http://www.threepillarsoftware.com/troubleshooting-selinux-issues
 
-> ---
-> 
->  security/selinux/avc.c              |    5
->  security/selinux/include/security.h |   10 -
->  security/selinux/selinuxfs.c        |    7 -
->  security/selinux/ss/services.c      |  186
->  +++++++++++++++--------------------- 4 files changed, 88 insertions(+),
->  120 deletions(-)
-> 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index f2dde26..3ee9b6a 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -746,9 +746,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->  		else
->  			avd = &avd_entry;
-> 
-> -		rc = security_compute_av(ssid, tsid, tclass, requested, avd);
-> -		if (rc)
-> -			goto out;
-> +		security_compute_av(ssid, tsid, tclass, avd);
->  		rcu_read_lock();
->  		node = avc_insert(ssid, tsid, tclass, avd);
->  	} else {
-> @@ -770,7 +768,6 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->  	}
-> 
->  	rcu_read_unlock();
-> -out:
->  	return rc;
->  }
-> 
-> diff --git a/security/selinux/include/security.h
->  b/security/selinux/include/security.h index 2553266..022cf06 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -96,13 +96,11 @@ struct av_decision {
->  /* definitions of av_decision.flags */
->  #define AVD_FLAGS_PERMISSIVE	0x0001
-> 
-> -int security_compute_av(u32 ssid, u32 tsid,
-> -			u16 tclass, u32 requested,
-> -			struct av_decision *avd);
-> +void security_compute_av(u32 ssid, u32 tsid,
-> +			 u16 tclass, struct av_decision *avd);
-> 
-> -int security_compute_av_user(u32 ssid, u32 tsid,
-> -			     u16 tclass, u32 requested,
-> -			     struct av_decision *avd);
-> +void security_compute_av_user(u32 ssid, u32 tsid,
-> +			     u16 tclass, struct av_decision *avd);
-> 
->  int security_transition_sid(u32 ssid, u32 tsid,
->  			    u16 tclass, u32 *out_sid);
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index fab36fd..b7bb0f5 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -494,7 +494,6 @@ static ssize_t sel_write_access(struct file *file, 
-char
->  *buf, size_t size) char *scon, *tcon;
->  	u32 ssid, tsid;
->  	u16 tclass;
-> -	u32 req;
->  	struct av_decision avd;
->  	ssize_t length;
-> 
-> @@ -512,7 +511,7 @@ static ssize_t sel_write_access(struct file *file, 
-char
->  *buf, size_t size) goto out;
-> 
->  	length = -EINVAL;
-> -	if (sscanf(buf, "%s %s %hu %x", scon, tcon, &tclass, &req) != 4)
-> +	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
->  		goto out2;
-> 
->  	length = security_context_to_sid(scon, strlen(scon)+1, &ssid);
-> @@ -522,9 +521,7 @@ static ssize_t sel_write_access(struct file *file, 
-char
->  *buf, size_t size) if (length < 0)
->  		goto out2;
-> 
-> -	length = security_compute_av_user(ssid, tsid, tclass, req, &avd);
-> -	if (length < 0)
-> -		goto out2;
-> +	security_compute_av_user(ssid, tsid, tclass, &avd);
-> 
->  	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
->  			  "%x %x %x %x %u %x",
-> diff --git a/security/selinux/ss/services.c
->  b/security/selinux/ss/services.c index b3efae2..99e6e9d 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -87,11 +87,10 @@ static u32 latest_granting;
->  static int context_struct_to_string(struct context *context, char
->  **scontext, u32 *scontext_len);
-> 
-> -static int context_struct_compute_av(struct context *scontext,
-> -				     struct context *tcontext,
-> -				     u16 tclass,
-> -				     u32 requested,
-> -				     struct av_decision *avd);
-> +static void context_struct_compute_av(struct context *scontext,
-> +				      struct context *tcontext,
-> +				      u16 tclass,
-> +				      struct av_decision *avd);
-> 
->  struct selinux_mapping {
->  	u16 value; /* policy value */
-> @@ -196,23 +195,6 @@ static u16 unmap_class(u16 tclass)
->  	return tclass;
->  }
-> 
-> -static u32 unmap_perm(u16 tclass, u32 tperm)
-> -{
-> -	if (tclass < current_mapping_size) {
-> -		unsigned i;
-> -		u32 kperm = 0;
-> -
-> -		for (i = 0; i < current_mapping[tclass].num_perms; i++)
-> -			if (tperm & (1<<i)) {
-> -				kperm |= current_mapping[tclass].perms[i];
-> -				tperm &= ~(1<<i);
-> -			}
-> -		return kperm;
-> -	}
-> -
-> -	return tperm;
-> -}
-> -
->  static void map_decision(u16 tclass, struct av_decision *avd,
->  			 int allow_unknown)
->  {
-> @@ -532,7 +514,6 @@ out:
->  static void type_attribute_bounds_av(struct context *scontext,
->  				     struct context *tcontext,
->  				     u16 tclass,
-> -				     u32 requested,
->  				     struct av_decision *avd)
->  {
->  	struct context lo_scontext;
-> @@ -553,7 +534,6 @@ static void type_attribute_bounds_av(struct context
->  *scontext, context_struct_compute_av(&lo_scontext,
->  					  tcontext,
->  					  tclass,
-> -					  requested,
->  					  &lo_avd);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
-> @@ -569,7 +549,6 @@ static void type_attribute_bounds_av(struct context
->  *scontext, context_struct_compute_av(scontext,
->  					  &lo_tcontext,
->  					  tclass,
-> -					  requested,
->  					  &lo_avd);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
-> @@ -586,7 +565,6 @@ static void type_attribute_bounds_av(struct context
->  *scontext, context_struct_compute_av(&lo_scontext,
->  					  &lo_tcontext,
->  					  tclass,
-> -					  requested,
->  					  &lo_avd);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
-> @@ -607,11 +585,10 @@ static void type_attribute_bounds_av(struct context
->  *scontext, * Compute access vectors based on a context structure pair for
->   * the permissions in a particular class.
->   */
-> -static int context_struct_compute_av(struct context *scontext,
-> -				     struct context *tcontext,
-> -				     u16 tclass,
-> -				     u32 requested,
-> -				     struct av_decision *avd)
-> +static void context_struct_compute_av(struct context *scontext,
-> +				      struct context *tcontext,
-> +				      u16 tclass,
-> +				      struct av_decision *avd)
->  {
->  	struct constraint_node *constraint;
->  	struct role_allow *ra;
-> @@ -622,19 +599,14 @@ static int context_struct_compute_av(struct context
->  *scontext, struct ebitmap_node *snode, *tnode;
->  	unsigned int i, j;
-> 
-> -	/*
-> -	 * Initialize the access vectors to the default values.
-> -	 */
->  	avd->allowed = 0;
->  	avd->auditallow = 0;
->  	avd->auditdeny = 0xffffffff;
-> -	avd->seqno = latest_granting;
-> -	avd->flags = 0;
-> 
->  	if (unlikely(!tclass || tclass > policydb.p_classes.nprim)) {
->  		if (printk_ratelimit())
->  			printk(KERN_WARNING "SELinux:  Invalid class %hu\n", tclass);
-> -		return -EINVAL;
-> +		return;
->  	}
-> 
->  	tclass_datum = policydb.class_val_to_struct[tclass - 1];
-> @@ -705,9 +677,7 @@ static int context_struct_compute_av(struct context
->  *scontext, * permission and notice it to userspace via audit.
->  	 */
->  	type_attribute_bounds_av(scontext, tcontext,
-> -				 tclass, requested, avd);
-> -
-> -	return 0;
-> +				 tclass, avd);
->  }
-> 
->  static int security_validtrans_handle_fail(struct context *ocontext,
-> @@ -886,110 +856,116 @@ out:
->  	return rc;
->  }
-> 
-> -
-> -static int security_compute_av_core(u32 ssid,
-> -				    u32 tsid,
-> -				    u16 tclass,
-> -				    u32 requested,
-> -				    struct av_decision *avd)
-> +static void avd_init(struct av_decision *avd)
->  {
-> -	struct context *scontext = NULL, *tcontext = NULL;
-> -	int rc = 0;
-> -
-> -	scontext = sidtab_search(&sidtab, ssid);
-> -	if (!scontext) {
-> -		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> -		       __func__, ssid);
-> -		return -EINVAL;
-> -	}
-> -	tcontext = sidtab_search(&sidtab, tsid);
-> -	if (!tcontext) {
-> -		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> -		       __func__, tsid);
-> -		return -EINVAL;
-> -	}
-> -
-> -	rc = context_struct_compute_av(scontext, tcontext, tclass,
-> -				       requested, avd);
-> -
-> -	/* permissive domain? */
-> -	if (ebitmap_get_bit(&policydb.permissive_map, scontext->type))
-> -		avd->flags |= AVD_FLAGS_PERMISSIVE;
-> -
-> -	return rc;
-> +	avd->allowed = 0;
-> +	avd->auditallow = 0;
-> +	avd->auditdeny = 0xffffffff;
-> +	avd->seqno = latest_granting;
-> +	avd->flags = 0;
->  }
-> 
-> +
->  /**
->   * security_compute_av - Compute access vector decisions.
->   * @ssid: source security identifier
->   * @tsid: target security identifier
->   * @tclass: target security class
-> - * @requested: requested permissions
->   * @avd: access vector decisions
->   *
->   * Compute a set of access vector decisions based on the
->   * SID pair (@ssid, @tsid) for the permissions in @tclass.
-> - * Return -%EINVAL if any of the parameters are invalid or %0
-> - * if the access vector decisions were computed successfully.
->   */
-> -int security_compute_av(u32 ssid,
-> -			u32 tsid,
-> -			u16 orig_tclass,
-> -			u32 orig_requested,
-> -			struct av_decision *avd)
-> +void security_compute_av(u32 ssid,
-> +			 u32 tsid,
-> +			 u16 orig_tclass,
-> +			 struct av_decision *avd)
->  {
->  	u16 tclass;
-> -	u32 requested;
-> -	int rc;
-> +	struct context *scontext = NULL, *tcontext = NULL;
-> 
->  	read_lock(&policy_rwlock);
-> -
-> +	avd_init(avd);
->  	if (!ss_initialized)
->  		goto allow;
-> 
-> -	requested = unmap_perm(orig_tclass, orig_requested);
-> +	scontext = sidtab_search(&sidtab, ssid);
-> +	if (!scontext) {
-> +		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> +		       __func__, ssid);
-> +		goto out;
-> +	}
-> +
-> +	/* permissive domain? */
-> +	if (ebitmap_get_bit(&policydb.permissive_map, scontext->type))
-> +		avd->flags |= AVD_FLAGS_PERMISSIVE;
-> +
-> +	tcontext = sidtab_search(&sidtab, tsid);
-> +	if (!tcontext) {
-> +		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> +		       __func__, tsid);
-> +		goto out;
-> +	}
-> +
->  	tclass = unmap_class(orig_tclass);
->  	if (unlikely(orig_tclass && !tclass)) {
->  		if (policydb.allow_unknown)
->  			goto allow;
-> -		rc = -EINVAL;
->  		goto out;
->  	}
-> -	rc = security_compute_av_core(ssid, tsid, tclass, requested, avd);
-> +	context_struct_compute_av(scontext, tcontext, tclass, avd);
->  	map_decision(orig_tclass, avd, policydb.allow_unknown);
->  out:
->  	read_unlock(&policy_rwlock);
-> -	return rc;
-> +	return;
->  allow:
->  	avd->allowed = 0xffffffff;
-> -	avd->auditallow = 0;
-> -	avd->auditdeny = 0xffffffff;
-> -	avd->seqno = latest_granting;
-> -	avd->flags = 0;
-> -	rc = 0;
->  	goto out;
->  }
-> 
-> -int security_compute_av_user(u32 ssid,
-> -			     u32 tsid,
-> -			     u16 tclass,
-> -			     u32 requested,
-> -			     struct av_decision *avd)
-> +void security_compute_av_user(u32 ssid,
-> +			      u32 tsid,
-> +			      u16 tclass,
-> +			      struct av_decision *avd)
->  {
-> -	int rc;
-> +	struct context *scontext = NULL, *tcontext = NULL;
-> 
-> -	if (!ss_initialized) {
-> -		avd->allowed = 0xffffffff;
-> -		avd->auditallow = 0;
-> -		avd->auditdeny = 0xffffffff;
-> -		avd->seqno = latest_granting;
-> -		return 0;
-> +	read_lock(&policy_rwlock);
-> +	avd_init(avd);
-> +	if (!ss_initialized)
-> +		goto allow;
-> +
-> +	scontext = sidtab_search(&sidtab, ssid);
-> +	if (!scontext) {
-> +		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> +		       __func__, ssid);
-> +		goto out;
->  	}
-> 
-> -	read_lock(&policy_rwlock);
-> -	rc = security_compute_av_core(ssid, tsid, tclass, requested, avd);
-> +	/* permissive domain? */
-> +	if (ebitmap_get_bit(&policydb.permissive_map, scontext->type))
-> +		avd->flags |= AVD_FLAGS_PERMISSIVE;
-> +
-> +	tcontext = sidtab_search(&sidtab, tsid);
-> +	if (!tcontext) {
-> +		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
-> +		       __func__, tsid);
-> +		goto out;
-> +	}
-> +
-> +	if (unlikely(!tclass)) {
-> +		if (policydb.allow_unknown)
-> +			goto allow;
-> +		goto out;
-> +	}
-> +
-> +	context_struct_compute_av(scontext, tcontext, tclass, avd);
-> + out:
->  	read_unlock(&policy_rwlock);
-> -	return rc;
-> +	return;
-> +allow:
-> +	avd->allowed = 0xffffffff;
-> +	goto out;
->  }
-> 
->  /*
-> 
+Any review comments would be welcome.
+
+I'd also like to thank the SELinux community, including the NSA, Red Hat,
+the Fedora project, Tresys, and many others, for coming up with such a solid
+system.
 
 -- 
-paul moore
-linux @ hp
+Richard Bullington-McGuire | Director of Technology | Three Pillar Global
+mobile: 571.236.0938 | fax: 703-564-5595 | PGP key ID:  0xDAC3028E
+richard.bullington-mcguire@threepillarglobal.com | www.threepillarglobal.com
+
+--0016e6dab11be2c0fd047d3bc6ec
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+I&#39;d like to share a blog article I wrote recently on troubleshooting SE=
+Linux problems. If more people knew how to troubleshoot and remediate permi=
+ssions issues when they came up, fewer people would react by disabling SELi=
+nux at the first sign of trouble.<br>
+
+<br>=A0Don&#39;t Leave the Barn Door Open: Troubleshooting SELinux Issues<b=
+r>=A0<a href=3D"http://www.threepillarsoftware.com/troubleshooting-selinux-=
+issues">http://www.threepillarsoftware.com/troubleshooting-selinux-issues</=
+a><br>
+
+<br>Any review comments would be welcome.<br><br>I&#39;d also like to thank=
+ the SELinux community, including the NSA, Red Hat, the Fedora project, Tre=
+sys, and many others, for coming up with such a solid system. <br clear=3D"=
+all">
+
+<br>-- <br>Richard Bullington-McGuire | Director of Technology | Three Pill=
+ar Global<br>mobile: 571.236.0938 | fax: 703-564-5595 | PGP key ID: =A00xDA=
+C3028E<br><a href=3D"mailto:richard.bullington-mcguire@threepillarglobal.co=
+m" target=3D"_blank">richard.bullington-mcguire@threepillarglobal.com</a> |=
+ <a href=3D"http://www.threepillarglobal.com/" target=3D"_blank">www.threep=
+illarglobal.com</a><br>
+
+<br>
+
+--0016e6dab11be2c0fd047d3bc6ec--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
