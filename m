@@ -1,59 +1,82 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0F74HDK026699
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 02:04:17 -0500
-Received: from mail-gx0-f209.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o0F72m7E012376
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 07:02:48 GMT
-Received: by gxk1 with SMTP id 1so224563gxk.14
-        for <selinux@tycho.nsa.gov>; Thu, 14 Jan 2010 23:04:06 -0800 (PST)
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: trivial@kernel.org
-Cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-        "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH] fix some typo's in avc.c
-Date: Thu, 14 Jan 2010 23:03:18 -0800
-Message-Id: <1263538998-20088-1-git-send-email-justinmattock@gmail.com>
+Subject: Re: Type boundaries: questions on the semantics / is the
+ enforcement correct ?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jacques Thomas <jthomas@cs.purdue.edu>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, SE Linux <selinux@tycho.nsa.gov>,
+        method@manicmethod.com
+In-Reply-To: <4B14934F.9050401@cs.purdue.edu>
+References: <4AF71B05.8030707@cs.purdue.edu>
+	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
+	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
+	 <4B14934F.9050401@cs.purdue.edu>
+Content-Type: text/plain
+Date: Fri, 15 Jan 2010 10:51:59 -0500
+Message-Id: <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
----
- security/selinux/avc.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Mon, 2009-11-30 at 22:53 -0500, Jacques Thomas wrote:
+> KaiGai Kohei wrote:
+> >>>> I also think we have one other a rough option.
+> >>>> It simply applies type boundaries on only sources to restrict its privileges,
+> >>>> and it does not apply any restrictions on target types.
+> >>>>   
+> >>>>     
+> >>>>         
+> >>> Unless there is a clear use for bounds on targets, I would favor this
+> >>> option. (The "rough" one :-) )
+> >>> I see mostly room for confusion with the bounds on target types, because
+> >>> of the contravariance issue.
+> >>>   
+> >>>       
+> >> I can write and submit a patch along these lines. The patch is
+> >> straightforward: I just have to remove the "dead" code.
+> >>     
+> >
+> > Note that libsepol has an option which test type-boundary violations
+> > in usermode just before policy load.
+> > Also check check_avtab_hierarchy_callback() in libsepol/src/hierarchy.c.
+> > (It is called when )
+> >
+> > Historically, this code delivered from hierarchy namespace support by
+> > Joshua Brindle. I'd like to ask him what about this change.
+> >
+> >   MEMO: The hierarchy namespace support implicitly set up type-boundary
+> >         on a couple of types. For example, if we defined httpd_t.cgi type,
+> >         it is implicitly bounded by httpd_t type without TYPEBOUNDS.
+> >
+> > I also have not seen any case example which restrict target types by
+> > the hierarchy namespace support. So, it seems to me we have no matter
+> > to remove the "dead" code.
+> >
+> > Joshua, what's your opinion?
+> >
+> >
+> >   
+> >> However, could someone please indicate me how I am supposed to test the
+> >> patch ? In other words, is there a standardized testing procedure that I
+> >> am unaware of ?
+> >>     
+> >
+> > http://ltp.sourceforge.net/
+> >
+> > It also contains SELinux testcases including type boundary, but it also
+> > does not contains a case of type boundary on target types.
+> >   
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index f2dde26..3328b1f 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -337,7 +337,7 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
-  * Look up an AVC entry that is valid for the
-  * (@ssid, @tsid), interpreting the permissions
-  * based on @tclass.  If a valid AVC entry exists,
-- * then this function return the avc_node.
-+ * then this function returns the avc_node.
-  * Otherwise, this function returns NULL.
-  */
- static struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass)
-@@ -526,7 +526,7 @@ void avc_audit(u32 ssid, u32 tsid,
-  * @perms: permissions
-  *
-  * Register a callback function for events in the set @events
-- * related to the SID pair (@ssid, @tsid) and
-+ * related to the SID pair (@ssid, @tsid) 
-  * and the permissions @perms, interpreting
-  * @perms based on @tclass.  Returns %0 on success or
-  * -%ENOMEM if insufficient memory exists to add the callback.
-@@ -571,7 +571,7 @@ static inline int avc_sidcmp(u32 x, u32 y)
-  *
-  * if a valid AVC entry doesn't exist,this function returns -ENOENT.
-  * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
-- * otherwise, this function update the AVC entry. The original AVC-entry object
-+ * otherwise, this function updates the AVC entry. The original AVC-entry object
-  * will release later by RCU.
-  */
- static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
+Where does this stand?  IIUC, we are going to just remove the dead code
+from type_attribute_bounds_av() in the kernel and
+check_avtab_hierarchy_callback() in libsepol?
+
+With regard to the ltp, note that the last version of the ltp with a
+working selinux testsuite was ltp-full-20090930.  I am still trying to
+work with the ltp maintainers to fix it in cvs head, but that is still
+work in progress.
+
 -- 
-1.6.5.GIT
+Stephen Smalley
+National Security Agency
 
 
 --
