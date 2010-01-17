@@ -1,46 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0FN7PQC007373
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 18:07:25 -0500
-Received: from pobox.globalherald.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o0FNA6bO018226
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jan 2010 23:10:06 GMT
-Date: Fri, 15 Jan 2010 19:55:08 -0500 (EST)
-From: Joshua Kramer <josh@globalherald.net>
-To: Richard Bullington-McGuire <richard.bullington-mcguire@threepillarglobal.com>
-cc: selinux@tycho.nsa.gov, selinux@lists.fedoraproject.org
-Subject: Re: SELinux troubleshooting example
-In-Reply-To: <34e141281001151446p4f11c3b9uaf1a57f7fe98312b@mail.gmail.com>
-Message-ID: <alpine.LFD.2.00.1001151948310.21120@home-av-server.home-av>
-References: <34e141281001151446p4f11c3b9uaf1a57f7fe98312b@mail.gmail.com>
+Date: Mon, 18 Jan 2010 09:53:33 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, russell@coker.com.au, amworsley@gmail.com,
+        Eric Paris <eparis@parisplace.org>, Paul Moore <paul.moore@hp.com>
+Subject: Re: [RFC][PATCH v3] selinux: change the handling of unknown
+ classes
+In-Reply-To: <1263508090.8548.79.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <alpine.LRH.2.00.1001180953120.27266@tundra.namei.org>
+References: <20091218183016.9365.621.stgit@flek.lan>  <1262901683.2821.141.camel@moss-pluto.epoch.ncsc.mil>  <201001080942.33039.paul.moore@hp.com>  <1262972586.13162.47.camel@moss-pluto.epoch.ncsc.mil> <1263508090.8548.79.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 14 Jan 2010, Stephen Smalley wrote:
 
-Richard,
+> Changes:
+> - Handle permissive domains consistently by moving up the test for a
+> permissive domain.
+> - Make security_compute_av_user() consistent with security_compute_av();
+> the only difference now is that security_compute_av() performs mapping
+> between the kernel-private class and permission indices and the policy
+> values.  In the userspace case, this mapping is handled by libselinux.
+> - Moved avd_init inside the policy lock.
+> 
+> Based in part on a patch by Paul Moore <paul.moore@hp.com>.
+> 
+> Reported-by: Andrew Worsley <amworsley@gmail.com>
+> Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
 
-That's a great article you wrote!  I share your sentiment in that I'd 
-rather fix SELinux issues than turn it off completely.  In that vein, I 
-wrote the following article and followup last year:
 
-http://www.packtpub.com/article/selinux-secured-web-hosting-python-based-web-applications
-http://www.globalherald.net/jb01/weblog/21.html
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
-RHEL6 will be even better, as the SELinux libraries included therein will 
-allow interesting tricks, such as running different Apache threads under 
-different security contexts:
-
-http://code.google.com/p/sepgsql/wiki/Apache_SELinux_plus
-
-Cheers,
--JK
 
 -- 
-
------
-http://www.globalherald.net/jb01
-GlobalHerald.NET, the Smarter Social Network! (tm)
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
