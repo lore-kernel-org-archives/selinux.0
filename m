@@ -1,123 +1,155 @@
-Subject: Re: Assigning a Type to Network Interfaces
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jason Shaw <js44352@gmail.com>
-Cc: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, selinux@lists.fedoraproject.org,
-        selinux@tycho.nsa.gov
-In-Reply-To: <c63e41181001172021k16589685pf807e11feea5eb29@mail.gmail.com>
-References: <c63e41181001140608u37e57495s15bd7c7d2f50a0e3@mail.gmail.com>
-	 <1263479874.8548.20.camel@moss-pluto.epoch.ncsc.mil>
-	 <c63e41181001172021k16589685pf807e11feea5eb29@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 19 Jan 2010 09:20:53 -0500
-Message-Id: <1263910853.12068.6.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Security Context Type Changes
+Date: Tue, 19 Jan 2010 15:15:34 -0600
+Message-ID: <822A6B57FFD31647BB62F4676394C675034B6C0F@XMBTX131.northgrum.com>
+In-Reply-To: <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+References: <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com> <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil> <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com> <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+From: "Tomas, Gregg A (IS)" <Gregg.Tomas@ngc.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2010-01-17 at 21:21 -0700, Jason Shaw wrote:
-> Just wanted to follow-up to see if I am misunderstanding the purpose
-> of semanage -interface. Once a type is assigned to an interface such
-> as eth0, should an application running in its own domain be able to
-> bind to the interface without an allow rule (using net_raw, tcp, or
-> udp)?
+Stephen,
 
-(extended cc line to include fedora and upstream selinux lists).
+I apologize for my lack promptness, I have been in and out of the
+office. We are in the middle of transitioning from RHEL4 to RHEL5 so
+some of the links maybe off. Anyhow, here is our run_xstart.bash script:
+========================================================================
+========================
+PATH=/usr/X11R6/bin:$PATH; export PATH
+MODE=standalone
+BACKEND=localhost
 
-There are no netif-based checks during bind(2).  There can be
-netif-based checks during packet send/recv, but the legacy checks were
-obsoleted and removed as I noted, and the newer checks require
-additional configuration (iptables for SECMARK, netlabel or ipsec for
-labeled networking).
+#
+#       Do any computer-specific processing necessary
+#
+if [[ ! -f /tmp/.quickstart ]]; then
+    #
+    #   Put up the screen background
+    #
+    ROOTW=$(/usr/bin/X11/xrdb -symbols | \
+          awk 'BEGIN {FS="="} $1 ~ /-DWIDTH/ {print $2}')
+    DEPTH=$(/usr/bin/X11/xrdb -symbols | awk 'BEGIN {FS="="}
+$1~/^-DPLANES$/ {print $2}')
+    echo "ROOT WIDTH = $ROOTW"
+    if [ $ROOTW -ge 1024 ] ; then
+        ####BGFILE=hgttg-5.gif
+        BGFILE=app-1024.gif
+    elif [ $ROOTW -ge 800 ]; then
+        BGFILE=app-800.gif
+    else
+        BGFILE=app-640.gif
+    fi
 
-> On Thu, Jan 14, 2010 at 7:37 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
->         
->         On Thu, 2010-01-14 at 07:08 -0700, Jason Shaw wrote:
->         > I need help understanding if SELinux supports restricting a
->         confined
->         > application from binding to specific network interfaces. I
->         cannot seem
->         > to make this work under F11 and F12 (using targeted, mls,
->         and
->         > reference policies), or under RHEL 5.3U3 targeted.
->         >
->         > Details:
->         > - I have a system with two network interfaces: eth0 and
->         eth1.
->         > - I have an application that must only be allowed to read
->         data from
->         > eth0 (raw and tcp).
->         > - I do not need to label packets.
->         >
->         > Here's what I have tried
->         > 1) In a new policy module, I create new types: myApp_exec_t,
->         myApp_t,
->         > myApp_eth0_t, myApp_eth1_t.
->         > 2) I use semanage -fcontext to label my application's
->         executable file
->         > as myApp_exec_t
->         > 3) I assign eth0 with a new type: 'semanage interface -a -t
->         > myApp_eth0_t eth0'
->         > 4) I assign eth1 with a new type: 'semanage interface -a -t
->         > myApp_eth1_t eth1'
->         > 5) In my policy module, I allow the following: "allow
->         myApp_t
->         > self:capability net raw", and "allow myApp_t self:tcp_socket
->         { accept
->         > read }"
->         > 6) I verify that when I execute my application, using ps
->         -efZ it is
->         > running in the myApp_t domain (has transitioned properly
->         from
->         > unconfined_t)
->         >
->         > The problem is, my app can read raw or tcp data from either
->         eth0 or
->         > eth1 even though both interfaces have been assigned
->         different types
->         > using semanage -interface.
->         >
->         > Is this because 'allow myApp_t self:capability net_raw' does
->         not
->         > distinguish between network interfaces? Is my understanding
->         of
->         > semanage -interface incorrect - shouldn't labeling the
->         interface
->         > result in no ability to use the interface unless explicitly
->         allowed?
->         
->         
->         The legacy network permission checks were removed in Linux
->         2.6.30, and
->         even prior to that they had been disabled for a long time by
->         default
->         unless you set /selinux/compat_net to 1.  These days you need
->         to use
->         secmark or the newer ingress/egress permission checks to
->         achieve the
->         same effect.   Using secmark requires you to configure
->         iptables SECMARK
->         targets to label the packets.  Using ingress/egress requires
->         you to
->         configure labeled networking (netlabel or labeled ipsec) and
->         make sure
->         that /selinux/policy_capabilities/network_peer_controls exists
->         and is
->         set to 1 (requires Linux >= 2.6.25 and a policy built with
->         that
->         capability).  See:
->         http://paulmoore.livejournal.com/4281.html
->         http://paulmoore.livejournal.com/2128.html
->         
->         --
->         Stephen Smalley
->         National Security Agency
->         
+    if [ "$ROOTW" -eq 640 -a "$DEPTH" -eq 8 ]
+    then
+        echo "not displaying background picture"
+    else
+        /usr/bin/X11/xloadimage -onroot -center -border black \
+           -quiet -private /h/ProjectX/images/$BGFILE &
+    fi
+fi
+
+#
+#       Start the window manager
+#
+export HOME=/h/ProjectX
+export SHELL=/bin/bash
+sleep 1
+
+# Get ip address of primary display #
+DISPLAY1=$DISPLAY;export DISPLAY1
+
+# Start window manager for primary display #
+exec /usr/bin/fvwm -display $DISPLAY1 \
+     -cmd "Read /h/ProjectX/config_values/system.fvwmrc"
+
+========================================================================
+===============
+
+
+Thanks again.
+
+Gregg
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Monday, January 11, 2010 11:24 AM
+To: Tomas, Gregg A (IS)
+Cc: selinux@tycho.nsa.gov
+Subject: RE: Security Context Type Changes
+
+On Sun, 2010-01-10 at 17:43 -0600, Tomas, Gregg A (IS) wrote:
+> Thank you Stephen for replying.
 > 
+> The following is our inittab configuration
+> 
+> 
+> id:4:initdefault:
+> 
+> ~:S:wait:/sbin/sulogin
+> 
+> # System initialization.
+> si::sysinit:/etc/rc.d/rc.sysinit
+> 
+> l0:0:wait:/etc/rc.d/rc 0
+> l1:1:wait:/etc/rc.d/rc 1
+> l2:2:wait:/etc/rc.d/rc 2
+> l3:3:wait:/etc/rc.d/rc 3
+> l4:4:wait:/etc/rc.d/rc 4
+> l5:5:wait:/etc/rc.d/rc 5
+> l6:6:wait:/etc/rc.d/rc 6
+> 
+> # Things to run in every runlevel.
+> #ud::once:/sbin/update
+> 
+> # Trap CTRL-ALT-DELETE
+> ca::ctrlaltdel:/sbin/shutdown -t3 -r now
+> 
+> # When our UPS tells us power has failed, assume we have a few minutes
+> # of power left.  Schedule a shutdown for 2 minutes from now.
+> # This does, of course, assume you have powerd installed and your
+> # UPS connected and working correctly.
+> pf::powerfail:/sbin/shutdown -f -h +2 "Power Failure; System Shutting
+Down"
+> 
+> # If power was restored before the shutdown kicked in, cancel it.
+> pr:12345:powerokwait:/sbin/shutdown -c "Power Restored; Shutdown
+Cancelled"
+> 
+> 
+> # Run gettys in standard runlevels
+> 1:2345:respawn:/sbin/mingetty tty1
+> 2:2345:respawn:/sbin/mingetty tty2
+> #3:2345:respawn:/sbin/mingetty tty3
+> #4:2345:respawn:/sbin/mingetty tty4
+> #5:2345:respawn:/sbin/mingetty tty5
+> #6:2345:respawn:/sbin/mingetty tty6
+> 
+> # Run project specific stuff in runlevel 4
+> # The following script executes the Xserver
+> plo1:4:respawn:/<some directory>/run_xstart.bash
+> 
+> We changed the last line to the following:
+> plo1:4:respawn:runcon -t unconfined_t /testdir/run_xstart.bash
+> 
+> and it changed the security context type from init_t to unconfined_t.
+It worked but we still don't know why it would changed. RHEL4 did not
+change the type. None of our scripts have changed.
+> 
+> Thanks for your help.
+
+What does run_xstart.bash do?  Normally /sbin/init does not directly
+start the X server, and thus the policy doesn't define any transition on
+it, so it is normal that it would stay in init_t.
+
 -- 
 Stephen Smalley
 National Security Agency
+
 
 
 --
