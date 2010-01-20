@@ -1,79 +1,133 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Jason Shaw <js44352@gmail.com>
-Subject: Re: Assigning a Type to Network Interfaces
-Date: Tue, 19 Jan 2010 17:54:51 -0500
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, selinux@lists.fedoraproject.org,
-        selinux@tycho.nsa.gov
-References: <c63e41181001140608u37e57495s15bd7c7d2f50a0e3@mail.gmail.com> <1263910853.12068.6.camel@moss-pluto.epoch.ncsc.mil> <c63e41181001191007q12f5c91av4dbe9d87858f8f09@mail.gmail.com>
-In-Reply-To: <c63e41181001191007q12f5c91av4dbe9d87858f8f09@mail.gmail.com>
+Message-ID: <4B5685EC.1000500@ak.jp.nec.com>
+Date: Wed, 20 Jan 2010 13:26:20 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201001191754.52088.paul.moore@hp.com>
+To: method@manicmethod.com
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
+References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu> <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil> <4B54339F.8070501@ak.jp.nec.com>
+In-Reply-To: <4B54339F.8070501@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 19 January 2010 01:07:53 pm Jason Shaw wrote:
-> Can netif checks be enabled for 'packet_socket read'? If so, how?
-> 
-> My app requires this allow rule:
-> allow myApp_t self:packet_socket { create read bind ioctl };
-> 
-> Currently, with this rule in place and the app running in its own
-> domain, it can read data from any interface. If I am understanding
-> correclty, with a netif-based check enabled for packet_socket read, could
-> the application then be restricted to read from a specific eth interface
-> as opposed to being able read from any eth interface?
+This patch removes dead code in check_avtab_hierarchy_callback().
 
-The ingress/egress and secmark controls should work regardless of the socket 
-type, so there _should_ be no problem with packet sockets.  Assuming you 
-want to use the ingress/egress controls you would need to do the following:
+Due to the historical reason, the type boundary feature is delivered
+from hierarchical types in libsepol, it has supported boundary features
+both of subject type (domain; in most cases) and target type.
 
- 1. Ensure you have the right policy loaded
+However, we don't have any actual use cases in bounded target types,
+and it tended to make conceptual confusion.
+So, this patch removes the dead code to apply boundary checks on the
+target types in libsepol (when expand-check=1). I makes clear the TYPEBOUNDS
+restricts privileges of a certain domain bounded to any other domain.
 
-    For the examples shown here you will need to create two new types,
-    "foo_netif_t" and "foo_peer_t", as well as the policy rules to allow
-    them to work.  Stephen has already pointed you to some blog entries
-    explaining what you need to do, so we'll consider this step as an
-    exercise for the reader :)
+ Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+--
+ libsepol/src/hierarchy.c |   71 ++++++++++++---------------------------------
+ 1 files changed, 19 insertions(+), 52 deletions(-)
 
- 2. Label the interface
+diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
+index e2df5a4..87a9d9c 100644
+--- a/libsepol/src/hierarchy.c
++++ b/libsepol/src/hierarchy.c
+@@ -159,7 +159,7 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
+ {
+ 	avtab_key_t key;
+ 	hierarchy_args_t *a = (hierarchy_args_t *) args;
+-	type_datum_t *s, *t1 = NULL, *t2 = NULL;
++	type_datum_t *s, *t;
+ 	avtab_datum_t av;
 
-    You've already got this figured out for the most part, but for the
-    record, the following will assign type "foo_netif_t" to eth0 and
-    display the configured interface labels:
+ 	if (!(k->specified & AVTAB_ALLOWED)) {
+@@ -169,62 +169,29 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
 
-    # semanage interface -a -t foo_netif_t eth0
-    # semanage interface -l
+ 	/* search for parent first */
+ 	s = a->p->type_val_to_struct[k->source_type - 1];
+-	if (find_parent_type(a, s, &t1) < 0)
++	if (find_parent_type(a, s, &t) < 0)
+ 		return -1;
+-	if (t1) {
+-		/*
+-		 * search for access allowed between type 1's
+-		 * parent and type 2.
+-		 */
+-		key.source_type = t1->s.value;
+-		key.target_type = k->target_type;
+-		key.target_class = k->target_class;
+-		key.specified = AVTAB_ALLOWED;
+-		compute_avtab_datum(a, &key, &av);
+-
+-		if ((av.data & d->data) == d->data)
+-			return 0;
+-	}
+-
+-	/* next we try type 1 and type 2's parent */
+-	s = a->p->type_val_to_struct[k->target_type - 1];
+-	if (find_parent_type(a, s, &t2) < 0)
+-		return -1;
+-	if (t2) {
+-		/*
+-		 * search for access allowed between type 1 and
+-		 * type 2's parent.
+-		 */
+-		key.source_type = k->source_type;
+-		key.target_type = t2->s.value;
+-		key.target_class = k->target_class;
+-		key.specified = AVTAB_ALLOWED;
+-		compute_avtab_datum(a, &key, &av);
+-
+-		if ((av.data & d->data) == d->data)
+-			return 0;
+-	}
 
- 3. Configure a static network peer label (assumes unlabeled traffic)
+-	if (t1 && t2) {
+-		/*
+-                 * search for access allowed between type 1's parent
+-                 * and type 2's parent.
+-                 */
+-		key.source_type = t1->s.value;
+-		key.target_type = t2->s.value;
+-		key.target_class = k->target_class;
+-		key.specified = AVTAB_ALLOWED;
+-		compute_avtab_datum(a, &key, &av);
+-
+-		if ((av.data & d->data) == d->data)
+-			return 0;
+-	}
++	/*
++	 * If the given subject security context does not have any
++	 * parent domain, we don't need to apply sanity checks on
++	 * the type boundary constraint.
++	 */
++	if (!t)
++		return 0;
 
-    If you aren't using a form of network peer labeling, e.g. labeled
-    IPsec or CIPSO, you'll need to enable some form of per-packet
-    peer labeling for the controls to take effect (otherwise the
-    packets are unlabeled and the controls just don't make sense).
-    In order to configure a static network peer label you need to ensure
-    that you have "netlabelctl" installed:
+ 	/*
+-	 * Neither one of these types have parents and
+-	 * therefore the hierarchical constraint does not apply
++	 * Search for access allowed between the parent domain and
++	 * the type. All the permissions with the child domain have
++	 * to be allowed to the parent domain also.
+ 	 */
+-	if (!t1 && !t2)
++	key.source_type = t->s.value;
++	key.target_type = k->target_type;
++	key.target_class = k->target_class;
++	key.specified = AVTAB_ALLOWED;
++	compute_avtab_datum(a, &key, &av);
++
++	if ((av.data & d->data) == d->data)
+ 		return 0;
 
-    # yum install netlabel_tools
-
-    From here you should read the netlabelctl man page (lots of good
-    examples) and then come back to this email ... I'll wait .... okay,
-    now you can go ahead and configure a static peer label; the following
-    will assign the label "system_u:object_r:foo_peer_t:s0" to all
-    IPv4 traffic coming in on eth0:
-
-    # netlabelctl unlbl add interface:eth0 address:0.0.0.0/0 \
-      label:system_u:object_r:foo_peer_t:s0
-
-At this point everything should be up and running, if not let us know :)
-
-Good luck!
+ 	/*
 
 -- 
-paul moore
-linux @ hp
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
