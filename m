@@ -1,75 +1,72 @@
-Subject: Re: Policy is not managed or store cannot be accessed
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4B576B7C.8020606@gmail.com>
+Date: Wed, 20 Jan 2010 12:45:48 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
 To: AlannY <m@alanny.ru>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Policy is not managed or store cannot be accessed
 References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
-Content-Type: text/plain
-Date: Wed, 20 Jan 2010 15:46:26 -0500
-Message-Id: <1264020386.24133.182.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-01-20 at 23:21 +0300, AlannY wrote:
+On 01/20/10 12:21, AlannY wrote:
 > Hi there. I'm new in SELinux world. I'm trying to setup SELinux in Archlinux. Everything seems ok.
 > Everything successfully built and even runs.
-> 
+>
 > But when I'm trying to do something with SELinux (semanage, semodule), I'm getting to following error:
-> 
->     %# semanage login -l
->     /usr/sbin/semanage: SELinux policy is not managed or store cannot be accessed.
-> 
+>
+>      %# semanage login -l
+>      /usr/sbin/semanage: SELinux policy is not managed or store cannot be accessed.
+>
 > I don't know what I can do in this situation. I've already asked on Archlinux forum about this problem,
 > but there are no experts in SELinux, so no one answered.
-> 
+>
 > Sestatus tells me, that SELinux is working:
-> 
->     %# sestatus
->     SELinux status:                 enabled
->     SELinuxfs mount:                /selinux
->     Current mode:                   permissive
->     Mode from config file:          permissive
->     Policy version:                 24
->     Policy from config file:        refpolicy
-
-Did you build your policy with MONOLITHIC=n in build.conf?
-If not, then you need to do that if you want modular/managed policy.
-
+>
+>      %# sestatus
+>      SELinux status:                 enabled
+>      SELinuxfs mount:                /selinux
+>      Current mode:                   permissive
+>      Mode from config file:          permissive
+>      Policy version:                 24
+>      Policy from config file:        refpolicy
+>
 > When I'm trying to go to enforcement, the system is hang off. I think, it's normal, because of AVC deniels in log.
 > I can solve it by creating new module, but I cannot load it, because of 1st error (not managed/not accessed).
-> 
+>
 > I'm
->     %# id -Z
->     root:staff_r:insmod_t
-
-Hmmm...did you label your filesystems?
-What does sestatus -v show?
-
+>      %# id -Z
+>      root:staff_r:insmod_t
+>
 > What can I do?
-> 
+>
 > I think, that my problem is with version mismatch of selinux tools (checkpolicy,semanage) and refpolicy.
 > Where can I check it? Currently I have:
-> 
->     kernel26-selinux-2.6.31
->     selinux-coreutils-7.6
->     selinux-pam-1.1.0
->     refpolicy-2.20091117
->     selinux-sysvinit-2.86
->     checkpolicy-2.0.20
->     libselinux-2.0.89
->     libsemanage-2.0.42
->     libsepol-2.0.41
->     selinux-usr-policycoreutils-2.0.77
->     sepolgen-1.0.18
-> 
+>
+>      kernel26-selinux-2.6.31
+>      selinux-coreutils-7.6
+>      selinux-pam-1.1.0
+>      refpolicy-2.20091117
+>      selinux-sysvinit-2.86
+>      checkpolicy-2.0.20
+>      libselinux-2.0.89
+>      libsemanage-2.0.42
+>      libsepol-2.0.41
+>      selinux-usr-policycoreutils-2.0.77
+>      sepolgen-1.0.18
+>
 > That everything I have.
-> 
+>
 > Thanks for patience.
--- 
-Stephen Smalley
-National Security Agency
 
+
+I was getting the same thing until
+I did sudo /usr/sbin/semanage *
+
+
+Justin P. mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
