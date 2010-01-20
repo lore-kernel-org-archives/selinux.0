@@ -1,44 +1,41 @@
-Subject: Re: contents of /etc/selinux/<type>/contexts/users/*
+Subject: RE: Security Context Type Changes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D07F915C6@de01exm68.ds.mot.com>
-References: <4AF71B05.8030707@cs.purdue.edu>
-	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
-	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
-	 <4B14934F.9050401@cs.purdue.edu>
-	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B54339F.8070501@ak.jp.nec.com>  <4B5685D5.7040307@ak.jp.nec.com>
-	 <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D07F915C6@de01exm68.ds.mot.com>
+To: "Tomas, Gregg A (IS)" <Gregg.Tomas@ngc.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <822A6B57FFD31647BB62F4676394C675034B6FF9@XMBTX131.northgrum.com>
+References: 
+	 <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com>
+	 <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil>
+	 <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com>
+	 <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
+	 <822A6B57FFD31647BB62F4676394C675034B6C0F@XMBTX131.northgrum.com>
+	 <1263936423.12068.90.camel@moss-pluto.epoch.ncsc.mil>
+	 <822A6B57FFD31647BB62F4676394C675034B6FF9@XMBTX131.northgrum.com>
 Content-Type: text/plain
-Date: Wed, 20 Jan 2010 12:33:04 -0500
-Message-Id: <1264008784.24133.115.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 20 Jan 2010 12:36:31 -0500
+Message-Id: <1264008991.24133.119.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-01-20 at 11:29 -0500, Hasan Rezaul-CHR010 wrote:
-> Hi All,
+On Wed, 2010-01-20 at 10:50 -0600, Tomas, Gregg A (IS) wrote:
+> Stephen,
 > 
-> Can you please point me to documentation that describes the syntax
-> details of the files found in the directory:
-> 
-> /etc/selinux/<type>/contexts/users/
->                                    local.users
->                                    root
->                                    staff_u
->                                    system.users
->                                    unconfined_u
->                                    user_u
-> 
-> These files are already created for me, with several lines in them. I
-> would like to better understand what the content of these files really
-> mean and what its really doing... This way, I could perhaps make some
-> adjustments to customize them for my specific needs. Thanks in advance.
+> That is correct, we are not executing anything that would set up a user
+> context. Nothing in our code or our policy would change the context. In
+> RHEL4, root and any other users have a security context type of
+> unconfined_t so we would it expect it to be the same on RHEL5 but they
+> are init_t. Perhaps, something changed with RHEL5 release that I need to
+> research.
 
-These are just per-user versions of the default_contexts file, see:
-http://www.nsa.gov/research/_files/selinux/papers/policy2/x724.shtml
+Normally it is programs such as login (non-graphical console login), gdm
+(graphical console login), or sshd (remote login) that set up the
+security context for a user session.  If you were executing your script
+directly from /etc/inittab under RHEL4, you should have had the same end
+result - it would stay in init_t until/unless it executed a program for
+which a domain transition was defined or a program that explicitly set a
+context.  Possibly you were labeling your script or fvwm with a type and
+defining a domain transition on RHEL4?
 
 -- 
 Stephen Smalley
