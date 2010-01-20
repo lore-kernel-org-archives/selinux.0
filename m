@@ -1,46 +1,65 @@
-Subject: RE: Security Context Type Changes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Tomas, Gregg A (IS)" <Gregg.Tomas@ngc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <822A6B57FFD31647BB62F4676394C675034B6FF9@XMBTX131.northgrum.com>
-References: 
-	 <822A6B57FFD31647BB62F4676394C675033C6473@XMBTX131.northgrum.com>
-	 <1262873714.2821.1.camel@moss-pluto.epoch.ncsc.mil>
-	 <822A6B57FFD31647BB62F4676394C67503415902@XMBTX131.northgrum.com>
-	 <1263237846.5091.10.camel@moss-pluto.epoch.ncsc.mil>
-	 <822A6B57FFD31647BB62F4676394C675034B6C0F@XMBTX131.northgrum.com>
-	 <1263936423.12068.90.camel@moss-pluto.epoch.ncsc.mil>
-	 <822A6B57FFD31647BB62F4676394C675034B6FF9@XMBTX131.northgrum.com>
-Content-Type: text/plain
-Date: Wed, 20 Jan 2010 12:36:31 -0500
-Message-Id: <1264008991.24133.119.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 20 Jan 2010 23:21:37 +0300
+From: AlannY <m@alanny.ru>
+To: SELinux@tycho.nsa.gov
+Subject: Policy is not managed or store cannot be accessed
+Message-ID: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-01-20 at 10:50 -0600, Tomas, Gregg A (IS) wrote:
-> Stephen,
-> 
-> That is correct, we are not executing anything that would set up a user
-> context. Nothing in our code or our policy would change the context. In
-> RHEL4, root and any other users have a security context type of
-> unconfined_t so we would it expect it to be the same on RHEL5 but they
-> are init_t. Perhaps, something changed with RHEL5 release that I need to
-> research.
+Hi there. I'm new in SELinux world. I'm trying to setup SELinux in Archlinux. Everything seems ok.
+Everything successfully built and even runs.
 
-Normally it is programs such as login (non-graphical console login), gdm
-(graphical console login), or sshd (remote login) that set up the
-security context for a user session.  If you were executing your script
-directly from /etc/inittab under RHEL4, you should have had the same end
-result - it would stay in init_t until/unless it executed a program for
-which a domain transition was defined or a program that explicitly set a
-context.  Possibly you were labeling your script or fvwm with a type and
-defining a domain transition on RHEL4?
+But when I'm trying to do something with SELinux (semanage, semodule), I'm getting to following error:
 
+    %# semanage login -l
+    /usr/sbin/semanage: SELinux policy is not managed or store cannot be accessed.
+
+I don't know what I can do in this situation. I've already asked on Archlinux forum about this problem,
+but there are no experts in SELinux, so no one answered.
+
+Sestatus tells me, that SELinux is working:
+
+    %# sestatus
+    SELinux status:                 enabled
+    SELinuxfs mount:                /selinux
+    Current mode:                   permissive
+    Mode from config file:          permissive
+    Policy version:                 24
+    Policy from config file:        refpolicy
+
+When I'm trying to go to enforcement, the system is hang off. I think, it's normal, because of AVC deniels in log.
+I can solve it by creating new module, but I cannot load it, because of 1st error (not managed/not accessed).
+
+I'm
+    %# id -Z
+    root:staff_r:insmod_t
+
+What can I do?
+
+I think, that my problem is with version mismatch of selinux tools (checkpolicy,semanage) and refpolicy.
+Where can I check it? Currently I have:
+
+    kernel26-selinux-2.6.31
+    selinux-coreutils-7.6
+    selinux-pam-1.1.0
+    refpolicy-2.20091117
+    selinux-sysvinit-2.86
+    checkpolicy-2.0.20
+    libselinux-2.0.89
+    libsemanage-2.0.42
+    libsepol-2.0.41
+    selinux-usr-policycoreutils-2.0.77
+    sepolgen-1.0.18
+
+That everything I have.
+
+Thanks for patience.
 -- 
-Stephen Smalley
-National Security Agency
-
+   )\._.,--....,'``.
+  /,   _.. \   _\  (`._ ,.
+ `._.-(,_..'--(,_..'`-.;.' 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
