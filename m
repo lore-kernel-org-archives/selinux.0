@@ -1,107 +1,34 @@
-Subject: Re: [PATCH 1/2] selinux: remove dead code in
- type_attribute_bounds_av()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Jacques Thomas <jthomas@cs.purdue.edu>, SE Linux <selinux@tycho.nsa.gov>,
-        method@manicmethod.com
-In-Reply-To: <4B5685D5.7040307@ak.jp.nec.com>
-References: <4AF71B05.8030707@cs.purdue.edu>
-	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
-	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
-	 <4B14934F.9050401@cs.purdue.edu>
-	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B54339F.8070501@ak.jp.nec.com>  <4B5685D5.7040307@ak.jp.nec.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 20 Jan 2010 08:33:36 -0500
-Message-Id: <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: contents of /etc/selinux/<type>/contexts/users/*
+Date: Wed, 20 Jan 2010 11:29:54 -0500
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D07F915C6@de01exm68.ds.mot.com>
+In-Reply-To: <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
+References: <4AF71B05.8030707@cs.purdue.edu> <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu> <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com> <4B14934F.9050401@cs.purdue.edu> <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil> <4B54339F.8070501@ak.jp.nec.com>  <4B5685D5.7040307@ak.jp.nec.com> <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-01-20 at 13:25 +0900, KaiGai Kohei wrote:
-> This patch removes dead code in type_attribute_bounds_av().
-> 
-> Due to the historical reason, the type boundary feature is delivered
-> from hierarchical types in libsepol, it has supported boundary features
-> both of subject type (domain; in most cases) and target type.
-> 
-> However, we don't have any actual use cases in bounded target types,
-> and it tended to make conceptual confusion.
-> So, this patch removes the dead code to apply boundary checks on the
-> target types. I makes clear the TYPEBOUNDS restricts privileges of
-> a certain domain bounded to any other domain.
-> 
->  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
-> --
->  security/selinux/ss/services.c |   36 ++----------------------------------
->  1 files changed, 2 insertions(+), 34 deletions(-)
+Hi All,
 
-$ make C=2 security/selinux/ss/services.o
-security/selinux/ss/services.c: In function ‘type_attribute_bounds_av’:
-security/selinux/ss/services.c:524: warning: unused variable ‘target’
-security/selinux/ss/services.c:520: warning: unused variable ‘lo_tcontext’
+Can you please point me to documentation that describes the syntax
+details of the files found in the directory:
 
+/etc/selinux/<type>/contexts/users/
+                                   local.users
+                                   root
+                                   staff_u
+                                   system.users
+                                   unconfined_u
+                                   user_u
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 3b42b15..a63593e 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -523,9 +523,10 @@ static void type_attribute_bounds_av(struct context *scontext,
->  		= policydb.type_val_to_struct[scontext->type - 1];
->  	struct type_datum *target
->  		= policydb.type_val_to_struct[tcontext->type - 1];
-> -	u32 masked = 0;
-> 
->  	if (source->bounds) {
-> +		u32 masked;
-> +
->  		memset(&lo_avd, 0, sizeof(lo_avd));
-> 
->  		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
-> @@ -538,40 +539,7 @@ static void type_attribute_bounds_av(struct context *scontext,
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
->  		masked = ~lo_avd.allowed & avd->allowed;
-> -	}
-> -
-> -	if (target->bounds) {
-> -		memset(&lo_avd, 0, sizeof(lo_avd));
-> -
-> -		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
-> -		lo_tcontext.type = target->bounds;
-> -
-> -		context_struct_compute_av(scontext,
-> -					  &lo_tcontext,
-> -					  tclass,
-> -					  &lo_avd);
-> -		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
-> -			return;		/* no masked permission */
-> -		masked = ~lo_avd.allowed & avd->allowed;
-> -	}
-> -
-> -	if (source->bounds && target->bounds) {
-> -		memset(&lo_avd, 0, sizeof(lo_avd));
-> -		/*
-> -		 * lo_scontext and lo_tcontext are already
-> -		 * set up.
-> -		 */
-> -
-> -		context_struct_compute_av(&lo_scontext,
-> -					  &lo_tcontext,
-> -					  tclass,
-> -					  &lo_avd);
-> -		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
-> -			return;		/* no masked permission */
-> -		masked = ~lo_avd.allowed & avd->allowed;
-> -	}
-> 
-> -	if (masked) {
->  		/* mask violated permissions */
->  		avd->allowed &= ~masked;
-> 
--- 
-Stephen Smalley
-National Security Agency
+These files are already created for me, with several lines in them. I
+would like to better understand what the content of these files really
+mean and what its really doing... This way, I could perhaps make some
+adjustments to customize them for my specific needs. Thanks in advance.
 
 
 --
