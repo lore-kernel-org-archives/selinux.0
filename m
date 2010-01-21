@@ -9,8 +9,8 @@ References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
 	 <1264080547.11002.28.camel@moss-pluto.epoch.ncsc.mil>
 	 <20100121141716.GA7818@alanny-pc.lcl.starlink.ru>
 Content-Type: text/plain
-Date: Thu, 21 Jan 2010 09:37:33 -0500
-Message-Id: <1264084653.11002.68.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 21 Jan 2010 09:57:46 -0500
+Message-Id: <1264085866.11002.81.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -30,17 +30,20 @@ On Thu, 2010-01-21 at 17:17 +0300, AlannY wrote:
 > > Fedora and Ubuntu.
 > 
 > Ok, I'll try to modify initramfs.
-> 
-> > > File contexts:
-> > > Controlling term:               system_u:object_r:ramfs_t
-> > 
-> > This is interesting - why is your tty on a ramfs image?
-> 
-> I don't know ;-( It was by default. What can I do to change it?
 
-What were you running sestatus from?  single-user mode?  Normal console
-login at runlevel 3?  What does "tty" report as your tty device and what
-does cat /proc/mounts show?
+Since you mentioned that you had a selinux-sysvinit package (and hence
+should have had a patched /sbin/init), I looked around and found:
+http://aur.archlinux.org/packages/selinux-sysvinit/selinux-sysvinit/sysvinit-init.c.diff
+
+Interestingly, this patch (which is not the same as the one used in the
+past by Fedora and Debian) does not try to re-exec init, which is why it
+isn't transitioning into its domain.
+
+Further, this patch tries to load policy from /etc/policy.bin.  That's a
+non-standard location, and won't work unless it happens to be a symlink
+to the location used by libsemanage and libselinux
+(/etc/selinux/$SELINUXTYPE/policy/policy.NN where SELINUXTYPE is defined
+by /etc/selinux/config and NN is the policy format version number).
 
 -- 
 Stephen Smalley
