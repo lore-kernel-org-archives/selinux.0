@@ -1,54 +1,32 @@
-Subject: Re: Policy is not managed or store cannot be accessed
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4B58A49D.209@gmail.com>
+Date: Thu, 21 Jan 2010 11:01:49 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
 To: AlannY <m@alanny.ru>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100121141716.GA7818@alanny-pc.lcl.starlink.ru>
-References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
-	 <1264020386.24133.182.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100121122816.GB13907@alanny-pc.lcl.starlink.ru>
-	 <1264080547.11002.28.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100121141716.GA7818@alanny-pc.lcl.starlink.ru>
-Content-Type: text/plain
-Date: Thu, 21 Jan 2010 09:57:46 -0500
-Message-Id: <1264085866.11002.81.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Policy is not managed or store cannot be accessed
+References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru> <4B576B7C.8020606@gmail.com> <20100121122659.GA13907@alanny-pc.lcl.starlink.ru>
+In-Reply-To: <20100121122659.GA13907@alanny-pc.lcl.starlink.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-01-21 at 17:17 +0300, AlannY wrote:
-> On Thu, Jan 21, 2010 at 08:29:07AM -0500, Stephen Smalley wrote:
-> > So /sbin/init never transitioned from kernel_t to init_t and thus none
-> > of your processes are in the right security context.
-> > 
-> > In order for this to happen, one of two things is required:
-> > 1) Your /sbin/init program needs the selinux patch to load policy and
-> > then re-exec itself into the right security context, or
-> > 2) Your initramfs init script needs to load policy (e.g. chroot
-> > $NEWROOT /usr/sbin/load_policy -i) before running the real init program.
-> > 
-> > #1 was the original approach in Fedora; #2 is the current approach in
-> > Fedora and Ubuntu.
-> 
-> Ok, I'll try to modify initramfs.
+On 01/21/10 04:27, AlannY wrote:
+> On Wed, Jan 20, 2010 at 12:45:48PM -0800, Justin P. Mattock wrote:
+>> I was getting the same thing until
+>> I did sudo /usr/sbin/semanage *
+>
+> Not works for me. ;-(
 
-Since you mentioned that you had a selinux-sysvinit package (and hence
-should have had a patched /sbin/init), I looked around and found:
-http://aur.archlinux.org/packages/selinux-sysvinit/selinux-sysvinit/sysvinit-init.c.diff
+well reading the thread, seems
+more than just a simple sudo/su.
 
-Interestingly, this patch (which is not the same as the one used in the
-past by Fedora and Debian) does not try to re-exec init, which is why it
-isn't transitioning into its domain.
+my guess is as soon as the policy is loading properly
+then semanage should function properly.
+(Mr Smalley is the best person to give you info on
+this);
 
-Further, this patch tries to load policy from /etc/policy.bin.  That's a
-non-standard location, and won't work unless it happens to be a symlink
-to the location used by libsemanage and libselinux
-(/etc/selinux/$SELINUXTYPE/policy/policy.NN where SELINUXTYPE is defined
-by /etc/selinux/config and NN is the policy format version number).
-
--- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
