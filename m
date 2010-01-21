@@ -1,24 +1,33 @@
-Date: Thu, 21 Jan 2010 15:44:09 +0300
+Date: Thu, 21 Jan 2010 16:12:09 +0300
 From: AlannY <m@alanny.ru>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Policy is not managed or store cannot be accessed
-Message-ID: <20100121123749.GA17342@alanny-pc.lcl.starlink.ru>
-References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
- <1264020386.24133.182.camel@moss-pluto.epoch.ncsc.mil>
+To: SELinux@tycho.nsa.gov
+Subject: What is refpolicy [strict or targeted]
+Message-ID: <20100121131207.GA29762@alanny-pc.lcl.starlink.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1264020386.24133.182.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Did you build your policy with MONOLITHIC=n in build.conf?
-> If not, then you need to do that if you want modular/managed policy.
+Hi there. I'm newbie in SELinux, so I have a lame question.
 
-Yes, you are right. I've completely forgot about it.
+I know, that SELinux are now not supported all application,
+so there are 2 different kinds of policy available: strict
+and targeted.
 
-Thanks. This problem is solved.
+First one: strict checking. Applications allows only what policy
+can allow.
 
+Second one (and more intresting for me) is targeted policy:
+policy will work only on targeted applications.
+
+I'm using Fedora and using targeted policy. But now, I'm trying
+to setup SELinux on different OS on different machine. So, I'm
+using raw refpolicy (as is).
+
+But what is refpolicy: strict or targeted. If strict, can I change
+it to targeted? And how?
+
+Thanks for patience.
 -- 
    )\._.,--....,'``.
   /,   _.. \   _\  (`._ ,.
