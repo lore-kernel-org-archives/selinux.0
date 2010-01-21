@@ -1,75 +1,122 @@
-Subject: Re: What is refpolicy [strict or targeted]
+Subject: Re: [PATCH 1/2] selinux: remove dead code in
+ type_attribute_bounds_av()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: AlannY <m@alanny.ru>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100121131207.GA29762@alanny-pc.lcl.starlink.ru>
-References: <20100121131207.GA29762@alanny-pc.lcl.starlink.ru>
-Content-Type: text/plain
-Date: Thu, 21 Jan 2010 08:49:42 -0500
-Message-Id: <1264081782.11002.49.camel@moss-pluto.epoch.ncsc.mil>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Jacques Thomas <jthomas@cs.purdue.edu>, SE Linux <selinux@tycho.nsa.gov>,
+        method@manicmethod.com
+In-Reply-To: <4B57ED6F.6040803@ak.jp.nec.com>
+References: <4AF71B05.8030707@cs.purdue.edu>
+	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
+	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
+	 <4B14934F.9050401@cs.purdue.edu>
+	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B54339F.8070501@ak.jp.nec.com>  <4B5685D5.7040307@ak.jp.nec.com>
+	 <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B57ED6F.6040803@ak.jp.nec.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 21 Jan 2010 09:08:09 -0500
+Message-Id: <1264082889.11002.51.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-01-21 at 16:12 +0300, AlannY wrote:
-> Hi there. I'm newbie in SELinux, so I have a lame question.
+On Thu, 2010-01-21 at 15:00 +0900, KaiGai Kohei wrote:
+> (2010/01/20 22:33), Stephen Smalley wrote:
+> > $ make C=2 security/selinux/ss/services.o
+> > security/selinux/ss/services.c: In function ‘type_attribute_bounds_av’:
+> > security/selinux/ss/services.c:524: warning: unused variable ‘target’
+> > security/selinux/ss/services.c:520: warning: unused variable ‘lo_tcontext’
 > 
-> I know, that SELinux are now not supported all application,
-> so there are 2 different kinds of policy available: strict
-> and targeted.
+> Sorry, it was fixed.
 > 
-> First one: strict checking. Applications allows only what policy
-> can allow.
+> --------
+> This patch removes dead code in type_attribute_bounds_av().
 > 
-> Second one (and more intresting for me) is targeted policy:
-> policy will work only on targeted applications.
+> Due to the historical reason, the type boundary feature is delivered
+> from hierarchical types in libsepol, it has supported boundary features
+> both of subject type (domain; in most cases) and target type.
 > 
-> I'm using Fedora and using targeted policy. But now, I'm trying
-> to setup SELinux on different OS on different machine. So, I'm
-> using raw refpolicy (as is).
+> However, we don't have any actual use cases in bounded target types,
+> and it tended to make conceptual confusion.
+> So, this patch removes the dead code to apply boundary checks on the
+> target types. I makes clear the TYPEBOUNDS restricts privileges of
+> a certain domain bounded to any other domain.
 > 
-> But what is refpolicy: strict or targeted. If strict, can I change
-> it to targeted? And how?
+>  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> --
+>  security/selinux/ss/services.c |   43 +++------------------------------------
+>  1 files changed, 4 insertions(+), 39 deletions(-)
 > 
-> Thanks for patience.
-
-Strict vs. targeted was really just a matter of:
-- the set of applications that were confined (originally a much larger
-set in strict),
-- whether or not users were confined (originally only in strict),
-- the existence of unconfined domains (originally only in targeted)
-
-So strict vs. targeted were just different configurations of the same
-policy source tree - you could build either one from refpolicy via the
-TYPE= setting in build.conf, and by selecting the set of policy modules
-via modules.conf.
-
-Over time, the set of applications that were confined under targeted
-kept growing, converging toward strict, and there was increasing
-interest in being able to confine users under targeted.  That led to a
-merging of targeted and strict into a single policy, which Fedora still
-calls targeted, where you can select strict behavior by:
-- mapping specific users to confined user roles using semanage login,
-- optionally removing all support for unconfined users by removing the
-unconfineduser policy module,
-- optionally removing all support for any unconfined domains by removing
-the unconfined policy module (but this will be disruptive to any running
-processes in unconfined_t and requires care to make the transition).
-
-There is no longer a separate strict policy.
-
-Fedora targeted policy is built with:
-TYPE=mcs
-DISTRO=redhat
-UNK_PERMS=allow
-DIRECT_INITRC=y
-MONOLITHIC=n
-UBAC=n
-MCS_CATS=1024
-
-You can see how it gets built from the selinux-policy.spec file.
-http://cvs.fedoraproject.org/viewvc/rpms/selinux-policy/devel/selinux-policy.spec?revision=1.959&view=markup&pathrev=HEAD
-
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 3b42b15..4a2bf21 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -516,16 +516,14 @@ static void type_attribute_bounds_av(struct context *scontext,
+>  				     u16 tclass,
+>  				     struct av_decision *avd)
+>  {
+> -	struct context lo_scontext;
+> -	struct context lo_tcontext;
+> -	struct av_decision lo_avd;
+>  	struct type_datum *source
+>  		= policydb.type_val_to_struct[scontext->type - 1];
+> -	struct type_datum *target
+> -		= policydb.type_val_to_struct[tcontext->type - 1];
+> -	u32 masked = 0;
+> 
+>  	if (source->bounds) {
+> +		struct context lo_scontext;
+> +		struct av_decision lo_avd;
+> +		u32 masked;
+> +
+>  		memset(&lo_avd, 0, sizeof(lo_avd));
+> 
+>  		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
+> @@ -538,40 +536,7 @@ static void type_attribute_bounds_av(struct context *scontext,
+>  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+>  			return;		/* no masked permission */
+>  		masked = ~lo_avd.allowed & avd->allowed;
+> -	}
+> -
+> -	if (target->bounds) {
+> -		memset(&lo_avd, 0, sizeof(lo_avd));
+> -
+> -		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
+> -		lo_tcontext.type = target->bounds;
+> -
+> -		context_struct_compute_av(scontext,
+> -					  &lo_tcontext,
+> -					  tclass,
+> -					  &lo_avd);
+> -		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> -			return;		/* no masked permission */
+> -		masked = ~lo_avd.allowed & avd->allowed;
+> -	}
+> -
+> -	if (source->bounds && target->bounds) {
+> -		memset(&lo_avd, 0, sizeof(lo_avd));
+> -		/*
+> -		 * lo_scontext and lo_tcontext are already
+> -		 * set up.
+> -		 */
+> -
+> -		context_struct_compute_av(&lo_scontext,
+> -					  &lo_tcontext,
+> -					  tclass,
+> -					  &lo_avd);
+> -		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> -			return;		/* no masked permission */
+> -		masked = ~lo_avd.allowed & avd->allowed;
+> -	}
+> 
+> -	if (masked) {
+>  		/* mask violated permissions */
+>  		avd->allowed &= ~masked;
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
