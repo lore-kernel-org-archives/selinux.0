@@ -1,72 +1,113 @@
-Message-ID: <4B576B7C.8020606@gmail.com>
-Date: Wed, 20 Jan 2010 12:45:48 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Message-ID: <4B57ED6F.6040803@ak.jp.nec.com>
+Date: Thu, 21 Jan 2010 15:00:15 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: AlannY <m@alanny.ru>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: Policy is not managed or store cannot be accessed
-References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
-In-Reply-To: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Jacques Thomas <jthomas@cs.purdue.edu>, SE Linux <selinux@tycho.nsa.gov>,
+        method@manicmethod.com
+Subject: Re: [PATCH 1/2] selinux: remove dead code in type_attribute_bounds_av()
+References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu>	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>	 <4B54339F.8070501@ak.jp.nec.com>  <4B5685D5.7040307@ak.jp.nec.com> <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1263994416.24133.4.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/20/10 12:21, AlannY wrote:
-> Hi there. I'm new in SELinux world. I'm trying to setup SELinux in Archlinux. Everything seems ok.
-> Everything successfully built and even runs.
->
-> But when I'm trying to do something with SELinux (semanage, semodule), I'm getting to following error:
->
->      %# semanage login -l
->      /usr/sbin/semanage: SELinux policy is not managed or store cannot be accessed.
->
-> I don't know what I can do in this situation. I've already asked on Archlinux forum about this problem,
-> but there are no experts in SELinux, so no one answered.
->
-> Sestatus tells me, that SELinux is working:
->
->      %# sestatus
->      SELinux status:                 enabled
->      SELinuxfs mount:                /selinux
->      Current mode:                   permissive
->      Mode from config file:          permissive
->      Policy version:                 24
->      Policy from config file:        refpolicy
->
-> When I'm trying to go to enforcement, the system is hang off. I think, it's normal, because of AVC deniels in log.
-> I can solve it by creating new module, but I cannot load it, because of 1st error (not managed/not accessed).
->
-> I'm
->      %# id -Z
->      root:staff_r:insmod_t
->
-> What can I do?
->
-> I think, that my problem is with version mismatch of selinux tools (checkpolicy,semanage) and refpolicy.
-> Where can I check it? Currently I have:
->
->      kernel26-selinux-2.6.31
->      selinux-coreutils-7.6
->      selinux-pam-1.1.0
->      refpolicy-2.20091117
->      selinux-sysvinit-2.86
->      checkpolicy-2.0.20
->      libselinux-2.0.89
->      libsemanage-2.0.42
->      libsepol-2.0.41
->      selinux-usr-policycoreutils-2.0.77
->      sepolgen-1.0.18
->
-> That everything I have.
->
-> Thanks for patience.
+(2010/01/20 22:33), Stephen Smalley wrote:
+> $ make C=2 security/selinux/ss/services.o
+> security/selinux/ss/services.c: In function ‘type_attribute_bounds_av’:
+> security/selinux/ss/services.c:524: warning: unused variable ‘target’
+> security/selinux/ss/services.c:520: warning: unused variable ‘lo_tcontext’
+
+Sorry, it was fixed.
+
+--------
+This patch removes dead code in type_attribute_bounds_av().
+
+Due to the historical reason, the type boundary feature is delivered
+from hierarchical types in libsepol, it has supported boundary features
+both of subject type (domain; in most cases) and target type.
+
+However, we don't have any actual use cases in bounded target types,
+and it tended to make conceptual confusion.
+So, this patch removes the dead code to apply boundary checks on the
+target types. I makes clear the TYPEBOUNDS restricts privileges of
+a certain domain bounded to any other domain.
+
+ Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+--
+ security/selinux/ss/services.c |   43 +++------------------------------------
+ 1 files changed, 4 insertions(+), 39 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 3b42b15..4a2bf21 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -516,16 +516,14 @@ static void type_attribute_bounds_av(struct context *scontext,
+ 				     u16 tclass,
+ 				     struct av_decision *avd)
+ {
+-	struct context lo_scontext;
+-	struct context lo_tcontext;
+-	struct av_decision lo_avd;
+ 	struct type_datum *source
+ 		= policydb.type_val_to_struct[scontext->type - 1];
+-	struct type_datum *target
+-		= policydb.type_val_to_struct[tcontext->type - 1];
+-	u32 masked = 0;
+
+ 	if (source->bounds) {
++		struct context lo_scontext;
++		struct av_decision lo_avd;
++		u32 masked;
++
+ 		memset(&lo_avd, 0, sizeof(lo_avd));
+
+ 		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
+@@ -538,40 +536,7 @@ static void type_attribute_bounds_av(struct context *scontext,
+ 		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+ 			return;		/* no masked permission */
+ 		masked = ~lo_avd.allowed & avd->allowed;
+-	}
+-
+-	if (target->bounds) {
+-		memset(&lo_avd, 0, sizeof(lo_avd));
+-
+-		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
+-		lo_tcontext.type = target->bounds;
+-
+-		context_struct_compute_av(scontext,
+-					  &lo_tcontext,
+-					  tclass,
+-					  &lo_avd);
+-		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+-			return;		/* no masked permission */
+-		masked = ~lo_avd.allowed & avd->allowed;
+-	}
+-
+-	if (source->bounds && target->bounds) {
+-		memset(&lo_avd, 0, sizeof(lo_avd));
+-		/*
+-		 * lo_scontext and lo_tcontext are already
+-		 * set up.
+-		 */
+-
+-		context_struct_compute_av(&lo_scontext,
+-					  &lo_tcontext,
+-					  tclass,
+-					  &lo_avd);
+-		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+-			return;		/* no masked permission */
+-		masked = ~lo_avd.allowed & avd->allowed;
+-	}
+
+-	if (masked) {
+ 		/* mask violated permissions */
+ 		avd->allowed &= ~masked;
 
 
-I was getting the same thing until
-I did sudo /usr/sbin/semanage *
-
-
-Justin P. mattock
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
