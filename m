@@ -1,62 +1,75 @@
-Subject: Re: Policy is not managed or store cannot be accessed
+Subject: Re: What is refpolicy [strict or targeted]
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: AlannY <m@alanny.ru>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100121122816.GB13907@alanny-pc.lcl.starlink.ru>
-References: <20100120202135.GA6124@alanny-pc.lcl.starlink.ru>
-	 <1264020386.24133.182.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100121122816.GB13907@alanny-pc.lcl.starlink.ru>
+In-Reply-To: <20100121131207.GA29762@alanny-pc.lcl.starlink.ru>
+References: <20100121131207.GA29762@alanny-pc.lcl.starlink.ru>
 Content-Type: text/plain
-Date: Thu, 21 Jan 2010 08:29:07 -0500
-Message-Id: <1264080547.11002.28.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 21 Jan 2010 08:49:42 -0500
+Message-Id: <1264081782.11002.49.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-01-21 at 15:28 +0300, AlannY wrote:
-> On Wed, Jan 20, 2010 at 03:46:26PM -0500, Stephen Smalley wrote:
-> > Hmmm...did you label your filesystems?
-> > What does sestatus -v show?
+On Thu, 2010-01-21 at 16:12 +0300, AlannY wrote:
+> Hi there. I'm newbie in SELinux, so I have a lame question.
 > 
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          permissive
-> Policy version:                 24
-> Policy from config file:        refpolicy
+> I know, that SELinux are now not supported all application,
+> so there are 2 different kinds of policy available: strict
+> and targeted.
 > 
-> Process contexts:
-> Current context:                root:staff_r:insmod_t
-> Init context:                   system_u:system_r:kernel_t
-
-So /sbin/init never transitioned from kernel_t to init_t and thus none
-of your processes are in the right security context.
-
-In order for this to happen, one of two things is required:
-1) Your /sbin/init program needs the selinux patch to load policy and
-then re-exec itself into the right security context, or
-2) Your initramfs init script needs to load policy (e.g. chroot
-$NEWROOT /usr/sbin/load_policy -i) before running the real init program.
-
-#1 was the original approach in Fedora; #2 is the current approach in
-Fedora and Ubuntu.
-
-> /sbin/agetty                    system_u:system_r:kernel_t
+> First one: strict checking. Applications allows only what policy
+> can allow.
 > 
-> File contexts:
-> Controlling term:               system_u:object_r:ramfs_t
-
-This is interesting - why is your tty on a ramfs image?
-
-> /etc/passwd                     system_u:object_r:etc_t
-> /etc/shadow                     system_u:object_r:shadow_t
-> /bin/bash                       system_u:object_r:shell_exec_t
-> /bin/login                      system_u:object_r:login_exec_t
-> /bin/sh                         system_u:object_r:bin_t -> system_u:object_r:shell_exec_t
-> /sbin/agetty                    system_u:object_r:getty_exec_t
-> /sbin/init                      system_u:object_r:init_exec_t
-> /lib/libc.so.6                  system_u:object_r:lib_t -> system_u:object_r:lib_t
+> Second one (and more intresting for me) is targeted policy:
+> policy will work only on targeted applications.
 > 
+> I'm using Fedora and using targeted policy. But now, I'm trying
+> to setup SELinux on different OS on different machine. So, I'm
+> using raw refpolicy (as is).
+> 
+> But what is refpolicy: strict or targeted. If strict, can I change
+> it to targeted? And how?
+> 
+> Thanks for patience.
+
+Strict vs. targeted was really just a matter of:
+- the set of applications that were confined (originally a much larger
+set in strict),
+- whether or not users were confined (originally only in strict),
+- the existence of unconfined domains (originally only in targeted)
+
+So strict vs. targeted were just different configurations of the same
+policy source tree - you could build either one from refpolicy via the
+TYPE= setting in build.conf, and by selecting the set of policy modules
+via modules.conf.
+
+Over time, the set of applications that were confined under targeted
+kept growing, converging toward strict, and there was increasing
+interest in being able to confine users under targeted.  That led to a
+merging of targeted and strict into a single policy, which Fedora still
+calls targeted, where you can select strict behavior by:
+- mapping specific users to confined user roles using semanage login,
+- optionally removing all support for unconfined users by removing the
+unconfineduser policy module,
+- optionally removing all support for any unconfined domains by removing
+the unconfined policy module (but this will be disruptive to any running
+processes in unconfined_t and requires care to make the transition).
+
+There is no longer a separate strict policy.
+
+Fedora targeted policy is built with:
+TYPE=mcs
+DISTRO=redhat
+UNK_PERMS=allow
+DIRECT_INITRC=y
+MONOLITHIC=n
+UBAC=n
+MCS_CATS=1024
+
+You can see how it gets built from the selinux-policy.spec file.
+http://cvs.fedoraproject.org/viewvc/rpms/selinux-policy/devel/selinux-policy.spec?revision=1.959&view=markup&pathrev=HEAD
+
 -- 
 Stephen Smalley
 National Security Agency
