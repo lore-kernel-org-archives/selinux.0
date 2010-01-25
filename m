@@ -1,38 +1,55 @@
-Subject: Re: bzip support in libsemanage and out of memory (userspace
- ticket 7)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: jbrindle@tresys.com, cpebenito@tresys.com, selinux@tycho.nsa.gov,
-        refpolicy@oss1.tresys.com
-In-Reply-To: <201001251615.o0PGFlV2021048@vivaldi13.register.it>
-References: <201001251615.o0PGFlV2021048@vivaldi13.register.it>
-Content-Type: text/plain
-Date: Mon, 25 Jan 2010 11:31:38 -0500
-Message-Id: <1264437098.4297.180.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0PGdg2N007285
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jan 2010 11:39:43 -0500
+Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o0PGdZJn003712
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jan 2010 16:39:35 GMT
+Received: by vws14 with SMTP id 14so600vws.12
+        for <selinux@tycho.nsa.gov>; Mon, 25 Jan 2010 08:39:32 -0800 (PST)
+MIME-Version: 1.0
+Date: Mon, 25 Jan 2010 08:39:32 -0800
+Message-ID: <81092d891001250839s7b864f2o4343564b2d17b34c@mail.gmail.com>
+Subject: are comments allowed in default_contexts?
+From: Larry Ross <selinux.larry@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001517576db65a62f8047dffd0e2
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-01-25 at 17:15 +0100, Guido Trentalancia wrote:
-> Dear Stephen,
-> 
-> I have attached the build.conf and modules.conf files that have been used to build the policy.
-> 
-> Please note the "out of memory" error mentioned in the subject was generated with older versions of semodule (before upgrading to the versions mentioned in my original message).
-> 
-> I do apologise for dropping out the list in the previous message...
+--001517576db65a62f8047dffd0e2
+Content-Type: text/plain; charset=ISO-8859-1
 
-With that build.conf, refpolicy build fails with:
-make: *** No rule to make target `/seusers', needed by `tmp/seusers'.  Stop.
+A quick question: Are comments allowed in the default_contexts and user
+contexts files?
 
-This was with make 3.81 on Fedora 12.  Chris?
+/etc/selinux/strict/contexts/
+and
+/etc/selinux/strict/contexts/users/root
 
-Anyway, at this point I'd have to suggest that you supply your actual .pp file.
+Are normal '#' comment lines ignored in the processing of these files?
 
--- 
-Stephen Smalley
-National Security Agency
+   Thank you,
+   Larry
 
+--001517576db65a62f8047dffd0e2
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>A quick question: Are comments allowed in the default_contexts and use=
+r contexts files?</div>
+<div>=A0</div>
+<div>/etc/selinux/strict/contexts/</div>
+<div>and=A0=A0</div>
+<div>/etc/selinux/strict/contexts/users/root</div>
+<div>=A0</div>
+<div>Are normal &#39;#&#39; comment lines ignored in the processing of thes=
+e files?</div>
+<div>=A0</div>
+<div>=A0=A0 Thank you,</div>
+<div>=A0=A0 Larry</div>
+<div>=A0</div>
+
+--001517576db65a62f8047dffd0e2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
