@@ -2,10 +2,10 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 11/15] [src-policy] semodule: get module source
-Date: Tue, 26 Jan 2010 17:08:17 -0500
-Message-Id: <1264543701-20638-12-git-send-email-ccase@tresys.com>
-In-Reply-To: <1264543701-20638-11-git-send-email-ccase@tresys.com>
+Subject: [PATCH 10/15] [src-policy] libsemanage: get source module
+Date: Tue, 26 Jan 2010 17:08:16 -0500
+Message-Id: <1264543701-20638-11-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-10-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
  <1264543701-20638-2-git-send-email-ccase@tresys.com>
  <1264543701-20638-3-git-send-email-ccase@tresys.com>
@@ -16,367 +16,323 @@ References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
  <1264543701-20638-8-git-send-email-ccase@tresys.com>
  <1264543701-20638-9-git-send-email-ccase@tresys.com>
  <1264543701-20638-10-git-send-email-ccase@tresys.com>
- <1264543701-20638-11-git-send-email-ccase@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This adds the ability to retrieve the module source using semodule.
-
-  -g,--get=MODULE_NAME [-o FILE] [-c] get module source
-
-* More than one -g is allowed per command invocation.
-
-* If output_name is “-“ then output is sent to standard out.
-
-* If output is specified multiple times with oufile_name "-", then
-  append to stdout.
-
-* If -o is not specified then the module is output to
-  <module name>.<language ext> in the current directory.
-
-* If there is an existing file with the output file name (with or
-  without -o), then emit error and exit.
-
-* -c will output the CIL instead of the source format.
-
-Example:
-
-# semodule -g alsa
-
-This will retrieve the high level language source for the alsa module
-and save it to alsa.ref in the current directory.
+This provides the semanage_module_get and semanage_module_get_cil
+interfaces for retrieving the original source module and the
+intermediate compilation result. These functions are exported in the
+private API so that they can be used by semodule.
 ---
- policycoreutils/semodule/semodule.8 |    3 +
- policycoreutils/semodule/semodule.c |  227 ++++++++++++++++++++++++++++++++++-
- 2 files changed, 228 insertions(+), 2 deletions(-)
+ libsemanage/include/semanage/private/modules.h |   28 +++++-
+ libsemanage/src/direct_api.c                   |  150 ++++++++++++++++++++++++
+ libsemanage/src/libsemanage.map                |    2 +
+ libsemanage/src/modules.c                      |   34 ++++++
+ libsemanage/src/policy.h                       |   15 +++-
+ 5 files changed, 227 insertions(+), 2 deletions(-)
 
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index 5fc10b3..bb6ae49 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -55,6 +55,9 @@ enable module
- .B  \-d,\-\-disable=MODULE_NAME
- disable module
- .TP
-+.B  \-g,\-\-get=MODULE_NAME [-o,--output=FILE] [-c,--cil]
-+Outputs module source to MODULE_NAME.ref. If output is set to '-' outputs on stdout, otherwise, outputs to the specified FILE. If cil is specified, then outputs the cil source instead of the original source.
-+.TP
- .B  \-s,\-\-store	   
- name of the store to operate on
- .TP
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index c6b0d3c..0e3cc76 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -20,6 +20,7 @@
- #include <sys/mman.h>
- #include <sys/stat.h>
- #include <sys/types.h>
-+#include <limits.h>
+diff --git a/libsemanage/include/semanage/private/modules.h b/libsemanage/include/semanage/private/modules.h
+index 2ffaa5b..8a2ed99 100644
+--- a/libsemanage/include/semanage/private/modules.h
++++ b/libsemanage/include/semanage/private/modules.h
+@@ -1,6 +1,6 @@
+ /* Authors:	Caleb Case	<ccase@tresys.com>
+  *
+- * Copyright (C) 2009 Tresys Technology, LLC
++ * Copyright (C) 2009-2010 Tresys Technology, LLC
+  *
+  *  This library is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU Lesser General Public
+@@ -278,4 +278,30 @@ int semanage_module_upgrade_info(semanage_handle_t *sh,
+ int semanage_module_remove_key(semanage_handle_t *sh,
+ 			       const semanage_module_key_t *modkey);
  
- #include <semanage/modules.h>
- 
-@@ -27,17 +28,22 @@
- 
- enum client_modes {
- 	NO_MODE, INSTALL_M, UPGRADE_M, BASE_M, REMOVE_M,
--	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M
-+	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M,
-+	GET_M,
- };
++/* Get the source for the module specified @modkey.
++ * @modkey must have key values filled in.
++ *
++ * Returns:
++ *	 0	success
++ *	-1	failure, out of memory
++ *	-2	failure, @modkey not found
++ */
++int semanage_module_get(semanage_handle_t *sh,
++			const semanage_module_key_t *modkey,
++			char **data,
++			size_t *data_len);
 +
- /* list of modes in which one ought to commit afterwards */
- static const int do_commit[] = {
- 	0, 1, 1, 1, 1,
- 	0, 0, 0, 1, 1,
-+	0,
++/* Get the cil for the module specified @modkey.
++ * @modkey must have key values filled in.
++ *
++ * Returns:
++ *	 0	success
++ *	-1	failure, out of memory
++ *	-2	failure, @modkey not found
++ */
++int semanage_module_get_cil(semanage_handle_t *sh,
++			    const semanage_module_key_t *modkey,
++			    char **data,
++			    size_t *data_len);
++
+ #endif
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 6f7cf63..ee6f70f 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -92,6 +92,16 @@ static int semanage_direct_upgrade_info(semanage_handle_t *sh,
+ static int semanage_direct_remove_key(semanage_handle_t *sh,
+ 				      const semanage_module_key_t *modkey);
+ 
++static int semanage_direct_get(semanage_handle_t *sh,
++			       const semanage_module_key_t *modkey,
++			       char **data,
++			       size_t *data_len);
++
++static int semanage_direct_get_cil(semanage_handle_t *sh,
++				   const semanage_module_key_t *modkey,
++				   char **data,
++				   size_t *data_len);
++
+ static struct semanage_policy_table direct_funcs = {
+ 	.get_serial = semanage_direct_get_serial,
+ 	.destroy = semanage_direct_destroy,
+@@ -113,6 +123,8 @@ static struct semanage_policy_table direct_funcs = {
+ 	.install_info = semanage_direct_install_info,
+ 	.upgrade_info = semanage_direct_upgrade_info,
+ 	.remove_key = semanage_direct_remove_key,
++	.get = semanage_direct_get,
++	.get_cil = semanage_direct_get_cil,
  };
  
- struct command {
- 	enum client_modes mode;
- 	char *arg;
-+	char *output;
-+	int cil;
- };
- static struct command *commands = NULL;
- static int num_commands = 0;
-@@ -61,6 +67,7 @@ static void cleanup(void)
- {
- 	while (--num_commands >= 0) {
- 		free(commands[num_commands].arg);
-+		free(commands[num_commands].output);
- 	}
- 	free(commands);
+ int semanage_direct_is_managed(semanage_handle_t * sh)
+@@ -2498,3 +2510,141 @@ cleanup:
+ 	return status;
  }
-@@ -117,6 +124,7 @@ static void usage(char *progname)
- 	printf("  -p,--priority=PRIORITY    set priority for following operations (1-999)\n");
- 	printf("  -e,--enable=MODULE_NAME   enable module\n");
- 	printf("  -d,--disable=MODULE_NAME  disable module\n");
-+	printf("  -g,--get=MODULE_NAME [-o FILE] [-c] get module source\n");
- 	printf("Other options:\n");
- 	printf("  -s,--store	   name of the store to operate on\n");
- 	printf("  -n,--noreload	   do not reload policy after commit\n");
-@@ -139,6 +147,8 @@ static void set_mode(enum client_modes new_mode, char *arg)
- 	commands = c;
- 	commands[num_commands].mode = new_mode;
- 	commands[num_commands].arg = NULL;
-+	commands[num_commands].output = NULL;
-+	commands[num_commands].cil = 0;
- 	num_commands++;
- 	if (arg != NULL) {
- 		if ((s = strdup(arg)) == NULL) {
-@@ -169,6 +179,9 @@ static void parse_command_line(int argc, char **argv)
- 		{"priority", required_argument, NULL, 'p'},
- 		{"enable", required_argument, NULL, 'e'},
- 		{"disable", required_argument, NULL, 'd'},
-+		{"get", required_argument, NULL, 'g'},
-+		{"output", required_argument, NULL, 'o'},
-+		{"cil", 0, NULL, 'c'},
- 		{NULL, 0, NULL, 0}
- 	};
- 	int i;
-@@ -178,7 +191,7 @@ static void parse_command_line(int argc, char **argv)
- 	create_store = 0;
- 	priority = 400;
- 	while ((i =
--		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:", opts,
-+		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:g:o:c", opts,
- 			    NULL)) != -1) {
- 		switch (i) {
- 		case 'b':
-@@ -227,6 +240,53 @@ static void parse_command_line(int argc, char **argv)
- 		case 'd':
- 			set_mode(DISABLE_M, optarg);
- 			break;
-+		case 'g':
-+			set_mode(GET_M, optarg);
-+			break;
-+		case 'o':{
-+			/* no mode specified?? */
-+			if (num_commands == 0) {
-+				usage(argv[0]);
-+				exit(1);
-+			}
-+
-+			struct command *last = &commands[num_commands - 1];
-+
-+			/* only GET_M mode valid with -o */
-+			if (last->mode != GET_M) {
-+				usage(argv[0]);
-+				exit(1);
-+			}
-+
-+			last->output = strdup(optarg);
-+			if (last->output == NULL) {
-+				fprintf(stderr,
-+					"%s: Out of memory!\n",
-+					argv[0]);
-+				exit(1);
-+			}
-+
-+			break;
-+			}
-+		case 'c':{
-+			/* no mode specified?? */
-+			if (num_commands == 0) {
-+				usage(argv[0]);
-+				exit(1);
-+			}
-+
-+			struct command *last = &commands[num_commands - 1];
-+
-+			/* only GET_M mode valid with -c */
-+			if (last->mode != GET_M) {
-+				usage(argv[0]);
-+				exit(1);
-+			}
-+
-+			last->cil = 1;
-+
-+			break;
-+			}
- 		case '?':
- 		default:{
- 				usage(argv[0]);
-@@ -350,6 +410,8 @@ int main(int argc, char *argv[])
- 	for (i = 0; i < num_commands; i++) {
- 		enum client_modes mode = commands[i].mode;
- 		char *mode_arg = commands[i].arg;
-+		char *mode_output = commands[i].output;
-+		int mode_cil = commands[i].cil;
  
- 		switch (mode) {
- 		case INSTALL_M:{
-@@ -582,6 +644,167 @@ cleanup_disable:
++static int semanage_direct_get(semanage_handle_t *sh,
++			       const semanage_module_key_t *modkey,
++			       char **data,
++			       size_t *data_len)
++{
++	assert(sh);
++	assert(modkey);
++	assert(data);
++	assert(data_len);
++
++	int status = 0;
++	int ret = 0;
++
++	semanage_module_info_t *modinfo = NULL;
++	char path[PATH_MAX];
++	int fd = -1;
++
++	/* Get module info. */
++	ret = semanage_module_get_module_info(
++			sh,
++			modkey,
++			&modinfo);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Get module path source path. */
++	ret = semanage_module_get_path(
++			sh,
++			modinfo,
++			SEMANAGE_MODULE_PATH_HLL,
++			path,
++			sizeof(path));
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Open file. */
++	fd = open(path, O_RDONLY);
++	if (fd < 0) {
++		ERR(sh, "Failed to open file %s.", path);
++		status = -2;
++		goto cleanup;
++	}
++
++	/* Read file into buffer. */
++	ret = semanage_fd_to_data(sh, fd, data, data_len);
++	if (ret != 0) {
++		status = ret;
++		goto cleanup;
++	}
++
++cleanup:
++	if (status != 0) {
++		free(*data);
++		*data = NULL;
++		*data_len = 0;
++	}
++
++	if (fd >= 0) close(fd);
++
++	semanage_module_info_destroy(sh, modinfo);
++	free(modinfo);
++
++	return status;
++}
++
++static int semanage_direct_get_cil(semanage_handle_t *sh,
++				   const semanage_module_key_t *modkey,
++				   char **data,
++				   size_t *data_len)
++{
++	assert(sh);
++	assert(modkey);
++	assert(data);
++	assert(data_len);
++
++	int status = 0;
++	int ret = 0;
++
++	semanage_module_info_t *modinfo = NULL;
++	char path[PATH_MAX];
++	int fd = -1;
++
++	/* Get module info. */
++	ret = semanage_module_get_module_info(
++			sh,
++			modkey,
++			&modinfo);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Get module path source path. */
++	ret = semanage_module_get_path(
++			sh,
++			modinfo,
++			SEMANAGE_MODULE_PATH_CIL,
++			path,
++			sizeof(path));
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Open file. */
++	fd = open(path, O_RDONLY);
++	if (fd < 0) {
++		ERR(sh, "Failed to open file %s.", path);
++		status = -2;
++		goto cleanup;
++	}
++
++	/* Read file into buffer. */
++	ret = semanage_fd_to_data(sh, fd, data, data_len);
++	if (ret != 0) {
++		status = ret;
++		goto cleanup;
++	}
++
++cleanup:
++	if (status != 0) {
++		free(*data);
++		*data = NULL;
++		*data_len = 0;
++	}
++
++	if (fd >= 0) close(fd);
++
++	semanage_module_info_destroy(sh, modinfo);
++	free(modinfo);
++
++	return status;
++}
++
+diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
+index 1414ce5..64577a2 100644
+--- a/libsemanage/src/libsemanage.map
++++ b/libsemanage/src/libsemanage.map
+@@ -44,5 +44,7 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_module_install_info;
+ 	  semanage_module_upgrade_info;
+ 	  semanage_module_remove_key;
++	  semanage_module_get;
++	  semanage_module_get_cil;
+   local: *;
+ };
+diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
+index be30517..85d4e99 100644
+--- a/libsemanage/src/modules.c
++++ b/libsemanage/src/modules.c
+@@ -1215,3 +1215,37 @@ int semanage_module_remove_key(semanage_handle_t *sh,
+ 	return sh->funcs->remove_key(sh, modkey);
+ }
  
- 				break;
- 			}
-+		case GET_M:{
-+				if (verbose) {
-+					printf("Attempting to get module '%s':\n", mode_arg);
-+				}
++int semanage_module_get(semanage_handle_t *sh,
++			const semanage_module_key_t *modkey,
++			char **data,
++			size_t *data_len)
++{
++	if (sh->funcs->get == NULL) {
++		ERR(sh,
++		    "No get function defined for this connection type.");
++		return -1;
++	} else if (!sh->is_connected) {
++		ERR(sh, "Not connected.");
++		return -1;
++	}
 +
-+				semanage_module_key_t *modkey = NULL;
-+				semanage_module_info_t *modinfo = NULL;
-+				const char *lang_ext = NULL;
-+				char *data = NULL;
-+				size_t data_len = 0;
++	return sh->funcs->get(sh, modkey, data, data_len);
++}
 +
-+				int fd = -1;
-+				FILE *out = NULL;
-+				size_t nwrite = 0;
++int semanage_module_get_cil(semanage_handle_t *sh,
++			    const semanage_module_key_t *modkey,
++			    char **data,
++			    size_t *data_len)
++{
++	if (sh->funcs->get_cil == NULL) {
++		ERR(sh,
++		    "No get cil function defined for this connection type.");
++		return -1;
++	} else if (!sh->is_connected) {
++		ERR(sh, "Not connected.");
++		return -1;
++	}
 +
-+				result = semanage_module_key_create(sh,
-+								    &modkey);
-+				if (result != 0) goto cleanup_get;
++	return sh->funcs->get_cil(sh, modkey, data, data_len);
++}
 +
-+				result = semanage_module_key_set_priority(
-+						sh,
-+						modkey,
-+						priority);
-+				if (result != 0) goto cleanup_get;
+diff --git a/libsemanage/src/policy.h b/libsemanage/src/policy.h
+index 397863f..d7047a3 100644
+--- a/libsemanage/src/policy.h
++++ b/libsemanage/src/policy.h
+@@ -1,7 +1,7 @@
+ /* Author: Joshua Brindle <jbrindle@tresys.com>
+  *         Jason Tang     <jtang@tresys.com>
+  *
+- * Copyright (C) 2005 Tresys Technology, LLC
++ * Copyright (C) 2005,2010 Tresys Technology, LLC
+  * Copyright (C) 2005 Red Hat Inc.
+  *
+  *  This library is free software; you can redistribute it and/or
+@@ -106,6 +106,19 @@ struct semanage_policy_table {
+ 	/* Remove via module key */
+ 	int (*remove_key) (struct semanage_handle *,
+ 			   const semanage_module_key_t *);
 +
-+				result = semanage_module_key_set_name(
-+						sh,
-+						modkey,
-+						mode_arg);
-+				if (result != 0) goto cleanup_get;
++	/* Get module source */
++	int (*get) (semanage_handle_t *,
++		    const semanage_module_key_t *,
++		    char **,
++		    size_t *);
 +
-+				if (mode_cil == 0) {
-+					result = semanage_module_get(
-+							sh,
-+							modkey,
-+							&data,
-+							&data_len);
-+				}
-+				else {
-+					result = semanage_module_get_cil(
-+							sh,
-+							modkey,
-+							&data,
-+							&data_len);
-+				}
-+				if (result != 0) goto cleanup_get;
++	/* Get module cil */
++	int (*get_cil) (semanage_handle_t *,
++			const semanage_module_key_t *,
++			char **,
++			size_t *);
 +
-+				/* get language extension */
-+				result = semanage_module_get_module_info(
-+						sh,
-+						modkey,
-+						&modinfo);
-+				if (result != 0) goto cleanup_get;
-+
-+				if (mode_cil == 0) {
-+					result = semanage_module_info_get_lang_ext(
-+							sh,
-+							modinfo,
-+							&lang_ext);
-+					if (result != 0) goto cleanup_get;
-+				}
-+				else {
-+					/* current cil is refpol */
-+					lang_ext = "ref";
-+				}
-+
-+				if (mode_output == NULL ||
-+				    strcmp(mode_output, "-") != 0) {
-+					char path[PATH_MAX];
-+
-+					if (mode_output == NULL) {
-+						/* by default write out to <name>.<lang> */
-+						/* compose path */
-+
-+						result = snprintf(path,
-+								  sizeof(path) - 1,
-+								  "%s.%s",
-+								  mode_arg,
-+								  lang_ext);
-+						if (result < 0 ||
-+						    result >= (int)sizeof(path)) {
-+							fprintf(stderr,
-+								"%s: Unable to compose path for output file.\n",
-+								argv[0]);
-+							result = -1;
-+							goto cleanup_get;
-+						}
-+						result = 0;
-+					}
-+					else {
-+						if (strlen(mode_output) > sizeof(path) - 1) {
-+							fprintf(stderr,
-+								"%s: Path too long (%d > %d): '%s'\n",
-+								argv[0],
-+								strlen(mode_output),
-+								sizeof(path) - 1,
-+								mode_output);
-+							result = -1;
-+							goto cleanup_get;
-+						}
-+						strcpy(path, mode_output);
-+					}
-+
-+					/* open file iff it doesn't exist */
-+					fd = open(path,
-+						  O_WRONLY | O_CREAT | O_EXCL,
-+						  S_IRUSR | S_IWUSR);
-+					if (fd < 0) {
-+						fprintf(stderr,
-+							"%s: Unable to open output '%s'. (%s)\n",
-+							argv[0],
-+							path,
-+							strerror(errno));
-+						result = -1;
-+						goto cleanup_get;
-+					}
-+
-+					out = fdopen(fd, "w");
-+					if (out == NULL) {
-+						fprintf(stderr,
-+							"%s: Unable to open output '%s'. (%s)\n",
-+							argv[0],
-+							path,
-+							strerror(errno));
-+						result = -1;
-+						goto cleanup_get;
-+					}
-+				}
-+				else {
-+					/* otherwise we must be special '-' */
-+					out = stdout;
-+				}
-+
-+				nwrite = fwrite(data,
-+						data_len,
-+						1,
-+						out);
-+				if (nwrite != 1) {
-+					fprintf(stderr,
-+						"%s: Failed to write module to output.\n",
-+						argv[0]);
-+					result = -1;
-+					goto cleanup_get;
-+				}
-+
-+cleanup_get:
-+				if (out != NULL && out != stdout) {
-+					fclose(out);
-+					fd = -1;
-+				}
-+				if (fd >= 0) close(fd);
-+				free(data);
-+
-+				semanage_module_info_destroy(sh, modinfo);
-+				free(modinfo);
-+
-+				semanage_module_key_destroy(sh, modkey);
-+				free(modkey);
-+
-+				break;
-+			}
- 		default:{
- 				fprintf(stderr,
- 					"%s:  Unknown mode specified.\n",
+ };
+ 
+ /* Should be backend independent */
 -- 
 1.6.3.3
 
