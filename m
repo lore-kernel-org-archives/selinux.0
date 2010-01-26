@@ -2,10 +2,10 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 13/15] [src-policy] libsemanage: ChangeLog support
-Date: Tue, 26 Jan 2010 17:08:19 -0500
-Message-Id: <1264543701-20638-14-git-send-email-ccase@tresys.com>
-In-Reply-To: <1264543701-20638-13-git-send-email-ccase@tresys.com>
+Subject: [PATCH 09/15] [src-policy] semodule: remove base module support
+Date: Tue, 26 Jan 2010 17:08:15 -0500
+Message-Id: <1264543701-20638-10-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-9-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
  <1264543701-20638-2-git-send-email-ccase@tresys.com>
  <1264543701-20638-3-git-send-email-ccase@tresys.com>
@@ -15,502 +15,65 @@ References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
  <1264543701-20638-7-git-send-email-ccase@tresys.com>
  <1264543701-20638-8-git-send-email-ccase@tresys.com>
  <1264543701-20638-9-git-send-email-ccase@tresys.com>
- <1264543701-20638-10-git-send-email-ccase@tresys.com>
- <1264543701-20638-11-git-send-email-ccase@tresys.com>
- <1264543701-20638-12-git-send-email-ccase@tresys.com>
- <1264543701-20638-13-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In order to facilitate better policy modification accountability, this
-adds support to libsemanage for a ChangeLog. The ChangeLog is located at
-/var/lib/selinux/.../modules/ChangeLog. Each line of the ChangeLog
-contains the version of the store (e.g., the commit number), command
-run, username, selinux context, time stamp, and a user specified
-message:
-
-VERSION="12" COMMAND="semodule -E alsa" USERNAME="root"
-CONTEXT="unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c255" TIME="Tue
-Jan 19 01:16:59 2010" MESSAGE="Allow alsa to launch cowsay."
-
-The following functions are exported as part of the private api to
-facilitate logging:
-
-	semanage_get_log_message
-	semanage_set_log_message
-	semanage_get_log_command
-	semanage_set_log_command
-
-These allow library users to specify the user message and, if necessary,
-the command used. If the command is not set manually, we attempt to
-determine it by reading /proc/self/cmdline.
-
-While we have chosen a file format for the ChangLog the long term goal
-is to provide a interface to the ChangeLog that is agnostic to its
-storage. This will permit integration of the ChangeLog into SCM's such
-as git.
+This patch removes the base module flag from semodule, updates the man
+page to reflect this, and has semodule output an error message if -b is
+used.
 ---
- libsemanage/include/semanage/private/handle.h |   31 +++-
- libsemanage/src/direct_api.c                  |  242 ++++++++++++++++++++++++-
- libsemanage/src/handle.c                      |   55 ++++++
- libsemanage/src/handle.h                      |    3 +
- libsemanage/src/libsemanage.map               |    4 +
- libsemanage/src/semanage_store.c              |    1 +
- libsemanage/src/semanage_store.h              |    1 +
- 7 files changed, 335 insertions(+), 2 deletions(-)
+ policycoreutils/semodule/semodule.8 |    3 ---
+ policycoreutils/semodule/semodule.c |    8 ++++----
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/libsemanage/include/semanage/private/handle.h b/libsemanage/include/semanage/private/handle.h
-index 6efd664..da8842f 100644
---- a/libsemanage/include/semanage/private/handle.h
-+++ b/libsemanage/include/semanage/private/handle.h
-@@ -1,6 +1,6 @@
- /* Authors:	Caleb Case	<ccase@tresys.com>
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 4b52a63..5fc10b3 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -32,9 +32,6 @@ install/replace a module package
+ .B  \-u,\-\-upgrade=MODULE_PKG
+ upgrade an existing module package, or install if the module does not exist
+ .TP
+-.B  \-b,\-\-base=MODULE_PKG   
+-install/replace base module package
+-.TP
+ .B  \-r,\-\-remove=MODULE_NAME
+ remove existing module
+ .TP
+diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+index 569b808..c6b0d3c 100644
+--- a/policycoreutils/semodule/semodule.c
++++ b/policycoreutils/semodule/semodule.c
+@@ -1,8 +1,9 @@
+ /* Authors: Karl MacMillan <kmacmillan@tresys.com>
+  *          Joshua Brindle <jbrindle@tresys.com>
+  *          Jason Tang <jtang@tresys.com>
++ *          Caleb Case <ccase@tresys.com>
   *
-- * Copyright (C) 2009 Tresys Technology, LLC
-+ * Copyright (C) 2009-2010 Tresys Technology, LLC
-  *
-  *  This library is free software; you can redistribute it and/or
-  *  modify it under the terms of the GNU Lesser General Public
-@@ -28,4 +28,33 @@ uint16_t semanage_get_default_priority(semanage_handle_t *sh);
- /* Set the default priority. */
- int semanage_set_default_priority(semanage_handle_t *sh, uint16_t priority);
- 
-+/* Sets the message to log for the next commit.
-+ * After a successful commit the message is cleared.
-+ *
-+ * Returns:
-+ *	 0	success
-+ *	-1	failure, out of memory
-+ *	-2	failure, message too long
-+ */
-+int semanage_set_log_message(semanage_handle_t *sh, const char *msg);
-+
-+/* Returns the message that will be logged if one was set otherwise NULL. */
-+const char *semanage_get_log_message(semanage_handle_t *sh);
-+
-+/* Sets the command to log for the next commit.
-+ * After a successful commit the command is cleared.
-+ *
-+ * If the command hasn't been set (NULL or empty string)
-+ * it will be automatically generated by attempting to
-+ * read from /proc/self/cmdline during the commit process.
-+ * 
-+ * Returns:
-+ *	 0	success
-+ *	-1	failure, out of memory
-+ */
-+int semanage_set_log_command(semanage_handle_t *sh, const char *cmd);
-+
-+/* Returns the command that will be logged if one was set otherwise NULL. */
-+const char *semanage_get_log_command(semanage_handle_t *sh);
-+
- #endif
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index ee6f70f..b807e16 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -35,6 +35,9 @@
- #include <limits.h>
- #include <errno.h>
- #include <dirent.h>
-+#include <pwd.h>
-+#include <time.h>
-+#include <ctype.h>
- 
- #include "user_internal.h"
- #include "seuser_internal.h"
-@@ -758,6 +761,238 @@ cleanup:
- 	return status;
- }
- 
-+/* Escape non priteable, ", and \ characters. */
-+static int semanage_stresc(semanage_handle_t *sh,
-+			   const char *str,
-+			   char **escaped)
-+{
-+	assert(sh);
-+	assert(str);
-+	assert(escaped);
-+
-+	int status = 0;
-+
-+	size_t str_len = strlen(str);
-+	size_t unescaped = 0;
-+	size_t i, k;
-+
-+#define SPECIAL(c) (!isprint(c) || c == '\\' || c == '\"')
-+
-+	/* Find all specials in @str. */
-+	for (i = 0; i < str_len; i++) {
-+		if (SPECIAL(str[i])) {
-+			/* Found special. */
-+			unescaped++;
-+			break;
-+		}
-+	}
-+
-+	/* Any unescaped? If not degrade to strdup. */
-+	if (unescaped != 0) {
-+		/* Create tmp space for escaped string. */
-+		size_t tmp_len = str_len + unescaped + 1;
-+		char tmp[tmp_len];
-+
-+		for (i = 0, k = 0; i < str_len; i++, k++) {
-+			if (SPECIAL(str[i])) {
-+				/* Found special. Escape it. */
-+				tmp[k] = '\\';
-+				k++;
-+				break;
-+			}
-+			tmp[k] = str[i];
-+		}
-+		tmp[tmp_len - 1] = '\0'; /* Null terminate! */
-+
-+		*escaped = malloc(tmp_len);
-+		if (*escaped == NULL) {
-+			ERR(sh, "Out of memory!");
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		memcpy(*escaped, tmp, tmp_len);
-+	}
-+	else {
-+		*escaped = malloc(str_len + 1);
-+		if (*escaped == NULL) {
-+			ERR(sh, "Out of memory!");
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		memcpy(*escaped, str, str_len + 1);
-+	}
-+
-+#undef SPECIAL
-+
-+cleanup:
-+	return status;
-+}
-+
-+/* Update ChangeLog */
-+static int semanage_direct_changelog(semanage_handle_t *sh)
-+{
-+	assert(sh);
-+
-+	int status = 0;
-+	int ret = 0;
-+
-+	int version = 0;
-+	char *command = NULL;
-+	char *command_escaped = NULL;
-+	char *username = NULL;
-+	security_context_t context = NULL;
-+	char *timestr = NULL;
-+	char *message_escaped = NULL;
-+
-+	ssize_t size = 0;
-+	FILE *cmdline = NULL;
-+	struct passwd *pw = NULL;
-+	time_t timep;
-+	const char *changelog_path = NULL;
-+	FILE *changelog = NULL;
-+
-+	/* calculate version from commit number */
-+	ret = semanage_direct_get_serial(sh);
-+	if (ret < 0) {
-+		status = -1;
-+		goto cleanup;
-+	}
-+	version = ret + 1;
-+
-+	/* compute command if it wasn't provided */
-+	if (sh->log_command == NULL || sh->log_command[0] == '\0') {
-+		command = NULL;
-+		size_t command_len = 0;
-+
-+		cmdline = fopen("/proc/self/cmdline", "r");
-+		if (cmdline == NULL) {
-+			ERR(sh,
-+			    "Failed to open command line from /proc/self/cmdline.");
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		size = getline(&command, &command_len, cmdline);
-+		if (size < 0) {
-+			ERR(sh,
-+			    "Failed to read command line from /proc/self/cmdline.");
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		/* change all '\0' to ' ' */
-+		int i;
-+		for (i = 0; i < size - 1; i++) {
-+			if (command[i] == '\0') {
-+				command[i] = ' ';
-+			}
-+		}
-+
-+		ret = semanage_stresc(sh, command, &command_escaped);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+
-+		fclose(cmdline);
-+		cmdline = NULL;
-+	}
-+	else {
-+		ret = semanage_stresc(sh, sh->log_command, &command_escaped);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+	/* discover username */
-+	pw = getpwuid(getuid());
-+	if (pw == NULL) {
-+		ERR(sh, "Failed to find username for uid %d.", getuid());
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	username = strdup(pw->pw_name);
-+	if (username == NULL) {
-+		ERR(sh, "Out of Memory!");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* get the previous selinux context */
-+	ret = getprevcon(&context);
-+	if (ret < 0) {
-+		ERR(sh, "Out of Memory!");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	/* get the current time */
-+	ret = time(&timep);
-+	if (ret < 0) {
-+		ERR(sh, "Failed to get the current time.");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	timestr = ctime(&timep);
-+	if (timestr == NULL) {
-+		ERR(sh, "Failed to get the current time.");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	timestr[strlen(timestr) - 1] = '\0'; /* remove trailing newline */
-+
-+	/* get the user message */
-+	if (sh->log_message != NULL) {
-+		ret = semanage_stresc(sh, sh->log_message, &message_escaped);
-+		if (ret != 0) {
-+			status = -1;
-+			goto cleanup;
-+		}
-+	}
-+
-+	/* append to changelog */
-+	changelog_path = semanage_path(SEMANAGE_TMP, SEMANAGE_CHANGELOG);
-+
-+	changelog = fopen(changelog_path, "a");
-+	if (changelog == NULL) {
-+		ERR(sh, "Failed to open ChangeLog '%s'.", changelog_path);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+	ret = fprintf(changelog,
-+		      "VERSION=\"%d\" COMMAND=\"%s\" USERNAME=\"%s\" CONTEXT=\"%s\" TIME=\"%s\" MESSAGE=\"%s\"\n",
-+		      version,
-+		      command_escaped,
-+		      username,
-+		      context,
-+		      timestr,
-+		      message_escaped ? message_escaped : "");
-+	if (ret < 0) {
-+		ERR(sh, "Failed to append to ChangeLog '%s'.", changelog_path);
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	if (changelog != NULL) fclose(changelog);
-+	if (cmdline != NULL) fclose(cmdline);
-+
-+	free(message_escaped);
-+	freecon(context);
-+	free(username);
-+	free(command_escaped);
-+	free(command);
-+
-+	return status;
-+}
-+
- /********************* direct API functions ********************/
- 
- /* Commits all changes in sandbox to the actual kernel policy.
-@@ -1071,6 +1306,10 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	sepol_policydb_free(out);
- 	out = NULL;
- 
-+	/* update ChangeLog */
-+	retval = semanage_direct_changelog(sh);
-+	if (retval != 0) goto cleanup;
-+
- 	if (sh->do_rebuild || modified || 
- 	    seusers_modified || fcontexts_modified || users_extra_modified) {
- 		retval = semanage_install_sandbox(sh);
-@@ -2018,7 +2257,8 @@ static int semanage_priorities_filename_select(const struct dirent *d)
- {
- 	if (d->d_name[0] == '.' ||
- 	    strcmp(d->d_name, "disabled") == 0 ||
--	    strcmp(d->d_name, "log") == 0)
-+	    strcmp(d->d_name, "log") == 0 ||
-+	    strcmp(d->d_name, "ChangeLog") == 0)
- 		return 0;
- 	return 1;
- }
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index 71c3165..fbfc522 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -83,6 +83,10 @@ semanage_handle_t *semanage_handle_create(void)
- 	/* By default do not create store */
- 	sh->create_store = 0;
- 
-+	/* By default no message or command set */
-+	sh->log_message = NULL;
-+	sh->log_command = NULL;
-+
- 	/* Set timeout: some default value for now, later use config */
- 	sh->timeout = SEMANAGE_COMMIT_READ_WAIT;
- 
-@@ -300,6 +304,9 @@ void semanage_handle_destroy(semanage_handle_t * sh)
- 	if (sh->funcs != NULL && sh->funcs->destroy != NULL)
- 		sh->funcs->destroy(sh);
- 
-+	free(sh->log_message);
-+	free(sh->log_command);
-+
- 	semanage_lang_conf_list_t *head = sh->lang_conf_list;
- 	semanage_lang_conf_list_t *next = NULL;
- 	while (head != NULL) {
-@@ -316,6 +323,54 @@ void semanage_handle_destroy(semanage_handle_t * sh)
- 
- hidden_def(semanage_handle_destroy)
- 
-+int semanage_set_log_message(semanage_handle_t *sh, const char *msg)
-+{
-+	assert(sh);
-+	assert(msg);
-+
-+	int status = 0;
-+
-+	sh->log_message = strdup(msg);
-+	if (sh->log_message == NULL) {
-+		ERR(sh, "Out of memory!");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	return status;
-+}
-+
-+const char *semanage_get_log_message(semanage_handle_t *sh)
-+{
-+	assert(sh);
-+	return sh->log_message;
-+}
-+
-+int semanage_set_log_command(semanage_handle_t *sh, const char *cmd)
-+{
-+	assert(sh);
-+	assert(cmd);
-+
-+	int status = 0;
-+
-+	sh->log_command = strdup(cmd);
-+	if (sh->log_command == NULL) {
-+		ERR(sh, "Out of memory!");
-+		status = -1;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	return status;
-+}
-+
-+const char *semanage_get_log_command(semanage_handle_t *sh)
-+{
-+	assert(sh);
-+	return sh->log_command;
-+}
-+
- /********************* public transaction functions *********************/
- int semanage_begin_transaction(semanage_handle_t * sh)
- {
-diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
-index 0f8794a..9ed90a9 100644
---- a/libsemanage/src/handle.h
-+++ b/libsemanage/src/handle.h
-@@ -69,6 +69,9 @@ struct semanage_handle {
- 				 * this will only have an effect on direct connections */
- 	int do_check_contexts;	/* whether to run setfiles check the file contexts file */
- 
-+	char *log_message;
-+	char *log_command;
-+
- 	/* This timeout is used for transactions and waiting for lock
- 	   -1 means wait indefinetely
- 	   0 means return immediately
-diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index 64577a2..90f7238 100644
---- a/libsemanage/src/libsemanage.map
-+++ b/libsemanage/src/libsemanage.map
-@@ -46,5 +46,9 @@ LIBSEMANAGE_1.0 {
- 	  semanage_module_remove_key;
- 	  semanage_module_get;
- 	  semanage_module_get_cil;
-+	  semanage_get_log_message;
-+	  semanage_set_log_message;
-+	  semanage_get_log_command;
-+	  semanage_set_log_command;
-   local: *;
- };
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index a714d1e..fedaa86 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -111,6 +111,7 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
- 	"/disable_dontaudit",
- 	"/modules/disabled",
- 	"/modules/log",
-+	"/modules/ChangeLog",
- };
- 
- static char const * const semanage_final_prefix[SEMANAGE_FINAL_NUM] = {
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index c59bc69..eb99a0c 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -54,6 +54,7 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_DISABLE_DONTAUDIT,
- 	SEMANAGE_MODULES_DISABLED,
- 	SEMANAGE_CIL_LOG,
-+	SEMANAGE_CHANGELOG,
- 	SEMANAGE_STORE_NUM_PATHS
- };
- 
+- * Copyright (C) 2004-2005 Tresys Technology, LLC
++ * Copyright (C) 2004-2005,2010 Tresys Technology, LLC
+  *      This program is free software; you can redistribute it and/or
+  *      modify it under the terms of the GNU General Public License as
+  *      published by the Free Software Foundation, version 2.
+@@ -109,7 +110,6 @@ static void usage(char *progname)
+ 	printf("  -B, --build		    build and reload policy\n");
+ 	printf("  -i,--install=MODULE_PKG   install a new module\n");
+ 	printf("  -u,--upgrade=MODULE_PKG   upgrades or install module to a newer version\n");
+-	printf("  -b,--base=MODULE_PKG      install new base module\n");
+ 	printf("  -r,--remove=MODULE_NAME   remove existing module\n");
+ 	printf("  -l,--list-modules=[KIND]  display list of installed modules\n");
+ 	printf("     KIND:  standard  list highest priority, enabled, non-base modules\n");
+@@ -378,8 +378,8 @@ int main(int argc, char *argv[])
+ 					    ("Attempting to install base module '%s':\n",
+ 					     mode_arg);
+ 				}
+-				result =
+-				    semanage_module_install_base_file(sh, mode_arg);
++				fprintf(stderr, "Error: attempting to install deprecated base module.\n");
++				result = -1;
+ 				break;
+ 			}
+ 		case REMOVE_M:{
 -- 
 1.6.3.3
 
