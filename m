@@ -1,34 +1,36 @@
-From: Caleb Case <ccase@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
-        jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH] [src-policy] libsemanage: semanage_get_modules_names should get CIL path
-Date: Tue, 26 Jan 2010 16:26:31 -0500
-Message-Id: <1264541191-18125-1-git-send-email-ccase@tresys.com>
+Subject: Re: access decision API
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: michel m <michel.mcgregor@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
+References: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 26 Jan 2010 16:34:01 -0500
+Message-Id: <1264541641.19890.77.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-semanage_get_modules_names should be returning the path for the CIL
-instead of the HLL path since it is the CIL that is used during commit.
----
- libsemanage/src/semanage_store.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Wed, 2010-01-27 at 00:50 +0330, michel m wrote:
+> Hi,
+> I have some data in userspace that I am keeping its security
+> context.but as I want to write this data on some file in OS, I need to
+> consult with security server if such data is allowed to be written on
+> the file.
+> I would like to know if there is any API that let me do such a
+> scenario, that is input source and destination security context (both
+> of them security context,not a domain context) and returns access
+> decision. I am familiar with avc_has_perm(3), but seems to be not
+> correct solution because it gets domain context as the first argument.
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 4ac5b5b..f077ac3 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -1085,7 +1085,7 @@ int semanage_get_modules_names(semanage_handle_t * sh, char ***filenames,
- 		ret = semanage_module_get_path(
- 				sh,
- 				&modinfos[i],
--				SEMANAGE_MODULE_PATH_HLL,
-+				SEMANAGE_MODULE_PATH_CIL,
- 				path,
- 				sizeof(path));
- 		if (ret != 0) {
+avc_has_perm() can be used with any pair of security contexts.  Typical
+usage is to pass the security context of a subject/process as the first
+argument, but not always (e.g. there are some permission checks that
+control inter-object relationships), and that is not a requirement.
+
 -- 
-1.6.3.3
+Stephen Smalley
+National Security Agency
 
 
 --
