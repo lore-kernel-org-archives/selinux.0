@@ -1,37 +1,35 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0QCLKjT003609
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 07:21:20 -0500
-Received: from mail-ew0-f214.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o0QCLJsx016747
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 12:21:19 GMT
-Received: by ewy6 with SMTP id 6so3577820ewy.34
-        for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 04:21:15 -0800 (PST)
-MIME-Version: 1.0
-Date: Tue, 26 Jan 2010 15:51:14 +0330
-Message-ID: <bb74313d1001260421o160fec25qc7bc45ff6f6bda7c@mail.gmail.com>
-Subject: incoming packets` context
-From: michel m <michel.mcgregor@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=000e0ce0d602768841047e1052d9
+Subject: Re: incoming packets` context
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: michel m <michel.mcgregor@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <bb74313d1001260421o160fec25qc7bc45ff6f6bda7c@mail.gmail.com>
+References: <bb74313d1001260421o160fec25qc7bc45ff6f6bda7c@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 26 Jan 2010 08:29:58 -0500
+Message-Id: <1264512598.19890.9.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0ce0d602768841047e1052d9
-Content-Type: text/plain; charset=ISO-8859-1
+On Tue, 2010-01-26 at 15:51 +0330, michel m wrote:
+> Hi,
+> as I noticed, getpeercon() API allows me to have domain of the peer
+> connection, but packets received have their own security context which
+> are set by iptable rules on the peer side. how can I get arriving
+> packets` context using libselinux?
 
-Hi,
-as I noticed, getpeercon() API allows me to have domain of the peer
-connection, but packets received have their own security context which are
-set by iptable rules on the peer side. how can I get arriving packets`
-context using libselinux?
+iptables secmark labels are local-only; they are not passed across the
+wire.  They are only used internally for network access control checks.
 
---000e0ce0d602768841047e1052d9
-Content-Type: text/html; charset=ISO-8859-1
+In contrast, labeled networking (netlabel or labeled ipsec) conveys the
+security context across the wire, and that security context is exposed
+to userspace via getpeercon(3) for stream sockets and via
+IP_PASSEC/SCM_SECURITY for dgram sockets.
 
-Hi,<br>as I noticed, getpeercon() API allows me to have domain of the peer connection, but packets received have their own security context which are set by iptable rules on the peer side. how can I get arriving packets` context using libselinux?<br>
-<br>
+-- 
+Stephen Smalley
+National Security Agency
 
---000e0ce0d602768841047e1052d9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
