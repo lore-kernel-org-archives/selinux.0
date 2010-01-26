@@ -2,281 +2,381 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 03/15] [src-policy] Reference Policy to refpol conversion tool
-Date: Tue, 26 Jan 2010 17:08:09 -0500
-Message-Id: <1264543701-20638-4-git-send-email-ccase@tresys.com>
-In-Reply-To: <1264543701-20638-3-git-send-email-ccase@tresys.com>
+Subject: [PATCH 11/15] [src-policy] semodule: get module source
+Date: Tue, 26 Jan 2010 17:08:17 -0500
+Message-Id: <1264543701-20638-12-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-11-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
  <1264543701-20638-2-git-send-email-ccase@tresys.com>
  <1264543701-20638-3-git-send-email-ccase@tresys.com>
+ <1264543701-20638-4-git-send-email-ccase@tresys.com>
+ <1264543701-20638-5-git-send-email-ccase@tresys.com>
+ <1264543701-20638-6-git-send-email-ccase@tresys.com>
+ <1264543701-20638-7-git-send-email-ccase@tresys.com>
+ <1264543701-20638-8-git-send-email-ccase@tresys.com>
+ <1264543701-20638-9-git-send-email-ccase@tresys.com>
+ <1264543701-20638-10-git-send-email-ccase@tresys.com>
+ <1264543701-20638-11-git-send-email-ccase@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The refpolicy2refpol tool automates the conversion from the upstream
-reference policy modules into refpol modules. It also automates the
-process of creating the refpol_ilc[1] build environment from the
-upstream reference policy tree.
+This adds the ability to retrieve the module source using semodule.
 
-   Usage: refpolicy2refpol [OPTIONS] SOURCE TARGET
+  -g,--get=MODULE_NAME [-o FILE] [-c] get module source
 
-   Options:
-     --version    show program's version number and exit
-     -h, --help   show this help message and exit
-     -b, --build  create the Refpol ILC build environment (default: False)
-     -f, --force  force overwriting existing files
+* More than one -g is allowed per command invocation.
 
-Examples:
+* If output_name is “-“ then output is sent to standard out.
 
-Converting Reference Policy modules to refpol modules:
+* If output is specified multiple times with oufile_name "-", then
+  append to stdout.
 
-# refpolicy2refpol refpolicy refpol
-# find refpol
-refpol/policy/_rolemap.ref
-<snip>
-refpol/policy/modules/services/cyrus.ref
-refpol/policy/modules/services/metadata.xml
-refpol/policy/modules/services/pxe.ref
-<snip>
+* If -o is not specified then the module is output to
+  <module name>.<language ext> in the current directory.
 
-Creating the refpol_ilc build environment:
+* If there is an existing file with the output file name (with or
+  without -o), then emit error and exit.
 
-# refpolicy2refpol -b refpolicy /usr/share/selinux/refpol_ilc/build
+* -c will output the CIL instead of the source format.
 
-[1] See next patch for the refpol_ilc.
+Example:
+
+# semodule -g alsa
+
+This will retrieve the high level language source for the alsa module
+and save it to alsa.ref in the current directory.
 ---
- refpol/Makefile                   |    1 +
- refpol/refpol/refpolicy2refpol.py |  185 +++++++++++++++++++++++++++++++++++++
- refpol/refpolicy2refpol.py        |   17 ++++
- 3 files changed, 203 insertions(+), 0 deletions(-)
- create mode 100644 refpol/refpol/refpolicy2refpol.py
- create mode 100755 refpol/refpolicy2refpol.py
+ policycoreutils/semodule/semodule.8 |    3 +
+ policycoreutils/semodule/semodule.c |  227 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 228 insertions(+), 2 deletions(-)
 
-diff --git a/refpol/Makefile b/refpol/Makefile
-index f081eda..00c81b8 100644
---- a/refpol/Makefile
-+++ b/refpol/Makefile
-@@ -17,6 +17,7 @@ install: all
- 	-mkdir -p $(BINDIR)
- 	install -m 755 refpol.py $(BINDIR)/refpol
- 	install -m 755 refpolc.py $(BINDIR)/refpolc
-+	install -m 755 refpolicy2refpol.py $(BINDIR)/refpolicy2refpol
- 	-mkdir -p $(LANGUAGEDIR)
- 	install -m 644 refpol.conf $(LANGUAGEDIR)
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 5fc10b3..bb6ae49 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -55,6 +55,9 @@ enable module
+ .B  \-d,\-\-disable=MODULE_NAME
+ disable module
+ .TP
++.B  \-g,\-\-get=MODULE_NAME [-o,--output=FILE] [-c,--cil]
++Outputs module source to MODULE_NAME.ref. If output is set to '-' outputs on stdout, otherwise, outputs to the specified FILE. If cil is specified, then outputs the cil source instead of the original source.
++.TP
+ .B  \-s,\-\-store	   
+ name of the store to operate on
+ .TP
+diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+index c6b0d3c..0e3cc76 100644
+--- a/policycoreutils/semodule/semodule.c
++++ b/policycoreutils/semodule/semodule.c
+@@ -20,6 +20,7 @@
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <limits.h>
  
-diff --git a/refpol/refpol/refpolicy2refpol.py b/refpol/refpol/refpolicy2refpol.py
-new file mode 100644
-index 0000000..c6b290a
---- /dev/null
-+++ b/refpol/refpol/refpolicy2refpol.py
-@@ -0,0 +1,185 @@
-+#!/usr/bin/python
+ #include <semanage/modules.h>
+ 
+@@ -27,17 +28,22 @@
+ 
+ enum client_modes {
+ 	NO_MODE, INSTALL_M, UPGRADE_M, BASE_M, REMOVE_M,
+-	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M
++	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M,
++	GET_M,
+ };
 +
-+# Authors:	Caleb Case <ccase@tresys.com>
-+#
-+# Copyright (C) 2009-2010 Tresys Technology, LLC
-+#      This program is free software; you can redistribute it and/or modify
-+#      it under the terms of the Lesser GNU General Public License as 
-+#      published by the Free Software Foundation, version 2.
+ /* list of modes in which one ought to commit afterwards */
+ static const int do_commit[] = {
+ 	0, 1, 1, 1, 1,
+ 	0, 0, 0, 1, 1,
++	0,
+ };
+ 
+ struct command {
+ 	enum client_modes mode;
+ 	char *arg;
++	char *output;
++	int cil;
+ };
+ static struct command *commands = NULL;
+ static int num_commands = 0;
+@@ -61,6 +67,7 @@ static void cleanup(void)
+ {
+ 	while (--num_commands >= 0) {
+ 		free(commands[num_commands].arg);
++		free(commands[num_commands].output);
+ 	}
+ 	free(commands);
+ }
+@@ -117,6 +124,7 @@ static void usage(char *progname)
+ 	printf("  -p,--priority=PRIORITY    set priority for following operations (1-999)\n");
+ 	printf("  -e,--enable=MODULE_NAME   enable module\n");
+ 	printf("  -d,--disable=MODULE_NAME  disable module\n");
++	printf("  -g,--get=MODULE_NAME [-o FILE] [-c] get module source\n");
+ 	printf("Other options:\n");
+ 	printf("  -s,--store	   name of the store to operate on\n");
+ 	printf("  -n,--noreload	   do not reload policy after commit\n");
+@@ -139,6 +147,8 @@ static void set_mode(enum client_modes new_mode, char *arg)
+ 	commands = c;
+ 	commands[num_commands].mode = new_mode;
+ 	commands[num_commands].arg = NULL;
++	commands[num_commands].output = NULL;
++	commands[num_commands].cil = 0;
+ 	num_commands++;
+ 	if (arg != NULL) {
+ 		if ((s = strdup(arg)) == NULL) {
+@@ -169,6 +179,9 @@ static void parse_command_line(int argc, char **argv)
+ 		{"priority", required_argument, NULL, 'p'},
+ 		{"enable", required_argument, NULL, 'e'},
+ 		{"disable", required_argument, NULL, 'd'},
++		{"get", required_argument, NULL, 'g'},
++		{"output", required_argument, NULL, 'o'},
++		{"cil", 0, NULL, 'c'},
+ 		{NULL, 0, NULL, 0}
+ 	};
+ 	int i;
+@@ -178,7 +191,7 @@ static void parse_command_line(int argc, char **argv)
+ 	create_store = 0;
+ 	priority = 400;
+ 	while ((i =
+-		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:", opts,
++		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:g:o:c", opts,
+ 			    NULL)) != -1) {
+ 		switch (i) {
+ 		case 'b':
+@@ -227,6 +240,53 @@ static void parse_command_line(int argc, char **argv)
+ 		case 'd':
+ 			set_mode(DISABLE_M, optarg);
+ 			break;
++		case 'g':
++			set_mode(GET_M, optarg);
++			break;
++		case 'o':{
++			/* no mode specified?? */
++			if (num_commands == 0) {
++				usage(argv[0]);
++				exit(1);
++			}
 +
-+from corenet import corenet
-+import glob
-+from optparse import OptionParser
-+import os
-+import refpol
-+from shutil import copytree, ignore_patterns, rmtree, copyfileobj
-+import sys
++			struct command *last = &commands[num_commands - 1];
 +
-+force = False
++			/* only GET_M mode valid with -o */
++			if (last->mode != GET_M) {
++				usage(argv[0]);
++				exit(1);
++			}
 +
-+def modules(source):
-+	return [item.rsplit('.', 1)[0] for item in glob.glob(source + "/policy/modules/*/*.te")]
++			last->output = strdup(optarg);
++			if (last->output == NULL) {
++				fprintf(stderr,
++					"%s: Out of memory!\n",
++					argv[0]);
++				exit(1);
++			}
 +
-+def specials(source):
-+	return [source + item for item in [
-+		"/policy/constraints",
-+		"/policy/global_booleans",
-+		"/policy/global_tunables",
-+		"/policy/mcs",
-+		"/policy/mls",
-+		"/policy/policy_capabilities",
-+		"/policy/rolemap",
-+		"/policy/users",
-+		"/policy/flask/access_vectors",
-+		"/policy/flask/initial_sids",
-+		"/policy/flask/security_classes",
-+		"/policy/support/file_patterns.spt",
-+		"/policy/support/ipc_patterns.spt",
-+		"/policy/support/loadable_module.spt",
-+		"/policy/support/misc_macros.spt",
-+		"/policy/support/misc_patterns.spt",
-+		"/policy/support/mls_mcs_macros.spt",
-+		"/policy/support/obj_perm_sets.spt",
-+		]]
++			break;
++			}
++		case 'c':{
++			/* no mode specified?? */
++			if (num_commands == 0) {
++				usage(argv[0]);
++				exit(1);
++			}
 +
-+def discards(source):
-+	return [source + item for item in [
-+		"/policy/modules/admin",
-+		"/policy/modules/apps",
-+		"/policy/modules/roles",
-+		"/policy/modules/services",
-+		"/policy/modules/system",
-+		]]
++			struct command *last = &commands[num_commands - 1];
 +
-+def corenets(source):
-+	return [source + item.rsplit('.', 1)[0] for item in [
-+		"/policy/modules/kernel/corenetwork"
-+		]]
++			/* only GET_M mode valid with -c */
++			if (last->mode != GET_M) {
++				usage(argv[0]);
++				exit(1);
++			}
 +
-+def build_conf_to_defines(source, target, version):
-+	defines_table = ["OUTPUT_POLICY",
-+			 "NAME",
-+			 "DISTRO",
-+			 "UNK_PERMS",
-+			 "DIRECT_INITRC",
-+			 "UBAC",
-+			 "MLS_SENS",
-+			 "MLS_CATS",
-+			 "MCS_CATS",
-+			 "QUIET",
-+			 ]
++			last->cil = 1;
 +
-+	with open(source, "r") as build_conf:
-+		with open(target, "w") as defines:
-+			defines.write("policy_module(_defines, %s)\n" % version)
++			break;
++			}
+ 		case '?':
+ 		default:{
+ 				usage(argv[0]);
+@@ -350,6 +410,8 @@ int main(int argc, char *argv[])
+ 	for (i = 0; i < num_commands; i++) {
+ 		enum client_modes mode = commands[i].mode;
+ 		char *mode_arg = commands[i].arg;
++		char *mode_output = commands[i].output;
++		int mode_cil = commands[i].cil;
+ 
+ 		switch (mode) {
+ 		case INSTALL_M:{
+@@ -582,6 +644,167 @@ cleanup_disable:
+ 
+ 				break;
+ 			}
++		case GET_M:{
++				if (verbose) {
++					printf("Attempting to get module '%s':\n", mode_arg);
++				}
 +
-+			buffer = []
-+			for line in build_conf:
-+				sline = line.strip()
-+				if sline.startswith("#") or sline.strip() == "":
-+					   buffer[len(buffer):] = [line]
-+				elif sline.split('=')[0].strip() in defines_table:
-+					defines.writelines(buffer)
-+					defines.write(line)
-+					buffer = []
-+				else:
-+					buffer = []
++				semanage_module_key_t *modkey = NULL;
++				semanage_module_info_t *modinfo = NULL;
++				const char *lang_ext = NULL;
++				char *data = NULL;
++				size_t data_len = 0;
 +
-+def refpolicy2refpol(source, target):
-+	if force:
-+		rmtree(target, ignore_errors = True)
++				int fd = -1;
++				FILE *out = NULL;
++				size_t nwrite = 0;
 +
-+	copytree(source, target)
++				result = semanage_module_key_create(sh,
++								    &modkey);
++				if (result != 0) goto cleanup_get;
 +
-+	# extract version for use with special modules
-+	version = "0"
-+	with open(target + "/VERSION") as f:
-+		version = f.readline().strip()
++				result = semanage_module_key_set_priority(
++						sh,
++						modkey,
++						priority);
++				if (result != 0) goto cleanup_get;
 +
-+	for module in modules(target):
-+		# convert to ref
-+		refpol.itf_to_ref(module + ".if", module + ".te", module + ".fc", module + ".ref")
++				result = semanage_module_key_set_name(
++						sh,
++						modkey,
++						mode_arg);
++				if (result != 0) goto cleanup_get;
 +
-+		# remove old files
-+		os.remove(module + ".if")
-+		os.remove(module + ".te")
-+		os.remove(module + ".fc")
-+	
-+	for special in specials(target):
-+		name = os.path.basename(special).rsplit('.', 1)[0]
-+		path = os.path.dirname(special) + "/_" + name + ".ref"
-+		with open(path, "w") as new:
-+			new.write("policy_module(%s, %s)\n\n" % (name, version))
++				if (mode_cil == 0) {
++					result = semanage_module_get(
++							sh,
++							modkey,
++							&data,
++							&data_len);
++				}
++				else {
++					result = semanage_module_get_cil(
++							sh,
++							modkey,
++							&data,
++							&data_len);
++				}
++				if (result != 0) goto cleanup_get;
 +
-+			with open(special, "r") as old:
-+				copyfileobj(old, new)
-+		os.remove(special)
++				/* get language extension */
++				result = semanage_module_get_module_info(
++						sh,
++						modkey,
++						&modinfo);
++				if (result != 0) goto cleanup_get;
 +
-+	for cnet in corenets(target):
-+		corenet.itf_to_corenet(cnet + ".if.in",
-+				       cnet + ".if.m4",
-+				       cnet + ".te.in",
-+				       cnet + ".te.m4",
-+				       cnet + ".fc",
-+				       cnet + ".corenet")
++				if (mode_cil == 0) {
++					result = semanage_module_info_get_lang_ext(
++							sh,
++							modinfo,
++							&lang_ext);
++					if (result != 0) goto cleanup_get;
++				}
++				else {
++					/* current cil is refpol */
++					lang_ext = "ref";
++				}
 +
-+		# remove old files
-+		os.remove(cnet + ".if.in")
-+		os.remove(cnet + ".if.m4")
-+		os.remove(cnet + ".te.in")
-+		os.remove(cnet + ".te.m4")
-+		os.remove(cnet + ".fc")
++				if (mode_output == NULL ||
++				    strcmp(mode_output, "-") != 0) {
++					char path[PATH_MAX];
 +
-+	# create _defines.ref
-+	build_conf_to_defines(target + "/build.conf", target + "/_defines.ref", version)
++					if (mode_output == NULL) {
++						/* by default write out to <name>.<lang> */
++						/* compose path */
 +
-+	# remove build.conf (will be created as part of build)
-+	os.remove(target + "/build.conf")
++						result = snprintf(path,
++								  sizeof(path) - 1,
++								  "%s.%s",
++								  mode_arg,
++								  lang_ext);
++						if (result < 0 ||
++						    result >= (int)sizeof(path)) {
++							fprintf(stderr,
++								"%s: Unable to compose path for output file.\n",
++								argv[0]);
++							result = -1;
++							goto cleanup_get;
++						}
++						result = 0;
++					}
++					else {
++						if (strlen(mode_output) > sizeof(path) - 1) {
++							fprintf(stderr,
++								"%s: Path too long (%d > %d): '%s'\n",
++								argv[0],
++								strlen(mode_output),
++								sizeof(path) - 1,
++								mode_output);
++							result = -1;
++							goto cleanup_get;
++						}
++						strcpy(path, mode_output);
++					}
 +
-+def create_ilc_environment(source, target):
-+	if force:
-+		rmtree(target, ignore_errors = True)
++					/* open file iff it doesn't exist */
++					fd = open(path,
++						  O_WRONLY | O_CREAT | O_EXCL,
++						  S_IRUSR | S_IWUSR);
++					if (fd < 0) {
++						fprintf(stderr,
++							"%s: Unable to open output '%s'. (%s)\n",
++							argv[0],
++							path,
++							strerror(errno));
++						result = -1;
++						goto cleanup_get;
++					}
 +
-+	copytree(source, target, ignore = ignore_patterns("*.if", "*.te", "*.fc", "*.if.m4", "*.if.in", "*.te.m4", "*.te.in"))
-+	for item in specials(target):
-+		os.remove(item)
-+	for item in discards(target):
-+		rmtree(item, ignore_errors = True)
-+	os.remove(target + "/build.conf")
++					out = fdopen(fd, "w");
++					if (out == NULL) {
++						fprintf(stderr,
++							"%s: Unable to open output '%s'. (%s)\n",
++							argv[0],
++							path,
++							strerror(errno));
++						result = -1;
++						goto cleanup_get;
++					}
++				}
++				else {
++					/* otherwise we must be special '-' */
++					out = stdout;
++				}
 +
-+	# Create blank mls and mcs specials so that the build process
-+	# does not complain when they are missing (i.e., _mls is disabled).
-+	# These will get over written if the _mls/_mcs modules are installed.
-+	open(target + "/policy/mls", "w").close()
-+	open(target + "/policy/mcs", "w").close()
++				nwrite = fwrite(data,
++						data_len,
++						1,
++						out);
++				if (nwrite != 1) {
++					fprintf(stderr,
++						"%s: Failed to write module to output.\n",
++						argv[0]);
++					result = -1;
++					goto cleanup_get;
++				}
 +
-+usage = "%prog [OPTIONS] SOURCE TARGET"
-+version = "%prog 1.0"
++cleanup_get:
++				if (out != NULL && out != stdout) {
++					fclose(out);
++					fd = -1;
++				}
++				if (fd >= 0) close(fd);
++				free(data);
 +
-+def main():
-+	# build cmdline parser
-+	parser = OptionParser(usage = usage, version = version)
-+	parser.add_option("-b", "--build", action = "store_true", default = False, dest = "build", help = "create the Refpol ILC build environment (default: False)")
-+	parser.add_option("-f", "--force", action = "store_true", default = False, dest = "force", help = "force overwriting existing files")
++				semanage_module_info_destroy(sh, modinfo);
++				free(modinfo);
 +
-+	# parse cmdline
-+	(options, args) = parser.parse_args()
++				semanage_module_key_destroy(sh, modkey);
++				free(modkey);
 +
-+	if len(args) != 2:
-+		parser.error("Invalid number of arguments %d." % len(args))
-+
-+	force = options.force
-+	source = args[0]
-+	target = args[1]
-+
-+	if options.build:
-+		create_ilc_environment(source, target)
-+	else:
-+		refpolicy2refpol(source, target)
-+
-+if __name__ == "__main__":
-+	try:
-+		main()
-+	except Exception as e:
-+		sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
-+		sys.exit(1)
-diff --git a/refpol/refpolicy2refpol.py b/refpol/refpolicy2refpol.py
-new file mode 100755
-index 0000000..bc908c3
---- /dev/null
-+++ b/refpol/refpolicy2refpol.py
-@@ -0,0 +1,17 @@
-+#!/usr/bin/python
-+
-+# Authors:	Caleb Case <ccase@tresys.com>
-+#
-+# Copyright (C) 2009-2010 Tresys Technology, LLC
-+#      This program is free software; you can redistribute it and/or modify
-+#      it under the terms of the Lesser GNU General Public License as 
-+#      published by the Free Software Foundation, version 2.
-+
-+import refpol.refpolicy2refpol
-+import sys
-+
-+try:
-+	refpol.refpolicy2refpol.main()
-+except Exception as e:
-+	sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
-+	sys.exit(1)
++				break;
++			}
+ 		default:{
+ 				fprintf(stderr,
+ 					"%s:  Unknown mode specified.\n",
 -- 
 1.6.3.3
 
