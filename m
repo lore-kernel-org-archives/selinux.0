@@ -1,39 +1,32 @@
-Subject: Allowing MLS->non-MLS and vice versa upon policy reload (Was: Re:
- Building MLS/MCS policy)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <1264528350.19890.74.camel@moss-pluto.epoch.ncsc.mil>
-References: <201001261546.o0QFkDMJ023435@vivaldi15.register.it>
-	 <1264528350.19890.74.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 26 Jan 2010 14:18:12 -0500
-Message-Id: <1264533492.19890.76.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4B5F4D5B.8070407@gmail.com>
+Date: Tue, 26 Jan 2010 12:15:23 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: TaurusHarry <harrytaurus2002@hotmail.com>, refpolicy@oss1.tresys.com,
+        selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] Bootup problem with refpolicy-2.20091117 - 4:login
+ successfully finally!
+References: <BAY111-W27B5C0DF57292CB495990DAB660@phx.gbl>	,, , ,,<4B53CEB9.3050207@gmail.com>	,,<BAY111-W3E475DBD218D365CE90B6AB660@phx.gbl>	,, , ,,<4B543977.40007@gmail.com>	,,<BAY111-W38C1EDA473E7D38CE32E9EAB650@phx.gbl>	,, , ,,<4B550EB9.50806@gmail.com>	,,<BAY111-W5CC280B61135249DF5E8FAB630@phx.gbl>	,, ,,<1264079995.11002.19.camel@moss-pluto.epoch.ncsc.mil>	,,,<BAY111-W42A0AB9B343372897BA202AB620@phx.gbl>	,,,<1264176847.22211.16.camel@moss-pluto.epoch.ncsc.mil>	,,<BAY111-W51276CC30B166887BBB33AB5F0@phx.gbl>	,<BAY111-W22EC1CF480A00C18111145AB5F0@phx.gbl>	,<1264433745.4297.159.camel@moss-pluto.epoch.ncsc.mil>	<BAY111-W103B9EF7D73E86CFDF3688AB5E0@phx.gbl> <1264513015.19890.14.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1264513015.19890.14.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-01-26 at 12:52 -0500, Stephen Smalley wrote:
-> Alternatively to spending time on documenting the current limitation, it
-> might be more interesting to try removing the restriction from the
-> SELinux kernel code and investigating what needs to be done within the
-> kernel to enable it to be done safely.  Primarily this would mean:
-> - pushing the selinux_mls_enabled flag inside the policydb so that it
-> could be per-policydb (this is already the case in libsepol),
-> - in the non-MLS to MLS case, ensuring that the MLS fields of the
-> context for all existing entries in the sidtab are filled in with a
-> suitable default value, likely taken from one of the initial SIDs,
-> - in the MLS to non-MLS case, freeing any storage used by the MLS fields
-> in the context for all existing entries in the sidtab.
 
-FYI, both of the latter two items would be handled inside of
-ss/services.c:convert_context().
+>> More secmark options should I enable?
+>
+> If you are still using a kernel<  2.6.29, then you also want:
+> SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT=y
+>
 
--- 
-Stephen Smalley
-National Security Agency
+what does his inittab look like?
 
+had some funk issue with min,
+policy worked after adjusting inittab
+(maybe this is something with mgetty);
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
