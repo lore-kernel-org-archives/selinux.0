@@ -2,436 +2,961 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 00/15] RFC Source Policy Support
-Date: Tue, 26 Jan 2010 17:08:06 -0500
-Message-Id: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+Subject: [PATCH 08/15] [src-policy] libsemanage: remove binary interfaces
+Date: Tue, 26 Jan 2010 17:08:14 -0500
+Message-Id: <1264543701-20638-9-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-8-git-send-email-ccase@tresys.com>
+References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+ <1264543701-20638-2-git-send-email-ccase@tresys.com>
+ <1264543701-20638-3-git-send-email-ccase@tresys.com>
+ <1264543701-20638-4-git-send-email-ccase@tresys.com>
+ <1264543701-20638-5-git-send-email-ccase@tresys.com>
+ <1264543701-20638-6-git-send-email-ccase@tresys.com>
+ <1264543701-20638-7-git-send-email-ccase@tresys.com>
+ <1264543701-20638-8-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Our motivations for this patchset is to enable source modules to be
-stored in the libsemanage store. These changes will allow users and
-administrators to:
-
-   1. Insert human readable and editable source modules into the module
-      store.
-
-   2. Retrieve existing modules in order to view or make changes.
-
-   3. Stop storing and versioning policy source outside of the semanage
-      store for minor local modifications (though it is possible the
-      store could be used for general policy development, it is
-      anticipated that for larger policy development activities an
-      external source store and version control scheme will be used).
-
-Additionally, switching to source modules will bring several other
-long-term benefits:
-
-   1. Reduction in the number of binary formats used in the SELinux
-      toolchain, easing maintenance and development.
-
-   2. Development path to tools that enable larger policy modifications
-      on end systems (e.g., cloning application policies, removing rules
-      from distribution provided policy, etc.).
-
-   3. Development path to multiple high-level policy languages.
-   
-   4. Better Dependency Handling - e.g., updating an interface in one
-      module will cause the new interface to be used in other modules
-      without re-compiling those modules externally.
-
-   5. The removal of a special base module, allowing more flexibility in
-      policy construction and easier overriding, disabling, or removing
-      of portions of the core policy.
-
-[Design Considerations]
-
-In creating this design there were several key questions around
-backwards compatibility and user experience. Below are several of the
-most important and potentially controversial design decisions.
-
-No Support for Binary Modules - Many designs were made that included
-support for binary modules including, in several cases, base modules. We
-found that the compromises that each of these designs forced were
-unacceptable and, perhaps more importantly, there was no way to provide
-a user experience that would meet general expectations.  Further, it was
-felt that most users either had the source for all of their modules or
-in the rare cases when source was not available, the modules would be
-trivial and the source could be reasonably extracted using a decompiler.
-The most challenging problems were:
-
-   1. Interface files - Because binary modules do not contain the
-      interfaces created by their modules it would be necessary to
-      locate the corresponding interface files for each binary module to
-      allow source modules to be compiled. This is particularly true in
-      the case of support for base modules. While it might have been
-      possible to hack around this using the interface files in the
-      selinux-policy-devel package, there were many problems with this
-      approach.
-
-   2. Dependencies - Binary modules would not be able to be updated
-      based upon changes to the interfaces in other modules.
-
-   3. Intermediate language - supporting binary modules would make it
-      much more challenging to support compilation to the forthcoming
-      intermediate language without creating a complex conversion tool.
-      It was decided that enabling support for binary modules that would
-      eventually be discontinued was not worth the complexity.
-
-Single Source Files - The initial designs for source modules included
-the possibility of supporting reference policy modules directly by
-combining the three files for each module (.te, .if, and .fc) into a
-tarball. This created a very unfriendly user experience and created many
-corner cases (which tarball layouts were acceptable, how should the
-infrastructure handle 'extra' files in a tarball, etc.).  These
-complications led us to instead use a very simple sectioned text format
-for reference policy modules and, in the future, to remove the need for
-sections through language and compiler features.
-
-Module Ordering - The current reference policy compilation
-infrastructure devotes substantial attention to dealing with ordering
-problems. Some of these problems are fundamental (such as the ordering
-of portcon statements) while others are an artifact of the current
-compiler and M4 (such as the need to separate out interface statements
-in .if files). Rather than devote substantial effort to creating
-mechanisms for specifying or dealing with ordering, it was felt that the
-long term solution to this problem is in the improvements that will come
-from the proposed common intermediate language [1]. Therefore, in the
-short term, several modules will be ordered specially based upon name
-and certain policy statements will only be supported in those specially
-ordered modules (e.g., a module for specifying defines such as
-DISTRO_REDHAT). These hacks can be removed at a later date.
-
-Base Module Removal - The decision to support a special base binary
-module was made to make bootstrapping a module store easier by including
-a module that was required to have a minimal but complete system policy
-and to deal with ordering by only allowing order dependent statements to
-appear in the base (such as object class or portcon). Over time it has
-become clear that the base module limitations outweigh any of the
-intended benefits. This is especially true as support for overriding
-policy modules is included. Therefore, the source semanage store will no
-longer support or require a special base module.  Further, there will be
-no restrictions on the use of policy statements in modules. While this
-will allow some unintentional mistakes (e.g., including a broad portcon
-in a module that gets processed first) it will also allow additional
-freedom (e.g., the use of narrow portcon statements in modules).
-
-[User Experience Overview]
-
-The overall user experience will shift from using external tools to
-compile a policy package (.pp) to working directly with source modules.
-
-Source modules will be a single text file containing all of the policy
-for that module. For the current reference policy that will require
-combining the current interface, type enforcement, and file context
-files into a single text file. The user will then use that text file
-similarly to how the current binary modules are used. Insertion would be
-performed using semodule (the 'ref' extension is for the single file
-reference policy format):
-
-# semodule -i apache.ref
-
-Note that the language for the module will be inferred from the
-extension to avoid the general tools, such as semodule, needing an
-awareness of the format of all source policies. The name would be taken
-from the input filename.
-
-Removing a module would be the same as it is currently:
-
-# semodule -r apache
-
-Listing would be generally the same, though there would be the addition
-of a language field to the full output:
-
-# semodule -lfull
-400 _access_vectors      2.20091117          ref    
-400 _constraints         2.20091117          ref    
-<snip>
-400 _mls                 2.20091117 disabled ref    
-<snip>
-400 corenetwork          1.13.1              corenet
-<snip>
-400 zebra                1.10.0     disabled ref    
-400 zosremote            1.1.0      disabled ref    
-
-The first large change to user experience is the introduction of a
-command to retrieve a module:
-
-# semodule -g apache
-# ls
-apache.ref
-
-# semodule -g apache -o myapache.ref
-# ls
-myapache.ref
-
-Similarly, there is the addition of an edit command that is similar to
-sudoedit. This is purely a convenience; it will retrieve the module to a
-temporary location and install it after updates are made.
-
-# semodule --edit apache
-
-Finally, semodule now supports adding a user message when making
-changes:
-
-# semodule --edit apache -m "Allow apache to execute cowsay."
-
-[Compilation]
-
-In the interests of supporting multiple high-level languages (such as
-domain specific languages) we provide a two part compilation process.
-
-The first compilation is from a high-level language (HLL) module to a
-common intermediate language (CIL) module. This compilation occurs when
-a module is installed. The compilation is handled by a HLL specific
-compiler conforming the HLL compiler specification.
-
-The second compilation is from CIL modules to binary base module. This
-compilation occurs during the commit process. The compilation is handled
-by the CIL compiler.
-
-In this implementation the CIL refers to a special formulation of the
-refpol language called refpol_ilc and NOT the proposed CIL[1].
-
-[HLL]
-
-We provide an overview of high-level language treatment here. This
-patchset introduces two high-level languages refpol and corenet. Please
-see their respective patches for details on their languages.
-
-[HLL Compiler Specification]
-
-Each high-level language (HLL) has a compiler that converts from the HLL
-to the CIL. The HLL compiler will be a command-line tool that takes the
-HLL source as input on stdin and outputs the compiled CIL on stdout.
-Errors from compilation will be output on stderr and a non-zero exit
-status set. Additionally, the version of the module will be output on
-file descriptor 3.
-
-For example an invocation by hand of the refpol HLL compiler:
-
-# refpolc < apache.ref > apache.cil 3<> apache.version
-
-The compiler name, path, HLL extension, and any flags to the compiler
-are specified in the language configuration file.
-
-[HLL Configuration File]
-
-Each language has a configuration file stored at:
-
-/etc/selinux/language.d/<language>.conf
-
-Where each <language>.conf contains:
-
-NAME=<human readable name>
-COMPILER=<full path to compiler>
-EXTENSION=<file extension without dot>
-FLAGS=<compiler flags>
-
-For example:
-
-NAME="Reference Policy"
-COMPILER="/usr/bin/refpolc"
-EXTENSION="ref"
-FLAGS=""
-
-Language extensions are required to be unique (at least from all other
-languages and preferably globally unique).
-
-[CIL]
-
-Here we discuss the CIL treatment in general. This patchset uses a
-special formulation of the refpol language combined with the traditional
-Reference Policy build infrastructure as the common intermediary
-language (referred to as refpol_ilc). For details on the refpol_ilc
-please see its patch.
-
-[CIL Compiler]
-
-The common intermediate language (CIL) compiler converts from the
-intermediate language to a binary base module. It is a command line tool
-that takes the enabled and disabled modules as parameters. Errors from
-compilation will be output on stderr and an non-zero exit status set.
-The binary base module will be output on stdout. Disabled modules will
-be specified with the -d option.
-
-For example an invocation by hand of the refpol_ilc CIL compiler:
-
-# refpol_ilc `find /var/lib/selinux/targeted/active/modules/400/ -iname cil` > base.pp
-
-[ChangeLog Support]
-
-Every successful commit will produce a log entry. The log entry will
-contain the command run, who ran it, their context, when it occurred,
-and any user specified message.
-
-The log will be stored at:
-
-/var/lib/selinux/<policy type>/ChangeLog
-
-Each line of the log has the following format:
-
-VERSION="<repo version>" COMMAND="<command + options>" USERNAME="<user name>" CONTEXT="<context>" TIME="<time stamp>" MSG="<message>"
-
-All quoted strings have special characters escaped (quotes and anything
-not printable [^:print:]|\").
-
-The origins of the information in the fields is as follows:
-
-   [Field]    [Origin]
-
-   VER        Discovered from the 'SCM', for the time being this will be the
-              commit number.
-
-   CMD        Discovered from /proc/self/cmdline if available. May be set by
-              the library user.
-
-   USERNAME   Discovered from getpwuid(getuid())->pw_name.
-
-   CONTEXT    Discovered from getprevcon.
-
-   TIME       Discovered from ctime(time(&t)).
-
-   MSG        Set by the library user.
-
-[Setup]
-
-The following steps setup a system with source policy support:
-
-   1. Compile & install patched SELinux userland.
-
-      Note: Remember to install the new python wrappers (install-pywrap)
-            if you intend to use semanage.
-   
-   2. (On Fedora) Remove /lib/libsemanage.so.1. The default installation
-      location for libsemanage does not overwrite the one shipped with
-      Fedora.
-   
-   3. Get Reference Policy:
-
-      # git clone http://oss.tresys.com/git/refpolicy.git
-   
-   4. Make the refpol_ilc build directory:
-
-      # mkdir -p /usr/share/selinux/refpol_ilc/
-   
-   5. Create and install the refpol_ilc build environment:
-
-      # refpolicy2refpol -b refpolicy /usr/share/selinux/refpol_ilc/build
-
-   6. Convert Reference Policy modules to refpol modules:
-
-      # refpolicy2refpol refpolicy refpol
-
-   7. Copy an existing installed policy such as targeted to a 'test'
-      store:
-
-      # cp -R /etc/selinux/targeted /etc/selinux/test
-
-   8. Create necessary directories for a 'test' store in
-      /var/lib/selinux:
-
-      # mkdir -p /var/lib/selinux/test/active/modules
-
-   9. Install the source modules to the test store:
-   
-      # semodule -s test `find refpol -iname \*.ref -or -iname \*.corenet | xargs -I{} echo -i {}`
-
-      Note: The current semanage policy does not allow executing
-	    generated files, so you need to change the policy or put
-	    semanage in permissive.
-
-[1] CIL RFC: http://marc.info/?l=selinux&m=124759244409438&w=2
-
-Caleb Case (15):
-  [src-policy] refpol language and tools
-  [src-policy] corenet language and tools
-  [src-policy] Reference Policy to refpol conversion tool
-  [src-policy] refpol intermediate language compiler (refpol_ilc)
-  [src-policy] language.d and language.conf parser
-  [src-policy] libsemanage: compile hll module
-  [src-policy] libsemanage: compile common intermediary language
-  [src-policy] libsemanage: remove binary interfaces
-  [src-policy] semodule: remove base module support
-  [src-policy] libsemanage: get source module
-  [src-policy] semodule: get module source
-  [src-policy] semodule: edit module
-  [src-policy] libsemanage: ChangeLog support
-  [src-policy] semodule: user message support
-  [src-policy] semanage: source permissive module
-
- Makefile                                       |    2 +-
- corenet/COPYING                                |  504 ++++++++++
- corenet/Makefile                               |   27 +
- corenet/corenet.conf                           |    4 +
- corenet/corenet.py                             |   17 +
- corenet/corenet/corenet.py                     |  175 ++++
- corenet/corenet/corenetc.py                    |  129 +++
- corenet/corenetc.py                            |   17 +
- corenet/setup.py                               |   13 +
- libsemanage/include/semanage/modules.h         |   14 +-
- libsemanage/include/semanage/private/handle.h  |   31 +-
- libsemanage/include/semanage/private/modules.h |   28 +-
- libsemanage/src/Makefile                       |   16 +-
- libsemanage/src/direct_api.c                   | 1165 ++++++++++++++----------
- libsemanage/src/handle.c                       |   95 ++-
- libsemanage/src/handle.h                       |   10 +-
- libsemanage/src/lang-parse.y                   |  271 ++++++
- libsemanage/src/lang-scan.l                    |   84 ++
- libsemanage/src/libsemanage.map                |    6 +
- libsemanage/src/modules.c                      |   41 +-
- libsemanage/src/modules.h                      |    3 +-
- libsemanage/src/policy.h                       |   15 +-
- libsemanage/src/semanage_lang_conf.h           |   39 +
- libsemanage/src/semanage_store.c               |  884 ++++++++++++------
- libsemanage/src/semanage_store.h               |   55 +-
- policycoreutils/semanage/seobject.py           |   15 +-
- policycoreutils/semodule/semodule.8            |   27 +-
- policycoreutils/semodule/semodule.c            |  540 +++++++++++-
- refpol/COPYING                                 |  504 ++++++++++
- refpol/Makefile                                |   28 +
- refpol/refpol.conf                             |    4 +
- refpol/refpol.py                               |   17 +
- refpol/refpol/refpol.py                        |  176 ++++
- refpol/refpol/refpolc.py                       |   77 ++
- refpol/refpol/refpolicy2refpol.py              |  185 ++++
- refpol/refpolc.py                              |   17 +
- refpol/refpolicy2refpol.py                     |   17 +
- refpol/setup.py                                |   13 +
- refpol_ilc/COPYING                             |  504 ++++++++++
- refpol_ilc/Makefile                            |   24 +
- refpol_ilc/refpol_ilc.py                       |   17 +
- refpol_ilc/refpol_ilc/refpol_ilc.py            |  193 ++++
- refpol_ilc/setup.py                            |   13 +
- 43 files changed, 5200 insertions(+), 816 deletions(-)
- create mode 100644 corenet/COPYING
- create mode 100644 corenet/Makefile
- create mode 100644 corenet/corenet.conf
- create mode 100755 corenet/corenet.py
- create mode 100644 corenet/corenet/__init__.py
- create mode 100644 corenet/corenet/corenet.py
- create mode 100644 corenet/corenet/corenetc.py
- create mode 100755 corenet/corenetc.py
- create mode 100755 corenet/setup.py
- create mode 100644 libsemanage/src/lang-parse.y
- create mode 100644 libsemanage/src/lang-scan.l
- create mode 100644 libsemanage/src/semanage_lang_conf.h
- create mode 100644 refpol/COPYING
- create mode 100644 refpol/Makefile
- create mode 100644 refpol/refpol.conf
- create mode 100755 refpol/refpol.py
- create mode 100644 refpol/refpol/__init__.py
- create mode 100644 refpol/refpol/refpol.py
- create mode 100644 refpol/refpol/refpolc.py
- create mode 100644 refpol/refpol/refpolicy2refpol.py
- create mode 100755 refpol/refpolc.py
- create mode 100755 refpol/refpolicy2refpol.py
- create mode 100755 refpol/setup.py
- create mode 100644 refpol_ilc/COPYING
- create mode 100644 refpol_ilc/Makefile
- create mode 100755 refpol_ilc/refpol_ilc.py
- create mode 100644 refpol_ilc/refpol_ilc/__init__.py
- create mode 100644 refpol_ilc/refpol_ilc/refpol_ilc.py
- create mode 100755 refpol_ilc/setup.py
+Supporting both binary policy packages and source modules is difficult
+and leads to problems that are unacceptable. For instance, the binary
+modules would lack relevant information for recompilation such as the
+interface definition (which would lead to unexpected behavior if a
+source module interface changes, but those changes don't appear in the
+binary modules).  Consequently, we completely removed support for binary
+modules, leaving only support for source modules. Also, because we are
+now creating the base module automatically from the source modules, the
+base module interfaces are removed as well.
+
+This patch deprecates the following:
+
+   semanage_module_install
+   semanage_module_upgrade
+   semanage_module_install_base
+   semanage_module_intall_base_file
+
+and removes their direct_api implementations.
+
+For the sake of rendering meaningful error messages, the callbacks for
+these functions have been initialized to NULL. This will result in an
+error message indicating that the function is not implemented for the
+given connection type. At a future time these functions would be removed
+entirely.
+
+The file related functions are updated to expect source modules:
+
+   semanage_module_install_file
+   semanage_module_upgrade_file
+---
+ libsemanage/include/semanage/modules.h |   14 +-
+ libsemanage/src/direct_api.c           |  751 +++++++++++++-------------------
+ 2 files changed, 302 insertions(+), 463 deletions(-)
+
+diff --git a/libsemanage/include/semanage/modules.h b/libsemanage/include/semanage/modules.h
+index e169279..8a26e6c 100644
+--- a/libsemanage/include/semanage/modules.h
++++ b/libsemanage/include/semanage/modules.h
+@@ -1,7 +1,7 @@
+ /* Authors: Joshua Brindle  <jbrindle@tresys.com>
+  *	    Jason Tang	    <jtang@tresys.com>
+  *
+- * Copyright (C) 2005 Tresys Technology, LLC
++ * Copyright (C) 2005,2010 Tresys Technology, LLC
+  *
+  *  This library is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU Lesser General Public
+@@ -29,17 +29,21 @@
+  */
+ 
+ int semanage_module_install(semanage_handle_t *,
+-			    char *module_data, size_t data_len);
++			    char *module_data, size_t data_len)
++			    __attribute__ ((deprecated));
+ int semanage_module_install_file(semanage_handle_t *,
+ 				 const char *module_name);
+ int semanage_module_upgrade(semanage_handle_t *,
+-			    char *module_data, size_t data_len);
++			    char *module_data, size_t data_len)
++			    __attribute__ ((deprecated));
+ int semanage_module_upgrade_file(semanage_handle_t *,
+ 				 const char *module_name);
+ int semanage_module_install_base(semanage_handle_t *,
+-				 char *module_data, size_t data_len);
++				 char *module_data, size_t data_len)
++				 __attribute__ ((deprecated));
+ int semanage_module_install_base_file(semanage_handle_t *,
+-				      const char *module_name);
++				      const char *module_name)
++				      __attribute__ ((deprecated));
+ int semanage_module_remove(semanage_handle_t *, char *module_name);
+ 
+ /* semanage_module_info is for getting information on installed
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 0623497..6f7cf63 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -58,15 +58,8 @@ static void semanage_direct_destroy(semanage_handle_t * sh);
+ static int semanage_direct_disconnect(semanage_handle_t * sh);
+ static int semanage_direct_begintrans(semanage_handle_t * sh);
+ static int semanage_direct_commit(semanage_handle_t * sh);
+-static int semanage_direct_install(semanage_handle_t * sh, char *data,
+-				   size_t data_len);
+ static int semanage_direct_install_file(semanage_handle_t * sh, const char *module_name);
+-static int semanage_direct_upgrade(semanage_handle_t * sh, char *data,
+-				   size_t data_len);
+ static int semanage_direct_upgrade_file(semanage_handle_t * sh, const char *module_name);
+-static int semanage_direct_install_base(semanage_handle_t * sh, char *base_data,
+-					size_t data_len);
+-static int semanage_direct_install_base_file(semanage_handle_t * sh, const char *module_name);
+ static int semanage_direct_remove(semanage_handle_t * sh, char *module_name);
+ static int semanage_direct_list(semanage_handle_t * sh,
+ 				semanage_module_info_t ** modinfo,
+@@ -105,12 +98,12 @@ static struct semanage_policy_table direct_funcs = {
+ 	.disconnect = semanage_direct_disconnect,
+ 	.begin_trans = semanage_direct_begintrans,
+ 	.commit = semanage_direct_commit,
+-	.install = semanage_direct_install,
+ 	.install_file = semanage_direct_install_file,
+-	.upgrade = semanage_direct_upgrade,
+ 	.upgrade_file = semanage_direct_upgrade_file,
+-	.install_base = semanage_direct_install_base,
+-	.install_base_file = semanage_direct_install_base_file,
++	.install = NULL,
++	.upgrade = NULL,
++	.install_base = NULL,
++	.install_base_file = NULL,
+ 	.remove = semanage_direct_remove,
+ 	.list = semanage_direct_list,
+ 	.get_enabled = semanage_direct_get_enabled,
+@@ -373,87 +366,6 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
+ 
+ /********************* utility functions *********************/
+ 
+-/* Takes a module stored in 'module_data' and parses its headers.
+- * Sets reference variables 'module_name' to module's name, and
+- * 'version' to module's version.  The caller is responsible for
+- * free()ing 'module_name', and 'version'; they will be
+- * set to NULL upon entering this function.  Returns 0 on success, -1
+- * if out of memory, or -2 if data did not represent a module.
+- */
+-static int parse_module_headers(semanage_handle_t * sh, char *module_data,
+-				size_t data_len, char **module_name,
+-				char **version)
+-{
+-	struct sepol_policy_file *pf;
+-	int file_type;
+-	*module_name = *version = NULL;
+-
+-	if (sepol_policy_file_create(&pf)) {
+-		ERR(sh, "Out of memory!");
+-		return -1;
+-	}
+-	sepol_policy_file_set_mem(pf, module_data, data_len);
+-	sepol_policy_file_set_handle(pf, sh->sepolh);
+-	if (module_data == NULL ||
+-	    data_len == 0 ||
+-	    sepol_module_package_info(pf, &file_type, module_name,
+-				      version) == -1) {
+-		sepol_policy_file_free(pf);
+-		ERR(sh, "Could not parse module data.");
+-		return -2;
+-	}
+-	sepol_policy_file_free(pf);
+-	if (file_type != SEPOL_POLICY_MOD) {
+-		if (file_type == SEPOL_POLICY_BASE)
+-			ERR(sh,
+-			    "Received a base module, expected a non-base module.");
+-		else
+-			ERR(sh, "Data did not represent a module.");
+-		return -2;
+-	}
+-
+-	return 0;
+-}
+-
+-/* Takes a base module stored in 'module_data' and parse its headers.
+- * Returns 0 on success, -1 if out of memory, or -2 if data did not
+- * represent a module.
+- */
+-static int parse_base_headers(semanage_handle_t * sh,
+-			      char *module_data, size_t data_len)
+-{
+-	struct sepol_policy_file *pf;
+-	char *module_name = NULL, *version = NULL;
+-	int file_type;
+-
+-	if (sepol_policy_file_create(&pf)) {
+-		ERR(sh, "Out of memory!");
+-		return -1;
+-	}
+-	sepol_policy_file_set_mem(pf, module_data, data_len);
+-	sepol_policy_file_set_handle(pf, sh->sepolh);
+-	if (module_data == NULL ||
+-	    data_len == 0 ||
+-	    sepol_module_package_info(pf, &file_type,
+-				      &module_name, &version) == -1) {
+-		sepol_policy_file_free(pf);
+-		ERR(sh, "Could not parse base module data.");
+-		return -2;
+-	}
+-	sepol_policy_file_free(pf);
+-	free(module_name);
+-	free(version);
+-	if (file_type != SEPOL_POLICY_BASE) {
+-		if (file_type == SEPOL_POLICY_MOD)
+-			ERR(sh,
+-			    "Received a non-base module, expected a base module.");
+-		else
+-			ERR(sh, "Data did not represent a module.");
+-		return -2;
+-	}
+-	return 0;
+-}
+-
+ #include <stdlib.h>
+ #include <bzlib.h>
+ #include <string.h>
+@@ -564,41 +476,6 @@ ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
+ 	return  total;
+ }
+ 
+-/* mmap() a file to '*data',
+- *  If the file is bzip compressed map_file will uncompress 
+- * the file into '*data'.
+- * Returns the total number of bytes in memory .
+- * Returns -1 if file could not be opened or mapped. */
+-static ssize_t map_file(semanage_handle_t *sh, int fd, char **data,
+-			int *compressed)
+-{
+-	ssize_t size = -1;
+-	char *uncompress;
+-	if ((size = bunzip(sh, fdopen(fd, "r"), &uncompress)) > 0) {
+-		*data = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+-		if (*data == MAP_FAILED) {
+-			free(uncompress);
+-			return -1;
+-		} else {
+-			memcpy(*data, uncompress, size);
+-		}
+-		free(uncompress);
+-		*compressed = 1;
+-	} else {
+-		struct stat sb;
+-		if (fstat(fd, &sb) == -1 ||
+-		    (*data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0)) ==
+-		    MAP_FAILED) {
+-			size = -1;
+-		} else {
+-			size = sb.st_size;
+-		}
+-		*compressed = 0;
+-	} 
+-
+-	return size;
+-}
+-
+ /* Writes a block of data to a file.  Returns 0 on success, -1 on
+  * error. */
+ static int write_file(semanage_handle_t * sh,
+@@ -706,6 +583,169 @@ static int semanage_direct_update_seuser(semanage_handle_t * sh, sepol_module_pa
+ 	return retval;
+ }
+ 
++/* Reads the source module pointed to by @path into a memory buffer
++ * @data of length @data_len. @modinfo is constructed with gleaned from
++ * the module path and defaults as follows:
++ *
++ * priority	default from handle
++ * name		basename(path) sans extension
++ * version	empty string (gets overridden by hll compiler)
++ * lang_ext	basename(path) sans name and '.'
++ * enabled	default of -1 (don't change status)
++ * 
++ * On call @modinfo and @data will be set to NULL. @data_len will be set
++ * to 0.
++ *
++ * Caller should destroy and free @modinfo and free @data.
++ *
++ * Returns:
++ *
++ * 	 0	success
++ * 	-1	failure, out of memory
++ * 	-2	failure, invalid @path
++ */
++static int semanage_path_to_info(semanage_handle_t *sh,
++				 const char *path,
++				 semanage_module_info_t **modinfo,
++				 char **data,
++				 size_t *data_len)
++{
++	assert(sh);
++	assert(path);
++	assert(modinfo);
++	assert(data);
++	assert(data_len);
++
++	int status = 0;
++	int ret = 0;
++
++	int fd = -1;
++	char *path_tmp = NULL;
++	char *name = NULL;
++	int i;
++	char *ext = NULL;
++
++	*modinfo = NULL;
++
++	/* Open the module. */
++	fd = open(path, O_RDONLY);
++	if (fd < 0) {
++		ERR(sh, "Failed to open file %s.", path);
++		status = -2;
++		goto cleanup;
++	}
++
++	/* Convert to buffer. */
++	ret = semanage_fd_to_data(sh, fd, data, data_len);
++	if (ret != 0) {
++		status = ret;
++		goto cleanup;
++	}
++
++	/* Get the name and ext from the path.
++	 * name will be the first part of the string.
++	 * ext will be the last part.
++	 * Note that neither should be free'd.
++	 * strduping here since basename can modify.
++	 */
++	path_tmp = strdup(path);
++	if (path_tmp == NULL) {
++		status = -1;
++		goto cleanup;
++	}
++
++	name = basename(path_tmp);
++	for (i = strlen(name) - 1; i >= 1; i--) {
++		if (name[i] == '.') {
++			name[i] = '\0';
++			ext = &name[i] + 1;
++			break;
++		}
++	}
++
++	/* Failed to find an ext or name begins with '.'. */
++	if (i == 0) {
++		status = -2;
++		goto cleanup;
++	}
++
++	/* Create and initialize a modinfo. */
++	ret = semanage_module_info_create(sh, modinfo);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	ret = semanage_module_info_set_priority(
++			sh,
++			*modinfo,
++			sh->priority);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	ret = semanage_module_info_set_name(
++			sh,
++			*modinfo,
++			name);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Initialize version to 0.
++	 * The module version will changed later by the hll compiler.
++	 */
++	ret = semanage_module_info_set_version(
++			sh,
++			*modinfo,
++			"0");
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	ret = semanage_module_info_set_lang_ext(
++			sh,
++			*modinfo,
++			ext);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++	/* Set enabled to the default -1 value. This means that
++	 * installing the module will not modify the enabled/disabled
++	 * status.
++	 */
++	ret = semanage_module_info_set_enabled(
++			sh,
++			*modinfo,
++			-1);
++	if (ret != 0) {
++		status = -1;
++		goto cleanup;
++	}
++
++cleanup:
++	if (status != 0) {
++		semanage_module_info_destroy(sh, *modinfo);
++		free(*modinfo);
++		*modinfo = NULL;
++
++		free(*data);
++		*data = NULL;
++		*data_len = 0;
++	}
++
++	free(path_tmp);
++
++	close(fd);
++
++	return status;
++}
++
+ /********************* direct API functions ********************/
+ 
+ /* Commits all changes in sandbox to the actual kernel policy.
+@@ -1055,72 +1095,6 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	return retval;
+ }
+ 
+-/* Writes a module to the sandbox's module directory, overwriting any
+- * previous module stored within.  Note that module data are not
+- * free()d by this function; caller is responsible for deallocating it
+- * if necessary.  Returns 0 on success, -1 if out of memory, -2 if the
+- * data does not represent a valid module file, -3 if error while
+- * writing file. */
+-static int semanage_direct_install(semanage_handle_t * sh,
+-				   char *data, size_t data_len)
+-{
+-	int status = 0;
+-	int ret = 0;
+-
+-	char *module_name = NULL, *version = NULL;
+-	if ((status = parse_module_headers(sh, data, data_len,
+-					   &module_name, &version)) != 0) {
+-		goto cleanup;
+-	}
+-
+-	semanage_module_info_t modinfo;
+-	ret = semanage_module_info_init(sh, &modinfo);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_priority(sh, &modinfo, sh->priority);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_name(sh, &modinfo, module_name);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_version(sh, &modinfo, version);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_lang_ext(sh, &modinfo, "pp");
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_enabled(sh, &modinfo, -1);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	status = semanage_direct_install_info(sh, &modinfo, data, data_len);
+-
+-cleanup:
+-	free(version);
+-	free(module_name);
+-
+-	semanage_module_info_destroy(sh, &modinfo);
+-
+-	return status;
+-}
+-
+ /* Attempts to link a module to the sandbox's module directory, unlinking any
+  * previous module stored within.  Returns 0 on success, -1 if out of memory, -2 if the
+  * data does not represent a valid module file, -3 if error while
+@@ -1129,97 +1103,31 @@ cleanup:
+ static int semanage_direct_install_file(semanage_handle_t * sh,
+ 					const char *install_filename)
+ {
++	int status = 0;
+ 
+-	int retval = -1;
++	semanage_module_info_t *modinfo = NULL;
+ 	char *data = NULL;
+-	ssize_t data_len = 0;
+-	int compressed = 0;
+-	int in_fd = -1;
+-
+-	if ((in_fd = open(install_filename, O_RDONLY)) == -1) {
+-		return -1;
+-	}
+-
+-	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
+-		goto cleanup;
+-	}
+-		
+-	retval = semanage_direct_install(sh, data, data_len);
+-
+-      cleanup:
+-	close(in_fd);
+-	if (data_len > 0) munmap(data, data_len);
+-
+-	return retval;
+-}
++	size_t data_len = 0;
+ 
+-/* Similar to semanage_direct_install(), except that it checks that
+- * there already exists a module with the same name and that the
+- * module is an older version then the one in 'data'.  Returns 0 on
+- * success, -1 if out of memory, -2 if the data does not represent a
+- * valid module file, -3 if error while writing file or reading
+- * modules directory, -4 if the previous module is same or newer than 'data', 
+- * -5 if there does not exist an older module.
+- */
+-static int semanage_direct_upgrade(semanage_handle_t * sh,
+-				   char *data, size_t data_len)
+-{
+-	int status = 0;
+-	int ret = 0;
++	status = semanage_path_to_info(
++			sh,
++			install_filename,
++			&modinfo,
++			&data,
++			&data_len);
++	if (status != 0) goto cleanup;
+ 
+-	char *module_name = NULL, *version = NULL;
+-	status = parse_module_headers(
++	status = semanage_module_install_info(
+ 			sh,
++			modinfo,
+ 			data,
+-			data_len,
+-			&module_name,
+-			&version);
+-	if (status != 0) {
+-		goto cleanup;
+-	}
+-
+-	semanage_module_info_t modinfo;
+-	ret = semanage_module_info_init(sh, &modinfo);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_priority(sh, &modinfo, sh->priority);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_name(sh, &modinfo, module_name);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_version(sh, &modinfo, version);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_lang_ext(sh, &modinfo, "pp");
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_enabled(sh, &modinfo, -1);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	status = semanage_direct_upgrade_info(sh, &modinfo, data, data_len);
++			data_len);
+ 
+ cleanup:
+-	free(module_name);
+-	free(version);
++	semanage_module_info_destroy(sh, modinfo);
++	free(modinfo);
++
++	free(data);
+ 
+ 	return status;
+ }
+@@ -1233,125 +1141,33 @@ cleanup:
+ static int semanage_direct_upgrade_file(semanage_handle_t * sh,
+ 					const char *module_filename)
+ {
+-	int retval = -1;
+-	char *data = NULL;
+-	ssize_t data_len = 0;
+-	int compressed = 0;
+-	int in_fd = -1;
+-
+-	if ((in_fd = open(module_filename, O_RDONLY)) == -1) {
+-		return -1;
+-	}
+-
+-	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
+-		goto cleanup;
+-	}
+-
+-	retval = semanage_direct_upgrade(sh, data, data_len);
+-
+-      cleanup:
+-	close(in_fd);
+-	if (data_len > 0) munmap(data, data_len);
+-
+-	return retval;
+-}
+-
+-/* Writes a base module into a sandbox, overwriting any previous base
+- * module.  Note that 'module_data' is not free()d by this function;
+- * caller is responsible for deallocating it if necessary.  Returns 0
+- * on success, -1 if out of memory, -2 if the data does not represent
+- * a valid base module file, -3 if error while writing file.
+- */
+-static int semanage_direct_install_base(semanage_handle_t * sh,
+-					char *base_data, size_t data_len)
+-{
+ 	int status = 0;
+-	int ret = 0;
+-
+-	ret = parse_base_headers(sh, base_data, data_len);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	semanage_module_info_t modinfo;
+-	ret = semanage_module_info_init(sh, &modinfo);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_priority(sh, &modinfo, sh->priority);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_name(sh, &modinfo, "_base");
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_version(sh, &modinfo, "1.0.0");
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	ret = semanage_module_info_set_lang_ext(sh, &modinfo, "pp");
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
+ 
+-	ret = semanage_module_info_set_enabled(sh, &modinfo, 1);
+-	if (ret != 0) {
+-		status = -1;
+-		goto cleanup;
+-	}
++	semanage_module_info_t *modinfo = NULL;
++	char *data = NULL;
++	size_t data_len = 0;
+ 
+-	status = semanage_direct_install_info(
++	status = semanage_path_to_info(
+ 			sh,
++			module_filename,
+ 			&modinfo,
+-			base_data,
++			&data,
++			&data_len);
++	if (status != 0) goto cleanup;
++
++	status = semanage_module_upgrade_info(
++			sh,
++			modinfo,
++			data,
+ 			data_len);
+ 
+ cleanup:
+-	semanage_module_info_destroy(sh, &modinfo);
+-
+-	return status;
+-}
+-
+-/* Writes a base module into a sandbox, overwriting any previous base
+- * module.  
+- * Returns 0 on success, -1 if out of memory, -2 if the data does not represent
+- * a valid base module file, -3 if error while writing file.
+- */
+-static int semanage_direct_install_base_file(semanage_handle_t * sh,
+-					     const char *install_filename)
+-{
+-	int retval = -1;
+-	char *data = NULL;
+-	ssize_t data_len = 0;
+-	int compressed = 0;
+-	int in_fd;
+-
+-	if ((in_fd = open(install_filename, O_RDONLY)) == -1) {
+-		return -1;
+-	}
+-
+-	if ((data_len = map_file(sh, in_fd, &data, &compressed)) <= 0) {
+-		goto cleanup;
+-	}
+-		
+-	retval = semanage_direct_install_base(sh, data, data_len);
++	semanage_module_info_destroy(sh, modinfo);
++	free(modinfo);
+ 
+-      cleanup:
+-	close(in_fd);
+-	if (data_len > 0) munmap(data, data_len);
++	free(data);
+ 
+-	return retval;
++	return status;
+ }
+ 
+ /* Removes a module from the sandbox.  Returns 0 on success, -1 if out
+@@ -1386,6 +1202,14 @@ cleanup:
+ 	return status;
+ }
+ 
++/* qsort comparison function for semanage_direct_list. */
++static int semanage_direct_list_cmp(const void *a, const void *b)
++{
++	semanage_module_info_t *ma = (semanage_module_info_t *)a;
++	semanage_module_info_t *mb = (semanage_module_info_t *)b;
++	return strverscmp(ma->name, mb->name);
++}
++
+ /* Allocate an array of module_info structures for each readable
+  * module within the store.  Note that if the calling program has
+  * already begun a transaction then this function will get a list of
+@@ -1393,97 +1217,108 @@ cleanup:
+  * semanage_module_info_datum_destroy() on each element of the array
+  * as well as free()ing the entire list.
+  */
+-static int semanage_direct_list(semanage_handle_t * sh,
+-				semanage_module_info_t ** modinfo,
+-				int *num_modules)
++static int semanage_direct_list(semanage_handle_t *sh,
++				semanage_module_info_t **modinfos,
++				int *modinfos_len)
+ {
+-	struct sepol_policy_file *pf = NULL;
+-	int i, retval = -1;
+-	char **module_filenames = NULL;
+-	int num_mod_files;
+-	*modinfo = NULL;
+-	*num_modules = 0;
++	assert(sh);
++	assert(modinfos);
++	assert(modinfos_len);
+ 
+-	/* get the read lock when reading from the active
+-	   (non-transaction) directory */
+-	if (!sh->is_in_transaction)
+-		if (semanage_get_active_lock(sh) < 0)
+-			return -1;
++	int status = 0;
++	int ret = 0;
+ 
+-	if (semanage_get_modules_names(sh, &module_filenames, &num_mod_files) ==
+-	    -1) {
+-		goto cleanup;
+-	}
+-	if (num_mod_files == 0) {
+-		retval = semanage_direct_get_serial(sh);
+-		goto cleanup;
+-	}
++	int i = 0;
++	int j = 0;
+ 
+-	if (sepol_policy_file_create(&pf)) {
+-		ERR(sh, "Out of memory!");
++	semanage_list_t *list = NULL;
++	semanage_list_t *found = NULL;
++
++	semanage_module_info_t *all_modinfos = NULL;
++	int all_modinfos_len = 0;
++
++	void *tmp = NULL;
++
++	/* get all modules */
++	ret = semanage_module_list_all(sh, &all_modinfos, &all_modinfos_len);
++	if (ret != 0) {
++		status = -1;
+ 		goto cleanup;
+ 	}
+-	sepol_policy_file_set_handle(pf, sh->sepolh);
+ 
+-	if ((*modinfo = calloc(num_mod_files, sizeof(**modinfo))) == NULL) {
+-		ERR(sh, "Out of memory!");
++	/* allocate enough for worst case */
++	(*modinfos) = calloc(all_modinfos_len, sizeof(semanage_module_info_t));
++	if ((*modinfos) == NULL) {
++		ERR(sh, "Error allocating space for module info array.");
++		status = -1;
+ 		goto cleanup;
+ 	}
+ 
+-	for (i = 0; i < num_mod_files; i++) {
+-		FILE *fp;
+-		char *name = NULL, *version = NULL;
+-		int type;
+-		if ((fp = fopen(module_filenames[i], "rb")) == NULL) {
+-			/* could not open this module file, so don't
+-			 * report it */
+-			continue;
+-		}
+-		ssize_t size;
+-		char *data = NULL;
+-
+-		if ((size = bunzip(sh, fp, &data)) > 0) {
+-			fclose(fp);
+-			fp = fmemopen(data, size, "rb");
+-			if (!fp) {
+-				ERR(sh, "Out of memory!");
++	*modinfos_len = all_modinfos_len;
++
++	/* for each highest priority, enabled module clone */
++	semanage_list_destroy(&list);
++	for (i = 0, j = 0; i < all_modinfos_len; i++) {
++		/* check if enabled */
++		if (all_modinfos[i].enabled != 1) continue;
++
++		/* check if we've seen this before (i.e. highest priority) */
++		found = semanage_list_find(list, all_modinfos[i].name);
++		if (found == NULL) {
++			ret = semanage_list_push(&list, all_modinfos[i].name);
++			if (ret != 0) {
++				ERR(sh, "Failed to add module name to list of known names.");
++				status = -1;
+ 				goto cleanup;
+ 			}
+ 		}
+-		rewind(fp);
+-		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+-		sepol_policy_file_set_fp(pf, fp);
+-		if (sepol_module_package_info(pf, &type, &name, &version)) {
+-			fclose(fp);
+-			free(data);
+-			free(name);
+-			free(version);
+-			continue;
+-		}
+-		fclose(fp);
+-		free(data);
+-		if (type == SEPOL_POLICY_MOD) {
+-			(*modinfo)[*num_modules].name = name;
+-			(*modinfo)[*num_modules].version = version;
+-			(*num_modules)++;
+-		} else {
+-			/* file was not a module, so don't report it */
+-			free(name);
+-			free(version);
++		else continue;
++
++		ret = semanage_module_info_clone(
++				sh,
++				&all_modinfos[i],
++				&(*modinfos)[j]);
++		if (ret != 0) {
++			ERR(sh, "Failed to clone module into array.");
++			status = -1;
++			goto cleanup;
+ 		}
++
++		j += 1;
+ 	}
+-	retval = semanage_direct_get_serial(sh);
+ 
+-      cleanup:
+-	sepol_policy_file_free(pf);
+-	for (i = 0; module_filenames != NULL && i < num_mod_files; i++) {
+-		free(module_filenames[i]);
++	/* realloc the array to its min size */
++	tmp = realloc(*modinfos, j * sizeof(semanage_module_info_t));
++	if (tmp == NULL) {
++		ERR(sh, "Error allocating space for module info array.");
++		status = -1;
++		goto cleanup;
+ 	}
+-	free(module_filenames);
+-	if (!sh->is_in_transaction) {
+-		semanage_release_active_lock(sh);
++	*modinfos = tmp;
++	*modinfos_len = j;
++
++	/* sort array on module name */
++	qsort(*modinfos,
++	      *modinfos_len,
++	      sizeof(semanage_module_info_t),
++	      semanage_direct_list_cmp);
++
++cleanup:
++	semanage_list_destroy(&list);
++
++	for (i = 0; i < all_modinfos_len; i++) {
++		semanage_module_info_destroy(sh, &all_modinfos[i]);
+ 	}
+-	return retval;
++	free(all_modinfos);
++
++	if (status != 0) {
++		for (i = 0; i < *modinfos_len; i++) {
++			semanage_module_info_destroy(sh, &(*modinfos)[i]);
++		}
++		free(*modinfos);
++	}
++
++	return status;
+ }
+ 
+ static int semanage_direct_get_enabled(semanage_handle_t *sh,
+-- 
+1.6.3.3
 
 
 --
