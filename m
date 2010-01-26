@@ -1,32 +1,51 @@
-Message-ID: <4B5F4D5B.8070407@gmail.com>
-Date: Tue, 26 Jan 2010 12:15:23 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0QLKl2L009253
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 16:20:47 -0500
+Received: from ey-out-1920.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o0QLKjfI008867
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 21:20:46 GMT
+Received: by ey-out-1920.google.com with SMTP id 3so795924eyh.2
+        for <selinux@tycho.nsa.gov>; Tue, 26 Jan 2010 13:20:44 -0800 (PST)
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: TaurusHarry <harrytaurus2002@hotmail.com>, refpolicy@oss1.tresys.com,
-        selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy] Bootup problem with refpolicy-2.20091117 - 4:login
- successfully finally!
-References: <BAY111-W27B5C0DF57292CB495990DAB660@phx.gbl>	,, , ,,<4B53CEB9.3050207@gmail.com>	,,<BAY111-W3E475DBD218D365CE90B6AB660@phx.gbl>	,, , ,,<4B543977.40007@gmail.com>	,,<BAY111-W38C1EDA473E7D38CE32E9EAB650@phx.gbl>	,, , ,,<4B550EB9.50806@gmail.com>	,,<BAY111-W5CC280B61135249DF5E8FAB630@phx.gbl>	,, ,,<1264079995.11002.19.camel@moss-pluto.epoch.ncsc.mil>	,,,<BAY111-W42A0AB9B343372897BA202AB620@phx.gbl>	,,,<1264176847.22211.16.camel@moss-pluto.epoch.ncsc.mil>	,,<BAY111-W51276CC30B166887BBB33AB5F0@phx.gbl>	,<BAY111-W22EC1CF480A00C18111145AB5F0@phx.gbl>	,<1264433745.4297.159.camel@moss-pluto.epoch.ncsc.mil>	<BAY111-W103B9EF7D73E86CFDF3688AB5E0@phx.gbl> <1264513015.19890.14.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1264513015.19890.14.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 27 Jan 2010 00:50:44 +0330
+Message-ID: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
+Subject: access decision API
+From: michel m <michel.mcgregor@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=00c09ffb4f5ed8213d047e17db8c
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--00c09ffb4f5ed8213d047e17db8c
+Content-Type: text/plain; charset=ISO-8859-1
 
->> More secmark options should I enable?
->
-> If you are still using a kernel<  2.6.29, then you also want:
-> SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT=y
->
+Hi,
+I have some data in userspace that I am keeping its security context.but as
+I want to write this data on some file in OS, I need to consult with
+security server if such data is allowed to be written on the file.
+I would like to know if there is any API that let me do such a scenario,
+that is input source and destination security context (both of them security
+context,not a domain context) and returns access decision. I am familiar
+with avc_has_perm(3), but seems to be not correct solution because it gets
+domain context as the first argument.
 
-what does his inittab look like?
+Best regards.
 
-had some funk issue with min,
-policy worked after adjusting inittab
-(maybe this is something with mgetty);
+--00c09ffb4f5ed8213d047e17db8c
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Justin P. Mattock
+Hi,<br>I have some data in userspace that I am keeping its security context=
+.but as I want to write this data on some file in OS, I need to consult wit=
+h security server if such data is allowed to be written on the file.<br>
+I would like to know if there is any API that let me do such a scenario, th=
+at is input source and destination security context (both of them security =
+context,not a domain context) and returns access decision. I am familiar wi=
+th avc_has_perm(3), but seems to be not correct solution because it gets do=
+main context as the first argument.<br>
+<br>Best regards.<br>
+
+--00c09ffb4f5ed8213d047e17db8c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
