@@ -2,31 +2,31 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH] [src-policy] libsemanage: fix semanage_module_get_module_info export in map
-Date: Tue, 26 Jan 2010 16:24:18 -0500
-Message-Id: <1264541058-17845-1-git-send-email-ccase@tresys.com>
+Subject: [PATCH] [src-policy] libsemanage: semanage_get_modules_names should get CIL path
+Date: Tue, 26 Jan 2010 16:26:31 -0500
+Message-Id: <1264541191-18125-1-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes libsemanage.map which has the wrong export line for
-semanage_module_get_module_info.
+semanage_get_modules_names should be returning the path for the CIL
+instead of the HLL path since it is the CIL that is used during commit.
 ---
- libsemanage/src/libsemanage.map |    2 +-
+ libsemanage/src/semanage_store.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index 3526256..1414ce5 100644
---- a/libsemanage/src/libsemanage.map
-+++ b/libsemanage/src/libsemanage.map
-@@ -37,7 +37,7 @@ LIBSEMANAGE_1.0 {
- 	  semanage_module_key_get_name;
- 	  semanage_module_key_set_priority;
- 	  semanage_module_key_set_name;
--	  semanage_module_get_module;
-+	  semanage_module_get_module_info;
- 	  semanage_module_list_all;
- 	  semanage_module_get_enabled;
- 	  semanage_module_set_enabled;
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 4ac5b5b..f077ac3 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1085,7 +1085,7 @@ int semanage_get_modules_names(semanage_handle_t * sh, char ***filenames,
+ 		ret = semanage_module_get_path(
+ 				sh,
+ 				&modinfos[i],
+-				SEMANAGE_MODULE_PATH_HLL,
++				SEMANAGE_MODULE_PATH_CIL,
+ 				path,
+ 				sizeof(path));
+ 		if (ret != 0) {
 -- 
 1.6.3.3
 
