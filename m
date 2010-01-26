@@ -2,147 +2,166 @@ From: Caleb Case <ccase@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: csellers@tresys.com, kmacmillan@tresys.com, jwcart2@tycho.nsa.gov,
         jbrindle@tresys.com, sds@tycho.nsa.gov, Caleb Case <ccase@tresys.com>
-Subject: [PATCH 01/15] [src-policy] refpol language and tools
-Date: Tue, 26 Jan 2010 17:08:07 -0500
-Message-Id: <1264543701-20638-2-git-send-email-ccase@tresys.com>
-In-Reply-To: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+Subject: [PATCH 04/15] [src-policy] refpol intermediate language compiler (refpol_ilc)
+Date: Tue, 26 Jan 2010 17:08:10 -0500
+Message-Id: <1264543701-20638-5-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-4-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+ <1264543701-20638-2-git-send-email-ccase@tresys.com>
+ <1264543701-20638-3-git-send-email-ccase@tresys.com>
+ <1264543701-20638-4-git-send-email-ccase@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[refpol Language]
+In the interim, before the completion of the proposed CIL[1], the
+intermediate language will be a specialized version of refpol and the
+Reference Policy build environment.
 
-The refpol language is a simple transformation of a standard Reference
-Policy module consisting of 3 files to a single file format with
-sections. Each Reference Policy file is placed into a refpol section as
-follows:
+[refpol_ilc CIL Compiler]
 
-   <module>.if   =>   [interface]
-   <module>.te   =>   [policy]
-   <module>.fc   =>   [context]
+The repfol intermediate language compiler (refpol_ilc) builds a binary
+base module from refpol module.  Producing a binary base module allows
+the existing libsemanage framework to continue to operate essentially as
+it does today (load base module, apply database changes, create loadable
+policy).
 
-* These are the only valid section headers.
-
-* A section begins with a section marker and ends with the next marker
-  encountered or the end of the file.
-
-* If a file has at least one section marker and there is text before the
-  first section then this is an error.
-
-* There can be at most one of each valid section marker in a file.
-
-* A file without any section markers is assumed to be only policy.
-
-* The valid contents of each section are the same as for the separate
-  reference policy files.
-
-* The standard filename extension is '.ref'.
-
-[refpol Tool]
-
-The refpol tool can create a refpol module from a Reference Policy
-module.
-
-   Usage: refpol COMMAND [OPTIONS] MODULE.ref
-
-   Commands:
-     create		create a new refpol
-     extract		extract .if, .te, and .fc files from a refpol
+   Usage: refpol_ilc [OPTIONS] MODULE MODULE ...
 
    Options:
      --version             show program's version number and exit
      -h, --help            show this help message and exit
+     -d FILE, --disabled=FILE
+                           indicates module is disabled
      -f, --force           force overwriting existing files
-
-     Create options:
-       -i FILE, --interface=FILE
-                           interface file
-       -p FILE, --policy=FILE
-                           policy file
-       -c FILE, --context=FILE
-                           context file
-
-Example:
-
-# refpol create -i alsa.if -p alsa.te -c alsa.fc alsa.ref
-
-refpol modules should have the '.ref' extension. The resulting alsa.ref
-looks like this:
-
-   [interface]
-
-   policy_module(alsa, 1.8.0)
-
-   ########################################
-   #
-   # Declarations
-   #
-   <snip>
-
-   [policy]
-   ## <summary>Ainit ALSA configuration tool</summary>
-   <snip>
-
-   [context]
-   /bin/alsaunmute		--	gen_context(system_u:object_r:alsa_exec_t,s0)
-   <snip>
-
-[refpol HLL compiler]
-
-The refpolc high level language (HLL) compiler performs basic formatting
-checks and extracts the policy version from the policy_module statement.
-
-   Usage: refpolc [OPTIONS] [MODULE]
-
-   Input is read from stdin unless MODULE is provided.
-   Output is written to stdout unless -o is specified.
-
-   Options:
-     --version             show program's version number and exit
-     -h, --help            show this help message and exit
-     -f, --force           force overwriting existing files
+     -t DIR, --tmp=DIR     temporary build directory
+     -b DIR, --build-template=DIR
+                           build template directory (Default:
+                           /usr/share/selinux/refpol_ilc/build)
      -o FILE, --output=FILE
                            output file
+     -c BOOL, --cleanup=BOOL
+                           cleanup (remove) temporary directory (Default: True)
+
+Note: The paths passed to the refpol_ilc need to be in the format of the
+      semanage store in /var/lib/selinux. The refpol_ilc extracts the
+      module name from the path. Future CIL will also likely extract the
+      priority of the module from the path.
 
 Example:
 
-# refpolc < apache.ref > apache.cil 3<> apache.version
+The compiles the moduless installed in the 'test' store into a base.pp:
+
+# refpol_ilc `find /var/lib/selinux/test/active/modules/400/ -iname cil` > base.pp
+
+[Compilation]
+
+Compilation proceeds as follows:
+
+  1. Copy build environment to temporary location.
+
+     Note: refpol_ilc anticipates the build environment being installed
+           to /usr/share/selinux/refpol_ilc/build by default.
+
+  2. Install modules (see Special Modules and Normal Modules below).
+
+  3. Create conf files.
+
+  4. Set all modules to base or off as appropriate in modules.conf.
+
+  5. Create base module (base.pp).
+
+[Special Modules]
+
+A number of modules are considered to be special and are installed into
+special locations in the build environment:
+
+   [Module Name]         [Reference Policy File]
+
+   _constraints           policy/constraints
+   _global_booleans       policy/global_booleans
+   _global_tunables       policy/global_tunables
+   _mcs                   policy/mcs
+   _mls                   policy/mls
+   _policy_capabilities   policy/policy_capabilities
+   _rolemap               policy/rolemap
+   _users                 policy/users
+   _access_vectors        policy/flask/access_vectors
+   _initial_sids          policy/flask/initial_sids
+   _security_classes      policy/flask/security_classes
+   _file_patterns         policy/support/file_patterns.spt
+   _ipc_patterns          policy/support/ipc_patterns.spt
+   _loadable_module       policy/support/loadable_module.spt
+   _misc_macros           policy/support/misc_macros.spt
+   _misc_patterns         policy/support/misc_patterns.spt
+   _mls_mcs_macros        policy/support/mls_mcs_macros.spt
+   _obj_perm_sets         policy/support/obj_perm_sets.spt
+
+The build.conf file is handled with another special module _defines.
+This module provides some of the variables for the traditional
+build.conf with the remaining variables determined by the build
+environment as follows:
+
+   OUTPUT_POLICY   =>   Copied from _defines.
+   TYPE            =>   Detect from the presence of the mls/mcs modules.
+                        mls > mcs > none: meaning that if there is an
+                        _mls module, then TYPE = mls, even if there is an
+                        mcs module present.
+   NAME            =>   Copied from _defines.
+   DISTRO          =>   Copied from _defines.
+   UNK_PERMS       =>   Copied from _defines.
+   DIRECT_INITRC   =>   Copied from _defines.
+   MONOLITHIC      =>   Fixed to 'n'.
+   UBAC            =>   Copied from _defines.
+   MLS_SENS        =>   Copied from _defines.
+   MLS_CATS        =>   Copied from _defines.
+   MCS_CATS        =>   Copied from _defines.
+   QUIET           =>   Copied from _defines.
+
+No other special modules are permitted. All special modules are
+prepended with '_' to distinguish them from normal modules.
+
+Note: The MLS/MCS/Standard setting of the policy is derived from the
+      presense of the _mls or _mcs modules. It is no longer necessary to
+      specify the policy type explicitly via the TYPE statement. This
+      also allows policy type to be switched simply by enabling/disabled
+      the _mls/_mcs modules.
+
+[Normal Modules]
+
+All normal (non-special) modules are copied to policy/modules/kernel/
+and unpacked into the Reference Policy module 3 file format.
+
+[1] CIL RFC: http://marc.info/?l=selinux&m=124759244409438&w=2
 ---
- Makefile                  |    2 +-
- refpol/COPYING            |  504 +++++++++++++++++++++++++++++++++++++++++++++
- refpol/Makefile           |   27 +++
- refpol/refpol.conf        |    4 +
- refpol/refpol.py          |   17 ++
- refpol/refpol/refpol.py   |  176 ++++++++++++++++
- refpol/refpol/refpolc.py  |   77 +++++++
- refpol/refpolc.py         |   17 ++
- refpol/setup.py           |   13 ++
- 9 files changed, 836 insertions(+), 1 deletions(-)
- create mode 100644 refpol/COPYING
- create mode 100644 refpol/Makefile
- create mode 100644 refpol/refpol.conf
- create mode 100755 refpol/refpol.py
- create mode 100644 refpol/refpol/__init__.py
- create mode 100644 refpol/refpol/refpol.py
- create mode 100644 refpol/refpol/refpolc.py
- create mode 100755 refpol/refpolc.py
- create mode 100755 refpol/setup.py
+ Makefile                            |    2 +-
+ refpol_ilc/COPYING                  |  504 +++++++++++++++++++++++++++++++++++
+ refpol_ilc/Makefile                 |   24 ++
+ refpol_ilc/refpol_ilc.py            |   17 ++
+ refpol_ilc/refpol_ilc/refpol_ilc.py |  193 +++++++++++++
+ refpol_ilc/setup.py                 |   13 +
+ 6 files changed, 752 insertions(+), 1 deletions(-)
+ create mode 100644 refpol_ilc/COPYING
+ create mode 100644 refpol_ilc/Makefile
+ create mode 100755 refpol_ilc/refpol_ilc.py
+ create mode 100644 refpol_ilc/refpol_ilc/__init__.py
+ create mode 100644 refpol_ilc/refpol_ilc/refpol_ilc.py
+ create mode 100755 refpol_ilc/setup.py
 
 diff --git a/Makefile b/Makefile
-index 373ce23..c174327 100644
+index be2a4ec..afb4843 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,4 +1,4 @@
--SUBDIRS=libsepol libselinux libsemanage sepolgen checkpolicy policycoreutils # policy
-+SUBDIRS=libsepol libselinux libsemanage sepolgen checkpolicy policycoreutils refpol # policy
+-SUBDIRS=libsepol libselinux libsemanage sepolgen checkpolicy policycoreutils refpol corenet # policy
++SUBDIRS=libsepol libselinux libsemanage sepolgen checkpolicy policycoreutils refpol corenet refpol_ilc # policy
  PYSUBDIRS=libselinux libsemanage
  
  ifeq ($(DEBUG),1)
-diff --git a/refpol/COPYING b/refpol/COPYING
+diff --git a/refpol_ilc/COPYING b/refpol_ilc/COPYING
 new file mode 100644
 index 0000000..8add30a
 --- /dev/null
-+++ b/refpol/COPYING
++++ b/refpol_ilc/COPYING
 @@ -0,0 +1,504 @@
 +		  GNU LESSER GENERAL PUBLIC LICENSE
 +		       Version 2.1, February 1999
@@ -648,16 +667,14 @@ index 0000000..8add30a
 +That's all there is to it!
 +
 +
-diff --git a/refpol/Makefile b/refpol/Makefile
+diff --git a/refpol_ilc/Makefile b/refpol_ilc/Makefile
 new file mode 100644
-index 0000000..f081eda
+index 0000000..f6cdb14
 --- /dev/null
-+++ b/refpol/Makefile
-@@ -0,0 +1,27 @@
++++ b/refpol_ilc/Makefile
+@@ -0,0 +1,24 @@
 +PREFIX ?= $(DESTDIR)/usr
 +BINDIR ?= $(PREFIX)/bin
-+
-+LANGUAGEDIR ?= $(DESTDIR)/etc/selinux/language.d
 +
 +PYTHON ?= python
 +
@@ -665,37 +682,26 @@ index 0000000..f081eda
 +	PYDESTDIR ?= --root=$(DESTDIR)
 +endif
 +
-+all: 
++TARGET = refpol_ilc.py
++
++all:
 +	$(PYTHON) setup.py build
 +
-+install: all
++install:
 +	$(PYTHON) setup.py install $(PYDESTDIR)
 +	-mkdir -p $(BINDIR)
-+	install -m 755 refpol.py $(BINDIR)/refpol
-+	install -m 755 refpolc.py $(BINDIR)/refpolc
-+	-mkdir -p $(LANGUAGEDIR)
-+	install -m 644 refpol.conf $(LANGUAGEDIR)
++	install -m 755 $(TARGET) $(BINDIR)/$(TARGET:.py=)
 +
 +clean distclean:
 +	$(PYTHON) setup.py clean
 +	rm -fr build
-+	rm -f refpol/*.pyc
++	rm -f refpol_ilc/*.pyc
 +
-diff --git a/refpol/refpol.conf b/refpol/refpol.conf
-new file mode 100644
-index 0000000..5f1b7b1
---- /dev/null
-+++ b/refpol/refpol.conf
-@@ -0,0 +1,4 @@
-+NAME="Reference Policy"
-+COMPILER="/usr/bin/refpolc"
-+EXTENSION="ref"
-+FLAGS=""
-diff --git a/refpol/refpol.py b/refpol/refpol.py
+diff --git a/refpol_ilc/refpol_ilc.py b/refpol_ilc/refpol_ilc.py
 new file mode 100755
-index 0000000..c3ebba1
+index 0000000..31021b4
 --- /dev/null
-+++ b/refpol/refpol.py
++++ b/refpol_ilc/refpol_ilc.py
 @@ -0,0 +1,17 @@
 +#!/usr/bin/python
 +
@@ -706,205 +712,23 @@ index 0000000..c3ebba1
 +#      it under the terms of the Lesser GNU General Public License as 
 +#      published by the Free Software Foundation, version 2.
 +
-+import refpol.refpol
++import refpol_ilc.refpol_ilc
 +import sys
 +
 +try:
-+	refpol.refpol.main()
++	refpol_ilc.refpol_ilc.main()
 +except Exception as e:
 +	sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
 +	sys.exit(1)
-diff --git a/refpol/refpol/__init__.py b/refpol/refpol/__init__.py
+diff --git a/refpol_ilc/refpol_ilc/__init__.py b/refpol_ilc/refpol_ilc/__init__.py
 new file mode 100644
 index 0000000..e69de29
-diff --git a/refpol/refpol/refpol.py b/refpol/refpol/refpol.py
+diff --git a/refpol_ilc/refpol_ilc/refpol_ilc.py b/refpol_ilc/refpol_ilc/refpol_ilc.py
 new file mode 100644
-index 0000000..ad82ef9
+index 0000000..7e5430e
 --- /dev/null
-+++ b/refpol/refpol/refpol.py
-@@ -0,0 +1,176 @@
-+#!/usr/bin/python
-+
-+# Authors:	Caleb Case <ccase@tresys.com>
-+#
-+# Copyright (C) 2009-2010 Tresys Technology, LLC
-+#      This program is free software; you can redistribute it and/or modify
-+#      it under the terms of the Lesser GNU General Public License as 
-+#      published by the Free Software Foundation, version 2.
-+
-+from optparse import OptionParser, OptionGroup
-+import os.path
-+import re
-+import shutil
-+import sys
-+
-+force = False
-+
-+def file_exists(path):
-+	if os.path.isfile(path) and not force:
-+		raise Exception("File already exists: %s" % path)
-+
-+def itf_to_ref(if_p, te_p, fc_p, ref_p):
-+	file_exists(ref_p)
-+
-+	if not if_p and not te_p and not fc_p:
-+		raise Exception("No input files specified.")
-+
-+	sections = [
-+			("[interface]", if_p),
-+			("[policy]", te_p),
-+			("[context]", fc_p),
-+			]
-+
-+	with open(ref_p, 'w') as out:
-+		for (section, path) in sections:
-+			if path:
-+				with open(path, 'r') as f:
-+					out.write("\n" + section + "\n")
-+					shutil.copyfileobj(f, out)
-+
-+def ref_to_itf(ref_p, if_p, te_p, fc_p):
-+	verify_ref(ref_p)
-+
-+	output = None
-+	default = False
-+
-+	sections = {
-+			"[interface]"	: if_p,
-+			"[policy]"	: te_p,
-+			"[context]"	: fc_p,
-+			}
-+
-+	try:
-+		with open(ref_p, 'r') as input:
-+			for line in input:
-+				section = line.strip()
-+				if section in sections:
-+					if default is True:
-+						raise Exception("%s section defined, but already found rules in default section." % section)
-+					if output is not None:
-+						output.close()
-+					file_exists(sections[section])
-+					output = open(sections[section], 'w')
-+				else:
-+					if output is None:
-+						if section == "":
-+							# ignore blank lines before first section
-+							continue
-+
-+						# output to the default (policy)
-+						file_exists(te_p)
-+						output = open(te_p, 'w')
-+
-+						# create empty if and fc
-+						file_exists(if_p)
-+						with open(if_p, 'w') as f:
-+							f.write("## <summary> </summary>\n")
-+						file_exists(fc_p)
-+						open(fc_p, 'w').close()
-+
-+						default = True
-+					output.write(line)
-+	finally:
-+		if output is not None:
-+			output.close()
-+
-+def verify_ref(ref):
-+	sections = {
-+			"[interface]" : False,
-+			"[policy]"    : False,
-+			"[context]"   : False,
-+			}
-+
-+	default = False
-+
-+	pattern = re.compile("\s*policy_module\((?P<name>\w+),\s*(?P<version>[0-9.]+)\).*")
-+	result = None
-+
-+	if isinstance(ref, str):
-+		with open(ref, 'r') as input:
-+			return verify_ref(input)
-+
-+	lineno = 0
-+	for line in ref:
-+		lineno = lineno + 1
-+		section = line.strip()
-+
-+		if section == "":
-+			# ignore blank lines
-+			continue
-+		elif section in sections:
-+			if sections[section] is True:
-+				raise Exception("Too many %s sections (%s:%d)." % (section, ref.name, lineno))
-+			if default is True:
-+				raise Exception("%s section defined, but already found rules in default section (%s:%d)." % (section, ref.name, lineno))
-+			sections[section] = True
-+		else:
-+			if not any(sections.values()):
-+				# we aren't in a section, but we found information
-+				# this means we are must start the default section
-+				default = True
-+
-+			mod = pattern.match(line)
-+			if mod:
-+				result = { "name"	: mod.group("name"),
-+					   "version"	: mod.group("version")}
-+	if not result:
-+		raise Exception("Failed to find the policy module statement! (%s)" % ref.name)
-+
-+	return result
-+
-+def verify_ext(ref_p):
-+	ext = ref_p.rsplit('.', 1)[1]
-+	if ext != "ref":
-+		raise Exception("Invalid refpol file extension %s on %s." % (ext, ref_p))
-+
-+usage = """%prog COMMAND [OPTIONS] MODULE.ref
-+
-+Commands:
-+  create		create a new refpol
-+  extract		extract .if, .te, and .fc files from a refpol"""
-+
-+version = "%prog 1.0"
-+
-+def main():
-+	parser = OptionParser(usage = usage, version = version)
-+	parser.add_option("-f", "--force", action = "store_true", default = False, dest = "force", help = "force overwriting existing files")
-+
-+	create_options = OptionGroup(parser, "Create options")
-+	create_options.add_option("-i", "--interface", action = "store", default = None, dest = "ifp", help = "interface file", metavar = "FILE")
-+	create_options.add_option("-p", "--policy", action = "store", default = None, dest = "tep", help = "policy file", metavar = "FILE")
-+	create_options.add_option("-c", "--context", action = "store", default = None, dest = "fcp", help = "context file", metavar = "FILE")
-+	parser.add_option_group(create_options)
-+
-+	(options, args) = parser.parse_args()
-+	if len(args) != 2:
-+		parser.error("Invalid number of arguments %d." % len(args))
-+	force = options.force
-+
-+	verify_ext(args[1])
-+
-+	command = args[0]
-+	if command == "create":
-+		itf_to_ref(options.ifp, options.tep, options.fcp, args[1])
-+	elif command == "extract":
-+		module = args[1].rsplit('.', 1)[0]
-+		ref_to_itf(args[1], module + ".if", module + ".te", module + ".fc")
-+	else:
-+		parser.error("Invalid command %s." % command)
-+
-+if __name__ == '__main__':
-+	try:
-+		main()
-+	except Exception as e:
-+		sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
-+		sys.exit(1)
-diff --git a/refpol/refpol/refpolc.py b/refpol/refpol/refpolc.py
-new file mode 100644
-index 0000000..e04be32
---- /dev/null
-+++ b/refpol/refpol/refpolc.py
-@@ -0,0 +1,77 @@
++++ b/refpol_ilc/refpol_ilc/refpol_ilc.py
+@@ -0,0 +1,193 @@
 +#!/usr/bin/python
 +
 +# Authors:	Caleb Case <ccase@tresys.com>
@@ -916,35 +740,57 @@ index 0000000..e04be32
 +
 +from optparse import OptionParser, OptionGroup
 +import os
-+import refpol
-+import shutil
-+import sys
++import os.path
 +import tempfile
++from refpol import refpol
++from refpol import refpolicy2refpol
++import shutil
++import subprocess
++import sys
 +
-+usage = """%prog [OPTIONS] [MODULE]
++build_directory = "/usr/share/selinux/refpol_ilc/build"
 +
-+Input is read from stdin unless MODULE is provided.
-+Output is written to stdout unless -o is specified."""
++# setup PATH (for gcc) if missing
++if not "PATH" in os.environ:
++	os.environ["PATH"] = "/bin:/usr/bin"
 +
++def to_bool(str):
++	return 	{
++			"true"	: True,
++			"t"	: True,
++			"1"	: True,
++			"false"	: False,
++			"f"	: False,
++			"0"	: False,
++		}[str.lower()]
++
++usage = "%prog [OPTIONS] MODULE MODULE ..."
 +version = "%prog 1.0"
 +
 +def main():
++	def disabled(option, opt_str, value, parser, *args, **kwargs):
++		parser.values.disabled.append(value)
++
 +	# create cmdline parser
 +	parser = OptionParser(usage = usage, version = version)
++	parser.add_option("-d", "--disabled", action = "callback", callback = disabled, type = "string", default = [], dest = "disabled", help = "indicates module is disabled", metavar = "FILE")
 +	parser.add_option("-f", "--force", action = "store_true", default = False, dest = "force", help = "force overwriting existing files")
++	parser.add_option("-t", "--tmp", action = "store", default = None, dest = "tmp", help = "temporary build directory", metavar = "DIR")
++	parser.add_option("-b", "--build-template", action = "store", default = build_directory, dest = "build_template", help = "build template directory (Default: %s)" % build_directory, metavar = "DIR")
 +	parser.add_option("-o", "--output", action = "store", default = None, dest = "output", help = "output file", metavar = "FILE")
++	parser.add_option("-c", "--cleanup", action = "store", default = "True", dest = "cleanup", help = "cleanup (remove) temporary directory (Default: True)", metavar = "BOOL")
 +
 +	# parse cmdline
 +	(options, args) = parser.parse_args()
-+	options.input = sys.stdin
-+
-+	if len(args) > 1:
++	if len(args) <= 0:
 +		parser.error("Invalid number of arguments %d." % len(args))
-+	elif len(args) == 1:
-+		options.input = open(args[0])
++
++	# save the working directory
++	saved_cwd = os.getcwd()
 +
 +	force = options.force
 +	refpol.force = options.force
++	refpolicy2refpol.force = options.force
 +
 +	if options.output is None:
 +		options.output = sys.stdout
@@ -953,28 +799,122 @@ index 0000000..e04be32
 +		options.output = open(options.output, "w")
 +
 +	try:
-+		with tempfile.SpooledTemporaryFile(suffix="-refpolc") as tmp:
-+			# copy input into a tmp location
-+			# this is needed since you can't seek stdin
-+			shutil.copyfileobj(options.input, tmp)
++		if not options.tmp:
++			# create tmp build dir if one isn't provided
++			options.tmp = tempfile.mkdtemp("-refpol_ilc")
++		else:
++			shutil.rmtree(options.tmp, ignore_errors = True)
++			os.mkdir(options.tmp)
 +
-+			# borrow the input name so that error msg are correct
-+			tmp.name = options.input.name
++		# copy build dir template
++		build_root = options.tmp + "/build"
++		shutil.copytree(options.build_template, build_root)
 +
-+			# reset & verify the tmp file
-+			tmp.seek(0)
-+			mod = refpol.verify_ref(tmp)
++		# set default policy TYPE
++		type = "standard"
 +
-+			with os.fdopen(3, "w") as ver:
-+				ver.write(mod["version"]);
++		# copy modules into build dir
++		special_names = dict(zip(["_" + os.path.basename(i).rsplit('.', 1)[0] for i in refpolicy2refpol.specials("")], refpolicy2refpol.specials(build_root)))
++		disabled_names = [os.path.basename(os.path.dirname(i)) for i in options.disabled]
 +
-+			# reset & copy tmp file to output
-+			tmp.seek(0)
-+			shutil.copyfileobj(tmp, options.output)
++		all_modules = []
++		all_modules.extend(args)
++		all_modules.extend(options.disabled)
++		for path in all_modules:
++			module_name = os.path.basename(os.path.dirname(path))
 +
++			if module_name in special_names and not module_name in disabled_names:
++				if module_name == "_mls":
++					type = "mls"
++				elif module_name == "_mcs" and type != "mls":
++					type = "mcs"
++
++				# copy to special location
++				with open(path, "r") as input:
++					with open(special_names[module_name], "w") as output:
++						for line in input:
++							# remove policy_module statement
++							if not line.strip().startswith("policy_module"):
++								output.write(line)
++			elif module_name == "_defines":
++				shutil.copy(path, build_root + "/_defines.ref")
++			else:
++				# copy module to policy/kernel/
++				dest_ref = build_root + "/policy/modules/kernel/" + module_name + ".ref"
++				dest_name = build_root + "/policy/modules/kernel/" + module_name
++				shutil.copy(path, dest_ref)
++				
++				refpol.ref_to_itf(dest_ref, dest_name + ".if", dest_name + ".te", dest_name + ".fc")
++
++		os.chdir(build_root)
++
++		# compose build.conf (build.conf.in from _defines.ref)
++		with open("_defines.ref", "r") as input:
++			with open("build.conf", "w") as output:
++				# write out the type
++				output.write("TYPE = %s\n\n" % type)
++
++				# write out monolithic
++				output.write("MONOLITHIC = n\n\n")
++
++				for line in input:
++					# remove policy_module statement
++					if not line.strip().startswith("policy_module"):
++						output.write(line)
++
++		# make conf
++		p = subprocess.Popen("make conf", shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, close_fds = True)
++
++		(stdout, stderr) = p.communicate()
++		sys.stderr.write(stdout)
++		sys.stderr.write(stderr)
++
++		if p.returncode != 0:
++			raise Exception("Failed to run make conf (%d)." % p.returncode)
++
++		# sed modules.conf to base module if enabled
++		sed_cmd = "sed -i '1,/^END/{ s/= module/= base/; "
++		disabled_len = len(options.disabled)
++		if disabled_len > 0:
++			sed_cmd = sed_cmd + "s/\\("
++			i = 0
++			for d in options.disabled:
++				i = i + 1
++				sed_cmd = sed_cmd + os.path.basename(os.path.dirname(d))
++				if i != disabled_len:
++					sed_cmd = sed_cmd + "\\|"
++			sed_cmd = sed_cmd + "\\) = base/\\1 = off/ "
++		sed_cmd = sed_cmd + "}' policy/modules.conf"
++
++		p = subprocess.Popen(sed_cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, close_fds = True)
++
++		(stdout, stderr) = p.communicate()
++		sys.stderr.write(stdout)
++		sys.stderr.write(stderr)
++
++		if p.returncode != 0:
++			raise Exception("Failed to modify modules.conf (%d)." % p.returncode)
++
++		# make base module
++		p = subprocess.Popen("make base.pp", shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE, close_fds = True)
++
++		(stdout, stderr) = p.communicate()
++		sys.stderr.write(stdout)
++		sys.stderr.write(stderr)
++
++		if p.returncode != 0:
++			raise Exception("Failed to run make base.pp (%d)." % p.returncode)
++
++		# output base module
++		options.output.write(open("base.pp", "r").read())
 +	finally:
-+		options.input.close()
++		if to_bool(options.cleanup):
++			shutil.rmtree(options.tmp)
++
 +		options.output.close()
++
++		# return the saved directory
++		os.chdir(saved_cwd)
 +
 +if __name__ == '__main__':
 +	try:
@@ -982,47 +922,24 @@ index 0000000..e04be32
 +	except Exception as e:
 +		sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
 +		sys.exit(1)
-diff --git a/refpol/refpolc.py b/refpol/refpolc.py
+diff --git a/refpol_ilc/setup.py b/refpol_ilc/setup.py
 new file mode 100755
-index 0000000..b98c43e
+index 0000000..31c3a14
 --- /dev/null
-+++ b/refpol/refpolc.py
-@@ -0,0 +1,17 @@
-+#!/usr/bin/python
-+
-+# Authors:	Caleb Case <ccase@tresys.com>
-+#
-+# Copyright (C) 2009-2010 Tresys Technology, LLC
-+#      This program is free software; you can redistribute it and/or modify
-+#      it under the terms of the Lesser GNU General Public License as 
-+#      published by the Free Software Foundation, version 2.
-+
-+import refpol.refpolc
-+import sys
-+
-+try:
-+	refpol.refpolc.main()
-+except Exception as e:
-+	sys.stderr.write(sys.argv[0] + ": Error: " + str(e) + "\n")
-+	sys.exit(1)
-diff --git a/refpol/setup.py b/refpol/setup.py
-new file mode 100755
-index 0000000..2cac202
---- /dev/null
-+++ b/refpol/setup.py
++++ b/refpol_ilc/setup.py
 @@ -0,0 +1,13 @@
 +#!/usr/bin/python
 +
 +from distutils.core import setup
 +
-+setup(	name		= "refpol",
++setup(	name		= "refpol_ilc",
 +	version		= "0.1",
-+	description	= "Refpol Tool",
++	description	= "Refpol Intermediate Language Compiler",
 +#	url		= "",
 +	author		= "Caleb Case",
 +	author_email	= "ccase@tresys.com",
 +	license		= "LGPL v2.1",
-+	packages	= ['refpol'],
++	packages	= ['refpol_ilc'],
 +	)
 -- 
 1.6.3.3
