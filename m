@@ -2,8 +2,8 @@ MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Subject: RE: [PATCH 06/15] [src-policy] libsemanage: compile hll module
-Date: Wed, 27 Jan 2010 15:42:29 -0500
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E0199EB0F@exchange2.columbia.tresys.com>
+Date: Wed, 27 Jan 2010 15:46:04 -0500
+Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E0199EB12@exchange2.columbia.tresys.com>
 In-Reply-To: <1264623507.17372.85.camel@moss-pluto.epoch.ncsc.mil>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com> <1264543701-20638-2-git-send-email-ccase@tresys.com> <1264543701-20638-3-git-send-email-ccase@tresys.com> <1264543701-20638-4-git-send-email-ccase@tresys.com> <1264543701-20638-5-git-send-email-ccase@tresys.com> <1264543701-20638-6-git-send-email-ccase@tresys.com> <1264543701-20638-7-git-send-email-ccase@tresys.com> <1264623507.17372.85.camel@moss-pluto.epoch.ncsc.mil>
 From: "Caleb Case" <ccase@tresys.com>
@@ -72,9 +72,6 @@ are
 > Can this function be unified with the already existing
 > semanage_exec_prog()?  Likely by making the latter call this one after
 > splitting args?
-
-Yes, I'll switch it around.
-
 > 
 > > +int semanage_fd_to_data(semanage_handle_t *sh,
 > > +			int fd,
@@ -142,11 +139,6 @@ Yes, I'll switch it around.
 > I have a patch to eliminate use of fmemopen() in libsemanage as it
 > doesn't handle binary files correctly for glibc < 2.9; see the other
 > discussion.  Maybe this is ok due to only acting on text files?
-
-Nope, this is the same problem all over again. I think that the best
-option is to switch the interface around to taking a file stream instead
-of a file pointer.
-
 > 
 > > +
 > > +	nread = bunzip(sh, fp, &data_tmp);
@@ -256,9 +248,6 @@ bytes
 succeeds,
 > and
 >        returns the number of bytes written.
-
-Oops, will fix.
-
 > 
 > > +			ERR(sh,
 > > +			    "Failed to write data to tmp file for module
@@ -272,6 +261,9 @@ Oops, will fix.
 > > +	ret = fsync(tmp_fd);
 > 
 > fdatasync(), maybe?
+
+That should work, I'll try it.
+
 > 
 > --
 > Stephen Smalley
