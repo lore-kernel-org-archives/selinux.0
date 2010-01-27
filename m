@@ -1,165 +1,529 @@
 MIME-Version: 1.0
-In-Reply-To: <1264542993.19890.88.camel@moss-pluto.epoch.ncsc.mil>
-References: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
-	 <1264541641.19890.77.camel@moss-pluto.epoch.ncsc.mil>
-	 <1264542993.19890.88.camel@moss-pluto.epoch.ncsc.mil>
-Date: Wed, 27 Jan 2010 18:10:29 +0330
-Message-ID: <bb74313d1001270640s43b6c88dmafdb6aa9d3cf3015@mail.gmail.com>
-Subject: Re: access decision API
-From: michel m <michel.mcgregor@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001485318beb482466047e2662a7
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E0199E992@exchange2.columbia.tresys.com>
+References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+	 <cadfc0e41001261441j4d831be7jaa76bdc44a61b7b8@mail.gmail.com>
+	 <06A6610D4F464D4EBEAFBF2C5F86911E0199E992@exchange2.columbia.tresys.com>
+Date: Wed, 27 Jan 2010 09:10:32 -0600
+Message-ID: <cadfc0e41001270710g3b71c8f0g37d1f35572c55053@mail.gmail.com>
+Subject: Re: [PATCH 00/15] RFC Source Policy Support
+From: Xavier Toth <txtoth@gmail.com>
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>, jwcart2@tycho.nsa.gov,
+        Joshua Brindle <jbrindle@tresys.com>, sds@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---001485318beb482466047e2662a7
-Content-Type: text/plain; charset=ISO-8859-1
+On Tue, Jan 26, 2010 at 7:17 PM, Caleb Case <ccase@tresys.com> wrote:
+>> -----Original Message-----
+>> From: Xavier Toth [mailto:txtoth@gmail.com]
+>> Sent: Tuesday, January 26, 2010 5:42 PM
+>> To: Caleb Case
+>> Cc: selinux@tycho.nsa.gov; Chad Sellers; Karl MacMillan;
+>> jwcart2@tycho.nsa.gov; Joshua Brindle; sds@tycho.nsa.gov
+>> Subject: Re: [PATCH 00/15] RFC Source Policy Support
+>>
+>> On Tue, Jan 26, 2010 at 4:08 PM, Caleb Case <ccase@tresys.com> wrote:
+>> > Our motivations for this patchset is to enable source modules to be
+>> > stored in the libsemanage store. These changes will allow users and
+>> > administrators to:
+>> >
+>> >   1. Insert human readable and editable source modules into the module
+>> >      store.
+>> >
+>> >   2. Retrieve existing modules in order to view or make changes.
+>> >
+>> >   3. Stop storing and versioning policy source outside of the semanage
+>> >      store for minor local modifications (though it is possible the
+>> >      store could be used for general policy development, it is
+>> >      anticipated that for larger policy development activities an
+>> >      external source store and version control scheme will be used).
+>> >
+>> > Additionally, switching to source modules will bring several other
+>> > long-term benefits:
+>> >
+>> >   1. Reduction in the number of binary formats used in the SELinux
+>> >      toolchain, easing maintenance and development.
+>> >
+>> >   2. Development path to tools that enable larger policy modifications
+>> >      on end systems (e.g., cloning application policies, removing rules
+>> >      from distribution provided policy, etc.).
+>> >
+>> >   3. Development path to multiple high-level policy languages.
+>> >
+>> >   4. Better Dependency Handling - e.g., updating an interface in one
+>> >      module will cause the new interface to be used in other modules
+>> >      without re-compiling those modules externally.
+>> >
+>> >   5. The removal of a special base module, allowing more flexibility in
+>> >      policy construction and easier overriding, disabling, or removing
+>> >      of portions of the core policy.
+>> >
+>> > [Design Considerations]
+>> >
+>> > In creating this design there were several key questions around
+>> > backwards compatibility and user experience. Below are several of the
+>> > most important and potentially controversial design decisions.
+>> >
+>> > No Support for Binary Modules - Many designs were made that included
+>> > support for binary modules including, in several cases, base modules. We
+>> > found that the compromises that each of these designs forced were
+>> > unacceptable and, perhaps more importantly, there was no way to provide
+>> > a user experience that would meet general expectations.  Further, it was
+>> > felt that most users either had the source for all of their modules or
+>> > in the rare cases when source was not available, the modules would be
+>> > trivial and the source could be reasonably extracted using a decompiler.
+>> > The most challenging problems were:
+>> >
+>> >   1. Interface files - Because binary modules do not contain the
+>> >      interfaces created by their modules it would be necessary to
+>> >      locate the corresponding interface files for each binary module to
+>> >      allow source modules to be compiled. This is particularly true in
+>> >      the case of support for base modules. While it might have been
+>> >      possible to hack around this using the interface files in the
+>> >      selinux-policy-devel package, there were many problems with this
+>> >      approach.
+>> >
+>> >   2. Dependencies - Binary modules would not be able to be updated
+>> >      based upon changes to the interfaces in other modules.
+>> >
+>> >   3. Intermediate language - supporting binary modules would make it
+>> >      much more challenging to support compilation to the forthcoming
+>> >      intermediate language without creating a complex conversion tool.
+>> >      It was decided that enabling support for binary modules that would
+>> >      eventually be discontinued was not worth the complexity.
+>> >
+>> > Single Source Files - The initial designs for source modules included
+>> > the possibility of supporting reference policy modules directly by
+>> > combining the three files for each module (.te, .if, and .fc) into a
+>> > tarball. This created a very unfriendly user experience and created many
+>> > corner cases (which tarball layouts were acceptable, how should the
+>> > infrastructure handle 'extra' files in a tarball, etc.).  These
+>> > complications led us to instead use a very simple sectioned text format
+>> > for reference policy modules and, in the future, to remove the need for
+>> > sections through language and compiler features.
+>> >
+>> > Module Ordering - The current reference policy compilation
+>> > infrastructure devotes substantial attention to dealing with ordering
+>> > problems. Some of these problems are fundamental (such as the ordering
+>> > of portcon statements) while others are an artifact of the current
+>> > compiler and M4 (such as the need to separate out interface statements
+>> > in .if files). Rather than devote substantial effort to creating
+>> > mechanisms for specifying or dealing with ordering, it was felt that the
+>> > long term solution to this problem is in the improvements that will come
+>> > from the proposed common intermediate language [1]. Therefore, in the
+>> > short term, several modules will be ordered specially based upon name
+>> > and certain policy statements will only be supported in those specially
+>> > ordered modules (e.g., a module for specifying defines such as
+>> > DISTRO_REDHAT). These hacks can be removed at a later date.
+>> >
+>> > Base Module Removal - The decision to support a special base binary
+>> > module was made to make bootstrapping a module store easier by including
+>> > a module that was required to have a minimal but complete system policy
+>> > and to deal with ordering by only allowing order dependent statements to
+>> > appear in the base (such as object class or portcon). Over time it has
+>> > become clear that the base module limitations outweigh any of the
+>> > intended benefits. This is especially true as support for overriding
+>> > policy modules is included. Therefore, the source semanage store will no
+>> > longer support or require a special base module.  Further, there will be
+>> > no restrictions on the use of policy statements in modules. While this
+>> > will allow some unintentional mistakes (e.g., including a broad portcon
+>> > in a module that gets processed first) it will also allow additional
+>> > freedom (e.g., the use of narrow portcon statements in modules).
+>> >
+>> > [User Experience Overview]
+>> >
+>> > The overall user experience will shift from using external tools to
+>> > compile a policy package (.pp) to working directly with source modules.
+>> >
+>> > Source modules will be a single text file containing all of the policy
+>> > for that module. For the current reference policy that will require
+>> > combining the current interface, type enforcement, and file context
+>> > files into a single text file. The user will then use that text file
+>> > similarly to how the current binary modules are used. Insertion would be
+>> > performed using semodule (the 'ref' extension is for the single file
+>> > reference policy format):
+>> >
+>> > # semodule -i apache.ref
+>> >
+>> > Note that the language for the module will be inferred from the
+>> > extension to avoid the general tools, such as semodule, needing an
+>> > awareness of the format of all source policies. The name would be taken
+>> > from the input filename.
+>> >
+>> > Removing a module would be the same as it is currently:
+>> >
+>> > # semodule -r apache
+>> >
+>> > Listing would be generally the same, though there would be the addition
+>> > of a language field to the full output:
+>> >
+>> > # semodule -lfull
+>> > 400 _access_vectors      2.20091117          ref
+>> > 400 _constraints         2.20091117          ref
+>> > <snip>
+>> > 400 _mls                 2.20091117 disabled ref
+>> > <snip>
+>> > 400 corenetwork          1.13.1              corenet
+>> > <snip>
+>> > 400 zebra                1.10.0     disabled ref
+>> > 400 zosremote            1.1.0      disabled ref
+>> >
+>> > The first large change to user experience is the introduction of a
+>> > command to retrieve a module:
+>> >
+>> > # semodule -g apache
+>> > # ls
+>> > apache.ref
+>> >
+>> > # semodule -g apache -o myapache.ref
+>> > # ls
+>> > myapache.ref
+>> >
+>> > Similarly, there is the addition of an edit command that is similar to
+>> > sudoedit. This is purely a convenience; it will retrieve the module to a
+>> > temporary location and install it after updates are made.
+>> >
+>> > # semodule --edit apache
+>> >
+>> > Finally, semodule now supports adding a user message when making
+>> > changes:
+>> >
+>> > # semodule --edit apache -m "Allow apache to execute cowsay."
+>> >
+>> > [Compilation]
+>> >
+>> > In the interests of supporting multiple high-level languages (such as
+>> > domain specific languages) we provide a two part compilation process.
+>> >
+>> > The first compilation is from a high-level language (HLL) module to a
+>> > common intermediate language (CIL) module. This compilation occurs when
+>> > a module is installed. The compilation is handled by a HLL specific
+>> > compiler conforming the HLL compiler specification.
+>> >
+>> > The second compilation is from CIL modules to binary base module. This
+>> > compilation occurs during the commit process. The compilation is handled
+>> > by the CIL compiler.
+>> >
+>> > In this implementation the CIL refers to a special formulation of the
+>> > refpol language called refpol_ilc and NOT the proposed CIL[1].
+>> >
+>> > [HLL]
+>> >
+>> > We provide an overview of high-level language treatment here. This
+>> > patchset introduces two high-level languages refpol and corenet. Please
+>> > see their respective patches for details on their languages.
+>> >
+>> > [HLL Compiler Specification]
+>> >
+>> > Each high-level language (HLL) has a compiler that converts from the HLL
+>> > to the CIL. The HLL compiler will be a command-line tool that takes the
+>> > HLL source as input on stdin and outputs the compiled CIL on stdout.
+>> > Errors from compilation will be output on stderr and a non-zero exit
+>> > status set. Additionally, the version of the module will be output on
+>> > file descriptor 3.
+>> >
+>> > For example an invocation by hand of the refpol HLL compiler:
+>> >
+>> > # refpolc < apache.ref > apache.cil 3<> apache.version
+>> >
+>> > The compiler name, path, HLL extension, and any flags to the compiler
+>> > are specified in the language configuration file.
+>> >
+>> > [HLL Configuration File]
+>> >
+>> > Each language has a configuration file stored at:
+>> >
+>> > /etc/selinux/language.d/<language>.conf
+>> >
+>> > Where each <language>.conf contains:
+>> >
+>> > NAME=<human readable name>
+>> > COMPILER=<full path to compiler>
+>> > EXTENSION=<file extension without dot>
+>> > FLAGS=<compiler flags>
+>> >
+>> > For example:
+>> >
+>> > NAME="Reference Policy"
+>> > COMPILER="/usr/bin/refpolc"
+>> > EXTENSION="ref"
+>> > FLAGS=""
+>> >
+>> > Language extensions are required to be unique (at least from all other
+>> > languages and preferably globally unique).
+>> >
+>> > [CIL]
+>> >
+>> > Here we discuss the CIL treatment in general. This patchset uses a
+>> > special formulation of the refpol language combined with the traditional
+>> > Reference Policy build infrastructure as the common intermediary
+>> > language (referred to as refpol_ilc). For details on the refpol_ilc
+>> > please see its patch.
+>> >
+>> > [CIL Compiler]
+>> >
+>> > The common intermediate language (CIL) compiler converts from the
+>> > intermediate language to a binary base module. It is a command line tool
+>> > that takes the enabled and disabled modules as parameters. Errors from
+>> > compilation will be output on stderr and an non-zero exit status set.
+>> > The binary base module will be output on stdout. Disabled modules will
+>> > be specified with the -d option.
+>> >
+>> > For example an invocation by hand of the refpol_ilc CIL compiler:
+>> >
+>> > # refpol_ilc `find /var/lib/selinux/targeted/active/modules/400/ -iname
+>> cil` > base.pp
+>> >
+>> > [ChangeLog Support]
+>> >
+>> > Every successful commit will produce a log entry. The log entry will
+>> > contain the command run, who ran it, their context, when it occurred,
+>> > and any user specified message.
+>> >
+>> > The log will be stored at:
+>> >
+>> > /var/lib/selinux/<policy type>/ChangeLog
+>> >
+>> > Each line of the log has the following format:
+>> >
+>> > VERSION="<repo version>" COMMAND="<command + options>" USERNAME="<user
+>> name>" CONTEXT="<context>" TIME="<time stamp>" MSG="<message>"
+>> >
+>> > All quoted strings have special characters escaped (quotes and anything
+>> > not printable [^:print:]|\").
+>> >
+>> > The origins of the information in the fields is as follows:
+>> >
+>> >   [Field]    [Origin]
+>> >
+>> >   VER        Discovered from the 'SCM', for the time being this will be
+>> the
+>> >              commit number.
+>> >
+>> >   CMD        Discovered from /proc/self/cmdline if available. May be set
+>> by
+>> >              the library user.
+>> >
+>> >   USERNAME   Discovered from getpwuid(getuid())->pw_name.
+>> >
+>> >   CONTEXT    Discovered from getprevcon.
+>> >
+>> >   TIME       Discovered from ctime(time(&t)).
+>> >
+>> >   MSG        Set by the library user.
+>> >
+>> > [Setup]
+>> >
+>> > The following steps setup a system with source policy support:
+>> >
+>> >   1. Compile & install patched SELinux userland.
+>> >
+>> >      Note: Remember to install the new python wrappers (install-pywrap)
+>> >            if you intend to use semanage.
+>> >
+>> >   2. (On Fedora) Remove /lib/libsemanage.so.1. The default installation
+>> >      location for libsemanage does not overwrite the one shipped with
+>> >      Fedora.
+>> >
+>> >   3. Get Reference Policy:
+>> >
+>> >      # git clone http://oss.tresys.com/git/refpolicy.git
+>> >
+>> >   4. Make the refpol_ilc build directory:
+>> >
+>> >      # mkdir -p /usr/share/selinux/refpol_ilc/
+>> >
+>> >   5. Create and install the refpol_ilc build environment:
+>> >
+>> >      # refpolicy2refpol -b refpolicy /usr/share/selinux/refpol_ilc/build
+>> >
+>> >   6. Convert Reference Policy modules to refpol modules:
+>> >
+>> >      # refpolicy2refpol refpolicy refpol
+>> >
+>> >   7. Copy an existing installed policy such as targeted to a 'test'
+>> >      store:
+>> >
+>> >      # cp -R /etc/selinux/targeted /etc/selinux/test
+>> >
+>> >   8. Create necessary directories for a 'test' store in
+>> >      /var/lib/selinux:
+>> >
+>> >      # mkdir -p /var/lib/selinux/test/active/modules
+>> >
+>> >   9. Install the source modules to the test store:
+>> >
+>> >      # semodule -s test `find refpol -iname \*.ref -or -iname \*.corenet
+>> | xargs -I{} echo -i {}`
+>> >
+>> >      Note: The current semanage policy does not allow executing
+>> >            generated files, so you need to change the policy or put
+>> >            semanage in permissive.
+>> >
+>> > [1] CIL RFC: http://marc.info/?l=selinux&m=124759244409438&w=2
+>> >
+>> > Caleb Case (15):
+>> >  [src-policy] refpol language and tools
+>> >  [src-policy] corenet language and tools
+>> >  [src-policy] Reference Policy to refpol conversion tool
+>> >  [src-policy] refpol intermediate language compiler (refpol_ilc)
+>> >  [src-policy] language.d and language.conf parser
+>> >  [src-policy] libsemanage: compile hll module
+>> >  [src-policy] libsemanage: compile common intermediary language
+>> >  [src-policy] libsemanage: remove binary interfaces
+>> >  [src-policy] semodule: remove base module support
+>> >  [src-policy] libsemanage: get source module
+>> >  [src-policy] semodule: get module source
+>> >  [src-policy] semodule: edit module
+>> >  [src-policy] libsemanage: ChangeLog support
+>> >  [src-policy] semodule: user message support
+>> >  [src-policy] semanage: source permissive module
+>> >
+>> >  Makefile                                       |    2 +-
+>> >  corenet/COPYING                                |  504 ++++++++++
+>> >  corenet/Makefile                               |   27 +
+>> >  corenet/corenet.conf                           |    4 +
+>> >  corenet/corenet.py                             |   17 +
+>> >  corenet/corenet/corenet.py                     |  175 ++++
+>> >  corenet/corenet/corenetc.py                    |  129 +++
+>> >  corenet/corenetc.py                            |   17 +
+>> >  corenet/setup.py                               |   13 +
+>> >  libsemanage/include/semanage/modules.h         |   14 +-
+>> >  libsemanage/include/semanage/private/handle.h  |   31 +-
+>> >  libsemanage/include/semanage/private/modules.h |   28 +-
+>> >  libsemanage/src/Makefile                       |   16 +-
+>> >  libsemanage/src/direct_api.c                   | 1165 ++++++++++++++---
+>> -------
+>> >  libsemanage/src/handle.c                       |   95 ++-
+>> >  libsemanage/src/handle.h                       |   10 +-
+>> >  libsemanage/src/lang-parse.y                   |  271 ++++++
+>> >  libsemanage/src/lang-scan.l                    |   84 ++
+>> >  libsemanage/src/libsemanage.map                |    6 +
+>> >  libsemanage/src/modules.c                      |   41 +-
+>> >  libsemanage/src/modules.h                      |    3 +-
+>> >  libsemanage/src/policy.h                       |   15 +-
+>> >  libsemanage/src/semanage_lang_conf.h           |   39 +
+>> >  libsemanage/src/semanage_store.c               |  884 ++++++++++++-----
+>> -
+>> >  libsemanage/src/semanage_store.h               |   55 +-
+>> >  policycoreutils/semanage/seobject.py           |   15 +-
+>> >  policycoreutils/semodule/semodule.8            |   27 +-
+>> >  policycoreutils/semodule/semodule.c            |  540 +++++++++++-
+>> >  refpol/COPYING                                 |  504 ++++++++++
+>> >  refpol/Makefile                                |   28 +
+>> >  refpol/refpol.conf                             |    4 +
+>> >  refpol/refpol.py                               |   17 +
+>> >  refpol/refpol/refpol.py                        |  176 ++++
+>> >  refpol/refpol/refpolc.py                       |   77 ++
+>> >  refpol/refpol/refpolicy2refpol.py              |  185 ++++
+>> >  refpol/refpolc.py                              |   17 +
+>> >  refpol/refpolicy2refpol.py                     |   17 +
+>> >  refpol/setup.py                                |   13 +
+>> >  refpol_ilc/COPYING                             |  504 ++++++++++
+>> >  refpol_ilc/Makefile                            |   24 +
+>> >  refpol_ilc/refpol_ilc.py                       |   17 +
+>> >  refpol_ilc/refpol_ilc/refpol_ilc.py            |  193 ++++
+>> >  refpol_ilc/setup.py                            |   13 +
+>> >  43 files changed, 5200 insertions(+), 816 deletions(-)
+>> >  create mode 100644 corenet/COPYING
+>> >  create mode 100644 corenet/Makefile
+>> >  create mode 100644 corenet/corenet.conf
+>> >  create mode 100755 corenet/corenet.py
+>> >  create mode 100644 corenet/corenet/__init__.py
+>> >  create mode 100644 corenet/corenet/corenet.py
+>> >  create mode 100644 corenet/corenet/corenetc.py
+>> >  create mode 100755 corenet/corenetc.py
+>> >  create mode 100755 corenet/setup.py
+>> >  create mode 100644 libsemanage/src/lang-parse.y
+>> >  create mode 100644 libsemanage/src/lang-scan.l
+>> >  create mode 100644 libsemanage/src/semanage_lang_conf.h
+>> >  create mode 100644 refpol/COPYING
+>> >  create mode 100644 refpol/Makefile
+>> >  create mode 100644 refpol/refpol.conf
+>> >  create mode 100755 refpol/refpol.py
+>> >  create mode 100644 refpol/refpol/__init__.py
+>> >  create mode 100644 refpol/refpol/refpol.py
+>> >  create mode 100644 refpol/refpol/refpolc.py
+>> >  create mode 100644 refpol/refpol/refpolicy2refpol.py
+>> >  create mode 100755 refpol/refpolc.py
+>> >  create mode 100755 refpol/refpolicy2refpol.py
+>> >  create mode 100755 refpol/setup.py
+>> >  create mode 100644 refpol_ilc/COPYING
+>> >  create mode 100644 refpol_ilc/Makefile
+>> >  create mode 100755 refpol_ilc/refpol_ilc.py
+>> >  create mode 100644 refpol_ilc/refpol_ilc/__init__.py
+>> >  create mode 100644 refpol_ilc/refpol_ilc/refpol_ilc.py
+>> >  create mode 100755 refpol_ilc/setup.py
+>> >
+>> >
+>> > --
+>> > This message was distributed to subscribers of the selinux mailing list.
+>> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>> with
+>> > the words "unsubscribe selinux" without quotes as the message.
+>> >
+>>
+>> I'm trying to figure out how we will have to work in the future
+>> because currently during our build we compile policy files and deal
+>> with any compilation errors, at times by digging through the files
+>> left in 'tmp'. With this patch we'll do 'semodue -i <modules source
+>> file>' instead of make and in the case of errors what artifacts will
+>> we have? In some cases the compilation error messages are not
+>> sufficient to determine the cause of the problem and that's when the
+>> tmp files become extremely useful.
+>>
+>> Ted
+>
+> In general you'll get compilation error messages as you do now if there is an error during compilation with Reference Policy. If you need the result of the tmp files, you can change the defaults in refpol_ilc.py for the cleanup flag and tmp dir location (not an ideal solution though).
+>
+> This patchset doesn't allow you to set the refpol_ilc flags, but that might be useful so that you could add extra flags like --cleanup=False --tmp=/tmp/last-semanage --force (causing the last run of the build to always be in /tmp/last-semanage). This could be an entry in semanage.conf:
+>
+> CIL_FLAGS="--cleanup=False --tmp=/tmp/last-semanage --force"
+>
+> That way if an install failed you could always go to /tmp/last-semanage and examine things more closely.
 
-thanks for guidance, but here I am with a question. what should be used as
-object class in avc_has_perm(3) when using it for inter-object. is there any
-sample for inter-object access decision? can it be null?
+Yes I think it would be useful to be able to configure these options.
 
-on the other hand, access decision taken by avc_has_perm(), does it include
-MLS too?
-
-regards.
-
-On Wed, Jan 27, 2010 at 1:26 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Tue, 2010-01-26 at 16:34 -0500, Stephen Smalley wrote:
-> > On Wed, 2010-01-27 at 00:50 +0330, michel m wrote:
-> > > Hi,
-> > > I have some data in userspace that I am keeping its security
-> > > context.but as I want to write this data on some file in OS, I need to
-> > > consult with security server if such data is allowed to be written on
-> > > the file.
-> > > I would like to know if there is any API that let me do such a
-> > > scenario, that is input source and destination security context (both
-> > > of them security context,not a domain context) and returns access
-> > > decision. I am familiar with avc_has_perm(3), but seems to be not
-> > > correct solution because it gets domain context as the first argument.
-> >
-> > avc_has_perm() can be used with any pair of security contexts.  Typical
-> > usage is to pass the security context of a subject/process as the first
-> > argument, but not always (e.g. there are some permission checks that
-> > control inter-object relationships), and that is not a requirement.
 >
-> Example usage of the userspace AVC can be found in the XSELinux
-> extension, see:
-> http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xselinux_hooks.c
-> http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xselinuxint.h
+> Here are some examples of failed installs:
 >
-> The modern usage is to call:
-> 1) selinux_set_callback() to set up the callback functions for
-> libselinux to use for logging/auditing or to notify the application of
-> changes to enforcing mode or policy.
-> 2) selinux_set_mapping() to set up a dynamic mapping for the object
-> classes and permissions so that your application does not depend on
-> fixed values for them in the policy, and
-> 3) avc_open() to initialize the AVC.
+> I've put some junk text at the top of the alsa module and tried to install it. In this case the error occurs during the HLL->CIL step on install:
 >
-> Then you can proceed to call avc_context_to_sid() and avc_has_perm() as
-> appropriate.
+> [root@fc12 ~]# head alsa.ref
+> some garbage
 >
-> If you don't need caching, you can directly call security_compute_av();
-> however this pushes responsibility for checking the particular
-> permission bit, checking for and handling permissive mode/domains, and
-> generating an avc audit message to your application.   There has been a
-> prior request to introduce a simpler interface for programs that do not
-> require caching, see:
-> https://bugzilla.redhat.com/show_bug.cgi?id=518268
+> [interface]
+> ## <summary>Ainit ALSA configuration tool</summary>
 >
-> --
-> Stephen Smalley
-> National Security Agency
+> [root@fc12 ~]# semodule -i alsa.ref
+> libsemanage.semanage_exec: Failed to execute /usr/bin/refpolc (exit status 1).
+> libsemanage.semanage_compile_hll: /usr/bin/refpolc: Error: [interface] section defined, but already found rules in default section (<stdin>:3).
 >
+>
+> semodule:  Failed on alsa.ref!
+>
+> Here's an example where there is a policy error that occurs during the commit step CILs->base.pp. I've added a reference to an undefined function to the alsa module.
+>
+> [root@fc12 ~]# semodule -i alsa.ref
+> libsemanage.semanage_exec: Failed to execute /usr/bin/refpol_ilc (exit status 1). (No such file or directory).
+> <snip>
+> /usr/bin/checkmodule -M base.conf -o tmp/base.mod
+> /usr/bin/checkmodule:  loading policy configuration from base.conf
+> policy/modules/kernel/alsa.te":71:ERROR 'syntax error' at token 'my_undefined_function' on line 32046:
+> my_undefined_function(alsa_t)
+>
+> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> make: *** [tmp/base.mod] Error 1
+> /usr/bin/refpol_ilc: Error: Failed to run make base.pp (2).
+>
+>  (No such file or directory).
+> semodule:  Failed!
+>
+> Caleb
 >
 
---001485318beb482466047e2662a7
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-thanks for guidance, but here I am with a question. what should be used as =
-object class in avc_has_perm(3) when using it for inter-object. is there an=
-y sample for inter-object access decision? can it be null?<br><br>on the ot=
-her hand, access decision taken by avc_has_perm(), does it include MLS too?=
-<br>
-<br>regards.<br><br><div class=3D"gmail_quote">On Wed, Jan 27, 2010 at 1:26=
- AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.=
-gov">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_=
-quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt =
-0pt 0.8ex; padding-left: 1ex;">
-<div><div></div><div class=3D"h5">On Tue, 2010-01-26 at 16:34 -0500, Stephe=
-n Smalley wrote:<br>
-&gt; On Wed, 2010-01-27 at 00:50 +0330, michel m wrote:<br>
-&gt; &gt; Hi,<br>
-&gt; &gt; I have some data in userspace that I am keeping its security<br>
-&gt; &gt; context.but as I want to write this data on some file in OS, I ne=
-ed to<br>
-&gt; &gt; consult with security server if such data is allowed to be writte=
-n on<br>
-&gt; &gt; the file.<br>
-&gt; &gt; I would like to know if there is any API that let me do such a<br=
->
-&gt; &gt; scenario, that is input source and destination security context (=
-both<br>
-&gt; &gt; of them security context,not a domain context) and returns access=
-<br>
-&gt; &gt; decision. I am familiar with avc_has_perm(3), but seems to be not=
-<br>
-&gt; &gt; correct solution because it gets domain context as the first argu=
-ment.<br>
-&gt;<br>
-&gt; avc_has_perm() can be used with any pair of security contexts. =A0Typi=
-cal<br>
-&gt; usage is to pass the security context of a subject/process as the firs=
-t<br>
-&gt; argument, but not always (e.g. there are some permission checks that<b=
-r>
-&gt; control inter-object relationships), and that is not a requirement.<br=
->
-<br>
-</div></div>Example usage of the userspace AVC can be found in the XSELinux=
-<br>
-extension, see:<br>
-<a href=3D"http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xselinux_hook=
-s.c" target=3D"_blank">http://cgit.freedesktop.org/xorg/xserver/tree/Xext/x=
-selinux_hooks.c</a><br>
-<a href=3D"http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xselinuxint.h=
-" target=3D"_blank">http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xsel=
-inuxint.h</a><br>
-<br>
-The modern usage is to call:<br>
-1) selinux_set_callback() to set up the callback functions for<br>
-libselinux to use for logging/auditing or to notify the application of<br>
-changes to enforcing mode or policy.<br>
-2) selinux_set_mapping() to set up a dynamic mapping for the object<br>
-classes and permissions so that your application does not depend on<br>
-fixed values for them in the policy, and<br>
-3) avc_open() to initialize the AVC.<br>
-<br>
-Then you can proceed to call avc_context_to_sid() and avc_has_perm() as<br>
-appropriate.<br>
-<br>
-If you don&#39;t need caching, you can directly call security_compute_av();=
-<br>
-however this pushes responsibility for checking the particular<br>
-permission bit, checking for and handling permissive mode/domains, and<br>
-generating an avc audit message to your application. =A0 There has been a<b=
-r>
-prior request to introduce a simpler interface for programs that do not<br>
-require caching, see:<br>
-<a href=3D"https://bugzilla.redhat.com/show_bug.cgi?id=3D518268" target=3D"=
-_blank">https://bugzilla.redhat.com/show_bug.cgi?id=3D518268</a><br>
-<div><div></div><div class=3D"h5"><br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</div></div></blockquote></div><br>
-
---001485318beb482466047e2662a7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
