@@ -1,113 +1,244 @@
-Subject: Re: [PATCH 00/15] RFC Source Policy Support
+Subject: Re: [PATCH 06/15] [src-policy] libsemanage: compile hll module
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Caleb Case <ccase@tresys.com>
 Cc: selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com,
         jwcart2@tycho.nsa.gov, jbrindle@tresys.com
-In-Reply-To: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-7-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-2-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-3-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-4-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-5-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-6-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-7-git-send-email-ccase@tresys.com>
 Content-Type: text/plain
-Date: Wed, 27 Jan 2010 15:00:21 -0500
-Message-Id: <1264622421.17372.68.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 27 Jan 2010 15:18:27 -0500
+Message-Id: <1264623507.17372.85.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Tue, 2010-01-26 at 17:08 -0500, Caleb Case wrote:
-<snip>
-> Module Ordering - The current reference policy compilation
-> infrastructure devotes substantial attention to dealing with ordering
-> problems. Some of these problems are fundamental (such as the ordering
-> of portcon statements) while others are an artifact of the current
-> compiler and M4 (such as the need to separate out interface statements
-> in .if files). Rather than devote substantial effort to creating
-> mechanisms for specifying or dealing with ordering, it was felt that the
-> long term solution to this problem is in the improvements that will come
-> from the proposed common intermediate language [1]. Therefore, in the
-> short term, several modules will be ordered specially based upon name
-> and certain policy statements will only be supported in those specially
-> ordered modules (e.g., a module for specifying defines such as
-> DISTRO_REDHAT). These hacks can be removed at a later date.
+> This provides the basic compilation function semanage_compile_hll that
+> is called during module installation. semanage_exec is a helper function
+> which sets up the redirected io for the child process, executes it,
+> waits for the child to exit, and then propagates the child's exit
+> status. An additional helper function semanage_fd_to_data reads a given
+> file descriptor into a buffer (unzipping it if necessary). The
+> compilation messages are stored in
+> /var/lib/selinux/.../modules/<priority>/<module>/log.
 
-These specially ordered modules and restrictions on policy statements
-usable by other modules sound just like the base module today.  Did you
-just re-invent the base module under a different name?
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index 2bda1e2..dd96a75 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -3034,3 +3034,357 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
+>  
+>  	return 0;
+>  }
+> +
+> +/* Execute @cmd with @args and redirect the @io.
+> + *
+> + * @io is an array of fd's to redirect. Indices correspond to fds. The fds
+> + * are not closed. Indices set to -1 are ignored, otherwise they are
+> + * dup2'd.
+> + *
+> + * Returns:
+> + * 	 0	success
+> + * 	-1	failure, error outside HLL compiler
+> + * 	+N	failure, HLL compiler exit status N
+> + */
+> +static int semanage_exec(semanage_handle_t *sh,
+> +			 const char *cmd,
+> +			 char *argv[],
+> +			 int io[],
+> +			 int io_len)
 
-> Base Module Removal - The decision to support a special base binary
-> module was made to make bootstrapping a module store easier by including
-> a module that was required to have a minimal but complete system policy
-> and to deal with ordering by only allowing order dependent statements to
-> appear in the base (such as object class or portcon). Over time it has
-> become clear that the base module limitations outweigh any of the
-> intended benefits. This is especially true as support for overriding
-> policy modules is included. Therefore, the source semanage store will no
-> longer support or require a special base module.  Further, there will be
-> no restrictions on the use of policy statements in modules. While this
-> will allow some unintentional mistakes (e.g., including a broad portcon
-> in a module that gets processed first) it will also allow additional
-> freedom (e.g., the use of narrow portcon statements in modules).
+Can this function be unified with the already existing
+semanage_exec_prog()?  Likely by making the latter call this one after
+splitting args?
 
-I originally assumed you considered portcon statements to be one of the
-statements limited to the specially ordered modules above, but evidently
-not.  So how then will you ensure proper ordering of them?
+> +int semanage_fd_to_data(semanage_handle_t *sh,
+> +			int fd,
+> +			char **data,
+> +			size_t *data_len)
+> +{
+> +	assert(sh);
+> +	assert(data);
+> +	assert(data_len);
+> +
+> +	int status = 0;
+> +	int ret = 0;
+> +
+> +	*data = NULL;
+> +	*data_len = 0;
+> +
+> +	FILE *fp = NULL;
+> +	struct stat sb;
+> +	sb.st_size = 0;
+> +	ssize_t nread = 0;
+> +	char *data_tmp = NULL;
+> +
+> +	/* Find out how big it is. */
+> +	ret = fstat(fd, &sb);
+> +	if (ret != 0) {
+> +		ERR(sh, "Failed to stat file");
+> +		status = -2;
+> +		goto cleanup;
+> +	}
+> +	*data_len = sb.st_size;
+> +
+> +	/* Allocate a buffer for the file. */
+> +	*data = malloc(*data_len + 1);
+> +	if (*data == NULL) {
+> +		ERR(sh, "Out of memory!");
+> +		status = -1;
+> +		goto cleanup;
+> +	}
+> +	(*data)[*data_len] = '\0';
 
-Why not just eliminate the ordering dependency altogether from portcons.
-Just mandate that more specific entries (e.g. portcon 80) always take
-precedence over less specific entries (e.g. portcon 1-1024), and sort
-them accordingly in the toolchain before generating the kernel policy.
+Aren't we going to clobber this shortly?
 
-> [User Experience Overview]
-> 
-> The overall user experience will shift from using external tools to
-> compile a policy package (.pp) to working directly with source modules.
-> 
-> Source modules will be a single text file containing all of the policy
-> for that module. For the current reference policy that will require
-> combining the current interface, type enforcement, and file context
-> files into a single text file. The user will then use that text file
-> similarly to how the current binary modules are used. Insertion would be
-> performed using semodule (the 'ref' extension is for the single file
-> reference policy format):
-> 
-> # semodule -i apache.ref
-> 
-> Note that the language for the module will be inferred from the
-> extension to avoid the general tools, such as semodule, needing an
-> awareness of the format of all source policies. The name would be taken
-> from the input filename.
+> +
+> +	/* Read into the buffer. */
+> +	while((size_t)nread != *data_len) {
+> +		nread = read(fd, *data + nread, *data_len - nread);
+> +		if (nread < 0) {
 
-I assume you mean that you don't want libsemanage to need to be aware of
-the format of all source policies, as semodule itself shouldn't ever
-peer inside of the module?
+We should likely handle EINTR more cleanly throughout.
 
-If I try to insert two modules with the same prefix but different
-suffixes, are they one module or two different ones?
+> +			ERR(sh, "Failed to read the file");
+> +			status = -1;
+> +			goto cleanup;
+> +		}
+> +	}
+> +
+> +	/* Try to bunzip. */
+> +	fp = fmemopen(*data, *data_len, "r");
+> +	if (fp == NULL) {
+> +		ERR(sh, "Failed to open file for reading");
+> +		status = -1;
+> +		goto cleanup;
+> +	}
 
-> The first large change to user experience is the introduction of a
-> command to retrieve a module:
-> 
-> # semodule -g apache
-> # ls
-> apache.ref
->
-> # semodule -g apache -o myapache.ref
-> # ls
-> myapache.ref
-> 
-> Similarly, there is the addition of an edit command that is similar to
-> sudoedit. This is purely a convenience; it will retrieve the module to a
-> temporary location and install it after updates are made.
-> 
-> # semodule --edit apache
-> 
-> Finally, semodule now supports adding a user message when making
-> changes:
-> 
-> # semodule --edit apache -m "Allow apache to execute cowsay."
+I have a patch to eliminate use of fmemopen() in libsemanage as it
+doesn't handle binary files correctly for glibc < 2.9; see the other
+discussion.  Maybe this is ok due to only acting on text files?
 
-Do we really need/want to provide this functionality in
-semodule/libsemanage?  Why not just have the user get the module, edit
-it as desired, and then insert it?  By the way, this could also be
-referred to as checkout and checkin/commit.
+> +
+> +	nread = bunzip(sh, fp, &data_tmp);
+> +	if (nread > 0) {
+> +		free(*data);
+> +		*data = data_tmp;
+> +		*data_len = (size_t)nread;
+> +	}
+> +
+> +cleanup:
+> +	if (status != 0) {
+> +		free(*data);
+> +		*data = NULL;
+> +		*data_len = 0;
+> +	}
+> +
+> +	if (fp != NULL) fclose(fp);
+> +
+> +	return status;
+> +}
+> +
+> +int semanage_compile_hll(semanage_handle_t *sh,
+> +			 const semanage_module_info_t *modinfo)
+> +{
+> +	int status = 0;
+> +	int ret = 0;
+> +
+> +	char hll_path[PATH_MAX];
+> +	char cil_path[PATH_MAX];
+> +	char ver_path[PATH_MAX];
+> +	char log_path[PATH_MAX];
+> +
+> +	char tmp[] = "/tmp/libsemanage-XXXXXX";
+> +	int tmp_fd = -1;
+> +	ssize_t nwrite = 0;
+> +
+> +	int io[4];
+> +	int io_len = 4;
+> +
+> +	const semanage_lang_conf_t *conf = NULL;
+> +
+> +	int i;
+> +
+> +	char **argv = NULL;
+> +
+> +	char *data = NULL;
+> +	size_t data_len = 0;
+> +
+> +	/* determine paths and setup io:
+> +	 *
+> +	 * 0	hll
+> +	 * 1	cil
+> +	 * 2	log
+> +	 * 3	version
+> +	 */
+> +
+> +	/* 0	hll */
+> +	ret = semanage_module_get_path(sh,
+> +				       modinfo,
+> +				       SEMANAGE_MODULE_PATH_HLL,
+> +				       hll_path,
+> +				       sizeof(hll_path));
+> +	if (ret != 0) {
+> +		status = -1;
+> +		goto cleanup;
+> +	}
+> +
+> +	/* open hll, read in (which will bunzip if necessary) */
+> +	tmp_fd = open(hll_path, O_RDONLY);
+> +	if (tmp_fd < 0) {
+> +		ERR(sh, "Failed to open %s", hll_path);
+> +		status = -1;
+> +		goto cleanup;
+> +	}
+> +
+> +	ret = semanage_fd_to_data(sh, tmp_fd, &data, &data_len);
+> +	if (ret != 0) {
+> +		ERR(sh, "Failed to read %s", hll_path);
+> +		status = -1;
+> +		goto cleanup;
+> +	}
+> +
+> +	close(tmp_fd);
+> +	tmp_fd = mkstemp(tmp);
+> +	if (tmp_fd < 0) {
+> +		ERR(sh,
+> +		    "Failed to create tmp file for module %s.",
+> +		    modinfo->name);
+> +		status = -1;
+> +		goto cleanup;
+> +	}
+> +
+> +	while((size_t)nwrite != data_len) {
+> +		nwrite = write(tmp_fd, data + nwrite, data_len - nwrite);
+> +		if (nwrite < 0) {
+
+EINTR handling.
+Need to check that the expected length was written, not just < 0.
+>From the man page:
+       If  a  write()  is interrupted by a signal handler before any bytes are
+       written, then the call fails with the error EINTR; if it is interrupted
+       after  at  least  one  byte  has  been  written, the call succeeds, and
+       returns the number of bytes written.
+
+> +			ERR(sh,
+> +			    "Failed to write data to tmp file for module %s.",
+> +			    modinfo->name);
+> +			status = -1;
+> +			goto cleanup;
+> +		}
+> +	}
+> +
+> +	ret = fsync(tmp_fd);
+
+fdatasync(), maybe?
 
 -- 
 Stephen Smalley
