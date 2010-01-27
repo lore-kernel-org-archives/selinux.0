@@ -1,9 +1,9 @@
-Subject: Re: [PATCH 06/15] [src-policy] libsemanage: compile hll module
+Subject: Re: [PATCH 12/15] [src-policy] semodule: edit module
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Caleb Case <ccase@tresys.com>
 Cc: selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com,
         jwcart2@tycho.nsa.gov, jbrindle@tresys.com
-In-Reply-To: <1264543701-20638-7-git-send-email-ccase@tresys.com>
+In-Reply-To: <1264543701-20638-13-git-send-email-ccase@tresys.com>
 References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
 	 <1264543701-20638-2-git-send-email-ccase@tresys.com>
 	 <1264543701-20638-3-git-send-email-ccase@tresys.com>
@@ -11,234 +11,56 @@ References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
 	 <1264543701-20638-5-git-send-email-ccase@tresys.com>
 	 <1264543701-20638-6-git-send-email-ccase@tresys.com>
 	 <1264543701-20638-7-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-8-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-9-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-10-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-11-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-12-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-13-git-send-email-ccase@tresys.com>
 Content-Type: text/plain
-Date: Wed, 27 Jan 2010 15:18:27 -0500
-Message-Id: <1264623507.17372.85.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 27 Jan 2010 15:21:26 -0500
+Message-Id: <1264623686.17372.87.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Tue, 2010-01-26 at 17:08 -0500, Caleb Case wrote:
-> This provides the basic compilation function semanage_compile_hll that
-> is called during module installation. semanage_exec is a helper function
-> which sets up the redirected io for the child process, executes it,
-> waits for the child to exit, and then propagates the child's exit
-> status. An additional helper function semanage_fd_to_data reads a given
-> file descriptor into a buffer (unzipping it if necessary). The
-> compilation messages are stored in
-> /var/lib/selinux/.../modules/<priority>/<module>/log.
+> In order to ease the process of modifying an installed module, this
+> provides the -E,--edit option to semodule. It will retrieve the
+> specified module, open it in the default editor, and then reinstall the
+> module if editing completes successfully.
+> 
+> * Editor to be executed is discovered from the EDITOR environment
+>   variable.
+> 
+> * Transaction locks are held for the duration of the editing.
+> 
+> * If -E is specified multiple times, then the editor will be
+>   called on each one, consecutively (editing stops on a particular
+>   module when the editor exits).
+> 
+> * If the editor exits with a non-zero status, then the transaction
+>   will be aborted.
+> 
+> * If the editor exits without making any changes to the file (as
+>   determined from the time stamp), then the transaction will be not be
+>   committed unless another action requires it to be.
+> 
+> * The editor will be executed in the users SELinux context (as
+>   determined by getprevcon)
+> 
+> Example:
+> 
+> # export EDITOR=vim
+> # semodule -E alsa
+> <edit alsa module>
+> <after quiting editor module is installed>
+> ---
 
-> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-> index 2bda1e2..dd96a75 100644
-> --- a/libsemanage/src/semanage_store.c
-> +++ b/libsemanage/src/semanage_store.c
-> @@ -3034,3 +3034,357 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
->  
->  	return 0;
->  }
-> +
-> +/* Execute @cmd with @args and redirect the @io.
-> + *
-> + * @io is an array of fd's to redirect. Indices correspond to fds. The fds
-> + * are not closed. Indices set to -1 are ignored, otherwise they are
-> + * dup2'd.
-> + *
-> + * Returns:
-> + * 	 0	success
-> + * 	-1	failure, error outside HLL compiler
-> + * 	+N	failure, HLL compiler exit status N
-> + */
-> +static int semanage_exec(semanage_handle_t *sh,
-> +			 const char *cmd,
-> +			 char *argv[],
-> +			 int io[],
-> +			 int io_len)
-
-Can this function be unified with the already existing
-semanage_exec_prog()?  Likely by making the latter call this one after
-splitting args?
-
-> +int semanage_fd_to_data(semanage_handle_t *sh,
-> +			int fd,
-> +			char **data,
-> +			size_t *data_len)
-> +{
-> +	assert(sh);
-> +	assert(data);
-> +	assert(data_len);
-> +
-> +	int status = 0;
-> +	int ret = 0;
-> +
-> +	*data = NULL;
-> +	*data_len = 0;
-> +
-> +	FILE *fp = NULL;
-> +	struct stat sb;
-> +	sb.st_size = 0;
-> +	ssize_t nread = 0;
-> +	char *data_tmp = NULL;
-> +
-> +	/* Find out how big it is. */
-> +	ret = fstat(fd, &sb);
-> +	if (ret != 0) {
-> +		ERR(sh, "Failed to stat file");
-> +		status = -2;
-> +		goto cleanup;
-> +	}
-> +	*data_len = sb.st_size;
-> +
-> +	/* Allocate a buffer for the file. */
-> +	*data = malloc(*data_len + 1);
-> +	if (*data == NULL) {
-> +		ERR(sh, "Out of memory!");
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-> +	(*data)[*data_len] = '\0';
-
-Aren't we going to clobber this shortly?
-
-> +
-> +	/* Read into the buffer. */
-> +	while((size_t)nread != *data_len) {
-> +		nread = read(fd, *data + nread, *data_len - nread);
-> +		if (nread < 0) {
-
-We should likely handle EINTR more cleanly throughout.
-
-> +			ERR(sh, "Failed to read the file");
-> +			status = -1;
-> +			goto cleanup;
-> +		}
-> +	}
-> +
-> +	/* Try to bunzip. */
-> +	fp = fmemopen(*data, *data_len, "r");
-> +	if (fp == NULL) {
-> +		ERR(sh, "Failed to open file for reading");
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-
-I have a patch to eliminate use of fmemopen() in libsemanage as it
-doesn't handle binary files correctly for glibc < 2.9; see the other
-discussion.  Maybe this is ok due to only acting on text files?
-
-> +
-> +	nread = bunzip(sh, fp, &data_tmp);
-> +	if (nread > 0) {
-> +		free(*data);
-> +		*data = data_tmp;
-> +		*data_len = (size_t)nread;
-> +	}
-> +
-> +cleanup:
-> +	if (status != 0) {
-> +		free(*data);
-> +		*data = NULL;
-> +		*data_len = 0;
-> +	}
-> +
-> +	if (fp != NULL) fclose(fp);
-> +
-> +	return status;
-> +}
-> +
-> +int semanage_compile_hll(semanage_handle_t *sh,
-> +			 const semanage_module_info_t *modinfo)
-> +{
-> +	int status = 0;
-> +	int ret = 0;
-> +
-> +	char hll_path[PATH_MAX];
-> +	char cil_path[PATH_MAX];
-> +	char ver_path[PATH_MAX];
-> +	char log_path[PATH_MAX];
-> +
-> +	char tmp[] = "/tmp/libsemanage-XXXXXX";
-> +	int tmp_fd = -1;
-> +	ssize_t nwrite = 0;
-> +
-> +	int io[4];
-> +	int io_len = 4;
-> +
-> +	const semanage_lang_conf_t *conf = NULL;
-> +
-> +	int i;
-> +
-> +	char **argv = NULL;
-> +
-> +	char *data = NULL;
-> +	size_t data_len = 0;
-> +
-> +	/* determine paths and setup io:
-> +	 *
-> +	 * 0	hll
-> +	 * 1	cil
-> +	 * 2	log
-> +	 * 3	version
-> +	 */
-> +
-> +	/* 0	hll */
-> +	ret = semanage_module_get_path(sh,
-> +				       modinfo,
-> +				       SEMANAGE_MODULE_PATH_HLL,
-> +				       hll_path,
-> +				       sizeof(hll_path));
-> +	if (ret != 0) {
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-> +
-> +	/* open hll, read in (which will bunzip if necessary) */
-> +	tmp_fd = open(hll_path, O_RDONLY);
-> +	if (tmp_fd < 0) {
-> +		ERR(sh, "Failed to open %s", hll_path);
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-> +
-> +	ret = semanage_fd_to_data(sh, tmp_fd, &data, &data_len);
-> +	if (ret != 0) {
-> +		ERR(sh, "Failed to read %s", hll_path);
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-> +
-> +	close(tmp_fd);
-> +	tmp_fd = mkstemp(tmp);
-> +	if (tmp_fd < 0) {
-> +		ERR(sh,
-> +		    "Failed to create tmp file for module %s.",
-> +		    modinfo->name);
-> +		status = -1;
-> +		goto cleanup;
-> +	}
-> +
-> +	while((size_t)nwrite != data_len) {
-> +		nwrite = write(tmp_fd, data + nwrite, data_len - nwrite);
-> +		if (nwrite < 0) {
-
-EINTR handling.
-Need to check that the expected length was written, not just < 0.
->From the man page:
-       If  a  write()  is interrupted by a signal handler before any bytes are
-       written, then the call fails with the error EINTR; if it is interrupted
-       after  at  least  one  byte  has  been  written, the call succeeds, and
-       returns the number of bytes written.
-
-> +			ERR(sh,
-> +			    "Failed to write data to tmp file for module %s.",
-> +			    modinfo->name);
-> +			status = -1;
-> +			goto cleanup;
-> +		}
-> +	}
-> +
-> +	ret = fsync(tmp_fd);
-
-fdatasync(), maybe?
+I'm concerned that this is over-engineering.  Why not just provide -g
+(aka --checkout) and -i (aka --commit or --checkin), and let the editing
+happen entirely outside of the infrastructure.  Do we really want to
+allow the caller to hold the transaction locks indefinitely?
 
 -- 
 Stephen Smalley
