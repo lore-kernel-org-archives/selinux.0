@@ -1,30 +1,39 @@
-Date: Thu, 28 Jan 2010 16:55:26 +0300
-From: AlannY <m@alanny.ru>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
 Subject: Re: /dev on tmpfs. How to label?
-Message-ID: <20100128135524.GA24392@alanny-pc.lcl.starlink.ru>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: AlannY <m@alanny.ru>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20100128135524.GA24392@alanny-pc.lcl.starlink.ru>
 References: <20100128115643.GA19986@alanny-pc.lcl.starlink.ru>
- <1264685358.6232.38.camel@moss-pluto.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1264685358.6232.38.camel@moss-pluto.epoch.ncsc.mil>
+	 <1264685358.6232.38.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100128135524.GA24392@alanny-pc.lcl.starlink.ru>
+Content-Type: text/plain
+Date: Thu, 28 Jan 2010 09:20:09 -0500
+Message-Id: <1264688409.6232.49.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jan 28, 2010 at 08:29:18AM -0500, Stephen Smalley wrote:
-> Most distros do that these days, and it works fine in Fedora, for
-> example.
+On Thu, 2010-01-28 at 16:55 +0300, AlannY wrote:
+> On Thu, Jan 28, 2010 at 08:29:18AM -0500, Stephen Smalley wrote:
+> > Most distros do that these days, and it works fine in Fedora, for
+> > example.
+> > 
+> > The technique used in Fedora is to run restorecon -R /dev from
+> > rc.sysinit to set the contexts on the /dev nodes set up before the
+> > policy load, and udev is already SELinux-aware (if built with SELinux
+> > support enabled) and should label any dynamically created nodes
+> > appropriately once SELinux policy has loaded.
 > 
-> The technique used in Fedora is to run restorecon -R /dev from
-> rc.sysinit to set the contexts on the /dev nodes set up before the
-> policy load, and udev is already SELinux-aware (if built with SELinux
-> support enabled) and should label any dynamically created nodes
-> appropriately once SELinux policy has loaded.
+> Ok. I've built udev --with-selinux and it seems now I have a good context (or maybe right?).
+> 
+> Well, my Controlling term: user_u:object_r:user_tty_device_t:s0. Is it normal?
 
-Ok. I've built udev --with-selinux and it seems now I have a good context (or maybe right?).
+Yes.  user_tty_device_t for a tty, user_devpts_t for a pty.
 
-Well, my Controlling term: user_u:object_r:user_tty_device_t:s0. Is it normal?
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
