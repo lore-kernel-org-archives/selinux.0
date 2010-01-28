@@ -7,8 +7,8 @@ Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
 In-Reply-To: <201001272247.o0RMl6hD014615@vivaldi26.register.it>
 References: <201001272247.o0RMl6hD014615@vivaldi26.register.it>
 Content-Type: text/plain
-Date: Thu, 28 Jan 2010 08:11:36 -0500
-Message-Id: <1264684296.6232.27.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 28 Jan 2010 08:15:27 -0500
+Message-Id: <1264684527.6232.28.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -46,44 +46,8 @@ On Wed, 2010-01-27 at 23:47 +0100, Guido Trentalancia wrote:
 > 
 > Have you had any other idea about a possible implementation of this new feature ? I will try to look at the kernel code more closely...
 
-First, if you are going to do SELinux kernel development, then develop
-patches against the #next branch of the security-testing-2.6 tree.  See:
-http://selinuxproject.org/page/Developers#Kernel_developers
-http://security.wiki.kernel.org/index.php/Kernel_Repository
-
-To exercise the restriction on MLS->non-MLS or vice versa, build and
-install two policies on your system under different names, one MLS or
-MCS and one standard.  Boot with /etc/selinux/config pointing to one of
-the policies, and then switch /etc/selinux/config to point to the other
-and attempt to run load_policy.  That should fail with the error message
-logged to /var/log/messages and your dmesg output.  Then reboot with the
-new policy, and switch /etc/selinux/config to point to the other policy
-and try running load_policy again.  This should also fail similarly.
-That should exercise both cases.
-
-The condition: ((le32_to_cpu(buf[1]) & POLICYDB_CONFIG_MLS))
-tests whether or not the policy being loaded was built with MLS enabled.
-The condition: (ss_initialized && !selinux_mls_enabled)
-tests whether policy has ever been loaded (ss_initialized) and if so,
-whether it was previously MLS-disabled.
-The condition: (ss_initialized && selinux_mls_enabled)
-tests whether policy has ever been loaded (ss_initialized) and if so,
-whether it was previously MLS-enabled.
-Note that we "goto bad" in the error paths and thus never reach setting
-of selinux_mls_enabled to 1 in the error case.
-
-To support switching, we must change selinux_mls_enabled from a global
-flag to one that is part of the policydb state, so that we can have a
-currently active policydb that has one value of MLS enabled and a
-policydb that is being loaded that has a different value (up to the
-point where we switch from the old to the new).  That will be the most
-painful part of the patch - you'll have to track down all uses of
-selinux_mls_enabled and replace them with e.g. policydb.mls_enabled
-(when referencing the active policydb) or p->mls_enabled (when
-referencing a particular policydb, like the one that is being loaded).
-Then you need convert_context() to correctly deal with the MLS fields of
-the context when switching, and then you can finally safely remove the
-restriction from policydb_read().
+By the way, your documentation is probably suitable for the
+selinuxproject.org wiki somewhere.
 
 -- 
 Stephen Smalley
