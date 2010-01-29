@@ -1,49 +1,43 @@
-Subject: Re: Which packages should I build to boot SELinux system?
+Subject: Re: Stopping COTS from accessing root directory
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: AlannY <m@alanny.ru>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100129100521.GA18889@alanny-pc.lcl.starlink.ru>
-References: <20100129100521.GA18889@alanny-pc.lcl.starlink.ru>
+To: Gregg Tomas <java_gregg@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <533612.81219.qm@web110407.mail.gq1.yahoo.com>
+References: <533612.81219.qm@web110407.mail.gq1.yahoo.com>
 Content-Type: text/plain
-Date: Fri, 29 Jan 2010 09:04:34 -0500
-Message-Id: <1264773874.16815.47.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 29 Jan 2010 10:25:35 -0500
+Message-Id: <1264778735.16815.125.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-01-29 at 13:05 +0300, AlannY wrote:
-> Hi there. I'm still trying to install SELinux and boot in enforcing.
+On Thu, 2010-01-28 at 16:28 -0800, Gregg Tomas wrote:
+> Hello Everyone,
 > 
-> Another question: which packages must be built with SELinux support to boot
-> SELinux system? I'm not talking about SELinux's packages like checkpolicy or
-> policycoreutils.
+> Bare with me, I am fairly new to SELinux policy writing.
 > 
-> I know about PAM, UDEV, SYSVINIT, COREUTILS. Maybe more?
+> How do you write a rule to stop an application from accessing the root
+> (/) directory? 
+> I am running Open Office (openoffice_exec_t) and whenever I open the
+> open dialog (From the menubar, File -> Open) , on the top right of the
+> open dialog, there are 3 buttons. The left most button is the "up one
+> level" button. If you click and hold your mouse left button down on
+> it, a sub menu appears and display a menu item called Workplace. If I
+> click on it, it will bring you to root directory (/). I am trying to
+> prevent that. I have a neverallow rule in my test.te:
+> neverallow openoffice_exec_t root_t:dir { search }; 
+> However, it still transitions there after I touch /.autorelabel and
+> reboot.
+> 
+> Thanks.
 
-The early set of SELinux-modified packages is listed at:
-http://userspace.selinuxproject.org/trac/wiki/Userland
-
-However, note that:
-1) Not all of those modifications are required for basic operation of
-SELinux, and
-2) The set of userland packages with SELinux support has grown over time
-since that list.
-
-login, openssh, gdm, and cron all need to set the security context for
-user sessions or cron jobs.  Some of this is done via direct support and
-some via pam_selinux in their /etc/pam.d configurations, and the details
-have changed over time (e.g. gdm went from direct support to using
-pam_selinux after the rewrite).
-
-dbus, nscd, and xorg can be built with selinux support to enforce
-SELinux policy over their operations.  However, that is not required for
-basic operation of SELinux.
-
-On Fedora rawhide, I get:
-$ repoquery --arch=`arch` --whatrequires --alldeps -s libselinux   | wc -l
-123
-
-So 123 packages that link with libselinux in some manner.
+neverallow rules are assertions that are checked by the policy compiler.
+They are not "deny" rules (nor is there such a thing in SELinux), and
+they do not remove allow rules.  They just cause a policy build to fail
+if they are violated.  They only get checked if you set expand-check=1
+in your /etc/selinux/semanage.conf or you perform a local build via
+semodule_link and semodule_expand (as is done in the make validate
+target of refpolicy).
 
 -- 
 Stephen Smalley
