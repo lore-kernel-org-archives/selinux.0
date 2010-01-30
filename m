@@ -1,99 +1,65 @@
-MIME-Version: 1.0
-In-Reply-To: <1264617201.17372.2.camel@moss-pluto.epoch.ncsc.mil>
-References: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
-	 <1264541641.19890.77.camel@moss-pluto.epoch.ncsc.mil>
-	 <1264542993.19890.88.camel@moss-pluto.epoch.ncsc.mil>
-	 <bb74313d1001270640s43b6c88dmafdb6aa9d3cf3015@mail.gmail.com>
-	 <1264617201.17372.2.camel@moss-pluto.epoch.ncsc.mil>
-Date: Sat, 30 Jan 2010 12:03:18 +0330
-Message-ID: <bb74313d1001300033g189165b9t7705614dcab0ced3@mail.gmail.com>
-Subject: Re: access decision API
-From: michel m <michel.mcgregor@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=00504502d497a94d62047e5d9a1c
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0UHi3tk001942
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 12:44:03 -0500
+Received: from mail.seekline.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o0UHhtsN006302
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 17:43:55 GMT
+Received: from [192.168.178.25] (95-91-60-83-dynip.superkabel.de [95.91.60.83])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id o0UHhvg0024809
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 18:43:58 +0100
+Subject: how to trace an avc denial
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sat, 30 Jan 2010 18:43:55 +0100
+Message-ID: <1264873435.12042.15.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---00504502d497a94d62047e5d9a1c
-Content-Type: text/plain; charset=ISO-8859-1
+Hi all,
 
-as the last question,
-what I need, is to ask the security server if a data residing in userspace
-owning a context, can be written to a file in OS.
-does it make sense if I do it in this way :
-    avc_has_perm(data_sid  ,file_sid,  SECLASS_FILE , null, null)
+I'm trying to create a policy for pidgin and hit the following problem:
+When pidgin is started via the GNOME menu "Applications -> Internet ->
+Pidgin" then I get the following AVC:
 
-I am confused, because I guessed using such a syntax means if a process is
-able to write to file, but here we are going to check if data can be *written
-*to file.
+type=1400 audit(1264870417.250:22382): avc:  denied  { search } for
+pid=9114 comm="pidgin" name="1" dev=proc ino=160141
+scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:init_t:s0 tclass=dir
+type=1400 audit(1264870417.250:22382): avc:  denied  { read } for
+pid=9114 comm="pidgin" name="exe" dev=proc ino=160142
+scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:init_t:s0 tclass=lnk_file
 
-if everything ok, how the action is specified, that is write?
-Regards.
+At the moment I just don't audit the denials:
 
+require {
+        type init_t;
+}
 
-On Wed, Jan 27, 2010 at 10:03 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+dontaudit pidgin_t init_t:dir search;
+dontaudit pidgin_t init_t:lnk_file read;
 
-> On Wed, 2010-01-27 at 18:10 +0330, michel m wrote:
-> > thanks for guidance, but here I am with a question. what should be
-> > used as object class in avc_has_perm(3) when using it for
-> > inter-object. is there any sample for inter-object access decision?
-> > can it be null?
-> >
-> > on the other hand, access decision taken by avc_has_perm(), does it
-> > include MLS too?
->
-> Yes, the avc_has_perm() or security_compute_av() decision takes into
-> account all policy models implemented within the security server,
-> including RBAC, TE, and MLS.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+What I would like to do is find out if pidgin itself is
+accessing /proc/1/exe or if it is a library. A simple
+"grep -R '/proc/' ./pidgin-source" does not provide any helpful output.
+My guess is that it is a leaked file descriptor because if I start
+pidgin from a shell, then I do not have this problem (I have a rule for
+user terminals and so on).
 
---00504502d497a94d62047e5d9a1c
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Summarized, how can I find out which library or application part is
+causing an AVC? I know there won't be any magical way to find the exact
+part ;-) but some general rules or tips would be very appreciated.
+Sometimes I use strace, e.g. to find out that a library is doing a call
+I'm interested in but this time strace does not help me. So any
+comments/suggestions are very welcomed.
 
-as the last question, <br>what I need, is to ask the security server if a d=
-ata residing in userspace owning a context, can be written to a file in OS.=
-<br>does it make sense if I do it in this way :<br>=A0 =A0 avc_has_perm(dat=
-a_sid=A0 ,file_sid,=A0 SECLASS_FILE , null, null)<br>
-<br>I am confused, because I guessed using such a syntax means if a process=
- is able to write to file, but here we are going to check if data can be <b=
-><i>written </i></b>to file.<br><br>if everything ok, how the action is spe=
-cified, that is write?<br>
-Regards.<br><br><br><div class=3D"gmail_quote">On Wed, Jan 27, 2010 at 10:0=
-3 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa=
-.gov">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gmail=
-_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt=
- 0pt 0.8ex; padding-left: 1ex;">
-<div class=3D"im">On Wed, 2010-01-27 at 18:10 +0330, michel m wrote:<br>
-</div><div class=3D"im">&gt; thanks for guidance, but here I am with a ques=
-tion. what should be<br>
-&gt; used as object class in avc_has_perm(3) when using it for<br>
-&gt; inter-object. is there any sample for inter-object access decision?<br=
->
-&gt; can it be null?<br>
-&gt;<br>
-&gt; on the other hand, access decision taken by avc_has_perm(), does it<br=
->
-&gt; include MLS too?<br>
-<br>
-</div>Yes, the avc_has_perm() or security_compute_av() decision takes into<=
-br>
-account all policy models implemented within the security server,<br>
-including RBAC, TE, and MLS.<br>
-<font color=3D"#888888"><br>
---<br>
-</font><div><div></div><div class=3D"h5">Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</div></div></blockquote></div><br>
+cheers,
+Stefan
 
---00504502d497a94d62047e5d9a1c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
