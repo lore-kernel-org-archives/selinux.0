@@ -1,78 +1,102 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0ULWace012913
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 16:32:40 -0500
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o0ULWUou025730
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 21:32:31 GMT
-Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
-	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o0ULWN0Z037167
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 22:32:23 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
-	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o0ULWMIF006136
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jan 2010 22:32:23 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Date: Sat, 30 Jan 2010 22:32:22 +0100
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: how to trace an avc denial
-Message-ID: <20100130213222.GO1639@myhost.felk.cvut.cz>
-References: <1264873435.12042.15.camel@localhost>
+Date: Sun, 31 Jan 2010 19:05:44 +0300
+From: AlannY <m@alanny.ru>
+To: SELinux@tycho.nsa.gov
+Subject: Cannot go to enforcing
+Message-ID: <20100131160542.GA17123@alanny-pc.lcl.starlink.ru>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="e2bLSPRkEYxxSNev"
-In-Reply-To: <1264873435.12042.15.camel@localhost>
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi there. Still tryint to go to enforcing in Archlinux.
 
---e2bLSPRkEYxxSNev
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+First of all, my sestatus -v
 
-Stefan Schulze Frielinghaus wrote:
-> What I would like to do is find out if pidgin itself is
-> accessing /proc/1/exe or if it is a library. A simple
-> "grep -R '/proc/' ./pidgin-source" does not provide any helpful output.
-> My guess is that it is a leaked file descriptor because if I start
-> pidgin from a shell, then I do not have this problem (I have a rule for
-> user terminals and so on).
+SELinux status:                 enabled
+SELinuxfs mount:                /selinux
+Current mode:                   permissive
+Mode from config file:          permissive
+Policy version:                 24
+Policy from config file:        refpolicy
 
-Maybe when not started from shell '1' is the PPID of the process and for
-some wicked reason it wants to interact with its parent.
+Process contexts:
+Current context:                user_u:user_r:user_t:s0
+Init context:                   system_u:system_r:init_t:s0
+/sbin/agetty                    system_u:system_r:getty_t:s0
 
-Also, grepping for 'proc' might not yield the desired result. It's
-likely that the app calls a library which in turn does the heavy lifting.
+File contexts:
+Controlling term:               user_u:object_r:user_tty_device_t:s0
+/etc/passwd                     system_u:object_r:etc_t:s0
+/etc/shadow                     system_u:object_r:shadow_t:s0
+/bin/bash                       system_u:object_r:shell_exec_t:s0
+/bin/login                      system_u:object_r:login_exec_t:s0
+/bin/sh                         system_u:object_r:bin_t:s0 -> system_u:object_r:shell_exec_t:s0
+/sbin/agetty                    system_u:object_r:getty_exec_t:s0
+/sbin/init                      system_u:object_r:init_exec_t:s0
+/lib/libc.so.6                  system_u:object_r:lib_t:s0 -> system_u:object_r:lib_t:s0
 
-> Sometimes I use strace, e.g. to find out that a library is doing a call
-> I'm interested in but this time strace does not help me. So any
-> comments/suggestions are very welcomed.
+I'm using latest refpolicy with build.conf as in Fedora:
 
-strace/ltrace should almost universally help, though sometimes you need
-extra privileges to maintain a ptrace() over process tree. When you're
-not starting from shell, strace the 'launcher' program, ie. the one that
-acts on the menu entry and/or hotkey you use to run it.
+TYPE = mcs
+NAME = refpolicy
+DISTRO = redhat
+UNK_PERMS = allow
+DIRECT_INITRC = y
+MONOLITHIC = n
+UBAC = n
+MCS_CATS = 1024
 
-If the trace itself does not make the cause evident, it should at least
-help you narrow down the relevant parts of source code.
+I want to make system as Fedora do. But, when I'm in enforcing in Fedora I have:
 
+    %# id -Z
+    unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
-Michal Svoboda
+On Archlinux I have:
 
+    %# id -Z
+    user_u:user_r:user_t:s0
 
---e2bLSPRkEYxxSNev
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+After
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+    %# su
+    %# setenforce
 
-iEYEARECAAYFAktkpWYACgkQg/fU9pp1uX5rZQCdGT7kAPV/1UYnsP+e1/8fYE58
-dH8An2iYzjdAZWwMdm1+d7fi+goDa4bP
-=MJeK
------END PGP SIGNATURE-----
+I cannot
 
---e2bLSPRkEYxxSNev--
+    %# ls
+
+Error: Permission denied. With non-root user I can `ls` directory. After `exit` from current user,
+nothing shows (must show another login prompt), system hangs and I can only reboot it and boot in permissive.
+
+    %# audit2allow -d
+
+#============= chkpwd_t ==============
+allow chkpwd_t tmpfs_t:dir search;
+
+#============= getty_t ==============
+allow getty_t tmpfs_t:dir search;
+
+#============= sysadm_t ==============
+allow sysadm_t file_t:chr_file { read write };
+
+#============= user_su_t ==============
+allow user_su_t default_context_t:file { read getattr open };
+allow user_su_t init_t:unix_stream_socket connectto;
+allow user_su_t security_t:security compute_user;
+allow user_su_t tmpfs_t:dir search;
+allow user_su_t tmpfs_t:sock_file write;
+
+#============= user_t ==============
+allow user_t self:capability { sys_ptrace dac_override };
+
+What should I do next? Repeat: I want SELinux system in Archlinux that works like Fedora.
+
+Thanks for patience.
+
+-- 
+   )\._.,--....,'``.
+  /,   _.. \   _\  (`._ ,.
+ `._.-(,_..'--(,_..'`-.;.' 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
