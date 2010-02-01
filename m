@@ -1,112 +1,144 @@
-Subject: Re: Cannot go to enforcing
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: AlannY <m@alanny.ru>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20100131160542.GA17123@alanny-pc.lcl.starlink.ru>
-References: <20100131160542.GA17123@alanny-pc.lcl.starlink.ru>
-Content-Type: text/plain
-Date: Mon, 01 Feb 2010 09:33:24 -0500
-Message-Id: <1265034804.12435.20.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 14/15] [src-policy] semodule: user message support
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux@tycho.nsa.gov, csellers@tresys.com, kmacmillan@tresys.com,
+        jbrindle@tresys.com, sds@tycho.nsa.gov
+In-Reply-To: <1264543701-20638-15-git-send-email-ccase@tresys.com>
+References: <1264543701-20638-1-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-2-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-3-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-4-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-5-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-6-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-7-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-8-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-9-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-10-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-11-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-12-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-13-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-14-git-send-email-ccase@tresys.com>
+	 <1264543701-20638-15-git-send-email-ccase@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 01 Feb 2010 10:11:52 -0500
+Message-ID: <1265037112.2128.4.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2010-01-31 at 19:05 +0300, AlannY wrote:
-> Hi there. Still tryint to go to enforcing in Archlinux.
+On Tue, 2010-01-26 at 17:08 -0500, Caleb Case wrote:
+> This adds the -m,--message option to semodule so that users can specify
+> a message for the ChangeLog.
 > 
-> First of all, my sestatus -v
-> 
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          permissive
-> Policy version:                 24
-> Policy from config file:        refpolicy
-> 
-> Process contexts:
-> Current context:                user_u:user_r:user_t:s0
-> Init context:                   system_u:system_r:init_t:s0
-> /sbin/agetty                    system_u:system_r:getty_t:s0
-> 
-> File contexts:
-> Controlling term:               user_u:object_r:user_tty_device_t:s0
-> /etc/passwd                     system_u:object_r:etc_t:s0
-> /etc/shadow                     system_u:object_r:shadow_t:s0
-> /bin/bash                       system_u:object_r:shell_exec_t:s0
-> /bin/login                      system_u:object_r:login_exec_t:s0
-> /bin/sh                         system_u:object_r:bin_t:s0 -> system_u:object_r:shell_exec_t:s0
-> /sbin/agetty                    system_u:object_r:getty_exec_t:s0
-> /sbin/init                      system_u:object_r:init_exec_t:s0
-> /lib/libc.so.6                  system_u:object_r:lib_t:s0 -> system_u:object_r:lib_t:s0
-> 
-> I'm using latest refpolicy with build.conf as in Fedora:
-> 
-> TYPE = mcs
-> NAME = refpolicy
-> DISTRO = redhat
-> UNK_PERMS = allow
-> DIRECT_INITRC = y
-> MONOLITHIC = n
-> UBAC = n
-> MCS_CATS = 1024
-> 
-> I want to make system as Fedora do. But, when I'm in enforcing in Fedora I have:
-> 
->     %# id -Z
->     unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> 
-> On Archlinux I have:
-> 
->     %# id -Z
->     user_u:user_r:user_t:s0
-> 
-> After
-> 
->     %# su
->     %# setenforce
-> 
-> I cannot
-> 
->     %# ls
-> 
-> Error: Permission denied. With non-root user I can `ls` directory. After `exit` from current user,
-> nothing shows (must show another login prompt), system hangs and I can only reboot it and boot in permissive.
-> 
->     %# audit2allow -d
-> 
-> #============= chkpwd_t ==============
-> allow chkpwd_t tmpfs_t:dir search;
-> 
-> #============= getty_t ==============
-> allow getty_t tmpfs_t:dir search;
-> 
-> #============= sysadm_t ==============
-> allow sysadm_t file_t:chr_file { read write };
-> 
-> #============= user_su_t ==============
-> allow user_su_t default_context_t:file { read getattr open };
-> allow user_su_t init_t:unix_stream_socket connectto;
-> allow user_su_t security_t:security compute_user;
-> allow user_su_t tmpfs_t:dir search;
-> allow user_su_t tmpfs_t:sock_file write;
-> 
-> #============= user_t ==============
-> allow user_t self:capability { sys_ptrace dac_override };
-> 
-> What should I do next? Repeat: I want SELinux system in Archlinux that works like Fedora.
 
-semanage login -l shows what?
+Is there plans to add user message support to semanage?  Unfortunately,
+in semanage "-m" is already in use.
 
-You want to map your users to unconfined_u if you want targeted policy
-behavior.  On a stock Fedora system, semanage login -l shows:
-Login Name                SELinux User              MLS/MCS Range            
-
-__default__               unconfined_u              s0-s0:c0.c1023           
-root                      unconfined_u              s0-s0:c0.c1023           
-system_u                  system_u                  s0-s0:c0.c1023   
+>   -m,--message=MSG user message for the ChangeLog
+> 
+> Example:
+> 
+> # semodule -E alsa -m "Allow alsa to execute cowsay."
+> ---
+>  policycoreutils/semodule/semodule.8 |    3 +++
+>  policycoreutils/semodule/semodule.c |   24 +++++++++++++++++++++++-
+>  2 files changed, 26 insertions(+), 1 deletions(-)
+> 
+> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+> index 8baad8b..97d31dd 100644
+> --- a/policycoreutils/semodule/semodule.8
+> +++ b/policycoreutils/semodule/semodule.8
+> @@ -87,6 +87,9 @@ prints help message and quit
+>  .TP
+>  .B  \-v,\-\-verbose     
+>  be verbose
+> +.TP
+> +.B  \-m,\-\-message=MSG
+> +user message for the ChangeLog
+>  
+>  .SH EXAMPLE
+>  .nf
+> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+> index 3536253..c8bf986 100644
+> --- a/policycoreutils/semodule/semodule.c
+> +++ b/policycoreutils/semodule/semodule.c
+> @@ -58,6 +58,7 @@ static int create_store;
+>  static int build;
+>  static int disable_dontaudit;
+>  static uint16_t priority;
+> +static char *message = NULL;
+>  
+>  static semanage_handle_t *sh = NULL;
+>  static char *store;
+> @@ -72,6 +73,8 @@ static void cleanup(void)
+>  		free(commands[num_commands].output);
+>  	}
+>  	free(commands);
+> +
+> +	free(message);
+>  }
+>  
+>  /* Signal handlers. */
+> @@ -134,6 +137,7 @@ static void usage(char *progname)
+>  	printf("  -h,--help        print this message and quit\n");
+>  	printf("  -v,--verbose     be verbose\n");
+>  	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
+> +	printf("  -m,--message=MSG user message for the ChangeLog\n");
+>  }
+>  
+>  /* Sets the global mode variable to new_mode, but only if no other
+> @@ -186,6 +190,7 @@ static void parse_command_line(int argc, char **argv)
+>  		{"output", required_argument, NULL, 'o'},
+>  		{"cil", 0, NULL, 'c'},
+>  		{"edit", required_argument, NULL, 'E'},
+> +		{"message", required_argument, NULL, 'm'},
+>  		{NULL, 0, NULL, 0}
+>  	};
+>  	int i;
+> @@ -195,7 +200,7 @@ static void parse_command_line(int argc, char **argv)
+>  	create_store = 0;
+>  	priority = 400;
+>  	while ((i =
+> -		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:g:o:cE:", opts,
+> +		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnBDp:e:d:g:o:cE:m:", opts,
+>  			    NULL)) != -1) {
+>  		switch (i) {
+>  		case 'b':
+> @@ -294,6 +299,13 @@ static void parse_command_line(int argc, char **argv)
+>  		case 'E':
+>  			set_mode(EDIT_M, optarg);
+>  			break;
+> +		case 'm':
+> +			message = strdup(optarg);
+> +			if (message == NULL) {
+> +				fprintf(stderr, "Failed to set message (out of memory).");
+> +				exit(1);
+> +			}
+> +			break;
+>  		case '?':
+>  		default:{
+>  				usage(argv[0]);
+> @@ -414,6 +426,16 @@ int main(int argc, char *argv[])
+>  		goto cleanup;
+>  	}
+>  
+> +	if (message) {
+> +		result = semanage_set_log_message(sh, message);
+> +		if (result != 0) {
+> +			fprintf(stderr,
+> +				"%s: Failed to set ChangeLog message.",
+> +				argv[0]);
+> +			goto cleanup;
+> +		}
+> +	}
+> +
+>  	for (i = 0; i < num_commands; i++) {
+>  		enum client_modes mode = commands[i].mode;
+>  		char *mode_arg = commands[i].arg;
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
