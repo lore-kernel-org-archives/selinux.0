@@ -1,31 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o0VNKUpF005771
-	for <selinux@tycho.nsa.gov>; Sun, 31 Jan 2010 18:20:30 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o11D3XlU011574
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 08:03:33 -0500
 Received: from hostingsmtp.register.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o0VNKKHE020437
-	for <selinux@tycho.nsa.gov>; Sun, 31 Jan 2010 23:20:20 GMT
-Message-Id: <201001312320.o0VNKR5f022273@vivaldi37.register.it>
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o11D3YaI017892
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 13:03:35 GMT
+Message-Id: <201002011303.o11D3TQR030787@vivaldi36.register.it>
 From: "Guido Trentalancia" <guido@trentalancia.com>
 Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, jmorris@namei.org
+Cc: selinux@tycho.nsa.gov, Refpolicy Mailing List <refpolicy@oss1.tresys.com>
 Subject: Allowing MLS->non-MLS and vice versa upon policy reload
-Date: Mon, 01 Feb 2010 00:20:27 +0100
+Date: Mon, 01 Feb 2010 14:03:28 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen,
+Hello !
 
-I am writing again to include a few more notes about the patch that I just posted.
+When switching at runtime from the standard reference policy and the MLS/MCS reference policy (2.20091117), the ssh server on a Debian Lenny system does not accept new connections until it is restarted.
 
-You might want to check a few duplicate function declarations in ss/services.h and include/security.h (I did not know the best place for them, but when trying to build, selinuxfs.c was complaining about not finding declarations for functions in services.c, so I decided to update and include services.h, not knowing that the global security.h was already including some declarations).
+The following denials are generated:
 
-But I can well move the declarations to security.h if it is better...
+type=1400 audit(1265028026.079:19): avc:  denied  { transition } for  pid=8973 comm="sshd" path="/bin/bash" dev=dm-1 ino=146597 scontext=system_u:system_r:sshd_t:s0 tcontext=root:staff_r:staff_t:s0-s0:c0.c1023 tclass=process
 
-Regards,
+Unfortunately, simply adding a custom module such as the following:
+
+require {
+        type staff_t;
+        type sshd_t;
+        class process transition;
+}
+
+#============= sshd_t ==============
+allow sshd_t staff_t:process transition;
+
+does not help.
+
+I believe the problem arises as soon as the ssh server opens a shell for the user as I get "/bin/bash: Permission denied" after the initial /etc/motd banner (and the connection is dropped at that point).
+
+Does anybody have an idea on how to sort out this issue ?
+
+I believe the server is OpenSSH version 5.1p1, while bash is version 3.2.39(1). I have not had time to test other distributions.
+
+Kind regards,
 
 Guido Trentalancia 
 
