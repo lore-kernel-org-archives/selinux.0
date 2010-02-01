@@ -1,58 +1,109 @@
-Subject: Re: how to trace an avc denial
+Subject: Re: Cannot go to enforcing
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1264873435.12042.15.camel@localhost>
-References: <1264873435.12042.15.camel@localhost>
+To: AlannY <m@alanny.ru>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20100131160542.GA17123@alanny-pc.lcl.starlink.ru>
+References: <20100131160542.GA17123@alanny-pc.lcl.starlink.ru>
 Content-Type: text/plain
-Date: Mon, 01 Feb 2010 09:29:40 -0500
-Message-Id: <1265034580.12435.16.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 01 Feb 2010 09:33:24 -0500
+Message-Id: <1265034804.12435.20.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2010-01-30 at 18:43 +0100, Stefan Schulze Frielinghaus wrote:
-> Hi all,
+On Sun, 2010-01-31 at 19:05 +0300, AlannY wrote:
+> Hi there. Still tryint to go to enforcing in Archlinux.
 > 
-> I'm trying to create a policy for pidgin and hit the following problem:
-> When pidgin is started via the GNOME menu "Applications -> Internet ->
-> Pidgin" then I get the following AVC:
+> First of all, my sestatus -v
 > 
-> type=1400 audit(1264870417.250:22382): avc:  denied  { search } for
-> pid=9114 comm="pidgin" name="1" dev=proc ino=160141
-> scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
-> tcontext=system_u:system_r:init_t:s0 tclass=dir
-> type=1400 audit(1264870417.250:22382): avc:  denied  { read } for
-> pid=9114 comm="pidgin" name="exe" dev=proc ino=160142
-> scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
-> tcontext=system_u:system_r:init_t:s0 tclass=lnk_file
+> SELinux status:                 enabled
+> SELinuxfs mount:                /selinux
+> Current mode:                   permissive
+> Mode from config file:          permissive
+> Policy version:                 24
+> Policy from config file:        refpolicy
 > 
-> At the moment I just don't audit the denials:
+> Process contexts:
+> Current context:                user_u:user_r:user_t:s0
+> Init context:                   system_u:system_r:init_t:s0
+> /sbin/agetty                    system_u:system_r:getty_t:s0
 > 
-> require {
->         type init_t;
-> }
+> File contexts:
+> Controlling term:               user_u:object_r:user_tty_device_t:s0
+> /etc/passwd                     system_u:object_r:etc_t:s0
+> /etc/shadow                     system_u:object_r:shadow_t:s0
+> /bin/bash                       system_u:object_r:shell_exec_t:s0
+> /bin/login                      system_u:object_r:login_exec_t:s0
+> /bin/sh                         system_u:object_r:bin_t:s0 -> system_u:object_r:shell_exec_t:s0
+> /sbin/agetty                    system_u:object_r:getty_exec_t:s0
+> /sbin/init                      system_u:object_r:init_exec_t:s0
+> /lib/libc.so.6                  system_u:object_r:lib_t:s0 -> system_u:object_r:lib_t:s0
 > 
-> dontaudit pidgin_t init_t:dir search;
-> dontaudit pidgin_t init_t:lnk_file read;
+> I'm using latest refpolicy with build.conf as in Fedora:
 > 
-> What I would like to do is find out if pidgin itself is
-> accessing /proc/1/exe or if it is a library. A simple
-> "grep -R '/proc/' ./pidgin-source" does not provide any helpful output.
-> My guess is that it is a leaked file descriptor because if I start
-> pidgin from a shell, then I do not have this problem (I have a rule for
-> user terminals and so on).
+> TYPE = mcs
+> NAME = refpolicy
+> DISTRO = redhat
+> UNK_PERMS = allow
+> DIRECT_INITRC = y
+> MONOLITHIC = n
+> UBAC = n
+> MCS_CATS = 1024
 > 
-> Summarized, how can I find out which library or application part is
-> causing an AVC? I know there won't be any magical way to find the exact
-> part ;-) but some general rules or tips would be very appreciated.
-> Sometimes I use strace, e.g. to find out that a library is doing a call
-> I'm interested in but this time strace does not help me. So any
-> comments/suggestions are very welcomed.
+> I want to make system as Fedora do. But, when I'm in enforcing in Fedora I have:
+> 
+>     %# id -Z
+>     unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> 
+> On Archlinux I have:
+> 
+>     %# id -Z
+>     user_u:user_r:user_t:s0
+> 
+> After
+> 
+>     %# su
+>     %# setenforce
+> 
+> I cannot
+> 
+>     %# ls
+> 
+> Error: Permission denied. With non-root user I can `ls` directory. After `exit` from current user,
+> nothing shows (must show another login prompt), system hangs and I can only reboot it and boot in permissive.
+> 
+>     %# audit2allow -d
+> 
+> #============= chkpwd_t ==============
+> allow chkpwd_t tmpfs_t:dir search;
+> 
+> #============= getty_t ==============
+> allow getty_t tmpfs_t:dir search;
+> 
+> #============= sysadm_t ==============
+> allow sysadm_t file_t:chr_file { read write };
+> 
+> #============= user_su_t ==============
+> allow user_su_t default_context_t:file { read getattr open };
+> allow user_su_t init_t:unix_stream_socket connectto;
+> allow user_su_t security_t:security compute_user;
+> allow user_su_t tmpfs_t:dir search;
+> allow user_su_t tmpfs_t:sock_file write;
+> 
+> #============= user_t ==============
+> allow user_t self:capability { sys_ptrace dac_override };
+> 
+> What should I do next? Repeat: I want SELinux system in Archlinux that works like Fedora.
 
-You might also try enabling syscall audit on the particular process via
-auditctl and see if that gives you any more insight, although that will
-still be limited to the syscalls.
+semanage login -l shows what?
+
+You want to map your users to unconfined_u if you want targeted policy
+behavior.  On a stock Fedora system, semanage login -l shows:
+Login Name                SELinux User              MLS/MCS Range            
+
+__default__               unconfined_u              s0-s0:c0.c1023           
+root                      unconfined_u              s0-s0:c0.c1023           
+system_u                  system_u                  s0-s0:c0.c1023   
 
 -- 
 Stephen Smalley
