@@ -1,50 +1,53 @@
-Subject: Re: Allowing MLS->non-MLS and vice versa upon policy reload
+Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@tycho.nsa.gov, Refpolicy Mailing List <refpolicy@oss1.tresys.com>
-In-Reply-To: <201002011303.o11D3TQR030787@vivaldi36.register.it>
-References: <201002011303.o11D3TQR030787@vivaldi36.register.it>
+Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, jmorris@namei.org
+In-Reply-To: <1265038131.12435.139.camel@moss-pluto.epoch.ncsc.mil>
+References: <201001312243.o0VMh9qn023003@vivaldi39.register.it>
+	 <1265038131.12435.139.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 01 Feb 2010 10:32:31 -0500
-Message-Id: <1265038351.12435.149.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 01 Feb 2010 10:37:55 -0500
+Message-Id: <1265038675.12435.163.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-02-01 at 14:03 +0100, Guido Trentalancia wrote:
-> Hello !
+On Mon, 2010-02-01 at 10:28 -0500, Stephen Smalley wrote:
+> On Sun, 2010-01-31 at 23:43 +0100, Guido Trentalancia wrote:
+> > Dear Stephen,
+> > 
+> > I have created the patch for allowing runtime switch between different policy types, according to your advice and previous discussions on this mailing list. The patch obsoletes the small piece of documentation that I wrote a few days ago to help new users cope with the limitation.
+> > 
+> > I would be very grateful if you could review the patch so that, as soon as it is reviewed, it can be posted to the kernel mailing list. I have done some basic testing and it works on one of my systems, although sometimes I get the following side-effect:
+> > 
+> > /dev/pts/0 changed labels.
+> > Unable to restore tty label...
+> > 
+> > which however doesn't affect the system. I am not sure where that comes from (perhaps bash)...
 > 
-> When switching at runtime from the standard reference policy and the MLS/MCS reference policy (2.20091117), the ssh server on a Debian Lenny system does not accept new connections until it is restarted.
+> pam_selinux and openssh set the tty label on session open and restore it
+> upon session close.  But if it changes in the interim, they won't
+> restore it.  Switching MLS status will appear to change the tty label
+> because of the addition or removal of the MLS suffix.  I guess we'll
+> have to think about how/whether the userspace logic should change.
 > 
-> The following denials are generated:
-> 
-> type=1400 audit(1265028026.079:19): avc:  denied  { transition } for  pid=8973 comm="sshd" path="/bin/bash" dev=dm-1 ino=146597 scontext=system_u:system_r:sshd_t:s0 tcontext=root:staff_r:staff_t:s0-s0:c0.c1023 tclass=process
-> 
-> Unfortunately, simply adding a custom module such as the following:
-> 
-> require {
->         type staff_t;
->         type sshd_t;
->         class process transition;
-> }
-> 
-> #============= sshd_t ==============
-> allow sshd_t staff_t:process transition;
-> 
-> does not help.
-> 
-> I believe the problem arises as soon as the ssh server opens a shell for the user as I get "/bin/bash: Permission denied" after the initial /etc/motd banner (and the connection is dropped at that point).
-> 
-> Does anybody have an idea on how to sort out this issue ?
-> 
-> I believe the server is OpenSSH version 5.1p1, while bash is version 3.2.39(1). I have not had time to test other distributions.
+> > Regards,
+> > 
+> > Guido Trentalancia
+> > 
+> > Author: Guido Trentalancia <guido@trentalancia.com>
+> > Date:   Sun Jan 31 22:10:22 2010 +0100
+> > 
+> >     Allow runtime switching between different policy types (e.g. from a MLS/MCS
+> >     policy to a non-MLS/non-MCS policy or viceversa).
+> > 
+> >     Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+> > 
+> > diff -pruN security-testing-2.6/security/selinux/Makefile security-testing-2.6-new/security/selinux/Makefile
 
-Normally under MCS policy, ssh is started as a ranged daemon (see
-ssh.te) so that it can then create ranged user sessions.  So if you
-start it under standard policy and then switch to MCS, and you then try
-to login to a user who is authorized for something more than just s0,
-then it will fail due to violation of a MCS/MLS constraint in the
-policy.
+Also:
+- Missing diffstat -p1 output before the patch (see SubmittingPatches),
+- Life will be easier for you if you just create the patches using git.
 
 -- 
 Stephen Smalley
