@@ -1,51 +1,75 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Jason Shaw <js44352@gmail.com>
-Subject: Re: Assigning a Type to Network Interfaces
-Date: Mon, 1 Feb 2010 14:53:57 -0500
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, selinux@lists.fedoraproject.org,
-        selinux@tycho.nsa.gov
-References: <c63e41181001140608u37e57495s15bd7c7d2f50a0e3@mail.gmail.com> <201001191754.52088.paul.moore@hp.com> <c63e41181002010944v23df202ft127bcc4e3eeaa172@mail.gmail.com>
-In-Reply-To: <c63e41181002010944v23df202ft127bcc4e3eeaa172@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o11K0OTI014372
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 15:00:24 -0500
+Received: from hostingsmtp.register.it (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o11K06YO017723
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 20:00:10 GMT
+Message-Id: <201002011959.o11Jxxb5015275@vivaldi38.register.it>
+From: "Guido Trentalancia" <guido@trentalancia.com>
+Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
+Date: Mon, 01 Feb 2010 20:59:59 +0100
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201002011453.57654.paul.moore@hp.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 01 February 2010 12:44:56 pm Jason Shaw wrote:
-> Here is what I found. Using netlabelctl, I could successfully restrict all
-> inbound/outbound network access to the system on a specific interface. I
-> could then permit only SSH into the system via allow rules associated with
-> the peer label assigned using netlabelctl unlbl.That worked great. In fact,
-> I'm really excited to explore other possibilities using netlabelctl as it
-> has many valuable possible uses.
+Stephen,
 
-Great, glad to hear you got everything (well, almost) working; I apologize it 
-took so long :)
+I have amended most changes to the patch, according to your feedback and here is a track:
 
-> However, I found that my test app (with the allow rule below), could still
-> read and display packet data coming in on any interface even with all
-> interfaces assigned a unique peer_t using netlabelctl unlbl add. This was
-> true when no explicit allow rules were added for the test app (running in
-> myAPP_t). So while netlabelctl did require explicit allow rules for SSH to
-> send/receive data (I beleive for sshd_t), an allow rule was not required to
-> read raw data off of the interface for myAPP_t.
-> 
-> allow myApp_t self:packet_socket { create read bind ioctl };
-> 
-> My understanding is that a packet socket is read at the device driver
->  level. As such, is it possible that the packet socket is being read before
->  netlabelctl enforcements are taking place?
+The only function that has been made "standard" from "static inline" is mls_range_set which I am using in ss/services.c. Its return value is now being checked for robustness, an appropriate KERN_ERR is generated in case something goes wrong and the appropriate return code is fed back to the caller.
 
-Hmm, yes, I think you've stumbled across a bug in the kernel where the LSM 
-sock_rcv_skb() hook is not called for AF_PACKET.  I need to take a look and 
-verify the rest of the packet families and work up a fix.
+The new field of structure policydb has been named mls_enabled and a new function security_mls_enabled has been created (and declared in the main global header file security.h).
 
--- 
-paul moore
-linux @ hp
+The comment style in services.c has been changed accordingly to the CodingStyle (checkpatch.pl no longer complains).
+
+External declarations have been removed from .c files (selinuxfs.c) and moved to the global header file security.h.
+
+Missing function declarations have been added to the global include files rather than importing header files from ss.
+
+The unused variable config has been removed from ss/policydb.c.
+
+The "n" problem is due to a problem in my mailer. The attached file does not have the missing control character "".
+
+Issues:
+
+- security.h now defines security_mls_enabled() and this function takes struct policydb * as parameter but this structure is not visible to security.h; I overcome this problem by declaring the parameter void *.
+
+- when trying to build, I get the following compilation errors now:
+
+  CC      security/selinux/ss/sidtab.o
+In file included from security/selinux/ss/mls_types.h:20,
+                 from security/selinux/ss/context.h:21,
+                 from security/selinux/ss/sidtab.h:11,
+                 from security/selinux/ss/sidtab.c:13:
+security/selinux/ss/policydb.h:97: error: field 'range' has incomplete type
+security/selinux/ss/policydb.h:98: error: field 'dfltlevel' has incomplete type
+In file included from security/selinux/ss/mls_types.h:20,
+                 from security/selinux/ss/context.h:21,
+                 from security/selinux/ss/sidtab.h:11,
+                 from security/selinux/ss/sidtab.c:13:
+security/selinux/ss/policydb.h:156: error: array type has incomplete element type
+In file included from security/selinux/ss/mls_types.h:20,
+                 from security/selinux/ss/context.h:21,
+                 from security/selinux/ss/sidtab.h:11,
+                 from security/selinux/ss/sidtab.c:13:
+security/selinux/ss/policydb.h:265: warning: 'struct sidtab' declared inside parameter list
+security/selinux/ss/policydb.h:265: warning: its scope is only this definition or declaration, which is probably not what you want
+
+Note that policydb.h includes symtab.h, avtab.h, sidtab.h, ebitmap.h, mls_types.h, context.h, constraint.h.
+
+So there must be something wrong in mls_types.h, that's why I moved the inline functions to a separate .c file.
+
+What do you say ?
+
+Regards,
+
+Guido 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
