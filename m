@@ -1,79 +1,42 @@
-Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o11IQ9Q7005888
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 13:26:09 -0500
+Received: from hostingsmtp.register.it (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o11IPxYO003323
+	for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2010 18:26:01 GMT
+Message-Id: <201002011825.o11IPhsu011947@vivaldi36.register.it>
+From: "Guido Trentalancia" <guido@trentalancia.com>
+Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, jmorris@namei.org
-In-Reply-To: <201001312243.o0VMh9qn023003@vivaldi39.register.it>
-References: <201001312243.o0VMh9qn023003@vivaldi39.register.it>
-Content-Type: text/plain
-Date: Mon, 01 Feb 2010 13:16:06 -0500
-Message-Id: <1265048166.12435.206.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
+Date: Mon, 01 Feb 2010 19:25:43 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-One last comment below:
+Stephen,
 
-On Sun, 2010-01-31 at 23:43 +0100, Guido Trentalancia wrote:
-> diff -pruN security-testing-2.6/security/selinux/ss/services.c security-testing-2.6-new/security/selinux/ss/services.c
-> --- security-testing-2.6/security/selinux/ss/services.c	2010-01-29 02:02:47.742042805 +0100
-> +++ security-testing-2.6-new/security/selinux/ss/services.c	2010-01-31 23:28:26.440336638 +0100
-> @@ -1614,9 +1620,29 @@ static int convert_context(u32 key,
->  		goto bad;
->  	c->type = typdatum->value;
->  
-> -	rc = mls_convert_context(args->oldp, args->newp, c);
-> -	if (rc)
-> -		goto bad;
-> +	/* Convert the MLS/MCS fields or deal with policy type switch */
-> +	if (args->oldp->selinux_mls_enabled
-> +	    && args->newp->selinux_mls_enabled) {
-> +		rc = mls_convert_context(args->oldp, args->newp, c);
-> +		if (rc)
-> +			goto bad;
-> +	} else if (args->oldp->selinux_mls_enabled
-> +		   && !args->newp->selinux_mls_enabled)
-> +	/* Switching between MLS/MCS and non-MLS/non-MCS policy: */
-> +	/* free any storage used by the MLS fields in the        */
-> +	/* context for all existing entries in the sidtab.       */
-> +		mls_context_destroy(args->oldp, c);
-> +	else if (!args->oldp->selinux_mls_enabled
-> +		 && args->newp->selinux_mls_enabled) {
-> +	/* Switching between non-MLS/non-MCS and MLS/MCS policy:  */
-> +	/* ensure that the MLS fields of the context for all      */
-> +	/* existing entries in the sidtab are filled in with a    */
-> +	/* suitable default value, likely taken from one of the   */
-> +	/* initial SIDs.                                          */
-> +		oc = args->newp->ocontexts[OCON_ISID];
-> +		range = &oc->context[0].range;
-> +		mls_range_set(c, range);
-> +	}
+thanks very much for your last comment. I always forgot to talk about that, despite my intention was to discuss it... It's just that there were many tiny details to discuss.
 
-ocontexts[OCON_ISID] is a list of initial SIDs and their contexts.
-Your current code takes the MLS range from whatever happens to be the
-first entry in the list and uses that for all of the contexts.  That
-isn't very well-defined.  At present, the first entry in the list
-happens to be the last initial SID just by virtue of how the list is
-constructed, but nothing else relies on any ordering of that list.
+> ocontexts[OCON_ISID] is a list of initial SIDs and their 
+> contexts. Your current code takes the MLS range from 
+> whatever happens to be the first entry in the list and uses 
+> that for all of the contexts.
 
-We could scan the list for a particular initial SID, e.g.
-	while (oc && oc->sid[0] != SECINITSID_UNLABELED)
-		oc = oc->next;
+At the beginning I was scanning for "unlabeled" in oc->u.name with strcmp(), but then I wasn't sure about adding extra complexity to the code and I left that out waiting for your comments.
 
-That would at least give us well-defined behavior regardless of the list
-order.  However, it still doesn't really reflect what would happen if
-the system had booted with the MLS/MCS policy in the first place, as
-demonstrated by the sshd behavior.
+At present, for the latest reference policy the first initial SID is "kernel", which surely isn't the best match, but as I already told you I was waiting for some feedback on details.
 
-Another difference is that initial SID contexts are only loaded upon the
-first policy load (via policydb_load_isids).  I suppose
-convert_context() could in fact just replace c with the contents of
-oc->context[0] if key == oc->sid[0] to update the initial SIDs, although
-care would need to be taken that the number of initial SIDs did not
-change.
+I will introduce your piece of code (assuming there is always going to be an entry for SECINITSID_UNLABELED in the list).
 
--- 
-Stephen Smalley
-National Security Agency
+By the way, is there any drawback in loading the initial SIDs again from security_load_policy() using the appropriate function that you mentioned ?
+
+Regards,
+
+Guido 
 
 
 --
