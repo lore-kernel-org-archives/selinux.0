@@ -1,70 +1,51 @@
-Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, jmorris@namei.org
-In-Reply-To: <201002011825.o11IPhsu011947@vivaldi36.register.it>
-References: <201002011825.o11IPhsu011947@vivaldi36.register.it>
-Content-Type: text/plain
-Date: Mon, 01 Feb 2010 14:15:30 -0500
-Message-Id: <1265051730.12435.246.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Jason Shaw <js44352@gmail.com>
+Subject: Re: Assigning a Type to Network Interfaces
+Date: Mon, 1 Feb 2010 14:53:57 -0500
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, selinux@lists.fedoraproject.org,
+        selinux@tycho.nsa.gov
+References: <c63e41181001140608u37e57495s15bd7c7d2f50a0e3@mail.gmail.com> <201001191754.52088.paul.moore@hp.com> <c63e41181002010944v23df202ft127bcc4e3eeaa172@mail.gmail.com>
+In-Reply-To: <c63e41181002010944v23df202ft127bcc4e3eeaa172@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201002011453.57654.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-02-01 at 19:25 +0100, Guido Trentalancia wrote:
-> Stephen,
-> 
-> thanks very much for your last comment. I always forgot to talk about that, despite my intention was to discuss it... It's just that there were many tiny details to discuss.
-> 
-> > ocontexts[OCON_ISID] is a list of initial SIDs and their 
-> > contexts. Your current code takes the MLS range from 
-> > whatever happens to be the first entry in the list and uses 
-> > that for all of the contexts.
-> 
-> At the beginning I was scanning for "unlabeled" in oc->u.name with
-> strcmp(), but then I wasn't sure about adding extra complexity to the
-> code and I left that out waiting for your comments.
-> 
-> At present, for the latest reference policy the first initial SID is
-> "kernel", which surely isn't the best match, but as I already told you
-> I was waiting for some feedback on details.
-> 
-> I will introduce your piece of code (assuming there is always going to
-> be an entry for SECINITSID_UNLABELED in the list).
-> 
-> By the way, is there any drawback in loading the initial SIDs again
-> from security_load_policy() using the appropriate function that you
-> mentioned ?
+On Monday 01 February 2010 12:44:56 pm Jason Shaw wrote:
+> Here is what I found. Using netlabelctl, I could successfully restrict all
+> inbound/outbound network access to the system on a specific interface. I
+> could then permit only SSH into the system via allow rules associated with
+> the peer label assigned using netlabelctl unlbl.That worked great. In fact,
+> I'm really excited to explore other possibilities using netlabelctl as it
+> has many valuable possible uses.
 
-policydb_load_isids() is only called from security_load_policy() in the
-initial policy load case (!ss_initialized) to initially populate the SID
-table from the policy.
+Great, glad to hear you got everything (well, almost) working; I apologize it 
+took so long :)
 
-In the policy reload case, we instead clone the existing SID table,
-convert the entries, and ignore the initial SID entries in the policy
-file.  If you were to try to call policydb_load_isids() as is, you'd end
-up duplicating SID entries with the cloned table, which should yield an
-EEXIST error from sidtab_insert().  I suppose you could call
-policydb_load_isids() first, change clone_sid() to skip initial SIDs,
-and change convert_context() to skip initial SIDs.
+> However, I found that my test app (with the allow rule below), could still
+> read and display packet data coming in on any interface even with all
+> interfaces assigned a unique peer_t using netlabelctl unlbl add. This was
+> true when no explicit allow rules were added for the test app (running in
+> myAPP_t). So while netlabelctl did require explicit allow rules for SSH to
+> send/receive data (I beleive for sshd_t), an allow rule was not required to
+> read raw data off of the interface for myAPP_t.
+> 
+> allow myApp_t self:packet_socket { create read bind ioctl };
+> 
+> My understanding is that a packet socket is read at the device driver
+>  level. As such, is it possible that the packet socket is being read before
+>  netlabelctl enforcements are taking place?
 
-As I recall, we didn't support reloading them at runtime because:
-a) They were only to support system initialization in the first place,
-and
-b) We couldn't really guarantee that any changes to them would be
-retroactively applied, and
-c) We don't really support dynamic extension of them.
-
-We don't presently support any changes to the set of initial SIDs other
-than their contexts; see the third item under:
-http://selinuxproject.org/page/Kernel_Development
-
-Support for dynamic discovery of classes and permissions is in 2.6.33.
+Hmm, yes, I think you've stumbled across a bug in the kernel where the LSM 
+sock_rcv_skb() hook is not called for AF_PACKET.  I need to take a look and 
+verify the rest of the packet families and work up a fix.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
