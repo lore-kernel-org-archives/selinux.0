@@ -1,41 +1,58 @@
-Subject: Re: access decision API
+Subject: Re: how to trace an avc denial
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: michel m <michel.mcgregor@gmail.com>
+To: Stefan Schulze Frielinghaus <stefan@seekline.net>
 Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <bb74313d1001300033g189165b9t7705614dcab0ced3@mail.gmail.com>
-References: <bb74313d1001261320n8694abel857f6eba1066c560@mail.gmail.com>
-	 <1264541641.19890.77.camel@moss-pluto.epoch.ncsc.mil>
-	 <1264542993.19890.88.camel@moss-pluto.epoch.ncsc.mil>
-	 <bb74313d1001270640s43b6c88dmafdb6aa9d3cf3015@mail.gmail.com>
-	 <1264617201.17372.2.camel@moss-pluto.epoch.ncsc.mil>
-	 <bb74313d1001300033g189165b9t7705614dcab0ced3@mail.gmail.com>
+In-Reply-To: <1264873435.12042.15.camel@localhost>
+References: <1264873435.12042.15.camel@localhost>
 Content-Type: text/plain
-Date: Mon, 01 Feb 2010 09:28:06 -0500
-Message-Id: <1265034486.12435.14.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 01 Feb 2010 09:29:40 -0500
+Message-Id: <1265034580.12435.16.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2010-01-30 at 12:03 +0330, michel m wrote:
-> as the last question, 
-> what I need, is to ask the security server if a data residing in
-> userspace owning a context, can be written to a file in OS.
-> does it make sense if I do it in this way :
->     avc_has_perm(data_sid  ,file_sid,  SECLASS_FILE , null, null)
+On Sat, 2010-01-30 at 18:43 +0100, Stefan Schulze Frielinghaus wrote:
+> Hi all,
 > 
-> I am confused, because I guessed using such a syntax means if a
-> process is able to write to file, but here we are going to check if
-> data can be written to file.
+> I'm trying to create a policy for pidgin and hit the following problem:
+> When pidgin is started via the GNOME menu "Applications -> Internet ->
+> Pidgin" then I get the following AVC:
 > 
-> if everything ok, how the action is specified, that is write?
+> type=1400 audit(1264870417.250:22382): avc:  denied  { search } for
+> pid=9114 comm="pidgin" name="1" dev=proc ino=160141
+> scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
+> tcontext=system_u:system_r:init_t:s0 tclass=dir
+> type=1400 audit(1264870417.250:22382): avc:  denied  { read } for
+> pid=9114 comm="pidgin" name="exe" dev=proc ino=160142
+> scontext=unconfined_u:unconfined_r:pidgin_t:s0-s0:c0.c1023
+> tcontext=system_u:system_r:init_t:s0 tclass=lnk_file
+> 
+> At the moment I just don't audit the denials:
+> 
+> require {
+>         type init_t;
+> }
+> 
+> dontaudit pidgin_t init_t:dir search;
+> dontaudit pidgin_t init_t:lnk_file read;
+> 
+> What I would like to do is find out if pidgin itself is
+> accessing /proc/1/exe or if it is a library. A simple
+> "grep -R '/proc/' ./pidgin-source" does not provide any helpful output.
+> My guess is that it is a leaked file descriptor because if I start
+> pidgin from a shell, then I do not have this problem (I have a rule for
+> user terminals and so on).
+> 
+> Summarized, how can I find out which library or application part is
+> causing an AVC? I know there won't be any magical way to find the exact
+> part ;-) but some general rules or tips would be very appreciated.
+> Sometimes I use strace, e.g. to find out that a library is doing a call
+> I'm interested in but this time strace does not help me. So any
+> comments/suggestions are very welcomed.
 
-I would recommend defining a new security class and permission for your
-purpose to avoid confusion with existing ones and to avoid conflicts
-with any future additions to the existing ones.  You can define new
-classes and permissions by adding them to the security_classes and
-access_vectors files under refpolicy/policy/flask in the reference
-policy.  Then you can define your own SECCLASS_FOO and FOO__WRITE
-definitions, and establish a mapping via selinux_set_mapping().
+You might also try enabling syscall audit on the particular process via
+auditctl and see if that gives you any more insight, although that will
+still be limited to the syscalls.
 
 -- 
 Stephen Smalley
