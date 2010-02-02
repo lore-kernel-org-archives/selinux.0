@@ -1,104 +1,151 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o12MTGvf017121
-	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 17:29:16 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o12MaWFb017476
+	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 17:36:32 -0500
 Received: from authsmtp.register.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o12MTCvW023667
-	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 22:29:19 GMT
-Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o12MaKgF028265
+	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 22:36:21 GMT
+Subject: [PATCH] Load the initial SIDs upon every policy load
 From: Guido Trentalancia <guido@trentalancia.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1265048166.12435.206.camel@moss-pluto.epoch.ncsc.mil>
-References: <201001312243.o0VMh9qn023003@vivaldi39.register.it>
-	 <1265048166.12435.206.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 02 Feb 2010 23:28:56 +0100
-Message-Id: <1265149736.3605.15.camel@tesla.lan>
+Content-Type: multipart/mixed; boundary="=-u6XAlnPEUWbgVMdQNMaN"
+Date: Tue, 02 Feb 2010 23:36:21 +0100
+Message-Id: <1265150181.3605.23.camel@tesla.lan>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+
+--=-u6XAlnPEUWbgVMdQNMaN
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
 Stephen,
 
-the message quoted below is the message that I was referring to, when I
-recalled that the actual behaviour of convert_context() is sub-optimal
-(the ssh server case).
+attached please find the tiny patch for always loading the initial SIDs.
+Should I say "for review" ? It relies on SECINITSID_NUM which at the
+moment is statically defined in flask.h (and represents the maximum
+initial SID).
 
-On Mon, 2010-02-01 at 13:16 -0500, Stephen Smalley wrote:
-> One last comment below:
-> 
-> On Sun, 2010-01-31 at 23:43 +0100, Guido Trentalancia wrote:
-> > diff -pruN security-testing-2.6/security/selinux/ss/services.c security-testing-2.6-new/security/selinux/ss/services.c
-> > --- security-testing-2.6/security/selinux/ss/services.c	2010-01-29 02:02:47.742042805 +0100
-> > +++ security-testing-2.6-new/security/selinux/ss/services.c	2010-01-31 23:28:26.440336638 +0100
-> > @@ -1614,9 +1620,29 @@ static int convert_context(u32 key,
-> >  		goto bad;
-> >  	c->type = typdatum->value;
-> >  
-> > -	rc = mls_convert_context(args->oldp, args->newp, c);
-> > -	if (rc)
-> > -		goto bad;
-> > +	/* Convert the MLS/MCS fields or deal with policy type switch */
-> > +	if (args->oldp->selinux_mls_enabled
-> > +	    && args->newp->selinux_mls_enabled) {
-> > +		rc = mls_convert_context(args->oldp, args->newp, c);
-> > +		if (rc)
-> > +			goto bad;
-> > +	} else if (args->oldp->selinux_mls_enabled
-> > +		   && !args->newp->selinux_mls_enabled)
-> > +	/* Switching between MLS/MCS and non-MLS/non-MCS policy: */
-> > +	/* free any storage used by the MLS fields in the        */
-> > +	/* context for all existing entries in the sidtab.       */
-> > +		mls_context_destroy(args->oldp, c);
-> > +	else if (!args->oldp->selinux_mls_enabled
-> > +		 && args->newp->selinux_mls_enabled) {
-> > +	/* Switching between non-MLS/non-MCS and MLS/MCS policy:  */
-> > +	/* ensure that the MLS fields of the context for all      */
-> > +	/* existing entries in the sidtab are filled in with a    */
-> > +	/* suitable default value, likely taken from one of the   */
-> > +	/* initial SIDs.                                          */
-> > +		oc = args->newp->ocontexts[OCON_ISID];
-> > +		range = &oc->context[0].range;
-> > +		mls_range_set(c, range);
-> > +	}
-> 
-> ocontexts[OCON_ISID] is a list of initial SIDs and their contexts.
-> Your current code takes the MLS range from whatever happens to be the
-> first entry in the list and uses that for all of the contexts.  That
-> isn't very well-defined.  At present, the first entry in the list
-> happens to be the last initial SID just by virtue of how the list is
-> constructed, but nothing else relies on any ordering of that list.
-> 
-> We could scan the list for a particular initial SID, e.g.
-> 	while (oc && oc->sid[0] != SECINITSID_UNLABELED)
-> 		oc = oc->next;
-> 
-> That would at least give us well-defined behavior regardless of the list
-> order.  However, it still doesn't really reflect what would happen if
-> the system had booted with the MLS/MCS policy in the first place, as
-> demonstrated by the sshd behavior.
+Author: Guido Trentalancia <guido@trentalancia.com>
+Date:   Mon Feb 02 22:11:05 2010 +0100
 
-This is the issue that is bothering me now. We shall tackle it,
-preferably in the same patch, because otherwise we would break the
-stability of the whole SELinux code.
+    Always load the initial SIDs, even in the case of a policy
+    reload and not just at the initial policy load. This comes
+    particularly handy after the introduction of a recent
+    patch for enabling runtime switching between different
+    policy types, although this patch is in theory independent
+    from that feature.
 
-> Another difference is that initial SID contexts are only loaded upon the
-> first policy load (via policydb_load_isids).  I suppose
-> convert_context() could in fact just replace c with the contents of
-> oc->context[0] if key == oc->sid[0] to update the initial SIDs, although
-> care would need to be taken that the number of initial SIDs did not
-> change.
+    Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
 
-We now have a very simple separate patch that calls
-policydb_load_isids() at every policy load and not just at the initial
-load. I have tested it and it works fine, although it still doesn't
-solve the "ssh server issue".
+---
 
-Or is it the "ssh server" that needs to react on that ?
+ security/selinux/ss/services.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-Regards,
+--- security-testing-2.6/security/selinux/ss/services.c	2010-01-29 02:02:47.742042805 +0100
++++ security-testing-2.6-isids/security/selinux/ss/services.c	2010-02-02 22:09:47.809993219 +0100
+@@ -1506,7 +1506,10 @@ static int clone_sid(u32 sid,
+ {
+ 	struct sidtab *s = arg;
+ 
+-	return sidtab_insert(s, sid, context);
++	if (sid > SECINITSID_NUM)
++		return sidtab_insert(s, sid, context);
++	else
++		return 0;
+ }
+ 
+ static inline int convert_context_handle_invalid_context(struct context *context)
+@@ -1552,7 +1555,10 @@ static int convert_context(u32 key,
+ 	struct user_datum *usrdatum;
+ 	char *s;
+ 	u32 len;
+-	int rc;
++	int rc = 0;
++
++	if (key <= SECINITSID_NUM)
++		goto out;
+ 
+ 	args = p;
+ 
+@@ -1712,9 +1718,9 @@ int security_load_policy(void *data, siz
+ 	if (policydb_read(&newpolicydb, fp))
+ 		return -EINVAL;
+ 
+-	if (sidtab_init(&newsidtab)) {
++	if (policydb_load_isids(&newpolicydb, &newsidtab)) {
+ 		policydb_destroy(&newpolicydb);
+-		return -ENOMEM;
++		return -EINVAL;
+ 	}
+ 
+ 	if (selinux_set_mapping(&newpolicydb, secclass_map,
 
-Guido
+
+--=-u6XAlnPEUWbgVMdQNMaN
+Content-Disposition: attachment; filename="always_load_initial_sids.patch"
+Content-Type: text/x-patch; name="always_load_initial_sids.patch"; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Author: Guido Trentalancia <guido@trentalancia.com>
+Date:   Mon Feb 02 22:11:05 2010 +0100
+
+    Always load the initial SIDs, even in the case of a policy
+    reload and not just at the initial policy load. This comes
+    particularly handy after the introduction of a recent
+    patch for enabling runtime switching between different
+    policy types, although this patch is in theory independent
+    from that feature.
+
+    Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+
+---
+
+ security/selinux/ss/services.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+--- security-testing-2.6/security/selinux/ss/services.c	2010-01-29 02:02:47.742042805 +0100
++++ security-testing-2.6-isids/security/selinux/ss/services.c	2010-02-02 22:09:47.809993219 +0100
+@@ -1506,7 +1506,10 @@ static int clone_sid(u32 sid,
+ {
+ 	struct sidtab *s = arg;
+ 
+-	return sidtab_insert(s, sid, context);
++	if (sid > SECINITSID_NUM)
++		return sidtab_insert(s, sid, context);
++	else
++		return 0;
+ }
+ 
+ static inline int convert_context_handle_invalid_context(struct context *context)
+@@ -1552,7 +1555,10 @@ static int convert_context(u32 key,
+ 	struct user_datum *usrdatum;
+ 	char *s;
+ 	u32 len;
+-	int rc;
++	int rc = 0;
++
++	if (key <= SECINITSID_NUM)
++		goto out;
+ 
+ 	args = p;
+ 
+@@ -1712,9 +1718,9 @@ int security_load_policy(void *data, siz
+ 	if (policydb_read(&newpolicydb, fp))
+ 		return -EINVAL;
+ 
+-	if (sidtab_init(&newsidtab)) {
++	if (policydb_load_isids(&newpolicydb, &newsidtab)) {
+ 		policydb_destroy(&newpolicydb);
+-		return -ENOMEM;
++		return -EINVAL;
+ 	}
+ 
+ 	if (selinux_set_mapping(&newpolicydb, secclass_map,
+
+--=-u6XAlnPEUWbgVMdQNMaN--
 
 
 --
