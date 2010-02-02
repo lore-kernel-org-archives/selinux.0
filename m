@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o12Fwifd021228
-	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 10:58:44 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o12G6lXj022015
+	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 11:06:47 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o12FwYp5029346
-	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 15:58:34 GMT
-Message-ID: <4B684BD3.8020000@redhat.com>
-Date: Tue, 02 Feb 2010 10:59:15 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o12G6bp5004592
+	for <selinux@tycho.nsa.gov>; Tue, 2 Feb 2010 16:06:37 GMT
+Message-ID: <4B684DB6.7080401@redhat.com>
+Date: Tue, 02 Feb 2010 11:07:18 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Dominick Grift <domg472@gmail.com>
@@ -31,30 +31,8 @@ On 02/02/2010 10:25 AM, Dominick Grift wrote:
 > 
 > Any idea what may be causing this?
 > 
+It is a bug in fedora rawhide.  I will fix tonight.
 
-Nope.
-
-That was defined up until f12 policy but not in rawhide.
-
-seinfo  -t | grep xprop
-   mozilla_xproperty_t
-   seclabel_xproperty_t
-   remote_xproperty_t
-   tvtime_xproperty_t
-   vmware_xproperty_t
-   ethereal_xproperty_t
-   bluetooth_helper_xproperty_t
-   games_xproperty_t
-   clipboard_xproperty_t
-   mplayer_xproperty_t
-   nsplugin_xproperty_t
-   sandbox_xserver_xproperty_t
-   ssh_xproperty_t
-   xdm_xproperty_t
-   xproperty_t
-   java_xproperty_t
-   root_xproperty_t
-   user_xproperty_t
 
 --
 This message was distributed to subscribers of the selinux mailing list.
