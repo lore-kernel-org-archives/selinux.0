@@ -1,14 +1,8 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o13JluAk018782
-	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 14:47:57 -0500
-Received: from authsmtp.register.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o13Jlxak027744
-	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 19:48:00 GMT
 Subject: Re: Allowing MLS->non-MLS and vice versa upon policy reload
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Guido Trentalancia <guido@trentalancia.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1265221396.12805.70.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1265226472.3013.158.camel@tesla.lan>
 References: <1265212634.3013.19.camel@tesla.lan>
 	 <1265213477.12805.15.camel@moss-pluto.epoch.ncsc.mil>
 	 <1265213884.3013.29.camel@tesla.lan>
@@ -21,24 +15,29 @@ References: <1265212634.3013.19.camel@tesla.lan>
 	 <1265219173.12805.42.camel@moss-pluto.epoch.ncsc.mil>
 	 <1265219272.3013.55.camel@tesla.lan>
 	 <1265221396.12805.70.camel@moss-pluto.epoch.ncsc.mil>
+	 <1265226472.3013.158.camel@tesla.lan>
 Content-Type: text/plain
-Date: Wed, 03 Feb 2010 20:47:52 +0100
-Message-Id: <1265226472.3013.158.camel@tesla.lan>
+Date: Wed, 03 Feb 2010 14:57:52 -0500
+Message-Id: <1265227072.12805.77.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen,
+On Wed, 2010-02-03 at 20:47 +0100, Guido Trentalancia wrote:
+> Stephen,
+> 
+> the openssh server issue is specific to Debian or at least specific to
+> version 5.1p1. The current version is 5.3p1 and it does not suffer that
+> problem, therefore the issue should not be considered any further.
+> 
+> Should I submit both patches to the kernel mailing list or what ?
 
-the openssh server issue is specific to Debian or at least specific to
-version 5.1p1. The current version is 5.3p1 and it does not suffer that
-problem, therefore the issue should not be considered any further.
+Not necessary; they should get taken into security-testing-2.6 in due
+time, given that they were acked unless someone objects to them.
 
-Should I submit both patches to the kernel mailing list or what ?
-
-Kind regards,
-
-Guido Trentalancia
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
