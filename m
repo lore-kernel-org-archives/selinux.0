@@ -1,440 +1,498 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o139AhR9011943
-	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 04:10:43 -0500
-Received: from bay0-omc1-s15.bay0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o139AkWX025107
-	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 09:10:46 GMT
-Message-ID: <BAY111-W11086FDE54CE08B04EFF40AB560@phx.gbl>
-Content-Type: multipart/mixed;
-	boundary="_80d4c217-a150-4968-802e-f04904aa0691_"
-From: TaurusHarry <harrytaurus2002@hotmail.com>
-To: refpolicy-mailing-list <refpolicy@oss1.tresys.com>
-CC: selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: Ask for comments about some patches for refpolicy-2.20091117
-Date: Wed, 3 Feb 2010 09:10:40 +0000
-MIME-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o13FegDF030633
+	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 10:40:42 -0500
+Received: from authsmtp.register.it (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o13FeVOh012961
+	for <selinux@tycho.nsa.gov>; Wed, 3 Feb 2010 15:40:32 GMT
+Subject: [PATCH] Allowing MLS->non-MLS and vice versa upon policy reload
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 03 Feb 2010 16:40:20 +0100
+Message-Id: <1265211620.3013.2.camel@tesla.lan>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: multipart/alternative;
-	boundary="_53e117b3-c848-494c-84de-54fcd4f322df_"
+Author: Guido Trentalancia <guido@trentalancia.com>
+Date:   Mon Feb 02 23:11:07 2010 +0100
 
---_53e117b3-c848-494c-84de-54fcd4f322df_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+    Allow runtime switching between different policy types (e.g. from a MLS/MCS
+    policy to a non-MLS/non-MCS policy or viceversa).
+
+    Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+
+---
+
+ security/selinux/include/security.h |    3 -
+ security/selinux/selinuxfs.c        |    3 -
+ security/selinux/ss/context.h       |   12 -----
+ security/selinux/ss/mls.c           |   26 +++++-----
+ security/selinux/ss/mls.h           |    2 
+ security/selinux/ss/mls_types.h     |    7 --
+ security/selinux/ss/policydb.c      |   24 +---------
+ security/selinux/ss/policydb.h      |    4 +
+ security/selinux/ss/services.c      |   62 +++++++++++++++++++++++---
+ 9 files changed, 84 insertions(+), 59 deletions(-)
+
+diff -pruN security-testing-2.6/security/selinux/include/security.h security-testing-2.6-new/security/selinux/include/security.h
+--- security-testing-2.6/security/selinux/include/security.h	2010-01-29 02:02:47.737045258 +0100
++++ security-testing-2.6-new/security/selinux/include/security.h	2010-02-01 23:12:28.898233272 +0100
+@@ -57,7 +57,6 @@
+ struct netlbl_lsm_secattr;
+ 
+ extern int selinux_enabled;
+-extern int selinux_mls_enabled;
+ 
+ /* Policy capabilities */
+ enum {
+@@ -80,6 +79,8 @@ extern int selinux_policycap_openperm;
+ /* limitation of boundary depth  */
+ #define POLICYDB_BOUNDS_MAXDEPTH	4
+ 
++int security_mls_enabled(void);
++
+ int security_load_policy(void *data, size_t len);
+ 
+ int security_policycap_supported(unsigned int req_cap);
+diff -pruN security-testing-2.6/security/selinux/selinuxfs.c security-testing-2.6-new/security/selinux/selinuxfs.c
+--- security-testing-2.6/security/selinux/selinuxfs.c	2010-01-29 02:02:47.738046835 +0100
++++ security-testing-2.6-new/security/selinux/selinuxfs.c	2010-02-01 22:06:21.709234039 +0100
+@@ -282,7 +282,8 @@ static ssize_t sel_read_mls(struct file 
+ 	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+ 
+-	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_mls_enabled);
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
++			   security_mls_enabled());
+ 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+ }
+ 
+diff -pruN security-testing-2.6/security/selinux/ss/context.h security-testing-2.6-new/security/selinux/ss/context.h
+--- security-testing-2.6/security/selinux/ss/context.h	2010-01-29 01:06:42.160060332 +0100
++++ security-testing-2.6-new/security/selinux/ss/context.h	2010-02-02 21:49:41.210011207 +0100
+@@ -41,9 +41,6 @@ static inline int mls_context_cpy(struct
+ {
+ 	int rc;
+ 
+-	if (!selinux_mls_enabled)
+-		return 0;
+-
+ 	dst->range.level[0].sens = src->range.level[0].sens;
+ 	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
+ 	if (rc)
+@@ -64,9 +61,6 @@ static inline int mls_context_cpy_low(st
+ {
+ 	int rc;
+ 
+-	if (!selinux_mls_enabled)
+-		return 0;
+-
+ 	dst->range.level[0].sens = src->range.level[0].sens;
+ 	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[0].cat);
+ 	if (rc)
+@@ -82,9 +76,6 @@ out:
+ 
+ static inline int mls_context_cmp(struct context *c1, struct context *c2)
+ {
+-	if (!selinux_mls_enabled)
+-		return 1;
+-
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+ 		ebitmap_cmp(&c1->range.level[0].cat, &c2->range.level[0].cat) &&
+ 		(c1->range.level[1].sens == c2->range.level[1].sens) &&
+@@ -93,9 +84,6 @@ static inline int mls_context_cmp(struct
+ 
+ static inline void mls_context_destroy(struct context *c)
+ {
+-	if (!selinux_mls_enabled)
+-		return;
+-
+ 	ebitmap_destroy(&c->range.level[0].cat);
+ 	ebitmap_destroy(&c->range.level[1].cat);
+ 	mls_context_init(c);
+diff -pruN security-testing-2.6/security/selinux/ss/mls.c security-testing-2.6-new/security/selinux/ss/mls.c
+--- security-testing-2.6/security/selinux/ss/mls.c	2010-01-29 02:02:47.739046177 +0100
++++ security-testing-2.6-new/security/selinux/ss/mls.c	2010-02-01 22:15:48.062233721 +0100
+@@ -39,7 +39,7 @@ int mls_compute_context_len(struct conte
+ 	struct ebitmap *e;
+ 	struct ebitmap_node *node;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return 0;
+ 
+ 	len = 1; /* for the beginning ":" */
+@@ -93,7 +93,7 @@ void mls_sid_to_context(struct context *
+ 	struct ebitmap *e;
+ 	struct ebitmap_node *node;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return;
+ 
+ 	scontextp = *scontext;
+@@ -200,7 +200,7 @@ int mls_context_isvalid(struct policydb 
+ {
+ 	struct user_datum *usrdatum;
+ 
+-	if (!selinux_mls_enabled)
++	if (!p->mls_enabled)
+ 		return 1;
+ 
+ 	if (!mls_range_isvalid(p, &c->range))
+@@ -253,7 +253,7 @@ int mls_context_to_sid(struct policydb *
+ 	struct cat_datum *catdatum, *rngdatum;
+ 	int l, rc = -EINVAL;
+ 
+-	if (!selinux_mls_enabled) {
++	if (!pol->mls_enabled) {
+ 		if (def_sid != SECSID_NULL && oldc)
+ 			*scontext += strlen(*scontext)+1;
+ 		return 0;
+@@ -387,7 +387,7 @@ int mls_from_string(char *str, struct co
+ 	char *tmpstr, *freestr;
+ 	int rc;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return -EINVAL;
+ 
+ 	/* we need freestr because mls_context_to_sid will change
+@@ -407,7 +407,7 @@ int mls_from_string(char *str, struct co
+ /*
+  * Copies the MLS range `range' into `context'.
+  */
+-static inline int mls_range_set(struct context *context,
++int mls_range_set(struct context *context,
+ 				struct mls_range *range)
+ {
+ 	int l, rc = 0;
+@@ -427,7 +427,7 @@ static inline int mls_range_set(struct c
+ int mls_setup_user_range(struct context *fromcon, struct user_datum *user,
+ 			 struct context *usercon)
+ {
+-	if (selinux_mls_enabled) {
++	if (policydb.mls_enabled) {
+ 		struct mls_level *fromcon_sen = &(fromcon->range.level[0]);
+ 		struct mls_level *fromcon_clr = &(fromcon->range.level[1]);
+ 		struct mls_level *user_low = &(user->range.level[0]);
+@@ -477,7 +477,7 @@ int mls_convert_context(struct policydb 
+ 	struct ebitmap_node *node;
+ 	int l, i;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return 0;
+ 
+ 	for (l = 0; l < 2; l++) {
+@@ -516,7 +516,7 @@ int mls_compute_sid(struct context *scon
+ 	struct range_trans rtr;
+ 	struct mls_range *r;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return 0;
+ 
+ 	switch (specified) {
+@@ -559,7 +559,7 @@ int mls_compute_sid(struct context *scon
+ void mls_export_netlbl_lvl(struct context *context,
+ 			   struct netlbl_lsm_secattr *secattr)
+ {
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return;
+ 
+ 	secattr->attr.mls.lvl = context->range.level[0].sens - 1;
+@@ -579,7 +579,7 @@ void mls_export_netlbl_lvl(struct contex
+ void mls_import_netlbl_lvl(struct context *context,
+ 			   struct netlbl_lsm_secattr *secattr)
+ {
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return;
+ 
+ 	context->range.level[0].sens = secattr->attr.mls.lvl + 1;
+@@ -601,7 +601,7 @@ int mls_export_netlbl_cat(struct context
+ {
+ 	int rc;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return 0;
+ 
+ 	rc = ebitmap_netlbl_export(&context->range.level[0].cat,
+@@ -629,7 +629,7 @@ int mls_import_netlbl_cat(struct context
+ {
+ 	int rc;
+ 
+-	if (!selinux_mls_enabled)
++	if (!policydb.mls_enabled)
+ 		return 0;
+ 
+ 	rc = ebitmap_netlbl_import(&context->range.level[0].cat,
+diff -pruN security-testing-2.6/security/selinux/ss/mls.h security-testing-2.6-new/security/selinux/ss/mls.h
+--- security-testing-2.6/security/selinux/ss/mls.h	2010-01-29 01:06:42.168051431 +0100
++++ security-testing-2.6-new/security/selinux/ss/mls.h	2010-02-01 23:17:31.025223083 +0100
+@@ -39,6 +39,8 @@ int mls_context_to_sid(struct policydb *
+ 
+ int mls_from_string(char *str, struct context *context, gfp_t gfp_mask);
+ 
++int mls_range_set(struct context *context, struct mls_range *range);
++
+ int mls_convert_context(struct policydb *oldp,
+ 			struct policydb *newp,
+ 			struct context *context);
+diff -pruN security-testing-2.6/security/selinux/ss/mls_types.h security-testing-2.6-new/security/selinux/ss/mls_types.h
+--- security-testing-2.6/security/selinux/ss/mls_types.h	2010-01-29 01:06:42.168051431 +0100
++++ security-testing-2.6-new/security/selinux/ss/mls_types.h	2010-02-02 21:49:54.108993602 +0100
+@@ -15,6 +15,7 @@
+ #define _SS_MLS_TYPES_H_
+ 
+ #include "security.h"
++#include "ebitmap.h"
+ 
+ struct mls_level {
+ 	u32 sens;		/* sensitivity */
+@@ -27,18 +28,12 @@ struct mls_range {
+ 
+ static inline int mls_level_eq(struct mls_level *l1, struct mls_level *l2)
+ {
+-	if (!selinux_mls_enabled)
+-		return 1;
+-
+ 	return ((l1->sens == l2->sens) &&
+ 		ebitmap_cmp(&l1->cat, &l2->cat));
+ }
+ 
+ static inline int mls_level_dom(struct mls_level *l1, struct mls_level *l2)
+ {
+-	if (!selinux_mls_enabled)
+-		return 1;
+-
+ 	return ((l1->sens >= l2->sens) &&
+ 		ebitmap_contains(&l1->cat, &l2->cat));
+ }
+diff -pruN security-testing-2.6/security/selinux/ss/policydb.c security-testing-2.6-new/security/selinux/ss/policydb.c
+--- security-testing-2.6/security/selinux/ss/policydb.c	2010-01-29 02:02:47.740046077 +0100
++++ security-testing-2.6-new/security/selinux/ss/policydb.c	2010-02-01 22:12:18.601226073 +0100
+@@ -52,8 +52,6 @@ static char *symtab_name[SYM_NUM] = {
+ };
+ #endif
+ 
+-int selinux_mls_enabled;
+-
+ static unsigned int symtab_sizes[SYM_NUM] = {
+ 	2,
+ 	32,
+@@ -455,7 +453,7 @@ static int policydb_index_others(struct 
+ 
+ 	printk(KERN_DEBUG "SELinux:  %d users, %d roles, %d types, %d bools",
+ 	       p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
+-	if (selinux_mls_enabled)
++	if (p->mls_enabled)
+ 		printk(", %d sens, %d cats", p->p_levels.nprim,
+ 		       p->p_cats.nprim);
+ 	printk("\n");
+@@ -1717,14 +1715,12 @@ int policydb_read(struct policydb *p, vo
+ 	int i, j, rc;
+ 	__le32 buf[4];
+ 	u32 nodebuf[8];
+-	u32 len, len2, config, nprim, nel, nel2;
++	u32 len, len2, nprim, nel, nel2;
+ 	char *policydb_str;
+ 	struct policydb_compat_info *info;
+ 	struct range_trans *rt;
+ 	struct mls_range *r;
+ 
+-	config = 0;
+-
+ 	rc = policydb_init(p);
+ 	if (rc)
+ 		goto out;
+@@ -1772,7 +1768,7 @@ int policydb_read(struct policydb *p, vo
+ 	kfree(policydb_str);
+ 	policydb_str = NULL;
+ 
+-	/* Read the version, config, and table sizes. */
++	/* Read the version and table sizes. */
+ 	rc = next_entry(buf, fp, sizeof(u32)*4);
+ 	if (rc < 0)
+ 		goto bad;
+@@ -1787,13 +1783,7 @@ int policydb_read(struct policydb *p, vo
+ 	}
+ 
+ 	if ((le32_to_cpu(buf[1]) & POLICYDB_CONFIG_MLS)) {
+-		if (ss_initialized && !selinux_mls_enabled) {
+-			printk(KERN_ERR "SELinux: Cannot switch between non-MLS"
+-				" and MLS policies\n");
+-			goto bad;
+-		}
+-		selinux_mls_enabled = 1;
+-		config |= POLICYDB_CONFIG_MLS;
++		p->mls_enabled = 1;
+ 
+ 		if (p->policyvers < POLICYDB_VERSION_MLS) {
+ 			printk(KERN_ERR "SELinux: security policydb version %d "
+@@ -1801,12 +1791,6 @@ int policydb_read(struct policydb *p, vo
+ 				p->policyvers);
+ 			goto bad;
+ 		}
+-	} else {
+-		if (ss_initialized && selinux_mls_enabled) {
+-			printk(KERN_ERR "SELinux: Cannot switch between MLS and"
+-				" non-MLS policies\n");
+-			goto bad;
+-		}
+ 	}
+ 	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
+ 	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
+diff -pruN security-testing-2.6/security/selinux/ss/policydb.h security-testing-2.6-new/security/selinux/ss/policydb.h
+--- security-testing-2.6/security/selinux/ss/policydb.h	2010-01-29 02:02:47.740046077 +0100
++++ security-testing-2.6-new/security/selinux/ss/policydb.h	2010-02-01 20:47:08.352232380 +0100
+@@ -27,6 +27,8 @@
+ #include "symtab.h"
+ #include "avtab.h"
+ #include "sidtab.h"
++#include "ebitmap.h"
++#include "mls_types.h"
+ #include "context.h"
+ #include "constraint.h"
+ 
+@@ -185,6 +187,8 @@ struct genfs {
+ 
+ /* The policy database */
+ struct policydb {
++	int mls_enabled;
++
+ 	/* symbol tables */
+ 	struct symtab symtab[SYM_NUM];
+ #define p_commons symtab[SYM_COMMONS]
+diff -pruN security-testing-2.6/security/selinux/ss/services.c security-testing-2.6-new/security/selinux/ss/services.c
+--- security-testing-2.6/security/selinux/ss/services.c	2010-01-29 02:02:47.742042805 +0100
++++ security-testing-2.6-new/security/selinux/ss/services.c	2010-02-02 23:48:07.637994777 +0100
+@@ -26,6 +26,10 @@
+  *
+  *  Added support for bounds domain and audit messaged on masked permissions
+  *
++ * Updated: Guido Trentalancia <guido@trentalancia.com>
++ *
++ *  Added support for runtime switching of the policy type
++ *
+  * Copyright (C) 2008, 2009 NEC Corporation
+  * Copyright (C) 2006, 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+@@ -232,6 +236,10 @@ static void map_decision(u16 tclass, str
+ 	}
+ }
+ 
++int security_mls_enabled(void)
++{
++	return policydb.mls_enabled;
++}
+ 
+ /*
+  * Return the boolean value of a constraint expression
+@@ -1547,6 +1555,8 @@ static int convert_context(u32 key,
+ {
+ 	struct convert_context_args *args;
+ 	struct context oldc;
++	struct ocontext *oc;
++	struct mls_range *range;
+ 	struct role_datum *role;
+ 	struct type_datum *typdatum;
+ 	struct user_datum *usrdatum;
+@@ -1614,9 +1624,39 @@ static int convert_context(u32 key,
+ 		goto bad;
+ 	c->type = typdatum->value;
+ 
+-	rc = mls_convert_context(args->oldp, args->newp, c);
+-	if (rc)
+-		goto bad;
++	/* Convert the MLS fields if dealing with MLS policies */
++	if (args->oldp->mls_enabled && args->newp->mls_enabled) {
++		rc = mls_convert_context(args->oldp, args->newp, c);
++		if (rc)
++			goto bad;
++	} else if (args->oldp->mls_enabled && !args->newp->mls_enabled) {
++		/*
++		 * Switching between MLS and non-MLS policy:
++		 * free any storage used by the MLS fields in the
++		 * context for all existing entries in the sidtab.
++		 */
++		mls_context_destroy(c);
++	} else if (!args->oldp->mls_enabled && args->newp->mls_enabled) {
++		/*
++		 * Switching between non-MLS and MLS policy:
++		 * ensure that the MLS fields of the context for all
++		 * existing entries in the sidtab are filled in with a
++		 * suitable default value, likely taken from one of the
++		 * initial SIDs.
++		 */
++		oc = args->newp->ocontexts[OCON_ISID];
++		while (oc && oc->sid[0] != SECINITSID_UNLABELED)
++			oc = oc->next;
++		if (!oc) {
++			printk(KERN_ERR "SELinux:  unable to look up"
++				" the initial SIDs list\n");
++			goto bad;
++		}
++		range = &oc->context[0].range;
++		rc = mls_range_set(c, range);
++		if (rc)
++			goto bad;
++	}
+ 
+ 	/* Check the validity of the new context. */
+ 	if (!policydb_context_isvalid(args->newp, c)) {
+@@ -1712,6 +1752,12 @@ int security_load_policy(void *data, siz
+ 	if (policydb_read(&newpolicydb, fp))
+ 		return -EINVAL;
+ 
++	/* If switching between different policy types, log MLS status */
++	if (policydb.mls_enabled && !newpolicydb.mls_enabled)
++		printk(KERN_INFO "SELinux: Disabling MLS support...\n");
++	else if (!policydb.mls_enabled && newpolicydb.mls_enabled)
++		printk(KERN_INFO "SELinux: Enabling MLS support...\n");
++
+ 	if (sidtab_init(&newsidtab)) {
+ 		policydb_destroy(&newpolicydb);
+ 		return -ENOMEM;
+@@ -1741,8 +1787,12 @@ int security_load_policy(void *data, siz
+ 	args.oldp = &policydb;
+ 	args.newp = &newpolicydb;
+ 	rc = sidtab_map(&newsidtab, convert_context, &args);
+-	if (rc)
++	if (rc) {
++		printk(KERN_ERR "SELinux:  unable to convert the internal"
++			" representation of contexts in the new SID"
++			" table\n");
+ 		goto err;
++	}
+ 
+ 	/* Save the old policydb and SID table to free later. */
+ 	memcpy(&oldpolicydb, &policydb, sizeof policydb);
+@@ -2338,7 +2388,7 @@ int security_sid_mls_copy(u32 sid, u32 m
+ 	u32 len;
+ 	int rc = 0;
+ 
+-	if (!ss_initialized || !selinux_mls_enabled) {
++	if (!ss_initialized || !policydb.mls_enabled) {
+ 		*new_sid = sid;
+ 		goto out;
+ 	}
+@@ -2439,7 +2489,7 @@ int security_net_peersid_resolve(u32 nlb
+ 	/* we don't need to check ss_initialized here since the only way both
+ 	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
+ 	 * security server was initialized and ss_initialized was true */
+-	if (!selinux_mls_enabled) {
++	if (!policydb.mls_enabled) {
+ 		*peer_sid = SECSID_NULL;
+ 		return 0;
+ 	}
 
 
-Hi SELinux experts,
-
-I have come up with some patches for the latest refpolicy-2.20091117 and would like to ask for opinions about whether they make sense or not. 
-
-Please help review when convenient, any comment is greatly welcomed!
-
-Best regards,
-Harry
- 		 	   		  
-_________________________________________________________________
-Windows Live社区两周年，拿奖过新年！
-http://events.livetome.cn/2010/2birthday
---_53e117b3-c848-494c-84de-54fcd4f322df_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Verdana
-}
---></style>
-</head>
-<body class='hmmessage'>
-Hi SELinux experts,<br><br>I have come up with some patches for the latest refpolicy-2.20091117 and would like to ask for opinions about whether they make sense or not. <br><br>Please help review when convenient, any comment is greatly welcomed!<br><br>Best regards,<br>Harry<br> 		 	   		  <br /><hr />搜索本应是彩色的,快来体验新一代搜索引擎-必应,精美图片每天换哦! <a href='http://cn.bing.com/?form=CRMADS ' target='_new'>立即试用！</a></body>
-</html>
---_53e117b3-c848-494c-84de-54fcd4f322df_--
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-crond_t-domtrans-hostname.patch"
-
-Y3JvbmRfdCB3b3VsZCByZXF1aXJlIG5lY2Vzc2FyeSBwcml2aWxlZ2UgdG8gZXhlY3V0ZSB0aGUg
-L2Jpbi9ob3N0bmFtZSAKcHJvZ3JhbSwgb3RoZXJ3aXNlIHdlIHdpbGwgcnVuIGludG8gYmVsb3cg
-ZXJyb3IgbWVzc2FnZXMgZHVyaW5nIHN5c3RlbSBib290cyB1cDoKCnR5cGU9MTQwMCBhdWRpdCgx
-MjY0NjA0NDYxLjM2MDo1MCk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0gZm9yICBwaWQ9MjQz
-NSBjb21tPSJsb2djaGVjay5zaCIgcGF0aD0iL2Jpbi9ob3N0bmFtZSIgZGV2PXNkYTEgaW5vPTcz
-NTAwIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmNyb25kX3Q6czAtczE1OmMwLmMyNTUgdGNv
-bnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aG9zdG5hbWVfZXhlY190OnMwIHRjbGFzcz1maWxlCnR5
-cGU9MTQwMCBhdWRpdCgxMjY0NjA0NDYxLjQwNzo1MSk6IGF2YzogIGRlbmllZCAgeyBleGVjdXRl
-IH0gZm9yICBwaWQ9MjQzNSBjb21tPSJsb2djaGVjay5zaCIgbmFtZT0iaG9zdG5hbWUiIGRldj1z
-ZGExIGlubz03MzUwMCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpjcm9uZF90OnMwLXMxNTpj
-MC5jMjU1IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmhvc3RuYW1lX2V4ZWNfdDpzMCB0Y2xh
-c3M9ZmlsZQp0eXBlPTE0MDAgYXVkaXQoMTI2NDYwNDQ2MS40NTM6NTIpOiBhdmM6ICBkZW5pZWQg
-IHsgcmVhZCB9IGZvciAgcGlkPTI0MzUgY29tbT0ibG9nY2hlY2suc2giIG5hbWU9Imhvc3RuYW1l
-IiBkZXY9c2RhMSBpbm89NzM1MDAgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6Y3JvbmRfdDpz
-MC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpob3N0bmFtZV9leGVjX3Q6
-czAgdGNsYXNzPWZpbGUKdHlwZT0xNDAwIGF1ZGl0KDEyNjQ2MDQ0NjEuNDk5OjUzKTogYXZjOiAg
-ZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0yNDM1IGNvbW09ImxvZ2NoZWNrLnNoIiBuYW1lPSJo
-b3N0bmFtZSIgZGV2PXNkYTEgaW5vPTczNTAwIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmNy
-b25kX3Q6czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aG9zdG5hbWVf
-ZXhlY190OnMwIHRjbGFzcz1maWxlCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvPHFpbmd0YW8u
-Y2FvQHdpbmRyaXZlci5jb20+Ci0tLQogcG9saWN5L21vZHVsZXMvc2VydmljZXMvY3Jvbi50ZSB8
-ICAgIDIgKysKIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKCi0tLSBhL3BvbGljeS9t
-b2R1bGVzL3NlcnZpY2VzL2Nyb24udGUKKysrIGIvcG9saWN5L21vZHVsZXMvc2VydmljZXMvY3Jv
-bi50ZQpAQCAtMjI5LDYgKzIyOSw4IEBAIHVzZXJkb21fbGlzdF91c2VyX2hvbWVfZGlycyhjcm9u
-ZF90KQogCiBtdGFfc2VuZF9tYWlsKGNyb25kX3QpCiAKK2hvc3RuYW1lX2RvbXRyYW5zKGNyb25k
-X3QpCisKIGlmZGVmKGBkaXN0cm9fZGViaWFuJyxgCiAJIyBwYW1fbGltaXRzIGlzIHVzZWQKIAlh
-bGxvdyBjcm9uZF90IHNlbGY6cHJvY2VzcyBzZXRybGltaXQ7Cg==
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-crond_t-manipulate-bin.patch"
-
-Y3JvbmRfdCB3b3VsZCByZXF1aXJlIG5lY2Vzc2FyeSBwcml2aWxlZ2UgdG8gbWFuYWdlIGFuZCBl
-eGVjdXRlIGJpbl90IGZpbGVzLApvdGhlcndpc2Ugd2Ugd2lsbCBydW4gaW50byBiZWxvdyBlcnJv
-ciBtZXNzYWdlcyBkdXJpbmcgc3lzdGVtIGJvb3RzIHVwOgoKdHlwZT0xNDAwIGF1ZGl0KDEyNjQ2
-MDQ0NjEuMDY4OjQ0KTogYXZjOiAgZGVuaWVkICB7IGdldGF0dHIgfSBmb3IgIHBpZD0yNDI5IGNv
-bW09ImJhc2giIHBhdGg9Ii91c3IvYmluL3J1bi1wYXJ0cyIgZGV2PXNkYTEgaW5vPTExNTM5NiBz
-Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpjcm9uZF90OnMwLXMxNTpjMC5jMjU1IHRjb250ZXh0
-PXN5c3RlbV91Om9iamVjdF9yOmJpbl90OnMwIHRjbGFzcz1maWxlCnR5cGU9MTQwMCBhdWRpdCgx
-MjY0NjA0NDYxLjExNDo0NSk6IGF2YzogIGRlbmllZCAgeyBleGVjdXRlIH0gZm9yICBwaWQ9MjQy
-OSBjb21tPSJiYXNoIiBuYW1lPSJydW4tcGFydHMiIGRldj1zZGExIGlubz0xMTUzOTYgc2NvbnRl
-eHQ9c3lzdGVtX3U6c3lzdGVtX3I6Y3JvbmRfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0
-ZW1fdTpvYmplY3RfcjpiaW5fdDpzMCB0Y2xhc3M9ZmlsZQp0eXBlPTE0MDAgYXVkaXQoMTI2NDYw
-NDQ2MS4xNTk6NDYpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB9IGZvciAgcGlkPTI0MjkgY29tbT0i
-YmFzaCIgbmFtZT0icnVuLXBhcnRzIiBkZXY9c2RhMSBpbm89MTE1Mzk2IHNjb250ZXh0PXN5c3Rl
-bV91OnN5c3RlbV9yOmNyb25kX3Q6czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9c3lzdGVtX3U6b2Jq
-ZWN0X3I6YmluX3Q6czAgdGNsYXNzPWZpbGUKdHlwZT0xNDAwIGF1ZGl0KDEyNjQ2MDQ0NjEuMjAz
-OjQ3KTogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0yNDI5IGNvbW09ImJhc2giIG5h
-bWU9InJ1bi1wYXJ0cyIgZGV2PXNkYTEgaW5vPTExNTM5NiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0
-ZW1fcjpjcm9uZF90OnMwLXMxNTpjMC5jMjU1IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmJp
-bl90OnMwIHRjbGFzcz1maWxlCnR5cGU9MTQwMCBhdWRpdCgxMjY0NjA0NDYxLjI0ODo0OCk6IGF2
-YzogIGRlbmllZCAgeyBleGVjdXRlX25vX3RyYW5zIH0gZm9yICBwaWQ9MjQyOSBjb21tPSJiYXNo
-IiBwYXRoPSIvdXNyL2Jpbi9ydW4tcGFydHMiIGRldj1zZGExIGlubz0xMTUzOTYgc2NvbnRleHQ9
-c3lzdGVtX3U6c3lzdGVtX3I6Y3JvbmRfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1f
-dTpvYmplY3RfcjpiaW5fdDpzMCB0Y2xhc3M9ZmlsZQp0eXBlPTE0MDAgYXVkaXQoMTI2NDYwNDQ2
-MS4yOTY6NDkpOiBhdmM6ICBkZW5pZWQgIHsgaW9jdGwgfSBmb3IgIHBpZD0yNDI5IGNvbW09InJ1
-bi1wYXJ0cyIgcGF0aD0iL3Vzci9iaW4vcnVuLXBhcnRzIiBkZXY9c2RhMSBpbm89MTE1Mzk2IHNj
-b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmNyb25kX3Q6czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9
-c3lzdGVtX3U6b2JqZWN0X3I6YmluX3Q6czAgdGNsYXNzPWZpbGUKClNpZ25lZC1vZmYtYnk6IEhh
-cnJ5IENpYW88cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xpY3kvbW9kdWxlcy9z
-ZXJ2aWNlcy9jcm9uLnRlIHwgICAgMyArKwogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygr
-KQoKLS0tIGEvcG9saWN5L21vZHVsZXMvc2VydmljZXMvY3Jvbi50ZQorKysgYi9wb2xpY3kvbW9k
-dWxlcy9zZXJ2aWNlcy9jcm9uLnRlCkBAIC0xOTUsNiArMTk1LDkgQEAgY29yZWNtZF9leGVjX3No
-ZWxsKGNyb25kX3QpCiBjb3JlY21kX2xpc3RfYmluKGNyb25kX3QpCiBjb3JlY21kX3JlYWRfYmlu
-X3N5bWxpbmtzKGNyb25kX3QpCiAKK2NvcmVjbWRfZXhlY19iaW4oY3JvbmRfdCkKK2NvcmVjbWRf
-bWFuYWdlX2Jpbl9maWxlcyhjcm9uZF90KQorCiBkb21haW5fdXNlX2ludGVyYWN0aXZlX2Zkcyhj
-cm9uZF90KQogCiBmaWxlc19yZWFkX3Vzcl9maWxlcyhjcm9uZF90KQo=
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-dontaudit-quota_t-mmap_zero.patch"
-
-cXVvdGFvbiB3aWxsIHRyeSB0byBtbWFwIGEgbG93IGFyZWEgb2YgdGhlIGFkZHJlc3Mgc3BhY2Us
-IHdoaWNoIGlzIGV4cGxpY2l0bHkKcHJvaGliaXRlZCBieSB0aGUgbmV2ZXJhbGxvdyBydWxlIGRl
-ZmluZWQgaW4ga2VybmVsL2RvbWFpbi50ZToKCm5ldmVyYWxsb3cgeyBkb21haW4gLW1tYXBfbG93
-X2RvbWFpbl90eXBlIH0gc2VsZjptZW1wcm90ZWN0IG1tYXBfemVybzsKClNvIHdlIHVzZSBhIGRv
-bnRhdWRpdCBydWxlIGhlcmUgdG8gc3VwcHJlc3MgYmVsb3cgZXJyb3IgbWVzc2FnZToKCnR5cGU9
-MTQwMCBhdWRpdCgxMjYzOTk5Nzk4LjIxMjo1KTogYXZjOiAgZGVuaWVkICB7IG1tYXBfemVybyB9
-IGZvciAgcGlkPTIwMTEgY29tbT0icXVvdGFvbiIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6
-cXVvdGFfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpxdW90YV90
-OnMwLXMxNTpjMC5jMjU1IHRjbGFzcz1tZW1wcm90ZWN0CgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBD
-aWFvPHFpbmd0YW8uY2FvQHdpbmRyaXZlci5jb20+Ci0tLQogcG9saWN5L21vZHVsZXMvYWRtaW4v
-cXVvdGEudGUgfCAgICAxICsKIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQoKLS0tIGEv
-cG9saWN5L21vZHVsZXMvYWRtaW4vcXVvdGEudGUKKysrIGIvcG9saWN5L21vZHVsZXMvYWRtaW4v
-cXVvdGEudGUKQEAgLTI0LDYgKzI0LDcgQEAgZmlsZXNfdHlwZShxdW90YV9mbGFnX3QpCiBhbGxv
-dyBxdW90YV90IHNlbGY6Y2FwYWJpbGl0eSB7IHN5c19hZG1pbiBkYWNfb3ZlcnJpZGUgfTsKIGRv
-bnRhdWRpdCBxdW90YV90IHNlbGY6Y2FwYWJpbGl0eSBzeXNfdHR5X2NvbmZpZzsKIGFsbG93IHF1
-b3RhX3Qgc2VsZjpwcm9jZXNzIHNpZ25hbF9wZXJtczsKK2RvbnRhdWRpdCBxdW90YV90IHNlbGY6
-bWVtcHJvdGVjdCB7IG1tYXBfemVyb30gOwogCiAjIGZvciAvcXVvdGEuKgogYWxsb3cgcXVvdGFf
-dCBxdW90YV9kYl90OmZpbGUgeyBtYW5hZ2VfZmlsZV9wZXJtcyBxdW90YW9uIH07Cg==
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-getty_t-use-console.patch"
-
-SWYgL3NiaW4vaW5pdCBpcyB0byBydW4gbWluZ2V0dHkgYWdhaW5zdCBjb25zb2xlIHJhdGhlciB0
-aGFuIGFueSB0dHkgZGV2aWNlIHN1Y2ggYXM6CjA6MjM0NTpyZXNwYXduOi9zYmluL21pbmdldHR5
-IGNvbnNvbGUKIzE6MjM0NTpyZXNwYXduOi9zYmluL21pbmdldHR5IHR0eTEKIzI6MjM0NTpyZXNw
-YXduOi9zYmluL21pbmdldHR5IHR0eTIKIzM6MjM0NTpyZXNwYXduOi9zYmluL21pbmdldHR5IHR0
-eTMKIzQ6MjM0NTpyZXNwYXduOi9zYmluL21pbmdldHR5IHR0eTQKIzU6MjM0NTpyZXNwYXduOi9z
-YmluL21pbmdldHR5IHR0eTUKIzY6MjM0NTpyZXNwYXduOi9zYmluL21pbmdldHR5IHR0eTYKCldo
-ZXJlICJjb25zb2xlPXR0eVMwLCAxMTUyMDBuOCIgb3IgdGhlIGxpa2UgaXMgc3BlY2lmaWVkIGlu
-IGtlcm5lbCBib290cGFyYW1zLgpUaGlzICB3b3VsZCByZXF1aXJlIGdldHR5X3QgaGF2aW5nIG5l
-Y2Vzc2FyeSBwcml2aWxlZ2UgaW4gb3JkZXIgdG8gdXNlIHRoZSBjb25zb2xlLgpPdGhlcndpc2Ug
-L3NiaW4vbWluZ2V0dHkgd2lsbCBmYWlsIHRvIGRvbWFpbiB0cmFuc2l0aW9uIHRvIGxvY2FsX2xv
-Z2luX3QKYW5kIC9zYmluL2luaXQgd2lsbCBlbmQgdXAgcmVzcGF3bmluZyAvc2Jpbi9taW5nZXR0
-eSBmb3JldmVyOgoKSU5JVDogSWQgIjAiIHJlc3Bhd25pbmcgdG9vIGZhc3Q6IGRpc2FibGVkIGZv
-ciA1IG1pbnV0ZXMKSU5JVDogbm8gbW9yZSBwcm9jZXNzZXMgbGVmdCBpbiB0aGlzIHJ1bmxldmVs
-CklOSVQ6IElkICIwIiByZXNwYXduaW5nIHRvbyBmYXN0OiBkaXNhYmxlZCBmb3IgNSBtaW51dGVz
-Ci4uLihyZXBlYXRlZCkuLi4KCklmIHdlIHJlbW92ZSB0aGUgInRlcm1fZG9udGF1ZGl0X3VzZV9j
-b25zb2xlKGdldHR5X3QpIiwgd2UgY2FuIHNlZSB0aGUgcmVhc29uCndoeSAvc2Jpbi9taW5nZXR0
-eSBmYWlscyB0byBleGVjdWF0ZSAvYmluL2xvZ2luOgoKdHlwZT0xNDAwIGF1ZGl0KDEyNjQ1MjA1
-NDcuOTM2OjY4KTogYXZjOiAgZGVuaWVkICB7IG5vYXRzZWN1cmUgfSBmb3IgIHBpZD0yMjkyIGNv
-bW09ImxvZ2luIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpnZXR0eV90OnMwLXMxNTpjMC5j
-MjU1IHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmxvY2FsX2xvZ2luX3Q6czAtczE1OmMwLmMy
-NTUgdGNsYXNzPXByb2Nlc3MKCkZvciBzeXN0ZW0gdGhhdCBuZWVkcyBsb2dpbmcgaW4gdGhyb3Vn
-aCBzZXJpYWwgY29uc29sZSwgdGhlIHRlcm1fdXNlX2NvbnNvbGUoKSAKaW50ZXJmYWNlIHNob3Vs
-ZCBiZSBjYWxsZWQgZm9yIHRoZSBnZXR0eV90IGRvbWFpbi4gSG93ZXZlciwgcGxlYXNlIGRvIG5v
-dGUgdGhhdAovZGV2L2NvbnNvbGUgaXMgbm90IHJlZ2FyZGVkIGFzIGEgc2VjdXJlIGRldmljZSBh
-bmQgbWFueSBkb21haW5zIHdvbid0IGhhdmUgZXZlbgp0aGUgcmVhZCBwZXJtaXNzaW9uIGFnYWlu
-c3QgaXQsIHNvIHBsZWFzZSByZW1lbWJlciB0byBsb2cgaW4gZnJvbSBzc2ggYWZ0ZXIgc3lzdGVt
-CnByb3Blcmx5IGJvb3RzIHVwLgoKU2lnbmVkLW9mZi1ieTogSGFycnkgQ2lhbzxxaW5ndGFvLmNh
-b0B3aW5kcml2ZXIuY29tPgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9nZXR0eS50ZSB8ICAg
-IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoKLS0t
-IGEvcG9saWN5L21vZHVsZXMvc3lzdGVtL2dldHR5LnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5
-c3RlbS9nZXR0eS50ZQpAQCAtODYsNyArODYsNyBAQCB0ZXJtX3VzZV91bmFsbG9jYXRlZF90dHlz
-KGdldHR5X3QpCiB0ZXJtX3NldGF0dHJfYWxsX3VzZXJfdHR5cyhnZXR0eV90KQogdGVybV9zZXRh
-dHRyX3VuYWxsb2NhdGVkX3R0eXMoZ2V0dHlfdCkKIHRlcm1fc2V0YXR0cl9jb25zb2xlKGdldHR5
-X3QpCi10ZXJtX2RvbnRhdWRpdF91c2VfY29uc29sZShnZXR0eV90KQordGVybV91c2VfY29uc29s
-ZShnZXR0eV90KQogCiBhdXRoX3J3X2xvZ2luX3JlY29yZHMoZ2V0dHlfdCkKIAo=
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-initrc_t-create-fixed-disk.patch"
-
-aW5pdHJjX3Qgd291bGQgcmVxdWlyZSBuZWNlc3NhcnkgcHJpdmlsZWdlIHRvIGNyZWF0ZSAvZGV2
-L2xvb3AqLCBvdGhlcndpc2UKd2Ugd2lsbCBydW4gaW50byBiZWxvdyBlcnJvciBtZXNzYWdlIGR1
-cmluZyBzeXN0ZW0gYm9vdHMgdXA6Cgp0eXBlPTE0MDAgYXVkaXQoMTI2NDMzNzk3MC41MzY6NSk6
-IGF2YzogIGRlbmllZCAgeyBjcmVhdGUgfSBmb3IgIHBpZD0xMDEyIGNvbW09Ik1BS0VERVYiIG5h
-bWU9Imxvb3AwLSIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJjX3Q6czAtczE1OmMw
-LmMyNTUgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6Zml4ZWRfZGlza19kZXZpY2VfdDpzMTU6
-YzAuYzI1NSB0Y2xhc3M9YmxrX2ZpbGUKCk5vdGUsIHRoZSBzZWN1cml0eSBsYWJlbCBvZiAvZGV2
-L2xvb3AqIGlzIHMxNSB3aGVyZWFzIGluaXRyY190IGlzIHMwLCBzbyB3ZQpoYXZlIHRvIGdyYW50
-IG1sc19maWxlX3VwZ3JhZGUoKSBwcml2aWxlZ2UgZm9yIGl0IHRvby4KClNpZ25lZC1vZmYtYnk6
-IEhhcnJ5IENpYW88cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xpY3kvbW9kdWxl
-cy9zeXN0ZW0vaW5pdC50ZSB8ICAgIDIgKysKIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMo
-KykKCi0tLSBhL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9pbml0LnRlCisrKyBiL3BvbGljeS9tb2R1
-bGVzL3N5c3RlbS9pbml0LnRlCkBAIC0zNDUsNiArMzQ1LDcgQEAgbWxzX3Byb2Nlc3NfcmVhZF91
-cChpbml0cmNfdCkKIG1sc19wcm9jZXNzX3dyaXRlX2Rvd24oaW5pdHJjX3QpCiBtbHNfcmFuZ2V0
-cmFuc19zb3VyY2UoaW5pdHJjX3QpCiBtbHNfZmRfc2hhcmVfYWxsX2xldmVscyhpbml0cmNfdCkK
-K21sc19maWxlX3VwZ3JhZGUoaW5pdHJjX3QpCiAKIHNlbGludXhfZ2V0X2VuZm9yY2VfbW9kZShp
-bml0cmNfdCkKIApAQCAtNDc3LDYgKzQ3OCw3IEBAIGlmZGVmKGBkaXN0cm9fcmVkaGF0JyxgCiAJ
-c3RvcmFnZV9tYW5hZ2VfZml4ZWRfZGlzayhpbml0cmNfdCkKIAlzdG9yYWdlX2Rldl9maWxldHJh
-bnNfZml4ZWRfZGlzayhpbml0cmNfdCkKIAlzdG9yYWdlX2dldGF0dHJfcmVtb3ZhYmxlX2Rldihp
-bml0cmNfdCkKKwlzdG9yYWdlX3RtcGZzX2ZpbGV0cmFuc19maXhlZF9kaXNrKGluaXRyY190KQog
-CiAJIyByZWFkYWhlYWQgYXNrcyBmb3IgdGhlc2UKIAlhdXRoX2RvbnRhdWRpdF9yZWFkX3NoYWRv
-dyhpbml0cmNfdCkK
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-insmod_t-use-console.patch"
-
-aW5zbW9kX3Qgd291bGQgcmVxdWlyZSBuZWNlc3NhcnkgcHJpdmlsZWdlIHRvIG9wZXJhdGUgL2Rl
-di9jb25zb2xlLCBvdGhlcndpc2UKZHVyaW5nIGJvb3QgdXAgbW9kcHJvYmUgd291bGQgdGhyb3cg
-b3V0IG1hbnkgZXJyb3IgbWVzc2FnZXMgc3VjaCBhczoKCnR5cGU9MTQwMCBhdWRpdCgxMjYzNzMx
-OTYyLjI2MDo0KTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD05NjAgY29tbT0ibW9k
-cHJvYmUiIG5hbWU9ImNvbnNvbGUiIGRldj1zZGExIGlubz0yNDQ4NDEgc2NvbnRleHQ9c3lzdGVt
-X3U6c3lzdGVtX3I6aW5zbW9kX3Q6czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9c3lzdGVtX3U6b2Jq
-ZWN0X3I6Y29uc29sZV9kZXZpY2VfdDpzMCB0Y2xhc3M9Y2hyX2ZpbGUKClNpZ25lZC1vZmYtYnk6
-IEhhcnJ5IENpYW88cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xpY3kvbW9kdWxl
-cy9zeXN0ZW0vbW9kdXRpbHMudGUgfCAgICAyICsrCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRp
-b25zKCspCgotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbW9kdXRpbHMudGUKKysrIGIvcG9s
-aWN5L21vZHVsZXMvc3lzdGVtL21vZHV0aWxzLnRlCkBAIC0xNTksNiArMTU5LDggQEAgc2V1dGls
-X3JlYWRfZmlsZV9jb250ZXh0cyhpbnNtb2RfdCkKIAogdXNlcmRvbV91c2VfdXNlcl90ZXJtaW5h
-bHMoaW5zbW9kX3QpCiAKK3Rlcm1fdXNlX2NvbnNvbGUoaW5zbW9kX3QpCisKIGlmZGVmKGBkaXN0
-cm9fdWJ1bnR1JyxgCiAJb3B0aW9uYWxfcG9saWN5KGAKIAkJdW5jb25maW5lZF9kb21haW4oaW5z
-bW9kX3QpCg==
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-mount_t-manipulate-generic-locks.patch"
-
-VGhlIG1vdW50X3QgZG9tYWluIHNob3VsZCBoYXZlIGVub3VnaCBwcml2aWxlZ2UgdG8gY3JlYXRl
-IHRoZSBsb2NrIGZpbGUgaW4KL3Zhci9sb2NrLCBvdGhlcndpc2Ugd2Ugd2lsbCBydW4gaW50byBi
-ZWxvdyBlcnJvciBtZXNzYWdlcyBkdXJpbmcgYm9vdCB1cDoKCk1vdW50aW5nIG90aGVyIGZpbGVz
-eXN0ZW1zOiAgCm1vdW50OiBzeXNmcyBhbHJlYWR5IG1vdW50ZWQgb3IgL3N5cyBidXN5Cm1vdW50
-OiBkZXZwdHMgYWxyZWFkeSBtb3VudGVkIG9yIC9kZXYvcHRzIGJ1c3kKY2FuJ3QgY3JlYXRlIGxv
-Y2sgZmlsZSAvdmFyL2xvY2svbXRhYn4yMTU4OiBQZXJtaXNzaW9uIGRlbmllZCAodXNlIC1uIGZs
-YWcgdG8gb3ZlcnJpZGUpCgp0eXBlPTE0MDAgYXVkaXQoMTI2Mzk5ODE1My4yMjg6Nyk6IGF2Yzog
-IGRlbmllZCAgeyB3cml0ZSB9IGZvciAgcGlkPTIwMDYgY29tbT0ibW91bnQiIG5hbWU9ImxvY2si
-IGRldj1zZGExIGlubz0zMTgyOTYgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6bW91bnRfdDpz
-MC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp2YXJfbG9ja190OnMwIHRj
-bGFzcz1kaXIKdHlwZT0xNDAwIGF1ZGl0KDEyNjM5OTgxNTMuMjI4OjgpOiBhdmM6ICBkZW5pZWQg
-IHsgYWRkX25hbWUgfSBmb3IgIHBpZD0yMDA2IGNvbW09Im1vdW50IiBuYW1lPSJtdGFifjIwMDYi
-IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOm1vdW50X3Q6czAtczE1OmMwLmMyNTUgdGNvbnRl
-eHQ9c3lzdGVtX3U6b2JqZWN0X3I6dmFyX2xvY2tfdDpzMCB0Y2xhc3M9ZGlyCnR5cGU9MTQwMCBh
-dWRpdCgxMjYzOTk4MTUzLjIyODo5KTogYXZjOiAgZGVuaWVkICB7IGNyZWF0ZSB9IGZvciAgcGlk
-PTIwMDYgY29tbT0ibW91bnQiIG5hbWU9Im10YWJ+MjAwNiIgc2NvbnRleHQ9c3lzdGVtX3U6c3lz
-dGVtX3I6bW91bnRfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp2
-YXJfbG9ja190OnMwIHRjbGFzcz1maWxlCnR5cGU9MTQwMCBhdWRpdCgxMjYzOTk4MTUzLjIzMjox
-MCk6IGF2YzogIGRlbmllZCAgeyB3cml0ZSBvcGVuIH0gZm9yICBwaWQ9MjAwNiBjb21tPSJtb3Vu
-dCIgbmFtZT0ibXRhYn4yMDA2IiBkZXY9c2RhMSBpbm89MzE4NDIyIHNjb250ZXh0PXN5c3RlbV91
-OnN5c3RlbV9yOm1vdW50X3Q6czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0
-X3I6dmFyX2xvY2tfdDpzMCB0Y2xhc3M9ZmlsZQp0eXBlPTE0MDAgYXVkaXQoMTI2Mzk5ODE1My4y
-MzI6MTEpOiBhdmM6ICBkZW5pZWQgIHsgbGluayB9IGZvciAgcGlkPTIwMDYgY29tbT0ibW91bnQi
-IG5hbWU9Im10YWJ+MjAwNiIgZGV2PXNkYTEgaW5vPTMxODQyMiBzY29udGV4dD1zeXN0ZW1fdTpz
-eXN0ZW1fcjptb3VudF90OnMwLXMxNTpjMC5jMjU1IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9y
-OnZhcl9sb2NrX3Q6czAgdGNsYXNzPWZpbGUKdHlwZT0xNDAwIGF1ZGl0KDEyNjM5OTgxNTMuMjMy
-OjEyKTogYXZjOiAgZGVuaWVkICB7IGxvY2sgfSBmb3IgIHBpZD0yMDA2IGNvbW09Im1vdW50IiBw
-YXRoPSIvdmFyL2xvY2svbXRhYn4iIGRldj1zZGExIGlubz0zMTg0MjIgc2NvbnRleHQ9c3lzdGVt
-X3U6c3lzdGVtX3I6bW91bnRfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpvYmpl
-Y3Rfcjp2YXJfbG9ja190OnMwIHRjbGFzcz1maWxlCnR5cGU9MTQwMCBhdWRpdCgxMjYzOTk4MTUz
-LjIzMjoxMyk6IGF2YzogIGRlbmllZCAgeyByZW1vdmVfbmFtZSB9IGZvciAgcGlkPTIwMDYgY29t
-bT0ibW91bnQiIG5hbWU9Im10YWJ+MjAwNiIgZGV2PXNkYTEgaW5vPTMxODQyMiBzY29udGV4dD1z
-eXN0ZW1fdTpzeXN0ZW1fcjptb3VudF90OnMwLXMxNTpjMC5jMjU1IHRjb250ZXh0PXN5c3RlbV91
-Om9iamVjdF9yOnZhcl9sb2NrX3Q6czAgdGNsYXNzPWRpcgoKRnJvbSBhYm92ZSBBVkMgZGVuaWVk
-IG1lc3NhZ2VzIHdlIGNhbiBzZWUgdGhhdCBtb3VudF90IHNob3VsZCBoYXZlIHRoZSBhYmlsaXR5
-CnRvIG1hbmFnZSB2YXJfbG9ja190LgoKU2lnbmVkLW9mZi1ieTogSGFycnkgQ2lhbyA8cWluZ3Rh
-by5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbW91bnQudGUg
-fCAgICAyICsrKwogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQoKLS0tIGEvcG9saWN5
-L21vZHVsZXMvc3lzdGVtL21vdW50LnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9tb3Vu
-dC50ZQpAQCAtODAsNiArODAsOCBAQCBmaWxlc19yZWFkX2lzaWRfdHlwZV9maWxlcyhtb3VudF90
-KQogZmlsZXNfcmVhZF91c3JfZmlsZXMobW91bnRfdCkKIGZpbGVzX2xpc3RfbW50KG1vdW50X3Qp
-CiAKK2ZpbGVzX21hbmFnZV9nZW5lcmljX2xvY2tzKG1vdW50X3QpCisKIGZzX2dldGF0dHJfeGF0
-dHJfZnMobW91bnRfdCkKIGZzX2dldGF0dHJfY2lmcyhtb3VudF90KQogZnNfbW91bnRfYWxsX2Zz
-KG1vdW50X3QpCg==
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-newrole_t-use-console.patch"
-
-V2Ugc2hvdWxkIGdyYW50IG5ld3JvbGVfdCBlbm91Z2ggcHJpdmlsZWdlIHRvIHVzZSBhbmQgcmVs
-YWJlbCB0aGUgL2Rldi9jb25zb2xlCmlmIHdlIHdhbnQgdG8gdXNlIG5ld3JvbGUgYWZ0ZXIgbG9n
-Z2luZyBpbiBmcm9tIHNlcmlhbCBjb25zb2xlLgoKSG93ZXZlciwgaWYgeW91IG5ldmVyIGxvZ3Mg
-aW4gZnJvbSBjb25zb2xlIGJ1dCBvbiB0dHkgb3IgdGhyb3VnaCBzc2ggdGhlbiB0aGlzIHBhdGNo
-CmlzIG5vdCBuZWVkZWQuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvPHFpbmd0YW8uY2FvQHdp
-bmRyaXZlci5jb20+Ci0tLQogcG9saWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1dGlsLnRlICAg
-ICAgfCAgICAzICsrCiAxIGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQoKLS0tIGEvcG9s
-aWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1dGlsLnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5
-c3RlbS9zZWxpbnV4dXRpbC50ZQpAQCAtMjYwLDYgKzI2MCw5IEBAIHRlcm1fcmVsYWJlbF9hbGxf
-dXNlcl90dHlzKG5ld3JvbGVfdCkKIHRlcm1fcmVsYWJlbF9hbGxfdXNlcl9wdHlzKG5ld3JvbGVf
-dCkKIHRlcm1fZ2V0YXR0cl91bmFsbG9jYXRlZF90dHlzKG5ld3JvbGVfdCkKIHRlcm1fZG9udGF1
-ZGl0X3VzZV91bmFsbG9jYXRlZF90dHlzKG5ld3JvbGVfdCkKKyMgYWxsb3cgbmV3cm9sZV90IHRv
-IHVzZSBhbmQgcmVsYWJlbCAvZGV2L2NvbnNvbGUKK3Rlcm1fdXNlX2NvbnNvbGUobmV3cm9sZV90
-KQordGVybV9yZWxhYmVsX2NvbnNvbGUobmV3cm9sZV90KQogCiBhdXRoX3VzZV9uc3N3aXRjaChu
-ZXdyb2xlX3QpCiBhdXRoX2RvbXRyYW5zX2Noa19wYXNzd2QobmV3cm9sZV90KQo=
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-root-dir-label.patch"
-
-RXhwbGljaXRseSBzcGVjaWZ5IHRoZSBzZWN1cml0eSBjb250ZXh0IGZvciAvcm9vdCBkaXJlY3Rv
-cnkgdG8gYXZvaWQgCml0IGJlaW5nIGxhYmVsZWQgYXMgZGVmYXVsdF90LgoKU2lnbmVkLW9mZi1i
-eTogSGFycnkgQ2lhbzxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29tPgotLS0KIHBvbGljeS9tb2R1
-bGVzL3N5c3RlbS91c2VyZG9tYWluLmZjIHwgICAgNCArKysrCiAxIGZpbGUgY2hhbmdlZCwgNCBp
-bnNlcnRpb25zKCspCgotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5mYwor
-KysgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5mYwpAQCAtMiwzICsyLDcgQEAg
-SE9NRV9ESVIJLWQJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0XwogSE9NRV9ESVIvLisJCWdl
-bl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnVzZXJfaG9tZV90LHMwKQogCiAvdG1wL2djb25m
-ZC1VU0VSIC1kCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnVzZXJfdG1wX3QsczApCisK
-Ky9yb290CQktZAlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rfcjp1c2VyX2hvbWVfZGlyX3Qs
-czApCisvcm9vdC8uKwkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6dXNlcl9ob21lX3Qs
-czApCisK
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-semanage_t-access-user-home.patch"
-
-c2VtYW5hZ2VfdCB3b3VsZCByZXF1aXJlIG5lY2Vzc2FyeSBwcml2aWxlZ2UgdG8gcmVhZCB0aGUg
-cHAgY3JlYXRlZCBpbiB1c2VyCmhvbWVkaXIgb3IgL3RtcCwgb3RoZXJ3aXNlIGZvbGxvd2luZyBl
-cnJvciBtZXNzYWdlcyB3b3VsZCBwb3AgdXAgd2hlbgp1cGRhdGluZyBhIHBwIGluIHBlcm1pc3Np
-dmUgbW9kZToKCnJvb3RAY3AzMDIwOi9yb290PiBzZW1vZHVsZSAtdSBhdXRobG9naW4ucHAgCnR5
-cGU9MTQwMCBhdWRpdCgxMjY0NTk5MjkxLjI1Njo1MSk6IGF2YzogIGRlbmllZCAgeyBzZWFyY2gg
-fSBmb3IgIHBpZD0yMzYwIGNvbW09InNlbW9kdWxlIiBuYW1lPSJyb290IiBkZXY9c2RhMSBpbm89
-NTc5MzYxIHNjb250ZXh0PXJvb3Q6c2VjYWRtX3I6c2VtYW5hZ2VfdDpzMC1zMTU6YzAuYzI1NSB0
-Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp1c2VyX2hvbWVfZGlyX3Q6czAgdGNsYXNzPWRpcgp0
-eXBlPTE0MDAgYXVkaXQoMTI2NDU5OTI5MS4zMDE6NTIpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB9
-IGZvciAgcGlkPTIzNjAgY29tbT0ic2Vtb2R1bGUiIG5hbWU9ImF1dGhsb2dpbi5wcCIgZGV2PXNk
-YTEgaW5vPTU3OTM2NiBzY29udGV4dD1yb290OnNlY2FkbV9yOnNlbWFuYWdlX3Q6czAtczE1OmMw
-LmMyNTUgdGNvbnRleHQ9cm9vdDpvYmplY3Rfcjp1c2VyX2hvbWVfdDpzMCB0Y2xhc3M9ZmlsZQp0
-eXBlPTE0MDAgYXVkaXQoMTI2NDU5OTI5MS4zNDc6NTMpOiBhdmM6ICBkZW5pZWQgIHsgb3BlbiB9
-IGZvciAgcGlkPTIzNjAgY29tbT0ic2Vtb2R1bGUiIG5hbWU9ImF1dGhsb2dpbi5wcCIgZGV2PXNk
-YTEgaW5vPTU3OTM2NiBzY29udGV4dD1yb290OnNlY2FkbV9yOnNlbWFuYWdlX3Q6czAtczE1OmMw
-LmMyNTUgdGNvbnRleHQ9cm9vdDpvYmplY3Rfcjp1c2VyX2hvbWVfdDpzMCB0Y2xhc3M9ZmlsZQp0
-eXBlPTE0MDAgYXVkaXQoMTI2NDU5OTI5MS4zOTI6NTQpOiBhdmM6ICBkZW5pZWQgIHsgZ2V0YXR0
-ciB9IGZvciAgcGlkPTIzNjAgY29tbT0ic2Vtb2R1bGUiIHBhdGg9Ii9yb290L2F1dGhsb2dpbi5w
-cCIgZGV2PXNkYTEgaW5vPTU3OTM2NiBzY29udGV4dD1yb290OnNlY2FkbV9yOnNlbWFuYWdlX3Q6
-czAtczE1OmMwLmMyNTUgdGNvbnRleHQ9cm9vdDpvYmplY3Rfcjp1c2VyX2hvbWVfdDpzMCB0Y2xh
-c3M9ZmlsZQpTRUxpbnV4OiA4MTkyIGF2dGFiIGhhc2ggc2xvdHMsIDE2NzMyMiBydWxlcy4KU0VM
-aW51eDogODE5MiBhdnRhYiBoYXNoIHNsb3RzLCAxNjczMjIgcnVsZXMuClNFTGludXg6ICA2IHVz
-ZXJzLCAxMyByb2xlcywgMzAwNyB0eXBlcywgMTA1IGJvb2xzLCAxNiBzZW5zLCAyNTYgY2F0cwpT
-RUxpbnV4OiAgNzcgY2xhc3NlcywgMTY3MzIyIHJ1bGVzCnR5cGU9MTQwMyBhdWRpdCgxMjY0NTk5
-MzI1LjQ1Njo1NSk6IHBvbGljeSBsb2FkZWQgYXVpZD00Mjk0OTY3Mjk1IHNlcz00Mjk0OTY3Mjk1
-CnJvb3RAY3AzMDIwOi9yb290PgoKU2lnbmVkLW9mZi1ieTogSGFycnkgQ2lhbzxxaW5ndGFvLmNh
-b0B3aW5kcml2ZXIuY29tPgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9zZWxpbnV4dXRpbC50
-ZSB8ICAgIDUgKystLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDMgZGVsZXRp
-b25zKC0pCgotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51eHV0aWwudGUKKysrIGIv
-cG9saWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1dGlsLnRlCkBAIC00OTIsOSArNDkyLDggQEAg
-aWZkZWYoYGRpc3Ryb191YnVudHUnLGAKIAogIyBjanA6IG5lZWQgYSBtb3JlIGdlbmVyYWwgd2F5
-IHRvIGhhbmRsZSB0aGlzOgogaWZkZWYoYGVuYWJsZV9tbHMnLGAKLQkjIHJlYWQgc2VjYWRtIHRt
-cCBmaWxlcwotJyxgCiAJIyBIYW5kbGUgcHAgZmlsZXMgY3JlYXRlZCBpbiBob21lZGlyIGFuZCAv
-dG1wCisJdXNlcmRvbV9zZWFyY2hfdXNlcl9ob21lX2RpcnMoc2VtYW5hZ2VfdCkKIAl1c2VyZG9t
-X3JlYWRfdXNlcl9ob21lX2NvbnRlbnRfZmlsZXMoc2VtYW5hZ2VfdCkKIAl1c2VyZG9tX3JlYWRf
-dXNlcl90bXBfZmlsZXMoc2VtYW5hZ2VfdCkKICcpCg==
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-securetty_types-fix.patch"
-
-QWRkIHRoZSB0eXBlcyBvZiAvZGV2L2NvbnNvbGUgYW5kIC9kZXYvcHRzLzAgdG8gc2VjdXJldHR5
-X3R5cGVzIGZpbGUsCnNvIHRoYXQgeW91IGNhbiBkbyBuZXdyb2xlIG9uIHRoZXNlIGRldmljZXMu
-CgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvPHFpbmd0YW8uY2FvQHdpbmRyaXZlci5jb20+Ci0t
-LQogY29uZmlnL2FwcGNvbmZpZy1tY3Mvc2VjdXJldHR5X3R5cGVzICAgICAgfCAgICAyICsrCiBj
-b25maWcvYXBwY29uZmlnLW1scy9zZWN1cmV0dHlfdHlwZXMgICAgICB8ICAgIDIgKysKIGNvbmZp
-Zy9hcHBjb25maWctc3RhbmRhcmQvc2VjdXJldHR5X3R5cGVzIHwgICAgMiArKwogMyBmaWxlcyBj
-aGFuZ2VkLCA2IGluc2VydGlvbnMoKykKCi0tLSBhL2NvbmZpZy9hcHBjb25maWctbWNzL3NlY3Vy
-ZXR0eV90eXBlcworKysgYi9jb25maWcvYXBwY29uZmlnLW1jcy9zZWN1cmV0dHlfdHlwZXMKQEAg
-LTEgKzEsMyBAQAogdXNlcl90dHlfZGV2aWNlX3QKK2NvbnNvbGVfZGV2aWNlX3QKK3VzZXJfZGV2
-cHRzX3QKLS0tIGEvY29uZmlnL2FwcGNvbmZpZy1tbHMvc2VjdXJldHR5X3R5cGVzCisrKyBiL2Nv
-bmZpZy9hcHBjb25maWctbWxzL3NlY3VyZXR0eV90eXBlcwpAQCAtMSArMSwzIEBACiB1c2VyX3R0
-eV9kZXZpY2VfdAorY29uc29sZV9kZXZpY2VfdAordXNlcl9kZXZwdHNfdAotLS0gYS9jb25maWcv
-YXBwY29uZmlnLXN0YW5kYXJkL3NlY3VyZXR0eV90eXBlcworKysgYi9jb25maWcvYXBwY29uZmln
-LXN0YW5kYXJkL3NlY3VyZXR0eV90eXBlcwpAQCAtMSArMSwzIEBACiB1c2VyX3R0eV9kZXZpY2Vf
-dAorY29uc29sZV9kZXZpY2VfdAordXNlcl9kZXZwdHNfdAo=
-
---_80d4c217-a150-4968-802e-f04904aa0691_
-Content-Type: text/x-diff
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="refpolicy-strict-setfiles_t-read-console.patch"
-
-c2V0ZmlsZXNfdCB3b3VsZCByZXF1aXJlIG5lY2Vzc2FyeSBwcml2aWxlZ2UgdG8gcmVhZCBmcm9t
-IC9kZXYvY29uc29sZSwKb3RoZXJ3aXNlIHdlIHdpbGwgcnVuIGludG8gYmVsb3cgZXJyb3IgbWVz
-c2FnZSBkdXJpbmcgYm9vdCB1cDoKCnR5cGU9MTQwMCBhdWRpdCgxMjg2OTA1OTY5LjY3Njo3KTog
-YXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD0xOTYwIGNvbW09InJlc3RvcmVjb24iIG5h
-bWU9ImNvbnNvbGUiIGRldj1zZGExIGlubz01MjIyNDggc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
-X3I6c2V0ZmlsZXNfdDpzMC1zMTU6YzAuYzI1NSB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpj
-b25zb2xlX2RldmljZV90OnMwIHRjbGFzcz1jaHJfZmlsZQoKU2lnbmVkLW9mZi1ieTogSGFycnkg
-Q2lhbzxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29tPgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3Rl
-bS9zZWxpbnV4dXRpbC50ZSB8ICAgIDIgKysKIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMo
-KykKCi0tLSBhL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9zZWxpbnV4dXRpbC50ZQorKysgYi9wb2xp
-Y3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51eHV0aWwudGUKQEAgLTU1NCw2ICs1NTQsOCBAQCB0ZXJt
-X3VzZV9hbGxfdXNlcl90dHlzKHNldGZpbGVzX3QpCiB0ZXJtX3VzZV9hbGxfdXNlcl9wdHlzKHNl
-dGZpbGVzX3QpCiB0ZXJtX3VzZV91bmFsbG9jYXRlZF90dHlzKHNldGZpbGVzX3QpCiAKK3Rlcm1f
-cmVhZF9jb25zb2xlKHNldGZpbGVzX3QpCisKICMgdGhpcyBpcyB0byBzYXRpc2Z5IHRoZSBhc3Nl
-cnRpb246CiBhdXRoX3JlbGFiZWx0b19zaGFkb3coc2V0ZmlsZXNfdCkKIAo=
-
---_80d4c217-a150-4968-802e-f04904aa0691_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
