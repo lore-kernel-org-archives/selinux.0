@@ -1,44 +1,35 @@
-Subject: Re: Allowing MLS->non-MLS and vice versa upon policy reload
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 4 Feb 2010 09:07:38 +1100 (EST)
+From: James Morris <jmorris@namei.org>
 To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1265226472.3013.158.camel@tesla.lan>
-References: <1265212634.3013.19.camel@tesla.lan>
-	 <1265213477.12805.15.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265213884.3013.29.camel@tesla.lan>
-	 <1265215473.12805.27.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265216018.3013.34.camel@tesla.lan>
-	 <1265216578.12805.32.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265217052.3013.37.camel@tesla.lan>
-	 <1265217802.12805.37.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265218159.3013.49.camel@tesla.lan>
-	 <1265219173.12805.42.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265219272.3013.55.camel@tesla.lan>
-	 <1265221396.12805.70.camel@moss-pluto.epoch.ncsc.mil>
-	 <1265226472.3013.158.camel@tesla.lan>
-Content-Type: text/plain
-Date: Wed, 03 Feb 2010 14:57:52 -0500
-Message-Id: <1265227072.12805.77.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Allowing MLS->non-MLS and vice versa upon policy
+ reload
+In-Reply-To: <1265211620.3013.2.camel@tesla.lan>
+Message-ID: <alpine.LRH.2.00.1002040907250.25177@tundra.namei.org>
+References: <1265211620.3013.2.camel@tesla.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-02-03 at 20:47 +0100, Guido Trentalancia wrote:
-> Stephen,
-> 
-> the openssh server issue is specific to Debian or at least specific to
-> version 5.1p1. The current version is 5.3p1 and it does not suffer that
-> problem, therefore the issue should not be considered any further.
-> 
-> Should I submit both patches to the kernel mailing list or what ?
+On Wed, 3 Feb 2010, Guido Trentalancia wrote:
 
-Not necessary; they should get taken into security-testing-2.6 in due
-time, given that they were acked unless someone objects to them.
+> Author: Guido Trentalancia <guido@trentalancia.com>
+> Date:   Mon Feb 02 23:11:07 2010 +0100
+> 
+>     Allow runtime switching between different policy types (e.g. from a MLS/MCS
+>     policy to a non-MLS/non-MCS policy or viceversa).
+> 
+>     Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+
+
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
