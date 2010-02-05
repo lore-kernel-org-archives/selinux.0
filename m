@@ -1,58 +1,74 @@
-Subject: Re: [PATCH 2/2] libsepol: remove dead code in
- check_avtab_hierarchy_callback()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4B6BAFD0.2050607@ak.jp.nec.com>
-References: <4AF71B05.8030707@cs.purdue.edu>
-	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
-	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
-	 <4B14934F.9050401@cs.purdue.edu>
-	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
-	 <4B6BAFD0.2050607@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Fri, 05 Feb 2010 09:50:54 -0500
-Message-Id: <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o15G7ZTX030472
+	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 11:07:35 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o15G7NUn025124
+	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 16:07:23 GMT
+Date: Fri, 5 Feb 2010 17:07:20 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Cc: Paul Moore <paul.moore@hp.com>
+Subject: Re: MLS and network
+Message-ID: <20100205160720.GN1750@myhost.felk.cvut.cz>
+References: <20100204174901.GL1750@myhost.felk.cvut.cz>
+ <1265306980.22595.7.camel@moss-pluto.epoch.ncsc.mil>
+ <20100205051921.GM1750@myhost.felk.cvut.cz>
+ <1265378086.18100.33.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hXth9cGL35Nvpk4x"
+In-Reply-To: <1265378086.18100.33.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-02-05 at 14:42 +0900, KaiGai Kohei wrote:
-> What is the current status of this patch?
-> Its kernel side patch has been already merged into James's -next tree.
-> 
-> http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=7d52a155e38d5a165759dbbee656455861bf7801
 
-I had to use -l to get it to apply (whitespace mangled).
+--hXth9cGL35Nvpk4x
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Before applying it, when trying to install the test_policy.pp module
-from the selinux testsuite with expand-check=1
-in /etc/selinux/semanage.conf, I get:
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
-libsepol.hierarchy_check_constraints: 2 total errors found during hierarchy check
+Stephen Smalley wrote:
+> The port-based checks (e.g. name_bind, name_connect) are not relevant
+> to MLS and there are no MLS constraints written on them.
 
-And after applying it, I get the following:
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : process {  fork transition sigchld sigkill sigstop signull signal getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh rlimitinh setcurrent setkeycreate setsockcreate }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : capability {  dac_override dac_read_search }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : file {  ioctl read write getattr lock append open }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : dir {  ioctl read getattr lock search open }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fd {  use }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : lnk_file {  ioctl read getattr lock }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fifo_file {  ioctl read write getattr lock append open }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_stream_socket {  ioctl read write create getattr setattr append bind connect listen accept getopt setopt shutdown }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_dgram_socket {  ioctl read write create getattr setattr append bind connect getopt setopt shutdown sendto }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : association {  sendto }
-libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
-libsepol.hierarchy_check_constraints: 12 total errors found during hierarchy check
+I see. In the refpolicy they say that name_bind/name_connect have no
+MLS restrictions. But they place restrictions on tcp_socket write and
+read, shouldn't those kick in?
 
--- 
-Stephen Smalley
-National Security Agency
+BTW, what's the difference between connect and name_connect?
 
+> 2) Can you provide more details about your configuration and your test
+> case (e.g. your exact netlabel configuration, the policy package you are
+> using, the context in which your process runs)?
+
+Fedora 12 with latest updates; mls policy package. Base package
+description says:
+Based off of reference policy: Checked out revision  2.20090730
+
+Context is user_u:user_r:user_t:s1
+
+I did something like=20
+netlabelctl unlbl add default address:0.0.0.0/0 \
+	label:system_u:object_r:netlabel_peer_t:s0
+
+I could see the packets on the outgoing interface.
+
+Michal Svoboda
+
+
+--hXth9cGL35Nvpk4x
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAktsQjgACgkQg/fU9pp1uX4xAACbBfwD4cdAmrRn52SuEZbsnAPt
+bRoAn3Ud/SeukRHu0ipnGZ6lc0mh3nSq
+=qwlA
+-----END PGP SIGNATURE-----
+
+--hXth9cGL35Nvpk4x--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
