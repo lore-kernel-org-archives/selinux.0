@@ -1,143 +1,70 @@
-Message-ID: <4B6BAFD0.2050607@ak.jp.nec.com>
-Date: Fri, 05 Feb 2010 14:42:40 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: method@manicmethod.com
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Jacques Thomas <jthomas@cs.purdue.edu>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
-References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu> <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil> <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
-In-Reply-To: <4B5685EC.1000500@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Subject: Re: MLS and network
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>
+In-Reply-To: <20100205051921.GM1750@myhost.felk.cvut.cz>
+References: <20100204174901.GL1750@myhost.felk.cvut.cz>
+	 <1265306980.22595.7.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100205051921.GM1750@myhost.felk.cvut.cz>
+Content-Type: text/plain
+Date: Fri, 05 Feb 2010 08:54:46 -0500
+Message-Id: <1265378086.18100.33.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What is the current status of this patch?
-Its kernel side patch has been already merged into James's -next tree.
+On Fri, 2010-02-05 at 06:19 +0100, Michal Svoboda wrote:
+> Stephen Smalley wrote:
+> > If you want network enforcement, you need to configure labeled
+> > networking - that isn't enabled by default.
+> 
+> Thanks. I have two more questions. First, why does MLS require this, but
+> for TE it is sufficient to have labeled ports? And second, I have
+> managed to label my network to s0, but still, if I try to connect as s1
+> user, the outbound connection gets through, only the response (ie.
+> syn/ack) is denied. This still violates BLP; is this a matter of how the
+> refpolicy is set up?
 
-http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=7d52a155e38d5a165759dbbee656455861bf7801
+(cc'd the labeled networking maintainer)
 
-Thanks,
+1) Regardless of security policy model (TE or MLS), the newer networking
+checks (peer send/recv, netif egress/ingress, node recvfrom/sendto) were
+made conditional on configuration of labeled networking to minimize
+performance overhead and ensure backward compatibility for users who
+have no interest in network enforcement.  MLS is concerned with
+information flow among levels, and is thus concerned about the peer
+relationships, which can only be known if using labeled networking.  The
+port-based checks (e.g. name_bind, name_connect) are not relevant to MLS
+and there are no MLS constraints written on them.
 
-(2010/01/20 13:26), KaiGai Kohei wrote:
-> This patch removes dead code in check_avtab_hierarchy_callback().
-> 
-> Due to the historical reason, the type boundary feature is delivered
-> from hierarchical types in libsepol, it has supported boundary features
-> both of subject type (domain; in most cases) and target type.
-> 
-> However, we don't have any actual use cases in bounded target types,
-> and it tended to make conceptual confusion.
-> So, this patch removes the dead code to apply boundary checks on the
-> target types in libsepol (when expand-check=1). I makes clear the TYPEBOUNDS
-> restricts privileges of a certain domain bounded to any other domain.
-> 
->   Signed-off-by: KaiGai Kohei<kaigai@ak.jp.nec.com>
-> --
->   libsepol/src/hierarchy.c |   71 ++++++++++++---------------------------------
->   1 files changed, 19 insertions(+), 52 deletions(-)
-> 
-> diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-> index e2df5a4..87a9d9c 100644
-> --- a/libsepol/src/hierarchy.c
-> +++ b/libsepol/src/hierarchy.c
-> @@ -159,7 +159,7 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
->   {
->   	avtab_key_t key;
->   	hierarchy_args_t *a = (hierarchy_args_t *) args;
-> -	type_datum_t *s, *t1 = NULL, *t2 = NULL;
-> +	type_datum_t *s, *t;
->   	avtab_datum_t av;
-> 
->   	if (!(k->specified&  AVTAB_ALLOWED)) {
-> @@ -169,62 +169,29 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
-> 
->   	/* search for parent first */
->   	s = a->p->type_val_to_struct[k->source_type - 1];
-> -	if (find_parent_type(a, s,&t1)<  0)
-> +	if (find_parent_type(a, s,&t)<  0)
->   		return -1;
-> -	if (t1) {
-> -		/*
-> -		 * search for access allowed between type 1's
-> -		 * parent and type 2.
-> -		 */
-> -		key.source_type = t1->s.value;
-> -		key.target_type = k->target_type;
-> -		key.target_class = k->target_class;
-> -		key.specified = AVTAB_ALLOWED;
-> -		compute_avtab_datum(a,&key,&av);
-> -
-> -		if ((av.data&  d->data) == d->data)
-> -			return 0;
-> -	}
-> -
-> -	/* next we try type 1 and type 2's parent */
-> -	s = a->p->type_val_to_struct[k->target_type - 1];
-> -	if (find_parent_type(a, s,&t2)<  0)
-> -		return -1;
-> -	if (t2) {
-> -		/*
-> -		 * search for access allowed between type 1 and
-> -		 * type 2's parent.
-> -		 */
-> -		key.source_type = k->source_type;
-> -		key.target_type = t2->s.value;
-> -		key.target_class = k->target_class;
-> -		key.specified = AVTAB_ALLOWED;
-> -		compute_avtab_datum(a,&key,&av);
-> -
-> -		if ((av.data&  d->data) == d->data)
-> -			return 0;
-> -	}
-> 
-> -	if (t1&&  t2) {
-> -		/*
-> -                 * search for access allowed between type 1's parent
-> -                 * and type 2's parent.
-> -                 */
-> -		key.source_type = t1->s.value;
-> -		key.target_type = t2->s.value;
-> -		key.target_class = k->target_class;
-> -		key.specified = AVTAB_ALLOWED;
-> -		compute_avtab_datum(a,&key,&av);
-> -
-> -		if ((av.data&  d->data) == d->data)
-> -			return 0;
-> -	}
-> +	/*
-> +	 * If the given subject security context does not have any
-> +	 * parent domain, we don't need to apply sanity checks on
-> +	 * the type boundary constraint.
-> +	 */
-> +	if (!t)
-> +		return 0;
-> 
->   	/*
-> -	 * Neither one of these types have parents and
-> -	 * therefore the hierarchical constraint does not apply
-> +	 * Search for access allowed between the parent domain and
-> +	 * the type. All the permissions with the child domain have
-> +	 * to be allowed to the parent domain also.
->   	 */
-> -	if (!t1&&  !t2)
-> +	key.source_type = t->s.value;
-> +	key.target_type = k->target_type;
-> +	key.target_class = k->target_class;
-> +	key.specified = AVTAB_ALLOWED;
-> +	compute_avtab_datum(a,&key,&av);
-> +
-> +	if ((av.data&  d->data) == d->data)
->   		return 0;
-> 
->   	/*
-> 
+2) Can you provide more details about your configuration and your test
+case (e.g. your exact netlabel configuration, the policy package you are
+using, the context in which your process runs)?  If you have enabled
+labeled networking and have labeled your network interface as
+s0/SystemLow, then I would expect that you would trigger the following
+constraint on outbound traffic:
+mlsconstrain { netif } { egress }
+        ((( l1 dom l2 ) and ( l1 domby h2 )) or
+         ( t1 == mlsnetoutbound ));
+which in English says "Only allow netif egress permission if the peer's
+low level dominates the netif's low level and the peer's high level is
+dominated by the netif's high level i.e. the peer's range is contained
+by the netif's range", and thus egress permission would be removed from
+the allowed vector if the process was running at s1 and sending outbound
+traffic on a netif that was only labeled s0.
+
+Paul, am I missing anything above?
+
+If you build libselinux from source and install the utils (mostly
+omitted from the Fedora package), you'll find a utility called
+compute_av that you can use to query the actively loaded policy, e.g.
+compute_av staff_u:staff_r:staff_t:s1 system_u:object_r:netif_t:s0 netif
 
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
