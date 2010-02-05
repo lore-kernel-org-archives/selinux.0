@@ -1,62 +1,143 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o155JWhw030991
-	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 00:19:33 -0500
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o155JMZt017279
-	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 05:19:23 GMT
-Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
-	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o155JMvu024855
-	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 06:19:22 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
-	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o155JL4t081241
-	for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2010 06:19:22 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Date: Fri, 5 Feb 2010 06:19:21 +0100
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: selinux@tycho.nsa.gov
-Subject: Re: MLS and network
-Message-ID: <20100205051921.GM1750@myhost.felk.cvut.cz>
-References: <20100204174901.GL1750@myhost.felk.cvut.cz>
- <1265306980.22595.7.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <4B6BAFD0.2050607@ak.jp.nec.com>
+Date: Fri, 05 Feb 2010 14:42:40 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5FetH82qe0Z6y/zI"
-In-Reply-To: <1265306980.22595.7.camel@moss-pluto.epoch.ncsc.mil>
+To: method@manicmethod.com
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
+References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu> <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil> <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
+In-Reply-To: <4B5685EC.1000500@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+What is the current status of this patch?
+Its kernel side patch has been already merged into James's -next tree.
 
---5FetH82qe0Z6y/zI
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=7d52a155e38d5a165759dbbee656455861bf7801
 
-Stephen Smalley wrote:
-> If you want network enforcement, you need to configure labeled
-> networking - that isn't enabled by default.
+Thanks,
 
-Thanks. I have two more questions. First, why does MLS require this, but
-for TE it is sufficient to have labeled ports? And second, I have
-managed to label my network to s0, but still, if I try to connect as s1
-user, the outbound connection gets through, only the response (ie.
-syn/ack) is denied. This still violates BLP; is this a matter of how the
-refpolicy is set up?
+(2010/01/20 13:26), KaiGai Kohei wrote:
+> This patch removes dead code in check_avtab_hierarchy_callback().
+> 
+> Due to the historical reason, the type boundary feature is delivered
+> from hierarchical types in libsepol, it has supported boundary features
+> both of subject type (domain; in most cases) and target type.
+> 
+> However, we don't have any actual use cases in bounded target types,
+> and it tended to make conceptual confusion.
+> So, this patch removes the dead code to apply boundary checks on the
+> target types in libsepol (when expand-check=1). I makes clear the TYPEBOUNDS
+> restricts privileges of a certain domain bounded to any other domain.
+> 
+>   Signed-off-by: KaiGai Kohei<kaigai@ak.jp.nec.com>
+> --
+>   libsepol/src/hierarchy.c |   71 ++++++++++++---------------------------------
+>   1 files changed, 19 insertions(+), 52 deletions(-)
+> 
+> diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
+> index e2df5a4..87a9d9c 100644
+> --- a/libsepol/src/hierarchy.c
+> +++ b/libsepol/src/hierarchy.c
+> @@ -159,7 +159,7 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
+>   {
+>   	avtab_key_t key;
+>   	hierarchy_args_t *a = (hierarchy_args_t *) args;
+> -	type_datum_t *s, *t1 = NULL, *t2 = NULL;
+> +	type_datum_t *s, *t;
+>   	avtab_datum_t av;
+> 
+>   	if (!(k->specified&  AVTAB_ALLOWED)) {
+> @@ -169,62 +169,29 @@ static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
+> 
+>   	/* search for parent first */
+>   	s = a->p->type_val_to_struct[k->source_type - 1];
+> -	if (find_parent_type(a, s,&t1)<  0)
+> +	if (find_parent_type(a, s,&t)<  0)
+>   		return -1;
+> -	if (t1) {
+> -		/*
+> -		 * search for access allowed between type 1's
+> -		 * parent and type 2.
+> -		 */
+> -		key.source_type = t1->s.value;
+> -		key.target_type = k->target_type;
+> -		key.target_class = k->target_class;
+> -		key.specified = AVTAB_ALLOWED;
+> -		compute_avtab_datum(a,&key,&av);
+> -
+> -		if ((av.data&  d->data) == d->data)
+> -			return 0;
+> -	}
+> -
+> -	/* next we try type 1 and type 2's parent */
+> -	s = a->p->type_val_to_struct[k->target_type - 1];
+> -	if (find_parent_type(a, s,&t2)<  0)
+> -		return -1;
+> -	if (t2) {
+> -		/*
+> -		 * search for access allowed between type 1 and
+> -		 * type 2's parent.
+> -		 */
+> -		key.source_type = k->source_type;
+> -		key.target_type = t2->s.value;
+> -		key.target_class = k->target_class;
+> -		key.specified = AVTAB_ALLOWED;
+> -		compute_avtab_datum(a,&key,&av);
+> -
+> -		if ((av.data&  d->data) == d->data)
+> -			return 0;
+> -	}
+> 
+> -	if (t1&&  t2) {
+> -		/*
+> -                 * search for access allowed between type 1's parent
+> -                 * and type 2's parent.
+> -                 */
+> -		key.source_type = t1->s.value;
+> -		key.target_type = t2->s.value;
+> -		key.target_class = k->target_class;
+> -		key.specified = AVTAB_ALLOWED;
+> -		compute_avtab_datum(a,&key,&av);
+> -
+> -		if ((av.data&  d->data) == d->data)
+> -			return 0;
+> -	}
+> +	/*
+> +	 * If the given subject security context does not have any
+> +	 * parent domain, we don't need to apply sanity checks on
+> +	 * the type boundary constraint.
+> +	 */
+> +	if (!t)
+> +		return 0;
+> 
+>   	/*
+> -	 * Neither one of these types have parents and
+> -	 * therefore the hierarchical constraint does not apply
+> +	 * Search for access allowed between the parent domain and
+> +	 * the type. All the permissions with the child domain have
+> +	 * to be allowed to the parent domain also.
+>   	 */
+> -	if (!t1&&  !t2)
+> +	key.source_type = t->s.value;
+> +	key.target_type = k->target_type;
+> +	key.target_class = k->target_class;
+> +	key.specified = AVTAB_ALLOWED;
+> +	compute_avtab_datum(a,&key,&av);
+> +
+> +	if ((av.data&  d->data) == d->data)
+>   		return 0;
+> 
+>   	/*
+> 
 
-Michal Svoboda
 
---5FetH82qe0Z6y/zI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAktrqlkACgkQg/fU9pp1uX4YaACeNyMlKa2+iYU52pyO01pb72cE
-icMAnimC7lua1pPPETG3su3EWGJFOJK2
-=rIZx
------END PGP SIGNATURE-----
-
---5FetH82qe0Z6y/zI--
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
