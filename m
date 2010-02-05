@@ -1,59 +1,53 @@
-Subject: [PATCH] libselinux:  Only audit permissions specified by the policy
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in
+ check_avtab_hierarchy_callback()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Chad Sellers <csellers@tresys.com>, Joshua Brindle <jbrindle@tresys.com>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4B6BAFD0.2050607@ak.jp.nec.com>
+References: <4AF71B05.8030707@cs.purdue.edu>
+	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
+	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
+	 <4B14934F.9050401@cs.purdue.edu>
+	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
+	 <4B6BAFD0.2050607@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Fri, 05 Feb 2010 09:24:41 -0500
-Message-Id: <1265379881.18100.43.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 05 Feb 2010 09:50:54 -0500
+Message-Id: <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Only audit the permissions specified by the policy, excluding any
-permissions specified via dontaudit or not specified via auditallow.
-This only shows up when a single avc_has_perm() call is made with
-multiple permissions where some of those permissions are dontaudit'd or
-auditallow'd while others are not.  The corresponding kernel patch has
-already been applied, see:
-http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=b6cac5a30b325e14cda425670bb3568d3cad0aa8
+On Fri, 2010-02-05 at 14:42 +0900, KaiGai Kohei wrote:
+> What is the current status of this patch?
+> Its kernel side patch has been already merged into James's -next tree.
+> 
+> http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=7d52a155e38d5a165759dbbee656455861bf7801
 
-Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+I had to use -l to get it to apply (whitespace mangled).
 
----
+Before applying it, when trying to install the test_policy.pp module
+from the selinux testsuite with expand-check=1
+in /etc/selinux/semanage.conf, I get:
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
+libsepol.hierarchy_check_constraints: 2 total errors found during hierarchy check
 
- libselinux/src/avc.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
-
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index 1c62fa3..881b915 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -694,17 +694,14 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
- 	access_vector_t denied, audited;
- 
- 	denied = requested & ~avd->allowed;
--	if (denied) {
--		audited = denied;
--		if (!(audited & avd->auditdeny))
--			return;
--	} else if (!requested || result) {
-+	if (denied)
-+		audited = denied & avd->auditdeny;
-+	else if (!requested || result)
- 		audited = denied = requested;
--	} else {
--		audited = requested;
--		if (!(audited & avd->auditallow))
--			return;
--	}
-+	else
-+		audited = requested & avd->auditallow;
-+	if (!audited)
-+		return;
- #if 0
- 	if (!check_avc_ratelimit())
- 		return;
+And after applying it, I get the following:
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : process {  fork transition sigchld sigkill sigstop signull signal getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh rlimitinh setcurrent setkeycreate setsockcreate }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : capability {  dac_override dac_read_search }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : file {  ioctl read write getattr lock append open }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : dir {  ioctl read getattr lock search open }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fd {  use }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : lnk_file {  ioctl read getattr lock }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fifo_file {  ioctl read write getattr lock append open }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_stream_socket {  ioctl read write create getattr setattr append bind connect listen accept getopt setopt shutdown }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_dgram_socket {  ioctl read write create getattr setattr append bind connect getopt setopt shutdown sendto }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : association {  sendto }
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
+libsepol.hierarchy_check_constraints: 12 total errors found during hierarchy check
 
 -- 
 Stephen Smalley
