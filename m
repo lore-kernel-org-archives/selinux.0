@@ -1,53 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o17HMhP0032167
-	for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2010 12:22:43 -0500
-Received: from mail-yx0-f183.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o17HMp1b029486
-	for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2010 17:22:51 GMT
-Received: by yxe13 with SMTP id 13so3740395yxe.18
-        for <selinux@tycho.nsa.gov>; Sun, 07 Feb 2010 09:22:42 -0800 (PST)
-Message-ID: <4B6EF749.8070503@gmail.com>
-Date: Sun, 07 Feb 2010 09:24:25 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o17IAsvZ001510
+	for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2010 13:10:54 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o17IAh1b016029
+	for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2010 18:10:44 GMT
+Date: Sun, 7 Feb 2010 19:10:16 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: MLS and network
+Message-ID: <20100207181016.GS1750@myhost.felk.cvut.cz>
+References: <20100204174901.GL1750@myhost.felk.cvut.cz>
+ <1265388590.18100.73.camel@moss-pluto.epoch.ncsc.mil>
+ <20100205192806.GP1750@myhost.felk.cvut.cz>
+ <201002051547.27944.paul.moore@hp.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Selinux in enforcing mode prevent network interface to be configured
- at boot for Debian stable ( 5.0)
-References: <bf30b281002070012q1d9a33ffsc90781d217e05f9b@mail.gmail.com> <4B6E7CE0.1050107@gmail.com> <bf30b281002070131l4821a6abg45a3cbc3d01a08e6@mail.gmail.com> <4B6E8EF5.3010608@gmail.com> <20100207162358.GR1750@myhost.felk.cvut.cz>
-In-Reply-To: <20100207162358.GR1750@myhost.felk.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5tINJiUS2/Dn5Rhr"
+In-Reply-To: <201002051547.27944.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/07/10 08:23, Michal Svoboda wrote:
-> Justin P. Mattock wrote:
->> if nothing the do a
->> sudo /usr/sbin/semodule -DB
->> (reboot)
->> then what does audit2allow say?
->> should give you some allow rules
->> if so add them to your policy.
->
-> This will most likely output a very large number of rules that don't
-> make sense, ie. they would do more bad than good.
->
 
-  true.. well if there's a better idea to help this person out,
-then please add..(I figured the most simplest way to do so
-without having to do brain surgery).
+--5tINJiUS2/Dn5Rhr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The basic problem is that the network scripts don't have their own
-> restricted domain in which they could run. Running them from udev on
-> 'network hotplug event' will copy the udev context, which doesn't have
-> enough privileges to configure network. Giving these privileges to udev
-> directly would be sub-optimal.
->
-> Michal Svoboda
+Paul Moore wrote:
+> Not 100% sure about this, but I'm fairly certain this is SELinux type
+> enforcement issue.  Have you tried adding some policy like the
+> following:
+>=20
+> 	allow netlabel_peer_t netif_t:netif { ingress };
 
-in this case if this is ifup, then it should be a no brainer(but could 
-be wrong).
+Nope, but sesearch comes up empty. In other news, same denial for
+s0<->s0. So, you're right.
 
-Justin P. Mattock
+> The default setting is part of the SELinux policy using an "initial
+> SID" and isn't something you probably want to modify.  I would
+> recommend using semanage to set the interfaces individually.
+
+I don't think this is such a good idea. The rule should be "what's not
+allowed, is denied". Now all interfaces that the user sticks in get
+implicitly s0-s15 and, perhaps even worse, since they have to be
+reconfigured from userspace, there would be a slight delay until that
+happens, even if done by udev-launched script. Moreover, interfaces can
+be labeled anyhow, so pre-semanaging eth0 through say eth99 is only a
+partial solution, let alone clumsy.
+
+Thus I would advocate for the default to be low.
+
+> Dynamic permission checks.  If you don't have any type of labeled
+> networking configuration present the permission checks are disabled
+> inside the kernel.  It may seem odd right now, but trust me, this is a
+> very good thing.
+
+I agree, this is odd and brutally contra-intuitive. We're speaking about
+egress checks (due to BLP) but we need to configure ingress labeling?
+(And even of a fallthrough kind?) What's the reasoning behind this?
+
+There's one more question, if I may. It appears to me that secmark and
+netlabel, when confronted with normal (ie. non-CIPSO, etc) traffic,
+provide redundant ways to label ingress packets. (Netlabel has fewer
+options but it too operates on a per-packet basis.) Is this so, and if,
+are there plans for unification?
+
+Regards,
+Michal Svoboda
+
+--5tINJiUS2/Dn5Rhr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAktvAggACgkQg/fU9pp1uX7tcQCfaPCS/NVKyGqmwFmwOV2jsAoZ
+SOMAnAg5LZQjA9KATRpyHlQACaO0npd/
+=JEP/
+-----END PGP SIGNATURE-----
+
+--5tINJiUS2/Dn5Rhr--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
