@@ -1,85 +1,233 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o18FBumG020681
-	for <selinux@tycho.nsa.gov>; Mon, 8 Feb 2010 10:11:56 -0500
-Received: from g4t0017.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o18FC4MY017069
-	for <selinux@tycho.nsa.gov>; Mon, 8 Feb 2010 15:12:04 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Subject: Re: MLS and network
-Date: Mon, 8 Feb 2010 10:11:53 -0500
-Cc: selinux@tycho.nsa.gov
-References: <20100204174901.GL1750@myhost.felk.cvut.cz> <201002051547.27944.paul.moore@hp.com> <20100207181016.GS1750@myhost.felk.cvut.cz>
-In-Reply-To: <20100207181016.GS1750@myhost.felk.cvut.cz>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201002081011.53221.paul.moore@hp.com>
+In-Reply-To: <4B479B29.9000703@manicmethod.com>
+References: <C6A74D22.A99BD%csellers@tresys.com>
+	 <4ABAC3C3.1000100@manicmethod.com> <4ABBB78E.30501@manicmethod.com>
+	 <4ABBC642.8020709@manicmethod.com> <4AC1095A.9070504@redhat.com>
+	 <1262964740.13162.24.camel@moss-pluto.epoch.ncsc.mil>
+	 <1262981188.20881.13.camel@moss-pluto.epoch.ncsc.mil>
+	 <1262981971.20881.14.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B47982E.2090000@redhat.com> <4B479B29.9000703@manicmethod.com>
+Date: Mon, 8 Feb 2010 16:10:24 -0500
+Message-ID: <150846cc1002081310o3da9760cy7b9e902734e0b9f9@mail.gmail.com>
+Subject: Re: This patch fixes the exception handling in libselinux-python
+	bindings
+From: Caleb Case <ccase@tresys.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 07 February 2010 01:10:16 pm Michal Svoboda wrote:
-> Paul Moore wrote:
-> > The default setting is part of the SELinux policy using an "initial
-> > SID" and isn't something you probably want to modify.  I would
-> > recommend using semanage to set the interfaces individually.
-> 
-> I don't think this is such a good idea. The rule should be "what's not
-> allowed, is denied". Now all interfaces that the user sticks in get
-> implicitly s0-s15 and, perhaps even worse, since they have to be
-> reconfigured from userspace, there would be a slight delay until that
-> happens, even if done by udev-launched script. Moreover, interfaces can
-> be labeled anyhow, so pre-semanaging eth0 through say eth99 is only a
-> partial solution, let alone clumsy.
+On Fri, Jan 8, 2010 at 3:52 PM, Joshua Brindle <method@manicmethod.com> wrote:
+> Daniel J Walsh wrote:
+>>
+>> On 01/08/2010 03:19 PM, Stephen Smalley wrote:
+>>>
+>>> On Fri, 2010-01-08 at 15:06 -0500, Stephen Smalley wrote:
+>>>>
+>>>> On Fri, 2010-01-08 at 10:32 -0500, Stephen Smalley wrote:
+>>>>>
+>>>>> On Mon, 2009-09-28 at 15:07 -0400, Daniel J Walsh wrote:
+>>>>>>
+>>>>>> On 09/24/2009 03:19 PM, Joshua Brindle wrote:
+>>>>>>>
+>>>>>>> Joshua Brindle wrote:
+>>>>>>>>
+>>>>>>>> Joshua Brindle wrote:
+>>>>>>>>>
+>>>>>>>>> Daniel J Walsh wrote:
+>>>>>>>>>>
+>>>>>>>>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
+>>>>>>>>>>>
+>>>>>>>>>>> Joshua Brindle wrote:
+>>>>>>>>>>>>
+>>>>>>>>>>>> Daniel J Walsh wrote:
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> What do you think of this one. Removed excess swig cruft,
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> You need to run
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> make swigify to generate those changes.
+>>>>>>>>>>>>>
+>>>>>>>>>>>> Ok, looking at this now. I don't completely get how it works.
+>>>>>>>>>>>> I'm
+>>>>>>>>>>>> trying
+>>>>>>>>>>>> to reproduce what you are doing by hand but nothing comes out of
+>>>>>>>>>>>> gcc:
+>>>>>>>>>>>>
+>>>>>>>>>>>> [root@localhost src]# echo '#include
+>>>>>>>>>>>> "../include/selinux/selinux.h"'>
+>>>>>>>>>>>> temp.c
+>>>>>>>>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
+>>>>>>>>>>>> [root@localhost src]# ls temp.*
+>>>>>>>>>>>> temp.c temp.o
+>>>>>>>>>>>>
+>>>>>>>>>>>>
+>>>>>>>>> I got this "sort of" working locally. It works when I call it
+>>>>>>>>> directly
+>>>>>>>>> on the header but it leaves a .gch file sitting in the include
+>>>>>>>>> directory.
+>>>>>>>>>
+>>>>>>>>> Trying to use stdin I get:
+>>>>>>>>>
+>>>>>>>>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux<
+>>>>>>>>> ../include/selinux/selinux.h
+>>>>>>>>> <stdin>:569: internal compiler error: Segmentation fault
+>>>>>>>>> Please submit a full bug report,
+>>>>>>>>> with preprocessed source if appropriate.
+>>>>>>>>> See<http://bugzilla.redhat.com/bugzilla>  for instructions.
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> Other comments:
+>>>>>>>>>
+>>>>>>>>> The disconnect between swigify and clean targets remains: If make
+>>>>>>>>> swigify builds this, and it is checked in to the tree then make
+>>>>>>>>> clean
+>>>>>>>>> shouldn't remove it, else it should be in the pywrap target and not
+>>>>>>>>> installed.
+>>>>>>>>>
+>>>>>>>>> I'm not sure what the header re-ordering in selinuxswig.i and the
+>>>>>>>>> copytree/install functions have to do with this patch.
+>>>>>>>>>
+>>>>>>>>
+>>>>>>>> Applied with this diff on top:
+>>>>>>>>
+>>>>>>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>>>>>>>> index 928a1df..74b1e6a 100644
+>>>>>>>> --- a/libselinux/src/Makefile
+>>>>>>>> +++ b/libselinux/src/Makefile
+>>>>>>>> @@ -16,14 +16,14 @@ LIBVERSION = 1
+>>>>>>>>
+>>>>>>>> LIBA=libselinux.a
+>>>>>>>> TARGET=libselinux.so
+>>>>>>>> -SWIGIF= selinuxswig_python.i
+>>>>>>>> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+>>>>>>>> SWIGRUBYIF= selinuxswig_ruby.i
+>>>>>>>> SWIGCOUT= selinuxswig_wrap.c
+>>>>>>>> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+>>>>>>>> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+>>>>>>>> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+>>>>>>>> SWIGSO=_selinux.so
+>>>>>>>> -SWIGFILES=$(SWIGSO) selinux.py
+>>>>>>>> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+>>>>>>>> SWIGRUBYSO=_rubyselinux.so
+>>>>>>>> LIBSO=$(TARGET).$(LIBVERSION)
+>>>>>>>> AUDIT2WHYSO=audit2why.so
+>>>>>>>> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
+>>>>>>>> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+>>>>>>>> $(SWIGRUBY) $^
+>>>>>>>>
+>>>>>>>> -swigify: $(SWIGIF) selinuxswig_python_exception.i
+>>>>>>>> +swigify: $(SWIGIF)
+>>>>>>>> $(SWIG) $<
+>>>>>>>>
+>>>>>>>> install: all
+>>>>>>>> @@ -127,7 +127,7 @@ relabel:
+>>>>>>>> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+>>>>>>>>
+>>>>>>>> clean:
+>>>>>>>> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>>>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
+>>>>>>>> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
+>>>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
+>>>>>>>>
+>>>>>>>> distclean: clean
+>>>>>>>> rm -f $(GENERATED) $(SWIGFILES)
+>>>>>>>> diff --git a/libselinux/src/exception.sh
+>>>>>>>> b/libselinux/src/exception.sh
+>>>>>>>> old mode 100644
+>>>>>>>> new mode 100755
+>>>>>>>> index b2a3799..c3e61a5
+>>>>>>>> --- a/libselinux/src/exception.sh
+>>>>>>>> +++ b/libselinux/src/exception.sh
+>>>>>>>> @@ -15,7 +15,6 @@ echo "
+>>>>>>>> ;;
+>>>>>>>> esac
+>>>>>>>> }
+>>>>>>>> -echo '#include "../include/selinux/selinux.h"'>  temp.c
+>>>>>>>> -gcc -c temp.c -aux-info temp.aux
+>>>>>>>> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ {
+>>>>>>>> print $6
+>>>>>>>> }' temp.aux`; do except $i ; done
+>>>>>>>> -rm -f temp.c temp.aux temp.o
+>>>>>>>> +gcc -x c -c - -aux-info temp.aux<  ../include/selinux/selinux.h
+>>>>>>>> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do
+>>>>>>>> except
+>>>>>>>> $i ; done
+>>>>>>>> +rm -f -- temp.aux -.o
+>>>>>>>>
+>>>>>>>
+>>>>>>> Merged in libselinux-2.0.87
+>>>>>>
+>>>>>> I have VERSION 2.0.86 in git?
+>>>>>
+>>>>> This seems to break make install-pywrap on the current selinux trunk:
+>>>>> bash exception.sh>  selinuxswig_python_exception.i
+>>>>> swig -Wall -python -o selinuxswig_wrap.c -outdir ./
+>>>>> selinuxswig_python.i selinuxswig_python_exception.i
+>>>>> swig error : Unrecognized option selinuxswig_python.i
+>>>>> Use 'swig -help' for available options.
+>>>>
+>>>> This btw prevents use of Caleb's patches on Fedora 12.  If I can't build
+>>>> and install the python modules from the selinux repo, then there is an
+>>>> undefined dependency from the Fedora libsemanage-python module on the
+>>>> upstream libsemanage (some symbol introduced in the Fedora patches to
+>>>> libsemanage) and thus migrate.py is unable to import semanage and
+>>>> aborts.
+>>>
+>>> Hmm...if I make swigify, all is well again.  But something seems wrong
+>>> with the Makefile...
 
-Well, keep in mind that once you label the interface via semanage, on 
-subsequent reboots it takes effect before the network is brought up (it 
-happens during policy load) so you don't really have to worry about any race 
-conditions.  However, you do make a good point about interface naming, but I 
-would suspect that anyone who is interested in running the strict/MLS 
-SELinux policy is also tightly controlling physical access to the machine 
-and binding interface names/configuration to the physical MAC address which 
-means problems caused by new or mis-named interfaces are not a real concern.
+The make targets swigify and make install-pywrap should do the same
+things during their swig step, however they don't. It appears that make
+swigify does not include the second target to swig
+(selinuxswig_python_exception.i), but install-pywrap does. On the other
+hand, swig also does not accept multiple .i files so install-pywrap
+fails.
 
-> > Dynamic permission checks.  If you don't have any type of labeled
-> > networking configuration present the permission checks are disabled
-> > inside the kernel.  It may seem odd right now, but trust me, this is a
-> > very good thing.
-> 
-> I agree, this is odd and brutally contra-intuitive. We're speaking about
-> egress checks (due to BLP) but we need to configure ingress labeling?
-> (And even of a fallthrough kind?) What's the reasoning behind this?
+As a result the exception wrappers are not installed.
 
-So let me get this straight ... you are very concerned about what 
-information leaves your system over what physical network, but you don't 
-care at all about the information coming into your system?  That seems odd 
-to me.  The SELinux network access controls are dynamic and assume that 
-those who wish to use them want to enforce access controls on traffic both 
-leaving and entering the system.
+[make swigify]
 
-> There's one more question, if I may. It appears to me that secmark and
-> netlabel, when confronted with normal (ie. non-CIPSO, etc) traffic,
-> provide redundant ways to label ingress packets. (Netlabel has fewer
-> options but it too operates on a per-packet basis.) Is this so, and if,
-> are there plans for unification?
+[ccase@fc12 libselinux]$ make distclean
+<snip>
+[ccase@fc12 libselinux]$ make swigify
+<snip>
+make -C src swigify
+make[1]: Entering directory
+`/home/ccase/projects/git/selinux-upstream/libselinux/src'
+bash exception.sh > selinuxswig_python_exception.i
+swig -Wall -python -o selinuxswig_wrap.c -outdir ./ selinuxswig_python.i
+../include/selinux/avc.h:410: Warning(302): Identifier
+'avc_cache_stats' redefined (ignored),
+../include/selinux/avc.h:390: Warning(302): previous definition of
+'avc_cache_stats'.
+../include/selinux/selinux.h:142: Warning(451): Setting a const char *
+variable may leak memory.
+../include/selinux/selinux.h:345: Warning(451): Setting a const char *
+variable may leak memory.
+make[1]: Leaving directory
+`/home/ccase/projects/git/selinux-upstream/libselinux/src'
 
-This next point may sound minor, but trust me it is important: the per-
-packet labels provided by secmark do not represent the same security 
-attributes as the per-packet labels provided by NetLabel (or labeled IPsec 
-for that matter).  The secmark labels represent the IP attributes of the 
-packet, e.g. IP addresses, while the NetLabel and labeled IPsec labels, 
-called network peer labels, represent the security attributes of the sender, 
-e.g. apache_t.  Because these two different types of labels represent 
-different packet attributes they will not be unified.  There was a _lot_ of 
-discussion about this several years ago (search for "secid reconciliation" 
-or similar) and the general consensus at the end was that unification would 
-be a mistake.  However, we have unified/reconciled the different peer label 
-controls (NetLabel and Labeled IPsec) over the years and I think that has 
-worked our fairly well, at least I'm happy with it anyway :)
+[make install-pywrap]
 
--- 
-paul moore
-linux @ hp
+[ccase@fc12 libselinux]$ make distclean
+<snip>
+[ccase@fc12 libselinux]$ make install-pywrap
+<snip>
+bash exception.sh > selinuxswig_python_exception.i
+swig -Wall -python -o selinuxswig_wrap.c -outdir ./
+selinuxswig_python.i selinuxswig_python_exception.i
+swig error : Unrecognized option selinuxswig_python.i
+Use 'swig -help' for available options.
+make[1]: *** [selinuxswig_wrap.c] Error 1
+make[1]: Leaving directory
+`/home/ccase/projects/git/selinux-upstream/libselinux/src'
+make: *** [install-pywrap] Error 2
+
+Caleb
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
