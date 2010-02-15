@@ -1,50 +1,49 @@
-Message-ID: <4B75C897.1050004@redhat.com>
-Date: Fri, 12 Feb 2010 16:31:03 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1FMJvcM010410
+	for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 17:19:57 -0500
+Received: from mail-iw0-f198.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o1FMKAFc002277
+	for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 22:20:10 GMT
+Received: by iwn36 with SMTP id 36so3482985iwn.3
+        for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 14:19:55 -0800 (PST)
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: {SPAM?}  Re: Random fork showing up in policy.
-References: <4B740814.8080802@redhat.com>	 <1265980035.911.88.camel@gorn.columbia.tresys.com>	 <4B75711F.5070908@redhat.com> <1265990473.4386.35.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1265990473.4386.35.camel@gorn.columbia.tresys.com>
+Date: Mon, 15 Feb 2010 14:19:54 -0800
+Message-ID: <dd18b0c31002151419v1445e151j761c06e3cf39f5c0@mail.gmail.com>
+Subject: label_file.c:434: error: implicit declaration of function 'fstat'
+From: Justin Mattock <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/12/2010 11:01 AM, Christopher J. PeBenito wrote:
-> On Fri, 2010-02-12 at 10:17 -0500, Daniel J Walsh wrote:
->> On 02/12/2010 08:07 AM, Christopher J. PeBenito wrote:
->>> On Thu, 2010-02-11 at 08:37 -0500, Daniel J Walsh wrote:
->>>> There has got to be something I am doing wrong.  But on my blog someone asked about writing a program that does a fork and having SELinux block it.  
->>>>
->>>> Where is the fork access coming from?
->>>
->>> Are you sure its not this:
->>>
->>> allow domain self:process { fork sigchld };
->>>
->>> in domain.te?
-> [...]
->> Yes that is it.
->>
->> Seems like a strange rule to have on domain.  Might be better to move
->> it to daemon rather then have it on domain.
-> 
-> I don't agree.  When we started refpolicy, we added it to domain since
-> its so pervasive.  Its also minimally security-relevant since the new
-> process is in the same domain.
-> 
-> I went back to the old example policy, since that had the explicit fork
-> permissions, and found that 228 of the 275 domains had the fork
-> permission.  I saw plenty of non-daemon domains that can fork.
-> 
-> Basically, refpolicy took the convenience trade-off, and its taken
-> almost 5 years for someone to take issue with this.  I'm still
-> comfortable with this decision.
-> 
-The problem is it is very difficult to write policy without allowing fork.
+this is new:
 
-I guess this is a case were we need the ability to remove a permission.
+
+make[2]: Leaving directory `/home/kernel/selinux/libselinux/include'
+make -C src install
+make[2]: Entering directory `/home/kernel/selinux/libselinux/src'
+cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn
+-Wmissing-format-attribute -I../include -I/usr/include -D_GNU_SOURCE
+-D_FILE_OFFSET_BITS=64   -c -o label_file.o label_file.c
+cc1: warnings being treated as errors
+label_file.c: In function 'init':
+label_file.c:434: error: implicit declaration of function 'fstat'
+label_file.c:436: error: implicit declaration of function 'S_ISREG'
+make[2]: *** [label_file.o] Error 1
+make[2]: Leaving directory `/home/kernel/selinux/libselinux/src'
+make[1]: *** [install] Error 2
+make[1]: Leaving directory `/home/kernel/selinux/libselinux'
+make: *** [install] Error 1
+
+three areas where this could of been created
+update glibc
+updated kernel
+update userspace(altohugh there was not vary many commits in the pull).
+
+
+
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
