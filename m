@@ -1,102 +1,75 @@
-Message-ID: <4B7A04C6.9020808@ak.jp.nec.com>
-Date: Tue, 16 Feb 2010 11:36:54 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1G3YCOu021545
+	for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 22:34:12 -0500
+Received: from mail-yw0-f190.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o1G3YOog018223
+	for <selinux@tycho.nsa.gov>; Tue, 16 Feb 2010 03:34:24 GMT
+Received: by ywh28 with SMTP id 28so4780393ywh.30
+        for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 19:34:11 -0800 (PST)
+Message-ID: <4B7A1233.6010806@gmail.com>
+Date: Mon, 15 Feb 2010 19:34:11 -0800
+From: "Justin P. mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
-References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu>	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>	 <4B6BAFD0.2050607@ak.jp.nec.com> <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil> <4B7104C9.30903@ak.jp.nec.com>
-In-Reply-To: <4B7104C9.30903@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: SE-Linux <selinux@tycho.nsa.gov>
+CC: libc-help@sourceware.org, refpolicy@oss1.tresys.com
+Subject: Re: label_file.c:434: error: implicit declaration of function 'fstat'
+References: <dd18b0c31002151419v1445e151j761c06e3cf39f5c0@mail.gmail.com>
+In-Reply-To: <dd18b0c31002151419v1445e151j761c06e3cf39f5c0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/02/09 15:46), KaiGai Kohei wrote:
-> (2010/02/05 23:50), Stephen Smalley wrote:
->> On Fri, 2010-02-05 at 14:42 +0900, KaiGai Kohei wrote:
->>> What is the current status of this patch?
->>> Its kernel side patch has been already merged into James's -next tree.
->>>
->>> http://git.kernel.org/?p=linux/kernel/git/jmorris/security-testing-2.6.git;a=commit;h=7d52a155e38d5a165759dbbee656455861bf7801
->>
->> I had to use -l to get it to apply (whitespace mangled).
->>
->> Before applying it, when trying to install the test_policy.pp module
->> from the selinux testsuite with expand-check=1
->> in /etc/selinux/semanage.conf, I get:
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
->> libsepol.hierarchy_check_constraints: 2 total errors found during hierarchy check
->>
->> And after applying it, I get the following:
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_blue_t : file {  ioctl read getattr lock open }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : process {  fork transition sigchld sigkill sigstop signull signal getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh rlimitinh setcurrent setkeycreate setsockcreate }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : capability {  dac_override dac_read_search }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : file {  ioctl read write getattr lock append open }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : dir {  ioctl read getattr lock search open }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fd {  use }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : lnk_file {  ioctl read getattr lock }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : fifo_file {  ioctl read write getattr lock append open }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_stream_socket {  ioctl read write create getattr setattr append bind connect listen accept getopt setopt shutdown }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : unix_dgram_socket {  ioctl read write create getattr setattr append bind connect getopt setopt shutdown sendto }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_child_t : association {  sendto }
->> libsepol.check_avtab_hierarchy_callback: hierarchy violation between types test_bounds_child_t and test_bounds_file_red_t : file {  write append }
->> libsepol.hierarchy_check_constraints: 12 total errors found during hierarchy check
->>
-> 
-> We might overlook something in the case when both of source and target are bounded.
-> 
-> When test_bounds_child_t tries to access a pseudo file, such as /proc/<PID>, these
-> entries are labeled to domain of the corresponding process.
-> The test_bounds_child_t is bounded to test_bounds_parent_t, and it is also a case
-> when both of source and target are bounded to its super domain.
-> 
-> This test policy indeed violated to the first check that ensures the permissions
-> between source (test_bounds_child_t) and target (test_bounds_child_t) are enclosed
-> by the permissions between parent of the source (test_bounds_parent_t) and the target,
-> because nothing are allowed between test_bounds_parent_t and test_bounds_child_t as
-> a filesystem object.
-> 
-> However, the older implementation had also ensured the permissions between the source
-> and the target are enclosed by the permissions between parent of the source and parent
-> of the target, then, if these are enclosed, this check allows the permissions between
-> both of children, even if the first checks were violated.
-> 
-> In other words, we have to allow the test_bounds_parent_t to performs something on
-> the test_bounds_child_t explicitly, in this case.
-> 
-> At first, I replied to Jacques Thomas that I could not find any actual use cases in
-> the target side boundary, but it might be misjudge.
-> If I vote it again, I'll support an idea to revert my patch.
+On 02/15/2010 02:19 PM, Justin Mattock wrote:
+> this is new:
+>
+>
+> make[2]: Leaving directory `/home/kernel/selinux/libselinux/include'
+> make -C src install
+> make[2]: Entering directory `/home/kernel/selinux/libselinux/src'
+> cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn
+> -Wmissing-format-attribute -I../include -I/usr/include -D_GNU_SOURCE
+> -D_FILE_OFFSET_BITS=64   -c -o label_file.o label_file.c
+> cc1: warnings being treated as errors
+> label_file.c: In function 'init':
+> label_file.c:434: error: implicit declaration of function 'fstat'
+> label_file.c:436: error: implicit declaration of function 'S_ISREG'
+> make[2]: *** [label_file.o] Error 1
+> make[2]: Leaving directory `/home/kernel/selinux/libselinux/src'
+> make[1]: *** [install] Error 2
+> make[1]: Leaving directory `/home/kernel/selinux/libselinux'
+> make: *** [install] Error 1
+>
+> three areas where this could of been created
+> update glibc
+> updated kernel
+> update userspace(altohugh there was not vary many commits in the pull).
+>
+>
+>
 
-What is your opinion for this topic?
+looking more into this error by selinux userspace tools(libselinux),
+seems there was a change in libc which breaks libselinux.
 
-At first, I didn't find out the case when a bounded domain
-accesses /proc/self/* entries with its parent's security context.
-In this case, the policy writer has to allow parent domain to
-access all the pseudo file entries of possible child domains.
+I've started the bisect with libc but could not go any further because
+libc fails to build. The positive side is I'm only about 15 or so 
+commits from the last good commit I had, which gets libselinux to build.
 
-The previous boundary code on the target side well handled it,
-but I removed it as a dead code.
+heres the last bad commit and last good commit with libc(I'm trying to 
+narrow this down, but libc breaks).
 
-I think we have two options.
+last bad commit: 7b4715c5362319e1ff2f9555d17133146e16081a
+(bisect is broken by this point).
 
-The one is simple. It is to revert this commit:
-  7d52a155e38d5a165759dbbee656455861bf7801
+last good commit: d5ea695b42aecd48a329756a8e93228d64714d17
 
-The other is to have a convention when we write policies using
-bounds domain.
-For example, if all the domain bounded to httpd_t must have
-httpd_child_domain attribute, we can allow httpd_t domain to
-access file entries of possible child domains in apache.te.
+I added some CC's to hopefully the appropriate
+people.
 
-Right now, my preference is the later option.
+As a workaround I can compile libselinux with the last good commit,
+then update libc, but know that's not the right way.
 
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Justin P. Mattock
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
