@@ -1,74 +1,78 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1G3YCOu021545
-	for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 22:34:12 -0500
-Received: from mail-yw0-f190.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o1G3YOog018223
-	for <selinux@tycho.nsa.gov>; Tue, 16 Feb 2010 03:34:24 GMT
-Received: by ywh28 with SMTP id 28so4780393ywh.30
-        for <selinux@tycho.nsa.gov>; Mon, 15 Feb 2010 19:34:11 -0800 (PST)
-Message-ID: <4B7A1233.6010806@gmail.com>
-Date: Mon, 15 Feb 2010 19:34:11 -0800
-From: "Justin P. mattock" <justinmattock@gmail.com>
-MIME-Version: 1.0
-To: SE-Linux <selinux@tycho.nsa.gov>
-CC: libc-help@sourceware.org, refpolicy@oss1.tresys.com
-Subject: Re: label_file.c:434: error: implicit declaration of function 'fstat'
-References: <dd18b0c31002151419v1445e151j761c06e3cf39f5c0@mail.gmail.com>
-In-Reply-To: <dd18b0c31002151419v1445e151j761c06e3cf39f5c0@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Random fork showing up in policy.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4B75C897.1050004@redhat.com>
+References: <4B740814.8080802@redhat.com>
+	 <1265980035.911.88.camel@gorn.columbia.tresys.com>
+	 <4B75711F.5070908@redhat.com>
+	 <1265990473.4386.35.camel@gorn.columbia.tresys.com>
+	 <4B75C897.1050004@redhat.com>
+Content-Type: text/plain
+Date: Tue, 16 Feb 2010 09:19:20 -0500
+Message-Id: <1266329960.5252.21.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/15/2010 02:19 PM, Justin Mattock wrote:
-> this is new:
->
->
-> make[2]: Leaving directory `/home/kernel/selinux/libselinux/include'
-> make -C src install
-> make[2]: Entering directory `/home/kernel/selinux/libselinux/src'
-> cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn
-> -Wmissing-format-attribute -I../include -I/usr/include -D_GNU_SOURCE
-> -D_FILE_OFFSET_BITS=64   -c -o label_file.o label_file.c
-> cc1: warnings being treated as errors
-> label_file.c: In function 'init':
-> label_file.c:434: error: implicit declaration of function 'fstat'
-> label_file.c:436: error: implicit declaration of function 'S_ISREG'
-> make[2]: *** [label_file.o] Error 1
-> make[2]: Leaving directory `/home/kernel/selinux/libselinux/src'
-> make[1]: *** [install] Error 2
-> make[1]: Leaving directory `/home/kernel/selinux/libselinux'
-> make: *** [install] Error 1
->
-> three areas where this could of been created
-> update glibc
-> updated kernel
-> update userspace(altohugh there was not vary many commits in the pull).
->
->
->
+On Fri, 2010-02-12 at 16:31 -0500, Daniel J Walsh wrote:
+> On 02/12/2010 11:01 AM, Christopher J. PeBenito wrote:
+> > On Fri, 2010-02-12 at 10:17 -0500, Daniel J Walsh wrote:
+> >> On 02/12/2010 08:07 AM, Christopher J. PeBenito wrote:
+> >>> On Thu, 2010-02-11 at 08:37 -0500, Daniel J Walsh wrote:
+> >>>> There has got to be something I am doing wrong.  But on my blog someone asked about writing a program that does a fork and having SELinux block it.  
+> >>>>
+> >>>> Where is the fork access coming from?
+> >>>
+> >>> Are you sure its not this:
+> >>>
+> >>> allow domain self:process { fork sigchld };
+> >>>
+> >>> in domain.te?
+> > [...]
+> >> Yes that is it.
+> >>
+> >> Seems like a strange rule to have on domain.  Might be better to move
+> >> it to daemon rather then have it on domain.
+> > 
+> > I don't agree.  When we started refpolicy, we added it to domain since
+> > its so pervasive.  Its also minimally security-relevant since the new
+> > process is in the same domain.
+> > 
+> > I went back to the old example policy, since that had the explicit fork
+> > permissions, and found that 228 of the 275 domains had the fork
+> > permission.  I saw plenty of non-daemon domains that can fork.
+> > 
+> > Basically, refpolicy took the convenience trade-off, and its taken
+> > almost 5 years for someone to take issue with this.  I'm still
+> > comfortable with this decision.
+> > 
+> The problem is it is very difficult to write policy without allowing fork.
+> 
+> I guess this is a case were we need the ability to remove a permission.
 
-looking more into this error by selinux userspace tools(libselinux),
-seems there was a change in libc which breaks libselinux.
+FWIW, to deal with this same situation in the selinux testsuite, I
+defined a test domain that did not have the domain attribute:
 
-I've started the bisect with libc but could not go any further because
-libc fails to build. The positive side is I'm only about 15 or so 
-commits from the last good commit I had, which gets libselinux to build.
+# Domain for process not allowed to fork.
+# The same permissions as test_create_yes_t, except process fork
+type test_create_no_t;
 
-heres the last bad commit and last good commit with libc(I'm trying to 
-narrow this down, but libc breaks).
+# In refpolicy, all types with "domain" attribute are allowed
+# process_fork. Thus, to prevent test_create_no_t from picking up this
+# permission so we can test it, we omit the domain attribute. 
+# Ideally, refpolicy would _not_ grant such permissions to every domain,
+# as it makes the permission effectively unusable in real policy.
+#domain_type(test_create_no_t)
+unconfined_runs_test(test_create_no_t)
+typeattribute test_create_no_t test_create_d;
 
-last bad commit: 7b4715c5362319e1ff2f9555d17133146e16081a
-(bisect is broken by this point).
+allow test_create_no_t self:process ~fork;
 
-last good commit: d5ea695b42aecd48a329756a8e93228d64714d17
-
-I added some CC's to hopefully the appropriate
-people.
-
-As a workaround I can compile libselinux with the last good commit,
-then update libc, but know that's not the right way.
-
-Justin P. Mattock
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
