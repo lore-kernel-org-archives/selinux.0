@@ -1,92 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1HE3r7G006220
-	for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2010 09:04:11 -0500
-Received: from moutng.kundenserver.de (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o1HE3uUa009419
-	for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2010 14:03:56 GMT
-To: "Justin P. mattock" <justinmattock@gmail.com>
-Subject: Re: SELinux Policy in OpenSUSE 11.2
-Cc: Alan Rouse <alan.rouse@ericsson.com>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-From: Thomas <tom@electric-sheep.org>
-Date: Wed, 17 Feb 2010 15:04:01 +0100
+From: Alan Rouse <alan.rouse@ericsson.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Date: Wed, 17 Feb 2010 10:14:44 -0500
+Subject: RE: SELinux Policy in OpenSUSE 11.2
+Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F529A558C14@EUSAACMS0703.eamcs.ericsson.se>
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
+ <1266413701.4945.3.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1266413701.4945.3.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201002171504.01849.tom@electric-sheep.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-I am happy to see someone is working on SELinux for openSUSE.
+I actually did do a make load but then rebooted so I figured it was an unnecessary step.  
 
-To make this changes permanent, file the bug and findings in
-our bugzilla (https://bugzilla.novell.com) please and put my
-address (thomas@novell.com) into the CC list.
+It has been my understanding that Novell is not doing any SELinux policy development.  The policy package currently in the OpenSuse 11.2 repository doesn't work, which supports that understanding... As does Thomas's recent message on this list.  So I figured I'd need to move to the current edition of the reference policy to find active development going on, so there would be hope of bug fixes.  In any case, the same issues seem to be present in both versions.
 
-If you like to get more control and be more active I encourage
-you to join the openSUSE community 
-(http://en.opensuse.org/How_to_Participate).
 
-We definitely lack skilled SELinux developers! :)
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Wednesday, February 17, 2010 8:35 AM
+To: Alan Rouse
+Cc: 'selinux@tycho.nsa.gov'
+Subject: RE: SELinux Policy in OpenSUSE 11.2
 
-Thanks,
-Thomas
+On Tue, 2010-02-16 at 16:30 -0500, Alan Rouse wrote:
+> I had been trying various things in this image.  So, just to be sure I have a repeatable state, I've rebuilt my system from scratch as follows:
+> 
+> 1. standard OpenSuse 11.2 install (using Gnome);  boot; start 
+> terminal; su - 2.  install packages:
+> 
+> selinux-tools
+> selinux-policy
+> libselinux*
+> libsemanage*
+> policycoreutils 
+> checkpolicy   
+> make
+> m4
+> gcc
+> findutils-locate
+> git
+> 
+> 3.  add "3 security=selinux selinux=1 enforcing=0" to the grub boot line (boot to runlevel 3 with selinux in permissive mode) and reboot.
+> 4.  git clone http://oss.tresys.com/git/refpolicy.git
+> 5.  change build.conf:  "DIST = suse"  and "MONOLITHIC = n"
+> 6.  make clean; make conf; make; make install-src;
 
-Am Mittwoch 17 Februar 2010 08:16:36 schrieb Justin P. mattock:
-> o.k. I think I thought too much on the subject
-> (I need to stop building systems from scratch
-> i.g. all I can think of is/are switches to enable).
-> 
-> Anyways I figured out the problem seems easier
-> than I had expected:
-> 
-> with a fresh build of suse 11.2, then
-> under yast adding the correct SELinux
-> apps/libs, then adjusting grub(in the control
-> center thing).
-> 
-> reboot
-> 
-> you hit a broken gdm dbus thing.
-> 
-> under /var/log/gdm/:5-greeter.log
-> 
-> there is an error message with dbus:
-> 
-> Failed to start message bus: Failed to open
-> "/etc/selinux/targeted/contexts/dbus_contexts": No such file or directory
-> EOF in dbus-launch reading address from dbus daemon.
-> 
-> so after reading that then looking at /etc/selinux/refpolicy-standard
-> I decided to just cp -R refpolicy-standard targeted(reboot)
-> and voila the system boots gdm starts, life is good with suse
-> (I guess there not the darkside after all!!).
-> 
-> as for the real problem I'm guessing whatever is telling
-> dbus-launch to look for /etc/selinux/targeted
-> is the problem.
-> 
-> Alan does just a simple renaming of refpolicy to targeted
-> at least get you up and running(if not use suses policy,
-> and rename it to targeted, until I can find what dbus launch script is
-> calling for that policy name).
-> 
-> Justin P. Mattock
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->  with the words "unsubscribe selinux" without quotes as the message.
-> 
+You didn't do a make install or a make load?
+Given that you are doing a modular build, you have to do both to actually install the modules and link/expand them to kernel policy.
+make install-src isn't needed.
 
--- 
- Thomas Biege <thomas@suse.de>, SUSE LINUX, Security Support & Auditing
- SUSE LINUX Products GmbH, GF: Markus Rex, HRB 16746 (AG Nuernberg)
---
-  Wer aufhoert besser werden zu wollen, hoert auf gut zu sein.
-                            -- Marie von Ebner-Eschenbach
+In any event, I would suggest trying to use the OpenSUSE-provided policy first and seeing what issues arise there before you go switching to the upstream refpolicy.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
