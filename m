@@ -2,7 +2,7 @@ Subject: RE: SELinux Policy in OpenSUSE 11.2
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Alan Rouse <alan.rouse@ericsson.com>
 Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
+In-Reply-To: <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
 References: 
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
@@ -24,47 +24,53 @@ References:
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802D6@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 17 Feb 2010 16:29:18 -0500
-Message-Id: <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 17 Feb 2010 16:37:17 -0500
+Message-Id: <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-02-17 at 16:11 -0500, Alan Rouse wrote:
-> 1.  Is there supposed to be an environment variable $SELINUXTYPE?  I don't have one...
+On Wed, 2010-02-17 at 16:29 -0500, Stephen Smalley wrote:
+> On Wed, 2010-02-17 at 16:11 -0500, Alan Rouse wrote:
+> > 1.  Is there supposed to be an environment variable $SELINUXTYPE?  I don't have one...
+> 
+> Defined by /etc/selinux/config
+> . /etc/selinux/config
+> 
+> > 2.  When I do "make load", the policy file in 
+> > 
+> > 	/etc/selinux/refpolicy-standard/policy/policy.24 
+> > 
+> > is replaced (at least, it gets a new timestamp).  
+> 
+> Ok, and what happens when you run setsebool -P init_upstart=1?
+> That file should also get regenerated.
+> 
+> > /etc/selinux/config contains:
+> > 
+> > SELINUX=permissive
+> > SELINUXTYPE=refpolicy-standard
+> > 
+> > 3.  ls -l /etc/selinux/refpolicy-standard/policy
+> > 
+> > -rw-r--r--. 1 root root 3686162 Feb 17 16:05 policy.24
+> > 
+> > 4. cat /selinux/policyvers
+> > 
+> > <nothing>... File is empty
+> 
+> What?  grep selinuxfs /proc/mounts
+> ls /selinux
+> 
+> > 5.  checkpolicy -V
+> > 
+> > 24 (compatibility range 24-15)
 
-Defined by /etc/selinux/config
-. /etc/selinux/config
-
-> 2.  When I do "make load", the policy file in 
-> 
-> 	/etc/selinux/refpolicy-standard/policy/policy.24 
-> 
-> is replaced (at least, it gets a new timestamp).  
-
-Ok, and what happens when you run setsebool -P init_upstart=1?
-That file should also get regenerated.
-
-> /etc/selinux/config contains:
-> 
-> SELINUX=permissive
-> SELINUXTYPE=refpolicy-standard
-> 
-> 3.  ls -l /etc/selinux/refpolicy-standard/policy
-> 
-> -rw-r--r--. 1 root root 3686162 Feb 17 16:05 policy.24
-> 
-> 4. cat /selinux/policyvers
-> 
-> <nothing>... File is empty
-
-What?  grep selinuxfs /proc/mounts
-ls /selinux
-
-> 5.  checkpolicy -V
-> 
-> 24 (compatibility range 24-15)
+BTW, it would be useful to know the versions of the selinux userland
+(libsepol, libselinux, libsemanage, policycoreutils, checkpolicy) that
+are in OpenSUSE 11.2.
 
 -- 
 Stephen Smalley
