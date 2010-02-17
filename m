@@ -1,13 +1,12 @@
 From: Alan Rouse <alan.rouse@ericsson.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        "Justin P. mattock"
-	<justinmattock@gmail.com>
+To: Alan Rouse <alan.rouse@ericsson.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        "Justin P. mattock" <justinmattock@gmail.com>
 CC: Dominick Grift <domg472@gmail.com>,
         "'selinux@tycho.nsa.gov'"
 	<selinux@tycho.nsa.gov>
-Date: Wed, 17 Feb 2010 15:03:12 -0500
+Date: Wed, 17 Feb 2010 15:08:11 -0500
 Subject: RE: SELinux Policy in OpenSUSE 11.2
-Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F529A780280@EUSAACMS0703.eamcs.ericsson.se>
+Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
 References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
@@ -20,54 +19,188 @@ References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.erics
 	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
 	 <4B7C47DB.40602@gmail.com>
  <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/mixed;
+	boundary="_002_5A5E55DF96F73844AF7DFB0F48721F0F529A78028FEUSAACMS0703e_"
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--_002_5A5E55DF96F73844AF7DFB0F48721F0F529A78028FEUSAACMS0703e_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Maybe that will come across better as an attachment.=20
+
+-----Original Message-----
+From: Alan Rouse=20
+Sent: Wednesday, February 17, 2010 3:03 PM
+To: 'Stephen Smalley'; Justin P. mattock
+Cc: Dominick Grift; 'selinux@tycho.nsa.gov'
+Subject: RE: SELinux Policy in OpenSUSE 11.2
+
 Here are the AVC messages from reboot after relabel:
 
-type=DAEMON_START msg=audit(1266436045.285:1584): auditd start, ver=1.7.13 format=raw kernel=2.6.31.5-0.1-desktop auid=4294967295 pid=2191 subj=system_u:system_r:sysadm_t res=success
-type=AVC msg=audit(1266436045.288:170): avc:  denied  { nlmsg_read } for  pid=2191 comm="auditd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_audit_socket
-type=AVC msg=audit(1266436045.394:171): avc:  denied  { ioctl } for  pid=2206 comm="rcsmbfs" path="/etc/samba/smbfstab" dev=sda2 ino=110898 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:samba_etc_t tclass=file
-type=AVC msg=audit(1266436045.400:172): avc:  denied  { write } for  pid=2211 comm="touch" name="smbfs" dev=sda2 ino=129640 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:var_lock_t tclass=file
-type=AVC msg=audit(1266436045.400:173): avc:  denied  { open } for  pid=2211 comm="touch" name="smbfs" dev=sda2 ino=129640 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:var_lock_t tclass=file
-type=AVC msg=audit(1266436045.438:174): avc:  denied  { getattr } for  pid=2220 comm="SuSEfirewall2" path="/usr/sbin/iptables" dev=sda2 ino=10435 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:iptables_exec_t tclass=file
-type=AVC msg=audit(1266436045.439:175): avc:  denied  { execute } for  pid=2220 comm="SuSEfirewall2" name="iptables" dev=sda2 ino=10435 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:iptables_exec_t tclass=file
-type=AVC msg=audit(1266436045.439:176): avc:  denied  { read } for  pid=2220 comm="SuSEfirewall2" name="iptables" dev=sda2 ino=10435 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:iptables_exec_t tclass=file
-type=AVC msg=audit(1266436045.441:177): avc:  denied  { open } for  pid=2221 comm="SuSEfirewall2" name="iptables" dev=sda2 ino=10435 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:iptables_exec_t tclass=file
-type=AVC msg=audit(1266436045.441:178): avc:  denied  { execute_no_trans } for  pid=2221 comm="SuSEfirewall2" path="/usr/sbin/iptables" dev=sda2 ino=10435 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:iptables_exec_t tclass=file
-type=AVC msg=audit(1266436045.444:179): avc:  denied  { create } for  pid=2221 comm="iptables" scontext=system_u:system_r:dhcpc_t tcontext=system_u:system_r:dhcpc_t tclass=rawip_socket
-type=AVC msg=audit(1266436045.444:180): avc:  denied  { getopt } for  pid=2221 comm="iptables" lport=255 scontext=system_u:system_r:dhcpc_t tcontext=system_u:system_r:dhcpc_t tclass=rawip_socket
-type=AVC msg=audit(1266436045.501:181): avc:  denied  { getattr } for  pid=2222 comm="SuSEfirewall2" path="/var/lock/SuSEfirewall2.booting" dev=sda2 ino=129622 scontext=system_u:system_r:dhcpc_t tcontext=system_u:object_r:var_lock_t tclass=file
-type=AVC msg=audit(1266436280.459:182): avc:  denied  { associate } for  pid=2263 comm="kbd" name="vcs2" scontext=system_u:object_r:unlabeled_t tcontext=system_u:object_r:unlabeled_t tclass=filesystem
-type=AVC msg=audit(1266436280.725:183): avc:  denied  { read } for  pid=2293 comm="hwinfo" name="mem" dev=tmpfs ino=1053 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:memory_device_t tclass=chr_file
-type=AVC msg=audit(1266436280.725:184): avc:  denied  { open } for  pid=2293 comm="hwinfo" name="mem" dev=tmpfs ino=1053 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:memory_device_t tclass=chr_file
-type=AVC msg=audit(1266436281.245:185): avc:  denied  { execstack } for  pid=2372 comm="cupsd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=process
-type=AVC msg=audit(1266436281.255:186): avc:  denied  { execmem } for  pid=2372 comm="cupsd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=process
-type=AVC msg=audit(1266436281.423:187): avc:  denied  { node_bind } for  pid=2380 comm="cupsd" saddr=0000:0000:0000:0000:0000:0000:0000:0001 src=631 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:compat_ipv4_node_t tclass=tcp_socket
-type=AVC msg=audit(1266436281.423:188): avc:  denied  { node_bind } for  pid=2380 comm="cupsd" saddr=127.0.0.1 src=631 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:lo_node_t tclass=tcp_socket
-type=AVC msg=audit(1266436281.688:189): avc:  denied  { read write } for  pid=2439 comm="smartd" name="sda" dev=tmpfs ino=1743 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:fixed_disk_device_t tclass=blk_file
-type=AVC msg=audit(1266436281.688:190): avc:  denied  { open } for  pid=2439 comm="smartd" name="sda" dev=tmpfs ino=1743 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:fixed_disk_device_t tclass=blk_file
-type=AVC msg=audit(1266436281.689:191): avc:  denied  { ioctl } for  pid=2439 comm="smartd" path="/dev/sda" dev=tmpfs ino=1743 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:fixed_disk_device_t tclass=blk_file
-type=AVC msg=audit(1266436282.004:192): avc:  denied  { read } for  pid=2101 comm="rsyslogd" path="/proc/kmsg" dev=proc ino=4026531989 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:proc_kmsg_t tclass=file
-type=AVC msg=audit(1266436317.516:193): avc:  denied  { node_bind } for  pid=2700 comm="master" src=25 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:inaddr_any_node_t tclass=tcp_socket
-type=AVC msg=audit(1266436317.522:194): avc:  denied  { node_bind } for  pid=2700 comm="master" src=25 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:unspec_node_t tclass=tcp_socket
-type=AVC msg=audit(1266436317.812:195): avc:  denied  { write } for  pid=2761 comm="ip6tables" path="/tmp/SuSEfirewall2_iptables.ME3rv0dJ" dev=sda2 ino=129882 scontext=system_u:system_r:iptables_t tcontext=system_u:object_r:user_tmp_t tclass=file
-type=AVC msg=audit(1266436317.813:196): avc:  denied  { read } for  pid=2191 comm="auditd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_audit_socket
-type=AVC msg=audit(1266436317.840:197): avc:  denied  { write } for  pid=2767 comm="modprobe" path="/tmp/SuSEfirewall2_iptables.ME3rv0dJ" dev=sda2 ino=129882 scontext=system_u:system_r:insmod_t tcontext=system_u:object_r:user_tmp_t tclass=file
-type=AVC msg=audit(1266436318.030:198): avc:  denied  { read } for  pid=2806 comm="iptables-batch" name="SuSEfirewall2_iptables.ME3rv0dJ" dev=sda2 ino=129882 scontext=system_u:system_r:iptables_t tcontext=system_u:object_r:user_tmp_t tclass=file
-type=AVC msg=audit(1266436318.030:199): avc:  denied  { open } for  pid=2806 comm="iptables-batch" name="SuSEfirewall2_iptables.ME3rv0dJ" dev=sda2 ino=129882 scontext=system_u:system_r:iptables_t tcontext=system_u:object_r:user_tmp_t tclass=file
-type=AVC msg=audit(1266436318.031:200): avc:  denied  { getattr } for  pid=2806 comm="iptables-batch" path="/tmp/SuSEfirewall2_iptables.ME3rv0dJ" dev=sda2 ino=129882 scontext=system_u:system_r:iptables_t tcontext=system_u:object_r:user_tmp_t tclass=file
-type=AVC msg=audit(1266436318.066:201): avc:  denied  { read } for  pid=286 comm="udevd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_kobject_uevent_socket
-type=AVC msg=audit(1266436318.067:202): avc:  denied  { write } for  pid=286 comm="udevd" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_kobject_uevent_socket
-type=AVC msg=audit(1266436318.335:203): avc:  denied  { setattr } for  pid=2841 comm="mingetty" name="tty1" dev=tmpfs ino=3835 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:tty_device_t tclass=chr_file
-type=AVC msg=audit(1266436744.301:204): avc:  denied  { setattr } for  pid=2841 comm="login" name="tty1" dev=tmpfs ino=3835 scontext=system_u:system_r:sysadm_t tcontext=system_u:object_r:tty_device_t tclass=chr_file
-type=AVC msg=audit(1266436745.371:205): avc:  denied  { create } for  pid=2841 comm="login" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_audit_socket
-type=AVC msg=audit(1266436745.371:206): avc:  denied  { write } for  pid=2841 comm="login" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_audit_socket
-type=AVC msg=audit(1266436745.371:207): avc:  denied  { nlmsg_relay } for  pid=2841 comm="login" scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=netlink_audit_socket
-type=AVC msg=audit(1266436745.371:208): avc:  denied  { audit_write } for  pid=2841 comm="login" capability=29 scontext=system_u:system_r:sysadm_t tcontext=system_u:system_r:sysadm_t tclass=capability
+--_002_5A5E55DF96F73844AF7DFB0F48721F0F529A78028FEUSAACMS0703e_
+Content-Type: application/octet-stream; name="audit.log"
+Content-Description: audit.log
+Content-Disposition: attachment; filename="audit.log"; size=8590;
+	creation-date="Wed, 17 Feb 2010 15:01:29 GMT";
+	modification-date="Wed, 17 Feb 2010 15:01:29 GMT"
+Content-Transfer-Encoding: base64
+
+dHlwZT1EQUVNT05fU1RBUlQgbXNnPWF1ZGl0KDEyNjY0MzYwNDUuMjg1OjE1ODQpOiBhdWRpdGQg
+c3RhcnQsIHZlcj0xLjcuMTMgZm9ybWF0PXJhdyBrZXJuZWw9Mi42LjMxLjUtMC4xLWRlc2t0b3Ag
+YXVpZD00Mjk0OTY3Mjk1IHBpZD0yMTkxIHN1Ymo9c3lzdGVtX3U6c3lzdGVtX3I6c3lzYWRtX3Qg
+cmVzPXN1Y2Nlc3MKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYwNDUuMjg4OjE3MCk6IGF2Yzog
+IGRlbmllZCAgeyBubG1zZ19yZWFkIH0gZm9yICBwaWQ9MjE5MSBjb21tPSJhdWRpdGQiIHNjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9y
+OnN5c2FkbV90IHRjbGFzcz1uZXRsaW5rX2F1ZGl0X3NvY2tldAp0eXBlPUFWQyBtc2c9YXVkaXQo
+MTI2NjQzNjA0NS4zOTQ6MTcxKTogYXZjOiAgZGVuaWVkICB7IGlvY3RsIH0gZm9yICBwaWQ9MjIw
+NiBjb21tPSJyY3NtYmZzIiBwYXRoPSIvZXRjL3NhbWJhL3NtYmZzdGFiIiBkZXY9c2RhMiBpbm89
+MTEwODk4IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmRoY3BjX3QgdGNvbnRleHQ9c3lzdGVt
+X3U6b2JqZWN0X3I6c2FtYmFfZXRjX3QgdGNsYXNzPWZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEy
+NjY0MzYwNDUuNDAwOjE3Mik6IGF2YzogIGRlbmllZCAgeyB3cml0ZSB9IGZvciAgcGlkPTIyMTEg
+Y29tbT0idG91Y2giIG5hbWU9InNtYmZzIiBkZXY9c2RhMiBpbm89MTI5NjQwIHNjb250ZXh0PXN5
+c3RlbV91OnN5c3RlbV9yOmRoY3BjX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6dmFyX2xv
+Y2tfdCB0Y2xhc3M9ZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjA0NS40MDA6MTczKTog
+YXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0yMjExIGNvbW09InRvdWNoIiBuYW1lPSJz
+bWJmcyIgZGV2PXNkYTIgaW5vPTEyOTY0MCBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpkaGNw
+Y190IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnZhcl9sb2NrX3QgdGNsYXNzPWZpbGUKdHlw
+ZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYwNDUuNDM4OjE3NCk6IGF2YzogIGRlbmllZCAgeyBnZXRh
+dHRyIH0gZm9yICBwaWQ9MjIyMCBjb21tPSJTdVNFZmlyZXdhbGwyIiBwYXRoPSIvdXNyL3NiaW4v
+aXB0YWJsZXMiIGRldj1zZGEyIGlubz0xMDQzNSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpk
+aGNwY190IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmlwdGFibGVzX2V4ZWNfdCB0Y2xhc3M9
+ZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjA0NS40Mzk6MTc1KTogYXZjOiAgZGVuaWVk
+ICB7IGV4ZWN1dGUgfSBmb3IgIHBpZD0yMjIwIGNvbW09IlN1U0VmaXJld2FsbDIiIG5hbWU9Imlw
+dGFibGVzIiBkZXY9c2RhMiBpbm89MTA0MzUgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6ZGhj
+cGNfdCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjppcHRhYmxlc19leGVjX3QgdGNsYXNzPWZp
+bGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYwNDUuNDM5OjE3Nik6IGF2YzogIGRlbmllZCAg
+eyByZWFkIH0gZm9yICBwaWQ9MjIyMCBjb21tPSJTdVNFZmlyZXdhbGwyIiBuYW1lPSJpcHRhYmxl
+cyIgZGV2PXNkYTIgaW5vPTEwNDM1IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOmRoY3BjX3Qg
+dGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aXB0YWJsZXNfZXhlY190IHRjbGFzcz1maWxlCnR5
+cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MDQ1LjQ0MToxNzcpOiBhdmM6ICBkZW5pZWQgIHsgb3Bl
+biB9IGZvciAgcGlkPTIyMjEgY29tbT0iU3VTRWZpcmV3YWxsMiIgbmFtZT0iaXB0YWJsZXMiIGRl
+dj1zZGEyIGlubz0xMDQzNSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpkaGNwY190IHRjb250
+ZXh0PXN5c3RlbV91Om9iamVjdF9yOmlwdGFibGVzX2V4ZWNfdCB0Y2xhc3M9ZmlsZQp0eXBlPUFW
+QyBtc2c9YXVkaXQoMTI2NjQzNjA0NS40NDE6MTc4KTogYXZjOiAgZGVuaWVkICB7IGV4ZWN1dGVf
+bm9fdHJhbnMgfSBmb3IgIHBpZD0yMjIxIGNvbW09IlN1U0VmaXJld2FsbDIiIHBhdGg9Ii91c3Iv
+c2Jpbi9pcHRhYmxlcyIgZGV2PXNkYTIgaW5vPTEwNDM1IHNjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOmRoY3BjX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6aXB0YWJsZXNfZXhlY190IHRj
+bGFzcz1maWxlCnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MDQ1LjQ0NDoxNzkpOiBhdmM6ICBk
+ZW5pZWQgIHsgY3JlYXRlIH0gZm9yICBwaWQ9MjIyMSBjb21tPSJpcHRhYmxlcyIgc2NvbnRleHQ9
+c3lzdGVtX3U6c3lzdGVtX3I6ZGhjcGNfdCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpkaGNw
+Y190IHRjbGFzcz1yYXdpcF9zb2NrZXQKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYwNDUuNDQ0
+OjE4MCk6IGF2YzogIGRlbmllZCAgeyBnZXRvcHQgfSBmb3IgIHBpZD0yMjIxIGNvbW09ImlwdGFi
+bGVzIiBscG9ydD0yNTUgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6ZGhjcGNfdCB0Y29udGV4
+dD1zeXN0ZW1fdTpzeXN0ZW1fcjpkaGNwY190IHRjbGFzcz1yYXdpcF9zb2NrZXQKdHlwZT1BVkMg
+bXNnPWF1ZGl0KDEyNjY0MzYwNDUuNTAxOjE4MSk6IGF2YzogIGRlbmllZCAgeyBnZXRhdHRyIH0g
+Zm9yICBwaWQ9MjIyMiBjb21tPSJTdVNFZmlyZXdhbGwyIiBwYXRoPSIvdmFyL2xvY2svU3VTRWZp
+cmV3YWxsMi5ib290aW5nIiBkZXY9c2RhMiBpbm89MTI5NjIyIHNjb250ZXh0PXN5c3RlbV91OnN5
+c3RlbV9yOmRoY3BjX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6dmFyX2xvY2tfdCB0Y2xh
+c3M9ZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjI4MC40NTk6MTgyKTogYXZjOiAgZGVu
+aWVkICB7IGFzc29jaWF0ZSB9IGZvciAgcGlkPTIyNjMgY29tbT0ia2JkIiBuYW1lPSJ2Y3MyIiBz
+Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjp1bmxhYmVsZWRfdCB0Y29udGV4dD1zeXN0ZW1fdTpv
+YmplY3Rfcjp1bmxhYmVsZWRfdCB0Y2xhc3M9ZmlsZXN5c3RlbQp0eXBlPUFWQyBtc2c9YXVkaXQo
+MTI2NjQzNjI4MC43MjU6MTgzKTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD0yMjkz
+IGNvbW09Imh3aW5mbyIgbmFtZT0ibWVtIiBkZXY9dG1wZnMgaW5vPTEwNTMgc2NvbnRleHQ9c3lz
+dGVtX3U6c3lzdGVtX3I6c3lzYWRtX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6bWVtb3J5
+X2RldmljZV90IHRjbGFzcz1jaHJfZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjI4MC43
+MjU6MTg0KTogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0yMjkzIGNvbW09Imh3aW5m
+byIgbmFtZT0ibWVtIiBkZXY9dG1wZnMgaW5vPTEwNTMgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVt
+X3I6c3lzYWRtX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6bWVtb3J5X2RldmljZV90IHRj
+bGFzcz1jaHJfZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjI4MS4yNDU6MTg1KTogYXZj
+OiAgZGVuaWVkICB7IGV4ZWNzdGFjayB9IGZvciAgcGlkPTIzNzIgY29tbT0iY3Vwc2QiIHNjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9y
+OnN5c2FkbV90IHRjbGFzcz1wcm9jZXNzCnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MjgxLjI1
+NToxODYpOiBhdmM6ICBkZW5pZWQgIHsgZXhlY21lbSB9IGZvciAgcGlkPTIzNzIgY29tbT0iY3Vw
+c2QiIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOnN5c2FkbV90IHRjbGFzcz1wcm9jZXNzCnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2
+NDM2MjgxLjQyMzoxODcpOiBhdmM6ICBkZW5pZWQgIHsgbm9kZV9iaW5kIH0gZm9yICBwaWQ9MjM4
+MCBjb21tPSJjdXBzZCIgc2FkZHI9MDAwMDowMDAwOjAwMDA6MDAwMDowMDAwOjAwMDA6MDAwMDow
+MDAxIHNyYz02MzEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6c3lzYWRtX3QgdGNvbnRleHQ9
+c3lzdGVtX3U6b2JqZWN0X3I6Y29tcGF0X2lwdjRfbm9kZV90IHRjbGFzcz10Y3Bfc29ja2V0CnR5
+cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MjgxLjQyMzoxODgpOiBhdmM6ICBkZW5pZWQgIHsgbm9k
+ZV9iaW5kIH0gZm9yICBwaWQ9MjM4MCBjb21tPSJjdXBzZCIgc2FkZHI9MTI3LjAuMC4xIHNyYz02
+MzEgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6c3lzYWRtX3QgdGNvbnRleHQ9c3lzdGVtX3U6
+b2JqZWN0X3I6bG9fbm9kZV90IHRjbGFzcz10Y3Bfc29ja2V0CnR5cGU9QVZDIG1zZz1hdWRpdCgx
+MjY2NDM2MjgxLjY4ODoxODkpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB3cml0ZSB9IGZvciAgcGlk
+PTI0MzkgY29tbT0ic21hcnRkIiBuYW1lPSJzZGEiIGRldj10bXBmcyBpbm89MTc0MyBzY29udGV4
+dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXNhZG1fdCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3Rfcjpm
+aXhlZF9kaXNrX2RldmljZV90IHRjbGFzcz1ibGtfZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2
+NjQzNjI4MS42ODg6MTkwKTogYXZjOiAgZGVuaWVkICB7IG9wZW4gfSBmb3IgIHBpZD0yNDM5IGNv
+bW09InNtYXJ0ZCIgbmFtZT0ic2RhIiBkZXY9dG1wZnMgaW5vPTE3NDMgc2NvbnRleHQ9c3lzdGVt
+X3U6c3lzdGVtX3I6c3lzYWRtX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6Zml4ZWRfZGlz
+a19kZXZpY2VfdCB0Y2xhc3M9YmxrX2ZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYyODEu
+Njg5OjE5MSk6IGF2YzogIGRlbmllZCAgeyBpb2N0bCB9IGZvciAgcGlkPTI0MzkgY29tbT0ic21h
+cnRkIiBwYXRoPSIvZGV2L3NkYSIgZGV2PXRtcGZzIGlubz0xNzQzIHNjb250ZXh0PXN5c3RlbV91
+OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOmZpeGVkX2Rpc2tf
+ZGV2aWNlX3QgdGNsYXNzPWJsa19maWxlCnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MjgyLjAw
+NDoxOTIpOiBhdmM6ICBkZW5pZWQgIHsgcmVhZCB9IGZvciAgcGlkPTIxMDEgY29tbT0icnN5c2xv
+Z2QiIHBhdGg9Ii9wcm9jL2ttc2ciIGRldj1wcm9jIGlubz00MDI2NTMxOTg5IHNjb250ZXh0PXN5
+c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnByb2Nf
+a21zZ190IHRjbGFzcz1maWxlCnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2MzE3LjUxNjoxOTMp
+OiBhdmM6ICBkZW5pZWQgIHsgbm9kZV9iaW5kIH0gZm9yICBwaWQ9MjcwMCBjb21tPSJtYXN0ZXIi
+IHNyYz0yNSBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXNhZG1fdCB0Y29udGV4dD1zeXN0
+ZW1fdTpvYmplY3RfcjppbmFkZHJfYW55X25vZGVfdCB0Y2xhc3M9dGNwX3NvY2tldAp0eXBlPUFW
+QyBtc2c9YXVkaXQoMTI2NjQzNjMxNy41MjI6MTk0KTogYXZjOiAgZGVuaWVkICB7IG5vZGVfYmlu
+ZCB9IGZvciAgcGlkPTI3MDAgY29tbT0ibWFzdGVyIiBzcmM9MjUgc2NvbnRleHQ9c3lzdGVtX3U6
+c3lzdGVtX3I6c3lzYWRtX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6dW5zcGVjX25vZGVf
+dCB0Y2xhc3M9dGNwX3NvY2tldAp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjMxNy44MTI6MTk1
+KTogYXZjOiAgZGVuaWVkICB7IHdyaXRlIH0gZm9yICBwaWQ9Mjc2MSBjb21tPSJpcDZ0YWJsZXMi
+IHBhdGg9Ii90bXAvU3VTRWZpcmV3YWxsMl9pcHRhYmxlcy5NRTNydjBkSiIgZGV2PXNkYTIgaW5v
+PTEyOTg4MiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppcHRhYmxlc190IHRjb250ZXh0PXN5
+c3RlbV91Om9iamVjdF9yOnVzZXJfdG1wX3QgdGNsYXNzPWZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0
+KDEyNjY0MzYzMTcuODEzOjE5Nik6IGF2YzogIGRlbmllZCAgeyByZWFkIH0gZm9yICBwaWQ9MjE5
+MSBjb21tPSJhdWRpdGQiIHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250
+ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjbGFzcz1uZXRsaW5rX2F1ZGl0X3NvY2tl
+dAp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjMxNy44NDA6MTk3KTogYXZjOiAgZGVuaWVkICB7
+IHdyaXRlIH0gZm9yICBwaWQ9Mjc2NyBjb21tPSJtb2Rwcm9iZSIgcGF0aD0iL3RtcC9TdVNFZmly
+ZXdhbGwyX2lwdGFibGVzLk1FM3J2MGRKIiBkZXY9c2RhMiBpbm89MTI5ODgyIHNjb250ZXh0PXN5
+c3RlbV91OnN5c3RlbV9yOmluc21vZF90IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnVzZXJf
+dG1wX3QgdGNsYXNzPWZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYzMTguMDMwOjE5OCk6
+IGF2YzogIGRlbmllZCAgeyByZWFkIH0gZm9yICBwaWQ9MjgwNiBjb21tPSJpcHRhYmxlcy1iYXRj
+aCIgbmFtZT0iU3VTRWZpcmV3YWxsMl9pcHRhYmxlcy5NRTNydjBkSiIgZGV2PXNkYTIgaW5vPTEy
+OTg4MiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppcHRhYmxlc190IHRjb250ZXh0PXN5c3Rl
+bV91Om9iamVjdF9yOnVzZXJfdG1wX3QgdGNsYXNzPWZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEy
+NjY0MzYzMTguMDMwOjE5OSk6IGF2YzogIGRlbmllZCAgeyBvcGVuIH0gZm9yICBwaWQ9MjgwNiBj
+b21tPSJpcHRhYmxlcy1iYXRjaCIgbmFtZT0iU3VTRWZpcmV3YWxsMl9pcHRhYmxlcy5NRTNydjBk
+SiIgZGV2PXNkYTIgaW5vPTEyOTg4MiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjppcHRhYmxl
+c190IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnVzZXJfdG1wX3QgdGNsYXNzPWZpbGUKdHlw
+ZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYzMTguMDMxOjIwMCk6IGF2YzogIGRlbmllZCAgeyBnZXRh
+dHRyIH0gZm9yICBwaWQ9MjgwNiBjb21tPSJpcHRhYmxlcy1iYXRjaCIgcGF0aD0iL3RtcC9TdVNF
+ZmlyZXdhbGwyX2lwdGFibGVzLk1FM3J2MGRKIiBkZXY9c2RhMiBpbm89MTI5ODgyIHNjb250ZXh0
+PXN5c3RlbV91OnN5c3RlbV9yOmlwdGFibGVzX3QgdGNvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6
+dXNlcl90bXBfdCB0Y2xhc3M9ZmlsZQp0eXBlPUFWQyBtc2c9YXVkaXQoMTI2NjQzNjMxOC4wNjY6
+MjAxKTogYXZjOiAgZGVuaWVkICB7IHJlYWQgfSBmb3IgIHBpZD0yODYgY29tbT0idWRldmQiIHNj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOnN5c2FkbV90IHRjbGFzcz1uZXRsaW5rX2tvYmplY3RfdWV2ZW50X3NvY2tldAp0eXBlPUFW
+QyBtc2c9YXVkaXQoMTI2NjQzNjMxOC4wNjc6MjAyKTogYXZjOiAgZGVuaWVkICB7IHdyaXRlIH0g
+Zm9yICBwaWQ9Mjg2IGNvbW09InVkZXZkIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXNh
+ZG1fdCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXNhZG1fdCB0Y2xhc3M9bmV0bGlua19r
+b2JqZWN0X3VldmVudF9zb2NrZXQKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzYzMTguMzM1OjIw
+Myk6IGF2YzogIGRlbmllZCAgeyBzZXRhdHRyIH0gZm9yICBwaWQ9Mjg0MSBjb21tPSJtaW5nZXR0
+eSIgbmFtZT0idHR5MSIgZGV2PXRtcGZzIGlubz0zODM1IHNjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnR0eV9kZXZpY2VfdCB0Y2xh
+c3M9Y2hyX2ZpbGUKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzY3NDQuMzAxOjIwNCk6IGF2Yzog
+IGRlbmllZCAgeyBzZXRhdHRyIH0gZm9yICBwaWQ9Mjg0MSBjb21tPSJsb2dpbiIgbmFtZT0idHR5
+MSIgZGV2PXRtcGZzIGlubz0zODM1IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90
+IHRjb250ZXh0PXN5c3RlbV91Om9iamVjdF9yOnR0eV9kZXZpY2VfdCB0Y2xhc3M9Y2hyX2ZpbGUK
+dHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzY3NDUuMzcxOjIwNSk6IGF2YzogIGRlbmllZCAgeyBj
+cmVhdGUgfSBmb3IgIHBpZD0yODQxIGNvbW09ImxvZ2luIiBzY29udGV4dD1zeXN0ZW1fdTpzeXN0
+ZW1fcjpzeXNhZG1fdCB0Y29udGV4dD1zeXN0ZW1fdTpzeXN0ZW1fcjpzeXNhZG1fdCB0Y2xhc3M9
+bmV0bGlua19hdWRpdF9zb2NrZXQKdHlwZT1BVkMgbXNnPWF1ZGl0KDEyNjY0MzY3NDUuMzcxOjIw
+Nik6IGF2YzogIGRlbmllZCAgeyB3cml0ZSB9IGZvciAgcGlkPTI4NDEgY29tbT0ibG9naW4iIHNj
+b250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3RlbV91OnN5c3Rl
+bV9yOnN5c2FkbV90IHRjbGFzcz1uZXRsaW5rX2F1ZGl0X3NvY2tldAp0eXBlPUFWQyBtc2c9YXVk
+aXQoMTI2NjQzNjc0NS4zNzE6MjA3KTogYXZjOiAgZGVuaWVkICB7IG5sbXNnX3JlbGF5IH0gZm9y
+ICBwaWQ9Mjg0MSBjb21tPSJsb2dpbiIgc2NvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6c3lzYWRt
+X3QgdGNvbnRleHQ9c3lzdGVtX3U6c3lzdGVtX3I6c3lzYWRtX3QgdGNsYXNzPW5ldGxpbmtfYXVk
+aXRfc29ja2V0CnR5cGU9QVZDIG1zZz1hdWRpdCgxMjY2NDM2NzQ1LjM3MToyMDgpOiBhdmM6ICBk
+ZW5pZWQgIHsgYXVkaXRfd3JpdGUgfSBmb3IgIHBpZD0yODQxIGNvbW09ImxvZ2luIiBjYXBhYmls
+aXR5PTI5IHNjb250ZXh0PXN5c3RlbV91OnN5c3RlbV9yOnN5c2FkbV90IHRjb250ZXh0PXN5c3Rl
+bV91OnN5c3RlbV9yOnN5c2FkbV90IHRjbGFzcz1jYXBhYmlsaXR5Cg==
+
+--_002_5A5E55DF96F73844AF7DFB0F48721F0F529A78028FEUSAACMS0703e_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
