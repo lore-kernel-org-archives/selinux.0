@@ -1,73 +1,116 @@
-Subject: Re: SELinux Policy in OpenSUSE 11.2
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in
+ check_avtab_hierarchy_callback()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. mattock" <justinmattock@gmail.com>
-Cc: Dominick Grift <domg472@gmail.com>, Alan Rouse <alan.rouse@ericsson.com>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <4B7B97D4.7020005@gmail.com>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7B21A2.3080006@gmail.com>  <4B7B97D4.7020005@gmail.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4B7B2F15.5020909@ak.jp.nec.com>
+References: <4AF71B05.8030707@cs.purdue.edu>
+	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
+	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
+	 <4B14934F.9050401@cs.purdue.edu>
+	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
+	 <4B6BAFD0.2050607@ak.jp.nec.com>
+	 <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com>
+	 <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7B2F15.5020909@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Wed, 17 Feb 2010 08:43:16 -0500
-Message-Id: <1266414196.4945.8.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 17 Feb 2010 08:51:05 -0500
+Message-Id: <1266414665.4945.15.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-02-16 at 23:16 -0800, Justin P. mattock wrote:
-> o.k. I think I thought too much on the subject
-> (I need to stop building systems from scratch
-> i.g. all I can think of is/are switches to enable).
+On Wed, 2010-02-17 at 08:49 +0900, KaiGai Kohei wrote:
+> > I'd say we revert the changeset and restore the prior behavior.
+> > I don't think we should impose the latter convention on policy writers.
 > 
-> Anyways I figured out the problem seems easier
-> than I had expected:
+> OK, fair enough for me.
 > 
-> with a fresh build of suse 11.2, then
-> under yast adding the correct SELinux
-> apps/libs, then adjusting grub(in the control
-> center thing).
-> 
-> reboot
-> 
-> you hit a broken gdm dbus thing.
-> 
-> under /var/log/gdm/:5-greeter.log
-> 
-> there is an error message with dbus:
-> 
-> Failed to start message bus: Failed to open 
-> "/etc/selinux/targeted/contexts/dbus_contexts": No such file or directory
-> EOF in dbus-launch reading address from dbus daemon.
-> 
-> so after reading that then looking at /etc/selinux/refpolicy-standard
-> I decided to just cp -R refpolicy-standard targeted(reboot)
-> and voila the system boots gdm starts, life is good with suse
-> (I guess there not the darkside after all!!).
-> 
-> as for the real problem I'm guessing whatever is telling
-> dbus-launch to look for /etc/selinux/targeted
-> is the problem.
-> 
-> Alan does just a simple renaming of refpolicy to targeted
-> at least get you up and running(if not use suses policy,
-> and rename it to targeted, until I can find what dbus launch script is
-> calling for that policy name).
+> This patch revert the commit of 7d52a155e38d5a165759dbbee656455861bf7801
+> which removed a part of type_attribute_bounds_av as a dead code.
+> However, at that time, we didn't find out the target side boundary allows
+> to handle some of pseudo /proc/<pid>/* entries with its process's security
+> context well.
 
-Interesting.  On Fedora, /etc/dbus-1/system.conf and session.conf
-contain this directive to include the selinux configuration for dbus:
-<include if_selinux_enabled="yes" selinux_root_relative="yes">contexts/dbus_contexts</include>
+Does Jacques' original concern about the code still hold true?
+http://marc.info/?l=selinux&m=125770868309928&w=2
+http://marc.info/?l=selinux&m=125851264424682&w=2
 
-This avoids any hardcoded dependency on the location of the configuration file.
-The dbus code uses the selinux_policy_root() function provided by
-libselinux to find the root of the policy directory.
-
-It should be using the SELINUXTYPE= definition in /etc/selinux/config to
-select the active policy root.
-
+> 
+>  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+> --
+>  security/selinux/ss/services.c |   43 ++++++++++++++++++++++++++++++++++++---
+>  1 files changed, 39 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 4e976f5..42d423c 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -524,14 +524,16 @@ static void type_attribute_bounds_av(struct context *scontext,
+>  				     u16 tclass,
+>  				     struct av_decision *avd)
+>  {
+> +	struct context lo_scontext;
+> +	struct context lo_tcontext;
+> +	struct av_decision lo_avd;
+>  	struct type_datum *source
+>  		= policydb.type_val_to_struct[scontext->type - 1];
+> +	struct type_datum *target
+> +		= policydb.type_val_to_struct[tcontext->type - 1];
+> +	u32 masked = 0;
+> 
+>  	if (source->bounds) {
+> -		struct context lo_scontext;
+> -		struct av_decision lo_avd;
+> -		u32 masked;
+> -
+>  		memset(&lo_avd, 0, sizeof(lo_avd));
+> 
+>  		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
+> @@ -544,7 +546,40 @@ static void type_attribute_bounds_av(struct context *scontext,
+>  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+>  			return;		/* no masked permission */
+>  		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> +
+> +	if (target->bounds) {
+> +		memset(&lo_avd, 0, sizeof(lo_avd));
+> +
+> +		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
+> +		lo_tcontext.type = target->bounds;
+> +
+> +		context_struct_compute_av(scontext,
+> +					  &lo_tcontext,
+> +					  tclass,
+> +					  &lo_avd);
+> +		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> +			return;		/* no masked permission */
+> +		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> +
+> +	if (source->bounds && target->bounds) {
+> +		memset(&lo_avd, 0, sizeof(lo_avd));
+> +		/*
+> +		 * lo_scontext and lo_tcontext are already
+> +		 * set up.
+> +		 */
+> +
+> +		context_struct_compute_av(&lo_scontext,
+> +					  &lo_tcontext,
+> +					  tclass,
+> +					  &lo_avd);
+> +		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> +			return;		/* no masked permission */
+> +		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> 
+> +	if (masked) {
+>  		/* mask violated permissions */
+>  		avd->allowed &= ~masked;
+> 
 -- 
 Stephen Smalley
 National Security Agency
