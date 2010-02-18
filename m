@@ -1,12 +1,10 @@
-From: Alan Rouse <alan.rouse@ericsson.com>
-To: "Justin P. mattock" <justinmattock@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        "selinux@tycho.nsa.gov"
-	<selinux@tycho.nsa.gov>
-Date: Thu, 18 Feb 2010 13:44:10 -0500
 Subject: RE: SELinux Policy in OpenSUSE 11.2
-Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F529A78091B@EUSAACMS0703.eamcs.ericsson.se>
-References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alan Rouse <alan.rouse@ericsson.com>
+Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+In-Reply-To: <1266502609.21209.27.camel@moss-pluto.epoch.ncsc.mil>
+References: 
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
@@ -16,23 +14,52 @@ References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.erics
 	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780232@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266436724.4945.122.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7C4D0C.7050204@gmail.com>
- <1266438101.4945.133.camel@moss-pluto.epoch.ncsc.mil>
- <4B7C7A48.4030506@gmail.com>
- <5A5E55DF96F73844AF7DFB0F48721F0F529A7806D6@EUSAACMS0703.eamcs.ericsson.se>
- <4B7D8806.4070107@gmail.com>
-In-Reply-To: <4B7D8806.4070107@gmail.com>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+	 <4B7C47DB.40602@gmail.com>
+	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780280@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266437939.4945.132.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266438301.4945.134.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802A0@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266438910.4945.137.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802D6@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266502609.21209.27.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 18 Feb 2010 16:28:32 -0500
+Message-Id: <1266528512.21209.52.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Justin wrote: 
-> libselinux is really going out of whack, and defaulting to targeted.
+On Thu, 2010-02-18 at 09:16 -0500, Stephen Smalley wrote:
+> On Wed, 2010-02-17 at 16:48 -0500, Alan Rouse wrote:
+> > libselinux-2.0.80-5.2.i586
+> > libsepol1-2.0.36-2.2.i586
+> > libsemanage1-2.0.31-4.1.i586
+> > policycoreutils-2.0.62-3.1.i586
+> > checkpolicy-2.0.19-2.2.i586
+> 
+> Could you update to newer versions from:
+> http://userspace.selinuxproject.org
+> 
+> You can either use a released set from:
+> http://userspace.selinuxproject.org/trac/wiki/Releases
+> 
+> or you can just clone the git repo and build the latest via:
+> git clone http://oss.tresys.com/git/selinux.git
 
-Maybe that problem has something to do with why my "setsebool -P" configurations are not persiting across a boot.
+BTW, you should likely file a bugzilla against those packages asking
+that they be updated to the latest upstream ones if they haven't already
+done so for the next OpenSUSE release.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
