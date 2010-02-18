@@ -1,170 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1IFNXxH024812
-	for <selinux@tycho.nsa.gov>; Thu, 18 Feb 2010 10:23:33 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o1IFNJJ2001030
-	for <selinux@tycho.nsa.gov>; Thu, 18 Feb 2010 15:23:19 GMT
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o1IFNVBF030368
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 18 Feb 2010 10:23:31 -0500
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o1IFNUpB001267
-	for <selinux@tycho.nsa.gov>; Thu, 18 Feb 2010 10:23:30 -0500
-Message-ID: <4B7D5B72.6090401@redhat.com>
-Date: Thu, 18 Feb 2010 10:23:30 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch to fix libdir spec in SELinux libraries pkconfig
-Content-Type: multipart/mixed;
- boundary="------------030509040609000804060300"
+Subject: RE: SELinux Policy in OpenSUSE 11.2
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alan Rouse <alan.rouse@ericsson.com>
+Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
+References: 
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
+	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7C47DB.40602@gmail.com>
+	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780280@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266437939.4945.132.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266438301.4945.134.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802A0@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266438910.4945.137.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802D6@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
+Content-Type: text/plain
+Date: Thu, 18 Feb 2010 11:03:07 -0500
+Message-Id: <1266508987.21209.45.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030509040609000804060300
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Wed, 2010-02-17 at 16:48 -0500, Alan Rouse wrote:
+> libselinux-2.0.80-5.2.i586
+> libsepol1-2.0.36-2.2.i586
+> libsemanage1-2.0.31-4.1.i586
+> policycoreutils-2.0.62-3.1.i586
+> checkpolicy-2.0.19-2.2.i586
 
-Need to have lib64 instead of lib 
+Do you also have a setools package?
 
-cat /usr/lib64/pkgconfig/libsepol.pc 
-prefix=/usr
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-includedir=/usr/include
+If so, run:
+	sesearch -C --type -s init_t -t shell_exec_t
 
-Name: libsepol
-Description: SELinux policy library
-Version: 2.0.41
-URL: http://userspace.selinuxproject.org/
-Libs: -L${libdir} -lsepol
-Cflags: -I${includedir}
+-- 
+Stephen Smalley
+National Security Agency
 
-Should be
-
-cat /usr/lib64/pkgconfig/libsepol.pc 
-prefix=/usr
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib64
-includedir=/usr/include
-
-Name: libsepol
-Description: SELinux policy library
-Version: 2.0.41
-URL: http://userspace.selinuxproject.org/
-Libs: -L${libdir} -lsepol
-Cflags: -I${includedir}
-
---------------030509040609000804060300
-Content-Type: text/plain;
- name="pkconfig.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="pkconfig.patch"
-
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index cfd72e2..bf665ab 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -11,6 +11,7 @@ RUBYLIBVER ?= $(shell ruby -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
- RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
- RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
- RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
-+LIBBASE=$(shell basename $(LIBDIR))
- 
- VERSION = $(shell cat ../VERSION)
- LIBVERSION = 1
-@@ -85,7 +86,7 @@ $(LIBSO): $(LOBJS)
- 	ln -sf $@ $(TARGET) 
- 
- $(LIBPC): $(LIBPC).in
--	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-+	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
- 
- selinuxswig_python_exception.i: ../include/selinux/selinux.h
- 	bash exception.sh > $@ 
-diff --git a/libselinux/src/libselinux.pc.in b/libselinux/src/libselinux.pc.in
-index 9b3808b..5691559 100644
---- a/libselinux/src/libselinux.pc.in
-+++ b/libselinux/src/libselinux.pc.in
-@@ -1,6 +1,6 @@
- prefix=@prefix@
- exec_prefix=${prefix}
--libdir=${exec_prefix}/lib
-+libdir=${exec_prefix}/@libdir@
- includedir=@includedir@
- 
- Name: libselinux
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index 67afc60..7acf63d 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -10,6 +10,7 @@ RUBYLIBVER ?= $(shell ruby -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
- RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
- RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
- RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
-+LIBBASE=$(shell basename $(LIBDIR))
- 
- DEFAULT_SEMANAGE_CONF_LOCATION=$(DESTDIR)/etc/selinux/semanage.conf
- 
-@@ -82,7 +83,7 @@ $(LIBSO): $(LOBJS)
- 	ln -sf $@ $(TARGET)
- 
- $(LIBPC): $(LIBPC).in
--	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-+	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
- 
- conf-scan.c: conf-scan.l conf-parse.h
- 	$(LEX) $(LFLAGS) -t $< > $@
-diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
-index d0945f8..81e1805 100644
---- a/libsemanage/src/libsemanage.pc.in
-+++ b/libsemanage/src/libsemanage.pc.in
-@@ -1,6 +1,6 @@
- prefix=@prefix@
- exec_prefix=${prefix}
--libdir=${exec_prefix}/lib
-+libdir=${exec_prefix}/@libdir@
- includedir=@includedir@
- 
- Name: libsemanage
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index 3b19e37..73fdef8 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -3,6 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
- INCLUDEDIR ?= $(PREFIX)/include
- LIBDIR ?= $(PREFIX)/lib
- SHLIBDIR ?= $(DESTDIR)/lib
-+LIBBASE=$(shell basename $(LIBDIR))
- 
- VERSION = $(shell cat ../VERSION)
- LIBVERSION = 1
-@@ -27,7 +28,7 @@ $(LIBSO): $(LOBJS)
- 	ln -sf $@ $(TARGET) 
- 
- $(LIBPC): $(LIBPC).in
--	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-+	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
- 
- %.o:  %.c 
- 	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
-diff --git a/libsepol/src/libsepol.pc.in b/libsepol/src/libsepol.pc.in
-index bc7635c..e52f589 100644
---- a/libsepol/src/libsepol.pc.in
-+++ b/libsepol/src/libsepol.pc.in
-@@ -1,6 +1,6 @@
- prefix=@prefix@
- exec_prefix=${prefix}
--libdir=${exec_prefix}/lib
-+libdir=${exec_prefix}/@libdir@
- includedir=@includedir@
- 
- Name: libsepol
-
---------------030509040609000804060300--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
