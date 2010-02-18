@@ -1,65 +1,71 @@
-Subject: RE: SELinux Policy in OpenSUSE 11.2
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4B7DB3B4.2070409@gmail.com>
+Date: Thu, 18 Feb 2010 13:40:04 -0800
+From: "Justin P. mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
 To: Alan Rouse <alan.rouse@ericsson.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <1266502609.21209.27.camel@moss-pluto.epoch.ncsc.mil>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7C47DB.40602@gmail.com>
-	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780280@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266437939.4945.132.camel@moss-pluto.epoch.ncsc.mil>
-	 <1266438301.4945.134.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802A0@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266438910.4945.137.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802D6@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
-	 <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266502609.21209.27.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 18 Feb 2010 16:28:32 -0500
-Message-Id: <1266528512.21209.52.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Dominick Grift <domg472@gmail.com>,
+        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: SELinux Policy in OpenSUSE 11.2
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>	 <4B7C47DB.40602@gmail.com> <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil> <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-02-18 at 09:16 -0500, Stephen Smalley wrote:
-> On Wed, 2010-02-17 at 16:48 -0500, Alan Rouse wrote:
-> > libselinux-2.0.80-5.2.i586
-> > libsepol1-2.0.36-2.2.i586
-> > libsemanage1-2.0.31-4.1.i586
-> > policycoreutils-2.0.62-3.1.i586
-> > checkpolicy-2.0.19-2.2.i586
-> 
-> Could you update to newer versions from:
-> http://userspace.selinuxproject.org
-> 
-> You can either use a released set from:
-> http://userspace.selinuxproject.org/trac/wiki/Releases
-> 
-> or you can just clone the git repo and build the latest via:
-> git clone http://oss.tresys.com/git/selinux.git
+alright... policy is up and running
+in full enforcement mode:
 
-BTW, you should likely file a bugzilla against those packages asking
-that they be updated to the latest upstream ones if they haven't already
-done so for the next OpenSUSE release.
+SELinux status:                 enabled
+SELinuxfs mount:                /selinux
+Current mode:                   enforcing
+Mode from config file:          error (Permission denied)
+Policy version:                 24
+Policy from config file:        targeted
 
--- 
-Stephen Smalley
-National Security Agency
+Process contexts:
+Current context:                name:user_r:user_t
+Init context:                   unknown (Permission denied)
 
+File contexts:
+Controlling term:               name:object_r:user_devpts_t
+/etc/passwd                     system_u:object_r:etc_t
+/bin/bash                       system_u:object_r:shell_exec_t
+/bin/login                      system_u:object_r:login_exec_t
+/bin/sh                         system_u:object_r:bin_t ->
+system_u:object_r:shell_exec_t
+/sbin/agetty                    system_u:object_r:getty_exec_t
+/sbin/mingetty                  system_u:object_r:getty_exec_t
+/lib/libc.so.6                  system_u:object_r:lib_t ->
+system_u:object_r:lib_t
+/lib/ld-linux.so.2              system_u:object_r:lib_t ->
+system_u:object_r:ld_so_t
+
+
+
+I tried to enable poly-instantiation support(pam_namespace), but
+need to look more into that because I never really set it up
+with gdm.
+
+Anyways I'm able to boot up, able to
+use firefox and evolution. as for anything
+else I'm sure just need to define the allow rules.
+
+
+Now the only real area of interest is
+the dbus message pointing to targeted.
+
+I'm guessing dbus was built with a hard wire,
+if so this would require rebuilding dbus,
+or using anther rpm package built correctly.
+(if possible without breaking the system dependencies).
+
+but then again it could be just a boolean.
+In any case main thing is full enforcement works
+gdm works, nice system I'd have to say.
+
+
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
