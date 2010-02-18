@@ -1,8 +1,8 @@
 Subject: RE: SELinux Policy in OpenSUSE 11.2
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Alan Rouse <alan.rouse@ericsson.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A780365@EUSAACMS0703.eamcs.ericsson.se>
+Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
 References: 
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
@@ -25,52 +25,30 @@ References:
 	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780365@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
 Content-Type: text/plain
-Date: Thu, 18 Feb 2010 09:12:18 -0500
-Message-Id: <1266502338.21209.22.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 18 Feb 2010 09:16:49 -0500
+Message-Id: <1266502609.21209.27.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-02-17 at 16:44 -0500, Alan Rouse wrote:
-> root> Ok, and what happens when you run setsebool -P init_upstart=1?
-> 
-> The timestamp is also updated in that case.  
-> 
-> > What?  grep selinuxfs /proc/mounts
-> 
-> none /selinux selinuxfs rw,realtime 0 0
->
-> > ls /selinux
-> 
-> access
-> avc
-> booleans
-> checkreqprot
-> class
-> commit_pending_bools
-> context
-> create
-> deny_unknown
-> disable
-> enforce
-> initial_contexts
-> load
-> member
-> mls
-> null
-> policy_capabilities
-> policyvers
-> reject_unknown
-> relabel
-> user
+On Wed, 2010-02-17 at 16:48 -0500, Alan Rouse wrote:
+> libselinux-2.0.80-5.2.i586
+> libsepol1-2.0.36-2.2.i586
+> libsemanage1-2.0.31-4.1.i586
+> policycoreutils-2.0.62-3.1.i586
+> checkpolicy-2.0.19-2.2.i586
 
-Ok, that looks fine.  Again, I'll ask that you do this:
-cat /selinux/policyvers
+Could you update to newer versions from:
+http://userspace.selinuxproject.org
 
-It is a kernel pseudo filesystem, so don't worry about ls -l showing a
-zero size - the file contents are generated on demand.
+You can either use a released set from:
+http://userspace.selinuxproject.org/trac/wiki/Releases
+
+or you can just clone the git repo and build the latest via:
+git clone http://oss.tresys.com/git/selinux.git
 
 -- 
 Stephen Smalley
