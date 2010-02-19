@@ -3,7 +3,7 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Justin P. mattock" <justinmattock@gmail.com>
 Cc: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
         "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <4B7DB3B4.2070409@gmail.com>
+In-Reply-To: <4B7DCA8D.8010708@gmail.com>
 References: 
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
@@ -19,63 +19,55 @@ References:
 	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
 	 <4B7DB3B4.2070409@gmail.com>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780AEE@EUSAACMS0703.eamcs.ericsson.se>
+	 <4B7DCA8D.8010708@gmail.com>
 Content-Type: text/plain
-Date: Fri, 19 Feb 2010 09:28:34 -0500
-Message-Id: <1266589714.32011.14.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 19 Feb 2010 09:35:32 -0500
+Message-Id: <1266590132.32011.21.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-02-18 at 13:40 -0800, Justin P. mattock wrote:
-> alright... policy is up and running
-> in full enforcement mode:
+On Thu, 2010-02-18 at 15:17 -0800, Justin P. mattock wrote:
+> then after being able to build and install the policy  then I focused in 
+> on the booleans, I set(although am not sure if they fixed the errors 
+> with avahi)where these:
 > 
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   enforcing
-> Mode from config file:          error (Permission denied)
-> Policy version:                 24
-> Policy from config file:        targeted
+> allow_polyinstantiation=on
+> init_upstart=on(although I think they use sysvinit(notsure))
+
+I was suggesting trying to set the init_upstart boolean because it
+disables the transition from init_t to sysadm_t on executing a shell and
+it appeared that for some reason that was causing system services to be
+left in sysadm_t.
+
+Question:  Are your boolean settings persisting across reboot?
+
+> then once I was able to get a clean boot(even with the "targeted" dbus 
+> issue)
+> I focused in on the login context:
+> name:user_r:user_t
 > 
-> Process contexts:
-> Current context:                name:user_r:user_t
-> Init context:                   unknown (Permission denied)
-
-Since you ran it from user_t, you weren't allowed to see the context of
-init.  Can you run pstree -Z as sysadm_t and confirm that processes are
-running in the correct context (i.e. that they are not left in sysadm_t
-as they were for Alan)?
-
-> I tried to enable poly-instantiation support(pam_namespace), but
-> need to look more into that because I never really set it up
-> with gdm.
-
-You don't really need that unless you want multi-level directories.
-
-> Anyways I'm able to boot up, able to
-> use firefox and evolution. as for anything
-> else I'm sure just need to define the allow rules.
+> this can be done in:
+> /etc/pam.d/{login,gdm,xdm}
 > 
-> 
-> Now the only real area of interest is
-> the dbus message pointing to targeted.
-> 
-> I'm guessing dbus was built with a hard wire,
-> if so this would require rebuilding dbus,
-> or using anther rpm package built correctly.
-> (if possible without breaking the system dependencies).
-> 
-> but then again it could be just a boolean.
-> In any case main thing is full enforcement works
-> gdm works, nice system I'd have to say.
+> adding:
+> session required pam_selinux.so close
+> session required pam_selinux.so open
+> (suse has nothing of this in there files,
+> or atleast I didn't see them)
 
-dbus should just be including whatever path your /etc/dbus-1/system.conf
-says to include, and  it should be relative to /etc/selinux/$SELINUXTYPE
-from /etc/selinux/config if it has selinux_root_relative="yes" there.
+So someone needs to file bugs against those packages asking to have the
+pam_selinux.so entries added.  Should be harmless if SELinux is
+disabled; they will just exit with success.
 
-On Fedora, /etc/dbus-1/system.conf says:
- <include if_selinux_enabled="yes"
-selinux_root_relative="yes">contexts/dbus_contexts</include>
+> so after adding all allow rules from dmesg/messages(audit2allow)
+> I then added all allow rules from /var/log/audit/audit.log
+> (there probably is a tool, but haven't figured what it is yet)
+
+Well, we ought to look at the actual denials to see if they truly should
+be allowed or if they instead indicate problems with your processes
+running in the wrong context or your files being mislabeled.
 
 -- 
 Stephen Smalley
