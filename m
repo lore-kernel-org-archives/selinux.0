@@ -1,104 +1,85 @@
-Subject: Re: [PATCH 2/2] libsepol: remove dead code in
- check_avtab_hierarchy_callback()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
-        SE Linux <selinux@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>
-In-Reply-To: <4B7E3ECC.1040505@ak.jp.nec.com>
-References: <4AF71B05.8030707@cs.purdue.edu>
-	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
-	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
-	 <4B14934F.9050401@cs.purdue.edu>
-	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
-	 <4B6BAFD0.2050607@ak.jp.nec.com>
-	 <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com>
-	 <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7B2F15.5020909@ak.jp.nec.com>
-	 <1266414665.4945.15.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7E3ECC.1040505@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Fri, 19 Feb 2010 10:20:34 -0500
-Message-Id: <1266592834.32011.67.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4B7EB1B4.3020207@gmail.com>
+Date: Fri, 19 Feb 2010 07:43:48 -0800
+From: "Justin P. mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
+        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: SELinux Policy in OpenSUSE 11.2
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>	 <4B7C47DB.40602@gmail.com>	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>	 <4B7DB3B4.2070409@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780AEE@EUSAACMS0703.eamcs.ericsson.se>	 <4B7DCA8D.8010708@gmail.com> <1266590132.32011.21.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1266590132.32011.21.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-02-19 at 16:33 +0900, KaiGai Kohei wrote:
-> (2010/02/17 22:51), Stephen Smalley wrote:
-> > On Wed, 2010-02-17 at 08:49 +0900, KaiGai Kohei wrote:
-> >>> I'd say we revert the changeset and restore the prior behavior.
-> >>> I don't think we should impose the latter convention on policy writers.
-> >>
-> >> OK, fair enough for me.
-> >>
-> >> This patch revert the commit of 7d52a155e38d5a165759dbbee656455861bf7801
-> >> which removed a part of type_attribute_bounds_av as a dead code.
-> >> However, at that time, we didn't find out the target side boundary allows
-> >> to handle some of pseudo /proc/<pid>/* entries with its process's security
-> >> context well.
-> > 
-> > Does Jacques' original concern about the code still hold true?
-> > http://marc.info/?l=selinux&m=125770868309928&w=2
-> > http://marc.info/?l=selinux&m=125851264424682&w=2
-> 
-> This patch just tries to revert the changes by previous my patch,
-> and returns to the start point, so it also reverts the Jacques'
-> original concern.
-> 
-> At that time, IIRC, Jacques concerned about the logic being unclear.
-> Then, I introduced two options. The one is rough; that removes boundary
-> checks in the target side. The other option tried to mask union bits of
-> both of violated permissions on subject and target side boundaries (*1).
-> 
->  (*1) type_attribute_bounds_av(Sc,Tc, ...)
->       {
->         masked = 0;
-> 
->         if (Sc has its bounds)
->           masked |= P(Sc,Tc) & ~P(Sp,Tc);
-> 
->         if (Tc has its bounds)
->           masked |= P(Sc,Tc) & ~P(Sc,Tp);
-> 
->         avd->allowed &= ~masked;
->       }
-> 
-> However, the later option also requires policy writers special treatments
-> to handle pseudo file entries labeled with parent's domain.
-> 
-> For example, when web server (httpd_t) launches a thread and assign an
-> individual bounded security context (webapp_t), we don't need to take
-> a special treatment to access pseudo files labeled as webapp_t in the
-> original logic.
-> 
-> If we adopt the logic introduced at (*1), when we write webapp_t's policy,
-> we have to allow webapp_t domain to access files labeled as httpd_t, not
-> only webapp_t, because permissions between webapp_t and webapp_t will be
-> eventually masked by one's between httpd_t domain and webapp_t type or
-> webapp_t domain and httpd_t type.
+On 02/19/2010 06:35 AM, Stephen Smalley wrote:
+> On Thu, 2010-02-18 at 15:17 -0800, Justin P. mattock wrote:
+>> then after being able to build and install the policy  then I focused in
+>> on the booleans, I set(although am not sure if they fixed the errors
+>> with avahi)where these:
+>>
+>> allow_polyinstantiation=on
+>> init_upstart=on(although I think they use sysvinit(notsure))
+>
+> I was suggesting trying to set the init_upstart boolean because it
+> disables the transition from init_t to sysadm_t on executing a shell and
+> it appeared that for some reason that was causing system services to be
+> left in sysadm_t.
+>
+> Question:  Are your boolean settings persisting across reboot?
+>
 
-That seems wrong to me - we don't want webapp_t to be able to access
-the /proc/pid entries of other tasks running in httpd_t.  We only want
-it to be able to access its own /proc/pid entries in webapp_t.  Yes?
+yep.. i.g. vim policy/booleans.conf(make chnges), then make policy
+with the binary policy on my other machine I used setsebool -P
 
-> However, it also seems to me it is right manner to allow them explicitly
-> in the security policy, although I sent a patch to revert the changes.
-> 
-> In the original logic, when httpd_t domain is allowed to access httpd_t
-> type, webapp_t domain is also allowed to access webapp_t type, although
-> httpd_t domain is not allowed to access webapp_t type.
-> It seems to me it is a case when child domain has permissions which are
-> not allowed to the parent domain.
-> 
-> I reconsidered that it is a case when we should write security policy
-> explicitly. What do you think about it?
+>> then once I was able to get a clean boot(even with the "targeted" dbus
+>> issue)
+>> I focused in on the login context:
+>> name:user_r:user_t
+>>
+>> this can be done in:
+>> /etc/pam.d/{login,gdm,xdm}
+>>
+>> adding:
+>> session required pam_selinux.so close
+>> session required pam_selinux.so open
+>> (suse has nothing of this in there files,
+>> or atleast I didn't see them)
+>
+> So someone needs to file bugs against those packages asking to have the
+> pam_selinux.so entries added.  Should be harmless if SELinux is
+> disabled; they will just exit with success.
+>
 
--- 
-Stephen Smalley
-National Security Agency
+yeah I was surprised to not see them there.
 
+>> so after adding all allow rules from dmesg/messages(audit2allow)
+>> I then added all allow rules from /var/log/audit/audit.log
+>> (there probably is a tool, but haven't figured what it is yet)
+>
+> Well, we ought to look at the actual denials to see if they truly should
+> be allowed or if they instead indicate problems with your processes
+> running in the wrong context or your files being mislabeled.
+>
+
+seemed like it was o.k., to me(but could be wrong).
+
+there was I think three avc's that where defined as neverallow
+in the policy.
+
+an avc from hal which executed execmem to lower the gpu power level.
+mount mounting the hard drive(if remember correctly).
+and then a capability avc's
+
+in the past running ubuntu I remember those three,if I can remember the 
+next policy update had fixed those or later down the line.
+
+BTW: just to let you know I took that image and reformatted it
+and put on my system so I can start looking into a kernel bug
+if you need me to reinstall let me know(should only take a few mins to 
+get back where I was(now that I have a handle on whats happening)).
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
