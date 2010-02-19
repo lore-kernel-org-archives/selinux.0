@@ -1,9 +1,8 @@
-Subject: Re: SELinux Policy in OpenSUSE 11.2
+Subject: RE: SELinux Policy in OpenSUSE 11.2
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. mattock" <justinmattock@gmail.com>
-Cc: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <4B7DCA8D.8010708@gmail.com>
+To: Alan Rouse <alan.rouse@ericsson.com>
+Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F529A7808E8@EUSAACMS0703.eamcs.ericsson.se>
 References: 
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
@@ -17,57 +16,47 @@ References:
 	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
 	 <4B7C47DB.40602@gmail.com>
 	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7DB3B4.2070409@gmail.com>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780AEE@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7DCA8D.8010708@gmail.com>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780280@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266437939.4945.132.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266438301.4945.134.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802A0@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266438910.4945.137.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7802D6@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266440973.4945.142.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780310@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266442158.4945.144.camel@moss-pluto.epoch.ncsc.mil>
+	 <1266442637.4945.147.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78036F@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266508987.21209.45.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780863@EUSAACMS0703.eamcs.ericsson.se>
+	 <1266515620.21209.47.camel@moss-pluto.epoch.ncsc.mil>
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A7808E8@EUSAACMS0703.eamcs.ericsson.se>
 Content-Type: text/plain
-Date: Fri, 19 Feb 2010 09:35:32 -0500
-Message-Id: <1266590132.32011.21.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 19 Feb 2010 09:49:19 -0500
+Message-Id: <1266590959.32011.43.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-02-18 at 15:17 -0800, Justin P. mattock wrote:
-> then after being able to build and install the policy  then I focused in 
-> on the booleans, I set(although am not sure if they fixed the errors 
-> with avahi)where these:
+On Thu, 2010-02-18 at 13:21 -0500, Alan Rouse wrote:
+> Stephen wrote:
+> > That looks correct.  getsebool init_upstart says what?
 > 
-> allow_polyinstantiation=on
-> init_upstart=on(although I think they use sysvinit(notsure))
-
-I was suggesting trying to set the init_upstart boolean because it
-disables the transition from init_t to sysadm_t on executing a shell and
-it appeared that for some reason that was causing system services to be
-left in sysadm_t.
-
-Question:  Are your boolean settings persisting across reboot?
-
-> then once I was able to get a clean boot(even with the "targeted" dbus 
-> issue)
-> I focused in on the login context:
-> name:user_r:user_t
+> Off.
 > 
-> this can be done in:
-> /etc/pam.d/{login,gdm,xdm}
+> So, I did "setsebool -P init_upstart=1"
+> Then "getsebool init_upstart" returns "on".
 > 
-> adding:
-> session required pam_selinux.so close
-> session required pam_selinux.so open
-> (suse has nothing of this in there files,
-> or atleast I didn't see them)
+> So I reboot.
+> 
+> Now "getsebool init_upstart" returns "off" again.
 
-So someone needs to file bugs against those packages asking to have the
-pam_selinux.so entries added.  Should be harmless if SELinux is
-disabled; they will just exit with success.
+We need to figure out why that is happening.
+Can you do this?
 
-> so after adding all allow rules from dmesg/messages(audit2allow)
-> I then added all allow rules from /var/log/audit/audit.log
-> (there probably is a tool, but haven't figured what it is yet)
-
-Well, we ought to look at the actual denials to see if they truly should
-be allowed or if they instead indicate problems with your processes
-running in the wrong context or your files being mislabeled.
+. /etc/selinux/config
+ls -lR /etc/selinux/$SELINUXTYPE
+strace load_policy
 
 -- 
 Stephen Smalley
