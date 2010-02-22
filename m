@@ -1,6 +1,12 @@
-MIME-Version: 1.0
-In-Reply-To: <1266870268.15933.132.camel@moss-pluto.epoch.ncsc.mil>
-References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
+Subject: Re: SELinux Policy in OpenSUSE 11.2
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <dd18b0c31002221325ie418a7ep589e9ac0fe98f1f5@mail.gmail.com>
+References: 
+	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <4B7EDC9A.40801@gmail.com>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B01D@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>
@@ -10,112 +16,48 @@ References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.erics
 	 <dd18b0c31002221129s4be9b56cha13b7be39c2cba36@mail.gmail.com>
 	 <4B82E190.5060306@gmail.com>
 	 <1266870268.15933.132.camel@moss-pluto.epoch.ncsc.mil>
-Date: Mon, 22 Feb 2010 13:25:42 -0800
-Message-ID: <dd18b0c31002221325ie418a7ep589e9ac0fe98f1f5@mail.gmail.com>
-Subject: Re: SELinux Policy in OpenSUSE 11.2
-From: Justin Mattock <justinmattock@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Content-Type: multipart/mixed; boundary=0016367d6ff45a48f40480371358
+	 <dd18b0c31002221325ie418a7ep589e9ac0fe98f1f5@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 22 Feb 2010 16:42:36 -0500
+Message-Id: <1266874956.15933.156.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016367d6ff45a48f40480371358
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, 2010-02-22 at 13:25 -0800, Justin Mattock wrote:
+> > You don't need to rebuild sysvinit; it already has the selinux support
+> > in opensuse.
+> >
+> > The only issue is how they have configured /etc/inittab (which you still
+> > haven't sent) or how they have set up their init scripts.  Things to
+> > look for:
+> > - Does /etc/inittab invoke the rc scripts directly or indirectly via a
+> > shell command?
+> > - Are the scripts under /etc/init.d and /etc/rc.d labeled properly (e.g.
+> > with initrc_exec_t)?  Otherwise they won't transition properly.
+> > - Do the scripts under /etc/init.d and /etc/rc.d have a #! header?  If
+> > not, then an attempt to execve() them will fail and it will fall back on
+> > the caller to feed them to the shell, at which point you won't have the
+> > normal domain transition.
+> >
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> >
+> >
+> 
+> my bad.. got tied up looking for the avc's denial
+> of init. attached is inittab-orig of what suse has.
 
-> You don't need to rebuild sysvinit; it already has the selinux support
-> in opensuse.
->
-> The only issue is how they have configured /etc/inittab (which you still
-> haven't sent) or how they have set up their init scripts. =A0Things to
-> look for:
-> - Does /etc/inittab invoke the rc scripts directly or indirectly via a
-> shell command?
-> - Are the scripts under /etc/init.d and /etc/rc.d labeled properly (e.g.
-> with initrc_exec_t)? =A0Otherwise they won't transition properly.
-> - Do the scripts under /etc/init.d and /etc/rc.d have a #! header? =A0If
-> not, then an attempt to execve() them will fail and it will fall back on
-> the caller to feed them to the shell, at which point you won't have the
-> normal domain transition.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+Ok, so they invoke /etc/init.d/rc with the runlevel as an argument.
+So:
+- What does ls -Z /etc/init.d/rc show?
+- What does head /etc/init.d/rc show?
 
-my bad.. got tied up looking for the avc's denial
-of init. attached is inittab-orig of what suse has.
+-- 
+Stephen Smalley
+National Security Agency
 
-I'll throw in the inittab from my other system to see
-if it changes things, then if not look at the file labels
-
---=20
-Justin P. Mattock
-
---0016367d6ff45a48f40480371358
-Content-Type: application/octet-stream; name=inittab-orig
-Content-Disposition: attachment; filename=inittab-orig
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g5ytovvc0
-
-IwojIC9ldGMvaW5pdHRhYgojCiMgQ29weXJpZ2h0IChjKSAxOTk2LTIwMDIgU3VTRSBMaW51eCBB
-RywgTnVlcm5iZXJnLCBHZXJtYW55LiAgQWxsIHJpZ2h0cyByZXNlcnZlZC4KIwojIEF1dGhvcjog
-RmxvcmlhbiBMYSBSb2NoZSwgMTk5NgojIFBsZWFzZSBzZW5kIGZlZWRiYWNrIHRvIGh0dHA6Ly93
-d3cuc3VzZS5kZS9mZWVkYmFjawojCiMgVGhpcyBpcyB0aGUgbWFpbiBjb25maWd1cmF0aW9uIGZp
-bGUgb2YgL3NiaW4vaW5pdCwgd2hpY2gKIyBpcyBleGVjdXRlZCBieSB0aGUga2VybmVsIG9uIHN0
-YXJ0dXAuIEl0IGRlc2NyaWJlcyB3aGF0CiMgc2NyaXB0cyBhcmUgdXNlZCBmb3IgdGhlIGRpZmZl
-cmVudCBydW4tbGV2ZWxzLgojCiMgQWxsIHNjcmlwdHMgZm9yIHJ1bmxldmVsIGNoYW5nZXMgYXJl
-IGluIC9ldGMvaW5pdC5kLy4KIwojIFRoaXMgZmlsZSBtYXkgYmUgbW9kaWZpZWQgYnkgU3VTRWNv
-bmZpZyB1bmxlc3MgQ0hFQ0tfSU5JVFRBQgojIGluIC9ldGMvc3lzY29uZmlnL3N1c2Vjb25maWcg
-aXMgc2V0IHRvICJubyIKIwoKIyBUaGUgZGVmYXVsdCBydW5sZXZlbCBpcyBkZWZpbmVkIGhlcmUK
-aWQ6NTppbml0ZGVmYXVsdDoKCiMgRmlyc3Qgc2NyaXB0IHRvIGJlIGV4ZWN1dGVkLCBpZiBub3Qg
-Ym9vdGluZyBpbiBlbWVyZ2VuY3kgKC1iKSBtb2RlCnNpOjpib290d2FpdDovZXRjL2luaXQuZC9i
-b290CgojIC9ldGMvaW5pdC5kL3JjIHRha2VzIGNhcmUgb2YgcnVubGV2ZWwgaGFuZGxpbmcKIwoj
-IHJ1bmxldmVsIDAgIGlzICBTeXN0ZW0gaGFsdCAgIChEbyBub3QgdXNlIHRoaXMgZm9yIGluaXRk
-ZWZhdWx0ISkKIyBydW5sZXZlbCAxICBpcyAgU2luZ2xlIHVzZXIgbW9kZQojIHJ1bmxldmVsIDIg
-IGlzICBMb2NhbCBtdWx0aXVzZXIgd2l0aG91dCByZW1vdGUgbmV0d29yayAoZS5nLiBORlMpCiMg
-cnVubGV2ZWwgMyAgaXMgIEZ1bGwgbXVsdGl1c2VyIHdpdGggbmV0d29yawojIHJ1bmxldmVsIDQg
-IGlzICBOb3QgdXNlZAojIHJ1bmxldmVsIDUgIGlzICBGdWxsIG11bHRpdXNlciB3aXRoIG5ldHdv
-cmsgYW5kIHhkbQojIHJ1bmxldmVsIDYgIGlzICBTeXN0ZW0gcmVib290IChEbyBub3QgdXNlIHRo
-aXMgZm9yIGluaXRkZWZhdWx0ISkKIwpsMDowOndhaXQ6L2V0Yy9pbml0LmQvcmMgMApsMToxOndh
-aXQ6L2V0Yy9pbml0LmQvcmMgMQpsMjoyOndhaXQ6L2V0Yy9pbml0LmQvcmMgMgpsMzozOndhaXQ6
-L2V0Yy9pbml0LmQvcmMgMwojbDQ6NDp3YWl0Oi9ldGMvaW5pdC5kL3JjIDQKbDU6NTp3YWl0Oi9l
-dGMvaW5pdC5kL3JjIDUKbDY6Njp3YWl0Oi9ldGMvaW5pdC5kL3JjIDYKCiMgd2hhdCB0byBkbyBp
-biBzaW5nbGUtdXNlciBtb2RlCmxzOlM6d2FpdDovZXRjL2luaXQuZC9yYyBTCn5+OlM6cmVzcGF3
-bjovc2Jpbi9zdWxvZ2luCgojIHdoYXQgdG8gZG8gd2hlbiBDVFJMLUFMVC1ERUwgaXMgcHJlc3Nl
-ZApjYTo6Y3RybGFsdGRlbDovc2Jpbi9zaHV0ZG93biAtciAtdCA0IG5vdwoKIyBzcGVjaWFsIGtl
-eWJvYXJkIHJlcXVlc3QgKEFsdC1VcEFycm93KQojIGxvb2sgaW50byB0aGUga2JkLTAuOTAgZG9j
-cyBmb3IgdGhpcwprYjo6a2JyZXF1ZXN0Oi9iaW4vZWNobyAiS2V5Ym9hcmQgUmVxdWVzdCAtLSBl
-ZGl0IC9ldGMvaW5pdHRhYiB0byBsZXQgdGhpcyB3b3JrLiIKCiMgd2hhdCB0byBkbyB3aGVuIHBv
-d2VyIGZhaWxzL3JldHVybnMKcGY6OnBvd2Vyd2FpdDovZXRjL2luaXQuZC9wb3dlcmZhaWwgc3Rh
-cnQKcG46OnBvd2VyZmFpbG5vdzovZXRjL2luaXQuZC9wb3dlcmZhaWwgbm93CiNwbjo6cG93ZXJm
-YWlsOi9ldGMvaW5pdC5kL3Bvd2VyZmFpbCBub3cKcG86OnBvd2Vyb2t3YWl0Oi9ldGMvaW5pdC5k
-L3Bvd2VyZmFpbCBzdG9wCgojIGZvciBBUkdPIFVQUwpzaDoxMjM0NTpwb3dlcmZhaWw6L3NiaW4v
-c2h1dGRvd24gLWggbm93IFRIRSBQT1dFUiBJUyBGQUlMSU5HCgojIGdldHR5LXByb2dyYW1zIGZv
-ciB0aGUgbm9ybWFsIHJ1bmxldmVscwojIDxpZD46PHJ1bmxldmVscz46PGFjdGlvbj46PHByb2Nl
-c3M+CiMgVGhlICJpZCIgZmllbGQgIE1VU1QgYmUgdGhlIHNhbWUgYXMgdGhlIGxhc3QKIyBjaGFy
-YWN0ZXJzIG9mIHRoZSBkZXZpY2UgKGFmdGVyICJ0dHkiKS4KMToyMzQ1OnJlc3Bhd246L3NiaW4v
-bWluZ2V0dHkgLS1ub2NsZWFyIHR0eTEKMjoyMzQ1OnJlc3Bhd246L3NiaW4vbWluZ2V0dHkgdHR5
-MgozOjIzNDU6cmVzcGF3bjovc2Jpbi9taW5nZXR0eSB0dHkzCjQ6MjM0NTpyZXNwYXduOi9zYmlu
-L21pbmdldHR5IHR0eTQKNToyMzQ1OnJlc3Bhd246L3NiaW4vbWluZ2V0dHkgdHR5NQo2OjIzNDU6
-cmVzcGF3bjovc2Jpbi9taW5nZXR0eSB0dHk2CiMKI1MwOjEyMzQ1OnJlc3Bhd246L3NiaW4vYWdl
-dHR5IC1MIDk2MDAgdHR5UzAgdnQxMDIKI2NvbnM6MTIzNDU6cmVzcGF3bjovc2Jpbi9zbWFydF9h
-Z2V0dHkgLUwgMzg0MDAgY29uc29sZQoKIwojICBOb3RlOiBEbyBub3QgdXNlIHR0eTcgaW4gcnVu
-bGV2ZWwgMywgdGhpcyB2aXJ0dWFsIGxpbmUKIyAgaXMgb2NjdXBpZWQgYnkgdGhlIHByb2dyYW1t
-IHhkbS4KIwoKIyAgVGhpcyBpcyBmb3IgdGhlIHBhY2thZ2UgeGRtc2MsIGFmdGVyIGluc3RhbGxp
-bmcgYW5kCiMgIGFuZCBjb25maWd1cmF0aW9uIHlvdSBzaG91bGQgcmVtb3ZlIHRoZSBjb21tZW50
-IGNoYXJhY3RlcgojICBmcm9tIHRoZSBmb2xsb3dpbmcgbGluZToKIzc6MzpyZXNwYXduOisvZXRj
-L2luaXQuZC9yeCB0dHk3CgoKIyBtb2RlbSBnZXR0eS4KIyBtbzoyMzU6cmVzcGF3bjovdXNyL3Ni
-aW4vbWdldHR5IC1zIDM4NDAwIG1vZGVtCgojIGZheCBnZXR0eSAoaHlsYWZheCkKIyBtbzozNTpy
-ZXNwYXduOi91c3IvbGliL2ZheC9mYXhnZXR0eSAvZGV2L21vZGVtCgojIHZib3ggKHZvaWNlIGJv
-eCkgZ2V0dHkKIyBJNjozNTpyZXNwYXduOi91c3Ivc2Jpbi92Ym94Z2V0dHkgLWQgL2Rldi90dHlJ
-NgojIEk3OjM1OnJlc3Bhd246L3Vzci9zYmluL3Zib3hnZXR0eSAtZCAvZGV2L3R0eUk3CgojIGVu
-ZCBvZiAvZXRjL2luaXR0YWIK
---0016367d6ff45a48f40480371358--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
