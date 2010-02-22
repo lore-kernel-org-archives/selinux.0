@@ -1,65 +1,112 @@
-Subject: RE: SELinux Policy in OpenSUSE 11.2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alan Rouse <alan.rouse@ericsson.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF477@EUSAACMS0703.eamcs.ericsson.se>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7C47DB.40602@gmail.com>
-	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>
-	 <4B7DB3B4.2070409@gmail.com>
-	 <1266589714.32011.14.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7EDC9A.40801@gmail.com>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B01D@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B05F@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266615434.32011.111.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B09C@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266847801.15933.33.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF16B@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266850844.15933.38.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF364@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266861381.15933.48.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF477@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: text/plain
-Date: Mon, 22 Feb 2010 14:37:24 -0500
-Message-Id: <1266867444.15933.75.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4B82E190.5060306@gmail.com>
+Date: Mon, 22 Feb 2010 11:57:04 -0800
+From: "Justin P. mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: SELinux Policy in OpenSUSE 11.2
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>	 <4B7DB3B4.2070409@gmail.com>	 <1266589714.32011.14.camel@moss-pluto.epoch.ncsc.mil>	 <4B7EDC9A.40801@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B01D@EUSAACMS0703.eamcs.ericsson.se>	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>	 <4B7F06F1.4070305@gmail.com>	 <1266847250.15933.23.camel@moss-pluto.epoch.ncsc.mil>	 <dd18b0c31002221127j4c22e9d1v94c037e86e7bb74e@mail.gmail.com> <dd18b0c31002221129s4be9b56cha13b7be39c2cba36@mail.gmail.com>
+In-Reply-To: <dd18b0c31002221129s4be9b56cha13b7be39c2cba36@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-02-22 at 14:12 -0500, Alan Rouse wrote:
-> Stephen wrote:
-> > You need to perform a restorecon -R /dev from /etc/rc.d/rc.sysinit so that the tmpfs /dev mount is properly 
-> > labeled.  File a bug against whatever package owns that file in OpenSUSE (in Fedora, it is the initscripts 
-> > rpm).
-> 
-> The scripts are different in suse.  I've placed the restorecon command in /etc/init.d/boot prior to the first mount attempt.  That seems to do the trick -- the denied messages related to tempfs are now gone.
-> 
-> See attached audit.log from the subsequent boot.
+On 02/22/2010 11:29 AM, Justin Mattock wrote:
+> On Mon, Feb 22, 2010 at 11:27 AM, Justin Mattock
+> <justinmattock@gmail.com>  wrote:
+>> On Mon, Feb 22, 2010 at 6:00 AM, Stephen Smalley<sds@tycho.nsa.gov>  wrote:
+>>> On Fri, 2010-02-19 at 13:47 -0800, Justin P. mattock wrote:
+>>>> On 02/19/2010 01:25 PM, Stephen Smalley wrote:
+>>>>> On Fri, 2010-02-19 at 16:08 -0500, Alan Rouse wrote:
+>>>>>> setsebool -P init_upstart=on
+>>>>>> setsebool -P xdm_sysadm_login=on
+>>>>>> setsebool -P xserver_object_manager=on
+>>>>>
+>>>>> I think you only need the first boolean setting.
+>>>>> And we should likely introduce an ifdef for suse in refpolicy that
+>>>>> always disables that transition so that you don't have to artificially
+>>>>> turn on that boolean.
+>>>>>
+>>>>
+>>>> as a test I built the policy with init_upstart=off
+>>>> system crashes and burns with gdm/xserver(dbus error).
+>>>> then changing to init_upstart=on xserver/gdm started right up.
+>>>>
+>>>> my question is why? especially if this is sysvinit.
+>>>
+>>> The refpolicy defines a domain transition from init_t to sysadm_t upon
+>>> executing a shell so that the single-user mode shell is automatically
+>>> run in sysadm_t, and it defines a domain transition from init_t to
+>>> initrc_t upon executing an rc script (initrc_exec_t) so that rc scripts
+>>> are automatically run in initrc_t.  This worked with sysvinit in Fedora
+>>> and Debian.  However, upstart launches all services via shell command
+>>> and thus all services would be run in sysadm_t if we kept that
+>>> transition, so the refpolicy has the following logic (in
+>>> system/init.te):
+>>>
+>>> tunable_policy(`init_upstart',`
+>>>         corecmd_shell_domtrans(init_t, initrc_t)
+>>> ',`
+>>>         # Run the shell in the sysadm role for single-user mode.
+>>>         # causes problems with upstart
+>>>         sysadm_shell_domtrans(init_t)
+>>> ')
+>>>
+>>> This snippet means:  if init_upstart=on, then transition from init_t to
+>>> initrc_t upon executing a shell, else transition from init_t to sysadm_t
+>>> upon executing a shell.
+>>>
+>>> I had suggested trying init_upstart=on in OpenSUSE because the sestatus
+>>> and pstree output showed that most processes launched by init were
+>>> running in sysadm_t, similar to what would happen on a system using
+>>> upstart if that boolean were not enabled.
+>>>
+>>> This suggests that something is different about the sysvinit setup in
+>>> OpenSUSE.  It might be useful to see your /etc/inittab file contents.
+>>>
+>>> --
+>>> Stephen Smalley
+>>> National Security Agency
+>>>
+>>>
+>>
+>> alright attached is dmesg and audit.log
+>> both were cleaned out before the initial boot.
+>>
+>> yesterday I rebuilt sysvinit with the version
+>> I use on my system and the patch that dan had
+>> given me. but during the whole thing I can't remember
+>> If I was able to bootup without the init_upstart boolean
+>> turned on.(I'll rebuild that package and see if this is the case,
+>> if so then this tells me that whatever/however suse built sysvinit
+>> acts more like upstart(but could be wrong)).
+>>
+>> (BTW: I'll go(if need be) and file these, later on once
+>> I get this thing cleaned and sorted out)
+>>
+>> --
+>> Justin P. Mattock
+>>
+>
+> hmm.. audit.log didn't go through
+> resend
+>
 
-At this point, I think you can take the particular avc messages (split
-up by logical grouping, e.g. for each unique scontext=) to the refpolicy
-list (refpolicy@oss.tresys.com) and see about getting them resolved
-upstream.  There may need to be some suse-specific rules added to the
-refpolicy.
 
-In the interim, you can always create a local policy module via
-audit2allow to enable your system to work.
+alright built sysvinit
+with dan's patch he had provided me
+a while back.
 
--- 
-Stephen Smalley
-National Security Agency
+seems init is still hitting some dbus
+thing without having init_upstart enabled.
+maybe /etc/inittab is doing something.
+
+I'll look at this today and see if I can find anything.
+
+
+Justin P. Mattock
 
 
 --
