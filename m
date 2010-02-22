@@ -1,12 +1,14 @@
+From: Alan Rouse <alan.rouse@ericsson.com>
+To: "Justin P. mattock" <justinmattock@gmail.com>,
+        Stephen Smalley
+	<sds@tycho.nsa.gov>
+CC: Dominick Grift <domg472@gmail.com>,
+        "'selinux@tycho.nsa.gov'"
+	<selinux@tycho.nsa.gov>
+Date: Mon, 22 Feb 2010 12:58:55 -0500
 Subject: RE: SELinux Policy in OpenSUSE 11.2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alan Rouse <alan.rouse@ericsson.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF364@EUSAACMS0703.eamcs.ericsson.se>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266347411.5252.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5587DD@EUSAACMS0703.eamcs.ericsson.se>
+Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF3A0@EUSAACMS0703.eamcs.ericsson.se>
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
 	 <1266349121.5252.131.camel@moss-pluto.epoch.ncsc.mil>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F529A5588F8@EUSAACMS0703.eamcs.ericsson.se>
 	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>
@@ -21,47 +23,29 @@ References:
 	 <1266589714.32011.14.camel@moss-pluto.epoch.ncsc.mil>
 	 <4B7EDC9A.40801@gmail.com>
 	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B01D@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B05F@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266615434.32011.111.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B09C@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266847801.15933.33.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF16B@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266850844.15933.38.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FF364@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: text/plain
-Date: Mon, 22 Feb 2010 12:56:21 -0500
-Message-Id: <1266861381.15933.48.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+ <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>
+ <4B7F06F1.4070305@gmail.com>
+In-Reply-To: <4B7F06F1.4070305@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-02-22 at 12:39 -0500, Alan Rouse wrote:
-> Stephen wrote:
-> > Hmm...enabled=0, i.e. disabled.
-> > Might need to boot with audit=1 on the kernel command line then.
-> > Or enable auditd (chkconfig auditd on). 
-> 
-> audit=1 on the kernel command line doesn't change things.  auditctl -s still says enabled=0.
-> Same for "chkconfig auditd on" and reboot.
-> 
-> I've installed the latest refpolicy from the tresys source repository.  Attached is the audit.log after booting that policy (init_upstart --> on)
+Justin wrote:
+> alan,
+>
+> here is a good tutorial on the login:
+> http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml?part=3&chap=4
 
-You need to perform a restorecon -R /dev from /etc/rc.d/rc.sysinit so
-that the tmpfs /dev mount is properly labeled.  File a bug against
-whatever package owns that file in OpenSUSE (in Fedora, it is the
-initscripts rpm).
+Do I need to change the login context for some linux user / users?
 
-You should also perform a complete filesystem relabel to ensure that all
-file labels are correct for the latest refpolicy.
+> just make sure /etc/pam.d/*
+> has pam_selinux.so close/open
+> (in the certain files)
 
-There are SYSCALL records in your latest audit.log, so you have enabled
-auditing now.
+I'm not following you.   Do I need to edit one or more of the files in /etc/pam.d/? 
 
--- 
-Stephen Smalley
-National Security Agency
-
+Sorry I'm a bit slow on this.  You're knowledge about linux is leaving me in the dust!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
