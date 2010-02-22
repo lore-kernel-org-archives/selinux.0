@@ -1,43 +1,44 @@
-Date: Mon, 22 Feb 2010 09:09:09 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, method@manicmethod.com,
-        Jacques Thomas <jthomas@cs.purdue.edu>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] libsepol: remove dead code in
- check_avtab_hierarchy_callback()
-In-Reply-To: <4B7B2F15.5020909@ak.jp.nec.com>
-Message-ID: <alpine.LRH.2.00.1002220908560.17293@tundra.namei.org>
-References: <4AF71B05.8030707@cs.purdue.edu>  <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>  <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>  <4B14934F.9050401@cs.purdue.edu>  <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
-  <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>  <4B6BAFD0.2050607@ak.jp.nec.com>  <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>  <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com> <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>
- <4B7B2F15.5020909@ak.jp.nec.com>
+Message-ID: <4B81DE00.1040907@gmail.com>
+Date: Sun, 21 Feb 2010 17:29:36 -0800
+From: "Justin P. mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
+        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: SELinux Policy in OpenSUSE 11.2
+References: <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>	 <4B7B21A2.3080006@gmail.com> <4B7B97D4.7020005@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558C9F@EUSAACMS0703.eamcs.ericsson.se>	 <1266425895.4945.105.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A780180@EUSAACMS0703.eamcs.ericsson.se>	 <1266433081.4945.112.camel@moss-pluto.epoch.ncsc.mil>	 <4B7C47DB.40602@gmail.com>	 <1266436827.4945.123.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F529A78028F@EUSAACMS0703.eamcs.ericsson.se>	 <4B7DB3B4.2070409@gmail.com>	 <1266589714.32011.14.camel@moss-pluto.epoch.ncsc.mil>	 <4B7EDC9A.40801@gmail.com>	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B01D@EUSAACMS0703.eamcs.ericsson.se>	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>	 <5A5E55DF96F73844AF7DFB0F48721F0F52E316B05F@EUSAACMS0703.eamcs.ericsson.se> <1266615434.32011.111.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1266615434.32011.111.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 17 Feb 2010, KaiGai Kohei wrote:
+hmm... this dbus error is a bugger..
+spent yesterday and most of today on this.
+(and I know I said I was going to goto a kernel bug).
 
-> > I'd say we revert the changeset and restore the prior behavior.
-> > I don't think we should impose the latter convention on policy writers.
-> 
-> OK, fair enough for me.
-> 
-> This patch revert the commit of 7d52a155e38d5a165759dbbee656455861bf7801
-> which removed a part of type_attribute_bounds_av as a dead code.
-> However, at that time, we didn't find out the target side boundary allows
-> to handle some of pseudo /proc/<pid>/* entries with its process's security
-> context well.
-> 
->  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Anyways:
+seems after doing a fresh install then installing
+the selinux apps/libs the system has not done
+an initial relabel, upon reboot gdm will restart/flicker
+5 times before erroring out, then drop you to a general login.
+If I chmod 644 /etc/selinux/config this goes away.
+(my guess is libselinux didn't have the permissions to read the config
+defaulting to "targeted").
 
+but as soon as I relabel the filesystem the dbus error will
+appear(but not the screen flickering 5 times). when this happens I:
+vim /etc/selinux/refpolicy-standard/booleans
+and change init_upstart to true.
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+then I can bootup.
 
--- 
-James Morris
-<jmorris@namei.org>
+why is init_upstart needed in order for this to work,
+when this system uses sysvinit?
+
+positive side is this thing boots up without the need
+for the policy to be named targeted.
+
+Justin P. mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
