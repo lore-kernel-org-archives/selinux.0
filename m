@@ -1,55 +1,86 @@
-Subject: Re: SELinux Policy in OpenSUSE 11.2
+Subject: Re: No such file or directory:
+ '/etc/selinux/targeted/contexts/files/file_contexts.homedirs'
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. mattock" <justinmattock@gmail.com>
-Cc: Alan Rouse <alan.rouse@ericsson.com>, Dominick Grift <domg472@gmail.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <4B84135E.8010402@gmail.com>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F529A558532@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266614711.32011.107.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B7F06F1.4070305@gmail.com>
-	 <1266847250.15933.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <dd18b0c31002221127j4c22e9d1v94c037e86e7bb74e@mail.gmail.com>
-	 <dd18b0c31002221129s4be9b56cha13b7be39c2cba36@mail.gmail.com>
-	 <4B82E190.5060306@gmail.com>
-	 <1266870268.15933.132.camel@moss-pluto.epoch.ncsc.mil>
-	 <dd18b0c31002221325ie418a7ep589e9ac0fe98f1f5@mail.gmail.com>
-	 <4B8300B8.7060501@gmail.com>
-	 <dd18b0c31002221435s39a27b0fvf4f9dfa4699360ae@mail.gmail.com>
-	 <4B8372FB.4040605@gmail.com>
-	 <1266932425.871.13.camel@moss-pluto.epoch.ncsc.mil>
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E41FFA04@EUSAACMS0703.eamcs.ericsson.se>
-	 <1266941425.871.18.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B84135E.8010402@gmail.com>
-Content-Type: text/plain
-Date: Tue, 23 Feb 2010 13:01:37 -0500
-Message-Id: <1266948097.871.27.camel@moss-pluto.epoch.ncsc.mil>
+To: Denis BUCHER <dbucherml@hsolutions.ch>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4B841220.3090007@hsolutions.ch>
+References: <4B83FED0.208@hsolutions.ch>
+	 <1266942546.871.26.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B841220.3090007@hsolutions.ch>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 23 Feb 2010 13:05:27 -0500
+Message-Id: <1266948327.871.31.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-02-23 at 09:41 -0800, Justin P. mattock wrote:
-> On 02/23/2010 08:10 AM, Stephen Smalley wrote:
-> > On Tue, 2010-02-23 at 10:56 -0500, Alan Rouse wrote:
-> >> Would the proper solution be to add a transition to put that script in the right context when run from a shell?
+On Tue, 2010-02-23 at 18:36 +0100, Denis BUCHER wrote:
+> Dear Stephen, Dear Daniel,
+> 
+> Le 23.02.2010 17:29, Stephen Smalley a écrit :
+> >> # usermod -d<path>  <user>
+> >>
+> >> /usr/sbin/genhomedircon: [Errno 2] No such file or directory:
+> >> '/etc/selinux/targeted/contexts/files/file_contexts.homedirs'
+> >> usermod: warning: unable to relabel the homedir (...)
+> >>
+> >> But homedir was changed anyway...
+> >>
+> >> Just to let you know... (?)
 > >
-> > No.  I think we just need to drop the transition to sysadm_t altogether
-> > (at least in the ifdef suse case) and have userspace explicitly arrange
-> > the transition for single-user mode (ala sulogin).
+> > If you are using Fedora, then this would be best directed to
+> > selinux@lists.fedoraproject.org (formerly
+> > fedora-selinux-list@redhat.com).
 > 
-> out of curiosity during booting up I'm seeing
-> a mess load of *.sh files being called
-> before the policy is loaded.
+> Yes, in fact the error came only once and the change was commited 
+> anyway, therefore it's more by curiosity than a real problem, but I 
+> think it's always better to be sure ;-)
 > 
-> looking into this I'm seeing them in /lib/mkinitrd/scripts
-> before I go and mess around with initrd
-> what are the thoughts on this area?
+> > It would help to identify your distribution, shadow-utils version,
+> > SELinux status (sestatus), etc.
+> 
+> I am using CentOS (for the first time, choice of our provider).
+> CentOS 5.4
+> 
+> # uname -a
+> Linux (server) 2.6.18-164.el5 #1 SMP Thu Sep 3 03:28:30 EDT 2009 x86_64 
+> x86_64 x86_64 GNU/Linux
+> 
+> Installed Packages
+> Name       : shadow-utils
+> Arch       : x86_64
+> Epoch      : 2
+> Version    : 4.0.17
+> Release    : 14.el5
+> 
+> # sestatus
+> SELinux status:                 enabled
+> SELinuxfs mount:                /selinux
+> Current mode:                   permissive
+> Mode from config file:          disabled
+> Policy version:                 21
+> Policy from config file:        targeted
 
-That's ok - I wouldn't worry about that.  
+That looks very odd - you have SELinux status:  enabled but Mode from
+config file:  disabled?  Did you just modify /etc/selinux/config after
+booting?
 
-As I said, I think the solution here is just to disable the transition
-to sysadm_t, at least if DISTRO=suse.
+> Le 23.02.2010 18:16, Daniel J Walsh a écrit :
+>  > Do you have SELinux enabled? Does the entire path exists?
+>  > /etc/selinux/targeted/contexts/files
+> 
+> # find /etc/selinux/targeted/contexts/
+> /etc/selinux/targeted/contexts/
+> /etc/selinux/targeted/contexts/netfilter_contexts
+> 
+> Sorry I know it looks strange but I am customising the server as 
+> installed by the provider and in the past I never used SELinux...
+> 
+> Thanks a lot for your help :-) (And hope it will help others some day 
+> too...)
+
+Looks like you don't have a policy installed?
+rpm -q selinux-policy-targeted
 
 -- 
 Stephen Smalley
