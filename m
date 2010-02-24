@@ -1,91 +1,115 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1OJFbNv022796
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1OJOHpw023312
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:24:17 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o1OJFKGA011731
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 19:15:21 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o1OJOYvp019196
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 19:24:35 GMT
 Received: from int-mx04.intmail.prod.int.phx2.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.17])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJFZP1011430
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJOFOi007070
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:35 -0500
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:24:15 -0500
 Received: from localhost.localdomain (vpn-11-226.rdu.redhat.com [10.11.11.226])
-	by int-mx04.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJFV7d002703
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:34 -0500
-Message-ID: <4B857AD3.4090701@redhat.com>
-Date: Wed, 24 Feb 2010 14:15:31 -0500
+	by int-mx04.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJOEkt004499
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:24:15 -0500
+Message-ID: <4B857CDE.7010303@redhat.com>
+Date: Wed, 24 Feb 2010 14:24:14 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SELinux <selinux@tycho.nsa.gov>
-Subject: Fix memory leak on disabled selinux machines.
+Subject: libselinux pkgconfig does not work correctly on lib64 machines.
 Content-Type: multipart/mixed;
- boundary="------------000501050706060804000907"
+ boundary="------------050400030800040005020709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000501050706060804000907
+--------------050400030800040005020709
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-I think this patch originally came from Eric Paris and was updated by 
-others but has not been adopted yet.  Not sure why.
-
-Always free buf on exit.
 
 
-
---------------000501050706060804000907
+--------------050400030800040005020709
 Content-Type: text/plain;
- name="libselinux_init.patch"
+ name="selinux_pkgconfig.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="libselinux_init.patch"
+ filename="selinux_pkgconfig.patch"
 
---- nsalibselinux/src/init.c	2009-07-14 11:16:03.000000000 -0400
-+++ libselinux-2.0.90/src/init.c	2010-02-22 11:04:16.000000000 -0500
-@@ -23,7 +23,7 @@
- static void init_selinuxmnt(void)
- {
- 	char *buf=NULL, *p;
--	FILE *fp;
-+	FILE *fp=NULL;
- 	struct statfs sfbuf;
- 	int rc;
- 	size_t len;
-@@ -57,16 +57,17 @@
- 			break;
- 		}
- 	}
--	fclose(fp);
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index cfd72e2..bf665ab 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -11,6 +11,7 @@ RUBYLIBVER ?= $(shell ruby -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+ RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
+ RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+ RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
++LIBBASE=$(shell basename $(LIBDIR))
  
--	if (!exists)
--		return;
-+	if (!exists) 
-+		goto out;
-+
-+	fclose(fp);
+ VERSION = $(shell cat ../VERSION)
+ LIBVERSION = 1
+@@ -85,7 +86,7 @@ $(LIBSO): $(LOBJS)
+ 	ln -sf $@ $(TARGET) 
  
- 	/* At this point, the usual spot doesn't have an selinuxfs so
- 	 * we look around for it */
- 	fp = fopen("/proc/mounts", "r");
- 	if (!fp)
--		return;
-+		goto out;
+ $(LIBPC): $(LIBPC).in
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
  
- 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 	while ((num = getline(&buf, &len, fp)) != -1) {
-@@ -90,7 +91,8 @@
+ selinuxswig_python_exception.i: ../include/selinux/selinux.h
+ 	bash exception.sh > $@ 
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index 67afc60..003b6f2 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -10,6 +10,7 @@ RUBYLIBVER ?= $(shell ruby -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+ RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
+ RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+ RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
++LIBBASE=$(shell basename $(LIBDIR))
  
-       out:
- 	free(buf);
--	fclose(fp);
-+	if (fp)
-+		fclose(fp);
- 	return;
- }
+ DEFAULT_SEMANAGE_CONF_LOCATION=$(DESTDIR)/etc/selinux/semanage.conf
  
+@@ -47,7 +48,7 @@ OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
+ LOBJS= $(patsubst %.c,%.lo,$(SRCS)) conf-scan.lo conf-parse.lo
+ CFLAGS ?= -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
+ 
+-override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
++override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -fPIC
+ 
+ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+ 
+@@ -82,7 +83,7 @@ $(LIBSO): $(LOBJS)
+ 	ln -sf $@ $(TARGET)
+ 
+ $(LIBPC): $(LIBPC).in
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+ conf-scan.c: conf-scan.l conf-parse.h
+ 	$(LEX) $(LFLAGS) -t $< > $@
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 3b19e37..73fdef8 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -3,6 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
+ INCLUDEDIR ?= $(PREFIX)/include
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
++LIBBASE=$(shell basename $(LIBDIR))
+ 
+ VERSION = $(shell cat ../VERSION)
+ LIBVERSION = 1
+@@ -27,7 +28,7 @@ $(LIBSO): $(LOBJS)
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+ %.o:  %.c 
+ 	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
 
---------------000501050706060804000907--
+--------------050400030800040005020709--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
