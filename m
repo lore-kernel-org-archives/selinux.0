@@ -1,45 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1OGqkeA010402
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 11:54:38 -0500
-Received: from sw.stl.gtri.gatech.edu (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o1OGqaGA008307
-	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 16:52:36 GMT
-From: Joshua Roys <joshua.roys@gtri.gatech.edu>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Roys <joshua.roys@gtri.gatech.edu>
-Subject: [PATCH] netlabel: fix export of SELinux categories > 127
-Date: Wed, 24 Feb 2010 16:52:37 +0000
-Message-Id: <1267030357-26366-1-git-send-email-joshua.roys@gtri.gatech.edu>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1OJFbNv022796
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:37 -0500
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o1OJFKGA011731
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 19:15:21 GMT
+Received: from int-mx04.intmail.prod.int.phx2.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.17])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJFZP1011430
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:35 -0500
+Received: from localhost.localdomain (vpn-11-226.rdu.redhat.com [10.11.11.226])
+	by int-mx04.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o1OJFV7d002703
+	for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2010 14:15:34 -0500
+Message-ID: <4B857AD3.4090701@redhat.com>
+Date: Wed, 24 Feb 2010 14:15:31 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Fix memory leak on disabled selinux machines.
+Content-Type: multipart/mixed;
+ boundary="------------000501050706060804000907"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This fixes corrupted CIPSO packets when SELinux categories greater
-than 127 are used.  The bug occured on the second (and later) loops
-through the while; the inner for loop through the ebitmap->maps array
-used the same index as the NetLabel catmap->bitmap array, even though
-the NetLabel bitmap is twice as long as the SELinux bitmap.
+This is a multi-part message in MIME format.
+--------------000501050706060804000907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Joshua Roys <joshua.roys@gtri.gatech.edu>
----
- security/selinux/ss/ebitmap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I think this patch originally came from Eric Paris and was updated by 
+others but has not been adopted yet.  Not sure why.
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 68c7348..04b6145 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -128,7 +128,7 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
- 			cmap_idx = delta / NETLBL_CATMAP_MAPSIZE;
- 			cmap_sft = delta % NETLBL_CATMAP_MAPSIZE;
- 			c_iter->bitmap[cmap_idx]
--				|= e_iter->maps[cmap_idx] << cmap_sft;
-+				|= e_iter->maps[i] << cmap_sft;
+Always free buf on exit.
+
+
+
+--------------000501050706060804000907
+Content-Type: text/plain;
+ name="libselinux_init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libselinux_init.patch"
+
+--- nsalibselinux/src/init.c	2009-07-14 11:16:03.000000000 -0400
++++ libselinux-2.0.90/src/init.c	2010-02-22 11:04:16.000000000 -0500
+@@ -23,7 +23,7 @@
+ static void init_selinuxmnt(void)
+ {
+ 	char *buf=NULL, *p;
+-	FILE *fp;
++	FILE *fp=NULL;
+ 	struct statfs sfbuf;
+ 	int rc;
+ 	size_t len;
+@@ -57,16 +57,17 @@
+ 			break;
  		}
- 		e_iter = e_iter->next;
  	}
--- 
-1.6.5.2
+-	fclose(fp);
+ 
+-	if (!exists)
+-		return;
++	if (!exists) 
++		goto out;
++
++	fclose(fp);
+ 
+ 	/* At this point, the usual spot doesn't have an selinuxfs so
+ 	 * we look around for it */
+ 	fp = fopen("/proc/mounts", "r");
+ 	if (!fp)
+-		return;
++		goto out;
+ 
+ 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+ 	while ((num = getline(&buf, &len, fp)) != -1) {
+@@ -90,7 +91,8 @@
+ 
+       out:
+ 	free(buf);
+-	fclose(fp);
++	if (fp)
++		fclose(fp);
+ 	return;
+ }
+ 
 
+--------------000501050706060804000907--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
