@@ -13,8 +13,8 @@ References: <4B85902B.70300@redhat.com> <4B8726DA.8040806@manicmethod.com>
 	 <1267215385.9997.51.camel@moss-pluto.epoch.ncsc.mil>
 	 <4B882E47.3050004@redhat.com>
 Content-Type: text/plain
-Date: Fri, 26 Feb 2010 15:33:10 -0500
-Message-Id: <1267216390.9997.69.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 26 Feb 2010 15:47:14 -0500
+Message-Id: <1267217234.9997.85.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -107,8 +107,11 @@ On Fri, 2010-02-26 at 15:25 -0500, Daniel J Walsh wrote:
 >                   found = 1;
 > -                break;
 >               }
+> 
 
-Ok, I'm blind.  Yep, looks ok to me.
+Actually, given your other comment, I guess we can't do it this way, as
+if they have e.g. read-only root with writable mounts underneath, we'll
+never reach them.
 
 -- 
 Stephen Smalley
