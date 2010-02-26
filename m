@@ -1,130 +1,79 @@
-Message-ID: <4B883494.2070400@redhat.com>
-Date: Fri, 26 Feb 2010 15:52:36 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4B88356E.1040501@tycho.nsa.gov>
+Date: Fri, 26 Feb 2010 15:56:14 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SELinux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: Fixfiles using new setfiles/restorecon simplification
-References: <4B85902B.70300@redhat.com> <4B8726DA.8040806@manicmethod.com>	 <4B87CFA0.8030707@redhat.com>	 <1267193425.9997.5.camel@moss-pluto.epoch.ncsc.mil>	 <4B87D94F.1000606@redhat.com>	 <1267195015.9997.7.camel@moss-pluto.epoch.ncsc.mil>	 <4B880F0E.2010904@redhat.com>	 <1267215385.9997.51.camel@moss-pluto.epoch.ncsc.mil>	 <4B882E47.3050004@redhat.com> <1267217234.9997.85.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1267217234.9997.85.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+Subject: [PATCH] libselinux: fix avc_netlink_loop() error caused by nonblocking
+ mode.
+References: <4B691583.5060608@ak.jp.nec.com> <4B881D79.4000500@tycho.nsa.gov> <4B8833C6.9070503@tycho.nsa.gov>
+In-Reply-To: <4B8833C6.9070503@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/26/2010 03:47 PM, Stephen Smalley wrote:
-> On Fri, 2010-02-26 at 15:25 -0500, Daniel J Walsh wrote:
->    
->> On 02/26/2010 03:16 PM, Stephen Smalley wrote:
->>      
->>> On Fri, 2010-02-26 at 13:12 -0500, Daniel J Walsh wrote:
->>>
->>>        
->>>> On 02/26/2010 09:36 AM, Stephen Smalley wrote:
->>>>
->>>>          
->>>>> On Fri, 2010-02-26 at 09:23 -0500, Daniel J Walsh wrote:
->>>>>
->>>>>
->>>>>            
->>>>>> On 02/26/2010 09:10 AM, Stephen Smalley wrote:
->>>>>>
->>>>>>
->>>>>>              
->>>>>>> On Fri, 2010-02-26 at 08:41 -0500, Daniel J Walsh wrote:
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>                
->>>>>>>> On 02/25/2010 08:41 PM, Joshua Brindle wrote:
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>                  
->>>>>>>>> What version of the kernel was this added in? I don't want to
->>>>>>>>> completely break old kernels using new toolchains (CLIP backports
->>>>>>>>> toolchains to RHEL 4 and 5). It would be better to use seclabel if it
->>>>>>>>> is there, otherwise fall back to the old list.
->>>>>>>>>
->>>>>>>>> -- 
->>>>>>>>> This message was distributed to subscribers of the selinux mailing list.
->>>>>>>>> If you no longer wish to subscribe, send mail to
->>>>>>>>> majordomo@tycho.nsa.gov with
->>>>>>>>> the words "unsubscribe selinux" without quotes as the message.
->>>>>>>>>
->>>>>>>>>
->>>>>>>>>
->>>>>>>>>                    
->>>>>>>> The problem with this is we end up with a lot of cruft in the toolchain,
->>>>>>>> that is continually out of data, and makes it hard to figure out what
->>>>>>>> the script is doing.  We have older versions of the tool chain for those
->>>>>>>> platforms, shouldn't we have sort of the latest toolchain.
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>>                  
->>>>>>> If we do that, we ought to make a major bump in the version numbers,
->>>>>>> e.g. finally go to 2.1 or 3.0 or something, and make sure the release
->>>>>>> announcement clearly marks it as not backward compatible.
->>>>>>>
->>>>>>> With regard to fixfiles simplification though, can't we eliminate the
->>>>>>> need to define or use FILESYSTEMS* altogether in the script by switching
->>>>>>> all uses of setfiles to restorecon -R /, since that will automatically
->>>>>>> skip non-labeled filesystems on kernels>= 2.6.30?
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>                
->>>>>> It will still walk on read/only file systems.
->>>>>>
->>>>>>
->>>>>>              
->>>>> That should be fairly easy to fix in setfiles given that we are already
->>>>> reading /proc/mounts - we can just add exclude on any ro mounts.
->>>>>
->>>>>
->>>>>
->>>>>            
->>>> How about this patch to remove ro mount points from setfiles/restorecon
->>>>
->>>>          
->>> Your logic depends on the option order - if "seclabel" appears first,
->>> then you'll break out of the loop and never see the "ro".  If we are ok
->>> with that assumption (which happens to be true at present,
->>> but /proc/mounts format is not guaranteed to remain stable), then it is
->>> ok but then there is no reason to set found to 0 (already initialized to
->>> 0).  If we want to be robust against ordering changes, we'd need to drop
->>> the break; from the seclabel case and keep scanning to check for any
->>> subsequent "ro" options.  Or you could just use strstr() on the entire
->>> mount_info[3] and not worry about splitting it into tokens.
->>>
->>>
->>>        
->> No I removed the break after finding seclabel, and set found to 0 if ro
->> is found.
->>
->> So it will either search the entire structure for seclabel or break out
->> with ro.
->>
->>
->> +            if (strcmp(item, "ro") == 0) {
->> +                found = 0;
->> +                break;
->> +            }
->>                if (strcmp(item, "seclabel") == 0) {
->>                    found = 1;
->> -                break;
->>                }
->>
->>      
-> Actually, given your other comment, I guess we can't do it this way, as
-> if they have e.g. read-only root with writable mounts underneath, we'll
-> never reach them.
->
->    
-We have that problem with or without this patch.  Since no seclabel is 
-the same problem.
+avc_open() creates the netlink socket in nonblocking mode.  If the
+application later takes control of the netlink socket with
+avc_netlink_acquire_fd() and then calls avc_netlink_loop(), it
+will fail with EWOULDBLOCK.
+    
+To remedy this, remove the O_NONBLOCK flag from the netlink socket
+at the start of avc_netlink_loop().  Also, with this fix, there is
+no need for avc_open() to ever create a blocking socket, so change
+that and update the man page.
+    
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ man/man3/avc_netlink_loop.3 |    5 +----
+ src/avc.c                   |    2 +-
+ src/avc_internal.c          |    2 ++
+ 3 files changed, 4 insertions(+), 5 deletions(-)
+
+
+diff --git a/libselinux/man/man3/avc_netlink_loop.3 b/libselinux/man/man3/avc_netlink_loop.3
+index 67df6e4..7d8c9a4 100644
+--- a/libselinux/man/man3/avc_netlink_loop.3
++++ b/libselinux/man/man3/avc_netlink_loop.3
+@@ -43,10 +43,7 @@ to take ownership of it in application code.  The
+ .I blocking
+ argument specifies whether read operations on the socket will block.
+ .BR avc_open (3)
+-calls this function internally, specifying non-blocking behavior (unless
+-threading callbacks were explicitly set using the deprecated
+-.BR avc_init (3)
+-interface, in which case blocking behavior is set).
++calls this function internally, specifying non-blocking behavior.
+ 
+ .B avc_netlink_close
+ closes the netlink socket.  This function is called automatically by
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index 881b915..5c8def0 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -222,7 +222,7 @@ int avc_init(const char *prefix,
+ 		avc_enforcing = rc;
+ 	}
+ 
+-	rc = avc_netlink_open(avc_using_threads);
++	rc = avc_netlink_open(0);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+ 			"%s:  can't open netlink socket: %d (%s)\n",
+diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+index 8372f52..90dfa51 100644
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -233,6 +233,8 @@ void avc_netlink_loop(void)
+ 	int rc;
+ 	char buf[1024] __attribute__ ((aligned));
+ 
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
++
+ 	while (1) {
+ 		errno = 0;
+ 		rc = avc_netlink_receive(buf, sizeof(buf));
+
 
 
 --
