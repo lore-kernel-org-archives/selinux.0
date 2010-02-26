@@ -1,55 +1,45 @@
 Subject: Re: Fixfiles using new setfiles/restorecon simplification
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <method@manicmethod.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4B87D94F.1000606@redhat.com>
-References: <4B85902B.70300@redhat.com> <4B8726DA.8040806@manicmethod.com>
-	 <4B87CFA0.8030707@redhat.com>
-	 <1267193425.9997.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B87D94F.1000606@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Joshua Brindle <method@manicmethod.com>,
+        Eric Paris <eparis@parisplace.org>, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <4B85902B.70300@redhat.com>
+References: <4B85902B.70300@redhat.com>
 Content-Type: text/plain
-Date: Fri, 26 Feb 2010 09:36:55 -0500
-Message-Id: <1267195015.9997.7.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 26 Feb 2010 12:56:24 -0500
+Message-Id: <1267206984.9997.38.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-02-26 at 09:23 -0500, Daniel J Walsh wrote:
-> On 02/26/2010 09:10 AM, Stephen Smalley wrote:
-> > On Fri, 2010-02-26 at 08:41 -0500, Daniel J Walsh wrote:
-> >    
-> >> On 02/25/2010 08:41 PM, Joshua Brindle wrote:
-> >>      
-> >>> What version of the kernel was this added in? I don't want to
-> >>> completely break old kernels using new toolchains (CLIP backports
-> >>> toolchains to RHEL 4 and 5). It would be better to use seclabel if it
-> >>> is there, otherwise fall back to the old list.
-> >>>
-> >>> -- 
-> >>> This message was distributed to subscribers of the selinux mailing list.
-> >>> If you no longer wish to subscribe, send mail to
-> >>> majordomo@tycho.nsa.gov with
-> >>> the words "unsubscribe selinux" without quotes as the message.
-> >>>        
-> >> The problem with this is we end up with a lot of cruft in the toolchain,
-> >> that is continually out of data, and makes it hard to figure out what
-> >> the script is doing.  We have older versions of the tool chain for those
-> >> platforms, shouldn't we have sort of the latest toolchain.
-> >>      
-> > If we do that, we ought to make a major bump in the version numbers,
-> > e.g. finally go to 2.1 or 3.0 or something, and make sure the release
-> > announcement clearly marks it as not backward compatible.
-> >
-> > With regard to fixfiles simplification though, can't we eliminate the
-> > need to define or use FILESYSTEMS* altogether in the script by switching
-> > all uses of setfiles to restorecon -R /, since that will automatically
-> > skip non-labeled filesystems on kernels>= 2.6.30?
-> >
-> >    
-> It will still walk on read/only file systems.
+Problems with the new fixfiles logic even with kernels >= 2.6.30:
 
-That should be fairly easy to fix in setfiles given that we are already
-reading /proc/mounts - we can just add exclude on any ro mounts.
+- Bind mounts are not excluded (and note that they aren't marked with
+bind as an option in /proc/mounts - only in /etc/mtab aka mount output):
+# mkdir /foo
+# mount -o bind /etc /foo
+# grep /foo /proc/mounts
+/dev/root /foo ext4 rw,seclabel,relatime,barrier=1,data=ordered 0 0
+# grep /foo /etc/mtab
+/etc /foo none rw,bind 0 0
+
+- You are assuming fixed option ordering and that no other options can
+appear between "rw" and "seclabel" in your grep pattern for
+FILESYSTEMSRW.  As a trivial counterexample, if the user mounts with a
+rootcontext= option (override the root directory context, but allow
+setting of individual file contexts), it won't match.  If we can assume
+that seclabel always follows rw, then you can use grep
+'rw,.*seclabel' /proc/self/mounts.  If they used a regular context=
+mount option, then seclabel won't be displayed so that will get
+excluded.
+
+- The definition for FILESYSTEMSRO appears to be wrong.  I think
+possibly you want grep 'ro,.*seclabel' there (i.e. filesystems mounted
+read-only that support labeling).  Simple test case:
+# mount -o remount,ro /boot
+# grep 'ro,.*seclabel' /proc/mounts 
+/dev/sda1 /boot ext3
+ro,seclabel,relatime,errors=continue,user_xattr,acl,data=ordered 0 0
 
 -- 
 Stephen Smalley
