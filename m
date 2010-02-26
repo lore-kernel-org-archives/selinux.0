@@ -1,5 +1,5 @@
-Message-ID: <4B8814A3.5010902@redhat.com>
-Date: Fri, 26 Feb 2010 13:36:19 -0500
+Message-ID: <4B881A0C.5010607@redhat.com>
+Date: Fri, 26 Feb 2010 13:59:24 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -43,17 +43,21 @@ On 02/26/2010 12:56 PM, Stephen Smalley wrote:
 > ro,seclabel,relatime,errors=continue,user_xattr,acl,data=ordered 0 0
 >
 >    
-I think we just want to remove this and go with the
 
-restorecon -R /
 
-With the ro fix, I just sent.
+How about this script,  It searches mount eliminating context and bind 
+mounts and then
+searches /proc/self/mounts for seclabel.
 
-The problem with this is if you have a seclabel file system mounted on a 
-non seclabel file system, it will not get labeled.  But trying to figure 
-out whether a file system is seclabel or not along with figuring out 
-bind mounts is not going to be easy.  The way we have it now I think 
-will cause multiple passes.
+get_mounts() {
+FS=`mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk 
+'/rw/{print $3}';`
+for i in $FS; do
+     grep --silent "$i ".*seclabel /proc/self/mounts && echo $i
+done
+}
+FILESYSTEMRW=`get_mounts`
+echo $FILESYSTEMRW
 
 
 
