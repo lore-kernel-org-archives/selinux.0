@@ -1,27 +1,87 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o1Q1fxvC020438
-	for <selinux@tycho.nsa.gov>; Thu, 25 Feb 2010 20:41:59 -0500
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o1Q1gDtU005349
-	for <selinux@tycho.nsa.gov>; Fri, 26 Feb 2010 01:42:17 GMT
-Message-ID: <4B8726DA.8040806@manicmethod.com>
-Date: Thu, 25 Feb 2010 20:41:46 -0500
+Message-ID: <4B872736.4030804@manicmethod.com>
+Date: Thu, 25 Feb 2010 20:43:18 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Fixfiles using new setfiles/restorecon simplification
-References: <4B85902B.70300@redhat.com>
-In-Reply-To: <4B85902B.70300@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: jwcart2@tycho.nsa.gov
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Last attempt at upstreaming semodule_disable patch.
+References: <4B858311.1010003@redhat.com> <1267042349.2051.14.camel@localhost>
+In-Reply-To: <1267042349.2051.14.camel@localhost>
+Content-Type: multipart/alternative;
+ boundary="------------000001060900040605060307"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------000001060900040605060307
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-What version of the kernel was this added in? I don't want to completely 
-break old kernels using new toolchains (CLIP backports toolchains to 
-RHEL 4 and 5). It would be better to use seclabel if it is there, 
-otherwise fall back to the old list.
+
+
+James Carter wrote:
+> On Wed, 2010-02-24 at 14:50 -0500, Daniel J Walsh wrote:
+>    
+>> This patch allows you to disable/Enable policy modules.
+>>
+>> It never seems to get upstreamed.  :^(
+>>      
+>
+> Caleb's patch set in December not only moves the policy store and adds
+> priority support, it also allows modules to be enabled and disabled.
+>
+> The hope is that that patch set as well as the one adding support for
+> source policy modules can be upstreamed sometime in the near future.
+>
+>    
+
+As long as the user interface stays the same I'm fine with the concept 
+of this patch (the stuff under the covers will change but that is not a 
+problem).
+
+I'll review it and ack or give feedback soon.
+
+--------------000001060900040605060307
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<br>
+<br>
+James Carter wrote:
+<blockquote cite="mid:1267042349.2051.14.camel@localhost" type="cite">
+  <pre wrap="">On Wed, 2010-02-24 at 14:50 -0500, Daniel J Walsh wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">This patch allows you to disable/Enable policy modules.
+
+It never seems to get upstreamed.  :^(
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Caleb's patch set in December not only moves the policy store and adds
+priority support, it also allows modules to be enabled and disabled.
+
+The hope is that that patch set as well as the one adding support for
+source policy modules can be upstreamed sometime in the near future.
+
+  </pre>
+</blockquote>
+<br>
+As long as the user interface stays the same I'm fine with the concept
+of this patch (the stuff under the covers will change but that is not a
+problem). <br>
+<br>
+I'll review it and ack or give feedback soon.<br>
+</body>
+</html>
+
+--------------000001060900040605060307--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
