@@ -1,78 +1,132 @@
-Subject: Re: denials with filesystem associate
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in
+ check_avtab_hierarchy_callback()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20100228223834.GE3990@myhost.felk.cvut.cz>
-References: <20100228223834.GE3990@myhost.felk.cvut.cz>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>
+In-Reply-To: <4B8B29C4.4020708@ak.jp.nec.com>
+References: <4AF71B05.8030707@cs.purdue.edu>
+	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>
+	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>
+	 <4B14934F.9050401@cs.purdue.edu>
+	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>
+	 <4B6BAFD0.2050607@ak.jp.nec.com>
+	 <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com>
+	 <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7B2F15.5020909@ak.jp.nec.com>
+	 <1266414665.4945.15.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B7E3ECC.1040505@ak.jp.nec.com>
+	 <1266592834.32011.67.camel@moss-pluto.epoch.ncsc.mil>
+	 <4B8B29C4.4020708@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Mon, 01 Mar 2010 09:10:01 -0500
-Message-Id: <1267452601.601.3.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 01 Mar 2010 09:34:24 -0500
+Message-Id: <1267454064.601.22.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2010-02-28 at 23:38 +0100, Michal Svoboda wrote:
-> Hello,
+On Mon, 2010-03-01 at 11:43 +0900, KaiGai Kohei wrote:
+> (2010/02/20 0:20), Stephen Smalley wrote:
+> > On Fri, 2010-02-19 at 16:33 +0900, KaiGai Kohei wrote:
+> >> (2010/02/17 22:51), Stephen Smalley wrote:
+> >>> On Wed, 2010-02-17 at 08:49 +0900, KaiGai Kohei wrote:
+> >>>>> I'd say we revert the changeset and restore the prior behavior.
+> >>>>> I don't think we should impose the latter convention on policy writers.
+> >>>>
+> >>>> OK, fair enough for me.
+> >>>>
+> >>>> This patch revert the commit of 7d52a155e38d5a165759dbbee656455861bf7801
+> >>>> which removed a part of type_attribute_bounds_av as a dead code.
+> >>>> However, at that time, we didn't find out the target side boundary allows
+> >>>> to handle some of pseudo /proc/<pid>/* entries with its process's security
+> >>>> context well.
+> >>>
+> >>> Does Jacques' original concern about the code still hold true?
+> >>> http://marc.info/?l=selinux&m=125770868309928&w=2
+> >>> http://marc.info/?l=selinux&m=125851264424682&w=2
+> >>
+> >> This patch just tries to revert the changes by previous my patch,
+> >> and returns to the start point, so it also reverts the Jacques'
+> >> original concern.
+> >>
+> >> At that time, IIRC, Jacques concerned about the logic being unclear.
+> >> Then, I introduced two options. The one is rough; that removes boundary
+> >> checks in the target side. The other option tried to mask union bits of
+> >> both of violated permissions on subject and target side boundaries (*1).
+> >>
+> >>   (*1) type_attribute_bounds_av(Sc,Tc, ...)
+> >>        {
+> >>          masked = 0;
+> >>
+> >>          if (Sc has its bounds)
+> >>            masked |= P(Sc,Tc)&  ~P(Sp,Tc);
+> >>
+> >>          if (Tc has its bounds)
+> >>            masked |= P(Sc,Tc)&  ~P(Sc,Tp);
+> >>
+> >>          avd->allowed&= ~masked;
+> >>        }
+> >>
+> >> However, the later option also requires policy writers special treatments
+> >> to handle pseudo file entries labeled with parent's domain.
+> >>
+> >> For example, when web server (httpd_t) launches a thread and assign an
+> >> individual bounded security context (webapp_t), we don't need to take
+> >> a special treatment to access pseudo files labeled as webapp_t in the
+> >> original logic.
+> >>
+> >> If we adopt the logic introduced at (*1), when we write webapp_t's policy,
+> >> we have to allow webapp_t domain to access files labeled as httpd_t, not
+> >> only webapp_t, because permissions between webapp_t and webapp_t will be
+> >> eventually masked by one's between httpd_t domain and webapp_t type or
+> >> webapp_t domain and httpd_t type.
+> > 
+> > That seems wrong to me - we don't want webapp_t to be able to access
+> > the /proc/pid entries of other tasks running in httpd_t.  We only want
+> > it to be able to access its own /proc/pid entries in webapp_t.  Yes?
+> > 
 > 
-> see log below... what could be causing these denials? And, what
-> operations exactly are those?
+> Sorry for the late replying, because I've been unavailable last week.
+> 
+> Yes, I also think it is unnatural to require webapp_t to have access
+> rights to /proc/pid entries labeled as httpd_t, if and when we adopt
+> the above logic.
+> 
+> However, it does not solve the matter that Jacques pointed out the
+> meaning of the original logic is unclear.
+> 
+> In addition, I pointed out the original logic can allow webapp_t
+> domain some permissions on the webapp_t type without permissions
+> of httpd_t which bounds webapp_t.
+> 
+> Example)
+>   allow httpd_t httpd_t : file { read };
+>   allow webapp_t webapp_t : file { read };
+> 
+> In this case, webapp_t can read from files labeled as webapp_t, and
+> it is not masked because httpd_t also has same permissions on itself.
+> 
+> It seems to me httpd_t should have permissions on webapp_t types from
+> the perspective of the definition of type boundary, even if we need to
+> modify existing security policy a bit.
+> (BTW, existing refpolicy does not use boundary right now.)
+> 
+> I think we want webapp_t to have access rights (except for ones allowed
+> explicitly) on the httpd_t, but it is not unnatural that httpd_t have
+> access rights on webapp_t types. It performs boundary of the webapp_t's
+> permissions as literal.
 
-On file creation, there is an associate check between the security
-context of the file and the security context of the containing
-filesystem.  In your particular case though the real issue is that you
-have an unlabeled filesystem type that needs a genfscon or fs_use rule
-added to your policy.   Look for a log message that says something along
-the lines of:
-SELinux:  initialized (dev ..., type ...), not configured for labeling
+I think I need to revisit the original design of the hierarchical types
+support, and how it compares with the extension policy logic that
+inspired it (described in Section 4.2.2.3.2 on page 39 of:
+http://www.cs.utah.edu/flux/fluke/html/ftls.ps.gz
+)
 
-You might need to enable kern.debug logging in your syslog
-configuration.
+Perhaps Joshua has a design tech note available on the hierarchical
+types design?
 
-> 
-> With regards,
-> Michal Svoboda
-> 
-> [    0.000000] Linux version 2.6.32-trunk-amd64 (Debian 2.6.32-5)
-> (ben@decadent.org.uk) (gcc version 4.3.4 (Debian 4.3.4-6) ) #1 SMP Sun
-> Jan 10 22:40:40 UTC 2010
-> [    0.000000] Command line: BOOT_IMAGE=/vmlinuz-2.6.32-trunk-amd64
-> root=UUID=6f30ce45-1f28-4abb-9271-aa56e2af839d ro selinux=1
-> 
-> ...
-> 
-> [    2.840057] usb 1-2: new full speed USB device using uhci_hcd and
-> address 2
-> [    3.159070] udev: starting version 151
-> [    3.191497] usb 1-2: New USB device found, idVendor=0627,
-> idProduct=0001
-> [    3.192862] usb 1-2: New USB device strings: Mfr=3, Product=2,
-> SerialNumber=1
-> [    3.193672] usb 1-2: Product: QEMU USB Tablet
-> [    3.194362] usb 1-2: Manufacturer: QEMU 0.11.1
-> [    3.195071] usb 1-2: SerialNumber: 1
-> [    3.200148] type=1400 audit(1267376854.206:4): avc:  denied  {
-> associate } for  pid=219 comm="khubd" name="002"
-> scontext=system_u:object_r:unlabeled_t:s0
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=filesystem
-> [    3.202848] usb 1-2: configuration #1 chosen from 1 choice
-> [    3.403509] type=1400 audit(1267376854.406:5): avc:  denied  {
-> associate } for  pid=383 comm="modprobe" name="event0"
-> scontext=system_u:object_r:unlabeled_t:s0
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=filesystem
-> [    3.413673] input: PC Speaker as
-> /devices/platform/pcspkr/input/input3
-> [    3.422709] processor LNXCPU:00: registered as cooling_device0
-> [    3.440793] piix4_smbus 0000:00:01.3: SMBus Host Controller at
-> 0xb100, revision 0
-> [    3.442750] type=1400 audit(1267376854.446:6): avc:  denied  {
-> associate } for  pid=383 comm="modprobe" name="event1"
-> scontext=system_u:object_r:unlabeled_t:s0
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=filesystem
-> [    3.503568] type=1400 audit(1267376854.506:9): avc:  denied  {
-> associate } for  pid=383 comm="modprobe" name="event2"
-> scontext=system_u:object_r:unlabeled_t:s0
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=filesystem
-> 
 -- 
 Stephen Smalley
 National Security Agency
