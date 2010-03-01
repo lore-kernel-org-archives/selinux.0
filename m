@@ -1,42 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o21Kjofw018091
-	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 15:45:54 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o21LlOEr021301
+	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 16:47:24 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o21KjZq1003130
-	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 20:45:35 GMT
-Message-ID: <4B8C277E.6020608@redhat.com>
-Date: Mon, 01 Mar 2010 15:45:50 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o21Ll5q1027148
+	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 21:47:06 GMT
+Message-ID: <4B8C35E7.2020300@redhat.com>
+Date: Mon, 01 Mar 2010 16:47:19 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Karl MacMillan <karlwmacmillan@gmail.com>
 CC: SELinux <selinux@tycho.nsa.gov>
 Subject: Re: Audit2allow generating dontaudit rules.
-References: <4B858A2A.8080302@redhat.com> <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>
-In-Reply-To: <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>
+References: <4B858A2A.8080302@redhat.com> <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com> <4B8C277E.6020608@redhat.com>
+In-Reply-To: <4B8C277E.6020608@redhat.com>
 Content-Type: multipart/mixed;
- boundary="------------010504040508060000000309"
+ boundary="------------080602040805060300070005"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010504040508060000000309
+--------------080602040805060300070005
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 03/01/2010 02:29 PM, Karl MacMillan wrote:
-> I'd rather pass in the rule type to the AVRule init rather than a
-> boolean about this being a dontaudit rule.
->
-> Karl
->
-> On Wed, Feb 24, 2010 at 3:20 PM, Daniel J Walsh<dwalsh@redhat.com>  wrote:
->    
+On 03/01/2010 03:45 PM, Daniel J Walsh wrote:
+> On 03/01/2010 02:29 PM, Karl MacMillan wrote:
+>> I'd rather pass in the rule type to the AVRule init rather than a
+>> boolean about this being a dontaudit rule.
 >>
->>      
-How about this patch.  Moves the dontaudit up the chain a little bit.  
-Is this what you want.
+>> Karl
+>>
+>> On Wed, Feb 24, 2010 at 3:20 PM, Daniel J Walsh<dwalsh@redhat.com>  
+>> wrote:
+>>>
+> How about this patch.  Moves the dontaudit up the chain a little bit.  
+> Is this what you want.
+One minor problem.  Updated patch.
 
---------------010504040508060000000309
+
+
+--------------080602040805060300070005
 Content-Type: text/plain;
  name="audit2allow.patch"
 Content-Transfer-Encoding: 7bit
@@ -99,18 +102,19 @@ index c041f75..d9635c2 100644
  Print a short usage message
  .TP
 diff --git a/sepolgen/src/sepolgen/access.py b/sepolgen/src/sepolgen/access.py
-index 71121d7..88a6db5 100644
+index 71121d7..139f786 100644
 --- a/sepolgen/src/sepolgen/access.py
 +++ b/sepolgen/src/sepolgen/access.py
-@@ -85,6 +85,7 @@ class AccessVector:
-             self.obj_class = None
+@@ -86,6 +86,8 @@ class AccessVector:
              self.perms = refpolicy.IdSet()
              self.audit_msgs = []
-+            self.dontaudit = False
  
++        self.dontaudit = False
++
          # The direction of the information flow represented by this
          # access vector - used for matching
-@@ -253,7 +254,7 @@ class AccessVectorSet:
+         self.info_flow_dir = None
+@@ -253,7 +255,7 @@ class AccessVectorSet:
          for av in l:
              self.add_av(AccessVector(av))
  
@@ -119,7 +123,7 @@ index 71121d7..88a6db5 100644
          """Add an access vector to the set.
          """
          tgt = self.src.setdefault(src_type, { })
-@@ -266,6 +267,7 @@ class AccessVectorSet:
+@@ -266,6 +268,7 @@ class AccessVectorSet:
              access.src_type = src_type
              access.tgt_type = tgt_type
              access.obj_class = obj_class
@@ -173,7 +177,7 @@ index b138e3d..782ea3d 100644
      def to_string(self):
          """Return a string representation of the rule
 
---------------010504040508060000000309--
+--------------080602040805060300070005--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
