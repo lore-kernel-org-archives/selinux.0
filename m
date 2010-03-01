@@ -1,39 +1,70 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o21K2von015811
-	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 15:02:59 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o21K2TFG014044
-	for <selinux@tycho.nsa.gov>; Mon, 1 Mar 2010 20:02:29 GMT
-Message-ID: <4B8C1D63.3000900@redhat.com>
-Date: Mon, 01 Mar 2010 15:02:43 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Karl MacMillan <karlwmacmillan@gmail.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Audit2allow generating dontaudit rules.
-References: <4B858A2A.8080302@redhat.com> <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>
-In-Reply-To: <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: RHEL4 Selinux mailinglist
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ulrich Althaus <ulrich.althaus@triagnosys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4B8BEB95.3070509@triagnosys.com>
+References: <4B8BDE81.7020800@triagnosys.com> <4B8BE693.8090304@redhat.com>
+	 <4B8BEB95.3070509@triagnosys.com>
+Content-Type: text/plain
+Date: Mon, 01 Mar 2010 15:06:51 -0500
+Message-Id: <1267474011.601.104.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/01/2010 02:29 PM, Karl MacMillan wrote:
-> I'd rather pass in the rule type to the AVRule init rather than a
-> boolean about this being a dontaudit rule.
->
-> Karl
->
-> On Wed, Feb 24, 2010 at 3:20 PM, Daniel J Walsh<dwalsh@redhat.com>  wrote:
->    
->>
->>      
-What function from audit2allow do you want the flag passed in?
+On Mon, 2010-03-01 at 17:30 +0100, Ulrich Althaus wrote:
+> 
+> Am 01.03.2010 17:08, schrieb Daniel J Walsh:
+> > On 03/01/2010 10:34 AM, Ulrich Althaus wrote:
+> >> Hi,
+> >>
+> >> if I have problems with telnet in RHEL4, which mailing list should I
+> >> write to?
+> >>
+> >> Regards
+> >> Ulrich
+> >>    
+> > Depends on what the problem is.  The official response probably would be
+> > open a bugzilla.  Or talk to your support person.
+> > 
+> > What is the problem you are seeing?
+> > 
+> 
+> I have a RHEL4 Server on which I cannot execute telnet when being in
+> enforcing mode, while in permissive mode it works without any problems.
+> Plus I don't get any avc denies.
 
-             self.__avs = self.__parser.to_access(avcfilter, 
-self.__options.dontaudit)
-?
+avc denials may be suppressed by dontaudit rules in the policy (used to
+silence denials that may occur normally due to harmless application
+probing).  Have you tried rebuilding your policy without dontaudit
+rules?
 
-Or at a higher level.
+On RHEL4, that would look like:
+# requires selinux-policy-targeted-sources to be installed
+cd /etc/selinux/targeted/src/policy
+make enableaudit load
+
+Then retry the operation and check again for avc messages
+in /var/log/messages or dmesg output.  There may be numerous unrelated
+avc messages that were previously silenced by dontaudit rules, so you
+need to look for ones that appear to be relevant to the operation in
+question.
+
+When finished, restore your dontaudit rules via:
+cd /etc/selinux/targeted/src/policy
+make clean load
+
+sestatus and pstree -Z output can often be helpful too when diagnosing
+problems.
+
+References:
+Fedora Core 3 SELinux FAQ (RHEL 4 SELinux was very similar to Fedora Core 3), http://docs.fedoraproject.org/selinux-faq-fc3/
+RHEL 4 SELinux Guide, http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
