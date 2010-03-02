@@ -1,107 +1,163 @@
-Message-ID: <4B8D4283.1060208@triagnosys.com>
-Date: Tue, 02 Mar 2010 17:53:23 +0100
-From: Ulrich Althaus <ulrich.althaus@triagnosys.com>
+Message-ID: <4B8D4AED.80203@tycho.nsa.gov>
+Date: Tue, 02 Mar 2010 12:29:17 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: RHEL4 Selinux mailinglist
-References: <4B8BDE81.7020800@triagnosys.com> <4B8BE693.8090304@redhat.com>	 <4B8BEB95.3070509@triagnosys.com> <1267474011.601.104.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1267474011.601.104.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-15
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [PATCH] libselinux: fix avc_netlink_loop() error caused by nonblocking
+ mode.
+References: <4B691583.5060608@ak.jp.nec.com> <4B881D79.4000500@tycho.nsa.gov> <4B8833C6.9070503@tycho.nsa.gov> <4B88356E.1040501@tycho.nsa.gov> <4B8C7C88.4090701@ak.jp.nec.com>
+In-Reply-To: <4B8C7C88.4090701@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
-Am 01.03.2010 21:06, schrieb Stephen Smalley:
-> On Mon, 2010-03-01 at 17:30 +0100, Ulrich Althaus wrote:
+On 03/01/2010 09:48 PM, KaiGai Kohei wrote:
+> (2010/02/27 5:56), Eamon Walsh wrote:
+>   
+>> avc_open() creates the netlink socket in nonblocking mode.  If the
+>> application later takes control of the netlink socket with
+>> avc_netlink_acquire_fd() and then calls avc_netlink_loop(), it
+>> will fail with EWOULDBLOCK.
 >>
->> Am 01.03.2010 17:08, schrieb Daniel J Walsh:
->>> On 03/01/2010 10:34 AM, Ulrich Althaus wrote:
->>>> Hi,
->>>>
->>>> if I have problems with telnet in RHEL4, which mailing list should I
->>>> write to?
->>>>
->>>> Regards
->>>> Ulrich
->>>>    
->>> Depends on what the problem is.  The official response probably would be
->>> open a bugzilla.  Or talk to your support person.
->>>
->>> What is the problem you are seeing?
->>>
->>
->> I have a RHEL4 Server on which I cannot execute telnet when being in
->> enforcing mode, while in permissive mode it works without any problems.
->> Plus I don't get any avc denies.
-> 
-> avc denials may be suppressed by dontaudit rules in the policy (used to
-> silence denials that may occur normally due to harmless application
-> probing).  Have you tried rebuilding your policy without dontaudit
-> rules?
-> 
-> On RHEL4, that would look like:
-> # requires selinux-policy-targeted-sources to be installed
-> cd /etc/selinux/targeted/src/policy
-> make enableaudit load
-> 
-> Then retry the operation and check again for avc messages
-> in /var/log/messages or dmesg output.  There may be numerous unrelated
-> avc messages that were previously silenced by dontaudit rules, so you
-> need to look for ones that appear to be relevant to the operation in
-> question.
-> 
-> When finished, restore your dontaudit rules via:
-> cd /etc/selinux/targeted/src/policy
-> make clean load
-> 
-> sestatus and pstree -Z output can often be helpful too when diagnosing
-> problems.
-> 
-> References:
-> Fedora Core 3 SELinux FAQ (RHEL 4 SELinux was very similar to Fedora Core 3), http://docs.fedoraproject.org/selinux-faq-fc3/
-> RHEL 4 SELinux Guide, http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
-> 
+>> To remedy this, remove the O_NONBLOCK flag from the netlink socket
+>> at the start of avc_netlink_loop().  Also, with this fix, there is
+>> no need for avc_open() to ever create a blocking socket, so change
+>> that and update the man page.
+>>     
+> Apart from this design is sane, the libselinux allows applications to
+> call avc_netlink_check_nb() directly.
+> If we call the function although its worker thread calls avc_netlink_loop(),
+> the invocation of avc_netlink_check_nb() can be blocked, because it
+> assumes the internal netlink socket is non-blocking mode.
+> (Of course, we will not see the matter in most of sane applications.)
+>
+> I think a better approach is to put select(2) with zero or infinite
+> timeout just before avc_netlink_receive() calls to check whether the
+> unread message is in the netlink socket, or not.
+> And the 'blocking' argument of avc_netlink_open() shall be obsoleted,
+> because this design makes nonsense whether the socket has O_NONBLOCK
+> flag, or not.
+>   
 
-I solved the problem by looking at dontaudits. In my case the telnet was
-started from an expect script, which could not open a pty. So all I had
-to do was add the following rule:
+OK I see your point. How about the following:
 
-allow agscm_t devpts_t:chr_file { read write };
+libselinux: fix avc_netlink_loop() error caused by nonblocking mode.
 
-But it took me some hours to understand what expect is doing. :)
+avc_open() creates the netlink socket in nonblocking mode.  If the
+application later takes control of the netlink socket with
+avc_netlink_acquire_fd() and then calls avc_netlink_loop(), it
+will fail with EWOULDBLOCK.
 
-Thanks for your quick answers.
-Regards,
-Ulrich
+To remedy this, remove the O_NONBLOCK flag from the netlink socket
+at the start of avc_netlink_loop().  Also, with this fix, there is
+no need for avc_open() to ever create a blocking socket, so change
+that and update the man page.
+
+-v2: use poll() in avc_netlink_check_nb().  This makes both
+avc_netlink_loop() and avc_netlink_check_nb() independent of the
+O_NONBLOCK flag.
+
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+--
+
+ man/man3/avc_netlink_loop.3 |   11 +++--------
+ src/avc.c                   |    2 +-
+ src/avc_internal.c          |   13 +++++++++++++
+ 3 files changed, 17 insertions(+), 9 deletions(-)
+
+
+diff --git a/libselinux/man/man3/avc_netlink_loop.3 b/libselinux/man/man3/avc_netlink_loop.3
+index 67df6e4..785be4c 100644
+--- a/libselinux/man/man3/avc_netlink_loop.3
++++ b/libselinux/man/man3/avc_netlink_loop.3
+@@ -41,12 +41,9 @@ descriptor is stored internally; use
+ .BR avc_netlink_acquire_fd (3)
+ to take ownership of it in application code.  The
+ .I blocking
+-argument specifies whether read operations on the socket will block.
++argument controls whether the O_NONBLOCK flag is set on the socket descriptor.
+ .BR avc_open (3)
+-calls this function internally, specifying non-blocking behavior (unless
+-threading callbacks were explicitly set using the deprecated
+-.BR avc_init (3)
+-interface, in which case blocking behavior is set).
++calls this function internally, specifying non-blocking behavior.
+ 
+ .B avc_netlink_close
+ closes the netlink socket.  This function is called automatically by
+@@ -66,9 +63,7 @@ checks the netlink socket for pending messages and processes them.
+ Callbacks for policyload and enforcing changes will be called;
+ see
+ .BR selinux_set_callback (3).
+-This function does not block unless
+-.BR avc_netlink_open (3)
+-specified blocking behavior.
++This function does not block.
+ 
+ .B avc_netlink_loop
+ enters a loop blocking on the netlink socket and processing messages as they
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index 881b915..5c8def0 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -222,7 +222,7 @@ int avc_init(const char *prefix,
+ 		avc_enforcing = rc;
+ 	}
+ 
+-	rc = avc_netlink_open(avc_using_threads);
++	rc = avc_netlink_open(0);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+ 			"%s:  can't open netlink socket: %d (%s)\n",
+diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+index 8372f52..7a39c61 100644
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -15,6 +15,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <string.h>
++#include <poll.h>
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <linux/types.h>
+@@ -205,8 +206,18 @@ int avc_netlink_check_nb(void)
+ {
+ 	int rc;
+ 	char buf[1024] __attribute__ ((aligned));
++	struct pollfd pfd = { fd, POLLIN | POLLPRI, 0 };
+ 
+ 	while (1) {
++		rc = poll(&pfd, 1, 0);
++		if (rc == 0)
++			return 0;
++		if (rc < 0) {
++			avc_log(SELINUX_ERROR, "%s:  netlink poll: error %d\n",
++				avc_prefix, errno);
++			return rc;
++		}
++
+ 		errno = 0;
+ 		rc = avc_netlink_receive(buf, sizeof(buf));
+ 		if (rc < 0) {
+@@ -233,6 +244,8 @@ void avc_netlink_loop(void)
+ 	int rc;
+ 	char buf[1024] __attribute__ ((aligned));
+ 
++	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
++
+ 	while (1) {
+ 		errno = 0;
+ 		rc = avc_netlink_receive(buf, sizeof(buf));
+
+
 
 -- 
--------------------------------------------------------------------------------------------------
-Ulrich Althaus
-TriaGnoSys GmbH
-Argelsrieder Feld 22
-D-82234 Wessling-Oberpfaffenhofen
-Germany
 
-Tel: +49 8153 88678-218
-Fax:+49 8153 88678-1
+Eamon Walsh 
+National Security Agency
 
-email: Ulrich.Althaus@triagnosys.com
-www: http://www.triagnosys.com
-------------------------------------
-TriaGnoSys GmbH, Registergericht: München HRB 141647, Vat. :DE 813396184
-Geschäftsführer: Matthias Holzbock, Dr. Axel Jahn, Dr. Markus Werner
-
-This email and any files transmitted with it are confidential and
-intended solely for the use of the individual or entity to whom they are
-addressed. If you are not the addressee or authorized to receive this
-for the addressee, you must not use, copy, disclose or take any action
-based on this message or any information herein. If you have received
-this message in error, please advise the sender immediately by replying
-to this e-mail and delete the material from any computer. Thank you for
-your cooperation.
--------------------------------------------------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
