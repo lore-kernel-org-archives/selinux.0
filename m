@@ -1,110 +1,72 @@
-Message-ID: <4B8C7C88.4090701@ak.jp.nec.com>
-Date: Tue, 02 Mar 2010 11:48:40 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o22BCtdN022628
+	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 06:12:55 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o22BCOAw021825
+	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 11:12:24 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o22BCWQ0006653
+	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 12:12:32 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o22BCVCa069324
+	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 12:12:31 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Tue, 2 Mar 2010 12:12:31 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: denials with filesystem associate
+Message-ID: <20100302111231.GK3990@myhost.felk.cvut.cz>
+References: <20100228223834.GE3990@myhost.felk.cvut.cz>
+ <1267452601.601.3.camel@moss-pluto.epoch.ncsc.mil>
+ <20100301165602.GH3990@myhost.felk.cvut.cz>
+ <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [PATCH] libselinux: fix avc_netlink_loop() error caused by nonblocking
- mode.
-References: <4B691583.5060608@ak.jp.nec.com> <4B881D79.4000500@tycho.nsa.gov> <4B8833C6.9070503@tycho.nsa.gov> <4B88356E.1040501@tycho.nsa.gov>
-In-Reply-To: <4B88356E.1040501@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1ppIqr1kl39GnwQx"
+In-Reply-To: <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/02/27 5:56), Eamon Walsh wrote:
-> avc_open() creates the netlink socket in nonblocking mode.  If the
-> application later takes control of the netlink socket with
-> avc_netlink_acquire_fd() and then calls avc_netlink_loop(), it
-> will fail with EWOULDBLOCK.
-> 
-> To remedy this, remove the O_NONBLOCK flag from the netlink socket
-> at the start of avc_netlink_loop().  Also, with this fix, there is
-> no need for avc_open() to ever create a blocking socket, so change
-> that and update the man page.
 
-Apart from this design is sane, the libselinux allows applications to
-call avc_netlink_check_nb() directly.
-If we call the function although its worker thread calls avc_netlink_loop(),
-the invocation of avc_netlink_check_nb() can be blocked, because it
-assumes the internal netlink socket is non-blocking mode.
-(Of course, we will not see the matter in most of sane applications.)
+--1ppIqr1kl39GnwQx
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think a better approach is to put select(2) with zero or infinite
-timeout just before avc_netlink_receive() calls to check whether the
-unread message is in the netlink socket, or not.
-And the 'blocking' argument of avc_netlink_open() shall be obsoleted,
-because this design makes nonsense whether the socket has O_NONBLOCK
-flag, or not.
+Stephen Smalley wrote:
+> On file creation, there is an associate check between the security
+> context of the file and the security context of the containing
+> filesystem. =20
 
-The point is we should not assume the netlink socket has a certain
-state when we call avc_netlink_loop() and avc_netlink_check_nb().
+OK, I think I now understand this permission. But it seems that in a
+normal (reference) policy all files are permitted on all filesystems.
+Are there cases when they're not?
 
-What is your opinion?
+And secondly, it seems that every file type has an associate permission
+on itself, ie.
 
-> Signed-off-by: Eamon Walsh<ewalsh@tycho.nsa.gov>
-> ---
-> 
->   man/man3/avc_netlink_loop.3 |    5 +----
->   src/avc.c                   |    2 +-
->   src/avc_internal.c          |    2 ++
->   3 files changed, 4 insertions(+), 5 deletions(-)
-> 
-> 
-> diff --git a/libselinux/man/man3/avc_netlink_loop.3 b/libselinux/man/man3/avc_netlink_loop.3
-> index 67df6e4..7d8c9a4 100644
-> --- a/libselinux/man/man3/avc_netlink_loop.3
-> +++ b/libselinux/man/man3/avc_netlink_loop.3
-> @@ -43,10 +43,7 @@ to take ownership of it in application code.  The
->   .I blocking
->   argument specifies whether read operations on the socket will block.
->   .BR avc_open (3)
-> -calls this function internally, specifying non-blocking behavior (unless
-> -threading callbacks were explicitly set using the deprecated
-> -.BR avc_init (3)
-> -interface, in which case blocking behavior is set).
-> +calls this function internally, specifying non-blocking behavior.
-> 
->   .B avc_netlink_close
->   closes the netlink socket.  This function is called automatically by
-> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-> index 881b915..5c8def0 100644
-> --- a/libselinux/src/avc.c
-> +++ b/libselinux/src/avc.c
-> @@ -222,7 +222,7 @@ int avc_init(const char *prefix,
->   		avc_enforcing = rc;
->   	}
-> 
-> -	rc = avc_netlink_open(avc_using_threads);
-> +	rc = avc_netlink_open(0);
->   	if (rc<  0) {
->   		avc_log(SELINUX_ERROR,
->   			"%s:  can't open netlink socket: %d (%s)\n",
-> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
-> index 8372f52..90dfa51 100644
-> --- a/libselinux/src/avc_internal.c
-> +++ b/libselinux/src/avc_internal.c
-> @@ -233,6 +233,8 @@ void avc_netlink_loop(void)
->   	int rc;
->   	char buf[1024] __attribute__ ((aligned));
-> 
-> +	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)&  ~O_NONBLOCK);
-> +
->   	while (1) {
->   		errno = 0;
->   		rc = avc_netlink_receive(buf, sizeof(buf));
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+   allow etc_runtime_t etc_runtime_t : filesystem associate ;=20
+
+Why is this so?
+
+Regards,
+Michal Svoboda
 
 
--- 
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+--1ppIqr1kl39GnwQx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuM8p8ACgkQg/fU9pp1uX7M5gCaAr3l90CZhd2Aqr/emaznTS/S
+XYMAoLAwZ+/KJiy3aTyTKyQ3VbpbZG1n
+=a15x
+-----END PGP SIGNATURE-----
+
+--1ppIqr1kl39GnwQx--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
