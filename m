@@ -1,72 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o22BCtdN022628
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 06:12:55 -0500
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o22BCOAw021825
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 11:12:24 GMT
-Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
-	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o22BCWQ0006653
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 12:12:32 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
-	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o22BCVCa069324
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2010 12:12:31 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Date: Tue, 2 Mar 2010 12:12:31 +0100
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: SELinux <selinux@tycho.nsa.gov>
 Subject: Re: denials with filesystem associate
-Message-ID: <20100302111231.GK3990@myhost.felk.cvut.cz>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20100302111231.GK3990@myhost.felk.cvut.cz>
 References: <20100228223834.GE3990@myhost.felk.cvut.cz>
- <1267452601.601.3.camel@moss-pluto.epoch.ncsc.mil>
- <20100301165602.GH3990@myhost.felk.cvut.cz>
- <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1ppIqr1kl39GnwQx"
-In-Reply-To: <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
+	 <1267452601.601.3.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100301165602.GH3990@myhost.felk.cvut.cz>
+	 <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100302111231.GK3990@myhost.felk.cvut.cz>
+Content-Type: text/plain
+Date: Tue, 02 Mar 2010 08:40:21 -0500
+Message-Id: <1267537221.10026.59.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2010-03-02 at 12:12 +0100, Michal Svoboda wrote:
+> Stephen Smalley wrote:
+> > On file creation, there is an associate check between the security
+> > context of the file and the security context of the containing
+> > filesystem.  
+> 
+> OK, I think I now understand this permission. But it seems that in a
+> normal (reference) policy all files are permitted on all filesystems.
+> Are there cases when they're not?
 
---1ppIqr1kl39GnwQx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think the refpolicy allows most associations, although it wouldn't
+need to allow types that should only appear on filesystems that support
+per-file security labeling to appear on filesystems that do not support
+security labeling.  The original concept was that we might bind specific
+types and/or specific levels to specific filesystems.  But that requires
+a custom configuration for a particular system.  Note that in the
+original SELinux implementation, we had a way to store the filesystem
+security context in the filesystem (as part of the persistent label
+mapping), before we transitioned to using xattrs.  Today the only way to
+assign a particular filesystem security context to a particular
+filesystem is to use the fscontext= mount option; otherwise you'll just
+get the default for that filesystem type from the policy.
 
-Stephen Smalley wrote:
-> On file creation, there is an associate check between the security
-> context of the file and the security context of the containing
-> filesystem. =20
+> And secondly, it seems that every file type has an associate permission
+> on itself, ie.
+> 
+>    allow etc_runtime_t etc_runtime_t : filesystem associate ; 
+> 
+> Why is this so?
 
-OK, I think I now understand this permission. But it seems that in a
-normal (reference) policy all files are permitted on all filesystems.
-Are there cases when they're not?
+Likely to allow all possible cases of context= mounts up front.
 
-And secondly, it seems that every file type has an associate permission
-on itself, ie.
+FWIW, SELinux-specific mount options include:
+1) context= Assign the specified security context to the filesystem and
+all files within it, ignoring xattrs even if they are present/supported.
+2) fscontext= Assign the specified security context to the filesystem
+rather than the policy-defined default for that filesystem type; does
+not affect the mechanism for determining the context of files within the
+filesystem.
+3) defcontext= Assign the specified security context to files in the
+filesystem that lack an xattr value rather than the policy-defined
+default.
+4) rootcontext= Assign the specified security context to the root
+directory of the filesystem.
 
-   allow etc_runtime_t etc_runtime_t : filesystem associate ;=20
+-- 
+Stephen Smalley
+National Security Agency
 
-Why is this so?
-
-Regards,
-Michal Svoboda
-
-
---1ppIqr1kl39GnwQx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkuM8p8ACgkQg/fU9pp1uX7M5gCaAr3l90CZhd2Aqr/emaznTS/S
-XYMAoLAwZ+/KJiy3aTyTKyQ3VbpbZG1n
-=a15x
------END PGP SIGNATURE-----
-
---1ppIqr1kl39GnwQx--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
