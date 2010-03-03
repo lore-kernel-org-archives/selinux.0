@@ -1,5 +1,5 @@
-Message-ID: <4B8ECC26.3080806@gmail.com>
-Date: Wed, 03 Mar 2010 12:52:54 -0800
+Message-ID: <4B8ED118.9030209@gmail.com>
+Date: Wed, 03 Mar 2010 13:14:00 -0800
 From: "Justin P. mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -13,11 +13,8 @@ Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ahh.. with the git interface for flex
-I reset to the last commit, which makes
-checkmodule/checkpolicy work. I'll have a go
-at the bisect and see if I comeup
-with anything of use.
+ouch.. now I see the dilema with a bisect
+this might take some time..
 
 Justin P. Mattock
 
