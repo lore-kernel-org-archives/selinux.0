@@ -1,75 +1,132 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o236bQPN020615
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 01:37:26 -0500
-Received: from bay0-omc1-s28.bay0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o236bmPe014446
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 06:37:48 GMT
-Message-ID: <BAY111-W68D4C9E39582E71A1BA31AB3A0@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_c0543d12-a5cb-4ecb-83d3-4fd6f5b6611a_"
-From: TaurusHarry <harrytaurus2002@hotmail.com>
-To: refpolicy-mailing-list <refpolicy@oss1.tresys.com>,
-        selinux-mailing-list
-	<selinux@tycho.nsa.gov>
-Subject: How to implement the "if-then-else" logic in refpolicy interface?
-Date: Wed, 3 Mar 2010 06:37:24 +0000
+Message-ID: <4B8E1925.1020403@ak.jp.nec.com>
+Date: Wed, 03 Mar 2010 17:09:09 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: method@manicmethod.com, Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
+References: <4AF71B05.8030707@cs.purdue.edu>	 <4B035FA4.6080605@ak.jp.nec.com> <4B056D3D.2050303@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu>	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>	 <4B6BAFD0.2050607@ak.jp.nec.com>	 <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>	 <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com>	 <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>	 <4B7B2F15.5020909@ak.jp.nec.com>	 <1266414665.4945.15.camel@moss-pluto.epoch.ncsc.mil>	 <4B7E3ECC.1040505@ak.jp.nec.com>	 <1266592834.32011.67.camel@moss-pluto.epoch.ncsc.mil>	 <4B8B29C4.4020708@ak.jp.nec.com> <1267454064.601.22.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1267454064.601.22.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_c0543d12-a5cb-4ecb-83d3-4fd6f5b6611a_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+(2010/03/01 23:34), Stephen Smalley wrote:
+> On Mon, 2010-03-01 at 11:43 +0900, KaiGai Kohei wrote:
+>> (2010/02/20 0:20), Stephen Smalley wrote:
+>>> On Fri, 2010-02-19 at 16:33 +0900, KaiGai Kohei wrote:
+>>>> (2010/02/17 22:51), Stephen Smalley wrote:
+>>>>> On Wed, 2010-02-17 at 08:49 +0900, KaiGai Kohei wrote:
+>>>>>>> I'd say we revert the changeset and restore the prior behavior.
+>>>>>>> I don't think we should impose the latter convention on policy writers.
+>>>>>>
+>>>>>> OK, fair enough for me.
+>>>>>>
+>>>>>> This patch revert the commit of 7d52a155e38d5a165759dbbee656455861bf7801
+>>>>>> which removed a part of type_attribute_bounds_av as a dead code.
+>>>>>> However, at that time, we didn't find out the target side boundary allows
+>>>>>> to handle some of pseudo /proc/<pid>/* entries with its process's security
+>>>>>> context well.
+>>>>>
+>>>>> Does Jacques' original concern about the code still hold true?
+>>>>> http://marc.info/?l=selinux&m=125770868309928&w=2
+>>>>> http://marc.info/?l=selinux&m=125851264424682&w=2
+>>>>
+>>>> This patch just tries to revert the changes by previous my patch,
+>>>> and returns to the start point, so it also reverts the Jacques'
+>>>> original concern.
+>>>>
+>>>> At that time, IIRC, Jacques concerned about the logic being unclear.
+>>>> Then, I introduced two options. The one is rough; that removes boundary
+>>>> checks in the target side. The other option tried to mask union bits of
+>>>> both of violated permissions on subject and target side boundaries (*1).
+>>>>
+>>>>    (*1) type_attribute_bounds_av(Sc,Tc, ...)
+>>>>         {
+>>>>           masked = 0;
+>>>>
+>>>>           if (Sc has its bounds)
+>>>>             masked |= P(Sc,Tc)&   ~P(Sp,Tc);
+>>>>
+>>>>           if (Tc has its bounds)
+>>>>             masked |= P(Sc,Tc)&   ~P(Sc,Tp);
+>>>>
+>>>>           avd->allowed&= ~masked;
+>>>>         }
+>>>>
+>>>> However, the later option also requires policy writers special treatments
+>>>> to handle pseudo file entries labeled with parent's domain.
+>>>>
+>>>> For example, when web server (httpd_t) launches a thread and assign an
+>>>> individual bounded security context (webapp_t), we don't need to take
+>>>> a special treatment to access pseudo files labeled as webapp_t in the
+>>>> original logic.
+>>>>
+>>>> If we adopt the logic introduced at (*1), when we write webapp_t's policy,
+>>>> we have to allow webapp_t domain to access files labeled as httpd_t, not
+>>>> only webapp_t, because permissions between webapp_t and webapp_t will be
+>>>> eventually masked by one's between httpd_t domain and webapp_t type or
+>>>> webapp_t domain and httpd_t type.
+>>>
+>>> That seems wrong to me - we don't want webapp_t to be able to access
+>>> the /proc/pid entries of other tasks running in httpd_t.  We only want
+>>> it to be able to access its own /proc/pid entries in webapp_t.  Yes?
+>>>
+>>
+>> Sorry for the late replying, because I've been unavailable last week.
+>>
+>> Yes, I also think it is unnatural to require webapp_t to have access
+>> rights to /proc/pid entries labeled as httpd_t, if and when we adopt
+>> the above logic.
+>>
+>> However, it does not solve the matter that Jacques pointed out the
+>> meaning of the original logic is unclear.
+>>
+>> In addition, I pointed out the original logic can allow webapp_t
+>> domain some permissions on the webapp_t type without permissions
+>> of httpd_t which bounds webapp_t.
+>>
+>> Example)
+>>    allow httpd_t httpd_t : file { read };
+>>    allow webapp_t webapp_t : file { read };
+>>
+>> In this case, webapp_t can read from files labeled as webapp_t, and
+>> it is not masked because httpd_t also has same permissions on itself.
+>>
+>> It seems to me httpd_t should have permissions on webapp_t types from
+>> the perspective of the definition of type boundary, even if we need to
+>> modify existing security policy a bit.
+>> (BTW, existing refpolicy does not use boundary right now.)
+>>
+>> I think we want webapp_t to have access rights (except for ones allowed
+>> explicitly) on the httpd_t, but it is not unnatural that httpd_t have
+>> access rights on webapp_t types. It performs boundary of the webapp_t's
+>> permissions as literal.
+> 
+> I think I need to revisit the original design of the hierarchical types
+> support, and how it compares with the extension policy logic that
+> inspired it (described in Section 4.2.2.3.2 on page 39 of:
+> http://www.cs.utah.edu/flux/fluke/html/ftls.ps.gz )
 
+It seems to me this article does not mention about a case when source and
+target SIDs are in different parent-child-trees individually.
 
-Hi SELinux experts,
+For example, when webapp_t being a child of httpd_t tries to access files
+labeled as webapp_content_t being a child of httpd_sys_content_t, it was
+unclear for me what is an expected behavior.
+(Perhaps, other part of the article may introduce it, but the volume of
+the article is a bit large. :( )
 
-Thanks a lot for taking a look at my question, how could I implement the bash "if-then-else" and "test" grammar in current refpolicy interface? For example, if I don't want the user_t to have the privilege to execute any kind of shell, what proper grammar should I use to implement something with the same logic as 'if ! test "X$1" = "Xuser_t"' in the corecomd_exec_shell interface:
+> Perhaps Joshua has a design tech note available on the hierarchical
+> types design?
 
-interface(`corecmd_exec_shell',`
-        gen_require(`
-                type bin_t, shell_exec_t;
-        ')
+If not available, it is good idea to make clear what is the expected
+behavior explicitly, on the wikipage for instance.
 
-if ! test "X$1" = "Xuser_t"; then
-        list_dirs_pattern($1, bin_t, bin_t)
-        read_lnk_files_pattern($1, bin_t, bin_t)
-        can_exec($1, shell_exec_t)
-fi
-')
-
-Thank you very much!
-
-Best regards,
-Harry
- 		 	   		  
-_________________________________________________________________
-想知道明天天气如何？必应告诉你！
-http://cn.bing.com/search?q=%E5%A4%A9%E6%B0%94%E9%A2%84%E6%8A%A5&form=MICHJ2
---_c0543d12-a5cb-4ecb-83d3-4fd6f5b6611a_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Verdana
-}
---></style>
-</head>
-<body class='hmmessage'>
-Hi SELinux experts,<br><br>Thanks a lot for taking a look at my question, how could I implement the bash "if-then-else" and "test" grammar in current refpolicy interface? For example, if I don't want the user_t to have the privilege to execute any kind of shell, what proper grammar should I use to implement something with the same logic as 'if ! test "X$1" = "Xuser_t"' in the corecomd_exec_shell interface:<br><br>interface(`corecmd_exec_shell',`<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gen_require(`<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type bin_t, shell_exec_t;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ')<br><br>if ! test "X$1" = "Xuser_t"; then<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; list_dirs_pattern($1, bin_t, bin_t)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; read_lnk_files_pattern($1, bin_t, bin_t)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; can_exec($1, shell_exec_t)<br>fi<br>')<br><br>Thank yo!
- u very much!<br><br>Best regards,<br>Harry<br> 		 	   		  <br /><hr />搜索本应是彩色的,快来体验新一代搜索引擎-必应,精美图片每天换哦! <a href='http://cn.bing.com/?form=CRMADS ' target='_new'>立即试用！</a></body>
-</html>
---_c0543d12-a5cb-4ecb-83d3-4fd6f5b6611a_--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
