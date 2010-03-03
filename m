@@ -1,115 +1,60 @@
-Subject: Re: Problem with compiling refpolicy base.pp
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. mattock" <justinmattock@gmail.com>
-Cc: AlannY <m@alanny.ru>, SELinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <4B8E820D.8030807@gmail.com>
-References: <4B8E72D2.8030802@alanny.ru>
-	 <1267629710.6048.63.camel@moss-pluto.epoch.ncsc.mil>
-	 <1267630096.6048.64.camel@moss-pluto.epoch.ncsc.mil>
-	 <4B8E820D.8030807@gmail.com>
-Content-Type: text/plain
-Date: Wed, 03 Mar 2010 10:53:23 -0500
-Message-Id: <1267631603.6048.95.camel@moss-pluto.epoch.ncsc.mil>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o23G1xGP019784
+	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 11:01:59 -0500
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o23G2LrD008365
+	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 16:02:21 GMT
+Subject: Re: squid and apache
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Dominick Grift <domg472@gmail.com>, russell@coker.com.au,
+        SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4B8E7B5E.30005@redhat.com>
+References: <201003031007.35281.russell@coker.com.au>
+	 <4B8E3807.3060809@gmail.com>  <4B8E7B5E.30005@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 03 Mar 2010 11:01:24 -0500
+Message-ID: <1267632084.30557.96.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-03-03 at 07:36 -0800, Justin P. mattock wrote:
-> On 03/03/2010 07:28 AM, Stephen Smalley wrote:
-> > On Wed, 2010-03-03 at 10:21 -0500, Stephen Smalley wrote:
-> >> On Wed, 2010-03-03 at 17:31 +0300, AlannY wrote:
-> >>> Hi there.
-> >>>
-> >>> I'm trying to compile refpolicy. I have checkpolicy 2.0.20 and misc
-> >>> tools (libselinux policycoreutils). I'm trying to:
-> >>>
-> >>>      make bare
-> >>>      make conf
-> >>>      make base.pp
-> >>>
-> >>> My configuration:
-> >>>
-> >>> TYPE=mcs
-> >>> NAME=refpolicy
-> >>> UNK_PERMS=allow
-> >>> DIRECT_INITRC=n
-> >>> MONOLITHIC=n
-> >>> UBAC=n
-> >>> MLS_CATS=1024
-> >>> MCS_CATS=1024
-> >>>
-> >>> But, the last command failed with the following error:
-> >>>
-> >>>      Creating refpolicy base module base.conf
-> >>>      cat tmp/pre_te_files.conf tmp/all_attrs_types.conf
-> >>> tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_post.conf>  base.conf
-> >>>      Compiling refpolicy base module
-> >>>      /usr/bin/checkmodule -M -U allow base.conf -o tmp/base.mod
-> >>>      /usr/bin/checkmodule:  loading policy configuration from base.conf
-> >>>      base.conf:2032:ERROR 'syntax error' at token ':c0.c1023' on line 2032:
-> >>>      level s0:c0.c1023;
-> >>>
-> >>> Seems to be, it's a good line (2032), but checkmodule can't eat it.
-> >>>
-> >>> Where can be the probem?
+On Wed, 2010-03-03 at 10:08 -0500, Daniel J Walsh wrote:
+> On 03/03/2010 05:20 AM, Dominick Grift wrote:
+> > On 03/03/2010 12:07 AM, Russell Coker wrote:
+> > <snip>
+> >    
+> >> How should we solve this?
 > >>
-> >> Looks like a scanner problem to me.  There have been problems with some
-> >> versions of flex, e.g. see:
-> >> http://marc.info/?t=125613782400001&r=1&w=2
-> >> but no one has ever tracked it down precisely and I've never been able
-> >> to reproduce.  Modify your checkpolicy Makefile to pass -d to $(LEX) so
-> >> that it generates debug output and then capture the stderr of running
-> >> checkpolicy on base.conf.  Here I get the following output for that
-> >> line:
-> >> --accepting rule at line 55 ("
-> >> level s0:c0.c1023;")
-> >> --accepting rule at line 116 ("level")
-> >> --accepting rule at line 227 (" ")
-> >> --accepting rule at line 219 ("s0")
-> >> --accepting rule at line 235 (":")
-> >> --accepting rule at line 219 ("c0.c1023")
-> >> --accepting rule at line 236 (";")
-> >>
-> >> Note that the ":" gets treated as a separate token above, as it should,
-> >> whereas your checkmodule seems to not be splitting it properly.
-> >>
-> >> You can look at checkpolicy/policy_scan.l and see if anything strikes
-> >> you as problematic, but it looks sane to me.  Maybe it is matching on
-> >> ipv6_addr instead.  On second look, I'm wondering why ipv6_addr has . in
-> >> the pattern.  Does this help?
-> >>
-> >> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-> >> index 48128a8..b7b8f0a 100644
-> >> --- a/checkpolicy/policy_scan.l
-> >> +++ b/checkpolicy/policy_scan.l
-> >> @@ -219,7 +219,7 @@ PERMISSIVE			{ return(PERMISSIVE); }
-> >>   {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
-> >>   {digit}+|0x{hexval}+            { return(NUMBER); }
-> >>   {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
-> >> -{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
-> >> +{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":")*  { return(IPV6_ADDR); }
-> >>   {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
-> >>   #line[ ]1[ ]\"[^\n]*\"		{ set_source_file(yytext+9); }
-> >>   #line[ ]{digit}+	        { source_lineno = atoi(yytext+6)-1; }
+> >>      
+> > I Wrote a blog with my view on this issue here:
 > >
-> > Hmm...and does the second "." in VERSION_IDENTIFIER need to be quoted or
-> > escaped via backslash as well?
+> > http://selinux-mac.blogspot.com/2010/02/about-apachecontenttemplate.html
 > >
+> > I am also interested in other views on this.
+> >
+> >    
+> Dominic your example would not work since it would not have rules to 
+> handle apache content is not present.  What happens to you executable.
 > 
-> 
-> if the flex version from git goes all the way
-> back to 2.5* I'll do a bisect on this
-> but if it only goes so far, then bisection
-> can be tricky.
+> I am not sure this would work.
+> optional_policy(`
+> apache_cgi_domain(backuppc_admin_t, backuppc_admin_exec_t)
+> ',`
+>      gen_require(`
+>              type bin_t;
+>      ')
+>      typealias bin_t alias backuppc_admin_exec_t;
+> ')
 
-If my patch fixes the problem, it was a bug in checkpolicy, not a bug in
-flex.
+That won't work because you can't put require blocks in the else block
+of an optional.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
