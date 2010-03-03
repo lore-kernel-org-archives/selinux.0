@@ -1,152 +1,86 @@
-Message-ID: <4B8E8D28.8080905@gmail.com>
-Date: Wed, 03 Mar 2010 08:24:08 -0800
-From: "Justin P. mattock" <justinmattock@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o23GPX7p021472
+	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 11:25:38 -0500
+Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o23GQ0QR021606
+	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 16:26:00 GMT
+Received: by pwi2 with SMTP id 2so934168pwi.12
+        for <selinux@tycho.nsa.gov>; Wed, 03 Mar 2010 08:24:36 -0800 (PST)
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: AlannY <m@alanny.ru>, SELinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>
-Subject: Re: Problem with compiling refpolicy base.pp
-References: <4B8E72D2.8030802@alanny.ru>	 <1267629710.6048.63.camel@moss-pluto.epoch.ncsc.mil>	 <1267630096.6048.64.camel@moss-pluto.epoch.ncsc.mil>	 <4B8E820D.8030807@gmail.com> <1267631603.6048.95.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1267631603.6048.95.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1267632084.30557.96.camel@gorn.columbia.tresys.com>
+References: <201003031007.35281.russell@coker.com.au>
+	 <4B8E3807.3060809@gmail.com> <4B8E7B5E.30005@redhat.com>
+	 <1267632084.30557.96.camel@gorn.columbia.tresys.com>
+Date: Wed, 3 Mar 2010 11:24:35 -0500
+Message-ID: <150846cc1003030824q73cc9fd5u34acab36a2f4e42c@mail.gmail.com>
+Subject: Re: squid and apache
+From: Caleb Case <calebcase@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Dominick Grift <domg472@gmail.com>,
+        russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/03/2010 07:53 AM, Stephen Smalley wrote:
-> On Wed, 2010-03-03 at 07:36 -0800, Justin P. mattock wrote:
->> On 03/03/2010 07:28 AM, Stephen Smalley wrote:
->>> On Wed, 2010-03-03 at 10:21 -0500, Stephen Smalley wrote:
->>>> On Wed, 2010-03-03 at 17:31 +0300, AlannY wrote:
->>>>> Hi there.
->>>>>
->>>>> I'm trying to compile refpolicy. I have checkpolicy 2.0.20 and misc
->>>>> tools (libselinux policycoreutils). I'm trying to:
->>>>>
->>>>>       make bare
->>>>>       make conf
->>>>>       make base.pp
->>>>>
->>>>> My configuration:
->>>>>
->>>>> TYPE=mcs
->>>>> NAME=refpolicy
->>>>> UNK_PERMS=allow
->>>>> DIRECT_INITRC=n
->>>>> MONOLITHIC=n
->>>>> UBAC=n
->>>>> MLS_CATS=1024
->>>>> MCS_CATS=1024
->>>>>
->>>>> But, the last command failed with the following error:
->>>>>
->>>>>       Creating refpolicy base module base.conf
->>>>>       cat tmp/pre_te_files.conf tmp/all_attrs_types.conf
->>>>> tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_post.conf>   base.conf
->>>>>       Compiling refpolicy base module
->>>>>       /usr/bin/checkmodule -M -U allow base.conf -o tmp/base.mod
->>>>>       /usr/bin/checkmodule:  loading policy configuration from base.conf
->>>>>       base.conf:2032:ERROR 'syntax error' at token ':c0.c1023' on line 2032:
->>>>>       level s0:c0.c1023;
->>>>>
->>>>> Seems to be, it's a good line (2032), but checkmodule can't eat it.
->>>>>
->>>>> Where can be the probem?
->>>>
->>>> Looks like a scanner problem to me.  There have been problems with some
->>>> versions of flex, e.g. see:
->>>> http://marc.info/?t=125613782400001&r=1&w=2
->>>> but no one has ever tracked it down precisely and I've never been able
->>>> to reproduce.  Modify your checkpolicy Makefile to pass -d to $(LEX) so
->>>> that it generates debug output and then capture the stderr of running
->>>> checkpolicy on base.conf.  Here I get the following output for that
->>>> line:
->>>> --accepting rule at line 55 ("
->>>> level s0:c0.c1023;")
->>>> --accepting rule at line 116 ("level")
->>>> --accepting rule at line 227 (" ")
->>>> --accepting rule at line 219 ("s0")
->>>> --accepting rule at line 235 (":")
->>>> --accepting rule at line 219 ("c0.c1023")
->>>> --accepting rule at line 236 (";")
->>>>
->>>> Note that the ":" gets treated as a separate token above, as it should,
->>>> whereas your checkmodule seems to not be splitting it properly.
->>>>
->>>> You can look at checkpolicy/policy_scan.l and see if anything strikes
->>>> you as problematic, but it looks sane to me.  Maybe it is matching on
->>>> ipv6_addr instead.  On second look, I'm wondering why ipv6_addr has . in
->>>> the pattern.  Does this help?
->>>>
->>>> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
->>>> index 48128a8..b7b8f0a 100644
->>>> --- a/checkpolicy/policy_scan.l
->>>> +++ b/checkpolicy/policy_scan.l
->>>> @@ -219,7 +219,7 @@ PERMISSIVE			{ return(PERMISSIVE); }
->>>>    {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
->>>>    {digit}+|0x{hexval}+            { return(NUMBER); }
->>>>    {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
->>>> -{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
->>>> +{hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":")*  { return(IPV6_ADDR); }
->>>>    {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
->>>>    #line[ ]1[ ]\"[^\n]*\"		{ set_source_file(yytext+9); }
->>>>    #line[ ]{digit}+	        { source_lineno = atoi(yytext+6)-1; }
->>>
->>> Hmm...and does the second "." in VERSION_IDENTIFIER need to be quoted or
->>> escaped via backslash as well?
->>>
->>
->>
->> if the flex version from git goes all the way
->> back to 2.5* I'll do a bisect on this
->> but if it only goes so far, then bisection
->> can be tricky.
+On Wed, Mar 3, 2010 at 11:01 AM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
 >
-> If my patch fixes the problem, it was a bug in checkpolicy, not a bug in
-> flex.
+> On Wed, 2010-03-03 at 10:08 -0500, Daniel J Walsh wrote:
+> > On 03/03/2010 05:20 AM, Dominick Grift wrote:
+> > > On 03/03/2010 12:07 AM, Russell Coker wrote:
+> > > <snip>
+> > >
+> > >> How should we solve this?
+> > >>
+> > >>
+> > > I Wrote a blog with my view on this issue here:
+> > >
+> > > http://selinux-mac.blogspot.com/2010/02/about-apachecontenttemplate.html
+> > >
+> > > I am also interested in other views on this.
+> > >
+> > >
+> > Dominic your example would not work since it would not have rules to
+> > handle apache content is not present.  What happens to you executable.
+> >
+> > I am not sure this would work.
+> > optional_policy(`
+> > apache_cgi_domain(backuppc_admin_t, backuppc_admin_exec_t)
+> > ',`
+> >      gen_require(`
+> >              type bin_t;
+> >      ')
+> >      typealias bin_t alias backuppc_admin_exec_t;
+> > ')
+>
+> That won't work because you can't put require blocks in the else block
+> of an optional.
 >
 
+Thought I'd mention that the proposed CIL would alleviate this problem
+since it allows you to put FC statements in the policy (and in
+conditional statements). For example:
 
-heres what I get:
+# if the squid block exists (i.e., the squid module is in the policy)
+IF (? /(BLOCK squid)) {
+  # call the apache block with the squid type
+  CALL /(BLOCK apache_content_template) (TYPE squid)
 
+  # label the squid cache manager
+  LABEL (PATH:FILE (PATH:REGEX "/usr/lib/squid/cachemgr\.cgi")
+(PATH:FILETYPE "--")) {
+     USER system
+     ROLE object
+     TYPE squid_script_exec
+     RANGE (LEVEL s0)
+  }
+}
 
-  flex --version
-flex 2.5.35
+The syntax is probably going to be changed at some point, but this
+does illustrate the general concept that labeling is part of the
+policy language proper and can be used in conditionals.
 
-(without the patch applied).
-
-Compiling mcs  base module
-/usr/bin/checkmodule -M -U deny base.conf -o tmp/base.mod
-/usr/bin/checkmodule:  loading policy configuration from base.conf
-base.conf:1265:ERROR 'syntax error' at token ':c0.c255' on line 1265:
-
-level s0:c0.c255;
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make: *** [tmp/base.mod] Error 1
-
-
-(after applying patch):
-
-Compiling mcs  base module
-/usr/bin/checkmodule -M -U deny base.conf -o tmp/base.mod
-/usr/bin/checkmodule:  loading policy configuration from base.conf
-base.conf:1265:ERROR 'syntax error' at token ':c0' on line 1265:
-
-level s0:c0.c255;
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make: *** [tmp/base.mod] Error 1
-
-
-as soon as I compile checkpolicy/checkmodule with the older version of 
-flex the policy will compile without the syntax error.
-
-but if this is userspace(SELinux) issue, I can try a bisect with 
-checkpolicy/checkmodule.
-
-
-Justin P. Mattock
-
-
+Caleb
 
 
 --
