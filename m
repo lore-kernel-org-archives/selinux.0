@@ -1,44 +1,51 @@
-Subject: Re: strange policy loading problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
-References: <201003031018.38030.russell@coker.com.au>
-	 <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 03 Mar 2010 09:28:54 -0500
-Message-Id: <1267626534.6048.22.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4B8E72D2.8030802@alanny.ru>
+Date: Wed, 03 Mar 2010 17:31:46 +0300
+From: AlannY <m@alanny.ru>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: Problem with compiling refpolicy base.pp
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-03-03 at 08:06 -0500, Stephen Smalley wrote:
-> On Wed, 2010-03-03 at 10:18 +1100, Russell Coker wrote:
-> > I'm running a 2.6.32 system under KVM and it keeps OOMing when I try to run 
-> > semodule.
-> > 
-> > # free
-> >              total       used       free     shared    buffers     cached
-> > Mem:        507532     475320      32212          0       4168      11148
-> > -/+ buffers/cache:     460004      47528
-> > Swap:       524280      19848     504432
-> > 
-> > The policy.24 file is just under 900K in size, the output of free is above, it 
-> > doesn't seem particularly short of RAM.  The dmesg output is below.  Any 
-> > suggestions for what I should investigate?
-> > 
-> > I could just give the VM a gig of RAM, but I run lots of real systems with 
-> > less than 512M so I would like this to work.
-> 
-> - make sure CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set,
-> - what are the versions of libsepol, libsemanage, and glibc
+Hi there.
 
-- and what do you have in /etc/selinux/semanage.conf?
+I'm trying to compile refpolicy. I have checkpolicy 2.0.20 and misc
+tools (libselinux policycoreutils). I'm trying to:
 
+    make bare
+    make conf
+    make base.pp
+
+My configuration:
+
+TYPE=mcs
+NAME=refpolicy
+UNK_PERMS=allow
+DIRECT_INITRC=n
+MONOLITHIC=n
+UBAC=n
+MLS_CATS=1024
+MCS_CATS=1024
+
+But, the last command failed with the following error:
+
+    Creating refpolicy base module base.conf
+    cat tmp/pre_te_files.conf tmp/all_attrs_types.conf
+tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_post.conf > base.conf
+    Compiling refpolicy base module
+    /usr/bin/checkmodule -M -U allow base.conf -o tmp/base.mod
+    /usr/bin/checkmodule:  loading policy configuration from base.conf
+    base.conf:2032:ERROR 'syntax error' at token ':c0.c1023' on line 2032:
+    level s0:c0.c1023;
+
+Seems to be, it's a good line (2032), but checkmodule can't eat it.
+
+Where can be the probem?
 -- 
-Stephen Smalley
-National Security Agency
-
+   )\._.,--....,'``.
+  /,   _.. \   _\  (`._ ,.
+ `._.-(,_..'--(,_..'`-.;.'
 
 --
 This message was distributed to subscribers of the selinux mailing list.
