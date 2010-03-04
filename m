@@ -1,48 +1,51 @@
-Subject: Re: strange policy loading problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o24FjVw4003481
+	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 10:45:31 -0500
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o24FjDOK010543
+	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 15:45:14 GMT
+Subject: Re: lnk_file:write
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: russell@coker.com.au
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <201003041200.10019.russell@coker.com.au>
-References: <201003031018.38030.russell@coker.com.au>
-	 <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
-	 <201003041200.10019.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 04 Mar 2010 10:05:43 -0500
-Message-Id: <1267715143.23761.93.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <201003041221.21671.russell@coker.com.au>
+References: <201003041221.21671.russell@coker.com.au>
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 04 Mar 2010 10:44:48 -0500
+Message-ID: <1267717488.11679.34.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-03-04 at 12:00 +1100, Russell Coker wrote:
-> On Thu, 4 Mar 2010, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > - make sure CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set,
+On Thu, 2010-03-04 at 12:21 +1100, Russell Coker wrote:
+> [   12.814762] type=1400 audit(1267664699.904:8): avc:  denied  { write } for  
+> pid=726 comm="udevd" name="4:66" dev=tmpfs ino=1767 
+> scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 
+> tcontext=system_u:object_r:device_t:s0 tclass=lnk_file
+> [   12.814802] type=1300 audit(1267664699.904:8): arch=c000003e syscall=280 
+> success=no exit=-13 a0=ffffffffffffff9c a1=1e69110 a2=0 a3=100 items=0 
+> ppid=689 pid=726 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 
+> sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="udevd" exe="/sbin/udevd" 
+> subj=system_u:system_r:udev_t:s0-s0:c0.c1023 key=(null)
 > 
-> It's not.
+> I'm seeing messages like the above in my kernel message log when running the 
+> latest Debian/Testing (2.6.32 kernel and udev 151-2).
 > 
-> > - what are the versions of libsepol, libsemanage, and glibc
+>         { 4,    TD|TF,  sys_utimensat,          "utimensat"     }, /* 280 */
 > 
-> ii  libc6                                   2.10.2-6                   
-> Embedded GNU C Library: Shared libraries
-> ii  libc6-dbg                               2.10.2-6                   
-> Embedded GNU C Library: detached debugging s
-> ii  libc6-dev                               2.10.2-6                   
-> Embedded GNU C Library: Development Librarie
-> ii  libc6-i386                              2.10.2-6                   GNU C 
-> Library: 32-bit shared libraries for A
-> ii  libsemanage-common                      2.0.42-1                   Common 
-> files for SELinux policy management l
-> ii  libsemanage1                            2.0.42-1                   SELinux 
-> policy management library.
-> ii  libsepol1                               2.0.40-2                   SELinux 
-> library for manipulating binary secu
+> According to the above from the strace source it seems that on AMD64 syscall 
+> 280 is utimensat().
 > 
-> The latest in Debian/Testing.
+> Should we update manage_lnk_file_perms to include write access?
 
-Interesting.  Does it happen with 2.6.31 too?  2.6.33?
- 
+It sounds like a bug that it isn't in the permission set.  "Manage"
+normally means create, read, write, and delete.
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
