@@ -1,22 +1,46 @@
-Message-ID: <4B8ED118.9030209@gmail.com>
-Date: Wed, 03 Mar 2010 13:14:00 -0800
-From: "Justin P. mattock" <justinmattock@gmail.com>
-MIME-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: AlannY <m@alanny.ru>, SELinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>,
-        Chad Sellers <csellers@tresys.com>
-Subject: Re: Problem with compiling refpolicy base.pp
-References: <4B8E72D2.8030802@alanny.ru>	 <1267629710.6048.63.camel@moss-pluto.epoch.ncsc.mil> <1267633395.6048.116.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1267633395.6048.116.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: strange policy loading problem
+Date: Thu, 4 Mar 2010 12:00:09 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <201003031018.38030.russell@coker.com.au> <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201003041200.10019.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ouch.. now I see the dilema with a bisect
-this might take some time..
+On Thu, 4 Mar 2010, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> - make sure CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set,
 
-Justin P. Mattock
+It's not.
+
+> - what are the versions of libsepol, libsemanage, and glibc
+
+ii  libc6                                   2.10.2-6                   
+Embedded GNU C Library: Shared libraries
+ii  libc6-dbg                               2.10.2-6                   
+Embedded GNU C Library: detached debugging s
+ii  libc6-dev                               2.10.2-6                   
+Embedded GNU C Library: Development Librarie
+ii  libc6-i386                              2.10.2-6                   GNU C 
+Library: 32-bit shared libraries for A
+ii  libsemanage-common                      2.0.42-1                   Common 
+files for SELinux policy management l
+ii  libsemanage1                            2.0.42-1                   SELinux 
+policy management library.
+ii  libsepol1                               2.0.40-2                   SELinux 
+library for manipulating binary secu
+
+The latest in Debian/Testing.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
