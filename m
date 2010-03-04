@@ -1,48 +1,115 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o241LQQA024662
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2010 20:21:26 -0500
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o241LnR1002021
-	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 01:21:49 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id BDAA5180C0
-	for <selinux@tycho.nsa.gov>; Thu,  4 Mar 2010 12:21:22 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: lnk_file:write
-Date: Thu, 4 Mar 2010 12:21:21 +1100
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o24F6NG2000472
+	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 10:06:27 -0500
+Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o24F69OK021304
+	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 15:06:09 GMT
+Date: Thu, 4 Mar 2010 09:05:57 -0600
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Nathan Lynch <ntl@pobox.com>, Linux Containers <containers@lists.osdl.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: selinux prevents msgrcv on restore message queues?
+Message-ID: <20100304150557.GA25017@hallyn.com>
+References: <1267565774.11828.15.camel@localhost.localdomain>
+ <20100303004727.GA8272@us.ibm.com>
+ <20100303011941.GA10429@us.ibm.com>
+ <1267639445.11828.19.camel@localhost.localdomain>
+ <20100303194910.GC12379@us.ibm.com>
+ <1267653386.3559.9.camel@localhost.localdomain>
+ <20100303234448.GA27869@us.ibm.com>
+ <1267661777.3559.11.camel@localhost.localdomain>
+ <20100304030525.GA8875@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201003041221.21671.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20100304030525.GA8875@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[   12.814762] type=1400 audit(1267664699.904:8): avc:  denied  { write } for  
-pid=726 comm="udevd" name="4:66" dev=tmpfs ino=1767 
-scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 
-tcontext=system_u:object_r:device_t:s0 tclass=lnk_file
-[   12.814802] type=1300 audit(1267664699.904:8): arch=c000003e syscall=280 
-success=no exit=-13 a0=ffffffffffffff9c a1=1e69110 a2=0 a3=100 items=0 
-ppid=689 pid=726 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 
-sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="udevd" exe="/sbin/udevd" 
-subj=system_u:system_r:udev_t:s0-s0:c0.c1023 key=(null)
+[
+cc:ing SELinux and LSM lists bc this somewhat changes the
+ipc msg_msg restore behavior - which was previously broken,
+and now is hopefully merely dubious.  The original email
+in this thread can be seen at
+https://lists.linux-foundation.org/pipermail/containers/2010-March/023266.html
+]
 
-I'm seeing messages like the above in my kernel message log when running the 
-latest Debian/Testing (2.6.32 kernel and udev 151-2).
+Quoting Serge E. Hallyn (serue@us.ibm.com):
+> Quoting Nathan Lynch (ntl@pobox.com):
+> > On Wed, 2010-03-03 at 17:44 -0600, Serge E. Hallyn wrote:
+> > > Quoting Nathan Lynch (ntl@pobox.com):
+> > > > On Wed, 2010-03-03 at 13:49 -0600, Serge E. Hallyn wrote:
+> > > > > Quoting Nathan Lynch (ntl@pobox.com):
+> > > > > > On Tue, 2010-03-02 at 19:19 -0600, Serge E. Hallyn wrote:
+> > > > > > > Can you try the following patch?
+> > > > > > > 
+> > > > > > > Also, to actually restore the LSM labels you need to add -k to your
+> > > > > > > restart flags, but without the -k you should get a sane default
+> > > > > > > security label.
+> > > > > > 
+> > > > > > Thanks, the ipc/mq tests pass with this patch and restart -k.  Without
+> > > > > > -k the tests still fail in the same manner (msgrcv fails).  Is that the
+> > > > > > behavior you'd expect?
+> > > > > 
+> > > > > Not really - the test runs as unconfined_u right?
+> > > > 
+> > > > I added a ps -Z to test-mq.sh before thawing:
+> > > > 
+> > > > # PATH=/root/cr/user-cr.git:$PATH bash test-mq.sh 
+> > > > Using output dir ./cr_mq_6T8KIG6
+> > > > XXX Test 1: simple restart with SYSVIPC msq
+> > > > check-mq: no process killed
+> > > > ../common.sh: line 45:  5173 Killed                  ( sleep $1; kill -s USR1 $$ )
+> > > > LABEL                             PID TTY          TIME CMD
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4358 pts/1 00:00:00 bash
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5151 pts/1 00:00:00 bash
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5172 pts/1 00:00:00 nsexec
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5175 pts/1 00:00:00 sleep
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5178 pts/1 00:00:00 check-
+> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5183 pts/1 00:00:00 ps
+> > > > PASS
+> > > 
+> > > Can you try the following patch?
+> > > 
+> > > (this is on top of the last one - I'd sent)
+> > > 
+> > > The problem is that selinux does not assign a label to a msg_msg
+> > > until you do msgsnd.  So it may be best to special-case the
+> > > msg_msg object type and always have it restore the msgtype.  One
+> > > reason *NOT* to do that woudl be that the restarter might not have
+> > > msg_msg:restore permission...  But pls let me know if this patch
+> > > fixes your problem.
+> > 
+> > Yes, with both patches applied to ckpt-v19-dev
+> > (261322990a4ed23c8475c232423845f998dd4f89) the tests pass with and
+> > without the -k flag.
+> 
+> Cool.  The main alternative would be to rip the core of
+> ipc/msg.c:do_msgsnd() out and re-use that in place of the bulk of
+> restore_msg_contents_one().
+> 
+> Since a user can't specify a security context on an msg_msg (but
+> can on msgq) I think the end-result would be fine.  It's a lot more
 
-        { 4,    TD|TF,  sys_utimensat,          "utimensat"     }, /* 280 */
+Except it wouldn't be fine, because SELinux chooses a label for the
+new msg_msg based on both the task's and the queue's contexts.  And
+we have no idea whether the task's context has changed since the
+msg was sent.
 
-According to the above from the strace source it seems that on AMD64 syscall 
-280 is utimensat().
+Now, it seems like letting restart choose the labels may promote
+bypassing of assured pipelines, but then you can't guarantee original
+security guarantees anyway unless you have an assured pipeline
+from checkpoint->restart, whether enforced through SELinux
+policy or through TPM.  And if you have that, then the msg_msg
+context can't be surruptitiously changed before restart.
 
-Should we update manage_lnk_file_perms to include write access?
+So there is no ideal solution for SELinux, but always doing label
+restore for msg_msg, with the requirement that the restarter be
+allowed msg_msg:restore permission to the restored msg_msg type,
+seems the best answer.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
