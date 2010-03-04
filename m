@@ -1,115 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o24F6NG2000472
-	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 10:06:27 -0500
-Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o24F69OK021304
-	for <selinux@tycho.nsa.gov>; Thu, 4 Mar 2010 15:06:09 GMT
-Date: Thu, 4 Mar 2010 09:05:57 -0600
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Nathan Lynch <ntl@pobox.com>, Linux Containers <containers@lists.osdl.org>,
-        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: selinux prevents msgrcv on restore message queues?
-Message-ID: <20100304150557.GA25017@hallyn.com>
-References: <1267565774.11828.15.camel@localhost.localdomain>
- <20100303004727.GA8272@us.ibm.com>
- <20100303011941.GA10429@us.ibm.com>
- <1267639445.11828.19.camel@localhost.localdomain>
- <20100303194910.GC12379@us.ibm.com>
- <1267653386.3559.9.camel@localhost.localdomain>
- <20100303234448.GA27869@us.ibm.com>
- <1267661777.3559.11.camel@localhost.localdomain>
- <20100304030525.GA8875@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20100304030525.GA8875@us.ibm.com>
+Subject: Re: strange policy loading problem
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <201003041200.10019.russell@coker.com.au>
+References: <201003031018.38030.russell@coker.com.au>
+	 <1267621594.3436.19.camel@moss-pluto.epoch.ncsc.mil>
+	 <201003041200.10019.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 04 Mar 2010 10:05:43 -0500
+Message-Id: <1267715143.23761.93.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[
-cc:ing SELinux and LSM lists bc this somewhat changes the
-ipc msg_msg restore behavior - which was previously broken,
-and now is hopefully merely dubious.  The original email
-in this thread can be seen at
-https://lists.linux-foundation.org/pipermail/containers/2010-March/023266.html
-]
-
-Quoting Serge E. Hallyn (serue@us.ibm.com):
-> Quoting Nathan Lynch (ntl@pobox.com):
-> > On Wed, 2010-03-03 at 17:44 -0600, Serge E. Hallyn wrote:
-> > > Quoting Nathan Lynch (ntl@pobox.com):
-> > > > On Wed, 2010-03-03 at 13:49 -0600, Serge E. Hallyn wrote:
-> > > > > Quoting Nathan Lynch (ntl@pobox.com):
-> > > > > > On Tue, 2010-03-02 at 19:19 -0600, Serge E. Hallyn wrote:
-> > > > > > > Can you try the following patch?
-> > > > > > > 
-> > > > > > > Also, to actually restore the LSM labels you need to add -k to your
-> > > > > > > restart flags, but without the -k you should get a sane default
-> > > > > > > security label.
-> > > > > > 
-> > > > > > Thanks, the ipc/mq tests pass with this patch and restart -k.  Without
-> > > > > > -k the tests still fail in the same manner (msgrcv fails).  Is that the
-> > > > > > behavior you'd expect?
-> > > > > 
-> > > > > Not really - the test runs as unconfined_u right?
-> > > > 
-> > > > I added a ps -Z to test-mq.sh before thawing:
-> > > > 
-> > > > # PATH=/root/cr/user-cr.git:$PATH bash test-mq.sh 
-> > > > Using output dir ./cr_mq_6T8KIG6
-> > > > XXX Test 1: simple restart with SYSVIPC msq
-> > > > check-mq: no process killed
-> > > > ../common.sh: line 45:  5173 Killed                  ( sleep $1; kill -s USR1 $$ )
-> > > > LABEL                             PID TTY          TIME CMD
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4358 pts/1 00:00:00 bash
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5151 pts/1 00:00:00 bash
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5172 pts/1 00:00:00 nsexec
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5175 pts/1 00:00:00 sleep
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5178 pts/1 00:00:00 check-
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 5183 pts/1 00:00:00 ps
-> > > > PASS
-> > > 
-> > > Can you try the following patch?
-> > > 
-> > > (this is on top of the last one - I'd sent)
-> > > 
-> > > The problem is that selinux does not assign a label to a msg_msg
-> > > until you do msgsnd.  So it may be best to special-case the
-> > > msg_msg object type and always have it restore the msgtype.  One
-> > > reason *NOT* to do that woudl be that the restarter might not have
-> > > msg_msg:restore permission...  But pls let me know if this patch
-> > > fixes your problem.
-> > 
-> > Yes, with both patches applied to ckpt-v19-dev
-> > (261322990a4ed23c8475c232423845f998dd4f89) the tests pass with and
-> > without the -k flag.
+On Thu, 2010-03-04 at 12:00 +1100, Russell Coker wrote:
+> On Thu, 4 Mar 2010, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > - make sure CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set,
 > 
-> Cool.  The main alternative would be to rip the core of
-> ipc/msg.c:do_msgsnd() out and re-use that in place of the bulk of
-> restore_msg_contents_one().
+> It's not.
 > 
-> Since a user can't specify a security context on an msg_msg (but
-> can on msgq) I think the end-result would be fine.  It's a lot more
+> > - what are the versions of libsepol, libsemanage, and glibc
+> 
+> ii  libc6                                   2.10.2-6                   
+> Embedded GNU C Library: Shared libraries
+> ii  libc6-dbg                               2.10.2-6                   
+> Embedded GNU C Library: detached debugging s
+> ii  libc6-dev                               2.10.2-6                   
+> Embedded GNU C Library: Development Librarie
+> ii  libc6-i386                              2.10.2-6                   GNU C 
+> Library: 32-bit shared libraries for A
+> ii  libsemanage-common                      2.0.42-1                   Common 
+> files for SELinux policy management l
+> ii  libsemanage1                            2.0.42-1                   SELinux 
+> policy management library.
+> ii  libsepol1                               2.0.40-2                   SELinux 
+> library for manipulating binary secu
+> 
+> The latest in Debian/Testing.
 
-Except it wouldn't be fine, because SELinux chooses a label for the
-new msg_msg based on both the task's and the queue's contexts.  And
-we have no idea whether the task's context has changed since the
-msg was sent.
+Interesting.  Does it happen with 2.6.31 too?  2.6.33?
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
-Now, it seems like letting restart choose the labels may promote
-bypassing of assured pipelines, but then you can't guarantee original
-security guarantees anyway unless you have an assured pipeline
-from checkpoint->restart, whether enforced through SELinux
-policy or through TPM.  And if you have that, then the msg_msg
-context can't be surruptitiously changed before restart.
-
-So there is no ideal solution for SELinux, but always doing label
-restore for msg_msg, with the requirement that the restarter be
-allowed msg_msg:restore permission to the restored msg_msg type,
-seems the best answer.
-
-thanks,
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
