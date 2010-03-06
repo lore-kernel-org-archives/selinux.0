@@ -1,44 +1,34 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o26NDJLA007546
-	for <selinux@tycho.nsa.gov>; Sat, 6 Mar 2010 18:13:19 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o26NDJLB007546
+	for <selinux@tycho.nsa.gov>; Sat, 6 Mar 2010 18:13:21 -0500
 Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o26NDihB003502
-	for <selinux@tycho.nsa.gov>; Sat, 6 Mar 2010 23:13:44 GMT
-Message-ID: <4B92E188.3050901@manicmethod.com>
-Date: Sat, 06 Mar 2010 18:13:12 -0500
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o26NDYhB003342
+	for <selinux@tycho.nsa.gov>; Sat, 6 Mar 2010 23:13:35 GMT
+Message-ID: <4B92E170.1070804@manicmethod.com>
+Date: Sat, 06 Mar 2010 18:12:48 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to run genhomedircon without looking at /etc/passwd
-References: <4B86E6CC.9000405@redhat.com> <4B872673.4030806@manicmethod.com>
-In-Reply-To: <4B872673.4030806@manicmethod.com>
+Subject: Re: Last attempt at upstreaming semodule_disable patch.
+References: <4B858311.1010003@redhat.com> <4B92DC33.4010605@manicmethod.com>
+In-Reply-To: <4B92DC33.4010605@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Joshua Brindle wrote:
->
->
 > Daniel J Walsh wrote:
->> I want to change the default of libsemanage to not look for home
->> directories in getpwent. This patch allows you to set the flag
->> usepasswd=false in the semanage.conf file. and genhomedircon will only
->> setup the labeling of /home, /export/home and any confined users
->> homedirs.
+>> This patch allows you to disable/Enable policy modules.
 >>
->> If this patch is not acceptable because libsemanage is being
->> rewritten, I would like the functionality to be added to the new
->> libsemanage.
+>> It never seems to get upstreamed. :^(
 >
-> This looks completely reasonable. Interesting that the function always
-> supported turning it off but we never exposed that.
+> Acked-By: Joshua Brindle <method@manicmethod.com>
 >
-> As a side note, libsemanage isn't being rewritten, some of it may go
-> away some day but not anytime soon (at least not until CIL is able to
-> fill in all the gaps).
+> Applied the attached patch on top of it, it fixes an implicit
+> declaration warning, makes the errors for disabling or enabling an
+> already disabled or enabled module nicer and fixes a comment.
 >
-> Acked-by: Joshua Brindle <method@manicmethod.com>
 
 Merged in libsemanage 2.0.45
 
