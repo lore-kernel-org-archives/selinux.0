@@ -1,213 +1,77 @@
-Message-ID: <4B92E3ED.2070605@manicmethod.com>
-Date: Sat, 06 Mar 2010 18:23:25 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o27AFGOA018448
+	for <selinux@tycho.nsa.gov>; Sun, 7 Mar 2010 05:15:16 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o27AFf6p002336
+	for <selinux@tycho.nsa.gov>; Sun, 7 Mar 2010 10:15:41 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o27AF6pY092634
+	for <selinux@tycho.nsa.gov>; Sun, 7 Mar 2010 11:15:06 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o27AF5p0061226
+	for <selinux@tycho.nsa.gov>; Sun, 7 Mar 2010 11:15:06 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Sun, 7 Mar 2010 11:15:05 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: init problem
+Message-ID: <20100307101505.GA3587@myhost.felk.cvut.cz>
 MIME-Version: 1.0
-To: Caleb Case <ccase@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>
-Subject: Re: This patch fixes the exception handling in libselinux-python
- 	bindings
-References: <C6A74D22.A99BD%csellers@tresys.com>	 <4ABAC3C3.1000100@manicmethod.com> <4ABBB78E.30501@manicmethod.com>	 <4ABBC642.8020709@manicmethod.com> <4AC1095A.9070504@redhat.com>	 <1262964740.13162.24.camel@moss-pluto.epoch.ncsc.mil>	 <1262981188.20881.13.camel@moss-pluto.epoch.ncsc.mil>	 <1262981971.20881.14.camel@moss-pluto.epoch.ncsc.mil>	 <4B47982E.2090000@redhat.com> <4B479B29.9000703@manicmethod.com> <150846cc1002081310o3da9760cy7b9e902734e0b9f9@mail.gmail.com>
-In-Reply-To: <150846cc1002081310o3da9760cy7b9e902734e0b9f9@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Caleb Case wrote:
-> On Fri, Jan 8, 2010 at 3:52 PM, Joshua Brindle<method@manicmethod.com>  wrote:
->> Daniel J Walsh wrote:
->>> On 01/08/2010 03:19 PM, Stephen Smalley wrote:
->>>> On Fri, 2010-01-08 at 15:06 -0500, Stephen Smalley wrote:
->>>>> On Fri, 2010-01-08 at 10:32 -0500, Stephen Smalley wrote:
->>>>>> On Mon, 2009-09-28 at 15:07 -0400, Daniel J Walsh wrote:
->>>>>>> On 09/24/2009 03:19 PM, Joshua Brindle wrote:
->>>>>>>> Joshua Brindle wrote:
->>>>>>>>> Joshua Brindle wrote:
->>>>>>>>>> Daniel J Walsh wrote:
->>>>>>>>>>> On 09/16/2009 03:35 PM, Joshua Brindle wrote:
->>>>>>>>>>>> Joshua Brindle wrote:
->>>>>>>>>>>>> Daniel J Walsh wrote:
->>>>>>>>>>>>>> What do you think of this one. Removed excess swig cruft,
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> You need to run
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> make swigify to generate those changes.
->>>>>>>>>>>>>>
->>>>>>>>>>>>> Ok, looking at this now. I don't completely get how it works.
->>>>>>>>>>>>> I'm
->>>>>>>>>>>>> trying
->>>>>>>>>>>>> to reproduce what you are doing by hand but nothing comes out of
->>>>>>>>>>>>> gcc:
->>>>>>>>>>>>>
->>>>>>>>>>>>> [root@localhost src]# echo '#include
->>>>>>>>>>>>> "../include/selinux/selinux.h"'>
->>>>>>>>>>>>> temp.c
->>>>>>>>>>>>> [root@localhost src]# gcc -c temp.c -aux-info temp.aux
->>>>>>>>>>>>> [root@localhost src]# ls temp.*
->>>>>>>>>>>>> temp.c temp.o
->>>>>>>>>>>>>
->>>>>>>>>>>>>
->>>>>>>>>> I got this "sort of" working locally. It works when I call it
->>>>>>>>>> directly
->>>>>>>>>> on the header but it leaves a .gch file sitting in the include
->>>>>>>>>> directory.
->>>>>>>>>>
->>>>>>>>>> Trying to use stdin I get:
->>>>>>>>>>
->>>>>>>>>> [root@localhost src]# gcc -x c-header -c - -aux-info temp.aux<
->>>>>>>>>> ../include/selinux/selinux.h
->>>>>>>>>> <stdin>:569: internal compiler error: Segmentation fault
->>>>>>>>>> Please submit a full bug report,
->>>>>>>>>> with preprocessed source if appropriate.
->>>>>>>>>> See<http://bugzilla.redhat.com/bugzilla>    for instructions.
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> Other comments:
->>>>>>>>>>
->>>>>>>>>> The disconnect between swigify and clean targets remains: If make
->>>>>>>>>> swigify builds this, and it is checked in to the tree then make
->>>>>>>>>> clean
->>>>>>>>>> shouldn't remove it, else it should be in the pywrap target and not
->>>>>>>>>> installed.
->>>>>>>>>>
->>>>>>>>>> I'm not sure what the header re-ordering in selinuxswig.i and the
->>>>>>>>>> copytree/install functions have to do with this patch.
->>>>>>>>>>
->>>>>>>>> Applied with this diff on top:
->>>>>>>>>
->>>>>>>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->>>>>>>>> index 928a1df..74b1e6a 100644
->>>>>>>>> --- a/libselinux/src/Makefile
->>>>>>>>> +++ b/libselinux/src/Makefile
->>>>>>>>> @@ -16,14 +16,14 @@ LIBVERSION = 1
->>>>>>>>>
->>>>>>>>> LIBA=libselinux.a
->>>>>>>>> TARGET=libselinux.so
->>>>>>>>> -SWIGIF= selinuxswig_python.i
->>>>>>>>> +SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
->>>>>>>>> SWIGRUBYIF= selinuxswig_ruby.i
->>>>>>>>> SWIGCOUT= selinuxswig_wrap.c
->>>>>>>>> SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
->>>>>>>>> SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
->>>>>>>>> SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
->>>>>>>>> SWIGSO=_selinux.so
->>>>>>>>> -SWIGFILES=$(SWIGSO) selinux.py
->>>>>>>>> +SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
->>>>>>>>> SWIGRUBYSO=_rubyselinux.so
->>>>>>>>> LIBSO=$(TARGET).$(LIBVERSION)
->>>>>>>>> AUDIT2WHYSO=audit2why.so
->>>>>>>>> @@ -103,7 +103,7 @@ $(SWIGCOUT): $(SWIGIF)
->>>>>>>>> $(SWIGRUBYCOUT): $(SWIGRUBYIF)
->>>>>>>>> $(SWIGRUBY) $^
->>>>>>>>>
->>>>>>>>> -swigify: $(SWIGIF) selinuxswig_python_exception.i
->>>>>>>>> +swigify: $(SWIGIF)
->>>>>>>>> $(SWIG) $<
->>>>>>>>>
->>>>>>>>> install: all
->>>>>>>>> @@ -127,7 +127,7 @@ relabel:
->>>>>>>>> /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
->>>>>>>>>
->>>>>>>>> clean:
->>>>>>>>> - -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
->>>>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~ selinuxswig_python_exception.i
->>>>>>>>> + -rm -f $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO)
->>>>>>>>> $(TARGET) $(AUDIT2WHYSO) *.o *.lo *~
->>>>>>>>>
->>>>>>>>> distclean: clean
->>>>>>>>> rm -f $(GENERATED) $(SWIGFILES)
->>>>>>>>> diff --git a/libselinux/src/exception.sh
->>>>>>>>> b/libselinux/src/exception.sh
->>>>>>>>> old mode 100644
->>>>>>>>> new mode 100755
->>>>>>>>> index b2a3799..c3e61a5
->>>>>>>>> --- a/libselinux/src/exception.sh
->>>>>>>>> +++ b/libselinux/src/exception.sh
->>>>>>>>> @@ -15,7 +15,6 @@ echo "
->>>>>>>>> ;;
->>>>>>>>> esac
->>>>>>>>> }
->>>>>>>>> -echo '#include "../include/selinux/selinux.h"'>    temp.c
->>>>>>>>> -gcc -c temp.c -aux-info temp.aux
->>>>>>>>> -for i in `awk '/..\/include\/selinux\/selinux.h.*extern int/ {
->>>>>>>>> print $6
->>>>>>>>> }' temp.aux`; do except $i ; done
->>>>>>>>> -rm -f temp.c temp.aux temp.o
->>>>>>>>> +gcc -x c -c - -aux-info temp.aux<    ../include/selinux/selinux.h
->>>>>>>>> +for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do
->>>>>>>>> except
->>>>>>>>> $i ; done
->>>>>>>>> +rm -f -- temp.aux -.o
->>>>>>>>>
->>>>>>>> Merged in libselinux-2.0.87
->>>>>>> I have VERSION 2.0.86 in git?
->>>>>> This seems to break make install-pywrap on the current selinux trunk:
->>>>>> bash exception.sh>    selinuxswig_python_exception.i
->>>>>> swig -Wall -python -o selinuxswig_wrap.c -outdir ./
->>>>>> selinuxswig_python.i selinuxswig_python_exception.i
->>>>>> swig error : Unrecognized option selinuxswig_python.i
->>>>>> Use 'swig -help' for available options.
->>>>> This btw prevents use of Caleb's patches on Fedora 12.  If I can't build
->>>>> and install the python modules from the selinux repo, then there is an
->>>>> undefined dependency from the Fedora libsemanage-python module on the
->>>>> upstream libsemanage (some symbol introduced in the Fedora patches to
->>>>> libsemanage) and thus migrate.py is unable to import semanage and
->>>>> aborts.
->>>> Hmm...if I make swigify, all is well again.  But something seems wrong
->>>> with the Makefile...
->
-> The make targets swigify and make install-pywrap should do the same
-> things during their swig step, however they don't. It appears that make
-> swigify does not include the second target to swig
-> (selinuxswig_python_exception.i), but install-pywrap does. On the other
-> hand, swig also does not accept multiple .i files so install-pywrap
-> fails.
->
-> As a result the exception wrappers are not installed.
->
-> [make swigify]
->
-> [ccase@fc12 libselinux]$ make distclean
-> <snip>
-> [ccase@fc12 libselinux]$ make swigify
-> <snip>
-> make -C src swigify
-> make[1]: Entering directory
-> `/home/ccase/projects/git/selinux-upstream/libselinux/src'
-> bash exception.sh>  selinuxswig_python_exception.i
-> swig -Wall -python -o selinuxswig_wrap.c -outdir ./ selinuxswig_python.i
-> ../include/selinux/avc.h:410: Warning(302): Identifier
-> 'avc_cache_stats' redefined (ignored),
-> ../include/selinux/avc.h:390: Warning(302): previous definition of
-> 'avc_cache_stats'.
-> ../include/selinux/selinux.h:142: Warning(451): Setting a const char *
-> variable may leak memory.
-> ../include/selinux/selinux.h:345: Warning(451): Setting a const char *
-> variable may leak memory.
-> make[1]: Leaving directory
-> `/home/ccase/projects/git/selinux-upstream/libselinux/src'
->
-> [make install-pywrap]
->
-> [ccase@fc12 libselinux]$ make distclean
-> <snip>
-> [ccase@fc12 libselinux]$ make install-pywrap
-> <snip>
-> bash exception.sh>  selinuxswig_python_exception.i
-> swig -Wall -python -o selinuxswig_wrap.c -outdir ./
-> selinuxswig_python.i selinuxswig_python_exception.i
-> swig error : Unrecognized option selinuxswig_python.i
-> Use 'swig -help' for available options.
-> make[1]: *** [selinuxswig_wrap.c] Error 1
-> make[1]: Leaving directory
-> `/home/ccase/projects/git/selinux-upstream/libselinux/src'
-> make: *** [install-pywrap] Error 2
->
+Hello,
 
-I'm not sure why, make swigify and make install-pywrap both work here 
-(F12) swig-1.3.40-5
+I just tried to boot a selinux installation in the plain old way (ie.
+without initramfs) and it seems there is a bug in the init mechanism.
+Sysvinit has a
+
+#ifdef WITH_SELINUX
+        if (getenv("SELINUX_INIT") =3D=3D NULL && !is_selinux_enabled()) {
+          putenv("SELINUX_INIT=3DYES");
+          if (selinux_init_load_policy(&enforce) =3D=3D 0 ) {
+            execv(myname, argv);
+
+whereas the is_selinux_enabled man page says "returns 1 if SELinux is
+running or 0 if it is not.".
+
+The problem is that init is the first process and at that very early
+point neither /selinux nor /proc is mounted. The function uses these to
+determine the state of things and if it can't it returns a -1, which is
+an undocumented value and thus a value not accounted for.
+
+So I think that either is_selinux_enabled should return 0 if it can't
+tell (or use some other mechanism to tell), or -1 should be documented
+in the man page and the sysvinit code should be changed to read=20
+
+  if (getenv("SELINUX_INIT") =3D=3D NULL && (0 =3D=3D is_selinux_enabled())=
+) {
+                                         ^^^^
+
+Michal Svoboda
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuTfKkACgkQg/fU9pp1uX6SVwCghJBv9RKnR8L9BRs/2kUOmOFX
+k6gAn0dBYy3m8ITWeaYOAVRFMYgU8ADl
+=loV3
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
