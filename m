@@ -1,40 +1,37 @@
-Message-ID: <4B9585E4.8040203@tycho.nsa.gov>
-Date: Mon, 08 Mar 2010 18:19:00 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Message-ID: <4B958795.6060403@rubix.com>
+Date: Mon, 08 Mar 2010 18:26:13 -0500
+From: Andy Warner <warner@rubix.com>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [PATCH] libselinux: fix avc_netlink_loop() error caused by nonblocking
- mode.
-References: <4B691583.5060608@ak.jp.nec.com> <4B881D79.4000500@tycho.nsa.gov> <4B8833C6.9070503@tycho.nsa.gov> <4B88356E.1040501@tycho.nsa.gov> <4B8C7C88.4090701@ak.jp.nec.com> <4B8D4AED.80203@tycho.nsa.gov> <4B8DAD9A.5020200@ak.jp.nec.com>
-In-Reply-To: <4B8DAD9A.5020200@ak.jp.nec.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
+References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov>
+In-Reply-To: <4B9584A3.1070603@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/02/2010 07:30 PM, KaiGai Kohei wrote:
+
+
+On 3/8/2010 6:13 PM, Eamon Walsh wrote:
+> On 03/01/2010 09:53 PM, KaiGai Kohei wrote:
+>   
+>> What is the current status of the patch?
+>>
+>> Thanks,
+>>   
+>>     
 >
-> It seems to me ok basically.
+> Can you send me a sample sepgsql_contexts file so I can test this?
 >
-> It is just my preference. Can you move the poll(2) at the head of
-> the avc_netlink_receive() call, like as the attachment?
-> How should I say...it seems to me itchy to change non-blocking mode
-> into blocking mode implicitly at avc_netlink_loop(), although we can
-> specify the mode at creation time (avc_netlink_open()).
 >
-> Thanks,
 >   
 
-
-I have pushed this patch, thanks.
-
-
-
--- 
-
-Eamon Walsh 
-National Security Agency
-
+Regarding the sepgsql_contexts name, is this functionality targeted only
+for sepgsql, or would another DBMS be able to us it (e.g, Trusted
+RUBIX)? if others would be able to use the functionality, would each
+DBMS have their own *_contexts file, or would all use sepgsql_contexts?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
