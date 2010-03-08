@@ -1,55 +1,183 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o28GochQ025293
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 11:50:38 -0500
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o28GoJig021231
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 16:50:19 GMT
-Message-ID: <4B952ADC.5000804@manicmethod.com>
-Date: Mon, 08 Mar 2010 11:50:36 -0500
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o28H13Dc026002
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 12:01:03 -0500
+Received: from mail-bw0-f228.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o28H1S1B022457
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 17:01:29 GMT
+Received: by bwz28 with SMTP id 28so501194bwz.34
+        for <selinux@tycho.nsa.gov>; Mon, 08 Mar 2010 09:01:00 -0800 (PST)
 MIME-Version: 1.0
-To: Karl MacMillan <karlwmacmillan@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4B952ADC.5000804@manicmethod.com>
+References: <4B858A2A.8080302@redhat.com>
+	 <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>
+	 <4B8C277E.6020608@redhat.com> <4B8C35E7.2020300@redhat.com>
+	 <4B8FE8FB.6050607@manicmethod.com>
+	 <10143821003041346o6903d2bbw49863b44d05a2a8c@mail.gmail.com>
+	 <10143821003080811l32b1243frcb71d7289b74cd37@mail.gmail.com>
+	 <4B952ADC.5000804@manicmethod.com>
+Date: Mon, 8 Mar 2010 12:00:57 -0500
+Message-ID: <10143821003080900t195dc090h8238fed36ca800c5@mail.gmail.com>
 Subject: Re: Audit2allow generating dontaudit rules.
-References: <4B858A2A.8080302@redhat.com>	 <10143821003011129w6257e547ua14c2c98ec6ace77@mail.gmail.com>	 <4B8C277E.6020608@redhat.com> <4B8C35E7.2020300@redhat.com>	 <4B8FE8FB.6050607@manicmethod.com>	 <10143821003041346o6903d2bbw49863b44d05a2a8c@mail.gmail.com> <10143821003080811l32b1243frcb71d7289b74cd37@mail.gmail.com>
-In-Reply-To: <10143821003080811l32b1243frcb71d7289b74cd37@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Karl MacMillan <karlwmacmillan@gmail.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: multipart/mixed; boundary=0003255558d24acaa104814d022e
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Accidentally sent this straight to Josh.
->
-> Karl
->
-> On Thu, Mar 4, 2010 at 4:46 PM, Karl MacMillan<karlwmacmillan@gmail.com>  wrote:
->> I meant this - I don't want to pass around a boolean flag when we have
->> a flag for rule type. This allows cleanly adding support for, say,
->> generating both allow rules and auditallow rules at the same time.
+--0003255558d24acaa104814d022e
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--ENOATTACH
-
+On Mon, Mar 8, 2010 at 11:50 AM, Joshua Brindle <method@manicmethod.com> wr=
+ote:
+> Karl MacMillan wrote:
+>>
+>> Accidentally sent this straight to Josh.
 >>
 >> Karl
 >>
->> On Thu, Mar 4, 2010 at 12:08 PM, Joshua Brindle<method@manicmethod.com>  wrote:
->>> Daniel J Walsh wrote:
->>>> On 03/01/2010 03:45 PM, Daniel J Walsh wrote:
->>>>> On 03/01/2010 02:29 PM, Karl MacMillan wrote:
->>>>>> I'd rather pass in the rule type to the AVRule init rather than a
->>>>>> boolean about this being a dontaudit rule.
->>>>>>
->>>>>> Karl
->>>>>>
->>>>>> On Wed, Feb 24, 2010 at 3:20 PM, Daniel J Walsh<dwalsh@redhat.com>
->>>>>> wrote:
->>>>> How about this patch. Moves the dontaudit up the chain a little bit.
->>>>> Is this what you want.
->>>> One minor problem. Updated patch.
->>>>
->>> Karl?
+>> On Thu, Mar 4, 2010 at 4:46 PM, Karl MacMillan<karlwmacmillan@gmail.com>
+>> =A0wrote:
 >>>
+>>> I meant this - I don't want to pass around a boolean flag when we have
+>>> a flag for rule type. This allows cleanly adding support for, say,
+>>> generating both allow rules and auditallow rules at the same time.
 >
+> -ENOATTACH
+>
+>>>
+>>> Karl
+>>>
+>>> On Thu, Mar 4, 2010 at 12:08 PM, Joshua Brindle<method@manicmethod.com>
+>>> =A0wrote:
+>>>>
+>>>> Daniel J Walsh wrote:
+>>>>>
+>>>>> On 03/01/2010 03:45 PM, Daniel J Walsh wrote:
+>>>>>>
+>>>>>> On 03/01/2010 02:29 PM, Karl MacMillan wrote:
+>>>>>>>
+>>>>>>> I'd rather pass in the rule type to the AVRule init rather than a
+>>>>>>> boolean about this being a dontaudit rule.
+>>>>>>>
+>>>>>>> Karl
+>>>>>>>
+>>>>>>> On Wed, Feb 24, 2010 at 3:20 PM, Daniel J Walsh<dwalsh@redhat.com>
+>>>>>>> wrote:
+>>>>>>
+>>>>>> How about this patch. Moves the dontaudit up the chain a little bit.
+>>>>>> Is this what you want.
+>>>>>
+>>>>> One minor problem. Updated patch.
+>>>>>
+>>>> Karl?
+>>>>
+>>
+>
+
+--0003255558d24acaa104814d022e
+Content-Type: application/octet-stream;
+	name="0001-Add-support-for-dontaudit-in-audit2allow.patch"
+Content-Disposition: attachment;
+	filename="0001-Add-support-for-dontaudit-in-audit2allow.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g6jiql5w0
+
+RnJvbSA0OTQ0Yzg3ZjZmNjA3MTRmNTQ1YmNiZmMxNDEwNTRmYTZkMzI1NTk0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBLYXJsIE1hY01pbGxhbiA8a21hY21pbGxhbkB0cmVzeXMuY29t
+PgpEYXRlOiBUaHUsIDQgTWFyIDIwMTAgMTY6MDA6MzggLTA1MDAKU3ViamVjdDogW1BBVENIXSBB
+ZGQgc3VwcG9ydCBmb3IgZG9udGF1ZGl0IGluIGF1ZGl0MmFsbG93LgoKQWRkIHN1cHBvcnQgZm9y
+IGdlbmVyYXRlZCBkb250YWxsb3cgbWVzc2FnZXMgZnJvbSBhdWRpdDJhbGxvdyAoaW5jbHVkZXMK
+bmVlZGVkIHNlcG9sZ2VuIGNoYW5nZXMpLiBCYXNlZCBvbiBwYXRjaCBmcm9tIERhbiBXYWxzaC4K
+LS0tCiBwb2xpY3ljb3JldXRpbHMvYXVkaXQyYWxsb3cvYXVkaXQyYWxsb3cgICB8ICAgMTEgKysr
+KysrKysrKy0KIHBvbGljeWNvcmV1dGlscy9hdWRpdDJhbGxvdy9hdWRpdDJhbGxvdy4xIHwgICAg
+NyArKysrKy0tCiBzZXBvbGdlbi9zcmMvc2Vwb2xnZW4vcG9saWN5Z2VuLnB5ICAgICAgICB8ICAg
+IDggKysrKy0tLS0KIHNlcG9sZ2VuL3NyYy9zZXBvbGdlbi9yZWZwb2xpY3kucHkgICAgICAgIHwg
+ICAgNSArKystLQogNCBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspLCA5IGRlbGV0aW9u
+cygtKQoKZGlmZiAtLWdpdCBhL3BvbGljeWNvcmV1dGlscy9hdWRpdDJhbGxvdy9hdWRpdDJhbGxv
+dyBiL3BvbGljeWNvcmV1dGlscy9hdWRpdDJhbGxvdy9hdWRpdDJhbGxvdwppbmRleCA5MTg2OTY1
+Li4zZTgyY2ZhIDEwMDY0NAotLS0gYS9wb2xpY3ljb3JldXRpbHMvYXVkaXQyYWxsb3cvYXVkaXQy
+YWxsb3cKKysrIGIvcG9saWN5Y29yZXV0aWxzL2F1ZGl0MmFsbG93L2F1ZGl0MmFsbG93CkBAIC0y
+Nyw2ICsyNyw3IEBAIGltcG9ydCBzZXBvbGdlbi5vdXRwdXQgYXMgb3V0cHV0CiBpbXBvcnQgc2Vw
+b2xnZW4ub2JqZWN0bW9kZWwgYXMgb2JqZWN0bW9kZWwKIGltcG9ydCBzZXBvbGdlbi5kZWZhdWx0
+cyBhcyBkZWZhdWx0cwogaW1wb3J0IHNlcG9sZ2VuLm1vZHVsZSBhcyBtb2R1bGUKK2ltcG9ydCBz
+ZXBvbGdlbi5yZWZwb2xpY3kgYXMgcmVmcG9saWN5CiBmcm9tIHNlcG9sZ2VuLnNlcG9sZ2VuaTE4
+biBpbXBvcnQgXwogCiBjbGFzcyBBdWRpdFRvUG9saWN5OgpAQCAtNDYsNiArNDcsOSBAQCBjbGFz
+cyBBdWRpdFRvUG9saWN5OgogICAgICAgICAgICAgICAgICAgICAgICAgICBoZWxwPSJyZWFkIGlu
+cHV0IGZyb20gYXVkaXQgbG9nIC0gY29uZmxpY3RzIHdpdGggLWkiKQogICAgICAgICBwYXJzZXIu
+YWRkX29wdGlvbigiLWQiLCAiLS1kbWVzZyIsIGFjdGlvbj0ic3RvcmVfdHJ1ZSIsIGRlc3Q9ImRt
+ZXNnIiwgZGVmYXVsdD1GYWxzZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgaGVscD0icmVh
+ZCBpbnB1dCBmcm9tIGRtZXNnIC0gY29uZmxpY3RzIHdpdGggLS1hbGwgYW5kIC0taW5wdXQiKQor
+ICAgICAgICBwYXJzZXIuYWRkX29wdGlvbigiLUQiLCAiLS1kb250YXVkaXQiLCBhY3Rpb249InN0
+b3JlX3RydWUiLCAKKyAgICAgICAgICAgICAgICAgICAgICAgICAgZGVzdD0iZG9udGF1ZGl0Iiwg
+ZGVmYXVsdD1GYWxzZSwgCisgICAgICAgICAgICAgICAgICAgICAgICAgIGhlbHA9ImdlbmVyYXRl
+IGRvbnRhdWRpdCBydWxlcyIpCiAgICAgICAgIHBhcnNlci5hZGRfb3B0aW9uKCItaSIsICItLWlu
+cHV0IiwgZGVzdD0iaW5wdXQiLAogICAgICAgICAgICAgICAgICAgICAgICAgICBoZWxwPSJyZWFk
+IGlucHV0IGZyb20gPGlucHV0PiAtIGNvbmZsaWN0cyB3aXRoIC1hIikKICAgICAgICAgcGFyc2Vy
+LmFkZF9vcHRpb24oIi1sIiwgIi0tbGFzdHJlbG9hZCIsIGFjdGlvbj0ic3RvcmVfdHJ1ZSIsIGRl
+c3Q9Imxhc3RyZWxvYWQiLCBkZWZhdWx0PUZhbHNlLApAQCAtMzE0LDcgKzMxOCwxMiBAQCBjbGFz
+cyBBdWRpdFRvUG9saWN5OgogICAgICAgICAgICAgZy5zZXRfZ2VuX3JlcXVpcmVzKFRydWUpCiAK
+ICAgICAgICAgIyBHZW5lcmF0ZSB0aGUgcG9saWN5Ci0gICAgICAgIGcuYWRkX2FjY2VzcyhzZWxm
+Ll9fYXZzKQorICAgICAgICBpZiBzZWxmLl9fb3B0aW9ucy5kb250YXVkaXQ6CisgICAgICAgICAg
+ICBydWxlX3R5cGUgPSByZWZwb2xpY3kuQVZSdWxlLkRPTlRBVURJVAorICAgICAgICBlbHNlOgor
+ICAgICAgICAgICAgcnVsZV90eXBlID0gcmVmcG9saWN5LkFWUnVsZS5BTExPVworICAgICAgICAg
+ICAgCisgICAgICAgIGcuYWRkX2FjY2VzcyhzZWxmLl9fYXZzLCBydWxlX3R5cGUpCiAgICAgICAg
+IGcuYWRkX3JvbGVfdHlwZXMoc2VsZi5fX3JvbGVfdHlwZXMpCiAKICAgICAgICAgIyBPdXRwdXQK
+ZGlmZiAtLWdpdCBhL3BvbGljeWNvcmV1dGlscy9hdWRpdDJhbGxvdy9hdWRpdDJhbGxvdy4xIGIv
+cG9saWN5Y29yZXV0aWxzL2F1ZGl0MmFsbG93L2F1ZGl0MmFsbG93LjEKaW5kZXggYzA0MWY3NS4u
+ZDk2MzVjMiAxMDA2NDQKLS0tIGEvcG9saWN5Y29yZXV0aWxzL2F1ZGl0MmFsbG93L2F1ZGl0MmFs
+bG93LjEKKysrIGIvcG9saWN5Y29yZXV0aWxzL2F1ZGl0MmFsbG93L2F1ZGl0MmFsbG93LjEKQEAg
+LTI1LDEwICsyNSwxMCBAQAogLlRIIEFVRElUMkFMTE9XICIxIiAiSmFudWFyeSAyMDA1IiAiU2Vj
+dXJpdHkgRW5oYW5jZWQgTGludXgiIE5TQQogLlNIIE5BTUUKIC5CUiBhdWRpdDJhbGxvdwotCVwt
+IGdlbmVyYXRlIFNFTGludXggcG9saWN5IGFsbG93IHJ1bGVzIGZyb20gbG9ncyBvZiBkZW5pZWQg
+b3BlcmF0aW9ucworXC0gZ2VuZXJhdGUgU0VMaW51eCBwb2xpY3kgYWxsb3cvZG9udGF1ZGl0IHJ1
+bGVzIGZyb20gbG9ncyBvZiBkZW5pZWQgb3BlcmF0aW9ucwogCiAuQlIgYXVkaXQyd2h5ICAKLQlc
+LSB0cmFuc2xhdGVzIFNFTGludXggYXVkaXQgbWVzc2FnZXMgaW50byBhIGRlc2NyaXB0aW9uIG9m
+IHdoeSB0aGUgYWNjZXNzIHdhcyBkZW5pZWQgKGF1ZGl0MmFsbG93IC13KQorXC0gdHJhbnNsYXRl
+cyBTRUxpbnV4IGF1ZGl0IG1lc3NhZ2VzIGludG8gYSBkZXNjcmlwdGlvbiBvZiB3aHkgdGhlIGFj
+Y2VzcyB3YXMgZGVuaWVkIChhdWRpdDJhbGxvdyAtdykKIAogLlNIIFNZTk9QU0lTCiAuQiBhdWRp
+dDJhbGxvdwpAQCAtNDQsNiArNDQsOSBAQCBSZWFkIGlucHV0IGZyb20gb3V0cHV0IG9mCiBOb3Rl
+IHRoYXQgYWxsIGF1ZGl0IG1lc3NhZ2VzIGFyZSBub3QgYXZhaWxhYmxlIHZpYSBkbWVzZyB3aGVu
+CiBhdWRpdGQgaXMgcnVubmluZzsgdXNlICJhdXNlYXJjaCAtbSBhdmMgfCBhdWRpdDJhbGxvdyIg
+IG9yICItYSIgaW5zdGVhZC4KIC5UUAorLkIgIlwtRCIgfCAiXC1cLWRvbnRhdWRpdCIKK0dlbmVy
+YXRlIGRvbnRhdWRpdCBydWxlcyAoRGVmYXVsdDogYWxsb3cpCisuVFAKIC5CICJcLWgiIHwgIlwt
+XC1oZWxwIgogUHJpbnQgYSBzaG9ydCB1c2FnZSBtZXNzYWdlCiAuVFAKZGlmZiAtLWdpdCBhL3Nl
+cG9sZ2VuL3NyYy9zZXBvbGdlbi9wb2xpY3lnZW4ucHkgYi9zZXBvbGdlbi9zcmMvc2Vwb2xnZW4v
+cG9saWN5Z2VuLnB5CmluZGV4IDU1Y2ZmZWIuLjA0NzAwN2UgMTAwNjQ0Ci0tLSBhL3NlcG9sZ2Vu
+L3NyYy9zZXBvbGdlbi9wb2xpY3lnZW4ucHkKKysrIGIvc2Vwb2xnZW4vc3JjL3NlcG9sZ2VuL3Bv
+bGljeWdlbi5weQpAQCAtMTQxLDE1ICsxNDEsMTUgQEAgY2xhc3MgUG9saWN5R2VuZXJhdG9yOgog
+ICAgICAgICAiIiJSZXR1cm4gdGhlIGdlbmVyYXRlZCBtb2R1bGUiIiIKICAgICAgICAgcmV0dXJu
+IHNlbGYubW9kdWxlCiAKLSAgICBkZWYgX19hZGRfYWxsb3dfcnVsZXMoc2VsZiwgYXZzKToKKyAg
+ICBkZWYgX19hZGRfYWxsb3dfcnVsZXMoc2VsZiwgYXZzLCBydWxlX3R5cGUpOgogICAgICAgICBm
+b3IgYXYgaW4gYXZzOgotICAgICAgICAgICAgcnVsZSA9IHJlZnBvbGljeS5BVlJ1bGUoYXYpCisg
+ICAgICAgICAgICBydWxlID0gcmVmcG9saWN5LkFWUnVsZShhdiwgcnVsZV90eXBlPXJ1bGVfdHlw
+ZSkKICAgICAgICAgICAgIGlmIHNlbGYuZXhwbGFpbjoKICAgICAgICAgICAgICAgICBydWxlLmNv
+bW1lbnQgPSByZWZwb2xpY3kuQ29tbWVudChleHBsYWluX2FjY2VzcyhhdiwgdmVyYm9zaXR5PXNl
+bGYuZXhwbGFpbikpCiAgICAgICAgICAgICBzZWxmLm1vZHVsZS5jaGlsZHJlbi5hcHBlbmQocnVs
+ZSkKIAogCi0gICAgZGVmIGFkZF9hY2Nlc3Moc2VsZiwgYXZfc2V0KToKKyAgICBkZWYgYWRkX2Fj
+Y2VzcyhzZWxmLCBhdl9zZXQsIHJ1bGVfdHlwZT1yZWZwb2xpY3kuQVZSdWxlLkFMTE9XKToKICAg
+ICAgICAgIiIiQWRkIHRoZSBhY2Nlc3MgZnJvbSB0aGUgYWNjZXNzIHZlY3RvciBzZXQgdG8gdGhp
+cwogICAgICAgICBtb2R1bGUuCiAgICAgICAgICIiIgpAQCAtMTY1LDcgKzE2NSw3IEBAIGNsYXNz
+IFBvbGljeUdlbmVyYXRvcjoKICAgICAgICAgICAgIHJhd19hbGxvdyA9IGF2X3NldAogCiAgICAg
+ICAgICMgR2VuZXJhdGUgdGhlIHJhdyBhbGxvdyBydWxlcyBmcm9tIHRoZSBmaWx0ZXJlZCBsaXN0
+Ci0gICAgICAgIHNlbGYuX19hZGRfYWxsb3dfcnVsZXMocmF3X2FsbG93KQorICAgICAgICBzZWxm
+Ll9fYWRkX2FsbG93X3J1bGVzKHJhd19hbGxvdywgcnVsZV90eXBlKQogCiAgICAgZGVmIGFkZF9y
+b2xlX3R5cGVzKHNlbGYsIHJvbGVfdHlwZV9zZXQpOgogICAgICAgICBmb3Igcm9sZV90eXBlIGlu
+IHJvbGVfdHlwZV9zZXQ6CmRpZmYgLS1naXQgYS9zZXBvbGdlbi9zcmMvc2Vwb2xnZW4vcmVmcG9s
+aWN5LnB5IGIvc2Vwb2xnZW4vc3JjL3NlcG9sZ2VuL3JlZnBvbGljeS5weQppbmRleCBiMTM4ZTNk
+Li4xODIwNDI5IDEwMDY0NAotLS0gYS9zZXBvbGdlbi9zcmMvc2Vwb2xnZW4vcmVmcG9saWN5LnB5
+CisrKyBiL3NlcG9sZ2VuL3NyYy9zZXBvbGdlbi9yZWZwb2xpY3kucHkKQEAgLTQyMCwxMyArNDIw
+LDE0IEBAIGNsYXNzIEFWUnVsZShMZWFmKToKICAgICBBVURJVEFMTE9XID0gMgogICAgIE5FVkVS
+QUxMT1cgPSAzCiAKLSAgICBkZWYgX19pbml0X18oc2VsZiwgYXY9Tm9uZSwgcGFyZW50PU5vbmUp
+OgorICAgIGRlZiBfX2luaXRfXyhzZWxmLCBhdj1Ob25lLCBwYXJlbnQ9Tm9uZSwgcnVsZV90eXBl
+PUFMTE9XKToKICAgICAgICAgTGVhZi5fX2luaXRfXyhzZWxmLCBwYXJlbnQpCiAgICAgICAgIHNl
+bGYuc3JjX3R5cGVzID0gSWRTZXQoKQogICAgICAgICBzZWxmLnRndF90eXBlcyA9IElkU2V0KCkK
+ICAgICAgICAgc2VsZi5vYmpfY2xhc3NlcyA9IElkU2V0KCkKICAgICAgICAgc2VsZi5wZXJtcyA9
+IElkU2V0KCkKLSAgICAgICAgc2VsZi5ydWxlX3R5cGUgPSBzZWxmLkFMTE9XCisgICAgICAgIHNl
+bGYucnVsZV90eXBlID0gcnVsZV90eXBlCisKICAgICAgICAgaWYgYXY6CiAgICAgICAgICAgICBz
+ZWxmLmZyb21fYXYoYXYpCiAKLS0gCjEuNi42Cgo=
+--0003255558d24acaa104814d022e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
