@@ -1,60 +1,253 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o286hpmj017444
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 01:43:52 -0500
-Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o286hUD1007694
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 06:43:31 GMT
-Message-ID: <4B949C72.4040104@ak.jp.nec.com>
-Date: Mon, 08 Mar 2010 15:42:58 +0900
+Message-ID: <4B949F8C.9090809@ak.jp.nec.com>
+Date: Mon, 08 Mar 2010 15:56:12 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Joshua Roys <joshua.roys@gtri.gatech.edu>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH] mod_selinux: setcon earlier
-References: <4B917BCF.7060200@gtri.gatech.edu>
-In-Reply-To: <4B917BCF.7060200@gtri.gatech.edu>
+To: Joshua Brindle <method@manicmethod.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Jacques Thomas <jthomas@cs.purdue.edu>,
+        SE Linux <selinux@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>
+Subject: Re: [PATCH 2/2] libsepol: remove dead code in check_avtab_hierarchy_callback()
+References: <4AF71B05.8030707@cs.purdue.edu>	 <4B1411B5.5050406@cs.purdue.edu> <4B146B17.50706@ak.jp.nec.com>	 <4B14934F.9050401@cs.purdue.edu>	 <1263570719.20826.21.camel@moss-pluto.epoch.ncsc.mil>	 <4B54339F.8070501@ak.jp.nec.com> <4B5685EC.1000500@ak.jp.nec.com>	 <4B6BAFD0.2050607@ak.jp.nec.com>	 <1265381454.18100.50.camel@moss-pluto.epoch.ncsc.mil>	 <4B7104C9.30903@ak.jp.nec.com>  <4B7A04C6.9020808@ak.jp.nec.com>	 <1266333947.5252.51.camel@moss-pluto.epoch.ncsc.mil>	 <4B7B2F15.5020909@ak.jp.nec.com>	 <1266414665.4945.15.camel@moss-pluto.epoch.ncsc.mil>	 <4B7E3ECC.1040505@ak.jp.nec.com>	 <1266592834.32011.67.camel@moss-pluto.epoch.ncsc.mil>	 <4B8B29C4.4020708@ak.jp.nec.com>	 <1267454064.601.22.camel@moss-pluto.epoch.ncsc.mil>	 <4B8E1925.1020403@ak.jp.nec.com> <4B8FD977.2000207@manicmethod.com>	 <4B9052DE.8040003@ak.jp.nec.com>  <4B9112E2.9090101@manicmethod.com> <1267799109.684.43.camel@moss-pluto.epoch.ncs c.mil> <4B9115C1.8040400@manicmethod.com>
+In-Reply-To: <4B9115C1.8040400@manicmethod.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/03/06 6:46), Joshua Roys wrote:
-> Hello,
+(2010/03/05 23:31), Joshua Brindle wrote:
 > 
-> I am wondering if the attached patch creates the actual intended 
-> behavior? Specifically, at which point httpd calls setcon() when the 
-> selinuxServerDomain option is set.
 > 
-> The current code ends up calling setcon after sockets have been opened, 
-> at least if the prefork mpm is in use. Here's the current path: apache 
-> calls these hooks in this order: pre_config, check_config, open_logs, 
-> post_config. The prefork mpm opens the listening sockets in open_logs, 
-> and mod_selinux does setcon() in post_config. However, I noticed that 
-> the selinuxServerDomain option has the EXEC_ON_READ option set... and I 
-> noticed issues with labeled networking having the setcon() called after 
-> the listening sockets are opened.
+> Stephen Smalley wrote:
+>> On Fri, 2010-03-05 at 09:19 -0500, Joshua Brindle wrote:
+>>> KaiGai Kohei wrote:
+>>>> (2010/03/05 1:01), Joshua Brindle wrote:
+>>>>> KaiGai Kohei wrote:
+>>>>>> (2010/03/01 23:34), Stephen Smalley wrote:
+>>>>>>> On Mon, 2010-03-01 at 11:43 +0900, KaiGai Kohei wrote:
+>>>>>>>> (2010/02/20 0:20), Stephen Smalley wrote:
+>>>>>>>>> On Fri, 2010-02-19 at 16:33 +0900, KaiGai Kohei wrote:
+>>>>>>>>>> (2010/02/17 22:51), Stephen Smalley wrote:
+>>>>>>>>>>> On Wed, 2010-02-17 at 08:49 +0900, KaiGai Kohei wrote:
+>>>>>>>>>>>>> I'd say we revert the changeset and restore the prior 
+>>>>>>>>>>>>> behavior.
+>>>>>>>>>>>>> I don't think we should impose the latter convention on policy
+>>>>>>>>>>>>> writers.
+>>>>>>>>>>>> OK, fair enough for me.
+>>>>>>>>>>>>
+>>>>>>>>>>>> This patch revert the commit of
+>>>>>>>>>>>> 7d52a155e38d5a165759dbbee656455861bf7801
+>>>>>>>>>>>> which removed a part of type_attribute_bounds_av as a dead 
+>>>>>>>>>>>> code.
+>>>>>>>>>>>> However, at that time, we didn't find out the target side
+>>>>>>>>>>>> boundary allows
+>>>>>>>>>>>> to handle some of pseudo /proc/<pid>/* entries with its
+>>>>>>>>>>>> process's security
+>>>>>>>>>>>> context well.
+>>>>>>>>>>> Does Jacques' original concern about the code still hold true?
+>>>>>>>>>>> http://marc.info/?l=selinux&m=125770868309928&w=2
+>>>>>>>>>>> http://marc.info/?l=selinux&m=125851264424682&w=2
+>>>>>>>>>> This patch just tries to revert the changes by previous my patch,
+>>>>>>>>>> and returns to the start point, so it also reverts the Jacques'
+>>>>>>>>>> original concern.
+>>>>>>>>>>
+>>>>>>>>>> At that time, IIRC, Jacques concerned about the logic being 
+>>>>>>>>>> unclear.
+>>>>>>>>>> Then, I introduced two options. The one is rough; that removes
+>>>>>>>>>> boundary
+>>>>>>>>>> checks in the target side. The other option tried to mask union
+>>>>>>>>>> bits of
+>>>>>>>>>> both of violated permissions on subject and target side 
+>>>>>>>>>> boundaries
+>>>>>>>>>> (*1).
+>>>>>>>>>>
+>>>>>>>>>> (*1) type_attribute_bounds_av(Sc,Tc, ...)
+>>>>>>>>>> {
+>>>>>>>>>> masked = 0;
+>>>>>>>>>>
+>>>>>>>>>> if (Sc has its bounds)
+>>>>>>>>>> masked |= P(Sc,Tc)& ~P(Sp,Tc);
+>>>>>>>>>>
+>>>>>>>>>> if (Tc has its bounds)
+>>>>>>>>>> masked |= P(Sc,Tc)& ~P(Sc,Tp);
+>>>>>>>>>>
+>>>>>>>>>> avd->allowed&= ~masked;
+>>>>>>>>>> }
+>>>>>>>>>>
+>>>>>>>>>> However, the later option also requires policy writers special
+>>>>>>>>>> treatments
+>>>>>>>>>> to handle pseudo file entries labeled with parent's domain.
+>>>>>>>>>>
+>>>>>>>>>> For example, when web server (httpd_t) launches a thread and
+>>>>>>>>>> assign an
+>>>>>>>>>> individual bounded security context (webapp_t), we don't need 
+>>>>>>>>>> to take
+>>>>>>>>>> a special treatment to access pseudo files labeled as webapp_t 
+>>>>>>>>>> in the
+>>>>>>>>>> original logic.
+>>>>>>>>>>
+>>>>>>>>>> If we adopt the logic introduced at (*1), when we write 
+>>>>>>>>>> webapp_t's
+>>>>>>>>>> policy,
+>>>>>>>>>> we have to allow webapp_t domain to access files labeled as
+>>>>>>>>>> httpd_t, not
+>>>>>>>>>> only webapp_t, because permissions between webapp_t and webapp_t
+>>>>>>>>>> will be
+>>>>>>>>>> eventually masked by one's between httpd_t domain and webapp_t
+>>>>>>>>>> type or
+>>>>>>>>>> webapp_t domain and httpd_t type.
+>>>>>>>>> That seems wrong to me - we don't want webapp_t to be able to 
+>>>>>>>>> access
+>>>>>>>>> the /proc/pid entries of other tasks running in httpd_t. We 
+>>>>>>>>> only want
+>>>>>>>>> it to be able to access its own /proc/pid entries in webapp_t. 
+>>>>>>>>> Yes?
+>>>>>>>>>
+>>>>>>>> Sorry for the late replying, because I've been unavailable last 
+>>>>>>>> week.
+>>>>>>>>
+>>>>>>>> Yes, I also think it is unnatural to require webapp_t to have 
+>>>>>>>> access
+>>>>>>>> rights to /proc/pid entries labeled as httpd_t, if and when we 
+>>>>>>>> adopt
+>>>>>>>> the above logic.
+>>>>>>>>
+>>>>>>>> However, it does not solve the matter that Jacques pointed out the
+>>>>>>>> meaning of the original logic is unclear.
+>>>>>>>>
+>>>>>>>> In addition, I pointed out the original logic can allow webapp_t
+>>>>>>>> domain some permissions on the webapp_t type without permissions
+>>>>>>>> of httpd_t which bounds webapp_t.
+>>>>>>>>
+>>>>>>>> Example)
+>>>>>>>> allow httpd_t httpd_t : file { read };
+>>>>>>>> allow webapp_t webapp_t : file { read };
+>>>>>>>>
+>>>>>>>> In this case, webapp_t can read from files labeled as webapp_t, and
+>>>>>>>> it is not masked because httpd_t also has same permissions on 
+>>>>>>>> itself.
+>>>>>>>>
+>>>>>>>> It seems to me httpd_t should have permissions on webapp_t types 
+>>>>>>>> from
+>>>>>>>> the perspective of the definition of type boundary, even if we 
+>>>>>>>> need to
+>>>>>>>> modify existing security policy a bit.
+>>>>>>>> (BTW, existing refpolicy does not use boundary right now.)
+>>>>>>>>
+>>>>>>>> I think we want webapp_t to have access rights (except for ones 
+>>>>>>>> allowed
+>>>>>>>> explicitly) on the httpd_t, but it is not unnatural that httpd_t 
+>>>>>>>> have
+>>>>>>>> access rights on webapp_t types. It performs boundary of the 
+>>>>>>>> webapp_t's
+>>>>>>>> permissions as literal.
+>>>>>>> I think I need to revisit the original design of the hierarchical 
+>>>>>>> types
+>>>>>>> support, and how it compares with the extension policy logic that
+>>>>>>> inspired it (described in Section 4.2.2.3.2 on page 39 of:
+>>>>>>> http://www.cs.utah.edu/flux/fluke/html/ftls.ps.gz )
+>>>>>> It seems to me this article does not mention about a case when 
+>>>>>> source and
+>>>>>> target SIDs are in different parent-child-trees individually.
+>>>>>>
+>>>>>> For example, when webapp_t being a child of httpd_t tries to 
+>>>>>> access files
+>>>>>> labeled as webapp_content_t being a child of httpd_sys_content_t, 
+>>>>>> it was
+>>>>>> unclear for me what is an expected behavior.
+>>>>>> (Perhaps, other part of the article may introduce it, but the 
+>>>>>> volume of
+>>>>>> the article is a bit large. :( )
+>>>>>>
+>>>>> The original hierarchy specified that if httpd_t had e.g., write 
+>>>>> access
+>>>>> to httpd_sys_content_t then webapp_t could be given write access to
+>>>>> webapp_content_t without httpd_t having direct access to 
+>>>>> webapp_content_t.
+>>>>>
+>>>>> This was done so that, in policy access controls, parents could be
+>>>>> decoupled from children while still allowing child subjects to access
+>>>>> child objects. One application of this was to have parents that,
+>>>>> themselves, did not have access to children objects (or were not 
+>>>>> active
+>>>>> at all).
+>>>> Is this behavior really preferable?
+>>>>
+>>>> If my_app_t domain is allowed to access httpd_sys_content_t, and 
+>>>> your_app_t
+>>>> domain allowed to access webapp_content_t, it looks like here is no 
+>>>> data
+>>>> flows between two domains. However, in this example, webapp_t shares 
+>>>> its
+>>>> process local memory with httpd_t, the content of 
+>>>> httpd_sys_content_t will
+>>>> be visible webapp_t and vice versa.
+>>>> In other words, all webapp_t domain can do are also allowed to httpd_t.
+>>>>
+>>>> my_app_t<-----> httpd_sys_content_t<-----> httpd_t ....
+>>>> r/w r/w : process
+>>>> : local memory
+>>>> your_app_t<-----> webapp_content_t<-----> webapp_t ......:
+>>>> r/w r/w
+>>>>
+>>>> We shouldn't have reused idea of the type hierarchy when we implemented
+>>>> type boundary and multi-threading support?
+>>>>
+>>>> Or, is it really necessary for the policy management server the parent
+>>>> types to be decoupled from the children?
+>>>>
+>>>>>>> Perhaps Joshua has a design tech note available on the hierarchical
+>>>>>>> types design?
+>>>>>> If not available, it is good idea to make clear what is the expected
+>>>>>> behavior explicitly, on the wikipage for instance.
+>>>>>>
+>>>>> The original paper talking about type hierarchies is at:
+>>>>>
+>>>>> http://selinux-symposium.org/2006/papers/01-policy-management-server.pdf 
+>>>>>
+>>>>>
+>>>>> section 2.3.1
+>>>> In this example, if we provide apache.content that is accessable 
+>>>> from apache.cgi,
+>>>> the policy writer can allow apache.cgi.user to access 
+>>>> apache.content.user.
+>>>> When he writes the policy between apache.cgi and apache.content, he 
+>>>> does not need
+>>>> to know rest of the upcoming child policies.
+>>>> At least, it also seems to me reasonable.
+>>>>
+>>>> If apache.cgi could access apache.content.user and 
+>>>> apache.content.main being
+>>>> children of the apache.content automatically, such as attribute, we 
+>>>> don't need
+>>>> to worry about this behavior.... :(
+>>>>
+>>> Well, we certainly didn't want an inherit permissions kind of system for
+>>> the type hierarchy. It was an implicit constraint system so that
+>>> permissions got smaller and smaller as you went down. The purpose of the
+>>> type hierarchy was to protect the policy intent.
+>>>
+>>> The new behavior wrt threads and hierarchy allows extra permissions
+>>> (namely, access to the parent domains memory) that were never present
+>>> before so policy analysis will likely have to assume that they are
+>>> combined domains, unfortunately.
+>>>
+>>> Is a dyntrans rule still required for threads to setcon to a child 
+>>> domain?
+>>
+>> Yes. And dyntransition already implies that you are trusting the
+>> program to maintain any desired separation between the two security
+>> contexts, as already documented in the setcon(3) man page.
+>>
+> 
+> If dyntrans is still required then I don't see any change in behavior here.
 
-Hmm. The purpose of selinuxServerDomain allows to drop unnecessary
-categories on the starting up time, although mod_selinux.pp set it
-to translate into 's0 - mcs_systemhigh'. So, the listener sockets
-also should be created in the configured domain.
-It seems to me what you pointed out is fair enough.
+Unlike setcon(3) in a single-thread-process, a worker thread can see its
+process local memory which can contain the information to be invisible
+imported by other thread after setcon(3).
+Is there any fundamental differences?
 
-However, I cannot agree to change security context of the server
-which it parses the configuration file, because we can call setcon()
-in the open_logs hook earlier than listener sockets are created using
-APR_HOOK_FIRST, not APR_HOOK_MIDDLE.
+It seems me here is no fundamental differences, but I may miss something.
 
 Thanks,
-
-> The attached patch deletes (well, in this version just comments out...) 
-> the mod_selinux post_config hook, and calls the routine directly from 
-> the set_server_domain option-processing hook. This, because of the 
-> EXEC_ON_READ option, is executed immediately upon finding a 
-> selinuxServerDomain option in a httpd config file. Thus, setcon() is 
-> called before sockets are opened.
-> 
-> Josh
-
 -- 
 KaiGai Kohei <kaigai@ak.jp.nec.com>
 
