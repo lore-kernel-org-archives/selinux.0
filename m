@@ -1,47 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o29GRJlA017823
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 11:27:19 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o29GQwqP026451
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 16:26:59 GMT
-Message-ID: <4B9676E1.1000905@redhat.com>
-Date: Tue, 09 Mar 2010 11:27:13 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o29I1tYU026340
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 13:01:55 -0500
+Received: from mail-iw0-f193.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o29I1YqP021597
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 18:01:35 GMT
+Received: by iwn31 with SMTP id 31so6553705iwn.30
+        for <selinux@tycho.nsa.gov>; Tue, 09 Mar 2010 10:01:50 -0800 (PST)
 MIME-Version: 1.0
-To: michel m <michel.mcgregor@gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Subject: Re: domain transition issue
-References: <bb74313d1003090553k3e3d092ep619f337a8591670@mail.gmail.com>
-In-Reply-To: <bb74313d1003090553k3e3d092ep619f337a8591670@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 9 Mar 2010 10:01:46 -0800
+Message-ID: <dd18b0c31003091001n5b5ab089g3829823e256ae86e@mail.gmail.com>
+Subject: what to do: libsemanage.get_home_dirs:
+From: Justin Mattock <justinmattock@gmail.com>
+To: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/09/2010 08:53 AM, michel m wrote:
-> Hello,
-> I need to run an unconfined process in a confined domain, say httpd_t. 
-> To do so, I changed executable file's context to a confined one, say 
-> httpd_exec_t, but after running it, its process was in unconfined 
-> domain again.
-> As I searched more, I found that there is not a legal transition for 
-> an unconfined process to a confined one in normal form. I created an 
-> script file which contained scripts for running my desired 
-> application, changed script's context to initrc_exec_t. after running 
-> this script, I get my process unconfined again.
-> may some one guide me how to resolve this issue and run my application 
-> is unconfined domain?
->
-> Regards.
-If you want to transition from unconfined_t to httpd_t you need to 
-execute a script labeled initrc_exec_t.
+with the latest policy on open suse 11.2
+I'm seeing this after building the policy:
+libsemanage.get_home_dirs: nobody homedir /var/lib/nobody or its
+parent directory conflicts with a file context already specified in
+the policy.  This usually indicates an incorrectly defined system
+account.  If it is a system account please make sure its uid is less
+than 1000 or its login shell is /sbin/nologin.
 
-unconfined_t -> initrc_exec_t -> initrc_t -> httpd_exec_t -> httpd_t
+with using an older policy on this system, I never saw this.
 
-So you need the init script labeled initrc_exec_t and the program you 
-want to run as httpd_t to be labeled httpd_exec_t.
+what to do?
 
-I would add an id -Z to your initrc_exec_t script to make sure the 
-transition happened.
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
