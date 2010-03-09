@@ -1,46 +1,68 @@
-Message-ID: <4B958987.30807@ak.jp.nec.com>
-Date: Tue, 09 Mar 2010 08:34:31 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o290B5v8023946
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 19:11:05 -0500
+Received: from house.lunarmania.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o290BU2m027063
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 00:11:31 GMT
+Received: from c-76-105-117-198.hsd1.ga.comcast.net ([76.105.117.198] helo=[192.168.1.5])
+	by house.lunarmania.com with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.69)
+	(envelope-from <warner@rubix.com>)
+	id 1Non28-00030V-TK
+	for selinux@tycho.nsa.gov; Mon, 08 Mar 2010 16:10:49 -0800
+Message-ID: <4B959214.90905@rubix.com>
+Date: Mon, 08 Mar 2010 19:11:00 -0500
+From: Andy Warner <warner@rubix.com>
 MIME-Version: 1.0
-To: Andy Warner <warner@rubix.com>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
-References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov> <4B958795.6060403@rubix.com>
-In-Reply-To: <4B958795.6060403@rubix.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: selinux@tycho.nsa.gov
+Subject: db_schema object class (and others)
+Content-Type: multipart/alternative;
+ boundary="------------050506060408060508030803"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/03/09 8:26), Andy Warner wrote:
-> 
-> 
-> On 3/8/2010 6:13 PM, Eamon Walsh wrote:
->> On 03/01/2010 09:53 PM, KaiGai Kohei wrote:
->>
->>> What is the current status of the patch?
->>>
->>> Thanks,
->>>
->>>
->>
->> Can you send me a sample sepgsql_contexts file so I can test this?
->>
->>
->>
-> 
-> Regarding the sepgsql_contexts name, is this functionality targeted only
-> for sepgsql, or would another DBMS be able to us it (e.g, Trusted
-> RUBIX)? if others would be able to use the functionality, would each
-> DBMS have their own *_contexts file, or would all use sepgsql_contexts?
-> 
+This is a multi-part message in MIME format.
+--------------050506060408060508030803
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It allows to give a path to be parsed using SELABEL_OPT_PATH option.
-The "sepgsql_context" is just a default.
+
+Back in March of 2009 there was discussion regarding adding new database 
+object classes (e.g., db_schema) to policy. I have been keeping my eye 
+open for them but have not seen them. Can anyone give me a status of 
+this? If it has not be implemented, is there still interest if some 
+picks it up?
 
 Thanks,
--- 
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+Andy
+
+--------------050506060408060508030803
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<font face="Arial"><br>
+Back in March of 2009 there was discussion regarding adding new
+database object classes (e.g., db_schema) to policy. I have been
+keeping my eye open for them but have not seen them. Can anyone give me
+a status of this? If it has not be implemented, is there still interest
+if some picks it up?<br>
+<br>
+Thanks,<br>
+<br>
+Andy<br>
+</font>
+</body>
+</html>
+
+--------------050506060408060508030803--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
