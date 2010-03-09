@@ -1,68 +1,267 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o290B5v8023946
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2010 19:11:05 -0500
-Received: from house.lunarmania.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o290BU2m027063
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 00:11:31 GMT
-Received: from c-76-105-117-198.hsd1.ga.comcast.net ([76.105.117.198] helo=[192.168.1.5])
-	by house.lunarmania.com with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.69)
-	(envelope-from <warner@rubix.com>)
-	id 1Non28-00030V-TK
-	for selinux@tycho.nsa.gov; Mon, 08 Mar 2010 16:10:49 -0800
-Message-ID: <4B959214.90905@rubix.com>
-Date: Mon, 08 Mar 2010 19:11:00 -0500
-From: Andy Warner <warner@rubix.com>
+Message-ID: <4B9598F1.50309@ak.jp.nec.com>
+Date: Tue, 09 Mar 2010 09:40:17 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: db_schema object class (and others)
-Content-Type: multipart/alternative;
- boundary="------------050506060408060508030803"
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>
+Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
+References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov>
+In-Reply-To: <4B9584A3.1070603@tycho.nsa.gov>
+Content-Type: multipart/mixed;
+ boundary="------------040802060904020603080503"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050506060408060508030803
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--------------040802060904020603080503
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
+(2010/03/09 8:13), Eamon Walsh wrote:
+> On 03/01/2010 09:53 PM, KaiGai Kohei wrote:
+>>
+>> What is the current status of the patch?
+>>
+>> Thanks,
+>>
+> 
+> 
+> Can you send me a sample sepgsql_contexts file so I can test this?
+> 
 
-Back in March of 2009 there was discussion regarding adding new database 
-object classes (e.g., db_schema) to policy. I have been keeping my eye 
-open for them but have not seen them. Can anyone give me a status of 
-this? If it has not be implemented, is there still interest if some 
-picks it up?
+The attached selabel-test.conf is an example specfile, and the selabel-test.c
+is a sample program to lookup an expected security context for the given name.
+
+  $ gcc selabel-test.c -o selabel-test -lselinux \
+        -I repo/selinux/libselinux/include/ \
+        -L repo/selinux/libselinux/src/
+  $ ./selabel-test selabel-test.conf db_table postgres.pg_catalog.pg_class
+  "postgres.pg_catalog.pg_class" => "system_u:object_r:sepgsql_sysobj_t:s0"
+  $ ./selabel-test selabel-test.conf db_table postgres.pg_public.my_table
+  "postgres.pg_public.my_table" => "system_u:object_r:sepgsql_table_t:s0"
+  $ ./selabel-test selabel-test.conf db_table foovarbaz
+  failed to lookup : "foovarbaz" (No such file or directory)
+
+In PostgreSQL, its namespace has the following structure:
+  <database>.<schema>.(<table>|<view>|<procedure>|...)
+
+So, the example specfile defines the following lines:
+  db_table    *.pg_catalog.*     system_u:object_r:sepgsql_sysobj_t:s0
+
+It informs all tables under the "pg_catalog" schema should be labeled as
+"system_u:object_r:sepgsql_sysobj_t:s0".
+
+Andy, in rubix, the specfile should be described as follows:
+  db_table    *.*.*.*            system_u:object_r:rubix_table_t:s0
+
+The library just does pattern matching without any assumption of database
+architecture.
+
+
+I also noticed the previous patch allows to lookup an expected security
+context for the db_tuple object class, but tuples don't have their name
+basically, so I removed it.
+And, it didn't support an upcoming db_view object class, I added it instead.
 
 Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-Andy
+--------------040802060904020603080503
+Content-Type: application/octect-stream;
+ name="libselinux-selabel-sepgsql.2.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-selabel-sepgsql.2.patch"
 
---------------050506060408060508030803
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+IFNpZ25lZC1vZmYtYnk6IEthaUdhaSBLb2hlaSA8a2FpZ2FpQGFrLmpwLm5lYy5jb20+Ci0t
+CiBsaWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9sYWJlbC5oICAgICAgICAgICAgICAgfCAg
+IDExICsrKysrKysrKysrCiBsaWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9zZWxpbnV4Lmgg
+ICAgICAgICAgICAgfCAgICAxICsKIGxpYnNlbGludXgvbWFuL21hbjMvc2VsYWJlbF9vcGVu
+LjMgICAgICAgICAgICAgICB8ICAgMTAgKysrKysrKy0tLQogbGlic2VsaW51eC9tYW4vbWFu
+My9zZWxpbnV4X2JpbmFyeV9wb2xpY3lfcGF0aC4zIHwgICAgNCArKysrCiBsaWJzZWxpbnV4
+L3NyYy9maWxlX3BhdGhfc3VmZml4ZXMuaCAgICAgICAgICAgICAgfCAgICAxICsKIGxpYnNl
+bGludXgvc3JjL2xhYmVsLmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDMgKyst
+CiBsaWJzZWxpbnV4L3NyYy9sYWJlbF9pbnRlcm5hbC5oICAgICAgICAgICAgICAgICAgfCAg
+ICAyICsrCiBsaWJzZWxpbnV4L3NyYy9zZWxpbnV4X2NvbmZpZy5jICAgICAgICAgICAgICAg
+ICAgfCAgICA5ICsrKysrKysrLQogbGlic2VsaW51eC9zcmMvc2VsaW51eF9pbnRlcm5hbC5o
+ICAgICAgICAgICAgICAgIHwgICAgMSArCiA5IGZpbGVzIGNoYW5nZWQsIDM3IGluc2VydGlv
+bnMoKyksIDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9pbmNsdWRl
+L3NlbGludXgvbGFiZWwuaCBiL2xpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L2xhYmVsLmgK
+aW5kZXggODJmNGUxMy4uNjA1MDNiZCAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9pbmNsdWRl
+L3NlbGludXgvbGFiZWwuaAorKysgYi9saWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9sYWJl
+bC5oCkBAIC0yOSw2ICsyOSw4IEBAIHN0cnVjdCBzZWxhYmVsX2hhbmRsZTsKICNkZWZpbmUg
+U0VMQUJFTF9DVFhfTUVESUEJMQogLyogeCBjb250ZXh0cyAqLwogI2RlZmluZSBTRUxBQkVM
+X0NUWF9YCQkyCisvKiBkYiBvYmplY3RzICovCisjZGVmaW5lIFNFTEFCRUxfQ1RYX0RCCQkz
+CiAKIC8qCiAgKiBBdmFpbGFibGUgb3B0aW9ucwpAQCAtMTE2LDYgKzExOCwxNSBAQCB2b2lk
+IHNlbGFiZWxfc3RhdHMoc3RydWN0IHNlbGFiZWxfaGFuZGxlICpoYW5kbGUpOwogI2RlZmlu
+ZSBTRUxBQkVMX1hfUE9MWVBST1AJNgogI2RlZmluZSBTRUxBQkVMX1hfUE9MWVNFTE4JNwog
+CisvKiBEQiBiYWNrZW5kICovCisjZGVmaW5lIFNFTEFCRUxfREJfREFUQUJBU0UJMQorI2Rl
+ZmluZSBTRUxBQkVMX0RCX1NDSEVNQQkyCisjZGVmaW5lIFNFTEFCRUxfREJfVEFCTEUJMwor
+I2RlZmluZSBTRUxBQkVMX0RCX0NPTFVNTgk0CisjZGVmaW5lIFNFTEFCRUxfREJfU0VRVUVO
+Q0UJNQorI2RlZmluZSBTRUxBQkVMX0RCX1ZJRVcJCTYKKyNkZWZpbmUgU0VMQUJFTF9EQl9Q
+Uk9DRURVUkUJNworI2RlZmluZSBTRUxBQkVMX0RCX0JMT0IJCTgKIAogI2lmZGVmIF9fY3Bs
+dXNwbHVzCiB9CmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9zZWxp
+bnV4LmggYi9saWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9zZWxpbnV4LmgKaW5kZXggY2Fj
+YjNjYi4uODM0YTFlZSAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9pbmNsdWRlL3NlbGludXgv
+c2VsaW51eC5oCisrKyBiL2xpYnNlbGludXgvaW5jbHVkZS9zZWxpbnV4L3NlbGludXguaApA
+QCAtNDg3LDYgKzQ4Nyw3IEBAIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X21lZGlhX2Nv
+bnRleHRfcGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4X3ZpcnR1YWxf
+ZG9tYWluX2NvbnRleHRfcGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxpbnV4
+X3ZpcnR1YWxfaW1hZ2VfY29udGV4dF9wYXRoKHZvaWQpOwogZXh0ZXJuIGNvbnN0IGNoYXIg
+KnNlbGludXhfeF9jb250ZXh0X3BhdGgodm9pZCk7CitleHRlcm4gY29uc3QgY2hhciAqc2Vs
+aW51eF9zZXBnc3FsX2NvbnRleHRfcGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpz
+ZWxpbnV4X2NvbnRleHRzX3BhdGgodm9pZCk7CiBleHRlcm4gY29uc3QgY2hhciAqc2VsaW51
+eF9zZWN1cmV0dHlfdHlwZXNfcGF0aCh2b2lkKTsKIGV4dGVybiBjb25zdCBjaGFyICpzZWxp
+bnV4X2Jvb2xlYW5zX3BhdGgodm9pZCk7CmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L21hbi9t
+YW4zL3NlbGFiZWxfb3Blbi4zIGIvbGlic2VsaW51eC9tYW4vbWFuMy9zZWxhYmVsX29wZW4u
+MwppbmRleCAxYWYyZWMwLi44Njc0ZTM3IDEwMDY0NAotLS0gYS9saWJzZWxpbnV4L21hbi9t
+YW4zL3NlbGFiZWxfb3Blbi4zCisrKyBiL2xpYnNlbGludXgvbWFuL21hbjMvc2VsYWJlbF9v
+cGVuLjMKQEAgLTcyLDE1ICs3MiwxOSBAQCBOb3RlIHRoYXQgYW4gaW52YWxpZCBjb250ZXh0
+IG1heSBub3QgYmUgdHJlYXRlZCBhcyBhbiBlcnJvciB1bmxlc3MgaXQgaXMgYWN0dWFsbAog
+LlRQCiAuQiBTRUxBQkVMX0NUWF9GSUxFCiBGaWxlIGNvbnRleHRzIGJhY2tlbmQsIGRlc2Ny
+aWJlZCBpbiAKLS5CUiBzZWxhYmVsX2ZpbGUgKDMpLgorLkJSIHNlbGFiZWxfZmlsZSAoNSku
+CiAuVFAKIC5CIFNFTEFCRUxfQ1RYX01FRElBCiBNZWRpYSBjb250ZXh0cyBiYWNrZW5kLCBk
+ZXNjcmliZWQgaW4gCi0uQlIgc2VsYWJlbF9tZWRpYSAoMykuCisuQlIgc2VsYWJlbF9tZWRp
+YSAoNSkuCiAuVFAKIC5CIFNFTEFCRUxfQ1RYX1gKIFggV2luZG93cyBjb250ZXh0cyBiYWNr
+ZW5kLCBkZXNjcmliZWQgaW4gCi0uQlIgc2VsYWJlbF94ICgzKS4KKy5CUiBzZWxhYmVsX3gg
+KDUpLgorLlRQCisuQiBTRUxBQkVMX0NUWF9EQgorRGF0YWJhc2Ugb2JqZWN0cyBjb250ZXh0
+cyBiYWNrZW5kLCBkZXNjcmliZWQgaW4KKy5CUiBzZWxhYmVsX2RiICg1KS4KIAogLlNIICJS
+RVRVUk4gVkFMVUUiCiBBIG5vbi1OVUxMIGhhbmRsZSB2YWx1ZSBpcyByZXR1cm5lZCBvbiBz
+dWNjZXNzLiAgT24gZXJyb3IsIE5VTEwgaXMgcmV0dXJuZWQgYW5kCmRpZmYgLS1naXQgYS9s
+aWJzZWxpbnV4L21hbi9tYW4zL3NlbGludXhfYmluYXJ5X3BvbGljeV9wYXRoLjMgYi9saWJz
+ZWxpbnV4L21hbi9tYW4zL3NlbGludXhfYmluYXJ5X3BvbGljeV9wYXRoLjMKaW5kZXggNjE5
+MDk1Ny4uOGVhZDFhNCAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9tYW4vbWFuMy9zZWxpbnV4
+X2JpbmFyeV9wb2xpY3lfcGF0aC4zCisrKyBiL2xpYnNlbGludXgvbWFuL21hbjMvc2VsaW51
+eF9iaW5hcnlfcG9saWN5X3BhdGguMwpAQCAtMjksNiArMjksOCBAQCBleHRlcm4gY29uc3Qg
+Y2hhciAqc2VsaW51eF91c2Vyc2NvbmZfcGF0aCh2b2lkKTsKIAogZXh0ZXJuIGNvbnN0IGNo
+YXIgKnNlbGludXhfeF9jb250ZXh0X3BhdGgodm9pZCk7CiAKK2V4dGVybiBjb25zdCBjaGFy
+ICpzZWxpbnV4X3NlcGdzcWxfY29udGV4dF9wYXRoKHZvaWQpOworCiBleHRlcm4gY29uc3Qg
+Y2hhciAqc2VsaW51eF9maWxlX2NvbnRleHRfcGF0aCh2b2lkKTsKIAogZXh0ZXJuIGNvbnN0
+IGNoYXIgKnNlbGludXhfbWVkaWFfY29udGV4dF9wYXRoKHZvaWQpOwpAQCAtNjYsNiArNjgs
+OCBAQCBzZWxpbnV4X3VzZXJzY29uZl9wYXRoKCkgLSBmaWxlIGNvbnRhaW5pbmcgbWFwcGlu
+ZyBiZXR3ZWVuIExpbnV4IFVzZXJzIGFuZCBTRUxpbgogLnNwCiBzZWxpbnV4X3hfY29udGV4
+dF9wYXRoKCkgLSBmaWxlIGNvbnRhaW5pbmcgY29uZmlndXJhdGlvbiBmb3IgWFNFTGludXgg
+ZXh0ZW5zaW9uCiAuc3AKK3NlbGludXhfc2VwZ3NxbF9jb250ZXh0X3BhdGgoKSAtIGZpbGUg
+Y29udGFpbmluZyBjb25maWd1cmF0aW9uIGZvciBTRS1Qb3N0Z3JlU1FMCisuc3AKIHNlbGlu
+dXhfbmV0ZmlsdGVyX2NvbnRleHRfcGF0aCAtIGRlZmF1bHQgbmV0ZmlsdGVyIGNvbnRleHQg
+CiAuc3AKIHNlbGludXhfZmlsZV9jb250ZXh0X3BhdGgoKSAtIGRlZmF1bHQgc3lzdGVtIGZp
+bGUgY29udGV4dHMgY29uZmlndXJhdGlvbgpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMv
+ZmlsZV9wYXRoX3N1ZmZpeGVzLmggYi9saWJzZWxpbnV4L3NyYy9maWxlX3BhdGhfc3VmZml4
+ZXMuaAppbmRleCBlYWRhMjMyLi5jY2Y0M2UxIDEwMDY0NAotLS0gYS9saWJzZWxpbnV4L3Ny
+Yy9maWxlX3BhdGhfc3VmZml4ZXMuaAorKysgYi9saWJzZWxpbnV4L3NyYy9maWxlX3BhdGhf
+c3VmZml4ZXMuaApAQCAtMjMsMyArMjMsNCBAQCBTXyhCSU5QT0xJQ1ksICIvcG9saWN5L3Bv
+bGljeSIpCiAgICAgU18oVklSVFVBTF9ET01BSU4sICIvY29udGV4dHMvdmlydHVhbF9kb21h
+aW5fY29udGV4dCIpCiAgICAgU18oVklSVFVBTF9JTUFHRSwgIi9jb250ZXh0cy92aXJ0dWFs
+X2ltYWdlX2NvbnRleHQiKQogICAgIFNfKEZJTEVfQ09OVEVYVF9TVUJTLCAiL2NvbnRleHRz
+L2ZpbGVzL2ZpbGVfY29udGV4dHMuc3VicyIpCisgICAgU18oU0VQR1NRTF9DT05URVhUUywg
+Ii9jb250ZXh0cy9zZXBnc3FsX2NvbnRleHRzIikKZGlmZiAtLWdpdCBhL2xpYnNlbGludXgv
+c3JjL2xhYmVsLmMgYi9saWJzZWxpbnV4L3NyYy9sYWJlbC5jCmluZGV4IGNlYTNjNDMuLjAy
+MGI4MDMgMTAwNjQ0Ci0tLSBhL2xpYnNlbGludXgvc3JjL2xhYmVsLmMKKysrIGIvbGlic2Vs
+aW51eC9zcmMvbGFiZWwuYwpAQCAtMjIsNyArMjIsOCBAQCB0eXBlZGVmIGludCAoKnNlbGFi
+ZWxfaW5pdGZ1bmMpKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVjLAogc3RhdGljIHNlbGFi
+ZWxfaW5pdGZ1bmMgaW5pdGZ1bmNzW10gPSB7CiAJJnNlbGFiZWxfZmlsZV9pbml0LAogCSZz
+ZWxhYmVsX21lZGlhX2luaXQsCi0JJnNlbGFiZWxfeF9pbml0CisJJnNlbGFiZWxfeF9pbml0
+LAorCSZzZWxhYmVsX2RiX2luaXQsCiB9OwogCiB0eXBlZGVmIHN0cnVjdCBzZWxhYmVsX3N1
+YiB7CmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L3NyYy9sYWJlbF9pbnRlcm5hbC5oIGIvbGli
+c2VsaW51eC9zcmMvbGFiZWxfaW50ZXJuYWwuaAppbmRleCAyN2ExZjA2Li45OWFmOTNlIDEw
+MDY0NAotLS0gYS9saWJzZWxpbnV4L3NyYy9sYWJlbF9pbnRlcm5hbC5oCisrKyBiL2xpYnNl
+bGludXgvc3JjL2xhYmVsX2ludGVybmFsLmgKQEAgLTIzLDYgKzIzLDggQEAgaW50IHNlbGFi
+ZWxfbWVkaWFfaW5pdChzdHJ1Y3Qgc2VsYWJlbF9oYW5kbGUgKnJlYywgc3RydWN0IHNlbGlu
+dXhfb3B0ICpvcHRzLAogCQkgICAgICB1bnNpZ25lZCBub3B0cykgaGlkZGVuOwogaW50IHNl
+bGFiZWxfeF9pbml0KHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVjLCBzdHJ1Y3Qgc2VsaW51
+eF9vcHQgKm9wdHMsCiAJCSAgIHVuc2lnbmVkIG5vcHRzKSBoaWRkZW47CitpbnQgc2VsYWJl
+bF9kYl9pbml0KHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVjLAorCQkgICAgc3RydWN0IHNl
+bGludXhfb3B0ICpvcHRzLCB1bnNpZ25lZCBub3B0cykgaGlkZGVuOwogCiAvKgogICogTGFi
+ZWxpbmcgaW50ZXJuYWwgc3RydWN0dXJlcwpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMv
+c2VsaW51eF9jb25maWcuYyBiL2xpYnNlbGludXgvc3JjL3NlbGludXhfY29uZmlnLmMKaW5k
+ZXggN2U1ODhjYy4uZTA0MDk1OSAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9zcmMvc2VsaW51
+eF9jb25maWcuYworKysgYi9saWJzZWxpbnV4L3NyYy9zZWxpbnV4X2NvbmZpZy5jCkBAIC00
+NCw3ICs0NCw4IEBACiAjZGVmaW5lIFZJUlRVQUxfRE9NQUlOICAgIDIxCiAjZGVmaW5lIFZJ
+UlRVQUxfSU1BR0UgICAgIDIyCiAjZGVmaW5lIEZJTEVfQ09OVEVYVF9TVUJTIDIzCi0jZGVm
+aW5lIE5FTCAgICAgICAgICAgICAgIDI0CisjZGVmaW5lIFNFUEdTUUxfQ09OVEVYVFMgIDI0
+CisjZGVmaW5lIE5FTCAgICAgICAgICAgICAgIDI1CiAKIC8qIFBhcnQgb2Ygb25lLXRpbWUg
+bGF6eSBpbml0ICovCiBzdGF0aWMgcHRocmVhZF9vbmNlX3Qgb25jZSA9IFBUSFJFQURfT05D
+RV9JTklUOwpAQCAtNDIyLDMgKzQyMyw5IEBAIGNvbnN0IGNoYXIgKiBzZWxpbnV4X2ZpbGVf
+Y29udGV4dF9zdWJzX3BhdGgodm9pZCkgewogCiBoaWRkZW5fZGVmKHNlbGludXhfZmlsZV9j
+b250ZXh0X3N1YnNfcGF0aCkKIAorY29uc3QgY2hhciAqc2VsaW51eF9zZXBnc3FsX2NvbnRl
+eHRfcGF0aCgpCit7CisJcmV0dXJuIGdldF9wYXRoKFNFUEdTUUxfQ09OVEVYVFMpOworfQor
+CitoaWRkZW5fZGVmKHNlbGludXhfc2VwZ3NxbF9jb250ZXh0X3BhdGgpCmRpZmYgLS1naXQg
+YS9saWJzZWxpbnV4L3NyYy9zZWxpbnV4X2ludGVybmFsLmggYi9saWJzZWxpbnV4L3NyYy9z
+ZWxpbnV4X2ludGVybmFsLmgKaW5kZXggODhiNmJkNi4uMjRlZjIxYSAxMDA2NDQKLS0tIGEv
+bGlic2VsaW51eC9zcmMvc2VsaW51eF9pbnRlcm5hbC5oCisrKyBiL2xpYnNlbGludXgvc3Jj
+L3NlbGludXhfaW50ZXJuYWwuaApAQCAtNzMsNiArNzMsNyBAQCBoaWRkZW5fcHJvdG8oc2Vs
+aW51eF9ta2xvYWRfcG9saWN5KQogICAgIGhpZGRlbl9wcm90byhzZWxpbnV4X2N1c3RvbWl6
+YWJsZV90eXBlc19wYXRoKQogICAgIGhpZGRlbl9wcm90byhzZWxpbnV4X21lZGlhX2NvbnRl
+eHRfcGF0aCkKICAgICBoaWRkZW5fcHJvdG8oc2VsaW51eF94X2NvbnRleHRfcGF0aCkKKyAg
+ICBoaWRkZW5fcHJvdG8oc2VsaW51eF9zZXBnc3FsX2NvbnRleHRfcGF0aCkKICAgICBoaWRk
+ZW5fcHJvdG8oc2VsaW51eF9wYXRoKQogICAgIGhpZGRlbl9wcm90byhzZWxpbnV4X2NoZWNr
+X3Bhc3N3ZF9hY2Nlc3MpCiAgICAgaGlkZGVuX3Byb3RvKHNlbGludXhfY2hlY2tfc2VjdXJl
+dHR5X2NvbnRleHQpCg==
+--------------040802060904020603080503
+Content-Type: text/plain;
+ name="selabel-test.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="selabel-test.c"
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmlu
+Zy5oPgojaW5jbHVkZSA8ZXJybm8uaD4KI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPgoj
+aW5jbHVkZSA8c2VsaW51eC9sYWJlbC5oPgoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFy
+Z3ZbXSkKewoJc3RydWN0IHNlbGFiZWxfaGFuZGxlICAqaGFuZGxlOwoJc3RydWN0IHNlbGlu
+dXhfb3B0CQlvcHRpb25zWzFdOwoJc2VjdXJpdHlfY29udGV4dF90CQljb250ZXh0OwoJaW50
+CQkJCQkJdGNsYXNzOwoKCWlmIChhcmdjICE9IDQpCgl7CgkJZnByaW50ZihzdGRlcnIsICJ1
+c2FnZTogJXMgPHNlcGMgZmlsZT4gPHRjbGFzcz4gPG5hbWU+XG4iLCBhcmd2WzBdKTsKCQly
+ZXR1cm4gMTsKCX0KCgkvKiBjb25maWcgZmlsZSB0byBiZSBwYXJzZWQgKi8KCW9wdGlvbnNb
+MF0udHlwZSA9IFNFTEFCRUxfT1BUX1BBVEg7CglvcHRpb25zWzBdLnZhbHVlID0gYXJndlsx
+XTsKCgloYW5kbGUgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9DVFhfREIsIG9wdGlvbnMsIDEp
+OwoJaWYgKCFoYW5kbGUpCgl7CgkJZnByaW50ZihzdGRlcnIsICJzZWxhYmVsX29wZW4oKSBm
+YWlsZWQgOiAlc1xuIiwgc3RyZXJyb3IoZXJybm8pKTsKCQlyZXR1cm4gMTsKCX0KCgkvKiB0
+Y2xhc3MgbmFtZSB0byB0eXBlIHZhbHVlICovCglpZiAoc3RyY21wKGFyZ3ZbMl0sICJkYl9k
+YXRhYmFzZSIpID09IDApCgkJdGNsYXNzID0gU0VMQUJFTF9EQl9EQVRBQkFTRTsKCWVsc2Ug
+aWYgKHN0cmNtcChhcmd2WzJdLCAiZGJfc2NoZW1hIikgPT0gMCkKCQl0Y2xhc3MgPSBTRUxB
+QkVMX0RCX1NDSEVNQTsKCWVsc2UgaWYgKHN0cmNtcChhcmd2WzJdLCAiZGJfdGFibGUiKSA9
+PSAwKQoJCXRjbGFzcyA9IFNFTEFCRUxfREJfVEFCTEU7CgllbHNlIGlmIChzdHJjbXAoYXJn
+dlsyXSwgImRiX2NvbHVtbiIpID09IDApCgkJdGNsYXNzID0gU0VMQUJFTF9EQl9DT0xVTU47
+CgllbHNlIGlmIChzdHJjbXAoYXJndlsyXSwgImRiX3NlcXVlbmNlIikgPT0gMCkKCQl0Y2xh
+c3MgPSBTRUxBQkVMX0RCX1NFUVVFTkNFOwoJZWxzZSBpZiAoc3RyY21wKGFyZ3ZbMl0sICJk
+Yl92aWV3IikgPT0gMCkKCQl0Y2xhc3MgPSBTRUxBQkVMX0RCX1ZJRVc7CgllbHNlIGlmIChz
+dHJjbXAoYXJndlsyXSwgImRiX3Byb2NlZHVyZSIpID09IDApCgkJdGNsYXNzID0gU0VMQUJF
+TF9EQl9QUk9DRURVUkU7CgllbHNlIGlmIChzdHJjbXAoYXJndlsyXSwgImRiX2Jsb2IiKSA9
+PSAwKQoJCXRjbGFzcyA9IFNFTEFCRUxfREJfQkxPQjsKCWVsc2UKCXsKCQlmcHJpbnRmKHN0
+ZGVyciwgInVua25vd24gb2JqZWN0IGNsYXNzIDogJXNcbiIsIGFyZ3ZbMl0pOwoJCXJldHVy
+biAxOwoJfQoKCS8qIGxvb2tpbmcgdXAgc3BlYyBmaWxlICovCglpZiAoc2VsYWJlbF9sb29r
+dXAoaGFuZGxlLCAmY29udGV4dCwgYXJndlszXSwgdGNsYXNzKSA8IDApCgl7CgkJZnByaW50
+ZihzdGRlcnIsICJmYWlsZWQgdG8gbG9va3VwIDogXCIlc1wiICglcylcbiIsCgkJCQlhcmd2
+WzNdLCBzdHJlcnJvcihlcnJubykpOwoJCXJldHVybiAxOwoJfQoKCXByaW50ZigiXCIlc1wi
+ID0+IFwiJXNcIlxuIiwgYXJndlszXSwgY29udGV4dCk7CgoJZnJlZWNvbihjb250ZXh0KTsK
+CglzZWxhYmVsX2Nsb3NlKGhhbmRsZSk7CgoJcmV0dXJuIDA7Cn0K
+--------------040802060904020603080503
+Content-Type: text/plain;
+ name="selabel-test.conf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="selabel-test.conf"
 
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<font face="Arial"><br>
-Back in March of 2009 there was discussion regarding adding new
-database object classes (e.g., db_schema) to policy. I have been
-keeping my eye open for them but have not seen them. Can anyone give me
-a status of this? If it has not be implemented, is there still interest
-if some picks it up?<br>
-<br>
-Thanks,<br>
-<br>
-Andy<br>
-</font>
-</body>
-</html>
-
---------------050506060408060508030803--
+IwojIFRoZSBzcGVjZmlsZSBmb3IgZGF0YWJhc2Ugb2JqZWN0cwojIChmb3IgU0UtUG9zdGdy
+ZVNRTCkKIwojIDxvYmplY3QgY2xhc3M+IDxvYmplY3QgbmFtZT4gPHNlY3VyaXR5IGNvbnRl
+eHQ+CiMKZGJfZGF0YWJhc2UgICAqICAgICAgICAgICAgICAgICBzeXN0ZW1fdTpvYmplY3Rf
+cjpzZXBnc3FsX2RiX3Q6czAKCmRiX3NjaGVtYSAgICAgKi5wZ19jYXRhbG9nICAgICAgc3lz
+dGVtX3U6b2JlamN0X3I6c2VwZ3NxbF9zeXNfc2NoZW1hX3Q6czAKZGJfc2NoZW1hICAgICAq
+LiogICAgICAgICAgICAgICBzeXN0ZW1fdTpvYmplY3RfcjpzZXBnc3FsX3NjaGVtYV90OnMw
+CgpkYl90YWJsZSAgICAgICoucGdfY2F0YWxvZy4qICAgIHN5c3RlbV91Om9iamVjdF9yOnNl
+cGdzcWxfc3lzb2JqX3Q6czAKZGJfdGFibGUgICAgICAqLiouKiAgICAgICAgICAgICBzeXN0
+ZW1fdTpvYmplY3RfcjpzZXBnc3FsX3RhYmxlX3Q6czAKCmRiX2NvbHVtbiAgICAgKi5wZ19j
+YXRhbG9nLiouKiAgc3lzdGVtX3U6b2JqZWN0X3I6c2VwZ3NxbF9zeXNvYmpfdDpzMApkYl9j
+b2x1bW4gICAgICouKi4qLiogICAgICAgICAgIHN5c3RlbV91Om9iamVjdF9yOnNlcGdzcWxf
+dGFibGVfdDpzMAoKZGJfc2VxdWVuY2UgICAqLiouKiAgICAgICAgICAgICBzeXN0ZW1fdTpv
+YmplY3RfcjpzZXBnc3FsX3NlcXVlbmNlX3Q6czAKCmRiX3ZpZXcgICAgICAgKi4qLiogICAg
+ICAgICAgICAgc3lzdGVtX3U6b2JqZWN0X3I6c2VwZ3NxbF92aWV3X3Q6czAKCmRiX3Byb2Nl
+ZHVyZSAgKi5wZ19jYXRhbG9nLiogICAgc3lzdGVtX3U6b2JqZWN0X3I6c2VwZ3NxbF9wcm9j
+X3Q6czAKZGJfcHJvY2VkdXJlICAqLiouKiAgICAgICAgICAgICBzeXN0ZW1fdTpvYmplY3Rf
+cjpzZXBnc3FsX3VzZXJfcHJvY190OnMwCgpkYl9ibG9iICAgICAgICouKiAgICAgICAgICAg
+ICAgIHN5c3RlbV91Om9iamVjdF9yOnNlcGdzcWxfYmxvYl90OnMwCg==
+--------------040802060904020603080503--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
