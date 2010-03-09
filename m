@@ -1,64 +1,53 @@
-Message-ID: <4B96C8CA.1090301@kaigai.gr.jp>
-Date: Wed, 10 Mar 2010 07:16:42 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
-References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov> <4B9598F1.50309@ak.jp.nec.com> <4B95A2D2.3080101@tycho.nsa.gov> <4B95A780.8050300@ak.jp.nec.com> <4B96AAA7.5090909@tycho.nsa.gov>
-In-Reply-To: <4B96AAA7.5090909@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-2022-JP
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o29MTOKi015441
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 17:29:24 -0500
+Received: from fg-out-1718.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o29MT4KS006206
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 22:29:05 GMT
+Received: by fg-out-1718.google.com with SMTP id d23so443973fga.12
+        for <selinux@tycho.nsa.gov>; Tue, 09 Mar 2010 14:29:22 -0800 (PST)
+Subject: Re: [refpolicy] what to do: libsemanage.get_home_dirs:
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4B96B78A.4020801@redhat.com>
+References: <dd18b0c31003091001n5b5ab089g3829823e256ae86e@mail.gmail.com>
+	 <4B96B78A.4020801@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 09 Mar 2010 14:29:19 -0800
+Message-ID: <1268173759.4289.2.camel@linux-qbdl.site>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/03/10 5:08), Eamon Walsh wrote:
-> On 03/08/2010 08:42 PM, KaiGai Kohei wrote:
-> 
-> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-> new file mode 100644
-> index 0000000..fa41b59
-> --- /dev/null
-> +++ b/libselinux/src/label_db.c
-> @@ -0,0 +1,334 @@
-> +/*
-> + * Media contexts backend for DB objects
-> + *
-> + * Author: KaiGai Kohei<kaigai@ak.jp.nec.com>
-> 
-> [snip]
-> 
-> +static int
-> +process_line(const char *path, char *line_buf, unsigned int line_num,
-> +	     catalog_t *catalog)
-> +{
-> +	spec_t	       *spec =&catalog->specs[catalog->nspec];
-> +	char	       *type, *key, *context, *temp;
-> +	int		items;
-> +
-> +	/* Cut off comments */
-> +	temp = strchr(line_buf, '#');
-> +	if (temp)
-> +		*temp = '\0';
-> +
-> +	/*
-> +	 * Every entry must have the following format
-> +	 *<object class>  <object name>  <security context>
-> +	 */
-> +	type = key = context = temp = NULL;
-> +	items = sscanf(line_buf, "%as %as %as %as",
-> +		&type,&key,&context,&temp);
+On Tue, 2010-03-09 at 16:03 -0500, Daniel J Walsh wrote:
+> On 03/09/2010 01:01 PM, Justin Mattock wrote:
+> > with the latest policy on open suse 11.2
+> > I'm seeing this after building the policy:
+> > libsemanage.get_home_dirs: nobody homedir /var/lib/nobody or its
+> > parent directory conflicts with a file context already specified in
+> > the policy.  This usually indicates an incorrectly defined system
+> > account.  If it is a system account please make sure its uid is less
+> > than 1000 or its login shell is /sbin/nologin.
+> >
+> > with using an older policy on this system, I never saw this.
+> >
+> > what to do?
+> >
+> >    
+> /var/lib/nobody record in /etc/passwd needs to have a shell of 
+> /bin/false or /sbin/nologin or a UID < 500.
 > 
 > 
-> What is the meaning of the fourth "temp" argument here. Aren't lines
-> only supposed to have three entries? Please remove this if it is not needed.
 
-If the line has four or more elements, we want to raise an error, rather than
-ignoring it.
-If here is not the fourth %as, sscanf() does not return 4, does it?
+cool thanks..
+I'll google a bit before making any changes.
+usermod -u 500 login seems to be it,
+but I also seen things in the user/group gui
+menu which might be safer to try.
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+Justin P. Mattock
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
