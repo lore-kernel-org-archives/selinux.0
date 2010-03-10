@@ -1,52 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o29MTOKi015441
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 17:29:24 -0500
-Received: from fg-out-1718.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o29MT4KS006206
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2010 22:29:05 GMT
-Received: by fg-out-1718.google.com with SMTP id d23so443973fga.12
-        for <selinux@tycho.nsa.gov>; Tue, 09 Mar 2010 14:29:22 -0800 (PST)
-Subject: Re: [refpolicy] what to do: libsemanage.get_home_dirs:
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4B96B78A.4020801@redhat.com>
-References: <dd18b0c31003091001n5b5ab089g3829823e256ae86e@mail.gmail.com>
-	 <4B96B78A.4020801@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 09 Mar 2010 14:29:19 -0800
-Message-ID: <1268173759.4289.2.camel@linux-qbdl.site>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: torvalds@linux-foundation.org, sds@tycho.nsa.gov, viro@ZenIV.linux.org.uk,
+        jmorris@namei.org
+Subject: [PATCH] anon_inodes: mark the anon inode private
+Date: Tue,  9 Mar 2010 22:23:01 -0500
+Message-Id: <1268191381-26950-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-03-09 at 16:03 -0500, Daniel J Walsh wrote:
-> On 03/09/2010 01:01 PM, Justin Mattock wrote:
-> > with the latest policy on open suse 11.2
-> > I'm seeing this after building the policy:
-> > libsemanage.get_home_dirs: nobody homedir /var/lib/nobody or its
-> > parent directory conflicts with a file context already specified in
-> > the policy.  This usually indicates an incorrectly defined system
-> > account.  If it is a system account please make sure its uid is less
-> > than 1000 or its login shell is /sbin/nologin.
-> >
-> > with using an older policy on this system, I never saw this.
-> >
-> > what to do?
-> >
-> >    
-> /var/lib/nobody record in /etc/passwd needs to have a shell of 
-> /bin/false or /sbin/nologin or a UID < 500.
-> 
-> 
+Inotify was switched to use anon_inode instead of its own private filesystem
+which only had one inode in commit c44dcc56d2b5c7 "switch inotify_user to
+anon_inode"
 
-cool thanks..
-I'll google a bit before making any changes.
-usermod -u 500 login seems to be it,
-but I also seen things in the user/group gui
-menu which might be safer to try.
+The problem with this is that now the inotify inode is not a distinct inode
+which can be managed by LSMs.  userspace tools which use inotify were allowed
+to use the inotify inode but may not have had permission to do read/write type
+operations on the anon_inode.  After looking at the anon_inode and its users
+it looks like the best solution is to just mark the anon_inode as S_PRIVATE
+so the security system will ignore it.
 
-Justin P. Mattock
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ fs/anon_inodes.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index 9f0bf13..2de0095 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -209,6 +209,7 @@ static struct inode *anon_inode_mkinode(void)
+ 	inode->i_mode = S_IRUSR | S_IWUSR;
+ 	inode->i_uid = current_fsuid();
+ 	inode->i_gid = current_fsgid();
++	inode->i_flags |= S_PRIVATE;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 	return inode;
+ }
+-- 
+1.6.5.3
 
 
 --
