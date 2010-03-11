@@ -1,120 +1,66 @@
-Message-ID: <4B987150.10609@ak.jp.nec.com>
-Date: Thu, 11 Mar 2010 13:28:00 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2B8JRio008634
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 03:19:27 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2B8JsA8015261
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 08:19:54 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o2B8JEdU038337
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 09:19:14 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o2B8JDlx072778
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 09:19:14 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Thu, 11 Mar 2010 09:19:13 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: how to cope with file renames?
+Message-ID: <20100311081913.GC24034@myhost.felk.cvut.cz>
 MIME-Version: 1.0
-To: Andy Warner <warner@rubix.com>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
-References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov> <4B9598F1.50309@ak.jp.nec.com> <4B95A2D2.3080101@tycho.nsa.gov> <4B95A780.8050300@ak.jp.nec.com> <4B96AAA7.5090909@tycho.nsa.gov> <4B96C8CA.1090301@kaigai.gr.jp> <4B97D2D0.3010507@tycho.nsa.gov> <4B97DF3C.6070601@rubix.com>
-In-Reply-To: <4B97DF3C.6070601@rubix.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/03/11 3:04), Andy Warner wrote:
-> 
-> 
-> On 3/10/2010 12:11 PM, Eamon Walsh wrote:
->> On 03/09/2010 05:16 PM, KaiGai Kohei wrote:
->>
->>> (2010/03/10 5:08), Eamon Walsh wrote:
->>>
->>>
->>>> What is the meaning of the fourth "temp" argument here. Aren't lines
->>>> only supposed to have three entries? Please remove this if it is not needed.
->>>>
->>>>
->>> If the line has four or more elements, we want to raise an error, rather than
->>> ignoring it.
->>> If here is not the fourth %as, sscanf() does not return 4, does it?
->>>
->>> Thanks,
->>>
->>>
->>
->> OK, that makes sense.
->>
->> I don't see any other issues with the patches. Unless Andy has any
->> concerns, I will push them later today or tomorrow.
->>
-> 
-> What is implemented looks fine to me. Just a few comments and questions.
-> 
-> Only thing that may keep us from fully using this functionality is that
-> because there is not support for db_schema and db_catalog objects, it
-> can't fully cover our labeled objects (correct?). Our naming scheme is
-> database.catalog.schema.table, so I am guessing only the database and
-> table could be labeled explicitly through the *_contexts file. It would
-> probably confuse our customers to be able to assign contexts to some
-> objects but not others. This might delay our use of it until the new DB
-> object classes come out.
 
-The purpose of this functionality is to provide dbms hints what label
-should be assigned on database objects when we initialize the database,
-like /sbin/restorecon on filesystem.
+--JWEK1jqKZ6MHAcjA
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-We still need definitions of db_schema and db_catalog object class for
-the correct access controls. If we ask SELinux any required permissions
-within undefined object class, it returns either allowed or denied
-depending on /selinux/deny_unknown.
+Hello,
 
-I want to use this functionality to assign preferable security context
-on all the database objects on global initialization. PostgreSQL set up
-an empty database using /usr/bin/initdb command. It inserts various kind
-of tuples into system catalogs which mean schemas, tables, columns...
-Unfortunatelly, when initdb insert tuples of system tables, tuples of
-schema and databases are not inserted yet. So, it needs to insert tuples
-without any labels, then they need to be relabeled, like /sbin/restorecon.
+I'm struggling with the problem seemingly as old as filesystems - if you
+rename() a file, it retains all its permissions, incl. the context,
+because its inode stays the same.
 
-Of course, it can be used to give a hint of the default security context
-to be assigned on the database, but it is not the only purpose.
+My particular problem is moving stuff from /tmp using PHP's
+move_uploaded_file function. I'm aware of the copy/delete workaround,
+but that just isn't the same (performance, atomicity, etc.) Also there
+is the way of post-relabeling the moved file but that requires more
+permissions plus there are no selinux bindings in PHP that i'm aware of.
 
-BTW, rubix has four layers of its namespace. It seems to me you worry
-about it, but don't need to worry about.
-Its pattern matching logic is just using fnmatch(). So, if you describe
-your configuration file with four layers namespace, we don't need to modify
-libselinux anything.
+In short, I was wondering if there was a way for a rename()d file to be
+subjected to a type transition as if a new file was created? (I tried a
+type_trans rule but to no avail.) Or any other way to deal with renaming
+files between variously contexted dirs?
 
- example)
-   db_table   *.my_catalog.my_schema.*    system_u:object_r:my_rubix_table_t:s0
+Michal Svoboda
 
 
-> We currently overload the dir object class to cover our catalog and
-> schema objects. This is not great, but the best choice we have to cover
-> those objects. KaiGai, is it possible to actually use a dir object class
-> within the *_contexts file? I acknowledge overloading/mixing these
-> object classes (db and OS) is controversial and not the best solution,
-> but I am curious if it would be technically possible under this patch.
-> Or, does it restrict its functionality to only db objects?
+--JWEK1jqKZ6MHAcjA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-It is not possible, because selabel_lookup() takes the 'key' argument
-which is one of the SELABEL_DB_*.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-If you abuse db_schema/db_catalog object class until upstream policy
-does not have these definitions, you can lookup a matched entry with
-SELABEL_DB_SCHEMA for abused dir class.
+iEYEARECAAYFAkuYp4EACgkQg/fU9pp1uX77cQCfeNFWSN2gsq2Q+R271oRwE+sm
+m10AnA7vItuC5jJhtcUDNyMk5Fk2K541
+=NZF7
+-----END PGP SIGNATURE-----
 
-
-> Lastly, regarding tuples, I noticed the ability to label tuples was
-> removed because tuples are not named. Would it be useful to label all
-> tuples under an object (e.g., table) as follows. I am sure you
-> considered this, just curious of your thoughts:
-> 
-> db_tuple *.pg_catalog.pg_table.* system_u:object_r:sepgsql_tuple_t:s0
-> 
-> So that all tuples under the *.pg_catalog.pg_table table would have a
-> context of system_u:object_r:sepgsql_tuple_t:s0. Or, is the fact that
-> you are not able to use anything other than * as the tuple's name simply
-> make things too messy? I would assume there would be a similar issue in
-> constructing a key value for a tuple in the call to selabel_lookup.
-
-Hmm. Indeed, it makes sense.
-I'll add db_tuple again. Please wait for a while.
-
-Thanks,
--- 
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+--JWEK1jqKZ6MHAcjA--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
