@@ -1,73 +1,87 @@
-MIME-Version: 1.0
-In-Reply-To: <1268315218.16780.10.camel@moss-pluto.epoch.ncsc.mil>
-References: <20100311081913.GC24034@myhost.felk.cvut.cz> <1268315218.16780.10.camel@moss-pluto.epoch.ncsc.mil>
-From: Richard Bullington-McGuire <richard.bullington-mcguire@threepillarglobal.com>
-Date: Thu, 11 Mar 2010 09:45:17 -0500
-Message-ID: <34e141281003110645p4c7922e3i86716092735e6fef@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2BH0OKv014746
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 12:00:26 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2BH0sT3015266
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 17:00:54 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o2BH0FoJ091838
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 18:00:15 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o2BH0EK7021222
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 18:00:15 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Thu, 11 Mar 2010 18:00:15 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
 Subject: Re: how to cope with file renames?
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=0016e6d77e3ed4ab5704818777e6
+Message-ID: <20100311170014.GE24034@myhost.felk.cvut.cz>
+References: <20100311081913.GC24034@myhost.felk.cvut.cz>
+ <1268315218.16780.10.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YkJPYEFdoxh/AXLE"
+In-Reply-To: <1268315218.16780.10.camel@moss-pluto.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e6d77e3ed4ab5704818777e6
-Content-Type: text/plain; charset=UTF-8
 
-On Thu, Mar 11, 2010 at 8:46 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
->
-> http://pecl.php.net/package/selinux
->
->
-It's funny that you mention pecl in this context, since pecl itself has the
-same behavior that the original poster mentioned with regard to  SELinux, at
-least on RHEL 5. When you install a module using pecl, it compiles it in a
-temporary directory and them moves it into place in the PHP library
-directory. The resulting module has the SELinux label from the temporary
-directory, user_u:object_r:tmp_t, not the system_u:object_r:textrel_shlib_t
-label that the other PHP modules in the /usr/lib64/php/modules directory
-have. Issuing a quick 'restorecon' command versus the resulting php module
-file adjusted its context so that httpd could read it.
-
--- 
-Richard Bullington-McGuire | Director of Technology | Three Pillar Global
-mobile: 571.236.0938 | fax: 703-564-5595 | PGP key ID:  0xDAC3028E
-richard.bullington-mcguire@threepillarglobal.com | www.threepillarglobal.com
-
---0016e6d77e3ed4ab5704818777e6
-Content-Type: text/html; charset=UTF-8
+--YkJPYEFdoxh/AXLE
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-<br><div class=3D"gmail_quote">On Thu, Mar 11, 2010 at 8:46 AM, Stephen Sma=
-lley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.n=
-sa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"=
-border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; paddi=
-ng-left: 1ex;">
+Stephen Smalley wrote:
+> http://pecl.php.net/package/selinux
 
-<div class=3D"im"><br>
-</div><a href=3D"http://pecl.php.net/package/selinux" target=3D"_blank">htt=
-p://pecl.php.net/package/selinux</a><br><br></blockquote><div>=C2=A0</div><=
-/div>It&#39;s funny that you mention pecl in this context, since pecl itsel=
-f has the same behavior that the original poster mentioned with regard to=
-=C2=A0 SELinux, at least on RHEL 5. When you install a module using pecl, i=
-t compiles it in a temporary directory and them moves it into place in the =
-PHP library directory. The resulting module has the SELinux label from the =
-temporary directory, user_u:object_r:tmp_t, not the system_u:object_r:textr=
-el_shlib_t label that the other PHP modules in the /usr/lib64/php/modules d=
-irectory have. Issuing a quick &#39;restorecon&#39; command versus the resu=
-lting php module file adjusted its context so that httpd could read it.<br =
-clear=3D"all">
+Thanks!
 
-<br>-- <br>Richard Bullington-McGuire | Director of Technology | Three Pill=
-ar Global<br>mobile: 571.236.0938 | fax: 703-564-5595 | PGP key ID: =C2=A00=
-xDAC3028E<br><a href=3D"mailto:richard.bullington-mcguire@threepillarglobal=
-.com">richard.bullington-mcguire@threepillarglobal.com</a> | <a href=3D"htt=
-p://www.threepillarglobal.com">www.threepillarglobal.com</a><br>
+> > In short, I was wondering if there was a way for a rename()d file to be
+> > subjected to a type transition as if a new file was created? (I tried a
+> > type_trans rule but to no avail.) Or any other way to deal with renaming
+> > files between variously contexted dirs?
+>=20
+> No.  The best way of course is to create the file with the right
+> security context in the first place, whether explicitly or by uploading
+> it to the same parent directory as the final destination.
 
-<br>
+That's what I do right now. I can do that because there's only one
+context. But in a web service your script isn't invoked until the file
+is already uploaded. So you can't pre-set the correct context and/or
+destination if you have two or more possibilities.
 
---0016e6d77e3ed4ab5704818777e6--
+> Alternatively the php scriptlet can use the selinux bindings to
+> manipulate the context, or you can configure restorecond(8) to watch
+> for the destination file and reset its security context as needed.
+
+Does restorecond handle recursive directory restoring yet? (Last time I
+tried it worked only on single files.)
+
+But yes, in principle a cron job with 'restorecon -R' is a way too. But
+all those solutions are 'dirty', because they need you to make an extra
+effort. There's already a huge infrastructure with type inheritance and
+transitions, as to make the labeling independent of the application; but
+the rename operation just spoils that and forces you back to square one,=20
+to explicitly care about your files' contexts. Is there a fundamental
+reason why this is so (and can't be changed)?
+
+
+Michal Svoboda
+
+--YkJPYEFdoxh/AXLE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuZIZ4ACgkQg/fU9pp1uX6h/QCeMscHfdo6vvPgwgX2Fxv/fuMR
+qGIAnivVSgJYCUCsCv3ypJNZWnmygdwB
+=uLss
+-----END PGP SIGNATURE-----
+
+--YkJPYEFdoxh/AXLE--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
