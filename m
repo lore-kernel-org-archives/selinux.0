@@ -1,60 +1,48 @@
-Subject: Re: how to cope with file renames?
+Subject: Re: strange policy loading problem
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20100311182826.GF24034@myhost.felk.cvut.cz>
-References: <20100311182826.GF24034@myhost.felk.cvut.cz>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>
+In-Reply-To: <201003031018.38030.russell@coker.com.au>
+References: <201003031018.38030.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 11 Mar 2010 14:08:31 -0500
-Message-Id: <1268334511.16780.93.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 11 Mar 2010 14:16:20 -0500
+Message-Id: <1268334980.16780.101.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-03-11 at 19:28 +0100, Michal Svoboda wrote:
-> Stephen Smalley wrote:
-> > SELinux isn't name-based. 
+On Wed, 2010-03-03 at 10:18 +1100, Russell Coker wrote:
+> I'm running a 2.6.32 system under KVM and it keeps OOMing when I try to run 
+> semodule.
 > 
-> This is not so much about names but about relationship to the parent
-> container. I don't care if the file is called foo or bar, but if its
-> parent dir has foo_t or bar_t context. There already is some coupling
-> between the file and its directory. For example, to actually do the
-> rename you need file as well as directory permissions.
+> # free
+>              total       used       free     shared    buffers     cached
+> Mem:        507532     475320      32212          0       4168      11148
+> -/+ buffers/cache:     460004      47528
+> Swap:       524280      19848     504432
 > 
-> So in that regard, why an additional type transition in that operation
-> would be harmful?
-
-Type transitions take place when new subjects or objects are created,
-not during their existence.  What you want is relabeling /
-non-tranquility, and that is something to be minimized, carefully
-controlled, and explicitly identified in the system, not an implicit
-side effect of another operation.
-
-> > rename() doesn't change your file mode or ACLs either.
+> The policy.24 file is just under 900K in size, the output of free is above, it 
+> doesn't seem particularly short of RAM.  The dmesg output is below.  Any 
+> suggestions for what I should investigate?
 > 
-> Yes, that's why I said it's an old problem. I hoped that someone would
-> have solved it in a systemic way.
-
-Some of us view it as correct behavior, not as a problem.  In any event,
-"solving it" in the kernel would require cooperation from the filesystem
-code in order to provide an atomic rename+setxattr operation, just as we
-required filesystem cooperation to provide an atomic create+setxattr
-operation.  So it goes well beyond the scope of the SELinux code.
-
+> I could just give the VM a gig of RAM, but I run lots of real systems with 
+> less than 512M so I would like this to work.
 > 
-> Daniel J Walsh wrote:
-> > Just need to walk the tree adding watches for ever directory and any
-> > time a a new directory shows up you would add it to the watch list.
-> > I am not sure how much inotify can handle.  We might get in trouble
-> > with the amount of resoures used.
 > 
-> See the -r in man inotifywait (http://linux.die.net/man/1/inotifywait).
-> Actually you can use that tool and restorecon in a simple shell script
-> to make a restorecond of your own. But having this in hand, you don't
-> need neither inheritance nor type transitions for files. You could just
-> make any new file with default_t and wait until restorecon labels it.
+> [10750.523296] load_policy: page allocation failure. order:4, mode:0xc0d0
+> [10750.524503] Pid: 13383, comm: load_policy Not tainted 2.6.32-trunk-amd64 #1
 
-The Warning section on that option is a bit worrisome.
+This has been reproduced by others, and in looking further at it, I
+think it is due to switching the avtab from using vmalloc() to using
+kmalloc() as part of commit 3232c110b56bd01c5f0fdfd16b4d695f2e05b0a9
+without reducing MAX_AVTAB_SIZE sufficiently to ensure that we don't put
+too much pressure on the slab allocator.  Options seem to be:
+1) Reduce MAX_AVTAB_SIZE further so that the max avtab allocation is a
+lower order allocation that isn't likely to fail on kcalloc, and keep
+using that always.
+2) Change the avtab code to dynamically select use of vmalloc/vfree or
+kcalloc/kfree depending on the selected avtab size.
 
 -- 
 Stephen Smalley
