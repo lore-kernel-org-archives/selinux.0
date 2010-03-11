@@ -1,137 +1,120 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2B39AVK025284
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2010 22:09:10 -0500
-Received: from bay0-omc3-s19.bay0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2B39cxq013279
-	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 03:09:39 GMT
-Message-ID: <BAY111-W4135C26BB0FE9E495A6E2FAB320@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_5cb3021f-d1a3-4cc9-b2fd-2d103bcf8742_"
-From: TaurusHarry <harrytaurus2002@hotmail.com>
-To: selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: How to address USER_AUTH PAM authentication failure?
-Date: Thu, 11 Mar 2010 03:09:09 +0000
+Message-ID: <4B987150.10609@ak.jp.nec.com>
+Date: Thu, 11 Mar 2010 13:28:00 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
+To: Andy Warner <warner@rubix.com>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH] libselinux: selabel_*() support for database objects
+References: <4B050008.3010201@ak.jp.nec.com> <4B0757F5.5080902@tycho.nsa.gov> <4B07F64B.1070407@kaigai.gr.jp> <4B0DBDF2.5050601@ak.jp.nec.com> <4B14396A.9000207@tycho.nsa.gov> <4B8C7D8C.9060803@ak.jp.nec.com> <4B9584A3.1070603@tycho.nsa.gov> <4B9598F1.50309@ak.jp.nec.com> <4B95A2D2.3080101@tycho.nsa.gov> <4B95A780.8050300@ak.jp.nec.com> <4B96AAA7.5090909@tycho.nsa.gov> <4B96C8CA.1090301@kaigai.gr.jp> <4B97D2D0.3010507@tycho.nsa.gov> <4B97DF3C.6070601@rubix.com>
+In-Reply-To: <4B97DF3C.6070601@rubix.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_5cb3021f-d1a3-4cc9-b2fd-2d103bcf8742_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+(2010/03/11 3:04), Andy Warner wrote:
+> 
+> 
+> On 3/10/2010 12:11 PM, Eamon Walsh wrote:
+>> On 03/09/2010 05:16 PM, KaiGai Kohei wrote:
+>>
+>>> (2010/03/10 5:08), Eamon Walsh wrote:
+>>>
+>>>
+>>>> What is the meaning of the fourth "temp" argument here. Aren't lines
+>>>> only supposed to have three entries? Please remove this if it is not needed.
+>>>>
+>>>>
+>>> If the line has four or more elements, we want to raise an error, rather than
+>>> ignoring it.
+>>> If here is not the fourth %as, sscanf() does not return 4, does it?
+>>>
+>>> Thanks,
+>>>
+>>>
+>>
+>> OK, that makes sense.
+>>
+>> I don't see any other issues with the patches. Unless Andy has any
+>> concerns, I will push them later today or tomorrow.
+>>
+> 
+> What is implemented looks fine to me. Just a few comments and questions.
+> 
+> Only thing that may keep us from fully using this functionality is that
+> because there is not support for db_schema and db_catalog objects, it
+> can't fully cover our labeled objects (correct?). Our naming scheme is
+> database.catalog.schema.table, so I am guessing only the database and
+> table could be labeled explicitly through the *_contexts file. It would
+> probably confuse our customers to be able to assign contexts to some
+> objects but not others. This might delay our use of it until the new DB
+> object classes come out.
+
+The purpose of this functionality is to provide dbms hints what label
+should be assigned on database objects when we initialize the database,
+like /sbin/restorecon on filesystem.
+
+We still need definitions of db_schema and db_catalog object class for
+the correct access controls. If we ask SELinux any required permissions
+within undefined object class, it returns either allowed or denied
+depending on /selinux/deny_unknown.
+
+I want to use this functionality to assign preferable security context
+on all the database objects on global initialization. PostgreSQL set up
+an empty database using /usr/bin/initdb command. It inserts various kind
+of tuples into system catalogs which mean schemas, tables, columns...
+Unfortunatelly, when initdb insert tuples of system tables, tuples of
+schema and databases are not inserted yet. So, it needs to insert tuples
+without any labels, then they need to be relabeled, like /sbin/restorecon.
+
+Of course, it can be used to give a hint of the default security context
+to be assigned on the database, but it is not the only purpose.
+
+BTW, rubix has four layers of its namespace. It seems to me you worry
+about it, but don't need to worry about.
+Its pattern matching logic is just using fnmatch(). So, if you describe
+your configuration file with four layers namespace, we don't need to modify
+libselinux anything.
+
+ example)
+   db_table   *.my_catalog.my_schema.*    system_u:object_r:my_rubix_table_t:s0
 
 
-Hi SELinux experts,
+> We currently overload the dir object class to cover our catalog and
+> schema objects. This is not great, but the best choice we have to cover
+> those objects. KaiGai, is it possible to actually use a dir object class
+> within the *_contexts file? I acknowledge overloading/mixing these
+> object classes (db and OS) is controversial and not the best solution,
+> but I am curious if it would be technically possible under this patch.
+> Or, does it restrict its functionality to only db objects?
 
-Thank you for reading my email, I am trying to write a SELinux pp for the vlock program(Virtual Console Locking program), so far I gets no more AVC denied messages in permissive mode and only one USER_AUTH failure message in Enforcing mode, what interface should I have added for the vlock_t domain?
+It is not possible, because selabel_lookup() takes the 'key' argument
+which is one of the SELABEL_DB_*.
 
-   [root/sysadm_r/s0@cp3020 ~]# date +%T
-   23:24:07 
-   [root/sysadm_r/s0@cp3020 ~]# vlock
-   [root/sysadm_r/s0@cp3020 ~]# newrole -r auditadm_r -l s15:c0.c255 -p -- -c "ausearch -sv no -ts 23:24:07 -se vlock_t"
-   Password: 
-   ----
-   time->Wed Mar 10 23:24:54 2010
-   type=USER_AUTH msg=audit(1268263494.640:13155): user pid=3758 uid=0 auid=501 ses=3 subj=staff_u:sysadm_r:vlock_t:s0-s15:c0.c255 msg='op=PAM:authentication acct="root" exe="/usr/bin/vlock" (hostname=?, addr=?, terminal=? res=failed)'
-   ----
-   time->Wed Mar 10 23:24:54 2010
-   type=USER_AUTH msg=audit(1268263494.644:13159): user pid=3758 uid=0 auid=501 ses=3 subj=staff_u:sysadm_r:vlock_t:s0-s15:c0.c255 msg='op=PAM:authentication acct="root" exe="/usr/bin/vlock" (hostname=?, addr=?, terminal=? res=failed)'
-   [root/sysadm_r/s0@cp3020 ~]# 
-
-As you can see, in Enforcing mode the vlock just exits silently. If in permissive mode, the vlock program could be run successfully like below:
-
-   [root/sysadm_r/s0@cp3020 ~]# vlock
-    *** This tty is not a VC (virtual console). ***
-    *** It may not be securely locked. ***
-   
-   This TTY is now locked.
-   Please enter the password to unlock.
-   root's Password: 
-   [root/sysadm_r/s0@cp3020 ~]#
-
-So the problem must be rooted in my vlock.pp, the .te file is attached at the bottom, how should I address above USER_AUTH failure?
-
-Thanks again!
-
-Best regards,
-Harry
+If you abuse db_schema/db_catalog object class until upstream policy
+does not have these definitions, you can lookup a matched entry with
+SELABEL_DB_SCHEMA for abused dir class.
 
 
-----------
+> Lastly, regarding tuples, I noticed the ability to label tuples was
+> removed because tuples are not named. Would it be useful to label all
+> tuples under an object (e.g., table) as follows. I am sure you
+> considered this, just curious of your thoughts:
+> 
+> db_tuple *.pg_catalog.pg_table.* system_u:object_r:sepgsql_tuple_t:s0
+> 
+> So that all tuples under the *.pg_catalog.pg_table table would have a
+> context of system_u:object_r:sepgsql_tuple_t:s0. Or, is the fact that
+> you are not able to use anything other than * as the tuple's name simply
+> make things too messy? I would assume there would be a similar issue in
+> constructing a key value for a tuple in the call to selabel_lookup.
 
+Hmm. Indeed, it makes sense.
+I'll add db_tuple again. Please wait for a while.
 
-policy_module(vlock, 1.0.0)
-
-########################################
-#
-# Declarations
-#
-
-type vlock_t;
-type vlock_exec_t;
-application_domain(vlock_t,vlock_exec_t)
-
-
-########################################
-#
-# Vlock local policy
-#
-
-allow vlock_t self:fd use;
-allow vlock_t self:fifo_file rw_fifo_file_perms;
-allow vlock_t self:unix_dgram_socket { create connect };
-allow vlock_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };
-
-kernel_read_system_state(vlock_t)
-
-corecmd_list_bin(vlock_t)
-corecmd_read_bin_symlinks(vlock_t)
-
-files_read_etc_files(vlock_t)
-files_read_var_files(vlock_t)
-files_read_var_symlinks(vlock_t)
-
-term_use_all_user_ttys(vlock_t)
-term_use_all_user_ptys(vlock_t)
-
-auth_domtrans_chk_passwd(vlock_t)
-
-miscfiles_read_localization(vlock_t)
-
-logging_send_syslog_msg(vlock_t)
-
-selinux_getattr_fs(vlock_t)
-
- 		 	   		  
-_________________________________________________________________
-MSN十年回馈，每位用户可免费获得价值25元的卡巴斯基反病毒软件2010激活码，快来领取！
-http://kaba.msn.com.cn/?k=1
---_5cb3021f-d1a3-4cc9-b2fd-2d103bcf8742_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Verdana
-}
---></style>
-</head>
-<body class='hmmessage'>
-Hi SELinux experts,<br><br>Thank you for reading my email, I am trying to write a SELinux pp for the vlock program(Virtual Console Locking program), so far I gets no more AVC denied messages in permissive mode and only one USER_AUTH failure message in Enforcing mode, what interface should I have added for the vlock_t domain?<br><br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]# date +%T<br>&nbsp;&nbsp; 23:24:07 <br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]# vlock<br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]# newrole -r auditadm_r -l s15:c0.c255 -p -- -c "ausearch -sv no -ts 23:24:07 -se vlock_t"<br>&nbsp;&nbsp; Password: <br>&nbsp;&nbsp; ----<br>&nbsp;&nbsp; time-&gt;Wed Mar 10 23:24:54 2010<br>&nbsp;&nbsp; type=USER_AUTH msg=audit(1268263494.640:13155): user pid=3758 uid=0 auid=501 ses=3 subj=staff_u:sysadm_r:vlock_t:s0-s15:c0.c255 msg='op=PAM:authentication acct="root" exe="/usr/bin/vlock" (hostname=?, addr=?, terminal=? res=failed)'<br>&nbsp;&nbsp; ----<br>&nbsp;&nbsp; time-&gt;!
- Wed Mar 10 23:24:54 2010<br>&nbsp;&nbsp; type=USER_AUTH msg=audit(1268263494.644:13159): user pid=3758 uid=0 auid=501 ses=3 subj=staff_u:sysadm_r:vlock_t:s0-s15:c0.c255 msg='op=PAM:authentication acct="root" exe="/usr/bin/vlock" (hostname=?, addr=?, terminal=? res=failed)'<br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]# <br><br>As you can see, in Enforcing mode the vlock just exits silently. If in permissive mode, the vlock program could be run successfully like below:<br><br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]# vlock<br>&nbsp;&nbsp;&nbsp; *** This tty is not a VC (virtual console). ***<br>&nbsp;&nbsp;&nbsp; *** It may not be securely locked. ***<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; This TTY is now locked.<br>&nbsp;&nbsp; Please enter the password to unlock.<br>&nbsp;&nbsp; root's Password: <br>&nbsp;&nbsp; [root/sysadm_r/s0@cp3020 ~]#<br><br>So the problem must be rooted in my vlock.pp, the .te file is attached at the bottom, how should I address above USER_AUTH failure?<br>!
- <br>Thanks again!<br><br>Best regards,<br>Harry<br><br><br>----------<
-br><br><br>policy_module(vlock, 1.0.0)<br><br>########################################<br>#<br># Declarations<br>#<br><br>type vlock_t;<br>type vlock_exec_t;<br>application_domain(vlock_t,vlock_exec_t)<br><br><br>########################################<br>#<br># Vlock local policy<br>#<br><br>allow vlock_t self:fd use;<br>allow vlock_t self:fifo_file rw_fifo_file_perms;<br>allow vlock_t self:unix_dgram_socket { create connect };<br>allow vlock_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };<br><br>kernel_read_system_state(vlock_t)<br><br>corecmd_list_bin(vlock_t)<br>corecmd_read_bin_symlinks(vlock_t)<br><br>files_read_etc_files(vlock_t)<br>files_read_var_files(vlock_t)<br>files_read_var_symlinks(vlock_t)<br><br>term_use_all_user_ttys(vlock_t)<br>term_use_all_user_ptys(vlock_t)<br><br>auth_domtrans_chk_passwd(vlock_t)<br><br>miscfiles_read_localization(vlock_t)<br><br>logging_send_syslog_msg(vlock_t)<br><br>selinux_getattr_fs(vlock_t)<br><br> 		 	   !
- 		  <br /><hr />使用新一代 Windows Live Messenger 轻松交流和共享！ <a href='http://www.windowslive.cn/messenger/' target='_new'>立刻下载！</a></body>
-</html>
---_5cb3021f-d1a3-4cc9-b2fd-2d103bcf8742_--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
