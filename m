@@ -1,53 +1,68 @@
-Subject: Re: strange policy loading problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <201003031018.38030.russell@coker.com.au>
-References: <201003031018.38030.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 11 Mar 2010 14:16:20 -0500
-Message-Id: <1268334980.16780.101.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2BJKaKh027179
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 14:20:36 -0500
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2BJL2T3005945
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 19:21:03 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o2BJKIxX003451
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 20:20:18 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o2BJKIW6060886
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2010 20:20:18 +0100 (CET)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Thu, 11 Mar 2010 20:20:18 +0100
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: init problem
+Message-ID: <20100311192018.GG24034@myhost.felk.cvut.cz>
+References: <20100307101505.GA3587@myhost.felk.cvut.cz>
+ <4B939F47.7050704@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bFsKbPszpzYNtEU6"
+In-Reply-To: <4B939F47.7050704@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-03-03 at 10:18 +1100, Russell Coker wrote:
-> I'm running a 2.6.32 system under KVM and it keeps OOMing when I try to run 
-> semodule.
-> 
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:        507532     475320      32212          0       4168      11148
-> -/+ buffers/cache:     460004      47528
-> Swap:       524280      19848     504432
-> 
-> The policy.24 file is just under 900K in size, the output of free is above, it 
-> doesn't seem particularly short of RAM.  The dmesg output is below.  Any 
-> suggestions for what I should investigate?
-> 
-> I could just give the VM a gig of RAM, but I run lots of real systems with 
-> less than 512M so I would like this to work.
-> 
-> 
-> [10750.523296] load_policy: page allocation failure. order:4, mode:0xc0d0
-> [10750.524503] Pid: 13383, comm: load_policy Not tainted 2.6.32-trunk-amd64 #1
 
-This has been reproduced by others, and in looking further at it, I
-think it is due to switching the avtab from using vmalloc() to using
-kmalloc() as part of commit 3232c110b56bd01c5f0fdfd16b4d695f2e05b0a9
-without reducing MAX_AVTAB_SIZE sufficiently to ensure that we don't put
-too much pressure on the slab allocator.  Options seem to be:
-1) Reduce MAX_AVTAB_SIZE further so that the max avtab allocation is a
-lower order allocation that isn't likely to fail on kcalloc, and keep
-using that always.
-2) Change the avtab code to dynamically select use of vmalloc/vfree or
-kcalloc/kfree depending on the selected avtab size.
+--bFsKbPszpzYNtEU6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley
-National Security Agency
+Daniel J Walsh wrote:
+> /* Return 1 if we are running on a SELinux kernel, or 0 if not or -1
+> if we get an error. */
+> extern int is_selinux_enabled(void);
+>=20
+> Attached patch to fix man page.
 
+Okay. In that case, sysvinit needs the following fix (tested to solve
+the issue):
+
+   if (getenv("SELINUX_INIT") =3D=3D NULL&&  (1 !=3D is_selinux_enabled()))=
+ {
+                                          ^
+
+(I got the original fix wrong.)
+
+Michal Svoboda
+
+--bFsKbPszpzYNtEU6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkuZQnIACgkQg/fU9pp1uX55qgCfb1+Grej2vnoqWWRTIAPEwwyA
+z/wAnRoHbbIePUW59ZJsqtvByUiaAhfj
+=ZXli
+-----END PGP SIGNATURE-----
+
+--bFsKbPszpzYNtEU6--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
