@@ -1,14 +1,14 @@
 Subject: Re: strange policy loading problem
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>
 In-Reply-To: <1268334980.16780.101.camel@moss-pluto.epoch.ncsc.mil>
 References: <201003031018.38030.russell@coker.com.au>
 	 <1268334980.16780.101.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 11 Mar 2010 14:47:25 -0500
-Message-ID: <1268336845.2941.64.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 11 Mar 2010 14:59:32 -0500
+Message-Id: <1268337572.16780.112.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -46,13 +46,25 @@ On Thu, 2010-03-11 at 14:16 -0500, Stephen Smalley wrote:
 > 2) Change the avtab code to dynamically select use of vmalloc/vfree or
 > kcalloc/kfree depending on the selected avtab size.
 
-lib/flex_array.c also looks like it could be a solution.  Probably the
-best solution since we don't have to worry about future changes and
-people forgetting about the limitation and reasons for either 1 or 2.
+So, for example, this might solve your immediate problem:
 
--Eric
-> 
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index 8da6a84..db15fe9 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -82,7 +82,7 @@ struct avtab_node *avtab_search_node_next(struct avtab_node *node, int specified
+ void avtab_cache_init(void);
+ void avtab_cache_destroy(void);
+ 
+-#define MAX_AVTAB_HASH_BITS 13
++#define MAX_AVTAB_HASH_BITS 10
+ #define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
+ #define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS-1)
+ #define MAX_AVTAB_SIZE MAX_AVTAB_HASH_BUCKETS
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
