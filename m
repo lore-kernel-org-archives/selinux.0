@@ -1,1089 +1,1038 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2CI3OZ5004959
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:03:24 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2CIIHYB006213
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:18:17 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2CI3qjN027756
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 18:03:52 GMT
-Received: from int-mx05.intmail.prod.int.phx2.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.18])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o2CI3Mo2012506
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o2CIHuiT005079
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 18:17:57 GMT
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o2CIIFMq022298
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:03:22 -0500
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:18:15 -0500
 Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx05.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o2CI3LXq011543
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:03:21 -0500
-Message-ID: <4B9A81E9.2000409@redhat.com>
-Date: Fri, 12 Mar 2010 13:03:21 -0500
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o2CIIEL2029062
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2010 13:18:14 -0500
+Message-ID: <4B9A8566.8060205@redhat.com>
+Date: Fri, 12 Mar 2010 13:18:14 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SELinux <selinux@tycho.nsa.gov>
-Subject: These two patches allow restorecond to use same code as setfiles/restorecon.
+Subject: This is the sandbox patch
 Content-Type: multipart/mixed;
- boundary="------------000301090109090103040900"
+ boundary="------------060104060908040002060801"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000301090109090103040900
+--------------060104060908040002060801
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-First patch rearranges setfiles code separating out shared code into a 
-new c program called restore.c
-This program will be linked against restorecond and setfiles.
-
-Second patch changes restorecond to use the separated out code and also 
-Allows restorecond to run as a user process, rather then as a system 
-service.  So it can run within the user session watching for file 
-creations in the homedir.
 
 
-
---------------000301090109090103040900
+--------------060104060908040002060801
 Content-Type: text/plain;
- name="restorecond1.patch"
+ name="policycoreutils-sandbox.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="restorecond1.patch"
+ filename="policycoreutils-sandbox.patch"
 
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index b649d8f..f8bd950 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -1,4 +1,5 @@
- #include "restore.h"
-+#include <glob.h>
- 
- #define SKIP -2
- #define ERR -1
-@@ -31,7 +32,6 @@ struct edir {
- 
- 
- static file_spec_t *fl_head;
--static int exclude(const char *file);
- static int filespec_add(ino_t ino, const security_context_t con, const char *file);
- static int only_changed_user(const char *a, const char *b);
- struct restore_opts *r_opts = NULL;
-@@ -53,7 +53,6 @@ void remove_exclude(const char *directory)
- 		}
- 	}
- 	return;
--
- }
- 
- void restore_init(struct restore_opts *opts)
-@@ -300,8 +299,14 @@ static int process_one(char *name, int recurse_this_path)
- 	int rc = 0;
- 	const char *namelist[2] = {name, NULL};
- 	dev_t dev_num = 0;
--	FTS *fts_handle;
--	FTSENT *ftsent;
-+	FTS *fts_handle = NULL;
-+	FTSENT *ftsent = NULL;
+diff -Nur a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+--- a/policycoreutils/sandbox/Makefile	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/Makefile	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,41 @@
++# Installation directories.
++PREFIX ?= ${DESTDIR}/usr
++INITDIR ?= ${DESTDIR}/etc/rc.d/init.d/
++SYSCONFDIR ?= ${DESTDIR}/etc/sysconfig
++BINDIR ?= $(PREFIX)/bin
++SBINDIR ?= $(PREFIX)/sbin
++MANDIR ?= $(PREFIX)/share/man
++LOCALEDIR ?= /usr/share/locale
++SHAREDIR ?= $(PREFIX)/share/sandbox
++override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DPACKAGE="\"policycoreutils\""
++LDLIBS += -lselinux -lcap-ng 
 +
-+	if (r_opts == NULL){
-+		fprintf(stderr,
-+			"Must call initialize first!");
-+		goto err;
-+	}
- 
- 	fts_handle = fts_open((char **)namelist, r_opts->fts_flags, NULL);
- 	if (fts_handle  == NULL) {
-@@ -357,6 +362,29 @@ err:
- 	goto out;
- }
- 
-+int process_glob(char *name, int recurse) {
-+	glob_t globbuf;
-+	size_t i = 0;
-+	int errors = 0;
-+	memset(&globbuf, 0, sizeof(globbuf));
-+	globbuf.gl_offs = 0;
-+	if (glob(name,
-+		 GLOB_TILDE | GLOB_PERIOD,
-+		 NULL,
-+		 &globbuf) >= 0) {
-+		for (i = 0; i < globbuf.gl_pathc; i++) {
-+			int len = strlen(globbuf.gl_pathv[i]) -2;
-+			if (len > 0 && strcmp(&globbuf.gl_pathv[i][len--], "/.") == 0) continue;
-+			if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0) continue;
-+			errors |= process_one_realpath(globbuf.gl_pathv[i], recurse) < 0;
-+		}
-+		globfree(&globbuf);
-+	}
++all: sandbox seunshare sandboxX.sh 
++
++seunshare: seunshare.o $(EXTRA_OBJS)
++	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++
++install: all
++	-mkdir -p $(BINDIR)
++	install -m 755 sandbox $(BINDIR)
++	-mkdir -p $(MANDIR)/man8
++	install -m 644 sandbox.8 $(MANDIR)/man8/
++	-mkdir -p $(SBINDIR)
++	install -m 4755 seunshare $(SBINDIR)/
++	-mkdir -p $(SHAREDIR)
++	install -m 755 sandboxX.sh $(SHAREDIR)
++	-mkdir -p $(INITDIR)
++	install -m 755 sandbox.init $(INITDIR)/sandbox
++	-mkdir -p $(SYSCONFDIR)
++	install -m 644 sandbox.config $(SYSCONFDIR)/sandbox
++
++test:
++	@python test_sandbox.py -v
++
++clean:
++	-rm -f seunshare *.o *~
++
++indent:
++	../../scripts/Lindent $(wildcard *.[ch])
++
++relabel:
+diff -Nur a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+--- a/policycoreutils/sandbox/sandbox	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/sandbox	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,415 @@
++#! /usr/bin/python -E
++# Authors: Dan Walsh <dwalsh@redhat.com>
++# Authors: Josh Cogliati
++#
++# Copyright (C) 2009,2010  Red Hat
++# see file 'COPYING' for use and warranty information
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; version 2 only
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++#
++
++import os, sys, socket, random, fcntl, shutil, re, subprocess
++import selinux
++import signal
++from tempfile import mkdtemp
++import pwd
++
++PROGNAME = "policycoreutils"
++HOMEDIR=pwd.getpwuid(os.getuid()).pw_dir
++
++import gettext
++gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
++gettext.textdomain(PROGNAME)
++
++try:
++       gettext.install(PROGNAME,
++                       localedir = "/usr/share/locale",
++                       unicode=False,
++                       codeset = 'utf-8')
++except IOError:
++       import __builtin__
++       __builtin__.__dict__['_'] = unicode
++
++DEFAULT_TYPE = "sandbox_t"
++DEFAULT_X_TYPE = "sandbox_x_t"
++X_FILES = {}
++
++random.seed(None)
++
++def sighandler(signum, frame):
++    signal.signal(signum,  signal.SIG_IGN)
++    os.kill(0, signum)
++    raise KeyboardInterrupt
++
++def setup_sighandlers():
++    signal.signal(signal.SIGHUP,  sighandler)
++    signal.signal(signal.SIGQUIT, sighandler)
++    signal.signal(signal.SIGTERM, sighandler)
++
++def error_exit(msg):
++    sys.stderr.write("%s: " % sys.argv[0])
++    sys.stderr.write("%s\n" % msg)
++    sys.stderr.flush()
++    sys.exit(1)
++
++def copyfile(file, dir, dest):
++       import re
++       if file.startswith(dir):
++              dname = os.path.dirname(file)
++              bname = os.path.basename(file)
++              if dname == dir:
++                     dest = dest + "/" + bname
++              else:
++                     newdir = re.sub(dir, dest, dname)
++                     if not os.path.exists(newdir):
++                            os.makedirs(newdir)
++                     dest = newdir + "/" + bname
++
++              if os.path.isdir(file):
++                     shutil.copytree(file, dest)
++              else:
++                     shutil.copy2(file, dest)
++              X_FILES[file] = (dest, os.path.getmtime(dest))
++
++def savefile(new, orig, X_ind):
++       copy = False
++       if(X_ind):
++              import gtk
++              dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
++                                      gtk.BUTTONS_YES_NO,
++                                      _("Do you want to save changes to '%s' (Y/N): ") % orig)
++              dlg.set_title(_("Sandbox Message"))
++              dlg.set_position(gtk.WIN_POS_MOUSE)
++              dlg.show_all()
++              rc = dlg.run()
++              dlg.destroy()
++              if rc == gtk.RESPONSE_YES:
++                     copy = True
++       else:
++              ans = raw_input(_("Do you want to save changes to '%s' (y/N): ") % orig)
++              if(re.match(_("[yY]"),ans)):
++                     copy = True
++       if(copy):
++              shutil.copy2(new,orig)
++
++def reserve(level):
++    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
++    sock.bind("\0%s" % level)
++    fcntl.fcntl(sock.fileno(), fcntl.F_SETFD, fcntl.FD_CLOEXEC)
++
++def gen_mcs():
++       while True:
++              i1 = random.randrange(0, 1024)
++              i2 = random.randrange(0, 1024)
++              if i1 == i2:
++                     continue
++              if i1 > i2:
++                     tmp = i1
++                     i1 = i2
++                     i2 = tmp
++                     level = "s0:c%d,c%d" % (i1, i2)
++              level = "s0:c%d,c%d" % (i1, i2)
++              try:
++                     reserve(level)
++              except socket.error:
++                     continue
++              break
++       return level
++
++def fullpath(cmd):
++       for i in [ "/", "./", "../" ]:
++              if cmd.startswith(i):
++                     return cmd
++       for i in  os.environ["PATH"].split(':'):
++              f = "%s/%s" % (i, cmd)
++              if os.access(f, os.X_OK):
++                     return f
++       return cmd
++
++class Sandbox:
++    VERSION = "sandbox .1"
++    SYSLOG = "/var/log/messages"
++
++    def __init__(self):
++        self.__options = None
++        self.__cmds = None
++        self.__init_files = []
++        self.__paths = []
++        self.__mount = False
++        self.__level = None
++        self.__homedir = None
++        self.__tmpdir = None
++
++    def __validate_mount(self):
++           if self.__options.level:
++                  if not self.__options.homedir or not self.__options.tmpdir:
++                         self.usage(_("Homedir and tempdir required for level mounts"))
++
++           if not os.path.exists("/usr/sbin/seunshare"):
++                  raise ValueError("""
++/usr/sbin/seunshare required for sandbox -M, to install you need to execute 
++#yum install /usr/sbin/seunshare
++""")
++           homedir=pwd.getpwuid(os.getuid()).pw_dir
++           fd = open("/proc/self/mountinfo", "r")
++           recs = fd.readlines()
++           fd.close()
++           for i in recs:
++                  x = i.split() 
++                  if x[3] == x[4] and homedir.startswith(x[3]+"/"):
++                         return
++           raise ValueError(_("""
++'%s' is required to be a shared mount point for this tool to run.  
++'%s' can be added to the HOMEDIR variable in /etc/sysconfig/sandbox
++ along with a reboot will fix the problem.
++""" % ((os.path.dirname(homedir)), os.path.dirname(homedir))))
++        
++    def __mount_callback(self, option, opt, value, parser):
++           self.__mount = True
++
++    def __x_callback(self, option, opt, value, parser):
++           self.__mount = True
++           setattr(parser.values, option.dest, True)
++
++    def __validdir(self, option, opt, value, parser):
++           if not os.path.isdir(value):
++                  raise IOError("Directory "+value+" not found")
++           self.__mount = True
++
++    def __include(self, option, opt, value, parser):
++           rp = os.path.realpath(os.path.expanduser(value))
++           if not os.path.exists(rp):
++                  raise IOError(value+" not found")
++
++           if rp not in self.__init_files:
++                  self.__init_files.append(rp)
++
++    def __includefile(self, option, opt, value, parser):
++           fd = open(value, "r")
++           for i in fd.readlines():
++                  rp = os.path.realpath(os.path.expanduser(i[:-1]))
++                  if rp not in self.__init_files and os.path.exists(rp):
++                         self.__init_files.append(rp)
++           fd.close()
++
++    def __copyfiles(self):
++           files = self.__init_files + self.__paths
++           homedir=pwd.getpwuid(os.getuid()).pw_dir
++           for f in files:
++                  copyfile(f, homedir, self.__homedir)
++                  copyfile(f, "/tmp", self.__tmpdir)
++
++    def __setup_sandboxrc(self):
++           execfile =self.__homedir + "/.sandboxrc"
++           fd = open(execfile, "w+") 
++           if self.__options.session:
++                  fd.write("""#!/bin/sh
++#TITLE: /etc/gdm/Xsession
++/etc/gdm/Xsession
++""")
++           else:
++                  command = " ".join(self.__paths)
++                  fd.write("""#! /bin/sh
++#TITLE: %s
++/usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
++/usr/bin/matchbox-window-manager -use_titlebar no &
++WM_PID=$!
++%s
++kill -TERM $WM_PID  2> /dev/null
++""" % (command, command))
++           fd.close()
++           os.chmod(execfile, 0700)
++
++    def usage(self, message = ""):
++           error_exit("%s\n%s" % (self.__parser.usage, message))
++
++    def __parse_options(self):
++        from optparse import OptionParser
++        usage = _("""
++sandbox [-h] [-[X|M] [-l level ] [-H homedir] [-T tempdir]] [-I includefile ] [[-i file ] ...] [ -t type ] command
++
++sandbox [-h] [-[X|M] [-l level ] [-H homedir] [-T tempdir]] [-I includefile ] [[-i file ] ...] [ -t type ] -S
++""")
++        
++        parser = OptionParser(version=self.VERSION, usage=usage)
++        parser.disable_interspersed_args()
++        parser.add_option("-i", "--include", 
++                          action="callback", callback=self.__include, 
++                          type="string",
++                          help="include file in sandbox")
++        parser.add_option("-I", "--includefile",  action="callback", callback=self.__includefile,
++                          type="string",
++                          help="include contents of file in sandbox")
++        parser.add_option("-t", "--type", dest="setype", action="store", default=DEFAULT_TYPE,
++                          help="Run sandbox with SELinux type")
++        parser.add_option("-M", "--mount", 
++                          action="callback", callback=self.__mount_callback, 
++                          help="Mount new home and tmp Dir")
++
++        parser.add_option("-S", "--session", action="store_true",  dest="session", 
++                          default=False,  help="Run complete desktop session within sandbox")
++        parser.add_option("-X", dest="X_ind", 
++                          action="callback", callback=self.__x_callback, 
++                          default=False,  help="Run X sandbox")
++
++        parser.add_option("-H", "--homedir", 
++                          action="callback", callback=self.__validdir,
++                          type="string",
++                          dest="homedir",  
++                          help="Alternate homedir to use for mounting")
++
++        parser.add_option("-T", "--tmpdir", dest="tmpdir",  
++                          type="string",
++                          action="callback", callback=self.__validdir,
++                          help="Alternate tempdir to use for mounting")
++
++        parser.add_option("-l", "--level", dest="level", 
++                          help="MCS/MLS Level for the sandbox")
++
++        self.__parser=parser
++
++        self.__options, cmds = parser.parse_args()
++
++        if self.__options.X_ind:
++               if DEFAULT_TYPE == self.__options.setype:
++                     self.__options.setype = DEFAULT_X_TYPE
++
++        if self.__mount:
++               self.__validate_mount()
++
++        if self.__options.session:
++               if self.__options.setype in (DEFAULT_TYPE, DEFAULT_X_TYPE):
++                      self.__options.setype = selinux.getcon()[1].split(":")[2]
++               if not self.__options.homedir or not self.__options.tmpdir:
++                      self.usage(_("Homedir and tempdir required for session"))
++               if len(cmds) > 0:
++                      self.usage(_("Commands not allowed in a session"))
++        else:
++               if len(cmds) == 0:
++                      self.usage(_("Command required"))
++               cmds[0] = fullpath(cmds[0])
++               self.__cmds = cmds
++
++        for f in cmds:
++               rp = os.path.realpath(f)
++               if os.path.exists(rp):
++                      self.__paths.append(rp)
++               else:
++                      self.__paths.append(f)
++                  
++    def __gen_context(self):
++           if self.__options.level:
++                  level = self.__options.level
++           else:
++                  level = gen_mcs()
++
++           con = selinux.getcon()[1].split(":")
++           self.__execcon = "%s:%s:%s:%s" % (con[0], con[1], self.__options.setype, level)
++           self.__filecon = "%s:%s:%s:%s" % (con[0], "object_r", 
++                                             "%s_file_t" % self.__options.setype[:-2], 
++                                             level)
++    def __setup_dir(self):
++           if self.__options.level or self.__options.session:
++                  return
++           sandboxdir = HOMEDIR + "/.sandbox"
++           if not os.path.exists(sandboxdir):
++                  os.mkdir(sandboxdir)
++
++           import warnings 
++           warnings.simplefilter("ignore")
++           if self.__options.homedir:
++                  chcon =  ("/usr/bin/chcon -R %s %s" % (self.__filecon, self.__options.homedir)).split()
++                  rc = os.spawnvp(os.P_WAIT, chcon[0], chcon)
++                  self.__homedir = self.__options.homedir
++           else:
++                  selinux.setfscreatecon(self.__filecon)
++                  self.__homedir = mkdtemp(dir=sandboxdir, prefix=".sandbox")
++
++           if self.__options.tmpdir:
++                  chcon =  ("/usr/bin/chcon -R %s %s" % (self.__filecon, self.__options.tmpdir)).split()
++                  rc = os.spawnvp(os.P_WAIT, chcon[0], chcon)
++                  self.__tmpdir = self.__options.homedir
++           else:
++                  selinux.setfscreatecon(self.__filecon)
++                  self.__tmpdir = mkdtemp(dir="/tmp", prefix=".sandbox")
++           warnings.resetwarnings()
++           selinux.setfscreatecon(None)
++           self.__copyfiles()
++
++    def __execute(self):
++           try:
++                  if self.__options.X_ind:
++                         xmodmapfile = self.__homedir + "/.xmodmap"
++                         xd = open(xmodmapfile,"w")
++                         subprocess.Popen(["/usr/bin/xmodmap","-pke"],stdout=xd).wait()
++                         xd.close()
++
++                         self.__setup_sandboxrc()
++                         
++                         cmds =  ("/usr/sbin/seunshare -t %s -h %s -- %s /usr/share/sandbox/sandboxX.sh" % (self.__tmpdir, self.__homedir, self.__execcon)).split()
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         return rc
++
++                  if self.__mount:
++                         cmds =  ("/usr/sbin/seunshare -t %s -h %s -- %s " % (self.__tmpdir, self.__homedir, self.__execcon)).split()+self.__paths
++                         rc = os.spawnvp(os.P_WAIT, cmds[0], cmds)
++                         return rc
++
++                  selinux.setexeccon(self.__execcon)
++                  rc = os.spawnvp(os.P_WAIT, self.__cmds[0], self.__cmds)
++                  selinux.setexeccon(None)
++                  return rc
++
++           finally:
++                  for i in self.__paths:
++                         if i not in X_FILES:
++                                continue
++                         (dest, mtime) = X_FILES[i]
++                         if os.path.getmtime(dest) > mtime:
++                                savefile(dest, i, X_ind)
++
++                  if self.__homedir and not self.__options.homedir: 
++                         shutil.rmtree(self.__homedir)
++                  if self.__tmpdir and not self.__options.tmpdir:
++                         shutil.rmtree(self.__tmpdir)
++    def main(self):
++        try:
++               self.__parse_options()
++               self.__gen_context()
++               self.__setup_dir()
++               return self.__execute()
++        except KeyboardInterrupt:
++            sys.exit(0)
++
++
++if __name__ == '__main__':
++    setup_sighandlers()
++    if selinux.is_selinux_enabled() != 1:
++        error_exit("Requires an SELinux enabled system")
++    
++    try:
++           sandbox = Sandbox()
++           rc = sandbox.main()
++    except OSError, error:
++           error_exit(error.args[1])
++    except ValueError, error:
++           error_exit(error.args[0])
++    except KeyError, error:
++           error_exit(_("Invalid value %s") % error.args[0])
++    except IOError, error:
++           error_exit(error)
++    except KeyboardInterrupt:
++           rc = 0
++           
++    sys.exit(rc)
+diff -Nur a/policycoreutils/sandbox/sandbox.8 b/policycoreutils/sandbox/sandbox.8
+--- a/policycoreutils/sandbox/sandbox.8	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/sandbox.8	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,50 @@
++.TH SANDBOX "8" "May 2009" "chcat" "User Commands"
++.SH NAME
++sandbox \- Run cmd under an SELinux sandbox
++.SH SYNOPSIS
++.B sandbox
++[-l level ] [[-M | -X]  -H homedir -T tmpdir ] [-I includefile ] [[-i file ]...] [ -t type ] cmd
++.br
++.SH DESCRIPTION
++.PP
++Run the 
++.I cmd 
++application within a tightly confined SELinux domain.  The default sandbox domain only allows applications the ability to read and write stdin, stdout and any other file descriptors handed to it. It is not allowed to open any other files.  The -M option will mount an alternate homedir and tmpdir to be used by the sandbox.
++
++If you have the 
++.I policycoreutils-sandbox 
++package installed, you can use the -X option and the -M option.
++.B sandbox -X
++allows you to run sandboxed X applications.  These applications will start up their own X Server and create a temporary homedir and /tmp.  The default policy does not allow any capabilities or network access.  It also prevents all access to the users other processes and files.  Any file specified on the command line will be copied into the sandbox.
++
++If directories are specified with -H or -T the directory will have its context modified with chcon(1) unless a level is specified with -l.  If the MLS/MCS security level is specified, the directories need to have a matching label.
++.PP
++.TP
++\fB\-t type\fR
++Use alternate sandbox type, defaults to sandbox_t or sandbox_x_t for -X.
++.TP
++\fB\-i file\fR
++Copy this file into the temporary sandbox appriate. Command can be repeated.
++.TP
++\fB\-I inputfile\fR
++Copy all files listed in inputfile into the appropriate temporary sandbox direcories. 
++.TP
++\fB\-l\fR
++Specify the MLS/MCS Security Level to run the sandbox in.  Defaults to random.
++.TP
++\fB\-X\fR
++Create an X based Sandbox for gui apps, temporary files for $HOME and /tmp, seconday Xserver, defaults to sandbox_x_t
++.TP
++\fB\-M\fR
++Create a Sandbox with temporary files for $HOME and /tmp, defaults to sandbox_t
++.TP
++\fB\-H\ homedir
++Use alternate homedir to mount.  Defaults to temporary. Requires -X or -M.
++.TP
++\fB\-T\ tmpdir
++Use alternate tempdir to mount.  Defaults to temporary. Requires -X or -M.
++.PP
++.SH "SEE ALSO"
++.TP
++runcon(1)
++.PP
+diff -Nur a/policycoreutils/sandbox/sandbox.config b/policycoreutils/sandbox/sandbox.config
+--- a/policycoreutils/sandbox/sandbox.config	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/sandbox.config	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,2 @@
++# Space separate list of homedirs
++HOMEDIRS="/home"
+diff -Nur a/policycoreutils/sandbox/sandbox.init b/policycoreutils/sandbox/sandbox.init
+--- a/policycoreutils/sandbox/sandbox.init	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/sandbox.init	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,67 @@
++#!/bin/bash
++## BEGIN INIT INFO
++# Provides: sandbox
++# Default-Start: 3 4 5
++# Default-Stop: 0 1 2 3 4 6
++# Required-Start:
++#              
++## END INIT INFO
++# sandbox:        Set up / mountpoint to be shared, /var/tmp, /tmp, /home/sandbox unshared
++#
++# chkconfig: 345 1 99
++#
++# Description: sandbox is using pam_namespace to share the /var/tmp, /tmp and 
++#              /home/sandbox accounts.  This script will setup the / mount 
++#              point as shared and all of the subdirectories just these 
++#              directories as unshared.
++#
++
++# Source function library.
++. /etc/init.d/functions
++
++HOMEDIRS="/home"
++
++. /etc/sysconfig/sandbox
++
++LOCKFILE=/var/lock/subsys/sandbox
++
++base=${0##*/}
++
++case "$1" in
++    start)
++	[ -f "$LOCKFILE" ] && exit 0
++
++	touch $LOCKFILE
++	mount --make-rshared /
++	mount --rbind /tmp /tmp
++	mount --rbind /var/tmp /var/tmp
++	mount --make-private /tmp
++	mount --make-private /var/tmp
++	for h in $HOMEDIRS; do
++	    mount --rbind $h $h 
++	    mount --make-private $h
++	done
++
++	RETVAL=$?
++	exit $RETVAL
++	;;
++
++    status)
++	if [ -f "$LOCKFILE" ]; then 
++	    echo "$base is running"
 +	else
-+		errors |= process_one_realpath(name, recurse) < 0;
-+	return errors;
-+}
++	    echo "$base is stopped"
++	fi
++	exit 0
++	;;
 +
- int process_one_realpath(char *name, int recurse)
- {
- 	int rc = 0;
-@@ -374,6 +402,7 @@ int process_one_realpath(char *name, int recurse)
- 	} else {
- 		rc = lstat(name, &sb);
- 		if (rc < 0) {
-+			if (r_opts->ignore_enoent && errno == ENOENT) return 0;
- 			fprintf(stderr, "%s:  lstat(%s) failed:  %s\n",
- 				r_opts->progname, name,	strerror(errno));
- 			return -1;
-@@ -409,7 +438,7 @@ int process_one_realpath(char *name, int recurse)
- 	}
- }
- 
--static int exclude(const char *file)
-+int exclude(const char *file)
- {
- 	int i = 0;
- 	for (i = 0; i < excludeCtr; i++) {
-@@ -602,5 +631,67 @@ static int filespec_add(ino_t ino, const security_context_t con, const char *fil
- 	return -1;
- }
- 
-+#include <sys/utsname.h>
-+/*
-+   Search /proc/mounts for all file systems that do not support extended
-+   attributes and add them to the exclude directory table.  File systems
-+   that support security labels have the seclabel option.
-+*/
-+void exclude_non_seclabel_mounts()
-+{
-+	struct utsname uts;
-+	FILE *fp;
-+	size_t len;
-+	ssize_t num;
-+	int index = 0, found = 0;
-+	char *mount_info[4];
-+	char *buf = NULL, *item;
++    stop)
++	rm -f $LOCKFILE
++	exit 0
++	;;
 +
-+	/* Check to see if the kernel supports seclabel */
-+	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
-+		return;
-+	if (is_selinux_enabled() <= 0)
-+		return;
++    *)
++	echo $"Usage: $0 {start|stop}"
++	exit 3
++	;;
++esac
+diff -Nur a/policycoreutils/sandbox/sandboxX.sh b/policycoreutils/sandbox/sandboxX.sh
+--- a/policycoreutils/sandbox/sandboxX.sh	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/sandboxX.sh	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,15 @@
++#!/bin/bash 
++context=`id -Z | secon -t -l -P`
++export TITLE="Sandbox $context -- `grep ^#TITLE: ~/.sandboxrc | /usr/bin/cut -b8-80`"
++export SCREENSIZE="1000x700"
++#export SCREENSIZE=`xdpyinfo | awk  '/dimensions/ {  print $2 }'`
++trap "exit 0" HUP
 +
-+	fp = fopen("/proc/mounts", "r");
-+	if (!fp)
-+		return;
-+
-+	while ((num = getline(&buf, &len, fp)) != -1) {
-+		found = 0;
-+		index = 0;
-+		item = strtok(buf, " ");
-+		while (item != NULL) {
-+			mount_info[index] = item;
-+			if (index == 3)
-+				break;
-+			index++;
-+			item = strtok(NULL, " ");
-+		}
-+		if (index < 3) {
-+			fprintf(stderr,
-+				"/proc/mounts record \"%s\" has incorrect format.\n",
-+				buf);
-+			continue;
-+		}
- 
-+		/* remove pre-existing entry */
-+		remove_exclude(mount_info[1]);
-+
-+		item = strtok(mount_info[3], ",");
-+		while (item != NULL) {
-+			if (strcmp(item, "seclabel") == 0) {
-+				found = 1;
-+				break;
-+			}
-+			item = strtok(NULL, ",");
-+		}
-+
-+		/* exclude mount points without the seclabel option */
-+		if (!found)
-+			add_exclude(mount_info[1]);
-+	}
-+
-+	free(buf);
-+}
- 
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index 03b82e8..8b50ff8 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -27,6 +27,7 @@ struct restore_opts {
- 	int hard_links;
- 	int verbose;
- 	int logging;
-+	int ignore_enoent;
- 	char *rootpath;
- 	int rootpathlen;
- 	char *progname;
-@@ -44,7 +45,10 @@ struct restore_opts {
- void restore_init(struct restore_opts *opts);
- void restore_finish();
- int add_exclude(const char *directory);
-+int exclude(const char *path);
- void remove_exclude(const char *directory);
- int process_one_realpath(char *name, int recurse);
-+int process_glob(char *name, int recurse);
- 
-+void exclude_non_seclabel_mounts();
- #endif
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 1eb6a43..c8ea4bb 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -4,10 +4,10 @@ restorecon \- restore file(s) default SELinux security contexts.
- 
- .SH "SYNOPSIS"
- .B restorecon
--.I [\-o outfilename ] [\-R] [\-n] [\-v] [\-e directory ] pathname...
-+.I [\-o outfilename ] [\-R] [\-n] [\-p] [\-v] [\-e directory ] pathname...
- .P
- .B restorecon
--.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-v] [\-F]
-+.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-p] [\-v] [\-F]
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -40,6 +40,9 @@ don't change any file labels.
- .TP 
- .B \-o outfilename
- save list of files with incorrect context in outfilename.
-+.TP
-+.B \-p
-+show progress by printing * every 1000 files.
- .TP 
- .B \-v
- show changes in file labels.
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index ac68b94..28f99d9 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -31,6 +31,9 @@ log changes in file labels to syslog.
- .TP
- .B \-n
- don't change any file labels.
-+.TP
-+.B \-p
-+show progress by printing * every 1000 files.
- .TP 
- .B \-q
- suppress non-error output.
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 8f4f663..b0a7e09 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -5,7 +5,6 @@
- #include <ctype.h>
- #include <regex.h>
- #include <sys/vfs.h>
--#include <sys/utsname.h>
- #define __USE_XOPEN_EXTENDED 1	/* nftw */
- #include <libgen.h>
- #ifdef USE_AUDIT
-@@ -25,7 +24,6 @@ static char *policyfile = NULL;
- static int warn_no_match = 0;
- static int null_terminated = 0;
- static int errors;
--static int ignore_enoent;
- static struct restore_opts r_opts;
- 
- #define STAT_BLOCK_SIZE 1
-@@ -44,13 +42,13 @@ void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iFnrRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
-+			"usage:  %s [-iFnprRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
- 			name);
- 	} else {
- 		fprintf(stderr,
- 			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path ] spec_file pathname...\n"
- 			"usage:  %s -c policyfile spec_file\n"
--			"usage:  %s -s [-dnqvW] [-o filename ] spec_file\n", name, name,
-+			"usage:  %s -s [-dnpqvW] [-o filename ] spec_file\n", name, name,
- 			name);
- 	}
- 	exit(1);
-@@ -138,69 +136,6 @@ static void maybe_audit_mass_relabel(void)
- #endif
- }
- 
--/*
--   Search /proc/mounts for all file systems that do not support extended
--   attributes and add them to the exclude directory table.  File systems
--   that support security labels have the seclabel option.
--*/
--static void exclude_non_seclabel_mounts()
--{
--	struct utsname uts;
--	FILE *fp;
--	size_t len;
--	ssize_t num;
--	int index = 0, found = 0;
--	char *mount_info[4];
--	char *buf = NULL, *item;
--
--	/* Check to see if the kernel supports seclabel */
--	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
--		return;
--	if (is_selinux_enabled() <= 0)
--		return;
--
--	fp = fopen("/proc/mounts", "r");
--	if (!fp)
--		return;
--
--	while ((num = getline(&buf, &len, fp)) != -1) {
--		found = 0;
--		index = 0;
--		item = strtok(buf, " ");
--		while (item != NULL) {
--			mount_info[index] = item;
--			if (index == 3)
--				break;
--			index++;
--			item = strtok(NULL, " ");
--		}
--		if (index < 3) {
--			fprintf(stderr,
--				"/proc/mounts record \"%s\" has incorrect format.\n",
--				buf);
--			continue;
--		}
--
--		/* remove pre-existing entry */
--		remove_exclude(mount_info[1]);
--
--		item = strtok(mount_info[3], ",");
--		while (item != NULL) {
--			if (strcmp(item, "seclabel") == 0) {
--				found = 1;
--				break;
--			}
--			item = strtok(NULL, ",");
--		}
--
--		/* exclude mount points without the seclabel option */
--		if (!found)
--			add_exclude(mount_info[1]);
--	}
--
--	free(buf);
--}
--
- int main(int argc, char **argv)
- {
- 	struct stat sb;
-@@ -335,7 +270,7 @@ int main(int argc, char **argv)
- 			r_opts.debug = 1;
- 			break;
- 		case 'i':
--			ignore_enoent = 1;
-+			r_opts.ignore_enoent = 1;
- 			break;
- 		case 'l':
- 			r_opts.logging = 1;
-@@ -371,7 +306,7 @@ int main(int argc, char **argv)
- 				break;
- 			}
- 			if (optind + 1 >= argc) {
--				fprintf(stderr, "usage:  %s -r r_opts.rootpath\n",
-+				fprintf(stderr, "usage:  %s -r rootpath\n",
- 					argv[0]);
- 				exit(1);
- 			}
-@@ -475,7 +410,7 @@ int main(int argc, char **argv)
- 			buf[len - 1] = 0;
- 			if (!strcmp(buf, "/"))
- 				mass_relabel = 1;
--			errors |= process_one_realpath(buf, recurse) < 0;
-+			errors |= process_glob(buf, recurse) < 0;
- 		}
- 		if (strcmp(input_filename, "-") != 0)
- 			fclose(f);
-@@ -483,7 +418,8 @@ int main(int argc, char **argv)
- 		for (i = optind; i < argc; i++) {
- 			if (!strcmp(argv[i], "/"))
- 				mass_relabel = 1;
--			errors |= process_one_realpath(argv[i], recurse) < 0;
-+
-+			errors |= process_glob(argv[i], recurse) < 0;
- 		}
- 	}
- 	
-
---------------000301090109090103040900
-Content-Type: text/plain;
- name="restorecond2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="restorecond2.patch"
-
-diff --git a/policycoreutils/restorecond/Makefile b/policycoreutils/restorecond/Makefile
-index 3f235e6..7552668 100644
---- a/policycoreutils/restorecond/Makefile
-+++ b/policycoreutils/restorecond/Makefile
-@@ -1,17 +1,28 @@
- # Installation directories.
- PREFIX ?= ${DESTDIR}/usr
- SBINDIR ?= $(PREFIX)/sbin
-+LIBDIR ?= $(PREFIX)/lib
- MANDIR = $(PREFIX)/share/man
-+AUTOSTARTDIR = $(DESTDIR)/etc/xdg/autostart
-+DBUSSERVICEDIR = $(DESTDIR)/usr/share/dbus-1/services
-+
-+autostart_DATA = sealertauto.desktop
- INITDIR = $(DESTDIR)/etc/rc.d/init.d
- SELINUXDIR = $(DESTDIR)/etc/selinux
- 
-+DBUSFLAGS = -DHAVE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/lib/dbus-1.0/include 
-+DBUSLIB = -ldbus-glib-1 -ldbus-1
-+
- CFLAGS ?= -g -Werror -Wall -W
--override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+override CFLAGS += -I$(PREFIX)/include $(DBUSFLAGS) -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/lib/glib-2.0/include
-+
-+LDLIBS += -lselinux $(DBUSLIB) -lglib-2.0 -L$(LIBDIR)
- 
- all: restorecond
- 
--restorecond:  restorecond.o utmpwatcher.o stringslist.o
-+restorecond.o utmpwatcher.o stringslist.o user.o watch.o: restorecond.h 
-+
-+restorecond:  ../setfiles/restore.o restorecond.o utmpwatcher.o stringslist.o user.o watch.o
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- install: all
-@@ -22,7 +33,12 @@ install: all
- 	-mkdir -p $(INITDIR)
- 	install -m 755 restorecond.init $(INITDIR)/restorecond
- 	-mkdir -p $(SELINUXDIR)
--	install -m 600 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond.conf $(SELINUXDIR)/restorecond.conf
-+	install -m 644 restorecond_user.conf $(SELINUXDIR)/restorecond_user.conf
-+	-mkdir -p $(AUTOSTARTDIR)
-+	install -m 644 restorecond.desktop $(AUTOSTARTDIR)/restorecond.desktop
-+	-mkdir -p $(DBUSSERVICEDIR)
-+	install -m 600 org.selinux.Restorecond.service  $(DBUSSERVICEDIR)/org.selinux.Restorecond.service
- 
- relabel: install
- 	/sbin/restorecon $(SBINDIR)/restorecond 
-diff --git a/policycoreutils/restorecond/restorecond.8 b/policycoreutils/restorecond/restorecond.8
-index b149dcb..0c14c94 100644
---- a/policycoreutils/restorecond/restorecond.8
-+++ b/policycoreutils/restorecond/restorecond.8
-@@ -3,7 +3,7 @@
- restorecond \- daemon that watches for file creation and then sets the default SELinux file context
- 
- .SH "SYNOPSIS"
--.B restorecond  [\-d]
-+.B restorecond  [\-d] [\-f restorecond_file ] [\-u] [\-v]
- .P
- 
- .SH "DESCRIPTION"
-@@ -19,13 +19,22 @@ the correct file context associated with the policy.
- .B \-d
- Turns on debugging mode.   Application will stay in the foreground and lots of
- debugs messages start printing.
-+.TP 
-+.B \-f restorecond_file
-+Use alternative restorecond.conf file.
-+.TP 
-+.B \-u
-+Turns on user mode.  Runs restorecond in the user session and reads /etc/selinux/restorecond_user.conf.  Uses dbus to make sure only one restorecond is running per user session.
-+.TP 
-+.B \-v
-+Turns on verbose debugging.  (Report missing files)
- 
- .SH "AUTHOR"
--This man page was written by Dan Walsh <dwalsh@redhat.com>.
--The program was written by Dan Walsh <dwalsh@redhat.com>.
-+This man page and program was written by Dan Walsh <dwalsh@redhat.com>.
- 
- .SH "FILES"
- /etc/selinux/restorecond.conf
-+/etc/selinux/restorecond_user.conf
- 
- .SH "SEE ALSO"
- .BR restorecon (8),
-diff --git a/policycoreutils/restorecond/restorecond.c b/policycoreutils/restorecond/restorecond.c
-index 58774e6..145f374 100644
---- a/policycoreutils/restorecond/restorecond.c
-+++ b/policycoreutils/restorecond/restorecond.c
-@@ -30,9 +30,11 @@
-  * and makes sure that there security context matches the systems defaults
-  *
-  * USAGE:
-- * restorecond [-d] [-v]
-+ * restorecond [-d] [-u] [-v] [-f restorecond_file ]
-  * 
-  * -d   Run in debug mode
-+ * -f   Use alternative restorecond_file 
-+ * -u   Run in user mode
-  * -v   Run in verbose mode (Report missing files)
-  *
-  * EXAMPLE USAGE:
-@@ -48,294 +50,38 @@
- #include <signal.h>
- #include <string.h>
- #include <unistd.h>
--#include <ctype.h>
-+#include "../setfiles/restore.h"
- #include <sys/types.h>
--#include <sys/stat.h>
- #include <syslog.h>
- #include <limits.h>
++(/usr/bin/Xephyr -title "$TITLE" -terminate -screen $SCREENSIZE -displayfd 5 5>&1 2>/dev/null) | while read D; do 
++    export DISPLAY=:$D
++    python -c 'import gtk, os; os.system("%s/.sandboxrc" % os.environ["HOME"])'
++    export EXITCODE=$?
++    kill -HUP 0
++    break
++done
++exit 0
+diff -Nur a/policycoreutils/sandbox/seunshare.c b/policycoreutils/sandbox/seunshare.c
+--- a/policycoreutils/sandbox/seunshare.c	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/seunshare.c	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,265 @@
++#include <signal.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <syslog.h>
++#include <sys/mount.h>
 +#include <pwd.h>
-+#include <sys/stat.h>
++#define _GNU_SOURCE
++#include <sched.h>
 +#include <string.h>
 +#include <stdio.h>
- #include <fcntl.h>
--
- #include "restorecond.h"
--#include "stringslist.h"
- #include "utmpwatcher.h"
- 
--extern char *dirname(char *path);
-+const char *homedir;
- static int master_fd = -1;
--static int master_wd = -1;
--static int terminate = 0;
--
--#include <selinux/selinux.h>
--#include <utmp.h>
--
--/* size of the event structure, not counting name */
--#define EVENT_SIZE  (sizeof (struct inotify_event))
--/* reasonable guess as to size of 1024 events */
--#define BUF_LEN        (1024 * (EVENT_SIZE + 16))
--
--static int debug_mode = 0;
--static int verbose_mode = 0;
--
--static void restore(const char *filename, int exact);
--
--struct watchList {
--	struct watchList *next;
--	int wd;
--	char *dir;
--	struct stringsList *files;
--};
--struct watchList *firstDir = NULL;
--
--/* Compare two contexts to see if their differences are "significant",
-- * or whether the only difference is in the user. */
--static int only_changed_user(const char *a, const char *b)
--{
--	char *rest_a, *rest_b;	/* Rest of the context after the user */
--	if (!a || !b)
--		return 0;
--	rest_a = strchr(a, ':');
--	rest_b = strchr(b, ':');
--	if (!rest_a || !rest_b)
--		return 0;
--	return (strcmp(rest_a, rest_b) == 0);
--}
--
--/* 
--   A file was in a direcroty has been created. This function checks to 
--   see if it is one that we are watching.
--*/
--
--static int watch_list_find(int wd, const char *file)
--{
--	struct watchList *ptr = NULL;
--	ptr = firstDir;
--
--	if (debug_mode)
--		printf("%d: File=%s\n", wd, file);
--	while (ptr != NULL) {
--		if (ptr->wd == wd) {
--			int exact=0;
--			if (strings_list_find(ptr->files, file, &exact) == 0) {
--				char *path = NULL;
--				if (asprintf(&path, "%s/%s", ptr->dir, file) <
--				    0)
--					exitApp("Error allocating memory.");
--				restore(path, exact);
--				free(path);
--				return 0;
--			}
--			if (debug_mode)
--				strings_list_print(ptr->files);
--
--			/* Not found in this directory */
--			return -1;
--		}
--		ptr = ptr->next;
--	}
--	/* Did not find a directory */
--	return -1;
--}
--
--static void watch_list_free(int fd)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	ptr = firstDir;
--
--	while (ptr != NULL) {
--		inotify_rm_watch(fd, ptr->wd);
--		strings_list_free(ptr->files);
--		free(ptr->dir);
--		prev = ptr;
--		ptr = ptr->next;
--		free(prev);
--	}
--	firstDir = NULL;
--}
--
--/* 
--   Set the file context to the default file context for this system.
--   Same as restorecon.
--*/
--static void restore(const char *filename, int exact)
--{
--	int retcontext = 0;
--	security_context_t scontext = NULL;
--	security_context_t prev_context = NULL;
--	struct stat st;
--	int fd = -1;
--	if (debug_mode)
--		printf("restore %s\n", filename);
--
--	fd = open(filename, O_NOFOLLOW | O_RDONLY);
--	if (fd < 0) {
--		if (verbose_mode)
--			syslog(LOG_ERR, "Unable to open file (%s) %s\n",
--			       filename, strerror(errno));
--		return;
--	}
--
--	if (fstat(fd, &st) != 0) {
--		syslog(LOG_ERR, "Unable to stat file (%s) %s\n", filename,
--		       strerror(errno));
--		close(fd);
--		return;
--	}
--
--	if (!(st.st_mode & S_IFDIR) && st.st_nlink > 1) {
--		if (exact) { 
--			syslog(LOG_ERR,
--			       "Will not restore a file with more than one hard link (%s) %s\n",
--			       filename, strerror(errno));
--		}
--		close(fd);
--		return;
--	}
--
--	if (matchpathcon(filename, st.st_mode, &scontext) < 0) {
--		if (errno == ENOENT)
--			return;
--		syslog(LOG_ERR, "matchpathcon(%s) failed %s\n", filename,
--		       strerror(errno));
--		return;
--	}
--	retcontext = fgetfilecon_raw(fd, &prev_context);
--
--	if (retcontext >= 0 || errno == ENODATA) {
--		if (retcontext < 0)
--			prev_context = NULL;
--		if (retcontext < 0 || (strcmp(prev_context, scontext) != 0)) {
--
--			if (only_changed_user(scontext, prev_context) != 0) {
--				free(scontext);
--				free(prev_context);
--				close(fd);
--				return;
--			}
--
--			if (fsetfilecon(fd, scontext) < 0) {
--				if (errno != EOPNOTSUPP) 
--					syslog(LOG_ERR,
--					       "set context %s->%s failed:'%s'\n",
--					       filename, scontext, strerror(errno));
--				if (retcontext >= 0)
--					free(prev_context);
--				free(scontext);
--				close(fd);
--				return;
--			}
--			syslog(LOG_WARNING, "Reset file context %s: %s->%s\n",
--			       filename, prev_context, scontext);
--		}
--		if (retcontext >= 0)
--			free(prev_context);
--	} else {
--		if (errno != EOPNOTSUPP) 
--			syslog(LOG_ERR, "get context on %s failed: '%s'\n",
--			       filename, strerror(errno));
--	}
--	free(scontext);
--	close(fd);
--}
--
--static void process_config(int fd, FILE * cfg)
--{
--	char *line_buf = NULL;
--	size_t len = 0;
--
--	while (getline(&line_buf, &len, cfg) > 0) {
--		char *buffer = line_buf;
--		while (isspace(*buffer))
--			buffer++;
--		if (buffer[0] == '#')
--			continue;
--		int l = strlen(buffer) - 1;
--		if (l <= 0)
--			continue;
--		buffer[l] = 0;
--		if (buffer[0] == '~')
--			utmpwatcher_add(fd, &buffer[1]);
--		else {
--			watch_list_add(fd, buffer);
--		}
--	}
--	free(line_buf);
--}
--
--/* 
--   Read config file ignoring Comment lines 
--   Files specified one per line.  Files with "~" will be expanded to the logged in users
--   homedirs.
--*/
--
--static void read_config(int fd)
--{
--	char *watch_file_path = "/etc/selinux/restorecond.conf";
- 
--	FILE *cfg = NULL;
--	if (debug_mode)
--		printf("Read Config\n");
--
--	watch_list_free(fd);
--
--	cfg = fopen(watch_file_path, "r");
--	if (!cfg)
--		exitApp("Error reading config file.");
--	process_config(fd, cfg);
--	fclose(cfg);
--
--	inotify_rm_watch(fd, master_wd);
--	master_wd =
--	    inotify_add_watch(fd, watch_file_path, IN_MOVED_FROM | IN_MODIFY);
--	if (master_wd == -1)
--		exitApp("Error watching config file.");
--}
-+static char *server_watch_file  = "/etc/selinux/restorecond.conf";
-+static char *user_watch_file  = "/etc/selinux/restorecond_user.conf";
-+static char *watch_file;
-+static struct restore_opts r_opts;
- 
--/* 
--   Inotify watch loop 
--*/
--static int watch(int fd)
--{
--	char buf[BUF_LEN];
--	int len, i = 0;
--	len = read(fd, buf, BUF_LEN);
--	if (len < 0) {
--		if (terminate == 0) {
--			syslog(LOG_ERR, "Read error (%s)", strerror(errno));
--			return 0;
--		}
--		syslog(LOG_ERR, "terminated");
--		return -1;
--	} else if (!len)
--		/* BUF_LEN too small? */
--		return -1;
--	while (i < len) {
--		struct inotify_event *event;
--		event = (struct inotify_event *)&buf[i];
--		if (debug_mode)
--			printf("wd=%d mask=%u cookie=%u len=%u\n",
--			       event->wd, event->mask,
--			       event->cookie, event->len);
--		if (event->wd == master_wd)
--			read_config(fd);
--		else {
--			switch (utmpwatcher_handle(fd, event->wd)) {
--			case -1:	/* Message was not for utmpwatcher */
--				if (event->len)
--					watch_list_find(event->wd, event->name);
--				break;
++#include <unistd.h>
++#include <stdlib.h>
++#include <cap-ng.h>
++#include <getopt.h>		/* for getopt_long() form of getopt() */
++#include <limits.h>
++#include <stdlib.h>
++#include <errno.h>
++
 +#include <selinux/selinux.h>
- 
--			case 1:	/* utmp has changed need to reload */
--				read_config(fd);
--				break;
-+int debug_mode = 0;
-+int terminate = 0;
-+int master_wd = -1;
-+int run_as_user = 0;
- 
--			default:	/* No users logged in or out */
--				break;
--			}
--		}
--
--		i += EVENT_SIZE + event->len;
--	}
--	return 0;
-+static void done(void) {
-+	watch_list_free(master_fd);
-+	close(master_fd);
-+	utmpwatcher_free();
-+	matchpathcon_fini();
- }
- 
- static const char *pidfile = "/var/run/restorecond.pid";
-@@ -374,7 +120,7 @@ static void term_handler()
- 
- static void usage(char *program)
- {
--	printf("%s [-d] [-v] \n", program);
-+	printf("%s [-d] [-f restorecond_file ] [-u] [-v] \n", program);
- 	exit(0);
- }
- 
-@@ -390,74 +136,35 @@ void exitApp(const char *msg)
-    to see if it is one that we are watching.
- */
- 
--void watch_list_add(int fd, const char *path)
--{
--	struct watchList *ptr = NULL;
--	struct watchList *prev = NULL;
--	char *x = strdup(path);
--	if (!x)
--		exitApp("Out of Memory");
--	char *dir = dirname(x);
--	char *file = basename(path);
--	ptr = firstDir;
--
--	restore(path, 1);
--
--	while (ptr != NULL) {
--		if (strcmp(dir, ptr->dir) == 0) {
--			strings_list_add(&ptr->files, file);
--			free(x);
--			return;
--		}
--		prev = ptr;
--		ptr = ptr->next;
--	}
--	ptr = calloc(1, sizeof(struct watchList));
--
--	if (!ptr)
--		exitApp("Out of Memory");
--
--	ptr->wd = inotify_add_watch(fd, dir, IN_CREATE | IN_MOVED_TO);
--	if (ptr->wd == -1) {
--		free(ptr);
--		syslog(LOG_ERR, "Unable to watch (%s) %s\n",
--		       path, strerror(errno));
--		return;
--	}
--
--	ptr->dir = strdup(dir);
--	if (!ptr->dir)
--		exitApp("Out of Memory");
--
--	strings_list_add(&ptr->files, file);
--	if (prev)
--		prev->next = ptr;
--	else
--		firstDir = ptr;
--
--	if (debug_mode)
--		printf("%d: Dir=%s, File=%s\n", ptr->wd, ptr->dir, file);
--
--	free(x);
--}
--
- int main(int argc, char **argv)
- {
- 	int opt;
- 	struct sigaction sa;
- 
--#ifndef DEBUG
--	/* Make sure we are root */
--	if (getuid() != 0) {
--		fprintf(stderr, "You must be root to run this program.\n");
--		return 1;
--	}
--#endif
--	/* Make sure we are root */
--	if (is_selinux_enabled() != 1) {
--		fprintf(stderr, "Daemon requires SELinux be enabled to run.\n");
--		return 1;
--	}
-+	memset(&r_opts, 0, sizeof(r_opts));
++#include <selinux/context.h>	/* for context-mangling functions */
 +
-+	r_opts.progress = 0;
-+	r_opts.count = 0;
-+	r_opts.debug = 0;
-+	r_opts.change = 1;
-+	r_opts.verbose = 0;
-+	r_opts.logging = 0;
-+	r_opts.rootpath = NULL;
-+	r_opts.rootpathlen = 0;
-+	r_opts.outfile = NULL;
-+	r_opts.force = 0;
-+	r_opts.hard_links = 0;
-+	r_opts.abort_on_error = 0;
-+	r_opts.add_assoc = 0;
-+	r_opts.expand_realpath = 0;
-+	r_opts.fts_flags = FTS_PHYSICAL;
-+	r_opts.selabel_opt_validate = NULL;
-+	r_opts.selabel_opt_path = NULL;
-+	r_opts.ignore_enoent = 1;
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
 +
-+	restore_init(&r_opts);
-+	/* If we are not running SELinux then just exit */
-+	if (is_selinux_enabled() != 1) return 0;
- 
- 	/* Register sighandlers */
- 	sa.sa_flags = 0;
-@@ -467,38 +174,60 @@ int main(int argc, char **argv)
- 
- 	set_matchpathcon_flags(MATCHPATHCON_NOTRANS);
- 
--	master_fd = inotify_init();
--	if (master_fd < 0)
--		exitApp("inotify_init");
--
--	while ((opt = getopt(argc, argv, "dv")) > 0) {
-+	exclude_non_seclabel_mounts();
-+	atexit( done );
-+	while ((opt = getopt(argc, argv, "df:uv")) > 0) {
- 		switch (opt) {
- 		case 'd':
- 			debug_mode = 1;
- 			break;
-+		case 'f':
-+			watch_file = optarg;
-+			break;
-+		case 'u':
-+			run_as_user = 1;
-+			break;
- 		case 'v':
--			verbose_mode = 1;
-+			r_opts.verbose++;
- 			break;
- 		case '?':
- 			usage(argv[0]);
- 		}
- 	}
--	read_config(master_fd);
++/**
++ * This function will drop all capabilities 
++ * Returns zero on success, non-zero otherwise
++ */
++static int drop_capabilities(uid_t uid)
++{
++	capng_clear(CAPNG_SELECT_BOTH);
 +
-+	master_fd = inotify_init();
-+	if (master_fd < 0)
-+		exitApp("inotify_init");
++	if (capng_lock() < 0) 
++		return -1;
++	/* Change uid */
++	if (setresuid(uid, uid, uid)) {
++		fprintf(stderr, "Error changing uid, aborting.\n");
++		return -1;
++	}
++	return capng_apply(CAPNG_SELECT_BOTH);
++}
 +
-+	uid_t uid = getuid();
-+	struct passwd *pwd = getpwuid(uid);
-+	homedir = pwd->pw_dir;
-+	if (uid != 0) {
-+		if (run_as_user)
-+			return server(master_fd, user_watch_file);
-+		if (start() != 0) 
-+			return server(master_fd, user_watch_file);
-+		return 0;
++#define DEFAULT_PATH "/usr/bin:/bin"
++#define TRUE 1
++#define FALSE 0
++
++/**
++ * Take care of any signal setup
++ */
++static int set_signal_handles(void)
++{
++	sigset_t empty;
++
++	/* Empty the signal mask in case someone is blocking a signal */
++	if (sigemptyset(&empty)) {
++		fprintf(stderr, "Unable to obtain empty signal set\n");
++		return -1;
 +	}
 +
-+	watch_file = server_watch_file;
-+	read_config(master_fd, watch_file);
- 
- 	if (!debug_mode)
- 		daemon(0, 0);
- 
- 	write_pid_file();
- 
--	while (watch(master_fd) == 0) {
-+	while (watch(master_fd, watch_file) == 0) {
- 	};
- 
- 	watch_list_free(master_fd);
- 	close(master_fd);
- 	matchpathcon_fini();
--	utmpwatcher_free();
- 	if (pidfile)
- 		unlink(pidfile);
- 
- 	return 0;
- }
++	(void)sigprocmask(SIG_SETMASK, &empty, NULL);
++
++	/* Terminate on SIGHUP. */
++	if (signal(SIGHUP, SIG_DFL) == SIG_ERR) {
++		perror("Unable to set SIGHUP handler");
++		return -1;
++	}
++
++	return 0;
++}
++#define USAGE_STRING "USAGE: seunshare [ -t tmpdir ] [ -h homedir ] -- CONTEXT executable [args] "
 +
 +
-diff --git a/policycoreutils/restorecond/restorecond.conf b/policycoreutils/restorecond/restorecond.conf
-index 3fc9376..58b723a 100644
---- a/policycoreutils/restorecond/restorecond.conf
-+++ b/policycoreutils/restorecond/restorecond.conf
-@@ -4,8 +4,5 @@
- /etc/mtab
- /var/run/utmp
- /var/log/wtmp
--~/*
--/root/.ssh
-+/root/*
- /root/.ssh/*
--
--
-diff --git a/policycoreutils/restorecond/restorecond.h b/policycoreutils/restorecond/restorecond.h
-index e1666bf..8c85ef0 100644
---- a/policycoreutils/restorecond/restorecond.h
-+++ b/policycoreutils/restorecond/restorecond.h
-@@ -24,7 +24,22 @@
- #ifndef RESTORED_CONFIG_H
- #define RESTORED_CONFIG_H
- 
--void exitApp(const char *msg);
--void watch_list_add(int inotify_fd, const char *path);
-+extern int debug_mode;
-+extern const char *homedir;
-+extern int terminate;
-+extern int master_wd;
-+extern int run_as_user;
 +
-+extern int start(void);
-+extern int server(int, const char *watch_file);
++static int verify_mount(const char *mntdir, struct passwd *pwd) {
++	struct stat sb;
++	if (stat(mntdir, &sb) == -1) {
++		perror("Invalid mount point");
++		return -1;
++	}
++	if (sb.st_uid != pwd->pw_uid) {
++		errno = EPERM;
++		syslog(LOG_AUTHPRIV | LOG_ALERT, "%s attempted to mount an invalid directory, %s", pwd->pw_name, mntdir);
++		perror("Invalid mount point, reporting to administrator");
++		return -1;
++	}
++	return 0;
++}
 +
-+extern void exitApp(const char *msg);
-+extern void read_config(int fd,	const char *watch_file);
++/**
++ * This function checks to see if the shell is known in /etc/shells.
++ * If so, it returns 1. On error or illegal shell, it returns 0.
++ */
++static int verify_shell(const char *shell_name)
++{
++	int found = 0;
++	const char *buf;
 +
-+extern int watch(int fd, const char *watch_file);
-+extern void watch_list_add(int inotify_fd, const char *path);
-+extern int watch_list_find(int wd, const char *file);
-+extern void watch_list_free(int fd);
-+extern int watch_list_isempty();
++	if (!(shell_name && shell_name[0]))
++		return found;
++
++	while ((buf = getusershell()) != NULL) {
++		/* ignore comments */
++		if (*buf == '#')
++			continue;
++
++		/* check the shell skipping newline char */
++		if (!strcmp(shell_name, buf)) {
++			found = 1;
++			break;
++		}
++	}
++	endusershell();
++	return found;
++}
++
++int main(int argc, char **argv) {
++	int rc;
++	int status = -1;
++
++	security_context_t scontext;
++
++	int flag_index;		/* flag index in argv[] */
++	int clflag;		/* holds codes for command line flags */
++	char *tmpdir_s = NULL;	/* tmpdir spec'd by user in argv[] */
++	char *homedir_s = NULL;	/* homedir spec'd by user in argv[] */
++
++	const struct option long_options[] = {
++		{"homedir", 1, 0, 'h'},
++		{"tmpdir", 1, 0, 't'},
++		{NULL, 0, 0, 0}
++	};
++
++	uid_t uid = getuid();
++
++	if (!uid) {
++		fprintf(stderr, "Must not be root");
++		return -1;
++	}
++
++	struct passwd *pwd=getpwuid(uid);
++	if (!pwd) {
++		perror("getpwduid failed");
++		return -1;
++	}
++
++	if (verify_shell(pwd->pw_shell) == 0) {
++		fprintf(stderr, "Error!  Shell is not valid.\n");
++		return -1;
++	}
++
++	while (1) {
++		clflag = getopt_long(argc, argv, "h:t:", long_options,
++				     &flag_index);
++		if (clflag == -1)
++			break;
++
++		switch (clflag) {
++		case 't':
++			tmpdir_s = optarg;
++			if (verify_mount(tmpdir_s, pwd) < 0) return -1;
++			break;
++		case 'h':
++			homedir_s = optarg;
++			if (verify_mount(homedir_s, pwd) < 0) return -1;
++			if (verify_mount(pwd->pw_dir, pwd) < 0) return -1;
++			break;
++		default:
++			fprintf(stderr, "%s\n", USAGE_STRING);
++			return -1;
++		}
++	}
++
++	if (! homedir_s && ! tmpdir_s) {
++		fprintf(stderr, "Error: tmpdir and/or homedir required \n"
++			"%s\n", USAGE_STRING);
++		return -1;
++	}
++
++	if (argc - optind < 2) {
++		fprintf(stderr, "Error: executable required \n"
++			"%s\n", USAGE_STRING);
++		return -1;
++	}
++
++	scontext = argv[optind++];
++	
++	if (set_signal_handles())
++		return -1;
++
++        if (unshare(CLONE_NEWNS) < 0) {
++		perror("Failed to unshare");
++		return -1;
++	}
++
++	if (homedir_s && mount(homedir_s, pwd->pw_dir, NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount HOMEDIR");
++		return -1;
++	}
++
++	if (homedir_s && verify_mount(pwd->pw_dir, pwd) < 0) 
++		return -1;
++
++	if (tmpdir_s && mount(tmpdir_s, "/tmp", NULL, MS_BIND, NULL) < 0) {
++		perror("Failed to mount /tmp");
++		return -1;
++	}
++
++	if (tmpdir_s && verify_mount("/tmp", pwd) < 0) 
++		return -1;
++
++	if (drop_capabilities(uid)) {
++		perror("Failed to drop all capabilities");
++		return -1;
++	}
++
++	int child = fork();
++	if (!child) {
++		char *display=NULL;
++		/* Construct a new environment */
++		char *d = getenv("DISPLAY");
++		if (d) {
++			display =  strdup(d);
++			if (!display) {
++				perror("Out of memory");
++				exit(-1);
++			}
++		}
++
++		if ((rc = clearenv())) {
++			perror("Unable to clear environment");
++			free(display);
++			exit(-1);
++		}
++		
++		if (setexeccon(scontext)) {
++			fprintf(stderr, "Could not set exec context to %s.\n",
++				scontext);
++			free(display);
++			exit(-1);
++		}
++
++		if (display) 
++			rc |= setenv("DISPLAY", display, 1);
++		rc |= setenv("HOME", pwd->pw_dir, 1);
++		rc |= setenv("SHELL", pwd->pw_shell, 1);
++		rc |= setenv("USER", pwd->pw_name, 1);
++		rc |= setenv("LOGNAME", pwd->pw_name, 1);
++		rc |= setenv("PATH", DEFAULT_PATH, 1);
++		
++		if (chdir(pwd->pw_dir)) {
++			perror("Failed to change dir to homedir");
++			exit(-1);
++		}
++		setsid();
++		execv(argv[optind], argv + optind);
++		free(display);
++		perror("execv");
++		exit(-1);
++	} else {
++		waitpid(child, &status, 0);
++	}
++
++	return status;
++}
+diff -Nur a/policycoreutils/sandbox/test_sandbox.py b/policycoreutils/sandbox/test_sandbox.py
+--- a/policycoreutils/sandbox/test_sandbox.py	1969-12-31 19:00:00.000000000 -0500
++++ b/policycoreutils/sandbox/test_sandbox.py	2010-03-12 13:13:03.000000000 -0500
+@@ -0,0 +1,98 @@
++import unittest, os, shutil 
++from tempfile import mkdtemp
++from subprocess import Popen, PIPE
++
++class SandboxTests(unittest.TestCase):
++    def assertDenied(self, err):
++        self.assert_('Permission denied' in err,
++                     '"Permission denied" not found in %r' % err)
++    def assertNotFound(self, err):
++        self.assert_('not found' in err,
++                     '"not found" not found in %r' % err)
++
++    def assertFailure(self, status):
++        self.assert_(status != 0,
++                     '"Succeeded when it should have failed')
++
++    def assertSuccess(self, status, err):
++        self.assert_(status == 0,
++                     '"Sandbox should have succeeded for this test %r' %  err)
++
++    def test_simple_success(self):
++        "Verify that we can read file descriptors handed to sandbox"
++        p1 = Popen(['cat', '/etc/passwd'], stdout = PIPE)
++        p2 = Popen(['sandbox', 'grep', 'root'], stdin = p1.stdout, stdout=PIPE)
++        out, err = p2.communicate()
++        self.assert_('root' in out)
++
++    def test_cant_kill(self):
++        "Verify that we cannot send kill signal in the sandbox"
++        pid = os.getpid()
++        p = Popen(['sandbox', 'kill', '-HUP', str(pid)], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertDenied(err)
++
++    def test_cant_ping(self):
++        "Verify that we can't ping within the sandbox"
++        p = Popen(['sandbox', 'ping', '-c 1 ', '127.0.0.1'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertDenied(err)
++    
++    def test_cant_mkdir(self):
++        "Verify that we can't mkdir within the sandbox"
++        p = Popen(['sandbox', 'mkdir', '~/test'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertFailure(p.returncode)
++
++    def test_cant_list_homedir(self):
++        "Verify that we can't list homedir within the sandbox"
++        p = Popen(['sandbox', 'ls', '~'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertFailure(p.returncode)
++
++    def test_cant_send_mail(self):
++        "Verify that we can't send mail within the sandbox"
++        p = Popen(['sandbox', 'mail'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertDenied(err)
++    
++    def test_cant_sudo(self):
++        "Verify that we can't run sudo within the sandbox"
++        p = Popen(['sandbox', 'sudo'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertFailure(p.returncode)
++    
++    def test_mount(self):
++        "Verify that we mount a file system"
++        p = Popen(['sandbox', '-M', 'id'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertSuccess(p.returncode, err)
++    
++    def test_set_level(self):
++        "Verify that we set level a file system"
++        p = Popen(['sandbox', '-l', 's0', 'id'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        self.assertSuccess(p.returncode, err)
++    
++    def test_homedir(self):
++        "Verify that we set homedir a file system"
++        homedir = mkdtemp(dir=".", prefix=".sandbox_test")
++        p = Popen(['sandbox', '-H', homedir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        shutil.rmtree(homedir)
++        self.assertSuccess(p.returncode, err)
++    
++    def test_tmpdir(self):
++        "Verify that we set tmpdir a file system"
++        tmpdir = mkdtemp(dir="/tmp", prefix=".sandbox_test")
++        p = Popen(['sandbox', '-T', tmpdir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
++        out, err = p.communicate()
++        shutil.rmtree(tmpdir)
++        self.assertSuccess(p.returncode, err)
++    
++if __name__ == "__main__":
++    import selinux
++    if selinux.security_getenforce() == 1:
++        unittest.main()
++    else:
++        print "SELinux must be in enforcing mode for this test"
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index 538302b..c7a590e 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
++SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why sandbox scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
  
- #endif
-diff --git a/policycoreutils/restorecond/restorecond.init b/policycoreutils/restorecond/restorecond.init
-index b966db6..4a32e03 100644
---- a/policycoreutils/restorecond/restorecond.init
-+++ b/policycoreutils/restorecond/restorecond.init
-@@ -75,16 +75,15 @@ case "$1" in
- 	status restorecond
- 	RETVAL=$?
- 	;;
--  restart|reload)
-+  force-reload|restart|reload)
- 	restart
- 	;;
-   condrestart)
- 	[ -e /var/lock/subsys/restorecond ] && restart || :
- 	;;
-   *)
--        echo $"Usage: $0 {start|stop|restart|reload|condrestart}"
-+        echo $"Usage: $0 {start|stop|restart|force-reload|status|condrestart}"
-         RETVAL=3
- esac
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
  
- exit $RETVAL
--
 
---------------000301090109090103040900--
+--------------060104060908040002060801--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
