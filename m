@@ -1,102 +1,77 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2F4OY3w020951
-	for <selinux@tycho.nsa.gov>; Mon, 15 Mar 2010 00:24:35 -0400
-Received: from e7.ny.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o2F4OCx6008334
-	for <selinux@tycho.nsa.gov>; Mon, 15 Mar 2010 04:24:12 GMT
-Received: from d01relay01.pok.ibm.com (d01relay01.pok.ibm.com [9.56.227.233])
-	by e7.ny.us.ibm.com (8.14.3/8.13.1) with ESMTP id o2F4GHQX021218
-	for <selinux@tycho.nsa.gov>; Mon, 15 Mar 2010 00:16:17 -0400
-Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
-	by d01relay01.pok.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id o2F4OWgg149076
-	for <selinux@tycho.nsa.gov>; Mon, 15 Mar 2010 00:24:32 -0400
-Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
-	by d01av01.pok.ibm.com (8.14.3/8.13.1/NCO v10.0 AVout) with ESMTP id o2F4OVqP022798
-	for <selinux@tycho.nsa.gov>; Mon, 15 Mar 2010 00:24:32 -0400
-Date: Sun, 14 Mar 2010 23:24:31 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Matthew Helsley <matt.helsley@gmail.com>
-Cc: mtk.manpages@gmail.com, James Morris <jmorris@namei.org>,
-        lkml <linux-kernel@vger.kernel.org>, SELinux <selinux@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org,
-        Stephen Smalley <sds@epoch.ncsc.mil>,
-        Kees Cook <kees.cook@canonical.com>, Andrew Morgan <morgan@kernel.org>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: [PATCH] Define CAP_SYSLOG
-Message-ID: <20100315042431.GA7550@us.ibm.com>
-References: <20100312205537.GA1091@us.ibm.com>
- <cfd18e0f1003132118y21bd71band2d07ae85c8d4c9@mail.gmail.com>
- <20100314053521.GA12410@us.ibm.com>
- <6a12d2f31003141816k5c637891s7e85231fc891e4e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <6a12d2f31003141816k5c637891s7e85231fc891e4e@mail.gmail.com>
+Subject: Re: strange policy loading problem
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>
+In-Reply-To: <1268337572.16780.112.camel@moss-pluto.epoch.ncsc.mil>
+References: <201003031018.38030.russell@coker.com.au>
+	 <1268334980.16780.101.camel@moss-pluto.epoch.ncsc.mil>
+	 <1268337572.16780.112.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 15 Mar 2010 10:31:33 -0400
+Message-Id: <1268663493.15512.51.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Matthew Helsley (matt.helsley@gmail.com):
-> On Sat, Mar 13, 2010 at 10:35 PM, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> > Quoting Michael Kerrisk (mtk.manpages@googlemail.com):
-> >> > There is one downside to this patch:  If some site or distro currently
-> >> > has syslogd/whatever running as a non-root user with cap_sys_admin+pe,
-> >> > then it will need to be changed to run with cap_syslog+pe.  I don't
-> >> > know if there are such sites, or if that concern means we should take
-> >> > a different approach to introducing this change, or simply refuse this
-> >> > change.
-> >>
-> >> *If* this is a problem, would the way to address it not be to permit
-> >> syslog if the caller has *either* CAP_SYS_ADMIN or CAP_SYSLOG? (The
-> >> only weakness I see in this idea is that it fails to lighten the
-> >> hugely overlaoded CAP_SYS_ADMIN.)
-> >
-> > Which becomes a very big weakness because it won't allow a
-> > container to be started with cap_sys_admin but not cap_syslog
-> > in its capability bounding set.
-> >
-> > So, if it is deemed a problem, then the alternative will be to
-> > introduce a syslog namespace.  Container setup can then create
-> > a new syslog namespace, and can no longer read or clear the
-> > host's syslog.
-> >
-> > thanks,
-> > -serge
+On Thu, 2010-03-11 at 14:59 -0500, Stephen Smalley wrote:
+> On Thu, 2010-03-11 at 14:16 -0500, Stephen Smalley wrote:
+> > On Wed, 2010-03-03 at 10:18 +1100, Russell Coker wrote:
+> > > I'm running a 2.6.32 system under KVM and it keeps OOMing when I try to run 
+> > > semodule.
+> > > 
+> > > # free
+> > >              total       used       free     shared    buffers     cached
+> > > Mem:        507532     475320      32212          0       4168      11148
+> > > -/+ buffers/cache:     460004      47528
+> > > Swap:       524280      19848     504432
+> > > 
+> > > The policy.24 file is just under 900K in size, the output of free is above, it 
+> > > doesn't seem particularly short of RAM.  The dmesg output is below.  Any 
+> > > suggestions for what I should investigate?
+> > > 
+> > > I could just give the VM a gig of RAM, but I run lots of real systems with 
+> > > less than 512M so I would like this to work.
+> > > 
+> > > 
+> > > [10750.523296] load_policy: page allocation failure. order:4, mode:0xc0d0
+> > > [10750.524503] Pid: 13383, comm: load_policy Not tainted 2.6.32-trunk-amd64 #1
+> > 
+> > This has been reproduced by others, and in looking further at it, I
+> > think it is due to switching the avtab from using vmalloc() to using
+> > kmalloc() as part of commit 3232c110b56bd01c5f0fdfd16b4d695f2e05b0a9
+> > without reducing MAX_AVTAB_SIZE sufficiently to ensure that we don't put
+> > too much pressure on the slab allocator.  Options seem to be:
+> > 1) Reduce MAX_AVTAB_SIZE further so that the max avtab allocation is a
+> > lower order allocation that isn't likely to fail on kcalloc, and keep
+> > using that always.
+> > 2) Change the avtab code to dynamically select use of vmalloc/vfree or
+> > kcalloc/kfree depending on the selected avtab size.
 > 
-> Would it make sense to warn once when CAP_SYS_ADMIN permits what
-> CAP_SYSLOG will be used for in the future? Something like:
+> So, for example, this might solve your immediate problem:
+
+Per Eric, reducing MAX_AVTAB_HASH_BITS to 11 should be sufficient to
+avoid kmalloc failure, so you might try that instead.  That makes it an
+order 2 allocation on x86_64.
+
+> diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+> index 8da6a84..db15fe9 100644
+> --- a/security/selinux/ss/avtab.h
+> +++ b/security/selinux/ss/avtab.h
+> @@ -82,7 +82,7 @@ struct avtab_node *avtab_search_node_next(struct avtab_node *node, int specified
+>  void avtab_cache_init(void);
+>  void avtab_cache_destroy(void);
+>  
+> -#define MAX_AVTAB_HASH_BITS 13
+> +#define MAX_AVTAB_HASH_BITS 10
+>  #define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
+>  #define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS-1)
+>  #define MAX_AVTAB_SIZE MAX_AVTAB_HASH_BUCKETS
 > 
-> -            type != SYSLOG_ACTION_SIZE_BUFFER) && !capable(CAP_SYS_ADMIN))
-> +            type != SYSLOG_ACTION_SIZE_BUFFER) &&
-> !(capable(CAP_SYSLOG)||capable(CAP_SYS_ADMIN))) {
-> +             WARN_ONCE(capable(CAP_SYS_ADMIN) &&
-> !capable(CAP_SYSLOG), "CAP_SYS_ADMIN will not permit syslog
-> configuration in the near future. Please switch your code to
-> CAP_SYSLOG\n");
->                return -EPERM;
-> +        }
->        return 0;
+-- 
+Stephen Smalley
+National Security Agency
 
-Good idea - though I'd prefer to WARN_ONCE and then deny :)  If we log
-and allow, the log msg will be ignored.
-
-> After a period of time allowing userspace apps to transition to
-> CAP_SYSLOG remove the CAP_SYS_ADMIN portions. Of course this won't fix
-> containers for that transition period but it would avoid a sudden
-> change of what CAP_SYS_ADMIN allows.
-> 
-> > So, if it is deemed a problem, then the alternative will be to
-> > introduce a syslog namespace.  Container setup can then create
-> > a new syslog namespace, and can no longer read or clear the
-> > host's syslog.
-> 
-> Yup, this is also an option. Possibly better as it doesn't involved
-> changing the meaning of a overly-[ab]used capability bit and wouldn't
-> require a transition period.
-
-Still I can definately see a case where you want the container to
-be in the host's syslog for simplicity, but not be able to clear it.
-
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
