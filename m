@@ -1,19 +1,20 @@
-Subject: Re: [PATCH] SELinux:  Reduce max avtab size to avoid page
- allocation failures
-From: Eric Paris <eparis@redhat.com>
+Date: Tue, 16 Mar 2010 08:31:35 +1100 (EST)
+From: James Morris <jmorris@namei.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, Russell Coker <russell@coker.com.au>,
+cc: Eric Paris <eparis@parisplace.org>, Russell Coker <russell@coker.com.au>,
         selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux:  Reduce max avtab size to avoid page allocation
+ failures
 In-Reply-To: <1268664131.15512.54.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <alpine.LRH.2.00.1003160831220.13330@tundra.namei.org>
 References: <1268664131.15512.54.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 15 Mar 2010 15:23:23 -0400
-Message-ID: <1268681003.3768.15.camel@localhost>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-03-15 at 10:42 -0400, Stephen Smalley wrote:
+On Mon, 15 Mar 2010, Stephen Smalley wrote:
+
 > Reduce MAX_AVTAB_HASH_BITS so that the avtab allocation is an order 2
 > allocation rather than an order 4 allocation on x86_64.  This
 > addresses reports of page allocation failures:
@@ -23,13 +24,13 @@ On Mon, 2010-03-15 at 10:42 -0400, Stephen Smalley wrote:
 > Reported-by:  Russell Coker <russell@coker.com.au>
 > Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
 
-Acked-by: Eric Paris <eparis@redhat.com>
 
-although if I get a coulpe of minutes I might look at using
-lib/flex_array.c for this....
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
--Eric
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
