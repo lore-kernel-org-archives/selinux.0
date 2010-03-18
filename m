@@ -1,316 +1,256 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2I4Z1RS008418
-	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 00:35:05 -0400
-Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2I4ZeLq002047
-	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 04:35:40 GMT
-Message-ID: <4BA1AB1B.8030901@ak.jp.nec.com>
-Date: Thu, 18 Mar 2010 13:24:59 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2I6gNlF013515
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 02:42:23 -0400
+Received: from mail-iw0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o2I6g2B0029559
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 06:42:02 GMT
+Received: by iwn11 with SMTP id 11so1629926iwn.11
+        for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2010 23:42:22 -0700 (PDT)
 MIME-Version: 1.0
-To: Manvendra Pratap Singh <manav.emb@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: working linux and busybox versions
-References: <482a0d8c1003100413w4b2d060fy493a72f6a76b976e@mail.gmail.com>	 <1268243344.3678.38.camel@moss-pluto.epoch.ncsc.mil>	 <482a0d8c1003110208g9843309s83e41c6319ff8271@mail.gmail.com>	 <482a0d8c1003162122y50c4f6adq3d1e4ab7a9d481ed@mail.gmail.com>	 <4BA06092.9030302@ak.jp.nec.com>	 <482a0d8c1003162308r3989a64by797220bf38dffdb3@mail.gmail.com>	 <482a0d8c1003170012w6de08b88l11c5a0d23420b805@mail.gmail.com>	 <4BA0894C.1060005@ak.jp.nec.com>	 <482a0d8c1003170127w1d151315we0b2c6e8cfc3a913@mail.gmail.com>	 <4BA171AE.9090508@ak.jp.nec.com> <482a0d8c1003172104r3ff4dc9csa065de1681b4794a@mail.gmail.com>
-In-Reply-To: <482a0d8c1003172104r3ff4dc9csa065de1681b4794a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+In-Reply-To: <4BA14F35.5050007@gmail.com>
+References: <dd18b0c31003161804i5275304cl13256077080946c4@mail.gmail.com>
+	 <7e0fb38c1003171314v6d1ab81fv6ac7a9556dfddd1@mail.gmail.com>
+	 <4BA14F35.5050007@gmail.com>
+Date: Wed, 17 Mar 2010 23:42:21 -0700
+Message-ID: <dd18b0c31003172342t5747a9bbh271372dc9d16357c@mail.gmail.com>
+Subject: Re: new: loads of audit messgs
+From: Justin Mattock <justinmattock@gmail.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>,
+        Joe Perches <joe@perches.com>, libc-help@sourceware.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(2010/03/18 13:04), Manvendra Pratap Singh wrote:
-> 
-> 
-> 2010/3/18 KaiGai Kohei <kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
-> 
->     (2010/03/17 17:27), Manvendra Pratap Singh wrote:
->      >
->      >
->      > 2010/3/17 KaiGai Kohei <kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com> <mailto:kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com>>>
->      >
->      >     (2010/03/17 16:12), Manvendra Pratap Singh wrote:
->      > > Hi KaiGai,
->      > >
->      > > I checked /etc/selinux/base_policy/contexts/default_contexts and
->      > > /etc/selinux/base_policy/contexts/users/root both in my rootfs
->      >     and it is
->      > > in correct place. But it still giving me same SID problem. Please
->      >     give
->      > > some idea.
->      >
->      >     Does it have correct format? Does it contains an entry which
->     matches
->      >     with the security context of your logind daemon?
->      >
->      >     If your policy does not define domain-transitions appropriately,
->      >     all the process may work with kernel_t, init_t or initrc_t.
->      >     If so, get_default_context() cannot find out configured entry.
->      >
->      >
->      > I am very new to SELinux, so I may not be able to answer your all
->      > questions correctly. I compiled base policy and then included it
->     in my
->      > rootfs ( at /etc/selinux/base_policy). I compiled busbox-1.13.0 and
->      > 2.6.29 linux-kernel with SELinux support. I faced lot of errors and
->      > problems while compiling busybox with SELinux (utilities) support.
-> 
->     What kind of errors did you see?
->     If we cannot build busybox with SELinux support in the recent releases,
->     we need to fix them.
-> 
-> 
-> 
-> This time I tried with busybox-1.11.3, Please have a look at the errors:
-> 
-> manav@manav-desktop:busybox-1.11.3$ make ARCH=arm 
-> CROSS_CONFIG=arm-none-linux-gnueabi-
->    SPLIT   include/autoconf.h -> include/config/*
->    GEN     include/bbconfigopts.h
->    HOSTCC  applets/usage
-> applets/usage.c: In function 'main':
-> applets/usage.c:27: warning: ignoring return value of 'write', declared 
-> with attribute warn_unused_result
->    GEN     include/usage_compressed.h
->    HOSTCC  applets/applet_tables
-> In file included from applets/../include/busybox.h:10,
->                   from applets/applet_tables.c:16:
-> applets/../include/libbb.h:56:29: error: selinux/selinux.h: No such file 
-> or directory
-> applets/../include/libbb.h:57:29: error: selinux/context.h: No such file 
-> or directory
-> applets/../include/libbb.h:58:27: error: selinux/flask.h: No such file 
-> or directory
-> applets/../include/libbb.h:59:36: error: selinux/av_permissions.h: No 
-> such file or directory
-> In file included from applets/../include/busybox.h:10,
->                   from applets/applet_tables.c:16:
-> applets/../include/libbb.h:1007: error: expected ')' before 'sid'
-> applets/../include/libbb.h:1008: error: expected '=', ',', ';', 'asm' or 
-> '__attribute__' before 'set_security_context_component'
-> applets/../include/libbb.h:1010: error: expected ')' before 'scontext'
-> make[1]: *** [applets/applet_tables] Error 1
-> make: *** [applets] Error 2
+o.k. here's the bisect result of why/what is happening with nscd and
+the avc's that seem to be missing or partly there:
 
-It obviously looks like libselinux is not installed in your environment.
-Could you (cross) compile it and install first?
+ef0658f3de484bf9b173639cd47544584e01efa5 is the first bad commit
 
->      > then
->      > I booted beagle. And faced above problem. I did not try any extra
->     code
->      > other then base_policy, Because initially I wanted to see  the kernel
->      > booting with SELinux support and working SELinux utilities
->     provided by
->      > busybox.
->      >
->      >     What is your policy type? The standard reference policy?, or
->     others?
->      >
->      >
->      > I think my policy is standard reference policy.
-> 
->     Hmm... It seems to me reason of the matter is still unclear.
-> 
->     Could you check the following items at least?
->     - The security policy was correctly loaded?
->       If OK, the kernel exports log messages as Stephen noted.
-> 
-> 
-> 
-> yes, I will surely check for this, and let you know the results.
-> 
-> 
->     - What kind of matter you faced when you build busybox and libselinux?
->       If you modified the code, what kind of changes were applied?
-> 
->     - Is the filesystem correctly labeled?
->       If files don't have valid security context, SELinux considers all the
->       files have "unlabeled_t" context, but it is not expected for reference
->       policy.
-> 
->     Right now, I doubt your /sbin/init could not load the security policy
->     correctly. SELinux performs permissive mode, if it failed to load the
->     policy. So, you can see the login prompt without any fails, because it
->     means bootstrap sequence was correctly done.
-> 
->     Also note that /sbin/init applet of busybox also support to load the
->     policy at first. If you applied different binary, it needs to be
->     replaced.
-> 
-> 
-> I have replaced the binary.
-> 
-> Thanks guys for your support, let me come up with results.
-> 
-> 
->     Thanks,
-> 
->      >     Thanks,
->      >
->      > > On Wed, Mar 17, 2010 at 11:38 AM, Manvendra Pratap Singh
->      > > <manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>
->      > <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>>> wrote:
->      > >
->      > >     Thanks for reply KaiGai Kohei, I will follow your suggestion
->      >     and let
->      > >     you know about it.
->      > >
->      > >     ---
->      > >     Manav
->      > >     Hyderabad
->      > >
->      > >     2010/3/17 KaiGai Kohei <kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com>
->      > <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
->      > > <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>
->     <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>>>
->      > >
->      > >         (2010/03/17 13:22), Manvendra Pratap Singh wrote:
->      > > > Can anyone suggest me good guide for SELinux on omap3
->      > >         (beagleboard). I
->      > > > tried it myself but I am not able to login after booting. On
->      > >         loging in
->      > > > root I get a msg "Cann't get SID for root". Please help me on
->      > >         this
->      > > > issue.  Here take a look at boot-log.
->      > > >
->      > > >
->      > > > [    0.000000] Security Framework initialized
->      > > > [    0.000000] SELinux:  Initializing.
->      > > >
->      > > >
->      > > > beagleboard login: root
->      > > > login: can't get SID for root
->      > >
->      > >         This message come from logind applet of busybox.
->      > >
->      > >         It tries to fetch the default security context of the
->      >     root session.
->      > >
->      > >         Put
->     "/etc/selinux/<SELINUXTYPE>/contexts/default_contexts" or
->      > > "/etc/selinux/<SELINUXTYPE>/contexts/users/root" correctly, and
->      > >         try it again.
->      > >
->      > >         Thanks,
->      > >
->      > > >
->      > > > Embinux Linux 1.1 beagleboard ttyS2
->      > > >
->      > > > beagleboard login:
->      > > >
->      > > >
->      > > >
->      > > > ---
->      > > > Manav
->      > > > Hyderabad
->      > > >
->      > > >
->      > > >
->      > > > On Thu, Mar 11, 2010 at 3:38 PM, Manvendra Pratap Singh
->      > > > <manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>
->      > <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>>
->      > > <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>
->      > <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>
->     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>>>> wrote:
->      > > >
->      > > >     Thanks for the information. I asked about working busybox
->      > >         and linux
->      > > >     kernel versions because when I am enabling selinux in busybox
->      > > >     (1.13.0), it is giving me lot of compilation errors and I
->      > >         think some
->      > > >     code is also missing. Although the kernel (2.6.29) which
->      > >         I am using
->      > > >     is working fine. If you tell anything more on this then
->      > >         it will be a
->      > > >     great help.
->      > > >
->      > > >
->      > > >     --
->      > > >     Manav
->      > > >     Hyderabad
->      > > >
->      > > >
->      > > >
->      > > >     On Wed, Mar 10, 2010 at 11:19 PM, Stephen Smalley
->      > > <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
->      > <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>>
->      > > > <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
->      > <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>>>> wrote:
->      > > >
->      > > >         On Wed, 2010-03-10 at 22:44 +0530, Manvendra Pratap
->      > >         Singh wrote:
->      > > > > Hi Stephen,
->      > > > >
->      > > > > May be I could not make myself clear to you. My question was
->      > > >         not about
->      > > > > linux on omap3, it was about SELinux on omap3. Anyways thanks
->      > > >         for your
->      > > > > reply. I will check the links given by you.
->      > > >
->      > > >         SELinux isn't platform-specific, and is a component
->      > >         of the Linux 2.6
->      > > >         kernel.
->      > > >
->      > > >         --
->      > > >         Stephen Smalley
->      > > >         National Security Agency
->      > > >
->      > > >
->      > > >
->      > >
->      > >
->      > >         --
->      > >         KaiGai Kohei <kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com>
->      > <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
->     <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>
->      > <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>>>
->      > >
->      > >
->      > >
->      > >
->      > >
->      > > --
->      > > Manav
->      > > Hyderabad
->      >
->      >
->      >     --
->      >     KaiGai Kohei <kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com> <mailto:kaigai@ak.jp.nec.com
->     <mailto:kaigai@ak.jp.nec.com>>>
->      >
->      >
->      >
->      >
->      > --
->      > Manav
->      > Hyderabad
-> 
-> 
->     --
->     KaiGai Kohei <kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
-> 
-> 
-> 
-> 
-> -- 
-> Manav
-> Hyderabad
+with the latest HEAD if I do a git revert ef0658f then the audit
+messages are showing themselves for nscd.
 
+I can attach dmesg of the good/bad if needed(might be too big in size to send)
+
+here's what I see with a good boot and a bad boot:
+
+
+bad:
+
+
+[    7.284796] generic-usb 0003:05AC:820A.0005: input: USB HID v1.11
+Keyboard [HID 05ac:820a] on usb-0000:00:06.0-1.2/input0
+[    7.352310] usb 4-1.3: new full speed USB device using ohci_hcd and address 5
+[    7.465655] input: HID 05ac:820b as
+/devices/pci0000:00/0000:00:06.0/usb4/4-1/4-1.3/4-1.3:1.0/input/input9
+[    7.495826] generic-usb 0003:05AC:820B.0006: input: USB HID v1.11
+Mouse [HID 05ac:820b] on usb-0000:00:06.0-1.3/input0
+[    8.174301] type=1107 audit(1268891709.174:3): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    8.190628] type=1107 audit(1268891709.190:4): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    8.191284] type=1107 audit(1268891709.191:5): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    8.419552] ip_tables: (C) 2000-2006 Netfilter Core Team
+[    8.444388] nf_conntrack version 0.5.0 (16384 buckets, 65536 max)
+[    8.444784] CONFIG_NF_CT_ACCT is deprecated and will be removed
+soon. Please use
+[    8.444787] nf_conntrack.acct=1 kernel parameter, acct=1
+nf_conntrack module option or
+[    8.444789] sysctl net.netfilter.nf_conntrack_acct=1 to enable it.
+[    8.651874] type=1107 audit(1268891709.651:6): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    8.652623] type=1107 audit(1268891709.652:7): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    9.627717] type=1107 audit(1268891710.627:8): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[    9.628468] type=1107 audit(1268891710.628:9): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   14.367538] type=1107 audit(1268891715.367:10): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   17.533134] type=1107 audit(1268891718.533:11): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   17.544443] type=1100 audit(1268891718.544:12): user pid=1349 uid=0
+auid=4294967295 ses=4294967295
+subj=system_u:system_r:local_login_t:s0-s0:c0.c255 msg=''
+[   17.547677] type=1101 audit(1268891718.547:13): user pid=1349 uid=0
+auid=4294967295 ses=4294967295
+subj=system_u:system_r:local_login_t:s0-s0:c0.c255 msg=''
+[   17.573083] type=1006 audit(1268891718.572:14): login pid=1349
+uid=0 old auid=4294967295 new auid=1000 old ses=4294967295 new ses=1
+[   17.626760] type=2300 audit(1268891718.626:15): user pid=1349 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg=''
+[   17.639043] type=1107 audit(1268891718.638:16): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   17.756669] type=1105 audit(1268891718.756:17): user pid=1349 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg=''
+[   17.757523] type=1107 audit(1268891718.757:18): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   17.778843] type=1103 audit(1268891718.778:19): user pid=1349 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg=''
+[   17.778988] type=1112 audit(1268891718.778:20): user pid=1349 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg=''
+[   17.784500] type=1107 audit(1268891718.784:21): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+[   17.905611] type=1107 audit(1268891718.905:22): user pid=1270 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg=''
+
+
+
+good:
+
+
+[    7.413356] input: HID 05ac:820b as
+/devices/pci0000:00/0000:00:06.0/usb4/4-1/4-1.3/4-1.3:1.0/input/input9
+[    7.413467] generic-usb 0003:05AC:820B.0006: input: USB HID v1.11
+Mouse [HID 05ac:820b] on usb-0000:00:06.0-1.3/input0
+[    7.703644] type=1107 audit(1268893782.703:3): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemhost } for
+scontext=system_u:system_r:syslogd_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass
+[    7.703649] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    7.719890] type=1107 audit(1268893782.719:4): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=system_u:system_r:syslogd_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    7.719895] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    7.720580] type=1107 audit(1268893782.720:5): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemgrp } for
+scontext=system_u:system_r:syslogd_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    7.720585] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    7.940048] ip_tables: (C) 2000-2006 Netfilter Core Team
+[    7.957023] nf_conntrack version 0.5.0 (16384 buckets, 65536 max)
+[    7.957423] CONFIG_NF_CT_ACCT is deprecated and will be removed
+soon. Please use
+[    7.957426] nf_conntrack.acct=1 kernel parameter, acct=1
+nf_conntrack module option or
+[    7.957429] sysctl net.netfilter.nf_conntrack_acct=1 to enable it.
+[    8.181014] type=1107 audit(1268893783.180:6): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=system_u:system_r:system_dbusd_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    8.181019] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    8.181709] type=1107 audit(1268893783.181:7): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemgrp } for
+scontext=system_u:system_r:system_dbusd_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    8.181714] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    9.210425] type=1107 audit(1268893784.210:8): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=system_u:system_r:crond_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    9.210430] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[    9.211152] type=1107 audit(1268893784.210:9): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemgrp } for
+scontext=system_u:system_r:crond_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[    9.211158] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   12.564898] type=1107 audit(1268893787.564:10): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=system_u:system_r:local_login_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   12.564903] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   15.853971] type=1107 audit(1268893790.853:11): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=system_u:system_r:chkpwd_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   15.853976] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   15.865393] type=1100 audit(1268893790.865:12): user pid=1378 uid=0
+auid=4294967295 ses=4294967295
+subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='op=PAM:authentication acct="justin" exe="/bin/login" hostname=?
+addr=? terminal=/dev/tty1 res=success'
+[   15.868672] type=1101 audit(1268893790.868:13): user pid=1378 uid=0
+auid=4294967295 ses=4294967295
+subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='op=PAM:accounting acct="justin" exe="/bin/login" hostname=?
+addr=? terminal=/dev/tty1 res=success'
+[   15.893990] type=1006 audit(1268893790.893:14): login pid=1378
+uid=0 old auid=4294967295 new auid=1000 old ses=4294967295 new ses=1
+[   15.955961] type=2300 audit(1268893790.955:15): user pid=1378 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='pam: default-context=justin:staff_r:staff_t:s0
+selected-context=justin:staff_r:staff_t:s0: exe="/bin/login"
+hostname=? addr=? terminal=tty1 res=success'
+[   15.968319] type=1107 audit(1268893790.968:16): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { getpwd } for
+scontext=system_u:system_r:local_login_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   15.968324] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   16.085919] type=1105 audit(1268893791.085:17): user pid=1378 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='op=PAM:session_open acct="justin" exe="/bin/login" hostname=?
+addr=? terminal=/dev/tty1 res=success'
+[   16.086793] type=1107 audit(1268893791.086:18): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemgrp } for
+scontext=system_u:system_r:local_login_t:s0-s0:c0.c255
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   16.086798] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   16.108104] type=1103 audit(1268893791.108:19): user pid=1378 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='op=PAM:setcred acct="justin" exe="/bin/login" hostname=? addr=?
+terminal=/dev/tty1 res=success'
+[   16.108250] type=1112 audit(1268893791.108:20): user pid=1378 uid=0
+auid=1000 ses=1 subj=system_u:system_r:local_login_t:s0-s0:c0.c255
+msg='op=login acct="justin" exe="/bin/login" hostname=? addr=?
+terminal=/dev/tty1 res=success'
+[   16.113829] type=1107 audit(1268893791.113:21): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmempwd } for
+scontext=justin:staff_r:staff_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   16.113834] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   16.234781] type=1107 audit(1268893791.234:22): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemgrp } for
+scontext=justin:staff_r:staff_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   16.234786] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+[   18.651428] type=1107 audit(1268893793.651:23): user pid=1297 uid=0
+auid=4294967295 ses=4294967295 subj=system_u:system_r:initrc_t:s0
+msg='avc:  denied  { shmemhost } for
+scontext=justin:staff_r:xauth_t:s0
+tcontext=system_u:system_r:initrc_t:s0 tclass=nscd
+[   18.651430] : exe="/usr/sbin/nscd" sauid=0 hostname=? addr=? terminal=?'
+
+
+maybe I need to adjust something in /etc/sysctl.conf for the print or
+something.
+
+added come CC's
 
 -- 
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
