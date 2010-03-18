@@ -1,30 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2IKMkx5002792
-	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 16:22:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2IKqpjX004649
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 16:52:51 -0400
 Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2IKNMlp023789
-	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 20:23:22 GMT
-Message-ID: <4BA28B93.5000002@manicmethod.com>
-Date: Thu, 18 Mar 2010 16:22:43 -0400
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o2IKqT9Q021391
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 20:52:29 GMT
+Message-ID: <4BA292A2.9030704@manicmethod.com>
+Date: Thu, 18 Mar 2010 16:52:50 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Not sure if I sent this one out with the others but since it
- has not been updated yet...
-References: <4B9A90B3.3050901@redhat.com>
-In-Reply-To: <4B9A90B3.3050901@redhat.com>
+Subject: Re: This patch allows audit2allow to look at all avc's since the
+ last time the machine booted.
+References: <4B9A80AA.1070407@redhat.com>
+In-Reply-To: <4B9A80AA.1070407@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Fixes libsepol.pc file.
+Merged in sepolgen 1.0.21
 
-This looks like it was merged in commit 
-7420787817c4949276d7947202b49d78eba37c13 along with the libselinux and 
-libsemanage pc.in changes. I didn't bump the version though, since it 
-wasn't a code change.
+Daniel J Walsh wrote:
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
