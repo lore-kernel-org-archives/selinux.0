@@ -1,32 +1,228 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2HLr0uq023480
-	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2010 17:53:00 -0400
-Received: from mail-fx0-f222.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2HLrXJW001664
-	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2010 21:53:34 GMT
-Received: by fxm22 with SMTP id 22so1566198fxm.34
-        for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2010 14:52:57 -0700 (PDT)
-Message-ID: <4BA14F35.5050007@gmail.com>
-Date: Wed, 17 Mar 2010 14:52:53 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2I0KQ3A029769
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2010 20:20:26 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2I0KxQK013606
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2010 00:21:00 GMT
+Message-ID: <4BA171AE.9090508@ak.jp.nec.com>
+Date: Thu, 18 Mar 2010 09:19:58 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: new: loads of audit messgs
-References: <dd18b0c31003161804i5275304cl13256077080946c4@mail.gmail.com> <7e0fb38c1003171314v6d1ab81fv6ac7a9556dfddd1@mail.gmail.com>
-In-Reply-To: <7e0fb38c1003171314v6d1ab81fv6ac7a9556dfddd1@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Manvendra Pratap Singh <manav.emb@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: working linux and busybox versions
+References: <482a0d8c1003100413w4b2d060fy493a72f6a76b976e@mail.gmail.com>	 <1268235831.3678.31.camel@moss-pluto.epoch.ncsc.mil>	 <482a0d8c1003100914j2709ab7epad0956ca4aa75081@mail.gmail.com>	 <1268243344.3678.38.camel@moss-pluto.epoch.ncsc.mil>	 <482a0d8c1003110208g9843309s83e41c6319ff8271@mail.gmail.com>	 <482a0d8c1003162122y50c4f6adq3d1e4ab7a9d481ed@mail.gmail.com>	 <4BA06092.9030302@ak.jp.nec.com>	 <482a0d8c1003162308r3989a64by797220bf38dffdb3@mail.gmail.com>	 <482a0d8c1003170012w6de08b88l11c5a0d23420b805@mail.gmail.com>	 <4BA0894C.1060005@ak.jp.nec.com> <482a0d8c1003170127w1d151315we0b2c6e8cfc3a913@mail.gmail.com>
+In-Reply-To: <482a0d8c1003170127w1d151315we0b2c6e8cfc3a913@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-weird.. I load up:
-vmlinuz-2.6.32-rc7-00030-g4dea955
-I can see the avc's denials in dmesg,
-I load the latest I just see some audit thing.
+(2010/03/17 17:27), Manvendra Pratap Singh wrote:
+> 
+> 
+> 2010/3/17 KaiGai Kohei <kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
+> 
+>     (2010/03/17 16:12), Manvendra Pratap Singh wrote:
+>      > Hi KaiGai,
+>      >
+>      > I checked /etc/selinux/base_policy/contexts/default_contexts and
+>      > /etc/selinux/base_policy/contexts/users/root both in my rootfs
+>     and it is
+>      > in correct place. But it still giving me same SID problem. Please
+>     give
+>      > some idea.
+> 
+>     Does it have correct format? Does it contains an entry which matches
+>     with the security context of your logind daemon?
+> 
+>     If your policy does not define domain-transitions appropriately,
+>     all the process may work with kernel_t, init_t or initrc_t.
+>     If so, get_default_context() cannot find out configured entry.
+> 
+> 
+> I am very new to SELinux, so I may not be able to answer your all 
+> questions correctly. I compiled base policy and then included it in my 
+> rootfs ( at /etc/selinux/base_policy). I compiled busbox-1.13.0 and 
+> 2.6.29 linux-kernel with SELinux support. I faced lot of errors and 
+> problems while compiling busybox with SELinux (utilities) support.
 
-I'll bisect this, and check my configs
+What kind of errors did you see?
+If we cannot build busybox with SELinux support in the recent releases,
+we need to fix them.
 
-Justin P. Mattock
+> then 
+> I booted beagle. And faced above problem. I did not try any extra code 
+> other then base_policy, Because initially I wanted to see  the kernel 
+> booting with SELinux support and working SELinux utilities provided by 
+> busybox.
+> 
+>     What is your policy type? The standard reference policy?, or others?
+> 
+> 
+> I think my policy is standard reference policy.
+
+Hmm... It seems to me reason of the matter is still unclear.
+
+Could you check the following items at least?
+- The security policy was correctly loaded?
+  If OK, the kernel exports log messages as Stephen noted.
+
+- What kind of matter you faced when you build busybox and libselinux?
+  If you modified the code, what kind of changes were applied?
+
+- Is the filesystem correctly labeled?
+  If files don't have valid security context, SELinux considers all the
+  files have "unlabeled_t" context, but it is not expected for reference
+  policy.
+
+Right now, I doubt your /sbin/init could not load the security policy
+correctly. SELinux performs permissive mode, if it failed to load the
+policy. So, you can see the login prompt without any fails, because it
+means bootstrap sequence was correctly done.
+
+Also note that /sbin/init applet of busybox also support to load the
+policy at first. If you applied different binary, it needs to be replaced.
+
+Thanks,
+
+>     Thanks,
+> 
+>      > On Wed, Mar 17, 2010 at 11:38 AM, Manvendra Pratap Singh
+>      > <manav.emb@gmail.com <mailto:manav.emb@gmail.com>
+>     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>> wrote:
+>      >
+>      >     Thanks for reply KaiGai Kohei, I will follow your suggestion
+>     and let
+>      >     you know about it.
+>      >
+>      >     ---
+>      >     Manav
+>      >     Hyderabad
+>      >
+>      >     2010/3/17 KaiGai Kohei <kaigai@ak.jp.nec.com
+>     <mailto:kaigai@ak.jp.nec.com>
+>      > <mailto:kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>>
+>      >
+>      >         (2010/03/17 13:22), Manvendra Pratap Singh wrote:
+>      > > Can anyone suggest me good guide for SELinux on omap3
+>      >         (beagleboard). I
+>      > > tried it myself but I am not able to login after booting. On
+>      >         loging in
+>      > > root I get a msg "Cann't get SID for root". Please help me on
+>      >         this
+>      > > issue.  Here take a look at boot-log.
+>      > >
+>      > >
+>      > > [    0.000000] Security Framework initialized
+>      > > [    0.000000] SELinux:  Initializing.
+>      > >
+>      > >
+>      > > beagleboard login: root
+>      > > login: can't get SID for root
+>      >
+>      >         This message come from logind applet of busybox.
+>      >
+>      >         It tries to fetch the default security context of the
+>     root session.
+>      >
+>      >         Put "/etc/selinux/<SELINUXTYPE>/contexts/default_contexts" or
+>      > "/etc/selinux/<SELINUXTYPE>/contexts/users/root" correctly, and
+>      >         try it again.
+>      >
+>      >         Thanks,
+>      >
+>      > >
+>      > > Embinux Linux 1.1 beagleboard ttyS2
+>      > >
+>      > > beagleboard login:
+>      > >
+>      > >
+>      > >
+>      > > ---
+>      > > Manav
+>      > > Hyderabad
+>      > >
+>      > >
+>      > >
+>      > > On Thu, Mar 11, 2010 at 3:38 PM, Manvendra Pratap Singh
+>      > > <manav.emb@gmail.com <mailto:manav.emb@gmail.com>
+>     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>
+>      > <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>
+>     <mailto:manav.emb@gmail.com <mailto:manav.emb@gmail.com>>>> wrote:
+>      > >
+>      > >     Thanks for the information. I asked about working busybox
+>      >         and linux
+>      > >     kernel versions because when I am enabling selinux in busybox
+>      > >     (1.13.0), it is giving me lot of compilation errors and I
+>      >         think some
+>      > >     code is also missing. Although the kernel (2.6.29) which
+>      >         I am using
+>      > >     is working fine. If you tell anything more on this then
+>      >         it will be a
+>      > >     great help.
+>      > >
+>      > >
+>      > >     --
+>      > >     Manav
+>      > >     Hyderabad
+>      > >
+>      > >
+>      > >
+>      > >     On Wed, Mar 10, 2010 at 11:19 PM, Stephen Smalley
+>      > <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
+>     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
+>      > > <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
+>     <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>>> wrote:
+>      > >
+>      > >         On Wed, 2010-03-10 at 22:44 +0530, Manvendra Pratap
+>      >         Singh wrote:
+>      > > > Hi Stephen,
+>      > > >
+>      > > > May be I could not make myself clear to you. My question was
+>      > >         not about
+>      > > > linux on omap3, it was about SELinux on omap3. Anyways thanks
+>      > >         for your
+>      > > > reply. I will check the links given by you.
+>      > >
+>      > >         SELinux isn't platform-specific, and is a component
+>      >         of the Linux 2.6
+>      > >         kernel.
+>      > >
+>      > >         --
+>      > >         Stephen Smalley
+>      > >         National Security Agency
+>      > >
+>      > >
+>      > >
+>      >
+>      >
+>      >         --
+>      >         KaiGai Kohei <kaigai@ak.jp.nec.com
+>     <mailto:kaigai@ak.jp.nec.com> <mailto:kaigai@ak.jp.nec.com
+>     <mailto:kaigai@ak.jp.nec.com>>>
+>      >
+>      >
+>      >
+>      >
+>      >
+>      > --
+>      > Manav
+>      > Hyderabad
+> 
+> 
+>     --
+>     KaiGai Kohei <kaigai@ak.jp.nec.com <mailto:kaigai@ak.jp.nec.com>>
+> 
+> 
+> 
+> 
+> -- 
+> Manav
+> Hyderabad
+
+
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
