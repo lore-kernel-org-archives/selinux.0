@@ -1,55 +1,136 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2L253k0030253
-	for <selinux@tycho.nsa.gov>; Sat, 20 Mar 2010 22:05:03 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2L25cGA024082
-	for <selinux@tycho.nsa.gov>; Sun, 21 Mar 2010 02:05:39 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id AD87E180C5
-	for <selinux@tycho.nsa.gov>; Sun, 21 Mar 2010 13:04:56 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: capability:sysadmin and xend
-Date: Sun, 21 Mar 2010 13:04:52 +1100
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2M13xKQ013934
+	for <selinux@tycho.nsa.gov>; Sun, 21 Mar 2010 21:03:59 -0400
+Received: from mail-gw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2M14atb024749
+	for <selinux@tycho.nsa.gov>; Mon, 22 Mar 2010 01:04:36 GMT
+Received: by gwaa12 with SMTP id a12so265114gwa.12
+        for <selinux@tycho.nsa.gov>; Sun, 21 Mar 2010 18:03:57 -0700 (PDT)
+Message-ID: <4BA6C208.6010000@gmail.com>
+Date: Sun, 21 Mar 2010 18:04:08 -0700
+From: "Justin P. mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201003211304.55200.russell@coker.com.au>
+To: Randy Dunlap <rdunlap@xenotime.net>
+CC: trivial@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-audit@redhat.com, uclinux-dist-devel@blackfin.uclinux.org,
+        linux-cris-kernel@axis.com, linux-ia64@vger.kernel.org,
+        linux-mips@linux-mips.org, linux-parisc@vger.kernel.org,
+        linux-s390@vger.kernel.org, selinux@tycho.nsa.gov,
+        sparclinux@vger.kernel.org, x86@kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Cosmetic:Partially remove deprecated __initcall() and
+ change to
+References: <1269028291-9103-1-git-send-email-justinmattock@gmail.com> <4BA40115.2000509@xenotime.net> <4BA407AC.5030506@gmail.com> <4BA6BAF3.10603@xenotime.net>
+In-Reply-To: <4BA6BAF3.10603@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Below is a sample of the audit.log from starting a Xen server running 
-Debian/Testing on i386.
+On 03/21/2010 05:33 PM, Randy Dunlap wrote:
+> On 03/19/10 16:24, Justin P. Mattock wrote:
+>> On 03/19/2010 03:56 PM, Randy Dunlap wrote:
+>>> On 03/19/10 12:51, Justin P. Mattock wrote:
+>>>> After doing some things on a small issue,
+>>>> I noticed through web surfing, that there were patches
+>>>> submitted pertaining that __initcall is deprecated,
+>>>> and device_initcall should be used.
+>>>
+>>> Where was this discussion?  Do you have any pointers to it?
+>>>
+>>
+>> The best info on this is scripts/checkpatch.pl
+>> line #2664
+>>
+>> when I found this I just did a quick search of __initcall
+>> (which gives hits here and there)
+>> https://patchwork.kernel.org/patch/23344/
+>> (also found others at around 2008 or so)
+>
+> Thanks.  IMO there should be something in the kernel source tree
+> that says explicitly that __initcall is deprecated and should be
+> replaced by using<whatever should be used>.  That's missing.
+>
 
->From linux/syscallent.h in the strace source it appears that syscall 3 is 
-sys_read.  What might xend be doing?
+agree..
 
-type=AVC msg=audit(1269119177.855:8): avc:  denied  { sys_admin } for  pid=985 
-comm="xend" capability=21  scontext=system_u:system_r:xend_t:s0 
-tcontext=system_u:system_r:xend_t:s0 tclass=capability
-type=SYSCALL msg=audit(1269119177.855:8): arch=40000003 syscall=3 success=yes 
-exit=2 a0=f a1=99714b4 a2=2 a3=2 items=0 ppid=984 pid=985 auid=4294967295 
-uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) 
-ses=4294967295 comm="xend" exe="/usr/bin/python2.5" 
-subj=system_u:system_r:xend_t:s0 key=(null)
-type=AVC msg=audit(1269119177.855:9): avc:  denied  { sys_admin } for  pid=985 
-comm="xend" capability=21  scontext=system_u:system_r:xend_t:s0 
-tcontext=system_u:system_r:xend_t:s0 tclass=capability
-type=SYSCALL msg=audit(1269119177.855:9): arch=40000003 syscall=3 success=yes 
-exit=2 a0=f a1=99714b4 a2=2 a3=2 items=0 ppid=984 pid=985 auid=4294967295 
-uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) 
-ses=4294967295 comm="xend" exe="/usr/bin/python2.5" 
-subj=system_u:system_r:xend_t:s0 key=(null)
+I should of searched the source tree for something
+that says deprecated and so forth before doing anything(the 
+checkpatch.pl was something I noticed down the line but doesn't say 
+deprecated(say's explicitly).
 
 
-Xen works fine without enabling this access, so I'll probably put in a 
-dontaudit rule.
+>
+>>> I don't see any mention of __initcall being deprecated in
+>>> Linus' mainline git tree, or in linux-next, or in mmotm.
+>>> Where are those patches?
+>>>
+>>
+>> I don't know(I'm out of the social pipeline when it comes to Linux news,
+>> and updates)..
+>> like in the explanation part of the patch
+>> I was looking into something else, then ran into this,
+>> so as a break(from what I was originally doing)
+>> decided to do this and submit.
+>>
+>>>
+>>>> So as a change of subject(since what I was looking at
+>>>> was frustrating me),I decided to grep the whole tree
+>>>> and make the change(partially).
+>>>>
+>>>> Currently I'm running this patch on my system, kernel compiles
+>>>> without any errors or warnings.(thought there would be a speed increase
+>>>> but didn't see much(if any)).
+>>>
+>>> No, __initcall(x) is just a shorthand version of typing
+>>> device_initcall(x).  They do the same thing.
+>>>
+>>
+>> yep, that's what I found out as well(reason for the cosmetic
+>> in the subject line).
+>>
+>>>> Biggest problem I have though is testing this on other hardware types
+>>>> (I only have a macbook,and an iMac).
+>>>> So please if you have the access to other arch/hardware types please
+>>>> test.
+>>>>
+>>>> Now what I mean by partially is the __initcall function is still
+>>>> there, so(if any) userspace apps/libs depend on this it's there
+>>>> so they dont break and/or any other subsystem, that needs time
+>>>> to make the changes.
+>>>
+>>> The only thing that might be affected is building out-of-tree drivers,
+>>> but those are easy to fix.
+>>>
+>>
+>> alright..main concern is making sure things don't break in the
+>> kernel(even though things do).
+>>
+>> I can have a go at the header files, submit
+>> then if it's something people agree they want to do, then they
+>> can go from there(if not it's fine as well).
+>>
+>>>> Note:
+>>>> the remaining files that still have __initcall in them are:
+>>>> (according to grep)
+>>>>
+>>>> arch/um/include/shared/init.h
+>>>> include/linux/init.h
+>>>> scripts/checkpatch.pl
+>>>>
+>>>> either I or somebody else, can change this(although a bit
+>>>> concerned about breaking things).
+>>>>
+>>>> Signed-off-by: Justin P. Mattock<justinmattock@gmail.com>
+>>>> ---
+>
+>
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+
+In any case I'll leave this to you guys to decide.
+The patch is in cyberspace now, so if/when this ever
+is decided it's there(patch), then can be used then.
+
+Justin P. Mattock
 
 
 --
