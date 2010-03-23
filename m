@@ -1,80 +1,82 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2N3Vxaa020491
-	for <selinux@tycho.nsa.gov>; Mon, 22 Mar 2010 23:31:59 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o2N3VYYW003683
-	for <selinux@tycho.nsa.gov>; Tue, 23 Mar 2010 03:31:35 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dominick Grift <domg472@gmail.com>
-Subject: Re: squid and apache
-Date: Tue, 23 Mar 2010 14:31:38 +1100
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <201003031007.35281.russell@coker.com.au> <4B8E3807.3060809@gmail.com>
-In-Reply-To: <4B8E3807.3060809@gmail.com>
+Message-ID: <4BA8A771.8060502@redhat.com>
+Date: Tue, 23 Mar 2010 07:35:13 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_eYDqLYnbbZoLLKe"
-Message-Id: <201003231431.42221.russell@coker.com.au>
+To: Eric Paris <eparis@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>,
+        "Daniel P. Berrange" <berrange@redhat.com>
+Subject: Re: svirt on MLS has strange AVC.
+References: <4BA7E4BF.1040002@redhat.com> <1269301672.2911.31.camel@localhost>
+In-Reply-To: <1269301672.2911.31.camel@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_eYDqLYnbbZoLLKe
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Wed, 3 Mar 2010, Dominick Grift <domg472@gmail.com> wrote:
-> On 03/03/2010 12:07 AM, Russell Coker wrote:
-> <snip>
+On 03/22/2010 07:47 PM, Eric Paris wrote:
+> On Mon, 2010-03-22 at 17:44 -0400, Daniel J Walsh wrote:
+>    
+>> time->Mon Mar 22 17:31:49 2010
+>> type=SYSCALL msg=audit(1269293509.223:4753): arch=c000003e syscall=1
+>> success=no exit=-13 a0=11 a1=1d2a9c8 a2=10 a3=fffffff2 items=0 ppid=1
+>> pid=28549 auid=0 uid=107 gid=107 euid=107 suid=107 fsuid=107 egid=107
+>> sgid=107 fsgid=107 tty=(none) ses=7 comm="qemu-kvm"
+>> exe="/usr/libexec/qemu-kvm" subj=system_u:system_r:svirt_t:s0:c1 key=(null)
+>> type=AVC msg=audit(1269293509.223:4753): avc:  denied  { write } for
+>> pid=28549 comm="qemu-kvm" path="socket:[4417531]" dev=sockfs ino=4417531
+>> scontext=system_u:system_r:svirt_t:s0:c1
+>> tcontext=system_u:system_r:svirt_t:s0-s15:c0.c1023 tclass=unix_stream_socket
+>>
+>> I have Static Virtualization working on an MLS box except for this
+>> strange AVC.
+>>
+>> This looks like the kernel is confused?  I believe that all svirt
+>> processes are running as s0:c1 and yet this AVC indicates svirt_t:s0.c1
+>> is trying to write to a unix_stream_socket running as
+>> svirt_t:s0-s15:c0.c1023.
+>>
+>> # ps -eZ | grep virt
+>> system_u:system_r:virtd_t:s0-s15:c0.c1023 27344 ? 05:34:47 libvirtd
+>> system_u:system_r:svirt_t:s0:c1 28549 ?        00:00:01 qemu-kvm
+>>
+>> Could the kernel be getting confused in to thinking libvirtd is svirt_t?
+>>
+>> # ls -lZ /proc/28549/fd/ | grep 4417531
+>> lrwx------. qemu qemu system_u:system_r:svirt_t:s0:c1  17 ->
+>> socket:[4417531]
+>>
+>>    lsof | grep 4417531
+>> qemu-kvm  28549      qemu   17u     unix 0xffff88003e1f7900       0t0
+>> 4417531 /var/lib/libvirt/qemu/xguest.monitor
+>>
+>> # lsof /var/lib/libvirt/qemu/xguest.monitor
+>> COMMAND    PID USER   FD   TYPE             DEVICE SIZE/OFF    NODE NAME
+>> qemu-kvm 28549 qemu    3u  unix 0xffff88003a853000      0t0 4417518
+>> /var/lib/libvirt/qemu/xguest.monitor
+>> qemu-kvm 28549 qemu   17u  unix 0xffff88003e1f7900      0t0 4417531
+>> /var/lib/libvirt/qemu/xguest.monitor
+>>
+>> So it looks like we have a process that is running as both labels?
+>>      
+> This is a check between the type of the process and that of the socket
+> itself, not between 2 processes.  So, the type of the socket is wrong.
+> Just as a question, what does ls -lZ /var/lib/libvirt/qemu/ show?
+> c0-c1023 for xguest.monitor?  What created that socket?  Did they get it
+> correct?  (I admit it looks correct on my F13ish system)
 >
-> > How should we solve this?
+> -Eric
 >
-> I Wrote a blog with my view on this issue here:
->
-> http://selinux-mac.blogspot.com/2010/02/about-apachecontenttemplate.html
->
-> I am also interested in other views on this.
+>    
+The socket file is labeled svirt_var_run_t and has the correct level.
 
-I've attached the patch I'm using for Debian/Squeeze.
+I believe the socket file was created by qemu.  Dan can you confirm this.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
 
---Boundary-00=_eYDqLYnbbZoLLKe
-Content-Type: application/x-gzip;
-  name="diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="diff.gz"
+  # ls -lZa /var/lib/libvirt/qemu/
+drwx------. qemu qemu system_u:object_r:svirt_var_run_t:s0-s15:c0.c1023 .
+drwxr-xr-x. root root system_u:object_r:virt_var_lib_t:s0 ..
+srwxr-xr-x. qemu qemu system_u:object_r:svirt_var_run_t:s0:c1 xguest.monitor
 
-H4sICPw1qEsCA2RpZmYArVhbb+I4FH4mv8IaVmqrBEjCtbS7qtSVVvs8o9nHjElMsZrb2g4M8+v3
-2I5pCBDqdnlo5PhcnO87Nzeh6zUasAqNRFaOGFmXRUrj/ah+jLIiqVLCR7gs4c+OCyz4UBB0Zd8Z
-DAaWJnuh798PgmAQLJAfLv3JcrwY+uaH3CDwfcd1XXTdTuAP/PEgHKNgvBzPlhP/xM7TEwI/3gyW
-C2+Onp4cJPYlQbWZaItZlNJVJB4ctKbgJZLbtyfbdw5yXFzieEMiHjNaioj8JHGUFBmmuZEHqVom
-LnJBchEJkpUpFqQh4aD+O39O8k7SOGFbGiuIpPchXaPrIu+h7lSrhfo0WI7v38XedVNA4Pg8gYEX
-hHLthQtFYb/fexzxKssw2/8hl+hxVGKGM7lw3APoPy4yduP9cNyeCoWNEGUS/RYcSYkH1EdxxUWR
-0V94lZIHx725c1zHfTd5rjzW4ZCw6j0zAqdCGHEiULFGCWF0SxIVkRytC1ZHjxLekRWqo2iobY2a
-xtCj+mCU44z8/qUECunPL9rNsdNvG0hitY1EgVYEVRxcSmfKPc1fdEZIQ3yoDbQ8GWzdPmRPG9t2
-pEtkUe+F5BEj/1aUgSSse1gIRleVqPGutR7ObGkCNBn8rMARUXB2JdTgUnhGsNIyZp0WLzLT3V4n
-82ANqEa9PsJpWuzQjlHJWgzByyWGZbWC0FblAgmGc74mTImbENeVZKhidzyDsuNOQ+9eRW6PFaDF
-9xzgiljNfPsc8gjK4LcN5ZodeB54k8eshAxKVKOkHTqDrs/yLoF3GujgOYM3MlgSCJwc/K72SEAg
-xYAIfKyU+J9cyfdtftv2OmiPC0biDPY2JE0jiCi21xX8BFPJqM79WkxidirmXTiDLNwfLcdn2uip
-yEfK8UkT/Hg5Pu2nk4v9dK4b6tx01LpxZmUTU5N78FborifLXlWqONIJgDQfKqjrN89//W2Cuqvf
-gnRHr9W7TjNE1TEe6nFgpueBeXMgOIiteXMYUOvGV9UCV8YBSFXWcb56u1rhWG5yKCIyyWoXcrcZ
-tXINdvX7TZEdDDblDz7uPhKlcVXy5EqYGhnLODVqeurzFwN/hnx/OZ1Dvz+KLv96oDZstSY/Pzgf
-qf5EUQ0PTTWUdG0lil8o+pPEKXQ2QYEDOTh0j3hvikBKUUotnEb6uKrHXRz9jjTt+Ym3vJMbvW/F
-i1b5PCcHO63KEc4u8KFTz58d+Hj+/vUfmHS0h6skgD9L8LWGPegvVHSCrvetQNcqNejzQTBBYbgM
-oczO7UA/2GmB7odnQZ95E+TOvGkNuFXQg6uOOqZ2rZHNqpzmndgaCSt0jdKZoLbEt2GpVWaC+wv3
-E11mAlNmTMlOADFcJVTIIh1VeQkDt67X64TfKj9HJf5NnhPM4k2j5ieUNTW6SFNSlmlidOzphLtF
-WiXdQ86bjBWlb2qfJ/XIVrt7nKc1nCta5cNUK7Cyo6+v2L59GE1LXhpq9tRwuH91t3UjYUWLUfo8
-KQ1LR5RMl5MLmTadq0ybmtlNXQByIhMmT+AqsI3ghhIBmK9E8FtlX+XLzZWcUZKW3Bgde2J247iT
-Fr1vRYpWOdNcFnaUHOy0ciRcXGguM9lc5h9pLuAq2uKUJlgUXeNyW87iH2j/AU4Tkej2FAAA
 
---Boundary-00=_eYDqLYnbbZoLLKe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
