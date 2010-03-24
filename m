@@ -1,158 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2NFX331000713
-	for <selinux@tycho.nsa.gov>; Tue, 23 Mar 2010 11:33:03 -0400
-Received: from mail-fx0-f219.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2NFXeu4019558
-	for <selinux@tycho.nsa.gov>; Tue, 23 Mar 2010 15:33:40 GMT
-Received: by fxm19 with SMTP id 19so831104fxm.19
-        for <selinux@tycho.nsa.gov>; Tue, 23 Mar 2010 08:32:59 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2ODH7IO008230
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2010 09:17:07 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2ODHkFx025989
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2010 13:17:46 GMT
+Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o2ODH487027912
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2010 09:17:04 -0400
+Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
+	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o2ODH3Hs022664
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2010 09:17:04 -0400
+Message-ID: <4BAA10CF.4080206@redhat.com>
+Date: Wed, 24 Mar 2010 09:17:03 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <4BA77E1A.9070809@manicmethod.com>
-References: <10143821003121157o2ccc5c2cw2079b86d86c33ef@mail.gmail.com>
-	 <4BA28AA4.7000605@manicmethod.com>
-	 <10143821003220658x3dd9c6dw460bf13233b05b9d@mail.gmail.com>
-	 <4BA77E1A.9070809@manicmethod.com>
-Date: Tue, 23 Mar 2010 11:32:55 -0400
-Message-ID: <10143821003230832i1f28757ft3b3b80861c50cce1@mail.gmail.com>
-Subject: Re: [PATCH] Sepolgen: improve parser error recovery
-From: Karl MacMillan <karlwmacmillan@gmail.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Patch to context_new to set errno to EINVAL on bad values
+Content-Type: multipart/mixed;
+ boundary="------------060904080408020602040907"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 22, 2010 at 10:26 AM, Joshua Brindle <method@manicmethod.com> wrote:
-> Karl MacMillan wrote:
->>
->> On Thu, Mar 18, 2010 at 4:18 PM, Joshua Brindle<method@manicmethod.com>
->>  wrote:
->>>
->>> Karl MacMillan wrote:
->>>>
->>>> Sepolgen has long not recovered from parsing errors, leading to
->>>> a blacklist of none bad modules in the source. I finally tracked
->>>> down the problem (lexer state) and this patch fixes the problem
->>>> by causing the lexer to be rebuilt on error.
->>>> ---
->>>
->>> So do the modules that were blacklisted still fail to parse and this just
->>> handles it by reinitializing the lexer and parser?
->>>
->>
->> This patch just re-initializes the lexer and parser - it doesn't do
->> anything to fix the old parser errors. Those are not really fixable in
->> any clean way. However, on my FC12 system all of the modules seem to
->> parse fine because of refpolicy changes.
->>
->
-> Ok. The change looks reasonable, do you want to merge it or do you want me
-> to?
->
-> Acked-by: Joshua Brindle <jbrindle@tresys.com>
->
+This is a multi-part message in MIME format.
+--------------060904080408020602040907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Merged as sepolgen 1.0.22
 
->> Karl
->>
->>>>  sepolgen/src/sepolgen/refparser.py |   28 ++++++++++++----------------
->>>>  1 files changed, 12 insertions(+), 16 deletions(-)
->>>>
->>>> diff --git a/sepolgen/src/sepolgen/refparser.py
->>>> b/sepolgen/src/sepolgen/refparser.py
->>>> index 23beb39..5c5093c 100644
->>>> --- a/sepolgen/src/sepolgen/refparser.py
->>>> +++ b/sepolgen/src/sepolgen/refparser.py
->>>> @@ -279,7 +279,7 @@ parse_file = ""
->>>>  #     refpolicy.SupportMacros and should always be present during
->>>> parsing
->>>>  #     though it may not contain any macros.
->>>>  spt = None
->>>> -success=True
->>>> +success = True
->>>>
->>>>  # utilities
->>>>  def collect(stmts, parent, val=None):
->>>> @@ -921,9 +921,7 @@ def p_optional_semi(p):
->>>>  #
->>>>
->>>>  def p_error(tok):
->>>> -    global error
->>>> -    global parse_file
->>>> -    global success
->>>> +    global error, parse_file, success, parser
->>>>      error = "%s: Syntax error on line %d %s [type=%s]" % (parse_file,
->>>> tok.lineno, tok.value, tok.type)
->>>>      print error
->>>>      success = False
->>>> @@ -939,6 +937,7 @@ parser = None
->>>>  lexer = None
->>>>  def create_globals(module, support, debug):
->>>>      global parser, lexer, m, spt
->>>> +
->>>>      if not parser:
->>>>          lexer = lex.lex()
->>>>          parser = yacc.yacc(method="LALR", debug=debug, write_tables=0)
->>>> @@ -955,17 +954,20 @@ def create_globals(module, support, debug):
->>>>
->>>>  def parse(text, module=None, support=None, debug=False):
->>>>      create_globals(module, support, debug)
->>>> -    lexer.lexdata = []
->>>> -    lexer.lexpos = 0
->>>> -    lexer.lineno = 1
->>>> +    global error, parser, lexer, success
->>>> +
->>>> +    success = True
->>>>
->>>>      try:
->>>> -        parser.parse(text, debug=debug)
->>>> +        parser.parse(text, debug=debug, lexer=lexer)
->>>>      except Exception, e:
->>>> -        global error
->>>> +        parser = None
->>>> +        lexer = None
->>>>          error = "internal parser error: %s" % str(e) + "\n" +
->>>> traceback.format_exc()
->>>>
->>>> -    if error is not None:
->>>> +    if not success:
->>>> +        # force the parser and lexer to be rebuilt - we have some
->>>> problems otherwise
->>>> +        parser = None
->>>>          msg = 'could not parse text: "%s"' % error
->>>>          raise ValueError(msg)
->>>>      return m
->>>> @@ -973,15 +975,9 @@ def parse(text, module=None, support=None,
->>>> debug=False):
->>>>  def list_headers(root):
->>>>      modules = []
->>>>      support_macros = None
->>>> -    blacklist = ["init.if", "inetd.if", "uml.if", "thunderbird.if"]
->>>>
->>>>      for dirpath, dirnames, filenames in os.walk(root):
->>>>          for name in filenames:
->>>> -            # FIXME: these make the parser barf in various
->>>> unrecoverable ways, so we must skip
->>>> -            # them.
->>>> -            if name in blacklist:
->>>> -                continue
->>>> -
->>>>              modname = os.path.splitext(name)
->>>>              filename = os.path.join(dirpath, name)
->>>>
->>>> --
->>>> 1.6.6
->>>>
->>>> --
->>>> This message was distributed to subscribers of the selinux mailing list.
->>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>>> with
->>>> the words "unsubscribe selinux" without quotes as the message.
->>>>
->>
->
 
+--------------060904080408020602040907
+Content-Type: text/plain;
+ name="libselinux_context_new.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libselinux_context_new.patch"
+
+diff --git a/libselinux/src/context.c b/libselinux/src/context.c
+index 8164104..b673733 100644
+--- a/libselinux/src/context.c
++++ b/libselinux/src/context.c
+@@ -22,6 +22,7 @@ typedef struct {
+ context_t context_new(const char *str)
+ {
+ 	int i, count;
++	errno = 0;
+ 	context_private_t *n =
+ 	    (context_private_t *) malloc(sizeof(context_private_t));
+ 	context_t result = (context_t) malloc(sizeof(context_s_t));
+@@ -76,6 +77,7 @@ context_t context_new(const char *str)
+ 	}
+ 	return result;
+       err:
++	if (errno == 0) errno = EINVAL;
+ 	context_free(result);
+ 	return 0;
+ }
+
+--------------060904080408020602040907--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
