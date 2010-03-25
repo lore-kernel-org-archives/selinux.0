@@ -12,13 +12,13 @@ References: <4BA7E4BF.1040002@redhat.com>
 	 <1269540418.1031.34.camel@moss-pluto.epoch.ncsc.mil>
 	 <4BABA73B.6030306@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 25 Mar 2010 14:23:53 -0400
-Message-ID: <1269541433.2980.7.camel@dhcp231-113.rdu.redhat.com>
+Date: Thu, 25 Mar 2010 14:29:01 -0400
+Message-ID: <1269541741.2980.9.camel@dhcp231-113.rdu.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-03-25 at 14:11 -0400, Daniel J Walsh wrote:
+On Thu, 2010-03-25 at 14:11 -0400, Daniel J Walsh wrote: 
 > On 03/25/2010 02:06 PM, Stephen Smalley wrote:
 > > On Thu, 2010-03-25 at 12:49 -0400, Paul Moore wrote:
 > >    
@@ -174,22 +174,21 @@ both ends.  In fact the socket gets the type of svirt_t and the level of
 s0-s15:c0-c1023, svirt_t:c0-s15:c0-c1023.  Now we need to allow both:
 
 svirt_t:s0:c1 -> svirt_t:s0-s15:c0-c1023
-libvirtd_t:s0-s15:c0-c1023 -> sivrt_t:s0-s15:c0-c1023
-
-to use this screwy label that I don't understand at all.  I guess I just
-don't like the fact that somehow the MLS portion is a magic different
-class citizen.  It seems to me that the 'correct' checks on a unix
-domain socket (where we really know this info) would be different
-depending on the direction.  We should need to allow
+libvirtd_t:s0-s15:c0-c1023 -> sivrt_t:s0to use this screwy label that I
+don't understand at all.  I guess I just don't like the fact that
+somehow the MLS portion is a magic different class citizen.  It seems to
+me that the 'correct' checks on a unix domain socket (where we really
+know this info) would be different depending on the direction.  We
+should need to allow
 
 svirt_t:s0:c1 -> libvirtd_t:s0-s15:c0-c1023
 libvirtd_t:s0-s15:c0-c1023 -> svirt_t:s0:c1
 
-No more of this horrific magic derived other context.  Obviously I'm
+No more of this horrific magic derived other class types.  Obviously I'm
 networking clueless, but someone please explain me how this type makes
 sense.....
 
--Eric
+-Eric 
 
 
 --
