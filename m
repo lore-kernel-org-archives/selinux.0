@@ -1,68 +1,52 @@
-Subject: Re: svirt on MLS has strange AVC.
-From: Eric Paris <eparis@redhat.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh
- <dwalsh@redhat.com>,
-        "Daniel P. Berrange" <berrange@redhat.com>,
-        SELinux
- <selinux@tycho.nsa.gov>
-In-Reply-To: <201003251806.13943.paul.moore@hp.com>
-References: <4BA7E4BF.1040002@redhat.com>
-	 <1269541078.1031.45.camel@moss-pluto.epoch.ncsc.mil>
-	 <1269543730.2980.17.camel@dhcp231-113.rdu.redhat.com>
-	 <201003251806.13943.paul.moore@hp.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 29 Mar 2010 13:06:42 -0400
-Message-ID: <1269882402.2980.152.camel@dhcp231-113.rdu.redhat.com>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2TH5ls5010427
+	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2010 13:05:48 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o2TH5MgJ017410
+	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2010 17:05:22 GMT
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Cc: Dan Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
+Subject: [PATCH] Make building sandbox conditional on presence of cap-ng.h
+Date: Mon, 29 Mar 2010 13:08:36 -0400
+Message-Id: <1269882516-17933-1-git-send-email-jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[resending as tycho.nsa.gov bounced it the first time.  Paul already
-responded so this is just for the archives]
+Sandbox requires cap-ng so I added a conditional build the same way we have one for inotify.h. It would be nice to have a better dependency system some day.
 
-On Thu, 2010-03-25 at 18:06 -0400, Paul Moore wrote:
-> I thought QEMU/KVM was creating the socket and libvirtd was trying to connect 
-> to it?  If this is the case wouldn't it be a random virtual machine ...
-> 
-> 	svirt_t:s3:c156
-> 
-> ... and a not-so-random libvirtd ...
-> 
-> 	libvirtd_t:s0-s15:c0-c1023
-> 
-> ... trying to talk over a UNIX socket which is labeled svirt_t:s0 (on the 
-> QEMU/KVM side) and libvirtd_t:s0-s15:c0-c1023 (on the libvirtd side)?  I 
-> agree, that could be a little wierd on the QEMU/KVM side, but if we use the 
-> full MLS range for the child socket we end up with svirt:s0-s15:c0-c1023 on 
-> the QEMU/KVM side and libvirtd_t:s0-s15:c0-c1023 on the libvirtd side; you'll 
-> probably still need some MLS overrides on the QEMU/KVM side but you could at 
-> least do something using the range.
+This should be applied on top of the Sandbox patch by Dan Walsh <dwalsh@redhat.com> 
 
-Yes, that is exactly what is happening.  I find the label
-svirt:s0-s15:c0-c1023 abhorrent, but that's neither here nor there.  MLS
-as an 'other' class citizen in the label makes me .... unhappy.  So
-today we have:
+Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+---
+ policycoreutils/Makefile |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
 
-QEMU/KVM process: svirt_t:s3:c156
-QEMU/KVM socket:  svirt_t:s0-s15:c0-c1023
-
-sds suggested we only copy the low part of the MLS context to the server
-label, which gives us:
-
-QEMU/KVM process: svirt_t:s3:c156
-QEMU/KVM socket:  svirt_t:s0:c0
-
-which I don't think is any better as we still have to needlessly use MLS
-overrides which pretty much destroys the whole usefulness of vm
-isolation here.
-
-This is why I suggested an mls_copy_subset function so things could
-'work' if you have ranged objects on either the client or server side.
-It only 'works' today if the ranged object is on the server side.....
-
--Eric
-
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index c7a590e..c68194a 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why sandbox scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
++SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
+ 
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+ 
+@@ -6,6 +6,12 @@ ifeq (${INOTIFYH}, /usr/include/sys/inotify.h)
+ 	SUBDIRS += restorecond
+ endif
+ 
++CAPNGH = $(shell ls /usr/include/cap-ng.h 2>/dev/null)
++
++ifeq (${CAPNGH}, /usr/include/cap-ng.h)
++	SUBDIRS += sandbox
++endif
++
+ all install relabel clean indent:
+ 	@for subdir in $(SUBDIRS); do \
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+-- 
+1.7.0.1
 
 
 --
