@@ -1,112 +1,68 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2UJpIhT000565
-	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 15:51:18 -0400
-Received: from g1t0029.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2UJq1hW006413
-	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 19:52:01 GMT
-Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
-	by g1t0029.austin.hp.com (Postfix) with ESMTP id 05A233812F
-	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 19:51:17 +0000 (UTC)
-Subject: [RFC PATCH v1] selinux: UNIX domain socket fixes
-To: selinux@tycho.nsa.gov
-From: Paul Moore <paul.moore@hp.com>
-Date: Tue, 30 Mar 2010 15:51:15 -0400
-Message-ID: <20100330195115.8079.15161.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: svirt on MLS has strange AVC.
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Paul Moore <paul.moore@hp.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        "Daniel P. Berrange" <berrange@redhat.com>,
+        SELinux
+ <selinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>
+In-Reply-To: <1269976831.9831.13.camel@moss-pluto.epoch.ncsc.mil>
+References: <4BA7E4BF.1040002@redhat.com>
+	 <201003261547.33226.paul.moore@hp.com>
+	 <1269887364.2980.195.camel@dhcp231-113.rdu.redhat.com>
+	 <201003291600.06024.paul.moore@hp.com>
+	 <1269976831.9831.13.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 30 Mar 2010 16:17:30 -0400
+Message-ID: <1269980250.2941.31.camel@dhcp235-240.rdu.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Correct a problem where we weren't setting the peer label correctly on
-connected UNIX domain sockets and do some other general fixup while we
-are messing with the code.
+On Tue, 2010-03-30 at 15:20 -0400, Stephen Smalley wrote:
+> On Mon, 2010-03-29 at 16:00 -0400, Paul Moore wrote:
+> > Sorry, I don't think it is very intuitive and the directionality is still a 
+> > bit questionable.  If you're really looking to come up with directional socket 
+> > labels, let's just make directional socket labels; believe it or not, we're 
+> > actually much closer to that then you make think ... here is a clue, look at 
+> > the "peer_sid" field which we store for connected sockets.
+> > 
+> > I would need to think about this a bit more, but we could have both a 
+> > "local_label" and a "peer_label" (I'm just picking easy, descriptive names 
+> > right now) on both a socket and a sock, much like the "sid" and "peer_sid" 
+> > labels we have now.  All traffic leaving a sock would be wire-labeled based on 
+> > the "local_label" and all traffic being queued to a sock would be checked 
+> > against the "local_label" as well.  Applications trying to read and write data 
+> > to and from a sock queue would be checked against the "peer_label" and the 
+> > rest of the socket operations, 
+> > create/connect/listen/setsockopt/getsockopt/etc., would use the "local_label".
+> > 
+> > I need to think about this some more, but I like the approach above much more 
+> > than labeling the socket/sock differently.
+> 
+> I don't think this is necessary, and it seems to have the same problems
+> I noted previously with Eric's proposal - you end up with different
+> meanings for the same permission check for pre-connection vs
+> post-connection and for connection-oriented vs. connectionless.
 
-This patch really is RFC quality; I've only boot tested it once so
-beware ...
+/me cries and dies a little inside if we think the current situation is
+a good one.
 
-Signed-off-by: XXX
----
- security/selinux/hooks.c |   45 +++++++++++++++++----------------------------
- 1 files changed, 17 insertions(+), 28 deletions(-)
+security_sid_mls_copy() is a dirty ugly hack and it's very existence
+points out that SOMETHING is wrong.  If we don't need that in TE why do
+we need that in MLS.  ewwwwwwwwwww.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5feecb4..326e014 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4002,56 +4002,45 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
- 					      struct socket *other,
- 					      struct sock *newsk)
- {
--	struct sk_security_struct *ssec;
--	struct inode_security_struct *isec;
--	struct inode_security_struct *other_isec;
-+	struct sk_security_struct *s_sksec = sock->sk->sk_security;
-+	struct sk_security_struct *o_sksec = other->sk->sk_security;
-+	struct sk_security_struct *n_sksec = newsk->sk_security;
- 	struct common_audit_data ad;
- 	int err;
- 
--	isec = SOCK_INODE(sock)->i_security;
--	other_isec = SOCK_INODE(other)->i_security;
--
- 	COMMON_AUDIT_DATA_INIT(&ad, NET);
- 	ad.u.net.sk = other->sk;
- 
--	err = avc_has_perm(isec->sid, other_isec->sid,
--			   isec->sclass,
-+	err = avc_has_perm(s_sksec->sid, o_sksec->sid, o_sksec->sclass,
- 			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
- 	if (err)
- 		return err;
- 
--	/* connecting socket */
--	ssec = sock->sk->sk_security;
--	ssec->peer_sid = other_isec->sid;
--
- 	/* server child socket */
--	ssec = newsk->sk_security;
--	ssec->peer_sid = isec->sid;
--	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
-+	n_sksec->peer_sid = s_sksec->sid;
-+	err = security_sid_mls_copy(o_sksec->sid, s_sksec->peer_sid,
-+				    &n_sksec->sid);
-+	if (err)
-+		return err;
- 
--	return err;
-+	/* connecting socket */
-+	s_sksec->peer_sid = n_sksec->sid;
-+
-+	return 0;
- }
- 
- static int selinux_socket_unix_may_send(struct socket *sock,
- 					struct socket *other)
- {
--	struct inode_security_struct *isec;
--	struct inode_security_struct *other_isec;
-+	struct sk_security_struct *ssec = sock->sk->sk_security;
-+	struct sk_security_struct *osec = other->sk->sk_security;
- 	struct common_audit_data ad;
--	int err;
--
--	isec = SOCK_INODE(sock)->i_security;
--	other_isec = SOCK_INODE(other)->i_security;
- 
- 	COMMON_AUDIT_DATA_INIT(&ad, NET);
- 	ad.u.net.sk = other->sk;
- 
--	err = avc_has_perm(isec->sid, other_isec->sid,
--			   isec->sclass, SOCKET__SENDTO, &ad);
--	if (err)
--		return err;
--
--	return 0;
-+	return avc_has_perm(ssec->sid, osec->sid, osec->sclass, SOCKET__SENDTO,
-+			    &ad);
- }
- 
- static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
+We already have magic differences between pre-connection and
+post-connection and between connection-oriented vs connectionless.  The
+only difference is that today those differences don't make logical
+sense, even if you can almost manage to eventually write rules which
+meet meaningful security goals.  As we see with libvirt and KVM/QEMU we
+have to change the application.   eww.
+
+While I realize that coding without thought isn't going to solve the
+problem, it's the best method for me to see all of the fall out of the
+idea.  /me wants some time to play with this.
+
+-Eric
 
 
 --
