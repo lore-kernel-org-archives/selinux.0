@@ -1,157 +1,58 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v1] selinux: UNIX domain socket fixes
-Date: Tue, 30 Mar 2010 16:35:33 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20100330195115.8079.15161.stgit@flek.lan> <1269980830.9831.23.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1269980830.9831.23.camel@moss-pluto.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201003301635.33964.paul.moore@hp.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2UL7xcg005755
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 17:08:01 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o2UL6to0000406
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 21:06:55 GMT
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>
+Subject: [PATCH] Add implicit lib requirements to LDLIBS
+Date: Tue, 30 Mar 2010 17:08:39 -0400
+Message-Id: <1269983319-10453-1-git-send-email-jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 30 March 2010 04:27:10 pm Stephen Smalley wrote:
-> On Tue, 2010-03-30 at 15:51 -0400, Paul Moore wrote:
-> > Correct a problem where we weren't setting the peer label correctly on
-> > connected UNIX domain sockets and do some other general fixup while we
-> > are messing with the code.
-> > 
-> > This patch really is RFC quality; I've only boot tested it once so
-> > beware ...
-> 
-> I'm not sure why you are changing anything here other than the
-> assignment of the peer_sid.
-> 
-> The inode SID and the sock SID should be the same.  The only case today
-> where I know they can become inconsistent is upon fsetxattr() on a
-> socket, which is not allowed by existing policy, and that can be
-> addressed by introducing a setxattr handler for sockets that propagates
-> the SID down to the sock.
+Fedora 13 changed their linker behavior to not link indirect libraries.
+See information at: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
 
-Cleanliness mainly.  Granted the changes in may_send() have zero effect and 
-are largely to satisfy my own desire to shift the socket controls to using the 
-sock SID as much as possible (instead of the inode's SID).  However, in 
-stream_connect() the changes actually make the code a bit smaller and cleaner; 
-we need the sk_security_struct for each socket to gain access to the peer SID 
-and it can also give us the socket's SID, fetching the inode's SID adds extra 
-work and consumes more stack for no advantage.
+Resent, it doesn't look like it made it to the list the first time (and the subject had a typo)
 
-> > Signed-off-by: XXX
-> > ---
-> > 
-> >  security/selinux/hooks.c |   45
-> >  +++++++++++++++++---------------------------- 1 files changed, 17
-> >  insertions(+), 28 deletions(-)
-> > 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 5feecb4..326e014 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -4002,56 +4002,45 @@ static int
-> > selinux_socket_unix_stream_connect(struct socket *sock,
-> > 
-> >  					      struct socket *other,
-> >  					      struct sock *newsk)
-> >  
-> >  {
-> > 
-> > -	struct sk_security_struct *ssec;
-> > -	struct inode_security_struct *isec;
-> > -	struct inode_security_struct *other_isec;
-> > +	struct sk_security_struct *s_sksec = sock->sk->sk_security;
-> > +	struct sk_security_struct *o_sksec = other->sk->sk_security;
-> > +	struct sk_security_struct *n_sksec = newsk->sk_security;
-> > 
-> >  	struct common_audit_data ad;
-> >  	int err;
-> > 
-> > -	isec = SOCK_INODE(sock)->i_security;
-> > -	other_isec = SOCK_INODE(other)->i_security;
-> > -
-> > 
-> >  	COMMON_AUDIT_DATA_INIT(&ad, NET);
-> >  	ad.u.net.sk = other->sk;
-> > 
-> > -	err = avc_has_perm(isec->sid, other_isec->sid,
-> > -			   isec->sclass,
-> > +	err = avc_has_perm(s_sksec->sid, o_sksec->sid, o_sksec->sclass,
-> > 
-> >  			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
-> >  	
-> >  	if (err)
-> >  	
-> >  		return err;
-> > 
-> > -	/* connecting socket */
-> > -	ssec = sock->sk->sk_security;
-> > -	ssec->peer_sid = other_isec->sid;
-> > -
-> > 
-> >  	/* server child socket */
-> > 
-> > -	ssec = newsk->sk_security;
-> > -	ssec->peer_sid = isec->sid;
-> > -	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid,
-> > &ssec->sid); +	n_sksec->peer_sid = s_sksec->sid;
-> > +	err = security_sid_mls_copy(o_sksec->sid, s_sksec->peer_sid,
-> > +				    &n_sksec->sid);
-> > +	if (err)
-> > +		return err;
-> > 
-> > -	return err;
-> > +	/* connecting socket */
-> > +	s_sksec->peer_sid = n_sksec->sid;
-> > +
-> > +	return 0;
-> > 
-> >  }
-> >  
-> >  static int selinux_socket_unix_may_send(struct socket *sock,
-> >  
-> >  					struct socket *other)
-> >  
-> >  {
-> > 
-> > -	struct inode_security_struct *isec;
-> > -	struct inode_security_struct *other_isec;
-> > +	struct sk_security_struct *ssec = sock->sk->sk_security;
-> > +	struct sk_security_struct *osec = other->sk->sk_security;
-> > 
-> >  	struct common_audit_data ad;
-> > 
-> > -	int err;
-> > -
-> > -	isec = SOCK_INODE(sock)->i_security;
-> > -	other_isec = SOCK_INODE(other)->i_security;
-> > 
-> >  	COMMON_AUDIT_DATA_INIT(&ad, NET);
-> >  	ad.u.net.sk = other->sk;
-> > 
-> > -	err = avc_has_perm(isec->sid, other_isec->sid,
-> > -			   isec->sclass, SOCKET__SENDTO, &ad);
-> > -	if (err)
-> > -		return err;
-> > -
-> > -	return 0;
-> > +	return avc_has_perm(ssec->sid, osec->sid, osec->sclass, 
-SOCKET__SENDTO,
-> > +			    &ad);
-> > 
-> >  }
-> >  
-> >  static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16
-> >  family,
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with the words "unsubscribe selinux" without quotes as the message.
+Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+---
+ policycoreutils/semodule/Makefile  |    2 +-
+ policycoreutils/setsebool/Makefile |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
+index c96a286..a0bbc21 100644
+--- a/policycoreutils/semodule/Makefile
++++ b/policycoreutils/semodule/Makefile
+@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I$(INCLUDEDIR)
+-LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
++LDLIBS = -lsepol -lselinux -lsemanage -lbz2 -lustr -L$(LIBDIR) 
+ SEMODULE_OBJS = semodule.o
+ 
+ all: semodule
+diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
+index 556b780..1b89d5c 100644
+--- a/policycoreutils/setsebool/Makefile
++++ b/policycoreutils/setsebool/Makefile
+@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I$(INCLUDEDIR)
+-LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
++LDLIBS = -lsepol -lselinux -lsemanage -lbz2 -lustr -L$(LIBDIR)
+ SETSEBOOL_OBJS = setsebool.o
+ 
+ all: setsebool
 -- 
-paul moore
-linux @ hp
+1.7.0.1
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
