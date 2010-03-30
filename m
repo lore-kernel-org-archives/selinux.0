@@ -1,128 +1,112 @@
-Subject: Re: svirt on MLS has strange AVC.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Paul Moore <paul.moore@hp.com>, Eric Paris <eparis@redhat.com>,
-        "Daniel P. Berrange" <berrange@redhat.com>,
-        SELinux <selinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <4BB251A1.9050303@redhat.com>
-References: <4BA7E4BF.1040002@redhat.com>
-	 <201003301456.27949.paul.moore@hp.com> <4BB24D59.201@redhat.com>
-	 <201003301522.27896.paul.moore@hp.com>  <4BB251A1.9050303@redhat.com>
-Content-Type: text/plain
-Date: Tue, 30 Mar 2010 15:38:31 -0400
-Message-Id: <1269977911.9831.16.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o2UJpIhT000565
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 15:51:18 -0400
+Received: from g1t0029.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o2UJq1hW006413
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 19:52:01 GMT
+Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
+	by g1t0029.austin.hp.com (Postfix) with ESMTP id 05A233812F
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2010 19:51:17 +0000 (UTC)
+Subject: [RFC PATCH v1] selinux: UNIX domain socket fixes
+To: selinux@tycho.nsa.gov
+From: Paul Moore <paul.moore@hp.com>
+Date: Tue, 30 Mar 2010 15:51:15 -0400
+Message-ID: <20100330195115.8079.15161.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-03-30 at 15:31 -0400, Daniel J Walsh wrote:
-> On 03/30/2010 03:22 PM, Paul Moore wrote:
-> > On Tuesday 30 March 2010 03:13:29 pm Daniel J Walsh wrote:
-> >    
-> >> On 03/30/2010 02:56 PM, Paul Moore wrote:
-> >>      
-> >>> On Tuesday 30 March 2010 02:39:05 pm Paul Moore wrote:
-> >>>        
-> >>>> On Tuesday 30 March 2010 02:23:33 pm Daniel J Walsh wrote:
-> >>>>          
-> >>>>> On 03/30/2010 02:20 PM, Eric Paris wrote:
-> >>>>>            
-> >>>>>> On Tue, 2010-03-30 at 14:07 -0400, Paul Moore wrote:
-> >>>>>>              
-> >>>>>>> On Tuesday 30 March 2010 10:45:33 am Daniel J Walsh wrote:
-> >>>>>>>                
-> >>>>>>>> Paul you are suggesting that I write a MLS rule that says
-> >>>>>>>>
-> >>>>>>>> svirt_t:ANYLEVEL can talk to svirt_t:ANYLEVEL over unix domain
-> >>>>>>>> sockets.
-> >>>>>>>>
-> >>>>>>>> Which would allow
-> >>>>>>>>
-> >>>>>>>> svirt_t:s0 to talk to svirt_t:s1  Which seems very broken to me.
-> >>>>>>>>                  
-> >>>>>>> Well, based on the domains that were reported earlier in the thread
-> >>>>>>> ...
-> >>>>>>>
-> >>>>>>>                
-> >>>>>>>> # ps -eZ | grep virt
-> >>>>>>>> system_u:system_r:virtd_t:s0-s15:c0.c1023 27344 ? 05:34:47 libvirtd
-> >>>>>>>> system_u:system_r:svirt_t:s0:c1 28549 ?        00:00:01 qemu-kvm
-> >>>>>>>>                  
-> >>>>>>> ... I think you just need to write policy that allows
-> >>>>>>> "virtd_t:ANYLEVEL" and "svirtd_t:ANYLEVEL" to communicate; you
-> >>>>>>> shouldn't need to allow "svirt_t:ANYLEVEL" to communicate with
-> >>>>>>> "svirt_t" since only qemu-kvm is running as "svirt_t" and you are
-> >>>>>>> trying to get qemu-kvm and libvirtd to talk.
-> >>>>>>>                
-> >>>>>> The QEMU/KVM "server child socket" gets labeled
-> >>>>>> svirt_t:s0-s15:c0-c1023 (type of svirt_t and level of the peer,
-> >>>>>> libvirtd_t)   So svirt_t needs to talk to svirt_t.  That's the whole
-> >>>>>> issue.....
-> >>>>>>
-> >>>>>> -Eric
-> >>>>>>              
-> >>>>> Yes letting svirt_t:level1 talk to libvirt_t:RangecontinaingLevel1 is
-> >>>>> easy
-> >>>>>
-> >>>>> allowing svirt_t:level1 talk to svirt_t:RangecontainingLevel1 is the
-> >>>>> problem Since I end up allowing all svirt_t to talk to all svirt_t, No
-> >>>>> MLS controls at all.
-> >>>>>            
-> >>>> Maybe I'm just not thinking straight right now but if QEMU creates the
-> >>>> server socket, the server's parent socket should be labeled
-> >>>> svirt_t:s0:c1.
-> >>>>
-> >>>>    When libvirtd tries to connect its client socket should be labeled
-> >>>>
-> >>>> virtd_t:s0- s15:c0.c1023 and the resulting server child socket should be
-> >>>> labeled svirt_t:s0:c1 ... ah, okay, nevermind, I'm stupid.  I'm thinking
-> >>>> along the lines of per-socket/message access controls, e.g.
-> >>>> selinux_sock_rcv_skb(), which don't apply here, it is all
-> >>>> socket-to-socket controls.
-> >>>>
-> >>>> It would seem to me that the best near term option is to fix the UNIX
-> >>>> domain socket as discussed previously (I'm half-done with that, got
-> >>>> sidetracked by this discussion as some RCU fixes) and add
-> >>>> setsockcreatecon() support for UNIX domain sockets (not sure why we
-> >>>> don't support that now).  With that in place, libvirtd would do a
-> >>>> setsockcreatecon(self:QEMU_MLS_LABEL) before it connected to the QEMU
-> >>>> instance then the QEMU child socket would be labeled correctly and
-> >>>> everyone should be happy.  I think it also makes sense given that
-> >>>> libvirtd is running syslo-syshi and the QEMU instances are running with
-> >>>> very specific MLS labels.
-> >>>>          
-> >>> Nevermind again, looking at the code it does look like setsockcreatecon()
-> >>> should work for UNIX domain sockets in the current code base ... anyway,
-> >>> I'd still go with the setsockcreatecon() approach.  I'll work on getting
-> >>> an RFC class UNIX socket patch out today.
-> >>>        
-> >> With that change both ends of the socket would be
-> >>
-> >> svirt_t:level1 and svirt_t:level1
-> >>
-> >> or
-> >>
-> >> virtd_t:level1 and svirt_t:level1
-> >>      
-> > I believe that you should see the following:
-> >
-> >   QEMU: svirt_t:s0:c1 (parent socket) and svirt_t:s0:c1 (child socket)
-> >
-> >   libvirtd: virtd_t:s0:c1 (client socket)
-> >
-> >    
-> libvirt would have to execute
-> 
-> setsockcreatecon("system_u:system_r:svirt_t:s0:c1")
-> Then connect to the socket?
+Correct a problem where we weren't setting the peer label correctly on
+connected UNIX domain sockets and do some other general fixup while we
+are messing with the code.
 
-No, libvirt would use its own context and only modify the MLS part to
-match the target qemu instance.  And it would call setsockcreatecon()
-before creating the client socket.
+This patch really is RFC quality; I've only boot tested it once so
+beware ...
 
--- 
-Stephen Smalley
-National Security Agency
+Signed-off-by: XXX
+---
+ security/selinux/hooks.c |   45 +++++++++++++++++----------------------------
+ 1 files changed, 17 insertions(+), 28 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5feecb4..326e014 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4002,56 +4002,45 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+ 					      struct socket *other,
+ 					      struct sock *newsk)
+ {
+-	struct sk_security_struct *ssec;
+-	struct inode_security_struct *isec;
+-	struct inode_security_struct *other_isec;
++	struct sk_security_struct *s_sksec = sock->sk->sk_security;
++	struct sk_security_struct *o_sksec = other->sk->sk_security;
++	struct sk_security_struct *n_sksec = newsk->sk_security;
+ 	struct common_audit_data ad;
+ 	int err;
+ 
+-	isec = SOCK_INODE(sock)->i_security;
+-	other_isec = SOCK_INODE(other)->i_security;
+-
+ 	COMMON_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = other->sk;
+ 
+-	err = avc_has_perm(isec->sid, other_isec->sid,
+-			   isec->sclass,
++	err = avc_has_perm(s_sksec->sid, o_sksec->sid, o_sksec->sclass,
+ 			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
+ 	if (err)
+ 		return err;
+ 
+-	/* connecting socket */
+-	ssec = sock->sk->sk_security;
+-	ssec->peer_sid = other_isec->sid;
+-
+ 	/* server child socket */
+-	ssec = newsk->sk_security;
+-	ssec->peer_sid = isec->sid;
+-	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
++	n_sksec->peer_sid = s_sksec->sid;
++	err = security_sid_mls_copy(o_sksec->sid, s_sksec->peer_sid,
++				    &n_sksec->sid);
++	if (err)
++		return err;
+ 
+-	return err;
++	/* connecting socket */
++	s_sksec->peer_sid = n_sksec->sid;
++
++	return 0;
+ }
+ 
+ static int selinux_socket_unix_may_send(struct socket *sock,
+ 					struct socket *other)
+ {
+-	struct inode_security_struct *isec;
+-	struct inode_security_struct *other_isec;
++	struct sk_security_struct *ssec = sock->sk->sk_security;
++	struct sk_security_struct *osec = other->sk->sk_security;
+ 	struct common_audit_data ad;
+-	int err;
+-
+-	isec = SOCK_INODE(sock)->i_security;
+-	other_isec = SOCK_INODE(other)->i_security;
+ 
+ 	COMMON_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = other->sk;
+ 
+-	err = avc_has_perm(isec->sid, other_isec->sid,
+-			   isec->sclass, SOCKET__SENDTO, &ad);
+-	if (err)
+-		return err;
+-
+-	return 0;
++	return avc_has_perm(ssec->sid, osec->sid, osec->sclass, SOCKET__SENDTO,
++			    &ad);
+ }
+ 
+ static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
 
 
 --
