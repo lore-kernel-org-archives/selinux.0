@@ -1,95 +1,117 @@
-Message-ID: <4BB36B5C.6050602@tresys.com>
-Date: Wed, 31 Mar 2010 11:33:48 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <4BB36B92.8010704@tycho.nsa.gov>
+Date: Wed, 31 Mar 2010 11:34:42 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
 Subject: Re: [PATCH] Add implicit lib requirements to LDLIBS
-References: <1269983319-10453-1-git-send-email-jbrindle@tresys.com>	 <4BB28AA1.9060508@tycho.nsa.gov>  <4BB34C5C.7030309@tresys.com>	 <1270048549.19608.163.camel@moss-pluto.epoch.ncsc.mil> <1270048645.19608.164.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1270048645.19608.164.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <1269983319-10453-1-git-send-email-jbrindle@tresys.com> <4BB28AA1.9060508@tycho.nsa.gov> <4BB34C5C.7030309@tresys.com>
+In-Reply-To: <4BB34C5C.7030309@tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------020503060107040505080908"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2010-03-31 at 11:15 -0400, Stephen Smalley wrote:
->> On Wed, 2010-03-31 at 09:21 -0400, Joshua Brindle wrote:
->>> Eamon Walsh wrote:
->>>> On 03/30/2010 05:08 PM, Joshua Brindle wrote:
->>>>> Fedora 13 changed their linker behavior to not link indirect libraries.
->>>>> See information at: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
->>>>>
->>>> I skimmed over semodule.c and setsebool.c and I didn't see any
->>>> references to bzip2 or ustr symbols.  My reading of the article suggests
->>>> the below fix should only be needed if that were the case.  Most likely
->>>> I missed them?
->>>>
->>> The link above is confusing. The change was made so that people who
->>> _did_ use eg., libxml but didn't explicitly link against it would have
->>> to do so even if other libraries they link against already did.
+This is a multi-part message in MIME format.
+--------------020503060107040505080908
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+On 03/31/2010 09:21 AM, Joshua Brindle wrote:
+> Eamon Walsh wrote:
+>   
+>> On 03/30/2010 05:08 PM, Joshua Brindle wrote:
+>>     
+>>> Fedora 13 changed their linker behavior to not link indirect libraries.
+>>> See information at: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
 >>>
->>> In our case it means that anything libsemanage needs semodule and
->>> setsebool will also need to link against explicitly.
->>>
->>> Here is another page about the "feature":
->>> http://fedoraproject.org/wiki/Features/ChangeInImplicitDSOLinking
->>>
->>> The summary pretty much covers it I think:
->>> ""Change DSO-linking semantics of the gcc compiler. Previously calls to
->>> the linker (ld) from gcc would result in dangerous default behaviour
->>> where ld would attempt to implicitly satisfy link requirements. The
->>> proposed change will prevent ld from automatically searching in the
->>> dependencies of linked objects.""
->>>
->>>> Without this patch, do you get the linker error that says to add them?
->>>>
->>> Yes. It complains about missing bz2 and ustr symbols on my F13 system.
->> This doesn't seem right to me either, and I don't quite understand why
->> Dan wouldn't have encountered it already if it was an issue.
+>>>       
+>> I skimmed over semodule.c and setsebool.c and I didn't see any
+>> references to bzip2 or ustr symbols.  My reading of the article suggests
+>> the below fix should only be needed if that were the case.  Most likely
+>> I missed them?
 >>
->> As I read it, the change in behavior should only affect the program if
->> the program makes calls to symbols in the library and was previously
->> implicitly getting a dependency through another library.  But if the
->> program makes no calls to the library in question, it shouldn't need to
->> link against it.
+>>     
+> The link above is confusing. The change was made so that people who 
+> _did_ use eg., libxml but didn't explicitly link against it would have 
+> to do so even if other libraries they link against already did.
 >
-> See:
-> http://lists.fedoraproject.org/pipermail/devel/2010-January/129131.html
->
+> In our case it means that anything libsemanage needs semodule and 
+> setsebool will also need to link against explicitly.
+>   
 
-Bug it may be but I can't build on F13 right now without these changes. 
-I suppose I'll keep them local until something is fixed.
+I'm still not seeing that anywhere in the discussion.  As far as I can
+see, libraries are still supposed to pull in their own dependencies. 
+Putting -lustr -lbz2 on the program build line should only be necessary
+if the program source itself uses them, which semodule doesn't seem to. 
+I think something's fishy in our build.
 
-On another note I also see this on F13:
+Take the following gtk2 program (attached).  I can successfully build
+and run this program on rawhide just by linking with gtk2, even though
+gtk2 has a ton of other libraries that it needs:
 
-cc -Wall -W -Wundef -Wshadow -Wmissing-noreturn 
--Wmissing-format-attribute -Wno-unused-parameter -I../include 
--I/home/method/s/usr/include -D_GNU_SOURCE   -shared -o libsemanage.so.1 
-boolean_record.lo booleans_active.lo booleans_activedb.lo 
-booleans_file.lo booleans_local.lo booleans_policy.lo 
-booleans_policydb.lo context_record.lo database_activedb.lo database.lo 
-database_file.lo database_join.lo database_llist.lo database_policydb.lo 
-debug.lo direct_api.lo fcontext_record.lo fcontexts_file.lo 
-fcontexts_local.lo fcontexts_policy.lo genhomedircon.lo handle.lo 
-iface_record.lo interfaces_file.lo interfaces_local.lo 
-interfaces_policy.lo interfaces_policydb.lo modules.lo node_record.lo 
-nodes_file.lo nodes_local.lo nodes_policy.lo nodes_policydb.lo 
-parse_utils.lo policy_components.lo port_record.lo ports_file.lo 
-ports_local.lo ports_policy.lo ports_policydb.lo semanage_store.lo 
-seuser_record.lo seusers_file.lo seusers_local.lo seusers_policy.lo 
-user_base_record.lo user_extra_record.lo user_record.lo 
-users_base_file.lo users_base_policydb.lo users_extra_file.lo 
-users_join.lo users_local.lo users_policy.lo utilities.lo conf-scan.lo 
-conf-parse.lo -lsepol -lselinux -lbz2 -lustr -L/home/method/s/lib64 
--Wl,-soname,libsemanage.so.1,--version-script=libsemanage.map,-z,defs
-/usr/bin/ld: /home/method/s/lib64/libselinux.a(booleans.o): relocation 
-R_X86_64_32 against `.rodata' can not be used when making a shared 
-object; recompile with -fPIC
-/home/method/s/lib64/libselinux.a: could not read symbols: Bad value
-collect2: ld returned 1 exit status
+# gcc -I /usr/include/atk-1.0 -I /usr/include/pango-1.0 -I
+/usr/include/cairo -I /usr/include/gtk-2.0 -I /usr/lib/gtk-2.0/include
+-I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -o gtkhelloworld
+gtkhelloworld.c -lgtk-x11-2.0
+#
 
-it only happens if I set LIBDIR and SHLIBDIR.
+
+
+
+-- 
+
+Eamon Walsh 
+National Security Agency
+
+
+--------------020503060107040505080908
+Content-Type: text/plain;
+ name="gtkhelloworld.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="gtkhelloworld.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxndGsvZ3RrLmg+CgovKiBUaGlzIGlzIGEg
+Y2FsbGJhY2sgZnVuY3Rpb24uIFRoZSBkYXRhIGFyZ3VtZW50cyBhcmUgaWdub3JlZAogKiBp
+biB0aGlzIGV4YW1wbGUuIE1vcmUgb24gY2FsbGJhY2tzIGJlbG93LiAqLwpzdGF0aWMgdm9p
+ZCBoZWxsbyggR3RrV2lkZ2V0ICp3aWRnZXQsCiAgICAgICAgICAgICAgICAgICBncG9pbnRl
+ciAgIGRhdGEgKQp7CiAgICBwcmludGYgKCJIZWxsbyBXb3JsZFxuIik7Cn0KCnN0YXRpYyBn
+Ym9vbGVhbiBkZWxldGVfZXZlbnQoIEd0a1dpZGdldCAqd2lkZ2V0LAogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBHZGtFdmVudCAgKmV2ZW50LAogICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBncG9pbnRlciAgIGRhdGEgKQp7CiAgICAvKiBJZiB5b3UgcmV0dXJuIEZB
+TFNFIGluIHRoZSAiZGVsZXRlX2V2ZW50IiBzaWduYWwgaGFuZGxlciwKICAgICAqIEdUSyB3
+aWxsIGVtaXQgdGhlICJkZXN0cm95IiBzaWduYWwuIFJldHVybmluZyBUUlVFIG1lYW5zCiAg
+ICAgKiB5b3UgZG9uJ3Qgd2FudCB0aGUgd2luZG93IHRvIGJlIGRlc3Ryb3llZC4KICAgICAq
+IFRoaXMgaXMgdXNlZnVsIGZvciBwb3BwaW5nIHVwICdhcmUgeW91IHN1cmUgeW91IHdhbnQg
+dG8gcXVpdD8nCiAgICAgKiB0eXBlIGRpYWxvZ3MuICovCgogICAgcHJpbnRmICgiZGVsZXRl
+IGV2ZW50IG9jY3VycmVkXG4iKTsKCiAgICAvKiBDaGFuZ2UgVFJVRSB0byBGQUxTRSBhbmQg
+dGhlIG1haW4gd2luZG93IHdpbGwgYmUgZGVzdHJveWVkIHdpdGgKICAgICAqIGEgImRlbGV0
+ZV9ldmVudCIuICovCgogICAgcmV0dXJuIFRSVUU7Cn0KCi8qIEFub3RoZXIgY2FsbGJhY2sg
+Ki8Kc3RhdGljIHZvaWQgZGVzdHJveSggR3RrV2lkZ2V0ICp3aWRnZXQsCiAgICAgICAgICAg
+ICAgICAgICAgIGdwb2ludGVyICAgZGF0YSApCnsKICAgIGd0a19tYWluX3F1aXQgKCk7Cn0K
+CmludCBtYWluKCBpbnQgICBhcmdjLAogICAgICAgICAgY2hhciAqYXJndltdICkKewogICAg
+LyogR3RrV2lkZ2V0IGlzIHRoZSBzdG9yYWdlIHR5cGUgZm9yIHdpZGdldHMgKi8KICAgIEd0
+a1dpZGdldCAqd2luZG93OwogICAgR3RrV2lkZ2V0ICpidXR0b247CiAgICAKICAgIC8qIFRo
+aXMgaXMgY2FsbGVkIGluIGFsbCBHVEsgYXBwbGljYXRpb25zLiBBcmd1bWVudHMgYXJlIHBh
+cnNlZAogICAgICogZnJvbSB0aGUgY29tbWFuZCBsaW5lIGFuZCBhcmUgcmV0dXJuZWQgdG8g
+dGhlIGFwcGxpY2F0aW9uLiAqLwogICAgZ3RrX2luaXQgKCZhcmdjLCAmYXJndik7CiAgICAK
+ICAgIC8qIGNyZWF0ZSBhIG5ldyB3aW5kb3cgKi8KICAgIHdpbmRvdyA9IGd0a193aW5kb3df
+bmV3IChHVEtfV0lORE9XX1RPUExFVkVMKTsKICAgIAogICAgLyogU2V0cyB0aGUgYm9yZGVy
+IHdpZHRoIG9mIHRoZSB3aW5kb3cuICovCiAgICBndGtfY29udGFpbmVyX3NldF9ib3JkZXJf
+d2lkdGggKChHdGtDb250YWluZXIgKil3aW5kb3csIDEwKTsKICAgIAogICAgLyogQ3JlYXRl
+cyBhIG5ldyBidXR0b24gd2l0aCB0aGUgbGFiZWwgIkhlbGxvIFdvcmxkIi4gKi8KICAgIGJ1
+dHRvbiA9IGd0a19idXR0b25fbmV3X3dpdGhfbGFiZWwgKCJIZWxsbyBXb3JsZCIpOwogICAg
+CiAgICAvKiBUaGlzIHBhY2tzIHRoZSBidXR0b24gaW50byB0aGUgd2luZG93IChhIGd0ayBj
+b250YWluZXIpLiAqLwogICAgZ3RrX2NvbnRhaW5lcl9hZGQgKChHdGtDb250YWluZXIgKil3
+aW5kb3csIGJ1dHRvbik7CiAgICAKICAgIC8qIFRoZSBmaW5hbCBzdGVwIGlzIHRvIGRpc3Bs
+YXkgdGhpcyBuZXdseSBjcmVhdGVkIHdpZGdldC4gKi8KICAgIGd0a193aWRnZXRfc2hvdyAo
+YnV0dG9uKTsKICAgIAogICAgLyogYW5kIHRoZSB3aW5kb3cgKi8KICAgIGd0a193aWRnZXRf
+c2hvdyAod2luZG93KTsKICAgIAogICAgLyogQWxsIEdUSyBhcHBsaWNhdGlvbnMgbXVzdCBo
+YXZlIGEgZ3RrX21haW4oKS4gQ29udHJvbCBlbmRzIGhlcmUKICAgICAqIGFuZCB3YWl0cyBm
+b3IgYW4gZXZlbnQgdG8gb2NjdXIgKGxpa2UgYSBrZXkgcHJlc3Mgb3IKICAgICAqIG1vdXNl
+IGV2ZW50KS4gKi8KICAgIGd0a19tYWluICgpOwogICAgCiAgICByZXR1cm4gMDsKfQo=
+--------------020503060107040505080908--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
