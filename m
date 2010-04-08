@@ -1,30 +1,34 @@
-Date: Thu, 8 Apr 2010 09:18:16 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH] selinux: always call sk_security_struct sksec
-In-Reply-To: <20100407190846.7076.36760.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1004080917590.22872@tundra.namei.org>
-References: <20100407190846.7076.36760.stgit@paris.rdu.redhat.com>
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: UNIX domain socket fixes
+Date: Thu, 8 Apr 2010 11:45:04 -0400
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@redhat.com>
+References: <20100405190124.6015.72502.stgit@flek.lan>
+In-Reply-To: <20100405190124.6015.72502.stgit@flek.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201004081145.04646.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 7 Apr 2010, Eric Paris wrote:
-
-> trying to grep everything that messes with a sk_security_struct isn't easy
-> since we don't always call it sksec.  Just rename everything sksec.
+On Monday 05 April 2010 03:01:24 pm Paul Moore wrote:
+> Correct a problem where we weren't setting the peer label correctly on
+> connected UNIX domain sockets and do some other general fixup while we
+> are messing with the code.
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
 
+Does anyone object to this patch going in?
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+I know Stephen had a comment about some of the changes regarding the inode and 
+sock security structs, but I haven't heard anything since my response to him 
+so I'm going to assume he's okay with the changes (speak up if your not).
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
