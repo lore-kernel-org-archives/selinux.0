@@ -1,51 +1,148 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@parisplace.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o38H9i8L002291
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2010 13:09:45 -0400
+Received: from mail-qy0-f182.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o38H9GTj002855
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2010 17:09:16 GMT
+Received: by qyk12 with SMTP id 12so2604232qyk.21
+        for <selinux@tycho.nsa.gov>; Thu, 08 Apr 2010 10:09:44 -0700 (PDT)
 Subject: Re: [PATCH] selinux: UNIX domain socket fixes
-Date: Thu, 8 Apr 2010 12:07:30 -0400
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>
-References: <20100405190124.6015.72502.stgit@flek.lan> <201004081145.04646.paul.moore@hp.com> <i2s7e0fb38c1004080901tb3a3fc78u707fd1ed1b492f29@mail.gmail.com>
-In-Reply-To: <i2s7e0fb38c1004080901tb3a3fc78u707fd1ed1b492f29@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201004081207.30673.paul.moore@hp.com>
+From: Stephen Smalley <stephen.smalley@gmail.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20100405190124.6015.72502.stgit@flek.lan>
+References: <20100405190124.6015.72502.stgit@flek.lan>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 08 Apr 2010 13:15:03 -0400
+Message-ID: <1270746903.3722.8.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 08 April 2010 12:01:54 pm Eric Paris wrote:
-> On Thu, Apr 8, 2010 at 11:45 AM, Paul Moore <paul.moore@hp.com> wrote:
-> > On Monday 05 April 2010 03:01:24 pm Paul Moore wrote:
-> >> Correct a problem where we weren't setting the peer label correctly on
-> >> connected UNIX domain sockets and do some other general fixup while we
-> >> are messing with the code.
-> >> 
-> >> Signed-off-by: Paul Moore <paul.moore@hp.com>
-> > 
-> > Does anyone object to this patch going in?
-> > 
-> > I know Stephen had a comment about some of the changes regarding the
-> > inode and sock security structs, but I haven't heard anything since my
-> > response to him so I'm going to assume he's okay with the changes (speak
-> > up if your not).
+On Mon, 2010-04-05 at 15:01 -0400, Paul Moore wrote:
+> Correct a problem where we weren't setting the peer label correctly on
+> connected UNIX domain sockets and do some other general fixup while we
+> are messing with the code.
 
-Okay, thanks; I thought that was fixed, guess not.
+I think you should state the user-visible behavior change(s) more
+explicitly, e.g.
+- getpeercon() by client on connected LOCAL socket will now return the
+context of the new connection / server socket rather than the context of
+the listening socket, matching INET behavior.
+- All permission checks and peer SID assignment will use the sock SID
+rather than the inode SID so if they are ever out of sync, the end
+result will be different (different permission check, different peer SID
+visible).  Only case where that can happen today is if someone is using
+fsetxattr() on sockets, which isn't allowed by refpolicy and isn't truly
+supported (needs a .setxattr handler in the socket inode code that
+propagates the SID down to the sock).
 
-There is a joke about SELinux and networking here I'm sure, but I'm not going 
-to make it ;)
+> 
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
+> 
+> ---
+> 
+> This patch has now been tested on 2.6.34-rc3 without any visible problems.
+> ---
+>  security/selinux/hooks.c |   45 +++++++++++++++++----------------------------
+>  1 files changed, 17 insertions(+), 28 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5feecb4..326e014 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4002,56 +4002,45 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+>  					      struct socket *other,
+>  					      struct sock *newsk)
+>  {
+> -	struct sk_security_struct *ssec;
+> -	struct inode_security_struct *isec;
+> -	struct inode_security_struct *other_isec;
+> +	struct sk_security_struct *s_sksec = sock->sk->sk_security;
+> +	struct sk_security_struct *o_sksec = other->sk->sk_security;
+> +	struct sk_security_struct *n_sksec = newsk->sk_security;
+>  	struct common_audit_data ad;
+>  	int err;
+>  
+> -	isec = SOCK_INODE(sock)->i_security;
+> -	other_isec = SOCK_INODE(other)->i_security;
+> -
+>  	COMMON_AUDIT_DATA_INIT(&ad, NET);
+>  	ad.u.net.sk = other->sk;
+>  
+> -	err = avc_has_perm(isec->sid, other_isec->sid,
+> -			   isec->sclass,
+> +	err = avc_has_perm(s_sksec->sid, o_sksec->sid, o_sksec->sclass,
+>  			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
+>  	if (err)
+>  		return err;
+>  
+> -	/* connecting socket */
+> -	ssec = sock->sk->sk_security;
+> -	ssec->peer_sid = other_isec->sid;
+> -
+>  	/* server child socket */
+> -	ssec = newsk->sk_security;
+> -	ssec->peer_sid = isec->sid;
+> -	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
+> +	n_sksec->peer_sid = s_sksec->sid;
+> +	err = security_sid_mls_copy(o_sksec->sid, s_sksec->peer_sid,
+> +				    &n_sksec->sid);
 
-> It's going to conflict with the patch James committed last night from
-> me to rename all of the "ssec" in the code to sksec.  I'm pretty sure
-> James can handle that conflict, but just so we know it is there.....
+Here you use s_sksec->peer_sid.
 
-Yeah, your patch is what jogged my memory on this.  As you say, the merge 
-should be trivial, but I can do a quick re-spin if needed; I just didn't want 
-to spend the time if there is a complaint against the patch and I need to re-
-work it.
+> +	if (err)
+> +		return err;
+>  
+> -	return err;
+> +	/* connecting socket */
+> +	s_sksec->peer_sid = n_sksec->sid;
 
--- 
-paul moore
-linux @ hp
+Here you assign s_sksec->peer_sid.
+
+That's a bug introduced by the "clean up", I think.  Which is why I'd
+prefer separating the bug fix from the cleanup generally.
+
+
+> +
+> +	return 0;
+>  }
+>  
+>  static int selinux_socket_unix_may_send(struct socket *sock,
+>  					struct socket *other)
+>  {
+> -	struct inode_security_struct *isec;
+> -	struct inode_security_struct *other_isec;
+> +	struct sk_security_struct *ssec = sock->sk->sk_security;
+> +	struct sk_security_struct *osec = other->sk->sk_security;
+>  	struct common_audit_data ad;
+> -	int err;
+> -
+> -	isec = SOCK_INODE(sock)->i_security;
+> -	other_isec = SOCK_INODE(other)->i_security;
+>  
+>  	COMMON_AUDIT_DATA_INIT(&ad, NET);
+>  	ad.u.net.sk = other->sk;
+>  
+> -	err = avc_has_perm(isec->sid, other_isec->sid,
+> -			   isec->sclass, SOCKET__SENDTO, &ad);
+> -	if (err)
+> -		return err;
+> -
+> -	return 0;
+> +	return avc_has_perm(ssec->sid, osec->sid, osec->sclass, SOCKET__SENDTO,
+> +			    &ad);
+>  }
+>  
+>  static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
