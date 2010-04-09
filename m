@@ -1,122 +1,101 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 3/3] SELinux: special dontaudit for access checks
+Subject: [PATCH 1/3] vfs: re-introduce MAY_CHDIR
 To: selinux@tycho.nsa.gov
 Cc: linux-fsdevel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
         casey@schaufler-ca.com, viro@zeniv.linux.org.uk
-Date: Fri, 09 Apr 2010 18:16:29 -0400
-Message-ID: <20100409221629.2681.53796.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
-References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+Date: Fri, 09 Apr 2010 18:16:14 -0400
+Message-ID: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently there are a number of applications (nautilus being the main one) which
-calls access() on files in order to determine how they should be displayed.  It
-is normal and expected that nautilus will want to see if files are executable
-or if they are really read/write-able.  access() should return the real
-permission.  SELinux policy checks are done in access() and can result in lots
-of AVC denials as policy denies RWX on files which DAC allows.  Currently
-SELinux must dontaudit actual attempts to read/write/execute a file in
-order to silence these messages (and not flood the logs.)  But dontaudit rules
-like that can hide real attacks.  This patch addes a new common file
-permission audit_access.  This permission is special in that it is meaningless
-and should never show up in an allow rule.  Instead the only place this
-permission has meaning is in a dontaudit rule like so:
-
-dontaudit nautilus_t sbin_t:file audit_access
-
-With such a rule if nautilus just checks access() we will still get denied and
-thus userspace will still get the correct answer but we will not log the denial.
-If nautilus attempted to actually perform one of the forbidden actions
-(rather than just querying access(2) about it) we would still log a denial.
-This type of dontaudit rule should be used sparingly, as it could be a
-method for an attacker to probe the system permissions without detection.
+Currently MAY_ACCESS means that filesystems must check the permissions
+right then and not rely on cached results or the results of future
+operations on the object.  This can be because of a call to sys_access() or
+because of a call to chdir() which needs to check search without relying on
+any future operations inside that dir.  I plan to use MAY_ACCESS for other
+purposes in the security system, so I split the MAY_ACCESS and the
+MAY_CHDIR cases.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/hooks.c            |   46 ++++++++++++++++++++++++++++++-----
- security/selinux/include/classmap.h |    2 +-
- 2 files changed, 40 insertions(+), 8 deletions(-)
+ fs/fuse/dir.c      |    2 +-
+ fs/nfs/dir.c       |    2 +-
+ fs/open.c          |    6 +++---
+ include/linux/fs.h |    1 +
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 344ba62..34e9d1b 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2696,19 +2696,51 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *na
- 	return dentry_has_perm(cred, NULL, dentry, FILE__READ);
- }
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 4787ae6..7c8c55b 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1016,7 +1016,7 @@ static int fuse_permission(struct inode *inode, int mask)
+ 		   exist.  So if permissions are revoked this won't be
+ 		   noticed immediately, only after the attribute
+ 		   timeout has expired */
+-	} else if (mask & MAY_ACCESS) {
++	} else if (mask & (MAY_ACCESS | MAY_CHDIR)) {
+ 		err = fuse_access(inode, mask);
+ 	} else if ((mask & MAY_EXEC) && S_ISREG(inode->i_mode)) {
+ 		if (!(inode->i_mode & S_IXUGO)) {
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index be46f26..4c7d8fc 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1927,7 +1927,7 @@ int nfs_permission(struct inode *inode, int mask)
+ 	if ((mask & (MAY_READ | MAY_WRITE | MAY_EXEC)) == 0)
+ 		goto out;
+ 	/* Is this sys_access() ? */
+-	if (mask & MAY_ACCESS)
++	if (mask & (MAY_ACCESS | MAY_CHDIR))
+ 		goto force_lookup;
  
--static int selinux_inode_permission(struct inode *inode, int mask)
-+static int selinux_inode_permission(struct inode *inode, int in_mask)
- {
- 	const struct cred *cred = current_cred();
-+	struct inode_security_struct *isec;
-+	struct common_audit_data ad;
-+	struct av_decision avd;
-+	u32 sid, perms;
-+	int rc, mask;
+ 	switch (inode->i_mode & S_IFMT) {
+diff --git a/fs/open.c b/fs/open.c
+index b93eac3..d01e116 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -534,7 +534,7 @@ SYSCALL_DEFINE1(chdir, const char __user *, filename)
+ 	if (error)
+ 		goto out;
  
--	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
-+	mask = in_mask & (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
+-	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+ 	if (error)
+ 		goto dput_and_out;
  
--	if (!mask) {
--		/* No permission to check.  Existence test. */
-+	/* No permission to check.  Existence test. */
-+	if (!mask)
-+		return 0;
-+
-+	validate_creds(cred);
-+
-+	if (unlikely(IS_PRIVATE(inode)))
- 		return 0;
--	}
+@@ -563,7 +563,7 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
+ 	if (!S_ISDIR(inode->i_mode))
+ 		goto out_putf;
  
--	return inode_has_perm(cred, inode,
--			      file_mask_to_av(inode->i_mode, mask), NULL);
-+	sid = cred_sid(cred);
-+	isec = inode->i_security;
-+
-+	COMMON_AUDIT_DATA_INIT(&ad, FS);
-+	ad.u.fs.inode = inode;
-+
-+	perms = file_mask_to_av(inode->i_mode, mask);
-+
-+	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
-+	/*
-+	 * We want to audit if this call was not from access(2).
-+	 * We also want to audit if the call was from access(2)
-+	 * but the magic FILE__AUDIT_ACCESS permission was in the auditdeny
-+	 * vector.
-+	 *
-+	 * aka there is a not dontaudit rule for file__audit_access.  This
-+	 * might make more sense as a test inside avc_audit, but then we would
-+	 * have to push the MAY_ACCESS flag down to avc_audit and I think we
-+	 * already have enough stuff down there.
-+	 */
-+	if (!(in_mask & MAY_ACCESS) ||
-+	    (avd.auditdeny & FILE__AUDIT_ACCESS))
-+		avc_audit(sid, isec->sid, isec->sclass, perms, &avd, rc, &ad);
-+
-+	return rc;
- }
+-	error = inode_permission(inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(inode, MAY_EXEC | MAY_CHDIR);
+ 	if (!error)
+ 		set_fs_pwd(current->fs, &file->f_path);
+ out_putf:
+@@ -581,7 +581,7 @@ SYSCALL_DEFINE1(chroot, const char __user *, filename)
+ 	if (error)
+ 		goto out;
  
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 8b32e95..d64603e 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -2,7 +2,7 @@
-     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
+-	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+ 	if (error)
+ 		goto dput_and_out;
  
- #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
--    "rename", "execute", "swapon", "quotaon", "mounton"
-+    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access"
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 14d8597..188d3e4 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -53,6 +53,7 @@ struct inodes_stat_t {
+ #define MAY_APPEND 8
+ #define MAY_ACCESS 16
+ #define MAY_OPEN 32
++#define MAY_CHDIR 64
  
- #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
-     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+ /*
+  * flags in file.f_mode.  Note that FMODE_READ and FMODE_WRITE must correspond
 
 
 --
