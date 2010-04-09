@@ -2,11 +2,11 @@ From: Eric Paris <eparis@redhat.com>
 Subject: [PATCH 3/3] SELinux: special dontaudit for access checks
 To: selinux@tycho.nsa.gov
 Cc: linux-fsdevel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
-        casey@schaufler-ca.com, viro@@zeniv.linux.org.uk
-Date: Fri, 09 Apr 2010 18:14:06 -0400
-Message-ID: <20100409221406.2612.97880.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100409221352.2612.11909.stgit@paris.rdu.redhat.com>
-References: <20100409221352.2612.11909.stgit@paris.rdu.redhat.com>
+        casey@schaufler-ca.com, viro@zeniv.linux.org.uk
+Date: Fri, 09 Apr 2010 18:16:29 -0400
+Message-ID: <20100409221629.2681.53796.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
