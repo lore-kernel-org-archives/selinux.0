@@ -2,11 +2,11 @@ From: Eric Paris <eparis@redhat.com>
 Subject: [PATCH 2/3] security: make LSMs explicitly mask off permissions
 To: selinux@tycho.nsa.gov
 Cc: linux-fsdevel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
-        casey@schaufler-ca.com, viro@zeniv.linux.org.uk
-Date: Fri, 09 Apr 2010 18:16:21 -0400
-Message-ID: <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
-References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+        casey@schaufler-ca.com, viro@@zeniv.linux.org.uk
+Date: Fri, 09 Apr 2010 18:13:59 -0400
+Message-ID: <20100409221359.2612.46168.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100409221352.2612.11909.stgit@paris.rdu.redhat.com>
+References: <20100409221352.2612.11909.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
