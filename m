@@ -1,60 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o39Cqds7015199
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2010 08:52:39 -0400
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o39CqAxg007810
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2010 12:52:10 GMT
-Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
-	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o39CqN8i024871
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2010 14:52:23 +0200 (CEST)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
-	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o39CppsM029406
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2010 14:51:51 +0200 (CEST)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Date: Fri, 9 Apr 2010 14:52:23 +0200
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Cannot not open session
-Message-ID: <20100409125223.GV1518@myhost.felk.cvut.cz>
-References: <5A5E55DF96F73844AF7DFB0F48721F0F52E46493A4@EUSAACMS0703.eamcs.ericsson.se>
- <1270816722.2650.7.camel@moss-huskers.epoch.ncsc.mil>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH 2/3] security: make LSMs explicitly mask off permissions
+To: selinux@tycho.nsa.gov
+Cc: linux-fsdevel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
+        casey@schaufler-ca.com, viro@zeniv.linux.org.uk
+Date: Fri, 09 Apr 2010 18:16:21 -0400
+Message-ID: <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PLOb/g6AMdJ1vPHZ"
-In-Reply-To: <1270816722.2650.7.camel@moss-huskers.epoch.ncsc.mil>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+SELinux needs to pass the MAY_ACCESS flag so it can handle auditting
+correctly.  Presently the masking of MAY_* flags is done in the VFS.  In
+order to allow LSMs to decide what flags they care about and what flags
+they don't just pass them all and the each LSM mask off what they don't
+need.  This patch should contain no functional changes to either the VFS or
+any LSM.
 
---PLOb/g6AMdJ1vPHZ
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-Stephen Smalley wrote:
-> Early Fedora and RHEL-4 put pam_selinux in /etc/pam.d/su in an effort to
-> automatically change contexts upon user identity changes.  This proved
-> to be a mistake in practice (and a deviation from the original SELinux
-> approach), and was subsequently removed in later Fedora and RHEL-5.
+ fs/namei.c                 |    3 +--
+ security/selinux/hooks.c   |    2 ++
+ security/smack/smack_lsm.c |    2 ++
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-BTW, is there any further explanation of why this is a mistake? And
-question #2, I think sudo still does this, isn't that a mistake too?
+diff --git a/fs/namei.c b/fs/namei.c
+index f068192..3b0f583 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -282,8 +282,7 @@ int inode_permission(struct inode *inode, int mask)
+ 	if (retval)
+ 		return retval;
+ 
+-	return security_inode_permission(inode,
+-			mask & (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND));
++	return security_inode_permission(inode, mask);
+ }
+ 
+ /**
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 740a71f..344ba62 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2700,6 +2700,8 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ {
+ 	const struct cred *cred = current_cred();
+ 
++	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
++
+ 	if (!mask) {
+ 		/* No permission to check.  Existence test. */
+ 		return 0;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index f1b6846..df467f4 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -599,6 +599,8 @@ static int smack_inode_rename(struct inode *old_inode,
+ static int smack_inode_permission(struct inode *inode, int mask)
+ {
+ 	struct smk_audit_info ad;
++
++	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
+ 	/*
+ 	 * No permission to check. Existence test. Yup, it's there.
+ 	 */
 
-Michal Svoboda
-
---PLOb/g6AMdJ1vPHZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAku/IwcACgkQg/fU9pp1uX5mbQCeIU05wzuVuE6OGiACRyIUaPDZ
-7/sAn2IX0t8kNgEqMUzZBC+0gUZcIHm5
-=5DUA
------END PGP SIGNATURE-----
-
---PLOb/g6AMdJ1vPHZ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
