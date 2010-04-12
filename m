@@ -1,99 +1,95 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3BHb4YP030077
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2010 13:37:04 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o3BHaXaC013963
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2010 17:36:34 GMT
-Message-ID: <4BC208BD.7000706@schaufler-ca.com>
-Date: Sun, 11 Apr 2010 10:37:01 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3CJOIi8012843
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 15:24:18 -0400
+Received: from imr2.ericy.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3CJP9LZ012329
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 19:25:10 GMT
+Received: from eusaamw0712.eamcs.ericsson.se ([147.117.20.181])
+	by imr2.ericy.com (8.13.1/8.13.1) with ESMTP id o3CJSKdu028436
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 14:28:28 -0500
+From: Alan Rouse <alan.rouse@ericsson.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Date: Mon, 12 Apr 2010 15:24:11 -0400
+Subject: AVC accesing shadow during gnome login
+Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523@EUSAACMS0703.eamcs.ericsson.se>
+Content-Type: multipart/alternative;
+	boundary="_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_"
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org, jmorris@namei.org,
-        sds@tycho.nsa.gov, viro@zeniv.linux.org.uk,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 2/3] security: make LSMs explicitly mask off permissions
-References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com> <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> SELinux needs to pass the MAY_ACCESS flag so it can handle auditting
-> correctly.  
+--_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-I'm not sure that I like the direction this is heading. Excesses
-of granularity don't come about from a single change like this,
-but from their repeated application and tendency to inspire others
-to see breaking out special cases as an easy quick fix.
+I'm getting the following when I log in via the gnome login gui (OpenSUSE 1=
+1.2) with dontaudit turned off:
 
-> Presently the masking of MAY_* flags is done in the VFS.  In
-> order to allow LSMs to decide what flags they care about and what flags
-> they don't just pass them all and the each LSM mask off what they don't
-> need.  This patch should contain no functional changes to either the VFS or
-> any LSM.
+type=3DAVC msg=3Daudit(1271099674.777:3): avc:  denied  { read } for  pid=
+=3D2475 comm=3D"gdm-session-wor" name=3D"shadow" dev=3Dsda2 ino=3D129609 sc=
+ontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_=
+r:shadow_t:s0 tclass=3Dfile
+type=3DAVC msg=3Daudit(1271099674.780:4): avc:  denied  { open } for  pid=
+=3D2475 comm=3D"gdm-session-wor" name=3D"shadow" dev=3Dsda2 ino=3D129609 sc=
+ontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_=
+r:shadow_t:s0 tclass=3Dfile
+type=3DAVC msg=3Daudit(1271099674.792:5): avc:  denied  { getattr } for  pi=
+d=3D2475 comm=3D"gdm-session-wor" path=3D"/etc/shadow" dev=3Dsda2 ino=3D129=
+609 scontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:o=
+bject_r:shadow_t:s0 tclass=3Dfile
+
+But I think the required access is prohibited via 'neverallow'.   Suggestio=
+ns welcome.
+
+Thanks
+
+
+
+
+--_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
 >
-> Signed-off-by: Eric Paris <eparis@redhat.com>
->   
+<meta name=3D"Generator" content=3D"Microsoft Exchange Server">
+<!-- converted from rtf -->
+<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left:=
+ #800000 2px solid; } --></style>
+</head>
+<body>
+<font face=3D"Arial, sans-serif" size=3D"2">
+<div>I'm getting the following when I log in via the gnome login gui (OpenS=
+USE 11.2) with dontaudit turned off:</div>
+<div>&nbsp;</div>
+<div>type=3DAVC msg=3Daudit(1271099674.777:3): avc:&nbsp; denied&nbsp; { re=
+ad } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; name=3D&quot;s=
+hadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xdm_t:s0-s=
+0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</div>
+<div>type=3DAVC msg=3Daudit(1271099674.780:4): avc:&nbsp; denied&nbsp; { op=
+en } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; name=3D&quot;s=
+hadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xdm_t:s0-s=
+0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</div>
+<div>type=3DAVC msg=3Daudit(1271099674.792:5): avc:&nbsp; denied&nbsp; { ge=
+tattr } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; path=3D&quo=
+t;/etc/shadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xd=
+m_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</=
+div>
+<div>&nbsp;</div>
+<div>But I think the required access is prohibited via 'neverallow'.&nbsp;&=
+nbsp; Suggestions welcome.</div>
+<div>&nbsp;</div>
+<div>Thanks</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+</font>
+</body>
+</html>
 
-I'm acking this not because I like the approach but because I don't
-see it as causing any damage and I don't have a better solution to
-the audit problem that wouldn't require a redesign of SELinux.
-
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
-> ---
->
->  fs/namei.c                 |    3 +--
->  security/selinux/hooks.c   |    2 ++
->  security/smack/smack_lsm.c |    2 ++
->  3 files changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/namei.c b/fs/namei.c
-> index f068192..3b0f583 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -282,8 +282,7 @@ int inode_permission(struct inode *inode, int mask)
->  	if (retval)
->  		return retval;
->  
-> -	return security_inode_permission(inode,
-> -			mask & (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND));
-> +	return security_inode_permission(inode, mask);
->  }
->  
->  /**
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 740a71f..344ba62 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2700,6 +2700,8 @@ static int selinux_inode_permission(struct inode *inode, int mask)
->  {
->  	const struct cred *cred = current_cred();
->  
-> +	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
-> +
->  	if (!mask) {
->  		/* No permission to check.  Existence test. */
->  		return 0;
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index f1b6846..df467f4 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -599,6 +599,8 @@ static int smack_inode_rename(struct inode *old_inode,
->  static int smack_inode_permission(struct inode *inode, int mask)
->  {
->  	struct smk_audit_info ad;
-> +
-> +	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
->  	/*
->  	 * No permission to check. Existence test. Yup, it's there.
->  	 */
->
->
->   
-
+--_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
