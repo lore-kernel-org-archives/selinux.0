@@ -1,45 +1,36 @@
-Subject: Re: determine least upper bound
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: michel m <michel.mcgregor@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
-References: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 13 Apr 2010 16:21:01 -0400
-Message-Id: <1271190061.9577.119.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3DLR3j7031305
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 17:27:03 -0400
+Received: from hades.sngx.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3DLQWVY003844
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 21:26:33 GMT
+To: selinux@tycho.nsa.gov
+Subject: sudo + selinux
+MIME-Version: 1.0
+Date: Mon, 12 Apr 2010 14:30:10 -0500
+From: James Cammarata <jimi@sngx.net>
+Reply-To: jimi@sngx.net
+Message-ID: <e2229269c988ce55126bc9fcc18f78c4@sngx.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-04-13 at 21:26 +0430, michel m wrote:
-> dear all,
-> is there any way to determine least upper bound among security
-> contexts? that is,if I got two secuirty contexts, how can I determine
-> their least upper bound?
 
-I presume you want the least upper bound of two MLS levels?  It doesn't
-make sense to talk about the least upper bound of two contexts, as the
-values for the other fields of the context (user, role, type) are
-unordered.
+Hi, we're looking towards running SELinux on RHEL5 in strict mode here,
+however I'm not having any luck finding resources on configuring sudo to
+work with SELinux properly.  Are there any guides/resources to getting this
+working?  I've found some older mailing list threads that discuss adding
+some new features to sudo to make it selinux-aware, but that doesn't seem
+to have found it's way into RHEL5 yet (at least, as of 5.4).
 
-The first question is why do you need to compute a lub or how do you
-intend to use the result.  We would prefer to abstract the desired
-computation in a way that can be meaningful independent of policy model
-and hide it behind a policy-neutral interface, similar to how we're
-previously dealt with range subset tests by introducing the context
-contains permission check. 
+Thanks,
 
-The logic for computing the lub would be provided as a function in the
-security server, which is the only component that knows the ordering.
-That can be done either as a libsepol interface if you want to compute
-it based on a particular policy file or as a kernel security server
-interface (via selinuxfs), depending on whether you want to always
-compute it against the active kernel policy or against a specific policy
-file.
+James Cammarata
 
 -- 
-Stephen Smalley
-National Security Agency
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
 
 
 --
