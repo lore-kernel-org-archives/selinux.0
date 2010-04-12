@@ -1,95 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3CJOIi8012843
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 15:24:18 -0400
-Received: from imr2.ericy.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3CJP9LZ012329
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 19:25:10 GMT
-Received: from eusaamw0712.eamcs.ericsson.se ([147.117.20.181])
-	by imr2.ericy.com (8.13.1/8.13.1) with ESMTP id o3CJSKdu028436
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 14:28:28 -0500
-From: Alan Rouse <alan.rouse@ericsson.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Date: Mon, 12 Apr 2010 15:24:11 -0400
-Subject: AVC accesing shadow during gnome login
-Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: multipart/alternative;
-	boundary="_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_"
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH 2/2] SELinux: Move execmod to the common perms
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Date: Mon, 12 Apr 2010 19:19:53 -0400
+Message-ID: <20100412231953.21118.20945.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100412231947.21118.77411.stgit@paris.rdu.redhat.com>
+References: <20100412231947.21118.77411.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+execmod "could" show up on non regular files and non chr files.  The current
+implementation would actually make these checks against non-existant bits
+since the code assumes the execmod permission is same for all file types.
+To make this line up for chr files we had to define execute_no_trans and
+entrypoint permissions.  These permissions are unreachable and only existed
+to to make FILE__EXECMOD and CHR_FILE__EXECMOD the same.  This patch drops
+those needless perms as well.
 
-I'm getting the following when I log in via the gnome login gui (OpenSUSE 1=
-1.2) with dontaudit turned off:
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-type=3DAVC msg=3Daudit(1271099674.777:3): avc:  denied  { read } for  pid=
-=3D2475 comm=3D"gdm-session-wor" name=3D"shadow" dev=3Dsda2 ino=3D129609 sc=
-ontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_=
-r:shadow_t:s0 tclass=3Dfile
-type=3DAVC msg=3Daudit(1271099674.780:4): avc:  denied  { open } for  pid=
-=3D2475 comm=3D"gdm-session-wor" name=3D"shadow" dev=3Dsda2 ino=3D129609 sc=
-ontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_=
-r:shadow_t:s0 tclass=3Dfile
-type=3DAVC msg=3Daudit(1271099674.792:5): avc:  denied  { getattr } for  pi=
-d=3D2475 comm=3D"gdm-session-wor" path=3D"/etc/shadow" dev=3Dsda2 ino=3D129=
-609 scontext=3Dsystem_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:o=
-bject_r:shadow_t:s0 tclass=3Dfile
+ security/selinux/include/classmap.h |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-But I think the required access is prohibited via 'neverallow'.   Suggestio=
-ns welcome.
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 41990cb..b4c9eb4 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -3,7 +3,7 @@
+ 
+ #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+     "rename", "execute", "swapon", "quotaon", "mounton", "audit_access", \
+-    "open"
++    "open", "execmod"
+ 
+ #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+@@ -44,7 +44,7 @@ struct security_class_mapping secclass_map[] = {
+ 	    "quotaget", NULL } },
+ 	{ "file",
+ 	  { COMMON_FILE_PERMS,
+-	    "execute_no_trans", "entrypoint", "execmod", NULL } },
++	    "execute_no_trans", "entrypoint", NULL } },
+ 	{ "dir",
+ 	  { COMMON_FILE_PERMS, "add_name", "remove_name",
+ 	    "reparent", "search", "rmdir", NULL } },
+@@ -52,8 +52,7 @@ struct security_class_mapping secclass_map[] = {
+ 	{ "lnk_file",
+ 	  { COMMON_FILE_PERMS, NULL } },
+ 	{ "chr_file",
+-	  { COMMON_FILE_PERMS,
+-	    "execute_no_trans", "entrypoint", "execmod", NULL } },
++	  { COMMON_FILE_PERMS, NULL } },
+ 	{ "blk_file",
+ 	  { COMMON_FILE_PERMS, NULL } },
+ 	{ "sock_file",
 
-Thanks
-
-
-
-
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Exchange Server">
-<!-- converted from rtf -->
-<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left:=
- #800000 2px solid; } --></style>
-</head>
-<body>
-<font face=3D"Arial, sans-serif" size=3D"2">
-<div>I'm getting the following when I log in via the gnome login gui (OpenS=
-USE 11.2) with dontaudit turned off:</div>
-<div>&nbsp;</div>
-<div>type=3DAVC msg=3Daudit(1271099674.777:3): avc:&nbsp; denied&nbsp; { re=
-ad } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; name=3D&quot;s=
-hadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xdm_t:s0-s=
-0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</div>
-<div>type=3DAVC msg=3Daudit(1271099674.780:4): avc:&nbsp; denied&nbsp; { op=
-en } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; name=3D&quot;s=
-hadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xdm_t:s0-s=
-0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</div>
-<div>type=3DAVC msg=3Daudit(1271099674.792:5): avc:&nbsp; denied&nbsp; { ge=
-tattr } for&nbsp; pid=3D2475 comm=3D&quot;gdm-session-wor&quot; path=3D&quo=
-t;/etc/shadow&quot; dev=3Dsda2 ino=3D129609 scontext=3Dsystem_u:system_r:xd=
-m_t:s0-s0:c0.c1023 tcontext=3Dsystem_u:object_r:shadow_t:s0 tclass=3Dfile</=
-div>
-<div>&nbsp;</div>
-<div>But I think the required access is prohibited via 'neverallow'.&nbsp;&=
-nbsp; Suggestions welcome.</div>
-<div>&nbsp;</div>
-<div>Thanks</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-</font>
-</body>
-</html>
-
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523EUSAACMS0703e_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
