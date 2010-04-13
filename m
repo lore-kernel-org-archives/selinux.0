@@ -1,57 +1,46 @@
-Subject: Re: The confusing dot operator
+Subject: Re: Cannot not open session
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: selinux@tycho.nsa.gov, Joe Nall <joe@nall.com>,
-        Ted X Toth <txtoth@gmail.com>, Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <20100406134846.GO1518@myhost.felk.cvut.cz>
-References: <20100406134846.GO1518@myhost.felk.cvut.cz>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <20100409125223.GV1518@myhost.felk.cvut.cz>
+References: 
+	 <5A5E55DF96F73844AF7DFB0F48721F0F52E46493A4@EUSAACMS0703.eamcs.ericsson.se>
+	 <1270816722.2650.7.camel@moss-huskers.epoch.ncsc.mil>
+	 <20100409125223.GV1518@myhost.felk.cvut.cz>
 Content-Type: text/plain
-Date: Tue, 13 Apr 2010 15:12:59 -0400
-Message-Id: <1271185979.9577.62.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 13 Apr 2010 15:48:05 -0400
+Message-Id: <1271188085.9577.97.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-04-06 at 15:48 +0200, Michal Svoboda wrote:
-> Hi,
+On Fri, 2010-04-09 at 14:52 +0200, Michal Svoboda wrote:
+> Stephen Smalley wrote:
+> > Early Fedora and RHEL-4 put pam_selinux in /etc/pam.d/su in an effort to
+> > automatically change contexts upon user identity changes.  This proved
+> > to be a mistake in practice (and a deviation from the original SELinux
+> > approach), and was subsequently removed in later Fedora and RHEL-5.
 > 
-> I've been doing some MCS lately and I particularly started disliking the
-> dot range operator, as in 'c0.c1023'.
-> 
-> It seems to be an underdeveloped way of saying 'all categories' or
-> perhaps grouping them. I would welcome a 'star' operator that would do
-> the former and a more intelligent naming mechanism to express the latter
-> (ie. let's have a facility that can group 'dogs,cats,horses' as 'mammals'
-> and 'mammals,insects' as 'animals').
-> 
-> It imposes a range where there isn't. The range is in fact dependent on
-> the exact order of delaration. If you declare 'category c1; category c0;
-> category c2;' then 'c0.c2' does not include c1. If you use named cats
-> rather than c0-cN then even this little sense of range goes away.
-> 
-> Finally and most importantly sets of such 'consecutive' categories tend
-> to get 'range-ized' at numerous places. If a seuser is assigned to have
-> 'dogs,cats,rats' then semanage will tell you he's got 'dogs.rats',
-> leaving you to figure out what's 'in between'.
-> 
-> What do the list members think about this?
+> BTW, is there any further explanation of why this is a mistake? And
+> question #2, I think sudo still does this, isn't that a mistake too?
 
-The c0.cN notation was introduced as a convenient shorthand as part of
-the rewrite of the MLS support in SELinux.  It is as you say limited in
-its expressiveness and not well suited to general configuration of the
-category definitions, but nonetheless quite useful for MLS users, where
-most of the semantics for the categories are expressed in the mcstransd
-configuration and the user does not see the raw kernel contexts.  It
-also serves a practical end - keeping context string sizes sane for
-kernel interfaces (/selinux/* and /proc/self/attr/*).
+With the original (and current approach), su isn't especially trusted
+with respect to SELinux, the set of reachable contexts within a login
+session can be bounded with respect to the starting context, and you can
+switch Linux uid while staying in the same SELinux context.  With
+pam_selinux in /etc/pam.d/su, su becomes highly trusted with respect to
+SELinux, any context can potentially be reached from any other context,
+and you cannot switch Linux uid while staying in the same SELinux
+context (at least via su).
 
-I think we're open to improvements in this area, but naturally we will
-need to retain compatibility for the current users of the dot notation.
-We have talked in the past about improving direct kernel support for
-complex label encodings, but unfortunately no one has really moved
-forward in that space.
+The sudo SELinux support differs in that:
+- by default (in the absence of command line options or sudoers
+configuration), there is no context change, so we retain the ability to
+sudo while staying in context, and
+- sudo only supports switching role (and type), not SELinux user or
+level, so reachable contexts remain bounded based on the SELinux user
+and level is preserved, and the amount of trust extended to sudo is more
+alike to that of newrole than to that of login.
 
 -- 
 Stephen Smalley
