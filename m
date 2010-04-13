@@ -1,48 +1,121 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3D1Men3030518
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 21:22:44 -0400
-Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3D1MDQO008026
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 01:22:14 GMT
-Received: by vws9 with SMTP id 9so13677vws.12
-        for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2010 18:22:42 -0700 (PDT)
-Message-ID: <4BC3C7A8.6070109@gmail.com>
-Date: Mon, 12 Apr 2010 18:23:52 -0700
-From: "Justin P. mattock" <justinmattock@gmail.com>
-MIME-Version: 1.0
-To: Alan Rouse <alan.rouse@ericsson.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: AVC accesing shadow during gnome login
-References: <5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523@EUSAACMS0703.eamcs.ericsson.se>
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E48FE523@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 1/2] selinux: place open in the common file perms
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20100412231947.21118.77411.stgit@paris.rdu.redhat.com>
+References: <20100412231947.21118.77411.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 13 Apr 2010 08:29:16 -0400
+Message-ID: <1271161756.2815.211.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/12/2010 12:24 PM, Alan Rouse wrote:
-> I'm getting the following when I log in via the gnome login gui
-> (OpenSUSE 11.2) with dontaudit turned off:
-> type=AVC msg=audit(1271099674.777:3): avc: denied { read } for pid=2475
-> comm="gdm-session-wor" name="shadow" dev=sda2 ino=129609
-> scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:shadow_t:s0 tclass=file
-> type=AVC msg=audit(1271099674.780:4): avc: denied { open } for pid=2475
-> comm="gdm-session-wor" name="shadow" dev=sda2 ino=129609
-> scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:shadow_t:s0 tclass=file
-> type=AVC msg=audit(1271099674.792:5): avc: denied { getattr } for
-> pid=2475 comm="gdm-session-wor" path="/etc/shadow" dev=sda2 ino=129609
-> scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:shadow_t:s0 tclass=file
-> But I think the required access is prohibited via 'neverallow'.
-> Suggestions welcome.
-> Thanks
+On Mon, 2010-04-12 at 19:19 -0400, Eric Paris wrote:
+> kernel can dynamically remap perms.  Drop the open lookup table and put open
+> in the common file perms.
+
+So I need to move open into the common perms in the policy?  Thats going
+to be a nasty compatibility problem for older systems.
+
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
+> 
+>  security/selinux/hooks.c            |   24 +++---------------------
+>  security/selinux/include/classmap.h |   15 ++++++++-------
+>  2 files changed, 11 insertions(+), 28 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 34e9d1b..c1ed9db 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1828,27 +1828,9 @@ static inline u32 open_file_to_av(struct file *file)
+>  {
+>  	u32 av = file_to_av(file);
+>  
+> -	if (selinux_policycap_openperm) {
+> -		mode_t mode = file->f_path.dentry->d_inode->i_mode;
+> -		/*
+> -		 * lnk files and socks do not really have an 'open'
+> -		 */
+> -		if (S_ISREG(mode))
+> -			av |= FILE__OPEN;
+> -		else if (S_ISCHR(mode))
+> -			av |= CHR_FILE__OPEN;
+> -		else if (S_ISBLK(mode))
+> -			av |= BLK_FILE__OPEN;
+> -		else if (S_ISFIFO(mode))
+> -			av |= FIFO_FILE__OPEN;
+> -		else if (S_ISDIR(mode))
+> -			av |= DIR__OPEN;
+> -		else if (S_ISSOCK(mode))
+> -			av |= SOCK_FILE__OPEN;
+> -		else
+> -			printk(KERN_ERR "SELinux: WARNING: inside %s with "
+> -				"unknown mode:%o\n", __func__, mode);
+> -	}
+> +	if (selinux_policycap_openperm)
+> +		av |= FILE__OPEN;
+> +
+>  	return av;
+>  }
+>  
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index d64603e..41990cb 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -2,7 +2,8 @@
+>      "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
+>  
+>  #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+> -    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access"
+> +    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access", \
+> +    "open"
+>  
+>  #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+>      "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+> @@ -43,22 +44,22 @@ struct security_class_mapping secclass_map[] = {
+>  	    "quotaget", NULL } },
+>  	{ "file",
+>  	  { COMMON_FILE_PERMS,
+> -	    "execute_no_trans", "entrypoint", "execmod", "open", NULL } },
+> +	    "execute_no_trans", "entrypoint", "execmod", NULL } },
+>  	{ "dir",
+>  	  { COMMON_FILE_PERMS, "add_name", "remove_name",
+> -	    "reparent", "search", "rmdir", "open", NULL } },
+> +	    "reparent", "search", "rmdir", NULL } },
+>  	{ "fd", { "use", NULL } },
+>  	{ "lnk_file",
+>  	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "chr_file",
+>  	  { COMMON_FILE_PERMS,
+> -	    "execute_no_trans", "entrypoint", "execmod", "open", NULL } },
+> +	    "execute_no_trans", "entrypoint", "execmod", NULL } },
+>  	{ "blk_file",
+> -	  { COMMON_FILE_PERMS, "open", NULL } },
+> +	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "sock_file",
+> -	  { COMMON_FILE_PERMS, "open", NULL } },
+> +	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "fifo_file",
+> -	  { COMMON_FILE_PERMS, "open", NULL } },
+> +	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "tcp_socket",
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
-I think shadow is always rejected by the policy,
-and chkpwd is allowed.
-
-Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
