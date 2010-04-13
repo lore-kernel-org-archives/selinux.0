@@ -1,40 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3DLtLHP032513
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 17:55:21 -0400
-Received: from g6t0186.atlanta.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3DLspVY009398
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 21:54:52 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Benedict, Phillip M" <phillip.m.benedict@lmco.com>
-Subject: Re: MLS telnet question
-Date: Tue, 13 Apr 2010 17:54:58 -0400
-Cc: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com> <20100413164236.GE16595@myhost.felk.cvut.cz>
-In-Reply-To: <20100413164236.GE16595@myhost.felk.cvut.cz>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3DNvrKx004949
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 19:57:54 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3DNwk60023734
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 23:58:46 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.195])
+	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id o3DNvoqc002732
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 08:57:50 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id o3DNvow11828 for selinux@tycho.nsa.gov; Wed, 14 Apr 2010 08:57:50 +0900 (JST)
+Received: from mail02.kamome.nec.co.jp (mail02.kamome.nec.co.jp [10.25.43.5])
+	by mailsv.nec.co.jp (8.13.8/8.13.4) with ESMTP id o3DNvnFj010482
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 08:57:49 +0900 (JST)
+Message-ID: <4BC504B0.2070503@ak.jp.nec.com>
+Date: Wed, 14 Apr 2010 08:56:32 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201004131754.58738.paul.moore@hp.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Japanese user group's web site was already moved
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 13 April 2010 12:42:36 pm Michal Svoboda wrote:
-> Benedict, Phillip M wrote:
-> >    The network does not carry any cipso data for evaluation by my
-> >    server, so I don’t think I can use netlabel.
-> 
-> You can use the fallback label feature that can assign labels statically
-> per remote IP.
+About two years ago, Japanese SELinux user group was renamed
+to "Japan secure os user group" because a few faces came into
+the Linux community, unlike 7 years ago.
 
-NetLabel fallback/static label example configuration:
+So, our web site and all the contents was moved to
+  http://www.secureos.jp/
+from
+  http://www.selinux.gr.jp/
 
- * http://paulmoore.livejournal.com/1758.html
+We had noticed that our web site was moved at the top of
+selinux.gr.jp, however, the older domain got obsoleted now.
+If you have web site which links to www.selinux.gr.jp, please
+update it by www.secureos.jp.
 
+Unfortunatelly, someone newly bought the selinux.gr.jp domain,
+and it is used to an adult site... :-(
 -- 
-paul moore
-linux @ hp
-
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
