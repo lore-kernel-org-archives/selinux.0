@@ -1,67 +1,58 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3DGgo5a014811
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 12:42:50 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3DGhfJS011983
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 16:43:42 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o3DGgb4Z094597
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 18:42:37 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o3DGfaPF088438
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 18:41:36 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Tue, 13 Apr 2010 18:42:36 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Subject: Re: MLS telnet question
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Benedict, Phillip M" <phillip.m.benedict@lmco.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com>
+Message-ID: <20100413164236.GE16595@myhost.felk.cvut.cz>
 References: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Apr 2010 12:18:02 -0400
-Message-Id: <1271175482.9577.7.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WK3l2KTTmXPVedZ6"
+In-Reply-To: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-04-09 at 08:02 -0400, Benedict, Phillip M wrote:
->  
-> 
-> Hello,
-> 
->  
-> 
-> I am trying to come to a solution regarding the use of telnet on our
-> MLS system. ( I know, … the decision to use it was made above me ) . L
-> 
->  
-> 
-> What we have is a RHEL 5.3 system with the RedHat MLS policy
-> installed. 
-> 
-> The system has multiple physical NICs attached to different networks.
-> 
-> Each network is designated for it’s own sensitivity level. ( so we
-> might have one network for s1:c20, one for s2:c40 etc…)
-> 
-> User accounts are created with sensitivity labeling via semange. ( so
-> we might have: user1 with s1:c20, and user2 with s2:c40 etc… )
-> 
-> The network does not carry any cipso data for evaluation by my server,
-> so I don’t think I can use netlabel. 
-> 
->  
-> 
-> Questions:
-> 
-> If I use IPTables/SECMARK to apply sensitivity labels to the packets
-> as they come into the system, will xinetd spawn the telnet session
-> with a matching sensitivity?  ( currently the telnet sessions are
-> spawned at SystemLow-SystemHigh )
 
-No.  iptables/secmark labels are only used for access control checks;
-they are not "peer contexts" unlike NetLabel or labeled IPSEC.
+--WK3l2KTTmXPVedZ6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-xinetd.conf does have a LABELED flag that can be used to cause a tcp
-non-waiting service to be created in the same context as the connecting
-client, but that will only work if using a labeled networking mechanism
-like NetLabel or labeled IPSEC.
+Benedict, Phillip M wrote:
+>    The network does not carry any cipso data for evaluation by my
+>    server, so I don=E2=80=99t think I can use netlabel.
 
-> If telnet is spawned with the appropriate sensitivity, will SELinux
-> disallow a users login who do not have  a matching sensitivity?
+You can use the fallback label feature that can assign labels statically
+per remote IP.
 
--- 
-Stephen Smalley
-National Security Agency
+Michal Svoboda
 
+--WK3l2KTTmXPVedZ6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkvEnvwACgkQg/fU9pp1uX5T9wCgmSJ6qnbTKQDxPWaRbT+In1uG
+QxwAn3Em+3wuBH8Dnsw/w37pHxbEzi36
+=g4mB
+-----END PGP SIGNATURE-----
+
+--WK3l2KTTmXPVedZ6--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
