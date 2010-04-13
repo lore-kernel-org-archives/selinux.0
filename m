@@ -1,46 +1,41 @@
-Subject: Re: Cannot not open session
+Subject: Re: determine least upper bound
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <20100409125223.GV1518@myhost.felk.cvut.cz>
-References: 
-	 <5A5E55DF96F73844AF7DFB0F48721F0F52E46493A4@EUSAACMS0703.eamcs.ericsson.se>
-	 <1270816722.2650.7.camel@moss-huskers.epoch.ncsc.mil>
-	 <20100409125223.GV1518@myhost.felk.cvut.cz>
+To: michel m <michel.mcgregor@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
+References: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 13 Apr 2010 15:48:05 -0400
-Message-Id: <1271188085.9577.97.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 13 Apr 2010 16:21:01 -0400
+Message-Id: <1271190061.9577.119.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-04-09 at 14:52 +0200, Michal Svoboda wrote:
-> Stephen Smalley wrote:
-> > Early Fedora and RHEL-4 put pam_selinux in /etc/pam.d/su in an effort to
-> > automatically change contexts upon user identity changes.  This proved
-> > to be a mistake in practice (and a deviation from the original SELinux
-> > approach), and was subsequently removed in later Fedora and RHEL-5.
-> 
-> BTW, is there any further explanation of why this is a mistake? And
-> question #2, I think sudo still does this, isn't that a mistake too?
+On Tue, 2010-04-13 at 21:26 +0430, michel m wrote:
+> dear all,
+> is there any way to determine least upper bound among security
+> contexts? that is,if I got two secuirty contexts, how can I determine
+> their least upper bound?
 
-With the original (and current approach), su isn't especially trusted
-with respect to SELinux, the set of reachable contexts within a login
-session can be bounded with respect to the starting context, and you can
-switch Linux uid while staying in the same SELinux context.  With
-pam_selinux in /etc/pam.d/su, su becomes highly trusted with respect to
-SELinux, any context can potentially be reached from any other context,
-and you cannot switch Linux uid while staying in the same SELinux
-context (at least via su).
+I presume you want the least upper bound of two MLS levels?  It doesn't
+make sense to talk about the least upper bound of two contexts, as the
+values for the other fields of the context (user, role, type) are
+unordered.
 
-The sudo SELinux support differs in that:
-- by default (in the absence of command line options or sudoers
-configuration), there is no context change, so we retain the ability to
-sudo while staying in context, and
-- sudo only supports switching role (and type), not SELinux user or
-level, so reachable contexts remain bounded based on the SELinux user
-and level is preserved, and the amount of trust extended to sudo is more
-alike to that of newrole than to that of login.
+The first question is why do you need to compute a lub or how do you
+intend to use the result.  We would prefer to abstract the desired
+computation in a way that can be meaningful independent of policy model
+and hide it behind a policy-neutral interface, similar to how we're
+previously dealt with range subset tests by introducing the context
+contains permission check. 
+
+The logic for computing the lub would be provided as a function in the
+security server, which is the only component that knows the ordering.
+That can be done either as a libsepol interface if you want to compute
+it based on a particular policy file or as a kernel security server
+interface (via selinuxfs), depending on whether you want to always
+compute it against the active kernel policy or against a specific policy
+file.
 
 -- 
 Stephen Smalley
