@@ -1,37 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3DGusw1015605
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 12:56:55 -0400
-Received: from mail-wy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3DGuQLL017807
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 16:56:26 GMT
-Received: by wyj26 with SMTP id 26so1789144wyj.12
-        for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2010 09:56:53 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 13 Apr 2010 21:26:52 +0430
-Message-ID: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
-Subject: determine least upper bound
-From: michel m <michel.mcgregor@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=0016e6d63ffffda0370484212523
+Subject: Re: The confusing dot operator
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Cc: selinux@tycho.nsa.gov, Joe Nall <joe@nall.com>,
+        Ted X Toth <txtoth@gmail.com>, Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Paul Moore <paul.moore@hp.com>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <20100406134846.GO1518@myhost.felk.cvut.cz>
+References: <20100406134846.GO1518@myhost.felk.cvut.cz>
+Content-Type: text/plain
+Date: Tue, 13 Apr 2010 15:12:59 -0400
+Message-Id: <1271185979.9577.62.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e6d63ffffda0370484212523
-Content-Type: text/plain; charset=ISO-8859-1
+On Tue, 2010-04-06 at 15:48 +0200, Michal Svoboda wrote:
+> Hi,
+> 
+> I've been doing some MCS lately and I particularly started disliking the
+> dot range operator, as in 'c0.c1023'.
+> 
+> It seems to be an underdeveloped way of saying 'all categories' or
+> perhaps grouping them. I would welcome a 'star' operator that would do
+> the former and a more intelligent naming mechanism to express the latter
+> (ie. let's have a facility that can group 'dogs,cats,horses' as 'mammals'
+> and 'mammals,insects' as 'animals').
+> 
+> It imposes a range where there isn't. The range is in fact dependent on
+> the exact order of delaration. If you declare 'category c1; category c0;
+> category c2;' then 'c0.c2' does not include c1. If you use named cats
+> rather than c0-cN then even this little sense of range goes away.
+> 
+> Finally and most importantly sets of such 'consecutive' categories tend
+> to get 'range-ized' at numerous places. If a seuser is assigned to have
+> 'dogs,cats,rats' then semanage will tell you he's got 'dogs.rats',
+> leaving you to figure out what's 'in between'.
+> 
+> What do the list members think about this?
 
-dear all,
-is there any way to determine least upper bound among security contexts?
-that is,if I got two secuirty contexts, how can I determine their least
-upper bound?
+The c0.cN notation was introduced as a convenient shorthand as part of
+the rewrite of the MLS support in SELinux.  It is as you say limited in
+its expressiveness and not well suited to general configuration of the
+category definitions, but nonetheless quite useful for MLS users, where
+most of the semantics for the categories are expressed in the mcstransd
+configuration and the user does not see the raw kernel contexts.  It
+also serves a practical end - keeping context string sizes sane for
+kernel interfaces (/selinux/* and /proc/self/attr/*).
 
-regards.
+I think we're open to improvements in this area, but naturally we will
+need to retain compatibility for the current users of the dot notation.
+We have talked in the past about improving direct kernel support for
+complex label encodings, but unfortunately no one has really moved
+forward in that space.
 
---0016e6d63ffffda0370484212523
-Content-Type: text/html; charset=ISO-8859-1
+-- 
+Stephen Smalley
+National Security Agency
 
-dear all,<br>is there any way to determine least upper bound among security contexts? that is,if I got two secuirty contexts, how can I determine their least upper bound?<br><br>regards.<br>
-
---0016e6d63ffffda0370484212523--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
