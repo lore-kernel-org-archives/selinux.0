@@ -1,50 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3EGnkjY027176
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 12:49:46 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3EGocQk016219
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 16:50:38 GMT
-Message-ID: <4BC5F226.5090006@redhat.com>
-Date: Wed, 14 Apr 2010 12:49:42 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: jimi@sngx.net
-CC: Selinux <selinux@tycho.nsa.gov>
-Subject: Re: sudo + selinux
-References: <C7EA5D61.B6871%csellers@tresys.com> <a7997a4e13a79796e80e71b9ff6d31c9@sngx.net> <4BC5B6AC.1040101@redhat.com> <4fc4d1cb9c79a5ba45b92b1c6c25b8b3@sngx.net> <4BC5D183.20403@redhat.com> <3acfd6eb614d7ebec2d3c10d98940708@sngx.net>
-In-Reply-To: <3acfd6eb614d7ebec2d3c10d98940708@sngx.net>
-Content-Type: text/plain; charset=UTF-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3EHYXYE030350
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 13:34:34 -0400
+Received: from mailgw1a.lmco.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3EHY3MM021378
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 17:34:03 GMT
+Date: Wed, 14 Apr 2010 13:34:11 -0400
+From: "Benedict, Phillip M" <phillip.m.benedict@lmco.com>
+Subject: RE: MLS telnet question
+In-reply-to: <201004141030.47982.paul.moore@hp.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-id: <6235CF4DC66FD5478F0E350E17C202FF251F46FC60@HVXMSP3.us.lmco.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8
+References: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com> <201004131754.58738.paul.moore@hp.com>
+ <6235CF4DC66FD5478F0E350E17C202FF251F46F50F@HVXMSP3.us.lmco.com> <201004141030.47982.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thanks,
 
-On 04/13/2010 09:53 AM, James Cammarata wrote:
+	So one more question if you please...
+	I seem to recall reading something to the effect of Labeled IPSEC only working between two or more Linux/SELinux systems.
+
+	Can Labeled IPSEC be configured to apply static labels to incoming packets? 
+
+Thanks,
+Mike Benedict 
+
+-----Original Message-----
+From: Paul Moore [mailto:paul.moore@hp.com]
+Sent: Wednesday, April 14, 2010 10:31 AM
+To: Benedict, Phillip M
+Cc: Michal Svoboda; selinux@tycho.nsa.gov
+Subject: Re: MLS telnet question
+
+On Wednesday 14 April 2010 08:23:02 am Benedict, Phillip M wrote:
+> Thanks, I will take another look at Netlabel's fallback/static labeling.
+> So how can I verify if my kernel (the default RHEL 5.3 kernel 2.6.128) 
+> has Netlabel support?
+
+While the RHEL5.x kernels have NetLabel support, it is very basic as it predates most of the labeled networking improvements that have been made in the past years.  Unfortunately, this means that the fallback/static peer label feature is not part of RHEL5.
+
+> Also I currently have separate ssh daemons running at certain 
+> sensitivities (runcon) and bound to specific IP addresses (separate 
+> sshd_config files). Will fallback labeling impact my ssh setup?
+
+You'll need to be more specific about what you mean by "impact".
+
+Will NetLabel affect how you bind the multiple SSH daemons?  No.  Will NetLabel affect how the SSH daemons are labeled?  No.  Will NetLabel allow you to assign peer labels to incoming SSH traffic?  Yes.  Will this mean I'll need to change my SELinux policy to add the necessary controls?  It depends.
+
+> -----Original Message-----
+> From: Paul Moore [mailto:paul.moore@hp.com]
+> Sent: Tuesday, April 13, 2010 5:55 PM
+> To: Benedict, Phillip M
+> Cc: Michal Svoboda; selinux@tycho.nsa.gov
+> Subject: Re: MLS telnet question
 > 
-> On Wed, 14 Apr 2010 10:30:27 -0400, Daniel J Walsh <dwalsh@redhat.com>
->> We are very careful of what we backport and sudo has not come up on the
->> priority list.  With Shipping versions of RHEL we are hesitant to make
->> major modifications that could cause a regression.
+> On Tuesday 13 April 2010 12:42:36 pm Michal Svoboda wrote:
+> > Benedict, Phillip M wrote:
+> > >    The network does not carry any cipso data for evaluation by my
+> > >    server, so I don’t think I can use netlabel.
+> > 
+> > You can use the fallback label feature that can assign labels 
+> > statically per remote IP.
 > 
-> Understood, I'm just surprised that running SElinux in strict mode breaks
-> sudo isn't more of a priority.  Are that few people using strict mode?
+> NetLabel fallback/static label example configuration:
 > 
-Well it depends on your definition of broken.  The way SELinux was
-originally designed was to use newrole to change your role and sudo to
-change your UID.  Only in RHEL6 is sudo able to do both.  Strict policy
-is not used that much.  Although MLS policy is based on Strict policy,
-but those people are a lot more used to the concept.
+>  * http://paulmoore.livejournal.com/1758.html
 
+--
+paul moore
+linux @ hp
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkvF8iYACgkQrlYvE4MpobP1QACfdcivA4idxYIBcOFyyo/4pwZt
-AwoAn36fyQa6gZTKxymSvQM2Xhnv1fgN
-=tFRi
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
