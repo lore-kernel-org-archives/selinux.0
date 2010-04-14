@@ -1,93 +1,131 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3EIXoUV001850
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 14:33:50 -0400
-Received: from g4t0016.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3EIYgQk029650
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2010 18:34:42 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Benedict, Phillip M" <phillip.m.benedict@lmco.com>
-Subject: Re: MLS telnet question
-Date: Wed, 14 Apr 2010 14:33:47 -0400
-Cc: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <6235CF4DC66FD5478F0E350E17C202FF251F2BB146@HVXMSP3.us.lmco.com> <201004141030.47982.paul.moore@hp.com> <6235CF4DC66FD5478F0E350E17C202FF251F46FC60@HVXMSP3.us.lmco.com>
-In-Reply-To: <6235CF4DC66FD5478F0E350E17C202FF251F46FC60@HVXMSP3.us.lmco.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3FFh37r002268
+	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2010 11:43:03 -0400
+Received: from hades.sngx.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3FFhthH019735
+	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2010 15:43:56 GMT
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: sudo + selinux
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201004141433.47312.paul.moore@hp.com>
+Date: Wed, 14 Apr 2010 08:46:00 -0500
+From: James Cammarata <jimi@sngx.net>
+Cc: Selinux <selinux@tycho.nsa.gov>
+Reply-To: jimi@sngx.net
+In-Reply-To: <4BC5F226.5090006@redhat.com>
+References: <C7EA5D61.B6871%csellers@tresys.com> <a7997a4e13a79796e80e71b9ff6d31c9@sngx.net> <4BC5B6AC.1040101@redhat.com> <4fc4d1cb9c79a5ba45b92b1c6c25b8b3@sngx.net> <4BC5D183.20403@redhat.com> <3acfd6eb614d7ebec2d3c10d98940708@sngx.net> <4BC5F226.5090006@redhat.com>
+Message-ID: <34f60e632890202669f67e9498c0fa9e@sngx.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 14 April 2010 01:34:11 pm Benedict, Phillip M wrote:
-> Thanks,
-> 
-> 	So one more question if you please...
-> 	I seem to recall reading something to the effect of Labeled IPSEC only
-> working between two or more Linux/SELinux systems.
 
-Yes, labeled IPsec only works between two SELinux systems running the same, or 
-very similar policies.
+So, I was playing with this yesterday and couldn't get it to work quite
+right.  I created a shell script (/usr/bin/audit.sh), which contains the
+following:
 
-> 	Can Labeled IPSEC be configured to apply static labels to incoming
-> packets?
+[root@kvm001 ~]# cat /usr/bin/audit.sh
+newrole -r sysadm_r -t sysadm_t -- $*
 
-No.
+And sudoers has this:
 
-> -----Original Message-----
-> From: Paul Moore [mailto:paul.moore@hp.com]
-> Sent: Wednesday, April 14, 2010 10:31 AM
-> To: Benedict, Phillip M
-> Cc: Michal Svoboda; selinux@tycho.nsa.gov
-> Subject: Re: MLS telnet question
-> 
-> On Wednesday 14 April 2010 08:23:02 am Benedict, Phillip M wrote:
-> > Thanks, I will take another look at Netlabel's fallback/static labeling.
-> > So how can I verify if my kernel (the default RHEL 5.3 kernel 2.6.128)
-> > has Netlabel support?
-> 
-> While the RHEL5.x kernels have NetLabel support, it is very basic as it
-> predates most of the labeled networking improvements that have been made
-> in the past years.  Unfortunately, this means that the fallback/static
-> peer label feature is not part of RHEL5.
-> 
-> > Also I currently have separate ssh daemons running at certain
-> > sensitivities (runcon) and bound to specific IP addresses (separate
-> > sshd_config files). Will fallback labeling impact my ssh setup?
-> 
-> You'll need to be more specific about what you mean by "impact".
-> 
-> Will NetLabel affect how you bind the multiple SSH daemons?  No.  Will
-> NetLabel affect how the SSH daemons are labeled?  No.  Will NetLabel allow
-> you to assign peer labels to incoming SSH traffic?  Yes.  Will this mean
-> I'll need to change my SELinux policy to add the necessary controls?  It
-> depends.
-> 
-> > -----Original Message-----
-> > From: Paul Moore [mailto:paul.moore@hp.com]
-> > Sent: Tuesday, April 13, 2010 5:55 PM
-> > To: Benedict, Phillip M
-> > Cc: Michal Svoboda; selinux@tycho.nsa.gov
-> > Subject: Re: MLS telnet question
-> > 
-> > On Tuesday 13 April 2010 12:42:36 pm Michal Svoboda wrote:
-> > > Benedict, Phillip M wrote:
-> > > >    The network does not carry any cipso data for evaluation by my
-> > > >    server, so I don’t think I can use netlabel.
-> > > 
-> > > You can use the fallback label feature that can assign labels
-> > > statically per remote IP.
-> > 
-> > NetLabel fallback/static label example configuration:
-> >  * http://paulmoore.livejournal.com/1758.html
-> 
-> --
-> paul moore
-> linux @ hp
+test ALL=(ALL) NOPASSWD: /usr/bin/audit.sh
+
+[root@kvm001 ~]# cat /etc/pam.d/newrole
+#%PAM-1.0
+auth       sufficient   pam_rootok.so
+auth       include      system-auth
+account    include      system-auth
+password   include      system-auth
+session    required     pam_namespace.so unmnt_remnt no_unmount_on_close
+
+[root@kvm001 ~]# semanage login -l
+
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               user_u                    s0
+root                      root                      SystemLow-SystemHigh
+system_u                  system_u                  SystemLow-SystemHigh
+test                      staff_u                   s0
+
+Added some policy to allow staff_t to run audit.sh via sudo:
+
+[root@kvm001 ~]# cat staffsudo.te
+module staffsudo 0.0.1;
+
+require {
+        type bin_t;
+        type staff_t;
+        type staff_sudo_t;
+        class file { execute execute_no_trans };
+        class capability { dac_read_search dac_override };
+}
+
+#============= staff_sudo_t ==============
+allow staff_sudo_t bin_t:file { execute execute_no_trans };
+
+#============= staff_t ==============
+allow staff_t self:capability { dac_read_search dac_override };
+
+
+
+But, when I try to run the command as the "test" user via sudo, here's all
+I get:
+
+[test@kvm001 ~]$ sudo /usr/bin/audit.sh less /var/log/messages
+Password:
+/usr/bin/less: /usr/bin/less: cannot execute binary file
+
+
+And here is the audit.log output from that:
+
+type=CRED_ACQ msg=audit(1271345951.906:1159790): user pid=9218 uid=0
+auid=502 subj=staff_u:staff_r:staff_sudo_t:s0 msg='PAM: setcred acct="root"
+: exe="/usr/bin/sudo" (hostname=kvm001.sandbox.pri, addr=1.1.1.100,
+terminal=/dev/pts/1 res=success)'
+type=USER_START msg=audit(1271345951.920:1159791): user pid=9218 uid=0
+auid=502 subj=staff_u:staff_r:staff_sudo_t:s0 msg='PAM: session open
+acct="root" : exe="/usr/bin/sudo" (hostname=kvm001.sandbox.pri,
+addr=1.1.1.100, terminal=/dev/pts/1 res=success)'
+type=USER_END msg=audit(1271345951.927:1159792): user pid=9218 uid=0
+auid=502 subj=staff_u:staff_r:staff_sudo_t:s0 msg='PAM: session close
+acct="root" : exe="/usr/bin/sudo" (hostname=kvm001.sandbox.pri,
+addr=1.1.1.100, terminal=/dev/pts/1 res=success)'
+type=USER_CMD msg=audit(1271345951.930:1159793): user pid=9218 uid=0
+auid=502 subj=staff_u:staff_r:staff_sudo_t:s0 msg='cwd="/home/test"
+cmd=2F7573722F62696E2F61756469742E7368206C657373202F7661722F6C6F672F6D65737361676573
+(terminal=pts/1 res=success)'
+type=USER_AUTH msg=audit(1271345954.273:1159794): user pid=9219 uid=0
+auid=502 subj=staff_u:staff_r:newrole_t:s0 msg='PAM: authentication
+acct="test" : exe="/usr/bin/newrole" (hostname=?, addr=?, terminal=pts/1
+res=success)'
+type=USER_ACCT msg=audit(1271345954.296:1159795): user pid=9219 uid=0
+auid=502 subj=staff_u:staff_r:newrole_t:s0 msg='PAM: accounting acct="test"
+: exe="/usr/bin/newrole" (hostname=?, addr=?, terminal=pts/1 res=success)'
+type=USER_START msg=audit(1271345954.304:1159796): user pid=9223 uid=0
+auid=502 subj=staff_u:staff_r:newrole_t:s0 msg='PAM: session open
+acct="test" : exe="/usr/bin/newrole" (hostname=?, addr=?, terminal=pts/1
+res=success)'
+type=USER_ROLE_CHANGE msg=audit(1271345954.304:1159797): user pid=9223
+uid=0 auid=502 subj=staff_u:staff_r:newrole_t:s0 msg='newrole:
+old-context=staff_u:staff_r:staff_t new-context=staff_u:sysadm_r:sysadm_t:
+exe="/usr/bin/newrole" (hostname=?, addr=?, terminal=/dev/pts/1
+res=success)'
+type=USER_END msg=audit(1271345954.489:1159798): user pid=9219 uid=0
+auid=502 subj=staff_u:staff_r:newrole_t:s0 msg='PAM: session close
+acct="test" : exe="/usr/bin/newrole" (hostname=?, addr=?, terminal=pts/1
+res=success)'
+
+
+No AVCs... weird.  Also, I thought the point of having the pam_rootok.so in
+/etc/pam.d/newrole was so that the user wouldn't need to enter their
+password when newrole was run?
+
+
 
 -- 
-paul moore
-linux @ hp
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
 
 
 --
