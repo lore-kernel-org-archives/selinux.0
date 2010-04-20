@@ -1,28 +1,29 @@
-Date: Wed, 21 Apr 2010 08:59:25 +1000 (EST)
+Date: Wed, 21 Apr 2010 09:06:09 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
 Subject: Re: [PATCH] SELinux: return error codes on policy load failure
-In-Reply-To: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1004210859130.30324@tundra.namei.org>
-References: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com>
+In-Reply-To: <1271774878.30027.77.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <alpine.LRH.2.00.1004210905370.30324@tundra.namei.org>
+References: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com> <1271774878.30027.77.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 20 Apr 2010, Eric Paris wrote:
+On Tue, 20 Apr 2010, Stephen Smalley wrote:
 
-> policy load failure always return EINVAL even if the failure was for some
-> other reason (usually ENOMEM).  This patch passes error codes back up the
-> stack where they will make their way to userspace.  This might help in
-> debugging future problems with policy load.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Note that policydb_read() internally has the same problem on some code
+> paths, leading to the logic on the bad: path that defaults to EINVAL if
+> not otherwise set.
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+Added to the kernel development todo list:
+http://selinuxproject.org/page/Kernel_Development#To_Do_List
 
+(which could use more love :-)
+
+
+- James
 -- 
 James Morris
 <jmorris@namei.org>
