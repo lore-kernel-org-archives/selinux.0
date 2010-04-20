@@ -1,67 +1,104 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3KELkKE026849
-	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2010 10:21:46 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3KELEYa011880
-	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2010 14:21:14 GMT
-Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o3KELjMl008093
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2010 10:21:45 -0400
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o3KELiQA012048
-	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2010 10:21:44 -0400
-Message-ID: <4BCDB877.10908@redhat.com>
-Date: Tue, 20 Apr 2010 10:21:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: return error codes on policy load failure
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Tue, 20 Apr 2010 10:29:42 -0400
+Message-ID: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Setting labels on a disabled SELinux box.
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+policy load failure always return EINVAL even if the failure was for some
+other reason (usually ENOMEM).  This patch passes error codes back up the
+stack where they will make their way to userspace.  This might help in
+debugging future problems with policy load.
 
-Currently the kernel is blocking the setting of labels on a disabled
-SELinux box.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-We have made changes to livecd to be able to build a livecd image on a
-disabled SELinux box, but the kernel is preventing the placing of labels.
+ security/selinux/ss/services.c |   37 ++++++++++++++++++++++---------------
+ 1 files changed, 22 insertions(+), 15 deletions(-)
 
-We want this functionality so that Fedora Build machines can be allowed
-to create different kinds of images and do not want to require all
-machines to enable SELinux.
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 0b44f5a..1de60ce 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1760,22 +1760,28 @@ int security_load_policy(void *data, size_t len)
+ 
+ 	if (!ss_initialized) {
+ 		avtab_cache_init();
+-		if (policydb_read(&policydb, fp)) {
++		rc = policydb_read(&policydb, fp);
++		if (rc) {
+ 			avtab_cache_destroy();
+-			return -EINVAL;
++			return rc;
+ 		}
+-		if (selinux_set_mapping(&policydb, secclass_map,
+-					&current_mapping,
+-					&current_mapping_size)) {
++
++		rc = selinux_set_mapping(&policydb, secclass_map,
++					 &current_mapping,
++					 &current_mapping_size);
++		if (rc) {
+ 			policydb_destroy(&policydb);
+ 			avtab_cache_destroy();
+-			return -EINVAL;
++			return rc;
+ 		}
+-		if (policydb_load_isids(&policydb, &sidtab)) {
++
++		rc = policydb_load_isids(&policydb, &sidtab);
++		if (rc) {
+ 			policydb_destroy(&policydb);
+ 			avtab_cache_destroy();
+-			return -EINVAL;
++			return rc;
+ 		}
++
+ 		security_load_policycaps();
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+@@ -1791,8 +1797,9 @@ int security_load_policy(void *data, size_t len)
+ 	sidtab_hash_eval(&sidtab, "sids");
+ #endif
+ 
+-	if (policydb_read(&newpolicydb, fp))
+-		return -EINVAL;
++	rc = policydb_read(&newpolicydb, fp);
++	if (rc)
++		return rc;
+ 
+ 	/* If switching between different policy types, log MLS status */
+ 	if (policydb.mls_enabled && !newpolicydb.mls_enabled)
+@@ -1807,8 +1814,8 @@ int security_load_policy(void *data, size_t len)
+ 		return rc;
+ 	}
+ 
+-	if (selinux_set_mapping(&newpolicydb, secclass_map,
+-				&map, &map_size))
++	rc = selinux_set_mapping(&newpolicydb, secclass_map, &map, &map_size);
++	if (rc)
+ 		goto err;
+ 
+ 	rc = security_preserve_bools(&newpolicydb);
+@@ -1819,10 +1826,10 @@ int security_load_policy(void *data, size_t len)
+ 
+ 	/* Clone the SID table. */
+ 	sidtab_shutdown(&sidtab);
+-	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
+-		rc = -ENOMEM;
++
++	rc = sidtab_map(&sidtab, clone_sid, &newsidtab);
++	if (rc)
+ 		goto err;
+-	}
+ 
+ 	/*
+ 	 * Convert the internal representations of contexts
 
-Currently these images are being built with SELinux disabled because of
-this.
-
-strace shows
-
-lsetxattr("/root/whatever/", "security.selinux",
-"system_u:object_r:root_t:s0", 28, 0) = -1 EOPNOTSUPP (Operation not
-supported)
-
-
-eparis says this code is causing the problem.
-
- static int cap_inode_setsecurity(struct inode *inode, const char *name,
-                                  const void *value, size_t size, int flags)
- {
-         return -EOPNOTSUPP;
- }
-
-I think we should allow this if you have a capability like sys_admin or
-dac_override.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkvNuHcACgkQrlYvE4MpobO6pACgxMKs4oFogWstSyTdzLFsO1Ot
-8DkAoKZswtvA17iC0HGDpssyNyUxDjNa
-=lGy3
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
