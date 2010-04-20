@@ -1,117 +1,69 @@
-Subject: Re: [PATCH] SELinux: return error codes on policy load failure
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com>
-References: <20100420142942.16035.61381.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain
-Date: Tue, 20 Apr 2010 10:47:58 -0400
-Message-Id: <1271774878.30027.77.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4BCDC17B.3090104@redhat.com>
+Date: Tue, 20 Apr 2010 11:00:11 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+Subject: Re: Setting labels on a disabled SELinux box.
+References: <4BCDB877.10908@redhat.com> <1271774732.30027.73.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1271774732.30027.73.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-04-20 at 10:29 -0400, Eric Paris wrote:
-> policy load failure always return EINVAL even if the failure was for some
-> other reason (usually ENOMEM).  This patch passes error codes back up the
-> stack where they will make their way to userspace.  This might help in
-> debugging future problems with policy load.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 04/20/2010 10:45 AM, Stephen Smalley wrote:
+> On Tue, 2010-04-20 at 10:21 -0400, Daniel J Walsh wrote:
+>> Currently the kernel is blocking the setting of labels on a disabled
+>> SELinux box.
+>>
+>> We have made changes to livecd to be able to build a livecd image on a
+>> disabled SELinux box, but the kernel is preventing the placing of labels.
+>>
+>> We want this functionality so that Fedora Build machines can be allowed
+>> to create different kinds of images and do not want to require all
+>> machines to enable SELinux.
+>>
+>> Currently these images are being built with SELinux disabled because of
+>> this.
+>>
+>> strace shows
+>>
+>> lsetxattr("/root/whatever/", "security.selinux",
+>> "system_u:object_r:root_t:s0", 28, 0) = -1 EOPNOTSUPP (Operation not
+>> supported)
+>>
+>>
+>> eparis says this code is causing the problem.
+>>
+>>  static int cap_inode_setsecurity(struct inode *inode, const char *name,
+>>                                   const void *value, size_t size, int flags)
+>>  {
+>>          return -EOPNOTSUPP;
+>>  }
+>>
+>> I think we should allow this if you have a capability like sys_admin or
+>> dac_override.
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Note that policydb_read() internally has the same problem on some code
-paths, leading to the logic on the bad: path that defaults to EINVAL if
-not otherwise set.
-
-> ---
+> Perhaps I don't understand, but inode_setsecurity() is only called if
+> the filesystem does not support xattrs; otherwise it gets handled via
+> the filesytem's ->setxattr handler, and that should work regardless of
+> SELinux-disabled (and always has in the past).
 > 
->  security/selinux/ss/services.c |   37 ++++++++++++++++++++++---------------
->  1 files changed, 22 insertions(+), 15 deletions(-)
+> I think we need more details, like kernel version, filesystem type, etc.
 > 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 0b44f5a..1de60ce 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1760,22 +1760,28 @@ int security_load_policy(void *data, size_t len)
->  
->  	if (!ss_initialized) {
->  		avtab_cache_init();
-> -		if (policydb_read(&policydb, fp)) {
-> +		rc = policydb_read(&policydb, fp);
-> +		if (rc) {
->  			avtab_cache_destroy();
-> -			return -EINVAL;
-> +			return rc;
->  		}
-> -		if (selinux_set_mapping(&policydb, secclass_map,
-> -					&current_mapping,
-> -					&current_mapping_size)) {
-> +
-> +		rc = selinux_set_mapping(&policydb, secclass_map,
-> +					 &current_mapping,
-> +					 &current_mapping_size);
-> +		if (rc) {
->  			policydb_destroy(&policydb);
->  			avtab_cache_destroy();
-> -			return -EINVAL;
-> +			return rc;
->  		}
-> -		if (policydb_load_isids(&policydb, &sidtab)) {
-> +
-> +		rc = policydb_load_isids(&policydb, &sidtab);
-> +		if (rc) {
->  			policydb_destroy(&policydb);
->  			avtab_cache_destroy();
-> -			return -EINVAL;
-> +			return rc;
->  		}
-> +
->  		security_load_policycaps();
->  		ss_initialized = 1;
->  		seqno = ++latest_granting;
-> @@ -1791,8 +1797,9 @@ int security_load_policy(void *data, size_t len)
->  	sidtab_hash_eval(&sidtab, "sids");
->  #endif
->  
-> -	if (policydb_read(&newpolicydb, fp))
-> -		return -EINVAL;
-> +	rc = policydb_read(&newpolicydb, fp);
-> +	if (rc)
-> +		return rc;
->  
->  	/* If switching between different policy types, log MLS status */
->  	if (policydb.mls_enabled && !newpolicydb.mls_enabled)
-> @@ -1807,8 +1814,8 @@ int security_load_policy(void *data, size_t len)
->  		return rc;
->  	}
->  
-> -	if (selinux_set_mapping(&newpolicydb, secclass_map,
-> -				&map, &map_size))
-> +	rc = selinux_set_mapping(&newpolicydb, secclass_map, &map, &map_size);
-> +	if (rc)
->  		goto err;
->  
->  	rc = security_preserve_bools(&newpolicydb);
-> @@ -1819,10 +1826,10 @@ int security_load_policy(void *data, size_t len)
->  
->  	/* Clone the SID table. */
->  	sidtab_shutdown(&sidtab);
-> -	if (sidtab_map(&sidtab, clone_sid, &newsidtab)) {
-> -		rc = -ENOMEM;
-> +
-> +	rc = sidtab_map(&sidtab, clone_sid, &newsidtab);
-> +	if (rc)
->  		goto err;
-> -	}
->  
->  	/*
->  	 * Convert the internal representations of contexts
--- 
-Stephen Smalley
-National Security Agency
 
+2.6.32.11-99.fc12.x86_64; ext4
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkvNwXsACgkQrlYvE4MpobPKMQCgpuvQ4a3fmPWRqs27VFQzR5rT
+G44An1MkWEUAOIshAvbmvaqQqzG3Oiql
+=tQVy
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
