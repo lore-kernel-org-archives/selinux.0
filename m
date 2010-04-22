@@ -1,206 +1,76 @@
-Date: Fri, 23 Apr 2010 08:30:11 +1000 (EST)
+Date: Fri, 23 Apr 2010 08:44:10 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@parisplace.org>
-cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] SELinux: standardize return code handling in
- selinuxfs.c
-In-Reply-To: <z2s7e0fb38c1004221125o7a22e446wb12377e51bf75902@mail.gmail.com>
-Message-ID: <alpine.LRH.2.00.1004230829570.18002@tundra.namei.org>
-References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>  <20100422173645.23830.42971.stgit@paris.rdu.redhat.com> <z2s7e0fb38c1004221125o7a22e446wb12377e51bf75902@mail.gmail.com>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] SELinux: standardize return code handling in
+ policydb.c
+In-Reply-To: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.1004230833200.18002@tundra.namei.org>
+References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1665246916-1554650623-1271975412=:18002"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---1665246916-1554650623-1271975412=:18002
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-
 On Thu, 22 Apr 2010, Eric Paris wrote:
 
-> I screwed up the subject and the changelog and said selinuxfs instead
-> of services.c.  James do you want to just fix those if you take these
-> patches?
-
-I can fix them.
-
-
->   If I have to redo them I will fix them.
-
+> policydb.c has lots of different standards on how to handle return paths on
+> error.  For the most part transition to
 > 
-> -eric
+> 	rc=errno
+> 	if (failure)
+> 		goto out;
+> [...]
+> out:
+> 	cleanup()
+> 	return rc;
 > 
-> On Thu, Apr 22, 2010 at 1:36 PM, Eric Paris <eparis@redhat.com> wrote:
-> > selinuxfs.c has lots of different standards on how to handle return paths on
-> > error.  For the most part transition to
-> >
-> >        rc=errno
-> >        if (failure)
-> >                goto out;
-> > [...]
-> > out:
-> >        cleanup()
-> >        return rc;
-> >
-> > Instead of doing cleanup mid function, or having multiple returns or other
-> > options.  This doesn't do that for every function, but most of the complex
-> > functions which have cleanup routines on error.
-> >
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > ---
-> >
-> >  security/selinux/ss/services.c |   57 ++++++++++++++++------------------------
-> >  1 files changed, 23 insertions(+), 34 deletions(-)
-> >
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index 1de60ce..5bb58e6 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1558,22 +1558,17 @@ static int clone_sid(u32 sid,
-> >
-> >  static inline int convert_context_handle_invalid_context(struct context *context)
-> >  {
-> > -       int rc = 0;
-> > +       char *s;
-> > +       u32 len;
-> >
-> > -       if (selinux_enforcing) {
-> > -               rc = -EINVAL;
-> > -       } else {
-> > -               char *s;
-> > -               u32 len;
-> > -
-> > -               if (!context_struct_to_string(context, &s, &len)) {
-> > -                       printk(KERN_WARNING
-> > -                      "SELinux:  Context %s would be invalid if enforcing\n",
-> > -                              s);
-> > -                       kfree(s);
-> > -               }
-> > +       if (selinux_enforcing)
-> > +               return -EINVAL;
-> > +
-> > +       if (!context_struct_to_string(context, &s, &len)) {
-> > +               printk(KERN_WARNING "SELinux:  Context %s would be invalid if enforcing\n", s);
-> > +               kfree(s);
-> >        }
-> > -       return rc;
-> > +       return 0;
-> >  }
-> >
-> >  struct convert_context_args {
-> > @@ -1619,8 +1614,7 @@ static int convert_context(u32 key,
-> >                                              c->len, &ctx, SECSID_NULL);
-> >                kfree(s);
-> >                if (!rc) {
-> > -                       printk(KERN_INFO
-> > -                      "SELinux:  Context %s became valid (mapped).\n",
-> > +                       printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
-> >                               c->str);
-> >                        /* Replace string with mapped representation. */
-> >                        kfree(c->str);
-> > @@ -1632,8 +1626,7 @@ static int convert_context(u32 key,
-> >                        goto out;
-> >                } else {
-> >                        /* Other error condition, e.g. ENOMEM. */
-> > -                       printk(KERN_ERR
-> > -                      "SELinux:   Unable to map context %s, rc = %d.\n",
-> > +                       printk(KERN_ERR "SELinux:   Unable to map context %s, rc = %d.\n",
-> >                               c->str, -rc);
-> >                        goto out;
-> >                }
-> > @@ -1719,8 +1712,7 @@ bad:
-> >        context_destroy(c);
-> >        c->str = s;
-> >        c->len = len;
-> > -       printk(KERN_INFO
-> > -              "SELinux:  Context %s became invalid (unmapped).\n",
-> > +       printk(KERN_INFO "SELinux:  Context %s became invalid (unmapped).\n",
-> >               c->str);
-> >        rc = 0;
-> >        goto out;
-> > @@ -2087,24 +2079,22 @@ int security_get_user_sids(u32 fromsid,
-> >
-> >        context_init(&usercon);
-> >
-> > +       rc = -EINVAL;
-> >        fromcon = sidtab_search(&sidtab, fromsid);
-> > -       if (!fromcon) {
-> > -               rc = -EINVAL;
-> > +       if (!fromcon)
-> >                goto out_unlock;
-> > -       }
-> >
-> > +       rc = -EINVAL;
-> >        user = hashtab_search(policydb.p_users.table, username);
-> > -       if (!user) {
-> > -               rc = -EINVAL;
-> > +       if (!user)
-> >                goto out_unlock;
-> > -       }
-> > +
-> >        usercon.user = user->value;
-> >
-> > +       rc = -ENOMEM;
-> >        mysids = kcalloc(maxnel, sizeof(*mysids), GFP_ATOMIC);
-> > -       if (!mysids) {
-> > -               rc = -ENOMEM;
-> > +       if (!mysids)
-> >                goto out_unlock;
-> > -       }
-> >
-> >        ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
-> >                role = policydb.role_val_to_struct[i];
-> > @@ -2121,12 +2111,11 @@ int security_get_user_sids(u32 fromsid,
-> >                        if (mynel < maxnel) {
-> >                                mysids[mynel++] = sid;
-> >                        } else {
-> > +                               rc = -ENOMEM;
-> >                                maxnel += SIDS_NEL;
-> >                                mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
-> > -                               if (!mysids2) {
-> > -                                       rc = -ENOMEM;
-> > +                               if (!mysids2)
-> >                                        goto out_unlock;
-> > -                               }
-> >                                memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
-> >                                kfree(mysids);
-> >                                mysids = mysids2;
-> > @@ -2134,7 +2123,7 @@ int security_get_user_sids(u32 fromsid,
-> >                        }
-> >                }
-> >        }
-> > -
-> > +       rc = 0;
-> >  out_unlock:
-> >        read_unlock(&policy_rwlock);
-> >        if (rc || !mynel) {
-> > @@ -2142,9 +2131,9 @@ out_unlock:
-> >                goto out;
-> >        }
-> >
-> > +       rc = -ENOMEM;
-> >        mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
-> >        if (!mysids2) {
-> > -               rc = -ENOMEM;
-> >                kfree(mysids);
-> >                goto out;
-> >        }
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >
-> 
+> Instead of doing cleanup mid function, or having multiple returns or other
+> options.  This doesn't do that for every function, but most of the complex
+> functions which have cleanup routines on error.
 
+I think the idea is that the 'goto out' paradigm is used when multiple 
+return points need the same cleanup, otherwise, just use return normally.
+
+> +++ b/security/selinux/ss/policydb.c
+> @@ -144,35 +144,33 @@ static int roles_init(struct policydb *p)
+>  {
+>  	char *key = NULL;
+>  	int rc;
+> -	struct role_datum *role;
+> +	struct role_datum *role = NULL;
+
+Why is this being initialized to NULL?  The kzalloc call will assign it a 
+definite value.  Initializing variables unnecessarily can hide bugs in the 
+code.
+
+> +	rc = -ENOMEM;
+>  	role = kzalloc(sizeof(*role), GFP_KERNEL);
+
+I'm not sure what the point is of assigning the error code first -- 
+perhaps if all or most of the error cases use that error, but they don't.
+
+> -out:
+> -	return rc;
+> +	return 0;
+>  
+>  out_free_symtab:
+>  	for (i = 0; i < SYM_NUM; i++)
+>  		hashtab_destroy(p->symtab[i].table);
+> -	goto out;
+> +	return rc;
+>  }
+
+Also, I think part of the point of this approach is that you reduce, not 
+increase, the number of return statements, to make reading the code 
+simpler.  It also forces you to account for 'rc' properly at all times.
+
+
+
+- James
 -- 
 James Morris
 <jmorris@namei.org>
---1665246916-1554650623-1271975412=:18002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
