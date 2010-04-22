@@ -1,158 +1,206 @@
-Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
- suid
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com>
-References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain
-Date: Thu, 22 Apr 2010 17:35:55 -0400
-Message-Id: <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 23 Apr 2010 08:30:11 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@parisplace.org>
+cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] SELinux: standardize return code handling in
+ selinuxfs.c
+In-Reply-To: <z2s7e0fb38c1004221125o7a22e446wb12377e51bf75902@mail.gmail.com>
+Message-ID: <alpine.LRH.2.00.1004230829570.18002@tundra.namei.org>
+References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>  <20100422173645.23830.42971.stgit@paris.rdu.redhat.com> <z2s7e0fb38c1004221125o7a22e446wb12377e51bf75902@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1665246916-1554650623-1271975412=:18002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-04-22 at 16:46 -0400, Eric Paris wrote:
-> This patch adds a new permission, setsuid, to the file class.  This
-> permission is checked any time a file has its attributes modified
-> (setattr) and the setuid or setgid bits are involved.  The purpose for
-> this change is to further allow selinux to confine administrative
-> duties.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--1665246916-1554650623-1271975412=:18002
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+
+On Thu, 22 Apr 2010, Eric Paris wrote:
+
+> I screwed up the subject and the changelog and said selinuxfs instead
+> of services.c.  James do you want to just fix those if you take these
+> patches?
+
+I can fix them.
+
+
+>   If I have to redo them I will fix them.
+
 > 
-> This permission is needed to both set the setuid bit and to add more
-> permissions to a file which already has setuid bit.  This is also checked
-> when an acl is modified on a file containing the suid or sgid bit.  We
-> do not know if the acl is more or less restrictive, so we always check
-> the permission on acl changes.
-
-Can you help us all remember why you want this permission?  Specific use
-case example, what threat you are mitigating, why it is sufficiently
-important to justify an entirely new permission dedicated to it.
-
-If we add this permission for this purpose, why wouldn't we also add
-distinct permissions for other DAC purposes, e.g. suid-root vs.
-suid-nonroot, suid vs sgid, sticky bit, setting vs clearing, making a
-file executable, ...?  Where does it stop?
-
-I'm also not keen on overloading it to also cover other changes to the
-mode/ACL.  Presumably that is to constrain extending execute access to
-an existing suid file more widely than originally set?  Write access
-should kill suid/sgid bits.  Read access is perhaps a concern, but
-relying on unreadable executables isn't a good idea.
-
-Can you write a description of this permission and how it differs from
-setattr permission in a way that will make sense to a typical Linux
-admin?  
-
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
+> -eric
 > 
->  security/selinux/hooks.c            |   38 ++++++++++++++++++++++++++++++-----
->  security/selinux/include/classmap.h |    2 +-
->  2 files changed, 34 insertions(+), 6 deletions(-)
+> On Thu, Apr 22, 2010 at 1:36 PM, Eric Paris <eparis@redhat.com> wrote:
+> > selinuxfs.c has lots of different standards on how to handle return paths on
+> > error.  For the most part transition to
+> >
+> >        rc=errno
+> >        if (failure)
+> >                goto out;
+> > [...]
+> > out:
+> >        cleanup()
+> >        return rc;
+> >
+> > Instead of doing cleanup mid function, or having multiple returns or other
+> > options.  This doesn't do that for every function, but most of the complex
+> > functions which have cleanup routines on error.
+> >
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > ---
+> >
+> >  security/selinux/ss/services.c |   57 ++++++++++++++++------------------------
+> >  1 files changed, 23 insertions(+), 34 deletions(-)
+> >
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index 1de60ce..5bb58e6 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -1558,22 +1558,17 @@ static int clone_sid(u32 sid,
+> >
+> >  static inline int convert_context_handle_invalid_context(struct context *context)
+> >  {
+> > -       int rc = 0;
+> > +       char *s;
+> > +       u32 len;
+> >
+> > -       if (selinux_enforcing) {
+> > -               rc = -EINVAL;
+> > -       } else {
+> > -               char *s;
+> > -               u32 len;
+> > -
+> > -               if (!context_struct_to_string(context, &s, &len)) {
+> > -                       printk(KERN_WARNING
+> > -                      "SELinux:  Context %s would be invalid if enforcing\n",
+> > -                              s);
+> > -                       kfree(s);
+> > -               }
+> > +       if (selinux_enforcing)
+> > +               return -EINVAL;
+> > +
+> > +       if (!context_struct_to_string(context, &s, &len)) {
+> > +               printk(KERN_WARNING "SELinux:  Context %s would be invalid if enforcing\n", s);
+> > +               kfree(s);
+> >        }
+> > -       return rc;
+> > +       return 0;
+> >  }
+> >
+> >  struct convert_context_args {
+> > @@ -1619,8 +1614,7 @@ static int convert_context(u32 key,
+> >                                              c->len, &ctx, SECSID_NULL);
+> >                kfree(s);
+> >                if (!rc) {
+> > -                       printk(KERN_INFO
+> > -                      "SELinux:  Context %s became valid (mapped).\n",
+> > +                       printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
+> >                               c->str);
+> >                        /* Replace string with mapped representation. */
+> >                        kfree(c->str);
+> > @@ -1632,8 +1626,7 @@ static int convert_context(u32 key,
+> >                        goto out;
+> >                } else {
+> >                        /* Other error condition, e.g. ENOMEM. */
+> > -                       printk(KERN_ERR
+> > -                      "SELinux:   Unable to map context %s, rc = %d.\n",
+> > +                       printk(KERN_ERR "SELinux:   Unable to map context %s, rc = %d.\n",
+> >                               c->str, -rc);
+> >                        goto out;
+> >                }
+> > @@ -1719,8 +1712,7 @@ bad:
+> >        context_destroy(c);
+> >        c->str = s;
+> >        c->len = len;
+> > -       printk(KERN_INFO
+> > -              "SELinux:  Context %s became invalid (unmapped).\n",
+> > +       printk(KERN_INFO "SELinux:  Context %s became invalid (unmapped).\n",
+> >               c->str);
+> >        rc = 0;
+> >        goto out;
+> > @@ -2087,24 +2079,22 @@ int security_get_user_sids(u32 fromsid,
+> >
+> >        context_init(&usercon);
+> >
+> > +       rc = -EINVAL;
+> >        fromcon = sidtab_search(&sidtab, fromsid);
+> > -       if (!fromcon) {
+> > -               rc = -EINVAL;
+> > +       if (!fromcon)
+> >                goto out_unlock;
+> > -       }
+> >
+> > +       rc = -EINVAL;
+> >        user = hashtab_search(policydb.p_users.table, username);
+> > -       if (!user) {
+> > -               rc = -EINVAL;
+> > +       if (!user)
+> >                goto out_unlock;
+> > -       }
+> > +
+> >        usercon.user = user->value;
+> >
+> > +       rc = -ENOMEM;
+> >        mysids = kcalloc(maxnel, sizeof(*mysids), GFP_ATOMIC);
+> > -       if (!mysids) {
+> > -               rc = -ENOMEM;
+> > +       if (!mysids)
+> >                goto out_unlock;
+> > -       }
+> >
+> >        ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
+> >                role = policydb.role_val_to_struct[i];
+> > @@ -2121,12 +2111,11 @@ int security_get_user_sids(u32 fromsid,
+> >                        if (mynel < maxnel) {
+> >                                mysids[mynel++] = sid;
+> >                        } else {
+> > +                               rc = -ENOMEM;
+> >                                maxnel += SIDS_NEL;
+> >                                mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
+> > -                               if (!mysids2) {
+> > -                                       rc = -ENOMEM;
+> > +                               if (!mysids2)
+> >                                        goto out_unlock;
+> > -                               }
+> >                                memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
+> >                                kfree(mysids);
+> >                                mysids = mysids2;
+> > @@ -2134,7 +2123,7 @@ int security_get_user_sids(u32 fromsid,
+> >                        }
+> >                }
+> >        }
+> > -
+> > +       rc = 0;
+> >  out_unlock:
+> >        read_unlock(&policy_rwlock);
+> >        if (rc || !mynel) {
+> > @@ -2142,9 +2131,9 @@ out_unlock:
+> >                goto out;
+> >        }
+> >
+> > +       rc = -ENOMEM;
+> >        mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
+> >        if (!mysids2) {
+> > -               rc = -ENOMEM;
+> >                kfree(mysids);
+> >                goto out;
+> >        }
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> >
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 26b0a8a..bab6061 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -76,6 +76,7 @@
->  #include <linux/selinux.h>
->  #include <linux/mutex.h>
->  #include <linux/posix-timers.h>
-> +#include <linux/posix_acl_xattr.h>
->  #include <linux/syslog.h>
->  
->  #include "avc.h"
-> @@ -2728,6 +2729,9 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->  {
->  	const struct cred *cred = current_cred();
->  	unsigned int ia_valid = iattr->ia_valid;
-> +	unsigned int mode = dentry->d_inode->i_mode;
-> +	unsigned int ia_mode = iattr->ia_mode;
-> +	u32 av = 0;
->  
->  	/* ATTR_FORCE is just used for ATTR_KILL_S[UG]ID. */
->  	if (ia_valid & ATTR_FORCE) {
-> @@ -2737,11 +2741,28 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
->  			return 0;
->  	}
->  
-> -	if (ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
-> -			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
-> -		return dentry_has_perm(cred, NULL, dentry, FILE__SETATTR);
-> +	/*
-> +	 * are we changing mode?
-> +	 * is this a regular file?
-> +	 * do resulting iattr->i_mode have the suid/gid bits set?
-> +	 */
-> +	if ((iattr->ia_valid & ATTR_MODE) &&
-> +	    (S_ISREG(mode)) &&
-> +	    (ia_mode & (S_ISUID | S_ISGID))) {
-> +		/* calculate what bits are being added (if any) */
-> +		unsigned int new_bits = ((mode ^ ia_mode) & ia_mode);
-> +		if (new_bits)
-> +			av |= FILE__SETSUID;
-> +	}
-> +
-> +	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
-> +			       ATTR_ATIME_SET | ATTR_MTIME_SET))
 
-Logic changed in the ATTR_TIMES_SET case?
-
-> +		av |= FILE__SETATTR;
-> +	else
-> +		av |= FILE__WRITE;
-> +
-> +	return dentry_has_perm(cred, NULL, dentry, av);
->  
-> -	return dentry_has_perm(cred, NULL, dentry, FILE__WRITE);
->  }
->  
->  static int selinux_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
-> @@ -2754,6 +2775,7 @@ static int selinux_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
->  static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
->  {
->  	const struct cred *cred = current_cred();
-> +	u32 av = FILE__SETATTR;
->  
->  	if (!strncmp(name, XATTR_SECURITY_PREFIX,
->  		     sizeof XATTR_SECURITY_PREFIX - 1)) {
-> @@ -2765,11 +2787,17 @@ static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
->  			   Restrict to administrator. */
->  			return -EPERM;
->  		}
-> +	} else if ((dentry->d_inode->i_mode & (S_ISUID | S_ISGID)) &&
-> +		   (!strncmp(name, POSIX_ACL_XATTR_ACCESS,
-> +			     sizeof(POSIX_ACL_XATTR_ACCESS) - 1))) {
-> +			/* changing access acl on a file with setuid/segid
-> +			 * requires FILE_SETSUID */
-> +			av |= FILE__SETSUID;
->  	}
->  
->  	/* Not an attribute we recognize, so just check the
->  	   ordinary setattr permission. */
-> -	return dentry_has_perm(cred, NULL, dentry, FILE__SETATTR);
-> +	return dentry_has_perm(cred, NULL, dentry, av);
->  }
->  
->  static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index b4c9eb4..503b23e 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -44,7 +44,7 @@ struct security_class_mapping secclass_map[] = {
->  	    "quotaget", NULL } },
->  	{ "file",
->  	  { COMMON_FILE_PERMS,
-> -	    "execute_no_trans", "entrypoint", NULL } },
-> +	    "execute_no_trans", "entrypoint", "setsuid", NULL } },
->  	{ "dir",
->  	  { COMMON_FILE_PERMS, "add_name", "remove_name",
->  	    "reparent", "search", "rmdir", NULL } },
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
+--1665246916-1554650623-1271975412=:18002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
