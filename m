@@ -1,185 +1,137 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3MJH273008289
+	for <selinux@tycho.nsa.gov>; Thu, 22 Apr 2010 15:17:02 -0400
+Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3MJI1Cx002387
+	for <selinux@tycho.nsa.gov>; Thu, 22 Apr 2010 19:18:01 GMT
+Received: by gyg8 with SMTP id 8so5004222gyg.12
+        for <selinux@tycho.nsa.gov>; Thu, 22 Apr 2010 12:17:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20100422173645.23830.42971.stgit@paris.rdu.redhat.com>
-References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
-	 <20100422173645.23830.42971.stgit@paris.rdu.redhat.com>
-Date: Thu, 22 Apr 2010 14:25:18 -0400
-Message-ID: <z2s7e0fb38c1004221125o7a22e446wb12377e51bf75902@mail.gmail.com>
-Subject: Re: [PATCH 3/3] SELinux: standardize return code handling in
-	selinuxfs.c
-From: Eric Paris <eparis@parisplace.org>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov
+In-Reply-To: <q2s10143821004220729z2e39b1fdqe16997df0cee0574@mail.gmail.com>
+References: <4BCC69C0.5040502@redhat.com>
+	 <t2s10143821004190853r1a114b33q7c9416e43b8b5433@mail.gmail.com>
+	 <l2s10143821004200737t683832efu28214c95b3e156c@mail.gmail.com>
+	 <4BCF05D3.5090700@redhat.com>
+	 <u2q10143821004211853jea20406bz355fc111cd449c47@mail.gmail.com>
+	 <4BD0513C.40403@redhat.com>
+	 <q2s10143821004220729z2e39b1fdqe16997df0cee0574@mail.gmail.com>
+Date: Thu, 22 Apr 2010 15:16:58 -0400
+Message-ID: <w2q10143821004221216j96faf709w8b702c67835197d6@mail.gmail.com>
+Subject: Re: refpolicy is missing on lots of hits with audit2allow -R.
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I screwed up the subject and the changelog and said selinuxfs instead
-of services.c.  James do you want to just fix those if you take these
-patches?   If I have to redo them I will fix them.
+On Thu, Apr 22, 2010 at 10:29 AM, Karl MacMillan <kmacmillan@tresys.com> wrote:
+> On Thu, Apr 22, 2010 at 9:38 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>>
+>> I have not fully examined this patch but I don't believe it will do what
+>> I need.
+>>
+>> If I define an interface that ends up looking like this:
+>>
+>>
+>> [InterfaceVector files_read_etc_files $1:source ]
+>> $1,configfile,dir,ioctl,search,read,lock,open,getattr
+>> $1,configfile,file,read,lock,getattr,open,ioctl
+>> $1,configfile,lnk_file,read,getattr
+>>
+>>
+>> And have and avc that looks like this:
+>>
+>> node=(removed) type=AVC msg=audit(1271587735.632:422): avc:  denied  {
+>> getattr } for  pid=13239 comm="openvpn"
+>> path="/home/bbaetz/.pki/vpn01_cacert.pem" dev=dm-3 ino=565334
+>> scontext=system_u:system_r:openvpn_t:s0
+>> tcontext=unconfined_u:object_r:etc_t:s0 tclass=file
+>>
+>>
+>> This will never match.
+>>
+>> What we need is a way to expand out configfile into etc_t, or to realize
+>> that etc_t is a configfile.
+>>
+>> The tool you added does not do the equivalent of
+>>
+>> seinfo -aconfigfile -x
+>
+> No, it doesn't do that yet, but I'll get to that soon. Now that I have
+> the infrastructure for digging through the binary policy for attribute
+> information it won't be too hard.
+>
 
--eric
+So it wasn't hard - I built a version that gets all of the attributes
+out of the binary policy and expands them in the interfaces. Running
+your denial now gives:
 
-On Thu, Apr 22, 2010 at 1:36 PM, Eric Paris <eparis@redhat.com> wrote:
-> selinuxfs.c has lots of different standards on how to handle return paths on
-> error.  For the most part transition to
+#============= openvpn_t ==============
+# audit(1271587735.632:422):
+#  scontext="system_u:system_r:openvpn_t:s0"
+tcontext="unconfined_u:object_r:etc_t:s0"
+#  class="file" perms="getattr"
+#  comm="openvpn" exe="" path=""
+#  message=" node=(removed) type=AVC msg=audit(1271587735.632:422): avc:  denied
+#   { getattr } for  pid=13239 comm="openvpn"
+#   path="/home/bbaetz/.pki/vpn01_cacert.pem" dev=dm-3 ino=565334
+#   scontext=system_u:system_r:openvpn_t:s0
+#   tcontext=unconfined_u:object_r:etc_t:s0 tclass=file  "
+# Interface options:
+#   automount_exec_config(openvpn_t) # [51]
+#   files_exec_etc_files(openvpn_t) # [51]
+#   files_delete_etc_files(openvpn_t) # [118]
+#   files_relabel_etc_files(openvpn_t) # [136]
+#   files_rw_etc_files(openvpn_t) # [161]
+#   files_manage_etc_files(openvpn_t) # [179]
+#   files_read_etc_files(openvpn_t) # [1702]
+#   auth_use_nsswitch(openvpn_t) # [2893]
+#   auth_login_pgm_domain(openvpn_t) # [32016]
+#   seutil_semanage_policy(openvpn_t) # [41089]
+#   portage_compile_domain(openvpn_t) # [59755]
+automount_exec_config(openvpn_t)
+
+I was surprised by the 1702 distance for files_read_etc_files, but
+because of calling files_read_config_files and the configfile
+attribute this interface now allows access to ~60 additional types. So
+the distance calculation here is right I think (Chris mentioned that
+the upstream refpol does not have this interface call in
+files_read_config_files).
+
+So I'm at a loss for what to do here. Adding the attribute expansion
+for rules makes audit2allow _very_ slow and it seems that it will only
+allow us to match very broad interfaces. I'm not convinced we really
+want that. Eventually it might be nice to notice that we got denials
+for many types and coalesce those into one broad interface call, but
+that will be hard (I do some of that already but this case would be
+harder) and doesn't seem worth it.
+
+What do you think? Any chance you can just revert your change to
+files_read_etc_files?
+
+Karl
+
+> Karl
 >
->        rc=errno
->        if (failure)
->                goto out;
-> [...]
-> out:
->        cleanup()
->        return rc;
->
-> Instead of doing cleanup mid function, or having multiple returns or other
-> options.  This doesn't do that for every function, but most of the complex
-> functions which have cleanup routines on error.
->
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
->
->  security/selinux/ss/services.c |   57 ++++++++++++++++------------------------
->  1 files changed, 23 insertions(+), 34 deletions(-)
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 1de60ce..5bb58e6 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1558,22 +1558,17 @@ static int clone_sid(u32 sid,
->
->  static inline int convert_context_handle_invalid_context(struct context *context)
->  {
-> -       int rc = 0;
-> +       char *s;
-> +       u32 len;
->
-> -       if (selinux_enforcing) {
-> -               rc = -EINVAL;
-> -       } else {
-> -               char *s;
-> -               u32 len;
-> -
-> -               if (!context_struct_to_string(context, &s, &len)) {
-> -                       printk(KERN_WARNING
-> -                      "SELinux:  Context %s would be invalid if enforcing\n",
-> -                              s);
-> -                       kfree(s);
-> -               }
-> +       if (selinux_enforcing)
-> +               return -EINVAL;
-> +
-> +       if (!context_struct_to_string(context, &s, &len)) {
-> +               printk(KERN_WARNING "SELinux:  Context %s would be invalid if enforcing\n", s);
-> +               kfree(s);
->        }
-> -       return rc;
-> +       return 0;
->  }
->
->  struct convert_context_args {
-> @@ -1619,8 +1614,7 @@ static int convert_context(u32 key,
->                                              c->len, &ctx, SECSID_NULL);
->                kfree(s);
->                if (!rc) {
-> -                       printk(KERN_INFO
-> -                      "SELinux:  Context %s became valid (mapped).\n",
-> +                       printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
->                               c->str);
->                        /* Replace string with mapped representation. */
->                        kfree(c->str);
-> @@ -1632,8 +1626,7 @@ static int convert_context(u32 key,
->                        goto out;
->                } else {
->                        /* Other error condition, e.g. ENOMEM. */
-> -                       printk(KERN_ERR
-> -                      "SELinux:   Unable to map context %s, rc = %d.\n",
-> +                       printk(KERN_ERR "SELinux:   Unable to map context %s, rc = %d.\n",
->                               c->str, -rc);
->                        goto out;
->                }
-> @@ -1719,8 +1712,7 @@ bad:
->        context_destroy(c);
->        c->str = s;
->        c->len = len;
-> -       printk(KERN_INFO
-> -              "SELinux:  Context %s became invalid (unmapped).\n",
-> +       printk(KERN_INFO "SELinux:  Context %s became invalid (unmapped).\n",
->               c->str);
->        rc = 0;
->        goto out;
-> @@ -2087,24 +2079,22 @@ int security_get_user_sids(u32 fromsid,
->
->        context_init(&usercon);
->
-> +       rc = -EINVAL;
->        fromcon = sidtab_search(&sidtab, fromsid);
-> -       if (!fromcon) {
-> -               rc = -EINVAL;
-> +       if (!fromcon)
->                goto out_unlock;
-> -       }
->
-> +       rc = -EINVAL;
->        user = hashtab_search(policydb.p_users.table, username);
-> -       if (!user) {
-> -               rc = -EINVAL;
-> +       if (!user)
->                goto out_unlock;
-> -       }
-> +
->        usercon.user = user->value;
->
-> +       rc = -ENOMEM;
->        mysids = kcalloc(maxnel, sizeof(*mysids), GFP_ATOMIC);
-> -       if (!mysids) {
-> -               rc = -ENOMEM;
-> +       if (!mysids)
->                goto out_unlock;
-> -       }
->
->        ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
->                role = policydb.role_val_to_struct[i];
-> @@ -2121,12 +2111,11 @@ int security_get_user_sids(u32 fromsid,
->                        if (mynel < maxnel) {
->                                mysids[mynel++] = sid;
->                        } else {
-> +                               rc = -ENOMEM;
->                                maxnel += SIDS_NEL;
->                                mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
-> -                               if (!mysids2) {
-> -                                       rc = -ENOMEM;
-> +                               if (!mysids2)
->                                        goto out_unlock;
-> -                               }
->                                memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
->                                kfree(mysids);
->                                mysids = mysids2;
-> @@ -2134,7 +2123,7 @@ int security_get_user_sids(u32 fromsid,
->                        }
->                }
->        }
-> -
-> +       rc = 0;
->  out_unlock:
->        read_unlock(&policy_rwlock);
->        if (rc || !mynel) {
-> @@ -2142,9 +2131,9 @@ out_unlock:
->                goto out;
->        }
->
-> +       rc = -ENOMEM;
->        mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
->        if (!mysids2) {
-> -               rc = -ENOMEM;
->                kfree(mysids);
->                goto out;
->        }
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+>> -----BEGIN PGP SIGNATURE-----
+>> Version: GnuPG v2.0.14 (GNU/Linux)
+>> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+>>
+>> iEYEARECAAYFAkvQUTwACgkQrlYvE4MpobMfWwCfbg6t/396jHWHCpasqosqf8Mw
+>> 7qkAoNiXMi8+RK5/4mBu8WbnGLvxlb7+
+>> =EDEY
+>> -----END PGP SIGNATURE-----
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
 >
 
 
