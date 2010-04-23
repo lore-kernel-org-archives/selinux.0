@@ -1,142 +1,77 @@
-Subject: Re: [PATCH 1/3] SELinux: standardize return code handling in
- policydb.c
-From: Eric Paris <eparis@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-In-Reply-To: <alpine.LRH.2.00.1004230833200.18002@tundra.namei.org>
-References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
-	 <alpine.LRH.2.00.1004230833200.18002@tundra.namei.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 22 Apr 2010 22:37:47 -0400
-Message-ID: <1271990267.2899.74.camel@dhcp235-240.rdu.redhat.com>
-Mime-Version: 1.0
+Message-ID: <4BD18CAE.4050201@redhat.com>
+Date: Fri, 23 Apr 2010 08:03:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, jmorris@namei.org
+Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
+ suid
+References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com> <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-04-23 at 08:44 +1000, James Morris wrote:
-> On Thu, 22 Apr 2010, Eric Paris wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The whole point of this, in my eyes, is the make sure that it's hard to
-get rc wrong and to maximize the amount of useful readable code on the
-screen at one time.  Lets argue style!
-
-> > policydb.c has lots of different standards on how to handle return paths on
-> > error.  For the most part transition to
-> > 
-> > 	rc=errno
-> > 	if (failure)
-> > 		goto out;
-> > [...]
-> > out:
-> > 	cleanup()
-> > 	return rc;
-> > 
-> > Instead of doing cleanup mid function, or having multiple returns or other
-> > options.  This doesn't do that for every function, but most of the complex
-> > functions which have cleanup routines on error.
+On 04/22/2010 05:35 PM, Stephen Smalley wrote:
+> On Thu, 2010-04-22 at 16:46 -0400, Eric Paris wrote:
+>> This patch adds a new permission, setsuid, to the file class.  This
+>> permission is checked any time a file has its attributes modified
+>> (setattr) and the setuid or setgid bits are involved.  The purpose for
+>> this change is to further allow selinux to confine administrative
+>> duties.
+>>
+>> This permission is needed to both set the setuid bit and to add more
+>> permissions to a file which already has setuid bit.  This is also checked
+>> when an acl is modified on a file containing the suid or sgid bit.  We
+>> do not know if the acl is more or less restrictive, so we always check
+>> the permission on acl changes.
 > 
-> I think the idea is that the 'goto out' paradigm is used when multiple 
-> return points need the same cleanup, otherwise, just use return normally.
-
-I got it.  Notice i didn't add goto when inline returns made sense for
-the function in question.  Only when we needed a generic cleanup()
-(although sometimes I added stuff to the generic cleanup that was
-originally done in the meat of the function)
-
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -144,35 +144,33 @@ static int roles_init(struct policydb *p)
-> >  {
-> >  	char *key = NULL;
-> >  	int rc;
-> > -	struct role_datum *role;
-> > +	struct role_datum *role = NULL;
+> Can you help us all remember why you want this permission?  Specific use
+> case example, what threat you are mitigating, why it is sufficiently
+> important to justify an entirely new permission dedicated to it.
 > 
-> Why is this being initialized to NULL?  The kzalloc call will assign it a 
-> definite value.  Initializing variables unnecessarily can hide bugs in the 
-> code.
-
-I can go back through and not initialize things which are kmalloc() as
-the first operation in the function.  sure.   I don't think there are
-many cases of that in the series but I'll check tomorrow.
-
+> If we add this permission for this purpose, why wouldn't we also add
+> distinct permissions for other DAC purposes, e.g. suid-root vs.
+> suid-nonroot, suid vs sgid, sticky bit, setting vs clearing, making a
+> file executable, ...?  Where does it stop?
 > 
-> > +	rc = -ENOMEM;
-> >  	role = kzalloc(sizeof(*role), GFP_KERNEL);
+> I'm also not keen on overloading it to also cover other changes to the
+> mode/ACL.  Presumably that is to constrain extending execute access to
+> an existing suid file more widely than originally set?  Write access
+> should kill suid/sgid bits.  Read access is perhaps a concern, but
+> relying on unreadable executables isn't a good idea.
 > 
-> I'm not sure what the point is of assigning the error code first -- 
-> perhaps if all or most of the error cases use that error, but they don't.
-
-Actually I think it's a bad idea to do
-
-rc = -ENOMEM;
-obj1 = kmalloc()
-if (!obj1)
-	goto out;
-obj2 = kmalloc()
-if (!obj2)
-	goto out;
-
-we should set rc = -ENOMEM BOTH times, even thought the second time is
-useless.  The compiler is going to clean it up.  And setting it both
-times explicitly makes it impossible to screw up when I decided to add
-to the function.
-
-Another reason is prettier, more readable code (in my book)   5 lines vs
-4 in some cases.  Which gets more of the code on the screen at the same
-time.  My understanding is that compilers are going to end up doing
-about the same thing in either case.  Even if they don't, I seem to
-recall everything I really changed is a low use non-hot path function.
-There are times where we can't drop the extra line of } to get more code
-on the screen, but i'd still rather assign those outside the if() block
-just to be consistent.
-
-obj = kmalloc()
-if (!obj) {
-	rc = -ENOMEM;
-	goto out;
-}
-
-vs
-
-rc = -ENOMEM;
-obj = kmalloc()
-if (!obj)
-	goto out
+> Can you write a description of this permission and how it differs from
+> setattr permission in a way that will make sense to a typical Linux
+> admin?  
 > 
-> > -out:
-> > -	return rc;
-> > +	return 0;
-> >  
-> >  out_free_symtab:
-> >  	for (i = 0; i < SYM_NUM; i++)
-> >  		hashtab_destroy(p->symtab[i].table);
-> > -	goto out;
-> > +	return rc;
-> >  }
-> 
-> Also, I think part of the point of this approach is that you reduce, not 
-> increase, the number of return statements, to make reading the code 
-> simpler.  It also forces you to account for 'rc' properly at all times.
+>> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-the alternative to a return 0 is longer and no more readable since it
-adds another goto.
+My original thinking on this was a way to separate out Confined Root
+Admin from user.
 
-[meat of function]
-	rc = 0;
-out:
-	return rc;
-err:
-	do error cleanup()
-	goto out;
+One possible use case would be.  I want to allow a user to login as
+unconfined_t and only be able to become root as webadm_t through sudo.
 
-vs:
+If webadm_t has setattr on /var/www, he can cp /bin/sh /var/www/sh,
+chcon 4755 /var/www/sh, exit webadm_t and as unconfined_t become root
+using /var/www/sh.
 
-[meat of function]
-	return 0;
-err:
-	do error cleanup()
-	return rc;
+I think your other examples are valid, but I believe setuid/setgid
+applications have always been considered much more of a problem then the
+others.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkvRjK4ACgkQrlYvE4MpobOw6wCeLY0Yn5eLQu9hibHrTYLAqVex
+IMIAn2P7S1lobPS21eAjOL/dBwua5R0K
+=K0Xx
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
