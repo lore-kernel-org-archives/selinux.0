@@ -1,45 +1,71 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3Q6IxeA003164
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 02:18:59 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3Q6IOfY014355
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 06:18:25 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o3Q6InIG065622
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 08:18:49 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o3Q6IZqN025258
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 08:18:35 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Mon, 26 Apr 2010 08:18:48 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
+ suid
+Message-ID: <20100426061848.GS21894@myhost.felk.cvut.cz>
+References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com>
+ <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil>
+ <4BD18CAE.4050201@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: denial even with appropriate allow rules
-Date: Fri, 23 Apr 2010 14:49:29 -0700
-Message-ID: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com>
-From: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
-To: <SELinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Y51z1SGMnxVzkhDv"
+In-Reply-To: <4BD18CAE.4050201@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm helping a co-worker with a policy problem.  In permissive he gets a
-couple denials:
 
-type=AVC msg=audit(1272049866.598:32539): avc:  denied  { send_msg } for
-saddr=192.168.99.128 src=32786 daddr=192.168.99.1 dest=22 netif=eth0
-scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:ssh_port_t
-tclass=tcp_socket
+--Y51z1SGMnxVzkhDv
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-type=AVC msg=audit(1272049866.598:32540): avc:  denied  { recv_msg } for
-saddr=192.168.99.1 src=22 daddr=192.168.99.128 dest=32786 netif=eth0
-scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:ssh_port_t
-tclass=tcp_socket
+Daniel J Walsh wrote:
+> One possible use case would be.  I want to allow a user to login as
+> unconfined_t and only be able to become root as webadm_t through sudo.
+>=20
+> If webadm_t has setattr on /var/www, he can cp /bin/sh /var/www/sh,
+> chcon 4755 /var/www/sh, exit webadm_t and as unconfined_t become root
+> using /var/www/sh.
 
-I've checked his source policy and even checked the policy.18 file on
-his target machine, they both show:
+Isn't this just a side effect of the 'unconfined' philosophy? I've
+always been taught (and taught others) that with proper MAC controls you
+can have as many setuid shells as you like.
 
-Allow sshd_t ssh_port_t : tcp_socket { recv_msg send_msg ... };
+You already give all your trust to the user by giving him unconfined.
+Placing setuid controls in place is curing only (one of many) symptoms,
+not the cause.
 
-The only time I've seen it ignore networking policy was when I was doing
-it the old (pre-secmark) way but forgot to put selinux_compat_net=1 on
-the kernel line.  His kernel version is 2.6.9 so this should predate
-secmark and need no flag, correct?  There is no /selinux/compat_net file
-on the machine so I assume it should just work.
-
-This is a fairly old and well "customized" policy, if that matters.  
+Michal Svoboda
 
 
-Any ideas?
+--Y51z1SGMnxVzkhDv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Dave Thomson
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
+iEYEARECAAYFAkvVMEgACgkQg/fU9pp1uX52wACghMxzDn5xmjcSXv80pkUS5aEM
+8q4AnROIaB1YAdK/iyB+DgFH5y56a5iE
+=uIOK
+-----END PGP SIGNATURE-----
+
+--Y51z1SGMnxVzkhDv--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
