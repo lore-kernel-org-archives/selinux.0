@@ -1,72 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3QCqEHV022857
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 08:52:14 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3QCpdZ6000602
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 12:51:39 GMT
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o3QCqCgu018052
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 08:52:12 -0400
-Received: from localhost.localdomain (vpn-8-67.rdu.redhat.com [10.11.8.67])
-	by int-mx01.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o3QCqBeJ022364
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2010 08:52:11 -0400
-Message-ID: <4BD58C7B.1000507@redhat.com>
-Date: Mon, 26 Apr 2010 08:52:11 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
- suid
-References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com> <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil> <4BD18CAE.4050201@redhat.com> <20100426061848.GS21894@myhost.felk.cvut.cz>
-In-Reply-To: <20100426061848.GS21894@myhost.felk.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: denial even with appropriate allow rules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com>
+References: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com>
+Content-Type: text/plain
+Date: Mon, 26 Apr 2010 09:07:06 -0400
+Message-Id: <1272287226.13393.11.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 04/26/2010 02:18 AM, Michal Svoboda wrote:
-> Daniel J Walsh wrote:
->> One possible use case would be.  I want to allow a user to login as
->> unconfined_t and only be able to become root as webadm_t through sudo.
->>
->> If webadm_t has setattr on /var/www, he can cp /bin/sh /var/www/sh,
->> chcon 4755 /var/www/sh, exit webadm_t and as unconfined_t become root
->> using /var/www/sh.
+On Fri, 2010-04-23 at 14:49 -0700, Thomson, David-P63356 wrote:
+> I'm helping a co-worker with a policy problem.  In permissive he gets a
+> couple denials:
 > 
-> Isn't this just a side effect of the 'unconfined' philosophy? I've
-> always been taught (and taught others) that with proper MAC controls you
-> can have as many setuid shells as you like.
+> type=AVC msg=audit(1272049866.598:32539): avc:  denied  { send_msg } for
+> saddr=192.168.99.128 src=32786 daddr=192.168.99.1 dest=22 netif=eth0
+> scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:ssh_port_t
+> tclass=tcp_socket
 > 
-> You already give all your trust to the user by giving him unconfined.
-> Placing setuid controls in place is curing only (one of many) symptoms,
-> not the cause.
+> type=AVC msg=audit(1272049866.598:32540): avc:  denied  { recv_msg } for
+> saddr=192.168.99.1 src=22 daddr=192.168.99.128 dest=32786 netif=eth0
+> scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:ssh_port_t
+> tclass=tcp_socket
 > 
-> Michal Svoboda
+> I've checked his source policy and even checked the policy.18 file on
+> his target machine, they both show:
 > 
-First my example was sort of a gross oversimplification.  It would not
-only effect unconfined_t but any other domain that could use the setuid
-bit to gain additional privs.
+> Allow sshd_t ssh_port_t : tcp_socket { recv_msg send_msg ... };
+> 
+> The only time I've seen it ignore networking policy was when I was doing
+> it the old (pre-secmark) way but forgot to put selinux_compat_net=1 on
+> the kernel line.  His kernel version is 2.6.9 so this should predate
+> secmark and need no flag, correct?  There is no /selinux/compat_net file
+> on the machine so I assume it should just work.
+> 
+> This is a fairly old and well "customized" policy, if that matters.  
+> 
+> 
+> Any ideas?
 
-unconfined_t to a user means, give him all the power of a normal user
-with SELinux disabled.  You are still protected by DAC.  I would argue
-that you want to make sure there are limited setuid apps around when
-running with unconfined_t.  But if you give him unconfined_t and "chcon
-4755"  as a confined user running as root, then you make it easy for him
-to become unconfined_t running as UID=0.
+Is the allow rule conditional (within an if statement) or unconditional?
 
-If we want people to experiment with confined admins, allow unconfined_t
-- -> sudo_exec_t -> confined_admin_t is a good thing.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+Are you sure the policy file you are examining is the one that was
+loaded into the kernel?
 
-iEYEARECAAYFAkvVjHsACgkQrlYvE4MpobOm9ACfZfmZfoTmD2In2wSC5+asiQUU
-AmEAnjgC7RlRt2xtdUAm/t7gzYHMqBG9
-=miW8
------END PGP SIGNATURE-----
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
