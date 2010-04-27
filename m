@@ -1,49 +1,73 @@
-Subject: RE: denial even with appropriate allow rules
+Subject: Re: [PATCH 2/2] SELinux: Move execmod to the common perms
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
-References: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com>
-	 <1272287226.13393.11.camel@moss-pluto.epoch.ncsc.mil>
-	 <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20100412231953.21118.20945.stgit@paris.rdu.redhat.com>
+References: <20100412231947.21118.77411.stgit@paris.rdu.redhat.com>
+	 <20100412231953.21118.20945.stgit@paris.rdu.redhat.com>
 Content-Type: text/plain
-Date: Mon, 26 Apr 2010 15:17:58 -0400
-Message-Id: <1272309478.13393.176.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 27 Apr 2010 08:43:12 -0400
+Message-Id: <1272372192.25840.2.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-04-26 at 10:55 -0700, Thomson, David-P63356 wrote:
-> It was not a conditional allow rule and I personally retrieved the
-> policy file and examined it.
+On Mon, 2010-04-12 at 19:19 -0400, Eric Paris wrote:
+> execmod "could" show up on non regular files and non chr files.  The current
+> implementation would actually make these checks against non-existant bits
+> since the code assumes the execmod permission is same for all file types.
+> To make this line up for chr files we had to define execute_no_trans and
+> entrypoint permissions.  These permissions are unreachable and only existed
+> to to make FILE__EXECMOD and CHR_FILE__EXECMOD the same.  This patch drops
+> those needless perms as well.
 > 
-> 
-> Turned out it was a constraint that had been put in before either of us
-> had touched the policy: 
-> 
-> constrain tcp_socket { send_msg recv_msg }
-> (
-> 	t2 != ssh_port_t
->         ...
-> );
-> 
-> 
-> In the future I'll remember to check the constraints before I ping you
-> guys.  Having a compile time error would have been nice (like for
-> neverallows) or if at runtime there was some history of if the "0" in
-> the AV permission mask was due to no allow rule being added, or due to a
-> constraint clearing the bit.  That could then have been reflected in the
-> audit message.  The first option sounds easier.  
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-audit2why would have at least pointed you to the constraints as the
-culprit.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> In the end, this can just be chalked up to "user error" for not checking
-> for the policy canceling itself out, but something to help in debugging
-> would be nice if it weren't too much of a hassle.  We are working with
-> such old policy that maybe you have addressed this already in the newer
-> SELinux stuff you churn out.  
-
+> ---
+> 
+>  security/selinux/include/classmap.h |    7 +++----
+>  1 files changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 41990cb..b4c9eb4 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -3,7 +3,7 @@
+>  
+>  #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+>      "rename", "execute", "swapon", "quotaon", "mounton", "audit_access", \
+> -    "open"
+> +    "open", "execmod"
+>  
+>  #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+>      "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+> @@ -44,7 +44,7 @@ struct security_class_mapping secclass_map[] = {
+>  	    "quotaget", NULL } },
+>  	{ "file",
+>  	  { COMMON_FILE_PERMS,
+> -	    "execute_no_trans", "entrypoint", "execmod", NULL } },
+> +	    "execute_no_trans", "entrypoint", NULL } },
+>  	{ "dir",
+>  	  { COMMON_FILE_PERMS, "add_name", "remove_name",
+>  	    "reparent", "search", "rmdir", NULL } },
+> @@ -52,8 +52,7 @@ struct security_class_mapping secclass_map[] = {
+>  	{ "lnk_file",
+>  	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "chr_file",
+> -	  { COMMON_FILE_PERMS,
+> -	    "execute_no_trans", "entrypoint", "execmod", NULL } },
+> +	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "blk_file",
+>  	  { COMMON_FILE_PERMS, NULL } },
+>  	{ "sock_file",
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
