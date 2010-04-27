@@ -1,115 +1,117 @@
-Message-ID: <4BD6DD64.7080205@redhat.com>
-Date: Tue, 27 Apr 2010 08:49:40 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: denial even with appropriate allow rules
-References: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com> <1272287226.13393.11.camel@moss-pluto.epoch.ncsc.mil> <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
-In-Reply-To: <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 1/3] vfs: re-introduce MAY_CHDIR
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org, jmorris@namei.org,
+        casey@schaufler-ca.com, viro@zeniv.linux.org.uk
+In-Reply-To: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain
+Date: Tue, 27 Apr 2010 09:00:13 -0400
+Message-Id: <1272373213.25840.11.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2010-04-09 at 18:16 -0400, Eric Paris wrote:
+> Currently MAY_ACCESS means that filesystems must check the permissions
+> right then and not rely on cached results or the results of future
+> operations on the object.  This can be because of a call to sys_access() or
+> because of a call to chdir() which needs to check search without relying on
+> any future operations inside that dir.  I plan to use MAY_ACCESS for other
+> purposes in the security system, so I split the MAY_ACCESS and the
+> MAY_CHDIR cases.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-On 04/26/2010 01:55 PM, Thomson, David-P63356 wrote:
-> It was not a conditional allow rule and I personally retrieved the
-> policy file and examined it.
-> 
-> 
-> Turned out it was a constraint that had been put in before either of us
-> had touched the policy: 
-> 
-> constrain tcp_socket { send_msg recv_msg }
-> (
-> 	t2 != ssh_port_t
->         ...
-> );
-> 
-> 
-> In the future I'll remember to check the constraints before I ping you
-> guys.  Having a compile time error would have been nice (like for
-> neverallows) or if at runtime there was some history of if the "0" in
-> the AV permission mask was due to no allow rule being added, or due to a
-> constraint clearing the bit.  That could then have been reflected in the
-> audit message.  The first option sounds easier.  
-> 
-> In the end, this can just be chalked up to "user error" for not checking
-> for the policy canceling itself out, but something to help in debugging
-> would be nice if it weren't too much of a hassle.  We are working with
-> such old policy that maybe you have addressed this already in the newer
-> SELinux stuff you churn out.  
-> 
-> Thanks again!
-> 
-> 
-> 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> Sent: Monday, April 26, 2010 6:07 AM
-> To: Thomson, David-P63356
-> Cc: SELinux@tycho.nsa.gov
-> Subject: Re: denial even with appropriate allow rules
-> 
-> On Fri, 2010-04-23 at 14:49 -0700, Thomson, David-P63356 wrote:
->> I'm helping a co-worker with a policy problem.  In permissive he gets
-> a
->> couple denials:
->>
->> type=AVC msg=audit(1272049866.598:32539): avc:  denied  { send_msg }
-> for
->> saddr=192.168.99.128 src=32786 daddr=192.168.99.1 dest=22 netif=eth0
->> scontext=system_u:system_r:sshd_t
-> tcontext=system_u:object_r:ssh_port_t
->> tclass=tcp_socket
->>
->> type=AVC msg=audit(1272049866.598:32540): avc:  denied  { recv_msg }
-> for
->> saddr=192.168.99.1 src=22 daddr=192.168.99.128 dest=32786 netif=eth0
->> scontext=system_u:system_r:sshd_t
-> tcontext=system_u:object_r:ssh_port_t
->> tclass=tcp_socket
->>
->> I've checked his source policy and even checked the policy.18 file on
->> his target machine, they both show:
->>
->> Allow sshd_t ssh_port_t : tcp_socket { recv_msg send_msg ... };
->>
->> The only time I've seen it ignore networking policy was when I was
-> doing
->> it the old (pre-secmark) way but forgot to put selinux_compat_net=1 on
->> the kernel line.  His kernel version is 2.6.9 so this should predate
->> secmark and need no flag, correct?  There is no /selinux/compat_net
-> file
->> on the machine so I assume it should just work.
->>
->> This is a fairly old and well "customized" policy, if that matters.  
->>
->>
->> Any ideas?
-> 
-> Is the allow rule conditional (within an if statement) or unconditional?
-> 
-> Are you sure the policy file you are examining is the one that was
-> loaded into the kernel?
-> 
-The latest audit2allow in Fedora is automatically checking with the
-policy to see why the AVC was generated.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-So it would have said something like constraint violation.
+> ---
+> 
+>  fs/fuse/dir.c      |    2 +-
+>  fs/nfs/dir.c       |    2 +-
+>  fs/open.c          |    6 +++---
+>  include/linux/fs.h |    1 +
+>  4 files changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+> index 4787ae6..7c8c55b 100644
+> --- a/fs/fuse/dir.c
+> +++ b/fs/fuse/dir.c
+> @@ -1016,7 +1016,7 @@ static int fuse_permission(struct inode *inode, int mask)
+>  		   exist.  So if permissions are revoked this won't be
+>  		   noticed immediately, only after the attribute
+>  		   timeout has expired */
+> -	} else if (mask & MAY_ACCESS) {
+> +	} else if (mask & (MAY_ACCESS | MAY_CHDIR)) {
+>  		err = fuse_access(inode, mask);
+>  	} else if ((mask & MAY_EXEC) && S_ISREG(inode->i_mode)) {
+>  		if (!(inode->i_mode & S_IXUGO)) {
+> diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+> index be46f26..4c7d8fc 100644
+> --- a/fs/nfs/dir.c
+> +++ b/fs/nfs/dir.c
+> @@ -1927,7 +1927,7 @@ int nfs_permission(struct inode *inode, int mask)
+>  	if ((mask & (MAY_READ | MAY_WRITE | MAY_EXEC)) == 0)
+>  		goto out;
+>  	/* Is this sys_access() ? */
+> -	if (mask & MAY_ACCESS)
+> +	if (mask & (MAY_ACCESS | MAY_CHDIR))
+>  		goto force_lookup;
+>  
+>  	switch (inode->i_mode & S_IFMT) {
+> diff --git a/fs/open.c b/fs/open.c
+> index b93eac3..d01e116 100644
+> --- a/fs/open.c
+> +++ b/fs/open.c
+> @@ -534,7 +534,7 @@ SYSCALL_DEFINE1(chdir, const char __user *, filename)
+>  	if (error)
+>  		goto out;
+>  
+> -	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
+> +	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+>  	if (error)
+>  		goto dput_and_out;
+>  
+> @@ -563,7 +563,7 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
+>  	if (!S_ISDIR(inode->i_mode))
+>  		goto out_putf;
+>  
+> -	error = inode_permission(inode, MAY_EXEC | MAY_ACCESS);
+> +	error = inode_permission(inode, MAY_EXEC | MAY_CHDIR);
+>  	if (!error)
+>  		set_fs_pwd(current->fs, &file->f_path);
+>  out_putf:
+> @@ -581,7 +581,7 @@ SYSCALL_DEFINE1(chroot, const char __user *, filename)
+>  	if (error)
+>  		goto out;
+>  
+> -	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
+> +	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+>  	if (error)
+>  		goto dput_and_out;
+>  
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 14d8597..188d3e4 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -53,6 +53,7 @@ struct inodes_stat_t {
+>  #define MAY_APPEND 8
+>  #define MAY_ACCESS 16
+>  #define MAY_OPEN 32
+> +#define MAY_CHDIR 64
+>  
+>  /*
+>   * flags in file.f_mode.  Note that FMODE_READ and FMODE_WRITE must correspond
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
-You can also use audit2allow -w (audit2why) to ask the system why the
-AVC is happening.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkvW3WQACgkQrlYvE4MpobP3LQCgpBftuwZv95yvbtQdC//P1JkN
-9s8Ani0eSEl5qDW6LoyuBMqMFn04kmYY
-=kLeY
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
