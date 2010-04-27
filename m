@@ -1,130 +1,132 @@
-Subject: Re: [PATCH 1/3] SELinux: standardize return code handling in
- policydb.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
-References: <20100422173632.23830.10834.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain
-Date: Tue, 27 Apr 2010 11:12:15 -0400
-Message-Id: <1272381135.25840.95.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: special dontaudit for access checks
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Tue, 27 Apr 2010 15:57:42 -0400
+Message-ID: <20100427195741.3759.51155.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-04-22 at 13:36 -0400, Eric Paris wrote:
-> policydb.c has lots of different standards on how to handle return paths on
-> error.  For the most part transition to
-> 
-> 	rc=errno
-> 	if (failure)
-> 		goto out;
-> [...]
-> out:
-> 	cleanup()
-> 	return rc;
-> 
-> Instead of doing cleanup mid function, or having multiple returns or other
-> options.  This doesn't do that for every function, but most of the complex
-> functions which have cleanup routines on error.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
-> 
->  security/selinux/ss/policydb.c |  590 +++++++++++++++++++---------------------
->  1 files changed, 282 insertions(+), 308 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 4f584fb..c58f733 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-<snip>
-> @@ -961,37 +953,37 @@ static int perm_read(struct policydb *p, struct hashtab *h, void *fp)
->  	__le32 buf[2];
->  	u32 len;
->  
-> +	rc = -ENOMEM;
->  	perdatum = kzalloc(sizeof(*perdatum), GFP_KERNEL);
-> -	if (!perdatum) {
-> -		rc = -ENOMEM;
-> -		goto out;
-> -	}
-> +	if (!perdatum)
-> +		goto bad;
->  
->  	rc = next_entry(buf, fp, sizeof buf);
-> -	if (rc < 0)
-> +	if (rc)
->  		goto bad;
->  
->  	len = le32_to_cpu(buf[0]);
->  	perdatum->value = le32_to_cpu(buf[1]);
->  
-> +	rc = -ENOMEM;
->  	key = kmalloc(len + 1, GFP_KERNEL);
-> -	if (!key) {
-> -		rc = -ENOMEM;
-> +	if (!key)
->  		goto bad;
-> -	}
-> +
->  	rc = next_entry(key, fp, len);
-> -	if (rc < 0)
-> +	if (rc)
->  		goto bad;
->  	key[len] = '\0';
->  
->  	rc = hashtab_insert(h, key, perdatum);
->  	if (rc)
->  		goto bad;
-> -out:
-> -	return rc;
-> +
-> +	return 0;
->  bad:
-> -	perm_destroy(key, perdatum, NULL);
-> -	goto out;
-> +	if (perdatum)
-> +		perm_destroy(key, perdatum, NULL);
+Currently there are a number of applications (nautilus being the main one) which
+calls access() on files in order to determine how they should be displayed.  It
+is normal and expected that nautilus will want to see if files are executable
+or if they are really read/write-able.  access() should return the real
+permission.  SELinux policy checks are done in access() and can result in lots
+of AVC denials as policy denies RWX on files which DAC allows.  Currently
+SELinux must dontaudit actual attempts to read/write/execute a file in
+order to silence these messages (and not flood the logs.)  But dontaudit rules
+like that can hide real attacks.  This patch addes a new common file
+permission audit_access.  This permission is special in that it is meaningless
+and should never show up in an allow rule.  Instead the only place this
+permission has meaning is in a dontaudit rule like so:
 
-Perhaps it would be better to make all the _destroy() functions just
-handle the case where any of their arguments are NULL cleanly.
+dontaudit nautilus_t sbin_t:file audit_access
 
-> @@ -1795,14 +1777,17 @@ int policydb_read(struct policydb *p, void *fp)
->  	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
->  	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
->  
-> +	rc = -EINVAL;
->  	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
->  	    ebitmap_read(&p->policycaps, fp) != 0)
->  		goto bad;
->  
-> +	rc = -EINVAL;
->  	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
->  	    ebitmap_read(&p->permissive_map, fp) != 0)
->  		goto bad;
+With such a rule if nautilus just checks access() we will still get denied and
+thus userspace will still get the correct answer but we will not log the denial.
+If nautilus attempted to actually perform one of the forbidden actions
+(rather than just querying access(2) about it) we would still log a denial.
+This type of dontaudit rule should be used sparingly, as it could be a
+method for an attacker to probe the system permissions without detection.
 
-You didn't introduce this bug, but ebitmap_read may fail for reasons
-other than invalid input (e.g. ENOMEM is possible).
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-> @@ -2202,10 +2174,12 @@ int policydb_read(struct policydb *p, void *fp)
->  	for (i = 0; i < p->p_types.nprim; i++) {
->  		ebitmap_init(&p->type_attr_map[i]);
->  		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
-> +			rc = -EINVAL;
->  			if (ebitmap_read(&p->type_attr_map[i], fp))
->  				goto bad;
->  		}
->  		/* add the type itself as the degenerate case */
-> +		rc = -EINVAL;
->  		if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
->  				goto bad;
+ include/linux/lsm_audit.h           |    1 +
+ security/selinux/avc.c              |   17 ++++++++++++++---
+ security/selinux/hooks.c            |   18 +++++++++++++-----
+ security/selinux/include/classmap.h |    2 +-
+ 4 files changed, 29 insertions(+), 9 deletions(-)
 
-Likwise here (for both ebitmap_read and ebitmap_set_bit).
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index f78f83d..ce62294 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
+@@ -87,6 +87,7 @@ struct common_audit_data {
+ 			u32 ssid;
+ 			u32 tsid;
+ 			u16 tclass;
++			bool from_access;	/* was this from access(2) ? */
+ 			u32 requested;
+ 			u32 audited;
+ 			u32 denied;
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 989fef8..48b5fa4 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -489,9 +489,20 @@ void avc_audit(u32 ssid, u32 tsid,
+ 	struct common_audit_data stack_data;
+ 	u32 denied, audited;
+ 	denied = requested & ~avd->allowed;
+-	if (denied)
+-		audited = denied & avd->auditdeny;
+-	else if (result)
++	if (denied) {
++		/*
++		 * If this check came from the access(2) syscall and there was
++		 * an explicit rule in policy like:
++		 *	dontaudit source dest : file { audit_access }
++		 * Then don't audit this sucker.
++		 */
++		if (a &&
++		    a->selinux_audit_data.from_access &&
++		    !(avd->auditdeny & FILE__AUDIT_ACCESS))
++			audited = 0;
++		else
++			audited = denied & avd->auditdeny;
++	} else if (result)
+ 		audited = denied = requested;
+ 	else
+ 		audited = requested & avd->auditallow;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 47c86f4..972ba00 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2698,16 +2698,24 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *na
+ static int selinux_inode_permission(struct inode *inode, int mask)
+ {
+ 	const struct cred *cred = current_cred();
++	struct common_audit_data ad;
++	u32 perms;
++	bool from_access;
+ 
++	from_access = mask & MAY_ACCESS;
+ 	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
+ 
+-	if (!mask) {
+-		/* No permission to check.  Existence test. */
++	/* No permission to check.  Existence test. */
++	if (!mask)
+ 		return 0;
+-	}
+ 
+-	return inode_has_perm(cred, inode,
+-			      file_mask_to_av(inode->i_mode, mask), NULL);
++	COMMON_AUDIT_DATA_INIT(&ad, FS);
++	ad.u.fs.inode = inode;
++	ad.selinux_audit_data.from_access = from_access;
++
++	perms = file_mask_to_av(inode->i_mode, mask);
++
++	return inode_has_perm(cred, inode, perms, &ad);
+ }
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 8b32e95..d64603e 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -2,7 +2,7 @@
+     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
+ 
+ #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+-    "rename", "execute", "swapon", "quotaon", "mounton"
++    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access"
+ 
+ #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
 
 
 --
