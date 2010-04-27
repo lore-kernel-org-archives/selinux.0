@@ -1,87 +1,115 @@
-Subject: Re: [PATCH 2/3] security: make LSMs explicitly mask off permissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org, jmorris@namei.org,
-        casey@schaufler-ca.com, viro@zeniv.linux.org.uk
-In-Reply-To: <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
-References: <20100409221614.2681.64052.stgit@paris.rdu.redhat.com>
-	 <20100409221621.2681.15115.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain
-Date: Tue, 27 Apr 2010 08:47:14 -0400
-Message-Id: <1272372434.25840.3.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4BD6DD64.7080205@redhat.com>
+Date: Tue, 27 Apr 2010 08:49:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: denial even with appropriate allow rules
+References: <5E2837B0EB8E1E47850371AE558090B603A93BCE@AZ25EXM03.gddsi.com> <1272287226.13393.11.camel@moss-pluto.epoch.ncsc.mil> <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
+In-Reply-To: <5E2837B0EB8E1E47850371AE558090B603AFA08B@AZ25EXM03.gddsi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-04-09 at 18:16 -0400, Eric Paris wrote:
-> SELinux needs to pass the MAY_ACCESS flag so it can handle auditting
-> correctly.  Presently the masking of MAY_* flags is done in the VFS.  In
-> order to allow LSMs to decide what flags they care about and what flags
-> they don't just pass them all and the each LSM mask off what they don't
-> need.  This patch should contain no functional changes to either the VFS or
-> any LSM.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+On 04/26/2010 01:55 PM, Thomson, David-P63356 wrote:
+> It was not a conditional allow rule and I personally retrieved the
+> policy file and examined it.
+> 
+> 
+> Turned out it was a constraint that had been put in before either of us
+> had touched the policy: 
+> 
+> constrain tcp_socket { send_msg recv_msg }
+> (
+> 	t2 != ssh_port_t
+>         ...
+> );
+> 
+> 
+> In the future I'll remember to check the constraints before I ping you
+> guys.  Having a compile time error would have been nice (like for
+> neverallows) or if at runtime there was some history of if the "0" in
+> the AV permission mask was due to no allow rule being added, or due to a
+> constraint clearing the bit.  That could then have been reflected in the
+> audit message.  The first option sounds easier.  
+> 
+> In the end, this can just be chalked up to "user error" for not checking
+> for the policy canceling itself out, but something to help in debugging
+> would be nice if it weren't too much of a hassle.  We are working with
+> such old policy that maybe you have addressed this already in the newer
+> SELinux stuff you churn out.  
+> 
+> Thanks again!
+> 
+> 
+> 
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> Sent: Monday, April 26, 2010 6:07 AM
+> To: Thomson, David-P63356
+> Cc: SELinux@tycho.nsa.gov
+> Subject: Re: denial even with appropriate allow rules
+> 
+> On Fri, 2010-04-23 at 14:49 -0700, Thomson, David-P63356 wrote:
+>> I'm helping a co-worker with a policy problem.  In permissive he gets
+> a
+>> couple denials:
+>>
+>> type=AVC msg=audit(1272049866.598:32539): avc:  denied  { send_msg }
+> for
+>> saddr=192.168.99.128 src=32786 daddr=192.168.99.1 dest=22 netif=eth0
+>> scontext=system_u:system_r:sshd_t
+> tcontext=system_u:object_r:ssh_port_t
+>> tclass=tcp_socket
+>>
+>> type=AVC msg=audit(1272049866.598:32540): avc:  denied  { recv_msg }
+> for
+>> saddr=192.168.99.1 src=22 daddr=192.168.99.128 dest=32786 netif=eth0
+>> scontext=system_u:system_r:sshd_t
+> tcontext=system_u:object_r:ssh_port_t
+>> tclass=tcp_socket
+>>
+>> I've checked his source policy and even checked the policy.18 file on
+>> his target machine, they both show:
+>>
+>> Allow sshd_t ssh_port_t : tcp_socket { recv_msg send_msg ... };
+>>
+>> The only time I've seen it ignore networking policy was when I was
+> doing
+>> it the old (pre-secmark) way but forgot to put selinux_compat_net=1 on
+>> the kernel line.  His kernel version is 2.6.9 so this should predate
+>> secmark and need no flag, correct?  There is no /selinux/compat_net
+> file
+>> on the machine so I assume it should just work.
+>>
+>> This is a fairly old and well "customized" policy, if that matters.  
+>>
+>>
+>> Any ideas?
+> 
+> Is the allow rule conditional (within an if statement) or unconditional?
+> 
+> Are you sure the policy file you are examining is the one that was
+> loaded into the kernel?
+> 
+The latest audit2allow in Fedora is automatically checking with the
+policy to see why the AVC was generated.
 
-> ---
-> 
->  fs/namei.c                 |    3 +--
->  security/selinux/hooks.c   |    2 ++
->  security/smack/smack_lsm.c |    2 ++
->  3 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index f068192..3b0f583 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -282,8 +282,7 @@ int inode_permission(struct inode *inode, int mask)
->  	if (retval)
->  		return retval;
->  
-> -	return security_inode_permission(inode,
-> -			mask & (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND));
-> +	return security_inode_permission(inode, mask);
->  }
->  
->  /**
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 740a71f..344ba62 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2700,6 +2700,8 @@ static int selinux_inode_permission(struct inode *inode, int mask)
->  {
->  	const struct cred *cred = current_cred();
->  
-> +	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
-> +
->  	if (!mask) {
->  		/* No permission to check.  Existence test. */
->  		return 0;
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index f1b6846..df467f4 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -599,6 +599,8 @@ static int smack_inode_rename(struct inode *old_inode,
->  static int smack_inode_permission(struct inode *inode, int mask)
->  {
->  	struct smk_audit_info ad;
-> +
-> +	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
->  	/*
->  	 * No permission to check. Existence test. Yup, it's there.
->  	 */
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+So it would have said something like constraint violation.
 
+You can also use audit2allow -w (audit2why) to ask the system why the
+AVC is happening.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkvW3WQACgkQrlYvE4MpobP3LQCgpBftuwZv95yvbtQdC//P1JkN
+9s8Ani0eSEl5qDW6LoyuBMqMFn04kmYY
+=kLeY
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
