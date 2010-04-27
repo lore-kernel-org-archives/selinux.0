@@ -1,5 +1,5 @@
-Message-ID: <4BD6F91C.5010405@redhat.com>
-Date: Tue, 27 Apr 2010 10:47:56 -0400
+Message-ID: <4BD6FAD7.8000403@redhat.com>
+Date: Tue, 27 Apr 2010 10:55:19 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -128,23 +128,19 @@ On 04/27/2010 09:47 AM, Stephen Smalley wrote:
 >>  
 > 
 > 
-Yes.  Although I can probably start to remove some dontaudit stuff also.
+Now if we had a policy lanquage that said staff_nautilus_t == (staff_t +
+audit_access)
 
-
-Like every app that uses kernberos has a dontaudit rule
-
-sesearch --dontaudit -t krb5_conf_t -p write -c file | wc
-    266    1874   14081
-
-
-Might be able to remove the pam code that checks write on /etc/shadow also.
+Meaning all interface/transitions and rules apply to both domains and
+self rules allow interaction between the two, we could allow this access
+to only nautilus.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.14 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkvW+RwACgkQrlYvE4MpobNPfACgpUdEf1Wt/FzxmDmqetqv7Csl
-4zYAoJeRlIj2Cml4duUFA9hwQy9HAp3g
-=BhbJ
+iEYEARECAAYFAkvW+tcACgkQrlYvE4MpobN/nQCgigZZv8oW6HGzqT4YPxGK5tWj
+OaMAn1yG+hhS4qUDBbo3YeNgNG0YUpfB
+=dl0O
 -----END PGP SIGNATURE-----
 
 --
