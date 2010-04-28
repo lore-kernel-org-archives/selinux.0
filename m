@@ -1,87 +1,102 @@
-Message-ID: <4BD8816A.6050704@redhat.com>
-Date: Wed, 28 Apr 2010 14:41:46 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3SIg6gS029312
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 14:42:06 -0400
+Received: from mail-gw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3SIfUgg027624
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 18:41:30 GMT
+Received: by gwb17 with SMTP id 17so664544gwb.12
+        for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 11:42:05 -0700 (PDT)
 MIME-Version: 1.0
-To: Karl MacMillan <karlwmacmillan@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
- 	suid
-References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com>	 <4BD18CAE.4050201@redhat.com>	 <20100426061848.GS21894@myhost.felk.cvut.cz>	 <4BD58C7B.1000507@redhat.com>	 <20100426143933.GU21894@myhost.felk.cvut.cz>	 <4BD5AF15.8000301@redhat.com>	 <u2v10143821004280732jbeab15b9n4aba3dc70e34aaa4@mail.gmail.com>	 <4BD856B5.9000405@redhat.com>	 <h2m10143821004281057t2f22085cvc7ea1a9937a4531@mail.gmail.com>	 <1272478063.6013.216.camel@moss-pluto.epoch.ncsc.mil> <g2p10143821004281131t20db89cbt1d63f08121b86169@mail.gmail.com>
-In-Reply-To: <g2p10143821004281131t20db89cbt1d63f08121b86169@mail.gmail.com>
+In-Reply-To: <4BD87A97.9010309@tresys.com>
+References: <4BCC69C0.5040502@redhat.com>
+	 <u2q10143821004211853jea20406bz355fc111cd449c47@mail.gmail.com>
+	 <4BD0513C.40403@redhat.com>
+	 <q2s10143821004220729z2e39b1fdqe16997df0cee0574@mail.gmail.com>
+	 <w2q10143821004221216j96faf709w8b702c67835197d6@mail.gmail.com>
+	 <4BD1B843.1030805@redhat.com>
+	 <n2g10143821004280725qcf3ebaf8n44eb53504aa32feb@mail.gmail.com>
+	 <4BD85592.10201@redhat.com>
+	 <g2r10143821004281053vdc0263bfh605a3e3cc19f7571@mail.gmail.com>
+	 <4BD87A97.9010309@tresys.com>
+Date: Wed, 28 Apr 2010 14:42:04 -0400
+Message-ID: <x2r10143821004281142t4138ff53k54a1084d6dcf49af@mail.gmail.com>
+Subject: Re: refpolicy is missing on lots of hits with audit2allow -R.
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 04/28/2010 02:31 PM, Karl MacMillan wrote:
-> On Wed, Apr 28, 2010 at 2:07 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On Wed, 2010-04-28 at 13:57 -0400, Karl MacMillan wrote:
->>> On Wed, Apr 28, 2010 at 11:39 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
->>>>>> This is not default allow.  It is DAC + MAC as opposed to the way most
->>>>>> people run, which is just DAC. I am trying to make setattr check better.
->>>>>>
->>>>>> DAC + sudo versus DAC + MAC + SUDO.
->>>>>
->>>>> I thought that the intent of the current MAC / DAC interaction was
->>>>> that capabilities are used to decompose root and MAC can restrict
->>>>> capabilities on processes to add extra DAC protections. Now, I'll
->>>>> admit a good deal of ignorance here, but is there a reason that we
->>>>> can't just write policy using that mechanism to accomplish what you
->>>>> are after? If we prevented confined admin domains with root from
->>>>> having the needed capability to setuid files isn't that enough? Or if
->>>>> the right capability doesn't exist, can't you add a new capability?
->>>>>
->>>>> Karl
->>>> Write now the ability to setattr on a file gives you the ability to
->>>> chmod 4755 EXE on types you control.
->>>>
->>>> But we want to allow chmod 755 EXE but prevent chmod 4755.  Eric is
->>>> adding a Access check for this.
+On Wed, Apr 28, 2010 at 2:12 PM, Joshua Brindle <jbrindle@tresys.com> wrote:
+> Karl MacMillan wrote:
+>>
+>> On Wed, Apr 28, 2010 at 11:34 AM, Daniel J Walsh<dwalsh@redhat.com>
+>>  wrote:
+>
+> <snip>>
 >>>
->>> I understand that, but I (and I think others) are concerned about
->>> directly adding permissions for what is essentially DAC policy. I was
->>> wondering why the current strategy of mitigating DAC with SELinux
->>> through capabilities is not workable in this case. That has the
->>> additional benefit of allowing non-SELinux systems to benefit as well
->>> if new capabilities are needed.
+>>> I would argue that
+>>>
+>>> allow X etc_t:file read;
+>>> allow X configfile:file read;
+>>>
+>>> Should be weighted equivalently if etc_t is a configfile or only
+>>> slightly heavier, and just because etc_runtime_t or some other random
+>>> types are configfile does not mean we need to add weight.
+>>>
 >>
->> Setting the suid bit on a file is not a privileged operation on
->> Unix/Linux, so there is no capability check on it and you can't add a
->> capability check to it without breaking Unix/Linux compatibility.  Any
->> user is free to create his own "entrypoints" to his own uid/gid in this
->> manner at present.  Dan wants to be able to prevent that, particularly
->> since he is trying to give a non-root user the ability to run confined
->> root shells.
->>
-> 
-> Ok - thanks for the explanation. You make it sound almost as if DAC is
-> discretionary.
-> 
-> Next stupid question then - is disallowing setattr for these shells
-> either not sufficient to achieve the desired security or not workable
-> in practice? I know the goal is to allow chmod but just not allow
-> creation of root owned setuid files, but is allowing chmod really
-> necessary for these limited use shells? Again, I'm just trying to
-> avoid the slippery slope of adding fine-grained control over DAC to
-> SELinux.
-> 
-> Karl
+>
+> I'm going to weigh in here even though policy isn't normally my thing.
+>
+> I am very against reducing distance based on attribute match over individual
+> unrelated types. allow X configfile:file read should be the exact same
+> distance as having an allow rule for every type in configfile in the
+> interface, otherwise you have inconsistent behavior and are rewarding
+> interfaces that are overly broad.
+>
+> The reason for using sepolgen is to find the best match, not the most broad,
+> if we wanted that we could make sepolgen 1000% less complicated and just
+> return allow domain filetype:file *;
+>
+> I suppose there is a fundamental difference in the use of the tool, the
+> people I know that use it use it to find the best match, the way you want to
+> use it is to fix the denial any way possible. These 2 usages conflict and we
+> can't have people thinking they are making secure policy when in fact they
+> aren't.
+>
 
-My use case was of the web administrator creating cgi scripts.  Being
-able to copy files into a directory and then chown and chmod would be
-the use case.
+While I'm concerned about providing secure options as well, to
+characterize Dan's current position as fixing the denial in any way
+possible is not fair either. Here are the current matches in order:
 
+# Interface options:
+#   automount_exec_config(openvpn_t) # [51]
+#   files_exec_etc_files(openvpn_t) # [51]
+#   files_delete_etc_files(openvpn_t) # [118]
+#   files_relabel_etc_files(openvpn_t) # [136]
+#   files_rw_etc_files(openvpn_t) # [161]
+#   files_read_etc_files(openvpn_t) # [171]
+#   files_manage_etc_files(openvpn_t) # [179]
+#   auth_use_nsswitch(openvpn_t) # [1362]
+#   seutil_semanage_policy(openvpn_t) # [3532]
+#   auth_login_pgm_domain(openvpn_t) # [3736]
+#   portage_compile_domain(openvpn_t) # [3902]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+Something is clearly wrong - largely because I'm not distinguishing
+between exec, delete, relabel, and read/write.
 
-iEYEARECAAYFAkvYgWoACgkQrlYvE4MpobOzTACfWUOhYXlms/NIaeLQJfEpkQIq
-m6cAoJNCJCb55Xkt/nW85A5CeXdhKB5R
-=j1PM
------END PGP SIGNATURE-----
+Karl
+
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
