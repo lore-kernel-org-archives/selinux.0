@@ -1,19 +1,19 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3SFYlke018043
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 11:34:47 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3SFddY6018402
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 11:39:40 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3SFZlMk024188
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 15:35:48 GMT
-Message-ID: <4BD85592.40003@redhat.com>
-Date: Wed, 28 Apr 2010 11:34:42 -0400
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o3SFd6OU013370
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 15:39:06 GMT
+Message-ID: <4BD856B5.9000405@redhat.com>
+Date: Wed, 28 Apr 2010 11:39:33 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-CC: SELinux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: refpolicy is missing on lots of hits with audit2allow -R.
-References: <4BCC69C0.5040502@redhat.com>	 <t2s10143821004190853r1a114b33q7c9416e43b8b5433@mail.gmail.com>	 <l2s10143821004200737t683832efu28214c95b3e156c@mail.gmail.com>	 <4BCF05D3.5090700@redhat.com>	 <u2q10143821004211853jea20406bz355fc111cd449c47@mail.gmail.com>	 <4BD0513C.40403@redhat.com>	 <q2s10143821004220729z2e39b1fdqe16997df0cee0574@mail.gmail.com>	 <w2q10143821004221216j96faf709w8b702c67835197d6@mail.gmail.com>	 <4BD1B843.1030805@redhat.com> <n2g10143821004280725qcf3ebaf8n44eb53504aa32feb@mail.gmail.com>
-In-Reply-To: <n2g10143821004280725qcf3ebaf8n44eb53504aa32feb@mail.gmail.com>
+To: Karl MacMillan <karlwmacmillan@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
+ 	suid
+References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com>	 <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil>	 <4BD18CAE.4050201@redhat.com>	 <20100426061848.GS21894@myhost.felk.cvut.cz>	 <4BD58C7B.1000507@redhat.com>	 <20100426143933.GU21894@myhost.felk.cvut.cz>	 <4BD5AF15.8000301@redhat.com> <u2v10143821004280732jbeab15b9n4aba3dc70e34aaa4@mail.gmail.com>
+In-Reply-To: <u2v10143821004280732jbeab15b9n4aba3dc70e34aaa4@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -21,38 +21,86 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 04/28/2010 10:25 AM, Karl MacMillan wrote:
+On 04/28/2010 10:32 AM, Karl MacMillan wrote:
+> On Mon, Apr 26, 2010 at 11:19 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> On 04/26/2010 10:39 AM, Michal Svoboda wrote:
+>>> Daniel J Walsh wrote:
+>>>> First my example was sort of a gross oversimplification.  It would not
+>>>> only effect unconfined_t but any other domain that could use the
+>>>> setuid bit to gain additional privs.
+>>>
+>>> If a domain can use uid=0 to get additional privileges then the MAC
+>>> policy has holes... like cheese and relies on DAC to plumb them. That
+>>> significantly reduces the utility of the MAC.
+>>>
+>> You have to look at this domain by domain, and the goal of users with
+>> MAC is to "target" certain domains.  If we went full lock down on every
+>> domain then we would not have > 70% of the fedora community running with
+>> SELinux enabeled in enforcing mode.
+>>
+>>>> unconfined_t to a user means, give him all the power of a normal user
+>>>> with SELinux disabled.  You are still protected by DAC.  I would argue
+>>>> that you want to make sure there are limited setuid apps around when
+>>>> running with unconfined_t.  But if you give him unconfined_t and
+>>>> "chcon 4755"  as a confined user running as root, then you make it
+>>>> easy for him to become unconfined_t running as UID=0.
+>>>
+>>> The problem with this reasoning is thus:
+>>>
+>>> 1) you give the user unconfined_t, well, okay, sad but perhaps necessary
+>>> 2) you give the user root
+>>> 3) you wonder that the user has root & unconfined
+>>>
+>>> I know that the root in (2) is 'bundled in' a MAC restricted domain but
+>>> since root is a DAC concept it propagates ('leaks') back to the DAC
+>>> world.
+>>>
+>>> You now want the MAC to stop the leak, but IMO that is a futile attempt.
+>>> It would take some serious analysis to find out how many ways 'root' can
+>>> leak out. I bet suid is not the only one. How about screwing up the web
+>>> server so that it runs as root and listens for your commands.
+>>>
+>> We are building higher fences around the prison.  I am not going for the
+>> perfect, since this is the enemy of the good.  We have lots of domains
+>> that require DAC privs.  It is the combination of DAC and MAC that make
+>> SELinux powerful.  Are goal is not to remove DAC checks in any way.
+>>>> If we want people to experiment with confined admins, allow unconfined_t
+>>>> - -> sudo_exec_t -> confined_admin_t is a good thing.
+>>>
+>>> People can experiment with confined admins as they like, but they should
+>>> note that as long as they have an unconfined element in the game the
+>>> system simply won't be secure. Default allow has never worked.
+>>>
+>> This is not default allow.  It is DAC + MAC as opposed to the way most
+>> people run, which is just DAC. I am trying to make setattr check better.
+>>
+>> DAC + sudo versus DAC + MAC + SUDO.
+> 
+> I thought that the intent of the current MAC / DAC interaction was
+> that capabilities are used to decompose root and MAC can restrict
+> capabilities on processes to add extra DAC protections. Now, I'll
+> admit a good deal of ignorance here, but is there a reason that we
+> can't just write policy using that mechanism to accomplish what you
+> are after? If we prevented confined admin domains with root from
+> having the needed capability to setuid files isn't that enough? Or if
+> the right capability doesn't exist, can't you add a new capability?
+> 
+> Karl
+Write now the ability to setattr on a file gives you the ability to
+chmod 4755 EXE on types you control.
 
-
-I understand, although I don't agree with penalizying because you match
-on an attribute,   Currently if I wrote this interface the way I want,
-with just the attribute your algorithm would not find it at all.
-
-files_read_etc_files to me means match all config files in the /etc
-directory, just because some random application decides to change the
-context of /etc/hostname to etc_runtime_t or net_conf_t, we should not
-need to change all domains that are supposed to read generic files in
-/etc.  Especially when I don't even need to read them.
-
-
-I would argue that
-
-allow X etc_t:file read;
-allow X configfile:file read;
-
-Should be weighted equivalently if etc_t is a configfile or only
-slightly heavier, and just because etc_runtime_t or some other random
-types are configfile does not mean we need to add weight.
-
-But when the attribute adds more weight then "write" does, I think the
-algorithm is broken.
+But we want to allow chmod 755 EXE but prevent chmod 4755.  Eric is
+adding a Access check for this.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.14 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkvYVY4ACgkQrlYvE4MpobOKSgCgguxc5xhYFpW1GGSnN4N+6v/Z
-qUsAoOjz7qSp8kiDHBUN2SYoKWsZfTNK
-=Ubgb
+iEYEARECAAYFAkvYVrUACgkQrlYvE4MpobPCUwCfVKETZQvQKRSvmDpUyBGxFovk
+bIEAnjDYGP2oyTxMG8P5xPYOT/WyW31p
+=PSKp
 -----END PGP SIGNATURE-----
 
 --
