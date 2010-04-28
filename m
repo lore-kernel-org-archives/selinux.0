@@ -1,58 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o3SJ2UUi030772
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 15:02:30 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o3SJ3VdF009399
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 19:03:32 GMT
-Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o3SJ2SIi014322
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 15:02:29 -0400
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o3SJ2SuL009224
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2010 15:02:28 -0400
-Message-ID: <4BD88643.5040809@redhat.com>
-Date: Wed, 28 Apr 2010 15:02:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELINUX: new permission controlling the ability to set
- suid
-References: <20100422204612.25506.16029.stgit@paris.rdu.redhat.com> <1271972155.16202.55.camel@moss-pluto.epoch.ncsc.mil> <4BD18CAE.4050201@redhat.com> <20100426061848.GS21894@myhost.felk.cvut.cz> <4BD58C7B.1000507@redhat.com> <20100426143933.GU21894@myhost.felk.cvut.cz> <4BD5AF15.8000301@redhat.com> <20100428161813.GC1622@myhost.felk.cvut.cz> <4BD8713A.3060702@redhat.com> <20100428185403.GD1622@myhost.felk.cvut.cz>
-In-Reply-To: <20100428185403.GD1622@myhost.felk.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: System console hangs on boot in enforced unless some
+ permissions added (with 2.6.32-3).
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@udmvt.ru
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20100428160413.GN25652@ruber.office.udmvt.ru>
+References: <20100228223834.GE3990@myhost.felk.cvut.cz>
+	 <1267452601.601.3.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100301165602.GH3990@myhost.felk.cvut.cz>
+	 <1267463356.601.26.camel@moss-pluto.epoch.ncsc.mil>
+	 <20100428160413.GN25652@ruber.office.udmvt.ru>
+Content-Type: text/plain
+Date: Wed, 28 Apr 2010 15:32:37 -0400
+Message-Id: <1272483157.6013.300.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 2010-04-28 at 20:04 +0400, selinux@udmvt.ru wrote:
+> Is it only me unable to run Debian's 2.6.32-3 kernel with SELinux in enforced mode,
+> or is anyone else's system blocked by the devtmpfs compiled into the kernel? :)
+> 
+> Look, I have these strange messages in permissive mode:
+> 	type=AVC msg=audit(1272355319.117:102): avc:  denied  { search } for  pid=1668 comm="getty" name="/" dev=devtmpfs ino=4 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
+> 	type=AVC msg=audit(1272355319.117:102): avc:  denied  { write } for  pid=1668 comm="getty" name="/" dev=devtmpfs ino=4 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
+> 	type=AVC msg=audit(1272355319.117:102): avc:  denied  { add_name } for  pid=1668 comm="getty" name="vcs2" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir
+> 	type=AVC msg=audit(1272355319.117:102): avc:  denied  { create } for  pid=1668 comm="getty" name="vcs2" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=chr_file
 
-On 04/28/2010 02:54 PM, Michal Svoboda wrote:
-> Daniel J Walsh wrote:
->> Admin installs a third party app that requires setuid/setgid or some
->> other priv, now he needs to write policy to transition his staff_t to
->> thirdparty_t.  In my scenario, unconfined_t will be able to run the
->> third party app, and will be able to becom confinedadmin_t for some sudo
->> jobs.
-> 
-> The admin will have a choice to either write that policy or keep the
-> users unconfined while sacrificing some security (that setuid example
-> AND a lot of others) or to give users two roles for this n that.
-> 
-> Isn't this feasible?
-> 
-> 
-> Michal Svoboda
-> 
-Feasable yes and for those uses we have staff_t.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+Two problems:
+- getty shouldn't be in kernel_t.  This means that you never
+transitioned out of kernel_t to init_t upon executing /sbin/init.
+Is /sbin/init labeled correctly?
 
-iEYEARECAAYFAkvYhkMACgkQrlYvE4MpobOSJACgtibXHeEjgLkYwn7CdAxVcZbb
-Sb4AoJkMtbz7/q4PTjZlBGG1MeIwhJIs
-=uaA/
------END PGP SIGNATURE-----
+- Your devtmpfs instance apparently wasn't labeled.  In Fedora, there is
+a restorecon -R /dev that happens from rc.sysinit to fix up labels once
+policy has loaded.
+
+You might have fewer errors too if you use device_t rather than tmpfs_t
+as the default in your fs_use_trans statement.
+
+> So, after all, now with my "fix" just everyone with mount privilege can do
+>  # mount -t devtmpfs blablabla-no-device-is-needed /mountpoint
+> to get directory full of device nodes with NO proper labelling?
+
+Once it has been initially mounted and labeled, all subsequent mounts
+should get the same instance - they don't create a new one each time.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
