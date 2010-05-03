@@ -1,72 +1,49 @@
-Subject: Re: /etc/initscript breaks SELinux
+Subject: Re: Semanage for domain transitions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
-In-Reply-To: <4BDF0059.7050907@gmail.com>
-References: <p2vdd18b0c31005022154obbc1db15s4e01c5821bf7baa2@mail.gmail.com>
-	 <1272904285.20339.82.camel@moss-pluto.epoch.ncsc.mil>
-	 <4BDF0059.7050907@gmail.com>
+To: martins.listz@gmail.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1272905395.2206.7.camel@localhost>
+References: <1272905395.2206.7.camel@localhost>
 Content-Type: text/plain
-Date: Mon, 03 May 2010 13:02:44 -0400
-Message-Id: <1272906164.20339.107.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 03 May 2010 13:23:09 -0400
+Message-Id: <1272907389.20339.128.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-05-03 at 09:56 -0700, Justin P. Mattock wrote:
-> On 05/03/2010 09:31 AM, Stephen Smalley wrote:
-> > On Sun, 2010-05-02 at 21:54 -0700, Justin Mattock wrote:
-> >> I've been racking my brain for the last few days on
-> >> this one, and seem(for the life of me), have no solution.
-> >>
-> >> at first thought this was opensuse specific, but it's not
-> >> i.g. my cblfs systems hit this as well(if not all systems at that).
-> >>
-> >> when adding /etc/initscript somehow SELinux can't figure how to
-> >> transistion with the whole SHELL -c thing.
-> >>
-> >> under init.c #800(sysvinit-2.85)
-> >> the code is this:
-> >>
-> >>   /* See if there is an "initscript" (except in single user mode). */
-> >>    if (access(INITSCRIPT, R_OK) == 0&&  runlevel != 'S') {
-> >> 	/* Build command line using "initscript" */
-> >> 	args[1] = SHELL;
-> >> 	args[2] = INITSCRIPT;
-> >> 	args[3] = ch->id;
-> >> 	args[4] = ch->rlevel;
-> >> 	args[5] = "unknown";
-> >> 	for(f = 0; actions[f].name; f++) {
-> >> 		if (ch->action == actions[f].act) {
-> >> 			args[5] = actions[f].name;
-> >> 			break;
-> >> 		}
-> >> 	}
-> >>
-> >>
-> >> any ideas why SELinux gets confused with this, and
-> >> doesn't want to transistion?
-> >
-> > In the above code, you are exec'ing the shell and just passing the
-> > script as an argument, not exec'ing the script.  So you need a domain
-> > transition on the shell rather than the script, or you need to perform a
-> > setexecon() in the code.
-> >
+On Mon, 2010-05-03 at 13:49 -0300, Martin Spinassi wrote:
+> Hi list!
 > 
-> Thanks for the info on this..
 > 
-> I'll have a look at seeing how todo this
-> (I enjoy the challenge).
+> I'm trying to figure out how to make domain transition using semanage or
+> any userland command.
 > 
-> As an example on setexecon() I was looking
-> at the sulogin.c patch for SELinux, but still
-> need to figure out how to actually do this.
+> My problem is that I've just compiled a new version of memcached, and
+> configured it to use the sock file /tmp/memcached.sock, but httpd can't
+> write to it. The scontext is httpd_t, and the dcontext is tmp_t.
+> 
+> Probably later I'll make a context for memcached, but by now, I've just
+> find out that I don't really know how to make a domiain transition
+> without having to install selinux source policy, and that's something
+> that I'm really trying to avoid.
+> 
+> Any link/doc/tip is really appreciated.
 
-Well, you can do it without using setexeccon() just by configuring
-policy to domain transition from init_t to initrc_t on shell_exec_t.
-That's what happens if you enable init_upstart=on.  So I think it is
-mostly just a matter of making that the default and dropping the legacy
-transition to sysadm_t for single-user mode.
+You can create a local policy module without needing to install the
+sources for the base policy.
+
+In simplest form, this might look like:
+
+$ cat mymemcached.te
+policy_module(mymemcached, 1.0)
+require {
+	type httpd_t, tmp_t, httpd_tmp_t;
+}
+type_transition httpd_t tmp_t:sock_file httpd_tmp_t;
+allow httpd_t httpd_tmp_t:sock_file { create open read write unlink };
+
+$ make -f /usr/share/selinux/devel/Makefile mymemcached.pp
+$ sudo semodule -i mymemcached.pp
 
 -- 
 Stephen Smalley
