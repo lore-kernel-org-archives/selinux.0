@@ -1,65 +1,77 @@
-Message-ID: <4BDF0059.7050907@gmail.com>
-Date: Mon, 03 May 2010 09:56:57 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
 Subject: Re: /etc/initscript breaks SELinux
-References: <p2vdd18b0c31005022154obbc1db15s4e01c5821bf7baa2@mail.gmail.com> <1272904285.20339.82.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1272904285.20339.82.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss1.tresys.com>
+In-Reply-To: <4BDF0059.7050907@gmail.com>
+References: <p2vdd18b0c31005022154obbc1db15s4e01c5821bf7baa2@mail.gmail.com>
+	 <1272904285.20339.82.camel@moss-pluto.epoch.ncsc.mil>
+	 <4BDF0059.7050907@gmail.com>
+Content-Type: text/plain
+Date: Mon, 03 May 2010 13:02:44 -0400
+Message-Id: <1272906164.20339.107.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/03/2010 09:31 AM, Stephen Smalley wrote:
-> On Sun, 2010-05-02 at 21:54 -0700, Justin Mattock wrote:
->> I've been racking my brain for the last few days on
->> this one, and seem(for the life of me), have no solution.
->>
->> at first thought this was opensuse specific, but it's not
->> i.g. my cblfs systems hit this as well(if not all systems at that).
->>
->> when adding /etc/initscript somehow SELinux can't figure how to
->> transistion with the whole SHELL -c thing.
->>
->> under init.c #800(sysvinit-2.85)
->> the code is this:
->>
->>   /* See if there is an "initscript" (except in single user mode). */
->>    if (access(INITSCRIPT, R_OK) == 0&&  runlevel != 'S') {
->> 	/* Build command line using "initscript" */
->> 	args[1] = SHELL;
->> 	args[2] = INITSCRIPT;
->> 	args[3] = ch->id;
->> 	args[4] = ch->rlevel;
->> 	args[5] = "unknown";
->> 	for(f = 0; actions[f].name; f++) {
->> 		if (ch->action == actions[f].act) {
->> 			args[5] = actions[f].name;
->> 			break;
->> 		}
->> 	}
->>
->>
->> any ideas why SELinux gets confused with this, and
->> doesn't want to transistion?
->
-> In the above code, you are exec'ing the shell and just passing the
-> script as an argument, not exec'ing the script.  So you need a domain
-> transition on the shell rather than the script, or you need to perform a
-> setexecon() in the code.
->
+On Mon, 2010-05-03 at 09:56 -0700, Justin P. Mattock wrote:
+> On 05/03/2010 09:31 AM, Stephen Smalley wrote:
+> > On Sun, 2010-05-02 at 21:54 -0700, Justin Mattock wrote:
+> >> I've been racking my brain for the last few days on
+> >> this one, and seem(for the life of me), have no solution.
+> >>
+> >> at first thought this was opensuse specific, but it's not
+> >> i.g. my cblfs systems hit this as well(if not all systems at that).
+> >>
+> >> when adding /etc/initscript somehow SELinux can't figure how to
+> >> transistion with the whole SHELL -c thing.
+> >>
+> >> under init.c #800(sysvinit-2.85)
+> >> the code is this:
+> >>
+> >>   /* See if there is an "initscript" (except in single user mode). */
+> >>    if (access(INITSCRIPT, R_OK) == 0&&  runlevel != 'S') {
+> >> 	/* Build command line using "initscript" */
+> >> 	args[1] = SHELL;
+> >> 	args[2] = INITSCRIPT;
+> >> 	args[3] = ch->id;
+> >> 	args[4] = ch->rlevel;
+> >> 	args[5] = "unknown";
+> >> 	for(f = 0; actions[f].name; f++) {
+> >> 		if (ch->action == actions[f].act) {
+> >> 			args[5] = actions[f].name;
+> >> 			break;
+> >> 		}
+> >> 	}
+> >>
+> >>
+> >> any ideas why SELinux gets confused with this, and
+> >> doesn't want to transistion?
+> >
+> > In the above code, you are exec'ing the shell and just passing the
+> > script as an argument, not exec'ing the script.  So you need a domain
+> > transition on the shell rather than the script, or you need to perform a
+> > setexecon() in the code.
+> >
+> 
+> Thanks for the info on this..
+> 
+> I'll have a look at seeing how todo this
+> (I enjoy the challenge).
+> 
+> As an example on setexecon() I was looking
+> at the sulogin.c patch for SELinux, but still
+> need to figure out how to actually do this.
 
-Thanks for the info on this..
+Well, you can do it without using setexeccon() just by configuring
+policy to domain transition from init_t to initrc_t on shell_exec_t.
+That's what happens if you enable init_upstart=on.  So I think it is
+mostly just a matter of making that the default and dropping the legacy
+transition to sysadm_t for single-user mode.
 
-I'll have a look at seeing how todo this
-(I enjoy the challenge).
+-- 
+Stephen Smalley
+National Security Agency
 
-As an example on setexecon() I was looking
-at the sulogin.c patch for SELinux, but still
-need to figure out how to actually do this.
-
-Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
