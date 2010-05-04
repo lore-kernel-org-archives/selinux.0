@@ -1,43 +1,52 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o44FcnMW009436
-	for <selinux@tycho.nsa.gov>; Tue, 4 May 2010 11:38:49 -0400
-Received: from g6t0186.atlanta.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o44FdZKc018357
-	for <selinux@tycho.nsa.gov>; Tue, 4 May 2010 15:39:35 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@parisplace.org>
-Subject: Re: [RFC PATCH v1 5/6] selinux: Convert socket related access controls to use socket labels
-Date: Tue, 4 May 2010 11:38:17 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20100503220455.8177.91177.stgit@flek.lan> <20100503221146.8177.84024.stgit@flek.lan> <z2z7e0fb38c1005040730i9918785n488181e55eafa994@mail.gmail.com>
-In-Reply-To: <z2z7e0fb38c1005040730i9918785n488181e55eafa994@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201005041138.17454.paul.moore@hp.com>
+Subject: Re: I am trying to build an MLS livecd.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@redhat.com>
+In-Reply-To: <4BE04C8A.7070907@redhat.com>
+References: <4BE04C8A.7070907@redhat.com>
+Content-Type: text/plain
+Date: Tue, 04 May 2010 12:45:23 -0400
+Message-Id: <1272991523.30175.142.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 04 May 2010 10:30:05 am Eric Paris wrote:
-> On Mon, May 3, 2010 at 6:11 PM, Paul Moore <paul.moore@hp.com> wrote:
-> > At present, the socket related access controls use a mix of inode and
-> > socket labels; while there should be no practical difference (they
-> > _should_ always be the same), it makes the code more confusing.  This
-> > patch attempts to convert all of the socket related access control
-> > points (with the exception of some of the inode/fd based controls) to
-> > use the socket's own label.  In the process, I also converted the
-> > socket_has_perm() function to take a 'sock' argument instead of a
-> > 'socket' since that was adding a bit more overhead in some cases.
+On Tue, 2010-05-04 at 12:34 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Should it be renamed to sock_has_perm() then?
+> But for some reason.  Setfiles is not writing the correct labels to the
+> livecd, iff the label includes a range with a level not supported on the
+> host machine.
+> 
+> grep s15 /tmp/mls.log
+> sbin/setfiles:  /home matched by
+> system_u:object_r:home_root_t:s0-s15:c0.c1023
+> /sbin/setfiles:  /home/liveadmin matched by
+> staff_u:object_r:user_home_dir_t:s0-s15:c0.c1023
+> /sbin/setfiles:  /home/liveuser matched by
+> privuser_u:object_r:user_home_dir_t:s0-s15:c0.c1023
+> 
+> When I boot the livecd these are all labeled as
+> unconfined_u:object_r:TYPE:s0.
+> 
+> Any idea why this would happen?
+> 
+> Of course these labels are invalid, so the MLS livecd is broken.
 
-BTW, thanks for the review too ...
+Does the same problem occur if the type is undefined in the host policy?
+IOW, is this a problem with undefined contexts in general or specific to
+the MLS field?
 
-Yeah, I can change the name, in fact, I'll do that right now ...
+What output do you get if you run setfiles with -vv?
+
+Could mcstransd be incorrectly mapping the range to s0?
 
 -- 
-paul moore
-linux @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
