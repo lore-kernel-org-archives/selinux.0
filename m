@@ -1,6 +1,6 @@
 Subject: Re: I am trying to build an MLS livecd.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
         James Morris <jmorris@redhat.com>
 In-Reply-To: <1273005563.15368.21.camel@localhost>
@@ -11,9 +11,9 @@ References: <4BE04C8A.7070907@redhat.com>
 	 <4BE06DED.4070801@redhat.com>
 	 <1273001899.30175.190.camel@moss-pluto.epoch.ncsc.mil>
 	 <1273005563.15368.21.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 04 May 2010 16:44:59 -0400
-Message-Id: <1273005899.30175.195.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 04 May 2010 16:46:13 -0400
+Message-ID: <1273005973.15368.24.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -143,11 +143,27 @@ On Tue, 2010-05-04 at 16:39 -0400, Eric Paris wrote:
 > # file: home/liveuser
 > security.selinux="privuser_u:object_r:user_home_dir_t:s0-s15:c0.c1023
 
-So that looks correct.  What was the problem again?
+Just to make sure I am REALLY looking at what the disk says I looked at
+it with debugfs and sure enough:
 
--- 
-Stephen Smalley
-National Security Agency
+debugfs:  stat /home/liveuser
+Inode: 49519   Type: directory    Mode:  0700   Flags: 0x0
+.....
+Extended attributes stored in inode body: 
+  selinux = "privuser_u:object_r:user_home_dir_t:s0-s15:c0.c1023\000" (52)
+
+
+debugfs:  stat /home/liveadmin
+Inode: 49523   Type: directory    Mode:  0700   Flags: 0x0
+....
+Extended attributes stored in inode body: 
+  selinux = "staff_u:object_r:user_home_dir_t:s0-s15:c0.c1023\000" (49)
+
+So whatever the problem, it must be coming on the first boot rather than
+when it is created (or you are not using an up2date f13 to create
+things.....)
+
+-Eric
 
 
 --
