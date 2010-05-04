@@ -1,98 +1,89 @@
-Subject: Re: [RFC PATCH v1 3/6] selinux: Consolidate sockcreate_sid logic
+Subject: Re: [RFC PATCH v1 2/6] selinux: Set the peer label correctly on
+ connected UNIX domain sockets
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20100503221134.8177.57403.stgit@flek.lan>
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <20100503221128.8177.97693.stgit@flek.lan>
 References: <20100503220455.8177.91177.stgit@flek.lan>
-	 <20100503221134.8177.57403.stgit@flek.lan>
+	 <20100503221128.8177.97693.stgit@flek.lan>
 Content-Type: text/plain
-Date: Tue, 04 May 2010 09:52:25 -0400
-Message-Id: <1272981145.30175.43.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 04 May 2010 10:05:39 -0400
+Message-Id: <1272981939.30175.57.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Mon, 2010-05-03 at 18:11 -0400, Paul Moore wrote:
-> Consolidate the basic sockcreate_sid logic into a single helper function
-> which allows us to do some cleanups in the related code.
+> Correct a problem where we weren't setting the peer label correctly on
+> the client end of a pair of connected UNIX sockets.
 > 
 > Signed-off-by: XXX
 > ---
->  security/selinux/hooks.c |   32 ++++++++++++--------------------
->  1 files changed, 12 insertions(+), 20 deletions(-)
+>  security/selinux/hooks.c |   28 ++++++++++++----------------
+>  1 files changed, 12 insertions(+), 16 deletions(-)
 > 
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 09973e2..4034a3a 100644
+> index f9545c8..09973e2 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -3730,6 +3730,12 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
->  }
->  
->  /* socket security operations */
-> +
-> +static u32 socket_sockcreate_sid(const struct task_security_struct *tsec)
-> +{
-> +	return tsec->sockcreate_sid ? tsec->sockcreate_sid : tsec->sid;
-
-Why is this clearer than just:
-	return tsec->sockcreate_sid ?: tsec->sid;
-
-> +}
-> +
->  static int socket_has_perm(struct task_struct *task, struct socket *sock,
->  			   u32 perms)
+> @@ -4039,34 +4039,30 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+>  					      struct socket *other,
+>  					      struct sock *newsk)
 >  {
-> @@ -3757,21 +3763,15 @@ static int selinux_socket_create(int family, int type,
->  {
->  	const struct cred *cred = current_cred();
->  	const struct task_security_struct *tsec = cred->security;
-> -	u32 sid, newsid;
-> +	u32 newsid;
->  	u16 secclass;
-> -	int err = 0;
->  
->  	if (kern)
-> -		goto out;
-> -
-> -	sid = tsec->sid;
-> -	newsid = tsec->sockcreate_sid ?: sid;
-> +		return 0;
->  
-> +	newsid = socket_sockcreate_sid(tsec);
->  	secclass = socket_type_to_security_class(family, type, protocol);
-> -	err = avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
-> -
-> -out:
-> -	return err;
-> +	return avc_has_perm(tsec->sid, newsid, secclass, SOCKET__CREATE, NULL);
->  }
->  
->  static int selinux_socket_post_create(struct socket *sock, int family,
-> @@ -3779,22 +3779,14 @@ static int selinux_socket_post_create(struct socket *sock, int family,
->  {
->  	const struct cred *cred = current_cred();
->  	const struct task_security_struct *tsec = cred->security;
+> -	struct sk_security_struct *ssec;
 > -	struct inode_security_struct *isec;
-> +	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
->  	struct sk_security_struct *sksec;
-> -	u32 sid, newsid;
->  	int err = 0;
+> -	struct inode_security_struct *other_isec;
+> +	struct sk_security_struct *sksec_s = sock->sk->sk_security;
+> +	struct sk_security_struct *sksec_o = other->sk->sk_security;
+> +	struct sk_security_struct *sksec_n = newsk->sk_security;
+
+Don't you find the code using these names (sksec_[son]) to be rather
+difficult to read compared to the old code?
+
+Do we really need the sksec_ prefix?  What is this, BCPL?  Hungarian
+notation considered harmful.
+
+At the least, can we use more descriptive suffixes, e.g. _sock, _other,
+_new, to match the input argument names, or if you prefer, _client,
+_listener, _server?
+
+>  	struct common_audit_data ad;
+>  	int err;
 >  
-> -	sid = tsec->sid;
-> -	newsid = tsec->sockcreate_sid;
-> -
 > -	isec = SOCK_INODE(sock)->i_security;
+> -	other_isec = SOCK_INODE(other)->i_security;
 > -
->  	if (kern)
->  		isec->sid = SECINITSID_KERNEL;
-> -	else if (newsid)
-> -		isec->sid = newsid;
->  	else
-> -		isec->sid = sid;
-> +		isec->sid = socket_sockcreate_sid(tsec);
+>  	COMMON_AUDIT_DATA_INIT(&ad, NET);
+>  	ad.u.net.sk = other->sk;
 >  
->  	isec->sclass = socket_type_to_security_class(family, type, protocol);
->  	isec->initialized = 1;
+> -	err = avc_has_perm(isec->sid, other_isec->sid,
+> -			   isec->sclass,
+> +	err = avc_has_perm(sksec_s->sid, sksec_o->sid, sksec_o->sclass,
+>  			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
+>  	if (err)
+>  		return err;
+>  
+> -	/* connecting socket */
+> -	ssec = sock->sk->sk_security;
+> -	ssec->peer_sid = other_isec->sid;
+> -
+>  	/* server child socket */
+> -	ssec = newsk->sk_security;
+> -	ssec->peer_sid = isec->sid;
+> -	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
+> +	sksec_n->peer_sid = sksec_s->sid;
+> +	err = security_sid_mls_copy(sksec_o->sid, sksec_s->sid, &sksec_n->sid);
+> +	if (err)
+> +		return err;
+>  
+> -	return err;
+> +	/* connecting socket */
+> +	sksec_s->peer_sid = sksec_n->sid;
+> +
+> +	return 0;
+>  }
+>  
+>  static int selinux_socket_unix_may_send(struct socket *sock,
 > 
 > 
 > --
