@@ -1,66 +1,85 @@
-Subject: Re: Semanage for domain transitions
-From: Martin Spinassi <martins.listz@gmail.com>
-Reply-To: martins.listz@gmail.com
+From: Paul Moore <paul.moore@hp.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v1 1/6] selinux: Update socket's label alongside inode's label
+Date: Tue, 4 May 2010 11:29:05 -0400
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1272907389.20339.128.camel@moss-pluto.epoch.ncsc.mil>
-References: <1272905395.2206.7.camel@localhost>
-	 <1272907389.20339.128.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 04 May 2010 12:17:47 -0300
-Message-ID: <1272986267.2603.13.camel@localhost>
-Mime-Version: 1.0
+References: <20100503220455.8177.91177.stgit@flek.lan> <20100503221122.8177.80352.stgit@flek.lan> <1272978238.30175.22.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1272978238.30175.22.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201005041129.06051.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-05-03 at 13:23 -0400, Stephen Smalley wrote:
-> On Mon, 2010-05-03 at 13:49 -0300, Martin Spinassi wrote:
-> > Hi list!
+On Tuesday 04 May 2010 09:03:53 am Stephen Smalley wrote:
+> On Mon, 2010-05-03 at 18:11 -0400, Paul Moore wrote:
+> > We have always had a potential disconnect between the label on socket and
+> > the label on the associated inode when a user calls fsetxattr() on a
+> > socket.  The problem is that the fsetxattr() call would only relabel the
+> > inode and not the corresponding socket; the good news is that the
+> > mainstream SELinux policies have always prevented this, but better safe
+> > than sorry ...
 > > 
+> > This patch fixes this problem by adding the necessary socket labeling
+> > code to selinux_inode_setsecurity() so that if a user did relabel a
+> > socket via fsetxattr() both the inode and socket would be relabeled.
 > > 
-> > I'm trying to figure out how to make domain transition using semanage or
-> > any userland command.
+> > Signed-off-by: XXX
+> > ---
 > > 
-> > My problem is that I've just compiled a new version of memcached, and
-> > configured it to use the sock file /tmp/memcached.sock, but httpd can't
-> > write to it. The scontext is httpd_t, and the dcontext is tmp_t.
+> >  security/selinux/hooks.c            |   39
+> >  ++++++++++++++++++++++++++++++++++- security/selinux/include/netlabel.h
+> >  |    5 ++--
+> >  security/selinux/netlabel.c         |    8 +++++--
+> >  3 files changed, 46 insertions(+), 6 deletions(-)
 > > 
-> > Probably later I'll make a context for memcached, but by now, I've just
-> > find out that I don't really know how to make a domiain transition
-> > without having to install selinux source policy, and that's something
-> > that I'm really trying to avoid.
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 5feecb4..f9545c8 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2920,6 +2920,43 @@ static int selinux_inode_setsecurity(struct inode
+> > *inode, const char *name,
 > > 
-> > Any link/doc/tip is really appreciated.
+> >  	if (rc)
+> >  	
+> >  		return rc;
+> > 
+> > +	if (S_ISSOCK(inode->i_mode)) {
 > 
-> You can create a local policy module without needing to install the
-> sources for the base policy.
+> I think this is the wrong test - it would evaluate to true for both the
+> socket inode and for the file inode by which the socket is named, which
+> are separate and distinct objects.  I think you want:
+> 	if (inode->i_sb->s_magic == SOCKFS_MAGIC)
+> which would only be true for the actual socket inode.
+
+Thanks for the review ...
+
+Sounds reasonable, I wasn't sure this was 100% right but it seemed like a 
+reasonable place to start.  I haven't had a chance to test this yet as I need 
+to write a little dummy app that does a fsetxattr() on a socket - amazing that 
+apps like this don't exist ;)
+
+
+> > +		lock_sock(sk);
+> > +		sksec->sid = newsid;
+> > +		selinux_netlbl_sk_security_reset(sksec);
+> > +		rc = selinux_netlbl_socket_setsid(sk, sk->sk_family);
+> > +		release_sock(sk);
+> > +		if (rc)
+> > +			return rc;
 > 
-> In simplest form, this might look like:
-> 
-> $ cat mymemcached.te
-> policy_module(mymemcached, 1.0)
-> require {
-> 	type httpd_t, tmp_t, httpd_tmp_t;
-> }
-> type_transition httpd_t tmp_t:sock_file httpd_tmp_t;
-> allow httpd_t httpd_tmp_t:sock_file { create open read write unlink };
-> 
-> $ make -f /usr/share/selinux/devel/Makefile mymemcached.pp
-> $ sudo semodule -i mymemcached.pp
+> If the netlabel state change fails, do we want to revert the sksec->sid
+> to its original value?
 
+Funny you mention this, I was going over the patches again this morning and 
+noticed this; I also moved the SID assignments outside of the socket lock, 
+probably not a big deal, but you never know ... Regardless, I've already made 
+the changes and they will be in the next version.
 
-Stephan,
-
-Thank you for your mail!
-You answered me, and also sent me the example! I really appreciate it.
-
-It's working perfect now. 
-
-Best regards,
-
-Martin
-
-
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
