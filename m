@@ -8,8 +8,8 @@ References: <4BE04C8A.7070907@redhat.com>
 	 <1272991523.30175.142.camel@moss-pluto.epoch.ncsc.mil>
 	 <4BE064F2.3060505@redhat.com>
 Content-Type: text/plain
-Date: Tue, 04 May 2010 14:39:35 -0400
-Message-Id: <1272998375.30175.167.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 04 May 2010 14:46:29 -0400
+Message-Id: <1272998789.30175.170.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -60,8 +60,14 @@ On Tue, 2010-05-04 at 14:18 -0400, Daniel J Walsh wrote:
 > 
 > /selinux is a big hack and does nothing.
 
-That isn't setfiles -vv output.  We need to know what setfiles thinks it
-is setting on the files, not what they turn up as later.  
+BTW, can you or Eric describe exactly what that "hacked out environment"
+looks like and how the fake /selinux is set up?
+
+It seems like we could make setfiles more directly support this kind of
+thing (via a new option) so that we don't need that fake environment at
+all.  It already uses its own SELINUX_CB_VALIDATE callback function, so
+we can easily turn off the canonicalization of contexts when it is being
+used on a foreign policy.
 
 -- 
 Stephen Smalley
