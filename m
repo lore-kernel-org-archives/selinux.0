@@ -1,121 +1,58 @@
-Subject: Re: I am trying to build an MLS livecd.
+Subject: Re: [RFC PATCH v1 3/6] selinux: Consolidate sockcreate_sid logic
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@redhat.com>
-In-Reply-To: <4BE06DED.4070801@redhat.com>
-References: <4BE04C8A.7070907@redhat.com>
-	 <1272991523.30175.142.camel@moss-pluto.epoch.ncsc.mil>
-	 <4BE064F2.3060505@redhat.com>
-	 <1272998789.30175.170.camel@moss-pluto.epoch.ncsc.mil>
-	 <4BE06DED.4070801@redhat.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <201005041131.20981.paul.moore@hp.com>
+References: <20100503220455.8177.91177.stgit@flek.lan>
+	 <20100503221134.8177.57403.stgit@flek.lan>
+	 <1272981145.30175.43.camel@moss-pluto.epoch.ncsc.mil>
+	 <201005041131.20981.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Tue, 04 May 2010 15:38:19 -0400
-Message-Id: <1273001899.30175.190.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 04 May 2010 15:44:30 -0400
+Message-Id: <1273002270.30175.191.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-05-04 at 14:56 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 05/04/2010 02:46 PM, Stephen Smalley wrote:
-> > On Tue, 2010-05-04 at 14:18 -0400, Daniel J Walsh wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA1
-> >>
-> >> On 05/04/2010 12:45 PM, Stephen Smalley wrote:
-> >>> On Tue, 2010-05-04 at 12:34 -0400, Daniel J Walsh wrote:
-> >>>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>>> Hash: SHA1
-> >>>>
-> >>>> But for some reason.  Setfiles is not writing the correct labels to the
-> >>>> livecd, iff the label includes a range with a level not supported on the
-> >>>> host machine.
-> >>>>
-> >>>> grep s15 /tmp/mls.log
-> >>>> sbin/setfiles:  /home matched by
-> >>>> system_u:object_r:home_root_t:s0-s15:c0.c1023
-> >>>> /sbin/setfiles:  /home/liveadmin matched by
-> >>>> staff_u:object_r:user_home_dir_t:s0-s15:c0.c1023
-> >>>> /sbin/setfiles:  /home/liveuser matched by
-> >>>> privuser_u:object_r:user_home_dir_t:s0-s15:c0.c1023
-> >>>>
-> >>>> When I boot the livecd these are all labeled as
-> >>>> unconfined_u:object_r:TYPE:s0.
-> >>>>
-> >>>> Any idea why this would happen?
-> >>>>
-> >>>> Of course these labels are invalid, so the MLS livecd is broken.
-> >>>
-> >>> Does the same problem occur if the type is undefined in the host policy?
-> >>> IOW, is this a problem with undefined contexts in general or specific to
-> >>> the MLS field?
-> >>>
-> >>> What output do you get if you run setfiles with -vv?
-> >>>
-> >>> Could mcstransd be incorrectly mapping the range to s0?
-> >>>
-> >>
-> >>
-> >> I attached the actuall output.  Problem is it takes 1/2 hour to get back
-> >> to this state.
-> >>
-> >> mcstransd would not be running in the environment.  livecd has a hacked
-> >> out environment that thinks it is running SELinux in enforcing mode.
-> >>
-> >> /selinux is a big hack and does nothing.
+On Tue, 2010-05-04 at 11:31 -0400, Paul Moore wrote:
+> On Tuesday 04 May 2010 09:52:25 am Stephen Smalley wrote:
+> > On Mon, 2010-05-03 at 18:11 -0400, Paul Moore wrote:
+> > > Consolidate the basic sockcreate_sid logic into a single helper function
+> > > which allows us to do some cleanups in the related code.
+> > > 
+> > > Signed-off-by: XXX
+> > > ---
+> > > 
+> > >  security/selinux/hooks.c |   32 ++++++++++++--------------------
+> > >  1 files changed, 12 insertions(+), 20 deletions(-)
+> > > 
+> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > index 09973e2..4034a3a 100644
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -3730,6 +3730,12 @@ static int selinux_skb_peerlbl_sid(struct sk_buff
+> > > *skb, u16 family, u32 *sid)
+> > > 
+> > >  }
+> > >  
+> > >  /* socket security operations */
+> > > 
+> > > +
+> > > +static u32 socket_sockcreate_sid(const struct task_security_struct
+> > > *tsec) +{
+> > > +	return tsec->sockcreate_sid ? tsec->sockcreate_sid : tsec->sid;
 > > 
-> > BTW, can you or Eric describe exactly what that "hacked out environment"
-> > looks like and how the fake /selinux is set up?
-> > 
-> > It seems like we could make setfiles more directly support this kind of
-> > thing (via a new option) so that we don't need that fake environment at
-> > all.  It already uses its own SELINUX_CB_VALIDATE callback function, so
-> > we can easily turn off the canonicalization of contexts when it is being
-> > used on a foreign policy.
-> > 
+> > Why is this clearer than just:
+> > 	return tsec->sockcreate_sid ?: tsec->sid;
 > 
-> I think most of the hacking is to allow tools like selinux-policy to
-> work correctly, without screwing up the hosts environment.
+> It is more explicit?
 > 
-> I have patches coming to fix semanage which expects booleans to exist
-> even if you have a different store.
-> 
-> I think all the changes are in
-> /usr/lib/python2.6/site-packages/imgcreate/creator.py
+> Honestly, it is just a personal preference thing; if you want it the other way 
+> just say so and I'll change it back.  The value to me is in the 
+> socket_has_perm() and _post_create() cleanup ...
 
-I did the following:
-# mkdir -p /altroot/proc /altroot/selinux /altroot/home/sds
-# for d in /etc /lib64 /sbin /bin
-do
-cp -a $d /altroot/$d
-done
-# mount -t proc none /altroot/proc
-# runcon -t livecd_t -- runcon -t setfiles_mac_t -- chroot /altroot setfiles -vv /etc/selinux/mls/contexts/files/file_contexts /home
-setfiles reset /home context unconfined_u:object_r:default_t:s0->system_u:object_r:home_root_t:s0-s15:c0.c1023
-setfiles reset /home/sds context unconfined_u:object_r:default_t:s0->user_u:object_r:user_home_dir_t:s0-s15:c0.c1023
-
-And I can see it on disk via:
-# runcon -t livecd_t -- runcon -t setfiles_mac_t -- getfattr -n security.selinux /altroot/home/sds
-getfattr: Removing leading '/' from absolute path names
-# file: altroot/home/sds
-security.selinux="user_u:object_r:user_home_dir_t:s0-s15:c0.c1023
-
-Note that both getting and setting has to be done from setfiles_mac_t or
-we'll fail the mac_admin check (unless permissive).
-
-dmesg shows:
-SELinux:  Context system_u:object_r:auditd_etc_t:s15:c0.c1023 is not valid (left unmapped).
-SELinux:  Context system_u:object_r:selinux_config_t:s15:c0.c1023 is not valid (left unmapped).
-SELinux:  Context system_u:object_r:wm_exec_t:s0 is not valid (left unmapped).
-SELinux:  Context system_u:object_r:home_root_t:s0-s15:c0.c1023 is not valid (left unmapped).
-SELinux:  Context user_u:object_r:user_home_dir_t:s0-s15:c0.c1023 is not valid (left unmapped).
-
-In other words, the kernel functionality for setting and getting unknown
-contexts seems to be working fine, and setfiles operates correctly.  As
-to how livecd is messing things up, I have no idea.
+More opportunity for inconsistency, IMHO.  Nothing wrong with the ?:
+syntax.
 
 -- 
 Stephen Smalley
