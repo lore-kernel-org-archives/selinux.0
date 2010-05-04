@@ -1,39 +1,65 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o44EU7CJ003924
-	for <selinux@tycho.nsa.gov>; Tue, 4 May 2010 10:30:07 -0400
-Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o44ETVVx024038
-	for <selinux@tycho.nsa.gov>; Tue, 4 May 2010 14:29:31 GMT
-Received: by vws13 with SMTP id 13so2678670vws.12
-        for <selinux@tycho.nsa.gov>; Tue, 04 May 2010 07:30:06 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20100503221146.8177.84024.stgit@flek.lan>
-References: <20100503220455.8177.91177.stgit@flek.lan>
-	 <20100503221146.8177.84024.stgit@flek.lan>
-Date: Tue, 4 May 2010 10:30:05 -0400
-Message-ID: <z2z7e0fb38c1005040730i9918785n488181e55eafa994@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 5/6] selinux: Convert socket related access
-	controls to use socket labels
-From: Eric Paris <eparis@parisplace.org>
-To: Paul Moore <paul.moore@hp.com>
+Subject: Re: Semanage for domain transitions
+From: Martin Spinassi <martins.listz@gmail.com>
+Reply-To: martins.listz@gmail.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1272907389.20339.128.camel@moss-pluto.epoch.ncsc.mil>
+References: <1272905395.2206.7.camel@localhost>
+	 <1272907389.20339.128.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 04 May 2010 12:17:47 -0300
+Message-ID: <1272986267.2603.13.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, May 3, 2010 at 6:11 PM, Paul Moore <paul.moore@hp.com> wrote:
-> At present, the socket related access controls use a mix of inode and
-> socket labels; while there should be no practical difference (they
-> _should_ always be the same), it makes the code more confusing.  This
-> patch attempts to convert all of the socket related access control
-> points (with the exception of some of the inode/fd based controls) to
-> use the socket's own label.  In the process, I also converted the
-> socket_has_perm() function to take a 'sock' argument instead of a
-> 'socket' since that was adding a bit more overhead in some cases.
+On Mon, 2010-05-03 at 13:23 -0400, Stephen Smalley wrote:
+> On Mon, 2010-05-03 at 13:49 -0300, Martin Spinassi wrote:
+> > Hi list!
+> > 
+> > 
+> > I'm trying to figure out how to make domain transition using semanage or
+> > any userland command.
+> > 
+> > My problem is that I've just compiled a new version of memcached, and
+> > configured it to use the sock file /tmp/memcached.sock, but httpd can't
+> > write to it. The scontext is httpd_t, and the dcontext is tmp_t.
+> > 
+> > Probably later I'll make a context for memcached, but by now, I've just
+> > find out that I don't really know how to make a domiain transition
+> > without having to install selinux source policy, and that's something
+> > that I'm really trying to avoid.
+> > 
+> > Any link/doc/tip is really appreciated.
+> 
+> You can create a local policy module without needing to install the
+> sources for the base policy.
+> 
+> In simplest form, this might look like:
+> 
+> $ cat mymemcached.te
+> policy_module(mymemcached, 1.0)
+> require {
+> 	type httpd_t, tmp_t, httpd_tmp_t;
+> }
+> type_transition httpd_t tmp_t:sock_file httpd_tmp_t;
+> allow httpd_t httpd_tmp_t:sock_file { create open read write unlink };
+> 
+> $ make -f /usr/share/selinux/devel/Makefile mymemcached.pp
+> $ sudo semodule -i mymemcached.pp
 
-Should it be renamed to sock_has_perm() then?
 
--Eric
+Stephan,
+
+Thank you for your mail!
+You answered me, and also sent me the example! I really appreciate it.
+
+It's working perfect now. 
+
+Best regards,
+
+Martin
+
 
 
 --
