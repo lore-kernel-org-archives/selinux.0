@@ -1,127 +1,101 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o45EM5Gg025086
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 10:22:05 -0400
-Received: from imr1.ericy.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o45ENCNh024945
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 14:23:12 GMT
-Received: from eusaamw0712.eamcs.ericsson.se ([147.117.20.181])
-	by imr1.ericy.com (8.13.1/8.13.1) with ESMTP id o45ERGBo006522
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 09:27:20 -0500
-From: Alan Rouse <alan.rouse@ericsson.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Wed, 5 May 2010 10:22:00 -0400
-Subject: Life cycle process for building products with selinux
-Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: multipart/alternative;
-	boundary="_000_5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4EUSAACMS0703e_"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o45FFgo7029141
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 11:15:42 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o45FF4Pi026651
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 15:15:05 GMT
+Message-ID: <4BE18B94.7000903@redhat.com>
+Date: Wed, 05 May 2010 11:15:32 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: Alan Rouse <alan.rouse@ericsson.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Life cycle process for building products with selinux
+References: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4EUSAACMS0703e_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm not sure where to ask a question like this but I bet someone on the lis=
-t will know...
-
-Are there any guidelines or "best practices" for building products with sel=
-inux?   (Think network appliances for example.)  I have in mind life cycle =
-tasks such as
-
-- Software development:  Where in the software development cycle do you int=
-roduce selinux?  Should application developers have to develop on a system =
-confined by selinux?   Is selinux policy maintenance a software development=
- task, or a separate phase in the development cycle?
-
-- System integration:  Is this where selinux is first turned on?
-
-- QA testing:  should QA testing include selinux-specific penetration testi=
-ng?  Any guidelines or examples of how this is done?  Any tools?
-
-- Who in the development organization needs selinux expertise?
-
-- Are there services that can certify the MAC rules for the operating syste=
-m?  For the product application?
-
-- Any selinux-specific guidance for customers who install the protected app=
-liance?
-
-- Impact on the process for upgrades and patches because of selinux.  What =
-not to do... for example, turning off selinux to apply a patch.  How to con=
-figure a properly confined user for applying patches.
-
-- Organizational policy to complement a properly designed system (separatio=
-n of duties; physical security; etc).
-
-- War stories, lessons learned... or anything of the sort
-
-Thanks
-Alan
-
-
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4EUSAACMS0703e_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+On 05/05/2010 10:22 AM, Alan Rouse wrote:
+> I'm not sure where to ask a question like this but I bet someone on the list will know...
+> 
+> Are there any guidelines or "best practices" for building products with selinux?   (Think network appliances for example.)  I have in mind life cycle tasks such as
+> 
+I would argue as early in the process as possible.  From a security
+point of view, I would specify your security goals during your design
+phase and then write preliminary policy to implement them.
+> - Software development:  Where in the software development cycle do you introduce selinux?  Should application developers have to develop on a system confined by selinux?   Is selinux policy maintenance a software development task, or a separate phase in the development cycle?
 >
-<meta name=3D"Generator" content=3D"Microsoft Exchange Server">
-<!-- converted from rtf -->
-<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left:=
- #800000 2px solid; } --></style>
-</head>
-<body>
-<font face=3D"Arial, sans-serif" size=3D"2">
-<div>I'm not sure where to ask a question like this but I bet someone on th=
-e list will know&#8230;</div>
-<div>&nbsp;</div>
-<div>Are there any guidelines or &quot;best practices&quot; for building pr=
-oducts with selinux?&nbsp;&nbsp; (Think network appliances for example.)&nb=
-sp; I have in mind life cycle tasks such as</div>
-<div>&nbsp;</div>
-<div>- Software development:&nbsp; Where in the software development cycle =
-do you introduce selinux?&nbsp; Should application developers have to devel=
-op on a system confined by selinux?&nbsp;&nbsp; Is selinux policy maintenan=
-ce a software development task, or a separate phase
-in the development cycle?</div>
-<div>&nbsp;</div>
-<div>- System integration:&nbsp; Is this where selinux is first turned on?&=
-nbsp; </div>
-<div>&nbsp;</div>
-<div>- QA testing:&nbsp; should QA testing include selinux-specific penetra=
-tion testing?&nbsp; Any guidelines or examples of how this is done?&nbsp; A=
-ny tools?</div>
-<div>&nbsp;</div>
-<div>- Who in the development organization needs selinux expertise?&nbsp; <=
-/div>
-<div>&nbsp;</div>
-<div>- Are there services that can certify the MAC rules for the operating =
-system?&nbsp; For the product application?</div>
-<div>&nbsp;</div>
-<div>- Any selinux-specific guidance for customers who install the protecte=
-d appliance?&nbsp; </div>
-<div>&nbsp;</div>
-<div>- Impact on the process for upgrades and patches because of selinux.&n=
-bsp; What not to do&#8230; for example, turning off selinux to apply a patc=
-h.&nbsp; How to configure a properly confined user for applying patches.</d=
-iv>
-<div>&nbsp;</div>
-<div>- Organizational policy to complement a properly designed system (sepa=
-ration of duties; physical security; etc).</div>
-<div>&nbsp;</div>
-<div>- War stories, lessons learned&#8230; or anything of the sort</div>
-<div>&nbsp;</div>
-<div>Thanks</div>
-<div>Alan</div>
-<div>&nbsp;</div>
-</font>
-</body>
-</html>
+Yes it should be a development task, BUT some one with knowledge of
+security should review the policy.  Most developers are just going to
+want to get SELinux out of the way, so they will write as close to
+unconfined_t policy as they can get away with.  Developers will get
+continually frustrated by mislabeling though.  For example a binary has
+a label of myapp_exec_t, every time the developer replaces the app, he
+must make sure it has the label on it.  Also SELinux makes debugging
+more difficult.  For example if you are writing a daemon application the
+policy will probably have something like
+unconfined_t -> initrc_exec_t @> initrc_t -> myapp_exec_t @> myapp_t
 
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4EUSAACMS0703e_--
+So an admin executing service myapp start will transition properly,
+but
+
+unconfined_t -> myapp_exec_t @> unconfined_t
+
+Which means a admin executing the daemon directly or via gdm will stay
+in the same context as the admin.
+
+You can hook up to a running process with gdm or use runcon to make sure
+the app runs within the correct context.
+
+
+
+> - System integration:  Is this where selinux is first turned on?
+> 
+It can be, but some major design decisions might have been made that
+cause confinement to be more difficult and may cause you to need to
+redesign.
+> - QA testing:  should QA testing include selinux-specific penetration testing?  Any guidelines or examples of how this is done?  Any tools?
+> 
+I would argue this should happen with or without SELinux.  Sorry no
+guidelines.
+> - Who in the development organization needs selinux expertise?
+> 
+Developers and QA people need to know to look for AVC messages.  But you
+probably only need one person to understand how to write policy.
+> - Are there services that can certify the MAC rules for the operating system?  For the product application?
+> 
+> - Any selinux-specific guidance for customers who install the protected appliance?
+> 
+I think you want to run with permissive domains, for a while to catch
+all of the code paths that you did not expect, without the SELinux
+causing the application to break.
+> - Impact on the process for upgrades and patches because of selinux.  What not to do... for example, turning off selinux to apply a patch.  How to configure a properly confined user for applying patches.
+> 
+Yes having to turn off SELInux is a mistake, SELinux policy should be
+able to be updated without major problems.  Verifying labels can be a
+critical part of the update.
+> - Organizational policy to complement a properly designed system (separation of duties; physical security; etc).
+> 
+> - War stories, lessons learned... or anything of the sort
+> 
+> Thanks
+> Alan
+> 
+> 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkvhi5QACgkQrlYvE4MpobM14ACghN3TMxeIASK1mxsosYfTPd++
+sq0AnRGzsKRgLYytT01EwJSIZvfZbcd0
+=33rj
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
