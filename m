@@ -1,97 +1,98 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o45FrP58031805
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 11:53:25 -0400
-Received: from mho-02-ewr.mailhop.org (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o45FqmPi008934
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 15:52:49 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o45Hl7UI007567
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 13:47:07 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o45HmBV7008635
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 17:48:12 GMT
+Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
+	by relay.felk.cvut.cz (8.14.3/8.14.3) with ESMTP id o45HkiKx072845
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 19:46:44 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
+	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id o45Hkfft027710
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 19:46:42 +0200 (CEST)
+	(envelope-from michal.svoboda@agents.felk.cvut.cz)
+Date: Wed, 5 May 2010 19:46:43 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: selinux@tycho.nsa.gov
 Subject: Re: The confusing dot operator
-Mime-Version: 1.0 (Apple Message framework v1078)
-Content-Type: text/plain; charset=us-ascii
-From: Joe Nall <joe@nall.com>
-In-Reply-To: <20100414061914.GA21894@myhost.felk.cvut.cz>
-Date: Wed, 5 May 2010 10:53:21 -0500
-Cc: selinux@tycho.nsa.gov
-Message-Id: <B4BA93A9-0C9A-4C43-95A5-46979F2084DF@nall.com>
-References: <20100406134846.GO1518@myhost.felk.cvut.cz> <1271185979.9577.62.camel@moss-pluto.epoch.ncsc.mil> <20100414061914.GA21894@myhost.felk.cvut.cz>
-To: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+Message-ID: <20100505174643.GC27129@myhost.felk.cvut.cz>
+References: <20100406134846.GO1518@myhost.felk.cvut.cz>
+ <1271185979.9577.62.camel@moss-pluto.epoch.ncsc.mil>
+ <20100414061914.GA21894@myhost.felk.cvut.cz>
+ <B4BA93A9-0C9A-4C43-95A5-46979F2084DF@nall.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FN+gV9K+162wdwwF"
+In-Reply-To: <B4BA93A9-0C9A-4C43-95A5-46979F2084DF@nall.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Apr 14, 2010, at 1:19 AM, Michal Svoboda wrote:
+--FN+gV9K+162wdwwF
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Stephen Smalley wrote:
->> mcstransd
-> 
-> I tried to use this daemon at first but it appeared to require one
-> translation line for each possible combination of the categories and
-> even ranges of them. For example, on a particular centos 5 machine I
-> have to specify
-> 
-> s0-s0:c0=coreprocess
-> s0-s0:c1=webprocess
-> s0:c0=core
-> s0:c1=web
-> 
-> Actually the same behavior is illustrated by the default
-> 
-> s0-s0:c0.c1023=SystemLow-SystemHigh
-> s0:c0.c1023=SystemHigh
-> 
-> confusingly enough, s0 does not equal SystemLow but an empty string.
-> 
-> I recall reading a presentation (IIRC from a symposium proceeding) that
-> would suggest an improvement was planned here, but how far has that
-> effort progressed?
+Joe Nall wrote:
+> http://github.com/joenall/mcstrans
 
-A version of mcstrans that can associate bits to words and has considerably
-more flexibility is in fedora these days.
+Thank you I will take a look when I get to it.
 
-http://github.com/joenall/mcstrans
+> > OTOH I somehow feel safer to have the words 'core' and 'web' stored
+> > directly in the inode of the disk rather than rely on a run time mapping
+> > from some generic number. (That's why I don't like unix UID/GIDs too
+> > much either.)
+>=20
+> I disagree. I prefer something on the inode with predictable, portable
+> mathematical meaning. Adding web/code/fu/bar means that the policy on the
+> object is dependent on yet another config file/policy because you need
+> to encode the semantic meaning of those words somewhere. The beauty of the
+> current approach is that the kernel doesn't have to know word semantics
+> to do range dominance checks.
 
-There has been some discussion of moving the master to userspace.selinuxproject.org.
+I always thought that it was the c0 stuff that needed run time support
+to be semantical, at least to humans using it.
 
-> OTOH I somehow feel safer to have the words 'core' and 'web' stored
-> directly in the inode of the disk rather than rely on a run time mapping
-> from some generic number. (That's why I don't like unix UID/GIDs too
-> much either.)
+There is nothing more mathematical about c0.c1023 than there is about
+apple, banana and cherry. Categories have no ordering. What really
+matters here is the set inclusion operator (dominance).=20
 
-I disagree. I prefer something on the inode with predictable, portable
-mathematical meaning. Adding web/code/fu/bar means that the policy on the
-object is dependent on yet another config file/policy because you need
-to encode the semantic meaning of those words somewhere. The beauty of the
-current approach is that the kernel doesn't have to know word semantics
-to do range dominance checks.
+About predictability I dare say that c0.c1023 attempts to create a fake
+sense of ordering where there is not. Therefore is slightly less
+predictable.
 
-joe
+And I'm not sure what you mean by portability. If it means transferring
+categories between systems then with fixed notation like c0 there is
+only higher chance of conflicting with other uses for the categories on
+the target system.
 
+While experimenting with this I found out that the biggest plus of the
+generic categories is that you do not need to reload policy, restart
+sshd, crond, etc. when you add new ones. (And God forbid removing them,
+I even managed to get a kernel panic while playing with MCS too much ;)
 
-> 
-> Finally, it would appear that even the most smart mcstransd can't do too
-> much about the 'rangeizing' feature. The kernel itself presents c0,c1,c2
-> as c0.c2, so mcstrans can only *guess* that there is a c1 in between. Or
-> is there a way to query the kernel about the exact list of categories?
-> 
->> It also serves a practical end - keeping context string sizes sane for
->> kernel interfaces (/selinux/* and /proc/self/attr/*).
-> 
-> Does a category length such as 16 characters classify as 'sane' too, or
-> is there a noticeable overhead?
-> 
->> I think we're open to improvements in this area, but naturally we will
->> need to retain compatibility for the current users of the dot
->> notation.  We have talked in the past about improving direct kernel
->> support for complex label encodings, but unfortunately no one has
->> really moved forward in that space.
-> 
-> Do you have some pointers to these talks?
-> 
-> 
-> Regards,
-> Michal Svoboda
-> 
+But I'm not sure if this is a problem. Change of categories is a change
+in security policy and that is a major enough event to require restart
+of services which authenticate users.
 
 
+Michal Svoboda
+
+
+--FN+gV9K+162wdwwF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkvhrwMACgkQg/fU9pp1uX4yHgCgqFH1381PF5814fz4NERApCcy
+3cMAoJF2KVVV/MWXm2pl7kUcJ5MnLRvZ
+=lz+l
+-----END PGP SIGNATURE-----
+
+--FN+gV9K+162wdwwF--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
