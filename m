@@ -1,34 +1,42 @@
-Date: Thu, 6 May 2010 10:03:24 +1000 (EST)
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o460CgI5028537
+	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 20:12:42 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o460DnVR006757
+	for <selinux@tycho.nsa.gov>; Thu, 6 May 2010 00:13:49 GMT
+Date: Thu, 6 May 2010 10:12:38 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH -v3] SELinux: special dontaudit for access checks
-In-Reply-To: <1273068506.15368.31.camel@localhost>
-Message-ID: <alpine.LRH.2.00.1005061000280.22641@tundra.namei.org>
-References: <20100503222931.9662.9780.stgit@paris.rdu.redhat.com>  <alpine.LRH.2.00.1005050849140.12883@tundra.namei.org> <1273068506.15368.31.camel@localhost>
+To: Alan Rouse <alan.rouse@ericsson.com>
+cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Life cycle process for building products with selinux
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
+Message-ID: <alpine.LRH.2.00.1005061004360.22641@tundra.namei.org>
+References: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 5 May 2010, Eric Paris wrote:
+On Wed, 5 May 2010, Alan Rouse wrote:
 
-> On Wed, 2010-05-05 at 08:50 +1000, James Morris wrote:
-> > On Mon, 3 May 2010, Eric Paris wrote:
-> > 
-> > > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > ---
-> > 
-> > This does not apply to my tree, please fix.
+> - Software development:  Where in the software development cycle do you 
+> introduce selinux?  Should application developers have to develop on a 
+> system confined by selinux?  Is selinux policy maintenance a software 
+> development task, or a separate phase in the development cycle?
 > 
-> Patches sent should be applied in this order:
-> 
-> re-introduce MAY_ACCESS
-> http://marc.info/?l=linux-fsdevel&m=127085147411199&w=2
+> - System integration:  Is this where selinux is first turned on?
 
-This changes filesystem code (e.g. logic in NFS), but has no comments or 
-signoff from fs/vfs folk, as I indicated to you off-list.  Do you think 
-it's ok to go in anyway?
+In a successful case I'm aware of, all updates to applications are tested 
+on a staging system before being rolled out, at which point SELinux is 
+enabled in permissive mode.  Any AVCs are treated as regressions and the 
+developers work with sysadmins/security folk to either fix the application 
+or update the system security policy.
+
+> - War stories, lessons learned... or anything of the sort
+
+It would be great to see something like the above written up as a case 
+study -- for various reasons, people are not always in an ideal position 
+to do so.
 
 
 -- 
