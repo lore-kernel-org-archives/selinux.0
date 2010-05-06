@@ -1,47 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o460CgI5028537
-	for <selinux@tycho.nsa.gov>; Wed, 5 May 2010 20:12:42 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o460DnVR006757
-	for <selinux@tycho.nsa.gov>; Thu, 6 May 2010 00:13:49 GMT
-Date: Thu, 6 May 2010 10:12:38 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Alan Rouse <alan.rouse@ericsson.com>
-cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Life cycle process for building products with selinux
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
-Message-ID: <alpine.LRH.2.00.1005061004360.22641@tundra.namei.org>
-References: <5A5E55DF96F73844AF7DFB0F48721F0F52E5D0EAF4@EUSAACMS0703.eamcs.ericsson.se>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o466PHh7011505
+	for <selinux@tycho.nsa.gov>; Thu, 6 May 2010 02:25:17 -0400
+Received: from mail-qy0-f194.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o466OfTx022954
+	for <selinux@tycho.nsa.gov>; Thu, 6 May 2010 06:24:41 GMT
+Received: by qyk32 with SMTP id 32so9278202qyk.0
+        for <selinux@tycho.nsa.gov>; Wed, 05 May 2010 23:25:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: waqar afridi <afridi.waqar@gmail.com>
+Date: Thu, 6 May 2010 11:24:55 +0500
+Message-ID: <y2n78aaeffc1005052324g38e6173pc71674e3a523e670@mail.gmail.com>
+Subject: Broken pipe Error
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=0016364eee107524c70485e7012e
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 5 May 2010, Alan Rouse wrote:
+--0016364eee107524c70485e7012e
+Content-Type: text/plain; charset=ISO-8859-1
 
-> - Software development:  Where in the software development cycle do you 
-> introduce selinux?  Should application developers have to develop on a 
-> system confined by selinux?  Is selinux policy maintenance a software 
-> development task, or a separate phase in the development cycle?
-> 
-> - System integration:  Is this where selinux is first turned on?
+Hello All
 
-In a successful case I'm aware of, all updates to applications are tested 
-on a staging system before being rolled out, at which point SELinux is 
-enabled in permissive mode.  Any AVCs are treated as regressions and the 
-developers work with sysadmins/security folk to either fix the application 
-or update the system security policy.
+I am trying to Cross compile *checkmodules* for arm architecture but
+whenever I do, I get the Following Error
 
-> - War stories, lessons learned... or anything of the sort
+#make checkmodule
 
-It would be great to see something like the above written up as a case 
-study -- for various reasons, people are not always in an ideal position 
-to do so.
+bison -y -d policy_parse.y
+make: *** [y.tab.c] Broken pipe
 
+btw I have also tried yacc but results were the Same, Any Idea?
+
+Thanx in Advance...
 
 -- 
-James Morris
-<jmorris@namei.org>
+Waqar Afridi
+
+--0016364eee107524c70485e7012e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello All<br><br>I am trying to Cross compile <b>checkmodu=
+les</b> for arm architecture but whenever I do, I get the Following Error<b=
+r><br>#make checkmodule<br><br>bison -y -d policy_parse.y<br>make: *** [y.t=
+ab.c] Broken pipe<br>
+
+=A0<br clear=3D"all">btw I have also tried yacc but results were the Same, =
+Any Idea?<br><br>Thanx in Advance...<br><br>-- <br>Waqar Afridi<br><br></di=
+v>
+
+--0016364eee107524c70485e7012e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
