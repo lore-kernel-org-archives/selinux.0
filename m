@@ -1,109 +1,124 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o47LtYHQ002768
+	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 17:55:36 -0400
+Received: from ma05egs04.gdc4s.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o47Luh5D013616
+	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 21:56:43 GMT
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Selinux and Apache in chroot question....
-Message-ID: <OF4B777D47.6A3F031D-ON8525771C.00694668-8525771C.0070353C@vpcl.on.ca>
-From: fred.schnittke@vpcl.on.ca
-Date: Fri, 7 May 2010 16:25:35 -0400
-Content-Type: multipart/alternative; boundary="=_alternative 0070353A8525771C_="
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01CAEE2F.73DF4C07"
+Subject: RE: New to SELinux: how to get familiar
+Date: Fri, 7 May 2010 14:51:30 -0700
+Message-ID: <5E2837B0EB8E1E47850371AE558090B603B63D52@AZ25EXM03.gddsi.com>
+In-Reply-To: <v2sbe78cb001005071038s367e84e8ze0f963aa072ab9c@mail.gmail.com>
+References: <v2sbe78cb001005071038s367e84e8ze0f963aa072ab9c@mail.gmail.com>
+From: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
+To: "Vacheh Sardarian" <vsardarian@gmail.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
---=_alternative 0070353A8525771C_=
-Content-Type: text/plain; charset="US-ASCII"
+This is a multi-part message in MIME format.
 
-Hi:
+------_=_NextPart_001_01CAEE2F.73DF4C07
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Not sure if this is the right place to post a question like this, but I'll 
-give it a shot.
+VGhlIGJvb2sg4oCcU0VMaW51eCBieSBFeGFtcGxl4oCdIHdyaXR0ZW4gYnkgbWFueSBvZiB0aGUg
+cGVvcGxlIG9uIHRoaXMgbWFpbGluZyBsaXN0IChJU0JOIDAtMTMtMTk2MzY5LTQpLiAgSXTigJlz
+IGEgYml0IG9sZCBhdCB0aGlzIHBvaW50LCBlc3BlY2lhbGx5IHNpbmNlIFNFTGludXggY2hhbmdl
+cyBwcmV0dHkgcXVpY2tseSwgYnV0IGl04oCZcyBwcm9iYWJseSB0aGUgYmVzdCB3YXkgdG8gc3Rh
+cnQuDQoNCiANCg0KR29vZ2xlIGJyaW5ncyB1cCBhIGxvdCB0byByZWFkIGFzIHdlbGwuICBIZXJl
+4oCZcyBvbmU6IGh0dHA6Ly93d3cucmVkaGF0LmNvbS9kb2NzL2VuLVVTL1JlZF9IYXRfRW50ZXJw
+cmlzZV9MaW51eC82LUJldGEvaHRtbC9TZWN1cml0eS1FbmhhbmNlZF9MaW51eC9pbmRleC5odG1s
+DQoNCiANCg0KRGF2ZQ0KDQogDQoNCkZyb206IG93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdiBb
+bWFpbHRvOm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdl0gT24gQmVoYWxmIE9mIFZhY2hlaCBT
+YXJkYXJpYW4NClNlbnQ6IEZyaWRheSwgTWF5IDA3LCAyMDEwIDEwOjM5IEFNDQpUbzogc2VsaW51
+eEB0eWNoby5uc2EuZ292DQpTdWJqZWN0OiBOZXcgdG8gU0VMaW51eDogaG93IHRvIGdldCBmYW1p
+bGlhcg0KDQogDQoNCkhpIEV2ZXJ5b25lLA0KDQpJIGhhdmUganVzdCBzdGFydGVkIHBsYXlpbmcg
+YXJvdW5kIHdpdGggU0VMaW51eC4gSSBkb24ndCBrbm93IG11Y2ggYWJvdXQgaXRzIGZ1bmN0aW9u
+YWxpdHkuLi4gSSB3YXMgd29uZGVyaW5nIGlmIGFueW9uZSBjb3VsZCBzdWdnZXN0IG1lIG9uIHdo
+YXQgaXMgdGhlIGJlc3Qgd2F5IGZvciBhIGJlZ2lubmVyIHRvIHN0YXJ0IGdldHRpbmcgdG8ga25v
+dyBob3cgU0VMaW51eCBmdW5jdGlvbi4uLiBvdGhlciB0aGFuIGluc3RhbGxpbmcgaXQgb24gYSBM
+aW51eCBib3guIA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgc3VnZ2VzdGlvbnMuLi4NCg0KRGF2aWQu
+DQoNCg==
 
-I've been following the "Guide to the Secure Configuration of Red Hat 
-Enterprise Linux 5" (which has been a great resource) in setting up our 
-new server. However I ran into problems chrooting, apache, php and mysql. 
-So it was suggested to remove the applications and compile from source. 
-After that was done, I moved the three applications to my chroot, and with 
-a bit of effort, it all works. The only thing is, I don't think SELINUX is 
-monitoring any of the files in the chroot. For instance, it still thinks 
-the web directory is in /var/www/ instead of /chroot/httpd/usr/local/www.
+------_=_NextPart_001_01CAEE2F.73DF4C07
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
-When I run the following command: 
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+DQoNCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUg
+Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9R2VuZXJhdG9y
+IGNvbnRlbnQ9Ik1pY3Jvc29mdCBXb3JkIDEyIChmaWx0ZXJlZCBtZWRpdW0pIj4NCjxzdHlsZT4N
+CjwhLS0NCiAvKiBGb250IERlZmluaXRpb25zICovDQogQGZvbnQtZmFjZQ0KCXtmb250LWZhbWls
+eToiQ2FtYnJpYSBNYXRoIjsNCglwYW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0O30NCkBmb250
+LWZhY2UNCgl7Zm9udC1mYW1pbHk6Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUgMiAyIDIgNCAz
+IDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OlRhaG9tYTsNCglwYW5vc2UtMToyIDEx
+IDYgNCAzIDUgNCA0IDIgNDt9DQogLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCiBwLk1zb05vcm1h
+bCwgbGkuTXNvTm9ybWFsLCBkaXYuTXNvTm9ybWFsDQoJe21hcmdpbjowaW47DQoJbWFyZ2luLWJv
+dHRvbTouMDAwMXB0Ow0KCWZvbnQtc2l6ZToxMi4wcHQ7DQoJZm9udC1mYW1pbHk6IlRpbWVzIE5l
+dyBSb21hbiIsInNlcmlmIjt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHls
+ZS1wcmlvcml0eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7
+fQ0KYTp2aXNpdGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlv
+cml0eTo5OTsNCgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpz
+cGFuLkVtYWlsU3R5bGUxNw0KCXttc28tc3R5bGUtdHlwZTpwZXJzb25hbC1yZXBseTsNCglmb250
+LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiOw0KCWNvbG9yOiMxRjQ5N0Q7fQ0KLk1zb0No
+cERlZmF1bHQNCgl7bXNvLXN0eWxlLXR5cGU6ZXhwb3J0LW9ubHk7fQ0KQHBhZ2UgU2VjdGlvbjEN
+Cgl7c2l6ZTo4LjVpbiAxMS4waW47DQoJbWFyZ2luOjEuMGluIDEuMGluIDEuMGluIDEuMGluO30N
+CmRpdi5TZWN0aW9uMQ0KCXtwYWdlOlNlY3Rpb24xO30NCi0tPg0KPC9zdHlsZT4NCjwhLS1baWYg
+Z3RlIG1zbyA5XT48eG1sPg0KIDxvOnNoYXBlZGVmYXVsdHMgdjpleHQ9ImVkaXQiIHNwaWRtYXg9
+IjEwMjYiIC8+DQo8L3htbD48IVtlbmRpZl0tLT48IS0tW2lmIGd0ZSBtc28gOV0+PHhtbD4NCiA8
+bzpzaGFwZWxheW91dCB2OmV4dD0iZWRpdCI+DQogIDxvOmlkbWFwIHY6ZXh0PSJlZGl0IiBkYXRh
+PSIxIiAvPg0KIDwvbzpzaGFwZWxheW91dD48L3htbD48IVtlbmRpZl0tLT4NCjwvaGVhZD4NCg0K
+PGJvZHkgbGFuZz1FTi1VUyBsaW5rPWJsdWUgdmxpbms9cHVycGxlPg0KDQo8ZGl2IGNsYXNzPVNl
+Y3Rpb24xPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMS4w
+cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMxRjQ5N0QnPlRo
+ZSBib29rIOKAnFNFTGludXggYnkgRXhhbXBsZeKAnSB3cml0dGVuIGJ5IG1hbnkgb2YgdGhlIHBl
+b3BsZSBvbg0KdGhpcyBtYWlsaW5nIGxpc3QgKElTQk4gMC0xMy0xOTYzNjktNCkuwqAgSXTigJlz
+IGEgYml0IG9sZCBhdCB0aGlzIHBvaW50LA0KZXNwZWNpYWxseSBzaW5jZSBTRUxpbnV4IGNoYW5n
+ZXMgcHJldHR5IHF1aWNrbHksIGJ1dCBpdOKAmXMgcHJvYmFibHkgdGhlIGJlc3Qgd2F5DQp0byBz
+dGFydC48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBz
+dHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYi
+Ow0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KDQo8cCBjbGFz
+cz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6IkNh
+bGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMxRjQ5N0QnPkdvb2dsZSBicmluZ3MgdXAgYSBs
+b3QgdG8gcmVhZCBhcyB3ZWxsLsKgIEhlcmXigJlzIG9uZTogPGENCmhyZWY9Imh0dHA6Ly93d3cu
+cmVkaGF0LmNvbS9kb2NzL2VuLVVTL1JlZF9IYXRfRW50ZXJwcmlzZV9MaW51eC82LUJldGEvaHRt
+bC9TZWN1cml0eS1FbmhhbmNlZF9MaW51eC9pbmRleC5odG1sIj5odHRwOi8vd3d3LnJlZGhhdC5j
+b20vZG9jcy9lbi1VUy9SZWRfSGF0X0VudGVycHJpc2VfTGludXgvNi1CZXRhL2h0bWwvU2VjdXJp
+dHktRW5oYW5jZWRfTGludXgvaW5kZXguaHRtbDwvYT48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoN
+CjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBzdHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZh
+bWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiOw0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8
+L286cD48L3NwYW4+PC9wPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQt
+c2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMx
+RjQ5N0QnPkRhdmU8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48
+c3BhbiBzdHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMt
+c2VyaWYiOw0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KDQo8
+ZGl2IHN0eWxlPSdib3JkZXI6bm9uZTtib3JkZXItdG9wOnNvbGlkICNCNUM0REYgMS4wcHQ7cGFk
+ZGluZzozLjBwdCAwaW4gMGluIDBpbic+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48Yj48c3BhbiBz
+dHlsZT0nZm9udC1zaXplOjEwLjBwdDtmb250LWZhbWlseToiVGFob21hIiwic2Fucy1zZXJpZiIn
+PkZyb206PC9zcGFuPjwvYj48c3Bhbg0Kc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1p
+bHk6IlRhaG9tYSIsInNhbnMtc2VyaWYiJz4NCm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdiBb
+bWFpbHRvOm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdl0gPGI+T24gQmVoYWxmDQpPZiA8L2I+
+VmFjaGVoIFNhcmRhcmlhbjxicj4NCjxiPlNlbnQ6PC9iPiBGcmlkYXksIE1heSAwNywgMjAxMCAx
+MDozOSBBTTxicj4NCjxiPlRvOjwvYj4gc2VsaW51eEB0eWNoby5uc2EuZ292PGJyPg0KPGI+U3Vi
+amVjdDo8L2I+IE5ldyB0byBTRUxpbnV4OiBob3cgdG8gZ2V0IGZhbWlsaWFyPG86cD48L286cD48
+L3NwYW4+PC9wPg0KDQo8L2Rpdj4NCg0KPHAgY2xhc3M9TXNvTm9ybWFsPjxvOnA+Jm5ic3A7PC9v
+OnA+PC9wPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+SGkgRXZlcnlvbmUsPGJyPg0KPGJyPg0KSSBo
+YXZlIGp1c3Qgc3RhcnRlZCBwbGF5aW5nIGFyb3VuZCB3aXRoIFNFTGludXguIEkgZG9uJ3Qga25v
+dyBtdWNoIGFib3V0IGl0cw0KZnVuY3Rpb25hbGl0eS4uLiBJIHdhcyB3b25kZXJpbmcgaWYgYW55
+b25lIGNvdWxkIHN1Z2dlc3QgbWUgb24gd2hhdCBpcyB0aGUgYmVzdA0Kd2F5IGZvciBhIGJlZ2lu
+bmVyIHRvIHN0YXJ0IGdldHRpbmcgdG8ga25vdyBob3cgU0VMaW51eCBmdW5jdGlvbi4uLiBvdGhl
+ciB0aGFuDQppbnN0YWxsaW5nIGl0IG9uIGEgTGludXggYm94LiA8YnI+DQo8YnI+DQpUaGFuayB5
+b3UgZm9yIHlvdXIgc3VnZ2VzdGlvbnMuLi48YnI+DQo8YnI+DQpEYXZpZC48bzpwPjwvbzpwPjwv
+cD4NCg0KPC9kaXY+DQoNCjwvYm9keT4NCg0KPC9odG1sPg0K
 
-ps -eZ | egrep "initrc" | egrep -vw "tr|ps|egrep|bash|awk" | tr ':' ' ' | 
-awk '{ print $NF }'
-
-I get this output:
-
-mysqld
-httpd
-httpd
-httpd
-httpd
-httpd
-httpd
-httpd
-httpd
- 
-So my question is:
-
-Is there a (an easy) way to confine these daemons?
-
- 
-Regards, 
- 
- 
-Fred Schnittke  MCSE, MCP,
-Network Engineer
-VETERINARY PURCHASING company limited
---=_alternative 0070353A8525771C_=
-Content-Type: text/html; charset="US-ASCII"
-
-<font size=2 face="Arial">Hi:</font>
-<br>
-<br><font size=2 face="Arial">Not sure if this is the right place to post
-a question like this, but I'll give it a shot.</font>
-<br>
-<br><font size=2 face="Arial">I've been following the &quot;Guide to the
-Secure Configuration of Red Hat Enterprise Linux 5&quot; (which has been
-a great resource) in setting up our new server. However I ran into problems
-chrooting, apache, php and mysql. So it was suggested to remove the applications
-and compile from source. After that was done, I moved the three applications
-to my chroot, and with a bit of effort, it all works. The only thing is,
-I don't think SELINUX is monitoring any of the files in the chroot. For
-instance, it still thinks the web directory is in /var/www/ instead of
-/chroot/httpd/usr/local/www.</font>
-<br>
-<br><font size=2 face="Arial">When I run the following command: </font>
-<br>
-<br><font size=2 face="Courier New">ps -eZ | egrep &quot;initrc&quot; |
-egrep -vw &quot;tr|ps|egrep|bash|awk&quot; | tr ':' ' ' | awk '{ print
-$NF }'</font>
-<br>
-<br><font size=2 face="Arial">I get this output:</font>
-<br>
-<br><font size=2 face="Courier New">mysqld</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Courier New">httpd</font>
-<br><font size=2 face="Arial">&nbsp;</font>
-<br><font size=2 face="Arial">So my question is:</font>
-<br>
-<br><font size=2 face="Arial">Is there a (an easy) way to confine these
-daemons?</font>
-<p>
-<p><font size=2 face="Arial">&nbsp;</font>
-<p><font size=2 face="Arial">Regards, </font>
-<p><font size=2 face="Arial">&nbsp;</font>
-<p><font size=3>&nbsp;</font>
-<p><font size=2 face="Arial"><b>Fred Schnittke</b></font><font size=1 color=#808080 face="Arial">
-</font><font size=1 color=blue face="Arial">&nbsp;MCSE, MCP,</font><font size=1 color=#808080 face="Arial"><b><br>
-Network Engineer</b><br>
-VETERINARY PURCHASING company limited</font>
---=_alternative 0070353A8525771C_=--
+------_=_NextPart_001_01CAEE2F.73DF4C07--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
