@@ -1,92 +1,109 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o47KHkMa029183
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 16:17:46 -0400
-Received: from mxout-08.mxes.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o47INrWb008131
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 18:23:53 GMT
-Message-ID: <20100507192427.9mwu09kubk0w44o0@legacy.mxes.net>
-Date: Fri, 07 May 2010 19:24:27 +0100
-From: Martin Orr <martin@martinorr.name>
-To: selinux@tycho.nsa.gov, sysvinit-devel@nongnu.org
-Cc: 580272@bugs.debian.org
-Subject: sysvinit 2.88 and SELinux policy
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	format="flowed"
+To: SELinux@tycho.nsa.gov
+Subject: Selinux and Apache in chroot question....
+Message-ID: <OF4B777D47.6A3F031D-ON8525771C.00694668-8525771C.0070353C@vpcl.on.ca>
+From: fred.schnittke@vpcl.on.ca
+Date: Fri, 7 May 2010 16:25:35 -0400
+Content-Type: multipart/alternative; boundary="=_alternative 0070353A8525771C_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With sysvinit 2.88 my SELinux policy is not loaded on boot; with 
-sysvinit 2.87 everything worked fine.  I am running Debian; my 
-initramfs mounts /proc but does not know about SELinux.
+This is a multipart message in MIME format.
+--=_alternative 0070353A8525771C_=
+Content-Type: text/plain; charset="US-ASCII"
 
-Here are the two pieces of code:
+Hi:
 
-Old code:
-    if (getenv("SELINUX_INIT") == NULL && !is_selinux_enabled()) {
-            putenv("SELINUX_INIT=YES");
-            if (selinux_init_load_policy(&enforce) == 0 ) {
-                    execv(myname, argv);
-            } else {
-                    if (enforce > 0) {
-                            /* SELinux in enforcing mode but 
-load_policy failed */
-                            /* At this point, we probably can't open 
-/dev/console, so log() won't work */
-                            printf("Unable to load SELinux Policy. 
-Machine is in enforcing mode. Halting now.\n");
-                            exit(1);
-                    }
-            }
-    }
+Not sure if this is the right place to post a question like this, but I'll 
+give it a shot.
 
+I've been following the "Guide to the Secure Configuration of Red Hat 
+Enterprise Linux 5" (which has been a great resource) in setting up our 
+new server. However I ran into problems chrooting, apache, php and mysql. 
+So it was suggested to remove the applications and compile from source. 
+After that was done, I moved the three applications to my chroot, and with 
+a bit of effort, it all works. The only thing is, I don't think SELINUX is 
+monitoring any of the files in the chroot. For instance, it still thinks 
+the web directory is in /var/www/ instead of /chroot/httpd/usr/local/www.
 
-New code:
-    if (getenv("SELINUX_INIT") == NULL) {
-      const int rc = mount("proc", "/proc", "proc", 0, 0);
-      if (is_selinux_enabled() > 0) {
-        putenv("SELINUX_INIT=YES");
-        if (rc == 0) umount2("/proc", MNT_DETACH);
-        if (selinux_init_load_policy(&enforce) == 0) {
-          execv(myname, argv);
-        } else {
-          if (enforce > 0) {
-            /* SELinux in enforcing mode but load_policy failed */
-            /* At this point, we probably can't open /dev/console, so 
-log() won't work */
-            fprintf(stderr,"Unable to load SELinux Policy. Machine is 
-in enforcing mode. Halting now.\n");
-            exit(1);
-          }
-        }
-      }
-      if (rc == 0) umount2("/proc", MNT_DETACH);
-    }
+When I run the following command: 
 
-The differences here are that the new code ensures that /proc is 
-mounted, and !is_selinux_enabled() becomes (is_selinux_enabled() > 0).
+ps -eZ | egrep "initrc" | egrep -vw "tr|ps|egrep|bash|awk" | tr ':' ' ' | 
+awk '{ print $NF }'
 
-I think the change was due to this:
-http://thread.gmane.org/gmane.comp.security.selinux/13320
-(is_selinux_enabled() returns -1 if /proc not mounted).
+I get this output:
 
-I am not clear what the purpose of this is_selinux_enabled() check is: 
-is it to avoid loading policy if policy has already been loaded by the 
-initramfs, or is it to find out whether the system has been configured 
-to use SELinux?
+mysqld
+httpd
+httpd
+httpd
+httpd
+httpd
+httpd
+httpd
+httpd
+ 
+So my question is:
 
-If it is the first, then I think the test should be put back to 
-!is_selinux_enabled() - since init ensures /proc is mounted that should 
-work with or without an initramfs.
+Is there a (an easy) way to confine these daemons?
 
-If it is the second, then is_selinux_enabled() can't tell you that 
-because it only returns 1 after a policy has been loaded.
+ 
+Regards, 
+ 
+ 
+Fred Schnittke  MCSE, MCP,
+Network Engineer
+VETERINARY PURCHASING company limited
+--=_alternative 0070353A8525771C_=
+Content-Type: text/html; charset="US-ASCII"
 
-Best wishes,
-Martin
-
-
+<font size=2 face="Arial">Hi:</font>
+<br>
+<br><font size=2 face="Arial">Not sure if this is the right place to post
+a question like this, but I'll give it a shot.</font>
+<br>
+<br><font size=2 face="Arial">I've been following the &quot;Guide to the
+Secure Configuration of Red Hat Enterprise Linux 5&quot; (which has been
+a great resource) in setting up our new server. However I ran into problems
+chrooting, apache, php and mysql. So it was suggested to remove the applications
+and compile from source. After that was done, I moved the three applications
+to my chroot, and with a bit of effort, it all works. The only thing is,
+I don't think SELINUX is monitoring any of the files in the chroot. For
+instance, it still thinks the web directory is in /var/www/ instead of
+/chroot/httpd/usr/local/www.</font>
+<br>
+<br><font size=2 face="Arial">When I run the following command: </font>
+<br>
+<br><font size=2 face="Courier New">ps -eZ | egrep &quot;initrc&quot; |
+egrep -vw &quot;tr|ps|egrep|bash|awk&quot; | tr ':' ' ' | awk '{ print
+$NF }'</font>
+<br>
+<br><font size=2 face="Arial">I get this output:</font>
+<br>
+<br><font size=2 face="Courier New">mysqld</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Courier New">httpd</font>
+<br><font size=2 face="Arial">&nbsp;</font>
+<br><font size=2 face="Arial">So my question is:</font>
+<br>
+<br><font size=2 face="Arial">Is there a (an easy) way to confine these
+daemons?</font>
+<p>
+<p><font size=2 face="Arial">&nbsp;</font>
+<p><font size=2 face="Arial">Regards, </font>
+<p><font size=2 face="Arial">&nbsp;</font>
+<p><font size=3>&nbsp;</font>
+<p><font size=2 face="Arial"><b>Fred Schnittke</b></font><font size=1 color=#808080 face="Arial">
+</font><font size=1 color=blue face="Arial">&nbsp;MCSE, MCP,</font><font size=1 color=#808080 face="Arial"><b><br>
+Network Engineer</b><br>
+VETERINARY PURCHASING company limited</font>
+--=_alternative 0070353A8525771C_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
