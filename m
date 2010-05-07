@@ -1,46 +1,32 @@
-Subject: Re: determine least upper bound
+Subject: Re: Broken pipe Error
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: michel m <michel.mcgregor@gmail.com>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <C1F57EA7-A58C-4270-AC00-D44D199B5FE7@nall.com>
-References: <m2zbb74313d1004130956i6ce8e53z6f2ec9bbe385c278@mail.gmail.com>
-	 <1271190061.9577.119.camel@moss-pluto.epoch.ncsc.mil>
-	 <C1F57EA7-A58C-4270-AC00-D44D199B5FE7@nall.com>
+To: waqar afridi <afridi.waqar@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <y2n78aaeffc1005052324g38e6173pc71674e3a523e670@mail.gmail.com>
+References: <y2n78aaeffc1005052324g38e6173pc71674e3a523e670@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 07 May 2010 09:40:55 -0400
-Message-Id: <1273239655.20596.6.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 07 May 2010 09:43:33 -0400
+Message-Id: <1273239813.20596.9.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-05-05 at 10:42 -0500, Joe Nall wrote:
-> On Apr 13, 2010, at 3:21 PM, Stephen Smalley wrote:
+On Thu, 2010-05-06 at 11:24 +0500, waqar afridi wrote:
+> Hello All
 > 
-> > On Tue, 2010-04-13 at 21:26 +0430, michel m wrote:
-> >> dear all,
-> >> is there any way to determine least upper bound among security
-> >> contexts? that is,if I got two secuirty contexts, how can I determine
-> >> their least upper bound?
-> > 
-> > I presume you want the least upper bound of two MLS levels?  It doesn't
-> > make sense to talk about the least upper bound of two contexts, as the
-> > values for the other fields of the context (user, role, type) are
-> > unordered.
-> > 
-> > The first question is why do you need to compute a lub or how do you
-> > intend to use the result.
+> I am trying to Cross compile checkmodules for arm architecture but
+> whenever I do, I get the Following Error
 > 
-> Sorry for responding so late. We do this to compute a shared level
-> to communicate with a community of users.
+> #make checkmodule
 > 
-> We have application level bit twiddling code to do lub computation.
-> We then pass the result through mcstrans to see if the resulting
-> raw context converts. The code isn't really portable outside our
-> code base and assumes all kinds of things about the structure of
-> the range portion of the context.
+> bison -y -d policy_parse.y
+> make: *** [y.tab.c] Broken pipe
+>  
+> btw I have also tried yacc but results were the Same, Any Idea?
+> 
+> Thanx in Advance...
 
-Yes, so we'd prefer to see that implemented as a libsepol function or
-selinuxfs interface.
+Do you have GNU m4 installed?
 
 -- 
 Stephen Smalley
