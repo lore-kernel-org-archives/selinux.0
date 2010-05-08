@@ -1,124 +1,104 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o47LtYHQ002768
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 17:55:36 -0400
-Received: from ma05egs04.gdc4s.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o47Luh5D013616
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2010 21:56:43 GMT
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01CAEE2F.73DF4C07"
-Subject: RE: New to SELinux: how to get familiar
-Date: Fri, 7 May 2010 14:51:30 -0700
-Message-ID: <5E2837B0EB8E1E47850371AE558090B603B63D52@AZ25EXM03.gddsi.com>
-In-Reply-To: <v2sbe78cb001005071038s367e84e8ze0f963aa072ab9c@mail.gmail.com>
-References: <v2sbe78cb001005071038s367e84e8ze0f963aa072ab9c@mail.gmail.com>
-From: "Thomson, David-P63356" <David.Thomson@gdc4s.com>
-To: "Vacheh Sardarian" <vsardarian@gmail.com>, <selinux@tycho.nsa.gov>
+In-Reply-To: <1273239813.20596.9.camel@moss-pluto.epoch.ncsc.mil>
+References: <y2n78aaeffc1005052324g38e6173pc71674e3a523e670@mail.gmail.com>
+	<1273239813.20596.9.camel@moss-pluto.epoch.ncsc.mil>
+From: waqar afridi <afridi.waqar@gmail.com>
+Date: Sat, 8 May 2010 10:09:34 +0500
+Message-ID: <t2n78aaeffc1005072209od9813ea9l30fd15650d9540d5@mail.gmail.com>
+Subject: Re: Broken pipe Error
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=000feaee5d4ba962d304860e2f08
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+--000feaee5d4ba962d304860e2f08
+Content-Type: text/plain; charset=ISO-8859-1
 
-------_=_NextPart_001_01CAEE2F.73DF4C07
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Yup, M4 is Installed but I have cross-compiled it now, I wasn't able to
+cross-compile it independently but It worked with cross-compiling the whole
+user-space, I dont know why?
 
-VGhlIGJvb2sg4oCcU0VMaW51eCBieSBFeGFtcGxl4oCdIHdyaXR0ZW4gYnkgbWFueSBvZiB0aGUg
-cGVvcGxlIG9uIHRoaXMgbWFpbGluZyBsaXN0IChJU0JOIDAtMTMtMTk2MzY5LTQpLiAgSXTigJlz
-IGEgYml0IG9sZCBhdCB0aGlzIHBvaW50LCBlc3BlY2lhbGx5IHNpbmNlIFNFTGludXggY2hhbmdl
-cyBwcmV0dHkgcXVpY2tseSwgYnV0IGl04oCZcyBwcm9iYWJseSB0aGUgYmVzdCB3YXkgdG8gc3Rh
-cnQuDQoNCiANCg0KR29vZ2xlIGJyaW5ncyB1cCBhIGxvdCB0byByZWFkIGFzIHdlbGwuICBIZXJl
-4oCZcyBvbmU6IGh0dHA6Ly93d3cucmVkaGF0LmNvbS9kb2NzL2VuLVVTL1JlZF9IYXRfRW50ZXJw
-cmlzZV9MaW51eC82LUJldGEvaHRtbC9TZWN1cml0eS1FbmhhbmNlZF9MaW51eC9pbmRleC5odG1s
-DQoNCiANCg0KRGF2ZQ0KDQogDQoNCkZyb206IG93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdiBb
-bWFpbHRvOm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdl0gT24gQmVoYWxmIE9mIFZhY2hlaCBT
-YXJkYXJpYW4NClNlbnQ6IEZyaWRheSwgTWF5IDA3LCAyMDEwIDEwOjM5IEFNDQpUbzogc2VsaW51
-eEB0eWNoby5uc2EuZ292DQpTdWJqZWN0OiBOZXcgdG8gU0VMaW51eDogaG93IHRvIGdldCBmYW1p
-bGlhcg0KDQogDQoNCkhpIEV2ZXJ5b25lLA0KDQpJIGhhdmUganVzdCBzdGFydGVkIHBsYXlpbmcg
-YXJvdW5kIHdpdGggU0VMaW51eC4gSSBkb24ndCBrbm93IG11Y2ggYWJvdXQgaXRzIGZ1bmN0aW9u
-YWxpdHkuLi4gSSB3YXMgd29uZGVyaW5nIGlmIGFueW9uZSBjb3VsZCBzdWdnZXN0IG1lIG9uIHdo
-YXQgaXMgdGhlIGJlc3Qgd2F5IGZvciBhIGJlZ2lubmVyIHRvIHN0YXJ0IGdldHRpbmcgdG8ga25v
-dyBob3cgU0VMaW51eCBmdW5jdGlvbi4uLiBvdGhlciB0aGFuIGluc3RhbGxpbmcgaXQgb24gYSBM
-aW51eCBib3guIA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgc3VnZ2VzdGlvbnMuLi4NCg0KRGF2aWQu
-DQoNCg==
+On Fri, May 7, 2010 at 6:43 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-------_=_NextPart_001_01CAEE2F.73DF4C07
-Content-Type: text/html;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+> On Thu, 2010-05-06 at 11:24 +0500, waqar afridi wrote:
+> > Hello All
+> >
+> > I am trying to Cross compile checkmodules for arm architecture but
+> > whenever I do, I get the Following Error
+> >
+> > #make checkmodule
+> >
+> > bison -y -d policy_parse.y
+> > make: *** [y.tab.c] Broken pipe
+> >
+> > btw I have also tried yacc but results were the Same, Any Idea?
+> >
+> > Thanx in Advance...
+>
+> Do you have GNU m4 installed?
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
-bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
-YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
-cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
-VFIvUkVDLWh0bWw0MCI+DQoNCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUg
-Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9R2VuZXJhdG9y
-IGNvbnRlbnQ9Ik1pY3Jvc29mdCBXb3JkIDEyIChmaWx0ZXJlZCBtZWRpdW0pIj4NCjxzdHlsZT4N
-CjwhLS0NCiAvKiBGb250IERlZmluaXRpb25zICovDQogQGZvbnQtZmFjZQ0KCXtmb250LWZhbWls
-eToiQ2FtYnJpYSBNYXRoIjsNCglwYW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0O30NCkBmb250
-LWZhY2UNCgl7Zm9udC1mYW1pbHk6Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUgMiAyIDIgNCAz
-IDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OlRhaG9tYTsNCglwYW5vc2UtMToyIDEx
-IDYgNCAzIDUgNCA0IDIgNDt9DQogLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCiBwLk1zb05vcm1h
-bCwgbGkuTXNvTm9ybWFsLCBkaXYuTXNvTm9ybWFsDQoJe21hcmdpbjowaW47DQoJbWFyZ2luLWJv
-dHRvbTouMDAwMXB0Ow0KCWZvbnQtc2l6ZToxMi4wcHQ7DQoJZm9udC1mYW1pbHk6IlRpbWVzIE5l
-dyBSb21hbiIsInNlcmlmIjt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHls
-ZS1wcmlvcml0eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7
-fQ0KYTp2aXNpdGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlv
-cml0eTo5OTsNCgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpz
-cGFuLkVtYWlsU3R5bGUxNw0KCXttc28tc3R5bGUtdHlwZTpwZXJzb25hbC1yZXBseTsNCglmb250
-LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiOw0KCWNvbG9yOiMxRjQ5N0Q7fQ0KLk1zb0No
-cERlZmF1bHQNCgl7bXNvLXN0eWxlLXR5cGU6ZXhwb3J0LW9ubHk7fQ0KQHBhZ2UgU2VjdGlvbjEN
-Cgl7c2l6ZTo4LjVpbiAxMS4waW47DQoJbWFyZ2luOjEuMGluIDEuMGluIDEuMGluIDEuMGluO30N
-CmRpdi5TZWN0aW9uMQ0KCXtwYWdlOlNlY3Rpb24xO30NCi0tPg0KPC9zdHlsZT4NCjwhLS1baWYg
-Z3RlIG1zbyA5XT48eG1sPg0KIDxvOnNoYXBlZGVmYXVsdHMgdjpleHQ9ImVkaXQiIHNwaWRtYXg9
-IjEwMjYiIC8+DQo8L3htbD48IVtlbmRpZl0tLT48IS0tW2lmIGd0ZSBtc28gOV0+PHhtbD4NCiA8
-bzpzaGFwZWxheW91dCB2OmV4dD0iZWRpdCI+DQogIDxvOmlkbWFwIHY6ZXh0PSJlZGl0IiBkYXRh
-PSIxIiAvPg0KIDwvbzpzaGFwZWxheW91dD48L3htbD48IVtlbmRpZl0tLT4NCjwvaGVhZD4NCg0K
-PGJvZHkgbGFuZz1FTi1VUyBsaW5rPWJsdWUgdmxpbms9cHVycGxlPg0KDQo8ZGl2IGNsYXNzPVNl
-Y3Rpb24xPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMS4w
-cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMxRjQ5N0QnPlRo
-ZSBib29rIOKAnFNFTGludXggYnkgRXhhbXBsZeKAnSB3cml0dGVuIGJ5IG1hbnkgb2YgdGhlIHBl
-b3BsZSBvbg0KdGhpcyBtYWlsaW5nIGxpc3QgKElTQk4gMC0xMy0xOTYzNjktNCkuwqAgSXTigJlz
-IGEgYml0IG9sZCBhdCB0aGlzIHBvaW50LA0KZXNwZWNpYWxseSBzaW5jZSBTRUxpbnV4IGNoYW5n
-ZXMgcHJldHR5IHF1aWNrbHksIGJ1dCBpdOKAmXMgcHJvYmFibHkgdGhlIGJlc3Qgd2F5DQp0byBz
-dGFydC48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBz
-dHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYi
-Ow0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KDQo8cCBjbGFz
-cz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6IkNh
-bGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMxRjQ5N0QnPkdvb2dsZSBicmluZ3MgdXAgYSBs
-b3QgdG8gcmVhZCBhcyB3ZWxsLsKgIEhlcmXigJlzIG9uZTogPGENCmhyZWY9Imh0dHA6Ly93d3cu
-cmVkaGF0LmNvbS9kb2NzL2VuLVVTL1JlZF9IYXRfRW50ZXJwcmlzZV9MaW51eC82LUJldGEvaHRt
-bC9TZWN1cml0eS1FbmhhbmNlZF9MaW51eC9pbmRleC5odG1sIj5odHRwOi8vd3d3LnJlZGhhdC5j
-b20vZG9jcy9lbi1VUy9SZWRfSGF0X0VudGVycHJpc2VfTGludXgvNi1CZXRhL2h0bWwvU2VjdXJp
-dHktRW5oYW5jZWRfTGludXgvaW5kZXguaHRtbDwvYT48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoN
-CjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBzdHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZh
-bWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiOw0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8
-L286cD48L3NwYW4+PC9wPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gc3R5bGU9J2ZvbnQt
-c2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjsNCmNvbG9yOiMx
-RjQ5N0QnPkRhdmU8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48
-c3BhbiBzdHlsZT0nZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMt
-c2VyaWYiOw0KY29sb3I6IzFGNDk3RCc+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KDQo8
-ZGl2IHN0eWxlPSdib3JkZXI6bm9uZTtib3JkZXItdG9wOnNvbGlkICNCNUM0REYgMS4wcHQ7cGFk
-ZGluZzozLjBwdCAwaW4gMGluIDBpbic+DQoNCjxwIGNsYXNzPU1zb05vcm1hbD48Yj48c3BhbiBz
-dHlsZT0nZm9udC1zaXplOjEwLjBwdDtmb250LWZhbWlseToiVGFob21hIiwic2Fucy1zZXJpZiIn
-PkZyb206PC9zcGFuPjwvYj48c3Bhbg0Kc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1p
-bHk6IlRhaG9tYSIsInNhbnMtc2VyaWYiJz4NCm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdiBb
-bWFpbHRvOm93bmVyLXNlbGludXhAdHljaG8ubnNhLmdvdl0gPGI+T24gQmVoYWxmDQpPZiA8L2I+
-VmFjaGVoIFNhcmRhcmlhbjxicj4NCjxiPlNlbnQ6PC9iPiBGcmlkYXksIE1heSAwNywgMjAxMCAx
-MDozOSBBTTxicj4NCjxiPlRvOjwvYj4gc2VsaW51eEB0eWNoby5uc2EuZ292PGJyPg0KPGI+U3Vi
-amVjdDo8L2I+IE5ldyB0byBTRUxpbnV4OiBob3cgdG8gZ2V0IGZhbWlsaWFyPG86cD48L286cD48
-L3NwYW4+PC9wPg0KDQo8L2Rpdj4NCg0KPHAgY2xhc3M9TXNvTm9ybWFsPjxvOnA+Jm5ic3A7PC9v
-OnA+PC9wPg0KDQo8cCBjbGFzcz1Nc29Ob3JtYWw+SGkgRXZlcnlvbmUsPGJyPg0KPGJyPg0KSSBo
-YXZlIGp1c3Qgc3RhcnRlZCBwbGF5aW5nIGFyb3VuZCB3aXRoIFNFTGludXguIEkgZG9uJ3Qga25v
-dyBtdWNoIGFib3V0IGl0cw0KZnVuY3Rpb25hbGl0eS4uLiBJIHdhcyB3b25kZXJpbmcgaWYgYW55
-b25lIGNvdWxkIHN1Z2dlc3QgbWUgb24gd2hhdCBpcyB0aGUgYmVzdA0Kd2F5IGZvciBhIGJlZ2lu
-bmVyIHRvIHN0YXJ0IGdldHRpbmcgdG8ga25vdyBob3cgU0VMaW51eCBmdW5jdGlvbi4uLiBvdGhl
-ciB0aGFuDQppbnN0YWxsaW5nIGl0IG9uIGEgTGludXggYm94LiA8YnI+DQo8YnI+DQpUaGFuayB5
-b3UgZm9yIHlvdXIgc3VnZ2VzdGlvbnMuLi48YnI+DQo8YnI+DQpEYXZpZC48bzpwPjwvbzpwPjwv
-cD4NCg0KPC9kaXY+DQoNCjwvYm9keT4NCg0KPC9odG1sPg0K
 
-------_=_NextPart_001_01CAEE2F.73DF4C07--
+-- 
+Waqar Afridi
+
+Android Developer
+SERG IM|Sciences
+waqarafridi.wordpress.com
+http://imsciences.edu.pk/serg/?page_id=376
+
+--000feaee5d4ba962d304860e2f08
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Yup, M4 is Installed but I have cross-compiled it now, I w=
+asn&#39;t able to cross-compile it independently but It worked with cross-c=
+ompiling the whole user-space, I dont know why?<br><br><div class=3D"gmail_=
+quote">
+
+On Fri, May 7, 2010 at 6:43 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>=
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
+
+<div><div></div><div class=3D"h5">On Thu, 2010-05-06 at 11:24 +0500, waqar =
+afridi wrote:<br>
+&gt; Hello All<br>
+&gt;<br>
+&gt; I am trying to Cross compile checkmodules for arm architecture but<br>
+&gt; whenever I do, I get the Following Error<br>
+&gt;<br>
+&gt; #make checkmodule<br>
+&gt;<br>
+&gt; bison -y -d policy_parse.y<br>
+&gt; make: *** [y.tab.c] Broken pipe<br>
+&gt;<br>
+&gt; btw I have also tried yacc but results were the Same, Any Idea?<br>
+&gt;<br>
+&gt; Thanx in Advance...<br>
+<br>
+</div></div>Do you have GNU m4 installed?<br>
+<font color=3D"#888888"><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+</font></blockquote></div><br><br clear=3D"all"><br>-- <br>Waqar Afridi<br>=
+<br>Android Developer<br>SERG IM|Sciences<br><a href=3D"http://waqarafridi.=
+wordpress.com">waqarafridi.wordpress.com</a><br><a href=3D"http://imscience=
+s.edu.pk/serg/?page_id=3D376">http://imsciences.edu.pk/serg/?page_id=3D376<=
+/a><br>
+
+
+</div>
+
+--000feaee5d4ba962d304860e2f08--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
