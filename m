@@ -1,70 +1,81 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o487Bi60025132
-	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 03:11:45 -0400
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o487B4m8004220
-	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 07:11:05 GMT
-Date: Sat, 8 May 2010 09:11:14 +0200
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: Martin Orr <martin@martinorr.name>
-Cc: selinux@tycho.nsa.gov, sysvinit-devel@nongnu.org, 580272@bugs.debian.org
-Subject: Re: sysvinit 2.88 and SELinux policy
-Message-ID: <20100508071114.GH27129@myhost.felk.cvut.cz>
-References: <20100507192427.9mwu09kubk0w44o0@legacy.mxes.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/0P/MvzTfyTu5j9Q"
-In-Reply-To: <20100507192427.9mwu09kubk0w44o0@legacy.mxes.net>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o487UeCs025924
+	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 03:30:40 -0400
+Received: from mail-px0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o487U1m8007482
+	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 07:30:01 GMT
+Received: by pxi8 with SMTP id 8so848293pxi.12
+        for <selinux@tycho.nsa.gov>; Sat, 08 May 2010 00:30:38 -0700 (PDT)
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: refpolicy@oss1.tresys.com, "Justin P. Mattock" <justinmattock@gmail.com>
+Subject: [PATCH] Fix build error with gcc (GCC) 4.6.0 20100416 (experimental)
+Date: Sat,  8 May 2010 00:30:59 -0700
+Message-Id: <1273303859-22077-1-git-send-email-justinmattock@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+When compiling userspace tools with 
+(GCC) 4.6.0 20100416 I'm getting this error:
 
---/0P/MvzTfyTu5j9Q
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+booleans.c: In function 'sepol_bool_count':
+booleans.c:106:39: error: parameter 'handle' set but not used
+cc1: all warnings being treated as errors
 
-Martin Orr wrote:
-> The differences here are that the new code ensures that /proc is
-> mounted, and !is_selinux_enabled() becomes (is_selinux_enabled() >
-> 0).
-=20
-> I think the change was due to this:
-> http://thread.gmane.org/gmane.comp.security.selinux/13320
-> (is_selinux_enabled() returns -1 if /proc not mounted).
-
-They might have been inspired by it, but it is a completely different
-fix than I proposed.=20
-
-In the original context, the C expression "!is_selinux_enabled()"
-means "is_selinux_enabled() =3D=3D 0". However, the function is tristate, as
-its return values are -1, 0, and 1. In addition to 0, we also want -1 to
-execute the code block below, so the expression becomes
-"(foo =3D is_selinux_enabled(), foo =3D=3D 0 || foo =3D=3D -1)", or simply =
-put
-"is_selinux_enabled() !=3D 1".
-
-And why we want that? Because the function checks if we already have a
-policy loaded in the kernel. 1 means yes, 0 means no and -1 means no as
-well. No need to mess with mounting /proc ;-)
+This patch is a temporary fix and/or perminent
+(depending on what you guys decide).
 
 
-Michal Svoboda
 
+Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
+---
+ checkpolicy/Makefile    |    2 +-
+ libsepol/src/Makefile   |    2 +-
+ libsepol/utils/Makefile |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---/0P/MvzTfyTu5j9Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
+index e5fae3d..34fa857 100644
+--- a/checkpolicy/Makefile
++++ b/checkpolicy/Makefile
+@@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
+ 
+ YACC = bison -y
+ 
+-CFLAGS ?= -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
++CFLAGS ?= -g -Wall  -Wshadow -O2 -pipe -fno-strict-aliasing
+ 
+ override CFLAGS += -I. -I${INCLUDEDIR}
+ 
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 73fdef8..be0d4d8 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -14,7 +14,7 @@ LIBPC=libsepol.pc
+ LIBSO=$(TARGET).$(LIBVERSION)
+ OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
+ LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+-CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
++CFLAGS ?=  -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
+ override CFLAGS += -I. -I../include -D_GNU_SOURCE
+ 
+ all: $(LIBA) $(LIBSO) $(LIBPC)
+diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
+index 6864114..9985cf6 100644
+--- a/libsepol/utils/Makefile
++++ b/libsepol/utils/Makefile
+@@ -2,7 +2,7 @@
+ PREFIX ?= $(DESTDIR)/usr
+ BINDIR ?= $(PREFIX)/bin
+ 
+-CFLAGS ?= -Wall -Werror
++CFLAGS ?= -Wall 
+ override CFLAGS += -I../include
+ LDLIBS += -L../src -lsepol 
+ 
+-- 
+1.7.1.rc1.21.gf3bd6
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkvlDpIACgkQg/fU9pp1uX43oACeLcQBPoRL0CuJ7daeKWz3VOyk
-g6EAoK7AZGaezY0wjIC2mghFD/WBLnj+
-=FfU2
------END PGP SIGNATURE-----
-
---/0P/MvzTfyTu5j9Q--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
