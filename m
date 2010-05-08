@@ -1,81 +1,125 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o487UeCs025924
-	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 03:30:40 -0400
-Received: from mail-px0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o487U1m8007482
-	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 07:30:01 GMT
-Received: by pxi8 with SMTP id 8so848293pxi.12
-        for <selinux@tycho.nsa.gov>; Sat, 08 May 2010 00:30:38 -0700 (PDT)
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: refpolicy@oss1.tresys.com, "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH] Fix build error with gcc (GCC) 4.6.0 20100416 (experimental)
-Date: Sat,  8 May 2010 00:30:59 -0700
-Message-Id: <1273303859-22077-1-git-send-email-justinmattock@gmail.com>
+Date: Sat, 8 May 2010 09:59:05 +0200
+From: Dominick Grift <domg472@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: Re: Selinux and Apache in chroot question....
+Message-ID: <20100508075904.GB3075@localhost.localdomain>
+References: <OF4B777D47.6A3F031D-ON8525771C.00694668-8525771C.0070353C@vpcl.on.ca>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
+In-Reply-To: <OF4B777D47.6A3F031D-ON8525771C.00694668-8525771C.0070353C@vpcl.on.ca>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When compiling userspace tools with 
-(GCC) 4.6.0 20100416 I'm getting this error:
 
-booleans.c: In function 'sepol_bool_count':
-booleans.c:106:39: error: parameter 'handle' set but not used
-cc1: all warnings being treated as errors
+--H1spWtNR+x+ondvy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch is a temporary fix and/or perminent
-(depending on what you guys decide).
+On Fri, May 07, 2010 at 04:25:35PM -0400, fred.schnittke@vpcl.on.ca wrote:
+> Hi:
+>=20
+> Not sure if this is the right place to post a question like this, but I'l=
+l=20
+> give it a shot.
+>=20
+> I've been following the "Guide to the Secure Configuration of Red Hat=20
+> Enterprise Linux 5" (which has been a great resource) in setting up our=
+=20
+> new server. However I ran into problems chrooting, apache, php and mysql.=
+=20
+> So it was suggested to remove the applications and compile from source.=
+=20
+> After that was done, I moved the three applications to my chroot, and wit=
+h=20
+> a bit of effort, it all works. The only thing is, I don't think SELINUX i=
+s=20
+> monitoring any of the files in the chroot. For instance, it still thinks=
+=20
+> the web directory is in /var/www/ instead of /chroot/httpd/usr/local/www.
+>=20
+> When I run the following command:=20
+>=20
+> ps -eZ | egrep "initrc" | egrep -vw "tr|ps|egrep|bash|awk" | tr ':' ' ' |=
+=20
+> awk '{ print $NF }'
+
+SELinux is much about the labeling of objects. File context specifications,=
+ specify what label to assign to what object in what location.
+By chrooting apache and mysql, you change their objects locations. Which in=
+ this case SElinux seems not aware about.
+
+The only objects that remain in place is the services init script. When ini=
+t runs an init script the init domain, domain transitions to the init scrip=
+t domain.
+The init script domain would usually transition to the service domain, if t=
+he service domain executable file is properly labeled.
+
+The init script domain is unrestricted and unprotected.
+
+So what is happening is the following.
+
+You have moved objects owned by apache and mysql to a new mountpoint called=
+ /chroot.=20
+The command: semanage fcontext -l | grep /chroot, tells us that there is cu=
+rrently no context specified for this location.
+
+Thus the location would be labeled either default_t or root_t.
+
+you start the service, init transitions to the unconfined init script domai=
+n initrc_t and initrc_t, the init script executes the apache /mysql executa=
+ble file which is somewhere in /chroot and labeled with a generic type for =
+unspecified locations. Thus initrc_t does not domain transition to the apac=
+he/mysql domain as it would usually do if the apache/mysql executable files=
+ were labeled properly. So you end up with a chrooted services but you lost=
+ selinux protection.
+
+
+To solve this issue you must change the labeling to reflect their usual loc=
+ation. You can list contexts of the various object using semanage fcontext =
+-l and use similar command to add, modify, delete file context entries.
 
 
 
-Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
----
- checkpolicy/Makefile    |    2 +-
- libsepol/src/Makefile   |    2 +-
- libsepol/utils/Makefile |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+>=20
+> I get this output:
+>=20
+> mysqld
+> httpd
+> httpd
+> httpd
+> httpd
+> httpd
+> httpd
+> httpd
+> httpd
+> =20
+> So my question is:
+>=20
+> Is there a (an easy) way to confine these daemons?
+>=20
+> =20
+> Regards,=20
+> =20
+> =20
+> Fred Schnittke  MCSE, MCP,
+> Network Engineer
+> VETERINARY PURCHASING company limited
 
-diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-index e5fae3d..34fa857 100644
---- a/checkpolicy/Makefile
-+++ b/checkpolicy/Makefile
-@@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
- 
- YACC = bison -y
- 
--CFLAGS ?= -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
-+CFLAGS ?= -g -Wall  -Wshadow -O2 -pipe -fno-strict-aliasing
- 
- override CFLAGS += -I. -I${INCLUDEDIR}
- 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index 73fdef8..be0d4d8 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -14,7 +14,7 @@ LIBPC=libsepol.pc
- LIBSO=$(TARGET).$(LIBVERSION)
- OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
- LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
--CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
-+CFLAGS ?=  -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
- override CFLAGS += -I. -I../include -D_GNU_SOURCE
- 
- all: $(LIBA) $(LIBSO) $(LIBPC)
-diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
-index 6864114..9985cf6 100644
---- a/libsepol/utils/Makefile
-+++ b/libsepol/utils/Makefile
-@@ -2,7 +2,7 @@
- PREFIX ?= $(DESTDIR)/usr
- BINDIR ?= $(PREFIX)/bin
- 
--CFLAGS ?= -Wall -Werror
-+CFLAGS ?= -Wall 
- override CFLAGS += -I../include
- LDLIBS += -L../src -lsepol 
- 
--- 
-1.7.1.rc1.21.gf3bd6
+--H1spWtNR+x+ondvy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+iEYEARECAAYFAkvlGcgACgkQMlxVo39jgT81EgCg1bCln1/p2og4/K6dq2qZFcvP
+31AAoIwk8kwMG60Pof3AJ4W8VIc6/Vfp
+=sZx4
+-----END PGP SIGNATURE-----
+
+--H1spWtNR+x+ondvy--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
