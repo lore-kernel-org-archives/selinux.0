@@ -1,104 +1,70 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o487Bi60025132
+	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 03:11:45 -0400
+Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o487B4m8004220
+	for <selinux@tycho.nsa.gov>; Sat, 8 May 2010 07:11:05 GMT
+Date: Sat, 8 May 2010 09:11:14 +0200
+From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
+To: Martin Orr <martin@martinorr.name>
+Cc: selinux@tycho.nsa.gov, sysvinit-devel@nongnu.org, 580272@bugs.debian.org
+Subject: Re: sysvinit 2.88 and SELinux policy
+Message-ID: <20100508071114.GH27129@myhost.felk.cvut.cz>
+References: <20100507192427.9mwu09kubk0w44o0@legacy.mxes.net>
 MIME-Version: 1.0
-In-Reply-To: <1273239813.20596.9.camel@moss-pluto.epoch.ncsc.mil>
-References: <y2n78aaeffc1005052324g38e6173pc71674e3a523e670@mail.gmail.com>
-	<1273239813.20596.9.camel@moss-pluto.epoch.ncsc.mil>
-From: waqar afridi <afridi.waqar@gmail.com>
-Date: Sat, 8 May 2010 10:09:34 +0500
-Message-ID: <t2n78aaeffc1005072209od9813ea9l30fd15650d9540d5@mail.gmail.com>
-Subject: Re: Broken pipe Error
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=000feaee5d4ba962d304860e2f08
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/0P/MvzTfyTu5j9Q"
+In-Reply-To: <20100507192427.9mwu09kubk0w44o0@legacy.mxes.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000feaee5d4ba962d304860e2f08
-Content-Type: text/plain; charset=ISO-8859-1
 
-Yup, M4 is Installed but I have cross-compiled it now, I wasn't able to
-cross-compile it independently but It worked with cross-compiling the whole
-user-space, I dont know why?
-
-On Fri, May 7, 2010 at 6:43 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Thu, 2010-05-06 at 11:24 +0500, waqar afridi wrote:
-> > Hello All
-> >
-> > I am trying to Cross compile checkmodules for arm architecture but
-> > whenever I do, I get the Following Error
-> >
-> > #make checkmodule
-> >
-> > bison -y -d policy_parse.y
-> > make: *** [y.tab.c] Broken pipe
-> >
-> > btw I have also tried yacc but results were the Same, Any Idea?
-> >
-> > Thanx in Advance...
->
-> Do you have GNU m4 installed?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-
-
--- 
-Waqar Afridi
-
-Android Developer
-SERG IM|Sciences
-waqarafridi.wordpress.com
-http://imsciences.edu.pk/serg/?page_id=376
-
---000feaee5d4ba962d304860e2f08
-Content-Type: text/html; charset=ISO-8859-1
+--/0P/MvzTfyTu5j9Q
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Yup, M4 is Installed but I have cross-compiled it now, I w=
-asn&#39;t able to cross-compile it independently but It worked with cross-c=
-ompiling the whole user-space, I dont know why?<br><br><div class=3D"gmail_=
-quote">
+Martin Orr wrote:
+> The differences here are that the new code ensures that /proc is
+> mounted, and !is_selinux_enabled() becomes (is_selinux_enabled() >
+> 0).
+=20
+> I think the change was due to this:
+> http://thread.gmane.org/gmane.comp.security.selinux/13320
+> (is_selinux_enabled() returns -1 if /proc not mounted).
 
-On Fri, May 7, 2010 at 6:43 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a hr=
-ef=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>=
-<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
-r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
+They might have been inspired by it, but it is a completely different
+fix than I proposed.=20
 
-<div><div></div><div class=3D"h5">On Thu, 2010-05-06 at 11:24 +0500, waqar =
-afridi wrote:<br>
-&gt; Hello All<br>
-&gt;<br>
-&gt; I am trying to Cross compile checkmodules for arm architecture but<br>
-&gt; whenever I do, I get the Following Error<br>
-&gt;<br>
-&gt; #make checkmodule<br>
-&gt;<br>
-&gt; bison -y -d policy_parse.y<br>
-&gt; make: *** [y.tab.c] Broken pipe<br>
-&gt;<br>
-&gt; btw I have also tried yacc but results were the Same, Any Idea?<br>
-&gt;<br>
-&gt; Thanx in Advance...<br>
-<br>
-</div></div>Do you have GNU m4 installed?<br>
-<font color=3D"#888888"><br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</font></blockquote></div><br><br clear=3D"all"><br>-- <br>Waqar Afridi<br>=
-<br>Android Developer<br>SERG IM|Sciences<br><a href=3D"http://waqarafridi.=
-wordpress.com">waqarafridi.wordpress.com</a><br><a href=3D"http://imscience=
-s.edu.pk/serg/?page_id=3D376">http://imsciences.edu.pk/serg/?page_id=3D376<=
-/a><br>
+In the original context, the C expression "!is_selinux_enabled()"
+means "is_selinux_enabled() =3D=3D 0". However, the function is tristate, as
+its return values are -1, 0, and 1. In addition to 0, we also want -1 to
+execute the code block below, so the expression becomes
+"(foo =3D is_selinux_enabled(), foo =3D=3D 0 || foo =3D=3D -1)", or simply =
+put
+"is_selinux_enabled() !=3D 1".
+
+And why we want that? Because the function checks if we already have a
+policy loaded in the kernel. 1 means yes, 0 means no and -1 means no as
+well. No need to mess with mounting /proc ;-)
 
 
-</div>
+Michal Svoboda
 
---000feaee5d4ba962d304860e2f08--
+
+--/0P/MvzTfyTu5j9Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkvlDpIACgkQg/fU9pp1uX43oACeLcQBPoRL0CuJ7daeKWz3VOyk
+g6EAoK7AZGaezY0wjIC2mghFD/WBLnj+
+=FfU2
+-----END PGP SIGNATURE-----
+
+--/0P/MvzTfyTu5j9Q--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
