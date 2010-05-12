@@ -1,55 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4C6TfL9007983
-	for <selinux@tycho.nsa.gov>; Wed, 12 May 2010 02:29:44 -0400
-Received: from mail-pv0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4C6T4nb004932
-	for <selinux@tycho.nsa.gov>; Wed, 12 May 2010 06:29:05 GMT
-Received: by pvd12 with SMTP id 12so1448073pvd.12
-        for <selinux@tycho.nsa.gov>; Tue, 11 May 2010 23:29:42 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 12 May 2010 11:29:42 +0500
-Message-ID: <AANLkTin7SkXe1jInacpozS64IR138O-qyOaF-DRG3k4L@mail.gmail.com>
-Subject: Dbus rules in LPM for a Dbus based service like Network Manager
-From: Shaz <shazalive@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=000e0cd1a89a72de9404865fc4f5
+Subject: [ANN] SETools 3.3.7 Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 12 May 2010 08:04:04 -0400
+Message-ID: <1273665844.738.3.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0cd1a89a72de9404865fc4f5
-Content-Type: text/plain; charset=ISO-8859-1
+A new release of SETools is now available on the Tresys OSS site, from
+http://oss.tresys.com/projects/setools.  
 
-Dear list,
+A summary of the changes in SETools 3.3.7:
 
-I was reading [1] and found it very interesting but I can't figure out how
-the dbus rules will be added to the network manager LPM. Are there any
-examples available in the reference policy that can be followed to
-understand this clearly? If not in reference policy then where can I find a
-good and clear example?
+* Wrapped new policy db components so we can build against
+  new and old SELinux userspace.
 
-[1] http://www.redhat.com/magazine/003jan05/features/dbus/#more-security
+* Switch to a non-modal advanced filtering window.
+
+* Rebase module loading code on upstream userspace.
+
+* Automatically detect base module instead of asking
+  user to identify the base.
+
+* Support for bzipped policy packages (.pp) found in
+  Fedora 12 and later.
+
+* Fix seinfo to correctly handle cases where there are
+  no nodecon statements in the policy.
+
+* Fixes error conditions that prevent apol from exiting.  If
+  window/tab was already destroyed on exit
+  then apol threw an error and refused to exit.
+
+* Add support for displaying constraints to seinfo.
+
+* Add constraint CUnit tests.
+
+* Ensure architecture independent parts of python SWIG wrapper
+  get installed into the same directory as the architecture
+  dependent parts.
+
+* Fix seaudit/libseaudit headers.
+
+* Fix error message when Tk cannot be loaded by apol.  Make it
+  clear that it is Tk, not an SETools library that cannot be loaded.
+
+* Fix error in Apol which would disable new and updated search
+  buttons in rule search.
+
+* Fix seaudit-report to correctly handle -c and --config
+  options.
 
 -- 
-Shaz
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
-
--- 
-Shaz
-
---000e0cd1a89a72de9404865fc4f5
-Content-Type: text/html; charset=ISO-8859-1
-
-Dear list,<br>
-<br>
-I was reading [1] and found it very interesting but I can&#39;t figure out
-how the dbus rules will be added to the network manager LPM. Are there
-any examples available in the reference policy that can be followed to
-understand this clearly? If not in reference policy then where can I
-find a good and clear example?<br>
-<br>
-[1] <a href="http://www.redhat.com/magazine/003jan05/features/dbus/#more-security">http://www.redhat.com/magazine/003jan05/features/dbus/#more-security</a><br><br>-- <br>Shaz<br><br clear="all"><br>-- <br>Shaz<br><br>
-
---000e0cd1a89a72de9404865fc4f5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
