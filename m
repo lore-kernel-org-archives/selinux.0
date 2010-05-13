@@ -1,182 +1,47 @@
-Subject: Re: policycoreutils, sepolgen (sepolgen-ifgen) issues on Debian
+Subject: Re: refpolicy is missing on lots of hits with audit2allow -R.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
-In-Reply-To: <4BEC4FD6.3040900@redhat.com>
-References: <87d46y1lwd.fsf@anzu.internal.golden-gryphon.com>
-	 <878whm1gr5.fsf@anzu.internal.golden-gryphon.com>
-	 <87fxbq30u5.fsf@anzu.internal.golden-gryphon.com>
-	 <4AB0FDBD.8030200@manicmethod.com>  <4AB11C0D.5040909@redhat.com>
-	 <1273777861.23026.176.camel@moss-pluto.epoch.ncsc.mil>
-	 <4BEC4FD6.3040900@redhat.com>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <u2q10143821004211853jea20406bz355fc111cd449c47@mail.gmail.com>
+References: <4BCC69C0.5040502@redhat.com>
+	 <t2s10143821004190853r1a114b33q7c9416e43b8b5433@mail.gmail.com>
+	 <l2s10143821004200737t683832efu28214c95b3e156c@mail.gmail.com>
+	 <4BCF05D3.5090700@redhat.com>
+	 <u2q10143821004211853jea20406bz355fc111cd449c47@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 13 May 2010 15:28:36 -0400
-Message-ID: <1273778916.23026.209.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 13 May 2010 15:37:25 -0400
+Message-ID: <1273779445.23026.219.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-05-13 at 15:15 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 05/13/2010 03:11 PM, Stephen Smalley wrote:
-> > On Wed, 2009-09-16 at 13:10 -0400, Daniel J Walsh wrote:
-> >> On 09/16/2009 11:01 AM, Joshua Brindle wrote:
-> >>>
-> >>>
-> >>> Manoj Srivastava wrote:
-> >>>> On Mon, Aug 17 2009, Christopher J. PeBenito wrote:
-> >>>>
-> >>>>   
-> >>>>> On Fri, 2009-08-14 at 11:50 -0500, Manoj Srivastava wrote:
-> >>>>>     
-> >>>>>> On Fri, Aug 14 2009, Manoj Srivastava wrote:
-> >>>>>>
-> >>>>>>       
-> >>>>>>>          I am running into an issue with sepolgen on Debian. Debian
-> >>>>>>> ships
-> >>>>>>>   more than one  version of the refpolicy, a default one, and a
-> >>>>>>>   MLS enabled one. So, the include files live in either
-> >>>>>>>   /usr/share/selinux/{default,mls}/include
-> >>>>>>>
-> >>>>>>>          sepolgen (in src/sepolgen/defaults.py) sets
-> >>>>>>> refpolicy_devel() to
-> >>>>>>>   a single location -- and thus, only one version of the security
-> >>>>>>> policy
-> >>>>>>>   may be supported. So, sepolgen-ifgen from policycoreutils can
-> >>>>>>> only work
-> >>>>>>>   with one policy, which may not be the one installed on the target
-> >>>>>>>   machine. Could this be made configurable, somehow? As far as I can
-> >>>>>>>   see, sepolgen's python library does not offer any way to set the
-> >>>>>>> value.
-> >>>>>>>
-> >>>>>>>          It would be nice if the location of the include directory
-> >>>>>>> could
-> >>>>>>>   be looked for from a PATH like variable setting, to make it
-> >>>>>>> easier for
-> >>>>>>>   distributions to ship more than one policy, or for end users to
-> >>>>>>>   experiment with other policies without have to overwrite the single
-> >>>>>>>   default.
-> >>>>>>>          
-> >>>>>>          Well, here is a kind of proof-of-concept patch (python is
-> >>>>>> not my
-> >>>>>>   strong suit), and I have only tested in that it allows the package to
-> >>>>>>   compile, and the following code works:
-> >>>>>>        
-> >>>>> [...]
-> >>>>>     
-> >>>>>>   def refpolicy_makefile():
-> >>>>>> -    return refpolicy_devel() + "/Makefile"
-> >>>>>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-> >>>>>> +    return chooser("Makefile")
-> >>>>>>
-> >>>>>>   def headers():
-> >>>>>> -    return refpolicy_devel() + "/include"
-> >>>>>> -
-> >>>>>> +    chooser = PathChoooser("/etc/selinux/sepolgen.conf")
-> >>>>>> +    return chooser("include")
-> >>>>>> +
-> >>>>>>        
-> >>>>> Why are you making another config file rather than just get the policy
-> >>>>> name from /etc/selinux/config via selinux_getpolicytype()?
-> >>>>>      
-> >>>>
-> >>>>          This will work well for Debian, since the development files are
-> >>>>   installed under "/usr/share/selinux/" in a subdirectory named after the
-> >>>>   policy. I was not sure that this convention was followed in other
-> >>>>   distributions, though. While I am not certain, google implies that in
-> >>>>   fedora policy type is targeted, but the devel files do not live in
-> >>>>   /usr/share/selinux/targeted.[0]. Given that, perhaps it is better to
-> >>>>   let the user provide guidance about how to map the policy type to a
-> >>>>   directory?
-> >>>>
-> >>>>          Also, I must confess I had forgotten about this call.
-> >>>>
-> >>>>          However, a patch with this is trivial, so an alternate patch
-> >>>>   follows. (Not sure this will work for fedora, so caveat emptor)
-> >>>>
-> >>>>          manoj
-> >>>> [0]
-> >>>> http://docs.fedoraproject.org/selinux-user-guide/f11/en-US/chap-Security-Enhanced_Linux-Working_with_SELinux.html
-> >>>>
-> >>>>
-> >>>> --8<---------------cut here---------------start------------->8---
-> >>>>
-> >>>> If the user installs a policy whose development files do not live under
-> >>>> /usr/share/selinux/devel/include, sepolgen wqould not work. Debian, for
-> >>>> instance, installs under:
-> >>>> /usr/share/selinux/{default,mls}/include
-> >>>>
-> >>>> This patch uses selinux_getpolicytype() to determine the policy type, and
-> >>>> assumes that there is one-on-one correspondence between policytype and
-> >>>> the directory the development files live in.
-> >>>>
-> >>>> Signed-off-by: Manoj Srivastava<srivasta@debian.org>
-> >>>> ---
-> >>>>   src/sepolgen/defaults.py |    4 +++-
-> >>>>   src/sepolgen/module.py   |    2 +-
-> >>>>   2 files changed, 4 insertions(+), 2 deletions(-)
-> >>>>
-> >>>> diff --git a/src/sepolgen/defaults.py b/src/sepolgen/defaults.py
-> >>>> index 45ce61a..85e5fb0 100644
-> >>>> --- a/src/sepolgen/defaults.py
-> >>>> +++ b/src/sepolgen/defaults.py
-> >>>> @@ -21,6 +21,8 @@
-> >>>>   Various default settings, including file and directory locations.
-> >>>>   """
-> >>>>
-> >>>> +import selinux
-> >>>> +
-> >>>>   def data_dir():
-> >>>>       return "/var/lib/sepolgen"
-> >>>>
-> >>>> @@ -31,7 +33,7 @@ def interface_info():
-> >>>>       return data_dir() + "/interface_info"
-> >>>>
-> >>>>   def refpolicy_devel():
-> >>>> -    return "/usr/share/selinux/devel"
-> >>>> +    return "/usr/share/selinux/" + selinux.selinux_getpolicytype()[1]
-> >>>>
-> >>>>   def refpolicy_makefile():
-> >>>>       return refpolicy_devel() + "/Makefile"
-> >>>> diff --git a/src/sepolgen/module.py b/src/sepolgen/module.py
-> >>>> index edd24c6..355c9b8 100644
-> >>>> --- a/src/sepolgen/module.py
-> >>>> +++ b/src/sepolgen/module.py
-> >>>> @@ -120,7 +120,7 @@ class ModuleCompiler:
-> >>>>           self.semodule_package = "/usr/bin/semodule_package"
-> >>>>           self.output = output
-> >>>>           self.last_output = ""
-> >>>> -        self.refpol_makefile = "/usr/share/selinux/devel/Makefile"
-> >>>> +        self.refpol_makefile = "/usr/share/selinux/" +
-> >>>> selinux.selinux_getpolicytype()[1]  + "/Makefile"
-> >>>>           self.make = "/usr/bin/make"
-> >>>>
-> >>>>       def o(self, str):
-> >>>>    
-> >>>
-> >>> This will break Fedora/RHEL AFAIK. I don't necessarily like that RH has
-> >>> interface files in /usr/share/selinux/devel rather than
-> >>> /usr/share/selinux/<policy>/devel or similar but we can't break them.
-> >>>
-> >>> Dan, any chance you could change the location of the interface files?
-> >>>
-> >>>
-> >> We could carry a patch although I don't think anyone is  shipping different interfaces for different policies.
-> >>
-> >> We could add a link in each policy types back to the devel environment.
-> >> Or do /usr/share/selinux/POLICYTYPE/devel/Makefile and on RHEL and Fedora systems
-> >>  have /usr/share/selinux/POLICYTYPE/devel -> /usr/share/selinux/devel/
-> > 
-> > I don't think this change ever happened in Fedora (and thus not in
-> > RHEL-6).
-> > 
-> If you make the change, I will just symlink it back to the base package.
+On Wed, 2010-04-21 at 21:53 -0400, Karl MacMillan wrote:
+> The
+> attached patch adds attribute handling to sepolgen. It's only lightly
+> tested but I wanted you to get it sooner rather than later.
 
-I believe they were waiting on you to update Fedora and RHEL (e.g. set
-up the symlinks if that is all that is required) so that they could make
-the change upstream without risk of breaking anything.
+Evidently this patch has made its way into F-13 and RHEL-6, although it
+is still not upstream.
+
+Some concerns/questions:
+- This creates a dependency of sepolgen-ifgen on a specific policy.
+Previously it was only dependent on the headers.  But this will mean
+that the data generated by sepolgen-ifgen and used by sepolgen could
+easily differ for targeted vs mls even if they use the same headers.  Do
+we need per-policy data directories for sepolgen?
+
+- It should be possible to load a specified policy file rather than
+always using the active one.
+
+- You are using the latest policy version supported by the kernel rather
+than the one supported by libsepol.  See audit2why.c or load_policy.c in
+libselinux to see how they determine the right policy version to use by
+default.  Otherwise this will break when we have divergence between the
+libsepol and kernel supported policy versions (i.e. whenever we next
+introduce a new policy version).
+
+- This creates another user of the static libsepol.  
 
 -- 
 Stephen Smalley
