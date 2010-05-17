@@ -1,112 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4HJBSDb030269
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 15:11:28 -0400
-Received: from imr1.ericy.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4HJCfqm005828
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 19:12:41 GMT
-Received: from eusaamw0711.eamcs.ericsson.se ([147.117.20.178])
-	by imr1.ericy.com (8.13.1/8.13.1) with ESMTP id o4HJHGeW030793
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 14:17:16 -0500
-From: Alan Rouse <alan.rouse@ericsson.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Mon, 17 May 2010 15:11:25 -0400
-Subject: Two constraint violations
-Message-ID: <5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: multipart/alternative;
-	boundary="_000_5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0EUSAACMS0703e_"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4HKKXlv002325
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 16:20:33 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4HKLkof028997
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 20:21:46 GMT
+Message-ID: <4BF1A50C.3020001@redhat.com>
+Date: Mon, 17 May 2010 16:20:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: Alan Rouse <alan.rouse@ericsson.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Two constraint violations
+References: <5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0@EUSAACMS0703.eamcs.ericsson.se>
+In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0@EUSAACMS0703.eamcs.ericsson.se>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0EUSAACMS0703e_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-1.  When I boot to a desktop as user_t, then open a terminal, and execute '=
-su' to login as root, a file is created in the /root directory called .xaut=
-h0SiF7t.  That produces the following AVC:
+On 05/17/2010 03:11 PM, Alan Rouse wrote:
+> 1.  When I boot to a desktop as user_t, then open a terminal, and execute 'su' to login as root, a file is created in the /root directory called .xauth0SiF7t.  That produces the following AVC:
+> 
+> type=AVC msg=audit(1274122005.740:4): avc: denied { create } for pid=4410 comm="su" name=".xauth0SiF7t" scontext=user_u:user_r:user_su_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+> 
+> Audit2allow generates the an allow rule but tells me it is a constraint violation.
+> 
+> allow user_su_t default_t:file create;
+> 
+> Any insights into why this is happening / what I should do to fix it?
+> 
+> 2.  Note, I'm still also getting this AVC during system boot, for which audit2allow also generates a rule which is a constraint violation:
+> 
+> type=AVC msg=audit(1274121983.953:3): avc: denied { relablefrom } for pid=4335 comm="restorecond" name=".xsession-errors" dev=sda3 ino=127759 scontext=user_u:user_r:user_t:s0 tcontext=system_u:object_r:xauth_home_t:s0 tclass=file
+> 
+> Any insights into why this is happening / what I should do to fix it?
+> 
+> 
+> 
+> 
+> 
+> 
+/root is mislabeled.  It should not be default_t.
 
-type=3DAVC msg=3Daudit(1274122005.740:4): avc: denied { create } for pid=3D=
-4410 comm=3D"su" name=3D".xauth0SiF7t" scontext=3Duser_u:user_r:user_su_t:s=
-0 tcontext=3Dsystem_u:object_r:default_t:s0 tclass=3Dfile
+Also user_t should probably not be allowed to run su.  Since it is a non
+admin user.
 
-Audit2allow generates the an allow rule but tells me it is a constraint vio=
-lation.
+In Fedora Policy, staff_t and user_t can not run su.  They need to use
+sudo.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-allow user_su_t default_t:file create;
-
-Any insights into why this is happening / what I should do to fix it?
-
-2.  Note, I'm still also getting this AVC during system boot, for which aud=
-it2allow also generates a rule which is a constraint violation:
-
-type=3DAVC msg=3Daudit(1274121983.953:3): avc: denied { relablefrom } for p=
-id=3D4335 comm=3D"restorecond" name=3D".xsession-errors" dev=3Dsda3 ino=3D1=
-27759 scontext=3Duser_u:user_r:user_t:s0 tcontext=3Dsystem_u:object_r:xauth=
-_home_t:s0 tclass=3Dfile
-
-Any insights into why this is happening / what I should do to fix it?
-
-
-
-
-
-
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0EUSAACMS0703e_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Exchange Server">
-<!-- converted from rtf -->
-<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left:=
- #800000 2px solid; } --></style>
-</head>
-<body>
-<font face=3D"Arial, sans-serif" size=3D"2">
-<div>1.&nbsp; When I boot to a desktop as user_t, then open a terminal, and=
- execute 'su' to login as root, a file is created in the /root directory ca=
-lled .xauth0SiF7t.&nbsp; That produces the following AVC:</div>
-<div>&nbsp;</div>
-<div style=3D"padding-left: 38pt; ">type=3DAVC msg=3Daudit(1274122005.740:4=
-): avc: denied { create } for pid=3D4410 comm=3D&quot;su&quot; name=3D&quot=
-;.xauth0SiF7t&quot; scontext=3Duser_u:user_r:user_su_t:s0 tcontext=3Dsystem=
-_u:object_r:default_t:s0 tclass=3Dfile</div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div style=3D"padding-left: 19pt; ">Audit2allow generates the an allow rule=
- but tells me it is a constraint violation.</div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div style=3D"padding-left: 38pt; ">allow user_su_t default_t:file create;<=
-/div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div style=3D"padding-left: 19pt; ">Any insights into why this is happening=
- / what I should do to fix it?</div>
-<div>&nbsp;</div>
-<div>2.&nbsp; Note, I'm still also getting this AVC during system boot, for=
- which audit2allow also generates a rule which is a constraint violation:</=
-div>
-<div>&nbsp;</div>
-<div style=3D"padding-left: 38pt; ">type=3DAVC msg=3Daudit(1274121983.953:3=
-): avc: denied { relablefrom } for pid=3D4335 comm=3D&quot;restorecond&quot=
-; name=3D&quot;.xsession-errors&quot; dev=3Dsda3 ino=3D127759 scontext=3Dus=
-er_u:user_r:user_t:s0 tcontext=3Dsystem_u:object_r:xauth_home_t:s0 tclass=
-=3Dfile</div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div style=3D"padding-left: 19pt; ">Any insights into why this is happening=
- / what I should do to fix it?</div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div>&nbsp;</div>
-<div style=3D"padding-left: 19pt; ">&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-</font>
-</body>
-</html>
-
---_000_5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0EUSAACMS0703e_--
+iEYEARECAAYFAkvxpQwACgkQrlYvE4MpobMPEwCfW9BVnCHfM6C1ZoHDJoQc8eGT
+Yw4AniwXwMaewllrqic6dJgZ+FQg9n3I
+=9gF5
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
