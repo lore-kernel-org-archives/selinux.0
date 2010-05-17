@@ -1,52 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4HCS22O001111
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 08:28:03 -0400
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4HCTG4q002736
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 12:29:16 GMT
-Date: Mon, 17 May 2010 14:27:50 +0200
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: selinux <selinux@tycho.nsa.gov>, refpolicy@oss1.tresys.com
-Subject: Re: [refpolicy] A strange usecase
-Message-ID: <20100517122750.GC27060@myhost.felk.cvut.cz>
-References: <AANLkTims07JUhAD9T2KvEGHZauBW6etkgCUQFKTAD1OP@mail.gmail.com>
- <1274098502.2093.2.camel@gorn.columbia.tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4HCXOJB001493
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 08:33:24 -0400
+Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4HCWicr023649
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 12:32:44 GMT
+Received: by pwj2 with SMTP id 2so678458pwj.12
+        for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 05:33:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
 In-Reply-To: <1274098502.2093.2.camel@gorn.columbia.tresys.com>
+References: <AANLkTims07JUhAD9T2KvEGHZauBW6etkgCUQFKTAD1OP@mail.gmail.com>
+	 <1274098502.2093.2.camel@gorn.columbia.tresys.com>
+Date: Mon, 17 May 2010 17:33:22 +0500
+Message-ID: <AANLkTilfYQzJy9tTjcjGXULO5ELAh4XuxMmrC1zGk7gQ@mail.gmail.com>
+Subject: Re: [refpolicy] A strange usecase
+From: Shaz <shazalive@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>, refpolicy@oss1.tresys.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---QRj9sO5tAVLaXnSD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-
-Christopher J. PeBenito wrote:
-> It is not possible.  That info comes out of the /proc/net/dev proc file.
+On Mon, May 17, 2010 at 5:15 PM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
+> On Mon, 2010-05-17 at 16:42 +0500, Shaz wrote:
+>> How can we "make sure a guest user can only see traffic counters of
+>> eth0 but not eth1"
+>
+> It is not possible.  That info comes out of the /proc/net/dev proc file.
 > All interfaces are in the same file, so you can either see all of the
-> interfaces or none of the interfaces.  This can be controlled by
+> interfaces or none of the interfaces.  This can be controlled by
 > allowing or denying access to proc_net_t files.
 
-Unless you create your own application that filters the info.
+Not even with iptables-selinux?
 
+-- 
+Shaz
 
-Michal Svoboda
-
---QRj9sO5tAVLaXnSD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkvxNkYACgkQg/fU9pp1uX4hUQCeO0TOLTM6l+9PXzugt3XRPce3
-zm8AoJQnch0E2tijdF0IUvWE78aMayrO
-=BVYj
------END PGP SIGNATURE-----
-
---QRj9sO5tAVLaXnSD--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
