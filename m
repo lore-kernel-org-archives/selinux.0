@@ -1,62 +1,32 @@
+Date: Wed, 19 May 2010 08:59:07 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+cc: sds@tycho.nsa.gov, eparis@parisplace.org, mingo@elte.hu,
+        akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, mathieu.desnoyers@efficios.com
+Subject: Re: [PATCH] selinux: remove all rcu head initializations
+In-Reply-To: <20100518191125.GA7014@linux.vnet.ibm.com>
+Message-ID: <alpine.LRH.2.00.1005190858180.640@tundra.namei.org>
+References: <20100518191125.GA7014@linux.vnet.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <1274212729.8879.171.camel@moss-pluto.epoch.ncsc.mil>
-References: <AANLkTinBSFB6IQCU2BEbYIu1NY_fGSVDwD0BNLZJXC7x@mail.gmail.com>
-	 <1274212729.8879.171.camel@moss-pluto.epoch.ncsc.mil>
-Date: Wed, 19 May 2010 01:09:42 +0500
-Message-ID: <AANLkTim5wboweoEZfwAIar73Jvskjh4riiAriRzYhA8U@mail.gmail.com>
-Subject: Re: Need Help with security: ebitmap: map size 0 does not match my
-	size 64 (high bit was 4)
-From: Shaz <shazalive@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: waqar afridi <afridi.waqar@gmail.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 19, 2010 at 12:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Mon, 2010-05-17 at 12:24 +0500, waqar afridi wrote:
->> Hello All
->>
->> I am trying to port trisys reference policy on my Openmoko Software
->> Stack, When ever I try to load it I get the Following error
->>
->> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->>
->> root@om-gta02 ~/refpolicy $ make load
->> Loading configured modules.
->> /usr/sbin/semodule -s refpolicy
->> -b /usr/share/selinux/refpolicy/base.pp
-> <snip>
->> security: ebitmap: map size 0 does not match my size 64 (high bit was
->> 4)
->> libsepol.sepol_module_package_read: invalid module in module package
->> (at section 0)
->> libsemanage.semanage_load_module: Error while reading from module
->> file /etc/selinux/refpolicy/modules/tmp/modules/unconfined.pp.
->> /usr/sbin/semodule:  Failed!
->>
->> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->>
->> Reference Policy Version: 2008 04 02
->>
->> semodule from: policycoreutils-2.0.55
->>
->> Any Suggestion what could be the Problem???
->
-> I haven't seen that error previously.  It implies that the unconfined.pp
-> module was incorrectly compiled or somehow corrupted.
->
-> Is it reproducible with a more modern selinux userspace and refpolicy?
-> http://userspace.selinuxproject.org/trac/wiki/Releases
-> http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease
+On Tue, 18 May 2010, Paul E. McKenney wrote:
 
-We got it solved ... some variables were not set properly during
-compilation. Tomorrow we start testing.
+> Hello!
+> 
+> Would you guys like to carry this patch, or should I push it up
+> -tip?  If I don't hear otherwise from you, I will push it up -tip.
+> The INIT_RCU_HEAD() primitive is going away in favor of debugobjects.
+
+Are there any prerequisites for this patch?  If not, I'll take it.
 
 
 -- 
-Shaz
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
