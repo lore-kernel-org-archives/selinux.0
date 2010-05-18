@@ -1,62 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4HKKXlv002325
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 16:20:33 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4HKLkof028997
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2010 20:21:46 GMT
-Message-ID: <4BF1A50C.3020001@redhat.com>
-Date: Mon, 17 May 2010 16:20:28 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4I77IWh030835
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2010 03:07:18 -0400
+Received: from bay0-omc3-s20.bay0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4I76aX8003880
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2010 07:06:37 GMT
+Message-ID: <BAY111-W21E4613ED1D1458B53C3A6ABE10@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_d50bf9ee-8b98-42e2-ad1f-58dec1e391fd_"
+From: TaurusHarry <harrytaurus2002@hotmail.com>
+To: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: How to cross install policy store?
+Date: Tue, 18 May 2010 07:07:16 +0000
 MIME-Version: 1.0
-To: Alan Rouse <alan.rouse@ericsson.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Two constraint violations
-References: <5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0@EUSAACMS0703.eamcs.ericsson.se>
-In-Reply-To: <5A5E55DF96F73844AF7DFB0F48721F0F52EDF441A0@EUSAACMS0703.eamcs.ericsson.se>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--_d50bf9ee-8b98-42e2-ad1f-58dec1e391fd_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-On 05/17/2010 03:11 PM, Alan Rouse wrote:
-> 1.  When I boot to a desktop as user_t, then open a terminal, and execute 'su' to login as root, a file is created in the /root directory called .xauth0SiF7t.  That produces the following AVC:
-> 
-> type=AVC msg=audit(1274122005.740:4): avc: denied { create } for pid=4410 comm="su" name=".xauth0SiF7t" scontext=user_u:user_r:user_su_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
-> 
-> Audit2allow generates the an allow rule but tells me it is a constraint violation.
-> 
-> allow user_su_t default_t:file create;
-> 
-> Any insights into why this is happening / what I should do to fix it?
-> 
-> 2.  Note, I'm still also getting this AVC during system boot, for which audit2allow also generates a rule which is a constraint violation:
-> 
-> type=AVC msg=audit(1274121983.953:3): avc: denied { relablefrom } for pid=4335 comm="restorecond" name=".xsession-errors" dev=sda3 ino=127759 scontext=user_u:user_r:user_t:s0 tcontext=system_u:object_r:xauth_home_t:s0 tclass=file
-> 
-> Any insights into why this is happening / what I should do to fix it?
-> 
-> 
-> 
-> 
-> 
-> 
-/root is mislabeled.  It should not be default_t.
 
-Also user_t should probably not be allowed to run su.  Since it is a non
-admin user.
+HI SELinux experts,
 
-In Fedora Policy, staff_t and user_t can not run su.  They need to use
-sudo.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+I am trying to use SELinux on an ARM board with limited RAM <=128m, if I use semodule tool to create policy store on the target it will be terminated by kernel OOM killer. Normally semodule tool will install the policy store on the host, is it possible to cross-install the policy store to the target rootfs image on the host?
 
-iEYEARECAAYFAkvxpQwACgkQrlYvE4MpobMPEwCfW9BVnCHfM6C1ZoHDJoQc8eGT
-Yw4AniwXwMaewllrqic6dJgZ+FQg9n3I
-=9gF5
------END PGP SIGNATURE-----
+Thank you very much!
+
+Best regards,
+Harry
+ 		 	   		  
+_________________________________________________________________
+想知道明天天气如何？必应告诉你！
+http://cn.bing.com/search?q=%E5%A4%A9%E6%B0%94%E9%A2%84%E6%8A%A5&form=MICHJ2
+--_d50bf9ee-8b98-42e2-ad1f-58dec1e391fd_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Verdana
+}
+--></style>
+</head>
+<body class='hmmessage'>
+HI SELinux experts,<br><br>I am trying to use SELinux on an ARM board with limited RAM &lt;=128m, if I use semodule tool to create policy store on the target it will be terminated by kernel OOM killer. Normally semodule tool will install the policy store on the host, is it possible to cross-install the policy store to the target rootfs image on the host?<br><br>Thank you very much!<br><br>Best regards,<br>Harry<br> 		 	   		  <br /><hr />搜索本应是彩色的,快来体验新一代搜索引擎-必应,精美图片每天换哦! <a href='http://cn.bing.com/?form=CRMADS ' target='_new'>立即试用！</a></body>
+</html>
+--_d50bf9ee-8b98-42e2-ad1f-58dec1e391fd_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
