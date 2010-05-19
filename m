@@ -1,40 +1,85 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4JFXt8I023181
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2010 11:34:01 -0400
-Received: from mail-px0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4JFXFWI026036
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2010 15:33:21 GMT
-Received: by pxi15 with SMTP id 15so4008330pxi.12
-        for <selinux@tycho.nsa.gov>; Wed, 19 May 2010 08:33:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <AANLkTinfrhS8r4gnc92Pmt78dQ080wlJEdH8qZjM0ZjK@mail.gmail.com>
-References: <AANLkTinfrhS8r4gnc92Pmt78dQ080wlJEdH8qZjM0ZjK@mail.gmail.com>
-Date: Wed, 19 May 2010 20:33:52 +0500
-Message-ID: <AANLkTimOdxgxn1jBFfWABOvTQbOK9ZT6sMsjFCdZQp2L@mail.gmail.com>
-Subject: Re: Howto enable or disable clipboard with selinux?
+In-Reply-To: <1274281931.1143.148.camel@moss-pluto.epoch.ncsc.mil>
+References: <BAY111-W21E4613ED1D1458B53C3A6ABE10@phx.gbl>
+	 <AANLkTimIvyXJNr8xRUAUryDHKGdhohaXwGfaN4ls_VVf@mail.gmail.com>
+	 <1274188841.8879.2.camel@moss-pluto.epoch.ncsc.mil>
+	 <1274190359.8879.28.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTilIi9IGW2LehHbc1FMw-T7NCjeyF9LSoHRbHtvm@mail.gmail.com>
+	 <1274210546.8879.139.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTikDEXmWbKQMp_clbGxCVoqpxwp21sUPmF0oaC_d@mail.gmail.com>
+	 <1274276003.1143.74.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTim9goaYNqDSrQZtfOWJWMywBFV-fPieBJEXYfir@mail.gmail.com>
+	 <1274281931.1143.148.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 19 May 2010 20:27:49 +0500
+Message-ID: <AANLkTim39ccwJAroJoAmKc2NsbUl3V1ISlx2Rnfm9PMX@mail.gmail.com>
+Subject: Re: How to cross install policy store?
 From: Shaz <shazalive@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>, refpolicy@oss1.tresys.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        TaurusHarry <harrytaurus2002@hotmail.com>,
+        selinux-mailing-list <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, May 15, 2010 at 10:50 PM, Shaz <shazalive@gmail.com> wrote:
-> Dear list,
+>> Very useful information. I have another question ... will a module
+>> built on build host with one version of policy compatible to load with
+>> another policy version running on the target?
 >
-> I want to enable or disable the clipboard with booleans. Is there any
-> available policy that can do this? If not please indicate the relevant place
-> to start with.
+> Policy modules have their own versioning; you can see what module
+> versions are supported by your libraries and policy compiler via
+> checkmodule -V on both the build host and the target host.
+>
+> If checkmodule on the build host supports a newer version of modules
+> than the libraries on the target host, then (just like the corresponding
+> case for kernel policy versions) you'd need to generate the older module
+> version for the target system.  While that should be supported already
+> by the libraries, I don't think we have a build.conf or a semanage.conf
+> setting today that would specify the output module version, and
+> checkmodule doesn't appear to support the -c switch.  So someone would
+> have to code up the support for doing that.  In the interim, I think
+> your only option for this case is to install a private copy of the same
+> selinux userspace as the target on the build host and use that to
+> compile your modules so that the versions will be compatible.
 
-There was a flaw in this question that someone on selinux irc
-explained to me. We need to control an application's access to
-booleans. But I am still not sure how much and what effort it
-requires? Pointer to tutorials or some guidance will be appreciated.
+How can we deny the usefulness of building the module on the target at
+this point? This is where my mind is stuck. I query the available
+interfaces on target and send a policy that will build with those
+interfaces using package manager and it's post and pre scripts for the
+package in context. Are there any weaknesses here that I am
+overlooking.
 
-Which version of XACE can do this going as back and earlier as possible?
+> If checkmodule on the build host supports an older version of modules
+> than the libraries on the target host, you have two options as with the
+> corresponding case for kernel policy versions.  You can just generate
+> the older module version and use that on the target system (at a
+> possible cost in newer features in the newer module format), or you can
+> install a private copy of the selinux userspace from the target on the
+> build host and use that to generate the newer module version.
+
+>> Can we have policy modules, interfaces and booleans without reference policy?
+>
+> Booleans are a policy primitive directly supported by the kernel.
+> Modules are an abstraction supported by the policy toolchain (selinux
+> userspace).  Interfaces are an abstraction supported by the refpolicy,
+> but they are implemented just via m4 macros.
+>
+> So you can certainly use booleans and modules apart from refpolicy, and
+> whatever policy you create is free to define and use macros for
+> convenience (hence interfaces).
+
+Before I can learn m4 or something similar and get command over policy
+writing I think experimenting with reference policy is suitable.
+
+Performance is not an issue as such on our end.
+
+> Reference policy is just a specific policy configuration and associated
+> build infrastructure.
 
 
 -- 
 Shaz
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
