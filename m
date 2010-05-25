@@ -1,179 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4LMkKLp007364
-	for <selinux@tycho.nsa.gov>; Fri, 21 May 2010 18:46:20 -0400
-Received: from tundra.namei.org (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4LMjb9D004408
-	for <selinux@tycho.nsa.gov>; Fri, 21 May 2010 22:45:38 GMT
-Date: Sat, 22 May 2010 08:44:58 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: linux-security-module@vger.kernel.org
-cc: linux-kernel@vger.kernel.org, lwn@lwn.net, fedora-selinux-list@redhat.com,
-        selinux@tycho.nsa.gov, "C. Craig Ross" <ccr@linuxfoundation.org>,
-        ubuntu-hardened@lists.ubuntu.com, tomoyo-users-en@lists.sourceforge.jp,
-        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        Audit-ML <linux-audit@redhat.com>, lss-pc@ext.namei.org,
-        gentoo-hardened@gentoo.org
-Subject: [ANN] Linux Security Summit 2010 - Announcement and CFP
-Message-ID: <alpine.LRH.2.00.1005220826560.10931@tundra.namei.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4P61OA6001469
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2010 02:01:24 -0400
+Received: from snt0-omc3-s34.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4P60dFk012433
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2010 06:00:39 GMT
+Message-ID: <SNT139-w43C25DEB5952D5BB6F5452ABE80@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_94110355-4e9e-4a59-b8d4-c7ca48fc7166_"
+From: TaurusHarry <harrytaurus2002@hotmail.com>
+To: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: How the native device nodes of /dev/* get relabeled?
+Date: Tue, 25 May 2010 06:01:22 +0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-==========================================================================
-
-                  ANNOUNCEMENT AND CALL FOR PARTICIPATION                
-
-                        LINUX SECURITY SUMMIT 2010      
-
-==========================================================================
+--_94110355-4e9e-4a59-b8d4-c7ca48fc7166_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
 
-DESCRIPTION
+Hi SELinux experts,
 
-  The Linux Security Summit is a technical forum for collaboration
-  between Linux developers, researchers, and end users.  Its primary aim
-  is to foster community efforts in analyzing and solving Linux security
-  challenges.
+Thanks for reading my question. I know the whole file system could be relabeled if we touch /.autorelabel, then during system boots up rc.sysinit will go on to call relabel_selinux() function to fix the label for the whole file system, however, this happens after rc.sysinit has called start_udev, which will mount tmpfs onto /dev/ and take the responsibility to restorecon it properly. So how do we make sure those native device nodes under /dev/* such as /dev/console and /dev/null being properly labeled? They would be accessed by the hostname or mount program before rc.sysinit calls start_udev(when the tmpfs has not been mounted and labeled on /dev/).
 
-  The format of the summit will be:
-  
-    * Selected brief presentations
-    * Lightning talks
-    * Q&A panel sessions 
-  
+Thanks and best regards,
+Harry
+ 		 	   		  
+_________________________________________________________________
+一张照片的自白——Windows Live照片的可爱视频介绍
+http://windowslivesky.spaces.live.com/blog/cns!5892B6048E2498BD!889.entry
+--_94110355-4e9e-4a59-b8d4-c7ca48fc7166_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-DATES / LOCATION
-
-  The Linux Security Summit for 2010 will be held on the 9th of August in
-  Boston, USA.  It will be co-located with LinuxCon [1], at the
-  Renaissance Boston Waterfront.
-  
-  Note that Linux Security Summit attendees must be registered to attend
-  LinuxCon.  See the LinuxCon site for details on registration, travel,
-  and accommodation.
-  
-    http://events.linuxfoundation.org/events/linuxcon
-
-  The CFP is currently open, and will close on 4th of June (see below).
-  
-  Accepted speakers will be notified by 9th of June.
-
-
-WHO SHOULD ATTEND
-
-  The event is open to all registered LinuxCon attendees.
-  
-  You do not have to be a "security person" to attend -- we're seeking a
-  diverse range of attendees, and welcome the participation of general
-  developers, researchers, operations, and end-users.
-
-  There will be several panel sessions in addition to brief, selected
-  presentations, with a strong focus on discussion.
-
-
-CALL FOR PARTICIPATION
-
-  The program committee currently seeks proposals for:
-
-  Presentations:
-  
-    Brief technical talks in 30 minute slots, including at least 10
-    minutes of discussion (i.e.  the maximum length of the presentation
-    alone is 20 minutes).  Papers are encouraged, and slides should be
-    minimal.
-    
-    Presentation abstracts should be approximately 150 words in length.
-
-
-  Panel discussion topics:
-  
-    If you'd like to see an issue discussed in a Q&A style panel, send it
-    in.  Note that this may result in you volunteering to participate in
-    a panel.
-
-    
-  Topic areas include, but are not limited to:
-  
-    * System hardening
-    * Access control
-    * Cryptography
-    * Integrity control
-    * Hardware security
-    * Networking
-    * Storage
-    * Virtualization
-    * Desktop
-    * Tools
-    * Management
-    * Case studies
-    * Emerging technologies, threats & techniques 
-    
-  Proposals must be submitted before the end of June 4th, 2010.
-  
-  (That's not far away!)
-  
-  Accepted speakers will be notified by June 9th, 2010.
-  
-  We will probably receive more proposals than can be accommodated.  If
-  your talk is not accepted, you may wish to give a lightning talk or
-  raise a topic in a discussion panel.
-  
-  Lightning talks and discussion panel agendas will be coordinated closer
-  to the event on the event mailing list, and on-site.
-
-  Proposals should be submitted in plain text via email to the program
-  committee at:  lss-pc (_at_) ext.namei.org
-
-
-MAILING LIST
-
-  Everyone planning to attend should join the event mailing list:
-  
-     https://ext.namei.org/mailman/listinfo/linux-security-summit
-     
-  Coordination of panel discussions and lightning talks will occur on the
-  list.  Updates and announcements about the event will also be sent to
-  the list.
-  
-
-WEB SITE
-
-  Please also note the Linux Security Summit web site:
-  
-    https://security.wiki.kernel.org/index.php/LinuxSecuritySummit2010  
- 
-  which will be kept updated with all available information on the event.
-
-
-PROGRAM COMMITTEE
-
-  The Linux Security Summit for 2010 is organized by:
-
-    * James Morris, Red Hat
-    * Serge Hallyn, IBM
-    * Paul Moore, HP
-    * Stephen Smalley, NSA
-    * Joshua Brindle, Tresys
-    * Tetsuo Handa, NTT Data
-    * Herbert Xu, Red Hat
-    * John Johansen, Canonical
-    * Andrew G. Morgan, Google
-    * Kees Cook, Canonical
-    * Casey Schaufler, Smack Project 
-
-  
-  The program committee may be contacted as a group via email:
-
-     lss-pc (_at_) ext.namei.org
-   
-
-REFERENCES  
-
-  [1] LinuxCon: http://events.linuxfoundation.org/events/linuxcon
-
-
-
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Verdana
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi SELinux experts,<br><br>Thanks for reading my question. I know the whole file system could be relabeled if we touch /.autorelabel, then during system boots up rc.sysinit will go on to call relabel_selinux() function to fix the label for the whole file system, however, this happens after rc.sysinit has called start_udev, which will mount tmpfs onto /dev/ and take the responsibility to restorecon it properly. So how do we make sure those native device nodes under /dev/* such as /dev/console and /dev/null being properly labeled? They would be accessed by the hostname or mount program before rc.sysinit calls start_udev(when the tmpfs has not been mounted and labeled on /dev/).<br><br>Thanks and best regards,<br>Harry<br> 		 	   		  <br /><hr />使用Messenger保护盾2.0，支持多账号登录！ <a href='http://www.windowslive.cn/safe/' target='_new'>现在就下载！</a></body>
+</html>
+--_94110355-4e9e-4a59-b8d4-c7ca48fc7166_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
