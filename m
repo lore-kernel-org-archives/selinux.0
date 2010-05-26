@@ -1,44 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4PLaZkv026553
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2010 17:36:35 -0400
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o4PLbs4f010434
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2010 21:37:54 GMT
-Date: Tue, 25 May 2010 17:36:33 -0400
-Subject: install giving the wrong label
-From: Chad Sellers <csellers@tresys.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Message-ID: <C821BB21.B8234%csellers@tresys.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4Q75VfY017137
+	for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 03:05:31 -0400
+Received: from mail-pz0-f173.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4Q74mXD028540
+	for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 07:04:48 GMT
+Received: by pzk3 with SMTP id 3so3064531pzk.26
+        for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 00:05:29 -0700 (PDT)
+MIME-Version: 1.0
+Date: Wed, 26 May 2010 12:05:29 +0500
+Message-ID: <AANLkTinESptHxDYCPSiRJca5_-fK4DsiDwd_KQzQN6gX@mail.gmail.com>
+Subject: SELinux support in Libc
+From: Shaz <shazalive@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=000325562e1e2d1df4048779e696
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I just found a problem with /usr/bin/install. It appears that it will label
-things improperly if they have an extra / in the target name. For instance:
+--000325562e1e2d1df4048779e696
+Content-Type: text/plain; charset=ISO-8859-1
 
-# install foo /usr
-# ls -lZ /usr/foo
--rwxr-xr-x. root root system_u:object_r:usr_t:s0       /usr/foo
+Dear all,
 
-but
+I was building eglibc and saw selinux support flag in it's configure script.
+Any idea what this is used for. Some hints and pointers needed.
 
-# install foo //usr
-# ls -lZ /usr/foo
--rwxr-xr-x. root root system_u:object_r:default_t:s0       /usr/foo
+SELinux works for me without this support as far as I understand but need to
+get all the goodies that are available. Couln't find anything with a bit of
+googling!
 
-The same thing goes for targets like /var/www//foo, where the // is later in
-the filename.
+-- 
+Shaz
 
-This appears to result from install calling matchpathcon() with the target
-passed in directly. My question is, whose responsibility should this be?
-Should matchpatchcon() scrub filenames passed into it, or should callers be
-required to pass proper filenames to matchpathcon()?
+--000325562e1e2d1df4048779e696
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Chad Sellers
+Dear all,<br><br>I was building eglibc and saw selinux support flag in it&#=
+39;s configure script. Any idea what this is used for. Some hints and point=
+ers needed.<br><br>SELinux works for me without this support as far as I un=
+derstand but need to get all the goodies that are available. Couln&#39;t fi=
+nd anything with a bit of googling!<br clear=3D"all">
+<br>-- <br>Shaz<br><br>
 
+--000325562e1e2d1df4048779e696--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
