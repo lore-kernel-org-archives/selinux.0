@@ -1,40 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4R0egLi020901
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 20:40:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4R0gktD020975
+	for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 20:42:46 -0400
 Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4R0g1S0003753
-	for <selinux@tycho.nsa.gov>; Thu, 27 May 2010 00:42:01 GMT
-Received: by gyg8 with SMTP id 8so4206809gyg.12
-        for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 17:40:41 -0700 (PDT)
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4R0g3t1029149
+	for <selinux@tycho.nsa.gov>; Thu, 27 May 2010 00:42:03 GMT
+Received: by gyg8 with SMTP id 8so4208569gyg.12
+        for <selinux@tycho.nsa.gov>; Wed, 26 May 2010 17:42:45 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <AANLkTinESptHxDYCPSiRJca5_-fK4DsiDwd_KQzQN6gX@mail.gmail.com>
-References: <AANLkTinESptHxDYCPSiRJca5_-fK4DsiDwd_KQzQN6gX@mail.gmail.com>
-Date: Wed, 26 May 2010 20:40:41 -0400
-Message-ID: <AANLkTikXXwLPbfr8sG9YiAsKggZeRVAtU7FUF8Wgk1lg@mail.gmail.com>
-Subject: Re: SELinux support in Libc
+In-Reply-To: <C821BB21.B8234%csellers@tresys.com>
+References: <C821BB21.B8234%csellers@tresys.com>
+Date: Wed, 26 May 2010 20:42:44 -0400
+Message-ID: <AANLkTim1T-6OdCijnKbMkOSFqSjfth-QDokuKSZe113k@mail.gmail.com>
+Subject: Re: install giving the wrong label
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Shaz <shazalive@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
+To: Chad Sellers <csellers@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 26, 2010 at 3:05 AM, Shaz <shazalive@gmail.com> wrote:
-> Dear all,
+On Tue, May 25, 2010 at 5:36 PM, Chad Sellers <csellers@tresys.com> wrote:
+> I just found a problem with /usr/bin/install. It appears that it will label
+> things improperly if they have an extra / in the target name. For instance:
 >
-> I was building eglibc and saw selinux support flag in it's configure script.
-> Any idea what this is used for. Some hints and pointers needed.
+> # install foo /usr
+> # ls -lZ /usr/foo
+> -rwxr-xr-x. root root system_u:object_r:usr_t:s0       /usr/foo
 >
-> SELinux works for me without this support as far as I understand but need to
-> get all the goodies that are available. Couln't find anything with a bit of
-> googling!
+> but
+>
+> # install foo //usr
+> # ls -lZ /usr/foo
+> -rwxr-xr-x. root root system_u:object_r:default_t:s0       /usr/foo
+>
+> The same thing goes for targets like /var/www//foo, where the // is later in
+> the filename.
+>
+> This appears to result from install calling matchpathcon() with the target
+> passed in directly. My question is, whose responsibility should this be?
+> Should matchpatchcon() scrub filenames passed into it, or should callers be
+> required to pass proper filenames to matchpathcon()?
 
-The nscd was instrumented as a userspace object manager a long time
-ago at the request of its maintainers.  The original motivation was
-when it introduced support for exporting direct access to the mapped
-database files to the clients, but general access controls were added
-for all of its services at the time.  See the class ncsd definitions
-in the access_vectors file and the nscd.if and nscd.te policy files.
+I suppose matchpathcon / selabel_lookup could handle the trivial cases
+(e.g. duplicate /), but we don't want it to internally canonicalize
+the pathname via realpath() or equivalent - leave that to the callers
+(as is already done by e.g. restorecon).
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
