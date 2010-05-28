@@ -1,67 +1,104 @@
-MIME-Version: 1.0
-In-Reply-To: <1274993083.7399.60.camel@moss-pluto.epoch.ncsc.mil>
-References: <AANLkTilavQK5qmG2B3wuWzfd2kqEK6EP54r3R7A99LI0@mail.gmail.com>
-	<1274988457.7399.48.camel@moss-pluto.epoch.ncsc.mil>
-	<AANLkTinNrewuTkyzLPalh-pUMZkvgGJfozB9Hl9YgOgi@mail.gmail.com>
-	<1274993083.7399.60.camel@moss-pluto.epoch.ncsc.mil>
-Date: Fri, 28 May 2010 02:23:37 +0500
-Message-ID: <AANLkTimOpv1CEU9hU6mjenApW5v9xlLpMw6UlRhUQqSZ@mail.gmail.com>
-Subject: Re: Default security module feature of 2.6.34
-From: Shaz <shazalive@gmail.com>
+Message-ID: <SNT139-w484C3469CDD20572093639ABEB0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_4e7a7021-62f4-4a18-bcac-65bd287421ad_"
+From: TaurusHarry <harrytaurus2002@hotmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: RE: How the native device nodes of /dev/* get relabeled?
+Date: Fri, 28 May 2010 08:53:10 +0000
+In-Reply-To: <1274790919.2742.33.camel@moss-pluto.epoch.ncsc.mil>
+References: 
+ <SNT139-w43C25DEB5952D5BB6F5452ABE80@phx.gbl>,<1274790919.2742.33.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 28, 2010 at 1:44 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2010-05-28 at 01:28 +0500, Shaz wrote:
->> On Fri, May 28, 2010 at 12:27 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> > On Thu, 2010-05-27 at 22:12 +0500, Shaz wrote:
->> >> Dear all,
->> >>
->> >> I saw the default security feature in linux-2.6.34 and wanted to know
->> >> what difference does it make to have linux DAC or selinux as the
->> >> default security module?
->> >
->> > It doesn't appear to change anything. 燦ot sure if that was the intent.
->> >
->> > The purpose of the option was to allow specification of what security
->> > module to enable at boot by default when multiple security modules are
->> > built into the kernel and no security= parameter was specified on the
->> > kernel command line. 燤ostly useful for distributions who want to ship a
->> > single kernel that can support any security module and default to a
->> > particular one. 燬o for example you could compile SELinux, Smack, and
->> > TOMOYO into your kernel while defaulting to enabling TOMOYO at boot
->> > time, letting the user optionally select SELinux or Smack via the
->> > security= kernel parameter.
->> >
->> > I think the DAC setting was just to reflect the fact that if you don't
->> > enable anything else, you'll get DAC by default. 燘ut to make that
->> > option actually select DAC-only at boot (i.e. not enable any of security
->> > modules), it would have to set the DEFAULT_SECURITY string to some
->> > non-empty string that doesn't match any security module name rather than
->> > to the empty string.
->>
->> If selinux is chosen at default then what would be the effect? Would
->> LSM be invoked before DAC checks? If not then this kernel
->> configuration scheme needs to be corrected.
->
-> No, it doesn't have anything to do with when the check is applied; it
-> just affects which security module is enabled by default at boot if
-> multiple security modules are built into your kernel.
-> DEFAULT_SECURITY_DAC is likely meant to disable all security modules
-> (DAC isn't a security module), falling back to only the default DAC
-> logic. 營n which case the Kconfig file does need to be fixed.
-
-Which means that if selinux, smack and tomoyo are built then if
-someone makes DAC the default module as a choice would or must result
-in only DAC i.e. disabling others!
+--_4e7a7021-62f4-4a18-bcac-65bd287421ad_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
 
--- 
-Shaz
 
+
+> Subject: Re: How the native device nodes of /dev/* get relabeled?
+> From: sds@tycho.nsa.gov
+> To: harrytaurus2002@hotmail.com
+> CC: selinux@tycho.nsa.gov
+> Date: Tue, 25 May 2010 08:35:19 -0400
+> 
+> On Tue, 2010-05-25 at 06:01 +0000, TaurusHarry wrote:
+> > Hi SELinux experts,
+> > 
+> > Thanks for reading my question. I know the whole file system could be
+> > relabeled if we touch /.autorelabel, then during system boots up
+> > rc.sysinit will go on to call relabel_selinux() function to fix the
+> > label for the whole file system, however, this happens after
+> > rc.sysinit has called start_udev, which will mount tmpfs onto /dev/
+> > and take the responsibility to restorecon it properly. So how do we
+> > make sure those native device nodes under /dev/* such as /dev/console
+> > and /dev/null being properly labeled? They would be accessed by the
+> > hostname or mount program before rc.sysinit calls start_udev(when the
+> > tmpfs has not been mounted and labeled on /dev/).
+> 
+> Once policy has been loaded, you can run restorecon -R /dev to fix up
+> the labels of any device nodes that were previously created; rc.sysinit
+> does that in Fedora, but you could take it earlier in the initialization
+> process, anytime after policy load (you could do it from the initramfs
+> script right after policy load).
+> 
+
+Thanks Stephen!
+
+Now I understand the purpose of the initramfs script of "_restorecon" on my Ubuntu desktop - it is to relabel the raw /dev/ directory after the "_load_policy" initramfs script loaded SELinux policy image. I have taken Fedora's approach and make rc.sysinit relabel /dev/console and /dev/null properly before tmpfs is mounted on /dev/ by the start_udev script.
+
+Best regards,
+Harry
+
+> Otherwise, you have to just allow certain domains to access the default
+> type applied to the initial /dev nodes (e.g. tmpfs_t if it is a tmpfs
+> mount or a devtmpfs mount). refpolicy does this via
+> fs_rw_tmpfs_chr_files() for certain domains, including init_t, initrc_t,
+> mount_t, hotplug_t.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+_________________________________________________________________
+SkyDrive电子画册，带你领略精彩照片，分享“美”时“美”刻!
+http://www.windowslive.cn/campaigns/e-magazine/ngmchina/?a=c
+--_4e7a7021-62f4-4a18-bcac-65bd287421ad_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Verdana
+}
+--></style>
+</head>
+<body class='hmmessage'>
+<br><br>&gt; Subject: Re: How the native device nodes of /dev/* get relabeled?<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: harrytaurus2002@hotmail.com<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; Date: Tue, 25 May 2010 08:35:19 -0400<br>&gt; <br>&gt; On Tue, 2010-05-25 at 06:01 +0000, TaurusHarry wrote:<br>&gt; &gt; Hi SELinux experts,<br>&gt; &gt; <br>&gt; &gt; Thanks for reading my question. I know the whole file system could be<br>&gt; &gt; relabeled if we touch /.autorelabel, then during system boots up<br>&gt; &gt; rc.sysinit will go on to call relabel_selinux() function to fix the<br>&gt; &gt; label for the whole file system, however, this happens after<br>&gt; &gt; rc.sysinit has called start_udev, which will mount tmpfs onto /dev/<br>&gt; &gt; and take the responsibility to restorecon it properly. So how do we<br>&gt; &gt; make sure those native device nodes under /dev/* such as /dev/console<br>&gt; &gt; and /dev/null being properly labeled? They would be accessed by th!
+ e<br>&gt; &gt; hostname or mount program before rc.sysinit calls start_udev(when the<br>&gt; &gt; tmpfs has not been mounted and labeled on /dev/).<br>&gt; <br>&gt; Once policy has been loaded, you can run restorecon -R /dev to fix up<br>&gt; the labels of any device nodes that were previously created; rc.sysinit<br>&gt; does that in Fedora, but you could take it earlier in the initialization<br>&gt; process, anytime after policy load (you could do it from the initramfs<br>&gt; script right after policy load).<br>&gt; <br><br>Thanks Stephen!<br><br>Now I understand the purpose of the initramfs script of "_restorecon" on my Ubuntu desktop - it is to relabel the raw /dev/ directory after the "_load_policy" initramfs script loaded SELinux policy image. I have taken Fedora's approach and make rc.sysinit relabel /dev/console and /dev/null properly before tmpfs is mounted on /dev/ by the start_udev script.<br><br>Best regards,<br>Harry<br><br>&gt; Otherwise, you have to just allo!
+ w certain domains to access the default<br>&gt; type applied to the in
+itial /dev nodes (e.g. tmpfs_t if it is a tmpfs<br>&gt; mount or a devtmpfs mount). refpolicy does this via<br>&gt; fs_rw_tmpfs_chr_files() for certain domains, including init_t, initrc_t,<br>&gt; mount_t, hotplug_t.<br>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  <br /><hr />聊天+搜索+邮箱 想要轻松出游,手机MSN帮你搞定! <a href='http://3g.msn.cn/' target='_new'>立刻下载！</a></body>
+</html>
+--_4e7a7021-62f4-4a18-bcac-65bd287421ad_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
