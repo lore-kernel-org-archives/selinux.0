@@ -1,104 +1,180 @@
-Message-ID: <SNT139-w484C3469CDD20572093639ABEB0@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_4e7a7021-62f4-4a18-bcac-65bd287421ad_"
-From: TaurusHarry <harrytaurus2002@hotmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: RE: How the native device nodes of /dev/* get relabeled?
-Date: Fri, 28 May 2010 08:53:10 +0000
-In-Reply-To: <1274790919.2742.33.camel@moss-pluto.epoch.ncsc.mil>
-References: 
- <SNT139-w43C25DEB5952D5BB6F5452ABE80@phx.gbl>,<1274790919.2742.33.camel@moss-pluto.epoch.ncsc.mil>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4TLfSGx024813
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 17:41:28 -0400
+Received: from pobox.globalherald.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4TLeglY028332
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:40:42 GMT
+Received: from [192.168.1.135] (unknown [192.168.2.5])
+	by pobox.globalherald.net (Postfix) with ESMTP id 67F5E1FD08A
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 20:03:08 -0400 (EDT)
+Message-ID: <4C0189D1.3030301@globalherald.net>
+Date: Sat, 29 May 2010 17:40:33 -0400
+From: Joshua Kramer <josh@globalherald.net>
 MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Non-Computing Abstractions & An Issue Thereof
+Content-Type: multipart/mixed;
+ boundary="------------080709020506080006020201"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_4e7a7021-62f4-4a18-bcac-65bd287421ad_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+This is a multi-part message in MIME format.
+--------------080709020506080006020201
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+I am trying to wrap my head around using SELinux to secure data objects 
+in userspace.  My learning style suggests that for a topic like this, I 
+abstract the theory away from how it's actually implemented in 
+software.  To those ends, I have created the type enforcement file 
+attached to this email, that loosely models the behavior of teams of 
+sled dogs using SELinux.
+
+When I try to install the policy using these commands:
+
+checkmodule -M -m -o seSledDogs.mod seSledDogs.te
+semodule_package -o seSledDogs.pp -m seSledDogs.mod
+semodule -i ./seSledDogs.pp
+
+...I get this error from semodule:
+
+libsepol.print_missing_requirements: seSledDogs's global requirements 
+were not met: role dog_owner_r (No such file or directory).
+libsemanage.semanage_link_sandbox: Link packages failed (No such file or 
+directory).
+semodule:  Failed!
+
+If I comment out the roles, I get a similar message about the types:
+
+libsepol.print_missing_requirements: seSledDogs's global requirements 
+were not met: type/attribute medicine_t (No such file or directory).
+libsemanage.semanage_link_sandbox: Link packages failed (No such file or 
+directory).
+semodule:  Failed!
+
+Where do I need to be defining these roles and types?  I was under the 
+impression that the te files were self-contained.
+
+Thanks!
+-Joshua Kramer
 
 
 
+--------------080709020506080006020201
+Content-Type: text/plain;
+ name="seSledDogs.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="seSledDogs.te"
 
-> Subject: Re: How the native device nodes of /dev/* get relabeled?
-> From: sds@tycho.nsa.gov
-> To: harrytaurus2002@hotmail.com
-> CC: selinux@tycho.nsa.gov
-> Date: Tue, 25 May 2010 08:35:19 -0400
-> 
-> On Tue, 2010-05-25 at 06:01 +0000, TaurusHarry wrote:
-> > Hi SELinux experts,
-> > 
-> > Thanks for reading my question. I know the whole file system could be
-> > relabeled if we touch /.autorelabel, then during system boots up
-> > rc.sysinit will go on to call relabel_selinux() function to fix the
-> > label for the whole file system, however, this happens after
-> > rc.sysinit has called start_udev, which will mount tmpfs onto /dev/
-> > and take the responsibility to restorecon it properly. So how do we
-> > make sure those native device nodes under /dev/* such as /dev/console
-> > and /dev/null being properly labeled? They would be accessed by the
-> > hostname or mount program before rc.sysinit calls start_udev(when the
-> > tmpfs has not been mounted and labeled on /dev/).
-> 
-> Once policy has been loaded, you can run restorecon -R /dev to fix up
-> the labels of any device nodes that were previously created; rc.sysinit
-> does that in Fedora, but you could take it earlier in the initialization
-> process, anytime after policy load (you could do it from the initramfs
-> script right after policy load).
-> 
 
-Thanks Stephen!
+module seSledDogs 1.0;
 
-Now I understand the purpose of the initramfs script of "_restorecon" on my Ubuntu desktop - it is to relabel the raw /dev/ directory after the "_load_policy" initramfs script loaded SELinux policy image. I have taken Fedora's approach and make rc.sysinit relabel /dev/console and /dev/null properly before tmpfs is mounted on /dev/ by the start_udev script.
+require {
 
-Best regards,
-Harry
+    # ----- SPECIFICATION.  This specifies what things are.
 
-> Otherwise, you have to just allow certain domains to access the default
-> type applied to the initial /dev nodes (e.g. tmpfs_t if it is a tmpfs
-> mount or a devtmpfs mount). refpolicy does this via
-> fs_rw_tmpfs_chr_files() for certain domains, including init_t, initrc_t,
-> mount_t, hotplug_t.
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
- 		 	   		  
-_________________________________________________________________
-SkyDrive电子画册，带你领略精彩照片，分享“美”时“美”刻!
-http://www.windowslive.cn/campaigns/e-magazine/ngmchina/?a=c
---_4e7a7021-62f4-4a18-bcac-65bd287421ad_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+    # Classes.  The class describes a basic type of object
+    # with which one can interact, and the interactions one
+    # can have.  For example, with a _sled_ you can pull,
+    # load, unload.  On the Linux side, an example of a
+    # class is _file_: you can read, write, and perform
+    # other operations on files.
 
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Verdana
-}
---></style>
-</head>
-<body class='hmmessage'>
-<br><br>&gt; Subject: Re: How the native device nodes of /dev/* get relabeled?<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: harrytaurus2002@hotmail.com<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; Date: Tue, 25 May 2010 08:35:19 -0400<br>&gt; <br>&gt; On Tue, 2010-05-25 at 06:01 +0000, TaurusHarry wrote:<br>&gt; &gt; Hi SELinux experts,<br>&gt; &gt; <br>&gt; &gt; Thanks for reading my question. I know the whole file system could be<br>&gt; &gt; relabeled if we touch /.autorelabel, then during system boots up<br>&gt; &gt; rc.sysinit will go on to call relabel_selinux() function to fix the<br>&gt; &gt; label for the whole file system, however, this happens after<br>&gt; &gt; rc.sysinit has called start_udev, which will mount tmpfs onto /dev/<br>&gt; &gt; and take the responsibility to restorecon it properly. So how do we<br>&gt; &gt; make sure those native device nodes under /dev/* such as /dev/console<br>&gt; &gt; and /dev/null being properly labeled? They would be accessed by th!
- e<br>&gt; &gt; hostname or mount program before rc.sysinit calls start_udev(when the<br>&gt; &gt; tmpfs has not been mounted and labeled on /dev/).<br>&gt; <br>&gt; Once policy has been loaded, you can run restorecon -R /dev to fix up<br>&gt; the labels of any device nodes that were previously created; rc.sysinit<br>&gt; does that in Fedora, but you could take it earlier in the initialization<br>&gt; process, anytime after policy load (you could do it from the initramfs<br>&gt; script right after policy load).<br>&gt; <br><br>Thanks Stephen!<br><br>Now I understand the purpose of the initramfs script of "_restorecon" on my Ubuntu desktop - it is to relabel the raw /dev/ directory after the "_load_policy" initramfs script loaded SELinux policy image. I have taken Fedora's approach and make rc.sysinit relabel /dev/console and /dev/null properly before tmpfs is mounted on /dev/ by the start_udev script.<br><br>Best regards,<br>Harry<br><br>&gt; Otherwise, you have to just allo!
- w certain domains to access the default<br>&gt; type applied to the in
-itial /dev nodes (e.g. tmpfs_t if it is a tmpfs<br>&gt; mount or a devtmpfs mount). refpolicy does this via<br>&gt; fs_rw_tmpfs_chr_files() for certain domains, including init_t, initrc_t,<br>&gt; mount_t, hotplug_t.<br>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  <br /><hr />聊天+搜索+邮箱 想要轻松出游,手机MSN帮你搞定! <a href='http://3g.msn.cn/' target='_new'>立刻下载！</a></body>
-</html>
---_4e7a7021-62f4-4a18-bcac-65bd287421ad_--
+    class sled { connect disconnect pull load unload embark disembark };
+    class food { eat share }; 
+
+    # Type definitions:  These describe the types of objects
+    # with which the dogs will be interacting.  In this case
+    # we have sleds that carry food, medicine, and people.
+
+    # In the Linux world, Types describe the objects such
+    # as files - for example, the files under /etc are
+    # labelled with the type etc_t.
+
+    type food_t;
+    type medicine_t;
+    type passenger_t;
+
+    # Domains:  For this example, Domains are the functions
+    # that are available to dogs.  Once a dog is assigned
+    # a task (a "process"), the dog becomes part of a domain.
+    # In dog terms the closest analogy is a Team - for example,
+    # the instance of Dog named Nakita is on Team "Deliver
+    # Medicine to Anchorage", hence domain meds_delivery_t.
+
+    # In the Linux world, Domains are functions available to
+    # particular programs or daemons.  For example, postgresql_t
+    # is the Domain available for running instances of the
+    # PostgreSQL daemon.
+
+    type human_function_t;
+    type dog_food_delivery_t;
+    type dog_meds_delivery_t;
+    type dog_people_delivery_t;
+    type eating_t;
+
+    # RBAC:  In this case, a 'role' describes a human
+    # being that can interact with a dog.
+
+    # In the Linux world, this is analogus to the roles such
+    # as user_r, staff_r, and sysadm_r.
+
+    role passenger_r;
+    role sled_driver_r;
+    role dog_owner_r;
+
+} # end of 'require' statement
+
+# ----- END SPECIFICATION
+
+# ----- PERMISSIONS: What we allow and deny -----
+
+# Permissions Rules:  Here we get to the meat of things.
+# What should we allow, and what should we deny?  Note that
+# anything that is not allowed here is denied; for example,
+# dogs on the meds_delivery_t team cannot pull sleds
+# of type passenger_t, because that is not explicitly
+# permitted.
+
+# Humans work in the 'human_function_t' domain.
+
+# Humans can load and unload sleds of type food_t:
+allow human_function_t food_t:sled { load unload };
+
+# Humans can load and unload sleds of type medicine_t:
+allow human_function_t medicine_t:sled { load unload };
+
+# Humans can load, unload, embark, and disembark from
+# sleds of type passenger_t:
+allow human_function_t passenger_t:sled { load unload embark disembark };
+
+# Humans can eat and share food of type food_t:
+allow human_function_t food_t:food { eat share };
+
+# Dogs, that are on the food delivery team (dog_food_delivery_t)
+# can pull sleds of type food_t:
+allow dog_food_delivery_t food_t:sled pull;
+
+# Dogs on the meds_delivery_t team can pull sleds of type
+# medicine_t:
+allow dog_meds_delivery_t medicine_t:sled pull;
+
+# Dogs on the people_delivery_t team can pull sleds of type
+# passenger_t:
+allow dog_people_delivery_t passenger_t:sled pull;
+
+
+# All Dogs can eat and share food of type food_t:
+allow dog_food_delivery_t food_t:food { eat share };
+allow dog_meds_delivery_t food_t:food { eat share };
+allow dog_people_delivery_t food_t:food { eat share };
+
+# ----- END PERMISSIONS
+
+--------------080709020506080006020201--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
