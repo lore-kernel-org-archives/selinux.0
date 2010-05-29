@@ -1,57 +1,87 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4TLrJAC025212
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 17:53:19 -0400
-Received: from g4t0017.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4TLqXlY000986
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:52:34 GMT
-Received: from g4t0009.houston.hp.com (g4t0009.houston.hp.com [16.234.32.26])
-	by g4t0017.houston.hp.com (Postfix) with ESMTP id 7FDC63815B
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:53:18 +0000 (UTC)
-Subject: [PATCH 0/6] SELinux UNIX domain socket fixes/cleanup
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4TLroIK025249
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 17:53:50 -0400
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4TLqllY001145
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:52:47 GMT
+Received: from g1t0039.austin.hp.com (g1t0039.austin.hp.com [16.236.32.45])
+	by g1t0027.austin.hp.com (Postfix) with ESMTP id 424F1380F8
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:53:32 +0000 (UTC)
+Subject: [PATCH 2/6] selinux: Set the peer label correctly on connected UNIX
+	domain sockets
 To: selinux@tycho.nsa.gov
 From: Paul Moore <paul.moore@hp.com>
-Date: Sat, 29 May 2010 17:53:16 -0400
-Message-ID: <20100529214628.4042.88276.stgit@flek.lan>
+Date: Sat, 29 May 2010 17:53:30 -0400
+Message-ID: <20100529215330.4042.97263.stgit@flek.lan>
+In-Reply-To: <20100529214628.4042.88276.stgit@flek.lan>
+References: <20100529214628.4042.88276.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I finally got a chance to cobble together some tests to verify both
-getpeercon() on the client end of a connected UNIX domain socket as well
-as the proper operation of fsetxattr() on sockets.  I'm happy to report
-that everything worked as I expected it to (UNIX sockets now behave like
-INET sockets) and nothing exploded.  This latest version of the patchset
-should include all the feedback I've received so far as well as my
-sign-off on each patch so I think we should be in good shape at this
-point.  As a result, I'm submitting these patches for whatever kernel
-release looks most appropriate - maybe to late for .35, but you might
-be able to make a weak argument that some of the patches are
-bugfixes - regardless, I'll let you guys make that call; as long as
-they go somewhere I'll be happy.
+Correct a problem where we weren't setting the peer label correctly on
+the client end of a pair of connected UNIX sockets.
 
-For those of you using git, you can also find a copy of the patches at
-the URL below.
-
- * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
-
-Thanks.
-
+Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
+ security/selinux/hooks.c |   30 ++++++++++++++----------------
+ 1 files changed, 14 insertions(+), 16 deletions(-)
 
-Paul Moore (6):
-      selinux: Update socket's label alongside inode's label
-      selinux: Set the peer label correctly on connected UNIX domain sockets
-      selinux: Consolidate sockcreate_sid logic
-      selinux: Shuffle the sk_security_struct alloc and free routines
-      selinux: Convert socket related access controls to use socket labels
-      selinux: Use current_security() when possible
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f29f376..ead0984 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4021,34 +4021,32 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+ 					      struct socket *other,
+ 					      struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec;
+-	struct inode_security_struct *isec;
+-	struct inode_security_struct *other_isec;
++	struct sk_security_struct *sksec_sock = sock->sk->sk_security;
++	struct sk_security_struct *sksec_other = other->sk->sk_security;
++	struct sk_security_struct *sksec_new = newsk->sk_security;
+ 	struct common_audit_data ad;
+ 	int err;
+ 
+-	isec = SOCK_INODE(sock)->i_security;
+-	other_isec = SOCK_INODE(other)->i_security;
+-
+ 	COMMON_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.sk = other->sk;
+ 
+-	err = avc_has_perm(isec->sid, other_isec->sid,
+-			   isec->sclass,
++	err = avc_has_perm(sksec_sock->sid, sksec_other->sid,
++			   sksec_other->sclass,
+ 			   UNIX_STREAM_SOCKET__CONNECTTO, &ad);
+ 	if (err)
+ 		return err;
+ 
+-	/* connecting socket */
+-	sksec = sock->sk->sk_security;
+-	sksec->peer_sid = other_isec->sid;
+-
+ 	/* server child socket */
+-	sksec = newsk->sk_security;
+-	sksec->peer_sid = isec->sid;
+-	err = security_sid_mls_copy(other_isec->sid, sksec->peer_sid, &sksec->sid);
++	sksec_new->peer_sid = sksec_sock->sid;
++	err = security_sid_mls_copy(sksec_other->sid, sksec_sock->sid,
++				    &sksec_new->sid);
++	if (err)
++		return err;
+ 
+-	return err;
++	/* connecting socket */
++	sksec_sock->peer_sid = sksec_new->sid;
++
++	return 0;
+ }
+ 
+ static int selinux_socket_unix_may_send(struct socket *sock,
 
-
- security/selinux/hooks.c            |  286 +++++++++++++++++------------------
- security/selinux/include/netlabel.h |    5 -
- security/selinux/netlabel.c         |    8 +
- 3 files changed, 144 insertions(+), 155 deletions(-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
