@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4TLroIM025249
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o4TLroIL025249
 	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 17:53:50 -0400
-Received: from g1t0026.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o4TLsloD018031
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:54:47 GMT
+Received: from g1t0028.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o4TLqslY001170
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:52:54 GMT
 Received: from g1t0038.austin.hp.com (g1t0038.austin.hp.com [16.236.32.44])
-	by g1t0026.austin.hp.com (Postfix) with ESMTP id 7461DC0BF
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:53:25 +0000 (UTC)
-Subject: [PATCH 1/6] selinux: Update socket's label alongside inode's label
+	by g1t0028.austin.hp.com (Postfix) with ESMTP id 082DA1C118
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2010 21:53:39 +0000 (UTC)
+Subject: [PATCH 3/6] selinux: Consolidate sockcreate_sid logic
 To: selinux@tycho.nsa.gov
 From: Paul Moore <paul.moore@hp.com>
-Date: Sat, 29 May 2010 17:53:23 -0400
-Message-ID: <20100529215323.4042.41278.stgit@flek.lan>
+Date: Sat, 29 May 2010 17:53:37 -0400
+Message-ID: <20100529215337.4042.66498.stgit@flek.lan>
 In-Reply-To: <20100529214628.4042.88276.stgit@flek.lan>
 References: <20100529214628.4042.88276.stgit@flek.lan>
 MIME-Version: 1.0
@@ -19,141 +19,82 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We have always had a potential disconnect between the label on socket and
-the label on the associated inode when a user calls fsetxattr() on a
-socket.  The problem is that the fsetxattr() call would only relabel the
-inode and not the corresponding socket; the good news is that the
-mainstream SELinux policies have always prevented this, but better safe
-than sorry ...
-
-This patch fixes this problem by adding the necessary socket labeling code
-to selinux_inode_setsecurity() so that if a user did relabel a socket via
-fsetxattr() both the inode and socket would be relabeled.
+Consolidate the basic sockcreate_sid logic into a single helper function
+which allows us to do some cleanups in the related code.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- security/selinux/hooks.c            |   43 ++++++++++++++++++++++++++++++++++-
- security/selinux/include/netlabel.h |    5 ++--
- security/selinux/netlabel.c         |    8 +++++--
- 3 files changed, 50 insertions(+), 6 deletions(-)
+ security/selinux/hooks.c |   32 ++++++++++++--------------------
+ 1 files changed, 12 insertions(+), 20 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5c9f25b..f29f376 100644
+index ead0984..a4a0660 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2898,6 +2898,47 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 	if (rc)
- 		return rc;
+@@ -3712,6 +3712,12 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+ }
  
-+	if (inode->i_sb->s_magic == SOCKFS_MAGIC) {
-+		u32 oldsid;
-+		struct sock *sk = SOCKET_I(inode)->sk;
-+		struct sk_security_struct *sksec = sk->sk_security;
+ /* socket security operations */
 +
-+		/* XXX - In order to safely relabel a socket when labeled IPsec
-+		 *       is in use we need to also change the corresponding
-+		 *       flow secid (if any), if we don't change the flow's
-+		 *       secid then we run the risk of mislabeling traffic which
-+		 *       is not good.  Since the odds of us hitting this code
-+		 *       are very low (actually zero given refpolicy circa 2010)
-+		 *       we're not going to expend the effort in relabeling the
-+		 *       flow, just cause the fsetxattr() operation to fail
-+		 *       which should guarantee labeling safety. */
-+		if (selinux_xfrm_enabled())
-+			return -EPERM;
++static u32 socket_sockcreate_sid(const struct task_security_struct *tsec)
++{
++	return tsec->sockcreate_sid ? : tsec->sid;
++}
 +
-+		/* It is worth mentioning here that you could potentially see a
-+		 * labeling race condition if the socket being relabeled is
-+		 * undergoing lots of writes at the same time, as writes sent
-+		 * before the fsetxattr() operation may not receive their
-+		 * on-the-wire security label until after the fsetxattr()
-+		 * completes resulting in pre-fsetxattr() data getting labeled
-+		 * with a post-fsetxattr() security label.  However, we're just
-+		 * going to assume that if someone is silly enough to try and
-+		 * relabel a socket mid-stream then they should bear the
-+		 * responsibility of dealing with the potential problems.  It
-+		 * is also worth mentioning that this operation is forbidden by
-+		 * the 2010 refpolicy for this very reason. */
-+		oldsid = sksec->sid;
-+		sksec->sid = newsid;
-+		lock_sock(sk);
-+		selinux_netlbl_sk_security_reset(sksec);
-+		rc = selinux_netlbl_socket_setsid(sk, sk->sk_family);
-+		release_sock(sk);
-+		if (rc) {
-+			sksec->sid = oldsid;
-+			return rc;
-+		}
-+	}
-+
- 	isec->sid = newsid;
+ static int socket_has_perm(struct task_struct *task, struct socket *sock,
+ 			   u32 perms)
+ {
+@@ -3739,21 +3745,15 @@ static int selinux_socket_create(int family, int type,
+ {
+ 	const struct cred *cred = current_cred();
+ 	const struct task_security_struct *tsec = cred->security;
+-	u32 sid, newsid;
++	u32 newsid;
+ 	u16 secclass;
+-	int err = 0;
+ 
+ 	if (kern)
+-		goto out;
+-
+-	sid = tsec->sid;
+-	newsid = tsec->sockcreate_sid ?: sid;
++		return 0;
+ 
++	newsid = socket_sockcreate_sid(tsec);
+ 	secclass = socket_type_to_security_class(family, type, protocol);
+-	err = avc_has_perm(sid, newsid, secclass, SOCKET__CREATE, NULL);
+-
+-out:
+-	return err;
++	return avc_has_perm(tsec->sid, newsid, secclass, SOCKET__CREATE, NULL);
+ }
+ 
+ static int selinux_socket_post_create(struct socket *sock, int family,
+@@ -3761,22 +3761,14 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ {
+ 	const struct cred *cred = current_cred();
+ 	const struct task_security_struct *tsec = cred->security;
+-	struct inode_security_struct *isec;
++	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
+ 	struct sk_security_struct *sksec;
+-	u32 sid, newsid;
+ 	int err = 0;
+ 
+-	sid = tsec->sid;
+-	newsid = tsec->sockcreate_sid;
+-
+-	isec = SOCK_INODE(sock)->i_security;
+-
+ 	if (kern)
+ 		isec->sid = SECINITSID_KERNEL;
+-	else if (newsid)
+-		isec->sid = newsid;
+ 	else
+-		isec->sid = sid;
++		isec->sid = socket_sockcreate_sid(tsec);
+ 
+ 	isec->sclass = socket_type_to_security_class(family, type, protocol);
  	isec->initialized = 1;
- 	return 0;
-@@ -3744,7 +3785,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
- 		sksec = sock->sk->sk_security;
- 		sksec->sid = isec->sid;
- 		sksec->sclass = isec->sclass;
--		err = selinux_netlbl_socket_post_create(sock->sk, family);
-+		err = selinux_netlbl_socket_setsid(sock->sk, family);
- 	}
- 
- 	return err;
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index cf2f628..8c168c8 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -55,7 +55,7 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
- 
- int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family);
- void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family);
--int selinux_netlbl_socket_post_create(struct sock *sk, u16 family);
-+int selinux_netlbl_socket_setsid(struct sock *sk, u16 family);
- int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
- 				struct sk_buff *skb,
- 				u16 family,
-@@ -121,8 +121,7 @@ static inline void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
- {
- 	return;
- }
--static inline int selinux_netlbl_socket_post_create(struct sock *sk,
--						    u16 family)
-+static inline int selinux_netlbl_socket_setsid(struct sock *sk, u16 family)
- {
- 	return 0;
- }
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 1c2fc46..bfa3000 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -157,6 +157,10 @@ void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec)
- void selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec)
- {
- 	sksec->nlbl_state = NLBL_UNSET;
-+	if (sksec->nlbl_secattr != NULL) {
-+		netlbl_secattr_free(sksec->nlbl_secattr);
-+		sksec->nlbl_secattr = NULL;
-+	}
- }
- 
- /**
-@@ -292,7 +296,7 @@ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
- }
- 
- /**
-- * selinux_netlbl_socket_post_create - Label a socket using NetLabel
-+ * selinux_netlbl_socket_setsid - Label a socket using NetLabel
-  * @sock: the socket to label
-  * @family: protocol family
-  *
-@@ -301,7 +305,7 @@ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
-  * SID.  Returns zero values on success, negative values on failure.
-  *
-  */
--int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
-+int selinux_netlbl_socket_setsid(struct sock *sk, u16 family)
- {
- 	int rc;
- 	struct sk_security_struct *sksec = sk->sk_security;
 
 
 --
