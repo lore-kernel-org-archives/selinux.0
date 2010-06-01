@@ -1,59 +1,28 @@
-Subject: Re: Non-Computing Abstractions & An Issue Thereof
+Subject: Re: Permissive types
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Kramer <josh@globalherald.net>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4C0189D1.3030301@globalherald.net>
-References: <4C0189D1.3030301@globalherald.net>
+To: Joe Nall <joe@nall.com>
+Cc: selinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <74D8EBBB-C370-48A5-B793-4C998D448FA6@nall.com>
+References: <74D8EBBB-C370-48A5-B793-4C998D448FA6@nall.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 01 Jun 2010 08:51:51 -0400
-Message-ID: <1275396711.2924.1.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 01 Jun 2010 09:21:56 -0400
+Message-ID: <1275398516.2924.27.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2010-05-29 at 17:40 -0400, Joshua Kramer wrote:
-> Hello,
+On Sun, 2010-05-30 at 16:34 -0500, Joe Nall wrote:
+> Is there a way to disable permissive types completely?
 > 
-> I am trying to wrap my head around using SELinux to secure data objects 
-> in userspace.  My learning style suggests that for a topic like this, I 
-> abstract the theory away from how it's actually implemented in 
-> software.  To those ends, I have created the type enforcement file 
-> attached to this email, that loosely models the behavior of teams of 
-> sled dogs using SELinux.
+> Is there a way to disable the making of specific types permissive?
 > 
-> When I try to install the policy using these commands:
-> 
-> checkmodule -M -m -o seSledDogs.mod seSledDogs.te
-> semodule_package -o seSledDogs.pp -m seSledDogs.mod
-> semodule -i ./seSledDogs.pp
-> 
-> ...I get this error from semodule:
-> 
-> libsepol.print_missing_requirements: seSledDogs's global requirements 
-> were not met: role dog_owner_r (No such file or directory).
-> libsemanage.semanage_link_sandbox: Link packages failed (No such file or 
-> directory).
-> semodule:  Failed!
-> 
-> If I comment out the roles, I get a similar message about the types:
-> 
-> libsepol.print_missing_requirements: seSledDogs's global requirements 
-> were not met: type/attribute medicine_t (No such file or directory).
-> libsemanage.semanage_link_sandbox: Link packages failed (No such file or 
-> directory).
-> semodule:  Failed!
-> 
-> Where do I need to be defining these roles and types?  I was under the 
-> impression that the te files were self-contained.
+> Is there any notification when a type is made permissive via avc_add_callback?
 
-A require block specifies the dependencies of the module; it does not
-define them.  So if you put a symbol in a require block that is not
-defined by any module, the module linking will fail as above.
-
-Also note that you cannot define new classes/permissions in any non-base
-module presently; they have to be defined in the base module.  That
-should change in the future but is a limitation of the current
-toolchain.
+Not presently.  You could of course create a policy validator ala:
+http://selinuxproject.org/page/PolicyValidate
+but using seinfo --permissive to determine what types are permissive, or
+rolling your own program that uses libsepol or libqpol (from setools) to
+check for permissive types.
 
 -- 
 Stephen Smalley
