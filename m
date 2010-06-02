@@ -1,33 +1,36 @@
-Subject: Re: Permissive types
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: selinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <74D8EBBB-C370-48A5-B793-4C998D448FA6@nall.com>
-References: <74D8EBBB-C370-48A5-B793-4C998D448FA6@nall.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 01 Jun 2010 09:21:56 -0400
-Message-ID: <1275398516.2924.27.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o52Fcmnd028728
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 11:38:48 -0400
+Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o52FeCAT014165
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 15:40:12 GMT
+Received: by pwj8 with SMTP id 8so2308733pwj.12
+        for <selinux@tycho.nsa.gov>; Wed, 02 Jun 2010 08:38:45 -0700 (PDT)
+MIME-Version: 1.0
+Date: Wed, 2 Jun 2010 08:32:54 -0700
+Message-ID: <AANLkTinACSXGyYqwI-cBkQki1PoaKUHK1sDxkKwRHGCE@mail.gmail.com>
+Subject: inaddr_any_node_t?
+From: Larry Ross <selinux.larry@gmail.com>
+To: Selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2010-05-30 at 16:34 -0500, Joe Nall wrote:
-> Is there a way to disable permissive types completely?
-> 
-> Is there a way to disable the making of specific types permissive?
-> 
-> Is there any notification when a type is made permissive via avc_add_callback?
+Where can I find the definition and purpose of "inaddr_any_node_t"?
 
-Not presently.  You could of course create a policy validator ala:
-http://selinuxproject.org/page/PolicyValidate
-but using seinfo --permissive to determine what types are permissive, or
-rolling your own program that uses libsepol or libqpol (from setools) to
-check for permissive types.
+It looks like it matches any port for networking rules but I can't
+find where it is defined or any documentation on it.  The only place I
+see it (other than my policy, where it came as the output from
+audit2allow) is in tmp/all_interfaces.conf
 
--- 
-Stephen Smalley
-National Security Agency
+Where is it defined?
 
+How can I find out what its purpose is and how it works?
+
+I am using a customized RHEL5.4 strict policy.
+
+   Thank you,
+   Larry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
