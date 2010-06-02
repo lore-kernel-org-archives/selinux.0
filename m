@@ -1,107 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o52Ip3PV011278
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 14:51:03 -0400
-Received: from columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o52IoIYR012335
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 18:50:18 GMT
-Received: from localhost.localdomain (f12 [127.0.0.1])
-	by columbia.tresys.com (Postfix) with ESMTP id 2637B36C11
-	for <selinux@tycho.nsa.gov>; Wed,  2 Jun 2010 14:49:02 -0400 (EDT)
-From: Chad Sellers <csellers@tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] [PATCH] Remove duplicate slashes in paths in selabel_lookup
-Date: Wed,  2 Jun 2010 14:49:01 -0400
-Message-Id: <1275504541-10499-1-git-send-email-csellers@tresys.com>
+Subject: Re: inaddr_any_node_t?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Larry Ross <selinux.larry@gmail.com>
+Cc: Selinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <AANLkTiluWvZ2tS_FMYXMbi-D9TPTnM4Q65fOaI93Lg9T@mail.gmail.com>
+References: <AANLkTinACSXGyYqwI-cBkQki1PoaKUHK1sDxkKwRHGCE@mail.gmail.com>
+	 <1275499819.9475.157.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTiluWvZ2tS_FMYXMbi-D9TPTnM4Q65fOaI93Lg9T@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 02 Jun 2010 15:40:01 -0400
+Message-ID: <1275507601.9475.189.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch simply removes duplicate slashes (meaning "//") from
-pathnames passed into selabel_lookup. It does not do a full
-realpath() calculation (e.g. following symlinks, etc.), as the
-client should really do that before calling into libselinux.
+On Wed, 2010-06-02 at 11:23 -0700, Larry Ross wrote:
+> On Wed, Jun 2, 2010 at 10:30 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> Stephen,
+>   Thank you for your response.  I see this in corenetwork.te in the
+> RHEL5.3 policy:
+> nodecon 0.0.0.0 255.255.255.255
+> gen_context(system_u:object_r:inaddr_any_node_t,s0)
+> 
+>   But I can't see any equivalent in the RHEL5.4 policy, instead it has:
+> corenetwork.fc
+> corenetwork.if.in
+> corenetwork.if.m4
+> corenetwork.te.in
+> corenetwork.te.m4
+>   What are the .in and .m4 files for?  Are these being dynamically
+> generated at policy build?
 
-Signed-off-by: Chad Sellers <csellers@tresys.com>
----
- libselinux/src/label_file.c |   37 +++++++++++++++++++++++++++++++------
- 1 files changed, 31 insertions(+), 6 deletions(-)
+corenetwork is special.  The .in and .m4 files are the actual source
+files; the .te and .if files are generated when you run make conf.
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 509b033..937e509 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -584,13 +584,34 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 	spec_t *spec_arr = data->spec_arr;
- 	int i, rc, file_stem;
- 	mode_t mode = (mode_t)type;
--	const char *buf = key;
-+	const char *buf;
-+	struct selabel_lookup_rec *ret = NULL;
-+	char *clean_key = NULL;
-+	const char *prev_slash, *next_slash;
-+	unsigned int sofar = 0;
- 
- 	if (!data->nspec) {
- 		errno = ENOENT;
--		return NULL;
-+		goto finish;
-+	}
-+
-+	/* Remove duplicate slashes */
-+	if ((next_slash = strstr(key, "//"))) {
-+		clean_key = malloc(strlen(key) + 1);
-+		if (!clean_key)
-+			goto finish;
-+		prev_slash = key;
-+		while (next_slash) {
-+			memcpy(clean_key + sofar, prev_slash, next_slash - prev_slash);
-+			sofar += next_slash - prev_slash;
-+			prev_slash = next_slash + 1;
-+			next_slash = strstr(prev_slash, "//");
-+		}
-+		strcpy(clean_key + sofar, prev_slash);
-+		key = clean_key;
- 	}
- 
-+	buf = key;
- 	file_stem = find_stem_from_file(data, &buf);
- 	mode &= S_IFMT;
- 
-@@ -608,7 +629,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 		    && (!mode || !spec_arr[i].mode
- 			|| mode == spec_arr[i].mode)) {
- 			if (compile_regex(data, &spec_arr[i], NULL) < 0)
--				return NULL;
-+				goto finish;
- 			if (spec_arr[i].stem_id == -1)
- 				rc = regexec(&spec_arr[i].regex, key, 0, 0, 0);
- 			else
-@@ -621,17 +642,21 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 			if (rc == REG_NOMATCH)
- 				continue;
- 			/* else it's an error */
--			return NULL;
-+			goto finish;
- 		}
- 	}
- 
- 	if (i < 0 || strcmp(spec_arr[i].lr.ctx_raw, "<<none>>") == 0) {
- 		/* No matching specification. */
- 		errno = ENOENT;
--		return NULL;
-+		goto finish;
- 	}
- 
--	return &spec_arr[i].lr;
-+	ret = &spec_arr[i].lr;
-+
-+finish:
-+	free(clean_key);
-+	return ret;
- }
- 
- static void stats(struct selabel_handle *rec)
+> corenetwork.te.in contains:
+> network_node(inaddr_any, s0, 0.0.0.0, 255.255.255.255)
+> and what looks like some code to label and define the ports.
+> 
+>   I am also wondering how selinux controls access to ports, I am
+> seeing applications trying to use the "high-numbered" ports for
+> connections, and somehow policy exists that allows them in some cases,
+> but not in others, that I can't seem to identify.
+
+apol may help you.
+
+>   From what I see it looks like any of the ports above 1024 are port_t
+> unless specifically labeled.  Is that correct?
+
+If there is no matching portcon entry for a given port, then the kernel
+defaults to using the context associated with the "port" initial SID as
+specified by the "sid port" line in corenetwork.te.in.  Which happens to
+be port_t.  So, yes.
+
 -- 
-1.6.5.2
+Stephen Smalley
+National Security Agency
 
 
 --
