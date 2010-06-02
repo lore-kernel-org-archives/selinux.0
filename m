@@ -1,36 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o52Fcmnd028728
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 11:38:48 -0400
-Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o52FeCAT014165
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2010 15:40:12 GMT
-Received: by pwj8 with SMTP id 8so2308733pwj.12
-        for <selinux@tycho.nsa.gov>; Wed, 02 Jun 2010 08:38:45 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 2 Jun 2010 08:32:54 -0700
-Message-ID: <AANLkTinACSXGyYqwI-cBkQki1PoaKUHK1sDxkKwRHGCE@mail.gmail.com>
-Subject: inaddr_any_node_t?
-From: Larry Ross <selinux.larry@gmail.com>
-To: Selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: inaddr_any_node_t?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Larry Ross <selinux.larry@gmail.com>
+Cc: Selinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <AANLkTinACSXGyYqwI-cBkQki1PoaKUHK1sDxkKwRHGCE@mail.gmail.com>
+References: <AANLkTinACSXGyYqwI-cBkQki1PoaKUHK1sDxkKwRHGCE@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 02 Jun 2010 13:30:19 -0400
+Message-ID: <1275499819.9475.157.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Where can I find the definition and purpose of "inaddr_any_node_t"?
+On Wed, 2010-06-02 at 08:32 -0700, Larry Ross wrote:
+> Where can I find the definition and purpose of "inaddr_any_node_t"?
+> 
+> It looks like it matches any port for networking rules but I can't
+> find where it is defined or any documentation on it.  The only place I
+> see it (other than my policy, where it came as the output from
+> audit2allow) is in tmp/all_interfaces.conf
+> 
+> Where is it defined?
+> 
+> How can I find out what its purpose is and how it works?
+> 
+> I am using a customized RHEL5.4 strict policy.
 
-It looks like it matches any port for networking rules but I can't
-find where it is defined or any documentation on it.  The only place I
-see it (other than my policy, where it came as the output from
-audit2allow) is in tmp/all_interfaces.conf
+At one time node_inaddr_any_t was defined to be the type for address
+0.0.0.0 (INADDR_ANY as defined by netinet/in.h and used in bind(2) calls
+to bind to all interfaces), and showed up in node_bind permission checks
+when a process attempted to bind to all interfaces.
 
-Where is it defined?
+I think that modern policy ships without any node context definitions by
+default, deferring that entirely to the admin to configure via semanage
+node or the like, so the type may just be a residual type alias for
+node_t at this point for compatibility.  You should be able to tell by
+looking at the policy sources or by examining the binary policy via apol
+or the like.
 
-How can I find out what its purpose is and how it works?
+-- 
+Stephen Smalley
+National Security Agency
 
-I am using a customized RHEL5.4 strict policy.
-
-   Thank you,
-   Larry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
