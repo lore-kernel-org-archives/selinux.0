@@ -1,56 +1,45 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH 0/6] SELinux UNIX domain socket fixes/cleanup
-Date: Thu, 3 Jun 2010 17:44:14 -0400
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-References: <20100529214628.4042.88276.stgit@flek.lan> <201006031652.51531.paul.moore@hp.com> <1275599557.2828.1.camel@localhost>
-In-Reply-To: <1275599557.2828.1.camel@localhost>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201006031744.14365.paul.moore@hp.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o57LePwI026896
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2010 17:40:25 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o57LfrJk020561
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2010 21:41:53 GMT
+From: Steve Lawrence <slawrence@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] Add chcon method to libselinux python bindings
+Date: Mon,  7 Jun 2010 17:40:05 -0400
+Message-Id: <1275946805-9194-1-git-send-email-slawrence@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, June 03, 2010 05:12:37 pm Eric Paris wrote:
-> On Thu, 2010-06-03 at 16:52 -0400, Paul Moore wrote:
-> > On Saturday, May 29, 2010 05:53:16 pm Paul Moore wrote:
-> > > For those of you using git, you can also find a copy of the patches at
-> > > the URL below.
-> > > 
-> > >  * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
-> > > 
-> > > Thanks.
-> > 
-> > Thoughts?  Comments?  ACKs?  NACKs?
-> 
-> I looked over the whole series and was good with them except I didn't
-> know/understand the netlbl changes at the bottom of the first patch.  I
-> kept telling myself I was going to dig out the code and verify it's
-> correctness but I haven't yet.  Any chance you could explain what that
-> change is all about to make it easier for me to verify it is correct?
+Adds a chcon method to the libselinux python bindings to change the
+context of a file/directory tree.
+---
+ libselinux/src/selinuxswig_python.i |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-Sure, let me give it a shot - I assume you're talking about the changes to 
-selinux_netlbl_sk_security_reset()?  Assuming the answer is "yes", the reason 
-is that before it's inclusion in selinux_inode_setsecurity() it was always 
-called from functions operating on newly allocated sk_security_structs and as 
-a result it didn't need to worry about any old per-socket cached values (look 
-at selinux_netlbl_sock_genattr() to see what I mean about cached values and 
-sksec->nlbl_secattr).  The change to selinux_netlbl_sk_security_reset() is to 
-check if a cache value exists and if it does clear it out before we relabel 
-the socket.
-
-Anything else you're fuzzy on?  I can't promise my explanations will help but 
-I can try ;)
-
-> Patches 2-6 I'm ok adding my ACK to.....
-
-Thanks!
-
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 8b34c99..dea0e80 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -21,6 +21,14 @@ def restorecon(path, recursive=False):
+                              map(restorecon, [os.path.join(dirname, fname)
+                                               for fname in fnames]), None)
+ 
++def chcon(path, context, recursive=False):
++    """ Set the SELinux context on a given path """
++    lsetfilecon(path, context)
++    if recursive:
++        for root, dirs, files in os.walk(path):
++            for name in files + dirs:
++               lsetfilecon(os.path.join(root,name), context)
++
+ def copytree(src, dest):
+     """ An SELinux-friendly shutil.copytree method """
+     shutil.copytree(src, dest)
 -- 
-paul moore
-linux @ hp
+1.6.2.5
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
