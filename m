@@ -1,76 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o59DgikI000420
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2010 09:42:45 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o59Dc8if001334
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2010 13:38:10 GMT
-Message-ID: <4C0F98E4.2090409@manicmethod.com>
-Date: Wed, 09 Jun 2010 09:36:36 -0400
-From: Joshua Brindle <method@manicmethod.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 0/6] SELinux UNIX domain socket fixes/cleanup
+Date: Wed, 9 Jun 2010 17:39:48 -0400
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>
+References: <20100529214628.4042.88276.stgit@flek.lan> <1275599557.2828.1.camel@localhost> <201006031744.14365.paul.moore@hp.com>
+In-Reply-To: <201006031744.14365.paul.moore@hp.com>
 MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: Vacheh Sardarian <vsardarian@gmail.com>, selinux@tycho.nsa.gov,
-        "Thomson, David-P63356" <David.Thomson@gdc4s.com>
-Subject: Re: New to SELinux: how to get familiar
-References: <C80DC64C.B78D6%csellers@tresys.com>
-In-Reply-To: <C80DC64C.B78D6%csellers@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201006091739.49063.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Sellers wrote:
-> On 5/7/10 5:51 PM, "Thomson, David-P63356"<David.Thomson@gdc4s.com>  wrote:
->
->> The book ³SELinux by Example² written by many of the people on this mailing
->> list (ISBN 0-13-196369-4).  It¹s a bit old at this point, especially since
->> SELinux changes pretty quickly, but it¹s probably the best way to start.
+On Thursday, June 03, 2010 05:44:14 pm Paul Moore wrote:
+> On Thursday, June 03, 2010 05:12:37 pm Eric Paris wrote:
+> > On Thu, 2010-06-03 at 16:52 -0400, Paul Moore wrote:
+> > > On Saturday, May 29, 2010 05:53:16 pm Paul Moore wrote:
+> > > > For those of you using git, you can also find a copy of the patches
+> > > > at the URL below.
+> > > > 
+> > > >  * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
+> > > > 
+> > > > Thanks.
+> > > 
+> > > Thoughts?  Comments?  ACKs?  NACKs?
+> > 
+> > I looked over the whole series and was good with them except I didn't
+> > know/understand the netlbl changes at the bottom of the first patch.  I
+> > kept telling myself I was going to dig out the code and verify it's
+> > correctness but I haven't yet.  Any chance you could explain what that
+> > change is all about to make it easier for me to verify it is correct?
+> 
+> Sure, let me give it a shot - I assume you're talking about the changes to
+> selinux_netlbl_sk_security_reset()?  Assuming the answer is "yes", the
+> reason is that before it's inclusion in selinux_inode_setsecurity() it was
+> always called from functions operating on newly allocated
+> sk_security_structs and as a result it didn't need to worry about any old
+> per-socket cached values (look at selinux_netlbl_sock_genattr() to see
+> what I mean about cached values and sksec->nlbl_secattr).  The change to
+> selinux_netlbl_sk_security_reset() is to check if a cache value exists and
+> if it does clear it out before we relabel the socket.
+> 
+> Anything else you're fuzzy on?  I can't promise my explanations will help
+> but I can try ;)
+> 
+> > Patches 2-6 I'm ok adding my ACK to.....
+> 
+> Thanks!
 
-The SELinux Notebook is more recent than the by Example book and appears 
-to be more comprehensive. I'd suggest it as a good source if you are 
-looking to get in to the nuts and bolts with the caveat that, unlike the 
-by Example book, this one hasn't been thoroughly reviewed by SELinux 
-developers.
+Did the above explanation make sense?  I ask because I'd like to get these 
+patches moving into James' security-next tree as soon as possible and if there 
+are any remaining issues I'd like to get working on them ...
 
+Thanks.
 
->>
-> I'd recommend the book as well. Also, check out http://selinuxproject.org/ .
-> It won't be as deep as the book, but it has gotten some attention over the
-> last year so it should be pretty current.
->
-> Chad
->
->> Google brings up a lot to read as well.  Here¹s one:
->> http://www.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6-Beta/html/Security
->> -Enhanced_Linux/index.html
->>
->> Dave
->>
->>
->> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
->> Behalf Of Vacheh Sardarian
->> Sent: Friday, May 07, 2010 10:39 AM
->> To: selinux@tycho.nsa.gov
->> Subject: New to SELinux: how to get familiar
->>
->> Hi Everyone,
->>
->> I have just started playing around with SELinux. I don't know much about its
->> functionality... I was wondering if anyone could suggest me on what is the
->> best way for a beginner to start getting to know how SELinux function... other
->> than installing it on a Linux box.
->>
->> Thank you for your suggestions...
->>
->> David.
->>
->
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
