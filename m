@@ -1,4 +1,4 @@
-Date: Thu, 10 Jun 2010 17:35:07 -0500
+Date: Thu, 10 Jun 2010 17:48:45 -0500
 From: "Serge E. Hallyn" <serge@hallyn.com>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
@@ -6,109 +6,188 @@ Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 01/10] Security: Add hook to calculate context based on
- a negative dentry.
-Message-ID: <20100610223507.GA26994@hallyn.com>
+Subject: Re: [PATCH 02/10] Security: Add Hook to test if the particular
+ xattr is part of a MAC model.
+Message-ID: <20100610224845.GA27104@hallyn.com>
 References: <1276014176-20315-1-git-send-email-dpquigl@tycho.nsa.gov>
- <1276014176-20315-2-git-send-email-dpquigl@tycho.nsa.gov>
+ <1276014176-20315-3-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1276014176-20315-2-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1276014176-20315-3-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting David P. Quigley (dpquigl@tycho.nsa.gov):
-> There is a time where we need to calculate a context without the
-> inode having been created yet. To do this we take the negative dentry and
-> calculate a context based on the process and the parent directory contexts.
+> There are areas in the Labeled NFS code where where we need to test if the
+> attribute being requested exhibits the semantics of a MAC model. This allows us
+> to make sure that we get the desired semantics from the attribute instead of
+> something else such as capabilities or a time based LSM.
 > 
 > Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 > ---
->  include/linux/security.h |   22 ++++++++++++++++++++++
->  security/capability.c    |    6 ++++++
->  security/security.c      |    7 +++++++
->  security/selinux/hooks.c |   32 ++++++++++++++++++++++++++++++++
->  4 files changed, 67 insertions(+), 0 deletions(-)
+>  include/linux/security.h   |   11 +++++++++++
+>  security/capability.c      |    6 ++++++
+>  security/security.c        |    6 ++++++
+>  security/selinux/hooks.c   |    6 ++++++
+>  security/smack/smack_lsm.c |   11 +++++++++++
+>  5 files changed, 40 insertions(+), 0 deletions(-)
 > 
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index 3158dd9..4d01784 100644
+> index 4d01784..9597620 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -322,6 +322,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	Parse a string of security data filling in the opts structure
->   *	@options string containing all mount options known by the LSM
->   *	@opts binary data structure usable by the LSM
-> + * @dentry_init_security:
-> + *	Compute a context for a dentry as the inode is not yet available
-> + * 	since NFSv4 has no label backed by an EA anyway.
-> + * 	@dentry dentry to use in calculating the context.
-> + * 	@mode mode used to determine resource type.
-> + * 	@ctx pointer to place the pointer to the resulting context in.
-> + * 	@ctxlen point to place the length of the resulting context.
+> @@ -1373,6 +1373,10 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+>   *	@pages contains the number of pages.
+>   *	Return 0 if permission is granted.
+>   *
+> + * @ismaclabel:
+> + * 	Check if the extended attribute specified by @name represents a MAC label.
+> + * 	@name full extended attribute name to check against LSM as a MAC label.
+
+Can you document the return value here?  The name does suggestion true/false
+rather than success/fail, but it would be nice to have it spelled out without
+having to look at one of the implementations to be sure.
+
+Otherwise
+
+Acked-by: Serge E. Hallyn <serue@us.ibm.com>
+
+
 > + *
->   *
->   * Security hooks for inode operations.
->   *
-> @@ -1501,6 +1509,9 @@ struct security_operations {
->  	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
->  				   struct super_block *newsb);
->  	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
-> +	int (*dentry_init_security) (struct dentry *dentry, int mode,
-> +				     void **ctx, u32 *ctxlen);
-> +
+>   * @secid_to_secctx:
+>   *	Convert secid to security context.
+>   *	@secid contains the security ID.
+> @@ -1664,6 +1668,7 @@ struct security_operations {
 >  
->  #ifdef CONFIG_SECURITY_PATH
->  	int (*path_unlink) (struct path *dir, struct dentry *dentry);
-> @@ -1795,6 +1806,8 @@ int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *o
->  void security_sb_clone_mnt_opts(const struct super_block *oldsb,
->  				struct super_block *newsb);
->  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
-> +int security_dentry_init_security (struct dentry *dentry, int mode,
-> +				   void **ctx, u32 *ctxlen);
->  
->  int security_inode_alloc(struct inode *inode);
->  void security_inode_free(struct inode *inode);
-> @@ -2157,6 +2170,15 @@ static inline int security_inode_alloc(struct inode *inode)
->  static inline void security_inode_free(struct inode *inode)
->  { }
->  
-> +static inline int security_dentry_init_security (struct dentry *dentry,
-> +						 int mode,
-> +						 void **ctx,
-> +						 u32 *ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +
->  static inline int security_inode_init_security(struct inode *inode,
->  						struct inode *dir,
->  						char **name,
-> diff --git a/security/capability.c b/security/capability.c
-> index 4875142..9ce1c2f 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -134,6 +134,11 @@ static int cap_sb_parse_opts_str(char *options, struct security_mnt_opts *opts)
->  	return 0;
+>  	int (*getprocattr) (struct task_struct *p, char *name, char **value);
+>  	int (*setprocattr) (struct task_struct *p, char *name, void *value, size_t size);
+> +	int (*ismaclabel) (const char * name);
+>  	int (*secid_to_secctx) (u32 secid, char **secdata, u32 *seclen);
+>  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
+>  	void (*release_secctx) (char *secdata, u32 seclen);
+> @@ -1919,6 +1924,7 @@ int security_getprocattr(struct task_struct *p, char *name, char **value);
+>  int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+>  int security_netlink_recv(struct sk_buff *skb, int cap);
+> +int security_ismaclabel(const char *name);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+>  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+>  void security_release_secctx(char *secdata, u32 seclen);
+> @@ -2676,6 +2682,11 @@ static inline int security_netlink_recv(struct sk_buff *skb, int cap)
+>  	return cap_netlink_recv(skb, cap);
 >  }
 >  
-> +static int cap_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
+> +static inline int security_ismaclabel(const char *name)
 > +{
 > +	return 0;
 > +}
 > +
-
-Hi,
-
-sorry if I'm being dense, but why do you want to return 0 here, but -EOPNOTSUPP
-for the !SECURITY case above?  Since capability doesn't actually fill out a label,
-should it not also return -EOPNOTSUPP?  Any LSM which does fill out the label
-should then just make sure not to call the capability hook, but if
-cap_dentry_init_security() is being called, we can assume noone filled in the
-label, right?
-
--serge
+>  static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>  	return -EOPNOTSUPP;
+> diff --git a/security/capability.c b/security/capability.c
+> index 9ce1c2f..0d8f7e9 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -829,6 +829,11 @@ static int cap_setprocattr(struct task_struct *p, char *name, void *value,
+>  	return -EINVAL;
+>  }
+>  
+> +static int cap_ismaclabel(const char *name)
+> +{
+> +	return 0;
+> +}
+> +
+>  static int cap_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>  	return -EOPNOTSUPP;
+> @@ -1064,6 +1069,7 @@ void security_fixup_ops(struct security_operations *ops)
+>  	set_to_cap_if_null(ops, d_instantiate);
+>  	set_to_cap_if_null(ops, getprocattr);
+>  	set_to_cap_if_null(ops, setprocattr);
+> +	set_to_cap_if_null(ops, ismaclabel);
+>  	set_to_cap_if_null(ops, secid_to_secctx);
+>  	set_to_cap_if_null(ops, secctx_to_secid);
+>  	set_to_cap_if_null(ops, release_secctx);
+> diff --git a/security/security.c b/security/security.c
+> index c1b6847..1f0765c 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1013,6 +1013,12 @@ int security_netlink_recv(struct sk_buff *skb, int cap)
+>  }
+>  EXPORT_SYMBOL(security_netlink_recv);
+>  
+> +int security_ismaclabel(const char *name)
+> +{
+> +	return security_ops->ismaclabel(name);
+> +}
+> +EXPORT_SYMBOL(security_ismaclabel);
+> +
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>  	return security_ops->secid_to_secctx(secid, secdata, seclen);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 435c51f..8239f5c 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5372,6 +5372,11 @@ abort_change:
+>  	return error;
+>  }
+>  
+> +static int selinux_ismaclabel(const char *name)
+> +{
+> +	return (strcmp(name,XATTR_NAME_SELINUX) == 0);
+> +}
+> +
+>  static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>  	return security_sid_to_context(secid, secdata, seclen);
+> @@ -5610,6 +5615,7 @@ static struct security_operations selinux_ops = {
+>  	.getprocattr =			selinux_getprocattr,
+>  	.setprocattr =			selinux_setprocattr,
+>  
+> +	.ismaclabel =			selinux_ismaclabel,
+>  	.secid_to_secctx =		selinux_secid_to_secctx,
+>  	.secctx_to_secid =		selinux_secctx_to_secid,
+>  	.release_secctx =		selinux_release_secctx,
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index fdfeaa2..449e223 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3012,6 +3012,16 @@ static void smack_audit_rule_free(void *vrule)
+>  #endif /* CONFIG_AUDIT */
+>  
+>  /**
+> + * smack_ismaclabel - check if xattr @name references a smack MAC label
+> + * @name: Full xattr name to check.
+> + */
+> +static int smack_ismaclabel(const char *name)
+> +{
+> +	return (strcmp(name, XATTR_NAME_SMACK) == 0);
+> +}
+> +
+> +
+> +/**
+>   * smack_secid_to_secctx - return the smack label for a secid
+>   * @secid: incoming integer
+>   * @secdata: destination
+> @@ -3199,6 +3209,7 @@ struct security_operations smack_ops = {
+>  	.audit_rule_free =		smack_audit_rule_free,
+>  #endif /* CONFIG_AUDIT */
+>  
+> +	.ismaclabel =			smack_ismaclabel,
+>  	.secid_to_secctx = 		smack_secid_to_secctx,
+>  	.secctx_to_secid = 		smack_secctx_to_secid,
+>  	.release_secctx = 		smack_release_secctx,
+> -- 
+> 1.6.2.5
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
