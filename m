@@ -1,53 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5AL4AoI003878
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 17:04:10 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5AL4JCs003898
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 17:04:20 -0400
 Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o5AL3Nul023068
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 21:03:23 GMT
-Date: Thu, 10 Jun 2010 17:04:09 -0400
-Subject: Re: [PATCH] Add chcon method to libselinux python bindings
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o5AL5oE1008937
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 21:05:50 GMT
+Date: Thu, 10 Jun 2010 17:04:19 -0400
+Subject: Re: Updated sandbox patch.
 From: Chad Sellers <csellers@tresys.com>
-To: Steve Lawrence <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
-Message-ID: <C836CB89.B8DCE%csellers@tresys.com>
-In-Reply-To: <1275946805-9194-1-git-send-email-slawrence@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, <slawrence@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Message-ID: <C836CB93.B8DCE%csellers@tresys.com>
+In-Reply-To: <4BF44320.3050306@redhat.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 6/7/10 5:40 PM, "Steve Lawrence" <slawrence@tresys.com> wrote:
+On 5/19/10 3:59 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-> Adds a chcon method to the libselinux python bindings to change the
-> context of a file/directory tree.
-> ---
->  libselinux/src/selinuxswig_python.i |    8 ++++++++
->  1 files changed, 8 insertions(+), 0 deletions(-)
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> diff --git a/libselinux/src/selinuxswig_python.i
-> b/libselinux/src/selinuxswig_python.i
-> index 8b34c99..dea0e80 100644
-> --- a/libselinux/src/selinuxswig_python.i
-> +++ b/libselinux/src/selinuxswig_python.i
-> @@ -21,6 +21,14 @@ def restorecon(path, recursive=False):
->                               map(restorecon, [os.path.join(dirname, fname)
->                                                for fname in fnames]), None)
->  
-> +def chcon(path, context, recursive=False):
-> +    """ Set the SELinux context on a given path """
-> +    lsetfilecon(path, context)
-> +    if recursive:
-> +        for root, dirs, files in os.walk(path):
-> +            for name in files + dirs:
-> +               lsetfilecon(os.path.join(root,name), context)
-> +
->  def copytree(src, dest):
->      """ An SELinux-friendly shutil.copytree method """
->      shutil.copytree(src, dest)
+> Fixed patch that handles Spaces in homedir.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v2.0.14 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+> 
+> iEYEARECAAYFAkv0QyAACgkQrlYvE4MpobNBXQCgmUu92HsN5PiksOTZoGxSp0W+
+> 1noAoKoCujFPLHduJ9BP3hrveeXvGKXO
+> =iqC+
+> -----END PGP SIGNATURE-----
 
 Acked-by: Chad Sellers <csellers@tresys.com>
 
-Merged as of libselinux 2.0.95
+Merged as of policycoreutils 2.0.83
 
 
 --
