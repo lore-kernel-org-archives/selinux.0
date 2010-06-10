@@ -1,56 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5AIvgsP026032
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 14:57:42 -0400
-Received: from mail-pv0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5AIur4I023255
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 18:56:53 GMT
-Received: by pvg6 with SMTP id 6so134030pvg.12
-        for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 11:57:39 -0700 (PDT)
-MIME-Version: 1.0
-Date: Thu, 10 Jun 2010 23:57:39 +0500
-Message-ID: <AANLkTimi8y2fe1Wr0MKWfnx5WxwkCe9sNRqOOyVY1Qs5@mail.gmail.com>
-Subject: Removing TE from the policy Model
-From: Shaz <shazalive@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Cc: securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
-Content-Type: multipart/alternative; boundary=000e0cd509c6b83ff70488b19849
+Subject: Re: Removing TE from the policy Model
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Shaz <shazalive@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>,
+        securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
+In-Reply-To: <AANLkTimi8y2fe1Wr0MKWfnx5WxwkCe9sNRqOOyVY1Qs5@mail.gmail.com>
+References: <AANLkTimi8y2fe1Wr0MKWfnx5WxwkCe9sNRqOOyVY1Qs5@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 10 Jun 2010 15:40:08 -0400
+Message-ID: <1276198808.25808.179.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0cd509c6b83ff70488b19849
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 2010-06-10 at 23:57 +0500, Shaz wrote:
+> Dear all,
+> 
+> I have a mobile use case where TE is kind of too heavy ... if you
+> remember from earlier threads that discussed the use case. Can I
+> somehow use the SELinux infrastructure ... kernel and userspace to
+> only use the rbac and uid models and leave out TE?
+> 
+> How much is it going to take as a technical effort and some fine
+> guidelines will be appreciated.
+> 
+> Will it be called SELinux if we get it done in the first place?
 
-Dear all,
+TE (the mechanism) isn't particularly heavy, so I presume you mean the
+policy configuration for it.  There are multiple options there:
+- You can build a subset of refpolicy, similar to what Fedora does in
+its selinux-policy-minimum package.  That will certainly yield a smaller
+policy than a full refpolicy, but there are some fundamental limitations
+on what you can achieve using that approach.
 
-I have a mobile use case where TE is kind of too heavy ... if you remember
-from earlier threads that discussed the use case. Can I somehow use the
-SELinux infrastructure ... kernel and userspace to only use the rbac and uid
-models and leave out TE?
+- You can construct your own policy from scratch, generating an initial
+working one via scripts/selinux/mdp in the kernel source tree and then
+expanding upon it.  That will yield the smallest possible policy.
 
-How much is it going to take as a technical effort and some fine guidelines
-will be appreciated.
-
-Will it be called SELinux if we get it done in the first place?
-
-Thanks.
+- You could try the older SEEdit work by Hitachi Soft, although it isn't
+being maintained anymore AFAIK.
 
 -- 
-Shaz
+Stephen Smalley
+National Security Agency
 
---000e0cd509c6b83ff70488b19849
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Dear all,<br><br>I have a mobile use case where TE is kind of too heavy ...=
- if you remember from earlier threads that discussed the use case. Can I so=
-mehow use the SELinux infrastructure ... kernel and userspace to only use t=
-he rbac and uid models and leave out TE?<br>
-<br>How much is it going to take as a technical effort and some fine guidel=
-ines will be appreciated.<br><br>Will it be called SELinux if we get it don=
-e in the first place?<br><br>Thanks.<br clear=3D"all"><br>-- <br>Shaz<br>
-<br>
-
---000e0cd509c6b83ff70488b19849--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
