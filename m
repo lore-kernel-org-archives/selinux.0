@@ -1,46 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5AK9Ljg031967
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 16:09:21 -0400
-Received: from mx01.colomx.prod.int.phx2.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5AK8X4I010612
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 20:08:34 GMT
-Received: from mail05.corp.redhat.com (zmail05.collab.prod.int.phx2.redhat.com [10.5.5.46])
-	by mx01.colomx.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o5AK9KBq019118
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 16:09:20 -0400
-Date: Thu, 10 Jun 2010 16:09:20 -0400 (EDT)
-From: Thomas Liu <tliu@redhat.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <34336314.69411276200560271.JavaMail.root@zmail05.collab.prod.int.phx2.redhat.com>
-Subject: PATCH: Fix module specification with single number
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Re: Removing TE from the policy Model
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Shaz <shazalive@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>,
+        securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
+In-Reply-To: <1276198808.25808.179.camel@moss-pluto.epoch.ncsc.mil>
+References: <AANLkTimi8y2fe1Wr0MKWfnx5WxwkCe9sNRqOOyVY1Qs5@mail.gmail.com>
+	 <1276198808.25808.179.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 10 Jun 2010 16:22:40 -0400
+Message-ID: <1276201360.25808.183.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, here is a patch for https://bugzilla.redhat.com/show_bug.cgi?id=588260.
+On Thu, 2010-06-10 at 15:40 -0400, Stephen Smalley wrote:
+> On Thu, 2010-06-10 at 23:57 +0500, Shaz wrote:
+> > Dear all,
+> > 
+> > I have a mobile use case where TE is kind of too heavy ... if you
+> > remember from earlier threads that discussed the use case. Can I
+> > somehow use the SELinux infrastructure ... kernel and userspace to
+> > only use the rbac and uid models and leave out TE?
+> > 
+> > How much is it going to take as a technical effort and some fine
+> > guidelines will be appreciated.
+> > 
+> > Will it be called SELinux if we get it done in the first place?
+> 
+> TE (the mechanism) isn't particularly heavy, so I presume you mean the
+> policy configuration for it.  There are multiple options there:
+> - You can build a subset of refpolicy, similar to what Fedora does in
+> its selinux-policy-minimum package.  That will certainly yield a smaller
+> policy than a full refpolicy, but there are some fundamental limitations
+> on what you can achieve using that approach.
+> 
+> - You can construct your own policy from scratch, generating an initial
+> working one via scripts/selinux/mdp in the kernel source tree and then
+> expanding upon it.  That will yield the smallest possible policy.
+> 
+> - You could try the older SEEdit work by Hitachi Soft, although it isn't
+> being maintained anymore AFAIK.
 
-diff --git a/policy_parse.y b/policy_parse.y
-index 8d1bc37..fd55305 100644
---- a/policy_parse.y
-+++ b/policy_parse.y
-@@ -755,6 +755,8 @@ module_def              : MODULE identifier version_identifier ';'
-                         ;
- version_identifier      : VERSION_IDENTIFIER
-                         { if (insert_id(yytext,0)) return -1; }
-+                       | number
-+                        { if (insert_id(yytext,0)) return -1; }
-                         | ipv4_addr_def /* version can look like ipv4 address */
-                         ;
- avrules_block           : avrule_decls avrule_user_defs
+And just to highlight the range we're talking about in policy sizes:
+13K  /etc/selinux/dummy/policy/policy.24
+208K /etc/selinux/seedit/policy/policy.24
+808K /etc/selinux/minimum/policy/policy.24
+5.5M /etc/selinux/targeted/policy/policy.24
 
-# echo > empty.if
-# echo > empty .fc
-# echo "policy_module(ursus_mock_utils,1)" > empty.te
-# make NAME=targeted -f /usr/share/selinux/devel/Makefile
+where:
+dummy = minimal policy generated from kernel source tree,
+seedit = seedit base policy,
+minimum = selinux-policy-minimum (stripped down refpolicy)
+targeted = full targeted policy
 
-Now compiles fine.  The issue was that a single number without dots was being matched by the NUMBER rule in policy_scan.l instead of VERSION_IDENTIFIER.
+-- 
+Stephen Smalley
+National Security Agency
 
--Thomas
 
 --
 This message was distributed to subscribers of the selinux mailing list.
