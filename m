@@ -1,194 +1,79 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5B2bH5r021451
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2010 22:37:18 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o5B2aFCk017765
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2010 02:36:15 GMT
-Message-ID: <4C11A14D.2070804@schaufler-ca.com>
-Date: Thu, 10 Jun 2010 19:37:01 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-CC: hch@infradead.org, viro@zeniv.linux.org.uk, sds@tycho.nsa.gov,
-        matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        bfields@fieldses.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 02/10] Security: Add Hook to test if the particular xattr
- is part of a MAC model.
-References: <1276014176-20315-1-git-send-email-dpquigl@tycho.nsa.gov> <1276014176-20315-3-git-send-email-dpquigl@tycho.nsa.gov>
-In-Reply-To: <1276014176-20315-3-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1276201360.25808.183.camel@moss-pluto.epoch.ncsc.mil>
+References: <AANLkTimi8y2fe1Wr0MKWfnx5WxwkCe9sNRqOOyVY1Qs5@mail.gmail.com>
+	<1276198808.25808.179.camel@moss-pluto.epoch.ncsc.mil>
+	<1276201360.25808.183.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 11 Jun 2010 10:29:39 +0500
+Message-ID: <AANLkTimfP-YJ0ZEn5dEUMUw8FbvJa_qQyZPVU-6XkoMO@mail.gmail.com>
+Subject: Re: Removing TE from the policy Model
+From: Shaz <shazalive@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>,
+        securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David P. Quigley wrote:
-> There are areas in the Labeled NFS code where where we need to test if the
-> attribute being requested exhibits the semantics of a MAC model. This allows us
-> to make sure that we get the desired semantics from the attribute instead of
-> something else such as capabilities or a time based LSM.
+On Fri, Jun 11, 2010 at 1:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
-> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
-> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
-> ---
->  include/linux/security.h   |   11 +++++++++++
->  security/capability.c      |    6 ++++++
->  security/security.c        |    6 ++++++
->  security/selinux/hooks.c   |    6 ++++++
->  security/smack/smack_lsm.c |   11 +++++++++++
->  5 files changed, 40 insertions(+), 0 deletions(-)
+> On Thu, 2010-06-10 at 15:40 -0400, Stephen Smalley wrote:
+> > On Thu, 2010-06-10 at 23:57 +0500, Shaz wrote:
+> > > Dear all,
+> > >
+> > > I have a mobile use case where TE is kind of too heavy ... if you
+> > > remember from earlier threads that discussed the use case. Can I
+> > > somehow use the SELinux infrastructure ... kernel and userspace to
+> > > only use the rbac and uid models and leave out TE?
+> > >
+> > > How much is it going to take as a technical effort and some fine
+> > > guidelines will be appreciated.
+> > >
+> > > Will it be called SELinux if we get it done in the first place?
+> >
+> > TE (the mechanism) isn't particularly heavy, so I presume you mean the
+> > policy configuration for it.  There are multiple options there:
+> > - You can build a subset of refpolicy, similar to what Fedora does in
+> > its selinux-policy-minimum package.  That will certainly yield a smaller
+> > policy than a full refpolicy, but there are some fundamental limitations
+> > on what you can achieve using that approach.
+
+Yes after some thinking I came to the same conclusion.
+
 >
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 4d01784..9597620 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1373,6 +1373,10 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	@pages contains the number of pages.
->   *	Return 0 if permission is granted.
->   *
-> + * @ismaclabel:
-> + * 	Check if the extended attribute specified by @name represents a MAC label.
-> + * 	@name full extended attribute name to check against LSM as a MAC label.
-> + *
->   
+> > - You can construct your own policy from scratch, generating an initial
+> > working one via scripts/selinux/mdp in the kernel source tree and then
+> > expanding upon it.  That will yield the smallest possible policy.
+> >
 
-What about the case where a file might have multiple MAC labels?
-Not that I plan to do that, but given how often I get asked if a
-file can have multiple MAC attributes you might want to explicitly
-define how that might work. Especially in an environment where LSMs
-don't stack.
+This seems the best option as far as I can understand.
 
-Trusted Irix supports both sensitivity and integrity, and although
-Trix uses a single (large) label to include both it was a coin toss
-decision between that and two separate labels.
+> > - You could try the older SEEdit work by Hitachi Soft, although it isn't
+> > being maintained anymore AFAIK.
+>
+> And just to highlight the range we're talking about in policy sizes:
+> 13K  /etc/selinux/dummy/policy/policy.24
+> 208K /etc/selinux/seedit/policy/policy.24
+> 808K /etc/selinux/minimum/policy/policy.24
+> 5.5M /etc/selinux/targeted/policy/policy.24
+>
+> where:
+> dummy = minimal policy generated from kernel source tree,
+> seedit = seedit base policy,
+> minimum = selinux-policy-minimum (stripped down refpolicy)
+> targeted = full targeted policy
+>
+
+Thanks Stephen.
+
+> --
+> Stephen Smalley
+> National Security Agency
+>
 
 
->   * @secid_to_secctx:
->   *	Convert secid to security context.
->   *	@secid contains the security ID.
-> @@ -1664,6 +1668,7 @@ struct security_operations {
->  
->  	int (*getprocattr) (struct task_struct *p, char *name, char **value);
->  	int (*setprocattr) (struct task_struct *p, char *name, void *value, size_t size);
-> +	int (*ismaclabel) (const char * name);
->  	int (*secid_to_secctx) (u32 secid, char **secdata, u32 *seclen);
->  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
->  	void (*release_secctx) (char *secdata, u32 seclen);
-> @@ -1919,6 +1924,7 @@ int security_getprocattr(struct task_struct *p, char *name, char **value);
->  int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
->  int security_netlink_recv(struct sk_buff *skb, int cap);
-> +int security_ismaclabel(const char *name);
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
->  void security_release_secctx(char *secdata, u32 seclen);
-> @@ -2676,6 +2682,11 @@ static inline int security_netlink_recv(struct sk_buff *skb, int cap)
->  	return cap_netlink_recv(skb, cap);
->  }
->  
-> +static inline int security_ismaclabel(const char *name)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
->  {
->  	return -EOPNOTSUPP;
-> diff --git a/security/capability.c b/security/capability.c
-> index 9ce1c2f..0d8f7e9 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -829,6 +829,11 @@ static int cap_setprocattr(struct task_struct *p, char *name, void *value,
->  	return -EINVAL;
->  }
->  
-> +static int cap_ismaclabel(const char *name)
-> +{
-> +	return 0;
-> +}
-> +
->  static int cap_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
->  {
->  	return -EOPNOTSUPP;
-> @@ -1064,6 +1069,7 @@ void security_fixup_ops(struct security_operations *ops)
->  	set_to_cap_if_null(ops, d_instantiate);
->  	set_to_cap_if_null(ops, getprocattr);
->  	set_to_cap_if_null(ops, setprocattr);
-> +	set_to_cap_if_null(ops, ismaclabel);
->  	set_to_cap_if_null(ops, secid_to_secctx);
->  	set_to_cap_if_null(ops, secctx_to_secid);
->  	set_to_cap_if_null(ops, release_secctx);
-> diff --git a/security/security.c b/security/security.c
-> index c1b6847..1f0765c 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1013,6 +1013,12 @@ int security_netlink_recv(struct sk_buff *skb, int cap)
->  }
->  EXPORT_SYMBOL(security_netlink_recv);
->  
-> +int security_ismaclabel(const char *name)
-> +{
-> +	return security_ops->ismaclabel(name);
-> +}
-> +EXPORT_SYMBOL(security_ismaclabel);
-> +
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
->  {
->  	return security_ops->secid_to_secctx(secid, secdata, seclen);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 435c51f..8239f5c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5372,6 +5372,11 @@ abort_change:
->  	return error;
->  }
->  
-> +static int selinux_ismaclabel(const char *name)
-> +{
-> +	return (strcmp(name,XATTR_NAME_SELINUX) == 0);
-> +}
-> +
->  static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
->  {
->  	return security_sid_to_context(secid, secdata, seclen);
-> @@ -5610,6 +5615,7 @@ static struct security_operations selinux_ops = {
->  	.getprocattr =			selinux_getprocattr,
->  	.setprocattr =			selinux_setprocattr,
->  
-> +	.ismaclabel =			selinux_ismaclabel,
->  	.secid_to_secctx =		selinux_secid_to_secctx,
->  	.secctx_to_secid =		selinux_secctx_to_secid,
->  	.release_secctx =		selinux_release_secctx,
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index fdfeaa2..449e223 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -3012,6 +3012,16 @@ static void smack_audit_rule_free(void *vrule)
->  #endif /* CONFIG_AUDIT */
->  
->  /**
-> + * smack_ismaclabel - check if xattr @name references a smack MAC label
-> + * @name: Full xattr name to check.
-> + */
-> +static int smack_ismaclabel(const char *name)
-> +{
-> +	return (strcmp(name, XATTR_NAME_SMACK) == 0);
-> +}
-> +
-> +
-> +/**
->   * smack_secid_to_secctx - return the smack label for a secid
->   * @secid: incoming integer
->   * @secdata: destination
-> @@ -3199,6 +3209,7 @@ struct security_operations smack_ops = {
->  	.audit_rule_free =		smack_audit_rule_free,
->  #endif /* CONFIG_AUDIT */
->  
-> +	.ismaclabel =			smack_ismaclabel,
->  	.secid_to_secctx = 		smack_secid_to_secctx,
->  	.secctx_to_secid = 		smack_secctx_to_secid,
->  	.release_secctx = 		smack_release_secctx,
->   
+
+--
+Shaz
 
 
 --
