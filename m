@@ -1,54 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5IHWbTZ016463
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 13:32:39 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5IHWbTV016463
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 13:32:38 -0400
 Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5IHVnGC003387
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 17:31:49 GMT
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5IHVmGC003382
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 17:31:48 GMT
 Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4) with ESMTP id o5IHXB9a009814
+	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4) with ESMTP id o5IHXBIG009798
 	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 13:33:11 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4/Submit) id o5IHXBmH009813
+	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4/Submit) id o5IHXBlf009797
 	for selinux@tycho.nsa.gov; Fri, 18 Jun 2010 13:33:11 -0400
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5DDjc6w028354
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 09:45:38 -0400
-Received: from mail-wy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5DDlA7B028956
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 13:47:10 GMT
-Received: by wyb35 with SMTP id 35so3010368wyb.12
-        for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 06:45:36 -0700 (PDT)
-Date: Sat, 12 Jun 2010 20:57:39 +0200
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5DDQEj9025569
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 09:26:14 -0400
+Received: from mail-ww0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5DDCQ51027268
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 13:12:26 GMT
+Received: by wwb39 with SMTP id 39so2961834wwb.12
+        for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 06:13:13 -0700 (PDT)
+Date: Sat, 12 Jun 2010 20:55:01 +0200
 From: Dan Carpenter <error27@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
         selinux@tycho.nsa.gov
-Subject: [patch 7/7 v2] selinux: fix error codes in symtab_init()
-Message-ID: <20100612185739.GV5483@bicker>
+Subject: [patch 5/7 v2] selinux: fix error codes in cond_policydb_init()
+Message-ID: <20100612185501.GT5483@bicker>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hashtab_create() only returns NULL on allocation failures to -ENOMEM is
-appropriate here.
+It's better to propagate the error code from avtab_init() instead of
+returning -1 (-EPERM).  It turns out that avtab_init() never fails so
+this patch doesn't change how the code runs but it's still a clean up.
 
 Signed-off-by: Dan Carpenter <error27@gmail.com>
-Acked-by: Eric Paris <eparis@redhat.com>
 ---
-V2: unchanged.
+V2: used "ret" instead of "rc"
+    used "if (rc)" instead of "if (rc < 0)"
 
-diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-index bcf9f62..160326e 100644
---- a/security/selinux/ss/symtab.c
-+++ b/security/selinux/ss/symtab.c
-@@ -36,7 +36,7 @@ int symtab_init(struct symtab *s, unsigned int size)
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 9804df3..a7273bd 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -117,10 +117,14 @@ int evaluate_cond_node(struct policydb *p, struct cond_node *node)
+ 
+ int cond_policydb_init(struct policydb *p)
  {
- 	s->table = hashtab_create(symhash, symcmp, size);
- 	if (!s->table)
++	int rc;
++
+ 	p->bool_val_to_struct = NULL;
+ 	p->cond_list = NULL;
+-	if (avtab_init(&p->te_cond_avtab))
 -		return -1;
-+		return -ENOMEM;
- 	s->nprim = 0;
++
++	rc = avtab_init(&p->te_cond_avtab);
++	if (rc)
++		return rc;
+ 
  	return 0;
  }
 
