@@ -1,36 +1,32 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5DDRxXn026606
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 09:28:00 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5DC1AF6007451
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 12:01:10 GMT
-Received: from [192.168.2.2] (151.64.20.145) by cp-out9.libero.it (8.5.107)
-        id 4C0D11BA0093842C for selinux@tycho.nsa.gov; Sun, 13 Jun 2010 01:36:09 +0200
-Subject: Display all processes using ps
-From: Guido Trentalancia <guido@trentalancia.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Sun, 13 Jun 2010 01:36:04 +0200
-Message-Id: <1276385764.2972.5.camel@tesla.lan>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5DDuAFE028688
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 09:56:10 -0400
+Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5DDtL51006595
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 13:55:22 GMT
+Received: by pwi6 with SMTP id 6so2296047pwi.12
+        for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 06:56:09 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 12 Jun 2010 23:39:49 +0500
+Message-ID: <AANLkTikEB53uqiZixC6uwJoyfjE_9OtJCyQzYSOMl1Ws@mail.gmail.com>
+Subject: Re-using SELinux infrastructure for other LSM modules
+From: Shaz <shazalive@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello everybody !
+Dear all,
 
-I am logging as root on a remote MLS machine using ssh so the default
-role is staff_r. However, I need to execute ps (to display all system
-processes, "ps -ax") over ssh. Unfortunately, ps does not show all
-processes that are normally displayed when using the sysadm_r role
-because it runs in the staff_r role.
+I wanted to understand that how can we use the SELinux infrastructure
+like the policy modules, object managers, booleans and labeling and
+user-space tools etc?
 
-What would be the safest way to allow ps over ssh to show all processes
-running on the system ?
+Thanks.
 
-Thanks for your help.
-
-Guido
-
+-- 
+Shaz
 
 --
 This message was distributed to subscribers of the selinux mailing list.
