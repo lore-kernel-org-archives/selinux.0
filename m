@@ -7,8 +7,8 @@ In-Reply-To: <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
 References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
 	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 14 Jun 2010 10:48:46 -0400
-Message-ID: <1276526926.8863.23.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 14 Jun 2010 10:57:27 -0400
+Message-ID: <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -19,46 +19,10 @@ On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
 > /selinux/policy which can be read by userspace.  The actual policy that is
 > loaded into the kernel will be written back out to userspace.
 
-Why a new node vs a read op for /selinux/load?
-
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
-> 
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 1de60ce..2e022db 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -3126,3 +3125,27 @@ netlbl_sid_to_secattr_failure:
->  	return rc;
->  }
->  #endif /* CONFIG_NETLABEL */
-> +
-> +/**
-> + * security_read_policy - read the policy.
-> + * @data: binary policy data
-> + * @len: length of data in bytes
-> + *
-> + */
-> +int security_read_policy(void *data, ssize_t *len)
-> +{
-> +	int rc = 0;
-> +	struct policy_file file = { data, *len }, *fp = &file;
-> +
-> +	if (!ss_initialized)
-> +		return -EINVAL;
-> +
-> +	read_lock_irq(&policy_rwlock);
-> +	rc = policydb_write(&policydb, fp);
-> +	read_unlock_irq(&policy_rwlock);
-> +
-> +	*len = (unsigned long)fp->data - (unsigned long)data;
-> +
-> +	return rc;
-> +
-> +}
-
-Why _irq?
+How do you expect this to be used?  As with /selinux/load, we can't use
+coreutils utilities to manipulate it unfortunately.  Nor can we do
+things like checkpolicy -b /selinux/policy since it doesn't support
+mmap.
 
 -- 
 Stephen Smalley
