@@ -3,26 +3,33 @@ Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
+In-Reply-To: <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
 References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
 	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
+	 <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 14 Jun 2010 10:57:27 -0400
-Message-ID: <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 14 Jun 2010 10:59:59 -0400
+Message-ID: <1276527599.8863.27.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
-> There is interest in being able to see what the actual policy is that was
-> loaded into the kernel.  The patch creates a new selinuxfs file
-> /selinux/policy which can be read by userspace.  The actual policy that is
-> loaded into the kernel will be written back out to userspace.
+On Mon, 2010-06-14 at 10:57 -0400, Stephen Smalley wrote:
+> On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
+> > There is interest in being able to see what the actual policy is that was
+> > loaded into the kernel.  The patch creates a new selinuxfs file
+> > /selinux/policy which can be read by userspace.  The actual policy that is
+> > loaded into the kernel will be written back out to userspace.
+> 
+> How do you expect this to be used?  As with /selinux/load, we can't use
+> coreutils utilities to manipulate it unfortunately.  Nor can we do
+> things like checkpolicy -b /selinux/policy since it doesn't support
+> mmap.
 
-How do you expect this to be used?  As with /selinux/load, we can't use
-coreutils utilities to manipulate it unfortunately.  Nor can we do
-things like checkpolicy -b /selinux/policy since it doesn't support
-mmap.
+It doesn't seem useful if I can't do things like:
+seinfo /selinux/policy
+cmp /selinux/policy /etc/selinux/$SELINUXTYPE/policy/policy.24
+sediff /selinux/policy \; /etc/selinux/$SELINUXTYPE/poilcy/policy.24
 
 -- 
 Stephen Smalley
