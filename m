@@ -1,81 +1,29 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5EBU7aR009303
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jun 2010 07:30:07 -0400
-Received: from mail.gmx.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o5EBVcki028036
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jun 2010 11:31:39 GMT
-Date: Mon, 14 Jun 2010 11:31:38 GMT
-Message-Id: <201006141131.o5EBVcki028036@msux-gh1-uea02.nsa.gov>
-To: "=?utf-8?B?R3VpZG8gVHJlbnRhbGFuY2lh?=" <guido@trentalancia.com>,
-        selinux@tycho.nsa.gov
-From: "=?utf-8?B?RGVubmlzIFdyb25rYQ==?=" <linuxweb@gmx.net>
-Subject: =?utf-8?B?UmU6IERpc3BsYXkgYWxsIHByb2Nlc3NlcyB1c2luZyBwcw==?=
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_0_1276515001076"
+Subject: Re: Re-using SELinux infrastructure for other LSM modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Shaz <shazalive@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>,
+        securityengineeringresearchgroup <securityengineeringresearchgroup@googlegroups.com>
+In-Reply-To: <AANLkTikEB53uqiZixC6uwJoyfjE_9OtJCyQzYSOMl1Ws@mail.gmail.com>
+References: <AANLkTikEB53uqiZixC6uwJoyfjE_9OtJCyQzYSOMl1Ws@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 14 Jun 2010 08:28:45 -0400
+Message-ID: <1276518525.8863.6.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_0_1276515001076
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+On Sat, 2010-06-12 at 23:39 +0500, Shaz wrote:
+> Dear all,
+> 
+> I wanted to understand that how can we use the SELinux infrastructure
+> like the policy modules, object managers, booleans and labeling and
+> user-space tools etc?
 
-Q2FuJ3QgdGVsbCB5b3UgaG93IHRvIGVuYWJsZSBpdCBmb3IgU1NIIG9ubHkuIEkgZ3Vlc3MgeW91
-J2xsIG5lZWQgdG8gZWRpdCB0aGUgcG9saWN5IGZvciB0aGF0LgpCdXQgaW4gZ2VuZXJhbCB5b3Ug
-c2hvdWxkIGJlIGFibGUgdG8gY29udHJvbCBwcydzIGJlaGF2aW9yIHVzaW5nIGFuIFNFTGludXgg
-Ym9vbGVhbi4KTG9vayB0aHJvdWdoICJnZXRzZWJvb2wgLWEiLCB5b3Ugc2hvdWxkIGJlIGFibGUg
-dG8gZmluZCBpdC4KClNlbnQgZnJvbSBteSBIVEMKCi0tLS0tIFJlcGx5IG1lc3NhZ2UgLS0tLS0K
-RnJvbTogIkd1aWRvIFRyZW50YWxhbmNpYSIgPGd1aWRvQHRyZW50YWxhbmNpYS5jb20+CkRhdGU6
-IFN1biwgSnVuIDEzLCAyMDEwIDA3OjM2ClN1YmplY3Q6IERpc3BsYXkgYWxsIHByb2Nlc3NlcyB1
-c2luZyBwcwpUbzogPHNlbGludXhAdHljaG8ubnNhLmdvdj4KCkhlbGxvIGV2ZXJ5Ym9keSAhCgpJ
-IGFtIGxvZ2dpbmcgYXMgcm9vdCBvbiBhIHJlbW90ZSBNTFMgbWFjaGluZSB1c2luZyBzc2ggc28g
-dGhlIGRlZmF1bHQKcm9sZSBpcyBzdGFmZl9yLiBIb3dldmVyLCBJIG5lZWQgdG8gZXhlY3V0ZSBw
-cyAodG8gZGlzcGxheSBhbGwgc3lzdGVtCnByb2Nlc3NlcywgInBzIC1heCIpIG92ZXIgc3NoLiBV
-bmZvcnR1bmF0ZWx5LCBwcyBkb2VzIG5vdCBzaG93IGFsbApwcm9jZXNzZXMgdGhhdCBhcmUgbm9y
-bWFsbHkgZGlzcGxheWVkIHdoZW4gdXNpbmcgdGhlIHN5c2FkbV9yIHJvbGUKYmVjYXVzZSBpdCBy
-dW5zIGluIHRoZSBzdGFmZl9yIHJvbGUuCgpXaGF0IHdvdWxkIGJlIHRoZSBzYWZlc3Qgd2F5IHRv
-IGFsbG93IHBzIG92ZXIgc3NoIHRvIHNob3cgYWxsIHByb2Nlc3NlcwpydW5uaW5nIG9uIHRoZSBz
-eXN0ZW0gPwoKVGhhbmtzIGZvciB5b3VyIGhlbHAuCgpHdWlkbwoKCi0tClRoaXMgbWVzc2FnZSB3
-YXMgZGlzdHJpYnV0ZWQgdG8gc3Vic2NyaWJlcnMgb2YgdGhlIHNlbGludXggbWFpbGluZyBsaXN0
-LgpJZiB5b3Ugbm8gbG9uZ2VyIHdpc2ggdG8gc3Vic2NyaWJlLCBzZW5kIG1haWwgdG8gbWFqb3Jk
-b21vQHR5Y2hvLm5zYS5nb3Ygd2l0aAp0aGUgd29yZHMgInVuc3Vic2NyaWJlIHNlbGludXgiIHdp
-dGhvdXQgcXVvdGVzIGFzIHRoZSBtZXNzYWdlLgo=
+In general, you can't.
 
-
-------=_Part_0_1276515001076
-Content-Type: text/html;
-	charset=utf-8
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-Q2FuJiMzOTt0IHRlbGwgeW91IGhvdyB0byBlbmFibGUgaXQgZm9yIFNTSCBvbmx5LiBJIGd1ZXNz
-IHlvdSYjMzk7bGwgbmVlZCB0byBlZGl0IHRoZSBwb2xpY3kgZm9yIHRoYXQuPGJyPkJ1dCBpbiBn
-ZW5lcmFsIHlvdSBzaG91bGQgYmUgYWJsZSB0byBjb250cm9sIHBzJiMzOTtzIGJlaGF2aW9yIHVz
-aW5nIGFuIFNFTGludXggYm9vbGVhbi48YnI+TG9vayB0aHJvdWdoICZxdW90O2dldHNlYm9vbCAt
-YSZxdW90OywgeW91IHNob3VsZCBiZSBhYmxlIHRvIGZpbmQgaXQuPGJyPjxicj5TZW50IGZyb20g
-bXkgSFRDPGJyPjxicj4tLS0tLSBSZXBseSBtZXNzYWdlIC0tLS0tPGJyPkZyb206ICZxdW90O0d1
-aWRvIFRyZW50YWxhbmNpYSZxdW90OyAmbHQ7Z3VpZG9AdHJlbnRhbGFuY2lhLmNvbSZndDs8YnI+
-RGF0ZTogU3VuLCBKdW4gMTMsIDIwMTAgMDc6MzY8YnI+U3ViamVjdDogRGlzcGxheSBhbGwgcHJv
-Y2Vzc2VzIHVzaW5nIHBzPGJyPlRvOiAmbHQ7c2VsaW51eEB0eWNoby5uc2EuZ292Jmd0Ozxicj48
-YnI+SGVsbG8gZXZlcnlib2R5ICE8YnI+PGJyPkkgYW0gbG9nZ2luZyBhcyByb290IG9uIGEgcmVt
-b3RlIE1MUyBtYWNoaW5lIHVzaW5nIHNzaCBzbyB0aGUgZGVmYXVsdDxicj5yb2xlIGlzIHN0YWZm
-X3IuIEhvd2V2ZXIsIEkgbmVlZCB0byBleGVjdXRlIHBzICh0byBkaXNwbGF5IGFsbCBzeXN0ZW08
-YnI+cHJvY2Vzc2VzLCAmcXVvdDtwcyAtYXgmcXVvdDspIG92ZXIgc3NoLiBVbmZvcnR1bmF0ZWx5
-LCBwcyBkb2VzIG5vdCBzaG93IGFsbDxicj5wcm9jZXNzZXMgdGhhdCBhcmUgbm9ybWFsbHkgZGlz
-cGxheWVkIHdoZW4gdXNpbmcgdGhlIHN5c2FkbV9yIHJvbGU8YnI+YmVjYXVzZSBpdCBydW5zIGlu
-IHRoZSBzdGFmZl9yIHJvbGUuPGJyPjxicj5XaGF0IHdvdWxkIGJlIHRoZSBzYWZlc3Qgd2F5IHRv
-IGFsbG93IHBzIG92ZXIgc3NoIHRvIHNob3cgYWxsIHByb2Nlc3Nlczxicj5ydW5uaW5nIG9uIHRo
-ZSBzeXN0ZW0gPzxicj48YnI+VGhhbmtzIGZvciB5b3VyIGhlbHAuPGJyPjxicj5HdWlkbzxicj48
-YnI+PGJyPi0tPGJyPlRoaXMgbWVzc2FnZSB3YXMgZGlzdHJpYnV0ZWQgdG8gc3Vic2NyaWJlcnMg
-b2YgdGhlIHNlbGludXggbWFpbGluZyBsaXN0Ljxicj5JZiB5b3Ugbm8gbG9uZ2VyIHdpc2ggdG8g
-c3Vic2NyaWJlLCBzZW5kIG1haWwgdG8gbWFqb3Jkb21vQHR5Y2hvLm5zYS5nb3Ygd2l0aDxicj50
-aGUgd29yZHMgJnF1b3Q7dW5zdWJzY3JpYmUgc2VsaW51eCZxdW90OyB3aXRob3V0IHF1b3RlcyBh
-cyB0aGUgbWVzc2FnZS48YnI+PGJyPjxicj4=
-
-
-------=_Part_0_1276515001076--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
