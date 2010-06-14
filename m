@@ -1,73 +1,55 @@
-Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
- of the kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1276538131.2749.18.camel@localhost>
-References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
-	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
-	 <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276529041.2749.14.camel@localhost>
-	 <1276532095.8863.32.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276538131.2749.18.camel@localhost>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 14 Jun 2010 14:04:04 -0400
-Message-ID: <1276538644.8863.38.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5EKb6LZ017489
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jun 2010 16:37:08 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o5EKaKGc011191
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jun 2010 20:36:20 GMT
+Date: Mon, 14 Jun 2010 16:37:07 -0400
+Subject: Re: Minor fixup of checkmodule man page.
+From: Chad Sellers <csellers@tresys.com>
+To: <slawrence@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Message-ID: <C83C0B33.B9022%csellers@tresys.com>
+In-Reply-To: <1276284358.6342.101.camel@gorgon>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-06-14 at 13:55 -0400, Eric Paris wrote:
-> On Mon, 2010-06-14 at 12:14 -0400, Stephen Smalley wrote:
-> > On Mon, 2010-06-14 at 11:24 -0400, Eric Paris wrote:
-> > > On Mon, 2010-06-14 at 10:57 -0400, Stephen Smalley wrote:
-> > > > On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
-> > > > > There is interest in being able to see what the actual policy is that was
-> > > > > loaded into the kernel.  The patch creates a new selinuxfs file
-> > > > > /selinux/policy which can be read by userspace.  The actual policy that is
-> > > > > loaded into the kernel will be written back out to userspace.
-> > > > 
-> > > > How do you expect this to be used?  As with /selinux/load, we can't use
-> > > > coreutils utilities to manipulate it unfortunately.  Nor can we do
-> > > > things like checkpolicy -b /selinux/policy since it doesn't support
-> > > > mmap.
-> > > 
-> > > I used my own program to pull it out to a file and poke it after it was
-> > > out.  I can certainly take a look at generating the policy on open()
-> > > which would allow us to support ppos easily (and maybe mmap, but I've
-> > > never written an mmap handler)
-> > 
-> > Hmm...the resulting policy.from.kern doesn't match the binary policy
-> > file that was loaded, nor is it a well-formed policy.
+On 6/11/10 3:25 PM, "Steve Lawrence" <slawrence@tresys.com> wrote:
+
+> On Mon, 2010-05-03 at 13:45 -0400, Daniel J Walsh wrote:
+>> Quality Engineering is going through all commands on the system looking
+>> for mismatches between man page/usage and actual code.
+>> 
+>> It found that checkmodule had a -d option that is unused and undocumented -h
 > 
-> It won't be a binary perfect match since we switched range transition
-> rules to a hashtab and we lose ordering in the kernel.  (although the
-> second load and resulting read should be the same binary policy)
+> Reviewed-by: Steve Lawrence <slawrence@tresys.com>
 > 
-> What is not well-formed about your result?  I got back the same policy
-> (according to sediff) but I was using selinux-policy-minimum....
+> I'd just add the long --help option to the man page for completeness:
+> 
+> diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
+> index a25f25c..54680e3 100644
+> --- a/checkpolicy/checkmodule.8
+> +++ b/checkpolicy/checkmodule.8
+> @@ -25,7 +25,7 @@ the module package into the module store and load the
+> resulting policy.
+>  Read an existing binary policy module file rather than a source policy
+>  module file.  This option is a development/debugging aid.
+>  .TP
+> -.B \-h
+> +.B \-h,\-\-help
+>  Print usage.
+>  .TP
+>  .B \-m
+> 
+> 
+> --
 
-Breakpoint 2, sens_index (key=0x6ac120 "s0", datum=0x6ac100, datap=0x658960)
-    at policydb.c:753
-753				return -EINVAL;
-(gdb) print *levdatum->level
-$1 = {sens = 1501285952, cat = {node = 0x6ac160, highbit = 1024}}
-(gdb) where
-#0  sens_index (key=0x6ac120 "s0", datum=0x6ac100, datap=0x658960)
-    at policydb.c:753
-#1  0x0000000000423915 in hashtab_map (h=0x65e7a0, 
-    apply=0x42f5d3 <sens_index>, args=0x658960) at hashtab.c:235
-#2  0x000000000042fdb3 in policydb_index_others (handle=0x0, p=0x658960, 
-    verbose=1) at policydb.c:917
-#3  0x0000000000436571 in policydb_read (p=0x658960, fp=0x7fffffffe0d0, 
-    verbose=1) at policydb.c:3486
-#4  0x0000000000401f85 in main (argc=3, argv=0x7fffffffe3e8)
-    at checkpolicy.c:526
+Acked-by: Chad Sellers <csellers@tresys.com>
 
-
--- 
-Stephen Smalley
-National Security Agency
+Merged as of checkpolicy 2.0.22
 
 
 --
