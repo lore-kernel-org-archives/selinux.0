@@ -1,94 +1,100 @@
-Date: Mon, 14 Jun 2010 16:37:17 -0400
-Subject: Re: libselinux APIs should take "const" qualifier?
-From: Chad Sellers <csellers@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux <selinux@tycho.nsa.gov>
-Message-ID: <C83C0B3D.B9022%csellers@tresys.com>
-In-Reply-To: <4BA82DE4.2000601@ak.jp.nec.com>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5F4g3Kw019874
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jun 2010 00:42:04 -0400
+Received: from smtp106.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o5F4fENe028345
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jun 2010 04:41:14 GMT
+Message-ID: <4C17049D.6090106@schaufler-ca.com>
+Date: Mon, 14 Jun 2010 21:42:05 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        jmorris@namei.org, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
+ of the kernel
+References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>	 <1276526926.8863.23.camel@moss-pluto.epoch.ncsc.mil> <1276528366.2749.3.camel@localhost>
+In-Reply-To: <1276528366.2749.3.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 3/22/10 10:56 PM, "KaiGai Kohei" <kaigai@ak.jp.nec.com> wrote:
+Eric Paris wrote:
+> On Mon, 2010-06-14 at 10:48 -0400, Stephen Smalley wrote:
+>   
+>> On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
+>>     
+>>> There is interest in being able to see what the actual policy is that was
+>>> loaded into the kernel.  The patch creates a new selinuxfs file
+>>> /selinux/policy which can be read by userspace.  The actual policy that is
+>>> loaded into the kernel will be written back out to userspace.
+>>>       
+>> Why a new node vs a read op for /selinux/load?
+>>     
+>
+> No reason why I couldn't.  Just 'load' seemed to imply a connotation
+> which wasn't appropriate.  If you prefer I'll switch it when I do
+> another version.
+>   
 
-> (2010/03/19 22:32), Stephen Smalley wrote:
->> On Fri, 2010-03-19 at 16:52 +0900, KaiGai Kohei wrote:
->>> Right now, security_context_t is an alias of char *, declared in selinux.h.
->>> 
->>> Various kind of libselinux API takes security_context_t arguments,
->>> however, it is inconvenience in several situations.
->>> 
->>> For example, the following query is parsed, then delivered to access
->>> control subsystem with the security context as "const char *" cstring.
->>> 
->>>    ALTER TABLE my_tbl SECURITY LABEL TO
->>> 'system_u:object_r:sepgsql_table_t:SystemHigh';
->>>                  const char *<----
->>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>> 
->>> In this case, we want to call selinux_trans_to_raw_context() to translate
->>> the given security context into raw format. But it takes security_context_t
->>> argument for the source context, although this pointer is read-only.
->>> In the result, compiler raises warnings because we gave "const char *"
->>> pointer
->>> into functions which take security_context_t (= char *).
->>> 
->>> Any comments?
->>> 
->>> It seems to me the following functions' prototype should be qualified by
->>> "const".
->> 
->> That seems reasonable and should have no impact on library ABI.
->> On the other hand, others have pointed out that security_context_t is
->> not a properly encapsulated data type at all, and perhaps should be
->> deprecated and replaced with direct use of char*/const char* throughout.
->> 
->> There are other library API issues as well that have come up in the
->> past, such as lack of adequate namespacing (with approaches put forth),
->> but we don't ever seem to get a round tuit.
-> 
-> At first, I tried to add const qualifiers read-only security_context_t
-> pointers, but didn't replace them by char */const char * yet, right now.
-> 
-> BTW, I could find out the following code:
-> 
->   int security_compute_create(security_context_t scon,
->                               security_context_t tcon,
->                               security_class_t tclass,
->                               security_context_t * newcon)
->   {
->           int ret;
->           security_context_t rscon = scon;
->           security_context_t rtcon = tcon;
->           security_context_t rnewcon;
-> 
->           if (selinux_trans_to_raw_context(scon, &rscon))
->                   return -1;
->           if (selinux_trans_to_raw_context(tcon, &rtcon)) {
->                   freecon(rscon);
->                   return -1;
->           }
->       :
-> 
-> In this case, scon and tcon can be qualified by const, and the first
-> argument of selinux_trans_to_raw_context() can take const pointer.
-> But it tries to initialize rscon and tscon by const pointer, although
-> these are used to store raw security contexts.
-> The selinux_trans_to_raw_context() always set dynamically allocated
-> text string on the second argument, so we don't need to initialize it
-> anyway. I also removed these initializations in this patch.
-> 
-> Does the older mcstrans code could return without allocation of raw
-> format when the given scon is already raw format? I don't know why
-> these are initialized in this manner.
-> 
-> Thanks.
+If it makes any difference Smack /smack/load does read as well as write.
+You have the opportunity to make 2 or 3 users less confused if you do
+things consistently. After all, Smack uses load because SELinux does,
+the name is actually arbitrary, and why do something differently when
+it doesn't really matter?
 
-Acked-by: Chad Sellers <csellers@tresys.com>
-
-Merged as of libselinux 2.0.96
+> -Eric
+>   
+>>> Signed-off-by: Eric Paris <eparis@redhat.com>
+>>> ---
+>>>
+>>>       
+>>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>>> index 1de60ce..2e022db 100644
+>>> --- a/security/selinux/ss/services.c
+>>> +++ b/security/selinux/ss/services.c
+>>> @@ -3126,3 +3125,27 @@ netlbl_sid_to_secattr_failure:
+>>>  	return rc;
+>>>  }
+>>>  #endif /* CONFIG_NETLABEL */
+>>> +
+>>> +/**
+>>> + * security_read_policy - read the policy.
+>>> + * @data: binary policy data
+>>> + * @len: length of data in bytes
+>>> + *
+>>> + */
+>>> +int security_read_policy(void *data, ssize_t *len)
+>>> +{
+>>> +	int rc = 0;
+>>> +	struct policy_file file = { data, *len }, *fp = &file;
+>>> +
+>>> +	if (!ss_initialized)
+>>> +		return -EINVAL;
+>>> +
+>>> +	read_lock_irq(&policy_rwlock);
+>>> +	rc = policydb_write(&policydb, fp);
+>>> +	read_unlock_irq(&policy_rwlock);
+>>> +
+>>> +	*len = (unsigned long)fp->data - (unsigned long)data;
+>>> +
+>>> +	return rc;
+>>> +
+>>> +}
+>>>       
+>> Why _irq?
+>>     
+>
+> Stolen from security_load_policy() and shouldn't have been.  Will fix.
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>
+>   
 
 
 --
