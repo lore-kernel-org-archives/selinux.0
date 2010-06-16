@@ -1,63 +1,198 @@
-Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
- of the kernel
-From: Eric Paris <eparis@redhat.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org
-In-Reply-To: <4C17049D.6090106@schaufler-ca.com>
+Subject: Re: [PATCH 1/4] SELinux: seperate range transition rules to a
+ seperate function
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
 References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
-	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
-	 <1276526926.8863.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276528366.2749.3.camel@localhost>  <4C17049D.6090106@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 15 Jun 2010 10:33:09 -0400
-Message-ID: <1276612389.2749.38.camel@localhost>
+Date: Wed, 16 Jun 2010 09:02:31 -0400
+Message-ID: <1276693351.17827.1.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-06-14 at 21:42 -0700, Casey Schaufler wrote:
-> Eric Paris wrote:
-> > On Mon, 2010-06-14 at 10:48 -0400, Stephen Smalley wrote:
-> >   
-> >> On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
-> >>     
-> >>> There is interest in being able to see what the actual policy is that was
-> >>> loaded into the kernel.  The patch creates a new selinuxfs file
-> >>> /selinux/policy which can be read by userspace.  The actual policy that is
-> >>> loaded into the kernel will be written back out to userspace.
-> >>>       
-> >> Why a new node vs a read op for /selinux/load?
-> >>     
-> >
-> > No reason why I couldn't.  Just 'load' seemed to imply a connotation
-> > which wasn't appropriate.  If you prefer I'll switch it when I do
-> > another version.
-> >   
+On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
+> Move the range transition rule to a separate function, range_read(), rather
+> than doing it all in policydb_read()
 > 
-> If it makes any difference Smack /smack/load does read as well as write.
-> You have the opportunity to make 2 or 3 users less confused if you do
-> things consistently. After all, Smack uses load because SELinux does,
-> the name is actually arbitrary, and why do something differently when
-> it doesn't really matter?
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-I did two things yesterday.  First I switch the read
-from /selinux/policy to /selinux/load.  Then I undid that change and
-started generating the in kernel policy buffer on open() rather than on
-read().  It allowed me to use cat /etc/policy > policy rather than using
-my own half ass hacked utility.  The reason I undid the policy->load
-change was because I didn't really want to store the old policy on open
-if they were going to write() a new policy.  I can probably make the
-determination based on the f_mode, but didn't really play with it yet.
-I  try to do both in the next go-round.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-I'm still trying to figure out what I did to make malformed policies.
-Must have screwed something up ripping out my prink's and debug hooks,
-because it isn't working for me now either....
+> ---
+> 
+>  security/selinux/ss/policydb.c |  139 ++++++++++++++++++++++------------------
+>  1 files changed, 75 insertions(+), 64 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index c57802a..a39d38a 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1701,6 +1701,78 @@ u32 string_to_av_perm(struct policydb *p, u16 tclass, const char *name)
+>  	return 1U << (perdatum->value-1);
+>  }
+>  
+> +static int range_read(struct policydb *p, void *fp)
+> +{
+> +	struct range_trans *rt = NULL;
+> +	struct mls_range *r = NULL;
+> +	int i, rc;
+> +	__le32 buf[2];
+> +	u32 nel;
+> +
+> +	if (p->policyvers < POLICYDB_VERSION_MLS)
+> +		return 0;
+> +
+> +	rc = next_entry(buf, fp, sizeof(u32));
+> +	if (rc)
+> +		goto out;
+> +
+> +	nel = le32_to_cpu(buf[0]);
+> +	for (i = 0; i < nel; i++) {
+> +		rc = -ENOMEM;
+> +		rt = kzalloc(sizeof(*rt), GFP_KERNEL);
+> +		if (!rt)
+> +			goto out;
+> +
+> +		rc = next_entry(buf, fp, (sizeof(u32) * 2));
+> +		if (rc)
+> +			goto out;
+> +
+> +		rt->source_type = le32_to_cpu(buf[0]);
+> +		rt->target_type = le32_to_cpu(buf[1]);
+> +		if (p->policyvers >= POLICYDB_VERSION_RANGETRANS) {
+> +			rc = next_entry(buf, fp, sizeof(u32));
+> +			if (rc)
+> +				goto out;
+> +			rt->target_class = le32_to_cpu(buf[0]);
+> +		} else
+> +			rt->target_class = p->process_class;
+> +
+> +		rc = -EINVAL;
+> +		if (!policydb_type_isvalid(p, rt->source_type) ||
+> +		    !policydb_type_isvalid(p, rt->target_type) ||
+> +		    !policydb_class_isvalid(p, rt->target_class))
+> +			goto out;
+> +
+> +		rc = -ENOMEM;
+> +		r = kzalloc(sizeof(*r), GFP_KERNEL);
+> +		if (!r)
+> +			goto out;
+> +
+> +		rc = mls_read_range_helper(r, fp);
+> +		if (rc)
+> +			goto out;
+> +
+> +		rc = -EINVAL;
+> +		if (!mls_range_isvalid(p, r)) {
+> +			printk(KERN_WARNING "SELinux:  rangetrans:  invalid range\n");
+> +			goto out;
+> +		}
+> +
+> +		rc = hashtab_insert(p->range_tr, rt, r);
+> +		if (rc)
+> +			goto out;
+> +
+> +		rt = NULL;
+> +		r = NULL;
+> +	}
+> +	rangetr_hash_eval(p->range_tr);
+> +	rc = 0;
+> +out:
+> +	kfree(rt);
+> +	kfree(r);
+> +	return rc;
+> +}
+> +
+>  /*
+>   * Read the configuration data from a policy database binary
+>   * representation file into a policy database structure.
+> @@ -1717,8 +1789,6 @@ int policydb_read(struct policydb *p, void *fp)
+>  	u32 len, len2, nprim, nel, nel2;
+>  	char *policydb_str;
+>  	struct policydb_compat_info *info;
+> -	struct range_trans *rt;
+> -	struct mls_range *r;
+>  
+>  	rc = policydb_init(p);
+>  	if (rc)
+> @@ -2131,68 +2201,9 @@ int policydb_read(struct policydb *p, void *fp)
+>  		}
+>  	}
+>  
+> -	if (p->policyvers >= POLICYDB_VERSION_MLS) {
+> -		int new_rangetr = p->policyvers >= POLICYDB_VERSION_RANGETRANS;
+> -		rc = next_entry(buf, fp, sizeof(u32));
+> -		if (rc < 0)
+> -			goto bad;
+> -		nel = le32_to_cpu(buf[0]);
+> -		for (i = 0; i < nel; i++) {
+> -			rt = kzalloc(sizeof(*rt), GFP_KERNEL);
+> -			if (!rt) {
+> -				rc = -ENOMEM;
+> -				goto bad;
+> -			}
+> -			rc = next_entry(buf, fp, (sizeof(u32) * 2));
+> -			if (rc < 0) {
+> -				kfree(rt);
+> -				goto bad;
+> -			}
+> -			rt->source_type = le32_to_cpu(buf[0]);
+> -			rt->target_type = le32_to_cpu(buf[1]);
+> -			if (new_rangetr) {
+> -				rc = next_entry(buf, fp, sizeof(u32));
+> -				if (rc < 0) {
+> -					kfree(rt);
+> -					goto bad;
+> -				}
+> -				rt->target_class = le32_to_cpu(buf[0]);
+> -			} else
+> -				rt->target_class = p->process_class;
+> -			if (!policydb_type_isvalid(p, rt->source_type) ||
+> -			    !policydb_type_isvalid(p, rt->target_type) ||
+> -			    !policydb_class_isvalid(p, rt->target_class)) {
+> -				kfree(rt);
+> -				rc = -EINVAL;
+> -				goto bad;
+> -			}
+> -			r = kzalloc(sizeof(*r), GFP_KERNEL);
+> -			if (!r) {
+> -				kfree(rt);
+> -				rc = -ENOMEM;
+> -				goto bad;
+> -			}
+> -			rc = mls_read_range_helper(r, fp);
+> -			if (rc) {
+> -				kfree(rt);
+> -				kfree(r);
+> -				goto bad;
+> -			}
+> -			if (!mls_range_isvalid(p, r)) {
+> -				printk(KERN_WARNING "SELinux:  rangetrans:  invalid range\n");
+> -				kfree(rt);
+> -				kfree(r);
+> -				goto bad;
+> -			}
+> -			rc = hashtab_insert(p->range_tr, rt, r);
+> -			if (rc) {
+> -				kfree(rt);
+> -				kfree(r);
+> -				goto bad;
+> -			}
+> -		}
+> -		rangetr_hash_eval(p->range_tr);
+> -	}
+> +	rc = range_read(p, fp);
+> +	if (rc)
+> +		goto bad;
+>  
+>  	p->type_attr_map = kmalloc(p->p_types.nprim * sizeof(struct ebitmap), GFP_KERNEL);
+>  	if (!p->type_attr_map)
 
-Unrelated note, can we take patches 1,2,3 ?  They are just cleanups....
-
--Eric
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
