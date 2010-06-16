@@ -1,44 +1,177 @@
-Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
- of the kernel
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        Casey Schaufler
- <casey@schaufler-ca.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org
-In-Reply-To: <1276706472.17827.35.camel@moss-pluto.epoch.ncsc.mil>
-References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
-	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
-	 <1276526926.8863.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276528366.2749.3.camel@localhost>  <4C17049D.6090106@schaufler-ca.com>
-	 <1276612389.2749.38.camel@localhost>
-	 <1276700025.17827.29.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276701977.2749.51.camel@localhost>
-	 <1276706472.17827.35.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 16 Jun 2010 12:58:41 -0400
-Message-ID: <1276707521.2749.52.camel@localhost>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5GND0ge018190
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2010 19:13:00 -0400
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5GNEWr3016218
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2010 23:14:32 GMT
+Date: Thu, 17 Jun 2010 09:12:09 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: linux-security-module@vger.kernel.org
+cc: linux-kernel@vger.kernel.org, lwn@lwn.net, fedora-selinux-list@redhat.com,
+        selinux@tycho.nsa.gov, "C. Craig Ross" <ccr@linuxfoundation.org>,
+        ubuntu-hardened@lists.ubuntu.com, tomoyo-users-en@lists.sourceforge.jp,
+        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        Audit-ML <linux-audit@redhat.com>, lss-pc@ext.namei.org,
+        gentoo-hardened@gentoo.org,
+        Amanda McPherson <amanda.mcpherson@gmail.com>
+Subject: [ANNOUNCE] Linux Security Summit 2010 - Schedule Published
+In-Reply-To: <alpine.LRH.2.00.1005220826560.10931@tundra.namei.org>
+Message-ID: <alpine.LRH.2.00.1006170847470.9597@tundra.namei.org>
+References: <alpine.LRH.2.00.1005220826560.10931@tundra.namei.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-06-16 at 12:41 -0400, Stephen Smalley wrote:
-> On Wed, 2010-06-16 at 11:26 -0400, Eric Paris wrote:
+==========================================================================
 
-> > No question wrapping my head around the new ebitmap format was the tough
-> > part.  I added printk's to display every ebitmap and node as it was read
-> > in and as I wrote them out.  Got the same thing for the couple thousand
-> > lines I could show in dmesg, so I think I'm ok there.
-> > 
-> > I was trying to use gdb yesterday to figure out what was wrong, but
-> > could get the darn thing to break where I wanted it to.  I'll debug like
-> > I'm used to (in the kernel) and see what I did....
-> 
-> Oh, I found it.  mls_write_level() in your patch sets buf[1] rather than
-> buf[0] and then writes buf[0].
+                     LINUX SECURITY SUMMIT 2010 (BOSTON)
 
-/me feels like the compiler should have been able to find that
-particular one....
+                             PROGRAM SCHEDULE
+
+==========================================================================
+
+SUMMARY
+
+  This is to announce the program schedule for the upcoming Linux
+  Security Summit [1], to be held on Monday 9th August in Boston in
+  conjunction with LinuxCon [2].
+ 
+  Following a round of voting by the Program Committee, the following
+  proposals were selected as main talks:
+  
+    * "Recent Advances in the SELinux Sandbox"
+            Dan Walsh, Red Hat
+    
+    * "in ur webserver, writin ur logs"
+            Joshua Brindle, Tresys
+            
+    * "Integrating Security into Vyatta"
+            Stephen Hemminger, Vyatta
+            
+    * "MSF Security Framework Overview"
+            Elena Reshetova, Nokia
+            
+    * "Access Control in the MSF Security Framework"
+            Janne Karhunen, Nokia
+
+    * "Linux Security in 10 Years"
+            Brad Spengler, grsecurity
+            
+    * "Using EVM to protect security extended attributes"
+            Mimi Zohar, IBM
+            
+    * "Secstate: Integrating SCAP and Puppet for System Lockdown"
+            Karl MacMillan, Tresys
+            
+    * "Widely Used But Out-Of-Tree"
+            Kees Cook, Canonical
+            
+    * "Linux Security Usability"
+            Z. Cliffe Schreuders, Murdoch University
+            
+    * "System Security Services Daemon (SSSD)"
+            Stephen Gallagher, Red Hat 
+
+  We will also hold a panel session, kicking off with a discussion on "The
+  Viability of a Standard Linux Security API", followed by open Q&A and
+  lightning talks.
+  
+  Full details of the program, including abstracts, may be found at:
+  
+    https://security.wiki.kernel.org/index.php/LinuxSecuritySummit2010/Schedule
+
+
+EVENT DESCRIPTION
+
+  The Linux Security Summit is a technical forum for collaboration
+  between Linux developers, researchers, and end users.  Its primary aim
+  is to foster community efforts in analyzing and solving Linux security
+  challenges.
+
+  The format of the summit will be:
+  
+    * Selected brief presentations
+    * Lightning talks
+    * Q&A panel sessions 
+  
+
+DATES / LOCATION
+
+  The Linux Security Summit for 2010 will be held on the 9th of August in
+  Boston, USA.  It will be co-located with LinuxCon [2], at the
+  Renaissance Boston Waterfront.
+  
+  Note that Linux Security Summit attendees must be registered to attend
+  LinuxCon.  See the LinuxCon site for details on registration, travel,
+  and accommodation.
+  
+    http://events.linuxfoundation.org/events/linuxcon
+
+
+WHO SHOULD ATTEND
+
+  The event is open to all registered LinuxCon attendees.
+  
+  You do not have to be a "security person" to attend -- we're seeking a
+  diverse range of attendees, and welcome the participation of general
+  developers, researchers, operations, and end-users.
+
+  There will be panel and lightning talks sessions in addition to brief,
+  selected presentations, with a strong focus on discussion.
+
+  Lightning talks and discussion panel agendas will be coordinated closer
+  to the event on the event mailing list, and on-site.
+
+
+MAILING LIST
+
+  Everyone planning to attend should join the event mailing list:
+  
+     https://ext.namei.org/mailman/listinfo/linux-security-summit
+     
+  Coordination of panel discussions and lightning talks will occur on the
+  list.  Updates and announcements about the event will also be sent to
+  the list.
+  
+
+WEB SITE
+
+  Please also note the Linux Security Summit web site:
+  
+    https://security.wiki.kernel.org/index.php/LinuxSecuritySummit2010  
+ 
+  which will be kept updated with all available information on the event.
+
+
+PROGRAM COMMITTEE
+
+  The Linux Security Summit for 2010 is organized by:
+
+    * James Morris, Red Hat
+    * Serge Hallyn, IBM
+    * Paul Moore, HP
+    * Stephen Smalley, NSA
+    * Joshua Brindle, Tresys
+    * Tetsuo Handa, NTT Data
+    * Herbert Xu, Red Hat
+    * John Johansen, Canonical
+    * Kees Cook, Canonical
+    * Casey Schaufler, Smack Project 
+
+  
+  The program committee may be contacted as a group via email:
+
+     lss-pc (_at_) ext.namei.org
+   
+
+REFERENCES  
+  
+  [1] LSS 2010: https://security.wiki.kernel.org/index.php/LinuxSecuritySummit2010
+  [2] LinuxCon: http://events.linuxfoundation.org/events/linuxcon
+
+
+==========================================================================
 
 
 --
