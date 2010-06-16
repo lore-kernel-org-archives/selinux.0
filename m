@@ -1,300 +1,73 @@
-Subject: Re: [PATCH 3/4] SELinux: break ocontext reading into a separate
- function
+Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
+ of the kernel
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100611163717.18445.59014.stgit@paris.rdu.redhat.com>
+To: Eric Paris <eparis@redhat.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov,
+        jmorris@namei.org
+In-Reply-To: <1276612389.2749.38.camel@localhost>
 References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
-	 <20100611163717.18445.59014.stgit@paris.rdu.redhat.com>
+	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
+	 <1276526926.8863.23.camel@moss-pluto.epoch.ncsc.mil>
+	 <1276528366.2749.3.camel@localhost>  <4C17049D.6090106@schaufler-ca.com>
+	 <1276612389.2749.38.camel@localhost>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 16 Jun 2010 10:39:10 -0400
-Message-ID: <1276699150.17827.15.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 16 Jun 2010 10:53:45 -0400
+Message-ID: <1276700025.17827.29.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
-> Move the reading of ocontext type data out of policydb_read() in a separate
-> function ocontext_read()
+On Tue, 2010-06-15 at 10:33 -0400, Eric Paris wrote:
+> On Mon, 2010-06-14 at 21:42 -0700, Casey Schaufler wrote:
+> > Eric Paris wrote:
+> > > On Mon, 2010-06-14 at 10:48 -0400, Stephen Smalley wrote:
+> > >   
+> > >> On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
+> > >>     
+> > >>> There is interest in being able to see what the actual policy is that was
+> > >>> loaded into the kernel.  The patch creates a new selinuxfs file
+> > >>> /selinux/policy which can be read by userspace.  The actual policy that is
+> > >>> loaded into the kernel will be written back out to userspace.
+> > >>>       
+> > >> Why a new node vs a read op for /selinux/load?
+> > >>     
+> > >
+> > > No reason why I couldn't.  Just 'load' seemed to imply a connotation
+> > > which wasn't appropriate.  If you prefer I'll switch it when I do
+> > > another version.
+> > >   
+> > 
+> > If it makes any difference Smack /smack/load does read as well as write.
+> > You have the opportunity to make 2 or 3 users less confused if you do
+> > things consistently. After all, Smack uses load because SELinux does,
+> > the name is actually arbitrary, and why do something differently when
+> > it doesn't really matter?
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
-> 
->  security/selinux/ss/policydb.c |  242 ++++++++++++++++++++++------------------
->  1 files changed, 131 insertions(+), 111 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 66e217b..99fff0c 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1899,6 +1899,134 @@ out:
->  	return rc;
->  }
->  
-> +static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
-> +			 void *fp)
-> +{
-> +	int i, j, rc;
-> +	u32 nel, len;
-> +	__le32 buf[3];
-> +	struct ocontext *l, *c;
-> +	u32 nodebuf[8];
-> +
-> +	for (i = 0; i < info->ocon_num; i++) {
-> +		rc = next_entry(buf, fp, sizeof(u32));
-> +		if (rc)
-> +			goto out;
-> +		nel = le32_to_cpu(buf[0]);
-> +
-> +		l = NULL;
-> +		for (j = 0; j < nel; j++) {
-> +			rc = -ENOMEM;
-> +			c = kzalloc(sizeof(*c), GFP_KERNEL);
-> +			if (!c)
-> +				goto out;
-> +			if (l)
-> +				l->next = c;
-> +			else
-> +				p->ocontexts[i] = c;
-> +			l = c;
-> +
-> +			switch (i) {
-> +			case OCON_ISID:
-> +				rc = next_entry(buf, fp, sizeof(u32));
-> +				if (rc)
-> +					goto out;
-> +
-> +				c->sid[0] = le32_to_cpu(buf[0]);
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_FS:
-> +			case OCON_NETIF:
-> +				rc = next_entry(buf, fp, sizeof(u32));
-> +				if (rc)
-> +					goto out;
-> +				len = le32_to_cpu(buf[0]);
-> +
-> +				rc = -ENOMEM;
-> +				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-> +				if (!c->u.name)
-> +					goto out;
-> +
-> +				rc = next_entry(c->u.name, fp, len);
-> +				if (rc)
-> +					goto out;
-> +
-> +				c->u.name[len] = 0;
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				rc = context_read_and_validate(&c->context[1], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_PORT:
-> +				rc = next_entry(buf, fp, sizeof(u32)*3);
-> +				if (rc)
-> +					goto out;
-> +				c->u.port.protocol = le32_to_cpu(buf[0]);
-> +				c->u.port.low_port = le32_to_cpu(buf[1]);
-> +				c->u.port.high_port = le32_to_cpu(buf[2]);
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_NODE:
-> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
-> +				if (rc)
-> +					goto out;
-> +				c->u.node.addr = nodebuf[0]; /* network order */
-> +				c->u.node.mask = nodebuf[1]; /* network order */
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_FSUSE:
-> +				rc = next_entry(buf, fp, sizeof(u32)*2);
-> +				if (rc)
-> +					goto out;
-> +				c->v.behavior = le32_to_cpu(buf[0]);
-> +				if (c->v.behavior > SECURITY_FS_USE_NONE)
-> +					goto out;
+> I did two things yesterday.  First I switch the read
+> from /selinux/policy to /selinux/load.  Then I undid that change and
+> started generating the in kernel policy buffer on open() rather than on
+> read().  It allowed me to use cat /etc/policy > policy rather than using
+> my own half ass hacked utility.  The reason I undid the policy->load
+> change was because I didn't really want to store the old policy on open
+> if they were going to write() a new policy.  I can probably make the
+> determination based on the f_mode, but didn't really play with it yet.
+> I  try to do both in the next go-round.
 
-rc is not set here.
+Unfortunately it appears that libselinux security_load_policy() does
+open("/selinux/load", O_RDWR).  Don't ask me why.
 
-> +
-> +				rc = -ENOMEM;
-> +				len = le32_to_cpu(buf[1]);
-> +				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-> +				if (!c->u.name)
-> +					goto out;
-> +
-> +				rc = next_entry(c->u.name, fp, len);
-> +				if (rc)
-> +					goto out;
-> +				c->u.name[len] = 0;
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_NODE6: {
-> +				int k;
-> +
-> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
-> +				if (rc)
-> +					goto out;
-> +				for (k = 0; k < 4; k++)
-> +					c->u.node6.addr[k] = nodebuf[k];
-> +				for (k = 0; k < 4; k++)
-> +					c->u.node6.mask[k] = nodebuf[k+4];
-> +				rc = context_read_and_validate(&c->context[0], p, fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			}
-> +			}
-> +		}
-> +	}
-> +	rc = 0;
-> +out:
-> +	return rc;
-> +}
-> +
->  /*
->   * Read the configuration data from a policy database binary
->   * representation file into a policy database structure.
-> @@ -1907,10 +2035,8 @@ int policydb_read(struct policydb *p, void *fp)
->  {
->  	struct role_allow *ra, *lra;
->  	struct role_trans *tr, *ltr;
-> -	struct ocontext *l, *c;
->  	int i, j, rc;
->  	__le32 buf[4];
-> -	u32 nodebuf[8];
->  	u32 len, nprim, nel;
->  
->  	char *policydb_str;
-> @@ -2115,115 +2241,9 @@ int policydb_read(struct policydb *p, void *fp)
->  	if (!p->process_trans_perms)
->  		goto bad;
->  
-> -	for (i = 0; i < info->ocon_num; i++) {
-> -		rc = next_entry(buf, fp, sizeof(u32));
-> -		if (rc < 0)
-> -			goto bad;
-> -		nel = le32_to_cpu(buf[0]);
-> -		l = NULL;
-> -		for (j = 0; j < nel; j++) {
-> -			c = kzalloc(sizeof(*c), GFP_KERNEL);
-> -			if (!c) {
-> -				rc = -ENOMEM;
-> -				goto bad;
-> -			}
-> -			if (l)
-> -				l->next = c;
-> -			else
-> -				p->ocontexts[i] = c;
-> -			l = c;
-> -			rc = -EINVAL;
-> -			switch (i) {
-> -			case OCON_ISID:
-> -				rc = next_entry(buf, fp, sizeof(u32));
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->sid[0] = le32_to_cpu(buf[0]);
-> -				rc = context_read_and_validate(&c->context[0], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				break;
-> -			case OCON_FS:
-> -			case OCON_NETIF:
-> -				rc = next_entry(buf, fp, sizeof(u32));
-> -				if (rc < 0)
-> -					goto bad;
-> -				len = le32_to_cpu(buf[0]);
-> -				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-> -				if (!c->u.name) {
-> -					rc = -ENOMEM;
-> -					goto bad;
-> -				}
-> -				rc = next_entry(c->u.name, fp, len);
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->u.name[len] = 0;
-> -				rc = context_read_and_validate(&c->context[0], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				rc = context_read_and_validate(&c->context[1], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				break;
-> -			case OCON_PORT:
-> -				rc = next_entry(buf, fp, sizeof(u32)*3);
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->u.port.protocol = le32_to_cpu(buf[0]);
-> -				c->u.port.low_port = le32_to_cpu(buf[1]);
-> -				c->u.port.high_port = le32_to_cpu(buf[2]);
-> -				rc = context_read_and_validate(&c->context[0], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				break;
-> -			case OCON_NODE:
-> -				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->u.node.addr = nodebuf[0]; /* network order */
-> -				c->u.node.mask = nodebuf[1]; /* network order */
-> -				rc = context_read_and_validate(&c->context[0], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				break;
-> -			case OCON_FSUSE:
-> -				rc = next_entry(buf, fp, sizeof(u32)*2);
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->v.behavior = le32_to_cpu(buf[0]);
-> -				if (c->v.behavior > SECURITY_FS_USE_NONE)
-> -					goto bad;
-> -				len = le32_to_cpu(buf[1]);
-> -				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-> -				if (!c->u.name) {
-> -					rc = -ENOMEM;
-> -					goto bad;
-> -				}
-> -				rc = next_entry(c->u.name, fp, len);
-> -				if (rc < 0)
-> -					goto bad;
-> -				c->u.name[len] = 0;
-> -				rc = context_read_and_validate(&c->context[0], p, fp);
-> -				if (rc)
-> -					goto bad;
-> -				break;
-> -			case OCON_NODE6: {
-> -				int k;
-> -
-> -				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
-> -				if (rc < 0)
-> -					goto bad;
-> -				for (k = 0; k < 4; k++)
-> -					c->u.node6.addr[k] = nodebuf[k];
-> -				for (k = 0; k < 4; k++)
-> -					c->u.node6.mask[k] = nodebuf[k+4];
-> -				if (context_read_and_validate(&c->context[0], p, fp))
-> -					goto bad;
-> -				break;
-> -			}
-> -			}
-> -		}
-> -	}
-> +	rc = ocontext_read(p, info, fp);
-> +	if (rc)
-> +		goto bad;
->  
->  	rc = genfs_read(p, fp);
->  	if (rc)
+> I'm still trying to figure out what I did to make malformed policies.
+> Must have screwed something up ripping out my prink's and debug hooks,
+> because it isn't working for me now either....
+
+Assuming you've just reused the userspace policydb_write() code with
+minor cleanups for everything except the new ebitmap format, I'd look
+more closely there. 
+KaiGai - this is the first time where we need to convert the new kernel
+ebitmap format back to the old one for generating a policy image from
+the kernel policydb that can be compared to a policy file.
+ 
+> Unrelated note, can we take patches 1,2,3 ?  They are just cleanups....
 
 -- 
 Stephen Smalley
