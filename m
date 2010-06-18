@@ -1,67 +1,40 @@
-Subject: Re: Developing a SELinux policy for antivirus - How to access
- /home?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alice Mynona <alice_mynona@bian-fu.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <4C1BB77D.7040100@bian-fu.net>
-References: <4C1B9CDC.2000802@bian-fu.net> <4C1BA490.5030807@redhat.com>
-	 <4C1BB77D.7040100@bian-fu.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 18 Jun 2010 14:55:18 -0400
-Message-ID: <1276887318.22449.132.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5IJYlIv024274
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 15:34:47 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5IJaLZt021043
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 19:36:22 GMT
+Received: from int-mx04.intmail.prod.int.phx2.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.17])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o5IJYj5m029788
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 15:34:45 -0400
+Received: from localhost.localdomain (vpn-9-141.rdu.redhat.com [10.11.9.141])
+	by int-mx04.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o5IJYiBI030589
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 15:34:45 -0400
+Message-ID: <4C1BCA54.20005@redhat.com>
+Date: Fri, 18 Jun 2010 15:34:44 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: New init system hitting a distro near you.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-06-18 at 20:14 +0200, Alice Mynona wrote:
-> Daniel J Walsh schrieb am 18.06.2010 18:53 Uhr:
-> > On 06/18/2010 12:20 PM, Alice Mynona wrote:
-> >> Hello,
-> >>
-> >> I'm planning to develop a SELinux module for an antivirus software.
-> >> This software should protect the system from beeing infected by
-> >> malicious files in /home. Of course, the software will be executed in
-> >> a separate domain i. e. antivirus_t.
-> >>
-> >> What do you recommend to allow the antivirus software to access (and
-> >> manage) files und directories under /home?
-> >>
-> >> My first thought was to allow the antivirus software to manage files
-> >> of the type "user_home_dir_t" and directories of the type
-> >> "user_home_dir_t" by using the corresponding interfaces in the
-> >> reference policy (i. e. "userdom_manage_user_home_dirs"). But what's
-> >> about other filetypes like "gnome_home_t", "irc_home_t",
-> >> "screen_tmp_t" and so on? Is there a general method to manage files
-> >> under "/home" or do you have an another idea? Am I missing something?
-> >>
-> >> Thanks in advance.
-> >>
-> >> Best regards,
-> >> Alice
-> >>
-> > All files types stored in the home dir have an attribute of user_home_type.
-> > 
-> 
-> Okay, on my system there are other file types unter "/home" i. e.:
-> 
-> $ ls -Z /home/alice/.ssh/
-> 
-> -rw-r--r--. alice alice unconfined_u:object_r:home_ssh_t:SystemLow authorized_keys2
-> -rw-r--r--. alice alice unconfined_u:object_r:home_ssh_t:SystemLow known_hosts
-> 
-> What do mean by "have an attribute of user_home_type"? How can I use this attribute instead of a file type when writing rules?
+http://0pointer.de/blog/projects/systemd.html
 
-Each type can have a set of attributes associated with it in the policy
-(via typeattribute statements or as part of the type declaration).
-You can then use the attribute names in allow rules to express the set
-of types that have that attribute.
+This has interesting ramifications for SELinux.  I have a working 
+version of this in Fedora 14, but we need to add rules like
 
-seinfo -auser_home_type -x
+allow sshd_t init_t:tcp_socket { getopt ioctl getattr setopt };
 
--- 
-Stephen Smalley
-National Security Agency
+Since systemd will be doing the listening and passing the socket to sshd.
 
+Could we have risks of sshd_t grabbing the tcp_socket connected to 
+httpd_t?
+
+In this scenario we are no longer protecting against the name_bind, and 
+are forced to put more trust into init_t.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
