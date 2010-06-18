@@ -1,37 +1,31 @@
-Subject: Re: Benchmarking
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Otheim <coriolis220@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <AANLkTik72PznqNvcz_2mp9kwTjdGA2NiTLo7v0yv2i47@mail.gmail.com>
-References: <AANLkTik72PznqNvcz_2mp9kwTjdGA2NiTLo7v0yv2i47@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 18 Jun 2010 09:47:34 -0400
-Message-ID: <1276868854.22449.30.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4C1B9CDC.2000802@bian-fu.net>
+Date: Fri, 18 Jun 2010 18:20:44 +0200
+From: Alice Mynona <alice_mynona@bian-fu.net>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: Developing a SELinux policy for antivirus - How to access /home?
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-06-17 at 20:49 -0400, Paul Otheim wrote:
-> Most of the benchmarking figures I have seen or heard of consistently
-> say that, depending on what your doing, the average performance hit
-> when running SELinux is about 5 to 7 percent. My question is if anyone
-> has benchmarked with no DAC and SELinux only for permissions checks.
-> What, if any, is the performance gain? Can I get that seven percent
-> back? I know its not a strict SELinux question but I don't know of any
-> other place to ask such a thing. 
+Hello,
 
-There isn't any way to disable DAC checking in the kernel.
+I'm planning to develop a SELinux module for an antivirus software. This software should protect the system from beeing infected by 
+malicious files in /home. Of course, the software will be executed in a separate domain i. e. antivirus_t.
 
-The /selinux/avc files may be helpful in examining and adjusting the
-behavior of the Access Vector Cache (AVC), which was designed to
-minimize the performance overhead of SELinux.  See:
-http://james-morris.livejournal.com/2153.html
-http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0102.html
+What do you recommend to allow the antivirus software to access (and manage) files und directories under /home?
 
+My first thought was to allow the antivirus software to manage files of the type "user_home_dir_t" and directories of the type "user_home_dir_t" by using the corresponding interfaces in the reference policy (i. e. "userdom_manage_user_home_dirs"). But what's about other filetypes like "gnome_home_t", "irc_home_t", "screen_tmp_t" and so on? Is there a general method to manage files under "/home" or do you have an another idea? Am I missing something?
+
+Thanks in advance.
+
+Best regards,
+Alice
 
 -- 
-Stephen Smalley
-National Security Agency
++ Alice Mynona
++ Email: Alice_Mynona@bian-fu.net
+
 
 
 --
