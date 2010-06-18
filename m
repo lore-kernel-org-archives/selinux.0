@@ -1,60 +1,37 @@
-Subject: Re: [PATCH 4/4] SELinux: allow userspace to read policy back out
- of the kernel
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org
-In-Reply-To: <1276538131.2749.18.camel@localhost>
-References: <20100611163705.18445.78022.stgit@paris.rdu.redhat.com>
-	 <20100611163723.18445.39397.stgit@paris.rdu.redhat.com>
-	 <1276527447.8863.25.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276529041.2749.14.camel@localhost>
-	 <1276532095.8863.32.camel@moss-pluto.epoch.ncsc.mil>
-	 <1276538131.2749.18.camel@localhost>
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 18 Jun 2010 08:01:27 -0400
-Message-ID: <1276862487.2929.294.camel@gorn.columbia.tresys.com>
+Subject: Re: Benchmarking
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Otheim <coriolis220@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <AANLkTik72PznqNvcz_2mp9kwTjdGA2NiTLo7v0yv2i47@mail.gmail.com>
+References: <AANLkTik72PznqNvcz_2mp9kwTjdGA2NiTLo7v0yv2i47@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 18 Jun 2010 09:47:34 -0400
+Message-ID: <1276868854.22449.30.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-06-14 at 13:55 -0400, Eric Paris wrote:
-> On Mon, 2010-06-14 at 12:14 -0400, Stephen Smalley wrote:
-> > On Mon, 2010-06-14 at 11:24 -0400, Eric Paris wrote:
-> > > On Mon, 2010-06-14 at 10:57 -0400, Stephen Smalley wrote:
-> > > > On Fri, 2010-06-11 at 12:37 -0400, Eric Paris wrote:
-> > > > > There is interest in being able to see what the actual policy is that was
-> > > > > loaded into the kernel.  The patch creates a new selinuxfs file
-> > > > > /selinux/policy which can be read by userspace.  The actual policy that is
-> > > > > loaded into the kernel will be written back out to userspace.
-> > > > 
-> > > > How do you expect this to be used?  As with /selinux/load, we can't use
-> > > > coreutils utilities to manipulate it unfortunately.  Nor can we do
-> > > > things like checkpolicy -b /selinux/policy since it doesn't support
-> > > > mmap.
-> > > 
-> > > I used my own program to pull it out to a file and poke it after it was
-> > > out.  I can certainly take a look at generating the policy on open()
-> > > which would allow us to support ppos easily (and maybe mmap, but I've
-> > > never written an mmap handler)
-> > 
-> > Hmm...the resulting policy.from.kern doesn't match the binary policy
-> > file that was loaded, nor is it a well-formed policy.
-> 
-> It won't be a binary perfect match since we switched range transition
-> rules to a hashtab and we lose ordering in the kernel.  (although the
-> second load and resulting read should be the same binary policy)
-> 
-> What is not well-formed about your result?  I got back the same policy
-> (according to sediff) but I was using selinux-policy-minimum....
+On Thu, 2010-06-17 at 20:49 -0400, Paul Otheim wrote:
+> Most of the benchmarking figures I have seen or heard of consistently
+> say that, depending on what your doing, the average performance hit
+> when running SELinux is about 5 to 7 percent. My question is if anyone
+> has benchmarked with no DAC and SELinux only for permissions checks.
+> What, if any, is the performance gain? Can I get that seven percent
+> back? I know its not a strict SELinux question but I don't know of any
+> other place to ask such a thing. 
 
-I'm just catching up, but a word of warning: sediff does not diff
-constraints yet.
+There isn't any way to disable DAC checking in the kernel.
+
+The /selinux/avc files may be helpful in examining and adjusting the
+behavior of the Access Vector Cache (AVC), which was designed to
+minimize the performance overhead of SELinux.  See:
+http://james-morris.livejournal.com/2153.html
+http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0102.html
+
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Stephen Smalley
+National Security Agency
 
 
 --
