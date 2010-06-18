@@ -1,86 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5IHWbTX016463
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 13:32:38 -0400
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5IHYEZt012621
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 17:34:14 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4) with ESMTP id o5IHXBVN009810
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2010 13:33:11 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4/Submit) id o5IHXBh2009809
-	for selinux@tycho.nsa.gov; Fri, 18 Jun 2010 13:33:11 -0400
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5DDSdLS027177
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 09:28:39 -0400
-Received: from mail-ww0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5DDTp7D024993
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 13:30:11 GMT
-Received: by mail-ww0-f53.google.com with SMTP id 39so2972271wwb.12
-        for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2010 06:28:38 -0700 (PDT)
-Date: Sat, 12 Jun 2010 20:51:40 +0200
-From: Dan Carpenter <error27@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
-Subject: [patch 2/7 v2] selinux: propagate error codes in cond_read_list()
-Message-ID: <20100612185140.GQ5483@bicker>
+Message-ID: <4C1BB77D.7040100@bian-fu.net>
+Date: Fri, 18 Jun 2010 20:14:21 +0200
+From: Alice Mynona <alice_mynona@bian-fu.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Developing a SELinux policy for antivirus - How to access /home?
+References: <4C1B9CDC.2000802@bian-fu.net> <4C1BA490.5030807@redhat.com>
+In-Reply-To: <4C1BA490.5030807@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-These are passed back when the security module gets loaded.
+Daniel J Walsh schrieb am 18.06.2010 18:53 Uhr:
+> On 06/18/2010 12:20 PM, Alice Mynona wrote:
+>> Hello,
+>>
+>> I'm planning to develop a SELinux module for an antivirus software.
+>> This software should protect the system from beeing infected by
+>> malicious files in /home. Of course, the software will be executed in
+>> a separate domain i. e. antivirus_t.
+>>
+>> What do you recommend to allow the antivirus software to access (and
+>> manage) files und directories under /home?
+>>
+>> My first thought was to allow the antivirus software to manage files
+>> of the type "user_home_dir_t" and directories of the type
+>> "user_home_dir_t" by using the corresponding interfaces in the
+>> reference policy (i. e. "userdom_manage_user_home_dirs"). But what's
+>> about other filetypes like "gnome_home_t", "irc_home_t",
+>> "screen_tmp_t" and so on? Is there a general method to manage files
+>> under "/home" or do you have an another idea? Am I missing something?
+>>
+>> Thanks in advance.
+>>
+>> Best regards,
+>> Alice
+>>
+> All files types stored in the home dir have an attribute of user_home_type.
+> 
 
-The original code always returned -1 (-EPERM) on error but after this
-patch it can return -EINVAL, or -ENOMEM or propagate the error code from
-cond_read_node().  cond_read_node() still returns -1 all the time, but I
-fix that in a later patch.
+Okay, on my system there are other file types unter "/home" i. e.:
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
----
-V2: use "if (rc)" instead of "if (rc < 0)"
+$ ls -Z /home/alice/.ssh/
 
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 4a4e35c..775418a 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -445,8 +445,8 @@ int cond_read_list(struct policydb *p, void *fp)
- 	int rc;
- 
- 	rc = next_entry(buf, fp, sizeof buf);
--	if (rc < 0)
--		return -1;
-+	if (rc)
-+		return rc;
- 
- 	len = le32_to_cpu(buf[0]);
- 
-@@ -455,11 +455,13 @@ int cond_read_list(struct policydb *p, void *fp)
- 		goto err;
- 
- 	for (i = 0; i < len; i++) {
-+		rc = -ENOMEM;
- 		node = kzalloc(sizeof(struct cond_node), GFP_KERNEL);
- 		if (!node)
- 			goto err;
- 
--		if (cond_read_node(p, node, fp) != 0)
-+		rc = cond_read_node(p, node, fp);
-+		if (rc)
- 			goto err;
- 
- 		if (i == 0)
-@@ -472,7 +474,7 @@ int cond_read_list(struct policydb *p, void *fp)
- err:
- 	cond_list_destroy(p->cond_list);
- 	p->cond_list = NULL;
--	return -1;
-+	return rc;
- }
- 
- /* Determine whether additional permissions are granted by the conditional
+-rw-r--r--. alice alice unconfined_u:object_r:home_ssh_t:SystemLow authorized_keys2
+-rw-r--r--. alice alice unconfined_u:object_r:home_ssh_t:SystemLow known_hosts
 
+What do mean by "have an attribute of user_home_type"? How can I use this attribute instead of a file type when writing rules?
+
+> What is your goal of this antivirus tools?  Scan all files in the
+> homedir for bad content?
+
+The antivir software offers two functions:
+
+a) On demand scanning 
+
+b) On access scanning (real time)
+
+On demand scanning may be done periodically under the root account or via crond. At the moment I doesn't care about this ;-). The on access scanning, which uses a DazukoFS implementation (http://dazuko.dnsalias.org/wiki/index.php/Main_Page), should work in the first version of the selinux module. This function scans a file when a program tries to open it.
+
+Many thanks for your help.
+
+Best regards 
+
+Alice
 
 --
 This message was distributed to subscribers of the selinux mailing list.
