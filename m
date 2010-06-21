@@ -1,84 +1,60 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5LIWutw005949
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 14:32:56 -0400
+Received: from g5t0006.atlanta.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o5LIW5LY011792
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 18:32:05 GMT
+Received: from g5t0029.atlanta.hp.com (g5t0029.atlanta.hp.com [16.228.8.141])
+	by g5t0006.atlanta.hp.com (Postfix) with ESMTP id 520B4C275
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 18:32:55 +0000 (UTC)
+Received: from ldl (ldl.fc.hp.com [15.11.146.30])
+	by g5t0029.atlanta.hp.com (Postfix) with ESMTP id 212702020B
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 18:32:54 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl (Postfix) with ESMTP id B9603CF000B
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 12:32:54 -0600 (MDT)
+Received: from ldl ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JfZUhhhKjhyV for <selinux@tycho.nsa.gov>;
+	Mon, 21 Jun 2010 12:32:54 -0600 (MDT)
+Received: from flek.localnet (squirrel.fc.hp.com [15.11.146.57])
+	by ldl (Postfix) with ESMTP id 89EA6CF0008
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2010 12:32:54 -0600 (MDT)
 From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: New init system hitting a distro near you.
-Date: Mon, 21 Jun 2010 13:35:57 -0400
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-References: <4C1BCA54.20005@redhat.com> <201006211120.29742.paul.moore@hp.com> <1277134008.6338.2.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1277134008.6338.2.camel@moss-pluto.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 0/6] SELinux UNIX domain socket fixes/cleanup
+Date: Mon, 21 Jun 2010 14:32:53 -0400
+References: <20100529214628.4042.88276.stgit@flek.lan>
+In-Reply-To: <20100529214628.4042.88276.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="utf-8"
-Message-Id: <201006211335.57122.paul.moore@hp.com>
+Message-Id: <201006211432.53781.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, June 21, 2010 11:26:48 am Stephen Smalley wrote:
-> On Mon, 2010-06-21 at 11:20 -0400, Paul Moore wrote:
-> > On Friday, June 18, 2010 04:31:45 pm Stephen Smalley wrote:
-> > > On Fri, 2010-06-18 at 16:22 -0400, Stephen Smalley wrote:
-> > > > On Fri, 2010-06-18 at 16:00 -0400, Daniel J Walsh wrote:
-> > > > > On 06/18/2010 03:45 PM, Stephen Smalley wrote:
-> > > > > > On Fri, 2010-06-18 at 15:34 -0400, Daniel J Walsh wrote:
-> > > > > >> http://0pointer.de/blog/projects/systemd.html
-> > > > > >> 
-> > > > > >> This has interesting ramifications for SELinux.  I have a
-> > > > > >> working version of this in Fedora 14, but we need to add rules
-> > > > > >> like
-> > > > > >> 
-> > > > > >> allow sshd_t init_t:tcp_socket { getopt ioctl getattr setopt };
-> > > > > >> 
-> > > > > >> Since systemd will be doing the listening and passing the socket
-> > > > > >> to sshd.
-> > > > > >> 
-> > > > > >> Could we have risks of sshd_t grabbing the tcp_socket connected
-> > > > > >> to httpd_t?
-> > > > > >> 
-> > > > > >> In this scenario we are no longer protecting against the
-> > > > > >> name_bind, and are forced to put more trust into init_t.
-> > > > > > 
-> > > > > > Can we get systemd to use setsockcreatecon() to assign the right
-> > > > > > label to the socket?
-> > > > > 
-> > > > > Probably but how does it figure out the context?
-> > > > 
-> > > > The sockets would normally be labeled with the context of the
-> > > > individual daemon process.  So we would want to compute the context
-> > > > in which the daemon process will run and then use that for the
-> > > > socket.  Which we can do via security_compute_create().  Sample code
-> > > > attached.  Compile with: gcc -lselinux -o setsockcon setsockcon.c
-> > > > 
-> > > > Example run (in permissive):
-> > > > $ runcon system_u:system_r:init_t:s0 ./setsockcon /usr/sbin/sshd
-> > > > /usr/sbin/sshd system_u:system_r:sshd_t:s0
-> > > 
-> > > So the concept here is that systemd must already know the path to the
-> > > daemon executable as part of its config, so it can call the
-> > > setsockconfrompath() function on that path prior to calling socket() to
-> > > create the socket.  You can have the function bail immediately if
-> > > (is_selinux_enabled() < 1), and perhaps ignore errors from it if
-> > > (security_getenforce() < 1).
-> > > 
-> > > We'll need something similar for Unix domain sockets to ensure that the
-> > > file gets labeled properly, but using security_compute_create() on the
-> > > daemon context, the parent directory context, and
-> > > string_to_security_class("sock_file") to determine the right context
-> > > and using setfscreatecon() before calling bind().  A bit messy.
-> > 
-> > I would need to check the code a bit closer and test it to be certain but
-> > I believe that setsockcreatecon() should work for UNIX domain sockets
-> > too.  At least selinux_socket[_post]_create() applies the sockcreate_sid
-> > regardless of the socket's address family.
-> > 
-> > Granted, determining the correct label is still a bit ugly but at least
-> > you don't have to use setfscreatecon() would could get nasty very
-> > quickly if you're not careful.
+On Saturday, May 29, 2010 05:53:16 pm Paul Moore wrote:
+> I finally got a chance to cobble together some tests to verify both
+> getpeercon() on the client end of a connected UNIX domain socket as well
+> as the proper operation of fsetxattr() on sockets.  I'm happy to report
+> that everything worked as I expected it to (UNIX sockets now behave like
+> INET sockets) and nothing exploded.  This latest version of the patchset
+> should include all the feedback I've received so far as well as my
+> sign-off on each patch so I think we should be in good shape at this
+> point.  As a result, I'm submitting these patches for whatever kernel
+> release looks most appropriate - maybe to late for .35, but you might
+> be able to make a weak argument that some of the patches are
+> bugfixes - regardless, I'll let you guys make that call; as long as
+> they go somewhere I'll be happy.
 > 
-> With Unix domain sockets bound to the filesystem namespace, there are
-> two separate objects:  the socket and the file.
+> For those of you using git, you can also find a copy of the patches at
+> the URL below.
+> 
+>  * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
 
-Yes, sorry, my mistake; I was thinking of the socket fsetxattr() labeling 
-support - that supported labeling the filesystem and socket components of a 
-UNIX domain socket.
+Just a quick follow-up for the archives ... James has merged patches 2 through 
+6 with patch 1 being intentionally excluded due to concerns from Stephan 
+Smalley over the potential race conditions described in the comments.
 
 -- 
 paul moore
