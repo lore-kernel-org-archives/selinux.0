@@ -1,59 +1,60 @@
-Message-ID: <4C239056.7020006@bian-fu.net>
-Date: Thu, 24 Jun 2010 19:05:26 +0200
+Message-ID: <4C239214.1030509@bian-fu.net>
+Date: Thu, 24 Jun 2010 19:12:52 +0200
 From: Alice Mynona <alice_mynona@bian-fu.net>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
+To: Xavier Toth <txtoth@gmail.com>
 CC: SELinux@tycho.nsa.gov
 Subject: Re: Developing a SELinux policy for antivirus - Activating a boolean
- variable when another has been actived
-References: <4C237345.2010200@bian-fu.net> <4C238465.60104@gmail.com>
-In-Reply-To: <4C238465.60104@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+ 	variable when another has been actived
+References: <4C237345.2010200@bian-fu.net> <AANLkTinDyPQx0zLSneSbVI4oA8adcXSr5f785r8U0PXd@mail.gmail.com>
+In-Reply-To: <AANLkTinDyPQx0zLSneSbVI4oA8adcXSr5f785r8U0PXd@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Thanks for your answer.
 
-Dominick Grift schrieb am 24.06.2010 18:14 Uhr:
-> On 06/24/2010 05:01 PM, Alice Mynona wrote:
->> I have also taken a look at "file_contexts" (cd
-> /etc/selinux/targeted/modules/active && grep antivirus_t
-> file_contexts*), but there's no "antivirus_t" anymore.
-> 
-> antivirus_t is defined a domain type so you wont find it in the list of
-> file contexts because those are file types.
+Xavier Toth schrieb am 24.06.2010 17:35 Uhr:
+> Can you post you te file?
 >
 
-stupid ;-) It's late. Of course, you are right.
- 
-> does sesearch --allow -s antivirus_t return anything
-
-ERROR: could not find datum for type antivirus_t
-
-> or sesearch --allow -t antivirus_t?
-
-ERROR: could not find datum for type antivirus_t
-
-> 
-> and:
-> 
-> semanage fcontext -l | grep antivirus
-
-No matches.
-
-> 
-> and
-> 
-> semodule -l | grep antivirus
-> 
-
-No matches.
-
-It's funny, isn't it?
+Unfortunately not. I was just testing something. After the removal of the module, I have deleted the files. I have noticed the error described in my last posting a few hours later. Next time I will backup files for testing purposes, too.
 
 Best regards,
 
 Alice
+ 
+> Ted
+> 
+> On Thu, Jun 24, 2010 at 10:01 AM, Alice Mynona <alice_mynona@bian-fu.net> wrote:
+>> Hello,
+>>
+>> during the developing of a SELinux module I got the following error messages when executing "audit2allow -a -l"
+>>
+>> ...
+>> libsepol.context_from_record: type antivirus_t is not defined
+>> libsepol.context_from_record: could not create context structure
+>> libsepol.context_from_string: could not create context structure
+>> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
+>>
+>> "antivirus_t" is a domain I have defined in my module:
+>>
+>> type antivirus_t;
+>> domain_type(antivirus_t)
+>>
+>> I have already removed the module (semodule -r antivirus.pp && semodule -R) and did a file context repair afterwards (fixfiles restore). The error still exists.
+>>
+>> I have reinstalled the policy (yum reinstall selinux-policy-*), but the problem remains. I have also taken a look at "file_contexts" (cd /etc/selinux/targeted/modules/active && grep antivirus_t file_contexts*), but there's no "antivirus_t" anymore.
+>>
+>> Can you help me to find the cause of the problem? I don't know how to debug libsepol-messages.
+>>
+>> I'm using "selinux-policy-targeted-3.6.32-118.fc12.noarch".
+>>
+>> Thanks in advance.
+>>
+>> Best regards,
+>> Alice
+>>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
