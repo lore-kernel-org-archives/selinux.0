@@ -1,60 +1,57 @@
-Message-ID: <4C239214.1030509@bian-fu.net>
-Date: Thu, 24 Jun 2010 19:12:52 +0200
-From: Alice Mynona <alice_mynona@bian-fu.net>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: Developing a SELinux policy for antivirus - Activating a boolean
- 	variable when another has been actived
-References: <4C237345.2010200@bian-fu.net> <AANLkTinDyPQx0zLSneSbVI4oA8adcXSr5f785r8U0PXd@mail.gmail.com>
-In-Reply-To: <AANLkTinDyPQx0zLSneSbVI4oA8adcXSr5f785r8U0PXd@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Developing a SELinux policy for antivirus - Activating a
+ boolean variable when another has been actived
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alice Mynona <alice_mynona@bian-fu.net>
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <4C237345.2010200@bian-fu.net>
+References: <4C237345.2010200@bian-fu.net>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 24 Jun 2010 13:12:58 -0400
+Message-ID: <1277399578.25186.50.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for your answer.
-
-Xavier Toth schrieb am 24.06.2010 17:35 Uhr:
-> Can you post you te file?
->
-
-Unfortunately not. I was just testing something. After the removal of the module, I have deleted the files. I have noticed the error described in my last posting a few hours later. Next time I will backup files for testing purposes, too.
-
-Best regards,
-
-Alice
- 
-> Ted
+On Thu, 2010-06-24 at 17:01 +0200, Alice Mynona wrote:
+> Hello,
 > 
-> On Thu, Jun 24, 2010 at 10:01 AM, Alice Mynona <alice_mynona@bian-fu.net> wrote:
->> Hello,
->>
->> during the developing of a SELinux module I got the following error messages when executing "audit2allow -a -l"
->>
->> ...
->> libsepol.context_from_record: type antivirus_t is not defined
->> libsepol.context_from_record: could not create context structure
->> libsepol.context_from_string: could not create context structure
->> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
->>
->> "antivirus_t" is a domain I have defined in my module:
->>
->> type antivirus_t;
->> domain_type(antivirus_t)
->>
->> I have already removed the module (semodule -r antivirus.pp && semodule -R) and did a file context repair afterwards (fixfiles restore). The error still exists.
->>
->> I have reinstalled the policy (yum reinstall selinux-policy-*), but the problem remains. I have also taken a look at "file_contexts" (cd /etc/selinux/targeted/modules/active && grep antivirus_t file_contexts*), but there's no "antivirus_t" anymore.
->>
->> Can you help me to find the cause of the problem? I don't know how to debug libsepol-messages.
->>
->> I'm using "selinux-policy-targeted-3.6.32-118.fc12.noarch".
->>
->> Thanks in advance.
->>
->> Best regards,
->> Alice
->>
+> during the developing of a SELinux module I got the following error messages when executing "audit2allow -a -l"
+> 
+> ...
+> libsepol.context_from_record: type antivirus_t is not defined
+> libsepol.context_from_record: could not create context structure
+> libsepol.context_from_string: could not create context structure
+> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
+> 
+> "antivirus_t" is a domain I have defined in my module:
+> 
+> type antivirus_t;
+> domain_type(antivirus_t)
+> 
+> I have already removed the module (semodule -r antivirus.pp && semodule -R) and did a file context repair afterwards (fixfiles restore). The error still exists. 
+> 
+> I have reinstalled the policy (yum reinstall selinux-policy-*), but the problem remains. I have also taken a look at "file_contexts" (cd /etc/selinux/targeted/modules/active && grep antivirus_t file_contexts*), but there's no "antivirus_t" anymore.
+> 
+> Can you help me to find the cause of the problem? I don't know how to debug libsepol-messages.
+> 
+> I'm using "selinux-policy-targeted-3.6.32-118.fc12.noarch".
+
+Sounds like the -l option to audit2allow isn't working correctly, so
+that instead of only processing audit messages since the last policy
+reload, you are still processing the audit messages from when that
+policy module was installed, and unsurprisingly it cannot map those
+contexts since you removed the module.  That would be a bug in
+audit2allow/sepolgen.
+
+Workaround would be to use ausearch to select the desired range of
+messsages specifically, e.g.
+/sbin/ausearch -m AVC -ts today | audit2allow
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
