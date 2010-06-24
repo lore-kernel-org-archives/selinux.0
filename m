@@ -1,55 +1,59 @@
+Message-ID: <4C238465.60104@gmail.com>
+Date: Thu, 24 Jun 2010 18:14:29 +0200
+From: Dominick Grift <domg472@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <4C237345.2010200@bian-fu.net>
-References: <4C237345.2010200@bian-fu.net>
-Date: Thu, 24 Jun 2010 10:35:35 -0500
-Message-ID: <AANLkTinDyPQx0zLSneSbVI4oA8adcXSr5f785r8U0PXd@mail.gmail.com>
-Subject: Re: Developing a SELinux policy for antivirus - Activating a boolean
-	variable when another has been actived
-From: Xavier Toth <txtoth@gmail.com>
 To: Alice Mynona <alice_mynona@bian-fu.net>
-Cc: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Developing a SELinux policy for antivirus - Activating a boolean
+ variable when another has been actived
+References: <4C237345.2010200@bian-fu.net>
+In-Reply-To: <4C237345.2010200@bian-fu.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigFFFC48FA0F0B299469FEB8E1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Can you post you te file?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigFFFC48FA0F0B299469FEB8E1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Ted
+On 06/24/2010 05:01 PM, Alice Mynona wrote:
+> I have also taken a look at "file_contexts" (cd
+/etc/selinux/targeted/modules/active && grep antivirus_t
+file_contexts*), but there's no "antivirus_t" anymore.
 
-On Thu, Jun 24, 2010 at 10:01 AM, Alice Mynona <alice_mynona@bian-fu.net> wrote:
-> Hello,
->
-> during the developing of a SELinux module I got the following error messages when executing "audit2allow -a -l"
->
-> ...
-> libsepol.context_from_record: type antivirus_t is not defined
-> libsepol.context_from_record: could not create context structure
-> libsepol.context_from_string: could not create context structure
-> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
->
-> "antivirus_t" is a domain I have defined in my module:
->
-> type antivirus_t;
-> domain_type(antivirus_t)
->
-> I have already removed the module (semodule -r antivirus.pp && semodule -R) and did a file context repair afterwards (fixfiles restore). The error still exists.
->
-> I have reinstalled the policy (yum reinstall selinux-policy-*), but the problem remains. I have also taken a look at "file_contexts" (cd /etc/selinux/targeted/modules/active && grep antivirus_t file_contexts*), but there's no "antivirus_t" anymore.
->
-> Can you help me to find the cause of the problem? I don't know how to debug libsepol-messages.
->
-> I'm using "selinux-policy-targeted-3.6.32-118.fc12.noarch".
->
-> Thanks in advance.
->
-> Best regards,
-> Alice
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+antivirus_t is defined a domain type so you wont find it in the list of
+file contexts because those are file types.
+
+does sesearch --allow -s antivirus_t return anything or sesearch --allow
+-t antivirus_t?
+
+and:
+
+semanage fcontext -l | grep antivirus
+
+and
+
+semodule -l | grep antivirus
+
+
+--------------enigFFFC48FA0F0B299469FEB8E1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkwjhGsACgkQMlxVo39jgT+FBQCfXLCrY7Xqrhz3IFIpdvO9gre+
+ddgAoIHw0VpC+eicjMoJZ76d9B9nhPPN
+=SX4z
+-----END PGP SIGNATURE-----
+
+--------------enigFFFC48FA0F0B299469FEB8E1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
