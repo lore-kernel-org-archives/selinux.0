@@ -1,135 +1,230 @@
-Subject: Re: Developing a SELinux policy for antivirus - Activating a
- boolean variable when another has been actived
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Dominick Grift <domg472@gmail.com>,
-        Alice Mynona <alice_mynona@bian-fu.net>, SELinux@tycho.nsa.gov,
-        Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <4C2515E8.2030407@redhat.com>
-References: <4C237345.2010200@bian-fu.net>
-	 <1277399578.25186.50.camel@moss-pluto.epoch.ncsc.mil>
-	 <1277400829.25186.54.camel@moss-pluto.epoch.ncsc.mil>
-	 <4C2480B5.7040602@bian-fu.net> <4C24852C.5050406@gmail.com>
-	 <4C250F08.3060207@redhat.com>
-	 <1277497424.25186.201.camel@moss-pluto.epoch.ncsc.mil>
-	 <1277497520.25186.202.camel@moss-pluto.epoch.ncsc.mil>
-	 <4C2515E8.2030407@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 25 Jun 2010 17:04:07 -0400
-Message-ID: <1277499847.25186.236.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o5Q1jo7j014061
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jun 2010 21:45:50 -0400
+Received: from mail-iw0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o5Q1lWbi029884
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jun 2010 01:47:32 GMT
+Received: by iwn37 with SMTP id 37so507116iwn.12
+        for <selinux@tycho.nsa.gov>; Fri, 25 Jun 2010 18:45:49 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <4C0F98E4.2090409@manicmethod.com>
+References: <C80DC64C.B78D6%csellers@tresys.com>
+	<4C0F98E4.2090409@manicmethod.com>
+Date: Fri, 25 Jun 2010 21:45:48 -0400
+Message-ID: <AANLkTikczeWL0Y5FPI6VrKzHeahlC9aKs5QsybOpcW1J@mail.gmail.com>
+Subject: Re: New to SELinux: how to get familiar
+From: Vacheh Sardarian <vsardarian@gmail.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov,
+        "Thomson, David-P63356" <David.Thomson@gdc4s.com>
+Content-Type: multipart/alternative; boundary=0016e646992203fe7d0489e50c45
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-06-25 at 16:47 -0400, Daniel J Walsh wrote:
-> On 06/25/2010 04:25 PM, Stephen Smalley wrote:
-> > On Fri, 2010-06-25 at 16:23 -0400, Stephen Smalley wrote:
-> >> On Fri, 2010-06-25 at 16:18 -0400, Daniel J Walsh wrote:
-> >>> On 06/25/2010 06:30 AM, Dominick Grift wrote:
-> >>>> On 06/25/2010 12:11 PM, Alice Mynona wrote:
-> >>>>> Stephen Smalley schrieb am 24.06.2010 19:33 Uhr:
-> >>>>>> On Thu, 2010-06-24 at 13:12 -0400, Stephen Smalley wrote:
-> >>>>>>> On Thu, 2010-06-24 at 17:01 +0200, Alice Mynona wrote:
-> >>>>>>>> Hello,
-> >>>>>>>>
-> >>>>>>>> during the developing of a SELinux module I got the following error messages when executing "audit2allow -a -l"
-> >>>>>>>>
-> >>>>>>>> ...
-> >>>>>>>> libsepol.context_from_record: type antivirus_t is not defined
-> >>>>>>>> libsepol.context_from_record: could not create context structure
-> >>>>>>>> libsepol.context_from_string: could not create context structure
-> >>>>>>>> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
-> >>>>>>>>
-> >>>>>>>> "antivirus_t" is a domain I have defined in my module:
-> >>>>>>>>
-> >>>>>>>> type antivirus_t;
-> >>>>>>>> domain_type(antivirus_t)
-> >>>>>>>>
-> >>>>>>>> I have already removed the module (semodule -r antivirus.pp && semodule -R) and did a file context repair afterwards (fixfiles restore). The error still exists. 
-> >>>>>>>>
-> >>>>>>>> I have reinstalled the policy (yum reinstall selinux-policy-*), but the problem remains. I have also taken a look at "file_contexts" (cd /etc/selinux/targeted/modules/active && grep antivirus_t file_contexts*), but there's no "antivirus_t" anymore.
-> >>>>>>>>
-> >>>>>>>> Can you help me to find the cause of the problem? I don't know how to debug libsepol-messages.
-> >>>>>>>>
-> >>>>>>>> I'm using "selinux-policy-targeted-3.6.32-118.fc12.noarch".
-> >>>>>>>
-> >>>>>>> Sounds like the -l option to audit2allow isn't working correctly, so
-> >>>>>>> that instead of only processing audit messages since the last policy
-> >>>>>>> reload, you are still processing the audit messages from when that
-> >>>>>>> policy module was installed, and unsurprisingly it cannot map those
-> >>>>>>> contexts since you removed the module.  That would be a bug in
-> >>>>>>> audit2allow/sepolgen.
-> >>>>>>>
-> >>>>>>> Workaround would be to use ausearch to select the desired range of
-> >>>>>>> messsages specifically, e.g.
-> >>>>>>> /sbin/ausearch -m AVC -ts today | audit2allow
-> >>>>>>
-> >>>>>
-> >>>>> I did a reload today at 08:36:00 a.m. (semodule -R). Round about two and half hours later I checked the auditlog:
-> >>>>>
-> >>>>> ausearch -m AVC --start 25.06.2010 08:36:00 --end 25.06.2010 11:00:00
-> >>>>>
-> >>>>> Only messages from ssh_t (success=yes). Fine. But "audit2allow -a -l" still throws error messages:
-> >>>>>
-> >>>>> ...
-> >>>>> libsepol.context_from_record: type antivirus_t is not defined
-> >>>>> libsepol.context_from_record: could not create context structure
-> >>>>> libsepol.context_from_string: could not create context structure
-> >>>>> libsepol.sepol_context_to_sid: could not convert unconfined_u:unconfined_r:antivirus_t:s0 to sid
-> >>>>> ...
-> >>>>>
-> >>>>>> Dan - looks like you pushed the audit2why analyze calls down into
-> >>>>>> sepolgen while it is parsing the messages.  But this means that all
-> >>>>>> messages will be analyzed even if the user specified -l.
-> >>>>>>
-> >>>>>
-> >>>>> I will wait for Dan's answer :-).
-> >>>>>
-> >>>>> Problem solved. @All: Thanks for your help.
-> >>>>>
-> >>>>> Best regards,
-> >>>>>
-> >>>>> Alice
-> >>>>>
-> >>>>> p.s.:
-> >>>>> I still don't know how to debug sepol-messages. Can you give me a hint?
-> >>>>
-> >>>> I think it is not just with the -l option as i had similar output today
-> >>>> by using plain ausearch -m avc -ts recent | audit2allow:
-> >>>>
-> >>>> libsepol.context_from_record: invalid security context:
-> >>>> "staff_u:staff_r:mozilla_t:s0-s0:c0.c1023"
-> >>>> libsepol.context_from_record: could not create context structure
-> >>>> libsepol.context_from_string: could not create context structure
-> >>>> libsepol.sepol_context_to_sid: could not convert
-> >>>> staff_u:staff_r:mozilla_t:s0-s0:c0.c1023 to sid
-> >>>> libsepol.context_from_record: invalid security context:
-> >>>> "staff_u:staff_r:mozilla_t:s0-s0:c0.c1023"
-> >>>>
-> >>>>
-> >>>>>
-> >>>>> --
-> >>>>> This message was distributed to subscribers of the selinux mailing list.
-> >>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> >>>>> the words "unsubscribe selinux" without quotes as the message.
-> >>>>
-> >>>>
-> >>> Yes I want the analysis to show up in audit2allow, If libsemanage would
-> >>> just shut up, we really should ignore the errors.
-> >>
-> >> Then use semanage_msg_set_callback(hnd, NULL, NULL);
-> > 
-> > Actually I think you want sepol_msg_set_callback() since audit2why is
-> > directly using libsepol, right?
-> > 
-> Python does not have this binding...
+--0016e646992203fe7d0489e50c45
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Ok, add it ;)
+To Everyone in the SELinux form,
 
--- 
-Stephen Smalley
-National Security Agency
+I have always wondered what flavor of Linux and/or Unix operating systems d=
+o
+some of you guys use? Personally if I want a stable Linux operating system
+with few as possible bugs and vulnerabilities, I lean more toward CentOS.
+However, if I want to experiment with new application, tools and etc...
+I'll be using Fedora Linux.
 
+ Thank you Everyone...
+David Sardarian.
+
+On Wed, Jun 9, 2010 at 9:36 AM, Joshua Brindle <method@manicmethod.com>wrot=
+e:
+
+> Chad Sellers wrote:
+>
+>> On 5/7/10 5:51 PM, "Thomson, David-P63356"<David.Thomson@gdc4s.com>
+>>  wrote:
+>>
+>>  The book =C5=82SELinux by Example=CB=9B written by many of the people o=
+n this
+>>> mailing
+>>> list (ISBN 0-13-196369-4).  It=C4=85s a bit old at this point, especial=
+ly
+>>> since
+>>> SELinux changes pretty quickly, but it=C4=85s probably the best way to =
+start.
+>>>
+>>
+> The SELinux Notebook is more recent than the by Example book and appears =
+to
+> be more comprehensive. I'd suggest it as a good source if you are looking=
+ to
+> get in to the nuts and bolts with the caveat that, unlike the by Example
+> book, this one hasn't been thoroughly reviewed by SELinux developers.
+>
+>
+>
+>>>  I'd recommend the book as well. Also, check out
+>> http://selinuxproject.org/ .
+>> It won't be as deep as the book, but it has gotten some attention over t=
+he
+>> last year so it should be pretty current.
+>>
+>> Chad
+>>
+>>  Google brings up a lot to read as well.  Here=C4=85s one:
+>>>
+>>>
+>>> http://www.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6-Beta/html/S=
+ecurity
+>>> -Enhanced_Linux/index.html
+>>>
+>>> Dave
+>>>
+>>>
+>>> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+>>> On
+>>> Behalf Of Vacheh Sardarian
+>>> Sent: Friday, May 07, 2010 10:39 AM
+>>> To: selinux@tycho.nsa.gov
+>>> Subject: New to SELinux: how to get familiar
+>>>
+>>> Hi Everyone,
+>>>
+>>> I have just started playing around with SELinux. I don't know much abou=
+t
+>>> its
+>>> functionality... I was wondering if anyone could suggest me on what is
+>>> the
+>>> best way for a beginner to start getting to know how SELinux function..=
+.
+>>> other
+>>> than installing it on a Linux box.
+>>>
+>>> Thank you for your suggestions...
+>>>
+>>> David.
+>>>
+>>>
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov=
+with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
+>>
+
+--0016e646992203fe7d0489e50c45
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+To Everyone in the SELinux form,<br><br>I have always wondered what flavor =
+of Linux and/or Unix operating systems do some of you guys use? Personally =
+if I want a stable Linux operating system with few as possible bugs and vul=
+nerabilities, I lean more toward CentOS. However, if I want to experiment w=
+ith new application, tools and etc...=C2=A0 I&#39;ll be using Fedora Linux.=
+ <br>
+<br>=C2=A0Thank you Everyone...<br>David Sardarian. <br><br><div class=3D"g=
+mail_quote">On Wed, Jun 9, 2010 at 9:36 AM, Joshua Brindle <span dir=3D"ltr=
+">&lt;<a href=3D"mailto:method@manicmethod.com">method@manicmethod.com</a>&=
+gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Chad Sellers wrot=
+e:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><div class=3D"im"=
+>
+On 5/7/10 5:51 PM, &quot;Thomson, David-P63356&quot;&lt;<a href=3D"mailto:D=
+avid.Thomson@gdc4s.com" target=3D"_blank">David.Thomson@gdc4s.com</a>&gt; =
+=C2=A0wrote:<br>
+<br>
+</div><blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex;=
+ border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><div class=
+=3D"im">
+The book =C5=82SELinux by Example=CB=9B written by many of the people on th=
+is mailing<br></div>
+list (ISBN 0-13-196369-4). =C2=A0It=C4=85s a bit old at this point, especia=
+lly since<br>
+SELinux changes pretty quickly, but it=C4=85s probably the best way to star=
+t.<br>
+</blockquote></blockquote>
+<br>
+The SELinux Notebook is more recent than the by Example book and appears to=
+ be more comprehensive. I&#39;d suggest it as a good source if you are look=
+ing to get in to the nuts and bolts with the caveat that, unlike the by Exa=
+mple book, this one hasn&#39;t been thoroughly reviewed by SELinux develope=
+rs.<br>
+
+<br>
+<br>
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><div class=3D"im"=
+><blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; bord=
+er-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
+
+<br>
+</blockquote>
+I&#39;d recommend the book as well. Also, check out <a href=3D"http://selin=
+uxproject.org/" target=3D"_blank">http://selinuxproject.org/</a> .<br>
+It won&#39;t be as deep as the book, but it has gotten some attention over =
+the<br>
+last year so it should be pretty current.<br>
+<br>
+Chad<br>
+<br>
+</div><blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex;=
+ border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
+Google brings up a lot to read as well. =C2=A0Here=C4=85s one:<div class=3D=
+"im"><br>
+<a href=3D"http://www.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6-Beta=
+/html/Security" target=3D"_blank">http://www.redhat.com/docs/en-US/Red_Hat_=
+Enterprise_Linux/6-Beta/html/Security</a><br>
+-Enhanced_Linux/index.html<br>
+<br>
+Dave<br>
+<br>
+<br>
+From: <a href=3D"mailto:owner-selinux@tycho.nsa.gov" target=3D"_blank">owne=
+r-selinux@tycho.nsa.gov</a> [mailto:<a href=3D"mailto:owner-selinux@tycho.n=
+sa.gov" target=3D"_blank">owner-selinux@tycho.nsa.gov</a>] On<br>
+Behalf Of Vacheh Sardarian<br>
+Sent: Friday, May 07, 2010 10:39 AM<br>
+To: <a href=3D"mailto:selinux@tycho.nsa.gov" target=3D"_blank">selinux@tych=
+o.nsa.gov</a><br>
+Subject: New to SELinux: how to get familiar<br>
+<br>
+Hi Everyone,<br>
+<br>
+I have just started playing around with SELinux. I don&#39;t know much abou=
+t its<br>
+functionality... I was wondering if anyone could suggest me on what is the<=
+br>
+best way for a beginner to start getting to know how SELinux function... ot=
+her<br>
+than installing it on a Linux box.<br>
+<br>
+Thank you for your suggestions...<br>
+<br>
+David.<br>
+<br>
+</div></blockquote>
+<br>
+<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br=
+>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov" target=3D"_blank">majordomo@tycho.nsa.gov</a> with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
+>
+<br>
+</blockquote>
+</blockquote></div><br>
+
+--0016e646992203fe7d0489e50c45--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
