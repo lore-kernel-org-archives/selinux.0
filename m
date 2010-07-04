@@ -1,106 +1,62 @@
-Subject: Re: selinux testsuite
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Reply-To: subrata@linux.vnet.ibm.com
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@redhat.com>, kaigai@ak.jp.nec.com,
-        ltp-list <ltp-list@lists.sf.net>
-In-Reply-To: <20100701195352.GA26918@hallyn.com>
-References: <20100629195210.GA14549@hallyn.com>
-	 <1277900005.5710.8.camel@subratamodak.linux.ibm.com>
-	 <1277909544.21903.142.camel@moss-pluto.epoch.ncsc.mil>
-	 <1278003976.21642.4.camel@subratamodak.linux.ibm.com>
-	 <1278008699.15753.195.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100701195352.GA26918@hallyn.com>
-Content-Type: text/plain
-Date: Sat, 03 Jul 2010 23:27:50 +0530
-Message-Id: <1278179871.7665.11.camel@subratamodak.linux.ibm.com>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o64BffjH005627
+	for <selinux@tycho.nsa.gov>; Sun, 4 Jul 2010 07:41:41 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o64BhTMe019901
+	for <selinux@tycho.nsa.gov>; Sun, 4 Jul 2010 11:43:30 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 6791618184
+	for <selinux@tycho.nsa.gov>; Sun,  4 Jul 2010 21:41:35 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: deduplication and SE virtual machines
+Date: Sun, 4 Jul 2010 21:41:33 +1000
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201007042141.34168.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-07-01 at 14:53 -0500, Serge E. Hallyn wrote:
-> Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > On Thu, 2010-07-01 at 22:36 +0530, Subrata Modak wrote:
-> > > On Wed, 2010-06-30 at 10:52 -0400, Stephen Smalley wrote: 
-> > > > On Wed, 2010-06-30 at 17:43 +0530, Subrata Modak wrote:
-> > > > > Hi Serge,
-> > > > > 
-> > > > > On Tue, 2010-06-29 at 14:52 -0500, Serge E. Hallyn wrote:
-> > > > > > Just a little note to announce that the selinux testsuite is now up as a
-> > > > > > git tree at kernel.org.  You can fetch it using
-> > > > > > 
-> > > > > > 	git clone git://git.kernel.org/pub/scm/tests/selinux-testsuite
-> > > > > 
-> > > > > Great. So, how far does it differ from that we have in LTP ?
-> > > > > http://ltp.git.sourceforge.net/git/gitweb.cgi?p=ltp/ltp-dev.git;a=tree;f=testcases/kernel/security/selinux-testsuite;h=066df4cdf2f8a80a0045e338b4bb2bf0f5d37091;hb=HEAD
-> > > > > 
-> > > > > As you, Stephen and others in SELinux <selinux@tycho.nsa.gov> were the
-> > > > > main contributors to the SELinux test(s) in LTP, i guess the next/future
-> > > > > development for SELinux tests will be happening in the new tree.
-> > > > > 
-> > > > > So, i would rather keep pulling to LTP from your tree. Now, could you
-> > > > > please let me know:
-> > > > > 
-> > > > >      1. Whether the new tree contains all scenarios which is present in
-> > > > >         LTP. In such a case a complete pruning of LTP SELinux tests can
-> > > > >         be done and replaced with your tree contents,
-> > > > >      2. If some of the LTP tests are not there, then i would like to
-> > > > >         retain them in LTP side-by-side your tree contents,
-> > > > 
-> > > > The new tree contains all of the selinux tests present in the LTP.  You
-> > > > cannot however simply replace the ltp version of the tests with this
-> > > > tree, as this tree is a standalone testsuite and will not run within the
-> > > > ltp test harness. This testsuite is based on the original standalone
-> > > > selinux testsuite that was contributed by us to IBM to port to the LTP.
-> > > > We have internally maintained this testsuite in parallel to the ltp
-> > > > version as we have found it easier to set up, use, debug, and maintain.
-> > > 
-> > > Thanks Stephen. Since you have maintained the Original-One Internally
-> > > and have simultaneously contributed changes to the LTP-version of
-> > > SELinux, i am depending on you/Serge/SELinux-Mailing-List-members to
-> > > keep sending patches to LTP to update the LTP-version at regular
-> > > intervals (off-course at your convenience ;-))
-> > 
-> > I think that will depend on whether there is some benefit to maintaining
-> > the ltp version.  We might derive some benefit if the ltp selinux
-> > testsuite were better integrated (e.g. tests run by default if SELinux
-> > is enabled on the host) and if the tests got some regular attention from
-> > the ltp maintainers.  Otherwise, it may be better to just remove the
-> > tests from the ltp and point people to the standalone version.
-> 
-> I don't object to the tests being maintained in LTP.  But so far, AFAICS,
-> the cost of maintaining in LTP far outweighs the benefits.
-> 
-> So I'd like to know, does anyone (IBM?) *use* the version in LTP for
-> automated testing?
+Are there any good software-only (IE nothing expensive like NetApp) options 
+for deduplication of SE Linux virtual machine images?
 
-Yes, there are teams which still use LTP SELinux on Enterprise Distro
-testing.
+A basic LVM writable snapshot allows creating a SE Linux test image with less 
+disk space used.  When LVM is used for Xen does the Dom0 do any caching?  
+Ideally we would have the Dom0 do read-caching of the read-only device.
 
-Regards--
-Subrata
+http://micolous.id.au/archives/2010/01/23/linux-iscsi-cow-images-and-windows-
+integration/
 
-> 
-> If not, heck we could replace ltp/testcases/kernel/security/selinux/*
-> with a script that git clones the testsuite and runs it.
-> 
-> Mind you it's not the selinux tests per se - it's the random bulk LTP
-> updates which then break selinux tests, or worse, the autoconf cruft
-> to try to detect whether the user wants selinux tests - which constitute
-> the real maintenance cost.
-> 
-> If someone who uses the LTP selinux tests could step up and offer
-> to periodically run the tests and work with (me and) the community
-> to push fixes, I'll be happy to help out.
-> 
-> -serge
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Apparently dmsetup supports COW images, the man page on my system doesn't 
+document it so maybe I would need a newer version.  I'm not sure what benefit 
+this would give over LVM snapshots given that LVM does it's stuff on top of DM 
+anyway.
 
+http://user-mode-linux.sourceforge.net/old/UserModeLinux-HOWTO-7.html
+
+A COW block device for User-Mode Linux does the same thing but possibly works 
+better with caching, the above URL documents UML COW as giving performance 
+improvements but I'm unsure of LVM.
+
+Are there any others?
+
+
+I'm thinking of setting up a Linux virtual machine server for SE Linux 
+training, and with most COW setups the initial relabel of the filesystem will 
+put all the meta-data into a separate copy.  So ideally there would be a way 
+of deduplicating this.  Also there's no guarantee that the disk blocks used 
+would be the same so a simple un-COW operation on LVM or something probably 
+wouldn't be a viable option.
+
+I believe that NetApp does this well, but there's no chance of getting that 
+sort of hardware.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
