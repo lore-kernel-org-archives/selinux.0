@@ -1,33 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o67BAKTK030805
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 07:10:21 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o67BECHt030957
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 07:14:12 -0400
 Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o67B9ORd024982
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 11:09:25 GMT
-Received: from athena.localnet (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 7CD6818050
-	for <selinux@tycho.nsa.gov>; Wed,  7 Jul 2010 21:10:14 +1000 (EST)
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o67BDGRd025842
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 11:13:17 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: interface_info
-Date: Wed, 7 Jul 2010 21:10:12 +1000
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Subject: Re: [PATCH 2/3]libsepol
+Date: Wed, 7 Jul 2010 21:14:06 +1000
+Cc: selinux@tycho.nsa.gov
+References: <1278455010-23244-1-git-send-email-justinmattock@gmail.com> <1278455010-23244-3-git-send-email-justinmattock@gmail.com>
+In-Reply-To: <1278455010-23244-3-git-send-email-justinmattock@gmail.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <201007072110.12862.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <201007072114.07279.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It seems to me that it's a bad idea to only have one interface_info file given 
-that everyone supports at least two different policies (MLS and non-MLS).
+On Wed, 7 Jul 2010, "Justin P. Mattock" <justinmattock@gmail.com> wrote:
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1050,7 +1049,6 @@ int hidden sepol_load_policy(void *data, size_t len)
+>         /* Install the new policydb and SID table. */
+>         memcpy(policydb, &newpolicydb, sizeof *policydb);
+>         sepol_sidtab_set(sidtab, &newsidtab);
+> -       seqno = ++latest_granting;
+>  
+>         /* Free the old policydb and SID table. */
+>         policydb_destroy(&oldpolicydb);
 
-For Debian I'm thinking of using /var/lib/sepolgen/$SELINUXTYPE.interface_info 
-and having sepolgen-ifgen, audit2allow, and any other tools which use it 
-default to the current version of $SELINUXTYPE from /etc/selinux/config.  
-sepolgen-ifgen would also use /usr/share/selinux/$SELINUXTYPE/include/ .
-
-Is there any good reason for not doing it this way?
+Is latest_granting used for anything else?  If it's not being used then it 
+should be removed too.  If it is being used then failing to increment it 
+breaks something.
 
 -- 
 russell@coker.com.au
