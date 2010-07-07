@@ -4,159 +4,132 @@ To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-nfs@vger.kernel.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 03/10] LSM: Add flags field to security_sb_set_mnt_opts for in kernel mount data.
-Date: Wed,  7 Jul 2010 10:31:19 -0400
-Message-Id: <1278513086-23964-4-git-send-email-dpquigl@tycho.nsa.gov>
+        linux-nfs@vger.kernel.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
+Subject: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4 flags
+Date: Wed,  7 Jul 2010 10:31:22 -0400
+Message-Id: <1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There is no way to differentiate if a text mount option is passed from user
-space or the kernel. A flags field is being added to the
-security_sb_set_mnt_opts hook to allow for in kernel security flags to be sent
-to the LSM for processing in addition to the text options received from mount.
-This patch also updated existing code to fix compilation errors.
+This patch adds a new recommended attribute named label into the NFSv4 file
+attribute structure. It also adds several new flags to allow the NFS client and
+server to determine if this attribute is supported and if it is being sent over
+the wire.
 
+Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- fs/nfs/super.c           |    4 ++--
- include/linux/security.h |   11 ++++++++---
- security/capability.c    |    5 ++++-
- security/security.c      |    6 ++++--
- security/selinux/hooks.c |   12 ++++++++++--
- 5 files changed, 28 insertions(+), 10 deletions(-)
+ fs/nfsd/nfsd.h              |    6 +++---
+ include/linux/nfs4.h        |    2 ++
+ include/linux/nfs_fs_sb.h   |    1 +
+ include/linux/nfs_xdr.h     |    4 +++-
+ include/linux/nfsd/export.h |    5 +++--
+ 5 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index b4148fc..054bcaa 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -2232,7 +2232,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
- 		goto error_splat_super;
- 	}
+diff --git a/fs/nfsd/nfsd.h b/fs/nfsd/nfsd.h
+index e942a1a..ae20d51 100644
+--- a/fs/nfsd/nfsd.h
++++ b/fs/nfsd/nfsd.h
+@@ -277,8 +277,8 @@ extern struct timeval	nfssvc_boot;
+  | FATTR4_WORD1_OWNER	        | FATTR4_WORD1_OWNER_GROUP  | FATTR4_WORD1_RAWDEV           \
+  | FATTR4_WORD1_SPACE_AVAIL     | FATTR4_WORD1_SPACE_FREE   | FATTR4_WORD1_SPACE_TOTAL      \
+  | FATTR4_WORD1_SPACE_USED      | FATTR4_WORD1_TIME_ACCESS  | FATTR4_WORD1_TIME_ACCESS_SET  \
+- | FATTR4_WORD1_TIME_DELTA   | FATTR4_WORD1_TIME_METADATA    \
+- | FATTR4_WORD1_TIME_MODIFY     | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID)
++ | FATTR4_WORD1_TIME_DELTA   	| FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY     \
++ | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID | FATTR4_WORD1_SECURITY_LABEL)
  
--	error = security_sb_set_mnt_opts(s, &data->lsm_opts);
-+	error = security_sb_set_mnt_opts(s, &data->lsm_opts, 0, NULL);
- 	if (error)
- 		goto error_splat_root;
+ #define NFSD4_SUPPORTED_ATTRS_WORD2 0
  
-@@ -2602,7 +2602,7 @@ static int nfs4_remote_get_sb(struct file_system_type *fs_type,
- 		goto error_splat_super;
- 	}
+@@ -318,7 +318,7 @@ static inline u32 nfsd_suppattrs2(u32 minorversion)
+ (FATTR4_WORD0_SIZE              | FATTR4_WORD0_ACL                                         )
+ #define NFSD_WRITEABLE_ATTRS_WORD1                                                          \
+ (FATTR4_WORD1_MODE              | FATTR4_WORD1_OWNER         | FATTR4_WORD1_OWNER_GROUP     \
+- | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_MODIFY_SET)
++ | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_SECURITY_LABEL)
+ #define NFSD_WRITEABLE_ATTRS_WORD2 0
  
--	error = security_sb_set_mnt_opts(s, &data->lsm_opts);
-+	error = security_sb_set_mnt_opts(s, &data->lsm_opts, 0, NULL);
- 	if (error)
- 		goto error_splat_root;
+ #define NFSD_SUPPATTR_EXCLCREAT_WORD0 \
+diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
+index 9b8299a..a2abd1a 100644
+--- a/include/linux/nfs4.h
++++ b/include/linux/nfs4.h
+@@ -23,6 +23,7 @@
+ #define NFS4_MAXNAMLEN		NAME_MAX
+ #define NFS4_OPAQUE_LIMIT	1024
+ #define NFS4_MAX_SESSIONID_LEN	16
++#define NFS4_MAXLABELLEN	4096
  
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 9597620..4bb5db7 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1509,7 +1509,9 @@ struct security_operations {
- 	void (*sb_post_pivotroot) (struct path *old_path,
- 				   struct path *new_path);
- 	int (*sb_set_mnt_opts) (struct super_block *sb,
--				struct security_mnt_opts *opts);
-+				struct security_mnt_opts *opts,
-+				unsigned long kern_flags,
-+				unsigned long *set_kern_flags);
- 	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
- 				   struct super_block *newsb);
- 	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
-@@ -1807,7 +1809,8 @@ void security_sb_post_remount(struct vfsmount *mnt, unsigned long flags, void *d
- void security_sb_post_addmount(struct vfsmount *mnt, struct path *mountpoint);
- int security_sb_pivotroot(struct path *old_path, struct path *new_path);
- void security_sb_post_pivotroot(struct path *old_path, struct path *new_path);
--int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *opts);
-+int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *opts, 
-+				unsigned long kern_flags, unsigned long *set_kern_flags);
- void security_sb_clone_mnt_opts(const struct super_block *oldsb,
- 				struct super_block *newsb);
- int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
-@@ -2154,7 +2157,9 @@ static inline void security_sb_post_pivotroot(struct path *old_path,
- { }
+ #define NFS4_ACCESS_READ        0x0001
+ #define NFS4_ACCESS_LOOKUP      0x0002
+@@ -471,6 +472,7 @@ enum lock_type4 {
+ #define FATTR4_WORD1_TIME_MODIFY        (1UL << 21)
+ #define FATTR4_WORD1_TIME_MODIFY_SET    (1UL << 22)
+ #define FATTR4_WORD1_MOUNTED_ON_FILEID  (1UL << 23)
++#define FATTR4_WORD1_SECURITY_LABEL     (1UL << 31)
  
- static inline int security_sb_set_mnt_opts(struct super_block *sb,
--					   struct security_mnt_opts *opts)
-+					   struct security_mnt_opts *opts,
-+					   unsigned long kern_flags,
-+					   unsigned long *set_kern_flags)
- {
- 	return 0;
- }
-diff --git a/security/capability.c b/security/capability.c
-index 0d8f7e9..46f5e78 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -117,7 +117,10 @@ static void cap_sb_post_pivotroot(struct path *old_path, struct path *new_path)
- }
+ #define NFSPROC4_NULL 0
+ #define NFSPROC4_COMPOUND 1
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index e82957a..aa95a22 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -177,6 +177,7 @@ struct nfs_server {
+ #define NFS_CAP_CTIME		(1U << 12)
+ #define NFS_CAP_MTIME		(1U << 13)
+ #define NFS_CAP_POSIX_LOCK	(1U << 14)
++#define NFS_CAP_SECURITY_LABEL	(1U << 15)
  
- static int cap_sb_set_mnt_opts(struct super_block *sb,
--			       struct security_mnt_opts *opts)
-+			       struct security_mnt_opts *opts,
-+			       unsigned long kern_flags,
-+			       unsigned long *set_kern_flags)
-+
- {
- 	if (unlikely(opts->num_mnt_opts))
- 		return -EOPNOTSUPP;
-diff --git a/security/security.c b/security/security.c
-index 1f0765c..2246b5a 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -347,9 +347,11 @@ void security_sb_post_pivotroot(struct path *old_path, struct path *new_path)
- }
  
- int security_sb_set_mnt_opts(struct super_block *sb,
--				struct security_mnt_opts *opts)
-+				struct security_mnt_opts *opts,
-+				unsigned long kern_flags,
-+				unsigned long *set_kern_flags)
- {
--	return security_ops->sb_set_mnt_opts(sb, opts);
-+	return security_ops->sb_set_mnt_opts(sb, opts, kern_flags, set_kern_flags);
- }
- EXPORT_SYMBOL(security_sb_set_mnt_opts);
+ /* maximum number of slots to use */
+diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+index 89b2881..28cde54 100644
+--- a/include/linux/nfs_xdr.h
++++ b/include/linux/nfs_xdr.h
+@@ -78,6 +78,7 @@ struct nfs_fattr {
+ #define NFS_ATTR_FATTR_CHANGE		(1U << 17)
+ #define NFS_ATTR_FATTR_PRECHANGE	(1U << 18)
+ #define NFS_ATTR_FATTR_V4_REFERRAL	(1U << 19)	/* NFSv4 referral */
++#define NFS_ATTR_FATTR_V4_SECURITY_LABEL (1U << 20)	/* NFSv4 Security Labels */
  
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8239f5c..d150fb4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -591,7 +591,9 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
-  * labeling information.
+ #define NFS_ATTR_FATTR (NFS_ATTR_FATTR_TYPE \
+ 		| NFS_ATTR_FATTR_MODE \
+@@ -97,7 +98,8 @@ struct nfs_fattr {
+ 		| NFS_ATTR_FATTR_SPACE_USED)
+ #define NFS_ATTR_FATTR_V4 (NFS_ATTR_FATTR \
+ 		| NFS_ATTR_FATTR_SPACE_USED \
+-		| NFS_ATTR_FATTR_CHANGE)
++		| NFS_ATTR_FATTR_CHANGE \
++		| NFS_ATTR_FATTR_V4_SECURITY_LABEL)
+ 
+ /*
+  * Info on the file system
+diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
+index 8ae78a6..72abeb6 100644
+--- a/include/linux/nfsd/export.h
++++ b/include/linux/nfsd/export.h
+@@ -31,7 +31,8 @@
+ #define NFSEXP_ALLSQUASH	0x0008
+ #define NFSEXP_ASYNC		0x0010
+ #define NFSEXP_GATHERED_WRITES	0x0020
+-/* 40 80 100 currently unused */
++#define NFSEXP_SECURITY_LABEL	0x0040  /* Support security label fattr4 */
++/* 80 100 currently unused */
+ #define NFSEXP_NOHIDE		0x0200
+ #define NFSEXP_NOSUBTREECHECK	0x0400
+ #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
+@@ -50,7 +51,7 @@
   */
- static int selinux_set_mnt_opts(struct super_block *sb,
--				struct security_mnt_opts *opts)
-+				struct security_mnt_opts *opts,
-+				unsigned long kern_flags,
-+				unsigned long *set_kern_flags)
- {
- 	const struct cred *cred = current_cred();
- 	int rc = 0, i;
-@@ -623,6 +625,12 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			"before the security server is initialized\n");
- 		goto out;
- 	}
-+	if (kern_flags && !set_kern_flags) {
-+		/* Specifying internal flags without providing a place to 
-+		 * place the results is not allowed */
-+		rc = -EINVAL;
-+		goto out;
-+	}
+ #define	NFSEXP_V4ROOT		0x10000
+ /* All flags that we claim to support.  (Note we don't support NOACL.) */
+-#define NFSEXP_ALLFLAGS		0x17E3F
++#define NFSEXP_ALLFLAGS		0x17E7F
  
- 	/*
- 	 * Binary mount data FS will come through this function twice.  Once
-@@ -998,7 +1006,7 @@ static int superblock_doinit(struct super_block *sb, void *data)
- 		goto out_err;
- 
- out:
--	rc = selinux_set_mnt_opts(sb, &opts);
-+	rc = selinux_set_mnt_opts(sb, &opts, 0, NULL);
- 
- out_err:
- 	security_free_mnt_opts(&opts);
+ /* The flags that may vary depending on security flavor: */
+ #define NFSEXP_SECINFO_FLAGS	(NFSEXP_READONLY | NFSEXP_ROOTSQUASH \
 -- 
 1.6.2.5
 
