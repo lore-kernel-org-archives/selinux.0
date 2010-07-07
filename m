@@ -1,91 +1,60 @@
-Subject: Re: [PATCH 07/10] NFSv4: Introduce new label structure
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Chuck Lever <chuck.lever@oracle.com>
-Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
-        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        bfields@fieldses.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-nfs@vger.kernel.org
-In-Reply-To: <4C34BE3A.3050806@oracle.com>
-References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1278513086-23964-8-git-send-email-dpquigl@tycho.nsa.gov>
-	 <4C34A4F1.3060708@oracle.com>
-	 <1278519727.2494.92.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4C34BE3A.3050806@oracle.com>
-Content-Type: text/plain
-Date: Wed, 07 Jul 2010 14:11:54 -0400
-Message-Id: <1278526314.2494.170.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o67K8DJ0008257
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 16:08:13 -0400
+Received: from hrndva-omtalb.mail.rr.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o67K7KAe019987
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 20:07:20 GMT
+Date: Wed, 7 Jul 2010 15:08:56 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: deduplication and SE virtual machines
+Message-ID: <20100707200856.GA20082@hallyn.com>
+References: <201007042141.34168.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201007042141.34168.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-07-07 at 13:49 -0400, Chuck Lever wrote:
-> On 07/ 7/10 12:22 PM, David P. Quigley wrote:
-> > Hello Chuck,
-> >     Thank you for the comments. I'll go through and address them inline
-> > (Sorry for the top post).
-> >
-> > On Wed, 2010-07-07 at 12:01 -0400, Chuck Lever wrote:
-> >> My comments below apply to the other NFS client patches as well.  This
-> >> seemed like the right one to use for code examples.
-> >>
-> >> On 07/ 7/10 10:31 AM, David P. Quigley wrote:
-> 
->    [ ... snipped ... ]
-> 
-> >> It seems to me you want something more generic, just like nfs_fh or
-> >> nfs_fattr, to represent these.  Over time, I'm guessing label support
-> >> won't be tied to a specific NFS version.  And, you are passing these
-> >> around in the generic NFS functions (for post-op updates and inode
-> >> revalidation, and what not).
-> >>
-> >> Can I recommend "struct nfs_seclabel" instead?  Then have
-> >> nfs_seclabel_alloc() and nfs_seclabel_free().
-> >
-> > I can definitely rename them to be more generic. I don't see anything
-> > else besides NFSv4 using them but its fine with me to rename them. The
-> > reason we call them nfs4_label is because we modeled it after the NFSv4
-> > acl support code. I spoke with Christoph a long time ago and he
-> > suggested that it should be handled the same way that the NFSv4 ACLs are
-> > handled as opposed to the iattr thing we were trying.
-> >
-> >>
-> >> Does it make sense to deduplicate these in the client's memory?  It
-> >> seems to me that you could have hundreds or thousands that all contain
-> >> the same label information.
-> >
-> > I don't think it is worth the effort. We are only using these structures
-> > until the security label is crammed into the inode. Once that happens
-> > they get freed. You shouldn't have them sitting around for very long.
-> 
-> OK, the lifetime of these things wasn't clear.
-> 
-> > They will be pulled again when the inode attributes expire and need to
-> > be revalidated. For things like SELinux you could argue that the LSM
-> > might benefit from this (and it might already do it but I'm not sure)
-> > but I think that is something to be handled by the LSM itself or the
-> > credentials code (since it already supports COW credentials it should be
-> > possible).
-> 
-> I think the lifetime of the label structure then is about the same as 
-> the lifetime of an nfs_attr, and not at all the same as an ACL.  I'm 
-> just guessing here.
+Quoting Russell Coker (russell@coker.com.au):
+> I'm thinking of setting up a Linux virtual machine server for SE Linux 
+> training, and with most COW setups the initial relabel of the filesystem will 
+> put all the meta-data into a separate copy.  So ideally there would be a way 
+> of deduplicating this.  Also there's no guarantee that the disk blocks used 
+> would be the same so a simple un-COW operation on LVM or something probably 
+> wouldn't be a viable option.
 
-Intersting I figured that the ACL structure was just to get it to a
-point where you could convert the NFS ACL into a posixacl and set it in
-the inode. I didn't realize they were hanging around for a while.
+Here's an idea - you could create the base fs as a qcow2 block device.
+Create copy-on-write images based on that
+	for i in `seq 1 20`; do
+		qemu-img create -f qcow2 -b selinux-base.img selinux-vm$i.img
+	done
+Then use qemu-nbd to export those as /dev/nbdX devices
+	for i in `seq 1 20`; do
+		qemu-nbd -c /dev/nbd$i selinux-vm$i
+	done
 
-> 
-> Would it then make sense to add a field that refers to the security 
-> label to struct nfs_fattr instead?  That might simplify or eliminate all 
-> of the internal API changes.
+I'm guessing at the commands as I haven't quite done it.  But then your
+containers or VMS or chroots or whatever can mount /dev/nbd$i like a
+normal block device, COW based on the same base image.
 
-I want to say that we had it in there at one point and then we endedup
-running into a problem and having to change it. I'll ask Matt about what
-problems we had sticking it in the nfs_fattr initially.
+I'm not sure that would suffice though, if there are a lot of small
+files, since presumably the xattrs will be spread out along with the
+data.  So if that does not suffice (I'd love to hear a report if anyone
+tests this), then I think we have another motivator for pushing a
+'xattr_file=' mount option, where the specified file has
+(inode_num,name,value) triplets for the inodes on the fs, i.e.
+	25,security.selinux,root_u:root_r:root_t
+	25,security.capabilities,<whatever>
+	30,security.selinux,user_u:user_r:serge_t
+That way the base fs wouldn't need to change much at all for each
+of your VMs.  The other motivator of course is common filesystems
+which don't support xattrs like squashfs and CIFS.  I wonder what
+sort of reception such a patch would receive...  "welcome back to
+year 2000"?
 
-Dave
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
