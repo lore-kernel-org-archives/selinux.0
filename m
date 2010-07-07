@@ -4,24 +4,78 @@ To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-nfs@vger.kernel.org
-Subject: Labeled-NFS: Security Label support in NFSv4  
-Date: Wed,  7 Jul 2010 10:31:16 -0400
-Message-Id: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
+        linux-nfs@vger.kernel.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
+Subject: [PATCH 05/10] KConfig: Add KConfig entries for Labeled NFS
+Date: Wed,  7 Jul 2010 10:31:21 -0400
+Message-Id: <1278513086-23964-6-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am reposting this patch set as Bruce suggested since it seems the last time
-that I posted it was in the middle of a bake-a-thon. I have already received
-comments from Serge and Casey for some of the LSM related patches. I would
-greatly appreciate if some of the FS and NFS people could look into the rest of
-them.When reviewing the code please be critical of it. If you want a tree with
-the patches already applied we have posted a public git tree that is ready for
-cloning and use. This tree can be found at http://git.selinuxproject.org/git
-and can be cloned with the command below. You can also find information on how
-to setup a labeled nfs mount at http://www.selinuxproject.org/page/Labeled_NFS
-however the putclientlabel mount option specified in the setup document is no
-longer supported.
+This patch adds two entries into the fs/KConfig file. The first entry
+NFS_V4_SECURITY_LABEL enables security label support for the NFSv4 client while
+the second entry NFSD_V4_SECURITY_LABEL enables security labeling support on
+the server side.
+
+Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ fs/nfs/Kconfig  |   16 ++++++++++++++++
+ fs/nfsd/Kconfig |   13 +++++++++++++
+ 2 files changed, 29 insertions(+), 0 deletions(-)
+
+diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+index a43d07e..67b158c 100644
+--- a/fs/nfs/Kconfig
++++ b/fs/nfs/Kconfig
+@@ -83,6 +83,22 @@ config NFS_V4_1
+ 
+ 	  Unless you're an NFS developer, say N.
+ 
++config NFS_V4_SECURITY_LABEL
++	bool "Provide Security Label support for NFSv4 client"
++	depends on NFS_V4 && SECURITY
++	help
++
++	Say Y here if you want enable fine-grained security label attribute
++	support for NFS version 4.  Security labels allow security modules like
++	SELinux and Smack to label files to facilitate enforcement of their policies.
++	Without this an NFSv4 mount will have the same label on each file.
++
++	If you do not wish to enable fine-grained security labels SELinux or
++	Smack policies on NFSv4 files, say N.
++
++
++	  If unsure, say N.
++
+ config ROOT_NFS
+ 	bool "Root file system on NFS"
+ 	depends on NFS_FS=y && IP_PNP
+diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
+index 503b9da..3a282f8 100644
+--- a/fs/nfsd/Kconfig
++++ b/fs/nfsd/Kconfig
+@@ -79,3 +79,16 @@ config NFSD_V4
+ 	  available from http://linux-nfs.org/.
+ 
+ 	  If unsure, say N.
++
++config NFSD_V4_SECURITY_LABEL
++	bool "Provide Security Label support for NFSv4 server"
++	depends on NFSD_V4 && SECURITY
++	help
++
++	Say Y here if you want enable fine-grained security label attribute
++	support for NFS version 4.  Security labels allow security modules like
++	SELinux and Smack to label files to facilitate enforcement of their policies.
++	Without this an NFSv4 mount will have the same label on each file.
++
++	If you do not wish to enable fine-grained security labels SELinux or
++	Smack policies on NFSv4 files, say N.
+-- 
+1.6.2.5
 
 
 --
