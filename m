@@ -1,99 +1,110 @@
-Subject: Re: [PATCH 01/10] Security: Add hook to calculate context based on
- a negative dentry.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 10/10] NFSD: Server implementation of MAC Labeling
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: "J. Bruce Fields" <bfields@fieldses.org>
 Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
-        matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        bfields@fieldses.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-nfs@vger.kernel.org
-In-Reply-To: <1278513086-23964-2-git-send-email-dpquigl@tycho.nsa.gov>
+        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-nfs@vger.kernel.org
+In-Reply-To: <20100707192431.GK28815@fieldses.org>
 References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1278513086-23964-2-git-send-email-dpquigl@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 08 Jul 2010 08:51:33 -0400
-Message-ID: <1278593493.14920.12.camel@moss-pluto.epoch.ncsc.mil>
+	 <1278513086-23964-11-git-send-email-dpquigl@tycho.nsa.gov>
+	 <20100707172100.GE28815@fieldses.org>
+	 <1278525801.2494.162.camel@moss-terrapins.epoch.ncsc.mil>
+	 <20100707192431.GK28815@fieldses.org>
+Content-Type: text/plain
+Date: Thu, 08 Jul 2010 09:27:37 -0400
+Message-Id: <1278595657.2494.182.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-07-07 at 10:31 -0400, David P. Quigley wrote:
-> There is a time where we need to calculate a context without the
-> inode having been created yet. To do this we take the negative dentry and
-> calculate a context based on the process and the parent directory contexts.
+On Wed, 2010-07-07 at 15:24 -0400, J. Bruce Fields wrote:
+> On Wed, Jul 07, 2010 at 02:03:21PM -0400, David P. Quigley wrote:
+> > Comments inline
+> > 
+> > On Wed, 2010-07-07 at 13:21 -0400, J. Bruce Fields wrote:
+> > > On Wed, Jul 07, 2010 at 10:31:26AM -0400, David P. Quigley wrote:
+> > > > This patch adds the ability to encode and decode file labels on the server for
+> > > >  static __be32
+> > > >  nfsd4_decode_fattr(struct nfsd4_compoundargs *argp, u32 *bmval,
+> > > > -		   struct iattr *iattr, struct nfs4_acl **acl)
+> > > > +		   struct iattr *iattr, struct nfs4_acl **acl,
+> > > > +		   struct nfs4_label **label)
+> > > 
+> > > As we add more arguments, I wonder if at some point it becomes worth
+> > > creating something like
+> > > 
+> > > 	struct nfsd4_attrs {
+> > > 		struct iattr iattr;
+> > > 		struct nfs4_acl *acl;
+> > > 		...
+> > > 	}
+> > > 
+> > > and passing that instead?
+> > 
+> > I can definitely submit something like that as a stand alone patch and
+> > then add our nfs4_label stuff to that instead.
 > 
-> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
-> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
-> ---
->  include/linux/security.h |   22 ++++++++++++++++++++++
->  security/capability.c    |    6 ++++++
->  security/security.c      |    7 +++++++
->  security/selinux/hooks.c |   32 ++++++++++++++++++++++++++++++++
->  4 files changed, 67 insertions(+), 0 deletions(-)
+> Not a big deal, but welcome if such a thing looks more generally useful
+> (say, if the same arguments are passed elsewhere).
 > 
+> > > > +#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
+> > > > +	if (bmval[1] & FATTR4_WORD1_SECURITY_LABEL) {
+> > > > +		uint32_t lfs;
+> > > > +
+> > > > +		READ_BUF(4);
+> > > > +		len += 4;
+> > > > +		READ32(lfs);
+> > > > +		READ_BUF(4);
+> > > > +		len += 4;
+> > > > +		READ32(dummy32);
+> > > > +		READ_BUF(dummy32);
+> > > > +		len += (XDR_QUADLEN(dummy32) << 2);
+> > > > +		READMEM(buf, dummy32);
+> > > > +
+> > > > +		if (dummy32 > NFS4_MAXLABELLEN)
+> > > > +			return nfserr_resource;
+> > > > +
+> > > > +		*label = kzalloc(sizeof(struct nfs4_label), GFP_KERNEL);
+> > > 
+> > > Could we allocate this some toher way (it's small, right?) and avoid the
+> > > extra dynamic allocation here, just for simplicity's sake?
+> > 
+> > How would you suggest going about doing that?
+> 
+> Maybe make op_label, cr_label, etc., a struct nfs4_label instead of a
+> struct nfs4_label *?
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 5feecb4..435c51f 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2577,6 +2577,37 @@ static void selinux_inode_free_security(struct inode *inode)
->  	inode_free_security(inode);
->  }
->  
-> +static int selinux_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
-> +{
-> +	struct cred *cred = current_cred();
-> +	struct task_security_struct *tsec;
-> +	struct inode_security_struct *dsec;
-> +	struct superblock_security_struct *sbsec;
-> +	struct inode *dir = dentry->d_parent->d_inode;
+I'll look into this. Since the structure contains a void * for the label
+data it might not be necessary to have to allocate the label structure
+itself just make sure its zeroed out so we can check to see if its
+initialized with anything.
 
-Locking?
+> 
+> > 
+> > > 
+> > > > +		if (*label == NULL) {
+> > > > +			host_err = -ENOMEM;
+> > > > +			goto out_nfserr;
+> > > > +		}
+> > > > +
+> > > > +		(*label)->label = kmalloc(dummy32 + 1, GFP_KERNEL);
+> > > 
+> > > Might be nice to arrange NFS4_MAXLABELLEN to ensure this is never a
+> > > higher-order allocation.
+> > 
+> > This should never be more than 4096. Under what circumstances would this
+> > become a higher-order allocation?
+> 
+> Can't dummy32+1 be 4097?
 
-> +	u32 newsid;
-> +	int rc;
-> +
-> +	tsec = cred->security;
-> +	dsec = dir->i_security;
-> +	sbsec = dir->i_sb->s_security;
-> +
-> +	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
-
-The logic in selinux_inode_init_security() has changed to use
-(sbsec->flags & SE_SBLABELSUPP) instead.  Possibly you should factor the
-common code into a helper.
-
-> +		newsid = tsec->create_sid;
-> +	} else {
-> +		rc = security_transition_sid(tsec->sid, dsec->sid,
-> +					     inode_mode_to_security_class(mode),
-> +					     &newsid);
-> +		if (rc) {
-> +			printk(KERN_WARNING "%s:  "
-> +			       "security_transition_sid failed, rc=%d\n",
-> +			       __FUNCTION__, -rc);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
-> +}
-> +
->  static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
->  				       char **name, void **value,
->  				       size_t *len)
-> @@ -5484,6 +5515,7 @@ static struct security_operations selinux_ops = {
->  	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
->  	.sb_parse_opts_str = 		selinux_parse_opts_str,
->  
-> +	.dentry_init_security =		selinux_dentry_init_security,
->  
->  	.inode_alloc_security =		selinux_inode_alloc_security,
->  	.inode_free_security =		selinux_inode_free_security,
-
--- 
-Stephen Smalley
-National Security Agency
+You're right. My mistake. NFS4_MAXLABELLEN is supposed to include the
+null termination. I'll fix this. I wonder if its better to just redefine
+NFS4_MAXLABELLEN to be 4095 so when we use the extra null terminator it
+will be a page size max.
+> 
+> --b.
 
 
 --
