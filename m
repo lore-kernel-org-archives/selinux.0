@@ -1,48 +1,76 @@
-Date: Thu, 8 Jul 2010 09:30:08 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, hch@infradead.org,
-        viro@zeniv.linux.org.uk, casey@schaufler-ca.com, sds@tycho.nsa.gov,
-        matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-nfs@vger.kernel.org
-Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
- flags
-In-Reply-To: <20100707170058.GD28815@fieldses.org>
-Message-ID: <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
-References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov> <1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov> <20100707170058.GD28815@fieldses.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o682pqI3030209
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2010 22:51:52 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o682rfVo015340
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2010 02:53:42 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Subject: Re: deduplication and SE virtual machines
+Date: Thu, 8 Jul 2010 12:51:45 +1000
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+References: <201007042141.34168.russell@coker.com.au> <20100707200856.GA20082@hallyn.com>
+In-Reply-To: <20100707200856.GA20082@hallyn.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201007081251.45420.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 7 Jul 2010, J. Bruce Fields wrote:
-
-> On Wed, Jul 07, 2010 at 10:31:22AM -0400, David P. Quigley wrote:
+On Thu, 8 Jul 2010, "Serge E. Hallyn" <serge@hallyn.com> wrote:
+> Here's an idea - you could create the base fs as a qcow2 block device.
+> Create copy-on-write images based on that
+> 	for i in `seq 1 20`; do
+> 		qemu-img create -f qcow2 -b selinux-base.img selinux-vm$i.img
+> 	done
+> Then use qemu-nbd to export those as /dev/nbdX devices
+> 	for i in `seq 1 20`; do
+> 		qemu-nbd -c /dev/nbd$i selinux-vm$i
+> 	done
 > 
-> > +#define NFS4_MAXLABELLEN	4096
-> 
-> Idle curiosity--why 4096?  (Why couldn't it be 16?  And how do we know
-> people will never want 8192?)
+> I'm guessing at the commands as I haven't quite done it.  But then your
+> containers or VMS or chroots or whatever can mount /dev/nbd$i like a
+> normal block device, COW based on the same base image.
 
-I think I raised this a while back, too.
+That's an interesting concept.  I guess I can use NBD over ::1 for Xen too.
 
-The maximum security label size on Linux is:
+Also I guess if I wanted to have multiple Xen servers then I could have one 
+machine supplying all the main storage disk and the others just having disks 
+for swap spaces.
 
-#define XATTR_SIZE_MAX 65536
+Is there any Xen management software to setup dozens of virtual machines with 
+user-names and passwords associated with them to permit all management tasks 
+including create, destroy, and view the console of Xen servers?  Please reply 
+off-list if you know of any such software.
+ 
+> I'm not sure that would suffice though, if there are a lot of small
+> files, since presumably the xattrs will be spread out along with the
+> data.  So if that does not suffice (I'd love to hear a report if anyone
+> tests this), then I think we have another motivator for pushing a
+> 'xattr_file=' mount option, where the specified file has
+> (inode_num,name,value) triplets for the inodes on the fs, i.e.
+> 	25,security.selinux,root_u:root_r:root_t
+> 	25,security.capabilities,<whatever>
+> 	30,security.selinux,user_u:user_r:serge_t
+> That way the base fs wouldn't need to change much at all for each
+> of your VMs.  The other motivator of course is common filesystems
+> which don't support xattrs like squashfs and CIFS.  I wonder what
+> sort of reception such a patch would receive...  "welcome back to
+> year 2000"?
 
-Why arbitrarily limit this over the network?
+No, it's more like back to 2003 or whenever it was such support was removed.  
+;)
 
-Someone could have a valid local security label which can't be conveyed 
-via NFS.
+But seriously I think there is a good reason for having this, probably not for 
+deduplication of unusual cases of virtual machines but for filesystems that 
+don't have native support for labeling.
 
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
