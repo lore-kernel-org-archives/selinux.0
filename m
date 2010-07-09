@@ -1,10 +1,9 @@
 Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
  flags
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
-        viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
+        viro@zeniv.linux.org.uk, casey@schaufler-ca.com, sds@tycho.nsa.gov,
         matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -16,9 +15,9 @@ References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
 	 <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
 	 <1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil>
 	 <alpine.LRH.2.00.1007090834190.23354@tundra.namei.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 09 Jul 2010 09:47:50 -0400
-Message-ID: <1278683270.13292.10.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 09 Jul 2010 10:05:48 -0400
+Message-Id: <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -59,21 +58,19 @@ On Fri, 2010-07-09 at 08:48 +1000, James Morris wrote:
 > 
 > In the Linux implementation, if we can store a local label up to 64k, then 
 > we should try and ensure that it can be conveyed via NFS.
+> 
+> 
+> 
+> - James
 
-You can't store a local label up to 64k on Linux; that is just what the
-xattr API permits, not the underlying filesystem implementations (at
-least ext[234]).
 
-# touch foobar
-# setfattr -n user.foo -v `perl -e 'print "a" x 4096'` foobar
-setfattr: foobar: No space left on device
+If you want that to be the case you need to make your case to Trond
+about that. I've already had this conversation before and he seems to
+think that a page is sufficient. Bruce also has concerns about not
+wanting these labels to require a high order allocation. Under memory
+pressure finding 16 contiguous pages for each label might be a problem.
 
-Also the /proc/self/attr and selinuxfs APIs are presently limited to
-page size.
-
--- 
-Stephen Smalley
-National Security Agency
+Dave
 
 
 --
