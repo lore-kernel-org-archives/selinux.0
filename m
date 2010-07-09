@@ -1,76 +1,69 @@
-Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
- flags
+Subject: Re: [PATCH 04/10] SELinux: Add new labeling type native labels
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
-        viro@zeniv.linux.org.uk, casey@schaufler-ca.com, sds@tycho.nsa.gov,
-        matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, "Matthew N. Dodd" <matthew.dodd@sparta.com>,
+        trond.myklebust@fys.uio.no, bfields@fieldses.org,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-nfs@vger.kernel.org
-In-Reply-To: <alpine.LRH.2.00.1007090834190.23354@tundra.namei.org>
+In-Reply-To: <alpine.LRH.2.00.1007090824150.23354@tundra.namei.org>
 References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20100707170058.GD28815@fieldses.org>
-	 <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
-	 <1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.2.00.1007090834190.23354@tundra.namei.org>
+	 <1278513086-23964-5-git-send-email-dpquigl@tycho.nsa.gov>
+	 <alpine.LRH.2.00.1007080921200.14102@tundra.namei.org>
+	 <1278595878.2494.186.camel@moss-terrapins.epoch.ncsc.mil>
+	 <alpine.LRH.2.00.1007090824150.23354@tundra.namei.org>
 Content-Type: text/plain
-Date: Fri, 09 Jul 2010 10:05:48 -0400
-Message-Id: <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 09 Jul 2010 10:09:26 -0400
+Message-Id: <1278684566.2494.226.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-07-09 at 08:48 +1000, James Morris wrote:
+On Fri, 2010-07-09 at 08:33 +1000, James Morris wrote:
 > On Thu, 8 Jul 2010, David P. Quigley wrote:
 > 
-> > > The maximum security label size on Linux is:
+> > > Otherwise, this is a global policy decision which affects all NFSv4 
+> > > mounts, right?
 > > > 
-> > > #define XATTR_SIZE_MAX 65536
 > > > 
-> > > Why arbitrarily limit this over the network?
 > > 
-> > Because there is no easy way not to. The specification doesn't specify a
-> > limit to label size in the IETF draft. However there is no way to do
-> > allocation of the memory needed to store the label where we first get
-> > access to its size. We tried this before and it failed. When I asked
-> > trond about it he said doing memory allocation in the rpc context isn't
-> > allowed.
+> > I don't believe we have that ability in any other file system.
 > 
-> In the NFSv3 code, the workaround I've been using is to always allocate 
-> 64k, but the correct way of doing this apparently is to use the page 
-> cache, as is used for ACLs and symlinks.
+> NFS is quite different to other filesystems.  Your files are on other 
+> systems, for example, which may or may not support security labeling.
+
+And if that is the case then the capability flag does not get set in the
+NFSv4 server caps and we don't use security label support on that mount.
+
 > 
-> > For the most part what would make this label size inadequate would be 
-> > the MLS component. There are some cases where people want every other 
-> > compartment or something crazy like that. In terms of a normal label 
-> > though 4096 should be more than enough.
+> > If you want to decide that you want to use genfs style labels on NFSv4 
+> > just use a context mount.
 > 
-> Yes, but we should not unnecessarily limit the network protocol when 
-> something is valid and possible in the local implementation (which is ~64k 
-> under Linux).
+> So, we enable this feature, and virtually all existing mounts break 
+> because the servers do not support labeling.
+
+No it should default back to being nfs_t which is what happens when I
+use my client on an export that doesn't have security_label set.
+
 > 
-> > Just to put this in perspective the string below is 4096 a's.
+> > That way you can have the default behavior be 
+> > use security label support unless you don't want to and then you can 
+> > have a context mount.
 > 
-> A security label include just about anything, e.g. an x509 certificate, or 
-> a base64 encoded image.
-> 
-> In the Linux implementation, if we can store a local label up to 64k, then 
-> we should try and ensure that it can be conveyed via NFS.
+> It needs to be the other way around.  This is a new feature, so the 
+> default needs to be the existing behavior, with security labeling as an 
+> option to enable at mount time.
+
+We made sure it falls back properly. It was decided a long time ago with
+discussion by several people that having it default to use it if its
+there otherwise fall back to the old behavior makes much more sense to
+an administrator.
+
 > 
 > 
 > 
 > - James
-
-
-If you want that to be the case you need to make your case to Trond
-about that. I've already had this conversation before and he seems to
-think that a page is sufficient. Bruce also has concerns about not
-wanting these labels to require a high order allocation. Under memory
-pressure finding 16 contiguous pages for each label might be a problem.
-
-Dave
 
 
 --
