@@ -1,70 +1,47 @@
-Subject: Re: [PATCH 04/10] SELinux: Add new labeling type native labels
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
-        sds@tycho.nsa.gov, "Matthew N. Dodd" <matthew.dodd@sparta.com>,
-        trond.myklebust@fys.uio.no, bfields@fieldses.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-nfs@vger.kernel.org
-In-Reply-To: <alpine.LRH.2.00.1007090824150.23354@tundra.namei.org>
-References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1278513086-23964-5-git-send-email-dpquigl@tycho.nsa.gov>
-	 <alpine.LRH.2.00.1007080921200.14102@tundra.namei.org>
-	 <1278595878.2494.186.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.2.00.1007090824150.23354@tundra.namei.org>
-Content-Type: text/plain
-Date: Fri, 09 Jul 2010 10:09:26 -0400
-Message-Id: <1278684566.2494.226.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6A0N7qE003170
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2010 20:23:08 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6A0MAJ2016091
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2010 00:22:11 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 164EA180DD
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2010 10:22:47 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: recommending interfaces for audit2allow
+Date: Sat, 10 Jul 2010 10:22:45 +1000
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201007101022.46235.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2010-07-09 at 08:33 +1000, James Morris wrote:
-> On Thu, 8 Jul 2010, David P. Quigley wrote:
-> 
-> > > Otherwise, this is a global policy decision which affects all NFSv4 
-> > > mounts, right?
-> > > 
-> > > 
-> > 
-> > I don't believe we have that ability in any other file system.
-> 
-> NFS is quite different to other filesystems.  Your files are on other 
-> systems, for example, which may or may not support security labeling.
+corenet_tcp_connect_mysqld_port(foo_milter_t)
 
-And if that is the case then the capability flag does not get set in the
-NFSv4 server caps and we don't use security label support on that mount.
+I think that we need a way for an interface file to recommend itself to have a 
+higher priority for certain matches.  For example the above policy line does 
+permit foo_milter_t to talk to a MySQL server on a different system.  But you 
+probably want something like the following:
 
-> 
-> > If you want to decide that you want to use genfs style labels on NFSv4 
-> > just use a context mount.
-> 
-> So, we enable this feature, and virtually all existing mounts break 
-> because the servers do not support labeling.
+mysql_tcp_connect(foo_milter_t)
+optional_policy(`
+  mysql_stream_connect(foo_milter_t)
+')
 
-No it should default back to being nfs_t which is what happens when I
-use my client on an export that doesn't have security_label set.
+So it seems that audit2allow should know that mysql_tcp_connect() is a 
+preferred option to corenet_tcp_connect_mysqld_port() and that having an 
+option to connect to a Unix domain socket would be good.
 
-> 
-> > That way you can have the default behavior be 
-> > use security label support unless you don't want to and then you can 
-> > have a context mount.
-> 
-> It needs to be the other way around.  This is a new feature, so the 
-> default needs to be the existing behavior, with security labeling as an 
-> option to enable at mount time.
+Also maybe we should have a single interface with an optional section for 
+MySQL client access.
 
-We made sure it falls back properly. It was decided a long time ago with
-discussion by several people that having it default to use it if its
-there otherwise fall back to the old behavior makes much more sense to
-an administrator.
-
-> 
-> 
-> 
-> - James
-
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
