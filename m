@@ -1,47 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6A0N7qE003170
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2010 20:23:08 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6A0MAJ2016091
-	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2010 00:22:11 GMT
-Received: from athena.localnet (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 164EA180DD
-	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2010 10:22:47 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: recommending interfaces for audit2allow
-Date: Sat, 10 Jul 2010 10:22:45 +1000
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <201007101022.46235.russell@coker.com.au>
+In-Reply-To: <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
+References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
+	<1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov>
+	<20100707170058.GD28815@fieldses.org> <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
+	<1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil>
+	<alpine.LRH.2.00.1007090834190.23354@tundra.namei.org> <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
+From: Kyle Moffett <kyle@moffetthome.net>
+Date: Sun, 11 Jul 2010 01:02:59 -0400
+Message-ID: <AANLkTinUO-xqvQQINTzKLcXnljq-RaN5X6ulEAqvuf0d@mail.gmail.com>
+Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
+	flags
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Cc: James Morris <jmorris@namei.org>, "J. Bruce Fields" <bfields@fieldses.org>,
+        hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-nfs@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-corenet_tcp_connect_mysqld_port(foo_milter_t)
+On Fri, Jul 9, 2010 at 10:05, David P. Quigley <dpquigl@tycho.nsa.gov> wrote:
+> On Fri, 2010-07-09 at 08:48 +1000, James Morris wrote:
+>> Yes, but we should not unnecessarily limit the network protocol when
+>> something is valid and possible in the local implementation (which is ~64k
+>> under Linux).
+>>
+>> A security label include just about anything, e.g. an x509 certificate, or
+>> a base64 encoded image.
+>>
+>> In the Linux implementation, if we can store a local label up to 64k, then
+>> we should try and ensure that it can be conveyed via NFS.
+>
+> If you want that to be the case you need to make your case to Trond
+> about that. I've already had this conversation before and he seems to
+> think that a page is sufficient. Bruce also has concerns about not
+> wanting these labels to require a high order allocation. Under memory
+> pressure finding 16 contiguous pages for each label might be a problem.
 
-I think that we need a way for an interface file to recommend itself to have a 
-higher priority for certain matches.  For example the above policy line does 
-permit foo_milter_t to talk to a MySQL server on a different system.  But you 
-probably want something like the following:
+I would argue that if somebody wants to stick a base64-encoded image
+or an x509 certificate in their security labels then shipping the
+whole thing across the wire every time somebody does an extended
+"stat" is just stupid.  Think about how much overhead there would be
+if you did an "ls -Z" of a directory with 100 files (64k * 100 ==
+6.4MB!!!), where that data would previously have fit in no more than
+10-20k TOTAL.
 
-mysql_tcp_connect(foo_milter_t)
-optional_policy(`
-  mysql_stream_connect(foo_milter_t)
-')
+A better solution would be something along the lines of putting at
+most a SHA512 sum in the label field and have a separate caching
+communication protocol (either in-band or out-of-band) to pass the
+fully-descriptive payload.
 
-So it seems that audit2allow should know that mysql_tcp_connect() is a 
-preferred option to corenet_tcp_connect_mysqld_port() and that having an 
-option to connect to a Unix domain socket would be good.
+Even in local filesystems like ext3 we prefer to turn labels into
+numbers, store the number with each inode, and then keep the labels
+indexed in a separate datastructure.
 
-Also maybe we should have a single interface with an optional section for 
-MySQL client access.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Cheers,
+Kyle Moffett
 
 --
 This message was distributed to subscribers of the selinux mailing list.
