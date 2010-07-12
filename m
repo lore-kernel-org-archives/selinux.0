@@ -1,46 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6B5D447024892
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2010 01:13:06 -0400
-Received: from smtp106.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o6B5C053004324
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2010 05:12:00 GMT
-Message-ID: <4C3952D6.7040608@schaufler-ca.com>
-Date: Sat, 10 Jul 2010 22:12:54 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6C9NAXC024266
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 05:23:11 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6C9OnGn004787
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 09:24:50 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 640D6180F1
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 19:22:49 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: clamav RWX
+Date: Mon, 12 Jul 2010 19:22:47 +1000
 MIME-Version: 1.0
-To: Kyle Moffett <kyle@moffetthome.net>
-CC: "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
-        viro@zeniv.linux.org.uk, sds@tycho.nsa.gov, matthew.dodd@sparta.com,
-        trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-nfs@vger.kernel.org
-Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
- 	flags
-References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov> 	<1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov> 	<20100707170058.GD28815@fieldses.org> <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org> 	<1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil> 	<alpine.LRH.2.00.1007090834190.23354@tundra.namei.org> <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil> <AANLkTinUO-xqvQQINTzKLcXnljq-RaN5X6ulEAqvuf0d@mail.gmail.com>
-In-Reply-To: <AANLkTinUO-xqvQQINTzKLcXnljq-RaN5X6ulEAqvuf0d@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201007121922.48247.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Kyle Moffett wrote:
-> ...
-> Even in local filesystems like ext3 we prefer to turn labels into
-> numbers, store the number with each inode, and then keep the labels
-> indexed in a separate datastructure.
->   
+cli_bytecode_init_jit() in libclamav/c++/bytecode2llvm.cpp in the clamav 
+source tree has the following:
 
-I don't know what system you're talking about, but that notion
-was pretty well dispelled in the late 1980's, after the SystemV/MLS
-and SecureWare examples.
+    sys::MemoryBlock B = sys::Memory::AllocateRWX(4096, NULL, &ErrMsg);
+    if (B.base() == 0) {
+        errs() << MODULE << ErrMsg << "\n";
+#ifdef __linux__
+        errs() << MODULE << "SELinux is preventing 'execmem' access. Run 
+'setsebool -P clamd_use_jit on' to allow access\n";
+#endif
+        errs() << MODULE << "falling back to interpreter mode\n";
+        return 0;
+    } else {
+        sys::Memory::ReleaseRWX(B);
+    }
 
-> Cheers,
-> Kyle Moffett
->
->
->   
+The fact that the developers assumed that SE Linux is the only mechanism that 
+prevents RWX access is interesting.
 
+Now the boolean in question only applies to the clamd_t domain not the 
+freshclam_t domain, but for some reason freshclam uses the jit anyway.  Should 
+we put in a dontaudit rule for freshclam_t or include it in the boolean 
+section so that it gets execmem access if clamd_t gets it?
+
+Also on my system the error message about SE Linux doesn't seem to get written 
+to the log file, so I only found it by reading the source.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
