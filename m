@@ -1,60 +1,65 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6CEZSH7022000
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 10:35:28 -0400
-Received: from mail-bw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6CEbNjj024455
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 14:37:23 GMT
-Received: by bwz6 with SMTP id 6so2643946bwz.12
-        for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2010 07:35:26 -0700 (PDT)
-Date: Mon, 12 Jul 2010 17:35:21 +0300
-From: =?UTF-8?B?VMO2csO2aw==?= Edwin <edwintorok@gmail.com>
-To: Martin Orr <martin@martinorr.name>
-Cc: russell@coker.com.au, Eric Paris <eparis@parisplace.org>,
-        SE-Linux
- <selinux@tycho.nsa.gov>
-Subject: Re: clamav RWX
-Message-ID: <20100712173521.1c436f94@debian>
-In-Reply-To: <20100712153242.10606virkn0rqeos@webmail.tuffmail.net>
-References: <201007121922.48247.russell@coker.com.au>
-	<20100712140130.468b7b42@debian>
-	<AANLkTin7CS0jgjas9otPYwMh0CSqdIaMMQ72YhQaqdmT@mail.gmail.com>
-	<201007122208.13078.russell@coker.com.au>
-	<20100712154528.47864541@debian>
-	<20100712153242.10606virkn0rqeos@webmail.tuffmail.net>
+Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
+ flags
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Kyle Moffett <kyle@moffetthome.net>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
+        viro@zeniv.linux.org.uk, matthew.dodd@sparta.com,
+        trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-nfs@vger.kernel.org
+In-Reply-To: <4C3952D6.7040608@schaufler-ca.com>
+References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
+	 <1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov>
+	 <20100707170058.GD28815@fieldses.org>
+	 <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
+	 <1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil>
+	 <alpine.LRH.2.00.1007090834190.23354@tundra.namei.org>
+	 <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
+	 <AANLkTinUO-xqvQQINTzKLcXnljq-RaN5X6ulEAqvuf0d@mail.gmail.com>
+	 <4C3952D6.7040608@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 12 Jul 2010 10:36:36 -0400
+Message-ID: <1278945396.5221.14.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 12 Jul 2010 15:32:42 +0100
-Martin Orr <martin@martinorr.name> wrote:
+On Sat, 2010-07-10 at 22:12 -0700, Casey Schaufler wrote:
+> Kyle Moffett wrote:
+> > ...
+> > Even in local filesystems like ext3 we prefer to turn labels into
+> > numbers, store the number with each inode, and then keep the labels
+> > indexed in a separate datastructure.
+> >   
+> 
+> I don't know what system you're talking about, but that notion
+> was pretty well dispelled in the late 1980's, after the SystemV/MLS
+> and SecureWare examples.
 
-> On Mon 12 Jul 13:45:28 2010, Török Edwin wrote:
-> > On Mon, 12 Jul 2010 22:08:12 +1000
-> > Russell Coker <russell@coker.com.au> wrote:
-> >> On Mon, 12 Jul 2010, Eric Paris <eparis@parisplace.org> wrote:
-> >> Now given that freshclam doesn't do any serious work with the data,
-> >> is interpreting it going to cause any problem that we will care
-> >> about?  If we are talking about 1 hour of CPU time vs 2 hours for
-> >> jit vs interpreted for run- time stuff then it makes a difference,
-> >> but if we are talking about 1 second vs 2 seconds for freshclam
-> >> then maybe there's not much point.
-> >>
+SELinux did that too before switching to using xattrs for label storage.
+Persistent security identifier (PSID) associated with each inode (either
+stored directly in the inode in the original kernel patches or
+associated through a separate mapping in the LSM-based implementation),
+with a mapping from PSID to context stored in a mapping within each
+filesystem.  Allowed you to keep the labels with the volume but avoided
+storing the same label multiple times.
+
+The xattr based implementation can sometimes share storage but only when
+the xattr is stored in the additional block (not when they are stored
+inline) and only if all of the xattrs on the file are identical.
+
+> > Cheers,
+> > Kyle Moffett
 > >
-> > Well the purpose of loading the database with freshclam is to avoid
-> > causing problems to clamd. So it is important that they are either
-> > both JIT, or both non-JIT.
-> 
-> I configured clamd not to use the JIT by putting "Bytecode false" in  
-> clamd.conf.  I put the same thing in freshclam.conf, but it
-> continues to try to allocate executable memory.
-> 
+> >
+> >   
 
-That sounds like a bug, please open a bugreport at bugs.clamav.net, and
-attach the output of strace freshclam.
-
-Best regards,
---Edwin
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
