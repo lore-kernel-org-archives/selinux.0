@@ -1,61 +1,97 @@
-Subject: Re: [PATCH 06/10] NFSv4: Add label recommended attribute and NFSv4
- flags
+Subject: Re: clamav RWX
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Kyle Moffett <kyle@moffetthome.net>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>, hch@infradead.org,
-        viro@zeniv.linux.org.uk, matthew.dodd@sparta.com,
-        trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-nfs@vger.kernel.org
-In-Reply-To: <4C3952D6.7040608@schaufler-ca.com>
-References: <1278513086-23964-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1278513086-23964-7-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20100707170058.GD28815@fieldses.org>
-	 <alpine.LRH.2.00.1007080928180.14102@tundra.namei.org>
-	 <1278596363.2494.194.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.2.00.1007090834190.23354@tundra.namei.org>
-	 <1278684348.2494.223.camel@moss-terrapins.epoch.ncsc.mil>
-	 <AANLkTinUO-xqvQQINTzKLcXnljq-RaN5X6ulEAqvuf0d@mail.gmail.com>
-	 <4C3952D6.7040608@schaufler-ca.com>
+To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwintorok@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>, Russell Coker <russell@coker.com.au>,
+        SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20100712155526.344eefdf@debian>
+References: <201007121922.48247.russell@coker.com.au>
+	 <20100712140130.468b7b42@debian>
+	 <AANLkTin7CS0jgjas9otPYwMh0CSqdIaMMQ72YhQaqdmT@mail.gmail.com>
+	 <20100712155526.344eefdf@debian>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 12 Jul 2010 10:36:36 -0400
-Message-ID: <1278945396.5221.14.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 12 Jul 2010 12:31:11 -0400
+Message-ID: <1278952271.5221.245.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2010-07-10 at 22:12 -0700, Casey Schaufler wrote:
-> Kyle Moffett wrote:
-> > ...
-> > Even in local filesystems like ext3 we prefer to turn labels into
-> > numbers, store the number with each inode, and then keep the labels
-> > indexed in a separate datastructure.
-> >   
+On Mon, 2010-07-12 at 15:55 +0300, Török Edwin wrote:
+> On Mon, 12 Jul 2010 07:48:29 -0400
+> Eric Paris <eparis@parisplace.org> wrote:
 > 
-> I don't know what system you're talking about, but that notion
-> was pretty well dispelled in the late 1980's, after the SystemV/MLS
-> and SecureWare examples.
+> > 2010/7/12 Török Edwin <edwintorok@gmail.com>:
+> > 
+> > > [*]
+> > > I have some plans to make the JIT work without RWX, since ClamAV
+> > > has 2 phases:
+> > >  - load DB, JIT compile bytecode (should use only RW- mapping, but
+> > >   currently needs RWX)
+> > >  - execute (JIT compiled) bytecode (should change mapping to be R-X)
+> > 
+> > Just so you know that is going to require the same permissions.
+> > (Hopefully) The only way to get around the SELinux permissions is to
+> > have 2 separate mappings.  Basically in really really rough sudo-code,
+> > 
+> > file = open(filename, RWX);
+> > unlink(file);
+> > truncate(file, however big you need);
+> > exec_area = mmap(PROT_EXEC, file);
+> > write_area = mmap(PROT_WRITE, file);
+> > 
+> > then do all of the writing to write_area and all of the executing in
+> > exec_area.
+> > 
+> > http://people.redhat.com/drepper/selinux-mem.html
+> 
+> Yes I've seen that page, however that is not going to be so simple.
+> All the relocations are done assuming that the code will be executed
+> where you write it to (and all absolute jumps are generated the
+> same way).
+> Changing that would be a lot of work, and could introduce new bugs.
+> 
+> > 
+> > Simply using mremap to change a mapping from PROT_WRITE to PROT_EXEC
+> > will cause the same problems as just doing it at the same time.
+> 
+> Then I'd better write a small testcase before converting LLVM to do
+> that.
+> IIRC I tried something like that and worked, but I could have done
+> something wrong. Will try again to be sure.
+> 
+> Is there a boolean (other than execmem) that would allow RW -> RX
+> mprotect()?
 
-SELinux did that too before switching to using xattrs for label storage.
-Persistent security identifier (PSID) associated with each inode (either
-stored directly in the inode in the original kernel patches or
-associated through a separate mapping in the LSM-based implementation),
-with a mapping from PSID to context stored in a mapping within each
-filesystem.  Allowed you to keep the labels with the volume but avoided
-storing the same label multiple times.
+For a private anonymous mapping, we always check execmem if PROT_EXEC
+(even for a RX mapping), as it still represents making executable
+arbitrary data (not tied to any file or covered by an file-based
+checks).  So you have:
+Private anonymous mapping RW => no checks
+Private anonymous mapping RX => execmem
 
-The xattr based implementation can sometimes share storage but only when
-the xattr is stored in the additional block (not when they are stored
-inline) and only if all of the xattrs on the file are identical.
+For a shared anonymous mapping, which internally creates a tmpfs node,
+we have:
+Shared anonymous mapping RW => read, write to tmpfs node
+Shared anonymous mapping RX => read, execute to tmpfs node
 
-> > Cheers,
-> > Kyle Moffett
-> >
-> >
-> >   
+For a private file mapping, we have:
+Private file mapping RW => read to file (no write since it is COW and
+the file is not modified)
+Private file mapping RX => read, execute, execmod (if modified during
+prior RW mapping) to file
+
+For shared file mapping, we have:
+Shared file mapping RW => read, write to file
+Shared file mapping RX => read, execute to file
+
+> Why is the 2 mappings approach more secure though?
+
+In theory, it requires the exploit writer to find two (hopefully
+independently randomized) mappings in order to both write the payload
+and execute from it.
+
+> What I want is generate some code at runtime, execute it, then maybe
+> change it again, and execute that. Both do just that.
+
 
 -- 
 Stephen Smalley
