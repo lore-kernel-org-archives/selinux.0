@@ -1,125 +1,83 @@
-Subject: Re: clamav RWX
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwintorok@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, Russell Coker <russell@coker.com.au>,
-        SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20100713092956.32be6466@debian>
-References: <201007121922.48247.russell@coker.com.au>
-	 <20100712140130.468b7b42@debian>
-	 <AANLkTin7CS0jgjas9otPYwMh0CSqdIaMMQ72YhQaqdmT@mail.gmail.com>
-	 <20100712155526.344eefdf@debian>
-	 <1278952271.5221.245.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100712210807.675e6e0e@debian>
-	 <1278966414.5221.296.camel@moss-pluto.epoch.ncsc.mil>
-	 <20100713092956.32be6466@debian>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Jul 2010 11:26:16 -0400
-Message-ID: <1279034776.28691.11.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6DFrGsC031186
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 11:53:16 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6DFq2Bh002355
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 15:52:02 GMT
+Received: from int-mx08.intmail.prod.int.phx2.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o6DFquO7007010
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 11:52:56 -0400
+Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
+	by int-mx08.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o6DFqu2N009545
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 11:52:56 -0400
+Message-ID: <4C3C8BD7.2020901@redhat.com>
+Date: Tue, 13 Jul 2010 11:52:55 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: We need this patch for setools to allow it to build on F14.
+Content-Type: multipart/mixed;
+ boundary="------------060602080504080706040307"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-07-13 at 09:29 +0300, Török Edwin wrote:
-> On Mon, 12 Jul 2010 16:26:54 -0400
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Mon, 2010-07-12 at 21:08 +0300, Török Edwin wrote:
-> > > On Mon, 12 Jul 2010 12:31:11 -0400
-> > > Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > 
-> > > > On Mon, 2010-07-12 at 15:55 +0300, Török Edwin wrote:
-> > > > > On Mon, 12 Jul 2010 07:48:29 -0400
-> > > > > Eric Paris <eparis@parisplace.org> wrote:
-> > > > > 
-> > > > > > 2010/7/12 Török Edwin <edwintorok@gmail.com>:
-> > > > > > 
-> > > > > > > [*]
-> > > > > > > I have some plans to make the JIT work without RWX, since
-> > > > > > > ClamAV has 2 phases:
-> > > > > > >  - load DB, JIT compile bytecode (should use only RW-
-> > > > > > > mapping, but currently needs RWX)
-> > > > > > >  - execute (JIT compiled) bytecode (should change mapping
-> > > > > > > to be R-X)
-> > > > > > 
-> > > > > > Just so you know that is going to require the same
-> > > > > > permissions. (Hopefully) The only way to get around the
-> > > > > > SELinux permissions is to have 2 separate mappings.
-> > > > > > Basically in really really rough sudo-code,
-> > > > > > 
-> > > > > > file = open(filename, RWX);
-> > > > > > unlink(file);
-> > > > > > truncate(file, however big you need);
-> > > > > > exec_area = mmap(PROT_EXEC, file);
-> > > > > > write_area = mmap(PROT_WRITE, file);
-> > > > > > 
-> > > > > > then do all of the writing to write_area and all of the
-> > > > > > executing in exec_area.
-> > > > > > 
-> > > > > > http://people.redhat.com/drepper/selinux-mem.html
-> > > > > 
-> > > > > Yes I've seen that page, however that is not going to be so
-> > > > > simple. All the relocations are done assuming that the code
-> > > > > will be executed where you write it to (and all absolute jumps
-> > > > > are generated the same way).
-> > > > > Changing that would be a lot of work, and could introduce new
-> > > > > bugs.
-> > > > > 
-> > > > > > 
-> > > > > > Simply using mremap to change a mapping from PROT_WRITE to
-> > > > > > PROT_EXEC will cause the same problems as just doing it at the
-> > > > > > same time.
-> > > > > 
-> > > > > Then I'd better write a small testcase before converting LLVM
-> > > > > to do that.
-> > > > > IIRC I tried something like that and worked, but I could have
-> > > > > done something wrong. Will try again to be sure.
-> > > > > 
-> > > > > Is there a boolean (other than execmem) that would allow RW ->
-> > > > > RX mprotect()?
-> > > > 
-> > > > For a private anonymous mapping, we always check execmem if
-> > > > PROT_EXEC (even for a RX mapping), as it still represents making
-> > > > executable arbitrary data (not tied to any file or covered by an
-> > > > file-based checks).  So you have:
-> > > > Private anonymous mapping RW => no checks
-> > > > Private anonymous mapping RX => execmem
-> > > > 
-> > > > For shared file mapping, we have:
-> > > > Shared file mapping RW => read, write to file
-> > > > Shared file mapping RX => read, execute to file
-> > > 
-> > > So if I map a tempfile as RW, write my JITed code to it, then
-> > > mprotect to RX will it work without 'execmem'?
-> > 
-> > That would remove the requirement for execmem, yes.  But clamd_t and
-> > freshclam_t would then require appropriate permissions to the file,
-> > including create, unlink, read, write,
-> 
-> I would have these permissions for something in /tmp, right?
-> 
-> > and execute.
-> 
-> I probably wouldn't have this though.
-> 
-> >  You can avoid the
-> > create+unlink requirement by mapping /dev/zero or using MAP_SHARED|
-> > MAP_ANONYMOUS, but you'd still need RWX to the file.  So I'm not sure
-> > what we gain there.
-> 
-> If I can change the mapping from RW <-> RX, then the mapping is
-> writable only for a brief period (DB reload), so an exploit can't take
-> advantage of the RWX mapping (since there is no RWX mapping).
-> Thats better than allowing 'execmem' for the entire process, isn't it?
+This is a multi-part message in MIME format.
+--------------060602080504080706040307
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Allowing execmem just permits the process to perform a mmap or mprotect
-of an anonymous mapping with PROT_EXEC.  It doesn't automatically apply
-PROT_EXEC to any mappings (it isn't the same as marking the executable
-as requiring an executable stack).
+Also
 
--- 
-Stephen Smalley
-National Security Agency
+sesearch --all
 
+Is broken right now because we do not retrieve NEVERALLOW rules.
+
+This patch makes this error a warning so sesearch --all will return all
+other rules.
+
+--------------060602080504080706040307
+Content-Type: text/plain;
+ name="setools-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="setools-rhat.patch"
+
+diff -up setools-3.3.7/m4/ac_pkg_swig.m4~ setools-3.3.7/m4/ac_pkg_swig.m4
+--- setools-3.3.7/m4/ac_pkg_swig.m4~	2007-02-09 12:32:41.000000000 -0500
++++ setools-3.3.7/m4/ac_pkg_swig.m4	2010-07-13 11:16:11.000000000 -0400
+@@ -106,10 +106,13 @@ AC_DEFUN([AC_PROG_SWIG],[
+                         if test -z "$available_patch" ; then
+                                 [available_patch=0]
+                         fi
+-                        if test $available_major -ne $required_major \
+-                                -o $available_minor -ne $required_minor \
+-                                -o $available_patch -lt $required_patch ; then
+-                                AC_MSG_WARN([SWIG version >= $1 is required.  You have $swig_version.  You should look at http://www.swig.org])
++			if test $available_major -lt $required_major \
++			    -o \( $available_major -eq $required_major \
++			        -a $available_minor -lt $required_minor \) \
++			    -o \( $available_major -eq $required_major \
++			        -a $available_minor -eq $required_minor \
++			        -a $available_patch -lt $required_patch \) ; then
++                                AC_MSG_WARN([SWIG version >= $1 is required. You have $swig_version.  You should look at http://www.swig.org])
+                                 SWIG='echo "Error: SWIG version >= $1 is required.  You have '"$swig_version"'.  You should look at http://www.swig.org" ; false'
+                         else
+                                 AC_MSG_NOTICE([SWIG executable is '$SWIG'])
+diff -up setools-3.3.7/libqpol/src/avrule_query.c~ setools-3.3.7/libqpol/src/avrule_query.c
+--- setools-3.3.7/libqpol/src/avrule_query.c~	2010-04-23 12:22:08.000000000 -0400
++++ setools-3.3.7/libqpol/src/avrule_query.c	2010-07-13 11:40:16.000000000 -0400
+@@ -57,8 +57,6 @@ int qpol_policy_get_avrule_iter(const qp
+ 
+ 	if ((rule_type_mask & QPOL_RULE_NEVERALLOW) && !qpol_policy_has_capability(policy, QPOL_CAP_NEVERALLOW)) {
+ 		ERR(policy, "%s", "Cannot get avrules: Neverallow rules requested but not available");
+-		errno = ENOTSUP;
+-		return STATUS_ERR;
+ 	}
+ 
+ 	db = &policy->p->p;
+
+--------------060602080504080706040307--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
