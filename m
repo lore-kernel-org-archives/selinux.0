@@ -1,53 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6E2IGBH006922
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 22:18:16 -0400
-Received: from exprod8og112.obsmtp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o6E2JwZT025494
-	for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 02:19:58 GMT
-Received: by pxi14 with SMTP id 14so2528660pxi.19
-        for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2010 19:18:01 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6ECQDDG009572
+	for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 08:26:13 -0400
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6ECPHDW000300
+	for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 12:25:17 GMT
+Message-ID: <4C3DACE6.7000706@manicmethod.com>
+Date: Wed, 14 Jul 2010 08:26:14 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-From: Jason Axelson <jaxelson@referentia.com>
-Date: Tue, 13 Jul 2010 16:17:41 -1000
-Message-ID: <AANLkTilEZmTTTYxSXlFY343Le2EyvSGD_zWAr8K4ZDVI@mail.gmail.com>
-Subject: Using checkmodule to build "old module versions"
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: russell@coker.com.au
+CC: SE-Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
+Subject: Re: recommending interfaces for audit2allow
+References: <201007101022.46235.russell@coker.com.au>
+In-Reply-To: <201007101022.46235.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Russell Coker wrote:
+> corenet_tcp_connect_mysqld_port(foo_milter_t)
+>
+> I think that we need a way for an interface file to recommend itself to have a
+> higher priority for certain matches.  For example the above policy line does
+> permit foo_milter_t to talk to a MySQL server on a different system.  But you
+> probably want something like the following:
+>
+> mysql_tcp_connect(foo_milter_t)
+> optional_policy(`
+>    mysql_stream_connect(foo_milter_t)
+> ')
+>
+> So it seems that audit2allow should know that mysql_tcp_connect() is a
+> preferred option to corenet_tcp_connect_mysqld_port() and that having an
+> option to connect to a Unix domain socket would be good.
+>
+> Also maybe we should have a single interface with an optional section for
+> MySQL client access.
+>
 
-I may be misunderstanding things but I think that a "new" version of
-checkmodule is able to create policy versions other than "latest". I
-know that checkpolicy accepts the -c option to create binary policies
-of older versions. Is there any equivalent for checkmodule?
-
-My version of checkmodule (2.0.21 I believe) when run with -V reports
-that it supports "Module versions 4-10", however I do not see any
-flags to change the compiled module policy version.
-
-When I then try to load the compiled module on CentOS 5.4 with
-"semodule -i A.pp" it responds with:
-
-libsepol.policydb_read: policydb module version 10 does not match my
-version range 4-6
-libsepol.sepol_module_package_read: invalid module in module package
-(at section 0)
-libsemanage.semanage_load_module: Error while reading from module file
-/etc/selinux/clip/modules/tmp/modules/A.pp.
-semodule:  Failed!
-
-So it looks like checkmodule should be able to build policy version 6
-which is supported by semodule on the CentOS 5.4 side.
-
-Am I misunderstanding something?
-
-My setup is using Arch Linux as the development machine so I know it
-isn't really "supported" per se.
-
-Thanks,
-Jason
+Agreed. This seems like it could be solved if sepolgen just 
+automatically demoted corenet_* since that would probably be the 
+majority of cases where this happens (since corenet is allowed to 
+essentially break abstractions).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
