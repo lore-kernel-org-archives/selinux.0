@@ -1,52 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6EJMH2B006239
-	for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 15:22:18 -0400
-Received: from exprod8og103.obsmtp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o6EJLKnY019755
-	for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 19:21:23 GMT
-Received: by pvh1 with SMTP id 1so3887030pvh.41
-        for <selinux@tycho.nsa.gov>; Wed, 14 Jul 2010 12:22:13 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6F4R8NU005565
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jul 2010 00:27:09 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6F4QCLu013833
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jul 2010 04:26:13 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 254AC180FD
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jul 2010 14:27:02 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: restorecon and chroot
+Date: Thu, 15 Jul 2010 14:27:01 +1000
 MIME-Version: 1.0
-In-Reply-To: <4C3DAEBD.5020402@manicmethod.com>
-References: <AANLkTilEZmTTTYxSXlFY343Le2EyvSGD_zWAr8K4ZDVI@mail.gmail.com>
-	<4C3DAEBD.5020402@manicmethod.com>
-From: Jason Axelson <jaxelson@referentia.com>
-Date: Wed, 14 Jul 2010 09:21:53 -1000
-Message-ID: <AANLkTikAWngCdcZOOe5oGoWPqiGvfRs-S8xufKXeIvEG@mail.gmail.com>
-Subject: Re: Using checkmodule to build "old module versions"
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=000e0cd32d3a2c8603048b5de77b
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201007151427.01927.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0cd32d3a2c8603048b5de77b
-Content-Type: text/plain; charset=ISO-8859-1
+I think that we need an option for restorecon which is similar to the -r 
+option of setfiles.
 
-Hi Joshua,
+This would be useful for setting up chroot environments and possibly also for 
+system recovery.
 
-On Wed, Jul 14, 2010 at 2:34 AM, Joshua Brindle <method@manicmethod.com> wrote:
-> The writer is technically capable of writing old versions but we never added
-> the option to checkmodule.
->
-> There has been little testing around building modules on a different
-> toolchain than the target so while it is suppose to work I wouldn't really
-> recommend it.
+Any suggestion on what command-line option should be used?  It seems that -r 
+is taken...
 
-Thanks for the explanation. Does anyone know if it is possible to
-change the checkmodule man page to make it more clear that you can't
-build old versions.
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
-I propose to change:
-Show policy versions created by this program
-
-to this:
-Show policy versions created by this program. Note that you cannot
-currently build older versions.
-
-I have attached a (trivial) patch that should apply against the
-current head. Of course there may be better wording.
-
-Thanks,
-Jason
---000e0cd32d3a2c8603048b5de77b--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
