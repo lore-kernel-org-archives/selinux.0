@@ -1,297 +1,37 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 2/2] SELinux: break ocontext reading into a separate function
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Date: Wed, 21 Jul 2010 12:51:03 -0400
-Message-ID: <20100721165103.5820.1380.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100721165057.5820.23176.stgit@paris.rdu.redhat.com>
-References: <20100721165057.5820.23176.stgit@paris.rdu.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6LHSLTd024758
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2010 13:28:21 -0400
+Received: from mail-gw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6LHUMHx029362
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2010 17:30:22 GMT
+Received: by gwb10 with SMTP id 10so4410464gwb.12
+        for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2010 10:28:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Date: Wed, 21 Jul 2010 12:28:14 -0500
+Message-ID: <AANLkTikQW8G9qKHOxpfx8K+AUZi6FJEasF3=-d6rMRme@mail.gmail.com>
+Subject: patch size limits?
+From: Xavier Toth <txtoth@gmail.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=000e0cd4cbca74deaf048be920bb
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Move the reading of ocontext type data out of policydb_read() in a separate
-function ocontext_read()
+--000e0cd4cbca74deaf048be920bb
+Content-Type: text/plain; charset=ISO-8859-1
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
+Are there limits to the size of patch that can be posted? I posted a patch
+but it didn't make it to the list so I'm guessing there was a size issue and
+now I'd like to figure out how I need to break it up.
 
- security/selinux/ss/policydb.c |  244 ++++++++++++++++++++++------------------
- 1 files changed, 133 insertions(+), 111 deletions(-)
+Ted
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 4ea073e..674ddfe 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1901,6 +1901,136 @@ out:
- 	return rc;
- }
- 
-+static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
-+			 void *fp)
-+{
-+	int i, j, rc;
-+	u32 nel, len;
-+	__le32 buf[3];
-+	struct ocontext *l, *c;
-+	u32 nodebuf[8];
-+
-+	for (i = 0; i < info->ocon_num; i++) {
-+		rc = next_entry(buf, fp, sizeof(u32));
-+		if (rc)
-+			goto out;
-+		nel = le32_to_cpu(buf[0]);
-+
-+		l = NULL;
-+		for (j = 0; j < nel; j++) {
-+			rc = -ENOMEM;
-+			c = kzalloc(sizeof(*c), GFP_KERNEL);
-+			if (!c)
-+				goto out;
-+			if (l)
-+				l->next = c;
-+			else
-+				p->ocontexts[i] = c;
-+			l = c;
-+
-+			switch (i) {
-+			case OCON_ISID:
-+				rc = next_entry(buf, fp, sizeof(u32));
-+				if (rc)
-+					goto out;
-+
-+				c->sid[0] = le32_to_cpu(buf[0]);
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			case OCON_FS:
-+			case OCON_NETIF:
-+				rc = next_entry(buf, fp, sizeof(u32));
-+				if (rc)
-+					goto out;
-+				len = le32_to_cpu(buf[0]);
-+
-+				rc = -ENOMEM;
-+				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-+				if (!c->u.name)
-+					goto out;
-+
-+				rc = next_entry(c->u.name, fp, len);
-+				if (rc)
-+					goto out;
-+
-+				c->u.name[len] = 0;
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				rc = context_read_and_validate(&c->context[1], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			case OCON_PORT:
-+				rc = next_entry(buf, fp, sizeof(u32)*3);
-+				if (rc)
-+					goto out;
-+				c->u.port.protocol = le32_to_cpu(buf[0]);
-+				c->u.port.low_port = le32_to_cpu(buf[1]);
-+				c->u.port.high_port = le32_to_cpu(buf[2]);
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			case OCON_NODE:
-+				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
-+				if (rc)
-+					goto out;
-+				c->u.node.addr = nodebuf[0]; /* network order */
-+				c->u.node.mask = nodebuf[1]; /* network order */
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			case OCON_FSUSE:
-+				rc = next_entry(buf, fp, sizeof(u32)*2);
-+				if (rc)
-+					goto out;
-+
-+				rc = -EINVAL;
-+				c->v.behavior = le32_to_cpu(buf[0]);
-+				if (c->v.behavior > SECURITY_FS_USE_NONE)
-+					goto out;
-+
-+				rc = -ENOMEM;
-+				len = le32_to_cpu(buf[1]);
-+				c->u.name = kmalloc(len + 1, GFP_KERNEL);
-+				if (!c->u.name)
-+					goto out;
-+
-+				rc = next_entry(c->u.name, fp, len);
-+				if (rc)
-+					goto out;
-+				c->u.name[len] = 0;
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			case OCON_NODE6: {
-+				int k;
-+
-+				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
-+				if (rc)
-+					goto out;
-+				for (k = 0; k < 4; k++)
-+					c->u.node6.addr[k] = nodebuf[k];
-+				for (k = 0; k < 4; k++)
-+					c->u.node6.mask[k] = nodebuf[k+4];
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc)
-+					goto out;
-+				break;
-+			}
-+			}
-+		}
-+	}
-+	rc = 0;
-+out:
-+	return rc;
-+}
-+
- /*
-  * Read the configuration data from a policy database binary
-  * representation file into a policy database structure.
-@@ -1909,10 +2039,8 @@ int policydb_read(struct policydb *p, void *fp)
- {
- 	struct role_allow *ra, *lra;
- 	struct role_trans *tr, *ltr;
--	struct ocontext *l, *c;
- 	int i, j, rc;
- 	__le32 buf[4];
--	u32 nodebuf[8];
- 	u32 len, nprim, nel;
- 
- 	char *policydb_str;
-@@ -2117,115 +2245,9 @@ int policydb_read(struct policydb *p, void *fp)
- 	if (!p->process_trans_perms)
- 		goto bad;
- 
--	for (i = 0; i < info->ocon_num; i++) {
--		rc = next_entry(buf, fp, sizeof(u32));
--		if (rc < 0)
--			goto bad;
--		nel = le32_to_cpu(buf[0]);
--		l = NULL;
--		for (j = 0; j < nel; j++) {
--			c = kzalloc(sizeof(*c), GFP_KERNEL);
--			if (!c) {
--				rc = -ENOMEM;
--				goto bad;
--			}
--			if (l)
--				l->next = c;
--			else
--				p->ocontexts[i] = c;
--			l = c;
--			rc = -EINVAL;
--			switch (i) {
--			case OCON_ISID:
--				rc = next_entry(buf, fp, sizeof(u32));
--				if (rc < 0)
--					goto bad;
--				c->sid[0] = le32_to_cpu(buf[0]);
--				rc = context_read_and_validate(&c->context[0], p, fp);
--				if (rc)
--					goto bad;
--				break;
--			case OCON_FS:
--			case OCON_NETIF:
--				rc = next_entry(buf, fp, sizeof(u32));
--				if (rc < 0)
--					goto bad;
--				len = le32_to_cpu(buf[0]);
--				c->u.name = kmalloc(len + 1, GFP_KERNEL);
--				if (!c->u.name) {
--					rc = -ENOMEM;
--					goto bad;
--				}
--				rc = next_entry(c->u.name, fp, len);
--				if (rc < 0)
--					goto bad;
--				c->u.name[len] = 0;
--				rc = context_read_and_validate(&c->context[0], p, fp);
--				if (rc)
--					goto bad;
--				rc = context_read_and_validate(&c->context[1], p, fp);
--				if (rc)
--					goto bad;
--				break;
--			case OCON_PORT:
--				rc = next_entry(buf, fp, sizeof(u32)*3);
--				if (rc < 0)
--					goto bad;
--				c->u.port.protocol = le32_to_cpu(buf[0]);
--				c->u.port.low_port = le32_to_cpu(buf[1]);
--				c->u.port.high_port = le32_to_cpu(buf[2]);
--				rc = context_read_and_validate(&c->context[0], p, fp);
--				if (rc)
--					goto bad;
--				break;
--			case OCON_NODE:
--				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
--				if (rc < 0)
--					goto bad;
--				c->u.node.addr = nodebuf[0]; /* network order */
--				c->u.node.mask = nodebuf[1]; /* network order */
--				rc = context_read_and_validate(&c->context[0], p, fp);
--				if (rc)
--					goto bad;
--				break;
--			case OCON_FSUSE:
--				rc = next_entry(buf, fp, sizeof(u32)*2);
--				if (rc < 0)
--					goto bad;
--				c->v.behavior = le32_to_cpu(buf[0]);
--				if (c->v.behavior > SECURITY_FS_USE_NONE)
--					goto bad;
--				len = le32_to_cpu(buf[1]);
--				c->u.name = kmalloc(len + 1, GFP_KERNEL);
--				if (!c->u.name) {
--					rc = -ENOMEM;
--					goto bad;
--				}
--				rc = next_entry(c->u.name, fp, len);
--				if (rc < 0)
--					goto bad;
--				c->u.name[len] = 0;
--				rc = context_read_and_validate(&c->context[0], p, fp);
--				if (rc)
--					goto bad;
--				break;
--			case OCON_NODE6: {
--				int k;
--
--				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
--				if (rc < 0)
--					goto bad;
--				for (k = 0; k < 4; k++)
--					c->u.node6.addr[k] = nodebuf[k];
--				for (k = 0; k < 4; k++)
--					c->u.node6.mask[k] = nodebuf[k+4];
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				break;
--			}
--			}
--		}
--	}
-+	rc = ocontext_read(p, info, fp);
-+	if (rc)
-+		goto bad;
- 
- 	rc = genfs_read(p, fp);
- 	if (rc)
+--000e0cd4cbca74deaf048be920bb
+Content-Type: text/html; charset=ISO-8859-1
 
+Are there limits to the size of patch that can be posted? I posted a patch but it didn&#39;t make it to the list so I&#39;m guessing there was a size issue and now I&#39;d like to figure out how I need to break it up.<br><br>
+Ted<br>
+
+--000e0cd4cbca74deaf048be920bb--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
