@@ -1,42 +1,45 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6LHwtfq026886
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2010 13:58:55 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6LI0bHx020369
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2010 18:00:37 GMT
-Message-ID: <4C473547.7050907@redhat.com>
-Date: Wed, 21 Jul 2010 13:58:31 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: patch size limits?
-References: <AANLkTikQW8G9qKHOxpfx8K+AUZi6FJEasF3=-d6rMRme@mail.gmail.com>
-In-Reply-To: <AANLkTikQW8G9qKHOxpfx8K+AUZi6FJEasF3=-d6rMRme@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: libGL.so.1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <201007182309.58829.russell@coker.com.au>
+References: <201007182309.58829.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 21 Jul 2010 14:05:07 -0400
+Message-ID: <1279735507.20469.16.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 07/21/2010 01:28 PM, Xavier Toth wrote:
-> Are there limits to the size of patch that can be posted? I posted a patch
-> but it didn't make it to the list so I'm guessing there was a size issue and
-> now I'd like to figure out how I need to break it up.
+On Sun, 2010-07-18 at 23:09 +1000, Russell Coker wrote:
+> type=AVC msg=audit(1279458495.111:24): avc:  denied  { execmem } for  pid=1801 
+> comm="ksmserver" scontext=unconfined_u:unconfined_r:unconfined_t:s0-
+> s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 
+> tclass=process
+> type=SYSCALL msg=audit(1279458495.111:24): arch=40000003 syscall=192 
+> success=no exit=-13 a0=b47ba000 a1=9000 a2=7 a3=812 items=0 ppid=1239 pid=1801 
+> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 
+> tty=pts0 ses=4294967295 comm="ksmserver" exe="/usr/bin/ksmserver" 
+> subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null)
 > 
-> Ted
+> # ksmserver 
+> ksmserver: error while loading shared libraries: libGL.so.1: failed to map 
+> segment from shared object: Permission denied
 > 
-Put it on the web and post a link.  Is the best way around this.  Or
-compress it.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+> It seems that problems with libGL.so.1 have been around for a while, are these 
+> solvable without a huge amount of coding?
 
-iEYEARECAAYFAkxHNUYACgkQrlYvE4MpobO6QQCgjBHwcUewpRmwDK6Kep2tBchR
-7DUAn0YRSsZFwwtdn6IRPegTZTLo/JTf
-=rZXu
------END PGP SIGNATURE-----
+Fedora has been carrying a patch to mesa to ensure that libGL.so isn't
+marked with an executable stack for a long time, and I think the patch
+has gone upstream in modern versions of mesa.
+
+$ execstack -q /usr/lib64/libGL.so.1
+- /usr/lib64/libGL.so.1
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
