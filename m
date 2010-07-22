@@ -1,54 +1,294 @@
-Subject: Re: [patch 7/7 v2] selinux: fix error codes in symtab_init()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dan Carpenter <error27@gmail.com>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <20100612185739.GV5483@bicker>
-References: <20100612185739.GV5483@bicker>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 22 Jul 2010 10:53:48 -0400
-Message-ID: <1279810428.11197.38.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4C48687B.1050605@redhat.com>
+Date: Thu, 22 Jul 2010 11:49:15 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: This is my first patch for systemd
+References: <4C4837F2.1070806@redhat.com> <1279808480.11197.28.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1279808480.11197.28.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------040007070409020607060501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2010-06-12 at 20:57 +0200, Dan Carpenter wrote:
-> hashtab_create() only returns NULL on allocation failures to -ENOMEM is
-> appropriate here.
-> 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
-> Acked-by: Eric Paris <eparis@redhat.com>
+This is a multi-part message in MIME format.
+--------------040007070409020607060501
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
-for the entire series.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> ---
-> V2: unchanged.
+On 07/22/2010 10:21 AM, Stephen Smalley wrote:
+> On Thu, 2010-07-22 at 08:22 -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Wanted to have you guys review before I send it up to systemd.
+>>
+>> This patch sets the socket context based on the domain of the daemon
+>> that systemd will start on connection.  It also labels the fifo_file
+>> based off of the daemons label and the label of the directory the
+>> fifo_file will be created in.
+>>
+>>
+>> The patch does not handle, systemd creating the directories for the
+>> fifo_file.  In the future, their is talk of making /var/run a tmpfs file
+>> system.  This would mean systemd would create /var/run/mysqld/ before
+>> creating /var/run/mysqld/mysqld.socket.  Additional SELinux controls
+>> would have to be added to systemd to get this correct.  Not sure if the
+>> correct thing to do is at selabel or use
+>> selinux_getfileconfrompath(daemon, parentdir, "dir")
 > 
-> diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-> index bcf9f62..160326e 100644
-> --- a/security/selinux/ss/symtab.c
-> +++ b/security/selinux/ss/symtab.c
-> @@ -36,7 +36,7 @@ int symtab_init(struct symtab *s, unsigned int size)
->  {
->  	s->table = hashtab_create(symhash, symcmp, size);
->  	if (!s->table)
-> -		return -1;
-> +		return -ENOMEM;
->  	s->nprim = 0;
->  	return 0;
->  }
+> selabel_lookup is likely safer, as the /var/run/mysqld directory might
+> be created by the package or by the init script rather than by the
+> daemon itself, so there might not be a type transition defined in policy
+> for it.  A few comments below.
 > 
+> diff --git a/configure.ac b/configure.ac
+> index 03feb43..4c75f66 100644
+> --- a/configure.ac
+> +++ b/configure.ac
+> @@ -105,6 +105,11 @@ PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 1.3.2 ])
+>  AC_SUBST(DBUS_CFLAGS)
+>  AC_SUBST(DBUS_LIBS)
+>  
+> +PKG_CHECK_MODULES(SELINUX, [ libselinux >= 2.0.96 ])
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> Not sure you need this strict of a version check.  The libselinux
+> interfaces that you are using have been around for a while.
+> 
+> diff --git a/src/socket-util.c b/src/socket-util.c
+> index 442abfe..7712b8b 100644
+> --- a/src/socket-util.c
+> +++ b/src/socket-util.c
+> @@ -315,8 +316,12 @@ int socket_address_listen(
+>          if ((r = socket_address_verify(a)) < 0)
+>                  return r;
+>  
+> -        /* FIXME SELINUX: The socket() here should be done with the
+> -         * right SELinux context set */
+> +        if (scon && setsockcreatecon(scon) < 0) {
+> 
+> Why not unconditionally call setsockcreatecon(scon) here?
+> If scon is NULL, this will simply reset to the default policy behavior
+> for the socket so it does no harm and it will prevent you from
+> accidentally labeling a socket with the context used the last time
+> around.  Alternatively you should call setsockcreatecon(NULL) after
+> calling socket() each time to reset it.
+> 
+> diff --git a/src/socket.c b/src/socket.c
+> index b06ba09..f1f378c 100644
+> --- a/src/socket.c
+> +++ b/src/socket.c
+> 
+>  static int fifo_address_create(
+>  <snip>
+> -        /* FIXME SELINUX: The mkfifo here should be done with
+> -         * the right SELinux context set */
+> +        if (scon && ((r = selinux_getfileconfrompath(scon, path, "FIFO_FILE", &filecon))  == 0)) {
+> 
+> Should be 'fifo_file' (lowercase) rather than FIFO_FILE.
+> 
+> +                r = setfscreatecon(filecon);
+> 
+> Where do you reset the fscreate context to NULL so that other directories and files won't keep
+> being created in the prior fscreate context?
+> 
 
--- 
-Stephen Smalley
-National Security Agency
+Updated with your comments.  Strange the FIFO_FILE did not cause
+security_compute_create to fail when passing a 0 for the tclass?  I
+though this should fail.
 
+I changed the patch to check the output of string_to_security_class.
+Will write the selabel patch after this is accepted.
+
+Not checking the return of setfscreatecon(NULL) or
+setsockcreatecon(NULL)  Since I am not sure what to do if these fail and
+not likely to fail since the previous calls worked.
+
+Is there any way to see what a socket is labeled?  netstat -aZ is just
+showing the process context, not the context of the label on the socket?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkxIaHoACgkQrlYvE4MpobO//QCffAGKfiRksHExiSEy0nsJesI/
+8/oAoL1qZ62jdnOZueRIKgDvwoZPrULy
+=rt43
+-----END PGP SIGNATURE-----
+
+--------------040007070409020607060501
+Content-Type: text/plain;
+ name="systemd-selinux.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="systemd-selinux.patch"
+
+ZGlmZiAtLWdpdCBhL01ha2VmaWxlLmFtIGIvTWFrZWZpbGUuYW0KaW5kZXggNGRjZWNjNS4u
+MzE0OTliYSAxMDA2NDQKLS0tIGEvTWFrZWZpbGUuYW0KKysrIGIvTWFrZWZpbGUuYW0KQEAg
+LTI5OCw3ICsyOTgsOCBAQCBsaWJzeXN0ZW1kX2NvcmVfbGFfTElCQUREID0gXAogCSQoREJV
+U19MSUJTKSBcCiAJJChVREVWX0xJQlMpIFwKIAkkKExJQldSQVBfTElCUykgXAotCSQoUEFN
+X0xJQlMpCisJJChQQU1fTElCUykgXAorCSQoU0VMSU5VWF9MSUJTKSAKIAogIyBUaGlzIGlz
+IG5lZWRlZCBiZWNhdXNlIGF1dG9tYWtlIGlzIGJ1Z2d5IGluIGhvdyBpdCBnZW5lcmF0ZXMg
+dGhlCiAjIHJ1bGVzIGZvciBDIHByb2dyYW1zLCBidXQgbm90IFZhbGEgcHJvZ3JhbXMuICBX
+ZSB0aGVyZWZvcmUgY2FuJ3QKZGlmZiAtLWdpdCBhL2NvbmZpZ3VyZS5hYyBiL2NvbmZpZ3Vy
+ZS5hYwppbmRleCAwM2ZlYjQzLi4xNDYyMmU0IDEwMDY0NAotLS0gYS9jb25maWd1cmUuYWMK
+KysrIGIvY29uZmlndXJlLmFjCkBAIC0xMDUsNiArMTA1LDExIEBAIFBLR19DSEVDS19NT0RV
+TEVTKERCVVMsIFsgZGJ1cy0xID49IDEuMy4yIF0pCiBBQ19TVUJTVChEQlVTX0NGTEFHUykK
+IEFDX1NVQlNUKERCVVNfTElCUykKIAorUEtHX0NIRUNLX01PRFVMRVMoU0VMSU5VWCwgWyBs
+aWJzZWxpbnV4IF0pCitBQ19TVUJTVChTRUxJTlVYX0NGTEFHUykKK0FDX1NVQlNUKFNFTElO
+VVhfTElCUykKK0FDX1NFQVJDSF9MSUJTKFtpc19zZWxpbnV4X2VuYWJsZWRdLCBbc2VsaW51
+eF0sIFtdLCBbQUNfTVNHX0VSUk9SKFsqKiogbGlic2VsaW51eCBsaWJyYXJ5IG5vdCBmb3Vu
+ZF0pXSkKKwogUEtHX0NIRUNLX01PRFVMRVMoREJVU0dMSUIsIFsgZGJ1cy1nbGliLTEgXSkK
+IEFDX1NVQlNUKERCVVNHTElCX0NGTEFHUykKIEFDX1NVQlNUKERCVVNHTElCX0xJQlMpCmRp
+ZmYgLS1naXQgYS9zcmMvc29ja2V0LXV0aWwuYyBiL3NyYy9zb2NrZXQtdXRpbC5jCmluZGV4
+IDQ0MmFiZmUuLjkyNDc5NjUgMTAwNjQ0Ci0tLSBhL3NyYy9zb2NrZXQtdXRpbC5jCisrKyBi
+L3NyYy9zb2NrZXQtdXRpbC5jCkBAIC0yOSw2ICsyOSw3IEBACiAjaW5jbHVkZSA8bmV0L2lm
+Lmg+CiAjaW5jbHVkZSA8c3lzL3R5cGVzLmg+CiAjaW5jbHVkZSA8c3lzL3N0YXQuaD4KKyNp
+bmNsdWRlIDxzZWxpbnV4L3NlbGludXguaD4KIAogI2luY2x1ZGUgIm1hY3JvLmgiCiAjaW5j
+bHVkZSAidXRpbC5oIgpAQCAtMzA1LDcgKzMwNiw3IEBAIGludCBzb2NrZXRfYWRkcmVzc19s
+aXN0ZW4oCiAgICAgICAgICAgICAgICAgYm9vbCBmcmVlX2JpbmQsCiAgICAgICAgICAgICAg
+ICAgbW9kZV90IGRpcmVjdG9yeV9tb2RlLAogICAgICAgICAgICAgICAgIG1vZGVfdCBzb2Nr
+ZXRfbW9kZSwKLSAgICAgICAgICAgICAgICAvKiBGSVhNRSBTRUxJTlVYOiBwYXNzIFNFTGlu
+dXggY29udGV4dCBvYmplY3QgaGVyZSAqLworICAgICAgICAgICAgICAgIHNlY3VyaXR5X2Nv
+bnRleHRfdCBzY29uLAogICAgICAgICAgICAgICAgIGludCAqcmV0KSB7CiAKICAgICAgICAg
+aW50IHIsIGZkLCBvbmU7CkBAIC0zMTUsOCArMzE2LDEyIEBAIGludCBzb2NrZXRfYWRkcmVz
+c19saXN0ZW4oCiAgICAgICAgIGlmICgociA9IHNvY2tldF9hZGRyZXNzX3ZlcmlmeShhKSkg
+PCAwKQogICAgICAgICAgICAgICAgIHJldHVybiByOwogCi0gICAgICAgIC8qIEZJWE1FIFNF
+TElOVVg6IFRoZSBzb2NrZXQoKSBoZXJlIHNob3VsZCBiZSBkb25lIHdpdGggdGhlCi0gICAg
+ICAgICAqIHJpZ2h0IFNFTGludXggY29udGV4dCBzZXQgKi8KKyAgICAgICAgaWYgKHNldHNv
+Y2tjcmVhdGVjb24oc2NvbikgPCAwKSB7CisgICAgICAgICAgICAgICAgbG9nX2Vycm9yKCJG
+YWlsZWQgdG8gc2V0IFNFTGludXggY29udGV4dCAoJXMpIG9uIHNvY2tldDoiLCBzY29uKTsK
+KyAgICAgICAgICAgICAgICBpZiAoc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID09IDEpIHsKKyAg
+ICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAtZXJybm87CisgICAgICAgICAgICAgICAg
+fQorICAgICAgICB9CiAKICAgICAgICAgaWYgKChmZCA9IHNvY2tldChzb2NrZXRfYWRkcmVz
+c19mYW1pbHkoYSksIGEtPnR5cGUgfCBTT0NLX05PTkJMT0NLIHwgU09DS19DTE9FWEVDLCAw
+KSkgPCAwKQogICAgICAgICAgICAgICAgIHJldHVybiAtZXJybm87CmRpZmYgLS1naXQgYS9z
+cmMvc29ja2V0LXV0aWwuaCBiL3NyYy9zb2NrZXQtdXRpbC5oCmluZGV4IDY4YzU3OWIuLjg0
+MTU3MGYgMTAwNjQ0Ci0tLSBhL3NyYy9zb2NrZXQtdXRpbC5oCisrKyBiL3NyYy9zb2NrZXQt
+dXRpbC5oCkBAIC0yNiw2ICsyNiw3IEBACiAjaW5jbHVkZSA8bmV0aW5ldC9pbi5oPgogI2lu
+Y2x1ZGUgPHN5cy91bi5oPgogI2luY2x1ZGUgPG5ldC9pZi5oPgorI2luY2x1ZGUgPHNlbGlu
+dXgvc2VsaW51eC5oPgogCiAjaW5jbHVkZSAibWFjcm8uaCIKICNpbmNsdWRlICJ1dGlsLmgi
+CkBAIC03MSw3ICs3Miw3IEBAIGludCBzb2NrZXRfYWRkcmVzc19saXN0ZW4oCiAgICAgICAg
+ICAgICAgICAgYm9vbCBmcmVlX2JpbmQsCiAgICAgICAgICAgICAgICAgbW9kZV90IGRpcmVj
+dG9yeV9tb2RlLAogICAgICAgICAgICAgICAgIG1vZGVfdCBzb2NrZXRfbW9kZSwKLSAgICAg
+ICAgICAgICAgICAvKiBGSVhNRSBTRUxJTlVYOiBwYXNzIFNFTGludXggY29udGV4dCBvYmpl
+Y3QgaGVyZSAqLworICAgICAgICAgICAgICAgIHNlY3VyaXR5X2NvbnRleHRfdCBzY29uLAog
+ICAgICAgICAgICAgICAgIGludCAqcmV0KTsKIAogYm9vbCBzb2NrZXRfYWRkcmVzc19pcyhj
+b25zdCBTb2NrZXRBZGRyZXNzICphLCBjb25zdCBjaGFyICpzLCBpbnQgdHlwZSk7CmRpZmYg
+LS1naXQgYS9zcmMvc29ja2V0LmMgYi9zcmMvc29ja2V0LmMKaW5kZXggYjA2YmEwOS4uMjgx
+NmRlNCAxMDA2NDQKLS0tIGEvc3JjL3NvY2tldC5jCisrKyBiL3NyYy9zb2NrZXQuYwpAQCAt
+MjcsNiArMjcsNyBAQAogI2luY2x1ZGUgPHN5cy9lcG9sbC5oPgogI2luY2x1ZGUgPHNpZ25h
+bC5oPgogI2luY2x1ZGUgPGFycGEvaW5ldC5oPgorI2luY2x1ZGUgPHNlbGludXgvc2VsaW51
+eC5oPgogCiAjaW5jbHVkZSAidW5pdC5oIgogI2luY2x1ZGUgInNvY2tldC5oIgpAQCAtNjQy
+LDI0ICs2NDMsODYgQEAgc3RhdGljIHZvaWQgc29ja2V0X2FwcGx5X2ZpZm9fb3B0aW9ucyhT
+b2NrZXQgKnMsIGludCBmZCkgewogICAgICAgICAgICAgICAgICAgICAgICAgbG9nX3dhcm5p
+bmcoIkZfU0VUUElQRV9TWjogJW0iKTsKIH0KIAorc3RhdGljIGludCBzZWxpbnV4X2dldGNv
+bmZyb21leGUoCisgICAgICAgIGNvbnN0IGNoYXIgKmV4ZSwgCisgICAgICAgIHNlY3VyaXR5
+X2NvbnRleHRfdCAqbmV3Y29uKSB7CisKKyAgICAgICAgc2VjdXJpdHlfY29udGV4dF90IG15
+Y29uID0gTlVMTCwgZmNvbiA9IE5VTEw7CisgICAgICAgIHNlY3VyaXR5X2NsYXNzX3Qgc2Ns
+YXNzOworICAgICAgICBpbnQgciA9IDA7CisKKyAgICAgICAgciA9IGdldGNvbigmbXljb24p
+OworICAgICAgICBpZiAociA8IDApIAorICAgICAgICAgICAgICAgIGdvdG8gZmFpbDsKKwor
+CXIgPSBnZXRmaWxlY29uKGV4ZSwgJmZjb24pOworICAgICAgICBpZiAociA8IDApIAorICAg
+ICAgICAgICAgICAgIGdvdG8gZmFpbDsKKworICAgICAgICBzY2xhc3MgPSBzdHJpbmdfdG9f
+c2VjdXJpdHlfY2xhc3MoInByb2Nlc3MiKTsKKyAgICAgICAgciA9IHNlY3VyaXR5X2NvbXB1
+dGVfY3JlYXRlKG15Y29uLCBmY29uLCBzY2xhc3MsIG5ld2Nvbik7CisKK2ZhaWw6CisgICAg
+ICAgIGlmIChyIDwgMCkgCisJCXIgPSAtZXJybm87CisKKyAgICAgICAgZnJlZWNvbihteWNv
+bik7CisgICAgICAgIGZyZWVjb24oZmNvbik7CisgICAgICAgIHJldHVybiByOworfQorCitz
+dGF0aWMgaW50IHNlbGludXhfZ2V0ZmlsZWNvbmZyb21wYXRoKAorICAgICAgICBjb25zdCBz
+ZWN1cml0eV9jb250ZXh0X3Qgc2NvbiwgCisgICAgICAgIGNvbnN0IGNoYXIgKnBhdGgsIAor
+ICAgICAgICBjb25zdCBjaGFyICpjbGFzcywgCisgICAgICAgIHNlY3VyaXR5X2NvbnRleHRf
+dCAqZmNvbikgeworCisgICAgICAgIHNlY3VyaXR5X2NvbnRleHRfdCBkaXJfY29uID0gTlVM
+TDsKKyAgICAgICAgc2VjdXJpdHlfY2xhc3NfdCBzY2xhc3M7CisgICAgICAgIGludCByID0g
+MDsKKworICAgICAgICByID0gZ2V0ZmlsZWNvbihwYXRoLCAmZGlyX2Nvbik7CisgICAgICAg
+IGlmIChyID49IDApIHsKKyAgICAgICAgICAgICAgICByID0gLTE7CisgICAgICAgICAgICAg
+ICAgaWYgKChzY2xhc3MgPSBzdHJpbmdfdG9fc2VjdXJpdHlfY2xhc3MoY2xhc3MpKSAhPSAw
+KQorICAgICAgICAgICAgICAgICAgICAgICAgciA9IHNlY3VyaXR5X2NvbXB1dGVfY3JlYXRl
+KHNjb24sIGRpcl9jb24sIHNjbGFzcywgZmNvbik7CisgICAgICAgIH0KKyAgICAgICAgaWYg
+KHIgPCAwKSAKKyAgICAgICAgICAgICAgICByID0gLWVycm5vOworCisgICAgICAgIGZyZWVj
+b24oZGlyX2Nvbik7CisgICAgICAgIHJldHVybiByOworfQorCiBzdGF0aWMgaW50IGZpZm9f
+YWRkcmVzc19jcmVhdGUoCiAgICAgICAgICAgICAgICAgY29uc3QgY2hhciAqcGF0aCwKICAg
+ICAgICAgICAgICAgICBtb2RlX3QgZGlyZWN0b3J5X21vZGUsCiAgICAgICAgICAgICAgICAg
+bW9kZV90IHNvY2tldF9tb2RlLAotICAgICAgICAgICAgICAgIC8qIEZJWE1FIFNFTElOVVg6
+IHBhc3MgU0VMaW51eCBjb250ZXh0IG9iamVjdCBoZXJlICovCisgICAgICAgICAgICAgICAg
+c2VjdXJpdHlfY29udGV4dF90IHNjb24sCiAgICAgICAgICAgICAgICAgaW50ICpfZmQpIHsK
+IAotICAgICAgICBpbnQgZmQgPSAtMSwgcjsKKyAgICAgICAgaW50IGZkID0gLTEsIHIgPSAw
+OwogICAgICAgICBzdHJ1Y3Qgc3RhdCBzdDsKICAgICAgICAgbW9kZV90IG9sZF9tYXNrOwor
+ICAgICAgICBzZWN1cml0eV9jb250ZXh0X3QgZmlsZWNvbiA9IE5VTEw7CiAKICAgICAgICAg
+YXNzZXJ0KHBhdGgpOwogICAgICAgICBhc3NlcnQoX2ZkKTsKIAogICAgICAgICBta2Rpcl9w
+YXJlbnRzKHBhdGgsIGRpcmVjdG9yeV9tb2RlKTsKIAotICAgICAgICAvKiBGSVhNRSBTRUxJ
+TlVYOiBUaGUgbWtmaWZvIGhlcmUgc2hvdWxkIGJlIGRvbmUgd2l0aAotICAgICAgICAgKiB0
+aGUgcmlnaHQgU0VMaW51eCBjb250ZXh0IHNldCAqLworICAgICAgICBpZiAoc2NvbiAmJiAo
+KHIgPSBzZWxpbnV4X2dldGZpbGVjb25mcm9tcGF0aChzY29uLCBwYXRoLCAiZmlmb19maWxl
+IiwgJmZpbGVjb24pKSAgPT0gMCkpIHsKKyAgICAgICAgICAgICAgICByID0gc2V0ZnNjcmVh
+dGVjb24oZmlsZWNvbik7CisgICAgICAgICAgICAgICAgaWYgKCByIDwgMCApIHsKKyAgICAg
+ICAgICAgICAgICAgICAgICAgIGxvZ19lcnJvcigiRmFpbGVkIHRvIHNldCBTRUxpbnV4IGZp
+bGUgY29udGV4dCAoJXMpIG9uICVzOiIsIHNjb24sIHBhdGgpOworICAgICAgICAgICAgICAg
+ICAgICAgICAgciA9IC1lcnJubzsKKyAgICAgICAgICAgICAgICB9CisKKyAgICAgICAgICAg
+ICAgICBmcmVlY29uKGZpbGVjb24pOworICAgICAgICB9CisKKyAgICAgICAgaWYgKCByIDwg
+MCAgJiYgc2VjdXJpdHlfZ2V0ZW5mb3JjZSgpID09IDEpIAorICAgICAgICAgICAgICAgIGdv
+dG8gZmFpbDsKIAogICAgICAgICAvKiBFbmZvcmNlIHRoZSByaWdodCBhY2Nlc3MgbW9kZSBm
+b3IgdGhlIGZpZm8gKi8KICAgICAgICAgb2xkX21hc2sgPSB1bWFzayh+IHNvY2tldF9tb2Rl
+KTsKQEAgLTY4MCw2ICs3NDMsOCBAQCBzdGF0aWMgaW50IGZpZm9fYWRkcmVzc19jcmVhdGUo
+CiAgICAgICAgICAgICAgICAgZ290byBmYWlsOwogICAgICAgICB9CiAKKyAgICAgICAgc2V0
+ZnNjcmVhdGVjb24oTlVMTCk7CisKICAgICAgICAgaWYgKGZzdGF0KGZkLCAmc3QpIDwgMCkg
+ewogICAgICAgICAgICAgICAgIHIgPSAtZXJybm87CiAgICAgICAgICAgICAgICAgZ290byBm
+YWlsOwpAQCAtNjk4LDYgKzc2Myw3IEBAIHN0YXRpYyBpbnQgZmlmb19hZGRyZXNzX2NyZWF0
+ZSgKICAgICAgICAgcmV0dXJuIDA7CiAKIGZhaWw6CisgICAgICAgIHNldGZzY3JlYXRlY29u
+KE5VTEwpOwogICAgICAgICBpZiAoZmQgPj0gMCkKICAgICAgICAgICAgICAgICBjbG9zZV9u
+b2ludHJfbm9mYWlsKGZkKTsKIApAQCAtNzA3LDYgKzc3Myw3IEBAIGZhaWw6CiBzdGF0aWMg
+aW50IHNvY2tldF9vcGVuX2ZkcyhTb2NrZXQgKnMpIHsKICAgICAgICAgU29ja2V0UG9ydCAq
+cDsKICAgICAgICAgaW50IHI7CisgICAgICAgIHNlY3VyaXR5X2NvbnRleHRfdCBzY29uID0g
+TlVMTDsKIAogICAgICAgICBhc3NlcnQocyk7CiAKQEAgLTcyNiw2ICs3OTMsMTMgQEAgc3Rh
+dGljIGludCBzb2NrZXRfb3Blbl9mZHMoU29ja2V0ICpzKSB7CiAgICAgICAgICAgICAgICAg
+ICBzLT5zZXJ2aWNlLT5leGVjX2NvbW1hbmRbU0VSVklDRV9FWEVDX1NUQVJUXS0+cGF0aCk7
+CiAgICAgICAgICovCiAKKyAgICAgICAgaWYgKHNlbGludXhfZ2V0Y29uZnJvbWV4ZShzLT5z
+ZXJ2aWNlLT5leGVjX2NvbW1hbmRbU0VSVklDRV9FWEVDX1NUQVJUXS0+cGF0aCwgJnNjb24p
+IDwgMCkgeworICAgICAgICAgICAgICAgIGxvZ19lcnJvcigiRmFpbGVkIHRvIGdldCBTRUxp
+bnV4IGV4ZWMgY29udGV4dCBmb3IgJXMgXG4iLCBzLT5zZXJ2aWNlLT5leGVjX2NvbW1hbmRb
+U0VSVklDRV9FWEVDX1NUQVJUXS0+cGF0aCk7CisgICAgICAgICAgICAgICAgaWYgKHNlY3Vy
+aXR5X2dldGVuZm9yY2UoKSA9PSAxKQorICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJu
+IC1lcnJubzsKKyAgICAgICAgfQorCisgICAgICAgIGxvZ19kZWJ1ZygiU0VMaW51eCBTb2Nr
+ZXQgY29udGV4dCBmb3IgJXMgc2V0IHRvICVzXG4iLCBzLT5zZXJ2aWNlLT5leGVjX2NvbW1h
+bmRbU0VSVklDRV9FWEVDX1NUQVJUXS0+cGF0aCwgc2Nvbik7CiAgICAgICAgIExJU1RfRk9S
+RUFDSChwb3J0LCBwLCBzLT5wb3J0cykgewogCiAgICAgICAgICAgICAgICAgaWYgKHAtPmZk
+ID49IDApCkBAIC03NDEsNyArODE1LDcgQEAgc3RhdGljIGludCBzb2NrZXRfb3Blbl9mZHMo
+U29ja2V0ICpzKSB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBzLT5mcmVlX2JpbmQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBzLT5kaXJlY3RvcnlfbW9kZSwKICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHMtPnNvY2tldF9tb2RlLAotICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLyogRklYTUUgU0VMSU5VWDogUGFzcyB0
+aGUgU0VMaW51eCBjb250ZXh0IG9iamVjdCBoZXJlICovCisgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBzY29uLCAKICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICZwLT5mZCkpIDwgMCkKICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgZ290byByb2xsYmFjazsKIApAQCAtNzUzLDcgKzgyNyw3IEBA
+IHN0YXRpYyBpbnQgc29ja2V0X29wZW5fZmRzKFNvY2tldCAqcykgewogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcC0+cGF0aCwKICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHMtPmRpcmVjdG9yeV9tb2RlLAog
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcy0+c29ja2V0
+X21vZGUsCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAv
+KiBGSVhNRSBTRUxJTlVYOiBQYXNzIHRoZSBTRUxpbnV4IGNvbnRleHQgb2JqZWN0IGhlcmUg
+Ki8KKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNjb24s
+IAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnAtPmZk
+KSkgPCAwKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIHJvbGxiYWNr
+OwogCkBAIC03NjMsMTAgKzgzNywxMiBAQCBzdGF0aWMgaW50IHNvY2tldF9vcGVuX2ZkcyhT
+b2NrZXQgKnMpIHsKICAgICAgICAgICAgICAgICAgICAgICAgIGFzc2VydF9ub3RfcmVhY2hl
+ZCgiVW5rbm93biBwb3J0IHR5cGUiKTsKICAgICAgICAgfQogCisgICAgICAgIGZyZWVjb24o
+c2Nvbik7CiAgICAgICAgIHJldHVybiAwOwogCiByb2xsYmFjazoKICAgICAgICAgc29ja2V0
+X2Nsb3NlX2ZkcyhzKTsKKyAgICAgICAgZnJlZWNvbihzY29uKTsKICAgICAgICAgcmV0dXJu
+IHI7CiB9CiAK
+--------------040007070409020607060501
+Content-Type: application/pgp-signature;
+ name="systemd-selinux.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="systemd-selinux.patch.sig"
+
+iEYEABECAAYFAkxIaHoACgkQrlYvE4MpobPGPwCglHwTg+XPkp3cigYEMe1Rs3cVPX0AnRy4
+8czt600rub2V4bqizMfEILnJ
+--------------040007070409020607060501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
