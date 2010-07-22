@@ -1,30 +1,24 @@
-Date: Fri, 23 Jul 2010 08:43:10 +1000 (EST)
+Date: Fri, 23 Jul 2010 08:51:42 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Dan Carpenter <error27@gmail.com>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
-Subject: Re: [patch 7/7 v2] selinux: fix error codes in symtab_init()
-In-Reply-To: <1279810428.11197.38.camel@moss-pluto.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.2.00.1007230842490.11399@tundra.namei.org>
-References: <20100612185739.GV5483@bicker> <1279810428.11197.38.camel@moss-pluto.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 1/2] SELinux: move genfs read to a separate function
+In-Reply-To: <20100721165057.5820.23176.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.1007230851290.11399@tundra.namei.org>
+References: <20100721165057.5820.23176.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 22 Jul 2010, Stephen Smalley wrote:
+On Wed, 21 Jul 2010, Eric Paris wrote:
 
-> On Sat, 2010-06-12 at 20:57 +0200, Dan Carpenter wrote:
-> > hashtab_create() only returns NULL on allocation failures to -ENOMEM is
-> > appropriate here.
-> > 
-> > Signed-off-by: Dan Carpenter <error27@gmail.com>
-> > Acked-by: Eric Paris <eparis@redhat.com>
+> move genfs read functionality out of policydb_read() and into a new
+> function called genfs_read()
 > 
-> Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
-> for the entire series.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-All applied to
+Applied to
 git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 -- 
