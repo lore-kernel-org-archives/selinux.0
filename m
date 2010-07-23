@@ -1,53 +1,77 @@
-Subject: Re: Memory leak question in avc_context_to_sid question
+Subject: Re: This is my first patch for systemd
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <5C0D2C82-5111-439D-8AAA-5FF17DD415F7@nall.com>
-References: <5C0D2C82-5111-439D-8AAA-5FF17DD415F7@nall.com>
+To: Kyle Moffett <kyle@moffetthome.net>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <AANLkTinBsvbjKR4RnRc7NkWUsHRFqVSw7haMnYyR=-mL@mail.gmail.com>
+References: <4C4837F2.1070806@redhat.com>
+	 <AANLkTinBsvbjKR4RnRc7NkWUsHRFqVSw7haMnYyR=-mL@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 23 Jul 2010 15:58:26 -0400
-Message-ID: <1279915106.32473.11.camel@moss-pluto.epoch.ncsc.mil>
+Date: Fri, 23 Jul 2010 16:05:03 -0400
+Message-ID: <1279915503.32473.18.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-07-22 at 16:18 -0500, Joe Nall wrote:
-> I have a snippet of code in a bigger class:
+On Thu, 2010-07-22 at 22:33 -0400, Kyle Moffett wrote:
+> On Thu, Jul 22, 2010 at 08:22, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > The patch does not handle, systemd creating the directories for the
+> > fifo_file.  In the future, their is talk of making /var/run a tmpfs file
+> > system.  This would mean systemd would create /var/run/mysqld/ before
+> > creating /var/run/mysqld/mysqld.socket.  Additional SELinux controls
+> > would have to be added to systemd to get this correct.  Not sure if the
+> > correct thing to do is at selabel or use
+> > selinux_getfileconfrompath(daemon, parentdir, "dir")
 > 
->         security_id_t sid = NULL, osid = NULL;
->         if (avc_context_to_sid(*thisContext, &sid) < 0 ||
->             avc_context_to_sid(*otherContext, &osid) < 0)
->             rlog(LOG_ERR, "%s: avc_context_to_sid failed: %m", process_name);
+> Hmm, one thing that I've been thinking about for a while now is a
+> policy extension to type transitions allowing a match against the
+> object name.
 > 
->         struct av_decision avd = {0,0,0,0,0};
->         int astat = avc_has_perm_noaudit(sid, osid, SECCLASS_FILE, FILE__READ, &avcref, &avd);
->         if (astat < 0 && errno != EACCES)
->             rlog(LOG_ERR, "%s: avc_has_perm_noaudit failed: %m", process_name);
+> So for example, assuming /var/run gets correctly labelled as var_run_t:
 > 
->         decision = (avd.allowed & FILE__READ) == FILE__READ;
->         if (sid)
->             sidput(sid);
->         if (osid)
->             sidput(osid);
->         dcache->put(hashKey, decision);
+> typename_transition systemd_t var_run_t:file "mysqld" mysql_var_run_t;
 > 
-> that valgrind says is leaking memory
-> 
-> ==3000== 25,470 bytes in 346 blocks are definitely lost in loss record 9 of 9
-> ==3000==    at 0x46DFAEE: malloc (vg_replace_malloc.c:207)
-> ==3000==    by 0x71670EF: strdup (in /lib/libc-2.9.so)
-> ==3000==    by 0x4826E14: (within /lib/libselinux.so.1)
-> ==3000==    by 0x4826F66: (within /lib/libselinux.so.1)
-> ==3000==    by 0x4824B2A: avc_context_to_sid_raw (in /lib/libselinux.so.1)
-> ==3000==    by 0x4824C03: avc_context_to_sid (in /lib/libselinux.so.1)
-> ...
-> 
-> am I missing a cleanup call somewhere? This is a fairly old libselinux (2.0.79-4) on a patched up Fedora 10.
+> If some form of globbing or patterns was added, this could in theory
+> even replace the current file_contexts file with a big list of
+> named_type_transitions in the policy.  Admittedly it could potentially
+> make the policy larger, but I believe with careful encoding and
+> compression it would be a net reduction in the size of
+> /etc/selinux/$POLICYNAME/ (since the plain-text highly-repetitive
+> file_contexts would go away).
 
-I couldn't seem to reproduce with the current libselinux.  Note however
-that reference counted SIDs were dropped in libselinux 2.0.86 (commit
-58866dd5668e845fd1cc0f62ae8dd4b93d9caf2b), with avc_cleanup(), sidput(),
-and sidget() reduced to no-ops.
+I don't think so.  The file_contexts configuration is for the initial
+assignment of filesystem labeling state by userspace, not for
+determining how files are labeled at runtime.  The file_contexts
+configuration would still be needed for applications like rpm and
+install in order to determine the right security context, even with an
+extended type_transition construct.  So this would not eliminate the
+need for file_contexts.
+
+We did previously discuss enabling type_transition rules to match on
+last component name, but the initial forays on linux-fsdevel on the
+necessary changes to pass down the name to the right function were shot
+down by the vfs folks IIRC.
+
+restorecond is your best bet if you can't make use of the existing type
+transition rules.
+
+> There are a few limitations that I can think of, though:
+> 
+>  * You could only match on whatever "name" field is available in the
+> security manager, not the full path, although with proper labels on
+> most of the path components this is not really an issue.
+> 
+>  * Since the name matching would need to be performed in the kernel,
+> there would be a very strict limit on the complexity of the pattern or
+> glob engine (probably NOT a bad thing :-D)
+> 
+> As an example of where this would be useful, you could automatically
+> assign separate labels to ".htpasswd" and ".htaccess" files created in
+> www-data directories to prevent compromised web applications from
+> creating, modifying, or even reading them.
+> 
+> Cheers,
+> Kyle Moffett
 
 -- 
 Stephen Smalley
