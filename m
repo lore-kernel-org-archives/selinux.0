@@ -5,8 +5,8 @@ Cc: SELinux <selinux@tycho.nsa.gov>
 In-Reply-To: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
 References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 23 Jul 2010 13:35:51 -0400
-Message-Id: <1279906551.8180.37.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 23 Jul 2010 13:46:34 -0400
+Message-Id: <1279907194.8180.40.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -26,13 +26,17 @@ On Fri, 2010-07-23 at 12:14 -0500, Xavier Toth wrote:
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
 
-I think the first question here is what is the fs name when you mount a
-fuse file system. We have an entry in policy that says fuse is genfscon
-fuse / gen_context(system_u:object_r:fusefs_t,s0). If every fuse file
-system appears to the kernel to be a fuse fs then you can't add a
-genfscon statement to your particular FS telling it to use xattrs. This
-might be a use for the native labeling file system code we've been
-working on for labeled NFS.
+Since I'm unclear about the internals of fuse this might be a completely
+wrong idea but another thing that could be tried is having mount take
+the filesystem name from the fuse mount command (looks like its at the
+beginning of the device portion of the fstab entry) and have SELinux
+query the policy for that fs name and do labeling based on that. One
+issue I can see with this is if fuse shares a single superblock for all
+of the fuse mounts inside the kernel and relies on the userspace
+component to actually do the separation of the requests this could be a
+problem.
+
+Dave
 
 
 --
