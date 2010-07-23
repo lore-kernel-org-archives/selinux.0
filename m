@@ -1,234 +1,101 @@
-Message-ID: <4C49A225.3000406@redhat.com>
-Date: Fri, 23 Jul 2010 10:07:33 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH 1/5] vfs: re-introduce MAY_CHDIR
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Date: Fri, 23 Jul 2010 11:43:51 -0400
+Message-ID: <20100723154351.13217.85595.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Subject: Second patch on systemd.
-Content-Type: multipart/mixed;
- boundary="------------040002010508080304000402"
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040002010508080304000402
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Currently MAY_ACCESS means that filesystems must check the permissions
+right then and not rely on cached results or the results of future
+operations on the object.  This can be because of a call to sys_access() or
+because of a call to chdir() which needs to check search without relying on
+any future operations inside that dir.  I plan to use MAY_ACCESS for other
+purposes in the security system, so I split the MAY_ACCESS and the
+MAY_CHDIR cases.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-This one is intended to handle labeling of directories if they do not
-exist. As well as add use_selinux() function to determine is selinux is
-enabled, and not do stuff if it is disabled.
+ fs/fuse/dir.c      |    2 +-
+ fs/nfs/dir.c       |    2 +-
+ fs/open.c          |    6 +++---
+ include/linux/fs.h |    1 +
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 3978a42..c9627c9 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1016,7 +1016,7 @@ static int fuse_permission(struct inode *inode, int mask)
+ 		   exist.  So if permissions are revoked this won't be
+ 		   noticed immediately, only after the attribute
+ 		   timeout has expired */
+-	} else if (mask & MAY_ACCESS) {
++	} else if (mask & (MAY_ACCESS | MAY_CHDIR)) {
+ 		err = fuse_access(inode, mask);
+ 	} else if ((mask & MAY_EXEC) && S_ISREG(inode->i_mode)) {
+ 		if (!(inode->i_mode & S_IXUGO)) {
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index e60416d..832e9e2 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1953,7 +1953,7 @@ int nfs_permission(struct inode *inode, int mask)
+ 	if ((mask & (MAY_READ | MAY_WRITE | MAY_EXEC)) == 0)
+ 		goto out;
+ 	/* Is this sys_access() ? */
+-	if (mask & MAY_ACCESS)
++	if (mask & (MAY_ACCESS | MAY_CHDIR))
+ 		goto force_lookup;
+ 
+ 	switch (inode->i_mode & S_IFMT) {
+diff --git a/fs/open.c b/fs/open.c
+index b25a74c..b715d06 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -367,7 +367,7 @@ SYSCALL_DEFINE1(chdir, const char __user *, filename)
+ 	if (error)
+ 		goto out;
+ 
+-	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+ 	if (error)
+ 		goto dput_and_out;
+ 
+@@ -396,7 +396,7 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
+ 	if (!S_ISDIR(inode->i_mode))
+ 		goto out_putf;
+ 
+-	error = inode_permission(inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(inode, MAY_EXEC | MAY_CHDIR);
+ 	if (!error)
+ 		set_fs_pwd(current->fs, &file->f_path);
+ out_putf:
+@@ -414,7 +414,7 @@ SYSCALL_DEFINE1(chroot, const char __user *, filename)
+ 	if (error)
+ 		goto out;
+ 
+-	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_ACCESS);
++	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+ 	if (error)
+ 		goto dput_and_out;
+ 
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 3ec49c2..f9c08f4 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -53,6 +53,7 @@ struct inodes_stat_t {
+ #define MAY_APPEND 8
+ #define MAY_ACCESS 16
+ #define MAY_OPEN 32
++#define MAY_CHDIR 64
+ 
+ /*
+  * flags in file.f_mode.  Note that FMODE_READ and FMODE_WRITE must correspond
 
-iEUEARECAAYFAkxJoiUACgkQrlYvE4MpobNa5wCg2/i63NszDUOvHyhmMdyNkkNE
-JLcAmMAyIHNFOUWNrBqEuM7JaxjleLU=
-=/UUh
------END PGP SIGNATURE-----
-
---------------040002010508080304000402
-Content-Type: text/plain;
- name="systemd-selinux2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="systemd-selinux2.patch"
-
-diff --git a/src/main.c b/src/main.c
-index 964bb9c..841caa5 100644
---- a/src/main.c
-+++ b/src/main.c
-@@ -31,6 +31,7 @@
- #include <signal.h>
- #include <sys/wait.h>
- #include <fcntl.h>
-+#include <selinux/selinux.h>
- 
- #include "manager.h"
- #include "log.h"
-@@ -857,6 +858,14 @@ int main(int argc, char *argv[]) {
-                 if (mount_setup() < 0)
-                         goto finish;
- 
-+	if (use_selinux()) {
-+		r = matchpathcon_init(NULL);
-+		if (r < 0 && security_getenforce() == 1) {
-+			log_error("Failed to initialize SELinux Context ");
-+			goto finish;
-+		}
-+	}
-+
-         /* Reset all signal handlers. */
-         assert_se(reset_all_signal_handlers() == 0);
- 
-@@ -1049,6 +1058,9 @@ int main(int argc, char *argv[]) {
-         }
- 
- finish:
-+	if (use_selinux())
-+		matchpathcon_fini();
-+
-         if (m)
-                 manager_free(m);
- 
-diff --git a/src/socket-util.c b/src/socket-util.c
-index 3a00fcf..3eea4f3 100644
---- a/src/socket-util.c
-+++ b/src/socket-util.c
-@@ -316,7 +316,7 @@ int socket_address_listen(
-         if ((r = socket_address_verify(a)) < 0)
-                 return r;
- 
--        if (setsockcreatecon(scon) < 0) {
-+        if (use_selinux() && setsockcreatecon(scon) < 0) {
-                 log_error("Failed to set SELinux context (%s) on socket: %m", scon);
-                 if (security_getenforce() == 1)
-                         return -errno;
-@@ -325,7 +325,8 @@ int socket_address_listen(
-         fd = socket(socket_address_family(a), a->type | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-         r = fd < 0 ? -errno : 0;
- 
--        setsockcreatecon(NULL);
-+	if (use_selinux())
-+		setsockcreatecon(NULL);
- 
-         if (r < 0)
-                 return r;
-diff --git a/src/socket.c b/src/socket.c
-index 82a9348..9a64317 100644
---- a/src/socket.c
-+++ b/src/socket.c
-@@ -711,8 +711,8 @@ static int fifo_address_create(
- 
-         mkdir_parents(path, directory_mode);
- 
--        if (scon) {
--                if (scon && ((r = selinux_getfileconfrompath(scon, path, "fifo_file", &filecon)) == 0)) {
-+        if (use_selinux() && scon) {
-+                if (((r = selinux_getfileconfrompath(scon, path, "fifo_file", &filecon)) == 0)) {
-                         r = setfscreatecon(filecon);
- 
-                         if (r < 0) {
-@@ -746,7 +746,8 @@ static int fifo_address_create(
-                 goto fail;
-         }
- 
--        setfscreatecon(NULL);
-+	if (use_selinux()) 
-+		setfscreatecon(NULL);
- 
-         if (fstat(fd, &st) < 0) {
-                 r = -errno;
-diff --git a/src/util.c b/src/util.c
-index da8a6c3..8a2fbbc 100644
---- a/src/util.c
-+++ b/src/util.c
-@@ -48,6 +48,7 @@
- #include <pwd.h>
- #include <netinet/ip.h>
- #include <linux/kd.h>
-+#include <selinux/selinux.h>
- 
- #include "macro.h"
- #include "util.h"
-@@ -56,6 +57,45 @@
- #include "log.h"
- #include "strv.h"
- 
-+static int use_selinux_ind = -1;
-+
-+inline int use_selinux(void) {
-+	if (use_selinux_ind == -1) 
-+		use_selinux_ind = (is_selinux_enabled() == 1);
-+	return use_selinux_ind;
-+}
-+
-+static int mkdir_selinux(
-+	const char *path, 
-+	mode_t mode) {
-+
-+	int r;
-+	security_context_t fcon = NULL;
-+
-+	if (use_selinux()) {
-+		r = matchpathcon(path, S_IFDIR, &fcon);
-+		if (r == 0) 
-+			r = setfscreatecon(fcon);
-+	
-+		if (r < 0) {
-+			log_error("Failed to set security context %s for %s", fcon, path);
-+		
-+			if (security_getenforce() == 1) 
-+				goto finish;
-+		}
-+	}
-+
-+	r = mkdir(path, mode);
-+
-+finish:
-+	if (use_selinux()) {
-+		setfscreatecon(NULL);
-+		freecon(fcon);
-+	}
-+
-+	return r;
-+}
-+
- bool streq_ptr(const char *a, const char *b) {
- 
-         /* Like streq(), but tries to make sense of NULL pointers */
-@@ -969,7 +1009,7 @@ char *file_in_same_dir(const char *path, const char *filename) {
- int safe_mkdir(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-         struct stat st;
- 
--        if (mkdir(path, mode) >= 0)
-+        if (mkdir_selinux(path, mode) >= 0)
-                 if (chmod_and_chown(path, mode, uid, gid) < 0)
-                         return -errno;
- 
-@@ -1012,7 +1052,7 @@ int mkdir_parents(const char *path, mode_t mode) {
-                 if (!(t = strndup(path, e - path)))
-                         return -ENOMEM;
- 
--                r = mkdir(t, mode);
-+                r = mkdir_selinux(t, mode);
-                 free(t);
- 
-                 if (r < 0 && errno != EEXIST)
-@@ -1028,7 +1068,7 @@ int mkdir_p(const char *path, mode_t mode) {
-         if ((r = mkdir_parents(path, mode)) < 0)
-                 return r;
- 
--        if (mkdir(path, mode) < 0 && errno != EEXIST)
-+        if (mkdir_selinux(path, mode) < 0 && errno != EEXIST)
-                 return -errno;
- 
-         return 0;
-diff --git a/src/util.h b/src/util.h
-index 782adb8..48cf7cd 100644
---- a/src/util.h
-+++ b/src/util.h
-@@ -360,4 +360,6 @@ int ip_tos_from_string(const char *s);
- const char *signal_to_string(int i);
- int signal_from_string(const char *s);
- 
-+int use_selinux(void);
-+
- #endif
-
---------------040002010508080304000402
-Content-Type: application/pgp-signature;
- name="systemd-selinux2.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="systemd-selinux2.patch.sig"
-
-iEYEABECAAYFAkxJoiUACgkQrlYvE4MpobN8vQCgrXskz2pIpjNeKZDl4bviF7H9yNIAn2b7
-Ogk0vwHqJxO28qwvFRTNpUtx
---------------040002010508080304000402--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
