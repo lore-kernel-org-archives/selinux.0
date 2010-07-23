@@ -5,8 +5,8 @@ Cc: SELinux <selinux@tycho.nsa.gov>
 In-Reply-To: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
 References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 23 Jul 2010 13:46:34 -0400
-Message-Id: <1279907194.8180.40.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 23 Jul 2010 14:32:47 -0400
+Message-Id: <1279909967.8180.43.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -26,15 +26,15 @@ On Fri, 2010-07-23 at 12:14 -0500, Xavier Toth wrote:
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
 
-Since I'm unclear about the internals of fuse this might be a completely
-wrong idea but another thing that could be tried is having mount take
-the filesystem name from the fuse mount command (looks like its at the
-beginning of the device portion of the fstab entry) and have SELinux
-query the policy for that fs name and do labeling based on that. One
-issue I can see with this is if fuse shares a single superblock for all
-of the fuse mounts inside the kernel and relies on the userspace
-component to actually do the separation of the requests this could be a
-problem.
+After a brief conversation with Steve more information has come up with
+respect to this. A while back Eric Paris had developed a patch to
+dynamically probe the file system's getxattr handler to determine if we
+can use xattr support on the file system for SELinux labels. The major
+stumbling block that Eric ran into was that he was experiencing
+deadlocks when using the code. Apparently there were and still might be
+locking issues between the fuse and SELinux code. I'm sure you could dig
+up Eric's old patch and try to forward port it to see if those locking
+issues still exist. 
 
 Dave
 
