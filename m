@@ -1,37 +1,149 @@
-Subject: Re: [PATCH 1/2] SELinux: allow userspace to read policy back out
- of the kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 26 Jul 2010 16:48:55 -0400
-Message-ID: <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <AANLkTimNxi1bOPQU1jrC6H--sCdX4Cm0PuNJZa4hNkwv@mail.gmail.com>
+References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
+	<1279909967.8180.43.camel@moss-terrapins.epoch.ncsc.mil>
+	<AANLkTiniFb1LjDJQRoc7zOVgD0FVXi=gBaxjusP36RZ3@mail.gmail.com>
+	<1279913697.32473.8.camel@moss-pluto.epoch.ncsc.mil>
+	<AANLkTi=CwucVcfRWN5Uk5=5HbVZRtuwVC6zW_w=_UEyH@mail.gmail.com>
+	<AANLkTimNxi1bOPQU1jrC6H--sCdX4Cm0PuNJZa4hNkwv@mail.gmail.com>
+Date: Mon, 26 Jul 2010 16:15:32 -0500
+Message-ID: <AANLkTik=NrTj2exhqJt012hYrRUmTy7kjZ6cRH+-OHR4@mail.gmail.com>
+Subject: Re: fuse and selinux don't seem to work well together
+From: Xavier Toth <txtoth@gmail.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-07-26 at 15:34 -0400, Eric Paris wrote:
-> There is interest in being able to see what the actual policy is that was
-> loaded into the kernel.  The patch creates a new selinuxfs file
-> /selinux/policy which can be read by userspace.  The actual policy that is
-> loaded into the kernel will be written back out to userspace.
+Pursuant to Steve's wishes to not require policy changes for new fuse
+filesystems that support xattrs:
 
-Can you clarify exactly how comparable the output is to the original
-policy file that was loaded?  Last time you mentioned range transition
-rules may be reordered, KaiGai mentioned that ebitmaps might not be
-identical after conversion (losing the original startbit), and Chris
-pointed out that sediff isn't sufficient for comparison as it doesn't
-yet handle constraints.
+On Sun, Jul 25, 2010 at 5:24 PM, Eric Paris <eparis@parisplace.org> wrote:
+> On Sun, Jul 25, 2010 at 11:14 AM, Xavier Toth <txtoth@gmail.com> wrote:
+>> On Fri, Jul 23, 2010 at 3:34 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On Fri, 2010-07-23 at 13:57 -0500, Xavier Toth wrote:
+>>>> On Fri, Jul 23, 2010 at 1:32 PM, David P. Quigley <dpquigl@tycho.nsa.gov> wrote:
+>>>> > On Fri, 2010-07-23 at 12:14 -0500, Xavier Toth wrote:
+>>>> >> I'm looking at building a fuse filesystem for polyinstantiated
+>>>> >> directories which could be used as a alternative to pam_namespace.
+>>>> >> I've noticed that my filesystem is never queried for the xattr
+>>>> >> security.selinux and that the file contexts are defaulting to a fuse
+>>>> >> file type. I've seen some list posting from 2004 related to this
+>>>> >> subject but not much else. Is this a bug or a feature?
+>>>> >>
+>>>> >> Ted
+>>>> >>
+>>>> >> --
+>>>> >> This message was distributed to subscribers of the selinux mailing list.
+>>>> >> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>>>> >> the words "unsubscribe selinux" without quotes as the message.
+>>>> >
+>>>> > After a brief conversation with Steve more information has come up with
+>>>> > respect to this. A while back Eric Paris had developed a patch to
+>>>> > dynamically probe the file system's getxattr handler to determine if we
+>>>> > can use xattr support on the file system for SELinux labels. The major
+>>>> > stumbling block that Eric ran into was that he was experiencing
+>>>> > deadlocks when using the code. Apparently there were and still might be
+>>>> > locking issues between the fuse and SELinux code. I'm sure you could dig
+>>>> > up Eric's old patch and try to forward port it to see if those locking
+>>>> > issues still exist.
+>>>> >
+>>>> > Dave
+>>>> >
+>>>> >
+>>>>
+>>>> Thanks I'll try and run down the patch and contact Eric. I'll report
+>>>> back if I can get this to work.
+>>>
+>>> Patch was posted here:
+>>> http://marc.info/?l=selinux&m=121379719014155&w=2
+>>>
+>>> This bug is relevant:
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=493565
+>>>
+>>> --
+>>> Stephen Smalley
+>>> National Security Agency
+>>>
+>>>
+>>
+>> I'm testing on FC13 which has equal to or greater than versions of the
+>> packages referenced in the bug report.
+>>
+>>
+>> For test purposes I patched my policy with:
+>>
+>> fs_use_xattr fuse.bbfs gen_context(system_u:object_r:fs_t,s0);
+>>
+>> Mount shows:
+>> /home/tedx/Downloads/fuse-tutorial/src/bbfs on /home/tedx/test type
+>> fuse.bbfs (rw,nosuid,nodev,user=tedx)
+>>
+>> I'm runnning kernel-debug but I don't see a "SELinux: initialized (dev
+>> " message for the fuse.bbfs type. Shouldn't the fusermount cause one
+>> of these messages to be generated?
+>>
+>> I do see fuse attempting to access the system.posix_acl_access and
+>> system.posix_acl_default:
+>> getxattr /Music system.posix_acl_access 0
+>>   unique: 174, error: -61 (No data available), outsize: 16
+>> unique: 175, opcode: GETXATTR (22), nodeid: 36, insize: 73
+>> getxattr /Music system.posix_acl_default 0
+>>   unique: 175, error: -61 (No data available), outsize: 16
+>>
+>> So fuse seems to be able to deal with xattrs.
+>>
+>> I'm pretty new to all of the pieces and could use a little help with
+>> figuring out where to focus my investigation. Is the fuse mounts
+>> superblock initializing its security structure properly?
+>
+> Fuse can deal with xattrs but only AFTER the fuse userspace program
+> believes the filesystem is mounted (and if the filesystem can handle
+> it).  My original patches didn't work, because I was calling getxattr
+> during the mount(2) syscall.  It gets even worse.  We had a 'bug' in
+> which the mount(8) program would call stat (or something like that) on
+> the root inode before it told the fuse userspace program the mount was
+> finished.  The audit system checked for file capabilities on the stat
+> call, which resulted in an xattr upcall, which resulted in a deadlock
+> because the fuse userspace wouldn't answer until the mount finished.
+> The 'fix' was to stop mount(8) from calling stat on fuse mounts.
 
+So is this past tense, there was a bug in mount(8) that has been addressed?
 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+>
+> The 'right' solution (I think) is going to be 2 parts.  First we need
+> to get more information in the superblock mounting.  I seem to recall
+> that the only information we had was that it was 'fuse.'  Not that is
+> was fuse mounting ntfs.
 
+It appear that the superblock contains s_type->name and s_subtype
+which should tell you that it is for example an fuse.ntfs mount.
 
--- 
-Stephen Smalley
-National Security Agency
+> After that we need to fix the other bug you
+> pointed out (and other bug I half worked on and you might be able to
+> find the patch in the archives somewhere)
+
+Sorry I'm not sure which bug you are referring to?
+http://marc.info/?l=selinux&m=121379719014155&w=2 appears to be your
+patch which I will look into applying.
+
+>
+> You cannot put fsuse in modules for a number of reasons today, but the
+> last problem i never solved was that of holding the genfs context in a
+> module.  We don't (as I recall) have a method to represent the MLS
+> portion of a label in a module.  Once that is done (and I think to do
+> it you actually have to store it as a string and then fix it up at
+> link time) you can better handle fuse.  I keep telling myself I'm
+> going to look at this stuff again, but people stopped harassing me in
+> bugzilla so I never did.....
+>
+> -Eric
+>
+
+Ted
 
 
 --
