@@ -1,63 +1,109 @@
-Subject: Re: fuse and selinux don't seem to work well together
 From: Eric Paris <eparis@redhat.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: merlin <merlin@countercultured.net>, Eric Paris
- <eparis@parisplace.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        "David P.
- Quigley" <dpquigl@tycho.nsa.gov>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <AANLkTin-e33oxHUVJ2wX92YmQou-pN5MR8kKTG7LMZEM@mail.gmail.com>
-References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
-	 <1279909967.8180.43.camel@moss-terrapins.epoch.ncsc.mil>
-	 <AANLkTiniFb1LjDJQRoc7zOVgD0FVXi=gBaxjusP36RZ3@mail.gmail.com>
-	 <1279913697.32473.8.camel@moss-pluto.epoch.ncsc.mil>
-	 <AANLkTi=CwucVcfRWN5Uk5=5HbVZRtuwVC6zW_w=_UEyH@mail.gmail.com>
-	 <AANLkTimNxi1bOPQU1jrC6H--sCdX4Cm0PuNJZa4hNkwv@mail.gmail.com>
-	 <4C4D0310.5040703@countercultured.net>
-	 <AANLkTin16BrQyNYAfbU95=0c3_R9uzPqqiORDz-Nrvu8@mail.gmail.com>
-	 <AANLkTin-e33oxHUVJ2wX92YmQou-pN5MR8kKTG7LMZEM@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 26 Jul 2010 14:30:35 -0400
-Message-ID: <1280169035.23427.43.camel@localhost>
-Mime-Version: 1.0
+Subject: [PATCH 2/2] selinux: implement mmap on /selinux/policy
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Date: Mon, 26 Jul 2010 15:34:14 -0400
+Message-ID: <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
+References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-07-26 at 13:13 -0500, Xavier Toth wrote:
-> On Mon, Jul 26, 2010 at 8:44 AM, Xavier Toth <txtoth@gmail.com> wrote:
-> > On Sun, Jul 25, 2010 at 10:37 PM, merlin <merlin@countercultured.net> wrote:
+/selinux/policy allows a user to copy the policy back out of the kernel.
+This patch allows userspace to actually mmap that file and use it directly.
 
-> >>> Fuse can deal with xattrs but only AFTER the fuse userspace program
-> >>> believes the filesystem is mounted (and if the filesystem can handle
-> >>> it).  My original patches didn't work, because I was calling getxattr
-> >>> during the mount(2) syscall.  It gets even worse.  We had a 'bug' in
-> >>> which the mount(8) program would call stat (or something like that) on
-> >>> the root inode before it told the fuse userspace program the mount was
-> >>> finished.  The audit system checked for file capabilities on the stat
-> >>> call, which resulted in an xattr upcall, which resulted in a deadlock
-> >>> because the fuse userspace wouldn't answer until the mount finished.
-> >>> The 'fix' was to stop mount(8) from calling stat on fuse mounts.
-> >>>
-> >>> The 'right' solution (I think) is going to be 2 parts.  First we need
-> >>> to get more information in the superblock mounting.  I seem to recall
-> >>> that the only information we had was that it was 'fuse.'
-> 
-> After looking at this for awhile it seems to me that fuse_get_sb needs
-> to call security_sb_set_mnt_opts get its superblock security structure
-> initialized especially for the case when I used the fs_use_xattrs in
-> policy.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-For most FS (everything but NFS referrals and submounts as I recall)
-this is supposed to get called via the
+ security/selinux/selinuxfs.c |   44 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 44 insertions(+), 0 deletions(-)
 
-vfs_kern_mount -> security_sb_kern_mount -> selinux_sb_kern_mount ->
-superblock_doinit -> selinux_set_mnt_opts
-
-call chain.  If fuse isn't calling security_sb_kern_mount I'd have to
-think something is wrong...
-
--Eric
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index e0c2bcf..864a74e 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -68,6 +68,8 @@ static int *bool_pending_values;
+ static struct dentry *class_dir;
+ static unsigned long last_class_ino;
+ 
++static char policy_opened;
++
+ /* global data for policy capabilities */
+ static struct dentry *policycap_dir;
+ 
+@@ -315,11 +317,23 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
+ 	if (rc)
+ 		goto err;
+ 
++	if (policy_opened) {
++		mutex_unlock(&sel_mutex);
++		return -EBUSY;
++	}
++	policy_opened = 1;
++
+ 	rc = -ENOMEM;
+ 	plm = kzalloc(sizeof(*plm), GFP_KERNEL);
+ 	if (!plm)
+ 		goto err;
+ 
++	if (i_size_read(inode) != security_policydb_len()) {
++		mutex_lock(&inode->i_mutex);
++		i_size_write(inode, security_policydb_len());
++		mutex_unlock(&inode->i_mutex);
++	}
++
+ 	rc = security_read_policy(&plm->data, &plm->len);
+ 	if (rc)
+ 		goto err;
+@@ -344,6 +358,8 @@ static int sel_release_policy(struct inode *inode, struct file *filp)
+ 
+ 	BUG_ON(!plm);
+ 
++	policy_opened = 0;
++
+ 	vfree(plm->data);
+ 	kfree(plm);
+ 
+@@ -381,9 +397,37 @@ out:
+ 	return ret;
+ }
+ 
++static int sel_mmap_policy(struct file *filp, struct vm_area_struct *vma)
++{
++	int ret;
++	long length = vma->vm_end - vma->vm_start;
++	unsigned long start = vma->vm_start;
++	struct policy_load_memory *plm = filp->private_data;
++	char *pos = plm->data;
++	unsigned long pfn;
++
++	if (vma->vm_pgoff != 0)
++		return -EIO;
++
++	if (length > roundup(plm->len, PAGE_SIZE))
++		return -EIO;
++
++	while (length > 0) {
++		pfn = vmalloc_to_pfn(pos);
++		ret = remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED);
++		if (ret)
++			return ret;
++		start += PAGE_SIZE;
++		pos += PAGE_SIZE;
++		length -= PAGE_SIZE;
++	}
++	return 0;
++}
++
+ static const struct file_operations sel_policy_ops = {
+ 	.open		= sel_open_policy,
+ 	.read		= sel_read_policy,
++	.mmap		= sel_mmap_policy,
+ 	.release	= sel_release_policy,
+ };
+ 
 
 
 --
