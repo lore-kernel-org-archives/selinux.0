@@ -1,41 +1,88 @@
 Subject: Re: fuse and selinux don't seem to work well together
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <AANLkTik=NrTj2exhqJt012hYrRUmTy7kjZ6cRH+-OHR4@mail.gmail.com>
+From: Eric Paris <eparis@redhat.com>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Cc: Xavier Toth <txtoth@gmail.com>, Eric Paris <eparis@parisplace.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1280176276.2673.34.camel@moss-terrapins.epoch.ncsc.mil>
 References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
 	 <1279909967.8180.43.camel@moss-terrapins.epoch.ncsc.mil>
 	 <AANLkTiniFb1LjDJQRoc7zOVgD0FVXi=gBaxjusP36RZ3@mail.gmail.com>
 	 <1279913697.32473.8.camel@moss-pluto.epoch.ncsc.mil>
 	 <AANLkTi=CwucVcfRWN5Uk5=5HbVZRtuwVC6zW_w=_UEyH@mail.gmail.com>
 	 <AANLkTimNxi1bOPQU1jrC6H--sCdX4Cm0PuNJZa4hNkwv@mail.gmail.com>
-	 <AANLkTik=NrTj2exhqJt012hYrRUmTy7kjZ6cRH+-OHR4@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 26 Jul 2010 17:10:03 -0400
-Message-Id: <1280178603.2673.37.camel@moss-terrapins.epoch.ncsc.mil>
+	 <4C4D0310.5040703@countercultured.net>
+	 <AANLkTin16BrQyNYAfbU95=0c3_R9uzPqqiORDz-Nrvu8@mail.gmail.com>
+	 <1280172135.2673.30.camel@moss-terrapins.epoch.ncsc.mil>
+	 <AANLkTi=A=cSctYqD+5f_J55JZ-5+wrDmPf0fdnbkBVC9@mail.gmail.com>
+	 <1280176276.2673.34.camel@moss-terrapins.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 26 Jul 2010 17:23:09 -0400
+Message-ID: <1280179389.23427.83.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-07-26 at 16:15 -0500, Xavier Toth wrote:
-> Pursuant to Steve's wishes to not require policy changes for new fuse
-> filesystems that support xattrs:
+On Mon, 2010-07-26 at 16:31 -0400, David P. Quigley wrote:
+> On Mon, 2010-07-26 at 15:22 -0500, Xavier Toth wrote:
+> > On Mon, Jul 26, 2010 at 2:22 PM, David P. Quigley <dpquigl@tycho.nsa.gov> wrote:
+> > > Ok so looking through the code briefly this is what happens with respect
+> > > to the fstype for fuse. In the user space mount programs for fuse it
+> > > handles all of the parsing of the source string to grab the fuse fs type
+> > > out of it. It then crafts an FS type fuse.<subname> which is sent to the
+> > > kernel. The creation of the daemon to handle the requests is done in
+> > > user space and then it calls open on /dev/fuse. This grabs a new file
+> > > descriptor which the kernel uses as its communications channel to the
+> > > user space library and this FD is passed with the mount command.
+> > >
+> > > Now here is where my understanding gets a little foggy but hopefully it
+> > > will help. Looking at the file_system_type structure for the fuse fs
+> > > type it has a flag called FS_HAS_SUBTYPE. Looking closely do_kern_mount
+> > > does two things to the fs_type string. First it will call get_fs_type
+> > > which pulls off the subtype leaving the base type. This is passed into
+> > > vfs_kernel_mount to be processed. After it calls vfs_kern_mount it then
+> > > checks if fs_flags has FS_HAS_SUBTYPE set and if it does calls
+> > > fs_set_subtype. This strips the first part of the name off and sets the
+> > > s_subtype field in the superblock. When the name finally arrives at
+> > > selinux_set_mnt_opts the file system name is fuse. This gets passed into
+> > > security_fs_use at some point to determine the labeling type for the
+> > > file system and grabs the entry in the policy db for fuse and uses that.
+> > > So having the fuse code call security_set_mnt_opts earlier isn't a good
+> > > idea.
+> > >
+> > > Now if you want to attempt to use the subtype in a fsuse statement we
+> > > need to set the subtype before calling vfs_kern_mount. I'm not sure if
+> > > this is allowed so something else might have to be done instead. I hope
+> > > this clears some things up for you.
+> > >
+> > > Dave
+> > >
+> > >
+> > 
+> > If I understand you're saying that the superblock file_system_type
+> > name needs to be type.subtype when it get to selinux_set_mnt_opts for
+> > security_fs_use to find the policy I've configured?
+> > 
+> > Ted
 > 
-<Snip>
-> >
-> > The 'right' solution (I think) is going to be 2 parts.  First we need
-> > to get more information in the superblock mounting.  I seem to recall
-> > that the only information we had was that it was 'fuse.'  Not that is
-> > was fuse mounting ntfs.
-> 
-> It appear that the superblock contains s_type->name and s_subtype
-> which should tell you that it is for example an fuse.ntfs mount.
+> That would be true if you wanted to write rules like
+> fs_use_xattr(fuse.sshfs....) Steve seems to think a better plan is to
+> take Eric's patch and see if we can resolve the deadlock issues. This
+> way if you add a file system in the future that uses xattrs you don't
+> have to add a new entry to the policy.
 
-The is true but as my earlier email mentioned s_subtype isn't set when
-we need it to be. This is set after the vfs_do_kern_mnt call (or whateve
-it was called). get_fs_type will grab fuse from fuse.ntfs and
-get_fs_subtype will grab the ntfs portion of the fstype.
+I'm not sure how the deadlock issues can be 'solved.'  The fuse people
+have repeatedly stated that until mount(8) (not even mount (2)) is
+finished it is illegal to call call getxattr() and they have every right
+to deadlock.  They will not budge on this position.
+
+The only possibility I can think of is to extend fuse such that the
+support of xattrs is known during mount(2).   No idea what that would
+look like.
+
+I believe that my autodetection patch is dead in the water with fuse as
+it stands today....
+
+-Eric
 
 
 --
