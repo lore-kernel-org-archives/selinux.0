@@ -1,101 +1,128 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6RGPPWv027571
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 12:25:30 -0400
-Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6RGPX02005701
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 16:25:33 GMT
-Received: by ewy19 with SMTP id 19so1620854ewy.12
-        for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 09:25:28 -0700 (PDT)
-Date: Tue, 27 Jul 2010 18:25:23 +0200
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: help with a compiled policy and port 443
-Message-ID: <20100727162522.GB10237@localhost.localdomain>
-References: <4C4DF495.3000704@gmail.com>
- <1280241091.2673.51.camel@moss-terrapins.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p4qYPpj5QlsIQJ0K"
-In-Reply-To: <1280241091.2673.51.camel@moss-terrapins.epoch.ncsc.mil>
+Subject: Re: [PATCH 2/2] selinux: implement mmap on /selinux/policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
+References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
+	 <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 27 Jul 2010 12:47:51 -0400
+Message-ID: <1280249271.4789.61.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2010-07-26 at 15:34 -0400, Eric Paris wrote:
+> /selinux/policy allows a user to copy the policy back out of the kernel.
+> This patch allows userspace to actually mmap that file and use it directly.
 
---p4qYPpj5QlsIQJ0K
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+# checkpolicy -b /selinux/policy
+checkpolicy:  loading policy configuration from /selinux/policy
+Can't map '/selinux/policy':  Invalid argument
 
-On Tue, Jul 27, 2010 at 10:31:31AM -0400, David P. Quigley wrote:
-> On Mon, 2010-07-26 at 16:48 -0400, Ralph Blach wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >=20
-> > good afternoon,
-> > I happen to be a novice at selinux and wish more familiar with it.
-> >=20
-> > This worked before but it does not work now.
-> >=20
-> > I wish to put ssh on port 443
-> >=20
-> > Before I used the commands
-> >=20
-> >=20
-> > semanage port -d -t http_port_t -p tcp 443
-> > semanage port -a -t sshd_port_t -p tcp 443
-> >=20
-> > and these worked perfectly.
-> >=20
-> > Now I get the error
-> >=20
-> > semanage port -d -t http_port_t -p tcp 443
-> > /usr/sbin/semanage: Port tcp/443 is defined in policy, cannot be deleted
-> > [root@chipblach ~]#
-> >=20
-> >=20
-> > How do I get around this and and get semanage to function?
-> >=20
-> >=20
-> > what is a defined policy and how I edit it?
-> >=20
-> > Thanks
-> >=20
->=20
-> what I did was semanage port -m -t ssh_port_t -p tcp 443 and it added
-> 443 to the list of ports for ssh_port_t. The issue is that 443 is still
-> listed under the ports for http_port_t as well. If I remember correctly
-> it should take the last change made as the label for the port. So even
-> though it says 443 for http_port_t it will match the entry for
-> ssh_port_t.
+# strace checkpolicy -b /selinux/policy
+...
+open("/selinux/policy", O_RDONLY)       = 3
+fstat(3, {st_mode=S_IFREG|0400, st_size=5720516, ...}) = 0
+mmap(NULL, 5720516, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = -1 EINVAL
+(Invalid argument)
 
-I do not think it works like that but i could be wrong. tcp 443 is defined =
-in policy for httpd_t.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
+> 
+>  security/selinux/selinuxfs.c |   44 ++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 44 insertions(+), 0 deletions(-)
+> 
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index e0c2bcf..864a74e 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -68,6 +68,8 @@ static int *bool_pending_values;
+>  static struct dentry *class_dir;
+>  static unsigned long last_class_ino;
+>  
+> +static char policy_opened;
+> +
+>  /* global data for policy capabilities */
+>  static struct dentry *policycap_dir;
+>  
+> @@ -315,11 +317,23 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
+>  	if (rc)
+>  		goto err;
+>  
+> +	if (policy_opened) {
+> +		mutex_unlock(&sel_mutex);
+> +		return -EBUSY;
+> +	}
+> +	policy_opened = 1;
+> +
+>  	rc = -ENOMEM;
+>  	plm = kzalloc(sizeof(*plm), GFP_KERNEL);
+>  	if (!plm)
+>  		goto err;
+>  
+> +	if (i_size_read(inode) != security_policydb_len()) {
+> +		mutex_lock(&inode->i_mutex);
+> +		i_size_write(inode, security_policydb_len());
+> +		mutex_unlock(&inode->i_mutex);
+> +	}
+> +
+>  	rc = security_read_policy(&plm->data, &plm->len);
+>  	if (rc)
+>  		goto err;
+> @@ -344,6 +358,8 @@ static int sel_release_policy(struct inode *inode, struct file *filp)
+>  
+>  	BUG_ON(!plm);
+>  
+> +	policy_opened = 0;
+> +
+>  	vfree(plm->data);
+>  	kfree(plm);
+>  
+> @@ -381,9 +397,37 @@ out:
+>  	return ret;
+>  }
+>  
+> +static int sel_mmap_policy(struct file *filp, struct vm_area_struct *vma)
+> +{
+> +	int ret;
+> +	long length = vma->vm_end - vma->vm_start;
+> +	unsigned long start = vma->vm_start;
+> +	struct policy_load_memory *plm = filp->private_data;
+> +	char *pos = plm->data;
+> +	unsigned long pfn;
+> +
+> +	if (vma->vm_pgoff != 0)
+> +		return -EIO;
+> +
+> +	if (length > roundup(plm->len, PAGE_SIZE))
+> +		return -EIO;
+> +
+> +	while (length > 0) {
+> +		pfn = vmalloc_to_pfn(pos);
+> +		ret = remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED);
+> +		if (ret)
+> +			return ret;
+> +		start += PAGE_SIZE;
+> +		pos += PAGE_SIZE;
+> +		length -= PAGE_SIZE;
+> +	}
+> +	return 0;
+> +}
+> +
+>  static const struct file_operations sel_policy_ops = {
+>  	.open		= sel_open_policy,
+>  	.read		= sel_read_policy,
+> +	.mmap		= sel_mmap_policy,
+>  	.release	= sel_release_policy,
+>  };
+>  
 
-What you could do it use audit2allow to allow sshd to interact with http_po=
-rt_t instead.
->=20
-> Dave
->=20
->=20
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov =
-with
-> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
---p4qYPpj5QlsIQJ0K
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-
-iEYEARECAAYFAkxPCHIACgkQMlxVo39jgT8sbQCePpPeO3FrhwIaUUYqHq9CnnPe
-azYAnA49DcrVFYygrJ8ryllkuoSY1c7F
-=mefd
------END PGP SIGNATURE-----
-
---p4qYPpj5QlsIQJ0K--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
