@@ -1,74 +1,119 @@
-Subject: Re: ima-appraisal: CAP_MAC_ADMIN w/SELinux
+Subject: Re: This is my first patch for systemd
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+To: Kyle Moffett <kyle@moffetthome.net>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
         Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1280233718.19585.33.camel@localhost.localdomain>
-References: 
-	 <OF4AB3814C.68684AEB-ON8625771A.0055A68D-8625771A.00587153@us.ibm.com>
-	 <1273097271.11502.99.camel@localhost.localdomain>
-	 <1275272007.8204.0.camel@localhost.localdomain>
-	 <201006010935.15976.sgrubb@redhat.com>
-	 <1280233718.19585.33.camel@localhost.localdomain>
+In-Reply-To: <AANLkTimuQfYSm7oTROwLJEhb9sPMTJCZvEbHqTJodTav@mail.gmail.com>
+References: <4C4837F2.1070806@redhat.com>
+	 <AANLkTinBsvbjKR4RnRc7NkWUsHRFqVSw7haMnYyR=-mL@mail.gmail.com>
+	 <1279915503.32473.18.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTimuQfYSm7oTROwLJEhb9sPMTJCZvEbHqTJodTav@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 27 Jul 2010 09:04:57 -0400
-Message-ID: <1280235897.4789.11.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 27 Jul 2010 09:24:44 -0400
+Message-ID: <1280237084.4789.21.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-07-27 at 08:28 -0400, Mimi Zohar wrote:
-> I'm seeing some interesting behavior in ima_inode_setxattr() with an
-> SELinux targeted policy enabled. Unlike the definition for
-> CAP_SYS_ADMIN, CAP_MAC_ADMIN does not permit root to write extended
-> attributes. (Without SELinux enabled, root can write 'security.ima'.)
-> Is this the intended behavior?
+On Sat, 2010-07-24 at 01:13 -0400, Kyle Moffett wrote:
+> On Fri, Jul 23, 2010 at 16:05, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On Thu, 2010-07-22 at 22:33 -0400, Kyle Moffett wrote:
+> >> Hmm, one thing that I've been thinking about for a while now is a
+> >> policy extension to type transitions allowing a match against the
+> >> object name.
+> >>
+> >> So for example, assuming /var/run gets correctly labelled as var_run_t:
+> >>
+> >> typename_transition systemd_t var_run_t:file "mysqld" mysql_var_run_t;
+> >>
+> >> If some form of globbing or patterns was added, this could in theory
+> >> even replace the current file_contexts file with a big list of
+> >> named_type_transitions in the policy.  Admittedly it could potentially
+> >> make the policy larger, but I believe with careful encoding and
+> >> compression it would be a net reduction in the size of
+> >> /etc/selinux/$POLICYNAME/ (since the plain-text highly-repetitive
+> >> file_contexts would go away).
+> >
+> > I don't think so.  The file_contexts configuration is for the initial
+> > assignment of filesystem labeling state by userspace, not for
+> > determining how files are labeled at runtime.  The file_contexts
+> > configuration would still be needed for applications like rpm and
+> > install in order to determine the right security context, even with an
+> > extended type_transition construct.  So this would not eliminate the
+> > need for file_contexts.
 > 
-> Without this permission, restorecond is also unable to write extended
-> attributes. 
+> I understand the problem of initial labeling, but it would still be
+> possible to generate the entire set of initial labels from type
+> transition rules if name-pattern-matching were introduced.
 > 
-> kernel: type=1400 audit(1279830569.844:4): avc:  denied  { mac_admin }
-> for  pid=447 comm="restorecon" capability=33
-> scontext=system_u:system_r:setfiles_t:s0
-> tcontext=system_u:system_r:setfiles_t:s0 tclass=capability2
+> Say you define 2 initial SID types in policy, an "fsroot_t" type and a
+> "labelinit_t" type.
 > 
-> /*
-> * ima_protect_xattr - protect 'security.ima'
-> *
-> * Ensure that not just anyone can modify or remove 'security.ima'.
-> */
-> int ima_protect_xattr(struct dentry *dentry, const char *xattr_name,
->                       const void *xattr_value, size_t xattr_value_len)
-> {
->         if ((strcmp(xattr_name, XATTR_NAME_IMA) == 0)
->             && !capable(CAP_MAC_ADMIN))
->                 return -EPERM;
->         return 0;
-> }
+> Then to label the top-level directories, you have something along the lines of:
 > 
-> Adding the following rules, permits root and restorecond to write
-> 'security.ima'. 
+> typename_transition labelinit_t fsroot_t:dir "lib" lib_t;
+> typename_transition labelinit_t fsroot_t:dir "usr" usr_t;
+> typename_transition labelinit_t fsroot_t:dir "etc" etc_t;
+> [...]
+> typename_transition labelinit_t usr_t:dir "lib" lib_t;
 > 
-> module local-cap 1.0;
+> To label the /etc/passwd file, you would have:
 > 
-> require {
-> 	type setfiles_t;
-> 	type unconfined_t;
-> 	class capability2 mac_admin;
-> }
+> typename_transition labelinit_t etc_t:file "passwd" etc_passwd_t;
 > 
-> #============= setfiles_t ==============
-> allow setfiles_t self:capability2 mac_admin;
-> allow unconfined_t self:capability2 mac_admin;
+> Presumably you could do something similar with role-transitions
+> (although would anything other than object_r be appropriate?) and with
+> range-transitions in the MLS/MCS case.
+> 
+> The downside is a whole lot of new transition rules, but I believe
+> that we can improve the speed and performance of the policy compiler
+> and libsepol/libsemanage enough that it won't be an issue.
+> 
+> When you run "restorecon", "dpkg", "rpm", etc... all they would need
+> to do while unpacking is maintain the current label for each directory
+> in the path, and then check the transition from labelinit_t into the
+> destination directory for the file.
+> 
+> In practice I suspect that this would also rather dramatically cut
+> down on the number of rules needed to secure certain filetypes, and
+> furthermore it would make it much easier to customize the system.
+> 
+> For example, let's say I'm developing on some GIT checkouts of X and
+> installing them in /opt/xorgdev so they don't mess with my working
+> distribution-provided X install.  All I would need to do is ensure
+> that the immediate subdirectories of /opt/xorgdev/ are labelled
+> properly with lib_t, bin_t, etc.  Then when I drop the suid X binaries
+> into /opt/xorgdev/bin by hand and restorecon them, the pre-existing
+> transition rule for "X" in a bin_t directory would trigger and set the
+> context correctly.
+> 
+> IE: When you put a suid program called "X" in some directory that's in
+> the default path, it should get special SELinux privileges.
 
-I don't think you should be overloading CAP_MAC_ADMIN in this manner.
-The ability to set IMA attributes is not equivalent to the ability to
-administer Smack, nor to get/set raw on-disk attributes in SELinux.
+That sounds rather dangerous to me.  And I really don't see it as being
+a full replacement for file_contexts (especially as I wouldn't want to
+try and support full regexes or even generic globs at that level), but
+only as a way for improving handling of runtime created files.
 
-We only allow mac_admin in policy to a specialized domain for e.g.
-livecd creation.  Normal admin of SELinux is handled through its
-existing fine-grained permission checks without any dependency on
-CAP_MAC_ADMIN.  
+> > We did previously discuss enabling type_transition rules to match on
+> > last component name, but the initial forays on linux-fsdevel on the
+> > necessary changes to pass down the name to the right function were shot
+> > down by the vfs folks IIRC.
+> 
+> Hmm, that's depressing... Do you have a link to the patches that were
+> posted?  From what I understand some of the hooks for path-based
+> security eventually got merged, so it's possible the information is
+> now more readily available than it was before.  The audit logs seem to
+> contain the file or directory name *most* of the time, so it seems
+> that it is frequently available somehow.
+
+I couldn't quickly find the original discussion (maybe Eric has a
+reference to it), but the issue as I recall was that we'd need to pass
+the dentry down to the ext3_new_inode() function (and similarly for
+other filesystem types) so that it can be passed to ext3_init_security()
+and ultimately to the security_inode_init_security hook when computing
+the security attribute for a newly allocated inode, and someone (hch?)
+on -fsdevel opposed that change.  One could always try again I suppose.
 
 -- 
 Stephen Smalley
