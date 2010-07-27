@@ -1,36 +1,60 @@
-Subject: Re: [PATCH 2/2] selinux: implement mmap on /selinux/policy
+Subject: Re: [PATCH 1/2] SELinux: allow userspace to read policy back out
+ of the kernel
 From: Eric Paris <eparis@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1280249271.4789.61.camel@moss-pluto.epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, kaigai@kaigai.gr.jp
+In-Reply-To: <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
 References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-	 <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
-	 <1280249271.4789.61.camel@moss-pluto.epoch.ncsc.mil>
+	 <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 27 Jul 2010 12:50:31 -0400
-Message-ID: <1280249431.23427.126.camel@localhost>
+Date: Tue, 27 Jul 2010 14:11:18 -0400
+Message-ID: <1280254278.2788.7.camel@dhcp231-200.rdu.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-07-27 at 12:47 -0400, Stephen Smalley wrote:
+On Mon, 2010-07-26 at 16:48 -0400, Stephen Smalley wrote:
 > On Mon, 2010-07-26 at 15:34 -0400, Eric Paris wrote:
-> > /selinux/policy allows a user to copy the policy back out of the kernel.
-> > This patch allows userspace to actually mmap that file and use it directly.
+> > There is interest in being able to see what the actual policy is that was
+> > loaded into the kernel.  The patch creates a new selinuxfs file
+> > /selinux/policy which can be read by userspace.  The actual policy that is
+> > loaded into the kernel will be written back out to userspace.
 > 
-> # checkpolicy -b /selinux/policy
-> checkpolicy:  loading policy configuration from /selinux/policy
-> Can't map '/selinux/policy':  Invalid argument
+> Can you clarify exactly how comparable the output is to the original
+> policy file that was loaded?  Last time you mentioned range transition
+> rules may be reordered, KaiGai mentioned that ebitmaps might not be
+> identical after conversion (losing the original startbit), and Chris
+> pointed out that sediff isn't sufficient for comparison as it doesn't
+> yet handle constraints.
 > 
-> # strace checkpolicy -b /selinux/policy
-> ...
-> open("/selinux/policy", O_RDONLY)       = 3
-> fstat(3, {st_mode=S_IFREG|0400, st_size=5720516, ...}) = 0
-> mmap(NULL, 5720516, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = -1 EINVAL
-> (Invalid argument)
+> 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
 
-MAP_SHARED works.  I didn't realize checkpolicy used mmap.  I'll look at
-it.
+The only two areas that I had to deviate in any reasonable way from the
+userspace policy write code was ebitmaps and range transition rules.
+
+I'm not certain that we actually lose the startbit since if we look at
+ebitmap_read()
+
+#define MAPTYPE uint64_t        /* portion of bitmap in each node */
+#define MAPSIZE (sizeof(MAPTYPE) * 8)   /* number of bits in node bitmap */
+
+if (n->startbit & (MAPSIZE - 1)) {
+                        printf
+                            ("security: ebitmap start bit (%d) is not a multiple of the map size (%zu)\n",
+                             n->startbit, MAPSIZE);
+                        goto bad_free;
+                }
+
+Which indicated to me that it has to always be aligned to u64.
+
+If you load the policy you pulled out you should get back bit for bit
+the exact same policy.  The only issue I knew of was the range
+transition rules being stored in kernel in a hashtab instead of the
+random order they are stored in userspace policy.  I wonder if I could
+do better testing by sorting the range transition rules in userspace
+into the same order I expect to get them back out of the kernel hashtab
+to prove things.
 
 -Eric
 
