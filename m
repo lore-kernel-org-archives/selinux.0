@@ -1,152 +1,253 @@
-Subject: Re: [PATCH 2/2] selinux: implement mmap on /selinux/policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1280256670.2788.14.camel@dhcp231-200.rdu.redhat.com>
-References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-	 <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
-	 <1280255773.4789.83.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280256670.2788.14.camel@dhcp231-200.rdu.redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 27 Jul 2010 15:09:33 -0400
-Message-ID: <1280257773.4789.110.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6RJ9o5c007945
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 15:09:50 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6RJ9kxv014319
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 19:09:47 GMT
+Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o6RJ9m41029166
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 15:09:48 -0400
+Received: from localhost.localdomain (vpn-9-212.rdu.redhat.com [10.11.9.212])
+	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o6RJ9ltu003914
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 15:09:47 -0400
+Message-ID: <4C4F2EFB.9080102@redhat.com>
+Date: Tue, 27 Jul 2010 15:09:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Patch for python3 for libselinux
+Content-Type: multipart/mixed;
+ boundary="------------000702000901080907080501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-07-27 at 14:51 -0400, Eric Paris wrote:
-> On Tue, 2010-07-27 at 14:36 -0400, Stephen Smalley wrote:
-> > On Mon, 2010-07-26 at 15:34 -0400, Eric Paris wrote:
-> > > /selinux/policy allows a user to copy the policy back out of the kernel.
-> > > This patch allows userspace to actually mmap that file and use it directly.
-> > > 
-> > > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > ---
-> > > 
-> > >  security/selinux/selinuxfs.c |   44 ++++++++++++++++++++++++++++++++++++++++++
-> > >  1 files changed, 44 insertions(+), 0 deletions(-)
-> > > 
-> > > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> > > index e0c2bcf..864a74e 100644
-> > > --- a/security/selinux/selinuxfs.c
-> > > +++ b/security/selinux/selinuxfs.c
-> > > @@ -68,6 +68,8 @@ static int *bool_pending_values;
-> > >  static struct dentry *class_dir;
-> > >  static unsigned long last_class_ino;
-> > >  
-> > > +static char policy_opened;
-> > > +
-> > >  /* global data for policy capabilities */
-> > >  static struct dentry *policycap_dir;
-> > >  
-> > > @@ -315,11 +317,23 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
-> > >  	if (rc)
-> > >  		goto err;
-> > >  
-> > > +	if (policy_opened) {
-> > > +		mutex_unlock(&sel_mutex);
-> > > +		return -EBUSY;
-> > > +	}
-> > > +	policy_opened = 1;
-> > > +
-> > >  	rc = -ENOMEM;
-> > >  	plm = kzalloc(sizeof(*plm), GFP_KERNEL);
-> > >  	if (!plm)
-> > >  		goto err;
-> > >  
-> > > +	if (i_size_read(inode) != security_policydb_len()) {
-> > > +		mutex_lock(&inode->i_mutex);
-> > > +		i_size_write(inode, security_policydb_len());
-> > > +		mutex_unlock(&inode->i_mutex);
-> > > +	}
-> > 
-> > What exactly are we doing here?
-> > Do we truly want to limit /selinux/policy to one process at a time?
-> > Why is that necessary?
-> 
-> My fear was:
-> 
-> Process A			Process B
-> ------------------------	-------------------------
-> open("/selinux/policy");
->   plm->data = p1
->   plm->len = l1
->   i_size = l1
-> 				load_policy
-> 				open("/selinux/policy");
-> 				  plm->data = p2;
-> 				  plm->len = l2;
-> 				  i_size = l2;
-> 				stat("/selinux/policy");
-> 				  we get i_size=l2
-> stat("/selinux/policy");
->   we get i_size=l2  WHOOPS.
+This is a multi-part message in MIME format.
+--------------000702000901080907080501
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-How is that different from corresponding situation for a regular file?
-Doesn't seem like the sort of thing the kernel should worry about.
-I thought the check was to prevent arbitrary allocation of kernel memory
-by spinning in a loop opening /selinux/policy forever.  But that doesn't
-require worrying about the inode size changing.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > >  	rc = security_read_policy(&plm->data, &plm->len);
-> > >  	if (rc)
-> > >  		goto err;
-> > > @@ -344,6 +358,8 @@ static int sel_release_policy(struct inode *inode, struct file *filp)
-> > >  
-> > >  	BUG_ON(!plm);
-> > >  
-> > > +	policy_opened = 0;
-> > > +
-> > >  	vfree(plm->data);
-> > >  	kfree(plm);
-> > >  
-> > > @@ -381,9 +397,37 @@ out:
-> > >  	return ret;
-> > >  }
-> > >  
-> > > +static int sel_mmap_policy(struct file *filp, struct vm_area_struct *vma)
-> > > +{
-> > > +	int ret;
-> > > +	long length = vma->vm_end - vma->vm_start;
-> > > +	unsigned long start = vma->vm_start;
-> > > +	struct policy_load_memory *plm = filp->private_data;
-> > > +	char *pos = plm->data;
-> > > +	unsigned long pfn;
-> > > +
-> > > +	if (vma->vm_pgoff != 0)
-> > > +		return -EIO;
-> > > +
-> > > +	if (length > roundup(plm->len, PAGE_SIZE))
-> > > +		return -EIO;
-> > > +
-> > > +	while (length > 0) {
-> > > +		pfn = vmalloc_to_pfn(pos);
-> > > +		ret = remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED);
-> > > +		if (ret)
-> > > +			return ret;
-> > > +		start += PAGE_SIZE;
-> > > +		pos += PAGE_SIZE;
-> > > +		length -= PAGE_SIZE;
-> > > +	}
-> > > +	return 0;
-> > > +}
-> > 
-> > I'm not overly familiar with this area - can you point to an
-> > example .mmap handler that you used as the basis for your
-> > implementation?
-> 
-> I basically stole from:
-> http://www.scs.ch/~frey/linux/memorymap.html
-> http://www.scs.ch/~frey/linux/mmap.example.tar
-> 
-> Although seeing as how remap_pfn_range() only works for MAP_SHARED I'm
-> reading http://www.xml.com/ldd/chapter/book/ch13.html as a hopefully
-> better way to do it.
+Resending patch I sent a month ago.  Can we get this upstream?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
--- 
-Stephen Smalley
-National Security Agency
+iEYEARECAAYFAkxPLvoACgkQrlYvE4MpobNUxACgkr0+50GNbDPFmzWQp/vEgchY
+Hd0AoOU1rrSg2uH/yBRUF+ujoIJOVq2+
+=Dopt
+-----END PGP SIGNATURE-----
 
+--------------000702000901080907080501
+Content-Type: text/plain;
+ name="libselinux-python3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libselinux-python3.patch"
+
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index bf665ab..8aeb7a1 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -1,9 +1,10 @@
+ # Installation directories.
++PYTHON ?= python
+ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+-PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
++PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+ PYINC ?= /usr/include/$(PYLIBVER)
+ PYLIB ?= /usr/lib/$(PYLIBVER)
+ PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+@@ -23,13 +24,13 @@ SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+ SWIGRUBYIF= selinuxswig_ruby.i
+ SWIGCOUT= selinuxswig_wrap.c
+ SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+-SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT)) 
++SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT)) 
+ SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT)) 
+-SWIGSO=_selinux.so
++SWIGSO=$(PYPREFIX)_selinux.so
+ SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+ SWIGRUBYSO=_rubyselinux.so
+ LIBSO=$(TARGET).$(LIBVERSION)
+-AUDIT2WHYSO=audit2why.so
++AUDIT2WHYSO=$(PYPREFIX)audit2why.so
+ 
+ ifeq ($(DISABLE_AVC),y)
+ 	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c mapping.c stringrep.c checkAccess.c
+@@ -91,10 +92,10 @@ $(LIBPC): $(LIBPC).in
+ selinuxswig_python_exception.i: ../include/selinux/selinux.h
+ 	bash exception.sh > $@ 
+ 
+-audit2why.lo: audit2why.c
++$(PYPREFIX)audit2why.lo: audit2why.c
+ 	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
+ 
+-$(AUDIT2WHYSO): audit2why.lo
++$(AUDIT2WHYSO): $(PYPREFIX)audit2why.lo
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux ${LIBDIR}/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
+ 
+ %.o:  %.c policy.h
+@@ -123,8 +124,8 @@ install: all
+ 
+ install-pywrap: pywrap
+ 	test -d $(PYTHONLIBDIR)/site-packages/selinux || install -m 755 -d $(PYTHONLIBDIR)/site-packages/selinux
+-	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages/selinux
+-	install -m 755 $(AUDIT2WHYSO) $(PYTHONLIBDIR)/site-packages/selinux
++	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages/selinux/_selinux.so
++	install -m 755 $(AUDIT2WHYSO) $(PYTHONLIBDIR)/site-packages/selinux/audit2why.so
+ 	install -m 644  selinux.py $(PYTHONLIBDIR)/site-packages/selinux/__init__.py
+ 
+ install-rubywrap: rubywrap
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 691bc67..24d70a8 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -1,3 +1,6 @@
++/* Workaround for http://bugs.python.org/issue4835 */
++#define SIZEOF_SOCKET_T SIZEOF_INT
++
+ #include <Python.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+@@ -353,7 +356,11 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+ 		strObj = PyList_GetItem(listObj, i); /* Can't fail */
+ 		
+ 		/* make it a string */
++#if PY_MAJOR_VERSION >= 3
++		permstr = _PyUnicode_AsString( strObj );
++#else
+ 		permstr = PyString_AsString( strObj );
++#endif
+ 		
+ 		perm = string_to_av_perm(tclass, permstr);
+ 		if (!perm) {
+@@ -423,10 +430,39 @@ static PyMethodDef audit2whyMethods[] = {
+     {NULL, NULL, 0, NULL}        /* Sentinel */
+ };
+ 
++#if PY_MAJOR_VERSION >= 3
++/* Module-initialization logic specific to Python 3 */
++struct module_state {
++	/* empty for now */
++};
++static struct PyModuleDef moduledef = {
++	PyModuleDef_HEAD_INIT,
++	"audit2why",
++	NULL,
++	sizeof(struct module_state),
++	audit2whyMethods,
++	NULL,
++	NULL,
++	NULL,
++	NULL
++};
++
++PyMODINIT_FUNC
++PyInit_audit2why(void)
++#else
+ PyMODINIT_FUNC
+ initaudit2why(void)
++#endif
+ {
+-	PyObject *m = Py_InitModule("audit2why", audit2whyMethods);
++	PyObject *m;
++#if PY_MAJOR_VERSION >= 3
++	m = PyModule_Create(&moduledef);
++	if (m == NULL) {
++		return NULL;
++	}
++#else
++	m  = Py_InitModule("audit2why", audit2whyMethods);
++#endif
+ 	PyModule_AddIntConstant(m,"UNKNOWN", UNKNOWN);
+ 	PyModule_AddIntConstant(m,"BADSCON", BADSCON);
+ 	PyModule_AddIntConstant(m,"BADTCON", BADTCON);
+@@ -440,4 +476,8 @@ initaudit2why(void)
+ 	PyModule_AddIntConstant(m,"BOOLEAN", BOOLEAN);
+ 	PyModule_AddIntConstant(m,"CONSTRAINT", CONSTRAINT);
+ 	PyModule_AddIntConstant(m,"RBAC", RBAC);
++
++#if PY_MAJOR_VERSION >= 3
++	return m;
++#endif
+ }
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index dea0e80..bb227e9 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -45,7 +45,7 @@ def install(src, dest):
+ 	PyObject* list = PyList_New(*$2);
+ 	int i;
+ 	for (i = 0; i < *$2; i++) {
+-		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
++		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
+ 	}
+ 	$result = SWIG_Python_AppendOutput($result, list);
+ }
+@@ -74,7 +74,9 @@ def install(src, dest):
+ 			len++;
+ 		plist = PyList_New(len);
+ 		for (i = 0; i < len; i++) {
+-			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
++			PyList_SetItem(plist, i, 
++                                       PyBytes_FromString((*$1)[i])
++                                       );
+ 		}
+ 	} else {
+ 		plist = PyList_New(0);
+@@ -91,7 +93,9 @@ def install(src, dest):
+ 	if (*$1) {
+ 		plist = PyList_New(result);
+ 		for (i = 0; i < result; i++) {
+-			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
++			PyList_SetItem(plist, i, 
++                                       PyBytes_FromString((*$1)[i])
++                                       );
+ 		}
+ 	} else {
+ 		plist = PyList_New(0);
+@@ -144,16 +148,20 @@ def install(src, dest):
+ 	$1 = (char**) malloc(size + 1);
+ 
+ 	for(i = 0; i < size; i++) {
+-		if (!PyString_Check(PySequence_GetItem($input, i))) {
+-			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
++		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
++			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
++
+ 			return NULL;
+ 		}
++
+ 	}
+ 		
+ 	for(i = 0; i < size; i++) {
+ 		s = PySequence_GetItem($input, i);
+-		$1[i] = (char*) malloc(PyString_Size(s) + 1);
+-		strcpy($1[i], PyString_AsString(s));
++
++		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
++		strcpy($1[i], PyBytes_AsString(s));
++
+ 	}
+ 	$1[size] = NULL;
+ }
+
+--------------000702000901080907080501
+Content-Type: application/pgp-signature;
+ name="libselinux-python3.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-python3.patch.sig"
+
+iEYEABECAAYFAkxPLvsACgkQrlYvE4MpobPPcwCfU69Qwj+MZHC3OYMfNMKxsCI94GAAniTy
+rKv4yVa7vE3MHhVK8Itte68G
+--------------000702000901080907080501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
