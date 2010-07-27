@@ -1,85 +1,83 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6RCSfIn009065
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:28:41 -0400
-Received: from e8.ny.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6RCSkeY028147
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 12:28:46 GMT
-Received: from d01relay01.pok.ibm.com (d01relay01.pok.ibm.com [9.56.227.233])
-	by e8.ny.us.ibm.com (8.14.4/8.13.1) with ESMTP id o6RCQO8o023187
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:26:24 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay01.pok.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id o6RCSdH4391846
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:28:40 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id o6RCSdst008671
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 09:28:39 -0300
-Received: from [9.65.112.245] (sig-9-65-112-245.mts.ibm.com [9.65.112.245])
-	by d01av02.pok.ibm.com (8.14.4/8.13.1/NCO v10.0 AVin) with ESMTP id o6RCSdW7008647
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 09:28:39 -0300
-Subject: ima-appraisal: CAP_MAC_ADMIN w/SELinux
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <201006010935.15976.sgrubb@redhat.com>
-References: 
-	 <OF4AB3814C.68684AEB-ON8625771A.0055A68D-8625771A.00587153@us.ibm.com>
-	 <1273097271.11502.99.camel@localhost.localdomain>
-	 <1275272007.8204.0.camel@localhost.localdomain>
-	 <201006010935.15976.sgrubb@redhat.com>
+Subject: Re: fuse and selinux don't seem to work well together
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, Xavier Toth <txtoth@gmail.com>,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1280193138.23427.111.camel@localhost>
+References: <AANLkTinTLamY+tesxS3W7ocnQCmEDCFhGT973jttYk_z@mail.gmail.com>
+	 <1279909967.8180.43.camel@moss-terrapins.epoch.ncsc.mil>
+	 <AANLkTiniFb1LjDJQRoc7zOVgD0FVXi=gBaxjusP36RZ3@mail.gmail.com>
+	 <1279913697.32473.8.camel@moss-pluto.epoch.ncsc.mil>
+	 <AANLkTi=CwucVcfRWN5Uk5=5HbVZRtuwVC6zW_w=_UEyH@mail.gmail.com>
+	 <AANLkTimNxi1bOPQU1jrC6H--sCdX4Cm0PuNJZa4hNkwv@mail.gmail.com>
+	 <4C4D0310.5040703@countercultured.net>
+	 <AANLkTin16BrQyNYAfbU95=0c3_R9uzPqqiORDz-Nrvu8@mail.gmail.com>
+	 <1280172135.2673.30.camel@moss-terrapins.epoch.ncsc.mil>
+	 <AANLkTi=A=cSctYqD+5f_J55JZ-5+wrDmPf0fdnbkBVC9@mail.gmail.com>
+	 <1280176276.2673.34.camel@moss-terrapins.epoch.ncsc.mil>
+	 <1280179389.23427.83.camel@localhost>
+	 <1280180443.2673.45.camel@moss-terrapins.epoch.ncsc.mil>
+	 <1280193138.23427.111.camel@localhost>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 27 Jul 2010 08:28:38 -0400
-Message-ID: <1280233718.19585.33.camel@localhost.localdomain>
+Date: Tue, 27 Jul 2010 08:43:27 -0400
+Message-ID: <1280234607.4789.6.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm seeing some interesting behavior in ima_inode_setxattr() with an
-SELinux targeted policy enabled. Unlike the definition for
-CAP_SYS_ADMIN, CAP_MAC_ADMIN does not permit root to write extended
-attributes. (Without SELinux enabled, root can write 'security.ima'.)
-Is this the intended behavior?
+On Mon, 2010-07-26 at 21:12 -0400, Eric Paris wrote:
+> On Mon, 2010-07-26 at 17:40 -0400, David P. Quigley wrote:
+> > <snip>
+> > > 
+> > > I'm not sure how the deadlock issues can be 'solved.'  The fuse people
+> > > have repeatedly stated that until mount(8) (not even mount (2)) is
+> > > finished it is illegal to call call getxattr() and they have every right
+> > > to deadlock.  They will not budge on this position.
+> > > 
+> > > The only possibility I can think of is to extend fuse such that the
+> > > support of xattrs is known during mount(2).   No idea what that would
+> > > look like.
+> > > 
+> > > I believe that my autodetection patch is dead in the water with fuse as
+> > > it stands today....
+> > > 
+> > > -Eric
+> > 
+> > So where is this dead locking occuring? The only thing kernel side that
+> > I can think might deadlock is mount will probably lock the new super
+> > block for writing (although it shouldn't be available yet so maybe not)
+> > and when we call vfs_getxattr on the mount point it might need to grab a
+> > lock on the sb for something. I don't think this is the case since I
+> > looked through the code from vfs_getxattr through the fuse getxattr
+> > handler and I don't see any locking in there for the SB. I'm more
+> > inclined to believe that it is the userspace code for fuse or the
+> > interface they use to send the requests to user space. Actually the
+> > latter sounds more reasonable since fuse_send_request places the request
+> > in a queue. So if we are waiting on mount to finish before we send the
+> > getxattr request but mount depends on the getxattr request we can have a
+> > problem. Maybe the mount request can be modified to make a nested
+> > getxattr call on the file system to find out of it is supported and if
+> > it is add something to indicate xattr support?
+> 
+> It's not an in kernel deadlock.  fuse userspace refuses to respond to
+> anything until mount(8) is finished.  So if mount(8) at any point (even
+> during mount(2)) is waiting on the fuse userspace to respond you are
+> just stuck.
 
-Without this permission, restorecond is also unable to write extended
-attributes. 
+Then we can't support labeling with fuse filesystems.  Regardless of
+whether you pass down the sub-fstype information.  Because to support
+fs_use_xattr behavior, we have to be allowed to invoke ->getxattr on the
+root inode as part of mount(2) so that we can set up the root inode's
+security information before it is grafted into the namespace and
+accessible to userspace.  That already happens for any fs_use_xattr
+filesystem type; sb_finish_set_opts() first probes ->getxattr to make
+sure that the fs truly supports security.selinux and later calls
+inode_doinit* on the root inode and on any other inodes set up during
+get_sb.
 
-kernel: type=1400 audit(1279830569.844:4): avc:  denied  { mac_admin }
-for  pid=447 comm="restorecon" capability=33
-scontext=system_u:system_r:setfiles_t:s0
-tcontext=system_u:system_r:setfiles_t:s0 tclass=capability2
-
-/*
-* ima_protect_xattr - protect 'security.ima'
-*
-* Ensure that not just anyone can modify or remove 'security.ima'.
-*/
-int ima_protect_xattr(struct dentry *dentry, const char *xattr_name,
-                      const void *xattr_value, size_t xattr_value_len)
-{
-        if ((strcmp(xattr_name, XATTR_NAME_IMA) == 0)
-            && !capable(CAP_MAC_ADMIN))
-                return -EPERM;
-        return 0;
-}
-
-Adding the following rules, permits root and restorecond to write
-'security.ima'. 
-
-module local-cap 1.0;
-
-require {
-	type setfiles_t;
-	type unconfined_t;
-	class capability2 mac_admin;
-}
-
-#============= setfiles_t ==============
-allow setfiles_t self:capability2 mac_admin;
-allow unconfined_t self:capability2 mac_admin;
-
-thanks,
-
-Mimi
-
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
