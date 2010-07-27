@@ -1,83 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6RBLLL9004493
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 07:21:21 -0400
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6RBLGJm024388
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 11:21:16 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4) with ESMTP id o6RBJmoU029124
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 07:19:48 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4/Submit) id o6RBJmdb029122
-	for selinux@tycho.nsa.gov; Tue, 27 Jul 2010 07:19:48 -0400
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6QKmR7A030560
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2010 16:48:27 -0400
-Received: from mail-yx0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6QKmOUW028744
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2010 20:48:24 GMT
-Received: by yxm8 with SMTP id 8so288528yxm.12
-        for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2010 13:48:26 -0700 (PDT)
-Message-ID: <4C4DF495.3000704@gmail.com>
-Date: Mon, 26 Jul 2010 16:48:21 -0400
-From: Ralph Blach <chipper19522@gmail.com>
-MIME-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6RCSfIn009065
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:28:41 -0400
+Received: from e8.ny.us.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6RCSkeY028147
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 12:28:46 GMT
+Received: from d01relay01.pok.ibm.com (d01relay01.pok.ibm.com [9.56.227.233])
+	by e8.ny.us.ibm.com (8.14.4/8.13.1) with ESMTP id o6RCQO8o023187
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:26:24 -0400
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay01.pok.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id o6RCSdH4391846
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 08:28:40 -0400
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id o6RCSdst008671
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 09:28:39 -0300
+Received: from [9.65.112.245] (sig-9-65-112-245.mts.ibm.com [9.65.112.245])
+	by d01av02.pok.ibm.com (8.14.4/8.13.1/NCO v10.0 AVin) with ESMTP id o6RCSdW7008647
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2010 09:28:39 -0300
+Subject: ima-appraisal: CAP_MAC_ADMIN w/SELinux
+From: Mimi Zohar <zohar@linux.vnet.ibm.com>
 To: selinux@tycho.nsa.gov
-Subject: help with a compiled policy and port 443
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <201006010935.15976.sgrubb@redhat.com>
+References: 
+	 <OF4AB3814C.68684AEB-ON8625771A.0055A68D-8625771A.00587153@us.ibm.com>
+	 <1273097271.11502.99.camel@localhost.localdomain>
+	 <1275272007.8204.0.camel@localhost.localdomain>
+	 <201006010935.15976.sgrubb@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 27 Jul 2010 08:28:38 -0400
+Message-ID: <1280233718.19585.33.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I'm seeing some interesting behavior in ima_inode_setxattr() with an
+SELinux targeted policy enabled. Unlike the definition for
+CAP_SYS_ADMIN, CAP_MAC_ADMIN does not permit root to write extended
+attributes. (Without SELinux enabled, root can write 'security.ima'.)
+Is this the intended behavior?
 
-good afternoon,
-I happen to be a novice at selinux and wish more familiar with it.
+Without this permission, restorecond is also unable to write extended
+attributes. 
 
-This worked before but it does not work now.
+kernel: type=1400 audit(1279830569.844:4): avc:  denied  { mac_admin }
+for  pid=447 comm="restorecon" capability=33
+scontext=system_u:system_r:setfiles_t:s0
+tcontext=system_u:system_r:setfiles_t:s0 tclass=capability2
 
-I wish to put ssh on port 443
+/*
+* ima_protect_xattr - protect 'security.ima'
+*
+* Ensure that not just anyone can modify or remove 'security.ima'.
+*/
+int ima_protect_xattr(struct dentry *dentry, const char *xattr_name,
+                      const void *xattr_value, size_t xattr_value_len)
+{
+        if ((strcmp(xattr_name, XATTR_NAME_IMA) == 0)
+            && !capable(CAP_MAC_ADMIN))
+                return -EPERM;
+        return 0;
+}
 
-Before I used the commands
+Adding the following rules, permits root and restorecond to write
+'security.ima'. 
+
+module local-cap 1.0;
+
+require {
+	type setfiles_t;
+	type unconfined_t;
+	class capability2 mac_admin;
+}
+
+#============= setfiles_t ==============
+allow setfiles_t self:capability2 mac_admin;
+allow unconfined_t self:capability2 mac_admin;
+
+thanks,
+
+Mimi
 
 
-semanage port -d -t http_port_t -p tcp 443
-semanage port -a -t sshd_port_t -p tcp 443
-
-and these worked perfectly.
-
-Now I get the error
-
-semanage port -d -t http_port_t -p tcp 443
-/usr/sbin/semanage: Port tcp/443 is defined in policy, cannot be deleted
-[root@chipblach ~]#
-
-
-How do I get around this and and get semanage to function?
-
-
-what is a defined policy and how I edit it?
-
-Thanks
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iQIcBAEBAgAGBQJMTfSMAAoJEI46azFTGseheOwP/R8ejDX/ft8ztJAUIPpkV+U1
-rNU2LHtRm7h7yIEQpMBBERZs85A9QPPRJSTxilv+YF4a5O9hsEkR2F46Vpo1FWkr
-Rxire9jelm0GRbXzm1nU6pQE8vMM0edbJl50iPWN4ju+1fa3gEGYcMLHCMlQYIab
-kZWahqk7UuXmuytsjAo8AMq8FOa1ulZZREuB0QLQfOwERHdlwzShMC+kTCOf/O9r
-bv62eJyVEdyuqHHKKeZoEnkFQJE8KwisitpOT0/7p90HWDWUkkrr53lGPDNH4ewT
-a5c8Wfj5ASOkmkol7M/5zUIH25L1VIuovW0UQd2/37MesfTH+h0Q+7DCoAH3qVYQ
-y3tjcB2Umh8aFsBipcsvOy5L6sVocmL4W8bQcXmsLvOV4rbxu5Tg6G941HSEVFoG
-tSAdP05tnBSbLGIioY3F+vBsWNU9lIR7yf61FbEuIQSHMUyZdHlMmO8oROxz2zxl
-jAl6SvlIY1Gjx5FJSTKG3gD9CW4FFlVtF7/tpmgtLqZz5qPUDtc8tbyJA8gMUSs8
-cHlUFM+xGkeQPhwShTYtsgeZUC8zlseUzP4A9fNbVEppylbcb8wCFHvSdu+wj24D
-4FJXtpSVit+63jvbA8bDlIzFWd4lXNMb1izsYGW5131O4Hb2lMrSOfSd9ORIycyX
-39ZHXFU0jvaSaUObcP2z
-=bLwO
------END PGP SIGNATURE-----
 
 
 --
