@@ -1,60 +1,182 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6TBgHI1017881
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2010 07:42:21 -0400
-Received: from mxout-08.mxes.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o6TBgPmb025647
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2010 11:42:25 GMT
-Message-ID: <20100729124218.593488qmqxjahkpk@webmail.tuffmail.net>
-Date: Thu, 29 Jul 2010 12:42:18 +0100
-From: Martin Orr <martin@martinorr.name>
-To: =?utf-8?b?VMO2csO2aw==?= Edwin <edwintorok@gmail.com>
-Cc: russell@coker.com.au, Eric Paris <eparis@parisplace.org>,
-        SE-Linux
-	<selinux@tycho.nsa.gov>
-Subject: Re: clamav RWX
-References: <201007121922.48247.russell@coker.com.au>
-	<20100712140130.468b7b42@debian>
-	<AANLkTin7CS0jgjas9otPYwMh0CSqdIaMMQ72YhQaqdmT@mail.gmail.com>
-	<201007122208.13078.russell@coker.com.au> <20100712154528.47864541@debian>
-	<20100712153242.10606virkn0rqeos@webmail.tuffmail.net>
-	<20100712173521.1c436f94@debian>
-In-Reply-To: <20100712173521.1c436f94@debian>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	DelSp="Yes";
-	format="flowed"
+Subject: Re: [RFC PATCH] selinux: convert the policy type_attr_map to
+ flex_array
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20100728204842.16765.83524.stgit@paris.rdu.redhat.com>
+References: <20100728204842.16765.83524.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 29 Jul 2010 08:21:05 -0400
+Message-ID: <1280406065.3348.0.camel@moss-pluto.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon 12 Jul 15:35:21 2010, Török Edwin wrote:
+On Wed, 2010-07-28 at 16:48 -0400, Eric Paris wrote:
+> Current selinux policy can have over 3000 types.  The type_attr_map in
+> policy is an array sized by the number of types times sizeof(struct ebitmap)
+> (12 on x86_64).  Basic math tells us the array is going to be of length
+> 3000 x 12 = 36,000 bytes.  The largest 'safe' allocation on a long running
+> system is 16k.  Most of the time a 32k allocation will work.  But on long
+> running systems a 64k allocation (what we need) can fail quite regularly.
+> In order to deal with this I am converting the type_attr_map to use
+> flex_arrays.  Let the library code deal with breaking this into PAGE_SIZE
+> pieces.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-> On Mon, 12 Jul 2010 15:32:42 +0100
-> Martin Orr <martin@martinorr.name> wrote:
->
->> On Mon 12 Jul 13:45:28 2010, Török Edwin wrote:
->> > Well the purpose of loading the database with freshclam is to avoid
->> > causing problems to clamd. So it is important that they are either
->> > both JIT, or both non-JIT.
->>
->> I configured clamd not to use the JIT by putting "Bytecode false" in
->> clamd.conf.  I put the same thing in freshclam.conf, but it
->> continues to try to allocate executable memory.
->>
->
-> That sounds like a bug, please open a bugreport at bugs.clamav.net, and
-> attach the output of strace freshclam.
+Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
 
-I just realised that "Bytecode false" doesn't do what I thought it  
-does: for some reason I had thought it just disabled the JIT, but in  
-fact it disables bytecode altogether.
-
-Nevertheless it still seems that freshclam shouldn't need RWX memory  
-if bytecode is disabled, so I reported this as bug 2149.
+> ---
+> 
+>  security/selinux/ss/policydb.c |   49 ++++++++++++++++++++++++++++++++--------
+>  security/selinux/ss/policydb.h |    4 ++-
+>  security/selinux/ss/services.c |    9 ++++++-
+>  3 files changed, 49 insertions(+), 13 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 863d70f..0b9b878 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/string.h>
+>  #include <linux/errno.h>
+>  #include <linux/audit.h>
+> +#include <linux/flex_array.h>
+>  #include "security.h"
+>  
+>  #include "policydb.h"
+> @@ -738,11 +739,17 @@ void policydb_destroy(struct policydb *p)
+>  	hashtab_map(p->range_tr, range_tr_destroy, NULL);
+>  	hashtab_destroy(p->range_tr);
+>  
+> -	if (p->type_attr_map) {
+> -		for (i = 0; i < p->p_types.nprim; i++)
+> -			ebitmap_destroy(&p->type_attr_map[i]);
+> +	if (p->type_attr_map_array) {
+> +		for (i = 0; i < p->p_types.nprim; i++) {
+> +			struct ebitmap *e;
+> +
+> +			e = flex_array_get(p->type_attr_map_array, i);
+> +			if (!e)
+> +				continue;
+> +			ebitmap_destroy(e);
+> +		}
+> +		flex_array_free(p->type_attr_map_array);
+>  	}
+> -	kfree(p->type_attr_map);
+>  	ebitmap_destroy(&p->policycaps);
+>  	ebitmap_destroy(&p->permissive_map);
+>  
+> @@ -2242,19 +2249,35 @@ int policydb_read(struct policydb *p, void *fp)
+>  		goto bad;
+>  
+>  	rc = -ENOMEM;
+> -	p->type_attr_map = kmalloc(p->p_types.nprim * sizeof(struct ebitmap), GFP_KERNEL);
+> -	if (!p->type_attr_map)
+> +	p->type_attr_map_array = flex_array_alloc(sizeof(struct ebitmap),
+> +						  p->p_types.nprim,
+> +						  GFP_KERNEL | __GFP_ZERO);
+> +	if (!p->type_attr_map_array)
+> +		goto bad;
+> +
+> +	/* preallocate so we don't have to worry about the put ever failing */
+> +	rc = flex_array_prealloc(p->type_attr_map_array, 0, p->p_types.nprim - 1,
+> +				 GFP_KERNEL | __GFP_ZERO);
+> +	if (rc)
+>  		goto bad;
+>  
+>  	for (i = 0; i < p->p_types.nprim; i++) {
+> -		ebitmap_init(&p->type_attr_map[i]);
+> +		struct ebitmap e;
+> +
+> +		ebitmap_init(&e);
+>  		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
+> -			rc = ebitmap_read(&p->type_attr_map[i], fp);
+> +			rc = ebitmap_read(&e, fp);
+>  			if (rc)
+>  				goto bad;
+>  		}
+>  		/* add the type itself as the degenerate case */
+> -		rc = ebitmap_set_bit(&p->type_attr_map[i], i, 1);
+> +		rc = ebitmap_set_bit(&e, i, 1);
+> +		if (rc)
+> +			goto bad;
+> +
+> +		/* should never fail since we preallocated */
+> +		rc = flex_array_put(p->type_attr_map_array, i, &e,
+> +				    GFP_KERNEL | __GFP_ZERO);
+>  		if (rc)
+>  			goto bad;
+>  	}
+> @@ -3100,7 +3123,13 @@ int policydb_write(struct policydb *p, void *fp)
+>  		return rc;
+>  
+>  	for (i = 0; i < p->p_types.nprim; i++) {
+> -		rc = ebitmap_write(&p->type_attr_map[i], fp);
+> +		struct ebitmap *e;
+> +
+> +		e = flex_array_get(p->type_attr_map_array, i);
+> +		if (unlikely(!e))
+> +			BUG();
+> +
+> +		rc = ebitmap_write(e, fp);
+>  		if (rc)
+>  			return rc;
+>  	}
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 9cbf9df..e013654 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -24,6 +24,8 @@
+>  #ifndef _SS_POLICYDB_H_
+>  #define _SS_POLICYDB_H_
+>  
+> +#include <linux/flex_array.h>
+> +
+>  #include "symtab.h"
+>  #include "avtab.h"
+>  #include "sidtab.h"
+> @@ -246,7 +248,7 @@ struct policydb {
+>  	struct hashtab *range_tr;
+>  
+>  	/* type -> attribute reverse mapping */
+> -	struct ebitmap *type_attr_map;
+> +	struct flex_array *type_attr_map_array;
+>  
+>  	struct ebitmap policycaps;
+>  
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index a4ac232..20b10bf 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -50,6 +50,7 @@
+>  #include <linux/audit.h>
+>  #include <linux/mutex.h>
+>  #include <linux/selinux.h>
+> +#include <linux/flex_array.h>
+>  #include <net/netlabel.h>
+>  
+>  #include "flask.h"
+> @@ -627,8 +628,12 @@ static void context_struct_compute_av(struct context *scontext,
+>  	 */
+>  	avkey.target_class = tclass;
+>  	avkey.specified = AVTAB_AV;
+> -	sattr = &policydb.type_attr_map[scontext->type - 1];
+> -	tattr = &policydb.type_attr_map[tcontext->type - 1];
+> +	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
+> +	if (unlikely(!sattr))
+> +		BUG();
+> +	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
+> +	if (unlikely(!tattr))
+> +		BUG();
+>  	ebitmap_for_each_positive_bit(sattr, snode, i) {
+>  		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+>  			avkey.source_type = i + 1;
 
 -- 
-Martin Orr
-
+Stephen Smalley
+National Security Agency
 
 
 --
