@@ -1,108 +1,168 @@
-Subject: Re: [PATCH 2/2] selinux: implement mmap on /selinux/policy
 From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1280407807.3348.11.camel@moss-pluto.epoch.ncsc.mil>
-References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-	 <20100726193414.19538.64028.stgit@paris.rdu.redhat.com>
-	 <1280255773.4789.83.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280256670.2788.14.camel@dhcp231-200.rdu.redhat.com>
-	 <1280257773.4789.110.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280258214.2788.17.camel@dhcp231-200.rdu.redhat.com>
-	 <1280258441.4789.113.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280258664.2788.20.camel@dhcp231-200.rdu.redhat.com>
-	 <1280258892.4789.118.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280262263.2788.27.camel@dhcp231-200.rdu.redhat.com>
-	 <1280407807.3348.11.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 29 Jul 2010 13:58:00 -0400
-Message-ID: <1280426280.2734.123.camel@dhcp231-200.rdu.redhat.com>
-Mime-Version: 1.0
+Subject: [PATCH -v2] selinux: convert the policy type_attr_map to flex_array
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Thu, 29 Jul 2010 15:24:14 -0400
+Message-ID: <20100729192414.10400.63643.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-07-29 at 08:50 -0400, Stephen Smalley wrote:
-> On Tue, 2010-07-27 at 16:24 -0400, Eric Paris wrote:
+Current selinux policy can have over 3000 types.  The type_attr_map in
+policy is an array sized by the number of types times sizeof(struct ebitmap)
+(12 on x86_64).  Basic math tells us the array is going to be of length
+3000 x 12 = 36,000 bytes.  The largest 'safe' allocation on a long running
+system is 16k.  Most of the time a 32k allocation will work.  But on long
+running systems a 64k allocation (what we need) can fail quite regularly.
+In order to deal with this I am converting the type_attr_map to use
+flex_arrays.  Let the library code deal with breaking this into PAGE_SIZE
+pieces.
 
-> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> > index 8f64eec..6562ecd 100644
-> > --- a/security/selinux/selinuxfs.c
-> > +++ b/security/selinux/selinuxfs.c
+-v2
+rework some of the if(!obj) BUG() to be BUG_ON(!obj)
+drop flex_array_put() calls and just use a _get() object directly
 
-> > @@ -315,11 +317,23 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
-> >  	if (rc)
-> >  		goto err;
-> >  
-> > +	if (policy_opened) {
-> > +		mutex_unlock(&sel_mutex);
-> > +		return -EBUSY;
-> > +	}
-> > +	policy_opened = 1;
-> 
-> I would take the policy_opened flag to the first patch to prevent
-> arbitrary kernel memory allocation just by opening /selinux/policy
-> repeatedly.  Note however my other comments on the first patch as well.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+---
 
-Done.
+ security/selinux/ss/policydb.c |   43 +++++++++++++++++++++++++++++++---------
+ security/selinux/ss/policydb.h |    4 +++-
+ security/selinux/ss/services.c |    7 +++++--
+ 3 files changed, 41 insertions(+), 13 deletions(-)
 
-> > +	if (i_size_read(inode) != security_policydb_len()) {
-> > +		mutex_lock(&inode->i_mutex);
-> > +		i_size_write(inode, security_policydb_len());
-> > +		mutex_unlock(&inode->i_mutex);
-> > +	}
-> 
-> Do you really think this is necessary?  Does any other filesystem do
-> this?  I'd drop it otherwise.
-
-I think it is necessary.  Lets look at your strace:
-
-# strace checkpolicy -b /selinux/policy
-...
-open("/selinux/policy", O_RDONLY)       = 3
-fstat(3, {st_mode=S_IFREG|0400, st_size=5720516, ...}) = 0
-mmap(NULL, 5720516, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = -1 EINVAL
-(Invalid argument)
-
-Notice that after the open we use fstat to find out the length and then
-use that as the argument to mmap.  Without this set stat would return 0
-length.  I stole the idea from fs/proc/kcore.c::open_kcore()
-
-> > +static int sel_mmap_policy_fault(struct vm_area_struct *vma,
-> > +				 struct vm_fault *vmf)
-> > +{
-> > +	struct policy_load_memory *plm = vma->vm_file->private_data;
-> > +	unsigned long offset;
-> > +	struct page *page;
-> > +
-> > +	if (vmf->flags & (FAULT_FLAG_MKWRITE | FAULT_FLAG_WRITE))
-> > +		return VM_FAULT_SIGBUS;
-> > +
-> > +	offset = vmf->pgoff << PAGE_SHIFT;
-> > +	if (offset >= roundup(plm->len, PAGE_SIZE))
-> > +		return VM_FAULT_SIGBUS;
-> > +
-> > +	page = vmalloc_to_page(plm->data + offset);
-> > +	get_page(page);
-> > +
-> > +	vmf->page = page;
-> > +
-> > +	return 0;
-> > +}
-> 
-> This looks fine to me but I can't say that I've written one of these
-> handlers before.  Did you derive this from some example in an existing
-> filesystem?
-
-Looking at a bunch of them.  But it doesn't really work exactly the way
-I thought it would.  I'm not getting a signal when I write to a page.
-So I plan to poke it some more.
-
-Unrelated note, I'm also afraid I'm possibly leaking some information.
-I have no idea what information is on the last page of the vmalloc()
-block after the end of the policy.  And I bet userspace could read that
-bit of information.  I need to check on that too....
-
--Eric
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 863d70f..3d62d5b 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -31,6 +31,7 @@
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/audit.h>
++#include <linux/flex_array.h>
+ #include "security.h"
+ 
+ #include "policydb.h"
+@@ -738,11 +739,17 @@ void policydb_destroy(struct policydb *p)
+ 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
+ 	hashtab_destroy(p->range_tr);
+ 
+-	if (p->type_attr_map) {
+-		for (i = 0; i < p->p_types.nprim; i++)
+-			ebitmap_destroy(&p->type_attr_map[i]);
++	if (p->type_attr_map_array) {
++		for (i = 0; i < p->p_types.nprim; i++) {
++			struct ebitmap *e;
++
++			e = flex_array_get(p->type_attr_map_array, i);
++			if (!e)
++				continue;
++			ebitmap_destroy(e);
++		}
++		flex_array_free(p->type_attr_map_array);
+ 	}
+-	kfree(p->type_attr_map);
+ 	ebitmap_destroy(&p->policycaps);
+ 	ebitmap_destroy(&p->permissive_map);
+ 
+@@ -2242,19 +2249,30 @@ int policydb_read(struct policydb *p, void *fp)
+ 		goto bad;
+ 
+ 	rc = -ENOMEM;
+-	p->type_attr_map = kmalloc(p->p_types.nprim * sizeof(struct ebitmap), GFP_KERNEL);
+-	if (!p->type_attr_map)
++	p->type_attr_map_array = flex_array_alloc(sizeof(struct ebitmap),
++						  p->p_types.nprim,
++						  GFP_KERNEL | __GFP_ZERO);
++	if (!p->type_attr_map_array)
++		goto bad;
++
++	/* preallocate so we don't have to worry about the put ever failing */
++	rc = flex_array_prealloc(p->type_attr_map_array, 0, p->p_types.nprim - 1,
++				 GFP_KERNEL | __GFP_ZERO);
++	if (rc)
+ 		goto bad;
+ 
+ 	for (i = 0; i < p->p_types.nprim; i++) {
+-		ebitmap_init(&p->type_attr_map[i]);
++		struct ebitmap *e = flex_array_get(p->type_attr_map_array, i);
++
++		BUG_ON(!e);
++		ebitmap_init(e);
+ 		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
+-			rc = ebitmap_read(&p->type_attr_map[i], fp);
++			rc = ebitmap_read(e, fp);
+ 			if (rc)
+ 				goto bad;
+ 		}
+ 		/* add the type itself as the degenerate case */
+-		rc = ebitmap_set_bit(&p->type_attr_map[i], i, 1);
++		rc = ebitmap_set_bit(e, i, 1);
+ 		if (rc)
+ 			goto bad;
+ 	}
+@@ -3100,7 +3118,12 @@ int policydb_write(struct policydb *p, void *fp)
+ 		return rc;
+ 
+ 	for (i = 0; i < p->p_types.nprim; i++) {
+-		rc = ebitmap_write(&p->type_attr_map[i], fp);
++		struct ebitmap *e;
++
++		e = flex_array_get(p->type_attr_map_array, i);
++		BUG_ON(!e);
++
++		rc = ebitmap_write(e, fp);
+ 		if (rc)
+ 			return rc;
+ 	}
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 9cbf9df..e013654 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -24,6 +24,8 @@
+ #ifndef _SS_POLICYDB_H_
+ #define _SS_POLICYDB_H_
+ 
++#include <linux/flex_array.h>
++
+ #include "symtab.h"
+ #include "avtab.h"
+ #include "sidtab.h"
+@@ -246,7 +248,7 @@ struct policydb {
+ 	struct hashtab *range_tr;
+ 
+ 	/* type -> attribute reverse mapping */
+-	struct ebitmap *type_attr_map;
++	struct flex_array *type_attr_map_array;
+ 
+ 	struct ebitmap policycaps;
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index a4ac232..527f369 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -50,6 +50,7 @@
+ #include <linux/audit.h>
+ #include <linux/mutex.h>
+ #include <linux/selinux.h>
++#include <linux/flex_array.h>
+ #include <net/netlabel.h>
+ 
+ #include "flask.h"
+@@ -627,8 +628,10 @@ static void context_struct_compute_av(struct context *scontext,
+ 	 */
+ 	avkey.target_class = tclass;
+ 	avkey.specified = AVTAB_AV;
+-	sattr = &policydb.type_attr_map[scontext->type - 1];
+-	tattr = &policydb.type_attr_map[tcontext->type - 1];
++	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
++	BUG_ON(!sattr);
++	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
++	BUG_ON(!tattr);
+ 	ebitmap_for_each_positive_bit(sattr, snode, i) {
+ 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
+ 			avkey.source_type = i + 1;
 
 
 --
