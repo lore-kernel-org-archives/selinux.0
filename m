@@ -1,5 +1,5 @@
-Message-ID: <4C517A29.3080401@redhat.com>
-Date: Thu, 29 Jul 2010 08:55:05 -0400
+Message-ID: <4C517A99.80204@redhat.com>
+Date: Thu, 29 Jul 2010 08:56:57 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -8,15 +8,9 @@ CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
 Subject: Re: Order 4 allocation in policydb_load
 References: <1280340222.2734.94.camel@dhcp231-200.rdu.redhat.com>	 <1280350274.12879.36.camel@moss-pluto.epoch.ncsc.mil>	 <4C517408.6020504@redhat.com> <1280407479.3348.8.camel@moss-pluto.epoch.ncsc.mil>
 In-Reply-To: <1280407479.3348.8.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------070501030107040108070403"
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-This is a multi-part message in MIME format.
---------------070501030107040108070403
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
@@ -134,91 +128,21 @@ On 07/29/2010 08:44 AM, Stephen Smalley wrote:
 > Can we do any pruning of the type set (i.e. replacing some types with
 > typealiases)?
 > 
-Modules 237
 
 
-Domains 576
-Exec Types 646
-Log Types 118
-var lib Types 96
-var run Types 220
-cache Types 24
-Port Types 175
-Packet Types 334
-Device Types 77
-Xevent Types 22
-Xproperty Types 22
-Tmp Types 206
-Tmpfs Types 58
-Etc Types 80
-Spool Types 27
-lock Types 33
-home Types 34
-content Types 58
-script Types 40
-Other: 341
-
-Quick script to look at types by name.
+I have tried to do this with the spam class, potential other class would
+be mailers.  But I do not believe you are going to get the bang for the
+buck.  And I am sure no one wants to fund looking into this.  Then you
+have the hassle of getting your changes upstream.  Currently dgrift and
+I have a huge patch on upstream policy.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.14 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkxReigACgkQrlYvE4MpobNLRgCfVlfy9jkDVDgSibSlyjpbWfh6
-CGIAoJVs1xcy3lcxg4HaPJigwD5E8ZJM
-=BF8r
+iEYEARECAAYFAkxRepkACgkQrlYvE4MpobN8NwCfUEyNhiaPdPrdv3zKnndqiDBp
+EvYAoMuTIYcTm7ABkglK5S+jO1YUZYjm
+=QnZt
 -----END PGP SIGNATURE-----
-
---------------070501030107040108070403
-Content-Type: application/x-shellscript;
- name="seinfo.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="seinfo.sh"
-
-IyEvYmluL3NoCmVjaG8gIk1vZHVsZXMgYHNlbW9kdWxlIC1sIHwgd2MgLWxgIgpkb21haW5z
-PWBzZWluZm8gLWFkb21haW4gLXggfCB3YyAtbGAKZWNobyAiRG9tYWlucyAkZG9tYWlucyIK
-ZWNobyAiRXhlYyBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBleGVjX3QgfCB3YyAtbGAiCmVj
-aG8gIkxvZyBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfbG9nXyB8IHdjIC1sYCIKZWNobyAi
-dmFyIGxpYiBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCB2YXJfbGliXyB8IHdjIC1sYCIKZWNo
-byAidmFyIHJ1biBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCB2YXJfcnVuXyB8IHdjIC1sYCIK
-ZWNobyAiY2FjaGUgVHlwZXMgYHNlaW5mbyAtdCB8IGdyZXAgX2NhY2hlXyB8IHdjIC1sYCIK
-ZWNobyAiUG9ydCBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfcG9ydF8gfCB3YyAtbGAiCmVj
-aG8gIlBhY2tldCBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfcGFja2V0XyB8IHdjIC1sYCIK
-ZWNobyAiRGV2aWNlIFR5cGVzIGBzZWluZm8gLXQgfCBncmVwIF9kZXYgfCB3YyAtbGAiCmVj
-aG8gIlhldmVudCBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCB4ZXZlbnRfIHwgd2MgLWxgIgpl
-Y2hvICJYcHJvcGVydHkgVHlwZXMgYHNlaW5mbyAtdCB8IGdyZXAgeHByb3BlcnR5XyB8IHdj
-IC1sYCIKZWNobyAiVG1wIFR5cGVzIGBzZWluZm8gLXQgfCBncmVwIF90bXBfIHwgd2MgLWxg
-IgplY2hvICJUbXBmcyBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfdG1wZnNfIHwgd2MgLWxg
-IgplY2hvICJFdGMgVHlwZXMgYHNlaW5mbyAtdCB8IGdyZXAgX2V0Y18gfCB3YyAtbGAiCmVj
-aG8gIlNwb29sIFR5cGVzIGBzZWluZm8gLXQgfCBncmVwIF9zcG9vbF8gfCB3YyAtbGAiCmVj
-aG8gImxvY2sgVHlwZXMgYHNlaW5mbyAtdCB8IGdyZXAgX2xvY2tfIHwgd2MgLWxgIgplY2hv
-ICJob21lIFR5cGVzIGBzZWluZm8gLXQgfCBncmVwIF9ob21lXyB8IHdjIC1sYCIKZWNobyAi
-Y29udGVudCBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfY29udGVudF8gfCB3YyAtbGAiCmVj
-aG8gInNjcmlwdCBUeXBlcyBgc2VpbmZvIC10IHwgZ3JlcCBfc2NyaXB0XyB8IHdjIC1sYCIK
-dG90YWw9YHNlaW5mbyAtdCB8IGdyZXAgLXYgZXhlY190IHwgZ3JlcCAtdiB2YXJfbGliX3Qg
-fCBncmVwIC12IHZhcl9ydW5fdCB8IGdyZXAgLXYgX2xvZ18gfCBncmVwIC12IF9wb3J0XyAg
-fCBncmVwIC12IGRldmljZV90IHwgZ3JlcCAtdiB4ZXZlbnRfIHwgZ3JlcCAtdiBfdG1wXyB8
-IGdyZXAgLXYgX3RtcGZzXyB8IGdyZXAgLXYgX2V0Y18gfCBncmVwIC12IF9wYWNrZXRfIHwg
-Z3JlcCAtdiBfeHByb3BlcnR5XyB8IGdyZXAgLXYgX2RldiB8IGdyZXAgLXYgX2xvY2tfIHwg
-Z3JlcCAtdiBfc3Bvb2xfIHwgZ3JlcCAtdiBfaG9tZV8gfCBncmVwIC12IF9jb250ZW50XyB8
-IGdyZXAgLXYgX3NjcmlwdF8gfCB3YyAtbGAKZWNobyAiT3RoZXI6IGBleHByICR0b3RhbCAt
-ICRkb21haW5zYCIKc2VpbmZvIC10IHwgZ3JlcCAtdiBleGVjX3QgfCBncmVwIC12IHZhcl9s
-aWJfdCB8IGdyZXAgLXYgdmFyX3J1bl90IHwgZ3JlcCAtdiBfbG9nXyB8IGdyZXAgLXYgX3Bv
-cnRfICB8IGdyZXAgLXYgZGV2aWNlX3QgfCBncmVwIC12IHhldmVudF8gfCBncmVwIC12IF90
-bXBfIHwgZ3JlcCAtdiBfdG1wZnNfIHwgZ3JlcCAtdiBfZXRjXyB8IGdyZXAgLXYgX3BhY2tl
-dF8gfCBncmVwIC12IF94cHJvcGVydHlfIHwgZ3JlcCAtdiBfZGV2IHwgZ3JlcCAtdiBfbG9j
-a18gfCBncmVwIC12IF9zcG9vbF8gfCBncmVwIC12IF9ob21lXyB8IGdyZXAgLXYgX2NvbnRl
-bnRfIHwgZ3JlcCAtdiBfc2NyaXB0XyB8IHNvcnQgLXUKCgo=
---------------070501030107040108070403
-Content-Type: application/pgp-signature;
- name="seinfo.sh.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="seinfo.sh.sig"
-
-iEYEABECAAYFAkxReigACgkQrlYvE4MpobM1hACdFPvzFe6gvchoZSM9MbabZa181ogAn1ZS
-D5Khm6Ncqil/RJc0nxuKakVl
---------------070501030107040108070403--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
