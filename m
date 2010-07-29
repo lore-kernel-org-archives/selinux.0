@@ -1,168 +1,269 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH -v2] selinux: convert the policy type_attr_map to flex_array
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
-Date: Thu, 29 Jul 2010 15:24:14 -0400
-Message-ID: <20100729192414.10400.63643.stgit@paris.rdu.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+From: Matthew Robertson <Matthew.L.Robertson@boeing.com>
+To: SELinux@tycho.nsa.gov
+Cc: Kyle Moffett <Kyle.D.Moffett@boeing.com>
+Date: Thu, 29 Jul 2010 17:30:27 -0400
+Subject: [PATCH] Improve loading performance by 80% using dynamic resizing
+Message-Id: <1280434836.813159.22406.nullmailer@UDistro.exmeritus.com.>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Current selinux policy can have over 3000 types.  The type_attr_map in
-policy is an array sized by the number of types times sizeof(struct ebitmap)
-(12 on x86_64).  Basic math tells us the array is going to be of length
-3000 x 12 = 36,000 bytes.  The largest 'safe' allocation on a long running
-system is 16k.  Most of the time a 32k allocation will work.  But on long
-running systems a 64k allocation (what we need) can fail quite regularly.
-In order to deal with this I am converting the type_attr_map to use
-flex_arrays.  Let the library code deal with breaking this into PAGE_SIZE
-pieces.
+After spending a lot of developer time recently doing repeated relinks of
+policies after making minor changes we put some time into tracking down avenues
+for improving performance in the SELinux libraries. On a reasonably modern HP
+server a 'make load' of a precompiled SELinux Reference Policy takes roughly 96
+seconds. The 'perf' tool pointed us to some undersized and overpopulated hash
+tables in libsepol's hashtab.c and avtab.c. By implementing dynamic resizing for
+those structures we were able to bring that down to a 19 second runtime (80%
+performance improvement) at the cost of ~6% more memory overhead.
 
--v2
-rework some of the if(!obj) BUG() to be BUG_ON(!obj)
-drop flex_array_put() calls and just use a _get() object directly
+Signed-off-by: Matthew Robertson <Matthew.L.Robertson@boeing.com>
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
 ---
 
- security/selinux/ss/policydb.c |   43 +++++++++++++++++++++++++++++++---------
- security/selinux/ss/policydb.h |    4 +++-
- security/selinux/ss/services.c |    7 +++++--
- 3 files changed, 41 insertions(+), 13 deletions(-)
+After applying this fix, bzip2 takes up a disproportionate percentage of the
+time for a policy load. By effectively disabling bzip2 (changing bzip_blocksize
+in libsemanage to 0) we reduced load time to about 11 seconds--disabling
+compression might not be a tenable solution but supporting a faster compression
+option like gzip could be worth the trouble if the other fixes check out.
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 863d70f..3d62d5b 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -31,6 +31,7 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/audit.h>
-+#include <linux/flex_array.h>
- #include "security.h"
+For reference, here are the numbers and perf reports we're looking at for the
+policy loading step after a compile/install:
+
+SELinux Reference Policy        v2.20091117
+libsepol                        v2.0.41
+libsemanage                     v2.0.45
+libselinux                      v2.0.94
+libbz2                          v1.0.5-4
+
+ORIGINAL LIBRARIES: 96.0s
+[full compile + load: 142s]
+
+    54.34%  semodule  /lib/libc-2.11.2.so            [.] __strcmp_sse42
+    16.08%  semodule  /lib/libsepol.so.1             [.] hashtab_search
+     4.74%  semodule  /lib/libsepol.so.1             [.] symcmp
+     3.98%  semodule  /lib/libsepol.so.1             [.] strcmp@plt
+     3.76%  semodule  /lib/libbz2.so.1.0.4           [.] 0x0000000000b0bc
+     2.80%  semodule  /lib/libsepol.so.1             [.] avtab_search_node
+     2.72%  semodule  /lib/libbz2.so.1.0.4           [.] 0x000000000022d0
+     1.51%  semodule  /lib/libsepol.so.1             [.] ebitmap_set_bit
+     1.12%  semodule  /lib/libsepol.so.1             [.] hashtab_map
+     1.00%  semodule  /lib/libsepol.so.1             [.] symhash
+     0.95%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_decompress
+     0.90%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_compressBlock
+     0.68%  semodule  /lib/libc-2.11.2.so            [.] __strlen_sse42
+     0.57%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_bzDecompress
+
+DYNAMIC HASHING ENABLED, BZIP2 LEFT ENABLED: 19s, 80% improvement
+[full compile + load: 70.5s, ~50% improvement]
+
+    28.57%  semodule  /lib/libbz2.so.1.0.4           [.] 0x0000000000b539
+     7.53%  semodule  /lib/libsepol.so.1             [.] ebitmap_set_bit
+     7.24%  semodule  /lib/libc-2.11.2.so            [.] __strcmp_sse42
+     5.91%  semodule  /lib/libsepol.so.1             [.] hashtab_map
+     4.91%  semodule  /lib/libsepol.so.1             [.] symhash
+     4.66%  semodule  /lib/libsepol.so.1             [.] hashtab_search
+     4.58%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_decompress
+     4.46%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_compressBlock
+     4.38%  semodule  /lib/libsepol.so.1             [.] avtab_search_node
+     3.40%  semodule  /lib/libbz2.so.1.0.4           [.] 0x0000000000d1f9
+     2.29%  semodule  /lib/libbz2.so.1.0.4           [.] BZ2_bzDecompress
+
+DYNAMIC HASHING ENABLED, BZIP2 DISABLED: 11 seconds, 88% improvement
+[full compile + load: 62s, ~55% improvement]
+
+    13.39%  semodule  /lib/libsepol.so.1             [.] ebitmap_set_bit
+    12.77%  semodule  /lib/libc-2.11.2.so            [.] __strcmp_sse42
+    10.44%  semodule  /lib/libsepol.so.1             [.] hashtab_map
+     8.91%  semodule  /lib/libsepol.so.1             [.] symhash
+     8.28%  semodule  /lib/libsepol.so.1             [.] hashtab_search
+     7.74%  semodule  /lib/libsepol.so.1             [.] avtab_search_node
+
+ libsepol/src/avtab.c   |   48 ++++++++++++++++++++++----
+ libsepol/src/hashtab.c |   89 +++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 103 insertions(+), 34 deletions(-)
+
+diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+index ea947cb..51abd04 100644
+--- a/libsepol/src/avtab.c
++++ b/libsepol/src/avtab.c
+@@ -78,17 +78,13 @@ avtab_insert_node(avtab_t * h, int hvalue, avtab_ptr_t prev, avtab_key_t * key,
+ 	return newnode;
+ }
  
- #include "policydb.h"
-@@ -738,11 +739,17 @@ void policydb_destroy(struct policydb *p)
- 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
- 	hashtab_destroy(p->range_tr);
+-int avtab_insert(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
++int avtab_insert__(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
+ {
+-	int hvalue;
+ 	avtab_ptr_t prev, cur, newnode;
++	int hvalue = avtab_hash(key, h->mask);
+ 	uint16_t specified =
+ 	    key->specified & ~(AVTAB_ENABLED | AVTAB_ENABLED_OLD);
  
--	if (p->type_attr_map) {
--		for (i = 0; i < p->p_types.nprim; i++)
--			ebitmap_destroy(&p->type_attr_map[i]);
-+	if (p->type_attr_map_array) {
-+		for (i = 0; i < p->p_types.nprim; i++) {
-+			struct ebitmap *e;
+-	if (!h || !h->htable)
+-		return SEPOL_ENOMEM;
+-
+-	hvalue = avtab_hash(key, h->mask);
+ 	for (prev = NULL, cur = h->htable[hvalue];
+ 	     cur; prev = cur, cur = cur->next) {
+ 		if (key->source_type == cur->key.source_type &&
+@@ -110,8 +106,46 @@ int avtab_insert(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
+ 	newnode = avtab_insert_node(h, hvalue, prev, key, datum);
+ 	if (!newnode)
+ 		return SEPOL_ENOMEM;
++	return SEPOL_OK;
++}
+ 
+-	return 0;
++int avtab_insert(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
++{
++        int oldsize, i;
++	avtab_ptr_t prev, cur, *oldtbl, *newtbl;
 +
-+			e = flex_array_get(p->type_attr_map_array, i);
-+			if (!e)
-+				continue;
-+			ebitmap_destroy(e);
++	if (!h || !h->htable)
++		return SEPOL_ENOMEM;
++
++	/* If we don't need to resize, just insert the new entry */
++	if (h->nslot * 3/4 > h->nel)
++		return avtab_insert__(h, key, datum);
++
++	/* Attempt to allocate a bigger table */
++	newtbl = (avtab_ptr_t*) calloc(sizeof(avtab_ptr_t), h->nslot * 2);
++	if (newtbl == NULL)
++		return avtab_insert__(h, key, datum);
++
++	/* Reinsert all elements into the new table */
++	h->nel = 0;
++	oldsize = h->nslot;
++	h->nslot *= 2;
++	h->mask = h->nslot - 1;
++	oldtbl = h->htable;
++	h->htable = newtbl;
++
++	for (i = 0; i < oldsize; i++) {
++		cur = oldtbl[i];
++		while (cur != NULL) {
++			avtab_insert(h, &(cur->key), &(cur->datum));
++			prev = cur;
++			cur = cur->next;
++			free (prev);
 +		}
-+		flex_array_free(p->type_attr_map_array);
++	}
++	free (oldtbl);
++
++	return avtab_insert__(h, key, datum);
+ }
+ 
+ /* Unlike avtab_insert(), this function allow multiple insertions of the same 
+diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
+index c4be72c..943a2cd 100644
+--- a/libsepol/src/hashtab.c
++++ b/libsepol/src/hashtab.c
+@@ -63,41 +63,76 @@ hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+ 	return p;
+ }
+ 
++int hashtab_insert__(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
++{
++        int hvalue = h->hash_value(h, key);
++        hashtab_ptr_t prev = NULL;
++        hashtab_ptr_t cur = h->htable[hvalue];
++        hashtab_ptr_t newnode;
++
++        while (cur && h->keycmp(h, key, cur->key) > 0) {
++                prev = cur;
++                cur = cur->next;
++        }
++
++        if (cur && (h->keycmp(h, key, cur->key) == 0))
++                return SEPOL_EEXIST;
++
++        newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
++        if (newnode == NULL)
++                return SEPOL_ENOMEM;
++        memset(newnode, 0, sizeof(struct hashtab_node));
++        newnode->key = key;
++        newnode->datum = datum;
++        if (prev) {
++                newnode->next = prev->next;
++                prev->next = newnode;
++        } else {
++                newnode->next = h->htable[hvalue];
++                h->htable[hvalue] = newnode;
++        }
++
++        h->nel++;
++        return SEPOL_OK;
++}
++
+ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
+ {
+-	int hvalue;
+-	hashtab_ptr_t prev, cur, newnode;
++	hashtab_ptr_t *oldtbl, *newtbl;
++	int oldsize, i;
+ 
+ 	if (!h)
+ 		return SEPOL_ENOMEM;
+ 
+-	hvalue = h->hash_value(h, key);
+-	prev = NULL;
+-	cur = h->htable[hvalue];
+-	while (cur && h->keycmp(h, key, cur->key) > 0) {
+-		prev = cur;
+-		cur = cur->next;
+-	}
+-
+-	if (cur && (h->keycmp(h, key, cur->key) == 0))
+-		return SEPOL_EEXIST;
+-
+-	newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
+-	if (newnode == NULL)
+-		return SEPOL_ENOMEM;
+-	memset(newnode, 0, sizeof(struct hashtab_node));
+-	newnode->key = key;
+-	newnode->datum = datum;
+-	if (prev) {
+-		newnode->next = prev->next;
+-		prev->next = newnode;
+-	} else {
+-		newnode->next = h->htable[hvalue];
+-		h->htable[hvalue] = newnode;
++	/* If we don't need to resize, just insert the new entry */
++	if (h->size > h->nel)
++		return hashtab_insert__(h, key, datum);
++
++	/* Attempt to allocate a bigger table */
++	newtbl = (hashtab_ptr_t*) calloc(sizeof(hashtab_ptr_t), h->size * 8);
++	if (newtbl == NULL)
++		return hashtab_insert__(h, key, datum);
++
++	/* Reinsert all elements into the new table */
++	oldtbl = h->htable;
++	oldsize = h->size;
++	h->nel = 0;
++	h->size *= 8;
++	h->htable = newtbl;
++
++	for (i = 0; i < oldsize; i++) {
++		hashtab_ptr_t prev = NULL;
++		hashtab_ptr_t cur = oldtbl[i];
++		while (cur != NULL) {
++			hashtab_insert__(h, cur->key, cur->datum);
++			prev = cur;
++			cur = cur->next;
++			free(prev);
++		}
  	}
--	kfree(p->type_attr_map);
- 	ebitmap_destroy(&p->policycaps);
- 	ebitmap_destroy(&p->permissive_map);
++	free(oldtbl);
  
-@@ -2242,19 +2249,30 @@ int policydb_read(struct policydb *p, void *fp)
- 		goto bad;
+-	h->nel++;
+-	return SEPOL_OK;
++	return hashtab_insert__(h, key, datum);
+ }
  
- 	rc = -ENOMEM;
--	p->type_attr_map = kmalloc(p->p_types.nprim * sizeof(struct ebitmap), GFP_KERNEL);
--	if (!p->type_attr_map)
-+	p->type_attr_map_array = flex_array_alloc(sizeof(struct ebitmap),
-+						  p->p_types.nprim,
-+						  GFP_KERNEL | __GFP_ZERO);
-+	if (!p->type_attr_map_array)
-+		goto bad;
-+
-+	/* preallocate so we don't have to worry about the put ever failing */
-+	rc = flex_array_prealloc(p->type_attr_map_array, 0, p->p_types.nprim - 1,
-+				 GFP_KERNEL | __GFP_ZERO);
-+	if (rc)
- 		goto bad;
- 
- 	for (i = 0; i < p->p_types.nprim; i++) {
--		ebitmap_init(&p->type_attr_map[i]);
-+		struct ebitmap *e = flex_array_get(p->type_attr_map_array, i);
-+
-+		BUG_ON(!e);
-+		ebitmap_init(e);
- 		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
--			rc = ebitmap_read(&p->type_attr_map[i], fp);
-+			rc = ebitmap_read(e, fp);
- 			if (rc)
- 				goto bad;
- 		}
- 		/* add the type itself as the degenerate case */
--		rc = ebitmap_set_bit(&p->type_attr_map[i], i, 1);
-+		rc = ebitmap_set_bit(e, i, 1);
- 		if (rc)
- 			goto bad;
- 	}
-@@ -3100,7 +3118,12 @@ int policydb_write(struct policydb *p, void *fp)
- 		return rc;
- 
- 	for (i = 0; i < p->p_types.nprim; i++) {
--		rc = ebitmap_write(&p->type_attr_map[i], fp);
-+		struct ebitmap *e;
-+
-+		e = flex_array_get(p->type_attr_map_array, i);
-+		BUG_ON(!e);
-+
-+		rc = ebitmap_write(e, fp);
- 		if (rc)
- 			return rc;
- 	}
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 9cbf9df..e013654 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -24,6 +24,8 @@
- #ifndef _SS_POLICYDB_H_
- #define _SS_POLICYDB_H_
- 
-+#include <linux/flex_array.h>
-+
- #include "symtab.h"
- #include "avtab.h"
- #include "sidtab.h"
-@@ -246,7 +248,7 @@ struct policydb {
- 	struct hashtab *range_tr;
- 
- 	/* type -> attribute reverse mapping */
--	struct ebitmap *type_attr_map;
-+	struct flex_array *type_attr_map_array;
- 
- 	struct ebitmap policycaps;
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index a4ac232..527f369 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -50,6 +50,7 @@
- #include <linux/audit.h>
- #include <linux/mutex.h>
- #include <linux/selinux.h>
-+#include <linux/flex_array.h>
- #include <net/netlabel.h>
- 
- #include "flask.h"
-@@ -627,8 +628,10 @@ static void context_struct_compute_av(struct context *scontext,
- 	 */
- 	avkey.target_class = tclass;
- 	avkey.specified = AVTAB_AV;
--	sattr = &policydb.type_attr_map[scontext->type - 1];
--	tattr = &policydb.type_attr_map[tcontext->type - 1];
-+	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
-+	BUG_ON(!sattr);
-+	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
-+	BUG_ON(!tattr);
- 	ebitmap_for_each_positive_bit(sattr, snode, i) {
- 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
- 			avkey.source_type = i + 1;
+ int hashtab_remove(hashtab_t h, hashtab_key_t key,
+-- 
+1.7.0
 
 
 --
