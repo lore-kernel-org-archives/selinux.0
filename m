@@ -1,162 +1,564 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH -v3] selinux: convert the policy type_attr_map to flex_array
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
-Date: Thu, 29 Jul 2010 23:02:34 -0400
-Message-ID: <20100730030233.18877.81076.stgit@paris.rdu.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o6U4oeR3015136
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2010 00:50:40 -0400
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o6U4oF0x020169
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2010 04:50:16 GMT
+Message-ID: <4C5259CF.4000801@ak.jp.nec.com>
+Date: Fri, 30 Jul 2010 13:49:19 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>,
+        Reference Policy <refpolicy@oss1.tresys.com>,
+        Memcached <memcached@googlegroups.com>
+Subject: memcached permissions
+Content-Type: multipart/mixed;
+ boundary="------------090209050401000706060201"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Current selinux policy can have over 3000 types.  The type_attr_map in
-policy is an array sized by the number of types times sizeof(struct ebitmap)
-(12 on x86_64).  Basic math tells us the array is going to be of length
-3000 x 12 = 36,000 bytes.  The largest 'safe' allocation on a long running
-system is 16k.  Most of the time a 32k allocation will work.  But on long
-running systems a 64k allocation (what we need) can fail quite regularly.
-In order to deal with this I am converting the type_attr_map to use
-flex_arrays.  Let the library code deal with breaking this into PAGE_SIZE
-pieces.
+This is a multi-part message in MIME format.
+--------------090209050401000706060201
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
--v2
-rework some of the if(!obj) BUG() to be BUG_ON(!obj)
-drop flex_array_put() calls and just use a _get() object directly
+I'll mainly submit the patch and message to SELinux community,
+but please don't hesitate to comment anything from memcached
+community.
+--------
 
--v3
-make apply to James' tree (drop the policydb_write changes)
+The attached patch adds policies to support access controls
+on key-value items managed by memcached with SELinux engine.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
----
+Nowadays, various kind of key-value-stores support memcached
+compatible protocol as a de-facto standard. So, it will be a
+reasonable start to consider the protocol to control accesses
+from clients; typically web applications.
 
- security/selinux/ss/policydb.c |   41 ++++++++++++++++++++++++++++++----------
- security/selinux/ss/policydb.h |    4 +++-
- security/selinux/ss/services.c |    7 +++++--
- 3 files changed, 39 insertions(+), 13 deletions(-)
+  http://github.com/memcached/memcached/blob/master/doc/protocol.txt
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 674ddfe..3a29704 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -31,6 +31,7 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/audit.h>
-+#include <linux/flex_array.h>
- #include "security.h"
+1) new permissions
+
+This patch adds 'kv_item' class with the following permissions
+ - create
+ - getattr
+ - setattr
+ - remove
+ - relabelfrom
+ - relabelto
+ - read
+ - write
+ - append
+ - calculate
+
+   Most of permission works as literal.
+   On the 'SET' or 'CAS' operations, it creates a new item when here
+   is no items with same kye. In this case, 'create' permission shall
+   be checked. Elsewhere, 'write' permission shall be checked on the
+   existing items.
+
+   When an item get expired, it shall be unlinked internally. In this
+   case, no permissions are checked, because it does not work according
+   to the user's request.
+
+   On the 'FLUSH_ALL' operation, it unlinks any items older than
+   a certain watermark. In this case, 'remove' permission shall be
+   checked on the items to be unlinked. If violated, it skips to
+   unlink this item.
+
+   On 'INCR' or 'DECR' operation, 'calculate' permission shall be checked.
+   Is it necessary to distinguish between 'INCR' and 'DECR' here?
+   E.g, an item which can be incremented, but unavailable to decrement.
+
+2) new types
+ - memcached_db_t
+   Some of modular memcached engines support on-disk storage, not only
+   volatile ram. The selinux_engine.so allows us to use a certain file
+   as a backend storage, but existing policy does not have definition
+   of data file type. This type allows memcached_t read/write accesses.
+
+ - memcached_item_t         (default of unconfined domain)
+ - memcached_ro_item_t
+ - memcached_secret_item_t
+ - user_memcached_item_t    (default of rbac domain)
+ - unpriv_memcached_item_t  (default of unprivileged domain)
+   These are types of individual key-value items.
+   The three default types are read-writable for its domains,
+   memcached_ro_item_t is read-only for confined domains, and
+   memcached_secret_t is invisible from confined domains.
+
+3) supplemental policies
+ - This patch also adds permission on memcached_t to communicate with
+   SELinux using netlink socket and selinuxfs.
+ - This patch also adds permission on memcached_t to write out audit
+   logs onto auditd daemon, although it is not implemented yet.
+
+Thanks, Any comments please.
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------090209050401000706060201
+Content-Type: text/x-patch;
+ name="refpolicy-memcached.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="refpolicy-memcached.1.patch"
+
+diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+index 6760c95..1e1a6a3 100644
+--- a/policy/flask/access_vectors
++++ b/policy/flask/access_vectors
+@@ -816,3 +816,17 @@ inherits x_device
  
- #include "policydb.h"
-@@ -739,11 +740,17 @@ void policydb_destroy(struct policydb *p)
- 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
- 	hashtab_destroy(p->range_tr);
- 
--	if (p->type_attr_map) {
--		for (i = 0; i < p->p_types.nprim; i++)
--			ebitmap_destroy(&p->type_attr_map[i]);
-+	if (p->type_attr_map_array) {
-+		for (i = 0; i < p->p_types.nprim; i++) {
-+			struct ebitmap *e;
+ class x_keyboard
+ inherits x_device
 +
-+			e = flex_array_get(p->type_attr_map_array, i);
-+			if (!e)
-+				continue;
-+			ebitmap_destroy(e);
-+		}
-+		flex_array_free(p->type_attr_map_array);
- 	}
--	kfree(p->type_attr_map);
- 	ebitmap_destroy(&p->policycaps);
- 	ebitmap_destroy(&p->permissive_map);
++class kv_item
++{
++	create
++	getattr
++	setattr
++	remove
++	relabelfrom
++	relabelto
++	read
++	write
++	append
++	calculate
++}
+diff --git a/policy/flask/security_classes b/policy/flask/security_classes
+index fa65db2..9ace105 100644
+--- a/policy/flask/security_classes
++++ b/policy/flask/security_classes
+@@ -125,4 +125,7 @@ class tun_socket
+ class x_pointer			# userspace
+ class x_keyboard		# userspace
  
-@@ -2257,19 +2264,33 @@ int policydb_read(struct policydb *p, void *fp)
- 	if (rc)
- 		goto bad;
- 
--	p->type_attr_map = kmalloc(p->p_types.nprim * sizeof(struct ebitmap), GFP_KERNEL);
--	if (!p->type_attr_map)
-+	rc = -ENOMEM;
-+	p->type_attr_map_array = flex_array_alloc(sizeof(struct ebitmap),
-+						  p->p_types.nprim,
-+						  GFP_KERNEL | __GFP_ZERO);
-+	if (!p->type_attr_map_array)
-+		goto bad;
++# key-value-store, such as memcached
++class kv_item			# userspace
 +
-+	/* preallocate so we don't have to worry about the put ever failing */
-+	rc = flex_array_prealloc(p->type_attr_map_array, 0, p->p_types.nprim - 1,
-+				 GFP_KERNEL | __GFP_ZERO);
-+	if (rc)
- 		goto bad;
+ # FLASK
+diff --git a/policy/mcs b/policy/mcs
+index af90ef2..bcc0c54 100644
+--- a/policy/mcs
++++ b/policy/mcs
+@@ -132,4 +132,13 @@ mlsconstrain db_procedure { drop getattr setattr execute install }
+ mlsconstrain db_blob { drop getattr setattr relabelfrom read write import export }
+ 	( h1 dom h2 );
  
- 	for (i = 0; i < p->p_types.nprim; i++) {
--		ebitmap_init(&p->type_attr_map[i]);
-+		struct ebitmap *e = flex_array_get(p->type_attr_map_array, i);
++#
++# MCS policy for key-value items with SELinux support
++#
++mlsconstrain kv_item { create relabelto }
++	(( h1 dom h2 ) and ( l2 eq h2 ));
 +
-+		BUG_ON(!e);
-+		ebitmap_init(e);
- 		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
--			if (ebitmap_read(&p->type_attr_map[i], fp))
-+			rc = ebitmap_read(e, fp);
-+			if (rc)
- 				goto bad;
- 		}
- 		/* add the type itself as the degenerate case */
--		if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
--				goto bad;
-+		rc = ebitmap_set_bit(e, i, 1);
-+		if (rc)
-+			goto bad;
- 	}
- 
- 	rc = policydb_bounds_sanity_check(p);
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 26d9adf..310e944 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -24,6 +24,8 @@
- #ifndef _SS_POLICYDB_H_
- #define _SS_POLICYDB_H_
- 
-+#include <linux/flex_array.h>
++mlsconstrain kv_item { getattr setattr remove read write append calculate }
++	( h1 dom h2 );
 +
- #include "symtab.h"
- #include "avtab.h"
- #include "sidtab.h"
-@@ -246,7 +248,7 @@ struct policydb {
- 	struct hashtab *range_tr;
+ ') dnl end enable_mcs
+diff --git a/policy/mls b/policy/mls
+index b9f0a3e..75a5b98 100644
+--- a/policy/mls
++++ b/policy/mls
+@@ -827,4 +827,42 @@ mlsvalidatetrans { db_database db_table db_procedure db_column db_tuple db_blob
+ 	  (( t3 == mlsdbdowngrade ) and ( h1 dom h2 )) or
+ 	  (( t3 == mlsdbdowngrade ) and ( h1 incomp h2 ))));
  
- 	/* type -> attribute reverse mapping */
--	struct ebitmap *type_attr_map;
-+	struct flex_array *type_attr_map_array;
++#
++# MLS policy for key-value store
++#
++
++# make sure kv_item has single level
++mlsconstrain { kv_item } { create relabelto }
++	( l2 eq h2 );
++
++# new label must be dominated by the subjects clearance
++mlsconstrain { kv_item } { relabelto }
++	( h1 dom h2 );
++
++# the key-value item "read" operations
++mlsconstrain { kv_item } { getattr read }
++	(( l1 dom l2 ) or
++	 (( t1 == mlsdbreadtoclr ) and ( h1 dom l2 )) or
++	  ( t1 == mlsdbread ) or
++	  ( t2 == mlstrustedobject ));
++
++# the key-value item "write" operations
++mlsconstrain { kv_item } { create remove setattr write append calculate }
++	(( l1 eq l2 ) or
++	 (( t1 == mlsdbwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
++	 (( t2 == mlsdbwriteinrange ) and ( l1 dom l2 ) and ( h1 domby h2 )) or
++	 ( t1 == mlsdbwrite ) or
++	 ( t2 == mlstrustedobject ));
++
++# the key-value item upgrade/downgrade rule
++mlsvalidatetrans { kv_item }
++	((( l1 eq l2 ) or
++	  (( t3 == mlsdbupgrade ) and ( l1 domby l2 )) or
++	  (( t3 == mlsdbdowngrade ) and ( l1 dom l2 )) or
++	  (( t3 == mlsdbdowngrade ) and ( l1 incomp l2 ))) and
++	 (( l1 eq h2 ) or
++	  (( t3 == mlsdbupgrade ) and ( h1 domby h2 )) or
++	  (( t3 == mlsdbdowngrade ) and ( h1 dom h2 )) or
++	  (( t3 == mlsdbdowngrade ) and ( h1 incomp h2 ))));
++
+ ') dnl end enable_mls
+diff --git a/policy/modules/roles/staff.te b/policy/modules/roles/staff.te
+index 30754e4..c447f70 100644
+--- a/policy/modules/roles/staff.te
++++ b/policy/modules/roles/staff.te
+@@ -79,6 +79,10 @@ optional_policy(`
+ ')
  
- 	struct ebitmap policycaps;
+ optional_policy(`
++	memcached_role(staff_r, staff_t)
++')
++
++optional_policy(`
+ 	mozilla_role(staff_r, staff_t)
+ ')
  
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 1de60ce..9ea2fec 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -50,6 +50,7 @@
- #include <linux/audit.h>
- #include <linux/mutex.h>
- #include <linux/selinux.h>
-+#include <linux/flex_array.h>
- #include <net/netlabel.h>
+diff --git a/policy/modules/roles/unprivuser.te b/policy/modules/roles/unprivuser.te
+index d5d5042..f737a33 100644
+--- a/policy/modules/roles/unprivuser.te
++++ b/policy/modules/roles/unprivuser.te
+@@ -73,6 +73,10 @@ optional_policy(`
+ ')
  
- #include "flask.h"
-@@ -626,8 +627,10 @@ static void context_struct_compute_av(struct context *scontext,
- 	 */
- 	avkey.target_class = tclass;
- 	avkey.specified = AVTAB_AV;
--	sattr = &policydb.type_attr_map[scontext->type - 1];
--	tattr = &policydb.type_attr_map[tcontext->type - 1];
-+	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
-+	BUG_ON(!sattr);
-+	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
-+	BUG_ON(!tattr);
- 	ebitmap_for_each_positive_bit(sattr, snode, i) {
- 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
- 			avkey.source_type = i + 1;
+ optional_policy(`
++	memcached_role(user_r, user_t)
++')
++
++optional_policy(`
+ 	mozilla_role(user_r, user_t)
+ ')
+ 
+diff --git a/policy/modules/services/apache.if b/policy/modules/services/apache.if
+index 57feb5a..9fe608d 100644
+--- a/policy/modules/services/apache.if
++++ b/policy/modules/services/apache.if
+@@ -175,6 +175,14 @@ template(`apache_content_template',`
+ 	')
+ 
+ 	optional_policy(`
++		memcached_unpriv_client(httpd_$1_script_t)
++
++		tunable_policy(`httpd_enable_cgi && httpd_can_network_connect_db',`
++			memcached_tcp_connect(httpd_$1_script_t)
++		')
++	')
++
++	optional_policy(`
+ 		tunable_policy(`httpd_enable_cgi && allow_ypbind',`
+ 			nis_use_ypbind_uncond(httpd_$1_script_t)
+ 		')
+diff --git a/policy/modules/services/apache.te b/policy/modules/services/apache.te
+index e33b9cd..da1b513 100644
+--- a/policy/modules/services/apache.te
++++ b/policy/modules/services/apache.te
+@@ -570,6 +570,16 @@ optional_policy(`
+ ')
+ 
+ optional_policy(`
++	# Allow httpd to work with memcached
++	memcached_stream_connect(httpd_t)
++	memcached_unpriv_client(httpd_t)
++
++	tunable_policy(`httpd_can_network_connect_db',`
++		memcached_tcp_connect(httpd_t)
++	')
++')
++
++optional_policy(`
+ 	openca_domtrans(httpd_t)
+ 	openca_signal(httpd_t)
+ 	openca_sigstop(httpd_t)
+diff --git a/policy/modules/services/memcached.if b/policy/modules/services/memcached.if
+index db4fd6f..9f2e07b 100644
+--- a/policy/modules/services/memcached.if
++++ b/policy/modules/services/memcached.if
+@@ -71,3 +71,148 @@ interface(`memcached_admin',`
+ 
+ 	admin_pattern($1, memcached_var_run_t)
+ ')
++
++########################################
++## <summary>
++##	Marks as a memcached key/value item type
++## </summary>
++## <param name="type">
++##	<summary>
++##	Type marked as a memcached key/value item type.
++##	</summary>
++## </param>
++#
++interface(`memcached_item_object',`
++	gen_require(`
++		attribute memcached_item_type;
++	')
++
++	typeattribute $1 memcached_item_type;
++')
++
++########################################
++## <summary>
++##	Allow the specified domain to connect to memcached with a tcp socket.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`memcached_tcp_connect',`
++	gen_require(`
++		type memcached_t;
++	')
++
++	corenet_tcp_recvfrom_labeled($1, memcached_t)
++	corenet_tcp_sendrecv_memcache_port($1)
++	corenet_tcp_connect_memcache_port($1)
++	corenet_sendrecv_memcache_client_packets($1)
++')
++
++########################################
++## <summary>
++##	Allow the specified domain to connect to memcached with a unix socket.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`memcached_stream_connect',`
++	gen_require(`
++		type memcached_t;
++		type memcached_var_run_t;
++	')
++
++	files_search_pids($1)
++	allow $1 memcached_t:unix_stream_socket connectto;
++	# we recommend to put the sock file in /var/run/memcached
++	rw_sock_files_pattern($1, memcached_var_run_t, memcached_var_run_t)
++')
++
++########################################
++## <summary>
++##	Allow the specified domain unconfined accesses to any memcached items.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`memcached_unconfined',`
++	gen_require(`
++		attribute memcached_unconfined_type;
++	')
++	typeattribute $1 memcached_unconfined_type;
++')
++
++#######################################
++## <summary>
++##	Role access to memcached with SELinux suport
++## </summary>
++## <param name="user_role">
++##	<summary>
++##	The role associated with the user domain.
++##	</summary>
++## </param>
++## <param name="user_domain">
++##	<summary>
++##	The type of the user domain.
++##	</summary>
++## </param>
++#
++interface(`memcached_role',`
++	gen_require(`
++		class kv_item all_kv_item_perms;
++
++		attribute memcached_client_type;
++		type memcached_t;
++		type user_memcached_item_t;
++	')
++
++	########################################
++	#
++	# Client local policy
++	#
++	typeattribute $2 memcached_client_type;
++
++	type_transition $2 memcached_t:kv_item user_memcached_item_t;
++
++	allow $2 user_memcached_item_t:kv_item { create getattr setattr remove read write append calculate };
++')
++
++########################################
++## <summary>
++##	Allow the specified domain unprivileged accesses to unifined key-value
++##	items managed by memcached with SELinux support.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`memcached_unpriv_client',`
++        gen_require(`
++		class kv_item all_kv_item_perms;
++
++		attribute memcached_client_type;
++		type memcached_t;
++		type unpriv_memcached_item_t;
++	')
++
++	########################################
++	#
++	# Client local policy
++	#
++	typeattribute $1 memcached_client_type;
++
++	type_transition $1 memcached_t:kv_item unpriv_memcached_item_t;
++
++	allow $1 unpriv_memcached_item_t:kv_item { create getattr setattr remove read write calculate };
++')
+diff --git a/policy/modules/services/memcached.te b/policy/modules/services/memcached.te
+index b681608..854d904 100644
+--- a/policy/modules/services/memcached.te
++++ b/policy/modules/services/memcached.te
+@@ -15,6 +15,33 @@ init_script_file(memcached_initrc_exec_t)
+ type memcached_var_run_t;
+ files_pid_file(memcached_var_run_t)
+ 
++type memcached_db_t;
++files_type(memcached_db_t)
++
++# memcached clients
++attribute memcached_client_type;
++attribute memcached_unconfined_type;
++
++# memcached key/value items
++attribute memcached_item_type;
++
++type memcached_item_t;
++memcached_item_object(memcached_item_t)
++
++type memcached_ro_item_t;
++memcached_item_object(memcached_ro_item_t)
++
++type memcached_secret_item_t;
++memcached_item_object(memcached_secret_item_t)
++
++type user_memcached_item_t;
++typealias user_memcached_item_t alias { staff_memcached_item_t sysadm_memcached_item_t };
++typealias user_memcached_item_t alias { auditadm_memcached_item_t secadm_memcached_item_t };
++memcached_item_object(user_memcached_item_t)
++
++type unpriv_memcached_item_t;
++memcached_item_object(unpriv_memcached_item_t)
++
+ ########################################
+ #
+ # memcached local policy
+@@ -27,6 +54,7 @@ allow memcached_t self:tcp_socket create_stream_socket_perms;
+ allow memcached_t self:udp_socket { create_socket_perms listen };
+ allow memcached_t self:fifo_file rw_fifo_file_perms;
+ allow memcached_t self:unix_stream_socket create_stream_socket_perms;
++allow memcached_t self:netlink_selinux_socket create_socket_perms;
+ 
+ corenet_all_recvfrom_unlabeled(memcached_t)
+ corenet_udp_sendrecv_generic_if(memcached_t)
+@@ -42,17 +70,41 @@ corenet_udp_bind_memcache_port(memcached_t)
+ 
+ manage_dirs_pattern(memcached_t, memcached_var_run_t, memcached_var_run_t)
+ manage_files_pattern(memcached_t, memcached_var_run_t, memcached_var_run_t)
++manage_sock_files_pattern(memcached_t, memcached_var_run_t, memcached_var_run_t)
+ files_pid_filetrans(memcached_t, memcached_var_run_t, { file dir })
+ 
++manage_files_pattern(memcached_t, memcached_db_t, memcached_db_t)
++
+ kernel_read_kernel_sysctls(memcached_t)
+ kernel_read_system_state(memcached_t)
+ 
+ files_read_etc_files(memcached_t)
+ 
++selinux_get_enforce_mode(memcached_t)
++selinux_validate_context(memcached_t)
++selinux_compute_access_vector(memcached_t)
++selinux_compute_create_context(memcached_t)
++selinux_compute_relabel_context(memcached_t)
++
+ term_dontaudit_use_all_ptys(memcached_t)
+ term_dontaudit_use_all_ttys(memcached_t)
+ term_dontaudit_use_console(memcached_t)
+ 
+ auth_use_nsswitch(memcached_t)
+ 
++logging_send_audit_msgs(memcached_t)
++
+ miscfiles_read_localization(memcached_t)
++
++########################################
++#
++# Rules to managed items by memcached with SELinux support
++#
++gen_require(`
++	class kv_item all_kv_item_perms;
++')
++
++allow memcached_client_type memcached_item_t:kv_item { getattr setattr read write append calculate };
++allow memcached_client_type memcached_ro_item_t:kv_item { getattr read };
++type_transition memcached_unconfined_type memcached_t:kv_item memcached_item_t;
++allow memcached_unconfined_type memcached_item_type:kv_item *;
+diff --git a/policy/modules/system/unconfined.if b/policy/modules/system/unconfined.if
+index c11cb30..85645fc 100644
+--- a/policy/modules/system/unconfined.if
++++ b/policy/modules/system/unconfined.if
+@@ -77,6 +77,10 @@ interface(`unconfined_domain_noaudit',`
+ 	')
+ 
+ 	optional_policy(`
++		memcached_unconfined($1)
++	')
++
++	optional_policy(`
+ 		nscd_unconfined($1)
+ 	')
+ 
+diff --git a/policy/modules/system/userdomain.if b/policy/modules/system/userdomain.if
+index fafdd3d..525f3b0 100644
+--- a/policy/modules/system/userdomain.if
++++ b/policy/modules/system/userdomain.if
+@@ -626,6 +626,11 @@ template(`userdom_common_user_template',`
+ 		locate_read_lib_files($1_t)
+ 	')
+ 
++	optional_policy(`
++		memcached_stream_connect($1_t)
++		memcached_tcp_connect($1_t)
++	')
++
+ 	# for running depmod as part of the kernel packaging process
+ 	optional_policy(`
+ 		modutils_read_module_config($1_t)
+@@ -1159,6 +1164,10 @@ template(`userdom_admin_user_template',`
+ 	')
+ 
+ 	optional_policy(`
++		memcached_unconfined($1_t)
++	')
++
++	optional_policy(`
+ 		postgresql_unconfined($1_t)
+ 	')
+ 
 
+--------------090209050401000706060201--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
