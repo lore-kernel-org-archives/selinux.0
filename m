@@ -1,53 +1,128 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o71N6IV5003966
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2010 19:06:18 -0400
-Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o71N6Rr3003695
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2010 23:06:27 GMT
-Received: by gyf1 with SMTP id 1so1387487gyf.12
-        for <selinux@tycho.nsa.gov>; Sun, 01 Aug 2010 16:06:17 -0700 (PDT)
-Message-ID: <4C55FDE7.40703@gmail.com>
-Date: Sun, 01 Aug 2010 19:06:15 -0400
-From: Ralph Blach <chipper19522@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o725jsOf024123
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2010 01:45:55 -0400
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o725jklk023262
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2010 05:45:47 GMT
+Message-ID: <4C565B65.7030004@ak.jp.nec.com>
+Date: Mon, 02 Aug 2010 14:45:09 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
-CC: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: semanage
-References: <4C4F77D6.1080700@chipblach.net> <AANLkTin+L3kZFqLzsy8ioQze7nD3Vf45C+TPrcAYnm38@mail.gmail.com> <4C559624.6040709@gmail.com> <4C559A84.4060004@gmail.com> <4C559F31.4070404@gmail.com> <4C55A265.6090606@gmail.com> <4C55A3B2.8020207@gmail.com> <4C55A44F.4030803@gmail.com> <4C55E1BF.8060407@gmail.com> <4C55E2EA.4020801@gmail.com>
-In-Reply-To: <4C55E2EA.4020801@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Kelvin Edmison <kelvin@kindsight.net>
+CC: memcached@googlegroups.com,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>,
+        Reference Policy <refpolicy@oss1.tresys.com>
+Subject: Re: memcached permissions
+References: <C87851FA.342C3%kelvin@kindsight.net>
+In-Reply-To: <C87851FA.342C3%kelvin@kindsight.net>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+(2010/07/30 22:55), Kelvin Edmison wrote:
+> While I haven't yet read the patch, I would like to understand why there is
+> a need for a Calculate permission.  Why would someone be granted 'calculate'
+> permission but not 'write' permission?
+> 
+> Kelvin
+> 
+The issue depends on individual user's requirement of security.
+If they want not to leak anything over the security domains,
+they should grant the 'calculate' permission on everybody who
+already have both 'read' and 'write' permissions.
+It it equivalent to these permissions.
+However, it may lack flexibility in configuration of access
+controls, if users don't consider 'INCR' and 'DECR' are risk
+information leaks/manipulations.
+For example, it is not a rare case that we don't want to expose
+individual client's items, but want to control a shared reference
+counter.
 
-On 08/01/2010 05:11 PM, Dominick Grift wrote:
-> -i mysshd.pp
-worked like a champ, but a little explantion of what the module reall
-does, would be nice.
+Ideally, I'd like to define more fine grained permissions to
+distinguish a security sensitive operations and others.
+But here is limitation of protocol. We cannot automatically
+determine what is security sensitive data and what is not.
 
-Thanks
+Thanks,
 
-Chip
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iQIcBAEBAgAGBQJMVf3lAAoJEI46azFTGsehIlYQAIa6r7UoOkCAMgYxNqTdzkEj
-NBhnYKaIV5smPRqU3klZ/uwOz7A78+jyBJFoLIgQ8gpFaJcCRtI7P2MaEftExwg3
-zwlld35EO8cSdGgtLgA+itpiJMvfDF6Zqfz9DEiFBORIcT9+8VTMqG1rpYBZ19js
-wgNgGUFIKTqqjwWysMNw1KHNVaHrkqYcPLFWmwCOmsKxAZWrhaKPHZQe2Sm3JPXi
-OJQPK662XHNsACij0CvmqAij5KbvO1KcA6MYUiORryf4KflpMLcJm+c+bbxxCOEm
-xeCUCa/1Brq8DPtn+MxGkVykmAgOBSYjQwxc4Q8Kj1fv5o5K0fA+pYqPjaJMnnjS
-47HO5O8RqjJ9w5wD8ajkfempAbaTNlDxoh5rEEVRIw05zuoE0MHIuYN/ui4zYzbL
-+VRUbg6tTERbsOldIehssI042qpZu4iTx2KhjxJgvQ/mGzeVmvi2r9jrXKyW8goA
-Aplb2w1rGykCb+Wked0UH+9ufBv9UxGM67/HOK052onuIO5/GIwu4+S6iypoQnO0
-FvmMJllzA1uqPT7xwtI0cDxtuAApNj8AKen2nTD9W6+iv7GbzNP5d/8FJMmANzh1
-GtY1OUbepswdUkLD5Zq11aTszVaeVNnf48+LhAW7N7S+TcYe5nNbjPZKKoakPnNw
-6BoDB+dIbs2BG9QUfzb0
-=2/H5
------END PGP SIGNATURE-----
+> On 30/07/10 12:49 AM, "KaiGai Kohei"<kaigai@ak.jp.nec.com>  wrote:
+> 
+>> I'll mainly submit the patch and message to SELinux community,
+>> but please don't hesitate to comment anything from memcached
+>> community.
+>> --------
+>>
+>> The attached patch adds policies to support access controls
+>> on key-value items managed by memcached with SELinux engine.
+>>
+>> Nowadays, various kind of key-value-stores support memcached
+>> compatible protocol as a de-facto standard. So, it will be a
+>> reasonable start to consider the protocol to control accesses
+>> from clients; typically web applications.
+>>
+>>    http://github.com/memcached/memcached/blob/master/doc/protocol.txt
+>>
+>> 1) new permissions
+>>
+>> This patch adds 'kv_item' class with the following permissions
+>>   - create
+>>   - getattr
+>>   - setattr
+>>   - remove
+>>   - relabelfrom
+>>   - relabelto
+>>   - read
+>>   - write
+>>   - append
+>>   - calculate
+>>
+>>     Most of permission works as literal.
+>>     On the 'SET' or 'CAS' operations, it creates a new item when here
+>>     is no items with same kye. In this case, 'create' permission shall
+>>     be checked. Elsewhere, 'write' permission shall be checked on the
+>>     existing items.
+>>
+>>     When an item get expired, it shall be unlinked internally. In this
+>>     case, no permissions are checked, because it does not work according
+>>     to the user's request.
+>>
+>>     On the 'FLUSH_ALL' operation, it unlinks any items older than
+>>     a certain watermark. In this case, 'remove' permission shall be
+>>     checked on the items to be unlinked. If violated, it skips to
+>>     unlink this item.
+>>
+>>     On 'INCR' or 'DECR' operation, 'calculate' permission shall be checked.
+>>     Is it necessary to distinguish between 'INCR' and 'DECR' here?
+>>     E.g, an item which can be incremented, but unavailable to decrement.
+>>
+>> 2) new types
+>>   - memcached_db_t
+>>     Some of modular memcached engines support on-disk storage, not only
+>>     volatile ram. The selinux_engine.so allows us to use a certain file
+>>     as a backend storage, but existing policy does not have definition
+>>     of data file type. This type allows memcached_t read/write accesses.
+>>
+>>   - memcached_item_t         (default of unconfined domain)
+>>   - memcached_ro_item_t
+>>   - memcached_secret_item_t
+>>   - user_memcached_item_t    (default of rbac domain)
+>>   - unpriv_memcached_item_t  (default of unprivileged domain)
+>>     These are types of individual key-value items.
+>>     The three default types are read-writable for its domains,
+>>     memcached_ro_item_t is read-only for confined domains, and
+>>     memcached_secret_t is invisible from confined domains.
+>>
+>> 3) supplemental policies
+>>   - This patch also adds permission on memcached_t to communicate with
+>>     SELinux using netlink socket and selinuxfs.
+>>   - This patch also adds permission on memcached_t to write out audit
+>>     logs onto auditd daemon, although it is not implemented yet.
+>>
+>> Thanks, Any comments please.
+>
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
