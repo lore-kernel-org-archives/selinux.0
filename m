@@ -1,104 +1,41 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 4/4] selinux: rework security_netlbl_secattr_to_sid
+Subject: [PATCH] selinux: type_bounds_sanity_check has a meaningless variable
+	declaration
 To: selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, sds@tycho.nsa.gov
-Date: Tue, 03 Aug 2010 14:31:34 -0400
-Message-ID: <20100803183134.31021.21740.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20100803183116.31021.33444.stgit@paris.rdu.redhat.com>
-References: <20100803183116.31021.33444.stgit@paris.rdu.redhat.com>
+Date: Tue, 03 Aug 2010 15:26:05 -0400
+Message-ID: <20100803192605.1788.92228.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-security_netlbl_secattr_to_sid is difficult to follow, especially the
-return codes.  Try to make the function obvious.
+type is not used at all, stop declaring and assigning it.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/ss/services.c |   33 +++++++++++++++++----------------
- 1 files changed, 17 insertions(+), 16 deletions(-)
+ security/selinux/ss/policydb.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ca0dd97..a1cf46e 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3024,7 +3024,7 @@ static void security_netlbl_cache_add(struct netlbl_lsm_secattr *secattr,
- int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 				   u32 *sid)
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index b7ef93e..3ff0c24 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1606,11 +1606,11 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
+ 
+ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
  {
--	int rc = -EIDRM;
-+	int rc;
- 	struct context *ctx;
- 	struct context ctx_new;
+-	struct type_datum *upper, *type;
++	struct type_datum *upper;
+ 	struct policydb *p = datap;
+ 	int depth = 0;
  
-@@ -3037,14 +3037,13 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 
- 	if (secattr->flags & NETLBL_SECATTR_CACHE) {
- 		*sid = *(u32 *)secattr->cache->data;
--		rc = 0;
- 	} else if (secattr->flags & NETLBL_SECATTR_SECID) {
- 		*sid = secattr->attr.secid;
--		rc = 0;
- 	} else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
-+		rc = -EIDRM;
- 		ctx = sidtab_search(&sidtab, SECINITSID_NETMSG);
- 		if (ctx == NULL)
--			goto netlbl_secattr_to_sid_return;
-+			goto out;
- 
- 		context_init(&ctx_new);
- 		ctx_new.user = ctx->user;
-@@ -3052,34 +3051,36 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 		ctx_new.type = ctx->type;
- 		mls_import_netlbl_lvl(&ctx_new, secattr);
- 		if (secattr->flags & NETLBL_SECATTR_MLS_CAT) {
--			if (ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
--						  secattr->attr.mls.cat) != 0)
--				goto netlbl_secattr_to_sid_return;
-+			rc = ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
-+						   secattr->attr.mls.cat);
-+			if (rc)
-+				goto out;
- 			memcpy(&ctx_new.range.level[1].cat,
- 			       &ctx_new.range.level[0].cat,
- 			       sizeof(ctx_new.range.level[0].cat));
- 		}
--		if (mls_context_isvalid(&policydb, &ctx_new) != 1)
--			goto netlbl_secattr_to_sid_return_cleanup;
-+		rc = -EIDRM;
-+		if (!mls_context_isvalid(&policydb, &ctx_new))
-+			goto out_free;
- 
- 		rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
--		if (rc != 0)
--			goto netlbl_secattr_to_sid_return_cleanup;
-+		if (rc)
-+			goto out_free;
- 
- 		security_netlbl_cache_add(secattr, *sid);
- 
- 		ebitmap_destroy(&ctx_new.range.level[0].cat);
- 	} else {
- 		*sid = SECSID_NULL;
--		rc = 0;
- 	}
- 
--netlbl_secattr_to_sid_return:
- 	read_unlock(&policy_rwlock);
--	return rc;
--netlbl_secattr_to_sid_return_cleanup:
-+	return 0;
-+out_free:
- 	ebitmap_destroy(&ctx_new.range.level[0].cat);
--	goto netlbl_secattr_to_sid_return;
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
- }
- 
- /**
+-	upper = type = datum;
++	upper = datum;
+ 	while (upper->bounds) {
+ 		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+ 			printk(KERN_ERR "SELinux: type %s: "
 
 
 --
