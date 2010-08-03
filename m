@@ -1,41 +1,93 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH] selinux: type_bounds_sanity_check has a meaningless variable
-	declaration
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
-Date: Tue, 03 Aug 2010 15:26:05 -0400
-Message-ID: <20100803192605.1788.92228.stgit@paris.rdu.redhat.com>
+Subject: [PATCH] flex_array: add helpers to get and put to make pointers easy
+	to use
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: dave@linux.vnet.ibm.com, akpm@linux-foundation.org, jmorris@namei.org,
+        sds@tycho.nsa.gov
+Date: Tue, 03 Aug 2010 15:36:23 -0400
+Message-ID: <20100803193623.22126.18019.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-type is not used at all, stop declaring and assigning it.
+Getting and putting arrays of pointers with flex arrays is a PITA.  You
+have to remember to pass &ptr to the _put and you have to do weird and
+wacky casting to get the ptr back from the _get.  Add two functions
+flex_array_get_ptr() and flex_array_put_ptr() to handle all of the magic.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/ss/policydb.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/flex_array.h |    6 ++++++
+ lib/flex_array.c           |   25 ++++++++++++++++++++++++-
+ 2 files changed, 30 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index b7ef93e..3ff0c24 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1606,11 +1606,11 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
+diff --git a/include/linux/flex_array.h b/include/linux/flex_array.h
+index 1d747f7..f4e4eb2 100644
+--- a/include/linux/flex_array.h
++++ b/include/linux/flex_array.h
+@@ -70,4 +70,10 @@ int flex_array_clear(struct flex_array *fa, unsigned int element_nr);
+ void *flex_array_get(struct flex_array *fa, unsigned int element_nr);
+ int flex_array_shrink(struct flex_array *fa);
  
- static int type_bounds_sanity_check(void *key, void *datum, void *datap)
++#define flex_array_put_ptr(fa, nr, src, gfp)	({						\
++						 void *_src = (src);				\
++						 flex_array_put((fa), (nr), &_src, (gfp));	\
++						})
++void *flex_array_get_ptr(struct flex_array *fa, unsigned int element_nr);
++
+ #endif /* _FLEX_ARRAY_H */
+diff --git a/lib/flex_array.c b/lib/flex_array.c
+index 41b1804..77a6fea 100644
+--- a/lib/flex_array.c
++++ b/lib/flex_array.c
+@@ -171,6 +171,8 @@ __fa_get_part(struct flex_array *fa, int part_nr, gfp_t flags)
+  * Note that this *copies* the contents of @src into
+  * the array.  If you are trying to store an array of
+  * pointers, make sure to pass in &ptr instead of ptr.
++ * You may instead wish to use the flex_array_put_ptr()
++ * helper function.
+  *
+  * Locking must be provided by the caller.
+  */
+@@ -265,7 +267,8 @@ int flex_array_prealloc(struct flex_array *fa, unsigned int start,
+  *
+  * Returns a pointer to the data at index @element_nr.  Note
+  * that this is a copy of the data that was passed in.  If you
+- * are using this to store pointers, you'll get back &ptr.
++ * are using this to store pointers, you'll get back &ptr.  You
++ * may instead wish to use the flex_array_get_ptr helper.
+  *
+  * Locking must be provided by the caller.
+  */
+@@ -286,6 +289,26 @@ void *flex_array_get(struct flex_array *fa, unsigned int element_nr)
+ 	return &part->elements[index_inside_part(fa, element_nr)];
+ }
+ 
++/**
++ * flex_array_get_ptr - pull a ptr back out of the array
++ * @fa:		the flex array from which to extract data
++ * @element_nr:	index of the element to fetch from the array
++ *
++ * Returns the pointer placed in the flex array at element_nr using
++ * flex_array_put_ptr().  This function should not be called if the
++ * element in question was not set using the _put_ptr() helper.
++ */
++void *flex_array_get_ptr(struct flex_array *fa, unsigned int element_nr)
++{
++	void **tmp;
++
++	tmp = flex_array_get(fa, element_nr);
++	if (!tmp)
++		return NULL;
++
++	return *tmp;
++}
++
+ static int part_is_free(struct flex_array_part *part)
  {
--	struct type_datum *upper, *type;
-+	struct type_datum *upper;
- 	struct policydb *p = datap;
- 	int depth = 0;
- 
--	upper = type = datum;
-+	upper = datum;
- 	while (upper->bounds) {
- 		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
- 			printk(KERN_ERR "SELinux: type %s: "
+ 	int i;
 
 
 --
