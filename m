@@ -1,93 +1,138 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH] flex_array: add helpers to get and put to make pointers easy
-	to use
-To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: dave@linux.vnet.ibm.com, akpm@linux-foundation.org, jmorris@namei.org,
-        sds@tycho.nsa.gov
-Date: Tue, 03 Aug 2010 15:36:23 -0400
-Message-ID: <20100803193623.22126.18019.stgit@paris.rdu.redhat.com>
+Subject: [PATCH] selinux: convert type_val_to_struct to flex_array
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Tue, 03 Aug 2010 15:44:52 -0400
+Message-ID: <20100803194452.22236.49318.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Getting and putting arrays of pointers with flex arrays is a PITA.  You
-have to remember to pass &ptr to the _put and you have to do weird and
-wacky casting to get the ptr back from the _get.  Add two functions
-flex_array_get_ptr() and flex_array_put_ptr() to handle all of the magic.
+In rawhide type_val_to_struct will allocate 26848 bytes, an order 3
+allocations.  While this hasn't been seen to fail it isn't outside the
+realm of possibiliy on systems with severe memory fragmentation.  Convert
+to flex_array so no allocation will ever be bigger than PAGE_SIZE.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- include/linux/flex_array.h |    6 ++++++
- lib/flex_array.c           |   25 ++++++++++++++++++++++++-
- 2 files changed, 30 insertions(+), 1 deletions(-)
+ security/selinux/ss/policydb.c |   28 +++++++++++++++++++++-------
+ security/selinux/ss/policydb.h |    2 +-
+ security/selinux/ss/services.c |   17 ++++++++++++-----
+ 3 files changed, 34 insertions(+), 13 deletions(-)
 
-diff --git a/include/linux/flex_array.h b/include/linux/flex_array.h
-index 1d747f7..f4e4eb2 100644
---- a/include/linux/flex_array.h
-+++ b/include/linux/flex_array.h
-@@ -70,4 +70,10 @@ int flex_array_clear(struct flex_array *fa, unsigned int element_nr);
- void *flex_array_get(struct flex_array *fa, unsigned int element_nr);
- int flex_array_shrink(struct flex_array *fa);
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 4ca9b5c..b7ef93e 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -297,7 +297,11 @@ static int type_index(void *key, void *datum, void *datap)
+ 		    || typdatum->bounds > p->p_types.nprim)
+ 			return -EINVAL;
+ 		p->p_type_val_to_name[typdatum->value - 1] = key;
+-		p->type_val_to_struct[typdatum->value - 1] = typdatum;
++		/* this flex array was all preallocated, this cannot fail */
++		if (flex_array_put_ptr(p->type_val_to_struct_array,
++				       typdatum->value - 1, typdatum,
++				       GFP_KERNEL | __GFP_ZERO))
++			BUG();
+ 	}
  
-+#define flex_array_put_ptr(fa, nr, src, gfp)	({						\
-+						 void *_src = (src);				\
-+						 flex_array_put((fa), (nr), &_src, (gfp));	\
-+						})
-+void *flex_array_get_ptr(struct flex_array *fa, unsigned int element_nr);
-+
- #endif /* _FLEX_ARRAY_H */
-diff --git a/lib/flex_array.c b/lib/flex_array.c
-index 41b1804..77a6fea 100644
---- a/lib/flex_array.c
-+++ b/lib/flex_array.c
-@@ -171,6 +171,8 @@ __fa_get_part(struct flex_array *fa, int part_nr, gfp_t flags)
-  * Note that this *copies* the contents of @src into
-  * the array.  If you are trying to store an array of
-  * pointers, make sure to pass in &ptr instead of ptr.
-+ * You may instead wish to use the flex_array_put_ptr()
-+ * helper function.
-  *
-  * Locking must be provided by the caller.
-  */
-@@ -265,7 +267,8 @@ int flex_array_prealloc(struct flex_array *fa, unsigned int start,
-  *
-  * Returns a pointer to the data at index @element_nr.  Note
-  * that this is a copy of the data that was passed in.  If you
-- * are using this to store pointers, you'll get back &ptr.
-+ * are using this to store pointers, you'll get back &ptr.  You
-+ * may instead wish to use the flex_array_get_ptr helper.
-  *
-  * Locking must be provided by the caller.
-  */
-@@ -286,6 +289,26 @@ void *flex_array_get(struct flex_array *fa, unsigned int element_nr)
- 	return &part->elements[index_inside_part(fa, element_nr)];
- }
+ 	return 0;
+@@ -474,11 +478,17 @@ static int policydb_index_others(struct policydb *p)
+ 	if (!p->user_val_to_struct)
+ 		goto out;
  
-+/**
-+ * flex_array_get_ptr - pull a ptr back out of the array
-+ * @fa:		the flex array from which to extract data
-+ * @element_nr:	index of the element to fetch from the array
-+ *
-+ * Returns the pointer placed in the flex array at element_nr using
-+ * flex_array_put_ptr().  This function should not be called if the
-+ * element in question was not set using the _put_ptr() helper.
-+ */
-+void *flex_array_get_ptr(struct flex_array *fa, unsigned int element_nr)
-+{
-+	void **tmp;
++	/* Yes, I want the sizeof the pointer, not the structure */
+ 	rc = -ENOMEM;
+-	p->type_val_to_struct =
+-		kmalloc(p->p_types.nprim * sizeof(*(p->type_val_to_struct)),
+-			GFP_KERNEL);
+-	if (!p->type_val_to_struct)
++	p->type_val_to_struct_array = flex_array_alloc(sizeof(struct type_dataum *),
++						       p->p_types.nprim,
++						       GFP_KERNEL | __GFP_ZERO);
++	if (!p->type_val_to_struct_array)
++		goto out;
 +
-+	tmp = flex_array_get(fa, element_nr);
-+	if (!tmp)
-+		return NULL;
++	rc = flex_array_prealloc(p->type_val_to_struct_array, 0,
++				 p->p_types.nprim - 1, GFP_KERNEL | __GFP_ZERO);
++	if (rc)
+ 		goto out;
+ 
+ 	rc = -ENOMEM;
+@@ -689,7 +699,8 @@ void policydb_destroy(struct policydb *p)
+ 	kfree(p->class_val_to_struct);
+ 	kfree(p->role_val_to_struct);
+ 	kfree(p->user_val_to_struct);
+-	kfree(p->type_val_to_struct);
++	if (p->type_val_to_struct_array)
++		flex_array_free(p->type_val_to_struct_array);
+ 
+ 	avtab_destroy(&p->te_avtab);
+ 
+@@ -1608,7 +1619,10 @@ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
+ 			return -EINVAL;
+ 		}
+ 
+-		upper = p->type_val_to_struct[upper->bounds - 1];
++		upper = flex_array_get_ptr(p->type_val_to_struct_array,
++					   upper->bounds - 1);
++		BUG_ON(!upper);
 +
-+	return *tmp;
-+}
+ 		if (upper->attribute) {
+ 			printk(KERN_ERR "SELinux: type %s: "
+ 			       "bounded by attribute %s",
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 95d3d7d..9826a92 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -217,7 +217,7 @@ struct policydb {
+ 	struct class_datum **class_val_to_struct;
+ 	struct role_datum **role_val_to_struct;
+ 	struct user_datum **user_val_to_struct;
+-	struct type_datum **type_val_to_struct;
++	struct flex_array *type_val_to_struct_array;
+ 
+ 	/* type enforcement access vectors and transitions */
+ 	struct avtab te_avtab;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index a1cf46e..060ae71 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -529,12 +529,18 @@ static void type_attribute_bounds_av(struct context *scontext,
+ 	struct context lo_scontext;
+ 	struct context lo_tcontext;
+ 	struct av_decision lo_avd;
+-	struct type_datum *source
+-		= policydb.type_val_to_struct[scontext->type - 1];
+-	struct type_datum *target
+-		= policydb.type_val_to_struct[tcontext->type - 1];
++	struct type_datum *source;
++	struct type_datum *target;
+ 	u32 masked = 0;
+ 
++	source = flex_array_get_ptr(policydb.type_val_to_struct_array,
++				    scontext->type - 1);
++	BUG_ON(!source);
 +
- static int part_is_free(struct flex_array_part *part)
- {
- 	int i;
++	target = flex_array_get_ptr(policydb.type_val_to_struct_array,
++				    tcontext->type - 1);
++	BUG_ON(!target);
++
+ 	if (source->bounds) {
+ 		memset(&lo_avd, 0, sizeof(lo_avd));
+ 
+@@ -827,7 +833,8 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
+ 
+ 	index = new_context->type;
+ 	while (true) {
+-		type = policydb.type_val_to_struct[index - 1];
++		type = flex_array_get_ptr(policydb.type_val_to_struct_array,
++					  index - 1);
+ 		BUG_ON(!type);
+ 
+ 		/* not bounded anymore */
 
 
 --
