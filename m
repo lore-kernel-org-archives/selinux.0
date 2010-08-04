@@ -1,68 +1,60 @@
-Subject: Re: [PATCH 2/4] SELinux: standardize return code handling in
- selinuxfs.c
+Subject: Re: [PATCH] selinux: convert type_val_to_struct to flex_array
 From: Eric Paris <eparis@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1280951733.21957.215.camel@moss-pluto.epoch.ncsc.mil>
-References: <20100803183116.31021.33444.stgit@paris.rdu.redhat.com>
-	 <20100803183122.31021.54273.stgit@paris.rdu.redhat.com>
-	 <1280951733.21957.215.camel@moss-pluto.epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, rientjes@google.com,
+        dave@linux.vnet.ibm.com
+In-Reply-To: <1280949246.21957.213.camel@moss-pluto.epoch.ncsc.mil>
+References: <20100803194452.22236.49318.stgit@paris.rdu.redhat.com>
+	 <1280949246.21957.213.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 04 Aug 2010 16:03:20 -0400
-Message-ID: <1280952200.23348.16.camel@dhcp231-200.rdu.redhat.com>
+Date: Wed, 04 Aug 2010 16:23:59 -0400
+Message-ID: <1280953439.23348.25.camel@dhcp231-200.rdu.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-08-04 at 15:55 -0400, Stephen Smalley wrote:
-> On Tue, 2010-08-03 at 14:31 -0400, Eric Paris wrote:
-> > selinuxfs.c has lots of different standards on how to handle return paths on
-> > error.  For the most part transition to
-> > 
-> > 	rc=errno
-> > 	if (failure)
-> > 		goto out;
-> > [...]
-> > out:
-> > 	cleanup()
-> > 	return rc;
-> > 
-> > Instead of doing cleanup mid function, or having multiple returns or other
-> > options.  This doesn't do that for every function, but most of the complex
-> > functions which have cleanup routines on error.
+Adding Dave and David, the two who seem to have ever touched
+flex_arrays, to see if they have opinions.
+
+On Wed, 2010-08-04 at 15:14 -0400, Stephen Smalley wrote:
+> On Tue, 2010-08-03 at 15:44 -0400, Eric Paris wrote:
+> > In rawhide type_val_to_struct will allocate 26848 bytes, an order 3
+> > allocations.  While this hasn't been seen to fail it isn't outside the
+> > realm of possibiliy on systems with severe memory fragmentation.  Convert
+> > to flex_array so no allocation will ever be bigger than PAGE_SIZE.
 > > 
 > > Signed-off-by: Eric Paris <eparis@redhat.com>
 > > ---
 > > 
-> >  security/selinux/selinuxfs.c |  652 ++++++++++++++++++++----------------------
-> >  1 files changed, 317 insertions(+), 335 deletions(-)
+> >  security/selinux/ss/policydb.c |   28 +++++++++++++++++++++-------
+> >  security/selinux/ss/policydb.h |    2 +-
+> >  security/selinux/ss/services.c |   17 ++++++++++++-----
+> >  3 files changed, 34 insertions(+), 13 deletions(-)
 > > 
-> > diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> > index 402756c..3dcb841 100644
-> > --- a/security/selinux/selinuxfs.c
-> > +++ b/security/selinux/selinuxfs.c
-> > @@ -177,7 +182,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
-> >  	}
-> >  	length = count;
-> >  out:
-> > -	free_page((unsigned long) page);
-> > +	if (page)
-> > +		free_page((unsigned long) page);
-> >  	return length;
+> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> > index 4ca9b5c..b7ef93e 100644
+> > --- a/security/selinux/ss/policydb.c
+> > +++ b/security/selinux/ss/policydb.c
+> > @@ -297,7 +297,11 @@ static int type_index(void *key, void *datum, void *datap)
+> >  		    || typdatum->bounds > p->p_types.nprim)
+> >  			return -EINVAL;
+> >  		p->p_type_val_to_name[typdatum->value - 1] = key;
+> > -		p->type_val_to_struct[typdatum->value - 1] = typdatum;
+> > +		/* this flex array was all preallocated, this cannot fail */
+> > +		if (flex_array_put_ptr(p->type_val_to_struct_array,
+> > +				       typdatum->value - 1, typdatum,
+> > +				       GFP_KERNEL | __GFP_ZERO))
 > 
-> Isn't free_page(NULL) legal?
+> Curious:  do we need to pass any gfp flag values if we are
+> preallocating?  Can the flags here just be 0?
 
-appears as though it is:
+I wouldn't think we need to to pass anything since if we do any
+allocations here something is truly screwed up.  We seem to be the first
+users of the interface, so maybe others had a thought of the best way to
+handle this?  What should to gfp flags be if we preallocated the whole
+array?
 
-void free_pages(unsigned long addr, unsigned int order)
-{
-        if (addr != 0) {
-                VM_BUG_ON(!virt_addr_valid((void *)addr));
-                __free_pages(virt_to_page((void *)addr), order);
-        }
-}
-
-Will resend.
+-Eric
 
 
 --
