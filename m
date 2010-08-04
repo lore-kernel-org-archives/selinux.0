@@ -1,128 +1,145 @@
-Subject: Re: [PATCH] SELinux: allow userspace to read policy back out of
- the kernel
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100803181900.30719.37674.stgit@paris.rdu.redhat.com>
-References: <20100803181900.30719.37674.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 04 Aug 2010 14:11:53 -0400
-Message-ID: <1280945513.21957.204.camel@moss-pluto.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o74IWPJ5021426
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2010 14:32:25 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o74IWKwB022998
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2010 18:32:20 GMT
+Date: Wed, 04 Aug 2010 14:32:23 -0400
+Subject: Re: Patch for python3 for libselinux
+From: Chad Sellers <csellers@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Message-ID: <C87F2A77.BA088%csellers@tresys.com>
+In-Reply-To: <4C4F2EFB.9080102@redhat.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-08-03 at 14:19 -0400, Eric Paris wrote:
-> There is interest in being able to see what the actual policy is that was
-> loaded into the kernel.  The patch creates a new selinuxfs file
-> /selinux/policy which can be read by userspace.  The actual policy that is
-> loaded into the kernel will be written back out to userspace.
+On 7/27/10 3:09 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Resending patch I sent a month ago.  Can we get this upstream?
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v2.0.14 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+> 
+> iEYEARECAAYFAkxPLvoACgkQrlYvE4MpobNUxACgkr0+50GNbDPFmzWQp/vEgchY
+> Hd0AoOU1rrSg2uH/yBRUF+ujoIJOVq2+
+> =Dopt
+> -----END PGP SIGNATURE-----
+>
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index bf665ab..8aeb7a1 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -1,9 +1,10 @@
+>  # Installation directories.
+> +PYTHON ?= python
+>  PREFIX ?= $(DESTDIR)/usr
+>  LIBDIR ?= $(PREFIX)/lib
+>  SHLIBDIR ?= $(DESTDIR)/lib
+>  INCLUDEDIR ?= $(PREFIX)/include
+> -PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" %
+> sys.version_info[0:2]')
+> +PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" %
+> sys.version_info[0:2])')
+>  PYINC ?= /usr/include/$(PYLIBVER)
+>  PYLIB ?= /usr/lib/$(PYLIBVER)
+>  PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+> @@ -23,13 +24,13 @@ SWIGIF= selinuxswig_python.i
+> selinuxswig_python_exception.i
+>  SWIGRUBYIF= selinuxswig_ruby.i
+>  SWIGCOUT= selinuxswig_wrap.c
+>  SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+> -SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT))
+> +SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 79a1bb6..f2296ba 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -296,6 +299,97 @@ static const struct file_operations sel_mls_ops = {
->  	.llseek		= generic_file_llseek,
->  };
+I don't see PYPREFIX defined anywhere. Is this something that you're
+defining in the spec file?
+
+>  SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+> -SWIGSO=_selinux.so
+> +SWIGSO=$(PYPREFIX)_selinux.so
+>  SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
+>  SWIGRUBYSO=_rubyselinux.so
+>  LIBSO=$(TARGET).$(LIBVERSION)
+> -AUDIT2WHYSO=audit2why.so
+> +AUDIT2WHYSO=$(PYPREFIX)audit2why.so
 >  
-> +struct policy_load_memory {
-> +	size_t len;
-> +	void *data;
-> +};
-> +
-> +static int sel_open_policy(struct inode *inode, struct file *filp)
-> +{
-> +	struct policy_load_memory *plm = NULL;
-> +	int rc;
-> +
-> +	BUG_ON(filp->private_data);
-> +
-> +	mutex_lock(&sel_mutex);
-> +
-> +	rc = task_has_security(current, SECURITY__READ_POLICY);
-> +	if (rc)
-> +		goto err;
-> +
-> +	rc = -EBUSY;
-> +	if (policy_opened)
-> +		goto err;
-> +
-> +	policy_opened = 1;
+>  ifeq ($(DISABLE_AVC),y)
+>      UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c mapping.c stringrep.c
+> checkAccess.c
+> @@ -91,10 +92,10 @@ $(LIBPC): $(LIBPC).in
+>  selinuxswig_python_exception.i: ../include/selinux/selinux.h
+>      bash exception.sh > $@
+>  
+> -audit2why.lo: audit2why.c
+> +$(PYPREFIX)audit2why.lo: audit2why.c
+>      $(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
+>  
+> -$(AUDIT2WHYSO): audit2why.lo
+> +$(AUDIT2WHYSO): $(PYPREFIX)audit2why.lo
+>      $(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux
+> ${LIBDIR}/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
+>  
+>  %.o:  %.c policy.h
+> @@ -123,8 +124,8 @@ install: all
+>  
+>  install-pywrap: pywrap
+>      test -d $(PYTHONLIBDIR)/site-packages/selinux || install -m 755 -d
+> $(PYTHONLIBDIR)/site-packages/selinux
+> -    install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages/selinux
+> -    install -m 755 $(AUDIT2WHYSO) $(PYTHONLIBDIR)/site-packages/selinux
+> +    install -m 755 $(SWIGSO)
+> $(PYTHONLIBDIR)/site-packages/selinux/_selinux.so
 
-Either don't set this flag until you've successfully completed
-security_read_policy(), or clear it on the err path.  Otherwise a failed
-attempt to open will leave it in an un-openable state.  Since you are
-taking sel_mutex around the entire operation, you can defer setting the
-flag until you're done without risking another one starting.
+I'm still not sure why PYPREFIX has been added, but assuming it should be
+shouldn't this be /$(PYPREFIX)_selinux.so, or better yet /$(SWIGSO)
 
-> +
-> +	rc = -ENOMEM;
-> +	plm = kzalloc(sizeof(*plm), GFP_KERNEL);
-> +	if (!plm)
-> +		goto err;
-> +
-> +	if (i_size_read(inode) != security_policydb_len()) {
-> +		mutex_lock(&inode->i_mutex);
-> +		i_size_write(inode, security_policydb_len());
-> +		mutex_unlock(&inode->i_mutex);
-> +	}
-> +
-> +	rc = security_read_policy(&plm->data, &plm->len);
-> +	if (rc)
-> +		goto err;
-> +
-> +	filp->private_data = plm;
-> +
-> +	mutex_unlock(&sel_mutex);
-> +
-> +	return 0;
-> +err:
-> +	mutex_unlock(&sel_mutex);
-> +
-> +	if (plm)
-> +		vfree(plm->data);
-> +	kfree(plm);
-> +	return rc;
-> +}
+> +    install -m 755 $(AUDIT2WHYSO)
+> $(PYTHONLIBDIR)/site-packages/selinux/audit2why.so
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 9ea2fec..3bb5232 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -3129,3 +3136,40 @@ netlbl_sid_to_secattr_failure:
->  	return rc;
->  }
->  #endif /* CONFIG_NETLABEL */
-> +
-> +/**
-> + * security_read_policy - read the policy.
-> + * @data: binary policy data
-> + * @len: length of data in bytes
-> + *
-> + */
-> +int security_read_policy(void **data, ssize_t *len)
-> +{
-> +	int rc;
-> +	struct policy_file fp;
-> +
-> +	if (!ss_initialized)
-> +		return -EINVAL;
-> +
-> +	read_lock(&policy_rwlock);
-> +	*len = security_policydb_len();
-> +	read_unlock(&policy_rwlock);
+and this should be $(AUDIT2WHYSO) instead of audit2why.so.
 
-I don't think there is any benefit to taking the read-lock since you are
-just reading a single word.  And if the read-lock was needed, then it
-ought to be taken inside of security_policydb_len() rather than in the
-caller so that it is properly taken by all callers.  
 
--- 
-Stephen Smalley
-National Security Agency
+The bigger problem is that it doesn't seem to build for me. Applying the
+patch (and fixing the Makefile with the below patch, as it doesn't look like
+it will currently build the python wrapper), I get this:
+
+make PYTHON=python3 pywrap
+...
+cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn
+-Wmissing-format-attribute -I../include -I/usr/include -D_GNU_SOURCE
+-D_FILE_OFFSET_BITS=64  -I/usr/include/python3.1 -fPIC -DSHARED -c -o
+audit2why.lo audit2why.c
+cc1: warnings being treated as errors
+audit2why.c:439: error: missing initializer
+audit2why.c:439: error: (near initialization for Œmoduledef.m_base.m_init¹)
+make: *** [audit2why.lo] Error 1
+
+
+Thanks,
+Chad
+
+Makefile patch to make pywrap build:
+
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index bf665ab..baf4a6c 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -104,7 +104,7 @@ $(AUDIT2WHYSO): audit2why.lo
+        $(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+ 
+ $(SWIGCOUT): $(SWIGIF)
+-       $(SWIG) $^
++       $(SWIG) $<
+ 
+ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+        $(SWIGRUBY) $^
+
 
 
 --
