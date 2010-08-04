@@ -1,28 +1,47 @@
-Subject: Re: [PATCH] SELinux: allow userspace to read policy back out of
- the kernel
+Subject: Re: [PATCH] selinux: type_bounds_sanity_check has a meaningless
+ variable declaration
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <20100803181900.30719.37674.stgit@paris.rdu.redhat.com>
-References: <20100803181900.30719.37674.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100803192605.1788.92228.stgit@paris.rdu.redhat.com>
+References: <20100803192605.1788.92228.stgit@paris.rdu.redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 04 Aug 2010 14:49:03 -0400
-Message-ID: <1280947743.21957.210.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 04 Aug 2010 15:08:18 -0400
+Message-ID: <1280948898.21957.211.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-08-03 at 14:19 -0400, Eric Paris wrote:
-> There is interest in being able to see what the actual policy is that was
-> loaded into the kernel.  The patch creates a new selinuxfs file
-> /selinux/policy which can be read by userspace.  The actual policy that is
-> loaded into the kernel will be written back out to userspace.
+On Tue, 2010-08-03 at 15:26 -0400, Eric Paris wrote:
+> type is not used at all, stop declaring and assigning it.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Oh, and we still need to change the rangetr_cmp definition to
-deterministically order the range transition list so that we can get a
-consistent result.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+> 
+>  security/selinux/ss/policydb.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index b7ef93e..3ff0c24 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1606,11 +1606,11 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
+>  
+>  static int type_bounds_sanity_check(void *key, void *datum, void *datap)
+>  {
+> -	struct type_datum *upper, *type;
+> +	struct type_datum *upper;
+>  	struct policydb *p = datap;
+>  	int depth = 0;
+>  
+> -	upper = type = datum;
+> +	upper = datum;
+>  	while (upper->bounds) {
+>  		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+>  			printk(KERN_ERR "SELinux: type %s: "
 
 -- 
 Stephen Smalley
