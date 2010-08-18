@@ -1,69 +1,238 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o7GHRwGI000839
-	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2010 13:27:58 -0400
-Received: from mail-bw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o7GHRnTq026170
-	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2010 17:27:49 GMT
-Received: by bwz18 with SMTP id 18so1742849bwz.12
-        for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2010 10:27:55 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o7IAQP4e024435
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2010 06:26:25 -0400
+Received: from snt0-omc3-s23.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o7IAQkX9028387
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2010 10:26:47 GMT
+Message-ID: <SNT139-w318948F5C7E5124B30AB6AAB9D0@phx.gbl>
+Content-Type: multipart/mixed;
+	boundary="_e0ad5d79-2242-416e-9922-9025538093ab_"
+From: TaurusHarry <harrytaurus2002@hotmail.com>
+To: selinux-mailing-list <selinux@tycho.nsa.gov>,
+        refpolicy-mailing-list
+	<refpolicy@oss1.tresys.com>
+Subject: Problem about audit-test-2090 + refpolicy-2.20091117
+Date: Wed, 18 Aug 2010 10:26:23 +0000
 MIME-Version: 1.0
-Date: Mon, 16 Aug 2010 10:27:55 -0700
-Message-ID: <AANLkTimXzCXhXRM=y91=5WrpgedkYzzCMTnf5f-cwPs-@mail.gmail.com>
-Subject: SELinux xace crash with xfce4: Caught signal 11 (Segmentation fault).
- Server aborting
-From: Justin Mattock <justinmattock@gmail.com>
-To: tresys <refpolicy@oss1.tresys.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, xorg@freedesktop.org
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hello,
-I'm in the process of building a new system from scratch, and am
-noticing a crash when I have SELinux enabled(permissive)  with the
-xserver_object_manager 1 boolean set to on(if I set this boolean to
-off  I can login etc.. to my xfce4 session and all is good)
+--_e0ad5d79-2242-416e-9922-9025538093ab_
+Content-Type: multipart/alternative;
+	boundary="_263aafae-d1f7-47f0-9b56-b68594a20238_"
 
-Backtrace:
-[    21.374] 0: /usr/bin/X (xorg_backtrace+0x26) [0x49e416]
-[    21.374] 1: /usr/bin/X (0x400000+0x60e99) [0x460e99]
-[    21.374] 2: /lib/libpthread.so.0 (0x7f0394a30000+0xfa50) [0x7f0394a3fa50]
-[    21.374] 3: /usr/lib/xorg/modules/extensions/libextmod.so
-(0x7f039286c000+0x1d090) [0x7f0392889090]
-[    21.374] 4: /usr/lib/xorg/modules/extensions/libextmod.so
-(0x7f039286c000+0x1b971) [0x7f0392887971]
-[    21.374] 5: /usr/bin/X (CallCallbacks+0x4c) [0x432e4c]
-[    21.374] 6: /usr/bin/X (XaceHookPropertyAccess+0x31) [0x4b8831]
-[    21.374] 7: /usr/bin/X (dixChangeWindowProperty+0x3a4) [0x49b5c4]
-[    21.374] 8: /usr/lib/xorg/modules/extensions/libextmod.so
-(0x7f039286c000+0x1b677) [0x7f0392887677]
-[    21.374] 9: /usr/bin/X (CallCallbacks+0x4c) [0x432e4c]
-[    21.374] 10: /usr/bin/X (AddResource+0xf8) [0x44ac98]
-[    21.374] 11: /usr/bin/X (CreateRootWindow+0x3cb) [0x451b6b]
-[    21.374] 12: /usr/bin/X (0x400000+0x227c4) [0x4227c4]
-[    21.374] 13: /lib/libc.so.6 (__libc_start_main+0xed) [0x7f0392ee065d]
-[    21.374] 14: /usr/bin/X (0x400000+0x224a1) [0x4224a1]
-[    21.374] Segmentation fault at address (nil)
-[    21.374]
-Fatal server error:
-[    21.374] Caught signal 11 (Segmentation fault). Server aborting
-[    21.374]
-[    21.374]
-Please consult the The X.Org Foundation support
-	 at http://wiki.x.org
- for help.
-[    21.374] Please also check the log file at "/var/log/Xorg.0.log"
-for additional information.
-[    21.374]
+--_263aafae-d1f7-47f0-9b56-b68594a20238_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-keep in mind I'm still in the process of building xfce4(thunar
-gio/gvfs) so there might be things here and there that I might of
-forgotten todo that might be causing this.
 
-any ideas?
+Hi SELinux exports,
 
--- 
-Justin P. Mattock
+When I am trying to build the lspp_test.pp provided by audit-test-2090/utils/selinux-policy/lspp_test.* along with the refpolicy-20091117 source code, I copied lspp_test.* files to policy/modules/apps/ and then modified policy/modules.conf to declare "lspp_test = module", but I run into below error message:
+
+support/segenxml.py: warning: orphan XML comments at bottom of file policy/modules/apps/lspp_test.te
+
+Which will wipe out the line of declaration of "lspp_test = module" in modules.conf! How could I tackle such kind of error message? what's wrong in lspp_test.te?(attached for your reference)
+
+BTW, if I compile the lspp_test.pp within the audit-test-2090 package itself, everything is fine except some warning about "role dominance rule is deprecated", but I failed to insert it on my target with refpolicy-2.20091117 policy image taken place:
+
+[root/secadm_r/s0@qemu-host selinux-policy]# semodule -i lspp_test.pp
+libsepol.expand_terule_helper: conflicting TE rule for (lspp_test_generic_t, sepgsql_db_t:db_table): old was user_sepgsql_table_t, new is sepgsql_table_t
+libsepol.expand_module: Error during expand
+libsemanage.semanage_expand_sandbox: Expand module failed
+semodule: Failed!
+[root/secadm_r/s0@qemu-host selinux-policy]#
+
+So far I am clueless about this problem, how should I deal with it?
+
+Any comment is greatly appreciated!
+
+Thank you very much!
+Harry 		 	   		  
+--_263aafae-d1f7-47f0-9b56-b68594a20238_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi SELinux exports,<br><br>When I am trying to build the lspp_test.pp provided by audit-test-2090/utils/selinux-policy/lspp_test.* along with the refpolicy-20091117 source code, I copied lspp_test.* files to policy/modules/apps/ and then modified policy/modules.conf to declare "lspp_test = module", but I run into below error message:<br><br>support/segenxml.py: warning: orphan XML comments at bottom of file policy/modules/apps/lspp_test.te<br><br>Which will wipe out the line of declaration of "lspp_test = module" in modules.conf! How could I tackle such kind of error message? what's wrong in lspp_test.te?(attached for your reference)<br><br>BTW, if I compile the lspp_test.pp within the audit-test-2090 package itself, everything is fine except some warning about "role dominance rule is deprecated", but I failed to insert it on my target with refpolicy-2.20091117 policy image taken place:<br><br>[root/secadm_r/s0@qemu-host selinux-policy]# semodule -i lspp_test.pp<br>libsepol.!
+ expand_terule_helper: conflicting TE rule for (lspp_test_generic_t, sepgsql_db_t:db_table): old was user_sepgsql_table_t, new is sepgsql_table_t<br>libsepol.expand_module: Error during expand<br>libsemanage.semanage_expand_sandbox: Expand module failed<br>semodule: Failed!<br>[root/secadm_r/s0@qemu-host selinux-policy]#<br><br>So far I am clueless about this problem, how should I deal with it?<br><br>Any comment is greatly appreciated!<br><br>Thank you very much!<br>Harry 		 	   		  </body>
+</html>
+--_263aafae-d1f7-47f0-9b56-b68594a20238_--
+
+--_e0ad5d79-2242-416e-9922-9025538093ab_
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="lspp_test.te"
+
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIwojIChjKSBDb3B5cmlnaHQgSGV3bGV0dC1QYWNrYXJkIERl
+dmVsb3BtZW50IENvbXBhbnksIEwuUC4sIDIwMDcKIwojICAgVGhpcyBwcm9ncmFtIGlzIGZyZWUg
+c29mdHdhcmU6IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKIyAgIGl0IHVu
+ZGVyIHRoZSB0ZXJtcyBvZiB2ZXJzaW9uIDIgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNl
+IGFzCiMgICBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KIwojICAg
+VGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1
+c2VmdWwsCiMgICBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1w
+bGllZCB3YXJyYW50eSBvZgojICAgTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFS
+VElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQojICAgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2Ug
+Zm9yIG1vcmUgZGV0YWlscy4KIwojICAgWW91IHNob3VsZCBoYXZlIHJlY2VpdmVkIGEgY29weSBv
+ZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UKIyAgIGFsb25nIHdpdGggdGhpcyBwcm9n
+cmFtLiAgSWYgbm90LCBzZWUgPGh0dHA6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy8+LgojIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjCgojIyMjIyMjCiMKIyBMU1BQIHRlc3QgU0VMaW51eCBwb2xpY3kgbW9k
+dWxlCiMKIwoKZGVmaW5lKGBST0xFU19BTEwnLGBzeXNhZG1fciBzZWNhZG1fciBhdWRpdGFkbV9y
+IHN0YWZmX3InKQoKIyMjCiMKIyBtb2R1bGUgaW5mb3JtYXRpb24KIwoKIwojIEluIHRoaXMgc2Vj
+dGlvbiBpbmNsdWRlIHRoZSBnZW5lcmFsIFNFTGludXggcmVmZXJlbmNlIHBvbGljeSBiaXRzLCBz
+dWNoIGFzCiMgdGhlIHBvbGljeV9tb2R1bGUoKSBhbmQgZ2VuX3JlcXVpcmUoKSBzdGF0ZW1lbnRz
+LgojCgpwb2xpY3lfbW9kdWxlKGxzcHBfdGVzdCwwLjUuNykKCiMgd2UgcmVhbGx5IHNob3VsZG4n
+dCBiZSBhY2Nlc3NpbmcgdGhlc2UgcG9saWN5IGNvbnN0cnVjdHMgZGlyZWN0bHkgYnV0IHRoZXJl
+CiMgaXNuJ3QgYWx3YXlzIGEgcG9saWN5IGludGVyZmFjZSBhdmFpbGFibGUgZm9yIHdoYXQgd2Ug
+d2FudCB0byBkbywgc28ganVzdAojIGluY2x1ZGUgdGhlbSBpbiB0aGUgZ2VuX3JlcXVpcmUoKSBz
+dGF0ZW1lbnQgYW5kIG1vdmUgb24KZ2VuX3JlcXVpcmUoYAogICAgICAgICMgcm9sZXMKICAgICAg
+ICByb2xlIHN5c2FkbV9yLCBzZWNhZG1fciwgYXVkaXRhZG1fciwgc3RhZmZfcjsKICAgICAgICAj
+IGF0dHJpYnV0ZXMKICAgICAgICBhdHRyaWJ1dGUgZG9tYWluOwogICAgICAgICMgZG9tYWlucwog
+ICAgICAgIHR5cGUgYXVkaXRkX3QsIGluZXRkX3QsIGluaXRyY190LCBwYXNzd2RfdDsKICAgICAg
+ICAjIG9iamVjdHMKICAgICAgICB0eXBlIGF1ZGl0ZF9sb2dfdCwgc3lzYWRtX2xwcl90LCBpcHNl
+Y19zcGRfdDsKJykKCiMjIwojCiMgdHlwZXMgYW5kIGF0dHJpYnV0ZXMKIwoKIwojIEluIHRoaXMg
+c2VjdGlvbiBpbmNsdWRlIGFueSBuZXdzIGRvbWFpbnMvdHlwZXMgdXNlZCBieSB0aGlzIHBvbGlj
+eSBtb2R1bGUKIyBhcyB3ZWxsIGFzIGFueSByZWZlcmVuY2UgcG9saWN5IGludGVyZmFjZSBjYWxs
+cyB1c2VkIHRvIGFzc2lnbiBiYXNpYwojIHF1YWxpdGllcywgc3VjaCBhcyB0eXBlIGF0dHJpYnV0
+ZXMsIHRvIHRoZXNlIG5ldyBkb21haW5zL3R5cGVzLgojCgojIGFsbCBkb21haW5zCmF0dHJpYnV0
+ZSBsc3BwX2RvbWFpbnM7CiMgYWxsIHRlc3QgZG9tYWlucywgaS5lLiBsc3BwX3Rlc3RfKl90CmF0
+dHJpYnV0ZSBsc3BwX3Rlc3RfZG9tYWluczsKCiMgaGFybmVzcyAoTUxTIG92ZXJyaWRlcykKdXNl
+cmRvbV9hZG1pbl91c2VyX3RlbXBsYXRlKGxzcHBfaGFybmVzcykKdHlwZWF0dHJpYnV0ZSBsc3Bw
+X2hhcm5lc3NfdCBsc3BwX2RvbWFpbnM7CnR5cGUgbHNwcF9oYXJuZXNzX2V4ZWNfdDsKY29yZWNt
+ZF9leGVjdXRhYmxlX2ZpbGUobHNwcF9oYXJuZXNzX2V4ZWNfdCkKZG9tYWluX2VudHJ5X2ZpbGUo
+bHNwcF9oYXJuZXNzX3QsbHNwcF9oYXJuZXNzX2V4ZWNfdCkKCiMgZ2VuZXJpYyB0ZXN0IGRvbWFp
+biAobm8gTUxTIG92ZXJyaWRlcykKdXNlcmRvbV91bnByaXZfdXNlcl90ZW1wbGF0ZShsc3BwX3Rl
+c3RfZ2VuZXJpYykKdHlwZWF0dHJpYnV0ZSBsc3BwX3Rlc3RfZ2VuZXJpY190IGxzcHBfdGVzdF9k
+b21haW5zLCBsc3BwX2RvbWFpbnM7CnR5cGUgbHNwcF90ZXN0X2dlbmVyaWNfZXhlY190Owpjb3Jl
+Y21kX2V4ZWN1dGFibGVfZmlsZShsc3BwX3Rlc3RfZ2VuZXJpY19leGVjX3QpCmRvbWFpbl9lbnRy
+eV9maWxlKGxzcHBfdGVzdF9nZW5lcmljX3QsbHNwcF90ZXN0X2dlbmVyaWNfZXhlY190KQoKIyBu
+ZXRsYWJlbCB0ZXN0IChubyBNTFMgb3ZlcnJpZGVzKQp1c2VyZG9tX3VucHJpdl91c2VyX3RlbXBs
+YXRlKGxzcHBfdGVzdF9uZXRsYWJlbCkKdHlwZWF0dHJpYnV0ZSBsc3BwX3Rlc3RfbmV0bGFiZWxf
+dCBsc3BwX3Rlc3RfZG9tYWlucywgbHNwcF9kb21haW5zOwoKIyBpcHNlYyB0ZXN0IChubyBNTFMg
+b3ZlcnJpZGVzKQp1c2VyZG9tX3VucHJpdl91c2VyX3RlbXBsYXRlKGxzcHBfdGVzdF9pcHNlYykK
+dHlwZWF0dHJpYnV0ZSBsc3BwX3Rlc3RfaXBzZWNfdCBsc3BwX3Rlc3RfZG9tYWlucywgbHNwcF9k
+b21haW5zOwoKIyBhbGwgZGlyZWN0b3JpZXMKYXR0cmlidXRlIGxzcHBfZGlyZWN0b3JpZXM7Cgoj
+IGRpcmVjdG9yeSB0eXBlcwp0eXBlIGxzcHBfdGVzdF9oYXJuZXNzX2Rpcl90LCBsc3BwX2RpcmVj
+dG9yaWVzOwpmaWxlc190eXBlKGxzcHBfdGVzdF9oYXJuZXNzX2Rpcl90KQp0eXBlIGxzcHBfdGVz
+dF9kaXJfdCwgbHNwcF9kaXJlY3RvcmllczsKZmlsZXNfdHlwZShsc3BwX3Rlc3RfZGlyX3QpCnR5
+cGUgbHNwcF90ZXN0X2V4ZWNfZGlyX3QsIGxzcHBfZGlyZWN0b3JpZXM7CmZpbGVzX3R5cGUobHNw
+cF90ZXN0X2V4ZWNfZGlyX3QpCgojIGZpbGUgdHlwZXMKdHlwZSBsc3BwX3Rlc3RfZmlsZV90Owpm
+aWxlc190eXBlKGxzcHBfdGVzdF9maWxlX3QpCnR5cGUgbHNwcF90ZXN0X2NvbmZfdDsKZmlsZXNf
+dHlwZShsc3BwX3Rlc3RfY29uZl90KQp0eXBlIGxzcHBfdGVzdF9vdXRwdXRfdDsKZmlsZXNfdHlw
+ZShsc3BwX3Rlc3Rfb3V0cHV0X3QpCgojIyMKIwojIHJvbGUgcG9saWN5CiMKCiMKIyBJbiB0aGlz
+IHNlY3Rpb24gaW5jbHVkZSBhbnkgbmV3IHJvbGVzIHVzZWQgYnkgdGhpcyBwb2xpY3kgbW9kdWxl
+IGFzIHdlbGwgYXMKIyBhbnkgcm9sZSBhbGxvdyBydWxlcyB0byBkZWZpbmUgdGhlIHRyYW5zaXRp
+b24gYmV0d2VlbiB0aGVzZSByb2xlcyBhbmQKIyBleGlzdGluZyByb2xlcy4KIwoKcm9sZSBsc3Bw
+X3Rlc3RfciB0eXBlcyBkb21haW47CmRvbWluYW5jZSB7Cglyb2xlIGxzcHBfdGVzdF9yIHsKCQly
+b2xlIHN5c2FkbV9yOwoJCXJvbGUgc2VjYWRtX3I7CgkJcm9sZSBhdWRpdGFkbV9yOwoJCXJvbGUg
+c3RhZmZfcjsKCX0KfQoKIyBhZGQgdGhlIGxzcHAgdGVzdCB0eXBlcyB0byB0aGUgZ2VuZXJpYyBv
+YmplY3Qgcm9sZQpyb2xlIHN5c3RlbV9yIHR5cGVzIGxzcHBfZG9tYWluczsKCiMgYWxsb3cgcm9s
+ZSB0cmFuc2l0aW9ucyBiZXR3ZWVuIHRoZSB0ZXN0IHJvbGUgYW5kIGFsbCBvdGhlciByb2xlcwph
+bGxvdyBsc3BwX3Rlc3RfciB7IFJPTEVTX0FMTCB9OwphbGxvdyB7IFJPTEVTX0FMTCB9IGxzcHBf
+dGVzdF9yOwoKIyMjCiMKIyBvYmplY3QgcG9saWN5CiMKCiMKIyBJbiB0aGlzIHNlY3Rpb24gaW5j
+bHVkZSBhbnkgYWxsb3cgcnVsZXMgb3IgcmVmZXJlbmNlIHBvbGljeSBpbnRlcmZhY2UgY2FsbHMK
+IyB0aGF0IGFmZmVjdCB0aGUgdHlwZXMvb2JqZWN0cyBkZWZpbmVkIGluIHRoaXMgcG9saWN5IG1v
+ZHVsZS4KIwoKIyBhbGxvdyBldmVyeSBkb21haW4gdG8gcmVhZCB0aGUgdGVzdCBkaXJlY3RvcnkK
+YWxsb3cgZG9tYWluIGxzcHBfZGlyZWN0b3JpZXM6ZGlyIGxpc3RfZGlyX3Blcm1zOwoKIyBtYWtl
+IHRoZSBsb2cgZmlsZXMgdHJ1c3RlZCBvYmplY3RzCm1sc190cnVzdGVkX29iamVjdChsc3BwX3Rl
+c3Rfb3V0cHV0X3QpCgojIG1ha2UgdGVzdCBoYXJuZXNzIGNyZWF0ZWQgb2JqZWN0cyAoaS5lLiBz
+dGR7aW4sb3V0LGVycn0gZmRzLCB0ZW1wIGZpbGVzLCBldGMpCiMgdHJ1c3RlZCBvYmplY3RzCm1s
+c190cnVzdGVkX29iamVjdChsc3BwX2hhcm5lc3NfdCkKI21sc190cnVzdGVkX29iamVjdChsc3Bw
+X2hhcm5lc3NfdG1wX3QpCgojIGRlZmF1bHQgZmlsZSB0eXBlcwp0eXBlX3RyYW5zaXRpb24gbHNw
+cF9kb21haW5zIGxzcHBfdGVzdF9oYXJuZXNzX2Rpcl90OmZpbGUgbHNwcF9oYXJuZXNzX2V4ZWNf
+dDsKdHlwZV90cmFuc2l0aW9uIGxzcHBfZG9tYWlucyBsc3BwX3Rlc3RfZGlyX3Q6ZmlsZSBsc3Bw
+X3Rlc3Rfb3V0cHV0X3Q7CnR5cGVfdHJhbnNpdGlvbiBsc3BwX2RvbWFpbnMgbHNwcF90ZXN0X2V4
+ZWNfZGlyX3Q6ZmlsZSBsc3BwX3Rlc3RfZ2VuZXJpY19leGVjX3Q7CnR5cGVfdHJhbnNpdGlvbiBs
+c3BwX2RvbWFpbnMgbHNwcF90ZXN0X2Rpcl90OmZpZm9fZmlsZSBsc3BwX3Rlc3RfZmlsZV90OwoK
+IyMjCiMKIyBkb21haW4gcG9saWN5CiMKCiMKIyBJbiB0aGlzIHNlY3Rpb24sIHdoaWNoIHNwYW5z
+IHRvIHRoZSBlbmQgb2YgdGhlIHBvbGljeSBtb2R1bGUsIGluY2x1ZGUgYW55CiMgYWxsb3cgcnVs
+ZXMgb3IgcmVmZXJlbmNlIHBvbGljeSBpbnRlcmZhY2UgY2FsbHMgdGhhdCBhZmZlY3QgdGhlIGRv
+bWFpbnMKIyBkZWZpbmVkIGluIHRoaXMgcG9saWN5IG1vZHVsZS4gIEZvciBleGFtcGxlLCBhbnkg
+YWxsb3cgcnVsZSB3aXRoIGEgc3ViamVjdAojIGRlZmluZWQgd2l0aGluIHRoaXMgcG9saWN5IG1v
+ZHVsZSBzaG91bGQgbW9zdCBsaWtlbHkgYmUgaW4gdGhpcyBzZWN0aW9uCiMgYXNzdW1pbmcgaXQg
+ZG9lc24ndCBmaXQgd2l0aGluIGFueSBvZiB0aGUgb3RoZXIgc2VjdGlvbnMgZWxzZXdoZXJlIGlu
+IHRoaXMKIyBtb2R1bGUuCiMKCiMjCiMgcmVndWxhciBwb2xpY3kgYWRkaXRpb25zCiMKCiMKIyBU
+aGVzZSBhcmUgcG9saWN5IGNoYW5nZXMgd2hpY2ggb25seSBhZmZlY3QgdGhlIGJhc2UgcG9saWN5
+IGRvbWFpbnMvdHlwZXMKIyBidXQgYXJlIG5lZWRlZCBmb3IgdGhlIExTUFAgdGVzdCBzdWl0ZS4g
+IEFkZGl0aW9ucyBoZXJlIHNob3VsZCBiZSBoZWF2aWx5CiMgc2NydXRpbml6ZWQgYW5kIGtlcHQg
+dG8gYSBiYXJlIG1pbmltdW0uCiMKCiMgYWxsb3cgdGhlIGluZXRkX3QgZG9tYWluIHRvIGJpbmQg
+dG8gYW55IHBvcnQsIG5lZWRlZCBmb3IgdGhlIHRlc3QgZGFlbW9uCmNvcmVuZXRfdGNwX2JpbmRf
+Z2VuZXJpY19wb3J0KGluZXRkX3QpCmNvcmVuZXRfdWRwX2JpbmRfZ2VuZXJpY19wb3J0KGluZXRk
+X3QpCgojIGFsbG93IHRoZSBsb2NhbCBsb2dpbiBkb21haW4gdG8gc2VhcmNoIGRldnB0c190CmFs
+bG93IGxvY2FsX2xvZ2luX3QgZGV2cHRzX3Q6ZGlyIHNlYXJjaDsKCiMgYWxsb3cgYXVkaXRkIHRv
+IHVzZSB0ZW1wb3JhcnkgZmlsZXN5c3RlbXMgZm9yIGxvZ2dpbmcKZnNfYXNzb2NpYXRlX3RtcGZz
+KGF1ZGl0ZF9sb2dfdCkKZmlsZXNfc2VhcmNoX3RtcChhdWRpdGRfdCkKCiMjCiMgaGFybmVzcyBk
+b21haW4KIwoKIyB0cmFuc2l0aW9uIHRvIHRoZSBoYXJuZXNzIGRvbWFpbiBhdXRvbWF0aWNhbGx5
+IHdoZW4gcnVubmluZyBoYXJuZXNzIGFwcHMKZG9tYWluX2F1dG9fdHJhbnMoZG9tYWluLGxzcHBf
+aGFybmVzc19leGVjX3QsbHNwcF9oYXJuZXNzX3QpCgojIGFsbG93IG1hbnVhbCB0cmFuc2l0aW9u
+cyB0byBhbnkgb3RoZXIgZG9tYWluIG9uIHRoZSBzeXN0ZW0KYWxsb3cgbHNwcF9oYXJuZXNzX3Qg
+ZG9tYWluOnByb2Nlc3MgdHJhbnNpdGlvbjsKCiMgZ2l2ZSB0aGUgaGFybmVzcyBkb21haW4gbWxz
+IG92ZXJyaWRlIHByaXZsZWdlcwptbHNfZmlsZV9yZWFkX2FsbF9sZXZlbHMobHNwcF9oYXJuZXNz
+X3QpCm1sc19maWxlX3dyaXRlX2FsbF9sZXZlbHMobHNwcF9oYXJuZXNzX3QpCm1sc19maWxlX3Vw
+Z3JhZGUobHNwcF9oYXJuZXNzX3QpCm1sc19maWxlX2Rvd25ncmFkZShsc3BwX2hhcm5lc3NfdCkK
+bWxzX2ZkX3VzZV9hbGxfbGV2ZWxzKGxzcHBfaGFybmVzc190KQptbHNfZmRfc2hhcmVfYWxsX2xl
+dmVscyhsc3BwX2hhcm5lc3NfdCkKbWxzX3NvY2tldF9yZWFkX2FsbF9sZXZlbHMobHNwcF9oYXJu
+ZXNzX3QpOwptbHNfc29ja2V0X3dyaXRlX2FsbF9sZXZlbHMobHNwcF9oYXJuZXNzX3QpOwptbHNf
+bmV0X3JlY2VpdmVfYWxsX2xldmVscyhsc3BwX2hhcm5lc3NfdCk7Cm1sc19zeXN2aXBjX3JlYWRf
+YWxsX2xldmVscyhsc3BwX2hhcm5lc3NfdCkKbWxzX3N5c3ZpcGNfd3JpdGVfYWxsX2xldmVscyhs
+c3BwX2hhcm5lc3NfdCkKbWxzX3JhbmdldHJhbnNfc291cmNlKGxzcHBfaGFybmVzc190KQptbHNf
+cHJvY2Vzc19yZWFkX3VwKGxzcHBfaGFybmVzc190KQptbHNfcHJvY2Vzc193cml0ZV9kb3duKGxz
+cHBfaGFybmVzc190KQptbHNfcHJvY2Vzc19zZXRfbGV2ZWwobHNwcF9oYXJuZXNzX3QpCm1sc19y
+YW5nZXRyYW5zX3NvdXJjZShsc3BwX2hhcm5lc3NfdCkKbWxzX2NvbnRleHRfdHJhbnNsYXRlX2Fs
+bF9sZXZlbHMobHNwcF9oYXJuZXNzX3QpCgojIGdpdmUgdGhlIGhhcm5lc3MgZG9tYWluICJ1bmNv
+bmZpbmVkIiBhY2Nlc3MKdW5jb25maW5lZF9kb21haW5fbm9hdWRpdChsc3BwX2hhcm5lc3NfdCkK
+CiMgZ2l2ZSB0aGUgaGFybmVzcyBkb21haW4gbmV3cm9sZSBhY2Nlc3MKc2V1dGlsX3J1bl9uZXdy
+b2xlKGxzcHBfaGFybmVzc190LGxzcHBfdGVzdF9yLHsgdHR5bm9kZSBwdHlub2RlIH0pCgojYXV0
+aGxvZ2luX3Blcl9yb2xlX3RlbXBsYXRlKGxzcHBfaGFybmVzcyxsc3BwX2hhcm5lc3NfdCxsc3Bw
+X3Rlc3RfcikKCiMgZ2l2ZSB0aGUgaGFybmVzcyBkb21haW4gYXVkaXRjdGwgYWNjZXNzCmxvZ2dp
+bmdfcnVuX2F1ZGl0Y3RsKGxzcHBfaGFybmVzc190LGxzcHBfdGVzdF9yLHsgdHR5bm9kZSBwdHlu
+b2RlIH0pCgojIGdpdmUgdGhlIGhhcm5lc3MgZG9tYWluIGFjY2VzcyB0byBydW5faW5pdApzZXV0
+aWxfcnVuX3J1bmluaXQobHNwcF9oYXJuZXNzX3QsbHNwcF90ZXN0X3IseyB0dHlub2RlIHB0eW5v
+ZGUgfSkKYWxsb3cgaW5pdHJjX3QgbHNwcF9oYXJuZXNzX3Q6ZmQgdXNlOwoKIyBnaXZlIHRoZSBo
+YXJuZXNzIGRvbWFpbiBhY2Nlc3MgdG8gdGhlIGxvY2FsIGxvZ2luIGRvbWFpbgpsb2NhbGxvZ2lu
+X2RvbXRyYW5zKGxzcHBfaGFybmVzc190KQojYWxsb3cgbG9jYWxfbG9naW5fdCBsc3BwX2hhcm5l
+c3NfZGV2cHRzX3Q6Y2hyX2ZpbGUgeyByZWFkIHdyaXRlIGlvY3RsIHJlbGFiZWxmcm9tIHJlbGFi
+ZWx0byBzZXRhdHRyIGdldGF0dHIgfTsKCiMgZ2l2ZSB0aGUgaGFybmVzcyBkb21haW4gYWNjZXNz
+IHRvIHRoZSBzeXNhZG0gbHByIGRvbWFpbgojYWxsb3cgc3lzYWRtX2xwcl90IGxzcHBfaGFybmVz
+c19kZXZwdHNfdDpjaHJfZmlsZSB7IHJlYWQgd3JpdGUgfTsKCiMgZ2l2ZSB0aGUgaGFybmVzcyBk
+b21haW4gYWNjZXNzIHRvIGFsbCB0aGUgb3RoZXIgdGVzdCBkb21haW4ncyBhc3NvY2lhdGlvbnMK
+YWxsb3cgbHNwcF9oYXJuZXNzX3QgbHNwcF9kb21haW5zOmFzc29jaWF0aW9uIHsgc2V0Y29udGV4
+dCByZWN2ZnJvbSB9OwoKIyBnaXZlIHRoZSBoYXJuZXNzIGRvbWFpbiBhY2Nlc3MgdG8gdGhlIHBh
+c3N3ZCB0eXBlCnJvbGUgbHNwcF90ZXN0X3IgdHlwZXMgcGFzc3dkX3Q7CgojIwojIGdlbmVyaWMg
+dGVzdCBkb21haW4KIwoKIyB0cmFuc2l0aW9uIHRvIHRoZSBnZW5lcmljIHRlc3QgZG9tYWluIGJ5
+IGRlZmF1bHQgd2hlbiBydW5uaW5nIHRlc3RzCmRvbWFpbl9hdXRvX3RyYW5zKGxzcHBfaGFybmVz
+c190LGxzcHBfdGVzdF9nZW5lcmljX2V4ZWNfdCxsc3BwX3Rlc3RfZ2VuZXJpY190KQoKIyBnaXZl
+IHRoZSB0ZXN0IGRvbWFpbiAidW5jb25maW5lZCIgYWNjZXNzCnVuY29uZmluZWRfZG9tYWluX25v
+YXVkaXQobHNwcF90ZXN0X2dlbmVyaWNfdCkKCiMjCiMgbmV0bGFiZWwgdGVzdCBkb21haW4KIwoK
+IyBnaXZlIHRoZSB0ZXN0IGRvbWFpbiAidW5jb25maW5lZCIgYWNjZXNzCnVuY29uZmluZWRfZG9t
+YWluX25vYXVkaXQobHNwcF90ZXN0X25ldGxhYmVsX3QpCgojIGFsbG93IG1scyBvdmVycmlkZXMg
+Zm9yIGZpbGUgIndyaXRlIiBhY2Nlc3MKbWxzX2ZpbGVfd3JpdGVfYWxsX2xldmVscyhsc3BwX3Rl
+c3RfbmV0bGFiZWxfdCkKCiMjCiMgaXBzZWMgdGVzdCBkb21haW4KIwoKIyBnaXZlIHRoZSB0ZXN0
+IGRvbWFpbiAidW5jb25maW5lZCIgYWNjZXNzCnVuY29uZmluZWRfZG9tYWluX25vYXVkaXQobHNw
+cF90ZXN0X2lwc2VjX3QpCgojIGFsbG93IG1scyBvdmVycmlkZXMgZm9yIGZpbGUgIndyaXRlIiBh
+Y2Nlc3MKbWxzX2ZpbGVfd3JpdGVfYWxsX2xldmVscyhsc3BwX3Rlc3RfaXBzZWNfdCkKCiMgZ2l2
+ZSB0aGUgdGVzdCBkb21haW4gdGhlIGFiaWxpdHkgdG8gbWF0Y2ggYWdhaW5zdCB0aGUgU1BEIGVu
+dHJpZXMKYWxsb3cgbHNwcF90ZXN0X2lwc2VjX3QgaXBzZWNfc3BkX3Q6YXNzb2NpYXRpb24gcG9s
+bWF0Y2g7Cg==
+
+--_e0ad5d79-2242-416e-9922-9025538093ab_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
