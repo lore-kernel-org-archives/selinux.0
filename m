@@ -1,58 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o7JCsk2e014320
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2010 08:54:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o7JCwZw9014661
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2010 08:58:38 -0400
 Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o7JCsbqT001634
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2010 12:54:37 GMT
-Message-ID: <4C6D2994.6060109@tresys.com>
-Date: Thu, 19 Aug 2010 08:54:44 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o7JCww6r027836
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2010 12:59:00 GMT
+Message-ID: <4C6D2A73.6020302@tresys.com>
+Date: Thu, 19 Aug 2010 08:58:27 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
 To: Paul Moore <paul.moore@hp.com>
-CC: TaurusHarry <harrytaurus2002@hotmail.com>, refpolicy@oss1.tresys.com,
+CC: TaurusHarry <harrytaurus2002@hotmail.com>,
+        refpolicy-mailing-list <refpolicy@oss1.tresys.com>,
         selinux-mailing-list <selinux@tycho.nsa.gov>
 Subject: Re: [refpolicy] Problem about audit-test-2090 + refpolicy-2.20091117
-References: <SNT139-w318948F5C7E5124B30AB6AAB9D0@phx.gbl>	,<1282132367.4122.8.camel@flek>	<SNT139-w499FFC8245BD574722F9F6AB9D0@phx.gbl> <1282145393.4122.45.camel@flek>
-In-Reply-To: <1282145393.4122.45.camel@flek>
+References: <SNT139-w318948F5C7E5124B30AB6AAB9D0@phx.gbl> <1282132367.4122.8.camel@flek>
+In-Reply-To: <1282132367.4122.8.camel@flek>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/18/10 11:29, Paul Moore wrote:
-> On Wed, 2010-08-18 at 13:24 +0000, TaurusHarry wrote:
->> Many many thanks for your response!
+On 08/18/10 07:52, Paul Moore wrote:
+> On Wed, 2010-08-18 at 10:26 +0000, TaurusHarry wrote:
+>> Hi SELinux exports,
 >>
->> Well, after I installed SELinux header properly then I did could enter
->> audit-test/utils/selinux-policy/ successfully built lspp_test.pp
->> there, however, I run into below error messages when trying to insert
->> it:
->>
->> [root/secadm_r/s0@qemu-host selinux-policy]# semodule -i lspp_test.pp
->> libsepol.expand_terule_helper: conflicting TE rule for
->> ( lspp_test_generic_t, sepgsql_db_t:db_table): old was
->> user_sepgsql_table_t, new is sepgsql_table_t
->> libsepol.expand_module: Error during expand
->> libsemanage.semanage_expand_sandbox: Expand module failed
->> semodule: Failed!
->> [root/secadm_r/s0@qemu-host selinux-policy]#
->>
->> Very honestly speaking I am clueless about such error message, so I
->> tried to compile lspp_test.pp along with refpolicy source code just to
->> see if such problem could simply disappear. Do you have some comments
->> or suggestions about it?
+>> When I am trying to build the lspp_test.pp provided by
+>> audit-test-2090/utils/selinux-policy/lspp_test.* along with the
+>> refpolicy-20091117 source code, I copied lspp_test.* files to
+>> policy/modules/apps/ and then modified policy/modules.conf to declare
+>> "lspp_test = module", but I run into below error message ...
 >
-> Hmm, it looks like perhaps there is a conflict with the sepostgres
-> policy?
+> Is there any reason why you copied the lspp_test policy files to the
+> refpolicy sources and tried to build it there?  I'm not completely sure
+> that this is the cause of your problem but I can say for certain that
+> this is not a tested procedure for building the lspp_test module.
 
-Yep, there are conflicting type_transitions.  Basically it is 
-complaining about these two rules:
-
-type_transition lspp_test_generic_t sepgsql_db_t:db_table 
-user_sepgsql_table_t;
-
-type_transition lspp_test_generic_t sepgsql_db_t:db_table sepgsql_table_t;
-
-so it fails.
+I wouldn't expect this to introduce problems, unless the headers in the 
+policy source didn't match the target system's base policy.
 
 -- 
 Chris PeBenito
