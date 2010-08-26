@@ -1,54 +1,39 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o7Q7X1SF027017
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2010 03:33:01 -0400
-Received: from nat.nue.novell.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o7Q7Ww2x000930
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2010 07:32:59 GMT
 From: Thomas <tom@electric-sheep.org>
-To: imsand@puzzle.ch
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Subject: Re: Enable selinux in SLES 11
-Date: Thu, 26 Aug 2010 09:32:44 +0200
-Cc: selinux@tycho.nsa.gov
-References: <28077.193.5.216.100.1282569834.squirrel@mail.puzzle.ch>
-In-Reply-To: <28077.193.5.216.100.1282569834.squirrel@mail.puzzle.ch>
+Date: Thu, 26 Aug 2010 09:37:13 +0200
+References: <28077.193.5.216.100.1282569834.squirrel@mail.puzzle.ch> <18511.193.5.216.100.1282658950.squirrel@mail.puzzle.ch> <1282661330.23429.50.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1282661330.23429.50.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="utf-8"
-Message-Id: <201008260932.44888.tom@electric-sheep.org>
+Message-Id: <201008260937.13318.tom@electric-sheep.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hi.
 
-Am Montag 23 August 2010 15:23:54 schrieb imsand@puzzle.ch:
-> Hello Everybody
+Am Dienstag 24 August 2010 16:48:50 schrieb Stephen Smalley:
+> On Tue, 2010-08-24 at 16:09 +0200, imsand@puzzle.ch wrote:
+> > Unfortunately it doesn't work. I've done all steps described in here:
+> > http://thetoms-random-thoughts.blogspot.com/2008/12/selinux-on-opensuse-1
+> >11.html but this doesn't seems to work for sles 11.
+> > Anybody out there, who was able to run selinux on sles 11?
+> > I've got some other questions?
+> >   * what happens if the policy is not found? what would sestatus report?
+> >   * are there some good debug options for selinux? logs? any other hints?
+> > (dmesg shows nothing related to selinux)
 > 
-> For quite a while I've been trying to enable selinux in SLES11, but
-> sestatus always show DISABLED.
+> I've only seen successful reports of getting SELinux to run with
+> OpenSUSE 11.2 and later, and even that hasn't been trivial.  I haven't
+> seen any reports of getting it to work with SLES 11.  But you should ask
+> Novell about it.
 
-sles11-sp1?
+Since openSUSE 11.3 is is much easier. You can use yast2 (bootloader menu)
+to enable SELinux.
 
-
-> The following steps I've already done:
->   * installed all *selinux* packages from yast2
->   * add the following boot parameters to the kernel: security=selinux
-> selinux=1 enforcing=0
->   * created /etc/selinux/config file with the that content:
->     SELINUX=enforcing
->     SELINUXTYPE=targeted
-> 
-> What I've noticed is, that /selinux doesn't exit. I can't create that
-> mountpoint manually because selinuxfs filesystem doesn't exist.
-
-Just a "mkdir /selinux" and reboot is/should be sufficient.
-
-Around July this year we released new SElinux packages and an updated
-mkinitrd for SLES11 to solve this issue. Are these packages at their
-current state?
-
-HTH
+Bye
 Thomas
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
