@@ -1,48 +1,53 @@
-MIME-Version: 1.0
-In-Reply-To: <AANLkTimX8uFSE_twBw9KrUQA9+U6zLCeTZN_P0N8mT_A@mail.gmail.com>
-References: <4C76455E.6000504@ak.jp.nec.com>
-	<4C76FDD2.4070800@ak.jp.nec.com>
-	<4C777958.4060500@ak.jp.nec.com>
-	<AANLkTimX8uFSE_twBw9KrUQA9+U6zLCeTZN_P0N8mT_A@mail.gmail.com>
-Date: Fri, 27 Aug 2010 12:19:55 -0400
-Message-ID: <AANLkTi=SJEG45e2MZN2Cj0S4SrXqoTWtJdKXqkLKeLiV@mail.gmail.com>
-Subject: Re: [PATCH] Fast status update interface (/selinux/status)
-From: Eric Paris <eparis@parisplace.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: selinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: selinux vs devtmpfs (vs udev)
+From: Eric Paris <eparis@redhat.com>
+To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: kay.sievers@vrfy.org, greg@kroah.com, sds@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 27 Aug 2010 19:00:52 -0400
+Message-ID: <1282950052.3284.110.camel@dhcp231-106.rdu.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 27, 2010 at 11:48 AM, Eric Paris <eparis@parisplace.org> wrote:
-> 2010/8/27 KaiGai Kohei <kaigai@ak.jp.nec.com>:
->> I revised the /selinux/status implementation.
->>
->> * It becomes to report 'deny_unknown'. Userspace object manager
->>  also reference this flag to decide its behavior when the loaded
->>  policy does not support expected object classes.
->> * It provided PAGE_READONLY to remap_pfn_range() as page protection
->>  flag independent from argument of mmap(2), but it was uncommon.
->>  I fixed to pass vma->vm_page_prot instead of the hardwired flag
->>  according to any other implementation style.
->>  Now it returns an error, if user tries to map /selinux/status as
->>  writable pages.
->
-> I really hate blowing 4k of memory on every system to show 40 bytes of
-> data on just a few systems.  Is there any change we could allocate the
-> page the first time it is needed rather that at boot?  I know compared
-> to the size of policy and other memory usage in SELinux it's odd for
-> me to complain, but I've decided to get on a reduction if possible
-> kick.
->
-> Only other comment is that __initcall() is deprecated and we are
-> supposed to use device_initcall() now.
->
-> If you plan to use it, I'll ack if you change both of those things....
+I've got 2 bugs now:
 
-actually if you move to dynamic allocation of the status page and use
-static DEFINE_SPINLOCK instead of static spinlock_t you can get rid of
-the __init() code altogether....
+https://bugzilla.redhat.com/show_bug.cgi?id=566332
+https://bugzilla.redhat.com/show_bug.cgi?id=627710
+
+Where (I'm assuming) devtmpfs and SELinux are fighting.  In the old old
+days we used to have a script that would, after having created
+everything in /dev, set the proper SELinux labels on those files.  This
+was done so early in boot that races didn't exist yet.
+
+In the new days udev would create nodes in there, but udev is SELinux
+aware.  udev will determine what the right SELinux context is, will tell
+the kernel what the next file it creates should be labeled, and will
+then call mknod, so the device file gets created with the right label.
+Again race free.
+
+In the new new days of devtmpfs things aren't as nice.  The kernel is
+magically creating files in /dev.  These are getting created with the
+'default' SELinux context.  So herein lies the problem.
+
+The first program that tries to access these files get denied by
+SELinux.  Now udev actually has logic in it to fix the label on any
+closed device file, so udev will at that point swoop in, fix the label,
+and the next program that tries to use the file will work just fine.  Oh
+fun!
+
+Obviously a good solution would be for devtmpfs to create nodes with the
+right label (and udev to not need to be SELinux aware), but that
+information isn't available in the kernel.  That information is a purely
+userspace construct.  I have a long term plan for how we might be able
+to do this long off in the future, but it isn't viable for right now.
+
+So my next best solution would be to ask if it would be possible for
+udev to disable devtmpfs automatic device file creation after it is
+running.  Once udev is running do we need devtmpfs?  Seems like this
+could be a pretty simple /proc/ or /sys/ tunable that udev could twiddle
+when/if it was ready to run the show.
+
+Anyone else have thoughts?
 
 -Eric
 
