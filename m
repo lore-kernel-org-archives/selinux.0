@@ -1,5 +1,5 @@
-Message-ID: <4C7D1836.8000303@redhat.com>
-Date: Tue, 31 Aug 2010 10:56:54 -0400
+Message-ID: <4C7D1868.3090701@redhat.com>
+Date: Tue, 31 Aug 2010 10:57:44 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Harald Hoyer <harald@redhat.com>
@@ -78,17 +78,15 @@ On 08/31/2010 10:39 AM, Harald Hoyer wrote:
 > 
 > Is there an easy test to differentiate?
 > 
-Why is the kernel creating the devices versus telling udev to create the
-devices?
-
-You could write a hack that says don't relabel devices with MLS != s0.
+Another option would be to check the label of the containing directory
+and if they match run the lsetfilecon,  If they don't then leave it be.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.16 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkx9GDYACgkQrlYvE4MpobMBBACfen8P0i1LJjufe2Gzdi2mn+tM
-OdwAn1nHM1M34MGahwS7tNlLLpfmadcC
-=hBOX
+iEYEARECAAYFAkx9GGgACgkQrlYvE4MpobNwkgCgvzHFWYTZND+xMSukZXc1M+a0
+fC4AoNaVap4UfoOoq1U+8X7JWYqktNHy
+=TljD
 -----END PGP SIGNATURE-----
 
 --
