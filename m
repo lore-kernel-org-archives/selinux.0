@@ -1,40 +1,26 @@
-Date: Wed, 15 Sep 2010 07:51:27 +1000 (EST)
+Date: Wed, 15 Sep 2010 08:11:26 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: KaiGai Kohei <kaigai@ak.jp.nec.com>
 cc: Eric Paris <eparis@redhat.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
         selinux@tycho.nsa.gov, ewalsh@tycho.nsa.gov
 Subject: Re: [PATCH] Fast status update interface (/selinux/status)
-In-Reply-To: <alpine.LRH.2.00.1009150747340.22000@tundra.namei.org>
-Message-ID: <alpine.LRH.2.00.1009150749590.22000@tundra.namei.org>
+In-Reply-To: <4C8F4047.5020107@ak.jp.nec.com>
+Message-ID: <alpine.LRH.2.00.1009150811050.22184@tundra.namei.org>
 References: <4C76455E.6000504@ak.jp.nec.com>  <4C76FDD2.4070800@ak.jp.nec.com> <4C777958.4060500@ak.jp.nec.com>  <AANLkTimX8uFSE_twBw9KrUQA9+U6zLCeTZN_P0N8mT_A@mail.gmail.com>  <AANLkTi=SJEG45e2MZN2Cj0S4SrXqoTWtJdKXqkLKeLiV@mail.gmail.com>
- <4C78817F.9040909@kaigai.gr.jp>  <4C7F5D45.4040901@ak.jp.nec.com> <1284410701.2703.31.camel@localhost.localdomain> <4C8F4047.5020107@ak.jp.nec.com> <alpine.LRH.2.00.1009150747340.22000@tundra.namei.org>
+ <4C78817F.9040909@kaigai.gr.jp>  <4C7F5D45.4040901@ak.jp.nec.com> <1284410701.2703.31.camel@localhost.localdomain> <4C8F4047.5020107@ak.jp.nec.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 15 Sep 2010, James Morris wrote:
+On Tue, 14 Sep 2010, KaiGai Kohei wrote:
 
-> On Tue, 14 Sep 2010, KaiGai Kohei wrote:
 > 
-> > <--------------------------------( cut here )-------------------------------->
-> > 
-> 
-> Please send updated patches as new messages, so that I don't accidentally 
-> apply an older version.
-
-Also, the subject line is not correct for the git logs.
-
-It needs to be:
-
-[PATCH] subsystem: title
-
-(See section 15 of Documentation/SubmittingPatches)
+> <--------------------------------( cut here )-------------------------------->
 
 
-
-
-
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 -- 
 James Morris
