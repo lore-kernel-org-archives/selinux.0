@@ -1,37 +1,30 @@
-Date: Fri, 17 Sep 2010 08:30:39 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-cc: sds@tycho.nsa.gov, eparis@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: fix parallel compile error
-In-Reply-To: <20100916001452.GA2988@windriver.com>
-Message-ID: <alpine.LRH.2.00.1009170830160.9105@tundra.namei.org>
-References: <1281389665-22152-1-git-send-email-paul.gortmaker@windriver.com> <alpine.LRH.2.00.1009150819270.22184@tundra.namei.org> <20100915134429.GA17032@windriver.com> <alpine.LRH.2.00.1009160823270.32096@tundra.namei.org>
- <20100916001452.GA2988@windriver.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o8K97OIY015476
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2010 05:07:24 -0400
+Received: from new1.smtp.messagingengine.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o8K97NZ3016126
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2010 09:07:24 GMT
+From: Roberto Sassu <roberto.sassu@polito.it>
+To: selinux@lists.fedoraproject.org, selinux@tycho.nsa.gov
+Subject: genfscon question
+Date: Mon, 20 Sep 2010 11:07:26 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201009201107.27478.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 15 Sep 2010, Paul Gortmaker wrote:
+Hi all
 
-> With this change, compiling of all selinux files is dependent on
-> completion of the header file generation, and this test case with
-> the "sleep 30" now confirms it is functioning as expected.
-> 
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> ---
->  security/selinux/Makefile    |   17 ++++++-----------
->  security/selinux/ss/Makefile |    9 ---------
->  2 files changed, 6 insertions(+), 20 deletions(-)
->  delete mode 100644 security/selinux/ss/Makefile
+i want to create a custom filesystem policy using the genfscon statement for labelling 
+files. I need to specify rules with the wildcard character, in order to obtain the same behaviour 
+for multiple subdirectories but this is currently unsupported (building of the policy fails).
+There are security/design concerns in order to introduce this feature or it can be added
+by patching the code?
+Thanks in advance for replies.
 
-
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
-
--- 
-James Morris
-<jmorris@namei.org>
+Roberto Sassu
 
 --
 This message was distributed to subscribers of the selinux mailing list.
