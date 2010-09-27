@@ -1,48 +1,79 @@
-Subject: Re: [PATCH 3/6] secmark: export binary yes/no rather than kernel
- internal secid
+Subject: Re: [PATCH 2/6] secmark: make secmark object handling generic
 From: Eric Paris <eparis@redhat.com>
-To: James Morris <jmorris@namei.org>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        netfilter-devel@vger.kernel.org, sds@tycho.nsa.gov, jengelh@medozas.de,
-        paul.moore@hp.com, casey@schaufler-ca.com,
+        netfilter-devel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
+        jengelh@medozas.de, paul.moore@hp.com, casey@schaufler-ca.com,
         linux-security-module@vger.kernel.org, netfilter@vger.kernel.org,
         mr.dash.four@googlemail.com
-In-Reply-To: <alpine.LRH.2.00.1009271038280.25748@tundra.namei.org>
+In-Reply-To: <4C9DB54C.4010100@netfilter.org>
 References: <20100924204517.28355.42822.stgit@paris.rdu.redhat.com>
-	 <20100924204531.28355.20320.stgit@paris.rdu.redhat.com>
-	 <alpine.LRH.2.00.1009271038280.25748@tundra.namei.org>
+	 <20100924204524.28355.87206.stgit@paris.rdu.redhat.com>
+	 <4C9DB54C.4010100@netfilter.org>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 27 Sep 2010 13:01:36 -0400
-Message-ID: <1285606896.2815.36.camel@localhost.localdomain>
+Date: Mon, 27 Sep 2010 12:47:56 -0400
+Message-ID: <1285606076.2815.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-09-27 at 10:50 +1000, James Morris wrote:
-> On Fri, 24 Sep 2010, Eric Paris wrote:
+On Sat, 2010-09-25 at 10:39 +0200, Pablo Neira Ayuso wrote:
+> On 24/09/10 22:45, Eric Paris wrote:
+> > Right now secmark has lots of direct selinux calls.  Use all LSM calls and
+> > remove all SELinux specific knowledge.  The only SELinux specific knowledge
+> > we leave is the mode.  The only point is to make sure that other LSMs at
+> > least test this generic code before they assume it works.  (They may also
+> > have to make changes if they do not represent labels as strings)
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > ---
+> > 
+> >  include/linux/netfilter/xt_SECMARK.h |   14 ++------
+> >  include/linux/security.h             |   25 +++++++++++++
+> >  include/linux/selinux.h              |   63 ----------------------------------
+> >  net/netfilter/xt_CT.c                |    1 -
+> >  net/netfilter/xt_SECMARK.c           |   57 +++++++++++++++----------------
+> >  security/capability.c                |   17 +++++++++
+> >  security/security.c                  |   18 ++++++++++
+> >  security/selinux/exports.c           |   49 --------------------------
+> >  security/selinux/hooks.c             |   24 +++++++++++++
+> >  security/selinux/include/security.h  |    1 +
+> >  10 files changed, 116 insertions(+), 153 deletions(-)
+> > 
+> > diff --git a/include/linux/netfilter/xt_SECMARK.h b/include/linux/netfilter/xt_SECMARK.h
+> > index 6fcd344..b8d55c4 100644
+> > --- a/include/linux/netfilter/xt_SECMARK.h
+> > +++ b/include/linux/netfilter/xt_SECMARK.h
+> > @@ -10,19 +10,13 @@
+> >   * 'mode' refers to the specific security subsystem which the
+> >   * packets are being marked for.
+> >   */
+> > -#define SECMARK_MODE_SEL	0x01		/* SELinux */
+> > -#define SECMARK_SELCTX_MAX	256
+> > -
+> > -struct xt_secmark_target_selinux_info {
+> > -	__u32 selsid;
+> > -	char selctx[SECMARK_SELCTX_MAX];
+> > -};
+> > +#define SECMARK_MODE_SELINUX	0x01		/* SELinux */
+> > +#define SECMARK_SECCTX_MAX	256
+> 
+> The SECMARK_MODE_SEL is exposed to user-space, even if we have a copy of
+> it in the internal iptables tree, I'm not sure if it's a good policy to
+> change it.
 
-> For the reasons above, I think the secctx string needs to be exported in 
-> addition to this rather than instead of.
+Ok.  I just hate 'SEL' as an abbreviation of SELinux.  I always think
+it's select or something like that.  I could do something hideous like
 
-I won't argue, I don't agree with your reasoning, but I'm not opposed to
-this result.  We have 3 competing suggestions:
+#define SECMARK_MODE_SEL	0x01
+#define SECMARK_MODE_SELINUX	SECMARK_MODE_SEL
 
-Jan suggested we:
-completely eliminate secmark from procfs+netlink and only export secctx
-in netlink.
-
-Eric suggested we:
-completely eliminate secmark from procfs+netlink and then export secctx
-in procfs+netlink
-
-sounds like James suggested we:
-continue to export meaningless and confusing secmark from procfs+netlink
-and then export secctx in procfs+netlink as well.
-
-I'm going to implement James' idea and resend the patch series.  Any
-strong objections?
+But it seems like too much work and doesn't add anything really.  I'll
+revert that part of this change.
 
 -Eric
+
+
 
 
 --
