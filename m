@@ -1,59 +1,111 @@
-Date: Mon, 27 Sep 2010 10:50:34 +1000 (EST)
-From: James Morris <jmorris@namei.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o8RDo98S014231
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2010 09:50:09 -0400
+Received: from smtp105.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id o8RDo7NT005851
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2010 13:50:07 GMT
+Message-ID: <4CA0A107.3020903@schaufler-ca.com>
+Date: Mon, 27 Sep 2010 06:49:59 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
 To: Eric Paris <eparis@redhat.com>
-cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        netfilter-devel@vger.kernel.org, sds@tycho.nsa.gov, jengelh@medozas.de,
-        paul.moore@hp.com, casey@schaufler-ca.com,
+CC: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        netfilter-devel@vger.kernel.org, jmorris@namei.org, sds@tycho.nsa.gov,
+        jengelh@medozas.de, paul.moore@hp.com,
         linux-security-module@vger.kernel.org, netfilter@vger.kernel.org,
         mr.dash.four@googlemail.com
-Subject: Re: [PATCH 3/6] secmark: export binary yes/no rather than kernel
- internal secid
-In-Reply-To: <20100924204531.28355.20320.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1009271038280.25748@tundra.namei.org>
-References: <20100924204517.28355.42822.stgit@paris.rdu.redhat.com> <20100924204531.28355.20320.stgit@paris.rdu.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH 4/6] security: secid_to_secctx returns len when data is
+ NULL
+References: <20100924204517.28355.42822.stgit@paris.rdu.redhat.com> <20100924204538.28355.32426.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20100924204538.28355.32426.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 24 Sep 2010, Eric Paris wrote:
+ On 9/24/2010 1:45 PM, Eric Paris wrote:
+> With the (long ago) interface change to have the secid_to_secctx functions
+> do the string allocation instead of having the caller do the allocation we
+> lost the ability to query the security server for the length of the
+> upcoming string.  The SECMARK code would like to allocate a netlink skb
+> with enough length to hold the string but it is just too unclean to do the
+> string allocation twice or to do the allocation the first time and hold
+> onto the string and slen.  This patch adds the ability to call
+> security_secid_to_secctx() with a NULL data pointer and it will just set
+> the slen pointer.
+>
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-> Currently the nfconntrack export code sends the kernel internal secid to
-> userspace in a couple of proc files and over netlink as an integer.  This
-> is wrong.  This number is a kernel internal.
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 
-I wouldn't say wrong, exactly.
-
-The secid is a 32-bit integer which each LSM maps to its own domain.  
-It's unlikely to change from this format (we were v. lucky to get this 
-field, btw).
-
-There's really no difference between this and the various kernel addresses 
-exported via procfs by the networking code -- it's an opaque token which 
-you can use to identify the security marking of a packet without 
-necessarily having any knowledge of the security model itself.
-
-It's potentially useful for debugging and writing simple userland tools, 
-and may be in use already by apps.
-
->  This patch changes the export
-> code to output either 0 or 1 for this value.
-
-This potentially breaks existing apps and does not seem to add any value 
-itself.  If you want to determine if a packet is marked, then simply check 
-for zero or not.
-
->  A future patch will implement sending the name rather than the number 
-> in a new field.
-
-For the reasons above, I think the secctx string needs to be exported in 
-addition to this rather than instead of.
+For the Smack bit at least.
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+> ---
+>
+>  security/selinux/ss/services.c |   11 +++++++++--
+>  security/smack/smack_lsm.c     |    3 ++-
+>  2 files changed, 11 insertions(+), 3 deletions(-)
+>
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 73508af..1d4955a 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -998,7 +998,8 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+>  {
+>  	char *scontextp;
+>  
+> -	*scontext = NULL;
+> +	if (scontext)
+> +		*scontext = NULL;
+>  	*scontext_len = 0;
+>  
+>  	if (context->len) {
+> @@ -1015,6 +1016,9 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+>  	*scontext_len += strlen(sym_name(&policydb, SYM_TYPES, context->type - 1)) + 1;
+>  	*scontext_len += mls_compute_context_len(context);
+>  
+> +	if (!scontext)
+> +		return 0;
+> +
+>  	/* Allocate space for the context; caller must free this space. */
+>  	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
+>  	if (!scontextp)
+> @@ -1054,7 +1058,8 @@ static int security_sid_to_context_core(u32 sid, char **scontext,
+>  	struct context *context;
+>  	int rc = 0;
+>  
+> -	*scontext = NULL;
+> +	if (scontext)
+> +		*scontext = NULL;
+>  	*scontext_len  = 0;
+>  
+>  	if (!ss_initialized) {
+> @@ -1062,6 +1067,8 @@ static int security_sid_to_context_core(u32 sid, char **scontext,
+>  			char *scontextp;
+>  
+>  			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
+> +			if (!scontext)
+> +				goto out;
+>  			scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
+>  			if (!scontextp) {
+>  				rc = -ENOMEM;
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index c448d57..b95d7b1 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3005,7 +3005,8 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>  	char *sp = smack_from_secid(secid);
+>  
+> -	*secdata = sp;
+> +	if (secdata)
+> +		*secdata = sp;
+>  	*seclen = strlen(sp);
+>  	return 0;
+>  }
+>
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
