@@ -1,57 +1,55 @@
-Subject: Re: [PATCH 2/5] secmark: make secmark object handling generic
-From: Eric Paris <eparis@redhat.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Jan Engelhardt <jengelh@medozas.de>, linux-kernel@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org,
-        paul.moore@hp.com, jmorris@namei.org, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        mr.dash.four@googlemail.com
-In-Reply-To: <4CB499E3.5030305@netfilter.org>
+Subject: Re: [PATCH 1/5] secmark: do not return early if there was no error
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        netfilter@vger.kernel.org, jmorris@namei.org, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov, jengelh@medozas.de,
+        linux-security-module@vger.kernel.org, mr.dash.four@googlemail.com,
+        pablo@netfilter.org
+In-Reply-To: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
 References: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
-	 <20101012154015.26943.18385.stgit@paris.rdu.redhat.com>
-	 <alpine.LNX.2.01.1010121824540.15529@obet.zrqbmnf.qr>
-	 <4CB499E3.5030305@netfilter.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 12 Oct 2010 13:45:33 -0400
-Message-ID: <1286905533.2608.21.camel@dhcp235-107.rdu.redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 12 Oct 2010 18:52:01 -0400
+Message-ID: <1286923921.5133.84.camel@sifl>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-10-12 at 19:24 +0200, Pablo Neira Ayuso wrote:
-> On 12/10/10 18:26, Jan Engelhardt wrote:
-> > On Tuesday 2010-10-12 17:40, Eric Paris wrote:
+On Tue, 2010-10-12 at 11:40 -0400, Eric Paris wrote:
+> Commit 4a5a5c73 attempted to pass decent error messages back to userspace for
+> netfilter errors.  In xt_SECMARK.c however the patch screwed up and returned
+> on 0 (aka no error) early and didn't finish setting up secmark.  This results
+> in a kernel BUG if you use SECMARK.
 
-> >> static struct xt_target secmark_tg_reg __read_mostly = {
-> >> -	.name       = "SECMARK",
-> >> -	.revision   = 0,
-> >> -	.family     = NFPROTO_UNSPEC,
-> >> -	.checkentry = secmark_tg_check,
-> >> -	.destroy    = secmark_tg_destroy,
-> >> -	.target     = secmark_tg,
-> >> -	.targetsize = sizeof(struct xt_secmark_target_info),
-> >> -	.me         = THIS_MODULE,
-> >> +	.name		= "SECMARK",
-> >> +	.revision	= 0,
-> >> +	.family		= NFPROTO_UNSPEC,
-> >> +	.checkentry	= secmark_tg_check,
-> >> +	.destroy	= secmark_tg_destroy,
-> >> +	.target		= secmark_tg,
-> >> +	.targetsize	= sizeof(struct xt_secmark_target_info),
-> >> +	.me		= THIS_MODULE,
-> >> };
+...
+
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Acked-by: Paul Moore <paul.moore@hp.com>
+
+> ---
 > 
-> I think that we don't need that extra tab above.
+>  net/netfilter/xt_SECMARK.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+> index 23b2d6c..364ad16 100644
+> --- a/net/netfilter/xt_SECMARK.c
+> +++ b/net/netfilter/xt_SECMARK.c
+> @@ -101,7 +101,7 @@ static int secmark_tg_check(const struct xt_tgchk_param *par)
+>  	switch (info->mode) {
+>  	case SECMARK_MODE_SEL:
+>  		err = checkentry_selinux(info);
+> -		if (err <= 0)
+> +		if (err)
+>  			return err;
+>  		break;
+>  
+> 
 
-Are you saying that you prefer lots of spaces to get alignment rather
-than the single tab?  I see examples of both in other struct xt_target
-definitions.  I didn't make any syntax changes to this struct, so my
-guess is that I made this change when I discovered eight spaces in a row
-as I was checking the file for tab->space screw-ups before submission.
-Since this is a whitespace change in the middle of a real patch I guess
-I can drop the hunk entirely if that's what you are asking for....
-
--Eric
+-- 
+paul moore
+linux @ hp
 
 
 
