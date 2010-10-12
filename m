@@ -1,138 +1,58 @@
+Subject: Re: [PATCH 2/5] secmark: make secmark object handling generic
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 5/5] secmark: export secctx, drop secmark in procfs
-To: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        netfilter@vger.kernel.org
-Cc: eparis@redhat.com, paul.moore@hp.com, jmorris@namei.org,
-        selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jengelh@medozas.de,
-        linux-security-module@vger.kernel.org, mr.dash.four@googlemail.com,
-        pablo@netfilter.org
-Date: Tue, 12 Oct 2010 11:40:35 -0400
-Message-ID: <20101012154035.26943.35175.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Jan Engelhardt <jengelh@medozas.de>, linux-kernel@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org,
+        paul.moore@hp.com, jmorris@namei.org, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        mr.dash.four@googlemail.com
+In-Reply-To: <4CB499E3.5030305@netfilter.org>
 References: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+	 <20101012154015.26943.18385.stgit@paris.rdu.redhat.com>
+	 <alpine.LNX.2.01.1010121824540.15529@obet.zrqbmnf.qr>
+	 <4CB499E3.5030305@netfilter.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 12 Oct 2010 13:45:33 -0400
+Message-ID: <1286905533.2608.21.camel@dhcp235-107.rdu.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current secmark code exports a secmark= field which just indicates if
-there is special labeling on a packet or not.  We drop this field as it
-isn't particularly useful and instead export a new field secctx= which is
-the actual human readable text label.
+On Tue, 2010-10-12 at 19:24 +0200, Pablo Neira Ayuso wrote:
+> On 12/10/10 18:26, Jan Engelhardt wrote:
+> > On Tuesday 2010-10-12 17:40, Eric Paris wrote:
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
+> >> static struct xt_target secmark_tg_reg __read_mostly = {
+> >> -	.name       = "SECMARK",
+> >> -	.revision   = 0,
+> >> -	.family     = NFPROTO_UNSPEC,
+> >> -	.checkentry = secmark_tg_check,
+> >> -	.destroy    = secmark_tg_destroy,
+> >> -	.target     = secmark_tg,
+> >> -	.targetsize = sizeof(struct xt_secmark_target_info),
+> >> -	.me         = THIS_MODULE,
+> >> +	.name		= "SECMARK",
+> >> +	.revision	= 0,
+> >> +	.family		= NFPROTO_UNSPEC,
+> >> +	.checkentry	= secmark_tg_check,
+> >> +	.destroy	= secmark_tg_destroy,
+> >> +	.target		= secmark_tg,
+> >> +	.targetsize	= sizeof(struct xt_secmark_target_info),
+> >> +	.me		= THIS_MODULE,
+> >> };
+> 
+> I think that we don't need that extra tab above.
 
- .../netfilter/nf_conntrack_l3proto_ipv4_compat.c   |   27 ++++++++++++++++++--
- net/netfilter/nf_conntrack_standalone.c            |   27 ++++++++++++++++++--
- 2 files changed, 48 insertions(+), 6 deletions(-)
+Are you saying that you prefer lots of spaces to get alignment rather
+than the single tab?  I see examples of both in other struct xt_target
+definitions.  I didn't make any syntax changes to this struct, so my
+guess is that I made this change when I discovered eight spaces in a row
+as I was checking the file for tab->space screw-ups before submission.
+Since this is a whitespace change in the middle of a real patch I guess
+I can drop the hunk entirely if that's what you are asking for....
 
-diff --git a/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4_compat.c b/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4_compat.c
-index 244f7cb..2ca510e 100644
---- a/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4_compat.c
-+++ b/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4_compat.c
-@@ -11,6 +11,7 @@
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/percpu.h>
-+#include <linux/security.h>
- #include <net/net_namespace.h>
- 
- #include <linux/netfilter.h>
-@@ -87,6 +88,28 @@ static void ct_seq_stop(struct seq_file *s, void *v)
- 	rcu_read_unlock();
- }
- 
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+static int ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
-+{
-+	int len, ret;
-+	char *secctx;
-+
-+	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
-+	if (ret)
-+		return ret;
-+
-+	ret = seq_printf(s, "secctx=%s ", secctx);
-+
-+	security_release_secctx(secctx, len);
-+	return ret;
-+}
-+#else
-+static inline int ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
-+{
-+	return 0;
-+}
-+#endif
-+
- static int ct_seq_show(struct seq_file *s, void *v)
- {
- 	struct nf_conntrack_tuple_hash *hash = v;
-@@ -148,10 +171,8 @@ static int ct_seq_show(struct seq_file *s, void *v)
- 		goto release;
- #endif
- 
--#ifdef CONFIG_NF_CONNTRACK_SECMARK
--	if (seq_printf(s, "secmark=%u ", ct->secmark))
-+	if (ct_show_secctx(s, ct))
- 		goto release;
--#endif
- 
- 	if (seq_printf(s, "use=%u\n", atomic_read(&ct->ct_general.use)))
- 		goto release;
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index eb973fc..a6985da 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -15,6 +15,7 @@
- #include <linux/seq_file.h>
- #include <linux/percpu.h>
- #include <linux/netdevice.h>
-+#include <linux/security.h>
- #include <net/net_namespace.h>
- #ifdef CONFIG_SYSCTL
- #include <linux/sysctl.h>
-@@ -108,6 +109,28 @@ static void ct_seq_stop(struct seq_file *s, void *v)
- 	rcu_read_unlock();
- }
- 
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+static int ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
-+{
-+	int len, ret;
-+	char *secctx;
-+
-+	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
-+	if (ret)
-+		return ret;
-+
-+	ret = seq_printf(s, "secctx=%s ", secctx);
-+
-+	security_release_secctx(secctx, len);
-+	return ret;
-+}
-+#else
-+static inline int ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
-+{
-+	return 0;
-+}
-+#endif
-+
- /* return 0 on success, 1 in case of error */
- static int ct_seq_show(struct seq_file *s, void *v)
- {
-@@ -168,10 +191,8 @@ static int ct_seq_show(struct seq_file *s, void *v)
- 		goto release;
- #endif
- 
--#ifdef CONFIG_NF_CONNTRACK_SECMARK
--	if (seq_printf(s, "secmark=%u ", ct->secmark))
-+	if (ct_show_secctx(s, ct))
- 		goto release;
--#endif
- 
- #ifdef CONFIG_NF_CONNTRACK_ZONES
- 	if (seq_printf(s, "zone=%u ", nf_ct_zone(ct)))
+-Eric
+
 
 
 --
