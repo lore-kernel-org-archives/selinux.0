@@ -1,9 +1,9 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 4/6] SELinux: drop useless (and incorrect) AVTAB_MAX_SIZE
+Subject: [PATCH 2/6] kernel: roundup should only reference arguments once
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Date: Wed, 13 Oct 2010 17:50:19 -0400
-Message-ID: <20101013215019.17293.57396.stgit@paris.rdu.redhat.com>
+Date: Wed, 13 Oct 2010 17:50:08 -0400
+Message-ID: <20101013215008.17293.52249.stgit@paris.rdu.redhat.com>
 In-Reply-To: <20101013215002.17293.43060.stgit@paris.rdu.redhat.com>
 References: <20101013215002.17293.43060.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
@@ -11,46 +11,34 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-AVTAB_MAX_SIZE was a define which was supposed to be used in userspace to
-define a maximally sized avtab when userspace wasn't sure how big of a table
-it needed.  It doesn't make sense in the kernel since we always know our table
-sizes.  The only place it is used we have a more appropiately named define
-called AVTAB_MAX_HASH_BUCKETS, use that instead.
+Currently the roundup macro references it's arguments more than one time.
+This patch changes it so it will only use its arguments once.
 
+Suggested-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/ss/avtab.c |    4 ++--
- security/selinux/ss/avtab.h |    1 -
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ include/linux/kernel.h |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 929480c..77a917c 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -266,8 +266,8 @@ int avtab_alloc(struct avtab *h, u32 nrules)
- 	if (shift > 2)
- 		shift = shift - 2;
- 	nslot = 1 << shift;
--	if (nslot > MAX_AVTAB_SIZE)
--		nslot = MAX_AVTAB_SIZE;
-+	if (nslot > MAX_AVTAB_HASH_BUCKETS)
-+		nslot = MAX_AVTAB_HASH_BUCKETS;
- 	mask = nslot - 1;
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index c23a33d..edef168 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -58,7 +58,12 @@ extern const char linux_proc_banner[];
  
- 	h->htable = kcalloc(nslot, sizeof(*(h->htable)), GFP_KERNEL);
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index cd4f734..32bd8b3 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -85,7 +85,6 @@ void avtab_cache_destroy(void);
- #define MAX_AVTAB_HASH_BITS 11
- #define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
- #define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS-1)
--#define MAX_AVTAB_SIZE MAX_AVTAB_HASH_BUCKETS
- 
- #endif	/* _SS_AVTAB_H_ */
- 
+ #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
+ #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+-#define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
++#define roundup(x, y) (					\
++{							\
++	typeof(y) __y = y;				\
++	(((x) + (__y - 1)) / __y) * __y;		\
++}							\
++)
+ #define rounddown(x, y) (				\
+ {							\
+ 	typeof(x) __x = (x);				\
 
 
 --
