@@ -1,62 +1,112 @@
-Subject: Re: [PATCH 1/2] SELinux: allow userspace to read policy back out
- of the kernel
 From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, kaigai@kaigai.gr.jp,
-        method@manicmethod.com
-In-Reply-To: <1286979463.2614.31.camel@localhost.localdomain>
-References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-	 <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280254278.2788.7.camel@dhcp231-200.rdu.redhat.com>
-	 <1280255967.4789.87.camel@moss-pluto.epoch.ncsc.mil>
-	 <1286976052.2614.24.camel@localhost.localdomain>
-	 <1286979463.2614.31.camel@localhost.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 13 Oct 2010 15:15:42 -0400
-Message-ID: <1286997342.2614.35.camel@localhost.localdomain>
-Mime-Version: 1.0
+Subject: [PATCH 2/4] security: secid_to_secctx returns len when data is NULL
+To: netfilter-devel@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: jengelh@medozas.de, paul.moore@hp.com, jmorris@namei.org,
+        sds@tycho.nsa.gov, pablo@netfilter.org
+Date: Wed, 13 Oct 2010 16:24:48 -0400
+Message-ID: <20101013202448.15272.35041.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20101013202441.15272.75924.stgit@paris.rdu.redhat.com>
+References: <20101013202441.15272.75924.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-10-13 at 10:17 -0400, Eric Paris wrote:
-> On Wed, 2010-10-13 at 09:20 -0400, Eric Paris wrote:
-> > On Tue, 2010-07-27 at 14:39 -0400, Stephen Smalley wrote:
-> 
-> > > Yes, I'd be in favor of that.  Just define the rangetr_cmp function in
-> > > the kernel to truly order the entries at load time and sort them in the
-> > > same manner in libsepol before writing.
-> > 
-> > Started working on this yesterday and still don't have a bit for bit
-> > identical policy.
-> 
-> [snip]
-> 
-> > These two show that the files are now identical outside of the avtab
-> > entries.  Now I'm trying to figure out why the avtab entries are not the
-> > same.  Anyone have guesses off the top of their head?
-> 
-> My first thought is that the avtab was allocated in expand_avtab() for
-> the policy.25 and thus was done with an expected # of rules equal to
-> MAX_AVTAB_SIZE, whereas the kernel builds a 'correctly' sized avtab
-> since it knows the correct number of rules.  If this is the case it
-> explains how things would get put in different buckets and we end up
-> with the same policy, but different ordering.
-> 
-> If this is the case (which seems likely) I'm wondering the best way to
-> fix this.  I don't really want to have to rebuild the userspace avtable
-> a second time just to get final ordering (as if userspace wasn't slow
-> enough) but we can't size the avtab correctly during expand either...
+With the (long ago) interface change to have the secid_to_secctx functions
+do the string allocation instead of having the caller do the allocation we
+lost the ability to query the security server for the length of the
+upcoming string.  The SECMARK code would like to allocate a netlink skb
+with enough length to hold the string but it is just too unclean to do the
+string allocation twice or to do the allocation the first time and hold
+onto the string and slen.  This patch adds the ability to call
+security_secid_to_secctx() with a NULL data pointer and it will just set
+the slen pointer.
 
-Easy enough to fix.  The kernel has MAX_HASH_BUCKETS = 1<<10 (I think it
-was intended to be 11) whereas usespace was doing MAX_HASH_BUCKETS =
-1<<12 (again I think the intention was 13)
+Signed-off-by: Eric Paris <eparis@redhat.com>
+Reviewed-by: Paul Moore <paul.moore@hp.com>
+---
 
-But maxing userspace out at 10 like the kernel I now have a bit for bit
-exact replica coming back out of the kernel with my policydb write
-patch.  I'll work on cleaning everything up (including the
-MAX_HASH_BUCKETS thing I don't quite understand) and post some patches.
+ include/linux/security.h       |    6 +++++-
+ security/selinux/ss/services.c |   11 +++++++++--
+ security/smack/smack_lsm.c     |    3 ++-
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
--Eric
+diff --git a/include/linux/security.h b/include/linux/security.h
+index f050119..44aeace 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1286,9 +1286,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	Return 0 if permission is granted.
+  *
+  * @secid_to_secctx:
+- *	Convert secid to security context.
++ *	Convert secid to security context.  If secdata is NULL the length of
++ *	the result will be returned in seclen, but no secdata will be returned.
++ *	This does mean that the length could change between calls to check the
++ *	length and the next call which actually allocates and returns the secdata.
+  *	@secid contains the security ID.
+  *	@secdata contains the pointer that stores the converted security context.
++ *	@seclen pointer which contains the length of the data
+  * @secctx_to_secid:
+  *	Convert security context to secid.
+  *	@secid contains the pointer to the generated security ID.
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 73508af..1d4955a 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -998,7 +998,8 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+ {
+ 	char *scontextp;
+ 
+-	*scontext = NULL;
++	if (scontext)
++		*scontext = NULL;
+ 	*scontext_len = 0;
+ 
+ 	if (context->len) {
+@@ -1015,6 +1016,9 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
+ 	*scontext_len += strlen(sym_name(&policydb, SYM_TYPES, context->type - 1)) + 1;
+ 	*scontext_len += mls_compute_context_len(context);
+ 
++	if (!scontext)
++		return 0;
++
+ 	/* Allocate space for the context; caller must free this space. */
+ 	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
+ 	if (!scontextp)
+@@ -1054,7 +1058,8 @@ static int security_sid_to_context_core(u32 sid, char **scontext,
+ 	struct context *context;
+ 	int rc = 0;
+ 
+-	*scontext = NULL;
++	if (scontext)
++		*scontext = NULL;
+ 	*scontext_len  = 0;
+ 
+ 	if (!ss_initialized) {
+@@ -1062,6 +1067,8 @@ static int security_sid_to_context_core(u32 sid, char **scontext,
+ 			char *scontextp;
+ 
+ 			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
++			if (!scontext)
++				goto out;
+ 			scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
+ 			if (!scontextp) {
+ 				rc = -ENOMEM;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 174aec4..bc39f40 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3004,7 +3004,8 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ {
+ 	char *sp = smack_from_secid(secid);
+ 
+-	*secdata = sp;
++	if (secdata)
++		*secdata = sp;
+ 	*seclen = strlen(sp);
+ 	return 0;
+ }
 
 
 --
