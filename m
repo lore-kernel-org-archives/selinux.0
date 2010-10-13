@@ -1,110 +1,83 @@
-Subject: Re: [PATCH 1/2] SELinux: allow userspace to read policy back out
- of the kernel
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, kaigai@kaigai.gr.jp
-In-Reply-To: <1280255967.4789.87.camel@moss-pluto.epoch.ncsc.mil>
-References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
-	 <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <1280254278.2788.7.camel@dhcp231-200.rdu.redhat.com>
-	 <1280255967.4789.87.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 13 Oct 2010 09:20:52 -0400
-Message-ID: <1286976052.2614.24.camel@localhost.localdomain>
+Subject: Re: [PATCH 4/5] conntrack: export lsm context rather than internal
+ secid via netlink
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        netfilter@vger.kernel.org, jmorris@namei.org, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov, jengelh@medozas.de,
+        linux-security-module@vger.kernel.org, mr.dash.four@googlemail.com,
+        pablo@netfilter.org
+In-Reply-To: <1286925891.2614.13.camel@localhost.localdomain>
+References: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
+	 <20101012154028.26943.6918.stgit@paris.rdu.redhat.com>
+	 <1286925284.5133.98.camel@sifl>
+	 <1286925891.2614.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 13 Oct 2010 09:41:44 -0400
+Message-ID: <1286977304.5007.5.camel@sifl>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-07-27 at 14:39 -0400, Stephen Smalley wrote:
-> On Tue, 2010-07-27 at 14:11 -0400, Eric Paris wrote:
-> > On Mon, 2010-07-26 at 16:48 -0400, Stephen Smalley wrote:
-> > > On Mon, 2010-07-26 at 15:34 -0400, Eric Paris wrote:
-> > > > There is interest in being able to see what the actual policy is that was
-> > > > loaded into the kernel.  The patch creates a new selinuxfs file
-> > > > /selinux/policy which can be read by userspace.  The actual policy that is
-> > > > loaded into the kernel will be written back out to userspace.
-> > > 
-> > > Can you clarify exactly how comparable the output is to the original
-> > > policy file that was loaded?  Last time you mentioned range transition
-> > > rules may be reordered, KaiGai mentioned that ebitmaps might not be
-> > > identical after conversion (losing the original startbit), and Chris
-> > > pointed out that sediff isn't sufficient for comparison as it doesn't
-> > > yet handle constraints.
-> > > 
-> > > 
-> > > > Signed-off-by: Eric Paris <eparis@redhat.com>
+On Tue, 2010-10-12 at 19:24 -0400, Eric Paris wrote:
+> On Tue, 2010-10-12 at 19:14 -0400, Paul Moore wrote:
+> > > -ctnetlink_dump_secmark(struct sk_buff *skb, const struct nf_conn *ct)
+> > > +ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
+> > >  {
+> > > -	NLA_PUT_BE32(skb, CTA_SECMARK, htonl(ct->secmark));
+> > > -	return 0;
+> > > +	struct nlattr *nest_secctx;
+> > > +	int len, ret;
+> > > +	char *secctx;
+> > > +
+> > > +	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
+> > > +	if (ret)
+> > > +		return ret;
+> > > +
+> > > +	ret = -1;
+> > > +	nest_secctx = nla_nest_start(skb, CTA_SECCTX | NLA_F_NESTED);
+> > > +	if (!nest_secctx)
+> > > +		goto nla_put_failure;
+> > >  
+> > > +	NLA_PUT_STRING(skb, CTA_SECCTX_NAME, secctx);
+> > > +	nla_nest_end(skb, nest_secctx);
+> > > +
+> > > +	ret = 0;
+> > >  nla_put_failure:
+> > > -	return -1;
+> > > +	security_release_secctx(secctx, len);
+> > > +	return ret;
+> > >  }
 > > 
-> > The only two areas that I had to deviate in any reasonable way from the
-> > userspace policy write code was ebitmaps and range transition rules.
-> > 
-> > I'm not certain that we actually lose the startbit since if we look at
-> > ebitmap_read()
-> > 
-> > #define MAPTYPE uint64_t        /* portion of bitmap in each node */
-> > #define MAPSIZE (sizeof(MAPTYPE) * 8)   /* number of bits in node bitmap */
-> > 
-> > if (n->startbit & (MAPSIZE - 1)) {
-> >                         printf
-> >                             ("security: ebitmap start bit (%d) is not a multiple of the map size (%zu)\n",
-> >                              n->startbit, MAPSIZE);
-> >                         goto bad_free;
-> >                 }
-> > 
-> > Which indicated to me that it has to always be aligned to u64.
-> > 
-> > If you load the policy you pulled out you should get back bit for bit
-> > the exact same policy.  The only issue I knew of was the range
-> > transition rules being stored in kernel in a hashtab instead of the
-> > random order they are stored in userspace policy.  I wonder if I could
-> > do better testing by sorting the range transition rules in userspace
-> > into the same order I expect to get them back out of the kernel hashtab
-> > to prove things.
+> > All the ret assignments bother me, I also don't think "nla_put_failure"
+> > is a good choice since we run this code both on success and failure -
+> > how about this:
 > 
-> Yes, I'd be in favor of that.  Just define the rangetr_cmp function in
-> the kernel to truly order the entries at load time and sort them in the
-> same manner in libsepol before writing.
+> #define NLA_PUT(skb, attrtype, attrlen, data) \
+>         do { \
+>                 if (unlikely(nla_put(skb, attrtype, attrlen, data) < 0)) \
+>                         goto nla_put_failure; \
+>         } while(0)
+> 
+> #define NLA_PUT_STRING(skb, attrtype, value) \
+>         NLA_PUT(skb, attrtype, strlen(value) + 1, value)
+> 
+> so we can't get rid of the nla_put_failure tag and it also means your
+> ret values aren't quite right, we have to set ret = -1 before the
+> NLA_PUT_STRING()....
 
-Started working on this yesterday and still don't have a bit for bit
-identical policy.
+Ah, yes, forgot about those stupid macros and their pre-defined goto
+labels ... I'm sure someone had a good reason for doing it that way, but
+I've never been a fan of that approach (case in point).  I'd ask you to
+use the "normal" nla_put_*() functions but I see that the rest of the
+file uses the macros so it probably isn't worth it ... oh well.
 
-#cat /selinux/policy > /tmp/policy
-#dmesg
-[snip]
-[  128.977564] starting symtab: 224
-[  128.978321] starting symtab: 1419
-[  128.979366] starting symtab: 29892
-[  128.980187] starting symtab: 34841
-[  128.981490] starting symtab: 172150
-[  128.982291] starting symtab: 173917
-[  128.983133] starting symtab: 179548
-[  128.983933] starting symtab: 179774
-[  128.984825] starting avtab: 196080
-[  128.990442] starting cond: 2657920
-[  129.001478] starting role_trans: 5652888
-[snip]
+Reviewed-by: Paul Moore <paul.moore@hp.com>
 
-Where is a program which compares two files byte by byte between start
-and end and reports the first byte that is different.
+-- 
+paul moore
+linux @ hp
 
-# ./where /tmp/policy /etc/selinux/targeted/policy/policy.25 0 5967956
-i=196147
-
-The above says the first byte that is different is byte 196147 which we
-know is in the avtab (thanks to the instrumented kernel output)
-
-# ./where /tmp/policy /etc/selinux/targeted/policy/policy.25 0 196080
-# echo $?
-0
-
-#./where /tmp/policy /etc/selinux/targeted/policy/policy.25 2657920 5967956
-# echo $?
-0
-
-These two show that the files are now identical outside of the avtab
-entries.  Now I'm trying to figure out why the avtab entries are not the
-same.  Anyone have guesses off the top of their head?
-
--Eric
 
 
 --
