@@ -1,83 +1,51 @@
-Subject: Re: [PATCH 4/5] conntrack: export lsm context rather than internal
- secid via netlink
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        netfilter@vger.kernel.org, jmorris@namei.org, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov, jengelh@medozas.de,
-        linux-security-module@vger.kernel.org, mr.dash.four@googlemail.com,
-        pablo@netfilter.org
-In-Reply-To: <1286925891.2614.13.camel@localhost.localdomain>
-References: <20101012154008.26943.44399.stgit@paris.rdu.redhat.com>
-	 <20101012154028.26943.6918.stgit@paris.rdu.redhat.com>
-	 <1286925284.5133.98.camel@sifl>
-	 <1286925891.2614.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 13 Oct 2010 09:41:44 -0400
-Message-ID: <1286977304.5007.5.camel@sifl>
+Subject: Re: [PATCH 1/2] SELinux: allow userspace to read policy back out
+ of the kernel
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, kaigai@kaigai.gr.jp,
+        method@manicmethod.com
+In-Reply-To: <1286976052.2614.24.camel@localhost.localdomain>
+References: <20100726193407.19538.67667.stgit@paris.rdu.redhat.com>
+	 <1280177335.17036.5.camel@moss-pluto.epoch.ncsc.mil>
+	 <1280254278.2788.7.camel@dhcp231-200.rdu.redhat.com>
+	 <1280255967.4789.87.camel@moss-pluto.epoch.ncsc.mil>
+	 <1286976052.2614.24.camel@localhost.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 13 Oct 2010 10:17:43 -0400
+Message-ID: <1286979463.2614.31.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-10-12 at 19:24 -0400, Eric Paris wrote:
-> On Tue, 2010-10-12 at 19:14 -0400, Paul Moore wrote:
-> > > -ctnetlink_dump_secmark(struct sk_buff *skb, const struct nf_conn *ct)
-> > > +ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
-> > >  {
-> > > -	NLA_PUT_BE32(skb, CTA_SECMARK, htonl(ct->secmark));
-> > > -	return 0;
-> > > +	struct nlattr *nest_secctx;
-> > > +	int len, ret;
-> > > +	char *secctx;
-> > > +
-> > > +	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > > +	ret = -1;
-> > > +	nest_secctx = nla_nest_start(skb, CTA_SECCTX | NLA_F_NESTED);
-> > > +	if (!nest_secctx)
-> > > +		goto nla_put_failure;
-> > >  
-> > > +	NLA_PUT_STRING(skb, CTA_SECCTX_NAME, secctx);
-> > > +	nla_nest_end(skb, nest_secctx);
-> > > +
-> > > +	ret = 0;
-> > >  nla_put_failure:
-> > > -	return -1;
-> > > +	security_release_secctx(secctx, len);
-> > > +	return ret;
-> > >  }
-> > 
-> > All the ret assignments bother me, I also don't think "nla_put_failure"
-> > is a good choice since we run this code both on success and failure -
-> > how about this:
+On Wed, 2010-10-13 at 09:20 -0400, Eric Paris wrote:
+> On Tue, 2010-07-27 at 14:39 -0400, Stephen Smalley wrote:
+
+> > Yes, I'd be in favor of that.  Just define the rangetr_cmp function in
+> > the kernel to truly order the entries at load time and sort them in the
+> > same manner in libsepol before writing.
 > 
-> #define NLA_PUT(skb, attrtype, attrlen, data) \
->         do { \
->                 if (unlikely(nla_put(skb, attrtype, attrlen, data) < 0)) \
->                         goto nla_put_failure; \
->         } while(0)
-> 
-> #define NLA_PUT_STRING(skb, attrtype, value) \
->         NLA_PUT(skb, attrtype, strlen(value) + 1, value)
-> 
-> so we can't get rid of the nla_put_failure tag and it also means your
-> ret values aren't quite right, we have to set ret = -1 before the
-> NLA_PUT_STRING()....
+> Started working on this yesterday and still don't have a bit for bit
+> identical policy.
 
-Ah, yes, forgot about those stupid macros and their pre-defined goto
-labels ... I'm sure someone had a good reason for doing it that way, but
-I've never been a fan of that approach (case in point).  I'd ask you to
-use the "normal" nla_put_*() functions but I see that the rest of the
-file uses the macros so it probably isn't worth it ... oh well.
+[snip]
 
-Reviewed-by: Paul Moore <paul.moore@hp.com>
+> These two show that the files are now identical outside of the avtab
+> entries.  Now I'm trying to figure out why the avtab entries are not the
+> same.  Anyone have guesses off the top of their head?
 
--- 
-paul moore
-linux @ hp
+My first thought is that the avtab was allocated in expand_avtab() for
+the policy.25 and thus was done with an expected # of rules equal to
+MAX_AVTAB_SIZE, whereas the kernel builds a 'correctly' sized avtab
+since it knows the correct number of rules.  If this is the case it
+explains how things would get put in different buckets and we end up
+with the same policy, but different ordering.
 
+If this is the case (which seems likely) I'm wondering the best way to
+fix this.  I don't really want to have to rebuild the userspace avtable
+a second time just to get final ordering (as if userspace wasn't slow
+enough) but we can't size the avtab correctly during expand either...
+
+-Eric
 
 
 --
