@@ -1,209 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9PCeY4T024170
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 08:40:34 -0400
-Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o9P8MF8H029294
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 08:22:16 GMT
-Received: by pwj5 with SMTP id 5so879127pwj.12
-        for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 01:22:15 -0700 (PDT)
-Message-ID: <4CC53E5F.8060708@gmail.com>
-Date: Mon, 25 Oct 2010 01:22:55 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9PCfMj2024789
+	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 08:41:23 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o9ONe1We023970
+	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2010 23:40:02 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: selinux@tycho.nsa.gov
+Subject: Re: [refpolicy] load_policy() with upstart on mint 9 fluxbox
+Date: Mon, 25 Oct 2010 10:39:58 +1100
+Cc: Shaz <shazalive@gmail.com>, "Justin P. Mattock" <justinmattock@gmail.com>
+References: <4CBE21ED.4050706@gmail.com> <4CC042CD.4000501@gmail.com> <AANLkTinSFCbxNP9Ps=0rMsgR5idqvdyJ1t_pVUVG5N00@mail.gmail.com>
+In-Reply-To: <AANLkTinSFCbxNP9Ps=0rMsgR5idqvdyJ1t_pVUVG5N00@mail.gmail.com>
 MIME-Version: 1.0
-To: imsand@puzzle.ch
-CC: Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: Context settings after ssh login
-References: <C8D3542D.BAC90%csellers@tresys.com>    <4CADF149.3040301@redhat.com> <4CAE025C.6010005@gmail.com>    <44256.193.5.216.100.1287499358.squirrel@mail.puzzle.ch>    <4CBDB14E.2030207@gmail.com>    <12764.193.5.216.100.1287503226.squirrel@mail.puzzle.ch>    <4CBDC997.6030800@gmail.com>    <10617.193.5.216.100.1287564131.squirrel@mail.puzzle.ch>    <4CBEF2B4.3050408@gmail.com>    <35906.193.5.216.100.1287584724.squirrel@mail.puzzle.ch>    <4CC3400C.8060004@gmail.com> <30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch> <4CC53877.7040106@gmail.com>
-In-Reply-To: <4CC53877.7040106@gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------090101070807050700080605"
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201010251039.58440.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090101070807050700080605
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 22 Oct 2010, Shaz <shazalive@gmail.com> wrote:
+> Why do you expect Upstart or init to know if initrd was used or not? Is
+> this a feature that upstart should handle? I guess not because initrd is
+> used for early drivers and configuration before the rootfs can be utilized
+> properly.
 
-  On 10/25/2010 12:57 AM, Justin P. Mattock wrote:
-> On 10/25/2010 12:09 AM, imsand@puzzle.ch wrote:
->> Hi Justin.
->>
->> First of all, thanks a lot for your efforts.
->
-> youre welcome!!
->> Unfortunately I'm a little bit confused about what you've done exactly to
->> make it run.
->> Can you please summarize it and make a little step by step guide for me?
->
-> I can try, but maybe later on another post(a bit late over here.)
->> Did selinux worked out of the box (on sles11.1)? Didn't had you have to
->> fix the bug in /lib/mkinitrd/scripts/boot-boot.sh and rebuild initrd?
->
-> long story short, installed sles11.1, changed the repos to download 
-> git-core
-> then changed repos to download the rest of the packages to build the 
-> latest Mainline kernel
-> (make, make modules_install)
-> then after that, installed all the SELinux packages, rebooted realized 
-> even though this system is
-> using sysvinit the policy still wont load without an initrd(must be 
-> because my other systems have
-> _nothing_ of the sort with initrd in them(*.h)or something, so ended 
-> up using mkinitrd_setup to make the image
-> so the policy can load..
->
-> Then once loaded made sure the home directory was labelled correctly, 
-> as well as other
-> areas that I've seen issues with, then just started the sshd..with the 
-> other machine with SELinux,
-> and the iphone(touchterm ssh(free))..
->
->> which package have you build with --with-selinux and the --with-pam?
-> this was on my cblfs system.. I just built this(all gnome etc..)and 
-> didnt realize that I had
-> built this wrong until I looked at config.log of the package and 
-> noticed I messd up..
->
-> after that things went good..(from over here sles11.1 sshd looks built 
-> fine, maybe this is config issues..,
-> only issue I noticed is getsebool/setsebool are missing, so just do: 
-> mv /etc/initscript{,-old}
-> to avoid problems during boot, or define the init_upstart boolean in 
-> boolean.conf.)
->
->> which policy did you used?http://oss.tresys.com/git/refpolicy.git?
->>
->
-> yep... I follow track
->
->> kind regards
->> Matthias
->>
->>
->
-> Justin P. Mattock
->
+/sbin/init can easily determine whether policy was already loaded, whether an 
+initrd/initramfs was used isn't the relevant issue.
 
-FWIW heres the system info with SELinux and sles11.1:
-http://fpaste.org/hdTI/
+It's easy to load policy from /sbin/init, and as Systemd will have to have SE 
+Linux support (it can't do any of it's advanced features without it) it 
+wouldn't make sense to have anything other than /sbin/init load policy on a 
+Systemd system.
 
-Justin P. Mattock
-
---------------090101070807050700080605
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    On 10/25/2010 12:57 AM, Justin P. Mattock wrote:
-    <blockquote cite="mid:4CC53877.7040106@gmail.com" type="cite">
-      <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-      On 10/25/2010 12:09 AM, <a moz-do-not-send="true"
-        class="moz-txt-link-abbreviated" href="mailto:imsand@puzzle.ch">imsand@puzzle.ch</a>
-      wrote:
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">Hi Justin.
-
-First of all, thanks a lot for your efforts.
-</pre>
-      </blockquote>
-      <br>
-      <small>youre welcome!!</small><br>
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">Unfortunately I'm a little bit confused about what you've done exactly to
-make it run.
-Can you please summarize it and make a little step by step guide for me?
-</pre>
-      </blockquote>
-      <br>
-      <small>I can try, but maybe later on another post(a bit late over
-        here.)</small><br>
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">Did selinux worked out of the box (on sles11.1)? Didn't had you have to
-fix the bug in /lib/mkinitrd/scripts/boot-boot.sh and rebuild initrd?
-</pre>
-      </blockquote>
-      <br>
-      <small>long story short, installed sles11.1, changed the repos to
-        download git-core<br>
-        then changed repos to download the rest of the packages to build
-        the latest Mainline kernel<br>
-        (make, make modules_install) <br>
-        then after that, installed all the SELinux packages, rebooted
-        realized even though this system is <br>
-        using sysvinit the policy still wont load without an initrd(must
-        be because my other systems have<br>
-        _nothing_ of the sort with initrd in them(*.h)or something, so
-        ended up using mkinitrd_setup to make the image<br>
-        so the policy can load..<br>
-        <br>
-        Then once loaded made sure the home directory was labelled
-        correctly, as well as other<br>
-        areas that I've seen issues with, then just started the
-        sshd..with the other machine with SELinux, <br>
-        and the iphone(touchterm ssh(free))..</small><br>
-      <br>
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">which package have you build with --with-selinux and the --with-pam?
-</pre>
-      </blockquote>
-      <small>this was on my cblfs system.. I just built this(all gnome
-        etc..)and didnt realize that I had<br>
-        built this wrong until I looked at config.log of the package and
-        noticed I messd up..<br>
-        <br>
-        after that things went good..(from over here sles11.1 sshd looks
-        built fine, maybe this is config issues..,<br>
-        only issue I noticed is getsebool/setsebool are missing, so just
-        do: mv /etc/initscript{,-old}<br>
-        to avoid problems during boot, or define the init_upstart
-        boolean in boolean.conf.)</small><br>
-      <br>
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">which policy did you used? <a moz-do-not-send="true" class="moz-txt-link-freetext" href="http://oss.tresys.com/git/refpolicy.git">http://oss.tresys.com/git/refpolicy.git</a>?
-
-</pre>
-      </blockquote>
-      <br>
-      <small>yep... I follow track</small><br>
-      <br>
-      <blockquote
-        cite="mid:30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch"
-        type="cite">
-        <pre wrap="">kind regards
-Matthias
-
-</pre>
-        <br>
-      </blockquote>
-      <br>
-      <small>Justin P. Mattock</small><br>
-      <br>
-    </blockquote>
-    <br>
-    <small>FWIW heres the system info with SELinux and sles11.1:<br>
-      <a href="http://fpaste.org/hdTI/" target="_blank">http://fpaste.org/hdTI/</a><br>
-      <br>
-      Justin P. Mattock</small><br>
-  </body>
-</html>
-
---------------090101070807050700080605--
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
