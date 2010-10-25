@@ -1,119 +1,75 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9QAkcHe015434
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 06:47:00 -0400
-Received: from yukon.worldweb2000.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o9Q8RVD3021662
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 08:27:32 GMT
-Message-ID: <24565.193.5.216.100.1288081632.squirrel@mail.puzzle.ch>
-In-Reply-To: <4CC53E5F.8060708@gmail.com>
-References: <C8D3542D.BAC90%csellers@tresys.com>
-    <4CADF149.3040301@redhat.com> <4CAE025C.6010005@gmail.com>
-    <44256.193.5.216.100.1287499358.squirrel@mail.puzzle.ch>
-    <4CBDB14E.2030207@gmail.com>
-    <12764.193.5.216.100.1287503226.squirrel@mail.puzzle.ch>
-    <4CBDC997.6030800@gmail.com>
-    <10617.193.5.216.100.1287564131.squirrel@mail.puzzle.ch>
-    <4CBEF2B4.3050408@gmail.com>
-    <35906.193.5.216.100.1287584724.squirrel@mail.puzzle.ch>
-    <4CC3400C.8060004@gmail.com>
-    <30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch>
-    <4CC53877.7040106@gmail.com> <4CC53E5F.8060708@gmail.com>
-Date: Tue, 26 Oct 2010 10:27:12 +0200 (CEST)
-Subject: Re: Context settings after ssh login
-From: imsand@puzzle.ch
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: imsand@puzzle.ch, "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Chad Sellers" <csellers@tresys.com>, selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9QCDJlb030075
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 08:13:23 -0400
+Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o9PNKn04010211
+	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 23:20:49 GMT
+Received: by wwb34 with SMTP id 34so4156929wwb.30
+        for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 16:20:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
+In-Reply-To: <AANLkTi=rnig-t8YiCp7xZUeCoVWNdkjwA0Rx3Lwk6Nd_@mail.gmail.com>
+References: <AANLkTi=1q+3VqY4it_eCDJ6KE1_57q61_9jgkrH377NK@mail.gmail.com>
+	<AANLkTi=rnig-t8YiCp7xZUeCoVWNdkjwA0Rx3Lwk6Nd_@mail.gmail.com>
+Date: Tue, 26 Oct 2010 04:20:48 +0500
+Message-ID: <AANLkTinZAT8b-qCfvwZ9iO4z1StXTGSjXWvth0gag7AW@mail.gmail.com>
+Subject: Re: Confining Java application with SELinux
+From: Shaz <shazalive@gmail.com>
+To: mohit verma <mohit89mlnc@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=20cf30025d741818a50493793ecb
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->   On 10/25/2010 12:57 AM, Justin P. Mattock wrote:
->> On 10/25/2010 12:09 AM, imsand@puzzle.ch wrote:
->>> Hi Justin.
->>>
->>> First of all, thanks a lot for your efforts.
->>
->> youre welcome!!
->>> Unfortunately I'm a little bit confused about what you've done exactly
->>> to
->>> make it run.
->>> Can you please summarize it and make a little step by step guide for
->>> me?
->>
->> I can try, but maybe later on another post(a bit late over here.)
->>> Did selinux worked out of the box (on sles11.1)? Didn't had you have to
->>> fix the bug in /lib/mkinitrd/scripts/boot-boot.sh and rebuild initrd?
->>
->> long story short, installed sles11.1, changed the repos to download
->> git-core
->> then changed repos to download the rest of the packages to build the
->> latest Mainline kernel
->> (make, make modules_install)
-On my installation I took the original kernel, shipped with sles11.1. I
-don't want to compile a new one unless it's strongly recommended. Why
-don't you use the original kernel and packages of sles11.1?
->> then after that, installed all the SELinux packages, rebooted realized
->> even though this system is
->> using sysvinit the policy still wont load without an initrd(must be
->> because my other systems have
->> _nothing_ of the sort with initrd in them(*.h)or something, so ended
->> up using mkinitrd_setup to make the image
->> so the policy can load..
->>
-Okey. I also had to rebuild initrd with the adjustments I already described.
->> Then once loaded made sure the home directory was labelled correctly,
->> as well as other
->> areas that I've seen issues with, then just started the sshd..with the
->> other machine with SELinux,
->> and the iphone(touchterm ssh(free))..
->>
->>> which package have you build with --with-selinux and the --with-pam?
-I did't rebuild any packages. Do I have to recomple some packages with
-these options? I just took the original versions, shipped with sles 11.1.
->> this was on my cblfs system.. I just built this(all gnome etc..)and
->> didnt realize that I had
->> built this wrong until I looked at config.log of the package and
->> noticed I messd up..
->>
->> after that things went good..(from over here sles11.1 sshd looks built
->> fine, maybe this is config issues..,
->> only issue I noticed is getsebool/setsebool are missing, so just do:
->> mv /etc/initscript{,-old}
->> to avoid problems during boot, or define the init_upstart boolean in
->> boolean.conf.)
-I set the init_upstart boolean.
->>
->>> which policy did you used?http://oss.tresys.com/git/refpolicy.git?
->>>
->>
->> yep... I follow track
-I can't compile the latest refpolicy version from git. make conf results
-in: doc/policy.xml:604: element module: validity error : Element module
-content does not follow the DTD, expecting (summary , desc? , required? ,
-(interface | template)* , (bool | tunable)*), got ()
-d
+--20cf30025d741818a50493793ecb
+Content-Type: text/plain; charset=ISO-8859-1
 
-but the latest release from
-(http://oss.tresys.com/files/refpolicy/refpolicy-2.20100524.tar.bz2) is
-working..
->>
->>> kind regards
->>> Matthias
->>>
->>>
->>
->> Justin P. Mattock
->>
->
-> FWIW heres the system info with SELinux and sles11.1:
-> http://fpaste.org/hdTI/
->
-> Justin P. Mattock
->
+On Mon, Oct 25, 2010 at 11:14 PM, mohit verma <mohit89mlnc@gmail.com> wrote:
 
+> shaz ,will u please explain ur idea in more detail?
+>
+>
+I want to confine a Java application with SELinux policy so I wanted to know
+how I can really do that. Will the application be visible to the native
+platform with SELinux? Or only the Java VM is visible and that we use Java
+ACL to confine the application inside the VM?
 
+Thanks.
+
+-- 
+Shahbaz Khan
+Assist. R&D Engineer
+
+http://shazkhan.wordpress.com/
+http://pk.linkedin.com/pub/shahbaz-khan/20/116/b49
+http://imsciences.edu.pk/serg/
+http://csrdu.org/
++92-91-332-9915828
+
+--20cf30025d741818a50493793ecb
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<br><br><div class=3D"gmail_quote">On Mon, Oct 25, 2010 at 11:14 PM, mohit =
+verma <span dir=3D"ltr">&lt;<a href=3D"mailto:mohit89mlnc@gmail.com">mohit8=
+9mlnc@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
+style=3D"margin: 0pt 0pt 0pt 0.8ex; border-left: 1px solid rgb(204, 204, 20=
+4); padding-left: 1ex;">
+shaz ,will u please explain ur idea in more detail?<div><div></div><div cla=
+ss=3D"h5"><br clear=3D"all"></div></div></blockquote></div><br>I want to co=
+nfine a Java application with SELinux policy so I wanted to know how I can =
+really do that. Will the application be visible to the native platform with=
+ SELinux? Or only the Java VM is visible and that we use Java ACL to confin=
+e the application inside the VM?<br>
+<br>Thanks.<br><br>-- <br>Shahbaz Khan<br>Assist. R&amp;D Engineer<br><br><=
+a href=3D"http://shazkhan.wordpress.com/" target=3D"_blank">http://shazkhan=
+.wordpress.com/</a><br><a href=3D"http://pk.linkedin.com/pub/shahbaz-khan/2=
+0/116/b49" target=3D"_blank">http://pk.linkedin.com/pub/shahbaz-khan/20/116=
+/b49</a><br>
+<a href=3D"http://imsciences.edu.pk/serg/" target=3D"_blank">http://imscien=
+ces.edu.pk/serg/</a><br><a href=3D"http://csrdu.org/" target=3D"_blank">htt=
+p://csrdu.org/</a><br>+92-91-332-9915828<br><br>
+
+--20cf30025d741818a50493793ecb--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
