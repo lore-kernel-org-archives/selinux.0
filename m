@@ -1,75 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9QCDJlb030075
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 08:13:23 -0400
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o9PNKn04010211
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 23:20:49 GMT
-Received: by wwb34 with SMTP id 34so4156929wwb.30
-        for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2010 16:20:49 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9QCUZrl031424
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 08:30:35 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id o9QCUZU2024158
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2010 12:30:35 GMT
+Message-ID: <4CC6C9DF.6050709@tresys.com>
+Date: Tue, 26 Oct 2010 08:30:23 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-In-Reply-To: <AANLkTi=rnig-t8YiCp7xZUeCoVWNdkjwA0Rx3Lwk6Nd_@mail.gmail.com>
-References: <AANLkTi=1q+3VqY4it_eCDJ6KE1_57q61_9jgkrH377NK@mail.gmail.com>
-	<AANLkTi=rnig-t8YiCp7xZUeCoVWNdkjwA0Rx3Lwk6Nd_@mail.gmail.com>
-Date: Tue, 26 Oct 2010 04:20:48 +0500
-Message-ID: <AANLkTinZAT8b-qCfvwZ9iO4z1StXTGSjXWvth0gag7AW@mail.gmail.com>
+To: Shaz <shazalive@gmail.com>
+CC: mohit verma <mohit89mlnc@gmail.com>, selinux <selinux@tycho.nsa.gov>
 Subject: Re: Confining Java application with SELinux
-From: Shaz <shazalive@gmail.com>
-To: mohit verma <mohit89mlnc@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=20cf30025d741818a50493793ecb
+References: <AANLkTi=1q+3VqY4it_eCDJ6KE1_57q61_9jgkrH377NK@mail.gmail.com>	<AANLkTi=rnig-t8YiCp7xZUeCoVWNdkjwA0Rx3Lwk6Nd_@mail.gmail.com> <AANLkTinZAT8b-qCfvwZ9iO4z1StXTGSjXWvth0gag7AW@mail.gmail.com>
+In-Reply-To: <AANLkTinZAT8b-qCfvwZ9iO4z1StXTGSjXWvth0gag7AW@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---20cf30025d741818a50493793ecb
-Content-Type: text/plain; charset=ISO-8859-1
+On 10/25/10 19:20, Shaz wrote:
+> I want to confine a Java application with SELinux policy so I wanted to
+> know how I can really do that. Will the application be visible to the
+> native platform with SELinux? Or only the Java VM is visible and that we
+> use Java ACL to confine the application inside the VM?
 
-On Mon, Oct 25, 2010 at 11:14 PM, mohit verma <mohit89mlnc@gmail.com> wrote:
+You can only confine the JVM.  If there is more than one application in
+the JVM, they will not be separable by SELinux.  So if you want
+separation between two or more Java applications enforced by SELinux,
+they would have to run in separate JVMs.
 
-> shaz ,will u please explain ur idea in more detail?
->
->
-I want to confine a Java application with SELinux policy so I wanted to know
-how I can really do that. Will the application be visible to the native
-platform with SELinux? Or only the Java VM is visible and that we use Java
-ACL to confine the application inside the VM?
-
-Thanks.
 
 -- 
-Shahbaz Khan
-Assist. R&D Engineer
-
-http://shazkhan.wordpress.com/
-http://pk.linkedin.com/pub/shahbaz-khan/20/116/b49
-http://imsciences.edu.pk/serg/
-http://csrdu.org/
-+92-91-332-9915828
-
---20cf30025d741818a50493793ecb
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<br><br><div class=3D"gmail_quote">On Mon, Oct 25, 2010 at 11:14 PM, mohit =
-verma <span dir=3D"ltr">&lt;<a href=3D"mailto:mohit89mlnc@gmail.com">mohit8=
-9mlnc@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
-style=3D"margin: 0pt 0pt 0pt 0.8ex; border-left: 1px solid rgb(204, 204, 20=
-4); padding-left: 1ex;">
-shaz ,will u please explain ur idea in more detail?<div><div></div><div cla=
-ss=3D"h5"><br clear=3D"all"></div></div></blockquote></div><br>I want to co=
-nfine a Java application with SELinux policy so I wanted to know how I can =
-really do that. Will the application be visible to the native platform with=
- SELinux? Or only the Java VM is visible and that we use Java ACL to confin=
-e the application inside the VM?<br>
-<br>Thanks.<br><br>-- <br>Shahbaz Khan<br>Assist. R&amp;D Engineer<br><br><=
-a href=3D"http://shazkhan.wordpress.com/" target=3D"_blank">http://shazkhan=
-.wordpress.com/</a><br><a href=3D"http://pk.linkedin.com/pub/shahbaz-khan/2=
-0/116/b49" target=3D"_blank">http://pk.linkedin.com/pub/shahbaz-khan/20/116=
-/b49</a><br>
-<a href=3D"http://imsciences.edu.pk/serg/" target=3D"_blank">http://imscien=
-ces.edu.pk/serg/</a><br><a href=3D"http://csrdu.org/" target=3D"_blank">htt=
-p://csrdu.org/</a><br>+92-91-332-9915828<br><br>
-
---20cf30025d741818a50493793ecb--
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
