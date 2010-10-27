@@ -1,17 +1,15 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 3/4] SELinux: standardize return code handling in selinuxfs.c
+Subject: [PATCH 1/4] SELinux: standardize return code handling in policydb.c
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Date: Wed, 27 Oct 2010 13:31:59 -0400
-Message-ID: <20101027173159.22048.91668.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20101027173146.22048.82500.stgit@paris.rdu.redhat.com>
-References: <20101027173146.22048.82500.stgit@paris.rdu.redhat.com>
+Date: Wed, 27 Oct 2010 13:31:46 -0400
+Message-ID: <20101027173146.22048.82500.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-selinuxfs.c has lots of different standards on how to handle return paths on
+policydb.c has lots of different standards on how to handle return paths on
 error.  For the most part transition to
 
 	rc=errno
@@ -29,839 +27,1241 @@ functions which have cleanup routines on error.
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/ss/services.c |  328 +++++++++++++++++++---------------------
- 1 files changed, 157 insertions(+), 171 deletions(-)
+ security/selinux/ss/policydb.c |  555 +++++++++++++++++++---------------------
+ 1 files changed, 268 insertions(+), 287 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 223c1ff..84e2a98 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -701,11 +701,11 @@ static int security_validtrans_handle_fail(struct context *ocontext,
- 	char *o = NULL, *n = NULL, *t = NULL;
- 	u32 olen, nlen, tlen;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 94f630d..6ad73e8 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -148,32 +148,30 @@ static int roles_init(struct policydb *p)
+ 	int rc;
+ 	struct role_datum *role;
  
--	if (context_struct_to_string(ocontext, &o, &olen) < 0)
-+	if (context_struct_to_string(ocontext, &o, &olen))
- 		goto out;
--	if (context_struct_to_string(ncontext, &n, &nlen) < 0)
-+	if (context_struct_to_string(ncontext, &n, &nlen))
- 		goto out;
--	if (context_struct_to_string(tcontext, &t, &tlen) < 0)
-+	if (context_struct_to_string(tcontext, &t, &tlen))
- 		goto out;
- 	audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
- 		  "security_validate_transition:  denied for"
-@@ -801,10 +801,11 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
- 	struct context *old_context, *new_context;
- 	struct type_datum *type;
- 	int index;
--	int rc = -EINVAL;
-+	int rc;
- 
- 	read_lock(&policy_rwlock);
- 
-+	rc = -EINVAL;
- 	old_context = sidtab_search(&sidtab, old_sid);
- 	if (!old_context) {
- 		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
-@@ -812,6 +813,7 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
- 		goto out;
- 	}
- 
-+	rc = -EINVAL;
- 	new_context = sidtab_search(&sidtab, new_sid);
- 	if (!new_context) {
- 		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
-@@ -819,11 +821,10 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
- 		goto out;
- 	}
- 
-+	rc = 0;
- 	/* type/domain unchanged */
--	if (old_context->type == new_context->type) {
--		rc = 0;
-+	if (old_context->type == new_context->type)
++	rc = -ENOMEM;
+ 	role = kzalloc(sizeof(*role), GFP_KERNEL);
+-	if (!role) {
+-		rc = -ENOMEM;
++	if (!role)
  		goto out;
 -	}
- 
- 	index = new_context->type;
- 	while (true) {
-@@ -831,16 +832,15 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
- 		BUG_ON(!type);
- 
- 		/* not bounded anymore */
--		if (!type->bounds) {
--			rc = -EPERM;
-+		rc = -EPERM;
-+		if (!type->bounds)
- 			break;
--		}
- 
- 		/* @newsid is bounded by @oldsid */
--		if (type->bounds == old_context->type) {
--			rc = 0;
-+		rc = 0;
-+		if (type->bounds == old_context->type)
- 			break;
--		}
 +
- 		index = type->bounds;
- 	}
- 
-@@ -1187,16 +1187,13 @@ static int string_to_context_struct(struct policydb *pol,
- 	if (rc)
- 		goto out;
- 
--	if ((p - scontext) < scontext_len) {
--		rc = -EINVAL;
 +	rc = -EINVAL;
-+	if ((p - scontext) < scontext_len)
- 		goto out;
--	}
- 
- 	/* Check the validity of the new context. */
--	if (!policydb_context_isvalid(pol, ctx)) {
+ 	role->value = ++p->p_roles.nprim;
+-	if (role->value != OBJECT_R_VAL) {
 -		rc = -EINVAL;
-+	if (!policydb_context_isvalid(pol, ctx))
- 		goto out;
+-		goto out_free_role;
 -	}
- 	rc = 0;
- out:
++	if (role->value != OBJECT_R_VAL)
++		goto out;
++
++	rc = -ENOMEM;
+ 	key = kstrdup(OBJECT_R, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
+-		goto out_free_role;
+-	}
++	if (!key)
++		goto out;
++
+ 	rc = hashtab_insert(p->p_roles.table, key, role);
  	if (rc)
-@@ -1235,27 +1232,26 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+-		goto out_free_key;
+-out:
+-	return rc;
++		goto out;
  
- 	if (force) {
- 		/* Save another copy for storing in uninterpreted form */
-+		rc = -ENOMEM;
- 		str = kstrdup(scontext2, gfp_flags);
--		if (!str) {
--			kfree(scontext2);
--			return -ENOMEM;
--		}
-+		if (!str)
+-out_free_key:
++	return 0;
++out:
+ 	kfree(key);
+-out_free_role:
+ 	kfree(role);
+-	goto out;
++	return rc;
+ }
+ 
+ static u32 rangetr_hash(struct hashtab *h, const void *k)
+@@ -213,35 +211,33 @@ static int policydb_init(struct policydb *p)
+ 	for (i = 0; i < SYM_NUM; i++) {
+ 		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
+ 		if (rc)
+-			goto out_free_symtab;
 +			goto out;
  	}
  
- 	read_lock(&policy_rwlock);
--	rc = string_to_context_struct(&policydb, &sidtab,
--				      scontext2, scontext_len,
--				      &context, def_sid);
-+	rc = string_to_context_struct(&policydb, &sidtab, scontext2,
-+				      scontext_len, &context, def_sid);
- 	if (rc == -EINVAL && force) {
- 		context.str = str;
- 		context.len = scontext_len;
- 		str = NULL;
- 	} else if (rc)
--		goto out;
-+		goto out_unlock;
- 	rc = sidtab_context_to_sid(&sidtab, &context, sid);
- 	context_destroy(&context);
--out:
-+out_unlock:
- 	read_unlock(&policy_rwlock);
-+out:
- 	kfree(scontext2);
- 	kfree(str);
- 	return rc;
-@@ -1319,11 +1315,11 @@ static int compute_sid_handle_invalid_context(
- 	char *s = NULL, *t = NULL, *n = NULL;
- 	u32 slen, tlen, nlen;
+ 	rc = avtab_init(&p->te_avtab);
+ 	if (rc)
+-		goto out_free_symtab;
++		goto out;
  
--	if (context_struct_to_string(scontext, &s, &slen) < 0)
-+	if (context_struct_to_string(scontext, &s, &slen))
- 		goto out;
--	if (context_struct_to_string(tcontext, &t, &tlen) < 0)
-+	if (context_struct_to_string(tcontext, &t, &tlen))
- 		goto out;
--	if (context_struct_to_string(newcontext, &n, &nlen) < 0)
-+	if (context_struct_to_string(newcontext, &n, &nlen))
- 		goto out;
- 	audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
- 		  "security_compute_sid:  invalid context %s"
-@@ -1569,22 +1565,17 @@ static int clone_sid(u32 sid,
+ 	rc = roles_init(p);
+ 	if (rc)
+-		goto out_free_symtab;
++		goto out;
  
- static inline int convert_context_handle_invalid_context(struct context *context)
- {
--	int rc = 0;
-+	char *s;
-+	u32 len;
+ 	rc = cond_policydb_init(p);
+ 	if (rc)
+-		goto out_free_symtab;
++		goto out;
  
--	if (selinux_enforcing) {
--		rc = -EINVAL;
--	} else {
--		char *s;
--		u32 len;
--
--		if (!context_struct_to_string(context, &s, &len)) {
--			printk(KERN_WARNING
--		       "SELinux:  Context %s would be invalid if enforcing\n",
--			       s);
--			kfree(s);
--		}
-+	if (selinux_enforcing)
-+		return -EINVAL;
-+
-+	if (!context_struct_to_string(context, &s, &len)) {
-+		printk(KERN_WARNING "SELinux:  Context %s would be invalid if enforcing\n", s);
-+		kfree(s);
- 	}
--	return rc;
+ 	p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
+ 	if (!p->range_tr)
+-		goto out_free_symtab;
++		goto out;
+ 
+ 	ebitmap_init(&p->policycaps);
+ 	ebitmap_init(&p->permissive_map);
+ 
 +	return 0;
+ out:
+-	return rc;
+-
+-out_free_symtab:
+ 	for (i = 0; i < SYM_NUM; i++)
+ 		hashtab_destroy(p->symtab[i].table);
+-	goto out;
++	return rc;
  }
  
- struct convert_context_args {
-@@ -1621,17 +1612,17 @@ static int convert_context(u32 key,
+ /*
+@@ -391,30 +387,27 @@ static int policydb_index_classes(struct policydb *p)
+ {
+ 	int rc;
  
- 	if (c->str) {
- 		struct context ctx;
-+
-+		rc = -ENOMEM;
- 		s = kstrdup(c->str, GFP_KERNEL);
--		if (!s) {
--			rc = -ENOMEM;
-+		if (!s)
- 			goto out;
--		}
-+
- 		rc = string_to_context_struct(args->newp, NULL, s,
- 					      c->len, &ctx, SECSID_NULL);
- 		kfree(s);
- 		if (!rc) {
--			printk(KERN_INFO
--		       "SELinux:  Context %s became valid (mapped).\n",
-+			printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
- 			       c->str);
- 			/* Replace string with mapped representation. */
- 			kfree(c->str);
-@@ -1643,8 +1634,7 @@ static int convert_context(u32 key,
- 			goto out;
- 		} else {
- 			/* Other error condition, e.g. ENOMEM. */
--			printk(KERN_ERR
--		       "SELinux:   Unable to map context %s, rc = %d.\n",
-+			printk(KERN_ERR "SELinux:   Unable to map context %s, rc = %d.\n",
- 			       c->str, -rc);
- 			goto out;
- 		}
-@@ -1654,9 +1644,8 @@ static int convert_context(u32 key,
++	rc = -ENOMEM;
+ 	p->p_common_val_to_name =
+ 		kmalloc(p->p_commons.nprim * sizeof(char *), GFP_KERNEL);
+-	if (!p->p_common_val_to_name) {
+-		rc = -ENOMEM;
++	if (!p->p_common_val_to_name)
+ 		goto out;
+-	}
+ 
+ 	rc = hashtab_map(p->p_commons.table, common_index, p);
  	if (rc)
  		goto out;
  
--	rc = -EINVAL;
--
- 	/* Convert the user. */
-+	rc = -EINVAL;
- 	usrdatum = hashtab_search(args->newp->p_users.table,
- 				  args->oldp->p_user_val_to_name[c->user - 1]);
- 	if (!usrdatum)
-@@ -1664,6 +1653,7 @@ static int convert_context(u32 key,
- 	c->user = usrdatum->value;
- 
- 	/* Convert the role. */
-+	rc = -EINVAL;
- 	role = hashtab_search(args->newp->p_roles.table,
- 			      args->oldp->p_role_val_to_name[c->role - 1]);
- 	if (!role)
-@@ -1671,6 +1661,7 @@ static int convert_context(u32 key,
- 	c->role = role->value;
- 
- 	/* Convert the type. */
-+	rc = -EINVAL;
- 	typdatum = hashtab_search(args->newp->p_types.table,
- 				  args->oldp->p_type_val_to_name[c->type - 1]);
- 	if (!typdatum)
-@@ -1700,6 +1691,7 @@ static int convert_context(u32 key,
- 		oc = args->newp->ocontexts[OCON_ISID];
- 		while (oc && oc->sid[0] != SECINITSID_UNLABELED)
- 			oc = oc->next;
-+		rc = -EINVAL;
- 		if (!oc) {
- 			printk(KERN_ERR "SELinux:  unable to look up"
- 				" the initial SIDs list\n");
-@@ -1719,19 +1711,20 @@ static int convert_context(u32 key,
- 	}
- 
- 	context_destroy(&oldc);
-+
- 	rc = 0;
- out:
- 	return rc;
- bad:
- 	/* Map old representation to string and save it. */
--	if (context_struct_to_string(&oldc, &s, &len))
--		return -ENOMEM;
-+	rc = context_struct_to_string(&oldc, &s, &len);
-+	if (rc)
-+		return rc;
- 	context_destroy(&oldc);
- 	context_destroy(c);
- 	c->str = s;
- 	c->len = len;
--	printk(KERN_INFO
--	       "SELinux:  Context %s became invalid (unmapped).\n",
-+	printk(KERN_INFO "SELinux:  Context %s became invalid (unmapped).\n",
- 	       c->str);
- 	rc = 0;
- 	goto out;
-@@ -2012,7 +2005,7 @@ int security_node_sid(u16 domain,
- 		      u32 addrlen,
- 		      u32 *out_sid)
- {
--	int rc = 0;
-+	int rc;
- 	struct ocontext *c;
- 
- 	read_lock(&policy_rwlock);
-@@ -2021,10 +2014,9 @@ int security_node_sid(u16 domain,
- 	case AF_INET: {
- 		u32 addr;
- 
--		if (addrlen != sizeof(u32)) {
--			rc = -EINVAL;
-+		rc = -EINVAL;
-+		if (addrlen != sizeof(u32))
- 			goto out;
--		}
- 
- 		addr = *((u32 *)addrp);
- 
-@@ -2038,10 +2030,9 @@ int security_node_sid(u16 domain,
- 	}
- 
- 	case AF_INET6:
--		if (addrlen != sizeof(u64) * 2) {
--			rc = -EINVAL;
-+		rc = -EINVAL;
-+		if (addrlen != sizeof(u64) * 2)
- 			goto out;
--		}
- 		c = policydb.ocontexts[OCON_NODE6];
- 		while (c) {
- 			if (match_ipv6_addrmask(addrp, c->u.node6.addr,
-@@ -2052,6 +2043,7 @@ int security_node_sid(u16 domain,
- 		break;
- 
- 	default:
-+		rc = 0;
- 		*out_sid = SECINITSID_NODE;
- 		goto out;
- 	}
-@@ -2069,6 +2061,7 @@ int security_node_sid(u16 domain,
- 		*out_sid = SECINITSID_NODE;
- 	}
- 
-+	rc = 0;
- out:
- 	read_unlock(&policy_rwlock);
- 	return rc;
-@@ -2113,24 +2106,22 @@ int security_get_user_sids(u32 fromsid,
- 
- 	context_init(&usercon);
- 
-+	rc = -EINVAL;
- 	fromcon = sidtab_search(&sidtab, fromsid);
--	if (!fromcon) {
--		rc = -EINVAL;
-+	if (!fromcon)
- 		goto out_unlock;
--	}
- 
-+	rc = -EINVAL;
- 	user = hashtab_search(policydb.p_users.table, username);
--	if (!user) {
--		rc = -EINVAL;
-+	if (!user)
- 		goto out_unlock;
--	}
-+
- 	usercon.user = user->value;
- 
 +	rc = -ENOMEM;
- 	mysids = kcalloc(maxnel, sizeof(*mysids), GFP_ATOMIC);
--	if (!mysids) {
+ 	p->class_val_to_struct =
+ 		kmalloc(p->p_classes.nprim * sizeof(*(p->class_val_to_struct)), GFP_KERNEL);
+-	if (!p->class_val_to_struct) {
 -		rc = -ENOMEM;
-+	if (!mysids)
- 		goto out_unlock;
++	if (!p->class_val_to_struct)
+ 		goto out;
 -	}
  
- 	ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
- 		role = policydb.role_val_to_struct[i];
-@@ -2147,12 +2138,11 @@ int security_get_user_sids(u32 fromsid,
- 			if (mynel < maxnel) {
- 				mysids[mynel++] = sid;
- 			} else {
-+				rc = -ENOMEM;
- 				maxnel += SIDS_NEL;
- 				mysids2 = kcalloc(maxnel, sizeof(*mysids2), GFP_ATOMIC);
--				if (!mysids2) {
--					rc = -ENOMEM;
-+				if (!mysids2)
- 					goto out_unlock;
--				}
- 				memcpy(mysids2, mysids, mynel * sizeof(*mysids2));
- 				kfree(mysids);
- 				mysids = mysids2;
-@@ -2160,7 +2150,7 @@ int security_get_user_sids(u32 fromsid,
- 			}
- 		}
- 	}
--
-+	rc = 0;
- out_unlock:
- 	read_unlock(&policy_rwlock);
- 	if (rc || !mynel) {
-@@ -2168,9 +2158,9 @@ out_unlock:
- 		goto out;
- 	}
- 
 +	rc = -ENOMEM;
- 	mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
- 	if (!mysids2) {
+ 	p->p_class_val_to_name =
+ 		kmalloc(p->p_classes.nprim * sizeof(char *), GFP_KERNEL);
+-	if (!p->p_class_val_to_name) {
 -		rc = -ENOMEM;
- 		kfree(mysids);
- 		goto out;
- 	}
-@@ -2211,7 +2201,7 @@ int security_genfs_sid(const char *fstype,
- 	u16 sclass;
- 	struct genfs *genfs;
- 	struct ocontext *c;
--	int rc = 0, cmp = 0;
-+	int rc, cmp = 0;
- 
- 	while (path[0] == '/' && path[1] == '/')
- 		path++;
-@@ -2219,6 +2209,7 @@ int security_genfs_sid(const char *fstype,
- 	read_lock(&policy_rwlock);
- 
- 	sclass = unmap_class(orig_sclass);
-+	*sid = SECINITSID_UNLABELED;
- 
- 	for (genfs = policydb.genfs; genfs; genfs = genfs->next) {
- 		cmp = strcmp(fstype, genfs->fstype);
-@@ -2226,11 +2217,9 @@ int security_genfs_sid(const char *fstype,
- 			break;
- 	}
- 
--	if (!genfs || cmp) {
--		*sid = SECINITSID_UNLABELED;
--		rc = -ENOENT;
-+	rc = -ENOENT;
-+	if (!genfs || cmp)
++	if (!p->p_class_val_to_name)
  		goto out;
 -	}
  
- 	for (c = genfs->head; c; c = c->next) {
- 		len = strlen(c->u.name);
-@@ -2239,21 +2228,18 @@ int security_genfs_sid(const char *fstype,
- 			break;
- 	}
- 
--	if (!c) {
--		*sid = SECINITSID_UNLABELED;
--		rc = -ENOENT;
-+	rc = -ENOENT;
-+	if (!c)
- 		goto out;
--	}
- 
- 	if (!c->sid[0]) {
--		rc = sidtab_context_to_sid(&sidtab,
--					   &c->context[0],
--					   &c->sid[0]);
-+		rc = sidtab_context_to_sid(&sidtab, &c->context[0], &c->sid[0]);
- 		if (rc)
- 			goto out;
- 	}
- 
- 	*sid = c->sid[0];
-+	rc = 0;
+ 	rc = hashtab_map(p->p_classes.table, class_index, p);
  out:
- 	read_unlock(&policy_rwlock);
- 	return rc;
-@@ -2285,8 +2271,7 @@ int security_fs_use(
- 	if (c) {
- 		*behavior = c->v.behavior;
- 		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(&sidtab,
--						   &c->context[0],
-+			rc = sidtab_context_to_sid(&sidtab, &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
- 				goto out;
-@@ -2309,33 +2294,38 @@ out:
- 
- int security_get_bools(int *len, char ***names, int **values)
- {
--	int i, rc = -ENOMEM;
-+	int i, rc;
- 
- 	read_lock(&policy_rwlock);
- 	*names = NULL;
- 	*values = NULL;
- 
-+	rc = 0;
- 	*len = policydb.p_bools.nprim;
--	if (!*len) {
--		rc = 0;
-+	if (!*len)
- 		goto out;
--	}
- 
--       *names = kcalloc(*len, sizeof(char *), GFP_ATOMIC);
-+	rc = -ENOMEM;
-+	*names = kcalloc(*len, sizeof(char *), GFP_ATOMIC);
- 	if (!*names)
- 		goto err;
- 
--       *values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
-+	rc = -ENOMEM;
-+	*values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
- 	if (!*values)
- 		goto err;
- 
- 	for (i = 0; i < *len; i++) {
- 		size_t name_len;
-+
- 		(*values)[i] = policydb.bool_val_to_struct[i]->state;
- 		name_len = strlen(policydb.p_bool_val_to_name[i]) + 1;
--	       (*names)[i] = kmalloc(sizeof(char) * name_len, GFP_ATOMIC);
-+
-+		rc = -ENOMEM;
-+		(*names)[i] = kmalloc(sizeof(char) * name_len, GFP_ATOMIC);
- 		if (!(*names)[i])
- 			goto err;
-+
- 		strncpy((*names)[i], policydb.p_bool_val_to_name[i], name_len);
- 		(*names)[i][name_len - 1] = 0;
- 	}
-@@ -2355,17 +2345,16 @@ err:
- 
- int security_set_bools(int len, int *values)
+@@ -460,7 +453,7 @@ static inline void rangetr_hash_eval(struct hashtab *h)
+  */
+ static int policydb_index_others(struct policydb *p)
  {
 -	int i, rc = 0;
 +	int i, rc;
- 	int lenp, seqno = 0;
- 	struct cond_node *cur;
  
- 	write_lock_irq(&policy_rwlock);
+ 	printk(KERN_DEBUG "SELinux:  %d users, %d roles, %d types, %d bools",
+ 	       p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
+@@ -477,47 +470,42 @@ static int policydb_index_others(struct policydb *p)
+ 	symtab_hash_eval(p->symtab);
+ #endif
  
-+	rc = -EFAULT;
- 	lenp = policydb.p_bools.nprim;
--	if (len != lenp) {
--		rc = -EFAULT;
-+	if (len != lenp)
++	rc = -ENOMEM;
+ 	p->role_val_to_struct =
+ 		kmalloc(p->p_roles.nprim * sizeof(*(p->role_val_to_struct)),
+ 			GFP_KERNEL);
+-	if (!p->role_val_to_struct) {
+-		rc = -ENOMEM;
++	if (!p->role_val_to_struct)
  		goto out;
 -	}
  
- 	for (i = 0; i < len; i++) {
- 		if (!!values[i] != policydb.bool_val_to_struct[i]->state) {
-@@ -2391,7 +2380,7 @@ int security_set_bools(int len, int *values)
- 	}
++	rc = -ENOMEM;
+ 	p->user_val_to_struct =
+ 		kmalloc(p->p_users.nprim * sizeof(*(p->user_val_to_struct)),
+ 			GFP_KERNEL);
+-	if (!p->user_val_to_struct) {
+-		rc = -ENOMEM;
++	if (!p->user_val_to_struct)
+ 		goto out;
+-	}
  
- 	seqno = ++latest_granting;
++	rc = -ENOMEM;
+ 	p->type_val_to_struct =
+ 		kmalloc(p->p_types.nprim * sizeof(*(p->type_val_to_struct)),
+ 			GFP_KERNEL);
+-	if (!p->type_val_to_struct) {
+-		rc = -ENOMEM;
++	if (!p->type_val_to_struct)
+ 		goto out;
+-	}
+ 
+-	if (cond_init_bool_indexes(p)) {
+-		rc = -ENOMEM;
++	rc = -ENOMEM;
++	if (cond_init_bool_indexes(p))
+ 		goto out;
+-	}
+ 
+ 	for (i = SYM_ROLES; i < SYM_NUM; i++) {
++		rc = -ENOMEM;
+ 		p->sym_val_to_name[i] =
+ 			kmalloc(p->symtab[i].nprim * sizeof(char *), GFP_KERNEL);
+-		if (!p->sym_val_to_name[i]) {
+-			rc = -ENOMEM;
++		if (!p->sym_val_to_name[i])
+ 			goto out;
+-		}
+ 		rc = hashtab_map(p->symtab[i].table, index_f[i], p);
+ 		if (rc)
+ 			goto out;
+ 	}
 -
 +	rc = 0;
  out:
- 	write_unlock_irq(&policy_rwlock);
- 	if (!rc) {
-@@ -2405,16 +2394,15 @@ out:
- 
- int security_get_bool_value(int bool)
- {
--	int rc = 0;
-+	int rc;
- 	int len;
- 
- 	read_lock(&policy_rwlock);
- 
-+	rc = -EFAULT;
- 	len = policydb.p_bools.nprim;
--	if (bool >= len) {
--		rc = -EFAULT;
-+	if (bool >= len)
- 		goto out;
--	}
- 
- 	rc = policydb.bool_val_to_struct[bool]->state;
- out:
-@@ -2464,8 +2452,9 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
- 	struct context newcon;
- 	char *s;
- 	u32 len;
--	int rc = 0;
-+	int rc;
- 
-+	rc = 0;
- 	if (!ss_initialized || !policydb.mls_enabled) {
- 		*new_sid = sid;
- 		goto out;
-@@ -2474,19 +2463,20 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
- 	context_init(&newcon);
- 
- 	read_lock(&policy_rwlock);
-+
-+	rc = -EINVAL;
- 	context1 = sidtab_search(&sidtab, sid);
- 	if (!context1) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, sid);
--		rc = -EINVAL;
- 		goto out_unlock;
- 	}
- 
-+	rc = -EINVAL;
- 	context2 = sidtab_search(&sidtab, mls_sid);
- 	if (!context2) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 			__func__, mls_sid);
--		rc = -EINVAL;
- 		goto out_unlock;
- 	}
- 
-@@ -2500,20 +2490,17 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(&policydb, &newcon)) {
- 		rc = convert_context_handle_invalid_context(&newcon);
--		if (rc)
--			goto bad;
-+		if (rc) {
-+			if (!context_struct_to_string(&newcon, &s, &len)) {
-+				audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+					  "security_sid_mls_copy: invalid context %s", s);
-+				kfree(s);
-+			}
-+			goto out_unlock;
-+		}
- 	}
- 
- 	rc = sidtab_context_to_sid(&sidtab, &newcon, new_sid);
--	goto out_unlock;
--
--bad:
--	if (!context_struct_to_string(&newcon, &s, &len)) {
--		audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
--			  "security_sid_mls_copy: invalid context %s", s);
--		kfree(s);
--	}
--
- out_unlock:
- 	read_unlock(&policy_rwlock);
- 	context_destroy(&newcon);
-@@ -2549,6 +2536,8 @@ int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
- 	struct context *nlbl_ctx;
- 	struct context *xfrm_ctx;
- 
-+	*peer_sid = SECSID_NULL;
-+
- 	/* handle the common (which also happens to be the set of easy) cases
- 	 * right away, these two if statements catch everything involving a
- 	 * single or absent peer SID/label */
-@@ -2567,40 +2556,37 @@ int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
- 	/* we don't need to check ss_initialized here since the only way both
- 	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
- 	 * security server was initialized and ss_initialized was true */
--	if (!policydb.mls_enabled) {
--		*peer_sid = SECSID_NULL;
-+	if (!policydb.mls_enabled)
- 		return 0;
--	}
- 
- 	read_lock(&policy_rwlock);
- 
-+	rc = -EINVAL;
- 	nlbl_ctx = sidtab_search(&sidtab, nlbl_sid);
- 	if (!nlbl_ctx) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, nlbl_sid);
--		rc = -EINVAL;
--		goto out_slowpath;
-+		goto out;
- 	}
-+	rc = -EINVAL;
- 	xfrm_ctx = sidtab_search(&sidtab, xfrm_sid);
- 	if (!xfrm_ctx) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
- 		       __func__, xfrm_sid);
--		rc = -EINVAL;
--		goto out_slowpath;
-+		goto out;
- 	}
- 	rc = (mls_context_cmp(nlbl_ctx, xfrm_ctx) ? 0 : -EACCES);
-+	if (rc)
-+		goto out;
- 
--out_slowpath:
-+	/* at present NetLabel SIDs/labels really only carry MLS
-+	 * information so if the MLS portion of the NetLabel SID
-+	 * matches the MLS portion of the labeled XFRM SID/label
-+	 * then pass along the XFRM SID as it is the most
-+	 * expressive */
-+	*peer_sid = xfrm_sid;
-+out:
- 	read_unlock(&policy_rwlock);
--	if (rc == 0)
--		/* at present NetLabel SIDs/labels really only carry MLS
--		 * information so if the MLS portion of the NetLabel SID
--		 * matches the MLS portion of the labeled XFRM SID/label
--		 * then pass along the XFRM SID as it is the most
--		 * expressive */
--		*peer_sid = xfrm_sid;
--	else
--		*peer_sid = SECSID_NULL;
  	return rc;
  }
+@@ -540,9 +528,11 @@ static int common_destroy(void *key, void *datum, void *p)
+ 	struct common_datum *comdatum;
  
-@@ -2619,10 +2605,11 @@ static int get_classes_callback(void *k, void *d, void *args)
+ 	kfree(key);
+-	comdatum = datum;
+-	hashtab_map(comdatum->permissions.table, perm_destroy, NULL);
+-	hashtab_destroy(comdatum->permissions.table);
++	if (datum) {
++		comdatum = datum;
++		hashtab_map(comdatum->permissions.table, perm_destroy, NULL);
++		hashtab_destroy(comdatum->permissions.table);
++	}
+ 	kfree(datum);
+ 	return 0;
+ }
+@@ -554,38 +544,40 @@ static int cls_destroy(void *key, void *datum, void *p)
+ 	struct constraint_expr *e, *etmp;
  
- int security_get_classes(char ***classes, int *nclasses)
- {
--	int rc = -ENOMEM;
-+	int rc;
+ 	kfree(key);
+-	cladatum = datum;
+-	hashtab_map(cladatum->permissions.table, perm_destroy, NULL);
+-	hashtab_destroy(cladatum->permissions.table);
+-	constraint = cladatum->constraints;
+-	while (constraint) {
+-		e = constraint->expr;
+-		while (e) {
+-			ebitmap_destroy(&e->names);
+-			etmp = e;
+-			e = e->next;
+-			kfree(etmp);
++	if (datum) {
++		cladatum = datum;
++		hashtab_map(cladatum->permissions.table, perm_destroy, NULL);
++		hashtab_destroy(cladatum->permissions.table);
++		constraint = cladatum->constraints;
++		while (constraint) {
++			e = constraint->expr;
++			while (e) {
++				ebitmap_destroy(&e->names);
++				etmp = e;
++				e = e->next;
++				kfree(etmp);
++			}
++			ctemp = constraint;
++			constraint = constraint->next;
++			kfree(ctemp);
+ 		}
+-		ctemp = constraint;
+-		constraint = constraint->next;
+-		kfree(ctemp);
+-	}
+-
+-	constraint = cladatum->validatetrans;
+-	while (constraint) {
+-		e = constraint->expr;
+-		while (e) {
+-			ebitmap_destroy(&e->names);
+-			etmp = e;
+-			e = e->next;
+-			kfree(etmp);
++
++		constraint = cladatum->validatetrans;
++		while (constraint) {
++			e = constraint->expr;
++			while (e) {
++				ebitmap_destroy(&e->names);
++				etmp = e;
++				e = e->next;
++				kfree(etmp);
++			}
++			ctemp = constraint;
++			constraint = constraint->next;
++			kfree(ctemp);
+ 		}
+-		ctemp = constraint;
+-		constraint = constraint->next;
+-		kfree(ctemp);
+-	}
  
- 	read_lock(&policy_rwlock);
+-	kfree(cladatum->comkey);
++		kfree(cladatum->comkey);
++	}
+ 	kfree(datum);
+ 	return 0;
+ }
+@@ -595,9 +587,11 @@ static int role_destroy(void *key, void *datum, void *p)
+ 	struct role_datum *role;
  
-+	rc = -ENOMEM;
- 	*nclasses = policydb.p_classes.nprim;
- 	*classes = kcalloc(*nclasses, sizeof(**classes), GFP_ATOMIC);
- 	if (!*classes)
-@@ -2630,7 +2617,7 @@ int security_get_classes(char ***classes, int *nclasses)
+ 	kfree(key);
+-	role = datum;
+-	ebitmap_destroy(&role->dominates);
+-	ebitmap_destroy(&role->types);
++	if (datum) {
++		role = datum;
++		ebitmap_destroy(&role->dominates);
++		ebitmap_destroy(&role->types);
++	}
+ 	kfree(datum);
+ 	return 0;
+ }
+@@ -614,11 +608,13 @@ static int user_destroy(void *key, void *datum, void *p)
+ 	struct user_datum *usrdatum;
  
- 	rc = hashtab_map(policydb.p_classes.table, get_classes_callback,
- 			*classes);
--	if (rc < 0) {
-+	if (rc) {
- 		int i;
- 		for (i = 0; i < *nclasses; i++)
- 			kfree((*classes)[i]);
-@@ -2657,19 +2644,20 @@ static int get_permissions_callback(void *k, void *d, void *args)
+ 	kfree(key);
+-	usrdatum = datum;
+-	ebitmap_destroy(&usrdatum->roles);
+-	ebitmap_destroy(&usrdatum->range.level[0].cat);
+-	ebitmap_destroy(&usrdatum->range.level[1].cat);
+-	ebitmap_destroy(&usrdatum->dfltlevel.cat);
++	if (datum) {
++		usrdatum = datum;
++		ebitmap_destroy(&usrdatum->roles);
++		ebitmap_destroy(&usrdatum->range.level[0].cat);
++		ebitmap_destroy(&usrdatum->range.level[1].cat);
++		ebitmap_destroy(&usrdatum->dfltlevel.cat);
++	}
+ 	kfree(datum);
+ 	return 0;
+ }
+@@ -628,9 +624,11 @@ static int sens_destroy(void *key, void *datum, void *p)
+ 	struct level_datum *levdatum;
  
- int security_get_permissions(char *class, char ***perms, int *nperms)
- {
--	int rc = -ENOMEM, i;
-+	int rc, i;
- 	struct class_datum *match;
+ 	kfree(key);
+-	levdatum = datum;
+-	ebitmap_destroy(&levdatum->level->cat);
+-	kfree(levdatum->level);
++	if (datum) {
++		levdatum = datum;
++		ebitmap_destroy(&levdatum->level->cat);
++		kfree(levdatum->level);
++	}
+ 	kfree(datum);
+ 	return 0;
+ }
+@@ -785,19 +783,21 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
  
- 	read_lock(&policy_rwlock);
- 
-+	rc = -EINVAL;
- 	match = hashtab_search(policydb.p_classes.table, class);
- 	if (!match) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized class %s\n",
- 			__func__, class);
--		rc = -EINVAL;
- 		goto out;
+ 	head = p->ocontexts[OCON_ISID];
+ 	for (c = head; c; c = c->next) {
++		rc = -EINVAL;
+ 		if (!c->context[0].user) {
+-			printk(KERN_ERR "SELinux:  SID %s was never "
+-			       "defined.\n", c->u.name);
+-			rc = -EINVAL;
++			printk(KERN_ERR "SELinux:  SID %s was never defined.\n",
++				c->u.name);
+ 			goto out;
+ 		}
+-		if (sidtab_insert(s, c->sid[0], &c->context[0])) {
+-			printk(KERN_ERR "SELinux:  unable to load initial "
+-			       "SID %s.\n", c->u.name);
+-			rc = -EINVAL;
++
++		rc = sidtab_insert(s, c->sid[0], &c->context[0]);
++		if (rc) {
++			printk(KERN_ERR "SELinux:  unable to load initial SID %s.\n",
++				c->u.name);
+ 			goto out;
+ 		}
  	}
++	rc = 0;
+ out:
+ 	return rc;
+ }
+@@ -846,8 +846,7 @@ int policydb_context_isvalid(struct policydb *p, struct context *c)
+ 		 * Role must be authorized for the type.
+ 		 */
+ 		role = p->role_val_to_struct[c->role - 1];
+-		if (!ebitmap_get_bit(&role->types,
+-				     c->type - 1))
++		if (!ebitmap_get_bit(&role->types, c->type - 1))
+ 			/* role may not be associated with type */
+ 			return 0;
  
-+	rc = -ENOMEM;
- 	*nperms = match->permissions.nprim;
- 	*perms = kcalloc(*nperms, sizeof(**perms), GFP_ATOMIC);
- 	if (!*perms)
-@@ -2678,13 +2666,13 @@ int security_get_permissions(char *class, char ***perms, int *nperms)
- 	if (match->comdatum) {
- 		rc = hashtab_map(match->comdatum->permissions.table,
- 				get_permissions_callback, *perms);
--		if (rc < 0)
-+		if (rc)
- 			goto err;
+@@ -858,8 +857,7 @@ int policydb_context_isvalid(struct policydb *p, struct context *c)
+ 		if (!usrdatum)
+ 			return 0;
+ 
+-		if (!ebitmap_get_bit(&usrdatum->roles,
+-				     c->role - 1))
++		if (!ebitmap_get_bit(&usrdatum->roles, c->role - 1))
+ 			/* user may not be associated with role */
+ 			return 0;
  	}
+@@ -881,20 +879,22 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
+ 	int rc;
  
- 	rc = hashtab_map(match->permissions.table, get_permissions_callback,
- 			*perms);
+ 	rc = next_entry(buf, fp, sizeof(u32));
 -	if (rc < 0)
 +	if (rc)
- 		goto err;
+ 		goto out;
  
- out:
-@@ -2796,36 +2784,39 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
- 	switch (field) {
- 	case AUDIT_SUBJ_USER:
- 	case AUDIT_OBJ_USER:
-+		rc = -EINVAL;
- 		userdatum = hashtab_search(policydb.p_users.table, rulestr);
- 		if (!userdatum)
--			rc = -EINVAL;
--		else
--			tmprule->au_ctxt.user = userdatum->value;
-+			goto out;
-+		tmprule->au_ctxt.user = userdatum->value;
- 		break;
- 	case AUDIT_SUBJ_ROLE:
- 	case AUDIT_OBJ_ROLE:
-+		rc = -EINVAL;
- 		roledatum = hashtab_search(policydb.p_roles.table, rulestr);
- 		if (!roledatum)
--			rc = -EINVAL;
--		else
--			tmprule->au_ctxt.role = roledatum->value;
-+			goto out;
-+		tmprule->au_ctxt.role = roledatum->value;
- 		break;
- 	case AUDIT_SUBJ_TYPE:
- 	case AUDIT_OBJ_TYPE:
-+		rc = -EINVAL;
- 		typedatum = hashtab_search(policydb.p_types.table, rulestr);
- 		if (!typedatum)
--			rc = -EINVAL;
--		else
--			tmprule->au_ctxt.type = typedatum->value;
-+			goto out;
-+		tmprule->au_ctxt.type = typedatum->value;
- 		break;
- 	case AUDIT_SUBJ_SEN:
- 	case AUDIT_SUBJ_CLR:
- 	case AUDIT_OBJ_LEV_LOW:
- 	case AUDIT_OBJ_LEV_HIGH:
- 		rc = mls_from_string(rulestr, &tmprule->au_ctxt, GFP_ATOMIC);
-+		if (rc)
-+			goto out;
- 		break;
++	rc = -EINVAL;
+ 	items = le32_to_cpu(buf[0]);
+ 	if (items > ARRAY_SIZE(buf)) {
+ 		printk(KERN_ERR "SELinux: mls:  range overflow\n");
+-		rc = -EINVAL;
+ 		goto out;
  	}
--
-+	rc = 0;
-+out:
- 	read_unlock(&policy_rwlock);
++
+ 	rc = next_entry(buf, fp, sizeof(u32) * items);
+-	if (rc < 0) {
++	if (rc) {
+ 		printk(KERN_ERR "SELinux: mls:  truncated range\n");
+ 		goto out;
+ 	}
++
+ 	r->level[0].sens = le32_to_cpu(buf[0]);
+ 	if (items > 1)
+ 		r->level[1].sens = le32_to_cpu(buf[1]);
+@@ -903,15 +903,13 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
  
+ 	rc = ebitmap_read(&r->level[0].cat, fp);
  	if (rc) {
-@@ -3127,28 +3118,23 @@ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
- 		return 0;
+-		printk(KERN_ERR "SELinux: mls:  error reading low "
+-		       "categories\n");
++		printk(KERN_ERR "SELinux: mls:  error reading low categories\n");
+ 		goto out;
+ 	}
+ 	if (items > 1) {
+ 		rc = ebitmap_read(&r->level[1].cat, fp);
+ 		if (rc) {
+-			printk(KERN_ERR "SELinux: mls:  error reading high "
+-			       "categories\n");
++			printk(KERN_ERR "SELinux: mls:  error reading high categories\n");
+ 			goto bad_high;
+ 		}
+ 	} else {
+@@ -922,12 +920,11 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
+ 		}
+ 	}
  
- 	read_lock(&policy_rwlock);
-+
-+	rc = -ENOENT;
- 	ctx = sidtab_search(&sidtab, sid);
--	if (ctx == NULL) {
--		rc = -ENOENT;
--		goto netlbl_sid_to_secattr_failure;
--	}
-+	if (ctx == NULL)
-+		goto out;
-+
-+	rc = -ENOMEM;
- 	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
- 				  GFP_ATOMIC);
--	if (secattr->domain == NULL) {
--		rc = -ENOMEM;
--		goto netlbl_sid_to_secattr_failure;
--	}
-+	if (secattr->domain == NULL)
-+		goto out;
-+
- 	secattr->attr.secid = sid;
- 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY | NETLBL_SECATTR_SECID;
- 	mls_export_netlbl_lvl(ctx, secattr);
- 	rc = mls_export_netlbl_cat(ctx, secattr);
--	if (rc != 0)
--		goto netlbl_sid_to_secattr_failure;
--	read_unlock(&policy_rwlock);
--
--	return 0;
--
--netlbl_sid_to_secattr_failure:
+-	rc = 0;
+-out:
+-	return rc;
++	return 0;
+ bad_high:
+ 	ebitmap_destroy(&r->level[0].cat);
+-	goto out;
 +out:
- 	read_unlock(&policy_rwlock);
++	return rc;
+ }
+ 
+ /*
+@@ -942,7 +939,7 @@ static int context_read_and_validate(struct context *c,
+ 	int rc;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0) {
++	if (rc) {
+ 		printk(KERN_ERR "SELinux: context truncated\n");
+ 		goto out;
+ 	}
+@@ -950,19 +947,20 @@ static int context_read_and_validate(struct context *c,
+ 	c->role = le32_to_cpu(buf[1]);
+ 	c->type = le32_to_cpu(buf[2]);
+ 	if (p->policyvers >= POLICYDB_VERSION_MLS) {
+-		if (mls_read_range_helper(&c->range, fp)) {
+-			printk(KERN_ERR "SELinux: error reading MLS range of "
+-			       "context\n");
+-			rc = -EINVAL;
++		rc = mls_read_range_helper(&c->range, fp);
++		if (rc) {
++			printk(KERN_ERR "SELinux: error reading MLS range of context\n");
+ 			goto out;
+ 		}
+ 	}
+ 
++	rc = -EINVAL;
+ 	if (!policydb_context_isvalid(p, c)) {
+ 		printk(KERN_ERR "SELinux:  invalid security context\n");
+ 		context_destroy(c);
+-		rc = -EINVAL;
++		goto out;
+ 	}
++	rc = 0;
+ out:
  	return rc;
  }
+@@ -981,37 +979,36 @@ static int perm_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[2];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	perdatum = kzalloc(sizeof(*perdatum), GFP_KERNEL);
+-	if (!perdatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!perdatum)
++		goto bad;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+ 	perdatum->value = le32_to_cpu(buf[1]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
++
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+ 	rc = hashtab_insert(h, key, perdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++
++	return 0;
+ bad:
+ 	perm_destroy(key, perdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1022,14 +1019,13 @@ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	u32 len, nel;
+ 	int i, rc;
+ 
++	rc = -ENOMEM;
+ 	comdatum = kzalloc(sizeof(*comdatum), GFP_KERNEL);
+-	if (!comdatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!comdatum)
++		goto bad;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+@@ -1041,13 +1037,13 @@ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
+ 	nel = le32_to_cpu(buf[3]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
++
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+@@ -1060,11 +1056,10 @@ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	rc = hashtab_insert(h, key, comdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	common_destroy(key, comdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int read_cons_helper(struct constraint_node **nodep, int ncons,
+@@ -1088,7 +1083,7 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
+ 			*nodep = c;
+ 
+ 		rc = next_entry(buf, fp, (sizeof(u32) * 2));
+-		if (rc < 0)
++		if (rc)
+ 			return rc;
+ 		c->permissions = le32_to_cpu(buf[0]);
+ 		nexpr = le32_to_cpu(buf[1]);
+@@ -1105,7 +1100,7 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
+ 				c->expr = e;
+ 
+ 			rc = next_entry(buf, fp, (sizeof(u32) * 3));
+-			if (rc < 0)
++			if (rc)
+ 				return rc;
+ 			e->expr_type = le32_to_cpu(buf[0]);
+ 			e->attr = le32_to_cpu(buf[1]);
+@@ -1133,8 +1128,9 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
+ 				if (depth == (CEXPR_MAXDEPTH - 1))
+ 					return -EINVAL;
+ 				depth++;
+-				if (ebitmap_read(&e->names, fp))
+-					return -EINVAL;
++				rc = ebitmap_read(&e->names, fp);
++				if (rc)
++					return rc;
+ 				break;
+ 			default:
+ 				return -EINVAL;
+@@ -1157,14 +1153,13 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	u32 len, len2, ncons, nel;
+ 	int i, rc;
+ 
++	rc = -ENOMEM;
+ 	cladatum = kzalloc(sizeof(*cladatum), GFP_KERNEL);
+-	if (!cladatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!cladatum)
++		goto bad;
+ 
+ 	rc = next_entry(buf, fp, sizeof(u32)*6);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+@@ -1179,33 +1174,30 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 
+ 	ncons = le32_to_cpu(buf[5]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
++
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+ 	if (len2) {
++		rc = -ENOMEM;
+ 		cladatum->comkey = kmalloc(len2 + 1, GFP_KERNEL);
+-		if (!cladatum->comkey) {
+-			rc = -ENOMEM;
++		if (!cladatum->comkey)
+ 			goto bad;
+-		}
+ 		rc = next_entry(cladatum->comkey, fp, len2);
+-		if (rc < 0)
++		if (rc)
+ 			goto bad;
+ 		cladatum->comkey[len2] = '\0';
+ 
+-		cladatum->comdatum = hashtab_search(p->p_commons.table,
+-						    cladatum->comkey);
++		rc = -EINVAL;
++		cladatum->comdatum = hashtab_search(p->p_commons.table, cladatum->comkey);
+ 		if (!cladatum->comdatum) {
+-			printk(KERN_ERR "SELinux:  unknown common %s\n",
+-			       cladatum->comkey);
+-			rc = -EINVAL;
++			printk(KERN_ERR "SELinux:  unknown common %s\n", cladatum->comkey);
+ 			goto bad;
+ 		}
+ 	}
+@@ -1222,7 +1214,7 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	if (p->policyvers >= POLICYDB_VERSION_VALIDATETRANS) {
+ 		/* grab the validatetrans rules */
+ 		rc = next_entry(buf, fp, sizeof(u32));
+-		if (rc < 0)
++		if (rc)
+ 			goto bad;
+ 		ncons = le32_to_cpu(buf[0]);
+ 		rc = read_cons_helper(&cladatum->validatetrans, ncons, 1, fp);
+@@ -1234,12 +1226,10 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	if (rc)
+ 		goto bad;
+ 
+-	rc = 0;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	cls_destroy(key, cladatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1250,17 +1240,16 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	role = kzalloc(sizeof(*role), GFP_KERNEL);
+-	if (!role) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!role)
++		goto bad;
+ 
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		to_read = 3;
+ 
+ 	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+@@ -1268,13 +1257,13 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		role->bounds = le32_to_cpu(buf[2]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
++
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+@@ -1287,10 +1276,10 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		goto bad;
+ 
+ 	if (strcmp(key, OBJECT_R) == 0) {
++		rc = -EINVAL;
+ 		if (role->value != OBJECT_R_VAL) {
+ 			printk(KERN_ERR "SELinux: Role %s has wrong value %d\n",
+ 			       OBJECT_R, role->value);
+-			rc = -EINVAL;
+ 			goto bad;
+ 		}
+ 		rc = 0;
+@@ -1300,11 +1289,10 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	rc = hashtab_insert(h, key, role);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	role_destroy(key, role, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1315,17 +1303,16 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[4];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	typdatum = kzalloc(sizeof(*typdatum), GFP_KERNEL);
+-	if (!typdatum) {
+-		rc = -ENOMEM;
+-		return rc;
+-	}
++	if (!typdatum)
++		goto bad;
+ 
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		to_read = 4;
+ 
+ 	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+@@ -1343,24 +1330,22 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		typdatum->primary = le32_to_cpu(buf[2]);
+ 	}
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+ 	rc = hashtab_insert(h, key, typdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	type_destroy(key, typdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ 
+@@ -1376,22 +1361,18 @@ static int mls_read_level(struct mls_level *lp, void *fp)
+ 	memset(lp, 0, sizeof(*lp));
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0) {
++	if (rc) {
+ 		printk(KERN_ERR "SELinux: mls: truncated level\n");
+-		goto bad;
++		return rc;
+ 	}
+ 	lp->sens = le32_to_cpu(buf[0]);
+ 
+-	if (ebitmap_read(&lp->cat, fp)) {
+-		printk(KERN_ERR "SELinux: mls:  error reading level "
+-		       "categories\n");
+-		goto bad;
++	rc = ebitmap_read(&lp->cat, fp);
++	if (rc) {
++		printk(KERN_ERR "SELinux: mls:  error reading level categories\n");
++		return rc;
+ 	}
+-
+ 	return 0;
+-
+-bad:
+-	return -EINVAL;
+ }
+ 
+ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1402,17 +1383,16 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	usrdatum = kzalloc(sizeof(*usrdatum), GFP_KERNEL);
+-	if (!usrdatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!usrdatum)
++		goto bad;
+ 
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		to_read = 3;
+ 
+ 	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+@@ -1420,13 +1400,12 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		usrdatum->bounds = le32_to_cpu(buf[2]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+@@ -1446,11 +1425,10 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	rc = hashtab_insert(h, key, usrdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	user_destroy(key, usrdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int sens_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1461,47 +1439,43 @@ static int sens_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[2];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	levdatum = kzalloc(sizeof(*levdatum), GFP_ATOMIC);
+-	if (!levdatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!levdatum)
++		goto bad;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+ 	levdatum->isalias = le32_to_cpu(buf[1]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_ATOMIC);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
++	rc = -ENOMEM;
+ 	levdatum->level = kmalloc(sizeof(struct mls_level), GFP_ATOMIC);
+-	if (!levdatum->level) {
+-		rc = -ENOMEM;
++	if (!levdatum->level)
+ 		goto bad;
+-	}
+-	if (mls_read_level(levdatum->level, fp)) {
+-		rc = -EINVAL;
++
++	rc = mls_read_level(levdatum->level, fp);
++	if (rc)
+ 		goto bad;
+-	}
+ 
+ 	rc = hashtab_insert(h, key, levdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
++	return 0;
+ bad:
+ 	sens_destroy(key, levdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int cat_read(struct policydb *p, struct hashtab *h, void *fp)
+@@ -1512,39 +1486,35 @@ static int cat_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
+ 
++	rc = -ENOMEM;
+ 	catdatum = kzalloc(sizeof(*catdatum), GFP_ATOMIC);
+-	if (!catdatum) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!catdatum)
++		goto bad;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+ 	catdatum->value = le32_to_cpu(buf[1]);
+ 	catdatum->isalias = le32_to_cpu(buf[2]);
+ 
++	rc = -ENOMEM;
+ 	key = kmalloc(len + 1, GFP_ATOMIC);
+-	if (!key) {
+-		rc = -ENOMEM;
++	if (!key)
+ 		goto bad;
+-	}
+ 	rc = next_entry(key, fp, len);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	key[len] = '\0';
+ 
+ 	rc = hashtab_insert(h, key, catdatum);
+ 	if (rc)
+ 		goto bad;
+-out:
+-	return rc;
+-
++	return 0;
+ bad:
+ 	cat_destroy(key, catdatum, NULL);
+-	goto out;
++	return rc;
+ }
+ 
+ static int (*read_f[SYM_NUM]) (struct policydb *p, struct hashtab *h, void *fp) =
+@@ -2066,13 +2036,14 @@ int policydb_read(struct policydb *p, void *fp)
+ 
+ 	rc = policydb_init(p);
+ 	if (rc)
+-		goto out;
++		return rc;
+ 
+ 	/* Read the magic number and string length. */
+ 	rc = next_entry(buf, fp, sizeof(u32) * 2);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
++	rc = -EINVAL;
+ 	if (le32_to_cpu(buf[0]) != POLICYDB_MAGIC) {
+ 		printk(KERN_ERR "SELinux:  policydb magic number 0x%x does "
+ 		       "not match expected magic number 0x%x\n",
+@@ -2080,6 +2051,7 @@ int policydb_read(struct policydb *p, void *fp)
+ 		goto bad;
+ 	}
+ 
++	rc = -EINVAL;
+ 	len = le32_to_cpu(buf[1]);
+ 	if (len != strlen(POLICYDB_STRING)) {
+ 		printk(KERN_ERR "SELinux:  policydb string length %d does not "
+@@ -2087,19 +2059,23 @@ int policydb_read(struct policydb *p, void *fp)
+ 		       len, strlen(POLICYDB_STRING));
+ 		goto bad;
+ 	}
++
++	rc = -ENOMEM;
+ 	policydb_str = kmalloc(len + 1, GFP_KERNEL);
+ 	if (!policydb_str) {
+ 		printk(KERN_ERR "SELinux:  unable to allocate memory for policydb "
+ 		       "string of length %d\n", len);
+-		rc = -ENOMEM;
+ 		goto bad;
+ 	}
++
+ 	rc = next_entry(policydb_str, fp, len);
+-	if (rc < 0) {
++	if (rc) {
+ 		printk(KERN_ERR "SELinux:  truncated policydb string identifier\n");
+ 		kfree(policydb_str);
+ 		goto bad;
+ 	}
++
++	rc = -EINVAL;
+ 	policydb_str[len] = '\0';
+ 	if (strcmp(policydb_str, POLICYDB_STRING)) {
+ 		printk(KERN_ERR "SELinux:  policydb string %s does not match "
+@@ -2113,9 +2089,10 @@ int policydb_read(struct policydb *p, void *fp)
+ 
+ 	/* Read the version and table sizes. */
+ 	rc = next_entry(buf, fp, sizeof(u32)*4);
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 
++	rc = -EINVAL;
+ 	p->policyvers = le32_to_cpu(buf[0]);
+ 	if (p->policyvers < POLICYDB_VERSION_MIN ||
+ 	    p->policyvers > POLICYDB_VERSION_MAX) {
+@@ -2128,6 +2105,7 @@ int policydb_read(struct policydb *p, void *fp)
+ 	if ((le32_to_cpu(buf[1]) & POLICYDB_CONFIG_MLS)) {
+ 		p->mls_enabled = 1;
+ 
++		rc = -EINVAL;
+ 		if (p->policyvers < POLICYDB_VERSION_MLS) {
+ 			printk(KERN_ERR "SELinux: security policydb version %d "
+ 				"(MLS) not backwards compatible\n",
+@@ -2138,14 +2116,19 @@ int policydb_read(struct policydb *p, void *fp)
+ 	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
+ 	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
+ 
+-	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
+-	    ebitmap_read(&p->policycaps, fp) != 0)
+-		goto bad;
++	if (p->policyvers >= POLICYDB_VERSION_POLCAP) {
++		rc = ebitmap_read(&p->policycaps, fp);
++		if (rc)
++			goto bad;
++	}
+ 
+-	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
+-	    ebitmap_read(&p->permissive_map, fp) != 0)
+-		goto bad;
++	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE) {
++		rc = ebitmap_read(&p->permissive_map, fp);
++		if (rc)
++			goto bad;
++	}
+ 
++	rc = -EINVAL;
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		printk(KERN_ERR "SELinux:  unable to find policy compat info "
+@@ -2153,6 +2136,7 @@ int policydb_read(struct policydb *p, void *fp)
+ 		goto bad;
+ 	}
+ 
++	rc = -EINVAL;
+ 	if (le32_to_cpu(buf[2]) != info->sym_num ||
+ 		le32_to_cpu(buf[3]) != info->ocon_num) {
+ 		printk(KERN_ERR "SELinux:  policydb table sizes (%d,%d) do "
+@@ -2164,7 +2148,7 @@ int policydb_read(struct policydb *p, void *fp)
+ 
+ 	for (i = 0; i < info->sym_num; i++) {
+ 		rc = next_entry(buf, fp, sizeof(u32)*2);
+-		if (rc < 0)
++		if (rc)
+ 			goto bad;
+ 		nprim = le32_to_cpu(buf[0]);
+ 		nel = le32_to_cpu(buf[1]);
+@@ -2188,60 +2172,58 @@ int policydb_read(struct policydb *p, void *fp)
+ 	}
+ 
+ 	rc = next_entry(buf, fp, sizeof(u32));
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	nel = le32_to_cpu(buf[0]);
+ 	ltr = NULL;
+ 	for (i = 0; i < nel; i++) {
++		rc = -ENOMEM;
+ 		tr = kzalloc(sizeof(*tr), GFP_KERNEL);
+-		if (!tr) {
+-			rc = -ENOMEM;
++		if (!tr)
+ 			goto bad;
+-		}
+ 		if (ltr)
+ 			ltr->next = tr;
+ 		else
+ 			p->role_tr = tr;
+ 		rc = next_entry(buf, fp, sizeof(u32)*3);
+-		if (rc < 0)
++		if (rc)
+ 			goto bad;
++
++		rc = -EINVAL;
+ 		tr->role = le32_to_cpu(buf[0]);
+ 		tr->type = le32_to_cpu(buf[1]);
+ 		tr->new_role = le32_to_cpu(buf[2]);
+ 		if (!policydb_role_isvalid(p, tr->role) ||
+ 		    !policydb_type_isvalid(p, tr->type) ||
+-		    !policydb_role_isvalid(p, tr->new_role)) {
+-			rc = -EINVAL;
++		    !policydb_role_isvalid(p, tr->new_role))
+ 			goto bad;
+-		}
+ 		ltr = tr;
+ 	}
+ 
+ 	rc = next_entry(buf, fp, sizeof(u32));
+-	if (rc < 0)
++	if (rc)
+ 		goto bad;
+ 	nel = le32_to_cpu(buf[0]);
+ 	lra = NULL;
+ 	for (i = 0; i < nel; i++) {
++		rc = -ENOMEM;
+ 		ra = kzalloc(sizeof(*ra), GFP_KERNEL);
+-		if (!ra) {
+-			rc = -ENOMEM;
++		if (!ra)
+ 			goto bad;
+-		}
+ 		if (lra)
+ 			lra->next = ra;
+ 		else
+ 			p->role_allow = ra;
+ 		rc = next_entry(buf, fp, sizeof(u32)*2);
+-		if (rc < 0)
++		if (rc)
+ 			goto bad;
++
++		rc = -EINVAL;
+ 		ra->role = le32_to_cpu(buf[0]);
+ 		ra->new_role = le32_to_cpu(buf[1]);
+ 		if (!policydb_role_isvalid(p, ra->role) ||
+-		    !policydb_role_isvalid(p, ra->new_role)) {
+-			rc = -EINVAL;
++		    !policydb_role_isvalid(p, ra->new_role))
+ 			goto bad;
+-		}
+ 		lra = ra;
+ 	}
+ 
+@@ -2253,13 +2235,14 @@ int policydb_read(struct policydb *p, void *fp)
+ 	if (rc)
+ 		goto bad;
+ 
++	rc = -EINVAL;
+ 	p->process_class = string_to_security_class(p, "process");
+ 	if (!p->process_class)
+ 		goto bad;
+-	p->process_trans_perms = string_to_av_perm(p, p->process_class,
+-						   "transition");
+-	p->process_trans_perms |= string_to_av_perm(p, p->process_class,
+-						    "dyntransition");
++
++	rc = -EINVAL;
++	p->process_trans_perms = string_to_av_perm(p, p->process_class, "transition");
++	p->process_trans_perms |= string_to_av_perm(p, p->process_class, "dyntransition");
+ 	if (!p->process_trans_perms)
+ 		goto bad;
+ 
+@@ -2312,8 +2295,6 @@ int policydb_read(struct policydb *p, void *fp)
+ out:
+ 	return rc;
+ bad:
+-	if (!rc)
+-		rc = -EINVAL;
+ 	policydb_destroy(p);
+ 	goto out;
+ }
+@@ -3076,7 +3057,7 @@ int policydb_write(struct policydb *p, void *fp)
+ 	if (!info) {
+ 		printk(KERN_ERR "SELinux: compatibility lookup failed for policy "
+ 		    "version %d", p->policyvers);
+-		return rc;
++		return -EINVAL;
+ 	}
+ 
+ 	buf[0] = cpu_to_le32(p->policyvers);
 
 
 --
