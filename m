@@ -1,36 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9SDMplM003667
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2010 09:22:51 -0400
-Received: from mail-pw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o9SDMmLb021458
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2010 13:22:48 GMT
-Received: by pwj10 with SMTP id 10so8448pwj.12
-        for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2010 06:22:47 -0700 (PDT)
-Message-ID: <4CC97953.60306@gmail.com>
-Date: Thu, 28 Oct 2010 06:23:31 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9SDw2Ms006276
+	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2010 09:58:02 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id o9SDw19m025556
+	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2010 13:58:01 GMT
+Message-ID: <4CC98164.4010204@redhat.com>
+Date: Thu, 28 Oct 2010 09:57:56 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: imsand@puzzle.ch
-CC: Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: Context settings after ssh login
-References: <C8D3542D.BAC90%csellers@tresys.com>    <4CADF149.3040301@redhat.com> <4CAE025C.6010005@gmail.com>    <44256.193.5.216.100.1287499358.squirrel@mail.puzzle.ch>    <4CBDB14E.2030207@gmail.com>    <12764.193.5.216.100.1287503226.squirrel@mail.puzzle.ch>    <4CBDC997.6030800@gmail.com>    <10617.193.5.216.100.1287564131.squirrel@mail.puzzle.ch>    <4CBEF2B4.3050408@gmail.com>    <35906.193.5.216.100.1287584724.squirrel@mail.puzzle.ch>    <4CC3400C.8060004@gmail.com>    <30707.193.5.216.100.1287990574.squirrel@mail.puzzle.ch>    <4CC53877.7040106@gmail.com> <4CC53E5F.8060708@gmail.com> <24565.193.5.216.100.1288081632.squirrel@mail.puzzle.ch>
-In-Reply-To: <24565.193.5.216.100.1288081632.squirrel@mail.puzzle.ch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: space.time.universe@gmail.com
+CC: TaurusHarry <harrytaurus2002@hotmail.com>,
+        selinux-mailing-list <selinux@tycho.nsa.gov>,
+        "teoenming@hotmail.com" <teoenming@hotmail.com>,
+        zhang_enming@lavabit.com
+Subject: Re: Please Recommend Very Good, Easy to Understand, and Concise Learning
+ Guides for SELinux
+References: <4CC92CA4.4060207@gmail.com> <SNT139-w3553243ECC250E1A85539AB440@phx.gbl> <4CC972AF.6040805@gmail.com>
+In-Reply-To: <4CC972AF.6040805@gmail.com>
+Content-Type: text/plain; charset=GB2312
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  hows the status with this? have you made any progreess.. one thing 
-I've noticed over here, is if I use the login:
-/usr/sbin/semodule login -a -s staff_u justin
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-sshd seems to default to user_r:user_t*  but if I tweak the login to my 
-name and adjust
-/etc/selinux/{$policy}/contexts/users/* to my choosen role it works to 
-the modified
-role(my guesss is it's maybe something with th uuid or something)
+On 10/28/2010 08:55 AM, "Singapore Citizen Mr. Teo En Ming (Zhang
+Enming) ÕÅ¶÷Ãù " wrote:
+> Dear Harry,
+> 
+> Do you have the link to <<SELinux By Example>>?
+> 
+> Thank you very much for your prompt reply.
+> 
 
-Justin P. Mattock
+Also take a look at
+
+
+
+http://docs.fedoraproject.org/selinux-user-guide/f12/en-US/
+http://docs.fedoraproject.org/selinux-managing-confined-services-guide/en-US/F11/html/
+
+And
+
+http://people.fedoraproject.org/~dwalsh/SELinux/selinux4things.odp
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkzJgWQACgkQrlYvE4MpobMOogCeMs97f06F9hZEiLz4lgMm4QDp
+/IoAoNqVZgqbc8adB6dag5yGsYnCDlwB
+=/Vdw
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
