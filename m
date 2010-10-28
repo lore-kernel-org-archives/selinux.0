@@ -1,74 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id o9RLI0Hx018142
-	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2010 17:18:00 -0400
-Received: from smtp138.iad.emailsrvr.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id o9RLHxjx001394
-	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2010 21:17:59 GMT
-Subject: Re: [RFC PATCH URL] mcstrans - SELInux Project contribution
-Mime-Version: 1.0 (Apple Message framework v1081)
-Content-Type: text/plain; charset=us-ascii
-From: Joe Nall <joe@nall.com>
-In-Reply-To: <4CC8908C.9010404@tresys.com>
-Date: Wed, 27 Oct 2010 16:17:53 -0500
-Cc: Xavier Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Message-Id: <41B73930-FF9A-4B34-9084-AABA0565E5D6@nall.com>
-References: <AANLkTi=e6niGe9wFVFc_wKvaCTubN=QQjA5b0WbkSvVf@mail.gmail.com> <4CC8908C.9010404@tresys.com>
-To: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <4CC92CA4.4060207@gmail.com>
+Date: Thu, 28 Oct 2010 15:56:20 +0800
+From: =?UTF-8?B?IlNpbmdhcG9yZSBDaXRpemVuIE1yLiBUZW8gRW4gTWluZyAoWmhhbmcgRQ==?=
+ =?UTF-8?B?bm1pbmcpIOW8oOaBqem4oyAi?= <space.time.universe@gmail.com>
+Reply-To: space.time.universe@gmail.com
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+CC: "space.time.universe@gmail.com" <space.time.universe@gmail.com>,
+        "teoenming@hotmail.com" <teoenming@hotmail.com>,
+        zhang_enming@lavabit.com
+Subject: Please Recommend Very Good, Easy to Understand, and Concise Learning
+ Guides for SELinux
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Dear All,
 
-On Oct 27, 2010, at 3:50 PM, Steve Lawrence wrote:
+Please recommend very good, easy to understand, and concise learning 
+guides/tutorials for NSA's SELinux.
 
-> Due to size constrains, my changes for the mcstrans patch can be
-> downloaded here:
-> 
-> http://oss.tresys.com/files/selinux/mcstrans-review.patch.tgz
+Thank you very much.
 
-Wow. Thanks for all the work on the review.
+-- 
+Yours sincerely,
 
-Are you going to put up a git tree at userspace.selinuxproject.org?
-
-joe
-
-
-> 
-> The majority of the patch is just handling the case of memory
-> allocation failures and making sure things get cleaned up correctly in
-> those cases.
-> 
-> This also moves duplicate code in parse_ebitmap() and parse_raw() into
-> parse_category(), and also updates the parse function to ensure the
-> config files are in the correct format.
-> 
-> But aside from that, only very minor changes.
-> 
-> Reviewed by: Steve Lawrence <slawrence@tresys.com>
-> 
-> 
-> On 07/21/2010 03:40 PM, Xavier Toth wrote:
->> Due to posting size constraints my previous attempt to post this patch
->> failed you can now find it at:
->> 
->> http://www.nall.com/tedx/mcstrans.patch.tgz
->> 
->> 
->> SELinux Project contribution of mcstrans. mcstrans is a userland package
->> specific to SELinux which allows system administrators to define sensitivity
->> levels and categories and provides a daemon for their translation into human
->> readable form. This version is a merge of Joe Nalls git tree (
->> http://github.com/joenall/mcstrans) and patches supplied by Dan Walsh and
->> others at RedHat.
->> 
->> Ted
->> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
+Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 Dip(Mechatronics) BEng(Hons)(Mechanical Engineering)
+Singapore Identity Card No.: S78*6*2*H
+Location: Bedok Reservoir Road, Singapore
+ZIP: 470103
+Mobile Phone (Starhub Pre-paid): +65-8369-2618
+Windows Live Messenger: teoenming-at-hotmail.com
+My Youtube videos: http://www.youtube.com/user/enmingteo
+Alma Maters:
+[1] Singapore Polytechnic (Graduated 1998)
+[2] National University of Singapore (Graduated 2006)
+My Open Letter (Plea for Medical Help/Assistance) to World Leaders (Updated 28 August 2010):-
+http://lists.mcs.anl.gov/pipermail/mpich-discuss/2010-August/007811.html
+http://mythtv.org/pipermail/mythtv-users/2010-August/295952.html
+http://archives.gentoo.org/gentoo-user/msg_f6a341d9623fda17880159b137c07335.xml
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #1:
+http://i.imgur.com/M1FNX.jpg
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #2:
+http://i51.tinypic.com/11u9irm.jpg
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #3:
+http://www.imagevimage.com/images/Singapore_Citizen_Mr._Teo_En_Ming_%28Zhang_Enming%29.jpg
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #4:
+http://www.merrypic.com/files/o397beqo7qw8wky5rjno.jpg
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #5:
+http://piczasso.com/i/yicuz.jpg
+Photograph of Singapore Citizen Mr. Teo En Ming (Zhang Enming) 张恩鸣 #6:
+http://www.freeimagehosting.net/uploads/1b553b21ae.jpg
 
 
 --
