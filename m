@@ -1,28 +1,48 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: controlling VM access to different tap devices
-Date: Wed, 3 Nov 2010 12:19:11 -0400
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E024A0888@exchange2.columbia.tresys.com>
-From: "Ryan Haggerty" <rhaggerty@tresys.com>
-To: <libvirt-users@redhat.com>
-Cc: <SELinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oA3K3HYu020970
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 16:03:17 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id oA3K3AWT025326
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 20:03:17 GMT
+Date: Wed, 03 Nov 2010 16:03:08 -0400
+Subject: CIL: the SELinux Common Intermediate Language
+From: Chad Sellers <csellers@tresys.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Message-ID: <C8F7383C.BB23F%csellers@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry if this off-topic but I have a qemu related question I was going
-to send to the qemu users mailing list but that list appears to have
-vanished.  I thought this community might have some insight.
+Last year, we talked a bit about CIL and showed some of our thinking of what
+it could be. Since that time, CIL has evolved significantly. Today, I want
+to start some discussions around what we've come up with.
 
-I am interested in controlling VM access to different tap devices so I
-want to have different qemu processes bound to different tun devices.
-I've created new tun devices (eg. /dev/net/tun_low) followed by the use
-of tunctl to create new tap devices based off of the new device nodes
-(ie tunctl -t tap0 -f /dev/net/tun_low). This also did not seem to work
-as the VM's seemed to still be accessing /dev/net/tun (running strace on
-qemu-spice I found it was still doing an open on /dev/net/tun) and not
-my new device /dev/net/tun_low.  Any suggestions on forcing qemu to use
-alternative tun devices?
+What is CIL? Essentially, it's an intermediate policy language that provides
+features to high-level languages to allow them to do what they need to do
+and work together with each other. It's text-only (no more binary modules)
+and uses S-expressions to make machine parsing easy (though it's definitely
+human readable as well). I won't get into all of its goals and features
+here, but I encourage you to read about them on the CIL design wiki.
+
+Where are we in the process? Well, we've been continuing to flesh out the
+language design for some time, and we're still doing that. You can see this
+at the CIL design wiki on the SELinux userspace page:
+http://userspace.selinuxproject.org/trac/wiki/CilDesign . This will continue
+to grow and evolve as we make progress and get feedback from all of you.
+
+We also have the beginnings of a compiler for this language, and you can
+check it out from the git repo listed at the bottom of the design page. The
+goal is to eventually merge this into libsepol, though it's a stand-alone
+project that statically links against libsepol for now.
+
+Over the next few weeks, I'm going to explain a few of the key features of
+CIL here on list in order to get some feedback on them. I look forward to
+your responses.
+
+Thanks,
+Chad Sellers
 
 
 --
