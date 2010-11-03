@@ -1,45 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oA3K3HYu020970
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 16:03:17 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oA3K700Z021178
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 16:07:00 -0400
 Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id oA3K3AWT025326
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 20:03:17 GMT
-Date: Wed, 03 Nov 2010 16:03:08 -0400
-Subject: CIL: the SELinux Common Intermediate Language
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id oA3K6xSi007943
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2010 20:07:00 GMT
+Date: Wed, 03 Nov 2010 16:06:49 -0400
+Subject: CIL feature: macro
 From: Chad Sellers <csellers@tresys.com>
 To: SELinux <selinux@tycho.nsa.gov>
-Message-ID: <C8F7383C.BB23F%csellers@tresys.com>
+Message-ID: <C8F73919.BB240%csellers@tresys.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last year, we talked a bit about CIL and showed some of our thinking of what
-it could be. Since that time, CIL has evolved significantly. Today, I want
-to start some discussions around what we've come up with.
+Macro is a new policy statement found in CIL. The simplest way to explain it
+is that it is like a Reference Policy interface or template, but part of the
+actual policy language. So, a policy author can create a bit of policy in a
+macro, which can later be called from somewhere else with typed parameters.
 
-What is CIL? Essentially, it's an intermediate policy language that provides
-features to high-level languages to allow them to do what they need to do
-and work together with each other. It's text-only (no more binary modules)
-and uses S-expressions to make machine parsing easy (though it's definitely
-human readable as well). I won't get into all of its goals and features
-here, but I encourage you to read about them on the CIL design wiki.
+Macros will most often be declared within a block (a block is a namespaced
+logical grouping of policy which is discussed more at
+http://userspace.selinuxproject.org/trac/wiki/CilDesign#Namespaces ). They
+can be used as a safe way to access the symbols (types, etc.) within that
+block.
 
-Where are we in the process? Well, we've been continuing to flesh out the
-language design for some time, and we're still doing that. You can see this
-at the CIL design wiki on the SELinux userspace page:
-http://userspace.selinuxproject.org/trac/wiki/CilDesign . This will continue
-to grow and evolve as we make progress and get feedback from all of you.
+Macros allow declarations, and can consequently be used the same way
+Reference Policy templates can be used. Macros do not provide any mechanism
+for string munging, though the use of namespaces largely negates the need
+for this. For instance, rather than calling the ssh_role_template()
+interface with a prefix of staff (as you'd do in Reference Policy), one
+would merely call the ssh.role_template() CIL macro from within the staff
+block. This would expand into new types like ssh_agent_t being created in
+the staff namespace, which would result in the type name staff.ssh_agent_t.
 
-We also have the beginnings of a compiler for this language, and you can
-check it out from the git repo listed at the bottom of the design page. The
-goal is to eventually merge this into libsepol, though it's a stand-alone
-project that statically links against libsepol for now.
+Because macros are part of the language, this means a module is no longer
+dependent on the macro implementation not changing. If you write a policy on
+one machine, but then install it on a machine with a different policy, the
+module will use the macro implementation from the target system, not the
+development system.
 
-Over the next few weeks, I'm going to explain a few of the key features of
-CIL here on list in order to get some feedback on them. I look forward to
-your responses.
+Also, because macros have a structured format understood by they language,
+they can have useful error messages when things go wrong. This should make
+debugging policies much simpler than today.
+
+We've been talking about putting interfaces in the language for some time,
+and we believe this is the best way to do it. Any feedback is much
+appreciated.
 
 Thanks,
 Chad Sellers
