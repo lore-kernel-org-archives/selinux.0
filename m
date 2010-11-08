@@ -1,162 +1,102 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oA7HiRql008349
-	for <selinux@tycho.nsa.gov>; Sun, 7 Nov 2010 12:44:28 -0500
-Received: from c-sl428.itechfrontiers.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oA7HiQNI001423
-	for <selinux@tycho.nsa.gov>; Sun, 7 Nov 2010 17:44:27 GMT
-Message-ID: <4CD6E57E.5090101@itechfrontiers.com>
-Date: Sun, 07 Nov 2010 12:44:30 -0500
-From: "cto@itechfrontiers.com" <cto@itechfrontiers.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oA81k5fi025235
+	for <selinux@tycho.nsa.gov>; Sun, 7 Nov 2010 20:46:05 -0500
+Received: from mail-bw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oA81k3bc020016
+	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2010 01:46:04 GMT
+Received: by bwz7 with SMTP id 7so4925659bwz.12
+        for <selinux@tycho.nsa.gov>; Sun, 07 Nov 2010 17:46:02 -0800 (PST)
 MIME-Version: 1.0
-To: Cliffe <cliffe@ii.net>
-CC: Behnaz Hassanshahi <behnaz.kallen@yahoo.com>,
-        SELinux <selinux@tycho.nsa.gov>
-Subject: Re: temporal role base access control in Linux
-References: <182838.53024.qm@web110814.mail.gq1.yahoo.com> <4CD6BA38.10202@itechfrontiers.com> <4CD6C7B0.90305@ii.net> <4CD6D454.3040709@itechfrontiers.com> <4CD6D8E8.5060108@ii.net>
-In-Reply-To: <4CD6D8E8.5060108@ii.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <4CD3F36E.3040309@tresys.com>
+References: <AANLkTiknqsWLqo2M+dpr75rDHG4jE-ei+Rm4mDC61PS3@mail.gmail.com>
+	<4CD3F36E.3040309@tresys.com>
+Date: Mon, 8 Nov 2010 09:46:01 +0800
+Message-ID: <AANLkTi=1szsiAZvxDsXyFaVgZ59LX60pup1hervyJ86C@mail.gmail.com>
+Subject: Re: About compile an appplication's policy
+From: sure <mengshuo@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001636d3466c5a075f049480c9ec
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Cliffe,
+--001636d3466c5a075f049480c9ec
+Content-Type: text/plain; charset=ISO-8859-1
 
-Not at all, Just sharing point of views, anyway I learn everyday,
+I use RHEL 5.0 here, there is no devel package. i will try to download one.
+Another question : Am i using the conventional way to create a policy
+module? i used polgen several times, but sometimes after you do the e.g.
+"myapp.sh - -update" untill "no new avcs found" you still need to modify the
+scripts .
 
-I think better not to go off topic and explain a little bit more:
+On Fri, Nov 5, 2010 at 8:07 PM, Christopher J. PeBenito <
+cpebenito@tresys.com> wrote:
 
-TRBAC  =  Temporal Role-Based Access Control
-TRBAC = Time constraint/periodic roles/events (Activate-deactivate) + 
-their triggers + RBAC
-
-
-I wrote it can be SIMULATED using pure SELinux, becasue:
-
-if the triggers do not need to be atomic role entries, in example it 
-does not need to be an inline IPS/IDS changing roles in fraction of 
-minute/second;
-
-but the event triggers are longer to deal with, in example changing 
-personnel shifts (longer time frame),
-
-Then a simple SIMULATION with SELinux would be:
-
-1) Create/generate different policies and their dependencies for 
-different events, (The program even can try to generate these on the fly)
-2) create a task scheduler or event handler or hierarchical scheduler
-3) load/replace generated policies using above task scheduler/event 
-handler/hierarchical scheduler based on triggers and events
-
-* Virtually Much like and administrative job automation
-
-* This event handler needs to have higher privileges for loading 
-policies (MAC wise)
-
-* This can be done without applying modification to SELinux
-
-* All above can also be done using LSM APIs/SELinux Hooks/APIs as I 
-posted their links on my first reply before too (much more complicated 
-of course)
-
-
-NOTICE: In real life scenarios, SELinux itself is complicated enough in 
-practice to generate policies that as you all know it is used for 
-targeted processes, not everything, so the concept of applying this to 
-targeted processes in practice is inherited by TRBAC on top of SELinux
-
-One may want to develop genuine TRBAC, then stick to LSM (Linux Security 
-Module) as a standard security interface with Linux kernel.
-
-
-Best Regards,
-
-Patrick K.
-
-
-On 11/7/2010 11:50 AM, Cliffe wrote:
-> Hi Patrick,
+> On 11/04/10 22:19, sure wrote:
+> > Hi :
+> >       I am trying to create my own policy module, but i met with a
+> > problem: after i finished the myapp.te, myapp.if and myapp.fc in my
+> > directory named mypolicy, I copied the uncompress
+> > refpolicy-20070928.tar.bz2 dir ../refpolicy/doc/Makefile.example to
+> > ../mypolicy and renamed Makefile, then i tried to "make" , it gave such
+> > wrong info:
+> >
+> > Makefile:8: /usr/share/selinux/devel/mls/include/Makefile: No such file
+> > or directory
+> > make: *** No rule to make target
+> > `/usr/share/selinux/devel/mls/include/Makefile'.  Stop.
+> >
+> > then i check the dir /usr/share/selinux/devel/mls/ , there are many *.pp
+> > files in, but  no directory named include, should i install some other
+> > package or find it in somewhere else.
 >
-> No worries. Yes, I am not a lawyer. It is obviously entirely your
-> prerogative, and I am not criticising the help you provided. To be
-> honest, I just found it strange that you would choose to point out what
-> country they were from and who SELinux was developed by, as if that made
-> them less entitled to help with an open source project. Sorry if you
-> feel I overreacted.
->
-> I don't have anything to add to your implementation suggestions, thanks
-> for sharing.
->
-> Cliffe.
->
-> On 8/11/2010 12:31 AM, cto@itechfrontiers.com wrote:
->> Hello Cliffe,
->>
->> I Believe, I provided enough information to be able to achieve what
->> has been asked here.
->>
->> Anyway I'm bound to the US rules and abide and respect them, and
->> definitely am not a Lawyer, however my concern was not EAR (Export
->> Administration Regulations) the law is much more complicated than just
->> an export control regulation,
->>
->> By considering the source of the message coming from a known
->> University in Iran working on dual purpose subjects, I personally
->> prefer not to help particularly (on implementation basis), and I think
->> I have such right.
->>
->> Tried to help as much as I could.
->>
->> Providing legal advice requires attorney-client privilege/relationship
->> and I don't think just Google search result would be enough in such case.
->>
->> Anyway this is not a legal mailing list, technical aspects have been
->> covered as much as it should, if you would like you may add additional
->> notes.
->>
->> Best Regards,
->>
->> Patrick K.
->>
->>
->> On 11/7/2010 10:37 AM, Cliffe wrote:
->>> On 7/11/2010 10:39 PM, cto@itechfrontiers.com wrote:
->>>> I'm sorry but with all due respects, I don't know if helping people in
->>>> Iran on the subject is legal or not (I'm not a Lawyer) but judging
->>>> from sources of your mail (which is Iran), I prefer not to be involved
->>>> in any particular help.
->>> I have never heard anything that has suggested that there have ever been
->>> US export laws regarding access control software, let alone helping
->>> someone set up their free open source security software (please let me
->>> know if you have heard otherwise). It has been 10 years since US
->>> cryptography export laws have relaxed (and maybe they still apply to
->>> embargoed destinations).
->>>
->>> Just a quick google:
->>> "controls on encryption did not apply to cryptographic equipment and
->>> software if their functionality was limited to any of the following nine
->>> categories:" ... "(5) Access control devices such as ATMs;"
->>>> Anyway this is a project develped primarily by the National Security
->>>> Agency of the USA, and its contributors.
->>> That does not seem relevant to me...
->>>
->>> Cliffe.
->>>
->>>
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>> with
->>> the words "unsubscribe selinux" without quotes as the message.
->>
->>
->
+> What version of Red Hat/Fedora are you using?  I believe some of the
+> older ones had these files in the selinux-policy-devel package.
 >
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+> Chris PeBenito
+> Tresys Technology, LLC
+> www.tresys.com | oss.tresys.com
+>
 
+--001636d3466c5a075f049480c9ec
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>I use RHEL 5.0 here, there is no devel package.=A0i will try to downlo=
+ad one.</div>
+<div>Another question : Am i using the conventional way to create a policy =
+module? i used polgen several times, but sometimes after you do the e.g. &q=
+uot;myapp.sh - -update&quot; untill &quot;no new avcs found&quot;=A0you sti=
+ll=A0need to modify the scripts . <br>
+<br></div>
+<div class=3D"gmail_quote">On Fri, Nov 5, 2010 at 8:07 PM, Christopher J. P=
+eBenito <span dir=3D"ltr">&lt;<a href=3D"mailto:cpebenito@tresys.com">cpebe=
+nito@tresys.com</a>&gt;</span> wrote:<br>
+<blockquote style=3D"BORDER-LEFT: #ccc 1px solid; MARGIN: 0px 0px 0px 0.8ex=
+; PADDING-LEFT: 1ex" class=3D"gmail_quote">
+<div class=3D"im">On 11/04/10 22:19, sure wrote:<br>&gt; Hi :<br>&gt; =A0 =
+=A0 =A0 I am trying to create my own policy module, but i met with a<br>&gt=
+; problem: after i finished the myapp.te, myapp.if and myapp.fc in my<br>&g=
+t; directory named mypolicy, I copied the uncompress<br>
+&gt; refpolicy-20070928.tar.bz2 dir ../refpolicy/doc/Makefile.example to<br=
+>&gt; ../mypolicy and renamed Makefile, then i tried to &quot;make&quot; , =
+it gave such<br>&gt; wrong info:<br>&gt;<br>&gt; Makefile:8: /usr/share/sel=
+inux/devel/mls/include/Makefile: No such file<br>
+&gt; or directory<br>&gt; make: *** No rule to make target<br>&gt; `/usr/sh=
+are/selinux/devel/mls/include/Makefile&#39;. =A0Stop.<br>&gt;<br>&gt; then =
+i check the dir /usr/share/selinux/devel/mls/ , there are many *.pp<br>&gt;=
+ files in, but =A0no directory named include, should i install some other<b=
+r>
+&gt; package or find it in somewhere else.<br><br></div>What version of Red=
+ Hat/Fedora are you using? =A0I believe some of the<br>older ones had these=
+ files in the selinux-policy-devel package.<br><font color=3D"#888888"><br>
+--<br>Chris PeBenito<br>Tresys Technology, LLC<br><a href=3D"http://www.tre=
+sys.com/" target=3D"_blank">www.tresys.com</a> | <a href=3D"http://oss.tres=
+ys.com/" target=3D"_blank">oss.tresys.com</a><br></font></blockquote></div>=
+<br>
+
+--001636d3466c5a075f049480c9ec--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
