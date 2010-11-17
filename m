@@ -1,20 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oAHCjGe9008029
-	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2010 07:45:16 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oAHCuRHZ008853
+	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2010 07:56:27 -0500
 Received: from out1.smtp.messagingengine.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oAHCjFbh029532
-	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2010 12:45:15 GMT
-From: Roberto Sassu <roberto.sassu@polito.it>
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oAHCuPPC014273
+	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2010 12:56:25 GMT
 To: refpolicy@oss1.tresys.com
 Subject: SELinux UBAC question
-Date: Wed, 17 Nov 2010 13:42:53 +0100
 Cc: selinux@tycho.nsa.gov
+From: Roberto Sassu <roberto.sassu@polito.it>
+Date: Wed, 17 Nov 2010 13:54:03 +0100
 MIME-Version: 1.0
+Message-Id: <201011171354.03646.roberto.sassu@polito.it>
 Content-Type: Text/Plain;
   charset="utf-8"
-Message-Id: <201011171342.54366.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Sorry, i'm resending it because first time it was rejected by the
+refpolicy@oss.tresys.com mailing list.
+
 
 Hi all
 
