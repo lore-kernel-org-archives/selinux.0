@@ -1,43 +1,56 @@
-Subject: Re: [PATCH 3/3] SELinux: return -ECONNREFUSED from ip_postroute to
- signal	fatal error
+Subject: Re: [PATCH] fs: call security_d_instantiate in d_obtain_alias
 From: Eric Paris <eparis@redhat.com>
-To: Patrick McHardy <kaber@trash.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, netfilter-devel@vger.kernel.org,
-        equinox@diac24.net, eric.dumazet@gmail.com, davem@davemloft.net,
-        hzhong@gmail.com, jmorris@namei.org, kuznet@ms2.inr.ac.ru,
-        paul.moore@hp.com, pekkas@netcore.fi, sds@tycho.nsa.gov,
-        yoshfuji@linux-ipv6.org
-In-Reply-To: <4CE3BFC4.1010706@trash.net>
-References: <20101116215238.6727.39248.stgit@paris.rdu.redhat.com>
-	 <20101116215257.6727.12163.stgit@paris.rdu.redhat.com>
-	 <4CE3BFC4.1010706@trash.net>
+To: Josef Bacik <josef@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+In-Reply-To: <1290016263-1637-1-git-send-email-josef@redhat.com>
+References: <1290016263-1637-1-git-send-email-josef@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 17 Nov 2010 09:38:59 -0500
-Message-ID: <1290004739.14282.73.camel@localhost.localdomain>
+Date: Wed, 17 Nov 2010 13:54:08 -0500
+Message-ID: <1290020048.14282.81.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2010-11-17 at 12:43 +0100, Patrick McHardy wrote:
-> On 16.11.2010 22:52, Eric Paris wrote:
-> > The SELinux netfilter hooks just return NF_DROP if they drop a packet.  We
-> > want to signal that a drop in this hook is a permanant fatal error and is not
-> > transient.  If we do this the error will be passed back up the stack in some
-> > places and applications will get a faster interaction that something went
-> > wrong.
+On Wed, 2010-11-17 at 12:51 -0500, Josef Bacik wrote:
+> While trying to track down some NFS problems with BTRFS, I kept noticing I was
+> getting -EACCESS for no apparent reason.  Eric Paris and printk() helped me
+> figure out that it was SELinux that was giving me grief, with the following
+> denial
 > 
-> Looks good to me. I'd suggest to have these patches go through Dave's
-> tree since I want to make use of the netfilter error propagation
-> mechanism to return proper errno codes for netfilter re-routing
-> failures.
+> type=AVC msg=audit(1290013638.413:95): avc:  denied  { 0x800000 } for  pid=1772
+> comm="nfsd" name="" dev=sda1 ino=256 scontext=system_u:system_r:kernel_t:s0
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
+> 
+> Turns out this is because in d_obtain_alias if we can't find an alias we create
+> one and do all the normal instantiation stuff, but we don't do the
+> security_d_instantiate.  With this patch I'm no longer seeing these errant
+> -EACCESS return values.  Thanks,
+> 
+> Signed-off-by: Josef Bacik <josef@redhat.com>
 
-
-I'd be happy if Dave pulled patches 1 and 2.  I can resend patch #3 once
-I can cajole another of the SELinux maintainers to look at it (I believe
-he most likely one is on vacation this week)
+Adding a couple of people to the CC just to make sure they notice this
+patch.
 
 -Eric
+
+> ---
+>  fs/dcache.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/fs/dcache.c b/fs/dcache.c
+> index 23702a9..890a59e 100644
+> --- a/fs/dcache.c
+> +++ b/fs/dcache.c
+> @@ -1201,6 +1201,7 @@ struct dentry *d_obtain_alias(struct inode *inode)
+>  	spin_unlock(&tmp->d_lock);
+>  
+>  	spin_unlock(&dcache_lock);
+> +	security_d_instantiate(tmp, inode);
+>  	return tmp;
+>  
+>   out_iput:
+
 
 
 --
