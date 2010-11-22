@@ -1,135 +1,150 @@
-Subject: Re: [PATCH 3/3] SELinux: return -ECONNREFUSED from ip_postroute to
- signal fatal error
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, netfilter-devel@vger.kernel.org,
-        equinox@diac24.net, eric.dumazet@gmail.com, davem@davemloft.net,
-        hzhong@gmail.com, jmorris@namei.org, kaber@trash.net,
-        kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, sds@tycho.nsa.gov,
-        yoshfuji@linux-ipv6.org
-In-Reply-To: <20101116215257.6727.12163.stgit@paris.rdu.redhat.com>
-References: <20101116215238.6727.39248.stgit@paris.rdu.redhat.com>
-	 <20101116215257.6727.12163.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 19 Nov 2010 10:11:55 -0500
-Message-ID: <1290179515.8839.41.camel@sifl>
-Mime-Version: 1.0
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Subject: [RFC][PATCH 2/4] fs: move file->f_cred initialization before security_file_alloc()
+From: Roberto Sassu <roberto.sassu@polito.it>
+Date: Mon, 22 Nov 2010 16:57:21 +0100
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul.moore@hp.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart6362672.EAEOHeV1jh";
+  protocol="application/pkcs7-signature";
+  micalg=sha1
+Message-Id: <201011221657.21504.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2010-11-16 at 16:52 -0500, Eric Paris wrote:
-> The SELinux netfilter hooks just return NF_DROP if they drop a packet.  We
-> want to signal that a drop in this hook is a permanant fatal error and is not
-> transient.  If we do this the error will be passed back up the stack in some
-> places and applications will get a faster interaction that something went
-> wrong.
+--nextPart6362672.EAEOHeV1jh
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Sorry for the delay, but I wasn't able to respond until today ...
+The initialization of the 'f_cred' field of the file descriptor structure
+has been moved before calling the function security_file_alloc() in order
+to allow LSM security modules to use such information.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8ba5001..b1104f9 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4594,11 +4594,11 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
->  				secmark_perm = PACKET__SEND;
->  			break;
->  		default:
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
->  		}
->  		if (secmark_perm == PACKET__FORWARD_OUT) {
->  			if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
-> -				return NF_DROP;
-> +				return NF_DROP_ERR(-ECONNREFUSED);
+Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
+=2D--
+ fs/file_table.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-The error condition here isn't due to a policy decision, but some
-runtime error that happened when trying to determine the peer label of
-an individual packet.  I think leaving this as just NF_DROP is the right
-thing to do as an error here can be temporary.
-
->  		} else
->  			peer_sid = SECINITSID_KERNEL;
->  	} else {
-> @@ -4611,28 +4611,28 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
->  	ad.u.net.netif = ifindex;
->  	ad.u.net.family = family;
->  	if (selinux_parse_skb(skb, &ad, &addrp, 0, NULL))
-> -		return NF_DROP;
-> +		return NF_DROP_ERR(-ECONNREFUSED);
-
-Same thing, this is a transient error and not due to a policy decision.
-We should keep this as NF_DROP.
-
->  	if (secmark_active)
->  		if (avc_has_perm(peer_sid, skb->secmark,
->  				 SECCLASS_PACKET, secmark_perm, &ad))
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
-
-Yep, this is a good place as the error is the result of a policy
-decision, i.e. an avc_has_perm() call.
-
->  	if (peerlbl_active) {
->  		u32 if_sid;
->  		u32 node_sid;
->  
->  		if (sel_netif_sid(ifindex, &if_sid))
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
-
-Another transient error case, should be NF_DROP.
-
->  		if (avc_has_perm(peer_sid, if_sid,
->  				 SECCLASS_NETIF, NETIF__EGRESS, &ad))
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
-
-Good.
- 
->  		if (sel_netnode_sid(addrp, family, &node_sid))
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
-
-Bad.
-
->  		if (avc_has_perm(peer_sid, node_sid,
->  				 SECCLASS_NODE, NODE__SENDTO, &ad))
-> -			return NF_DROP;
-> +			return NF_DROP_ERR(-ECONNREFUSED);
-
-Good.  I think you get the idea now.
-
-Also, while I think we can ignore the forwarding and output hooks, we do
-need to change the NF_DROPs in selinux_ip_postroute_compat() ... I'd
-suggest the following (the last change catches more than just policy
-decisions but considering the "compat" nature I think a little wiggle
-room is okay here):
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 65fa8bf..de1b79e 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4520,11 +4520,11 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
-        if (selinux_secmark_enabled())
-                if (avc_has_perm(sksec->sid, skb->secmark,
-                                 SECCLASS_PACKET, PACKET__SEND, &ad))
--                       return NF_DROP;
-+                       return NF_DROP_ERR(-ECONNREFUSED);
- 
-        if (selinux_policycap_netpeer)
-                if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
--                       return NF_DROP;
-+                       return NF_DROP_ERR(-ECONNREFUSED);
- 
-        return NF_ACCEPT;
- }
-
--- 
-paul moore
-linux @ hp
+diff --git a/fs/file_table.c b/fs/file_table.c
+index fd446e3..78b9174 100644
+=2D-- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -125,13 +125,13 @@ struct file *get_empty_filp(const struct cred *task_c=
+red)
+ 		goto fail;
+=20
+ 	percpu_counter_inc(&nr_files);
++	f->f_cred =3D get_cred(cred);
+ 	if (security_file_alloc(f))
+ 		goto fail_sec;
+=20
+ 	INIT_LIST_HEAD(&f->f_u.fu_list);
+ 	atomic_long_set(&f->f_count, 1);
+ 	rwlock_init(&f->f_owner.lock);
+=2D	f->f_cred =3D get_cred(cred);
+ 	spin_lock_init(&f->f_lock);
+ 	eventpoll_init_file(f);
+ 	/* f->f_version: 0 */
+=2D-=20
+1.7.2.3
 
 
+--nextPart6362672.EAEOHeV1jh
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIQCTCCBLMw
+ggOboAMCAQICARQwDQYJKoZIhvcNAQEFBQAwQTEQMA4GA1UEChMHRXVyb1BLSTEtMCsGA1UEAxMk
+RXVyb1BLSSBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA2MTAyNDEzMzEzM1oXDTEw
+MTIzMTEyNTk1OVowUTELMAkGA1UEBhMCSVQxEDAOBgNVBAoTB0V1cm9QS0kxMDAuBgNVBAMTJ0V1
+cm9QS0kgSXRhbGlhbiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAPbJ3y5bE0iL2iFW59R4KGHS3iTc22mq2GlDaOZLE3Xz1wTvB/yBl5e4ntMZ
+eEeWTW9JInNRTtfC3mcLk0gnEdK1rQZbe4lQwBVHdkG8LvRQDWHIkZNuccoUpQXMv+JbZjI6m7rH
+fU2CN/YCvFY9QL08xXsfDxvX2Ee4S7EwJiSEEJSiy+R00uTfvfn27d8a6LCqYLzlInRlz4C2CUbk
++U2UAwjYEPTP2ziqFxztysbxC3fjqH8e6P5wIPXOS5cSYnVaEyp21VXhAOamVJEGlQCdVoTHs+pP
+BYqCBuNhBfienUPaEDHHUUYHZ2nS4eNzd9XOu+5hFi1/8hVZxN4sbdECAwEAAaOCAaQwggGgMEwG
+CWCGSAGG+EIBDQQ/Fj1Jc3N1ZWQgdW5kZXIgcG9saWN5OgogaHR0cDovL3d3dy5ldXJvcGtpLm9y
+Zy9jYS9yb290L2Nwcy8xLjEvMGUGCCsGAQUFBwEBBFkwVzAoBggrBgEFBQcwAYYcaHR0cDovL29j
+c3AuZXVyb3BraS5vcmc6ODAyNjArBggrBgEFBQcwAoYfaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9j
+YS9yb290LzA7BgNVHR8ENDAyMDCgLqAshipodHRwOi8vd3d3LmV1cm9wa2kub3JnL2NhL3Jvb3Qv
+Y3JsL2NybC5kZXIwDAYDVR0TBAUwAwEB/zBOBgNVHSAERzBFMEMGCisGAQQBqQcBAQEwNTAzBggr
+BgEFBQcCARYnaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9yb290L2Nwcy8xLjEvMA4GA1UdDwEB
+/wQEAwIB9jAdBgNVHQ4EFgQUjl4HtzG0Gbu5BJU0rMX9016KQsAwHwYDVR0jBBgwFoAUjNyLsaVK
+kOdOiHMYPJ3VXn7kss0wDQYJKoZIhvcNAQEFBQADggEBAFjlAWMiL7uhEAVcrPeMXsbQU+bQNbP1
+TBqyBoMCMJ4RakM7/67AsmqpKGIYwhjVkSNHhscRl5BuSiyviHOLbWUJ9tAAKt6hzMDr1J4OvWSH
+Sn8y9fSlyQU8+fQE8FHxXT3Aa7aLYVqsqr0ppmxRDL/9b/mdUVcMXiKFAdopFzhXIigfZFh6MW/o
+7/GEiDMGsovCiwKJ5ZL46zGRDaS+O0aRYQv2PHZaWrC8i0OPwghlTeB2DfUBzm0urPijBATdjzP8
+yO3YGymFZOIG08Roe4bwzrANGzX5luBk3lNmtXTPHoUtRLn3ADa+IUGwK6VYWHYJe1+uUHRNziQu
+/Zsb858wggU/MIIEJ6ADAgECAgIJzzANBgkqhkiG9w0BAQUFADBRMQswCQYDVQQGEwJJVDEQMA4G
+A1UEChMHRXVyb1BLSTEwMC4GA1UEAxMnRXVyb1BLSSBJdGFsaWFuIENlcnRpZmljYXRpb24gQXV0
+aG9yaXR5MB4XDTA2MTEwNjE3MTU1OVoXDTEwMTIzMTEyNTk1OVowZTELMAkGA1UEBhMCSVQxHjAc
+BgNVBAoTFVBvbGl0ZWNuaWNvIGRpIFRvcmlubzE2MDQGA1UEAxMtUG9saXRlY25pY28gZGkgVG9y
+aW5vIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEA/s1vopfmSp2eqKG/jW4H5YyfrZc/jWEnctMMm7TlVT+ryxJ2ifYV/7VyuYVIGdnCBnmJiav6
+uhePqpHyuejEZ+IdCchk04BSBbgzkSbWakw2ekv1SKm8WfvhxHbiSo/t//LQEANMJ+XeeqGl1TRR
+8gdMC6erWFGdl5FcuOpMoaqW6DszVGlOAf7Uo/DExZ0/9cw77GTRoDTA3vi1QJEYGaAAvI2/flaU
+8gn4QoktjowchDXBylVsyqs+ux3v7m3H0cgC3q62t2om2badk40F9XH1w2WPLQB6rSl+TPDxkl2k
+kR4goQprXR0b0OujS5ADq5Ds2w7YPj5h4J6ebsbIUQIDAQABo4ICCzCCAgcwdQYJYIZIAYb4QgEN
+BGgWZklzc3VlZCB1bmRlciBwb2xpY2llczoKIGh0dHA6Ly93d3cuZXVyb3BraS5vcmcvY2Evcm9v
+dC9jcHMvMS4xLwogaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9pdC9jcHMvMS4xLzBcBggrBgEF
+BQcBAQRQME4wKAYIKwYBBQUHMAGGHGh0dHA6Ly9vY3NwLmV1cm9wa2kub3JnOjgwMjYwIgYIKwYB
+BQUHMAKGFmh0dHA6Ly93d3cuZXVyb3BraS5vcmcwPAYDVR0fBDUwMzAxoC+gLYYraHR0cDovL3d3
+dy5ldXJvcGtpLm9yZy9jYS9pdDIvY3JsMDMvY3JsLmRlcjAPBgNVHRMBAf8EBTADAQH/MIGTBgNV
+HSAEgYswgYgwQwYKKwYBBAGpBwEBATA1MDMGCCsGAQUFBwIBFidodHRwOi8vd3d3LmV1cm9wa2ku
+b3JnL2NhL3Jvb3QvY3BzLzEuMS8wQQYKKwYBBAGpBwIBATAzMDEGCCsGAQUFBwIBFiVodHRwOi8v
+d3d3LmV1cm9wa2kub3JnL2NhL2l0L2Nwcy8xLjEvMAsGA1UdDwQEAwIB9jAdBgNVHQ4EFgQUCf0l
+GW/jaHyCazVzvCgAviw8OjgwHwYDVR0jBBgwFoAUjl4HtzG0Gbu5BJU0rMX9016KQsAwDQYJKoZI
+hvcNAQEFBQADggEBANfGdD6B98NUwBOVYIiuo+SNfw8Afjr2oFHLYEHYhKdBED1WBckhK610v2zJ
+ctramnrqdd+xfyzmkyNm48OtkiVetYzXbgYeyMGxhO8HrJ1Ztf1yEN0lL8HgdK3lmJeLYNYH/cwZ
+5SlKwvTR/VENHLYlWsgWk47ut7W8+Zd/ESwzNdJUCBUMoQnGZ3giyhAXKAgIOckwL0g8KmnceY7J
+Y4L1G++1OuOoUcgg2jRPxcVmHVEe/cM0WHfUcigDXSBTIxAiDwlQ7ni97yX1RqBV/6IVdRDYKyjg
+YkdYcwU9ZuOKUP4Pl5KKCegLOHRoo5kX6V1o7b2IZGBFoVmkag4m4kkwggYLMIIE86ADAgECAgID
+wTANBgkqhkiG9w0BAQUFADBlMQswCQYDVQQGEwJJVDEeMBwGA1UEChMVUG9saXRlY25pY28gZGkg
+VG9yaW5vMTYwNAYDVQQDEy1Qb2xpdGVjbmljbyBkaSBUb3Jpbm8gQ2VydGlmaWNhdGlvbiBBdXRo
+b3JpdHkwHhcNMDgxMjA1MTYwMDAwWhcNMTAxMjMwMTIwMDAwWjB5MQswCQYDVQQGEwJJVDEeMBwG
+A1UEChMVUG9saXRlY25pY28gZGkgVG9yaW5vMTEwLwYDVQQLEyhEaXBhcnRpbWVudG8gZGkgQXV0
+b21hdGljYSBlIEluZm9ybWF0aWNhMRcwFQYDVQQDEw5Sb2JlcnRvICBTYXNzdTCCASIwDQYJKoZI
+hvcNAQEBBQADggEPADCCAQoCggEBAOS/leMNzG5v7FG73ythWtNPOdq8MEFpzg7mjy4M7UsS9+sc
+b7QE8TOX365q/+mBwxZ7qW+OhNKfgv14A3y/quju5P7mjTmTNvKWDpsUBjC+tCs+WpWsgIPc2xxW
+PrR7br04U/SYYNsxynh1TtO2gsQrHIj9S/wNiNRP8GGPCAiuYRlaL2CeSVn4JEKcT0zOeLIIqfDp
+3Ad3YeBhj+cR3TrmO9TyGTPCAb1oyq9wuA1Tx044rqSQNbp0e0RvOrwAIpD/2mNPP3ReTeB53aSg
+q0pCHoH1s2AcY/jWJ1joYFC9hh/2DqZRvMNIsM7Uce5Iiz2sgl1I61IUD4658HYzCmMCAwEAAaOC
+Aq8wggKrMIGVBglghkgBhvhCAQ0EgYcWgYRJc3N1ZWQgdW5kZXIgcG9saWNpZXM6CiBodHRwOi8v
+d3d3LmV1cm9wa2kub3JnL2NhL3Jvb3QvY3BzLzEuMS8KIGh0dHA6Ly93d3cuZXVyb3BraS5vcmcv
+Y2EvaXQvY3BzLzEuMS8KIGh0dHA6Ly9jYS5wb2xpdG8uaXQvY3BzLzIuMS8wEQYJYIZIAYb4QgEB
+BAQDAgCwMGMGCCsGAQUFBwEBBFcwVTAoBggrBgEFBQcwAYYcaHR0cDovL29jc3AuZXVyb3BraS5v
+cmc6ODAyNjApBggrBgEFBQcwAoYdaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9pdC8wMgYDVR0f
+BCswKTAnoCWgI4YhaHR0cDovL2NhLnBvbGl0by5pdC9jcmwwMy9jcmwuZGVyMAwGA1UdEwEB/wQC
+MAAwOgYDVR0RBDMwMYEXcm9iZXJ0by5zYXNzdUBwb2xpdG8uaXSgFgYKKwYBBAGVYgIBAaAIFgYw
+MjEzMDUwgc0GA1UdIASBxTCBwjBDBgorBgEEAakHAQEBMDUwMwYIKwYBBQUHAgEWJ2h0dHA6Ly93
+d3cuZXVyb3BraS5vcmcvY2Evcm9vdC9jcHMvMS4xLzBBBgorBgEEAakHAgEBMDMwMQYIKwYBBQUH
+AgEWJWh0dHA6Ly93d3cuZXVyb3BraS5vcmcvY2EvaXQvY3BzLzEuMS8wOAYKKwYBBAGVYgECATAq
+MCgGCCsGAQUFBwIBFhxodHRwOi8vY2EucG9saXRvLml0L2Nwcy8yLjEvMAsGA1UdDwQEAwIE8DAd
+BgNVHQ4EFgQUP+37DpRL6r5BNjgsgFjI8MHvGTcwHwYDVR0jBBgwFoAUCf0lGW/jaHyCazVzvCgA
+viw8OjgwDQYJKoZIhvcNAQEFBQADggEBADRj0OWMglzLXTPuKND9gMTHd1iRPzRNI1TiYFN/WIyu
+a3mNev65wKn35VxbbMV6k7zuxxdC7o+iYRLepVOnpw90Af/SiJRc9QI4rk8tzSr5xII7vI0fPvcl
+rjSMymXCvwKrbYwrKe0FhBnSZ8AoewXoHDQ8f64heLIU8mLWuwo1+brq0pJUH5Q+69WAGD03ln+l
+Fhk2KqvVv8yAD21PydrS7Uk2ZLE7l7/+BTQBY8ZjpNRZ44C6+o7lou2zN6lkWtVHBwUNVdfu3wkS
+TdtCm/yxR8XUlFyZkLHfhY19VW4luxb7KZ4GiPKDERdQwBb0kja4eqSOBkAPWZ9Y8zpv4bAxggIc
+MIICGAIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBkaSBUb3Jpbm8x
+NjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eQIC
+A8EwCQYFKw4DAhoFAKCBhzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEP
+Fw0xMDExMjIxNTU3MjFaMCMGCSqGSIb3DQEJBDEWBBTPN+OfMvKh6wSa2mJnpaQpYGzjEzAoBgkq
+hkiG9w0BCQ8xGzAZMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzANBgkqhkiG9w0BAQEFAASCAQDB
+tFgvRVo/5S0v0boZz3E3PwzhvXPdOoN24RQEuNPPMatYHwO+4cWIUe+sQX28zi/LgNfkPJvIEcg0
+x56SKiRuGa0o6tTNCcH7/YwgGLUZY9xoegriBI0Vop5qpxStkEnnfmtkRY5dRTtJjiSjl9PqUNyw
+YITO1rDUQLbeEsUzxYrxLS2YVgZozPNI51scLhwUWnBIspMCbO7rqEXRCvtIZhKomXeFLu9a1FmM
+mMBTvViZqbZ/ZWED+o7N3DZaWedeeByzYCmmvI1Jez79CNnFKZ57IK5ipfdBbjlP8sJOzPExc5fO
+p9Ny3AP7b+1PN5SVx6uySn3NGpW6hkhUqztfAAAAAAAA
+
+--nextPart6362672.EAEOHeV1jh--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
