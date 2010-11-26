@@ -1,51 +1,45 @@
-Date: Mon, 29 Nov 2010 08:14:06 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH] SELinux: do not set automatic i_ino in selinuxfs
-In-Reply-To: <20101123165639.4669.29701.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1011290813480.15604@tundra.namei.org>
-References: <20101123165639.4669.29701.stgit@paris.rdu.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oAT0FRNK002282
+	for <selinux@tycho.nsa.gov>; Sun, 28 Nov 2010 19:15:28 -0500
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oAT0FPUX021071
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2010 00:15:26 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id B2673180F2
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2010 11:15:06 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: analysing optional policy
+Date: Fri, 26 Nov 2010 20:55:01 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201011262055.01924.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 23 Nov 2010, Eric Paris wrote:
+I'm having a problem with optional policy not being used when I think it 
+should.
 
-> selinuxfs carefully uses i_ino to figure out what the inode refers to.  The
-> VFS used to generically set this value and we would reset it to something
-> useable.  After 85fe4025c616 each filesystem sets this value to a default
-> if needed.  Since selinuxfs doesn't use the default value and it can only
-> lead to problems (I'd rather have 2 inodes with i_ino == 0 than one
-> pointing to the wrong data) lets just stop setting a default.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Is it possible to use apol to get information on optional policy for .pp files 
+so I can try to work out why it doesn't get enabled?
 
-Acked-by: James Morris <jmorris@namei.org>
+                unconfined_run_to(depmod_t, depmod_exec_t)
 
-> ---
-> 
->  security/selinux/selinuxfs.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
-> 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 8bae68e..45d35e6 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -989,7 +989,6 @@ static struct inode *sel_make_inode(struct super_block *sb, int mode)
->  	struct inode *ret = new_inode(sb);
->  
->  	if (ret) {
-> -		ret->i_ino = get_next_ino();
->  		ret->i_mode = mode;
->  		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
->  	}
-> 
+In the Debian policy I have the above in an optional section of base.pp but 
+for reasons that I don't understand it's not being loaded (both tests and 
+running apol on policy.24 show this).
+
+I've inspected the contents of base.conf and they appear to be OK.
+
+Any suggestions of other tools to analyse this will be appreciated.
 
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
