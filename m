@@ -1,12 +1,11 @@
-Date: Mon, 29 Nov 2010 08:15:38 +1100 (EST)
+Date: Mon, 29 Nov 2010 08:14:06 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: Eric Paris <eparis@redhat.com>
 cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH 1/4] flex_array: fix flex_array_put_ptr macro to be valid
- C
-In-Reply-To: <20101123165227.4489.29282.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1011290815020.15604@tundra.namei.org>
-References: <20101123165227.4489.29282.stgit@paris.rdu.redhat.com>
+Subject: Re: [PATCH] SELinux: do not set automatic i_ino in selinuxfs
+In-Reply-To: <20101123165639.4669.29701.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.1011290813480.15604@tundra.namei.org>
+References: <20101123165639.4669.29701.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -14,32 +13,34 @@ List-Id: selinux@tycho.nsa.gov
 
 On Tue, 23 Nov 2010, Eric Paris wrote:
 
-> Using flex_array_put_ptr() results in a compile error "error: lvalue
-> required as unary ?&? operand"  fix the casting order to fix this.
+> selinuxfs carefully uses i_ino to figure out what the inode refers to.  The
+> VFS used to generically set this value and we would reset it to something
+> useable.  After 85fe4025c616 each filesystem sets this value to a default
+> if needed.  Since selinuxfs doesn't use the default value and it can only
+> lead to problems (I'd rather have 2 inodes with i_ino == 0 than one
+> pointing to the wrong data) lets just stop setting a default.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
-These all look good to me.  Consider cc'ing the LSM list with 
-SELinux kernel changes.
+Acked-by: James Morris <jmorris@namei.org>
 
 > ---
 > 
->  include/linux/flex_array.h |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+>  security/selinux/selinuxfs.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
 > 
-> diff --git a/include/linux/flex_array.h b/include/linux/flex_array.h
-> index 631b77f..70e4efa 100644
-> --- a/include/linux/flex_array.h
-> +++ b/include/linux/flex_array.h
-> @@ -71,7 +71,7 @@ void *flex_array_get(struct flex_array *fa, unsigned int element_nr);
->  int flex_array_shrink(struct flex_array *fa);
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 8bae68e..45d35e6 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -989,7 +989,6 @@ static struct inode *sel_make_inode(struct super_block *sb, int mode)
+>  	struct inode *ret = new_inode(sb);
 >  
->  #define flex_array_put_ptr(fa, nr, src, gfp) \
-> -	flex_array_put(fa, nr, &(void *)(src), gfp)
-> +	flex_array_put(fa, nr, (void *)&(src), gfp)
->  
->  void *flex_array_get_ptr(struct flex_array *fa, unsigned int element_nr);
->  
+>  	if (ret) {
+> -		ret->i_ino = get_next_ino();
+>  		ret->i_mode = mode;
+>  		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
+>  	}
 > 
 
 -- 
