@@ -1,86 +1,63 @@
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: do not compute transition labels on mountpoint
+	labeled filesystems
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, esandeen@redhat.com
+Date: Wed, 01 Dec 2010 16:22:54 -0500
+Message-ID: <20101201212254.30815.38691.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: What can selinux do that "audit" by itself cant do ?
-Date: Wed, 1 Dec 2010 13:06:52 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D09EA0021@de01exm68.ds.mot.com>
-In-Reply-To: <201012010844.36650.sgrubb@redhat.com>
-References: <Pine.LNX.4.44.0710262329300.30215-100000@citation2.av8.net> <1193840770.3983.86.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D09E9FCDD@de01exm68.ds.mot.com> <201012010844.36650.sgrubb@redhat.com>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Steve Grubb" <sgrubb@redhat.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank You soo much Steve for your answers  :-)
+selinux_inode_init_security computes transitions sids even for filesystems
+that use mount point labeling.  It shouldn't do that.  It should just use
+the mount point label always and no matter what.
 
-R.H.
+This causes 2 problems.  1) it makes file creation slower than it needs to be
+since we calculate the transition sid and 2) it allows files to be created
+with a different label than the mount point!
+
+# id -Z
+staff_u:sysadm_r:sysadm_t:s0-s0:c0.c1023
+# sesearch --type --class file --source sysadm_t --target tmp_t
+Found 1 semantic te rules:
+   type_transition sysadm_t tmp_t : file user_tmp_t;
+
+# mount -o loop,context="system_u:object_r:tmp_t:s0"  /tmp/fs /mnt/tmp
+
+# ls -lZ /mnt/tmp
+drwx------. root root system_u:object_r:tmp_t:s0       lost+found
+# touch /mnt/tmp/file1
+# ls -lZ /mnt/tmp
+-rw-r--r--. root root staff_u:object_r:user_tmp_t:s0   file1
+drwx------. root root system_u:object_r:tmp_t:s0       lost+found
+
+Whoops, we have a mount point labeled filesystem tmp_t with a user_tmp_t
+labeled file!
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+ security/selinux/hooks.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e066bc2..35403e5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2523,7 +2523,10 @@ static int selinux_inode_init_security(const struct qstr *qstr, struct inode *in
+ 	sid = tsec->sid;
+ 	newsid = tsec->create_sid;
  
-
------Original Message-----
-From: Steve Grubb [mailto:sgrubb@redhat.com] 
-Sent: Wednesday, December 01, 2010 7:45 AM
-To: Hasan Rezaul-CHR010
-Cc: Stephen Smalley; selinux@tycho.nsa.gov
-Subject: Re: What can selinux do that "audit" by itself cant do ?
-
-Hello,
-
-On Tuesday, November 30, 2010 07:17:30 pm Hasan Rezaul-CHR010 wrote:
-> Lets say I am using SELinux in my Linux product to monitor the 
-> filesystem and generate avc deny events in audit.log, whenever my 
-> strict selinux policy is violated... And I am running in Permissive 
-> mode (so NOT actively preventing anything, just reporting...).
-> 
-> Is there any reason why I cant simply write a bunch of rules in 
-> audit.rules  to accomplish the same objective ?
-
-I think that you want to use the right tool for the right job. The audit
-system is designed to monitor system activity. SE Linux is a MAC
-subsystem. There are requirements that MAC events are auditable, which
-seems to be what you have been using in place of just the audit system.
-
- It should be known that if you turn SE Linux off, you won't get the
-same events in the audit logs. This is because SE Linux can have policy
-written that does not like some interactions that are "legal" from a DAC
-perspective. The only way to know if you are missing anything important
-is to run with SE Linux disabled and see if the audit rules captures
-everything you expect.
-
-
-> Possibly a dumb question, so apologize in advance, but other than 
-> Policy Enforcement and Prevention in the 'Enforcing' mode (which I 
-> cant use in my product for various reasons), what else is SELinux 
-> buying me, that I cant get by using just audit ?
-
-SE Linux has helped debug many software problems like leaked file
-descriptors or shared memory that is executable. The audit system won't
-be able to catch those since it was never designed to concern itself
-with information flow control. It was designed to monitor resource
-access. Nearly the same, but different. For example, the audit system
-would assume that if a child process inheritted and used a descriptor
-from a parent process, then it must be OK. SE Linux because it worries
-about information flow control would be more suspicious and report a
-process attempting to access a resource that it was not known to
-previously have.
-
- 
-> I am sure there must be significant benefits of SELinux, but can 
-> someone help me understand some of the benefits.
-
-Audit should be used for auditing, SE Linux should be used for access
-control. They are orthogonal.
-
-
-> And also perhaps some of the SELinux functionalities are desirable,
-but
-> cannot be accomplished by just audit. Can you tell me what those may
-be?
-> If there is an article or URL that provides more depth, please feel
-free
-> to share that as well.
-
--Steve
+-	if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
++	if ((sbsec->flags & SE_SBINITIALIZED) &&
++	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT))
++		newsid = sbsec->mntpoint_sid;
++	else if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
+ 		rc = security_transition_sid(sid, dsec->sid,
+ 					     inode_mode_to_security_class(inode->i_mode),
+ 					     qstr, &newsid);
 
 
 --
