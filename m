@@ -1,38 +1,87 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oB1E5dfM006917
-	for <selinux@tycho.nsa.gov>; Wed, 1 Dec 2010 09:05:39 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oB1E5Vax026182
-	for <selinux@tycho.nsa.gov>; Wed, 1 Dec 2010 14:05:32 GMT
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id oB1E5Vnj012118
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 1 Dec 2010 09:05:31 -0500
-Received: from localhost.localdomain (vpn-8-6.rdu.redhat.com [10.11.8.6])
-	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id oB1E5Uto016185
-	for <selinux@tycho.nsa.gov>; Wed, 1 Dec 2010 09:05:30 -0500
-Message-ID: <4CF6562A.9090601@redhat.com>
-Date: Wed, 01 Dec 2010 09:05:30 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: We have a problem with libselinux leaking memory using __thread
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: What can selinux do that "audit" by itself cant do ?
+Date: Wed, 1 Dec 2010 13:06:52 -0500
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D09EA0021@de01exm68.ds.mot.com>
+In-Reply-To: <201012010844.36650.sgrubb@redhat.com>
+References: <Pine.LNX.4.44.0710262329300.30215-100000@citation2.av8.net> <1193840770.3983.86.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D09E9FCDD@de01exm68.ds.mot.com> <201012010844.36650.sgrubb@redhat.com>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Steve Grubb" <sgrubb@redhat.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thank You soo much Steve for your answers  :-)
 
-https://bugzilla.redhat.com/show_bug.cgi?id=658571
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+R.H.
+ 
 
-iEYEARECAAYFAkz2VioACgkQrlYvE4MpobO0twCfQcEujZ16btqXpSZ47PHtlWEj
-SPgAn1FL7pEloh3dvrRJxegJ4srJ1uIx
-=euLO
------END PGP SIGNATURE-----
+-----Original Message-----
+From: Steve Grubb [mailto:sgrubb@redhat.com] 
+Sent: Wednesday, December 01, 2010 7:45 AM
+To: Hasan Rezaul-CHR010
+Cc: Stephen Smalley; selinux@tycho.nsa.gov
+Subject: Re: What can selinux do that "audit" by itself cant do ?
+
+Hello,
+
+On Tuesday, November 30, 2010 07:17:30 pm Hasan Rezaul-CHR010 wrote:
+> Lets say I am using SELinux in my Linux product to monitor the 
+> filesystem and generate avc deny events in audit.log, whenever my 
+> strict selinux policy is violated... And I am running in Permissive 
+> mode (so NOT actively preventing anything, just reporting...).
+> 
+> Is there any reason why I cant simply write a bunch of rules in 
+> audit.rules  to accomplish the same objective ?
+
+I think that you want to use the right tool for the right job. The audit
+system is designed to monitor system activity. SE Linux is a MAC
+subsystem. There are requirements that MAC events are auditable, which
+seems to be what you have been using in place of just the audit system.
+
+ It should be known that if you turn SE Linux off, you won't get the
+same events in the audit logs. This is because SE Linux can have policy
+written that does not like some interactions that are "legal" from a DAC
+perspective. The only way to know if you are missing anything important
+is to run with SE Linux disabled and see if the audit rules captures
+everything you expect.
+
+
+> Possibly a dumb question, so apologize in advance, but other than 
+> Policy Enforcement and Prevention in the 'Enforcing' mode (which I 
+> cant use in my product for various reasons), what else is SELinux 
+> buying me, that I cant get by using just audit ?
+
+SE Linux has helped debug many software problems like leaked file
+descriptors or shared memory that is executable. The audit system won't
+be able to catch those since it was never designed to concern itself
+with information flow control. It was designed to monitor resource
+access. Nearly the same, but different. For example, the audit system
+would assume that if a child process inheritted and used a descriptor
+from a parent process, then it must be OK. SE Linux because it worries
+about information flow control would be more suspicious and report a
+process attempting to access a resource that it was not known to
+previously have.
+
+ 
+> I am sure there must be significant benefits of SELinux, but can 
+> someone help me understand some of the benefits.
+
+Audit should be used for auditing, SE Linux should be used for access
+control. They are orthogonal.
+
+
+> And also perhaps some of the SELinux functionalities are desirable,
+but
+> cannot be accomplished by just audit. Can you tell me what those may
+be?
+> If there is an article or URL that provides more depth, please feel
+free
+> to share that as well.
+
+-Steve
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
