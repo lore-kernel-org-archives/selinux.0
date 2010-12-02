@@ -1,54 +1,64 @@
-Date: Thu, 2 Dec 2010 09:14:46 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, esandeen@redhat.com
-Subject: Re: [PATCH] SELinux: do not compute transition labels on mountpoint
- labeled filesystems
-In-Reply-To: <20101201212254.30815.38691.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1012020911240.15100@tundra.namei.org>
-References: <20101201212254.30815.38691.stgit@paris.rdu.redhat.com>
+Message-ID: <4CF8089B.7020301@redhat.com>
+Date: Thu, 02 Dec 2010 13:59:07 -0700
+From: Eric Blake <eblake@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: SELinux@tycho.nsa.gov
+Subject: Re: libselinux memory leak in multi-threaded processes due to abuse
+ of __thread
+References: <4CF58D24.1020609@redhat.com>
+In-Reply-To: <4CF58D24.1020609@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------enig7F1BBA29A2AD0930BCC3E452"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Dec 2010, Eric Paris wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7F1BBA29A2AD0930BCC3E452
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> selinux_inode_init_security computes transitions sids even for filesystems
-> that use mount point labeling.  It shouldn't do that.  It should just use
-> the mount point label always and no matter what.
-> 
-> This causes 2 problems.  1) it makes file creation slower than it needs to be
-> since we calculate the transition sid and 2) it allows files to be created
-> with a different label than the mount point!
-> 
-> # id -Z
-> staff_u:sysadm_r:sysadm_t:s0-s0:c0.c1023
-> # sesearch --type --class file --source sysadm_t --target tmp_t
-> Found 1 semantic te rules:
->    type_transition sysadm_t tmp_t : file user_tmp_t;
-> 
-> # mount -o loop,context="system_u:object_r:tmp_t:s0"  /tmp/fs /mnt/tmp
-> 
-> # ls -lZ /mnt/tmp
-> drwx------. root root system_u:object_r:tmp_t:s0       lost+found
-> # touch /mnt/tmp/file1
-> # ls -lZ /mnt/tmp
-> -rw-r--r--. root root staff_u:object_r:user_tmp_t:s0   file1
-> drwx------. root root system_u:object_r:tmp_t:s0       lost+found
-> 
-> Whoops, we have a mount point labeled filesystem tmp_t with a user_tmp_t
-> labeled file!
->
-> Signed-off-by: Eric Paris <eparis@redhat.com>
->
+On 11/30/2010 04:47 PM, Eric Blake wrote:
+> Here's a simple program that demonstrates that libselinux's attempts to=
 
-Reviewed-by: James Morris <jmorris@namei.org>
+> cache data ends up being a memory leak instead.  The problem is that
+> __thread variables have no destructor, so when a long-running program
+> that uses multiple pthreads, where each thread uses selinux functions
+> which stash malloc'd memory into a __thread cache, then the cache memor=
+y
+> is leaked when the threads exit.
+
+Eamon's patch[1] looks good to me; and a quick test with my sample
+program proves that it avoids the leak.
+
+[1] https://bugzilla.redhat.com/attachment.cgi?id=3D464338, found at
+https://bugzilla.redhat.com/show_bug.cgi?id=3D658571
+
+--=20
+Eric Blake   eblake@redhat.com    +1-801-349-2682
+Libvirt virtualization library http://libvirt.org
 
 
--- 
-James Morris
-<jmorris@namei.org>
+--------------enig7F1BBA29A2AD0930BCC3E452
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Public key at http://people.redhat.com/eblake/eblake.gpg
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iQEcBAEBCAAGBQJM+AibAAoJEKeha0olJ0NqW4YH/392FkS/+ZXKL+DwRW8KkeAk
+ZOIqgZ6qTjfl2/eiCJNo/AOBFZVs3GgrO/rZmJ2U/hY80BLS7ApXkmFn9N8xyexE
+31XeZo50rXliYGEhburqykxcisufEG3av3KBv4CG8v+wtjLvRzXFIaWJzhjXRpbH
+X1xFYT4bkVWLUEC/yjEQ4ukX8e6Zt+sQXFGaJY62DkPLmjRax6TAR3nDzY7v+JgF
+sT6LJYIdd47Ki6qJudXliFOxDXqaAXRRV8e3WjETRsayzfIqDVaEMBrh8VSg9Ykz
+Oq3f5IGVzPIb/QgXFJ1PlKlOJsSjPAlHpagEfCKPzQ+oWm0qa8fB4/k5lhBGgQ0=
+=PNk9
+-----END PGP SIGNATURE-----
+
+--------------enig7F1BBA29A2AD0930BCC3E452--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
