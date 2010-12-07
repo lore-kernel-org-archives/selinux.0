@@ -1,149 +1,105 @@
 MIME-Version: 1.0
 In-Reply-To: <4CFB4191.3090106@schaufler-ca.com>
 References: <20101203214518.30001.89859.stgit@paris.rdu.redhat.com>
- <4CF9C1A1.7050603@schaufler-ca.com> <1291498481.4929.77.camel@localhost.localdomain>
- <4CFB4191.3090106@schaufler-ca.com>
-From: Kyle Moffett <kyle@moffetthome.net>
-Date: Mon, 6 Dec 2010 18:32:51 -0500
-Message-ID: <AANLkTimGY178MkEa5aF9q_oC-h5jqrB=8WUwBtmM_Kmh@mail.gmail.com>
+	<4CF9C1A1.7050603@schaufler-ca.com>
+	<1291498481.4929.77.camel@localhost.localdomain>
+	<4CFB4191.3090106@schaufler-ca.com>
+Date: Tue, 7 Dec 2010 08:43:41 -0500
+Message-ID: <AANLkTinm_Or+G=BjOU7Tdher-6YnOZXdtb43nGX4N+Et@mail.gmail.com>
 Subject: Re: [RFC PATCH 1/2] fs/vfs/security: pass last path component to LSM
  on inode creation
+From: Stephen Smalley <stephen.smalley@gmail.com>
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: Eric Paris <eparis@redhat.com>, penguin-kernel@i-love.sakura.ne.jp,
         selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
         linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
         hch@lst.de
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Dec 5, 2010 at 02:38, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 12/4/2010 1:34 PM, Eric Paris wrote:
->> SELinux very
->> much so is and will continue to be based solely on label based controls.
->
-> I'm not sure that I buy that. The very presence of restorecond, which
-> sets labels based strictly on pathnames, begs the observer to question
-> whether an SELinux system (e.g. a RedHat distribution) can be truly
-> said to be strictly label based. Yes, individual access control decisions
-> are made based on the combination of the policy and the labels, but
-> with the suggested changes it becomes very difficult to distinguish the
-> enforcement of the kernel (e.g. creating "passwd" in a etc_t directory)
-> where restorecond is assumed to have set "/etc" to etc_t from checking
-> the same access rights on a file that happens to be named "/etc/passwd".
-> Yes, the kernel component of SELinux relies strictly on the labels,
-> but the reality is that SELinux is heavily dependent on the user space
-> component to maintain the proper labels on files so that the specified
-> policy is rational.
+On Sun, Dec 5, 2010 at 2:38 AM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> The end to which the controls are put does not change the character
+> of those controls. If the attribute of the file being used is the
+> name component of the name/inode pair in a directory entry than what
+> you have is a pathname based control mechanism. It will have all of
+> the downsides, including mount points and hard links, that any other
+> name based scheme will suffer from.
 
-I believe this is a limitation of the current policy structure that
-could completely go away with support for last-component matching.
+I think this is a misunderstanding.
+The mechanism that Eric is proposing (which btw is something that has
+long since been discussed among the SELinux developers and agreed to
+in principle, so this is not a point of contention among SELinux
+developers) is to allow the last component name of a newly created
+file to be used as an optional additional input into the decision
+logic for computing the new label of that inode.  You can already use
+the security contexts of the creating process and the parent directory
+along with the type of file (security class) as inputs into that
+logic, so this merely adds one additional factor that can be leveraged
+by policy writers.  It is only used as an input when the file is
+created (file access is still based solely on its previously
+determined security context) and namespace manipulation has no effect
+on it (creating a hard link to the file does not involve this logic,
+nor does renaming it nor mounting the containing filesystem
+elsewhere).
 
-Now, there is *always* a relatively complex set of assumptions that
-the policy itself makes about the userspace environment.  For example,
-the policy must assume that the "passwd" tool does not allow
-unprivileged users to change *other* users passwords.  It must assume
-that the "login" tool actually performs proper authentication, etc.
-The policy can only assume that programs called "login" or "password"
-in the various system binary directories conform to these
-requirements.
+> These "userspace hacks" are no "worse" than restorecond from a
+> security perspective. They have the unpleasant characteristic that
+> they are outside the control of the primary distributor of SELinux.
+> I will admit that the suggested changes will make SELinux better.
+> That does not make them any less pathname based.
 
-Userspace itself is very *thoroughly* dependent on specific file
-names, "sh", "sed", "awk", "passwd", "mkfs"... the list goes on for
-many pages.  In most cases, though it does NOT care *where* in $PATH
-the tool is located, and that frequently varies across Linux
-distributions.  Any comprehensive least-privilege security policy
-truly needs to take this into account.
+I don't follow this logic.  restorecond and udev relabeling of
+kernel-created dev nodes are inherently racy - the file is not created
+in the desired security context initially, and must be relabeled by
+some userspace component that notices that the file has been created.
+Kernel support for incorporating the last component name as an
+additional input enables us to label certain files correctly upon
+creation and thus avoids that problem entirely.  And as for being
+outside the control of a given distributor, I think that is both a
+fallacy (it is no harder to replace or extend userspace than it is to
+replace/extend policy) and irrelevant.
 
+> Initial labeling of objects is critical. There is no point in
+> talking about the access control decision if you can't say good
+> things about how the label gets set initially.
 
-> I don't see a significant difference from a security standpoint
-> between creating "shadow" in a etc_t directory and creating
-> "/etc/shadow", because "everyone knows" that "/etc" gets etc_t,
-> and the userspace tools enforce it.
+That's true, and precisely why this is beneficial - it gives us an
+additional input to use when labeling objects initially that improves
+our accuracy of labeling at file creation time.  BTW, this isn't as
+novel to SELinux as you seem to think.  That fact that we are already
+using the parent directory context as an input in computing the
+security context of a new files means that our file labeling logic is
+already "path-based" in a certain sense.  It isn't solely path-based
+(either before or after this change), but it is already taking into
+account the placement of the file when it is created.  This just
+refines the granularity at which we can make such decisions.
 
-The difference is in the complexity of other tasks, such as
-".htaccess" files, where they are created not just in a single
-directory, but in a whole directory hierarchy.  From a performance
-standpoint I would much rather have a rule that says: [create
-".htaccess" in an www_t directory as "www_htaccess_t"] plus a few to
-prohibit hardlinks to and from ".htaccess" files, as opposed to a
-bunch of rules using paths like: "/var/www/**/.htaccess"
+> My point is roughly centered around the distinction between a Linux
+> kernel with SELinux configured and a policy installed and an SELinux
+> system with the aforementioned and a complete SELinux runtime that
+> includes goodies like restorecond. The former is strictly label based,
+> while the latter is definitely not. I really think that you should
+> leave the name based bits in userspace unless you are willing to
+> accept their general value in the kernel.
 
-The latter case also results in absolutely *ridiculous* duplication of
-rules when I suddenly decide to put other web-site files in other
-places: "/srv/mirror/ftp.example.com/pub".
+SELinux remains label-based in its access control enforcement
+mechanism in the kernel even after this change.  In any event, you are
+free to configure your policy to not use this extension just as you
+are free to not ship/run restorecond - there is no real difference
+there.
 
->> You actually point out exactly the flaw of pathname based security, not
->> a problem with my new object labeling extension.  If the program
->> responsible for creating /etc/shadow is able to be tricked into
->> creating /etc/foo/shadow instead, that file is still going to contain
->> passwords and information that should be protected just like /etc/shadow
->> needs to be protected.
->
->> It's irrelevant if the pathname is wrong.
->
-> Well, no, that's not true. The data will not be available to its
-> legitimate consumers if it is created in /etc/foo/shadow, even if
-> /etc/foo is (somehow) labeled etc_t.
->
->> It's
->> about the data and the integrity/confidentiality of the data.
->
-> This is also true, but it is not the only concern. If a /etc/foo
-> is on removable media the integrity and confidentiality, as defined
-> by the label of /etc/foo, is not going to mean all that much.
+With regard to the pathname hooks, they aren't suitable because they
+don't have anything to do with assigning labels to new inodes - they
+are about enforcing access control upon file accesses based on the
+pathname used to reach the file.  That doesn't support what we want.
 
-If you're concerned about shadow confidentiality in that way then you
-should not have a rule that says "allow shadow_t filesystem:associate
-removable_filesystem_t" or similar.  That would prevent you from
-creating a shadow_t file on a removable_filesystem_t even if the root
-directory of the FS was labelled etc_t.
-
-
->> /var/run:  Lots of programs used to (and many still do) create files
->> directly in /var/run/.  We in the fedora land have urged packages to
->> use /var/run/[package name] because it made labeling easier to get
->> right.  This is SELinux forcing it's way of life onto userspace.
->> Something we would rather avoid if it's possible to automate.
->>
->> ~/.ssh:  When a user or even sshd creates the ~/.ssh directory the
->> kernel doesn't realize that this is different than creating the
->> directory "Downloads."  How do we solve that today?  We have a program
->> that puts an inotify watch on ~/.ssh when you log in and which will, as
->> fast as it can, relabel that directory to the correct label.  How much
->> crap is that?
->
-> You could fix these applications. That's the right thing to do.
-> I didn't say it's easy, just that its right.
-
-No... in general... you *can't* just "fix" those applications.  Did
-you even spend a minute to think about the ".ssh" example?  To add a
-bit more detail... when I log into a freshly installed system over a
-serial console one of the first things I do as root is:
-  mkdir .ssh && cat >.ssh/authorized_keys
-
-Then I copy and paste my public key into the terminal, then hit
-Ctrl-D.  Any conceivable way of "fixing" that would introduce horrors
-into "bash" and "coreutils" that would get you on their developer's
-killfiles for life!  The whole point of having plain-text config files
-is that they can be easily mucked about with by an administrator using
-"cat", "sed", and "vi".
-
-
-> BTW: I'm not saying your goals are bad, but I do question the
-> implementation. It really looks like the pathname hooks are your
-> easiest and most correct approach.
-
-If I recall that doesn't work because several of the path-based hooks
-are in different places from the inode-based hooks.  Specifically,
-current SELinux hooks are always called *after* all of the DAC-based
-checks, versus the path-based hooks which need a vfsmount parameter
-only available *before* the DAC-based checks; if you changed this you
-would cause a whole bunch of new audit false positives.
-
-Cheers,
-Kyle Moffett
-
+The only real question for this particular patch IMHO is whether the
+changes being made here are sensible from a vfs and fs point of view.
+Most of your comments seem more directed at whether or not SELinux
+should be extended in this manner (i.e. the 2nd patch), and that's a
+question for the SELinux developers, who have already come to
+consensus on the matter.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
