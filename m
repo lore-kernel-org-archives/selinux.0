@@ -1,52 +1,75 @@
-Subject: Re: [PATCH] selinux: cache sidtab_context_to_sid results
-From: Eric Paris <eparis@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, esandeen@redhat.com
-In-Reply-To: <alpine.LRH.2.00.1012060921230.14997@tundra.namei.org>
-References: <20101202210634.27460.81333.stgit@paris.rdu.redhat.com>
-	 <alpine.LRH.2.00.1012060921230.14997@tundra.namei.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Dec 2010 16:27:34 -0500
-Message-ID: <1291757254.3072.31.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oB84Bdgt027509
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2010 23:11:40 -0500
+Received: from tyo202.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oB84BbLU023089
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2010 04:11:38 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.192])
+	by tyo202.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id oB84BZM9010461
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2010 13:11:35 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id oB84BZ007483 for selinux@tycho.nsa.gov; Wed, 8 Dec 2010 13:11:35 +0900 (JST)
+Received: from mail03.kamome.nec.co.jp (mail03.kamome.nec.co.jp [10.25.43.7])
+	by mailsv.nec.co.jp (8.13.8/8.13.4) with ESMTP id oB84BYeu016540
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2010 13:11:34 +0900 (JST)
+Message-ID: <4CFF0564.1080107@ak.jp.nec.com>
+Date: Wed, 08 Dec 2010 13:11:16 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Recent status of SE-PostgreSQL
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2010-12-06 at 09:22 +1100, James Morris wrote:
-> On Thu, 2 Dec 2010, Eric Paris wrote:
-> 
-> > sidtab_context_to_sid takes up a large share of time when creating large
-> > numbers of new inodes (~30-40% in oprofile runs).  This patch implements a
-> > cache of 3 entries which is checked before we do a full context_to_sid lookup.
-> > On one system this showed over a x3 improvement in the number of inodes that
-> > could be created per second and around a 20% improvement on another system.
-> > 
-> > Any time we look up the same context string sucessivly (imagine ls -lZ) we
-> > should hit this cache hot.  A cache miss should have a relatively minor affect
-> > on performance next to doing the full table search.
-> > 
-> > All operations on the cache are done COMPLETELY lockless.  We know that all
-> > struct sidtab_node objects created will never be deleted until a new policy is
-> > loaded thus we never have to worry about a pointer being dereferenced.  Since
-> > we also know that pointer assignment is atomic we know that the cache will
-> > always have valid pointers.  Given this information we implement a FIFO cache
-> > in an array of 3 pointers.  Every result (whether a cache hit or table lookup)
-> > will be places in the 0 spot of the cache and the rest of the entries moved
-> > down one spot.  The 3rd entry will be lost.
-> 
-> This sounds a bit like a magazine cache -- should be useful.  Have you 
-> thought about making it per-cpu ?
+I'd like to report the recent status of SE-PostgreSQL development,
+since I guess few number of people subscribing pgsql-hackers list.
 
-I hadn't.  I figure that as long as we've had a single hash table lookup
-(the wrong direction for the hash table) for all CPUs holding a spinlock
-that this is such a clear win there wasn't a need for any complexity or
-space tradeoff.
+Now, the pgsql community is working on new features to the upcoming
+v9.1 releases. Although we don't come up the feature freeze yet,
+several fundamental features to support selinux are already merged,
+and these shall be released within the v9.1 release.
 
-If you think differently (and have a way we could benchmark the changes)
-it wouldn't be hard to do, just don't know if it's worth it....
+The v9.1 of pgsql shall support label based mandatory access control
+by external security providers.
+The external security provider is a similar concept to LSM.
+It allows plugin modules to make access control decision based on
+its access control model such as SELinux, and the core pgsql calls
+the modules via security hooks.
 
--Eric
+So, SE-PostgreSQL is now implemented as a plugin module of pgsql.
 
+Anyway, the upcoming v9.1 shall provide a mechanism to assign
+security label of database objects and security hooks on various
+strategic points (but not comprehensive yet).
+
+We will be able to assign security label using SECURITY LABEL
+statement in SQL (original enhancement of pgsql) by hand.
+It allows us to assign a certain label on a certain database
+objects. The given label is validated by plugin modules, then
+stored within system catalogs.
+In addition, post-object-creation hook enables to assign a default
+security label of the new database object on the creation time.
+
+Here are other new hooks; 'ExecutorCheckPerms' hook enables to
+make access control decision on DML statements (SELECT, UPDATE,
+INSERT and DELETE), 'ClientAuthentication' hook enables to
+obtain security label of the peer process using getpeercon(3)
+at beginning of the session, 'object_access' hook will enable
+to handle DDL permissions but not comprehensive yet.
+
+I expect a limited functionalities will be available in the
+v9.1 of PostgreSQL. It will be far from production level,
+but a great step towards the full features.
+
+The v9.1 will have feature freeze at the 15-Jun, then it may be
+released half years later. At the same time, merge window to the
+v9.2 will be open. So, I'll upstream rest of features; such as
+comprehensive DDL permissions, row-level access controls and so on.
+
+Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
