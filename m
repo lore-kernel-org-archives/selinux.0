@@ -1,161 +1,70 @@
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC][PATCH 1/2] selinux: call may_context_mount_inode_relabel() if fscontext_sid is defined
-From: Roberto Sassu <roberto.sassu@polito.it>
-Date: Wed, 8 Dec 2010 13:45:42 +0100
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5650041.haMKPnGbek";
-  protocol="application/pkcs7-signature";
-  micalg=sha1
-Message-Id: <201012081345.51190.roberto.sassu@polito.it>
+In-Reply-To: <AANLkTinguKq9A4EwPhpFzv6rYW9EP_XDzJcS+ewXcDsO@mail.gmail.com>
+References: <20101203214518.30001.89859.stgit@paris.rdu.redhat.com>
+ <4CF9C1A1.7050603@schaufler-ca.com> <1291498481.4929.77.camel@localhost.localdomain>
+ <4CFB4191.3090106@schaufler-ca.com> <AANLkTinm_Or+G=BjOU7Tdher-6YnOZXdtb43nGX4N+Et@mail.gmail.com>
+ <4CFE4B9E.3080408@schaufler-ca.com> <AANLkTiniPUa06wh0YHTQpZWL316dofxr9CrX-1ecgNS7@mail.gmail.com>
+ <4CFE6748.8050803@schaufler-ca.com> <AANLkTinguKq9A4EwPhpFzv6rYW9EP_XDzJcS+ewXcDsO@mail.gmail.com>
+From: Kyle Moffett <kyle@moffetthome.net>
+Date: Wed, 8 Dec 2010 09:25:31 -0500
+Message-ID: <AANLkTimHh_6pn4iamx+-v7ToBexoP0a9vxVoTrPfRGKQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/2] fs/vfs/security: pass last path component to LSM
+ on inode creation
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, Eric Paris <eparis@redhat.com>,
+        penguin-kernel@i-love.sakura.ne.jp, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
+        hch@lst.de
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---nextPart5650041.haMKPnGbek
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Tue, Dec 7, 2010 at 12:34, Stephen Smalley <stephen.smalley@gmail.com> wrote:
+> On Tue, Dec 7, 2010 at 11:56 AM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> Let's assume for the moment that no one has a significant objection
+>> to adding the component name to inode_init_security. I am not
+>> suggesting that what gets passed to inode_init_security is
+>> insufficiently general. I am asking if there are other hooks that
+>> also ought to have the component name as one of their parameters.
+>> Yes, I understand the concept of "if it ain't broke ...", and that
+>> may suffice at this point, and if not the fact that no one would be
+>> using the component name in those other hooks definitely would. I
+>> expect that when someone comes along with a new LSM that does access
+>> controls based on the final component* they aren't going to suffer
+>> unnecessary resistance from the SELinux community as they add the
+>> component name as a parameter to other hooks.
+>>
+>> ----
+>> * For example, only files suffixed with ".exe" can be executed and
+>>  only files suffixed with ".so" can be mmapped.
+>
+> I think you can already achieve that via the pathname hooks, but if
+> not and you want it, go for it.
 
-One purpose of the function may_context_mount_inode_relabel() is to check
-if the 'associate' permission can be granted to security contexts set in
-some SELinux defined mount parameters that affect the inode labeling
-behavior.
-=46or instance, the 'context' mount parameter allows to label all inodes wi=
-th
-the specified security context, the 'defcontext' mount parameter permits to
-assign a label to inodes, in a filesystem with the 'SECURITY_FS_USE_XATTR'
-labeling behavior, that do not have the getxattr() method defined or lack
-the SELinux's specific extended attribute.
-The 'fscontext' parameter also is involved in the inode labeling process,
-specifically in case the labeling behavior is 'SECURITY_FS_USE_TRANS' and
-the security_transition_sid() function returns an error or in the 'default'
-case for all filesystems except 'proc'.
-This patch adds the missing call of the may_context_mount_inode_relabel()
-function for the security context specified with the mount parameter
-'fscontext' and it should not break any existent functionality because the
-required permission is already granted in the SELinux reference policy
-by the following rule in the file 'policy/modules/kernel/filesystem.te':
+Actually, there are still a few remaining hooks which might actually
+be useful to add the last path component to even in SELinux.  While
+you of course cannot (and should not) *change* the label of a file in
+a link() or rename() operation, it would potentially be useful to deny
+an operation based on the old label and the new name that is being
+passed in.  It would also make sense if the file create() action was
+able to match on the same requirements as the file "type_transition".
 
-    allow filesystem_type self:filesystem associate;
+EG: To prevent a compromised web application from messing with
+otherwise writable .htaccess files in its data folders, you ought to
+be able to do something like this (although this does imply
+introducing some sort of matching order, where a "deny_name" with a
+matching name is applied instead of a more-generic "allow"):
 
-Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
-=2D--
- security/selinux/hooks.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+deny_name my_web_app_t my_web_app_data_t file:rename ".htaccess";
+allow my_web_app_t my_web_app_data_t file:rename;
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 65fa8bf..9486f38 100644
-=2D-- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -682,6 +682,11 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		if (rc)
- 			goto out;
-=20
-+		rc =3D may_context_mount_inode_relabel(fscontext_sid, sbsec,
-+						     cred);
-+		if (rc)
-+			goto out;
-+
- 		sbsec->sid =3D fscontext_sid;
- 	}
-=20
-=2D-=20
-1.7.3.2
+deny_name my_web_app_t my_web_app_data_t file:link ".htaccess";
+allow my_web_app_t my_web_app_data_t file:link;
 
+Cheers,
+Kyle Moffett
 
---nextPart5650041.haMKPnGbek
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIQCTCCBLMw
-ggOboAMCAQICARQwDQYJKoZIhvcNAQEFBQAwQTEQMA4GA1UEChMHRXVyb1BLSTEtMCsGA1UEAxMk
-RXVyb1BLSSBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA2MTAyNDEzMzEzM1oXDTEw
-MTIzMTEyNTk1OVowUTELMAkGA1UEBhMCSVQxEDAOBgNVBAoTB0V1cm9QS0kxMDAuBgNVBAMTJ0V1
-cm9QS0kgSXRhbGlhbiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTCCASIwDQYJKoZIhvcNAQEBBQAD
-ggEPADCCAQoCggEBAPbJ3y5bE0iL2iFW59R4KGHS3iTc22mq2GlDaOZLE3Xz1wTvB/yBl5e4ntMZ
-eEeWTW9JInNRTtfC3mcLk0gnEdK1rQZbe4lQwBVHdkG8LvRQDWHIkZNuccoUpQXMv+JbZjI6m7rH
-fU2CN/YCvFY9QL08xXsfDxvX2Ee4S7EwJiSEEJSiy+R00uTfvfn27d8a6LCqYLzlInRlz4C2CUbk
-+U2UAwjYEPTP2ziqFxztysbxC3fjqH8e6P5wIPXOS5cSYnVaEyp21VXhAOamVJEGlQCdVoTHs+pP
-BYqCBuNhBfienUPaEDHHUUYHZ2nS4eNzd9XOu+5hFi1/8hVZxN4sbdECAwEAAaOCAaQwggGgMEwG
-CWCGSAGG+EIBDQQ/Fj1Jc3N1ZWQgdW5kZXIgcG9saWN5OgogaHR0cDovL3d3dy5ldXJvcGtpLm9y
-Zy9jYS9yb290L2Nwcy8xLjEvMGUGCCsGAQUFBwEBBFkwVzAoBggrBgEFBQcwAYYcaHR0cDovL29j
-c3AuZXVyb3BraS5vcmc6ODAyNjArBggrBgEFBQcwAoYfaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9j
-YS9yb290LzA7BgNVHR8ENDAyMDCgLqAshipodHRwOi8vd3d3LmV1cm9wa2kub3JnL2NhL3Jvb3Qv
-Y3JsL2NybC5kZXIwDAYDVR0TBAUwAwEB/zBOBgNVHSAERzBFMEMGCisGAQQBqQcBAQEwNTAzBggr
-BgEFBQcCARYnaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9yb290L2Nwcy8xLjEvMA4GA1UdDwEB
-/wQEAwIB9jAdBgNVHQ4EFgQUjl4HtzG0Gbu5BJU0rMX9016KQsAwHwYDVR0jBBgwFoAUjNyLsaVK
-kOdOiHMYPJ3VXn7kss0wDQYJKoZIhvcNAQEFBQADggEBAFjlAWMiL7uhEAVcrPeMXsbQU+bQNbP1
-TBqyBoMCMJ4RakM7/67AsmqpKGIYwhjVkSNHhscRl5BuSiyviHOLbWUJ9tAAKt6hzMDr1J4OvWSH
-Sn8y9fSlyQU8+fQE8FHxXT3Aa7aLYVqsqr0ppmxRDL/9b/mdUVcMXiKFAdopFzhXIigfZFh6MW/o
-7/GEiDMGsovCiwKJ5ZL46zGRDaS+O0aRYQv2PHZaWrC8i0OPwghlTeB2DfUBzm0urPijBATdjzP8
-yO3YGymFZOIG08Roe4bwzrANGzX5luBk3lNmtXTPHoUtRLn3ADa+IUGwK6VYWHYJe1+uUHRNziQu
-/Zsb858wggU/MIIEJ6ADAgECAgIJzzANBgkqhkiG9w0BAQUFADBRMQswCQYDVQQGEwJJVDEQMA4G
-A1UEChMHRXVyb1BLSTEwMC4GA1UEAxMnRXVyb1BLSSBJdGFsaWFuIENlcnRpZmljYXRpb24gQXV0
-aG9yaXR5MB4XDTA2MTEwNjE3MTU1OVoXDTEwMTIzMTEyNTk1OVowZTELMAkGA1UEBhMCSVQxHjAc
-BgNVBAoTFVBvbGl0ZWNuaWNvIGRpIFRvcmlubzE2MDQGA1UEAxMtUG9saXRlY25pY28gZGkgVG9y
-aW5vIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
-AQEA/s1vopfmSp2eqKG/jW4H5YyfrZc/jWEnctMMm7TlVT+ryxJ2ifYV/7VyuYVIGdnCBnmJiav6
-uhePqpHyuejEZ+IdCchk04BSBbgzkSbWakw2ekv1SKm8WfvhxHbiSo/t//LQEANMJ+XeeqGl1TRR
-8gdMC6erWFGdl5FcuOpMoaqW6DszVGlOAf7Uo/DExZ0/9cw77GTRoDTA3vi1QJEYGaAAvI2/flaU
-8gn4QoktjowchDXBylVsyqs+ux3v7m3H0cgC3q62t2om2badk40F9XH1w2WPLQB6rSl+TPDxkl2k
-kR4goQprXR0b0OujS5ADq5Ds2w7YPj5h4J6ebsbIUQIDAQABo4ICCzCCAgcwdQYJYIZIAYb4QgEN
-BGgWZklzc3VlZCB1bmRlciBwb2xpY2llczoKIGh0dHA6Ly93d3cuZXVyb3BraS5vcmcvY2Evcm9v
-dC9jcHMvMS4xLwogaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9pdC9jcHMvMS4xLzBcBggrBgEF
-BQcBAQRQME4wKAYIKwYBBQUHMAGGHGh0dHA6Ly9vY3NwLmV1cm9wa2kub3JnOjgwMjYwIgYIKwYB
-BQUHMAKGFmh0dHA6Ly93d3cuZXVyb3BraS5vcmcwPAYDVR0fBDUwMzAxoC+gLYYraHR0cDovL3d3
-dy5ldXJvcGtpLm9yZy9jYS9pdDIvY3JsMDMvY3JsLmRlcjAPBgNVHRMBAf8EBTADAQH/MIGTBgNV
-HSAEgYswgYgwQwYKKwYBBAGpBwEBATA1MDMGCCsGAQUFBwIBFidodHRwOi8vd3d3LmV1cm9wa2ku
-b3JnL2NhL3Jvb3QvY3BzLzEuMS8wQQYKKwYBBAGpBwIBATAzMDEGCCsGAQUFBwIBFiVodHRwOi8v
-d3d3LmV1cm9wa2kub3JnL2NhL2l0L2Nwcy8xLjEvMAsGA1UdDwQEAwIB9jAdBgNVHQ4EFgQUCf0l
-GW/jaHyCazVzvCgAviw8OjgwHwYDVR0jBBgwFoAUjl4HtzG0Gbu5BJU0rMX9016KQsAwDQYJKoZI
-hvcNAQEFBQADggEBANfGdD6B98NUwBOVYIiuo+SNfw8Afjr2oFHLYEHYhKdBED1WBckhK610v2zJ
-ctramnrqdd+xfyzmkyNm48OtkiVetYzXbgYeyMGxhO8HrJ1Ztf1yEN0lL8HgdK3lmJeLYNYH/cwZ
-5SlKwvTR/VENHLYlWsgWk47ut7W8+Zd/ESwzNdJUCBUMoQnGZ3giyhAXKAgIOckwL0g8KmnceY7J
-Y4L1G++1OuOoUcgg2jRPxcVmHVEe/cM0WHfUcigDXSBTIxAiDwlQ7ni97yX1RqBV/6IVdRDYKyjg
-YkdYcwU9ZuOKUP4Pl5KKCegLOHRoo5kX6V1o7b2IZGBFoVmkag4m4kkwggYLMIIE86ADAgECAgID
-wTANBgkqhkiG9w0BAQUFADBlMQswCQYDVQQGEwJJVDEeMBwGA1UEChMVUG9saXRlY25pY28gZGkg
-VG9yaW5vMTYwNAYDVQQDEy1Qb2xpdGVjbmljbyBkaSBUb3Jpbm8gQ2VydGlmaWNhdGlvbiBBdXRo
-b3JpdHkwHhcNMDgxMjA1MTYwMDAwWhcNMTAxMjMwMTIwMDAwWjB5MQswCQYDVQQGEwJJVDEeMBwG
-A1UEChMVUG9saXRlY25pY28gZGkgVG9yaW5vMTEwLwYDVQQLEyhEaXBhcnRpbWVudG8gZGkgQXV0
-b21hdGljYSBlIEluZm9ybWF0aWNhMRcwFQYDVQQDEw5Sb2JlcnRvICBTYXNzdTCCASIwDQYJKoZI
-hvcNAQEBBQADggEPADCCAQoCggEBAOS/leMNzG5v7FG73ythWtNPOdq8MEFpzg7mjy4M7UsS9+sc
-b7QE8TOX365q/+mBwxZ7qW+OhNKfgv14A3y/quju5P7mjTmTNvKWDpsUBjC+tCs+WpWsgIPc2xxW
-PrR7br04U/SYYNsxynh1TtO2gsQrHIj9S/wNiNRP8GGPCAiuYRlaL2CeSVn4JEKcT0zOeLIIqfDp
-3Ad3YeBhj+cR3TrmO9TyGTPCAb1oyq9wuA1Tx044rqSQNbp0e0RvOrwAIpD/2mNPP3ReTeB53aSg
-q0pCHoH1s2AcY/jWJ1joYFC9hh/2DqZRvMNIsM7Uce5Iiz2sgl1I61IUD4658HYzCmMCAwEAAaOC
-Aq8wggKrMIGVBglghkgBhvhCAQ0EgYcWgYRJc3N1ZWQgdW5kZXIgcG9saWNpZXM6CiBodHRwOi8v
-d3d3LmV1cm9wa2kub3JnL2NhL3Jvb3QvY3BzLzEuMS8KIGh0dHA6Ly93d3cuZXVyb3BraS5vcmcv
-Y2EvaXQvY3BzLzEuMS8KIGh0dHA6Ly9jYS5wb2xpdG8uaXQvY3BzLzIuMS8wEQYJYIZIAYb4QgEB
-BAQDAgCwMGMGCCsGAQUFBwEBBFcwVTAoBggrBgEFBQcwAYYcaHR0cDovL29jc3AuZXVyb3BraS5v
-cmc6ODAyNjApBggrBgEFBQcwAoYdaHR0cDovL3d3dy5ldXJvcGtpLm9yZy9jYS9pdC8wMgYDVR0f
-BCswKTAnoCWgI4YhaHR0cDovL2NhLnBvbGl0by5pdC9jcmwwMy9jcmwuZGVyMAwGA1UdEwEB/wQC
-MAAwOgYDVR0RBDMwMYEXcm9iZXJ0by5zYXNzdUBwb2xpdG8uaXSgFgYKKwYBBAGVYgIBAaAIFgYw
-MjEzMDUwgc0GA1UdIASBxTCBwjBDBgorBgEEAakHAQEBMDUwMwYIKwYBBQUHAgEWJ2h0dHA6Ly93
-d3cuZXVyb3BraS5vcmcvY2Evcm9vdC9jcHMvMS4xLzBBBgorBgEEAakHAgEBMDMwMQYIKwYBBQUH
-AgEWJWh0dHA6Ly93d3cuZXVyb3BraS5vcmcvY2EvaXQvY3BzLzEuMS8wOAYKKwYBBAGVYgECATAq
-MCgGCCsGAQUFBwIBFhxodHRwOi8vY2EucG9saXRvLml0L2Nwcy8yLjEvMAsGA1UdDwQEAwIE8DAd
-BgNVHQ4EFgQUP+37DpRL6r5BNjgsgFjI8MHvGTcwHwYDVR0jBBgwFoAUCf0lGW/jaHyCazVzvCgA
-viw8OjgwDQYJKoZIhvcNAQEFBQADggEBADRj0OWMglzLXTPuKND9gMTHd1iRPzRNI1TiYFN/WIyu
-a3mNev65wKn35VxbbMV6k7zuxxdC7o+iYRLepVOnpw90Af/SiJRc9QI4rk8tzSr5xII7vI0fPvcl
-rjSMymXCvwKrbYwrKe0FhBnSZ8AoewXoHDQ8f64heLIU8mLWuwo1+brq0pJUH5Q+69WAGD03ln+l
-Fhk2KqvVv8yAD21PydrS7Uk2ZLE7l7/+BTQBY8ZjpNRZ44C6+o7lou2zN6lkWtVHBwUNVdfu3wkS
-TdtCm/yxR8XUlFyZkLHfhY19VW4luxb7KZ4GiPKDERdQwBb0kja4eqSOBkAPWZ9Y8zpv4bAxggIc
-MIICGAIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBkaSBUb3Jpbm8x
-NjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eQIC
-A8EwCQYFKw4DAhoFAKCBhzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEP
-Fw0xMDEyMDgxMjQ1NDNaMCMGCSqGSIb3DQEJBDEWBBS4Tvx6bd3+pg3easF+NXKfZKpPfzAoBgkq
-hkiG9w0BCQ8xGzAZMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzANBgkqhkiG9w0BAQEFAASCAQBL
-mtt4y/tznP4Gx+wHSZkFI2jHbJjxap9OOevGdv66g7QqS46VUef7nu3JrLaAuKa+ZBbuojUhnrdO
-i4clxtBv4B2c03IqyncBd0qqoUnwDMrNNXs3VTi1oqJ11c2pDHHNKkqckmzMhLjpHla5Am1LohIn
-7FN9JWqjbjdTVC+zwrwFUOjGQvUweT5QRsX1WolzDWJf5+HvXyh4ohw+KvVRzO44zy7faVJpCflB
-9ZwcHEvFjMWIcQOLlRA+E9oFTtwaZz5mV7bBfqmIm9F9s7hulKaO63M+UXoVQDAHP2KJHv6FgPBy
-CCrNHcPfezxIaN191AP4UfILej3l1LKTsk62AAAAAAAA
-
---nextPart5650041.haMKPnGbek--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
