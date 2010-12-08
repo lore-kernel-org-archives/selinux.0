@@ -1,87 +1,96 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oB8FTwOO029575
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2010 10:29:58 -0500
-Received: from mail-iw0-f175.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oB8FTuAS027890
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2010 15:29:56 GMT
-Received: by iwn8 with SMTP id 8so1825216iwn.34
-        for <selinux@tycho.nsa.gov>; Wed, 08 Dec 2010 07:29:56 -0800 (PST)
+Message-ID: <4CFFD6A6.2000706@redhat.com>
+Date: Wed, 08 Dec 2010 14:04:06 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <4CFF0564.1080107@ak.jp.nec.com>
-References: <4CFF0564.1080107@ak.jp.nec.com>
-Date: Wed, 8 Dec 2010 09:29:55 -0600
-Message-ID: <AANLkTi=j9OCJ=0iGDEoAzwennWBJMiB=Env376+NoE0g@mail.gmail.com>
-Subject: Re: Recent status of SE-PostgreSQL
-From: Ted Toth <txtoth@gmail.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: Kyle Moffett <kyle@moffetthome.net>
+CC: Stephen Smalley <stephen.smalley@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Paris <eparis@redhat.com>, penguin-kernel@i-love.sakura.ne.jp,
+        selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
+        hch@lst.de
+Subject: Re: [RFC PATCH 1/2] fs/vfs/security: pass last path component to
+ LSM on inode creation
+References: <20101203214518.30001.89859.stgit@paris.rdu.redhat.com> <4CF9C1A1.7050603@schaufler-ca.com> <1291498481.4929.77.camel@localhost.localdomain> <4CFB4191.3090106@schaufler-ca.com> <AANLkTinm_Or+G=BjOU7Tdher-6YnOZXdtb43nGX4N+Et@mail.gmail.com> <4CFE4B9E.3080408@schaufler-ca.com> <AANLkTiniPUa06wh0YHTQpZWL316dofxr9CrX-1ecgNS7@mail.gmail.com> <4CFE6748.8050803@schaufler-ca.com> <AANLkTinguKq9A4EwPhpFzv6rYW9EP_XDzJcS+ewXcDsO@mail.gmail.com> <AANLkTimHh_6pn4iamx+-v7ToBexoP0a9vxVoTrPfRGKQ@mail.gmail.com>
+In-Reply-To: <AANLkTimHh_6pn4iamx+-v7ToBexoP0a9vxVoTrPfRGKQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for the update. Questions inline.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-2010/12/7 KaiGai Kohei <kaigai@ak.jp.nec.com>:
-> I'd like to report the recent status of SE-PostgreSQL development,
-> since I guess few number of people subscribing pgsql-hackers list.
->
-> Now, the pgsql community is working on new features to the upcoming
-> v9.1 releases. Although we don't come up the feature freeze yet,
-> several fundamental features to support selinux are already merged,
-> and these shall be released within the v9.1 release.
->
-> The v9.1 of pgsql shall support label based mandatory access control
-> by external security providers.
-> The external security provider is a similar concept to LSM.
-> It allows plugin modules to make access control decision based on
-> its access control model such as SELinux, and the core pgsql calls
-> the modules via security hooks.
->
-> So, SE-PostgreSQL is now implemented as a plugin module of pgsql.
->
-> Anyway, the upcoming v9.1 shall provide a mechanism to assign
-> security label of database objects and security hooks on various
-> strategic points (but not comprehensive yet).
-
-Could you expand upon exactly what you mean here? Since this is not
-'comprehensive' does that imply potential vulnerabilities?
-
->
-> We will be able to assign security label using SECURITY LABEL
-> statement in SQL (original enhancement of pgsql) by hand.
-> It allows us to assign a certain label on a certain database
-> objects. The given label is validated by plugin modules, then
-> stored within system catalogs.
-> In addition, post-object-creation hook enables to assign a default
-> security label of the new database object on the creation time.
->
-> Here are other new hooks; 'ExecutorCheckPerms' hook enables to
-> make access control decision on DML statements (SELECT, UPDATE,
-> INSERT and DELETE), 'ClientAuthentication' hook enables to
-> obtain security label of the peer process using getpeercon(3)
-> at beginning of the session, 'object_access' hook will enable
-> to handle DDL permissions but not comprehensive yet.
->
-> I expect a limited functionalities will be available in the
-> v9.1 of PostgreSQL. It will be far from production level,
-> but a great step towards the full features.
->
-> The v9.1 will have feature freeze at the 15-Jun, then it may be
-> released half years later. At the same time, merge window to the
-> v9.2 will be open. So, I'll upstream rest of features; such as
-> comprehensive DDL permissions, row-level access controls and so on.
->
-> Thanks,
-> --
-> KaiGai Kohei <kaigai@ak.jp.nec.com>
->
+On 12/08/2010 09:25 AM, Kyle Moffett wrote:
+> On Tue, Dec 7, 2010 at 12:34, Stephen Smalley <stephen.smalley@gmail.com> wrote:
+>> On Tue, Dec 7, 2010 at 11:56 AM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>> Let's assume for the moment that no one has a significant objection
+>>> to adding the component name to inode_init_security. I am not
+>>> suggesting that what gets passed to inode_init_security is
+>>> insufficiently general. I am asking if there are other hooks that
+>>> also ought to have the component name as one of their parameters.
+>>> Yes, I understand the concept of "if it ain't broke ...", and that
+>>> may suffice at this point, and if not the fact that no one would be
+>>> using the component name in those other hooks definitely would. I
+>>> expect that when someone comes along with a new LSM that does access
+>>> controls based on the final component* they aren't going to suffer
+>>> unnecessary resistance from the SELinux community as they add the
+>>> component name as a parameter to other hooks.
+>>>
+>>> ----
+>>> * For example, only files suffixed with ".exe" can be executed and
+>>>  only files suffixed with ".so" can be mmapped.
+>>
+>> I think you can already achieve that via the pathname hooks, but if
+>> not and you want it, go for it.
+> 
+> Actually, there are still a few remaining hooks which might actually
+> be useful to add the last path component to even in SELinux.  While
+> you of course cannot (and should not) *change* the label of a file in
+> a link() or rename() operation, it would potentially be useful to deny
+> an operation based on the old label and the new name that is being
+> passed in.  It would also make sense if the file create() action was
+> able to match on the same requirements as the file "type_transition".
+> 
+> EG: To prevent a compromised web application from messing with
+> otherwise writable .htaccess files in its data folders, you ought to
+> be able to do something like this (although this does imply
+> introducing some sort of matching order, where a "deny_name" with a
+> matching name is applied instead of a more-generic "allow"):
+> 
+> deny_name my_web_app_t my_web_app_data_t file:rename ".htaccess";
+> allow my_web_app_t my_web_app_data_t file:rename;
+> 
+> deny_name my_web_app_t my_web_app_data_t file:link ".htaccess";
+> allow my_web_app_t my_web_app_data_t file:link;
+> 
+> Cheers,
+> Kyle Moffett
+> 
+> 
 > --
 > This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
->
 
-Ted
+
+
+I just saw a use case where this might be handy.  If you have two
+machines sharing an a homedir.  Say I have two desktop machines.  If I
+setup NFS shared from one machine to the other via NFS.  When I log into
+the client machine, xdm_t creates the .xsession-errors file,  On the
+server there is a rule that says kernel_t creating files in
+user_home_dir_t creates them as user_home_t.  Now when I login to the
+server machine, I get an AVC saying that xdm_t can not write
+.xsession-errors labeled user_home_t.  It should have been labeled
+xdm_home_t.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkz/1qYACgkQrlYvE4MpobNbHwCg0ndO2X/MuRUnp4ASMXvi/eBD
+sJAAniWrS/csZKQlmOsbkChXYGYVfQTq
+=UPLG
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
