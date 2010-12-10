@@ -1,288 +1,118 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBACJBEx009474
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2010 07:19:11 -0500
-Received: from house.lunarmania.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oBACJA4B023095
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2010 12:19:10 GMT
-Message-ID: <4D021AB0.9040900@rubix.com>
-Date: Fri, 10 Dec 2010 13:18:56 +0100
-From: Andy Warner <warner@rubix.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBACTpmc010128
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2010 07:29:52 -0500
+Received: from out3.smtp.messagingengine.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oBACTquK021030
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2010 12:29:52 GMT
+Message-Id: <1291984191.3883.1409660307@webmail.messagingengine.com>
+From: "Roberto Sassu" <roberto.sassu@polito.it>
+To: "Dominick Grift" <domg472@gmail.com>
+Cc: selinux@lists.fedoraproject.org, selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [refpolicy] [PATCH] New database object classes
-References: <4D01F7A4.90708@ak.jp.nec.com>
-In-Reply-To: <4D01F7A4.90708@ak.jp.nec.com>
-Content-Type: multipart/alternative;
- boundary="------------050104050307070207050108"
+Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <4D00B88A.9050704@gmail.com>
+References: <201012091148.18323.roberto.sassu@polito.it><4D00B88A.9050704@gmail.com>
+Subject: Re: selinux policy for encrypted files
+Date: Fri, 10 Dec 2010 13:29:51 +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050104050307070207050108
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On Thu, 09 Dec 2010 12:07 +0100, "Dominick Grift" <domg472@gmail.com>
+wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 12/09/2010 11:48 AM, Roberto Sassu wrote:
+> > Hi all
+> > 
+> > i want to write a policy for encrypted files.
+> > In order to do this i created some new types which have the
+> > name of the correspondent type used for non encrypted files,
+> > with the prefix 'encrypted_'.
+> > Then i need to define the policy for applications that need to
+> > use these new types which is very similar to this defined
+> > for original types, except that i want to take rules only
+> > for the 'dir' and 'file' class.
+> 
+> And what are you trying to achieve with that with regard to security?
+> 
+
+I think making a distinction between inodes that contain plaintext
+data and those that contain encrypted content should improve how
+security decisions must be taken for the latter type.
+For instance, assigning to an encrypted file the label 'encrypted_etc_t'
+allows to significantly reduce the number of domains that can access
+it while keeping the same meaning of the 'etc_t' label.
 
 
+> > What this the best way to define the policy? Do i have
+> > to duplicate all required interfaces/templates or can i reuse
+> > the existent code, for instance by adding a new parameter?
+> > 
+> > I will show an example of what i'm trying to define.
+> > 
+> > New type: encrypted_etc_t;
+> > 
+> > Example interface:
+> > 
+> > interface(`files_list_etc',`
+> > 	gen_require(`
+> > 		type etc_t;
+> > 	')
+> > 
+> > 	allow $1 etc_t:dir list_dir_perms;
+> > ')
+> > 
+> > 
+> > Added interface:
+> > 
+> > interface(`files_list_encrypted_etc',`
+> > 	gen_require(`
+> > 		type encrypted_etc_t;
+> > 	')
+> > 
+> > 	allow $1 encrypted_etc_t:dir list_dir_perms;
+> > ')
+> 
+> The above examples are exactly the same. In that case you would not even
+> need to create anything new. Also why would you want to create this
+> whole stuff new just to be able to exclude classes other then dir and
+> file? How is that beneficial for the security point of view to you?
+> 
 
-On 12/10/2010 10:49 AM, KaiGai Kohei wrote:
-> The attached patch adds a few database object classes, as follows:
->
-> * db_schema
-> ------------
-> A schema object performs as a namespace in database; similar to
-> directories in filesystem.
-> It seems some of (but not all) database objects are stored within
-> a certain schema logically. We can qualify these objects using
-> schema name. For example, a table: "my_tbl" within a schema: "my_scm"
-> is identified by "my_scm.my_tbl". This table is completely different
-> from "your_scm.my_tbl" that it a table within a schema: "your_scm".
-> Its characteristics is similar to a directory in filesystem, so
-> it has similar permissions.
-> The 'search' controls to resolve object name within a schema.
-> The 'add_name' and 'remove_name' controls to add/remove an object
-> to/from a schema.
-> See also,
->   http://developer.postgresql.org/pgdocs/postgres/sql-createschema.html
->
-> In the past discussion, a rubix folks concerned about no object
-> class definition for schema and catalog which is an upper level
-> namespace. Since I'm not certain whether we have a disadvantage
-> when 'db_schema' class is applied on catalog class, I don't add
-> this definition yet.
-
->From my point of view, as a rubix folk, I see no disadvantage in using
-the db_schema class for catalogs. As we are now overloading the dir
-object class, using the db_schema for both schemata and catalogs is an
-improvement. For us in the foreseeable future, there is no functional
-distinction.
-
-I do think that the SQL spec does allow things to be associated with a
-named schema that may not be associated with a catalog. For instance, a
-character set. But, don't quote me on that:-)
-
-Forgive me for my ignorance, but when a patch like this is submitted to
-the refpolicy, will it eventually make it into Fedora and/or RHEL 6?
-
-> Default security context of 'db_table' and 'db_procedure' classes
-> get being computed using type_transition with 'db_schema' class,
-> instead of 'db_database' class. It reflects logical hierarchy of
-> database object more correctly.
->
->
-> * db_view
-> ----------
-> A view object performs as a virtual table. We can run SELECT
-> statement on views, although it has no physical entities.
-> The definition of views are expanded in run-time, so it allows
-> us to describe complex queries with keeping readability.
-> This object class uniquely provides 'expand' permission that
-> controls whether user can expand this view, or not.
-> The default security context shall be computed by type transition
-> rule with a schema object that owning the view.
->
-> See also,
->   http://developer.postgresql.org/pgdocs/postgres/sql-createview.html
->
->
-> * db_sequence
-> --------------
-> A sequence object is a sequential number generator.
-> This object class uniquely provides 'get_value', 'next_value' and
-> 'set_value' permissions. The 'get_value' controls to reference the
-> sequence object. The 'next_value' controls to fetch and increment
-> the value of sequence object. The 'set_value' controls to set
-> an arbitrary value.
-> The default security context shall be computed by type transition
-> rule with a schema object that owning the sequence.
->
-> See also,
->   http://developer.postgresql.org/pgdocs/postgres/sql-createsequence.html
->
->
-> * db_language
-> --------------
-> A language object is an installed engine to execute procedures.
-> PostgreSQL supports to define SQL procedures using regular script
-> languages; such as Perl, Tcl, not only SQL or binary modules.
-> In addition, v9.0 or later supports DO statement. It allows us to
-> execute a script statement on server side without defining a SQL
-> procedure. It requires to control whether user can execute DO
-> statement on this language, or not.
-> This object class uniquely provides 'implement' and 'execute'
-> permissions. The 'implement' controls whether a procedure can
-> be implemented with this language, or not. So, it takes security
-> context of the procedure as subject. The 'execute' controls to
-> execute code block using DO statement.
-> The default security context shall be computed by type transition
-> rule with a database object, because it is not owned by a certain
-> schema.
->
-> In the default policy, we provide two types: 'sepgsql_lang_t' and
-> 'sepgsql_safe_lang_t' that allows unpriv users to execute DO
-> statement. The default is 'sepgsql_leng_t'.
-> We assume newly installed language may be harm, so DBA has to relabel
-> it explicitly, if he want user defined procedures using the language.
->
-> See also,
->   http://developer.postgresql.org/pgdocs/postgres/sql-createlanguage.html
->   http://developer.postgresql.org/pgdocs/postgres/sql-do.html
->
-> P.S)
-> I found a bug in MCS. It didn't constraint 'relabelfrom' permission
-> of 'db_procedure' class. IIRC, I fixed it before, but it might be
-> only MLS side. Sorry.
->
-> Thanks,
->
->
-> _______________________________________________
-> refpolicy mailing list
-> refpolicy@oss.tresys.com
-> http://oss.tresys.com/mailman/listinfo/refpolicy
-
---------------050104050307070207050108
-Content-Type: text/html; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-  <head>
-    <meta content="text/html; charset=ISO-2022-JP"
-      http-equiv="Content-Type">
-    <title></title>
-  </head>
-  <body text="#000000" bgcolor="#ffffff">
-    <br>
-    <br>
-    On 12/10/2010 10:49 AM, KaiGai Kohei wrote:
-    <blockquote cite="mid:4D01F7A4.90708@ak.jp.nec.com" type="cite">
-      <pre wrap="">The attached patch adds a few database object classes, as follows:
-
-* db_schema
-------------
-A schema object performs as a namespace in database; similar to
-directories in filesystem.
-It seems some of (but not all) database objects are stored within
-a certain schema logically. We can qualify these objects using
-schema name. For example, a table: "my_tbl" within a schema: "my_scm"
-is identified by "my_scm.my_tbl". This table is completely different
-from "your_scm.my_tbl" that it a table within a schema: "your_scm".
-Its characteristics is similar to a directory in filesystem, so
-it has similar permissions.
-The 'search' controls to resolve object name within a schema.
-The 'add_name' and 'remove_name' controls to add/remove an object
-to/from a schema.
-See also,
-  <a class="moz-txt-link-freetext" href="http://developer.postgresql.org/pgdocs/postgres/sql-createschema.html">http://developer.postgresql.org/pgdocs/postgres/sql-createschema.html</a>
-
-In the past discussion, a rubix folks concerned about no object
-class definition for schema and catalog which is an upper level
-namespace. Since I'm not certain whether we have a disadvantage
-when 'db_schema' class is applied on catalog class, I don't add
-this definition yet.
-</pre>
-    </blockquote>
-    <br>
-    From my point of view, as a rubix folk, I see no disadvantage in
-    using the db_schema class for catalogs. As we are now overloading
-    the dir object class, using the db_schema for both schemata and
-    catalogs is an improvement. For us in the foreseeable future, there
-    is no functional distinction. <br>
-    <br>
-    I do think that the SQL spec does allow things to be associated with
-    a named schema that may not be associated with a catalog. For
-    instance, a character set. But, don't quote me on that:-)<br>
-    <br>
-    Forgive me for my ignorance, but when a patch like this is submitted
-    to the refpolicy, will it eventually make it into Fedora and/or RHEL
-    6?<br>
-    <br>
-    <blockquote cite="mid:4D01F7A4.90708@ak.jp.nec.com" type="cite">
-      <pre wrap="">
-Default security context of 'db_table' and 'db_procedure' classes
-get being computed using type_transition with 'db_schema' class,
-instead of 'db_database' class. It reflects logical hierarchy of
-database object more correctly.
+Ok, i choose this approach in order to minimize the effort required
+to write a policy for newly introduced labels. Using different
+interfaces allows to add an extra call only in desired application
+policies. Further, i defined new rules only related to the file and
+dir classes because, in the former case, i don't want to assign an
+encrypted label to files which are symlinks pointing to unencrypted
+inodes and in the latter case, because i need different directory
+labels in order to configure type transitions correctly.
 
 
-* db_view
-----------
-A view object performs as a virtual table. We can run SELECT
-statement on views, although it has no physical entities.
-The definition of views are expanded in run-time, so it allows
-us to describe complex queries with keeping readability.
-This object class uniquely provides 'expand' permission that
-controls whether user can expand this view, or not.
-The default security context shall be computed by type transition
-rule with a schema object that owning the view.
+> Comments i made above asside: it does not make to many difference
+> (afaict) whether you extend existing interfaces or create new ones. if
+> it works, it works.
+> 
+> > --
+> > selinux mailing list
+> > selinux@lists.fedoraproject.org
+> > https://admin.fedoraproject.org/mailman/listinfo/selinux
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v2.0.16 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+> 
+> iEYEARECAAYFAk0AuIoACgkQMlxVo39jgT82owCePwRysaVkriSvqGQmqr88wDLU
+> 9KoAnj/H5TJKZD0+78M6hok+30x7eCfv
+> =BLwh
+> -----END PGP SIGNATURE-----
+> --
+> selinux mailing list
+> selinux@lists.fedoraproject.org
+> https://admin.fedoraproject.org/mailman/listinfo/selinux
+> 
 
-See also,
-  <a class="moz-txt-link-freetext" href="http://developer.postgresql.org/pgdocs/postgres/sql-createview.html">http://developer.postgresql.org/pgdocs/postgres/sql-createview.html</a>
-
-
-* db_sequence
---------------
-A sequence object is a sequential number generator.
-This object class uniquely provides 'get_value', 'next_value' and
-'set_value' permissions. The 'get_value' controls to reference the
-sequence object. The 'next_value' controls to fetch and increment
-the value of sequence object. The 'set_value' controls to set
-an arbitrary value.
-The default security context shall be computed by type transition
-rule with a schema object that owning the sequence.
-
-See also,
-  <a class="moz-txt-link-freetext" href="http://developer.postgresql.org/pgdocs/postgres/sql-createsequence.html">http://developer.postgresql.org/pgdocs/postgres/sql-createsequence.html</a>
-
-
-* db_language
---------------
-A language object is an installed engine to execute procedures.
-PostgreSQL supports to define SQL procedures using regular script
-languages; such as Perl, Tcl, not only SQL or binary modules.
-In addition, v9.0 or later supports DO statement. It allows us to
-execute a script statement on server side without defining a SQL
-procedure. It requires to control whether user can execute DO
-statement on this language, or not.
-This object class uniquely provides 'implement' and 'execute'
-permissions. The 'implement' controls whether a procedure can
-be implemented with this language, or not. So, it takes security
-context of the procedure as subject. The 'execute' controls to
-execute code block using DO statement.
-The default security context shall be computed by type transition
-rule with a database object, because it is not owned by a certain
-schema.
-
-In the default policy, we provide two types: 'sepgsql_lang_t' and
-'sepgsql_safe_lang_t' that allows unpriv users to execute DO
-statement. The default is 'sepgsql_leng_t'.
-We assume newly installed language may be harm, so DBA has to relabel
-it explicitly, if he want user defined procedures using the language.
-
-See also,
-  <a class="moz-txt-link-freetext" href="http://developer.postgresql.org/pgdocs/postgres/sql-createlanguage.html">http://developer.postgresql.org/pgdocs/postgres/sql-createlanguage.html</a>
-  <a class="moz-txt-link-freetext" href="http://developer.postgresql.org/pgdocs/postgres/sql-do.html">http://developer.postgresql.org/pgdocs/postgres/sql-do.html</a>
-
-P.S)
-I found a bug in MCS. It didn't constraint 'relabelfrom' permission
-of 'db_procedure' class. IIRC, I fixed it before, but it might be
-only MLS side. Sorry.
-
-Thanks,
-</pre>
-      <pre wrap="">
-<fieldset class="mimeAttachmentHeader"></fieldset>
-_______________________________________________
-refpolicy mailing list
-<a class="moz-txt-link-abbreviated" href="mailto:refpolicy@oss.tresys.com">refpolicy@oss.tresys.com</a>
-<a class="moz-txt-link-freetext" href="http://oss.tresys.com/mailman/listinfo/refpolicy">http://oss.tresys.com/mailman/listinfo/refpolicy</a>
-</pre>
-    </blockquote>
-  </body>
-</html>
-
---------------050104050307070207050108--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
