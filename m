@@ -1,249 +1,238 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBDIlqHS005081
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2010 13:47:52 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBDIqRhe005402
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2010 13:52:27 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oBDIlo4b029971
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2010 18:47:51 GMT
-Message-ID: <4D066A54.9020904@redhat.com>
-Date: Mon, 13 Dec 2010 13:47:48 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oBDIqPCJ011275
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2010 18:52:26 GMT
+Message-ID: <4D066B67.8060008@redhat.com>
+Date: Mon, 13 Dec 2010 13:52:23 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "'Chad Sellers'" <csellers@tresys.com>
 CC: SELinux <selinux@tycho.nsa.gov>
-Subject: This patch move newrole to file capabilities and uses libcapng
+Subject: Policycoreutils-scripts patch
 Content-Type: multipart/mixed;
- boundary="------------040007020709040105070201"
+ boundary="------------000100030600070100030107"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040007020709040105070201
+--------------000100030600070100030107
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---------------040007020709040105070201
+Add man page for genhomedircon
+
+Fix python scripts to use -Es
+- -s stops python scripts from trying to read ~/.local directory for
+shared libraries.
+
+Fixfiles:
+Added exclude_dirs to check if dirs exist and then exclude them from
+restorecon call.  Add /var/lib/BackupPC to exclude list
+
+Instead of excluding mounts based on hard coded types, I now look for
+labeled in the /proc/self/mounts file
+
+Use modern find command to delete files
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk0Ga2cACgkQrlYvE4MpobNI8QCgm6vBA436RQndT603VUiJH2sb
+oFEAoNt7WcOtspgYu8V3/OIpfpVLzx+W
+=dfWL
+-----END PGP SIGNATURE-----
+
+--------------000100030600070100030107
 Content-Type: text/plain;
- name="newrole.patch"
+ name="policycoreutils-scripts.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="newrole.patch"
+ filename="policycoreutils-scripts.patch"
 
-diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
-index 6c19bd1..bd8e7a7 100644
---- a/policycoreutils/newrole/Makefile
-+++ b/policycoreutils/newrole/Makefile
-@@ -50,7 +50,7 @@ ifeq (${NAMESPACE_PRIV},y)
- endif
- ifeq (${IS_SUID},y)
- 	MODE := 4555
--	LDLIBS += -lcap
-+	LDLIBS += -lcap-ng
- else
- 	MODE := 0555
- endif
-diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
-index d191be6..071b393 100644
---- a/policycoreutils/newrole/newrole.c
-+++ b/policycoreutils/newrole/newrole.c
-@@ -77,7 +77,7 @@
- #endif
- #if defined(AUDIT_LOG_PRIV) || (NAMESPACE_PRIV)
- #include <sys/prctl.h>
--#include <sys/capability.h>
-+#include <cap-ng.h>
- #endif
- #ifdef USE_NLS
- #include <locale.h>		/* for setlocale() */
-@@ -90,6 +90,9 @@
- #define PACKAGE "policycoreutils"	/* the name of this package lang translation */
- #endif
+diff --git a/policycoreutils/scripts/Makefile b/policycoreutils/scripts/Makefile
+index 53b65b6..cc75a96 100644
+--- a/policycoreutils/scripts/Makefile
++++ b/policycoreutils/scripts/Makefile
+@@ -14,6 +14,7 @@ install: all
+ 	install -m 755 genhomedircon  $(SBINDIR)
+ 	-mkdir -p $(MANDIR)/man8
+ 	install -m 644 fixfiles.8 $(MANDIR)/man8/
++	install -m 644 genhomedircon.8 $(MANDIR)/man8/
+ 	install -m 644 chcat.8 $(MANDIR)/man8/
  
-+# define TRUE 1
-+# define FALSE 0
+ clean:
+diff --git a/policycoreutils/scripts/chcat b/policycoreutils/scripts/chcat
+index 4038a99..9efcb22 100755
+--- a/policycoreutils/scripts/chcat
++++ b/policycoreutils/scripts/chcat
+@@ -1,4 +1,4 @@
+-#! /usr/bin/python -E
++#! /usr/bin/python -Es
+ # Copyright (C) 2005 Red Hat 
+ # see file 'COPYING' for use and warranty information
+ #
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index ae519fc..0890811 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -21,6 +21,25 @@
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+ #
++# Get all mounted rw file systems that support seclabel
++#
++get_labeled_mounts() {
++# /dev is not listed in the mountab
++FS="`mount | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/\(rw/{print $3}';` /dev"
++for i in $FS; do 
++    grep --silent "$i ".*seclabel /proc/self/mounts && echo $i
++done
++}
 +
- /* USAGE_STRING describes the command-line args of this program. */
- #define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -p ] [ -V ] [ -- args ]"
- 
-@@ -538,69 +541,23 @@ static int restore_environment(int preserve_environment,
-  * Returns zero on success, non-zero otherwise
-  */
- #if defined(AUDIT_LOG_PRIV) && !defined(NAMESPACE_PRIV)
--static int drop_capabilities(void)
-+static int drop_capabilities(int full)
- {
--	int rc = 0;
--	cap_t new_caps, tmp_caps;
--	cap_value_t cap_list[] = { CAP_AUDIT_WRITE };
--	cap_value_t tmp_cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID };
--	uid_t uid = getuid();
--
--	if (!uid)
--		return 0;
--
--	/* Non-root caller, suid root path */
--	new_caps = cap_init();
--	tmp_caps = cap_init();
--	if (!new_caps || !tmp_caps) {
--		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
-+	capng_clear(CAPNG_SELECT_BOTH);
-+	if (capng_lock() < 0) 
- 		return -1;
--	}
--	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
--	rc |= cap_set_flag(new_caps, CAP_EFFECTIVE, 1, cap_list, CAP_SET);
--	rc |= cap_set_flag(tmp_caps, CAP_PERMITTED, 2, tmp_cap_list, CAP_SET);
--	rc |= cap_set_flag(tmp_caps, CAP_EFFECTIVE, 2, tmp_cap_list, CAP_SET);
--	if (rc) {
--		fprintf(stderr, _("Error setting capabilities, aborting\n"));
--		goto out;
--	}
--
--	/* Keep capabilities across uid change */
--	if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0)) {
--		fprintf(stderr, _("Error setting KEEPCAPS, aborting\n"));
--		rc = -1;
--		goto out;
--	}
- 
--	/* Does this temporary change really buy us much? */
--	/* We should still have root's caps, so drop most capabilities now */
--	if ((rc = cap_set_proc(tmp_caps))) {
--		fprintf(stderr, _("Error dropping capabilities, aborting\n"));
--		goto out;
--	}
-+	uid_t uid = getuid();
-+	if (!uid) return 0;
- 
- 	/* Change uid */
--	if ((rc = setresuid(uid, uid, uid))) {
-+	if (setresuid(uid, uid, uid)) {
- 		fprintf(stderr, _("Error changing uid, aborting.\n"));
--		goto out;
--	}
--
--	/* Now get rid of this ability */
--	if ((rc = prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0)) {
--		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
--		goto out;
--	}
--
--	/* Finish dropping capabilities. */
--	if ((rc = cap_set_proc(new_caps))) {
--		fprintf(stderr,
--			_("Error dropping SETUID capability, aborting\n"));
--		goto out;
-+		return -1;
- 	}
--      out:
--	if (cap_free(tmp_caps) || cap_free(new_caps))
--		fprintf(stderr, _("Error freeing caps\n"));
--	return rc;
-+	if (! full) 
-+		capng_update(CAPNG_ADD, CAPNG_EFFECTIVE | CAPNG_PERMITTED, CAP_AUDIT_WRITE);
-+	return capng_apply(CAPNG_SELECT_BOTH);
- }
- #elif defined(NAMESPACE_PRIV)
- /**
-@@ -616,50 +573,25 @@ static int drop_capabilities(void)
-  *
-  * Returns zero on success, non-zero otherwise
-  */
--static int drop_capabilities(void)
-+static int drop_capabilities(int full)
- {
--	int rc = 0;
--	cap_t new_caps;
--	cap_value_t cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID,
--		CAP_SYS_ADMIN, CAP_FOWNER, CAP_CHOWN,
--		CAP_DAC_OVERRIDE
--	};
--
--	if (!getuid())
--		return 0;
--
--	/* Non-root caller, suid root path */
--	new_caps = cap_init();
--	if (!new_caps) {
--		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
-+	capng_clear(CAPNG_SELECT_BOTH);
-+	if (capng_lock() < 0) 
- 		return -1;
--	}
--	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 6, cap_list, CAP_SET);
--	rc |= cap_set_flag(new_caps, CAP_EFFECTIVE, 6, cap_list, CAP_SET);
--	if (rc) {
--		fprintf(stderr, _("Error setting capabilities, aborting\n"));
--		goto out;
--	}
- 
--	/* Ensure that caps are dropped after setuid call */
--	if ((rc = prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0)) {
--		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
--		goto out;
--	}
--
--	/* We should still have root's caps, so drop most capabilities now */
--	if ((rc = cap_set_proc(new_caps))) {
--		fprintf(stderr, _("Error dropping capabilities, aborting\n"));
--		goto out;
-+	uid_t uid = getuid();
-+	/* Change uid */
-+	if (setresuid(uid, uid, uid)) {
-+		fprintf(stderr, _("Error changing uid, aborting.\n"));
-+		return -1;
- 	}
--      out:
--	if (cap_free(new_caps))
--		fprintf(stderr, _("Error freeing caps\n"));
--	return rc;
-+	if (! full) 
-+		capng_update(CAPNG_ADD, CAPNG_EFFECTIVE | CAPNG_PERMITTED, CAP_SYS_ADMIN | CAP_FOWNER | CAP_CHOWN | CAP_DAC_OVERRIDE);
-+	return capng_apply(CAPNG_SELECT_BOTH);
- }
- 
- #else
--static inline int drop_capabilities(void)
-+static inline int drop_capabilities(__attribute__ ((__unused__)) int full)
- {
- 	return 0;
- }
-@@ -1098,7 +1030,7 @@ int main(int argc, char *argv[])
- 	 * if it makes sense to continue to run newrole, and setting up
- 	 * a scrubbed environment.
- 	 */
--	if (drop_capabilities())
-+	if (drop_capabilities(FALSE))
- 		return -1;
- 	if (set_signal_handles())
- 		return -1;
-@@ -1334,11 +1266,15 @@ int main(int argc, char *argv[])
- 
- 	if (send_audit_message(1, old_context, new_context, ttyn))
- 		goto err_close_pam_session;
-+	freecon(old_context); old_context=NULL;
-+	freecon(new_context); new_context=NULL;
++exclude_dirs() {
++    exclude= 
++    for i in /var/lib/BackupPC /home /tmp /dev; do 
++        [ -e $i ]  && exclude="$exclude -e $i"; 
++    done 
++    echo "$exclude"
++}
 +
- #ifdef NAMESPACE_PRIV
- 	if (transition_to_caller_uid())
- 		goto err_close_pam_session;
- #endif
++#
+ # Set global Variables
+ #
+ fullFlag=0
+@@ -35,9 +54,7 @@ SYSLOGFLAG="-l"
+ LOGGER=/usr/sbin/logger
+ SETFILES=/sbin/setfiles
+ RESTORECON=/sbin/restorecon
+-FILESYSTEMSRW=`mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs ).*\(rw/{print $3}';`
+-FILESYSTEMSRO=`mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs ).*\(ro/{print $3}';`
+-FILESYSTEMS="$FILESYSTEMSRW $FILESYSTEMSRO"
++FILESYSTEMS=`get_labeled_mounts`
+ SELINUXTYPE="targeted"
+ if [ -e /etc/selinux/config ]; then
+     . /etc/selinux/config
+@@ -87,23 +104,10 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+                   esac; \
+                fi; \
+             done | \
+-	while read pattern ; do sh -c "find $pattern \
+-		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev  -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o \
+-		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print0"; \
+-		      done 2> /dev/null | \
+-	 ${RESTORECON} $* -0 -f - 
++		      ${RESTORECON} -f - -R -p `exclude_dirs`; \
+ 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+ fi
+ }
+-#
+-# Log all Read Only file systems 
+-#
+-LogReadOnly() {
+-if [ ! -z "$FILESYSTEMSRO" ]; then
+-    logit "Warning: Skipping the following R/O filesystems:"
+-    logit "$FILESYSTEMSRO"
+-fi
+-}
  
-+	drop_capabilities(TRUE);
- 	/* Handle environment changes */
- 	if (restore_environment(preserve_environment, old_environ, &pw)) {
- 		fprintf(stderr, _("Unable to restore the environment, "
+ rpmlist() {
+ rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
+@@ -121,23 +125,16 @@ if [ ! -z "$PREFC" ]; then
+ fi
+ if [ ! -z "$RPMFILES" ]; then
+     for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
+-	rpmlist $i | ${RESTORECON} ${FORCEFLAG} $* -R -i -f - 2>&1 >> $LOGFILE
++	rpmlist $i | ${RESTORECON} ${FORCEFLAG} $* -R -i -f - 2>&1 | cat >> $LOGFILE
+     done
+     exit $?
+ fi
+ if [ ! -z "$FILEPATH" ]; then
+-    if [ -x /usr/bin/find ]; then
+-	/usr/bin/find "$FILEPATH" \
+-	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o -print0 | \
+-	    ${RESTORECON} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
+-    else
+-	${RESTORECON} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
+-    fi
++    ${RESTORECON} ${FORCEFLAG} -R $* $FILEPATH 2>&1 | cat >> $LOGFILE
+     return
+ fi
+ [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
+-LogReadOnly
+-${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
++${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMS} 2>&1 | cat >> $LOGFILE
+ rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
+ find /tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
+ find /var/tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
+@@ -146,8 +143,7 @@ exit $?
+ 
+ fullrelabel() {
+     logit "Cleaning out /tmp"
+-    find /tmp/ -mindepth 1 -print0 | xargs -0 /bin/rm -f
+-    LogReadOnly
++    find /tmp/ -mindepth 1 -delete
+     restore
+ }
+ 
+diff --git a/policycoreutils/scripts/genhomedircon.8 b/policycoreutils/scripts/genhomedircon.8
+new file mode 100644
+index 0000000..6331660
+--- /dev/null
++++ b/policycoreutils/scripts/genhomedircon.8
+@@ -0,0 +1,37 @@
++.\" Hey, Emacs! This is an -*- nroff -*- source file.
++.\" Copyright (c) 2010 Dan Walsh <dwalsh@redhat.com>
++.\"
++.\" This is free documentation; you can redistribute it and/or
++.\" modify it under the terms of the GNU General Public License as
++.\" published by the Free Software Foundation; either version 2 of
++.\" the License, or (at your option) any later version.
++.\"
++.\" The GNU General Public License's references to "object code"
++.\" and "executables" are to be interpreted as the output of any
++.\" document formatting or typesetting system, including
++.\" intermediate and printed output.
++.\"
++.\" This manual is distributed in the hope that it will be useful,
++.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
++.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++.\" GNU General Public License for more details.
++.\"
++.\" You should have received a copy of the GNU General Public
++.\" License along with this manual; if not, write to the Free
++.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
++.\" USA.
++.\"
++.\"
++.TH GENHOMEDIRCON "8" "May 2010" "Security Enhanced Linux" "SELinux"
++.SH NAME
++genhomedircon \- generate SELinux file context configuration entries for user home directories 
++.SH SYNOPSIS
++.B genhomedircon
++is a script that executes semodule to rebuild policy and create the 
++labels for HOMEDIRS based on home directories returned by the getpw calls.
++
++This functionality is enabled via the usepasswd flag in /etc/selinux/semanage.conf.
++
++.SH AUTHOR
++This manual page was written by 
++.I Dan Walsh <dwalsh@redhat.com>
 
---------------040007020709040105070201
+--------------000100030600070100030107
 Content-Type: application/pgp-signature;
- name="newrole.patch.sig"
+ name="policycoreutils-scripts.patch.sig"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
- filename="newrole.patch.sig"
+ filename="policycoreutils-scripts.patch.sig"
 
-iEYEABECAAYFAk0GalQACgkQrlYvE4MpobMDzACg17M1kDDVajURJ1KNrQaird3wruMAnjQj
-Z171fcvBdRUeISz/zupm1br6
---------------040007020709040105070201--
+iEYEABECAAYFAk0Ga2cACgkQrlYvE4MpobP3LgCeLGRDvgKe1giTiAejA5FyodLuYqUAoMsG
+YxL6VTxH1UXPUL/QMc2uwFK3
+--------------000100030600070100030107--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
