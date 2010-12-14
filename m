@@ -1,61 +1,117 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBEGdZB5017372
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2010 11:39:40 -0500
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id oBEGddRv023496
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2010 16:39:39 GMT
-Message-ID: <4D079DCB.90200@tresys.com>
-Date: Tue, 14 Dec 2010 11:39:39 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Subject: ANN: Reference Policy Release
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 14 Dec 2010 14:07:41 -0500
+Subject: Re: Unit testing userspace
+From: Chad Sellers <csellers@tresys.com>
+To: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
+        James Carter <jwcart2@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Stephen Lawrence <slawrence@tresys.com>
+Message-ID: <C92D2AAD.BBA97%csellers@tresys.com>
+In-Reply-To: <4D067B2F.2050000@manicmethod.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on
-the Tresys OSS site, http://oss.tresys.com.  This release primarily
-focused on general maintenance.
+On 12/13/10 2:59 PM, "Joshua Brindle" <method@manicmethod.com> wrote:
 
-The complete change log for this release follows at the end of the
-email.
+> So, we have a few "unit" tests for parts of userspace. I use quotes because
+> many 
+> of them aren't unit tests at all but tests wrapping around a giant black box
+> masquerader as a unit test (e.g., all the linker/expander tests).
+> 
+> Some problems with the current tests are 1) they aren't run by default, 2)
+> they 
+> use a unit test framework now in yum, 3) they have interdependencies within
+> the 
+> tree and 4) a lot of the things in the repo are really hard to unit test.
+> 
+> We'd like to spend some cycles here doing unit tests but we need to address
+> the 
+> above problems first.
+> 
+> The requirements I'd throw out are:
+> 
+> 1) Each component (libsepol, libselinux, etc) must be testable outside of the
+> main repo (so that tests can be run from rpm, portage, etc)
+> 2) Must not require anything outside of yum
+> 3) Each test should test a single unit (see
+> <http://www.javaranch.com/unit-testing.jsp> for an explanation)
+> 4) Must be run in the default build target
+> 5) Be useful tests
+> 
+> For unit tests to be useful they must get run, unfortunately Fedora doesn't
+> seem 
+> to like to package unit test frameworks so we'd need to put one in the tree
+> and 
+> use it directly.
+> 
+> We could:
+> 
+> - write our own and put it in the repo
+> - use a simple single .c file solution like CuTest
+> - try to get one packaged up in Fedora
+> - use something more powerful and add it to our repo
+> 
+> All varying levels of bad.
+> 
+> Further, to meet requirement #1 the test framework would have to be duplicated
+> once per framework.
+> 
+> Now, to throw more wrenches in the machinery, a huge amount of the libraries
+> (particularly libselinux) aren't directly unit testable. They'd need to use a
+> framework that can mock functions (eg., to test is_selinux_enabled() you'd
+> need 
+> to mock the fopen() and read() functions). This makes the more simple
+> solutions 
+> not as useful.
+> 
+> I've recently worked with a framework called test-dept
+> <http://code.google.com/p/test-dept/> that can do mocking and assertion
+> testing. 
+> It is a pain to use and requires a bunch of headers, Makefiles and a program
+> to 
+> manipulate the object files to run.
+> 
+> After thinking about this quite a bit I don't know if we can have reasonable
+> test coverage without using something capable of mocking. I've also looked at
+> other frameworks that provide mocking and they aren't suitable for a variety
+> of 
+> reasons.
+> 
+> So... this is starting to sound like rambling but the only thing reasonable I
+> can come up with (and reasonable is a stretch) is to remove all the CUnit
+> tests, 
+> start doing unit tests with test-dept, checked in to the test directory of
+> each 
+> component. We could start with simple tests and eventually graduate to mock
+> tests. The reason I'd rather do this than start with something like CuTest and
+> move to test-dept when we need its capabilities is because I did that very
+> thing 
+> on a recent project and the two systems are very incompatible and we now have
+> 2 
+> completely separate sets of tests and difficulty finding out what is tested
+> and 
+> where and by what.
+> 
+> 
+> Opinions? Compromise? Should we just give up on unit testing altogether?
 
-For people interested in helping Reference Policy development, the X
-desktop and role separation needs testing, in addition to general
-testing.
+My vote is to go the CuTest route. My primary reason is that writing CuTest
+tests is easy. We've been really bad about creating unit tests so far, and I
+doubt that will change. Something as painful to use as test-dept will just
+encourage developers to not write unit tests. I realize that this will mean
+we will never get near 100% test coverage for things like libselinux due to
+the lack of mocking support, but I think it's the lesser of two evils. Given
+our lack of diligence in this area historically, I'd rather make things easy
+to do than shoot for full coverage.
 
-* Mon Dec 13 2010 Chris PeBenito <selinux@tresys.com> - 2.20101213
-- Git man page from Dominick Grift.
-- Alsa and oident home content cleanup from Dominick Grift.
-- Add support for custom build options.
-- Unconditional staff and user oidentd home config access from Dominick
-Grift.
-- Conditional mmap_zero support from Dominick Grift.
-- Added devtmpfs support.
-- Dbadm updates from KaiGai Kohei.
-- Virtio disk file context update from Mika Pfluger.
-- Increase bindreservport range to 512-1024 in corenetwork, from Dan Walsh.
-- Add JIT usage for freshclam.
-- Remove ethereal module since the application was renamed to wireshark.
-- Remove duplicate/redundant rules, from Russell Coker.
-- Increased default number of categories to 1024, from Russell Coker.
-- Added modules:
-        accountsd (Dan Walsh)
-        cgroup (Dominick Grift)
-        hadoop (Paul Nuzzi)
-        kdumpgui (Dan Walsh)
-        livecd (Dan Walsh)
-        mojomojo (Lain Arnell)
-        sambagui (Dan Walsh)
-        shutdown (Dan Walsh)
-        sosreport (Dan Walsh)
-        vlock (Harry Ciao)
+Note that we've been using CuTest in CIL, and it is very simple and easy to
+use. There's almost no spin up to using it.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Chad
+ 
 
 
 --
