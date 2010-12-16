@@ -1,66 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBFKbU6R027851
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2010 15:37:30 -0500
-Received: from relay.felk.cvut.cz (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oBFKbRai010652
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2010 20:37:28 GMT
-Received: from labe.felk.cvut.cz (labe.felk.cvut.cz [147.32.85.34])
-	by relay.felk.cvut.cz (8.14.4/8.14.4) with ESMTP id oBFKbKRD000162
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2010 21:37:20 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Received: from [147.32.84.251] (mas16.felk.cvut.cz [147.32.84.166])
-	by labe.felk.cvut.cz (8.13.8/8.13.8) with ESMTP id oBFKd2sV079158
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2010 21:39:02 +0100 (CET)
-	(envelope-from michal.svoboda@agents.felk.cvut.cz)
-Date: Wed, 15 Dec 2010 21:37:20 +0100
-From: Michal Svoboda <michal.svoboda@agents.felk.cvut.cz>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: type bounds for files?
-Message-ID: <20101215203720.GH18729@myhost.felk.cvut.cz>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBG0QGRq009344
+	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2010 19:26:17 -0500
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oBG0QENL013186
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2010 00:26:15 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.193])
+	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id oBG0QCTO006362
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2010 09:26:12 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id oBG0QCE23825 for selinux@tycho.nsa.gov; Thu, 16 Dec 2010 09:26:12 +0900 (JST)
+Received: from mail03.kamome.nec.co.jp (mail03.kamome.nec.co.jp [10.25.43.7])
+	by mailsv.nec.co.jp (8.13.8/8.13.4) with ESMTP id oBG0QC4E008502
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2010 09:26:12 +0900 (JST)
+Message-ID: <4D095C98.5050106@ak.jp.nec.com>
+Date: Thu, 16 Dec 2010 09:26:00 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hAW+M2+FUO+onfmf"
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: type bounds for files?
+References: <20101215203720.GH18729@myhost.felk.cvut.cz>
+In-Reply-To: <20101215203720.GH18729@myhost.felk.cvut.cz>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+(2010/12/16 5:37), Michal Svoboda wrote:
+> Hello,
+> 
+> let's say I have a www service that's run through apache/selinux+ with
+> its own domain say foo_t. The domain has write access to some files with
+> type foo_data_t (which is files_type) through an allow rule.
+> 
+> Now, due to the 'typebound httpd_t foo_t' rule used with apache domains,
+> I would normally also have to 'allow httpd_t foo_data_t : file ...'.
+> 
+> But today I saw another solution at work, which used an oddball rule
+> where the foo_data_t was type bounded by another files_type, something
+> like 'typebound http_user_data_t foo_data_t' (don't remember the
+> bounding type's name exactly). This would make the www service work the
+> expected way without the need for 'allow httpd_t foo_data_t : file ...'.
+> 
+> Is this a known behavior? What is the sense in typebounding file types?
+> 
+Yes, it is known. We had a similar discussion before:
+  http://marc.info/?l=selinux&m=126771862818496&w=2
 
---hAW+M2+FUO+onfmf
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+The type-boundary feature is originated from type-hierarchy feature
+which has been supported in checkpolicy for several years.
 
-Hello,
+Joshua said:
+| The original hierarchy specified that if httpd_t had e.g., write access
+| to httpd_sys_content_t then webapp_t could be given write access to
+| webapp_content_t without httpd_t having direct access to webapp_content_t.
+|
+| This was done so that, in policy access controls, parents could be
+| decoupled from children while still allowing child subjects to access
+| child objects. One application of this was to have parents that,
+| themselves, did not have access to children objects (or were not active
+| at all).
 
-let's say I have a www service that's run through apache/selinux+ with
-its own domain say foo_t. The domain has write access to some files with
-type foo_data_t (which is files_type) through an allow rule.
+It seems to me your use cases are right.
+Maybe, the term of 'boundary' might make us hard to imagine this type
+of functionality.
 
-Now, due to the 'typebound httpd_t foo_t' rule used with apache domains,
-I would normally also have to 'allow httpd_t foo_data_t : file ...'.
-
-But today I saw another solution at work, which used an oddball rule
-where the foo_data_t was type bounded by another files_type, something
-like 'typebound http_user_data_t foo_data_t' (don't remember the
-bounding type's name exactly). This would make the www service work the
-expected way without the need for 'allow httpd_t foo_data_t : file ...'.
-
-Is this a known behavior? What is the sense in typebounding file types?
-
-Just for completeness this was on FC12 with targeted policy.
-
-Michal Svoboda
-
---hAW+M2+FUO+onfmf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk0JJwAACgkQg/fU9pp1uX4tigCgre2QZxp3Eib7BmOHGzUJp9kb
-H1sAnRazWu6OzZ2wZsV3V/hIFRy4yJXK
-=Srbl
------END PGP SIGNATURE-----
-
---hAW+M2+FUO+onfmf--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
