@@ -1,288 +1,139 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBMJnfeL004937
-	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2010 14:49:41 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id oBMK8cqZ006245
+	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2010 15:08:38 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id oBMJneC3003929
-	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2010 19:49:40 GMT
-Message-ID: <4D125651.6020504@redhat.com>
-Date: Wed, 22 Dec 2010 14:49:37 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id oBMK8Zf4015187
+	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2010 20:08:36 GMT
+Message-ID: <4D125AC1.8000505@redhat.com>
+Date: Wed, 22 Dec 2010 15:08:33 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: David Malcolm <dmalcolm@redhat.com>
-CC: Steve Lawrence <slawrence@tresys.com>,
-        "'Chad Sellers'" <csellers@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
-Subject: Re: This patch adds python3 bindings.
-References: <4D066505.7060101@redhat.com> <4D0BBB34.3080307@tresys.com>	 <4D0BC857.2080002@redhat.com> <1292620864.8633.67.camel@radiator.bos.redhat.com>
-In-Reply-To: <1292620864.8633.67.camel@radiator.bos.redhat.com>
-Content-Type: text/plain; charset=UTF-8
+To: "'Chad Sellers'" <csellers@tresys.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Rearranged audit2allow.1 to match the newer ways we use the tool.
+Content-Type: multipart/mixed;
+ boundary="------------040600090306010402080701"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 12/17/2010 04:21 PM, David Malcolm wrote:
-> On Fri, 2010-12-17 at 15:30 -0500, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> On 12/17/2010 02:34 PM, Steve Lawrence wrote:
->>> On 12/13/2010 01:25 PM, Daniel J Walsh wrote:
->>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->>>> index bf665ab..8aeb7a1 100644
->>>> --- a/libselinux/src/Makefile
->>>> +++ b/libselinux/src/Makefile
->>>> @@ -1,9 +1,10 @@
->>>>  # Installation directories.
->>>> +PYTHON ?= python
->>>>  PREFIX ?= $(DESTDIR)/usr
->>>>  LIBDIR ?= $(PREFIX)/lib
->>>>  SHLIBDIR ?= $(DESTDIR)/lib
->>>>  INCLUDEDIR ?= $(PREFIX)/include
->>>> -PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
->>>> +PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
->>>>  PYINC ?= /usr/include/$(PYLIBVER)
->>>>  PYLIB ?= /usr/lib/$(PYLIBVER)
->>>>  PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
->>>> @@ -23,13 +24,13 @@ SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
->>>>  SWIGRUBYIF= selinuxswig_ruby.i
->>>>  SWIGCOUT= selinuxswig_wrap.c
->>>>  SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
->>>> -SWIGLOBJ:= $(patsubst %.c,%.lo,$(SWIGCOUT)) 
->>>> +SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT)) 
->>>>  SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT)) 
->>>> -SWIGSO=_selinux.so
->>>> +SWIGSO=$(PYPREFIX)_selinux.so
->>>>  SWIGFILES=$(SWIGSO) selinux.py selinuxswig_python_exception.i
->>>>  SWIGRUBYSO=_rubyselinux.so
->>>>  LIBSO=$(TARGET).$(LIBVERSION)
->>>> -AUDIT2WHYSO=audit2why.so
->>>> +AUDIT2WHYSO=$(PYPREFIX)audit2why.so
->>>>  
->>>>  ifeq ($(DISABLE_AVC),y)
->>>>  	UNUSED_SRCS+=avc.c avc_internal.c avc_sidtab.c mapping.c stringrep.c checkAccess.c
->>>> @@ -91,10 +92,10 @@ $(LIBPC): $(LIBPC).in
->>>>  selinuxswig_python_exception.i: ../include/selinux/selinux.h
->>>>  	bash exception.sh > $@ 
->>>>  
->>>> -audit2why.lo: audit2why.c
->>>> +$(PYPREFIX)audit2why.lo: audit2why.c
->>>>  	$(CC) $(CFLAGS) -I$(PYINC) -fPIC -DSHARED -c -o $@ $<
->>>>  
->>>> -$(AUDIT2WHYSO): audit2why.lo
->>>> +$(AUDIT2WHYSO): $(PYPREFIX)audit2why.lo
->>>>  	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux ${LIBDIR}/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
->>>>  
->>>>  %.o:  %.c policy.h
->>>> @@ -123,8 +124,8 @@ install: all
->>>>  
->>>>  install-pywrap: pywrap
->>>>  	test -d $(PYTHONLIBDIR)/site-packages/selinux || install -m 755 -d $(PYTHONLIBDIR)/site-packages/selinux
->>>> -	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages/selinux
->>>> -	install -m 755 $(AUDIT2WHYSO) $(PYTHONLIBDIR)/site-packages/selinux
->>>> +	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages/selinux/_selinux.so
->>>> +	install -m 755 $(AUDIT2WHYSO) $(PYTHONLIBDIR)/site-packages/selinux/audit2why.so
->>>>  	install -m 644  selinux.py $(PYTHONLIBDIR)/site-packages/selinux/__init__.py
->>>>  
->>>>  install-rubywrap: rubywrap
->>>> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
->>>> index 691bc67..12e8614 100644
->>>> --- a/libselinux/src/audit2why.c
->>>> +++ b/libselinux/src/audit2why.c
->>>> @@ -1,3 +1,6 @@
->>>> +/* Workaround for http://bugs.python.org/issue4835 */
->>>> +#define SIZEOF_SOCKET_T SIZEOF_INT
->>>> +
->>>>  #include <Python.h>
->>>>  #include <unistd.h>
->>>>  #include <stdlib.h>
->>>> @@ -287,8 +292,10 @@ static int __policy_init(const char *init_path)
->>>>  static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args) {
->>>>    int result;
->>>>    char *init_path=NULL;
->>>> -  if (PyArg_ParseTuple(args,(char *)"|s:policy_init",&init_path)) 
->>>> -	  result = __policy_init(init_path);
->>>> +  if (!PyArg_ParseTuple(args,(char *)"|s:policy_init",&init_path)) {
->>>> +    return NULL;
->>>> +  }
->>>> +  result = __policy_init(init_path);
->>>>    return Py_BuildValue("i", result);
->>>>  }
->>>>  
->>>> @@ -353,7 +360,11 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
->>>>  		strObj = PyList_GetItem(listObj, i); /* Can't fail */
->>>>  		
->>>>  		/* make it a string */
->>>> +#if PY_MAJOR_VERSION >= 3
->>>> +		permstr = _PyUnicode_AsString( strObj );
->>>> +#else
->>>>  		permstr = PyString_AsString( strObj );
->>>> +#endif
->>>>  		
->>>>  		perm = string_to_av_perm(tclass, permstr);
->>>>  		if (!perm) {
->>>> @@ -423,10 +434,39 @@ static PyMethodDef audit2whyMethods[] = {
->>>>      {NULL, NULL, 0, NULL}        /* Sentinel */
->>>>  };
->>>>  
->>>> +#if PY_MAJOR_VERSION >= 3
->>>> +/* Module-initialization logic specific to Python 3 */
->>>> +struct module_state {
->>>> +	/* empty for now */
->>>> +};
->>>> +static struct PyModuleDef moduledef = {
->>>> +	PyModuleDef_HEAD_INIT,
->>>> +	"audit2why",
->>>> +	NULL,
->>>> +	sizeof(struct module_state),
->>>> +	audit2whyMethods,
->>>> +	NULL,
->>>> +	NULL,
->>>> +	NULL,
->>>> +	NULL
->>>> +};
->>>> +
->>>> +PyMODINIT_FUNC
->>>> +PyInit_audit2why(void)
->>>> +#else
->>>>  PyMODINIT_FUNC
->>>>  initaudit2why(void)
->>>> +#endif
->>>>  {
->>>> -	PyObject *m = Py_InitModule("audit2why", audit2whyMethods);
->>>> +	PyObject *m;
->>>> +#if PY_MAJOR_VERSION >= 3
->>>> +	m = PyModule_Create(&moduledef);
->>>> +	if (m == NULL) {
->>>> +		return NULL;
->>>> +	}
->>>> +#else
->>>> +	m  = Py_InitModule("audit2why", audit2whyMethods);
->>>> +#endif
->>>>  	PyModule_AddIntConstant(m,"UNKNOWN", UNKNOWN);
->>>>  	PyModule_AddIntConstant(m,"BADSCON", BADSCON);
->>>>  	PyModule_AddIntConstant(m,"BADTCON", BADTCON);
->>>> @@ -440,4 +480,8 @@ initaudit2why(void)
->>>>  	PyModule_AddIntConstant(m,"BOOLEAN", BOOLEAN);
->>>>  	PyModule_AddIntConstant(m,"CONSTRAINT", CONSTRAINT);
->>>>  	PyModule_AddIntConstant(m,"RBAC", RBAC);
->>>> +
->>>> +#if PY_MAJOR_VERSION >= 3
->>>> +	return m;
->>>> +#endif
->>>>  }
->>>> diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
->>>> index dea0e80..bb227e9 100644
->>>> --- a/libselinux/src/selinuxswig_python.i
->>>> +++ b/libselinux/src/selinuxswig_python.i
->>>> @@ -45,7 +45,7 @@ def install(src, dest):
->>>>  	PyObject* list = PyList_New(*$2);
->>>>  	int i;
->>>>  	for (i = 0; i < *$2; i++) {
->>>> -		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
->>>> +		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
->>>>  	}
->>>>  	$result = SWIG_Python_AppendOutput($result, list);
->>>>  }
->>>> @@ -74,7 +74,9 @@ def install(src, dest):
->>>>  			len++;
->>>>  		plist = PyList_New(len);
->>>>  		for (i = 0; i < len; i++) {
->>>> -			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
->>>> +			PyList_SetItem(plist, i, 
->>>> +                                       PyBytes_FromString((*$1)[i])
->>>> +                                       );
->>>>  		}
->>>>  	} else {
->>>>  		plist = PyList_New(0);
->>>> @@ -91,7 +93,9 @@ def install(src, dest):
->>>>  	if (*$1) {
->>>>  		plist = PyList_New(result);
->>>>  		for (i = 0; i < result; i++) {
->>>> -			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
->>>> +			PyList_SetItem(plist, i, 
->>>> +                                       PyBytes_FromString((*$1)[i])
->>>> +                                       );
->>>>  		}
->>>>  	} else {
->>>>  		plist = PyList_New(0);
->>>> @@ -144,16 +148,20 @@ def install(src, dest):
->>>>  	$1 = (char**) malloc(size + 1);
->>>>  
->>>>  	for(i = 0; i < size; i++) {
->>>> -		if (!PyString_Check(PySequence_GetItem($input, i))) {
->>>> -			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
->>>> +		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
->>>> +			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
->>>> +
->>>>  			return NULL;
->>>>  		}
->>>> +
->>>>  	}
->>>>  		
->>>>  	for(i = 0; i < size; i++) {
->>>>  		s = PySequence_GetItem($input, i);
->>>> -		$1[i] = (char*) malloc(PyString_Size(s) + 1);
->>>> -		strcpy($1[i], PyString_AsString(s));
->>>> +
->>>> +		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
->>>> +		strcpy($1[i], PyBytes_AsString(s));
->>>> +
->>>>  	}
->>>>  	$1[size] = NULL;
->>>>  }
->>>
->>> This fails to compile for me:
->>>
->>> make PYTHON=/usr/bin/python3 PYPREFIX=python3
->>> pywrap cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn
->>> -Wmissing-format-attribute -I../include -I/usr/include -D_GNU_SOURCE
->>> -D_FILE_OFFSET_BITS=64  -I/usr/include/python3.1 -fPIC -DSHARED -c -o
->>> python3audit2why.lo audit2why.c
->>> cc1: warnings being treated as errors
->>> audit2why.c:441:2: error: missing initializer
->>> audit2why.c:441:2: error: (near initialization for
->>> ‘moduledef.m_base.m_init’)
->>>
->>>
->>>
->> Here is the command we are building it with in Fedora.
->>
->> + make PYTHON=/usr/bin/python3 PYPREFIX=python3 LIBDIR=/usr/lib64
->> 'CFLAGS=-g -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions
->> - -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic' -j2
->> pywrap
->>
->> We might need  a lot of work to get it to build with -Werror.
-> 
-> IIRC, isn't this:
->   http://bugs.python.org/issue9518
-> 
-> Python 3.1's Include/moduleobject.h #defines PyModuleDef_HEAD_INIT, but
-> doesn't initialize all of the fields.  I've fixed it in upstream Python
-> 3, and the fix is in 3.2b1 onwards; the commit was:
->   http://svn.python.org/view?view=rev&revision=86499
-> 
-> Is auditw2hy.c autogenerated, handwritten, or a bit of both?  Fixing
-> that warning when compiled against older Python 3 headers shouldn't be
-> too hard.
-> 
-> Hope this is helpful
-> Dave
-> 
-
-So do we need to wait until F15 before this patch becomes acceptable?
+This is a multi-part message in MIME format.
+--------------040600090306010402080701
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+--------------040600090306010402080701
+Content-Type: text/plain;
+ name="audit2allow_man.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="audit2allow_man.patch"
 
-iEYEARECAAYFAk0SVlEACgkQrlYvE4MpobMWRwCfflXqoh2uS8v5OBXvateDH0Om
-DaAAnRpAHLCJ1pW4K0xLOmQumPYEcVWA
-=ckEn
------END PGP SIGNATURE-----
+diff --git a/policycoreutils/audit2allow/audit2allow.1 b/policycoreutils/audit2allow/audit2allow.1
+index 6178cc8..b6f386d 100644
+--- a/policycoreutils/audit2allow/audit2allow.1
++++ b/policycoreutils/audit2allow/audit2allow.1
+@@ -1,5 +1,6 @@
+ .\" Hey, Emacs! This is an -*- nroff -*- source file.
+ .\" Copyright (c) 2005 Manoj Srivastava <srivasta@debian.org>
++.\" Copyright (c) 2010 Dan Walsh <dwalsh@redhat.com>
+ .\"
+ .\" This is free documentation; you can redistribute it and/or
+ .\" modify it under the terms of the GNU General Public License as
+@@ -22,7 +23,7 @@
+ .\" USA.
+ .\"
+ .\"
+-.TH AUDIT2ALLOW "1" "January 2005" "Security Enhanced Linux" NSA
++.TH AUDIT2ALLOW "1" "October 2010" "Security Enhanced Linux" NSA
+ .SH NAME
+ .BR audit2allow
+ \- generate SELinux policy allow/dontaudit rules from logs of denied operations
+@@ -117,14 +121,6 @@ an 'allow' rule.
+ .B Please substitute /var/log/messages for /var/log/audit/audit.log in the 
+ .B examples.
+ .PP
+-.B Using audit2allow to generate monolithic (non-module) policy
+-$ cd /etc/selinux/$SELINUXTYPE/src/policy
+-$ cat /var/log/audit/audit.log | audit2allow >> domains/misc/local.te
+-$ cat domains/misc/local.te
+-allow cupsd_config_t unconfined_t:fifo_file { getattr ioctl };
+-<review domains/misc/local.te and customize as desired>
+-$ make load
+-
+ .B Using audit2allow to generate module policy
+ 
+ $ cat /var/log/audit/audit.log | audit2allow -m local > local.te
+@@ -132,20 +128,38 @@ $ cat local.te
+ module local 1.0;
+ 
+ require {
+-        role system_r;
++        class file {  getattr open read };
+ 
+ 
+-        class fifo_file {  getattr ioctl };
++        type myapp_t;
++        type etc_t;
++ };
+ 
+ 
+-        type cupsd_config_t;
+-        type unconfined_t;
+- };
++allow myapp_t etc_t:file { getattr open read };
++<review local.te and customize as desired>
+ 
++.B Using audit2allow to generate module policy using reference policy
+ 
+-allow cupsd_config_t unconfined_t:fifo_file { getattr ioctl };
++$ cat /var/log/audit/audit.log | audit2allow -R -m local > local.te
++$ cat local.te
++policy_module(local, 1.0)
++
++gen_require(`
++        type myapp_t;
++        type etc_t;
++ };
++
++files_read_etc_files(myapp_t)
+ <review local.te and customize as desired>
+ 
++.B Building module policy using Makefile
++
++# SELinux provides a policy devel environment under /usr/share/selinux/devel
++# You can create a te file and compile it by executing 
++$ make -f /usr/share/selinux/devel/Makefile
++$ semodule -i local.pp
++
+ .B Building module policy manually
+ 
+ # Compile the module
+@@ -168,6 +182,14 @@ you are required to execute
+ 
+ semodule -i local.pp
+ 
++.B Using audit2allow to generate monolithic (non-module) policy
++$ cd /etc/selinux/$SELINUXTYPE/src/policy
++$ cat /var/log/audit/audit.log | audit2allow >> domains/misc/local.te
++$ cat domains/misc/local.te
++allow cupsd_config_t unconfined_t:fifo_file { getattr ioctl };
++<review domains/misc/local.te and customize as desired>
++$ make load
++
+ .fi
+ .PP
+ .SH AUTHOR
+
+--------------040600090306010402080701
+Content-Type: application/pgp-signature;
+ name="audit2allow_man.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="audit2allow_man.patch.sig"
+
+iEYEABECAAYFAk0SWsEACgkQrlYvE4MpobMKDACggS99gkimOEqrwPBMlXMw6gems84AoNY7
+s2r90F01+kTpdNyb4KcN9wCQ
+--------------040600090306010402080701--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
