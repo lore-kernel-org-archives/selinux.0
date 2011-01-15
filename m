@@ -1,34 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0ELlRFI022597
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jan 2011 16:47:27 -0500
-Received: from smtp109.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p0ELlQ32007738
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jan 2011 21:47:26 GMT
-Message-ID: <4D30C468.9040400@schaufler-ca.com>
-Date: Fri, 14 Jan 2011 13:47:20 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0FCm84w021682
+	for <selinux@tycho.nsa.gov>; Sat, 15 Jan 2011 07:48:09 -0500
+Received: from mail-iw0-f195.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p0FCm6RO020455
+	for <selinux@tycho.nsa.gov>; Sat, 15 Jan 2011 12:48:07 GMT
+Received: by iwn41 with SMTP id 41so1141866iwn.6
+        for <selinux@tycho.nsa.gov>; Sat, 15 Jan 2011 04:48:06 -0800 (PST)
 MIME-Version: 1.0
-To: mohit verma <mohit89mlnc@gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Subject: Re: audit function
-References: <AANLkTimFDVmgtFCkUEKV=mUDBCOQMX4-owM+gTes0X7v@mail.gmail.com>
-In-Reply-To: <AANLkTimFDVmgtFCkUEKV=mUDBCOQMX4-owM+gTes0X7v@mail.gmail.com>
+In-Reply-To: <4D3057AC.3040903@redhat.com>
+References: <4D01F7A4.90708@ak.jp.nec.com>
+	<4D2FEAE9.8080201@ak.jp.nec.com>
+	<4D3057AC.3040903@redhat.com>
+Date: Sat, 15 Jan 2011 21:48:06 +0900
+Message-ID: <AANLkTi=vHcJBGpUKQa0VZDtnFJGQ8Ozgmt4mhihYH-r+@mail.gmail.com>
+Subject: Re: [refpolicy] [PATCH] New database object classes
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, refpolicy@oss1.tresys.com,
+        selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/14/2011 1:17 AM, mohit verma wrote:
-> hi folks,
->  can someone  help me understand the use of  the function
->  selinux_audit_rule_init <http://lxr.linux.no/linux+*/+code=selinux_audit_rule_init>(u32 <http://lxr.linux.no/linux+*/+code=u32> field <http://lxr.linux.no/linux+*/+code=field>, u32 <http://lxr.linux.no/linux+*/+code=u32> op <http://lxr.linux.no/linux+*/+code=op>, char *rulestr <http://lxr.linux.no/linux+*/+code=rulestr>, void **vrule <http://lxr.linux.no/linux+*/+code=vrule>);
->
->
->   does this function gets initialized at initramfs or later on to log the data? i mean i am completely blank at this function.
->
-> thanks in advance to elaborate on it.
+>> How about getting inclusion of this patch?
+>>
+>> These new object classes and corresponding rules are necessary
+>> to run SE-PostgreSQL based on the upcoming v9.1.
+>>
+ :
+> KaiGai, I believe we have your patches in Fedora and RHEL6, If not
+> please ping me to add them.
 
-You will find it called (twice) in kernel/auditfilter.c
-as security_audit_rule_init. This is an LSM hook.
+I'm not certain about the latest RHEL6 policy, because I don't know
+the way to reference its repository.
+However, these new object classes are not included within the latest
+Fedora policy right now. I checked it using "fedpkg co selinux-policy".
+Do I see the same tree with you, don't I?
+
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
