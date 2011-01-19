@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0JLldhf017849
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 16:47:39 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0JLpZSV018268
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 16:51:37 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p0JLlcJu010609
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 21:47:38 GMT
-Message-ID: <4D375BF8.2060100@redhat.com>
-Date: Wed, 19 Jan 2011 16:47:36 -0500
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p0JLpa67004902
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 21:51:37 GMT
+Message-ID: <4D375CE6.7030107@redhat.com>
+Date: Wed, 19 Jan 2011 16:51:34 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Qwyjibo Jones <qwyjibojones@gmail.com>
@@ -89,16 +89,28 @@ On 01/19/2011 04:44 PM, Qwyjibo Jones wrote:
 > 
 >> Thanks for your time,
 > 
+Oops I misread the policy,  I guess we abandoned the separation.
 
-You are running on an MLS machine?
-seinfo
+
+		ifdef(`enable_mls',`
+			userdom_security_administrator(secadm_t,secadm_r,{
+secadm_tty_device_t sysadm_devpts_t })
+#			tunable_policy(`allow_sysadm_manage_security',`
+				userdom_security_administrator(sysadm_t,sysadm_r,admin_terminal)
+#			')
+
+
+Missed the "#" at the beginning of the lines.  So I don't think we
+prevent sysadm_t from managing the security, of course he has to be able
+to run at SystemHigh.
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk03W/gACgkQrlYvE4MpobOhXACgjt4a2pHLgbfTRfUJTmhR2ALH
-5VAAoIMbs+gV+YD8QlQFMv4oP9qiN5IX
-=nMTA
+iEYEARECAAYFAk03XOYACgkQrlYvE4MpobNWvACeO1Q8Rioee4mA8jHSUKWyDFkI
+hHgAn2hf4+hRA36bn2urfI3ezlKNK/+O
+=h3mZ
 -----END PGP SIGNATURE-----
 
 --
