@@ -1,47 +1,59 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0JJNaWP007441
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 14:23:36 -0500
-Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p0JJNZgc026611
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jan 2011 19:23:35 GMT
-Message-ID: <4D373A36.3050504@tresys.com>
-Date: Wed, 19 Jan 2011 14:23:34 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-CC: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [refpolicy] WARNING: at kernel/printk.c:430 do_syslog+0x40d/0x441()
-References: <4D372829.5090509@gmail.com>
-In-Reply-To: <4D372829.5090509@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: SELinux role separation
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Qwyjibo Jones <qwyjibojones@gmail.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <AANLkTimSCuwayFiMTr5=M7E=_eAbYmAOuq4o6ZnUDGsW@mail.gmail.com>
+References: <AANLkTimSCuwayFiMTr5=M7E=_eAbYmAOuq4o6ZnUDGsW@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 19 Jan 2011 14:29:50 -0500
+Message-ID: <1295465390.11317.7.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/19/11 13:06, Justin P. Mattock wrote:
-> this is showing up with the latest kernel in enforcing mode..
-> (I have not update the policy and/or selinux userspace)
+On Tue, 2011-01-18 at 13:03 -0500, Qwyjibo Jones wrote:
 > 
-> [   12.803882] type=1400 audit(1295457694.801:3): avc:  denied  { syslog 
-> } for  pid=1540 comm="rsyslogd" capability=34 
-> scontext=system_u:system_r:init_t:s0 
-> tcontext=system_u:system_r:init_t:s0 tclass=capability2
-[cut]
-> when using audit2allow I get:
+> I am currently working with an Itanium2 system which has RHEL 5.3 MLS
+> installed.
+> I am trying to understand how separation of roles works in SELinux/MLS
+> policy version 21. We have been told that we need to separate roles
+> that the sys admin is no longer allowed to do.
 > 
-> allow init_t self:capability2 syslog;
+> After reading through these threads, in the archives I am still
+> wondering about a couple things:
 > 
-> which gives an error when trying to install the module, due to the 
-> policy not knowing what capability2 is
+> http://www.nsa.gov/research/selinux/list-archive/0504/thread_body66.shtml#11082
 > 
-> system is ubuntu maverick, if this is already in(refpolicy) then I'll 
-> pull the latest when I get a chance..
+> And this one: 
+> http://www.nsa.gov/research/selinux/list-archive/0802/thread_body60.shtml
+> 
+> 1) Is the RHEL 5.x MLS policy version 21 capable of the following
+> separation of sysadm_r and secadm_r roles:
+> 
+>    a) Can the secadm_r role be the only role that can assign roles via
+> semanage? 
+> 
+>    b) Can the secadm_r role be the only role that can assign/modify
+> network interface labels via semanage?
+> 
+>    c) Can the secadm_r role be the only role that can control files
+> used in auditing, like auditd.conf. audit.rules, /etc/init.d/auditd
+> etc...
+> 
+> 2) Is this better accomplished with a combination of SUDO and SELinux?
+> 3) How can I determine what secadm_r can do in the current
+> configuration? can any of the CLI tools show me that? ( no gui tools
+> available )
 
-Support for this capability is upstream in refpolicy.
+What you describe should be possible using the MLS policy, although I
+can't speak to the specifics of the RHEL5 policy.  If you have or can
+install setools, then you should be able to query the policy via
+sesearch to discover what is allowed without needing any GUI.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
