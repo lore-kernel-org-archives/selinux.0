@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0KEM08U004697
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 09:22:00 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0KENeqD004906
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 09:23:40 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p0KELxW2006705
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 14:22:00 GMT
-Message-ID: <4D384504.6010603@redhat.com>
-Date: Thu, 20 Jan 2011 09:21:56 -0500
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p0KENcbq024960
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 14:23:39 GMT
+Message-ID: <4D384567.1030104@redhat.com>
+Date: Thu, 20 Jan 2011 09:23:35 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Qwyjibo Jones <qwyjibojones@gmail.com>
@@ -122,20 +122,16 @@ On 01/20/2011 08:45 AM, Qwyjibo Jones wrote:
 > prevent sysadm_t from managing the security, of course he has to be able
 > to run at SystemHigh.
 > 
-
-RHEL6 MLS Policy for separation is pretty much the same.  We are just
-working on certification now, hopefully for 6.1.  There is a lot more
-policy that works with MLS in RHEL6 including some desktop features,
-although we will be certifying server only, I believe.  Others might
-build a MLS desktop based on RHEL6.
-
+One idea would be to build the separation into a separate module
+sysadm_secadm.pp then you could disable this module and take away the
+power of sysadm to do security administration. How important is this?
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk04RQAACgkQrlYvE4MpobMSsgCg2tGDK2RvLrb7nv8gvCzX+mMq
-F/YAoIu4Cp3JtIYrZL5IeEJRuF1mZWrj
-=BL/v
+iEYEARECAAYFAk04RWcACgkQrlYvE4MpobNgkwCgrpfXVA3VACrLFueZjW6V5Gko
+YRsAoJsGGp76ODNFPSIhpl24h4D5KA6A
+=Ae9m
 -----END PGP SIGNATURE-----
 
 --
