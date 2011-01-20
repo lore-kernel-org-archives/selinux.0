@@ -1,32 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0KDhY9a001964
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 08:43:34 -0500
-Received: from mail-yi0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p0KDhXW2029836
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 13:43:33 GMT
-Received: by yib17 with SMTP id 17so177619yib.12
-        for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 05:43:33 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0KDjpwO002174
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 08:45:51 -0500
+Received: from mail-gw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p0KDjaW2000111
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 13:45:36 GMT
+Received: by gwb10 with SMTP id 10so168609gwb.12
+        for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2011 05:45:36 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <4D375CE6.7030107@redhat.com>
 References: <AANLkTimSCuwayFiMTr5=M7E=_eAbYmAOuq4o6ZnUDGsW@mail.gmail.com>
 	<4D37458B.4050705@redhat.com>
 	<AANLkTimcB_2Dt6fetoDZ_Da0CaWKFDHv-UA=pA3P-Oc7@mail.gmail.com>
 	<4D375CE6.7030107@redhat.com>
-Date: Thu, 20 Jan 2011 08:43:33 -0500
-Message-ID: <AANLkTi=e6KQ76_Npj5xLv6qJdP1tszCGJHm2pqTPawE-@mail.gmail.com>
+Date: Thu, 20 Jan 2011 08:45:35 -0500
+Message-ID: <AANLkTi=7qtTjmVPDrVyDX0OiX1QbG3CzYXAtsT8L-von@mail.gmail.com>
 Subject: Re: SELinux role separation
 From: Qwyjibo Jones <qwyjibojones@gmail.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=00151757093ad7557e049a475135
+Content-Type: multipart/alternative; boundary=00151757093a2164e0049a475905
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---00151757093ad7557e049a475135
+--00151757093a2164e0049a475905
 Content-Type: text/plain; charset=ISO-8859-1
 
-Thanks for the info...
+Sorry, one more question...
 
+Does the MLS policy shipped with RHEL 6 have the separation?
+
+Thanks,
 
 On Wed, Jan 19, 2011 at 4:51 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
 
@@ -130,16 +133,17 @@ On Wed, Jan 19, 2011 at 4:51 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
 > -----END PGP SIGNATURE-----
 >
 
---00151757093ad7557e049a475135
+--00151757093a2164e0049a475905
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Thanks for the info...<br><br><br><div class=3D"gmail_quote">On Wed, Jan 19=
-, 2011 at 4:51 PM, Daniel J Walsh <span dir=3D"ltr">&lt;<a href=3D"mailto:d=
-walsh@redhat.com">dwalsh@redhat.com</a>&gt;</span> wrote:<br><blockquote cl=
-ass=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; border-left: 1px so=
-lid rgb(204, 204, 204); padding-left: 1ex;">
-<div class=3D"im">-----BEGIN PGP SIGNED MESSAGE-----<br>
+Sorry, one more question...<br><br>Does the MLS policy shipped with RHEL 6 =
+have the separation?<br><br>Thanks,<br><br><div class=3D"gmail_quote">On We=
+d, Jan 19, 2011 at 4:51 PM, Daniel J Walsh <span dir=3D"ltr">&lt;<a href=3D=
+"mailto:dwalsh@redhat.com">dwalsh@redhat.com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><div class=3D"im"=
+>-----BEGIN PGP SIGNED MESSAGE-----<br>
 Hash: SHA1<br>
 <br>
 </div><div class=3D"im">On 01/19/2011 04:44 PM, Qwyjibo Jones wrote:<br>
@@ -263,7 +267,7 @@ hHgAn2hf4+hRA36bn2urfI3ezlKNK/+O<br>
 -----END PGP SIGNATURE-----<br>
 </blockquote></div><br>
 
---00151757093ad7557e049a475135--
+--00151757093a2164e0049a475905--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
