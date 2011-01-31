@@ -1,107 +1,130 @@
 MIME-Version: 1.0
 From: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
-Date: Mon, 31 Jan 2011 05:26:54 +0200
-Message-ID: <AANLkTi=4CH2zFrDp6DAnSj3pa28MtymfG+NrtQ3iW5k-@mail.gmail.com>
-Subject: [PATCH 2/2] RFC: selinux: sysctl: fix selinux labeling broken by last patch
+Date: Mon, 31 Jan 2011 05:25:28 +0200
+Message-ID: <AANLkTi=5LB8M1VXZXZ2zEEa1rNf7Ps2bbg5h=x1mJS38@mail.gmail.com>
+Subject: [PATCH 1/2] security/selinux: Simplify proc inode to security label mapping
 To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>,
-        Lucian Adrian Grijincu <lucian.grijincu@gmail.com>,
-        Dave Chinner <dchinner@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Content-Type: multipart/mixed; boundary=0050450143e7016b60049b1bfec7
+        Eric Paris <eparis@parisplace.org>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, "Eric W. Biederman" <ebiederm@xmission.com>,
+        Octavian Purdila <opurdila@ixiacom.com>
+Content-Type: multipart/mixed; boundary=0022152d7e0be29b1b049b1bf8b7
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0050450143e7016b60049b1bfec7
+--0022152d7e0be29b1b049b1bf8b7
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Eric's patch was rejected because it broke selinux labeling:
-http://thread.gmane.org/gmane.linux.kernel.lsm/9807/focus=3D9841
+Currently selinux has incestuous knowledge of the implementation details
+of procfs and sysctl that it uses to get a pathname from an inode. As it
+happens the point we care is in the security_d_instantiate lsm hook so
+we have a valid dentry that we can use to get the entire pathname on
+the proc filesystem.  With the recent change to sys_sysctl to go through
+proc/sys all proc and sysctl accesses go through the vfs, which
+means we no longer need a sysctl special case.
 
-       This seems to break labeling.  Prior to this patch, I see:
+So get the path for the dentry, remove the incestuous knowledge
+and simplify the code.
 
-       # ls -lZ /proc/1/net/rpc/nfsd.fh
-       -rw-------. root root system_u:object_r:sysctl_rpc_t:s0 channel
+caveat: Because the dentry may not yet be hashed I think dentry_path will
+        append (deleted) and thus is not the right function to call.
 
-       with the patch:
-
-       # ls -lZ /proc/1/net/rpc/nfsd.fh
-       -rw-------. root root system_u:object_r:proc_t:s0      channel
-
-My patch seems to have fixed this problem (it correctly reports
-sysctl_rpc_t in this case), but my selinux experience is =CE=B5 > 0 and I
-have no ideea what else it may have broken.
-
-I ran 'find /proc | xargs ls -Z > f' on a kernel with an without
-these patches:
-* http://swarm.cs.pub.ro/~lucian/store/ls-Z-with-patch
-* http://swarm.cs.pub.ro/~lucian/store/ls-Z-without-patch
-
-My setup is a custom busybox live CD with selinux enabled, with
-/etc/selinux and /usr/share/selinux/default copied from Ubuntu 10.10's
-selinux-policy-default package. I'm sure there are lots of reasons why
-this is not correcly configured, etc., but I have no experience
-regarding selinux. I can make all the scripts/sources/configs/etc
-available to anyone interested.
-
-NOTE: this patch will be merged with:
-  security/selinux: Simplify proc inode to security label mapping
-
-I'm only prividing this patch separately to point out the differences
-to Eric W. Biederman's patch.
-
-Both of these patches apply cleanly agains Linux 2.6.37.
-
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
 ---
- fs/proc/proc_sysctl.c    |    1 -
- security/selinux/hooks.c |   20 ++++++++++++++++----
- 2 files changed, 16 insertions(+), 5 deletions(-)
+ security/selinux/hooks.c |  114 ++++-----------------------------------------
+ 1 files changed, 11 insertions(+), 103 deletions(-)
 
---0050450143e7016b60049b1bfec7
+--0022152d7e0be29b1b049b1bf8b7
 Content-Type: text/x-patch; charset=US-ASCII;
-	name="0002-RFC-selinux-sysctl-fix-selinux-labeling-broken-by-la.patch"
+	name="0001-security-selinux-Simplify-proc-inode-to-security-lab.patch"
 Content-Disposition: attachment;
-	filename="0002-RFC-selinux-sysctl-fix-selinux-labeling-broken-by-la.patch"
+	filename="0001-security-selinux-Simplify-proc-inode-to-security-lab.patch"
 Content-Transfer-Encoding: base64
-X-Attachment-Id: 110397b064c22d36_0.1
+X-Attachment-Id: 3f754629de6aef33_0.1
 
-ZGlmZiAtLWdpdCBhL2ZzL3Byb2MvcHJvY19zeXNjdGwuYyBiL2ZzL3Byb2MvcHJvY19zeXNjdGwu
-Yw0KaW5kZXggYjY1MmNiMC4uYjE3NjE5ZCAxMDA2NDQNCi0tLSBhL2ZzL3Byb2MvcHJvY19zeXNj
-dGwuYw0KKysrIGIvZnMvcHJvYy9wcm9jX3N5c2N0bC5jDQpAQCAtMzEsNyArMzEsNiBAQCBzdGF0
-aWMgc3RydWN0IGlub2RlICpwcm9jX3N5c19tYWtlX2lub2RlKHN0cnVjdCBzdXBlcl9ibG9jayAq
-c2IsDQogCWVpLT5zeXNjdGxfZW50cnkgPSB0YWJsZTsNCiANCiAJaW5vZGUtPmlfbXRpbWUgPSBp
-bm9kZS0+aV9hdGltZSA9IGlub2RlLT5pX2N0aW1lID0gQ1VSUkVOVF9USU1FOw0KLQlpbm9kZS0+
-aV9mbGFncyB8PSBTX1BSSVZBVEU7IC8qIHRlbGwgc2VsaW51eCB0byBpZ25vcmUgdGhpcyBpbm9k
-ZSAqLw0KIAlpbm9kZS0+aV9tb2RlID0gdGFibGUtPm1vZGU7DQogCWlmICghdGFibGUtPmNoaWxk
-KSB7DQogCQlpbm9kZS0+aV9tb2RlIHw9IFNfSUZSRUc7DQpkaWZmIC0tZ2l0IGEvc2VjdXJpdHkv
-c2VsaW51eC9ob29rcy5jIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jDQppbmRleCA1MTYxNWY2
-Li41ZjU4MDE5IDEwMDY0NA0KLS0tIGEvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jDQorKysgYi9z
-ZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMNCkBAIC0xMTMyLDggKzExMzIsMjMgQEAgc3RhdGljIGlu
-dCBzZWxpbnV4X3Byb2NfZ2V0X3NpZChzdHJ1Y3QgZGVudHJ5ICpkZW50cnksDQogCXBhdGggPSBk
-ZW50cnlfcGF0aChkZW50cnksIGJ1ZmZlciwgUEFHRV9TSVpFKTsNCiAJaWYgKElTX0VSUihwYXRo
-KSkNCiAJCXJjID0gUFRSX0VSUihwYXRoKTsNCi0JZWxzZQ0KKwllbHNlIHsNCisJCS8qIGJlY2F1
-c2UgZGVudHJ5IGlzIG5vdCBoYXNoZWQsIGRlbnRyeV9wYXRoKCkgd2lsbA0KKwkJICogYXBwZW5k
-ICIvL2RlbGV0ZWQiIHRvIHRoZSBlbmQgb2YgdGhlIHN0cmluZy4gV2UnbGwNCisJCSAqIHJlbW92
-ZSB0aGlzIGFzIG5vIC9wcm9jLyBmaWxlIGlzIG5hbWVkIHNvLiAqLw0KKwkJaW50IHBhdGhsZW4g
-PSBzdHJsZW4ocGF0aCk7DQorCQlpbnQgZGVsbGVuID0gc3RybGVuKCIvL2RlbGV0ZWQiKTsNCisJ
-CWlmICgocGF0aGxlbiA+IGRlbGxlbikgJiYgc3RyY21wKHBhdGggKyBwYXRobGVuIC0gZGVsbGVu
-LCAiLy9kZWxldGVkIikgPT0gMCkNCisJCQlwYXRoW3BhdGhsZW4tZGVsbGVuXSA9ICdcMCc7DQor
-DQorCQkvKiBlYWNoIHByb2Nlc3MgZ2V0cyBhIC9wcm9jL1BJRC8gZW50cnkuIFN0cmlwIG9mZiB0
-aGUNCisJCSAqIFBJRCBwYXJ0IHRvIGdldCBhIHZhbGlkIHNlbGludXggbGFiZWxpbmcuICovDQor
-CQl3aGlsZSAocGF0aFsxXSA+PSAnMCcgJiYgcGF0aFsxXSA8PSAnOScpIHsNCisJCQlwYXRoWzFd
-ID0gJy8nOw0KKwkJCXBhdGgrKzsNCisJCX0NCiAJCXJjID0gc2VjdXJpdHlfZ2VuZnNfc2lkKCJw
-cm9jIiwgcGF0aCwgdGNsYXNzLCBzaWQpOw0KKwl9DQogCWZyZWVfcGFnZSgodW5zaWduZWQgbG9u
-ZylidWZmZXIpOw0KIAlyZXR1cm4gcmM7DQogfQ0KQEAgLTE0NjQsOSArMTQ3OSw2IEBAIHN0YXRp
-YyBpbnQgaW5vZGVfaGFzX3Blcm0oY29uc3Qgc3RydWN0IGNyZWQgKmNyZWQsDQogDQogCXZhbGlk
-YXRlX2NyZWRzKGNyZWQpOw0KIA0KLQlpZiAodW5saWtlbHkoSVNfUFJJVkFURShpbm9kZSkpKQ0K
-LQkJcmV0dXJuIDA7DQotDQogCXNpZCA9IGNyZWRfc2lkKGNyZWQpOw0KIAlpc2VjID0gaW5vZGUt
-Pmlfc2VjdXJpdHk7DQogDQo=
---0050450143e7016b60049b1bfec7--
+ZGlmZiAtLWdpdCBhL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYyBiL3NlY3VyaXR5L3NlbGludXgv
+aG9va3MuYw0KaW5kZXggNjVmYThiZi4uNTE2MTVmNiAxMDA2NDQNCi0tLSBhL3NlY3VyaXR5L3Nl
+bGludXgvaG9va3MuYw0KKysrIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jDQpAQCAtNDMsNyAr
+NDMsNiBAQA0KICNpbmNsdWRlIDxsaW51eC9mZHRhYmxlLmg+DQogI2luY2x1ZGUgPGxpbnV4L25h
+bWVpLmg+DQogI2luY2x1ZGUgPGxpbnV4L21vdW50Lmg+DQotI2luY2x1ZGUgPGxpbnV4L3Byb2Nf
+ZnMuaD4NCiAjaW5jbHVkZSA8bGludXgvbmV0ZmlsdGVyX2lwdjQuaD4NCiAjaW5jbHVkZSA8bGlu
+dXgvbmV0ZmlsdGVyX2lwdjYuaD4NCiAjaW5jbHVkZSA8bGludXgvdHR5Lmg+DQpAQCAtNzAsNyAr
+NjksNiBAQA0KICNpbmNsdWRlIDxuZXQvaXB2Ni5oPg0KICNpbmNsdWRlIDxsaW51eC9odWdldGxi
+Lmg+DQogI2luY2x1ZGUgPGxpbnV4L3BlcnNvbmFsaXR5Lmg+DQotI2luY2x1ZGUgPGxpbnV4L3N5
+c2N0bC5oPg0KICNpbmNsdWRlIDxsaW51eC9hdWRpdC5oPg0KICNpbmNsdWRlIDxsaW51eC9zdHJp
+bmcuaD4NCiAjaW5jbHVkZSA8bGludXgvc2VsaW51eC5oPg0KQEAgLTExMjAsMzkgKzExMTgsMjcg
+QEAgc3RhdGljIGlubGluZSB1MTYgc29ja2V0X3R5cGVfdG9fc2VjdXJpdHlfY2xhc3MoaW50IGZh
+bWlseSwgaW50IHR5cGUsIGludCBwcm90b2MNCiB9DQogDQogI2lmZGVmIENPTkZJR19QUk9DX0ZT
+DQotc3RhdGljIGludCBzZWxpbnV4X3Byb2NfZ2V0X3NpZChzdHJ1Y3QgcHJvY19kaXJfZW50cnkg
+KmRlLA0KK3N0YXRpYyBpbnQgc2VsaW51eF9wcm9jX2dldF9zaWQoc3RydWN0IGRlbnRyeSAqZGVu
+dHJ5LA0KIAkJCQl1MTYgdGNsYXNzLA0KIAkJCQl1MzIgKnNpZCkNCiB7DQotCWludCBidWZsZW4s
+IHJjOw0KLQljaGFyICpidWZmZXIsICpwYXRoLCAqZW5kOw0KKwlpbnQgcmM7DQorCWNoYXIgKmJ1
+ZmZlciwgKnBhdGg7DQogDQogCWJ1ZmZlciA9IChjaGFyICopX19nZXRfZnJlZV9wYWdlKEdGUF9L
+RVJORUwpOw0KIAlpZiAoIWJ1ZmZlcikNCiAJCXJldHVybiAtRU5PTUVNOw0KIA0KLQlidWZsZW4g
+PSBQQUdFX1NJWkU7DQotCWVuZCA9IGJ1ZmZlcitidWZsZW47DQotCSotLWVuZCA9ICdcMCc7DQot
+CWJ1Zmxlbi0tOw0KLQlwYXRoID0gZW5kLTE7DQotCSpwYXRoID0gJy8nOw0KLQl3aGlsZSAoZGUg
+JiYgZGUgIT0gZGUtPnBhcmVudCkgew0KLQkJYnVmbGVuIC09IGRlLT5uYW1lbGVuICsgMTsNCi0J
+CWlmIChidWZsZW4gPCAwKQ0KLQkJCWJyZWFrOw0KLQkJZW5kIC09IGRlLT5uYW1lbGVuOw0KLQkJ
+bWVtY3B5KGVuZCwgZGUtPm5hbWUsIGRlLT5uYW1lbGVuKTsNCi0JCSotLWVuZCA9ICcvJzsNCi0J
+CXBhdGggPSBlbmQ7DQotCQlkZSA9IGRlLT5wYXJlbnQ7DQotCX0NCi0JcmMgPSBzZWN1cml0eV9n
+ZW5mc19zaWQoInByb2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQorCXBhdGggPSBkZW50cnlfcGF0
+aChkZW50cnksIGJ1ZmZlciwgUEFHRV9TSVpFKTsNCisJaWYgKElTX0VSUihwYXRoKSkNCisJCXJj
+ID0gUFRSX0VSUihwYXRoKTsNCisJZWxzZQ0KKwkJcmMgPSBzZWN1cml0eV9nZW5mc19zaWQoInBy
+b2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQogCWZyZWVfcGFnZSgodW5zaWduZWQgbG9uZylidWZm
+ZXIpOw0KIAlyZXR1cm4gcmM7DQogfQ0KICNlbHNlDQotc3RhdGljIGludCBzZWxpbnV4X3Byb2Nf
+Z2V0X3NpZChzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKmRlLA0KK3N0YXRpYyBpbnQgc2VsaW51eF9w
+cm9jX2dldF9zaWQoc3RydWN0IGRlbnRyeSAqZGVudHJ5LA0KIAkJCQl1MTYgdGNsYXNzLA0KIAkJ
+CQl1MzIgKnNpZCkNCiB7DQpAQCAtMTMxNiwxMCArMTMwMiw5IEBAIHN0YXRpYyBpbnQgaW5vZGVf
+ZG9pbml0X3dpdGhfZGVudHJ5KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBkZW50cnkgKm9w
+dF9kZW50DQogCQlpc2VjLT5zaWQgPSBzYnNlYy0+c2lkOw0KIA0KIAkJaWYgKChzYnNlYy0+Zmxh
+Z3MgJiBTRV9TQlBST0MpICYmICFTX0lTTE5LKGlub2RlLT5pX21vZGUpKSB7DQotCQkJc3RydWN0
+IHByb2NfaW5vZGUgKnByb2NpID0gUFJPQ19JKGlub2RlKTsNCi0JCQlpZiAocHJvY2ktPnBkZSkg
+ew0KKwkJCWlmIChvcHRfZGVudHJ5KSB7DQogCQkJCWlzZWMtPnNjbGFzcyA9IGlub2RlX21vZGVf
+dG9fc2VjdXJpdHlfY2xhc3MoaW5vZGUtPmlfbW9kZSk7DQotCQkJCXJjID0gc2VsaW51eF9wcm9j
+X2dldF9zaWQocHJvY2ktPnBkZSwNCisJCQkJcmMgPSBzZWxpbnV4X3Byb2NfZ2V0X3NpZChvcHRf
+ZGVudHJ5LA0KIAkJCQkJCQkgIGlzZWMtPnNjbGFzcywNCiAJCQkJCQkJICAmc2lkKTsNCiAJCQkJ
+aWYgKHJjKQ0KQEAgLTE4NjIsODIgKzE4NDcsNiBAQCBzdGF0aWMgaW50IHNlbGludXhfY2FwYWJs
+ZShzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgY29uc3Qgc3RydWN0IGNyZWQgKmNyZWQsDQogCXJl
+dHVybiB0YXNrX2hhc19jYXBhYmlsaXR5KHRzaywgY3JlZCwgY2FwLCBhdWRpdCk7DQogfQ0KIA0K
+LXN0YXRpYyBpbnQgc2VsaW51eF9zeXNjdGxfZ2V0X3NpZChjdGxfdGFibGUgKnRhYmxlLCB1MTYg
+dGNsYXNzLCB1MzIgKnNpZCkNCi17DQotCWludCBidWZsZW4sIHJjOw0KLQljaGFyICpidWZmZXIs
+ICpwYXRoLCAqZW5kOw0KLQ0KLQlyYyA9IC1FTk9NRU07DQotCWJ1ZmZlciA9IChjaGFyICopX19n
+ZXRfZnJlZV9wYWdlKEdGUF9LRVJORUwpOw0KLQlpZiAoIWJ1ZmZlcikNCi0JCWdvdG8gb3V0Ow0K
+LQ0KLQlidWZsZW4gPSBQQUdFX1NJWkU7DQotCWVuZCA9IGJ1ZmZlcitidWZsZW47DQotCSotLWVu
+ZCA9ICdcMCc7DQotCWJ1Zmxlbi0tOw0KLQlwYXRoID0gZW5kLTE7DQotCSpwYXRoID0gJy8nOw0K
+LQl3aGlsZSAodGFibGUpIHsNCi0JCWNvbnN0IGNoYXIgKm5hbWUgPSB0YWJsZS0+cHJvY25hbWU7
+DQotCQlzaXplX3QgbmFtZWxlbiA9IHN0cmxlbihuYW1lKTsNCi0JCWJ1ZmxlbiAtPSBuYW1lbGVu
+ICsgMTsNCi0JCWlmIChidWZsZW4gPCAwKQ0KLQkJCWdvdG8gb3V0X2ZyZWU7DQotCQllbmQgLT0g
+bmFtZWxlbjsNCi0JCW1lbWNweShlbmQsIG5hbWUsIG5hbWVsZW4pOw0KLQkJKi0tZW5kID0gJy8n
+Ow0KLQkJcGF0aCA9IGVuZDsNCi0JCXRhYmxlID0gdGFibGUtPnBhcmVudDsNCi0JfQ0KLQlidWZs
+ZW4gLT0gNDsNCi0JaWYgKGJ1ZmxlbiA8IDApDQotCQlnb3RvIG91dF9mcmVlOw0KLQllbmQgLT0g
+NDsNCi0JbWVtY3B5KGVuZCwgIi9zeXMiLCA0KTsNCi0JcGF0aCA9IGVuZDsNCi0JcmMgPSBzZWN1
+cml0eV9nZW5mc19zaWQoInByb2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQotb3V0X2ZyZWU6DQot
+CWZyZWVfcGFnZSgodW5zaWduZWQgbG9uZylidWZmZXIpOw0KLW91dDoNCi0JcmV0dXJuIHJjOw0K
+LX0NCi0NCi1zdGF0aWMgaW50IHNlbGludXhfc3lzY3RsKGN0bF90YWJsZSAqdGFibGUsIGludCBv
+cCkNCi17DQotCWludCBlcnJvciA9IDA7DQotCXUzMiBhdjsNCi0JdTMyIHRzaWQsIHNpZDsNCi0J
+aW50IHJjOw0KLQ0KLQlzaWQgPSBjdXJyZW50X3NpZCgpOw0KLQ0KLQlyYyA9IHNlbGludXhfc3lz
+Y3RsX2dldF9zaWQodGFibGUsIChvcCA9PSAwMDAxKSA/DQotCQkJCSAgICBTRUNDTEFTU19ESVIg
+OiBTRUNDTEFTU19GSUxFLCAmdHNpZCk7DQotCWlmIChyYykgew0KLQkJLyogRGVmYXVsdCB0byB0
+aGUgd2VsbC1kZWZpbmVkIHN5c2N0bCBTSUQuICovDQotCQl0c2lkID0gU0VDSU5JVFNJRF9TWVND
+VEw7DQotCX0NCi0NCi0JLyogVGhlIG9wIHZhbHVlcyBhcmUgImRlZmluZWQiIGluIHN5c2N0bC5j
+LCB0aGVyZWJ5IGNyZWF0aW5nDQotCSAqIGEgYmFkIGNvdXBsaW5nIGJldHdlZW4gdGhpcyBtb2R1
+bGUgYW5kIHN5c2N0bC5jICovDQotCWlmIChvcCA9PSAwMDEpIHsNCi0JCWVycm9yID0gYXZjX2hh
+c19wZXJtKHNpZCwgdHNpZCwNCi0JCQkJICAgICBTRUNDTEFTU19ESVIsIERJUl9fU0VBUkNILCBO
+VUxMKTsNCi0JfSBlbHNlIHsNCi0JCWF2ID0gMDsNCi0JCWlmIChvcCAmIDAwNCkNCi0JCQlhdiB8
+PSBGSUxFX19SRUFEOw0KLQkJaWYgKG9wICYgMDAyKQ0KLQkJCWF2IHw9IEZJTEVfX1dSSVRFOw0K
+LQkJaWYgKGF2KQ0KLQkJCWVycm9yID0gYXZjX2hhc19wZXJtKHNpZCwgdHNpZCwNCi0JCQkJCSAg
+ICAgU0VDQ0xBU1NfRklMRSwgYXYsIE5VTEwpOw0KLQl9DQotDQotCXJldHVybiBlcnJvcjsNCi19
+DQotDQogc3RhdGljIGludCBzZWxpbnV4X3F1b3RhY3RsKGludCBjbWRzLCBpbnQgdHlwZSwgaW50
+IGlkLCBzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiKQ0KIHsNCiAJY29uc3Qgc3RydWN0IGNyZWQgKmNy
+ZWQgPSBjdXJyZW50X2NyZWQoKTsNCkBAIC01Mzk1LDcgKzUzMDQsNiBAQCBzdGF0aWMgc3RydWN0
+IHNlY3VyaXR5X29wZXJhdGlvbnMgc2VsaW51eF9vcHMgPSB7DQogCS5wdHJhY2VfdHJhY2VtZSA9
+CQlzZWxpbnV4X3B0cmFjZV90cmFjZW1lLA0KIAkuY2FwZ2V0ID0JCQlzZWxpbnV4X2NhcGdldCwN
+CiAJLmNhcHNldCA9CQkJc2VsaW51eF9jYXBzZXQsDQotCS5zeXNjdGwgPQkJCXNlbGludXhfc3lz
+Y3RsLA0KIAkuY2FwYWJsZSA9CQkJc2VsaW51eF9jYXBhYmxlLA0KIAkucXVvdGFjdGwgPQkJCXNl
+bGludXhfcXVvdGFjdGwsDQogCS5xdW90YV9vbiA9CQkJc2VsaW51eF9xdW90YV9vbiwNCg==
+--0022152d7e0be29b1b049b1bf8b7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
