@@ -1,43 +1,89 @@
+Message-ID: <4D46F6FE.1020805@itechfrontiers.com>
+Date: Mon, 31 Jan 2011 12:53:02 -0500
+From: "cto@itechfrontiers.com" <cto@itechfrontiers.com>
 MIME-Version: 1.0
-In-Reply-To: <1296493175.26427.37.camel@moss-pluto>
-References: <AANLkTi=4CH2zFrDp6DAnSj3pa28MtymfG+NrtQ3iW5k-@mail.gmail.com>
- <1296482354.26427.21.camel@moss-pluto> <AANLkTimt5sxmgUmn-i-WcgMN4d0X00YVMujsA4QgS8nX@mail.gmail.com>
- <1296493175.26427.37.camel@moss-pluto>
-From: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
-Date: Mon, 31 Jan 2011 19:03:49 +0200
-Message-ID: <AANLkTi=3z-en0HAgVx1hRKrj6KYOHi_ZUP4aDv=8zUaa@mail.gmail.com>
-Subject: Re: [PATCH 2/2] RFC: selinux: sysctl: fix selinux labeling broken by
- last patch
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Content-Type: text/plain; charset=UTF-8
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: Tiny version of SE-PostgreSQL got merged
+References: <4D466F3B.6090906@ak.jp.nec.com>	 <4D4696F9.90303@itechfrontiers.com> <1296481204.26427.10.camel@moss-pluto>
+In-Reply-To: <1296481204.26427.10.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jan 31, 2011 at 6:59 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> /proc/sys inode labeling was disabled earlier (hence marked S_PRIVATE)
-> when /proc/sys was reimplemented by Eric, so all access control
-> on /proc/sys was switched to using the sysctl hook rather than the
-> inode-based checking.  That's why you don't get a result from ls -Z
-> on /proc/sys on current kernels.  Getting actual labeling working again
-> for those inodes would be a win, so your patch is an improvement in that
-> regard for selinux.
 
 
-Oh, OK. Thanks for letting me know.
+On 1/31/2011 8:40 AM, Stephen Smalley wrote:
+> On Mon, 2011-01-31 at 06:03 -0500, cto@itechfrontiers.com wrote:
+>> Hello,
+>>
+>> It's a great job,  but I got a licensing issue: (Due to my job I have to
+>> scrutinize Legal implications of source codes first)
+>>
+>> SE-Postgresql uses libselinux,
+>>
+>> libselinux tends to be in Public domain, serving as an interface for
+>> selinux modules in kernel (which is GPL)
+>>
+>> the problem is in libselinux/src/avc.c
+>>
+>> http://userspace.selinuxproject.org/trac/browser/libselinux/src/avc.c
+>>
+>> the author: Eamon Walsh
+>> with the National Computer Security Center (the NSA)
+>> indicated this file is "Derived" from kernel AVC (which is GPL v 2.1)
+>> _____________________________________________________________
+>> /*
+>>    * Implementation of the userspace access vector cache (AVC).
+>>    *
+>>    * Author : Eamon Walsh<ewalsh@epoch.ncsc.mil>
+>>    *
+>>    * Derived from the kernel AVC implementation by
+>>    * Stephen Smalley<sds@epoch.ncsc.mil>  and
+>>    * James Morris<jmorris@redhat.com>.
+>>    */
+>> _____________________________________________________________
+>>
+>> The term "Derived" has legal implication, any derivative works of GPL
+>> code should be GPL   (the kernel avc is licensed under GPL v 2.1)
+>>
+>> To me that file is much like a re-implementation of AVC for libselinux,
+>> it is obvious for interfacing userspace with kernel module you need to
+>> follow the structures of what you actually interface with (in this case
+>> it could be interpreted as original work)
+>>
+>> Although due to Legal requirements I have to consider author claims as
+>> well, and the Author clearly indicated it is a derivative work,
+>>
+>> If we consider the author claim then libselinux falls into GPL license
+>> category anything dynamically or statically linked to it should be
+>> released under GPL license then,  That would make se-postgresql license
+>> inappropriate  which is using postgresql license (actually is a BSD-like
+>> license and is less restrictive license than GPL).
+>>
+>>
+>>
+>> Please shed some light on this issue,
+>
+> libselinux is entirely public domain, with the agreement of all
+> contributors.
+>
+> The original kernel AVC code was developed by the NSA and was public
+> domain by itself, and only fell under the GPL when included as part of
+> the Linux kernel.  There have been some subsequent enhancements to the
+> kernel AVC, particularly the use of RCU for locking, that are not
+> present in the libselinux AVC.
+>
 
-Do you see anything else that is wrong with these patches (apart from
-"//deleted")?
+Mr. Smalley,
 
--- 
- .
-..: Lucian
+Thanks for clarification,
 
+
+Best,
+
+Patrick K.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
