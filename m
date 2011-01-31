@@ -1,78 +1,83 @@
-Subject: Re: Tiny version of SE-PostgreSQL got merged
+Subject: Re: [PATCH 2/2] RFC: selinux: sysctl: fix selinux labeling broken
+ by last patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "cto@itechfrontiers.com" <cto@itechfrontiers.com>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
-        Eamon Walsh
- <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4D4696F9.90303@itechfrontiers.com>
-References: <4D466F3B.6090906@ak.jp.nec.com>
-	 <4D4696F9.90303@itechfrontiers.com>
+To: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+        Dave
+ Chinner <dchinner@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux <selinux@tycho.nsa.gov>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <AANLkTi=4CH2zFrDp6DAnSj3pa28MtymfG+NrtQ3iW5k-@mail.gmail.com>
+References: <AANLkTi=4CH2zFrDp6DAnSj3pa28MtymfG+NrtQ3iW5k-@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 31 Jan 2011 08:40:04 -0500
-Message-ID: <1296481204.26427.10.camel@moss-pluto>
+Date: Mon, 31 Jan 2011 08:59:14 -0500
+Message-ID: <1296482354.26427.21.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-01-31 at 06:03 -0500, cto@itechfrontiers.com wrote:
-> Hello,
+On Mon, 2011-01-31 at 05:26 +0200, Lucian Adrian Grijincu wrote:
+> Eric's patch was rejected because it broke selinux labeling:
+> http://thread.gmane.org/gmane.linux.kernel.lsm/9807/focus=9841
 > 
-> It's a great job,  but I got a licensing issue: (Due to my job I have to 
-> scrutinize Legal implications of source codes first)
+>        This seems to break labeling.  Prior to this patch, I see:
 > 
-> SE-Postgresql uses libselinux,
+>        # ls -lZ /proc/1/net/rpc/nfsd.fh
+>        -rw-------. root root system_u:object_r:sysctl_rpc_t:s0 channel
 > 
-> libselinux tends to be in Public domain, serving as an interface for 
-> selinux modules in kernel (which is GPL)
+>        with the patch:
 > 
-> the problem is in libselinux/src/avc.c
+>        # ls -lZ /proc/1/net/rpc/nfsd.fh
+>        -rw-------. root root system_u:object_r:proc_t:s0      channel
 > 
-> http://userspace.selinuxproject.org/trac/browser/libselinux/src/avc.c
+> My patch seems to have fixed this problem (it correctly reports
+> sysctl_rpc_t in this case), but my selinux experience is ε > 0 and I
+> have no ideea what else it may have broken.
 > 
-> the author: Eamon Walsh
-> with the National Computer Security Center (the NSA)
-> indicated this file is "Derived" from kernel AVC (which is GPL v 2.1)
-> _____________________________________________________________
-> /*
->   * Implementation of the userspace access vector cache (AVC).
->   *
->   * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
->   *
->   * Derived from the kernel AVC implementation by
->   * Stephen Smalley <sds@epoch.ncsc.mil> and
->   * James Morris <jmorris@redhat.com>.
->   */
-> _____________________________________________________________
+> I ran 'find /proc | xargs ls -Z > f' on a kernel with an without
+> these patches:
+> * http://swarm.cs.pub.ro/~lucian/store/ls-Z-with-patch
+> * http://swarm.cs.pub.ro/~lucian/store/ls-Z-without-patch
 > 
-> The term "Derived" has legal implication, any derivative works of GPL 
-> code should be GPL   (the kernel avc is licensed under GPL v 2.1)
+> My setup is a custom busybox live CD with selinux enabled, with
+> /etc/selinux and /usr/share/selinux/default copied from Ubuntu 10.10's
+> selinux-policy-default package. I'm sure there are lots of reasons why
+> this is not correcly configured, etc., but I have no experience
+> regarding selinux. I can make all the scripts/sources/configs/etc
+> available to anyone interested.
 > 
-> To me that file is much like a re-implementation of AVC for libselinux, 
-> it is obvious for interfacing userspace with kernel module you need to 
-> follow the structures of what you actually interface with (in this case 
-> it could be interpreted as original work)
+> NOTE: this patch will be merged with:
+>   security/selinux: Simplify proc inode to security label mapping
 > 
-> Although due to Legal requirements I have to consider author claims as 
-> well, and the Author clearly indicated it is a derivative work,
+> I'm only prividing this patch separately to point out the differences
+> to Eric W. Biederman's patch.
 > 
-> If we consider the author claim then libselinux falls into GPL license 
-> category anything dynamically or statically linked to it should be 
-> released under GPL license then,  That would make se-postgresql license 
-> inappropriate  which is using postgresql license (actually is a BSD-like 
-> license and is less restrictive license than GPL).
+> Both of these patches apply cleanly agains Linux 2.6.37.
 > 
-> 
-> 
-> Please shed some light on this issue,
+> Signed-off-by: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
+> ---
+>  fs/proc/proc_sysctl.c    |    1 -
+>  security/selinux/hooks.c |   20 ++++++++++++++++----
+>  2 files changed, 16 insertions(+), 5 deletions(-)
 
-libselinux is entirely public domain, with the agreement of all
-contributors.
+It would be better to include the patch inline for review.  In any
+event, a few observations on your patch:
+- We don't want to replace "incestuous" knowledge of proc with
+"incestous" knowledge of the dcache.  So rather than encoding knowledge
+of the magical "//deleted" suffix into selinux, use an interface to the
+dcache (or add one if none exists) that does not append that suffix at
+all.  I think apparmor did something similar to deal with the (deleted)
+suffix for d_path.
 
-The original kernel AVC code was developed by the NSA and was public
-domain by itself, and only fell under the GPL when included as part of
-the Linux kernel.  There have been some subsequent enhancements to the
-kernel AVC, particularly the use of RCU for locking, that are not
-present in the libselinux AVC.
+- You don't need special handling of /proc/PID entries.  Those are
+labeled via the security_task_to_inode -> selinux_task_to_inode hook,
+called from proc_pid_make_inode and the _revalidate functions.
+
+- Don't remove the IS_PRIVATE() test from inode_has_perm(), as other
+inodes beyond just the /proc/sys ones are marked with that flag
+(original usage was for reiserfs xattr inodes).
 
 -- 
 Stephen Smalley
