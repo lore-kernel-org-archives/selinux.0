@@ -1,130 +1,52 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p0V8EnMW000850
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2011 03:14:50 -0500
+Received: from tyo201.gate.nec.co.jp (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p0V8El3A017084
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2011 08:14:48 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.160])
+	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id p0V8Ejw2012345
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2011 17:14:45 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id p0V8Ej109772 for selinux@tycho.nsa.gov; Mon, 31 Jan 2011 17:14:45 +0900 (JST)
+Received: from mail02.kamome.nec.co.jp (mail02.kamome.nec.co.jp [10.25.43.5])
+	by mailsv4.nec.co.jp (8.13.8/8.13.4) with ESMTP id p0V8Ei0x001001
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2011 17:14:44 +0900 (JST)
+Message-ID: <4D466F3B.6090906@ak.jp.nec.com>
+Date: Mon, 31 Jan 2011 17:13:47 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-From: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
-Date: Mon, 31 Jan 2011 05:25:28 +0200
-Message-ID: <AANLkTi=5LB8M1VXZXZ2zEEa1rNf7Ps2bbg5h=x1mJS38@mail.gmail.com>
-Subject: [PATCH 1/2] security/selinux: Simplify proc inode to security label mapping
-To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, "Eric W. Biederman" <ebiederm@xmission.com>,
-        Octavian Purdila <opurdila@ixiacom.com>
-Content-Type: multipart/mixed; boundary=0022152d7e0be29b1b049b1bf8b7
+To: selinux@tycho.nsa.gov
+Subject: Tiny version of SE-PostgreSQL got merged
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0022152d7e0be29b1b049b1bf8b7
-Content-Type: text/plain; charset=UTF-8
+A few days ago, a tiny initial version of SE-PostgreSQL got merged
+in the v9.1 development cycle at this commit: http://bit.ly/gF2QPQ
 
-Currently selinux has incestuous knowledge of the implementation details
-of procfs and sysctl that it uses to get a pathname from an inode. As it
-happens the point we care is in the security_d_instantiate lsm hook so
-we have a valid dentry that we can use to get the entire pathname on
-the proc filesystem.  With the recent change to sys_sysctl to go through
-proc/sys all proc and sysctl accesses go through the vfs, which
-means we no longer need a sysctl special case.
+Although it omits various features which I planned at first, it
+seems to me an ambitious first step.
+PostgreSQL has shifted to provide a set of facilities to implement
+label based mandatory access control, such as security label support
+on database objects or security hooks being available for plug-in
+modules.
 
-So get the path for the dentry, remove the incestuous knowledge
-and simplify the code.
+The current version of SE-PostgreSQL is implemented as a plugin
+module that utilizes these hooks (but only a limited places are
+covered), then it asks SELinux in kernel whether the required
+access shall be allowed, or not.
 
-caveat: Because the dentry may not yet be hashed I think dentry_path will
-        append (deleted) and thus is not the right function to call.
+In the next development, I'd like to expand its access control coverage
+using more fine grained security hooks. Right now, DDL permissions are
+restrictions. Also, row-level security is in-progress feature.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
----
- security/selinux/hooks.c |  114 ++++-----------------------------------------
- 1 files changed, 11 insertions(+), 103 deletions(-)
+I have much things to do for the v9.2 or v9.3, however, I'd like to
+appreciate people who have given me many feedbacks since 2006
 
---0022152d7e0be29b1b049b1bf8b7
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-security-selinux-Simplify-proc-inode-to-security-lab.patch"
-Content-Disposition: attachment;
-	filename="0001-security-selinux-Simplify-proc-inode-to-security-lab.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: 3f754629de6aef33_0.1
-
-ZGlmZiAtLWdpdCBhL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYyBiL3NlY3VyaXR5L3NlbGludXgv
-aG9va3MuYw0KaW5kZXggNjVmYThiZi4uNTE2MTVmNiAxMDA2NDQNCi0tLSBhL3NlY3VyaXR5L3Nl
-bGludXgvaG9va3MuYw0KKysrIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jDQpAQCAtNDMsNyAr
-NDMsNiBAQA0KICNpbmNsdWRlIDxsaW51eC9mZHRhYmxlLmg+DQogI2luY2x1ZGUgPGxpbnV4L25h
-bWVpLmg+DQogI2luY2x1ZGUgPGxpbnV4L21vdW50Lmg+DQotI2luY2x1ZGUgPGxpbnV4L3Byb2Nf
-ZnMuaD4NCiAjaW5jbHVkZSA8bGludXgvbmV0ZmlsdGVyX2lwdjQuaD4NCiAjaW5jbHVkZSA8bGlu
-dXgvbmV0ZmlsdGVyX2lwdjYuaD4NCiAjaW5jbHVkZSA8bGludXgvdHR5Lmg+DQpAQCAtNzAsNyAr
-NjksNiBAQA0KICNpbmNsdWRlIDxuZXQvaXB2Ni5oPg0KICNpbmNsdWRlIDxsaW51eC9odWdldGxi
-Lmg+DQogI2luY2x1ZGUgPGxpbnV4L3BlcnNvbmFsaXR5Lmg+DQotI2luY2x1ZGUgPGxpbnV4L3N5
-c2N0bC5oPg0KICNpbmNsdWRlIDxsaW51eC9hdWRpdC5oPg0KICNpbmNsdWRlIDxsaW51eC9zdHJp
-bmcuaD4NCiAjaW5jbHVkZSA8bGludXgvc2VsaW51eC5oPg0KQEAgLTExMjAsMzkgKzExMTgsMjcg
-QEAgc3RhdGljIGlubGluZSB1MTYgc29ja2V0X3R5cGVfdG9fc2VjdXJpdHlfY2xhc3MoaW50IGZh
-bWlseSwgaW50IHR5cGUsIGludCBwcm90b2MNCiB9DQogDQogI2lmZGVmIENPTkZJR19QUk9DX0ZT
-DQotc3RhdGljIGludCBzZWxpbnV4X3Byb2NfZ2V0X3NpZChzdHJ1Y3QgcHJvY19kaXJfZW50cnkg
-KmRlLA0KK3N0YXRpYyBpbnQgc2VsaW51eF9wcm9jX2dldF9zaWQoc3RydWN0IGRlbnRyeSAqZGVu
-dHJ5LA0KIAkJCQl1MTYgdGNsYXNzLA0KIAkJCQl1MzIgKnNpZCkNCiB7DQotCWludCBidWZsZW4s
-IHJjOw0KLQljaGFyICpidWZmZXIsICpwYXRoLCAqZW5kOw0KKwlpbnQgcmM7DQorCWNoYXIgKmJ1
-ZmZlciwgKnBhdGg7DQogDQogCWJ1ZmZlciA9IChjaGFyICopX19nZXRfZnJlZV9wYWdlKEdGUF9L
-RVJORUwpOw0KIAlpZiAoIWJ1ZmZlcikNCiAJCXJldHVybiAtRU5PTUVNOw0KIA0KLQlidWZsZW4g
-PSBQQUdFX1NJWkU7DQotCWVuZCA9IGJ1ZmZlcitidWZsZW47DQotCSotLWVuZCA9ICdcMCc7DQot
-CWJ1Zmxlbi0tOw0KLQlwYXRoID0gZW5kLTE7DQotCSpwYXRoID0gJy8nOw0KLQl3aGlsZSAoZGUg
-JiYgZGUgIT0gZGUtPnBhcmVudCkgew0KLQkJYnVmbGVuIC09IGRlLT5uYW1lbGVuICsgMTsNCi0J
-CWlmIChidWZsZW4gPCAwKQ0KLQkJCWJyZWFrOw0KLQkJZW5kIC09IGRlLT5uYW1lbGVuOw0KLQkJ
-bWVtY3B5KGVuZCwgZGUtPm5hbWUsIGRlLT5uYW1lbGVuKTsNCi0JCSotLWVuZCA9ICcvJzsNCi0J
-CXBhdGggPSBlbmQ7DQotCQlkZSA9IGRlLT5wYXJlbnQ7DQotCX0NCi0JcmMgPSBzZWN1cml0eV9n
-ZW5mc19zaWQoInByb2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQorCXBhdGggPSBkZW50cnlfcGF0
-aChkZW50cnksIGJ1ZmZlciwgUEFHRV9TSVpFKTsNCisJaWYgKElTX0VSUihwYXRoKSkNCisJCXJj
-ID0gUFRSX0VSUihwYXRoKTsNCisJZWxzZQ0KKwkJcmMgPSBzZWN1cml0eV9nZW5mc19zaWQoInBy
-b2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQogCWZyZWVfcGFnZSgodW5zaWduZWQgbG9uZylidWZm
-ZXIpOw0KIAlyZXR1cm4gcmM7DQogfQ0KICNlbHNlDQotc3RhdGljIGludCBzZWxpbnV4X3Byb2Nf
-Z2V0X3NpZChzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKmRlLA0KK3N0YXRpYyBpbnQgc2VsaW51eF9w
-cm9jX2dldF9zaWQoc3RydWN0IGRlbnRyeSAqZGVudHJ5LA0KIAkJCQl1MTYgdGNsYXNzLA0KIAkJ
-CQl1MzIgKnNpZCkNCiB7DQpAQCAtMTMxNiwxMCArMTMwMiw5IEBAIHN0YXRpYyBpbnQgaW5vZGVf
-ZG9pbml0X3dpdGhfZGVudHJ5KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBkZW50cnkgKm9w
-dF9kZW50DQogCQlpc2VjLT5zaWQgPSBzYnNlYy0+c2lkOw0KIA0KIAkJaWYgKChzYnNlYy0+Zmxh
-Z3MgJiBTRV9TQlBST0MpICYmICFTX0lTTE5LKGlub2RlLT5pX21vZGUpKSB7DQotCQkJc3RydWN0
-IHByb2NfaW5vZGUgKnByb2NpID0gUFJPQ19JKGlub2RlKTsNCi0JCQlpZiAocHJvY2ktPnBkZSkg
-ew0KKwkJCWlmIChvcHRfZGVudHJ5KSB7DQogCQkJCWlzZWMtPnNjbGFzcyA9IGlub2RlX21vZGVf
-dG9fc2VjdXJpdHlfY2xhc3MoaW5vZGUtPmlfbW9kZSk7DQotCQkJCXJjID0gc2VsaW51eF9wcm9j
-X2dldF9zaWQocHJvY2ktPnBkZSwNCisJCQkJcmMgPSBzZWxpbnV4X3Byb2NfZ2V0X3NpZChvcHRf
-ZGVudHJ5LA0KIAkJCQkJCQkgIGlzZWMtPnNjbGFzcywNCiAJCQkJCQkJICAmc2lkKTsNCiAJCQkJ
-aWYgKHJjKQ0KQEAgLTE4NjIsODIgKzE4NDcsNiBAQCBzdGF0aWMgaW50IHNlbGludXhfY2FwYWJs
-ZShzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgY29uc3Qgc3RydWN0IGNyZWQgKmNyZWQsDQogCXJl
-dHVybiB0YXNrX2hhc19jYXBhYmlsaXR5KHRzaywgY3JlZCwgY2FwLCBhdWRpdCk7DQogfQ0KIA0K
-LXN0YXRpYyBpbnQgc2VsaW51eF9zeXNjdGxfZ2V0X3NpZChjdGxfdGFibGUgKnRhYmxlLCB1MTYg
-dGNsYXNzLCB1MzIgKnNpZCkNCi17DQotCWludCBidWZsZW4sIHJjOw0KLQljaGFyICpidWZmZXIs
-ICpwYXRoLCAqZW5kOw0KLQ0KLQlyYyA9IC1FTk9NRU07DQotCWJ1ZmZlciA9IChjaGFyICopX19n
-ZXRfZnJlZV9wYWdlKEdGUF9LRVJORUwpOw0KLQlpZiAoIWJ1ZmZlcikNCi0JCWdvdG8gb3V0Ow0K
-LQ0KLQlidWZsZW4gPSBQQUdFX1NJWkU7DQotCWVuZCA9IGJ1ZmZlcitidWZsZW47DQotCSotLWVu
-ZCA9ICdcMCc7DQotCWJ1Zmxlbi0tOw0KLQlwYXRoID0gZW5kLTE7DQotCSpwYXRoID0gJy8nOw0K
-LQl3aGlsZSAodGFibGUpIHsNCi0JCWNvbnN0IGNoYXIgKm5hbWUgPSB0YWJsZS0+cHJvY25hbWU7
-DQotCQlzaXplX3QgbmFtZWxlbiA9IHN0cmxlbihuYW1lKTsNCi0JCWJ1ZmxlbiAtPSBuYW1lbGVu
-ICsgMTsNCi0JCWlmIChidWZsZW4gPCAwKQ0KLQkJCWdvdG8gb3V0X2ZyZWU7DQotCQllbmQgLT0g
-bmFtZWxlbjsNCi0JCW1lbWNweShlbmQsIG5hbWUsIG5hbWVsZW4pOw0KLQkJKi0tZW5kID0gJy8n
-Ow0KLQkJcGF0aCA9IGVuZDsNCi0JCXRhYmxlID0gdGFibGUtPnBhcmVudDsNCi0JfQ0KLQlidWZs
-ZW4gLT0gNDsNCi0JaWYgKGJ1ZmxlbiA8IDApDQotCQlnb3RvIG91dF9mcmVlOw0KLQllbmQgLT0g
-NDsNCi0JbWVtY3B5KGVuZCwgIi9zeXMiLCA0KTsNCi0JcGF0aCA9IGVuZDsNCi0JcmMgPSBzZWN1
-cml0eV9nZW5mc19zaWQoInByb2MiLCBwYXRoLCB0Y2xhc3MsIHNpZCk7DQotb3V0X2ZyZWU6DQot
-CWZyZWVfcGFnZSgodW5zaWduZWQgbG9uZylidWZmZXIpOw0KLW91dDoNCi0JcmV0dXJuIHJjOw0K
-LX0NCi0NCi1zdGF0aWMgaW50IHNlbGludXhfc3lzY3RsKGN0bF90YWJsZSAqdGFibGUsIGludCBv
-cCkNCi17DQotCWludCBlcnJvciA9IDA7DQotCXUzMiBhdjsNCi0JdTMyIHRzaWQsIHNpZDsNCi0J
-aW50IHJjOw0KLQ0KLQlzaWQgPSBjdXJyZW50X3NpZCgpOw0KLQ0KLQlyYyA9IHNlbGludXhfc3lz
-Y3RsX2dldF9zaWQodGFibGUsIChvcCA9PSAwMDAxKSA/DQotCQkJCSAgICBTRUNDTEFTU19ESVIg
-OiBTRUNDTEFTU19GSUxFLCAmdHNpZCk7DQotCWlmIChyYykgew0KLQkJLyogRGVmYXVsdCB0byB0
-aGUgd2VsbC1kZWZpbmVkIHN5c2N0bCBTSUQuICovDQotCQl0c2lkID0gU0VDSU5JVFNJRF9TWVND
-VEw7DQotCX0NCi0NCi0JLyogVGhlIG9wIHZhbHVlcyBhcmUgImRlZmluZWQiIGluIHN5c2N0bC5j
-LCB0aGVyZWJ5IGNyZWF0aW5nDQotCSAqIGEgYmFkIGNvdXBsaW5nIGJldHdlZW4gdGhpcyBtb2R1
-bGUgYW5kIHN5c2N0bC5jICovDQotCWlmIChvcCA9PSAwMDEpIHsNCi0JCWVycm9yID0gYXZjX2hh
-c19wZXJtKHNpZCwgdHNpZCwNCi0JCQkJICAgICBTRUNDTEFTU19ESVIsIERJUl9fU0VBUkNILCBO
-VUxMKTsNCi0JfSBlbHNlIHsNCi0JCWF2ID0gMDsNCi0JCWlmIChvcCAmIDAwNCkNCi0JCQlhdiB8
-PSBGSUxFX19SRUFEOw0KLQkJaWYgKG9wICYgMDAyKQ0KLQkJCWF2IHw9IEZJTEVfX1dSSVRFOw0K
-LQkJaWYgKGF2KQ0KLQkJCWVycm9yID0gYXZjX2hhc19wZXJtKHNpZCwgdHNpZCwNCi0JCQkJCSAg
-ICAgU0VDQ0xBU1NfRklMRSwgYXYsIE5VTEwpOw0KLQl9DQotDQotCXJldHVybiBlcnJvcjsNCi19
-DQotDQogc3RhdGljIGludCBzZWxpbnV4X3F1b3RhY3RsKGludCBjbWRzLCBpbnQgdHlwZSwgaW50
-IGlkLCBzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiKQ0KIHsNCiAJY29uc3Qgc3RydWN0IGNyZWQgKmNy
-ZWQgPSBjdXJyZW50X2NyZWQoKTsNCkBAIC01Mzk1LDcgKzUzMDQsNiBAQCBzdGF0aWMgc3RydWN0
-IHNlY3VyaXR5X29wZXJhdGlvbnMgc2VsaW51eF9vcHMgPSB7DQogCS5wdHJhY2VfdHJhY2VtZSA9
-CQlzZWxpbnV4X3B0cmFjZV90cmFjZW1lLA0KIAkuY2FwZ2V0ID0JCQlzZWxpbnV4X2NhcGdldCwN
-CiAJLmNhcHNldCA9CQkJc2VsaW51eF9jYXBzZXQsDQotCS5zeXNjdGwgPQkJCXNlbGludXhfc3lz
-Y3RsLA0KIAkuY2FwYWJsZSA9CQkJc2VsaW51eF9jYXBhYmxlLA0KIAkucXVvdGFjdGwgPQkJCXNl
-bGludXhfcXVvdGFjdGwsDQogCS5xdW90YV9vbiA9CQkJc2VsaW51eF9xdW90YV9vbiwNCg==
---0022152d7e0be29b1b049b1bf8b7--
+Thanks,
+-- 
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
