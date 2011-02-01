@@ -1,68 +1,79 @@
-Subject: Re: [PATCH 2/2] RFC: selinux: sysctl: fix selinux labeling broken
- by last patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
-        Dave
- Chinner <dchinner@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux <selinux@tycho.nsa.gov>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <1296498940.26427.42.camel@moss-pluto>
-References: <AANLkTi=4CH2zFrDp6DAnSj3pa28MtymfG+NrtQ3iW5k-@mail.gmail.com>
-	 <1296482354.26427.21.camel@moss-pluto>
-	 <AANLkTimt5sxmgUmn-i-WcgMN4d0X00YVMujsA4QgS8nX@mail.gmail.com>
-	 <1296493175.26427.37.camel@moss-pluto>
-	 <AANLkTi=3z-en0HAgVx1hRKrj6KYOHi_ZUP4aDv=8zUaa@mail.gmail.com>
-	 <1296498940.26427.42.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 31 Jan 2011 14:55:52 -0500
-Message-ID: <1296503752.26427.50.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p12EuIVH010947
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2011 09:56:18 -0500
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p11Mbree010244
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2011 22:37:53 GMT
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id p11MbqFn006490
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2011 17:37:52 -0500
+Received: from localhost.localdomain (vpn-8-85.rdu.redhat.com [10.11.8.85])
+	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p11MbpTG020036
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2011 17:37:52 -0500
+Message-ID: <4D488B3F.8030203@redhat.com>
+Date: Tue, 01 Feb 2011 17:37:51 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: selinux man page fixes
+Content-Type: multipart/mixed;
+ boundary="------------040900000104000802030503"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-01-31 at 13:35 -0500, Stephen Smalley wrote:
-> On Mon, 2011-01-31 at 19:03 +0200, Lucian Adrian Grijincu wrote:
-> > On Mon, Jan 31, 2011 at 6:59 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > /proc/sys inode labeling was disabled earlier (hence marked S_PRIVATE)
-> > > when /proc/sys was reimplemented by Eric, so all access control
-> > > on /proc/sys was switched to using the sysctl hook rather than the
-> > > inode-based checking.  That's why you don't get a result from ls -Z
-> > > on /proc/sys on current kernels.  Getting actual labeling working again
-> > > for those inodes would be a win, so your patch is an improvement in that
-> > > regard for selinux.
-> > 
-> > 
-> > Oh, OK. Thanks for letting me know.
-> > 
-> > Do you see anything else that is wrong with these patches (apart from
-> > "//deleted")?
-> 
-> No, although I think someone should take them for a spin on a modern
-> Fedora in enforcing mode for a bit, and likely run the selinux testsuite
-> too.
+This is a multi-part message in MIME format.
+--------------040900000104000802030503
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Booting F14 with your patch applied yields a large number of AVC denials
-of the form:
-type=AVC msg=audit(1296503592.932:1220139): avc:  denied  { read } for
-pid=1896 comm="gnome-settings-" path="anon_inode:inotify"
-dev=anon_inodefs ino=5312
-scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023
-tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
 
-So I assume that the anon_inodefs inodes are being marked private too,
-and relying on that test within inode_has_perm to avoid permission
-checks.  Which would mean that you need to leave that test alone after
-all.
+--------------040900000104000802030503
+Content-Type: text/plain;
+ name="libselinux-man.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libselinux-man.patch"
 
-The /proc labeling looks good though.
+diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
+index 5caa592..1fc5b95 100644
+--- a/libselinux/man/man8/selinux.8
++++ b/libselinux/man/man8/selinux.8
+@@ -1,7 +1,7 @@
+ .TH  "selinux"  "8"  "29 Apr 2005" "dwalsh@redhat.com" "SELinux Command Line documentation"
+ 
+ .SH "NAME"
+-selinux \- NSA Security-Enhanced Linux (SELinux)
++SELinux \- NSA Security-Enhanced Linux (SELinux)
+ 
+ .SH "DESCRIPTION"
+ 
+@@ -62,12 +62,12 @@ compile-time tunable options and a set of runtime policy booleans.
+ .B system-config-securitylevel
+ allows customization of these booleans and tunables.
+ 
+-Many domains that are protected by SELinux also include selinux man pages explainging how to customize their policy.  
++Many domains that are protected by SELinux also include SELinux man pages explaining how to customize their policy.  
+ 
+ .SH FILE LABELING
+ 
+ All files, directories, devices ... have a security context/label associated with them.  These context are stored in the extended attributes of the file system.
+-Problems with SELinux often arise from the file system being mislabeled. This can be caused by booting the machine with a non selinux kernel.  If you see an error message containing file_t, that is usually a good indicator that you have a serious problem with file system labeling.  
++Problems with SELinux often arise from the file system being mislabeled. This can be caused by booting the machine with a non SELinux kernel.  If you see an error message containing file_t, that is usually a good indicator that you have a serious problem with file system labeling.  
+ 
+ The best way to relabel the file system is to create the flag file /.autorelabel and reboot.  system-config-securitylevel, also has this capability.  The restorcon/fixfiles commands are also available for relabeling files. 
+   
 
--- 
-Stephen Smalley
-National Security Agency
+--------------040900000104000802030503
+Content-Type: application/pgp-signature;
+ name="libselinux-man.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-man.patch.sig"
 
+iEYEABECAAYFAk1Iiz8ACgkQrlYvE4MpobN3TQCgrOngeK8q38PhSaVci4ZgqwqiXO4AoJEh
+r/n3FF0Y0x37qDgL75hgy5T+
+--------------040900000104000802030503--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
