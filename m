@@ -1,20 +1,20 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p15DQKgl008991
-	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 08:26:20 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p15DbjXa009466
+	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 08:37:45 -0500
 Received: from mail-ey0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p15DQJmC024155
-	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 13:26:19 GMT
-Received: by eyh6 with SMTP id 6so1623523eyh.12
-        for <selinux@tycho.nsa.gov>; Sat, 05 Feb 2011 05:26:18 -0800 (PST)
-Message-ID: <4D4D4FF5.6000303@gmail.com>
-Date: Sat, 05 Feb 2011 14:26:13 +0100
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p15Dbhlv029889
+	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 13:37:44 GMT
+Received: by eyh6 with SMTP id 6so1625555eyh.12
+        for <selinux@tycho.nsa.gov>; Sat, 05 Feb 2011 05:37:43 -0800 (PST)
+Message-ID: <4D4D52A4.5030208@gmail.com>
+Date: Sat, 05 Feb 2011 14:37:40 +0100
 From: Dominick Grift <domg472@gmail.com>
 MIME-Version: 1.0
 To: Simon Peter Nicholls <simon@mintsource.org>
 CC: selinux@tycho.nsa.gov
 Subject: Re: Trouble logging in through SSH
-References: <4D4C8A4C.1070101@mintsource.org> <4D4D0B63.8070509@mintsource.org>
-In-Reply-To: <4D4D0B63.8070509@mintsource.org>
+References: <4D4C8A4C.1070101@mintsource.org>
+In-Reply-To: <4D4C8A4C.1070101@mintsource.org>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -22,52 +22,248 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 02/05/2011 09:33 AM, Simon Peter Nicholls wrote:
-> On 05/02/11 00:22, Simon Peter Nicholls wrote:
->> Hi All,
->>
->> I'm having some trouble setting up SELinux using refpolicy, and am
->> unable to login my test user through ssh when in enforcing mode. Could
->> someone help me work out where the problem lies? I have some basic
->> experience with SELinux, but based on working Fedora systems that have
->> gone slightly awry.
->>
->> Similar denial messages to the ssh one are seen when trying to run
->> software like Emacs in permissive mode. In each case it feels like I
->> am restricted by the consoletype_t, whilst I was expecting to gain an
->> unconfined_t type for my user (to match unconfined_u & unconfined_r).
->>
->> I also expected to see the sshd_t type for the sshd process, but it is
->> using init_t. Are transitions failing for my startup services?
+On 02/05/2011 12:22 AM, Simon Peter Nicholls wrote:
+> Hi All,
 > 
-> Typical. The act of writing this gave substance to my suspicions. I
-> checked the type for the the SSH init script and it was incorrectly set
-> to etc_t, the underlying reason being that Arch Linux uses the
-> non-standard /etc/rc.d directory for it's startup scripts.
+> I'm having some trouble setting up SELinux using refpolicy, and am
+> unable to login my test user through ssh when in enforcing mode. Could
+> someone help me work out where the problem lies? I have some basic
+> experience with SELinux, but based on working Fedora systems that have
+> gone slightly awry.
 > 
-> As a quick test to confirm, I used chcon to set the sshd script to
-> initrc_exec_t, rebooted, and I find I can login under enforcing mode.
-> The sshd process now has the sshd_t type, and my user also has the
-> unconfined_u:unconfined_r:unconfined_t context, as I previously
-> expected. The subsequent running of programs like Emacs are now no problem.
+> Similar denial messages to the ssh one are seen when trying to run
+> software like Emacs in permissive mode. In each case it feels like I am
+> restricted by the consoletype_t, whilst I was expecting to gain an
+> unconfined_t type for my user (to match unconfined_u & unconfined_r).
 > 
-> I have some log related denials however, which I'll look into. Any
-> pointers would be appreciated.
+> I also expected to see the sshd_t type for the sshd process, but it is
+> using init_t. Are transitions failing for my startup services?
+> 
+> Some detailed info follows; Many thanks.
+> 
+> the denial when attempting ssh login
+> -------------------------------------------------
+> Feb  4 22:57:36 mailer kernel: type=1400 audit(1296856656.870:4): avc: 
+> denied  { entrypoint } for  pid=1003 comm="sshd" path="/bin/bash"
+> dev=vda1 ino=1513 scontext=unconfined_u:unconfined_r:consoletype_t
+> tcontext=system_u:object_r:shell_exec_t tclass=file
+> 
+> some debug.log for boot
+> --------------------------------
+> Feb  4 22:57:13 mailer kernel: SELinux: 2048 avtab hash slots, 211693
+> rules.
+> Feb  4 22:57:13 mailer kernel: SELinux: 2048 avtab hash slots, 211693
+> rules.
+> Feb  4 22:57:13 mailer kernel: SELinux:  6 users, 15 roles, 3386 types,
+> 143 bools
+> Feb  4 22:57:13 mailer kernel: SELinux:  77 classes, 211693 rules
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class dir not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission execmod in class dir
+> not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class lnk_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission open in class
+> lnk_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission execmod in class
+> lnk_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class chr_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class blk_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission execmod in class
+> blk_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class sock_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission execmod in class
+> sock_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission audit_access in
+> class fifo_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Permission execmod in class
+> fifo_file not defined in policy.
+> Feb  4 22:57:13 mailer kernel: SELinux: the above unknown classes and
+> permissions will be allowed
 
-Looks like /dev/log is mislabelled for some reason.
-Does syslog run in the proper domain?
+Looks like you may have some issue in your flask/access_vectors file.
+As far as i can tell these should all be defined in reference policy.
 
-> Feb  5 09:13:41 mailer kernel: type=1400 audit(1296893621.240:3): avc: 
-> denied \
->  { write } for  pid=945 comm="sshd" name="log" dev=devtmpfs ino=4929
-> scontext=s\
-> ystem_u:system_r:sshd_t tcontext=system_u:object_r:device_t
-> tclass=sock_file
-> Feb  5 09:13:41 mailer kernel: type=1400 audit(1296893621.240:4): avc: 
-> denied \
->  { connectto } for  pid=945 comm="sshd" path="/dev/log"
-> scontext=system_u:syste\
-> m_r:sshd_t tcontext=system_u:system_r:init_t tclass=unix_stream_socket
+> Feb  4 22:57:13 mailer kernel: SELinux:  Completing initialization.
+> Feb  4 22:57:13 mailer kernel: SELinux:  Setting up existing superblocks.
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev sysfs, type
+> sysfs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev rootfs, type
+> rootfs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev bdev, type
+> bdev), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev proc, type
+> proc), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev tmpfs, type
+> tmpfs), uses transition SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev devtmpfs, type
+> devtmpfs), uses transition SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev sockfs, type
+> sockfs), uses task SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev debugfs, type
+> debugfs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev pipefs, type
+> pipefs), uses task SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev anon_inodefs,
+> type anon_inodefs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev devpts, type
+> devpts), uses transition SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev hugetlbfs, type
+> hugetlbfs), uses transition SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev mqueue, type
+> mqueue), uses transition SIDs
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev selinuxfs, type
+> selinuxfs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev sysfs, type
+> sysfs), uses genfs_contexts
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev vda1, type
+> ext4), uses xattr
+> Feb  4 22:57:13 mailer kernel: type=1403 audit(1296856630.883:2): policy
+> loaded auid=4294967295 ses=4294967295
+> ...
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev usbfs, type
+> usbfs), uses genfs_contexts
+> ...
+> Feb  4 22:57:13 mailer kernel: SELinux: initialized (dev tmpfs, type
+> tmpfs), uses transition SIDs
+> 
+> sestatus -v
+> ---------------
+> SELinux status:                 enabled
+> SELinuxfs mount:                /selinux
+> Current mode:                   permissive
+> Mode from config file:          permissive
+> Policy version:                 24
+> Policy from config file:        sipolicy
+> 
+> Process contexts:
+> Current context:                unconfined_u:unconfined_r:consoletype_t
+> Init context:                   system_u:system_r:init_t
+> /sbin/agetty                    system_u:system_r:getty_t
+> /usr/sbin/sshd                  system_u:system_r:init_t
+> 
+> File contexts:
+> Controlling term:               unconfined_u:object_r:devpts_t
+> /etc/passwd                     system_u:object_r:etc_t
+> /etc/shadow                     system_u:object_r:shadow_t
+> /bin/bash                       system_u:object_r:shell_exec_t
+> /bin/login                      system_u:object_r:login_exec_t
+> /bin/sh                         system_u:object_r:bin_t ->
+> system_u:object_r:shell_exec_t
+> /sbin/agetty                    system_u:object_r:getty_exec_t
+> /sbin/init                      system_u:object_r:init_exec_t
+> /usr/sbin/sshd                  system_u:object_r:sshd_exec_t
+> /lib/libc.so.6                  system_u:object_r:lib_t ->
+> system_u:object_r:lib_t
+> 
+> semanage login -l output
+> ---------------------------------
+> Login Name                SELinux User
+> 
+> si                        unconfined_u
+> __default__               user_u
+> root                      root
+> system_u                  system_u
+> 
+> build.conf for policy
+> --------------------------
+> TYPE = standard
+> NAME = sipolicy
+> UNK_PERMS = allow #instead of deny, due to kernel boot complaints
+> DIRECT_INITRC = y
+> MONOLITHIC = n
+> UBAC = n
+> 
+> auth.log
+> -----------
+> Feb  4 22:57:54 mailer sshd[1005]: pam_selinux(sshd:session): pam:
+> default-context=unconfined_u:unconfined_r:consoletype_t
+> selected-context=(null) success 0
+> Feb  4 22:57:54 mailer sshd[1005]: pam_selinux(sshd:session): pam:
+> default-context=unconfined_u:unconfined_r:consoletype_t
+> selected-context=unconfined_u:unconfined_r:consoletype_t success 1
+> 
+> /etc/pam.d/sshd
+> --------------------
+> #%PAM-1.0
+> #auth           required        pam_securetty.so        #Disable remote
+> root
+> auth            required        pam_unix.so
+> auth            required        pam_nologin.so
+> auth            required        pam_env.so
+> account         required        pam_unix.so
+> account         required        pam_time.so
+> password        required        pam_unix.so
+> # pam_selinux.so close should be the first session rule
+> session         required        pam_selinux.so close
+> # pam_selinux.so open should only be followed by sessions to be executed
+> in the user context
+> session         required        pam_selinux.so open env_params
+> session         required        pam_unix_session.so
+> session         required        pam_limits.so
+> 
+> installed packages
+> ------------------------
+> local/kernel26-selinux 2.6.36.3-1 (selinux selinux-system-utilities)
+>     The SELinux enabled Linux Kernel and modules
+> local/kernel26-selinux-headers 2.6.36.3-1 (selinux
+> selinux-system-utilities)
+>     Header files and scripts for building modules for kernel26-selinux
+> local/selinux-coreutils 8.9-1 (selinux selinux-system-utilities)
+>     SELinux aware basic file, shell and text manipulation utilities of
+> the GNU operating system
+> local/selinux-cronie 1.4.4-4 (selinux selinux-system-utilities)
+>     Fedora fork of vixie-cron with PAM and SELinux support
+> local/selinux-findutils 4.4.2-3 (selinux selinux-system-utilities)
+>     GNU utilities to locate files with Gentoo SELinux patch
+> local/selinux-flex 2.5.4a-4 (selinux selinux-system-utilities)
+>     A tool for generating text-scanning programs
+> local/selinux-logrotate 3.7.9-2 (selinux selinux-system-utilities)
+>     Tool to rotate system logs automatically with SELinux support
+> local/selinux-openssh 5.6p1-1 (selinux selinux-system-utilities)
+>     A Secure SHell server/client with SELinux support
+> local/selinux-pam 1.1.3-1 (selinux selinux-system-utilities)
+>     SELinux aware PAM (Pluggable Authentication Modules) library
+> local/selinux-procps 3.2.8-3 (selinux selinux-system-utilities)
+>     Utilities for monitoring your system and processes on your system
+> with SELinux patch
+> local/selinux-psmisc 22.13-1 (selinux selinux-system-utilities)
+>     SELinux aware miscellaneous procfs tools
+> local/selinux-refpolicy 20101213-1 (selinux selinux-policies)
+>     Modular SELinux reference policy including headers and docs
+> local/selinux-refpolicy-src 20101213-1 (selinux selinux-policies)
+>     SELinux reference policy sources
+> local/selinux-setools 3.3.7-4 (selinux selinux-extras)
+>     SELinux SETools GUI and CLI tools and libraries for SELinux policy
+> analysis
+> local/selinux-shadow 4.1.4.2-5 (selinux selinux-system-utilities)
+>     Shadow password file utilities with SELinux support
+> local/selinux-sudo 1.7.4p5-1 (selinux selinux-system-utilities)
+>     Give certain users the ability to run some commands as root with
+> SELinux support
+> local/selinux-sysvinit 2.88-2 (selinux selinux-system-utilities)
+>     SELinux aware Linux System V Init
+> local/selinux-udev 165-1 (selinux selinux-system-utilities)
+>     The userspace dev tools (udev) with SELinux support
+> local/selinux-usr-checkpolicy 2.0.23-1 (selinux selinux-userspace)
+>     SELinux userspace (checkpolicy)
+> local/selinux-usr-libselinux 2.0.98-1 (selinux selinux-userspace)
+>     SELinux userspace (libselinux including python bindings)
+> local/selinux-usr-libsemanage 2.0.46-1 (selinux selinux-userspace)
+>     SELinux userspace (libsemanage including python bindings)
+> local/selinux-usr-libsepol 2.0.42-1 (selinux selinux-userspace)
+>     SELinux userspace (libsepol)
+> local/selinux-usr-policycoreutils 2.0.85-2 (selinux selinux-userspace)
+>     SELinux userspace (policycoreutils)
+> local/selinux-usr-sepolgen 1.0.23-4 (selinux selinux-userspace)
+>     SELinux userspace (sepolgen)
+> local/selinux-util-linux-ng 2.18-4 (selinux selinux-system-utilities)
+>     SELinux aware miscellaneous system utilities for Linux
 > 
 > 
 > -- 
@@ -80,9 +276,9 @@ Does syslog run in the proper domain?
 Version: GnuPG v2.0.16 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk1NT/UACgkQMlxVo39jgT8mxQCg0se84g3dMmc89cQy/aY6i0+L
-aLoAnjp5NaoR2OsHVGPdxPkHU7nG8sxL
-=GXdW
+iEYEARECAAYFAk1NUqMACgkQMlxVo39jgT/TkwCfabvIlbI96uQW46D8HoirOm+w
+ZS4AoI1KRrwyOpC7IIRIH/SV+D9uCI3g
+=BLKt
 -----END PGP SIGNATURE-----
 
 --
