@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p15DRPhC009047
-	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 08:27:25 -0500
-Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p15DROmC024720
-	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 13:27:24 GMT
-Received: by ewy6 with SMTP id 6so1629145ewy.12
-        for <selinux@tycho.nsa.gov>; Sat, 05 Feb 2011 05:27:23 -0800 (PST)
-Message-ID: <4D4D5038.2090403@gmail.com>
-Date: Sat, 05 Feb 2011 14:27:20 +0100
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p15DQKgl008991
+	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 08:26:20 -0500
+Received: from mail-ey0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p15DQJmC024155
+	for <selinux@tycho.nsa.gov>; Sat, 5 Feb 2011 13:26:19 GMT
+Received: by eyh6 with SMTP id 6so1623523eyh.12
+        for <selinux@tycho.nsa.gov>; Sat, 05 Feb 2011 05:26:18 -0800 (PST)
+Message-ID: <4D4D4FF5.6000303@gmail.com>
+Date: Sat, 05 Feb 2011 14:26:13 +0100
 From: Dominick Grift <domg472@gmail.com>
 MIME-Version: 1.0
 To: Simon Peter Nicholls <simon@mintsource.org>
@@ -53,10 +53,9 @@ On 02/05/2011 09:33 AM, Simon Peter Nicholls wrote:
 > 
 > I have some log related denials however, which I'll look into. Any
 > pointers would be appreciated.
-> 
 
-By the way, these policy related questions should go to
-refpolicy@oss.tresys.com maillist.
+Looks like /dev/log is mislabelled for some reason.
+Does syslog run in the proper domain?
 
 > Feb  5 09:13:41 mailer kernel: type=1400 audit(1296893621.240:3): avc: 
 > denied \
@@ -81,9 +80,9 @@ refpolicy@oss.tresys.com maillist.
 Version: GnuPG v2.0.16 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk1NUDgACgkQMlxVo39jgT8vlwCfZKJ+O+h3Wv+6CnehqfclR1z6
-XfwAn0/mtPNd5lXUnCiIX5/GlBWDkUrO
-=oAYm
+iEYEARECAAYFAk1NT/UACgkQMlxVo39jgT8mxQCg0se84g3dMmc89cQy/aY6i0+L
+aLoAnjp5NaoR2OsHVGPdxPkHU7nG8sxL
+=GXdW
 -----END PGP SIGNATURE-----
 
 --
