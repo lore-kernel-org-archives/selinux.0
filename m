@@ -1,101 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p16AqG1Y007151
-	for <selinux@tycho.nsa.gov>; Sun, 6 Feb 2011 05:52:16 -0500
-Received: from mail-ey0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p16AqFJO020796
-	for <selinux@tycho.nsa.gov>; Sun, 6 Feb 2011 10:52:15 GMT
-Received: by eyh6 with SMTP id 6so1804428eyh.12
-        for <selinux@tycho.nsa.gov>; Sun, 06 Feb 2011 02:52:14 -0800 (PST)
-Date: Sun, 6 Feb 2011 11:52:11 +0100
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Trouble logging in through SSH
-Message-ID: <20110206105154.GA2626@localhost.localdomain>
-References: <4D4C8A4C.1070101@mintsource.org>
- <4D4D0B63.8070509@mintsource.org>
- <4D4D5038.2090403@gmail.com>
- <4D4E69D0.50808@mintsource.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p19E6X3c001506
+	for <selinux@tycho.nsa.gov>; Wed, 9 Feb 2011 09:06:34 -0500
+Received: from cluster-a.mailcontrol.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p19E6VgP010551
+	for <selinux@tycho.nsa.gov>; Wed, 9 Feb 2011 14:06:32 GMT
+Received: from rly06a.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly06a.srv.mailcontrol.com (MailControl) with ESMTP id p19E6SQn019648
+	for <selinux@tycho.nsa.gov>; Wed, 9 Feb 2011 14:06:29 GMT
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly06a.srv.mailcontrol.com (MailControl) id p19E5TIK010009
+	for <selinux@tycho.nsa.gov>; Wed, 9 Feb 2011 14:05:29 GMT
+From: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+To: SELinux-NSA <selinux@tycho.nsa.gov>
+CC: Kohei KaiGai <kaigai@kaigai.gr.jp>
+Date: Wed, 9 Feb 2011 14:05:22 +0000
+Subject: RE: libselinux: add selinux_status_* interfaces for /selinux/status
+Message-ID: <A9F5079BABDEE646AEBDB6831725762C4205A2356A@EUEXCLU01.EU.NEC.COM>
+References: <AANLkTi=WqUp8FFkqo7eooUUP7qLju=WQQyf6qWsd1+4E@mail.gmail.com>
+ <4D40C42A.2080903@ak.jp.nec.com>
+In-Reply-To: <4D40C42A.2080903@ak.jp.nec.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
-In-Reply-To: <4D4E69D0.50808@mintsource.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+How about getting inclusion of these patches that I submitted before?
 
---XOIedfhf+7KOe/yw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
 
-On Sun, Feb 06, 2011 at 10:28:48AM +0100, Simon Peter Nicholls wrote:
-> On 05/02/11 14:27, Dominick Grift wrote:
-> >By the way, these policy related questions should go to
-> >refpolicy@oss.tresys.com maillist.
->=20
-> Hi Dominick, thanks for your replies to my issues.
->=20
-> When I hit trouble, I thought I had hit something other than regular
-> policy issues, but this was incorrect. I have missing
-> access_vectors, and face some other issues (due to a combination of
-> recent software and non-standard file locations), but all appear to
-> be surmountable through a custom policy build.
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On Behalf Of KaiGai Kohei
+> Sent: 27 January 2011 01:03
+> To: SELinux-NSA
+> Cc: Kohei KaiGai
+> Subject: Re: libselinux: add selinux_status_* interfaces for
+> /selinux/status
+> 
+> I updated my patch to reference /selinux/status entry.
+> 
+> The interface of selinux_status_open() and selinux_status_updated() was
+> revised to eliminate an argument of 'last_seqlock' that holds a
+> sequence value when we call this function last time.
+> At first, I tried to give this storage externally for thread-safing,
+> but fallback routine was not thread-safe anyway, so it became nonsense.
+> 
+> The attached status.c is an example program to call these APIs.
+> 
+> Any comments please. Thanks,
+> 
+> (2011/01/22 22:42), Kohei KaiGai wrote:
+> > The attached patch adds several interfaces to reference
+> > /selinux/status according to sequential-lock logic.
+> >
+> > selinux_status_open() open the kernel status page and mmap it with
+> > read-only mode, or open netlink socket as a fallback in older kernels.
+> >
+> > Then, we can obtain status information from the mmap'ed page using
+> > selinux_status_updated(), selinux_status_getenfoce(),
+> > selinux_status_policyload() or selinux_status_deny_unknown().
+> >
+> > It enables to help to implement userspace avc with heavy access
+> > control decision; that we cannot ignore the cost to communicate with
+> > kernel for validation of userspace caches.
+> >
+> > Thanks,
+> --
+> KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-Agreed, Implementation of reference policy always requires modification to =
-some extend.
-Although i believe that the access vectors that you seem to be missing shou=
-ld have been included with the refrence policy you are using.
-
->=20
-> I've learned a lot in a short time, thanks in large part to reading
-> some key posts in this mailing list, and my system is firmly in the
-> realm of policy tweaking now. Mostly I'm twiddling booleans and
-> changing file contexts to match Arch Linux at this point, with cron
-> and syslog-ng the only services with issues. My "semanage permissive
-> -a" functionality is broken, as the "/var/lib/selinux" path I see
-> hardcoded into semanage does not exist on my system, but it was no
-> bother to hand code a permissive module to get my logging working
-> for now. So I can run enforcing from boot whilst I finish up, no
-> problem.
->=20
-
-Yes maillist archives ave much information. Also agree that most work is mo=
-difying the labelling specifation to match your distros requirements,
-
-As for semanage permissive -a. This requires that policy for semanage is mo=
-dified to allow semanage these permissions. Redhat has this semanage policy=
- modified but it is, i believe, not done in a acceptable way to reference p=
-olicy, and so reference policy has not adopted redhats solution for this. T=
-he /var/lib/selinux issue may be a packaging issue.=20
-
-> It looks like Fedora have already addressed some of the core
-> refpolicy issues I've faced (problems unrelated to Arch file
-> locations), but patches had not made it upstream the last time I
-> checked. I'd also like to see a passenger module make it into
-> refpolicy. So, I still have some outstanding refpolicy queries,
-> which I'll take over to the mailing list you mention.
-
-You can indeed borrow some of redhats solutions. Some of it is not acceptab=
-le for reference policy though because it breaks policy/toolchain.
-As for passenger, i started work on a module for ruby on rails and passenge=
-r but i was not able to finish it. Redhat is using what i have for inspirat=
-ion for a passenger policy that they are working on. So that might show up =
-in the near future.
-
-> Thanks again.
-
---XOIedfhf+7KOe/yw
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk1OfVcACgkQMlxVo39jgT+ZLgCeLC3r46/gCm/Z7ewMw4nbzEXQ
-snQAn3b7B5yG6fYOpOOjUqNDqtdZFnVj
-=OAul
------END PGP SIGNATURE-----
-
---XOIedfhf+7KOe/yw--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
