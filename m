@@ -1,28 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1E1WKTO022521
-	for <selinux@tycho.nsa.gov>; Sun, 13 Feb 2011 20:32:20 -0500
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1E1WHFa025720
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2011 01:32:18 GMT
-From: Russell Coker <russell@coker.com.au>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Subject: Re: Tiny version of SE-PostgreSQL got merged
-Date: Mon, 14 Feb 2011 12:35:32 +1100
-Cc: selinux@tycho.nsa.gov
-References: <4D466F3B.6090906@ak.jp.nec.com>
-In-Reply-To: <4D466F3B.6090906@ak.jp.nec.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-2022-jp"
-Message-Id: <201102141235.33076.russell@coker.com.au>
+Subject: Re: kdm patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito"
+ <cpebenito@tresys.com>
+In-Reply-To: <201102132316.34972.russell@coker.com.au>
+References: <201102132316.34972.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 14 Feb 2011 09:45:31 -0500
+Message-ID: <1297694731.29692.18.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 31 January 2011 19:13:47 KaiGai Kohei wrote:
-> A few days ago, a tiny initial version of SE-PostgreSQL got merged
-> in the v9.1 development cycle at this commit: http://bit.ly/gF2QPQ
+On Sun, 2011-02-13 at 23:16 +1100, Russell Coker wrote:
+> The attached patch makes kdm do all the work of determining the correct SE 
+> Linux context.  With this patch there is no need for pam_selinux.so for a kdm 
+> login.
+> 
+> The reason for this is that currently when kdm creates a ~/.xsession-errors 
+> file it uses the default level - IE the low level of the kdm process itself.  
+> If the user has a low level that's higher than SystemLow then they won't be 
+> able to write to the errors file.  My patch makes it call setfscreatecon() 
+> before doing that.
+> 
+> Please tell me what you think, both about the patch itself and the concept.  
+> If we go ahead with this then I'll probably have to write similar patches for 
+> all the other common xdm programs.
 
-That's great!  Congratulations!
+I'd suggest taking the kdm_selinux_* helper functions and turning them
+into generic libselinux functions that can be reused by all of the *dm
+programs.  That will also allow us to change the internal logic in the
+future without having to re-patch the *dm programs.
+
+Have you done a detailed comparison of your logic against the latest
+pam_selinux logic?  The pam_selinux logic includes support for user
+specification or environmental specification of desired role/level.  If
+we are going to directly patch the *dm programs at all, wouldn't it be
+better to go ahead and support user selection of role/level as was
+supported in some of the early experimental gdm selinux patches?
+
+Also, it will be important to keep in mind that we have wanted to change
+the approach to determining user contexts in SELinux for some time (e.g.
+eliminate the use of /selinux/user altogether, take more of the logic to
+userspace, simplify the logic), so whatever you do here needs to allow
+for future replacement without needing to revisit each *dm program.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
