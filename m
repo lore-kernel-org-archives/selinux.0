@@ -1,55 +1,74 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1EH5T7Q008208
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2011 12:05:29 -0500
-Received: from c-sl428.itechfrontiers.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1EH5SCU013715
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2011 17:05:28 GMT
-Received: from c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net [66.36.250.115])
-	by c-sl428.itechfrontiers.net (ITechFrontiers-Post) with ESMTP id 19E265D1A6
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2011 12:05:30 -0500 (EST)
-Received: from c-sl428.itechfrontiers.net ([66.36.250.114])
-	by c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net [66.36.250.115]) (ITech Frontiers SecureMail)
-	with ESMTP id z3u8tB+PjGsX for <selinux@tycho.nsa.gov>;
-	Mon, 14 Feb 2011 12:05:28 -0500 (EST)
-Received: from rhea.itechfrontiers.net ([10.7.14.47])
-	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: cto@itechfrontiers.com)
-	by c-sl428.itechfrontiers.net (ITechFrontiers-Post) with ESMTPSA id 50D6F5D1A5
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2011 12:05:28 -0500 (EST)
-Message-ID: <4D5960D7.7010901@itechfrontiers.com>
-Date: Mon, 14 Feb 2011 12:05:27 -0500
-From: "cto@itechfrontiers.com" <cto@itechfrontiers.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Seeking SELinux work
-References: <AANLkTin611ThcxiGqoqQMQ2NfQyn2HwYXAKpCMJ6YLcS@mail.gmail.com>
-In-Reply-To: <AANLkTin611ThcxiGqoqQMQ2NfQyn2HwYXAKpCMJ6YLcS@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] fs: call security_d_instantiate in d_obtain_alias V2
+From: Eric Paris <eparis@redhat.com>
+To: Josef Bacik <josef@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, bfields@fieldses.org,
+        viro@zeniv.linux.org.uk
+In-Reply-To: <1290131575-2489-1-git-send-email-josef@redhat.com>
+References: <1290131575-2489-1-git-send-email-josef@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 14 Feb 2011 13:35:20 -0500
+Message-ID: <1297708520.2783.14.camel@unknown001a4b0c2895>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ted,
+On Thu, 2010-11-18 at 20:52 -0500, Josef Bacik wrote:
+> While trying to track down some NFS problems with BTRFS, I kept noticing I was
+> getting -EACCESS for no apparent reason.  Eric Paris and printk() helped me
+> figure out that it was SELinux that was giving me grief, with the following
+> denial
+> 
+> type=AVC msg=audit(1290013638.413:95): avc:  denied  { 0x800000 } for  pid=1772
+> comm="nfsd" name="" dev=sda1 ino=256 scontext=system_u:system_r:kernel_t:s0
+> tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
+> 
+> Turns out this is because in d_obtain_alias if we can't find an alias we create
+> one and do all the normal instantiation stuff, but we don't do the
+> security_d_instantiate.
+> 
+> Usually we are protected from getting a hashed dentry that hasn't yet run
+> security_d_instantiate() by the parent's i_mutex, but obviously this isn't an
+> option there, so in order to deal with the case that a second thread comes in
+> and finds our new dentry before we get to run security_d_instantiate(), we go
+> ahead and call it if we find a dentry already.  Eric assures me that this is ok
+> as the code checks to see if the dentry has been initialized already so calling
+> security_d_instantiate() against the same dentry multiple times is ok.  With
+> this patch I'm no longer getting errant -EACCESS values.
+> 
+> Signed-off-by: Josef Bacik <josef@redhat.com>
 
-This is SELinux Development List, What would happen if everybody posted 
-his/her CV  or advertisement here?
+Acked-by: Eric Paris <eparis@redhat.com>
 
-Please refer to this page:  http://www.nsa.gov/careers/
+Al, any chance we can push this along?
 
-Patrick K.
+-Eric
 
+> ---
+> V1->V2:
+> -added second security_d_instantiate() call
+> 
+>  fs/dcache.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/fs/dcache.c b/fs/dcache.c
+> index 23702a9..119d489 100644
+> --- a/fs/dcache.c
+> +++ b/fs/dcache.c
+> @@ -1201,9 +1201,12 @@ struct dentry *d_obtain_alias(struct inode *inode)
+>  	spin_unlock(&tmp->d_lock);
+>  
+>  	spin_unlock(&dcache_lock);
+> +	security_d_instantiate(tmp, inode);
+>  	return tmp;
+>  
+>   out_iput:
+> +	if (res && !IS_ERR(res))
+> +		security_d_instantiate(res, inode);
+>  	iput(inode);
+>  	return res;
+>  }
 
-On 2/14/2011 11:47 AM, Ted Toth wrote:
-> I am looking for SELinux related work. You can find my resume on the
-> RESUME page @ http://txtoth.dyndns.org or there is a pdf version that
-> can be downloaded from the DOWNLOADS page.
->
-> Ted
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
