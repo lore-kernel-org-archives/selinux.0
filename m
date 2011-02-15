@@ -1,75 +1,105 @@
-Subject: Re: [PATCH] fs: call security_d_instantiate in d_obtain_alias V2
-From: Eric Paris <eparis@redhat.com>
-To: Josef Bacik <josef@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, bfields@fieldses.org,
-        viro@zeniv.linux.org.uk
-In-Reply-To: <1290131575-2489-1-git-send-email-josef@redhat.com>
-References: <1290131575-2489-1-git-send-email-josef@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 14 Feb 2011 13:35:20 -0500
-Message-ID: <1297708520.2783.14.camel@unknown001a4b0c2895>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1FIc3mR007303
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2011 13:38:03 -0500
+Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1FIc2Kr020056
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2011 18:38:02 GMT
+Received: by wwb17 with SMTP id 17so496997wwb.30
+        for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2011 10:38:01 -0800 (PST)
+MIME-Version: 1.0
+Date: Tue, 15 Feb 2011 10:38:01 -0800
+Message-ID: <AANLkTinVgJrLsW-tTKFG66y0X5Eb0t9U5ayWBXW8zBP_@mail.gmail.com>
+Subject: [12744.575074] SELinux: Invalid class 3588
+From: Justin Mattock <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2010-11-18 at 20:52 -0500, Josef Bacik wrote:
-> While trying to track down some NFS problems with BTRFS, I kept noticing I was
-> getting -EACCESS for no apparent reason.  Eric Paris and printk() helped me
-> figure out that it was SELinux that was giving me grief, with the following
-> denial
-> 
-> type=AVC msg=audit(1290013638.413:95): avc:  denied  { 0x800000 } for  pid=1772
-> comm="nfsd" name="" dev=sda1 ino=256 scontext=system_u:system_r:kernel_t:s0
-> tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
-> 
-> Turns out this is because in d_obtain_alias if we can't find an alias we create
-> one and do all the normal instantiation stuff, but we don't do the
-> security_d_instantiate.
-> 
-> Usually we are protected from getting a hashed dentry that hasn't yet run
-> security_d_instantiate() by the parent's i_mutex, but obviously this isn't an
-> option there, so in order to deal with the case that a second thread comes in
-> and finds our new dentry before we get to run security_d_instantiate(), we go
-> ahead and call it if we find a dentry already.  Eric assures me that this is ok
-> as the code checks to see if the dentry has been initialized already so calling
-> security_d_instantiate() against the same dentry multiple times is ok.  With
-> this patch I'm no longer getting errant -EACCESS values.
-> 
-> Signed-off-by: Josef Bacik <josef@redhat.com>
+this just poped up with  2.6.37-rc6.. not sure if its fixed with the current
 
-Acked-by: Eric Paris <eparis@redhat.com>
+[12744.575074] SELinux:  Invalid class 3588
+[12744.575115] general protection fault: 0000 [#1] SMP
+[12744.575121] last sysfs file: /sys/devices/platform/applesmc.768/light
+[12744.575124] CPU 0
+[12744.575125] Modules linked in: hidp rfcomm sco bnep l2cap xt_tcpudp
+ipt_LOG iptable_nat nf_nat xt_state nf_conntrack_ftp nf_conntrack_ipv4
+nf_conntrack nf_defrag_ipv4 iptable_filter ip_tables x_tabl   btusb
+bluetooth evdev psmouse thermal fan container button ac battery video
+ath9k ath9k_common ath9k_hw ath ttm drm aes_x86_64 lzo zlib ipcomp
+xfrm_ipcomp crypto_null sha256_generic cbc des_generic ca  5 blowfish
+serpent camellia twofish_generic twofish_x86_64 twofish_common ctr ah4
+esp4 authenc firewire_ohci firewire_core uhci_hcd ehci_hcd coretemp
+acpi_cpufreq processor mperf appletouch applesmc
+[12744.575183]
+[12744.575186] Pid: 4607, comm: conf Not tainted 2.6.37-rc6 #2
+Mac-F42187C8/MacBookPro2,2
+[12744.575189] RIP: 0010:[<ffffffff811f7901>]  [<ffffffff811f7901>]
+strnlen+0x14/0x1e
+[12744.575199] RSP: 0018:ffff88000e775878  EFLAGS: 00010282
+[12744.575202] RAX: 3a372e64313a3030 RBX: ffff88003599530a RCX: ffffffffff0a0004
+[12744.575204] RDX: 3a372e64313a3030 RSI: fffffffffffffffe RDI: 3a372e64313a3030
+[12744.575207] RBP: ffff88000e775878 R08: 0000000000000002 R09: 000000000000000a
+[12744.575209] R10: 0000000000000001 R11: 0000000000000000 R12: ffff880035995710
+[12744.575212] R13: 3a372e64313a3030 R14: ffffffffffffffff R15: 0000000000000000
+[12744.575215] FS:  00002ab060cccb20(0000) GS:ffff88003ee00000(0000)
+knlGS:0000000000000000
+[12744.575218] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[12744.575220] CR2: 00007f5f5712b000 CR3: 0000000015867000 CR4: 00000000000006f0
+[12744.575223] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[12744.575225] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
+[12744.575228] Process conf (pid: 4607, threadinfo ffff88000e774000,
+task ffff880015908000)
+[12744.575230] Stack:
+[12744.575232]  ffff88000e7758b8 ffffffff811f8f3c ffff88000e7758f8
+ffff88000e775998
+[12744.575237]  ffff88003599530a ffff880035995710 ffff880035995309
+ffffffff815bd686
+[12744.575242]  ffff88000e775918 ffffffff811f9c21 ffffffff815bd684
+0000000000000407
+[12744.575246] Call Trace:
+[12744.575252]  [<ffffffff811f8f3c>] string+0x4c/0xaf
+[12744.575256]  [<ffffffff811f9c21>] vsnprintf+0x1cd/0x42a
+[12744.575262]  [<ffffffff810985f1>] audit_log_vformat+0xb6/0x177
+[12744.575266]  [<ffffffff810986ef>] audit_log_format+0x3d/0x3f
+[12744.575272]  [<ffffffff810f5c73>] ? T.913+0x226/0x29c
+[12744.575278]  [<ffffffff811bd478>] avc_audit_pre_callback+0xa0/0xff
+[12744.575283]  [<ffffffff811bd0e1>] ? avc_alloc_node+0x22/0x19b
+[12744.575288]  [<ffffffff811d3b0a>] common_lsm_audit+0x5a/0x648
+[12744.575292]  [<ffffffff811bd3ce>] avc_audit+0xa3/0xad
+[12744.575296]  [<ffffffff811bd85e>] ? avc_has_perm_noaudit+0x21f/0x3a1
+[12744.575303]  [<ffffffff8111cdc1>] ? __getblk+0x3a/0x2f9
+[12744.575307]  [<ffffffff811bda37>] avc_has_perm+0x57/0x6c
+[12744.575310]  [<ffffffff8111d987>] ? unlock_buffer+0x12/0x14
+[12744.575314]  [<ffffffff811bf247>] inode_has_perm+0x68/0x6a
+[12744.575318]  [<ffffffff8110ca28>] ? ifind_fast+0x67/0xc6
+[12744.575323]  [<ffffffff8144c462>] ? _raw_spin_unlock+0x9/0xb
+[12744.575326]  [<ffffffff811bf97b>] selinux_inode_permission+0xd2/0xd4
+[12744.575330]  [<ffffffff811bd3d8>] ? avc_audit_pre_callback+0x0/0xff
+[12744.575334]  [<ffffffff811bd4d7>] ? avc_audit_post_callback+0x0/0xfe
+[12744.575339]  [<ffffffff811bc0c4>] security_inode_permission+0x1c/0x1e
+[12744.575343]  [<ffffffff81101cd2>] inode_permission+0x87/0x93
+[12744.575347]  [<ffffffff811030a6>] may_open+0x9e/0x11e
+[12744.575350]  [<ffffffff8110395e>] do_last+0x542/0x6fa
+[12744.575354]  [<ffffffff8110590c>] do_filp_open+0x1f3/0x646
+[12744.575358]  [<ffffffff810f4356>] ? check_object+0x13b/0x1eb
+[12744.575361]  [<ffffffff81103b78>] ? getname+0x2c/0x1be
+[12744.575365]  [<ffffffff8110edbc>] ? alloc_fd+0x111/0x123
+[12744.575369]  [<ffffffff810f7bb8>] do_sys_open+0x5b/0xf8
+[12744.575372]  [<ffffffff810f7c7e>] sys_open+0x1b/0x1d
+[12744.575377]  [<ffffffff8102b4d2>] system_call_fastpath+0x16/0x1b
+[12744.575380] Code: c3 55 48 89 f8 48 89 e5 eb 03 48 ff c0 80 38 00
+75 f8 48 29 f8 c9 c3 55 48 89 f8 48 89 e5 eb 03 48 ff c0 48 85 f6 74
+08 48 ff ce <80> 38 00 75 f0 48 29 f8 c9 c3 55 31 c0 48 89 e5 e  15 44
+38 c1
+[12744.575418] RIP  [<ffffffff811f7901>] strnlen+0x14/0x1e
+[12744.575421]  RSP <ffff88000e775878>
+[12744.575425] ---[ end trace c6d106b9a6eb5737 ]---
 
-Al, any chance we can push this along?
-
--Eric
-
-> ---
-> V1->V2:
-> -added second security_d_instantiate() call
-> 
->  fs/dcache.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
-> 
-> diff --git a/fs/dcache.c b/fs/dcache.c
-> index 23702a9..119d489 100644
-> --- a/fs/dcache.c
-> +++ b/fs/dcache.c
-> @@ -1201,9 +1201,12 @@ struct dentry *d_obtain_alias(struct inode *inode)
->  	spin_unlock(&tmp->d_lock);
->  
->  	spin_unlock(&dcache_lock);
-> +	security_d_instantiate(tmp, inode);
->  	return tmp;
->  
->   out_iput:
-> +	if (res && !IS_ERR(res))
-> +		security_d_instantiate(res, inode);
->  	iput(inode);
->  	return res;
->  }
 
 
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
