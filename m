@@ -1,68 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1GJdCXa032191
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 14:39:12 -0500
-Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1GJdBqY007432
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 19:39:11 GMT
-Subject: Re: [PATCH 03/10] selinux: Remove checks for xfrm transformations
- from selinux_xfrm_postroute_last
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1GJkjad032679
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 14:46:52 -0500
+Received: from g4t0016.houston.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1GJkpCG024394
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 19:46:51 GMT
+Subject: Re: [PATCH 04/10] selinux: Fix wrong checks for
+ selinux_policycap_netpeer
 From: Paul Moore <paul.moore@hp.com>
 To: Steffen Klassert <steffen.klassert@secunet.com>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <20110214131855.GD15640@secunet.com>
+In-Reply-To: <20110214131934.GE15640@secunet.com>
 References: <20110214131651.GA15640@secunet.com>
-	 <20110214131855.GD15640@secunet.com>
+	 <20110214131934.GE15640@secunet.com>
 Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 16 Feb 2011 14:39:09 -0500
-Message-ID: <1297885149.25079.14.camel@sifl>
+Date: Wed, 16 Feb 2011 14:46:48 -0500
+Message-ID: <1297885608.25079.15.camel@sifl>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-02-14 at 14:18 +0100, Steffen Klassert wrote:
-> Postroute access control checks are just performed on the packets final
-> way out, so there is no need to check for further transformations
-> in the xfrm state bundle.
+On Mon, 2011-02-14 at 14:19 +0100, Steffen Klassert wrote:
+> selinux_sock_rcv_skb_compat and selinux_ip_postroute_compat are just
+> called if selinux_policycap_netpeer is not set. However in these
+> functions we check if selinux_policycap_netpeer is set. This leads
+> to some dead code and to the fact that selinux_xfrm_postroute_last
+> is never executed. This patch removes the dead code and the checks
+> for selinux_policycap_netpeer in the compatibility functions.
 > 
 > Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 
-For similar reasons as patch 2/10 I have to NACK this patch.  The
-selinux_xfrm_postroute_last() function is a holdout from the previous
-network access controls.  If you want the new behavior, use a modern
-SELinux policy on a modern kernel.
+Nice cleanup.
+
+Acked-by: Paul Moore <paul.moore@hp.com>
 
 > ---
->  security/selinux/xfrm.c |   15 ---------------
->  1 files changed, 0 insertions(+), 15 deletions(-)
+>  security/selinux/hooks.c |   24 ++++++------------------
+>  1 files changed, 6 insertions(+), 18 deletions(-)
 > 
-> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-> index 728c57e..62f3b26 100644
-> --- a/security/selinux/xfrm.c
-> +++ b/security/selinux/xfrm.c
-> @@ -445,23 +445,8 @@ int selinux_xfrm_sock_rcv_skb(u32 isec_sid, struct sk_buff *skb,
->  int selinux_xfrm_postroute_last(u32 isec_sid, struct sk_buff *skb,
->  					struct common_audit_data *ad, u8 proto)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3bf855a..2b594de 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4002,7 +4002,6 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
 >  {
-> -	struct dst_entry *dst;
->  	int rc = 0;
+>  	int err = 0;
+>  	struct sk_security_struct *sksec = sk->sk_security;
+> -	u32 peer_sid;
+>  	u32 sk_sid = sksec->sid;
+>  	struct common_audit_data ad;
+>  	char *addrp;
+> @@ -4021,20 +4020,10 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+>  			return err;
+>  	}
 >  
-> -	dst = skb_dst(skb);
-> -
-> -	if (dst) {
-> -		struct dst_entry *dst_test;
-> -
-> -		for (dst_test = dst; dst_test != NULL;
-> -		     dst_test = dst_test->child) {
-> -			struct xfrm_state *x = dst_test->xfrm;
-> -
-> -			if (x && selinux_authorizable_xfrm(x))
-> -				goto out;
-> -		}
+> -	if (selinux_policycap_netpeer) {
+> -		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
+> -		if (err)
+> -			return err;
+> -		err = avc_has_perm(sk_sid, peer_sid,
+> -				   SECCLASS_PEER, PEER__RECV, &ad);
+> -		if (err)
+> -			selinux_netlbl_err(skb, err, 0);
+> -	} else {
+> -		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
+> -		if (err)
+> -			return err;
+> -		err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
 > -	}
-> -
->  	switch (proto) {
->  	case IPPROTO_AH:
->  	case IPPROTO_ESP:
+> +	err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
+> +	if (err)
+> +		return err;
+> +	err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
+>  
+>  	return err;
+>  }
+> @@ -4529,9 +4518,8 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+>  				 SECCLASS_PACKET, PACKET__SEND, &ad))
+>  			return NF_DROP_ERR(-ECONNREFUSED);
+>  
+> -	if (selinux_policycap_netpeer)
+> -		if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+> -			return NF_DROP_ERR(-ECONNREFUSED);
+> +	if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+> +		return NF_DROP_ERR(-ECONNREFUSED);
+>  
+>  	return NF_ACCEPT;
+>  }
 
 -- 
 paul moore
