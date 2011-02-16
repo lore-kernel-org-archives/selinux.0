@@ -1,61 +1,57 @@
-Subject: Re: selinux_file_context_verify function returns wrong value.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <248378.46713.qm@web87007.mail.ird.yahoo.com>
-References: <248378.46713.qm@web87007.mail.ird.yahoo.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 16 Feb 2011 13:25:04 -0500
-Message-ID: <1297880704.27031.60.camel@moss-pluto>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1GJIUYo030609
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 14:18:30 -0500
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1GJISCG018692
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 19:18:28 GMT
+Subject: Re: [PATCH 01/10] selinux: Fix check for xfrm selinux context
+ algorithm
+From: Paul Moore <paul.moore@hp.com>
+To: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+In-Reply-To: <20110214131739.GB15640@secunet.com>
+References: <20110214131651.GA15640@secunet.com>
+	 <20110214131739.GB15640@secunet.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 16 Feb 2011 14:18:25 -0500
+Message-ID: <1297883905.25079.1.camel@sifl>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-02-14 at 15:56 +0000, Richard Haines wrote:
-> The selinux_file_context_verify seems to return the wrong value when I
-> know the context of the file and that in the file_contexts file are
-> the same (returns '1' but according to man page should be '0').
->  
-> Looking at the libselinux source code (matchpathcon.c) the line:
->  
->        rc = (selinux_file_context_cmp(fcontext, con) == 0);
->  
-> seems the problem.
->  
-> I'm using libselinux 2.0.96
->  
-> So should it return 0 on match, 1 if contexts are different (or if the
-> file / file_contexts entries do not exist) and -1 on error.
->  
-> And just to clarify the selinux_file_context_cmp function return
-> values:
->  
->      Should it return 0 on match (after the 'user:' portion), 1 if
-> contexts do not match and -1 on error.
->  
-> Thanks
-> Richard
->  
+On Mon, 2011-02-14 at 14:17 +0100, Steffen Klassert wrote:
+> selinux_xfrm_sec_ctx_alloc accidentally checks the xfrm domain of
+> interpretation against the selinux context algorithm. This patch
+> fixes this by checking ctx_alg against the selinux context algorithm.
+> 
+> Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 
-Looks like a bug in the man page, combined with inconsistent return
-values on certain error paths within the code.  It looks like the intent
-was for selinux_file_context_verify() to return 1 if they match, 0 if
-they do not match, and -1 on error.  However:
-a) that isn't what the man page says,
-b) there is some special case handling of ENOTSUP and ENOENT internally
-that looks suspect to me, and
-c) utils/matchpathcon.c doesn't check for < 0
+Might also be a good candidate for stable.
 
-selinux_file_context_cmp is a bit simpler - it just follows strcmp
-conventions, i.e. -1 for "less than", 0 for equal, and 1 for "greater
-than".
+Acked-by: Paul Moore <paul.moore@hp.com>
 
-Dan?
-
+> ---
+>  security/selinux/xfrm.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+> index fff78d3..728c57e 100644
+> --- a/security/selinux/xfrm.c
+> +++ b/security/selinux/xfrm.c
+> @@ -208,7 +208,7 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
+>  	if (!uctx)
+>  		goto not_from_user;
+>  
+> -	if (uctx->ctx_doi != XFRM_SC_ALG_SELINUX)
+> +	if (uctx->ctx_alg != XFRM_SC_ALG_SELINUX)
+>  		return -EINVAL;
+>  
+>  	str_len = uctx->ctx_len;
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
+
 
 
 --
