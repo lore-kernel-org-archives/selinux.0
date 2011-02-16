@@ -1,91 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1GJkjad032679
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 14:46:52 -0500
-Received: from g4t0016.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1GJkpCG024394
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 19:46:51 GMT
-Subject: Re: [PATCH 04/10] selinux: Fix wrong checks for
- selinux_policycap_netpeer
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1GKBhig002032
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 15:11:43 -0500
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1GKBSMK017365
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2011 20:11:28 GMT
+Subject: Re: [PATCH 05/10] selinux: selinux_xfrm_decode_session check for
+ socket sid
 From: Paul Moore <paul.moore@hp.com>
 To: Steffen Klassert <steffen.klassert@secunet.com>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <20110214131934.GE15640@secunet.com>
+In-Reply-To: <20110214132009.GF15640@secunet.com>
 References: <20110214131651.GA15640@secunet.com>
-	 <20110214131934.GE15640@secunet.com>
+	 <20110214132009.GF15640@secunet.com>
 Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 16 Feb 2011 14:46:48 -0500
-Message-ID: <1297885608.25079.15.camel@sifl>
+Date: Wed, 16 Feb 2011 15:11:25 -0500
+Message-ID: <1297887085.25079.24.camel@sifl>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-02-14 at 14:19 +0100, Steffen Klassert wrote:
-> selinux_sock_rcv_skb_compat and selinux_ip_postroute_compat are just
-> called if selinux_policycap_netpeer is not set. However in these
-> functions we check if selinux_policycap_netpeer is set. This leads
-> to some dead code and to the fact that selinux_xfrm_postroute_last
-> is never executed. This patch removes the dead code and the checks
-> for selinux_policycap_netpeer in the compatibility functions.
+On Mon, 2011-02-14 at 14:20 +0100, Steffen Klassert wrote:
+> selinux_xfrm_decode_session is used to decode the security identifyer
+> of the originating flow. So return the sid of the socket instead of
+> SECSID_NULL, if we have socket context but no secpath. This is
+> needed because ip_xfrm_me_harder (and selinux_xfrm_decode_session)
+> is invoked on outbound packets and before the xfrm transformations,
+> therefore we have no secpath and the sid of a labeled IPsec SA usually
+> does not match SECSID_NULL.
 > 
 > Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 
-Nice cleanup.
-
-Acked-by: Paul Moore <paul.moore@hp.com>
+Granted, it has been some time since I've looked at the labeled IPsec
+code in some detail so I might be a little off here, but is it possible
+to move the xfrm_decode LSM hook to an area on the outbound processing
+where we do have a valid secpath?  If not, I'd rather see us split this
+hook so that we preserve the existing xfrm_decode_session() hook for
+input (I believe it is also used for input, yes?) and create a new hook
+which only grabs the sksec's label on output (preferably named so that
+it is clear this is the socket's label and not the SA's label).
 
 > ---
->  security/selinux/hooks.c |   24 ++++++------------------
->  1 files changed, 6 insertions(+), 18 deletions(-)
+>  security/selinux/xfrm.c |    6 ++++++
+>  1 files changed, 6 insertions(+), 0 deletions(-)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3bf855a..2b594de 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4002,7 +4002,6 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+> index 62f3b26..e990c39 100644
+> --- a/security/selinux/xfrm.c
+> +++ b/security/selinux/xfrm.c
+> @@ -160,6 +160,7 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *
+>  int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
 >  {
->  	int err = 0;
->  	struct sk_security_struct *sksec = sk->sk_security;
-> -	u32 peer_sid;
->  	u32 sk_sid = sksec->sid;
->  	struct common_audit_data ad;
->  	char *addrp;
-> @@ -4021,20 +4020,10 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
->  			return err;
+>  	struct sec_path *sp;
+> +	struct sock *sk;
+>  
+>  	*sid = SECSID_NULL;
+>  
+> @@ -167,6 +168,8 @@ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
+>  		return 0;
+>  
+>  	sp = skb->sp;
+> +	sk = skb->sk;
+> +
+>  	if (sp) {
+>  		int i, sid_set = 0;
+>  
+> @@ -185,6 +188,9 @@ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
+>  					return -EINVAL;
+>  			}
+>  		}
+> +	} else if (sk) {
+> +		struct sk_security_struct *sksec = sk->sk_security;
+> +		*sid = sksec->sid;
 >  	}
 >  
-> -	if (selinux_policycap_netpeer) {
-> -		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
-> -		if (err)
-> -			return err;
-> -		err = avc_has_perm(sk_sid, peer_sid,
-> -				   SECCLASS_PEER, PEER__RECV, &ad);
-> -		if (err)
-> -			selinux_netlbl_err(skb, err, 0);
-> -	} else {
-> -		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
-> -		if (err)
-> -			return err;
-> -		err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
-> -	}
-> +	err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
-> +	if (err)
-> +		return err;
-> +	err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
->  
->  	return err;
->  }
-> @@ -4529,9 +4518,8 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
->  				 SECCLASS_PACKET, PACKET__SEND, &ad))
->  			return NF_DROP_ERR(-ECONNREFUSED);
->  
-> -	if (selinux_policycap_netpeer)
-> -		if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
-> -			return NF_DROP_ERR(-ECONNREFUSED);
-> +	if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
-> +		return NF_DROP_ERR(-ECONNREFUSED);
->  
->  	return NF_ACCEPT;
->  }
+>  	return 0;
 
 -- 
 paul moore
