@@ -1,88 +1,366 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1JEQXMV028085
+	for <selinux@tycho.nsa.gov>; Sat, 19 Feb 2011 09:26:33 -0500
+Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1JEQWlL028133
+	for <selinux@tycho.nsa.gov>; Sat, 19 Feb 2011 14:26:32 GMT
+Received: by gyd10 with SMTP id 10so13660gyd.12
+        for <selinux@tycho.nsa.gov>; Sat, 19 Feb 2011 06:26:32 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <AANLkTimtVyT-7p+6H9=8KGE=cmHNr7kgramsdH5coWwv@mail.gmail.com>
-References: <OFF4F848CC.EFE2D45E-ON8625783A.0076BBE7-8625783B.001141BA@us.ibm.com>
-	<1298035684.23592.6.camel@moss-pluto>
-	<OFEB82FE90.36E35458-ON8625783B.005690C6-8625783B.00594784@us.ibm.com>
-	<1298046341.23592.16.camel@moss-pluto>
-	<OFAB2AD310.C60A1CF4-ON8625783B.007027A3-8625783B.0071BDC6@us.ibm.com>
-	<AANLkTimtVyT-7p+6H9=8KGE=cmHNr7kgramsdH5coWwv@mail.gmail.com>
-Date: Fri, 18 Feb 2011 17:40:59 -0500
-Message-ID: <AANLkTik76eqvav9NvFbKSacitH-aZ14vxUeDRc_JWYGY@mail.gmail.com>
-Subject: Re: inode security state and cluster file systems
-From: Eric Paris <eparis@parisplace.org>
-To: Yuri L Volobuev <volobuev@us.ibm.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        selinux@davequigley.com, swhiteho@redhat.com,
-        Mark Fasheh <mfasheh@suse.com>, Joel Becker <jlbec@evilplan.org>,
-        LSM List <linux-security-module@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <AANLkTike3iQo3jbXh=cspKi0fdSdA7hz4mDSDeKv8Ckk@mail.gmail.com>
+References: <AANLkTimSCuwayFiMTr5=M7E=_eAbYmAOuq4o6ZnUDGsW@mail.gmail.com>
+	<4D37458B.4050705@redhat.com>
+	<AANLkTimcB_2Dt6fetoDZ_Da0CaWKFDHv-UA=pA3P-Oc7@mail.gmail.com>
+	<4D375CE6.7030107@redhat.com>
+	<AANLkTi=7qtTjmVPDrVyDX0OiX1QbG3CzYXAtsT8L-von@mail.gmail.com>
+	<4D384567.1030104@redhat.com>
+	<AANLkTike3iQo3jbXh=cspKi0fdSdA7hz4mDSDeKv8Ckk@mail.gmail.com>
+Date: Sat, 19 Feb 2011 09:25:16 -0500
+Message-ID: <AANLkTimY8h82hTL3hqzmap2zzUZ5ra82XrM6KD-wLRSW@mail.gmail.com>
+Subject: Re: SELinux role separation
+From: Qwyjibo Jones <qwyjibojones@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=20cf30433d8442f139049ca3666d
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Resending adding linux-security-module to the thread.  Sorry if you
-feel lost, you can try to look through the SELinux list history, but
-some of this conversation didn't appear their since people are not
-members.....
+--20cf30433d8442f139049ca3666d
+Content-Type: text/plain; charset=ISO-8859-1
 
-I can try to write a review if anyone needs/wants it....
+Just as a follow up to this thread.
 
-On Fri, Feb 18, 2011 at 5:39 PM, Eric Paris <eparis@parisplace.org> wrote:
-> On Fri, Feb 18, 2011 at 3:42 PM, Yuri L Volobuev <volobuev@us.ibm.com> wrote:
->>> > The logical place to make this call would be at d_revalidate time.
->>> >  The new value of the security context is not readily available at
->>> > that time, as described above.  Technically speaking, the file system
->>> > code could know the new context -- it can do a getxattr, which would
->>> > return the up-to-date label content.  However, this would require
->>> > knowing the security label xattr name, which is not readily available
->>> > in RHEL6.  (I actually had the code working with correct semantics on
->>> > RHEL5, which has security_inode_xattr_getsuffix(), but it would be
->>> > fair to say that it was hacking around the API rather than leveraging
->>> > it as intended).
->>> >
->>> > Hope it makes things clearer.
->>>
->>> Yes, thanks.  One lingering concern then is that we revalidate
->>> permissions on read/write via security_file_permission ->
->>> selinux_file_permission.  Within selinux_file_permission, we check
->>> whether the task SID, inode SID, or policy has changed since the file
->>> was opened, and if so, we recheck permissions.  If you only make the
->>> call at d_revalidate time, then we'll only update the inode sid on next
->>> lookup and thus ongoing reads/writes on an already open file will
->>> continue to succeed even if they should be denied by policy until some
->>> process on that node attempts another lookup.
+This is an important feature to the customer. My team has managed to differ
+this until a later release. Hopefully one of the 6.x versions.
+They like SELinux MLS because *so far* their, Solaris TX and ZFS systems
+cannot label data at rest. They have TX systems that they want to migrate
+away from.
+
+Thanks for the help
+
+
+On Thu, Jan 20, 2011 at 12:05 PM, Qwyjibo Jones <qwyjibojones@gmail.com>wrote:
+
+> Okay,
+>
+> We aren't using any desktop right now. this system is a headless server.
+>
+> As for how important... Well if you ask me, (the sysadmin), I would say not
+> very. But alas it is not up to me. I will have to get the customer (Govt) to
+> tell me how much they need this. Perhaps I can get them to wait until 6.1
+> comes out since they are thinking of a hardware refresh anyhow.
+>
+> My current policy skills are probably insufficient to the task of making
+> the policy you described. I can use audit2allow pretty well tho... :)
+>
+> Thanks,
+>
+>
+> On Thu, Jan 20, 2011 at 9:23 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> Interesting.  With plain Unix semantics, a permission check would be done at
->> file open time, and wouldn't be repeated at read/write time.  So there's no
->> attempt by the kernel proper to revalidate the associated dentry/inode prior
->> to calling read/write fop.  So, if the file owner were to change (for
->> example), the local inode would not necessarily have the correct owner prior
->> to a write, which is probably important.  So this is something that
->> transcends the issue of inode security state per se.
+>> On 01/20/2011 08:45 AM, Qwyjibo Jones wrote:
+>> > Sorry, one more question...
+>> >
+>> > Does the MLS policy shipped with RHEL 6 have the separation?
+>> >
+>> > Thanks,
+>> >
+>> > On Wed, Jan 19, 2011 at 4:51 PM, Daniel J Walsh <dwalsh@redhat.com
+>> > <mailto:dwalsh@redhat.com>> wrote:
+>> >
+>> > On 01/19/2011 04:44 PM, Qwyjibo Jones wrote:
+>> >> I don't seem to have the "allow_sysadm_manage_security" boolean. Do I
+>> >> need to create it somehow and put it under /selinux/booleans ?
+>> >
+>> >> # getsebool -a | grep allow_sysadm_manage_security
+>> >> # getsebool -a | grep allow_sysadm
+>> >> # getsebool -a | grep sysadm
+>> >> allow_httpd_sysadm_script_anon_write --> off
+>> >> ssh_sysadm_login --> off
+>> >> staff_read_sysadm_file --> off
+>> >> xdm_sysadm_login --> off
+>> >
+>> >
+>> >
+>> >> Thanks,
+>> >
+>> >> On Wed, Jan 19, 2011 at 3:11 PM, Daniel J Walsh <dwalsh@redhat.com
+>> > <mailto:dwalsh@redhat.com>
+>> >> <mailto:dwalsh@redhat.com <mailto:dwalsh@redhat.com>>> wrote:
+>> >
+>> >> On 01/18/2011 01:03 PM, Qwyjibo Jones wrote:
+>> >
+>> >>> I am currently working with an Itanium2 system which has RHEL 5.3 MLS
+>> >>> installed.
+>> >>> I am trying to understand how separation of roles works in
+>> > SELinux/MLS
+>> >>> policy version 21. We have been told that we need to separate
+>> >> roles that
+>> >>> the sys admin is no longer allowed to do.
+>> >
+>> >>> After reading through these threads, in the archives I am still
+>> >>> wondering about a couple things:
+>> >
+>> >
+>> >
+>> >
+>> http://www.nsa.gov/research/selinux/list-archive/0504/thread_body66.shtml#11082
+>> >
+>> >>> And this one:
+>> >
+>> >
+>> >
+>> http://www.nsa.gov/research/selinux/list-archive/0802/thread_body60.shtml
+>> >
+>> >>> 1) Is the RHEL 5.x MLS policy version 21 capable of the following
+>> >>> separation of sysadm_r and secadm_r roles:
+>> >
+>> >>>    a) Can the secadm_r role be the only role that can assign
+>> > roles via
+>> >>> semanage?
+>> >
+>> >>>    c) Can the secadm_r role be the only role that can control
+>> >> files used
+>> >>> in auditing, like auditd.conf. audit.rules, /etc/init.d/auditd etc...
+>> >
+>> >> auditadm_r:auditadm_t is only allowed to modify these files.
+>> >
+>> >>> 2) Is this better accomplished with a combination of SUDO and
+>> > SELinux?
+>> >> Since sysadm_t can hack his way around the SELinux controls via tools
+>> >> like rpm and fdisk, you are better off using sudo to further restrict
+>> >> his actions, if possible.
+>> >>> 3) How can I determine what secadm_r can do in the current
+>> >>> configuration? can any of the CLI tools show me that? ( no gui tools
+>> >>> available )
+>> >
+>> >> You probably want to look at secadm_t
+>> >
+>> >> sesearch -A -t secadm_t
+>> >
+>> >>> If not, what about RHEL 6 ? ( I understand RHEL 6 is not available to
+>> >>> Itanium systems, but we may have new hardware soon)
+>> >
+>> >>> Any tips. hints, pointers etc... would be very helpfull.
+>> >
+>> >>> Thanks for your time,
+>> >
+>> > Oops I misread the policy,  I guess we abandoned the separation.
+>> >
+>> >
+>> >                ifdef(`enable_mls',`
+>> >
+>> >  userdom_security_administrator(secadm_t,secadm_r,{
+>> > secadm_tty_device_t sysadm_devpts_t })
+>> > #                       tunable_policy(`allow_sysadm_manage_security',`
+>> >
+>> >  userdom_security_administrator(sysadm_t,sysadm_r,admin_terminal)
+>> > #                       ')
+>> >
+>> >
+>> > Missed the "#" at the beginning of the lines.  So I don't think we
+>> > prevent sysadm_t from managing the security, of course he has to be able
+>> > to run at SystemHigh.
+>> >
+>> One idea would be to build the separation into a separate module
+>> sysadm_secadm.pp then you could disable this module and take away the
+>> power of sysadm to do security administration. How important is this?
+>> -----BEGIN PGP SIGNATURE-----
+>> Version: GnuPG v1.4.11 (GNU/Linux)
+>> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 >>
->> Another possible approach here, as noted by GFS folks, is to invalidate
->> inode security state when a lock protecting it is lost.  GPFS could
->> certainly take that approach as well (it's done already for "regular" inode
->> state).  In this case, it sounds like kernel/LSM code would be responsible
->> to refreshing the inode security state when it's needed (although fs code
->> could also drive this explicitly at d_revalidate time).  I'd be fine with
->> that approach.
+>> iEYEARECAAYFAk04RWcACgkQrlYvE4MpobNgkwCgrpfXVA3VACrLFueZjW6V5Gko
+>> YRsAoJsGGp76ODNFPSIhpl24h4D5KA6A
+>> =Ae9m
+>> -----END PGP SIGNATURE-----
+>>
 >
-> I'm thinking about the GFS suggested approach of just 'invalidating'
-> the inode security label.  It presents us with 2 problems I can see up
-> front.  It really seems like filesystems would be upset when the next
-> read/write calls starts running down the ->getxattr() code.  Even if
-> they can handle the locking and such of having getxattr called at
-> random times, most of those calls into the LSM only come with an
-> inode.  But we need a dentry to make said ->getxattr calls.   (I
-> believe this is a broken VFS problem, but the VFS requires a dentry)
->
-> If we made the invalidation point an explicit refresh of the label at
-> least the filesystems would be able to control both of those
-> problems.....
->
-> -Eric
 >
 
+--20cf30433d8442f139049ca3666d
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Just as a follow up to this thread. <br><br>This is an important feature to=
+ the customer. My team has managed to differ this until a later release. Ho=
+pefully one of the 6.x versions. <br>They like SELinux MLS because <u>so fa=
+r</u> their, Solaris TX and ZFS systems cannot label data at rest. They hav=
+e TX systems that they want to migrate away from.<br>
+<br>Thanks for the help<br><br><br><div class=3D"gmail_quote">On Thu, Jan 2=
+0, 2011 at 12:05 PM, Qwyjibo Jones <span dir=3D"ltr">&lt;<a href=3D"mailto:=
+qwyjibojones@gmail.com">qwyjibojones@gmail.com</a>&gt;</span> wrote:<br><bl=
+ockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; border-l=
+eft: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
+Okay,<br><br>We aren&#39;t using any desktop right now. this system is a he=
+adless server. <br><br>As for how important... Well if you ask me, (the sys=
+admin), I would say not very. But alas it is not up to me. I will have to g=
+et the customer (Govt) to tell me how much they need this. Perhaps I can ge=
+t them to wait until 6.1 comes out since they are thinking of a hardware re=
+fresh anyhow.<br>
+
+<br>My current policy skills are probably insufficient to the task of makin=
+g the policy you described. I can use audit2allow pretty well tho... :)<br>=
+<br>Thanks,<div><div></div><div class=3D"h5"><br><br><div class=3D"gmail_qu=
+ote">
+On Thu, Jan 20, 2011 at 9:23 AM, Daniel J Walsh <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:dwalsh@redhat.com" target=3D"_blank">dwalsh@redhat.com</a>&gt;=
+</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 0pt 0.8ex; borde=
+r-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><div>-----BEGIN P=
+GP SIGNED MESSAGE-----<br>
+Hash: SHA1<br>
+<br>
+</div><div>On 01/20/2011 08:45 AM, Qwyjibo Jones wrote:<br>
+</div><div>&gt; Sorry, one more question...<br>
+&gt;<br>
+&gt; Does the MLS policy shipped with RHEL 6 have the separation?<br>
+&gt;<br>
+&gt; Thanks,<br>
+&gt;<br>
+&gt; On Wed, Jan 19, 2011 at 4:51 PM, Daniel J Walsh &lt;<a href=3D"mailto:=
+dwalsh@redhat.com" target=3D"_blank">dwalsh@redhat.com</a><br>
+</div><div>&gt; &lt;mailto:<a href=3D"mailto:dwalsh@redhat.com" target=3D"_=
+blank">dwalsh@redhat.com</a>&gt;&gt; wrote:<br>
+&gt;<br>
+&gt; On 01/19/2011 04:44 PM, Qwyjibo Jones wrote:<br>
+&gt;&gt; I don&#39;t seem to have the &quot;allow_sysadm_manage_security&qu=
+ot; boolean. Do I<br>
+&gt;&gt; need to create it somehow and put it under /selinux/booleans ?<br>
+&gt;<br>
+&gt;&gt; # getsebool -a | grep allow_sysadm_manage_security<br>
+&gt;&gt; # getsebool -a | grep allow_sysadm<br>
+&gt;&gt; # getsebool -a | grep sysadm<br>
+&gt;&gt; allow_httpd_sysadm_script_anon_write --&gt; off<br>
+&gt;&gt; ssh_sysadm_login --&gt; off<br>
+&gt;&gt; staff_read_sysadm_file --&gt; off<br>
+&gt;&gt; xdm_sysadm_login --&gt; off<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;&gt; Thanks,<br>
+&gt;<br>
+&gt;&gt; On Wed, Jan 19, 2011 at 3:11 PM, Daniel J Walsh &lt;<a href=3D"mai=
+lto:dwalsh@redhat.com" target=3D"_blank">dwalsh@redhat.com</a><br>
+&gt; &lt;mailto:<a href=3D"mailto:dwalsh@redhat.com" target=3D"_blank">dwal=
+sh@redhat.com</a>&gt;<br>
+</div><div><div></div><div>&gt;&gt; &lt;mailto:<a href=3D"mailto:dwalsh@red=
+hat.com" target=3D"_blank">dwalsh@redhat.com</a> &lt;mailto:<a href=3D"mail=
+to:dwalsh@redhat.com" target=3D"_blank">dwalsh@redhat.com</a>&gt;&gt;&gt; w=
+rote:<br>
+
+&gt;<br>
+&gt;&gt; On 01/18/2011 01:03 PM, Qwyjibo Jones wrote:<br>
+&gt;<br>
+&gt;&gt;&gt; I am currently working with an Itanium2 system which has RHEL =
+5.3 MLS<br>
+&gt;&gt;&gt; installed.<br>
+&gt;&gt;&gt; I am trying to understand how separation of roles works in<br>
+&gt; SELinux/MLS<br>
+&gt;&gt;&gt; policy version 21. We have been told that we need to separate<=
+br>
+&gt;&gt; roles that<br>
+&gt;&gt;&gt; the sys admin is no longer allowed to do.<br>
+&gt;<br>
+&gt;&gt;&gt; After reading through these threads, in the archives I am stil=
+l<br>
+&gt;&gt;&gt; wondering about a couple things:<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt; <a href=3D"http://www.nsa.gov/research/selinux/list-archive/0504/threa=
+d_body66.shtml#11082" target=3D"_blank">http://www.nsa.gov/research/selinux=
+/list-archive/0504/thread_body66.shtml#11082</a><br>
+&gt;<br>
+&gt;&gt;&gt; And this one:<br>
+&gt;<br>
+&gt;<br>
+&gt; <a href=3D"http://www.nsa.gov/research/selinux/list-archive/0802/threa=
+d_body60.shtml" target=3D"_blank">http://www.nsa.gov/research/selinux/list-=
+archive/0802/thread_body60.shtml</a><br>
+&gt;<br>
+&gt;&gt;&gt; 1) Is the RHEL 5.x MLS policy version 21 capable of the follow=
+ing<br>
+&gt;&gt;&gt; separation of sysadm_r and secadm_r roles:<br>
+&gt;<br>
+&gt;&gt;&gt; =A0 =A0a) Can the secadm_r role be the only role that can assi=
+gn<br>
+&gt; roles via<br>
+&gt;&gt;&gt; semanage?<br>
+&gt;<br>
+&gt;&gt;&gt; =A0 =A0c) Can the secadm_r role be the only role that can cont=
+rol<br>
+&gt;&gt; files used<br>
+&gt;&gt;&gt; in auditing, like auditd.conf. audit.rules, /etc/init.d/auditd=
+ etc...<br>
+&gt;<br>
+&gt;&gt; auditadm_r:auditadm_t is only allowed to modify these files.<br>
+&gt;<br>
+&gt;&gt;&gt; 2) Is this better accomplished with a combination of SUDO and<=
+br>
+&gt; SELinux?<br>
+&gt;&gt; Since sysadm_t can hack his way around the SELinux controls via to=
+ols<br>
+&gt;&gt; like rpm and fdisk, you are better off using sudo to further restr=
+ict<br>
+&gt;&gt; his actions, if possible.<br>
+&gt;&gt;&gt; 3) How can I determine what secadm_r can do in the current<br>
+&gt;&gt;&gt; configuration? can any of the CLI tools show me that? ( no gui=
+ tools<br>
+&gt;&gt;&gt; available )<br>
+&gt;<br>
+&gt;&gt; You probably want to look at secadm_t<br>
+&gt;<br>
+&gt;&gt; sesearch -A -t secadm_t<br>
+&gt;<br>
+&gt;&gt;&gt; If not, what about RHEL 6 ? ( I understand RHEL 6 is not avail=
+able to<br>
+&gt;&gt;&gt; Itanium systems, but we may have new hardware soon)<br>
+&gt;<br>
+&gt;&gt;&gt; Any tips. hints, pointers etc... would be very helpfull.<br>
+&gt;<br>
+&gt;&gt;&gt; Thanks for your time,<br>
+&gt;<br>
+&gt; Oops I misread the policy, =A0I guess we abandoned the separation.<br>
+&gt;<br>
+&gt;<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ifdef(`enable_mls&#39;,`<br>
+&gt;<br>
+&gt; =A0userdom_security_administrator(secadm_t,secadm_r,{<br>
+&gt; secadm_tty_device_t sysadm_devpts_t })<br>
+&gt; # =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 tunable_policy(`allow_sy=
+sadm_manage_security&#39;,`<br>
+&gt;<br>
+&gt; =A0userdom_security_administrator(sysadm_t,sysadm_r,admin_terminal)<br=
+>
+&gt; # =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &#39;)<br>
+&gt;<br>
+&gt;<br>
+&gt; Missed the &quot;#&quot; at the beginning of the lines. =A0So I don&#3=
+9;t think we<br>
+&gt; prevent sysadm_t from managing the security, of course he has to be ab=
+le<br>
+&gt; to run at SystemHigh.<br>
+&gt;<br>
+</div></div>One idea would be to build the separation into a separate modul=
+e<br>
+sysadm_secadm.pp then you could disable this module and take away the<br>
+power of sysadm to do security administration. How important is this?<br>
+<div>-----BEGIN PGP SIGNATURE-----<br>
+Version: GnuPG v1.4.11 (GNU/Linux)<br>
+Comment: Using GnuPG with Fedora - <a href=3D"http://enigmail.mozdev.org/" =
+target=3D"_blank">http://enigmail.mozdev.org/</a><br>
+<br>
+</div>iEYEARECAAYFAk04RWcACgkQrlYvE4MpobNgkwCgrpfXVA3VACrLFueZjW6V5Gko<br>
+YRsAoJsGGp76ODNFPSIhpl24h4D5KA6A<br>
+=3DAe9m<br>
+-----END PGP SIGNATURE-----<br>
+</blockquote></div><br>
+</div></div></blockquote></div><br>
+
+--20cf30433d8442f139049ca3666d--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
