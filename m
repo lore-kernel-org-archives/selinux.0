@@ -1,65 +1,45 @@
-Message-ID: <4D633411.1020004@schaufler-ca.com>
-Date: Mon, 21 Feb 2011 19:57:05 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1MDdhjK028584
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2011 08:39:43 -0500
+Received: from mail-yx0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1MDdgHx000870
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2011 13:39:42 GMT
+Received: by yxm8 with SMTP id 8so1570948yxm.12
+        for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2011 05:39:42 -0800 (PST)
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: Yuri L Volobuev <volobuev@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux@tycho.nsa.gov, selinux@davequigley.com, swhiteho@redhat.com,
-        Mark Fasheh <mfasheh@suse.com>, Joel Becker <jlbec@evilplan.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: inode security state and cluster file systems
-References: <OFF4F848CC.EFE2D45E-ON8625783A.0076BBE7-8625783B.001141BA@us.ibm.com>	<1298035684.23592.6.camel@moss-pluto>	<OFEB82FE90.36E35458-ON8625783B.005690C6-8625783B.00594784@us.ibm.com>	<1298046341.23592.16.camel@moss-pluto>	<OFAB2AD310.C60A1CF4-ON8625783B.007027A3-8625783B.0071BDC6@us.ibm.com>	<AANLkTimtVyT-7p+6H9=8KGE=cmHNr7kgramsdH5coWwv@mail.gmail.com>	<AANLkTik76eqvav9NvFbKSacitH-aZ14vxUeDRc_JWYGY@mail.gmail.com>	<4D6176AD.3000807@schaufler-ca.com> <AANLkTimE5_WdsVVp-LtTGYoUMGstW7H1poj8o6PdWow-@mail.gmail.com>
-In-Reply-To: <AANLkTimE5_WdsVVp-LtTGYoUMGstW7H1poj8o6PdWow-@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 22 Feb 2011 08:39:42 -0500
+Message-ID: <AANLkTi=k2d=Tj5vyRyA5nbgNs3-yB-p19UxP4u_X0HHH@mail.gmail.com>
+Subject: SELinux MLS and Virtual Machines
+From: Qwyjibo Jones <qwyjibojones@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=000e0cd40620d449c5049cdf1c74
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2/21/2011 11:56 AM, Eric Paris wrote:
-> On Sun, Feb 20, 2011 at 3:16 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 2/18/2011 2:40 PM, Eric Paris wrote:
->>>> If we made the invalidation point an explicit refresh of the label at
->>>> least the filesystems would be able to control both of those
->>>> problems.....
->> So far the only case that has been discussed is one in which there
->> is one security attribute on the file. While we don't have it yet there
->> are a couple of efforts underway to support multiple concurrent LSMs.
->> It is also plausible for an LSM to use more than one security attribute
->> on a given file. An approach based on a secid interface may not work
->> in either scenario. If you want a comparative example, look at directory
->> default ACLs, which are important security information, but are nor used
->> to make access decisions on the object to which they are attached.
-> I'm still leaning towards a solution in which the filesystem needs to
-> tell the LSM that it's labels are invalid (I suggest that be done on
-> any change in the security.* namespace) and that same call needs to
-> cause the LSM to refresh its labels.  I seem to think that such a call
-> would work just fine with any LSM stacker or even
-> multi-attribute/multi-label LSM (which uses the security.* namespace).
+--000e0cd40620d449c5049cdf1c74
+Content-Type: text/plain; charset=ISO-8859-1
 
-Yes, this seems completely reasonable and equally annoying for all
-concerned. I think that it would be a good idea to pass the name of
-the attribute changed (e.g. "SMACK64") so that the LSM(s) can decide
-if it(they) need take action.
+Hello,
 
+I was poking around in the archives looking for information on running
+Virtual machines on a platform with the MLS policy.
+We have a Solaris TX system that we wanted to run Virtual Box on, but Oracle
+says the combination is not supported.
 
-> The biggest problem is if the 3 cluster filesystems in question can
-> handle an interface that requires a dentry
+Would the combination be possible in the RHEL arena?
+Maybe something like RHEL 6, MLS policy and Xen or the RHEL VM stuff?
+Has anyone heard of such a beast?
 
-If they can't I think that the LSM can get the dentry from an inode,
-although it is not convenient. Hmm. A brief look at code indicates
-that this may not be easy for the LSM. So it looks as if the filesystem
-might have to pass dentrys.
+Thanks
 
->  and if they can handle the
-> fact that we do permissions checks on read/write and would like those
-> operations to start failing immediately if another node changed the
-> label.  I really don't see any other way to solve the problem....
+--000e0cd40620d449c5049cdf1c74
+Content-Type: text/html; charset=ISO-8859-1
 
-Distributed systems are tricky. That's one reason I work in security,
-it is so much simpler.
+Hello, <br><br>I was poking around in the archives looking for information on running Virtual machines on a platform with the MLS policy.<br>We have a Solaris TX system that we wanted to run Virtual Box on, but 
+Oracle says the combination is not supported.<br><br>Would the combination be possible in the RHEL arena? <br>Maybe something like RHEL 6, MLS policy and Xen or the RHEL VM stuff?<br>Has anyone heard of such a beast?<br>
+<br>Thanks<br><br>
 
-> -Eric
-
+--000e0cd40620d449c5049cdf1c74--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
