@@ -1,95 +1,97 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1NLGj0M005013
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 16:16:45 -0500
-Received: from g1t0028.austin.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1NLGiqa003391
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 21:16:44 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1NLZ4ni006162
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 16:35:04 -0500
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1NLZ3qa006709
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 21:35:04 GMT
 From: Paul Moore <paul.moore@hp.com>
 To: Steffen Klassert <steffen.klassert@secunet.com>
-Subject: Re: [PATCH 05/10] selinux: selinux_xfrm_decode_session check for socket sid
-Date: Wed, 23 Feb 2011 16:16:38 -0500
+Subject: Re: [PATCH 07/10] selinux: Check receiving against sending interface on packet forwarding
+Date: Wed, 23 Feb 2011 16:34:59 -0500
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-References: <20110214131651.GA15640@secunet.com> <1297887085.25079.24.camel@sifl> <20110222121143.GC20852@secunet.com>
-In-Reply-To: <20110222121143.GC20852@secunet.com>
+References: <20110214131651.GA15640@secunet.com> <1297888360.25079.35.camel@sifl> <20110222130409.GD20852@secunet.com>
+In-Reply-To: <20110222130409.GD20852@secunet.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="us-ascii"
-Message-Id: <201102231616.39183.paul.moore@hp.com>
+Message-Id: <201102231635.00378.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, February 22, 2011 7:11:43 AM Steffen Klassert wrote:
-> On Wed, Feb 16, 2011 at 03:11:25PM -0500, Paul Moore wrote:
-> > On Mon, 2011-02-14 at 14:20 +0100, Steffen Klassert wrote:
-> > > selinux_xfrm_decode_session is used to decode the security identifyer
-> > > of the originating flow. So return the sid of the socket instead of
-> > > SECSID_NULL, if we have socket context but no secpath. This is
-> > > needed because ip_xfrm_me_harder (and selinux_xfrm_decode_session)
-> > > is invoked on outbound packets and before the xfrm transformations,
-> > > therefore we have no secpath and the sid of a labeled IPsec SA usually
-> > > does not match SECSID_NULL.
+On Tuesday, February 22, 2011 8:04:09 AM Steffen Klassert wrote:
+> On Wed, Feb 16, 2011 at 03:32:40PM -0500, Paul Moore wrote:
+> > On Mon, 2011-02-14 at 14:21 +0100, Steffen Klassert wrote:
+> > > As it is, it is not possible to check in the forwarding and
+> > > the postrouting hook whether a packet that is received via some
+> > > network interface is allowed to be forwarded via some other network
+> > > interface. With this patch we decode the security identifier on
+> > > selinux_xfrm_decode_session to the sid of the incoming interface,
+> > > if we have neither a secpath nor socket context, so this check is
+> > > possible now. Also set the sid to SECINITSID_KERNEL if we have none
+> > > of secpath, socket context and incoming interface as the packet
+> > > must be kernel generated in this case.
 > > > 
 > > > Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 > > 
-> > Granted, it has been some time since I've looked at the labeled IPsec
-> > code in some detail so I might be a little off here, but is it possible
-> > to move the xfrm_decode LSM hook to an area on the outbound processing
-> > where we do have a valid secpath?
+> > If you want to control which interface is allowed to forward to which
+> > other interface, you should use good ol' iptables, not SELinux.
 > 
-> No, we don't have a secpath for outbound packets. The secpath is used to
-> do a inbound policy check, check the used SA against their selectors etc.
-> With these checks we ensure that the packet is transformed back to it's
-> native form in the right way. That's not needed on outbound packets,
-> so we don't record a secpath in this case. The lack of a outbound
-> secpath was also the problem I mentioned in the introduction mail
-> of the patchset.
-
-Be warned: most of this reply is just me tossing out ideas ...
-
-Okay, so basically selinux_xfrm_decode_session() is a total waste of time in 
-the output path, yes?  I'm looking at the current code and it does nothing if 
-the sec_path is NULL, so I'm wondering why we even keep it around for the 
-outbound path.
-
-> > If not, I'd rather see us split this
-> > hook so that we preserve the existing xfrm_decode_session() hook for
-> > input (I believe it is also used for input, yes?) and create a new hook
-> > which only grabs the sksec's label on output (preferably named so that
-> > it is clear this is the socket's label and not the SA's label).
+> Well, I think the problem is that we can't use labled SA's on
+> packet forwarding.
 > 
-> I think that's not possible too. The security_xfrm_decode_session()
-> hook is used from within xfrm_decode_session(). This function
-> is used in codepaths that are used for both, inbound and outbound
-> processing (xfrm_lookup, xfrm_policy_check etc.).
+> Consider the following: As it is, the sid of the labeled SA and the sid of
+> the flow must be identical. Say we receive a plain IP packet that should be
+> forwarded ...
 
-This makes me wonder if the LSM hook is even in the right place.
+For this argument I'm assuming "plain IP packet" == "IP packet without a peer 
+label associated with it".
 
-> The xfrm_decode_session() function simply fills a 'struct flowi' with
-> the informations of the originating flow whenever these informations
-> are needed, selinux_xfrm_decode_session just adds the sid the
-> that struct.
-> 
-> In the case we are constructing a 'struct flowi' within the outbound
-> packet path, we use selinux_sk_getsecid() which just adds the
-> sksec label from the socket if we have socket context.
-> 
-> So with this patch we would use the secpath's sid on inbound
-> packets and the sksec label from the socket if we are on
-> oubound packet processing with socket context, when we construct
-> a 'struct flowi' from xfrm_decode_session().
+> ... IPsec transformed with a labeled SA.
 
-I _really_ think we need to split the inbound and outbound handling for xfrm.  
-I suppose we can always fall back to selecting the right path based on the 
-presence of a sec_path pointer, but I would rather see us get rid of an 
-unnecessary conditional.
+Okay, I think that is our disconnect right there.  You are trying to send an 
+unlabeled packet (peer label set to "unlabeled_t") over a labeled SA (peer 
+label set to "foo_t") without any explicit relabel operation by the 
+administrator.  This is a Very Bad Thing.
 
-The inbound handling can stick with the logic in selinux_xfrm_decode_session() 
-but the outbound handling should follow similar logic to how we determine the 
-network peer label in selinux_ip_postroute().
+> Now __xfrm_route_forward() decodes the sid of the flow with
+> selinux_xfrm_decode_session(). This packet has neither a secpath nor socket
+> conext. So the sid of the flow is decoded to SECSID_NULL.
 
- 1. If we have a valid sk_security_stuct, use it.
- 2. If we are forwarding the packet, call selinux_skb_peerlbl_sid().
- 3. If all else fails, use SECINITSID_KERNEL.
+I suppose we probably should set the flow's label in this case to 
+SECINITSID_UNLABELED instead of SECSID_NULL, that would be more consistent ... 
+although we would probably need to make sure we don't break anything in 
+selinux_xfrm_state_pol_flow_match().
+
+> Then selinux_xfrm_state_pol_flow_match() enforces the sid of SA and flow to
+> be identical. This in turn means, that the label of the SA must be
+> SECSID_NULL.
+
+Which makes sense to me.  If you are forwarding unlabeled packets across an 
+IPsec gateway, the IPsec gateway should establish SAs which are also 
+unlabeled.
+
+> So I think we have to chane something if we want to use labeled SAs on
+> packet forwarding, or do I miss something here?
+
+I think so, look below.
+
+> With this patch we would decode the sid of the flow to the sid of the
+> receiving interface, so the used SA could have the same sid as the
+> receiving interface.
+
+I think the problem is that you believe the network interface's label becomes 
+the peer label of unlabeled packets, that is not the case.  If you want to 
+provide a network peer label to unlabeled packets you need to use NetLabel's 
+fallback labeling mechanism which applies peer labels to what would otherwise 
+be unlabeled packets (see an example at the link below).
+
+I haven't (or can't remember) testing this in the case of labeled IPsec 
+gateway connected to unlabeled, single label networks but I have tested it 
+against a CIPSO gateway connected to unlabeled, single label networks.  If it 
+doesn't work for you in the labeled IPsec case, this would be a bug and 
+something we would need to address.
+
+* http://paulmoore.livejournal.com/1758.html
 
 --
 paul moore
