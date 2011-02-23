@@ -1,88 +1,108 @@
-Subject: Re: type_datum changed from define_type() and type_write() ?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: selinux-mailing-list <selinux@tycho.nsa.gov>
-In-Reply-To: <SNT139-w158CDE61B212AC89099502ABDB0@phx.gbl>
-References: <SNT139-w158CDE61B212AC89099502ABDB0@phx.gbl>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 23 Feb 2011 09:15:21 -0500
-Message-ID: <1298470521.13789.9.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1NEuvnw007660
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 09:56:57 -0500
+Received: from g1t0027.austin.hp.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1NEuuNH028818
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2011 14:56:56 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Steffen Klassert <steffen.klassert@secunet.com>
+Subject: Re: [PATCH 4/4] selinux: xfrm - notify users on dropped packets
+Date: Wed, 23 Feb 2011 09:56:52 -0500
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@redhat.com>,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+References: <20110223115343.GH20852@secunet.com> <20110223115715.GL20852@secunet.com>
+In-Reply-To: <20110223115715.GL20852@secunet.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201102230956.53069.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-02-23 at 08:30 +0000, HarryCiao wrote:
-> Hi SELinux experts,
+On Wednesday, February 23, 2011 6:57:15 AM Steffen Klassert wrote:
+> In selinux_xfrm_state_pol_flow_match we have cases where we drop
+> packets without asking the avc. No audit message is generated in
+> this case. Lets at least print out a message to the logs, so the
+> users don't need to dig in the code to find out why these packets
+> are dropped.
 > 
-> I am trying to add a new rule "typesocket" to checkpolicy which does
-> something like "typesocket syslogd_t syslogd_s_t", where syslogd_t is
-> the domain for the syslog daemon and the syslogd_s_t would be used to
-> label the AF_UNIX socket created by syslog daemon(so that it no longer
-> inherits the creator's sid).
+> Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+> Acked-by: Paul Moore <paul.moore@hp.com>
+> ---
 > 
-> I would like to add two extra members in the binary representation for
-> the syslogd_t's type_datum structure: a u32 "socket_type_len" field
-> before the string of "syslogd_t", and the socket type string of
-> "syslogd_s_t" right after the "syslogd_t" string.
+> Paul,
 > 
-> Two new members have been added to the type_datum structure: a char *,
-> "socket_type_str" and a uint32_t, "socket_type_len". The newly added
-> define_typesocket() in policy_define.c is used to handle this new
-> typesocket rule, it will save the string and length of "syslogd_s_t"
-> to syslogd_t's type_datum->socket_type_str and socket_type_len fields.
-> While the type_write() in libsepol wr! ite.c will try to save
-> type_datum->socket_type_str right after the key of the current
-> type_datum if type_datum->socket_type_len is not zero.
-> 
-> It seems easy, however, I've run into a strange problem, that the
-> type_datum structure used in define_typesocket() during parsing seems
-> to be different from the one used by type_write() when writing into
-> binary representations. I put some printfs in these two functions, the
-> results are:
-> 
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> define_typesocket, syslogd_t.s.value: b09
-> define_typesocket, syslogd_t.socket_type_len: b
-> define_typesocket, syslogd_t.socket_type_str: syslogd_s_t
-> define_typesocket, syslogd_s_t.s.value: b07
-> /usr/bin/checkpolicy:  policy configuration loaded
-> /usr/bin/checkpolicy:  writing binary representation (version 24) to
-> policy.24
-> type_write, key:syslogd_s_t
-> s.value: 22d
-> type_write, key:syslogd_t
-> s.value: ce7
-> socket_type_len: 0socket_type_str: (null)
-> 
-> Where we can see that when "typesocke t syslogd_t syslogd_s_t" is
-> parsed, the s.value for the syslogd_t and syslogd_s_t are b09 and b07
-> respectively, and the reference to "syslogd_s_t" has been properly
-> setup in syslogd_t's type_datum. However, when writing binary
-> representations their s.value have been changed to ce7 and 22d, and
-> the reference to "syslogd_s_t" in syslogd_t's type_datum has been
-> zeroed.
-> 
-> Any clues??
+> I removed the exclamation marks and  I changed this one
+> to print a message too if the flow label does not match the SA label.
+> I kept your ACK on this one, I hope it is ok.
+> If not please complain.
 
-First, I think your approach is wrong - you should declare syslogd_s_t
-using a normal type declaration so that it is defined as a discrete
-type, and then simply use the existing type_transition statement to
-express that you want to label newly created sockets with a type other
-than the creator's type.  Then you just need to implement the logic in
-the kernel to invoke security_transition_sid() when computing socket
-labels and you do not need any new language constructs.
+I still see the exclamation marks in the patch below; perhaps you sent the 
+wrong version by mistake?
 
-But with regard to your problem, understand that types (and other
-symbols) are first assigned temporary values during module compilation,
-then they are mapped to their final values during module
-linking/expansion into a final policy.  So whenever you add new state,
-you have to preserve it and map it properly during the link/expand
-stages.
+Also, as far as keeping ACKs on modified patches, I think it is okay as long 
+as you are just porting a patch, e.g. minor changes necessary so that the 
+patch applies to the current stable kernel.  If you have to do anything 
+beyond that, I would appreciate it if you could drop my ACK; I don't have a 
+problem with re-reviewing patches and re-ACKing them if they look okay.
 
--- 
-Stephen Smalley
-National Security Agency
+>  security/selinux/xfrm.c |   26 +++++++++++++++++---------
+>  1 files changed, 17 insertions(+), 9 deletions(-)
+> 
+> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+> index 728c57e..0062613 100644
+> --- a/security/selinux/xfrm.c
+> +++ b/security/selinux/xfrm.c
+> @@ -118,25 +118,33 @@ int selinux_xfrm_state_pol_flow_match(struct
+> xfrm_state *x, struct xfrm_policy * int rc;
+> 
+>  	if (!xp->security)
+> -		if (x->security)
+> -			/* unlabeled policy and labeled SA can't match */
+> +		if (x->security) {
+> +			if (net_ratelimit())
+> +				printk("selinux: unlabeled policy and labeled SA can't 
+match!\n");
+>  			return 0;
+> -		else
+> +		} else
+>  			/* unlabeled policy and unlabeled SA match all flows */
+>  			return 1;
+>  	else
+> -		if (!x->security)
+> -			/* unlabeled SA and labeled policy can't match */
+> +		if (!x->security) {
+> +			if (net_ratelimit())
+> +				printk("selinux: unlabeled SA and labeled policy can't 
+match!\n");
+>  			return 0;
+> -		else
+> -			if (!selinux_authorizable_xfrm(x))
+> -				/* Not a SELinux-labeled SA */
+> +		} else {
+> +			if (!selinux_authorizable_xfrm(x)) {
+> +				if (net_ratelimit())
+> +					printk("selinux: Not a SELinux-labeled SA!\n");
+>  				return 0;
+> +			}
+> +		}
+> 
+>  	state_sid = x->security->ctx_sid;
+> 
+> -	if (fl->secid != state_sid)
+> +	if (fl->secid != state_sid) {
+> +		if (net_ratelimit())
+> +			printk("selinux: Flow label does not match SA label!\n");
+>  		return 0;
+> +	}
+> 
+>  	rc = avc_has_perm(fl->secid, state_sid, SECCLASS_ASSOCIATION,
+>  			  ASSOCIATION__SENDTO,
 
+
+--
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
