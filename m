@@ -1,81 +1,42 @@
-Message-ID: <4D667EBA.3060205@tresys.com>
-Date: Thu, 24 Feb 2011 10:52:26 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1OGNBGS031213
+	for <selinux@tycho.nsa.gov>; Thu, 24 Feb 2011 11:23:11 -0500
+Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1OGNBWf012554
+	for <selinux@tycho.nsa.gov>; Thu, 24 Feb 2011 16:23:11 GMT
+Received: by vws8 with SMTP id 8so588302vws.12
+        for <selinux@tycho.nsa.gov>; Thu, 24 Feb 2011 08:23:11 -0800 (PST)
+From: Bill Chimiak <wch1m1@gmail.com>
+To: "selinux-mailing-list" <selinux@tycho.nsa.gov>
+Subject: adobe on FC 14
+Date: Thu, 24 Feb 2011 11:19:24 -0500
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: HarryCiao <harrytaurus2002@hotmail.com>, paul.moore@hp.com,
-        selinux-mailing-list <selinux@tycho.nsa.gov>,
-        refpolicy-mailing-list <refpolicy@oss1.tresys.com>
-Subject: Re: Separate type for AF_UNIX socket created by syslogd_t
-References: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl> <1298554512.31953.38.camel@moss-pluto>
-In-Reply-To: <1298554512.31953.38.camel@moss-pluto>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201102241119.25067.w.chimiak@ieee.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/24/11 08:35, Stephen Smalley wrote:
-> On Thu, 2011-02-24 at 10:44 +0000, HarryCiao wrote:
->> Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the
->> unix_dgram_socket object bond to it are of mls_systemhigh, rendering
->> that other application domain such as klogd_t running at lower
->> security level failed to "sendto" it. One possible solution is to add
->> syslogd_t to mlstrustedobject attribute since the unix_dgram_socket
->> object inherits the creator's SID by default.
->>
->> However, the side effect is that syslogd_t is also the label for the
->> entire syslogd's procfs entries. The attached two patches are aimed to
->> resolve this problem while eliminating such side effect, by declaring
->> a separate type, syslogd_s_t,  for the unix_dgram_socket object
->> created by syslogd_t which alone could be added to the
->> mlstrustedobject attribute.
->>
->> Thanks to Stephen's suggestion security_transition_sid() would be
->> called in socket_sockcreate_sid() to query the relevant
->> type_transition rule say in logging.pp for any newly created socket.
->>
->> After applying th! ese two patches below errors don't exist any more:
->>
->> type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for
->> pid=385 comm="klogd" path="/dev/log"
->> scontext=system_u:object_r:klogd_t:s0
->> tcontext=system_u:object_r:syslogd_t:s15:c0.c1023
->> tclass=unix_dgram_socket
->>
->> BTW, do we have a way to actually display the label for the
->> unix_dgram_socket that bond to /dev/log?
->>
-[cut]
-> Unfortunately my original "simple" suggestion turns out to have side
-> effects. At present, the socket gets the same exact security context as
-> the creating process by default, including the role and MLS range, since
-> we just assign the SID directly.  But when using security_transition_sid
-> -> security_compute_sid, the new security context uses object_r as the
-> role for all objects and mls_compute_sid degrades the full MLS range to
-> the low level for objects. This is based on the desired behavior for
-> files and didn't take into account sockets.  Thus with your patch,
-> sockets will no longer be labeled identically to their creating process,
-> which will affect labeled networking and the network access controls.
-> 
-> To preserve existing behavior when there are no type transition rules
-> configured for sockets, I think security_compute_sid and mls_compute_sid
-> need logic handling the socket classes differently than other objects
-> (files).  And given that we are using dynamic class mappings now, those
-> socket class values would have to be looked up just like the process
-> class upon policy load.  Maybe we can come up with some generalized
-> solution that will be more flexible going forward for configuring how
-> different parts of the context are assigned for different classes.  We
-> have talked previously about using the role field even for files rather
-> than just making them all object_r.
+acroread wants to execute on a stack and it seems to be ugly.
+Any advice?
+Details:
 
-It certainly would be nice to have all objects get the role of their
-creator so we can bring role-based policy separations back using RBAC
-features and not rely on 1:1 user:role mapping + UBAC.
+/opt/Adobe/Reader9/Reader/intellinux/bin/acroread: error while loading shared 
+libraries: libcrypto.so.0.9.8: cannot enable executable stack as shared object 
+requires: Permission denied
 
+audit2allow says:
+#============= setroubleshootd_t ==============
+allow setroubleshootd_t user_home_t:file { execute execute_no_trans };
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+#============= unconfined_t ==============
+#!!!! This avc can be allowed using the boolean 'allow_execstack'
+allow unconfined_t self:process execstack;
+
+===============================================
+Someone suggested this:
+
+chcon -t execmem_exec_t '/opt/Adobe/Reader9/Reader/intellinux/bin/acroread'
 
 --
 This message was distributed to subscribers of the selinux mailing list.
