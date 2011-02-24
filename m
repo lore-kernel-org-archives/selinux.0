@@ -1,41 +1,30 @@
-Subject: RE: type_datum changed from define_type() and type_write() ?
+Subject: Re: Separate type for AF_UNIX socket created by syslogd_t
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: selinux-mailing-list <selinux@tycho.nsa.gov>
-In-Reply-To: <SNT139-w375D6067F67D328277FD37ABDA0@phx.gbl>
-References: <SNT139-w158CDE61B212AC89099502ABDB0@phx.gbl>
-	 ,<1298470521.13789.9.camel@moss-pluto>
-	 <SNT139-w375D6067F67D328277FD37ABDA0@phx.gbl>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, paul.moore@hp.com,
+        selinux-mailing-list <selinux@tycho.nsa.gov>,
+        refpolicy-mailing-list
+ <refpolicy@oss1.tresys.com>
+In-Reply-To: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
+References: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 24 Feb 2011 13:14:43 -0500
-Message-ID: <1298571283.31953.52.camel@moss-pluto>
+Date: Thu, 24 Feb 2011 13:18:26 -0500
+Message-ID: <1298571506.31953.55.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-02-24 at 10:13 +0000, HarryCiao wrote:
-> > But with regard to your problem, understand that types (and other
-> > symbols) are first assigned temporary values during module
-> compilation,
-> > then they are mapped to their final values during module
-> > linking/expansion into a final policy. So whenever ! you add new
-> state,
-> > you have to preserve it and map it properly during the link/expand
-> > stages.
-> 
-> I see, I am a complete checkpoliy/libsepol rookie, don't know much
-> about that. No wonder the type_datum.s.value is different from lexing
-> to the end.
-> 
-> Any reference or starting point I could make use of to understand the
-> compile/link/expansion process for the refpolicy? I believe this would
-> be a pretty interesting topic.
+On Thu, 2011-02-24 at 10:44 +0000, HarryCiao wrote:
+> BTW, do we have a way to actually display the label for the
+> unix_dgram_socket that bond to /dev/log?
 
-Pathetic that I have to link to a blog entry, but it is all I could find
-other than the code itself:
-http://securityblog.org/brindle/2006/07/05/selinux-policy-module-primer/
+I think the answer is no at present.
+netstat -Z claims to report the socket context but is actually just
+reading /proc/pid/attr/current of the owning process.
 
-Somebody should copy that content into selinuxproject.org.
+The owning application can get the context of the socket (inode) via
+fgetxattr(), but I don't think a third party can presently obtain the
+context information.
 
 -- 
 Stephen Smalley
