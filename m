@@ -1,130 +1,50 @@
-Message-ID: <SNT139-w375D6067F67D328277FD37ABDA0@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_6f04878d-ca15-4cd0-8dbb-df8b116a0c28_"
+Message-ID: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
+Content-Type: multipart/mixed;
+	boundary="_9759ddb1-297f-4dce-8cab-50d7722bf0a4_"
 From: HarryCiao <harrytaurus2002@hotmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: RE: type_datum changed from define_type() and type_write() ?
-Date: Thu, 24 Feb 2011 10:13:22 +0000
-In-Reply-To: <1298470521.13789.9.camel@moss-pluto>
-References: 
- <SNT139-w158CDE61B212AC89099502ABDB0@phx.gbl>,<1298470521.13789.9.camel@moss-pluto>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+        "Christopher J. PeBenito"
+	<cpebenito@tresys.com>, <paul.moore@hp.com>
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>,
+        refpolicy-mailing-list
+	<refpolicy@oss1.tresys.com>
+Subject: Separate type for AF_UNIX socket created by syslogd_t
+Date: Thu, 24 Feb 2011 10:44:25 +0000
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_6f04878d-ca15-4cd0-8dbb-df8b116a0c28_
+--_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
+Content-Type: multipart/alternative;
+	boundary="_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_"
+
+--_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
 
-Hello Stephen,
+Hi,
 
-> Subject: Re: type_datum changed from define_type() and type_write() ?
-> From: sds@tycho.nsa.gov
-> To: harrytaurus2002@hotmail.com
-> CC: selinux@tycho.nsa.gov
-> Date: Wed, 23 Feb 2011 09:15:21 -0500
-> 
-> On Wed, 2011-02-23 at 08:30 +0000, HarryCiao wrote:
-> > Hi SELinux experts,
-> > 
-> > I am trying to add a new rule "typesocket" to checkpolicy which does
-> > something like "typesocket syslogd_t syslogd_s_t", where syslogd_t is
-> > the domain for the syslog daemon and the syslogd_s_t would be used to
-> > label the AF_UNIX socket created by syslog daemon(so that it no longer
-> > inherits the creator's sid).
-> > 
-> > I would like to add two extra members in the binary representation for
-> > the syslogd_t's type_datum structure: a u32 "socket_type_len" field
-> > before the string of "syslogd_t", and the socket type string of
-> > "syslogd_s_t" right after the "syslogd_t" string.
-> > 
-> > Two new members have been added to the type_datum structure: a char *,
-> > "socket_type_str" and a uint32_t, "socket_type_len". The newly added
-> > define_typesocket() in policy_define.c is used to handle this new
-> > typesocket rule, it will save the string and length of "syslogd_s_t"
-> > to syslogd_t's type_datum->socket_type_str and socket_type_len fields.
-> > While the type_write() in libsepol wr! ite.c will try to save
-> > type_datum->socket_type_str right after the key of the current
-> > type_datum if type_datum->socket_type_len is not zero.
-> > 
-> > It seems easy, however, I've run into a strange problem, that the
-> > type_datum structure used in define_typesocket() during parsing seems
-> > to be different from the one used by type_write() when writing into
-> > binary representations. I put some printfs in these two functions, the
-> > results are:
-> > 
-> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> > define_typesocket, syslogd_t.s.value: b09
-> > define_typesocket, syslogd_t.socket_type_len: b
-> > define_typesocket, syslogd_t.socket_type_str: syslogd_s_t
-> > define_typesocket, syslogd_s_t.s.value: b07
-> > /usr/bin/checkpolicy:  policy configuration loaded
-> > /usr/bin/checkpolicy:  writing binary representation (version 24) to
-> > policy.24
-> > type_write, key:syslogd_s_t
-> > s.value: 22d
-> > type_write, key:syslogd_t
-> > s.value: ce7
-> > socket_type_len: 0socket_type_str: (null)
-> > 
-> > Where we can see that when "typesocke t syslogd_t syslogd_s_t" is
-> > parsed, the s.value for the syslogd_t and syslogd_s_t are b09 and b07
-> > respectively, and the reference to "syslogd_s_t" has been properly
-> > setup in syslogd_t's type_datum. However, when writing binary
-> > representations their s.value have been changed to ce7 and 22d, and
-> > the reference to "syslogd_s_t" in syslogd_t's type_datum has been
-> > zeroed.
-> > 
-> > Any clues??
-> 
-> First, I think your approach is wrong - you should declare syslogd_s_t
-> using a normal type declaration so that it is defined as a discrete
-> type, and then simply use the existing type_transition statement to
-> express that you want to label newly created sockets with a type other
-> than the creator's type.  Then you just need to implement the logic in
-> the kernel to invoke security_transition_sid() when computing socket
-> labels and you do not need any new language constructs.
+Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the unix_dgram_socket object bond to it are of mls_systemhigh, rendering that other application domain such as klogd_t running at lower security level failed to "sendto" it. One possible solution is to add syslogd_t to mlstrustedobject attribute since the unix_dgram_socket object inherits the creator's SID by default.
 
-Many many thanks for your timely reply!
+However, the side effect is that syslogd_t is also the label for the entire syslogd's procfs entries. The attached two patches are aimed to resolve this problem while eliminating such side effect, by declaring a separate type, syslogd_s_t,  for the unix_dgram_socket object created by syslogd_t which alone could be added to the mlstrustedobject attribute.
 
-Yes, I have declared syslogd_s_t by the type rule then I try to save a referent of syslogd_s_t to the binary representation of syslogd_t's type_datum, in SELinux kernel, the type_read() function will get and save such reference to syslogd_t's type_datum, in the end when a new domain sid is computed I will try to compute the socket SID associated with that domain and make use of it in socket_sockcreate_sid().
+Thanks to Stephen's suggestion security_transition_sid() would be called in socket_sockcreate_sid() to query the relevant type_transition rule say in logging.pp for any newly created socket.
 
-Anyway, your suggestion is way much easier and straightforward than mine! I have made simple thing complicated :-P I used to use type_transition rules to specify new labels for regular files, have not realized that types for socket object could be manipulated this way!
+After applying these two patches below errors don't exist any more:
 
-I've thought about this for a while and quickly implement your suggestion and the relevant kernel logic, I will post them in a separate email for further discussion and review.
+type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for  pid=385 comm="klogd" path="/dev/log" scontext=system_u:object_r:klogd_t:s0 tcontext=system_u:object_r:syslogd_t:s15:c0.c1023 tclass=unix_dgram_socket
 
-> 
-> But with regard to your problem, understand that types (and other
-> symbols) are first assigned temporary values during module compilation,
-> then they are mapped to their final values during module
-> linking/expansion into a final policy.  So whenever you add new state,
-> you have to preserve it and map it properly during the link/expand
-> stages.
+BTW, do we have a way to actually display the label for the unix_dgram_socket that bond to /dev/log?
 
-I see, I am a complete checkpoliy/libsepol rookie, don't know much about that. No wonder the type_datum.s.value is different from lexing to the end.
+Any comments is are greatly appreciated!
 
-Any reference or starting point I could make use of to understand the compile/link/expansion process for the refpolicy? I believe this would be a pretty interesting topic.
-
-Thanks again!
+Thanks a lot!
 
 Best regards,
 Harry
-
-
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
  		 	   		  
---_6f04878d-ca15-4cd0-8dbb-df8b116a0c28_
+--_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_
 Content-Type: text/html; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
@@ -144,16 +64,125 @@ font-family:Î¢ÈíÑÅºÚ
 --></style>
 </head>
 <body class='hmmessage'>
-Hello Stephen,<br><br>&gt; Subject: Re: type_datum changed from define_type() and type_write() ?<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: harrytaurus2002@hotmail.com<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; Date: Wed, 23 Feb 2011 09:15:21 -0500<br>&gt; <br>&gt; On Wed, 2011-02-23 at 08:30 +0000, HarryCiao wrote:<br>&gt; &gt; Hi SELinux experts,<br>&gt; &gt; <br>&gt; &gt; I am trying to add a new rule "typesocket" to checkpolicy which does<br>&gt; &gt; something like "typesocket syslogd_t syslogd_s_t", where syslogd_t is<br>&gt; &gt; the domain for the syslog daemon and the syslogd_s_t would be used to<br>&gt; &gt; label the AF_UNIX socket created by syslog daemon(so that it no longer<br>&gt; &gt; inherits the creator's sid).<br>&gt; &gt; <br>&gt; &gt; I would like to add two extra members in the binary representation for<br>&gt; &gt; the syslogd_t's type_datum structure: a u32 "socket_type_len" field<br>&gt; &gt; before the string of "syslogd_t", and the socket type stri!
- ng of<br>&gt; &gt; "syslogd_s_t" right after the "syslogd_t" string.<br>&gt; &gt; <br>&gt; &gt; Two new members have been added to the type_datum structure: a char *,<br>&gt; &gt; "socket_type_str" and a uint32_t, "socket_type_len". The newly added<br>&gt; &gt; define_typesocket() in policy_define.c is used to handle this new<br>&gt; &gt; typesocket rule, it will save the string and length of "syslogd_s_t"<br>&gt; &gt; to syslogd_t's type_datum-&gt;socket_type_str and socket_type_len fields.<br>&gt; &gt; While the type_write() in libsepol wr! ite.c will try to save<br>&gt; &gt; type_datum-&gt;socket_type_str right after the key of the current<br>&gt; &gt; type_datum if type_datum-&gt;socket_type_len is not zero.<br>&gt; &gt; <br>&gt; &gt; It seems easy, however, I've run into a strange problem, that the<br>&gt; &gt; type_datum structure used in define_typesocket() during parsing seems<br>&gt; &gt; to be different from the one used by type_write() when writing into<br>&gt; &!
- gt; binary representations. I put some printfs in these two functions,
- the<br>&gt; &gt; results are:<br>&gt; &gt; <br>&gt; &gt; /usr/bin/checkpolicy:  loading policy configuration from policy.conf<br>&gt; &gt; define_typesocket, syslogd_t.s.value: b09<br>&gt; &gt; define_typesocket, syslogd_t.socket_type_len: b<br>&gt; &gt; define_typesocket, syslogd_t.socket_type_str: syslogd_s_t<br>&gt; &gt; define_typesocket, syslogd_s_t.s.value: b07<br>&gt; &gt; /usr/bin/checkpolicy:  policy configuration loaded<br>&gt; &gt; /usr/bin/checkpolicy:  writing binary representation (version 24) to<br>&gt; &gt; policy.24<br>&gt; &gt; type_write, key:syslogd_s_t<br>&gt; &gt; s.value: 22d<br>&gt; &gt; type_write, key:syslogd_t<br>&gt; &gt; s.value: ce7<br>&gt; &gt; socket_type_len: 0socket_type_str: (null)<br>&gt; &gt; <br>&gt; &gt; Where we can see that when "typesocke t syslogd_t syslogd_s_t" is<br>&gt; &gt; parsed, the s.value for the syslogd_t and syslogd_s_t are b09 and b07<br>&gt; &gt; respectively, and the reference to "syslogd_s_t" has been properly<br>&gt!
- ; &gt; setup in syslogd_t's type_datum. However, when writing binary<br>&gt; &gt; representations their s.value have been changed to ce7 and 22d, and<br>&gt; &gt; the reference to "syslogd_s_t" in syslogd_t's type_datum has been<br>&gt; &gt; zeroed.<br>&gt; &gt; <br>&gt; &gt; Any clues??<br>&gt; <br>&gt; First, I think your approach is wrong - you should declare syslogd_s_t<br>&gt; using a normal type declaration so that it is defined as a discrete<br>&gt; type, and then simply use the existing type_transition statement to<br>&gt; express that you want to label newly created sockets with a type other<br>&gt; than the creator's type.  Then you just need to implement the logic in<br>&gt; the kernel to invoke security_transition_sid() when computing socket<br>&gt; labels and you do not need any new language constructs.<br><br>Many many thanks for your timely reply!<br><br>Yes, I have declared syslogd_s_t by the type rule then I try to save a referent of syslogd_s_t to the bina!
- ry representation of syslogd_t's type_datum, in SELinux kernel, the ty
-pe_read() function will get and save such reference to syslogd_t's type_datum, in the end when a new domain sid is computed I will try to compute the socket SID associated with that domain and make use of it in socket_sockcreate_sid().<br><br>Anyway, your suggestion is way much easier and straightforward than mine! I have made simple thing complicated :-P I used to use type_transition rules to specify new labels for regular files, have not realized that types for socket object could be manipulated this way!<br><br>I've thought about this for a while and quickly implement your suggestion and the relevant kernel logic, I will post them in a separate email for further discussion and review.<br><br>&gt; <br>&gt; But with regard to your problem, understand that types (and other<br>&gt; symbols) are first assigned temporary values during module compilation,<br>&gt; then they are mapped to their final values during module<br>&gt; linking/expansion into a final policy.  So whenever !
- you add new state,<br>&gt; you have to preserve it and map it properly during the link/expand<br>&gt; stages.<br><br>I see, I am a complete checkpoliy/libsepol rookie, don't know much about that. No wonder the type_datum.s.value is different from lexing to the end.<br><br>Any reference or starting point I could make use of to understand the compile/link/expansion process for the refpolicy? I believe this would be a pretty interesting topic.<br><br>Thanks again!<br><br>Best regards,<br>Harry<br><br><br>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+Hi,<br><br>Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the unix_dgram_socket object bond to it are of mls_systemhigh, rendering that other application domain such as klogd_t running at lower security level failed to "sendto" it. One possible solution is to add syslogd_t to mlstrustedobject attribute since the unix_dgram_socket object inherits the creator's SID by default.<br><br>However, the side effect is that syslogd_t is also the label for the entire syslogd's procfs entries. The attached two patches are aimed to resolve this problem while eliminating such side effect, by declaring a separate type, syslogd_s_t,&nbsp; for the unix_dgram_socket object created by syslogd_t which alone could be added to the mlstrustedobject attribute.<br><br>Thanks to Stephen's suggestion security_transition_sid() would be called in socket_sockcreate_sid() to query the relevant type_transition rule say in logging.pp for any newly created socket.<br><br>After applying th!
+ ese two patches below errors don't exist any more:<br><br>type=1400 audit(1298535101.654:868): avc:&nbsp; denied&nbsp; { sendto } for&nbsp; pid=385 comm="klogd" path="/dev/log" scontext=system_u:object_r:klogd_t:s0 tcontext=system_u:object_r:syslogd_t:s15:c0.c1023 tclass=unix_dgram_socket<br><br>BTW, do we have a way to actually display the label for the unix_dgram_socket that bond to /dev/log?<br><br>Any comments is are greatly appreciated!<br><br>Thanks a lot!<br><br>Best regards,<br>Harry<br> 		 	   		  </body>
 </html>
---_6f04878d-ca15-4cd0-8dbb-df8b116a0c28_--
+--_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_--
+
+--_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
+Content-Type: text/x-patch
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="0001-Specify-a-separate-socket-type-for-syslogd_t.patch"
+
+RnJvbSBlOTRjNjgwNTcxYmRhOTRhNzI0ZDMzMzg0ZDUzNDVkNDFkOWU5YjZhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
+PgpEYXRlOiBUaHUsIDI0IEZlYiAyMDExIDE2OjIzOjQyICswODAwClN1YmplY3Q6IFtQQVRDSCAx
+LzFdIFNwZWNpZnkgYSBzZXBhcmF0ZSBzb2NrZXQgdHlwZSBmb3Igc3lzbG9nZF90LgoKVXNlIGEg
+dHlwZV90cmFuc2l0aW9uIHJ1bGUgdG8gc3BlY2lmeSBhIHNlcGFyYXRlIHR5cGUgZm9yIHVuaXhf
+ZGdyYW1fc29ja2V0Cm9iamVjdCBjcmVhdGVkIGJ5IHN5c2xvZ2RfdCwgc28gdGhhdCB0aGUgc29j
+a2V0IHR5cGUgYWxvbmUgY291bGQgYmUgYWRkZWQKdG8gdGhlIG1sc3RydXN0ZWRvYmplY3QgYXR0
+cmJ1dGUgdG8gYXZvaWQgYmVsb3cgZXJyb3IgbWVzc2FnZToKCnR5cGU9MTQwMCBhdWRpdCgxMjk4
+NTM1MTAxLjY1NDo4NjgpOiBhdmM6ICBkZW5pZWQgIHsgc2VuZHRvIH0gZm9yICBwaWQ9Mzg1IGNv
+bW09Imtsb2dkIiBwYXRoPSIvZGV2L2xvZyIgc2NvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6a2xv
+Z2RfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXNsb2dkX3Q6czE1OmMwLmMxMDIz
+IHRjbGFzcz11bml4X2RncmFtX3NvY2tldAoKVGhpcyBoZWxwcyB0byBhdm9pZCBhZGRpbmcgc3lz
+bG9nZF90IHRvIHRoaXMgYXR0cmlidXRlIHdoaWNoIGFsc28gaXMgdGhlCmxhYmVsIGZvciBhbGwg
+c3lzbG9nZCdzIHByb2NmcyBjb250ZW50cy4KCkJUVywgaW4gU0VMaW51eCBrZXJuZWwgZHJpdmVy
+IHRoZSBzZWN1cml0eV90cmFuc2l0aW9uX3NpZCgpIHNob3VsZCBiZQpjYWxsZWQgdG8gcXVlcnkg
+YWJvdmUgdHlwZV90cmFuc2l0aW9uIHJ1bGUgZm9yIHRoZSBuZXdseSBjcmVhdGVkIHNvY2tldCBT
+SUQuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
+PgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5nLmlmIHwgICAgNCArKy0tCiBwb2xp
+Y3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZSB8ICAgMTEgKysrKysrKysrLS0KIDIgZmlsZXMg
+Y2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9w
+b2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZiBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9s
+b2dnaW5nLmlmCmluZGV4IGM3Y2ZiNjIuLjkyNTgyYjAgMTAwNjQ0Ci0tLSBhL3BvbGljeS9tb2R1
+bGVzL3N5c3RlbS9sb2dnaW5nLmlmCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5n
+LmlmCkBAIC01MjUsMTQgKzUyNSwxNCBAQCBpbnRlcmZhY2UoYGxvZ2dpbmdfbG9nX2ZpbGV0cmFu
+cycsYAogIwogaW50ZXJmYWNlKGBsb2dnaW5nX3NlbmRfc3lzbG9nX21zZycsYAogCWdlbl9yZXF1
+aXJlKGAKLQkJdHlwZSBzeXNsb2dkX3QsIGRldmxvZ190OworCQl0eXBlIHN5c2xvZ2RfdCwgc3lz
+bG9nZF9zX3QsIGRldmxvZ190OwogCScpCiAKIAlhbGxvdyAkMSBkZXZsb2dfdDpsbmtfZmlsZSBy
+ZWFkX2xua19maWxlX3Blcm1zOwogCWFsbG93ICQxIGRldmxvZ190OnNvY2tfZmlsZSB3cml0ZV9z
+b2NrX2ZpbGVfcGVybXM7CiAKIAkjIHRoZSB0eXBlIG9mIHNvY2tldCBkZXBlbmRzIG9uIHRoZSBz
+eXNsb2cgZGFlbW9uCi0JYWxsb3cgJDEgc3lzbG9nZF90OnVuaXhfZGdyYW1fc29ja2V0IHNlbmR0
+bzsKKwlhbGxvdyAkMSBzeXNsb2dkX3NfdDp1bml4X2RncmFtX3NvY2tldCBzZW5kdG87CiAJYWxs
+b3cgJDEgc3lzbG9nZF90OnVuaXhfc3RyZWFtX3NvY2tldCBjb25uZWN0dG87CiAJYWxsb3cgJDEg
+c2VsZjp1bml4X2RncmFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwogCWFsbG93ICQxIHNl
+bGY6dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7CmRpZmYgLS1naXQgYS9w
+b2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZSBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9s
+b2dnaW5nLnRlCmluZGV4IDliNWE5ZWQuLjJiZTY3NDggMTAwNjQ0Ci0tLSBhL3BvbGljeS9tb2R1
+bGVzL3N5c3RlbS9sb2dnaW5nLnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5n
+LnRlCkBAIC02MSw2ICs2MSwxMCBAQCB0eXBlIHN5c2xvZ2RfdDsKIHR5cGUgc3lzbG9nZF9leGVj
+X3Q7CiBpbml0X2RhZW1vbl9kb21haW4oc3lzbG9nZF90LCBzeXNsb2dkX2V4ZWNfdCkKIAorIyBB
+Rl9VTklYIHNvY2tldCBjcmVhdGVkIGJ5IHN5c2xvZ2QKK3R5cGUgc3lzbG9nZF9zX3Q7CittbHNf
+dHJ1c3RlZF9vYmplY3Qoc3lzbG9nZF9zX3QpCisKIHR5cGUgc3lzbG9nZF9pbml0cmNfZXhlY190
+OwogaW5pdF9zY3JpcHRfZmlsZShzeXNsb2dkX2luaXRyY19leGVjX3QpCiAKQEAgLTM0NCwxNSAr
+MzQ4LDE4IEBAIGRvbnRhdWRpdCBzeXNsb2dkX3Qgc2VsZjpjYXBhYmlsaXR5IHN5c190dHlfY29u
+ZmlnOwogIyBzZXRybGltaXQgZm9yIHN5c2xvZy1uZwogYWxsb3cgc3lzbG9nZF90IHNlbGY6cHJv
+Y2VzcyB7IHNpZ25hbF9wZXJtcyBzZXRwZ2lkIHNldHJsaW1pdCB9OwogIyByZWNlaXZlIG1lc3Nh
+Z2VzIHRvIGJlIGxvZ2dlZAotYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQg
+Y3JlYXRlX3NvY2tldF9wZXJtczsKK2FsbG93IHN5c2xvZ2RfdCBzeXNsb2dkX3NfdDp1bml4X2Rn
+cmFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwogYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5p
+eF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwotYWxsb3cgc3lzbG9n
+ZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOworYWxsb3cgc3lzbG9nZF90IHN5c2xv
+Z2Rfc190OnVuaXhfZGdyYW1fc29ja2V0IHNlbmR0bzsKIGFsbG93IHN5c2xvZ2RfdCBzZWxmOmZp
+Zm9fZmlsZSByd19maWZvX2ZpbGVfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp1ZHBfc29j
+a2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp0Y3Bfc29ja2V0
+IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwogCiBhbGxvdyBzeXNsb2dkX3Qgc3lzbG9nX2Nv
+bmZfdDpmaWxlIHJlYWRfZmlsZV9wZXJtczsKIAorIyBBRl9VTklYIGRncmFtIHNvY2tldCBjcmVh
+dGVkIGJ5IHN5c2xvZ2RfdCBsYWJlbGVkIGFzIHN5c2xvZ2Rfc190Cit0eXBlX3RyYW5zaXRpb24g
+c3lzbG9nZF90IHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzeXNsb2dkX3NfdDsKKwogIyBD
+cmVhdGUgYW5kIGJpbmQgdG8gL2Rldi9sb2cgb3IgL3Zhci9ydW4vbG9nLgogYWxsb3cgc3lzbG9n
+ZF90IGRldmxvZ190OnNvY2tfZmlsZSBtYW5hZ2Vfc29ja19maWxlX3Blcm1zOwogZmlsZXNfcGlk
+X2ZpbGV0cmFucyhzeXNsb2dkX3QsIGRldmxvZ190LCBzb2NrX2ZpbGUpCi0tIAoxLjcuMC40Cgo=
+
+--_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
+Content-Type: text/x-patch
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="0001-Compute-socket-SID.patch"
+
+RnJvbSBmMWY4NWY5MzM1ZmQ3MTYyMDhlMmM2NmNkYjYxNGZkMDRmOTYzYzZmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
+PgpEYXRlOiBUaHUsIDI0IEZlYiAyMDExIDEzOjEwOjEzICswODAwClN1YmplY3Q6IFtQQVRDSCAx
+LzFdIENvbXB1dGUgc29ja2V0IFNJRC4KCkNvbXB1dGUgU0lEIGZvciB0aGUgbmV3bHkgY3JlYXRl
+ZCBzb2NrZXQsIHdoaWNoIG1heSBiZSBkaWZmZXJlbnQgdGhhbgppdHMgY3JlYXRvci4gSW4gcmVs
+ZXZhbnQgcG9saWN5IHBhY2thZ2UgYSB0eXBlX3RyYW5zaXRpb24gcnVsZSBjb3VsZApiZSB1c2Vk
+IHRvIHNwZWNpZnkgYSBkaXNjcmV0ZSB0eXBlIGZvciB0aGUgc29ja2V0LgoKU2lnbmVkLW9mZi1i
+eTogSGFycnkgQ2lhbyA8cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBzZWN1cml0eS9z
+ZWxpbnV4L2hvb2tzLmMgfCAgIDIyICsrKysrKysrKysrKysrKy0tLS0tLS0KIDEgZmlsZXMgY2hh
+bmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zZWN1
+cml0eS9zZWxpbnV4L2hvb2tzLmMgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKaW5kZXggYzhk
+Njk5Mi4uYTVmOGQ1ZiAxMDA2NDQKLS0tIGEvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCisrKyBi
+L3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwpAQCAtMzY0NCw5ICszNjQ0LDE3IEBAIHN0YXRpYyBp
+bnQgc2VsaW51eF9za2JfcGVlcmxibF9zaWQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgdTE2IGZhbWls
+eSwgdTMyICpzaWQpCiAKIC8qIHNvY2tldCBzZWN1cml0eSBvcGVyYXRpb25zICovCiAKLXN0YXRp
+YyB1MzIgc29ja2V0X3NvY2tjcmVhdGVfc2lkKGNvbnN0IHN0cnVjdCB0YXNrX3NlY3VyaXR5X3N0
+cnVjdCAqdHNlYykKK3N0YXRpYyB1MzIgc29ja2V0X3NvY2tjcmVhdGVfc2lkKGNvbnN0IHN0cnVj
+dCB0YXNrX3NlY3VyaXR5X3N0cnVjdCAqdHNlYywKKwkJCQkgdTE2IHNlY2NsYXNzKQogewotCXJl
+dHVybiB0c2VjLT5zb2NrY3JlYXRlX3NpZCA/IDogdHNlYy0+c2lkOworCWludCByYzsKKwl1MzIg
+c29ja3NpZDsKKworCXJjID0gc2VjdXJpdHlfdHJhbnNpdGlvbl9zaWQodHNlYy0+c2lkLCB0c2Vj
+LT5zaWQsIHNlY2NsYXNzLCAmc29ja3NpZCk7CisJaWYgKHJjKQorCQlyZXR1cm4gdHNlYy0+c29j
+a2NyZWF0ZV9zaWQgPyA6IHRzZWMtPnNpZDsKKwllbHNlCisJCXJldHVybiB0c2VjLT5zb2NrY3Jl
+YXRlX3NpZCA/IDogc29ja3NpZDsKIH0KIAogc3RhdGljIGludCBzb2NrX2hhc19wZXJtKHN0cnVj
+dCB0YXNrX3N0cnVjdCAqdGFzaywgc3RydWN0IHNvY2sgKnNrLCB1MzIgcGVybXMpCkBAIC0zNjc0
+LDggKzM2ODIsOCBAQCBzdGF0aWMgaW50IHNlbGludXhfc29ja2V0X2NyZWF0ZShpbnQgZmFtaWx5
+LCBpbnQgdHlwZSwKIAlpZiAoa2VybikKIAkJcmV0dXJuIDA7CiAKLQluZXdzaWQgPSBzb2NrZXRf
+c29ja2NyZWF0ZV9zaWQodHNlYyk7CiAJc2VjY2xhc3MgPSBzb2NrZXRfdHlwZV90b19zZWN1cml0
+eV9jbGFzcyhmYW1pbHksIHR5cGUsIHByb3RvY29sKTsKKwluZXdzaWQgPSBzb2NrZXRfc29ja2Ny
+ZWF0ZV9zaWQodHNlYywgc2VjY2xhc3MpOwogCXJldHVybiBhdmNfaGFzX3Blcm0odHNlYy0+c2lk
+LCBuZXdzaWQsIHNlY2NsYXNzLCBTT0NLRVRfX0NSRUFURSwgTlVMTCk7CiB9CiAKQEAgLTM2ODcs
+MTMgKzM2OTUsMTMgQEAgc3RhdGljIGludCBzZWxpbnV4X3NvY2tldF9wb3N0X2NyZWF0ZShzdHJ1
+Y3Qgc29ja2V0ICpzb2NrLCBpbnQgZmFtaWx5LAogCXN0cnVjdCBza19zZWN1cml0eV9zdHJ1Y3Qg
+KnNrc2VjOwogCWludCBlcnIgPSAwOwogCisJaXNlYy0+c2NsYXNzID0gc29ja2V0X3R5cGVfdG9f
+c2VjdXJpdHlfY2xhc3MoZmFtaWx5LCB0eXBlLCBwcm90b2NvbCk7CisJaXNlYy0+aW5pdGlhbGl6
+ZWQgPSAxOworCiAJaWYgKGtlcm4pCiAJCWlzZWMtPnNpZCA9IFNFQ0lOSVRTSURfS0VSTkVMOwog
+CWVsc2UKLQkJaXNlYy0+c2lkID0gc29ja2V0X3NvY2tjcmVhdGVfc2lkKHRzZWMpOwotCi0JaXNl
+Yy0+c2NsYXNzID0gc29ja2V0X3R5cGVfdG9fc2VjdXJpdHlfY2xhc3MoZmFtaWx5LCB0eXBlLCBw
+cm90b2NvbCk7Ci0JaXNlYy0+aW5pdGlhbGl6ZWQgPSAxOworCQlpc2VjLT5zaWQgPSBzb2NrZXRf
+c29ja2NyZWF0ZV9zaWQodHNlYywgaXNlYy0+c2NsYXNzKTsKIAogCWlmIChzb2NrLT5zaykgewog
+CQlza3NlYyA9IHNvY2stPnNrLT5za19zZWN1cml0eTsKLS0gCjEuNy4wLjQKCg==
+
+--_9759ddb1-297f-4dce-8cab-50d7722bf0a4_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
