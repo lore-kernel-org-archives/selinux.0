@@ -1,188 +1,94 @@
-Message-ID: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
-Content-Type: multipart/mixed;
-	boundary="_9759ddb1-297f-4dce-8cab-50d7722bf0a4_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        "Christopher J. PeBenito"
-	<cpebenito@tresys.com>, <paul.moore@hp.com>
-CC: selinux-mailing-list <selinux@tycho.nsa.gov>,
+Subject: Re: Separate type for AF_UNIX socket created by syslogd_t
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: HarryCiao <harrytaurus2002@hotmail.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, paul.moore@hp.com,
+        selinux-mailing-list <selinux@tycho.nsa.gov>,
         refpolicy-mailing-list
-	<refpolicy@oss1.tresys.com>
-Subject: Separate type for AF_UNIX socket created by syslogd_t
-Date: Thu, 24 Feb 2011 10:44:25 +0000
-MIME-Version: 1.0
+ <refpolicy@oss1.tresys.com>
+In-Reply-To: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
+References: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 24 Feb 2011 08:35:12 -0500
+Message-ID: <1298554512.31953.38.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
-Content-Type: multipart/alternative;
-	boundary="_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_"
-
---_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
+On Thu, 2011-02-24 at 10:44 +0000, HarryCiao wrote:
+> Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the
+> unix_dgram_socket object bond to it are of mls_systemhigh, rendering
+> that other application domain such as klogd_t running at lower
+> security level failed to "sendto" it. One possible solution is to add
+> syslogd_t to mlstrustedobject attribute since the unix_dgram_socket
+> object inherits the creator's SID by default.
+> 
+> However, the side effect is that syslogd_t is also the label for the
+> entire syslogd's procfs entries. The attached two patches are aimed to
+> resolve this problem while eliminating such side effect, by declaring
+> a separate type, syslogd_s_t,  for the unix_dgram_socket object
+> created by syslogd_t which alone could be added to the
+> mlstrustedobject attribute.
+> 
+> Thanks to Stephen's suggestion security_transition_sid() would be
+> called in socket_sockcreate_sid() to query the relevant
+> type_transition rule say in logging.pp for any newly created socket.
+> 
+> After applying th! ese two patches below errors don't exist any more:
+> 
+> type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for
+> pid=385 comm="klogd" path="/dev/log"
+> scontext=system_u:object_r:klogd_t:s0
+> tcontext=system_u:object_r:syslogd_t:s15:c0.c1023
+> tclass=unix_dgram_socket
+> 
+> BTW, do we have a way to actually display the label for the
+> unix_dgram_socket that bond to /dev/log?
+> 
+> Any comments is are greatly appreciated!
 
 Hi,
 
-Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the unix_dgram_socket object bond to it are of mls_systemhigh, rendering that other application domain such as klogd_t running at lower security level failed to "sendto" it. One possible solution is to add syslogd_t to mlstrustedobject attribute since the unix_dgram_socket object inherits the creator's SID by default.
+You should separately post the kernel patch as its own message,
+preferably inline so that it can be easily reviewed and commented upon.
+Make sure you have read and are following
+Documentation/SubmittingPatches and that the posting explicitly cc's the
+SELinux maintainers listed in MAINTAINERS.  I wouldn't bother reposting
+the policy patch again until/unless the kernel patch is agreed upon, as
+it won't make sense to review it until that time.
 
-However, the side effect is that syslogd_t is also the label for the entire syslogd's procfs entries. The attached two patches are aimed to resolve this problem while eliminating such side effect, by declaring a separate type, syslogd_s_t,  for the unix_dgram_socket object created by syslogd_t which alone could be added to the mlstrustedobject attribute.
+Unfortunately my original "simple" suggestion turns out to have side
+effects. At present, the socket gets the same exact security context as
+the creating process by default, including the role and MLS range, since
+we just assign the SID directly.  But when using security_transition_sid
+-> security_compute_sid, the new security context uses object_r as the
+role for all objects and mls_compute_sid degrades the full MLS range to
+the low level for objects. This is based on the desired behavior for
+files and didn't take into account sockets.  Thus with your patch,
+sockets will no longer be labeled identically to their creating process,
+which will affect labeled networking and the network access controls.
 
-Thanks to Stephen's suggestion security_transition_sid() would be called in socket_sockcreate_sid() to query the relevant type_transition rule say in logging.pp for any newly created socket.
+To preserve existing behavior when there are no type transition rules
+configured for sockets, I think security_compute_sid and mls_compute_sid
+need logic handling the socket classes differently than other objects
+(files).  And given that we are using dynamic class mappings now, those
+socket class values would have to be looked up just like the process
+class upon policy load.  Maybe we can come up with some generalized
+solution that will be more flexible going forward for configuring how
+different parts of the context are assigned for different classes.  We
+have talked previously about using the role field even for files rather
+than just making them all object_r.
 
-After applying these two patches below errors don't exist any more:
+On the implementation:
+- security_transition_sid() error case likely needs to be propagated to
+the hook and up to the caller of the hook rather than just defaulting to
+the old behavior upon error.
+- Don't move the setting of isec->initialized before isec->sid has been
+set.
 
-type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for  pid=385 comm="klogd" path="/dev/log" scontext=system_u:object_r:klogd_t:s0 tcontext=system_u:object_r:syslogd_t:s15:c0.c1023 tclass=unix_dgram_socket
+-- 
+Stephen Smalley
+National Security Agency
 
-BTW, do we have a way to actually display the label for the unix_dgram_socket that bond to /dev/log?
-
-Any comments is are greatly appreciated!
-
-Thanks a lot!
-
-Best regards,
-Harry
- 		 	   		  
---_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'>
-Hi,<br><br>Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the unix_dgram_socket object bond to it are of mls_systemhigh, rendering that other application domain such as klogd_t running at lower security level failed to "sendto" it. One possible solution is to add syslogd_t to mlstrustedobject attribute since the unix_dgram_socket object inherits the creator's SID by default.<br><br>However, the side effect is that syslogd_t is also the label for the entire syslogd's procfs entries. The attached two patches are aimed to resolve this problem while eliminating such side effect, by declaring a separate type, syslogd_s_t,&nbsp; for the unix_dgram_socket object created by syslogd_t which alone could be added to the mlstrustedobject attribute.<br><br>Thanks to Stephen's suggestion security_transition_sid() would be called in socket_sockcreate_sid() to query the relevant type_transition rule say in logging.pp for any newly created socket.<br><br>After applying th!
- ese two patches below errors don't exist any more:<br><br>type=1400 audit(1298535101.654:868): avc:&nbsp; denied&nbsp; { sendto } for&nbsp; pid=385 comm="klogd" path="/dev/log" scontext=system_u:object_r:klogd_t:s0 tcontext=system_u:object_r:syslogd_t:s15:c0.c1023 tclass=unix_dgram_socket<br><br>BTW, do we have a way to actually display the label for the unix_dgram_socket that bond to /dev/log?<br><br>Any comments is are greatly appreciated!<br><br>Thanks a lot!<br><br>Best regards,<br>Harry<br> 		 	   		  </body>
-</html>
---_46afdaaf-9a1f-4b4a-aa72-675a6bb616a3_--
-
---_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="0001-Specify-a-separate-socket-type-for-syslogd_t.patch"
-
-RnJvbSBlOTRjNjgwNTcxYmRhOTRhNzI0ZDMzMzg0ZDUzNDVkNDFkOWU5YjZhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBUaHUsIDI0IEZlYiAyMDExIDE2OjIzOjQyICswODAwClN1YmplY3Q6IFtQQVRDSCAx
-LzFdIFNwZWNpZnkgYSBzZXBhcmF0ZSBzb2NrZXQgdHlwZSBmb3Igc3lzbG9nZF90LgoKVXNlIGEg
-dHlwZV90cmFuc2l0aW9uIHJ1bGUgdG8gc3BlY2lmeSBhIHNlcGFyYXRlIHR5cGUgZm9yIHVuaXhf
-ZGdyYW1fc29ja2V0Cm9iamVjdCBjcmVhdGVkIGJ5IHN5c2xvZ2RfdCwgc28gdGhhdCB0aGUgc29j
-a2V0IHR5cGUgYWxvbmUgY291bGQgYmUgYWRkZWQKdG8gdGhlIG1sc3RydXN0ZWRvYmplY3QgYXR0
-cmJ1dGUgdG8gYXZvaWQgYmVsb3cgZXJyb3IgbWVzc2FnZToKCnR5cGU9MTQwMCBhdWRpdCgxMjk4
-NTM1MTAxLjY1NDo4NjgpOiBhdmM6ICBkZW5pZWQgIHsgc2VuZHRvIH0gZm9yICBwaWQ9Mzg1IGNv
-bW09Imtsb2dkIiBwYXRoPSIvZGV2L2xvZyIgc2NvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6a2xv
-Z2RfdDpzMCB0Y29udGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXNsb2dkX3Q6czE1OmMwLmMxMDIz
-IHRjbGFzcz11bml4X2RncmFtX3NvY2tldAoKVGhpcyBoZWxwcyB0byBhdm9pZCBhZGRpbmcgc3lz
-bG9nZF90IHRvIHRoaXMgYXR0cmlidXRlIHdoaWNoIGFsc28gaXMgdGhlCmxhYmVsIGZvciBhbGwg
-c3lzbG9nZCdzIHByb2NmcyBjb250ZW50cy4KCkJUVywgaW4gU0VMaW51eCBrZXJuZWwgZHJpdmVy
-IHRoZSBzZWN1cml0eV90cmFuc2l0aW9uX3NpZCgpIHNob3VsZCBiZQpjYWxsZWQgdG8gcXVlcnkg
-YWJvdmUgdHlwZV90cmFuc2l0aW9uIHJ1bGUgZm9yIHRoZSBuZXdseSBjcmVhdGVkIHNvY2tldCBT
-SUQuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5nLmlmIHwgICAgNCArKy0tCiBwb2xp
-Y3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZSB8ICAgMTEgKysrKysrKysrLS0KIDIgZmlsZXMg
-Y2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9w
-b2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZiBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9s
-b2dnaW5nLmlmCmluZGV4IGM3Y2ZiNjIuLjkyNTgyYjAgMTAwNjQ0Ci0tLSBhL3BvbGljeS9tb2R1
-bGVzL3N5c3RlbS9sb2dnaW5nLmlmCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5n
-LmlmCkBAIC01MjUsMTQgKzUyNSwxNCBAQCBpbnRlcmZhY2UoYGxvZ2dpbmdfbG9nX2ZpbGV0cmFu
-cycsYAogIwogaW50ZXJmYWNlKGBsb2dnaW5nX3NlbmRfc3lzbG9nX21zZycsYAogCWdlbl9yZXF1
-aXJlKGAKLQkJdHlwZSBzeXNsb2dkX3QsIGRldmxvZ190OworCQl0eXBlIHN5c2xvZ2RfdCwgc3lz
-bG9nZF9zX3QsIGRldmxvZ190OwogCScpCiAKIAlhbGxvdyAkMSBkZXZsb2dfdDpsbmtfZmlsZSBy
-ZWFkX2xua19maWxlX3Blcm1zOwogCWFsbG93ICQxIGRldmxvZ190OnNvY2tfZmlsZSB3cml0ZV9z
-b2NrX2ZpbGVfcGVybXM7CiAKIAkjIHRoZSB0eXBlIG9mIHNvY2tldCBkZXBlbmRzIG9uIHRoZSBz
-eXNsb2cgZGFlbW9uCi0JYWxsb3cgJDEgc3lzbG9nZF90OnVuaXhfZGdyYW1fc29ja2V0IHNlbmR0
-bzsKKwlhbGxvdyAkMSBzeXNsb2dkX3NfdDp1bml4X2RncmFtX3NvY2tldCBzZW5kdG87CiAJYWxs
-b3cgJDEgc3lzbG9nZF90OnVuaXhfc3RyZWFtX3NvY2tldCBjb25uZWN0dG87CiAJYWxsb3cgJDEg
-c2VsZjp1bml4X2RncmFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwogCWFsbG93ICQxIHNl
-bGY6dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7CmRpZmYgLS1naXQgYS9w
-b2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZSBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9s
-b2dnaW5nLnRlCmluZGV4IDliNWE5ZWQuLjJiZTY3NDggMTAwNjQ0Ci0tLSBhL3BvbGljeS9tb2R1
-bGVzL3N5c3RlbS9sb2dnaW5nLnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9sb2dnaW5n
-LnRlCkBAIC02MSw2ICs2MSwxMCBAQCB0eXBlIHN5c2xvZ2RfdDsKIHR5cGUgc3lzbG9nZF9leGVj
-X3Q7CiBpbml0X2RhZW1vbl9kb21haW4oc3lzbG9nZF90LCBzeXNsb2dkX2V4ZWNfdCkKIAorIyBB
-Rl9VTklYIHNvY2tldCBjcmVhdGVkIGJ5IHN5c2xvZ2QKK3R5cGUgc3lzbG9nZF9zX3Q7CittbHNf
-dHJ1c3RlZF9vYmplY3Qoc3lzbG9nZF9zX3QpCisKIHR5cGUgc3lzbG9nZF9pbml0cmNfZXhlY190
-OwogaW5pdF9zY3JpcHRfZmlsZShzeXNsb2dkX2luaXRyY19leGVjX3QpCiAKQEAgLTM0NCwxNSAr
-MzQ4LDE4IEBAIGRvbnRhdWRpdCBzeXNsb2dkX3Qgc2VsZjpjYXBhYmlsaXR5IHN5c190dHlfY29u
-ZmlnOwogIyBzZXRybGltaXQgZm9yIHN5c2xvZy1uZwogYWxsb3cgc3lzbG9nZF90IHNlbGY6cHJv
-Y2VzcyB7IHNpZ25hbF9wZXJtcyBzZXRwZ2lkIHNldHJsaW1pdCB9OwogIyByZWNlaXZlIG1lc3Nh
-Z2VzIHRvIGJlIGxvZ2dlZAotYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQg
-Y3JlYXRlX3NvY2tldF9wZXJtczsKK2FsbG93IHN5c2xvZ2RfdCBzeXNsb2dkX3NfdDp1bml4X2Rn
-cmFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwogYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5p
-eF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwotYWxsb3cgc3lzbG9n
-ZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOworYWxsb3cgc3lzbG9nZF90IHN5c2xv
-Z2Rfc190OnVuaXhfZGdyYW1fc29ja2V0IHNlbmR0bzsKIGFsbG93IHN5c2xvZ2RfdCBzZWxmOmZp
-Zm9fZmlsZSByd19maWZvX2ZpbGVfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp1ZHBfc29j
-a2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp0Y3Bfc29ja2V0
-IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwogCiBhbGxvdyBzeXNsb2dkX3Qgc3lzbG9nX2Nv
-bmZfdDpmaWxlIHJlYWRfZmlsZV9wZXJtczsKIAorIyBBRl9VTklYIGRncmFtIHNvY2tldCBjcmVh
-dGVkIGJ5IHN5c2xvZ2RfdCBsYWJlbGVkIGFzIHN5c2xvZ2Rfc190Cit0eXBlX3RyYW5zaXRpb24g
-c3lzbG9nZF90IHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzeXNsb2dkX3NfdDsKKwogIyBD
-cmVhdGUgYW5kIGJpbmQgdG8gL2Rldi9sb2cgb3IgL3Zhci9ydW4vbG9nLgogYWxsb3cgc3lzbG9n
-ZF90IGRldmxvZ190OnNvY2tfZmlsZSBtYW5hZ2Vfc29ja19maWxlX3Blcm1zOwogZmlsZXNfcGlk
-X2ZpbGV0cmFucyhzeXNsb2dkX3QsIGRldmxvZ190LCBzb2NrX2ZpbGUpCi0tIAoxLjcuMC40Cgo=
-
---_9759ddb1-297f-4dce-8cab-50d7722bf0a4_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="0001-Compute-socket-SID.patch"
-
-RnJvbSBmMWY4NWY5MzM1ZmQ3MTYyMDhlMmM2NmNkYjYxNGZkMDRmOTYzYzZmIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBUaHUsIDI0IEZlYiAyMDExIDEzOjEwOjEzICswODAwClN1YmplY3Q6IFtQQVRDSCAx
-LzFdIENvbXB1dGUgc29ja2V0IFNJRC4KCkNvbXB1dGUgU0lEIGZvciB0aGUgbmV3bHkgY3JlYXRl
-ZCBzb2NrZXQsIHdoaWNoIG1heSBiZSBkaWZmZXJlbnQgdGhhbgppdHMgY3JlYXRvci4gSW4gcmVs
-ZXZhbnQgcG9saWN5IHBhY2thZ2UgYSB0eXBlX3RyYW5zaXRpb24gcnVsZSBjb3VsZApiZSB1c2Vk
-IHRvIHNwZWNpZnkgYSBkaXNjcmV0ZSB0eXBlIGZvciB0aGUgc29ja2V0LgoKU2lnbmVkLW9mZi1i
-eTogSGFycnkgQ2lhbyA8cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBzZWN1cml0eS9z
-ZWxpbnV4L2hvb2tzLmMgfCAgIDIyICsrKysrKysrKysrKysrKy0tLS0tLS0KIDEgZmlsZXMgY2hh
-bmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zZWN1
-cml0eS9zZWxpbnV4L2hvb2tzLmMgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKaW5kZXggYzhk
-Njk5Mi4uYTVmOGQ1ZiAxMDA2NDQKLS0tIGEvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCisrKyBi
-L3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwpAQCAtMzY0NCw5ICszNjQ0LDE3IEBAIHN0YXRpYyBp
-bnQgc2VsaW51eF9za2JfcGVlcmxibF9zaWQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgdTE2IGZhbWls
-eSwgdTMyICpzaWQpCiAKIC8qIHNvY2tldCBzZWN1cml0eSBvcGVyYXRpb25zICovCiAKLXN0YXRp
-YyB1MzIgc29ja2V0X3NvY2tjcmVhdGVfc2lkKGNvbnN0IHN0cnVjdCB0YXNrX3NlY3VyaXR5X3N0
-cnVjdCAqdHNlYykKK3N0YXRpYyB1MzIgc29ja2V0X3NvY2tjcmVhdGVfc2lkKGNvbnN0IHN0cnVj
-dCB0YXNrX3NlY3VyaXR5X3N0cnVjdCAqdHNlYywKKwkJCQkgdTE2IHNlY2NsYXNzKQogewotCXJl
-dHVybiB0c2VjLT5zb2NrY3JlYXRlX3NpZCA/IDogdHNlYy0+c2lkOworCWludCByYzsKKwl1MzIg
-c29ja3NpZDsKKworCXJjID0gc2VjdXJpdHlfdHJhbnNpdGlvbl9zaWQodHNlYy0+c2lkLCB0c2Vj
-LT5zaWQsIHNlY2NsYXNzLCAmc29ja3NpZCk7CisJaWYgKHJjKQorCQlyZXR1cm4gdHNlYy0+c29j
-a2NyZWF0ZV9zaWQgPyA6IHRzZWMtPnNpZDsKKwllbHNlCisJCXJldHVybiB0c2VjLT5zb2NrY3Jl
-YXRlX3NpZCA/IDogc29ja3NpZDsKIH0KIAogc3RhdGljIGludCBzb2NrX2hhc19wZXJtKHN0cnVj
-dCB0YXNrX3N0cnVjdCAqdGFzaywgc3RydWN0IHNvY2sgKnNrLCB1MzIgcGVybXMpCkBAIC0zNjc0
-LDggKzM2ODIsOCBAQCBzdGF0aWMgaW50IHNlbGludXhfc29ja2V0X2NyZWF0ZShpbnQgZmFtaWx5
-LCBpbnQgdHlwZSwKIAlpZiAoa2VybikKIAkJcmV0dXJuIDA7CiAKLQluZXdzaWQgPSBzb2NrZXRf
-c29ja2NyZWF0ZV9zaWQodHNlYyk7CiAJc2VjY2xhc3MgPSBzb2NrZXRfdHlwZV90b19zZWN1cml0
-eV9jbGFzcyhmYW1pbHksIHR5cGUsIHByb3RvY29sKTsKKwluZXdzaWQgPSBzb2NrZXRfc29ja2Ny
-ZWF0ZV9zaWQodHNlYywgc2VjY2xhc3MpOwogCXJldHVybiBhdmNfaGFzX3Blcm0odHNlYy0+c2lk
-LCBuZXdzaWQsIHNlY2NsYXNzLCBTT0NLRVRfX0NSRUFURSwgTlVMTCk7CiB9CiAKQEAgLTM2ODcs
-MTMgKzM2OTUsMTMgQEAgc3RhdGljIGludCBzZWxpbnV4X3NvY2tldF9wb3N0X2NyZWF0ZShzdHJ1
-Y3Qgc29ja2V0ICpzb2NrLCBpbnQgZmFtaWx5LAogCXN0cnVjdCBza19zZWN1cml0eV9zdHJ1Y3Qg
-KnNrc2VjOwogCWludCBlcnIgPSAwOwogCisJaXNlYy0+c2NsYXNzID0gc29ja2V0X3R5cGVfdG9f
-c2VjdXJpdHlfY2xhc3MoZmFtaWx5LCB0eXBlLCBwcm90b2NvbCk7CisJaXNlYy0+aW5pdGlhbGl6
-ZWQgPSAxOworCiAJaWYgKGtlcm4pCiAJCWlzZWMtPnNpZCA9IFNFQ0lOSVRTSURfS0VSTkVMOwog
-CWVsc2UKLQkJaXNlYy0+c2lkID0gc29ja2V0X3NvY2tjcmVhdGVfc2lkKHRzZWMpOwotCi0JaXNl
-Yy0+c2NsYXNzID0gc29ja2V0X3R5cGVfdG9fc2VjdXJpdHlfY2xhc3MoZmFtaWx5LCB0eXBlLCBw
-cm90b2NvbCk7Ci0JaXNlYy0+aW5pdGlhbGl6ZWQgPSAxOworCQlpc2VjLT5zaWQgPSBzb2NrZXRf
-c29ja2NyZWF0ZV9zaWQodHNlYywgaXNlYy0+c2NsYXNzKTsKIAogCWlmIChzb2NrLT5zaykgewog
-CQlza3NlYyA9IHNvY2stPnNrLT5za19zZWN1cml0eTsKLS0gCjEuNy4wLjQKCg==
-
---_9759ddb1-297f-4dce-8cab-50d7722bf0a4_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
