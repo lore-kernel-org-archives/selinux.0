@@ -1,112 +1,131 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1PLLeR0032113
-	for <selinux@tycho.nsa.gov>; Fri, 25 Feb 2011 16:21:40 -0500
-Received: from e39.co.us.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p1PLLdkx012987
-	for <selinux@tycho.nsa.gov>; Fri, 25 Feb 2011 21:21:39 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e39.co.us.ibm.com (8.14.4/8.13.1) with ESMTP id p1PL8wPh004078
-	for <selinux@tycho.nsa.gov>; Fri, 25 Feb 2011 14:08:58 -0700
-Received: from d03av05.boulder.ibm.com (d03av05.boulder.ibm.com [9.17.195.85])
-	by d03relay04.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p1PLLc0v085578
-	for <selinux@tycho.nsa.gov>; Fri, 25 Feb 2011 14:21:38 -0700
-Received: from d03av05.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av05.boulder.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p1PLLcON018959
-	for <selinux@tycho.nsa.gov>; Fri, 25 Feb 2011 14:21:38 -0700
-Subject: Re: [PATCH 08/10] selinux: Fix handling of kernel generated
- packets on labeled IPsec
-From: Joy Latten <latten@austin.ibm.com>
-Reply-To: latten@austin.ibm.com
-To: Paul Moore <paul.moore@hp.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <201102231645.58047.paul.moore@hp.com>
-References: <20110214131651.GA15640@secunet.com>
-	 <1297889847.25079.44.camel@sifl> <20110222133150.GE20852@secunet.com>
-	 <201102231645.58047.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2011 14:50:37 -0600
-Message-Id: <1298667037.2715.221.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+Message-ID: <SNT139-w65E511393D442CFCC6F92EABDC0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_93db0b2d-4955-4f41-a0ac-a3ca3b6ca89d_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley
+	<sds@tycho.nsa.gov>
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>, <refpolicy@oss1.tresys.com>
+Subject: RE: Separate type for AF_UNIX socket created by syslogd_t
+Date: Sat, 26 Feb 2011 03:29:22 +0000
+In-Reply-To: <4D667EBA.3060205@tresys.com>
+References: <SNT139-w42F5BDB103916DC8160624ABDA0@phx.gbl>
+ <1298554512.31953.38.camel@moss-pluto>,<4D667EBA.3060205@tresys.com>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-02-23 at 16:45 -0500, Paul Moore wrote:
-> On Tuesday, February 22, 2011 8:31:50 AM Steffen Klassert wrote:
-> > On Wed, Feb 16, 2011 at 03:57:27PM -0500, Paul Moore wrote:
-> > > On Mon, 2011-02-14 at 14:21 +0100, Steffen Klassert wrote:
-> > > > As it is, we require the security context of a labeled SA to be the
-> > > > same as the security context of the originating flow. On a nontrivial
-> > > > selinux policy the security context of the flow of kernel generated
-> > > > packets, like echo reply packets, are usually not equal to the
-> > > > security context of the labeled SA. So it is not possible to send
-> > > > such packets in this case. The fact that the security context of a
-> > > > labeled SA must be the same as the security context of the originating
-> > > > flow can also lead to problems if an outgoing SA is used for packet
-> > > > forwarding and for locally generated traffic.
+--_93db0b2d-4955-4f41-a0ac-a3ca3b6ca89d_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-hmmm... i am thinking that if the security context of the flow does
-not match the security context of the SA, then that means an SA pair
-needs to have been negotiated for that outgoing pkt(s). Labeled ipsec
-design calls for SApair-per-security-context for a traffic stream, 
-thus there may be more than one SA-pair per traffic stream. As Paul
-stated, this is inherent in design.
 
-selinux_xfrm_policy_lookup does check that flow has permission to use
-the spd entry. 
+Many thanks Stephen and Chris for all your replies!
 
-> > > > 
-> > > > This patch fixes this by removing this equality check. Instead we
-> > > > ask the access vector cache if the security context of the SA is
-> > > > compatible to the security context of the IPsec policy. This
-> > > > partially reverts commit 67f83cbf081a70426ff667e8d14f94e13ed3bdca
-> > > > 
-> > > > Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-> > > 
-> > > I think understand the problem you're running up against, and if I'm
-> > > understanding it correctly it is an inherent problem with the labeled
-> > > IPsec design - not something that we can fix.
+In the first stage I will try to preserve the existing behaviors for socket by taking all kinds of socket classes in to account in security/mls_compute_sid() and re-send patches for SELinux kernel drivers. Yep so far these two functions could only take care of the special needs for the process class.
+
+Best regards,
+Harry
+
+> Date: Thu, 24 Feb 2011 10:52:26 -0500
+> From: cpebenito@tresys.com
+> To: sds@tycho.nsa.gov
+> CC: harrytaurus2002@hotmail.com; paul.moore@hp.com; selinux@tycho.nsa.gov; refpolicy@oss1.tresys.com
+> Subject: Re: Separate type for AF_UNIX socket created by syslogd_t
+> 
+> On 02/24/11 08:35, Stephen Smalley wrote:
+> > On Thu, 2011-02-24 at 10:44 +0000, HarryCiao wrote:
+> >> Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the
+> >> unix_dgram_socket object bond to it are of mls_systemhigh, rendering
+> >> that other application domain such as klogd_t running at lower
+> >> security level failed to "sendto" it. One possible solution is to add
+> >> syslogd_t to mlstrustedobject attribute since the unix_dgram_socket
+> >> object inherits the creator's SID by default.
+> >>
+> >> However, the side effect is that syslogd_t is also the label for the
+> >> entire syslogd's procfs entries. The attached two patches are aimed to
+> >> resolve this problem while eliminating such side effect, by declaring
+> >> a separate type, syslogd_s_t,  for the unix_dgram_socket object
+> >> created by syslogd_t which alone could be added to the
+> >> mlstrustedobject attribute.
+> >>
+> >> Thanks to Stephen's suggestion security_transition_sid() would be
+> >> called in socket_sockcreate_sid() to query the relevant
+> >> type_transition rule say in logging.pp for any newly created socket.
+> >>
+> >> After applying th! ese two patches below errors don't exist any more:
+> >>
+> >> type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for
+> >> pid=385 comm="klogd" path="/dev/log"
+> >> scontext=system_u:object_r:klogd_t:s0
+> >> tcontext=system_u:object_r:syslogd_t:s15:c0.c1023
+> >> tclass=unix_dgram_socket
+> >>
+> >> BTW, do we have a way to actually display the label for the
+> >> unix_dgram_socket that bond to /dev/log?
+> >>
+> [cut]
+> > Unfortunately my original "simple" suggestion turns out to have side
+> > effects. At present, the socket gets the same exact security context as
+> > the creating process by default, including the role and MLS range, since
+> > we just assign the SID directly.  But when using security_transition_sid
+> > -> security_compute_sid, the new security context uses object_r as the
+> > role for all objects and mls_compute_sid degrades the full MLS range to
+> > the low level for objects. This is based on the desired behavior for
+> > files and didn't take into account sockets.  Thus with your patch,
+> > sockets will no longer be labeled identically to their creating process,
+> > which will affect labeled networking and the network access controls.
 > > 
-> > Hm, I think we need to get this to work. Echo reply packets are just
-> > one thing. Also other icmp messages can't be send. For example path mtu
-> > discovery can't work with labeled IPsec. And have you tried to use
-> > labeled IPsec on IPv6 networks? Kernel generated icmp messages are
-> > quite important here.
+> > To preserve existing behavior when there are no type transition rules
+> > configured for sockets, I think security_compute_sid and mls_compute_sid
+> > need logic handling the socket classes differently than other objects
+> > (files).  And given that we are using dynamic class mappings now, those
+> > socket class values would have to be looked up just like the process
+> > class upon policy load.  Maybe we can come up with some generalized
+> > solution that will be more flexible going forward for configuring how
+> > different parts of the context are assigned for different classes.  We
+> > have talked previously about using the role field even for files rather
+> > than just making them all object_r.
 > 
-> Yes, several years ago I worked on the IPsec stack for a commercial UNIX OS 
-> and we had to basically allow all IPv6/ICMP in the SPD so that router/neighbor 
-> discovery would work correctly.  I believe that the specifications have now 
-> evolved to allow type/code which would make this a bit easier now.
+> It certainly would be nice to have all objects get the role of their
+> creator so we can bring role-based policy separations back using RBAC
+> features and not rely on 1:1 user:role mapping + UBAC.
 > 
-> Why not just create a SPD rule that would send these ICMP packets over a 
-> traditional, unlabeled SA?  Am I missing something that would require them to 
-> be sent over a labeled SA?
 > 
-> > > The core issue is that with labeled IPsec the packets themselves are not
-> > > labeled, the SAs are labeled instead.  This means that in order to
-> > > accurately convey peer labels over the network you need to ensure that
-> > > the flow's label matches the SA label; this is why there is a direct SID
-> > > to SID comparison in the code.  Failing to match a flow to the
-> > > associated SA will result in data being mis/relabeled which is a big
-> > > no-no.
-> > 
-> > I still don't understand why this is necessary, would'nt it be also
-> > ok to enforce this with a policy rule? I have to think a bit longer
-> > about that...
-> 
-> Think about it some more and let me know if you are still having problems.
-> 
-> It is absolutely critical that the SA's label matches the peer's label 
-> _exactly_.  Once you understand how labeled IPsec conveys peer labels across 
-> the network, you will understand why this is so important.
-> 
+> -- 
+> Chris PeBenito
+> Tresys Technology, LLC
+> www.tresys.com | oss.tresys.com
+ 		 	   		  
+--_93db0b2d-4955-4f41-a0ac-a3ca3b6ca89d_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-I agree with Paul.
-
-regards,
-Joy
-
-
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Many thanks Stephen and Chris for all your replies!<br><br>In the first stage I will try to preserve the existing behaviors for socket by taking all kinds of socket classes in to account in security/mls_compute_sid() and re-send patches for SELinux kernel drivers. Yep so far these two functions could only take care of the special needs for the process class.<br><br>Best regards,<br>Harry<br><br>&gt; Date: Thu, 24 Feb 2011 10:52:26 -0500<br>&gt; From: cpebenito@tresys.com<br>&gt; To: sds@tycho.nsa.gov<br>&gt; CC: harrytaurus2002@hotmail.com; paul.moore@hp.com; selinux@tycho.nsa.gov; refpolicy@oss1.tresys.com<br>&gt; Subject: Re: Separate type for AF_UNIX socket created by syslogd_t<br>&gt; <br>&gt; On 02/24/11 08:35, Stephen Smalley wrote:<br>&gt; &gt; On Thu, 2011-02-24 at 10:44 +0000, HarryCiao wrote:<br>&gt; &gt;&gt; Since syslogd_t runs at mls_systemhigh, both the /dev/log file and the<br>&gt; &gt;&gt; unix_dgram_socket object bond to it are of mls_systemhigh, rendering<b!
+ r>&gt; &gt;&gt; that other application domain such as klogd_t running at lower<br>&gt; &gt;&gt; security level failed to "sendto" it. One possible solution is to add<br>&gt; &gt;&gt; syslogd_t to mlstrustedobject attribute since the unix_dgram_socket<br>&gt; &gt;&gt; object inherits the creator's SID by default.<br>&gt; &gt;&gt;<br>&gt; &gt;&gt; However, the side effect is that syslogd_t is also the label for the<br>&gt; &gt;&gt; entire syslogd's procfs entries. The attached two patches are aimed to<br>&gt; &gt;&gt; resolve this problem while eliminating such side effect, by declaring<br>&gt; &gt;&gt; a separate type, syslogd_s_t,  for the unix_dgram_socket object<br>&gt; &gt;&gt; created by syslogd_t which alone could be added to the<br>&gt; &gt;&gt; mlstrustedobject attribute.<br>&gt; &gt;&gt;<br>&gt; &gt;&gt; Thanks to Stephen's suggestion security_transition_sid() would be<br>&gt; &gt;&gt; called in socket_sockcreate_sid() to query the relevant<br>&gt; &gt;&gt; type_tra!
+ nsition rule say in logging.pp for any newly created socket.<br>&gt; &
+gt;&gt;<br>&gt; &gt;&gt; After applying th! ese two patches below errors don't exist any more:<br>&gt; &gt;&gt;<br>&gt; &gt;&gt; type=1400 audit(1298535101.654:868): avc:  denied  { sendto } for<br>&gt; &gt;&gt; pid=385 comm="klogd" path="/dev/log"<br>&gt; &gt;&gt; scontext=system_u:object_r:klogd_t:s0<br>&gt; &gt;&gt; tcontext=system_u:object_r:syslogd_t:s15:c0.c1023<br>&gt; &gt;&gt; tclass=unix_dgram_socket<br>&gt; &gt;&gt;<br>&gt; &gt;&gt; BTW, do we have a way to actually display the label for the<br>&gt; &gt;&gt; unix_dgram_socket that bond to /dev/log?<br>&gt; &gt;&gt;<br>&gt; [cut]<br>&gt; &gt; Unfortunately my original "simple" suggestion turns out to have side<br>&gt; &gt; effects. At present, the socket gets the same exact security context as<br>&gt; &gt; the creating process by default, including the role and MLS range, since<br>&gt; &gt; we just assign the SID directly.  But when using security_transition_sid<br>&gt; &gt; -&gt; security_compute_sid, the new secur!
+ ity context uses object_r as the<br>&gt; &gt; role for all objects and mls_compute_sid degrades the full MLS range to<br>&gt; &gt; the low level for objects. This is based on the desired behavior for<br>&gt; &gt; files and didn't take into account sockets.  Thus with your patch,<br>&gt; &gt; sockets will no longer be labeled identically to their creating process,<br>&gt; &gt; which will affect labeled networking and the network access controls.<br>&gt; &gt; <br>&gt; &gt; To preserve existing behavior when there are no type transition rules<br>&gt; &gt; configured for sockets, I think security_compute_sid and mls_compute_sid<br>&gt; &gt; need logic handling the socket classes differently than other objects<br>&gt; &gt; (files).  And given that we are using dynamic class mappings now, those<br>&gt; &gt; socket class values would have to be looked up just like the process<br>&gt; &gt; class upon policy load.  Maybe we can come up with some generalized<br>&gt; &gt; solution tha!
+ t will be more flexible going forward for configuring how<br>&gt; &gt;
+ different parts of the context are assigned for different classes.  We<br>&gt; &gt; have talked previously about using the role field even for files rather<br>&gt; &gt; than just making them all object_r.<br>&gt; <br>&gt; It certainly would be nice to have all objects get the role of their<br>&gt; creator so we can bring role-based policy separations back using RBAC<br>&gt; features and not rely on 1:1 user:role mapping + UBAC.<br>&gt; <br>&gt; <br>&gt; -- <br>&gt; Chris PeBenito<br>&gt; Tresys Technology, LLC<br>&gt; www.tresys.com | oss.tresys.com<br> 		 	   		  </body>
+</html>
+--_93db0b2d-4955-4f41-a0ac-a3ca3b6ca89d_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
