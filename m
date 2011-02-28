@@ -1,82 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1SBYsRi011894
-	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 06:34:57 -0500
-Received: from a.mx.secunet.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1SBYtEQ005247
-	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 11:34:56 GMT
-Date: Mon, 28 Feb 2011 12:34:53 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 10/10] selinux: Perform xfrm checks for unlabeled
- access in any case
-Message-ID: <20110228113453.GF26510@secunet.com>
-References: <20110214131651.GA15640@secunet.com>
- <1297890498.25079.53.camel@sifl>
- <20110222135217.GF20852@secunet.com>
- <201102231659.18121.paul.moore@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201102231659.18121.paul.moore@hp.com>
+Subject: Re: Separate socket SID than its creator
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: HarryCiao <harrytaurus2002@hotmail.com>
+Cc: jmorris@namei.org, eparis@parisplace.org,
+        selinux-mailing-list
+ <selinux@tycho.nsa.gov>
+In-Reply-To: <SNT139-W222AD5AB4BFF6776A5A244ABDF0@phx.gbl>
+References: <SNT139-W222AD5AB4BFF6776A5A244ABDF0@phx.gbl>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 28 Feb 2011 08:52:38 -0500
+Message-ID: <1298901158.17143.14.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Feb 23, 2011 at 04:59:17PM -0500, Paul Moore wrote:
-> > 
-> > If we want to keep that behaviour, we should change the Kconfig help
-> > of labeled IPsec at least, there one can find:
-> > 
-> > Non-IPSec communications are designated as unlabelled, and only sockets
-> > authorized to communicate unlabelled data can send without using IPSec.
-> > 
-> > What is simply not the case, as far as I can see.
+On Sun, 2011-02-27 at 10:14 +0000, HarryCiao wrote:
+> Hello Stephen, James and Eric,
 > 
-> Here is the full text of CONFIG_SECURITY_NETWORK_XFRM for those of you 
-> following along at home:
+> The attached is the v1 patches to compute socket SID on creation. 
 > 
->           This enables the XFRM (IPSec) networking security hooks.
->           If enabled, a security module can use these hooks to
->           implement per-packet access controls based on labels
->           derived from IPSec policy.  Non-IPSec communications are
->           designated as unlabelled, and only sockets authorized
->           to communicate unlabelled data can send without using
->           IPSec.
->           If you are unsure how to answer this question, answer N.
+> The propagation of the return code of security_transition_sid is a
+> good practice and actually helps identifying the problem that the
+> socket creator's role also needs to be able to type the socket role. 
 > 
-> What do you suggest?  If you're going to complain about help text you have to 
-> offer some suggestions, that's the rule :)
+> The class number(orig_tclass) used by SELinux kernel driver is checked
+> against SECCLASS_XXX macros and if it's any one of those 22 socket
+> classes both security_compute_sid and mls_comput_sid will preserve the
+> scontext's role and MLS attribute as what they have been done for
+> policydb.policy_class. (we are not checking access vectors so we don't
+> have to concern about the unmapped, real class number allocated by
+> checkpolicy)
 > 
+> I've also come up with a debug patch to make use of the
+> security_sid_to_context which helps to reveal that the
+> unix_dgram_socket object created by syslogd differs only in type from
+> its creator and shares the same user, role and MLS at! tribute. The
+> relevant changes to logging.pp used for debugging is also attached.
+> 
+> Please kindly help commenting and suggesting how I could further test
+> these two patches.
 
-Yeah, I know about the rules. Right now I've tried to change the code to
-fit better to the help text. If this does not work out, I still can try
-to do it the oher way arround :)
+Kernel patches need to be posted one patch per message, inline, as per
+SubmittingPatches.  http://userweb.kernel.org/~akpm/stuff/tpp.txt is
+also a good resource on preparing kernel patches.
 
-> 
-> If you haven't configured any of the SELinux network access controls, meaning 
-> _all_ data flowing into and out of the system via the network is considered 
-> to be unlabeled_t:SystemHigh, then yes, confidential and every other type of 
-> data can be sent out the network.
-> 
-> Ask yourself this question: why would an admin, running SELinux, who cares 
-> about restricting what data can be sent over the network not configure any of 
-> SELinux's network access controls?  It just doesn't make sense ...
-> 
-> > Even though, we could have a selinux policy rule that enforces the usage of
-> > a certain labeled SA. So for example if the key daemon does not start up
-> > for some reason, we have no labeled SA and the traffic leaves the system
-> > untransformed. That's what I wanted to avoid.
-> 
-> This will not happen, or rather it should not happen if everything works the 
-> way it should.
-> 
+The order of your patches needs to be reversed so that there is no
+change in behavior and everything still works after each patch is
+applied - this is important for git bisect.
 
-Yes, if everything works the way it should we are fine and we would not even
-need to use selinux, but in real live bugs happen.
+I'm a bit concerned about the maintainability of the socket class list
+in security_is_socket_class().  We need to do something to ensure that
+if someone later adds a new socket security class to the kernel, they
+know to update this list.  At least a comment in classmap.h; ideally
+some kind of compile-time check (similar to the #error case in hooks.c
+to catch when someone adds more than 64 capabilities) to detect when
+someone adds a socket class without updating the list there.  Or maybe
+security_is_socket_class() needs to be auto-generated from classmap.h by
+genheaders?
 
-Usually I have to answer questions like:
-Given there is a bug in subsystem xyz, show that we still on the save
-side. And depending on the confidential level I have to show several lines
-of defense.
+Since you are checking against the kernel values rather than the policy
+values, you need to make sure you only apply this check when called from
+the kernel (if kern == true).  
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
