@@ -1,48 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1SAXim6007945
-	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 05:33:44 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p1SBYsRi011894
+	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 06:34:57 -0500
 Received: from a.mx.secunet.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1SAXgEQ022100
-	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 10:33:43 GMT
-Date: Mon, 28 Feb 2011 11:33:41 +0100
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p1SBYtEQ005247
+	for <selinux@tycho.nsa.gov>; Mon, 28 Feb 2011 11:34:56 GMT
+Date: Mon, 28 Feb 2011 12:34:53 +0100
 From: Steffen Klassert <steffen.klassert@secunet.com>
 To: Paul Moore <paul.moore@hp.com>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 08/10] selinux: Fix handling of kernel generated
- packets on labeled IPsec
-Message-ID: <20110228103341.GE26510@secunet.com>
+Subject: Re: [PATCH 10/10] selinux: Perform xfrm checks for unlabeled
+ access in any case
+Message-ID: <20110228113453.GF26510@secunet.com>
 References: <20110214131651.GA15640@secunet.com>
- <1297889847.25079.44.camel@sifl>
- <20110222133150.GE20852@secunet.com>
- <201102231645.58047.paul.moore@hp.com>
+ <1297890498.25079.53.camel@sifl>
+ <20110222135217.GF20852@secunet.com>
+ <201102231659.18121.paul.moore@hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201102231645.58047.paul.moore@hp.com>
+In-Reply-To: <201102231659.18121.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Feb 23, 2011 at 04:45:57PM -0500, Paul Moore wrote:
+On Wed, Feb 23, 2011 at 04:59:17PM -0500, Paul Moore wrote:
 > > 
-> > Hm, I think we need to get this to work. Echo reply packets are just
-> > one thing. Also other icmp messages can't be send. For example path mtu
-> > discovery can't work with labeled IPsec. And have you tried to use
-> > labeled IPsec on IPv6 networks? Kernel generated icmp messages are
-> > quite important here.
+> > If we want to keep that behaviour, we should change the Kconfig help
+> > of labeled IPsec at least, there one can find:
+> > 
+> > Non-IPSec communications are designated as unlabelled, and only sockets
+> > authorized to communicate unlabelled data can send without using IPSec.
+> > 
+> > What is simply not the case, as far as I can see.
 > 
-> Yes, several years ago I worked on the IPsec stack for a commercial UNIX OS 
-> and we had to basically allow all IPv6/ICMP in the SPD so that router/neighbor 
-> discovery would work correctly.  I believe that the specifications have now 
-> evolved to allow type/code which would make this a bit easier now.
+> Here is the full text of CONFIG_SECURITY_NETWORK_XFRM for those of you 
+> following along at home:
 > 
-> Why not just create a SPD rule that would send these ICMP packets over a 
-> traditional, unlabeled SA?  Am I missing something that would require them to 
-> be sent over a labeled SA?
+>           This enables the XFRM (IPSec) networking security hooks.
+>           If enabled, a security module can use these hooks to
+>           implement per-packet access controls based on labels
+>           derived from IPSec policy.  Non-IPSec communications are
+>           designated as unlabelled, and only sockets authorized
+>           to communicate unlabelled data can send without using
+>           IPSec.
+>           If you are unsure how to answer this question, answer N.
+> 
+> What do you suggest?  If you're going to complain about help text you have to 
+> offer some suggestions, that's the rule :)
 > 
 
-Might be possible. But I thought about this from a multi level security
-point of view. Such packets should be send back over an SA with the same
-confidential level as the receiving SA. Different confidential levels might
-require different crypto algorithems etc.
+Yeah, I know about the rules. Right now I've tried to change the code to
+fit better to the help text. If this does not work out, I still can try
+to do it the oher way arround :)
+
+> 
+> If you haven't configured any of the SELinux network access controls, meaning 
+> _all_ data flowing into and out of the system via the network is considered 
+> to be unlabeled_t:SystemHigh, then yes, confidential and every other type of 
+> data can be sent out the network.
+> 
+> Ask yourself this question: why would an admin, running SELinux, who cares 
+> about restricting what data can be sent over the network not configure any of 
+> SELinux's network access controls?  It just doesn't make sense ...
+> 
+> > Even though, we could have a selinux policy rule that enforces the usage of
+> > a certain labeled SA. So for example if the key daemon does not start up
+> > for some reason, we have no labeled SA and the traffic leaves the system
+> > untransformed. That's what I wanted to avoid.
+> 
+> This will not happen, or rather it should not happen if everything works the 
+> way it should.
+> 
+
+Yes, if everything works the way it should we are fine and we would not even
+need to use selinux, but in real live bugs happen.
+
+Usually I have to answer questions like:
+Given there is a bug in subsystem xyz, show that we still on the save
+side. And depending on the confidential level I have to show several lines
+of defense.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
