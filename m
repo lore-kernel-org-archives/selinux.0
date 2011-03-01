@@ -1,69 +1,77 @@
-Subject: Re: Separate socket SID than its creator
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: jmorris@namei.org, eparis@parisplace.org,
-        selinux-mailing-list
- <selinux@tycho.nsa.gov>
-In-Reply-To: <SNT139-W222AD5AB4BFF6776A5A244ABDF0@phx.gbl>
-References: <SNT139-W222AD5AB4BFF6776A5A244ABDF0@phx.gbl>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 28 Feb 2011 08:52:38 -0500
-Message-ID: <1298901158.17143.14.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p21HrqOX026920
+	for <selinux@tycho.nsa.gov>; Tue, 1 Mar 2011 12:53:52 -0500
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p21HrolH013143
+	for <selinux@tycho.nsa.gov>; Tue, 1 Mar 2011 17:53:50 GMT
+Message-ID: <4D6D32B4.9050108@tresys.com>
+Date: Tue, 01 Mar 2011 12:53:56 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: KaiGai Kohei <kohei.kaigai@EU.NEC.COM>,
+        SELinux-NSA <selinux@tycho.nsa.gov>
+Subject: Re: libselinux: add selinux_status_* interfaces for /selinux/status
+References: <AANLkTi=WqUp8FFkqo7eooUUP7qLju=WQQyf6qWsd1+4E@mail.gmail.com>	<4D40C42A.2080903@ak.jp.nec.com>	<4D559BA6.8020506@tresys.com> <AANLkTines9S4PR-G2bX00CmV=4NUW3YGs67p4hp5WUBw@mail.gmail.com>
+In-Reply-To: <AANLkTines9S4PR-G2bX00CmV=4NUW3YGs67p4hp5WUBw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2011-02-27 at 10:14 +0000, HarryCiao wrote:
-> Hello Stephen, James and Eric,
-> 
-> The attached is the v1 patches to compute socket SID on creation. 
-> 
-> The propagation of the return code of security_transition_sid is a
-> good practice and actually helps identifying the problem that the
-> socket creator's role also needs to be able to type the socket role. 
-> 
-> The class number(orig_tclass) used by SELinux kernel driver is checked
-> against SECCLASS_XXX macros and if it's any one of those 22 socket
-> classes both security_compute_sid and mls_comput_sid will preserve the
-> scontext's role and MLS attribute as what they have been done for
-> policydb.policy_class. (we are not checking access vectors so we don't
-> have to concern about the unmapped, real class number allocated by
-> checkpolicy)
-> 
-> I've also come up with a debug patch to make use of the
-> security_sid_to_context which helps to reveal that the
-> unix_dgram_socket object created by syslogd differs only in type from
-> its creator and shares the same user, role and MLS at! tribute. The
-> relevant changes to logging.pp used for debugging is also attached.
-> 
-> Please kindly help commenting and suggesting how I could further test
-> these two patches.
+On 02/11/2011 04:09 PM, Kohei KaiGai wrote:
+>> The patch looks okay to me, but I'm seeing unexpected behavior with the
+>> selinux_status_policyload(). For example, when running your sample
+>> status.c code, I get the following (I'm just calling load_policy after
+>> each line is printed):
+>>
+>>    # ./status
+>>    -- selinux kernel status page --
+>>    policyload = 0, enforcing = 1, deny_unknown = 0
+>>    policyload = 2, enforcing = 1, deny_unknown = 0
+>>    policyload = 3, enforcing = 1, deny_unknown = 0
+>>    policyload = 4, enforcing = 1, deny_unknown = 0
+>>
+>> policyload jumps from 0 to 2 when reloading policy the first time, but
+>> all other policy loads after that are incremented by 1, as expected. And
+>> it doesn't matter if it's using mmap or falls back to netlink. Same
+>> behavior in both cases.
+>>
+>> It doesn't look like the problem is in this patch, so I'm guessing this
+>> is a problem in the kernel? Or am I missing something and this is the
+>> correct behavior?
+>>
+> It is a specification, not a problem. :-)
+>
+> See the manpage part of the patch. It says ...
+>
+> | +.BR selinux_status_policyload
+> | +returns times of policy reloaded on the running system, or -1 on error.
+> | +Note that it is not a reliable value on fallback-mode until it receive
+> | +the first event message via netlink socket.
+> | +Thus, don't use this value to know actual times of policy reloaded.
+>
+> When we use this interface with fallback mode, it opens a netlink socket
+> to receive messages from the kernel space.
+> The message packet will deliver userspace number of policy reloaded,
+> so it also means application cannot know the information until it receives
+> the first message packet.
+>
+> As the manpage says, our recommendable usage of selinux_status_policyload()
+> on fall-back mode is detection of the policy reloaded event, not knowing
+> the actual number of policy reloaded in the system.
+>
+> Of course, when /selinux/status is available, this interface always returns
+> the correct number.
+>
+> Thanks,
 
-Kernel patches need to be posted one patch per message, inline, as per
-SubmittingPatches.  http://userweb.kernel.org/~akpm/stuff/tpp.txt is
-also a good resource on preparing kernel patches.
+I see, looks good then.
 
-The order of your patches needs to be reversed so that there is no
-change in behavior and everything still works after each patch is
-applied - this is important for git bisect.
+Acked-by: Steve Lawrence <slawrence@tresys.com>
 
-I'm a bit concerned about the maintainability of the socket class list
-in security_is_socket_class().  We need to do something to ensure that
-if someone later adds a new socket security class to the kernel, they
-know to update this list.  At least a comment in classmap.h; ideally
-some kind of compile-time check (similar to the #error case in hooks.c
-to catch when someone adds more than 64 capabilities) to detect when
-someone adds a socket class without updating the list there.  Or maybe
-security_is_socket_class() needs to be auto-generated from classmap.h by
-genheaders?
+Merged as of libselinux to 2.0.99
 
-Since you are checking against the kernel values rather than the policy
-values, you need to make sure you only apply this check when called from
-the kernel (if kern == true).  
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
