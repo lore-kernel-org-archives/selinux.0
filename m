@@ -1,131 +1,146 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 2/2] SELinux: implement the new sb_remount LSM hook
+Subject: [PATCH 1/2] LSM: Pass -o remount options to the LSM
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, sds@tycho.nsa.gov, eparis@redhat.com
-Date: Tue, 01 Mar 2011 16:58:28 -0500
-Message-ID: <20110301215828.26496.68739.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20110301215822.26496.45621.stgit@paris.rdu.redhat.com>
-References: <20110301215822.26496.45621.stgit@paris.rdu.redhat.com>
+Date: Tue, 01 Mar 2011 16:58:22 -0500
+Message-ID: <20110301215822.26496.45621.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For SELinux we do not allow security information to change during a remount
-operation.  Thus this hook simply strips the security module options from
-the data and verifies that those are the same options as exist on the
-current superblock.
+The VFS mount paths pass the mount options to the LSM.  The LSM will remove
+options it understands from the path and will them pass the remaining
+options onto the underlying filesystem.  This is how options like the
+SELinux context= work.  The problem comes in that -o remount never calls
+into LSM code.  So if you include an LSM specific option it will get passed
+to the filesystem and will cause the remount to fail.  An example of where
+this is a problem is the 'seclabel' option.  The SELinux LSM hook will
+print this word in /proc/mounts if the filesystem is being labeled using
+xattrs.  If you pass this word on mount it will be silently stripped and
+ignored.  But if you pass this word on remount the LSM never gets called
+and it will be passed to the FS.  The FS doesn't know what seclabel means
+and thus should fail the mount.  For example an ext3 fs mounted over loop
+
+# mount -o loop /tmp/fs /mnt/tmp
+# cat /proc/mounts | grep /mnt/tmp
+/dev/loop0 /mnt/tmp ext3 rw,seclabel,relatime,errors=continue,barrier=0,data=ordered 0 0
+# mount -o remounte /mnt/tmp
+mount: /mnt/tmp not mounted already, or bad option
+# dmesg
+EXT3-fs (loop0): error: unrecognized mount option "seclabel" or missing value
+
+This patch passes the remount mount options to an new LSM hook.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/hooks.c |   86 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 86 insertions(+), 0 deletions(-)
+ fs/namespace.c           |    4 ++++
+ include/linux/security.h |   13 +++++++++++++
+ security/capability.c    |    6 ++++++
+ security/security.c      |    5 +++++
+ 4 files changed, 28 insertions(+), 0 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0dca8b6..f848a28 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2365,6 +2365,91 @@ out:
- 	return rc;
+diff --git a/fs/namespace.c b/fs/namespace.c
+index d1edf26..a66feed 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1767,6 +1767,10 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
+ 	if (path->dentry != path->mnt->mnt_root)
+ 		return -EINVAL;
+ 
++	err = security_sb_remount(sb, data);
++	if (err)
++		return err;
++
+ 	down_write(&sb->s_umount);
+ 	if (flags & MS_BIND)
+ 		err = change_mount_flags(path->mnt, flags);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 39062f6..a8c75fa 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -268,6 +268,12 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	@orig the original mount data copied from userspace.
+  *	@copy copied data which will be passed to the security module.
+  *	Returns 0 if the copy was successful.
++ * @sb_remount:
++ *	Extracts security system specifc mount options and verifys no changes
++ *	are being made to those options.
++ *	@sb superblock being remounted
++ *	@data contains the filesystem-specific data.
++ *	Return 0 if permission is granted.
+  * @sb_umount:
+  *	Check permission before the @mnt file system is unmounted.
+  *	@mnt contains the mounted file system.
+@@ -1395,6 +1401,7 @@ struct security_operations {
+ 	int (*sb_alloc_security) (struct super_block *sb);
+ 	void (*sb_free_security) (struct super_block *sb);
+ 	int (*sb_copy_data) (char *orig, char *copy);
++	int (*sb_remount) (struct super_block *sb, void *data);
+ 	int (*sb_kern_mount) (struct super_block *sb, int flags, void *data);
+ 	int (*sb_show_options) (struct seq_file *m, struct super_block *sb);
+ 	int (*sb_statfs) (struct dentry *dentry);
+@@ -1679,6 +1686,7 @@ int security_bprm_secureexec(struct linux_binprm *bprm);
+ int security_sb_alloc(struct super_block *sb);
+ void security_sb_free(struct super_block *sb);
+ int security_sb_copy_data(char *orig, char *copy);
++int security_sb_remount(struct super_block *sb, void *data);
+ int security_sb_kern_mount(struct super_block *sb, int flags, void *data);
+ int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+ int security_sb_statfs(struct dentry *dentry);
+@@ -1960,6 +1968,11 @@ static inline int security_sb_copy_data(char *orig, char *copy)
+ 	return 0;
  }
  
-+static int selinux_sb_remount(struct super_block *sb, void *data)
++static inline int security_sb_remount(struct super_block *sb, void *data)
 +{
-+	int rc, i, *flags;
-+	struct security_mnt_opts opts;
-+	char *secdata, **mount_options;
-+	struct superblock_security_struct *sbsec = sb->s_security;
-+
-+	if (!(sbsec->flags & SE_SBINITIALIZED))
-+		return 0;
-+
-+	if (!data)
-+		return 0;
-+
-+	if (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
-+		return 0;
-+
-+	security_init_mnt_opts(&opts);
-+	secdata = alloc_secdata();
-+	if (!secdata)
-+		return -ENOMEM;
-+	rc = selinux_sb_copy_data(data, secdata);
-+	if (rc)
-+		goto out_free_secdata;
-+
-+	rc = selinux_parse_opts_str(secdata, &opts);
-+	if (rc)
-+		goto out_free_secdata;
-+
-+	mount_options = opts.mnt_opts;
-+	flags = opts.mnt_opts_flags;
-+
-+	for (i = 0; i < opts.num_mnt_opts; i++) {
-+		u32 sid;
-+		size_t len;
-+
-+		if (flags[i] == SE_SBLABELSUPP)
-+			continue;
-+		len = strlen(mount_options[i]);
-+		rc = security_context_to_sid(mount_options[i], len, &sid);
-+		if (rc) {
-+			printk(KERN_WARNING "SELinux: security_context_to_sid"
-+			       "(%s) failed for (dev %s, type %s) errno=%d\n",
-+			       mount_options[i], sb->s_id, sb->s_type->name, rc);
-+			goto out_free_opts;
-+		}
-+		rc = -EINVAL;
-+		switch (flags[i]) {
-+		case FSCONTEXT_MNT:
-+			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-+				goto out_bad_option;
-+			break;
-+		case CONTEXT_MNT:
-+			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-+				goto out_bad_option;
-+			break;
-+		case ROOTCONTEXT_MNT: {
-+			struct inode_security_struct *root_isec;
-+			root_isec = sb->s_root->d_inode->i_security;
-+
-+			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-+				goto out_bad_option;
-+			break;
-+		}
-+		case DEFCONTEXT_MNT:
-+			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-+				goto out_bad_option;
-+			break;
-+		default:
-+			goto out_free_opts;
-+		}
-+	}
-+
-+	rc = 0;
-+out_free_opts:
-+	security_free_mnt_opts(&opts);
-+out_free_secdata:
-+	free_secdata(secdata);
-+	return rc;
-+out_bad_option:
-+	printk(KERN_WARNING "SELinux: unable to change security options "
-+	       "during remount (dev %s, type=%s)\n", sb->s_id,
-+	       sb->s_type->name);
-+	goto out_free_opts;
++	return 0;
 +}
 +
- static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
+ static inline int security_sb_kern_mount(struct super_block *sb, int flags, void *data)
  {
- 	const struct cred *cred = current_cred();
-@@ -5362,6 +5447,7 @@ static struct security_operations selinux_ops = {
- 	.sb_alloc_security =		selinux_sb_alloc_security,
- 	.sb_free_security =		selinux_sb_free_security,
- 	.sb_copy_data =			selinux_sb_copy_data,
-+	.sb_remount =			selinux_sb_remount,
- 	.sb_kern_mount =		selinux_sb_kern_mount,
- 	.sb_show_options =		selinux_sb_show_options,
- 	.sb_statfs =			selinux_sb_statfs,
+ 	return 0;
+diff --git a/security/capability.c b/security/capability.c
+index b44142b..3cf5ae3 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -54,6 +54,11 @@ static int cap_sb_copy_data(char *orig, char *copy)
+ 	return 0;
+ }
+ 
++static int cap_sb_remount(struct super_block *sb, void *data)
++{
++	return 0;
++}
++
+ static int cap_sb_kern_mount(struct super_block *sb, int flags, void *data)
+ {
+ 	return 0;
+@@ -891,6 +896,7 @@ void __init security_fixup_ops(struct security_operations *ops)
+ 	set_to_cap_if_null(ops, sb_alloc_security);
+ 	set_to_cap_if_null(ops, sb_free_security);
+ 	set_to_cap_if_null(ops, sb_copy_data);
++	set_to_cap_if_null(ops, sb_remount);
+ 	set_to_cap_if_null(ops, sb_kern_mount);
+ 	set_to_cap_if_null(ops, sb_show_options);
+ 	set_to_cap_if_null(ops, sb_statfs);
+diff --git a/security/security.c b/security/security.c
+index a3462fa..924fee1 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -266,6 +266,11 @@ int security_sb_copy_data(char *orig, char *copy)
+ }
+ EXPORT_SYMBOL(security_sb_copy_data);
+ 
++int security_sb_remount(struct super_block *sb, void *data)
++{
++	return security_ops->sb_remount(sb, data);
++}
++
+ int security_sb_kern_mount(struct super_block *sb, int flags, void *data)
+ {
+ 	return security_ops->sb_kern_mount(sb, flags, data);
 
 
 --
