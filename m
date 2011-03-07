@@ -1,98 +1,123 @@
-Subject: [GIT PULL] selinux for 2.6.39
-From: Eric Paris <eparis@redhat.com>
-To: jmorris@namei.org
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Date: Mon, 07 Mar 2011 12:08:32 -0500
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1299517713.7141.6.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p27H8smm031665
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2011 12:08:55 -0500
+Received: from cluster-e.mailcontrol.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p27H8pgK016671
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2011 17:08:52 GMT
+Received: from rly67e.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly67e.srv.mailcontrol.com (MailControl) with ESMTP id p27H8UUg003318
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2011 17:08:33 GMT
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly67e.srv.mailcontrol.com (MailControl) id p27H8FoB031107
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2011 17:08:15 GMT
+From: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+To: Steve Lawrence <slawrence@tresys.com>, Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: SELinux-NSA <selinux@tycho.nsa.gov>
+Date: Mon, 7 Mar 2011 17:07:59 +0000
+Subject: RE: libselinux: add selinux_status_* interfaces for /selinux/status
+Message-ID: <A9F5079BABDEE646AEBDB6831725762C4205C8829C@EUEXCLU01.EU.NEC.COM>
+References: <AANLkTi=WqUp8FFkqo7eooUUP7qLju=WQQyf6qWsd1+4E@mail.gmail.com>
+	<4D40C42A.2080903@ak.jp.nec.com>	<4D559BA6.8020506@tresys.com>
+ <AANLkTines9S4PR-G2bX00CmV=4NUW3YGs67p4hp5WUBw@mail.gmail.com>
+ <4D6D32B4.9050108@tresys.com>
+In-Reply-To: <4D6D32B4.9050108@tresys.com>
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please pull the following for 2.6.39.
+> I see, looks good then.
+> 
+> Acked-by: Steve Lawrence <slawrence@tresys.com>
+> 
+> Merged as of libselinux to 2.0.99
+>
+Thanks for your reviewing.
 
-The following changes since commit 821404434f3324bf23f545050ff64055a149766e:
+I also submitted the following patch:
+  http://marc.info/?l=selinux&m=129429839717037&w=2
 
-  CacheFiles: Add calls to path-based security hooks (2011-01-24 10:49:45 +1100)
+The db_language class represents procedural languages (such as pl/pgsql, ...)
+that is already got into refpolicy, so please add libselinux this support also.
 
-are available in the git repository at:
-  git://git.infradead.org/users/eparis/selinux.git master
+Thanks,
+--
+NEC Europe Ltd, Global Competence Center
+KaiGai Kohei <kohei.kaigai@eu.nec.com>
 
-Eric Paris (6):
-      fs/vfs/security: pass last path component to LSM on inode creation
-      SELinux: Use dentry name in new object labeling
-      selinux: drop unused packet flow permissions
-      Revert "selinux: simplify ioctl checking"
-      LSM: Pass -o remount options to the LSM
-      SELinux: implement the new sb_remount LSM hook
 
-Harry Ciao (3):
-      SELinux: Auto-generate security_is_socket_class
-      SELinux: Socket retains creator role and MLS attribute
-      SELinux: Compute SID for the newly created socket
-
-Lucian Adrian Grijincu (2):
-      security/selinux: fix /proc/sys/ labeling
-      security: remove unused security_sysctl hook
-
-Steffen Klassert (3):
-      selinux: Fix check for xfrm selinux context algorithm
-      selinux: Fix wrong checks for selinux_policycap_netpeer
-      selinux: Fix packet forwarding checks on postrouting
-
- fs/btrfs/inode.c                        |   13 +-
- fs/btrfs/xattr.c                        |    6 +-
- fs/btrfs/xattr.h                        |    3 +-
- fs/ext2/ext2.h                          |    2 +-
- fs/ext2/ialloc.c                        |    5 +-
- fs/ext2/namei.c                         |    8 +-
- fs/ext2/xattr.h                         |    6 +-
- fs/ext2/xattr_security.c                |    5 +-
- fs/ext3/ialloc.c                        |    5 +-
- fs/ext3/namei.c                         |    8 +-
- fs/ext3/xattr.h                         |    4 +-
- fs/ext3/xattr_security.c                |    5 +-
- fs/ext4/ialloc.c                        |    2 +-
- fs/ext4/xattr.h                         |    4 +-
- fs/ext4/xattr_security.c                |    5 +-
- fs/gfs2/inode.c                         |    7 +-
- fs/jffs2/dir.c                          |    9 +-
- fs/jffs2/nodelist.h                     |    2 +-
- fs/jffs2/security.c                     |    5 +-
- fs/jffs2/write.c                        |   18 +-
- fs/jffs2/xattr.h                        |    5 +-
- fs/jfs/jfs_xattr.h                      |    5 +-
- fs/jfs/namei.c                          |    8 +-
- fs/jfs/xattr.c                          |    6 +-
- fs/namespace.c                          |    4 +
- fs/ocfs2/namei.c                        |    4 +-
- fs/ocfs2/refcounttree.c                 |    3 +-
- fs/ocfs2/xattr.c                        |   10 +-
- fs/ocfs2/xattr.h                        |    4 +-
- fs/proc/proc_sysctl.c                   |    1 -
- fs/reiserfs/namei.c                     |    9 +-
- fs/reiserfs/xattr_security.c            |    3 +-
- fs/xfs/linux-2.6/xfs_iops.c             |    9 +-
- include/linux/ext3_fs.h                 |    3 +-
- include/linux/reiserfs_xattr.h          |    2 +
- include/linux/security.h                |   35 ++--
- kernel/sysctl.c                         |    5 -
- mm/shmem.c                              |    9 +-
- scripts/selinux/genheaders/genheaders.c |   20 ++
- security/capability.c                   |   15 +-
- security/security.c                     |   16 +-
- security/selinux/hooks.c                |  350 +++++++++++++++++--------------
- security/selinux/include/classmap.h     |    7 +-
- security/selinux/include/security.h     |    8 +-
- security/selinux/ss/avtab.h             |   22 +-
- security/selinux/ss/mls.c               |    5 +-
- security/selinux/ss/mls.h               |    3 +-
- security/selinux/ss/policydb.c          |  130 ++++++++++++
- security/selinux/ss/policydb.h          |   14 ++-
- security/selinux/ss/services.c          |   73 +++++--
- security/selinux/xfrm.c                 |    2 +-
- security/smack/smack_lsm.c              |    5 +-
- 52 files changed, 594 insertions(+), 323 deletions(-)
+> -----Original Message-----
+> From: Steve Lawrence [mailto:slawrence@tresys.com]
+> Sent: 1. März 2011 17:54
+> To: Kohei KaiGai
+> Cc: Kohei Kaigai; SELinux-NSA
+> Subject: Re: libselinux: add selinux_status_* interfaces for
+> /selinux/status
+> 
+> On 02/11/2011 04:09 PM, Kohei KaiGai wrote:
+> >> The patch looks okay to me, but I'm seeing unexpected behavior with the
+> >> selinux_status_policyload(). For example, when running your sample
+> >> status.c code, I get the following (I'm just calling load_policy after
+> >> each line is printed):
+> >>
+> >>    # ./status
+> >>    -- selinux kernel status page --
+> >>    policyload = 0, enforcing = 1, deny_unknown = 0
+> >>    policyload = 2, enforcing = 1, deny_unknown = 0
+> >>    policyload = 3, enforcing = 1, deny_unknown = 0
+> >>    policyload = 4, enforcing = 1, deny_unknown = 0
+> >>
+> >> policyload jumps from 0 to 2 when reloading policy the first time, but
+> >> all other policy loads after that are incremented by 1, as expected.
+> And
+> >> it doesn't matter if it's using mmap or falls back to netlink. Same
+> >> behavior in both cases.
+> >>
+> >> It doesn't look like the problem is in this patch, so I'm guessing this
+> >> is a problem in the kernel? Or am I missing something and this is the
+> >> correct behavior?
+> >>
+> > It is a specification, not a problem. :-)
+> >
+> > See the manpage part of the patch. It says ...
+> >
+> > | +.BR selinux_status_policyload
+> > | +returns times of policy reloaded on the running system, or -1 on error.
+> > | +Note that it is not a reliable value on fallback-mode until it receive
+> > | +the first event message via netlink socket.
+> > | +Thus, don't use this value to know actual times of policy reloaded.
+> >
+> > When we use this interface with fallback mode, it opens a netlink socket
+> > to receive messages from the kernel space.
+> > The message packet will deliver userspace number of policy reloaded,
+> > so it also means application cannot know the information until it receives
+> > the first message packet.
+> >
+> > As the manpage says, our recommendable usage of
+> selinux_status_policyload()
+> > on fall-back mode is detection of the policy reloaded event, not knowing
+> > the actual number of policy reloaded in the system.
+> >
+> > Of course, when /selinux/status is available, this interface always
+> returns
+> > the correct number.
+> >
+> > Thanks,
+> 
+> I see, looks good then.
+> 
+> Acked-by: Steve Lawrence <slawrence@tresys.com>
+> 
+> Merged as of libselinux to 2.0.99
+> 
+> 
+> 
+> 
+> 
+>  Click
+> https://www.mailcontrol.com/sr/GWdwHubc7EzTndxI!oX7UmPeZu4sclqX2roie2u
+> XDQj5Wf!gl9SlFfzJ+GRHJbN7WZXnCqumW0JTEf5tQBqpNg==  to report this email
+> as spam.
 
 
 --
