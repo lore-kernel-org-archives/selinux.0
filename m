@@ -1,66 +1,99 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p26IUGUD022816
-	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2011 13:30:18 -0500
-Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p26IUG2V024452
-	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2011 18:30:17 GMT
-Received: by ewy7 with SMTP id 7so1125333ewy.12
-        for <selinux@tycho.nsa.gov>; Sun, 06 Mar 2011 10:30:16 -0800 (PST)
-Message-ID: <4D73D2B4.8070401@gmail.com>
-Date: Sun, 06 Mar 2011 19:30:12 +0100
-From: Dominick Grift <domg472@gmail.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: sbrandmair@gmx.net
-Subject: Re: [SELinux] Wildcard for object classes?
-References: <ii11vf$vns$02$1@news.t-online.com> <201103061032.21143.russell@coker.com.au>
-In-Reply-To: <201103061032.21143.russell@coker.com.au>
-Content-Type: text/plain; charset=UTF-8
+Subject: [GIT PULL] selinux for 2.6.39
+From: Eric Paris <eparis@redhat.com>
+To: jmorris@namei.org
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Date: Mon, 07 Mar 2011 12:08:32 -0500
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <1299517713.7141.6.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Please pull the following for 2.6.39.
 
-On 03/06/2011 12:32 AM, Russell Coker wrote:
-> On Sat, 29 Jan 2011, Simon Brandmair <sbrandmair@gmx.net> wrote:
->> I just started looking into SELinux. I am wondering if there is a way to
->> have wildcards in avc rules like:
->> auditallow source_t target_t : * * ;
->> which audits all access from source_t to target_t.
->>
->> Or do I have to add all classes objects to the rule like:
->> auditallow source_t target_t : {appletalk_socket, association,
->> blk_file ... } * ;
-> 
-> No, there isn't such a wildcard at this time (AFAIK).  It might be worth 
-> adding one so I've moved this discussion to the SE Linux upstream mailing list 
-> (please don't CC debian-security on future replies).
-> 
+The following changes since commit 821404434f3324bf23f545050ff64055a149766e:
 
-Not possible and as far as i know neither is your second suggestion.
-This is because not all permissions can be used with all object classes.
+  CacheFiles: Add calls to path-based security hooks (2011-01-24 10:49:45 +1100)
 
-You would add a rule for each object class type (or set of object
-classes that share the same permissions):
+are available in the git repository at:
+  git://git.infradead.org/users/eparis/selinux.git master
 
-auditallow source target:notdevfile_class_set *;
-auditallow source target:devfile_class_set *;
-auditallow source target:socket_class_set *;
-auditallow source target:file_class_set *;
+Eric Paris (6):
+      fs/vfs/security: pass last path component to LSM on inode creation
+      SELinux: Use dentry name in new object labeling
+      selinux: drop unused packet flow permissions
+      Revert "selinux: simplify ioctl checking"
+      LSM: Pass -o remount options to the LSM
+      SELinux: implement the new sb_remount LSM hook
 
-etc, etc.
+Harry Ciao (3):
+      SELinux: Auto-generate security_is_socket_class
+      SELinux: Socket retains creator role and MLS attribute
+      SELinux: Compute SID for the newly created socket
 
-I am not sure if auditallow is the right way to do this. Maybe the audit
-suite has better options for your requirements.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.16 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+Lucian Adrian Grijincu (2):
+      security/selinux: fix /proc/sys/ labeling
+      security: remove unused security_sysctl hook
 
-iEYEARECAAYFAk1z0rMACgkQMlxVo39jgT/t6gCg1T3AquC6RVeUpY2KEnQMdZT1
-AowAoJgPYENYYXvTmRJVhtqSXpxKwFbv
-=zUKb
------END PGP SIGNATURE-----
+Steffen Klassert (3):
+      selinux: Fix check for xfrm selinux context algorithm
+      selinux: Fix wrong checks for selinux_policycap_netpeer
+      selinux: Fix packet forwarding checks on postrouting
+
+ fs/btrfs/inode.c                        |   13 +-
+ fs/btrfs/xattr.c                        |    6 +-
+ fs/btrfs/xattr.h                        |    3 +-
+ fs/ext2/ext2.h                          |    2 +-
+ fs/ext2/ialloc.c                        |    5 +-
+ fs/ext2/namei.c                         |    8 +-
+ fs/ext2/xattr.h                         |    6 +-
+ fs/ext2/xattr_security.c                |    5 +-
+ fs/ext3/ialloc.c                        |    5 +-
+ fs/ext3/namei.c                         |    8 +-
+ fs/ext3/xattr.h                         |    4 +-
+ fs/ext3/xattr_security.c                |    5 +-
+ fs/ext4/ialloc.c                        |    2 +-
+ fs/ext4/xattr.h                         |    4 +-
+ fs/ext4/xattr_security.c                |    5 +-
+ fs/gfs2/inode.c                         |    7 +-
+ fs/jffs2/dir.c                          |    9 +-
+ fs/jffs2/nodelist.h                     |    2 +-
+ fs/jffs2/security.c                     |    5 +-
+ fs/jffs2/write.c                        |   18 +-
+ fs/jffs2/xattr.h                        |    5 +-
+ fs/jfs/jfs_xattr.h                      |    5 +-
+ fs/jfs/namei.c                          |    8 +-
+ fs/jfs/xattr.c                          |    6 +-
+ fs/namespace.c                          |    4 +
+ fs/ocfs2/namei.c                        |    4 +-
+ fs/ocfs2/refcounttree.c                 |    3 +-
+ fs/ocfs2/xattr.c                        |   10 +-
+ fs/ocfs2/xattr.h                        |    4 +-
+ fs/proc/proc_sysctl.c                   |    1 -
+ fs/reiserfs/namei.c                     |    9 +-
+ fs/reiserfs/xattr_security.c            |    3 +-
+ fs/xfs/linux-2.6/xfs_iops.c             |    9 +-
+ include/linux/ext3_fs.h                 |    3 +-
+ include/linux/reiserfs_xattr.h          |    2 +
+ include/linux/security.h                |   35 ++--
+ kernel/sysctl.c                         |    5 -
+ mm/shmem.c                              |    9 +-
+ scripts/selinux/genheaders/genheaders.c |   20 ++
+ security/capability.c                   |   15 +-
+ security/security.c                     |   16 +-
+ security/selinux/hooks.c                |  350 +++++++++++++++++--------------
+ security/selinux/include/classmap.h     |    7 +-
+ security/selinux/include/security.h     |    8 +-
+ security/selinux/ss/avtab.h             |   22 +-
+ security/selinux/ss/mls.c               |    5 +-
+ security/selinux/ss/mls.h               |    3 +-
+ security/selinux/ss/policydb.c          |  130 ++++++++++++
+ security/selinux/ss/policydb.h          |   14 ++-
+ security/selinux/ss/services.c          |   73 +++++--
+ security/selinux/xfrm.c                 |    2 +-
+ security/smack/smack_lsm.c              |    5 +-
+ 52 files changed, 594 insertions(+), 323 deletions(-)
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
