@@ -1,24 +1,23 @@
-Message-ID: <4D76AD1C.8080901@tycho.nsa.gov>
-Date: Tue, 08 Mar 2011 17:26:36 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+References: <1299044768-22058-1-git-send-email-qingtao.cao@windriver.com> <SNT139-w538F8D8118C077D8E94F34ABC00@phx.gbl>
+In-Reply-To: <SNT139-w538F8D8118C077D8E94F34ABC00@phx.gbl>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Stephen Lawrence <slawrence@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: libselinux version bump past 99
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+ charset=UTF-8
+Subject: Re: [v2 PATCH 0/3] SELinux: separate socket type than its creator
+From: Russell Coker <russell@coker.com.au>
+Reply-to: russell@coker.com.au
+Date: Wed, 09 Mar 2011 19:30:57 +1100
+To: HarryCiao <harrytaurus2002@hotmail.com>, qingtao.cao@windriver.com,
+        Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org,
+        eparis@parisplace.org
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>
+Message-ID: <18621088-2ec8-4092-ab48-427393598479@email.android.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Libselinux has reached version 2.0.99 and I need to push a bug fix, just checking to make sure 2.0.100 is fine and won't cause any problems e.g. with upgrades.
-
-
+Why not have a separate attribute for unix domain sockets?
 -- 
-
-Eamon Walsh 
-National Security Agency
-
+My blog    http://etbe.coker.com.au
 
 --
 This message was distributed to subscribers of the selinux mailing list.
