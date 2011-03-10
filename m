@@ -1,110 +1,112 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, cpebenito@tresys.com
 Cc: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] Consider role_transition for newly created files or dirs.
-Date: Thu, 10 Mar 2011 14:51:50 +0800
-Message-Id: <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
-References: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
+Subject: Discussions about rbacsep
+Date: Thu, 10 Mar 2011 14:51:48 +0800
+Message-Id: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Consider role_transition for newly created files or dirs object, so that
-their role could be overriden by relevant role_transition rule than the
-default "object_r".
 
-In reference policy role_transtion rule could be used for newly created
-files or dirs object as in below example:
-	role_transition object_r $1 $2;
-where "$1" and "$2" are the domain and role of the creator respectively.
+Hello Stephen and Chirs,
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- security/selinux/ss/policydb.h |    6 +++---
- security/selinux/ss/services.c |   21 ++++++++++++++++-----
- 2 files changed, 19 insertions(+), 8 deletions(-)
+Many thanks for all your feedbacks on the previous discussions about rbacsep, I have tried to study all old emails in the past week and started to play with security_compute_sid to take the role_transition into consideration. The attached SELinux kernel patches and refpolicy patch are not for review but discussion. Having them applied I could have files or dirs created by user in their HOME retain user's role. For example:
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 4e3ab9d..06cef40 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -71,9 +71,9 @@ struct role_datum {
- };
- 
- struct role_trans {
--	u32 role;		/* current role */
--	u32 type;		/* program executable type */
--	u32 new_role;		/* new role */
-+	u32 role;		/* current role, or the parent dir role */
-+	u32 type;		/* program executable type, or creator domain */
-+	u32 new_role;		/* new role, or creator role */
- 	struct role_trans *next;
- };
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index bddcf30..c9bfa43 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1372,7 +1372,7 @@ static int security_compute_sid(u32 ssid,
- 	struct avtab_node *node;
- 	u16 tclass;
- 	int rc = 0;
--	bool sock;
-+	bool sock, filedir;
- 
- 	if (!ss_initialized) {
- 		switch (orig_tclass) {
-@@ -1393,9 +1393,11 @@ static int security_compute_sid(u32 ssid,
- 	if (kern) {
- 		tclass = unmap_class(orig_tclass);
- 		sock = security_is_socket_class(orig_tclass);
-+		filedir = security_is_filedir_class(orig_tclass);
- 	} else {
- 		tclass = orig_tclass;
- 		sock = security_is_socket_class(map_class(tclass));
-+		filedir = security_is_filedir_class(map_class(tclass));
- 	}
- 
- 	scontext = sidtab_search(&sidtab, ssid);
-@@ -1432,8 +1434,13 @@ static int security_compute_sid(u32 ssid,
- 		newcontext.role = scontext->role;
- 		newcontext.type = scontext->type;
- 	} else {
--		/* Use the well-defined object role. */
--		newcontext.role = OBJECT_R_VAL;
-+		if (filedir == true)
-+			/* Inherit the role from the parent dir */
-+			newcontext.role = tcontext->role;
-+		else
-+			/* Use the well-defined object role. */
-+			newcontext.role = OBJECT_R_VAL;
-+
- 		/* Use the type of the related object. */
- 		newcontext.type = tcontext->type;
- 	}
-@@ -1462,13 +1469,17 @@ static int security_compute_sid(u32 ssid,
- 	}
- 
- 	/* Check for class-specific changes. */
--	if  (tclass == policydb.process_class) {
-+	if ((tclass == policydb.process_class) || (filedir == true)) {
- 		if (specified & AVTAB_TRANSITION) {
- 			/* Look for a role transition rule. */
- 			for (roletr = policydb.role_tr; roletr;
- 			     roletr = roletr->next) {
- 				if (roletr->role == scontext->role &&
--				    roletr->type == tcontext->type) {
-+				    roletr->type == tcontext->type &&
-+				    tclass == policydb.process_class ||
-+				    roletr->role == tcontext->role &&
-+				    roletr->type == scontext->type &&
-+				    filedir == true) {
- 					/* Use the role transition rule. */
- 					newcontext.role = roletr->new_role;
- 					break;
--- 
-1.7.0.4
+   [root/sysadm_r/s0@~]# getenforce 
+   Enforcing
+   [root/sysadm_r/s0@~]# ls -Zd
+   dr-xr-x---  root root root:object_r:user_home_dir_t:s0-s15:c0.c1023 .
+   [root/sysadm_r/s0@~]# id -Z
+   root:sysadm_r:sysadm_t:s0-s15:c0.c1023
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 file
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 dir 
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# 
+   
+   [root/sysadm_r/s0@~]# mkdir dir
+   [root/sysadm_r/s0@~]# touch file
+   [root/sysadm_r/s0@~]# ls -Z
+   drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+   -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# audhigh "ausearch -ts recent -sv no -m SELINUX_ERR"
+   Password: 
+   <no matches>
+   [root/sysadm_r/s0@~]# 
+   
+   [root/sysadm_r/s0@~]# seclow "sesearch -SC --role_trans -s object_r"
+   Password: 
+   Found 10 role_transition rules:
+      role_transition object_r auditadm_t auditadm_r;
+      role_transition dbadm_r mysqld_initrc_exec_t system_r;
+      role_transition dbadm_r postgresql_initrc_exec_t system_r;
+      role_transition logadm_r syslogd_initrc_exec_t system_r;
+      role_transition logadm_r auditd_initrc_exec_t system_r;
+      role_transition object_r secadm_t secadm_r;
+      role_transition object_r staff_t staff_r;
+      role_transition object_r sysadm_t sysadm_r;
+      role_transition object_r user_t user_r;
+      role_transition webadm_r httpd_initrc_exec_t system_r;
+   [root/sysadm_r/s0@~]#
 
+
+Below are my further questions and todo list, I would like to get your opinions on them, thanks a lot!
+
+1. So far we are clear about how to setup the security contexts for process/sockets/files/dirs classes, but what for the rest classes?
+
+Once we have answers to this question could we start thinking about coming up a flexible way to compute different parts of security context for different class. Currently for the process/sockets/files/dirs classes, I could further combine security_is_socket/filedir_class functions into one and return some enum number which could be leveraged by security_compute_sid.
+
+2. For files/dirs classes, newly created object will have its SID computed by security_transition_sid, and for the AVTAB_TRANSITION rule, newcontext->user = scontext->user (creator's user), so if the object has the creator's role, then I guess we won't have the user-role problem at all. 
+
+Comments?
+
+3. Furthermore, the newly created object for the files/dirs classes will have the creator's current level as its MLS attribute, so we won't have the user-range probelem as well. 
+
+Comments?
+
+4. In the current refpolicy/SELinux kernel implementation, I am not very sure about how dirs' role is implemented as "object_r" by default.
+
+By "file" init SID ?
+
+5. We probably would want to add a new role_change rule to support change the role for the controlling terminal. This would require the changes to libsepol and checkplicy to support such new rule. Do we need to change policydb as well? If not then I guess we would have to make use of policydb.te_avtab to cover role_change as well.
+
+Comments?
+
+6. Maybe we also would want to modify genhomedircon to specify files/dirs in HOME retain user's role, otherwise if we restorecon it its role would be re-labeled as object_r again:
+
+   [root/sysadm_r/s0@~]# ls -Z
+   -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# matchpathcon file
+   file	<<none>>
+   [root/sysadm_r/s0@~]# restorecon file
+   [root/sysadm_r/s0@~]# ls -Z
+   -rw-r--r--  root root root:object_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# 
+
+But how about files/dirs not at HOME directory? How to let restorecon knows about their role is other than object_r? (we certainly could do so by semanage fcontext)
+
+7. Introduce below constraints to enforce rbacsep as pointed out by Chris, for example, to have user_r:mozilla_t domain unable to access files of staff_r:mozilla_t:
+
+   constrain { file dir ...} { getattr open read write ... }
+   (
+   	(r1 == r2) or
+   	(r1 == system_r) or
+   	(r2 == object_r) or
+   	...
+   );
+
+8. Collaps various xxx_sudo_t into a single sudo_t. However, this can't be achieved just by the type_transition rule, since in the rule of "type_transition sudo_t shell_exec_t X_t", where X_t should be determined by the current domain's role.
+
+Maybe, just maybe, we could invent another new rule "type_transition_role", for example, 
+	type_transition_role sudo_t shell_exec_t; 
+then in security_compute_sid if scontext->type == sudo_t and tcontext->type == shell_exec_t the newcontext->type = the default type associated with scontext->role.
+
+Comments?
+
+Thanks again!
+
+Best regards,
+Harry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
