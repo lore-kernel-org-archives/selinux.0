@@ -1,404 +1,133 @@
-Message-ID: <4D78E7D9.20909@redhat.com>
-Date: Thu, 10 Mar 2011 10:01:45 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: selinux_file_context_verify function returns wrong value.
-References: <517317.65701.qm@web87008.mail.ird.yahoo.com>
-In-Reply-To: <517317.65701.qm@web87008.mail.ird.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 2/2] Consider role_transition for newly created files
+ or dirs.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
+References: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
+	 <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 10 Mar 2011 15:00:05 -0500
+Message-ID: <1299787205.15531.13.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2011-03-10 at 14:51 +0800, Harry Ciao wrote:
+> Consider role_transition for newly created files or dirs object, so that
+> their role could be overriden by relevant role_transition rule than the
+> default "object_r".
+> 
+> In reference policy role_transtion rule could be used for newly created
+> files or dirs object as in below example:
+> 	role_transition object_r $1 $2;
+> where "$1" and "$2" are the domain and role of the creator respectively.
 
-On 03/09/2011 11:34 AM, Richard Haines wrote:
-> I thought I would have a go at fixing the problem so here is a patch that may be acceptable. I've tested it on libselinux 2.0.98 and 2.0.99.
+Hmm...that seems a little confusing. When we added support for range
+transitions for objects, we just extended the syntax to support an
+optional :class field and otherwise kept things consistent, e.g.
+range_transition <subject-type> <object-type> : <object-class> <range>;
+and then we converted any rules that omitted the :class into using the
+process class by default.  But we didn't change the meaning of the
+existing fields.  So, for example, I would have expected your role
+transition statements to be of the form:
+role_transition <subject-role> <file-type>:<class> <object-role>;
+e.g.
+role_transition sysadm_r user_home_dir_t:file sysadm_r;
+meaning
+"When a process in sysadm_r creates a file in a directory labeled
+user_home_dir_t, label the new file with the role sysadm_r."
+
 > 
-> selinux_file_context_verify(3) should now return the correct codes and matchpathcon(8) has been modified to handle them.
+> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> ---
+>  security/selinux/ss/policydb.h |    6 +++---
+>  security/selinux/ss/services.c |   21 ++++++++++++++++-----
+>  2 files changed, 19 insertions(+), 8 deletions(-)
 > 
-> The selinux_file_context_verify(3)and selinux_file_context_cmp(3) man pages have also been updated (re-written really) to correct return codes.
-> 
-> I found that selabel_open left errno set to ENOENT because a file_contexts.subs file did not exist on my system, but left selabel_open alone and set errno = 0 before calling selinux_filecontext_cmp.
-> 
-> 
-> diff --git a/include/selinux/selinux.h b/include/selinux/selinux.h
-> index 0725b57..6627f7d 100644
-> --- a/include/selinux/selinux.h
-> +++ b/include/selinux/selinux.h
-> @@ -562,7 +562,7 @@ extern int selinux_file_context_cmp(const security_context_t a,
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 4e3ab9d..06cef40 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -71,9 +71,9 @@ struct role_datum {
+>  };
 >  
->  /* 
->   * Verify the context of the file 'path' against policy.
-> - * Return 0 if correct. 
-> + * Return 1 if match, 0 if not and -1 on error. 
->   */
->  extern int selinux_file_context_verify(const char *path, mode_t mode);
+>  struct role_trans {
+> -	u32 role;		/* current role */
+> -	u32 type;		/* program executable type */
+> -	u32 new_role;		/* new role */
+> +	u32 role;		/* current role, or the parent dir role */
+> +	u32 type;		/* program executable type, or creator domain */
+> +	u32 new_role;		/* new role, or creator role */
+>  	struct role_trans *next;
+>  };
 >  
-> diff --git a/man/man3/selinux_file_context_cmp.3 b/man/man3/selinux_file_context_cmp.3
-> index 51e8c20..048ef45 100644
-> --- a/man/man3/selinux_file_context_cmp.3
-> +++ b/man/man3/selinux_file_context_cmp.3
-> @@ -1,25 +1,76 @@
-> -.TH "selinux_file_context_cmp" "3" "21 November 2009" "sds@tycho.nsa.gov" "SELinux API documentation"
-> +.TH "selinux_file_context_cmp" "3" "08 March 2011" "SELinux API documentation"
-> +
->  .SH "NAME"
-> -selinux_file_context_cmp, selinux_file_context_verify \- comparison of two file contexts.
-> +selinux_file_context_cmp \- Compare two SELinux security contexts excluding the 'user' component.
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index bddcf30..c9bfa43 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1372,7 +1372,7 @@ static int security_compute_sid(u32 ssid,
+>  	struct avtab_node *node;
+>  	u16 tclass;
+>  	int rc = 0;
+> -	bool sock;
+> +	bool sock, filedir;
 >  
->  .SH "SYNOPSIS"
->  .B #include <selinux/selinux.h>
->  .sp
-> -
-> -.BI "int selinux_file_context_cmp(const security_context_t " a ", const security_context_t " b ");"
-> -
-> -.BI "int selinux_file_context_verify(const char *" path ", mode_t " mode ");"
-> +.BI "int selinux_file_context_cmp(const security_context_t " a ", "
-> +.RS
-> +.BI "const security_context_t " b ");"
-> +.RE
->  
->  .SH "DESCRIPTION"
->  .B selinux_file_context_cmp
-> -compares two file contexts to see if their differences are "significant", the function runs the strcmp function ignoring the user componant of the file context.  
-> -.sp
-> -.B selinux_file_context_verify
-> -compares the file context on disk to the system default.
-> +compares two context strings excluding the user component with
-> +.B strcmp(3)
-> +as shown in the
-> +.B EXAMPLE
-> +section.
->  .sp
-> +This is useful as for most object contexts, the user component is not relevant.
->  
->  .SH "RETURN VALUE"
-> -Returns zero on success or \-1 otherwise.
-> +The return values follow the
-> +.B strcmp(3)
-> +function, where:
-> +.RS
-> +0  if they are equal.
-> +.RE
-> +.RS
-> +1  if
-> +.I a
-> +is greater than
-> +.I b
-> +.RE
-> +.RS
-> +\-1 if
-> +.I a
-> +is less than
-> +.I b
-> +.RE
-> +
-> +.SH "ERRORS"
-> +None.
-> +
-> +.SH "NOTES"
-> +The contexts being compared do not specifically need to be file contexts.
-> +
-> +.SH "EXAMPLE"
-> +If context
-> +.I a
-> +is:
-> +.RS
-> +user_u:user_r:user_t:s0
-> +.RE
-> +.sp
-> +and context
-> +.I b
-> +is:
-> +.RS
-> +root:user_r:user_t:s0
-> +.RE
-> +.sp
-> +then the actual strings compared are:
-> +.RS
-> +:user_r:user_t:s0 and :user_r:user_t:s0
-> +.RE
-> +.sp
-> +Therefore they will match and
-> +.B selinux_file_context_cmp
-> +will return zero.
->  
->  .SH "SEE ALSO"
-> -.BR selinux "(8), " selinux_lsetfilecon "(3), " matchpathcon "(3), " freecon "(3), " setfilecon "(3), " setfscreatecon "(3)"
-> +.BR selinux "(8)"
-> +
-> diff --git a/man/man3/selinux_file_context_verify.3 b/man/man3/selinux_file_context_verify.3
-> index d777547..fcc716d 100644
-> --- a/man/man3/selinux_file_context_verify.3
-> +++ b/man/man3/selinux_file_context_verify.3
-> @@ -1 +1,99 @@
-> -.so man3/selinux_file_context_cmp.3
-> +.TH "selinux_file_context_verify" "3" "08 March 2011" "SELinux API documentation"
-> +
-> +.SH "NAME"
-> +selinux_file_context_verify \- Compare the SELinux security context on disk to the default security context required by the policy file contexts file. 
-> +
-> +.SH "SYNOPSIS"
-> +.B #include <selinux/selinux.h>
-> +.sp
-> +.BI "int selinux_file_context_verify(const char *" path ", mode_t " mode ");"
-> +
-> +.SH "DESCRIPTION"
-> +.B selinux_file_context_verify
-> +compares the context of the specified 
-> +.I path
-> +that is held on disk (in the extended attribute), to the system default entry held in the file contexts series of files.
-> +.sp
-> +The 
-> +.I mode
-> +may be zero.
-> +.sp
-> +Note that the two contexts are compared for "significant" differences (i.e. the user component of the contexts are ignored) as shown in the
-> +.B EXAMPLE
-> +section.
-> +
-> +.SH "RETURN VALUE"
-> +If the contexts significantly match, 1 (one) is returned. 
-> +.sp
-> +If the contexts do not match 0 (zero) is returned and 
-> +.I errno
-> +is set to either
-> +.B ENOENT
-> +or 
-> +.B EINVAL
-> +for the reasons listed in the 
-> +.B ERRORS
-> +section, or if 
-> +.I errno
-> += 0 then the contexts did not match.
-> +.sp
-> +On failure \-1 is returned and 
-> +.I errno
-> +set appropriately.
-> +
-> +.SH "ERRORS"
-> +.TP
-> +.B ENOTSUP
-> +if extended attributes are not supported by the file system.
-> +.TP
-> +.B ENOENT
-> +if there is no entry in the file contexts series of files or 
-> +.I path
-> +does not exist.
-> +.TP
-> +.B EINVAL
-> +if the entry in the file contexts series of files or 
-> +.I path
-> +are invalid, or the returned context fails validation.
-> +.TP
-> +.B ENOMEM
-> +if attempt to allocate memory failed.
-> +
-> +.SH "FILES"
-> +The following configuration files (the file contexts series of files) supporting the active policy will be used (should they exist) to determine the 
-> +.I path
-> +default context:
-> +.sp
-> +.RS
-> +contexts/files/file_contexts - This file must exist.
-> +.sp
-> +contexts/files/file_contexts.local - If exists has local customizations.
-> +.sp
-> +contexts/files/file_contexts.homedirs - If exists has users home directory customizations.
-> +.sp
-> +contexts/files/file_contexts.subs - If exists has substitutions that are then applied to the 'in memory' version of the file contexts files.
-> +.RE
-> +
-> +.SH "EXAMPLE"
-> +If the files context is:
-> +.RS
-> +unconfined_u:object_r:admin_home_t:s0
-> +.RE
-> +.sp
-> +and the default context defined in the file contexts file is:
-> +.RS
-> +system_u:object_r:admin_home_t:s0
-> +.RE
-> +.sp
-> +then the actual strings compared are:
-> +.RS
-> +:object_r:admin_home_t:s0 and :object_r:admin_home_t:s0
-> +.RE
-> +.sp
-> +Therefore they will match and
-> +.B selinux_file_context_verify
-> +will return 1.
-> +
-> +.SH "SEE ALSO"
-> +.BR selinux "(8)"
-> +
-> diff --git a/src/matchpathcon.c b/src/matchpathcon.c
-> index bb4eb9f..7e7be9a 100644
-> --- a/src/matchpathcon.c
-> +++ b/src/matchpathcon.c
-> @@ -386,7 +386,7 @@ int selinux_file_context_verify(const char *path, mode_t mode)
->  	rc = lgetfilecon_raw(path, &con);
->  	if (rc == -1) {
->  		if (errno != ENOTSUP)
-> -			return 1;
-> +			return -1;
->  		else
->  			return 0;
+>  	if (!ss_initialized) {
+>  		switch (orig_tclass) {
+> @@ -1393,9 +1393,11 @@ static int security_compute_sid(u32 ssid,
+>  	if (kern) {
+>  		tclass = unmap_class(orig_tclass);
+>  		sock = security_is_socket_class(orig_tclass);
+> +		filedir = security_is_filedir_class(orig_tclass);
+>  	} else {
+>  		tclass = orig_tclass;
+>  		sock = security_is_socket_class(map_class(tclass));
+> +		filedir = security_is_filedir_class(map_class(tclass));
 >  	}
-> @@ -396,11 +396,18 @@ int selinux_file_context_verify(const char *path, mode_t mode)
 >  
->  	if (selabel_lookup_raw(hnd, &fcontext, path, mode) != 0) {
->  		if (errno != ENOENT)
-> -			rc = 1;
-> +			rc = -1;
->  		else
->  			rc = 0;
-> -	} else
-> +	} else {
-> +		/* 
-> +		 * Need to set errno to 0 as it can be set to ENOENT if the 
-> +		 * file_contexts.subs file does not exist (see selabel_open in
-> +		 * label.c), thus causing confusion if errno is checked on return.
-> +		 */
-> +		errno = 0;
->  		rc = (selinux_file_context_cmp(fcontext, con) == 0);
-> +	}
->  
->  	freecon(con);
->  	freecon(fcontext);
-> diff --git a/utils/matchpathcon.c b/utils/matchpathcon.c
-> index 4453a88..ff98f0a 100644
-> --- a/utils/matchpathcon.c
-> +++ b/utils/matchpathcon.c
-> @@ -41,7 +41,7 @@ int printmatchpathcon(char *path, int header, int mode)
->  
->  int main(int argc, char **argv)
->  {
-> -	int i, init = 0;
-> +	int i, init, rc = 0;
->  	int header = 1, opt;
->  	int verify = 0;
->  	int notrans = 0;
-> @@ -115,16 +115,20 @@ int main(int argc, char **argv)
->  
->  		if (verify) {
->  			if (quiet) {
-> -				if (selinux_file_context_verify(argv[i], mode))
-> +				if ((rc = selinux_file_context_verify(argv[i], mode)) == 1)
->  					continue;
->  				else
->  					exit(1);
->  			}
-> -			if (selinux_file_context_verify(argv[i], mode)) {
+>  	scontext = sidtab_search(&sidtab, ssid);
+> @@ -1432,8 +1434,13 @@ static int security_compute_sid(u32 ssid,
+>  		newcontext.role = scontext->role;
+>  		newcontext.type = scontext->type;
+>  	} else {
+> -		/* Use the well-defined object role. */
+> -		newcontext.role = OBJECT_R_VAL;
+> +		if (filedir == true)
+> +			/* Inherit the role from the parent dir */
+> +			newcontext.role = tcontext->role;
+> +		else
+> +			/* Use the well-defined object role. */
+> +			newcontext.role = OBJECT_R_VAL;
 > +
-> +			rc = selinux_file_context_verify(argv[i], mode);
-> +			if (rc == -1) {
-> +				printf("%s error: %s\n", argv[i], strerror(errno));
-> +				exit(1);
-> +			} else if (rc == 1)
->  				printf("%s verified.\n", argv[i]);
-> -			} else {
-> +			else {
->  				security_context_t con;
-> -				int rc;
->  				error = 1;
->  				if (notrans)
->  					rc = lgetfilecon_raw(argv[i], &con);
-> 
-> 
-> 
-> Richard
-> 
-> --- On Wed, 16/2/11, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
->> From: Stephen Smalley <sds@tycho.nsa.gov>
->> Subject: Re: selinux_file_context_verify function returns wrong value.
->> To: "Richard Haines" <richard_c_haines@btinternet.com>
->> Cc: selinux@tycho.nsa.gov, "Daniel J Walsh" <dwalsh@redhat.com>
->> Date: Wednesday, 16 February, 2011, 18:25
->> On Mon, 2011-02-14 at 15:56 +0000,
->> Richard Haines wrote:
->>> The selinux_file_context_verify seems to return the
->> wrong value when I
->>> know the context of the file and that in the
->> file_contexts file are
->>> the same (returns '1' but according to man page should
->> be '0').
->>>   
->>> Looking at the libselinux source code (matchpathcon.c)
->> the line:
->>>   
->>>         rc =
->> (selinux_file_context_cmp(fcontext, con) == 0);
->>>   
->>> seems the problem.
->>>   
->>> I'm using libselinux 2.0.96
->>>   
->>> So should it return 0 on match, 1 if contexts are
->> different (or if the
->>> file / file_contexts entries do not exist) and -1 on
->> error.
->>>   
->>> And just to clarify the selinux_file_context_cmp
->> function return
->>> values:
->>>   
->>>       Should it return 0 on match (after
->> the 'user:' portion), 1 if
->>> contexts do not match and -1 on error.
->>>   
->>> Thanks
->>> Richard
->>>   
->>
->> Looks like a bug in the man page, combined with
->> inconsistent return
->> values on certain error paths within the code.  It
->> looks like the intent
->> was for selinux_file_context_verify() to return 1 if they
->> match, 0 if
->> they do not match, and -1 on error.  However:
->> a) that isn't what the man page says,
->> b) there is some special case handling of ENOTSUP and
->> ENOENT internally
->> that looks suspect to me, and
->> c) utils/matchpathcon.c doesn't check for < 0
->>
->> selinux_file_context_cmp is a bit simpler - it just follows
->> strcmp
->> conventions, i.e. -1 for "less than", 0 for equal, and 1
->> for "greater
->> than".
->>
->> Dan?
->>
->>
->> -- 
->> Stephen Smalley
->> National Security Agency
->>
->>
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-> 
-Patch looks good to me.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+>  		/* Use the type of the related object. */
+>  		newcontext.type = tcontext->type;
+>  	}
+> @@ -1462,13 +1469,17 @@ static int security_compute_sid(u32 ssid,
+>  	}
+>  
+>  	/* Check for class-specific changes. */
+> -	if  (tclass == policydb.process_class) {
+> +	if ((tclass == policydb.process_class) || (filedir == true)) {
+>  		if (specified & AVTAB_TRANSITION) {
+>  			/* Look for a role transition rule. */
+>  			for (roletr = policydb.role_tr; roletr;
+>  			     roletr = roletr->next) {
+>  				if (roletr->role == scontext->role &&
+> -				    roletr->type == tcontext->type) {
+> +				    roletr->type == tcontext->type &&
+> +				    tclass == policydb.process_class ||
+> +				    roletr->role == tcontext->role &&
+> +				    roletr->type == scontext->type &&
+> +				    filedir == true) {
+>  					/* Use the role transition rule. */
+>  					newcontext.role = roletr->new_role;
+>  					break;
 
-iEYEARECAAYFAk1459kACgkQrlYvE4MpobOTUwCg0GzXn30xUVCTFHxuvBfc1DQF
-qCcAnRN4XC9rljBLw1Rj2yi9oRhiTIfW
-=LMXf
------END PGP SIGNATURE-----
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
