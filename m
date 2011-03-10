@@ -1,80 +1,107 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, cpebenito@tresys.com
 Cc: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] file_type objects retain user role.
-Date: Thu, 10 Mar 2011 14:51:51 +0800
-Message-Id: <1299739911-19352-4-git-send-email-qingtao.cao@windriver.com>
+Subject: [PATCH 2/2] Consider role_transition for newly created files or dirs.
+Date: Thu, 10 Mar 2011 14:51:50 +0800
+Message-Id: <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
 References: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-All newly created objects within the file_type attribute would
-retain the user's role.
+Consider role_transition for newly created files or dirs object, so that
+their role could be overriden by relevant role_transition rule than the
+default "object_r".
+
+In reference policy role_transtion rule could be used for newly created
+files or dirs object as in below example:
+	role_transition object_r $1 $2;
+where "$1" and "$2" are the domain and role of the creator respectively.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- policy/modules/kernel/files.if      |   34 ++++++++++++++++++++++++++++++++++
- policy/modules/system/userdomain.if |    4 ++++
- 2 files changed, 38 insertions(+), 0 deletions(-)
+ security/selinux/ss/policydb.h |    6 +++---
+ security/selinux/ss/services.c |   21 ++++++++++++++++-----
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/policy/modules/kernel/files.if b/policy/modules/kernel/files.if
-index ed203b2..3814e56 100644
---- a/policy/modules/kernel/files.if
-+++ b/policy/modules/kernel/files.if
-@@ -5844,3 +5844,37 @@ interface(`files_unconfined',`
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 4e3ab9d..06cef40 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -71,9 +71,9 @@ struct role_datum {
+ };
  
- 	typeattribute $1 files_unconfined_type;
- ')
-+
-+#######################################
-+## <summary>
-+##	Allow files and dirs created by user
-+##	retain user role.
-+## </summary>
-+## <desc>
-+##	<p>
-+##	Allow files and dirs created by user
-+##	retain user role.
-+##	</p>
-+## </desc>
-+## <param name="role">
-+##	<summary>
-+##	The user role
-+##	</summary>
-+## </param>
-+## <param name="userdomain">
-+##	<summary>
-+##	The user domain
-+##	</summary>
-+## </param>
-+## <rolebase/>
-+#
-+interface(`files_retain_user_role',`
-+	gen_require(`
-+		role object_r;
-+		attribute file_type;
-+	')
-+
-+	role_transition object_r $2 $1;
-+	role $1 types file_type;
-+')
-+
-diff --git a/policy/modules/system/userdomain.if b/policy/modules/system/userdomain.if
-index 28b88de..a087cb1 100644
---- a/policy/modules/system/userdomain.if
-+++ b/policy/modules/system/userdomain.if
-@@ -534,6 +534,10 @@ template(`userdom_common_user_template',`
- 	# Stat lost+found.
- 	files_getattr_lost_found_dirs($1_t)
+ struct role_trans {
+-	u32 role;		/* current role */
+-	u32 type;		/* program executable type */
+-	u32 new_role;		/* new role */
++	u32 role;		/* current role, or the parent dir role */
++	u32 type;		/* program executable type, or creator domain */
++	u32 new_role;		/* new role, or creator role */
+ 	struct role_trans *next;
+ };
  
-+	# All types of file_type attribute retain the user role
-+	# rather than the default object_r.
-+	files_retain_user_role($1_r, $1_t)
-+
- 	fs_rw_cgroup_files($1_t)
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index bddcf30..c9bfa43 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1372,7 +1372,7 @@ static int security_compute_sid(u32 ssid,
+ 	struct avtab_node *node;
+ 	u16 tclass;
+ 	int rc = 0;
+-	bool sock;
++	bool sock, filedir;
  
- 	# cjp: some of this probably can be removed
+ 	if (!ss_initialized) {
+ 		switch (orig_tclass) {
+@@ -1393,9 +1393,11 @@ static int security_compute_sid(u32 ssid,
+ 	if (kern) {
+ 		tclass = unmap_class(orig_tclass);
+ 		sock = security_is_socket_class(orig_tclass);
++		filedir = security_is_filedir_class(orig_tclass);
+ 	} else {
+ 		tclass = orig_tclass;
+ 		sock = security_is_socket_class(map_class(tclass));
++		filedir = security_is_filedir_class(map_class(tclass));
+ 	}
+ 
+ 	scontext = sidtab_search(&sidtab, ssid);
+@@ -1432,8 +1434,13 @@ static int security_compute_sid(u32 ssid,
+ 		newcontext.role = scontext->role;
+ 		newcontext.type = scontext->type;
+ 	} else {
+-		/* Use the well-defined object role. */
+-		newcontext.role = OBJECT_R_VAL;
++		if (filedir == true)
++			/* Inherit the role from the parent dir */
++			newcontext.role = tcontext->role;
++		else
++			/* Use the well-defined object role. */
++			newcontext.role = OBJECT_R_VAL;
++
+ 		/* Use the type of the related object. */
+ 		newcontext.type = tcontext->type;
+ 	}
+@@ -1462,13 +1469,17 @@ static int security_compute_sid(u32 ssid,
+ 	}
+ 
+ 	/* Check for class-specific changes. */
+-	if  (tclass == policydb.process_class) {
++	if ((tclass == policydb.process_class) || (filedir == true)) {
+ 		if (specified & AVTAB_TRANSITION) {
+ 			/* Look for a role transition rule. */
+ 			for (roletr = policydb.role_tr; roletr;
+ 			     roletr = roletr->next) {
+ 				if (roletr->role == scontext->role &&
+-				    roletr->type == tcontext->type) {
++				    roletr->type == tcontext->type &&
++				    tclass == policydb.process_class ||
++				    roletr->role == tcontext->role &&
++				    roletr->type == scontext->type &&
++				    filedir == true) {
+ 					/* Use the role transition rule. */
+ 					newcontext.role = roletr->new_role;
+ 					break;
 -- 
 1.7.0.4
 
