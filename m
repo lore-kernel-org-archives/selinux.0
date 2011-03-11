@@ -1,117 +1,61 @@
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: sds@tycho.nsa.gov, cpebenito@tresys.com
-Cc: selinux@tycho.nsa.gov
-Subject: [v2 PATCH 2/2] role_transition for newly created files or dirs.
-Date: Fri, 11 Mar 2011 15:21:00 +0800
-Message-Id: <1299828060-18411-4-git-send-email-qingtao.cao@windriver.com>
+Subject: Re: [v2] [SELinux] Discussions about rbacsep
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
 In-Reply-To: <1299828060-18411-1-git-send-email-qingtao.cao@windriver.com>
 References: <1299828060-18411-1-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 11 Mar 2011 09:11:08 -0500
+Message-ID: <1299852669.3432.22.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Support role_transition for newly created files or dirs object, so that
-their role could be overriden by relevant role_transition rule than the
-default "object_r".
+On Fri, 2011-03-11 at 15:20 +0800, Harry Ciao wrote:
+> Hi Stephen and Chris,
+> 
+> I have fixed the semantics of the role_transtion rule for the newly created files or dirs objects same as that for the process class. Since class-specific role_transition rules would be handled after TE rules, we could make use of checking if (newcontext.type == roletr->type) and (scontext->role == roletr->role) before setting newcontext.role = roletr->new_role;
+> 
+> Then in the refpolicy we could adopt Stephen's suggestion for the role_transition rule such as:
+> 	role_transition sysadm_r user_home_t sysadm_r;
+> 
+> But I think we could omit class in above rule, since such role_transition semantics only takes place when filedir == true, that is, when the new object is of file or dir class.
 
-In reference policy a role_transtion rule could be used for newly created
-files or dirs object as in below format:
-   role_transition <subject role> <new object type> <new object role>;
-for example,
-   role_transition sysadm_r user_home_t sysadm_r;
-which means if the creator role == sysadm_r and the new object has a
-type == user_home_t, then the new object role would be set to sysadm_r
-as its creator.
+If we omit the class, then the above statement has two possible
+interpretations:
+1) When a process in sysadm_r executes a program labeled user_home_t,
+the process transitions to sysadm_r (no effect in this case, but it
+would have an effect if the new role were something other than the old
+one), or
+2) When a process creates a file in a directory labeled user_home_t,
+then the new file will be labeled with sysadm_r.
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- security/selinux/ss/policydb.h |    2 +-
- security/selinux/ss/services.c |   28 ++++++++++++++++++++--------
- 2 files changed, 21 insertions(+), 9 deletions(-)
+I'm concerned about that ambiguity in the meaning of the rule if we
+don't explicitly specify the class. Also, by not specifying the class,
+you keep us from re-using this mechanism for other object classes in a
+general manner.
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 4e3ab9d..ca223c7 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -72,7 +72,7 @@ struct role_datum {
- 
- struct role_trans {
- 	u32 role;		/* current role */
--	u32 type;		/* program executable type */
-+	u32 type;		/* program executable type, or new object type */
- 	u32 new_role;		/* new role */
- 	struct role_trans *next;
- };
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index bddcf30..e1707af 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1370,9 +1370,9 @@ static int security_compute_sid(u32 ssid,
- 	struct avtab_key avkey;
- 	struct avtab_datum *avdatum;
- 	struct avtab_node *node;
--	u16 tclass;
-+	u16 tclass, class_kern_val;
- 	int rc = 0;
--	bool sock;
-+	bool sock, filedir;
- 
- 	if (!ss_initialized) {
- 		switch (orig_tclass) {
-@@ -1392,11 +1392,14 @@ static int security_compute_sid(u32 ssid,
- 
- 	if (kern) {
- 		tclass = unmap_class(orig_tclass);
--		sock = security_is_socket_class(orig_tclass);
-+		class_kern_val = orig_tclass;
- 	} else {
- 		tclass = orig_tclass;
--		sock = security_is_socket_class(map_class(tclass));
-+		class_kern_val = map_class(tclass);
- 	}
-+	
-+	sock = security_is_socket_class(class_kern_val);
-+	filedir = security_is_filedir_class(class_kern_val);
- 
- 	scontext = sidtab_search(&sidtab, ssid);
- 	if (!scontext) {
-@@ -1432,8 +1435,13 @@ static int security_compute_sid(u32 ssid,
- 		newcontext.role = scontext->role;
- 		newcontext.type = scontext->type;
- 	} else {
--		/* Use the well-defined object role. */
--		newcontext.role = OBJECT_R_VAL;
-+		if (filedir == true)
-+			/* Inherit the role from the parent dir */
-+			newcontext.role = tcontext->role;
-+		else
-+			/* Use the well-defined object role. */
-+			newcontext.role = OBJECT_R_VAL;
-+
- 		/* Use the type of the related object. */
- 		newcontext.type = tcontext->type;
- 	}
-@@ -1462,13 +1470,17 @@ static int security_compute_sid(u32 ssid,
- 	}
- 
- 	/* Check for class-specific changes. */
--	if  (tclass == policydb.process_class) {
-+	if ((tclass == policydb.process_class) || (filedir == true)) {
- 		if (specified & AVTAB_TRANSITION) {
- 			/* Look for a role transition rule. */
- 			for (roletr = policydb.role_tr; roletr;
- 			     roletr = roletr->next) {
- 				if (roletr->role == scontext->role &&
--				    roletr->type == tcontext->type) {
-+				    roletr->type == tcontext->type &&
-+				    tclass == policydb.process_class ||
-+				    roletr->role == scontext->role &&
-+				    roletr->type == newcontext.type &&
-+				    filedir == true) {
- 					/* Use the role transition rule. */
- 					newcontext.role = roletr->new_role;
- 					break;
+I don't think that it would be too hard to add an optional class field
+to the role_transition statements; you can follow the model of what we
+did for range_transitions when we added the class field to it.  That
+does require a policy version bump and an updated checkpolicy/libsepol.
+
+What would also be desirable would be a new policy construct that would
+allow us to specify the default labeling behavior for each component of
+the security context on a per-class basis, e.g.
+	role_default file fromtarget;
+	role_default process fromsource;
+	user_default socket fromsource;
+	...
+
+That would eliminate the need for the security_is_*_class functions and
+the special handling in the kernel for particular classes, and migrate
+all of this logic into the policy.  That however may be more than you
+are willing to take on at the present time.
+
 -- 
-1.7.0.4
+Stephen Smalley
+National Security Agency
 
 
 --
