@@ -1,86 +1,67 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2B6Yod3025724
-	for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2011 01:34:50 -0500
-Received: from snt0-omc1-s41.snt0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2B6YnYx018331
-	for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2011 06:34:49 GMT
-Message-ID: <SNT139-w62326B9D06022CD1C0302ABCB0@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_a28fcc0e-898e-43dd-b7c7-5d89258bc35a_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <russell@coker.com.au>
-CC: selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: RE: [v2 PATCH 0/3] SELinux: separate socket type than its creator
-Date: Fri, 11 Mar 2011 06:34:48 +0000
-In-Reply-To: <a0516b20-8dcd-4dd5-9f19-7207888e0575@email.android.com>
-References: <1299044768-22058-1-git-send-email-qingtao.cao@windriver.com>
- <SNT139-w538F8D8118C077D8E94F34ABC00@phx.gbl>,<18621088-2ec8-4092-ab48-427393598479@email.android.com>
- <SNT139-W22B6E0E79E71EE3A16A471ABCB0@phx.gbl>,<a0516b20-8dcd-4dd5-9f19-7207888e0575@email.android.com>
-MIME-Version: 1.0
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: sds@tycho.nsa.gov, cpebenito@tresys.com
+Cc: selinux@tycho.nsa.gov
+Subject: [v2] [SELinux] Discussions about rbacsep
+Date: Fri, 11 Mar 2011 15:20:57 +0800
+Message-Id: <1299828060-18411-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_a28fcc0e-898e-43dd-b7c7-5d89258bc35a_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
 
+Hi Stephen and Chris,
 
-Hi Russell,
+I have fixed the semantics of the role_transtion rule for the newly created files or dirs objects same as that for the process class. Since class-specific role_transition rules would be handled after TE rules, we could make use of checking if (newcontext.type == roletr->type) and (scontext->role == roletr->role) before setting newcontext.role = roletr->new_role;
 
-> Subject: RE: [v2 PATCH 0/3] SELinux: separate socket type than its creator
-> From: russell@coker.com.au
-> Date: Fri, 11 Mar 2011 15:10:32 +1100
-> To: harrytaurus2002@hotmail.com
-> CC: selinux@tycho.nsa.gov
-> 
-> The constraints for MLS can have rules excluding specified types or attributes.  We could have an attribute for domins whos unix sockets should be excluded from MLS. 
+Then in the refpolicy we could adopt Stephen's suggestion for the role_transition rule such as:
+	role_transition sysadm_r user_home_t sysadm_r;
 
-Well, I think the current mlstrustedobject attribute serves nothing but this purpose, does it :-)
+But I think we could omit class in above rule, since such role_transition semantics only takes place when filedir == true, that is, when the new object is of file or dir class.
 
-> It seems to me that the only real benefit to allowing a Unix socket to have a different type to the domain that created it is for a domain that creates multiple sockets with different types.
-> 
-> Maybe this would be good for systemd.
+The test results seem promising:
 
-Yes, you are right on this point, socket labeling could allow sockets of different classes created by the same one domain have different types if that is desirable, which is a desirable flexibility I think.
+   [root/sysadm_r/s0@~]# seclow "sesearch -SC --role_trans -t user_home_t"
+   Password: 
+   Found 8 role_transition rules:
+      role_transition auditadm_r user_home_t auditadm_r;
+      role_transition guest_r user_home_t guest_r;
+      role_transition secadm_r user_home_t secadm_r;
+      role_transition staff_r user_home_t staff_r;
+      role_transition sysadm_r user_home_t sysadm_r;
+      role_transition unconfined_r user_home_t unconfined_r;
+      role_transition user_r user_home_t user_r;
+      role_transition xguest_r user_home_t xguest_r;
+   
+   [root/sysadm_r/s0@~]# 
 
-Thanks for your comments!
+   [root/sysadm_r/s0@~]# id -Z
+   root:sysadm_r:sysadm_t:s0-s15:c0.c1023
+   [root/sysadm_r/s0@~]# ls -Zd
+   dr-xr-x---  root root root:object_r:user_home_dir_t:s0-s15:c0.c1023 .
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 file
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 dir 
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 lnk_file
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]#
+   
+   [root/sysadm_r/s0@~]# mkdir dir 
+   [root/sysadm_r/s0@~]# touch file
+   [root/sysadm_r/s0@~]# ln -s file lnk_file
+   [root/sysadm_r/s0@~]# ls -Z
+   drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+   -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+   lrwxrwxrwx  root root root:sysadm_r:user_home_t:s0     lnk_file -> file
+   [root/sysadm_r/s0@~]# 
+   
+
+Looking forward to your comments on my previous questions about rbacsep.
+
+Thanks a lot!
 
 Best regards,
 Harry
 
-
-> -- 
-> My blog    http://etbe.coker.com.au
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
- 		 	   		  
---_a28fcc0e-898e-43dd-b7c7-5d89258bc35a_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'>
-Hi Russell,<br><br>&gt; Subject: RE: [v2 PATCH 0/3] SELinux: separate socket type than its creator<br>&gt; From: russell@coker.com.au<br>&gt; Date: Fri, 11 Mar 2011 15:10:32 +1100<br>&gt; To: harrytaurus2002@hotmail.com<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; <br>&gt; The constraints for MLS can have rules excluding specified types or attributes.  We could have an attribute for domins whos unix sockets should be excluded from MLS. <br><br>Well, I think the current mlstrustedobject attribute serves nothing but this purpose, does it :-)<br><br>&gt; It seems to me that the only real benefit to allowing a Unix socket to have a different type to the domain that created it is for a domain that creates multiple sockets with different types.<br>&gt; <br>&gt; Maybe this would be good for systemd.<br><br>Yes, you are right on this point, socket labeling could allow sockets of different classes created by the same one domain have different types if that is desirable, which is a desir!
- able flexibility I think.<br><br>Thanks for your comments!<br><br>Best regards,<br>Harry<br><br><br>&gt; -- <br>&gt; My blog    http://etbe.coker.com.au<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
-</html>
---_a28fcc0e-898e-43dd-b7c7-5d89258bc35a_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
