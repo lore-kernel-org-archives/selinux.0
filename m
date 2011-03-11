@@ -1,133 +1,75 @@
-Subject: Re: [PATCH 2/2] Consider role_transition for newly created files
- or dirs.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Harry Ciao <qingtao.cao@windriver.com>
-Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
-References: <1299739911-19352-1-git-send-email-qingtao.cao@windriver.com>
-	 <1299739911-19352-3-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 10 Mar 2011 15:00:05 -0500
-Message-ID: <1299787205.15531.13.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <SNT139-W22B6E0E79E71EE3A16A471ABCB0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_a1d22ff0-49a8-44af-b7f0-30ebaaa35b43_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <russell@coker.com.au>, <qingtao.cao@windriver.com>,
+        Stephen Smalley
+	<sds@tycho.nsa.gov>, <jmorris@namei.org>,
+        <eparis@parisplace.org>
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: RE: [v2 PATCH 0/3] SELinux: separate socket type than its creator
+Date: Fri, 11 Mar 2011 03:16:04 +0000
+In-Reply-To: <18621088-2ec8-4092-ab48-427393598479@email.android.com>
+References: <1299044768-22058-1-git-send-email-qingtao.cao@windriver.com>
+ <SNT139-w538F8D8118C077D8E94F34ABC00@phx.gbl>,<18621088-2ec8-4092-ab48-427393598479@email.android.com>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-03-10 at 14:51 +0800, Harry Ciao wrote:
-> Consider role_transition for newly created files or dirs object, so that
-> their role could be overriden by relevant role_transition rule than the
-> default "object_r".
+--_a1d22ff0-49a8-44af-b7f0-30ebaaa35b43_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+
+Hi Russell,
+
+I have not got your idea. We could have an attribute for all unix_stream_socket types, but all types in this attribute would still be the domain type too. What I have been trying to do with these patches it have a chance to make socket object have a different type than its creator.
+
+Could you kindly further elaborate a bit more about your intention for such attribute?
+
+Thanks,
+Harry
+
+
+> Subject: Re: [v2 PATCH 0/3] SELinux: separate socket type than its creator
+> From: russell@coker.com.au
+> Date: Wed, 9 Mar 2011 19:30:57 +1100
+> To: harrytaurus2002@hotmail.com; qingtao.cao@windriver.com; sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org
+> CC: selinux@tycho.nsa.gov
 > 
-> In reference policy role_transtion rule could be used for newly created
-> files or dirs object as in below example:
-> 	role_transition object_r $1 $2;
-> where "$1" and "$2" are the domain and role of the creator respectively.
-
-Hmm...that seems a little confusing. When we added support for range
-transitions for objects, we just extended the syntax to support an
-optional :class field and otherwise kept things consistent, e.g.
-range_transition <subject-type> <object-type> : <object-class> <range>;
-and then we converted any rules that omitted the :class into using the
-process class by default.  But we didn't change the meaning of the
-existing fields.  So, for example, I would have expected your role
-transition statements to be of the form:
-role_transition <subject-role> <file-type>:<class> <object-role>;
-e.g.
-role_transition sysadm_r user_home_dir_t:file sysadm_r;
-meaning
-"When a process in sysadm_r creates a file in a directory labeled
-user_home_dir_t, label the new file with the role sysadm_r."
-
+> Why not have a separate attribute for unix domain sockets?
+> -- 
+> My blog    http://etbe.coker.com.au
 > 
-> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
-> ---
->  security/selinux/ss/policydb.h |    6 +++---
->  security/selinux/ss/services.c |   21 ++++++++++++++++-----
->  2 files changed, 19 insertions(+), 8 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> index 4e3ab9d..06cef40 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -71,9 +71,9 @@ struct role_datum {
->  };
->  
->  struct role_trans {
-> -	u32 role;		/* current role */
-> -	u32 type;		/* program executable type */
-> -	u32 new_role;		/* new role */
-> +	u32 role;		/* current role, or the parent dir role */
-> +	u32 type;		/* program executable type, or creator domain */
-> +	u32 new_role;		/* new role, or creator role */
->  	struct role_trans *next;
->  };
->  
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index bddcf30..c9bfa43 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1372,7 +1372,7 @@ static int security_compute_sid(u32 ssid,
->  	struct avtab_node *node;
->  	u16 tclass;
->  	int rc = 0;
-> -	bool sock;
-> +	bool sock, filedir;
->  
->  	if (!ss_initialized) {
->  		switch (orig_tclass) {
-> @@ -1393,9 +1393,11 @@ static int security_compute_sid(u32 ssid,
->  	if (kern) {
->  		tclass = unmap_class(orig_tclass);
->  		sock = security_is_socket_class(orig_tclass);
-> +		filedir = security_is_filedir_class(orig_tclass);
->  	} else {
->  		tclass = orig_tclass;
->  		sock = security_is_socket_class(map_class(tclass));
-> +		filedir = security_is_filedir_class(map_class(tclass));
->  	}
->  
->  	scontext = sidtab_search(&sidtab, ssid);
-> @@ -1432,8 +1434,13 @@ static int security_compute_sid(u32 ssid,
->  		newcontext.role = scontext->role;
->  		newcontext.type = scontext->type;
->  	} else {
-> -		/* Use the well-defined object role. */
-> -		newcontext.role = OBJECT_R_VAL;
-> +		if (filedir == true)
-> +			/* Inherit the role from the parent dir */
-> +			newcontext.role = tcontext->role;
-> +		else
-> +			/* Use the well-defined object role. */
-> +			newcontext.role = OBJECT_R_VAL;
-> +
->  		/* Use the type of the related object. */
->  		newcontext.type = tcontext->type;
->  	}
-> @@ -1462,13 +1469,17 @@ static int security_compute_sid(u32 ssid,
->  	}
->  
->  	/* Check for class-specific changes. */
-> -	if  (tclass == policydb.process_class) {
-> +	if ((tclass == policydb.process_class) || (filedir == true)) {
->  		if (specified & AVTAB_TRANSITION) {
->  			/* Look for a role transition rule. */
->  			for (roletr = policydb.role_tr; roletr;
->  			     roletr = roletr->next) {
->  				if (roletr->role == scontext->role &&
-> -				    roletr->type == tcontext->type) {
-> +				    roletr->type == tcontext->type &&
-> +				    tclass == policydb.process_class ||
-> +				    roletr->role == tcontext->role &&
-> +				    roletr->type == scontext->type &&
-> +				    filedir == true) {
->  					/* Use the role transition rule. */
->  					newcontext.role = roletr->new_role;
->  					break;
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_a1d22ff0-49a8-44af-b7f0-30ebaaa35b43_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
--- 
-Stephen Smalley
-National Security Agency
-
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi Russell,<br><br>I have not got your idea. We could have an attribute for all unix_stream_socket types, but all types in this attribute would still be the domain type too. What I have been trying to do with these patches it have a chance to make socket object have a different type than its creator.<br><br>Could you kindly further elaborate a bit more about your intention for such attribute?<br><br>Thanks,<br>Harry<br><br><br>&gt; Subject: Re: [v2 PATCH 0/3] SELinux: separate socket type than its creator<br>&gt; From: russell@coker.com.au<br>&gt; Date: Wed, 9 Mar 2011 19:30:57 +1100<br>&gt; To: harrytaurus2002@hotmail.com; qingtao.cao@windriver.com; sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; <br>&gt; Why not have a separate attribute for unix domain sockets?<br>&gt; -- <br>&gt; My blog    http://etbe.coker.com.au<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>!
+ &gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+</html>
+--_a1d22ff0-49a8-44af-b7f0-30ebaaa35b43_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
