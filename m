@@ -1,59 +1,48 @@
-Message-ID: <4D7EA42A.2030802@windriver.com>
-Date: Mon, 14 Mar 2011 19:26:34 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2ENWjEv005863
+	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2011 19:32:45 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p2ENWi5a023365
+	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2011 23:32:44 GMT
 From: Paul Gortmaker <paul.gortmaker@windriver.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Stephen Lawrence <slawrence@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: libselinux version bump past 99
-References: <4D76AD1C.8080901@tycho.nsa.gov>
-In-Reply-To: <4D76AD1C.8080901@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+To: jmorris@namei.org
+Cc: eparis@redhat.com, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH] selinux: select correct default LSM_MMAP_MIN_ADDR on ARM.
+Date: Mon, 14 Mar 2011 19:32:21 -0400
+Message-Id: <1300145541-30742-1-git-send-email-paul.gortmaker@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11-03-08 05:26 PM, Eamon Walsh wrote:
-> Libselinux has reached version 2.0.99 and I need to push a bug fix, just checking to make sure 2.0.100 is fine and won't cause any problems e.g. with upgrades.
->
->
+The default for this is universally set to 64k, but the help says:
 
-On a related note, is there a reason why the shared objects don't
-track a similar versioning number?    We came across a situation
-where an internal update added a new dir for libs.   But note the
-shared objects are hard coded to version 1,  and the old selinux
-libs just happened to be found 1st.   Which leads to a cryptic
-internal selinux error message like this:
+   For most ia64, ppc64 and x86 users with lots of address space
+   a value of 65536 is reasonable and should cause no problems.
+   On arm and other archs it should not be higher than 32768.
 
-"libsepol.policydb_read: policydb module version 10 does not
-match my version range 4-8"
+The text is right, in that we are seeing selinux-enabled ARM targets
+that fail to launch /sbin/init because selinux blocks a memory map.
+So select the right value if we know we are building ARM.
 
-Granted, this may not be a common problem, but the solution that
-came to me was to simply let the normal ld.so dynamic library
-versioning do its job in determining which bins need which libs;
-something that it is remarkably good at.  :)
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ security/Kconfig |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-To that end, a trivial patch like the below, applied to the two main
-libraries seems to fix things up. If this seems OK, then I can send
-proper patches with a Signed-off-by, but I guess that would leave
-you folks stuck with the question of when to make the switchover...
-
-Thanks,
-Paul.
-
--------------------
-
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -15,7 +15,7 @@ RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/
- LIBBASE=$(shell basename $(LIBDIR))
- 
- VERSION = $(shell cat ../VERSION)
--LIBVERSION = 1
-+LIBVERSION = $(VERSION)
- 
- LIBA=libselinux.a
- TARGET=libselinux.so
+diff --git a/security/Kconfig b/security/Kconfig
+index 95accd4..e0f08b5 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -167,6 +167,7 @@ config INTEL_TXT
+ config LSM_MMAP_MIN_ADDR
+ 	int "Low address space for LSM to protect from user allocation"
+ 	depends on SECURITY && SECURITY_SELINUX
++	default 32768 if ARM
+ 	default 65536
+ 	help
+ 	  This is the portion of low virtual memory which should be protected
+-- 
+1.7.3.3
 
 
 --
