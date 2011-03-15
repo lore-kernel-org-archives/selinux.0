@@ -1,49 +1,77 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2ENWjEv005863
-	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2011 19:32:45 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p2ENWi5a023365
-	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2011 23:32:44 GMT
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-To: jmorris@namei.org
-Cc: eparis@redhat.com, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH] selinux: select correct default LSM_MMAP_MIN_ADDR on ARM.
-Date: Mon, 14 Mar 2011 19:32:21 -0400
-Message-Id: <1300145541-30742-1-git-send-email-paul.gortmaker@windriver.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2F1hk2e010652
+	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2011 21:43:47 -0400
+Received: from countercultured.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p2F1hk0x011451
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2011 01:43:46 GMT
+Message-ID: <4D7EC446.20102@davequigley.com>
+Date: Mon, 14 Mar 2011 21:43:34 -0400
+From: Dave Quigley <dpquigl@davequigley.com>
+MIME-Version: 1.0
+To: Dominick Grift <domg472@gmail.com>
+CC: selinux@tycho.nsa.gov, sbrandmair@gmx.net
+Subject: Re: [SELinux] Wildcard for object classes?
+References: <ii11vf$vns$02$1@news.t-online.com> <201103061032.21143.russell@coker.com.au> <4D73D2B4.8070401@gmail.com>
+In-Reply-To: <4D73D2B4.8070401@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The default for this is universally set to 64k, but the help says:
+On 3/6/2011 1:30 PM, Dominick Grift wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On 03/06/2011 12:32 AM, Russell Coker wrote:
+>> On Sat, 29 Jan 2011, Simon Brandmair<sbrandmair@gmx.net>  wrote:
+>>> I just started looking into SELinux. I am wondering if there is a way to
+>>> have wildcards in avc rules like:
+>>> auditallow source_t target_t : * * ;
+>>> which audits all access from source_t to target_t.
+>>>
+>>> Or do I have to add all classes objects to the rule like:
+>>> auditallow source_t target_t : {appletalk_socket, association,
+>>> blk_file ... } * ;
+>> No, there isn't such a wildcard at this time (AFAIK).  It might be worth
+>> adding one so I've moved this discussion to the SE Linux upstream mailing list
+>> (please don't CC debian-security on future replies).
+>>
+> Not possible and as far as i know neither is your second suggestion.
+> This is because not all permissions can be used with all object classes.
+>
+> You would add a rule for each object class type (or set of object
+> classes that share the same permissions):
+>
+> auditallow source target:notdevfile_class_set *;
+> auditallow source target:devfile_class_set *;
+> auditallow source target:socket_class_set *;
+> auditallow source target:file_class_set *;
+>
+> etc, etc.
+>
+> I am not sure if auditallow is the right way to do this. Maybe the audit
+> suite has better options for your requirements.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v2.0.16 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+>
+> iEYEARECAAYFAk1z0rMACgkQMlxVo39jgT/t6gCg1T3AquC6RVeUpY2KEnQMdZT1
+> AowAoJgPYENYYXvTmRJVhtqSXpxKwFbv
+> =zUKb
+> -----END PGP SIGNATURE-----
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+You could start with the policy made with mp (Make Dummy Policy) since 
+that has rules for one type on all object classes to allow all 
+permissions. Then from there you could turn that into an interface 
+instead so it would expand to that entire rule set. The only downside is 
+if a new object class is added you'll have to modify the new interface 
+to include that one as well.
 
-   For most ia64, ppc64 and x86 users with lots of address space
-   a value of 65536 is reasonable and should cause no problems.
-   On arm and other archs it should not be higher than 32768.
-
-The text is right, in that we are seeing selinux-enabled ARM targets
-that fail to launch /sbin/init because selinux blocks a memory map.
-So select the right value if we know we are building ARM.
-
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
- security/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/security/Kconfig b/security/Kconfig
-index 95accd4..e0f08b5 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -167,6 +167,7 @@ config INTEL_TXT
- config LSM_MMAP_MIN_ADDR
- 	int "Low address space for LSM to protect from user allocation"
- 	depends on SECURITY && SECURITY_SELINUX
-+	default 32768 if ARM
- 	default 65536
- 	help
- 	  This is the portion of low virtual memory which should be protected
--- 
-1.7.3.3
-
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
