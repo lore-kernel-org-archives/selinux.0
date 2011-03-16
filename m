@@ -1,71 +1,68 @@
-Message-ID: <4D80FA97.7090108@windriver.com>
-Date: Wed, 16 Mar 2011 13:59:51 -0400
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2GKX150016256
+	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 16:33:01 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2GKX0Sj012044
+	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 20:33:00 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p2GKWxmW029162
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 16:32:59 -0400
+Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
+	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p2GKWwk6027075
+	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 16:32:59 -0400
+Message-ID: <4D811E7A.6060902@redhat.com>
+Date: Wed, 16 Mar 2011 16:32:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        Stephen Lawrence <slawrence@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: libselinux version bump past 99
-References: <4D76AD1C.8080901@tycho.nsa.gov>	 <4D7EA42A.2030802@windriver.com> <1300191052.17384.3.camel@moss-pluto>	 <4D80DF76.7060802@windriver.com> <1300291636.30823.1.camel@moss-pluto>
-In-Reply-To: <1300291636.30823.1.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: I have been asked for a use case that says I want to allow X domain
+ to only be able to use eth1.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11-03-16 12:07 PM, Stephen Smalley wrote:
-> On Wed, 2011-03-16 at 12:04 -0400, Paul Gortmaker wrote:
->> On 11-03-15 08:10 AM, Stephen Smalley wrote:
->>> On Mon, 2011-03-14 at 19:26 -0400, Paul Gortmaker wrote:
->>>> On 11-03-08 05:26 PM, Eamon Walsh wrote:
->>>>> Libselinux has reached version 2.0.99 and I need to push a bug fix, just checking to make sure 2.0.100 is fine and won't cause any problems e.g. with upgrades.
->>>>>
->>>>>
->>>> On a related note, is there a reason why the shared objects don't
->>>> track a similar versioning number?    We came across a situation
->>>> where an internal update added a new dir for libs.   But note the
->>>> shared objects are hard coded to version 1,  and the old selinux
->>>> libs just happened to be found 1st.   Which leads to a cryptic
->>>> internal selinux error message like this:
->>>>
->>>> "libsepol.policydb_read: policydb module version 10 does not
->>>> match my version range 4-8"
->>>>
->>>> Granted, this may not be a common problem, but the solution that
->>>> came to me was to simply let the normal ld.so dynamic library
->>>> versioning do its job in determining which bins need which libs;
->>>> something that it is remarkably good at.  :)
->>> As I understand it, the .so version should only be changed upon an
->>> incompatible ABI change, not upon implementation changes or compatible
->> Sure, and the above error message clearly indicates that
->> this has not been done in the past.   So as I'd hinted at,
->> the question then becomes when to start implementing
->> it, if people agree it makes sense to do what every other
->> library does.
->>
->> The simplest answer seems to be to align it upon the
->> next incompatible ABI change you have queued up.
->> Leaving it hard coded at 1 forever just seems misleading,
->> and causes errors like the one I showed above.
-> That's not an ABI change.  The application interface to libsepol did not
-> change.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Well you folks are the maintainers in the end and it is your call.
+For example if you wanted to allow httpd_t to only use eth1, you have a
+problem.  You need to label all of the devices on your system as
+something other then netif_t. And then add a rule like
 
-As an end user, the above message didn't really hit home with
-me what the underlying issue was, and when I got rid of the
-stale libraries, the incompatibility issue was gone.   Whether
-it is an ABI change or any other kind of incompatibility is just
-going to seem like splitting hairs to the person who can't make
-their system work.
+semanage interface -a -t public_t eth0
+semanage interface -a -t private_t eth1
 
-I hope you are open to taking advantage of the library version
-number in the future, when the opportunity arises.
+allow { domain -httpd_t } public_t:netif *;
+allow httpd_t private_t:netif *;
 
-Thanks,
-Paul.
+If you wanted all other processes to also use eth0, you would add
+allow domain private_t:netif *;
 
+Now ignoring the fact that I used domain instead of some attribute to
+indicate all domains that use the network.
 
+Even if I did the code above, if a new interface showed up later httpd_t
+would be allowed to use it since it can use netif_t, which is the
+default for all interfaces.
+
+The problem is I can not change the default.
+
+semanage interface -a -t public_t *
+
+For example would not work, I don't think.
+
+I guess I can do something hackly like I am with unlabelednet.pp and
+just put all of the netif rules into a module that I can disable, but I
+wanted to know if anyone has a better way.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk2BHnoACgkQrlYvE4MpobP3TwCdHqFajpxDmoGlf7IsjvZdESsj
+aywAoKLuY8SfVBCM7g2SV5gS1Y97rtUy
+=5R0X
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
