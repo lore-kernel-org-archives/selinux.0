@@ -1,89 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2GLGhn9019104
-	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 17:16:43 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2GLGgSj019815
-	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 21:16:42 GMT
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p2GLGf56017760
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 17:16:42 -0400
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p2GLGffP006781
-	for <selinux@tycho.nsa.gov>; Wed, 16 Mar 2011 17:16:41 -0400
-Message-ID: <4D8128B9.7040907@redhat.com>
-Date: Wed, 16 Mar 2011 17:16:41 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2HNOSHe007480
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2011 19:24:31 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2HNOP7l021916
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2011 23:24:27 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 194AD18092
+	for <selinux@tycho.nsa.gov>; Fri, 18 Mar 2011 10:23:43 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: SE Linux use - was: Question: and the policy grows...
+Date: Fri, 18 Mar 2011 10:24:17 +1100
+References: <1300369855.30425.14.camel@tesla.lan> <4D823A60.9020107@redhat.com> <1300390804.31755.6.camel@tesla.lan>
+In-Reply-To: <1300390804.31755.6.camel@tesla.lan>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: I have been asked for a use case that says I want to allow X
- domain to only be able to use eth1.
-References: <4D811E7A.6060902@redhat.com>
-In-Reply-To: <4D811E7A.6060902@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201103181024.18303.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 18 Mar 2011, Guido Trentalancia <guido@trentalancia.com> wrote:
+> There is at least the limit of not having many people on this list
+> compared to most other Linux projects. Perhaps security is considered
+> something boring to the average user/developer. Or even more likely
+> SELinux is still perceived as "difficult to get into" (a documentation
+> issue).
 
-On 03/16/2011 04:32 PM, Daniel J Walsh wrote:
-> For example if you wanted to allow httpd_t to only use eth1, you have a
-> problem.  You need to label all of the devices on your system as
-> something other then netif_t. And then add a rule like
-> 
-> semanage interface -a -t public_t eth0
-> semanage interface -a -t private_t eth1
-> 
-> allow { domain -httpd_t } public_t:netif *;
-> allow httpd_t private_t:netif *;
-> 
-> If you wanted all other processes to also use eth0, you would add
-> allow domain private_t:netif *;
-> 
-> Now ignoring the fact that I used domain instead of some attribute to
-> indicate all domains that use the network.
-> 
-> Even if I did the code above, if a new interface showed up later httpd_t
-> would be allowed to use it since it can use netif_t, which is the
-> default for all interfaces.
-> 
-> The problem is I can not change the default.
-> 
-> semanage interface -a -t public_t *
-> 
-> For example would not work, I don't think.
-> 
-> I guess I can do something hackly like I am with unlabelednet.pp and
-> just put all of the netif rules into a module that I can disable, but I
-> wanted to know if anyone has a better way.
-> 
+NSA people:  How many subscribers are there to this list outside .gov?
 
-- --
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+Tresys people:  How many subscribers to the refpolicy list are outside .gov?
 
+Does anyone know of a good study about the size of typical Linux projects?  
+I'm willing to bet that SE Linux has more active developers and more members 
+on the main mailing list than most Linux projects.
 
+On Fri, 18 Mar 2011, Sven Vermeulen <sven.vermeulen@siphos.be> wrote:
+> It is a good thing that RedHat and other (commercial) distributions are
+> (starting to) offer SELinux-enabled systems by default. By integrating it
+> immediately (and not offering it as an "additional" option) they somewhat
+> force organizations to at least understand what it does or is supposed to
+> do. By having the non-commercial distributions focus on SELinux more and
+> more, this will also create awareness in the community.
 
-I guess for this to work, best I will need to deal with the node instead
-of the interface.  As long as there is an IP associated with the node, I
-can put a label out like
+Red Hat has been doing it for a long time, since RHEL4 (they are at RHEL6 
+now).
 
-semanage node -a -t public_node_t 0.0.0.0/0
-semanane node -a -t private_node_t 1.2.3.4/32
+Making it a default feature means that if a server is cracked and it turns out 
+to have had SE Linux disabled then the sysadmin will have to explain why they 
+turned off default security features thus making it easier for the attacker.  
+That wouldn't be a desirable situation for a sysadmin to be in.
 
-allow { domain -httpd_t } public_node_t:socket_class_set node_bind;
-allow { httpd_t } private_node_t:tcp_socket node_bind;
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+http://oss.tresys.com/pipermail/refpolicy/2011-March/004129.html
 
-iEYEARECAAYFAk2BKLkACgkQrlYvE4MpobPdOQCfYCxU0UtzJ71gv1Sl+VNK7uMc
-ghYAoI313GNc2oV2XjxNDIbaTEzJSOSl
-=gd6B
------END PGP SIGNATURE-----
+Mark Montague's message archived at the above URL is worth bookmarking as a 
+list of issues to work on.
+
+On Fri, 18 Mar 2011, Mark Montague <mark@catseye.org> wrote:
+> research University), all of the system administrators I have met 
+> disable SELinux as the very first thing they do after installing the 
+> OS.  Most of them disable SELinux without having any real understanding 
+> of what it does, and the reason they give, when asked, is because they 
+> want everything to "just work".  When an AVC denial occurs, they don't 
+> even want to know what it means or why it occurs, the just know that 
+> "the AVC denial breaks their service" and disabling SELinux "fixes their 
+> service".
+
+There are a lot of people who do the same with UID and GID, they just run 
+everything as root.  Nearly as bad are the people who run everything as user 
+"nobody", so "nobody" becomes everybody which dramatically weakens security.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
