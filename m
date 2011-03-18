@@ -1,26 +1,65 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Guido Trentalancia <guido@trentalancia.com>
 Subject: Re: SE Linux use - was: Question: and the policy grows...
-Date: Sat, 19 Mar 2011 10:40:25 +1100
+Date: Sat, 19 Mar 2011 10:52:03 +1100
 Cc: jwcart2@tycho.nsa.gov, "SE-Linux" <selinux@tycho.nsa.gov>
-References: <1300369855.30425.14.camel@tesla.lan> <201103190133.46695.russell@coker.com.au> <4D8372F6.6060100@tresys.com>
-In-Reply-To: <4D8372F6.6060100@tresys.com>
+References: <1300369855.30425.14.camel@tesla.lan> <201103190133.46695.russell@coker.com.au> <1300463112.17276.16.camel@tesla.lan>
+In-Reply-To: <1300463112.17276.16.camel@tesla.lan>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201103191040.26281.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <201103191052.04191.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 19 Mar 2011, "Christopher J. PeBenito" <cpebenito@tresys.com> wrote:
-> My assumption is that most people don't care about all of the policy
-> maintenance minutiae and don't want to be flooded with the patch emails.
->  But on the main list you can find out about the development direction
-> and functionality changes; IMO thats why only ~3% of the subscribers
-> constitute the majority of the list traffic.
+On Sat, 19 Mar 2011, Guido Trentalancia <guido@trentalancia.com> wrote:
+> I do not agree with you. MAC policy development requires knowledge of
+> the whole underlying OS including very silly details about location of
+> files (and including very silly details such as tiny differences in
+> different distributions).
 
-Maybe we need a separate announcement mailing list for the 97%.
+Most of the policy is developed by people who don't have a good knowledge of 
+other distributions.  They develop for the distribution they support and let 
+other people support their own distributions.
+
+Knowing how the entire OS works is necessary for the people who architect the 
+policy, that is pretty much only Tresys and NSA employees at the moment.
+
+Writing policy to suit an uncommon configuration of an application is usually 
+a matter of just relabeling files and putting the output of audit2allow into a 
+.te file, it's not particularly difficult.
+
+> Developing SELinux userspace mostly requires
+> knowledge of libc, libselinux and friends (which have extensive
+> documentation as info and man pages as opposed to very short embedded
+> comments for interfaces in the .if files). Developing SELinux kernel is
+> probably something in between the two things when it comes to
+> difficulty, at least in my perception.
+
+Developing kernel code requires long build times and it's hard to debug (Linus 
+has long been resistant to kernel debuggers).  Bugs in kernel code often crash 
+the system which makes it difficult to diagnose them and may require some 
+effort to get the system working again.
+
+Developing library code isn't so simple either, a bug in libselinux or 
+libsepol could make init fail which would also be more challenging than the 
+usual debugging session.
+
+A policy error that makes the system unbootable can be resolved by booting 
+with enforcing=0 and then reading audit messages.
+
+Also when doing user-space development you have to deal with the different 
+programming styles of all the different applications and lots of shared object 
+issues.  Debugging pam modules is one thing that's really not fun, setuid 
+programs can't be ptraced and the pam interface isn't the easiest thing to 
+work with.
+
+> Writing C code is easier at least for me. And testing C code is easier
+> at least for me. For example the C compiler gives much more meaningful
+> warnings and messages. And you've got the debugger as well !
+
+Nowadays most sysadmins aren't C coders.
 
 -- 
 My Main Blog         http://etbe.coker.com.au/
