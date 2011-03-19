@@ -1,114 +1,177 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2JFTav2018543
-	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 11:29:41 -0400
-Received: from nm1-vm0.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p2JFTZ1l023816
-	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 15:29:35 GMT
-Message-ID: <101131.45317.qm@web87012.mail.ird.yahoo.com>
-Date: Sat, 19 Mar 2011 15:29:31 +0000 (GMT)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] selabel_open fix for processing the substitution file
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2JHaW3w023514
+	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 13:36:32 -0400
+Received: from cp-out8.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2JHaUxL008744
+	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 17:36:31 GMT
+Subject: [PATCH] policycoreutils: alternative configuration file support
+ for sestatus
+From: Guido Trentalancia <guido@trentalancia.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Sat, 19 Mar 2011 18:36:27 +0100
+Message-ID: <1300556187.3034.41.camel@tesla.lan>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've produced this patch so that the substitution process now works correctly for the files backend. I'm not sure whether the other backends would need this functionality but they could implement if needed.
+Hello !
 
-I've tested using libselinux 2.0.98 and 2.0.100 with all selabel backends and also matchpathcon (as that uses selabel functions).
+I have created a tiny patch so that sestatus would be able to accept
+alternative configuration files. The patch also tries to improve the
+manual page and adds an option for displaying the usage of the tool.
 
-Fix description:
-libselinux selabel_open function always processed a substitution file (if installed) from the active policy contexts/files/file_contexts.subs irrespective of the backend type or SELABEL_OPT_PATH setting. This fix now processes the right subs file when SELABEL_CTX_FILE is selected in selabel_file.c. The other backends could also process a substitution file if needed in their own areas.
+Christopher: I have created this so that sestatus can check processes
+other than init without touching the default configuration file (the
+primordial "make check" in refpolicy).
 
-The patch:
----
- selinux/libselinux/src/label.c      |   13 ++++++++++---
- selinux/libselinux/src/label_file.c |   14 ++++++++++++++
- 2 files changed, 24 insertions(+), 3 deletions(-)
+Regards,
 
-diff --git a/selinux/libselinux/src/label.c b/selinux/libselinux/src/label.c
-index 2fd19c5..1457a77 100644
---- a/selinux/libselinux/src/label.c
-+++ b/selinux/libselinux/src/label.c
-@@ -56,10 +56,10 @@ static char *selabel_sub(struct selabel_sub *ptr, const char *src)
- 	return NULL;
+Guido
+
+Binary files policycoreutils-2.0.85/sestatus/sestatus and policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus differ
+diff -pruN policycoreutils-2.0.85/sestatus/sestatus.8 policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.8
+--- policycoreutils-2.0.85/sestatus/sestatus.8	2010-12-20 21:13:33.000000000 +0100
++++ policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.8	2011-03-19 17:47:10.431438278 +0100
+@@ -1,10 +1,10 @@
+-.TH "sestatus" "8" "2005111103" "" ""
++.TH "sestatus" "8" "March 2011" "" ""
+ .SH "NAME"
+ sestatus \- SELinux status tool
+ 
+ .SH "SYNOPSIS"
+ .B sestatus
+-.I [\-v] [\-b]  
++.I [\-v] [\-b] [\-c] [\-h]
+ .P
+ This tool is used to get the status of a system running SELinux.
+ 
+@@ -13,7 +13,7 @@ This manual page describes the
+ .BR sestatus
+ program.
+ .br
+-This tool is used to get the status of a system running SELinux.  It displays data about whether SELinux is enabled, disabled, the loaded policy and whether it is in enforcing or permissive mode.  It can also be used to display the security context of files and processes listed in the /etc/sestatus.conf file.
++This tool is used to get the status of a system running SELinux.  It displays useful information about whether SELinux is enabled or disabled, about the policy currently loaded and whether the SELinux framework is in enforcing or permissive mode. This tool can also be used to display the security context of files and processes listed in the default \fI/etc/sestatus.conf\fP (or in an alternative) configuration file.
+ 
+ > sestatus
+ .br
+@@ -29,21 +29,24 @@ Policy version:         16
+ .TP 
+ 
+ .B \-v
+-.P
+- Checks the contexts of a files , and a processes listed in the /etc/sestatus.conf file.  It also checks the context of the target, in cases of
+-symlinks.
+-
++Checks the contexts of files and processes listed in the \fI/etc/sestatus.conf\fP configuration file. In the case of symbolic links, it also checks the context of the target files.
++.TP
+ .B \-b
+-.P
+-Display the current state of booleans.
+-
++Displays the current state of the SELinux policy booleans.
++.TP
++.B \-c
++Determines the file that sestatus uses for configuration. The default is \fI/etc/sestatus.conf\fP.
++.TP
++.B \-h
++Displays usage.
+ 
+ .SH "FILES"
+-/etc/sestatus.conf
++\fI/etc/sestatus.conf\fP
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>.
+ .br
+ The program was written by Chris PeBenito <pebenito@gentoo.org>
+ 
+-
++.SH "SEE ALSO"
++.BR booleans (8)
+diff -pruN policycoreutils-2.0.85/sestatus/sestatus.c policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.c
+--- policycoreutils-2.0.85/sestatus/sestatus.c	2010-12-20 21:13:33.000000000 +0100
++++ policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.c	2011-03-19 18:01:33.490751034 +0100
+@@ -20,7 +20,7 @@
+ 
+ #define PROC_BASE "/proc"
+ #define MAX_CHECK 50
+-#define CONF "/etc/sestatus.conf"
++#define DEFAULT_CONF "/etc/sestatus.conf"
+ 
+ /* conf file sections */
+ #define PROCS "[process]"
+@@ -85,17 +85,17 @@ int pidof(const char *command)
+ 	return ret;
  }
  
--static struct selabel_sub *selabel_subs_init(void)
-+struct selabel_sub *selabel_subs_init(char *subs_file)
+-void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
++void load_checks(char *pc[], int *npc, char *fc[], int *nfc, char *config_file)
  {
- 	char buf[1024];
--	FILE *cfg = fopen(selinux_file_context_subs_path(), "r");
-+	FILE *cfg = fopen(subs_file, "r");
- 	struct selabel_sub *sub;
- 	struct selabel_sub *list = NULL;
  
-@@ -106,6 +106,9 @@ static struct selabel_sub *selabel_subs_init(void)
- 		}
- 		fclose(cfg);
+-	FILE *fp = fopen(CONF, "r");
++	FILE *fp = fopen(config_file, "r");
+ 	char buf[255], *bufp;
+ 	int buf_len, section = -1;
+ 	int proclen = strlen(PROCS);
+ 	int filelen = strlen(FILES);
+ 
+ 	if (fp == NULL) {
+-		printf("\nUnable to open %s.\n", CONF);
++		printf("\nUnable to open %s.\n", config_file);
+ 		return;
  	}
-+	else
-+		/* This is an optional file so if not found reset errno */
-+		errno = 0;
- 	return list;
- }
  
-@@ -160,7 +163,11 @@ struct selabel_handle *selabel_open(unsigned int backend,
- 	memset(rec, 0, sizeof(*rec));
- 	rec->backend = backend;
- 	rec->validating = selabel_is_validate_set(opts, nopts);
--	rec->subs = selabel_subs_init();
-+	/* 
-+	 * Set subs to NULL and then let each backend process the substitution
-+	 * file as they need.
-+	 */
-+	rec->subs = NULL;
+@@ -196,8 +196,11 @@ int main(int argc, char **argv)
+ 	const char *pol_name;
+ 	char *pol_path;
  
- 	if ((*initfuncs[backend])(rec, opts, nopts)) {
- 		free(rec);
-diff --git a/selinux/libselinux/src/label_file.c b/selinux/libselinux/src/label_file.c
-index 937e509..4d801b0 100644
---- a/selinux/libselinux/src/label_file.c
-+++ b/selinux/libselinux/src/label_file.c
-@@ -395,6 +395,9 @@ static int process_line(struct selabel_handle *rec,
- 	return 0;
- }
- 
-+/* Used to initialise the substitution file in label.c */
-+extern struct selabel_sub *selabel_subs_init(char *subs_file);
++	/* configuration file */
++	char *config_file = DEFAULT_CONF;
 +
- static int init(struct selabel_handle *rec, struct selinux_opt *opts,
- 		unsigned n)
- {
-@@ -406,6 +409,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
- 	FILE *homedirfp = NULL;
- 	char local_path[PATH_MAX + 1];
- 	char homedir_path[PATH_MAX + 1];
-+	char subs_file[PATH_MAX + 1];
- 	char *line_buf = NULL;
- 	size_t line_len = 0;
- 	unsigned int lineno, pass, i, j, maxnspec;
-@@ -427,6 +431,16 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 	while (1) {
+-		opt = getopt(argc, argv, "vb");
++		opt = getopt(argc, argv, "vbc:h");
+ 		if (opt == -1)
  			break;
+ 		switch (opt) {
+@@ -207,15 +210,24 @@ int main(int argc, char **argv)
+ 		case 'b':
+ 			show_bools = 1;
+ 			break;
++		case 'c':
++			config_file = optarg;
++			break;
++		case 'h':
+ 		default:
+ 			/* invalid option */
+ 			printf("\nUsage: %s [OPTION]\n\n", basename(argv[0]));
+ 			printf
+ 			    ("  -v  Verbose check of process and file contexts.\n");
+-			printf("\nWithout options, show SELinux status.\n");
++			printf
++			    ("  -b  Displays the current state of SELinux policy booleans.\n");
++			printf
++			    ("  -c config_file  Uses an alternate configuration file (the default is %s).\n", DEFAULT_CONF);
++			printf("\nWithout options, shows SELinux status.\n");
+ 			return -1;
  		}
+ 	}
++
+ 	printf_tab("SELinux status:");
+ 	rc = is_selinux_enabled();
  
-+	/* Get the substitution file name to use */
-+	if (!path)
-+		snprintf(subs_file, sizeof(subs_file), "%s", 
-+								selinux_file_context_subs_path());
-+	else
-+		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
-+
-+	/* Then set up substitutions if present */	
-+	rec->subs = selabel_subs_init(subs_file);
-+
- 	/* Open the specification file. */
- 	if (!path)
- 		path = selinux_file_context_path();
----
+@@ -341,7 +353,7 @@ int main(int argc, char **argv)
+ 	if (!verbose)
+ 		return 0;
+ 
+-	load_checks(pc, &npc, fc, &nfc);
++	load_checks(pc, &npc, fc, &nfc, config_file);
+ 
+ 	printf("\nProcess contexts:\n");
+ 
 
-Richard
 
 
 --
