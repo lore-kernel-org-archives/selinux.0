@@ -1,177 +1,125 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2JHaW3w023514
-	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 13:36:32 -0400
-Received: from cp-out8.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2JHaUxL008744
-	for <selinux@tycho.nsa.gov>; Sat, 19 Mar 2011 17:36:31 GMT
-Subject: [PATCH] policycoreutils: alternative configuration file support
- for sestatus
-From: Guido Trentalancia <guido@trentalancia.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Sat, 19 Mar 2011 18:36:27 +0100
-Message-ID: <1300556187.3034.41.camel@tesla.lan>
-Mime-Version: 1.0
+Date: Mon, 21 Mar 2011 11:11:45 +0800 (CST)
+From: Yao <yffbrave@163.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
+Message-ID: <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
+In-Reply-To: <1300456978.25429.29.camel@moss-pluto>
+References: <1300456978.25429.29.camel@moss-pluto>
+ <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
+Subject: Re:Re: about ss
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_55782_830366656.1300677105370"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello !
+------=_Part_55782_830366656.1300677105370
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-I have created a tiny patch so that sestatus would be able to accept
-alternative configuration files. The patch also tries to improve the
-manual page and adds an option for displaying the usage of the tool.
+CgoKCgpBdCAyMDExLTAzLTE4o6wiU3RlcGhlbiBTbWFsbGV5IiA8c2RzQHR5Y2hvLm5zYS5nb3Y+
+IHdyb3RlOgoKPk9uIEZyaSwgMjAxMS0wMy0xOCBhdCAwODo0MyArMDgwMCwgWWFvIHdyb3RlOgo+
+PiBIaSwgYWxsCj4+IEkgbG9va2VkIGF0IGxpbnV4LTIuNi4zNi9zZWN1cml0eS9zZWxpbnV4L3Nz
+LyouYyBhbmQgZm91bmQgbW9zdCBzb3VyY2UKPj4gZmlsZXMgaW5jbHVkZSA8bGludXgvKioqLmg+
+Cj4+IEkga25vdyBzZWN1cml0eSBzZXJ2ZXIgbmVlZCB0byB1c2Ugc29tZSBvZiBrZXJuZWwgZGF0
+YSBzdHJ1Y3R1cmVzLgo+PiBCdXQgZG9lcyBzcyB1c2Uga2VybmVsIGZ1Y3Rpb25zPwo+PiBJcyBp
+dCBwb3NzaWJsZSB0byBtb2RpZnkgc2VjdXJpdHkgc2VydmVyIGFuZCBtYWtlIGl0IHNlbGYtY29u
+dGFpbmVkIGlmCj4+IHNzIHVzZWQga2VybmVsIGZ1bmN0aW9uPwo+Cj5UaGUgb3JpZ2luYWwgc2Vj
+dXJpdHkgc2VydmVyIGNvZGUgd2FzIGRldmVsb3BlZCBmb3IgYW5vdGhlciBPUwo+KEZsdWtlL0Zs
+YXNrKSBhbmQgdGhlbiBwb3J0ZWQgdG8gTGludXguICBUaGVyZSBhcmUgYSBzbWFsbCBudW1iZXIg
+b2YKPmZ1bmRhbWVudGFsIGRlcGVuZGVuY2llcyBvbiB0aGUgcnVudGltZSBlbnZpcm9ubWVudCwg
+bGlrZSBtZW1vcnkKPmFsbG9jYXRpb24sIGxvZ2dpbmcvYXVkaXRpbmcsIGxvY2tpbmcsIGV0Yy4g
+IE92ZXIgdGltZSwgdGhlIHNlY3VyaXR5Cj5zZXJ2ZXIgY29kZSBpbiBMaW51eCBoYXMgYmVjb21l
+IGluY3JlYXNpbmdseSAibmF0aXZpemVkIiBmb3IgTGludXggc28KPnlvdSBtYXkgZmluZCBmdXJ0
+aGVyIGRlcGVuZGVuY2llcyBpbiB0aGUgY3VycmVudCBjb2RlLgo+CnNvLCBpdCdzIGhhcmQgdG8g
+bW9kaWZ5IHNzIHRvIG1ha2UgaXQgc2VsZi1jb250YWluZWQsIHJpZ2h0PwpJIGp1c3Qgd29uZGVy
+IGlmIHRoZXJlIGlzIGEgc2VjdXJpdHkgbW9kdWxlIHdpdGhvdXQgaW52b2tpbmcga2VybmVsIGZ1
+bmN0aW9uIGJ1dCB0byBzdXBwb3J0IGZsYXNrLCB0aG91Z2gga2VybmVsIGRhdGEgaXMgcGVybWl0
+dGVkLi4uCklzIEFwcEFybW9yIGZpdCB0byBteSBkZXNpcmU/Cj5Zb3UnbGwgZmluZCBvdGhlciBm
+b3JtcyBvZiB0aGUgc2VjdXJpdHkgc2VydmVyIGNvZGUgdGhhdCBtYXkgYmUgbW9yZSA+cG9ydGFi
+bGUgaW46ID4xKSBUaGUgU0VMaW51eCB1c2Vyc3BhY2UgKGh0dHA6Ly91c2Vyc3BhY2Uuc2VsaW51
+eHByb2plY3Qub3JnKSA+SW4gcGFydGljdWxhciwgYSBjb3B5IG9mIHRoZSBzZWN1cml0eSBzZXJ2
+ZXIgY29kZSBsaXZlcyBpbiBsaWJzZXBvbC4gPk9yaWdpbmFsbHkgdGhlcmUgd2FzIGEgc2luZ2xl
+IGNvZGUgYmFzZSBzaGFyZWQgYmV0d2VlbiA+Y2hlY2twb2xpY3kvbGlic2Vwb2wgYW5kIHRoZSBr
+ZXJuZWwsIGJ1dCB0aGlzIHdhcyBmb3JrZWQgd2hlbiBTRUxpbnV4ID53ZW50IGludG8gbWFpbmxp
+bmUuID4gPjIpIFRoZSBPU0tpdCAoaHR0cDovL3d3dy5jcy51dGFoLmVkdS9mbHV4L29za2l0Lykg
+PlRoaXMgd2FzIHVzZWQgaW4gRmx1a2UvRmxhc2suICBTZWN1cml0eSBzZXJ2ZXIgaXMgdW5kZXIg
+c2VjdXJpdHkvLCBBVkMgPmlzIGluIGNvbS9hdmMuYy4gPiA+MykgVmFyaW91cyBwb3J0cyBvZiBT
+RUxpbnV4IHRvIG90aGVyIHN5c3RlbXMgPihodHRwOi8vd3d3Lm5zYS5nb3YvcmVzZWFyY2gvc2Vs
+aW51eC9yZWxhdGVkLnNodG1sKSA+ID4tLSAgPlN0ZXBoZW4gU21hbGxleSA+TmF0aW9uYWwgU2Vj
+dXJpdHkgQWdlbmN5ID4gPiA+LS0gPlRoaXMgbWVzc2FnZSB3YXMgZGlzdHJpYnV0ZWQgdG8gc3Vi
+c2NyaWJlcnMgb2YgdGhlIHNlbGludXggbWFpbGluZyBsaXN0LiA+SWYgeW91IG5vIGxvbmdlciB3
+aXNoIHRvIHN1YnNjcmliZSwgc2VuZCBtYWlsIHRvIG1ham9yZG9tb0B0eWNoby5uc2EuZ292IHdp
+dGggPnRoZSB3b3JkcyAidW5zdWJzY3JpYmUgc2VsaW51eCIgd2l0aG91dCBxdW90ZXMgYXMgdGhl
+IG1lc3NhZ2Uu
+------=_Part_55782_830366656.1300677105370
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
 
-Christopher: I have created this so that sestatus can check processes
-other than init without touching the default configuration file (the
-primordial "make check" in refpolicy).
-
-Regards,
-
-Guido
-
-Binary files policycoreutils-2.0.85/sestatus/sestatus and policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus differ
-diff -pruN policycoreutils-2.0.85/sestatus/sestatus.8 policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.8
---- policycoreutils-2.0.85/sestatus/sestatus.8	2010-12-20 21:13:33.000000000 +0100
-+++ policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.8	2011-03-19 17:47:10.431438278 +0100
-@@ -1,10 +1,10 @@
--.TH "sestatus" "8" "2005111103" "" ""
-+.TH "sestatus" "8" "March 2011" "" ""
- .SH "NAME"
- sestatus \- SELinux status tool
- 
- .SH "SYNOPSIS"
- .B sestatus
--.I [\-v] [\-b]  
-+.I [\-v] [\-b] [\-c] [\-h]
- .P
- This tool is used to get the status of a system running SELinux.
- 
-@@ -13,7 +13,7 @@ This manual page describes the
- .BR sestatus
- program.
- .br
--This tool is used to get the status of a system running SELinux.  It displays data about whether SELinux is enabled, disabled, the loaded policy and whether it is in enforcing or permissive mode.  It can also be used to display the security context of files and processes listed in the /etc/sestatus.conf file.
-+This tool is used to get the status of a system running SELinux.  It displays useful information about whether SELinux is enabled or disabled, about the policy currently loaded and whether the SELinux framework is in enforcing or permissive mode. This tool can also be used to display the security context of files and processes listed in the default \fI/etc/sestatus.conf\fP (or in an alternative) configuration file.
- 
- > sestatus
- .br
-@@ -29,21 +29,24 @@ Policy version:         16
- .TP 
- 
- .B \-v
--.P
-- Checks the contexts of a files , and a processes listed in the /etc/sestatus.conf file.  It also checks the context of the target, in cases of
--symlinks.
--
-+Checks the contexts of files and processes listed in the \fI/etc/sestatus.conf\fP configuration file. In the case of symbolic links, it also checks the context of the target files.
-+.TP
- .B \-b
--.P
--Display the current state of booleans.
--
-+Displays the current state of the SELinux policy booleans.
-+.TP
-+.B \-c
-+Determines the file that sestatus uses for configuration. The default is \fI/etc/sestatus.conf\fP.
-+.TP
-+.B \-h
-+Displays usage.
- 
- .SH "FILES"
--/etc/sestatus.conf
-+\fI/etc/sestatus.conf\fP
- 
- .SH "AUTHOR"
- This man page was written by Daniel Walsh <dwalsh@redhat.com>.
- .br
- The program was written by Chris PeBenito <pebenito@gentoo.org>
- 
--
-+.SH "SEE ALSO"
-+.BR booleans (8)
-diff -pruN policycoreutils-2.0.85/sestatus/sestatus.c policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.c
---- policycoreutils-2.0.85/sestatus/sestatus.c	2010-12-20 21:13:33.000000000 +0100
-+++ policycoreutils-2.0.85-sestatus-config-files/sestatus/sestatus.c	2011-03-19 18:01:33.490751034 +0100
-@@ -20,7 +20,7 @@
- 
- #define PROC_BASE "/proc"
- #define MAX_CHECK 50
--#define CONF "/etc/sestatus.conf"
-+#define DEFAULT_CONF "/etc/sestatus.conf"
- 
- /* conf file sections */
- #define PROCS "[process]"
-@@ -85,17 +85,17 @@ int pidof(const char *command)
- 	return ret;
- }
- 
--void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
-+void load_checks(char *pc[], int *npc, char *fc[], int *nfc, char *config_file)
- {
- 
--	FILE *fp = fopen(CONF, "r");
-+	FILE *fp = fopen(config_file, "r");
- 	char buf[255], *bufp;
- 	int buf_len, section = -1;
- 	int proclen = strlen(PROCS);
- 	int filelen = strlen(FILES);
- 
- 	if (fp == NULL) {
--		printf("\nUnable to open %s.\n", CONF);
-+		printf("\nUnable to open %s.\n", config_file);
- 		return;
- 	}
- 
-@@ -196,8 +196,11 @@ int main(int argc, char **argv)
- 	const char *pol_name;
- 	char *pol_path;
- 
-+	/* configuration file */
-+	char *config_file = DEFAULT_CONF;
-+
- 	while (1) {
--		opt = getopt(argc, argv, "vb");
-+		opt = getopt(argc, argv, "vbc:h");
- 		if (opt == -1)
- 			break;
- 		switch (opt) {
-@@ -207,15 +210,24 @@ int main(int argc, char **argv)
- 		case 'b':
- 			show_bools = 1;
- 			break;
-+		case 'c':
-+			config_file = optarg;
-+			break;
-+		case 'h':
- 		default:
- 			/* invalid option */
- 			printf("\nUsage: %s [OPTION]\n\n", basename(argv[0]));
- 			printf
- 			    ("  -v  Verbose check of process and file contexts.\n");
--			printf("\nWithout options, show SELinux status.\n");
-+			printf
-+			    ("  -b  Displays the current state of SELinux policy booleans.\n");
-+			printf
-+			    ("  -c config_file  Uses an alternate configuration file (the default is %s).\n", DEFAULT_CONF);
-+			printf("\nWithout options, shows SELinux status.\n");
- 			return -1;
- 		}
- 	}
-+
- 	printf_tab("SELinux status:");
- 	rc = is_selinux_enabled();
- 
-@@ -341,7 +353,7 @@ int main(int argc, char **argv)
- 	if (!verbose)
- 		return 0;
- 
--	load_checks(pc, &npc, fc, &nfc);
-+	load_checks(pc, &npc, fc, &nfc, config_file);
- 
- 	printf("\nProcess contexts:\n");
- 
-
+PGJyPjxkaXY+PC9kaXY+PGJyPjxwcmU+PGJyPkF0Jm5ic3A7MjAxMS0wMy0xOKOsIlN0ZXBoZW4m
+bmJzcDtTbWFsbGV5IiZuYnNwOyZsdDtzZHNAdHljaG8ubnNhLmdvdiZndDsmbmJzcDt3cm90ZToK
+CiZndDtPbiZuYnNwO0ZyaSwmbmJzcDsyMDExLTAzLTE4Jm5ic3A7YXQmbmJzcDswODo0MyZuYnNw
+OyswODAwLCZuYnNwO1lhbyZuYnNwO3dyb3RlOgomZ3Q7Jmd0OyZuYnNwO0hpLCZuYnNwO2FsbAom
+Z3Q7Jmd0OyZuYnNwO0kmbmJzcDtsb29rZWQmbmJzcDthdCZuYnNwO2xpbnV4LTIuNi4zNi9zZWN1
+cml0eS9zZWxpbnV4L3NzLyouYyZuYnNwO2FuZCZuYnNwO2ZvdW5kJm5ic3A7bW9zdCZuYnNwO3Nv
+dXJjZQomZ3Q7Jmd0OyZuYnNwO2ZpbGVzJm5ic3A7aW5jbHVkZSZuYnNwOyZsdDtsaW51eC8qKiou
+aCZndDsKJmd0OyZndDsmbmJzcDtJJm5ic3A7a25vdyZuYnNwO3NlY3VyaXR5Jm5ic3A7c2VydmVy
+Jm5ic3A7bmVlZCZuYnNwO3RvJm5ic3A7dXNlJm5ic3A7c29tZSZuYnNwO29mJm5ic3A7a2VybmVs
+Jm5ic3A7ZGF0YSZuYnNwO3N0cnVjdHVyZXMuCiZndDsmZ3Q7Jm5ic3A7QnV0Jm5ic3A7ZG9lcyZu
+YnNwO3NzJm5ic3A7dXNlJm5ic3A7a2VybmVsJm5ic3A7ZnVjdGlvbnM/CiZndDsmZ3Q7Jm5ic3A7
+SXMmbmJzcDtpdCZuYnNwO3Bvc3NpYmxlJm5ic3A7dG8mbmJzcDttb2RpZnkmbmJzcDtzZWN1cml0
+eSZuYnNwO3NlcnZlciZuYnNwO2FuZCZuYnNwO21ha2UmbmJzcDtpdCZuYnNwO3NlbGYtY29udGFp
+bmVkJm5ic3A7aWYKJmd0OyZndDsmbmJzcDtzcyZuYnNwO3VzZWQmbmJzcDtrZXJuZWwmbmJzcDtm
+dW5jdGlvbj8KJmd0OwomZ3Q7VGhlJm5ic3A7b3JpZ2luYWwmbmJzcDtzZWN1cml0eSZuYnNwO3Nl
+cnZlciZuYnNwO2NvZGUmbmJzcDt3YXMmbmJzcDtkZXZlbG9wZWQmbmJzcDtmb3ImbmJzcDthbm90
+aGVyJm5ic3A7T1MKJmd0OyhGbHVrZS9GbGFzaykmbmJzcDthbmQmbmJzcDt0aGVuJm5ic3A7cG9y
+dGVkJm5ic3A7dG8mbmJzcDtMaW51eC4mbmJzcDsmbmJzcDtUaGVyZSZuYnNwO2FyZSZuYnNwO2Em
+bmJzcDtzbWFsbCZuYnNwO251bWJlciZuYnNwO29mCiZndDtmdW5kYW1lbnRhbCZuYnNwO2RlcGVu
+ZGVuY2llcyZuYnNwO29uJm5ic3A7dGhlJm5ic3A7cnVudGltZSZuYnNwO2Vudmlyb25tZW50LCZu
+YnNwO2xpa2UmbmJzcDttZW1vcnkKJmd0O2FsbG9jYXRpb24sJm5ic3A7bG9nZ2luZy9hdWRpdGlu
+ZywmbmJzcDtsb2NraW5nLCZuYnNwO2V0Yy4mbmJzcDsmbmJzcDtPdmVyJm5ic3A7dGltZSwmbmJz
+cDt0aGUmbmJzcDtzZWN1cml0eQomZ3Q7c2VydmVyJm5ic3A7Y29kZSZuYnNwO2luJm5ic3A7TGlu
+dXgmbmJzcDtoYXMmbmJzcDtiZWNvbWUmbmJzcDtpbmNyZWFzaW5nbHkmbmJzcDsibmF0aXZpemVk
+IiZuYnNwO2ZvciZuYnNwO0xpbnV4Jm5ic3A7c28KJmd0O3lvdSZuYnNwO21heSZuYnNwO2ZpbmQm
+bmJzcDtmdXJ0aGVyJm5ic3A7ZGVwZW5kZW5jaWVzJm5ic3A7aW4mbmJzcDt0aGUmbmJzcDtjdXJy
+ZW50Jm5ic3A7Y29kZS4KJmd0OzwvcHJlPjxwcmU+c28sIGl0J3MgaGFyZCB0byBtb2RpZnkgc3Mg
+dG8gbWFrZSBpdCBzZWxmLWNvbnRhaW5lZCwgcmlnaHQ/PC9wcmU+PHByZT5JIGp1c3Qgd29uZGVy
+IGlmIHRoZXJlIGlzIGEgc2VjdXJpdHkgbW9kdWxlIHdpdGhvdXQgaW52b2tpbmcga2VybmVsIGZ1
+bmN0aW9uIGJ1dCB0byBzdXBwb3J0IGZsYXNrLCB0aG91Z2gga2VybmVsIGRhdGEgaXMgcGVybWl0
+dGVkLi4uPC9wcmU+PHByZT48bWV0YSBodHRwLWVxdWl2PSJjb250ZW50LXR5cGUiIGNvbnRlbnQ9
+InRleHQvaHRtbDsgY2hhcnNldD11dGYtOCI+PHNwYW4gY2xhc3M9IkFwcGxlLXN0eWxlLXNwYW4i
+IHN0eWxlPSJ3aGl0ZS1zcGFjZTogbm9ybWFsOyAiPjxwcmUgc3R5bGU9IndoaXRlLXNwYWNlOiBw
+cmUtd3JhcDsgd29yZC13cmFwOiBicmVhay13b3JkOyBmb250LWZhbWlseTogYXJpYWwsIHZlcmRh
+bmEsIHNhbnMtc2VyaWY7ICI+SXMgQXBwQXJtb3IgZml0IHRvIG15IGRlc2lyZT88L3ByZT48L3Nw
+YW4+Jmd0O1lvdSdsbCZuYnNwO2ZpbmQmbmJzcDtvdGhlciZuYnNwO2Zvcm1zJm5ic3A7b2YmbmJz
+cDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZuYnNwO2NvZGUmbmJzcDt0aGF0Jm5ic3A7
+bWF5Jm5ic3A7YmUmbmJzcDttb3JlCiZndDtwb3J0YWJsZSZuYnNwO2luOgomZ3Q7MSkmbmJzcDtU
+aGUmbmJzcDtTRUxpbnV4Jm5ic3A7dXNlcnNwYWNlJm5ic3A7KGh0dHA6Ly91c2Vyc3BhY2Uuc2Vs
+aW51eHByb2plY3Qub3JnKQomZ3Q7SW4mbmJzcDtwYXJ0aWN1bGFyLCZuYnNwO2EmbmJzcDtjb3B5
+Jm5ic3A7b2YmbmJzcDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZuYnNwO2NvZGUmbmJz
+cDtsaXZlcyZuYnNwO2luJm5ic3A7bGlic2Vwb2wuCiZndDtPcmlnaW5hbGx5Jm5ic3A7dGhlcmUm
+bmJzcDt3YXMmbmJzcDthJm5ic3A7c2luZ2xlJm5ic3A7Y29kZSZuYnNwO2Jhc2UmbmJzcDtzaGFy
+ZWQmbmJzcDtiZXR3ZWVuCiZndDtjaGVja3BvbGljeS9saWJzZXBvbCZuYnNwO2FuZCZuYnNwO3Ro
+ZSZuYnNwO2tlcm5lbCwmbmJzcDtidXQmbmJzcDt0aGlzJm5ic3A7d2FzJm5ic3A7Zm9ya2VkJm5i
+c3A7d2hlbiZuYnNwO1NFTGludXgKJmd0O3dlbnQmbmJzcDtpbnRvJm5ic3A7bWFpbmxpbmUuCiZn
+dDsKJmd0OzIpJm5ic3A7VGhlJm5ic3A7T1NLaXQmbmJzcDsoaHR0cDovL3d3dy5jcy51dGFoLmVk
+dS9mbHV4L29za2l0LykKJmd0O1RoaXMmbmJzcDt3YXMmbmJzcDt1c2VkJm5ic3A7aW4mbmJzcDtG
+bHVrZS9GbGFzay4mbmJzcDsmbmJzcDtTZWN1cml0eSZuYnNwO3NlcnZlciZuYnNwO2lzJm5ic3A7
+dW5kZXImbmJzcDtzZWN1cml0eS8sJm5ic3A7QVZDCiZndDtpcyZuYnNwO2luJm5ic3A7Y29tL2F2
+Yy5jLgomZ3Q7CiZndDszKSZuYnNwO1ZhcmlvdXMmbmJzcDtwb3J0cyZuYnNwO29mJm5ic3A7U0VM
+aW51eCZuYnNwO3RvJm5ic3A7b3RoZXImbmJzcDtzeXN0ZW1zCiZndDsoaHR0cDovL3d3dy5uc2Eu
+Z292L3Jlc2VhcmNoL3NlbGludXgvcmVsYXRlZC5zaHRtbCkKJmd0OwomZ3Q7LS0mbmJzcDsKJmd0
+O1N0ZXBoZW4mbmJzcDtTbWFsbGV5CiZndDtOYXRpb25hbCZuYnNwO1NlY3VyaXR5Jm5ic3A7QWdl
+bmN5CiZndDsKJmd0OwomZ3Q7LS0KJmd0O1RoaXMmbmJzcDttZXNzYWdlJm5ic3A7d2FzJm5ic3A7
+ZGlzdHJpYnV0ZWQmbmJzcDt0byZuYnNwO3N1YnNjcmliZXJzJm5ic3A7b2YmbmJzcDt0aGUmbmJz
+cDtzZWxpbnV4Jm5ic3A7bWFpbGluZyZuYnNwO2xpc3QuCiZndDtJZiZuYnNwO3lvdSZuYnNwO25v
+Jm5ic3A7bG9uZ2VyJm5ic3A7d2lzaCZuYnNwO3RvJm5ic3A7c3Vic2NyaWJlLCZuYnNwO3NlbmQm
+bmJzcDttYWlsJm5ic3A7dG8mbmJzcDttYWpvcmRvbW9AdHljaG8ubnNhLmdvdiZuYnNwO3dpdGgK
+Jmd0O3RoZSZuYnNwO3dvcmRzJm5ic3A7InVuc3Vic2NyaWJlJm5ic3A7c2VsaW51eCImbmJzcDt3
+aXRob3V0Jm5ic3A7cXVvdGVzJm5ic3A7YXMmbmJzcDt0aGUmbmJzcDttZXNzYWdlLgo8L3ByZT48
+YnI+PGJyPjxzcGFuIHRpdGxlPSJuZXRlYXNlZm9vdGVyIj48c3BhbiBpZD0ibmV0ZWFzZV9tYWls
+X2Zvb3RlciI+PC9zcGFuPjwvc3Bhbj4=
+------=_Part_55782_830366656.1300677105370--
 
 
 --
