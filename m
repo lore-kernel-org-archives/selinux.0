@@ -1,75 +1,57 @@
-Message-ID: <4D8A4462.7010404@manicmethod.com>
-Date: Wed, 23 Mar 2011 15:05:06 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
+Subject: Re: [v0 PATCH 2/5] Make role_transition parser to handle class
+ field
+From: Eric Paris <eparis@redhat.com>
 To: Harry Ciao <qingtao.cao@windriver.com>
-CC: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
         selinux@tycho.nsa.gov
-Subject: Re: [v0 PATCH 3/5] Handle the class in role_trans structure
-References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com> <1300847325-20308-7-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1300847325-20308-7-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1300847325-20308-6-git-send-email-qingtao.cao@windriver.com>
+References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
+	 <1300847325-20308-6-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 23 Mar 2011 15:30:34 -0400
+Message-ID: <1300908634.28871.16.camel@unknown001a4b0c2895>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Harry Ciao wrote:
-> From: Harry Ciao<harrytaurus2002@hotmail.com>
-<snip>
+On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:
+> From: Harry Ciao <harrytaurus2002@hotmail.com>
+> 
+> If no class is specified in the role_transition rule, then it would
+> be set to the "process" class by default.
+> 
+> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> ---
+>  checkpolicy/policy_define.c |   89 ++++++++++++++++++++++++++++++++-----------
+>  checkpolicy/policy_define.h |    2 +-
+>  checkpolicy/policy_parse.y  |    4 +-
+>  3 files changed, 71 insertions(+), 24 deletions(-)
+> 
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 82ab44c..6c28d8a 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -2050,17 +2050,18 @@ static int set_roles(role_set_t * set, char *id)
+>  	return 0;
+>  }
+>  
+> -int define_role_trans(void)
+> +int define_role_trans(int class_specified)
+>  {
+>  	char *id;
+>  	role_datum_t *role;
+>  	role_set_t roles;
+>  	type_set_t types;
+> -	ebitmap_t e_types, e_roles;
+> -	ebitmap_node_t *tnode, *rnode;
+> +	class_datum_t *cladatum;
+> +	ebitmap_t e_types, e_roles, classes;
 
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -462,11 +462,14 @@ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
->   	return POLICYDB_SUCCESS;
->   }
->
-> -static int role_trans_write(role_trans_t * r, struct policy_file *fp)
-> +static int role_trans_write(policydb_t *p, struct policy_file *fp)
->   {
-> +	role_trans_t *r = p->role_tr;
->   	role_trans_t *tr;
->   	uint32_t buf[3];
->   	size_t nel, items;
-> +	int new_roletr = (p->policy_type == POLICY_KERN&&
-> +			  p->policyvers>= POLICYDB_VERSION_ROLETRANS);
->
->   	nel = 0;
->   	for (tr = r; tr; tr = tr->next)
-> @@ -478,9 +481,18 @@ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
->   	for (tr = r; tr; tr = tr->next) {
->   		buf[0] = cpu_to_le32(tr->role);
->   		buf[1] = cpu_to_le32(tr->type);
-> -		buf[2] = cpu_to_le32(tr->new_role);
-> -		items = put_entry(buf, sizeof(uint32_t), 3, fp);
-> -		if (items != 3)
-> +		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-> +		if (items != 2)
-> +			return POLICYDB_ERROR;
-> +		if (new_roletr) {
-> +			buf[0] = cpu_to_le32(tr->cclass);
-> +			items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> +			if (items != 1)
-> +				return POLICYDB_ERROR;
-> +		}
-> +		buf[0] = cpu_to_le32(tr->new_role);
-> +		items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> +		if (items != 1)
->   			return POLICYDB_ERROR;
->   	}
->
+minor nit, most of this code uses e_* for ebitmaps.  You don't need to
+change that.....
 
-You need to do something like range_write if you end up having a class set from 
-the parser but you are building a lower version of the policy. The range write 
-warning is:
+-Eric
 
-         for (rt = p->range_tr; rt; rt = rt->next) {
-                 if (!new_rangetr && rt->target_class != SECCLASS_PROCESS) {
-                         if (!warning_issued)
-                                 WARN(fp->handle, "Discarding range_transition "
-                                      "rules for security classes other than "
-                                      "\"process\"");
-                         warning_issued = 1;
-                         continue;
-                 }
 
 --
 This message was distributed to subscribers of the selinux mailing list.
