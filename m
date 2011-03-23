@@ -1,69 +1,66 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v0 PATCH 3/3] SELinux: Write class field in role_trans_write.
-Date: Wed, 23 Mar 2011 10:28:40 +0800
-Message-Id: <1300847325-20308-4-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 5/5] Display the class in role_transition rule
+Date: Wed, 23 Mar 2011 10:28:45 +0800
+Message-Id: <1300847325-20308-9-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Harry Ciao <harrytaurus2002@hotmail.com>
-
-If kernel policy version is >= 25, then write the class field of the
-role_trans structure into the binary reprensentation.
+Add support to display the class field in the role_transition rule
+in the checkpolicy/test/dismod program.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- security/selinux/ss/policydb.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+ checkpolicy/test/dismod.c |   27 ++++++++++++++++++++++++++-
+ 1 files changed, 26 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index b660f08..a6be0f5 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -2450,10 +2450,11 @@ static int cat_write(void *vkey, void *datum, void *ptr)
- 	return 0;
+diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+index 4d31597..33a29e4 100644
+--- a/checkpolicy/test/dismod.c
++++ b/checkpolicy/test/dismod.c
+@@ -451,13 +451,38 @@ void display_initial_sids(policydb_t * p, FILE * fp)
+ #endif
  }
  
--static int role_trans_write(struct role_trans *r, void *fp)
-+static int role_trans_write(struct policydb *p, void *fp)
- {
-+	struct role_trans *r = p->role_tr;
- 	struct role_trans *tr;
--	u32 buf[3];
-+	u32 buf[4];
- 	size_t nel;
- 	int rc;
- 
-@@ -2467,8 +2468,15 @@ static int role_trans_write(struct role_trans *r, void *fp)
- 	for (tr = r; tr; tr = tr->next) {
- 		buf[0] = cpu_to_le32(tr->role);
- 		buf[1] = cpu_to_le32(tr->type);
--		buf[2] = cpu_to_le32(tr->new_role);
--		rc = put_entry(buf, sizeof(u32), 3, fp);
-+		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
-+			buf[2] = cpu_to_le32(tr->cclass);
-+			buf[3] = cpu_to_le32(tr->new_role);
-+			rc = put_entry(buf, sizeof(u32), 4, fp);
-+		} else {
-+			buf[2] = cpu_to_le32(tr->new_role);
-+			rc = put_entry(buf, sizeof(u32), 3, fp);
-+		}
++void display_class_set(ebitmap_t *classes, policydb_t *p, FILE *fp)
++{
++	int i, num = 0;
 +
- 		if (rc)
- 			return rc;
++	for (i = ebitmap_startbit(classes); i < ebitmap_length(classes); i++) {
++		if (!ebitmap_get_bit(classes, i))
++			continue;
++		num++;
++		if (num > 1) {
++			fprintf(fp, "{");
++			break;
++		}
++	}
++
++	for (i = ebitmap_startbit(classes); i < ebitmap_length(classes); i++) {
++		if (ebitmap_get_bit(classes, i))
++			display_id(p, fp, SYM_CLASSES, i, "");
++	}
++
++	if (num > 1)
++		fprintf(fp, " }");
++}
++
+ void display_role_trans(role_trans_rule_t * tr, policydb_t * p, FILE * fp)
+ {
+ 	for (; tr; tr = tr->next) {
+ 		fprintf(fp, "role transition ");
+ 		display_mod_role_set(&tr->roles, p, fp);
+ 		display_type_set(&tr->types, 0, p, fp);
+-		display_id(p, fp, SYM_ROLES, tr->new_role - 1, " :");
++		fprintf(fp, " :");
++		display_class_set(&tr->classes, p, fp);
++		display_id(p, fp, SYM_ROLES, tr->new_role - 1, "");
+ 		fprintf(fp, "\n");
  	}
-@@ -3145,7 +3153,7 @@ int policydb_write(struct policydb *p, void *fp)
- 	if (rc)
- 		return rc;
- 
--	rc = role_trans_write(p->role_tr, fp);
-+	rc = role_trans_write(p, fp);
- 	if (rc)
- 		return rc;
- 
+ }
 -- 
 1.7.0.4
 
