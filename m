@@ -1,9 +1,9 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v0 PATCH 4/5] Handle the class in role_trans_rule structure
-Date: Wed, 23 Mar 2011 10:28:44 +0800
-Message-Id: <1300847325-20308-8-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 3/5] Handle the class in role_trans structure
+Date: Wed, 23 Mar 2011 10:28:43 +0800
+Message-Id: <1300847325-20308-7-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,208 +11,135 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Harry Ciao <harrytaurus2002@hotmail.com>
 
-Add class support to various functions to handle the role_trans_rule
-structures.
+Add the class support to various functions that handle the role_trans
+structure.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/expand.c   |   94 +++++++++++++++++++++++++----------------------
- libsepol/src/link.c     |   14 +++++++
- libsepol/src/policydb.c |    5 ++
- libsepol/src/write.c    |    2 +
- 4 files changed, 71 insertions(+), 44 deletions(-)
+ libsepol/src/policydb.c |   28 ++++++++++++++++++++++++----
+ libsepol/src/write.c    |   22 +++++++++++++++++-----
+ 2 files changed, 41 insertions(+), 9 deletions(-)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 16d6bcb..50e6a10 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1146,11 +1146,11 @@ static int copy_role_allows(expand_state_t * state, role_allow_rule_t * rules)
- 
- static int copy_role_trans(expand_state_t * state, role_trans_rule_t * rules)
- {
--	unsigned int i, j;
-+	unsigned int i, j, k;
- 	role_trans_t *n, *l, *cur_trans;
- 	role_trans_rule_t *cur;
- 	ebitmap_t roles, types;
--	ebitmap_node_t *rnode, *tnode;
-+	ebitmap_node_t *rnode, *tnode, *cnode;
- 
- 	/* start at the end of the list */
- 	for (l = state->out->role_tr; l && l->next; l = l->next) ;
-@@ -1175,51 +1175,57 @@ static int copy_role_trans(expand_state_t * state, role_trans_rule_t * rules)
- 			ebitmap_for_each_bit(&types, tnode, j) {
- 				if (!ebitmap_node_get_bit(tnode, j))
- 					continue;
-+				ebitmap_for_each_bit(&cur->classes, cnode, k) {
-+					if (!ebitmap_node_get_bit(cnode, k))
-+						continue;
- 
--				cur_trans = state->out->role_tr;
--				while (cur_trans) {
--					if ((cur_trans->role == i + 1) &&
--					    (cur_trans->type == j + 1)) {
--						if (cur_trans->new_role ==
--						    cur->new_role) {
--							break;
--						} else {
--							ERR(state->handle,
--							    "Conflicting role trans rule %s %s : %s",
--							    state->out->
--							    p_role_val_to_name
--							    [i],
--							    state->out->
--							    p_type_val_to_name
--							    [j],
--							    state->out->
--							    p_role_val_to_name
--							    [cur->new_role -
--							     1]);
--							return -1;
-+					cur_trans = state->out->role_tr;
-+					while (cur_trans) {
-+						if ((cur_trans->role ==
-+								i + 1) &&
-+						    (cur_trans->type ==
-+								j + 1) &&
-+						    (cur_trans->cclass ==
-+								k + 1)) {
-+							if (cur_trans->
-+							    new_role ==
-+								cur->new_role) {
-+								break;
-+							} else {
-+								ERR(state->handle,
-+									"Conflicting role trans rule %s %s : %s %s",
-+									state->out->p_role_val_to_name[i],
-+									state->out->p_type_val_to_name[j],
-+									state->out->p_class_val_to_name[k],
-+									state->out->p_role_val_to_name[cur->new_role - 1]);
-+								return -1;
-+							}
- 						}
-+						cur_trans = cur_trans->next;
- 					}
--					cur_trans = cur_trans->next;
--				}
--				if (cur_trans)
--					continue;
-+					if (cur_trans)
-+						continue;
- 
--				n = (role_trans_t *)
--				    malloc(sizeof(role_trans_t));
--				if (!n) {
--					ERR(state->handle, "Out of memory!");
--					return -1;
--				}
--				memset(n, 0, sizeof(role_trans_t));
--				n->role = i + 1;
--				n->type = j + 1;
--				n->new_role = state->rolemap[cur->new_role - 1];
--				if (l) {
--					l->next = n;
--				} else {
--					state->out->role_tr = n;
-+					n = (role_trans_t *)
-+						malloc(sizeof(role_trans_t));
-+					if (!n) {
-+						ERR(state->handle,
-+							"Out of memory!");
-+						return -1;
-+					}
-+					memset(n, 0, sizeof(role_trans_t));
-+					n->role = i + 1;
-+					n->type = j + 1;
-+					n->cclass = k + 1;
-+					n->new_role = state->rolemap
-+							[cur->new_role - 1];
-+					if (l)
-+						l->next = n;
-+					else
-+						state->out->role_tr = n;
-+
-+					l = n;
- 				}
--				l = n;
- 			}
- 		}
- 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index d03e599..e33db0f 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -1246,6 +1246,8 @@ static int copy_role_trans_list(role_trans_rule_t * list,
- 				policy_module_t * module, link_state_t * state)
- {
- 	role_trans_rule_t *cur, *new_rule = NULL, *tail;
-+	unsigned int i;
-+	ebitmap_node_t *cnode;
- 
- 	cur = list;
- 	tail = *dst;
-@@ -1267,6 +1269,18 @@ static int copy_role_trans_list(role_trans_rule_t * list,
- 			goto cleanup;
- 		}
- 
-+		ebitmap_for_each_bit(&cur->classes, cnode, i) {
-+			if (ebitmap_node_get_bit(cnode, i)) {
-+				assert(module->map[SYM_CLASSES][i]);
-+				if (ebitmap_set_bit(&new_rule->classes,
-+						    module->
-+						    map[SYM_CLASSES][i] - 1,
-+						    1)) {
-+					goto cleanup;
-+				}
-+			}
-+		}
-+
- 		new_rule->new_role = module->map[SYM_ROLES][cur->new_role - 1];
- 
- 		if (*dst == NULL) {
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 9b43c56..ddf91ee 100644
+index 5c0081f..9b43c56 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
-@@ -420,6 +420,7 @@ void role_trans_rule_init(role_trans_rule_t * x)
- 	memset(x, 0, sizeof(*x));
- 	role_set_init(&x->roles);
- 	type_set_init(&x->types);
-+	ebitmap_init(&x->classes);
+@@ -137,6 +137,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_ROLETRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -2103,12 +2110,15 @@ static int type_read(policydb_t * p
+ 	return -1;
  }
  
- void role_trans_rule_destroy(role_trans_rule_t * x)
-@@ -427,6 +428,7 @@ void role_trans_rule_destroy(role_trans_rule_t * x)
- 	if (x != NULL) {
- 		role_set_destroy(&x->roles);
- 		type_set_destroy(&x->types);
-+		ebitmap_destroy(&x->classes);
- 	}
- }
+-int role_trans_read(role_trans_t ** t, struct policy_file *fp)
++int role_trans_read(policydb_t *p, struct policy_file *fp)
+ {
++	role_trans_t **t = &p->role_tr;
+ 	unsigned int i;
+ 	uint32_t buf[3], nel;
+ 	role_trans_t *tr, *ltr;
+ 	int rc;
++	int new_roletr = (p->policy_type == POLICY_KERN &&
++			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
  
-@@ -2945,6 +2947,9 @@ static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
- 		if (type_set_read(&tr->types, fp))
- 			return -1;
- 
-+		if (ebitmap_read(&tr->classes, fp))
-+			return -1;
-+
- 		rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	if (rc < 0)
+@@ -2125,12 +2135,22 @@ int role_trans_read(role_trans_t ** t, struct policy_file *fp)
+ 		} else {
+ 			*t = tr;
+ 		}
+-		rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
++		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
  		if (rc < 0)
  			return -1;
+ 		tr->role = le32_to_cpu(buf[0]);
+ 		tr->type = le32_to_cpu(buf[1]);
+-		tr->new_role = le32_to_cpu(buf[2]);
++		if (new_roletr) {
++			rc = next_entry(buf, fp, sizeof(uint32_t));
++			if (rc < 0)
++				return -1;
++			tr->cclass = le32_to_cpu(buf[0]);
++		} else
++			tr->cclass = SECCLASS_PROCESS;
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			return -1;
++		tr->new_role = le32_to_cpu(buf[0]);
+ 		ltr = tr;
+ 	}
+ 	return 0;
+@@ -3451,7 +3471,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 		if (r_policyvers >= POLICYDB_VERSION_BOOL)
+ 			if (cond_read_list(p, &p->cond_list, fp))
+ 				goto bad;
+-		if (role_trans_read(&p->role_tr, fp))
++		if (role_trans_read(p, fp))
+ 			goto bad;
+ 		if (role_allow_read(&p->role_allow, fp))
+ 			goto bad;
 diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 1db5960..a112c8c 100644
+index 00c605f..1db5960 100644
 --- a/libsepol/src/write.c
 +++ b/libsepol/src/write.c
-@@ -1458,6 +1458,8 @@ static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
- 			return POLICYDB_ERROR;
- 		if (type_set_write(&tr->types, fp))
- 			return POLICYDB_ERROR;
-+		if (ebitmap_write(&tr->classes, fp))
+@@ -462,11 +462,14 @@ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	return POLICYDB_SUCCESS;
+ }
+ 
+-static int role_trans_write(role_trans_t * r, struct policy_file *fp)
++static int role_trans_write(policydb_t *p, struct policy_file *fp)
+ {
++	role_trans_t *r = p->role_tr;
+ 	role_trans_t *tr;
+ 	uint32_t buf[3];
+ 	size_t nel, items;
++	int new_roletr = (p->policy_type == POLICY_KERN &&
++			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
+ 
+ 	nel = 0;
+ 	for (tr = r; tr; tr = tr->next)
+@@ -478,9 +481,18 @@ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
+ 	for (tr = r; tr; tr = tr->next) {
+ 		buf[0] = cpu_to_le32(tr->role);
+ 		buf[1] = cpu_to_le32(tr->type);
+-		buf[2] = cpu_to_le32(tr->new_role);
+-		items = put_entry(buf, sizeof(uint32_t), 3, fp);
+-		if (items != 3)
++		items = put_entry(buf, sizeof(uint32_t), 2, fp);
++		if (items != 2)
 +			return POLICYDB_ERROR;
- 		buf[0] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
++		if (new_roletr) {
++			buf[0] = cpu_to_le32(tr->cclass);
++			items = put_entry(buf, sizeof(uint32_t), 1, fp);
++			if (items != 1)
++				return POLICYDB_ERROR;
++		}
++		buf[0] = cpu_to_le32(tr->new_role);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
+ 			return POLICYDB_ERROR;
+ 	}
+ 
+@@ -1815,7 +1827,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+ 			if (cond_write_list(p, p->cond_list, fp))
+ 				return POLICYDB_ERROR;
+ 		}
+-		if (role_trans_write(p->role_tr, fp))
++		if (role_trans_write(p, fp))
+ 			return POLICYDB_ERROR;
+ 		if (role_allow_write(p->role_allow, fp))
+ 			return POLICYDB_ERROR;
 -- 
 1.7.0.4
 
