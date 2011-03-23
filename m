@@ -1,9 +1,9 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v0 PATCH 3/5] Handle the class in role_trans structure
-Date: Wed, 23 Mar 2011 10:28:43 +0800
-Message-Id: <1300847325-20308-7-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 2/5] Make role_transition parser to handle class field
+Date: Wed, 23 Mar 2011 10:28:42 +0800
+Message-Id: <1300847325-20308-6-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,135 +11,189 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Harry Ciao <harrytaurus2002@hotmail.com>
 
-Add the class support to various functions that handle the role_trans
-structure.
+If no class is specified in the role_transition rule, then it would
+be set to the "process" class by default.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/policydb.c |   28 ++++++++++++++++++++++++----
- libsepol/src/write.c    |   22 +++++++++++++++++-----
- 2 files changed, 41 insertions(+), 9 deletions(-)
+ checkpolicy/policy_define.c |   89 ++++++++++++++++++++++++++++++++-----------
+ checkpolicy/policy_define.h |    2 +-
+ checkpolicy/policy_parse.y  |    4 +-
+ 3 files changed, 71 insertions(+), 24 deletions(-)
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 5c0081f..9b43c56 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -137,6 +137,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_ROLETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -2103,12 +2110,15 @@ static int type_read(policydb_t * p
- 	return -1;
- }
- 
--int role_trans_read(role_trans_t ** t, struct policy_file *fp)
-+int role_trans_read(policydb_t *p, struct policy_file *fp)
- {
-+	role_trans_t **t = &p->role_tr;
- 	unsigned int i;
- 	uint32_t buf[3], nel;
- 	role_trans_t *tr, *ltr;
- 	int rc;
-+	int new_roletr = (p->policy_type == POLICY_KERN &&
-+			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
- 
- 	rc = next_entry(buf, fp, sizeof(uint32_t));
- 	if (rc < 0)
-@@ -2125,12 +2135,22 @@ int role_trans_read(role_trans_t ** t, struct policy_file *fp)
- 		} else {
- 			*t = tr;
- 		}
--		rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
-+		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
- 		if (rc < 0)
- 			return -1;
- 		tr->role = le32_to_cpu(buf[0]);
- 		tr->type = le32_to_cpu(buf[1]);
--		tr->new_role = le32_to_cpu(buf[2]);
-+		if (new_roletr) {
-+			rc = next_entry(buf, fp, sizeof(uint32_t));
-+			if (rc < 0)
-+				return -1;
-+			tr->cclass = le32_to_cpu(buf[0]);
-+		} else
-+			tr->cclass = SECCLASS_PROCESS;
-+		rc = next_entry(buf, fp, sizeof(uint32_t));
-+		if (rc < 0)
-+			return -1;
-+		tr->new_role = le32_to_cpu(buf[0]);
- 		ltr = tr;
- 	}
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 82ab44c..6c28d8a 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -2050,17 +2050,18 @@ static int set_roles(role_set_t * set, char *id)
  	return 0;
-@@ -3451,7 +3471,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 		if (r_policyvers >= POLICYDB_VERSION_BOOL)
- 			if (cond_read_list(p, &p->cond_list, fp))
- 				goto bad;
--		if (role_trans_read(&p->role_tr, fp))
-+		if (role_trans_read(p, fp))
- 			goto bad;
- 		if (role_allow_read(&p->role_allow, fp))
- 			goto bad;
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 00c605f..1db5960 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -462,11 +462,14 @@ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	return POLICYDB_SUCCESS;
  }
  
--static int role_trans_write(role_trans_t * r, struct policy_file *fp)
-+static int role_trans_write(policydb_t *p, struct policy_file *fp)
+-int define_role_trans(void)
++int define_role_trans(int class_specified)
  {
-+	role_trans_t *r = p->role_tr;
- 	role_trans_t *tr;
- 	uint32_t buf[3];
- 	size_t nel, items;
-+	int new_roletr = (p->policy_type == POLICY_KERN &&
-+			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
+ 	char *id;
+ 	role_datum_t *role;
+ 	role_set_t roles;
+ 	type_set_t types;
+-	ebitmap_t e_types, e_roles;
+-	ebitmap_node_t *tnode, *rnode;
++	class_datum_t *cladatum;
++	ebitmap_t e_types, e_roles, classes;
++	ebitmap_node_t *tnode, *rnode, *cnode;
+ 	struct role_trans *tr = NULL;
+ 	struct role_trans_rule *rule = NULL;
+-	unsigned int i, j;
++	unsigned int i, j, k;
+ 	int add = 1;
  
- 	nel = 0;
- 	for (tr = r; tr; tr = tr->next)
-@@ -478,9 +481,18 @@ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
- 	for (tr = r; tr; tr = tr->next) {
- 		buf[0] = cpu_to_le32(tr->role);
- 		buf[1] = cpu_to_le32(tr->type);
--		buf[2] = cpu_to_le32(tr->new_role);
--		items = put_entry(buf, sizeof(uint32_t), 3, fp);
--		if (items != 3)
-+		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+		if (items != 2)
-+			return POLICYDB_ERROR;
-+		if (new_roletr) {
-+			buf[0] = cpu_to_le32(tr->cclass);
-+			items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+			if (items != 1)
-+				return POLICYDB_ERROR;
-+		}
-+		buf[0] = cpu_to_le32(tr->new_role);
-+		items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+		if (items != 1)
- 			return POLICYDB_ERROR;
+ 	if (pass == 1) {
+@@ -2068,6 +2069,9 @@ int define_role_trans(void)
+ 			free(id);
+ 		while ((id = queue_remove(id_queue)))
+ 			free(id);
++		if (class_specified)
++			while ((id = queue_remove(id_queue)))
++				free(id);
+ 		id = queue_remove(id_queue);
+ 		free(id);
+ 		return 0;
+@@ -2077,6 +2081,7 @@ int define_role_trans(void)
+ 	ebitmap_init(&e_roles);
+ 	type_set_init(&types);
+ 	ebitmap_init(&e_types);
++	ebitmap_init(&classes);
+ 
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_roles(&roles, id))
+@@ -2088,6 +2093,35 @@ int define_role_trans(void)
+ 			return -1;
  	}
  
-@@ -1815,7 +1827,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 			if (cond_write_list(p, p->cond_list, fp))
- 				return POLICYDB_ERROR;
++	if (class_specified) {
++		while ((id = queue_remove(id_queue))) {
++			if (!is_id_in_scope(SYM_CLASSES, id)) {
++				yyerror2("class %s is not within scope", id);
++				free(id);
++				return -1;
++			}
++			cladatum = hashtab_search(policydbp->p_classes.table,
++						  id);
++			if (!cladatum) {
++				yyerror2("unknow class %s", id);
++				return -1;
++			}
++
++			ebitmap_set_bit(&classes, cladatum->s.value - 1, TRUE);
++			free(id);
++		}
++	} else {
++		cladatum = hashtab_search(policydbp->p_classes.table,
++					  "process");
++		if (!cladatum) {
++			yyerror2("could not find process class for "
++				 "legacy role_transition statement");
++			return -1;
++		}
++
++		ebitmap_set_bit(&classes, cladatum->s.value - 1, TRUE);
++	}
++
+ 	id = (char *)queue_remove(id_queue);
+ 	if (!id) {
+ 		yyerror("no new role in transition definition?");
+@@ -2117,27 +2151,37 @@ int define_role_trans(void)
+ 		ebitmap_for_each_bit(&e_types, tnode, j) {
+ 			if (!ebitmap_node_get_bit(tnode, j))
+ 				continue;
+-
+-			for (tr = policydbp->role_tr; tr; tr = tr->next) {
+-				if (tr->role == (i + 1) && tr->type == (j + 1)) {
+-					yyerror2("duplicate role transition for (%s,%s)",
+-					      role_val_to_name(i + 1),
+-					      policydbp->p_type_val_to_name[j]);
+-					goto bad;
++			ebitmap_for_each_bit(&classes, cnode, k) {
++				if (!ebitmap_node_get_bit(cnode, k))
++					continue;
++				for (tr = policydbp->role_tr; tr;
++				     tr = tr->next) {
++					if (tr->role == (i + 1) &&
++					    tr->type == (j + 1) &&
++					    tr->cclass == (k + 1)) {
++						yyerror2("duplicate role "
++							 "transition for "
++							 "(%s,%s,%s)",
++							 role_val_to_name(i+1),
++							 policydbp->p_type_val_to_name[j],
++							 policydbp->p_class_val_to_name[k]);
++						goto bad;
++					}
+ 				}
+-			}
+ 
+-			tr = malloc(sizeof(struct role_trans));
+-			if (!tr) {
+-				yyerror("out of memory");
+-				return -1;
++				tr = malloc(sizeof(struct role_trans));
++				if (!tr) {
++					yyerror("out of memory");
++					return -1;
++				}
++				memset(tr, 0, sizeof(struct role_trans));
++				tr->role = i + 1;
++				tr->type = j + 1;
++				tr->cclass = k + 1;
++				tr->new_role = role->s.value;
++				tr->next = policydbp->role_tr;
++				policydbp->role_tr = tr;
+ 			}
+-			memset(tr, 0, sizeof(struct role_trans));
+-			tr->role = i + 1;
+-			tr->type = j + 1;
+-			tr->new_role = role->s.value;
+-			tr->next = policydbp->role_tr;
+-			policydbp->role_tr = tr;
  		}
--		if (role_trans_write(p->role_tr, fp))
-+		if (role_trans_write(p, fp))
- 			return POLICYDB_ERROR;
- 		if (role_allow_write(p->role_allow, fp))
- 			return POLICYDB_ERROR;
+ 	}
+ 	/* Now add the real rule */
+@@ -2149,6 +2193,7 @@ int define_role_trans(void)
+ 	memset(rule, 0, sizeof(struct role_trans_rule));
+ 	rule->roles = roles;
+ 	rule->types = types;
++	rule->classes = classes;
+ 	rule->new_role = role->s.value;
+ 
+ 	append_role_trans(rule);
+diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+index 5ac6667..2f7a78f 100644
+--- a/checkpolicy/policy_define.h
++++ b/checkpolicy/policy_define.h
+@@ -45,7 +45,7 @@ int define_ioport_context(unsigned long low, unsigned long high);
+ int define_pcidevice_context(unsigned long device);
+ int define_range_trans(int class_specified);
+ int define_role_allow(void);
+-int define_role_trans(void);
++int define_role_trans(int class_specified);
+ int define_role_types(void);
+ int define_sens(void);
+ int define_te_avtab(int which);
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index 8d1bc37..8c29e2b 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -417,7 +417,9 @@ role_type_def		: ROLE identifier TYPES names ';'
+ role_dominance		: DOMINANCE '{' roles '}'
+ 			;
+ role_trans_def		: ROLE_TRANSITION names names identifier ';'
+-			{if (define_role_trans()) return -1; }
++			{if (define_role_trans(0)) return -1; }
++			| ROLE_TRANSITION names names ':' names identifier ';'
++			{if (define_role_trans(1)) return -1;}
+ 			;
+ role_allow_def		: ALLOW names names ';'
+ 			{if (define_role_allow()) return -1; }
 -- 
 1.7.0.4
 
