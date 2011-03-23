@@ -1,166 +1,166 @@
-Date: Wed, 23 Mar 2011 09:10:48 +0800 (CST)
-From: Yao <yffbrave@163.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-Message-ID: <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
-In-Reply-To: <1300710582.29422.12.camel@moss-pluto>
-References: <1300710582.29422.12.camel@moss-pluto>
- <1300456978.25429.29.camel@moss-pluto>
- <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
- <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
-Subject: Re:Re: Re:Re: about ss
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_14593_15778638.1300842648390"
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
+Cc: selinux@tycho.nsa.gov
+Subject: v0 Add class support to the role_transition rule
+Date: Wed, 23 Mar 2011 10:28:37 +0800
+Message-Id: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_14593_15778638.1300842648390
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
 
-CkF0IDIwMTEtMDMtMjGjrCJTdGVwaGVuIFNtYWxsZXkiIDxzZHNAdHljaG8ubnNhLmdvdj4gd3Jv
-dGU6Cgo+T24gTW9uLCAyMDExLTAzLTIxIGF0IDExOjExICswODAwLCBZYW8gd3JvdGU6Cj4+IEF0
-IDIwMTEtMDMtMTijrCJTdGVwaGVuIFNtYWxsZXkiIDxzZHNAdHljaG8ubnNhLmdvdj4gd3JvdGU6
-Cj4+ID5UaGUgb3JpZ2luYWwgc2VjdXJpdHkgc2VydmVyIGNvZGUgd2FzIGRldmVsb3BlZCBmb3Ig
-YW5vdGhlciBPUwo+PiA+KEZsdWtlL0ZsYXNrKSBhbmQgdGhlbiBwb3J0ZWQgdG8gTGludXguICBU
-aGVyZSBhcmUgYSBzbWFsbCBudW1iZXIgb2YKPj4gPmZ1bmRhbWVudGFsIGRlcGVuZGVuY2llcyBv
-biB0aGUgcnVudGltZSBlbnZpcm9ubWVudCwgbGlrZSBtZW1vcnkKPj4gPmFsbG9jYXRpb24sIGxv
-Z2dpbmcvYXVkaXRpbmcsIGxvY2tpbmcsIGV0Yy4gIE92ZXIgdGltZSwgdGhlIHNlY3VyaXR5Cj4+
-ID5zZXJ2ZXIgY29kZSBpbiBMaW51eCBoYXMgYmVjb21lIGluY3JlYXNpbmdseSAibmF0aXZpemVk
-IiBmb3IgTGludXggc28KPj4gPnlvdSBtYXkgZmluZCBmdXJ0aGVyIGRlcGVuZGVuY2llcyBpbiB0
-aGUgY3VycmVudCBjb2RlLgo+PiA+Cj4+IHNvLCBpdCdzIGhhcmQgdG8gbW9kaWZ5IHNzIHRvIG1h
-a2UgaXQgc2VsZi1jb250YWluZWQsIHJpZ2h0Pwo+Cj5ObywgdGhlIHNzIGlzIGFscmVhZHkgcmVh
-c29uYWJseSBzZWxmLWNvbnRhaW5lZCAobW9kdWxvIHRoZSBydW50aW1lCj5lbnZpcm9ubWVudCBk
-ZXBlbmRlbmNpZXMgdGhhdCBhbnkgcGllY2Ugb2Ygc29mdHdhcmUgd291bGQgaGF2ZSwgbGlrZQo+
-bWVtb3J5IGFsbG9jYXRpb24sIGxvY2tpbmcsIGxvZ2dpbmcsIGV0YykgYW5kIEkgcG9pbnRlZCB5
-b3UgdG8gYWx0ZXJuYXRlCj52ZXJzaW9ucyBvZiB0aGUgc2VjdXJpdHkgc2VydmVyIGNvZGUgdGhh
-dCBhcmUgZXZlbiBtb3JlIHNlbGYtY29udGFpbmVkCj5pZiB5b3UgaGF2ZSBkaWZmaWN1bHR5IGxl
-dmVyYWdpbmcgdGhlIExpbnV4IGtlcm5lbCB2ZXJzaW9uLiAgVGhlIE9TS2l0Cj5pbiBwYXJ0aWN1
-bGFyIHdhcyBjYXJlZnVsbHkgZGVzaWduZWQgdG8gZXhwbGljaXRseSBpZGVudGlmeSBhbGwKPmRl
-cGVuZGVuY2llcyBvbiB0aGUgcnVudGltZSBlbnZpcm9ubWVudC4KPgo+PiBJIGp1c3Qgd29uZGVy
-IGlmIHRoZXJlIGlzIGEgc2VjdXJpdHkgbW9kdWxlIHdpdGhvdXQgaW52b2tpbmcga2VybmVsIGZ1
-bmN0aW9uIGJ1dCB0byBzdXBwb3J0IGZsYXNrLCB0aG91Z2gga2VybmVsIGRhdGEgaXMgcGVybWl0
-dGVkLi4uCj4+IElzIEFwcEFybW9yIGZpdCB0byBteSBkZXNpcmU/Cj4KPlNFTGludXggaXMgYXJj
-aGl0ZWN0ZWQgaW4gc3VjaCBhIG1hbm5lciB0aGF0IGl0cyBwb2xpY3kgZW5naW5lLCB0aGUKPnNl
-Y3VyaXR5IHNlcnZlciwgaXMgd2VsbCBlbmNhcHN1bGF0ZWQgYmVoaW5kIGEgZ2VuZXJhbCBzZWN1
-cml0eQo+aW50ZXJmYWNlLCBhbmQgdGh1cyB0aGUgc2VjdXJpdHkgc2VydmVyIGlzIG5vdCB0aWdo
-dGx5IGNvdXBsZWQgdG8gdGhlCj5PUy4gIEFwcEFybW9yIGFuZCBvdGhlciBMaW51eCBzZWN1cml0
-eSBtb2R1bGVzIGxhY2sgc3VjaCBhbiBhcmNoaXRlY3R1cmUKPmFuZCB0aHVzIGFyZSBtb3JlIHRp
-Z2h0bHkgY291cGxlZCB0byBMaW51eC4KPgo+SXQgaXMgaGFyZCB0byBhbnN3ZXIgeW91ciBxdWVz
-dGlvbiB0aG91Z2ggd2l0aG91dCB1bmRlcnN0YW5kaW5nIGhvdyB5b3UKPndhbnQgdG8gdXNlIHRo
-ZSBzZWN1cml0eSBzZXJ2ZXIuICBJZiB5b3UganVzdCB3YW50IHRvIHVzZSBpdCBmcm9tIGFuCj5h
-cHBsaWNhdGlvbiBydW5uaW5nIG9uIExpbnV4LCB0aGVuIEthaUdhaSBpcyBjb3JyZWN0IC0geW91
-IGNhbiBqdXN0IHVzZQo+dGhlIGxpYnNlbGludXggaW50ZXJmYWNlcyB0byBpbnZva2UgdGhlIHNl
-Y3VyaXR5IHNlcnZlci4gIElmIHlvdSB3YW50IHRvCj5wb3J0IGl0IHRvIHNvbWUgb3RoZXIgT1Ms
-IHRoZW4gdGhlIGxpYnNlcG9sIG9yIE9TS2l0IHZlcnNpb25zIG1heSBiZSBhCj5iZXR0ZXIgc3Rh
-cnRpbmcgcG9pbnQuICBZb3UgbWF5IGZpbmQgdGhhdCB0aGVyZSBpcyBhbHJlYWR5IGEgcG9ydCB0
-byB0aGUKPk9TIG9mIGludGVyZXN0LgpNYXliZSBJIHNob3VsZCBleHBsYWluLiBXZSB0aGluayBr
-ZXJuZWwgaXMgdW50cnVzdGVkLCBzcyBpcyB0cnVzdGVkLiB3ZSBwcm90ZWN0IHRoZSBzZWN1cml0
-eSBzZXJ2ZXIgdGhyb3VnaCBnZXJlbmF0aW5nIGEgc2VwYXJhdGUgYWRkcmVzcyBzcGFjZS4gV2hl
-biB3ZSBuZWVkIHRvIHVzZSBzcywgd2Ugc3dpdGNoIHRvIHRoaXMgc3BhY2UuIElmIHVudHJ1c3Rl
-ZCBrZXJuZWwgY29kZSBjYW4gYmUgZXhlY3V0ZWQsIHdoYXQgd2UgZG8gYmVjYW1lIG1lYW5pbmds
-ZXNzLiBUaGF0J3Mgd2h5IHdlIHdhbnQgdGhlIHNzIHNlbGYtY29udGFpbmVkLiBBbmQgb3VyIHdv
-cmsgc2hvdWxkIGFwcGx5IHRvIGZsYXNrIGFyY2hpdGVjdHVyZSwgdGhhdCdzIHdoeSB3ZSBjaG9z
-ZSBzZWxpbnV4LgpJcyBpdCBwb3NzaWJsZSB0byBmdWxpbGwgbXkgZ29hbCB3aXRob3V0IG1vZGlm
-eWluZyBzcyBleGNlc3NpdmVseT8KCgpSZWdhcmRzLApZYW8KPi0tIAo+U3RlcGhlbiBTbWFsbGV5
-Cj5OYXRpb25hbCBTZWN1cml0eSBBZ2VuY3kKPgo+Cj4tLQo+VGhpcyBtZXNzYWdlIHdhcyBkaXN0
-cmlidXRlZCB0byBzdWJzY3JpYmVycyBvZiB0aGUgc2VsaW51eCBtYWlsaW5nIGxpc3QuCj5JZiB5
-b3Ugbm8gbG9uZ2VyIHdpc2ggdG8gc3Vic2NyaWJlLCBzZW5kIG1haWwgdG8gbWFqb3Jkb21vQHR5
-Y2hvLm5zYS5nb3Ygd2l0aAo+dGhlIHdvcmRzICJ1bnN1YnNjcmliZSBzZWxpbnV4IiB3aXRob3V0
-IHF1b3RlcyBhcyB0aGUgbWVzc2FnZS4K
-------=_Part_14593_15778638.1300842648390
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
+Comments:
+---------
+Add class support to the role_transition rule so that it could be used in
+a much more generalized	manner.
 
-PHByZT48YnI+QXQmbmJzcDsyMDExLTAzLTIxo6wiU3RlcGhlbiZuYnNwO1NtYWxsZXkiJm5ic3A7
-Jmx0O3Nkc0B0eWNoby5uc2EuZ292Jmd0OyZuYnNwO3dyb3RlOgoKJmd0O09uJm5ic3A7TW9uLCZu
-YnNwOzIwMTEtMDMtMjEmbmJzcDthdCZuYnNwOzExOjExJm5ic3A7KzA4MDAsJm5ic3A7WWFvJm5i
-c3A7d3JvdGU6CiZndDsmZ3Q7Jm5ic3A7QXQmbmJzcDsyMDExLTAzLTE4o6wiU3RlcGhlbiZuYnNw
-O1NtYWxsZXkiJm5ic3A7Jmx0O3Nkc0B0eWNoby5uc2EuZ292Jmd0OyZuYnNwO3dyb3RlOgomZ3Q7
-Jmd0OyZuYnNwOyZndDtUaGUmbmJzcDtvcmlnaW5hbCZuYnNwO3NlY3VyaXR5Jm5ic3A7c2VydmVy
-Jm5ic3A7Y29kZSZuYnNwO3dhcyZuYnNwO2RldmVsb3BlZCZuYnNwO2ZvciZuYnNwO2Fub3RoZXIm
-bmJzcDtPUwomZ3Q7Jmd0OyZuYnNwOyZndDsoRmx1a2UvRmxhc2spJm5ic3A7YW5kJm5ic3A7dGhl
-biZuYnNwO3BvcnRlZCZuYnNwO3RvJm5ic3A7TGludXguJm5ic3A7Jm5ic3A7VGhlcmUmbmJzcDth
-cmUmbmJzcDthJm5ic3A7c21hbGwmbmJzcDtudW1iZXImbmJzcDtvZgomZ3Q7Jmd0OyZuYnNwOyZn
-dDtmdW5kYW1lbnRhbCZuYnNwO2RlcGVuZGVuY2llcyZuYnNwO29uJm5ic3A7dGhlJm5ic3A7cnVu
-dGltZSZuYnNwO2Vudmlyb25tZW50LCZuYnNwO2xpa2UmbmJzcDttZW1vcnkKJmd0OyZndDsmbmJz
-cDsmZ3Q7YWxsb2NhdGlvbiwmbmJzcDtsb2dnaW5nL2F1ZGl0aW5nLCZuYnNwO2xvY2tpbmcsJm5i
-c3A7ZXRjLiZuYnNwOyZuYnNwO092ZXImbmJzcDt0aW1lLCZuYnNwO3RoZSZuYnNwO3NlY3VyaXR5
-CiZndDsmZ3Q7Jm5ic3A7Jmd0O3NlcnZlciZuYnNwO2NvZGUmbmJzcDtpbiZuYnNwO0xpbnV4Jm5i
-c3A7aGFzJm5ic3A7YmVjb21lJm5ic3A7aW5jcmVhc2luZ2x5Jm5ic3A7Im5hdGl2aXplZCImbmJz
-cDtmb3ImbmJzcDtMaW51eCZuYnNwO3NvCiZndDsmZ3Q7Jm5ic3A7Jmd0O3lvdSZuYnNwO21heSZu
-YnNwO2ZpbmQmbmJzcDtmdXJ0aGVyJm5ic3A7ZGVwZW5kZW5jaWVzJm5ic3A7aW4mbmJzcDt0aGUm
-bmJzcDtjdXJyZW50Jm5ic3A7Y29kZS4KJmd0OyZndDsmbmJzcDsmZ3Q7CiZndDsmZ3Q7Jm5ic3A7
-c28sJm5ic3A7aXQncyZuYnNwO2hhcmQmbmJzcDt0byZuYnNwO21vZGlmeSZuYnNwO3NzJm5ic3A7
-dG8mbmJzcDttYWtlJm5ic3A7aXQmbmJzcDtzZWxmLWNvbnRhaW5lZCwmbmJzcDtyaWdodD8KJmd0
-OwomZ3Q7Tm8sJm5ic3A7dGhlJm5ic3A7c3MmbmJzcDtpcyZuYnNwO2FscmVhZHkmbmJzcDtyZWFz
-b25hYmx5Jm5ic3A7c2VsZi1jb250YWluZWQmbmJzcDsobW9kdWxvJm5ic3A7dGhlJm5ic3A7cnVu
-dGltZQomZ3Q7ZW52aXJvbm1lbnQmbmJzcDtkZXBlbmRlbmNpZXMmbmJzcDt0aGF0Jm5ic3A7YW55
-Jm5ic3A7cGllY2UmbmJzcDtvZiZuYnNwO3NvZnR3YXJlJm5ic3A7d291bGQmbmJzcDtoYXZlLCZu
-YnNwO2xpa2UKJmd0O21lbW9yeSZuYnNwO2FsbG9jYXRpb24sJm5ic3A7bG9ja2luZywmbmJzcDts
-b2dnaW5nLCZuYnNwO2V0YykmbmJzcDthbmQmbmJzcDtJJm5ic3A7cG9pbnRlZCZuYnNwO3lvdSZu
-YnNwO3RvJm5ic3A7YWx0ZXJuYXRlCiZndDt2ZXJzaW9ucyZuYnNwO29mJm5ic3A7dGhlJm5ic3A7
-c2VjdXJpdHkmbmJzcDtzZXJ2ZXImbmJzcDtjb2RlJm5ic3A7dGhhdCZuYnNwO2FyZSZuYnNwO2V2
-ZW4mbmJzcDttb3JlJm5ic3A7c2VsZi1jb250YWluZWQKJmd0O2lmJm5ic3A7eW91Jm5ic3A7aGF2
-ZSZuYnNwO2RpZmZpY3VsdHkmbmJzcDtsZXZlcmFnaW5nJm5ic3A7dGhlJm5ic3A7TGludXgmbmJz
-cDtrZXJuZWwmbmJzcDt2ZXJzaW9uLiZuYnNwOyZuYnNwO1RoZSZuYnNwO09TS2l0CiZndDtpbiZu
-YnNwO3BhcnRpY3VsYXImbmJzcDt3YXMmbmJzcDtjYXJlZnVsbHkmbmJzcDtkZXNpZ25lZCZuYnNw
-O3RvJm5ic3A7ZXhwbGljaXRseSZuYnNwO2lkZW50aWZ5Jm5ic3A7YWxsCiZndDtkZXBlbmRlbmNp
-ZXMmbmJzcDtvbiZuYnNwO3RoZSZuYnNwO3J1bnRpbWUmbmJzcDtlbnZpcm9ubWVudC4KJmd0Owom
-Z3Q7Jmd0OyZuYnNwO0kmbmJzcDtqdXN0Jm5ic3A7d29uZGVyJm5ic3A7aWYmbmJzcDt0aGVyZSZu
-YnNwO2lzJm5ic3A7YSZuYnNwO3NlY3VyaXR5Jm5ic3A7bW9kdWxlJm5ic3A7d2l0aG91dCZuYnNw
-O2ludm9raW5nJm5ic3A7a2VybmVsJm5ic3A7ZnVuY3Rpb24mbmJzcDtidXQmbmJzcDt0byZuYnNw
-O3N1cHBvcnQmbmJzcDtmbGFzaywmbmJzcDt0aG91Z2gmbmJzcDtrZXJuZWwmbmJzcDtkYXRhJm5i
-c3A7aXMmbmJzcDtwZXJtaXR0ZWQuLi4KJmd0OyZndDsmbmJzcDtJcyZuYnNwO0FwcEFybW9yJm5i
-c3A7Zml0Jm5ic3A7dG8mbmJzcDtteSZuYnNwO2Rlc2lyZT8KJmd0OwomZ3Q7U0VMaW51eCZuYnNw
-O2lzJm5ic3A7YXJjaGl0ZWN0ZWQmbmJzcDtpbiZuYnNwO3N1Y2gmbmJzcDthJm5ic3A7bWFubmVy
-Jm5ic3A7dGhhdCZuYnNwO2l0cyZuYnNwO3BvbGljeSZuYnNwO2VuZ2luZSwmbmJzcDt0aGUKJmd0
-O3NlY3VyaXR5Jm5ic3A7c2VydmVyLCZuYnNwO2lzJm5ic3A7d2VsbCZuYnNwO2VuY2Fwc3VsYXRl
-ZCZuYnNwO2JlaGluZCZuYnNwO2EmbmJzcDtnZW5lcmFsJm5ic3A7c2VjdXJpdHkKJmd0O2ludGVy
-ZmFjZSwmbmJzcDthbmQmbmJzcDt0aHVzJm5ic3A7dGhlJm5ic3A7c2VjdXJpdHkmbmJzcDtzZXJ2
-ZXImbmJzcDtpcyZuYnNwO25vdCZuYnNwO3RpZ2h0bHkmbmJzcDtjb3VwbGVkJm5ic3A7dG8mbmJz
-cDt0aGUKJmd0O09TLiZuYnNwOyZuYnNwO0FwcEFybW9yJm5ic3A7YW5kJm5ic3A7b3RoZXImbmJz
-cDtMaW51eCZuYnNwO3NlY3VyaXR5Jm5ic3A7bW9kdWxlcyZuYnNwO2xhY2smbmJzcDtzdWNoJm5i
-c3A7YW4mbmJzcDthcmNoaXRlY3R1cmUKJmd0O2FuZCZuYnNwO3RodXMmbmJzcDthcmUmbmJzcDtt
-b3JlJm5ic3A7dGlnaHRseSZuYnNwO2NvdXBsZWQmbmJzcDt0byZuYnNwO0xpbnV4LgomZ3Q7CiZn
-dDtJdCZuYnNwO2lzJm5ic3A7aGFyZCZuYnNwO3RvJm5ic3A7YW5zd2VyJm5ic3A7eW91ciZuYnNw
-O3F1ZXN0aW9uJm5ic3A7dGhvdWdoJm5ic3A7d2l0aG91dCZuYnNwO3VuZGVyc3RhbmRpbmcmbmJz
-cDtob3cmbmJzcDt5b3UKJmd0O3dhbnQmbmJzcDt0byZuYnNwO3VzZSZuYnNwO3RoZSZuYnNwO3Nl
-Y3VyaXR5Jm5ic3A7c2VydmVyLiZuYnNwOyZuYnNwO0lmJm5ic3A7eW91Jm5ic3A7anVzdCZuYnNw
-O3dhbnQmbmJzcDt0byZuYnNwO3VzZSZuYnNwO2l0Jm5ic3A7ZnJvbSZuYnNwO2FuCiZndDthcHBs
-aWNhdGlvbiZuYnNwO3J1bm5pbmcmbmJzcDtvbiZuYnNwO0xpbnV4LCZuYnNwO3RoZW4mbmJzcDtL
-YWlHYWkmbmJzcDtpcyZuYnNwO2NvcnJlY3QmbmJzcDstJm5ic3A7eW91Jm5ic3A7Y2FuJm5ic3A7
-anVzdCZuYnNwO3VzZQomZ3Q7dGhlJm5ic3A7bGlic2VsaW51eCZuYnNwO2ludGVyZmFjZXMmbmJz
-cDt0byZuYnNwO2ludm9rZSZuYnNwO3RoZSZuYnNwO3NlY3VyaXR5Jm5ic3A7c2VydmVyLiZuYnNw
-OyZuYnNwO0lmJm5ic3A7eW91Jm5ic3A7d2FudCZuYnNwO3RvCiZndDtwb3J0Jm5ic3A7aXQmbmJz
-cDt0byZuYnNwO3NvbWUmbmJzcDtvdGhlciZuYnNwO09TLCZuYnNwO3RoZW4mbmJzcDt0aGUmbmJz
-cDtsaWJzZXBvbCZuYnNwO29yJm5ic3A7T1NLaXQmbmJzcDt2ZXJzaW9ucyZuYnNwO21heSZuYnNw
-O2JlJm5ic3A7YQomZ3Q7YmV0dGVyJm5ic3A7c3RhcnRpbmcmbmJzcDtwb2ludC4mbmJzcDsmbmJz
-cDtZb3UmbmJzcDttYXkmbmJzcDtmaW5kJm5ic3A7dGhhdCZuYnNwO3RoZXJlJm5ic3A7aXMmbmJz
-cDthbHJlYWR5Jm5ic3A7YSZuYnNwO3BvcnQmbmJzcDt0byZuYnNwO3RoZQomZ3Q7T1MmbmJzcDtv
-ZiZuYnNwO2ludGVyZXN0LgpNYXliZSBJIHNob3VsZCBleHBsYWluLiBXZSB0aGluayBrZXJuZWwg
-aXMgdW50cnVzdGVkLCBzcyBpcyB0cnVzdGVkLiB3ZSBwcm90ZWN0IHRoZSBzZWN1cml0eSBzZXJ2
-ZXIgdGhyb3VnaCBnZXJlbmF0aW5nIGEgc2VwYXJhdGUgYWRkcmVzcyBzcGFjZS4gV2hlbiB3ZSBu
-ZWVkIHRvIHVzZSBzcywgd2Ugc3dpdGNoIHRvIHRoaXMgc3BhY2UuIElmIHVudHJ1c3RlZCBrZXJu
-ZWwgY29kZSBjYW4gYmUgZXhlY3V0ZWQsIHdoYXQgd2UgZG8gYmVjYW1lIG1lYW5pbmdsZXNzLiBU
-aGF0J3Mgd2h5IHdlIHdhbnQgdGhlIHNzIHNlbGYtY29udGFpbmVkLiBBbmQgb3VyIHdvcmsgc2hv
-dWxkIGFwcGx5IHRvIGZsYXNrIGFyY2hpdGVjdHVyZSwgdGhhdCdzIHdoeSB3ZSBjaG9zZSBzZWxp
-bnV4LjwvcHJlPjxwcmU+SXMgaXQgcG9zc2libGUgdG8gZnVsaWxsIG15IGdvYWwgd2l0aG91dCBt
-b2RpZnlpbmcgc3MgZXhjZXNzaXZlbHk/PC9wcmU+PHByZT48YnI+PC9wcmU+PHByZT5SZWdhcmRz
-LDwvcHJlPjxwcmU+WWFvPC9wcmU+PHByZT4mZ3Q7LS0mbmJzcDsKJmd0O1N0ZXBoZW4mbmJzcDtT
-bWFsbGV5CiZndDtOYXRpb25hbCZuYnNwO1NlY3VyaXR5Jm5ic3A7QWdlbmN5CiZndDsKJmd0Owom
-Z3Q7LS0KJmd0O1RoaXMmbmJzcDttZXNzYWdlJm5ic3A7d2FzJm5ic3A7ZGlzdHJpYnV0ZWQmbmJz
-cDt0byZuYnNwO3N1YnNjcmliZXJzJm5ic3A7b2YmbmJzcDt0aGUmbmJzcDtzZWxpbnV4Jm5ic3A7
-bWFpbGluZyZuYnNwO2xpc3QuCiZndDtJZiZuYnNwO3lvdSZuYnNwO25vJm5ic3A7bG9uZ2VyJm5i
-c3A7d2lzaCZuYnNwO3RvJm5ic3A7c3Vic2NyaWJlLCZuYnNwO3NlbmQmbmJzcDttYWlsJm5ic3A7
-dG8mbmJzcDttYWpvcmRvbW9AdHljaG8ubnNhLmdvdiZuYnNwO3dpdGgKJmd0O3RoZSZuYnNwO3dv
-cmRzJm5ic3A7InVuc3Vic2NyaWJlJm5ic3A7c2VsaW51eCImbmJzcDt3aXRob3V0Jm5ic3A7cXVv
-dGVzJm5ic3A7YXMmbmJzcDt0aGUmbmJzcDttZXNzYWdlLgo8L3ByZT48YnI+PGJyPjxzcGFuIHRp
-dGxlPSJuZXRlYXNlZm9vdGVyIj48c3BhbiBpZD0ibmV0ZWFzZV9tYWlsX2Zvb3RlciI+PC9zcGFu
-Pjwvc3Bhbj4=
-------=_Part_14593_15778638.1300842648390--
+So far the semantics of the role_transition rule does not support specifying
+the class, and in SELinux kernel security server it could be applied to the
+process class only.
 
+With the class support the role_transition rule could be used for non-process
+classes, and the newly created object could have roles other than "object_r",
+which is a prerequisit for real RBAC separation development in the future.
+
+
+Testings I've done:
+-------------------
+
+0. Add below snippet into sysadm.te for testing:
+
+   role_transition sysadm_r user_home_t:{ file dir lnk_file fifo_file sock_file chr_file blk_file } sysadm_r;
+   role sysadm_r types user_home_t;
+   
+   gen_require(`
+           type vlock_exec_t, vlock_t;
+   ')
+   role_transition sysadm_r vlock_exec_t system_r;
+   
+1. Verify that the dismod program could display the class field of the
+   role_transition rule correctly:
+   
+   /work/selinux/selinux/checkpolicy$ test/dismod /work/selinux/refpolicy/sysadm.pp 
+   Reading policy...
+   ......
+   ......
+   Command ('m' for menu):  7
+   role transitions:
+   --- begin avrule block ---
+   decl 1:
+   role transition  sysadm_r [vlock_exec_t] : [process] system_r
+   role transition  sysadm_r [user_home_t] :{ [file] [dir] [lnk_file] [chr_file] [blk_file] [sock_file] [fifo_file] } sysadm_r
+   --- begin avrule block ---
+   decl 2:
+   ......
+   --- begin avrule block ---
+   decl 342:
+   
+   Command ('m' for menu):  q
+   /work/selinux/selinux/checkpolicy$ 
+   
+2. Further verify the binary reprensentation of the role_transition rule
+   are correct:
+   
+   /work/selinux/refpolicy$ ls -lt /etc/selinux/refpolicy-mls/policy/policy.25 
+   -rw-r--r--. 2 root root 5849742 2011-03-22 15:39 /etc/selinux/refpolicy-mls/policy/policy.25
+   /work/selinux/refpolicy$ xxd /etc/selinux/refpolicy-mls/policy/policy.25 > policy_25_xxd
+   /work/selinux/refpolicy$ vim policy_25_xxd
+   ......
+   055c510:                                    0d00  l.....S.........
+   055c520: 0000 0300 0000 a006 0000 0200 0000 0b00  ................
+   055c530: 0000 0300 0000 a103 0000 0200 0000 0b00  ................
+   055c540: 0000 0800 0000 b707 0000 0200 0000 0b00  ................
+   055c550: 0000 0800 0000 a70a 0000 0200 0000 0b00  ................
+   055c560: 0000 0a00 0000 db00 0000 0200 0000 0b00  ................
+   055c570: 0000 0a00 0000 8e05 0000 0600 0000 0a00  ................
+   055c580: 0000 0a00 0000 8e05 0000 0700 0000 0a00  ................
+   055c590: 0000 0a00 0000 8e05 0000 0900 0000 0a00  ................
+   055c5a0: 0000 0a00 0000 8e05 0000 0a00 0000 0a00  ................
+   055c5b0: 0000 0a00 0000 8e05 0000 0b00 0000 0a00  ................
+   055c5c0: 0000 0a00 0000 8e05 0000 0c00 0000 0a00  ................
+   055c5d0: 0000 0a00 0000 8e05 0000 0d00 0000 0a00  ................
+   055c5e0: 0000 0c00 0000 9209 0000 0200 0000 0b00  ................
+   055c5f0: 0000 
+   ......
+   /work/selinux/refpolicy$ 
+   
+3. Run-time test one - verify that the role_transition rule works for
+   non-process classes:
+   
+   [root/sysadm_r/s0@~]# sestatus 
+   SELinux status:                 enabled
+   SELinuxfs mount:                /selinux
+   Current mode:                   enforcing
+   Mode from config file:          enforcing
+   Policy version:                 25
+   Policy from config file:        refpolicy-mls
+   [root/sysadm_r/s0@~]#      
+   [root/sysadm_r/s0@~]# id -Z
+   root:sysadm_r:sysadm_t:s0-s15:c0.c1023 
+   [root/sysadm_r/s0@~]# ls -Zd
+   dr-xr-x---  root root root:object_r:user_home_dir_t:s0-s15:c0.c1023 .
+   [root/sysadm_r/s0@~]#
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 file
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 dir 
+   root:sysadm_r:user_home_t:s0
+   [root/sysadm_r/s0@~]# 
+   [root/sysadm_r/s0@~]# mkdir dir
+   [root/sysadm_r/s0@~]# touch file
+   [root/sysadm_r/s0@~]# 
+   [root/sysadm_r/s0@~]# ls -Zd dir file
+   drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+   -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# 
+   
+4. Run-time test two - verify that the role_transition rule works for the
+   process class:
+   
+   [root/sysadm_r/s0@~]# ls -Z /usr/sbin/vlock-main 
+   -rws--x--x  root root system_u:object_r:vlock_exec_t:s0 /usr/sbin/vlock-main
+   [root/sysadm_r/s0@~]# 
+   [root/sysadm_r/s0@~]# compute_create root:staff_r:staff_t:s0-s15:c0.c1023 system_u:object_r:vlock_exec_t:s0 process
+   root:staff_r:vlock_t:s0-s15:c0.c1023
+   [root/sysadm_r/s0@~]#
+   [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 system_u:object_r:vlock_exec_t:s0 process
+   root:system_r:vlock_t:s0-s15:c0.c1023
+   [root/sysadm_r/s0@~]# 
+   
+   [root/staff_r/s0@~]# vlock &
+   [1] 796
+   [root/staff_r/s0@~]# ps Z -C vlock-main
+   LABEL                             PID TTY      STAT   TIME COMMAND
+   root:staff_r:vlock_t:s0-s15:c0.c1023 796 pts/0 T      0:00 /usr/sbin/vlock-main
+   
+   [1]+  Stopped                 vlock
+   [root/staff_r/s0@~]# 
+   
+   [root/sysadm_r/s0@~]# seclow "setenforce 0"
+   Password: 
+   [root/sysadm_r/s0@~]# vlock &
+   [1] 812
+   [root/sysadm_r/s0@~]# ps Z -C vlock-main
+   LABEL                             PID TTY      STAT   TIME COMMAND
+   root:staff_r:vlock_t:s0-s15:c0.c1023 796 pts/0 T      0:00 /usr/sbin/vlock-main
+   root:system_r:vlock_t:s0-s15:c0.c1023 812 ttyS0 T     0:00 /usr/sbin/vlock-main
+   
+   [1]+  Stopped                 vlock
+   [root/sysadm_r/s0@~]# 
+   
+   (Note, "setenforce 0" is to shortcut the necessary user-role & role-type settings in sysadm.pp for system_r)
+   
+5. (TODO) restorecon doesn't take into account the role_transition rule
+   for non-process class so far:
+   
+   [root/sysadm_r/s0@~]# ls -Zd dir file
+   drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+   -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# 
+   [root/sysadm_r/s0@~]# restorecon dir file
+   [root/sysadm_r/s0@~]# 
+   [root/sysadm_r/s0@~]# ls -Zd dir file
+   drwxr-xr-x  root root root:object_r:user_home_t:s0     dir
+   -rw-r--r--  root root root:object_r:user_home_t:s0     file
+   [root/sysadm_r/s0@~]# 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
