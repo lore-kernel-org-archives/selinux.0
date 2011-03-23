@@ -1,82 +1,54 @@
-Subject: Re: [v0 PATCH 3/3] SELinux: Write class field in role_trans_write.
-From: Eric Paris <eparis@redhat.com>
-To: Harry Ciao <qingtao.cao@windriver.com>
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1300847325-20308-4-git-send-email-qingtao.cao@windriver.com>
-References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
-	 <1300847325-20308-4-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 23 Mar 2011 10:48:30 -0400
-Message-ID: <1300891710.28871.10.camel@unknown001a4b0c2895>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2NI7m58023786
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2011 14:07:48 -0400
+Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2NI7mIi012195
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2011 18:07:48 GMT
+Received: by gyg13 with SMTP id 13so3340588gyg.12
+        for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2011 11:07:47 -0700 (PDT)
+Message-ID: <4D8A36E9.3070601@gmail.com>
+Date: Wed, 23 Mar 2011 11:07:37 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov,
+        xorg@lists.freedesktop.org
+Subject: Re: SELinux: avc_has_perm: unexpected error 22
+References: <4D878244.4060502@gmail.com>
+In-Reply-To: <4D878244.4060502@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:
-> From: Harry Ciao <harrytaurus2002@hotmail.com>
-> 
-> If kernel policy version is >= 25, then write the class field of the
-> role_trans structure into the binary reprensentation.
-> 
-> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+On 03/21/2011 09:52 AM, Justin P. Mattock wrote:
+> this is showing up with the latest Mainline kernel.
+> gdm craps out..:
+>
+> [ 60.817] (II) Unloading synaptics
+> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+> [ 60.828] SELinux: avc_has_perm: unexpected error 22
+> [ 60.831] SELinux: avc_has_perm: unexpected error 22
+> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+> [ 60.881] (II) UnloadModule: "mouse"
+> [ 60.881] (II) Unloading mouse
+>
+>
+> full xorg.0.log is here:
+> http://fpaste.org/OOM2/
+>
+> Justin P. Mattock
 
-Looking at this patch (and the first one) I really start to feel like
-putting the class after the newrole on disk.  It really would clean up
-the patches and the code to not insert the conditional in the middle of
-reading/writing and instead do it at the end....
+seems doing a bisect right now during the merge window is breaking,
+anyways looking through the commits I think this:
 
-> ---
->  security/selinux/ss/policydb.c |   18 +++++++++++++-----
->  1 files changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index b660f08..a6be0f5 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -2450,10 +2450,11 @@ static int cat_write(void *vkey, void *datum, void *ptr)
->  	return 0;
->  }
->  
-> -static int role_trans_write(struct role_trans *r, void *fp)
-> +static int role_trans_write(struct policydb *p, void *fp)
->  {
-> +	struct role_trans *r = p->role_tr;
->  	struct role_trans *tr;
-> -	u32 buf[3];
-> +	u32 buf[4];
->  	size_t nel;
->  	int rc;
->  
-> @@ -2467,8 +2468,15 @@ static int role_trans_write(struct role_trans *r, void *fp)
->  	for (tr = r; tr; tr = tr->next) {
->  		buf[0] = cpu_to_le32(tr->role);
->  		buf[1] = cpu_to_le32(tr->type);
-> -		buf[2] = cpu_to_le32(tr->new_role);
-> -		rc = put_entry(buf, sizeof(u32), 3, fp);
-> +		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
-> +			buf[2] = cpu_to_le32(tr->cclass);
-> +			buf[3] = cpu_to_le32(tr->new_role);
-> +			rc = put_entry(buf, sizeof(u32), 4, fp);
-> +		} else {
-> +			buf[2] = cpu_to_le32(tr->new_role);
-> +			rc = put_entry(buf, sizeof(u32), 3, fp);
-> +		}
-> +
->  		if (rc)
->  			return rc;
->  	}
-> @@ -3145,7 +3153,7 @@ int policydb_write(struct policydb *p, void *fp)
->  	if (rc)
->  		return rc;
->  
-> -	rc = role_trans_write(p->role_tr, fp);
-> +	rc = role_trans_write(p, fp);
->  	if (rc)
->  		return rc;
->  
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c53fa1ed92cd671a1dfb1e7569e9ab672612ddc6;hp=06dc94b1ed05f91e246315afeb1c652d6d0dc9ab
 
+might be what I am hitting, causing gdm to die out, as it starts.
 
+any ideas?
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
