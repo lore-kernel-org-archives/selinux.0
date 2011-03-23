@@ -1,74 +1,80 @@
-Subject: Re: [v0 PATCH 2/3] SELinux: Compute role in newcontext for all
- classes
+Subject: Re: [v0 PATCH 3/3] SELinux: Write class field in role_trans_write.
 From: Eric Paris <eparis@redhat.com>
 To: Harry Ciao <qingtao.cao@windriver.com>
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
         selinux@tycho.nsa.gov
-In-Reply-To: <1300847325-20308-3-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1300847325-20308-4-git-send-email-qingtao.cao@windriver.com>
 References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
-	 <1300847325-20308-3-git-send-email-qingtao.cao@windriver.com>
+	 <1300847325-20308-4-git-send-email-qingtao.cao@windriver.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 23 Mar 2011 10:46:35 -0400
-Message-ID: <1300891595.28871.8.camel@unknown001a4b0c2895>
+Date: Wed, 23 Mar 2011 10:48:30 -0400
+Message-ID: <1300891710.28871.10.camel@unknown001a4b0c2895>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:
-> From: Harry Ciao <harrytaurus200@hotmail.com>
+> From: Harry Ciao <harrytaurus2002@hotmail.com>
 > 
-> For the process class, the role_trans.type is compared with
-> tcontext->type, that is, the program executable type.
-> 
-> For all the rest classes, the role_trans.type is compared with
-> newcontext.type, that is, the type for the newly created object
-> of that class.
+> If kernel policy version is >= 25, then write the class field of the
+> role_trans structure into the binary reprensentation.
 > 
 > Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 
-That's a hard conditional to read, but I guess it's correct.  Feel free
-to add my ack on resubmission.
-
--Eric
+Looking at this patch (and the first one) I really start to feel like
+putting the class after the newrole on disk.  It really would clean up
+the patches and the code to not insert the conditional in the middle of
+reading/writing and instead do it at the end....
 
 > ---
->  security/selinux/ss/services.c |   23 ++++++++++++-----------
->  1 files changed, 12 insertions(+), 11 deletions(-)
+>  security/selinux/ss/policydb.c |   18 +++++++++++++-----
+>  1 files changed, 13 insertions(+), 5 deletions(-)
 > 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index a03cfaf..01fc3d5 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1443,17 +1443,18 @@ static int security_compute_sid(u32 ssid,
->  	}
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index b660f08..a6be0f5 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -2450,10 +2450,11 @@ static int cat_write(void *vkey, void *datum, void *ptr)
+>  	return 0;
+>  }
 >  
->  	/* Check for class-specific changes. */
-> -	if  (tclass == policydb.process_class) {
-> -		if (specified & AVTAB_TRANSITION) {
-> -			/* Look for a role transition rule. */
-> -			for (roletr = policydb.role_tr; roletr;
-> -			     roletr = roletr->next) {
-> -				if (roletr->role == scontext->role &&
-> -				    roletr->type == tcontext->type) {
-> -					/* Use the role transition rule. */
-> -					newcontext.role = roletr->new_role;
-> -					break;
-> -				}
-> +	if (specified & AVTAB_TRANSITION) {
-> +		/* Look for a role transition rule. */
-> +		for (roletr = policydb.role_tr; roletr; roletr = roletr->next) {
-> +			if ((roletr->role == scontext->role) &&
-> +			    (roletr->cclass == tclass) &&
-> +			    ((roletr->cclass == policydb.process_class &&
-> +			      roletr->type == tcontext->type) ||
-> +			     (roletr->cclass != policydb.process_class &&
-> +			      roletr->type == newcontext.type))){
-> +				/* Use the role transition rule. */
-> +				newcontext.role = roletr->new_role;
-> +				break;
->  			}
->  		}
+> -static int role_trans_write(struct role_trans *r, void *fp)
+> +static int role_trans_write(struct policydb *p, void *fp)
+>  {
+> +	struct role_trans *r = p->role_tr;
+>  	struct role_trans *tr;
+> -	u32 buf[3];
+> +	u32 buf[4];
+>  	size_t nel;
+>  	int rc;
+>  
+> @@ -2467,8 +2468,15 @@ static int role_trans_write(struct role_trans *r, void *fp)
+>  	for (tr = r; tr; tr = tr->next) {
+>  		buf[0] = cpu_to_le32(tr->role);
+>  		buf[1] = cpu_to_le32(tr->type);
+> -		buf[2] = cpu_to_le32(tr->new_role);
+> -		rc = put_entry(buf, sizeof(u32), 3, fp);
+> +		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
+> +			buf[2] = cpu_to_le32(tr->cclass);
+> +			buf[3] = cpu_to_le32(tr->new_role);
+> +			rc = put_entry(buf, sizeof(u32), 4, fp);
+> +		} else {
+> +			buf[2] = cpu_to_le32(tr->new_role);
+> +			rc = put_entry(buf, sizeof(u32), 3, fp);
+> +		}
+> +
+>  		if (rc)
+>  			return rc;
 >  	}
+> @@ -3145,7 +3153,7 @@ int policydb_write(struct policydb *p, void *fp)
+>  	if (rc)
+>  		return rc;
+>  
+> -	rc = role_trans_write(p->role_tr, fp);
+> +	rc = role_trans_write(p, fp);
+>  	if (rc)
+>  		return rc;
+>  
 
 
 
