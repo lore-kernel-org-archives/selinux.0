@@ -1,202 +1,221 @@
+Message-ID: <4D89AD7C.9030709@windriver.com>
+Date: Wed, 23 Mar 2011 16:21:16 +0800
 From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: qingtao.cao@windriver.com
+MIME-Version: 1.0
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
-Cc: selinux@tycho.nsa.gov
-Subject: [v0 PATCH 2/5] Make role_transition parser to handle class field
-Date: Wed, 23 Mar 2011 10:28:42 +0800
-Message-Id: <1300847325-20308-6-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: v0 Add class support to the role_transition rule
 References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Harry Ciao <harrytaurus2002@hotmail.com>
+I forgot to paste the test of SELinux kernel policydb_write > 
+role_trans_write, please see below.
 
-If no class is specified in the role_transition rule, then it would
-be set to the "process" class by default.
+BTW, since the userspace security server has been out of sync with that 
+in kernel(as Stephen has pointed out before), I didn't use checkpolicy 
+-Mdb but have relied on compute_create to access kernel security server 
+instead.
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- checkpolicy/policy_define.c |   89 ++++++++++++++++++++++++++++++++-----------
- checkpolicy/policy_define.h |    2 +-
- checkpolicy/policy_parse.y  |    4 +-
- 3 files changed, 71 insertions(+), 24 deletions(-)
+Best regard,
+Harry
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 82ab44c..6c28d8a 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -2050,17 +2050,18 @@ static int set_roles(role_set_t * set, char *id)
- 	return 0;
- }
- 
--int define_role_trans(void)
-+int define_role_trans(int class_specified)
- {
- 	char *id;
- 	role_datum_t *role;
- 	role_set_t roles;
- 	type_set_t types;
--	ebitmap_t e_types, e_roles;
--	ebitmap_node_t *tnode, *rnode;
-+	class_datum_t *cladatum;
-+	ebitmap_t e_types, e_roles, classes;
-+	ebitmap_node_t *tnode, *rnode, *cnode;
- 	struct role_trans *tr = NULL;
- 	struct role_trans_rule *rule = NULL;
--	unsigned int i, j;
-+	unsigned int i, j, k;
- 	int add = 1;
- 
- 	if (pass == 1) {
-@@ -2068,6 +2069,9 @@ int define_role_trans(void)
- 			free(id);
- 		while ((id = queue_remove(id_queue)))
- 			free(id);
-+		if (class_specified)
-+			while ((id = queue_remove(id_queue)))
-+				free(id);
- 		id = queue_remove(id_queue);
- 		free(id);
- 		return 0;
-@@ -2077,6 +2081,7 @@ int define_role_trans(void)
- 	ebitmap_init(&e_roles);
- 	type_set_init(&types);
- 	ebitmap_init(&e_types);
-+	ebitmap_init(&classes);
- 
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_roles(&roles, id))
-@@ -2088,6 +2093,35 @@ int define_role_trans(void)
- 			return -1;
- 	}
- 
-+	if (class_specified) {
-+		while ((id = queue_remove(id_queue))) {
-+			if (!is_id_in_scope(SYM_CLASSES, id)) {
-+				yyerror2("class %s is not within scope", id);
-+				free(id);
-+				return -1;
-+			}
-+			cladatum = hashtab_search(policydbp->p_classes.table,
-+						  id);
-+			if (!cladatum) {
-+				yyerror2("unknow class %s", id);
-+				return -1;
-+			}
-+
-+			ebitmap_set_bit(&classes, cladatum->s.value - 1, TRUE);
-+			free(id);
-+		}
-+	} else {
-+		cladatum = hashtab_search(policydbp->p_classes.table,
-+					  "process");
-+		if (!cladatum) {
-+			yyerror2("could not find process class for "
-+				 "legacy role_transition statement");
-+			return -1;
-+		}
-+
-+		ebitmap_set_bit(&classes, cladatum->s.value - 1, TRUE);
-+	}
-+
- 	id = (char *)queue_remove(id_queue);
- 	if (!id) {
- 		yyerror("no new role in transition definition?");
-@@ -2117,27 +2151,37 @@ int define_role_trans(void)
- 		ebitmap_for_each_bit(&e_types, tnode, j) {
- 			if (!ebitmap_node_get_bit(tnode, j))
- 				continue;
--
--			for (tr = policydbp->role_tr; tr; tr = tr->next) {
--				if (tr->role == (i + 1) && tr->type == (j + 1)) {
--					yyerror2("duplicate role transition for (%s,%s)",
--					      role_val_to_name(i + 1),
--					      policydbp->p_type_val_to_name[j]);
--					goto bad;
-+			ebitmap_for_each_bit(&classes, cnode, k) {
-+				if (!ebitmap_node_get_bit(cnode, k))
-+					continue;
-+				for (tr = policydbp->role_tr; tr;
-+				     tr = tr->next) {
-+					if (tr->role == (i + 1) &&
-+					    tr->type == (j + 1) &&
-+					    tr->cclass == (k + 1)) {
-+						yyerror2("duplicate role "
-+							 "transition for "
-+							 "(%s,%s,%s)",
-+							 role_val_to_name(i+1),
-+							 policydbp->p_type_val_to_name[j],
-+							 policydbp->p_class_val_to_name[k]);
-+						goto bad;
-+					}
- 				}
--			}
- 
--			tr = malloc(sizeof(struct role_trans));
--			if (!tr) {
--				yyerror("out of memory");
--				return -1;
-+				tr = malloc(sizeof(struct role_trans));
-+				if (!tr) {
-+					yyerror("out of memory");
-+					return -1;
-+				}
-+				memset(tr, 0, sizeof(struct role_trans));
-+				tr->role = i + 1;
-+				tr->type = j + 1;
-+				tr->cclass = k + 1;
-+				tr->new_role = role->s.value;
-+				tr->next = policydbp->role_tr;
-+				policydbp->role_tr = tr;
- 			}
--			memset(tr, 0, sizeof(struct role_trans));
--			tr->role = i + 1;
--			tr->type = j + 1;
--			tr->new_role = role->s.value;
--			tr->next = policydbp->role_tr;
--			policydbp->role_tr = tr;
- 		}
- 	}
- 	/* Now add the real rule */
-@@ -2149,6 +2193,7 @@ int define_role_trans(void)
- 	memset(rule, 0, sizeof(struct role_trans_rule));
- 	rule->roles = roles;
- 	rule->types = types;
-+	rule->classes = classes;
- 	rule->new_role = role->s.value;
- 
- 	append_role_trans(rule);
-diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-index 5ac6667..2f7a78f 100644
---- a/checkpolicy/policy_define.h
-+++ b/checkpolicy/policy_define.h
-@@ -45,7 +45,7 @@ int define_ioport_context(unsigned long low, unsigned long high);
- int define_pcidevice_context(unsigned long device);
- int define_range_trans(int class_specified);
- int define_role_allow(void);
--int define_role_trans(void);
-+int define_role_trans(int class_specified);
- int define_role_types(void);
- int define_sens(void);
- int define_te_avtab(int which);
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index 8d1bc37..8c29e2b 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -417,7 +417,9 @@ role_type_def		: ROLE identifier TYPES names ';'
- role_dominance		: DOMINANCE '{' roles '}'
- 			;
- role_trans_def		: ROLE_TRANSITION names names identifier ';'
--			{if (define_role_trans()) return -1; }
-+			{if (define_role_trans(0)) return -1; }
-+			| ROLE_TRANSITION names names ':' names identifier ';'
-+			{if (define_role_trans(1)) return -1;}
- 			;
- role_allow_def		: ALLOW names names ';'
- 			{if (define_role_allow()) return -1; }
--- 
-1.7.0.4
+-------------
 
+6. Verify that SELinux kernel policydb_write > role_trans_write works well:
+
+    [root/sysadm_r/s0@~]# cat /selinux/policy > policy_read
+    [root/sysadm_r/s0@~]# ls -l policy_read
+    -rw-r--r-- 1 root root 5849742 Mar 23 08:07 policy_read
+    [root/sysadm_r/s0@~]# ls -l /etc/selinux/refpolicy-mls/policy/policy.25
+    -rw-r--r-- 1 root root 5849742 Mar 22 08:03 
+/etc/selinux/refpolicy-mls/policy/policy.25
+    [root/sysadm_r/s0@~]#
+    [root/sysadm_r/s0@~]# xxd policy_read > policy_read_xxd
+    [root/sysadm_r/s0@~]# vim policy_read_xxd
+    ......
+    055c510:                                    0d00  l.....S.........
+    055c520: 0000 0300 0000 a006 0000 0200 0000 0b00  ................
+    055c530: 0000 0300 0000 a103 0000 0200 0000 0b00  ................
+    055c540: 0000 0800 0000 b707 0000 0200 0000 0b00  ................
+    055c550: 0000 0800 0000 a70a 0000 0200 0000 0b00  ................
+    055c560: 0000 0a00 0000 db00 0000 0200 0000 0b00  ................
+    055c570: 0000 0a00 0000 8e05 0000 0600 0000 0a00  ................
+    055c580: 0000 0a00 0000 8e05 0000 0700 0000 0a00  ................
+    055c590: 0000 0a00 0000 8e05 0000 0900 0000 0a00  ................
+    055c5a0: 0000 0a00 0000 8e05 0000 0a00 0000 0a00  ................
+    055c5b0: 0000 0a00 0000 8e05 0000 0b00 0000 0a00  ................
+    055c5c0: 0000 0a00 0000 8e05 0000 0c00 0000 0a00  ................
+    055c5d0: 0000 0a00 0000 8e05 0000 0d00 0000 0a00  ................
+    055c5e0: 0000
+    ......
+    [root/sysadm_r/s0@~]#
+
+
+On 03/23/2011 10:28 AM, Harry Ciao wrote:
+>
+> Comments:
+> ---------
+> Add class support to the role_transition rule so that it could be used in
+> a much more generalized	manner.
+>
+> So far the semantics of the role_transition rule does not support specifying
+> the class, and in SELinux kernel security server it could be applied to the
+> process class only.
+>
+> With the class support the role_transition rule could be used for non-process
+> classes, and the newly created object could have roles other than "object_r",
+> which is a prerequisit for real RBAC separation development in the future.
+>
+>
+> Testings I've done:
+> -------------------
+>
+> 0. Add below snippet into sysadm.te for testing:
+>
+>     role_transition sysadm_r user_home_t:{ file dir lnk_file fifo_file sock_file chr_file blk_file } sysadm_r;
+>     role sysadm_r types user_home_t;
+>
+>     gen_require(`
+>             type vlock_exec_t, vlock_t;
+>     ')
+>     role_transition sysadm_r vlock_exec_t system_r;
+>
+> 1. Verify that the dismod program could display the class field of the
+>     role_transition rule correctly:
+>
+>     /work/selinux/selinux/checkpolicy$ test/dismod /work/selinux/refpolicy/sysadm.pp
+>     Reading policy...
+>     ......
+>     ......
+>     Command ('m' for menu):  7
+>     role transitions:
+>     --- begin avrule block ---
+>     decl 1:
+>     role transition  sysadm_r [vlock_exec_t] : [process] system_r
+>     role transition  sysadm_r [user_home_t] :{ [file] [dir] [lnk_file] [chr_file] [blk_file] [sock_file] [fifo_file] } sysadm_r
+>     --- begin avrule block ---
+>     decl 2:
+>     ......
+>     --- begin avrule block ---
+>     decl 342:
+>
+>     Command ('m' for menu):  q
+>     /work/selinux/selinux/checkpolicy$
+>
+> 2. Further verify the binary reprensentation of the role_transition rule
+>     are correct:
+>
+>     /work/selinux/refpolicy$ ls -lt /etc/selinux/refpolicy-mls/policy/policy.25
+>     -rw-r--r--. 2 root root 5849742 2011-03-22 15:39 /etc/selinux/refpolicy-mls/policy/policy.25
+>     /work/selinux/refpolicy$ xxd /etc/selinux/refpolicy-mls/policy/policy.25>  policy_25_xxd
+>     /work/selinux/refpolicy$ vim policy_25_xxd
+>     ......
+>     055c510:                                    0d00  l.....S.........
+>     055c520: 0000 0300 0000 a006 0000 0200 0000 0b00  ................
+>     055c530: 0000 0300 0000 a103 0000 0200 0000 0b00  ................
+>     055c540: 0000 0800 0000 b707 0000 0200 0000 0b00  ................
+>     055c550: 0000 0800 0000 a70a 0000 0200 0000 0b00  ................
+>     055c560: 0000 0a00 0000 db00 0000 0200 0000 0b00  ................
+>     055c570: 0000 0a00 0000 8e05 0000 0600 0000 0a00  ................
+>     055c580: 0000 0a00 0000 8e05 0000 0700 0000 0a00  ................
+>     055c590: 0000 0a00 0000 8e05 0000 0900 0000 0a00  ................
+>     055c5a0: 0000 0a00 0000 8e05 0000 0a00 0000 0a00  ................
+>     055c5b0: 0000 0a00 0000 8e05 0000 0b00 0000 0a00  ................
+>     055c5c0: 0000 0a00 0000 8e05 0000 0c00 0000 0a00  ................
+>     055c5d0: 0000 0a00 0000 8e05 0000 0d00 0000 0a00  ................
+>     055c5e0: 0000 0c00 0000 9209 0000 0200 0000 0b00  ................
+>     055c5f0: 0000
+>     ......
+>     /work/selinux/refpolicy$
+>
+> 3. Run-time test one - verify that the role_transition rule works for
+>     non-process classes:
+>
+>     [root/sysadm_r/s0@~]# sestatus
+>     SELinux status:                 enabled
+>     SELinuxfs mount:                /selinux
+>     Current mode:                   enforcing
+>     Mode from config file:          enforcing
+>     Policy version:                 25
+>     Policy from config file:        refpolicy-mls
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# id -Z
+>     root:sysadm_r:sysadm_t:s0-s15:c0.c1023
+>     [root/sysadm_r/s0@~]# ls -Zd
+>     dr-xr-x---  root root root:object_r:user_home_dir_t:s0-s15:c0.c1023 .
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 file
+>     root:sysadm_r:user_home_t:s0
+>     [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 root:object_r:user_home_dir_t:s0-s15:c0.c1023 dir
+>     root:sysadm_r:user_home_t:s0
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# mkdir dir
+>     [root/sysadm_r/s0@~]# touch file
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# ls -Zd dir file
+>     drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+>     -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+>     [root/sysadm_r/s0@~]#
+>
+> 4. Run-time test two - verify that the role_transition rule works for the
+>     process class:
+>
+>     [root/sysadm_r/s0@~]# ls -Z /usr/sbin/vlock-main
+>     -rws--x--x  root root system_u:object_r:vlock_exec_t:s0 /usr/sbin/vlock-main
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# compute_create root:staff_r:staff_t:s0-s15:c0.c1023 system_u:object_r:vlock_exec_t:s0 process
+>     root:staff_r:vlock_t:s0-s15:c0.c1023
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# compute_create root:sysadm_r:sysadm_t:s0-s15:c0.c1023 system_u:object_r:vlock_exec_t:s0 process
+>     root:system_r:vlock_t:s0-s15:c0.c1023
+>     [root/sysadm_r/s0@~]#
+>
+>     [root/staff_r/s0@~]# vlock&
+>     [1] 796
+>     [root/staff_r/s0@~]# ps Z -C vlock-main
+>     LABEL                             PID TTY      STAT   TIME COMMAND
+>     root:staff_r:vlock_t:s0-s15:c0.c1023 796 pts/0 T      0:00 /usr/sbin/vlock-main
+>
+>     [1]+  Stopped                 vlock
+>     [root/staff_r/s0@~]#
+>
+>     [root/sysadm_r/s0@~]# seclow "setenforce 0"
+>     Password:
+>     [root/sysadm_r/s0@~]# vlock&
+>     [1] 812
+>     [root/sysadm_r/s0@~]# ps Z -C vlock-main
+>     LABEL                             PID TTY      STAT   TIME COMMAND
+>     root:staff_r:vlock_t:s0-s15:c0.c1023 796 pts/0 T      0:00 /usr/sbin/vlock-main
+>     root:system_r:vlock_t:s0-s15:c0.c1023 812 ttyS0 T     0:00 /usr/sbin/vlock-main
+>
+>     [1]+  Stopped                 vlock
+>     [root/sysadm_r/s0@~]#
+>
+>     (Note, "setenforce 0" is to shortcut the necessary user-role&  role-type settings in sysadm.pp for system_r)
+>
+> 5. (TODO) restorecon doesn't take into account the role_transition rule
+>     for non-process class so far:
+>
+>     [root/sysadm_r/s0@~]# ls -Zd dir file
+>     drwxr-xr-x  root root root:sysadm_r:user_home_t:s0     dir
+>     -rw-r--r--  root root root:sysadm_r:user_home_t:s0     file
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# restorecon dir file
+>     [root/sysadm_r/s0@~]#
+>     [root/sysadm_r/s0@~]# ls -Zd dir file
+>     drwxr-xr-x  root root root:object_r:user_home_t:s0     dir
+>     -rw-r--r--  root root root:object_r:user_home_t:s0     file
+>     [root/sysadm_r/s0@~]#
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
