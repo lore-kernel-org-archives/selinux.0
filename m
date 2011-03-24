@@ -1,9 +1,9 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v1 PATCH 2/5] Userspace: role_transition parser to handle class field
-Date: Thu, 24 Mar 2011 18:42:42 +0800
-Message-Id: <1300963366-9169-5-git-send-email-qingtao.cao@windriver.com>
+Subject: [v1 PATCH 1/5] Userspace: add class to role_trans & role_trans_rule
+Date: Thu, 24 Mar 2011 18:42:40 +0800
+Message-Id: <1300963366-9169-3-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,189 +11,111 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Harry Ciao <harrytaurus2002@hotmail.com>
 
-If no class is specified in the role_transition rule, then it would
-be set to the "process" class by default.
+Introduce the class support to role_trans and role_trans_rule
+structures, which could be the subject class("process") or the
+class that the newly created object belongs to.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- checkpolicy/policy_define.c |   89 ++++++++++++++++++++++++++++++++-----------
- checkpolicy/policy_define.h |    2 +-
- checkpolicy/policy_parse.y  |    4 +-
- 3 files changed, 71 insertions(+), 24 deletions(-)
+ libsepol/include/sepol/policydb/policydb.h |   12 ++++++++----
+ libsepol/src/policydb.c                    |   21 +++++++++++++++++++++
+ 2 files changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 82ab44c..ea70c1f 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -2050,17 +2050,18 @@ static int set_roles(role_set_t * set, char *id)
- 	return 0;
- }
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index e8991e2..e9e80af 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -124,7 +124,8 @@ typedef struct role_datum {
  
--int define_role_trans(void)
-+int define_role_trans(int class_specified)
- {
- 	char *id;
- 	role_datum_t *role;
- 	role_set_t roles;
- 	type_set_t types;
--	ebitmap_t e_types, e_roles;
--	ebitmap_node_t *tnode, *rnode;
-+	class_datum_t *cladatum;
-+	ebitmap_t e_types, e_roles, e_classes;
-+	ebitmap_node_t *tnode, *rnode, *cnode;
- 	struct role_trans *tr = NULL;
- 	struct role_trans_rule *rule = NULL;
--	unsigned int i, j;
-+	unsigned int i, j, k;
- 	int add = 1;
+ typedef struct role_trans {
+ 	uint32_t role;		/* current role */
+-	uint32_t type;		/* program executable type */
++	uint32_t type;		/* program executable type, or new object type */
++	uint32_t classes;	/* process class, or new object class */
+ 	uint32_t new_role;	/* new role */
+ 	struct role_trans *next;
+ } role_trans_t;
+@@ -234,7 +235,8 @@ typedef struct avrule {
  
- 	if (pass == 1) {
-@@ -2068,6 +2069,9 @@ int define_role_trans(void)
- 			free(id);
- 		while ((id = queue_remove(id_queue)))
- 			free(id);
-+		if (class_specified)
-+			while ((id = queue_remove(id_queue)))
-+				free(id);
- 		id = queue_remove(id_queue);
- 		free(id);
- 		return 0;
-@@ -2077,6 +2081,7 @@ int define_role_trans(void)
- 	ebitmap_init(&e_roles);
- 	type_set_init(&types);
- 	ebitmap_init(&e_types);
-+	ebitmap_init(&e_classes);
+ typedef struct role_trans_rule {
+ 	role_set_t roles;	/* current role */
+-	type_set_t types;	/* program executable type */
++	type_set_t types;	/* program executable type, or new object type */
++	ebitmap_t classes;	/* process class, or new object class */
+ 	uint32_t new_role;	/* new role */
+ 	struct role_trans_rule *next;
+ } role_trans_rule_t;
+@@ -630,10 +632,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_POLCAP		22
+ #define POLICYDB_VERSION_PERMISSIVE	23
+ #define POLICYDB_VERSION_BOUNDARY	24
++#define POLICYDB_VERSION_ROLETRANS	26
  
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_roles(&roles, id))
-@@ -2088,6 +2093,35 @@ int define_role_trans(void)
- 			return -1;
- 	}
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
  
-+	if (class_specified) {
-+		while ((id = queue_remove(id_queue))) {
-+			if (!is_id_in_scope(SYM_CLASSES, id)) {
-+				yyerror2("class %s is not within scope", id);
-+				free(id);
-+				return -1;
-+			}
-+			cladatum = hashtab_search(policydbp->p_classes.table,
-+						  id);
-+			if (!cladatum) {
-+				yyerror2("unknow class %s", id);
-+				return -1;
-+			}
-+
-+			ebitmap_set_bit(&e_classes, cladatum->s.value - 1, TRUE);
-+			free(id);
-+		}
-+	} else {
-+		cladatum = hashtab_search(policydbp->p_classes.table,
-+					  "process");
-+		if (!cladatum) {
-+			yyerror2("could not find process class for "
-+				 "legacy role_transition statement");
-+			return -1;
-+		}
-+
-+		ebitmap_set_bit(&e_classes, cladatum->s.value - 1, TRUE);
-+	}
-+
- 	id = (char *)queue_remove(id_queue);
- 	if (!id) {
- 		yyerror("no new role in transition definition?");
-@@ -2117,27 +2151,37 @@ int define_role_trans(void)
- 		ebitmap_for_each_bit(&e_types, tnode, j) {
- 			if (!ebitmap_node_get_bit(tnode, j))
- 				continue;
--
--			for (tr = policydbp->role_tr; tr; tr = tr->next) {
--				if (tr->role == (i + 1) && tr->type == (j + 1)) {
--					yyerror2("duplicate role transition for (%s,%s)",
--					      role_val_to_name(i + 1),
--					      policydbp->p_type_val_to_name[j]);
--					goto bad;
-+			ebitmap_for_each_bit(&e_classes, cnode, k) {
-+				if (!ebitmap_node_get_bit(cnode, k))
-+					continue;
-+				for (tr = policydbp->role_tr; tr;
-+				     tr = tr->next) {
-+					if (tr->role == (i + 1) &&
-+					    tr->type == (j + 1) &&
-+					    tr->classes == (k + 1)) {
-+						yyerror2("duplicate role "
-+							 "transition for "
-+							 "(%s,%s,%s)",
-+							 role_val_to_name(i+1),
-+							 policydbp->p_type_val_to_name[j],
-+							 policydbp->p_class_val_to_name[k]);
-+						goto bad;
-+					}
- 				}
--			}
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+@@ -645,9 +648,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define MOD_POLICYDB_VERSION_PERMISSIVE		8
+ #define MOD_POLICYDB_VERSION_BOUNDARY		9
+ #define MOD_POLICYDB_VERSION_BOUNDARY_ALIAS	10
++#define MOD_POLICYDB_VERSION_ROLETRANS		12
  
--			tr = malloc(sizeof(struct role_trans));
--			if (!tr) {
--				yyerror("out of memory");
--				return -1;
-+				tr = malloc(sizeof(struct role_trans));
-+				if (!tr) {
-+					yyerror("out of memory");
-+					return -1;
-+				}
-+				memset(tr, 0, sizeof(struct role_trans));
-+				tr->role = i + 1;
-+				tr->type = j + 1;
-+				tr->classes = k + 1;
-+				tr->new_role = role->s.value;
-+				tr->next = policydbp->role_tr;
-+				policydbp->role_tr = tr;
- 			}
--			memset(tr, 0, sizeof(struct role_trans));
--			tr->role = i + 1;
--			tr->type = j + 1;
--			tr->new_role = role->s.value;
--			tr->next = policydbp->role_tr;
--			policydbp->role_tr = tr;
- 		}
- 	}
- 	/* Now add the real rule */
-@@ -2149,6 +2193,7 @@ int define_role_trans(void)
- 	memset(rule, 0, sizeof(struct role_trans_rule));
- 	rule->roles = roles;
- 	rule->types = types;
-+	rule->classes = e_classes;
- 	rule->new_role = role->s.value;
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY_ALIAS
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_ROLETRANS
  
- 	append_role_trans(rule);
-diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-index 5ac6667..2f7a78f 100644
---- a/checkpolicy/policy_define.h
-+++ b/checkpolicy/policy_define.h
-@@ -45,7 +45,7 @@ int define_ioport_context(unsigned long low, unsigned long high);
- int define_pcidevice_context(unsigned long device);
- int define_range_trans(int class_specified);
- int define_role_allow(void);
--int define_role_trans(void);
-+int define_role_trans(int class_specified);
- int define_role_types(void);
- int define_sens(void);
- int define_te_avtab(int which);
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index 8d1bc37..8c29e2b 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -417,7 +417,9 @@ role_type_def		: ROLE identifier TYPES names ';'
- role_dominance		: DOMINANCE '{' roles '}'
- 			;
- role_trans_def		: ROLE_TRANSITION names names identifier ';'
--			{if (define_role_trans()) return -1; }
-+			{if (define_role_trans(0)) return -1; }
-+			| ROLE_TRANSITION names names ':' names identifier ';'
-+			{if (define_role_trans(1)) return -1;}
- 			;
- role_allow_def		: ALLOW names names ';'
- 			{if (define_role_allow()) return -1; }
+ #define POLICYDB_CONFIG_MLS    1
+ 
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 5c0081f..53a7eef 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -137,6 +137,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_ROLETRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -186,6 +193,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_BASE,
++	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -234,6 +248,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = 0,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_MOD,
++	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = 0,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ };
+ 
+ #if 0
 -- 
 1.7.0.4
 
