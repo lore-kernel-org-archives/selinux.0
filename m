@@ -1,121 +1,96 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v1 PATCH 1/5] Userspace: add class to role_trans & role_trans_rule
-Date: Thu, 24 Mar 2011 18:42:40 +0800
-Message-Id: <1300963366-9169-3-git-send-email-qingtao.cao@windriver.com>
+Subject: [v1 PATCH 1/3] SELinux: Add class support to the role_trans structure
+Date: Thu, 24 Mar 2011 18:42:39 +0800
+Message-Id: <1300963366-9169-2-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Harry Ciao <harrytaurus2002@hotmail.com>
+If kernel policy version is >= 26, then the binary representation of
+the role_trans structure supports specifying the class for the current
+subject or the newly created object.
 
-Introduce the class support to role_trans and role_trans_rule
-structures, which could be the subject class("process") or the
-class that the newly created object belongs to.
+If kernel policy version is < 26, then the class field would be default
+to the process class.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/include/sepol/policydb/policydb.h |   12 ++++++++----
- libsepol/src/policydb.c                    |   21 +++++++++++++++++++++
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ security/selinux/include/security.h |    3 ++-
+ security/selinux/ss/policydb.c      |   14 ++++++++++++++
+ security/selinux/ss/policydb.h      |    3 ++-
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index e8991e2..e9e80af 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -124,7 +124,8 @@ typedef struct role_datum {
- 
- typedef struct role_trans {
- 	uint32_t role;		/* current role */
--	uint32_t type;		/* program executable type */
-+	uint32_t type;		/* program executable type, or new object type */
-+	uint32_t classes;	/* process class, or new object class */
- 	uint32_t new_role;	/* new role */
- 	struct role_trans *next;
- } role_trans_t;
-@@ -234,7 +235,8 @@ typedef struct avrule {
- 
- typedef struct role_trans_rule {
- 	role_set_t roles;	/* current role */
--	type_set_t types;	/* program executable type */
-+	type_set_t types;	/* program executable type, or new object type */
-+	ebitmap_t classes;	/* process class, or new object class */
- 	uint32_t new_role;	/* new role */
- 	struct role_trans_rule *next;
- } role_trans_rule_t;
-@@ -630,10 +632,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define POLICYDB_VERSION_POLCAP		22
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 348eb00..bfc5218 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -30,13 +30,14 @@
  #define POLICYDB_VERSION_PERMISSIVE	23
  #define POLICYDB_VERSION_BOUNDARY	24
+ #define POLICYDB_VERSION_FILENAME_TRANS	25
 +#define POLICYDB_VERSION_ROLETRANS	26
  
  /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_FILENAME_TRANS
 +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
+ #endif
  
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE		4
-@@ -645,9 +648,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_PERMISSIVE		8
- #define MOD_POLICYDB_VERSION_BOUNDARY		9
- #define MOD_POLICYDB_VERSION_BOUNDARY_ALIAS	10
-+#define MOD_POLICYDB_VERSION_ROLETRANS		12
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY_ALIAS
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_ROLETRANS
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 5c0081f..53a7eef 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -137,6 +137,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_ROLETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -186,6 +193,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -234,6 +248,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
+ /* Mask for just the mount related flags */
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index e7b850a..a2c75e9 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -128,6 +128,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
  	},
 +	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
++		.version	= POLICYDB_VERSION_ROLETRANS,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
 +	},
  };
  
- #if 0
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -2302,8 +2307,17 @@ int policydb_read(struct policydb *p, void *fp)
+ 		tr->role = le32_to_cpu(buf[0]);
+ 		tr->type = le32_to_cpu(buf[1]);
+ 		tr->new_role = le32_to_cpu(buf[2]);
++		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
++			rc = next_entry(buf, fp, sizeof(u32));
++			if (rc)
++				goto bad;
++			tr->classes = le32_to_cpu(buf[0]);
++		} else
++			tr->classes = p->process_class;
++
+ 		if (!policydb_role_isvalid(p, tr->role) ||
+ 		    !policydb_type_isvalid(p, tr->type) ||
++		    !policydb_class_isvalid(p, tr->classes) ||
+ 		    !policydb_role_isvalid(p, tr->new_role))
+ 			goto bad;
+ 		ltr = tr;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 732ea4a..cfc3dde 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -72,7 +72,8 @@ struct role_datum {
+ 
+ struct role_trans {
+ 	u32 role;		/* current role */
+-	u32 type;		/* program executable type */
++	u32 type;		/* program executable type, or new object type */
++	u32 classes;		/* process class, or new object class */
+ 	u32 new_role;		/* new role */
+ 	struct role_trans *next;
+ };
 -- 
 1.7.0.4
 
