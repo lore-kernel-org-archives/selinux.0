@@ -1,66 +1,62 @@
-Subject: Re: [v0 PATCH 2/5] Make role_transition parser to handle class field
-From: Eric Paris <eparis@redhat.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Harry Ciao <qingtao.cao@windriver.com>, sds@tycho.nsa.gov,
-        jmorris@namei.org, eparis@parisplace.org, selinux@tycho.nsa.gov
-Date: Wed, 23 Mar 2011 16:14:53 -0400
-In-Reply-To: <4D8A4CCC.2090503@manicmethod.com>
-References: <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>
-		 <1300847325-20308-6-git-send-email-qingtao.cao@windriver.com>
-	 <1300908634.28871.16.camel@unknown001a4b0c2895>
-	 <4D8A4CCC.2090503@manicmethod.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1300911294.3039.0.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p2O2V0MM007185
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2011 22:31:00 -0400
+Received: from mail-px0-f169.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p2O2UxHX002162
+	for <selinux@tycho.nsa.gov>; Thu, 24 Mar 2011 02:31:00 GMT
+Received: by pxi9 with SMTP id 9so1526820pxi.0
+        for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2011 19:30:59 -0700 (PDT)
+Message-ID: <4D8AACD9.60505@gmail.com>
+Date: Wed, 23 Mar 2011 19:30:49 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov,
+        xorg@lists.freedesktop.org
+Subject: Re: SELinux: avc_has_perm: unexpected error 22
+References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>
+In-Reply-To: <4D8A36E9.3070601@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-03-23 at 15:41 -0400, Joshua Brindle wrote:
-> Eric Paris wrote:
-> > On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:
-> >> From: Harry Ciao<harrytaurus2002@hotmail.com>
-> >>
-> >> If no class is specified in the role_transition rule, then it would
-> >> be set to the "process" class by default.
-> >>
-> >> Signed-off-by: Harry Ciao<qingtao.cao@windriver.com>
-> >> ---
-> >>   checkpolicy/policy_define.c |   89 ++++++++++++++++++++++++++++++++-----------
-> >>   checkpolicy/policy_define.h |    2 +-
-> >>   checkpolicy/policy_parse.y  |    4 +-
-> >>   3 files changed, 71 insertions(+), 24 deletions(-)
-> >>
-> >> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> >> index 82ab44c..6c28d8a 100644
-> >> --- a/checkpolicy/policy_define.c
-> >> +++ b/checkpolicy/policy_define.c
-> >> @@ -2050,17 +2050,18 @@ static int set_roles(role_set_t * set, char *id)
-> >>   	return 0;
-> >>   }
-> >>
-> >> -int define_role_trans(void)
-> >> +int define_role_trans(int class_specified)
-> >>   {
-> >>   	char *id;
-> >>   	role_datum_t *role;
-> >>   	role_set_t roles;
-> >>   	type_set_t types;
-> >> -	ebitmap_t e_types, e_roles;
-> >> -	ebitmap_node_t *tnode, *rnode;
-> >> +	class_datum_t *cladatum;
-> >> +	ebitmap_t e_types, e_roles, classes;
-> >
-> > minor nit, most of this code uses e_* for ebitmaps.  You don't need to
-> > change that.....
-> >
-> 
-> There is only a single instance of e_* for ebitmaps in checkpolicy (which is 
-> what this patch is against)
+On 03/23/2011 11:07 AM, Justin P. Mattock wrote:
+> On 03/21/2011 09:52 AM, Justin P. Mattock wrote:
+>> this is showing up with the latest Mainline kernel.
+>> gdm craps out..:
+>>
+>> [ 60.817] (II) Unloading synaptics
+>> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.828] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.831] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+>> [ 60.881] (II) UnloadModule: "mouse"
+>> [ 60.881] (II) Unloading mouse
+>>
+>>
+>> full xorg.0.log is here:
+>> http://fpaste.org/OOM2/
+>>
+>> Justin P. Mattock
+>
+> seems doing a bisect right now during the merge window is breaking,
+> anyways looking through the commits I think this:
+>
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c53fa1ed92cd671a1dfb1e7569e9ab672612ddc6;hp=06dc94b1ed05f91e246315afeb1c652d6d0dc9ab
+>
+>
+> might be what I am hitting, causing gdm to die out, as it starts.
+>
+> any ideas?
+>
+> Justin P. Mattock
 
-Not in my tree that I was looking at, but then again, my tree adds stuff
-which copied this code, so I guess you are right!
+not sure if anybody is seeing this or hitting this with the current,
+but reverting the above commit does not fix the problem.
+will try another bisect(hopefully)
 
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
