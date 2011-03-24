@@ -1,96 +1,66 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v1 PATCH 1/3] SELinux: Add class support to the role_trans structure
-Date: Thu, 24 Mar 2011 18:42:39 +0800
-Message-Id: <1300963366-9169-2-git-send-email-qingtao.cao@windriver.com>
+Subject: [v1 PATCH 5/5] Userspace: display the class in role_transition rule
+Date: Thu, 24 Mar 2011 18:42:46 +0800
+Message-Id: <1300963366-9169-9-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 References: <1300963366-9169-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If kernel policy version is >= 26, then the binary representation of
-the role_trans structure supports specifying the class for the current
-subject or the newly created object.
-
-If kernel policy version is < 26, then the class field would be default
-to the process class.
+Add support to display the class field in the role_transition rule
+in the checkpolicy/test/dismod program.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- security/selinux/include/security.h |    3 ++-
- security/selinux/ss/policydb.c      |   14 ++++++++++++++
- security/selinux/ss/policydb.h      |    3 ++-
- 3 files changed, 18 insertions(+), 2 deletions(-)
+ checkpolicy/test/dismod.c |   27 ++++++++++++++++++++++++++-
+ 1 files changed, 26 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 348eb00..bfc5218 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -30,13 +30,14 @@
- #define POLICYDB_VERSION_PERMISSIVE	23
- #define POLICYDB_VERSION_BOUNDARY	24
- #define POLICYDB_VERSION_FILENAME_TRANS	25
-+#define POLICYDB_VERSION_ROLETRANS	26
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_FILENAME_TRANS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
+diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+index 4d31597..33a29e4 100644
+--- a/checkpolicy/test/dismod.c
++++ b/checkpolicy/test/dismod.c
+@@ -451,13 +451,38 @@ void display_initial_sids(policydb_t * p, FILE * fp)
  #endif
+ }
  
- /* Mask for just the mount related flags */
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index e7b850a..a2c75e9 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -128,6 +128,11 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
- 	},
-+	{
-+		.version	= POLICYDB_VERSION_ROLETRANS,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	},
- };
- 
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -2302,8 +2307,17 @@ int policydb_read(struct policydb *p, void *fp)
- 		tr->role = le32_to_cpu(buf[0]);
- 		tr->type = le32_to_cpu(buf[1]);
- 		tr->new_role = le32_to_cpu(buf[2]);
-+		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
-+			rc = next_entry(buf, fp, sizeof(u32));
-+			if (rc)
-+				goto bad;
-+			tr->classes = le32_to_cpu(buf[0]);
-+		} else
-+			tr->classes = p->process_class;
++void display_class_set(ebitmap_t *classes, policydb_t *p, FILE *fp)
++{
++	int i, num = 0;
 +
- 		if (!policydb_role_isvalid(p, tr->role) ||
- 		    !policydb_type_isvalid(p, tr->type) ||
-+		    !policydb_class_isvalid(p, tr->classes) ||
- 		    !policydb_role_isvalid(p, tr->new_role))
- 			goto bad;
- 		ltr = tr;
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 732ea4a..cfc3dde 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -72,7 +72,8 @@ struct role_datum {
- 
- struct role_trans {
- 	u32 role;		/* current role */
--	u32 type;		/* program executable type */
-+	u32 type;		/* program executable type, or new object type */
-+	u32 classes;		/* process class, or new object class */
- 	u32 new_role;		/* new role */
- 	struct role_trans *next;
- };
++	for (i = ebitmap_startbit(classes); i < ebitmap_length(classes); i++) {
++		if (!ebitmap_get_bit(classes, i))
++			continue;
++		num++;
++		if (num > 1) {
++			fprintf(fp, "{");
++			break;
++		}
++	}
++
++	for (i = ebitmap_startbit(classes); i < ebitmap_length(classes); i++) {
++		if (ebitmap_get_bit(classes, i))
++			display_id(p, fp, SYM_CLASSES, i, "");
++	}
++
++	if (num > 1)
++		fprintf(fp, " }");
++}
++
+ void display_role_trans(role_trans_rule_t * tr, policydb_t * p, FILE * fp)
+ {
+ 	for (; tr; tr = tr->next) {
+ 		fprintf(fp, "role transition ");
+ 		display_mod_role_set(&tr->roles, p, fp);
+ 		display_type_set(&tr->types, 0, p, fp);
+-		display_id(p, fp, SYM_ROLES, tr->new_role - 1, " :");
++		fprintf(fp, " :");
++		display_class_set(&tr->classes, p, fp);
++		display_id(p, fp, SYM_ROLES, tr->new_role - 1, "");
+ 		fprintf(fp, "\n");
+ 	}
+ }
 -- 
 1.7.0.4
 
