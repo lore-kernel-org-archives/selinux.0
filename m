@@ -1,165 +1,114 @@
-Message-ID: <SNT139-w107AB9BF9E6715B2B318ECABB60@phx.gbl>
+Message-ID: <SNT139-w5684DB5D9F65F017A51374ABB60@phx.gbl>
 Content-Type: multipart/alternative;
-	boundary="_c030f900-6977-4501-b191-81867a97fb0f_"
+	boundary="_c75d4ab6-1ba6-463e-aab2-3f21583fa6f0_"
 From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <eparis@redhat.com>, <qingtao.cao@windriver.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, <jmorris@namei.org>,
-        <eparis@parisplace.org>, selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: RE: [v0 PATCH 1/3] SELinux: Add class support to the role_trans
- structure
-Date: Thu, 24 Mar 2011 09:43:26 +0000
-In-Reply-To: <1300891222.28871.6.camel@unknown001a4b0c2895>
+To: Stephen Smalley <sds@tycho.nsa.gov>, <qingtao.cao@windriver.com>
+CC: <jmorris@namei.org>, <eparis@parisplace.org>,
+        selinux-mailing-list
+	<selinux@tycho.nsa.gov>
+Subject: RE: [v0 PATCH 2/3] SELinux: Compute role in newcontext for all
+ classes
+Date: Thu, 24 Mar 2011 09:56:50 +0000
+In-Reply-To: <1300887112.26747.17.camel@moss-pluto>
 References: 
- <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>,<1300847325-20308-2-git-send-email-qingtao.cao@windriver.com>,<1300891222.28871.6.camel@unknown001a4b0c2895>
+ <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>,<1300847325-20308-3-git-send-email-qingtao.cao@windriver.com>,<1300887112.26747.17.camel@moss-pluto>
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_c030f900-6977-4501-b191-81867a97fb0f_
+--_c75d4ab6-1ba6-463e-aab2-3f21583fa6f0_
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
 
+Hi Stephen,
 
-
-> Subject: Re: [v0 PATCH 1/3] SELinux: Add class support to the role_trans structure
-> From: eparis@redhat.com
+> Subject: Re: [v0 PATCH 2/3] SELinux: Compute role in newcontext for all classes
+> From: sds@tycho.nsa.gov
 > To: qingtao.cao@windriver.com
-> CC: sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov
-> Date: Wed, 23 Mar 2011 10:40:22 -0400
+> CC: jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov
+> Date: Wed, 23 Mar 2011 09:31:52 -0400
 > 
 > On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:
 > > From: Harry Ciao <harrytaurus200@hotmail.com>
 > > 
-> > If kernel policy version is >= 25, then the binary representation of
-> > the role_trans structure supports specifying the class for the current
-> > subject or the newly created object.
+> > For the process class, the role_trans.type is compared with
+> > tcontext->type, that is, the program executable type.
 > > 
-> > If kernel policy version is < 25, then the class field would be default
-> > to the process class.
-> > 
-> > Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
-> > ---
-> >  security/selinux/include/security.h |    3 ++-
-> >  security/selinux/ss/policydb.c      |   24 +++++++++++++++++++++---
-> >  security/selinux/ss/policydb.h      |    7 ++++---
-> >  3 files changed, 27 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> > index 671273e..a9d9e2b 100644
-> > --- a/security/selinux/include/security.h
-> > +++ b/security/selinux/include/security.h
-> > @@ -28,13 +28,14 @@
-> >  #define POLICYDB_VERSION_POLCAP		22
-> >  #define POLICYDB_VERSION_PERMISSIVE	23
-> >  #define POLICYDB_VERSION_BOUNDARY	24
-> > +#define POLICYDB_VERSION_ROLETRANS	25
+> > For all the rest classes, the role_trans.type is compared with
+> > newcontext.type, that is, the type for the newly created object
+> > of that class.
 > 
-> Grab a newer kernel.  POLICYDB_VERSION_FILENAME_TRANS == 25.  You're
-> going to need 26  (although I haven't gotten the userspace
-> implementation of 26 done so we are going to have to work together to
-> make sure we don't trample on each other there)
+> I don't understand why you aren't applying the logic consistently for
+> all classes.  Compare with range_trans handling.  Also, if we think
+> there will be any significant number of these role_trans rules, you
+> might want to go ahead and start using a hashtab as was later done for
+> range_trans for efficient lookup.
 
-No problem!
+Suppose we have below role_transition rule:
 
-I will rebase to the latest SELinux kernel tree and reserve 25 for you in the userspace.
+role_transition sysadm_r user_home_t : dir sysadm_r;
 
->  
-> >  /* Range of policy versions we understand*/
-> >  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
-> >  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
-> >  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
-> >  #else
-> > -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
-> > +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
-> >  #endif
-> >  
-> >  /* Mask for just the mount related flags */
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > index 5736356..b660f08 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -123,6 +123,11 @@ static struct policydb_compat_info policydb_compat[] = {
-> >  		.sym_num	= SYM_NUM,
-> >  		.ocon_num	= OCON_NUM,
-> >  	},
-> > +	{
-> > +		.version	= POLICYDB_VERSION_ROLETRANS,
-> > +		.sym_num	= SYM_NUM,
-> > +		.ocon_num	= OCON_NUM,
-> > +	},
-> >  };
-> >  
-> >  static struct policydb_compat_info *policydb_lookup_compat(int version)
-> > @@ -2209,16 +2214,29 @@ int policydb_read(struct policydb *p, void *fp)
-> >  			ltr->next = tr;
-> >  		else
-> >  			p->role_tr = tr;
-> > -		rc = next_entry(buf, fp, sizeof(u32)*3);
-> > +		rc = next_entry(buf, fp, sizeof(u32)*2);
-> >  		if (rc)
-> >  			goto bad;
-> >  
-> > -		rc = -EINVAL;
-> >  		tr->role = le32_to_cpu(buf[0]);
-> >  		tr->type = le32_to_cpu(buf[1]);
-> > -		tr->new_role = le32_to_cpu(buf[2]);
-> > +		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
-> > +			rc = next_entry(buf, fp, sizeof(u32));
-> > +			if (rc)
-> > +				goto bad;
-> > +			tr->cclass = le32_to_cpu(buf[0]);
-> > +		} else
-> > +			tr->cclass = p->process_class;
-> > +
-> > +		rc = next_entry(buf, fp, sizeof(u32));
-> > +		if (rc)
-> > +			goto bad;
-> > +		tr->new_role = le32_to_cpu(buf[0]);
-> > +
-> > +		rc = -EINVAL;
-> >  		if (!policydb_role_isvalid(p, tr->role) ||
-> >  		    !policydb_type_isvalid(p, tr->type) ||
-> > +		    !policydb_class_isvalid(p, tr->cclass) ||
-> >  		    !policydb_role_isvalid(p, tr->new_role))
-> >  			goto bad;
-> >  		ltr = tr;
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> > index 4e3ab9d..ba08fb4 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -71,9 +71,10 @@ struct role_datum {
-> >  };
-> >  
-> >  struct role_trans {
-> > -	u32 role;		/* current role */
-> > -	u32 type;		/* program executable type */
-> > -	u32 new_role;		/* new role */
-> > +	u32 role;	/* current role */
-> > +	u32 type;	/* program executable type, or new object type */
-> > +	u32 cclass;	/* process class, or new object class */
-> 
-> Why "cclass"?  most of the code uses tclass (which might mean 'target
-> class' but I'm not sure)
+If roletr->type compared with newcontext.type, then it means that if sysadm_r is creating an directory object with type equals to user_home_t, then the directory object will have a role of sysadm_r.
 
-Well, I intended to use "class" but it is a reserved GCC identifier.
+However, if roletr->type is compared with tcontext->type, then the semantics would be changed to that any objects of any class created by sysadm_r in a directory object of the user_home_t type would have their role set to sysadm_r, since in selinux_inode_init_security(), dir->i_security is passed as tsid always.
 
-The class could be the subject class, that is, the "process" class, or could be the newly object class, so tclass(target class) won't fit much here.
+I guess the former approach could have much refined control on the objects role, if objects are of different types, then they could assume different roles, not necessarily all files in one directory have to share the same role.
 
-I will update it to "classes" which I think will be better than "cclass" :-)
+What you think?
 
-Thanks,
+BTW, I came to the idea to use hashtab structure to manage range_tr too, and this could be a separate development activity that I could do later.
+
+Thanks a lot!
+
+Best regards,
 Harry
 
 > 
-> Otherwise the patch looks good to me.  If you fix those you can add an
-> ACK on your next submission.
-> 
-> > +	u32 new_role;	/* new role */
-> >  	struct role_trans *next;
-> >  };
+> > 
+> > Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> > ---
+> >  security/selinux/ss/services.c |   23 ++++++++++++-----------
+> >  1 files changed, 12 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index a03cfaf..01fc3d5 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -1443,17 +1443,18 @@ static int security_compute_sid(u32 ssid,
+> >  	}
 > >  
+> >  	/* Check for class-specific changes. */
+> > -	if  (tclass == policydb.process_class) {
+> > -		if (specified & AVTAB_TRANSITION) {
+> > -			/* Look for a role transition rule. */
+> > -			for (roletr = policydb.role_tr; roletr;
+> > -			     roletr = roletr->next) {
+> > -				if (roletr->role == scontext->role &&
+> > -				    roletr->type == tcontext->type) {
+> > -					/* Use the role transition rule. */
+> > -					newcontext.role = roletr->new_role;
+> > -					break;
+> > -				}
+> > +	if (specified & AVTAB_TRANSITION) {
+> > +		/* Look for a role transition rule. */
+> > +		for (roletr = policydb.role_tr; roletr; roletr = roletr->next) {
+> > +			if ((roletr->role == scontext->role) &&
+> > +			    (roletr->cclass == tclass) &&
+> > +			    ((roletr->cclass == policydb.process_class &&
+> > +			      roletr->type == tcontext->type) ||
+> > +			     (roletr->cclass != policydb.process_class &&
+> > +			      roletr->type == newcontext.type))){
+> > +				/* Use the role transition rule. */
+> > +				newcontext.role = roletr->new_role;
+> > +				break;
+> >  			}
+> >  		}
+> >  	}
 > 
+> -- 
+> Stephen Smalley
+> National Security Agency
 > 
 > 
 > --
@@ -167,7 +116,7 @@ Harry
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
  		 	   		  
---_c030f900-6977-4501-b191-81867a97fb0f_
+--_c75d4ab6-1ba6-463e-aab2-3f21583fa6f0_
 Content-Type: text/html; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
@@ -187,18 +136,15 @@ font-family:Î¢ÈíÑÅºÚ
 --></style>
 </head>
 <body class='hmmessage'>
-<br><br>&gt; Subject: Re: [v0 PATCH 1/3] SELinux: Add class support to the role_trans structure<br>&gt; From: eparis@redhat.com<br>&gt; To: qingtao.cao@windriver.com<br>&gt; CC: sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov<br>&gt; Date: Wed, 23 Mar 2011 10:40:22 -0400<br>&gt; <br>&gt; On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:<br>&gt; &gt; From: Harry Ciao &lt;harrytaurus200@hotmail.com&gt;<br>&gt; &gt; <br>&gt; &gt; If kernel policy version is &gt;= 25, then the binary representation of<br>&gt; &gt; the role_trans structure supports specifying the class for the current<br>&gt; &gt; subject or the newly created object.<br>&gt; &gt; <br>&gt; &gt; If kernel policy version is &lt; 25, then the class field would be default<br>&gt; &gt; to the process class.<br>&gt; &gt; <br>&gt; &gt; Signed-off-by: Harry Ciao &lt;qingtao.cao@windriver.com&gt;<br>&gt; &gt; ---<br>&gt; &gt;  security/selinux/include/security.h |    3 ++-<br>&gt; &gt;!
-   security/selinux/ss/policydb.c      |   24 +++++++++++++++++++++---<br>&gt; &gt;  security/selinux/ss/policydb.h      |    7 ++++---<br>&gt; &gt;  3 files changed, 27 insertions(+), 7 deletions(-)<br>&gt; &gt; <br>&gt; &gt; diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h<br>&gt; &gt; index 671273e..a9d9e2b 100644<br>&gt; &gt; --- a/security/selinux/include/security.h<br>&gt; &gt; +++ b/security/selinux/include/security.h<br>&gt; &gt; @@ -28,13 +28,14 @@<br>&gt; &gt;  #define POLICYDB_VERSION_POLCAP		22<br>&gt; &gt;  #define POLICYDB_VERSION_PERMISSIVE	23<br>&gt; &gt;  #define POLICYDB_VERSION_BOUNDARY	24<br>&gt; &gt; +#define POLICYDB_VERSION_ROLETRANS	25<br>&gt; <br>&gt; Grab a newer kernel.  POLICYDB_VERSION_FILENAME_TRANS == 25.  You're<br>&gt; going to need 26  (although I haven't gotten the userspace<br>&gt; implementation of 26 done so we are going to have to work together to<br>&gt; make sure we don't trample on each other the!
- re)<br><br>No problem!<br><br>I will rebase to the latest SELinux kern
-el tree and reserve 25 for you in the userspace.<br><br>&gt;  <br>&gt; &gt;  /* Range of policy versions we understand*/<br>&gt; &gt;  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE<br>&gt; &gt;  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX<br>&gt; &gt;  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE<br>&gt; &gt;  #else<br>&gt; &gt; -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY<br>&gt; &gt; +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS<br>&gt; &gt;  #endif<br>&gt; &gt;  <br>&gt; &gt;  /* Mask for just the mount related flags */<br>&gt; &gt; diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c<br>&gt; &gt; index 5736356..b660f08 100644<br>&gt; &gt; --- a/security/selinux/ss/policydb.c<br>&gt; &gt; +++ b/security/selinux/ss/policydb.c<br>&gt; &gt; @@ -123,6 +123,11 @@ static struct policydb_compat_info policydb_compat[] = {<br>&gt; &gt;  		.sym_num	= SYM_NUM,<br>&gt; &gt;  		.ocon_num	= !
- OCON_NUM,<br>&gt; &gt;  	},<br>&gt; &gt; +	{<br>&gt; &gt; +		.version	= POLICYDB_VERSION_ROLETRANS,<br>&gt; &gt; +		.sym_num	= SYM_NUM,<br>&gt; &gt; +		.ocon_num	= OCON_NUM,<br>&gt; &gt; +	},<br>&gt; &gt;  };<br>&gt; &gt;  <br>&gt; &gt;  static struct policydb_compat_info *policydb_lookup_compat(int version)<br>&gt; &gt; @@ -2209,16 +2214,29 @@ int policydb_read(struct policydb *p, void *fp)<br>&gt; &gt;  			ltr-&gt;next = tr;<br>&gt; &gt;  		else<br>&gt; &gt;  			p-&gt;role_tr = tr;<br>&gt; &gt; -		rc = next_entry(buf, fp, sizeof(u32)*3);<br>&gt; &gt; +		rc = next_entry(buf, fp, sizeof(u32)*2);<br>&gt; &gt;  		if (rc)<br>&gt; &gt;  			goto bad;<br>&gt; &gt;  <br>&gt; &gt; -		rc = -EINVAL;<br>&gt; &gt;  		tr-&gt;role = le32_to_cpu(buf[0]);<br>&gt; &gt;  		tr-&gt;type = le32_to_cpu(buf[1]);<br>&gt; &gt; -		tr-&gt;new_role = le32_to_cpu(buf[2]);<br>&gt; &gt; +		if (p-&gt;policyvers &gt;= POLICYDB_VERSION_ROLETRANS) {<br>&gt; &gt; +			rc = next_entry(buf, fp, sizeof(u32));<br>!
- &gt; &gt; +			if (rc)<br>&gt; &gt; +				goto bad;<br>&gt; &gt; +			tr-
-&gt;cclass = le32_to_cpu(buf[0]);<br>&gt; &gt; +		} else<br>&gt; &gt; +			tr-&gt;cclass = p-&gt;process_class;<br>&gt; &gt; +<br>&gt; &gt; +		rc = next_entry(buf, fp, sizeof(u32));<br>&gt; &gt; +		if (rc)<br>&gt; &gt; +			goto bad;<br>&gt; &gt; +		tr-&gt;new_role = le32_to_cpu(buf[0]);<br>&gt; &gt; +<br>&gt; &gt; +		rc = -EINVAL;<br>&gt; &gt;  		if (!policydb_role_isvalid(p, tr-&gt;role) ||<br>&gt; &gt;  		    !policydb_type_isvalid(p, tr-&gt;type) ||<br>&gt; &gt; +		    !policydb_class_isvalid(p, tr-&gt;cclass) ||<br>&gt; &gt;  		    !policydb_role_isvalid(p, tr-&gt;new_role))<br>&gt; &gt;  			goto bad;<br>&gt; &gt;  		ltr = tr;<br>&gt; &gt; diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h<br>&gt; &gt; index 4e3ab9d..ba08fb4 100644<br>&gt; &gt; --- a/security/selinux/ss/policydb.h<br>&gt; &gt; +++ b/security/selinux/ss/policydb.h<br>&gt; &gt; @@ -71,9 +71,10 @@ struct role_datum {<br>&gt; &gt;  };<br>&gt; &gt;  <br>&gt; &gt;  struct role_trans {<!
- br>&gt; &gt; -	u32 role;		/* current role */<br>&gt; &gt; -	u32 type;		/* program executable type */<br>&gt; &gt; -	u32 new_role;		/* new role */<br>&gt; &gt; +	u32 role;	/* current role */<br>&gt; &gt; +	u32 type;	/* program executable type, or new object type */<br>&gt; &gt; +	u32 cclass;	/* process class, or new object class */<br>&gt; <br>&gt; Why "cclass"?  most of the code uses tclass (which might mean 'target<br>&gt; class' but I'm not sure)<br><br>Well, I intended to use "class" but it is a reserved GCC identifier.<br><br>The class could be the subject class, that is, the "process" class, or could be the newly object class, so tclass(target class) won't fit much here.<br><br>I will update it to "classes" which I think will be better than "cclass" :-)<br><br>Thanks,<br>Harry<br><br>&gt; <br>&gt; Otherwise the patch looks good to me.  If you fix those you can add an<br>&gt; ACK on your next submission.<br>&gt; <br>&gt; &gt; +	u32 new_role;	/* new role */<br>&gt; &gt; !
-  	struct role_trans *next;<br>&gt; &gt;  };<br>&gt; &gt;  <br>&gt; <br
->&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+Hi Stephen,<br><br>&gt; Subject: Re: [v0 PATCH 2/3] SELinux: Compute role in newcontext for all classes<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: qingtao.cao@windriver.com<br>&gt; CC: jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov<br>&gt; Date: Wed, 23 Mar 2011 09:31:52 -0400<br>&gt; <br>&gt; On Wed, 2011-03-23 at 10:28 +0800, Harry Ciao wrote:<br>&gt; &gt; From: Harry Ciao &lt;harrytaurus200@hotmail.com&gt;<br>&gt; &gt; <br>&gt; &gt; For the process class, the role_trans.type is compared with<br>&gt; &gt; tcontext-&gt;type, that is, the program executable type.<br>&gt; &gt; <br>&gt; &gt; For all the rest classes, the role_trans.type is compared with<br>&gt; &gt; newcontext.type, that is, the type for the newly created object<br>&gt; &gt; of that class.<br>&gt; <br>&gt; I don't understand why you aren't applying the logic consistently for<br>&gt; all classes.  Compare with range_trans handling.  Also, if we think<br>&gt; there will be any significant numbe!
+ r of these role_trans rules, you<br>&gt; might want to go ahead and start using a hashtab as was later done for<br>&gt; range_trans for efficient lookup.<br><br>Suppose we have below role_transition rule:<br><br>role_transition sysadm_r user_home_t : dir sysadm_r;<br><br>If roletr-&gt;type compared with newcontext.type, then it means that if sysadm_r is creating an directory object with type equals to user_home_t, then the directory object will have a role of sysadm_r.<br><br>However, if roletr-&gt;type is compared with tcontext-&gt;type, then the semantics would be changed to that any objects of any class created by sysadm_r in a directory object of the user_home_t type would have their role set to sysadm_r, since in selinux_inode_init_security(), dir-&gt;i_security is passed as tsid always.<br><br>I guess the former approach could have much refined control on the objects role, if objects are of different types, then they could assume different roles, not necessarily all f!
+ iles in one directory have to share the same role.<br><br>What you thi
+nk?<br><br>BTW, I came to the idea to use hashtab structure to manage range_tr too, and this could be a separate development activity that I could do later.<br><br>Thanks a lot!<br><br>Best regards,<br>Harry<br><br>&gt; <br>&gt; &gt; <br>&gt; &gt; Signed-off-by: Harry Ciao &lt;qingtao.cao@windriver.com&gt;<br>&gt; &gt; ---<br>&gt; &gt;  security/selinux/ss/services.c |   23 ++++++++++++-----------<br>&gt; &gt;  1 files changed, 12 insertions(+), 11 deletions(-)<br>&gt; &gt; <br>&gt; &gt; diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c<br>&gt; &gt; index a03cfaf..01fc3d5 100644<br>&gt; &gt; --- a/security/selinux/ss/services.c<br>&gt; &gt; +++ b/security/selinux/ss/services.c<br>&gt; &gt; @@ -1443,17 +1443,18 @@ static int security_compute_sid(u32 ssid,<br>&gt; &gt;  	}<br>&gt; &gt;  <br>&gt; &gt;  	/* Check for class-specific changes. */<br>&gt; &gt; -	if  (tclass == policydb.process_class) {<br>&gt; &gt; -		if (specified &amp; AVTAB_TRANSITION) !
+ {<br>&gt; &gt; -			/* Look for a role transition rule. */<br>&gt; &gt; -			for (roletr = policydb.role_tr; roletr;<br>&gt; &gt; -			     roletr = roletr-&gt;next) {<br>&gt; &gt; -				if (roletr-&gt;role == scontext-&gt;role &amp;&amp;<br>&gt; &gt; -				    roletr-&gt;type == tcontext-&gt;type) {<br>&gt; &gt; -					/* Use the role transition rule. */<br>&gt; &gt; -					newcontext.role = roletr-&gt;new_role;<br>&gt; &gt; -					break;<br>&gt; &gt; -				}<br>&gt; &gt; +	if (specified &amp; AVTAB_TRANSITION) {<br>&gt; &gt; +		/* Look for a role transition rule. */<br>&gt; &gt; +		for (roletr = policydb.role_tr; roletr; roletr = roletr-&gt;next) {<br>&gt; &gt; +			if ((roletr-&gt;role == scontext-&gt;role) &amp;&amp;<br>&gt; &gt; +			    (roletr-&gt;cclass == tclass) &amp;&amp;<br>&gt; &gt; +			    ((roletr-&gt;cclass == policydb.process_class &amp;&amp;<br>&gt; &gt; +			      roletr-&gt;type == tcontext-&gt;type) ||<br>&gt; &gt; +			     (roletr-&gt;cclass != policydb.process_cl!
+ ass &amp;&amp;<br>&gt; &gt; +			      roletr-&gt;type == newcontext.ty
+pe))){<br>&gt; &gt; +				/* Use the role transition rule. */<br>&gt; &gt; +				newcontext.role = roletr-&gt;new_role;<br>&gt; &gt; +				break;<br>&gt; &gt;  			}<br>&gt; &gt;  		}<br>&gt; &gt;  	}<br>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
 </html>
---_c030f900-6977-4501-b191-81867a97fb0f_--
+--_c75d4ab6-1ba6-463e-aab2-3f21583fa6f0_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
