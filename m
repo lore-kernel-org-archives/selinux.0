@@ -1,44 +1,69 @@
-Subject: Re: RIP: 0010:[<ffffffff811bdec1>] [<ffffffff811bdec1>]
- avc_audit_post_callback+0xc6/0xfe
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <01F4E579-2929-4CB0-B994-1C325DE9E6F7@gmail.com>
-References: <AANLkTi=UYvBV9piRpUapcf+6gFyJpOg8yAxt0NG9J_Re@mail.gmail.com>
-	 <1298642860.13368.15.camel@moss-pluto>
-	 <01F4E579-2929-4CB0-B994-1C325DE9E6F7@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 24 Mar 2011 10:01:04 -0400
-Message-ID: <1300975264.8157.40.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <4D8B70C8.3000800@gmail.com>
+Date: Thu, 24 Mar 2011 09:26:48 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: refpolicy@oss1.tresys.com, selinux@tycho.nsa.gov
+Subject: Re: SELinux: avc_has_perm: unexpected error 22
+References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>
+In-Reply-To: <1300975137.8157.38.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-02-25 at 09:18 -0800, Justin Mattock wrote:
-> On Feb 25, 2011, at 6:07 AM, Stephen Smalley wrote:
-> 
-> > On Thu, 2011-02-24 at 12:57 -0800, Justin Mattock wrote:
-> >> this just popped up..:
-> >>
-> >>
-> >> [29804.908327] SELinux:  Invalid class 3588
-> >> [29804.908438] ------------[ cut here ]------------
-> >> [29804.908443] kernel BUG at security/selinux/avc.c:162!
-> >
-> > It might help debugging to get as much of the AVC message as we can  
-> > even
-> > in this case, e.g.
-> 
-> cool, thanks for the debug patch... I applied it, and will run it to  
-> see if this fires off..
-> current kernel is: 2.6.38-rc6-00116-g2821f46
+On 03/24/2011 06:58 AM, Stephen Smalley wrote:
+> On Wed, 2011-03-23 at 19:30 -0700, Justin P. Mattock wrote:
+>> On 03/23/2011 11:07 AM, Justin P. Mattock wrote:
+>>> On 03/21/2011 09:52 AM, Justin P. Mattock wrote:
+>>>> this is showing up with the latest Mainline kernel.
+>>>> gdm craps out..:
+>>>>
+>>>> [ 60.817] (II) Unloading synaptics
+>>>> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.822] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.828] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.831] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.871] SELinux: avc_has_perm: unexpected error 22
+>>>> [ 60.881] (II) UnloadModule: "mouse"
+>>>> [ 60.881] (II) Unloading mouse
+>>>>
+>>>>
+>>>> full xorg.0.log is here:
+>>>> http://fpaste.org/OOM2/
+>>>>
+>>>> Justin P. Mattock
+>>>
+>>> seems doing a bisect right now during the merge window is breaking,
+>>> anyways looking through the commits I think this:
+>>>
+>>> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c53fa1ed92cd671a1dfb1e7569e9ab672612ddc6;hp=06dc94b1ed05f91e246315afeb1c652d6d0dc9ab
+>>>
+>>>
+>>> might be what I am hitting, causing gdm to die out, as it starts.
+>>>
+>>> any ideas?
+>>>
+>>> Justin P. Mattock
+>>
+>> not sure if anybody is seeing this or hitting this with the current,
+>> but reverting the above commit does not fix the problem.
+>> will try another bisect(hopefully)
+>
+> Are you sure it is a kernel issue?  Seems more likely that it would be a
+> policy problem.  What AVC denials are you getting?
+>
 
-Did you ever get any output from this debug patch?  It would have shown
-up as an AVC message with tclass=[0-9]* rather than a class name.
 
--- 
-Stephen Smalley
-National Security Agency
+strange.. was not even thinking of the avc's because the policy has 
+already been customized and has been working for a while now without 
+adding any rules.
+
+Anyways your right, seems the labels get changed or something with this 
+kernel or something:
+http://fpaste.org/w4nK/
+
+Justin P. Mattock
 
 
 --
