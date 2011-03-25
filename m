@@ -1,111 +1,107 @@
-Date: Fri, 25 Mar 2011 14:11:01 +0800 (CST)
-From: Yao <yffbrave@163.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-Message-ID: <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
-In-Reply-To: <1300886666.26747.15.camel@moss-pluto>
-References: <1300886666.26747.15.camel@moss-pluto>
- <1300710582.29422.12.camel@moss-pluto>
- <1300456978.25429.29.camel@moss-pluto>
- <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
- <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
- <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
-Subject: Re:Re: Re:Re: Re:Re: about ss
-MIME-Version: 1.0
+Message-ID: <SNT139-W50B60E4DF5002FD83ECABABB90@phx.gbl>
 Content-Type: multipart/alternative;
-	boundary="----=_Part_70428_8824664.1301033461844"
+	boundary="_f2d44def-429a-4736-914a-0cc9c4881705_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: <qingtao.cao@windriver.com>, <jmorris@namei.org>, <eparis@parisplace.org>,
+        selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: RE: [v0 PATCH 2/3] SELinux: Compute role in newcontext for all
+ classes
+Date: Fri, 25 Mar 2011 06:25:53 +0000
+In-Reply-To: <1300973126.8157.31.camel@moss-pluto>
+References: 
+ <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>,,<1300847325-20308-3-git-send-email-qingtao.cao@windriver.com>,,<1300887112.26747.17.camel@moss-pluto>,<SNT139-w5684DB5D9F65F017A51374ABB60@phx.gbl>,<1300973126.8157.31.camel@moss-pluto>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_70428_8824664.1301033461844
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+--_f2d44def-429a-4736-914a-0cc9c4881705_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-CkF0IDIwMTEtMDMtMjOjrCJTdGVwaGVuIFNtYWxsZXkiIDxzZHNAdHljaG8ubnNhLmdvdj4gd3Jv
-dGU6Cgo+T24gV2VkLCAyMDExLTAzLTIzIGF0IDA5OjEwICswODAwLCBZYW8gd3JvdGU6Cj4+IE1h
-eWJlIEkgc2hvdWxkIGV4cGxhaW4uIFdlIHRoaW5rIGtlcm5lbCBpcyB1bnRydXN0ZWQsIHNzIGlz
-IHRydXN0ZWQuCj4+IHdlIHByb3RlY3QgdGhlIHNlY3VyaXR5IHNlcnZlciB0aHJvdWdoIGdlcmVu
-YXRpbmcgYSBzZXBhcmF0ZSBhZGRyZXNzCj4+IHNwYWNlLiBXaGVuIHdlIG5lZWQgdG8gdXNlIHNz
-LCB3ZSBzd2l0Y2ggdG8gdGhpcyBzcGFjZS4gSWYgdW50cnVzdGVkCj4+IGtlcm5lbCBjb2RlIGNh
-biBiZSBleGVjdXRlZCwgd2hhdCB3ZSBkbyBiZWNhbWUgbWVhbmluZ2xlc3MuIFRoYXQncyB3aHkK
-Pj4gd2Ugd2FudCB0aGUgc3Mgc2VsZi1jb250YWluZWQuIEFuZCBvdXIgd29yayBzaG91bGQgYXBw
-bHkgdG8gZmxhc2sKPj4gYXJjaGl0ZWN0dXJlLCB0aGF0J3Mgd2h5IHdlIGNob3NlIHNlbGludXgu
-Cj4+IElzIGl0IHBvc3NpYmxlIHRvIGZ1bGlsbCBteSBnb2FsIHdpdGhvdXQgbW9kaWZ5aW5nIHNz
-IGV4Y2Vzc2l2ZWx5Pwo+Cj5UaGUga2VybmVsIGhhcyB0byBiZSB0cnVzdGVkIC0gaXQgcnVucyBp
-biByaW5nIDAuCj5BbmQgdGhlIHNlY3VyaXR5IHNlcnZlciBpcyBqdXN0IGEgcG9saWN5IGVuZ2lu
-ZSAtIGl0IGp1c3QgcHJvdmlkZXMKPnBvbGljeSBkZWNpc2lvbnMgdG8gdGhlIGtlcm5lbCB1cG9u
-IHJlcXVlc3QuICBUaGUga2VybmVsIHBlcmZvcm1zIHRoZQo+cG9saWN5IGVuZm9yY2VtZW50IG9m
-IHRob3NlIGRlY2lzaW9ucy4KPgo+SW4gRmx1a2UvRmxhc2ssIHRoZSBzZWN1cml0eSBzZXJ2ZXIg
-cmFuIGluIHVzZXJzcGFjZSwgYnV0IHRoYXQgd2FzIGEKPm1pY3Jva2VybmVsLWJhc2VkIE9TLiAg
-QW5kIGV2ZW4gdGhlcmUsIHdlIHdlcmVuJ3QgdHJ5aW5nIHRvIHByb3RlY3QgdGhlCj5zZWN1cml0
-eSBzZXJ2ZXIgZnJvbSB0aGUgKG1pY3JvKWtlcm5lbC4KPgo+SXQgZG9lc24ndCBtYWtlIHNlbnNl
-IHRvIHRyeSB0byBwcm90ZWN0IHRoZSBzZWN1cml0eSBzZXJ2ZXIgYXBhcnQgZnJvbQo+dGhlIHJl
-c3Qgb2YgdGhlIGtlcm5lbC4KCldlbGwsIG15IGlkZWEgaXMgYmFzZWQgb24gYSBwYXBlciAiU2Vj
-dXJlIEluLVZNIE1vbml0b3JpbmcgVXNpbmcgSGFyZHdhcmUgVmlydHVhbGl6YXRpb24iKENDUycw
-OSkuIEkgd2lsbCBhcHByZWNpYXRlIGlmIHlvdSBzcGVuZCBzb21lIHRpbWUgdG8gbG9vayB0aHJv
-dWdoIHRoZSBjb250ZW50ICYgY2hlY2sgaWYgd2hhdCBJIGRpZCBpcyByaWdodC4KPi0tIAo+U3Rl
-cGhlbiBTbWFsbGV5Cj5OYXRpb25hbCBTZWN1cml0eSBBZ2VuY3kKPgo+Cj4tLQo+VGhpcyBtZXNz
-YWdlIHdhcyBkaXN0cmlidXRlZCB0byBzdWJzY3JpYmVycyBvZiB0aGUgc2VsaW51eCBtYWlsaW5n
-IGxpc3QuCj5JZiB5b3Ugbm8gbG9uZ2VyIHdpc2ggdG8gc3Vic2NyaWJlLCBzZW5kIG1haWwgdG8g
-bWFqb3Jkb21vQHR5Y2hvLm5zYS5nb3Ygd2l0aAo+dGhlIHdvcmRzICJ1bnN1YnNjcmliZSBzZWxp
-bnV4IiB3aXRob3V0IHF1b3RlcyBhcyB0aGUgbWVzc2FnZS4K
-------=_Part_70428_8824664.1301033461844
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
 
-PHByZT48c3BhbiBjbGFzcz0iQXBwbGUtc3R5bGUtc3BhbiIgc3R5bGU9IndoaXRlLXNwYWNlOiBu
-b3JtYWw7Ij48YnI+PC9zcGFuPkF0Jm5ic3A7MjAxMS0wMy0yM6OsIlN0ZXBoZW4mbmJzcDtTbWFs
-bGV5IiZuYnNwOyZsdDtzZHNAdHljaG8ubnNhLmdvdiZndDsmbmJzcDt3cm90ZToKCiZndDtPbiZu
-YnNwO1dlZCwmbmJzcDsyMDExLTAzLTIzJm5ic3A7YXQmbmJzcDswOToxMCZuYnNwOyswODAwLCZu
-YnNwO1lhbyZuYnNwO3dyb3RlOgomZ3Q7Jmd0OyZuYnNwO01heWJlJm5ic3A7SSZuYnNwO3Nob3Vs
-ZCZuYnNwO2V4cGxhaW4uJm5ic3A7V2UmbmJzcDt0aGluayZuYnNwO2tlcm5lbCZuYnNwO2lzJm5i
-c3A7dW50cnVzdGVkLCZuYnNwO3NzJm5ic3A7aXMmbmJzcDt0cnVzdGVkLgomZ3Q7Jmd0OyZuYnNw
-O3dlJm5ic3A7cHJvdGVjdCZuYnNwO3RoZSZuYnNwO3NlY3VyaXR5Jm5ic3A7c2VydmVyJm5ic3A7
-dGhyb3VnaCZuYnNwO2dlcmVuYXRpbmcmbmJzcDthJm5ic3A7c2VwYXJhdGUmbmJzcDthZGRyZXNz
-CiZndDsmZ3Q7Jm5ic3A7c3BhY2UuJm5ic3A7V2hlbiZuYnNwO3dlJm5ic3A7bmVlZCZuYnNwO3Rv
-Jm5ic3A7dXNlJm5ic3A7c3MsJm5ic3A7d2UmbmJzcDtzd2l0Y2gmbmJzcDt0byZuYnNwO3RoaXMm
-bmJzcDtzcGFjZS4mbmJzcDtJZiZuYnNwO3VudHJ1c3RlZAomZ3Q7Jmd0OyZuYnNwO2tlcm5lbCZu
-YnNwO2NvZGUmbmJzcDtjYW4mbmJzcDtiZSZuYnNwO2V4ZWN1dGVkLCZuYnNwO3doYXQmbmJzcDt3
-ZSZuYnNwO2RvJm5ic3A7YmVjYW1lJm5ic3A7bWVhbmluZ2xlc3MuJm5ic3A7VGhhdCdzJm5ic3A7
-d2h5CiZndDsmZ3Q7Jm5ic3A7d2UmbmJzcDt3YW50Jm5ic3A7dGhlJm5ic3A7c3MmbmJzcDtzZWxm
-LWNvbnRhaW5lZC4mbmJzcDtBbmQmbmJzcDtvdXImbmJzcDt3b3JrJm5ic3A7c2hvdWxkJm5ic3A7
-YXBwbHkmbmJzcDt0byZuYnNwO2ZsYXNrCiZndDsmZ3Q7Jm5ic3A7YXJjaGl0ZWN0dXJlLCZuYnNw
-O3RoYXQncyZuYnNwO3doeSZuYnNwO3dlJm5ic3A7Y2hvc2UmbmJzcDtzZWxpbnV4LgomZ3Q7Jmd0
-OyZuYnNwO0lzJm5ic3A7aXQmbmJzcDtwb3NzaWJsZSZuYnNwO3RvJm5ic3A7ZnVsaWxsJm5ic3A7
-bXkmbmJzcDtnb2FsJm5ic3A7d2l0aG91dCZuYnNwO21vZGlmeWluZyZuYnNwO3NzJm5ic3A7ZXhj
-ZXNzaXZlbHk/CiZndDsKJmd0O1RoZSZuYnNwO2tlcm5lbCZuYnNwO2hhcyZuYnNwO3RvJm5ic3A7
-YmUmbmJzcDt0cnVzdGVkJm5ic3A7LSZuYnNwO2l0Jm5ic3A7cnVucyZuYnNwO2luJm5ic3A7cmlu
-ZyZuYnNwOzAuCiZndDtBbmQmbmJzcDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZuYnNw
-O2lzJm5ic3A7anVzdCZuYnNwO2EmbmJzcDtwb2xpY3kmbmJzcDtlbmdpbmUmbmJzcDstJm5ic3A7
-aXQmbmJzcDtqdXN0Jm5ic3A7cHJvdmlkZXMKJmd0O3BvbGljeSZuYnNwO2RlY2lzaW9ucyZuYnNw
-O3RvJm5ic3A7dGhlJm5ic3A7a2VybmVsJm5ic3A7dXBvbiZuYnNwO3JlcXVlc3QuJm5ic3A7Jm5i
-c3A7VGhlJm5ic3A7a2VybmVsJm5ic3A7cGVyZm9ybXMmbmJzcDt0aGUKJmd0O3BvbGljeSZuYnNw
-O2VuZm9yY2VtZW50Jm5ic3A7b2YmbmJzcDt0aG9zZSZuYnNwO2RlY2lzaW9ucy4KJmd0OwomZ3Q7
-SW4mbmJzcDtGbHVrZS9GbGFzaywmbmJzcDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZu
-YnNwO3JhbiZuYnNwO2luJm5ic3A7dXNlcnNwYWNlLCZuYnNwO2J1dCZuYnNwO3RoYXQmbmJzcDt3
-YXMmbmJzcDthCiZndDttaWNyb2tlcm5lbC1iYXNlZCZuYnNwO09TLiZuYnNwOyZuYnNwO0FuZCZu
-YnNwO2V2ZW4mbmJzcDt0aGVyZSwmbmJzcDt3ZSZuYnNwO3dlcmVuJ3QmbmJzcDt0cnlpbmcmbmJz
-cDt0byZuYnNwO3Byb3RlY3QmbmJzcDt0aGUKJmd0O3NlY3VyaXR5Jm5ic3A7c2VydmVyJm5ic3A7
-ZnJvbSZuYnNwO3RoZSZuYnNwOyhtaWNybylrZXJuZWwuCiZndDsKJmd0O0l0Jm5ic3A7ZG9lc24n
-dCZuYnNwO21ha2UmbmJzcDtzZW5zZSZuYnNwO3RvJm5ic3A7dHJ5Jm5ic3A7dG8mbmJzcDtwcm90
-ZWN0Jm5ic3A7dGhlJm5ic3A7c2VjdXJpdHkmbmJzcDtzZXJ2ZXImbmJzcDthcGFydCZuYnNwO2Zy
-b20KJmd0O3RoZSZuYnNwO3Jlc3QmbmJzcDtvZiZuYnNwO3RoZSZuYnNwO2tlcm5lbC48L3ByZT48
-cHJlPgpXZWxsLCBteSBpZGVhIGlzIGJhc2VkIG9uIGEgcGFwZXIgIlNlY3VyZSBJbi1WTSBNb25p
-dG9yaW5nIFVzaW5nIEhhcmR3YXJlIFZpcnR1YWxpemF0aW9uIihDQ1MnMDkpLiBJIHdpbGwgYXBw
-cmVjaWF0ZSBpZiB5b3Ugc3BlbmQgc29tZSB0aW1lIHRvIGxvb2sgdGhyb3VnaCB0aGUgY29udGVu
-dCAmYW1wOyBjaGVjayBpZiB3aGF0IEkgZGlkIGlzIHJpZ2h0LjwvcHJlPjxwcmU+Jmd0Oy0tJm5i
-c3A7CiZndDtTdGVwaGVuJm5ic3A7U21hbGxleQomZ3Q7TmF0aW9uYWwmbmJzcDtTZWN1cml0eSZu
-YnNwO0FnZW5jeQomZ3Q7CiZndDsKJmd0Oy0tCiZndDtUaGlzJm5ic3A7bWVzc2FnZSZuYnNwO3dh
-cyZuYnNwO2Rpc3RyaWJ1dGVkJm5ic3A7dG8mbmJzcDtzdWJzY3JpYmVycyZuYnNwO29mJm5ic3A7
-dGhlJm5ic3A7c2VsaW51eCZuYnNwO21haWxpbmcmbmJzcDtsaXN0LgomZ3Q7SWYmbmJzcDt5b3Um
-bmJzcDtubyZuYnNwO2xvbmdlciZuYnNwO3dpc2gmbmJzcDt0byZuYnNwO3N1YnNjcmliZSwmbmJz
-cDtzZW5kJm5ic3A7bWFpbCZuYnNwO3RvJm5ic3A7bWFqb3Jkb21vQHR5Y2hvLm5zYS5nb3YmbmJz
-cDt3aXRoCiZndDt0aGUmbmJzcDt3b3JkcyZuYnNwOyJ1bnN1YnNjcmliZSZuYnNwO3NlbGludXgi
-Jm5ic3A7d2l0aG91dCZuYnNwO3F1b3RlcyZuYnNwO2FzJm5ic3A7dGhlJm5ic3A7bWVzc2FnZS4K
-PC9wcmU+PGJyPjxicj48c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVh
-c2VfbWFpbF9mb290ZXIiPjwvc3Bhbj48L3NwYW4+
-------=_Part_70428_8824664.1301033461844--
+Hi Stephen,
 
+[cut]
+> > 
+> > Suppose we have below role_transition rule:
+> > 
+> > role_transition sysadm_r user_home_t : dir sysadm_r;
+> > 
+> > If roletr->type compared with newcontext.type, then it means that if
+> > sysadm_r is creating an directory object with type equals to
+> > user_home_t, then the directory object will have a role of sysadm_r.
+> > 
+> > However, if roletr->type is compared with tcontext->type, then the
+> > semantics would be changed to that any objects of any class created by
+> > sysadm_r in a directory object of the user_home_t type would have
+> > their role set to sysadm_r, since in selinux_inode_init_security(),
+> > dir->i_security is passed as tsid always.
+> > 
+> > I guess the former approach could have much refined control on the
+> > objects role, if objects are of different types, then they could
+> > assume different roles, not necessarily all f! iles in one directory
+> > have to share the same role.
+> > 
+> > What you thi nk?
+> 
+> Compare with type_transition or range_transition semantics.
+> type_transition sysadm_t tmp_t : sock_file sysadm_tmp_t;
+> means when a sysadm_t (scontext->type) process creates a socket file
+> (tclass) object in a directory labeled tmp_t (tcontext->type), then
+> label the socket file with sysadm_tmp_t (newcontext->type).
+> 
+> type_transition sysadm_t sshd_exec_t:process sshd_t;
+> means when a sysadm_t (scontext->type) process executes a sshd_exec_t
+> (tcontext->type) file, then label the new process (tclass) with sshd_t
+> (newcontext->type).
+> 
+> See how they are consistently applied regardless of whether it is a
+> process or object class?
+> 
+
+Thanks for taking the patience to correct me. Now I've got it - for the newly created objects, the type field in both role_transition and type_transition rules  are always the parent directory type, and we can still use the class field in both rules to specify what class objects would the rule be applied to, so I am now clear that there won't be such a thing that "any object of any class in the same parent directory would have the same role", please find out in the tests I've done.
+
+Best regards,
+Harry
+
+
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_f2d44def-429a-4736-914a-0cc9c4881705_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi Stephen,<br><br>[cut]<br>&gt; &gt; <br>&gt; &gt; Suppose we have below role_transition rule:<br>&gt; &gt; <br>&gt; &gt; role_transition sysadm_r user_home_t : dir sysadm_r;<br>&gt; &gt; <br>&gt; &gt; If roletr-&gt;type compared with newcontext.type, then it means that if<br>&gt; &gt; sysadm_r is creating an directory object with type equals to<br>&gt; &gt; user_home_t, then the directory object will have a role of sysadm_r.<br>&gt; &gt; <br>&gt; &gt; However, if roletr-&gt;type is compared with tcontext-&gt;type, then the<br>&gt; &gt; semantics would be changed to that any objects of any class created by<br>&gt; &gt; sysadm_r in a directory object of the user_home_t type would have<br>&gt; &gt; their role set to sysadm_r, since in selinux_inode_init_security(),<br>&gt; &gt; dir-&gt;i_security is passed as tsid always.<br>&gt; &gt; <br>&gt; &gt; I guess the former approach could have much refined control on the<br>&gt; &gt; objects role, if objects are of different types, !
+ then they could<br>&gt; &gt; assume different roles, not necessarily all f! iles in one directory<br>&gt; &gt; have to share the same role.<br>&gt; &gt; <br>&gt; &gt; What you thi nk?<br>&gt; <br>&gt; Compare with type_transition or range_transition semantics.<br>&gt; type_transition sysadm_t tmp_t : sock_file sysadm_tmp_t;<br>&gt; means when a sysadm_t (scontext-&gt;type) process creates a socket file<br>&gt; (tclass) object in a directory labeled tmp_t (tcontext-&gt;type), then<br>&gt; label the socket file with sysadm_tmp_t (newcontext-&gt;type).<br>&gt; <br>&gt; type_transition sysadm_t sshd_exec_t:process sshd_t;<br>&gt; means when a sysadm_t (scontext-&gt;type) process executes a sshd_exec_t<br>&gt; (tcontext-&gt;type) file, then label the new process (tclass) with sshd_t<br>&gt; (newcontext-&gt;type).<br>&gt; <br>&gt; See how they are consistently applied regardless of whether it is a<br>&gt; process or object class?<br>&gt; <br><br>Thanks for taking the patience to !
+ correct me. Now I've got it - for the newly created objects, the type 
+field in both role_transition and type_transition rules&nbsp; are always the parent directory type, and we can still use the class field in both rules to specify what class objects would the rule be applied to, so I am now clear that there won't be such a thing that "any object of any class in the same parent directory would have the same role", please find out in the tests I've done.<br><br>Best regards,<br>Harry<br><br><br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+</html>
+--_f2d44def-429a-4736-914a-0cc9c4881705_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
