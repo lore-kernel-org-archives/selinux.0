@@ -1,58 +1,31 @@
-Subject: Re: SELinux: avc_has_perm: unexpected error 22
+Subject: Re: about ss
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: qingtao.cao@windriver.com
-Cc: "Justin P. Mattock" <justinmattock@gmail.com>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1301055989.22099.4.camel@moss-pluto>
-References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>
-	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>
-	 <4D8B70C8.3000800@gmail.com> <1300997637.8157.44.camel@moss-pluto>
-	 <4D8BA7F0.5090307@gmail.com> <1300998293.8157.48.camel@moss-pluto>
-	 <4D8BACFD.6090400@gmail.com>  <4D8C09A3.5090304@windriver.com>
-	 <1301055989.22099.4.camel@moss-pluto>
+To: Yao <yffbrave@163.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
+References: <1300886666.26747.15.camel@moss-pluto>
+	 <1300710582.29422.12.camel@moss-pluto>
+	 <1300456978.25429.29.camel@moss-pluto>
+	 <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
+	 <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
+	 <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
+	 <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 25 Mar 2011 08:34:41 -0400
-Message-ID: <1301056481.22099.8.camel@moss-pluto>
+Date: Fri, 25 Mar 2011 08:43:27 -0400
+Message-ID: <1301057007.22099.11.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-03-25 at 08:26 -0400, Stephen Smalley wrote:
-> On Fri, 2011-03-25 at 11:18 +0800, Harry Ciao wrote:
-> > So far I have not got an environment as your to reproduce this problem.
-> > Could you please kindly print the orig_class and the sock boolean in
-> > your case? It's weird since so far only the process and socket classes
-> > could retain the creator's role, any other classes object should have
-> > "object_r" as usual.
-> > 
-> > Many thanks for your help!
-> 
-> You can exercise the code without using XACE/XSELinux by running the
-> compute_create program from libselinux/utils, e.g.
-> $ compute_create `id -Z` `id -Z` x_drawable
-> 
-> I think the bug lies in map_class() handling of the case where the
-> userspace object class has no corresponding kernel class, as would be
-> the case for the x_* classes.  map_class() should likely return 0
-> (SECCLASS_NULL) in that case rather than pol_value and thereby ensure
-> that we won't match any legitimate kernel class value.
+On Fri, 2011-03-25 at 14:11 +0800, Yao wrote:
+> Well, my idea is based on a paper "Secure In-VM Monitoring Using
+> Hardware Virtualization"(CCS'09). I will appreciate if you spend some
+> time to look through the content & check if what I did is right.
 
-To test this theory, Justin, can you try this patch?
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 3e7544d..ea7c01f 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -213,7 +213,7 @@ static u16 map_class(u16 pol_value)
- 			return i;
- 	}
- 
--	return pol_value;
-+	return SECCLASS_NULL;
- }
- 
- static void map_decision(u16 tclass, struct av_decision *avd,
-
+If I understand correctly, that paper is about co-locating a monitoring
+service in the same VM as the operating system being monitored.  But the
+security server is not a monitoring service; it is a policy engine
+invoked by the kernel.  So I don't think this applies.
 
 -- 
 Stephen Smalley
