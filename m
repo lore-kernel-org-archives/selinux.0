@@ -1,128 +1,110 @@
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
-Cc: selinux@tycho.nsa.gov
-Subject: [v2 PATCH 3/5] Userspace: handle the class field in role_trans struct
-Date: Fri, 25 Mar 2011 13:52:01 +0800
-Message-Id: <1301032323-20363-7-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com>
-References: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com>
+Date: Fri, 25 Mar 2011 14:11:01 +0800 (CST)
+From: Yao <yffbrave@163.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
+Message-ID: <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
+In-Reply-To: <1300886666.26747.15.camel@moss-pluto>
+References: <1300886666.26747.15.camel@moss-pluto>
+ <1300710582.29422.12.camel@moss-pluto>
+ <1300456978.25429.29.camel@moss-pluto>
+ <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
+ <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
+ <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
+Subject: Re:Re: Re:Re: Re:Re: about ss
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_70428_8824664.1301033461844"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Harry Ciao <harrytaurus2002@hotmail.com>
+------=_Part_70428_8824664.1301033461844
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-Add the class support to various functions that handle role_trans
-structure.
+CkF0IDIwMTEtMDMtMjOjrCJTdGVwaGVuIFNtYWxsZXkiIDxzZHNAdHljaG8ubnNhLmdvdj4gd3Jv
+dGU6Cgo+T24gV2VkLCAyMDExLTAzLTIzIGF0IDA5OjEwICswODAwLCBZYW8gd3JvdGU6Cj4+IE1h
+eWJlIEkgc2hvdWxkIGV4cGxhaW4uIFdlIHRoaW5rIGtlcm5lbCBpcyB1bnRydXN0ZWQsIHNzIGlz
+IHRydXN0ZWQuCj4+IHdlIHByb3RlY3QgdGhlIHNlY3VyaXR5IHNlcnZlciB0aHJvdWdoIGdlcmVu
+YXRpbmcgYSBzZXBhcmF0ZSBhZGRyZXNzCj4+IHNwYWNlLiBXaGVuIHdlIG5lZWQgdG8gdXNlIHNz
+LCB3ZSBzd2l0Y2ggdG8gdGhpcyBzcGFjZS4gSWYgdW50cnVzdGVkCj4+IGtlcm5lbCBjb2RlIGNh
+biBiZSBleGVjdXRlZCwgd2hhdCB3ZSBkbyBiZWNhbWUgbWVhbmluZ2xlc3MuIFRoYXQncyB3aHkK
+Pj4gd2Ugd2FudCB0aGUgc3Mgc2VsZi1jb250YWluZWQuIEFuZCBvdXIgd29yayBzaG91bGQgYXBw
+bHkgdG8gZmxhc2sKPj4gYXJjaGl0ZWN0dXJlLCB0aGF0J3Mgd2h5IHdlIGNob3NlIHNlbGludXgu
+Cj4+IElzIGl0IHBvc3NpYmxlIHRvIGZ1bGlsbCBteSBnb2FsIHdpdGhvdXQgbW9kaWZ5aW5nIHNz
+IGV4Y2Vzc2l2ZWx5Pwo+Cj5UaGUga2VybmVsIGhhcyB0byBiZSB0cnVzdGVkIC0gaXQgcnVucyBp
+biByaW5nIDAuCj5BbmQgdGhlIHNlY3VyaXR5IHNlcnZlciBpcyBqdXN0IGEgcG9saWN5IGVuZ2lu
+ZSAtIGl0IGp1c3QgcHJvdmlkZXMKPnBvbGljeSBkZWNpc2lvbnMgdG8gdGhlIGtlcm5lbCB1cG9u
+IHJlcXVlc3QuICBUaGUga2VybmVsIHBlcmZvcm1zIHRoZQo+cG9saWN5IGVuZm9yY2VtZW50IG9m
+IHRob3NlIGRlY2lzaW9ucy4KPgo+SW4gRmx1a2UvRmxhc2ssIHRoZSBzZWN1cml0eSBzZXJ2ZXIg
+cmFuIGluIHVzZXJzcGFjZSwgYnV0IHRoYXQgd2FzIGEKPm1pY3Jva2VybmVsLWJhc2VkIE9TLiAg
+QW5kIGV2ZW4gdGhlcmUsIHdlIHdlcmVuJ3QgdHJ5aW5nIHRvIHByb3RlY3QgdGhlCj5zZWN1cml0
+eSBzZXJ2ZXIgZnJvbSB0aGUgKG1pY3JvKWtlcm5lbC4KPgo+SXQgZG9lc24ndCBtYWtlIHNlbnNl
+IHRvIHRyeSB0byBwcm90ZWN0IHRoZSBzZWN1cml0eSBzZXJ2ZXIgYXBhcnQgZnJvbQo+dGhlIHJl
+c3Qgb2YgdGhlIGtlcm5lbC4KCldlbGwsIG15IGlkZWEgaXMgYmFzZWQgb24gYSBwYXBlciAiU2Vj
+dXJlIEluLVZNIE1vbml0b3JpbmcgVXNpbmcgSGFyZHdhcmUgVmlydHVhbGl6YXRpb24iKENDUycw
+OSkuIEkgd2lsbCBhcHByZWNpYXRlIGlmIHlvdSBzcGVuZCBzb21lIHRpbWUgdG8gbG9vayB0aHJv
+dWdoIHRoZSBjb250ZW50ICYgY2hlY2sgaWYgd2hhdCBJIGRpZCBpcyByaWdodC4KPi0tIAo+U3Rl
+cGhlbiBTbWFsbGV5Cj5OYXRpb25hbCBTZWN1cml0eSBBZ2VuY3kKPgo+Cj4tLQo+VGhpcyBtZXNz
+YWdlIHdhcyBkaXN0cmlidXRlZCB0byBzdWJzY3JpYmVycyBvZiB0aGUgc2VsaW51eCBtYWlsaW5n
+IGxpc3QuCj5JZiB5b3Ugbm8gbG9uZ2VyIHdpc2ggdG8gc3Vic2NyaWJlLCBzZW5kIG1haWwgdG8g
+bWFqb3Jkb21vQHR5Y2hvLm5zYS5nb3Ygd2l0aAo+dGhlIHdvcmRzICJ1bnN1YnNjcmliZSBzZWxp
+bnV4IiB3aXRob3V0IHF1b3RlcyBhcyB0aGUgbWVzc2FnZS4K
+------=_Part_70428_8824664.1301033461844
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/policydb.c |   14 ++++++++++++--
- libsepol/src/write.c    |   22 ++++++++++++++++++++--
- 2 files changed, 32 insertions(+), 4 deletions(-)
-
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 53a7eef..1f414f9 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -2124,12 +2124,15 @@ static int type_read(policydb_t * p
- 	return -1;
- }
- 
--int role_trans_read(role_trans_t ** t, struct policy_file *fp)
-+int role_trans_read(policydb_t *p, struct policy_file *fp)
- {
-+	role_trans_t **t = &p->role_tr;
- 	unsigned int i;
- 	uint32_t buf[3], nel;
- 	role_trans_t *tr, *ltr;
- 	int rc;
-+	int new_roletr = (p->policy_type == POLICY_KERN &&
-+			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
- 
- 	rc = next_entry(buf, fp, sizeof(uint32_t));
- 	if (rc < 0)
-@@ -2152,6 +2155,13 @@ int role_trans_read(role_trans_t ** t, struct policy_file *fp)
- 		tr->role = le32_to_cpu(buf[0]);
- 		tr->type = le32_to_cpu(buf[1]);
- 		tr->new_role = le32_to_cpu(buf[2]);
-+		if (new_roletr) {
-+			rc = next_entry(buf, fp, sizeof(uint32_t));
-+			if (rc < 0)
-+				return -1;
-+			tr->tclass = le32_to_cpu(buf[0]);
-+		} else
-+			tr->tclass = SECCLASS_PROCESS;
- 		ltr = tr;
- 	}
- 	return 0;
-@@ -3472,7 +3482,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 		if (r_policyvers >= POLICYDB_VERSION_BOOL)
- 			if (cond_read_list(p, &p->cond_list, fp))
- 				goto bad;
--		if (role_trans_read(&p->role_tr, fp))
-+		if (role_trans_read(p, fp))
- 			goto bad;
- 		if (role_allow_read(&p->role_allow, fp))
- 			goto bad;
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 00c605f..764200d 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -462,11 +462,15 @@ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	return POLICYDB_SUCCESS;
- }
- 
--static int role_trans_write(role_trans_t * r, struct policy_file *fp)
-+static int role_trans_write(policydb_t *p, struct policy_file *fp)
- {
-+	role_trans_t *r = p->role_tr;
- 	role_trans_t *tr;
- 	uint32_t buf[3];
- 	size_t nel, items;
-+	int new_roletr = (p->policy_type == POLICY_KERN &&
-+			  p->policyvers >= POLICYDB_VERSION_ROLETRANS);
-+	int warning_issued = 0;
- 
- 	nel = 0;
- 	for (tr = r; tr; tr = tr->next)
-@@ -476,12 +480,26 @@ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
- 	if (items != 1)
- 		return POLICYDB_ERROR;
- 	for (tr = r; tr; tr = tr->next) {
-+		if (!new_roletr && tr->tclass != SECCLASS_PROCESS) {
-+			if (!warning_issued)
-+				WARN(fp->handle, "Discarding role_transition "
-+				     "rules for security classes other than "
-+				     "\"process\"");
-+			warning_issued = 1;
-+			continue;
-+		}
- 		buf[0] = cpu_to_le32(tr->role);
- 		buf[1] = cpu_to_le32(tr->type);
- 		buf[2] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 		if (items != 3)
- 			return POLICYDB_ERROR;
-+		if (new_roletr) {
-+			buf[0] = cpu_to_le32(tr->tclass);
-+			items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+			if (items != 1)
-+				return POLICYDB_ERROR;
-+		}
- 	}
- 
- 	return POLICYDB_SUCCESS;
-@@ -1815,7 +1833,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 			if (cond_write_list(p, p->cond_list, fp))
- 				return POLICYDB_ERROR;
- 		}
--		if (role_trans_write(p->role_tr, fp))
-+		if (role_trans_write(p, fp))
- 			return POLICYDB_ERROR;
- 		if (role_allow_write(p->role_allow, fp))
- 			return POLICYDB_ERROR;
--- 
-1.7.0.4
+PHByZT48c3BhbiBjbGFzcz0iQXBwbGUtc3R5bGUtc3BhbiIgc3R5bGU9IndoaXRlLXNwYWNlOiBu
+b3JtYWw7Ij48YnI+PC9zcGFuPkF0Jm5ic3A7MjAxMS0wMy0yM6OsIlN0ZXBoZW4mbmJzcDtTbWFs
+bGV5IiZuYnNwOyZsdDtzZHNAdHljaG8ubnNhLmdvdiZndDsmbmJzcDt3cm90ZToKCiZndDtPbiZu
+YnNwO1dlZCwmbmJzcDsyMDExLTAzLTIzJm5ic3A7YXQmbmJzcDswOToxMCZuYnNwOyswODAwLCZu
+YnNwO1lhbyZuYnNwO3dyb3RlOgomZ3Q7Jmd0OyZuYnNwO01heWJlJm5ic3A7SSZuYnNwO3Nob3Vs
+ZCZuYnNwO2V4cGxhaW4uJm5ic3A7V2UmbmJzcDt0aGluayZuYnNwO2tlcm5lbCZuYnNwO2lzJm5i
+c3A7dW50cnVzdGVkLCZuYnNwO3NzJm5ic3A7aXMmbmJzcDt0cnVzdGVkLgomZ3Q7Jmd0OyZuYnNw
+O3dlJm5ic3A7cHJvdGVjdCZuYnNwO3RoZSZuYnNwO3NlY3VyaXR5Jm5ic3A7c2VydmVyJm5ic3A7
+dGhyb3VnaCZuYnNwO2dlcmVuYXRpbmcmbmJzcDthJm5ic3A7c2VwYXJhdGUmbmJzcDthZGRyZXNz
+CiZndDsmZ3Q7Jm5ic3A7c3BhY2UuJm5ic3A7V2hlbiZuYnNwO3dlJm5ic3A7bmVlZCZuYnNwO3Rv
+Jm5ic3A7dXNlJm5ic3A7c3MsJm5ic3A7d2UmbmJzcDtzd2l0Y2gmbmJzcDt0byZuYnNwO3RoaXMm
+bmJzcDtzcGFjZS4mbmJzcDtJZiZuYnNwO3VudHJ1c3RlZAomZ3Q7Jmd0OyZuYnNwO2tlcm5lbCZu
+YnNwO2NvZGUmbmJzcDtjYW4mbmJzcDtiZSZuYnNwO2V4ZWN1dGVkLCZuYnNwO3doYXQmbmJzcDt3
+ZSZuYnNwO2RvJm5ic3A7YmVjYW1lJm5ic3A7bWVhbmluZ2xlc3MuJm5ic3A7VGhhdCdzJm5ic3A7
+d2h5CiZndDsmZ3Q7Jm5ic3A7d2UmbmJzcDt3YW50Jm5ic3A7dGhlJm5ic3A7c3MmbmJzcDtzZWxm
+LWNvbnRhaW5lZC4mbmJzcDtBbmQmbmJzcDtvdXImbmJzcDt3b3JrJm5ic3A7c2hvdWxkJm5ic3A7
+YXBwbHkmbmJzcDt0byZuYnNwO2ZsYXNrCiZndDsmZ3Q7Jm5ic3A7YXJjaGl0ZWN0dXJlLCZuYnNw
+O3RoYXQncyZuYnNwO3doeSZuYnNwO3dlJm5ic3A7Y2hvc2UmbmJzcDtzZWxpbnV4LgomZ3Q7Jmd0
+OyZuYnNwO0lzJm5ic3A7aXQmbmJzcDtwb3NzaWJsZSZuYnNwO3RvJm5ic3A7ZnVsaWxsJm5ic3A7
+bXkmbmJzcDtnb2FsJm5ic3A7d2l0aG91dCZuYnNwO21vZGlmeWluZyZuYnNwO3NzJm5ic3A7ZXhj
+ZXNzaXZlbHk/CiZndDsKJmd0O1RoZSZuYnNwO2tlcm5lbCZuYnNwO2hhcyZuYnNwO3RvJm5ic3A7
+YmUmbmJzcDt0cnVzdGVkJm5ic3A7LSZuYnNwO2l0Jm5ic3A7cnVucyZuYnNwO2luJm5ic3A7cmlu
+ZyZuYnNwOzAuCiZndDtBbmQmbmJzcDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZuYnNw
+O2lzJm5ic3A7anVzdCZuYnNwO2EmbmJzcDtwb2xpY3kmbmJzcDtlbmdpbmUmbmJzcDstJm5ic3A7
+aXQmbmJzcDtqdXN0Jm5ic3A7cHJvdmlkZXMKJmd0O3BvbGljeSZuYnNwO2RlY2lzaW9ucyZuYnNw
+O3RvJm5ic3A7dGhlJm5ic3A7a2VybmVsJm5ic3A7dXBvbiZuYnNwO3JlcXVlc3QuJm5ic3A7Jm5i
+c3A7VGhlJm5ic3A7a2VybmVsJm5ic3A7cGVyZm9ybXMmbmJzcDt0aGUKJmd0O3BvbGljeSZuYnNw
+O2VuZm9yY2VtZW50Jm5ic3A7b2YmbmJzcDt0aG9zZSZuYnNwO2RlY2lzaW9ucy4KJmd0OwomZ3Q7
+SW4mbmJzcDtGbHVrZS9GbGFzaywmbmJzcDt0aGUmbmJzcDtzZWN1cml0eSZuYnNwO3NlcnZlciZu
+YnNwO3JhbiZuYnNwO2luJm5ic3A7dXNlcnNwYWNlLCZuYnNwO2J1dCZuYnNwO3RoYXQmbmJzcDt3
+YXMmbmJzcDthCiZndDttaWNyb2tlcm5lbC1iYXNlZCZuYnNwO09TLiZuYnNwOyZuYnNwO0FuZCZu
+YnNwO2V2ZW4mbmJzcDt0aGVyZSwmbmJzcDt3ZSZuYnNwO3dlcmVuJ3QmbmJzcDt0cnlpbmcmbmJz
+cDt0byZuYnNwO3Byb3RlY3QmbmJzcDt0aGUKJmd0O3NlY3VyaXR5Jm5ic3A7c2VydmVyJm5ic3A7
+ZnJvbSZuYnNwO3RoZSZuYnNwOyhtaWNybylrZXJuZWwuCiZndDsKJmd0O0l0Jm5ic3A7ZG9lc24n
+dCZuYnNwO21ha2UmbmJzcDtzZW5zZSZuYnNwO3RvJm5ic3A7dHJ5Jm5ic3A7dG8mbmJzcDtwcm90
+ZWN0Jm5ic3A7dGhlJm5ic3A7c2VjdXJpdHkmbmJzcDtzZXJ2ZXImbmJzcDthcGFydCZuYnNwO2Zy
+b20KJmd0O3RoZSZuYnNwO3Jlc3QmbmJzcDtvZiZuYnNwO3RoZSZuYnNwO2tlcm5lbC48L3ByZT48
+cHJlPgpXZWxsLCBteSBpZGVhIGlzIGJhc2VkIG9uIGEgcGFwZXIgIlNlY3VyZSBJbi1WTSBNb25p
+dG9yaW5nIFVzaW5nIEhhcmR3YXJlIFZpcnR1YWxpemF0aW9uIihDQ1MnMDkpLiBJIHdpbGwgYXBw
+cmVjaWF0ZSBpZiB5b3Ugc3BlbmQgc29tZSB0aW1lIHRvIGxvb2sgdGhyb3VnaCB0aGUgY29udGVu
+dCAmYW1wOyBjaGVjayBpZiB3aGF0IEkgZGlkIGlzIHJpZ2h0LjwvcHJlPjxwcmU+Jmd0Oy0tJm5i
+c3A7CiZndDtTdGVwaGVuJm5ic3A7U21hbGxleQomZ3Q7TmF0aW9uYWwmbmJzcDtTZWN1cml0eSZu
+YnNwO0FnZW5jeQomZ3Q7CiZndDsKJmd0Oy0tCiZndDtUaGlzJm5ic3A7bWVzc2FnZSZuYnNwO3dh
+cyZuYnNwO2Rpc3RyaWJ1dGVkJm5ic3A7dG8mbmJzcDtzdWJzY3JpYmVycyZuYnNwO29mJm5ic3A7
+dGhlJm5ic3A7c2VsaW51eCZuYnNwO21haWxpbmcmbmJzcDtsaXN0LgomZ3Q7SWYmbmJzcDt5b3Um
+bmJzcDtubyZuYnNwO2xvbmdlciZuYnNwO3dpc2gmbmJzcDt0byZuYnNwO3N1YnNjcmliZSwmbmJz
+cDtzZW5kJm5ic3A7bWFpbCZuYnNwO3RvJm5ic3A7bWFqb3Jkb21vQHR5Y2hvLm5zYS5nb3YmbmJz
+cDt3aXRoCiZndDt0aGUmbmJzcDt3b3JkcyZuYnNwOyJ1bnN1YnNjcmliZSZuYnNwO3NlbGludXgi
+Jm5ic3A7d2l0aG91dCZuYnNwO3F1b3RlcyZuYnNwO2FzJm5ic3A7dGhlJm5ic3A7bWVzc2FnZS4K
+PC9wcmU+PGJyPjxicj48c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVh
+c2VfbWFpbF9mb290ZXIiPjwvc3Bhbj48L3NwYW4+
+------=_Part_70428_8824664.1301033461844--
 
 
 --
