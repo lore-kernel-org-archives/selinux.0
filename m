@@ -1,59 +1,96 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: [v2 PATCH 3/3] SELinux: Write class field in role_trans_write.
-Date: Fri, 25 Mar 2011 13:52:00 +0800
-Message-Id: <1301032323-20363-6-git-send-email-qingtao.cao@windriver.com>
+Subject: [v2 PATCH 1/3] SELinux: Add class support to the role_trans structure
+Date: Fri, 25 Mar 2011 13:51:56 +0800
+Message-Id: <1301032323-20363-2-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com>
 References: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If kernel policy version is >= 26, then write the class field of the
-role_trans structure into the binary reprensentation.
+If kernel policy version is >= 26, then the binary representation of
+the role_trans structure supports specifying the class for the current
+subject or the newly created object.
+
+If kernel policy version is < 26, then the class field would be default
+to the process class.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- security/selinux/ss/policydb.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
+ security/selinux/include/security.h |    3 ++-
+ security/selinux/ss/policydb.c      |   14 ++++++++++++++
+ security/selinux/ss/policydb.h      |    3 ++-
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 348eb00..bfc5218 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -30,13 +30,14 @@
+ #define POLICYDB_VERSION_PERMISSIVE	23
+ #define POLICYDB_VERSION_BOUNDARY	24
+ #define POLICYDB_VERSION_FILENAME_TRANS	25
++#define POLICYDB_VERSION_ROLETRANS	26
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_FILENAME_TRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
+ #endif
+ 
+ /* Mask for just the mount related flags */
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index fd62c50..a493eae 100644
+index e7b850a..fd62c50 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -2535,8 +2535,9 @@ static int cat_write(void *vkey, void *datum, void *ptr)
- 	return 0;
- }
+@@ -128,6 +128,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_ROLETRANS,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	},
+ };
  
--static int role_trans_write(struct role_trans *r, void *fp)
-+static int role_trans_write(struct policydb *p, void *fp)
- {
-+	struct role_trans *r = p->role_tr;
- 	struct role_trans *tr;
- 	u32 buf[3];
- 	size_t nel;
-@@ -2556,6 +2557,12 @@ static int role_trans_write(struct role_trans *r, void *fp)
- 		rc = put_entry(buf, sizeof(u32), 3, fp);
- 		if (rc)
- 			return rc;
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -2302,8 +2307,17 @@ int policydb_read(struct policydb *p, void *fp)
+ 		tr->role = le32_to_cpu(buf[0]);
+ 		tr->type = le32_to_cpu(buf[1]);
+ 		tr->new_role = le32_to_cpu(buf[2]);
 +		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
-+			buf[0] = cpu_to_le32(tr->tclass);
-+			rc = put_entry(buf, sizeof(u32), 1, fp);
++			rc = next_entry(buf, fp, sizeof(u32));
 +			if (rc)
-+				return rc;
-+		}
- 	}
++				goto bad;
++			tr->tclass = le32_to_cpu(buf[0]);
++		} else
++			tr->tclass = p->process_class;
++
+ 		if (!policydb_role_isvalid(p, tr->role) ||
+ 		    !policydb_type_isvalid(p, tr->type) ||
++		    !policydb_class_isvalid(p, tr->tclass) ||
+ 		    !policydb_role_isvalid(p, tr->new_role))
+ 			goto bad;
+ 		ltr = tr;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 732ea4a..801175f 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -72,7 +72,8 @@ struct role_datum {
  
- 	return 0;
-@@ -3267,7 +3274,7 @@ int policydb_write(struct policydb *p, void *fp)
- 	if (rc)
- 		return rc;
- 
--	rc = role_trans_write(p->role_tr, fp);
-+	rc = role_trans_write(p, fp);
- 	if (rc)
- 		return rc;
- 
+ struct role_trans {
+ 	u32 role;		/* current role */
+-	u32 type;		/* program executable type */
++	u32 type;		/* program executable type, or new object type */
++	u32 tclass;		/* process class, or new object class */
+ 	u32 new_role;		/* new role */
+ 	struct role_trans *next;
+ };
 -- 
 1.7.0.4
 
