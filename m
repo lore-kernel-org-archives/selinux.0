@@ -1,90 +1,44 @@
-Message-ID: <SNT139-w377E7616678A35BE40A56BABB90@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_b9de920c-ba83-40b9-8730-854ec1a23c2a_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: <eparis@redhat.com>, <qingtao.cao@windriver.com>, <jmorris@namei.org>,
-        <eparis@parisplace.org>, selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: RE: [v0 PATCH 1/3] SELinux: Add class support to the role_trans
- structure
-Date: Fri, 25 Mar 2011 06:28:26 +0000
-In-Reply-To: <1300972861.8157.26.camel@moss-pluto>
-References: 
- <1300847325-20308-1-git-send-email-qingtao.cao@windriver.com>,,<1300847325-20308-2-git-send-email-qingtao.cao@windriver.com>,,<1300891222.28871.6.camel@unknown001a4b0c2895>,<SNT139-w107AB9BF9E6715B2B318ECABB60@phx.gbl>,<1300972861.8157.26.camel@moss-pluto>
-MIME-Version: 1.0
+Subject: Re: SELinux: avc_has_perm: unexpected error 22
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: qingtao.cao@windriver.com
+Cc: "Justin P. Mattock" <justinmattock@gmail.com>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <4D8C09A3.5090304@windriver.com>
+References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>
+	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>
+	 <4D8B70C8.3000800@gmail.com> <1300997637.8157.44.camel@moss-pluto>
+	 <4D8BA7F0.5090307@gmail.com> <1300998293.8157.48.camel@moss-pluto>
+	 <4D8BACFD.6090400@gmail.com>  <4D8C09A3.5090304@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 25 Mar 2011 08:26:29 -0400
+Message-ID: <1301055989.22099.4.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_b9de920c-ba83-40b9-8730-854ec1a23c2a_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-
-
-
-> Subject: RE: [v0 PATCH 1/3] SELinux: Add class support to the role_trans structure
-> From: sds@tycho.nsa.gov
-> To: harrytaurus2002@hotmail.com
-> CC: eparis@redhat.com; qingtao.cao@windriver.com; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov
-> Date: Thu, 24 Mar 2011 09:21:01 -0400
+On Fri, 2011-03-25 at 11:18 +0800, Harry Ciao wrote:
+> So far I have not got an environment as your to reproduce this problem.
+> Could you please kindly print the orig_class and the sock boolean in
+> your case? It's weird since so far only the process and socket classes
+> could retain the creator's role, any other classes object should have
+> "object_r" as usual.
 > 
-> On Thu, 2011-03-24 at 09:43 +0000, HarryCiao wrote:
-> > > Why "cclass"? most of the code uses tclass (which might mean 'target
-> > > class' but I'm not sure)
-> > 
-> > Well, I intended to use "class" but it is a reserved GCC identifier.
-> > 
-> > The class could be the subject class, that is, the "process" class, or
-> > could be the newly object class, so tclass(target class) won't fit
-> > much here.
-> > 
-> > I will update it to "classes" which I think will be better than
-> > "cclass" :-)
-> 
-> tclass is more consistent with existing code, and it does mean "target
-> class", where target can be a subject or an object.  
+> Many thanks for your help!
 
-Sure, I will correct it in the v2 patches.
+You can exercise the code without using XACE/XSELinux by running the
+compute_create program from libselinux/utils, e.g.
+$ compute_create `id -Z` `id -Z` x_drawable
 
-Thanks!
+I think the bug lies in map_class() handling of the case where the
+userspace object class has no corresponding kernel class, as would be
+the case for the x_* classes.  map_class() should likely return 0
+(SECCLASS_NULL) in that case rather than pol_value and thereby ensure
+that we won't match any legitimate kernel class value.
 
-Harry
+-- 
+Stephen Smalley
+National Security Agency
 
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
- 		 	   		  
---_b9de920c-ba83-40b9-8730-854ec1a23c2a_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'>
-<br><br>&gt; Subject: RE: [v0 PATCH 1/3] SELinux: Add class support to the role_trans structure<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: harrytaurus2002@hotmail.com<br>&gt; CC: eparis@redhat.com; qingtao.cao@windriver.com; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov<br>&gt; Date: Thu, 24 Mar 2011 09:21:01 -0400<br>&gt; <br>&gt; On Thu, 2011-03-24 at 09:43 +0000, HarryCiao wrote:<br>&gt; &gt; &gt; Why "cclass"? most of the code uses tclass (which might mean 'target<br>&gt; &gt; &gt; class' but I'm not sure)<br>&gt; &gt; <br>&gt; &gt; Well, I intended to use "class" but it is a reserved GCC identifier.<br>&gt; &gt; <br>&gt; &gt; The class could be the subject class, that is, the "process" class, or<br>&gt; &gt; could be the newly object class, so tclass(target class) won't fit<br>&gt; &gt; much here.<br>&gt; &gt; <br>&gt; &gt; I will update it to "classes" which I think will be better than<br>&gt; &gt; "cclass" :-)<br>&gt; <br>&gt; tclass is more consist!
- ent with existing code, and it does mean "target<br>&gt; class", where target can be a subject or an object.  <br><br>Sure, I will correct it in the v2 patches.<br><br>Thanks!<br><br>Harry<br><br>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
-</html>
---_b9de920c-ba83-40b9-8730-854ec1a23c2a_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
