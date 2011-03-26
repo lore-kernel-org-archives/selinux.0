@@ -1,5 +1,5 @@
-Message-ID: <4D8CD939.7060807@gmail.com>
-Date: Fri, 25 Mar 2011 11:04:41 -0700
+Message-ID: <4D8D5799.3030509@gmail.com>
+Date: Fri, 25 Mar 2011 20:03:53 -0700
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -12,11 +12,13 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-alright!! patch applied to the current Mainline..
-Yes this fixes the issue of gdm crapping out.
+not sure whats going on now.. but loading up the latest on my iMac with 
+the below patch makes no difference I still hit the bug macbook pro 
+works fine(maybe something with the different video drivers or something)
 
-full dmesg below:
-http://fpaste.org/Sgy7/
+full dmesg of my iMac here:
+http://fpaste.org/SNFC/
+
 
 > Commit 6f5317e730505d5cbc851c435a2dfe3d5a21d343 introduced a bug in the
 > handling of userspace object classes that is causing breakage for Xorg
@@ -45,7 +47,6 @@ http://fpaste.org/Sgy7/
 >
 >   static void map_decision(u16 tclass, struct av_decision *avd,
 >
-> -- Stephen Smalley National Security Agency
 
 
 --
