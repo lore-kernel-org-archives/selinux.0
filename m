@@ -1,52 +1,102 @@
-Message-ID: <4D8D5799.3030509@gmail.com>
-Date: Fri, 25 Mar 2011 20:03:53 -0700
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Date: Mon, 28 Mar 2011 08:55:25 +0800 (CST)
+From: Yao <yffbrave@163.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
+Message-ID: <20612ede.799c.12ef9f5493c.Coremail.yffbrave@163.com>
+In-Reply-To: <1301057007.22099.11.camel@moss-pluto>
+References: <1301057007.22099.11.camel@moss-pluto>
+ <1300886666.26747.15.camel@moss-pluto>
+ <1300710582.29422.12.camel@moss-pluto>
+ <1300456978.25429.29.camel@moss-pluto>
+ <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
+ <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
+ <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
+ <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
+Subject: Re:Re: about ss
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        qingtao.cao@windriver.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: Fix regression for Xorg
-References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>	 <4D8B70C8.3000800@gmail.com> <1300997637.8157.44.camel@moss-pluto>	 <4D8BA7F0.5090307@gmail.com> <1300998293.8157.48.camel@moss-pluto>	 <4D8BACFD.6090400@gmail.com>  <4D8C09A3.5090304@windriver.com>	 <1301055989.22099.4.camel@moss-pluto> <1301056481.22099.8.camel@moss-pluto> <1301062423.22099.19.camel@moss-pluto>
-In-Reply-To: <1301062423.22099.19.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: multipart/alternative;
+	boundary="----=_Part_84810_1310373488.1301273725244"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-not sure whats going on now.. but loading up the latest on my iMac with 
-the below patch makes no difference I still hit the bug macbook pro 
-works fine(maybe something with the different video drivers or something)
+------=_Part_84810_1310373488.1301273725244
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-full dmesg of my iMac here:
-http://fpaste.org/SNFC/
+QXQgMjAxMS0wMy0yNaOsIlN0ZXBoZW4gU21hbGxleSIgPHNkc0B0eWNoby5uc2EuZ292PiB3cm90
+ZToKCj5PbiBGcmksIDIwMTEtMDMtMjUgYXQgMTQ6MTEgKzA4MDAsIFlhbyB3cm90ZToKPj4gV2Vs
+bCwgbXkgaWRlYSBpcyBiYXNlZCBvbiBhIHBhcGVyICJTZWN1cmUgSW4tVk0gTW9uaXRvcmluZyBV
+c2luZwo+PiBIYXJkd2FyZSBWaXJ0dWFsaXphdGlvbiIoQ0NTJzA5KS4gSSB3aWxsIGFwcHJlY2lh
+dGUgaWYgeW91IHNwZW5kIHNvbWUKPj4gdGltZSB0byBsb29rIHRocm91Z2ggdGhlIGNvbnRlbnQg
+JiBjaGVjayBpZiB3aGF0IEkgZGlkIGlzIHJpZ2h0Lgo+Cj5JZiBJIHVuZGVyc3RhbmQgY29ycmVj
+dGx5LCB0aGF0IHBhcGVyIGlzIGFib3V0IGNvLWxvY2F0aW5nIGEgbW9uaXRvcmluZwo+c2Vydmlj
+ZSBpbiB0aGUgc2FtZSBWTSBhcyB0aGUgb3BlcmF0aW5nIHN5c3RlbSBiZWluZyBtb25pdG9yZWQu
+ICBCdXQgdGhlCj5zZWN1cml0eSBzZXJ2ZXIgaXMgbm90IGEgbW9uaXRvcmluZyBzZXJ2aWNlOyBp
+dCBpcyBhIHBvbGljeSBlbmdpbmUKPmludm9rZWQgYnkgdGhlIGtlcm5lbC4gIFNvIEkgZG9uJ3Qg
+dGhpbmsgdGhpcyBhcHBsaWVzLgpPaCwgSSB0aG91Z2h0IHRoZSBzZWN1cml0eSBzZXJ2ZXIgaXMg
+YW4gaW1wbGVtZW50YXRpb24gb2Ygc2VydmVyIG1vbml0b3IuIEZpZ3VyZSAyIGluIHRoZSBwYXBl
+ciBzaG93cyBvdmVyYWxsIGRlc2lnbi4gS2VybmVsIGhvb2tzIGludm9rZSBlbnRyeSBnYXRlcywg
+d2hpY2ggaW4gdHVybiBpbnZva2UgaGFuZGxlcnMuIEFuZCBsaW51eCBrZXJuZWwgaGFzIG1hbnkg
+aG9va3MgdG9vLiBBZnRlciBzZWxpbnV4IHJlZ2lzdGVyZWQgaW50byB0aGUga2VybmVsLCB0aG9z
+ZSBob29rcyB3aWxsIGludm9rZSBoYW5kbGVycyBpbiBzZWxpbnV4LiBGaW5hbGx5LCB0aG9zZSBm
+dW5jdGlvbnMgcmVzaWRlIGluIHNzIHdpbGwgYmUgaW52b2tlZCwgZm9yIGV4YW1wbGUsICJzZWN1
+cml0eV9jb21wdXRlX2F2Ii5JcyB0aGF0IGFueSBkaWZmZXJlbmNlPyBJZiBJIHdhbnQgdG8gcHV0
+IHNpbSBpbnRvIHVzZSwgaG93IGRvIEkgdHVuZSB0aGUgc2VsaW51eCB0byBtZWV0IHRoZSByZXF1
+aXJlbWVudHM/IFNob3VsZCBJIHB1dCBhbGwgc2VsaW51eCBpbnRvIHNpbSBhZGRyZXNzIHNwYWNl
+P0lmIGl0IGlzIGltcG9zc2libGUsIHdoYXQgInNlcnZpY2UgbW9uaXRvciBvZiBmbGFzayBhcmNo
+IiBjYW4gSSB1c2UgdG8gYWNoaWV2ZSBteSBnb2Fscz8KClJlZ2FyZHMsCllhbwo+LS0gCj5TdGVw
+aGVuIFNtYWxsZXkKPk5hdGlvbmFsIFNlY3VyaXR5IEFnZW5jeQo+Cj4KPi0tCj5UaGlzIG1lc3Nh
+Z2Ugd2FzIGRpc3RyaWJ1dGVkIHRvIHN1YnNjcmliZXJzIG9mIHRoZSBzZWxpbnV4IG1haWxpbmcg
+bGlzdC4KPklmIHlvdSBubyBsb25nZXIgd2lzaCB0byBzdWJzY3JpYmUsIHNlbmQgbWFpbCB0byBt
+YWpvcmRvbW9AdHljaG8ubnNhLmdvdiB3aXRoCj50aGUgd29yZHMgInVuc3Vic2NyaWJlIHNlbGlu
+dXgiIHdpdGhvdXQgcXVvdGVzIGFzIHRoZSBtZXNzYWdlLgo=
+------=_Part_84810_1310373488.1301273725244
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
 
-
-> Commit 6f5317e730505d5cbc851c435a2dfe3d5a21d343 introduced a bug in the
-> handling of userspace object classes that is causing breakage for Xorg
-> when XSELinux is enabled.  Fix the bug by changing map_class() to return
-> SECCLASS_NULL when the class cannot be mapped to a kernel object class.
->
-> Reported-by:  "Justin P. Mattock"<justinmattock@gmail.com>
-> Signed-off-by:  Stephen Smalley<sds@tycho.nsa.gov>
->
-> ---
->
->   security/selinux/ss/services.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 3e7544d..ea7c01f 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -213,7 +213,7 @@ static u16 map_class(u16 pol_value)
->   			return i;
->   	}
->
-> -	return pol_value;
-> +	return SECCLASS_NULL;
->   }
->
->   static void map_decision(u16 tclass, struct av_decision *avd,
->
+PHByZT5BdCZuYnNwOzIwMTEtMDMtMjWjrCJTdGVwaGVuJm5ic3A7U21hbGxleSImbmJzcDsmbHQ7
+c2RzQHR5Y2hvLm5zYS5nb3YmZ3Q7Jm5ic3A7d3JvdGU6CgomZ3Q7T24mbmJzcDtGcmksJm5ic3A7
+MjAxMS0wMy0yNSZuYnNwO2F0Jm5ic3A7MTQ6MTEmbmJzcDsrMDgwMCwmbmJzcDtZYW8mbmJzcDt3
+cm90ZToKJmd0OyZndDsmbmJzcDtXZWxsLCZuYnNwO215Jm5ic3A7aWRlYSZuYnNwO2lzJm5ic3A7
+YmFzZWQmbmJzcDtvbiZuYnNwO2EmbmJzcDtwYXBlciZuYnNwOyJTZWN1cmUmbmJzcDtJbi1WTSZu
+YnNwO01vbml0b3JpbmcmbmJzcDtVc2luZwomZ3Q7Jmd0OyZuYnNwO0hhcmR3YXJlJm5ic3A7Vmly
+dHVhbGl6YXRpb24iKENDUycwOSkuJm5ic3A7SSZuYnNwO3dpbGwmbmJzcDthcHByZWNpYXRlJm5i
+c3A7aWYmbmJzcDt5b3UmbmJzcDtzcGVuZCZuYnNwO3NvbWUKJmd0OyZndDsmbmJzcDt0aW1lJm5i
+c3A7dG8mbmJzcDtsb29rJm5ic3A7dGhyb3VnaCZuYnNwO3RoZSZuYnNwO2NvbnRlbnQmbmJzcDsm
+YW1wOyZuYnNwO2NoZWNrJm5ic3A7aWYmbmJzcDt3aGF0Jm5ic3A7SSZuYnNwO2RpZCZuYnNwO2lz
+Jm5ic3A7cmlnaHQuCiZndDsKJmd0O0lmJm5ic3A7SSZuYnNwO3VuZGVyc3RhbmQmbmJzcDtjb3Jy
+ZWN0bHksJm5ic3A7dGhhdCZuYnNwO3BhcGVyJm5ic3A7aXMmbmJzcDthYm91dCZuYnNwO2NvLWxv
+Y2F0aW5nJm5ic3A7YSZuYnNwO21vbml0b3JpbmcKJmd0O3NlcnZpY2UmbmJzcDtpbiZuYnNwO3Ro
+ZSZuYnNwO3NhbWUmbmJzcDtWTSZuYnNwO2FzJm5ic3A7dGhlJm5ic3A7b3BlcmF0aW5nJm5ic3A7
+c3lzdGVtJm5ic3A7YmVpbmcmbmJzcDttb25pdG9yZWQuJm5ic3A7Jm5ic3A7QnV0Jm5ic3A7dGhl
+CiZndDtzZWN1cml0eSZuYnNwO3NlcnZlciZuYnNwO2lzJm5ic3A7bm90Jm5ic3A7YSZuYnNwO21v
+bml0b3JpbmcmbmJzcDtzZXJ2aWNlOyZuYnNwO2l0Jm5ic3A7aXMmbmJzcDthJm5ic3A7cG9saWN5
+Jm5ic3A7ZW5naW5lCiZndDtpbnZva2VkJm5ic3A7YnkmbmJzcDt0aGUmbmJzcDtrZXJuZWwuJm5i
+c3A7Jm5ic3A7U28mbmJzcDtJJm5ic3A7ZG9uJ3QmbmJzcDt0aGluayZuYnNwO3RoaXMmbmJzcDth
+cHBsaWVzLgpPaCwgSSB0aG91Z2h0IHRoZSBzZWN1cml0eSBzZXJ2ZXIgaXMgYW4gaW1wbGVtZW50
+YXRpb24gb2Ygc2VydmVyIG1vbml0b3IuIEZpZ3VyZSAyIGluIHRoZSBwYXBlciBzaG93cyBvdmVy
+YWxsIGRlc2lnbi4gS2VybmVsIGhvb2tzIGludm9rZSBlbnRyeSBnYXRlcywgd2hpY2ggaW4gdHVy
+biBpbnZva2UgaGFuZGxlcnMuIEFuZCBsaW51eCBrZXJuZWwgaGFzIG1hbnkgaG9va3MgdG9vLiBB
+ZnRlciBzZWxpbnV4IHJlZ2lzdGVyZWQgaW50byB0aGUga2VybmVsLCB0aG9zZSBob29rcyB3aWxs
+IGludm9rZSBoYW5kbGVycyBpbiBzZWxpbnV4LiBGaW5hbGx5LCB0aG9zZSBmdW5jdGlvbnMgcmVz
+aWRlIGluIHNzIHdpbGwgYmUgaW52b2tlZCwgZm9yIGV4YW1wbGUsICJzZWN1cml0eV9jb21wdXRl
+X2F2Ii48L3ByZT48cHJlPklzIHRoYXQgYW55IGRpZmZlcmVuY2U/Jm5ic3A7PC9wcmU+PHByZT5J
+ZiBJIHdhbnQgdG8gcHV0IHNpbSBpbnRvIHVzZSwgaG93IGRvIEkgdHVuZSB0aGUgc2VsaW51eCB0
+byBtZWV0IHRoZSByZXF1aXJlbWVudHM/IFNob3VsZCBJIHB1dCBhbGwgc2VsaW51eCBpbnRvIHNp
+bSBhZGRyZXNzIHNwYWNlPzwvcHJlPjxwcmU+SWYgaXQgaXMgaW1wb3NzaWJsZSwgd2hhdCAic2Vy
+dmljZSBtb25pdG9yIG9mIGZsYXNrIGFyY2giIGNhbiBJIHVzZSB0byBhY2hpZXZlIG15IGdvYWxz
+PzwvcHJlPjxwcmU+PGJyPjwvcHJlPjxwcmU+UmVnYXJkcyw8L3ByZT48cHJlPllhbwomZ3Q7LS0m
+bmJzcDsKJmd0O1N0ZXBoZW4mbmJzcDtTbWFsbGV5CiZndDtOYXRpb25hbCZuYnNwO1NlY3VyaXR5
+Jm5ic3A7QWdlbmN5CiZndDsKJmd0OwomZ3Q7LS0KJmd0O1RoaXMmbmJzcDttZXNzYWdlJm5ic3A7
+d2FzJm5ic3A7ZGlzdHJpYnV0ZWQmbmJzcDt0byZuYnNwO3N1YnNjcmliZXJzJm5ic3A7b2YmbmJz
+cDt0aGUmbmJzcDtzZWxpbnV4Jm5ic3A7bWFpbGluZyZuYnNwO2xpc3QuCiZndDtJZiZuYnNwO3lv
+dSZuYnNwO25vJm5ic3A7bG9uZ2VyJm5ic3A7d2lzaCZuYnNwO3RvJm5ic3A7c3Vic2NyaWJlLCZu
+YnNwO3NlbmQmbmJzcDttYWlsJm5ic3A7dG8mbmJzcDttYWpvcmRvbW9AdHljaG8ubnNhLmdvdiZu
+YnNwO3dpdGgKJmd0O3RoZSZuYnNwO3dvcmRzJm5ic3A7InVuc3Vic2NyaWJlJm5ic3A7c2VsaW51
+eCImbmJzcDt3aXRob3V0Jm5ic3A7cXVvdGVzJm5ic3A7YXMmbmJzcDt0aGUmbmJzcDttZXNzYWdl
+Lgo8L3ByZT48YnI+PGJyPjxzcGFuIHRpdGxlPSJuZXRlYXNlZm9vdGVyIj48c3BhbiBpZD0ibmV0
+ZWFzZV9tYWlsX2Zvb3RlciI+PC9zcGFuPjwvc3Bhbj4=
+------=_Part_84810_1310373488.1301273725244--
 
 
 --
