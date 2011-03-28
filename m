@@ -1,42 +1,46 @@
-Subject: Re: [PATCH] selinux: Fix regression for Xorg
+Subject: Re: Re:Re: about ss
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
-        qingtao.cao@windriver.com, selinux@tycho.nsa.gov
-In-Reply-To: <4D8D5799.3030509@gmail.com>
-References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>
-	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>
-	 <4D8B70C8.3000800@gmail.com> <1300997637.8157.44.camel@moss-pluto>
-	 <4D8BA7F0.5090307@gmail.com> <1300998293.8157.48.camel@moss-pluto>
-	 <4D8BACFD.6090400@gmail.com>  <4D8C09A3.5090304@windriver.com>
-	 <1301055989.22099.4.camel@moss-pluto> <1301056481.22099.8.camel@moss-pluto>
-	 <1301062423.22099.19.camel@moss-pluto>  <4D8D5799.3030509@gmail.com>
+To: Yao <yffbrave@163.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20612ede.799c.12ef9f5493c.Coremail.yffbrave@163.com>
+References: <1301057007.22099.11.camel@moss-pluto>
+	 <1300886666.26747.15.camel@moss-pluto>
+	 <1300710582.29422.12.camel@moss-pluto>
+	 <1300456978.25429.29.camel@moss-pluto>
+	 <3030f704.11efc.12ec66a93b9.Coremail.yffbrave@163.com>
+	 <23980a51.520f.12ed66596db.Coremail.yffbrave@163.com>
+	 <b41b75.151b.12ee0439347.Coremail.yffbrave@163.com>
+	 <1b9e718.65d4.12eeba32854.Coremail.yffbrave@163.com>
+	 <20612ede.799c.12ef9f5493c.Coremail.yffbrave@163.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 28 Mar 2011 08:42:12 -0400
-Message-ID: <1301316132.23818.7.camel@moss-pluto>
+Date: Mon, 28 Mar 2011 08:49:29 -0400
+Message-ID: <1301316569.23818.13.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-03-25 at 20:03 -0700, Justin P. Mattock wrote:
-> not sure whats going on now.. but loading up the latest on my iMac with 
-> the below patch makes no difference I still hit the bug macbook pro 
-> works fine(maybe something with the different video drivers or something)
+On Mon, 2011-03-28 at 08:55 +0800, Yao wrote:
+> At 2011-03-25，"Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 > 
-> full dmesg of my iMac here:
-> http://fpaste.org/SNFC/
+> >On Fri, 2011-03-25 at 14:11 +0800, Yao wrote:
+> >> Well, my idea is based on a paper "Secure In-VM Monitoring Using
+> >> Hardware Virtualization"(CCS'09). I will appreciate if you spend some
+> >> time to look through the content & check if what I did is right.
+> >
+> >If I understand correctly, that paper is about co-locating a monitoring
+> >service in the same VM as the operating system being monitored.  But the
+> >security server is not a monitoring service; it is a policy engine
+> >invoked by the kernel.  So I don't think this applies.
+> Oh, I thought the security server is an implementation of server monitor. Figure 2 in the paper shows overall design. Kernel hooks invoke entry gates, which in turn invoke handlers. And linux kernel has many hooks too. After selinux registered into the kernel, those hooks will invoke handlers in selinux. Finally, those functions reside in ss will be invoked, for example, "security_compute_av".
+> Is that any difference? 
+> If I want to put sim into use, how do I tune the selinux to meet the requirements? Should I put all selinux into sim address space?
+> If it is impossible, what "service monitor of flask arch" can I use to achieve my goals?
 
-Hi Justin,
-
-I did before and after testing using the compute_create utility from
-libselinux/utils, and it showed that the kernel returned the wrong
-context prior to the patch and the right context afterward.  I'm
-guessing you aren't booting the right kernel or didn't apply the patch
-correctly.
-
-You can run:
-compute_create `id -Z` `id -Z` x_drawable
-and see whether the returned context has object_r or not.
+The security server is a policy engine for access control decisions to
+be enforced by the kernel over applications.  It is not a monitor for
+the kernel itself.  You likely want something more like:
+"Linux kernel integrity measurement using contextual
+inspection" (STC'07)
 
 -- 
 Stephen Smalley
