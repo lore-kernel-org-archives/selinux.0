@@ -1,74 +1,50 @@
-Message-ID: <4D90FD99.90009@manicmethod.com>
-Date: Mon, 28 Mar 2011 17:28:57 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <4D910B87.2010708@gmail.com>
+Date: Mon, 28 Mar 2011 15:28:23 -0700
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-To: Harry Ciao <qingtao.cao@windriver.com>
-CC: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
-        selinux@tycho.nsa.gov, Stephen Lawrence <slawrence@tresys.com>
-Subject: Re: [v2 PATCH 5/5] Userspace: display the class in role_transition
- rule
-References: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com> <1301032323-20363-9-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1301032323-20363-9-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+        qingtao.cao@windriver.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: Fix regression for Xorg
+References: <4D878244.4060502@gmail.com> <4D8A36E9.3070601@gmail.com>	 <4D8AACD9.60505@gmail.com> <1300975137.8157.38.camel@moss-pluto>	 <4D8B70C8.3000800@gmail.com> <1300997637.8157.44.camel@moss-pluto>	 <4D8BA7F0.5090307@gmail.com> <1300998293.8157.48.camel@moss-pluto>	 <4D8BACFD.6090400@gmail.com>  <4D8C09A3.5090304@windriver.com>	 <1301055989.22099.4.camel@moss-pluto> <1301056481.22099.8.camel@moss-pluto>	 <1301062423.22099.19.camel@moss-pluto>  <4D8D5799.3030509@gmail.com>	 <1301316132.23818.7.camel@moss-pluto> <1301322279.23818.19.camel@moss-pluto>
+In-Reply-To: <1301322279.23818.19.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've reviewed the 5 userspace patches and they look good. I'll wait until 
-someone (Steve Lawrence?) actually compiles and tests before acking.
+On 03/28/2011 07:24 AM, Stephen Smalley wrote:
+> On Mon, 2011-03-28 at 08:42 -0400, Stephen Smalley wrote:
+>> On Fri, 2011-03-25 at 20:03 -0700, Justin P. Mattock wrote:
+>>> not sure whats going on now.. but loading up the latest on my iMac with
+>>> the below patch makes no difference I still hit the bug macbook pro
+>>> works fine(maybe something with the different video drivers or something)
+>>>
+>>> full dmesg of my iMac here:
+>>> http://fpaste.org/SNFC/
+>>
+>> Hi Justin,
+>>
+>> I did before and after testing using the compute_create utility from
+>> libselinux/utils, and it showed that the kernel returned the wrong
+>> context prior to the patch and the right context afterward.  I'm
+>> guessing you aren't booting the right kernel or didn't apply the patch
+>> correctly.
+>>
+>> You can run:
+>> compute_create `id -Z` `id -Z` x_drawable
+>> and see whether the returned context has object_r or not.
+>
+> Also, I tested before and after the patch with Xorg, and confirmed that
+> the compute_sid errors vanished when using a kernel with the patch
+> applied.
+>
 
-Harry Ciao wrote:
-> Add support to display the class field in the role_transition rule
-> in the checkpolicy/test/dismod program.
->
-> Signed-off-by: Harry Ciao<qingtao.cao@windriver.com>
-> ---
->   checkpolicy/test/dismod.c |   27 ++++++++++++++++++++++++++-
->   1 files changed, 26 insertions(+), 1 deletions(-)
->
-> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-> index 4d31597..33a29e4 100644
-> --- a/checkpolicy/test/dismod.c
-> +++ b/checkpolicy/test/dismod.c
-> @@ -451,13 +451,38 @@ void display_initial_sids(policydb_t * p, FILE * fp)
->   #endif
->   }
->
-> +void display_class_set(ebitmap_t *classes, policydb_t *p, FILE *fp)
-> +{
-> +	int i, num = 0;
-> +
-> +	for (i = ebitmap_startbit(classes); i<  ebitmap_length(classes); i++) {
-> +		if (!ebitmap_get_bit(classes, i))
-> +			continue;
-> +		num++;
-> +		if (num>  1) {
-> +			fprintf(fp, "{");
-> +			break;
-> +		}
-> +	}
-> +
-> +	for (i = ebitmap_startbit(classes); i<  ebitmap_length(classes); i++) {
-> +		if (ebitmap_get_bit(classes, i))
-> +			display_id(p, fp, SYM_CLASSES, i, "");
-> +	}
-> +
-> +	if (num>  1)
-> +		fprintf(fp, " }");
-> +}
-> +
->   void display_role_trans(role_trans_rule_t * tr, policydb_t * p, FILE * fp)
->   {
->   	for (; tr; tr = tr->next) {
->   		fprintf(fp, "role transition ");
->   		display_mod_role_set(&tr->roles, p, fp);
->   		display_type_set(&tr->types, 0, p, fp);
-> -		display_id(p, fp, SYM_ROLES, tr->new_role - 1, " :");
-> +		fprintf(fp, " :");
-> +		display_class_set(&tr->classes, p, fp);
-> +		display_id(p, fp, SYM_ROLES, tr->new_role - 1, "");
->   		fprintf(fp, "\n");
->   	}
->   }
+appologize for that.. ended up putting the *_NULL in the wrong 
+function(unmap).. after correcting that everything runs the way it should.
+
+Thanks for the help on this!
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
