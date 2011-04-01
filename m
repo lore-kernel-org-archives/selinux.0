@@ -1,100 +1,189 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p31H9LIa021052
-	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 13:09:21 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p31LIkKE003868
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 17:18:46 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p31H9JxF005484
-	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 17:09:20 GMT
-Message-ID: <4D9606BD.20009@redhat.com>
-Date: Fri, 01 Apr 2011 13:09:17 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
-CC: Bill Chimiak <wch1m1@gmail.com>,
-        selinux-mailing-list <selinux@tycho.nsa.gov>
-Subject: Re: fwknop, fwknopd,  fwknop_serv
-References: <201104011210.36367.w.chimiak@ieee.org> <4D95FEDF.9010907@gmail.com>
-In-Reply-To: <4D95FEDF.9010907@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p31LIisP022642
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 21:18:45 GMT
+Subject: Re: [PATCH] selinux: add type_transition with name extension
+ support for selinuxfs
+From: Eric Paris <eparis@redhat.com>
+To: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <A9F5079BABDEE646AEBDB6831725762C52B55BD751@EUEXCLU01.EU.NEC.COM>
+References: 
+	 <A9F5079BABDEE646AEBDB6831725762C52B55BD751@EUEXCLU01.EU.NEC.COM>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 01 Apr 2011 17:18:35 -0400
+Message-ID: <1301692715.6798.20.camel@unknown001a4b0c2895>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 04/01/2011 12:35 PM, Dominick Grift wrote:
-> On 04/01/2011 06:10 PM, Bill Chimiak wrote:
->> fwknop is a single passphrase authorization system.
->> Fairly cool.  selinux did not like fwknop out of the box.
->> It wanted a new module:
+On Fri, 2011-04-01 at 15:39 +0100, Kohei Kaigai wrote:
+> The attached patch allows /selinux/create takes optional 4th argument
+> to support TYPE_TRANSITION with name extension for userspace object
+> managers.
+> If 4th argument is not supplied, it shall perform as existing kernel.
+> In fact, the regression test of SE-PostgreSQL works well on the patched
+> kernel.
 > 
->> module iptab2log 1.0;
+> Thanks,
+> --
+>  Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
 > 
->> require {
->>         type var_log_t;
->>         type iptables_t;
->>         class file write;
->> }
+>  security/selinux/include/security.h |    4 ++--
+>  security/selinux/selinuxfs.c        |   16 ++++++++++++++--
+>  security/selinux/ss/services.c      |   17 +++++++++--------
+>  3 files changed, 25 insertions(+), 12 deletions(-)
+
+Applied to http://git.infradead.org/users/eparis/selinux.git
+
+In the future please put "---" (3 of them instead of 2) after the
+'Signed-off-by:' but before the diffstat.  Git grabs everything before a
+--- as a changelog.  This message caused git to include the diffstat IN
+the changelog
+
+Thank you for the patch!
+
+-Eric
+
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 348eb00..75ff3a0 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -111,8 +111,8 @@ void security_compute_av_user(u32 ssid, u32 tsid,
+>  int security_transition_sid(u32 ssid, u32 tsid, u16 tclass,
+>  			    const struct qstr *qstr, u32 *out_sid);
+>  
+> -int security_transition_sid_user(u32 ssid, u32 tsid,
+> -				 u16 tclass, u32 *out_sid);
+> +int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass,
+> +				 const char *objname, u32 *out_sid);
+>  
+>  int security_member_sid(u32 ssid, u32 tsid,
+>  	u16 tclass, u32 *out_sid);
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index ea39cb7..973f5a4 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -753,11 +753,13 @@ out:
+>  static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  {
+>  	char *scon = NULL, *tcon = NULL;
+> +	char *namebuf = NULL, *objname = NULL;
+>  	u32 ssid, tsid, newsid;
+>  	u16 tclass;
+>  	ssize_t length;
+>  	char *newcon = NULL;
+>  	u32 len;
+> +	int nargs;
+>  
+>  	length = task_has_security(current, SECURITY__COMPUTE_CREATE);
+>  	if (length)
+> @@ -773,9 +775,17 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  	if (!tcon)
+>  		goto out;
+>  
+> +	length = -ENOMEM;
+> +	namebuf = kzalloc(size + 1, GFP_KERNEL);
+> +	if (!namebuf)
+> +		goto out;
+> +
+>  	length = -EINVAL;
+> -	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
+> +	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
+> +	if (nargs < 3 || nargs > 4)
+>  		goto out;
+> +	if (nargs == 4)
+> +		objname = namebuf;
+>  
+>  	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+>  	if (length)
+> @@ -785,7 +795,8 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  	if (length)
+>  		goto out;
+>  
+> -	length = security_transition_sid_user(ssid, tsid, tclass, &newsid);
+> +	length = security_transition_sid_user(ssid, tsid, tclass,
+> +					      objname, &newsid);
+>  	if (length)
+>  		goto out;
+>  
+> @@ -804,6 +815,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  	length = len;
+>  out:
+>  	kfree(newcon);
+> +	kfree(namebuf);
+>  	kfree(tcon);
+>  	kfree(scon);
+>  	return length;
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index ea7c01f..2f0f9f4 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1360,14 +1360,14 @@ out:
+>  
+>  static void filename_compute_type(struct policydb *p, struct context *newcontext,
+>  				  u32 scon, u32 tcon, u16 tclass,
+> -				  const struct qstr *qstr)
+> +				  const char *objname)
+>  {
+>  	struct filename_trans *ft;
+>  	for (ft = p->filename_trans; ft; ft = ft->next) {
+>  		if (ft->stype == scon &&
+>  		    ft->ttype == tcon &&
+>  		    ft->tclass == tclass &&
+> -		    !strcmp(ft->name, qstr->name)) {
+> +		    !strcmp(ft->name, objname)) {
+>  			newcontext->type = ft->otype;
+>  			return;
+>  		}
+> @@ -1378,7 +1378,7 @@ static int security_compute_sid(u32 ssid,
+>  				u32 tsid,
+>  				u16 orig_tclass,
+>  				u32 specified,
+> -				const struct qstr *qstr,
+> +				const char *objname,
+>  				u32 *out_sid,
+>  				bool kern)
+>  {
+> @@ -1479,9 +1479,9 @@ static int security_compute_sid(u32 ssid,
+>  	}
+>  
+>  	/* if we have a qstr this is a file trans check so check those rules */
+> -	if (qstr)
+> +	if (objname)
+>  		filename_compute_type(&policydb, &newcontext, scontext->type,
+> -				      tcontext->type, tclass, qstr);
+> +				      tcontext->type, tclass, objname);
+>  
+>  	/* Check for class-specific changes. */
+>  	if  (tclass == policydb.process_class) {
+> @@ -1541,13 +1541,14 @@ int security_transition_sid(u32 ssid, u32 tsid, u16 tclass,
+>  			    const struct qstr *qstr, u32 *out_sid)
+>  {
+>  	return security_compute_sid(ssid, tsid, tclass, AVTAB_TRANSITION,
+> -				    qstr, out_sid, true);
+> +				    qstr ? qstr->name : NULL, out_sid, true);
+>  }
+>  
+> -int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass, u32 *out_sid)
+> +int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass,
+> +				 const char *objname, u32 *out_sid)
+>  {
+>  	return security_compute_sid(ssid, tsid, tclass, AVTAB_TRANSITION,
+> -				    NULL, out_sid, false);
+> +				    objname, out_sid, false);
+>  }
+>  
+>  /**
 > 
->> #============= iptables_t ==============
->> allow iptables_t var_log_t:file write;
-> 
-> Did you notice any loss of functionality?
-> 
-> This may be a leaked file descriptor or something may be passing the
-> open file to iptables.
-> 
-> You may be able to dontaudited this:
-> 
-> dontaudit iptables_t var_log_t:file write;
-> 
-> Which file exactly is it trying to write to?
-> 
-> By the way this is not the optimal list to be posting this to.
-> 
->> It works now.  Was there another way to do this?
->> William J. Chimiak
->> Laboratory for Telecommunication Sciences 
->> 8080 Greenmead Drive,  College Park, MD 20740
->> 301-422-5217
-> 
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+> --
+> NEC Europe Ltd, SAP Global Competence Center
+> KaiGai Kohei <kohei.kaigai@eu.nec.com>
 > 
 
-- --
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
 
-
-
-Most likely a redirection of stdout.
-
-script > /var/log/my.log
-
-Would cause this type of AVC for any confined app being run within the
-script.
-
-A hacky way to get out of it without changing policy, would be to execute
-script | cat > /var/log/my.log
-
-Another option would be to set it up from append
-
-script >> /var/log/my.log
-
-Which would only require append privs.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk2WBr0ACgkQrlYvE4MpobO1HQCfac3GdEWkNtvRP2PeXQqXftVC
-jqgAnR9Sd4iIj7/WoLoZULPUwo6pXhWJ
-=FTQ8
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
