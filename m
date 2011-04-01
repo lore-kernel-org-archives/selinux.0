@@ -1,48 +1,67 @@
-Message-ID: <4D947D8B.3090307@tresys.com>
-Date: Thu, 31 Mar 2011 09:11:39 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p319C8E2023015
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 05:12:08 -0400
+Received: from snt0-omc3-s47.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p319C7Y3018907
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 09:12:07 GMT
+Message-ID: <SNT139-w6155F82B0FEDA03D69574CABBE0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_c2acf165-b14e-4dde-817c-7e5159802e6d_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: How to make restorecon/matchpathcon recognize role_transition rule
+ for non-process classes?
+Date: Fri, 1 Apr 2011 09:12:07 +0000
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux@tycho.nsa.gov, method@manicmethod.com, sds@tycho.nsa.gov
-Subject: Re: [PATCH] checkpolicy: add support for using last path component
- in type transition rules
-References: <1301335220.14296.27.camel@localhost.localdomain>	 <4D91F135.2050809@tresys.com> <1301412177.14296.42.camel@localhost.localdomain>
-In-Reply-To: <1301412177.14296.42.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/29/11 11:22, Eric Paris wrote:
-> On Tue, 2011-03-29 at 10:48 -0400, Christopher J. PeBenito wrote:
->> On 03/28/11 14:00, Eric Paris wrote:
->>> This patch adds support for using the last path component as part of the
->>> information in making labeling decisions for new objects.  A example
->>> rule looks like so:
->>>
->>> type_transition unconfined_t etc_t:file system_conf_t eric;
->>>
->>> This rule says if unconfined_t creates a file in a directory labeled
->>> etc_t and the last path component is "eric" (no globbing, no matching
->>> magic, just exact strcmp) it should be labeled system_conf_t.
->>>
->>> The kernel and policy representation does not have support for such
->>> rules in conditionals, and thus policy explicitly notes that fact if
->>> such a rule is added to a conditional.
->>
->> Is there any plan for getting conditional support?
-> 
-> I don't plan on doing it.  I hate conditionals, wish they would die, and
-> suggest we should move to all modules instead.
+--_c2acf165-b14e-4dde-817c-7e5159802e6d_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-Thats not going to happen.  If you can modify the policy (i.e. insert
-and remove modules), you can change it in any way.  Whereas conditionals
-are well defined and being able to change a boolean can be constrained
-easily.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Hi,
+
+If we adopt role_transition rules for non-process classes then how we could have restorecon or matchpathcon tools properly recognize them? So far these tools could only read from file_contexts, or file_contexts.homedirs or file_contexts.local files and they only knows that the role for non-process class objects to be "object_r".
+
+Suppose we have below role_transition rule:
+    role_transition sysadm_r user_home_t:{ file dir } sysadm_r;
+
+Which means any objects of the file or dir classes created in a parent directory with type as user_home_t by the sysadm_r would have sysadm_r as the objects' role. Since it is hard to know:
+1. The path of such parent directories, and
+2. The seuser that is assuming the sysadm_r role;
+It would be impossible to use "semanage fcontext -a" command to specify special security contexts for files at run-time, nor add relevant rules in the related .fc files(so as to prevent restorecon to relabel the object's role to "object_r").
+
+Comments?
+
+Thanks!
+Harry
+ 		 	   		  
+--_c2acf165-b14e-4dde-817c-7e5159802e6d_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi,<br><br>If we adopt role_transition rules for non-process classes then how we could have restorecon or matchpathcon tools properly recognize them? So far these tools could only read from file_contexts, or file_contexts.homedirs or file_contexts.local files and they only knows that the role for non-process class objects to be "object_r".<br><br>Suppose we have below role_transition rule:<br>&nbsp;&nbsp;&nbsp; role_transition sysadm_r user_home_t:{ file dir } sysadm_r;<br><br>Which means any objects of the file or dir classes created in a parent directory with type as user_home_t by the sysadm_r would have sysadm_r as the objects' role. Since it is hard to know:<br>1. The path of such parent directories, and<br>2. The seuser that is assuming the sysadm_r role;<br>It would be impossible to use "semanage fcontext -a" command to specify special security contexts for files at run-time, nor add relevant rules in the related .fc files(so as to prevent restorecon to relabel the ob!
+ ject's role to "object_r").<br><br>Comments?<br><br>Thanks!<br>Harry<br> 		 	   		  </body>
+</html>
+--_c2acf165-b14e-4dde-817c-7e5159802e6d_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
