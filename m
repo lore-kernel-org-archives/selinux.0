@@ -1,57 +1,178 @@
-Subject: Re: How to make restorecon/matchpathcon recognize role_transition
- rule for non-process classes?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: selinux-mailing-list <selinux@tycho.nsa.gov>
-In-Reply-To: <SNT139-w6155F82B0FEDA03D69574CABBE0@phx.gbl>
-References: <SNT139-w6155F82B0FEDA03D69574CABBE0@phx.gbl>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 01 Apr 2011 08:42:42 -0400
-Message-ID: <1301661762.28661.7.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p31EeIFR010560
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 10:40:18 -0400
+Received: from cluster-e.mailcontrol.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p31EeD9M010926
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 14:40:14 GMT
+Received: from rly04e.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly04e.srv.mailcontrol.com (MailControl) with ESMTP id p31Ee8Ju017962
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 15:40:11 +0100
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly04e.srv.mailcontrol.com (MailControl) id p31Edapp014190
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2011 15:39:36 +0100
+From: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+To: "eparis@redhat.com" <eparis@redhat.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Fri, 1 Apr 2011 15:39:26 +0100
+Subject: [PATCH] selinux: add type_transition with name extension support
+ for selinuxfs
+Message-ID: <A9F5079BABDEE646AEBDB6831725762C52B55BD751@EUEXCLU01.EU.NEC.COM>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-04-01 at 09:12 +0000, HarryCiao wrote:
-> Hi,
-> 
-> If we adopt role_transition rules for non-process classes then how we
-> could have restorecon or matchpathcon tools properly recognize them?
-> So far these tools could only read from file_contexts, or
-> file_contexts.homedirs or file_contexts.local files and they only
-> knows that the role for non-process class objects to be "object_r".
-> 
-> Suppose we have below role_transition rule:
->     role_transition sysadm_r user_home_t:{ file dir } sysadm_r;
-> 
-> Which means any objects of the file or dir classes created in a parent
-> directory with type as user_home_t by the sysadm_r would have sysadm_r
-> as the objects' role. Since it is hard to know:
-> 1. The path of such parent directories, and
-> 2. The seuser that is assuming the sysadm_r role;
-> It would be impossible to use "semanage fcontext -a" command to
-> specify special security contexts for files at run-time, nor add
-> relevant rules in the related .fc files(so as to prevent restorecon to
-> relabel the ob! ject's role to "object_r").
-> 
-> Comments?
+The attached patch allows /selinux/create takes optional 4th argument
+to support TYPE_TRANSITION with name extension for userspace object
+managers.
+If 4th argument is not supplied, it shall perform as existing kernel.
+In fact, the regression test of SE-PostgreSQL works well on the patched
+kernel.
 
-restorecon/setfiles doesn't know anything about any runtime transition
-rules, whether type, range, or role.  It can only be used to reset the
-system to an initial state, where that initial state has to be defined
-through file_contexts.  For user home directories, you can already
-create a homedir_template that uses the ROLE template and have the role
-prefix inserted when libsemanage generates file_contexts.homedirs, so I
-think you can set up a system where user home directories are labeled
-with their role by default if you want that behavior.
+Thanks,
+--
+ Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
 
-We could also possibly change restorecon/setfiles to not relabel a file
-by default if it only differs in its role field, with that being
-overridden by -F (force).
+ security/selinux/include/security.h |    4 ++--
+ security/selinux/selinuxfs.c        |   16 ++++++++++++++--
+ security/selinux/ss/services.c      |   17 +++++++++--------
+ 3 files changed, 25 insertions(+), 12 deletions(-)
 
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 348eb00..75ff3a0 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -111,8 +111,8 @@ void security_compute_av_user(u32 ssid, u32 tsid,
+ int security_transition_sid(u32 ssid, u32 tsid, u16 tclass,
+ 			    const struct qstr *qstr, u32 *out_sid);
+ 
+-int security_transition_sid_user(u32 ssid, u32 tsid,
+-				 u16 tclass, u32 *out_sid);
++int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass,
++				 const char *objname, u32 *out_sid);
+ 
+ int security_member_sid(u32 ssid, u32 tsid,
+ 	u16 tclass, u32 *out_sid);
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ea39cb7..973f5a4 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -753,11 +753,13 @@ out:
+ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ {
+ 	char *scon = NULL, *tcon = NULL;
++	char *namebuf = NULL, *objname = NULL;
+ 	u32 ssid, tsid, newsid;
+ 	u16 tclass;
+ 	ssize_t length;
+ 	char *newcon = NULL;
+ 	u32 len;
++	int nargs;
+ 
+ 	length = task_has_security(current, SECURITY__COMPUTE_CREATE);
+ 	if (length)
+@@ -773,9 +775,17 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	if (!tcon)
+ 		goto out;
+ 
++	length = -ENOMEM;
++	namebuf = kzalloc(size + 1, GFP_KERNEL);
++	if (!namebuf)
++		goto out;
++
+ 	length = -EINVAL;
+-	if (sscanf(buf, "%s %s %hu", scon, tcon, &tclass) != 3)
++	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
++	if (nargs < 3 || nargs > 4)
+ 		goto out;
++	if (nargs == 4)
++		objname = namebuf;
+ 
+ 	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+ 	if (length)
+@@ -785,7 +795,8 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	if (length)
+ 		goto out;
+ 
+-	length = security_transition_sid_user(ssid, tsid, tclass, &newsid);
++	length = security_transition_sid_user(ssid, tsid, tclass,
++					      objname, &newsid);
+ 	if (length)
+ 		goto out;
+ 
+@@ -804,6 +815,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	length = len;
+ out:
+ 	kfree(newcon);
++	kfree(namebuf);
+ 	kfree(tcon);
+ 	kfree(scon);
+ 	return length;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index ea7c01f..2f0f9f4 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1360,14 +1360,14 @@ out:
+ 
+ static void filename_compute_type(struct policydb *p, struct context *newcontext,
+ 				  u32 scon, u32 tcon, u16 tclass,
+-				  const struct qstr *qstr)
++				  const char *objname)
+ {
+ 	struct filename_trans *ft;
+ 	for (ft = p->filename_trans; ft; ft = ft->next) {
+ 		if (ft->stype == scon &&
+ 		    ft->ttype == tcon &&
+ 		    ft->tclass == tclass &&
+-		    !strcmp(ft->name, qstr->name)) {
++		    !strcmp(ft->name, objname)) {
+ 			newcontext->type = ft->otype;
+ 			return;
+ 		}
+@@ -1378,7 +1378,7 @@ static int security_compute_sid(u32 ssid,
+ 				u32 tsid,
+ 				u16 orig_tclass,
+ 				u32 specified,
+-				const struct qstr *qstr,
++				const char *objname,
+ 				u32 *out_sid,
+ 				bool kern)
+ {
+@@ -1479,9 +1479,9 @@ static int security_compute_sid(u32 ssid,
+ 	}
+ 
+ 	/* if we have a qstr this is a file trans check so check those rules */
+-	if (qstr)
++	if (objname)
+ 		filename_compute_type(&policydb, &newcontext, scontext->type,
+-				      tcontext->type, tclass, qstr);
++				      tcontext->type, tclass, objname);
+ 
+ 	/* Check for class-specific changes. */
+ 	if  (tclass == policydb.process_class) {
+@@ -1541,13 +1541,14 @@ int security_transition_sid(u32 ssid, u32 tsid, u16 tclass,
+ 			    const struct qstr *qstr, u32 *out_sid)
+ {
+ 	return security_compute_sid(ssid, tsid, tclass, AVTAB_TRANSITION,
+-				    qstr, out_sid, true);
++				    qstr ? qstr->name : NULL, out_sid, true);
+ }
+ 
+-int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass, u32 *out_sid)
++int security_transition_sid_user(u32 ssid, u32 tsid, u16 tclass,
++				 const char *objname, u32 *out_sid)
+ {
+ 	return security_compute_sid(ssid, tsid, tclass, AVTAB_TRANSITION,
+-				    NULL, out_sid, false);
++				    objname, out_sid, false);
+ }
+ 
+ /**
+
+--
+NEC Europe Ltd, SAP Global Competence Center
+KaiGai Kohei <kohei.kaigai@eu.nec.com>
+
 
 
 --
