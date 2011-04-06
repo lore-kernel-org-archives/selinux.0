@@ -1,93 +1,115 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p36LDc01008666
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2011 17:13:38 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p36LDbd4008769
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2011 21:13:38 GMT
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p36LDbqa021600
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2011 17:13:37 -0400
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p36LDbi7031012
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2011 17:13:37 -0400
-Message-ID: <4D9CD781.6010601@redhat.com>
-Date: Wed, 06 Apr 2011 17:13:37 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Resend: This patch causes the mount points created in load_policy
- to have a proper name
-References: <4D9CD6DF.2020005@redhat.com>
-In-Reply-To: <4D9CD6DF.2020005@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------060102050007020207090409"
+Subject: Re: [v2 PATCH 1/3] SELinux: Add class support to the role_trans
+ structure
+From: Eric Paris <eparis@redhat.com>
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1301032323-20363-2-git-send-email-qingtao.cao@windriver.com>
+References: <1301032323-20363-1-git-send-email-qingtao.cao@windriver.com>
+	 <1301032323-20363-2-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 06 Apr 2011 19:04:41 -0400
+Message-ID: <1302131081.2821.1.camel@unknown001a4b0c2895>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060102050007020207090409
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 04/06/2011 05:10 PM, Daniel J Walsh wrote:
-> "proc" and "selinuxfs"
+On Fri, 2011-03-25 at 13:51 +0800, Harry Ciao wrote:
+> If kernel policy version is >= 26, then the binary representation of
+> the role_trans structure supports specifying the class for the current
+> subject or the newly created object.
 > 
+> If kernel policy version is < 26, then the class field would be default
+> to the process class.
+> 
+> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> ---
+>  security/selinux/include/security.h |    3 ++-
+>  security/selinux/ss/policydb.c      |   14 ++++++++++++++
+>  security/selinux/ss/policydb.h      |    3 ++-
+>  3 files changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 348eb00..bfc5218 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -30,13 +30,14 @@
+>  #define POLICYDB_VERSION_PERMISSIVE	23
+>  #define POLICYDB_VERSION_BOUNDARY	24
+>  #define POLICYDB_VERSION_FILENAME_TRANS	25
+> +#define POLICYDB_VERSION_ROLETRANS	26
+>  
+>  /* Range of policy versions we understand*/
+>  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+>  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>  #else
+> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_FILENAME_TRANS
+> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
+>  #endif
+>  
+>  /* Mask for just the mount related flags */
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index e7b850a..fd62c50 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -128,6 +128,11 @@ static struct policydb_compat_info policydb_compat[] = {
+>  		.sym_num	= SYM_NUM,
+>  		.ocon_num	= OCON_NUM,
+>  	},
+> +	{
+> +		.version	= POLICYDB_VERSION_ROLETRANS,
+> +		.sym_num	= SYM_NUM,
+> +		.ocon_num	= OCON_NUM,
+> +	},
+>  };
+>  
+>  static struct policydb_compat_info *policydb_lookup_compat(int version)
+> @@ -2302,8 +2307,17 @@ int policydb_read(struct policydb *p, void *fp)
+>  		tr->role = le32_to_cpu(buf[0]);
+>  		tr->type = le32_to_cpu(buf[1]);
+>  		tr->new_role = le32_to_cpu(buf[2]);
+> +		if (p->policyvers >= POLICYDB_VERSION_ROLETRANS) {
+> +			rc = next_entry(buf, fp, sizeof(u32));
+> +			if (rc)
+> +				goto bad;
+> +			tr->tclass = le32_to_cpu(buf[0]);
+> +		} else
+> +			tr->tclass = p->process_class;
 
 
+This doesn't work as p->process_class isn't set until about 100 lines
+later.  This means that a policy.X < 26 always fails on the next test
+since policydb_class_isvalid(p, 0) is going to fail.  I can try to find
+a way to handle this tomorrow, but hopefully you will find something
+sooner!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+Thanks!
+-Eric
 
-iEYEARECAAYFAk2c14AACgkQrlYvE4MpobMC7gCglauBYIKMfBRUcQPaMGKTzYZV
-udUAn3X/rgUgJ55401IVwyCHC051bGQA
-=47TI
------END PGP SIGNATURE-----
+> +
+>  		if (!policydb_role_isvalid(p, tr->role) ||
+>  		    !policydb_type_isvalid(p, tr->type) ||
+> +		    !policydb_class_isvalid(p, tr->tclass) ||
+>  		    !policydb_role_isvalid(p, tr->new_role))
+>  			goto bad;
+>  		ltr = tr;
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 732ea4a..801175f 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -72,7 +72,8 @@ struct role_datum {
+>  
+>  struct role_trans {
+>  	u32 role;		/* current role */
+> -	u32 type;		/* program executable type */
+> +	u32 type;		/* program executable type, or new object type */
+> +	u32 tclass;		/* process class, or new object class */
+>  	u32 new_role;		/* new role */
+>  	struct role_trans *next;
+>  };
 
---------------060102050007020207090409
-Content-Type: text/plain;
- name="libselinux-mount.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="libselinux-mount.patch"
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 36ce029..83d2143 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -329,7 +329,7 @@ int selinux_init_load_policy(int *enforce)
- 	selinux_getenforcemode(&seconfig);
- 
- 	/* Check for an override of the mode via the kernel command line. */
--	rc = mount("none", "/proc", "proc", 0, 0);
-+	rc = mount("proc", "/proc", "proc", 0, 0);
- 	cfg = fopen("/proc/cmdline", "r");
- 	if (cfg) {
- 		char *tmp;
-@@ -369,7 +369,7 @@ int selinux_init_load_policy(int *enforce)
- 	 * Check for the existence of SELinux via selinuxfs, and 
- 	 * mount it if present for use in the calls below.  
- 	 */
--	if (mount("none", SELINUXMNT, "selinuxfs", 0, 0) < 0 && errno != EBUSY) {
-+	if (mount("selinuxfs", SELINUXMNT, "selinuxfs", 0, 0) < 0 && errno != EBUSY) {
- 		if (errno == ENODEV) {
- 			/*
- 			 * SELinux was disabled in the kernel, either
-
---------------060102050007020207090409
-Content-Type: application/pgp-signature;
- name="libselinux-mount.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libselinux-mount.patch.sig"
-
-iEYEABECAAYFAk2c14AACgkQrlYvE4MpobOZsQCfX+hWeC599nMi1DQOWMtvKC1mj8AAoNC2
-5t91MpjJL58JwG27SecZm5h/
---------------060102050007020207090409--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
