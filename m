@@ -1,179 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p37GSqNB002527
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2011 12:28:52 -0400
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p37GSpRw017616
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2011 16:28:51 GMT
-Received: by wwb39 with SMTP id 39so2786811wwb.30
-        for <selinux@tycho.nsa.gov>; Thu, 07 Apr 2011 09:28:51 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4D9DDE14.8070100@redhat.com>
-References: <1302191243-604822-1-git-send-email-andronicus.spiros@gmail.com>
-	<4D9DDE14.8070100@redhat.com>
-Date: Thu, 7 Apr 2011 18:28:50 +0200
-Message-ID: <BANLkTinqGCqp3bcsQq3qw5Nzn6zRmHigvA@mail.gmail.com>
-Subject: Re: [PATCH] Permit fixfiles to skip configurable directory from relabelling
-From: Elia Pinto <andronicus.spiros@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        Elia Pinto <yersinia.spiros@gmail.com>, pinto.elia@gmail.com
+In-Reply-To: <1302156777-30393-2-git-send-email-qingtao.cao@windriver.com>
+References: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
+	<1302156777-30393-2-git-send-email-qingtao.cao@windriver.com>
+Date: Thu, 7 Apr 2011 14:35:47 -0400
+Message-ID: <BANLkTindppe7GbuTFbcwew5XQAcWjCLMNQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Initialize policydb.process_class eariler.
+From: Eric Paris <eparis@parisplace.org>
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I had the same dubt. I haven't noticed that fc15 had Similar fix. So,
-The patch is useless. Thanks for the fast review. Regards
+Thanks, applied and pushed!
 
-2011/4/7, Daniel J Walsh <dwalsh@redhat.com>:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Thu, Apr 7, 2011 at 2:12 AM, Harry Ciao <qingtao.cao@windriver.com> wrote:
+> Initialize policydb.process_class once all symtabs read from policy image,
+> so that it could be used to setup the role_trans.tclass field when a lower
+> version policy.X is loaded.
 >
-> On 04/07/2011 11:47 AM, Elia Pinto wrote:
->> From: Elia Pinto <yersinia.spiros@gmail.com>
->>
->> This patch permit fixfiles to check /.autorelabel_excluded
->> for a list of directories to exclude from relabelling.
->>
->> Inspired by this blog http://danwalsh.livejournal.com/38157.html.
->>
->> Signed-off-by: Elia Pinto <yersinia.spiros@gmail.com>
->> ---
->>  policycoreutils/scripts/fixfiles   |   44
->> ++++++++++++++++++++++++++++++++---
->>  policycoreutils/scripts/fixfiles.8 |    2 +
->>  2 files changed, 42 insertions(+), 4 deletions(-)
->>
->> diff --git a/policycoreutils/scripts/fixfiles
->> b/policycoreutils/scripts/fixfiles
->> index ae519fc..ba4d4b1 100755
->> --- a/policycoreutils/scripts/fixfiles
->> +++ b/policycoreutils/scripts/fixfiles
->> @@ -28,6 +28,7 @@ FORCEFLAG=""
->>  DIRS=""
->>  RPMILES=""
->>  LOGFILE=`tty`
->> +FINDEXCLUDEDPATH=""
->>  if [ $? != 0 ]; then
->>      LOGFILE="/dev/null"
->>  fi
->> @@ -46,6 +47,24 @@ else
->>      FC=/etc/security/selinux/file_contexts
->>  fi
->>
->> +# Add an excluded path for the following
->> +# find in the function restore, relabel
->> +
->> +if [ -e /.autorelabel_excluded ]
->> +then
->> +	while read _p
->> +	do
->> +          # skip blank line and comment
->> +          # skip not absolute path
->> +          # skip not directory
->> +          [ -z "${_p}" ] && continue
->> +          [[ "${_p}" =~ "^[[:blank:]]*#" ]] && continue
->> +          [[ ! "${_p}" =~ "^/.*" ]] && continue
->> +          [[ ! -d "${_p}" ]] && continue
->> +	  FINDEXCLUDEDPATH="${FINDEXCLUDEDPATH} -o -path \"${_p}\""
->> +	done < /.autorelabel_excluded
->> +fi
->> +
->>  #
->>  # Log to either syslog or a LOGFILE
->>  #
->> @@ -88,7 +107,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
->>                 fi; \
->>              done | \
->>  	while read pattern ; do sh -c "find $pattern \
->> -		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype
->> ext4dev  -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \)
->> -prune  -o \
->> +		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype
->> ext4dev  -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs
->> ${FINDEXCLUDEDPATH}\) -prune  -o \
->>  		      \( -wholename /home -o -wholename /root -o -wholename /tmp
->> -wholename /dev \) -prune -o -print0"; \
->>  		      done 2> /dev/null | \
->>  	 ${RESTORECON} $* -0 -f -
->> @@ -127,8 +146,9 @@ if [ ! -z "$RPMFILES" ]; then
->>  fi
->>  if [ ! -z "$FILEPATH" ]; then
->>      if [ -x /usr/bin/find ]; then
->> +        loggit "skipping the directory ${FINDEXCLUDEDPATH//-o -path/}
->> from relabelling"
->>  	/usr/bin/find "$FILEPATH" \
->> -	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev
->> -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune
->> -o -print0 | \
->> +	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev
->> -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs
->> ${FINDEXCLUDEDPATH}\) -prune  -o -print0 | \
->>  	    ${RESTORECON} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
->>      else
->>  	${RESTORECON} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
->> @@ -137,8 +157,24 @@ if [ ! -z "$FILEPATH" ]; then
->>  fi
->>  [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
->>  LogReadOnly
->> -${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1
->> >> $LOGFILE
->> -rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
->> +#
->> +#
->> +# "<<none>>" '/md/distro?(/.*)?'
->> +TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
->> +test -z "$TEMPFILE" && exit
->> +cp -p ${FC} ${TEMPFILE}
->> +FINDEXCLUDEDPATH=${FINDEXCLUDEDPATH//-o -path/}
->> +FINDEXCLUDEDPATH=${FINDEXCLUDEDPATH//\"/}
->> +for _p in $FINDEXCLUDEDPATH
->> +do
->> +	_p="${_p%/}"
->> +	_p1="${_p}(/.*)? -- <<none>>"
->> +	echo "${_p1}" >> $TEMPFILE
->> +        logit "skipping the directory ${_p} from relabelling"
->> +done
->> +
->> +${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${TEMPFILE} ${FILESYSTEMSRW}
->> 2>&1 >> $LOGFILE
->> +rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-* $TEMPFILE
->>  find /tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec
->> chcon -t tmp_t {} \;
->>  find /var/tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \)
->> -exec chcon -t tmp_t {} \;
->>  exit $?
->> diff --git a/policycoreutils/scripts/fixfiles.8
->> b/policycoreutils/scripts/fixfiles.8
->> index dfe8aa9..865aab4 100644
->> --- a/policycoreutils/scripts/fixfiles.8
->> +++ b/policycoreutils/scripts/fixfiles.8
->> @@ -29,6 +29,8 @@ new policy, or  just check whether the file contexts are
->> all
->>  as you expect.  By default it will relabel all mounted ext2, ext3, xfs
->> and
->>  jfs file systems as long as they do not have a security context mount
->>  option.  You can use the -R flag to use rpmpackages as an alternative.
->> +The file /.autorelabel_exclude can contain a list of directory path
->> +that fixfiles don't relabel.
->>  .P
->>  .B fixfiles onboot
->>  will setup the machine to relabel on the next reboot.
+> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> ---
+>  security/selinux/ss/policydb.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
 >
-> This file should not be in /, I think it would be better to put it in
-> /etc/selinux
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index a493eae..82373eb 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -2275,6 +2275,11 @@ int policydb_read(struct policydb *p, void *fp)
+>                p->symtab[i].nprim = nprim;
+>        }
 >
-> I have attached the current Fedora fixfiles.  Which has some similar fixes.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.11 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+> +       rc = -EINVAL;
+> +       p->process_class = string_to_security_class(p, "process");
+> +       if (!p->process_class)
+> +               goto bad;
+> +
+>        rc = avtab_read(&p->te_avtab, fp, p);
+>        if (rc)
+>                goto bad;
+> @@ -2359,11 +2364,6 @@ int policydb_read(struct policydb *p, void *fp)
+>                goto bad;
 >
-> iEYEARECAAYFAk2d3hQACgkQrlYvE4MpobNgYACg4hHDc5kgHLVPdfjb2KmytGNY
-> rggAn0INl+1Mf5odXoUq5rJQR6FT/RzD
-> =KAVX
-> -----END PGP SIGNATURE-----
+>        rc = -EINVAL;
+> -       p->process_class = string_to_security_class(p, "process");
+> -       if (!p->process_class)
+> -               goto bad;
+> -
+> -       rc = -EINVAL;
+>        p->process_trans_perms = string_to_av_perm(p, p->process_class, "transition");
+>        p->process_trans_perms |= string_to_av_perm(p, p->process_class, "dyntransition");
+>        if (!p->process_trans_perms)
+> --
+> 1.7.0.4
+>
 >
 
--- 
-Inviato dal mio dispositivo mobile
 
 --
 This message was distributed to subscribers of the selinux mailing list.
