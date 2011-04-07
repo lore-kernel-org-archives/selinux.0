@@ -1,26 +1,54 @@
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Cc: selinux@tycho.nsa.gov
-Subject: SELinux: Initialize process_class earlier
-Date: Thu,  7 Apr 2011 14:12:56 +0800
-Message-Id: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
+Subject: [PATCH 1/1] Initialize policydb.process_class eariler.
+Date: Thu,  7 Apr 2011 14:12:57 +0800
+Message-Id: <1302156777-30393-2-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
+References: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Initialize policydb.process_class once all symtabs read from policy image,
+so that it could be used to setup the role_trans.tclass field when a lower
+version policy.X is loaded.
 
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ security/selinux/ss/policydb.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Thanks Eric for pointing this out!
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index a493eae..82373eb 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -2275,6 +2275,11 @@ int policydb_read(struct policydb *p, void *fp)
+ 		p->symtab[i].nprim = nprim;
+ 	}
+ 
++	rc = -EINVAL;
++	p->process_class = string_to_security_class(p, "process");
++	if (!p->process_class)
++		goto bad;
++
+ 	rc = avtab_read(&p->te_avtab, fp, p);
+ 	if (rc)
+ 		goto bad;
+@@ -2359,11 +2364,6 @@ int policydb_read(struct policydb *p, void *fp)
+ 		goto bad;
+ 
+ 	rc = -EINVAL;
+-	p->process_class = string_to_security_class(p, "process");
+-	if (!p->process_class)
+-		goto bad;
+-
+-	rc = -EINVAL;
+ 	p->process_trans_perms = string_to_av_perm(p, p->process_class, "transition");
+ 	p->process_trans_perms |= string_to_av_perm(p, p->process_class, "dyntransition");
+ 	if (!p->process_trans_perms)
+-- 
+1.7.0.4
 
-Fortunately all symtabs would have been read before role_transition rules
-are read from the policy image, so we could initialize p->process_class
-right after all read_f[] completes so that it could be used to setup
-role_trans.tclass when a lower version policy.X is being loaded.
-
-Once we bump p->process_class initializaton code eariler a lower version
-policy.X could be successfully loaded.
-
-Cheers,
-Harry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
