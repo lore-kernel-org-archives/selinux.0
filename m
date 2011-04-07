@@ -1,53 +1,140 @@
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
-Cc: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] Initialize policydb.process_class eariler.
-Date: Thu,  7 Apr 2011 14:12:57 +0800
-Message-Id: <1302156777-30393-2-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
-References: <1302156777-30393-1-git-send-email-qingtao.cao@windriver.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p37FeXuI031548
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2011 11:40:33 -0400
+Received: from mail-wy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p37FeWaQ005709
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2011 15:40:32 GMT
+Received: by wyi11 with SMTP id 11so2658942wyi.12
+        for <selinux@tycho.nsa.gov>; Thu, 07 Apr 2011 08:40:30 -0700 (PDT)
+From: Elia Pinto <andronicus.spiros@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Elia Pinto <yersinia.spiros@gmail.com>, pinto.elia@gmail.com
+Subject: [PATCH] Permit fixfiles to skip configurable directory from relabelling
+Date: Thu,  7 Apr 2011 17:40:26 +0200
+Message-Id: <1302190826-600638-1-git-send-email-andronicus.spiros@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Initialize policydb.process_class once all symtabs read from policy image,
-so that it could be used to setup the role_trans.tclass field when a lower
-version policy.X is loaded.
+From: Elia Pinto <yersinia.spiros@gmail.com>
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+This patch permit fixfiles to check /.autorelabel_excluded
+for a list of directories to exclude from relabelling.
+
+Inspired by this blog http://danwalsh.livejournal.com/38157.html.
+
+Signed-off-by: Elia Pinto <yersinia.spiros@gmail.com>
 ---
- security/selinux/ss/policydb.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ policycoreutils/scripts/fixfiles   |   45 ++++++++++++++++++++++++++++++++---
+ policycoreutils/scripts/fixfiles.8 |    2 +
+ 2 files changed, 43 insertions(+), 4 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index a493eae..82373eb 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -2275,6 +2275,11 @@ int policydb_read(struct policydb *p, void *fp)
- 		p->symtab[i].nprim = nprim;
- 	}
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index ae519fc..2a39d74 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -28,6 +28,7 @@ FORCEFLAG=""
+ DIRS=""
+ RPMILES=""
+ LOGFILE=`tty`
++FINDEXCLUDEDPATH=""
+ if [ $? != 0 ]; then
+     LOGFILE="/dev/null"
+ fi
+@@ -46,6 +47,24 @@ else
+     FC=/etc/security/selinux/file_contexts
+ fi
  
-+	rc = -EINVAL;
-+	p->process_class = string_to_security_class(p, "process");
-+	if (!p->process_class)
-+		goto bad;
++# Add an excluded path for the following
++# find in the function restore, relabel
 +
- 	rc = avtab_read(&p->te_avtab, fp, p);
- 	if (rc)
- 		goto bad;
-@@ -2359,11 +2364,6 @@ int policydb_read(struct policydb *p, void *fp)
- 		goto bad;
- 
- 	rc = -EINVAL;
--	p->process_class = string_to_security_class(p, "process");
--	if (!p->process_class)
--		goto bad;
--
--	rc = -EINVAL;
- 	p->process_trans_perms = string_to_av_perm(p, p->process_class, "transition");
- 	p->process_trans_perms |= string_to_av_perm(p, p->process_class, "dyntransition");
- 	if (!p->process_trans_perms)
++if [ -e /.autorelabel_excluded ]
++then
++	while read _p
++	do
++          # skip blank line and comment 
++          # skip not absolute path
++          # skip not directory
++          [ -z "${_p}" ] && continue
++          [[ "${_p}" =~ "^[[:blank:]]*#" ]] && continue
++          [[ ! "${_p}" =~ "^/.*" ]] && continue
++          [[ ! -d "${_p}" ]] && continue
++	  FINDEXCLUDEDPATH="${FINDEXCLUDEDPATH} -o -path \"${_p}\""
++	done < /.autorelabel_excluded
++fi
++
+ #
+ # Log to either syslog or a LOGFILE
+ #
+@@ -88,7 +107,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+                fi; \
+             done | \
+ 	while read pattern ; do sh -c "find $pattern \
+-		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev  -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o \
++		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev  -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs ${FINDEXCLUDEDPATH}\) -prune  -o \
+ 		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print0"; \
+ 		      done 2> /dev/null | \
+ 	 ${RESTORECON} $* -0 -f - 
+@@ -115,6 +134,7 @@ rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
+ # if called with -n will only check file context
+ #
+ restore () {
++set -x
+ if [ ! -z "$PREFC" ]; then
+     diff_filecontext $*
+     exit $?
+@@ -127,8 +147,9 @@ if [ ! -z "$RPMFILES" ]; then
+ fi
+ if [ ! -z "$FILEPATH" ]; then
+     if [ -x /usr/bin/find ]; then
++        loggit "skipping the directory ${FINDEXCLUDEDPATH//-o -path/} from relabelling"
+ 	/usr/bin/find "$FILEPATH" \
+-	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs \) -prune  -o -print0 | \
++	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype ext4dev -o -fstype gfs2 -o -fstype jfs -o -fstype xfs -o -fstype btrfs ${FINDEXCLUDEDPATH}\) -prune  -o -print0 | \
+ 	    ${RESTORECON} ${FORCEFLAG} $* -0 -f - 2>&1 >> $LOGFILE
+     else
+ 	${RESTORECON} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
+@@ -137,8 +158,24 @@ if [ ! -z "$FILEPATH" ]; then
+ fi
+ [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
+ LogReadOnly
+-${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
+-rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
++# 
++# 
++# "<<none>>" '/md/distro?(/.*)?'
++TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
++test -z "$TEMPFILE" && exit
++cp -p ${FC} ${TEMPFILE} 
++FINDEXCLUDEDPATH=${FINDEXCLUDEDPATH//-o -path/}
++FINDEXCLUDEDPATH=${FINDEXCLUDEDPATH//\"/}
++for _p in $FINDEXCLUDEDPATH
++do
++	_p="${_p%/}"
++	_p1="${_p}(/.*)? -- <<none>>"
++	echo "${_p1}" >> $TEMPFILE
++        logit "skipping the directory ${_p} from relabelling"
++done
++
++${SETFILES} -q ${SYSLOGFLAG} ${FORCEFLAG} $* ${TEMPFILE} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
++rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-* $TEMPFILE
+ find /tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
+ find /var/tmp \( -context "*:file_t*" -o -context "*:unlabeled_t*" \) -exec chcon -t tmp_t {} \;
+ exit $?
+diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
+index dfe8aa9..865aab4 100644
+--- a/policycoreutils/scripts/fixfiles.8
++++ b/policycoreutils/scripts/fixfiles.8
+@@ -29,6 +29,8 @@ new policy, or  just check whether the file contexts are all
+ as you expect.  By default it will relabel all mounted ext2, ext3, xfs and 
+ jfs file systems as long as they do not have a security context mount 
+ option.  You can use the -R flag to use rpmpackages as an alternative.
++The file /.autorelabel_exclude can contain a list of directory path
++that fixfiles don't relabel.
+ .P
+ .B fixfiles onboot 
+ will setup the machine to relabel on the next reboot.
 -- 
-1.7.0.4
+1.7.2.1.44.g721e7
 
 
 --
