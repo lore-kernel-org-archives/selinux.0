@@ -1,38 +1,50 @@
 MIME-Version: 1.0
-In-Reply-To: <AANLkTinus_5iaHauJOPUmiMjqGYtPj+r=RFYjsWTiz5C@mail.gmail.com>
-References: <AANLkTinus_5iaHauJOPUmiMjqGYtPj+r=RFYjsWTiz5C@mail.gmail.com>
-Date: Mon, 11 Apr 2011 15:40:06 -0400
-Message-ID: <BANLkTinRKbLTt6nVi8YtUNj-SYB6_5jxKA@mail.gmail.com>
-Subject: Re: Named TYPE_TRANSITION and userspace AVC
-From: Eric Paris <eparis@parisplace.org>
-To: Kohei KaiGai <kaigai@kaigai.gr.jp>
-Cc: Eric Paris <eparis@redhat.com>, SELinux-ML <selinux@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: SELinux mixed/virtualisation policy
+Date: Mon, 11 Apr 2011 16:44:48 -0400
+Message-ID: <170D6ABBBA770349AA49582A86FCED1503F9EF3A@HAVOC.tcs-sec.com>
+In-Reply-To: <4DA3417A.2030009@redhat.com>
+References: <4DA1E50F.4060506@linux.vnet.ibm.com>	 <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto> <4DA3417A.2030009@redhat.com>
+From: <chanson@TrustedCS.com>
+To: <dwalsh@redhat.com>, <sds@tycho.nsa.gov>
+Cc: <rcvalle@linux.vnet.ibm.com>, <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Apr 3, 2011 at 7:35 AM, Kohei KaiGai <kaigai@kaigai.gr.jp> wrote:
-> We may have a possible issue regarding to the named TYPE_TRANSITION
-> feature and userspace avc.
+ 
 
-> The question is whether avc_compute_create() should support named
-> TYPE_TRANSITION rules, or not.
-> In my opinion, userspace object manager should use the new
-> security_compute_create_name() instead, when it tries to obtain the
-> security context to be assigned on a new named object.
+> > The types could be automatically generated from a template, and 
+> > managed by libvirt in much the same way it presently 
+> manages categories.
+> > 
+> > In any event, he can do the same thing by use of categories rather 
+> > than introducing an incomparable set of sensitivities, and that 
+> > wouldn't require any changes to the policy toolchain or 
+> kernel security server.
+> > 
+> 
+> Well yes, but currently svirt can support out of the box 
+> ~500,000 svirt instances,  If we when with  a type system, 
+> this would probably some problems adding a couple of million 
+> types.  I don't think we want svirt recompiling and loading 
+> policy every time it launches a virtual machine.
+>  :^)
+> 
+> Reserving a pool of categories at might be the way to go.  
+> But at what security level?  s15 or s0?  Also what about 
+> shared data between the virtual machines, read only content.  
+> Currently that is just labeled s0.
+> 
 
-That's the approach the kernel takes.  We don't attempt to cache
-TYPE_TRANSITION rules with a name component.  At least in the
-workflows in kernel it didn't seem that it would be common for the
-results to be reused with any regularity.  How often are you going to
-create a file called hda1 in a directory labeled device_t?  After
-seeing how many rules Dan is hoping to load i am making some changes
-to how I store and find such rules to make it faster, but I'm still
-not going to cache them in the AVC.  Doing so is only useful if I
-expect to ever reference the same rule twice.  And I don't.
+I would suggest some level in between s0 and s15. I would agree with
+Stephen that dynamic types would be preferred. I guess it just depends
+on the reason you are using the MLS policy.
 
--Eric
+-Chad
+
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
