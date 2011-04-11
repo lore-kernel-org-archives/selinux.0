@@ -1,82 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3BHFtdc025726
-	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 13:15:55 -0400
-Received: from e24smtp01.br.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3BHFsob016781
-	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 17:15:54 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3BHRN0k026396
+	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 13:27:23 -0400
+Received: from e24smtp04.br.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3BHRLob019145
+	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 17:27:22 GMT
 Received: from /spool/local
-	by e24smtp01.br.ibm.com with XMail ESMTP
+	by e24smtp04.br.ibm.com with XMail ESMTP
 	for <selinux@tycho.nsa.gov> from <rcvalle@linux.vnet.ibm.com>;
-	Mon, 11 Apr 2011 14:15:53 -0300
-Message-ID: <4DA33712.4050304@linux.vnet.ibm.com>
-Date: Mon, 11 Apr 2011 14:14:58 -0300
+	Mon, 11 Apr 2011 14:27:18 -0300
+Message-ID: <4DA339B9.9050903@linux.vnet.ibm.com>
+Date: Mon, 11 Apr 2011 14:26:17 -0300
 From: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
+To: russell@coker.com.au
+CC: SELinux@tycho.nsa.gov
 Subject: Re: SELinux mixed/virtualisation policy
-References: <4DA1E50F.4060506@linux.vnet.ibm.com> <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto>
-In-Reply-To: <1302539583.7338.43.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8
+References: <4DA1E50F.4060506@linux.vnet.ibm.com> <201104120020.42266.russell@coker.com.au>
+In-Reply-To: <201104120020.42266.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 04/11/2011 01:33 PM, Stephen Smalley wrote:
-> On Mon, 2011-04-11 at 11:24 -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> On 04/11/2011 09:40 AM, Stephen Smalley wrote:
->>> On Sun, 2011-04-10 at 14:12 -0300, Ramon de Carvalho Valle wrote:
->>>> However, I and Dan Walsh (who kindly informed me about libvirt) both
->>>> agree that dynamic labeling is more secure than manual labeling using
->>>> MLS policy, for virtual machine environments.
->>>
->>> Can you elaborate on what your concern is there?  If it is merely that
->>> two VMs at the same level are not isolated via the MLS policy, then that
->>> isn't a MLS concern, and you could use TE instead to isolate the VMs of
->>> the same level.
->>>
->> I think what he is after is the convenience of dynamic labeling, for
->> isolation.  Yes he could create new types for each instance, which every
->> virtual machine would need, this could cause a potential explosion in
->> the number of types and would be subject to failure.  It would be
->> putting a large onus on the Admin to manage all of these types.  The
->> real beauty of dynamic labeling is that it just works.
-Yes, exactly.
+On 04/11/2011 11:20 AM, Russell Coker wrote:
+> On Mon, 11 Apr 2011, Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com> 
+> wrote:
+>> The SELinux mixed policy can have non hierarchical sensitivities that
+>> have the same behavior of a categorized only environment. Such
+>> sensitivities should not be included in the default sensitivity
+>> hierarchy (i.e. s0 to s15). Thus, all rules for these sensitivities
+>> should be explicitly stated. This allows creating a unique sensitivity
+>> for virtual machine environments that is not part of the default
+>> sensitivity hierarchy.
+> 
+> One way of doing this is for the sysadmin to assign categories c0.c511 to non-
+> VM levels and categories c512.c1023 to virtual machines - or any other 
+> partitioning scheme that you might imagine.  Another possibility is to have 
+> one category assigned to the sensitivity label for all virtual machines and 
+> another assigned to the sensitivity label for all contexts that aren't used 
+> for VMs.  If you have two sensitivity labels that are incomparable then no 
+> data flows between them.
+Yes, I agree. However, what I am looking for is a standardization of
+what should be implemented in this type of situation, with an additional
+level of granularity.
 
 > 
-> The types could be automatically generated from a template, and managed
-> by libvirt in much the same way it presently manages categories.
+> One of the many ways of using categories would be to assign a discrete pair of 
+> categories to each thing you want to restrict.  One possibility I idly 
+> considered some time ago was to use MMCS labels for a build server.  Every 
+> package that would be built would be assigned a pair of categories as part of 
+> the sensitivity label, with the default policy build of 1024 categories that 
+> permits about half a million combinations which is more than enough to build 
+> the ~15,000 Debian packages with a different context for each one.
+Actually, this is what libvirt does with dynamic labeling enabled.
+However, it currently does not work with MLS policy.
+
 > 
-> In any event, he can do the same thing by use of categories rather than
-> introducing an incomparable set of sensitivities, and that wouldn't
-> require any changes to the policy toolchain or kernel security server.
-> 
-I know it may be too intrusive to the policy toolchain. However,  there
-are a number of benefits that may be taken in consideration.
-
-This allows the categorization of processes representing virtual machine
-environments in different sensitivities within a pre-defined standard
-set which belongs only this type of processes-Instead of manually
-reserving a non standard range of categories. Also, this may allow
-virtualisation software to act in a well defined environment instead of
-each one adopting custom different solutions (i.e. non standard range of
-categories, dynamic labeling, different types for each instance).
-
-Also, as Daniel said, this may allow the use of dynamic labeling within
-one of these sensitivities (i.e. sv0), and allow custom processes
-representing virtual machine environments to have static labels in the
-same or other sensitivities with higher privileges. No other types of
-processes should have access to these sensitivities unless explicitly
-stated, which may be the case of libvirt.
-
-This can be an entirely optional feature aimed to virtualised
-environments and opens the possibility for developing new features that
-could benefit from this additional level of granularity.
 
 - -- 
 Ramon de Carvalho Valle
@@ -88,9 +69,9 @@ http://rcvalle.com/
 Version: GnuPG v1.4.10 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk2jNxIACgkQkcIYeh81wLk/cACfefbk0X60e5e4NOWC3yQrygV8
-/28An3xokMo4uCQ6lxZqlV1NhzuP2+NB
-=qsVc
+iEYEARECAAYFAk2jObgACgkQkcIYeh81wLm++wCbBZsh2w7fT8ZwNcYfpxyAa0vh
+BysAnRi6U9mNGYShaqQ4uj2PhhcpFb4e
+=W/Vj
 -----END PGP SIGNATURE-----
 
 
