@@ -1,79 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3BHRN0k026396
-	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 13:27:23 -0400
-Received: from e24smtp04.br.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3BHRLob019145
-	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2011 17:27:22 GMT
-Received: from /spool/local
-	by e24smtp04.br.ibm.com with XMail ESMTP
-	for <selinux@tycho.nsa.gov> from <rcvalle@linux.vnet.ibm.com>;
-	Mon, 11 Apr 2011 14:27:18 -0300
-Message-ID: <4DA339B9.9050903@linux.vnet.ibm.com>
-Date: Mon, 11 Apr 2011 14:26:17 -0300
-From: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
+Message-ID: <4DA3417A.2030009@redhat.com>
+Date: Mon, 11 Apr 2011 13:59:22 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SELinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>,
+        SELinux@tycho.nsa.gov
 Subject: Re: SELinux mixed/virtualisation policy
-References: <4DA1E50F.4060506@linux.vnet.ibm.com> <201104120020.42266.russell@coker.com.au>
-In-Reply-To: <201104120020.42266.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <4DA1E50F.4060506@linux.vnet.ibm.com>	 <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto>
+In-Reply-To: <1302539583.7338.43.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 04/11/2011 11:20 AM, Russell Coker wrote:
-> On Mon, 11 Apr 2011, Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com> 
-> wrote:
->> The SELinux mixed policy can have non hierarchical sensitivities that
->> have the same behavior of a categorized only environment. Such
->> sensitivities should not be included in the default sensitivity
->> hierarchy (i.e. s0 to s15). Thus, all rules for these sensitivities
->> should be explicitly stated. This allows creating a unique sensitivity
->> for virtual machine environments that is not part of the default
->> sensitivity hierarchy.
+On 04/11/2011 12:33 PM, Stephen Smalley wrote:
+> On Mon, 2011-04-11 at 11:24 -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> On 04/11/2011 09:40 AM, Stephen Smalley wrote:
+>>> On Sun, 2011-04-10 at 14:12 -0300, Ramon de Carvalho Valle wrote:
+>>>> However, I and Dan Walsh (who kindly informed me about libvirt) both
+>>>> agree that dynamic labeling is more secure than manual labeling using
+>>>> MLS policy, for virtual machine environments.
+>>>
+>>> Can you elaborate on what your concern is there?  If it is merely that
+>>> two VMs at the same level are not isolated via the MLS policy, then that
+>>> isn't a MLS concern, and you could use TE instead to isolate the VMs of
+>>> the same level.
+>>>
+>> I think what he is after is the convenience of dynamic labeling, for
+>> isolation.  Yes he could create new types for each instance, which every
+>> virtual machine would need, this could cause a potential explosion in
+>> the number of types and would be subject to failure.  It would be
+>> putting a large onus on the Admin to manage all of these types.  The
+>> real beauty of dynamic labeling is that it just works.
 > 
-> One way of doing this is for the sysadmin to assign categories c0.c511 to non-
-> VM levels and categories c512.c1023 to virtual machines - or any other 
-> partitioning scheme that you might imagine.  Another possibility is to have 
-> one category assigned to the sensitivity label for all virtual machines and 
-> another assigned to the sensitivity label for all contexts that aren't used 
-> for VMs.  If you have two sensitivity labels that are incomparable then no 
-> data flows between them.
-Yes, I agree. However, what I am looking for is a standardization of
-what should be implemented in this type of situation, with an additional
-level of granularity.
-
+> The types could be automatically generated from a template, and managed
+> by libvirt in much the same way it presently manages categories.
 > 
-> One of the many ways of using categories would be to assign a discrete pair of 
-> categories to each thing you want to restrict.  One possibility I idly 
-> considered some time ago was to use MMCS labels for a build server.  Every 
-> package that would be built would be assigned a pair of categories as part of 
-> the sensitivity label, with the default policy build of 1024 categories that 
-> permits about half a million combinations which is more than enough to build 
-> the ~15,000 Debian packages with a different context for each one.
-Actually, this is what libvirt does with dynamic labeling enabled.
-However, it currently does not work with MLS policy.
-
+> In any event, he can do the same thing by use of categories rather than
+> introducing an incomparable set of sensitivities, and that wouldn't
+> require any changes to the policy toolchain or kernel security server.
 > 
 
-- -- 
-Ramon de Carvalho Valle
-Security Engineer
-IBM Linux Technology Center
-rcvalle@linux.vnet.ibm.com
-http://rcvalle.com/
+Well yes, but currently svirt can support out of the box ~500,000 svirt
+instances,  If we when with  a type system, this would probably some
+problems adding a couple of million types.  I don't think we want svirt
+recompiling and loading policy every time it launches a virtual machine.
+ :^)
+
+Reserving a pool of categories at might be the way to go.  But at what
+security level?  s15 or s0?  Also what about shared data between the
+virtual machines, read only content.  Currently that is just labeled s0.
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk2jObgACgkQkcIYeh81wLm++wCbBZsh2w7fT8ZwNcYfpxyAa0vh
-BysAnRi6U9mNGYShaqQ4uj2PhhcpFb4e
-=W/Vj
+iEYEARECAAYFAk2jQXoACgkQrlYvE4MpobOVmACeKPS05jwZGV1alF/wM4w3Lunw
++wUAni9QZ/sBrNxxxCKZEYpKEZxEYkJi
+=Ptgb
 -----END PGP SIGNATURE-----
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
