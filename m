@@ -1,76 +1,59 @@
-Subject: Re: SELinux mixed/virtualisation policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>,
-        SELinux@tycho.nsa.gov
-In-Reply-To: <4DA3417A.2030009@redhat.com>
-References: <4DA1E50F.4060506@linux.vnet.ibm.com>
-	 <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com>
-	 <1302539583.7338.43.camel@moss-pluto>  <4DA3417A.2030009@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 12 Apr 2011 08:50:46 -0400
-Message-ID: <1302612646.25774.11.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3CDPEJh019870
+	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 09:25:14 -0400
+Received: from exchange.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p3CDPECq020630
+	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 13:25:14 GMT
+Message-ID: <4DA45306.7000305@tresys.com>
+Date: Tue, 12 Apr 2011 09:26:30 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: Richard Haines <richard_c_haines@btinternet.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/1] mcstransd select correct colour range.
+References: <706242.2086.qm@web87005.mail.ird.yahoo.com>
+In-Reply-To: <706242.2086.qm@web87005.mail.ird.yahoo.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-04-11 at 13:59 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On 04/10/2011 12:18 PM, Richard Haines wrote:
+> mcstransd: Now selects the range color for a matching 'range' entry in secolor.conf file, and not the first range to pass the dominance check.
 > 
-> On 04/11/2011 12:33 PM, Stephen Smalley wrote:
-> > On Mon, 2011-04-11 at 11:24 -0400, Daniel J Walsh wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA1
-> >>
-> >> On 04/11/2011 09:40 AM, Stephen Smalley wrote:
-> >>> On Sun, 2011-04-10 at 14:12 -0300, Ramon de Carvalho Valle wrote:
-> >>>> However, I and Dan Walsh (who kindly informed me about libvirt) both
-> >>>> agree that dynamic labeling is more secure than manual labeling using
-> >>>> MLS policy, for virtual machine environments.
-> >>>
-> >>> Can you elaborate on what your concern is there?  If it is merely that
-> >>> two VMs at the same level are not isolated via the MLS policy, then that
-> >>> isn't a MLS concern, and you could use TE instead to isolate the VMs of
-> >>> the same level.
-> >>>
-> >> I think what he is after is the convenience of dynamic labeling, for
-> >> isolation.  Yes he could create new types for each instance, which every
-> >> virtual machine would need, this could cause a potential explosion in
-> >> the number of types and would be subject to failure.  It would be
-> >> putting a large onus on the Admin to manage all of these types.  The
-> >> real beauty of dynamic labeling is that it just works.
-> > 
-> > The types could be automatically generated from a template, and managed
-> > by libvirt in much the same way it presently manages categories.
-> > 
-> > In any event, he can do the same thing by use of categories rather than
-> > introducing an incomparable set of sensitivities, and that wouldn't
-> > require any changes to the policy toolchain or kernel security server.
-> > 
+> The second patch has the man pages to support the colour functions that match how mcstransd manages colour selection.
 > 
-> Well yes, but currently svirt can support out of the box ~500,000 svirt
-> instances,  If we when with  a type system, this would probably some
-> problems adding a couple of million types.  I don't think we want svirt
-> recompiling and loading policy every time it launches a virtual machine.
->  :^)
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  policycoreutils/mcstrans/src/mcscolor.c |   12 ++++++------
+>  1 files changed, 6 insertions(+), 6 deletions(-)
 > 
-> Reserving a pool of categories at might be the way to go.  But at what
-> security level?  s15 or s0?  Also what about shared data between the
-> virtual machines, read only content.  Currently that is just labeled s0.
+> diff --git a/policycoreutils/mcstrans/src/mcscolor.c b/policycoreutils/mcstrans/src/mcscolor.c
+> index a443320..90c4321 100644
+> --- a/policycoreutils/mcstrans/src/mcscolor.c
+> +++ b/policycoreutils/mcstrans/src/mcscolor.c
+> @@ -135,12 +135,12 @@ static const secolor_t *find_color(int idx, const char *component,
+>  	}
+>  
+>  	while (ptr) {
+> -		if (idx == COLOR_RANGE) {
+> -		    if (check_dominance(ptr->pattern, raw) == 0)
+> -			return &ptr->color;
+> -		} else {
+> -		    if (fnmatch(ptr->pattern, component, 0) == 0)
+> -			return &ptr->color;
+> +		if (fnmatch(ptr->pattern, component, 0) == 0) {
+> +			if (idx == COLOR_RANGE) {
+> +			    if (check_dominance(ptr->pattern, raw) == 0)
+> +					return &ptr->color;
+> +			} else 
+> +				return &ptr->color;
+>  		}
+>  		ptr = ptr->next;
+>  	}
 
-I think this is where Ramon's idea breaks down.  The qemu process does
-in fact need access to resources and other services on the host and thus
-making the qemu process run in a context that is completely incomparable
-with the contexts used by host processes and objects will quickly put
-you into a situation where you must grant the qemu process MLS
-overrides.  At which point you are no longer deriving much benefit from
-the MLS policy at all.
+Applied to policycoreutils-2.0.86
 
--- 
-Stephen Smalley
-National Security Agency
-
+Thanks!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
