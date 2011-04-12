@@ -1,50 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3CIZxMp011519
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 14:35:59 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3CIiN43012051
+	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 14:44:24 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3CIZvjr002835
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 18:35:57 GMT
-Message-ID: <4DA49B88.3040300@redhat.com>
-Date: Tue, 12 Apr 2011 14:35:52 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>
-CC: SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        Harry Ciao <qingtao.cao@windriver.com>
-Subject: Here is an updated Eric Paris patch for adding named file trans rules.
-References: <4D9CD64B.7020207@redhat.com> <4DA454A8.7030005@tresys.com> <4DA47A02.400@redhat.com>
-In-Reply-To: <4DA47A02.400@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------040709060303040900050102"
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3CIiMjr004802
+	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 18:44:23 GMT
+From: Eric Paris <eparis@redhat.com>
+To: slawrence@tresys.com
+Cc: selinux@tycho.nsa.gov, qingtao.cao@windriver.com, dwalsh@redhat.com,
+        eparis@redhat.com
+Subject: [PATCH 1/2] libsepol: add support for filenametrans rule
+Date: Tue, 12 Apr 2011 14:45:36 -0400
+Message-Id: <1302633937-25134-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040709060303040900050102
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+This patch adds libsepol support for filename_trans rules.  These rules
+allow one to make labeling decisions for new objects based partially on
+the last path component.  They are stored in a list.  If we find that
+the number of rules grows to an significant size I will likely choose to
+store these in a hash, both in libsepol and in the kernel.  But as long
+as the number of such rules stays small, this should be good.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-It also has a fix for the ROLE_TRANS patch from Harry Ciao that was
-blowing up when used with policy less then 26.  IE Everywhere.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk2km4gACgkQrlYvE4MpobM86gCgiZiD4xYD7Y+lO9c0hJUF/Bbb
-8jsAn3C2LEnem+EVeJ1C1MscImk2moRB
-=wfjo
------END PGP SIGNATURE-----
-
---------------040709060303040900050102
-Content-Type: text/plain;
- name="libsepol-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="libsepol-rhat.patch"
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ libsepol/include/sepol/policydb/policydb.h |   29 +++++
+ libsepol/src/avrule_block.c                |    1 +
+ libsepol/src/expand.c                      |   98 ++++++++++++++++
+ libsepol/src/link.c                        |   49 ++++++++
+ libsepol/src/policydb.c                    |  170 ++++++++++++++++++++++++++++
+ libsepol/src/write.c                       |   85 ++++++++++++++
+ 6 files changed, 432 insertions(+), 0 deletions(-)
 
 diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
 index 94b8609..eebf1a9 100644
@@ -324,51 +309,51 @@ index e33db0f..23dbb1b 100644
  				  &dest_decl->range_tr_rules, module, state))
  		return -1;
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index bbf3c88..096b556 100644
+index bbf3c88..2ecb636 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
-@@ -143,6 +143,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
+@@ -138,6 +138,13 @@ static struct policydb_compat_info policydb_compat[] = {
  	},
-+        {
-+	 .type = POLICY_KERN,
+ 	{
+ 	 .type = POLICY_KERN,
 +	 .version = POLICYDB_VERSION_FILENAME_TRANS,
 +	 .sym_num = SYM_NUM,
 +	 .ocon_num = OCON_NODE6 + 1,
 +	 .target_platform = SEPOL_TARGET_SELINUX,
 +	},
- 	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -200,6 +207,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
++	{
++	 .type = POLICY_KERN,
+ 	 .version = POLICYDB_VERSION_ROLETRANS,
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = OCON_NODE6 + 1,
+@@ -194,6 +201,13 @@ static struct policydb_compat_info policydb_compat[] = {
  	},
  	{
-+	 .type = POLICY_BASE,
+ 	 .type = POLICY_BASE,
 +	 .version = MOD_POLICYDB_VERSION_FILENAME_TRANS,
 +	 .sym_num = SYM_NUM,
 +	 .ocon_num = OCON_NODE6 + 1,
 +	 .target_platform = SEPOL_TARGET_SELINUX,
 +	},
 +	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
++	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
  	 .sym_num = SYM_NUM,
-@@ -255,6 +269,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	 .ocon_num = OCON_NODE6 + 1,
+@@ -250,6 +264,13 @@ static struct policydb_compat_info policydb_compat[] = {
  	},
-+	{
-+	 .type = POLICY_MOD,
+ 	{
+ 	 .type = POLICY_MOD,
 +	 .version = MOD_POLICYDB_VERSION_FILENAME_TRANS,
 +	 .sym_num = SYM_NUM,
 +	 .ocon_num = 0,
 +	 .target_platform = SEPOL_TARGET_SELINUX,
 +	},
- };
- 
- #if 0
++	{
++	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_ROLETRANS,
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = 0,
 @@ -456,6 +477,33 @@ void role_trans_rule_list_destroy(role_trans_rule_t * x)
  	}
  }
@@ -482,29 +467,7 @@ index bbf3c88..096b556 100644
  static int ocontext_read_xen(struct policydb_compat_info *info,
  	policydb_t *p, struct policy_file *fp)
  {
-@@ -2927,7 +3033,8 @@ int avrule_read_list(policydb_t * p, avrule_t ** avrules,
- 	return 0;
- }
- 
--static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
-+static int role_trans_rule_read(policydb_t *p, role_trans_rule_t ** r,
-+				struct policy_file *fp)
- {
- 	uint32_t buf[1], nel;
- 	unsigned int i;
-@@ -2958,8 +3065,9 @@ static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
- 		if (type_set_read(&tr->types, fp))
- 			return -1;
- 
--		if (ebitmap_read(&tr->classes, fp))
--			return -1;
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS)
-+			if (ebitmap_read(&tr->classes, fp))
-+				return -1;
- 
- 		rc = next_entry(buf, fp, sizeof(uint32_t));
- 		if (rc < 0)
-@@ -3007,6 +3115,62 @@ static int role_allow_rule_read(role_allow_rule_t ** r, struct policy_file *fp)
+@@ -3007,6 +3113,62 @@ static int role_allow_rule_read(role_allow_rule_t ** r, struct policy_file *fp)
  	return 0;
  }
  
@@ -567,12 +530,7 @@ index bbf3c88..096b556 100644
  static int range_trans_rule_read(range_trans_rule_t ** r,
  				 struct policy_file *fp)
  {
-@@ -3096,10 +3260,15 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
- 	decl->enabled = le32_to_cpu(buf[1]);
- 	if (cond_read_list(p, &decl->cond_list, fp) == -1 ||
- 	    avrule_read_list(p, &decl->avrules, fp) == -1 ||
--	    role_trans_rule_read(&decl->role_tr_rules, fp) == -1 ||
-+	    role_trans_rule_read(p, &decl->role_tr_rules, fp) == -1 ||
+@@ -3100,6 +3262,11 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
  	    role_allow_rule_read(&decl->role_allow_rules, fp) == -1) {
  		return -1;
  	}
@@ -584,7 +542,7 @@ index bbf3c88..096b556 100644
  	if (p->policyvers >= MOD_POLICYDB_VERSION_RANGETRANS &&
  	    range_trans_rule_read(&decl->range_tr_rules, fp) == -1) {
  		return -1;
-@@ -3491,6 +3660,9 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+@@ -3491,6 +3658,9 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
  			goto bad;
  		if (role_allow_read(&p->role_allow, fp))
  			goto bad;
@@ -595,7 +553,7 @@ index bbf3c88..096b556 100644
  		/* first read the AV rule blocks, then the scope tables */
  		avrule_block_destroy(p->global);
 diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index f9d59b6..9b70e3c 100644
+index f9d59b6..c4f5035 100644
 --- a/libsepol/src/write.c
 +++ b/libsepol/src/write.c
 @@ -528,6 +528,42 @@ static int role_allow_write(role_allow_t * r, struct policy_file *fp)
@@ -641,29 +599,7 @@ index f9d59b6..9b70e3c 100644
  static int role_set_write(role_set_t * x, struct policy_file *fp)
  {
  	size_t items;
-@@ -1446,7 +1482,8 @@ static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
- 	return POLICYDB_SUCCESS;
- }
- 
--static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
-+static int role_trans_rule_write(policydb_t *p, role_trans_rule_t * t,
-+				 struct policy_file *fp)
- {
- 	int nel = 0;
- 	size_t items;
-@@ -1464,8 +1501,9 @@ static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
- 			return POLICYDB_ERROR;
- 		if (type_set_write(&tr->types, fp))
- 			return POLICYDB_ERROR;
--		if (ebitmap_write(&tr->classes, fp))
--			return POLICYDB_ERROR;
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_FILENAME_TRANS)
-+			if (ebitmap_write(&tr->classes, fp))
-+				return POLICYDB_ERROR;
- 		buf[0] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
-@@ -1496,6 +1534,47 @@ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
+@@ -1496,6 +1532,47 @@ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
  	return POLICYDB_SUCCESS;
  }
  
@@ -711,12 +647,7 @@ index f9d59b6..9b70e3c 100644
  static int range_trans_rule_write(range_trans_rule_t * t,
  				  struct policy_file *fp)
  {
-@@ -1559,10 +1638,15 @@ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
- 	}
- 	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
- 	    avrule_write_list(decl->avrules, fp) == -1 ||
--	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
-+	    role_trans_rule_write(p, decl->role_tr_rules, fp) == -1 ||
+@@ -1563,6 +1640,11 @@ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
  	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
  		return POLICYDB_ERROR;
  	}
@@ -728,7 +659,7 @@ index f9d59b6..9b70e3c 100644
  	if (p->policyvers >= MOD_POLICYDB_VERSION_RANGETRANS &&
  	    range_trans_rule_write(decl->range_tr_rules, fp) == -1) {
  		return POLICYDB_ERROR;
-@@ -1839,6 +1923,9 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+@@ -1839,6 +1921,9 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
  			return POLICYDB_ERROR;
  		if (role_allow_write(p->role_allow, fp))
  			return POLICYDB_ERROR;
@@ -738,17 +669,9 @@ index f9d59b6..9b70e3c 100644
  	} else {
  		if (avrule_block_write(p->global, num_syms, p, fp) == -1) {
  			return POLICYDB_ERROR;
+-- 
+1.7.1
 
---------------040709060303040900050102
-Content-Type: application/pgp-signature;
- name="libsepol-rhat.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libsepol-rhat.patch.sig"
-
-iEYEABECAAYFAk2km4gACgkQrlYvE4MpobOC3QCZAXQH18LfKe60X1KTWdWB1kTz8asAoIEI
-sIeXJJhnuDYZMPbCkz8CplBj
---------------040709060303040900050102--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
