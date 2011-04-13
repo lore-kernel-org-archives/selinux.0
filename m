@@ -1,198 +1,105 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3DI7MQG013415
-	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 14:07:22 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3DI7KiC008195
-	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 18:07:21 GMT
-Subject: Re: [PATCH] libsepol: support policy modules when roletrans rules
- not supported
-From: Eric Paris <eparis@redhat.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "qingtao.cao@windriver.com" <qingtao.cao@windriver.com>,
-        "dwalsh@redhat.com" <dwalsh@redhat.com>
-In-Reply-To: <4DA5DEDB.9020005@tresys.com>
-References: <1302642701-15441-1-git-send-email-eparis@redhat.com>
-	 <4DA5BFF0.2090209@tresys.com>  <4DA5DEDB.9020005@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 13 Apr 2011 14:07:14 -0400
-Message-ID: <1302718034.8639.4.camel@unknown001a4b0c2895>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3DIXABR015230
+	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 14:33:10 -0400
+Received: from e24smtp04.br.ibm.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3DIX9v8027800
+	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 18:33:09 GMT
+Received: from /spool/local
+	by e24smtp04.br.ibm.com with XMail ESMTP
+	for <selinux@tycho.nsa.gov> from <rcvalle@linux.vnet.ibm.com>;
+	Wed, 13 Apr 2011 15:33:06 -0300
+Message-ID: <4DA5EC53.2020006@linux.vnet.ibm.com>
+Date: Wed, 13 Apr 2011 15:32:51 -0300
+From: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
+Subject: Re: SELinux mixed/virtualisation policy
+References: <4DA1E50F.4060506@linux.vnet.ibm.com> <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto>  <4DA3417A.2030009@redhat.com> <1302612646.25774.11.camel@moss-pluto>	 <4DA579E8.6040404@linux.vnet.ibm.com> <1302697169.16451.12.camel@moss-pluto>	 <4DA59F38.7090101@linux.vnet.ibm.com> <1302702685.16451.25.camel@moss-pluto>
+In-Reply-To: <1302702685.16451.25.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-04-13 at 13:35 -0400, Steve Lawrence wrote:
-> On 04/13/2011 11:23 AM, Steve Lawrence wrote:
-> > Thanks for the patch. This solves the problem, but I'm still seeing
-> > issues that seems related to support of older version of policy when
-> > using role_transition with non-process classes. I'm now seeing an mls
-> > range overflow error:
-> > 
-> > libsepol.role_trans_write: Discarding role_transition rules for security
-> > class other than "process"
-> > libsepol.mls_read_range_helper: range overflow
-> > libsepol.context_read_and_validate: error reading MLS range of context
-> > libsepol.policydb_to_image: new policy image is invalid
-> > 
-> > I'm still looking into it, but I'm not too familiar this part of the code.
-> > 
-> > 
-> > On 04/12/2011 05:11 PM, Eric Paris wrote:
-> >> Although the role trans code had support to handle the kernel policy
-> >> when the version was less that roletrans such support was not in the
-> >> module read/write code.  This patch adds proper support for role trans
-> >> in modules.
-> >>
-> >> Signed-off-by: Eric Paris <eparis@redhat.com>
-> >> ---
-> >>  libsepol/src/policydb.c |   14 ++++++++++----
-> >>  libsepol/src/write.c    |   37 ++++++++++++++++++++++++++++++++-----
-> >>  2 files changed, 42 insertions(+), 9 deletions(-)
-> >>
-> >> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> >> index 2ecb636..6d8ff91 100644
-> >> --- a/libsepol/src/policydb.c
-> >> +++ b/libsepol/src/policydb.c
-> >> @@ -3033,7 +3033,8 @@ int avrule_read_list(policydb_t * p, avrule_t ** avrules,
-> >>  	return 0;
-> >>  }
-> >>  
-> >> -static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
-> >> +static int role_trans_rule_read(policydb_t *p, role_trans_rule_t ** r,
-> >> +				struct policy_file *fp)
-> >>  {
-> >>  	uint32_t buf[1], nel;
-> >>  	unsigned int i;
-> >> @@ -3064,8 +3065,13 @@ static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
-> >>  		if (type_set_read(&tr->types, fp))
-> >>  			return -1;
-> >>  
-> >> -		if (ebitmap_read(&tr->classes, fp))
-> >> -			return -1;
-> >> +		if (p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS) {
-> >> +			if (ebitmap_read(&tr->classes, fp))
-> >> +				return -1;
-> >> +		} else {
-> >> +			if (ebitmap_set_bit(&tr->classes, SECCLASS_PROCESS - 1, 1))
-> >> +				return -1;
-> >> +		}
-> >>  
-> >>  		rc = next_entry(buf, fp, sizeof(uint32_t));
-> >>  		if (rc < 0)
-> >> @@ -3258,7 +3264,7 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
-> >>  	decl->enabled = le32_to_cpu(buf[1]);
-> >>  	if (cond_read_list(p, &decl->cond_list, fp) == -1 ||
-> >>  	    avrule_read_list(p, &decl->avrules, fp) == -1 ||
-> >> -	    role_trans_rule_read(&decl->role_tr_rules, fp) == -1 ||
-> >> +	    role_trans_rule_read(p, &decl->role_tr_rules, fp) == -1 ||
-> >>  	    role_allow_rule_read(&decl->role_allow_rules, fp) == -1) {
-> >>  		return -1;
-> >>  	}
-> >> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> >> index c4f5035..78b3aa6 100644
-> >> --- a/libsepol/src/write.c
-> >> +++ b/libsepol/src/write.c
-> >> @@ -1482,26 +1482,53 @@ static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
-> >>  	return POLICYDB_SUCCESS;
-> >>  }
-> >>  
-> >> -static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
-> >> +static int only_process(ebitmap_t *in)
-> >> +{
-> >> +	unsigned int i;
-> >> +	ebitmap_node_t *node;
-> >> +
-> >> +	ebitmap_for_each_bit(in, node, i) {
-> >> +		if (ebitmap_node_get_bit(node, i) &&
-> >> +		    i != SECCLASS_PROCESS - 1)
-> >> +			return 0;
-> >> +	}
-> >> +	return 1;
-> >> +}
-> >> +
-> >> +static int role_trans_rule_write(policydb_t *p, role_trans_rule_t * t,
-> >> +				 struct policy_file *fp)
-> >>  {
-> >>  	int nel = 0;
-> >>  	size_t items;
-> >>  	uint32_t buf[1];
-> >>  	role_trans_rule_t *tr;
-> >> +	int warned = 0;
-> >> +	int new_role = p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS;
-> >>  
-> >>  	for (tr = t; tr; tr = tr->next)
-> >> -		nel++;
-> >> +		if (new_role || only_process(&tr->classes))
-> >> +			nel++;
-> >> +
-> >>  	buf[0] = cpu_to_le32(nel);
-> >>  	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> >>  	if (items != 1)
-> >>  		return POLICYDB_ERROR;
-> >>  	for (tr = t; tr; tr = tr->next) {
-> >> +		if (!new_role && !only_process(&tr->classes)) {
-> >> +			if (!warned)
-> >> +				WARN(fp->handle, "Discarding role_transition "
-> >> +					"rules for security classes other than "
-> >> +					"\"process\"");
-> >> +			warned = 1;
-> >> +			continue;
-> >> +		}
-> >>  		if (role_set_write(&tr->roles, fp))
-> >>  			return POLICYDB_ERROR;
-> >>  		if (type_set_write(&tr->types, fp))
-> >>  			return POLICYDB_ERROR;
-> >> -		if (ebitmap_write(&tr->classes, fp))
-> >> -			return POLICYDB_ERROR;
-> >> +		if (new_role)
-> >> +			if (ebitmap_write(&tr->classes, fp))
-> >> +				return POLICYDB_ERROR;
-> >>  		buf[0] = cpu_to_le32(tr->new_role);
-> >>  		items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> >>  		if (items != 1)
-> >> @@ -1636,7 +1663,7 @@ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
-> >>  	}
-> >>  	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
-> >>  	    avrule_write_list(decl->avrules, fp) == -1 ||
-> >> -	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
-> >> +	    role_trans_rule_write(p, decl->role_tr_rules, fp) == -1 ||
-> >>  	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
-> >>  		return POLICYDB_ERROR;
-> >>  	}
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 04/13/2011 10:51 AM, Stephen Smalley wrote:
+> On Wed, 2011-04-13 at 10:03 -0300, Ramon de Carvalho Valle wrote:
+>> On 04/13/2011 09:19 AM, Stephen Smalley wrote:
+>>> At present, virtd_t (i.e. libvirtd) is given many (all?) MLS overrides,
+>>> which is unsurprising since it is expected to create and manage VMs at
+>>> any level.  But qemu_t (i.e. the qemu process representing the
+>>> individual VM) is not given such MLS overrides, nor should it, as that
+>>> would allow to escape the confines of its level/range.
+>> Actually, processes representing virtual machine environments--when
+>> initiated by libvirt--execute with svirt_t and not qemu_t, which also
+>> belongs to virt_domain type attribute. So why the virt_domain rules
+>> could not be moved to the virtualisation sensitivities?
 > 
-> I think the below patch fixes the problem I was seeing. Some rules were
-> getting discarded in role_trans_write during a policy downgrade, but the
-> count was not being decreased. This fix is similar to your fix in
-> role_trans_rule_write.
+> The same is true for svirt_t - if you look at the policy, you'll see
+> that it interacts with various host processes and accesses various host
+> files.  You can't push all of those into your new sensitivities, and
+> thus the end result will be that you'll have to allow interactions
+> between the "regular" sensitivities and the "virtualization"
+> sensitivities, thereby adding more exceptions to the MLS constraints.
+Not if these objects also have the virtualisation sensitivities assigned
+to them (i.e. s0,sv0).
 
-Looks as appropriate to me as when range trans does it.
-
--Eric
-
-> ---
-> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> index 78b3aa6..3a9c35a 100644
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -474,7 +474,9 @@ static int role_trans_write(policydb_t *p, struct
-> policy_file *fp)
 > 
->     nel = 0;
->     for (tr = r; tr; tr = tr->next)
-> -       nel++;
-> +       if(new_roletr || tr->class == SECCLASS_PROCESS)
-> +           nel++;
-> +
->     buf[0] = cpu_to_le32(nel);
->     items = put_entry(buf, sizeof(uint32_t), 1, fp);
->     if (items != 1)
+>>> I can't quite see how your approach is cleaner than just using separate
+>>> categories.  Same effect - by allocating a dedicated category to the VMs
+>>> and another to the host, you end up with incomparable levels and thus
+>>> will achieve automatic isolation except where explicitly overridden
+>>> using the type attributes for MLS overrides.  Adding another
+>>> incomparable set of sensitivities puts us outside the scope of any
+>>> evaluated or even published security model.
+>> How dynamic labeling is supposed to work with this approach? We will
+>> need a standard set of categories defined to libvirt use.
+> 
+> Yes, you just need to standardize some allocation for libvirt, which
+> realistically ought to be done anyway, since we already have other users
+> of categories like sandbox.
+Well, I think this is what will happen in the end of this discussion anyway.
 
+> 
+>>> Now something that has been suggested in the past would be adding
+>>> another level/range component to the security context for use by a
+>>> Biba-like integrity model.  That might be interesting, but would
+>>> obviously require quite a few changes on both the kernel and userland
+>>> side.  It would also require resolving the unfortunate ambiguity in the
+>>> current security context format.
+>> Please, correct if I am wrong, but from what I understand adding another
+>> level and range component will just add another level of hierarchy for
+>> multiple set of sensitivities and categories (i.e.
+>> s0-s15:s0-s15:c0.c1023 or even s0-s15:c0.c1023:s0-s15:c0.c1023). So the
+>> virtualised sensitivities should be below or above the standard
+>> sensitivities in this new level and range component?
+> 
+> Having another level/range component (or more generally, an extensible
+> list of level/range components) would more easily delineate multiple
+> uses of the level/range for different purposes.  So you could have
+> simultaneous MLS+libvirt dynamic labeling without needing to worry about
+> allocation of categories between them.  Or you could have simultaneous
+> MLS+Biba.  Or all three (if extensible).
+This still implies an hierarchy between these multiple set of
+sensitivities and categories.
+
+> 
+
+- -- 
+Ramon de Carvalho Valle
+Security Engineer
+IBM Linux Technology Center
+rcvalle@linux.vnet.ibm.com
+http://rcvalle.com/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk2l7FMACgkQkcIYeh81wLmJ+gCePDH3/jupKn8vKwKGBO+Q29rS
+R1UAn1Z7ijj/t+24eZrqgg0eaSjhOEha
+=kzxp
+-----END PGP SIGNATURE-----
 
 
 --
