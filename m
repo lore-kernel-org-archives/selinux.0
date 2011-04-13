@@ -1,142 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3CLATjC021489
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 17:10:29 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3CLAREB003380
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 21:10:28 GMT
-From: Eric Paris <eparis@redhat.com>
-To: slawrence@tresys.com
-Cc: selinux@tycho.nsa.gov, qingtao.cao@windriver.com, dwalsh@redhat.com,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3D2ZeDx001740
+	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2011 22:35:41 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3D2ZdsM020513
+	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 02:35:39 GMT
+Message-ID: <4DA50BD4.1090505@windriver.com>
+Date: Wed, 13 Apr 2011 10:35:00 +0800
+From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: qingtao.cao@windriver.com
+MIME-Version: 1.0
+To: Steve Lawrence <slawrence@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
         Eric Paris <eparis@redhat.com>
-Subject: [PATCH] libsepol: support policy modules when roletrans rules not supported
-Date: Tue, 12 Apr 2011 17:11:41 -0400
-Message-Id: <1302642701-15441-1-git-send-email-eparis@redhat.com>
+Subject: Re: Here is an updated Eric Paris patch for adding named file trans
+ rules.
+References: <4D9CD64B.7020207@redhat.com> <4DA454A8.7030005@tresys.com> <4DA47A02.400@redhat.com> <4DA49B88.3040300@redhat.com> <4DA4A602.9090702@tresys.com>
+In-Reply-To: <4DA4A602.9090702@tresys.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Although the role trans code had support to handle the kernel policy
-when the version was less that roletrans such support was not in the
-module read/write code.  This patch adds proper support for role trans
-in modules.
+Hi Steve,
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
- libsepol/src/policydb.c |   14 ++++++++++----
- libsepol/src/write.c    |   37 ++++++++++++++++++++++++++++++++-----
- 2 files changed, 42 insertions(+), 9 deletions(-)
+Sorry for all problems caused by me not having taken into consideration
+the policy.X < 26.
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 2ecb636..6d8ff91 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -3033,7 +3033,8 @@ int avrule_read_list(policydb_t * p, avrule_t ** avrules,
- 	return 0;
- }
- 
--static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
-+static int role_trans_rule_read(policydb_t *p, role_trans_rule_t ** r,
-+				struct policy_file *fp)
- {
- 	uint32_t buf[1], nel;
- 	unsigned int i;
-@@ -3064,8 +3065,13 @@ static int role_trans_rule_read(role_trans_rule_t ** r, struct policy_file *fp)
- 		if (type_set_read(&tr->types, fp))
- 			return -1;
- 
--		if (ebitmap_read(&tr->classes, fp))
--			return -1;
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS) {
-+			if (ebitmap_read(&tr->classes, fp))
-+				return -1;
-+		} else {
-+			if (ebitmap_set_bit(&tr->classes, SECCLASS_PROCESS - 1, 1))
-+				return -1;
-+		}
- 
- 		rc = next_entry(buf, fp, sizeof(uint32_t));
- 		if (rc < 0)
-@@ -3258,7 +3264,7 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
- 	decl->enabled = le32_to_cpu(buf[1]);
- 	if (cond_read_list(p, &decl->cond_list, fp) == -1 ||
- 	    avrule_read_list(p, &decl->avrules, fp) == -1 ||
--	    role_trans_rule_read(&decl->role_tr_rules, fp) == -1 ||
-+	    role_trans_rule_read(p, &decl->role_tr_rules, fp) == -1 ||
- 	    role_allow_rule_read(&decl->role_allow_rules, fp) == -1) {
- 		return -1;
- 	}
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index c4f5035..78b3aa6 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1482,26 +1482,53 @@ static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
- 	return POLICYDB_SUCCESS;
- }
- 
--static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
-+static int only_process(ebitmap_t *in)
-+{
-+	unsigned int i;
-+	ebitmap_node_t *node;
-+
-+	ebitmap_for_each_bit(in, node, i) {
-+		if (ebitmap_node_get_bit(node, i) &&
-+		    i != SECCLASS_PROCESS - 1)
-+			return 0;
-+	}
-+	return 1;
-+}
-+
-+static int role_trans_rule_write(policydb_t *p, role_trans_rule_t * t,
-+				 struct policy_file *fp)
- {
- 	int nel = 0;
- 	size_t items;
- 	uint32_t buf[1];
- 	role_trans_rule_t *tr;
-+	int warned = 0;
-+	int new_role = p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS;
- 
- 	for (tr = t; tr; tr = tr->next)
--		nel++;
-+		if (new_role || only_process(&tr->classes))
-+			nel++;
-+
- 	buf[0] = cpu_to_le32(nel);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
- 		return POLICYDB_ERROR;
- 	for (tr = t; tr; tr = tr->next) {
-+		if (!new_role && !only_process(&tr->classes)) {
-+			if (!warned)
-+				WARN(fp->handle, "Discarding role_transition "
-+					"rules for security classes other than "
-+					"\"process\"");
-+			warned = 1;
-+			continue;
-+		}
- 		if (role_set_write(&tr->roles, fp))
- 			return POLICYDB_ERROR;
- 		if (type_set_write(&tr->types, fp))
- 			return POLICYDB_ERROR;
--		if (ebitmap_write(&tr->classes, fp))
--			return POLICYDB_ERROR;
-+		if (new_role)
-+			if (ebitmap_write(&tr->classes, fp))
-+				return POLICYDB_ERROR;
- 		buf[0] = cpu_to_le32(tr->new_role);
- 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 		if (items != 1)
-@@ -1636,7 +1663,7 @@ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
- 	}
- 	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
- 	    avrule_write_list(decl->avrules, fp) == -1 ||
--	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
-+	    role_trans_rule_write(p, decl->role_tr_rules, fp) == -1 ||
- 	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
- 		return POLICYDB_ERROR;
- 	}
--- 
-1.7.1
+Lesson learned, I am studying the patches from Dan and Eric now, I would
+surely be more comprehensive for further SELinux development.
+
+Thanks Dan and Eric for pointing the problems out and proving quick
+solutions!
+
+Best regards,
+Harry
+
+Steve Lawrence 写道:
+> On 04/12/2011 02:35 PM, Daniel J Walsh wrote:
+>   
+>> It also has a fix for the ROLE_TRANS patch from Harry Ciao that was
+>> blowing up when used with policy less then 26.  IE Everywhere.
+>>
+>>     
+>
+> Thanks for the patch. I'm looking into it right now.
+>
+>   
 
 
 --
