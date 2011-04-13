@@ -1,28 +1,61 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
 Subject: Re: SELinux mixed/virtualisation policy
-Date: Wed, 13 Apr 2011 23:34:15 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        SELinux@tycho.nsa.gov
-References: <4DA1E50F.4060506@linux.vnet.ibm.com> <1302697169.16451.12.camel@moss-pluto> <4DA59F38.7090101@linux.vnet.ibm.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
 In-Reply-To: <4DA59F38.7090101@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201104132334.15438.russell@coker.com.au>
+References: <4DA1E50F.4060506@linux.vnet.ibm.com>
+	 <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com>
+	 <1302539583.7338.43.camel@moss-pluto>  <4DA3417A.2030009@redhat.com>
+	 <1302612646.25774.11.camel@moss-pluto>
+	 <4DA579E8.6040404@linux.vnet.ibm.com>
+	 <1302697169.16451.12.camel@moss-pluto>
+	 <4DA59F38.7090101@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 13 Apr 2011 09:51:25 -0400
+Message-ID: <1302702685.16451.25.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 13 Apr 2011, Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com> 
-wrote:
+On Wed, 2011-04-13 at 10:03 -0300, Ramon de Carvalho Valle wrote:
+> On 04/13/2011 09:19 AM, Stephen Smalley wrote:
+> > At present, virtd_t (i.e. libvirtd) is given many (all?) MLS overrides,
+> > which is unsurprising since it is expected to create and manage VMs at
+> > any level.  But qemu_t (i.e. the qemu process representing the
+> > individual VM) is not given such MLS overrides, nor should it, as that
+> > would allow to escape the confines of its level/range.
+> Actually, processes representing virtual machine environments--when
+> initiated by libvirt--execute with svirt_t and not qemu_t, which also
+> belongs to virt_domain type attribute. So why the virt_domain rules
+> could not be moved to the virtualisation sensitivities?
+
+The same is true for svirt_t - if you look at the policy, you'll see
+that it interacts with various host processes and accesses various host
+files.  You can't push all of those into your new sensitivities, and
+thus the end result will be that you'll have to allow interactions
+between the "regular" sensitivities and the "virtualization"
+sensitivities, thereby adding more exceptions to the MLS constraints.
+
+> > I can't quite see how your approach is cleaner than just using separate
+> > categories.  Same effect - by allocating a dedicated category to the VMs
+> > and another to the host, you end up with incomparable levels and thus
+> > will achieve automatic isolation except where explicitly overridden
+> > using the type attributes for MLS overrides.  Adding another
+> > incomparable set of sensitivities puts us outside the scope of any
+> > evaluated or even published security model.
+> How dynamic labeling is supposed to work with this approach? We will
+> need a standard set of categories defined to libvirt use.
+
+Yes, you just need to standardize some allocation for libvirt, which
+realistically ought to be done anyway, since we already have other users
+of categories like sandbox.
+
 > > Now something that has been suggested in the past would be adding
 > > another level/range component to the security context for use by a
 > > Biba-like integrity model.  That might be interesting, but would
 > > obviously require quite a few changes on both the kernel and userland
 > > side.  It would also require resolving the unfortunate ambiguity in the
 > > current security context format.
-> 
 > Please, correct if I am wrong, but from what I understand adding another
 > level and range component will just add another level of hierarchy for
 > multiple set of sensitivities and categories (i.e.
@@ -30,26 +63,17 @@ wrote:
 > virtualised sensitivities should be below or above the standard
 > sensitivities in this new level and range component?
 
-For at least 10 years there has been a general plan to use the role field in 
-the on-disk labels.  Now we are just starting work on it.  Using the role 
-field has clear benefits but it's taken this long because there are plenty of 
-other things to work on and work-arounds for the need for it.
-
-That said, I think that there are many potential benefits for adding more 
-fields to the sensitivity label.  One thing that I think would be useful would 
-be to have a field that can be used as a default-creation level for files.  
-Setting the create context works well enough for a process but isn't inherited 
-by child processes.
-
-It would be interesting to setup a Biba/BLP policy as a test too, if nothing 
-else that would be a good demonstration for people who think that the current 
-MLS is too confusing.  :-#
-
-I'm sure we could find other uses if it was implemented.
-
+Having another level/range component (or more generally, an extensible
+list of level/range components) would more easily delineate multiple
+uses of the level/range for different purposes.  So you could have
+simultaneous MLS+libvirt dynamic labeling without needing to worry about
+allocation of categories between them.  Or you could have simultaneous
+MLS+Biba.  Or all three (if extensible).
+ 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
