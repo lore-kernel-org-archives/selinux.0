@@ -1,22 +1,12 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3DIXw7r015258
-	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 14:33:58 -0400
-Received: from e24smtp03.br.ibm.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3DIXuv8028008
-	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2011 18:33:57 GMT
-Received: from /spool/local
-	by e24smtp03.br.ibm.com with XMail ESMTP
-	for <selinux@tycho.nsa.gov> from <rcvalle@linux.vnet.ibm.com>;
-	Wed, 13 Apr 2011 15:33:55 -0300
-Message-ID: <4DA5EC8C.5030207@linux.vnet.ibm.com>
-Date: Wed, 13 Apr 2011 15:33:48 -0300
-From: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
+Message-ID: <4DA5F4D4.2040602@redhat.com>
+Date: Wed, 13 Apr 2011 15:09:08 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Ramon de Carvalho Valle <rcvalle@linux.vnet.ibm.com>
 CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov
 Subject: Re: SELinux mixed/virtualisation policy
-References: <4DA1E50F.4060506@linux.vnet.ibm.com> <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto>  <4DA3417A.2030009@redhat.com> <1302612646.25774.11.camel@moss-pluto>	 <4DA579E8.6040404@linux.vnet.ibm.com> <1302697169.16451.12.camel@moss-pluto>	 <4DA59F38.7090101@linux.vnet.ibm.com> <1302702685.16451.25.camel@moss-pluto> <4DA5ACBF.7020704@redhat.com>
-In-Reply-To: <4DA5ACBF.7020704@redhat.com>
+References: <4DA1E50F.4060506@linux.vnet.ibm.com> <1302529225.7338.32.camel@moss-pluto>  <4DA31D2D.9060409@redhat.com> <1302539583.7338.43.camel@moss-pluto>  <4DA3417A.2030009@redhat.com> <1302612646.25774.11.camel@moss-pluto>	 <4DA579E8.6040404@linux.vnet.ibm.com> <1302697169.16451.12.camel@moss-pluto>	 <4DA59F38.7090101@linux.vnet.ibm.com> <1302702685.16451.25.camel@moss-pluto> <4DA5EC53.2020006@linux.vnet.ibm.com>
+In-Reply-To: <4DA5EC53.2020006@linux.vnet.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -24,8 +14,8 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 04/13/2011 11:01 AM, Daniel J Walsh wrote:
-> On 04/13/2011 09:51 AM, Stephen Smalley wrote:
+On 04/13/2011 02:32 PM, Ramon de Carvalho Valle wrote:
+> On 04/13/2011 10:51 AM, Stephen Smalley wrote:
 >> On Wed, 2011-04-13 at 10:03 -0300, Ramon de Carvalho Valle wrote:
 >>> On 04/13/2011 09:19 AM, Stephen Smalley wrote:
 >>>> At present, virtd_t (i.e. libvirtd) is given many (all?) MLS overrides,
@@ -44,6 +34,9 @@ On 04/13/2011 11:01 AM, Daniel J Walsh wrote:
 >> thus the end result will be that you'll have to allow interactions
 >> between the "regular" sensitivities and the "virtualization"
 >> sensitivities, thereby adding more exceptions to the MLS constraints.
+> Not if these objects also have the virtualisation sensitivities assigned
+> to them (i.e. s0,sv0).
+> 
 > 
 >>>> I can't quite see how your approach is cleaner than just using separate
 >>>> categories.  Same effect - by allocating a dedicated category to the VMs
@@ -58,6 +51,8 @@ On 04/13/2011 11:01 AM, Daniel J Walsh wrote:
 >> Yes, you just need to standardize some allocation for libvirt, which
 >> realistically ought to be done anyway, since we already have other users
 >> of categories like sandbox.
+> Well, I think this is what will happen in the end of this discussion anyway.
+> 
 > 
 >>>> Now something that has been suggested in the past would be adding
 >>>> another level/range component to the security context for use by a
@@ -78,35 +73,30 @@ On 04/13/2011 11:01 AM, Daniel J Walsh wrote:
 >> simultaneous MLS+libvirt dynamic labeling without needing to worry about
 >> allocation of categories between them.  Or you could have simultaneous
 >> MLS+Biba.  Or all three (if extensible).
+> This still implies an hierarchy between these multiple set of
+> sensitivities and categories.
 > 
 > 
-> I will open a bugzilla with libvirt to allow the admin to specify a
-> sensitivity and a range of MCS labels to randomly choose between.  This
-> might be necessary for an other use case that suddenly seems to be
-> picking up steam, labeled NFS.  If Labeled NFS happens we need a way to
-> make sure two libvirt instances do not choose the same Categories, to
-> start virtual machines.
-Thank you very much Daniel. Please, add me to the Bugzilla.
+> 
 
-> 
-> 
-> Sandbox MCS and SVirt MCS and any other MCS (Coming soon) should still
-> be isolated by type enforcement rules.
+- --
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
-- -- 
-Ramon de Carvalho Valle
-Security Engineer
-IBM Linux Technology Center
-rcvalle@linux.vnet.ibm.com
-http://rcvalle.com/
+Open Bugzilla for libvirt to accept a range of categories and a
+sensitivity level to launch virtual machines.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=696292
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk2l7IwACgkQkcIYeh81wLlxGQCfQAsutMPdC30n4vohwYWXecrV
-EFQAoI/FBn2C77vkkkRkePZNN/jntStF
-=MbKr
+iEYEARECAAYFAk2l9NQACgkQrlYvE4MpobNyggCfQ6snx0DNhz216cCqP8s9BiCk
+tAYAn1vGpsLOyQAOO7m64MlzNMBSjOqA
+=6HKl
 -----END PGP SIGNATURE-----
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
