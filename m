@@ -1,68 +1,81 @@
-Subject: Re: Generating policy for embedded platforms.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sam Gandhi <samgandhi9@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <BANLkTi=owF5uDftV12_ujGU=wWiKkG8M2w@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <1302800657.31033.67.camel@moss-pluto>
 References: <BANLkTi=owF5uDftV12_ujGU=wWiKkG8M2w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 14 Apr 2011 13:04:17 -0400
-Message-ID: <1302800657.31033.67.camel@moss-pluto>
-Mime-Version: 1.0
+	<1302800657.31033.67.camel@moss-pluto>
+Date: Thu, 14 Apr 2011 11:06:39 -0700
+Message-ID: <BANLkTi=ftkNxDqqS9=19ofhmVisc2kSDjw@mail.gmail.com>
+Subject: Re: Generating policy for embedded platforms.
+From: Sam Gandhi <samgandhi9@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-04-14 at 09:07 -0700, Sam Gandhi wrote:
-> Hello,
-> 
-> Hopefully this is appropriate mailing list for this type of email, if
-> not please do let what is the appropriate forum for questions below.
-> 
-> I am trying to enable SELinux on a embedded platform running linux 2.6.35.
-> 
-> One of the idea we have is to run seLinux is permissive mode and
-> gather the AVC messages as our programs start and convert those
-> messages to 'allow' policy and deny everything else, much like what is
-> done in IP packet forwarding, allow only traffic you know you want to
-> process and deny everything else.
-> 
-> Now the question are: is how does one generate deny-all policy for SELinux?
-> 
-> I have come across mdp program in kernel source code and
-> install_policy.sh script is that the right way to get started on
-> building the most minimum policy set for embedded system, where large
-> desktop policy may not be appropriate?
-> 
-> Below is the script I am trying to use to setup the dummy policy (as
-> described in Documentation/SELinux.txt), and booting kernel with
-> enforcing=0 selinux=1 kernel parameters.
-> 
-> problem is I don't see any of the avc messages as my applications
-> start and open files/sockets etc. What am I doing wrong?
-
-First, are you loading the policy into the kernel at boot?  That is the
-responsibility of early userspace, typically handled from /sbin/init or
-the initramfs script.  Look for messages from SELinux in dmesg output
-beyond the initial ones, along the lines of:
-SELinux: 2048 avtab hash slots, 215487 rules.
-SELinux: 2048 avtab hash slots, 215487 rules.
-SELinux:  9 users, 14 roles, 3521 types, 184 bools, 1 sens, 1024 cats
-SELinux:  81 classes, 215487 rules
+On Thu, Apr 14, 2011 at 10:04 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2011-04-14 at 09:07 -0700, Sam Gandhi wrote:
+>> Hello,
+>>
+>> Hopefully this is appropriate mailing list for this type of email, if
+>> not please do let what is the appropriate forum for questions below.
+>>
+>> I am trying to enable SELinux on a embedded platform running linux 2.6.35.
+>>
+>> One of the idea we have is to run seLinux is permissive mode and
+>> gather the AVC messages as our programs start and convert those
+>> messages to 'allow' policy and deny everything else, much like what is
+>> done in IP packet forwarding, allow only traffic you know you want to
+>> process and deny everything else.
+>>
+>> Now the question are: is how does one generate deny-all policy for SELinux?
+>>
+>> I have come across mdp program in kernel source code and
+>> install_policy.sh script is that the right way to get started on
+>> building the most minimum policy set for embedded system, where large
+>> desktop policy may not be appropriate?
+>>
+>> Below is the script I am trying to use to setup the dummy policy (as
+>> described in Documentation/SELinux.txt), and booting kernel with
+>> enforcing=0 selinux=1 kernel parameters.
+>>
+>> problem is I don't see any of the avc messages as my applications
+>> start and open files/sockets etc. What am I doing wrong?
+>
+> First, are you loading the policy into the kernel at boot?  That is the
+> responsibility of early userspace, typically handled from /sbin/init or
+> the initramfs script.  Look for messages from SELinux in dmesg output
+> beyond the initial ones, along the lines of:
+> SELinux: 2048 avtab hash slots, 215487 rules.
+> SELinux: 2048 avtab hash slots, 215487 rules.
+> SELinux:  9 users, 14 roles, 3521 types, 184 bools, 1 sens, 1024 cats
+> SELinux:  81 classes, 215487 rules
+> SELinux:  Completing initialization.
+> SELinux:  Setting up existing superblocks.
+> SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+> ...
+I do see following messages related to SeLinux during boot time.
+SELinux: 4 avtab hash slots, 3 rules.
+SELinux: 4 avtab hash slots, 3 rules.
+SELinux:  1 users, 2 roles, 1 types, 0 bools
+SELinux:  75 classes, 3 rules
 SELinux:  Completing initialization.
 SELinux:  Setting up existing superblocks.
-SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
-...
 
-Second, if you use the policy generated by mdp, you'll have a policy
-with exactly one type that is allowed to do everything.  So you'll see
-no denials at all until you start adding further types to the policy.
-New types are not automatically generated by audit2allow - you have to
-create them.  A type is a security equivalence class, so you don't need
-one for every individual program or file, only where you need to
-distinguish permissions.
+>
+> Second, if you use the policy generated by mdp, you'll have a policy
+> with exactly one type that is allowed to do everything.  So you'll see
+> no denials at all until you start adding further types to the policy.
 
--- 
-Stephen Smalley
-National Security Agency
+I removed all the allow statements in the policy.conf generated by mdp
+and left just one allow statement
+
+allow base_t base_t:user73 *;
+
+Now see the AVC messages as my daemons start, will convert them to
+policy statement using audi2allow. Is this the right approach in
+generating minimal policy for embedded platforms?
+
+-Sam
 
 
 --
