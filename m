@@ -1,59 +1,66 @@
-Message-ID: <4DA70C0F.10606@manicmethod.com>
-Date: Thu, 14 Apr 2011 11:00:31 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3EG7GvD015340
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2011 12:07:16 -0400
+Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3EG7F5F015085
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2011 16:07:15 GMT
+Received: by iyb26 with SMTP id 26so1902336iyb.12
+        for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2011 09:07:15 -0700 (PDT)
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Eric Paris <eparis@parisplace.org>, Steve Lawrence <slawrence@tresys.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "qingtao.cao@windriver.com" <qingtao.cao@windriver.com>,
-        "dwalsh@redhat.com" <dwalsh@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libsepol: support policy modules when roletrans rules
- not supported
-References: <1302642701-15441-1-git-send-email-eparis@redhat.com>	 <4DA5BFF0.2090209@tresys.com>	<4DA5DEDB.9020005@tresys.com>	 <1302718034.8639.4.camel@unknown001a4b0c2895>	 <BANLkTinU3TutCwDNA9eROjAjY+xXmztH1g@mail.gmail.com>	 <4DA6FD94.1050302@manicmethod.com> <1302790741.9684.15.camel@unknown001a4b0c2895>
-In-Reply-To: <1302790741.9684.15.camel@unknown001a4b0c2895>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Thu, 14 Apr 2011 09:07:15 -0700
+Message-ID: <BANLkTi=owF5uDftV12_ujGU=wWiKkG8M2w@mail.gmail.com>
+Subject: Generating policy for embedded platforms.
+From: Sam Gandhi <samgandhi9@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> On Thu, 2011-04-14 at 09:58 -0400, Joshua Brindle wrote:
->> Eric Paris wrote:
->>> So I'm questioning the correctness of the range_transition and
->>> role_transition rules in libsepol.  My main problem is that libsepol
->>> defines SECCLASS_* at all.  Right now if the policy reads in one of
->>> these rules types without a tclass it will set SECCLASS_PROCESS in the
->>> tclasses bitmap.  But we never had any that would declare what the
->>> means.  At link time when we have to map "process" in a module to
->>> "process" in the base policy.  But if the module didn't require
->>> "process" it won't have the mapping.  So the fact that we set the
->>> SECCLASS_PROCESS bit could cause it to get mapped to random crap (or
->>> nothing at all)  Right?
->>>
->>> I know it's ugly but I think we need to do a couple of things.  #1 on
->>> that list is get SECCLASS_* out of libsepol altogether.  Those are
->>> COMPLETELY a construct of policy.  Not libsepol.  After we remove all
->>> of those we need to change the logic of everything that uses them to
->>> instead make sure that the "process" class exists in it's definitions
->>> and if not declare it.  Then set the bitmap for that new object.
->>>
->>> Am I not understanding something about how using SECCLASS_PROCESS
->>> could ever be a good idea?
->> It isn't the first time we've had hardcoded symbols that have to be mapped in
->> the code. See OBJECT_R_VAL as an example.
->>
->> It is a bit wonky though, suppose a type_transition rule were in a XenSE policy,
->> I don't think they have a process object class.
->
-> So what it sounds like is that I probably want to look up the "process"
-> class every time I would have used SECCLASS_PROCESS and if I don't find
-> it, create it, and then look it up.  In this manor a policy which
-> doesn't have process at all wouldn't have it forcibly jammed upon it
-> (like we do in roles_init for OBJECT_R_VAL) and we wouldn't be mapping
-> rules to garbage.  Sound right/ok to others?
->
+Hello,
 
-It isn't the most elegant but there is precedence. I'm fine with it.
+Hopefully this is appropriate mailing list for this type of email, if
+not please do let what is the appropriate forum for questions below.
+
+I am trying to enable SELinux on a embedded platform running linux 2.6.35.
+
+One of the idea we have is to run seLinux is permissive mode and
+gather the AVC messages as our programs start and convert those
+messages to 'allow' policy and deny everything else, much like what is
+done in IP packet forwarding, allow only traffic you know you want to
+process and deny everything else.
+
+Now the question are: is how does one generate deny-all policy for SELinux?
+
+I have come across mdp program in kernel source code and
+install_policy.sh script is that the right way to get started on
+building the most minimum policy set for embedded system, where large
+desktop policy may not be appropriate?
+
+Below is the script I am trying to use to setup the dummy policy (as
+described in Documentation/SELinux.txt), and booting kernel with
+enforcing=0 selinux=1 kernel parameters.
+
+problem is I don't see any of the avc messages as my applications
+start and open files/sockets etc. What am I doing wrong?
+
+
+cd /tmp/
+VERS=`checkpolicy -V  | awk '{print $1}'`
+/bin/mdp policy.conf file_contexts
+checkpolicy -o policy.$VERS policy.conf
+mkdir -p /etc/selinux/dummy/policy
+mkdir -p /etc/selinux/dummy/contexts/files
+cp file_contexts /etc/selinux/dummy/contexts/files
+cp policy.$VERS /etc/selinux/dummy/policy
+echo "user system_u roles system_r;" >> /etc/selinux/dummy/policy/users
+echo "user root roles { staff_r sysadm_r };" >>
+/etc/selinux/dummy/policy/users
+cat > /etc/selinux/config << EOF
+SELINUX=permissive
+SELINUXTYPE=dummy
+EOF
+
+Sam
 
 --
 This message was distributed to subscribers of the selinux mailing list.
