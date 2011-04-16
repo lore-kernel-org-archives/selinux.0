@@ -1,47 +1,99 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3ENG632010812
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2011 19:16:06 -0400
-Received: from countercultured.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p3ENG57J029329
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2011 23:16:05 GMT
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="=_944b1c09de5d78584ba55e49e61739d6"
-Date: Thu, 14 Apr 2011 19:16:07 -0400
-From: David Quigley <dpquigl@davequigley.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Writing SEPostGreSQL Database Policies
-Message-ID: <2f3e05e6cc143592e0fc799462fd940f@countercultured.net>
+Date: Sat, 16 Apr 2011 16:09:14 +0200
+Message-ID: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+Subject: [PATCH] selinux: revise /selinux/create to handle whitespace/multibytes
+ correctly
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+Cc: Eric Paris <eparis@redhat.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "method@manicmethod.com" <method@manicmethod.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=_944b1c09de5d78584ba55e49e61739d6
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=UTF-8
+This patch allows to accept percent-encoded object name as the forth
+argument of /selinux/create interface to avoid possible bugs when we
+supply an object name that includes whitespace or multibytes.
 
+Although I could not test this patch on named TYPE_TRANSITION rules,
+but printk() messages for debugging seems to me the logic works correctly.
+I assume the libselinux provide the logic to encode object name, so it shall
+be applied transparently for the viewpoint of application.
 
+Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
+---
+ security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 37 insertions(+), 1 deletions(-)
 
-Are there any good examples out there of locking down a webapp's
-access to a database using SEPostGreSQL and some web language like Ruby
-on Rails? I looked at Kaigai's and the SELinux Notebook examples for
-sepgsql policy and it seems to use the types in reference policy instead
-of creating new types for objects and only provides separation through
-MCS. It would be nice to go over either an indepth example that uses
-different types from reference policy or maybe showcases locking down a
-specific application.
---=_944b1c09de5d78584ba55e49e61739d6
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/html; charset=UTF-8
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 973f5a4..4fde279 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -28,6 +28,7 @@
+ #include <linux/percpu.h>
+ #include <linux/audit.h>
+ #include <linux/uaccess.h>
++#include <linux/ctype.h>
 
-<p>Are there any good examples out there of locking down a webapp's access =
-to a database using SEPostGreSQL and some web language like Ruby on Rails? =
-I looked at Kaigai's and the SELinux Notebook examples for sepgsql policy a=
-nd it seems to use the types in reference policy instead of creating new ty=
-pes for objects and only provides separation through MCS. It would be nice =
-to go over either an indepth example that uses different types from referen=
-ce policy or maybe showcases locking down a specific application.</p>
---=_944b1c09de5d78584ba55e49e61739d6--
+ /* selinuxfs pseudo filesystem for exporting the security policy API.
+    Based on the proc code and the fs/nfsd/nfsctl.c code. */
+@@ -750,6 +751,15 @@ out:
+ 	return length;
+ }
 
++static inline int hexcode_to_int(int code)
++{
++	if (code == '\0' || !isxdigit(code))
++		return -1;
++	if (isdigit(code))
++		return code - '0';
++	return tolower(code) - 'a' + 10;
++}
++
+ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ {
+ 	char *scon = NULL, *tcon = NULL;
+@@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file
+*file, char *buf, size_t size)
+ 	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
+ 	if (nargs < 3 || nargs > 4)
+ 		goto out;
+-	if (nargs == 4)
++	if (nargs == 4) {
++		/*
++		 * If and when the name of new object to be queried contains
++		 * either whitespace or multibyte characters, they shall be
++		 * encoded based on the percentage-encoding rule.
++		 * If not encoded, the sscanf logic picks up only left-half
++		 * of the supplied name; splitted by a whitespace unexpectedly.
++		 */
++		char   *r, *w;
++		int	c1, c2;
++
++		r = w = namebuf;
++		do {
++			c1 = *r++;
++			if (c1 == '+')
++				c1 = ' ';
++			else if (c1 == '%') {
++				if ((c1 = hexcode_to_int(*r++)) < 0)
++					goto out;
++				if ((c2 = hexcode_to_int(*r++)) < 0)
++					goto out;
++				c1 = (c1 << 4) | c2;
++			}
++			*w++ = c1;
++		} while (c1 != '\0');
++
+ 		objname = namebuf;
++	}
+
+ 	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+ 	if (length)
+-- 
+1.7.4.1
 
 --
 This message was distributed to subscribers of the selinux mailing list.
