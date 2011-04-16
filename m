@@ -1,99 +1,102 @@
+Message-ID: <4DA9C73D.1000403@manicmethod.com>
+Date: Sat, 16 Apr 2011 12:43:41 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Date: Sat, 16 Apr 2011 16:09:14 +0200
-Message-ID: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
-Subject: [PATCH] selinux: revise /selinux/create to handle whitespace/multibytes
- correctly
-From: Kohei KaiGai <kaigai@kaigai.gr.jp>
-To: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
-Cc: Eric Paris <eparis@redhat.com>,
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>, Eric Paris <eparis@redhat.com>,
         "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "method@manicmethod.com" <method@manicmethod.com>,
         "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] selinux: revise /selinux/create to handle whitespace/multibytes
+ correctly
+References: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+In-Reply-To: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch allows to accept percent-encoded object name as the forth
-argument of /selinux/create interface to avoid possible bugs when we
-supply an object name that includes whitespace or multibytes.
+Kohei KaiGai wrote:
+> This patch allows to accept percent-encoded object name as the forth
+> argument of /selinux/create interface to avoid possible bugs when we
+> supply an object name that includes whitespace or multibytes.
 
-Although I could not test this patch on named TYPE_TRANSITION rules,
-but printk() messages for debugging seems to me the logic works correctly.
-I assume the libselinux provide the logic to encode object name, so it shall
-be applied transparently for the viewpoint of application.
+Why not use standard bash escaping instead of html entities?
 
-Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
----
- security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
- 1 files changed, 37 insertions(+), 1 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 973f5a4..4fde279 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -28,6 +28,7 @@
- #include <linux/percpu.h>
- #include <linux/audit.h>
- #include <linux/uaccess.h>
-+#include <linux/ctype.h>
-
- /* selinuxfs pseudo filesystem for exporting the security policy API.
-    Based on the proc code and the fs/nfsd/nfsctl.c code. */
-@@ -750,6 +751,15 @@ out:
- 	return length;
- }
-
-+static inline int hexcode_to_int(int code)
-+{
-+	if (code == '\0' || !isxdigit(code))
-+		return -1;
-+	if (isdigit(code))
-+		return code - '0';
-+	return tolower(code) - 'a' + 10;
-+}
-+
- static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
- {
- 	char *scon = NULL, *tcon = NULL;
-@@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file
-*file, char *buf, size_t size)
- 	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
- 	if (nargs < 3 || nargs > 4)
- 		goto out;
--	if (nargs == 4)
-+	if (nargs == 4) {
-+		/*
-+		 * If and when the name of new object to be queried contains
-+		 * either whitespace or multibyte characters, they shall be
-+		 * encoded based on the percentage-encoding rule.
-+		 * If not encoded, the sscanf logic picks up only left-half
-+		 * of the supplied name; splitted by a whitespace unexpectedly.
-+		 */
-+		char   *r, *w;
-+		int	c1, c2;
-+
-+		r = w = namebuf;
-+		do {
-+			c1 = *r++;
-+			if (c1 == '+')
-+				c1 = ' ';
-+			else if (c1 == '%') {
-+				if ((c1 = hexcode_to_int(*r++)) < 0)
-+					goto out;
-+				if ((c2 = hexcode_to_int(*r++)) < 0)
-+					goto out;
-+				c1 = (c1 << 4) | c2;
-+			}
-+			*w++ = c1;
-+		} while (c1 != '\0');
-+
- 		objname = namebuf;
-+	}
-
- 	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
- 	if (length)
--- 
-1.7.4.1
+>
+> Although I could not test this patch on named TYPE_TRANSITION rules,
+> but printk() messages for debugging seems to me the logic works correctly.
+> I assume the libselinux provide the logic to encode object name, so it shall
+> be applied transparently for the viewpoint of application.
+>
+> Signed-off-by: KaiGai Kohei<kohei.kaigai@eu.nec.com>
+> ---
+>   security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
+>   1 files changed, 37 insertions(+), 1 deletions(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 973f5a4..4fde279 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -28,6 +28,7 @@
+>   #include<linux/percpu.h>
+>   #include<linux/audit.h>
+>   #include<linux/uaccess.h>
+> +#include<linux/ctype.h>
+>
+>   /* selinuxfs pseudo filesystem for exporting the security policy API.
+>      Based on the proc code and the fs/nfsd/nfsctl.c code. */
+> @@ -750,6 +751,15 @@ out:
+>   	return length;
+>   }
+>
+> +static inline int hexcode_to_int(int code)
+> +{
+> +	if (code == '\0' || !isxdigit(code))
+> +		return -1;
+> +	if (isdigit(code))
+> +		return code - '0';
+> +	return tolower(code) - 'a' + 10;
+> +}
+> +
+>   static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>   {
+>   	char *scon = NULL, *tcon = NULL;
+> @@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file
+> *file, char *buf, size_t size)
+>   	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon,&tclass, namebuf);
+>   	if (nargs<  3 || nargs>  4)
+>   		goto out;
+> -	if (nargs == 4)
+> +	if (nargs == 4) {
+> +		/*
+> +		 * If and when the name of new object to be queried contains
+> +		 * either whitespace or multibyte characters, they shall be
+> +		 * encoded based on the percentage-encoding rule.
+> +		 * If not encoded, the sscanf logic picks up only left-half
+> +		 * of the supplied name; splitted by a whitespace unexpectedly.
+> +		 */
+> +		char   *r, *w;
+> +		int	c1, c2;
+> +
+> +		r = w = namebuf;
+> +		do {
+> +			c1 = *r++;
+> +			if (c1 == '+')
+> +				c1 = ' ';
+> +			else if (c1 == '%') {
+> +				if ((c1 = hexcode_to_int(*r++))<  0)
+> +					goto out;
+> +				if ((c2 = hexcode_to_int(*r++))<  0)
+> +					goto out;
+> +				c1 = (c1<<  4) | c2;
+> +			}
+> +			*w++ = c1;
+> +		} while (c1 != '\0');
+> +
+>   		objname = namebuf;
+> +	}
+>
+>   	length = security_context_to_sid(scon, strlen(scon) + 1,&ssid);
+>   	if (length)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
