@@ -1,11 +1,12 @@
-Date: Thu, 21 Apr 2011 08:09:02 +1000 (EST)
+Date: Thu, 21 Apr 2011 09:08:15 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Eric Paris <eparis@redhat.com>
 cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 1/2] SELinux: silence build warning when !CONFIG_BUG
-In-Reply-To: <20110420144243.17305.13584.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1104210806550.28763@tundra.namei.org>
-References: <20110420144243.17305.13584.stgit@paris.rdu.redhat.com>
+Subject: Re: [PATCH 2/2] SELinux: security_read_policy should take a size_t
+ not ssize_t
+In-Reply-To: <20110420144250.17305.20265.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.1104210907420.28763@tundra.namei.org>
+References: <20110420144243.17305.13584.stgit@paris.rdu.redhat.com> <20110420144250.17305.20265.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -13,8 +14,8 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 20 Apr 2011, Eric Paris wrote:
 
-> If one builds a kernel without CONFIG_BUG there are a number of 'may be
-> used uninitialized' warnings.  Silence these by returning after the BUG().
+> The len should be an size_t but is a ssize_t.  Easy enough fix to silence
+> build warnings.  We have no need for signed-ness.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
