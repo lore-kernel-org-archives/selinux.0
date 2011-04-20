@@ -1,100 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3IFflcs021514
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2011 11:41:47 -0400
-Received: from nm3-vm0.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p3IFfila022418
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2011 15:41:46 GMT
-Message-ID: <810623.94598.qm@web87005.mail.ird.yahoo.com>
-Date: Mon, 18 Apr 2011 16:41:40 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] selabel_open fix processing of substitution files (update)
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH 1/2] SELinux: silence build warning when !CONFIG_BUG
 To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Date: Wed, 20 Apr 2011 10:42:43 -0400
+Message-ID: <20110420144243.17305.13584.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch replaces the previous patch (sent 19th March) as libselinux 2.0.102 now has an additional subs file that this patch will now handle.
+If one builds a kernel without CONFIG_BUG there are a number of 'may be
+used uninitialized' warnings.  Silence these by returning after the BUG().
 
-Patch details:
-libselinux selabel_open function always processed the substitution files (if installed) from the active policy contexts/files/file_contexts.subs and subs_dist irrespective of the backend type or SELABEL_OPT_PATH setting. This patch now processes the correct subs files when selabel_open is called with SELABEL_CTX_FILE. The other backends could also process their own substitution files if needed in their own areas.
-
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- libselinux/src/label.c      |    4 +---
- libselinux/src/label_file.c |   15 +++++++++++++++
- 2 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index ba316df..7d71e72 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -56,7 +56,7 @@ static char *selabel_sub(struct selabel_sub *ptr, const char *src)
- 	return NULL;
- }
+ security/selinux/hooks.c   |    2 ++
+ security/selinux/netnode.c |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 722cc0e..5b762a7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -992,6 +992,7 @@ static void selinux_write_opts(struct seq_file *m,
+ 			continue;
+ 		default:
+ 			BUG();
++			return;
+ 		};
+ 		/* we need a comma before each option */
+ 		seq_putc(m, ',');
+@@ -1445,6 +1446,7 @@ static int task_has_capability(struct task_struct *tsk,
+ 		printk(KERN_ERR
+ 		       "SELinux:  out of range capability %d\n", cap);
+ 		BUG();
++		return -EINVAL;
+ 	}
  
--static struct selabel_sub *selabel_subs_init(const char *path,struct selabel_sub *list)
-+struct selabel_sub *selabel_subs_init(const char *path,struct selabel_sub *list)
- {
- 	char buf[1024];
- 	FILE *cfg = fopen(path, "r");
-@@ -161,8 +161,6 @@ struct selabel_handle *selabel_open(unsigned int backend,
- 	rec->validating = selabel_is_validate_set(opts, nopts);
+ 	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 65ebfe9..3618251 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -141,6 +141,7 @@ static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
+ 		break;
+ 	default:
+ 		BUG();
++		return NULL;
+ 	}
  
- 	rec->subs = NULL;
--	rec->subs = selabel_subs_init(selinux_file_context_subs_dist_path(), rec->subs);
--	rec->subs = selabel_subs_init(selinux_file_context_subs_path(), rec->subs);
- 
- 	if ((*initfuncs[backend])(rec, opts, nopts)) {
- 		free(rec);
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 937e509..619c435 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -395,6 +395,9 @@ static int process_line(struct selabel_handle *rec,
- 	return 0;
- }
- 
-+/* Used to initialise the substitution files in label.c */
-+extern struct selabel_sub *selabel_subs_init(const char *path, struct selabel_sub *list);
-+
- static int init(struct selabel_handle *rec, struct selinux_opt *opts,
- 		unsigned n)
- {
-@@ -406,6 +409,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
- 	FILE *homedirfp = NULL;
- 	char local_path[PATH_MAX + 1];
- 	char homedir_path[PATH_MAX + 1];
-+	char subs_file[PATH_MAX + 1];
- 	char *line_buf = NULL;
- 	size_t line_len = 0;
- 	unsigned int lineno, pass, i, j, maxnspec;
-@@ -427,6 +431,17 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
- 			break;
- 		}
- 
-+	/* Process local and distribution substitution files */
-+	if (!path) {
-+		rec->subs = selabel_subs_init(selinux_file_context_subs_dist_path(), rec->subs);
-+		rec->subs = selabel_subs_init(selinux_file_context_subs_path(), rec->subs);
-+	} else {
-+		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
-+		rec->subs = selabel_subs_init(subs_file, rec->subs);
-+		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
-+		rec->subs = selabel_subs_init(subs_file, rec->subs);
-+	}
-+
- 	/* Open the specification file. */
- 	if (!path)
- 		path = selinux_file_context_path();
--- 
-1.7.3.2
-
-
-Richard
-
-
-
+ 	list_for_each_entry_rcu(node, &sel_netnode_hash[idx].list, list)
 
 
 --
