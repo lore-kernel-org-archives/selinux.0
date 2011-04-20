@@ -1,100 +1,110 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
-Subject: Re: suspicious rcu_dereference_check in security/selinux/netnode.c
-Date: Wed, 20 Apr 2011 15:29:59 -0400
-Cc: Dave Jones <davej@redhat.com>, sds@tycho.nsa.gov, jmorris@namei.org,
-        eparis@parisplace.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-        selinux@tycho.nsa.gov
-References: <20110420183543.GA11965@redhat.com> <1303324924.1708.31.camel@unknown001a4b0c2895>
-In-Reply-To: <1303324924.1708.31.camel@unknown001a4b0c2895>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <201104201530.00140.paul.moore@hp.com>
+Subject: Re: [PATCH] selinux: revise /selinux/create to handle
+ whitespace/multibytes correctly
+From: Eric Paris <eparis@redhat.com>
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+Cc: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "method@manicmethod.com" <method@manicmethod.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
+In-Reply-To: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+References: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 20 Apr 2011 16:13:40 -0400
+Message-ID: <1303330420.1708.32.camel@unknown001a4b0c2895>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, April 20, 2011 2:42:04 PM Eric Paris wrote:
-> [added paul] EOM
+On Sat, 2011-04-16 at 16:09 +0200, Kohei KaiGai wrote:
+> This patch allows to accept percent-encoded object name as the forth
+> argument of /selinux/create interface to avoid possible bugs when we
+> supply an object name that includes whitespace or multibytes.
 > 
-> On Wed, 2011-04-20 at 14:35 -0400, Dave Jones wrote:
-> > ===================================================
-> > 
-> >  [ INFO: suspicious rcu_dereference_check() usage. ]
-> >  ---------------------------------------------------
-> >  security/selinux/netnode.c:193 invoked rcu_dereference_check() without
-> >  protection!
-> >  
-> >  other info that might help us debug this:
-> >  
-> >  rcu_scheduler_active = 1, debug_locks = 0
-> >  
-> >  1 lock held by a.out/2018:
-> >   #0:  (sel_netnode_lock){+.....}, at: [<ffffffff81212ab7>]
-> >   sel_netnode_sid+0x9e/0x267
-> >  
-> >  stack backtrace:
-> >  Pid: 2018, comm: a.out Not tainted 2.6.39-rc4+ #3
-> >  
-> >  Call Trace:
-> >   [<ffffffff81084908>] lockdep_rcu_dereference+0xa8/0xb0
-> >   [<ffffffff81212c0d>] sel_netnode_sid+0x1f4/0x267
-> >   [<ffffffff81212a19>] ? sel_netnode_find+0xe3/0xe3
-> >   [<ffffffff8120d564>] selinux_socket_bind+0x1cf/0x26f
-> >   [<ffffffff81086c08>] ? lock_release+0x181/0x18e
-> >   [<ffffffff81100db8>] ? might_fault+0xa5/0xac
-> >   [<ffffffff81100d6f>] ? might_fault+0x5c/0xac
-> >   [<ffffffff812073f1>] security_socket_bind+0x16/0x18
-> >   [<ffffffff813ee0e9>] sys_bind+0x73/0xcf
-> >   [<ffffffff814c5d7a>] ? sysret_check+0x2e/0x69
-> >   [<ffffffff810870cf>] ? trace_hardirqs_on_caller+0x10b/0x12f
-> >   [<ffffffff810a9efb>] ? audit_syscall_entry+0x11c/0x148
-> >   [<ffffffff81255e2e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
-> >   [<ffffffff814c5d42>] system_call_fastpath+0x16/0x1b
-> > 
-> > something like this perhaps ?
-> > 
-> > 	Dave
-> > 
-> > diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> > index 65ebfe9..d0c38ba 100644
-> > --- a/security/selinux/netnode.c
-> > +++ b/security/selinux/netnode.c
-> > @@ -188,9 +188,11 @@ static void sel_netnode_insert(struct sel_netnode
-> > *node)
-> > 
-> >  	list_add_rcu(&node->list, &sel_netnode_hash[idx].list);
-> >  	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
-> >  	
-> >  		struct sel_netnode *tail;
-> > 
-> > +		rcu_read_lock();
-> > 
-> >  		tail = list_entry(
-> >  		
-> >  			rcu_dereference(sel_netnode_hash[idx].list.prev),
-> >  			struct sel_netnode, list);
-> > 
-> > +		rcu_read_unlock();
-> > 
-> >  		list_del_rcu(&tail->list);
-> >  		call_rcu(&tail->rcu, sel_netnode_free);
-> >  	
-> >  	} else
+> Although I could not test this patch on named TYPE_TRANSITION rules,
+> but printk() messages for debugging seems to me the logic works correctly.
+> I assume the libselinux provide the logic to encode object name, so it shall
+> be applied transparently for the viewpoint of application.
 
-[Ooops, forgot to hit reply-all on the first attempt]
 
-Hmm, I think the correct fix might be to just remove the rcu_dereference() 
-call since this is protected by a spin lock (see sel_netnode_sid_slow()).  I 
-may be wrong, but I thought rcu locks/derefs were not needed when a spin lock 
-was held, yes?
+"You assume" libselinux provides this.  Does it?  Or are you going to
+send a patch to support it?  I honestly don't know....
 
-Regardless of the fix, the same thing should probably be done to the 
-sel_netport_* versions of these functions.
+Thanks!
+-Eric
 
---
-paul moore
-linux @ hp
+> 
+> Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
+> ---
+>  security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 37 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 973f5a4..4fde279 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -28,6 +28,7 @@
+>  #include <linux/percpu.h>
+>  #include <linux/audit.h>
+>  #include <linux/uaccess.h>
+> +#include <linux/ctype.h>
+> 
+>  /* selinuxfs pseudo filesystem for exporting the security policy API.
+>     Based on the proc code and the fs/nfsd/nfsctl.c code. */
+> @@ -750,6 +751,15 @@ out:
+>  	return length;
+>  }
+> 
+> +static inline int hexcode_to_int(int code)
+> +{
+> +	if (code == '\0' || !isxdigit(code))
+> +		return -1;
+> +	if (isdigit(code))
+> +		return code - '0';
+> +	return tolower(code) - 'a' + 10;
+> +}
+> +
+>  static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  {
+>  	char *scon = NULL, *tcon = NULL;
+> @@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file
+> *file, char *buf, size_t size)
+>  	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
+>  	if (nargs < 3 || nargs > 4)
+>  		goto out;
+> -	if (nargs == 4)
+> +	if (nargs == 4) {
+> +		/*
+> +		 * If and when the name of new object to be queried contains
+> +		 * either whitespace or multibyte characters, they shall be
+> +		 * encoded based on the percentage-encoding rule.
+> +		 * If not encoded, the sscanf logic picks up only left-half
+> +		 * of the supplied name; splitted by a whitespace unexpectedly.
+> +		 */
+> +		char   *r, *w;
+> +		int	c1, c2;
+> +
+> +		r = w = namebuf;
+> +		do {
+> +			c1 = *r++;
+> +			if (c1 == '+')
+> +				c1 = ' ';
+> +			else if (c1 == '%') {
+> +				if ((c1 = hexcode_to_int(*r++)) < 0)
+> +					goto out;
+> +				if ((c2 = hexcode_to_int(*r++)) < 0)
+> +					goto out;
+> +				c1 = (c1 << 4) | c2;
+> +			}
+> +			*w++ = c1;
+> +		} while (c1 != '\0');
+> +
+>  		objname = namebuf;
+> +	}
+> 
+>  	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+>  	if (length)
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
