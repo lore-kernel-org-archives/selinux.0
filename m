@@ -1,38 +1,117 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3LIrEVi032330
-	for <selinux@tycho.nsa.gov>; Thu, 21 Apr 2011 14:53:14 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3LIrD9H016387
-	for <selinux@tycho.nsa.gov>; Thu, 21 Apr 2011 18:53:13 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20110421143020.31318.59457.stgit@warthog.procyon.org.uk>
-References: <20110421143020.31318.59457.stgit@warthog.procyon.org.uk>
-Cc: dhowells@redhat.com, serge.hallyn@canonical.com, eparis@redhat.com,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 0/9] Open loaders and interpreters with new creds during exec
-Date: Thu, 21 Apr 2011 19:53:06 +0100
-Message-ID: <32148.1303411986@redhat.com>
+Date: Thu, 21 Apr 2011 12:54:51 -0700
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Eric Paris <eparis@redhat.com>, Dave Jones <davej@redhat.com>,
+        sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+        Linux Kernel <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Subject: Re: suspicious rcu_dereference_check in security/selinux/netnode.c
+Message-ID: <20110421195451.GK2235@linux.vnet.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <20110420183543.GA11965@redhat.com>
+ <1303324924.1708.31.camel@unknown001a4b0c2895>
+ <201104201530.00140.paul.moore@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201104201530.00140.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Howells <dhowells@redhat.com> wrote:
-
->  (1) Consider a SUID binary.  If the loader for that binary is executable by
->      the uid to which the binary changes its uid on execution, but not by the
->      uid of the caller, should execution succeed?
+On Wed, Apr 20, 2011 at 03:29:59PM -0400, Paul Moore wrote:
+> On Wednesday, April 20, 2011 2:42:04 PM Eric Paris wrote:
+> > [added paul] EOM
+> > 
+> > On Wed, 2011-04-20 at 14:35 -0400, Dave Jones wrote:
+> > > ===================================================
+> > > 
+> > >  [ INFO: suspicious rcu_dereference_check() usage. ]
+> > >  ---------------------------------------------------
+> > >  security/selinux/netnode.c:193 invoked rcu_dereference_check() without
+> > >  protection!
+> > >  
+> > >  other info that might help us debug this:
+> > >  
+> > >  rcu_scheduler_active = 1, debug_locks = 0
+> > >  
+> > >  1 lock held by a.out/2018:
+> > >   #0:  (sel_netnode_lock){+.....}, at: [<ffffffff81212ab7>]
+> > >   sel_netnode_sid+0x9e/0x267
+> > >  
+> > >  stack backtrace:
+> > >  Pid: 2018, comm: a.out Not tainted 2.6.39-rc4+ #3
+> > >  
+> > >  Call Trace:
+> > >   [<ffffffff81084908>] lockdep_rcu_dereference+0xa8/0xb0
+> > >   [<ffffffff81212c0d>] sel_netnode_sid+0x1f4/0x267
+> > >   [<ffffffff81212a19>] ? sel_netnode_find+0xe3/0xe3
+> > >   [<ffffffff8120d564>] selinux_socket_bind+0x1cf/0x26f
+> > >   [<ffffffff81086c08>] ? lock_release+0x181/0x18e
+> > >   [<ffffffff81100db8>] ? might_fault+0xa5/0xac
+> > >   [<ffffffff81100d6f>] ? might_fault+0x5c/0xac
+> > >   [<ffffffff812073f1>] security_socket_bind+0x16/0x18
+> > >   [<ffffffff813ee0e9>] sys_bind+0x73/0xcf
+> > >   [<ffffffff814c5d7a>] ? sysret_check+0x2e/0x69
+> > >   [<ffffffff810870cf>] ? trace_hardirqs_on_caller+0x10b/0x12f
+> > >   [<ffffffff810a9efb>] ? audit_syscall_entry+0x11c/0x148
+> > >   [<ffffffff81255e2e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
+> > >   [<ffffffff814c5d42>] system_call_fastpath+0x16/0x1b
+> > > 
+> > > something like this perhaps ?
+> > > 
+> > > 	Dave
+> > > 
+> > > diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> > > index 65ebfe9..d0c38ba 100644
+> > > --- a/security/selinux/netnode.c
+> > > +++ b/security/selinux/netnode.c
+> > > @@ -188,9 +188,11 @@ static void sel_netnode_insert(struct sel_netnode
+> > > *node)
+> > > 
+> > >  	list_add_rcu(&node->list, &sel_netnode_hash[idx].list);
+> > >  	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
+> > >  	
+> > >  		struct sel_netnode *tail;
+> > > 
+> > > +		rcu_read_lock();
+> > > 
+> > >  		tail = list_entry(
+> > >  		
+> > >  			rcu_dereference(sel_netnode_hash[idx].list.prev),
+> > >  			struct sel_netnode, list);
+> > > 
+> > > +		rcu_read_unlock();
+> > > 
+> > >  		list_del_rcu(&tail->list);
+> > >  		call_rcu(&tail->rcu, sel_netnode_free);
+> > >  	
+> > >  	} else
 > 
->      For example, if, as root, I do this:
+> [Ooops, forgot to hit reply-all on the first attempt]
 > 
-> 	cp -v /bin/ls /tmp/ls
-> 	perl -p -i -e s/ld-linux/ld-linuQ/ /tmp/ls
-> 	cp -v /lib64/ld-linux-x86-64.so.2 /lib64/ld-linuQ-x86-64.so.2
-> 	chmod -v 0700 /lib64/ld-linuQ-x86-64.so.2
+> Hmm, I think the correct fix might be to just remove the rcu_dereference() 
+> call since this is protected by a spin lock (see sel_netnode_sid_slow()).  I 
+> may be wrong, but I thought rcu locks/derefs were not needed when a spin lock 
+> was held, yes?
+> 
+> Regardless of the fix, the same thing should probably be done to the 
+> sel_netport_* versions of these functions.
 
-I forgot to add to that:
+The lock is sel_netnode_lock, correct?  Then the best approach is as
+follows:
 
-	chmod u+s /tmp/ls
+ 		tail = list_entry(
+ 			rcu_dereference_protected(sel_netnode_hash[idx].list.prev,
+						  lockdep_is_held(&sel_netnode_lock)),
+ 			struct sel_netnode, list);
 
-David
+Give or take long lines, anyway...  :-(
+
+This way, if someone mistakenly calls this function without holding
+the lock, CONFIG_PROVE_RCU will know to complain.
+
+And Paul Moore is quite correct when he says that rcu_read_lock() is
+not needed in this case.
+
+							Thanx, Paul
 
 --
 This message was distributed to subscribers of the selinux mailing list.
