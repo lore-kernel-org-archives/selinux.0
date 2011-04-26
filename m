@@ -1,49 +1,62 @@
-Subject: Re: [PATCH 1/3] flex_array: flex_array_prealloc takes a number of
- elements, not an end
+Subject: Re: [PATCH 2/3] flex_arrays: allow zero length flex arrays
 From: Eric Paris <eparis@redhat.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: dave@linux.vnet.ibm.com, steffen.klassert@secunet.com,
+To: Dave Hansen <dave@linux.vnet.ibm.com>
+Cc: steffen.klassert@secunet.com, akpm@linux-foundation.org,
         linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Date: Tue, 26 Apr 2011 15:06:27 -0400
-In-Reply-To: <20110426115638.379068b1.akpm@linux-foundation.org>
+Date: Tue, 26 Apr 2011 16:44:31 -0400
+In-Reply-To: <1303850332.9308.17366.camel@nimitz>
 References: <20110426014531.1740.24077.stgit@paris.rdu.redhat.com>
-	 <20110426115638.379068b1.akpm@linux-foundation.org>
+	 <20110426014537.1740.68472.stgit@paris.rdu.redhat.com>
+	 <1303850332.9308.17366.camel@nimitz>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1303844791.2101.7.camel@localhost.localdomain>
+Message-ID: <1303850672.2101.20.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-04-26 at 11:56 -0700, Andrew Morton wrote:
-> On Mon, 25 Apr 2011 21:45:31 -0400
-> Eric Paris <eparis@redhat.com> wrote:
+On Tue, 2011-04-26 at 13:38 -0700, Dave Hansen wrote:
+> On Mon, 2011-04-25 at 21:45 -0400, Eric Paris wrote:
+> > Just like kmalloc will allow one to allocate a 0 length segment of memory
+> > flex arrays should do the same thing.  It should bomb if you try to use
+> > something, but it should at least allow the allocation.
+> > 
+> > Based-on-patch-by: Steffen Klassert <steffen.klassert@secunet.com>
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > ---
+> > 
+> >  lib/flex_array.c |   11 ++++++++++-
+> >  1 files changed, 10 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/lib/flex_array.c b/lib/flex_array.c
+> > index 0c33b24..2554a5f 100644
+> > --- a/lib/flex_array.c
+> > +++ b/lib/flex_array.c
+> > @@ -253,9 +253,16 @@ int flex_array_prealloc(struct flex_array *fa, unsigned int start,
+> >  	unsigned int end;
+> >  	struct flex_array_part *part;
+> > 
+> > +	if (!fa->total_nr_elements && !start)
+> > +		return 0;
 > 
-> > Change flex_array_prealloc to take the number of elements for which space
-> > should be allocated instead of the last (inclusive) element. Users
-> > and documentation are updated accordingly.
+> I guess it works either way, but I'd say that checking for a zero 'len'
+> prealloc would be more important (and meaningful) than checking a zero
+> 'start'.
 > 
-> Why?
+> If someone passed start=0 and len=44 for a fa->total_nr_elements=0
+> array, I'd expect -ENOSPC, but this would return 0.
 
-All three of these patches came from these discussions:
-http://marc.info/?t=129552800100005&r=1&w=2
-http://marc.info/?t=129646395700004&r=1&w=2
-http://marc.info/?t=129708178200007&r=1&w=2
+will fix.
 
-1/3 was changed just because it seemed to be the way the interface was
-used
-
-2/3 was changed because the 2.6.38 kernel fails to load certain selinux
-policies which worked under 2.6.37 because of this lack of functionality
-
-3/3 was changed just because that's how maybe it should work, although
-there are no known users.
-
-I can certainly update 2/3 to better explain the rational but I can't
-really do any better on 1/3 and 3/3 other than to just say what the
-change is......
+if (!nr_elements && !start)
+	return 0;
 
 -Eric
+
+> 
+> -- Dave
+> 
+
 
 
 --
