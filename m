@@ -7,99 +7,239 @@ Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         casey@schaufler-ca.com, eparis@redhat.com, sds@tycho.nsa.gov,
         selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk,
         Roberto Sassu <roberto.sassu@polito.it>
-Subject: [RFC][PATCH 0/7] File descriptor labeling
-Date: Wed, 27 Apr 2011 14:34:08 +0200
-Message-Id: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
+Subject: [RFC][PATCH 7/7] ima: added new LSM conditions in the policy
+Date: Wed, 27 Apr 2011 14:34:15 +0200
+Message-Id: <1303907657-18366-8-git-send-email-roberto.sassu@polito.it>
+In-Reply-To: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----6CCC17D75421E202643CE78C142AF137"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----7980DD12C8618D03EA5E05F812D0F250"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an S/MIME signed message
 
-------6CCC17D75421E202643CE78C142AF137
+------7980DD12C8618D03EA5E05F812D0F250
 
-File descriptor labeling issue
+The new parameters 'fowner_user', 'fowner_role' and 'fowner_type' are new
+LSM conditions that allow to measure inodes whose opened file descriptor
+has the label given as a value.
 
-Actually SELinux and SMACK assign to file descriptors the same label of the
-opening process and use it in LSM hooks security_file_permission(),
-security_file_fcntl() and others to verify if the 'current' process has the
-rights to perform the requested operation.
-
-Using the credentials of the 'current' process may be not appropriate in
-case a file descriptor is opened by a kernel service (i.e. a filesystem)
-and made shared among user processes. For instance, in a system with
-SELinux and eCryptfs, if the process A opens an encrypted file, eCryptfs
-obtains a file descriptor to access the correspondent inode in the lower
-filesystem, labeled with the A's label.
-
-If the process B accesses the same encrypted file, it needs the 'use'
-permission on the A's label other than permissions for the lower inode.
-However, if B is the first accessing process, A needs the 'use' permission
-on the B's label.
-
-The solution proposed is to modify those kernel services that deal with
-file descriptors to provide their set of credentials to dentry_open(), so
-that obtained objects are labeled with a unique label. In this way, in the
-above example, if eCryptfs provides its credentials with the label C to
-dentry_open(), all user processes need the 'use' permission only on C.
-
-
-
-File descriptor labeling and IMA
-
-The above proposal suggests to use the file descriptor label as a new
-criteria in the IMA policy to determine if a file must be measured. It will
-be possible to measure all files opened by a kernel service by simply
-writing a rule where the file descriptor label given as a value matches the
-one provided by the same service together with other credentials to the
-function dentry_open().
-
-In the above example, if eCryptfs provides its credentials with the label C
-to dentry_open(), it is possible to measure all inodes opened in the lower
-filesystem by specifying a rule like:
-
-fowner_type=C
-
-
-The benefits of this new criteria will be greater with the integration of
-EVM and the IMA appraisal feature in the kernel. ECryptfs can be used in
-conjunction with these components to verify the integrity of the content
-and extended attributes of encrypted files.
-
-Roberto Sassu
-
-
-Roberto Sassu (7):
-  fs: initialize file->f_cred with credentials provided
-  selinux: label new file descriptors using file->f_cred
-  smack: assign the label set in file->f_cred to new file descriptors
-  smack: fix label check in smack_kernel_act_as()
-  smack: import the security label in smack_secctx_to_secid()
-  security: new LSM hook security_file_getsecid()
-  ima: added new LSM conditions in the policy
-
+Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
+---
  Documentation/ABI/testing/ima_policy |    7 ++++-
- fs/file_table.c                      |    5 +--
- fs/internal.h                        |    2 +-
- fs/namei.c                           |    2 +-
- fs/open.c                            |    2 +-
- include/linux/security.h             |   12 +++++++++
- security/capability.c                |    6 ++++
  security/integrity/ima/ima.h         |    4 +-
  security/integrity/ima/ima_api.c     |    4 +-
  security/integrity/ima/ima_main.c    |    4 +-
  security/integrity/ima/ima_policy.c  |   45 +++++++++++++++++++++++++++++----
- security/security.c                  |    6 ++++
- security/selinux/hooks.c             |    9 ++++++-
- security/smack/smack_lsm.c           |   23 +++++++++++++++--
- 14 files changed, 108 insertions(+), 23 deletions(-)
+ 5 files changed, 51 insertions(+), 13 deletions(-)
 
+diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+index 6cd6dae..ee49345 100644
+--- a/Documentation/ABI/testing/ima_policy
++++ b/Documentation/ABI/testing/ima_policy
+@@ -18,7 +18,8 @@ Description:
+ 		condition:= base | lsm
+ 			base:	[[func=] [mask=] [fsmagic=] [uid=]]
+ 			lsm:	[[subj_user=] [subj_role=] [subj_type=]
+-				 [obj_user=] [obj_role=] [obj_type=]]
++				 [obj_user=] [obj_role=] [obj_type=]
++				 [fowner_user=] [fowner_role=] [fowner_type=]]
+ 
+ 		base: 	func:= [BPRM_CHECK][FILE_MMAP][FILE_CHECK]
+ 			mask:= [MAY_READ] [MAY_WRITE] [MAY_APPEND] [MAY_EXEC]
+@@ -46,6 +47,10 @@ Description:
+ 		all files mmapped executable in file_mmap, and all files
+ 		open for read by root in do_filp_open.
+ 
++		LSM conditions starting with obj_ refer to security attributes
++		of inodes while those starting with fowner_ involve file
++		descriptors.
++
+ 		Examples of LSM specific definitions:
+ 
+ 		SELinux:
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 08408bd..3a05625 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -110,7 +110,7 @@ struct ima_iint_cache {
+ };
+ 
+ /* LIM API function definitions */
+-int ima_must_measure(struct inode *inode, int mask, int function);
++int ima_must_measure(struct file *file, int mask, int function);
+ int ima_collect_measurement(struct ima_iint_cache *iint, struct file *file);
+ void ima_store_measurement(struct ima_iint_cache *iint, struct file *file,
+ 			   const unsigned char *filename);
+@@ -128,7 +128,7 @@ struct ima_iint_cache *ima_iint_find(struct inode *inode);
+ /* IMA policy related functions */
+ enum ima_hooks { FILE_CHECK = 1, FILE_MMAP, BPRM_CHECK };
+ 
+-int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask);
++int ima_match_policy(struct file *file, enum ima_hooks func, int mask);
+ void ima_init_policy(void);
+ void ima_update_policy(void);
+ ssize_t ima_parse_add_rule(char *);
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index da36d2c..d815392 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -108,11 +108,11 @@ err_out:
+  * Return 0 to measure. For matching a DONT_MEASURE policy, no policy,
+  * or other error, return an error code.
+ */
+-int ima_must_measure(struct inode *inode, int mask, int function)
++int ima_must_measure(struct file *file, int mask, int function)
+ {
+ 	int must_measure;
+ 
+-	must_measure = ima_match_policy(inode, function, mask);
++	must_measure = ima_match_policy(file, function, mask);
+ 	return must_measure ? 0 : -EACCES;
+ }
+ 
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 39d66dc..9eaca61 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -65,7 +65,7 @@ static void ima_rdwr_violation_check(struct file *file)
+ 		goto out;
+ 	}
+ 
+-	rc = ima_must_measure(inode, MAY_READ, FILE_CHECK);
++	rc = ima_must_measure(file, MAY_READ, FILE_CHECK);
+ 	if (rc < 0)
+ 		goto out;
+ 
+@@ -127,7 +127,7 @@ static int process_measurement(struct file *file, const unsigned char *filename,
+ 	if (!ima_initialized || !S_ISREG(inode->i_mode))
+ 		return 0;
+ 
+-	rc = ima_must_measure(inode, mask, function);
++	rc = ima_must_measure(file, mask, function);
+ 	if (rc != 0)
+ 		return rc;
+ retry:
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index d661afb..115c2e7 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -27,9 +27,10 @@
+ 
+ enum ima_action { UNKNOWN = -1, DONT_MEASURE = 0, MEASURE };
+ 
+-#define MAX_LSM_RULES 6
++#define MAX_LSM_RULES 9
+ enum lsm_rule_types { LSM_OBJ_USER, LSM_OBJ_ROLE, LSM_OBJ_TYPE,
+-	LSM_SUBJ_USER, LSM_SUBJ_ROLE, LSM_SUBJ_TYPE
++	LSM_SUBJ_USER, LSM_SUBJ_ROLE, LSM_SUBJ_TYPE,
++	LSM_FOWNER_USER, LSM_FOWNER_ROLE, LSM_FOWNER_TYPE
+ };
+ 
+ struct ima_measure_rule_entry {
+@@ -96,9 +97,10 @@ __setup("ima_tcb", default_policy_setup);
+  * Returns true on rule match, false on failure.
+  */
+ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
+-			    struct inode *inode, enum ima_hooks func, int mask)
++			    struct file *file, enum ima_hooks func, int mask)
+ {
+ 	struct task_struct *tsk = current;
++	struct inode *inode = file->f_dentry->d_inode;
+ 	int i;
+ 
+ 	if ((rule->flags & IMA_FUNC) && rule->func != func)
+@@ -112,7 +114,7 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
+ 		return false;
+ 	for (i = 0; i < MAX_LSM_RULES; i++) {
+ 		int rc = 0;
+-		u32 osid, sid;
++		u32 osid, sid, fsid;
+ 
+ 		if (!rule->lsm[i].rule)
+ 			continue;
+@@ -137,6 +139,15 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
+ 							Audit_equal,
+ 							rule->lsm[i].rule,
+ 							NULL);
++		case LSM_FOWNER_USER:
++		case LSM_FOWNER_ROLE:
++		case LSM_FOWNER_TYPE:
++			security_file_getsecid(file, &fsid);
++			rc = security_filter_rule_match(fsid,
++							rule->lsm[i].type,
++							Audit_equal,
++							rule->lsm[i].rule,
++							NULL);
+ 		default:
+ 			break;
+ 		}
+@@ -159,14 +170,14 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
+  * as elements in the list are never deleted, nor does the list
+  * change.)
+  */
+-int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask)
++int ima_match_policy(struct file *file, enum ima_hooks func, int mask)
+ {
+ 	struct ima_measure_rule_entry *entry;
+ 
+ 	list_for_each_entry(entry, ima_measure, list) {
+ 		bool rc;
+ 
+-		rc = ima_match_rules(entry, inode, func, mask);
++		rc = ima_match_rules(entry, file, func, mask);
+ 		if (rc)
+ 			return entry->action;
+ 	}
+@@ -222,6 +233,7 @@ enum {
+ 	Opt_measure = 1, Opt_dont_measure,
+ 	Opt_obj_user, Opt_obj_role, Opt_obj_type,
+ 	Opt_subj_user, Opt_subj_role, Opt_subj_type,
++	Opt_fowner_user, Opt_fowner_role, Opt_fowner_type,
+ 	Opt_func, Opt_mask, Opt_fsmagic, Opt_uid
+ };
+ 
+@@ -234,6 +246,9 @@ static match_table_t policy_tokens = {
+ 	{Opt_subj_user, "subj_user=%s"},
+ 	{Opt_subj_role, "subj_role=%s"},
+ 	{Opt_subj_type, "subj_type=%s"},
++	{Opt_fowner_user, "fowner_user=%s"},
++	{Opt_fowner_role, "fowner_role=%s"},
++	{Opt_fowner_type, "fowner_type=%s"},
+ 	{Opt_func, "func=%s"},
+ 	{Opt_mask, "mask=%s"},
+ 	{Opt_fsmagic, "fsmagic=%s"},
+@@ -407,6 +422,24 @@ static int ima_parse_rule(char *rule, struct ima_measure_rule_entry *entry)
+ 						   LSM_SUBJ_TYPE,
+ 						   AUDIT_SUBJ_TYPE);
+ 			break;
++		case Opt_fowner_user:
++			ima_log_string(ab, "fowner_user", args[0].from);
++			result = ima_lsm_rule_init(entry, args[0].from,
++						   LSM_FOWNER_USER,
++						   AUDIT_SUBJ_USER);
++			break;
++		case Opt_fowner_role:
++			ima_log_string(ab, "fowner_role", args[0].from);
++			result = ima_lsm_rule_init(entry, args[0].from,
++						   LSM_FOWNER_ROLE,
++						   AUDIT_SUBJ_ROLE);
++			break;
++		case Opt_fowner_type:
++			ima_log_string(ab, "fowner_type", args[0].from);
++			result = ima_lsm_rule_init(entry, args[0].from,
++						   LSM_FOWNER_TYPE,
++						   AUDIT_SUBJ_TYPE);
++			break;
+ 		case Opt_err:
+ 			ima_log_string(ab, "UNKNOWN", p);
+ 			result = -EINVAL;
 -- 
 1.7.4.4
 
 
-------6CCC17D75421E202643CE78C142AF137
+------7980DD12C8618D03EA5E05F812D0F250
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -137,18 +277,18 @@ YlqPpFTtU9czuoEP12A86nqSVsoNok2mZOeYa9IdIjeE2rfdKx6k3YNRg08xggJt
 MIICaQIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBk
 aSBUb3Jpbm8xNjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZp
 Y2F0aW9uIEF1dGhvcml0eQICArswCQYFKw4DAhoFAKCB2DAYBgkqhkiG9w0BCQMx
-CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM0MTdaMCMGCSqG
-SIb3DQEJBDEWBBTRptNqNdkGfAAxKfUCE/vbdzJlvzB5BgkqhkiG9w0BCQ8xbDBq
+CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM1MDlaMCMGCSqG
+SIb3DQEJBDEWBBQcXQ8mWmKWyfylC+GwwM7fYHlFATB5BgkqhkiG9w0BCQ8xbDBq
 MAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3
 DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQC6xoeoAFo29+CG3Ok26bdu5Kfg
-mqDdIQkrhKkxMLGia/24TaXsgy2WWufB4GRKURwqtUPHk/uFEorVTwIhse3SBg6U
-xi2v+rsVLRw3XoL3FrfRpApIZxeLA9VYHGcNjaW40xcap2UTur7CJUnYoeKJWBO6
-0vm7rAO1BktOGyZUb9ocG4QjYawkA7wJZkS+JXwa+Sdn8GLoLY/esg0I5BgdmkrJ
-Pt4DxTDps/OEjBK1G/tsADzJYSTgNEvDPcWyQipDx15NZx9DJImQw4kHvOJOLizV
-kyiTZgO/K/wYlL1/vUJV/qRRs1tcXumv9kpuyP46lRXLiYZyvEJ/2xy3V5Es
+hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQDOBid4e6bc1/K++uRC0AiPGGNy
+onpfmwfuAj7d70WPOPQNxO8vvKOf5ksgdiEAp1ojV6jEcVrHUzipp/5yoqVWKefT
+RpWL5eu6tJpCtwvU9/CK52qqkL+p3Ph43VtLfBBk/BJdEEI1K+6vxZ8lBS/PS2nN
+ACVzCHcfLWUjRtX40Nd6sFmG2lqOWt7tNjV5hQ/JtUPMKJDiPaiZ8DtVz/pAVC/N
+UMbJSOP+QqZGsJLiFfpTZTD8Cr9hBLyHp+1C5kV2+ItEYQIxp+1scdR7FEoRM4t5
+tS1fU8AoFU+70bn+ukaU0m5TMFwSFVgzQsu/Vc+qSvm3cyCc/pz9d311Tmjl
 
-------6CCC17D75421E202643CE78C142AF137--
+------7980DD12C8618D03EA5E05F812D0F250--
 
 
 
