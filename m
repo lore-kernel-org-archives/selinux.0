@@ -1,58 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3RNUFTI023728
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 19:30:15 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3RNUEfH010476
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 23:30:14 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3RNaYGQ023996
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 19:36:34 -0400
+Received: from cp-out8.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3RNaX1e027926
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 23:36:34 GMT
 Subject: Re: Is there difference betweek sefiles and restorecon in terms of
  labels
 From: Guido Trentalancia <guido@trentalancia.com>
 To: Sam Gandhi <samgandhi9@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Date: Thu, 28 Apr 2011 01:30:12 +0200
+Date: Thu, 28 Apr 2011 01:36:32 +0200
 In-Reply-To: <BANLkTi=23O4bO-mDgKectp3_xXpCOXFxmw@mail.gmail.com>
 References: <BANLkTi=23O4bO-mDgKectp3_xXpCOXFxmw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1303947012.2648.28.camel@vortex>
+Message-ID: <1303947392.2648.30.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Sam !
-
-Restorecon is a symbolic link to setfiles.
-
-Setfiles probably offers more options. Most notably, I think you can
-choose the file contexts definitions (as far as I remember undocumented,
-see belove).
-
-I shall quote the code:
-
-                /* 
-                 * setfiles:  
-                 * Recursive descent,
-                 * Does not expand paths via realpath, 
-                 * Aborts on errors during the file tree walk, 
-                 * Try to track inode associations for conflict detection,
-                 * Does not follow mounts,
-                 * Validates all file contexts at init time. 
-                 */
-
-                /*
-                 * restorecon:  
-                 * No recursive descent unless -r/-R,
-                 * Expands paths via realpath, 
-                 * Do not abort on errors during the file tree walk,
-                 * Do not try to track inode associations for conflict detection,
-                 * Follows mounts,
-                 * Does lazy validation of contexts upon use. 
-                 */
-
-Hope it helps. Please double-check for correctness.
-
-Least but not last: there are a few undocumented options that I have
-tried to document in a patch (see PATCH[1/2] and PATCH[2/2] that I
-posted here on Sun, 20 Feb 2011 09:56:48 +0100).
+In short, the label ultimately depends on the file context
+specification, not the tool you use. Therefore as long as the file
+context specification is the same, then I suppose both setfiles and
+restorecon produce the same label on the file.
 
 Regards,
 
