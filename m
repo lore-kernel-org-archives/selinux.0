@@ -7,177 +7,99 @@ Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         casey@schaufler-ca.com, eparis@redhat.com, sds@tycho.nsa.gov,
         selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk,
         Roberto Sassu <roberto.sassu@polito.it>
-Subject: [RFC][PATCH 6/7] security: new LSM hook security_file_getsecid()
-Date: Wed, 27 Apr 2011 14:34:14 +0200
-Message-Id: <1303907657-18366-7-git-send-email-roberto.sassu@polito.it>
-In-Reply-To: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
+Subject: [RFC][PATCH 0/7] File descriptor labeling
+Date: Wed, 27 Apr 2011 14:34:08 +0200
+Message-Id: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----9E53A120786B392C6DD45B0D0888154C"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----6CCC17D75421E202643CE78C142AF137"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an S/MIME signed message
 
-------9E53A120786B392C6DD45B0D0888154C
+------6CCC17D75421E202643CE78C142AF137
 
-The new LSM hook security_file_getsecid() and its implementation in the
-capability module, SELinux and SMACK allows to obtain the security
-identifier associated to a file descriptor.
+File descriptor labeling issue
 
-Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
----
- include/linux/security.h   |   12 ++++++++++++
- security/capability.c      |    6 ++++++
- security/security.c        |    6 ++++++
- security/selinux/hooks.c   |    7 +++++++
- security/smack/smack_lsm.c |   11 +++++++++++
- 5 files changed, 42 insertions(+), 0 deletions(-)
+Actually SELinux and SMACK assign to file descriptors the same label of the
+opening process and use it in LSM hooks security_file_permission(),
+security_file_fcntl() and others to verify if the 'current' process has the
+rights to perform the requested operation.
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ca02f17..6e73a1a 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -630,6 +630,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
-  *	to receive an open file descriptor via socket IPC.
-  *	@file contains the file structure being received.
-  *	Return 0 if permission is granted.
-+ * @file_getsecid:
-+ *	Get the secid associated with the file descriptor.
-+ *	@file contains a pointer to the file descriptor.
-+ *	@secid contains a pointer to the location where result will be saved.
-+ *	In case of failure, @secid will be set to zero.
-  *
-  * Security hook for dentry
-  *
-@@ -1492,6 +1497,7 @@ struct security_operations {
- 	int (*file_send_sigiotask) (struct task_struct *tsk,
- 				    struct fown_struct *fown, int sig);
- 	int (*file_receive) (struct file *file);
-+	void (*file_getsecid)(const struct file *file, u32 *secid);
- 	int (*dentry_open) (struct file *file, const struct cred *cred);
- 
- 	int (*task_create) (unsigned long clone_flags);
-@@ -1751,6 +1757,7 @@ int security_file_set_fowner(struct file *file);
- int security_file_send_sigiotask(struct task_struct *tsk,
- 				 struct fown_struct *fown, int sig);
- int security_file_receive(struct file *file);
-+void security_file_getsecid(const struct file *file, u32 *secid);
- int security_dentry_open(struct file *file, const struct cred *cred);
- int security_task_create(unsigned long clone_flags);
- int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
-@@ -2251,6 +2258,11 @@ static inline int security_file_receive(struct file *file)
- 	return 0;
- }
- 
-+static inline void security_file_getsecid(const struct file *file, u32 *secid)
-+{
-+	*secid = 0;
-+}
-+
- static inline int security_dentry_open(struct file *file,
- 				       const struct cred *cred)
- {
-diff --git a/security/capability.c b/security/capability.c
-index 2984ea4..fcb569d 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -349,6 +349,11 @@ static int cap_file_receive(struct file *file)
- 	return 0;
- }
- 
-+static void cap_file_getsecid(const struct file *file, u32 *secid)
-+{
-+	*secid = 0;
-+}
-+
- static int cap_dentry_open(struct file *file, const struct cred *cred)
- {
- 	return 0;
-@@ -953,6 +958,7 @@ void __init security_fixup_ops(struct security_operations *ops)
- 	set_to_cap_if_null(ops, file_set_fowner);
- 	set_to_cap_if_null(ops, file_send_sigiotask);
- 	set_to_cap_if_null(ops, file_receive);
-+	set_to_cap_if_null(ops, file_getsecid);
- 	set_to_cap_if_null(ops, dentry_open);
- 	set_to_cap_if_null(ops, task_create);
- 	set_to_cap_if_null(ops, cred_alloc_blank);
-diff --git a/security/security.c b/security/security.c
-index 1011423..9973dab 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -688,6 +688,12 @@ int security_file_receive(struct file *file)
- 	return security_ops->file_receive(file);
- }
- 
-+void security_file_getsecid(const struct file *file, u32 *secid)
-+{
-+	security_ops->file_getsecid(file, secid);
-+}
-+EXPORT_SYMBOL(security_file_getsecid);
-+
- int security_dentry_open(struct file *file, const struct cred *cred)
- {
- 	int ret;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6772687..e1e787c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3179,6 +3179,12 @@ static int selinux_file_receive(struct file *file)
- 	return file_has_perm(cred, file, file_to_av(file));
- }
- 
-+static void selinux_file_getsecid(const struct file *file, u32 *secid)
-+{
-+	struct file_security_struct *fsec = file->f_security;
-+	*secid = fsec->sid;
-+}
-+
- static int selinux_dentry_open(struct file *file, const struct cred *cred)
- {
- 	struct file_security_struct *fsec;
-@@ -5498,6 +5504,7 @@ static struct security_operations selinux_ops = {
- 	.file_set_fowner =		selinux_file_set_fowner,
- 	.file_send_sigiotask =		selinux_file_send_sigiotask,
- 	.file_receive =			selinux_file_receive,
-+	.file_getsecid =		selinux_file_getsecid,
- 
- 	.dentry_open =			selinux_dentry_open,
- 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 6612ba1..a583736 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -1304,6 +1304,16 @@ static int smack_file_receive(struct file *file)
- 	return smk_curacc(file->f_security, may, &ad);
- }
- 
-+/**
-+ * smack_file_getsecid - Extract file descriptor's security id
-+ * @file: file descriptor to extract the info from
-+ * @secid: where result will be saved
-+ */
-+static void smack_file_getsecid(const struct file *file, u32 *secid)
-+{
-+	*secid = smack_to_secid(file->f_security);
-+}
-+
- /*
-  * Task hooks
-  */
-@@ -3434,6 +3444,7 @@ struct security_operations smack_ops = {
- 	.file_set_fowner = 		smack_file_set_fowner,
- 	.file_send_sigiotask = 		smack_file_send_sigiotask,
- 	.file_receive = 		smack_file_receive,
-+	.file_getsecid =		smack_file_getsecid,
- 
- 	.cred_alloc_blank =		smack_cred_alloc_blank,
- 	.cred_free =			smack_cred_free,
+Using the credentials of the 'current' process may be not appropriate in
+case a file descriptor is opened by a kernel service (i.e. a filesystem)
+and made shared among user processes. For instance, in a system with
+SELinux and eCryptfs, if the process A opens an encrypted file, eCryptfs
+obtains a file descriptor to access the correspondent inode in the lower
+filesystem, labeled with the A's label.
+
+If the process B accesses the same encrypted file, it needs the 'use'
+permission on the A's label other than permissions for the lower inode.
+However, if B is the first accessing process, A needs the 'use' permission
+on the B's label.
+
+The solution proposed is to modify those kernel services that deal with
+file descriptors to provide their set of credentials to dentry_open(), so
+that obtained objects are labeled with a unique label. In this way, in the
+above example, if eCryptfs provides its credentials with the label C to
+dentry_open(), all user processes need the 'use' permission only on C.
+
+
+
+File descriptor labeling and IMA
+
+The above proposal suggests to use the file descriptor label as a new
+criteria in the IMA policy to determine if a file must be measured. It will
+be possible to measure all files opened by a kernel service by simply
+writing a rule where the file descriptor label given as a value matches the
+one provided by the same service together with other credentials to the
+function dentry_open().
+
+In the above example, if eCryptfs provides its credentials with the label C
+to dentry_open(), it is possible to measure all inodes opened in the lower
+filesystem by specifying a rule like:
+
+fowner_type=C
+
+
+The benefits of this new criteria will be greater with the integration of
+EVM and the IMA appraisal feature in the kernel. ECryptfs can be used in
+conjunction with these components to verify the integrity of the content
+and extended attributes of encrypted files.
+
+Roberto Sassu
+
+
+Roberto Sassu (7):
+  fs: initialize file->f_cred with credentials provided
+  selinux: label new file descriptors using file->f_cred
+  smack: assign the label set in file->f_cred to new file descriptors
+  smack: fix label check in smack_kernel_act_as()
+  smack: import the security label in smack_secctx_to_secid()
+  security: new LSM hook security_file_getsecid()
+  ima: added new LSM conditions in the policy
+
+ Documentation/ABI/testing/ima_policy |    7 ++++-
+ fs/file_table.c                      |    5 +--
+ fs/internal.h                        |    2 +-
+ fs/namei.c                           |    2 +-
+ fs/open.c                            |    2 +-
+ include/linux/security.h             |   12 +++++++++
+ security/capability.c                |    6 ++++
+ security/integrity/ima/ima.h         |    4 +-
+ security/integrity/ima/ima_api.c     |    4 +-
+ security/integrity/ima/ima_main.c    |    4 +-
+ security/integrity/ima/ima_policy.c  |   45 +++++++++++++++++++++++++++++----
+ security/security.c                  |    6 ++++
+ security/selinux/hooks.c             |    9 ++++++-
+ security/smack/smack_lsm.c           |   23 +++++++++++++++--
+ 14 files changed, 108 insertions(+), 23 deletions(-)
+
 -- 
 1.7.4.4
 
 
-------9E53A120786B392C6DD45B0D0888154C
+------6CCC17D75421E202643CE78C142AF137
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -215,18 +137,18 @@ YlqPpFTtU9czuoEP12A86nqSVsoNok2mZOeYa9IdIjeE2rfdKx6k3YNRg08xggJt
 MIICaQIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBk
 aSBUb3Jpbm8xNjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZp
 Y2F0aW9uIEF1dGhvcml0eQICArswCQYFKw4DAhoFAKCB2DAYBgkqhkiG9w0BCQMx
-CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM1MDNaMCMGCSqG
-SIb3DQEJBDEWBBQPpMrtSjx9vko4NtB+uLoinRgLGjB5BgkqhkiG9w0BCQ8xbDBq
+CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM0MTdaMCMGCSqG
+SIb3DQEJBDEWBBTRptNqNdkGfAAxKfUCE/vbdzJlvzB5BgkqhkiG9w0BCQ8xbDBq
 MAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3
 DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQBuYPNpmxPHlKPkPHmmpQEXbgiO
-o4BH9tI5gkTrawVvfZy5wsnHGS2ZD3OGUV8M1QdLiVfhqiiAiVmgnWaaprSdIiTg
-ipOJ6KQqWzZ2yQazgByqvlbXSfatA4XAp0eEetjDZZLe0gDA/uYd0jREwH1S8edT
-AoOJ4yMwmp3fBou72kxnAk3iykShGHod2nd0Lx6WbTxz1SMD+K2bco9PJHh0Q+nA
-eonW/69YZJzV+CNyrsgJnPlyAn0iC2NYq1fmsFYMDr84tnpzslz1uuSf39lLdFjy
-yWP086SIz1FUehSEdLWAhnKwrGBrrPmGuYIsKHFcNjUDEKjIy4P6wLd6Dksw
+hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQC6xoeoAFo29+CG3Ok26bdu5Kfg
+mqDdIQkrhKkxMLGia/24TaXsgy2WWufB4GRKURwqtUPHk/uFEorVTwIhse3SBg6U
+xi2v+rsVLRw3XoL3FrfRpApIZxeLA9VYHGcNjaW40xcap2UTur7CJUnYoeKJWBO6
+0vm7rAO1BktOGyZUb9ocG4QjYawkA7wJZkS+JXwa+Sdn8GLoLY/esg0I5BgdmkrJ
+Pt4DxTDps/OEjBK1G/tsADzJYSTgNEvDPcWyQipDx15NZx9DJImQw4kHvOJOLizV
+kyiTZgO/K/wYlL1/vUJV/qRRs1tcXumv9kpuyP46lRXLiYZyvEJ/2xy3V5Es
 
-------9E53A120786B392C6DD45B0D0888154C--
+------6CCC17D75421E202643CE78C142AF137--
 
 
 
