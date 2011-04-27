@@ -1,98 +1,35 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3RNvkp1025197
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 19:57:46 -0400
-Received: from smtp107.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p3RNvj1e001467
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 23:57:45 GMT
-Message-ID: <4DB8AD76.3020405@schaufler-ca.com>
-Date: Wed, 27 Apr 2011 16:57:42 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Thu, 28 Apr 2011 09:59:32 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 3/6] SELinux: skip filename trans rules if ttype does
+ not match parent dir
+In-Reply-To: <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.2.00.1104280950290.17048@tundra.namei.org>
+References: <20110426180739.20636.50947.stgit@paris.rdu.redhat.com> <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: Tyler Hicks <tyhicks@linux.vnet.ibm.com>
-CC: Roberto Sassu <roberto.sassu@polito.it>,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
-        zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
-        kirkland@canonical.com, ecryptfs-devel@lists.launchpad.net,
-        eparis@redhat.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        viro@zeniv.linux.org.uk, Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC][PATCH 0/7] File descriptor labeling
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <4DB87A6B.7060805@schaufler-ca.com> <20110427232718.GG30854@boyd.l.tihix.com>
-In-Reply-To: <20110427232718.GG30854@boyd.l.tihix.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/27/2011 4:27 PM, Tyler Hicks wrote:
-> On Wed Apr 27, 2011 at 01:19:55PM -0700, Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 4/27/2011 5:34 AM, Roberto Sassu wrote:
->>> File descriptor labeling issue
->>>
->>> Actually SELinux and SMACK assign to file descriptors the same label of the
->>> opening process and use it in LSM hooks security_file_permission(),
->>> security_file_fcntl() and others to verify if the 'current' process has the
->>> rights to perform the requested operation.
->>>
->>> Using the credentials of the 'current' process may be not appropriate in
->>> case a file descriptor is opened by a kernel service (i.e. a filesystem)
->>> and made shared among user processes. For instance, in a system with
->>> SELinux and eCryptfs, if the process A opens an encrypted file, eCryptfs
->>> obtains a file descriptor to access the correspondent inode in the lower
->>> filesystem, labeled with the A's label.
->>>
->>> If the process B accesses the same encrypted file, it needs the 'use'
->>> permission on the A's label other than permissions for the lower inode.
->>> However, if B is the first accessing process, A needs the 'use' permission
->>> on the B's label.
->> I am having trouble understanding the argument. I will pose my
->> question in Smack terms, as I can speak most definitively in them.
->>
->> A process running with a Smack label "A" creates a file, and that
->> file gets labeled "A", as it ought. If eCryptfs is behaving correctly
->> this ought not change. If eCryptfs in encrypting the label it needs
->> to do so in such a way as to be able to decrypt it prior to
->> presentation to the vfs layer, where it will be used in an access
->> check. When the process running with a Smack label "B" comes along
->> the vfs code will check the fetched and possibly decrypted "A"
->> against "B" and, unless there is an explicit Smack rule in place
->> granting "B" access to "A", fail.
->>
->> What is the problem? What is eCryptfs doing that prevents this
->> from working?
-> Hi Casey - I think what Roberto is getting at is the way eCryptfs uses
-> only one lower file per eCryptfs inode. Imagine that there are 5
-> files open for ~/secret/foo at the eCryptfs layer, only 1 file is going
-> to be open in the lower filesystem and all eCryptfs file operations will
-> be multiplexed through it.
->
-> To make things more complicated, if the eCryptfs file is opened for
-> writing, the lower file must be opened for reading and writing. This is
-> because a write operation requires eCryptfs to vfs_read() from the lower
-> filesystem, decrypt that data and then vfs_write() the new data.
->
-> If the lower file can't be opened O_RDWR by the calling process, the
-> request is handed off to a kernel thread to open the lower file on
-> behalf of the calling process. It is definitely ugly.
+On Tue, 26 Apr 2011, Eric Paris wrote:
 
-Is eCryptfs handling xattrs? It needs to be if it isn't.
+> Right now we walk to filename trans rule list for every inode that is
+> created.  First passes at policy using this facility creates around 5000
+> filename trans rules.  Running a list of 5000 entries every time is a bad
+> idea.  This patch adds a new ebitmap to policy which has a bit set for each
+> ttype that has at least 1 filename trans rule.  Thus when an inode is
+> created we can quickly determine if any rules exist for this parent
+> directory type and can skip the list if we know there is definitely no
+> relevant entry.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-> Roberto, I hope I correctly described the situation that you're trying
-> to address. Can you tell me why we can't have a 1:1 mapping of eCryptfs
-> files to lower files?
->
-> Instead of having just one lower file attached to the eCryptfs inode, we
-> could have a list of opened files. There would be one for each eCryptfs
-> file that was opened. ecryptfs_writepage() would have to pick, in a
-> somewhat random fashion, one of the lower files to use. Of course, we
-> would still need to solve the problem of opening the lower file O_RDWR
-> when the calling process is only allowed write access (I may have just
-> answered my own question of why the 1:1 mapping technique won't solve
-> this problem).
->
-> Tyler
->
->
+Reviewed-by: James Morris <jmorris@namei.org>
 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
