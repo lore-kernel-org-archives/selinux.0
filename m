@@ -1,35 +1,187 @@
-Date: Thu, 28 Apr 2011 09:50:46 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 3/6] SELinux: skip filename trans rules if ttype does
- not match parent dir
-In-Reply-To: <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1104280950340.17048@tundra.namei.org>
-References: <20110426180739.20636.50947.stgit@paris.rdu.redhat.com> <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3RNp2SU024837
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 19:51:02 -0400
+Received: from smtp101.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p3RNp11e000422
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 23:51:01 GMT
+Message-ID: <4DB8ABE2.5080704@schaufler-ca.com>
+Date: Wed, 27 Apr 2011 16:50:58 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roberto Sassu <roberto.sassu@polito.it>
+CC: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
+        zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
+        tyhicks@linux.vnet.ibm.com, kirkland@canonical.com,
+        ecryptfs-devel@lists.launchpad.net, eparis@redhat.com,
+        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [RFC][PATCH 6/7] security: new LSM hook security_file_getsecid()
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-7-git-send-email-roberto.sassu@polito.it>
+In-Reply-To: <1303907657-18366-7-git-send-email-roberto.sassu@polito.it>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 26 Apr 2011, Eric Paris wrote:
+On 4/27/2011 5:34 AM, Roberto Sassu wrote:
+> The new LSM hook security_file_getsecid() and its implementation in the
+> capability module, SELinux and SMACK allows to obtain the security
+> identifier associated to a file descriptor.
 
-> Right now we walk to filename trans rule list for every inode that is
-> created.  First passes at policy using this facility creates around 5000
-> filename trans rules.  Running a list of 5000 entries every time is a bad
-> idea.  This patch adds a new ebitmap to policy which has a bit set for each
-> ttype that has at least 1 filename trans rule.  Thus when an inode is
-> created we can quickly determine if any rules exist for this parent
-> directory type and can skip the list if we know there is definitely no
-> relevant entry.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Why do you want a secid? You have the security information from
+the file structure readily available.
 
-Reviewed-by: James Morris <jmorris@namei.org>
+What use to you intend to put this to?
 
--- 
-James Morris
-<jmorris@namei.org>
+> Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
+> ---
+>  include/linux/security.h   |   12 ++++++++++++
+>  security/capability.c      |    6 ++++++
+>  security/security.c        |    6 ++++++
+>  security/selinux/hooks.c   |    7 +++++++
+>  security/smack/smack_lsm.c |   11 +++++++++++
+>  5 files changed, 42 insertions(+), 0 deletions(-)
+>
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index ca02f17..6e73a1a 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -630,6 +630,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+>   *	to receive an open file descriptor via socket IPC.
+>   *	@file contains the file structure being received.
+>   *	Return 0 if permission is granted.
+> + * @file_getsecid:
+> + *	Get the secid associated with the file descriptor.
+> + *	@file contains a pointer to the file descriptor.
+> + *	@secid contains a pointer to the location where result will be saved.
+> + *	In case of failure, @secid will be set to zero.
+>   *
+>   * Security hook for dentry
+>   *
+> @@ -1492,6 +1497,7 @@ struct security_operations {
+>  	int (*file_send_sigiotask) (struct task_struct *tsk,
+>  				    struct fown_struct *fown, int sig);
+>  	int (*file_receive) (struct file *file);
+> +	void (*file_getsecid)(const struct file *file, u32 *secid);
+>  	int (*dentry_open) (struct file *file, const struct cred *cred);
+>  
+>  	int (*task_create) (unsigned long clone_flags);
+> @@ -1751,6 +1757,7 @@ int security_file_set_fowner(struct file *file);
+>  int security_file_send_sigiotask(struct task_struct *tsk,
+>  				 struct fown_struct *fown, int sig);
+>  int security_file_receive(struct file *file);
+> +void security_file_getsecid(const struct file *file, u32 *secid);
+>  int security_dentry_open(struct file *file, const struct cred *cred);
+>  int security_task_create(unsigned long clone_flags);
+>  int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+> @@ -2251,6 +2258,11 @@ static inline int security_file_receive(struct file *file)
+>  	return 0;
+>  }
+>  
+> +static inline void security_file_getsecid(const struct file *file, u32 *secid)
+> +{
+> +	*secid = 0;
+> +}
+> +
+>  static inline int security_dentry_open(struct file *file,
+>  				       const struct cred *cred)
+>  {
+> diff --git a/security/capability.c b/security/capability.c
+> index 2984ea4..fcb569d 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -349,6 +349,11 @@ static int cap_file_receive(struct file *file)
+>  	return 0;
+>  }
+>  
+> +static void cap_file_getsecid(const struct file *file, u32 *secid)
+> +{
+> +	*secid = 0;
+> +}
+> +
+>  static int cap_dentry_open(struct file *file, const struct cred *cred)
+>  {
+>  	return 0;
+> @@ -953,6 +958,7 @@ void __init security_fixup_ops(struct security_operations *ops)
+>  	set_to_cap_if_null(ops, file_set_fowner);
+>  	set_to_cap_if_null(ops, file_send_sigiotask);
+>  	set_to_cap_if_null(ops, file_receive);
+> +	set_to_cap_if_null(ops, file_getsecid);
+>  	set_to_cap_if_null(ops, dentry_open);
+>  	set_to_cap_if_null(ops, task_create);
+>  	set_to_cap_if_null(ops, cred_alloc_blank);
+> diff --git a/security/security.c b/security/security.c
+> index 1011423..9973dab 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -688,6 +688,12 @@ int security_file_receive(struct file *file)
+>  	return security_ops->file_receive(file);
+>  }
+>  
+> +void security_file_getsecid(const struct file *file, u32 *secid)
+> +{
+> +	security_ops->file_getsecid(file, secid);
+> +}
+> +EXPORT_SYMBOL(security_file_getsecid);
+> +
+>  int security_dentry_open(struct file *file, const struct cred *cred)
+>  {
+>  	int ret;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 6772687..e1e787c 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3179,6 +3179,12 @@ static int selinux_file_receive(struct file *file)
+>  	return file_has_perm(cred, file, file_to_av(file));
+>  }
+>  
+> +static void selinux_file_getsecid(const struct file *file, u32 *secid)
+> +{
+> +	struct file_security_struct *fsec = file->f_security;
+> +	*secid = fsec->sid;
+> +}
+> +
+>  static int selinux_dentry_open(struct file *file, const struct cred *cred)
+>  {
+>  	struct file_security_struct *fsec;
+> @@ -5498,6 +5504,7 @@ static struct security_operations selinux_ops = {
+>  	.file_set_fowner =		selinux_file_set_fowner,
+>  	.file_send_sigiotask =		selinux_file_send_sigiotask,
+>  	.file_receive =			selinux_file_receive,
+> +	.file_getsecid =		selinux_file_getsecid,
+>  
+>  	.dentry_open =			selinux_dentry_open,
+>  
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 6612ba1..a583736 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -1304,6 +1304,16 @@ static int smack_file_receive(struct file *file)
+>  	return smk_curacc(file->f_security, may, &ad);
+>  }
+>  
+> +/**
+> + * smack_file_getsecid - Extract file descriptor's security id
+> + * @file: file descriptor to extract the info from
+> + * @secid: where result will be saved
+> + */
+> +static void smack_file_getsecid(const struct file *file, u32 *secid)
+> +{
+> +	*secid = smack_to_secid(file->f_security);
+> +}
+> +
+>  /*
+>   * Task hooks
+>   */
+> @@ -3434,6 +3444,7 @@ struct security_operations smack_ops = {
+>  	.file_set_fowner = 		smack_file_set_fowner,
+>  	.file_send_sigiotask = 		smack_file_send_sigiotask,
+>  	.file_receive = 		smack_file_receive,
+> +	.file_getsecid =		smack_file_getsecid,
+>  
+>  	.cred_alloc_blank =		smack_cred_alloc_blank,
+>  	.cred_free =			smack_cred_free,
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
