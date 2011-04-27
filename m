@@ -7,46 +7,177 @@ Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         casey@schaufler-ca.com, eparis@redhat.com, sds@tycho.nsa.gov,
         selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk,
         Roberto Sassu <roberto.sassu@polito.it>
-Subject: [RFC][PATCH 3/7] smack: assign the label set in file->f_cred to new file descriptors
-Date: Wed, 27 Apr 2011 14:34:11 +0200
-Message-Id: <1303907657-18366-4-git-send-email-roberto.sassu@polito.it>
+Subject: [RFC][PATCH 6/7] security: new LSM hook security_file_getsecid()
+Date: Wed, 27 Apr 2011 14:34:14 +0200
+Message-Id: <1303907657-18366-7-git-send-email-roberto.sassu@polito.it>
 In-Reply-To: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----407D200EF0F1FB0266A909259758D15E"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----9E53A120786B392C6DD45B0D0888154C"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an S/MIME signed message
 
-------407D200EF0F1FB0266A909259758D15E
+------9E53A120786B392C6DD45B0D0888154C
 
-The SMACK label of new file descriptors is obtained from the credentials
-set in the 'f_cred' field of the same structure.
+The new LSM hook security_file_getsecid() and its implementation in the
+capability module, SELinux and SMACK allows to obtain the security
+identifier associated to a file descriptor.
 
 Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
 ---
- security/smack/smack_lsm.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ include/linux/security.h   |   12 ++++++++++++
+ security/capability.c      |    6 ++++++
+ security/security.c        |    6 ++++++
+ security/selinux/hooks.c   |    7 +++++++
+ security/smack/smack_lsm.c |   11 +++++++++++
+ 5 files changed, 42 insertions(+), 0 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index c6f8fca..e3c9e54 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -1011,7 +1011,7 @@ static int smack_file_permission(struct file *file, int mask)
-  */
- static int smack_file_alloc_security(struct file *file)
- {
--	file->f_security = smk_of_current();
-+	file->f_security = smk_of_task(file->f_cred->security);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ca02f17..6e73a1a 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -630,6 +630,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	to receive an open file descriptor via socket IPC.
+  *	@file contains the file structure being received.
+  *	Return 0 if permission is granted.
++ * @file_getsecid:
++ *	Get the secid associated with the file descriptor.
++ *	@file contains a pointer to the file descriptor.
++ *	@secid contains a pointer to the location where result will be saved.
++ *	In case of failure, @secid will be set to zero.
+  *
+  * Security hook for dentry
+  *
+@@ -1492,6 +1497,7 @@ struct security_operations {
+ 	int (*file_send_sigiotask) (struct task_struct *tsk,
+ 				    struct fown_struct *fown, int sig);
+ 	int (*file_receive) (struct file *file);
++	void (*file_getsecid)(const struct file *file, u32 *secid);
+ 	int (*dentry_open) (struct file *file, const struct cred *cred);
+ 
+ 	int (*task_create) (unsigned long clone_flags);
+@@ -1751,6 +1757,7 @@ int security_file_set_fowner(struct file *file);
+ int security_file_send_sigiotask(struct task_struct *tsk,
+ 				 struct fown_struct *fown, int sig);
+ int security_file_receive(struct file *file);
++void security_file_getsecid(const struct file *file, u32 *secid);
+ int security_dentry_open(struct file *file, const struct cred *cred);
+ int security_task_create(unsigned long clone_flags);
+ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+@@ -2251,6 +2258,11 @@ static inline int security_file_receive(struct file *file)
  	return 0;
  }
  
++static inline void security_file_getsecid(const struct file *file, u32 *secid)
++{
++	*secid = 0;
++}
++
+ static inline int security_dentry_open(struct file *file,
+ 				       const struct cred *cred)
+ {
+diff --git a/security/capability.c b/security/capability.c
+index 2984ea4..fcb569d 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -349,6 +349,11 @@ static int cap_file_receive(struct file *file)
+ 	return 0;
+ }
+ 
++static void cap_file_getsecid(const struct file *file, u32 *secid)
++{
++	*secid = 0;
++}
++
+ static int cap_dentry_open(struct file *file, const struct cred *cred)
+ {
+ 	return 0;
+@@ -953,6 +958,7 @@ void __init security_fixup_ops(struct security_operations *ops)
+ 	set_to_cap_if_null(ops, file_set_fowner);
+ 	set_to_cap_if_null(ops, file_send_sigiotask);
+ 	set_to_cap_if_null(ops, file_receive);
++	set_to_cap_if_null(ops, file_getsecid);
+ 	set_to_cap_if_null(ops, dentry_open);
+ 	set_to_cap_if_null(ops, task_create);
+ 	set_to_cap_if_null(ops, cred_alloc_blank);
+diff --git a/security/security.c b/security/security.c
+index 1011423..9973dab 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -688,6 +688,12 @@ int security_file_receive(struct file *file)
+ 	return security_ops->file_receive(file);
+ }
+ 
++void security_file_getsecid(const struct file *file, u32 *secid)
++{
++	security_ops->file_getsecid(file, secid);
++}
++EXPORT_SYMBOL(security_file_getsecid);
++
+ int security_dentry_open(struct file *file, const struct cred *cred)
+ {
+ 	int ret;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6772687..e1e787c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3179,6 +3179,12 @@ static int selinux_file_receive(struct file *file)
+ 	return file_has_perm(cred, file, file_to_av(file));
+ }
+ 
++static void selinux_file_getsecid(const struct file *file, u32 *secid)
++{
++	struct file_security_struct *fsec = file->f_security;
++	*secid = fsec->sid;
++}
++
+ static int selinux_dentry_open(struct file *file, const struct cred *cred)
+ {
+ 	struct file_security_struct *fsec;
+@@ -5498,6 +5504,7 @@ static struct security_operations selinux_ops = {
+ 	.file_set_fowner =		selinux_file_set_fowner,
+ 	.file_send_sigiotask =		selinux_file_send_sigiotask,
+ 	.file_receive =			selinux_file_receive,
++	.file_getsecid =		selinux_file_getsecid,
+ 
+ 	.dentry_open =			selinux_dentry_open,
+ 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 6612ba1..a583736 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1304,6 +1304,16 @@ static int smack_file_receive(struct file *file)
+ 	return smk_curacc(file->f_security, may, &ad);
+ }
+ 
++/**
++ * smack_file_getsecid - Extract file descriptor's security id
++ * @file: file descriptor to extract the info from
++ * @secid: where result will be saved
++ */
++static void smack_file_getsecid(const struct file *file, u32 *secid)
++{
++	*secid = smack_to_secid(file->f_security);
++}
++
+ /*
+  * Task hooks
+  */
+@@ -3434,6 +3444,7 @@ struct security_operations smack_ops = {
+ 	.file_set_fowner = 		smack_file_set_fowner,
+ 	.file_send_sigiotask = 		smack_file_send_sigiotask,
+ 	.file_receive = 		smack_file_receive,
++	.file_getsecid =		smack_file_getsecid,
+ 
+ 	.cred_alloc_blank =		smack_cred_alloc_blank,
+ 	.cred_free =			smack_cred_free,
 -- 
 1.7.4.4
 
 
-------407D200EF0F1FB0266A909259758D15E
+------9E53A120786B392C6DD45B0D0888154C
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -84,18 +215,18 @@ YlqPpFTtU9czuoEP12A86nqSVsoNok2mZOeYa9IdIjeE2rfdKx6k3YNRg08xggJt
 MIICaQIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBk
 aSBUb3Jpbm8xNjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZp
 Y2F0aW9uIEF1dGhvcml0eQICArswCQYFKw4DAhoFAKCB2DAYBgkqhkiG9w0BCQMx
-CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM0NDVaMCMGCSqG
-SIb3DQEJBDEWBBRafRHiijy2A7Mgw04E3F3eMIctATB5BgkqhkiG9w0BCQ8xbDBq
+CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM1MDNaMCMGCSqG
+SIb3DQEJBDEWBBQPpMrtSjx9vko4NtB+uLoinRgLGjB5BgkqhkiG9w0BCQ8xbDBq
 MAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3
 DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQAwj5axXKR6MPt1qDaoPnD826OU
-DhjLmaZINIFqC5hMW4CNCIVp+WxWK1OJHexGPdY+alR414zQnnvfR+6fepTKw84a
-2RKwQlqsaSQsEvnjKsqqDIF7SP9JuLTcJIOhVSoRqqrPoiqrbvFb5AuAo5mb0Ksk
-HEURvSZWLoriqLeLGsJgx2x90FSMH4M42tWJo9FfQdmk4wHveu7FHj0NZekxmQXW
-j4y+d4q5czapJb17zPJ6zHP9Kt2APNDWxGckhZCx9i1giqTzn85hFxOGCxe292/h
-TqV44hbBigZ20E5wO0sYnPUTdU/HxX1CtxjXYDTLXHmqEd9LWMEr+XWjg6aw
+hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQBuYPNpmxPHlKPkPHmmpQEXbgiO
+o4BH9tI5gkTrawVvfZy5wsnHGS2ZD3OGUV8M1QdLiVfhqiiAiVmgnWaaprSdIiTg
+ipOJ6KQqWzZ2yQazgByqvlbXSfatA4XAp0eEetjDZZLe0gDA/uYd0jREwH1S8edT
+AoOJ4yMwmp3fBou72kxnAk3iykShGHod2nd0Lx6WbTxz1SMD+K2bco9PJHh0Q+nA
+eonW/69YZJzV+CNyrsgJnPlyAn0iC2NYq1fmsFYMDr84tnpzslz1uuSf39lLdFjy
+yWP086SIz1FUehSEdLWAhnKwrGBrrPmGuYIsKHFcNjUDEKjIy4P6wLd6Dksw
 
-------407D200EF0F1FB0266A909259758D15E--
+------9E53A120786B392C6DD45B0D0888154C--
 
 
 
