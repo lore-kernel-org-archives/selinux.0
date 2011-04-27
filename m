@@ -1,56 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3RNQm9d023523
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 19:26:48 -0400
-Received: from smtp105.prem.mail.sp1.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p3RNQkfH009690
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2011 23:26:47 GMT
-Message-ID: <4DB8A633.6080102@schaufler-ca.com>
-Date: Wed, 27 Apr 2011 16:26:43 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Roberto Sassu <roberto.sassu@polito.it>
-CC: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+Date: Wed, 27 Apr 2011 18:27:19 -0500
+From: Tyler Hicks <tyhicks@linux.vnet.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Roberto Sassu <roberto.sassu@polito.it>,
+        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
         zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
-        tyhicks@linux.vnet.ibm.com, kirkland@canonical.com,
-        ecryptfs-devel@lists.launchpad.net, eparis@redhat.com,
-        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk
-Subject: Re: [RFC][PATCH 3/7] smack: assign the label set in file->f_cred
- to new file descriptors
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-4-git-send-email-roberto.sassu@polito.it>
-In-Reply-To: <1303907657-18366-4-git-send-email-roberto.sassu@polito.it>
-Content-Type: text/plain; charset=ISO-8859-1
+        kirkland@canonical.com, ecryptfs-devel@lists.launchpad.net,
+        eparis@redhat.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        viro@zeniv.linux.org.uk
+Subject: Re: [RFC][PATCH 0/7] File descriptor labeling
+Message-ID: <20110427232718.GG30854@boyd.l.tihix.com>
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
+ <4DB87A6B.7060805@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4DB87A6B.7060805@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/27/2011 5:34 AM, Roberto Sassu wrote:
-> The SMACK label of new file descriptors is obtained from the credentials
-> set in the 'f_cred' field of the same structure.
->
-> Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
-> ---
->  security/smack/smack_lsm.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index c6f8fca..e3c9e54 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -1011,7 +1011,7 @@ static int smack_file_permission(struct file *file, int mask)
->   */
->  static int smack_file_alloc_security(struct file *file)
->  {
-> -	file->f_security = smk_of_current();
-> +	file->f_security = smk_of_task(file->f_cred->security);
+On Wed Apr 27, 2011 at 01:19:55PM -0700, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 4/27/2011 5:34 AM, Roberto Sassu wrote:
+> > File descriptor labeling issue
+> >
+> > Actually SELinux and SMACK assign to file descriptors the same label of the
+> > opening process and use it in LSM hooks security_file_permission(),
+> > security_file_fcntl() and others to verify if the 'current' process has the
+> > rights to perform the requested operation.
+> >
+> > Using the credentials of the 'current' process may be not appropriate in
+> > case a file descriptor is opened by a kernel service (i.e. a filesystem)
+> > and made shared among user processes. For instance, in a system with
+> > SELinux and eCryptfs, if the process A opens an encrypted file, eCryptfs
+> > obtains a file descriptor to access the correspondent inode in the lower
+> > filesystem, labeled with the A's label.
+> >
+> > If the process B accesses the same encrypted file, it needs the 'use'
+> > permission on the A's label other than permissions for the lower inode.
+> > However, if B is the first accessing process, A needs the 'use' permission
+> > on the B's label.
+> 
+> I am having trouble understanding the argument. I will pose my
+> question in Smack terms, as I can speak most definitively in them.
+> 
+> A process running with a Smack label "A" creates a file, and that
+> file gets labeled "A", as it ought. If eCryptfs is behaving correctly
+> this ought not change. If eCryptfs in encrypting the label it needs
+> to do so in such a way as to be able to decrypt it prior to
+> presentation to the vfs layer, where it will be used in an access
+> check. When the process running with a Smack label "B" comes along
+> the vfs code will check the fetched and possibly decrypted "A"
+> against "B" and, unless there is an explicit Smack rule in place
+> granting "B" access to "A", fail.
+> 
+> What is the problem? What is eCryptfs doing that prevents this
+> from working?
 
-Now hang on. This just looks wrong. You're setting the value of one
-field of the file structure to another value in the same file structure.
-I don't see that this is what I want.
+Hi Casey - I think what Roberto is getting at is the way eCryptfs uses
+only one lower file per eCryptfs inode. Imagine that there are 5
+files open for ~/secret/foo at the eCryptfs layer, only 1 file is going
+to be open in the lower filesystem and all eCryptfs file operations will
+be multiplexed through it.
 
->  	return 0;
->  }
->  
+To make things more complicated, if the eCryptfs file is opened for
+writing, the lower file must be opened for reading and writing. This is
+because a write operation requires eCryptfs to vfs_read() from the lower
+filesystem, decrypt that data and then vfs_write() the new data.
 
+If the lower file can't be opened O_RDWR by the calling process, the
+request is handed off to a kernel thread to open the lower file on
+behalf of the calling process. It is definitely ugly.
+
+Roberto, I hope I correctly described the situation that you're trying
+to address. Can you tell me why we can't have a 1:1 mapping of eCryptfs
+files to lower files?
+
+Instead of having just one lower file attached to the eCryptfs inode, we
+could have a list of opened files. There would be one for each eCryptfs
+file that was opened. ecryptfs_writepage() would have to pick, in a
+somewhat random fashion, one of the lower files to use. Of course, we
+would still need to solve the problem of opening the lower file O_RDWR
+when the calling process is only allowed write access (I may have just
+answered my own question of why the 1:1 mapping technique won't solve
+this problem).
+
+Tyler
 
 --
 This message was distributed to subscribers of the selinux mailing list.
