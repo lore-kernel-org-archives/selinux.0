@@ -7,55 +7,101 @@ Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         casey@schaufler-ca.com, eparis@redhat.com, sds@tycho.nsa.gov,
         selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk,
         Roberto Sassu <roberto.sassu@polito.it>
-Subject: [RFC][PATCH 5/7] smack: import the security label in smack_secctx_to_secid()
-Date: Wed, 27 Apr 2011 14:34:13 +0200
-Message-Id: <1303907657-18366-6-git-send-email-roberto.sassu@polito.it>
+Subject: [RFC][PATCH 1/7] fs: initialize file->f_cred with credentials provided
+Date: Wed, 27 Apr 2011 14:34:09 +0200
+Message-Id: <1303907657-18366-2-git-send-email-roberto.sassu@polito.it>
 In-Reply-To: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
 MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----444DA078C8E5969A1974F7B53AE2189E"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha1"; boundary="----224F974968F4756AC202C194A81B7B40"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an S/MIME signed message
 
-------444DA078C8E5969A1974F7B53AE2189E
+------224F974968F4756AC202C194A81B7B40
 
-The security label passed as argument in smack_secctx_to_secid() must be
-first imported in the 'smack_known_list' list before finding the security
-identifier associated to it. This allows the function
-set_security_override_from_ctx() to be performed successfully even if the
-label is not yet present in the smack list.
+The 'f_cred' field of a file descriptor is initialized with the credentials
+of the 'current' process except in the case they are provided to the
+function dentry_open(). The get_empty_filp() function's definition has been
+modified to take these credentials set as argument.
 
 Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
 ---
- security/smack/smack_lsm.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+ fs/file_table.c |    5 ++---
+ fs/internal.h   |    2 +-
+ fs/namei.c      |    2 +-
+ fs/open.c       |    2 +-
+ 4 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 0e7ed31..6612ba1 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -3346,7 +3346,13 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+diff --git a/fs/file_table.c b/fs/file_table.c
+index 01e4c1e..c33018c 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -102,9 +102,8 @@ int proc_nr_files(ctl_table *table, int write,
+  * done, you will imbalance int the mount's writer count
+  * and a warning at __fput() time.
   */
- static int smack_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+-struct file *get_empty_filp(void)
++struct file *get_empty_filp(const struct cred *cred)
  {
--	*secid = smack_to_secid(secdata);
-+	char *smack;
-+
-+	smack = smk_import(secdata, seclen);
-+	if (smack == NULL)
-+		return -EINVAL;
-+
-+	*secid = smack_to_secid(smack);
- 	return 0;
- }
+-	const struct cred *cred = current_cred();
+ 	static long old_max;
+ 	struct file * f;
  
+@@ -171,7 +170,7 @@ struct file *alloc_file(struct path *path, fmode_t mode,
+ {
+ 	struct file *file;
+ 
+-	file = get_empty_filp();
++	file = get_empty_filp(current_cred());
+ 	if (!file)
+ 		return NULL;
+ 
+diff --git a/fs/internal.h b/fs/internal.h
+index b29c46e..c81fc62 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -91,7 +91,7 @@ extern void chroot_fs_refs(struct path *, struct path *);
+ extern void file_sb_list_add(struct file *f, struct super_block *sb);
+ extern void file_sb_list_del(struct file *f);
+ extern void mark_files_ro(struct super_block *);
+-extern struct file *get_empty_filp(void);
++extern struct file *get_empty_filp(const struct cred *cred);
+ 
+ /*
+  * super.c
+diff --git a/fs/namei.c b/fs/namei.c
+index 54fc993..88ac2e5 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2321,7 +2321,7 @@ static struct file *path_openat(int dfd, const char *pathname,
+ 	struct path path;
+ 	int error;
+ 
+-	filp = get_empty_filp();
++	filp = get_empty_filp(current_cred());
+ 	if (!filp)
+ 		return ERR_PTR(-ENFILE);
+ 
+diff --git a/fs/open.c b/fs/open.c
+index b52cf01..6b033e6 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -839,7 +839,7 @@ struct file *dentry_open(struct dentry *dentry, struct vfsmount *mnt, int flags,
+ 	BUG_ON(!mnt);
+ 
+ 	error = -ENFILE;
+-	f = get_empty_filp();
++	f = get_empty_filp(cred);
+ 	if (f == NULL) {
+ 		dput(dentry);
+ 		mntput(mnt);
 -- 
 1.7.4.4
 
 
-------444DA078C8E5969A1974F7B53AE2189E
+------224F974968F4756AC202C194A81B7B40
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -93,18 +139,18 @@ YlqPpFTtU9czuoEP12A86nqSVsoNok2mZOeYa9IdIjeE2rfdKx6k3YNRg08xggJt
 MIICaQIBATBrMGUxCzAJBgNVBAYTAklUMR4wHAYDVQQKExVQb2xpdGVjbmljbyBk
 aSBUb3Jpbm8xNjA0BgNVBAMTLVBvbGl0ZWNuaWNvIGRpIFRvcmlubyBDZXJ0aWZp
 Y2F0aW9uIEF1dGhvcml0eQICArswCQYFKw4DAhoFAKCB2DAYBgkqhkiG9w0BCQMx
-CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM0NTdaMCMGCSqG
-SIb3DQEJBDEWBBTd5qlWHtqtbs8d+Df/MjvL6WaRbDB5BgkqhkiG9w0BCQ8xbDBq
+CwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA0MjcxMjM0MzBaMCMGCSqG
+SIb3DQEJBDEWBBQEH0JjN+72IP64HuOMLEZgQoVDujB5BgkqhkiG9w0BCQ8xbDBq
 MAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3
 DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggq
-hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQCZNToarAQUCmN8R9EnMH0V/B0q
-8vQEc/WP0CnoxvI9r7mmDxzeKbgb4FxudGgAPBXgxM0AoOVsbo3zIbp9l96gwUku
-XOmo5SzD49G2oofcdWkdPdLl/yDBop6Ki9kt//n0bRO4lbkKg+0kAJXr58PwTBnc
-mToOexjGMrKWiQgM7BIqeXsrtybKKKkl+JSsQwV+M/w/cYVj3D5rOmmLOV6TqCo2
-9GqWvEdikh6N6JDmG7Jl1zHqhFE2fnYejlhxeAoix6z5G1Gi6yP5rO6e4ScmuInr
-PwwwROGH8s3xVpL9y8il+jfzLbucCiYRwczPwVGHFGeN8XlD+g9JMBrCra3Q
+hkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASCAQACOlak+CkiQx8Qk/QQ6fryWBKP
+9gPYxPUOEzGJBuHpQDupWM9dAAvQDKOPY8F98FU0N9USrqAQWjZ/bgIEHjVbD6TU
+RBmQR9HvQOjqrzP3LzoSoESGs34y8/rMwzVjWuIeRHhnXRwDvssFiBBnSD+NM9Kc
+95mS4ZDsQZGaUlUPyhhVu1L4gHFyLcosuZgaxRmGjQyQ5BFopbYOIJ0S9VMSbvRF
+6CYjXbvDvJJ1XzkIUs3LXMGzY7I9e/T5+qFkls57ssguWL7gCShalEminc5PlKPK
+0JxXKLDueQLe235YotlOg19FTNIM5z4eykF5afBPqfgRn+czR7YIDRe8fYYK
 
-------444DA078C8E5969A1974F7B53AE2189E--
+------224F974968F4756AC202C194A81B7B40--
 
 
 
