@@ -1,47 +1,64 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH] SELinux: pass last path component in may_create
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
-Date: Thu, 28 Apr 2011 15:01:56 -0400
-Message-ID: <20110428190155.4332.66813.stgit@paris.rdu.redhat.com>
+Subject: [PATCH -v2] flex_arrays: allow zero length flex arrays
+To: dave@linux.vnet.ibm.com
+Cc: steffen.klassert@secunet.com, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Date: Thu, 28 Apr 2011 15:54:02 -0400
+Message-ID: <20110428195402.6677.80147.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-New inodes are created in a two stage process.  We first will compute the
-label on a new inode in security_inode_create() and check if the
-operation is allowed.  We will then actually re-compute that same label and
-apply it in security_inode_init_security().  The change to do new label
-calculations based in part on the last component of the path name only
-passed the path component information all the way down the
-security_inode_init_security hook.  Down the security_inode_create hook the
-path information did not make it past may_create.  Thus the two calculations
-came up differently and the permissions check might not actually be against
-the label that is created.  Pass and use the same information in both places
-to harmonize the calculations and checks.
+Just like kmalloc will allow one to allocate a 0 length segment of memory
+flex arrays should do the same thing.  It should bomb if you try to use
+something, but it should at least allow the allocation.
 
-Reported-by: Dominick Grift <domg472@gmail.com>
+This is needed because when SELinux switched to using flex_arrays in 2.6.38
+the inability to allocate a 0 length array resulted in SELinux policy load
+returning -ENOSPC when previously it worked.
+
+Based-on-patch-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Eric Paris <eparis@redhat.com>
+Tested-by: Chris Richards <gizmo@giz-works.com>
+Cc: stable@kernel.org [2.6.38+]
 ---
 
- security/selinux/hooks.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ lib/flex_array.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2288203..f84d3d7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1582,7 +1582,8 @@ static int may_create(struct inode *dir,
- 		return rc;
+diff --git a/lib/flex_array.c b/lib/flex_array.c
+index 0c33b24..854b57b 100644
+--- a/lib/flex_array.c
++++ b/lib/flex_array.c
+@@ -253,9 +253,16 @@ int flex_array_prealloc(struct flex_array *fa, unsigned int start,
+ 	unsigned int end;
+ 	struct flex_array_part *part;
  
- 	if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
--		rc = security_transition_sid(sid, dsec->sid, tclass, NULL, &newsid);
-+		rc = security_transition_sid(sid, dsec->sid, tclass,
-+					     &dentry->d_name, &newsid);
- 		if (rc)
- 			return rc;
- 	}
++	if (!start && !nr_elements)
++		return 0;
++	if (start >= fa->total_nr_elements)
++		return -ENOSPC;
++	if (!nr_elements)
++		return 0;
++
+ 	end = start + nr_elements - 1;
+ 
+-	if (start >= fa->total_nr_elements || end >= fa->total_nr_elements)
++	if (end >= fa->total_nr_elements)
+ 		return -ENOSPC;
+ 	if (elements_fit_in_base(fa))
+ 		return 0;
+@@ -346,6 +353,8 @@ int flex_array_shrink(struct flex_array *fa)
+ 	int part_nr;
+ 	int ret = 0;
+ 
++	if (!fa->total_nr_elements)
++		return 0;
+ 	if (elements_fit_in_base(fa))
+ 		return ret;
+ 	for (part_nr = 0; part_nr < FLEX_ARRAY_NR_BASE_PTRS; part_nr++) {
 
 
 --
