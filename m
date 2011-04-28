@@ -1,63 +1,73 @@
 From: Roberto Sassu <roberto.sassu@polito.it>
 To: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC][PATCH 3/7] smack: assign the label set in file->f_cred to new file descriptors
-Date: Thu, 28 Apr 2011 10:06:05 +0200
+Subject: Re: [RFC][PATCH 4/7] smack: fix label check in smack_kernel_act_as()
+Date: Thu, 28 Apr 2011 11:22:31 +0200
 Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
         zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
         tyhicks@linux.vnet.ibm.com, kirkland@canonical.com,
         ecryptfs-devel@lists.launchpad.net, eparis@redhat.com,
         sds@tycho.nsa.gov, selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-4-git-send-email-roberto.sassu@polito.it> <4DB8A633.6080102@schaufler-ca.com>
-In-Reply-To: <4DB8A633.6080102@schaufler-ca.com>
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-5-git-send-email-roberto.sassu@polito.it> <4DB8A53A.4010709@schaufler-ca.com>
+In-Reply-To: <4DB8A53A.4010709@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
-Message-Id: <201104281006.05629.roberto.sassu@polito.it>
+Message-Id: <201104281122.31702.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, April 28, 2011 01:26:43 AM Casey Schaufler wrote:
+On Thursday, April 28, 2011 01:22:34 AM Casey Schaufler wrote:
 > On 4/27/2011 5:34 AM, Roberto Sassu wrote:
-> > The SMACK label of new file descriptors is obtained from the credentials
-> > set in the 'f_cred' field of the same structure.
-> >
+> > The function smack_kernel_act_as() must return -EINVAL if the label
+> > returned by smack_from_secid() is equal to 'smack_known_invalid.smk_known',
+> > which means that no entries in the 'smack_known_list' list matching the
+> > security identifier given are found.
+> 
+> I'll admit that the code here is wrong, but I disagree with the fix.
+> 
+> smack_from_secid() will never return NULL, so the check for NULL is
+> pointless. Checking for known_invalid is not right either, as the
+> Smack philosophy is to return a label in all cases, as is evident
+> by the behavior of smack_from_secid(). Thus, the correct change
+> would be to remove the error check completely and set the new task
+> value to the value obtained from smack_from_secid in all cases.
+> 
+> Besides, where did the caller of this function get a secid that isn't
+> going to map to a Smack label?
+> 
+
+I discovered the issue when calling the function set_security_override_from_ctx(),
+located in kernel/cred.c, which will be used in eCryptfs to override the set
+of initial credentials (i'm about to post the patches).
+This function accepts an arbitrary string and uses it as a security label to replace
+the one in the credentials provided. If the string passed is not yet imported
+to SMACK, the 'smack_known_invalid.smk_known' label is applied without this fact
+is notified to the caller.
+I tried to solve the problem by importing the string during the execution of the
+security_secctx_to_secid() hook, so that set_security_override() will never fail.
+So, probably the string must be already been imported if no new memory can be
+allocated during smack_secctx_to_secid().
+
+
 > > Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
 > > ---
 > >  security/smack/smack_lsm.c |    2 +-
 > >  1 files changed, 1 insertions(+), 1 deletions(-)
 > >
 > > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index c6f8fca..e3c9e54 100644
+> > index e3c9e54..0e7ed31 100644
 > > --- a/security/smack/smack_lsm.c
 > > +++ b/security/smack/smack_lsm.c
-> > @@ -1011,7 +1011,7 @@ static int smack_file_permission(struct file *file, int mask)
-> >   */
-> >  static int smack_file_alloc_security(struct file *file)
-> >  {
-> > -	file->f_security = smk_of_current();
-> > +	file->f_security = smk_of_task(file->f_cred->security);
-> 
-> Now hang on. This just looks wrong. You're setting the value of one
-> field of the file structure to another value in the same file structure.
-> I don't see that this is what I want.
-> 
-
-Hi Casey
-
-thanks for the review.
-The field 'f_cred' stores the credentials of the subject that issued the open.
-The first patch allows to set this field with the credentials provided to
-the function get_empty_filp() which may be those of the 'current'
-process as in the original case, or those provided by a kernel service that
-called the function dentry_open() directly.
-
-Roberto Sassu
-
-
-> >  	return 0;
-> >  }
+> > @@ -1415,7 +1415,7 @@ static int smack_kernel_act_as(struct cred *new, u32 secid)
+> >  	struct task_smack *new_tsp = new->security;
+> >  	char *smack = smack_from_secid(secid);
 > >  
+> > -	if (smack == NULL)
+> > +	if (smack == smack_known_invalid.smk_known)
+> >  		return -EINVAL;
+> >  
+> >  	new_tsp->smk_task = smack;
 > 
 > 
 
