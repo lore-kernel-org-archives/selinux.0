@@ -1,190 +1,132 @@
 From: Roberto Sassu <roberto.sassu@polito.it>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC][PATCH 6/7] security: new LSM hook security_file_getsecid()
-Date: Thu, 28 Apr 2011 11:41:22 +0200
-Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+To: Tyler Hicks <tyhicks@linux.vnet.ibm.com>
+Subject: Re: [RFC][PATCH 0/7] File descriptor labeling
+Date: Thu, 28 Apr 2011 14:35:07 +0200
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
         zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
-        tyhicks@linux.vnet.ibm.com, kirkland@canonical.com,
-        ecryptfs-devel@lists.launchpad.net, eparis@redhat.com,
-        sds@tycho.nsa.gov, selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-7-git-send-email-roberto.sassu@polito.it> <4DB8ABE2.5080704@schaufler-ca.com>
-In-Reply-To: <4DB8ABE2.5080704@schaufler-ca.com>
+        kirkland@canonical.com, ecryptfs-devel@lists.launchpad.net,
+        eparis@redhat.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        viro@zeniv.linux.org.uk, john.johansen@canonical.com,
+        apparmor@lists.ubuntu.com
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <4DB87A6B.7060805@schaufler-ca.com> <20110427232718.GG30854@boyd.l.tihix.com>
+In-Reply-To: <20110427232718.GG30854@boyd.l.tihix.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
-Message-Id: <201104281141.22678.roberto.sassu@polito.it>
+Message-Id: <201104281435.08273.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, April 28, 2011 01:50:58 AM Casey Schaufler wrote:
-> On 4/27/2011 5:34 AM, Roberto Sassu wrote:
-> > The new LSM hook security_file_getsecid() and its implementation in the
-> > capability module, SELinux and SMACK allows to obtain the security
-> > identifier associated to a file descriptor.
+On Thursday, April 28, 2011 01:27:19 AM Tyler Hicks wrote:
+> On Wed Apr 27, 2011 at 01:19:55PM -0700, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > On 4/27/2011 5:34 AM, Roberto Sassu wrote:
+> > > File descriptor labeling issue
+> > >
+> > > Actually SELinux and SMACK assign to file descriptors the same label of the
+> > > opening process and use it in LSM hooks security_file_permission(),
+> > > security_file_fcntl() and others to verify if the 'current' process has the
+> > > rights to perform the requested operation.
+> > >
+> > > Using the credentials of the 'current' process may be not appropriate in
+> > > case a file descriptor is opened by a kernel service (i.e. a filesystem)
+> > > and made shared among user processes. For instance, in a system with
+> > > SELinux and eCryptfs, if the process A opens an encrypted file, eCryptfs
+> > > obtains a file descriptor to access the correspondent inode in the lower
+> > > filesystem, labeled with the A's label.
+> > >
+> > > If the process B accesses the same encrypted file, it needs the 'use'
+> > > permission on the A's label other than permissions for the lower inode.
+> > > However, if B is the first accessing process, A needs the 'use' permission
+> > > on the B's label.
+> > 
+> > I am having trouble understanding the argument. I will pose my
+> > question in Smack terms, as I can speak most definitively in them.
+> > 
+> > A process running with a Smack label "A" creates a file, and that
+> > file gets labeled "A", as it ought. If eCryptfs is behaving correctly
+> > this ought not change. If eCryptfs in encrypting the label it needs
+> > to do so in such a way as to be able to decrypt it prior to
+> > presentation to the vfs layer, where it will be used in an access
+> > check. When the process running with a Smack label "B" comes along
+> > the vfs code will check the fetched and possibly decrypted "A"
+> > against "B" and, unless there is an explicit Smack rule in place
+> > granting "B" access to "A", fail.
+> > 
+> > What is the problem? What is eCryptfs doing that prevents this
+> > from working?
 > 
-> Why do you want a secid? You have the security information from
-> the file structure readily available.
+> Hi Casey - I think what Roberto is getting at is the way eCryptfs uses
+> only one lower file per eCryptfs inode. Imagine that there are 5
+> files open for ~/secret/foo at the eCryptfs layer, only 1 file is going
+> to be open in the lower filesystem and all eCryptfs file operations will
+> be multiplexed through it.
 > 
-> What use to you intend to put this to?
+> To make things more complicated, if the eCryptfs file is opened for
+> writing, the lower file must be opened for reading and writing. This is
+> because a write operation requires eCryptfs to vfs_read() from the lower
+> filesystem, decrypt that data and then vfs_write() the new data.
+> 
+> If the lower file can't be opened O_RDWR by the calling process, the
+> request is handed off to a kernel thread to open the lower file on
+> behalf of the calling process. It is definitely ugly.
+> 
+> Roberto, I hope I correctly described the situation that you're trying
+> to address. Can you tell me why we can't have a 1:1 mapping of eCryptfs
+> files to lower files?
+> 
+> Instead of having just one lower file attached to the eCryptfs inode, we
+> could have a list of opened files. There would be one for each eCryptfs
+> file that was opened. ecryptfs_writepage() would have to pick, in a
+> somewhat random fashion, one of the lower files to use. Of course, we
+> would still need to solve the problem of opening the lower file O_RDWR
+> when the calling process is only allowed write access (I may have just
+> answered my own question of why the 1:1 mapping technique won't solve
+> this problem).
 > 
 
-This new hook will be used in the IMA code (patch 7/7) to find inodes that
-must be measured by checking the security label applied to file descriptors.
-This new criteria allows to easily measure all inodes opened by a kernel
-service because their file descriptors have the same label of what the
-service provided with other credentials to the function dentry_open().
+Hi Tyler
+
+i think the 1:1 mapping isn't necessary at least from the security perspective.
+Since eCryptfs is a stacked filesystem access control is performed on
+both the upper and the lower layer.
+ECryptfs relies on the lower filesystem for the management of extended
+attributes, so this means that the security label of both the upper and
+the lower inodes is the same (however this is not the current behavior
+in SELinux, which assigns the label 'ecryptfs_t' to the upper inode).
+In my view, for this reason the access control checks can be performed
+only at the upper layer, letting eCryptfs full privileges to access inodes
+in the lower filesystem.
+This solves the problem of opening the lower file in r/w mode even if only
+the read is requested, because at the upper layer the subject is the
+accessing process with its own credentials which needs the read permission
+and at the lower layer the subject is the eCryptfs kernel module with
+unlimited privileges.
+The issue i described in the cover letter is related to the label assigned
+to the file descriptor obtained by eCryptfs (or another kernel service) when
+opening an inode in the lower filesystem, which actually depends on the
+first accessing process.
+This label is checked against the credentials of the 'current' process in the
+hook security_file_permission(), which is triggered by vfs calls (read, write,
+readdir) performed on both the upper and the lower inodes.
+In SELinux, a process needs the permission to 'use' a opened file descriptor.
+So, having a fixed label helps in defining the rule that must be added in the
+policy for eCryptfs to ensure it works properly.
 
 
-> > Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
-> > ---
-> >  include/linux/security.h   |   12 ++++++++++++
-> >  security/capability.c      |    6 ++++++
-> >  security/security.c        |    6 ++++++
-> >  security/selinux/hooks.c   |    7 +++++++
-> >  security/smack/smack_lsm.c |   11 +++++++++++
-> >  5 files changed, 42 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/include/linux/security.h b/include/linux/security.h
-> > index ca02f17..6e73a1a 100644
-> > --- a/include/linux/security.h
-> > +++ b/include/linux/security.h
-> > @@ -630,6 +630,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
-> >   *	to receive an open file descriptor via socket IPC.
-> >   *	@file contains the file structure being received.
-> >   *	Return 0 if permission is granted.
-> > + * @file_getsecid:
-> > + *	Get the secid associated with the file descriptor.
-> > + *	@file contains a pointer to the file descriptor.
-> > + *	@secid contains a pointer to the location where result will be saved.
-> > + *	In case of failure, @secid will be set to zero.
-> >   *
-> >   * Security hook for dentry
-> >   *
-> > @@ -1492,6 +1497,7 @@ struct security_operations {
-> >  	int (*file_send_sigiotask) (struct task_struct *tsk,
-> >  				    struct fown_struct *fown, int sig);
-> >  	int (*file_receive) (struct file *file);
-> > +	void (*file_getsecid)(const struct file *file, u32 *secid);
-> >  	int (*dentry_open) (struct file *file, const struct cred *cred);
-> >  
-> >  	int (*task_create) (unsigned long clone_flags);
-> > @@ -1751,6 +1757,7 @@ int security_file_set_fowner(struct file *file);
-> >  int security_file_send_sigiotask(struct task_struct *tsk,
-> >  				 struct fown_struct *fown, int sig);
-> >  int security_file_receive(struct file *file);
-> > +void security_file_getsecid(const struct file *file, u32 *secid);
-> >  int security_dentry_open(struct file *file, const struct cred *cred);
-> >  int security_task_create(unsigned long clone_flags);
-> >  int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
-> > @@ -2251,6 +2258,11 @@ static inline int security_file_receive(struct file *file)
-> >  	return 0;
-> >  }
-> >  
-> > +static inline void security_file_getsecid(const struct file *file, u32 *secid)
-> > +{
-> > +	*secid = 0;
-> > +}
-> > +
-> >  static inline int security_dentry_open(struct file *file,
-> >  				       const struct cred *cred)
-> >  {
-> > diff --git a/security/capability.c b/security/capability.c
-> > index 2984ea4..fcb569d 100644
-> > --- a/security/capability.c
-> > +++ b/security/capability.c
-> > @@ -349,6 +349,11 @@ static int cap_file_receive(struct file *file)
-> >  	return 0;
-> >  }
-> >  
-> > +static void cap_file_getsecid(const struct file *file, u32 *secid)
-> > +{
-> > +	*secid = 0;
-> > +}
-> > +
-> >  static int cap_dentry_open(struct file *file, const struct cred *cred)
-> >  {
-> >  	return 0;
-> > @@ -953,6 +958,7 @@ void __init security_fixup_ops(struct security_operations *ops)
-> >  	set_to_cap_if_null(ops, file_set_fowner);
-> >  	set_to_cap_if_null(ops, file_send_sigiotask);
-> >  	set_to_cap_if_null(ops, file_receive);
-> > +	set_to_cap_if_null(ops, file_getsecid);
-> >  	set_to_cap_if_null(ops, dentry_open);
-> >  	set_to_cap_if_null(ops, task_create);
-> >  	set_to_cap_if_null(ops, cred_alloc_blank);
-> > diff --git a/security/security.c b/security/security.c
-> > index 1011423..9973dab 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -688,6 +688,12 @@ int security_file_receive(struct file *file)
-> >  	return security_ops->file_receive(file);
-> >  }
-> >  
-> > +void security_file_getsecid(const struct file *file, u32 *secid)
-> > +{
-> > +	security_ops->file_getsecid(file, secid);
-> > +}
-> > +EXPORT_SYMBOL(security_file_getsecid);
-> > +
-> >  int security_dentry_open(struct file *file, const struct cred *cred)
-> >  {
-> >  	int ret;
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 6772687..e1e787c 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -3179,6 +3179,12 @@ static int selinux_file_receive(struct file *file)
-> >  	return file_has_perm(cred, file, file_to_av(file));
-> >  }
-> >  
-> > +static void selinux_file_getsecid(const struct file *file, u32 *secid)
-> > +{
-> > +	struct file_security_struct *fsec = file->f_security;
-> > +	*secid = fsec->sid;
-> > +}
-> > +
-> >  static int selinux_dentry_open(struct file *file, const struct cred *cred)
-> >  {
-> >  	struct file_security_struct *fsec;
-> > @@ -5498,6 +5504,7 @@ static struct security_operations selinux_ops = {
-> >  	.file_set_fowner =		selinux_file_set_fowner,
-> >  	.file_send_sigiotask =		selinux_file_send_sigiotask,
-> >  	.file_receive =			selinux_file_receive,
-> > +	.file_getsecid =		selinux_file_getsecid,
-> >  
-> >  	.dentry_open =			selinux_dentry_open,
-> >  
-> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index 6612ba1..a583736 100644
-> > --- a/security/smack/smack_lsm.c
-> > +++ b/security/smack/smack_lsm.c
-> > @@ -1304,6 +1304,16 @@ static int smack_file_receive(struct file *file)
-> >  	return smk_curacc(file->f_security, may, &ad);
-> >  }
-> >  
-> > +/**
-> > + * smack_file_getsecid - Extract file descriptor's security id
-> > + * @file: file descriptor to extract the info from
-> > + * @secid: where result will be saved
-> > + */
-> > +static void smack_file_getsecid(const struct file *file, u32 *secid)
-> > +{
-> > +	*secid = smack_to_secid(file->f_security);
-> > +}
-> > +
-> >  /*
-> >   * Task hooks
-> >   */
-> > @@ -3434,6 +3444,7 @@ struct security_operations smack_ops = {
-> >  	.file_set_fowner = 		smack_file_set_fowner,
-> >  	.file_send_sigiotask = 		smack_file_send_sigiotask,
-> >  	.file_receive = 		smack_file_receive,
-> > +	.file_getsecid =		smack_file_getsecid,
-> >  
-> >  	.cred_alloc_blank =		smack_cred_alloc_blank,
-> >  	.cred_free =			smack_cred_free,
-> 
+PS: i'm adding in CC the Apparmor's mantainer and the mailing list to have
+their opinion about the protection offered for the eCryptfs filesystem and
+other kernel services. The overall thread is available at the url:
+
+https://lkml.org/lkml/2011/4/27/201
+
+Thanks
+
+Roberto Sassu
+
+
+> Tyler
 > 
 
 --
