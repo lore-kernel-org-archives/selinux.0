@@ -1,261 +1,286 @@
-From: Roberto Sassu <roberto.sassu@polito.it>
-To: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Subject: Re: [RFC][PATCH 7/7] ima: added new LSM conditions in the policy
-Date: Thu, 28 Apr 2011 15:52:52 +0200
-Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
-        safford@watson.ibm.com, tyhicks@linux.vnet.ibm.com,
-        kirkland@canonical.com, ecryptfs-devel@lists.launchpad.net,
-        casey@schaufler-ca.com, eparis@redhat.com, sds@tycho.nsa.gov,
-        selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-8-git-send-email-roberto.sassu@polito.it> <1303997558.3139.16.camel@localhost.localdomain>
-In-Reply-To: <1303997558.3139.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201104281552.52820.roberto.sassu@polito.it>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3SE40L6032176
+	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 10:04:00 -0400
+Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3SE3xqg000608
+	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 14:03:59 GMT
+Received: by wwb39 with SMTP id 39so2617320wwb.30
+        for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 07:03:59 -0700 (PDT)
+From: Elia Pinto <andronicus.spiros@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Elia Pinto <gitter.spiros@gmail.com>
+Subject: [PATCH] policy module for atop
+Date: Thu, 28 Apr 2011 16:03:56 +0200
+Message-Id: <1303999436-1548852-1-git-send-email-andronicus.spiros@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, April 28, 2011 03:32:38 PM Mimi Zohar wrote:
-> On Wed, 2011-04-27 at 14:34 +0200, Roberto Sassu wrote:
-> > The new parameters 'fowner_user', 'fowner_role' and 'fowner_type' are new
-> > LSM conditions that allow to measure inodes whose opened file descriptor
-> > has the label given as a value.
-> > 
-> > Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
-> 
-> Nice. I really like the 'fowner_' prefix. If you don't object, I'll
-> change the ima-appraisal keyword from 'owner' to 'fowner' as well.
-> 
+From: Elia Pinto <gitter.spiros@gmail.com>
 
-Hi Mimi
+---
+ policy/modules/admin/logrotate.te |    4 +
+ policy/modules/services/atopd.fc  |    8 ++
+ policy/modules/services/atopd.if  |  133 +++++++++++++++++++++++++++++++++++++
+ policy/modules/services/atopd.te  |   77 +++++++++++++++++++++
+ 4 files changed, 222 insertions(+), 0 deletions(-)
+ create mode 100644 policy/modules/services/atopd.fc
+ create mode 100644 policy/modules/services/atopd.if
+ create mode 100644 policy/modules/services/atopd.te
 
-i agree about this change.
+diff --git a/policy/modules/admin/logrotate.te b/policy/modules/admin/logrotate.te
+index 7090dae..6423b3c 100644
+--- a/policy/modules/admin/logrotate.te
++++ b/policy/modules/admin/logrotate.te
+@@ -182,6 +182,10 @@ optional_policy(`
+ ')
+ 
+ optional_policy(`
++	atopd_signal(logrotate_t)
++')
++
++optional_policy(`
+ 	mailman_domtrans(logrotate_t)
+ 	mailman_search_data(logrotate_t)
+ 	mailman_manage_log(logrotate_t)
+diff --git a/policy/modules/services/atopd.fc b/policy/modules/services/atopd.fc
+new file mode 100644
+index 0000000..508a650
+--- /dev/null
++++ b/policy/modules/services/atopd.fc
+@@ -0,0 +1,8 @@
++/etc/rc\.d/init\.d/atopd        --      gen_context(system_u:object_r:atopd_initrc_exec_t,s0)
++/usr/bin/atopd                  --      gen_context(system_u:object_r:atopd_exec_t,s0)
++/usr/bin/atop                   --      gen_context(system_u:object_r:atopd_exec_t,s0)
++
++/var/log/atop(/.*)?                     gen_context(system_u:object_r:atopd_log_t,s0)
++/var/run/atop\.pid              --      gen_context(system_u:object_r:atopd_var_run_t,s0)
++/tmp/atop.d(/.*)?                       gen_context(system_u:object_r:atopd_tmp_t,s0)
++
+diff --git a/policy/modules/services/atopd.if b/policy/modules/services/atopd.if
+new file mode 100644
+index 0000000..8e9c1e4
+--- /dev/null
++++ b/policy/modules/services/atopd.if
+@@ -0,0 +1,133 @@
++## <summary>policy for atopd</summary>
++
++
++########################################
++## <summary>
++##      Execute a domain transition to run atopd.
++## </summary>
++## <param name="domain">
++## <summary>
++##      Domain allowed access.
++## </summary>
++## </param>
++#
++interface(`atopd_domtrans',`
++        gen_require(`
++                type atopd_t, atopd_exec_t;
++        ')
++
++        domtrans_pattern($1, atopd_exec_t, atopd_t)
++')
++
++
++########################################
++## <summary>
++##      Allow the specified domain to read atopd's log files.
++## </summary>
++## <param name="domain">
++##      <summary>
++##      Domain allowed access.
++##      </summary>
++## </param>
++## <rolecap/>
++#
++interface(`atopd_read_log',`
++        gen_require(`
++                type atopd_log_t;
++        ')
++
++        logging_search_logs($1)
++        read_files_pattern($1, atopd_log_t, atopd_log_t)
++')
++
++########################################
++## <summary>
++##      Allow the specified domain to append
++##      atopd log files.
++## </summary>
++## <param name="domain">
++##      <summary>
++##      Domain allowed to transition.
++##      </summary>
++## </param>
++#
++interface(`atopd_append_log',`
++        gen_require(`
++                type atopd_log_t;
++        ')
++
++        logging_search_logs($1)
++        append_files_pattern($1, atopd_log_t, atopd_log_t)
++')
++
++########################################
++## <summary>
++##      Allow domain to manage atopd log files
++## </summary>
++## <param name="domain">
++##      <summary>
++##      Domain to not audit.
++##      </summary>
++## </param>
++#
++interface(`atopd_manage_log',`
++        gen_require(`
++                type atopd_log_t;
++        ')
++
++        logging_search_logs($1)
++        manage_dirs_pattern($1, atopd_log_t, atopd_log_t)
++        manage_files_pattern($1, atopd_log_t, atopd_log_t)
++        manage_lnk_files_pattern($1, atopd_log_t, atopd_log_t)
++')
++
++########################################
++## <summary>
++##      All of the rules required to administrate
++##      an atopd environment
++## </summary>
++## <param name="domain">
++##      <summary>
++##      Domain allowed access.
++##      </summary>
++## </param>
++## <param name="role">
++##      <summary>
++##      Role allowed access.
++##      </summary>
++## </param>
++## <rolecap/>
++#
++interface(`atopd_admin',`
++        gen_require(`
++                type atopd_t;
++                type atopd_log_t;
++        ')
++
++        allow $1 atopd_t:process { ptrace signal_perms };
++        ps_process_pattern($1, atopd_t)
++
++        logging_search_logs($1)
++        admin_pattern($1, atopd_log_t)
++
++')
++
++########################################
++## <summary>
++##    Allow domain signal atopd
++## </summary>
++## <param name="domain">
++##    <summary>
++##    Domain to not audit.
++##    </summary>
++## </param>
++#
++interface(`atopd_signal',`
++    gen_require(`
++        type atopd_t;
++    ')
++
++    allow $1 atopd_t:process signal;
++')
++
++
+diff --git a/policy/modules/services/atopd.te b/policy/modules/services/atopd.te
+new file mode 100644
+index 0000000..c53ecda
+--- /dev/null
++++ b/policy/modules/services/atopd.te
+@@ -0,0 +1,77 @@
++policy_module(atopd,1.0.0)
++
++########################################
++#
++# Declarations
++#
++
++type atopd_t;
++type atopd_exec_t;
++init_daemon_domain(atopd_t, atopd_exec_t)
++
++
++type atopd_initrc_exec_t;
++init_script_file(atopd_initrc_exec_t)
++
++
++can_exec(atopd_t, atopd_exec_t)
++
++type atopd_log_t;
++logging_log_file(atopd_log_t)
++
++type atopd_var_run_t;
++files_pid_file(atopd_var_run_t)
++
++type atopd_tmp_t;
++files_tmp_file(atopd_tmp_t)
++
++
++
++########################################
++#
++# atopd local policy
++#
++
++allow atopd_t self:fifo_file rw_fifo_file_perms;
++allow atopd_t self:unix_stream_socket create_stream_socket_perms;
++
++allow atopd_t self:sem create_sem_perms;
++allow atopd_t self:capability { net_admin setuid sys_nice sys_resource sys_ptrace ipc_lock sys_pacct };
++allow atopd_t self:process    { setsched sigkill setrlimit };
++
++manage_dirs_pattern(atopd_t, atopd_log_t, atopd_log_t)
++manage_files_pattern(atopd_t, atopd_log_t, atopd_log_t)
++logging_log_filetrans(atopd_t, atopd_log_t, { dir file } )
++
++domain_use_interactive_fds(atopd_t)
++
++files_read_etc_files(atopd_t)
++
++miscfiles_read_localization(atopd_t)
++
++
++# pid files
++manage_dirs_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
++manage_files_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
++files_pid_filetrans(atopd_t, atopd_var_run_t, { dir file  })
++
++# tmp files
++manage_dirs_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
++manage_files_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
++files_tmp_filetrans(atopd_t, atopd_tmp_t, { dir file  })
++
++
++
++auth_use_nsswitch(atopd_t)
++
++domain_read_all_domains_state(atopd_t)
++
++kernel_list_proc(atopd_t)
++kernel_read_network_state(atopd_t)
++kernel_read_system_state(atopd_t)
++
++fs_getattr_xattr_fs(atopd_t)
++
++corecmd_exec_bin(atopd_t)
++
++acct_manage_data(atopd_t)
+-- 
+1.7.2.1.44.g721e7
 
-Thanks
-
-Roberto Sassu
-
-
-> Acked-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
-> 
-> thanks,
-> 
-> Mimi
-> 
-> > ---
-> >  Documentation/ABI/testing/ima_policy |    7 ++++-
-> >  security/integrity/ima/ima.h         |    4 +-
-> >  security/integrity/ima/ima_api.c     |    4 +-
-> >  security/integrity/ima/ima_main.c    |    4 +-
-> >  security/integrity/ima/ima_policy.c  |   45 +++++++++++++++++++++++++++++----
-> >  5 files changed, 51 insertions(+), 13 deletions(-)
-> > 
-> > diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-> > index 6cd6dae..ee49345 100644
-> > --- a/Documentation/ABI/testing/ima_policy
-> > +++ b/Documentation/ABI/testing/ima_policy
-> > @@ -18,7 +18,8 @@ Description:
-> >  		condition:= base | lsm
-> >  			base:	[[func=] [mask=] [fsmagic=] [uid=]]
-> >  			lsm:	[[subj_user=] [subj_role=] [subj_type=]
-> > -				 [obj_user=] [obj_role=] [obj_type=]]
-> > +				 [obj_user=] [obj_role=] [obj_type=]
-> > +				 [fowner_user=] [fowner_role=] [fowner_type=]]
-> > 
-> >  		base: 	func:= [BPRM_CHECK][FILE_MMAP][FILE_CHECK]
-> >  			mask:= [MAY_READ] [MAY_WRITE] [MAY_APPEND] [MAY_EXEC]
-> > @@ -46,6 +47,10 @@ Description:
-> >  		all files mmapped executable in file_mmap, and all files
-> >  		open for read by root in do_filp_open.
-> > 
-> > +		LSM conditions starting with obj_ refer to security attributes
-> > +		of inodes while those starting with fowner_ involve file
-> > +		descriptors.
-> > +
-> >  		Examples of LSM specific definitions:
-> > 
-> >  		SELinux:
-> > diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-> > index 08408bd..3a05625 100644
-> > --- a/security/integrity/ima/ima.h
-> > +++ b/security/integrity/ima/ima.h
-> > @@ -110,7 +110,7 @@ struct ima_iint_cache {
-> >  };
-> > 
-> >  /* LIM API function definitions */
-> > -int ima_must_measure(struct inode *inode, int mask, int function);
-> > +int ima_must_measure(struct file *file, int mask, int function);
-> >  int ima_collect_measurement(struct ima_iint_cache *iint, struct file *file);
-> >  void ima_store_measurement(struct ima_iint_cache *iint, struct file *file,
-> >  			   const unsigned char *filename);
-> > @@ -128,7 +128,7 @@ struct ima_iint_cache *ima_iint_find(struct inode *inode);
-> >  /* IMA policy related functions */
-> >  enum ima_hooks { FILE_CHECK = 1, FILE_MMAP, BPRM_CHECK };
-> > 
-> > -int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask);
-> > +int ima_match_policy(struct file *file, enum ima_hooks func, int mask);
-> >  void ima_init_policy(void);
-> >  void ima_update_policy(void);
-> >  ssize_t ima_parse_add_rule(char *);
-> > diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-> > index da36d2c..d815392 100644
-> > --- a/security/integrity/ima/ima_api.c
-> > +++ b/security/integrity/ima/ima_api.c
-> > @@ -108,11 +108,11 @@ err_out:
-> >   * Return 0 to measure. For matching a DONT_MEASURE policy, no policy,
-> >   * or other error, return an error code.
-> >  */
-> > -int ima_must_measure(struct inode *inode, int mask, int function)
-> > +int ima_must_measure(struct file *file, int mask, int function)
-> >  {
-> >  	int must_measure;
-> > 
-> > -	must_measure = ima_match_policy(inode, function, mask);
-> > +	must_measure = ima_match_policy(file, function, mask);
-> >  	return must_measure ? 0 : -EACCES;
-> >  }
-> > 
-> > diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> > index 39d66dc..9eaca61 100644
-> > --- a/security/integrity/ima/ima_main.c
-> > +++ b/security/integrity/ima/ima_main.c
-> > @@ -65,7 +65,7 @@ static void ima_rdwr_violation_check(struct file *file)
-> >  		goto out;
-> >  	}
-> > 
-> > -	rc = ima_must_measure(inode, MAY_READ, FILE_CHECK);
-> > +	rc = ima_must_measure(file, MAY_READ, FILE_CHECK);
-> >  	if (rc < 0)
-> >  		goto out;
-> > 
-> > @@ -127,7 +127,7 @@ static int process_measurement(struct file *file, const unsigned char *filename,
-> >  	if (!ima_initialized || !S_ISREG(inode->i_mode))
-> >  		return 0;
-> > 
-> > -	rc = ima_must_measure(inode, mask, function);
-> > +	rc = ima_must_measure(file, mask, function);
-> >  	if (rc != 0)
-> >  		return rc;
-> >  retry:
-> > diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> > index d661afb..115c2e7 100644
-> > --- a/security/integrity/ima/ima_policy.c
-> > +++ b/security/integrity/ima/ima_policy.c
-> > @@ -27,9 +27,10 @@
-> > 
-> >  enum ima_action { UNKNOWN = -1, DONT_MEASURE = 0, MEASURE };
-> > 
-> > -#define MAX_LSM_RULES 6
-> > +#define MAX_LSM_RULES 9
-> >  enum lsm_rule_types { LSM_OBJ_USER, LSM_OBJ_ROLE, LSM_OBJ_TYPE,
-> > -	LSM_SUBJ_USER, LSM_SUBJ_ROLE, LSM_SUBJ_TYPE
-> > +	LSM_SUBJ_USER, LSM_SUBJ_ROLE, LSM_SUBJ_TYPE,
-> > +	LSM_FOWNER_USER, LSM_FOWNER_ROLE, LSM_FOWNER_TYPE
-> >  };
-> > 
-> >  struct ima_measure_rule_entry {
-> > @@ -96,9 +97,10 @@ __setup("ima_tcb", default_policy_setup);
-> >   * Returns true on rule match, false on failure.
-> >   */
-> >  static bool ima_match_rules(struct ima_measure_rule_entry *rule,
-> > -			    struct inode *inode, enum ima_hooks func, int mask)
-> > +			    struct file *file, enum ima_hooks func, int mask)
-> >  {
-> >  	struct task_struct *tsk = current;
-> > +	struct inode *inode = file->f_dentry->d_inode;
-> >  	int i;
-> > 
-> >  	if ((rule->flags & IMA_FUNC) && rule->func != func)
-> > @@ -112,7 +114,7 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
-> >  		return false;
-> >  	for (i = 0; i < MAX_LSM_RULES; i++) {
-> >  		int rc = 0;
-> > -		u32 osid, sid;
-> > +		u32 osid, sid, fsid;
-> > 
-> >  		if (!rule->lsm[i].rule)
-> >  			continue;
-> > @@ -137,6 +139,15 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
-> >  							Audit_equal,
-> >  							rule->lsm[i].rule,
-> >  							NULL);
-> > +		case LSM_FOWNER_USER:
-> > +		case LSM_FOWNER_ROLE:
-> > +		case LSM_FOWNER_TYPE:
-> > +			security_file_getsecid(file, &fsid);
-> > +			rc = security_filter_rule_match(fsid,
-> > +							rule->lsm[i].type,
-> > +							Audit_equal,
-> > +							rule->lsm[i].rule,
-> > +							NULL);
-> >  		default:
-> >  			break;
-> >  		}
-> > @@ -159,14 +170,14 @@ static bool ima_match_rules(struct ima_measure_rule_entry *rule,
-> >   * as elements in the list are never deleted, nor does the list
-> >   * change.)
-> >   */
-> > -int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask)
-> > +int ima_match_policy(struct file *file, enum ima_hooks func, int mask)
-> >  {
-> >  	struct ima_measure_rule_entry *entry;
-> > 
-> >  	list_for_each_entry(entry, ima_measure, list) {
-> >  		bool rc;
-> > 
-> > -		rc = ima_match_rules(entry, inode, func, mask);
-> > +		rc = ima_match_rules(entry, file, func, mask);
-> >  		if (rc)
-> >  			return entry->action;
-> >  	}
-> > @@ -222,6 +233,7 @@ enum {
-> >  	Opt_measure = 1, Opt_dont_measure,
-> >  	Opt_obj_user, Opt_obj_role, Opt_obj_type,
-> >  	Opt_subj_user, Opt_subj_role, Opt_subj_type,
-> > +	Opt_fowner_user, Opt_fowner_role, Opt_fowner_type,
-> >  	Opt_func, Opt_mask, Opt_fsmagic, Opt_uid
-> >  };
-> > 
-> > @@ -234,6 +246,9 @@ static match_table_t policy_tokens = {
-> >  	{Opt_subj_user, "subj_user=%s"},
-> >  	{Opt_subj_role, "subj_role=%s"},
-> >  	{Opt_subj_type, "subj_type=%s"},
-> > +	{Opt_fowner_user, "fowner_user=%s"},
-> > +	{Opt_fowner_role, "fowner_role=%s"},
-> > +	{Opt_fowner_type, "fowner_type=%s"},
-> >  	{Opt_func, "func=%s"},
-> >  	{Opt_mask, "mask=%s"},
-> >  	{Opt_fsmagic, "fsmagic=%s"},
-> > @@ -407,6 +422,24 @@ static int ima_parse_rule(char *rule, struct ima_measure_rule_entry *entry)
-> >  						   LSM_SUBJ_TYPE,
-> >  						   AUDIT_SUBJ_TYPE);
-> >  			break;
-> > +		case Opt_fowner_user:
-> > +			ima_log_string(ab, "fowner_user", args[0].from);
-> > +			result = ima_lsm_rule_init(entry, args[0].from,
-> > +						   LSM_FOWNER_USER,
-> > +						   AUDIT_SUBJ_USER);
-> > +			break;
-> > +		case Opt_fowner_role:
-> > +			ima_log_string(ab, "fowner_role", args[0].from);
-> > +			result = ima_lsm_rule_init(entry, args[0].from,
-> > +						   LSM_FOWNER_ROLE,
-> > +						   AUDIT_SUBJ_ROLE);
-> > +			break;
-> > +		case Opt_fowner_type:
-> > +			ima_log_string(ab, "fowner_type", args[0].from);
-> > +			result = ima_lsm_rule_init(entry, args[0].from,
-> > +						   LSM_FOWNER_TYPE,
-> > +						   AUDIT_SUBJ_TYPE);
-> > +			break;
-> >  		case Opt_err:
-> >  			ima_log_string(ab, "UNKNOWN", p);
-> >  			result = -EINVAL;
-> 
-> 
-> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
