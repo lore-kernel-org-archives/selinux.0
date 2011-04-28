@@ -1,73 +1,189 @@
 From: Roberto Sassu <roberto.sassu@polito.it>
 To: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [RFC][PATCH 4/7] smack: fix label check in smack_kernel_act_as()
-Date: Thu, 28 Apr 2011 11:22:31 +0200
+Subject: Re: [RFC][PATCH 6/7] security: new LSM hook security_file_getsecid()
+Date: Thu, 28 Apr 2011 11:41:22 +0200
 Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
         zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
         tyhicks@linux.vnet.ibm.com, kirkland@canonical.com,
         ecryptfs-devel@lists.launchpad.net, eparis@redhat.com,
         sds@tycho.nsa.gov, selinux@tycho.nsa.gov, viro@zeniv.linux.org.uk
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-5-git-send-email-roberto.sassu@polito.it> <4DB8A53A.4010709@schaufler-ca.com>
-In-Reply-To: <4DB8A53A.4010709@schaufler-ca.com>
+References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it> <1303907657-18366-7-git-send-email-roberto.sassu@polito.it> <4DB8ABE2.5080704@schaufler-ca.com>
+In-Reply-To: <4DB8ABE2.5080704@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
-Message-Id: <201104281122.31702.roberto.sassu@polito.it>
+Message-Id: <201104281141.22678.roberto.sassu@polito.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, April 28, 2011 01:22:34 AM Casey Schaufler wrote:
+On Thursday, April 28, 2011 01:50:58 AM Casey Schaufler wrote:
 > On 4/27/2011 5:34 AM, Roberto Sassu wrote:
-> > The function smack_kernel_act_as() must return -EINVAL if the label
-> > returned by smack_from_secid() is equal to 'smack_known_invalid.smk_known',
-> > which means that no entries in the 'smack_known_list' list matching the
-> > security identifier given are found.
+> > The new LSM hook security_file_getsecid() and its implementation in the
+> > capability module, SELinux and SMACK allows to obtain the security
+> > identifier associated to a file descriptor.
 > 
-> I'll admit that the code here is wrong, but I disagree with the fix.
+> Why do you want a secid? You have the security information from
+> the file structure readily available.
 > 
-> smack_from_secid() will never return NULL, so the check for NULL is
-> pointless. Checking for known_invalid is not right either, as the
-> Smack philosophy is to return a label in all cases, as is evident
-> by the behavior of smack_from_secid(). Thus, the correct change
-> would be to remove the error check completely and set the new task
-> value to the value obtained from smack_from_secid in all cases.
-> 
-> Besides, where did the caller of this function get a secid that isn't
-> going to map to a Smack label?
+> What use to you intend to put this to?
 > 
 
-I discovered the issue when calling the function set_security_override_from_ctx(),
-located in kernel/cred.c, which will be used in eCryptfs to override the set
-of initial credentials (i'm about to post the patches).
-This function accepts an arbitrary string and uses it as a security label to replace
-the one in the credentials provided. If the string passed is not yet imported
-to SMACK, the 'smack_known_invalid.smk_known' label is applied without this fact
-is notified to the caller.
-I tried to solve the problem by importing the string during the execution of the
-security_secctx_to_secid() hook, so that set_security_override() will never fail.
-So, probably the string must be already been imported if no new memory can be
-allocated during smack_secctx_to_secid().
+This new hook will be used in the IMA code (patch 7/7) to find inodes that
+must be measured by checking the security label applied to file descriptors.
+This new criteria allows to easily measure all inodes opened by a kernel
+service because their file descriptors have the same label of what the
+service provided with other credentials to the function dentry_open().
 
 
 > > Signed-off-by: Roberto Sassu <roberto.sassu@polito.it>
 > > ---
-> >  security/smack/smack_lsm.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> >  include/linux/security.h   |   12 ++++++++++++
+> >  security/capability.c      |    6 ++++++
+> >  security/security.c        |    6 ++++++
+> >  security/selinux/hooks.c   |    7 +++++++
+> >  security/smack/smack_lsm.c |   11 +++++++++++
+> >  5 files changed, 42 insertions(+), 0 deletions(-)
 > >
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index ca02f17..6e73a1a 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -630,6 +630,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+> >   *	to receive an open file descriptor via socket IPC.
+> >   *	@file contains the file structure being received.
+> >   *	Return 0 if permission is granted.
+> > + * @file_getsecid:
+> > + *	Get the secid associated with the file descriptor.
+> > + *	@file contains a pointer to the file descriptor.
+> > + *	@secid contains a pointer to the location where result will be saved.
+> > + *	In case of failure, @secid will be set to zero.
+> >   *
+> >   * Security hook for dentry
+> >   *
+> > @@ -1492,6 +1497,7 @@ struct security_operations {
+> >  	int (*file_send_sigiotask) (struct task_struct *tsk,
+> >  				    struct fown_struct *fown, int sig);
+> >  	int (*file_receive) (struct file *file);
+> > +	void (*file_getsecid)(const struct file *file, u32 *secid);
+> >  	int (*dentry_open) (struct file *file, const struct cred *cred);
+> >  
+> >  	int (*task_create) (unsigned long clone_flags);
+> > @@ -1751,6 +1757,7 @@ int security_file_set_fowner(struct file *file);
+> >  int security_file_send_sigiotask(struct task_struct *tsk,
+> >  				 struct fown_struct *fown, int sig);
+> >  int security_file_receive(struct file *file);
+> > +void security_file_getsecid(const struct file *file, u32 *secid);
+> >  int security_dentry_open(struct file *file, const struct cred *cred);
+> >  int security_task_create(unsigned long clone_flags);
+> >  int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+> > @@ -2251,6 +2258,11 @@ static inline int security_file_receive(struct file *file)
+> >  	return 0;
+> >  }
+> >  
+> > +static inline void security_file_getsecid(const struct file *file, u32 *secid)
+> > +{
+> > +	*secid = 0;
+> > +}
+> > +
+> >  static inline int security_dentry_open(struct file *file,
+> >  				       const struct cred *cred)
+> >  {
+> > diff --git a/security/capability.c b/security/capability.c
+> > index 2984ea4..fcb569d 100644
+> > --- a/security/capability.c
+> > +++ b/security/capability.c
+> > @@ -349,6 +349,11 @@ static int cap_file_receive(struct file *file)
+> >  	return 0;
+> >  }
+> >  
+> > +static void cap_file_getsecid(const struct file *file, u32 *secid)
+> > +{
+> > +	*secid = 0;
+> > +}
+> > +
+> >  static int cap_dentry_open(struct file *file, const struct cred *cred)
+> >  {
+> >  	return 0;
+> > @@ -953,6 +958,7 @@ void __init security_fixup_ops(struct security_operations *ops)
+> >  	set_to_cap_if_null(ops, file_set_fowner);
+> >  	set_to_cap_if_null(ops, file_send_sigiotask);
+> >  	set_to_cap_if_null(ops, file_receive);
+> > +	set_to_cap_if_null(ops, file_getsecid);
+> >  	set_to_cap_if_null(ops, dentry_open);
+> >  	set_to_cap_if_null(ops, task_create);
+> >  	set_to_cap_if_null(ops, cred_alloc_blank);
+> > diff --git a/security/security.c b/security/security.c
+> > index 1011423..9973dab 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -688,6 +688,12 @@ int security_file_receive(struct file *file)
+> >  	return security_ops->file_receive(file);
+> >  }
+> >  
+> > +void security_file_getsecid(const struct file *file, u32 *secid)
+> > +{
+> > +	security_ops->file_getsecid(file, secid);
+> > +}
+> > +EXPORT_SYMBOL(security_file_getsecid);
+> > +
+> >  int security_dentry_open(struct file *file, const struct cred *cred)
+> >  {
+> >  	int ret;
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 6772687..e1e787c 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3179,6 +3179,12 @@ static int selinux_file_receive(struct file *file)
+> >  	return file_has_perm(cred, file, file_to_av(file));
+> >  }
+> >  
+> > +static void selinux_file_getsecid(const struct file *file, u32 *secid)
+> > +{
+> > +	struct file_security_struct *fsec = file->f_security;
+> > +	*secid = fsec->sid;
+> > +}
+> > +
+> >  static int selinux_dentry_open(struct file *file, const struct cred *cred)
+> >  {
+> >  	struct file_security_struct *fsec;
+> > @@ -5498,6 +5504,7 @@ static struct security_operations selinux_ops = {
+> >  	.file_set_fowner =		selinux_file_set_fowner,
+> >  	.file_send_sigiotask =		selinux_file_send_sigiotask,
+> >  	.file_receive =			selinux_file_receive,
+> > +	.file_getsecid =		selinux_file_getsecid,
+> >  
+> >  	.dentry_open =			selinux_dentry_open,
+> >  
 > > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index e3c9e54..0e7ed31 100644
+> > index 6612ba1..a583736 100644
 > > --- a/security/smack/smack_lsm.c
 > > +++ b/security/smack/smack_lsm.c
-> > @@ -1415,7 +1415,7 @@ static int smack_kernel_act_as(struct cred *new, u32 secid)
-> >  	struct task_smack *new_tsp = new->security;
-> >  	char *smack = smack_from_secid(secid);
+> > @@ -1304,6 +1304,16 @@ static int smack_file_receive(struct file *file)
+> >  	return smk_curacc(file->f_security, may, &ad);
+> >  }
 > >  
-> > -	if (smack == NULL)
-> > +	if (smack == smack_known_invalid.smk_known)
-> >  		return -EINVAL;
+> > +/**
+> > + * smack_file_getsecid - Extract file descriptor's security id
+> > + * @file: file descriptor to extract the info from
+> > + * @secid: where result will be saved
+> > + */
+> > +static void smack_file_getsecid(const struct file *file, u32 *secid)
+> > +{
+> > +	*secid = smack_to_secid(file->f_security);
+> > +}
+> > +
+> >  /*
+> >   * Task hooks
+> >   */
+> > @@ -3434,6 +3444,7 @@ struct security_operations smack_ops = {
+> >  	.file_set_fowner = 		smack_file_set_fowner,
+> >  	.file_send_sigiotask = 		smack_file_send_sigiotask,
+> >  	.file_receive = 		smack_file_receive,
+> > +	.file_getsecid =		smack_file_getsecid,
 > >  
-> >  	new_tsp->smk_task = smack;
+> >  	.cred_alloc_blank =		smack_cred_alloc_blank,
+> >  	.cred_free =			smack_cred_free,
 > 
 > 
 
