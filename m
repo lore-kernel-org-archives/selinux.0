@@ -1,31 +1,36 @@
-Date: Thu, 28 Apr 2011 09:59:32 +1000 (EST)
+Date: Thu, 28 Apr 2011 10:00:58 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Eric Paris <eparis@redhat.com>
 cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
 Subject: Re: [PATCH 3/6] SELinux: skip filename trans rules if ttype does
  not match parent dir
-In-Reply-To: <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.2.00.1104280950290.17048@tundra.namei.org>
-References: <20110426180739.20636.50947.stgit@paris.rdu.redhat.com> <20110426180751.20636.83434.stgit@paris.rdu.redhat.com>
+In-Reply-To: <alpine.LRH.2.00.1104280950290.17048@tundra.namei.org>
+Message-ID: <alpine.LRH.2.00.1104281000340.17048@tundra.namei.org>
+References: <20110426180739.20636.50947.stgit@paris.rdu.redhat.com> <20110426180751.20636.83434.stgit@paris.rdu.redhat.com> <alpine.LRH.2.00.1104280950290.17048@tundra.namei.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 26 Apr 2011, Eric Paris wrote:
+On Thu, 28 Apr 2011, James Morris wrote:
 
-> Right now we walk to filename trans rule list for every inode that is
-> created.  First passes at policy using this facility creates around 5000
-> filename trans rules.  Running a list of 5000 entries every time is a bad
-> idea.  This patch adds a new ebitmap to policy which has a bit set for each
-> ttype that has at least 1 filename trans rule.  Thus when an inode is
-> created we can quickly determine if any rules exist for this parent
-> directory type and can skip the list if we know there is definitely no
-> relevant entry.
+> On Tue, 26 Apr 2011, Eric Paris wrote:
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> > Right now we walk to filename trans rule list for every inode that is
+> > created.  First passes at policy using this facility creates around 5000
+> > filename trans rules.  Running a list of 5000 entries every time is a bad
+> > idea.  This patch adds a new ebitmap to policy which has a bit set for each
+> > ttype that has at least 1 filename trans rule.  Thus when an inode is
+> > created we can quickly determine if any rules exist for this parent
+> > directory type and can skip the list if we know there is definitely no
+> > relevant entry.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> Reviewed-by: James Morris <jmorris@namei.org>
 
-Reviewed-by: James Morris <jmorris@namei.org>
+This was meant to be for 6/6.
+
 
 -- 
 James Morris
