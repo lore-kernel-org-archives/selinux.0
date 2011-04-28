@@ -1,286 +1,317 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3SE40L6032176
-	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 10:04:00 -0400
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3SE3xqg000608
-	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 14:03:59 GMT
-Received: by wwb39 with SMTP id 39so2617320wwb.30
-        for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 07:03:59 -0700 (PDT)
-From: Elia Pinto <andronicus.spiros@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: Elia Pinto <gitter.spiros@gmail.com>
-Subject: [PATCH] policy module for atop
-Date: Thu, 28 Apr 2011 16:03:56 +0200
-Message-Id: <1303999436-1548852-1-git-send-email-andronicus.spiros@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3SEow5i003366
+	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 10:50:58 -0400
+Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3SEovua004738
+	for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 14:50:57 GMT
+Received: by ewy8 with SMTP id 8so933054ewy.12
+        for <selinux@tycho.nsa.gov>; Thu, 28 Apr 2011 07:50:56 -0700 (PDT)
+Message-ID: <4DB97ECE.2090802@gmail.com>
+Date: Thu, 28 Apr 2011 16:50:54 +0200
+From: Dominick Grift <domg472@gmail.com>
+MIME-Version: 1.0
+To: Elia Pinto <andronicus.spiros@gmail.com>
+CC: selinux@tycho.nsa.gov, Elia Pinto <gitter.spiros@gmail.com>
+Subject: Re: [PATCH] policy module for atop
+References: <1303999436-1548852-1-git-send-email-andronicus.spiros@gmail.com>
+In-Reply-To: <1303999436-1548852-1-git-send-email-andronicus.spiros@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Elia Pinto <gitter.spiros@gmail.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
----
- policy/modules/admin/logrotate.te |    4 +
- policy/modules/services/atopd.fc  |    8 ++
- policy/modules/services/atopd.if  |  133 +++++++++++++++++++++++++++++++++++++
- policy/modules/services/atopd.te  |   77 +++++++++++++++++++++
- 4 files changed, 222 insertions(+), 0 deletions(-)
- create mode 100644 policy/modules/services/atopd.fc
- create mode 100644 policy/modules/services/atopd.if
- create mode 100644 policy/modules/services/atopd.te
+On 04/28/2011 04:03 PM, Elia Pinto wrote:
 
-diff --git a/policy/modules/admin/logrotate.te b/policy/modules/admin/logrotate.te
-index 7090dae..6423b3c 100644
---- a/policy/modules/admin/logrotate.te
-+++ b/policy/modules/admin/logrotate.te
-@@ -182,6 +182,10 @@ optional_policy(`
- ')
- 
- optional_policy(`
-+	atopd_signal(logrotate_t)
-+')
-+
-+optional_policy(`
- 	mailman_domtrans(logrotate_t)
- 	mailman_search_data(logrotate_t)
- 	mailman_manage_log(logrotate_t)
-diff --git a/policy/modules/services/atopd.fc b/policy/modules/services/atopd.fc
-new file mode 100644
-index 0000000..508a650
---- /dev/null
-+++ b/policy/modules/services/atopd.fc
-@@ -0,0 +1,8 @@
-+/etc/rc\.d/init\.d/atopd        --      gen_context(system_u:object_r:atopd_initrc_exec_t,s0)
-+/usr/bin/atopd                  --      gen_context(system_u:object_r:atopd_exec_t,s0)
-+/usr/bin/atop                   --      gen_context(system_u:object_r:atopd_exec_t,s0)
-+
-+/var/log/atop(/.*)?                     gen_context(system_u:object_r:atopd_log_t,s0)
-+/var/run/atop\.pid              --      gen_context(system_u:object_r:atopd_var_run_t,s0)
-+/tmp/atop.d(/.*)?                       gen_context(system_u:object_r:atopd_tmp_t,s0)
-+
-diff --git a/policy/modules/services/atopd.if b/policy/modules/services/atopd.if
-new file mode 100644
-index 0000000..8e9c1e4
---- /dev/null
-+++ b/policy/modules/services/atopd.if
-@@ -0,0 +1,133 @@
-+## <summary>policy for atopd</summary>
-+
-+
-+########################################
-+## <summary>
-+##      Execute a domain transition to run atopd.
-+## </summary>
-+## <param name="domain">
-+## <summary>
-+##      Domain allowed access.
-+## </summary>
-+## </param>
-+#
-+interface(`atopd_domtrans',`
-+        gen_require(`
-+                type atopd_t, atopd_exec_t;
-+        ')
-+
-+        domtrans_pattern($1, atopd_exec_t, atopd_t)
-+')
-+
-+
-+########################################
-+## <summary>
-+##      Allow the specified domain to read atopd's log files.
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      Domain allowed access.
-+##      </summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`atopd_read_log',`
-+        gen_require(`
-+                type atopd_log_t;
-+        ')
-+
-+        logging_search_logs($1)
-+        read_files_pattern($1, atopd_log_t, atopd_log_t)
-+')
-+
-+########################################
-+## <summary>
-+##      Allow the specified domain to append
-+##      atopd log files.
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      Domain allowed to transition.
-+##      </summary>
-+## </param>
-+#
-+interface(`atopd_append_log',`
-+        gen_require(`
-+                type atopd_log_t;
-+        ')
-+
-+        logging_search_logs($1)
-+        append_files_pattern($1, atopd_log_t, atopd_log_t)
-+')
-+
-+########################################
-+## <summary>
-+##      Allow domain to manage atopd log files
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      Domain to not audit.
-+##      </summary>
-+## </param>
-+#
-+interface(`atopd_manage_log',`
-+        gen_require(`
-+                type atopd_log_t;
-+        ')
-+
-+        logging_search_logs($1)
-+        manage_dirs_pattern($1, atopd_log_t, atopd_log_t)
-+        manage_files_pattern($1, atopd_log_t, atopd_log_t)
-+        manage_lnk_files_pattern($1, atopd_log_t, atopd_log_t)
-+')
-+
-+########################################
-+## <summary>
-+##      All of the rules required to administrate
-+##      an atopd environment
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      Domain allowed access.
-+##      </summary>
-+## </param>
-+## <param name="role">
-+##      <summary>
-+##      Role allowed access.
-+##      </summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`atopd_admin',`
-+        gen_require(`
-+                type atopd_t;
-+                type atopd_log_t;
-+        ')
-+
-+        allow $1 atopd_t:process { ptrace signal_perms };
-+        ps_process_pattern($1, atopd_t)
-+
-+        logging_search_logs($1)
-+        admin_pattern($1, atopd_log_t)
-+
-+')
-+
-+########################################
-+## <summary>
-+##    Allow domain signal atopd
-+## </summary>
-+## <param name="domain">
-+##    <summary>
-+##    Domain to not audit.
-+##    </summary>
-+## </param>
-+#
-+interface(`atopd_signal',`
-+    gen_require(`
-+        type atopd_t;
-+    ')
-+
-+    allow $1 atopd_t:process signal;
-+')
-+
-+
-diff --git a/policy/modules/services/atopd.te b/policy/modules/services/atopd.te
-new file mode 100644
-index 0000000..c53ecda
---- /dev/null
-+++ b/policy/modules/services/atopd.te
-@@ -0,0 +1,77 @@
-+policy_module(atopd,1.0.0)
-+
-+########################################
-+#
-+# Declarations
-+#
-+
-+type atopd_t;
-+type atopd_exec_t;
-+init_daemon_domain(atopd_t, atopd_exec_t)
-+
-+
-+type atopd_initrc_exec_t;
-+init_script_file(atopd_initrc_exec_t)
-+
-+
-+can_exec(atopd_t, atopd_exec_t)
-+
-+type atopd_log_t;
-+logging_log_file(atopd_log_t)
-+
-+type atopd_var_run_t;
-+files_pid_file(atopd_var_run_t)
-+
-+type atopd_tmp_t;
-+files_tmp_file(atopd_tmp_t)
-+
-+
-+
-+########################################
-+#
-+# atopd local policy
-+#
-+
-+allow atopd_t self:fifo_file rw_fifo_file_perms;
-+allow atopd_t self:unix_stream_socket create_stream_socket_perms;
-+
-+allow atopd_t self:sem create_sem_perms;
-+allow atopd_t self:capability { net_admin setuid sys_nice sys_resource sys_ptrace ipc_lock sys_pacct };
-+allow atopd_t self:process    { setsched sigkill setrlimit };
-+
-+manage_dirs_pattern(atopd_t, atopd_log_t, atopd_log_t)
-+manage_files_pattern(atopd_t, atopd_log_t, atopd_log_t)
-+logging_log_filetrans(atopd_t, atopd_log_t, { dir file } )
-+
-+domain_use_interactive_fds(atopd_t)
-+
-+files_read_etc_files(atopd_t)
-+
-+miscfiles_read_localization(atopd_t)
-+
-+
-+# pid files
-+manage_dirs_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
-+manage_files_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
-+files_pid_filetrans(atopd_t, atopd_var_run_t, { dir file  })
-+
-+# tmp files
-+manage_dirs_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
-+manage_files_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
-+files_tmp_filetrans(atopd_t, atopd_tmp_t, { dir file  })
-+
-+
-+
-+auth_use_nsswitch(atopd_t)
-+
-+domain_read_all_domains_state(atopd_t)
-+
-+kernel_list_proc(atopd_t)
-+kernel_read_network_state(atopd_t)
-+kernel_read_system_state(atopd_t)
-+
-+fs_getattr_xattr_fs(atopd_t)
-+
-+corecmd_exec_bin(atopd_t)
-+
-+acct_manage_data(atopd_t)
--- 
-1.7.2.1.44.g721e7
+> +/usr/bin/atopd                  --      gen_context(system_u:object_r:atopd_exec_t,s0)
+> +/usr/bin/atop                   --      gen_context(system_u:object_r:atopd_exec_t,s0)
 
+Might want to consider running the daemon and client in seperate domains.
+
+> +/tmp/atop.d(/.*)?                       gen_context(system_u:object_r:atopd_tmp_t,s0)
+
+You do not have to specify file contexts for /tmp content because
+fixfiles is not going to restore it anyways.
+
+
+> +        domtrans_pattern($1, atopd_exec_t, atopd_t)
+
+How does a calling domain get to /usr/bin/atop.* in the first place
+without corecmd_search_bin($1)?
+
+
+> +##      Allow the specified domain to read atopd's log files.
+
+Minor personal comment. The "allow the specified domain" is not needed
+in my view.
+
+"Read atpod log files."
+
+Or as i prefer it:
+
+"Read atopd_log_t files."
+
+> +########################################
+> +## <summary>
+> +##      Allow the specified domain to append
+> +##      atopd log files.
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed to transition.
+> +##      </summary>
+> +## </param>
+> +#
+> +interface(`atopd_append_log',`
+> +        gen_require(`
+> +                type atopd_log_t;
+> +        ')
+> +
+> +        logging_search_logs($1)
+> +        append_files_pattern($1, atopd_log_t, atopd_log_t)
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##      Allow domain to manage atopd log files
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain to not audit.
+> +##      </summary>
+> +## </param>
+> +#
+> +interface(`atopd_manage_log',`
+> +        gen_require(`
+> +                type atopd_log_t;
+> +        ')
+> +
+> +        logging_search_logs($1)
+> +        manage_dirs_pattern($1, atopd_log_t, atopd_log_t)
+> +        manage_files_pattern($1, atopd_log_t, atopd_log_t)
+> +        manage_lnk_files_pattern($1, atopd_log_t, atopd_log_t)
+> +')
+
+These above three do not seem to be used by anyone, so i guess they can
+be removed.
+
+> +########################################
+> +## <summary>
+> +##      All of the rules required to administrate
+> +##      an atopd environment
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed access.
+> +##      </summary>
+> +## </param>
+> +## <param name="role">
+> +##      <summary>
+> +##      Role allowed access.
+> +##      </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`atopd_admin',`
+> +        gen_require(`
+> +                type atopd_t;
+> +                type atopd_log_t;
+> +        ')
+> +
+> +        allow $1 atopd_t:process { ptrace signal_perms };
+> +        ps_process_pattern($1, atopd_t)
+> +
+> +        logging_search_logs($1)
+> +        admin_pattern($1, atopd_log_t)
+> +
+> +')
+
+This template above allows confined administrators to "manage atopd".
+This is achieved by labelling atopd's init script with a private type.
+
+Just like you did below.
+
+but you need to allow "atopd_admin" to start/stop/reload etc the atopd
+init daemon:
+
+
+	init_labeled_script_domtrans($1, atopd_initrc_exec_t)
+	domain_system_change_exemption($1)
+	role_transition $2 atopd_initrc_exec_t system_r;
+	allow $2 system_r;
+
+might also allow atopd_admin to manage atopd pids, and the i guess the
+tmp file although i suspect the tmp file is created by the atop client
+and so it should maybe not be here in the first place.
+
+> +########################################
+> +## <summary>
+> +##    Allow domain signal atopd
+
+"Send generic signals to atopd."
+
+or i prefer:
+
+"Send generic signals to atopd_t."
+
+> +## </summary>
+> +## <param name="domain">
+> +##    <summary>
+> +##    Domain to not audit.
+
+"Domain allowed access."
+
+> +##    </summary>
+> +## </param>
+> +#
+> +interface(`atopd_signal',`
+> +    gen_require(`
+> +        type atopd_t;
+> +    ')
+> +
+> +    allow $1 atopd_t:process signal;
+> +')
+> +
+> +
+> diff --git a/policy/modules/services/atopd.te b/policy/modules/services/atopd.te
+> new file mode 100644
+> index 0000000..c53ecda
+> --- /dev/null
+> +++ b/policy/modules/services/atopd.te
+> @@ -0,0 +1,77 @@
+> +policy_module(atopd,1.0.0)
+> +
+> +########################################
+> +#
+> +# Declarations
+> +#
+> +
+> +type atopd_t;
+> +type atopd_exec_t;
+> +init_daemon_domain(atopd_t, atopd_exec_t)
+> +
+> +
+> +type atopd_initrc_exec_t;
+> +init_script_file(atopd_initrc_exec_t)
+> +
+> +
+> +can_exec(atopd_t, atopd_exec_t)
+
+This is not a declaration. What is executing what here? atopd -> atop?
+or atopd -> atopd?
+
+> +
+> +type atopd_log_t;
+> +logging_log_file(atopd_log_t)
+> +
+> +type atopd_var_run_t;
+> +files_pid_file(atopd_var_run_t)
+> +
+> +type atopd_tmp_t;
+> +files_tmp_file(atopd_tmp_t)
+
+I suspect this tmp file is created by the client not the daemon.
+
+> +
+> +
+> +
+> +########################################
+> +#
+> +# atopd local policy
+> +#
+> +
+> +allow atopd_t self:fifo_file rw_fifo_file_perms;
+> +allow atopd_t self:unix_stream_socket create_stream_socket_perms;
+> +
+> +allow atopd_t self:sem create_sem_perms;
+> +allow atopd_t self:capability { net_admin setuid sys_nice sys_resource sys_ptrace ipc_lock sys_pacct };
+> +allow atopd_t self:process    { setsched sigkill setrlimit };
+
+Capability and process go on top of the "self" block. What are all these
+for? Might want to allow your domain to signal itself.
+
+> +
+> +manage_dirs_pattern(atopd_t, atopd_log_t, atopd_log_t)
+> +manage_files_pattern(atopd_t, atopd_log_t, atopd_log_t)
+> +logging_log_filetrans(atopd_t, atopd_log_t, { dir file } )
+
+i think you can remove the "file" from { dir file }. Its likely storing
+its log file in the dir so no need to type transition for file.
+
+> +
+> +domain_use_interactive_fds(atopd_t)
+> +
+> +files_read_etc_files(atopd_t)
+> +
+> +miscfiles_read_localization(atopd_t)
+
+These interface calls go below where the others are.
+
+> +
+> +# pid files
+
+We know already its a pid file.
+
+> +manage_dirs_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
+> +manage_files_pattern(atopd_t, atopd_var_run_t, atopd_var_run_t)
+> +files_pid_filetrans(atopd_t, atopd_var_run_t, { dir file  })
+
+It is not creating any dir in /var/run. And if it does then your fc
+context specifications do not reflect it.
+
+> +# tmp files
+
+we know already its a tmp file.
+
+> +manage_dirs_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
+> +manage_files_pattern(atopd_t, atopd_tmp_t, atopd_tmp_t)
+> +files_tmp_filetrans(atopd_t, atopd_tmp_t, { dir file  })
+
+I suspect you can remove the file from { dir file }. I believe the file
+is created in the dir and so you do not need a type transition for file.
+
+> +
+> +
+> +
+> +auth_use_nsswitch(atopd_t)
+
+this goes below
+
+> +domain_read_all_domains_state(atopd_t)
+
+this goes below the corecmd call
+> +
+> +kernel_list_proc(atopd_t)
+> +kernel_read_network_state(atopd_t)
+> +kernel_read_system_state(atopd_t)
+
+kernel interface calls go on top of the external interface calls stack.
+
+> +
+> +fs_getattr_xattr_fs(atopd_t)
+
+this goes below the domain call.
+
+> +
+> +corecmd_exec_bin(atopd_t)
+
+This goes below the kernel calls. What is it running?
+> +
+> +acct_manage_data(atopd_t)
+
+I gather this is not optional?
+
+Policy patches should be sent to refpolicy@oss.tresys.com maillist.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk25fs4ACgkQMlxVo39jgT+fEgCffFoBo2FXXgAtvD4qlU8lpP2S
+jooAoKC7T9O3OjBUcGTzJimYWV6J6Alx
+=OkS3
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
