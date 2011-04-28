@@ -1,50 +1,48 @@
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: pass last path component in may_create
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Date: Thu, 28 Apr 2011 15:01:56 -0400
+Message-ID: <20110428190155.4332.66813.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <4DB9A5D9.7030607@schaufler-ca.com>
-References: <1303907657-18366-1-git-send-email-roberto.sassu@polito.it>
-	<4DB87A6B.7060805@schaufler-ca.com>
-	<20110427232718.GG30854@boyd.l.tihix.com>
-	<201104281435.08273.roberto.sassu@polito.it>
-	<4DB9A5D9.7030607@schaufler-ca.com>
-Date: Thu, 28 Apr 2011 13:56:03 -0400
-Message-ID: <BANLkTimgn19+T4uFmNgjD1bqVYV3q-3sMA@mail.gmail.com>
-Subject: Re: [RFC][PATCH 0/7] File descriptor labeling
-From: Eric Paris <eparis@parisplace.org>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Roberto Sassu <roberto.sassu@polito.it>,
-        Tyler Hicks <tyhicks@linux.vnet.ibm.com>,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dhowells@redhat.com, jmorris@namei.org,
-        zohar@linux.vnet.ibm.com, safford@watson.ibm.com,
-        kirkland@canonical.com, ecryptfs-devel@lists.launchpad.net,
-        eparis@redhat.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        viro@zeniv.linux.org.uk, john.johansen@canonical.com,
-        apparmor@lists.ubuntu.com
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Apr 28, 2011 at 1:37 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 4/28/2011 5:35 AM, Roberto Sassu wrote:
->> On Thursday, April 28, 2011 01:27:19 AM Tyler Hicks wrote:
->>> On Wed Apr 27, 2011 at 01:19:55PM -0700, Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 4/27/2011 5:34 AM, Roberto Sassu wrote:
+New inodes are created in a two stage process.  We first will compute the
+label on a new inode in security_inode_create() and check if the
+operation is allowed.  We will then actually re-compute that same label and
+apply it in security_inode_init_security().  The change to do new label
+calculations based in part on the last component of the path name only
+passed the path component information all the way down the
+security_inode_init_security hook.  Down the security_inode_create hook the
+path information did not make it past may_create.  Thus the two calculations
+came up differently and the permissions check might not actually be against
+the label that is created.  Pass and use the same information in both places
+to harmonize the calculations and checks.
 
-> On this point I most strongly disagree.
+Reported-by: Dominick Grift <domg472@gmail.com>
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
+ security/selinux/hooks.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Casey, I'm glad you're trying to figure out what's going on here
-because I certainly don't understand all the problems!
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2288203..f84d3d7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1582,7 +1582,8 @@ static int may_create(struct inode *dir,
+ 		return rc;
+ 
+ 	if (!newsid || !(sbsec->flags & SE_SBLABELSUPP)) {
+-		rc = security_transition_sid(sid, dsec->sid, tclass, NULL, &newsid);
++		rc = security_transition_sid(sid, dsec->sid, tclass,
++					     &dentry->d_name, &newsid);
+ 		if (rc)
+ 			return rc;
+ 	}
 
-If there were some mechanism by which the 'lower' inode could be ONLY
-accessibly by ecyptfs kernel internals it oculd be marked IS_PRIVATE
-and skip all security checks on it.  Then you only have SELinux
-security checks on the upper inode.  Which seems to make sense.  My
-problem is that this is ONLY acceptable if there is no way for
-userspace to directly reference the lower struct inode.
-
-Just a thought.
-
--Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
