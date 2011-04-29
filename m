@@ -1,50 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3TJ9vkT024352
-	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2011 15:09:59 -0400
-Received: from fep05-svc.tim.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p3TJ9vlU005478
-	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2011 19:09:57 GMT
-Subject: Re: [RFC][PATCH 0/7] File descriptor labeling
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Roberto Sassu <roberto.sassu@polito.it>,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Date: Fri, 29 Apr 2011 21:09:44 +0200
-In-Reply-To: <4DBADD4C.9040507@schaufler-ca.com>
-References: <201104291139.37489.roberto.sassu@polito.it>
-	 <4DBADD4C.9040507@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p3TN92t7003754
+	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2011 19:09:02 -0400
+Received: from phoenicia.airattack-central.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p3TN911n027054
+	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2011 23:09:01 GMT
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by phoenicia.airattack-central.com (Postfix) with ESMTP id 272D0BD000F
+	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2011 23:09:01 +0000 (UTC)
+Received: from phoenicia.airattack-central.com ([127.0.0.1])
+	by localhost (phoenicia.airattack-central.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nesSSB8IxGjw for <selinux@tycho.nsa.gov>;
+	Sat, 30 Apr 2011 01:09:00 +0200 (CEST)
+Received: from [192.168.1.50] (host-87-75-140-85.dslgb.com [87.75.140.85])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by phoenicia.airattack-central.com (Postfix) with ESMTP id 6F71FBD0001
+	for <selinux@tycho.nsa.gov>; Sat, 30 Apr 2011 01:09:00 +0200 (CEST)
+Subject: xattr support in cgroupfs
+From: Matthew Ife <deleriux@airattack-central.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1304104194.2629.5.camel@vortex>
+Date: Sat, 30 Apr 2011 00:05:51 +0100
+Message-ID: <1304118351.23317.1.camel@home.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-04-29 at 08:46 -0700, Casey Schaufler wrote:
-> On 4/29/2011 2:39 AM, Roberto Sassu wrote:
-[cut]
+I was wondering what peoples' thoughts where on doing this.
 
-> >> Excuse my ignorance for a moment. Is eCryptfs a user mode filesystem,
-> >> or in the kernel properly? The behavior makes it sound like the former
-> >> while the interfaces you're requesting make it seem like the latter.
-> 
-> I'll repeat the question because it matters.
+At the moment cgroupfs does not support xattrs so no labelling of selinux
+types is permitted, but since /proc and other pseudo filesystems support
+it this should be possible.
 
-I am not an expert but since it's already the second time that you ask,
-I have done a little of research and it seems that it's implemented in
-the kernel and then it has userspace tools for management. So it
-shouldn't be any different than other filesystems such as "extended
-filesystems" (2,3,4)...
+There are a number of use-cases which would benefit from this. For
+example I have recently been working with application layer integration
+of libcgroup with other services (apache being able to switch
+cgroups for vhosts for example) because cgroups offer an excellent means
+of offering resource control to prevent abuse of resources.
 
-Regards,
+Aa a typical example i'd like to be able to label some cgroups in
+cgroupfs as "httpd_cgroup_t" / "httpd_cgroup_task_t" so that I can
+control the access of the files it creates for administering tasks and
+altering what goes in the task list. But currently I must give httpd_t
+complete access to cgroup_t files. I can use DAC effectively enough to
+limit access but without SELinux backing me up it makes me feel somewhat
+naked.
 
-Guido
+As a matter of fact, I started patching libcgroup to support labelling
+cgroupfs without realizing this facility is unsupported! So I have about
+70% of an effective patch to do this work properly within libcgroup too.
 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+I welcome peoples' thoughts on this idea.
 
 
 
