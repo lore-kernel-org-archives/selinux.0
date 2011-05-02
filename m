@@ -1,57 +1,159 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p42ECCvE017054
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2011 10:12:21 -0400
-Received: from countercultured.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p428kecR026340
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2011 08:46:40 GMT
-Message-ID: <4DBE6F66.8030502@davequigley.com>
-Date: Mon, 02 May 2011 04:46:30 -0400
-From: Dave Quigley <dpquigl@davequigley.com>
+Message-ID: <4DBEFB66.1090300@tresys.com>
+Date: Mon, 2 May 2011 14:43:50 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Matthew Ife <deleriux@airattack-central.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: xattr support in cgroupfs
-References: <1304118351.23317.1.camel@home.localdomain>
-In-Reply-To: <1304118351.23317.1.camel@home.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Eric Paris <eparis@redhat.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "method@manicmethod.com"
+	<method@manicmethod.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] checkpolicy: use #define for dismod selections
+References: <1301333944.14296.20.camel@localhost.localdomain>
+In-Reply-To: <1301333944.14296.20.camel@localhost.localdomain>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/29/2011 7:05 PM, Matthew Ife wrote:
-> I was wondering what peoples' thoughts where on doing this.
->
-> At the moment cgroupfs does not support xattrs so no labelling of selinux
-> types is permitted, but since /proc and other pseudo filesystems support
-> it this should be possible.
->
-> There are a number of use-cases which would benefit from this. For
-> example I have recently been working with application layer integration
-> of libcgroup with other services (apache being able to switch
-> cgroups for vhosts for example) because cgroups offer an excellent means
-> of offering resource control to prevent abuse of resources.
->
-> Aa a typical example i'd like to be able to label some cgroups in
-> cgroupfs as "httpd_cgroup_t" / "httpd_cgroup_task_t" so that I can
-> control the access of the files it creates for administering tasks and
-> altering what goes in the task list. But currently I must give httpd_t
-> complete access to cgroup_t files. I can use DAC effectively enough to
-> limit access but without SELinux backing me up it makes me feel somewhat
-> naked.
->
-> As a matter of fact, I started patching libcgroup to support labelling
-> cgroupfs without realizing this facility is unsupported! So I have about
-> 70% of an effective patch to do this work properly within libcgroup too.
->
-> I welcome peoples' thoughts on this idea.
->
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
-If you can please try to CC me on the patch so I can give it a look over.
+On 03/28/2011 01:39 PM, Eric Paris wrote:
+> We just use random numbers to make menu selections.  Use #defines and
+> names that make some sense instead.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> ---
+> 
+> diff -up checkpolicy-2.0.23/test/dismod.c.eparis1 checkpolicy-2.0.23/test/dismod.c
+> --- checkpolicy-2.0.23/test/dismod.c.eparis1	2010-12-21 16:35:45.000000000 -0500
+> +++ checkpolicy-2.0.23/test/dismod.c	2011-03-23 13:58:31.561072307 -0400
+> @@ -45,6 +45,14 @@
+>  #define le32_to_cpu(x) bswap_32(x)
+>  #endif
+>  
+> +#define DISPLAY_AVBLOCK_COND_AVTAB	0
+> +#define DISPLAY_AVBLOCK_UNCOND_AVTAB	1
+> +#define DISPLAY_AVBLOCK_ROLE_TYPE_NODE	2 /* unused? */
+> +#define DISPLAY_AVBLOCK_ROLE_TRANS	3
+> +#define DISPLAY_AVBLOCK_ROLE_ALLOW	4
+> +#define DISPLAY_AVBLOCK_REQUIRES	5
+> +#define DISPLAY_AVBLOCK_DECLARES	6
+> +
+>  static policydb_t policydb;
+>  extern unsigned int ss_initialized;
+>  
+> @@ -571,7 +579,7 @@ int display_avdecl(avrule_decl_t * decl,
+>  	fprintf(out_fp, "decl %u:%s\n", decl->decl_id,
+>  		(decl->enabled ? " [enabled]" : ""));
+>  	switch (field) {
+> -	case 0:{
+> +	case DISPLAY_AVBLOCK_COND_AVTAB:{
+>  			cond_list_t *cond = decl->cond_list;
+>  			avrule_t *avrule;
+>  			while (cond) {
+> @@ -599,7 +607,7 @@ int display_avdecl(avrule_decl_t * decl,
+>  			}
+>  			break;
+>  		}
+> -	case 1:{
+> +	case DISPLAY_AVBLOCK_UNCOND_AVTAB:{
+>  			avrule_t *avrule = decl->avrules;
+>  			if (avrule == NULL) {
+>  				fprintf(out_fp, "  <empty>\n");
+> @@ -613,26 +621,26 @@ int display_avdecl(avrule_decl_t * decl,
+>  			}
+>  			break;
+>  		}
+> -	case 2:{		/* role_type_node */
+> +	case DISPLAY_AVBLOCK_ROLE_TYPE_NODE:{	/* role_type_node */
+>  			break;
+>  		}
+> -	case 3:{
+> +	case DISPLAY_AVBLOCK_ROLE_TRANS:{
+>  			display_role_trans(decl->role_tr_rules, policy, out_fp);
+>  			break;
+>  		}
+> -	case 4:{
+> +	case DISPLAY_AVBLOCK_ROLE_ALLOW:{
+>  			display_role_allow(decl->role_allow_rules, policy,
+>  					   out_fp);
+>  			break;
+>  		}
+> -	case 5:{
+> +	case DISPLAY_AVBLOCK_REQUIRES:{
+>  			if (display_scope_index
+>  			    (&decl->required, policy, out_fp)) {
+>  				return -1;
+>  			}
+>  			break;
+>  		}
+> -	case 6:{
+> +	case DISPLAY_AVBLOCK_DECLARES:{
+>  			if (display_scope_index
+>  			    (&decl->declared, policy, out_fp)) {
+>  				return -1;
+> @@ -861,15 +869,16 @@ int main(int argc, char **argv)
+>  		fgets(ans, sizeof(ans), stdin);
+>  		switch (ans[0]) {
+>  
+> -		case '1':{
+> -				fprintf(out_fp, "unconditional avtab:\n");
+> -				display_avblock(1, RENDER_UNCONDITIONAL,
+> -						&policydb, out_fp);
+> -				break;
+> -			}
+> +		case '1':
+> +			fprintf(out_fp, "unconditional avtab:\n");
+> +			display_avblock(DISPLAY_AVBLOCK_UNCOND_AVTAB,
+> +					RENDER_UNCONDITIONAL, &policydb,
+> +					out_fp);
+> +			break;
+>  		case '2':
+>  			fprintf(out_fp, "conditional avtab:\n");
+> -			display_avblock(0, RENDER_UNCONDITIONAL, &policydb,
+> +			display_avblock(DISPLAY_AVBLOCK_COND_AVTAB,
+> +					RENDER_UNCONDITIONAL, &policydb,
+>  					out_fp);
+>  			break;
+>  		case '3':
+> @@ -892,11 +901,13 @@ int main(int argc, char **argv)
+>  			break;
+>  		case '7':
+>  			fprintf(out_fp, "role transitions:\n");
+> -			display_avblock(3, 0, &policydb, out_fp);
+> +			display_avblock(DISPLAY_AVBLOCK_ROLE_TRANS, 0,
+> +					&policydb, out_fp);
+>  			break;
+>  		case '8':
+>  			fprintf(out_fp, "role allows:\n");
+> -			display_avblock(4, 0, &policydb, out_fp);
+> +			display_avblock(DISPLAY_AVBLOCK_ROLE_ALLOW, 0,
+> +					&policydb, out_fp);
+>  			break;
+>  		case '9':
+>  			display_policycon(&policydb, out_fp);
+> @@ -906,11 +917,13 @@ int main(int argc, char **argv)
+>  			break;
+>  		case 'a':
+>  			fprintf(out_fp, "avrule block requirements:\n");
+> -			display_avblock(5, 0, &policydb, out_fp);
+> +			display_avblock(DISPLAY_AVBLOCK_REQUIRES, 0,
+> +					&policydb, out_fp);
+>  			break;
+>  		case 'b':
+>  			fprintf(out_fp, "avrule block declarations:\n");
+> -			display_avblock(6, 0, &policydb, out_fp);
+> +			display_avblock(DISPLAY_AVBLOCK_DECLARES, 0,
+> +					&policydb, out_fp);
+>  			break;
+>  		case 'c':
+>  			display_policycaps(&policydb, out_fp);
+> 
+> 
+> 
+
+Applied in checkpolicy-2.0.25.
+
+Thanks.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
