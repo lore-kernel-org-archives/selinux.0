@@ -9,31 +9,29 @@ In-Reply-To: <4DC02770.1040406@redhat.com>
 References: <4DC01640.9000206@redhat.com>
 	 <1304436800.1587.20.camel@moss-pluto>  <4DC02770.1040406@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 03 May 2011 12:53:05 -0400
-Message-ID: <1304441585.1587.25.camel@moss-pluto>
+Date: Tue, 03 May 2011 13:13:20 -0400
+Message-ID: <1304442800.1587.30.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-05-03 at 12:04 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 05/03/2011 11:33 AM, Stephen Smalley wrote:
-> > As check_mountpoint() sets selinux_mnt, I'd pick a more descriptive
-> > name.  Actually, could you perhaps fold the logic into set_selinuxmnt()?
-> > That would mean the validation would happen when set_selinuxmnt() gets
-> > called by load_policy, which isn't strictly necessary but does no harm.
-> > 
-> 
-> Done
-> 
-> I have to change set_selinuxmnt to return an int now, though.
-> Does this mean we would need an API version bump?  Changing from void
-> return to int?
 
-Ah, I missed that.  We don't want to change the ABI, so I guess you
-should leave set_selinuxmnt() alone and make this a new function.
+diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+index a948920..547f1eb 100644
+--- a/libselinux/src/init.c
++++ b/libselinux/src/init.c
+@@ -79,7 +70,7 @@ static void init_selinuxmnt(void)
+ 		tmp = strchr(p, ' ');
+ 		if (!tmp)
+ 			goto out;
+-		if (!strncmp(tmp + 1, "selinuxfs ", 10)) {
++		if (!strncmp(tmp + 1, SELINUXFS, 10)) {
+ 			*tmp = '\0';
+ 			break;
+ 		}
+
+This isn't equivalent.  I suppose you could do this:
++		if (!strncmp(tmp + 1, SELINUXFS" ", sizeof SELINUXFS)) {
 
 -- 
 Stephen Smalley
