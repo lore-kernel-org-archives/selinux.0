@@ -1,50 +1,74 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p43DKI2w019427
-	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 09:20:18 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p43DWJa5020094
+	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 09:32:19 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p43DKHww006187
-	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 13:20:17 GMT
-Subject: [GIT PULL REQUEST] selinux tree for linus
-From: Eric Paris <eparis@redhat.com>
-To: jmorris@namei.org
-Cc: selinux@tycho.nsa.gov
-Date: Tue, 03 May 2011 09:20:15 -0400
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1304428816.10692.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p43DWIW6010814
+	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 13:32:18 GMT
+Message-ID: <4DC003DF.3000909@redhat.com>
+Date: Tue, 03 May 2011 09:32:15 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Steve Lawrence <slawrence@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: I believe you will need this patch also to build reference policy.
+Content-Type: multipart/mixed;
+ boundary="------------050807060603000607030400"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This pull request includes 3 patch which should be sent to Linus.  The
-first fixes the security checks used to determine if creates are allowed
-when using filename transitions introduced in this cycle.  The second
-patch does not itself fix a regression but is required for the third,
-which fixes an issue in which policy will not load on some distros
-(gentoo is an example) on the 2.6.38 kernel due to the change to use
-flex_array.
+This is a multi-part message in MIME format.
+--------------050807060603000607030400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
--Eric
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The following changes since commit fe3fa43039d47ee4e22caf460b79b62a14937f79:
+Otherwise you end up with a conflict.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-  Merge branch 'master' of git://git.infradead.org/users/eparis/selinux into next (2011-03-08 11:38:10 +1100)
+iEUEARECAAYFAk3AA98ACgkQrlYvE4MpobM0JwCYt5OI6SdmIG7GkrnNwFBpfSPm
+CACffGaVis6oLfIYejhFeYSPJ+f6pbU=
+=k2jf
+-----END PGP SIGNATURE-----
 
-are available in the git repository at:
+--------------050807060603000607030400
+Content-Type: text/plain;
+ name="checkpolicy-filename.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="checkpolicy-filename.patch"
 
-  git://git.infradead.org/users/eparis/selinux.git for-linus
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 427c189..1331c04 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -219,10 +219,11 @@ PERMISSIVE			{ return(PERMISSIVE); }
+ {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+ {digit}+|0x{hexval}+            { return(NUMBER); }
+ {alnum}*                        { return(FILENAME); }
++\.({alnum}|[_\.\-])*	        { return(FILENAME); }
+ {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+ {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+ {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
+-{alnum}+([_\.]|{alnum})+      { return(FILENAME); }
++{letter}+([-_\.]|{alnum})+      { return(FILENAME); }
+ ([_\.]){alnum}+                 { return(FILENAME); }
+ #line[ ]1[ ]\"[^\n]*\"		{ set_source_file(yytext+9); }
+ #line[ ]{digit}+	        { source_lineno = atoi(yytext+6)-1; }
 
-Eric Paris (3):
-      SELinux: pass last path component in may_create
-      flex_array: flex_array_prealloc takes a number of elements, not an end
-      flex_arrays: allow zero length flex arrays
+--------------050807060603000607030400
+Content-Type: application/pgp-signature;
+ name="checkpolicy-filename.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="checkpolicy-filename.patch.sig"
 
- Documentation/flexible-arrays.txt |    4 ++--
- include/linux/flex_array.h        |    2 +-
- lib/flex_array.c                  |   24 ++++++++++++++++++------
- security/selinux/hooks.c          |    3 ++-
- security/selinux/ss/policydb.c    |    6 +++---
- 5 files changed, 26 insertions(+), 13 deletions(-)
-
+iEYEABECAAYFAk3AA98ACgkQrlYvE4MpobOu4QCdE3RFtBq0H8vKnMSw0DZVu2MThEIAoNUA
+Y6YgBrhQH+QdjQBcl7HcnE9I
+--------------050807060603000607030400--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
