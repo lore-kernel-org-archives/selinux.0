@@ -1,28 +1,113 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p43DofND021451
-	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 09:50:41 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p43DodW6015722
-	for <selinux@tycho.nsa.gov>; Tue, 3 May 2011 13:50:40 GMT
-Subject: Re: This is the current libsepol-patch after the update.
-From: Eric Paris <eparis@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>
-Date: Tue, 03 May 2011 09:50:37 -0400
-In-Reply-To: <4DC0069D.9090208@redhat.com>
-References: <4DC0069D.9090208@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1304430638.10692.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+References: <BANLkTi=Czi-Zh1s3YP+rG4KZr1uwoHUTXA@mail.gmail.com>
+Date: Tue, 3 May 2011 15:10:43 +0100
+Message-ID: <BANLkTik4Tzj-Loz9wGiV+HJoZF46nT9ZSw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: revise /selinux/create to handle
+ whitespace/multibytes correctly
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: Kohei Kaigai <Kohei.Kaigai@EU.NEC.COM>
+Cc: Eric Paris <eparis@redhat.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "method@manicmethod.com" <method@manicmethod.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-05-03 at 09:43 -0400, Daniel J Walsh wrote:
-> I will leave it to Eric to explain the patch.
+What is the status of these patches (kernel and libselinux)?
 
-I'll send patches this afternoon with good changelogs and everything.
+It seems to me there is no arguments to use percentage encoding to handle
+object names including white-spaces or multibyte characters.
 
--Eric
+Thanks,
+
+2011/4/16 Kohei KaiGai <kaigai@kaigai.gr.jp>:
+> This patch allows to accept percent-encoded object name as the forth
+> argument of /selinux/create interface to avoid possible bugs when we
+> supply an object name that includes whitespace or multibytes.
+>
+> Although I could not test this patch on named TYPE_TRANSITION rules,
+> but printk() messages for debugging seems to me the logic works correctly.
+> I assume the libselinux provide the logic to encode object name, so it shall
+> be applied transparently for the viewpoint of application.
+>
+> Signed-off-by: KaiGai Kohei <kohei.kaigai@eu.nec.com>
+> ---
+>  security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 37 insertions(+), 1 deletions(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 973f5a4..4fde279 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -28,6 +28,7 @@
+>  #include <linux/percpu.h>
+>  #include <linux/audit.h>
+>  #include <linux/uaccess.h>
+> +#include <linux/ctype.h>
+>
+>  /* selinuxfs pseudo filesystem for exporting the security policy API.
+>    Based on the proc code and the fs/nfsd/nfsctl.c code. */
+> @@ -750,6 +751,15 @@ out:
+>        return length;
+>  }
+>
+> +static inline int hexcode_to_int(int code)
+> +{
+> +       if (code == '\0' || !isxdigit(code))
+> +               return -1;
+> +       if (isdigit(code))
+> +               return code - '0';
+> +       return tolower(code) - 'a' + 10;
+> +}
+> +
+>  static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>  {
+>        char *scon = NULL, *tcon = NULL;
+> @@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file
+> *file, char *buf, size_t size)
+>        nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
+>        if (nargs < 3 || nargs > 4)
+>                goto out;
+> -       if (nargs == 4)
+> +       if (nargs == 4) {
+> +               /*
+> +                * If and when the name of new object to be queried contains
+> +                * either whitespace or multibyte characters, they shall be
+> +                * encoded based on the percentage-encoding rule.
+> +                * If not encoded, the sscanf logic picks up only left-half
+> +                * of the supplied name; splitted by a whitespace unexpectedly.
+> +                */
+> +               char   *r, *w;
+> +               int     c1, c2;
+> +
+> +               r = w = namebuf;
+> +               do {
+> +                       c1 = *r++;
+> +                       if (c1 == '+')
+> +                               c1 = ' ';
+> +                       else if (c1 == '%') {
+> +                               if ((c1 = hexcode_to_int(*r++)) < 0)
+> +                                       goto out;
+> +                               if ((c2 = hexcode_to_int(*r++)) < 0)
+> +                                       goto out;
+> +                               c1 = (c1 << 4) | c2;
+> +                       }
+> +                       *w++ = c1;
+> +               } while (c1 != '\0');
+> +
+>                objname = namebuf;
+> +       }
+>
+>        length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+>        if (length)
+> --
+> 1.7.4.1
+>
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 
 --
