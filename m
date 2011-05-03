@@ -1,42 +1,178 @@
-Subject: Re: libselinux mountpoint changing patch.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>,
-        Lennart Poettering
- <lennart@poettering.net>,
+Message-ID: <4DC04414.2040005@redhat.com>
+Date: Tue, 03 May 2011 14:06:12 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux <selinux@tycho.nsa.gov>,
+        Lennart Poettering <lennart@poettering.net>,
         Eric Paris <eparis@parisplace.org>
-In-Reply-To: <4DC02770.1040406@redhat.com>
-References: <4DC01640.9000206@redhat.com>
-	 <1304436800.1587.20.camel@moss-pluto>  <4DC02770.1040406@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 03 May 2011 13:13:20 -0400
-Message-ID: <1304442800.1587.30.camel@moss-pluto>
-Mime-Version: 1.0
+Subject: Re: libselinux mountpoint changing patch.
+References: <4DC01640.9000206@redhat.com>	 <1304436800.1587.20.camel@moss-pluto>  <4DC02770.1040406@redhat.com> <1304442800.1587.30.camel@moss-pluto>
+In-Reply-To: <1304442800.1587.30.camel@moss-pluto>
+Content-Type: multipart/mixed;
+ boundary="------------060602040107030606090108"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------060602040107030606090108
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-index a948920..547f1eb 100644
---- a/libselinux/src/init.c
-+++ b/libselinux/src/init.c
-@@ -79,7 +70,7 @@ static void init_selinuxmnt(void)
- 		tmp = strchr(p, ' ');
- 		if (!tmp)
- 			goto out;
--		if (!strncmp(tmp + 1, "selinuxfs ", 10)) {
-+		if (!strncmp(tmp + 1, SELINUXFS, 10)) {
- 			*tmp = '\0';
- 			break;
- 		}
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This isn't equivalent.  I suppose you could do this:
-+		if (!strncmp(tmp + 1, SELINUXFS" ", sizeof SELINUXFS)) {
+On 05/03/2011 01:13 PM, Stephen Smalley wrote:
+> 
+> diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+> index a948920..547f1eb 100644
+> --- a/libselinux/src/init.c
+> +++ b/libselinux/src/init.c
+> @@ -79,7 +70,7 @@ static void init_selinuxmnt(void)
+>  		tmp = strchr(p, ' ');
+>  		if (!tmp)
+>  			goto out;
+> -		if (!strncmp(tmp + 1, "selinuxfs ", 10)) {
+> +		if (!strncmp(tmp + 1, SELINUXFS, 10)) {
+>  			*tmp = '\0';
+>  			break;
+>  		}
+> 
+> This isn't equivalent.  I suppose you could do this:
+> +		if (!strncmp(tmp + 1, SELINUXFS" ", sizeof SELINUXFS)) {
+> 
 
--- 
-Stephen Smalley
-National Security Agency
 
+Ok one more time...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk3ARBQACgkQrlYvE4MpobObeQCgwz+m8Ag8hzTWBuPGzXWXjcu6
+xC0An3v6Kzia20ZfKwgV/Hq9sx6TfX7q
+=akdW
+-----END PGP SIGNATURE-----
+
+--------------060602040107030606090108
+Content-Type: text/plain;
+ name="libselinux-mountpoint.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-mountpoint.patch"
+
+ZGlmZiAtLWdpdCBhL2xpYnNlbGludXgvc3JjL2VuYWJsZWQuYyBiL2xpYnNlbGludXgvc3Jj
+L2VuYWJsZWQuYwppbmRleCBiM2M4YzQ3Li4wMThjNzg3IDEwMDY0NAotLS0gYS9saWJzZWxp
+bnV4L3NyYy9lbmFibGVkLmMKKysrIGIvbGlic2VsaW51eC9zcmMvZW5hYmxlZC5jCkBAIC0x
+MSwxMCArMTEsNiBAQAogCiBpbnQgaXNfc2VsaW51eF9lbmFibGVkKHZvaWQpCiB7Ci0JY2hh
+ciAqYnVmPU5VTEw7Ci0JRklMRSAqZnA7Ci0Jc3NpemVfdCBudW07Ci0Jc2l6ZV90IGxlbjsK
+IAlpbnQgZW5hYmxlZCA9IDA7CiAJc2VjdXJpdHlfY29udGV4dF90IGNvbjsKIApAQCAtMzIs
+MzcgKzI4LDggQEAgaW50IGlzX3NlbGludXhfZW5hYmxlZCh2b2lkKQogCQkJCWVuYWJsZWQg
+PSAwOwogCQkJZnJlZWNvbihjb24pOwogCQl9Ci0JCXJldHVybiBlbmFibGVkOwogICAgICAg
+ICB9CiAKLQkvKiBEcm9wIGJhY2sgdG8gZGV0ZWN0aW5nIGl0IHRoZSBsb25nIHdheS4gKi8K
+LQlmcCA9IGZvcGVuKCIvcHJvYy9maWxlc3lzdGVtcyIsICJyIik7Ci0JaWYgKCFmcCkKLQkJ
+cmV0dXJuIC0xOwotCi0JX19mc2V0bG9ja2luZyhmcCwgRlNFVExPQ0tJTkdfQllDQUxMRVIp
+OwotCXdoaWxlICgobnVtID0gZ2V0bGluZSgmYnVmLCAmbGVuLCBmcCkpICE9IC0xKSB7Ci0J
+CWlmIChzdHJzdHIoYnVmLCAic2VsaW51eGZzIikpIHsKLQkJCWVuYWJsZWQgPSAxOwotCQkJ
+YnJlYWs7Ci0JCX0KLQl9Ci0KLQlpZiAobnVtIDwgMCkKLQkJZ290byBvdXQ7Ci0KLQkvKiBT
+aW5jZSBhbiBzZWxpbnV4IGZpbGUgc3lzdGVtIGlzIGF2YWlsYWJsZSwgd2UgY29uc2lkZXIK
+LQkgKiBzZWxpbnV4IGVuYWJsZWQuIElmIGdldGNvbl9yYXcgZmFpbHMsIHNlbGludXggaXMg
+c3RpbGwKLQkgKiBlbmFibGVkLiBXZSBvbmx5IGNvbnNpZGVyIGl0IGRpc2FibGVkIGlmIG5v
+IHBvbGljeSBpcyBsb2FkZWQuICovCi0JaWYgKGdldGNvbl9yYXcoJmNvbikgPT0gMCkgewot
+CQlpZiAoIXN0cmNtcChjb24sICJrZXJuZWwiKSkKLQkJCWVuYWJsZWQgPSAwOwotCQlmcmVl
+Y29uKGNvbik7Ci0JfQotCi0gICAgICBvdXQ6Ci0JZnJlZShidWYpOwotCWZjbG9zZShmcCk7
+CiAJcmV0dXJuIGVuYWJsZWQ7CiB9CiAKZGlmZiAtLWdpdCBhL2xpYnNlbGludXgvc3JjL2lu
+aXQuYyBiL2xpYnNlbGludXgvc3JjL2luaXQuYwppbmRleCBhOTQ4OTIwLi5kZDAzNTU5IDEw
+MDY0NAotLS0gYS9saWJzZWxpbnV4L3NyYy9pbml0LmMKKysrIGIvbGlic2VsaW51eC9zcmMv
+aW5pdC5jCkBAIC03LDYgKzcsNyBAQAogI2luY2x1ZGUgPHN0ZGlvLmg+CiAjaW5jbHVkZSA8
+c3RkaW9fZXh0Lmg+CiAjaW5jbHVkZSA8ZGxmY24uaD4KKyNpbmNsdWRlIDxzeXMvc3RhdHZm
+cy5oPgogI2luY2x1ZGUgPHN5cy92ZnMuaD4KICNpbmNsdWRlIDxzdGRpbnQuaD4KICNpbmNs
+dWRlIDxsaW1pdHMuaD4KQEAgLTIwLDEyICsyMSw0MSBAQCBjaGFyICpzZWxpbnV4X21udCA9
+IE5VTEw7CiBpbnQgc2VsaW51eF9wYWdlX3NpemUgPSAwOwogaW50IG9ial9jbGFzc19jb21w
+YXQgPSAxOwogCisvKiBWZXJpZnkgdGhlIG1vdW50IHBvaW50IGZvciBzZWxpbnV4IGZpbGUg
+c3lzdGVtIGhhcyBhIHNlbGludXhmcy4gCisgICBJZiB0aGUgZmlsZSBzeXN0ZW06CisgICAq
+IEV4aXN0LCAKKyAgICogSXMgbW91bnRlZCB3aXRoIGFuIHNlbGludXggZmlsZSBzeXN0ZW0s
+IAorICAgKiBUaGUgZmlsZSBzeXN0ZW0gaXMgcmVhZC93cml0ZQorICAgKiB0aGVuIHNldCB0
+aGlzIGFzIHRoZSBkZWZhdWx0IGZpbGUgc3lzdGVtLgorKi8KK3N0YXRpYyBpbnQgdmVyaWZ5
+X3NlbGludXhtbnQoY2hhciAqbW50KSAKK3sKKwlzdHJ1Y3Qgc3RhdGZzIHNmYnVmOworCWlu
+dCByYzsKKworCWRvIHsKKwkJcmMgPSBzdGF0ZnMobW50LCAmc2ZidWYpOworCX0gd2hpbGUg
+KHJjIDwgMCAmJiBlcnJubyA9PSBFSU5UUik7CisJaWYgKHJjID09IDApIHsKKwkJaWYgKCh1
+aW50MzJfdClzZmJ1Zi5mX3R5cGUgPT0gKHVpbnQzMl90KVNFTElOVVhfTUFHSUMpIHsKKwkJ
+CXN0cnVjdCBzdGF0dmZzIHZmc2J1ZjsKKwkJCXJjID0gc3RhdHZmcyhtbnQsICZ2ZnNidWYp
+OworCQkJaWYgKHJjID09IDApIHsKKwkJCQlpZiAoISh2ZnNidWYuZl9mbGFnICYgU1RfUkRP
+TkxZKSkgeworCQkJCQlzZXRfc2VsaW51eG1udChtbnQpOworCQkJCX0KKwkJCQlyZXR1cm4g
+MDsKKwkJCX0KKwkJfQorCX0gCisKKwlyZXR1cm4gLTE7Cit9CisKIHN0YXRpYyB2b2lkIGlu
+aXRfc2VsaW51eG1udCh2b2lkKQogewogCWNoYXIgKmJ1Zj1OVUxMLCAqcDsKIAlGSUxFICpm
+cD1OVUxMOwotCXN0cnVjdCBzdGF0ZnMgc2ZidWY7Ci0JaW50IHJjOwogCXNpemVfdCBsZW47
+CiAJc3NpemVfdCBudW07CiAJaW50IGV4aXN0cyA9IDA7CkBAIC0zMywxNyArNjMsOSBAQCBz
+dGF0aWMgdm9pZCBpbml0X3NlbGludXhtbnQodm9pZCkKIAlpZiAoc2VsaW51eF9tbnQpCiAJ
+CXJldHVybjsKIAotCS8qIFdlIGNoZWNrIHRvIHNlZSBpZiB0aGUgcHJlZmVycmVkIG1vdW50
+IHBvaW50IGZvciBzZWxpbnV4IGZpbGUKLQkgKiBzeXN0ZW0gaGFzIGEgc2VsaW51eGZzLiAq
+LwotCWRvIHsKLQkJcmMgPSBzdGF0ZnMoU0VMSU5VWE1OVCwgJnNmYnVmKTsKLQl9IHdoaWxl
+IChyYyA8IDAgJiYgZXJybm8gPT0gRUlOVFIpOwotCWlmIChyYyA9PSAwKSB7Ci0JCWlmICgo
+dWludDMyX3Qpc2ZidWYuZl90eXBlID09ICh1aW50MzJfdClTRUxJTlVYX01BR0lDKSB7Ci0J
+CQlzZWxpbnV4X21udCA9IHN0cmR1cChTRUxJTlVYTU5UKTsKLQkJCXJldHVybjsKLQkJfQot
+CX0gCisJaWYgKHZlcmlmeV9zZWxpbnV4bW50KFNFTElOVVhNTlQpID09IDApIHJldHVybjsK
+KworCWlmICh2ZXJpZnlfc2VsaW51eG1udChPTERTRUxJTlVYTU5UKSA9PSAwKSByZXR1cm47
+CiAKIAkvKiBEcm9wIGJhY2sgdG8gZGV0ZWN0aW5nIGl0IHRoZSBsb25nIHdheS4gKi8KIAlm
+cCA9IGZvcGVuKCIvcHJvYy9maWxlc3lzdGVtcyIsICJyIik7CkBAIC01Miw3ICs3NCw3IEBA
+IHN0YXRpYyB2b2lkIGluaXRfc2VsaW51eG1udCh2b2lkKQogCiAJX19mc2V0bG9ja2luZyhm
+cCwgRlNFVExPQ0tJTkdfQllDQUxMRVIpOwogCXdoaWxlICgobnVtID0gZ2V0bGluZSgmYnVm
+LCAmbGVuLCBmcCkpICE9IC0xKSB7Ci0JCWlmIChzdHJzdHIoYnVmLCAic2VsaW51eGZzIikp
+IHsKKwkJaWYgKHN0cnN0cihidWYsIFNFTElOVVhGUykpIHsKIAkJCWV4aXN0cyA9IDE7CiAJ
+CQlicmVhazsKIAkJfQpAQCAtNzksNyArMTAxLDcgQEAgc3RhdGljIHZvaWQgaW5pdF9zZWxp
+bnV4bW50KHZvaWQpCiAJCXRtcCA9IHN0cmNocihwLCAnICcpOwogCQlpZiAoIXRtcCkKIAkJ
+CWdvdG8gb3V0OwotCQlpZiAoIXN0cm5jbXAodG1wICsgMSwgInNlbGludXhmcyAiLCAxMCkp
+IHsKKwkJaWYgKCFzdHJuY21wKHRtcCArIDEsIFNFTElOVVhGUyIgIiwgc3RybGVuKFNFTElO
+VVhGUykrMSkpIHsKIAkJCSp0bXAgPSAnXDAnOwogCQkJYnJlYWs7CiAJCX0KQEAgLTg3LDcg
+KzEwOSw3IEBAIHN0YXRpYyB2b2lkIGluaXRfc2VsaW51eG1udCh2b2lkKQogCiAJLyogSWYg
+d2UgZm91bmQgc29tZXRoaW5nLCBkdXAgaXQgKi8KIAlpZiAobnVtID4gMCkKLQkJc2VsaW51
+eF9tbnQgPSBzdHJkdXAocCk7CisJCXZlcmlmeV9zZWxpbnV4bW50KHApOwogCiAgICAgICBv
+dXQ6CiAJZnJlZShidWYpOwpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvbG9hZF9wb2xp
+Y3kuYyBiL2xpYnNlbGludXgvc3JjL2xvYWRfcG9saWN5LmMKaW5kZXggODNkMjE0My4uMDk2
+MTkxMiAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9zcmMvbG9hZF9wb2xpY3kuYworKysgYi9s
+aWJzZWxpbnV4L3NyYy9sb2FkX3BvbGljeS5jCkBAIC0zNjksNyArMzY5LDE3IEBAIGludCBz
+ZWxpbnV4X2luaXRfbG9hZF9wb2xpY3koaW50ICplbmZvcmNlKQogCSAqIENoZWNrIGZvciB0
+aGUgZXhpc3RlbmNlIG9mIFNFTGludXggdmlhIHNlbGludXhmcywgYW5kIAogCSAqIG1vdW50
+IGl0IGlmIHByZXNlbnQgZm9yIHVzZSBpbiB0aGUgY2FsbHMgYmVsb3cuICAKIAkgKi8KLQlp
+ZiAobW91bnQoInNlbGludXhmcyIsIFNFTElOVVhNTlQsICJzZWxpbnV4ZnMiLCAwLCAwKSA8
+IDAgJiYgZXJybm8gIT0gRUJVU1kpIHsKKwljaGFyICptbnRwb2ludCA9IE5VTEw7CisJaWYg
+KG1vdW50KFNFTElOVVhGUywgU0VMSU5VWE1OVCwgU0VMSU5VWEZTLCAwLCAwKSA9PSAwIHx8
+IGVycm5vID09IEVCVVNZKSB7CisJCW1udHBvaW50ID0gU0VMSU5VWE1OVDsKKwl9IGVsc2Ug
+eyAKKwkJLyogY2hlY2sgb2xkIG1vdW50cG9pbnQgKi8KKwkJaWYgKG1vdW50KFNFTElOVVhG
+UywgT0xEU0VMSU5VWE1OVCwgU0VMSU5VWEZTLCAwLCAwKSA9PSAwIHx8IGVycm5vID09IEVC
+VVNZKSB7CisJCQltbnRwb2ludCA9IE9MRFNFTElOVVhNTlQ7CisJCX0KKwl9IAorCisJaWYg
+KCEgbW50cG9pbnQgKSB7CiAJCWlmIChlcnJubyA9PSBFTk9ERVYpIHsKIAkJCS8qCiAJCQkg
+KiBTRUxpbnV4IHdhcyBkaXNhYmxlZCBpbiB0aGUga2VybmVsLCBlaXRoZXIKQEAgLTM4NSw3
+ICszOTUsNyBAQCBpbnQgc2VsaW51eF9pbml0X2xvYWRfcG9saWN5KGludCAqZW5mb3JjZSkK
+ICAgICAgICAgICAgICAgICAKIAkJZ290byBub2xvYWQ7CiAJfQotCXNldF9zZWxpbnV4bW50
+KFNFTElOVVhNTlQpOworCXNldF9zZWxpbnV4bW50KG1udHBvaW50KTsKIAogCS8qCiAJICog
+Tm90ZTogIFRoZSBmb2xsb3dpbmcgY29kZSBkZXBlbmRzIG9uIGhhdmluZyBzZWxpbnV4ZnMg
+CkBAIC0zOTcsNyArNDA3LDcgQEAgaW50IHNlbGludXhfaW5pdF9sb2FkX3BvbGljeShpbnQg
+KmVuZm9yY2UpCiAJCXJjID0gc2VjdXJpdHlfZGlzYWJsZSgpOwogCQlpZiAocmMgPT0gMCkg
+ewogCQkJLyogU3VjY2Vzc2Z1bGx5IGRpc2FibGVkLCBzbyB1bW91bnQgc2VsaW51eGZzIHRv
+by4gKi8KLQkJCXVtb3VudChTRUxJTlVYTU5UKTsKKwkJCXVtb3VudChzZWxpbnV4X21udCk7
+CiAJCQlmaW5pX3NlbGludXhtbnQoKTsKIAkJfQogCQkvKgpkaWZmIC0tZ2l0IGEvbGlic2Vs
+aW51eC9zcmMvcG9saWN5LmggYi9saWJzZWxpbnV4L3NyYy9wb2xpY3kuaAppbmRleCAxMGU4
+NzEyLi5iZjI3MGI1IDEwMDY0NAotLS0gYS9saWJzZWxpbnV4L3NyYy9wb2xpY3kuaAorKysg
+Yi9saWJzZWxpbnV4L3NyYy9wb2xpY3kuaApAQCAtOSwxMSArOSwxNSBAQAogLyogSW5pdGlh
+bCBsZW5ndGggZ3Vlc3MgZm9yIGdldHRpbmcgY29udGV4dHMuICovCiAjZGVmaW5lIElOSVRD
+T05URVhUTEVOIDI1NQogCisvKiBzZWxpbnV4IGZpbGUgc3lzdGVtIHR5cGUgKi8KKyNkZWZp
+bmUgU0VMSU5VWEZTICJzZWxpbnV4ZnMiCisKIC8qIHNlbGludXhmcyBtYWdpYyBudW1iZXIg
+Ki8KICNkZWZpbmUgU0VMSU5VWF9NQUdJQyAweGY5N2NmZjhjCiAKIC8qIFByZWZlcnJlZCBz
+ZWxpbnV4IG1vdW50IGxvY2F0aW9uICovCi0jZGVmaW5lIFNFTElOVVhNTlQgIi9zZWxpbnV4
+IgorI2RlZmluZSBTRUxJTlVYTU5UICIvc3lzL2ZzL3NlbGludXgiCisjZGVmaW5lIE9MRFNF
+TElOVVhNTlQgIi9zZWxpbnV4IgogCiAvKiBzZWxpbnV4ZnMgbW91bnQgcG9pbnQgKi8KIGV4
+dGVybiBjaGFyICpzZWxpbnV4X21udDsK
+--------------060602040107030606090108
+Content-Type: application/pgp-signature;
+ name="libselinux-mountpoint.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-mountpoint.patch.sig"
+
+iEYEABECAAYFAk3ARBQACgkQrlYvE4MpobNMZACffHT0/j7W+DX1vR6NMNwDUjZP5iEAoMxT
+MFCCSbKz8YY3dl3hhw8NyvbH
+--------------060602040107030606090108--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
