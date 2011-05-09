@@ -1,141 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p49GnolT022800
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 12:49:58 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p49FDOVk024796
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 15:13:24 GMT
-Message-ID: <4DC804D8.1080605@tresys.com>
-Date: Mon, 9 May 2011 11:14:32 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Patch Review Process
-Content-Type: text/plain; charset="ISO-8859-1"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p49JLNCs003697
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 15:21:25 -0400
+Received: from fep07-svc.tim.it (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p49JLNAa002869
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 19:21:24 GMT
+Subject: Re: Patch Review Process
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Steve Lawrence <slawrence@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Date: Mon, 09 May 2011 21:21:17 +0200
+In-Reply-To: <4DC804D8.1080605@tresys.com>
+References: <4DC804D8.1080605@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <1304968880.2521.43.camel@vortex>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Recently, I've not been merging patches at the rate that I would like.
-The delay is a problem itself, but it has also meant that people aren't
-certain of the status of the patches that have been submitted.
+Hello Steve !
 
-I understand that this can be frustrating. Not only am I going to work
-harder to review and merge patches in a more timely manner, but also at
-providing better feedback more quickly. As such, I will make some simple
-changes.
+On Mon, 2011-05-09 at 11:14 -0400, Steve Lawrence wrote:
+> Recently, I've not been merging patches at the rate that I would like.
+> The delay is a problem itself, but it has also meant that people aren't
+> certain of the status of the patches that have been submitted.
+> 
+[cut]
+> 
+> Finally, if anyone has any suggestions on ways to make the patch review
+> process better, my ears are all open.
 
-First, I will either quickly respond with a review, or reply with a
-confirmation that I received the patch and it has been added to our
-queue. Second, I will send out bi-weekly emails to the list detailing
-which patches have been reviewed, which patches I am currently working
-on, and the updated patch queue.
+Yes, adding at least the name and/or email address of the submitter to
+the "Current Patch Queue" will probably help.
 
-While these changes are relatively minor, I think they should help to
-make the review process more transparent and less frustrating. To start
-this off, the current patch queue is at the bottom of this email. If you
-don't see a patch that you have submitted, or you have an updated
-version, please send the patch to this mailing list and I'll update the
-queue.
+Regards,
 
-For anyone wishing to submit a patch, the process remains the same:
-- Make sure the patch applies to the current HEAD of the git repo
-(http://oss.tresys.com/git/selinux.git).
-- Send it to this list using the Linux kernel submission standards
-(http://www.kernel.org/doc/Documentation/SubmittingPatches). Note: using
-git format-patch and git send-email will take care of most of this for you.
-- I will shortly respond with a confirmation
-
-Finally, if anyone has any suggestions on ways to make the patch review
-process better, my ears are all open.
-
-
-Current Patch Queue:
-
-checkpolicy: fix filename identifier
-http://marc.info/?l=selinux&m=130442985211760&w=2
-
-selabel_open fix processing of substitution files (update)
-http://marc.info/?l=selinux&m=130314146920796&w=2
-
-selinux_file_context_verify function returns wrong value
-http://marc.info/?l=selinux&m=129968866831934&w=2
-
-Fix boolean handling in semanage
-http://marc.info/?l=selinux&m=125433524126271&w=2
-
-Add modules support to semanage
-http://marc.info/?l=selinux&m=125433587727297&w=2
-
-sandbox changes
-http://marc.info/?l=selinux&m=129226611027331&w=2
-
-libselinux mountpoint changing
-http://marc.info/?l=selinux&m=130444622801373&w=2
-
-Add note to checkmodule man page about versions
-http://marc.info/?l=selinux&m=127913558418720&w=2
-
-Bug in restorecond for the first user logged in
-http://marc.info/?t=128164314700001&r=1&w=2
-
-transactions in semanage man page
-http://marc.info/?l=selinux&m=127959379422398&w=2
-
-libsemanage python3 support
-http://marc.info/?l=selinux&m=128025784525867&w=2
-
-libselinux python3 support
-http://marc.info/?l=selinux&m=129226509225674&w=2
-
-SETools patch: adding exclude type feature in queries
-http://marc.info/?l=selinux&m=128448149528834&w=2
-
-Move newrole to file caps/libcapng
-http://marc.info/?l=selinux&m=129226621227513&w=2
-
-Improve semodule performance
-http://marc.info/?l=selinux&m=128043503603540&w=2
-
-Fix warning messages generated by GCC 4.6
-http://marc.info/?l=selinux&m=127845525722194&w=2
-
-sepolgen kernel policy version check
-http://marc.info/?l=selinux&m=128948444127169&w=2
-
-Remove DEFAULTUSER handling from get_context_list
-http://marc.info/?l=selinux&m=129226509425687&w=2
-
-sepolgen current patch from Fedora
-http://marc.info/?l=selinux&m=129226551726416&w=2
-
-Improved error message for load_policy
-http://marc.info/?l=selinux&m=129226567426640&w=2
-
-Semanage patch
-http://marc.info/?l=selinux&m=129233335310866&w=2
-
-restorecond: Ignore IN_IGNORED inotify events
-http://marc.info/?l=selinux&m=125380417916233&w=2
-
-setfiles/restorecond patch
-http://marc.info/?l=selinux&m=129226589026919&w=2
-
-policycoreutils:  update audit2allow manpage
-http://marc.info/?l=selinux&m=129304945226866&w=2
-
-libsemanage: include MCS/MLS level when generating files_contexts.homedirs
-http://marc.info/?l=selinux&m=129421658323663&w=2
-
-setfiles: provide an option to avoid abortion on a missing file
-http://marc.info/?l=selinux&m=129819885027010&w=2
-
-minor improvements and clean-ups for setfiles
-http://marc.info/?l=selinux&m=129819262321520&w=2
-
-policycoreutils scripts updates
-http://marc.info/?l=selinux&m=129226648427897&w=2
-
-Fix options for policycoreutils binaries
-http://marc.info/?l=selinux&m=125718355929168&w=2
+Guido
 
 
 --
