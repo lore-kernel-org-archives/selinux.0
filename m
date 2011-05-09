@@ -1,161 +1,183 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p49JvUw1006164
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 15:57:30 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p49KTpnX008000
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 16:29:51 -0400
 Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p49JvUOZ025252
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 19:57:30 GMT
-Message-ID: <4DC84776.8080708@tresys.com>
-Date: Mon, 9 May 2011 15:58:46 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p49KToqP003405
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 20:29:50 GMT
+Message-ID: <4DC84F0B.5020906@tresys.com>
+Date: Mon, 9 May 2011 16:31:07 -0400
 From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
 To: Guido Trentalancia <guido@trentalancia.com>
 CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Patch Review Process
-References: <4DC804D8.1080605@tresys.com> <1304968880.2521.43.camel@vortex>
-In-Reply-To: <1304968880.2521.43.camel@vortex>
+Subject: Re: [PATCH v2] policycoreutils: alternative configuration file support
+ for sestatus
+References: <1304970662.2521.54.camel@vortex>
+In-Reply-To: <1304970662.2521.54.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/09/2011 03:21 PM, Guido Trentalancia wrote:
-> Hello Steve !
+On 05/09/2011 03:50 PM, Guido Trentalancia wrote:
+> RESUBMISSION (originally submitted on Sat, 19 Mar 2011 18:36:27 +0100)
 > 
-> On Mon, 2011-05-09 at 11:14 -0400, Steve Lawrence wrote:
->> Recently, I've not been merging patches at the rate that I would like.
->> The delay is a problem itself, but it has also meant that people aren't
->> certain of the status of the patches that have been submitted.
->>
-> [cut]
->>
->> Finally, if anyone has any suggestions on ways to make the patch review
->> process better, my ears are all open.
+> Hello !
 > 
-> Yes, adding at least the name and/or email address of the submitter to
-> the "Current Patch Queue" will probably help.
+> I have created a tiny patch so that sestatus would be able to accept
+> alternative configuration files. The patch also tries to improve the
+> manual page and adds an option for displaying the usage of the tool.
+> 
+> Christopher: I have created this so that sestatus can check processes
+> other than init without touching the default configuration file (the
+> primordial "make check" in refpolicy).
 > 
 > Regards,
 > 
 > Guido
+> 
+> diff -pruN selinux/policycoreutils/sestatus/sestatus.8 selinux-policycoreutils-sestatus-config-files/policycoreutils/sestatus/sestatus.8
+> --- selinux/policycoreutils/sestatus/sestatus.8	2011-05-09 01:04:17.079842517 +0200
+> +++ selinux-policycoreutils-sestatus-config-files/policycoreutils/sestatus/sestatus.8	2011-05-09 21:33:20.868842542 +0200
+> @@ -1,10 +1,10 @@
+> -.TH "sestatus" "8" "2005111103" "" ""
+> +.TH "sestatus" "8" "March 2011" "" ""
+>  .SH "NAME"
+>  sestatus \- SELinux status tool
+>  
+>  .SH "SYNOPSIS"
+>  .B sestatus
+> -.I [\-v] [\-b]  
+> +.I [\-v] [\-b] [\-c] [\-h]
+>  .P
+>  This tool is used to get the status of a system running SELinux.
+>  
+> @@ -13,7 +13,7 @@ This manual page describes the
+>  .BR sestatus
+>  program.
+>  .br
+> -This tool is used to get the status of a system running SELinux.  It displays data about whether SELinux is enabled, disabled, the loaded policy and whether it is in enforcing or permissive mode.  It can also be used to display the security context of files and processes listed in the /etc/sestatus.conf file.
+> +This tool is used to get the status of a system running SELinux.  It displays useful information about whether SELinux is enabled or disabled, about the policy currently loaded and whether the SELinux framework is in enforcing or permissive mode. This tool can also be used to display the security context of files and processes listed in the default \fI/etc/sestatus.conf\fP (or in an alternative) configuration file.
+>  
+>  > sestatus
+>  .br
+> @@ -29,21 +29,24 @@ Policy version:         16
+>  .TP 
+>  
+>  .B \-v
+> -.P
+> - Checks the contexts of a files , and a processes listed in the /etc/sestatus.conf file.  It also checks the context of the target, in cases of
+> -symlinks.
+> -
+> +Checks the contexts of files and processes listed in the \fI/etc/sestatus.conf\fP configuration file. In the case of symbolic links, it also checks the context of the target files.
+> +.TP
+>  .B \-b
+> -.P
+> -Display the current state of booleans.
+> -
+> +Displays the current state of the SELinux policy booleans.
+> +.TP
+> +.B \-c
+> +Determines the file that sestatus uses for configuration. The default is \fI/etc/sestatus.conf\fP.
+> +.TP
+> +.B \-h
+> +Displays usage.
+>  
+>  .SH "FILES"
+> -/etc/sestatus.conf
+> +\fI/etc/sestatus.conf\fP
+>  
+>  .SH "AUTHOR"
+>  This man page was written by Daniel Walsh <dwalsh@redhat.com>.
+>  .br
+>  The program was written by Chris PeBenito <pebenito@gentoo.org>
+>  
+> -
+> +.SH "SEE ALSO"
+> +.BR booleans (8)
+> diff -pruN selinux/policycoreutils/sestatus/sestatus.c selinux-policycoreutils-sestatus-config-files/policycoreutils/sestatus/sestatus.c
+> --- selinux/policycoreutils/sestatus/sestatus.c	2011-05-09 01:04:17.079842517 +0200
+> +++ selinux-policycoreutils-sestatus-config-files/policycoreutils/sestatus/sestatus.c	2011-05-09 21:33:20.869842476 +0200
+> @@ -20,7 +20,7 @@
+>  
+>  #define PROC_BASE "/proc"
+>  #define MAX_CHECK 50
+> -#define CONF "/etc/sestatus.conf"
+> +#define DEFAULT_CONF "/etc/sestatus.conf"
+>  
+>  /* conf file sections */
+>  #define PROCS "[process]"
+> @@ -85,17 +85,17 @@ int pidof(const char *command)
+>  	return ret;
+>  }
+>  
+> -void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
+> +void load_checks(char *pc[], int *npc, char *fc[], int *nfc, char *config_file)
+>  {
+>  
+> -	FILE *fp = fopen(CONF, "r");
+> +	FILE *fp = fopen(config_file, "r");
+>  	char buf[255], *bufp;
+>  	int buf_len, section = -1;
+>  	int proclen = strlen(PROCS);
+>  	int filelen = strlen(FILES);
+>  
+>  	if (fp == NULL) {
+> -		printf("\nUnable to open %s.\n", CONF);
+> +		printf("\nUnable to open %s.\n", config_file);
+>  		return;
+>  	}
+>  
+> @@ -196,8 +196,11 @@ int main(int argc, char **argv)
+>  	const char *pol_name;
+>  	char *pol_path;
+>  
+> +	/* configuration file */
+> +	char *config_file = DEFAULT_CONF;
+> +
+>  	while (1) {
+> -		opt = getopt(argc, argv, "vb");
+> +		opt = getopt(argc, argv, "vbc:h");
+>  		if (opt == -1)
+>  			break;
+>  		switch (opt) {
+> @@ -207,15 +210,24 @@ int main(int argc, char **argv)
+>  		case 'b':
+>  			show_bools = 1;
+>  			break;
+> +		case 'c':
+> +			config_file = optarg;
+> +			break;
+> +		case 'h':
+>  		default:
+>  			/* invalid option */
+>  			printf("\nUsage: %s [OPTION]\n\n", basename(argv[0]));
+>  			printf
+>  			    ("  -v  Verbose check of process and file contexts.\n");
+> -			printf("\nWithout options, show SELinux status.\n");
+> +			printf
+> +			    ("  -b  Displays the current state of SELinux policy booleans.\n");
+> +			printf
+> +			    ("  -c config_file  Uses an alternate configuration file (the default is %s).\n", DEFAULT_CONF);
+> +			printf("\nWithout options, shows SELinux status.\n");
+>  			return -1;
+>  		}
+>  	}
+> +
+>  	printf_tab("SELinux status:");
+>  	rc = is_selinux_enabled();
+>  
+> @@ -341,7 +353,7 @@ int main(int argc, char **argv)
+>  	if (!verbose)
+>  		return 0;
+>  
+> -	load_checks(pc, &npc, fc, &nfc);
+> +	load_checks(pc, &npc, fc, &nfc, config_file);
+>  
+>  	printf("\nProcess contexts:\n");
+>  
+> 
 
-Sounds reasonable to me. The patch queue with names and emails is below:
-
-Current Patch Queue:
-
-checkpolicy: fix filename identifier
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=130442985211760&w=2
-
-selabel_open fix processing of substitution files (update)
-Richard Haines <richard_c_haines@btinternet.com>
-http://marc.info/?l=selinux&m=130314146920796&w=2
-
-selinux_file_context_verify function returns wrong value
-Richard Haines <richard_c_haines@btinternet.com>
-http://marc.info/?l=selinux&m=129968866831934&w=2
-
-Fix boolean handling in semanage
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=125433524126271&w=2
-
-Add modules support to semanage
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=125433587727297&w=2
-
-sandbox changes
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226611027331&w=2
-
-libselinux mountpoint changing
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=130444622801373&w=2
-
-Add note to checkmodule man page about versions
-Jason Axelson <jaxelson@referentia.com>
-http://marc.info/?l=selinux&m=127913558418720&w=2
-
-Bug in restorecond for the first user logged in
-Chris Adams <cmadams@hiwaay.net>
-http://marc.info/?t=128164314700001&r=1&w=2
-
-transactions in semanage man page
-Russell Coker <russell@coker.com.au>
-http://marc.info/?l=selinux&m=127959379422398&w=2
-
-libsemanage python3 support
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=128025784525867&w=2
-
-libselinux python3 support
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226509225674&w=2
-
-SETools patch: adding exclude type feature in queries
-Roberto Sassu <roberto.sassu@polito.it>
-http://marc.info/?l=selinux&m=128448149528834&w=2
-
-Move newrole to file caps/libcapng
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226621227513&w=2
-
-Improve semodule performance
-Matthew Robertson <Matthew.L.Robertson@boeing.com>
-http://marc.info/?l=selinux&m=128043503603540&w=2
-
-Fix warning messages generated by GCC 4.6
-Justin P. Mattock <justinmattock@gmail.com>
-http://marc.info/?l=selinux&m=127845525722194&w=2
-
-sepolgen kernel policy version check
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=128948444127169&w=2
-
-Remove DEFAULTUSER handling from get_context_list
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226509425687&w=2
-
-sepolgen current patch from Fedora
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226551726416&w=2
-
-Improved error message for load_policy
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226567426640&w=2
-
-Semanage patch
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129233335310866&w=2
-
-restorecond: Ignore IN_IGNORED inotify events
-Martin Orr <martin@martinorr.name>
-http://marc.info/?l=selinux&m=125380417916233&w=2
-
-setfiles/restorecond patch
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226589026919&w=2
-
-policycoreutils:  update audit2allow manpage
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129304945226866&w=2
-
-libsemanage: include MCS/MLS level when generating files_contexts.homedirs
-Russell Coker <russell@coker.com.au>
-http://marc.info/?l=selinux&m=129421658323663&w=2
-
-setfiles: provide an option to avoid abortion on a missing file
-Guido Trentalancia <guido@trentalancia.com>
-http://marc.info/?l=selinux&m=129819885027010&w=2
-
-minor improvements and clean-ups for setfiles
-Guido Trentalancia <guido@trentalancia.com>
-http://marc.info/?l=selinux&m=129819262321520&w=2
-
-policycoreutils scripts updates
-Daniel J Walsh <dwalsh@redhat.com>
-http://marc.info/?l=selinux&m=129226648427897&w=2
-
-Fix options for policycoreutils binaries
-Guido Trentalancia <guido@trentalancia.com>
-http://marc.info/?l=selinux&m=125718355929168&w=2
+Thanks. This has been added to the patch queue.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
