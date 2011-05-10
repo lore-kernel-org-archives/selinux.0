@@ -1,131 +1,115 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p49KkjLE009045
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 16:46:48 -0400
-Received: from fep08-svc.tim.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p49KkiCN018975
-	for <selinux@tycho.nsa.gov>; Mon, 9 May 2011 20:46:45 GMT
-Subject: [PATCH v2]: setfiles should provide an option to avoid abortion on
- a missing file
-From: Guido Trentalancia <guido@trentalancia.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: Steve Lawrence <slawrence@tresys.com>
-Date: Mon, 09 May 2011 22:46:39 +0200
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1304974002.2521.75.camel@vortex>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4AHGVfl009263
+	for <selinux@tycho.nsa.gov>; Tue, 10 May 2011 13:16:31 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4AHGTFP007041
+	for <selinux@tycho.nsa.gov>; Tue, 10 May 2011 17:16:30 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] SELinux: Fix an RCU dereference warning in
+ selinux_setprocattr()
+To: jmorris@namei.org
+Cc: selinux@tycho.nsa.gov, oleg@redhat.com,
+        David Howells <dhowells@redhat.com>
+Date: Tue, 10 May 2011 18:16:24 +0100
+Message-ID: <20110510171624.2404.34852.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-RE-SUBMISSION (originally submitted on Sun, 20 Feb 2011 11:43:13 +0100)
+Fix an RCU dereference warning in selinux_setprocattr() due to
+tracehook_tracer_task() requiring to be called with the RCU read lock held.
 
-This patch must be applied after applying the following patches:
+The caller holds task_struct::alloc_lock on the current process, but it's not
+clear whether that should be sufficient.  Looking at ptrace_detach(), it does
+not appear to be (holding tasklist_lock should be), but the alloc_lock isn't
+taken whilst ptrace is attaching/detaching.
 
-- [PATCH 1/2 v2]: clean-up setfiles source code and document two options
-- [PATCH 2/2 v2]: improve the manual page for setfiles
+Deal with this by wrapping the call in the RCU read lock in addition to a
+spinlock.  If we do this, then we don't need the lock of task_sid(), so a
+__task_sid() is added that assumes the caller holds the lock and
+selinux_setprocattr() is made to use that.
 
+I wonder...  should it be possible to dispense with the call to task_lock()
+entirely and depend on just the RCU read lock?
+
+The report looks like the following:
+
+===================================================
+[ INFO: suspicious rcu_dereference_check() usage. ]
+---------------------------------------------------
+include/linux/tracehook.h:182 invoked rcu_dereference_check() without protection!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 1, debug_locks = 0
+2 locks held by child/2672:
+ #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff811d4200>] proc_pid_attr_write+0x10b/0x1b9
+ #1:  (&(&p->alloc_lock)->rlock){+.+...}, at: [<ffffffff81313f03>] selinux_setprocattr+0x52e/0x7b0
+
+stack backtrace:
+Pid: 2672, comm: child Not tainted 2.6.39-rc7-fsdevel+ #672
+Call Trace:
+ [<ffffffff81096b4f>] lockdep_rcu_dereference+0xf7/0x107
+ [<ffffffff81313f8d>] selinux_setprocattr+0x5b8/0x7b0
+ [<ffffffff8130c697>] security_setprocattr+0x1d/0x26
+ [<ffffffff811d422b>] proc_pid_attr_write+0x136/0x1b9
+ [<ffffffff8115a277>] vfs_write+0xe7/0x1cf
+ [<ffffffff8115a683>] sys_write+0x5f/0x9b
+ [<ffffffff816dd9eb>] system_call_fastpath+0x16/0x1b
+
+This can be reproduced by running the SELinux testsuite.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
-I believe setfiles should provide an option that allows it to continue
-on failure when a file is missing (i.e. do not "abort on errors during
-the file tree walk").
+ security/selinux/hooks.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
 
-This would be very useful in the presence of temporary files that come
-and go and such option should be used by all Reference Policy relabeling
-targets.
-
-Otherwise, while making any relabeling target in the Reference Policy,
-we might end up with an annoying relabel failure due to some stupid
-missing temporary file:
-
-/sbin/setfiles reset /var/lock/subsys/wpa_supplicant context
-system_u:object_r:xdm_lock_t:s0->system_u:object_r:var_lock_t:s0
-/sbin/setfiles get context
-on /var/cache/ccache/Fl_Native_.tmp.tesla.lan.6091.ii failed: 'No such
-file or directory'
-make: *** [restorelabels] Error 1
-
-In the example above, the failure was due to a temporary file created
-(and then removed) by a compilation process that was running on the
-system during the relabeling process.
-
-It's a very minor issue, but I believe it's quite useful...
-
-Thanks to the good design the code is already there, it just needs to be
-used. In fact, there is a flag named "abort_on_error" in setfiles and
-this is set by default to TRUE and unfortunately is not (yet) tunable
-from the command line.
-
-The Makefile for the Reference Policy should eventually make use of the
-new option to be implemented in all relabel targets (relabel,
-checklabels, restorelabels).
-
-In any case, the anomalous condition will be still reported (if
-reporting is enabled).
-
-The patch for setfiles that I propose is attached below (it adds a new
-option "Q" which stays for quiet). I have also documented the "-p"
-option in the SYNOPSIS section of the manual page (I had forgotten to do
-that in a previously submitted patch and this patch should be applied
-after applying those, as otherwise it won't apply cleanly).
-
-diff -pruN selinux-policycoreutils-setfiles-clean-up-and-man-page/policycoreutils/setfiles/setfiles.8 selinux-policycoreutils-setfiles-do-not-abort/policycoreutils/setfiles/setfiles.8
---- selinux-policycoreutils-setfiles-clean-up-and-man-page/policycoreutils/setfiles/setfiles.8	2011-05-09 22:41:14.917246771 +0200
-+++ selinux-policycoreutils-setfiles-do-not-abort/policycoreutils/setfiles/setfiles.8	2011-05-09 22:40:24.546029994 +0200
-@@ -4,7 +4,7 @@ setfiles \- set file SELinux security co
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8fb2488..38dd539 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -171,6 +171,15 @@ static inline u32 cred_sid(const struct cred *cred)
+ }
  
- .SH "SYNOPSIS"
- .B setfiles
--.I [\-c policy] [\-d] [\-l] [\-n] [\-e directory] [\-o filename] [\-q] [\-f filename] [\-s] [\-v] [\-vv] [\-W] [\-F] spec_file pathname...
-+.I [\-c policy] [\-d] [\-l] [\-n] [\-e directory] [\-o filename] [\-q] [\-Q] [\-f filename] [\-s] [\-p] [\-v] [\-vv] [\-W] [\-F] spec_file pathname...
- .SH "DESCRIPTION"
- This manual page describes the
- .BR setfiles
-@@ -34,6 +34,9 @@ don't change any file labels.
- .TP 
- .B \-q
- suppress non-error output.
-+.TP
-+.B \-Q
-+do not abort on errors during the file tree walk.
- .TP 
- .B \-r rootpath
- use an alternate root path.
-diff -pruN selinux-policycoreutils-setfiles-clean-up-and-man-page/policycoreutils/setfiles/setfiles.c selinux-policycoreutils-setfiles-do-not-abort/policycoreutils/setfiles/setfiles.c
---- selinux-policycoreutils-setfiles-clean-up-and-man-page/policycoreutils/setfiles/setfiles.c	2011-05-09 22:41:11.890115871 +0200
-+++ selinux-policycoreutils-setfiles-do-not-abort/policycoreutils/setfiles/setfiles.c	2011-05-09 22:40:24.547030054 +0200
-@@ -47,10 +47,10 @@ void usage(const char *const name)
- 			name);
- 	} else {
- 		fprintf(stderr,
--			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path] spec_file pathname...\n"
-+			"usage:  %s [-dnpqvQW] [-o filename] [-r alt_root_path] spec_file pathname...\n"
- 			"usage:  %s -c policyfile spec_file\n"
--			"usage:  %s -f filename [-dnpqvW] [-o filename] spec_file\n"
--			"usage:  %s -s [-dnpqvW] [-o filename] spec_file\n", name, name,
-+			"usage:  %s -f filename [-dnpqvQW] [-o filename] spec_file\n"
-+			"usage:  %s -s [-dnpqvQW] [-o filename] spec_file\n", name, name,
- 			name, name);
- 	}
- 	exit(1);
-@@ -283,7 +283,7 @@ int main(int argc, char **argv)
- 	exclude_non_seclabel_mounts();
+ /*
++ * Get the objective security ID of a task for a caller who is holding the RCU
++ * read lock.
++ */
++static inline u32 __task_sid(const struct task_struct *task)
++{
++	return cred_sid(__task_cred(task));
++}
++
++/*
+  * get the objective security ID of a task
+  */
+ static inline u32 task_sid(const struct task_struct *task)
+@@ -178,7 +187,7 @@ static inline u32 task_sid(const struct task_struct *task)
+ 	u32 sid;
  
- 	/* Process any options. */
--	while ((opt = getopt(argc, argv, "c:de:f:lnpqrsvo:FRW0")) > 0) {
-+	while ((opt = getopt(argc, argv, "c:de:f:lnpqrsvo:FQRW0")) > 0) {
- 		switch (opt) {
- 		case 'c':
- 			{
-@@ -358,6 +358,9 @@ int main(int argc, char **argv)
- 			}
- 			__fsetlocking(r_opts.outfile, FSETLOCKING_BYCALLER);
- 			break;
-+		case 'Q':
-+			r_opts.abort_on_error = 0;
-+			break;
- 		case 'q':
- 			r_opts.quiet = 1;
- 			break;
+ 	rcu_read_lock();
+-	sid = cred_sid(__task_cred(task));
++	sid = __task_sid(task);
+ 	rcu_read_unlock();
+ 	return sid;
+ }
+@@ -5295,11 +5304,13 @@ static int selinux_setprocattr(struct task_struct *p,
+ 		/* Check for ptracing, and update the task SID if ok.
+ 		   Otherwise, leave SID unchanged and fail. */
+ 		ptsid = 0;
++		rcu_read_lock();
+ 		task_lock(p);
+ 		tracer = tracehook_tracer_task(p);
+ 		if (tracer)
+-			ptsid = task_sid(tracer);
++			ptsid = __task_sid(p);
+ 		task_unlock(p);
++		rcu_read_unlock();
+ 
+ 		if (tracer) {
+ 			error = avc_has_perm(ptsid, sid, SECCLASS_PROCESS,
 
 
 --
