@@ -1,115 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4AHGVfl009263
-	for <selinux@tycho.nsa.gov>; Tue, 10 May 2011 13:16:31 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4AHGTFP007041
-	for <selinux@tycho.nsa.gov>; Tue, 10 May 2011 17:16:30 GMT
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] SELinux: Fix an RCU dereference warning in
- selinux_setprocattr()
-To: jmorris@namei.org
-Cc: selinux@tycho.nsa.gov, oleg@redhat.com,
-        David Howells <dhowells@redhat.com>
-Date: Tue, 10 May 2011 18:16:24 +0100
-Message-ID: <20110510171624.2404.34852.stgit@warthog.procyon.org.uk>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4B7PlPJ011818
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2011 03:25:48 -0400
+Received: from cluster-e.mailcontrol.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4B7Pj7c018107
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2011 07:25:46 GMT
+Received: from rly60e.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly60e.srv.mailcontrol.com (MailControl) with ESMTP id p4B7PfDc021069
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2011 08:25:43 +0100
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly60e.srv.mailcontrol.com (MailControl) id p4B7P9pX018700
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2011 08:25:09 +0100
+From: Kohei Kaigai <Kohei.Kaigai@EMEA.NEC.COM>
+To: Steve Lawrence <slawrence@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Date: Wed, 11 May 2011 08:24:59 +0100
+Subject: [1/2] selinux: fix case of names with whitespace/multibytes on
+ /selinux/create
+Message-ID: <A9F5079BABDEE646AEBDB6831725762C5560111DD6@EUEXCLU01.EU.NEC.COM>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix an RCU dereference warning in selinux_setprocattr() due to
-tracehook_tracer_task() requiring to be called with the RCU read lock held.
+I submit the patch again, according to patch submission convension.
 
-The caller holds task_struct::alloc_lock on the current process, but it's not
-clear whether that should be sufficient.  Looking at ptrace_detach(), it does
-not appear to be (holding tasklist_lock should be), but the alloc_lock isn't
-taken whilst ptrace is attaching/detaching.
+This patch enables to accept percent-encoded object names as forth argument of /selinux/create interface to avoid possible bugs when we give an object name including whitespace or multibutes.
 
-Deal with this by wrapping the call in the RCU read lock in addition to a
-spinlock.  If we do this, then we don't need the lock of task_sid(), so a
-__task_sid() is added that assumes the caller holds the lock and
-selinux_setprocattr() is made to use that.
+E.g) if and when a userspace object manager tries to create a new object
+  named as "resolve.conf but fake", it shall give this name as the forth
+  argument of the /selinux/create. But sscanf() logic in kernel space
+  fetches only the part earlier than the first whitespace.
+  In this case, selinux may unexpectedly answer a default security context
+  configured to "resolve.conf", but it is bug.
 
-I wonder...  should it be possible to dispense with the call to task_lock()
-entirely and depend on just the RCU read lock?
+Although I could not test this patch on named TYPE_TRANSITION rules actually, But debug printk() message seems to me the logic works correctly.
+I assume the libselinux provides an interface to apply this logic transparently, so nothing shall not be changed from the viewpoint of application.
 
-The report looks like the following:
-
-===================================================
-[ INFO: suspicious rcu_dereference_check() usage. ]
----------------------------------------------------
-include/linux/tracehook.h:182 invoked rcu_dereference_check() without protection!
-
-other info that might help us debug this:
-
-rcu_scheduler_active = 1, debug_locks = 0
-2 locks held by child/2672:
- #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff811d4200>] proc_pid_attr_write+0x10b/0x1b9
- #1:  (&(&p->alloc_lock)->rlock){+.+...}, at: [<ffffffff81313f03>] selinux_setprocattr+0x52e/0x7b0
-
-stack backtrace:
-Pid: 2672, comm: child Not tainted 2.6.39-rc7-fsdevel+ #672
-Call Trace:
- [<ffffffff81096b4f>] lockdep_rcu_dereference+0xf7/0x107
- [<ffffffff81313f8d>] selinux_setprocattr+0x5b8/0x7b0
- [<ffffffff8130c697>] security_setprocattr+0x1d/0x26
- [<ffffffff811d422b>] proc_pid_attr_write+0x136/0x1b9
- [<ffffffff8115a277>] vfs_write+0xe7/0x1cf
- [<ffffffff8115a683>] sys_write+0x5f/0x9b
- [<ffffffff816dd9eb>] system_call_fastpath+0x16/0x1b
-
-This can be reproduced by running the SELinux testsuite.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
 ---
+ security/selinux/selinuxfs.c |   38 +++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 37 insertions(+), 1 deletions(-)
 
- security/selinux/hooks.c |   15 +++++++++++++--
- 1 files changed, 13 insertions(+), 2 deletions(-)
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c index 973f5a4..4fde279 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -28,6 +28,7 @@
+ #include <linux/percpu.h>
+ #include <linux/audit.h>
+ #include <linux/uaccess.h>
++#include <linux/ctype.h>
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8fb2488..38dd539 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -171,6 +171,15 @@ static inline u32 cred_sid(const struct cred *cred)
+ /* selinuxfs pseudo filesystem for exporting the security policy API.
+    Based on the proc code and the fs/nfsd/nfsctl.c code. */ @@ -750,6 +751,15 @@ out:
+ 	return length;
  }
- 
- /*
-+ * Get the objective security ID of a task for a caller who is holding the RCU
-+ * read lock.
-+ */
-+static inline u32 __task_sid(const struct task_struct *task)
-+{
-+	return cred_sid(__task_cred(task));
+
++static inline int hexcode_to_int(int code) {
++	if (code == '\0' || !isxdigit(code))
++		return -1;
++	if (isdigit(code))
++		return code - '0';
++	return tolower(code) - 'a' + 10;
 +}
 +
-+/*
-  * get the objective security ID of a task
-  */
- static inline u32 task_sid(const struct task_struct *task)
-@@ -178,7 +187,7 @@ static inline u32 task_sid(const struct task_struct *task)
- 	u32 sid;
- 
- 	rcu_read_lock();
--	sid = cred_sid(__task_cred(task));
-+	sid = __task_sid(task);
- 	rcu_read_unlock();
- 	return sid;
- }
-@@ -5295,11 +5304,13 @@ static int selinux_setprocattr(struct task_struct *p,
- 		/* Check for ptracing, and update the task SID if ok.
- 		   Otherwise, leave SID unchanged and fail. */
- 		ptsid = 0;
-+		rcu_read_lock();
- 		task_lock(p);
- 		tracer = tracehook_tracer_task(p);
- 		if (tracer)
--			ptsid = task_sid(tracer);
-+			ptsid = __task_sid(p);
- 		task_unlock(p);
-+		rcu_read_unlock();
- 
- 		if (tracer) {
- 			error = avc_has_perm(ptsid, sid, SECCLASS_PROCESS,
+ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)  {
+ 	char *scon = NULL, *tcon = NULL;
+@@ -784,8 +794,34 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	nargs = sscanf(buf, "%s %s %hu %s", scon, tcon, &tclass, namebuf);
+ 	if (nargs < 3 || nargs > 4)
+ 		goto out;
+-	if (nargs == 4)
++	if (nargs == 4) {
++		/*
++		 * If and when the name of new object to be queried contains
++		 * either whitespace or multibyte characters, they shall be
++		 * encoded based on the percentage-encoding rule.
++		 * If not encoded, the sscanf logic picks up only left-half
++		 * of the supplied name; splitted by a whitespace unexpectedly.
++		 */
++		char   *r, *w;
++		int	c1, c2;
++
++		r = w = namebuf;
++		do {
++			c1 = *r++;
++			if (c1 == '+')
++				c1 = ' ';
++			else if (c1 == '%') {
++				if ((c1 = hexcode_to_int(*r++)) < 0)
++					goto out;
++				if ((c2 = hexcode_to_int(*r++)) < 0)
++					goto out;
++				c1 = (c1 << 4) | c2;
++			}
++			*w++ = c1;
++		} while (c1 != '\0');
++
+ 		objname = namebuf;
++	}
+
+ 	length = security_context_to_sid(scon, strlen(scon) + 1, &ssid);
+ 	if (length)
+
+--
+NEC Europe Ltd, SAP Global Competence Center
+KaiGai Kohei <kohei.kaigai@emea.nec.com>
 
 
 --
