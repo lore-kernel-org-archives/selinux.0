@@ -1,52 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4FEepBs008837
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 10:40:51 -0400
-Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4FEeplT010872
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 14:40:51 GMT
-Received: by iyb26 with SMTP id 26so3893187iyb.12
-        for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 07:40:50 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4FFaXZr010620
+	for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 11:36:33 -0400
+Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4FFaWF0002239
+	for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 15:36:33 GMT
+Received: by ewy8 with SMTP id 8so1209453ewy.12
+        for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 08:36:31 -0700 (PDT)
+Message-ID: <4DCFF2FD.6060704@gmail.com>
+Date: Sun, 15 May 2011 17:36:29 +0200
+From: Dominick Grift <domg472@gmail.com>
 MIME-Version: 1.0
-Date: Sun, 15 May 2011 07:40:50 -0700
-Message-ID: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
-Subject: FUSE and SELinux labeling
-From: Sam Gandhi <samgandhi9@gmail.com>
-To: selinux@tycho.nsa.gov
+To: Sam Gandhi <samgandhi9@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: FUSE and SELinux labeling
+References: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
+In-Reply-To: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On 05/15/2011 04:40 PM, Sam Gandhi wrote:
+> Hi
+> 
+> 
+> Is there a FAQ or some description on what one needs to do to enable
+> labeling on files created under a fuse filesystem?
 
-Is there a FAQ or some description on what one needs to do to enable
-labeling on files created under a fuse filesystem?
+fusefs does not support extended attributes, and so you cannot label
+files on it.
 
-When I mount my fuse file system I see message like
+You can however, probably, mount fusefs filesystems with a security context.
 
-SELinux: initialized (dev fuse, type fuse), not configured for labeling
+See man mount for information as to how to mount partitions with a
+security context (context="security context here")
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-Now if I use statement such as shown below in my SELinux policy before
-loading it I don't see those messages
-
-fs_use_xattr fuse system_u:object_r:fs_t;
-
-But then when I try to mount fuse file system using simple fuse hello
-program as hello /tmp/foo, I see message:
-
-SELinux: (dev fuse, type fuse) getxattr errno 4 on console and my system hangs!
-
-
-( Has anybody been successful in adding the SELinux labels to file
-created  by fuse? I have search both fuse and SElinux mailing list,
-also done bit of google search and nothing comes up , either this is
-way too simple thing to do and I am missing obvious thing)
-
-Would appreciate any help.
-
-( I had sent message earlier to fuse-devel, but didn't cross-post it
-to SELinux )
--Sam
+iEYEARECAAYFAk3P8v0ACgkQMlxVo39jgT9zKwCfRnRgYRbrzZI4q7oNArJ+r4or
+PGcAnAp6dioOPfETqpKIEN25i9I/o/nP
+=7LRv
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
