@@ -1,79 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4G13arE028858
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 21:03:36 -0400
-Received: from countercultured.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p4G13a2G000715
-	for <selinux@tycho.nsa.gov>; Mon, 16 May 2011 01:03:36 GMT
-Message-ID: <4DD077E6.5030309@davequigley.com>
-Date: Sun, 15 May 2011 21:03:34 -0400
-From: Dave Quigley <dpquigl@davequigley.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4G5tZLf005288
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2011 01:55:35 -0400
+Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4G5tYkN012347
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2011 05:55:34 GMT
+Received: by ewy8 with SMTP id 8so1312783ewy.12
+        for <selinux@tycho.nsa.gov>; Sun, 15 May 2011 22:55:31 -0700 (PDT)
+Message-ID: <4DD0BC4F.5000507@gmail.com>
+Date: Mon, 16 May 2011 07:55:27 +0200
+From: Dominick Grift <domg472@gmail.com>
 MIME-Version: 1.0
 To: Sam Gandhi <samgandhi9@gmail.com>
 CC: selinux@tycho.nsa.gov
 Subject: Re: FUSE and SELinux labeling
-References: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
-In-Reply-To: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>	<4DCFF2FD.6060704@gmail.com> <BANLkTinbr02afo-ZdJy4GfCGXV_ZC0tv9w@mail.gmail.com>
+In-Reply-To: <BANLkTinbr02afo-ZdJy4GfCGXV_ZC0tv9w@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 5/15/2011 10:40 AM, Sam Gandhi wrote:
-> Hi
->
->
-> Is there a FAQ or some description on what one needs to do to enable
-> labeling on files created under a fuse filesystem?
->
-> When I mount my fuse file system I see message like
->
-> SELinux: initialized (dev fuse, type fuse), not configured for labeling
->
-> Now if I use statement such as shown below in my SELinux policy before
-> loading it I don't see those messages
->
-> fs_use_xattr fuse system_u:object_r:fs_t;
->
-> But then when I try to mount fuse file system using simple fuse hello
-> program as hello /tmp/foo, I see message:
->
-> SELinux: (dev fuse, type fuse) getxattr errno 4 on console and my system hangs!
->
->
-> ( Has anybody been successful in adding the SELinux labels to file
-> created  by fuse? I have search both fuse and SElinux mailing list,
-> also done bit of google search and nothing comes up , either this is
-> way too simple thing to do and I am missing obvious thing)
->
-> Would appreciate any help.
->
-> ( I had sent message earlier to fuse-devel, but didn't cross-post it
-> to SELinux )
-> -Sam
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So the short answer to this is No you can't use xattr style labeling on 
-fuse. Eric Paris in the past tried to do this but it was unsucessful. If 
-I remember correctly there were some weird conditions in fuse which 
-would cause deadlocks. Attempts were made to fix this problem but it 
-seemed that it was an ideological issue just as much as a technical one. 
-Someone had posted a similar question back around December or September 
-I believe and it should have a more complete view of the problem. The 
-list of things that would need to be done would be allow FUSE to pass 
-the name of the fusefs to the security server so it can decide what to 
-do with the particular fusefs. The second thing would be to fix the 
-deadlock issue in fuse but I don't think you're going to make progress 
-on that. Dominick in another thread said that fuse doesn't support 
-xattrs. If that is the case then you would need to implement fuse xattr 
-handlers as well and the fuse interface for them. This list probably 
-isn't complete as I don't remember the full details of the conversation 
-from back then.
+On 05/16/2011 02:47 AM, Sam Gandhi wrote:
 
-Dave
+> hello -o context=user_u:object_r:tmpfs_t /mn/tmp/
+
+Try this:
+
+http://docs.fedoraproject.org/en-US/Fedora/13/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Working_with_SELinux-Mounting_File_Systems.html
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.16 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk3QvE8ACgkQMlxVo39jgT/+JwCfW1VkmtkhrFcQ+Eg4gj5OCZBZ
+t/AAoLMc6fH5MNhW+IvpOzPjXrCKKygo
+=h+Bm
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
