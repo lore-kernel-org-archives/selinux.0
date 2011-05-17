@@ -1,53 +1,41 @@
-Message-ID: <4DD233FF.6050807@gmail.com>
-Date: Tue, 17 May 2011 16:38:23 +0800
-From: "Singapore Citizen Mr. Teo En Ming (Zhang Enming)" <singapore.citizen.teo.en.ming@gmail.com>
-Reply-To: singapore.citizen.teo.en.ming@gmail.com
-MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: An Invitation to Neuroscientists and Physicists: Singapore Citizen
- Mr. Teo En Ming (Zhang Enming) Reports First Hand Account of Mind Intrusion
- and Mind Reading
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: FUSE and SELinux labeling
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Sam Gandhi <samgandhi9@gmail.com>
+Cc: Dominick Grift <domg472@gmail.com>, selinux@tycho.nsa.gov
+In-Reply-To: <BANLkTinbr02afo-ZdJy4GfCGXV_ZC0tv9w@mail.gmail.com>
+References: <BANLkTim-1VFJHg1BdSjbWH-6RrfMHVBx3A@mail.gmail.com>
+	 <4DCFF2FD.6060704@gmail.com>
+	 <BANLkTinbr02afo-ZdJy4GfCGXV_ZC0tv9w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 17 May 2011 09:12:33 -0400
+Message-ID: <1305637953.6498.1.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-16 May 2011 Monday 7:28 P.M. Singapore Time
-For Immediate Release
+On Sun, 2011-05-15 at 17:47 -0700, Sam Gandhi wrote:
+> I am running latest fuse 2.8.5 and I have tried several options of
+> using context=..
+> I haven't been successful in mounting file system with label that I
+> know exists. Have been successful in doing so?
+> 
+> I have tried using hello program from fuse example to mount directory
+> as shown below:
+> 
+> hello -o context=user_u:object_r:tmpfs_t /mn/tmp/
+> and that doesn't work.
 
-SINGAPORE, SINGAPORE - Singapore Citizen Mr. Teo En Ming (Zhang Enming) 
-would like to report first hand account of mind intrusion and mind 
-reading. I have been hearing voices for quite some time now but I have 
-not been able to identify the persons physically. A number of 
-un-identified persons have intruded into my mind and they are able to 
-read my thoughts. I could not explain the mechanism by which these 
-un-identified persons have been reading my mind at the moment but there 
-is definitely a scientific explanation for it. I know very clearly that 
-I am not suffering from schizophrenia at all.
+If you run it under strace -s 1024, you can look at the mount system
+call and see whether it passed the context= mount option to the kernel
+or not.  I suspect that it didn't pass it along and that is why it
+didn't work.  Is there a way to directly mount your fuse fs via the
+regular mount command (ala ntfs-3g) so that mount options are preserved
+properly?
 
-I am fully aware that no common man would believe me except the select 
-few scientific researchers working in top secret government projects and 
-the human guinea pigs who are being experimented on. One of the 
-possibilities is that I have a microchip implanted into my brain, 
-possibly when I was an infant. It may take a few years, a few decades, 
-or even a few centuries before mind reading is finally brought to light 
-before the general public.
+-- 
+Stephen Smalley
+National Security Agency
 
-I would like to invite neuroscientists, engineers and physicists to 
-speak on the scientific explanation behind mind intrusion and mind reading.
-
-Please remember what Singapore Citizen Mr. Teo En Ming (Zhang Enming) 
-have said. Mark my words. You will know the truth in future. It is no 
-longer a conspiracy theory. I can affirm that it (mind intrusion and 
-mind reading) is indeed happening to me.
-
-
-Yours truly,
-Singapore Citizen Mr. Teo En Ming (Zhang Enming) 
-Dip(Mechatronics)(Singapore Polytechnic) BEng(Hons)(Mechanical 
-Engineering)(National University of Singapore)
-Singapore Identity Card No/NRIC: S78*6*2*H
-Toa Payoh Lorong 5, Singapore
-Mobile Phone: +65-8369-2618
 
 --
 This message was distributed to subscribers of the selinux mailing list.
