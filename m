@@ -1,21 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4HJqxQP027389
-	for <selinux@tycho.nsa.gov>; Tue, 17 May 2011 15:52:59 -0400
-Received: from nm11.bullet.mail.sp2.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p4HJqvCc008204
-	for <selinux@tycho.nsa.gov>; Tue, 17 May 2011 19:52:57 GMT
-Message-ID: <646657.46441.qm@web39422.mail.mud.yahoo.com>
-Date: Tue, 17 May 2011 12:52:56 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-To: rick@ir4e.com, shauss@earthlink.net, hopper@bmh.com, igpharmd@yahoo.com,
-        bobkonikow@aol.com, cindyloho@aol.com, selinux@tycho.nsa.gov,
-        cmcclow@cfymca.org
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4IDU7XN011512
+	for <selinux@tycho.nsa.gov>; Wed, 18 May 2011 09:30:08 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4IDU4NC013056
+	for <selinux@tycho.nsa.gov>; Wed, 18 May 2011 13:30:05 GMT
+Message-ID: <4DD3CA34.8090400@tresys.com>
+Date: Wed, 18 May 2011 09:31:32 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg Smith <greg@2ndquadrant.com>
+CC: Kohei Kaigai <Kohei.Kaigai@EMEA.NEC.COM>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Patch Review Process
+References: <4DC804D8.1080605@tresys.com> <1304968880.2521.43.camel@vortex> <4DC84776.8080708@tresys.com> <A9F5079BABDEE646AEBDB6831725762C55601124C2@EUEXCLU01.EU.NEC.COM> <4DD13501.1060406@tresys.com> <4DD14AF5.1060609@2ndquadrant.com>
+In-Reply-To: <4DD14AF5.1060609@2ndquadrant.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Are you looking for something awesome? I can give it to you!.. http://visiopharm-3d.eu/friends_links.php?ihot=44uk0
+On 05/16/2011 12:04 PM, Greg Smith wrote:
+> Steve Lawrence wrote:
+>> Is commitfest custom built by the postgresql community or is it some
+>> open source
+>> project? I can't seem to find any information on what the backend is.
+>>   
+> 
+> Yes to both, sort of.  It was built for this purpose, but the result is
+> an open-source project available for others.  Source code is
+> http://git.postgresql.org/gitweb?p=pgcommitfest.git ; it's a Perl
+> application aimed to run inside Apache, with a PostgreSQL back-end as
+> you might expect.
+> The application was developed after really not finding the workflow of
+> existing applications like Reviewboard to mesh well with the
+> requirements for PostgrSQL's development process.  The main thing that I
+> think may not translate well into some other environments, but might
+> actually work here, is its heavy reliance on mailing list integration. 
+> The main thing stored when you add a new entry to the CommitFest
+> application is a pointer to a mailing list URL.  For the PostgreSQL
+> lists, that is driven by the message-id of the e-mail sent.  The main
+> data stored is essentially is a list of pointers into the mail archives,
+> via message-id, with each tagged for what submission they all belong
+> to.  Comments and such actually stored in the web application is
+> minimal; the idea is that you're using it to track e-mails sent to the
+> mailing list, where the primary review information is sent to.
+> 
+> Another caveat is that there was already a PostgreSQL single login
+> service that this hooks into.  There's no internal support in the
+> CommitFest app for account creation/maintenance, it just calls the API
+> available on postgresql.org for that.
+> 
+
+That looks pretty nice and would probably work well for this community.
+I'll definitely take a look at it when I get a chance.
+
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
