@@ -1,58 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4IDU7XN011512
-	for <selinux@tycho.nsa.gov>; Wed, 18 May 2011 09:30:08 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4IDU4NC013056
-	for <selinux@tycho.nsa.gov>; Wed, 18 May 2011 13:30:05 GMT
-Message-ID: <4DD3CA34.8090400@tresys.com>
-Date: Wed, 18 May 2011 09:31:32 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4JL5KxZ011360
+	for <selinux@tycho.nsa.gov>; Thu, 19 May 2011 17:05:20 -0400
+Received: from mail-iw0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4JL5JpE013501
+	for <selinux@tycho.nsa.gov>; Thu, 19 May 2011 21:05:19 GMT
+Received: by iwn38 with SMTP id 38so3122896iwn.12
+        for <selinux@tycho.nsa.gov>; Thu, 19 May 2011 14:05:19 -0700 (PDT)
 MIME-Version: 1.0
-To: Greg Smith <greg@2ndquadrant.com>
-CC: Kohei Kaigai <Kohei.Kaigai@EMEA.NEC.COM>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Patch Review Process
-References: <4DC804D8.1080605@tresys.com> <1304968880.2521.43.camel@vortex> <4DC84776.8080708@tresys.com> <A9F5079BABDEE646AEBDB6831725762C55601124C2@EUEXCLU01.EU.NEC.COM> <4DD13501.1060406@tresys.com> <4DD14AF5.1060609@2ndquadrant.com>
-In-Reply-To: <4DD14AF5.1060609@2ndquadrant.com>
-Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 19 May 2011 14:05:18 -0700
+Message-ID: <BANLkTi=KPssQQitdX7gQnJbtE7WByxgBgQ@mail.gmail.com>
+Subject: selinux_inode_init_security() initialises XATTR_SELINUX_SUFFIX and
+ not XATTR_NAME_SELINUX?
+From: Sam Gandhi <samgandhi9@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/16/2011 12:04 PM, Greg Smith wrote:
-> Steve Lawrence wrote:
->> Is commitfest custom built by the postgresql community or is it some
->> open source
->> project? I can't seem to find any information on what the backend is.
->>   
-> 
-> Yes to both, sort of.  It was built for this purpose, but the result is
-> an open-source project available for others.  Source code is
-> http://git.postgresql.org/gitweb?p=pgcommitfest.git ; it's a Perl
-> application aimed to run inside Apache, with a PostgreSQL back-end as
-> you might expect.
-> The application was developed after really not finding the workflow of
-> existing applications like Reviewboard to mesh well with the
-> requirements for PostgrSQL's development process.  The main thing that I
-> think may not translate well into some other environments, but might
-> actually work here, is its heavy reliance on mailing list integration. 
-> The main thing stored when you add a new entry to the CommitFest
-> application is a pointer to a mailing list URL.  For the PostgreSQL
-> lists, that is driven by the message-id of the e-mail sent.  The main
-> data stored is essentially is a list of pointers into the mail archives,
-> via message-id, with each tagged for what submission they all belong
-> to.  Comments and such actually stored in the web application is
-> minimal; the idea is that you're using it to track e-mails sent to the
-> mailing list, where the primary review information is sent to.
-> 
-> Another caveat is that there was already a PostgreSQL single login
-> service that this hooks into.  There's no internal support in the
-> CommitFest app for account creation/maintenance, it just calls the API
-> available on postgresql.org for that.
-> 
+Hello SeLinux Experts,
 
-That looks pretty nice and would probably work well for this community.
-I'll definitely take a look at it when I get a chance.
+Looking at the latest SELinux code I see that in function
+selinux_inode_init_security() the initial XATTR is initialised as
+XATTR_SELINUX_SUFFIX ("security.selinux"), where as all the
+subsequence searches are done with XATTR_NAME_SELINUX.  Unfortunately
+I don't understand why initialisation is done with
+XATTR_SELINUX_SUFFIX ("selinux")
 
-Thanks.
+Should we be making following change to the code?
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8fb2488..c8d14d5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2566,7 +2566,7 @@ static int selinux_inode_init_security(struct
+inode *inode, struct inode *dir,
+                return -EOPNOTSUPP;
+
+        if (name) {
+-               namep = kstrdup(XATTR_SELINUX_SUFFIX, GFP_NOFS);
++               namep = kstrdup(XATTR_NAME_SELINUX, GFP_NOFS);
+                if (!namep)
+                        return -ENOMEM;
+                *name = namep;
+
+
+
+-Sam
 
 --
 This message was distributed to subscribers of the selinux mailing list.
