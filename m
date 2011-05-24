@@ -1,82 +1,57 @@
-Message-ID: <4DDAFB63.8070809@redhat.com>
-Date: Mon, 23 May 2011 20:27:15 -0400
-From: Eric Paris <eparis@redhat.com>
-MIME-Version: 1.0
-To: jmorris@namei.org
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: [git] pull selinux tree for 2.6.40
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4O76sHp000919
+	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 03:06:54 -0400
+Received: from o1.email.academia.edu (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p4O76rsS028867
+	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 07:06:53 GMT
+Received: from academia.edu (unknown [10.9.180.5])
+	by mi9 (SG) with ESMTP id 4ddb590c.1313.5f4a99
+	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 02:06:52 -0500 (CST)
+Date: Tue, 24 May 2011 00:06:52 -0700
+From: Wildan Maulana <wildan.m@gmail.com>
+To: selinux@tycho.nsa.gov
+Message-Id: <4ddb590c87631_35d2..fdbad40de12758@whale.academia.me.tmail>
+Subject: Wildan Maulana added your name to the Academia.edu directory of academics
+Mime-Version: 1.0
+Content-Type: text/html; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The following changes since commit 12a5a2621b1ee14d32beca35304d7c6076a58815:
+<html>
+  <body style="background: #f7f7f7; padding: 20px">
+    <table bgcolor="#fff" style="background: #fff; border-width: 1px; border-style: solid; border-color: #e1e1e1; width: 560px">
+      <tr>
+        <td>
+          <h1 style="margin: 15px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #e1e1e1"><a href="http://academia.edu/"><img src="http://academia.edu/images/academia_white_logo.jpg" alt="Academia.edu"></a></h1>
+          <p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">Hi,</p>
 
-  Merge branch 'master' into next (2011-05-19 18:51:57 +1000)
+<p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">Wildan Maulana added your name to Academia.edu, the global directory of academics and graduate students. We checked your department directory, and it looks like you are an academic/graduate student. You are currently listed as an 'unknown' academic/graduate student: resolve your 'unknown' status by following one of the links below:</p>
 
-are available in the git repository at:
+<p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">Yes, I am an academic/graduate student:
+<br>http://academia.edu/Yes-selinux-at-tycho.nsa.gov-is-an-academic-or-graduate-student</p>
 
-  git://git.infradead.org/users/eparis/selinux.git master
+<p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">No, I am not an academic/graduate student:
+<br>http://academia.edu/Remove-selinux-at-tycho.nsa.gov-from-the-directory-of-academics</p>
 
-Andi Kleen (1):
-      SECURITY: Move exec_permission RCU checks into security modules
+<p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">Stephen Hawking, Richard Dawkins, Paul Krugman, Noam Chomsky and Steven Pinker have all confirmed their membership of their departments on Academia.edu.</p>
 
-Eric Paris (19):
-      SELinux: update git tree in MAINTAINERS
-      SELinux: delete debugging printks from filename_trans rule processing
-      SELinux: silence build warning when !CONFIG_BUG
-      SELinux: security_read_policy should take a size_t not ssize_t
-      SELINUX: Make selinux cache VFS RCU walks safe
-      LSM: split LSM_AUDIT_DATA_FS into _PATH and _INODE
-      LSM: separate LSM_AUDIT_DATA_DENTRY from LSM_AUDIT_DATA_PATH
-      SMACK: smack_file_lock can use the struct path
-      SELinux: fix comment to state filename_compute_type takes an objname not a qstr
-      SELinux: rename filename_compute_type argument to *type instead of *con
-      SELinux: skip filename trans rules if ttype does not match parent dir
-      SELinux: calculate and print hashtab stats with a generic function
-      SELinux: generic hashtab entry counter
-      SELinux: put name based create rules in a hashtable
-      SELinux: pass last path component in may_create
-      flex_array: flex_array_prealloc takes a number of elements, not an end
-      flex_arrays: allow zero length flex arrays
-      flex_array: allow 0 length elements
-      SELinux: introduce path_has_perm
+<p style="margin: 15px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 400; color: #3e3e3e">Thank you,<br>
+The Academia.edu Team</p>
+        </td>
+      </tr>
+    </table>
+    <p style="margin: 15px 0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 400; color: #777777;width: 560px">
+              
+      <br>
+      <br>
+      
+        Academia.edu's office is at: 251 Kearny St., Suite 520, San Francisco, CA, 94108. To opt out of receiving these kinds of emails from Academia.edu, go to:
+http://academia.edu/optout/13714b3ef642b48a64876ed51b9da5ff
 
-Greg Kroah-Hartman (1):
-      SELINUX: add /sys/fs/selinux mount point to put selinuxfs
-
-Harry Ciao (4):
-      SELinux: Add class support to the role_trans structure
-      SELinux: Compute role in newcontext for all classes
-      SELinux: Write class field in role_trans_write.
-      Initialize policydb.process_class eariler.
-
-Kohei Kaigai (1):
-      selinux: add type_transition with name extension support for selinuxfs
-
-Stephen Smalley (1):
-      selinux: Fix regression for Xorg
-
- Documentation/flexible-arrays.txt   |    4 +-
- MAINTAINERS                         |    3 +-
- include/linux/flex_array.h          |    2 +-
- include/linux/lsm_audit.h           |   11 +-
- include/linux/security.h            |    2 +-
- lib/flex_array.c                    |   48 +++++--
- security/capability.c               |    2 +-
- security/lsm_audit.c                |   59 +++++---
- security/security.c                 |    6 +-
- security/selinux/avc.c              |   36 ++++-
- security/selinux/hooks.c            |  119 ++++++++++-------
- security/selinux/include/avc.h      |   18 ++-
- security/selinux/include/security.h |    9 +-
- security/selinux/netnode.c          |    1 +
- security/selinux/selinuxfs.c        |   28 ++++-
- security/selinux/ss/policydb.c      |  254 +++++++++++++++++++++++------------
- security/selinux/ss/policydb.h      |   12 ++-
- security/selinux/ss/services.c      |   74 ++++++-----
- security/smack/smack.h              |   11 +-
- security/smack/smack_lsm.c          |   54 +++++---
- 20 files changed, 488 insertions(+), 265 deletions(-)
+      
+    </p>
+  </body>
+</html>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
