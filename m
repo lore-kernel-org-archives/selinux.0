@@ -1,76 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4OLkdFT026231
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 17:46:39 -0400
-Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4OLkXX7018501
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 21:46:34 GMT
-Received: by iyb26 with SMTP id 26so6931213iyb.12
-        for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 14:46:33 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <4DDC1E11.2020200@redhat.com>
-References: <BANLkTi=UEBFLWeWMov7GjOn_-Q3QuyTyxw@mail.gmail.com>
-	<4DDC1E11.2020200@redhat.com>
-Date: Tue, 24 May 2011 14:46:33 -0700
-Message-ID: <BANLkTi=eLtqov9i0pXpXJkwNK74cc4mUAw@mail.gmail.com>
-Subject: Re: Is it possible to assign different labels to symbolic links and
- actual files?
-From: Sam Gandhi <samgandhi9@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4OMrrWh029328
+	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 18:53:55 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4OMrr11006244
+	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 22:53:54 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Sam Gandhi <samgandhi9@gmail.com>
+Subject: Re: Is it possible to assign different labels to symbolic links and actual files?
+Date: Wed, 25 May 2011 08:53:49 +1000
 Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+References: <BANLkTi=UEBFLWeWMov7GjOn_-Q3QuyTyxw@mail.gmail.com>
+In-Reply-To: <BANLkTi=UEBFLWeWMov7GjOn_-Q3QuyTyxw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201105250853.49540.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 24, 2011 at 2:07 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 05/24/2011 04:46 PM, Sam Gandhi wrote:
->> Hello,
->>
->> I am working on a embedded platform and we have busybox on this device.
->>
->> What we would like to do do is assign diffrent labels to various
->> busybox links. What we have seen when running things on JFFS2 when I
->> label a symbolic link, the actual file gets the label, but the link
->> itself doesn't (according to ls -lZ output).  We have seen similar
->> behaviour with files on tmpfs as well.
->>
->> ls -lZ
->> -rw-r--r--        1         0 Jan  1 00:12 system_u:object_r:myfile_t X
->> lrwxrwxrwx    1         1 Jan  1 00:13 user_u:object_r:tmpfs_t          Y -> X
->>
->> Is there no way to assign different label to symlink and actual files?
->> Is this file-system specific issue? Are there any file-system that
->> support assigning seperate labels to symlink and actual file?
->>
->> -Sam
->>
->> --
+On Wed, 25 May 2011, Sam Gandhi <samgandhi9@gmail.com> wrote:
+> I am working on a embedded platform and we have busybox on this device.
+> 
+> What we would like to do do is assign diffrent labels to various
+> busybox links. What we have seen when running things on JFFS2 when I
+> label a symbolic link, the actual file gets the label, but the link
+> itself doesn't (according to ls -lZ output).  We have seen similar
+> behaviour with files on tmpfs as well.
 
->>
->>
-> Yes you can label symbolic links differently then their targets, how are
-> you assiging the labels?
->
+SE Linux supports assigning a different label to the sym-link, but that only 
+matters when access checks are performed for reading/following the sym-link.  
+When it comes to actually running the program the link label means little.
 
-I am using setfilecon program found in package
-On tmpfs file I did :
+If you want to use labels to determine domain transitions then you can't use 
+the sym-link label.  You need to either have a wrapper program that is labeled 
+to give the domain transition which then executes busybox, or to have several 
+copies of busybox which aggregate only programs which deserve the same domain.
 
-cd /tmp/
-touch X
-ln -s X Y
-setfilecon system_u:object_r:myfile_t Y
+http://doc.coker.com.au/papers/porting-se-linux-hand-held-devices/
 
-And I see ls -lZ output as I shown above which shows /tmp/X has the
-myfile_t label and not Y
+You could probably benefit from some of the suggestions I made in the above 
+paper.
 
-I can't really use tools like semanage 'cause I can't install python
-on this system. I will try to "reverse" engineer what semanage does
-and how it handles symlink v/s regular files.
-
--Sam
-
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
