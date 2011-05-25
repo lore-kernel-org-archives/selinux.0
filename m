@@ -1,75 +1,51 @@
-Subject: Re: Is it possible to assign different labels to symbolic links
- and actual files?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sam Gandhi <samgandhi9@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <BANLkTi=eLtqov9i0pXpXJkwNK74cc4mUAw@mail.gmail.com>
-References: <BANLkTi=UEBFLWeWMov7GjOn_-Q3QuyTyxw@mail.gmail.com>
-	 <4DDC1E11.2020200@redhat.com>
-	 <BANLkTi=eLtqov9i0pXpXJkwNK74cc4mUAw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 25 May 2011 08:41:02 -0400
-Message-ID: <1306327263.26019.1.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <4DDD5BF0.2080904@redhat.com>
+Date: Wed, 25 May 2011 15:43:44 -0400
+From: Eric Paris <eparis@redhat.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: sds@tycho.nsa.gov,
+        "rhel6-cc-external-list@redhat.com >> RHEL6-CC" <rhel6-cc-external-list@redhat.com>
+Subject: mounting cgroupfs causes directory search before sb initialization
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-05-24 at 14:46 -0700, Sam Gandhi wrote:
-> On Tue, May 24, 2011 at 2:07 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On 05/24/2011 04:46 PM, Sam Gandhi wrote:
-> >> Hello,
-> >>
-> >> I am working on a embedded platform and we have busybox on this device.
-> >>
-> >> What we would like to do do is assign diffrent labels to various
-> >> busybox links. What we have seen when running things on JFFS2 when I
-> >> label a symbolic link, the actual file gets the label, but the link
-> >> itself doesn't (according to ls -lZ output).  We have seen similar
-> >> behaviour with files on tmpfs as well.
-> >>
-> >> ls -lZ
-> >> -rw-r--r--        1         0 Jan  1 00:12 system_u:object_r:myfile_t X
-> >> lrwxrwxrwx    1         1 Jan  1 00:13 user_u:object_r:tmpfs_t          Y -> X
-> >>
-> >> Is there no way to assign different label to symlink and actual files?
-> >> Is this file-system specific issue? Are there any file-system that
-> >> support assigning seperate labels to symlink and actual file?
-> >>
-> >> -Sam
-> >>
-> >> --
-> 
-> >>
-> >>
-> > Yes you can label symbolic links differently then their targets, how are
-> > you assiging the labels?
-> >
-> 
-> I am using setfilecon program found in package
-> On tmpfs file I did :
-> 
-> cd /tmp/
-> touch X
-> ln -s X Y
-> setfilecon system_u:object_r:myfile_t Y
-> 
-> And I see ls -lZ output as I shown above which shows /tmp/X has the
-> myfile_t label and not Y
-> 
-> I can't really use tools like semanage 'cause I can't install python
-> on this system. I will try to "reverse" engineer what semanage does
-> and how it handles symlink v/s regular files.
+Running the RHEL6 MLS policy we find that we have trouble mounting
+cgroupfs with denials that look like so:
 
-Just change setfilecon to call lsetfilecon() instead of setfilecon().
-Or use setfiles or chcon instead.
+time->Wed May 25 13:24:28 2011
+type=PATH msg=audit(1306347868.791:11): item=0 name="/cgroup/freezer" inode=24658 dev=fd:00 mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cgroup_t:s0
+type=CWD msg=audit(1306347868.791:11):  cwd="/"
+type=SYSCALL msg=audit(1306347868.791:11): arch=c000003e syscall=165 success=yes exit=0 a0=7f9561cb0481 a1=7f9561ebe414 a2=7f9561cb0481 a3=0 items=1 ppid=944 pid=945 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="cgconfigparser" exe="/sbin/cgconfigparser" subj=system_u:system_r:cgconfig_t:s0-s15:c0.c1023 key=(null)
+type=AVC msg=audit(1306347868.791:11): avc:  denied  { search } for  pid=945 comm="cgconfigparser" name="/" dev=cgroup ino=9436 scontext=system_u:system_r:cgconfig_t:s0-s15:c0.c1023 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=dir
 
--- 
-Stephen Smalley
-National Security Agency
+After quite a bit of code inspection I think I understand the problem (although not completely). I believe the problem is that during the get_sb() call cgroupfs creates not only the root directory inode but also creates files inside that directory.  During that creation of other files (like in this case "freezer") the code does:
 
+vfs_kern_mount()
+  cgroup_get_sb()
+    cgroup_populate_dir()
+      cgroup_add_files()
+        lookup_one_len()
+        alloc_dentry()
+        d_instantiate()
+
+It seems to use lookup_one_len() to make sure it isn't adding 
+the same file twice.  Now the problem is that since we are still 
+inside get_sb() we haven't made it to security_sb_kern_mount() 
+which actually initializes the superblock security struct (and the 
+root inode).  Thus sbsec->flags & SE_SBINITIALIZED isn't set, so 
+the root inode will not have been initialized.  Now when 
+lookup_on_len() tries to search the new root inode it's going to 
+get SECINITSID_UNLABELED.
+
+I honestly am not sure how to fix it.  I could mark the root inode 
+PRIVATE while get_sb() was taking place, but that wouldn't work if 
+they ever started creating directory structures during mount.  
+Maybe we can somehow force the cgroup people to do the creation of 
+the files inside cgroupfs root inode after the sb is initialized?  
+I'm just not sure how to solve it.  Any ideas?
+
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
