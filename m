@@ -1,56 +1,85 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4P2RXf9005199
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 22:27:33 -0400
-Received: from mail-iw0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4P2RWmK007301
-	for <selinux@tycho.nsa.gov>; Wed, 25 May 2011 02:27:32 GMT
-Received: by iwn38 with SMTP id 38so7434408iwn.12
-        for <selinux@tycho.nsa.gov>; Tue, 24 May 2011 19:27:32 -0700 (PDT)
+Message-ID: <SNT139-w12F20E4434CD66A07C8FE8AB740@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_a1db0cc3-4531-4d57-9dff-1aaf8a1931db_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <eparis@redhat.com>, Roy <rongqing.li@windriver.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, <jmorris@namei.org>,
+        <eparis@parisplace.org>, selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: RE: [v0 PATCH 0/2] Review request for reorganizing the role
+ transition rule
+Date: Wed, 25 May 2011 03:23:24 +0000
+In-Reply-To: <4DDBA986.4000207@redhat.com>
+References: 
+ <1306230374-29019-1-git-send-email-rongqing.li@windriver.com>,<4DDBA986.4000207@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <201105250853.49540.russell@coker.com.au>
-References: <BANLkTi=UEBFLWeWMov7GjOn_-Q3QuyTyxw@mail.gmail.com>
-	<201105250853.49540.russell@coker.com.au>
-Date: Tue, 24 May 2011 19:27:32 -0700
-Message-ID: <BANLkTik-1iRWXN5nisHgNh2GYru3WpJbPA@mail.gmail.com>
-Subject: Re: Is it possible to assign different labels to symbolic links and
- actual files?
-From: Sam Gandhi <samgandhi9@gmail.com>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Russell,
+--_a1db0cc3-4531-4d57-9dff-1aaf8a1931db_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 24, 2011 at 3:53 PM, Russell Coker <russell@coker.com.au> wrote:
-> On Wed, 25 May 2011, Sam Gandhi <samgandhi9@gmail.com> wrote:
->> I am working on a embedded platform and we have busybox on this device.
->>
->> What we would like to do do is assign diffrent labels to various
->> busybox links. What we have seen when running things on JFFS2 when I
->> label a symbolic link, the actual file gets the label, but the link
->> itself doesn't (according to ls -lZ output).  We have seen similar
->> behaviour with files on tmpfs as well.
->
-> SE Linux supports assigning a different label to the sym-link, but that only
-> matters when access checks are performed for reading/following the sym-link.
-> When it comes to actually running the program the link label means little.
->
-> If you want to use labels to determine domain transitions then you can't use
-> the sym-link label.  You need to either have a wrapper program that is labeled
-> to give the domain transition which then executes busybox, or to have several
-> copies of busybox which aggregate only programs which deserve the same domain.
->
-> http://doc.coker.com.au/papers/porting-se-linux-hand-held-devices/
 
-That is fantastic! What is described in your paper is, exactly what I
-was looking to do.
+Hi Eric,
 
-Thank you SO much.
+Yep, you are right, technically these two patches are right, but for the time being considering that there are only 5 role transition rules, single list would be a better data structure to organize them than a hash table.
 
--Sam
+There is no outstanding underlying problem that these two patches are trying to fix, just that when adding the class support to the role transition rules, 
+Stephen mentioned that we may want to re-organize the role transition rules in hash table as what has been done for the range transition, which has 30+ such rules now.
 
+So re-organize role transition rules in hash table does has added complexity now, but I guess they would be more desirable in the future when full RBAC is implemented.
+
+Many thanks for your comments !
+
+Best regards,
+Harry
+
+> Date: Tue, 24 May 2011 08:50:14 -0400
+> From: eparis@redhat.com
+> To: rongqing.li@windriver.com
+> CC: sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov
+> Subject: Re: [v0 PATCH 0/2] Review request for reorganizing the role transition rule
+> 
+> On 05/24/2011 05:46 AM, rongqing.li@windriver.com wrote:
+> > Comments:
+> > ---------
+> > Organize the roletr in hash table rather than single list.
+> 
+> Why?  I'm not opposed to the change, but it is added complexity.  How
+> many such rules exist?  How often are they searched?  What was that
+> underlying problem for the patch?
+> 
+> -Eric
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_a1db0cc3-4531-4d57-9dff-1aaf8a1931db_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'>
+Hi Eric,<br><br>Yep, you are right, technically these two patches are right, but for the time being considering that there are only 5 role transition rules, single list would be a better data structure to organize them than a hash table.<br><br>There is no outstanding underlying problem that these two patches are trying to fix, just that when adding the class support to the role transition rules, <br>Stephen mentioned that we may want to re-organize the role transition rules in hash table as what has been done for the range transition, which has 30+ such rules now.<br><br>So re-organize role transition rules in hash table does has added complexity now, but I guess they would be more desirable in the future when full RBAC is implemented.<br><br>Many thanks for your comments !<br><br>Best regards,<br>Harry<br><br>&gt; Date: Tue, 24 May 2011 08:50:14 -0400<br>&gt; From: eparis@redhat.com<br>&gt; To: rongqing.li@windriver.com<br>&gt; CC: sds@tycho.nsa.gov; jmorris@namei.org; epa!
+ ris@parisplace.org; selinux@tycho.nsa.gov<br>&gt; Subject: Re: [v0 PATCH 0/2] Review request for reorganizing the role transition rule<br>&gt; <br>&gt; On 05/24/2011 05:46 AM, rongqing.li@windriver.com wrote:<br>&gt; &gt; Comments:<br>&gt; &gt; ---------<br>&gt; &gt; Organize the roletr in hash table rather than single list.<br>&gt; <br>&gt; Why?  I'm not opposed to the change, but it is added complexity.  How<br>&gt; many such rules exist?  How often are they searched?  What was that<br>&gt; underlying problem for the patch?<br>&gt; <br>&gt; -Eric<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+</html>
+--_a1db0cc3-4531-4d57-9dff-1aaf8a1931db_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
