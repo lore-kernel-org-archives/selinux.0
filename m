@@ -1,83 +1,76 @@
-Message-ID: <4DDD652E.5080304@redhat.com>
-Date: Wed, 25 May 2011 16:23:10 -0400
 From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] cgroupfs: use init_cred when populating new cgroupfs mount
+To: containers@lists.linux-foundation.org, selinux@tycho.nsa.gov
+Cc: menage@google.com, lizf@cn.fujitsu.com, sds@tycho.nsa.gov,
+        rhel6-cc-external-list@redhat.com
+Date: Wed, 25 May 2011 17:35:34 -0400
+Message-ID: <20110525213534.28016.33058.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
-To: Stephan Mueller <stephan.mueller@atsec.com>
-CC: rhel6-cc-external-list@redhat.com, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-Subject: Re: [Rhel6-cc-external-list] mounting cgroupfs causes directory search
- before sb initialization
-References: <4DDD5BF0.2080904@redhat.com> <201105252221.06631.stephan.mueller@atsec.com>
-In-Reply-To: <201105252221.06631.stephan.mueller@atsec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/25/2011 04:21 PM, Stephan Mueller wrote:
-> Am Mittwoch, 25. Mai 2011, um 21:43:44 schrieb Eric Paris:
-> 
-> Hi Eric,
-> 
->> Running the RHEL6 MLS policy we find that we have trouble mounting
->> cgroupfs with denials that look like so:
->>
->> time->Wed May 25 13:24:28 2011
->> type=PATH msg=audit(1306347868.791:11): item=0 name="/cgroup/freezer"
->> inode=24658 dev=fd:00 mode=040755 ouid=0 ogid=0 rdev=00:00
->> obj=system_u:object_r:cgroup_t:s0 type=CWD msg=audit(1306347868.791:11): 
->> cwd="/"
->> type=SYSCALL msg=audit(1306347868.791:11): arch=c000003e syscall=165
->> success=yes exit=0 a0=7f9561cb0481 a1=7f9561ebe414 a2=7f9561cb0481 a3=0
->> items=1 ppid=944 pid=945 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0
->> egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="cgconfigparser"
->> exe="/sbin/cgconfigparser"
->> subj=system_u:system_r:cgconfig_t:s0-s15:c0.c1023 key=(null) type=AVC
->> msg=audit(1306347868.791:11): avc:  denied  { search } for  pid=945
->> comm="cgconfigparser" name="/" dev=cgroup ino=9436
->> scontext=system_u:system_r:cgconfig_t:s0-s15:c0.c1023
->> tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=dir
->>
->> After quite a bit of code inspection I think I understand the problem
->> (although not completely). I believe the problem is that during the
->> get_sb() call cgroupfs creates not only the root directory inode but also
->> creates files inside that directory.  During that creation of other files
->> (like in this case "freezer") the code does:
->>
->> vfs_kern_mount()
->>   cgroup_get_sb()
->>     cgroup_populate_dir()
->>       cgroup_add_files()
->>         lookup_one_len()
->>         alloc_dentry()
->>         d_instantiate()
->>
->> It seems to use lookup_one_len() to make sure it isn't adding
->> the same file twice.  Now the problem is that since we are still
->> inside get_sb() we haven't made it to security_sb_kern_mount()
->> which actually initializes the superblock security struct (and the
->> root inode).  Thus sbsec->flags & SE_SBINITIALIZED isn't set, so
->> the root inode will not have been initialized.  Now when
->> lookup_on_len() tries to search the new root inode it's going to
->> get SECINITSID_UNLABELED.
->>
->> I honestly am not sure how to fix it.  I could mark the root inode
->> PRIVATE while get_sb() was taking place, but that wouldn't work if
->> they ever started creating directory structures during mount.
->> Maybe we can somehow force the cgroup people to do the creation of
->> the files inside cgroupfs root inode after the sb is initialized?
->> I'm just not sure how to solve it.  Any ideas?
-> 
-> What about simply adding a call to security_sb_kern_mount to the cgroup_get_sb 
-> function immediately before
-> 
-> 	if (root == opts.new_root) {
-> 
-> ?
-> 
-> Is there any harm when this function is called twice?
+We recently found that in some configurations SELinux was blocking the ability
+for cgroupfs to be mounted.  The reason for this is because cgroupfs creates
+files and directories during the get_sb() call and also uses lookup_one_len()
+during that same get_sb() call.  This is a problem since the security
+subsystem cannot initialize the superblock and the inodes in that filesystem
+until after the get_sb() call returns.  Thus we leave the inodes in
+an unitialized state during get_sb().  For the vast majority of filesystems
+this is not an issue, but since cgroupfs uses lookup_on_len() it does
+search permission checks on the directories in the path it walks.  Since the
+inode security state is not set up SELinux does these checks as if the inodes
+were 'unlabeled.'
 
-No, but we don't pass the security mount options (like context=) down to
-get_sb() and we need those in sb_kern_mount  :(
+Many 'normal' userspace process do not have permission to interact with
+unlabeled inodes.  The solution presented here is to do the permission checks
+of path walk and inode creation as the kernel rather than as the task that
+called mount.  Since the kernel has permission to read/write/create
+unlabeled inodes the get_sb() call will complete successfully and the SELinux
+code will be able to initialize the superblock and those inodes created during
+the get_sb() call.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+ kernel/cgroup.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/kernel/cgroup.c b/kernel/cgroup.c
+index 909a355..38b32dd 100644
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -27,9 +27,11 @@
+  */
+ 
+ #include <linux/cgroup.h>
++#include <linux/cred.h>
+ #include <linux/ctype.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
++#include <linux/init_task.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/mm.h>
+@@ -1513,6 +1515,7 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
+ 		struct cgroup *root_cgrp = &root->top_cgroup;
+ 		struct inode *inode;
+ 		struct cgroupfs_root *existing_root;
++		const struct cred *cred;
+ 		int i;
+ 
+ 		BUG_ON(sb->s_root != NULL);
+@@ -1592,7 +1595,9 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
+ 		BUG_ON(!list_empty(&root_cgrp->children));
+ 		BUG_ON(root->number_of_cgroups != 1);
+ 
++		cred = override_creds(&init_cred);
+ 		cgroup_populate_dir(root_cgrp);
++		revert_creds(cred);
+ 		mutex_unlock(&cgroup_mutex);
+ 		mutex_unlock(&inode->i_mutex);
+ 	} else {
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
