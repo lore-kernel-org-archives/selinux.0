@@ -1,114 +1,42 @@
-MIME-Version: 1.0
-In-Reply-To: <BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
-References: <BANLkTikr=mJPfq5FJUkL9=s5e4Xn6+WMsw@mail.gmail.com>
-	<1306501267.4346.25.camel@localhost.localdomain>
-	<BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
-Date: Fri, 27 May 2011 20:39:03 +0530
-Message-ID: <BANLkTi=iwnFcZ8Tsvb8RO_-yn3Ti1RmQyA@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4RMjRnI018364
+	for <selinux@tycho.nsa.gov>; Fri, 27 May 2011 18:45:27 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p4RMjP2B013162
+	for <selinux@tycho.nsa.gov>; Fri, 27 May 2011 22:45:26 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>,
+        selinux@tycho.nsa.gov
 Subject: Re: Regarding SELinux User mapping
-From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
-To: Dominick Grift <domg472@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=00032555818a77eec604a44351b4
+Date: Sat, 28 May 2011 08:45:15 +1000
+References: <BANLkTikr=mJPfq5FJUkL9=s5e4Xn6+WMsw@mail.gmail.com> <1306501267.4346.25.camel@localhost.localdomain> <BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
+In-Reply-To: <BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201105280845.15665.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---00032555818a77eec604a44351b4
-Content-Type: text/plain; charset=ISO-8859-1
-
-Hi Guys,
-
-Thanks for the help, I am now able to map SELinux user to the Linux user
-after enabling the pam_selinux.
-
-
-Regards,
-Madhu
-
-On Fri, May 27, 2011 at 7:00 PM, c.r.madhusudhanan@gmail.com <
-c.r.madhusudhanan@gmail.com> wrote:
-
-> Hello Dominick, Stephen,
->
+On Fri, 27 May 2011, "c.r.madhusudhanan@gmail.com" 
+<c.r.madhusudhanan@gmail.com> wrote:
 > Thanks for the quick response. Meego doesnt use pam_selinux by default.
->
+> 
 > I will try to enable the pam_selinux support, and let you know the result.
 > Thanks for the help.
->
-> Regards,
-> Madhu
->
->
-> On Fri, May 27, 2011 at 6:31 PM, Dominick Grift <domg472@gmail.com> wrote:
->
->>
->>
->> On Fri, 2011-05-27 at 18:20 +0530, c.r.madhusudhanan@gmail.com wrote:
->> > Hi All,
->> >
->> > I am trying to map Linux user to different SELinux user (user_u,
->> guest_u,
->> > xguest_u), but when I login it shows only as
->> > system_u:system_r:local_login_t for all users.
->>
->> SElinux uses pam (pam_selinux) to tell login programs what context they
->> should set for a user that logs in, i believe.
->>
->> pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts
->> users/.* }, i think
->> >
->> > Regards,
->> > Madhu
->>
->
->
 
---00032555818a77eec604a44351b4
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+In the early days we had SE Linux patches for all login programs, pam_selinux 
+is a more recent development.  You should be able to find the old login 
+patches somewhere, although given the evolution of APIs it might be better to 
+take the pam_selinux code and develop your own login patch.
 
-Hi Guys,<br><br>Thanks for the help, I am now able to map SELinux user to t=
-he Linux user after enabling the pam_selinux.<br><br><br>Regards,<br>Madhu<=
-br><br><div class=3D"gmail_quote">On Fri, May 27, 2011 at 7:00 PM, <a href=
-=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.madhusudhanan@gmail.com</a> <sp=
-an dir=3D"ltr">&lt;<a href=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.madhu=
-sudhanan@gmail.com</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex;">Hello Dominick, Stephen,<br><br>Thanks for =
-the quick response. Meego doesnt use pam_selinux by default.<br><br>I will =
-try to enable the pam_selinux support, and let you know the result. Thanks =
-for the help.<br>
-<br>Regards,<br>
-Madhu<div><div></div><div class=3D"h5"><br><br><div class=3D"gmail_quote">O=
-n Fri, May 27, 2011 at 6:31 PM, Dominick Grift <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:domg472@gmail.com" target=3D"_blank">domg472@gmail.com</a>&gt;<=
-/span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-<div><br>
-<br>
-On Fri, 2011-05-27 at 18:20 +0530, <a href=3D"mailto:c.r.madhusudhanan@gmai=
-l.com" target=3D"_blank">c.r.madhusudhanan@gmail.com</a> wrote:<br>
-</div><div>&gt; Hi All,<br>
-&gt;<br>
-&gt; I am trying to map Linux user to different SELinux user (user_u, guest=
-_u,<br>
-&gt; xguest_u), but when I login it shows only as<br>
-&gt; system_u:system_r:local_login_t for all users.<br>
-<br>
-</div>SElinux uses pam (pam_selinux) to tell login programs what context th=
-ey<br>
-should set for a user that logs in, i believe.<br>
-<br>
-pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts<br>
-users/.* }, i think<br>
-&gt;<br>
-&gt; Regards,<br>
-&gt; Madhu<br>
-</blockquote></div><br>
-</div></div></blockquote></div><br>
+PAM isn't required for SE Linux support (or anything really), it's just a lot 
+easier in most cases.
 
---00032555818a77eec604a44351b4--
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
