@@ -2,9 +2,9 @@ From: Harry Ciao <qingtao.cao@windriver.com>
 To: <sds@tycho.nsa.gov>, <method@manicmethod.com>, <jmorris@namei.org>,
         <eparis@parisplace.org>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v0 PATCH 3/5] Add role attribute support when linking modules.
-Date: Fri, 27 May 2011 09:24:22 +0800
-Message-ID: <1306459464-2497-4-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 4/5] Add role attribute support when expanding role_datum_t.
+Date: Fri, 27 May 2011 09:24:23 +0800
+Message-ID: <1306459464-2497-5-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1306459464-2497-1-git-send-email-qingtao.cao@windriver.com>
 References: <1306459464-2497-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -12,97 +12,131 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Make the flavor flag and the roles ebitmap in role_datum_t structure
-properly handled during module link process:
+1. Copy the flavor flag into its counterpart in the out module;
 
-1. the flavor flag is copied into the base module;
+2. Fix all role attributes in the base module:
+2.1 remap the roles ebitmap and merge into its counterpart in the
+out module;
+2.2 escalate the types.types ebitmap of its counterpart in the out
+module, to the counterparts for all the regular roles that belongs
+to the current role attribute.
 
-2. if both the current module and the base module have defined or
-required the same role, check if there is a discrepency in flavor;
-
-3. remap the roles ebitmap and merge into its counterpart in the
-base module;
+The role_fix_callback() must be called after role_copy_callback()
+so that state->rolemap[] is available.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/link.c |   42 ++++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 40 insertions(+), 2 deletions(-)
+ libsepol/src/expand.c |   76 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 76 insertions(+), 0 deletions(-)
 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 23dbb1b..53fcff9 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -312,7 +312,25 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 	role = (role_datum_t *) datum;
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index b1af365..1a94cb4 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -664,6 +664,74 @@ static int role_remap_dominates(hashtab_key_t key __attribute__ ((unused)), hash
+ 	return 0;
+ }
  
- 	base_role = hashtab_search(state->base->p_roles.table, id);
--	if (base_role == NULL) {
-+	if (base_role != NULL) {
-+		/* role already exists.  check that it is what this
-+		 * module expected.  duplicate declarations (e.g., two
-+		 * modules both declare role foo_r) is checked during
-+		 * scope_copy_callback(). */
-+		if (role->flavor == ROLE_ATTRIB
-+		    && base_role->flavor != ROLE_ATTRIB) {
-+			ERR(state->handle,
-+			    "%s: Expected %s to be a role attribute, but it was already declared as a regular role.",
-+			    state->cur_mod_name, id);
-+			return -1;
-+		} else if (role->flavor != ROLE_ATTRIB
-+			   && base_role->flavor == ROLE_ATTRIB) {
-+			ERR(state->handle,
-+			    "%s: Expected %s to be a regular role, but it was already declared as a role attribute.",
-+			    state->cur_mod_name, id);
-+			return -1;
-+		}
-+	} else {
- 		if (state->verbose)
- 			INFO(state->handle, "copying role %s", id);
- 
-@@ -326,8 +344,9 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		}
- 		role_datum_init(new_role);
- 
--		/* new_role's dominates and types field will be copied
-+		/* new_role's dominates, types and roles field will be copied
- 		 * during role_fix_callback() */
-+		new_role->flavor = role->flavor;
- 		new_role->s.value = state->base->p_roles.nprim + 1;
- 
- 		ret = hashtab_insert(state->base->p_roles.table,
-@@ -346,6 +365,7 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			goto cleanup;
- 		}
- 		role_datum_init(new_role);
-+		new_role->flavor = base_role->flavor;
- 		new_role->s.value = base_role->s.value;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
-@@ -1046,6 +1066,24 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		goto cleanup;
- 	}
- 	ebitmap_destroy(&e_tmp);
-+	
-+	if (role->flavor == ROLE_ATTRIB) {
-+		ebitmap_init(&e_tmp);
-+		ebitmap_for_each_bit(&role->roles, rnode, i) {
-+			if (ebitmap_node_get_bit(rnode, i)) {
-+				assert(mod->map[SYM_ROLES][i]);
-+				if (ebitmap_set_bit
-+				    (&e_tmp, mod->map[SYM_ROLES][i] - 1, 1)) {
-+					goto cleanup;
-+				}
-+			}
-+		}
-+		if (ebitmap_union(&dest_role->roles, &e_tmp)) {
-+			goto cleanup;
-+		}
-+		ebitmap_destroy(&e_tmp);
++/* For the role attribute in the base module, escalate its counterpart's
++ * types.types ebitmap in the out module to the counterparts of all the
++ * regular role that belongs to the current role attribute. Note, must be
++ * invoked after role_copy_callback so that state->rolemap is available.
++ */
++static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
++			     void *data)
++{
++	char *id, *base_reg_role_id;
++	role_datum_t *role, *new_role, *regular_role;
++	expand_state_t *state;
++	ebitmap_node_t *rnode;
++	unsigned int i;
++	ebitmap_t mapped_roles;
++
++	id = key;
++	role = (role_datum_t *)datum;
++	state = (expand_state_t *)data;
++
++	if (strcmp(id, OBJECT_R) == 0) {
++		/* object_r is never a role attribute by far */
++		return 0;
 +	}
 +
- 	return 0;
++	if (role->flavor != ROLE_ATTRIB)
++		return 0;
++
++	if (state->verbose)
++		INFO(state->handle, "fixing role attribute %s", id);
++
++	new_role =
++		(role_datum_t *)hashtab_search(state->out->p_roles.table, id);
++
++	assert(new_role != NULL);
++	assert(new_role->flavor == ROLE_ATTRIB);
++
++	ebitmap_init(&mapped_roles);
++	if (map_ebitmap(&role->roles, &mapped_roles, state->rolemap))
++		return -1;
++	if (ebitmap_union(&new_role->roles, &mapped_roles)) {
++		ERR(state->handle, "Out of memory!");
++		ebitmap_destroy(&mapped_roles);
++		return -1;
++	}
++	ebitmap_destroy(&mapped_roles);
++
++	ebitmap_for_each_bit(&role->roles, rnode, i) {
++		if (ebitmap_node_get_bit(rnode, i)) {
++			/* take advantage of sym_val_to_name[]
++			 * of the base module */
++			base_reg_role_id = state->base->p_role_val_to_name[i];
++			regular_role = (role_datum_t *)hashtab_search(
++						state->out->p_roles.table,
++						base_reg_role_id);
++			assert(regular_role != NULL);
++			assert(regular_role->flavor == ROLE_ROLE);
++
++			if (ebitmap_union(&regular_role->types.types, 
++					  &new_role->types.types)) {
++				ERR(state->handle, "Out of memory!");
++				return -1;
++			}
++		}
++	}
++	
++	return 0;
++}
++
+ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			      void *data)
+ {
+@@ -709,6 +777,7 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 		}
  
-       cleanup:
+ 		state->out->p_roles.nprim++;
++		new_role->flavor = role->flavor;
+ 		new_role->s.value = state->out->p_roles.nprim;
+ 		state->rolemap[role->s.value - 1] = new_role->s.value;
+ 		ret = hashtab_insert(state->out->p_roles.table,
+@@ -2673,6 +2742,10 @@ int expand_module(sepol_handle_t * handle,
+ 	if (hashtab_map(state.base->p_roles.table,
+ 			role_bounds_copy_callback, &state))
+ 		goto cleanup;
++	/* escalate the type_set_t in a role attribute to all regular roles
++	 * that belongs to it. */
++	if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
++		goto cleanup;
+ 
+ 	/* copy MLS's sensitivity level and categories - this needs to be done
+ 	 * before expanding users (they need to be indexed too) */
+@@ -2725,6 +2798,9 @@ int expand_module(sepol_handle_t * handle,
+ 		if (hashtab_map
+ 		    (decl->p_roles.table, role_copy_callback, &state))
+ 			goto cleanup;
++		if (hashtab_map
++		    (decl->p_roles.table, role_fix_callback, &state))
++			goto cleanup;
+ 
+ 		/* copy users */
+ 		if (hashtab_map
 -- 
 1.7.0.4
 
