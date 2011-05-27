@@ -1,63 +1,86 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p4RD191S018019
-	for <selinux@tycho.nsa.gov>; Fri, 27 May 2011 09:01:09 -0400
-Received: from mail-bw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p4RD18ma002156
-	for <selinux@tycho.nsa.gov>; Fri, 27 May 2011 13:01:08 GMT
-Received: by bwg12 with SMTP id 12so1510493bwg.12
-        for <selinux@tycho.nsa.gov>; Fri, 27 May 2011 06:01:08 -0700 (PDT)
-Subject: Re: Regarding SELinux User mapping
-From: Dominick Grift <domg472@gmail.com>
-To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 27 May 2011 15:01:06 +0200
-In-Reply-To: <BANLkTikr=mJPfq5FJUkL9=s5e4Xn6+WMsw@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <1306501267.4346.25.camel@localhost.localdomain>
 References: <BANLkTikr=mJPfq5FJUkL9=s5e4Xn6+WMsw@mail.gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-f6dpR4R32ytDv0DwY6NL"
-Message-ID: <1306501267.4346.25.camel@localhost.localdomain>
-Mime-Version: 1.0
+	<1306501267.4346.25.camel@localhost.localdomain>
+Date: Fri, 27 May 2011 19:00:06 +0530
+Message-ID: <BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
+Subject: Re: Regarding SELinux User mapping
+From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+To: Dominick Grift <domg472@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=00151743fa569bb5e104a441ef39
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--00151743fa569bb5e104a441ef39
+Content-Type: text/plain; charset=ISO-8859-1
 
---=-f6dpR4R32ytDv0DwY6NL
-Content-Type: text/plain; charset="UTF-8"
+Hello Dominick, Stephen,
+
+Thanks for the quick response. Meego doesnt use pam_selinux by default.
+
+I will try to enable the pam_selinux support, and let you know the result.
+Thanks for the help.
+
+Regards,
+Madhu
+
+On Fri, May 27, 2011 at 6:31 PM, Dominick Grift <domg472@gmail.com> wrote:
+
+>
+>
+> On Fri, 2011-05-27 at 18:20 +0530, c.r.madhusudhanan@gmail.com wrote:
+> > Hi All,
+> >
+> > I am trying to map Linux user to different SELinux user (user_u, guest_u,
+> > xguest_u), but when I login it shows only as
+> > system_u:system_r:local_login_t for all users.
+>
+> SElinux uses pam (pam_selinux) to tell login programs what context they
+> should set for a user that logs in, i believe.
+>
+> pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts
+> users/.* }, i think
+> >
+> > Regards,
+> > Madhu
+>
+
+--00151743fa569bb5e104a441ef39
+Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
+Hello Dominick, Stephen,<br><br>Thanks for the quick response. Meego doesnt=
+ use pam_selinux by default.<br><br>I will try to enable the pam_selinux su=
+pport, and let you know the result. Thanks for the help.<br><br>Regards,<br=
+>
+Madhu<br><br><div class=3D"gmail_quote">On Fri, May 27, 2011 at 6:31 PM, Do=
+minick Grift <span dir=3D"ltr">&lt;<a href=3D"mailto:domg472@gmail.com">dom=
+g472@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" s=
+tyle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+<div class=3D"im"><br>
+<br>
+On Fri, 2011-05-27 at 18:20 +0530, <a href=3D"mailto:c.r.madhusudhanan@gmai=
+l.com">c.r.madhusudhanan@gmail.com</a> wrote:<br>
+</div><div class=3D"im">&gt; Hi All,<br>
+&gt;<br>
+&gt; I am trying to map Linux user to different SELinux user (user_u, guest=
+_u,<br>
+&gt; xguest_u), but when I login it shows only as<br>
+&gt; system_u:system_r:local_login_t for all users.<br>
+<br>
+</div>SElinux uses pam (pam_selinux) to tell login programs what context th=
+ey<br>
+should set for a user that logs in, i believe.<br>
+<br>
+pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts<br>
+users/.* }, i think<br>
+&gt;<br>
+&gt; Regards,<br>
+&gt; Madhu<br>
+</blockquote></div><br>
 
-
-On Fri, 2011-05-27 at 18:20 +0530, c.r.madhusudhanan@gmail.com wrote:
-> Hi All,
->=20
-> I am trying to map Linux user to different SELinux user (user_u, guest_u,
-> xguest_u), but when I login it shows only as
-> system_u:system_r:local_login_t for all users. =20
-
-SElinux uses pam (pam_selinux) to tell login programs what context they
-should set for a user that logs in, i believe.
-
-pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts
-users/.* }, i think
->=20
-> Regards,
-> Madhu
-
---=-f6dpR4R32ytDv0DwY6NL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABEKAAYFAk3foJIACgkQMlxVo39jgT8j7QCfVE+xx9Ezu0KpMfPALqGzzcGg
-KLgAoKtYVco5YNrqRo+LLaZrT2h6paSS
-=5pWf
------END PGP SIGNATURE-----
-
---=-f6dpR4R32ytDv0DwY6NL--
-
+--00151743fa569bb5e104a441ef39--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
