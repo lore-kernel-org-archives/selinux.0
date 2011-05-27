@@ -1,97 +1,114 @@
-Message-ID: <4DDFBBDC.9040909@tresys.com>
-Date: Fri, 27 May 2011 10:57:32 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Harry Ciao <qingtao.cao@windriver.com>, <sds@tycho.nsa.gov>,
-        <jmorris@namei.org>, <eparis@parisplace.org>, <selinux@tycho.nsa.gov>,
-        Daniel
- J Walsh <dwalsh@redhat.com>
-Subject: Re: v0 Add role attribute support to libsepol
-References: <1306459464-2497-1-git-send-email-qingtao.cao@windriver.com> <4DDFAC9A.50903@manicmethod.com> <4DDFB3F3.9040009@manicmethod.com>
-In-Reply-To: <4DDFB3F3.9040009@manicmethod.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+In-Reply-To: <BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
+References: <BANLkTikr=mJPfq5FJUkL9=s5e4Xn6+WMsw@mail.gmail.com>
+	<1306501267.4346.25.camel@localhost.localdomain>
+	<BANLkTik7AS=9J4gXUpORehuEAJxYcizQXA@mail.gmail.com>
+Date: Fri, 27 May 2011 20:39:03 +0530
+Message-ID: <BANLkTi=iwnFcZ8Tsvb8RO_-yn3Ti1RmQyA@mail.gmail.com>
+Subject: Re: Regarding SELinux User mapping
+From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+To: Dominick Grift <domg472@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=00032555818a77eec604a44351b4
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/27/11 10:23, Joshua Brindle wrote:
-> Joshua Brindle wrote:
->> Harry Ciao wrote:
->>>
->>> Comments:
->>> ---------
->>> Add role attribute to SELinux, which aims at replacing the deprecated
->>> role dominance rule.
+--00032555818a77eec604a44351b4
+Content-Type: text/plain; charset=ISO-8859-1
+
+Hi Guys,
+
+Thanks for the help, I am now able to map SELinux user to the Linux user
+after enabling the pam_selinux.
+
+
+Regards,
+Madhu
+
+On Fri, May 27, 2011 at 7:00 PM, c.r.madhusudhanan@gmail.com <
+c.r.madhusudhanan@gmail.com> wrote:
+
+> Hello Dominick, Stephen,
+>
+> Thanks for the quick response. Meego doesnt use pam_selinux by default.
+>
+> I will try to enable the pam_selinux support, and let you know the result.
+> Thanks for the help.
+>
+> Regards,
+> Madhu
+>
+>
+> On Fri, May 27, 2011 at 6:31 PM, Dominick Grift <domg472@gmail.com> wrote:
+>
 >>
->> Thanks. This is going to take a bit of time to absorb and most of my
->> cycles are
->> in use at the moment. I'll definitely get around to looking at it though.
 >>
-> 
-> I'd also like to solicit feedback from Dan and Chris as to how this will
-> be used in policy, and as to whether this implementation is suitable.
-> 
-> Dan, Chris, opinions?
+>> On Fri, 2011-05-27 at 18:20 +0530, c.r.madhusudhanan@gmail.com wrote:
+>> > Hi All,
+>> >
+>> > I am trying to map Linux user to different SELinux user (user_u,
+>> guest_u,
+>> > xguest_u), but when I login it shows only as
+>> > system_u:system_r:local_login_t for all users.
+>>
+>> SElinux uses pam (pam_selinux) to tell login programs what context they
+>> should set for a user that logs in, i believe.
+>>
+>> pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts
+>> users/.* }, i think
+>> >
+>> > Regards,
+>> > Madhu
+>>
+>
+>
 
-Do we really want to overload the attribute statement for declaring role
-attributes?
+--00032555818a77eec604a44351b4
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-If I understand the description correctly, it seems reasonable, but will
-still run into problems for refpolicy.  We want to immediately use this
-feature for handling chains of run interfaces.  For example, say we have
-an admin (admin_r:admin_t) and he can run the foo program (foo_t
-domain).  The foo program then runs the bar program (bar_t) domain.  The
-(abbreviated) policy right now would look like this:
+Hi Guys,<br><br>Thanks for the help, I am now able to map SELinux user to t=
+he Linux user after enabling the pam_selinux.<br><br><br>Regards,<br>Madhu<=
+br><br><div class=3D"gmail_quote">On Fri, May 27, 2011 at 7:00 PM, <a href=
+=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.madhusudhanan@gmail.com</a> <sp=
+an dir=3D"ltr">&lt;<a href=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.madhu=
+sudhanan@gmail.com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex;">Hello Dominick, Stephen,<br><br>Thanks for =
+the quick response. Meego doesnt use pam_selinux by default.<br><br>I will =
+try to enable the pam_selinux support, and let you know the result. Thanks =
+for the help.<br>
+<br>Regards,<br>
+Madhu<div><div></div><div class=3D"h5"><br><br><div class=3D"gmail_quote">O=
+n Fri, May 27, 2011 at 6:31 PM, Dominick Grift <span dir=3D"ltr">&lt;<a hre=
+f=3D"mailto:domg472@gmail.com" target=3D"_blank">domg472@gmail.com</a>&gt;<=
+/span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+<div><br>
+<br>
+On Fri, 2011-05-27 at 18:20 +0530, <a href=3D"mailto:c.r.madhusudhanan@gmai=
+l.com" target=3D"_blank">c.r.madhusudhanan@gmail.com</a> wrote:<br>
+</div><div>&gt; Hi All,<br>
+&gt;<br>
+&gt; I am trying to map Linux user to different SELinux user (user_u, guest=
+_u,<br>
+&gt; xguest_u), but when I login it shows only as<br>
+&gt; system_u:system_r:local_login_t for all users.<br>
+<br>
+</div>SElinux uses pam (pam_selinux) to tell login programs what context th=
+ey<br>
+should set for a user that logs in, i believe.<br>
+<br>
+pam_selinux gets these from /etc/selinux/*/contexts/ { default_contexts<br>
+users/.* }, i think<br>
+&gt;<br>
+&gt; Regards,<br>
+&gt; Madhu<br>
+</blockquote></div><br>
+</div></div></blockquote></div><br>
 
-foo.te:
-bar_domtrans(foo_t)
-
-foo.if:
-interface foo_run(
-	type_transition $1 foo_exec_t:process foo_t;
-	role $2 types foo_t;
-	bar_run($1,$2)
-)
-
-The reason we do this is so that the bar_t is added on to the admin_r
-role, without adding a direct transition from admin_t to bar_t.  But the
-above gets messy when the policy writer forgets to put the accompanying
-bar_run() call in the foo_run() interface implementation.  With role
-attributes it would be simplified to:
-
-foo.te:
-role foo_roles types foo_t;
-bar_run(foo_t, foo_roles)
-
-foo.if:
-interface foo_run(
-	type_transition $1 foo_exec_t:process foo_t;
-	roleattribute $2 foo_roles;
-)
-
-But the problem that I suspect we'll see is what happens the bar_run()
-interface also has a role attribute?  Extending the above example:
-
-bar.if:
-interface bar_run(
-	type_transition $1 bar_exec_t:process bar_t;
-	roleattribute $2 bar_roles;
-)
-
-When the policy is expanded, you end up getting a roleattribute
-statement that has all role attributes in it:
-
-roleattribute foo_roles bar_roles;
-
-This should result in bar_roles being a superset of foo_roles.  It
-doesn't sound like this is being done.  There is at least one example of
-this case in refpolicy, see rpm_run() and seutil_run_semanage(); caller
-runs rpm->rpm_script->semanage->load_policy.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+--00032555818a77eec604a44351b4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
