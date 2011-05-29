@@ -1,140 +1,256 @@
-Message-ID: <SNT139-w62C255DDAA9F2FF1B546BAB780@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_7d13151c-18e5-41a2-9136-1a0d7085ba4d_"
+Message-ID: <SNT139-w55F310E84EDBF5249B5C59AB780@phx.gbl>
+Content-Type: multipart/mixed;
+	boundary="_31a2e12f-4146-49ed-b636-cd19ad42e384_"
 From: HarryCiao <harrytaurus2002@hotmail.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>, <method@manicmethod.com>
-CC: <qingtao.cao@windriver.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        <jmorris@namei.org>, <eparis@parisplace.org>,
-        selinux-mailing-list
-	<selinux@tycho.nsa.gov>,
-        Daniel Walsh <dwalsh@redhat.com>
-Subject: RE: v0 Add role attribute support to libsepol
-Date: Sun, 29 May 2011 04:46:55 +0000
-In-Reply-To: <4DDFBBDC.9040909@tresys.com>
-References: <1306459464-2497-1-git-send-email-qingtao.cao@windriver.com>
- <4DDFAC9A.50903@manicmethod.com>
- <4DDFB3F3.9040009@manicmethod.com>,<4DDFBBDC.9040909@tresys.com>
+To: <qingtao.cao@windriver.com>,
+        "Christopher J. PeBenito"
+	<cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, <method@manicmethod.com>,
+        <jmorris@namei.org>, <eparis@parisplace.org>
+CC: selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: RE: v1 Add role attribute support to libsepol
+Date: Sun, 29 May 2011 04:51:26 +0000
+In-Reply-To: <1306643819-30374-1-git-send-email-qingtao.cao@windriver.com>
+References: <1306643819-30374-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_7d13151c-18e5-41a2-9136-1a0d7085ba4d_
+--_31a2e12f-4146-49ed-b636-cd19ad42e384_
+Content-Type: multipart/alternative;
+	boundary="_94a79ae8-f59c-4c0b-a174-82c849f1c0cc_"
+
+--_94a79ae8-f59c-4c0b-a174-82c849f1c0cc_
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
 
-Hi Chris,
+Attach the refpolicy patch to test adding one role attribute into another.
 
-> Date: Fri, 27 May 2011 10:57:32 -0400
-> From: cpebenito@tresys.com
-> To: method@manicmethod.com
-> CC: qingtao.cao@windriver.com; sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov; dwalsh@redhat.com
-> Subject: Re: v0 Add role attribute support to libsepol
+> From: qingtao.cao@windriver.com
+> To: cpebenito@tresys.com; sds@tycho.nsa.gov; method@manicmethod.com; jmorris@namei.org; eparis@parisplace.org
+> CC: selinux@tycho.nsa.gov
+> Subject: v1 Add role attribute support to libsepol
+> Date: Sun, 29 May 2011 12:36:53 +0800
 > 
-> On 05/27/11 10:23, Joshua Brindle wrote:
-> > Joshua Brindle wrote:
-> >> Harry Ciao wrote:
-> >>>
-> >>> Comments:
-> >>> ---------
-> >>> Add role attribute to SELinux, which aims at replacing the deprecated
-> >>> role dominance rule.
-> >>
-> >> Thanks. This is going to take a bit of time to absorb and most of my
-> >> cycles are
-> >> in use at the moment. I'll definitely get around to looking at it though.
-> >>
-> > 
-> > I'd also like to solicit feedback from Dan and Chris as to how this will
-> > be used in policy, and as to whether this implementation is suitable.
-> > 
-> > Dan, Chris, opinions?
 > 
-> Do we really want to overload the attribute statement for declaring role
-> attributes?
-
-Well, I guess we have to, since the attribute statement would be the only entrypoint to set a role_datum_t.flavor as ROLE_ATTRIB, and the role-types statement would no longer be able to declare roles, since they current syntax does not support to specify if the role is a regular role or a role attribute.
-
-BTW, a regular role would be declared by the newly added role-attr statement exactly as the type statement, and the role-types statement would be solely used for setting up role - role attribute association and association between role attributes.
-
 > 
-> If I understand the description correctly, it seems reasonable, but will
-> still run into problems for refpolicy.  We want to immediately use this
-> feature for handling chains of run interfaces.  For example, say we have
-> an admin (admin_r:admin_t) and he can run the foo program (foo_t
-> domain).  The foo program then runs the bar program (bar_t) domain.  The
-> (abbreviated) policy right now would look like this:
+> Comments
+> ---------
 > 
-> foo.te:
-> bar_domtrans(foo_t)
+>     Support adding one role attribute into another.
+>     
+>     When the link process is completed, the types type_set_t and roles
+>     ebitmap in a role attribute are settled, then we could go on scan
+>     all role attributes in the base.p_roles table checking if any non-zero
+>     bit in its roles ebitmap is indeed another role attribute.
+>     
+>     If this is the case, then we need to escalate the roles ebitmap of
+>     the sub-attribute into that of the parent attribute, and remove the
+>     sub-attribute from parent's roles ebitmap.
+>     
+>     Since sub-attribute's roles ebitmap may further contain other role
+>     attributes, we need to re-scan the updated parent's roles ebitmap.
+>     
+>     Also if a loop dependency is detected, no escalation of sub-attribute's
+>     roles ebitmap is needed.
 > 
-> foo.if:
-> interface foo_run(
-> 	type_transition $1 foo_exec_t:process foo_t;
-> 	role $2 types foo_t;
-> 	bar_run($1,$2)
-> )
 > 
-> The reason we do this is so that the bar_t is added on to the admin_r
-> role, without adding a direct transition from admin_t to bar_t.  But the
-> above gets messy when the policy writer forgets to put the accompanying
-> bar_run() call in the foo_run() interface implementation.  With role
-> attributes it would be simplified to:
+>     In order to highlight this patch I've decided to introduce a new
+>     separate commit, while all the rest 5 commits are the same as v0.
 > 
-> foo.te:
-> role foo_roles types foo_t;
-> bar_run(foo_t, foo_roles)
 > 
-> foo.if:
-> interface foo_run(
-> 	type_transition $1 foo_exec_t:process foo_t;
-> 	roleattribute $2 foo_roles;
-> )
-> 
-> But the problem that I suspect we'll see is what happens the bar_run()
-> interface also has a role attribute?  Extending the above example:
-> 
-> bar.if:
-> interface bar_run(
-> 	type_transition $1 bar_exec_t:process bar_t;
-> 	roleattribute $2 bar_roles;
-> )
-> 
-> When the policy is expanded, you end up getting a roleattribute
-> statement that has all role attributes in it:
-> 
-> roleattribute foo_roles bar_roles;
-> 
-> This should result in bar_roles being a superset of foo_roles.  It
-> doesn't sound like this is being done.  There is at least one example of
-> this case in refpolicy, see rpm_run() and seutil_run_semanage(); caller
-> runs rpm->rpm_script->semanage->load_policy.
-> 
-
-Yep, I've got your point. Many thanks for clarifying your needs so that I would have a better idea of how role attributes are expected to be used.
-
-While, I have sent out v1 patches, the last one 6/6 patch aims at setting up associations between two role attributes, while the first 5 remains the same as v0.
-
-BTW, I also have modified rpm.* and selinuxutil.* to setup a test scenario same as what you have described above, please further refer to the attachment of the 0/6 email of v1 patches.
-
-Thanks again! Looking forward to your feedbacks.
-
-Best regards,
-Harry
-
-
-
-> -- 
-> Chris PeBenito
-> Tresys Technology, LLC
-> www.tresys.com | oss.tresys.com
+> Tests of adding one role attribute into another
+> ------------------------------------------------
+>    
+> 1. Apply the patch for rpm.* and selinuxuti.*, to introduce rpm_roles and
+>    semanage_roles attributes and eliminate the "chain of run interfaces",
+>    make policy.X and dump its hexdump, check out the policy value for
+>    related identifiers:
+>    
+>    0035b00: 5f74 0500 0000 4103 0000 0100 0000 0000  _t....A.........
+>    0035b10: 0000 7270 6d5f 7407 0000 0042 0300 0001  ..rpm_t....
+>    
+>    rpm_t: policy value = 0x341
+>    
+>    0040460: 740c 0000 0075 0700 0001 0000 0000 0000  t....u..........
+>    0040470: 0072 706d 5f73 6372 6970 745f 740f 0000  .rpm_script_t.
+>    
+>    rpm_script_t: policy value = 0x775
+>    
+>    004c900: 6563 7572 6974 795f 740a 0000 001e 0c00  ecurity_t.......
+>    004c910: 0001 0000 0000 0000 0073 656d 616e 6167  .........semanag
+>    004c920: 655f 7409 0000 001f 0c00 0003 0000 0000  e_t
+>    
+>    semanage_t: policy value = 0xc1e
+>    
+>    004c760: 0a00 0000 140c 0000 0100 0000 0000 0000  ................
+>    004c770: 7365 7466 696c 6573 5f74 1400 0000 ec0a  setfiles_t......
+>    
+>    setfiles_t: policy value = 0xc14
+>    
+>    00484e0: 740d 0000 008b 0a00 0001 0000 0000 0000  t...............
+>    00484f0: 006c 6f61 645f 706f 6c69 6379 5f74 0c00  .load_policy_t..
+>    
+>    load_policy_t: policy value = 0xa8b
+>    
+>    
+> 2. Check out rpm_roles.types ebitmap:
+>    
+>    002d2c0: 0000 0400 0000 0000 0000 0900 0000 0f00  ................
+>    002d2d0: 0000 0000 0000 7270 6d5f 726f 6c65 7340  ......rpm_roles@
+>    002d2e0: 0000 0040 0000 0001 0000 0000 0000 0000  ...@............
+>    002d2f0: 4000 0000 0000 0040 0000 0080 0700 0002  @......@........
+>    002d300: 0000 0040 0300 0001 0000 0000 0000 0040  ...@...........@
+>    002d310: 0700 0000 0000 0000 0010 000b 0000 0010  ................
+>    002d320: 0000 0000 0000 006e 785f 7365 7276 6572  .......
+>    
+>    rpm_roles: policy value = 0x0f
+>    	dominates:
+>   		mz = 0x40, highbit = 0x40, node = 1
+> 		startbit = 0, map: 00 4000 0000 0000 00 
+> 			policy value: 0x0f(rpm_roles)
+>    	types.types:
+>    		mz = 0x40, highbit = 0x780, node = 2
+>    		startbit = 0x340, map: 01 0000 0000 0000 00
+> 			policy value: 0x341(rpm_t)
+>    		startbit = 0x740, map: 00 0000 0000 0010 00
+> 			policy value: 0x775(rpm_script_t)
+>    
+>    
+> 3. Check out semanage_roles.types ebitmap:
+>    
+>    002caa0: 0000 0000 0e00 0000 0800 0000 0000 0000  ................
+>    002cab0: 7365 6d61 6e61 6765 5f72 6f6c 6573 4000  semanage_roles@.
+>    002cac0: 0000 4000 0000 0100 0000 0000 0000 8000  ..@.............
+>    002cad0: 0000 0000 0000 4000 0000 400c 0000 0200  ......@...@.....
+>    002cae0: 0000 800a 0000 0004 0000 0000 0000 000c  ................
+>    002caf0: 0000 0000 0820 0000 0000 1000 0000 0900  ..... ..........
+>    002cb00: 0000 0000 0000 726f 6c65 5f61 7474 7269  ......
+>    
+>    semanage_roles: policy value = 0x08
+>    	dominates:
+>   		mz = 0x40, highbit = 0x40, node = 1, 
+> 		startbit = 0, map: 8000 0000 0000 0000 
+> 			policy value: 8(semanage_roles)
+>    	types.types:
+>    		mz = 0x40, highbit = 0xc40 node = 2
+> 		startbit = 0xa80, map: 0004 0000 0000 0000
+> 			policy value: 0xa8b(load_policy_t)
+> 		startbit = 0xc00, map: 0000 0820 0000 0000
+> 			policy value: 0xc14(setfiles_t), 0xc1e(semanage_t)
+>    
+>    
+> 4. Verify that once rpm_roles attribute becomes a sub-attribute of
+>    semanage_roles attribute, then all regular roles belonging to rpm_roles
+>    such as sysadm_r should be able to type all those types of the parent role
+>    attribute's types(that is, semanage_roles.types):
+>    
+>    002ccc0: 0000 0800 0000 0b00 0000 0000 0000 7379  ..............sy
+>    002ccd0: 7361 646d 5f72 4000 0000 4000 0000 0100  sadm_r@...@.....
+>    002cce0: 0000 0000 0000 0004 0000 0000 0000 4000  ..............@.
+>    002ccf0: 0000 800d 0000 2d00 0000 8000 0000 0000  ......-.........
+>    ...
+>    002cd70: 5808, 4003 0000 0906 0200 0000 0000, 8003  X.@.............
+>    ...
+>    002cdf0: 4000 0000 0900 c006 0000 0000 0008 0000  @...............
+>    002ce00: 0000, 4007 0000 4000 0000 0000 1006, 8007  ..@...@.........
+>    002ce10: 0000 0000 000a 0000 0000 c007 0000 0080  ................
+>    ...
+>    002ce90: 8000, 400a 0000 0000 0000 0000 0040, 800a  ..@..........@..
+>    002cea0: 0000 0004 0002 0000 0000 c00a 0000 0000  ................
+>    002ceb0: 0000 8000 0000 000b 0000 0000 0080 0080  ................
+>    002cec0: 0000 c00b 0000 0000 0000 1000 0000, 000c  ................
+>    002ced0: 0000 0000 3820 0004 0000 400c 0000 0400  ....8 ....@.....
+>    ...
+>    
+>    sysadm_r: policy value = 0x0b
+>    	dominates:
+>    		mz = 0x40, highbit = 0x40, node = 1
+>    		startbit = 0x0, map: 0004 0000 0000 0000
+> 			policy value: 0x0b(sysadm_r)
+>    	types.types:
+>    		mz = 0x40, highbit = 0xd80, node = 0x2d
+>    		startbit = 0x340, map: 0906 0200 0000 0000
+>    			policy value: 341(rpm_t), 344, 34a, 34b
+>    
+>    		startbit = 0x740, map: 4000 0000 0000 1006
+>    			policy value: 747, 775(rpm_script_t), 77a, 77b
+>    
+>    		startbit = 0xa80, map: 0004 0002 0000 0000
+>    			policy value: a8b(load_policy_t), a9a
+>    
+>    		startbit = 0xc00, map: 0000 3820 0004 0000 
+>    			policy value: c14(setfiles_t), c15, c16, c1e(semanage_t)
+>    
+>    
+> 5. Extra loop depenency tests.
+>    
+> 5.1 When there is no loop dependency between rpm_roles and semanage_roles
+>    attributes, the secadm_r that belongs to semanage_roles attributes is
+>    not able to type those types of the rpm_roles.types, such as rpm_t or
+>    rpm_script_t:
+>    
+>    002cb60: 0000 0a00 0000 0000 0000 7365 6361 646d  ..........secadm
+>    002cb70: 5f72 4000 0000 4000 0000 0100 0000 0000  _r@...@.........
+>    002cb80: 0000 0002 0000 0000 0000 4000 0000 400d  ..........@...@.
+>    002cb90: 0000 1900 0000 8000 0000 0000 0000 0200  ................
+>    ...
+>    002cbe0: 0000 0400 0200 0000 1800, 4003 0000 0002  ..........@.....
+>    002cbf0: 0000 0000 0000 c003 0000 0000 0000 0000  ................
+>    ...
+>    002cc30: 0800 4006 0000 0000 0000 0000 0100, 4007  ..@...........@.
+>    002cc40: 0000 0000 0000 0000 2000 4009 0000 0000  ........ .@.....
+>    002cc50: 0000 0000 0420 8009 0000 0000 0820 0000  ..... ....... ..
+>    
+>    secadm_r:
+>    	types.types:
+>    		mz = 0x40, highbit = 0xd40, node = 0x19
+>    		startbit = 0x340, map: 0002 0000 0000 0000
+>    			policy value: 34a, ... 
+>    		
+>    		startbit = 0x740, map: 0000 0000 0000 2000
+>    			policy value: 776
+>    
+>    
+> 5.2 Add below statements in selinuxutil.te to create a loop dependcy
+>    between rpm_roles and semanage_roles attributes:
+>    
+>    attribute rpm_roles ROLE;
+>    roleattribute semanage_roles rpm_roles;
+>    
+>    Then rebuild policy.X in modular way, the loop dependency should be
+>    properly handled, and secadm_r that belongs to the semanage_roles
+>    should be able to type all those types in rpm_roles.types ebitmap,
+>    such as rpm_t and rpm_script_t:
+>    
+>    002cb60: 0000 0a00 0000 0000 0000 7365 6361 646d  ..........secadm
+>    002cb70: 5f72 4000 0000 4000 0000 0100 0000 0000  _r@...@.........
+>    002cb80: 0000 0002 0000 0000 0000 4000 0000 400d  ..........@...@.
+>    002cb90: 0000 1900 0000 8000 0000 0000 0000 0200  ................
+>    ...
+>    002cbe0: 0000 0400 0200 0000 1800, 4003 0000 0102  ..........@.....
+>    002cbf0: 0000 0000 0000 c003 0000 0000 0000 0000  ................
+>    ...
+>    002cc30: 0800 4006 0000 0000 0000 0000 0100, 4007  ..@...........@.
+>    002cc40: 0000 0000 0000 0000 3000 4009 0000 0000  ........0.@.....
+>    002cc50: 0000 0000 0420 8009 0000 0000 0820 0000  ..... ....... ..
+>    
+>    secadm_r:
+>    	types.types:
+>    		mz = 0x40, highbit = 0xd40, node = 0x19
+>    		startbit = 0x340, map: 0102 0000 0000 0000
+>    			policy value: 341(rpm_t), ... 
+>    		
+>    		startbit = 0x740, map: 0000 0000 0000 3000
+>    			policy value: 775(rpm_script_t), 776
 > 
 > --
 > This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
  		 	   		  
---_7d13151c-18e5-41a2-9136-1a0d7085ba4d_
+--_94a79ae8-f59c-4c0b-a174-82c849f1c0cc_
 Content-Type: text/html; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
@@ -154,15 +270,102 @@ font-family:Î¢ÈíÑÅºÚ
 --></style>
 </head>
 <body class='hmmessage'>
-Hi Chris,<br><br>&gt; Date: Fri, 27 May 2011 10:57:32 -0400<br>&gt; From: cpebenito@tresys.com<br>&gt; To: method@manicmethod.com<br>&gt; CC: qingtao.cao@windriver.com; sds@tycho.nsa.gov; jmorris@namei.org; eparis@parisplace.org; selinux@tycho.nsa.gov; dwalsh@redhat.com<br>&gt; Subject: Re: v0 Add role attribute support to libsepol<br>&gt; <br>&gt; On 05/27/11 10:23, Joshua Brindle wrote:<br>&gt; &gt; Joshua Brindle wrote:<br>&gt; &gt;&gt; Harry Ciao wrote:<br>&gt; &gt;&gt;&gt;<br>&gt; &gt;&gt;&gt; Comments:<br>&gt; &gt;&gt;&gt; ---------<br>&gt; &gt;&gt;&gt; Add role attribute to SELinux, which aims at replacing the deprecated<br>&gt; &gt;&gt;&gt; role dominance rule.<br>&gt; &gt;&gt;<br>&gt; &gt;&gt; Thanks. This is going to take a bit of time to absorb and most of my<br>&gt; &gt;&gt; cycles are<br>&gt; &gt;&gt; in use at the moment. I'll definitely get around to looking at it though.<br>&gt; &gt;&gt;<br>&gt; &gt; <br>&gt; &gt; I'd also like to solicit feedback from Dan an!
- d Chris as to how this will<br>&gt; &gt; be used in policy, and as to whether this implementation is suitable.<br>&gt; &gt; <br>&gt; &gt; Dan, Chris, opinions?<br>&gt; <br>&gt; Do we really want to overload the attribute statement for declaring role<br>&gt; attributes?<br><br>Well, I guess we have to, since the attribute statement would be the only entrypoint to set a role_datum_t.flavor as ROLE_ATTRIB, and the role-types statement would no longer be able to declare roles, since they current syntax does not support to specify if the role is a regular role or a role attribute.<br><br>BTW, a regular role would be declared by the newly added role-attr statement exactly as the type statement, and the role-types statement would be solely used for setting up role - role attribute association and association between role attributes.<br><br>&gt; <br>&gt; If I understand the description correctly, it seems reasonable, but will<br>&gt; still run into problems for refpolicy.  We want !
- to immediately use this<br>&gt; feature for handling chains of run int
-erfaces.  For example, say we have<br>&gt; an admin (admin_r:admin_t) and he can run the foo program (foo_t<br>&gt; domain).  The foo program then runs the bar program (bar_t) domain.  The<br>&gt; (abbreviated) policy right now would look like this:<br>&gt; <br>&gt; foo.te:<br>&gt; bar_domtrans(foo_t)<br>&gt; <br>&gt; foo.if:<br>&gt; interface foo_run(<br>&gt; 	type_transition $1 foo_exec_t:process foo_t;<br>&gt; 	role $2 types foo_t;<br>&gt; 	bar_run($1,$2)<br>&gt; )<br>&gt; <br>&gt; The reason we do this is so that the bar_t is added on to the admin_r<br>&gt; role, without adding a direct transition from admin_t to bar_t.  But the<br>&gt; above gets messy when the policy writer forgets to put the accompanying<br>&gt; bar_run() call in the foo_run() interface implementation.  With role<br>&gt; attributes it would be simplified to:<br>&gt; <br>&gt; foo.te:<br>&gt; role foo_roles types foo_t;<br>&gt; bar_run(foo_t, foo_roles)<br>&gt; <br>&gt; foo.if:<br>&gt; interface foo_run!
- (<br>&gt; 	type_transition $1 foo_exec_t:process foo_t;<br>&gt; 	roleattribute $2 foo_roles;<br>&gt; )<br>&gt; <br>&gt; But the problem that I suspect we'll see is what happens the bar_run()<br>&gt; interface also has a role attribute?  Extending the above example:<br>&gt; <br>&gt; bar.if:<br>&gt; interface bar_run(<br>&gt; 	type_transition $1 bar_exec_t:process bar_t;<br>&gt; 	roleattribute $2 bar_roles;<br>&gt; )<br>&gt; <br>&gt; When the policy is expanded, you end up getting a roleattribute<br>&gt; statement that has all role attributes in it:<br>&gt; <br>&gt; roleattribute foo_roles bar_roles;<br>&gt; <br>&gt; This should result in bar_roles being a superset of foo_roles.  It<br>&gt; doesn't sound like this is being done.  There is at least one example of<br>&gt; this case in refpolicy, see rpm_run() and seutil_run_semanage(); caller<br>&gt; runs rpm-&gt;rpm_script-&gt;semanage-&gt;load_policy.<br>&gt; <br><br>Yep, I've got your point. Many thanks for clarifying your n!
- eeds so that I would have a better idea of how role attributes are exp
-ected to be used.<br><br>While, I have sent out v1 patches, the last one 6/6 patch aims at setting up associations between two role attributes, while the first 5 remains the same as v0.<br><br>BTW, I also have modified rpm.* and selinuxutil.* to setup a test scenario same as what you have described above, please further refer to the attachment of the 0/6 email of v1 patches.<br><br>Thanks again! Looking forward to your feedbacks.<br><br>Best regards,<br>Harry<br><br><br><br>&gt; -- <br>&gt; Chris PeBenito<br>&gt; Tresys Technology, LLC<br>&gt; www.tresys.com | oss.tresys.com<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
+Attach the refpolicy patch to test adding one role attribute into another.<br><br>&gt; From: qingtao.cao@windriver.com<br>&gt; To: cpebenito@tresys.com; sds@tycho.nsa.gov; method@manicmethod.com; jmorris@namei.org; eparis@parisplace.org<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; Subject: v1 Add role attribute support to libsepol<br>&gt; Date: Sun, 29 May 2011 12:36:53 +0800<br>&gt; <br>&gt; <br>&gt; <br>&gt; Comments<br>&gt; ---------<br>&gt; <br>&gt;     Support adding one role attribute into another.<br>&gt;     <br>&gt;     When the link process is completed, the types type_set_t and roles<br>&gt;     ebitmap in a role attribute are settled, then we could go on scan<br>&gt;     all role attributes in the base.p_roles table checking if any non-zero<br>&gt;     bit in its roles ebitmap is indeed another role attribute.<br>&gt;     <br>&gt;     If this is the case, then we need to escalate the roles ebitmap of<br>&gt;     the sub-attribute into that of the parent attribute, a!
+ nd remove the<br>&gt;     sub-attribute from parent's roles ebitmap.<br>&gt;     <br>&gt;     Since sub-attribute's roles ebitmap may further contain other role<br>&gt;     attributes, we need to re-scan the updated parent's roles ebitmap.<br>&gt;     <br>&gt;     Also if a loop dependency is detected, no escalation of sub-attribute's<br>&gt;     roles ebitmap is needed.<br>&gt; <br>&gt; <br>&gt;     In order to highlight this patch I've decided to introduce a new<br>&gt;     separate commit, while all the rest 5 commits are the same as v0.<br>&gt; <br>&gt; <br>&gt; Tests of adding one role attribute into another<br>&gt; ------------------------------------------------<br>&gt;    <br>&gt; 1. Apply the patch for rpm.* and selinuxuti.*, to introduce rpm_roles and<br>&gt;    semanage_roles attributes and eliminate the "chain of run interfaces",<br>&gt;    make policy.X and dump its hexdump, check out the policy value for<br>&gt;    related identifiers:<br>&gt;    <br>&gt;    0!
+ 035b00: 5f74 0500 0000 4103 0000 0100 0000 0000  _t....A.........<br>&
+gt;    0035b10: 0000 7270 6d5f 7407 0000 0042 0300 0001  ..rpm_t....<br>&gt;    <br>&gt;    rpm_t: policy value = 0x341<br>&gt;    <br>&gt;    0040460: 740c 0000 0075 0700 0001 0000 0000 0000  t....u..........<br>&gt;    0040470: 0072 706d 5f73 6372 6970 745f 740f 0000  .rpm_script_t.<br>&gt;    <br>&gt;    rpm_script_t: policy value = 0x775<br>&gt;    <br>&gt;    004c900: 6563 7572 6974 795f 740a 0000 001e 0c00  ecurity_t.......<br>&gt;    004c910: 0001 0000 0000 0000 0073 656d 616e 6167  .........semanag<br>&gt;    004c920: 655f 7409 0000 001f 0c00 0003 0000 0000  e_t<br>&gt;    <br>&gt;    semanage_t: policy value = 0xc1e<br>&gt;    <br>&gt;    004c760: 0a00 0000 140c 0000 0100 0000 0000 0000  ................<br>&gt;    004c770: 7365 7466 696c 6573 5f74 1400 0000 ec0a  setfiles_t......<br>&gt;    <br>&gt;    setfiles_t: policy value = 0xc14<br>&gt;    <br>&gt;    00484e0: 740d 0000 008b 0a00 0001 0000 0000 0000  t...............<br>&gt;    00484f0: 006c 6f61 645f 706f 6c!
+ 69 6379 5f74 0c00  .load_policy_t..<br>&gt;    <br>&gt;    load_policy_t: policy value = 0xa8b<br>&gt;    <br>&gt;    <br>&gt; 2. Check out rpm_roles.types ebitmap:<br>&gt;    <br>&gt;    002d2c0: 0000 0400 0000 0000 0000 0900 0000 0f00  ................<br>&gt;    002d2d0: 0000 0000 0000 7270 6d5f 726f 6c65 7340  ......rpm_roles@<br>&gt;    002d2e0: 0000 0040 0000 0001 0000 0000 0000 0000  ...@............<br>&gt;    002d2f0: 4000 0000 0000 0040 0000 0080 0700 0002  @......@........<br>&gt;    002d300: 0000 0040 0300 0001 0000 0000 0000 0040  ...@...........@<br>&gt;    002d310: 0700 0000 0000 0000 0010 000b 0000 0010  ................<br>&gt;    002d320: 0000 0000 0000 006e 785f 7365 7276 6572  .......<br>&gt;    <br>&gt;    rpm_roles: policy value = 0x0f<br>&gt;    	dominates:<br>&gt;   		mz = 0x40, highbit = 0x40, node = 1<br>&gt; 		startbit = 0, map: 00 4000 0000 0000 00 <br>&gt; 			policy value: 0x0f(rpm_roles)<br>&gt;    	types.types:<br>&gt;    		mz = 0x40, highbit !
+ = 0x780, node = 2<br>&gt;    		startbit = 0x340, map: 01 0000 0000 000
+0 00<br>&gt; 			policy value: 0x341(rpm_t)<br>&gt;    		startbit = 0x740, map: 00 0000 0000 0010 00<br>&gt; 			policy value: 0x775(rpm_script_t)<br>&gt;    <br>&gt;    <br>&gt; 3. Check out semanage_roles.types ebitmap:<br>&gt;    <br>&gt;    002caa0: 0000 0000 0e00 0000 0800 0000 0000 0000  ................<br>&gt;    002cab0: 7365 6d61 6e61 6765 5f72 6f6c 6573 4000  semanage_roles@.<br>&gt;    002cac0: 0000 4000 0000 0100 0000 0000 0000 8000  ..@.............<br>&gt;    002cad0: 0000 0000 0000 4000 0000 400c 0000 0200  ......@...@.....<br>&gt;    002cae0: 0000 800a 0000 0004 0000 0000 0000 000c  ................<br>&gt;    002caf0: 0000 0000 0820 0000 0000 1000 0000 0900  ..... ..........<br>&gt;    002cb00: 0000 0000 0000 726f 6c65 5f61 7474 7269  ......<br>&gt;    <br>&gt;    semanage_roles: policy value = 0x08<br>&gt;    	dominates:<br>&gt;   		mz = 0x40, highbit = 0x40, node = 1, <br>&gt; 		startbit = 0, map: 8000 0000 0000 0000 <br>&gt; 			policy value: 8(semanage_rol!
+ es)<br>&gt;    	types.types:<br>&gt;    		mz = 0x40, highbit = 0xc40 node = 2<br>&gt; 		startbit = 0xa80, map: 0004 0000 0000 0000<br>&gt; 			policy value: 0xa8b(load_policy_t)<br>&gt; 		startbit = 0xc00, map: 0000 0820 0000 0000<br>&gt; 			policy value: 0xc14(setfiles_t), 0xc1e(semanage_t)<br>&gt;    <br>&gt;    <br>&gt; 4. Verify that once rpm_roles attribute becomes a sub-attribute of<br>&gt;    semanage_roles attribute, then all regular roles belonging to rpm_roles<br>&gt;    such as sysadm_r should be able to type all those types of the parent role<br>&gt;    attribute's types(that is, semanage_roles.types):<br>&gt;    <br>&gt;    002ccc0: 0000 0800 0000 0b00 0000 0000 0000 7379  ..............sy<br>&gt;    002ccd0: 7361 646d 5f72 4000 0000 4000 0000 0100  sadm_r@...@.....<br>&gt;    002cce0: 0000 0000 0000 0004 0000 0000 0000 4000  ..............@.<br>&gt;    002ccf0: 0000 800d 0000 2d00 0000 8000 0000 0000  ......-.........<br>&gt;    ...<br>&gt;    002cd70: 5808, 40!
+ 03 0000 0906 0200 0000 0000, 8003  X.@.............<br>&gt;    ...<br>
+&gt;    002cdf0: 4000 0000 0900 c006 0000 0000 0008 0000  @...............<br>&gt;    002ce00: 0000, 4007 0000 4000 0000 0000 1006, 8007  ..@...@.........<br>&gt;    002ce10: 0000 0000 000a 0000 0000 c007 0000 0080  ................<br>&gt;    ...<br>&gt;    002ce90: 8000, 400a 0000 0000 0000 0000 0040, 800a  ..@..........@..<br>&gt;    002cea0: 0000 0004 0002 0000 0000 c00a 0000 0000  ................<br>&gt;    002ceb0: 0000 8000 0000 000b 0000 0000 0080 0080  ................<br>&gt;    002cec0: 0000 c00b 0000 0000 0000 1000 0000, 000c  ................<br>&gt;    002ced0: 0000 0000 3820 0004 0000 400c 0000 0400  ....8 ....@.....<br>&gt;    ...<br>&gt;    <br>&gt;    sysadm_r: policy value = 0x0b<br>&gt;    	dominates:<br>&gt;    		mz = 0x40, highbit = 0x40, node = 1<br>&gt;    		startbit = 0x0, map: 0004 0000 0000 0000<br>&gt; 			policy value: 0x0b(sysadm_r)<br>&gt;    	types.types:<br>&gt;    		mz = 0x40, highbit = 0xd80, node = 0x2d<br>&gt;    		startbit = 0x340, map: !
+ 0906 0200 0000 0000<br>&gt;    			policy value: 341(rpm_t), 344, 34a, 34b<br>&gt;    <br>&gt;    		startbit = 0x740, map: 4000 0000 0000 1006<br>&gt;    			policy value: 747, 775(rpm_script_t), 77a, 77b<br>&gt;    <br>&gt;    		startbit = 0xa80, map: 0004 0002 0000 0000<br>&gt;    			policy value: a8b(load_policy_t), a9a<br>&gt;    <br>&gt;    		startbit = 0xc00, map: 0000 3820 0004 0000 <br>&gt;    			policy value: c14(setfiles_t), c15, c16, c1e(semanage_t)<br>&gt;    <br>&gt;    <br>&gt; 5. Extra loop depenency tests.<br>&gt;    <br>&gt; 5.1 When there is no loop dependency between rpm_roles and semanage_roles<br>&gt;    attributes, the secadm_r that belongs to semanage_roles attributes is<br>&gt;    not able to type those types of the rpm_roles.types, such as rpm_t or<br>&gt;    rpm_script_t:<br>&gt;    <br>&gt;    002cb60: 0000 0a00 0000 0000 0000 7365 6361 646d  ..........secadm<br>&gt;    002cb70: 5f72 4000 0000 4000 0000 0100 0000 0000  _r@...@.........<br>&gt;    00!
+ 2cb80: 0000 0002 0000 0000 0000 4000 0000 400d  ..........@...@.<br>&g
+t;    002cb90: 0000 1900 0000 8000 0000 0000 0000 0200  ................<br>&gt;    ...<br>&gt;    002cbe0: 0000 0400 0200 0000 1800, 4003 0000 0002  ..........@.....<br>&gt;    002cbf0: 0000 0000 0000 c003 0000 0000 0000 0000  ................<br>&gt;    ...<br>&gt;    002cc30: 0800 4006 0000 0000 0000 0000 0100, 4007  ..@...........@.<br>&gt;    002cc40: 0000 0000 0000 0000 2000 4009 0000 0000  ........ .@.....<br>&gt;    002cc50: 0000 0000 0420 8009 0000 0000 0820 0000  ..... ....... ..<br>&gt;    <br>&gt;    secadm_r:<br>&gt;    	types.types:<br>&gt;    		mz = 0x40, highbit = 0xd40, node = 0x19<br>&gt;    		startbit = 0x340, map: 0002 0000 0000 0000<br>&gt;    			policy value: 34a, ... <br>&gt;    		<br>&gt;    		startbit = 0x740, map: 0000 0000 0000 2000<br>&gt;    			policy value: 776<br>&gt;    <br>&gt;    <br>&gt; 5.2 Add below statements in selinuxutil.te to create a loop dependcy<br>&gt;    between rpm_roles and semanage_roles attributes:<br>&gt;    <br>&gt;    att!
+ ribute rpm_roles ROLE;<br>&gt;    roleattribute semanage_roles rpm_roles;<br>&gt;    <br>&gt;    Then rebuild policy.X in modular way, the loop dependency should be<br>&gt;    properly handled, and secadm_r that belongs to the semanage_roles<br>&gt;    should be able to type all those types in rpm_roles.types ebitmap,<br>&gt;    such as rpm_t and rpm_script_t:<br>&gt;    <br>&gt;    002cb60: 0000 0a00 0000 0000 0000 7365 6361 646d  ..........secadm<br>&gt;    002cb70: 5f72 4000 0000 4000 0000 0100 0000 0000  _r@...@.........<br>&gt;    002cb80: 0000 0002 0000 0000 0000 4000 0000 400d  ..........@...@.<br>&gt;    002cb90: 0000 1900 0000 8000 0000 0000 0000 0200  ................<br>&gt;    ...<br>&gt;    002cbe0: 0000 0400 0200 0000 1800, 4003 0000 0102  ..........@.....<br>&gt;    002cbf0: 0000 0000 0000 c003 0000 0000 0000 0000  ................<br>&gt;    ...<br>&gt;    002cc30: 0800 4006 0000 0000 0000 0000 0100, 4007  ..@...........@.<br>&gt;    002cc40: 0000 0000 0000 !
+ 0000 3000 4009 0000 0000  ........0.@.....<br>&gt;    002cc50: 0000 00
+00 0420 8009 0000 0000 0820 0000  ..... ....... ..<br>&gt;    <br>&gt;    secadm_r:<br>&gt;    	types.types:<br>&gt;    		mz = 0x40, highbit = 0xd40, node = 0x19<br>&gt;    		startbit = 0x340, map: 0102 0000 0000 0000<br>&gt;    			policy value: 341(rpm_t), ... <br>&gt;    		<br>&gt;    		startbit = 0x740, map: 0000 0000 0000 3000<br>&gt;    			policy value: 775(rpm_script_t), 776<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br> 		 	   		  </body>
 </html>
---_7d13151c-18e5-41a2-9136-1a0d7085ba4d_--
+--_94a79ae8-f59c-4c0b-a174-82c849f1c0cc_--
+
+--_31a2e12f-4146-49ed-b636-cd19ad42e384_
+Content-Type: text/x-patch
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="0001-Test-adding-one-role-attribute-into-another.patch"
+
+RnJvbSAxNjgyOTE1NmYzNGFlZGYyMjBhMTMyMDYyZDZlZmViNGNmZWMxNWU1IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
+PgpEYXRlOiBTdW4sIDI5IE1heSAyMDExIDEyOjQ3OjQyICswODAwClN1YmplY3Q6IFtQQVRDSCAx
+LzFdIFRlc3QgYWRkaW5nIG9uZSByb2xlIGF0dHJpYnV0ZSBpbnRvIGFub3RoZXIuCgoKU2lnbmVk
+LW9mZi1ieTogSGFycnkgQ2lhbyA8cWluZ3Rhby5jYW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xp
+Y3kvbW9kdWxlcy9hZG1pbi9ycG0uaWYgICAgICAgICAgfCAgIDE0ICsrKysrKysrKystLS0tCiBw
+b2xpY3kvbW9kdWxlcy9hZG1pbi9ycG0udGUgICAgICAgICAgfCAgIDExICsrKysrKysrKysrCiBw
+b2xpY3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51eHV0aWwuaWYgfCAgIDEyICsrKysrKysrKy0tLQog
+cG9saWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1dGlsLnRlIHwgICAxNiArKysrKysrKysrKysr
+KysrCiA0IGZpbGVzIGNoYW5nZWQsIDQ2IGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCgpk
+aWZmIC0tZ2l0IGEvcG9saWN5L21vZHVsZXMvYWRtaW4vcnBtLmlmIGIvcG9saWN5L21vZHVsZXMv
+YWRtaW4vcnBtLmlmCmluZGV4IGQzM2RhYTguLjdhN2E0ZmUgMTAwNjQ0Ci0tLSBhL3BvbGljeS9t
+b2R1bGVzL2FkbWluL3JwbS5pZgorKysgYi9wb2xpY3kvbW9kdWxlcy9hZG1pbi9ycG0uaWYKQEAg
+LTgyLDEwICs4MiwxNiBAQCBpbnRlcmZhY2UoYHJwbV9ydW4nLGAKIAknKQogCiAJcnBtX2RvbXRy
+YW5zKCQxKQotCXJvbGUgJDIgdHlwZXMgeyBycG1fdCBycG1fc2NyaXB0X3QgfTsKLQlzZXV0aWxf
+cnVuX2xvYWRwb2xpY3kocnBtX3NjcmlwdF90LCAkMikKLQlzZXV0aWxfcnVuX3NlbWFuYWdlKHJw
+bV9zY3JpcHRfdCwgJDIpCi0Jc2V1dGlsX3J1bl9zZXRmaWxlcyhycG1fc2NyaXB0X3QsICQyKQor
+CisJIyBzaG91bGQgcmVxdWlyZSBub3QgZGVjbGFyZSBhbiBhdHRyaWJ1dGUgaGVyZQorCWF0dHJp
+YnV0ZSBycG1fcm9sZXMgUk9MRTsJCisKKwlyb2xlYXR0cmlidXRlICQyIHJwbV9yb2xlczsKKwor
+Iwlyb2xlICQyIHR5cGVzIHsgcnBtX3QgcnBtX3NjcmlwdF90IH07CisjCXNldXRpbF9ydW5fbG9h
+ZHBvbGljeShycG1fc2NyaXB0X3QsICQyKQorIwlzZXV0aWxfcnVuX3NlbWFuYWdlKHJwbV9zY3Jp
+cHRfdCwgJDIpCisjCXNldXRpbF9ydW5fc2V0ZmlsZXMocnBtX3NjcmlwdF90LCAkMikKICcpCiAK
+ICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKZGlmZiAtLWdpdCBhL3Bv
+bGljeS9tb2R1bGVzL2FkbWluL3JwbS50ZSBiL3BvbGljeS9tb2R1bGVzL2FkbWluL3JwbS50ZQpp
+bmRleCA0N2E4ZjdkLi5kMjE2MDQ4IDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9hZG1pbi9y
+cG0udGUKKysrIGIvcG9saWN5L21vZHVsZXMvYWRtaW4vcnBtLnRlCkBAIC0xOTIsNiArMTkyLDE3
+IEBAIHNldXRpbF9tYW5hZ2VfYmluX3BvbGljeShycG1fdCkKIHVzZXJkb21fdXNlX3VzZXJfdGVy
+bWluYWxzKHJwbV90KQogdXNlcmRvbV91c2VfdW5wcml2X3VzZXJzX2ZkcyhycG1fdCkKIAorIyBU
+ZXN0OiBhZGQgb25lIHJvbGUgYXR0cmlidXRlIGludG8gYW5vdGhlcgorYXR0cmlidXRlIHJwbV9y
+b2xlcyBST0xFOworcm9sZSBycG1fcm9sZXMgdHlwZXMgeyBycG1fdCBycG1fc2NyaXB0X3QgfTsK
+K3NldXRpbF9ydW5fc2VtYW5hZ2UocnBtX3NjcmlwdF90LCBycG1fcm9sZXMpCisjIHNlbWFuYWdl
+X3QgY291bGQgdHJhbnNpdGlvbiBpbnRvIGxvYWRfcG9saWN5X3QgYW5kIHNldGZpbGVzX3QKKyMg
+c28gdGhlcmUgaXMgbm8gbmVlZCB0byBleHBsaWNpdGx5IGludm9rZSBzZXV0aWxfcnVuX2xvYWRw
+b2xpY3koKQorIyBhbmQgc2V1dGlsX3J1bl9zZXRmaWxlcygpIGZvciB0aGUgcnBtX3NjcmlwdF90
+Cisjc2V1dGlsX3J1bl9sb2FkcG9saWN5KHJwbV9zY3JpcHRfdCwgcnBtX3JvbGVzKQorI3NldXRp
+bF9ydW5fc2V0ZmlsZXMocnBtX3NjcmlwdF90LCBycG1fcm9sZXMpCisKKwogb3B0aW9uYWxfcG9s
+aWN5KGAKIAljcm9uX3N5c3RlbV9lbnRyeShycG1fdCwgcnBtX2V4ZWNfdCkKICcpCmRpZmYgLS1n
+aXQgYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51eHV0aWwuaWYgYi9wb2xpY3kvbW9kdWxl
+cy9zeXN0ZW0vc2VsaW51eHV0aWwuaWYKaW5kZXggMTcwZTJjNy4uMzFhMTFlYyAxMDA2NDQKLS0t
+IGEvcG9saWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1dGlsLmlmCisrKyBiL3BvbGljeS9tb2R1
+bGVzL3N5c3RlbS9zZWxpbnV4dXRpbC5pZgpAQCAtMTAzMCwxMCArMTAzMCwxNiBAQCBpbnRlcmZh
+Y2UoYHNldXRpbF9ydW5fc2VtYW5hZ2UnLGAKIAkJdHlwZSBzZW1hbmFnZV90OwogCScpCiAKKwkj
+IHNob3VsZCByZXF1aXJlIG5vdCBkZWNsYXJlIGFuIGF0dHJpYnV0ZSBoZXJlCisJYXR0cmlidXRl
+IHNlbWFuYWdlX3JvbGVzIFJPTEU7CQorCiAJc2V1dGlsX2RvbXRyYW5zX3NlbWFuYWdlKCQxKQot
+CXNldXRpbF9ydW5fc2V0ZmlsZXMoc2VtYW5hZ2VfdCwgJDIpCi0Jc2V1dGlsX3J1bl9sb2FkcG9s
+aWN5KHNlbWFuYWdlX3QsICQyKQotCXJvbGUgJDIgdHlwZXMgc2VtYW5hZ2VfdDsKKworCXJvbGVh
+dHRyaWJ1dGUgJDIgc2VtYW5hZ2Vfcm9sZXM7CisKKyMJc2V1dGlsX3J1bl9zZXRmaWxlcyhzZW1h
+bmFnZV90LCAkMikKKyMJc2V1dGlsX3J1bl9sb2FkcG9saWN5KHNlbWFuYWdlX3QsICQyKQorIwly
+b2xlICQyIHR5cGVzIHNlbWFuYWdlX3Q7CiAnKQogCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjCmRpZmYgLS1naXQgYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51
+eHV0aWwudGUgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vc2VsaW51eHV0aWwudGUKaW5kZXggNjVl
+MDY5OC4uNWVmMGUzNSAxMDA2NDQKLS0tIGEvcG9saWN5L21vZHVsZXMvc3lzdGVtL3NlbGludXh1
+dGlsLnRlCisrKyBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9zZWxpbnV4dXRpbC50ZQpAQCAtNDgy
+LDYgKzQ4MiwyMiBAQCBzZXV0aWxfbWFuYWdlX2RlZmF1bHRfY29udGV4dHMoc2VtYW5hZ2VfdCkK
+IHVzZXJkb21fcmVhZF91c2VyX2hvbWVfY29udGVudF9maWxlcyhzZW1hbmFnZV90KQogdXNlcmRv
+bV9yZWFkX3VzZXJfdG1wX2ZpbGVzKHNlbWFuYWdlX3QpCiAKKyMgRGVjbGFyZSBhIHNlbWFuYWdl
+X3JvbGUgd2hpY2ggaXMgYWJsZSB0byB0eXBlIGFsbCBraW5kcyBvZgorIyBkb21haW5zIHByb3Zp
+ZGVkIGJ5IHNlbGludXh1dGlsLnBwCithdHRyaWJ1dGUgc2VtYW5hZ2Vfcm9sZXMgUk9MRTsKK3Jv
+bGUgc2VtYW5hZ2Vfcm9sZXMgdHlwZXMgeyBzZW1hbmFnZV90IHNldGZpbGVzX3QgbG9hZF9wb2xp
+Y3lfdCB9OworCisjIEFkbWluaXN0cmF0b3Igb25seSBuZWVkcyB0byBpbnZva2Ugc2V1dGlsX3J1
+bl9zZW1hbmFnZSgpLCB3aGlsZQorIyBzZW1hbmFnZV90IGlzIGFibGUgdG8gdHJhbnNpdGlvbiBp
+bnRvIG90aGVyIGRvbWFpbnMgcHJvdmlkZWQgYnkKKyMgc2VsaW51eHV0aWwucHAKK3NldXRpbF9y
+dW5fc2V0ZmlsZXMoc2VtYW5hZ2VfdCwgc2VtYW5hZ2Vfcm9sZXMpCitzZXV0aWxfcnVuX2xvYWRw
+b2xpY3koc2VtYW5hZ2VfdCwgc2VtYW5hZ2Vfcm9sZXMpCisKKyMgQSByb2xlIGF0dHJpYnV0ZSBs
+b29wIGRlcGVuZGVuY3kgdGVzdAorIyBzaG91bGQgcmVxdWlyZSByYXRoZXIgdGhhbiBkZWNsYXJl
+IHRoZSByb2xlIGF0dHJpYnV0ZSBoZXJlCisjYXR0cmlidXRlIHJwbV9yb2xlcyBST0xFOworI3Jv
+bGVhdHRyaWJ1dGUgc2VtYW5hZ2Vfcm9sZXMgcnBtX3JvbGVzOworCiBpZmRlZihgZGlzdHJvX2Rl
+YmlhbicsYAogCWZpbGVzX3JlYWRfdmFyX2xpYl9maWxlcyhzZW1hbmFnZV90KQogCWZpbGVzX3Jl
+YWRfdmFyX2xpYl9zeW1saW5rcyhzZW1hbmFnZV90KQotLSAKMS43LjAuNAoK
+
+--_31a2e12f-4146-49ed-b636-cd19ad42e384_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
