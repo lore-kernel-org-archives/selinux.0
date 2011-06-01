@@ -1,32 +1,32 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p51Nrev1010233
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 19:53:40 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p51NveNK010395
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 19:57:40 -0400
 Received: from fep05-svc.tim.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p51NrcCK010306
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 23:53:39 GMT
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p51Nvcmi021869
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 23:57:39 GMT
 Subject: Re: Is there way to set some specific domain to have all
  permissions?
 From: Guido Trentalancia <guido@trentalancia.com>
 To: Sam Gandhi <samgandhi9@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Date: Thu, 02 Jun 2011 01:53:32 +0200
+Date: Thu, 02 Jun 2011 01:57:34 +0200
 In-Reply-To: <BANLkTinrUq+CZSLkghmhu7hbA-tKc5cfzQ@mail.gmail.com>
 References: <BANLkTinrUq+CZSLkghmhu7hbA-tKc5cfzQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1306972416.2532.17.camel@vortex>
+Message-ID: <1306972657.2532.20.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Sam !
+Hello again !
 
-I think you can first create an "all permissions" set and then use that
-for your myprog_t.
+I forgot to add that there is a policy mailing list... It's called
+refpolicy mailing list, it doesn't matter that you are not writing
+reference policy, it's still more appropriate than here.
 
-define(`all_permissions',
-`{ name_all_permissions_here_separated_by_space }')
+Here you go:
 
-Hope it helps.
+http://oss.tresys.com/mailman/listinfo/refpolicy
 
 Regards,
 
