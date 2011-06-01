@@ -1,46 +1,34 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p51E4Ibx014288
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 10:04:18 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p51E4IVT027952
-	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 14:04:18 GMT
-Message-ID: <4DE646E1.1000309@tresys.com>
-Date: Wed, 1 Jun 2011 10:04:17 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p51NhKrj009846
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 19:43:20 -0400
+Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p51NhJmi020412
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 23:43:19 GMT
+Received: by iyb26 with SMTP id 26so341941iyb.12
+        for <selinux@tycho.nsa.gov>; Wed, 01 Jun 2011 16:43:18 -0700 (PDT)
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Can we eliminate or optimize nodups_specs within libselinux
-References: <4DE64180.50302@redhat.com> <4DE6430B.8080604@redhat.com>
-In-Reply-To: <4DE6430B.8080604@redhat.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Date: Wed, 1 Jun 2011 16:43:18 -0700
+Message-ID: <BANLkTinrUq+CZSLkghmhu7hbA-tKc5cfzQ@mail.gmail.com>
+Subject: Is there way to set some specific domain to have all permissions?
+From: Sam Gandhi <samgandhi9@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/01/11 09:47, Daniel J Walsh wrote:
-> On 06/01/2011 09:41 AM, Daniel J Walsh wrote:
->> > We are costing boot 1.5s
->> > 
->> > https://bugzilla.redhat.com/show_bug.cgi?id=709014
-> 
-> This seems to be something libsemanage should do to verify the
-> file_context file is good, but libselinux should just figure the
-> file_context file is sane.  And be optimised to read access.
+If I want to set permission for say program in myprog_t to allow all
+the permissions, is there way to do this in SELinux.
 
-Makes sense.  It probably should have been doing this for a long time
-anyway, since it needs to take into account for genhomedircon output and
-local file contexts.  I think it should also cause a transaction fail if
-there are file context errors.
+Example I have program myprog and rule to set it domain correctly,
+what I want to do is this domain myprog_t should be able to do
+anything.
 
-> Might be a reason tools like install run slow also.
+How would one write such a policy rule? I have done search on mailing
+list archive and see there was a long thread in 2007 called 'concept
+of a permissive domain' but I am not able figure out what the
+conclusion of that thread was...
 
-I'd bet on it, since all those tools do is, basically, matchpathcon()
-then setfscreatecon().
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+-Sam
 
 --
 This message was distributed to subscribers of the selinux mailing list.
