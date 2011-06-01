@@ -1,62 +1,157 @@
-Message-ID: <4DE60BA7.8070505@windriver.com>
-Date: Wed, 1 Jun 2011 17:51:35 +0800
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p51COFCq006734
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 08:24:15 -0400
+Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p51COE8U023748
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 12:24:14 GMT
+Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4) with ESMTP id p51CNfY3024358
+	for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2011 08:23:41 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.4/8.14.4/Submit) id p51CNe7h024356
+	for selinux@tycho.nsa.gov; Wed, 1 Jun 2011 08:23:40 -0400
 From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
-MIME-Version: 1.0
-CC: <cpebenito@tresys.com>, <sds@tycho.nsa.gov>, <method@manicmethod.com>,
-        <jmorris@namei.org>, <eparis@parisplace.org>, <selinux@tycho.nsa.gov>
-Subject: Re: [v2 PATCH 6/6] Support adding one role attribute into another
-References: <1306918677-3657-1-git-send-email-qingtao.cao@windriver.com>
+To: <cpebenito@tresys.com>, <sds@tycho.nsa.gov>, <method@manicmethod.com>,
+        <jmorris@namei.org>, <eparis@parisplace.org>
+CC: <selinux@tycho.nsa.gov>
+Subject: [v2 PATCH 6/6] Support adding one role attribute into another.
+Date: Wed, 1 Jun 2011 16:57:57 +0800
+Message-ID: <1306918677-3657-7-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1306918677-3657-1-git-send-email-qingtao.cao@windriver.com>
-Content-Type: multipart/mixed;
-	boundary="------------010509050008010403020109"
+References: <1306918677-3657-1-git-send-email-qingtao.cao@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---------------010509050008010403020109
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+When the link process is completed, the types type_set_t and roles
+ebitmap in a role attribute are settled, then we could go on to scan
+all role attributes in the base.p_roles table checking if any non-zero
+bit in its roles ebitmap is indeed another role attribute.
 
-Sorry, this should be the 0/6 email before all the following patches, 
-the real 6/6 patch is attached.
+If this is the case, then we need to escalate the roles ebitmap of
+the sub-attribute into that of the parent attribute, and remove the
+sub-attribute from parent's roles ebitmap.
 
-Thanks,
-Harry
+Since sub-attribute's roles ebitmap may further contain other role
+attributes, we need to re-scan the updated parent's roles ebitmap.
 
-On 06/01/2011 04:57 PM, Harry Ciao wrote:
->
-> Hi,
->
-> This is the v2 patches to add role attribute support.
->
-> So far the only change from v1 is to introduce a new "attribute_role"
-> statement to declare a role attribute, rather than overloading the
-> "attribute" statement that aims at declaring a type attribute.
->
-> Other than that, also updated the patch header for the 6/6 patch to
-> support the "nesting" of role attributes, that since role_copy_callback()
-> would copy any symtab[SYM_ROLES] table(no matter if it's a module's global
-> p_roles table or from an avrule_decl_t) into base.p_roles table, it would
-> be enough to traverse base.p_roles table to expand sub-attribute's roles
-> ebitmap into that of the parent.
->
-> Thanks a lot for all your time to review these patches!
->
-> Best regards,
-> Harry
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+Also if a loop dependency is detected, no escalation of sub-attribute's
+roles ebitmap is needed.
 
---------------010509050008010403020109
-Content-Type: text/x-patch;
-	name="0006-Support-adding-one-role-attribute-into-another.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="0006-Support-adding-one-role-attribute-into-another.patch"
+Note, during the link stage, all role identifiers defined in any
+block/decl of any module would not only be copied into the new block/decl
+in the base module, but also copied into base.p_xxx symtabs(see
+role_copy_callback), so we should only care about the hashnodes in
+base.p_roles symtab and that would be enough.
+
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ checkpolicy/policy_define.c |    5 ++-
+ libsepol/src/link.c         |   62 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 65 insertions(+), 2 deletions(-)
+
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 6faaf94..ded27f7 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1902,8 +1902,9 @@ int define_roleattribute(void)
+ 		return -1;
+ 	}
+ 	r = hashtab_search(policydbp->p_roles.table, id);
+-	if (!r || r->flavor != ROLE_ROLE) {
+-		yyerror2("unknown role %s, or not a regular role", id);
++	/* We support adding one role attribute into another */
++	if (!r) {
++		yyerror2("unknown role %s", id);
+ 		free(id);
+ 		return -1;
+ 	}
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index 53fcff9..3a6fa5a 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -2335,6 +2335,62 @@ static int prepare_base(link_state_t * state, uint32_t num_mod_decls)
+ 	return 0;
+ }
+ 
++static int expand_role_attributes(hashtab_key_t key, hashtab_datum_t datum,
++				  void * data)
++{
++	char *id;
++	role_datum_t *role, *sub_attr;
++	link_state_t *state;
++	unsigned int i;
++	ebitmap_node_t *rnode;
++
++	id = key;
++	role = (role_datum_t *)datum;
++	state = (link_state_t *)data;
++
++	if (strcmp(id, OBJECT_R) == 0){
++		/* object_r is never a role attribute by far */
++		return 0;
++	}
++
++	if (role->flavor != ROLE_ATTRIB)
++		return 0;
++
++	if (state->verbose)
++		INFO(state->handle, "expanding role attribute %s", id);
++
++restart:
++	ebitmap_for_each_bit(&role->roles, rnode, i) {
++		if (ebitmap_node_get_bit(rnode, i)) {
++			sub_attr = state->base->role_val_to_struct[i];
++			if (sub_attr->flavor != ROLE_ATTRIB)
++				continue;
++			
++			/* remove the sub role attribute from the parent
++			 * role attribute's roles ebitmap */
++			if (ebitmap_set_bit(&role->roles, i, 0))
++				return -1;
++
++			/* loop dependency of role attributes */
++			if (sub_attr->s.value == role->s.value)
++				continue;
++
++			/* now go on to expand a sub role attribute
++			 * by escalating its roles ebitmap */
++			if (ebitmap_union(&role->roles, &sub_attr->roles)) {
++				ERR(state->handle, "Out of memory!");
++				return -1;
++			}
++			
++			/* sub_attr->roles may contain other role attributes,
++			 * re-scan the parent role attribute's roles ebitmap */
++			goto restart;
++		}
++	}
++
++	return 0;
++}
++
+ /* Link a set of modules into a base module. This process is somewhat
+  * similar to an actual compiler: it requires a set of order dependent
+  * steps.  The base and every module must have been indexed prior to
+@@ -2455,6 +2511,12 @@ int link_modules(sepol_handle_t * handle,
+ 		goto cleanup;
+ 	}
+ 
++	/* now that all role attribute's roles ebitmap have been settled,
++	 * expand sub role attribute's roles ebitmap into that of parent */
++	if (hashtab_map
++	    (state.base->p_roles.table, expand_role_attributes, &state))
++		goto cleanup;
++
+ 	retval = 0;
+       cleanup:
+ 	for (i = 0; modules != NULL && i < len; i++) {
+-- 
+1.7.0.4
 
 
---------------010509050008010403020109--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
