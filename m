@@ -1,441 +1,172 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p52GQCm9029830
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2011 12:26:12 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p53G75N9004540
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2011 12:07:05 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p52GQBbv013156
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2011 16:26:11 GMT
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p52GQA5d017595
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p53G74we000429
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2011 16:07:04 GMT
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p53G73aZ013949
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2011 12:26:11 -0400
-Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id p52GQAXW002998
-	for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2011 12:26:10 -0400
-Message-ID: <4DE7B9A2.7050404@redhat.com>
-Date: Thu, 02 Jun 2011 12:26:10 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2011 12:07:03 -0400
+Message-ID: <4DE8F833.5020907@redhat.com>
+Date: Fri, 03 Jun 2011 11:05:23 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: This is a patch to allow libsemanage to handle an alternate root.
+To: SELinux <selinux@tycho.nsa.gov>,
+        Fedora SELinux Users <selinux@lists.fedoraproject.org>
+Subject: I wrote up an semanage bash command completion script.
 Content-Type: multipart/mixed;
- boundary="------------010405070806060507010006"
+ boundary="------------050609040407060403090508"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010405070806060507010006
+--------------050609040407060403090508
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-What I want to add is the ability to do
+If anyone wants to improve it have at it.
 
-semodule -n -B -p /tmp/BUILDROOT/
-
-And have semodule build policy in
-
-/tmp/BUILDROOT/etc/selinux/...
-
-Basically this patch adds a new interface
-
-semanage_set_root(char *path)
-
-semanage_set_root("/tmp/BUILDROOT")
-
-Which sets the alternate root.
-
-All selinux_* calls are then replaced with matching semanage_* calls
-that will prepent the rootpath if it exists to the selinux_* values.
-
-If the semanage_set_root() is never called, the selinux_* values will
-continue to be used.
-
-We will be using this functionality so that we can build an entire
-install tree within our spec file and will no longer need to run
-semodule ... on initial installs or "unmodified" machines.
-
-
+I will throw this into the Rawhide policycoreutils.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk3nuaIACgkQrlYvE4MpobMtFwCdFrKV1bSEBlM6j3RzAkOzTbPJ
-HCwAoL+ZK8il8Ck7zeW7U/wP+jzaFeJ9
-=wzzM
+iEYEARECAAYFAk3o+DMACgkQrlYvE4MpobON+wCgo89q+zX1W4UfXZFJ+rUAJt4T
+2OoAoKTrufvSCtcVHdx02ivDtwY3VZoK
+=mm2V
 -----END PGP SIGNATURE-----
 
---------------010405070806060507010006
-Content-Type: text/plain;
- name="libsemanage-alternate-root.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="libsemanage-alternate-root.patch"
-
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index a482cdd..e303713 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -126,6 +126,9 @@ int semanage_is_connected(semanage_handle_t * sh);
- /* returns 1 if policy is MLS, 0 otherwise. */
- int semanage_mls_enabled(semanage_handle_t *sh);
- 
-+/* Change to alternate selinux root path */
-+int semanage_set_root(const char *path);
-+
- /* META NOTES
-  *
-  * For all functions a non-negative number indicates success. For some
-diff --git a/libsemanage/man/man3/semanage_set_root.3 b/libsemanage/man/man3/semanage_set_root.3
-new file mode 100644
-index 0000000..c464d66
---- /dev/null
-+++ b/libsemanage/man/man3/semanage_set_root.3
-@@ -0,0 +1,22 @@
-+.TH semanage_set_root 3 "1 June 2011" "dwalsh@redhat.com" "Libsemanage API documentation"
-+
-+.SH "NAME" 
-+semanage_set_root \- SELinux Management API
-+
-+.SH "SYNOPSIS"
-+Set the alternate root directory for SELinux configuration directory.
-+
-+.B	#include <semanage/handle.h>
-+
-+.B	extern const char *semanage_set_root(const char *path);
-+
-+.SH "DESCRIPTION"
-+.TP
-+This function sets an alternate root directory to for SELinux configuration paths to be used by the semanage library.
-+
-+.SH "RETURN VALUE"
-+In case of failure, -1 is returned.
-+Otherwise 0 is returned.
-+
-+.SH "SEE ALSO"
-+.BR semanage_handle_create "(3), " semanage_connect "(3), "
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index 9b261b9..77c00b2 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -21,6 +21,7 @@
- %{
- 
- #include "semanage_conf.h"
-+#include "handle.h"
- 
- #include <sepol/policydb.h>
- #include <selinux/selinux.h>
-@@ -260,7 +261,7 @@ external_opt:   PROG_PATH '=' ARG  { PASSIGN(new_external->path, $3); }
- static int semanage_conf_init(semanage_conf_t * conf)
- {
- 	conf->store_type = SEMANAGE_CON_DIRECT;
--	conf->store_path = strdup(basename(selinux_policy_root()));
-+	conf->store_path = strdup(basename(semanage_policy_root()));
- 	conf->policyvers = sepol_policy_kern_vers_max();
- 	conf->expand_check = 1;
- 	conf->handle_unknown = -1;
-@@ -390,7 +391,7 @@ static int parse_module_store(char *arg)
- 	if (strcmp(arg, "direct") == 0) {
- 		current_conf->store_type = SEMANAGE_CON_DIRECT;
- 		current_conf->store_path =
--		    strdup(basename(selinux_policy_root()));
-+		    strdup(basename(semanage_policy_root()));
- 		current_conf->server_port = -1;
- 		free(arg);
- 	} else if (*arg == '/') {
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index bceb6a7..7416540 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -95,7 +95,7 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
- {
- 	char polpath[PATH_MAX];
- 
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
-+	snprintf(polpath, PATH_MAX, "%s%s", semanage_selinux_path(),
- 		 sh->conf->store_path);
- 
- 	if (semanage_check_init(polpath))
-@@ -118,7 +118,7 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 	char polpath[PATH_MAX];
- 	const char *path;
- 
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
-+	snprintf(polpath, PATH_MAX, "%s%s", semanage_selinux_path(),
- 		 sh->conf->store_path);
- 
- 	if (semanage_check_init(polpath))
-@@ -1539,7 +1539,7 @@ int semanage_direct_access_check(semanage_handle_t * sh)
- {
- 	char polpath[PATH_MAX];
- 
--	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(),
-+	snprintf(polpath, PATH_MAX, "%s%s", semanage_selinux_path(),
- 		 sh->conf->store_path);
- 
- 	if (semanage_check_init(polpath))
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index 76caefd..1eb08b9 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -38,6 +38,139 @@
- 
- #define SEMANAGE_COMMIT_READ_WAIT 5
- 
-+#include <string.h>
-+#include <selinux/selinux.h>
-+static char *private_selinux_path = NULL;
-+static char *private_file_context_path = NULL;
-+static char *private_file_context_local_path = NULL;
-+static char *private_file_context_homedir_path = NULL;
-+static char *private_homedir_context_path = NULL;
-+static char *private_binary_policy_path = NULL;
-+static char *private_usersconf_path = NULL;
-+static char *private_netfilter_context_path = NULL;
-+static char *private_policy_root = NULL;
-+
-+void semanage_free_root() {
-+	free(private_selinux_path); private_selinux_path = NULL;
-+	free(private_file_context_path); private_file_context_path = NULL;
-+	free(private_file_context_local_path); private_file_context_local_path = NULL;
-+	free(private_file_context_homedir_path); private_file_context_homedir_path = NULL;
-+	free(private_homedir_context_path); private_homedir_context_path = NULL;
-+	free(private_binary_policy_path); private_binary_policy_path = NULL;
-+	free(private_usersconf_path); private_usersconf_path = NULL;
-+	free(private_netfilter_context_path); private_netfilter_context_path = NULL;
-+	free(private_policy_root); private_policy_root = NULL;
-+}
-+
-+int semanage_set_root(const char *path) {
-+	semanage_free_root();
-+	if ( asprintf(&private_selinux_path, "%s/%s", path, selinux_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_file_context_path, "%s/%s", path, selinux_file_context_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_file_context_local_path, "%s/%s", path, selinux_file_context_local_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_homedir_context_path, "%s/%s", path, selinux_homedir_context_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_file_context_homedir_path, "%s/%s", path, selinux_file_context_homedir_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_binary_policy_path, "%s/%s", path, selinux_binary_policy_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_usersconf_path, "%s/%s", path, selinux_usersconf_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_netfilter_context_path, "%s/%s", path, selinux_netfilter_context_path()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	if ( asprintf(&private_policy_root, "%s/%s", path, selinux_policy_root()) < 0 ) { 
-+		goto error;
-+	}
-+
-+	return 0;
-+error:
-+	semanage_free_root();
-+	return -1;
-+}
-+hidden_def(semanage_set_root)
-+
-+const char *semanage_file_context_path() {
-+//	printf("private_file_context_path %s\n", private_file_context_path);
-+	if (private_file_context_path)
-+		return private_file_context_path;
-+	return selinux_file_context_path();
-+}
-+
-+const char *semanage_file_context_local_path() {
-+//	printf("private_file_context_local_path %s\n", private_file_context_local_path);
-+	if (private_file_context_local_path) 
-+		return private_file_context_local_path;
-+	return selinux_file_context_local_path();
-+}
-+
-+const char *semanage_file_context_homedir_path() {
-+//	printf("private_file_context_homedir_path %s\n", private_file_context_homedir_path);
-+	if (private_file_context_homedir_path) 
-+		return private_file_context_homedir_path;
-+
-+	return selinux_file_context_homedir_path();
-+}
-+
-+const char *semanage_homedir_context_path() {
-+//	printf("private_homedir_context_path %s\n", private_homedir_context_path);
-+	if (private_homedir_context_path)
-+		return private_homedir_context_path;
-+	return selinux_homedir_context_path();
-+}
-+
-+const char *semanage_binary_policy_path() {
-+//	printf("private_binary_policy_path %s\n", private_binary_policy_path);
-+	if (private_binary_policy_path)
-+		return private_binary_policy_path;
-+	return selinux_binary_policy_path();
-+}
-+
-+const char *semanage_usersconf_path() {
-+//	printf("private_usersconf_path %s\n", private_usersconf_path);
-+	if (private_usersconf_path) 
-+		return private_usersconf_path;
-+	return selinux_usersconf_path();
-+}
-+
-+const char *semanage_netfilter_context_path() {
-+//	printf("private_netfilter_context_path %s\n", private_netfilter_context_path);
-+	if (private_netfilter_context_path) 
-+		return private_netfilter_context_path;
-+	return selinux_netfilter_context_path();
-+}
-+
-+const char *semanage_policy_root() {
-+//	printf("private_policy_root %s\n", private_policy_root);
-+	if (private_policy_root) 
-+		return private_policy_root;
-+	return selinux_policy_root();
-+}
-+
-+const char *semanage_selinux_path(void) {
-+//	printf("private_selinux_path %s\n", private_selinux_path);
-+	if (private_selinux_path)
-+		return private_selinux_path;
-+	return selinux_path();
-+}
-+
- semanage_handle_t *semanage_handle_create(void)
- {
- 	semanage_handle_t *sh = NULL;
-diff --git a/libsemanage/src/handle_internal.h b/libsemanage/src/handle_internal.h
-index 8493a39..2971600 100644
---- a/libsemanage/src/handle_internal.h
-+++ b/libsemanage/src/handle_internal.h
-@@ -5,7 +5,18 @@
- #include "dso.h"
- 
- hidden_proto(semanage_begin_transaction)
--    hidden_proto(semanage_handle_destroy)
--    hidden_proto(semanage_reload_policy)
--    hidden_proto(semanage_access_check)
-+hidden_proto(semanage_handle_destroy)
-+hidden_proto(semanage_reload_policy)
-+hidden_proto(semanage_access_check)
-+hidden_proto(semanage_set_root)
-+
-+extern const char *semanage_selinux_path(void);
-+extern const char *semanage_file_context_path();
-+extern const char *semanage_file_context_local_path();
-+extern const char *semanage_file_context_homedir_path();
-+extern const char *semanage_homedir_context_path();
-+extern const char *semanage_binary_policy_path();
-+extern const char *semanage_usersconf_path();
-+extern const char *semanage_netfilter_context_path();
-+extern const char *semanage_policy_root();
- #endif
-diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index 762e20e..3222e3d 100644
---- a/libsemanage/src/libsemanage.map
-+++ b/libsemanage/src/libsemanage.map
-@@ -14,6 +14,7 @@ LIBSEMANAGE_1.0 {
- 	  semanage_module_get_version; semanage_select_store;
- 	  semanage_module_get_enabled;
- 	  semanage_reload_policy; semanage_set_reload; semanage_set_rebuild;
-+	  semanage_set_root;
- 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
- 	  semanage_iface_*; semanage_port_*; semanage_context_*;
- 	  semanage_node_*;
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 339bbd0..e970a8b 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -90,7 +90,7 @@ static const char *semanage_store_paths[SEMANAGE_NUM_STORES] = {
- 	"/tmp"
- };
- 
--/* this is the module store path relative to selinux_policy_root() */
-+/* this is the module store path relative to semanage_policy_root() */
- #define SEMANAGE_MOD_DIR "/modules"
- /* relative path names to enum sandbox_paths for special files within
-  * a sandbox */
-@@ -170,11 +170,11 @@ static int semanage_init_paths(const char *root)
- 			semanage_relative_files[i]);
- 	}
- 
--	len = strlen(selinux_path()) + strlen(SEMANAGE_CONF_FILE);
-+	len = strlen(semanage_selinux_path()) + strlen(SEMANAGE_CONF_FILE);
- 	semanage_conf = calloc(len + 1, sizeof(char));
- 	if (!semanage_conf)
- 		return -1;
--	snprintf(semanage_conf, len, "%s%s", selinux_path(),
-+	snprintf(semanage_conf, len, "%s%s", semanage_selinux_path(),
- 		 SEMANAGE_CONF_FILE);
- 
- 	return 0;
-@@ -1071,14 +1071,14 @@ static int semanage_install_active(semanage_handle_t * sh)
- 	const char *active_fc_hd =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC_HOMEDIRS);
- 
--	const char *running_fc = selinux_file_context_path();
--	const char *running_fc_loc = selinux_file_context_local_path();
--	const char *running_fc_hd = selinux_file_context_homedir_path();
--	const char *running_hd = selinux_homedir_context_path();
--	const char *running_policy = selinux_binary_policy_path();
--	const char *running_seusers = selinux_usersconf_path();
--	const char *running_nc = selinux_netfilter_context_path();
--	const char *really_active_store = selinux_policy_root();
-+	const char *running_fc = semanage_file_context_path();
-+	const char *running_fc_loc = semanage_file_context_local_path();
-+	const char *running_fc_hd = semanage_file_context_homedir_path();
-+	const char *running_hd = semanage_homedir_context_path();
-+	const char *running_policy = semanage_binary_policy_path();
-+	const char *running_seusers = semanage_usersconf_path();
-+	const char *running_nc = semanage_netfilter_context_path();
-+	const char *really_active_store = semanage_policy_root();
- 
- 	/* This is very unelegant, the right thing to do is export the path 
- 	 * building code in libselinux so that you can get paths for a given 
-@@ -1099,11 +1099,11 @@ static int semanage_install_active(semanage_handle_t * sh)
- 	running_seusers += len;
- 	running_nc += len;
- 
--	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
-+	len = strlen(semanage_selinux_path()) + strlen(sh->conf->store_path) + 1;
- 	storepath = (char *)malloc(len);
- 	if (!storepath)
- 		goto cleanup;
--	snprintf(storepath, PATH_MAX, "%s%s", selinux_path(),
-+	snprintf(storepath, PATH_MAX, "%s%s", semanage_selinux_path(),
- 		 sh->conf->store_path);
- 
- 	snprintf(store_pol, PATH_MAX, "%s%s.%d", storepath,
-               strncpy(buff, methods[i].ml_doc, ldoc);
-               buff += ldoc;
-               strncpy(buff, "swig_ptr: ", 10);
-
---------------010405070806060507010006
-Content-Type: application/pgp-signature;
- name="libsemanage-alternate-root.patch.sig"
+--------------050609040407060403090508
+Content-Type: application/x-shellscript;
+ name="semanage-bash-completion.sh"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
- filename="libsemanage-alternate-root.patch.sig"
+ filename="semanage-bash-completion.sh"
 
-iEYEABECAAYFAk3nuaIACgkQrlYvE4MpobPKnQCfV3gNBVXLJ5vkIAMBWKTsT62r19MAoKm0
-ou/tEm2dmOo+AmgKKXfw1n/t
---------------010405070806060507010006--
+IyBUaGlzIGZpbGUgaXMgcGFydCBvZiBzeXN0ZW1kLgojCiMgQ29weXJpZ2h0IDIwMTEgRGFu
+IFdhbHNoCiMKIyBzeXN0ZW1kIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmli
+dXRlIGl0IGFuZC9vciBtb2RpZnkgaXQKIyB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBH
+ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQojIHRoZSBGcmVlIFNvZnR3
+YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yCiMg
+KGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KIwojIHN5c3RlbWQgaXMgZGlz
+dHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwgYnV0CiMgV0lU
+SE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBv
+ZgojIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9T
+RS4gU2VlIHRoZSBHTlUKIyBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFp
+bHMuCiMKIyBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2Vu
+ZXJhbCBQdWJsaWMgTGljZW5zZQojIGFsb25nIHdpdGggc3lzdGVtZDsgSWYgbm90LCBzZWUg
+PGh0dHA6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy8+LgoKX19jb250YWluc193b3JkICgpIHsK
+ICAgICAgICBsb2NhbCB3b3JkPSQxOyBzaGlmdAogICAgICAgIGZvciB3IGluICQqOyBkbyBb
+WyAkdyA9ICR3b3JkIF1dICYmIHJldHVybiAwOyBkb25lCiAgICAgICAgcmV0dXJuIDEKfQoK
+QUxMX09QVFM9Jy1sIC0tbGlzdCAtUyAtbyAtbiAtLW5vaGVhZGluZyAtaCAtLWhlbHAnCk1B
+TkFHRURfT1BUUz0nLWEgLS1hZGQgLW0gLS1tb2RpZnkgLWQgLS1kZWxldGUgLUQgLS1kZWxl
+dGVhbGwgLUMgLS1sb2NhbGxpc3QgJwoKX19nZXRfYWxsX3N0b3JlcyAoKSB7CiAgICBkaXIg
+LTEgLUYgL2V0Yy9zZWxpbnV4LyB8IGdyZXAgJy8nIHwgY3V0IC1kJy8nIC1mIDEKfQpfX2dl
+dF9hbGxfZnR5cGVzICgpIHsKICAgIGVjaG8gJy0tIC1kIC1jIC1iIC1zIC1sIC1wJwp9Cl9f
+Z2V0X2FsbF91c2VycyAoKSB7IAogICAgc2VpbmZvIC11IDI+IC9kZXYvbnVsbCB8IHRhaWwg
+LW4gKzMgCn0KX19nZXRfYWxsX3R5cGVzICgpIHsgCiAgICBzZWluZm8gLXQgMj4gL2Rldi9u
+dWxsIHwgdGFpbCAtbiArMyAKfQpfX2dldF9hbGxfcG9ydF90eXBlcyAoKSB7IAogICAgc2Vp
+bmZvIC1hcG9ydF90eXBlIC14IDI+L2Rldi9udWxsIHwgdGFpbCAtbiArMiAKfQpfX2dldF9h
+bGxfZG9tYWlucyAoKSB7IAogICAgc2VpbmZvIC1hZG9tYWluIC14IDI+L2Rldi9udWxsIHwg
+dGFpbCAtbiArMiAKfQpfX2dldF9hbGxfbm9kZV90eXBlcyAoKSB7IAogICAgc2VpbmZvIC1h
+bm9kZV90eXBlIC14IDI+L2Rldi9udWxsIHwgdGFpbCAtbiArMiAKfQpfX2dldF9hbGxfZmls
+ZV90eXBlcyAoKSB7IAogICAgc2VpbmZvIC1hZmlsZV90eXBlIC14IDI+L2Rldi9udWxsIHwg
+dGFpbCAtbiArMiAKfQpfX2dldF9hbGxfcm9sZXMgKCkgeyAKICAgIHNlaW5mbyAtdCAyPiAv
+ZGV2L251bGwgfCB0YWlsIC1uICszIAp9Cl9fZ2V0X2FsbF9zdG9yZXMgKCkgewogICAgZGly
+IC0xIC1GIC9ldGMvc2VsaW51eC8gfCBncmVwICcvJyB8IGN1dCAtZCcvJyAtZiAxCn0KX19n
+ZXRfYm9vbGVhbl9vcHRzICgpIHsgZWNobyAnJEFMTF9PUFRTIC0tb24gLW9mZiAtMSAtMCAt
+RicgOyB9Cl9fZ2V0X3VzZXJfb3B0cyAoKSB7IGVjaG8gJyRBTExfT1BUUyAkTUFOQUdFRF9P
+UFRTIC1MIC1yIC1SIC0tcm9sZSAnOyB9Cl9fZ2V0X2xvZ2luX29wdHMgKCkgeyBlY2hvICck
+QUxMX09QVFMgJE1BTkFHRURfT1BUUyAtcyAtciAnOyB9Cl9fZ2V0X3BvcnRfb3B0cyAoKSB7
+IGVjaG8gJyRBTExfT1BUUyAkTUFOQUdFRF9PUFRTIC10IC10eXBlIC1yIC0tcmFuZ2UgLXAg
+LS1wcm90byc7IH0KX19nZXRfaW50ZXJmYWNlX29wdHMgKCkgeyBlY2hvICckQUxMX09QVFMg
+JE1BTkFHRURfT1BUUyAtdCAtLXR5cGUgJzsgfQpfX2dldF9ub2RlX29wdHMgKCkgeyBlY2hv
+ICckQUxMX09QVFMgJE1BTkFHRURfT1BUUyAtdCAtLXR5cGUgJzsgfQpfX2dldF9mY29udGV4
+dF9vcHRzICgpIHsgZWNobyAnJEFMTF9PUFRTICRNQU5BR0VEX09QVFMgLXQgLS10eXBlIC1l
+IC0tZXF1YWwgLWYgLS1mdHlwZSAnOyB9Cl9fZ2V0X21vZHVsZV9vcHRzICgpIHsgZWNobyAn
+JEFMTF9PUFRTIC0tZW5hYmxlIC0tZGlzYWJsZSAnOyB9Cl9fZ2V0X2RvbnRhdWRpdF9vcHRz
+ICgpIHsgZWNobyAnLVMgb24gb2ZmJyA7IH0KX19nZXRfcGVybWlzc2l2ZV9vcHRzICgpIHsg
+ZWNobyAnJEFMTF9PUFRTIC1hIC0tYWRkIC1kIC0tZGVsZXRlJyA7IH0KCl9zZW1hbmFnZSAo
+KSB7CiAgICAgICAgbG9jYWwgY29tbWFuZD0ke0NPTVBfV09SRFNbMV19CiAgICAgICAgbG9j
+YWwgY3VyPSR7Q09NUF9XT1JEU1tDT01QX0NXT1JEXX0gcHJldj0ke0NPTVBfV09SRFNbQ09N
+UF9DV09SRC0xXX0KICAgICAgICBsb2NhbCB2ZXJiIGNvbXBzCiAgICAgICAgbG9jYWwgLUEg
+VkVSQlM9KAoJICAgICAgIFtMT0dJTl09J2xvZ2luJwoJICAgICAgIFtVU0VSXT0ndXNlcicK
+CSAgICAgICBbUE9SVF09J3BvcnQnCgkgICAgICAgW0lOVEVSRkFDRV09J2ludGVyZmFjZScK
+CSAgICAgICBbTU9EVUxFXT0nbW9kdWxlJwoJICAgICAgIFtOT0RFXT0nbm9kZScKCSAgICAg
+ICBbRkNPTlRFWFRdPSdmY29udGV4dCcKCSAgICAgICBbQk9PTEVBTl09J2Jvb2xlYW4nCgkg
+ICAgICAgW1BFUk1JU1NJVkVdPSdwZXJtaXNzaXZlJwoJICAgICAgIFtET05UQVVESVRdPSdk
+b250YXVkaXQnCiAgICAgICAgKQoKCWlmICAgWyAiJHByZXYiID0gIi1hIiAtYSAiJGNvbW1h
+bmQiID0gInBlcm1pc3NpdmUiIF07IHRoZW4KCSAgICAgICAgQ09NUFJFUExZPSggJChjb21w
+Z2VuIC1XICIkKCBfX2dldF9hbGxfZG9tYWlucyApICIgLS0gIiRjdXIiKSApCgkJcmV0dXJu
+IDAKCWZpCglpZiAgIFsgIiR2ZXJiIiA9ICIiIC1hICIkcHJldiIgPSAic2VtYW5hZ2UiIF07
+IHRoZW4KICAgICAgICAgICAgICAgIGNvbXBzPSIke1ZFUkJTWypdfSIKCWVsaWYgWyAiJHZl
+cmIiID0gIiIgLWEgIiRwcmV2IiA9ICItUyIgLW8gIiRwcmV2IiA9ICItLXN0b3JlIiBdOyB0
+aGVuCgkgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19nZXRfYWxsX3N0
+b3JlcyApICIgLS0gIiRjdXIiKSApCgkJcmV0dXJuIDAKCWVsaWYgWyAiJHZlcmIiID0gIiIg
+LWEgIiRwcmV2IiA9ICItcCIgLW8gIiRwcmV2IiA9ICItLXByb3RvIiBdOyB0aGVuCgkgICAg
+ICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAidGNwIHVkcCIgLS0gIiRjdXIiKSApCgkJ
+cmV0dXJuIDAKCWVsaWYgWyAiJHZlcmIiID0gIiIgLWEgIiRwcmV2IiA9ICItciIgLW8gIiRw
+cmV2IiA9ICItLXJvbGVzIiBdOyB0aGVuCgkgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdl
+biAtVyAiJCggX19nZXRfYWxsX3JvbGVzICkgIiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAoJ
+ZWxpZiBbICIkdmVyYiIgPSAiIiAtYSAiJHByZXYiID0gIi1zIiAtbyAiJHByZXYiID0gIi0t
+c2V1c2VyIiBdOyB0aGVuCgkgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCgg
+X19nZXRfYWxsX3JvbGVzICkgIiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAoJZWxpZiBbICIk
+dmVyYiIgPSAiIiAtYSAiJHByZXYiID0gIi1mIiAtbyAiJHByZXYiID0gIi0tZnR5cGUiIF07
+IHRoZW4KCSAgICAgICAgQ09NUFJFUExZPSggJChjb21wZ2VuIC1XICIkKCBfX2dldF9hbGxf
+ZnR5cGVzICkgIiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAoJZWxpZiBbICIkdmVyYiIgPSAi
+IiAtYSAiJHByZXYiID0gIi10IiAtbyAiJHByZXYiID0gIi0tdHlwZXMiIF07IHRoZW4KCSAg
+ICBpZiBbICIkY29tbWFuZCIgPSAicG9ydCIgXTsgdGhlbgoJICAgICAgICBDT01QUkVQTFk9
+KCAkKGNvbXBnZW4gLVcgIiQoIF9fZ2V0X2FsbF9wb3J0X3R5cGVzICkgIiAtLSAiJGN1ciIp
+ICkKCQlyZXR1cm4gMAoJICAgIGZpCgkgICAgaWYgWyAiJGNvbW1hbmQiID0gImZjb250ZXh0
+IiBdOyB0aGVuCgkgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19nZXRf
+YWxsX2ZpbGVfdHlwZXMgKSAiIC0tICIkY3VyIikgKQoJCXJldHVybiAwCgkgICAgZmkKCSAg
+ICBDT01QUkVQTFk9KCAkKGNvbXBnZW4gLVcgIiQoIF9fZ2V0X2FsbF90eXBlcyApICIgLS0g
+IiRjdXIiKSApCgkgICAgcmV0dXJuIDAKICAgICAgICBlbGlmIF9fY29udGFpbnNfd29yZCAi
+JGNvbW1hbmQiICR7VkVSQlNbTE9HSU5dfSA7IHRoZW4KICAgICAgICAgICAgICAgIENPTVBS
+RVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19nZXRfbG9naW5fb3B0cyApICIgLS0gIiRjdXIi
+KSApCgkJcmV0dXJuIDAKICAgICAgICBlbGlmIF9fY29udGFpbnNfd29yZCAiJGNvbW1hbmQi
+ICR7VkVSQlNbVVNFUl19IDsgdGhlbgogICAgICAgICAgICAgICAgQ09NUFJFUExZPSggJChj
+b21wZ2VuIC1XICIkKCBfX2dldF91c2VyX29wdHMgKSAiIC0tICIkY3VyIikgKQoJCXJldHVy
+biAwCiAgICAgICAgZWxpZiBfX2NvbnRhaW5zX3dvcmQgIiRjb21tYW5kIiAke1ZFUkJTW1BP
+UlRdfSA7IHRoZW4KICAgICAgICAgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAi
+JCggX19nZXRfcG9ydF9vcHRzICkgIiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAogICAgICAg
+IGVsaWYgX19jb250YWluc193b3JkICIkY29tbWFuZCIgJHtWRVJCU1tJTlRFUkZBQ0VdfSA7
+IHRoZW4KICAgICAgICAgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19n
+ZXRfaW50ZXJmYWNlX29wdHMgKSAiIC0tICIkY3VyIikgKQoJCXJldHVybiAwcAogICAgICAg
+IGVsaWYgX19jb250YWluc193b3JkICIkY29tbWFuZCIgJHtWRVJCU1tNT0RVTEVdfSA7IHRo
+ZW4KICAgICAgICAgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19nZXRf
+bW9kdWxlX29wdHMgKSAiIC0tICIkY3VyIikgKQoJCXJldHVybiAwCiAgICAgICAgZWxpZiBf
+X2NvbnRhaW5zX3dvcmQgIiRjb21tYW5kIiAke1ZFUkJTW05PREVdfSA7IHRoZW4KICAgICAg
+ICAgICAgICAgIENPTVBSRVBMWT0oICQoY29tcGdlbiAtVyAiJCggX19nZXRfbm9kZV9vcHRz
+ICkgIiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAogICAgICAgIGVsaWYgX19jb250YWluc193
+b3JkICIkY29tbWFuZCIgJHtWRVJCU1tGQ09OVEVYVF19IDsgdGhlbgogICAgICAgICAgICAg
+ICAgQ09NUFJFUExZPSggJChjb21wZ2VuIC1XICIkKCBfX2dldF9mY29udGV4dF9vcHRzICkg
+IiAtLSAiJGN1ciIpICkKCQlyZXR1cm4gMAogICAgICAgIGVsaWYgX19jb250YWluc193b3Jk
+ICIkY29tbWFuZCIgJHtWRVJCU1tCT09MRUFOXX0gOyB0aGVuCiAgICAgICAgICAgICAgICBD
+T01QUkVQTFk9KCAkKGNvbXBnZW4gLVcgIiQoIF9fZ2V0X2Jvb2xlYW5fb3B0cyApICIgLS0g
+IiRjdXIiKSApCgkJcmV0dXJuIDAKICAgICAgICBlbGlmIF9fY29udGFpbnNfd29yZCAiJGNv
+bW1hbmQiICR7VkVSQlNbUEVSTUlTU0lWRV19IDsgdGhlbgogICAgICAgICAgICAgICAgQ09N
+UFJFUExZPSggJChjb21wZ2VuIC1XICIkKCBfX2dldF9wZXJtaXNzaXZlX29wdHMgKSAiIC0t
+ICIkY3VyIikgKQoJCXJldHVybiAwCiAgICAgICAgZWxpZiBfX2NvbnRhaW5zX3dvcmQgIiRj
+b21tYW5kIiAke1ZFUkJTW0RPTlRBVURJVF19IDsgdGhlbgogICAgICAgICAgICAgICAgQ09N
+UFJFUExZPSggJChjb21wZ2VuIC1XICIkKCBfX2dldF9kb250YXVkaXRfb3B0cyApICIgLS0g
+IiRjdXIiKSApCgkJcmV0dXJuIDAKICAgICAgICBmaQogICAgICAgIENPTVBSRVBMWT0oICQo
+Y29tcGdlbiAtVyAiJGNvbXBzIiAtLSAiJGN1ciIpICkKICAgICAgICByZXR1cm4gMAp9CmNv
+bXBsZXRlIC1GIF9zZW1hbmFnZSBzZW1hbmFnZQo=
+--------------050609040407060403090508
+Content-Type: application/pgp-signature;
+ name="semanage-bash-completion.sh.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="semanage-bash-completion.sh.sig"
+
+iEYEABECAAYFAk3o+DMACgkQrlYvE4MpobPbkACfe5YlxYHHNJNmvTWH+sV/PSgQkKMAmwf7
+rvLhGLEhxsWHj6OPxFgabTFx
+--------------050609040407060403090508--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
