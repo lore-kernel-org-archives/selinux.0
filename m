@@ -1,91 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p54AtjSa022609
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jun 2011 06:55:45 -0400
-Received: from maild-ad.linkedin.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p54Ati0C019140
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jun 2011 10:55:44 GMT
-Date: Sat, 4 Jun 2011 10:55:43 +0000 (UTC)
-From: david kelman <1capybara@gmail.com>
-To: <selinux@tycho.nsa.gov>
-Message-ID: <140811123.1043544.1307184943909.JavaMail.app@ela4-bed81.prod>
-Subject: Invitation to connect on LinkedIn
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p58LE3gg018204
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jun 2011 17:14:03 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p58LE2bX002621
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jun 2011 21:14:02 GMT
+Message-ID: <4DEFE619.9080606@tresys.com>
+Date: Wed, 8 Jun 2011 17:14:01 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_1043543_1019893811.1307184943908"
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: SELinux Common Intermediate Language Update
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_1043543_1019893811.1307184943908
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+As many of you know, we've been working on the SELinux Common
+Intermediate Language (CIL) compiler for many months now, most recently
+discussed in November of last year [1].
 
-LinkedIn
-------------
+As a refresher, CIL is an intermediate language designed as a policy
+representation that sits between high level policy languages and the
+kernel policy representation. We're happy to answer any questions about
+the language, but for more information, please take a look at the CIL
+Design wiki at http://userspace.selinuxproject.org/trac/wiki/CilDesign
 
-   
-I'd like to add you to my professional network on LinkedIn.
+As to the purpose of this email, we've recently reached a pretty
+significant milestone with the compiler, in that it now supports most of
+the features that are currently supported by reference policy (e.g.
+macros, optionals, tunables, etc) as well as the standard SELinux policy
+rules (e.g. allow, type, role, etc). Now that the compiler has reached
+this milestone, we would love for the community to play around with it a
+bit and give us any feedback as we continue on to integration and
+implementing the more advanced features, such has inheritance and
+transforms.
 
-- david
+The CIL compiler repository can be downloaded via git:
 
-david kelman
---
-United Kingdom
+$ git clone http://oss.tresys.com/git/cil.git
 
-Confirm that you know david kelman
-https://www.linkedin.com/e/-fnn84r-goig5xyb-1u/isd/3104498138/3vn0OkC3/
+Thanks,
+Steve Lawrence
 
-
- 
--- 
-(c) 2011, LinkedIn Corporation
-------=_Part_1043543_1019893811.1307184943908
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-
-<html>
-  <body>
-
-  
-
-<table border="0" width="550" cellpadding="0" cellspacing="0" style="max-width:550px; border-top:4px solid #39C; font: 12px arial, sans-serif; margin: 0 auto;"><tr><td>  
-  <h1 style="color: #000; font: bold 23px arial; margin:5px 0;" >LinkedIn</h1>
-
-<div style="font:13px arial, sans-serif; width:540px">  
-    
-    <p>
-      I'd like to add you to my professional network on LinkedIn.<br/>
-<br/>
-- david
-    </p>
-    
-    <table cellpadding="0" cellspacing="0" style="margin-bottom: 10px;">
-      <tr>
-        <td style="font: 13px arial, sans-serif; width: 490px;">
-          <div style="padding: 5px 5px 5px 0">
-            david kelman<br>
-                  --
-            <br>
-                    United Kingdom
-          </div>
-          </div>
-        </td>
-      </tr>
-    </table>
-
-    <p>
-              <a style="background-color:#ffcc00; display:inline-block; border-right: 1px solid #7a5a20; border-bottom: 1px solid #7a5a20; padding:10px; text-decoration: none; color: #000; text-align: center; white-space:none; font-weight: bold;" href="https://www.linkedin.com/e/-fnn84r-goig5xyb-1u/isd/3104498138/3vn0OkC3/EML-invg_59/">Confirm that you know david</a>
-    </p>
-</div>
-
-
-
-
-  <p style="width: 550px; margin: 3px auto; font: 10px arial, sans-serif; color: #999;">&#169; 2011, LinkedIn Corporation</p>
-  
-<img src="http://www.linkedin.com/emimp/-fnn84r-goig5xyb-1u.gif" style="width:1px; height:1px;"/></body>
-</html>
-------=_Part_1043543_1019893811.1307184943908--
+[1] http://marc.info/?l=selinux&m=128881480827958&w=2
 
 --
 This message was distributed to subscribers of the selinux mailing list.
