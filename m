@@ -1,32 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5AEuFwe012420
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2011 10:56:15 -0400
-Received: from nm2-vm1.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p5AEuDRk020627
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2011 14:56:14 GMT
-Message-ID: <178015.40115.qm@web87006.mail.ird.yahoo.com>
-Date: Fri, 10 Jun 2011 15:56:13 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Updated libselinux man pages
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5EH9hmP025996
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 13:09:45 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p5EH9i6w014627
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 17:09:44 GMT
+Message-ID: <4DF795D5.9050403@redhat.com>
+Date: Tue, 14 Jun 2011 13:09:41 -0400
+From: Eric Paris <eparis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+To: jmorris@namei.org
+CC: selinux@tycho.nsa.gov
+Subject: [GIT PULL] SELinux: for 3.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please find below a link to a document containing updated libselinux man pages. There is an introduction explaining the updates etc.
+Both are bugs introduced in the pull for 3.0.
 
-I only started this as a simple update of some man pages (that I've already submitted as patches), however I thought I would carry on and here is the result. 
+-Eric
 
-The man pages have been linked into a pdf for convenience and cover all the currently supported functions plus their file formats (seusers etc.). I've also had a go at a man page with pointers for writing SELinux apps (but very draft; see (libselinux(7)).
+The following changes since commit ea77f7a2e8561012cf100c530170f12351c3b53e:
 
-Anyway I thought I would post this as they may be useful to others. If you find errors let me know and I'll correct them.
+   Merge commit 'v2.6.39' into 20110526 (2011-05-26 17:20:14 -0400)
 
-The link: 
+are available in the git repository at:
 
-http://taiga.selinuxproject.org/~rhaines/notebooks/Updated_libselinux_Man_Pages.pdf
+   git://git.infradead.org/users/eparis/selinux.git for-linus
 
-Richard
+Kohei Kaigai (1):
+       selinux: fix case of names with whitespace/multibytes on 
+/selinux/create
+
+Roy.Li (1):
+       SELinux: skip file_name_trans_write() when policy downgraded.
+
+  security/selinux/selinuxfs.c   |   37 
+++++++++++++++++++++++++++++++++++++-
+  security/selinux/ss/policydb.c |    3 +++
+  2 files changed, 39 insertions(+), 1 deletions(-)
 
 
 
