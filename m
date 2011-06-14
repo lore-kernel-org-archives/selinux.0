@@ -1,45 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5EH9hmP025996
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 13:09:45 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p5EH9i6w014627
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 17:09:44 GMT
-Message-ID: <4DF795D5.9050403@redhat.com>
-Date: Tue, 14 Jun 2011 13:09:41 -0400
-From: Eric Paris <eparis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5EHawpO027725
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 13:36:58 -0400
+Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p5EHavFM003742
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 17:36:57 GMT
+Received: by iyb26 with SMTP id 26so6348641iyb.12
+        for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2011 10:36:57 -0700 (PDT)
 MIME-Version: 1.0
-To: jmorris@namei.org
-CC: selinux@tycho.nsa.gov
-Subject: [GIT PULL] SELinux: for 3.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 14 Jun 2011 10:36:55 -0700
+Message-ID: <BANLkTikdwRevmnuj7Lw6Vtv=d-iFHd45Yg@mail.gmail.com>
+Subject: /etc/selinux/$P/users/local.users and system.users are they deprecated?
+From: Sam Gandhi <samgandhi9@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Both are bugs introduced in the pull for 3.0.
+Hello Dear Experts,
 
--Eric
+First in my environment I am not allowed to ship python, so I can't
+use wonderful tool semanage.
 
-The following changes since commit ea77f7a2e8561012cf100c530170f12351c3b53e:
+I admit that I am bit  confused (&intimidated) by so many files to
+manage that constitutes SELinux configuration.
 
-   Merge commit 'v2.6.39' into 20110526 (2011-05-26 17:20:14 -0400)
+Are files /etc/selinux/$P/users/local.users & system.users required
+for proper functioning of SELinux user-space libraries? Or user/roles
+defined in policy definitions sufficient?
 
-are available in the git repository at:
+I looked at the latest libselinux code it still has code to use
+local.users but didn't see code that actually uses system.users,  Aksi
+reference policy make install also installs these files.
 
-   git://git.infradead.org/users/eparis/selinux.git for-linus
+However in the the mailing list I have seen references back in
+2005/2006 that these files are deprecated? The latest pdf file that
+was mailed out recently also has reference to local.users but not to
+system.users.
 
-Kohei Kaigai (1):
-       selinux: fix case of names with whitespace/multibytes on 
-/selinux/create
+If system.users file is still valid which definition then takes the
+precedence and doesn't this expose a security hole that someone can
+change user role after the policy was generated?
 
-Roy.Li (1):
-       SELinux: skip file_name_trans_write() when policy downgraded.
+In my policy definitions I am defining a new user diags_u, type
+diags_t and role diags_r, essentially following statements in
+policy.conf (through macros etc)
 
-  security/selinux/selinuxfs.c   |   37 
-++++++++++++++++++++++++++++++++++++-
-  security/selinux/ss/policydb.c |    3 +++
-  2 files changed, 39 insertions(+), 1 deletions(-)
+type diags_t, domain, userdomain, unpriv_userdomain, nscd_client_domain, privfd;
+role diags_r types diags_t;
+user diags_u roles { diags_r };
 
+Is that sufficient?  fwiw, I have been able to transition to
+diags_u:diags_r:diags_t context using the newrole command, when using
+policy that contains above statements.
 
+-Sam
 
 --
 This message was distributed to subscribers of the selinux mailing list.
