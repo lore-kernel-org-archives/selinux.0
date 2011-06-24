@@ -1,327 +1,43 @@
-MIME-Version: 1.0
-In-Reply-To: <1308924690.15355.72.camel@moss-pluto>
-References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
-	<1308920243.15355.55.camel@moss-pluto>
-	<BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
-	<1308924690.15355.72.camel@moss-pluto>
-Date: Fri, 24 Jun 2011 14:44:24 +0000
-Message-ID: <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
 Subject: Re: Wrong context for user
-From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
-To: dwalsh@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=bcaec5540aaeda445304a6763cc4
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+Cc: dwalsh@redhat.com, SELinux@tycho.nsa.gov
+In-Reply-To: <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
+References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
+	 <1308920243.15355.55.camel@moss-pluto>
+	 <BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
+	 <1308924690.15355.72.camel@moss-pluto>
+	 <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 24 Jun 2011 10:48:10 -0400
+Message-ID: <1308926890.15355.74.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---bcaec5540aaeda445304a6763cc4
-Content-Type: multipart/alternative; boundary=bcaec5540aaeda444504a6763cc2
+On Fri, 2011-06-24 at 14:44 +0000, c.r.madhusudhanan@gmail.com wrote:
+> Thanks Daniel, Stephen.
+> 
+> I am able to get init_t, local_login_t for init, and login
+> respectively. 
+> The mistake was tat I missed relabeling the file system, so all the
+> executable was in the type file_t.
+> 
+> But it looks my problem still remains somehow, so that when I try
+> login it still shows me wrong domain/type.
+> 
+> When I login using 'login' (tty1), the context shows as
+> user_u:user_r:chkpwd_t and when I check in the X (auto login to user
+> 'meego' using 'uxlaunch') shows as user_u:user_r:consoletype_t.
+> 
+> Attached is the "ps -aeZ" after relabeling the system.
 
---bcaec5540aaeda444504a6763cc2
-Content-Type: text/plain; charset=ISO-8859-1
+What does your default_contexts file contain?
 
-Thanks Daniel, Stephen.
+-- 
+Stephen Smalley
+National Security Agency
 
-I am able to get init_t, local_login_t for init, and login respectively.
-The mistake was tat I missed relabeling the file system, so all the
-executable was in the type file_t.
-
-But it looks my problem still remains somehow, so that when I try
-login it still shows me wrong domain/type.
-
-When I login using 'login' (tty1), the context shows as
-user_u:user_r:chkpwd_t and when I check in the X (auto login to user 'meego'
-using 'uxlaunch') shows as user_u:user_r:consoletype_t.
-
-Attached is the "ps -aeZ" after relabeling the system.
-
-Regards,
-Madhu
-
-On Fri, Jun 24, 2011 at 2:11 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Fri, 2011-06-24 at 09:44 -0400, c.r.madhusudhanan@gmail.com wrote:
-> > Hello  Daniel, Stephen,
-> >
-> > Thanks for the quick reply.
-> >
-> > Yes it looks login runs in the wrong context,
-> > system_u:system_r:kernel_t and most of the processes are.
-> >
-> > I am loading selinux policies from init, so I would expect all daemons
-> > should show their respective contexts.
-> >
-> > Attached is the "ps -aeZ" output.
-> >
-> > BTW, when I do "run_init /etc/init.d/sshd restart" the context changes
-> > from
-> > "system_u:system_r:kernel_t" to  "system_u:system_r:initrc_t" but not
-> > to sshd_t.
->
-> Once policy is loaded, you have to make the first transition to init_t
-> for the init process.  That can be done in one of several ways:
->
-> - load policy before execing /sbin/init from the real root (e.g. from
-> initramfs), and then you'll transition naturally when you exec
-> the /sbin/init binary if the file is labeled init_exec_t.  I think we
-> did this when using upstart in Fedora to avoid modifying upstart itself.
->
-> - load policy from within /sbin/init and then re-exec yourself, using an
-> environment variable or argument to only do on the first invocation.
-> This is what the original patches to SysVinit did in Fedora (and I think
-> it is what systemd does too).
->
-> - load policy from init and invoke setcon() to dynamically switch to the
-> init context before proceeding.  Not preferred, but possible.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-
---bcaec5540aaeda444504a6763cc2
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Thanks Daniel, Stephen.<br><br>I am able to get init_t, local_login_t for i=
-nit, and login respectively. <br>The mistake was tat I missed relabeling th=
-e file system, so all the executable was in the type file_t.<br><br>But it =
-looks my problem still remains somehow, so that when I try<br>
-login it still shows me wrong domain/type.<br><br>When I login using &#39;l=
-ogin&#39; (tty1), the context shows as user_u:user_r:chkpwd_t and when I ch=
-eck in the X (auto login to user &#39;meego&#39; using &#39;uxlaunch&#39;) =
-shows as user_u:user_r:consoletype_t.<br>
-<br>Attached is the &quot;ps -aeZ&quot; after relabeling the system.<br><br=
->Regards,<br>Madhu<br><br><div class=3D"gmail_quote">On Fri, Jun 24, 2011 a=
-t 2:11 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tych=
-o.nsa.gov">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex;"><div class=3D"im">On Fri, 2011-06-24 at 09:=
-44 -0400, <a href=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.madhusudhanan@=
-gmail.com</a> wrote:<br>
-
-&gt; Hello =A0Daniel, Stephen,<br>
-&gt;<br>
-&gt; Thanks for the quick reply.<br>
-&gt;<br>
-&gt; Yes it looks login runs in the wrong context,<br>
-&gt; system_u:system_r:kernel_t and most of the processes are.<br>
-&gt;<br>
-&gt; I am loading selinux policies from init, so I would expect all daemons=
-<br>
-&gt; should show their respective contexts.<br>
-&gt;<br>
-&gt; Attached is the &quot;ps -aeZ&quot; output.<br>
-&gt;<br>
-&gt; BTW, when I do &quot;run_init /etc/init.d/sshd restart&quot; the conte=
-xt changes<br>
-&gt; from<br>
-&gt; &quot;system_u:system_r:kernel_t&quot; to =A0&quot;system_u:system_r:i=
-nitrc_t&quot; but not<br>
-&gt; to sshd_t.<br>
-<br>
-</div>Once policy is loaded, you have to make the first transition to init_=
-t<br>
-for the init process. =A0That can be done in one of several ways:<br>
-<br>
-- load policy before execing /sbin/init from the real root (e.g. from<br>
-initramfs), and then you&#39;ll transition naturally when you exec<br>
-the /sbin/init binary if the file is labeled init_exec_t. =A0I think we<br>
-did this when using upstart in Fedora to avoid modifying upstart itself.<br=
->
-<br>
-- load policy from within /sbin/init and then re-exec yourself, using an<br=
->
-environment variable or argument to only do on the first invocation.<br>
-This is what the original patches to SysVinit did in Fedora (and I think<br=
->
-it is what systemd does too).<br>
-<br>
-- load policy from init and invoke setcon() to dynamically switch to the<br=
->
-init context before proceeding. =A0Not preferred, but possible.<br>
-<font color=3D"#888888"><br>
---<br>
-</font><div><div></div><div class=3D"h5">Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</div></div></blockquote></div><br>
-
---bcaec5540aaeda444504a6763cc2--
-
---bcaec5540aaeda445304a6763cc4
-Content-Type: text/plain; charset=US-ASCII; name="ps_output2.txt"
-Content-Disposition: attachment; filename="ps_output2.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gpbpx7iy0
-
-TEFCRUwgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFBJRCBUVFkgICAgICAgICAgVElNRSBD
-TUQKc3lzdGVtX3U6c3lzdGVtX3I6aW5pdF90ICAgICAgICAgICAgMSA/ICAgICAgICAwMDowMDow
-NCBpbml0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgIDIgPyAgICAgICAgMDA6
-MDA6MDAga3RocmVhZGQKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAgMyA/ICAg
-ICAgICAwMDowMDowMCBrc29mdGlycWQvMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAg
-ICAgICA0ID8gICAgICAgIDAwOjAwOjAwIG1pZ3JhdGlvbi8wCnN5c3RlbV91OnN5c3RlbV9yOmtl
-cm5lbF90ICAgICAgICAgIDUgPyAgICAgICAgMDA6MDA6MDAgd2F0Y2hkb2cvMApzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgICA2ID8gICAgICAgIDAwOjAwOjAwIG1pZ3JhdGlvbi8x
-CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgIDcgPyAgICAgICAgMDA6MDA6MDAg
-a3NvZnRpcnFkLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAgOCA/ICAgICAg
-ICAwMDowMDowMCB3YXRjaGRvZy8xCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAg
-IDkgPyAgICAgICAgMDA6MDA6MDAgbWlncmF0aW9uLzIKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVs
-X3QgICAgICAgICAxMCA/ICAgICAgICAwMDowMDowMCBrc29mdGlycWQvMgpzeXN0ZW1fdTpzeXN0
-ZW1fcjprZXJuZWxfdCAgICAgICAgIDExID8gICAgICAgIDAwOjAwOjAwIHdhdGNoZG9nLzIKc3lz
-dGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAxMiA/ICAgICAgICAwMDowMDowMCBtaWdy
-YXRpb24vMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDEzID8gICAgICAgIDAw
-OjAwOjAwIGtzb2Z0aXJxZC8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMTQg
-PyAgICAgICAgMDA6MDA6MDAgd2F0Y2hkb2cvMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAg
-ICAgICAgIDE1ID8gICAgICAgIDAwOjAwOjAwIGV2ZW50cy8wCnN5c3RlbV91OnN5c3RlbV9yOmtl
-cm5lbF90ICAgICAgICAgMTYgPyAgICAgICAgMDA6MDA6MDAgZXZlbnRzLzEKc3lzdGVtX3U6c3lz
-dGVtX3I6a2VybmVsX3QgICAgICAgICAxNyA/ICAgICAgICAwMDowMDowMCBldmVudHMvMgpzeXN0
-ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDE4ID8gICAgICAgIDAwOjAwOjAwIGV2ZW50
-cy8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMTkgPyAgICAgICAgMDA6MDA6
-MDAgY3B1c2V0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMjAgPyAgICAgICAg
-MDA6MDA6MDAga2hlbHBlcgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDIxID8g
-ICAgICAgIDAwOjAwOjAwIGFzeW5jL21ncgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAg
-ICAgIDIyID8gICAgICAgIDAwOjAwOjAwIHBtCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
-ICAgICAgMjMgPyAgICAgICAgMDA6MDA6MDAgc3luY19zdXBlcnMKc3lzdGVtX3U6c3lzdGVtX3I6
-a2VybmVsX3QgICAgICAgICAyNCA/ICAgICAgICAwMDowMDowMCBiZGktZGVmYXVsdApzeXN0ZW1f
-dTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI1ID8gICAgICAgIDAwOjAwOjAwIGtibG9ja2Qv
-MApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI2ID8gICAgICAgIDAwOjAwOjAw
-IGtibG9ja2QvMQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI3ID8gICAgICAg
-IDAwOjAwOjAwIGtibG9ja2QvMgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI4
-ID8gICAgICAgIDAwOjAwOjAwIGtibG9ja2QvMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAg
-ICAgICAgIDI5ID8gICAgICAgIDAwOjAwOjAwIGthY3BpZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJu
-ZWxfdCAgICAgICAgIDMwID8gICAgICAgIDAwOjAwOjAwIGthY3BpX25vdGlmeQpzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDMxID8gICAgICAgIDAwOjAwOjAwIGthY3BpX2hvdHBs
-dWcKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAzMiA/ICAgICAgICAwMDowMDow
-MCBhdGFfYXV4CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzMgPyAgICAgICAg
-MDA6MDA6MDAgYXRhX3NmZi8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzQg
-PyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8xCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
-ICAgICAgMzUgPyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8yCnN5c3RlbV91OnN5c3RlbV9yOmtl
-cm5lbF90ICAgICAgICAgMzYgPyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8zCnN5c3RlbV91OnN5
-c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzcgPyAgICAgICAgMDA6MDA6MDAga2h1YmQKc3lzdGVt
-X3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAzOCA/ICAgICAgICAwMDowMDowMCBrc2VyaW9k
-CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzkgPyAgICAgICAgMDA6MDA6MDAg
-a21tY2QKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA0MCA/ICAgICAgICAwMDow
-MDowMCBjZmc4MDIxMQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQxID8gICAg
-ICAgIDAwOjAwOjAwIGtvbmRlbWFuZC8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAg
-ICAgNDIgPyAgICAgICAgMDA6MDA6MDAga29uZGVtYW5kLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2Vy
-bmVsX3QgICAgICAgICA0MyA/ICAgICAgICAwMDowMDowMCBrb25kZW1hbmQvMgpzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQ0ID8gICAgICAgIDAwOjAwOjAwIGtvbmRlbWFuZC8z
-CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNDUgPyAgICAgICAgMDA6MDA6MDAg
-a3N3YXBkMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQ2ID8gICAgICAgIDAw
-OjAwOjAwIGFpby8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNDcgPyAgICAg
-ICAgMDA6MDA6MDAgYWlvLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA0OCA/
-ICAgICAgICAwMDowMDowMCBhaW8vMgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAg
-IDQ5ID8gICAgICAgIDAwOjAwOjAwIGFpby8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
-ICAgICAgNTAgPyAgICAgICAgMDA6MDA6MDAgY3J5cHRvLzAKc3lzdGVtX3U6c3lzdGVtX3I6a2Vy
-bmVsX3QgICAgICAgICA1MSA/ICAgICAgICAwMDowMDowMCBjcnlwdG8vMQpzeXN0ZW1fdTpzeXN0
-ZW1fcjprZXJuZWxfdCAgICAgICAgIDUyID8gICAgICAgIDAwOjAwOjAwIGNyeXB0by8yCnN5c3Rl
-bV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNTMgPyAgICAgICAgMDA6MDA6MDAgY3J5cHRv
-LzMKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA2MSA/ICAgICAgICAwMDowMDow
-MCBpOTE1CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjIgPyAgICAgICAgMDA6
-MDA6MDAga3Nsb3dkMDAwCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjMgPyAg
-ICAgICAgMDA6MDA6MDAga3Nsb3dkMDAxCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAg
-ICAgNjQgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
-bF90ICAgICAgICAgNjUgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8xCnN5c3RlbV91OnN5c3Rl
-bV9yOmtlcm5lbF90ICAgICAgICAgNjggPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8yCnN5c3Rl
-bV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjkgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9l
-aF8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzAgPyAgICAgICAgMDA6MDA6
-MDAgc21mbHVzaApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDcxID8gICAgICAg
-IDAwOjAwOjAwIGtwc21vdXNlZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDcy
-ID8gICAgICAgIDAwOjAwOjAwIHVzYmhpZF9yZXN1bWVyCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
-bF90ICAgICAgICAgNzMgPyAgICAgICAgMDA6MDA6MDAgbDJjYXAKc3lzdGVtX3U6c3lzdGVtX3I6
-a2VybmVsX3QgICAgICAgICA3NCA/ICAgICAgICAwMDowMDowMCBrcmZjb21tZApzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDc2ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLXdvcmtl
-ci0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzcgPyAgICAgICAgMDA6MDA6
-MDAgYnRyZnMtZ2Vud29yay0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzgg
-PyAgICAgICAgMDA6MDA6MDAgYnRyZnMtc3VibWl0LTAKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVs
-X3QgICAgICAgICA3OSA/ICAgICAgICAwMDowMDowMCBidHJmcy1kZWxhbGxvYy0Kc3lzdGVtX3U6
-c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA4MCA/ICAgICAgICAwMDowMDowMCBidHJmcy1maXh1
-cC0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgODIgPyAgICAgICAgMDA6MDA6
-MDAgYnRyZnMtZW5kaW8tbWV0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgODMg
-PyAgICAgICAgMDA6MDA6MDAgYnRyZnMtZW5kaW8tbWV0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
-bF90ICAgICAgICAgODUgPyAgICAgICAgMDA6MDA6MDAgYnRyZnMtY2xlYW5lcgpzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDg2ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLXRyYW5z
-YWN0aQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDg3ID8gICAgICAgIDAwOjAw
-OjAwIGJ0cmZzLWVuZGlvLW1ldApzeXN0ZW1fdTpzeXN0ZW1fcjp1ZGV2X3QgICAgICAgICAgMTE4
-ID8gICAgICAgIDAwOjAwOjAwIHVkZXZkCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAg
-ICAzMDQgPyAgICAgICAgMDA6MDA6MDAgYnRyZnMtZW5kaW8tMQpzeXN0ZW1fdTpzeXN0ZW1fcjpr
-ZXJuZWxfdCAgICAgICAgMzQzID8gICAgICAgIDAwOjAwOjAwIGhkLWF1ZGlvMApzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgMzQ5ID8gICAgICAgIDAwOjAwOjAwIGtqb3VybmFsZApz
-eXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgMzY0ID8gICAgICAgIDAwOjAwOjAwIGZs
-dXNoLWJ0cmZzLTEKc3lzdGVtX3U6c3lzdGVtX3I6c3lzdGVtX2RidXNkX3QgIDM3MyA/ICAgICAg
-ICAwMDowMDowMCBkYnVzLWRhZW1vbgpzeXN0ZW1fdTpzeXN0ZW1fcjppbml0cmNfdCAgICAgICAg
-Mzg5ID8gICAgICAgIDAwOjAwOjAwIGNvbm5tYW5kCnN5c3RlbV91OnN5c3RlbV9yOnN5c2xvZ2Rf
-dCAgICAgICAzOTIgPyAgICAgICAgMDA6MDA6MDAgc3lzbG9nZApzeXN0ZW1fdTpzeXN0ZW1fcjpO
-ZXR3b3JrTWFuYWdlcl90IDM5NyA/ICAgICAgIDAwOjAwOjAwIHdwYV9zdXBwbGljYW50CnN5c3Rl
-bV91OnN5c3RlbV9yOmtsb2dkX3QgICAgICAgICAzOTggPyAgICAgICAgMDA6MDA6MDAga2xvZ2QK
-c3lzdGVtX3U6c3lzdGVtX3I6YXVkaXRkX3QgICAgICAgIDQwNCA/ICAgICAgICAwMDowMDowMCBh
-dWRpdGQKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDQwNyA/ICAgICAgICAwMDow
-MDowMCBrYXVkaXRkCnN5c3RlbV91OnN5c3RlbV9yOmluaXRyY190ICAgICAgICA0MjIgPyAgICAg
-ICAgMDA6MDA6MDAgZHNtZQpzeXN0ZW1fdTpzeXN0ZW1fcjppbml0cmNfdCAgICAgICAgNDI3ID8g
-ICAgICAgIDAwOjAwOjAwIGRzbWUtc2VydmVyCnN5c3RlbV91OnN5c3RlbV9yOmluaXRyY190ICAg
-ICAgICA0MzAgPyAgICAgICAgMDA6MDA6MDAgUzUwc2Vuc29yZApzeXN0ZW1fdTpzeXN0ZW1fcjpp
-bml0cmNfdCAgICAgICAgNDMyID8gICAgICAgIDAwOjAwOjAwIGJhc2gKc3lzdGVtX3U6c3lzdGVt
-X3I6aW5pdHJjX3QgICAgICAgIDQzNCA/ICAgICAgICAwMDowMDowMCBzZW5zb3JkCnN5c3RlbV91
-OnN5c3RlbV9yOmluaXRyY190ICAgICAgICA0MzUgPyAgICAgICAgMDA6MDA6MDAgdGltZWQKc3lz
-dGVtX3U6c3lzdGVtX3I6c3NoZF90ICAgICAgICAgIDQ0NSA/ICAgICAgICAwMDowMDowMCBzc2hk
-CnN5c3RlbV91OnN5c3RlbV9yOmF2YWhpX3QgICAgICAgICA0NTIgPyAgICAgICAgMDA6MDA6MDAg
-YXZhaGktZGFlbW9uCnN5c3RlbV91OnN5c3RlbV9yOmF2YWhpX3QgICAgICAgICA0NTMgPyAgICAg
-ICAgMDA6MDA6MDAgYXZhaGktZGFlbW9uCnN5c3RlbV91OnN5c3RlbV9yOmluaXRfdCAgICAgICAg
-ICA0NjIgPyAgICAgICAgMDA6MDA6MDAgdXhsYXVuY2gKc3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJj
-X3QgICAgICAgIDQ2NCA/ICAgICAgICAwMDowMDowMCBvZm9ub2QKc3lzdGVtX3U6c3lzdGVtX3I6
-Ymx1ZXRvb3RoX3QgICAgIDQ2NiA/ICAgICAgICAwMDowMDowMCBibHVldG9vdGhkCnN5c3RlbV91
-OnN5c3RlbV9yOmluaXRfdCAgICAgICAgICA0NzEgPyAgICAgICAgMDA6MDA6MDAgdXhsYXVuY2gK
-dXNlcl91OnVzZXJfcjpjb25zb2xldHlwZV90ICAgICAgIDQ5MSB0dHkyICAgICAwMDowMDowNCBY
-b3JnCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA0OTQgPyAgICAgICAgMDA6MDA6
-MDAgc3NoLWFnZW50CnN5c3RlbV91OnN5c3RlbV9yOmNvbnNvbGVraXRfdCAgICA0OTYgPyAgICAg
-ICAgMDA6MDA6MDAgY29uc29sZS1raXQtZGFlCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAg
-ICAgICA1NjQgPyAgICAgICAgMDA6MDA6MDAgZGJ1cy1kYWVtb24KdXNlcl91OnVzZXJfcjpjb25z
-b2xldHlwZV90ICAgICAgIDU2NyA/ICAgICAgICAwMDowMDowMCBnY29uZmQtMgp1c2VyX3U6dXNl
-cl9yOmNvbnNvbGV0eXBlX3QgICAgICAgNTcwID8gICAgICAgIDAwOjAwOjAwIHN0YXJ0aXZpCnVz
-ZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA1NzggPyAgICAgICAgMDA6MDA6MDAgbXN5
-bmNkCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA1ODAgPyAgICAgICAgMDA6MDA6
-MDAgdWRpc2tpZQp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3QgICAgICAgNTgyID8gICAgICAg
-IDAwOjAwOjAwIG9iZXgtY2xpZW50CnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA1
-ODMgPyAgICAgICAgMDA6MDA6MDAgY29yZXdhdGNoZXItYXBwCnVzZXJfdTp1c2VyX3I6Y29uc29s
-ZXR5cGVfdCAgICAgICA1ODQgPyAgICAgICAgMDA6MDA6MDAgbWF0Y2hib3gtd2luZG93CnVzZXJf
-dTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA1ODUgPyAgICAgICAgMDA6MDA6MDAgaXZpZGVz
-a3RvcAp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3QgICAgICAgNTg3ID8gICAgICAgIDAwOjAw
-OjAwIHRyYWNrZXItbWluZXItZgp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3QgICAgICAgNTg4
-ID8gICAgICAgIDAwOjAwOjAwIGdway11cGRhdGUtaWNvbgp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0
-eXBlX3QgICAgICAgNTg5ID8gICAgICAgIDAwOjAwOjA5IGl2aWhvbWUKdXNlcl91OnVzZXJfcjpj
-b25zb2xldHlwZV90ICAgICAgIDU5OCA/ICAgICAgICAwMDowMDowMCBwdWxzZWF1ZGlvCnVzZXJf
-dTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA2MDQgPyAgICAgICAgMDA6MDA6MDAgZmVzdGl2
-YWwKc3lzdGVtX3U6c3lzdGVtX3I6ZGV2aWNla2l0X2Rpc2tfdCA2MTMgPyAgICAgICAwMDowMDow
-MCB1ZGlza3MtZGFlbW9uCnN5c3RlbV91OnN5c3RlbV9yOmRldmljZWtpdF9kaXNrX3QgNjE2ID8g
-ICAgICAgMDA6MDA6MDAgdWRpc2tzLWRhZW1vbgp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3Qg
-ICAgICAgNjI1ID8gICAgICAgIDAwOjAwOjAwIHh0ZXJtCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5
-cGVfdCAgICAgICA2MjkgcHRzLzAgICAgMDA6MDA6MDAgYmFzaApzeXN0ZW1fdTpzeXN0ZW1fcjpr
-ZXJuZWxfdCAgICAgICAgNjQ3ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLXdvcmtlci0xCnN5c3Rl
-bV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA2NDggPyAgICAgICAgMDA6MDA6MDAgYnRyZnMt
-d29ya2VyLTIKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDY5OSA/ICAgICAgICAw
-MDowMDowMCBidHJmcy1lbmRpby13cmkKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAg
-IDcwMCA/ICAgICAgICAwMDowMDowMCBidHJmcy1lbmRpby13cmkKc3lzdGVtX3U6c3lzdGVtX3I6
-dWRldl90ICAgICAgICAgIDcwNCA/ICAgICAgICAwMDowMDowMCB1ZGV2ZApzeXN0ZW1fdTpzeXN0
-ZW1fcjp1ZGV2X3QgICAgICAgICAgNzA1ID8gICAgICAgIDAwOjAwOjAwIHVkZXZkCnVzZXJfdTp1
-c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgICA3MTYgPyAgICAgICAgMDA6MDA6MDAgdHJhY2tlci1z
-dG9yZQp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3QgICAgICAgNzE5ID8gICAgICAgIDAwOjAw
-OjAwIHR1bWJsZXJkCnN5c3RlbV91OnN5c3RlbV9yOnN5c3RlbV9kYnVzZF90ICA4NjEgPyAgICAg
-ICAgMDA6MDA6MDAgcGFja2FnZWtpdGQKc3lzdGVtX3U6c3lzdGVtX3I6ZGV2aWNla2l0X3Bvd2Vy
-X3QgODYzID8gICAgICAwMDowMDowMCB1cG93ZXJkCnN5c3RlbV91OnN5c3RlbV9yOnN5c3RlbV9k
-YnVzZF90ICA4ODAgPyAgICAgICAgMDA6MDA6MDAgcG9sa2l0ZApzeXN0ZW1fdTpzeXN0ZW1fcjps
-b2NhbF9sb2dpbl90ICAgOTI2ID8gICAgICAgIDAwOjAwOjAwIGxvZ2luCnVzZXJfdTp1c2VyX3I6
-Y2hrcHdkX3QgICAgICAgICAgICA5MzAgdHR5MSAgICAgMDA6MDA6MDAgYmFzaApzeXN0ZW1fdTpz
-eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgOTU5ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLWVuZGlv
-LW1ldAp1c2VyX3U6dXNlcl9yOmNvbnNvbGV0eXBlX3QgICAgICAgOTcwIHB0cy8wICAgIDAwOjAw
-OjE4IGZpcmVmb3gtYmluCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAgIDEwMDkgPyAg
-ICAgICAgMDA6MDA6MDAgeHRlcm0KdXNlcl91OnVzZXJfcjpjb25zb2xldHlwZV90ICAgICAgMTAx
-MSBwdHMvMSAgICAwMDowMDowMCBiYXNoCnVzZXJfdTp1c2VyX3I6Y29uc29sZXR5cGVfdCAgICAg
-IDEwMjUgcHRzLzEgICAgMDA6MDA6MDAgYmFzaApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAg
-ICAgICAxMDQ0ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLWVuZGlvLXdyaQp1c2VyX3U6dXNlcl9y
-OmNvbnNvbGV0eXBlX3QgICAgICAxMDQ2IHB0cy8xICAgIDAwOjAwOjAwIHBzCg==
---bcaec5540aaeda445304a6763cc4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
