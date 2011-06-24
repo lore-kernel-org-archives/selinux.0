@@ -1,46 +1,308 @@
-Subject: Re: Wrong context for user
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <1308920243.15355.55.camel@moss-pluto>
 References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 24 Jun 2011 08:57:23 -0400
-Message-ID: <1308920243.15355.55.camel@moss-pluto>
-Mime-Version: 1.0
+	<1308920243.15355.55.camel@moss-pluto>
+Date: Fri, 24 Jun 2011 09:44:14 -0400
+Message-ID: <BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
+Subject: Re: Wrong context for user
+From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, dwalsh@redhat.com
+Cc: SELinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary=000325559962af0f4804a675651d
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-06-24 at 08:04 -0400, c.r.madhusudhanan@gmail.com wrote:
-> Hi All,
-> 
-> 
-> 
-> 
-> I have meego configured with SELinux refpolicy. I have enabled SELinux
-> user to linux user mapping, and though it shows correct selinux user
-> and selinux role, 
-> the domain/type appears to be wrong.
-> 
-> 
-> For example, when I login linux user "meego", and say ps -Z, it shows
-> me,
-> 
-> 
-> user_u:user_r:insmod_t          773   tty1   00:00:00 bash
-> user_u:user_r:insmod_t          795   tty1   00:00:00 ps
-> 
-> 
-> where I expect this has to be user_u:user_r:user_t, any pointers?
+--000325559962af0f4804a675651d
+Content-Type: multipart/alternative; boundary=000325559962af0f3d04a675651b
 
-Please provide your entire ps -Z output, or at least show the entire
-ancestry of these processes (in particular the context of the login or
-ssh process that spawned them).
+--000325559962af0f3d04a675651b
+Content-Type: text/plain; charset=ISO-8859-1
 
--- 
-Stephen Smalley
-National Security Agency
+Hello  Daniel, Stephen,
 
+Thanks for the quick reply.
+
+Yes it looks login runs in the wrong context, system_u:system_r:kernel_t and
+most of the processes are.
+
+I am loading selinux policies from init, so I would expect all daemons
+should show their respective contexts.
+
+Attached is the "ps -aeZ" output.
+
+BTW, when I do "run_init /etc/init.d/sshd restart" the context changes from
+"system_u:system_r:kernel_t" to  "system_u:system_r:initrc_t" but not to
+sshd_t.
+
+Regards,
+Madhu
+
+
+
+
+On Fri, Jun 24, 2011 at 12:57 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Fri, 2011-06-24 at 08:04 -0400, c.r.madhusudhanan@gmail.com wrote:
+> > Hi All,
+> >
+> >
+> >
+> >
+> > I have meego configured with SELinux refpolicy. I have enabled SELinux
+> > user to linux user mapping, and though it shows correct selinux user
+> > and selinux role,
+> > the domain/type appears to be wrong.
+> >
+> >
+> > For example, when I login linux user "meego", and say ps -Z, it shows
+> > me,
+> >
+> >
+> > user_u:user_r:insmod_t          773   tty1   00:00:00 bash
+> > user_u:user_r:insmod_t          795   tty1   00:00:00 ps
+> >
+> >
+> > where I expect this has to be user_u:user_r:user_t, any pointers?
+>
+> Please provide your entire ps -Z output, or at least show the entire
+> ancestry of these processes (in particular the context of the login or
+> ssh process that spawned them).
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+
+--000325559962af0f3d04a675651b
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello=A0 Daniel, Stephen,<br><br>Thanks for the quick reply.<br><br>Yes it =
+looks login runs in the wrong context, system_u:system_r:kernel_t and most =
+of the processes are. <br><br>I am loading selinux policies from init, so I=
+ would expect all daemons should show their respective contexts.<br>
+
+<br>Attached is the &quot;ps -aeZ&quot; output.<br><br><div>BTW, when I do =
+&quot;run_init /etc/init.d/sshd restart&quot; the context changes from=A0</=
+div><div>&quot;system_u:system_r:kernel_t&quot; to =A0&quot;system_u:system=
+_r:initrc_t&quot; but not to sshd_t.</div>
+<div><br>Regards,<br>Madhu<br><br><br><br><br><div class=3D"gmail_quote">On=
+ Fri, Jun 24, 2011 at 12:57 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;=
+</span> wrote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div><div></div><div>On Fri, 2011-06-24 at 0=
+8:04 -0400, <a href=3D"mailto:c.r.madhusudhanan@gmail.com" target=3D"_blank=
+">c.r.madhusudhanan@gmail.com</a> wrote:<br>
+
+
+&gt; Hi All,<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt; I have meego configured with SELinux refpolicy. I have enabled SELinux=
+<br>
+&gt; user to linux user mapping, and though it shows correct selinux user<b=
+r>
+&gt; and selinux role,<br>
+&gt; the domain/type appears to be wrong.<br>
+&gt;<br>
+&gt;<br>
+&gt; For example, when I login linux user &quot;meego&quot;, and say ps -Z,=
+ it shows<br>
+&gt; me,<br>
+&gt;<br>
+&gt;<br>
+&gt; user_u:user_r:insmod_t =A0 =A0 =A0 =A0 =A0773 =A0 tty1 =A0 00:00:00 ba=
+sh<br>
+&gt; user_u:user_r:insmod_t =A0 =A0 =A0 =A0 =A0795 =A0 tty1 =A0 00:00:00 ps=
+<br>
+&gt;<br>
+&gt;<br>
+&gt; where I expect this has to be user_u:user_r:user_t, any pointers?<br>
+<br>
+</div></div>Please provide your entire ps -Z output, or at least show the e=
+ntire<br>
+ancestry of these processes (in particular the context of the login or<br>
+ssh process that spawned them).<br>
+<font color=3D"#888888"><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+</font></blockquote></div><br>
+</div>
+
+--000325559962af0f3d04a675651b--
+
+--000325559962af0f4804a675651d
+Content-Type: text/plain; charset=US-ASCII; name="ps_output.txt"
+Content-Disposition: attachment; filename="ps_output.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_gpbnvilu0
+
+TEFCRUwgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFBJRCBUVFkgICAgICAgICAgVElNRSBD
+TUQKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAgMSA/ICAgICAgICAwMDowMDow
+OCBpbml0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgIDIgPyAgICAgICAgMDA6
+MDA6MDAga3RocmVhZGQKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAgMyA/ICAg
+ICAgICAwMDowMDowMCBrc29mdGlycWQvMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAg
+ICAgICA0ID8gICAgICAgIDAwOjAwOjAwIG1pZ3JhdGlvbi8wCnN5c3RlbV91OnN5c3RlbV9yOmtl
+cm5lbF90ICAgICAgICAgIDUgPyAgICAgICAgMDA6MDA6MDAgd2F0Y2hkb2cvMApzeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgICA2ID8gICAgICAgIDAwOjAwOjAwIG1pZ3JhdGlvbi8x
+CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgIDcgPyAgICAgICAgMDA6MDA6MDAg
+a3NvZnRpcnFkLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAgOCA/ICAgICAg
+ICAwMDowMDowMCB3YXRjaGRvZy8xCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAg
+IDkgPyAgICAgICAgMDA6MDA6MDAgbWlncmF0aW9uLzIKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVs
+X3QgICAgICAgICAxMCA/ICAgICAgICAwMDowMDowMCBrc29mdGlycWQvMgpzeXN0ZW1fdTpzeXN0
+ZW1fcjprZXJuZWxfdCAgICAgICAgIDExID8gICAgICAgIDAwOjAwOjAwIHdhdGNoZG9nLzIKc3lz
+dGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAxMiA/ICAgICAgICAwMDowMDowMCBtaWdy
+YXRpb24vMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDEzID8gICAgICAgIDAw
+OjAwOjAwIGtzb2Z0aXJxZC8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMTQg
+PyAgICAgICAgMDA6MDA6MDAgd2F0Y2hkb2cvMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAg
+ICAgICAgIDE1ID8gICAgICAgIDAwOjAwOjAwIGV2ZW50cy8wCnN5c3RlbV91OnN5c3RlbV9yOmtl
+cm5lbF90ICAgICAgICAgMTYgPyAgICAgICAgMDA6MDA6MDAgZXZlbnRzLzEKc3lzdGVtX3U6c3lz
+dGVtX3I6a2VybmVsX3QgICAgICAgICAxNyA/ICAgICAgICAwMDowMDowMCBldmVudHMvMgpzeXN0
+ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDE4ID8gICAgICAgIDAwOjAwOjAxIGV2ZW50
+cy8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMTkgPyAgICAgICAgMDA6MDA6
+MDAgY3B1c2V0CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMjAgPyAgICAgICAg
+MDA6MDA6MDAga2hlbHBlcgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDIxID8g
+ICAgICAgIDAwOjAwOjAwIGFzeW5jL21ncgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAg
+ICAgIDIyID8gICAgICAgIDAwOjAwOjAwIHBtCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
+ICAgICAgMjMgPyAgICAgICAgMDA6MDA6MDAgc3luY19zdXBlcnMKc3lzdGVtX3U6c3lzdGVtX3I6
+a2VybmVsX3QgICAgICAgICAyNCA/ICAgICAgICAwMDowMDowMCBiZGktZGVmYXVsdApzeXN0ZW1f
+dTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI1ID8gICAgICAgIDAwOjAwOjAwIGtibG9ja2Qv
+MApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI2ID8gICAgICAgIDAwOjAwOjAw
+IGtibG9ja2QvMQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI3ID8gICAgICAg
+IDAwOjAwOjAwIGtibG9ja2QvMgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDI4
+ID8gICAgICAgIDAwOjAwOjAwIGtibG9ja2QvMwpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAg
+ICAgICAgIDI5ID8gICAgICAgIDAwOjAwOjAwIGthY3BpZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJu
+ZWxfdCAgICAgICAgIDMwID8gICAgICAgIDAwOjAwOjAwIGthY3BpX25vdGlmeQpzeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDMxID8gICAgICAgIDAwOjAwOjAwIGthY3BpX2hvdHBs
+dWcKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAzMiA/ICAgICAgICAwMDowMDow
+MCBhdGFfYXV4CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzMgPyAgICAgICAg
+MDA6MDA6MDAgYXRhX3NmZi8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzQg
+PyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8xCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
+ICAgICAgMzUgPyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8yCnN5c3RlbV91OnN5c3RlbV9yOmtl
+cm5lbF90ICAgICAgICAgMzYgPyAgICAgICAgMDA6MDA6MDAgYXRhX3NmZi8zCnN5c3RlbV91OnN5
+c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzcgPyAgICAgICAgMDA6MDA6MDAga2h1YmQKc3lzdGVt
+X3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICAzOCA/ICAgICAgICAwMDowMDowMCBrc2VyaW9k
+CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgMzkgPyAgICAgICAgMDA6MDA6MDAg
+a21tY2QKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA0MCA/ICAgICAgICAwMDow
+MDowMCBjZmc4MDIxMQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQxID8gICAg
+ICAgIDAwOjAwOjAwIGtvbmRlbWFuZC8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAg
+ICAgNDIgPyAgICAgICAgMDA6MDA6MDAga29uZGVtYW5kLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2Vy
+bmVsX3QgICAgICAgICA0MyA/ICAgICAgICAwMDowMDowMCBrb25kZW1hbmQvMgpzeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQ0ID8gICAgICAgIDAwOjAwOjAwIGtvbmRlbWFuZC8z
+CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNDUgPyAgICAgICAgMDA6MDA6MDAg
+a3N3YXBkMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDQ2ID8gICAgICAgIDAw
+OjAwOjAwIGFpby8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNDcgPyAgICAg
+ICAgMDA6MDA6MDAgYWlvLzEKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA0OCA/
+ICAgICAgICAwMDowMDowMCBhaW8vMgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAg
+IDQ5ID8gICAgICAgIDAwOjAwOjAwIGFpby8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
+ICAgICAgNTAgPyAgICAgICAgMDA6MDA6MDAgY3J5cHRvLzAKc3lzdGVtX3U6c3lzdGVtX3I6a2Vy
+bmVsX3QgICAgICAgICA1MSA/ICAgICAgICAwMDowMDowMCBjcnlwdG8vMQpzeXN0ZW1fdTpzeXN0
+ZW1fcjprZXJuZWxfdCAgICAgICAgIDUyID8gICAgICAgIDAwOjAwOjAwIGNyeXB0by8yCnN5c3Rl
+bV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNTMgPyAgICAgICAgMDA6MDA6MDAgY3J5cHRv
+LzMKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA2MSA/ICAgICAgICAwMDowMDow
+MCBpOTE1CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjIgPyAgICAgICAgMDA6
+MDA6MDAga3Nsb3dkMDAwCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjMgPyAg
+ICAgICAgMDA6MDA6MDAga3Nsb3dkMDAxCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAg
+ICAgNjQgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
+bF90ICAgICAgICAgNjUgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8xCnN5c3RlbV91OnN5c3Rl
+bV9yOmtlcm5lbF90ICAgICAgICAgNjggPyAgICAgICAgMDA6MDA6MDAgc2NzaV9laF8yCnN5c3Rl
+bV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNjkgPyAgICAgICAgMDA6MDA6MDAgc2NzaV9l
+aF8zCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzAgPyAgICAgICAgMDA6MDA6
+MDAgc21mbHVzaApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDcxID8gICAgICAg
+IDAwOjAwOjAwIGtwc21vdXNlZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDcy
+ID8gICAgICAgIDAwOjAwOjAwIHVzYmhpZF9yZXN1bWVyCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
+bF90ICAgICAgICAgNzMgPyAgICAgICAgMDA6MDA6MDAgbDJjYXAKc3lzdGVtX3U6c3lzdGVtX3I6
+a2VybmVsX3QgICAgICAgICA3NCA/ICAgICAgICAwMDowMDowMCBrcmZjb21tZApzeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDc2ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLXdvcmtl
+ci0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzcgPyAgICAgICAgMDA6MDA6
+MDAgYnRyZnMtZ2Vud29yay0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgNzgg
+PyAgICAgICAgMDA6MDA6MDAgYnRyZnMtc3VibWl0LTAKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVs
+X3QgICAgICAgICA3OSA/ICAgICAgICAwMDowMDowMCBidHJmcy1kZWxhbGxvYy0Kc3lzdGVtX3U6
+c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA4MCA/ICAgICAgICAwMDowMDowMCBidHJmcy1maXh1
+cC0wCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAgODEgPyAgICAgICAgMDA6MDA6
+MDAgYnRyZnMtZW5kaW8tMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDgzID8g
+ICAgICAgIDAwOjAwOjAwIGJ0cmZzLWVuZGlvLW1ldApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxf
+dCAgICAgICAgIDg0ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLWVuZGlvLXdyaQpzeXN0ZW1fdTpz
+eXN0ZW1fcjprZXJuZWxfdCAgICAgICAgIDg1ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLWNsZWFu
+ZXIKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgICA4NiA/ICAgICAgICAwMDowMDow
+MCBidHJmcy10cmFuc2FjdGkKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDExNyA/
+ICAgICAgICAwMDowMDowMCB1ZGV2ZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAg
+MzIyID8gICAgICAgIDAwOjAwOjAwIGhkLWF1ZGlvMApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxf
+dCAgICAgICAgMzQwID8gICAgICAgIDAwOjAwOjAwIGtqb3VybmFsZApzeXN0ZW1fdTpzeXN0ZW1f
+cjprZXJuZWxfdCAgICAgICAgMzU5ID8gICAgICAgIDAwOjAwOjAwIGZsdXNoLWJ0cmZzLTEKc3lz
+dGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDM2MSA/ICAgICAgICAwMDowMDowMCBkYnVz
+LWRhZW1vbgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgMzc3ID8gICAgICAgIDAw
+OjAwOjAwIGNvbm5tYW5kCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICAzODEgPyAg
+ICAgICAgMDA6MDA6MDAgd3BhX3N1cHBsaWNhbnQKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3Qg
+ICAgICAgIDM4MiA/ICAgICAgICAwMDowMDowMCBzeXNsb2dkCnN5c3RlbV91OnN5c3RlbV9yOmtl
+cm5lbF90ICAgICAgICAzODYgPyAgICAgICAgMDA6MDA6MDAgYXVkaXRkCnN5c3RlbV91OnN5c3Rl
+bV9yOmtlcm5lbF90ICAgICAgICAzODkgPyAgICAgICAgMDA6MDA6MDAga2F1ZGl0ZApzeXN0ZW1f
+dTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgMzkzID8gICAgICAgIDAwOjAwOjAwIGtsb2dkCnN5
+c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA0MDkgPyAgICAgICAgMDA6MDA6MDAgZHNt
+ZQpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgNDEyID8gICAgICAgIDAwOjAwOjAw
+IGRzbWUtc2VydmVyCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA0MjAgPyAgICAg
+ICAgMDA6MDA6MDAgUzUwc2Vuc29yZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAg
+NDIyID8gICAgICAgIDAwOjAwOjAwIGJhc2gKc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAg
+ICAgIDQyMyA/ICAgICAgICAwMDowMDowMCBzZW5zb3JkCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
+bF90ICAgICAgICA0MjUgPyAgICAgICAgMDA6MDA6MDAgdGltZWQKc3lzdGVtX3U6c3lzdGVtX3I6
+a2VybmVsX3QgICAgICAgIDQzMyA/ICAgICAgICAwMDowMDowMSBhdmFoaS1kYWVtb24Kc3lzdGVt
+X3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDQzNCA/ICAgICAgICAwMDowMDowMCBhdmFoaS1k
+YWVtb24Kc3lzdGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDQzNiA/ICAgICAgICAwMDow
+MDowMCBzc2hkCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA0NDIgPyAgICAgICAg
+MDA6MDA6MDAgb2Zvbm9kCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA0NDYgPyAg
+ICAgICAgMDA6MDA6MDAgYmx1ZXRvb3RoZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAg
+ICAgNDU2ID8gICAgICAgIDAwOjAwOjAwIHV4bGF1bmNoCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5l
+bF90ICAgICAgICA0NjAgPyAgICAgICAgMDA6MDA6MDAgdXhsYXVuY2gKdXNlcl91OnVzZXJfcjpp
+bnNtb2RfdCAgICAgICAgICAgIDQ4MCB0dHkyICAgICAwMDowMDoxNSBYb3JnCnVzZXJfdTp1c2Vy
+X3I6aW5zbW9kX3QgICAgICAgICAgICA0ODMgPyAgICAgICAgMDA6MDA6MDAgc3NoLWFnZW50CnN5
+c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA0ODUgPyAgICAgICAgMDA6MDA6MDAgY29u
+c29sZS1raXQtZGFlCnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA1NTMgPyAgICAg
+ICAgMDA6MDA6MDAgZGJ1cy1kYWVtb24KdXNlcl91OnVzZXJfcjppbnNtb2RfdCAgICAgICAgICAg
+IDU1NiA/ICAgICAgICAwMDowMDowMCBnY29uZmQtMgp1c2VyX3U6dXNlcl9yOmluc21vZF90ICAg
+ICAgICAgICAgNTU5ID8gICAgICAgIDAwOjAwOjAwIHN0YXJ0aXZpCnVzZXJfdTp1c2VyX3I6aW5z
+bW9kX3QgICAgICAgICAgICA1NjYgPyAgICAgICAgMDA6MDA6MDAgbXN5bmNkCnVzZXJfdTp1c2Vy
+X3I6aW5zbW9kX3QgICAgICAgICAgICA1NjggPyAgICAgICAgMDA6MDA6MDAgdWRpc2tpZQp1c2Vy
+X3U6dXNlcl9yOmluc21vZF90ICAgICAgICAgICAgNTcwID8gICAgICAgIDAwOjAwOjAwIG9iZXgt
+Y2xpZW50CnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA1NzEgPyAgICAgICAgMDA6
+MDA6MDAgY29yZXdhdGNoZXItYXBwCnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA1
+NzIgPyAgICAgICAgMDA6MDA6MDAgdHJhY2tlci1taW5lci1mCnVzZXJfdTp1c2VyX3I6aW5zbW9k
+X3QgICAgICAgICAgICA1NzMgPyAgICAgICAgMDA6MDA6MDAgZ3BrLXVwZGF0ZS1pY29uCnVzZXJf
+dTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA1NzUgPyAgICAgICAgMDA6MDA6MDAgbWF0Y2hi
+b3gtd2luZG93CnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA1NzYgPyAgICAgICAg
+MDA6MDA6MDAgaXZpZGVza3RvcAp1c2VyX3U6dXNlcl9yOmluc21vZF90ICAgICAgICAgICAgNTc4
+ID8gICAgICAgIDAwOjAwOjEyIGl2aWhvbWUKdXNlcl91OnVzZXJfcjppbnNtb2RfdCAgICAgICAg
+ICAgIDU4NiA/ICAgICAgICAwMDowMDowMCBwdWxzZWF1ZGlvCnVzZXJfdTp1c2VyX3I6aW5zbW9k
+X3QgICAgICAgICAgICA1OTQgPyAgICAgICAgMDA6MDA6MDAgZmVzdGl2YWwKc3lzdGVtX3U6c3lz
+dGVtX3I6a2VybmVsX3QgICAgICAgIDU5NyA/ICAgICAgICAwMDowMDowMCB1ZGlza3MtZGFlbW9u
+CnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA1OTggPyAgICAgICAgMDA6MDA6MDAg
+dWRpc2tzLWRhZW1vbgpzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgNjMzID8gICAg
+ICAgIDAwOjAwOjAwIGxvZ2luCnJvb3Q6c3RhZmZfcjppbnNtb2RfdCAgICAgICAgICAgICA2Mzcg
+dHR5MSAgICAgMDA6MDA6MDAgYmFzaApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAg
+NjU3ID8gICAgICAgIDAwOjAwOjAwIHVkZXZkCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAg
+ICAgICA2NTggPyAgICAgICAgMDA6MDA6MDAgdWRldmQKdXNlcl91OnVzZXJfcjppbnNtb2RfdCAg
+ICAgICAgICAgIDY2OCA/ICAgICAgICAwMDowMDowMCB0cmFja2VyLXN0b3JlCnVzZXJfdTp1c2Vy
+X3I6aW5zbW9kX3QgICAgICAgICAgICA2NzEgPyAgICAgICAgMDA6MDA6MDAgdHVtYmxlcmQKc3lz
+dGVtX3U6c3lzdGVtX3I6a2VybmVsX3QgICAgICAgIDY4NCA/ICAgICAgICAwMDowMDowMCB1cG93
+ZXJkCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA3MDAgPyAgICAgICAgMDA6MDA6
+MDAgcG9sa2l0ZApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJuZWxfdCAgICAgICAgNzY1ID8gICAgICAg
+IDAwOjAwOjAwIGJ0cmZzLWVuZGlvLW1ldAp1c2VyX3U6dXNlcl9yOmluc21vZF90ICAgICAgICAg
+ICAgOTA2ID8gICAgICAgIDAwOjAwOjAwIHh0ZXJtCnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAg
+ICAgICAgICA5MDkgcHRzLzAgICAgMDA6MDA6MDAgYmFzaApzeXN0ZW1fdTpzeXN0ZW1fcjprZXJu
+ZWxfdCAgICAgICAgOTM3ID8gICAgICAgIDAwOjAwOjAwIGJ0cmZzLWVuZGlvLXdyaQp1c2VyX3U6
+dXNlcl9yOmluc21vZF90ICAgICAgICAgICAgOTU4IHB0cy8wICAgIDAwOjAwOjUzIGZpcmVmb3gt
+YmluCnN5c3RlbV91OnN5c3RlbV9yOmtlcm5lbF90ICAgICAgICA5NzQgPyAgICAgICAgMDA6MDA6
+MDAgYnRyZnMtZW5kaW8tbWV0CnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAgICAgICA5OTQg
+PyAgICAgICAgMDA6MDA6MDAgeHRlcm0KdXNlcl91OnVzZXJfcjppbnNtb2RfdCAgICAgICAgICAg
+IDk5NiBwdHMvMSAgICAwMDowMDowMCBiYXNoCnVzZXJfdTp1c2VyX3I6aW5zbW9kX3QgICAgICAg
+ICAgIDEwMTIgcHRzLzEgICAgMDA6MDA6MDAgcHMK
+--000325559962af0f4804a675651d--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
