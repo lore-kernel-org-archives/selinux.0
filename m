@@ -1,92 +1,171 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5SDTDIH005608
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2011 09:29:14 -0400
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p5SDTAgJ011272
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2011 13:29:12 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Sam Gandhi <samgandhi9@gmail.com>
-Subject: Re: login process unable to execute /bin/sh
-Date: Tue, 28 Jun 2011 23:29:06 +1000
-Cc: Guido Trentalancia <guido@trentalancia.com>, selinux@tycho.nsa.gov
-References: <BANLkTiknN0tGP7xJmUO7Enxmqw2TjtgVKg@mail.gmail.com> <4E08B41F.80608@trentalancia.com> <BANLkTimY8OOEzZjfA=z=vfY_p3+XN3N8EQ@mail.gmail.com>
-In-Reply-To: <BANLkTimY8OOEzZjfA=z=vfY_p3+XN3N8EQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201106282329.06313.russell@coker.com.au>
+In-Reply-To: <BANLkTim8At8cS9j85tf-_7RMQ8PgqM+ZgA@mail.gmail.com>
+References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
+	<1308920243.15355.55.camel@moss-pluto>
+	<BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
+	<1308924690.15355.72.camel@moss-pluto>
+	<BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
+	<1308926890.15355.74.camel@moss-pluto>
+	<BANLkTikWc10KFhJEwk9hdJ4e2BbbfcB8BQ@mail.gmail.com>
+	<1308928177.15355.76.camel@moss-pluto>
+	<BANLkTikJLUuP4g=krqa3wyxh1FF=2E52SA@mail.gmail.com>
+	<BANLkTim8At8cS9j85tf-_7RMQ8PgqM+ZgA@mail.gmail.com>
+Date: Tue, 28 Jun 2011 11:34:35 -0400
+Message-ID: <BANLkTik=8uj1=vo7oHzEq6OmNZ5DKA6MNA@mail.gmail.com>
+Subject: Re: Wrong context for user
+From: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+To: Sam Gandhi <samgandhi9@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, dwalsh@redhat.com,
+        SELinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=20cf305f91c2b19f4204a6c767b3
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 28 Jun 2011, Sam Gandhi <samgandhi9@gmail.com> wrote:
-> > Perhaps, you should try adding the other rule ?
-> > 
-> > allow initrc_t local_login_t:process transition;
+--20cf305f91c2b19f4204a6c767b3
+Content-Type: text/plain; charset=ISO-8859-1
 
-Why would that be desirable?  /bin/login is generally run from getty which is 
-run from init.  Do we have a need for scripts under /etc/init.d/ to run 
-/bin/login?
- 
-> Jan  1 10:00:37 192.168.137.1 kernel: type=1400 audit(37.230:44): avc:
->  granted  { transition } for  pid=600 comm="getty" path="/bin/login"
-> dev=ubifs ino=99 scontext=system_u:system_r:initrc_t
-> tcontext=system_u:system_r:local_login_t tclass=process
-> 
-> Am I wrong in assuming that getty is not an issue because audit
-> message indicates that when getty executed program /bin/login , domain
-> transition was done successfully to local_login_t
+Hi Sam,
 
-Why is getty running in initrc_t?  What label is on the getty executable and 
-what is the context of the program that runs it?
+Sorry I couldnt reply you earlier, and the issue still remains,
 
-> Jan  1 10:00:39 192.168.137.1 kernel: type=1400 audit(39.090:45): avc:
->  denied  { transition } for  pid=812 comm="login" path="/bin/sh"
-> dev=ubifs ino=93 scontext=system_u:system_r:local_login_t
-> tcontext=root:system_r:initrc_t tclass=process
-> 
-> One more piece of information I didn't include in previous email was,
-> /bin/sh is labeled as shell_exec_t and I do see following rules in my
-> policy.conf.
+I checked failsafe_context, and it was 'sysadm_r:syadm_t' and when I changed
+to
+'system_r:initrc_t' as you said, it dint have any effect.
 
-/bin/sh is usually a symlink (labelled as bin_t) and points to something else 
-matching /bin/*sh - which should have shell_exec_t as the type.  Not that it 
-matters in a normal situation.
 
-> type_transition initrc_t shell_exec_t:process initrc_t;
+Regards,
+Madhu
 
-That looks wrong.
+On Fri, Jun 24, 2011 at 5:26 PM, Sam Gandhi <samgandhi9@gmail.com> wrote:
 
-> allow initrc_t shell_exec_t:file { read { getattr execute } Ballow
-> initrc_t shell_exec_t:file { read getattr lock execute ioctl };
-> allow initrc_t shell_exec_t:file entrypoint;
-> 
-> allow local_login_t shell_exec_t:file { read { getattr execute } };
-> type_transition local_login_t shell_exec_t:process initrc_t;
-> allow local_login_t shell_exec_t:file { read { getattr execute } };
-> allow local_login_t shell_exec_t:file { { read getattr lock execute
-> ioctl } execute_no_trans };
-> allow local_login_t shell_exec_t:file entrypoint;
-> 
-> The best as I understand allow rules, the local_login_t rules above
-> says, when process running in context local_login_t (login program in
-> my case) tries to execute program of type shell_exec_t it should be
-> allowed, and process should transition to context initrc_t (because of
-> type_transition statement above).
-> 
-> Still puzzled as to why I keep getting local_login deny message
-> (help!). I am running the system with  'auditallow domain
-> domain:process transition;'  and I don't see any other domain
-> transitions happening when I try to login to my system.
+> On Fri, Jun 24, 2011 at 8:50 AM, c.r.madhusudhanan@gmail.com
+> <c.r.madhusudhanan@gmail.com> wrote:
+> > [root@localhost utils]# ./getconlist user_u
+> > user_u:user_r:consoletype_t
+> > [root@localhost utils]# ./getconlist root
+> > root:sysadm_r:sysadm_t
+> >
+> > [root@localhost utils]# ./getseuser meego
+> > seuser:  user_u, level (null)
+> > Context 0       user_u:user_r:consoletype_t
+> > [root@localhost utils]# ./getseuser root
+> > seuser:  root, level (null)
+> > Context 0       root:sysadm_r:sysadm_t
+> > (I dont know but the getseuser dint work until I changed the code
+> >  if (argc != 2). )
+> >
+>
+> My guess it is picking up the context from
+> /etc/selinux/<context>/contexts/failsafe_context file.
+> Does your failsafe_context file have string  system_r:unconfined_t in
+> it. For experimental purpose if you change it to system_r:initrc_t you
+> will notice that your login session has context of
+> root:system_r:initrc_t
+>
+> Now I don't know SELinux well enough to know if changing the
+> failsafe_context file is correct thing to do. You could run getseuser
+> through strace and see all the configuration files it examines.
+>
+> One thing you will notice is SELinux user libraries read & write
+> various files in /selinux/ but I haven't found  description of how the
+> interface for /selinux/XXX is supposed to work
+>
+>
+> > On Fri, Jun 24, 2011 at 3:09 PM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> >>
+> >> On Fri, 2011-06-24 at 14:52 +0000, c.r.madhusudhanan@gmail.com wrote:
+> >> > attached for your reference.
+> >>
+> >> What do the libselinux/utils say, e.g.:
+> >> cd libselinux/utils
+> >> ./getconlist user_u system_u:system_r:local_login_t
+> >> ./getseuser root system_u:system_r:local_login_t
+> >>
+> >> --
+> >> Stephen Smalley
+> >> National Security Agency
+> >>
+> >
+> >
+>
+> -Sam
+>
 
-You shouldn't have a login session with the domain initrc_t.  You should have 
-the login program tell the kernel which context to use and it should be 
-something with a different domain.  Either the login program should be patched 
-or you should use PAM with pam_selinux.so configured.
+--20cf305f91c2b19f4204a6c767b3
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+<meta http-equiv=3D"content-type" content=3D"text/html; charset=3Dutf-8">Hi=
+ Sam,<div><br></div><div>Sorry I couldnt reply you earlier, and the issue s=
+till remains,</div><div><br></div><div>I checked failsafe_context, and it w=
+as &#39;sysadm_r:syadm_t&#39; and when I changed to=A0</div>
+<div>&#39;system_r:initrc_t&#39; as you said, it dint have any effect.</div=
+><div><br></div><div><br></div><div>Regards,</div><div>Madhu</div><br><div =
+class=3D"gmail_quote">On Fri, Jun 24, 2011 at 5:26 PM, Sam Gandhi <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:samgandhi9@gmail.com">samgandhi9@gmail.com</=
+a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex;">On Fri, Jun 24, 2011 at 8:50 AM, <a href=3D=
+"mailto:c.r.madhusudhanan@gmail.com">c.r.madhusudhanan@gmail.com</a><br>
+<div class=3D"im">&lt;<a href=3D"mailto:c.r.madhusudhanan@gmail.com">c.r.ma=
+dhusudhanan@gmail.com</a>&gt; wrote:<br>
+</div><div class=3D"im">&gt; [root@localhost utils]# ./getconlist user_u<br=
+>
+&gt; user_u:user_r:consoletype_t<br>
+&gt; [root@localhost utils]# ./getconlist root<br>
+&gt; root:sysadm_r:sysadm_t<br>
+&gt;<br>
+&gt; [root@localhost utils]# ./getseuser meego<br>
+&gt; seuser: =A0user_u, level (null)<br>
+&gt; Context 0 =A0 =A0 =A0 user_u:user_r:consoletype_t<br>
+&gt; [root@localhost utils]# ./getseuser root<br>
+&gt; seuser: =A0root, level (null)<br>
+&gt; Context 0 =A0 =A0 =A0 root:sysadm_r:sysadm_t<br>
+&gt; (I dont know but the getseuser dint work until I changed the code<br>
+&gt; =A0if (argc !=3D 2). )<br>
+&gt;<br>
+<br>
+</div>My guess it is picking up the context from<br>
+/etc/selinux/&lt;context&gt;/contexts/failsafe_context file.<br>
+Does your failsafe_context file have string =A0system_r:unconfined_t in<br>
+it. For experimental purpose if you change it to system_r:initrc_t you<br>
+will notice that your login session has context of<br>
+root:system_r:initrc_t<br>
+<br>
+Now I don&#39;t know SELinux well enough to know if changing the<br>
+failsafe_context file is correct thing to do. You could run getseuser<br>
+through strace and see all the configuration files it examines.<br>
+<br>
+One thing you will notice is SELinux user libraries read &amp; write<br>
+various files in /selinux/ but I haven&#39;t found =A0description of how th=
+e<br>
+interface for /selinux/XXX is supposed to work<br>
+<div><div></div><div class=3D"h5"><br>
+<br>
+&gt; On Fri, Jun 24, 2011 at 3:09 PM, Stephen Smalley &lt;<a href=3D"mailto=
+:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
+&gt;&gt;<br>
+&gt;&gt; On Fri, 2011-06-24 at 14:52 +0000, <a href=3D"mailto:c.r.madhusudh=
+anan@gmail.com">c.r.madhusudhanan@gmail.com</a> wrote:<br>
+&gt;&gt; &gt; attached for your reference.<br>
+&gt;&gt;<br>
+&gt;&gt; What do the libselinux/utils say, e.g.:<br>
+&gt;&gt; cd libselinux/utils<br>
+&gt;&gt; ./getconlist user_u system_u:system_r:local_login_t<br>
+&gt;&gt; ./getseuser root system_u:system_r:local_login_t<br>
+&gt;&gt;<br>
+&gt;&gt; --<br>
+&gt;&gt; Stephen Smalley<br>
+&gt;&gt; National Security Agency<br>
+&gt;&gt;<br>
+&gt;<br>
+&gt;<br>
+<br>
+</div></div><font color=3D"#888888">-Sam<br>
+</font></blockquote></div><br>
+
+--20cf305f91c2b19f4204a6c767b3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
