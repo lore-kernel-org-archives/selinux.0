@@ -1,169 +1,332 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5TBHOU9001064
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2011 07:17:24 -0400
-Received: from mail.gw90.de (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p5TBHNwX017088
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2011 11:17:23 GMT
-Subject: Linux kernel 2.6.32 from Debian Squeeze and Xen: SELinux seems to
- hang around 10 minutes during boot
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-JpUtpDr5JqFwPPSCYL+L"
-Date: Wed, 29 Jun 2011 13:17:19 +0200
-Message-ID: <1309346239.4648.23.camel@mattotaupa>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p5TBe5Zt002069
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2011 07:40:05 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p5TBe2wX020557
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2011 11:40:03 GMT
+Message-ID: <4E0AD0BC.8040708@windriver.com>
+Date: Wed, 29 Jun 2011 15:14:04 +0800
+From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: <qingtao.cao@windriver.com>
+MIME-Version: 1.0
+To: HarryCiao <harrytaurus2002@hotmail.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        lawrence steve
+	<slawrence@tresys.com>, <method@manicmethod.com>,
+        selinux-mailing-list
+	<selinux@tycho.nsa.gov>
+Subject: Re: v3 Add role attribute support to libsepol
+References: <1309249126-5224-1-git-send-email-qingtao.cao@windriver.com> <SNT139-w61848BC20E4E7F40D1E43DAB560@phx.gbl>
+In-Reply-To: <SNT139-w61848BC20E4E7F40D1E43DAB560@phx.gbl>
+Content-Type: multipart/mixed;
+	boundary="------------050605070002040100010109"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--------------050605070002040100010109
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
 
---=-JpUtpDr5JqFwPPSCYL+L
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Chris,
 
-Dear SELinux folks,
+On 06/28/2011 04:28 PM, HarryCiao wrote:
+> Attach the refpolicy debug patches that would generate the test results 
+> mentioned below.
+> 
+> Thanks,
+> Harry
+> 
+>  > From: qingtao.cao@windriver.com
+>  > To: cpebenito@tresys.com; slawrence@tresys.com; method@manicmethod.com
+>  > CC: selinux@tycho.nsa.gov
+>  > Subject: v3 Add role attribute support to libsepol
+>  > Date: Tue, 28 Jun 2011 16:18:40 +0800
+>  >
+>  >
+>  > Differences from v2 patchset
+>  > -----------------------------
+>  > 1. For the 0001 patch,
+>  > Modify symtab_insert() to allow multiple declarations only for the 
+> regular
+>  > roles, while a role attribute can't be declared more than once and can't
+>  > share a same name with another regular role.
+>  >
+>  > 2. For the 0006 patch,
+>  > Although in the link stage all role identifiers defined in any
+>  > block/decl of any module would be copied into the base->p_roles.table,
+>  > the role-attribute relationships would still ! be recorded in the decl's
+>  > local symtab[SYM_ROLES] table(see get_local_role()), so before all the
+>  > escalation of sub role attribute's roles ebitmap into that of parent ever
+>  > happens, all decl in the base->global list except the global block would
+>  > have to be traversed so as to populate potential role-attribute 
+> attributes
+>  > from decl up to the base module.
+>  >
+>  >
+>  > Remaining issues
+>  > -----------------
+>  > 1. If built by "MONOLITHIC = y", run into below errors that not witnessed
+>  > when building in modular way:
+>  >
+>  > /usr/bin/checkpolicy -M -U allow policy.conf -o policy.26
+>  > /usr/bin/checkpolicy: loading policy configuration from policy.conf
+>  > policy/modules/services/likewise.te":140:ERROR 'role attribute 
+> semanage_roles is not declared' at token ';' on line 1494287:
+>  > #line 140
+>  > roleattribute system_r semanage_roles;
+>  > ! checkpolicy: error(s) encountered while parsing configuration
+>  > ; make: *** [policy.26] Error 1
+>  >
 
+Turns out this is a very interesting thing that is only related with the
+refpolicy debug patch, has nothing to do with this v3 patchset.
 
-I hope this is the correct list for users to report problems.
+The reason is that seutil_run_semanage() is called in the global block
+of the likewise.te, and when building in a monolithic way, the
+gen_require macro used in the global block would simply be expanded as
+EMPTY, resulting in the semanage_roles attribute is referenced BEFORE
+it's ever declared.
 
-Running a Xen dom0 with Debian Squeeze with
+This problem could be fixed by moving the declaration of semanage_roles
+attribute from selinuxutil.te to kernel.te, but use gen_require macro to
+require it in selinuxutil.te. This would have both hands meet :-)
 
-        ii  linux-image-2.6.32-5-xen-amd64          2.6.32-35              =
-      Linux 2.6.32 for 64-bit PCs, Xen dom0 support
+Same thing should happen to rpm_roles attribute.
 
-and passing `selinux=3D1` (from `/proc/cmdline`) to the command line the bo=
-ot hangs for around ten minutes.
-
-`dmesg` has the following messages.
-
-        [=E2=80=A6]
-        [    2.204014] Calibrating delay loop (skipped), value calculated u=
-sing timer frequency.. 5346.75 BogoMIPS (lpj=3D10693504)
-        [    2.204026] Security Framework initialized
-        [    2.204031] SELinux:  Initializing.
-        [    2.204037] SELinux:  Starting in permissive mode
-        [    2.205178] Dentry cache hash table entries: 1048576 (order: 11,=
- 8388608 bytes)
-        [    2.207298] Inode-cache hash table entries: 524288 (order: 10, 4=
-194304 bytes)
-        [    2.208088] Mount-cache hash table entries: 256
-        [    2.208212] Initializing cgroup subsys ns
-        [    2.208215] Initializing cgroup subsys cpuacct
-        [    2.208219] Initializing cgroup subsys devices
-        [    2.208222] Initializing cgroup subsys freezer
-        [    2.208224] Initializing cgroup subsys net_cls
-        [    2.208255] CPU: L1 I cache: 32K, L1 D cache: 32K
-        [    2.208257] CPU: L2 cache: 256K
-        [    2.208258] CPU: L3 cache: 8192K
-        [    2.208262] CPU 0/0x0 -> Node 0
-        [    2.208264] CPU: Unsupported number of siblings 16
-        [    2.208267] mce: CPU supports 9 MCE banks
-        [    2.208288] Performance Events: unsupported p6 CPU model 26 no P=
-MU driver, software events only.
-        [    2.208300] SMP alternatives: switching to UP code
-        [    2.229476] ACPI: Core revision 20090903
-        [    2.260346]   alloc irq_desc for 2302 on node -1
-        [    2.260348]   alloc kstat_irqs on node -1
-        [    2.260355]   alloc irq_desc for 2301 on node -1
-        [    2.260357]   alloc kstat_irqs on node -1
-        [    2.260361]   alloc irq_desc for 2300 on node -1
-        [    2.260362]   alloc kstat_irqs on node -1
-        [    2.260366]   alloc irq_desc for 2299 on node -1
-        [    2.260367]   alloc kstat_irqs on node -1
-        [    2.260512] installing Xen timer for CPU 1
-        [    2.260515]   alloc irq_desc for 2298 on node -1
-        [    2.260517]   alloc kstat_irqs on node -1
-        [    2.260538] SMP alternatives: switching to SMP code
-        [=E2=80=A6]
-        [    2.427623] msgmni has been set to 13460
-        [    2.427689] SELinux:  Registering netfilter hooks
-        [    2.428038] alg: No test for stdrng (krng)
-        [    2.428087] Block layer SCSI generic (bsg) driver version 0.4 lo=
-aded (major 253)
-        [=E2=80=A6]
-        [    9.023551] type=3D1404 audit(1309247866.082:2): enforcing=3D1 o=
-ld_enforcing=3D0 auid=3D4294967295 ses=3D4294967295
-        [    9.137904] SELinux: 8192 avtab hash slots, 26860 rules.
-        [    9.142904] SELinux: 8192 avtab hash slots, 26860 rules.
-        [    9.143463] SELinux:  6 users, 6 roles, 1240 types, 38 bools, 1 =
-sens, 1024 cats
-        [    9.143466] SELinux:  77 classes, 26860 rules
-        [    9.144719] SELinux:  Completing initialization.
-        [    9.144721] SELinux:  Setting up existing superblocks.
-        [    9.144859] SELinux: initialized (dev md0, type ext3), uses xatt=
-r
-        [    9.144936] SELinux: initialized (dev usbfs, type usbfs), uses g=
-enfs_contexts
-        [    9.144942] SELinux: initialized (dev selinuxfs, type selinuxfs)=
-, uses genfs_contexts
-        [    9.144951] SELinux: initialized (dev mqueue, type mqueue), uses=
- transition SIDs
-        [    9.144956] SELinux: initialized (dev hugetlbfs, type hugetlbfs)=
-, uses transition SIDs
-        [    9.144960] SELinux: initialized (dev devpts, type devpts), uses=
- transition SIDs
-        [    9.144965] SELinux: initialized (dev inotifyfs, type inotifyfs)=
-, uses genfs_contexts
-        [    9.144969] SELinux: initialized (dev anon_inodefs, type anon_in=
-odefs), uses genfs_contexts
-        [    9.144971] SELinux: initialized (dev pipefs, type pipefs), uses=
- task SIDs
-        [    9.144975] SELinux: initialized (dev debugfs, type debugfs), us=
-es genfs_contexts
-        [    9.145038] SELinux: initialized (dev sockfs, type sockfs), uses=
- task SIDs
-        [    9.145041] SELinux: initialized (dev devtmpfs, type devtmpfs), =
-uses transition SIDs
-        [    9.145379] SELinux: initialized (dev tmpfs, type tmpfs), uses t=
-ransition SIDs
-        [    9.145385] SELinux: initialized (dev proc, type proc), uses gen=
-fs_contexts
-        [    9.145391] SELinux: initialized (dev bdev, type bdev), uses gen=
-fs_contexts
-        [    9.145394] SELinux: initialized (dev rootfs, type rootfs), uses=
- genfs_contexts
-        [    9.145397] SELinux: initialized (dev sysfs, type sysfs), uses g=
-enfs_contexts
-        [    9.235165] type=3D1403 audit(1309247866.294:3): policy loaded a=
-uid=3D4294967295 ses=3D4294967295
-        [    9.538501] SELinux: initialized (dev tmpfs, type tmpfs), uses t=
-ransition SIDs
-        [    9.893428] udev[445]: starting version 164
-        [   10.253325] ACPI: WMI: Mapper loaded
-        [=E2=80=A6]
-        [   11.034386] No connectors reported connected with modes
-        [   11.034392] [drm] Initialized nouveau 0.0.15 20090420 for 0000:0=
-2:00.0 on minor 0
-        [   11.099470] SELinux: initialized (dev tmpfs, type tmpfs), uses t=
-ransition SIDs
-        [  624.864340] Adding 1048568k swap on /dev/mapper/xkcd-dom0--swap.=
-  Priority:-1 extents:1 across:1048568k
-        [=E2=80=A6]
-
-Is that a know problem? Can I provide other information? The only
-problem is that I cannot test anything since this is a production
-system. I even cannot test if passing `selinux=3D0` improves anything.
-
+I have attached the updated 0002 debug patch for above improvement.
 
 Thanks,
+Harry
 
-Paul
+>  > 2. The policy.X's binary representation and SELinux kernel role_datum_t
+>  > structure don't have to be changed, so the max version number for 
+> policy.X
+>  > won't have to be bumped.
+>  >
+>  > But it may be desirable to bump the max module version number.
+>  >
+>  > (I am still working on these two areas, any comments are greatly 
+> welcomed)
+>  >
+>  >
+>  > Tests I've done
+>  > -----------------
+>  > 1. test_t is able to transition into rpm_t, but could not direclty 
+> transition
+>  > into rpm_script_t, semanage_t, load_policy_t/setfiles_t:
+>  >
+>  > sh-3.2# sesearch -SCA -s test_t -t rpm_t -c process -p transition
+>  > Found 1 semantic av rules:
+>  > allow test_t rpm_t : process transition ;
+>  >
+>  > sh-3.2# sesearch -SCA -s test_t -t rpm_script_t -c process -p transition
+>  >
+>  > sh-3.2# sesearch -SCA -s tes! t_t -t semanage_t -c process -p transition
+>  >
+>  > sh-3.2# sesearch -SCA -s test_t -t load_policy_t -c process -p transition
+>  >
+>  > sh-3.2# sesearch -SCA -s test_t -t setfiles_t -c process -p transition
+>  >
+>  > 2. rpm_t is able to transition into rpm_script_t, but could not directly
+>  > transition into semanage_t, load_policy_t/setfiles_t:
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_t -t rpm_script_t -c process -p transition
+>  > Found 1 semantic av rules:
+>  > allow rpm_t rpm_script_t : process transition ;
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_t -t semanage_t -c process -p transition
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_t -t load_policy_t -c process -p transition
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_t -t setfiles_t -c process -p transition
+>  >
+>  > 3. rpm_script_t is able to transition into semanage_t, but could not 
+> directly
+>  > transitio! n into load_policy_t/setfiles_t:
+>  >
+>  > sh-3.2# sesear ch -SCA -s rpm_script_t -t semanage_t -c process -p 
+> transition
+>  > Found 1 semantic av rules:
+>  > allow rpm_script_t semanage_t : process transition ;
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_script_t -t load_policy_t -c process -p 
+> transition
+>  >
+>  > sh-3.2# sesearch -SCA -s rpm_script_t -t setfiles_t -c process -p 
+> transition
+>  >
+>  > 4. semanage_t is able to transition into load_policy_t & setfiles_t:
+>  >
+>  > sh-3.2# sesearch -SCA -s semanage_t -t load_policy_t -c process -p 
+> transition
+>  > Found 1 semantic av rules:
+>  > allow semanage_t load_policy_t : process transition ;
+>  >
+>  > sh-3.2# sesearch -SCA -s semanage_t -t setfiles_t -c process -p 
+> transition
+>  > Found 1 semantic av rules:
+>  > allow semanage_t setfiles_t : process transition ;
+>  >
+>  > 5. test_r is able to type with rpm_t, rpm_script_t, semanage_t, 
+> setfiles_t
+>  > and load! _policy_t:
+>  >
+>  > sh-3.2# compute_create root:test_r:test_t:s0 
+> system_u:object_r:rpm_exec_t:s0 process
+>  > root:test_r:rpm_t:s0
+>  > sh-3.2#
+>  >
+>  > sh-3.2# compute_create root:test_r:rpm_script_t:s0 
+> system_u:object_r:semanage_exec_t:s0 process
+>  > root:test_r:semanage_t:s0
+>  > sh-3.2#
+>  >
+>  > sh-3.2# compute_create root:test_r:semanage_t:s0 
+> system_u:object_r:setfiles_exec_t:s0 process
+>  > root:test_r:setfiles_t:s0
+>  > sh-3.2#
+>  >
+>  > sh-3.2# compute_create root:test_r:semanage_t:s0 
+> system_u:object_r:load_policy_exec_t:s0 process
+>  > root:test_r:load_policy_t:s0
+>  > sh-3.2#
+>  >
+>  > 6. Use the apol tool to analyze what types the test_r role could type 
+> with:
+>  > (Since the apol installed on Ubuntu so far only support max version .24,
+>  > we need to setup "policy-version = 24" in semanage.conf)
+>  >
+>  > test_r (28 type! s)
+>  > chfn_t
+>  > chkpwd_t
+>  > consol etype_t
+>  > ddclient_t
+>  > dhcpc_t
+>  > hostname_t
+>  > ifconfig_t
+>  > insmod_t
+>  > iptables_t
+>  > load_policy_t
+>  > loadkeys_t
+>  > netutils_t
+>  > newrole_t
+>  > pam_t
+>  > passwd_t
+>  > ping_t
+>  > pppd_t
+>  > pptp_t
+>  > rpm_script_t
+>  > rpm_t
+>  > semanage_t
+>  > setfiles_t
+>  > test_t
+>  > traceroute_t
+>  > updpwd_t
+>  > user_home_t
+>  > usernetctl_t
+>  > utempter_t
+>  >
+>  > rpm_roles (2 types)
+>  > rpm_script_t
+>  > rpm_t
+>  >
+>  > semanage_roles (3 types)
+>  > load_policy_t
+>  > semanage_t
+>  > setfiles_t
+>  >
+>  > 7. Verify policy.X's binary representation that test_r's 
+> role_datum_t.types.types ebitmap records all these domains:!
+>  >
+>  > 0047a40: 7406 0000 0024 0a00 0001 0000 0000 0000 t....$..........
+>  > 0047a50: 0074 6573 745f 7407 0000 0025 0a00 0001 .test_t....%....
+>  >
+>  > test_t: policy value = 0xa24
+>  >
+>  > 0036560: 0000 004a 0300 0001 0000 0000 0000 0072 ...J...........r
+>  > 0036570: 706d 5f74 0700 0000 4b03 0000 0100 0000 pm_t....K.......
+>  >
+>  > rpm_t: policy value = 0x34a
+>  >
+>  > 0041050: 0000 6d6f 6e6f 7064 5f65 7463 5f74 0c00 ..monopd_etc_t..
+>  > 0041060: 0000 8907 0000 0100 0000 0000 0000 7270 ..............rp
+>  > 0041070: 6d5f 7363 7269 7074 5f74 0f00 0000 8a07 m_script_t......
+>  >
+>  > rpm_script_t: policy value = 0x789
+>  >
+>  > 004d800: 7365 6375 7269 7479 5f74 0a00 0000 490c security_t....I.
+>  > 004d810: 0000 0100 0000 0000 0000 7365 6d61 6e61 ..........semana
+>  > 004d820: 6765 5f74 0900 0000 4a0c 0000 0300 0000 ge_t....J......! .
+>  >
+>  > semanage_t: policy value = 0xc49
+>  > < br>> 00492c0: 7075 745f 7865 7665 6e74 5f74 0d00 0000 put_xevent_t....
+>  > 00492d0: ae0a 0000 0100 0000 0000 0000 6c6f 6164 ............load
+>  > 00492e0: 5f70 6f6c 6963 795f 740c 0000 00af 0a00 _policy_t.......
+>  >
+>  > load_policy_t: policy value = 0xaae
+>  >
+>  > 004d660: 740a 0000 003f 0c00 0001 0000 0000 0000 t....?..........
+>  > 004d670: 0073 6574 6669 6c65 735f 7414 0000 0010 .setfiles_t.....
+>  >
+>  > setfiles_t: policy value = 0xc3f
+>  >
+>  >
+>  > 002d050: 0600 0000 0000 0000 7465 7374 5f72 4000 ........test_r@.
+>  > 002d060: 0000 4000 0000 0100 0000 0000 0000 2000 ..@........... .
+>  > 002d070: 0000 0000 0000 4000 0000 800c 0000 1400 ......@.........
+>  > 002d080: 0000 8000 0000 0000 0000 0400 0000 4001 ..............@.
+>  > 002d090: 0000 0000 0000 0001 0000 0002 0000 0000 ................
+>  > 002d0a0: 0000 0000 0001 4002 0000 0000 0000 001! 0 ......@.........
+>  > 002d0b0: 0000 8002 0000 0000 0040 0000 0000 0003 .........@......
+>  > 002d0c0: 0000 0000 0004 0000 0030, 4003 0000 0002 .........0@.....
+>  > 002d0d0: 0000 0000 0000, c003 0000 0000 0000 0000 ................
+>  > 002d0e0: 0080 0004 0000 0000 0000 0000 0008 8005 ................
+>  > 002d0f0: 0000 0000 0008 0000 0000 4006 0000 1000 ..........@.....
+>  > 002d100: 0000 0000 0000 8006 0000 0200 0000 0000 ................
+>  > 002d110: 0000, 8007 0000 0001 0000 0000 0000 8009 ................
+>  > 002d120: 0000 0000 0210 0000 0410 c009 0000 0000 ................
+>  > 002d130: 0100 0000 0000, 000a 0000 3000 0000 0800 ..........0.....
+>  > 002d140: 0000, 800a 0000 0000 0000 0020 0000, 000b ........... ....
+>  > 002d150: 0000 0008 0000 0000 0000, 000c 0000 0000 ................
+>  > 002d160: 0000 0000 0040, 400c 0000 0001 0000 0020 .....@@........
+>  > 002d170: 0000!
+>  >
+>  > test_r: policy value = 0x06
+>  > dominates:
+>  > mz = 0x40, highbit = 0x40, node = 1
+>  > startbit = 0, map: 2000 0000 0000 0000
+>  > policy value: 0x06(test_r)
+>  > types.types:
+>  > mz = 0x40, highbit = 0xc80, node = 0x14
+>  > ......
+>  > startbit = 0x340, map: 0002 0000 0000 0000
+>  > policy value: 0x34a(rpm_t)
+>  > ......
+>  > startbit = 0x780, map: 0001 0000 0000 0000
+>  > policy value: 0x789(rpm_script_t)
+>  > ......
+>  > startbit = 0xa00, map: 3000 0000 0800 0000
+>  > policy value: 0xa01, 0xa02, 0xa24(test_t)
+>  > startbit = 0xa80, map: 0000 0000 0020 0000
+>  > policy value: 0xaae(load_policy_t)
+>  > startbit = 0xc00, map: 0000 0000 0000 0040
+>  > policy value: 0xc3f(setfiles_t)
+>  > startbit = 0xc40, map: 0001 0000 0020 0000
+>  > policy value: 0xc49(semanage_t), 0xc6e
+>  >
+>  > --
+>  > This message ! was distributed to subscribers of the selinux mailing 
+> list.
+>  > If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+>  > the words "unsubscribe selinux" without quotes as the message.
 
---=-JpUtpDr5JqFwPPSCYL+L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAk4LCb8ACgkQPX1aK2wOHVijWwCaAhFzydthrPYGMnm8jCjD6qMS
-+Q8An3GTY9eTbVvK5pfZniI5porOnI7K
-=mMcg
------END PGP SIGNATURE-----
-
---=-JpUtpDr5JqFwPPSCYL+L--
+--------------050605070002040100010109
+Content-Type: text/x-patch;
+	name="0002-Test-adding-one-role-attribute-into-another.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="0002-Test-adding-one-role-attribute-into-another.patch"
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+--------------050605070002040100010109--
