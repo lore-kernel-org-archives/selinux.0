@@ -2,57 +2,41 @@ Subject: Re: Wrong context for user
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
 Cc: dwalsh@redhat.com, SELinux@tycho.nsa.gov
-In-Reply-To: <1309526595.31276.2.camel@moss-pluto>
+In-Reply-To: <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
 References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
 	 <1308920243.15355.55.camel@moss-pluto>
 	 <BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
 	 <1308924690.15355.72.camel@moss-pluto>
 	 <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
-	 <1308926890.15355.74.camel@moss-pluto>
-	 <BANLkTikWc10KFhJEwk9hdJ4e2BbbfcB8BQ@mail.gmail.com>
-	 <1308928177.15355.76.camel@moss-pluto>
-	 <BANLkTikJLUuP4g=krqa3wyxh1FF=2E52SA@mail.gmail.com>
-	 <1309526595.31276.2.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 01 Jul 2011 09:50:19 -0400
-Message-ID: <1309528219.31276.23.camel@moss-pluto>
+Date: Fri, 01 Jul 2011 09:56:04 -0400
+Message-ID: <1309528564.31276.26.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-07-01 at 09:23 -0400, Stephen Smalley wrote:
-> On Fri, 2011-06-24 at 15:50 +0000, c.r.madhusudhanan@gmail.com wrote:
-> > [root@localhost utils]# ./getconlist user_u 
-> > user_u:user_r:consoletype_t
-> > [root@localhost utils]# ./getconlist root
-> > root:sysadm_r:sysadm_t
-> > 
-> > [root@localhost utils]# ./getseuser meego
-> > seuser:  user_u, level (null)
-> > Context 0       user_u:user_r:consoletype_t
-> > [root@localhost utils]# ./getseuser root
-> > seuser:  root, level (null)
-> > Context 0       root:sysadm_r:sysadm_t
-> > (I dont know but the getseuser dint work until I changed the code 
-> >  if (argc != 2). )
+On Fri, 2011-06-24 at 14:44 +0000, c.r.madhusudhanan@gmail.com wrote:
+> Thanks Daniel, Stephen.
 > 
-> You aren't invoking them correctly - you need to pass the security
-> context of the login process as the second argument, as I showed.
+> I am able to get init_t, local_login_t for init, and login
+> respectively. 
+> The mistake was tat I missed relabeling the file system, so all the
+> executable was in the type file_t.
 > 
-> For example, on Fedora, we have:
-> $ ./getconlist user_u system_u:system_r:local_login_t:s0
-> user_u:user_r:user_t:s0
-> $ ./getseuser root system_u:system_r:local_login_t:s0
-> $ ./getseuser root system_u:system_r:local_login_t:s0
-> seuser:  unconfined_u, level s0-s0:c0.c1023
-> Context 0	unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> But it looks my problem still remains somehow, so that when I try
+> login it still shows me wrong domain/type.
 > 
-> Omit the :s0 if you don't have MLS enabled in your policy.
+> When I login using 'login' (tty1), the context shows as
+> user_u:user_r:chkpwd_t and when I check in the X (auto login to user
+> 'meego' using 'uxlaunch') shows as user_u:user_r:consoletype_t.
+> 
+> Attached is the "ps -aeZ" after relabeling the system.
 
-BTW, debugging this kind of problem often requires a copy of your
-entire /etc/selinux directory.
-
-pstree -Z output might also be interesting.
+Going back to this ps output, I think you'll need some policy changes to
+support MeeGo's uxlaunch approach to starting a user desktop.  You need
+uxlaunch to transition into a domain suitable for user login like xdm_t
+(used for gdm/xdm/kdm) rather than running in init_t or we won't get the
+expected transitions for user domains.
 
 -- 
 Stephen Smalley
