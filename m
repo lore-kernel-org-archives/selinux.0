@@ -1,43 +1,58 @@
-Subject: Re: context of files not adapted to new directory when moved (was:
- htpasswd file outside of standard Apache location)
+Subject: Re: Wrong context for user
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Menzel <paulepanter@users.sourceforge.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1309388512.13175.35.camel@mattotaupa>
-References: <1309366657.4648.40.camel@mattotaupa>
-	 <1309367740.3643.12.camel@localhost.localdomain>
-	 <1309388512.13175.35.camel@mattotaupa>
+To: "c.r.madhusudhanan@gmail.com" <c.r.madhusudhanan@gmail.com>
+Cc: dwalsh@redhat.com, SELinux@tycho.nsa.gov
+In-Reply-To: <1309526595.31276.2.camel@moss-pluto>
+References: <BANLkTinYGbMPaUMmJwMiCkxnBQEvZOd16g@mail.gmail.com>
+	 <1308920243.15355.55.camel@moss-pluto>
+	 <BANLkTimkpy3RPkT5Mzg-Uc140KPbEcX4=w@mail.gmail.com>
+	 <1308924690.15355.72.camel@moss-pluto>
+	 <BANLkTinSHxgR8nuBgeaPNqoV2aT8GKAa0Q@mail.gmail.com>
+	 <1308926890.15355.74.camel@moss-pluto>
+	 <BANLkTikWc10KFhJEwk9hdJ4e2BbbfcB8BQ@mail.gmail.com>
+	 <1308928177.15355.76.camel@moss-pluto>
+	 <BANLkTikJLUuP4g=krqa3wyxh1FF=2E52SA@mail.gmail.com>
+	 <1309526595.31276.2.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 01 Jul 2011 09:46:21 -0400
-Message-ID: <1309527981.31276.21.camel@moss-pluto>
+Date: Fri, 01 Jul 2011 09:50:19 -0400
+Message-ID: <1309528219.31276.23.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-06-30 at 01:01 +0200, Paul Menzel wrote:
-> That solved my problem. The reason seems to be that I had that file
-> first in my home directory and then used
+On Fri, 2011-07-01 at 09:23 -0400, Stephen Smalley wrote:
+> On Fri, 2011-06-24 at 15:50 +0000, c.r.madhusudhanan@gmail.com wrote:
+> > [root@localhost utils]# ./getconlist user_u 
+> > user_u:user_r:consoletype_t
+> > [root@localhost utils]# ./getconlist root
+> > root:sysadm_r:sysadm_t
+> > 
+> > [root@localhost utils]# ./getseuser meego
+> > seuser:  user_u, level (null)
+> > Context 0       user_u:user_r:consoletype_t
+> > [root@localhost utils]# ./getseuser root
+> > seuser:  root, level (null)
+> > Context 0       root:sysadm_r:sysadm_t
+> > (I dont know but the getseuser dint work until I changed the code 
+> >  if (argc != 2). )
 > 
->         sudo mv ~/bar.tar.gz /srv/www/…
+> You aren't invoking them correctly - you need to pass the security
+> context of the login process as the second argument, as I showed.
 > 
-> to move it to the Web site directory. `mv` seems to preserve the old
-> SELinux contexts and I have to relabel it afterward. Is there a way to
-> make the relabel step obsolete?
+> For example, on Fedora, we have:
+> $ ./getconlist user_u system_u:system_r:local_login_t:s0
+> user_u:user_r:user_t:s0
+> $ ./getseuser root system_u:system_r:local_login_t:s0
+> $ ./getseuser root system_u:system_r:local_login_t:s0
+> seuser:  unconfined_u, level s0-s0:c0.c1023
+> Context 0	unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> 
+> Omit the :s0 if you don't have MLS enabled in your policy.
 
-The semantics of mv are that it preserves the attributes of the original
-file.  In the case where the source and destination are within the same
-filesystem, mv uses rename(2) and thus the file (inode) doesn't change
-at all, so you wouldn't expect any of the attributes to change.
+BTW, debugging this kind of problem often requires a copy of your
+entire /etc/selinux directory.
 
-If you had instead used cp, then the attributes would not have been
-preserved by default (unless you used the appropriate options), and the
-new file that was created would have been labeled in accordance with the
-parent directory.
-
-Some versions of install are instrumented to explicitly look up the
-SELinux context from the file_contexts configuration and set the label
-on the newly installed file accordingly.  Package managers like rpm and
-dpkg are likewise instrumented.
+pstree -Z output might also be interesting.
 
 -- 
 Stephen Smalley
