@@ -1,115 +1,114 @@
-Subject: Re: Sec context of unix domain sockets
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Martin Christian <martin.christian@secunet.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4E11E53A.6080003@secunet.com>
-References: <4E11E53A.6080003@secunet.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 11 Jul 2011 10:21:34 -0400
-Message-ID: <1310394094.3930.46.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6CAtQdN008081
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 06:55:27 -0400
+Received: from ch1outboundpool.messaging.microsoft.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p6CAtPZG011302
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 10:55:26 GMT
+Received: from mail191-ch1 (localhost.localdomain [127.0.0.1])	by
+ mail191-ch1-R.bigfish.com (Postfix) with ESMTP id 131D2127830D	for
+ <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 10:55:25 +0000 (UTC)
+Received: from CH1EHSMHS024.bigfish.com (snatpool1.int.messaging.microsoft.com
+ [10.43.68.241])	by mail191-ch1.bigfish.com (Postfix) with ESMTP id
+ CB12A19E8055	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 10:55:24 +0000
+ (UTC)
+From: Julian Onions <Julian.Onions@nexor.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Tue, 12 Jul 2011 03:55:06 -0700
+Subject: Making new roles
+Message-ID: <0DF1039D1D45FA49BE6F493398D45F31119F600077@IE2RD2XVS231.red002.local>
+Content-Type: multipart/alternative;
+	boundary="_000_0DF1039D1D45FA49BE6F493398D45F31119F600077IE2RD2XVS231r_"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-07-04 at 18:07 +0200, Martin Christian wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi,
-> 
-> how are unix domain sockets handeled regarding the default context?
-> Please comment on the following statement or fill my gaps:
+--_000_0DF1039D1D45FA49BE6F493398D45F31119F600077IE2RD2XVS231r_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: base64
 
-Aside from the code, useful (but possibly out of date) documentation can
-be found in the technical reports available from:
-http://www.nsa.gov/research/selinux/docs.shtml
+V2hhdCBkbyBJIG5lZWQgdG8gYWRkIGEgbmV3IHJvbGUgc3VjaCB0aGF0IEkgY2FuIGNoYW5nZSB0
+byBpdCB3aXRoIG5ld3JvbGU/DQoNCkkgY2FuJ3Qgc2VlbSB0byBmaW5kIGFueSBydWxlcyB0aGF0
+IGFsbG93IGl0IHRvIHdvcmsuIFRoaXMgaXMgZm9yIGEgbW9ub2xpdGhpYyBwb2xpY3kgd2UgZGV2
+ZWxvcGVkIGJhc2VkIGZyb20gdGhlIHJlZmVyZW5jZSBwb2xpY3kgb24gcmVkaGF0IDUuMg0KDQpJ
+IGhhdmUgdGhlIGZvbGxvd2luZw0KSSB3YW50IHRvIGNoYW5nZSBmcm9tIHJvb3Q6c3lzYWRtX3I6
+c3lzYWRtX3Q6czAgdG8gdGhpcyBvbmUgcm9vdDpteW5ld3JvbGVfcjpteW5ld3JvbGVfdDpzMA0K
+SSBoYXZlIHRoZSBmb2xsb3dpbmcgcnVsZXMgKGFtb25nc3QgbG90cyBvZiBvdGhlcnMhKQ0KDQp0
+eXBlIG15bmV3cm9sZV90Ow0Kcm9sZSBzeXNhZG1fciwgbXluZXdyb2xlX3I7DQphbGxvdyBzeXNh
+ZG1fciBteW5ld3JvbGVfcjsNCnJvbGUgbXluZXdyb2xlX3IgdHlwZXMgbXluZXd0eXBlX3Q7DQp1
+c2VyIHJvb3Qgcm9sZXMgeyBzeXNhZG1fciBzZWNhZG1fciBhdWRpdGFkbV9yICBteW5ld3JvbGVf
+ciB9IGxldmVsIHMwIHJhbmdlIHMwIC0gczA6YzAuYzI1NTsNCg0KSSBhbHNvIGhhdmUgYW4gZW50
+cnkgaW4gZGVmYXVsdF90eXBlIHRoYXQgcGlja3MgdGhlIHJpZ2h0IGNvbWJpbmF0aW9uLg0KSSBn
+ZXQgdGhlIGVycm9yIHJlcG9ydGVkIHRoYXQgaXQgaXMgbm90IGEgdmFsaWQgY29udGV4dC4NClRo
+aXMgaXMgdHJ1ZSBldmVuIHdpdGggZW5mb3JjaW5nIGRpc2FibGVkLg0KIyBuZXdyb2xlIC1yIG15
+bmV3cm9sZV9yDQpyb290Om15bmV3cm9sZV9yOm15bmV3cm9sZV90OnMwIGlzIG5vdCBhIHZhbGlk
+IGNvbnRleHQuDQoNCldvbmRlcmluZyB3aGF0IEknbSBtaXNzaW5nIHRvIGRlZmluZSBhIG5ldyBy
+b2xlPyBBbnkgaWRlYXM/DQoNClRoYW5rcw0KSnVsaWFuLg0KDQo=
 
-In particular, the original tech report:
-http://www.nsa.gov/research/_files/selinux/papers/slinux-abs.shtml
-and the supplemental one for the port to LSM:
-http://www.nsa.gov/research/_files/selinux/papers/module-abs.shtml
-can be quite helpful.  There may however be discrepancies between what
-they describe and the current implementation.  There have been changes
-over time, so knowing exactly what kernel you are using is important.
+--_000_0DF1039D1D45FA49BE6F493398D45F31119F600077IE2RD2XVS231r_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: base64
 
-> a. Processes inherit the label of their parent, except for the init
-> process which gets the label of the kernel sid
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+PGhlYWQ+PG1ldGEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PXVzLWFzY2lpIj48bWV0YSBuYW1lPUdlbmVyYXRvciBjb250
+ZW50PSJNaWNyb3NvZnQgV29yZCAxMiAoZmlsdGVyZWQgbWVkaXVtKSI+PHN0eWxlPjwhLS0NCi8q
+IEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6IkNhbWJyaWEg
+TWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1mYWNlDQoJe2Zv
+bnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAyIDQ7fQ0KLyog
+U3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWwsIGRpdi5Nc29O
+b3JtYWwNCgl7bWFyZ2luOjBjbTsNCgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJZm9udC1zaXpl
+OjExLjBwdDsNCglmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO30NCmE6bGluaywg
+c3Bhbi5Nc29IeXBlcmxpbmsNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0KCWNvbG9yOmJsdWU7
+DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQphOnZpc2l0ZWQsIHNwYW4uTXNvSHlwZXJs
+aW5rRm9sbG93ZWQNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0KCWNvbG9yOnB1cnBsZTsNCgl0
+ZXh0LWRlY29yYXRpb246dW5kZXJsaW5lO30NCnNwYW4uRW1haWxTdHlsZTE3DQoJe21zby1zdHls
+ZS10eXBlOnBlcnNvbmFsLWNvbXBvc2U7DQoJZm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNl
+cmlmIjsNCgljb2xvcjp3aW5kb3d0ZXh0O30NCi5Nc29DaHBEZWZhdWx0DQoJe21zby1zdHlsZS10
+eXBlOmV4cG9ydC1vbmx5O30NCkBwYWdlIFdvcmRTZWN0aW9uMQ0KCXtzaXplOjYxMi4wcHQgNzky
+LjBwdDsNCgltYXJnaW46NzIuMHB0IDcyLjBwdCA3Mi4wcHQgNzIuMHB0O30NCmRpdi5Xb3JkU2Vj
+dGlvbjENCgl7cGFnZTpXb3JkU2VjdGlvbjE7fQ0KLS0+PC9zdHlsZT48IS0tW2lmIGd0ZSBtc28g
+OV0+PHhtbD4NCjxvOnNoYXBlZGVmYXVsdHMgdjpleHQ9ImVkaXQiIHNwaWRtYXg9IjEwMjYiIC8+
+DQo8L3htbD48IVtlbmRpZl0tLT48IS0tW2lmIGd0ZSBtc28gOV0+PHhtbD4NCjxvOnNoYXBlbGF5
+b3V0IHY6ZXh0PSJlZGl0Ij4NCjxvOmlkbWFwIHY6ZXh0PSJlZGl0IiBkYXRhPSIxIiAvPg0KPC9v
+OnNoYXBlbGF5b3V0PjwveG1sPjwhW2VuZGlmXS0tPjwvaGVhZD48Ym9keSBsYW5nPUVOLUdCIGxp
+bms9Ymx1ZSB2bGluaz1wdXJwbGU+PGRpdiBjbGFzcz1Xb3JkU2VjdGlvbjE+PHAgY2xhc3M9TXNv
+Tm9ybWFsPldoYXQgZG8gSSBuZWVkIHRvIGFkZCBhIG5ldyByb2xlIHN1Y2ggdGhhdCBJIGNhbiBj
+aGFuZ2UgdG8gaXQgd2l0aCBuZXdyb2xlPzxvOnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1h
+bD48bzpwPiZuYnNwOzwvbzpwPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+SSBjYW4mIzgyMTc7dCBz
+ZWVtIHRvIGZpbmQgYW55IHJ1bGVzIHRoYXQgYWxsb3cgaXQgdG8gd29yay4gVGhpcyBpcyBmb3Ig
+YSBtb25vbGl0aGljIHBvbGljeSB3ZSBkZXZlbG9wZWQgYmFzZWQgZnJvbSB0aGUgcmVmZXJlbmNl
+IHBvbGljeSBvbiByZWRoYXQgNS4yPG86cD48L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxv
+OnA+Jm5ic3A7PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD5JIGhhdmUgdGhlIGZvbGxvd2lu
+ZzxvOnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD5JIHdhbnQgdG8gY2hhbmdlIGZyb20g
+cm9vdDpzeXNhZG1fcjpzeXNhZG1fdDpzMCB0byB0aGlzIG9uZSByb290Om15bmV3cm9sZV9yOm15
+bmV3cm9sZV90OnMwPG86cD48L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPkkgaGF2ZSB0aGUg
+Zm9sbG93aW5nIHJ1bGVzIChhbW9uZ3N0IGxvdHMgb2Ygb3RoZXJzISk8bzpwPjwvbzpwPjwvcD48
+cCBjbGFzcz1Nc29Ob3JtYWw+PG86cD4mbmJzcDs8L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFs
+PnR5cGUgbXluZXdyb2xlX3Q7PG86cD48L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPnJvbGUg
+c3lzYWRtX3IsIG15bmV3cm9sZV9yOzxvOnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD5h
+bGxvdyBzeXNhZG1fciBteW5ld3JvbGVfcjs8bzpwPjwvbzpwPjwvcD48cCBjbGFzcz1Nc29Ob3Jt
+YWw+cm9sZSBteW5ld3JvbGVfciB0eXBlcyBteW5ld3R5cGVfdDs8bzpwPjwvbzpwPjwvcD48cCBj
+bGFzcz1Nc29Ob3JtYWw+dXNlciByb290IHJvbGVzIHsgc3lzYWRtX3Igc2VjYWRtX3IgYXVkaXRh
+ZG1fciZuYnNwOyBteW5ld3JvbGVfciB9IGxldmVsIHMwIHJhbmdlIHMwIC0gczA6YzAuYzI1NTs8
+bzpwPjwvbzpwPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PG86cD4mbmJzcDs8L286cD48L3A+PHAg
+Y2xhc3M9TXNvTm9ybWFsPkkgYWxzbyBoYXZlIGFuIGVudHJ5IGluIGRlZmF1bHRfdHlwZSB0aGF0
+IHBpY2tzIHRoZSByaWdodCBjb21iaW5hdGlvbi48bzpwPjwvbzpwPjwvcD48cCBjbGFzcz1Nc29O
+b3JtYWw+SSBnZXQgdGhlIGVycm9yIHJlcG9ydGVkIHRoYXQgaXQgaXMgbm90IGEgdmFsaWQgY29u
+dGV4dC4gPG86cD48L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPlRoaXMgaXMgdHJ1ZSBldmVu
+IHdpdGggZW5mb3JjaW5nIGRpc2FibGVkLjxvOnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1h
+bD4jIG5ld3JvbGUgJiM4MjExO3IgbXluZXdyb2xlX3I8bzpwPjwvbzpwPjwvcD48cCBjbGFzcz1N
+c29Ob3JtYWw+cm9vdDpteW5ld3JvbGVfcjpteW5ld3JvbGVfdDpzMCBpcyBub3QgYSB2YWxpZCBj
+b250ZXh0LjxvOnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD48bzpwPiZuYnNwOzwvbzpw
+PjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+V29uZGVyaW5nIHdoYXQgSSYjODIxNzttIG1pc3Npbmcg
+dG8gZGVmaW5lIGEgbmV3IHJvbGU/IEFueSBpZGVhcz88bzpwPjwvbzpwPjwvcD48cCBjbGFzcz1N
+c29Ob3JtYWw+PG86cD4mbmJzcDs8L286cD48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPlRoYW5rczxv
+OnA+PC9vOnA+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD5KdWxpYW4uPG86cD48L286cD48L3A+PHAg
+Y2xhc3M9TXNvTm9ybWFsPjxvOnA+Jm5ic3A7PC9vOnA+PC9wPjwvZGl2PjwvYm9keT48L2h0bWw+
 
-On fork, a process inherits the label of its creator/parent.
-On exec, a process may transition to another label based on policy
-statements (type_transition, role_transition, range_transition) or by
-calling setexeccon(3) if permitted by policy prior to invoking exec.
-At any time, a process may invoke setcon(3) to switch its label (if
-permitted by policy) although this practice is generally discouraged -
-exec-based transitions are preferred.
-
-The initial task starts with the kernel SID, but the "init" process will
-typically transition into its own unique context (e.g. init_t) when the
-init binary is executed after the policy has been loaded.  Some init
-programs re-exec themselves after loading policy, while in other cases
-the initial policy load is performed by the initrd/initramfs script
-prior to mounting the real root and executing the real init program.
-
-> b. Ext{2-4} files/directories get the label of their parent directory.
-> Root (/) gets its label from the file system context (fs_use) on creation.
-
-You need to distinguish the components of the security context, as they
-have different default behaviors.  The user field is inherited from the
-creating process.  The role field is presently unused for files and is
-always set to the predefined object_r role, although there have been
-proposals to change this behavior.  The type field defaults to the type
-of the parent directory if no matching type_transition rule was
-specified in the policy.  The range/level field defaults to the
-low/current level of the creating process if no matching
-range_transition rule was specified in the policy.
-
-The above describes the default behavior for labeling files (inodes)
-upon creation for any filesystem type that supports labeling, not just
-ext[2-4].  This default behavior can be overridden by a process by
-calling setfscreatecon(3) prior to creating the file, if permitted by
-policy.
-
-For existing files, the label is determined from the xattr value
-associated with the file.  If there is no xattr value set on the file,
-then the file is treated as being labeled with the default file SID for
-the filesystem.  By default, this is the "file" initial SID, which is
-mapped to a context by the policy.  This default may be overridden via
-the defcontext= mount option on a per-mount basis.  So the root
-directory may default to this value until you have explicitly labeled
-it.  This differs however from the context specified in the fs_use_xattr
-statement, which is the context of the filesystem/superblock.
-
-> c. Inet sockets get the label specified with the portcon statement or
-> the context of kernel sid (?)
-
-Um, no.  Sockets are typically labeled with the context of the creating
-process, although support for socket type transitions was recently
-added.  portcon statements are only used to label ports, not sockets,
-and then you have a permission check between a socket SID and a port SID
-to control operations such as binding and connecting to specific ports.
-Some sockets may be labeled with the kernel SID to reflect the fact that
-they are kernel-internal sockets that are not directly exposed to
-applications.   
-
-> d. Unix domain sockets are split in 2 parts: the socket file is treated
-> as b. The socket object gets the label of the kernel sid (?) Is there a
-> way to define the context of a unix domain socket object? The only way I
-> can see would be to define a transition.
-
-The socket file is merely a way to name/address the socket, and isn't
-even strictly required - you can use the abstract namespace instead and
-thus avoid any use of the filesystem for Unix/local domain sockets.
-When you use a socket file, yes, it gets labeled in accordance with the
-usual file labeling rules as per b.  The socket object is labeled as per
-c.  Security-aware applications can use setsockcreatecon(3) to
-explicitly label sockets they create.
-
-> Explanations and clarification much appreciated.
-
--- 
-Stephen Smalley
-National Security Agency
-
+--_000_0DF1039D1D45FA49BE6F493398D45F31119F600077IE2RD2XVS231r_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
