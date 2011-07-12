@@ -1,168 +1,132 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6CF3vkM023092
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 11:03:57 -0400
-Received: from mail.gw90.de (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6CF3twW029048
-	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 15:03:56 GMT
-Received: from f053045019.adsl.alicedsl.de ([78.53.45.19] helo=[192.168.178.21])
-	by mail.gw90.de with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.69)
-	(envelope-from <paulepanter@users.sourceforge.net>)
-	id 1QgeVe-0008FE-4p
-	for selinux@tycho.nsa.gov; Tue, 12 Jul 2011 15:04:26 +0000
-Subject: SELinux and CGI scripts
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-fC7cfLtRDNHbrkNJz6Dd"
-Date: Tue, 12 Jul 2011 17:03:52 +0200
-Message-ID: <1310483032.4294.26.camel@mattotaupa>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6CFTCHs024913
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 11:29:12 -0400
+Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6CFTBwW006647
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 15:29:12 GMT
+Received: by ewy8 with SMTP id 8so1864537ewy.12
+        for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2011 08:29:11 -0700 (PDT)
+Subject: Re: SELinux and CGI scripts
+From: Dominick Grift <domg472@gmail.com>
+To: Paul Menzel <paulepanter@users.sourceforge.net>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 12 Jul 2011 17:28:55 +0200
+In-Reply-To: <1310483032.4294.26.camel@mattotaupa>
+References: <1310483032.4294.26.camel@mattotaupa>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-gV+DSCdnhOpAQ5jKQ1p/"
+Message-ID: <1310484549.2647.12.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-fC7cfLtRDNHbrkNJz6Dd
+--=-gV+DSCdnhOpAQ5jKQ1p/
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Dear SELinux folks,
 
 
-the default policy of a Debian Squeeze system seems to prevent the CGI
-script [1] of ikiwiki [2] from working properly.
+On Tue, 2011-07-12 at 17:03 +0200, Paul Menzel wrote:
 
-        type=3DAVC msg=3Daudit(1310482485.480:79759): avc:  denied  { rlimi=
-tinh } for  pid=3D13522 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:h=
-ttpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproce=
-ss
-        type=3DAVC msg=3Daudit(1310482485.480:79759): avc:  denied  { sigin=
-h } for  pid=3D13522 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:http=
-d_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dprocess
-        type=3DAVC msg=3Daudit(1310482485.480:79759): avc:  denied  { noats=
-ecure } for  pid=3D13522 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:=
-httpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproc=
-ess
-        type=3DSYSCALL msg=3Daudit(1310482485.480:79759): arch=3Dc000003e s=
-yscall=3D59 success=3Dyes exit=3D0 a0=3D7f20c1b809d8 a1=3D7f20c1b7d648 a2=
-=3D7f20c1b7d660 a3=3D0 items=3D0 ppid=3D13518 pid=3D13522 auid=3D4294967295=
- uid=3D33 gid=3D33 euid=3D105 suid=3D105 fsuid=3D105 egid=3D105 sgid=3D105 =
-fsgid=3D105 tty=3D(none) ses=3D4294967295 comm=3D"ikiwiki.cgi" exe=3D"/www/=
-cgi-bin/ikiwiki.cgi" subj=3Dsystem_u:system_r:httpd_sys_script_t:s0 key=3D(=
-null)
-        type=3DAVC msg=3Daudit(1310482491.360:79760): avc:  denied  { rlimi=
-tinh } for  pid=3D13534 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:h=
-ttpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproce=
-ss
-        type=3DAVC msg=3Daudit(1310482491.360:79760): avc:  denied  { sigin=
-h } for  pid=3D13534 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:http=
-d_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dprocess
-        type=3DAVC msg=3Daudit(1310482491.360:79760): avc:  denied  { noats=
-ecure } for  pid=3D13534 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:=
-httpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproc=
-ess
-        type=3DSYSCALL msg=3Daudit(1310482491.360:79760): arch=3Dc000003e s=
-yscall=3D59 success=3Dyes exit=3D0 a0=3D7f20c1b80b10 a1=3D7f20c1b877f0 a2=
-=3D7f20c1b87808 a3=3D0 items=3D0 ppid=3D13518 pid=3D13534 auid=3D4294967295=
- uid=3D33 gid=3D33 euid=3D105 suid=3D105 fsuid=3D105 egid=3D105 sgid=3D105 =
-fsgid=3D105 tty=3D(none) ses=3D4294967295 comm=3D"ikiwiki.cgi" exe=3D"/www/=
-cgi-bin/ikiwiki.cgi" subj=3Dsystem_u:system_r:httpd_sys_script_t:s0 key=3D(=
-null)
-        type=3DAVC msg=3Daudit(1310482491.810:79761): avc:  denied  { getat=
-tr } for  pid=3D13534 comm=3D"ikiwiki" path=3D"/etc/resolv.conf" dev=3Dxvda=
- ino=3D496312 scontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tcontext=
-=3Dsystem_u:object_r:net_conf_t:s0 tclass=3Dfile
-        type=3DSYSCALL msg=3Daudit(1310482491.810:79761): arch=3Dc000003e s=
-yscall=3D4 success=3Dno exit=3D-131939282133032 a0=3D3a2eb00 a1=3D21de130 a=
-2=3D21de130 a3=3D2839b70 items=3D0 ppid=3D13518 pid=3D13534 auid=3D42949672=
-95 uid=3D105 gid=3D105 euid=3D105 suid=3D105 fsuid=3D105 egid=3D105 sgid=3D=
-105 fsgid=3D105 tty=3D(none) ses=3D4294967295 comm=3D"ikiwiki" exe=3D"/usr/=
-bin/perl" subj=3Dsystem_u:system_r:httpd_sys_script_t:s0 key=3D(null)
-
-I could use the provided tools to allow those accesses.
-
-        $ sudo cat /var/log/audit/audit.log | audit2why
-       =20
-        [=E2=80=A6]
-       =20
-        type=3DAVC msg=3Daudit(1310343668.084:76067): avc:  denied  { rlimi=
-tinh } for  pid=3D28841 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:h=
-ttpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproce=
-ss
-       =20
-                Was caused by:
-                        Missing type enforcement (TE) allow rule.
-       =20
-                        You can use audit2allow to generate a loadable modu=
-le to allow this access.
-       =20
-        type=3DAVC msg=3Daudit(1310343668.084:76067): avc:  denied  { sigin=
-h } for  pid=3D28841 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:http=
-d_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dprocess
-       =20
-                Was caused by:
-                        Missing type enforcement (TE) allow rule.
-       =20
-                        You can use audit2allow to generate a loadable modu=
-le to allow this access.
-       =20
-        type=3DAVC msg=3Daudit(1310343668.084:76067): avc:  denied  { noats=
-ecure } for  pid=3D28841 comm=3D"ikiwiki.cgi" scontext=3Dsystem_u:system_r:=
-httpd_t:s0 tcontext=3Dsystem_u:system_r:httpd_sys_script_t:s0 tclass=3Dproc=
-ess
-       =20
-                Was caused by:
-                        Missing type enforcement (TE) allow rule.
-       =20
-                        You can use audit2allow to generate a loadable modu=
-le to allow this access.
-       =20
-        [=E2=80=A6]
-
-        $ sudo cat /var/log/audit/audit.log | audit2allow -l -m local
-       =20
-        #=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D httpd_sys_script_t =3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-        allow httpd_sys_script_t devlog_t:sock_file getattr;
-        allow httpd_sys_script_t net_conf_t:file getattr;
-        allow httpd_sys_script_t user_home_dir_t:dir search;
-       =20
-        #=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D httpd_t =3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D
-        allow httpd_t httpd_sys_script_t:process { siginh rlimitinh noatsec=
-ure };
-
-But I want to make sure first, what the recommended way is.
-
-1. Am I right, that the default behavior is very strict and that
-allowing exceptions for certain programs is needed?
-2. What is the reason that `getattr` is not by default allowed for
-scripts having the `httpd_sys_script_t` attribute(?)?
-3. If you have time, do you think the above exceptions sound
-sane/secure?
-4. Is there a write up how to configure SELinux on Web servers?
+>         [=E2=80=A6]
+>=20
+>         $ sudo cat /var/log/audit/audit.log | audit2allow -l -m local
+>        =20
+>         #=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D httpd_sys_script_t =3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>         allow httpd_sys_script_t devlog_t:sock_file getattr;
+>         allow httpd_sys_script_t net_conf_t:file getattr;
+>         allow httpd_sys_script_t user_home_dir_t:dir search;
+>        =20
+>         #=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D httpd_t =3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>         allow httpd_t httpd_sys_script_t:process { siginh rlimitinh noats=
+ecure };
+>=20
+> But I want to make sure first, what the recommended way is.
 
 
-Thanks,
 
-Paul
+> 1. Am I right, that the default behavior is very strict and that
+> allowing exceptions for certain programs is needed?
 
+The system script domain has only limited access yes. I would probably
+not modify the system script domain but instead create a new script
+domain tailored to your scripts requirements using the
+apache_content_template() and then extend that your your scripts
+requirements.
 
-[1] https://secure.wikimedia.org/wikipedia/en/wiki/Common_Gateway_Interface
-[2] http://ikiwiki.info/
+> 2. What is the reason that `getattr` is not by default allowed for
+> scripts having the `httpd_sys_script_t` attribute(?)?
 
---=-fC7cfLtRDNHbrkNJz6Dd
+Basically "least privilege" i guess. If the system script isnt not
+supposed to be able to "sysnet read config" then there is no need to
+allow it to get attributes of files with type netconf_t. Same for
+"logging_send_syslog_msg", if the script is not supposed to be able to
+send syslog msgs then no need to allow it to get attributes of the
+devlog_t sock file.
+
+> 3. If you have time, do you think the above exceptions sound
+> sane/secure?
+
+I guess your we webapp may at some point want to connect to the network.
+(because its trying to read resolv.conf (probably?)
+
+Besides that it seems your webapp wants to send messages to syslog.
+
+It also seems to want to search user home directories (why? what
+business does it have there?)
+
+The following does not have to be allowed:
+
+allow httpd_t httpd_sys_script_t:process { siginh rlimitinh
+noatsecure };
+
+> 4. Is there a write up how to configure SELinux on Web servers?
+>=20
+
+Google for "Fedora managing confined services"
+>=20
+> Thanks,
+
+Here is what a module would look like:
+
+mkdir ~/myapp; cd ~/myapp
+echo "policy_module(myapp, 1.0.0)" apache_content_template(myapp)
+sysnet_read_config(httpd_myapp_script_t)
+logging_send_syslog_msg(httpd_myapp_script_t)" > myapp.te
+
+make -f /usr/share/selinux/devel/Makefile myapp.pp
+sudo semodule -i myapp.pp
+chcon -t httpd_myapp_script_exec_t /path/to/myapp.cgi
+
+if your app is supposed to be able to search user home dirs then you can
+try:
+
+setsebool -P httpd_enable_homedirs on
+
+> Paul
+>=20
+>=20
+> [1] https://secure.wikimedia.org/wikipedia/en/wiki/Common_Gateway_Interfa=
+ce
+> [2] http://ikiwiki.info/
+
+--=-gV+DSCdnhOpAQ5jKQ1p/
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEABECAAYFAk4cYlIACgkQPX1aK2wOHVjQ/gCgiFrHfy6gZpb8ZhUZ5BQXyabS
-vwQAn1hf6XmGPAZN+VnpAsRyYp2V9w+J
-=Z1Dc
+iEYEABEKAAYFAk4caDcACgkQMlxVo39jgT/SxgCgqmKZppnUL92cEhX0ZnVYJkeZ
+3ZYAmwQbxnWGL55xBGxuZ74DUVYzYwGg
+=RZv4
 -----END PGP SIGNATURE-----
 
---=-fC7cfLtRDNHbrkNJz6Dd--
+--=-gV+DSCdnhOpAQ5jKQ1p/--
 
 
 --
