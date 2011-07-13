@@ -1,45 +1,69 @@
-Subject: Re: Sec context of unix domain sockets
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Martin Christian <martin.christian@secunet.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4E1D99D7.1030504@secunet.com>
-References: <4E11E53A.6080003@secunet.com>
-	 <1310394094.3930.46.camel@moss-pluto>  <4E1C7D08.8000007@secunet.com>
-	 <1310491408.309.24.camel@moss-pluto>  <4E1D99D7.1030504@secunet.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 13 Jul 2011 10:02:56 -0400
-Message-ID: <1310565776.12491.29.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6DDciXJ023956
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2011 09:38:49 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p6DDchkr010742
+	for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2011 13:38:43 GMT
+Message-ID: <4E1D9FE1.8020203@redhat.com>
+Date: Wed, 13 Jul 2011 09:38:41 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: As we move to systemd, we are loosing some functionality from
+ init scripts.
+References: <4E1CB8A5.2010707@redhat.com> <4E1D9E95.5020206@tresys.com>
+In-Reply-To: <4E1D9E95.5020206@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-07-13 at 15:12 +0200, Martin Christian wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi Stephen,
-> 
-> you pointed me into the right direction: We have a startup log daemon
-> which gets replaced by syslog at the end of the boot process. The AVC
-> message occurs when /dev/log still belongs to the startup log daemon.
-> Thanks for your hint!
-> 
-> What I was missing all the time during my investigation was a tool,
-> which displays the security labels of unix domain sockets. Is there
-> nothing like this around? netstat doesn't seem to support selinux labels
-> (an option -Z), does it? Maybe I could reserve some time in our schedule
-> to add such an option to netstat.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The Fedora netstat program has a -Z option, but the implementation
-appears to read the context of the owning process
-(via /proc/<pid>/attr/current), not necessarily the context of the
-individual socket.  Not sure you can get to that information from any
-process other than the owning one without reading kernel memory.
+On 07/13/2011 09:33 AM, Christopher J. PeBenito wrote:
+> On 07/12/11 17:12, Daniel J Walsh wrote:
+>> Currently we can setup certain domains to be allowed to execute
+>> labeled init scripts.  If we go away from init scripts we will need
+>> a mechanism for init to look at the calling program label to figure
+>> out if it is allowed to start/stop certain domains.
+>> 
+>> Can webadm_t start/stop mysqld_t?  Can webadm_t start/stop
+>> httpd_t?
+>> 
+>> # id -Z staff_u:webadm_r:webadm_t:s0-s0:c0.c1023 # systemctl start
+>> httpd.service # systemctl stop httpd.service
+>> 
+>> Another option would be just whether label 
+>> /lib/systemd/system/mysqld.service something that webadm_t is not 
+>> allowed to read.
+>> 
+>> Ideas?
+> 
+> Does your suggestion really make it impossible to send a command to 
+> systemd to start/stop a service if you cant read that file (eg 
+> mysqld.service)?  I don't know what the implementation is, but I
+> would guess that systemctl connects to systemd over a unix socket or
+> fifo to give commands?  If so, it would seem better for systemd to
+> have some SELinux awareness on its incoming commands.
+> 
 
--- 
-Stephen Smalley
-National Security Agency
+I agree, but I am not sure of the syntax.
 
+I was thinking that we might want systemd to ask if webadm_t is allowed
+to execute /lib/systemd/system/mysqld.service, even though it is not
+really executing the service script.  Since we do not know what is going
+on in the service file, systemd will have a hard time differentiating
+the access.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk4dn+EACgkQrlYvE4MpobNEAwCgtHNdxRzaIVszkeEyic/jCN3a
+HwMAnipcsLLpLLpKCTirCU1kFIWHM9fG
+=APZx
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
