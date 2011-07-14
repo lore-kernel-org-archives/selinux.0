@@ -1,71 +1,67 @@
-Subject: Re: As we move to systemd, we are loosing some functionality from
- init scripts.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <201107142323.42062.russell@coker.com.au>
-References: <4E1CB8A5.2010707@redhat.com> <4E1DD9A7.80007@redhat.com>
-	 <1310647915.28361.2.camel@moss-pluto>
-	 <201107142323.42062.russell@coker.com.au>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 14 Jul 2011 09:41:56 -0400
-Message-ID: <1310650916.28361.12.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6EGrkL4004212
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2011 12:53:46 -0400
+Received: from mxout-08.mxes.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6EGrjUf027492
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2011 16:53:45 GMT
+Message-ID: <20110714175338.12159elqy4yyadxs@webmail.tuffmail.net>
+Date: Thu, 14 Jul 2011 17:53:38 +0100
+From: Martin Orr <martin@martinorr.name>
+To: Eric Paris <eparis@parisplace.org>
+Cc: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
+        SE-Linux
+	<selinux@tycho.nsa.gov>
+Subject: Re: subs_dist and libselinux releases
+References: <201107141611.41063.russell@coker.com.au>
+	<CACLa4ptDbYinwwAjff8jq2XUmhxAcu2q8_yGd6sigq7byzM1hA@mail.gmail.com>
+In-Reply-To: <CACLa4ptDbYinwwAjff8jq2XUmhxAcu2q8_yGd6sigq7byzM1hA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=UTF-8;
+	DelSp="Yes";
+	format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-07-14 at 23:23 +1000, Russell Coker wrote:
-> On Thu, 14 Jul 2011, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > Don't reuse the kernel classes/permissions please.  I know we've done
-> > that in e.g. crond in the past, but it conflates their purpose;
-> 
-> The crond operation is to ask the kernel what could happen if the crontab 
-> spool file was treated as an executable, and then apply the resulting context 
-> for executing the commands that it contains.
+On Thu 14 Jul 10:34:18 2011, Eric Paris wrote:
+> On Thu, Jul 14, 2011 at 8:11 AM, Russell Coker <russell@coker.com.au> wrote:
+>> http://userspace.selinuxproject.org/trac/browser/libselinux/src?order=date&desc=1
+>> http://userspace.selinuxproject.org/trac/wiki/Releases
+>>
+>> The patch for the subs_dist file was first proposed in April, when  
+>> will there
+>> be a new upstream release that includes it?
+>>
+>> Currently we have a need for this in Debian, but it doesn't seem  
+>> that there is
+>> an upstream release with it.  I would prefer to avoid maintaining  
+>> my own patch
+>> set for libselinux in this regard if possible.
+>
+> Russell et al.
+>
+> I've started to take on trying to catch userspace up with the latest
+> and greatest based on what Fedora has done and not upstreamed and
+> patches I could find on the list.  Believe me, it's a project:
+>
+>  78 files changed, 1616 insertions(+), 31867 deletions(-)
+>
+> I have commit access to the upstream repo, but at the moment I haven't
+> really started reviewing patches closely enough to commit them and am
+> just trying to get a tree everyone can start to review.  (And it's the
+> tree I plan to make Fedora start using while I work the patches into
+> the upstream tree)
 
-Yes, IIRC, that was my idea.
+The subs_dist patch Russell asks about has already been merged:
+20b43b3fd3d392c4f12a963a4e46c264e7ed5163
 
-> While this is not obvious to a SE Linux newbie, it makes sense and it closely 
-> matches the ancient crond code for checking UIDs for the Unix permission 
-> parts.
-> 
-> While making the operation more obvious to newbies does offer some benefits 
-> (including security benefits by avoiding mistakes), I can't think of a good 
-> way of achieving such a goal.
-> 
-> If we were to start from the Vixie-cron base and write entirely new SE Linux 
-> patches and policy without any legacy today how do you think we would do it 
-> better?
-
-In retrospect, I think it would have been cleaner to have defined a
-unique class/perm for this purpose.  Both in order to cleanly delineate
-the kernel classes/permissions from userspace ones and to make clear the
-semantic difference between an execve of a file and running a cron job
-from a configuration file.
-
-> systemd has to use labels on files for all variants of the proposed design so 
-> classes aren't an option.
-
-It is fine for systemd to use a file label as the object security
-context if that is the granularity at which we want to control the
-operations, but systemd can still define and use its own classes and
-permissions for the permission checks on its operations.  In a similar
-manner, dbusd is using the security context of the destination process
-as the object security context for its check, yet it defines its own
-class and permissions for those checks.  And of course all of the
-userspace object managers are using the process context as the
-subject/source context.
-
-> Once we get role support in the filesystem code (how long will that take?) we 
-> could use role labels to determine which roles can execute the daemon start 
-> scripts.  But it would still surely end up with systemd just doing a check of 
-> whether the context of systemctl permits executing the /etc/init.d script in 
-> question.
-> 
+But I am not entirely clear about the relation between upstream git  
+and what is listed here:
+http://userspace.selinuxproject.org/trac/wiki/Releases
 
 -- 
-Stephen Smalley
-National Security Agency
+Martin Orr
+
 
 
 --
