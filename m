@@ -1,52 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6DHjGRe000572
-	for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2011 13:45:29 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6DHjFj9006912
-	for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2011 17:45:15 GMT
-Message-ID: <4E1DD9A7.80007@redhat.com>
-Date: Wed, 13 Jul 2011 13:45:11 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6E6BkjL001962
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2011 02:11:50 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p6E6BlmQ020438
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2011 06:11:48 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 328B518057
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2011 16:10:58 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: subs_dist and libselinux releases
+Date: Thu, 14 Jul 2011 16:11:39 +1000
 MIME-Version: 1.0
-To: Matthew Ife <deleriux@airattack-central.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: As we move to systemd, we are loosing some functionality from
- init scripts.
-References: <4E1CB8A5.2010707@redhat.com> <1310577633.19434.6.camel@home.localdomain>
-In-Reply-To: <1310577633.19434.6.camel@home.localdomain>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201107141611.41063.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+http://userspace.selinuxproject.org/trac/browser/libselinux/src?order=date&desc=1
+http://userspace.selinuxproject.org/trac/wiki/Releases
 
-On 07/13/2011 01:20 PM, Matthew Ife wrote:
-> I dont think that will work. According to my strace systemd performs
-> the work completely on behalf of the user when calling systemctl.
-> 
-> It might be more elegant to solve the problem in software.. ideally
-> with some selinux object manager for systemd that systemctl can be 
-> intercepted with.
-> 
-> Say classes of target and service and permissions like start, stop 
-> reload, restart etc.
-> 
-> That could take a while to implement though.
-> 
-Right, I was thinking of something simpler, Have systemd become an
-object manager but only have it check the services file.  That way we
-just put a label on the services file and have systemd check if the user
-context is allowed to "PROCESS" "EXECUTE" or some other access method on
-the services file.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+The patch for the subs_dist file was first proposed in April, when will there 
+be a new upstream release that includes it?
 
-iEYEARECAAYFAk4d2acACgkQrlYvE4MpobP1vwCeOKZ7Z15EU43/I7UN9i86Udcz
-Qi0AoM71WDDl6Y1N3ZDNbdf/mRcKIWfT
-=fDed
------END PGP SIGNATURE-----
+Currently we have a need for this in Debian, but it doesn't seem that there is 
+an upstream release with it.  I would prefer to avoid maintaining my own patch 
+set for libselinux in this regard if possible.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
