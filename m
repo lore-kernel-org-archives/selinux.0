@@ -1,51 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6L2jImN031436
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2011 22:45:18 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p6L2jC5r009807
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2011 02:45:12 GMT
-From: Stephen Lawrence <slawrence@tresys.com>
-To: "russell@coker.com.au" <russell@coker.com.au>,
-        SE-Linux
-	<selinux@tycho.nsa.gov>
-Subject: RE: subs_dist and libselinux releases
-Date: Thu, 21 Jul 2011 02:43:13 +0000
-Message-ID: <C14BECD185F28F4DB71F78DE6559C53E0AF512@Exchange10.columbia.tresys.com>
-References: <201107141611.41063.russell@coker.com.au>
-In-Reply-To: <201107141611.41063.russell@coker.com.au>
-Content-Type: text/plain; charset="us-ascii"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6LLXTUM029869
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2011 17:33:29 -0400
+Received: from oproxy3-pub.bluehost.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p6LLXSON010667
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2011 21:33:29 GMT
+Received: from localhost ([127.0.0.1] helo=box559.bluehost.com)
+	by box559.bluehost.com with esmtpa (Exim 4.69)
+	(envelope-from <rarob@travelinglightfarm.net>)
+	id 1Qk0s4-0004qG-F4
+	for selinux@tycho.nsa.gov; Thu, 21 Jul 2011 15:33:28 -0600
+Message-ID: <847d1fe893f5d55fda3cae11fb1c66df.squirrel@box559.bluehost.com>
+Date: Thu, 21 Jul 2011 17:33:28 -0400
+Subject: PythonSELinux binding problem
+From: rarob@travelinglightfarm.net
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm very sorry for the late response. A release containing the subs_dist patch is planned once we get the roleattribute patch merged, which should be within the week.
+Hi,
+  I'm using the python selinux bindings to determine if SELinux is
+disable/permissive/enforcing.  The following snippet of code works just
+fine on RH5 and F10 regardless of the SELinux mode, but fails with an
+error on F11/12/13 and RH6 if SELinux is disabled.
 
-- Steve
+$ python -c 'import selinux ; print selinux.security_getenforce()'
 
-________________________________________
-From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf of Russell Coker [russell@coker.com.au]
-Sent: Thursday, July 14, 2011 2:11 AM
-To: SE-Linux
-Subject: subs_dist and libselinux releases
+Under RH5 and F10 I correctly get the -1/0/1 returns for
+disabled/permissive/enforcing, as specified in the man pages for
+'security_getenforce'.  Under F11/12/13 and RH6 for permissive and
+enforcing I get the correct return values, but if the system is in
+disabled mode instead an OSError is thrown for 'No such file or
+directory'.  I haven't look at the source for the underlying
+security_getenforce() system call, but I suspect is is assuming that the
+/selinux pseudo filesystem is populated (as in permissive/enforcing mode),
+and is not handling the case where that pseudo filesystem is empty.
 
-http://userspace.selinuxproject.org/trac/browser/libselinux/src?order=date&desc=1
-http://userspace.selinuxproject.org/trac/wiki/Releases
+For now I've got my python calls wrapped in try/except blocks treating any
+exception as SELinux in disabled mode.
 
-The patch for the subs_dist file was first proposed in April, when will there
-be a new upstream release that includes it?
+I wasn't sure where the best place to log this as a bug is, either for the
+libselinux-python package or libselinux itself.
 
-Currently we have a need for this in Debian, but it doesn't seem that there is
-an upstream release with it.  I would prefer to avoid maintaining my own patch
-set for libselinux in this regard if possible.
+-Rob
 
---
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
 
 
 --
