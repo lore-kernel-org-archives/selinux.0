@@ -1,55 +1,54 @@
-MIME-Version: 1.0
-In-Reply-To: <1311342293.20800.15.camel@moss-pluto>
-References: <847d1fe893f5d55fda3cae11fb1c66df.squirrel@box559.bluehost.com>
-	<1311342293.20800.15.camel@moss-pluto>
-Date: Fri, 22 Jul 2011 10:00:45 -0400
-Message-ID: <CACLa4psnpaMGaRt7=pOF2hz7ue0v7KssJ7F6VhXiQ=JqtaDVxw@mail.gmail.com>
-Subject: Re: PythonSELinux binding problem
-From: Eric Paris <eparis@parisplace.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: rarob@travelinglightfarm.net, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        Steve Lawrence <slawrence@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: is "type poisoning" possible?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Zoltan Arnold NAGY <zoltan.arnold.nagy@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <CAGFYgbPN41ax88SYosv2e4_RBvc6k3R+hV07vsBiyTZiUreKVw@mail.gmail.com>
+References: 
+	 <CAGFYgbPN41ax88SYosv2e4_RBvc6k3R+hV07vsBiyTZiUreKVw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 22 Jul 2011 10:03:18 -0400
+Message-ID: <1311343398.20800.29.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 22, 2011 at 9:44 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2011-07-21 at 17:33 -0400, rarob@travelinglightfarm.net wrote:
->> Hi,
->>   I'm using the python selinux bindings to determine if SELinux is
->> disable/permissive/enforcing.  The following snippet of code works just
->> fine on RH5 and F10 regardless of the SELinux mode, but fails with an
->> error on F11/12/13 and RH6 if SELinux is disabled.
->>
->> $ python -c 'import selinux ; print selinux.security_getenforce()'
->>
->> Under RH5 and F10 I correctly get the -1/0/1 returns for
->> disabled/permissive/enforcing, as specified in the man pages for
->> 'security_getenforce'.  Under F11/12/13 and RH6 for permissive and
->> enforcing I get the correct return values, but if the system is in
->> disabled mode instead an OSError is thrown for 'No such file or
->> directory'.  I haven't look at the source for the underlying
->> security_getenforce() system call, but I suspect is is assuming that the
->> /selinux pseudo filesystem is populated (as in permissive/enforcing mode),
->> and is not handling the case where that pseudo filesystem is empty.
->>
->> For now I've got my python calls wrapped in try/except blocks treating any
->> exception as SELinux in disabled mode.
->>
->> I wasn't sure where the best place to log this as a bug is, either for the
->> libselinux-python package or libselinux itself.
->
-> I don't know why this would have ever worked, as security_getenforce()
-> has always returned -1 with errno ENOENT if there is no selinuxfs mount.
-> Maybe the older python bindings handled this error condition?  The
-> correct test for enabled/disabled is selinux.is_selinux_enabled(), and
-> that should be checked prior to calling security_getenforce().
+On Mon, 2011-07-18 at 12:45 +0200, Zoltan Arnold NAGY wrote:
+> Hi,
+> 
+> I apologize in advance if my use of nomenclature is a bit sloppy. I'm
+> new to this. :)
+> 
+> Let's say I have a process with type P, but it needs a config file.
+> 
+> Is there a way to specify that if P accesses any file having a type Q, then
+> the process type should transition to T?
 
-Looks like the change is in my tree (but not upstream)  [not the title
-is slightly wrong]
+If you mean you want the process type (domain) to automatically
+transition upon reading a file, SELinux doesn't presently support
+transitions on read or write, only on exec or via explicit setcon.
 
-http://git.infradead.org/users/eparis/selinux-userspace.git/commitdiff/958217e94829487815ea3b62b264aa18b466ce4a
+> This would allow to mitigate attacks where specific config changes are allowed
+> (but are always coupled with a relabeling to type Q), but we don't
+> trust the changer.
+
+Typically we would address that by not allowing read access to
+unauthorized types and thus the process wouldn't be able to read
+anything other than its authorized config file (or other authorized
+inputs).
+
+> A side question would be how to force this relabeling to take place
+> automatically?
+
+We generally try to minimize relabeling at runtime, as it poses problems
+for analysis of policy and revocation of access.  Originally we only
+supported process type transitions on exec, and only later added
+setcon(3) as a practical accommodation for certain applications.
+Automatic transitions on read/write would be even further down the path
+of label non-tranquility.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
