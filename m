@@ -1,55 +1,58 @@
-Subject: Re: is "type poisoning" possible?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Zoltan Arnold NAGY <zoltan.arnold.nagy@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <CAGFYgbPN41ax88SYosv2e4_RBvc6k3R+hV07vsBiyTZiUreKVw@mail.gmail.com>
-References: 
-	 <CAGFYgbPN41ax88SYosv2e4_RBvc6k3R+hV07vsBiyTZiUreKVw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 22 Jul 2011 10:03:18 -0400
-Message-ID: <1311343398.20800.29.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6MJpeh4001218
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2011 15:51:40 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6MJpdMv018014
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2011 19:51:39 GMT
+Message-ID: <4E29D4C9.3000903@tresys.com>
+Date: Fri, 22 Jul 2011 15:51:37 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: HarryCiao <harrytaurus2002@hotmail.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, <method@manicmethod.com>,
+        selinux-mailing-list <selinux@tycho.nsa.gov>
+Subject: Re: v3 Add role attribute support to libsepol
+References: <1309249126-5224-1-git-send-email-qingtao.cao@windriver.com> <SNT139-w61848BC20E4E7F40D1E43DAB560@phx.gbl>,<4E0AD0BC.8040708@windriver.com> <SNT139-w20B1A1E8C4A8738E18E36AB580@phx.gbl>
+In-Reply-To: <SNT139-w20B1A1E8C4A8738E18E36AB580@phx.gbl>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-07-18 at 12:45 +0200, Zoltan Arnold NAGY wrote:
-> Hi,
+--snip--
+
+>>
+>>>  > 2. The policy.X's binary representation and SELinux kernel role_datum_t
+>>>  > structure don't have to be changed, so the max version number for 
+>>> policy.X
+>>>  > won't have to be bumped.
+>>>  >
+>>>  > But it may be desirable to bump the max module version number.
+>>>  >
 > 
-> I apologize in advance if my use of nomenclature is a bit sloppy. I'm
-> new to this. :)
+> Write flavor flag and roles ebitmap into a pp file and read them out unconditionally, this would only run into problem only under one condition, that libsepol/checkpolicy are upgraded with this patchset but the pp files are built before the upgrade took place, which I think could be easily fixed by re-building all pp files by the upgraded libsepol/checkpolicy.
 > 
-> Let's say I have a process with type P, but it needs a config file.
+> So I think we don't have to bump MOD_POLICYDB_VERSION_MAX higher.
 > 
-> Is there a way to specify that if P accesses any file having a type Q, then
-> the process type should transition to T?
+> Am I right?
+> 
+> BTW, how do we trigger a pp downgrade? Anything like OUTPUT_POLICY or policy-version to trigger policy downgrade?
+> 
+> Thanks,
+> Harry
+> 
 
-If you mean you want the process type (domain) to automatically
-transition upon reading a file, SELinux doesn't presently support
-transitions on read or write, only on exec or via explicit setcon.
+There isn't a tool that can force a policy module downgrade, but it can
+be done programmatically, so it should be supported. Additionally, it
+shouldn't require that modules be rebuilt if the toolchain is updated.
+So please add a new module version and check that before reading/writing
+the new role attribute information.
 
-> This would allow to mitigate attacks where specific config changes are allowed
-> (but are always coupled with a relabeling to type Q), but we don't
-> trust the changer.
+Aside from that, I've reviewed this patchset and everything looks
+reasonable. I still want to test this a little more, but assuming I
+don't see any any issues with a little more testing, and pending a fix
+for a module version bump, I'm fine with merging this.
 
-Typically we would address that by not allowing read access to
-unauthorized types and thus the process wouldn't be able to read
-anything other than its authorized config file (or other authorized
-inputs).
-
-> A side question would be how to force this relabeling to take place
-> automatically?
-
-We generally try to minimize relabeling at runtime, as it poses problems
-for analysis of policy and revocation of access.  Originally we only
-supported process type transitions on exec, and only later added
-setcon(3) as a practical accommodation for certain applications.
-Automatic transitions on read/write would be even further down the path
-of label non-tranquility.
-
--- 
-Stephen Smalley
-National Security Agency
-
+- Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
