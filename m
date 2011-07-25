@@ -1,156 +1,149 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6P1OMi8025319
-	for <selinux@tycho.nsa.gov>; Sun, 24 Jul 2011 21:24:22 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6P1OMiC025319
+	for <selinux@tycho.nsa.gov>; Sun, 24 Jul 2011 21:24:28 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6P1OAfI009074
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2011 01:24:11 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6P1OHfI009090
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2011 01:24:17 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>, <method@manicmethod.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: v4 Add role attribute support to libsepol
-Date: Mon, 25 Jul 2011 09:23:53 +0800
-Message-ID: <1311557039-2977-1-git-send-email-qingtao.cao@windriver.com>
+Subject: [v4 PATCH 4/6] Add role attribute support when expanding role_datum_t.
+Date: Mon, 25 Jul 2011 09:23:57 +0800
+Message-ID: <1311557039-2977-5-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1311557039-2977-1-git-send-email-qingtao.cao@windriver.com>
+References: <1311557039-2977-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+1. Copy the flavor flag into its counterpart in the out module;
 
+2. Fix all role attributes in the base module:
+2.1 remap the roles ebitmap and merge into its counterpart in the
+out module;
+2.2 escalate the types.types ebitmap of its counterpart in the out
+module, to the counterparts for all the regular roles that belongs
+to the current role attribute.
 
-Differences from v3 patchset
------------------------------
-1. For the 0002 patch, 
-   Introduce MOD_POLICYDB_VERSION_ROLEATTRIB(== 13) and bump
-   MOD_POLICYDB_VERSION_MAX to it.
+The role_fix_callback() must be called after role_copy_callback()
+so that state->rolemap[] is available.
 
-   When read from or write to pp, take care of the flavor flag and roles
-   ebitmap only when the pp's version is no less than
-   MOD_POLICYDB_VERSION_ROLEATTRIB.
-   
-  
-Tests I've done
------------------
-0. Build tests:
-   . revert this patchset, re-install libsepol/checkpolicy packages and
-     build modules(have no flavor/roles); apply this patchset, re-install
-     everything, the updated tools could handle old version modules in a
-     decent manner.
-   
-   . in write_binary_policy() in checkmodule.c, trigger policy module
-     downgrade by adding "policyvers = MOD_POLICYDB_VERSION_MAX - 1"; apply
-     this patchset, the updated tools could generate and process old version
-     modules correctly.
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ libsepol/src/expand.c |   75 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+), 0 deletions(-)
 
-1. test_t is able to transition into rpm_t, but could not direclty transition
-   into rpm_script_t, semanage_t, load_policy_t/setfiles_t:
-   
-   sh-3.2# sesearch -SCA -s test_t -t rpm_t -c process -p transition
-   Found 1 semantic av rules:
-      allow test_t rpm_t : process transition ; 
-   
-   sh-3.2# sesearch -SCA -s test_t -t rpm_script_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s test_t -t semanage_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s test_t -t load_policy_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s test_t -t setfiles_t -c process -p transition
-   
-2. rpm_t is able to transition into rpm_script_t, but could not directly
-   transition into semanage_t, load_policy_t/setfiles_t:
-   
-   sh-3.2# sesearch -SCA -s rpm_t -t rpm_script_t -c process -p transition
-   Found 1 semantic av rules:
-      allow rpm_t rpm_script_t : process transition ; 
-   
-   sh-3.2# sesearch -SCA -s rpm_t -t semanage_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s rpm_t -t load_policy_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s rpm_t -t setfiles_t -c process -p transition
-   
-3. rpm_script_t is able to transition into semanage_t, but could not directly
-   transition into load_policy_t/setfiles_t:
-   
-   sh-3.2# sesearch -SCA -s rpm_script_t -t semanage_t -c process -p transition
-   Found 1 semantic av rules:
-      allow rpm_script_t semanage_t : process transition ; 
-   
-   sh-3.2# sesearch -SCA -s rpm_script_t -t load_policy_t -c process -p transition
-   
-   sh-3.2# sesearch -SCA -s rpm_script_t -t setfiles_t -c process -p transition
-   
-4. semanage_t is able to transition into load_policy_t & setfiles_t:
-   
-   sh-3.2# sesearch -SCA -s semanage_t -t load_policy_t -c process -p transition
-   Found 1 semantic av rules:
-      allow semanage_t load_policy_t : process transition ; 
-   
-   sh-3.2# sesearch -SCA -s semanage_t -t setfiles_t -c process -p transition
-   Found 1 semantic av rules:
-      allow semanage_t setfiles_t : process transition ; 
-   
-5. test_r is able to type with rpm_t, rpm_script_t, semanage_t, setfiles_t
-   and load_policy_t:
-   
-   sh-3.2# compute_create root:test_r:test_t:s0 system_u:object_r:rpm_exec_t:s0 process
-   root:test_r:rpm_t:s0
-   sh-3.2# 
-   
-   sh-3.2# compute_create root:test_r:rpm_script_t:s0 system_u:object_r:semanage_exec_t:s0 process
-   root:test_r:semanage_t:s0
-   sh-3.2# 
-   
-   sh-3.2# compute_create root:test_r:semanage_t:s0 system_u:object_r:setfiles_exec_t:s0 process
-   root:test_r:setfiles_t:s0
-   sh-3.2# 
-   
-   sh-3.2# compute_create root:test_r:semanage_t:s0 system_u:object_r:load_policy_exec_t:s0 process
-   root:test_r:load_policy_t:s0
-   sh-3.2# 
-   
-6. Use the apol tool to analyze what types the test_r role could type with:
-   (Since the apol installed on Ubuntu so far only support max version .24,
-    we need to setup "policy-version = 24" in semanage.conf)
-   
-   test_r (28 types)
-       chfn_t
-       chkpwd_t
-       consoletype_t
-       ddclient_t
-       dhcpc_t
-       hostname_t
-       ifconfig_t
-       insmod_t
-       iptables_t
-       load_policy_t
-       loadkeys_t
-       netutils_t
-       newrole_t
-       pam_t
-       passwd_t
-       ping_t
-       pppd_t
-       pptp_t
-       rpm_script_t
-       rpm_t
-       semanage_t
-       setfiles_t
-       test_t
-       traceroute_t
-       updpwd_t
-       user_home_t
-       usernetctl_t
-       utempter_t
-   
-   rpm_roles (2 types)
-       rpm_script_t
-       rpm_t
-   
-   semanage_roles (3 types)
-       load_policy_t
-       semanage_t
-       setfiles_t
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index b1af365..2dbbd27 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -664,6 +664,73 @@ static int role_remap_dominates(hashtab_key_t key __attribute__ ((unused)), hash
+ 	return 0;
+ }
+ 
++/* For the role attribute in the base module, escalate its counterpart's
++ * types.types ebitmap in the out module to the counterparts of all the
++ * regular role that belongs to the current role attribute. Note, must be
++ * invoked after role_copy_callback so that state->rolemap is available.
++ */
++static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
++			     void *data)
++{
++	char *id, *base_reg_role_id;
++	role_datum_t *role, *new_role, *regular_role;
++	expand_state_t *state;
++	ebitmap_node_t *rnode;
++	unsigned int i;
++	ebitmap_t mapped_roles;
++
++	id = key;
++	role = (role_datum_t *)datum;
++	state = (expand_state_t *)data;
++
++	if (strcmp(id, OBJECT_R) == 0) {
++		/* object_r is never a role attribute by far */
++		return 0;
++	}
++
++	if (role->flavor != ROLE_ATTRIB)
++		return 0;
++
++	if (state->verbose)
++		INFO(state->handle, "fixing role attribute %s", id);
++
++	new_role =
++		(role_datum_t *)hashtab_search(state->out->p_roles.table, id);
++
++	assert(new_role != NULL && new_role->flavor == ROLE_ATTRIB);
++
++	ebitmap_init(&mapped_roles);
++	if (map_ebitmap(&role->roles, &mapped_roles, state->rolemap))
++		return -1;
++	if (ebitmap_union(&new_role->roles, &mapped_roles)) {
++		ERR(state->handle, "Out of memory!");
++		ebitmap_destroy(&mapped_roles);
++		return -1;
++	}
++	ebitmap_destroy(&mapped_roles);
++
++	ebitmap_for_each_bit(&role->roles, rnode, i) {
++		if (ebitmap_node_get_bit(rnode, i)) {
++			/* take advantage of sym_val_to_name[]
++			 * of the base module */
++			base_reg_role_id = state->base->p_role_val_to_name[i];
++			regular_role = (role_datum_t *)hashtab_search(
++						state->out->p_roles.table,
++						base_reg_role_id);
++			assert(regular_role != NULL && 
++			       regular_role->flavor == ROLE_ROLE);
++
++			if (ebitmap_union(&regular_role->types.types, 
++					  &new_role->types.types)) {
++				ERR(state->handle, "Out of memory!");
++				return -1;
++			}
++		}
++	}
++	
++	return 0;
++}
++
+ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			      void *data)
+ {
+@@ -709,6 +776,7 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 		}
+ 
+ 		state->out->p_roles.nprim++;
++		new_role->flavor = role->flavor;
+ 		new_role->s.value = state->out->p_roles.nprim;
+ 		state->rolemap[role->s.value - 1] = new_role->s.value;
+ 		ret = hashtab_insert(state->out->p_roles.table,
+@@ -2673,6 +2741,10 @@ int expand_module(sepol_handle_t * handle,
+ 	if (hashtab_map(state.base->p_roles.table,
+ 			role_bounds_copy_callback, &state))
+ 		goto cleanup;
++	/* escalate the type_set_t in a role attribute to all regular roles
++	 * that belongs to it. */
++	if (hashtab_map(state.base->p_roles.table, role_fix_callback, &state))
++		goto cleanup;
+ 
+ 	/* copy MLS's sensitivity level and categories - this needs to be done
+ 	 * before expanding users (they need to be indexed too) */
+@@ -2725,6 +2797,9 @@ int expand_module(sepol_handle_t * handle,
+ 		if (hashtab_map
+ 		    (decl->p_roles.table, role_copy_callback, &state))
+ 			goto cleanup;
++		if (hashtab_map
++		    (decl->p_roles.table, role_fix_callback, &state))
++			goto cleanup;
+ 
+ 		/* copy users */
+ 		if (hashtab_map
+-- 
+1.7.0.4
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
