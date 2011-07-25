@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6P1OMiE025319
-	for <selinux@tycho.nsa.gov>; Sun, 24 Jul 2011 21:24:33 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6P1OMiD025319
+	for <selinux@tycho.nsa.gov>; Sun, 24 Jul 2011 21:24:30 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6P1OLfI009099
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2011 01:24:22 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p6P1OJfI009093
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2011 01:24:19 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>, <method@manicmethod.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v4 PATCH 6/6] Support adding one role attribute into another.
-Date: Mon, 25 Jul 2011 09:23:59 +0800
-Message-ID: <1311557039-2977-7-git-send-email-qingtao.cao@windriver.com>
+Subject: [v4 PATCH 5/6] Add role attribute support when expanding role_set_t.
+Date: Mon, 25 Jul 2011 09:23:58 +0800
+Message-ID: <1311557039-2977-6-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1311557039-2977-1-git-send-email-qingtao.cao@windriver.com>
 References: <1311557039-2977-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -17,202 +17,208 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When the link process is completed, the types type_set_t and roles
-ebitmap in a role attribute are settled, then we could go on to scan
-all role attributes in the base->p_roles.table checking if any non-zero
-bit in its roles ebitmap is indeed another role attribute.
+When the rolemap and pointer to the base module are available, if
+a non-zero bit in role_set_t.roles is a role attribute, expand it
+before remap.
 
-If this is the case, then we need to escalate the roles ebitmap of
-the sub role attribute into that of the parent, and remove the sub role
-attribute from parent's roles ebitmap.
+Note, during module compile the rolemap may not be available, the
+potential duplicates of a regular role and the role attribute that
+the regular role belongs to could be properly handled by
+copy_role_allow() and copy_role_trans() during module expansion.
 
-Since sub-attribute's roles ebitmap may further contain other role
-attributes, we need to re-scan the updated parent's roles ebitmap.
+Take advantage of the role_val_to_struct[] of the base module, since
+when role_set_expand() is invoked, the role_val_to_struct[] of the
+out module may have not been established yet.
 
-Also if a loop dependency is detected, no escalation of sub-attribute's
-roles ebitmap is needed.
-
-Note, although in the link stage all role identifiers defined in any
-block/decl of any module would be copied into the base->p_roles.table,
-the role-attribute relationships could still be recorded in the decl's
-local symtab[SYM_ROLES] table(see get_local_role()), so before all above
-escalation of sub role attribute's roles ebitmap into that of parent ever
-happens, all decl in the base->global list except the global block would
-have to be traversed so as to populate potential role-attribute
-relationships from decl up to the base module.
+Also cleanup the error handling of role_set_expand().
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- checkpolicy/policy_define.c |    5 +-
- libsepol/src/link.c         |  132 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 135 insertions(+), 2 deletions(-)
+ checkpolicy/policy_define.c              |    2 +-
+ libsepol/include/sepol/policydb/expand.h |    2 +-
+ libsepol/src/expand.c                    |   57 ++++++++++++++++++++++++------
+ libsepol/src/policydb.c                  |    2 +-
+ libsepol/src/users.c                     |    4 +-
+ 5 files changed, 51 insertions(+), 16 deletions(-)
 
 diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 6faaf94..ded27f7 100644
+index 92646a0..6faaf94 100644
 --- a/checkpolicy/policy_define.c
 +++ b/checkpolicy/policy_define.c
-@@ -1902,8 +1902,9 @@ int define_roleattribute(void)
- 		return -1;
+@@ -2289,7 +2289,7 @@ int define_role_trans(int class_specified)
  	}
- 	r = hashtab_search(policydbp->p_roles.table, id);
--	if (!r || r->flavor != ROLE_ROLE) {
--		yyerror2("unknown role %s, or not a regular role", id);
-+	/* We support adding one role attribute into another */
-+	if (!r) {
-+		yyerror2("unknown role %s", id);
- 		free(id);
+ 
+ 	/* This ebitmap business is just to ensure that there are not conflicting role_trans rules */
+-	if (role_set_expand(&roles, &e_roles, policydbp, NULL))
++	if (role_set_expand(&roles, &e_roles, policydbp, NULL, NULL))
+ 		goto bad;
+ 
+ 	if (type_set_expand(&types, &e_types, policydbp, 1))
+diff --git a/libsepol/include/sepol/policydb/expand.h b/libsepol/include/sepol/policydb/expand.h
+index 059b065..31e25ec 100644
+--- a/libsepol/include/sepol/policydb/expand.h
++++ b/libsepol/include/sepol/policydb/expand.h
+@@ -60,7 +60,7 @@ extern int expand_convert_type_set(policydb_t * p, uint32_t * typemap,
+ 				   unsigned char alwaysexpand);
+ extern int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 			   unsigned char alwaysexpand);
+-extern int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * p, uint32_t * rolemap);
++extern int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t * base, uint32_t * rolemap);
+ extern int mls_semantic_level_expand(mls_semantic_level_t *sl, mls_level_t *l,
+                                      policydb_t *p, sepol_handle_t *h);
+ extern int mls_semantic_range_expand(mls_semantic_range_t *sr, mls_range_t *r,
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 2dbbd27..b42acbe 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -981,7 +981,7 @@ static int user_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 	ebitmap_init(&tmp_union);
+ 
+ 	/* get global roles for this user */
+-	if (role_set_expand(&user->roles, &tmp_union, state->base, state->rolemap)) {
++	if (role_set_expand(&user->roles, &tmp_union, state->out, state->base, state->rolemap)) {
+ 		ERR(state->handle, "Out of memory!");
+ 		ebitmap_destroy(&tmp_union);
  		return -1;
- 	}
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 53fcff9..421c47b 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -2335,6 +2335,122 @@ static int prepare_base(link_state_t * state, uint32_t num_mod_decls)
- 	return 0;
+@@ -1159,12 +1159,12 @@ static int copy_role_allows(expand_state_t * state, role_allow_rule_t * rules)
+ 		ebitmap_init(&roles);
+ 		ebitmap_init(&new_roles);
+ 
+-		if (role_set_expand(&cur->roles, &roles, state->out, state->rolemap)) {
++		if (role_set_expand(&cur->roles, &roles, state->out, state->base, state->rolemap)) {
+ 			ERR(state->handle, "Out of memory!");
+ 			return -1;
+ 		}
+ 
+-		if (role_set_expand(&cur->new_roles, &new_roles, state->out, state->rolemap)) {
++		if (role_set_expand(&cur->new_roles, &new_roles, state->out, state->base, state->rolemap)) {
+ 			ERR(state->handle, "Out of memory!");
+ 			return -1;
+ 		}
+@@ -1228,7 +1228,7 @@ static int copy_role_trans(expand_state_t * state, role_trans_rule_t * rules)
+ 		ebitmap_init(&roles);
+ 		ebitmap_init(&types);
+ 
+-		if (role_set_expand(&cur->roles, &roles, state->out, state->rolemap)) {
++		if (role_set_expand(&cur->roles, &roles, state->out, state->base, state->rolemap)) {
+ 			ERR(state->handle, "Out of memory!");
+ 			return -1;
+ 		}
+@@ -2267,14 +2267,23 @@ int expand_rule(sepol_handle_t * handle,
+ 	return retval;
  }
  
-+static int expand_role_attributes(hashtab_key_t key, hashtab_datum_t datum,
-+				  void * data)
-+{
-+	char *id;
-+	role_datum_t *role, *sub_attr;
-+	link_state_t *state;
-+	unsigned int i;
-+	ebitmap_node_t *rnode;
-+
-+	id = key;
-+	role = (role_datum_t *)datum;
-+	state = (link_state_t *)data;
-+
-+	if (strcmp(id, OBJECT_R) == 0){
-+		/* object_r is never a role attribute by far */
-+		return 0;
-+	}
-+
-+	if (role->flavor != ROLE_ATTRIB)
-+		return 0;
-+
-+	if (state->verbose)
-+		INFO(state->handle, "expanding role attribute %s", id);
-+
-+restart:
-+	ebitmap_for_each_bit(&role->roles, rnode, i) {
-+		if (ebitmap_node_get_bit(rnode, i)) {
-+			sub_attr = state->base->role_val_to_struct[i];
-+			if (sub_attr->flavor != ROLE_ATTRIB)
-+				continue;
-+			
-+			/* remove the sub role attribute from the parent
-+			 * role attribute's roles ebitmap */
-+			if (ebitmap_set_bit(&role->roles, i, 0))
-+				return -1;
-+
-+			/* loop dependency of role attributes */
-+			if (sub_attr->s.value == role->s.value)
-+				continue;
-+
-+			/* now go on to expand a sub role attribute
-+			 * by escalating its roles ebitmap */
-+			if (ebitmap_union(&role->roles, &sub_attr->roles)) {
-+				ERR(state->handle, "Out of memory!");
-+				return -1;
-+			}
-+			
-+			/* sub_attr->roles may contain other role attributes,
-+			 * re-scan the parent role attribute's roles ebitmap */
-+			goto restart;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/* For any role attribute in a declaration's local symtab[SYM_ROLES] table,
-+ * copy its roles ebitmap into its duplicate's in the base->p_roles.table.
+-int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * p, uint32_t * rolemap)
++/* Expand a role set into an ebitmap containing the roles.
++ * This handles the attribute and flags.
++ * Attribute expansion depends on if the rolemap is available.
++ * During module compile the rolemap is not available, the
++ * possible duplicates of a regular role and the role attribute
++ * the regular role belongs to could be properly handled by
++ * copy_role_trans and copy_role_allow.
 + */
-+static int populate_decl_roleattributes(hashtab_key_t key, 
-+					hashtab_datum_t datum,
-+					void *data)
-+{
-+	char *id = key;
-+	role_datum_t *decl_role, *base_role;
-+	link_state_t *state = (link_state_t *)data;
-+
-+	decl_role = (role_datum_t *)datum;
-+
-+	if (strcmp(id, OBJECT_R) == 0) {
-+		/* object_r is never a role attribute by far */
-+		return 0;
-+	}
-+
-+	if (decl_role->flavor != ROLE_ATTRIB)
-+		return 0;
-+
-+	base_role = (role_datum_t *)hashtab_search(state->base->p_roles.table,
-+						   id);
-+	assert(base_role != NULL && base_role->flavor == ROLE_ATTRIB);
-+
-+	if (ebitmap_union(&base_role->roles, &decl_role->roles)) {
-+		ERR(state->handle, "Out of memory!");
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int populate_roleattributes(link_state_t *state, policydb_t *pol)
-+{
-+	avrule_block_t *block;
-+	avrule_decl_t *decl;
-+
-+	if (state->verbose)
-+		INFO(state->handle, "Populating role-attribute relationship "
-+			    "from enabled declarations' local symtab.");
-+
-+	/* Iterate through all of the blocks skipping the first(which is the
-+	 * global block, is required to be present and can't have an else).
-+	 * If the block is disabled or not having an enabled decl, skip it.
-+	 */
-+	for (block = pol->global->next; block != NULL; block = block->next)
-+	{
-+		decl = block->enabled;
-+		if (decl == NULL || decl->enabled == 0)
-+			continue;
-+
-+		if (hashtab_map(decl->symtab[SYM_ROLES].table, 
-+				populate_decl_roleattributes, state))
-+			return -1;
-+	}
-+
-+	return 0;
-+}
-+
- /* Link a set of modules into a base module. This process is somewhat
-  * similar to an actual compiler: it requires a set of order dependent
-  * steps.  The base and every module must have been indexed prior to
-@@ -2455,6 +2571,22 @@ int link_modules(sepol_handle_t * handle,
- 		goto cleanup;
++int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t * base, uint32_t * rolemap)
+ {
+ 	unsigned int i;
+ 	ebitmap_node_t *rnode;
+-	ebitmap_t mapped_roles;
++	ebitmap_t mapped_roles, roles;
++	policydb_t *p = out;
++	role_datum_t *role;
+ 
+ 	ebitmap_init(r);
+-	ebitmap_init(&mapped_roles);
+ 
+ 	if (x->flags & ROLE_STAR) {
+ 		for (i = 0; i < p->p_roles.nprim++; i++)
+@@ -2283,22 +2292,43 @@ int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * p, uint32_t * ro
+ 		return 0;
  	}
  
-+	/* Now that all role attribute's roles ebitmap have been settled,
-+	 * escalate sub role attribute's roles ebitmap into that of parent.
-+	 *
-+	 * First, since some role-attribute relationships could be recorded
-+	 * in some decl's local symtab(see get_local_role()), we need to
-+	 * populate them up to the base.p_roles table. */
-+	if (populate_roleattributes(&state, state.base)) {
-+		retval = SEPOL_EREQ;
-+		goto cleanup;
-+	}
++	ebitmap_init(&mapped_roles);
++	ebitmap_init(&roles);
 +	
-+	/* Now do the escalation. */
-+	if (hashtab_map(state.base->p_roles.table, expand_role_attributes,
-+			&state))
-+		goto cleanup;
+ 	if (rolemap) {
+-		if (map_ebitmap(&x->roles, &mapped_roles, rolemap))
+-			return -1;
++		assert(base != NULL);
++		ebitmap_for_each_bit(&x->roles, rnode, i) {
++			if (ebitmap_node_get_bit(rnode, i)) {
++				/* take advantage of p_role_val_to_struct[]
++				 * of the base module */
++				role = base->role_val_to_struct[i];
++				assert(role != NULL);
++				if (role->flavor == ROLE_ATTRIB) {
++					if (ebitmap_union(&roles,
++							  &role->roles))
++						goto bad;
++				} else {
++					if (ebitmap_set_bit(&roles, i, 1))
++						goto bad;
++				}
++			}
++		}
++		if (map_ebitmap(&roles, &mapped_roles, rolemap))
++			goto bad;
+ 	} else {
+ 		if (ebitmap_cpy(&mapped_roles, &x->roles))
+-			return -1;
++			goto bad;
+ 	}
+ 
+ 	ebitmap_for_each_bit(&mapped_roles, rnode, i) {
+ 		if (ebitmap_node_get_bit(rnode, i)) {
+ 			if (ebitmap_set_bit(r, i, 1))
+-				return -1;
++				goto bad;
+ 		}
+ 	}
+ 
+ 	ebitmap_destroy(&mapped_roles);
++	ebitmap_destroy(&roles);
+ 
+ 	/* if role is to be complimented, invert the entire bitmap here */
+ 	if (x->flags & ROLE_COMP) {
+@@ -2313,6 +2343,11 @@ int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * p, uint32_t * ro
+ 		}
+ 	}
+ 	return 0;
 +
- 	retval = 0;
-       cleanup:
- 	for (i = 0; modules != NULL && i < len; i++) {
++bad:
++	ebitmap_destroy(&mapped_roles);
++	ebitmap_destroy(&roles);
++	return -1;
+ }
+ 
+ /* Expand a type set into an ebitmap containing the types. This
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 9145f2a..53d0fda 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -712,7 +712,7 @@ int policydb_user_cache(hashtab_key_t key
+ 	p = (policydb_t *) arg;
+ 
+ 	ebitmap_destroy(&user->cache);
+-	if (role_set_expand(&user->roles, &user->cache, p, NULL)) {
++	if (role_set_expand(&user->roles, &user->cache, p, NULL, NULL)) {
+ 		return -1;
+ 	}
+ 
+diff --git a/libsepol/src/users.c b/libsepol/src/users.c
+index 17e1426..693210d 100644
+--- a/libsepol/src/users.c
++++ b/libsepol/src/users.c
+@@ -259,8 +259,8 @@ int sepol_user_modify(sepol_handle_t * handle,
+ 		name = NULL;
+ 
+ 		/* Expand roles */
+-		if (role_set_expand
+-		    (&usrdatum->roles, &usrdatum->cache, policydb, NULL)) {
++		if (role_set_expand(&usrdatum->roles, &usrdatum->cache,
++				    policydb, NULL, NULL)) {
+ 			ERR(handle, "unable to expand role set");
+ 			goto err;
+ 		}
 -- 
 1.7.0.4
 
