@@ -1,67 +1,74 @@
-Subject: Re: "netstat -Z" reimplementation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: Rongqing Li <rongqing.li@windriver.com>,
-        "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        "Christopher
- J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <4E3014A6.7060903@redhat.com>
-References: <4E2FDA3A.5040408@windriver.com>
-	 <1311768565.23346.11.camel@moss-pluto>  <4E3014A6.7060903@redhat.com>
+Message-ID: <4E302662.4030300@tresys.com>
+Date: Wed, 27 Jul 2011 10:53:22 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Bumping Version Numbers
+References: <4E2EDD81.8080608@tresys.com> <1311702695.27231.91.camel@moss-pluto>
+In-Reply-To: <1311702695.27231.91.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 27 Jul 2011 09:40:12 -0400
-Message-ID: <1311774012.23346.16.camel@moss-pluto>
-Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-07-27 at 09:37 -0400, Eric Paris wrote:
-> On 07/27/2011 08:09 AM, Stephen Smalley wrote:
-> > On Wed, 2011-07-27 at 17:28 +0800, Rongqing Li wrote:
-> >> SELinux folks, Stephen:
-> >>
-> >> I have some thoughts about reimplementation of 'netstat -Z', but I do
-> >> not know if it is valuable, or if there are other risks. Could you
-> >> evaluate my implementation, or give me your valuable advice?
-> >>
-> >> 1. From kernel, print the socket labels to tcp, udp, raw, unix
-> >> files under /proc/net/.
-> >>
-> >> Now the /proc/net/tcp /proc/net/udp ... include many socket's
-> >> information, like local address, remote address, inode, I think we can
-> >> put the socket's security context to these files.
-> >>
-> >> To avoid to expose these information to non-privileged users, security
-> >> checking should be done when expose the socket security context to procfs.
-> > 
-> > We can already control the ability to read /proc/net files by labeling
-> > them via genfscon statements and then writing policy accordingly.  Do we
-> > think exposing the (raw) security context is any more of a concern than
-> > the rest of the information in the file?
-> > 
-> > Can we add a field to those files without breaking compatibility with
-> > existing userspace?
+On 07/26/2011 01:51 PM, Stephen Smalley wrote:
+> On Tue, 2011-07-26 at 11:30 -0400, Steve Lawrence wrote:
+>> A while ago ago we discussed bumping the minor version number and
+>> resetting the revision version number when we do a release [1]. We are
+>> now preparing for a release and wanted some feedback before we bumped
+>> the version numbers.
+>>
+>> We're thinking of only bumping minor version numbers if the revision
+>> version number is non-zero.
+>>
+>> So the version numbers will become:
+>>
+>> checkpolicy-2.1.0
+>> libselinux-2.1.0
+>> libsepol-2.1.0
+>> libsemanage-2.1.0
+>> policycoreutils-2.1.0
+>> sepolgen-1.1.0
+>>
+>> We could alternatively always bump minor version numbers even if the
+>> revision number was zero (i.e. no changes since the last release). This
+>> has the advantange that all releases share the same version number. If
+>> we do that, it might make sense to bump sepolgen to 2.1.0 this release
+>> as well, unless there is some significance between 1.x and 2.x with
+>> sepolgen.
+>>
+>> Thoughts?
 > 
-> I tried once in the past and was told that no, I was not allowed to add
-> fields (seemed pretty stupid to me at the time and I don't remember if
-> the person who told me that actually knew what they were talking about)
+> The latter approach is akin to what we used to do when we released the
+> entire SELinux userspace as a single tarball with a single (date-based)
+> version.  The separate versions were introduced when we started
+> releasing each component individually in support of distribution
+> packaging (originally for Fedora).  As long as the distributions
+> continue to package them separately, I doubt they want a single version
+> number across them all, as that obscures when a change has occurred to
+> the individual component and likely will yield unnecessary updates.
+> Ideally you shouldn't even generate a new tarball if there are no
+> changes since the last release as that will break checking that their
+> package sources are pristine.
 > 
-> I believe I was told (and you should believe that my memory for things
-> more than 10 minutes old stinks and this was about 4 years ago) that I
-> was supposed to use "tcp_diag" instead.  I never figured out what that
-> was, so I never got the patch in...
+> sepolgen was first introduced when the other components were bumped to
+> 2.x.  It isn't packaged separately in Fedora (bundled into
+> policycoreutils-python), although it is packaged separately in Debian
+> and Ubuntu.  If you want to bump it to 2.1.0 for this release just so
+> that they are all in the 2.x series, I don't really care (and nothing
+> should break), but it doesn't need to be the same as the others.
 > 
-> Just figured you should know up front....
+> One thing that we aren't doing that would be useful would be to
+> introduce a version script (.map file) for libselinux and maintain it to
+> ensure proper interface compatibility.  Also to be better about managing
+> the libsepol and libsemanage .map files, introducing new version nodes
+> when we add new interfaces.
+> 
 
-Ok, so perhaps he should ask on linux-netdev about how/where to add such
-information before he spends too much time on it?
-
--- 
-Stephen Smalley
-National Security Agency
-
+Ok, sounds like the first option is the best choice. When we do
+releases, we'll bump the minor number and reset the revision number, but
+only if there have been changes since the last release (ie. the revision
+number is non-zero).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
