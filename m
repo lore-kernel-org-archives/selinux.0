@@ -1,34 +1,20 @@
-Message-ID: <4E2FEDB5.9030902@secunet.com>
-Date: Wed, 27 Jul 2011 12:51:33 +0200
-From: Martin Christian <martin.christian@secunet.com>
-MIME-Version: 1.0
-To: Rongqing Li <rongqing.li@windriver.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: "netstat -Z" reimplementation
-References: <4E2FDA3A.5040408@windriver.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Rongqing Li <rongqing.li@windriver.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        Eric Paris
+ <eparis@parisplace.org>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 In-Reply-To: <4E2FDA3A.5040408@windriver.com>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <4E2FDA3A.5040408@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 27 Jul 2011 08:09:25 -0400
+Message-ID: <1311768565.23346.11.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hi Rongqing,
-
-we would appreciate such an extension to netstat. We shortly had a
-problem where it had helped if we could have see the labels of unix
-domain sockets.
-
-I'll try to help as much as possible (considering our project constraints).
-
-Regards,
-
-Martin.
-
-
-Am 27.07.2011 11:28, schrieb Rongqing Li:
+On Wed, 2011-07-27 at 17:28 +0800, Rongqing Li wrote:
 > SELinux folks, Stephen:
 > 
 > I have some thoughts about reimplementation of 'netstat -Z', but I do
@@ -44,12 +30,24 @@ Am 27.07.2011 11:28, schrieb Rongqing Li:
 > 
 > To avoid to expose these information to non-privileged users, security
 > checking should be done when expose the socket security context to procfs.
-> 
+
+We can already control the ability to read /proc/net files by labeling
+them via genfscon statements and then writing policy accordingly.  Do we
+think exposing the (raw) security context is any more of a concern than
+the rest of the information in the file?
+
+Can we add a field to those files without breaking compatibility with
+existing userspace?
+
 > 2. reimplementation the "netstat -Z", "netstat -Z" will first parse the
 > security context from procfs's tcp, udp, raw files, and get the security
 > context, if this step fails, "netstat -Z" will try as legacy method.
-> 
-> 
+
+It should only fall back to the legacy method if the context is not
+present in the file; if there is any other reason for failure (e.g.
+permission denied to /proc/net/tcp), then we presumably want netstat -Z
+to fail rather than report a possibly incorrect result.
+
 > If this implementation could be accepted by mainstream, netstat could
 > print the correct socket label even if the type_transition has been
 > happen on socket, or application changes socket labels by setting
@@ -57,21 +55,13 @@ Am 27.07.2011 11:28, schrieb Rongqing Li:
 > 
 > 
 > Do you think it is valuable?
-> 
-> Thanks
-> 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iQEcBAEBAgAGBQJOL+2uAAoJEGpTkDITRjmoT3EH/j6Egi1tg9FUqa3nELZKepQY
-lIOvvlHMJyboNlaisHkLS+MeMgO32mKfwiO2Vq4MNNFFHgEHt1J2BoIaNUU/D07K
-KVNvfEVcD3jV/B2vpqM6ugUjrzmxmueDhdYvnG2l4nTPVxnN+irZ60ECcpgW7b2h
-YZ5HKRAQ4MJkkCZacX03g3YX5J7inI3GU6eXUsim1/g54vdyCTRHn6M3AIizYozt
-+7Ey60CdgPBKHr8MnwZVgkC21zkZS0E/8ZOYFxYPKATBbdlINxOWG2i4mUTp9eJE
-svK/IMqJ4DXEg6RfGNwEB/KEms0W5ExOW/0M2TqoaukJBlLjZ20g4tQWZSVMVkg=
-=zm+N
------END PGP SIGNATURE-----
+Yes, I think it would be useful.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
