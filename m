@@ -1,70 +1,85 @@
-Message-ID: <4E30D0CE.4000702@windriver.com>
-Date: Thu, 28 Jul 2011 11:00:30 +0800
+Message-ID: <4E30D03B.8010707@windriver.com>
+Date: Thu, 28 Jul 2011 10:58:03 +0800
 From: Rongqing Li <rongqing.li@windriver.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>,
-        "selinux@tycho.nsa.gov"
-	<selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        "Christopher J.
- PeBenito" <cpebenito@tresys.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        Eric Paris
+	<eparis@parisplace.org>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: "netstat -Z" reimplementation
-References: <4E2FDA3A.5040408@windriver.com>	 <1311768565.23346.11.camel@moss-pluto>  <4E3014A6.7060903@redhat.com> <1311774012.23346.16.camel@moss-pluto>
-In-Reply-To: <1311774012.23346.16.camel@moss-pluto>
+References: <4E2FDA3A.5040408@windriver.com> <1311768565.23346.11.camel@moss-pluto>
+In-Reply-To: <1311768565.23346.11.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 07/27/2011 09:40 PM, Stephen Smalley wrote:
-> On Wed, 2011-07-27 at 09:37 -0400, Eric Paris wrote:
->> On 07/27/2011 08:09 AM, Stephen Smalley wrote:
->>> On Wed, 2011-07-27 at 17:28 +0800, Rongqing Li wrote:
->>>> SELinux folks, Stephen:
->>>>
->>>> I have some thoughts about reimplementation of 'netstat -Z', but I do
->>>> not know if it is valuable, or if there are other risks. Could you
->>>> evaluate my implementation, or give me your valuable advice?
->>>>
->>>> 1. From kernel, print the socket labels to tcp, udp, raw, unix
->>>> files under /proc/net/.
->>>>
->>>> Now the /proc/net/tcp /proc/net/udp ... include many socket's
->>>> information, like local address, remote address, inode, I think we can
->>>> put the socket's security context to these files.
->>>>
->>>> To avoid to expose these information to non-privileged users, security
->>>> checking should be done when expose the socket security context to procfs.
->>>
->>> We can already control the ability to read /proc/net files by labeling
->>> them via genfscon statements and then writing policy accordingly.  Do we
->>> think exposing the (raw) security context is any more of a concern than
->>> the rest of the information in the file?
->>>
->>> Can we add a field to those files without breaking compatibility with
->>> existing userspace?
+On 07/27/2011 08:09 PM, Stephen Smalley wrote:
+> On Wed, 2011-07-27 at 17:28 +0800, Rongqing Li wrote:
+>> SELinux folks, Stephen:
 >>
->> I tried once in the past and was told that no, I was not allowed to add
->> fields (seemed pretty stupid to me at the time and I don't remember if
->> the person who told me that actually knew what they were talking about)
+>> I have some thoughts about reimplementation of 'netstat -Z', but I do
+>> not know if it is valuable, or if there are other risks. Could you
+>> evaluate my implementation, or give me your valuable advice?
 >>
->> I believe I was told (and you should believe that my memory for things
->> more than 10 minutes old stinks and this was about 4 years ago) that I
->> was supposed to use "tcp_diag" instead.  I never figured out what that
->> was, so I never got the patch in...
+>> 1. From kernel, print the socket labels to tcp, udp, raw, unix
+>> files under /proc/net/.
 >>
->> Just figured you should know up front....
+>> Now the /proc/net/tcp /proc/net/udp ... include many socket's
+>> information, like local address, remote address, inode, I think we can
+>> put the socket's security context to these files.
+>>
+>> To avoid to expose these information to non-privileged users, security
+>> checking should be done when expose the socket security context to procfs.
 >
-> Ok, so perhaps he should ask on linux-netdev about how/where to add such
-> information before he spends too much time on it?
+> We can already control the ability to read /proc/net files by labeling
+> them via genfscon statements and then writing policy accordingly.  Do we
+> think exposing the (raw) security context is any more of a concern than
+> the rest of the information in the file?
 >
-Hi SElinux folks:
+> Can we add a field to those files without breaking compatibility with
+> existing userspace?
+>
 
-Thank you very much.
-I will discuss this with linux-netdev, and report the feedback and progress.
+Currently, if a user can access /proc/net/tcp, this user can get tcp socket
+all information, I think this maybe a error.
 
+Like below case:
+-------------------------------------------------------
+# id -Z
+root:sysadm_r:sysadm_t:s0-s15:c0.c1023
+#
+# netstat -Za |grep "dev/log"
+unix  2      [ ACC ]     STREAM     LISTENING     7263   508/syslog-ng 
+system_u:system_r:syslogd_t:s15:c0.c1023          /dev/log
+#
+-------------------------------------------------------
+
+This control can be implemented when kernel print this information to 
+kernel.
 
 -Roy
+
+>> 2. reimplementation the "netstat -Z", "netstat -Z" will first parse the
+>> security context from procfs's tcp, udp, raw files, and get the security
+>> context, if this step fails, "netstat -Z" will try as legacy method.
+>
+> It should only fall back to the legacy method if the context is not
+> present in the file; if there is any other reason for failure (e.g.
+> permission denied to /proc/net/tcp), then we presumably want netstat -Z
+> to fail rather than report a possibly incorrect result.
+>
+>> If this implementation could be accepted by mainstream, netstat could
+>> print the correct socket label even if the type_transition has been
+>> happen on socket, or application changes socket labels by setting
+>> /proc/self/attr/sockcreate.
+>>
+>>
+>> Do you think it is valuable?
+>
+> Yes, I think it would be useful.
+>
+
 -- 
 Best Reagrds,
 Roy | RongQing Li
