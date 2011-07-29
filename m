@@ -1,80 +1,169 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p6TC6bE0030026
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2011 08:06:37 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p6TC6Z6c015618
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2011 12:06:36 GMT
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p6TC6ZIv002687
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2011 08:06:35 -0400
-Message-ID: <4E32A24A.4000503@redhat.com>
-Date: Fri, 29 Jul 2011 08:06:34 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-CC: Karel Srot <ksrot@redhat.com>
-Subject: Fwd: How to extract file context patterns from selinux module
+Subject: Re: Fwd: How to extract file context patterns from selinux module
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Karel Srot <ksrot@redhat.com>,
+        Steve
+ Lawrence <slawrence@tresys.com>
+In-Reply-To: <4E32A24A.4000503@redhat.com>
 References: <1311941001.7994.4.camel@dhcp-30-102.brq.redhat.com>
-In-Reply-To: <1311941001.7994.4.camel@dhcp-30-102.brq.redhat.com>
-Content-Type: text/plain; charset=UTF-8
+	 <4E32A24A.4000503@redhat.com>
+Content-Type: multipart/mixed; boundary="=-haF7SC9JmLpTGAB1nf9T"
+Date: Fri, 29 Jul 2011 09:29:07 -0400
+Message-ID: <1311946147.12720.26.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--=-haF7SC9JmLpTGAB1nf9T
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
+On Fri, 2011-07-29 at 08:06 -0400, Daniel J Walsh wrote:
+> Hi,
+> could you please help me with following problem?
+> I would like to extract context patterns from a selinux module.
+> I know there are placed at the end of the module but I don't know (and
+> didn't find) the module structure. Therefore I don't know how to parse
+> them (if there are any in the module).
+> 
+> Thank you in advance
+> Karel Srot
+> 
+> $ tail abrt.pp
+> var/cache/abrt-di(/.*)?		system_u:object_r:abrt_var_cache_t:s0
+> /var/log/abrt-logger		--	system_u:object_r:abrt_var_log_t:s0
+> /var/run/abrt\.pid			--	system_u:object_r:abrt_var_run_t:s0
+> /var/run/abrtd?\.lock		--	system_u:object_r:abrt_var_run_t:s0
+> /var/run/abrtd?\.socket		-s  system_u:object_r:abrt_var_run_t:s0
+> /var/run/abrt(/.*)?		system_u:object_r:abrt_var_run_t:s0
+> ...
 
-- -------- Original Message --------
-Subject: How to extract file context patterns from selinux module
-Date: Fri, 29 Jul 2011 14:03:21 +0200
-From: Karel Srot <ksrot@redhat.com>
-To: selinux@lists.fedoraproject.org
+I created this program a while ago to support unpacking the .mod file
+from the .pp file, and just extended it to optionally unpack the .fc
+file as well.  If people find it useful, we could perhaps add it to
+policycoreutils.
 
-Hi,
-could you please help me with following problem?
-I would like to extract context patterns from a selinux module.
-I know there are placed at the end of the module but I don't know (and
-didn't find) the module structure. Therefore I don't know how to parse
-them (if there are any in the module).
+$ gcc -lsepol -o semodule_unpackage semodule_unpackage.c
+$ bunzip2 -c /usr/share/selinux/targeted/apache.pp.bz2 > apache.pp
+$ semodule_unpackage apache.pp apache.mod apache.fc
+$ cat apache.fc
 
-Thank you in advance
-Karel Srot
+-- 
+Stephen Smalley
+National Security Agency
 
-$ tail abrt.pp
-var/cache/abrt-di(/.*)?		system_u:object_r:abrt_var_cache_t:s0
-/var/log/abrt-logger		--	system_u:object_r:abrt_var_log_t:s0
-/var/run/abrt\.pid			--	system_u:object_r:abrt_var_run_t:s0
-/var/run/abrtd?\.lock		--	system_u:object_r:abrt_var_run_t:s0
-/var/run/abrtd?\.socket		-s  system_u:object_r:abrt_var_run_t:s0
-/var/run/abrt(/.*)?		system_u:object_r:abrt_var_run_t:s0
-...
+--=-haF7SC9JmLpTGAB1nf9T
+Content-Disposition: attachment; filename="semodule_unpackage.c"
+Content-Type: text/x-csrc; name="semodule_unpackage.c"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
+#include <sepol/module.h>
+#include <getopt.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
 
-Karel
+char *progname = NULL;
+extern char *optarg;
 
-- -- 
-Karel Srot
-QE BaseOS team
-http://intranet.corp.redhat.com/ic/intranet/KarelSrot
+static void usage(char *progname)
+{
+	printf("usage: %s ppfile modfile [fcfile]\n", progname);
+	exit(1);
+}
 
-Email: ksrot@redhat.com
-Web: www.cz.redhat.com
-Red Hat Czech s.r.o., Purkyňova 99/71, 612 45, Brno, Czech Republic
+static int file_to_policy_file(char *filename, struct sepol_policy_file **pf, char *mode)
+{
+	FILE *f;
+	
+	if (sepol_policy_file_create(pf)) {
+		fprintf(stderr, "%s:  Out of memory\n", progname);
+		return -1;	
+	}
+	
+	f = fopen(filename, mode);
+	if (!f) {
+		fprintf(stderr, "%s:  Could not open file %s:  %s\n", progname, strerror(errno), filename);
+		return -1;	
+	}
+	sepol_policy_file_set_fp(*pf, f);
+	return 0;
+}
 
-- --
-selinux mailing list
-selinux@lists.fedoraproject.org
-https://admin.fedoraproject.org/mailman/listinfo/selinux
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+int main(int argc, char **argv)
+{
+	struct sepol_module_package *pkg;
+	struct sepol_policy_file *in, *out;
+	FILE *fp;
+	size_t len;
+	char *ppfile, *modfile, *fcfile = NULL, *fcdata;
 
-iEYEARECAAYFAk4yokoACgkQrlYvE4MpobNp1wCgpyyfWSCd5z6hMaOutlLT9dT0
-chIAn2Qmq3I6XeKfYuMPrx+8SoJbV0Dr
-=CBv7
------END PGP SIGNATURE-----
+	progname = argv[0];
+
+	if (argc < 3) {
+		usage(progname);
+		exit(1);
+	}
+
+	ppfile = argv[1];
+	modfile = argv[2];
+	if (argc >= 3)
+		fcfile = argv[3];
+
+	if (file_to_policy_file(ppfile, &in, "r"))
+		exit(1);
+	
+	if (sepol_module_package_create(&pkg)) {
+                fprintf(stderr, "%s:  Out of memory\n", progname);
+                exit(1);		
+	}
+
+	if (sepol_module_package_read(pkg, in, 0) == -1) {
+                fprintf(stderr, "%s:  Error while reading policy module from %s\n",
+			progname, ppfile);
+                exit(1);		
+	}
+
+	if (file_to_policy_file(modfile, &out, "w"))
+		exit(1);
+		
+        if (sepol_policydb_write(sepol_module_package_get_policy(pkg), out)) {
+                fprintf(stderr, "%s:  Error while writing module to %s\n", progname, modfile);
+                exit(1);
+        }
+
+	sepol_policy_file_free(in);
+	sepol_policy_file_free(out);
+
+	len = sepol_module_package_get_file_contexts_len(pkg);
+	if (fcfile && len) {
+		fp = fopen(fcfile, "w");
+		if (!fp) {
+			fprintf(stderr, "%s:  Could not open file %s:  %s\n", progname, strerror(errno), fcfile);
+			exit(1);
+		}
+		fcdata = sepol_module_package_get_file_contexts(pkg);
+		if (fwrite(fcdata, 1, len, fp) != len) {
+			fprintf(stderr, "%s:  Could not write file %s:  %s\n", progname, strerror(errno), fcfile);
+			exit(1);
+		}
+		fclose(fp);
+	}
+
+	sepol_module_package_free(pkg);
+	exit(0);
+}
+
+--=-haF7SC9JmLpTGAB1nf9T--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
