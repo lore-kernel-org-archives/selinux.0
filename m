@@ -1,5 +1,5 @@
-Message-ID: <4E32CBDB.8010707@redhat.com>
-Date: Fri, 29 Jul 2011 11:03:55 -0400
+Message-ID: <4E32CD7F.9000902@redhat.com>
+Date: Fri, 29 Jul 2011 11:10:55 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -42,14 +42,18 @@ On 07/29/2011 09:29 AM, Stephen Smalley wrote:
 > /usr/share/selinux/targeted/apache.pp.bz2 > apache.pp $
 > semodule_unpackage apache.pp apache.mod apache.fc $ cat apache.fc
 > 
-Seems like something we should add to libselinux utils.
+
+
+The real goal should be to get back to te file?
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk4yy9sACgkQrlYvE4MpobOcHQCePORi9wniOXo41D5e/PMpUHdm
-o0AAoMAX7pNI7CiAY3X4cWVI2TZ2VtXm
-=lhZe
+iEYEARECAAYFAk4yzX8ACgkQrlYvE4MpobNxrQCgvYNFSjBXq/RL2ZS+je1O6QR6
+WDgAni1bKNAOm/2YeThXOWyPw+UXYuAK
+=MwWQ
 -----END PGP SIGNATURE-----
 
 --
