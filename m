@@ -1,65 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p71KNm9I003458
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 16:23:48 -0400
-Received: from mail-ew0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p71KNlho020776
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 20:23:47 GMT
-Received: by ewy8 with SMTP id 8so3481390ewy.12
-        for <selinux@tycho.nsa.gov>; Mon, 01 Aug 2011 13:23:46 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p71KUDlw003851
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 16:30:13 -0400
+Received: from mail-fx0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p71KUCOa005855
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 20:30:12 GMT
+Received: by fxd23 with SMTP id 23so5889122fxd.12
+        for <selinux@tycho.nsa.gov>; Mon, 01 Aug 2011 13:30:11 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1312230225.28822.5.camel@localhost.localdomain>
+References: <CAFPpqQEYmrYQWDS8t0Y2DcF3jXoyO=2f929jNuvFKyXjNG=OhQ@mail.gmail.com>
+	<1312230225.28822.5.camel@localhost.localdomain>
+Date: Mon, 1 Aug 2011 15:30:11 -0500
+Message-ID: <CAFPpqQGgaAsLvbw_kt6YKiMEE1=GuQTGiWSVmmAP5y2VZqASyQ@mail.gmail.com>
 Subject: Re: chown affecting type_transition?
-From: Dominick Grift <domg472@gmail.com>
-To: Ted Toth <txtoth@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Date: Mon, 01 Aug 2011 22:23:43 +0200
-In-Reply-To: <CAFPpqQEYmrYQWDS8t0Y2DcF3jXoyO=2f929jNuvFKyXjNG=OhQ@mail.gmail.com>
-References: 
-	<CAFPpqQEYmrYQWDS8t0Y2DcF3jXoyO=2f929jNuvFKyXjNG=OhQ@mail.gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-A3kuI/WBkgtWUxMt9DmQ"
-Message-ID: <1312230225.28822.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+From: Ted Toth <txtoth@gmail.com>
+To: Dominick Grift <domg472@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Joe Nall <joe@nall.com>
+Content-Type: multipart/alternative; boundary=bcaec52c64df77d1c104a9777f1f
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--bcaec52c64df77d1c104a9777f1f
+Content-Type: text/plain; charset=ISO-8859-1
 
---=-A3kuI/WBkgtWUxMt9DmQ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Sorry red herring. There was a su buried in 'b' which was only used if the
+chown occurred in 'a' (I didn't write these scripts). Changed su to runuser
+and am moving forward again.
 
+Ted
 
+On Mon, Aug 1, 2011 at 3:23 PM, Dominick Grift <domg472@gmail.com> wrote:
 
-On Mon, 2011-08-01 at 10:32 -0500, Ted Toth wrote:
-> I'm writing policy for some scripts. Script 'a' runs script 'b' and they
-> each have their own entry file and domain type. There is a type transitio=
-n
-> for a_t through b_exec_t to b_t in the policy. However the transition
-> doesn't happen. Script 'a' does a chown on script 'b' prior to running it=
-.
-> If I remove the chown the transition does happen as expected. Can chown
-> somehow affect the file label? 'ls -Z' doesn't show any change.
+>
+>
+> On Mon, 2011-08-01 at 10:32 -0500, Ted Toth wrote:
+> > I'm writing policy for some scripts. Script 'a' runs script 'b' and they
+> > each have their own entry file and domain type. There is a type
+> transition
+> > for a_t through b_exec_t to b_t in the policy. However the transition
+> > doesn't happen. Script 'a' does a chown on script 'b' prior to running
+> it.
+> > If I remove the chown the transition does happen as expected. Can chown
+> > somehow affect the file label? 'ls -Z' doesn't show any change.
+>
+> only thing i can think of is that the execute bit is not set for the
+> owner or group you chowned the file to.
+>
+> In that case a dac issue.
+> >
+> > Ted
+>
 
-only thing i can think of is that the execute bit is not set for the
-owner or group you chowned the file to.
+--bcaec52c64df77d1c104a9777f1f
+Content-Type: text/html; charset=ISO-8859-1
 
-In that case a dac issue.
->=20
-> Ted
+Sorry red herring. There was a su buried in &#39;b&#39; which was only used if the chown occurred in &#39;a&#39; (I didn&#39;t write these scripts). Changed su to runuser and am moving forward again.<br><br>Ted <br><br><div class="gmail_quote">
+On Mon, Aug 1, 2011 at 3:23 PM, Dominick Grift <span dir="ltr">&lt;<a href="mailto:domg472@gmail.com">domg472@gmail.com</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+<div><div></div><div class="h5"><br>
+<br>
+On Mon, 2011-08-01 at 10:32 -0500, Ted Toth wrote:<br>
+&gt; I&#39;m writing policy for some scripts. Script &#39;a&#39; runs script &#39;b&#39; and they<br>
+&gt; each have their own entry file and domain type. There is a type transition<br>
+&gt; for a_t through b_exec_t to b_t in the policy. However the transition<br>
+&gt; doesn&#39;t happen. Script &#39;a&#39; does a chown on script &#39;b&#39; prior to running it.<br>
+&gt; If I remove the chown the transition does happen as expected. Can chown<br>
+&gt; somehow affect the file label? &#39;ls -Z&#39; doesn&#39;t show any change.<br>
+<br>
+</div></div>only thing i can think of is that the execute bit is not set for the<br>
+owner or group you chowned the file to.<br>
+<br>
+In that case a dac issue.<br>
+&gt;<br>
+&gt; Ted<br>
+</blockquote></div><br>
 
---=-A3kuI/WBkgtWUxMt9DmQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABEKAAYFAk43C08ACgkQMlxVo39jgT8PWwCfdZ1J1whQ6unDrjn7Zgecv0mP
-9aQAoMhXSuDI0YMFLV1sJumdvOW4c3b7
-=Nv5R
------END PGP SIGNATURE-----
-
---=-A3kuI/WBkgtWUxMt9DmQ--
-
+--bcaec52c64df77d1c104a9777f1f--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
