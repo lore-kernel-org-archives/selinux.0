@@ -1,104 +1,122 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p723AbhL020114
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 23:10:37 -0400
-Received: from snt0-omc4-s11.snt0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p723AZBn011934
-	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2011 03:10:36 GMT
-Message-ID: <SNT139-W3302BB87F44CE395853050AB3B0@phx.gbl>
-Content-Type: multipart/mixed;
-	boundary="_5ac415f8-35e2-424d-9b70-e5eacff0474f_"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p729GmJK001096
+	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2011 05:16:48 -0400
+Received: from snt0-omc4-s18.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p729GlOR020843
+	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2011 09:16:47 GMT
+Message-ID: <SNT139-W14587C48242D78B1643FD7AB3B0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_734526d3-5718-43ed-8400-5416d1d73f40_"
 From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <martin.christian@secunet.com>, <selinux@tycho.nsa.gov>
-Subject: RE: Howto transition socket
-Date: Tue, 2 Aug 2011 03:10:34 +0000
-In-Reply-To: <4E36CA2C.8080300@secunet.com>
-References: <4E36CA2C.8080300@secunet.com>
+To: <cpebenito@tresys.com>, <selinux@tycho.nsa.gov>
+CC: <qingtao.cao@windriver.com>
+Subject: RE: Error in monolithic role attribute
+Date: Tue, 2 Aug 2011 09:16:46 +0000
+In-Reply-To: <4E36A370.40001@tresys.com>
+References: <4E36A370.40001@tresys.com>
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_5ac415f8-35e2-424d-9b70-e5eacff0474f_
-Content-Type: multipart/alternative;
-	boundary="_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_"
-
---_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_
+--_734526d3-5718-43ed-8400-5416d1d73f40_
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
 
-Hi Martin,
+Hello Chris,
 
-> Date: Mon, 1 Aug 2011 17:45:48 +0200
-> From: martin.christian@secunet.com
-> To: selinux@tycho.nsa.gov
-> Subject: Howto transition socket
-> 
-> Hi,
-> 
-> excuse this very basic question: How can I define a transition for a socket?
-> 
-> Let's assume I've got a process p with label u_t, denoted as p:u_t. The
-> process opens a listening tcp socket s on port 80 (e. g. nc -l -p 80).
-> As far as I understood, s would get the label from the process: s:u_t.
-> However, I would like the socket to have label o_t. Hence, I define a
-> transition:
-> 
-> (u, u) -> o
-> 
-> or in policy syntax;
-> 
-> type_transition u_t u_t:tcp_socket o_t;
+Many thanks for finding out this problem, I've found out the root cause, and the fix is very easy - just remove the second call of role_fix_callback() in expand_module() for processing block/decls' local p_roles table.
 
-Generally speaking, the type_transition rule for socket so that it would have a separate type than its creator works like this. However, other than this type_transition rule, you would also have to grant other necessary allow rules so that the creator could create and use this new socket type, such as:
+Ok, let me ramble on how I've analyzed this problem.
 
-allow u_t o_t : tcp_socket { create_socket_perms, sendto, .... };
+1. After I add some printf in the role_fix_callback(), I will get below results:
 
-and have the process role able to type with this socket type:
+712, role attribute name: portage_roles
+712, role attribute name: semanage_roles
+712, role attribute name: rpm_roles
+712, role attribute name: semanage_roles
+724, regular_role_name: portage_roles, 1
+semodule: expand.c:725: role_fix_callback: Assertion `0' failed.
 
-role <process's role> types o_t;
+Which shows that the semanage_role attribute has been processed TWICE, and it is the second time when the assertion finds that it still contains a sub role attribute.
 
-Then you could verify the socket type by the compute_create command, see below example.
+How could this happen? Since the expand_role_attributes() at the end of the link phase would escalate sub role attribute's roles ebitmap into that of the parent, then remove the sub role attribute away from the parent's roles ebitmap, which supports the assertion that during the role_fix_callback() in the expand phase any role attribute's roles ebitmap should only contain regular roles, but not role attribute.
 
-I have attached my refpolicy patch to have the unix_dgram_socket created by syslogd_t to be labeled as syslogd_s_t, hope that helps :-)
+When the role_fix_callback() is called the second time in the expand phase, it is processing the p_roles symtab of some block/decl. If I comment off usermanage_run_useradd(portage_t, portage_roles), which is inside optional_policy macro, then I would get another similar error log:
 
-Cheers,
+712, role attribute name: portage_roles
+712, role attribute name: semanage_roles
+712, role attribute name: rpm_roles
+712, role attribute name: semanage_roles
+724, regular_role_name: rpm_roles, 1
+semodule: expand.c:725: role_fix_callback: Assertion `0' failed.
+
+Then if I further comment off usermanage_run_useradd(rpm_script_t, rpm_roles), then the problem would gone.
+
+2. This problem makes me remember that months ago when I was developing the role attribute support, I had been doubtful about the need to call role_fix_callback() again in the expand phase for any block/decl.
+
+Turns out this is not only redundant but also wrong!
+
+At the end of the link phase, before expand_role_attributes() is called the populate_roleattributes() takes care of merging any role attributes's roles ebitmap recorded in any block/decl's p_roles table, into the base.p_roles table. Actually this would have complemented the effect of get_local_role(), so there is not any need to look into any block/decl's p_roles table again in the expand phase.
+
+Moreover, any attempt to do so would be wrong, since expand_role_attributes() just works on base.p_roles table, not that of block/decl's, which explains when processing some local p_roles of some block/decl, the semange_role's roles ebitmap still contains sub role attributes! which further explains why comment off the call of usermanage_run_useradd() would make the problem disappear - since it's called in some block/decl other than the global block!
+
+3. The tests in step 1 proves that the analysis in step 2 is correct.
+
+Also, the call of attr_convert_callback() in the expand phase for block/decls aims to complement the effect of get_local_type(). Again, now that the effect of get_local_role() has been complemented by populate_roleattributes() in the link phase, role_fix_callback() should not be called for block/decl any more.
+
+I would send out the fix in a separate thread.
+
+Thanks again!
+
+Best regards,
 Harry
 
 
 
-
-
-	
-	
-	
-	
-
-     
-[root/sysadm_r/s0@~]#
-compute_create system_u:system_r:syslogd_t:s15:c0.c1023    
-system_u:system_r:syslogd_t:s15:c0.c1023 unix_dgram_socket 
-
-     
-system_u:system_r:syslogd_s_t:s15:c0.c1023
-
-
-     
-[root/sysadm_r/s0@~]#
-
-
+> Date: Mon, 1 Aug 2011 09:00:32 -0400
+> From: cpebenito@tresys.com
+> To: selinux@tycho.nsa.gov
+> CC: qingtao.cao@windriver.com; harrytaurus2002@hotmail.com
+> Subject: Error in monolithic role attribute
 > 
-> But this doesn't seem to work. Any ideas?
+> I started the Refpolicy implementation for the new role attribute
+> support.  Unfortunately, I get the following error for monolithic policies:
 > 
-> Regards,
+> /usr/bin/checkpolicy policy.conf -o policy.26
+> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> checkpolicy: expand.c:721: role_fix_callback: Assertion `regular_role !=
+> ((void *)0) && regular_role->flavor == 0' failed.
+> make: *** [policy.26] Aborted
 > 
-> Martin.
+> With the same policy I get a similar error when running 'make validate'
+> in a modular build:
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> /usr/bin/semodule_expand tmp/test.lnk tmp/policy.bin
+> semodule_expand: expand.c:721: role_fix_callback: Assertion
+> `regular_role != ((void *)0) && regular_role->flavor == 0' failed.
+> make: *** [validate] Aborted
+> 
+> This is with last week's release of the toolchain.
+> 
+> You should be able to reproduce this by checking out current Refpolicy
+> and applying the attached patch.
+> 
+> For monolithic:
+> $ make conf
+> $ make MONOLITHIC=y.
+> 
+> For modular:
+> 
+> $ make conf
+> $ make validate
+> 
+> -- 
+> Chris PeBenito
+> Tresys Technology, LLC
+> www.tresys.com | oss.tresys.com
  		 	   		  
---_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_
+--_734526d3-5718-43ed-8400-5416d1d73f40_
 Content-Type: text/html; charset="gb2312"
 Content-Transfer-Encoding: 8bit
 
@@ -118,98 +136,16 @@ font-family:Î¢ÈíÑÅºÚ
 --></style>
 </head>
 <body class='hmmessage'><div dir='ltr'>
-Hi Martin,<br><br><div>&gt; Date: Mon, 1 Aug 2011 17:45:48 +0200<br>&gt; From: martin.christian@secunet.com<br>&gt; To: selinux@tycho.nsa.gov<br>&gt; Subject: Howto transition socket<br>&gt; <br>&gt; Hi,<br>&gt; <br>&gt; excuse this very basic question: How can I define a transition for a socket?<br>&gt; <br>&gt; Let's assume I've got a process p with label u_t, denoted as p:u_t. The<br>&gt; process opens a listening tcp socket s on port 80 (e. g. nc -l -p 80).<br>&gt; As far as I understood, s would get the label from the process: s:u_t.<br>&gt; However, I would like the socket to have label o_t. Hence, I define a<br>&gt; transition:<br>&gt; <br>&gt; (u, u) -&gt; o<br>&gt; <br>&gt; or in policy syntax;<br>&gt; <br>&gt; type_transition u_t u_t:tcp_socket o_t;<br><br>Generally speaking, the type_transition rule for socket so that it would have a separate type than its creator works like this. However, other than this type_transition rule, you would also have to grant other ne!
- cessary allow rules so that the creator could create and use this new socket type, such as:<br><br>allow u_t o_t : tcp_socket { create_socket_perms, sendto, .... };<br><br>and have the process role able to type with this socket type:<br><br>role &lt;process's role&gt; types o_t;<br><br>Then you could verify the socket type by the compute_create command, see below example.<br><br>I have attached my refpolicy patch to have the unix_dgram_socket created by syslogd_t to be labeled as syslogd_s_t, hope that helps :-)<br><br>Cheers,<br>Harry<br><br><br>
-
-
-	
-	
-	
-	<style type="text/css">p { margin-bottom: 0.21cm; }</style>
-
-<p style="margin-bottom: 0cm; text-decoration: none;">     
-<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">[root/sysadm_r/s0@~]#
-compute_create system_u:system_r:syslogd_t:s15:c0.c1023    
-system_u:system_r:syslogd_t:s15:c0.c1023 unix_dgram_socket </font></font>
-</p>
-<p style="margin-bottom: 0cm; text-decoration: none;">     
-<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">system_u:system_r:syslogd_s_t:s15:c0.c1023
-</font></font>
-</p>
-<p style="margin-bottom: 0cm; text-decoration: none;">     
-<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">[root/sysadm_r/s0@~]#</font></font></p>
-<br><br>&gt; <br>&gt; But this doesn't seem to work. Any ideas?<br>&gt; <br>&gt; Regards,<br>&gt; <br>&gt; Martin.<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
+Hello Chris,<br><br>Many thanks for finding out this problem, I've found out the root cause, and the fix is very easy - just remove the second call of role_fix_callback() in expand_module() for processing block/decls' local p_roles table.<br><br>Ok, let me ramble on how I've analyzed this problem.<br><br>1. After I add some printf in the role_fix_callback(), I will get below results:<br><br>712, role attribute name: portage_roles<br>712, role attribute name: semanage_roles<br>712, role attribute name: rpm_roles<br>712, role attribute name: semanage_roles<br>724, regular_role_name: portage_roles, 1<br>semodule: expand.c:725: role_fix_callback: Assertion `0' failed.<br><br>Which shows that the semanage_role attribute has been processed TWICE, and it is the second time when the assertion finds that it still contains a sub role attribute.<br><br>How could this happen? Since the expand_role_attributes() at the end of the link phase would escalate sub role attribute's roles ebitma!
+ p into that of the parent, then remove the sub role attribute away from the parent's roles ebitmap, which supports the assertion that during the role_fix_callback() in the expand phase any role attribute's roles ebitmap should only contain regular roles, but not role attribute.<br><br>When the role_fix_callback() is called the second time in the expand phase, it is processing the p_roles symtab of some block/decl. If I comment off usermanage_run_useradd(portage_t, portage_roles), which is inside optional_policy macro, then I would get another similar error log:<br><br>712, role attribute name: portage_roles<br>712, role attribute name: semanage_roles<br>712, role attribute name: rpm_roles<br>712, role attribute name: semanage_roles<br>724, regular_role_name: rpm_roles, 1<br>semodule: expand.c:725: role_fix_callback: Assertion `0' failed.<br><br>Then if I further comment off usermanage_run_useradd(rpm_script_t, rpm_roles), then the problem would gone.<br><br>2. This problem !
+ makes me remember that months ago when I was developing the role attri
+bute support, I had been doubtful about the need to call role_fix_callback() again in the expand phase for any block/decl.<br><br>Turns out this is not only redundant but also wrong!<br><br>At the end of the link phase, before expand_role_attributes() is called the populate_roleattributes() takes care of merging any role attributes's roles ebitmap recorded in any block/decl's p_roles table, into the base.p_roles table. Actually this would have complemented the effect of get_local_role(), so there is not any need to look into any block/decl's p_roles table again in the expand phase.<br><br>Moreover, any attempt to do so would be wrong, since expand_role_attributes() just works on base.p_roles table, not that of block/decl's, which explains when processing some local p_roles of some block/decl, the semange_role's roles ebitmap still contains sub role attributes! which further explains why comment off the call of usermanage_run_useradd() would make the problem disappear - since!
+  it's called in some block/decl other than the global block!<br><br>3. The tests in step 1 proves that the analysis in step 2 is correct.<br><br>Also, the call of attr_convert_callback() in the expand phase for block/decls aims to complement the effect of get_local_type(). Again, now that the effect of get_local_role() has been complemented by populate_roleattributes() in the link phase, role_fix_callback() should not be called for block/decl any more.<br><br>I would send out the fix in a separate thread.<br><br>Thanks again!<br><br>Best regards,<br>Harry<br><br><br><br><div>&gt; Date: Mon, 1 Aug 2011 09:00:32 -0400<br>&gt; From: cpebenito@tresys.com<br>&gt; To: selinux@tycho.nsa.gov<br>&gt; CC: qingtao.cao@windriver.com; harrytaurus2002@hotmail.com<br>&gt; Subject: Error in monolithic role attribute<br>&gt; <br>&gt; I started the Refpolicy implementation for the new role attribute<br>&gt; support.  Unfortunately, I get the following error for monolithic policies:<br>&gt; <!
+ br>&gt; /usr/bin/checkpolicy policy.conf -o policy.26<br>&gt; /usr/bin
+/checkpolicy:  loading policy configuration from policy.conf<br>&gt; checkpolicy: expand.c:721: role_fix_callback: Assertion `regular_role !=<br>&gt; ((void *)0) &amp;&amp; regular_role-&gt;flavor == 0' failed.<br>&gt; make: *** [policy.26] Aborted<br>&gt; <br>&gt; With the same policy I get a similar error when running 'make validate'<br>&gt; in a modular build:<br>&gt; <br>&gt; /usr/bin/semodule_expand tmp/test.lnk tmp/policy.bin<br>&gt; semodule_expand: expand.c:721: role_fix_callback: Assertion<br>&gt; `regular_role != ((void *)0) &amp;&amp; regular_role-&gt;flavor == 0' failed.<br>&gt; make: *** [validate] Aborted<br>&gt; <br>&gt; This is with last week's release of the toolchain.<br>&gt; <br>&gt; You should be able to reproduce this by checking out current Refpolicy<br>&gt; and applying the attached patch.<br>&gt; <br>&gt; For monolithic:<br>&gt; $ make conf<br>&gt; $ make MONOLITHIC=y.<br>&gt; <br>&gt; For modular:<br>&gt; <br>&gt; $ make conf<br>&gt; $ make validate<!
+ br>&gt; <br>&gt; -- <br>&gt; Chris PeBenito<br>&gt; Tresys Technology, LLC<br>&gt; www.tresys.com | oss.tresys.com<br></div> 		 	   		  </div></body>
 </html>
---_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_--
-
---_5ac415f8-35e2-424d-9b70-e5eacff0474f_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="separate_sock_for_syslogd_t.patch"
-
-Y29tbWl0IDM2NTA1MTYwZGMxMjc0ZTJiZWMyZmJiODU0YTM5YjhkMjg5MWQwOGMKQXV0aG9yOiBI
-YXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29tPgpEYXRlOiAgIFRodSBGZWIgMjQg
-MTY6MjM6NDIgMjAxMSArMDgwMAoKICAgIFNwZWNpZnkgYSBzZXBhcmF0ZSBzb2NrZXQgdHlwZSBm
-b3Igc3lzbG9nZF90LgogICAgCiAgICBVc2UgYSB0eXBlX3RyYW5zaXRpb24gcnVsZSB0byBzcGVj
-aWZ5IGEgc2VwYXJhdGUgdHlwZSBmb3IgdW5peF9kZ3JhbV9zb2NrZXQKICAgIG9iamVjdCBjcmVh
-dGVkIGJ5IHN5c2xvZ2RfdCwgc28gdGhhdCB0aGUgc29ja2V0IHR5cGUgYWxvbmUgY291bGQgYmUg
-YWRkZWQKICAgIHRvIHRoZSBtbHN0cnVzdGVkb2JqZWN0IGF0dHJidXRlIHRvIGF2b2lkIGJlbG93
-IGVycm9yIG1lc3NhZ2U6CiAgICAKICAgIHR5cGU9MTQwMCBhdWRpdCgxMjk4NTM1MTAxLjY1NDo4
-NjgpOiBhdmM6ICBkZW5pZWQgIHsgc2VuZHRvIH0gZm9yICBwaWQ9Mzg1IGNvbW09Imtsb2dkIiBw
-YXRoPSIvZGV2L2xvZyIgc2NvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6a2xvZ2RfdDpzMCB0Y29u
-dGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXNsb2dkX3Q6czE1OmMwLmMxMDIzIHRjbGFzcz11bml4
-X2RncmFtX3NvY2tldAogICAgCiAgICBUaGlzIGhlbHBzIHRvIGF2b2lkIGFkZGluZyBzeXNsb2dk
-X3QgdG8gdGhpcyBhdHRyaWJ1dGUgd2hpY2ggYWxzbyBpcyB0aGUKICAgIGxhYmVsIGZvciBhbGwg
-c3lzbG9nZCdzIHByb2NmcyBjb250ZW50cy4KICAgIAogICAgQlRXLCBpbiBTRUxpbnV4IGtlcm5l
-bCBkcml2ZXIgdGhlIHNlY3VyaXR5X3RyYW5zaXRpb25fc2lkKCkgc2hvdWxkIGJlCiAgICBjYWxs
-ZWQgdG8gcXVlcnkgYWJvdmUgdHlwZV90cmFuc2l0aW9uIHJ1bGUgZm9yIHRoZSBuZXdseSBjcmVh
-dGVkIHNvY2tldCwKICAgIHdoaWNoIHdpbGwgcmV0YWluIHRoZSBzYW1lIHVzZXIsIHJvbGUgYW5k
-IE1MUyBhdHRyaWJ1dGUgYXMgaXRzIGNyZWF0b3IuCgpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVs
-ZXMvc3lzdGVtL2xvZ2dpbmcuaWYgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZgpp
-bmRleCA4MzFiOTA5Li4wY2FiMzJjIDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0v
-bG9nZ2luZy5pZgorKysgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZgpAQCAtNTI1
-LDE0ICs1MjUsMTQgQEAgaW50ZXJmYWNlKGBsb2dnaW5nX2xvZ19maWxldHJhbnMnLGAKICMKIGlu
-dGVyZmFjZShgbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2cnLGAKIAlnZW5fcmVxdWlyZShgCi0JCXR5
-cGUgc3lzbG9nZF90LCBkZXZsb2dfdDsKKwkJdHlwZSBzeXNsb2dkX3QsIHN5c2xvZ2Rfc190LCBk
-ZXZsb2dfdDsKIAknKQogCiAJYWxsb3cgJDEgZGV2bG9nX3Q6bG5rX2ZpbGUgcmVhZF9sbmtfZmls
-ZV9wZXJtczsKIAlhbGxvdyAkMSBkZXZsb2dfdDpzb2NrX2ZpbGUgd3JpdGVfc29ja19maWxlX3Bl
-cm1zOwogCiAJIyB0aGUgdHlwZSBvZiBzb2NrZXQgZGVwZW5kcyBvbiB0aGUgc3lzbG9nIGRhZW1v
-bgotCWFsbG93ICQxIHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzZW5kdG87CisJYWxsb3cg
-JDEgc3lzbG9nZF9zX3Q6dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOwogCWFsbG93ICQxIHN5c2xv
-Z2RfdDp1bml4X3N0cmVhbV9zb2NrZXQgY29ubmVjdHRvOwogCWFsbG93ICQxIHNlbGY6dW5peF9k
-Z3JhbV9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsKIAlhbGxvdyAkMSBzZWxmOnVuaXhfc3Ry
-ZWFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVs
-ZXMvc3lzdGVtL2xvZ2dpbmcudGUgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZQpp
-bmRleCBiNmVjNTk3Li42ODA0ZGNmIDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0v
-bG9nZ2luZy50ZQorKysgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZQpAQCAtNjUs
-NiArNjUsMTMgQEAgdHlwZSBzeXNsb2dkX3Q7CiB0eXBlIHN5c2xvZ2RfZXhlY190OwogaW5pdF9k
-YWVtb25fZG9tYWluKHN5c2xvZ2RfdCwgc3lzbG9nZF9leGVjX3QpCiAKKyMgUEZfVU5JWCBzb2Nr
-ZXQgY3JlYXRlZCBieSBzeXNsb2dkLgorIyBBbnkgc29ja2V0IHdpbGwgcmV0YWluIHRoZSBzYW1l
-IHVzZXIsIHJvbGUgYW5kIE1MUyBhdHRyaWJ1dGUgYXMKKyMgaXRzIGNyZWF0b3IsIHRodXMgdGhl
-IGNyZWF0b3IncyByb2xlIG5lZWRzIHRvIHR5cGUgdGhlIHNvY2tldCB0eXBlLgordHlwZSBzeXNs
-b2dkX3NfdDsKK3JvbGUgc3lzdGVtX3IgdHlwZXMgc3lzbG9nZF9zX3Q7CittbHNfdHJ1c3RlZF9v
-YmplY3Qoc3lzbG9nZF9zX3QpCisKIHR5cGUgc3lzbG9nZF9pbml0cmNfZXhlY190OwogaW5pdF9z
-Y3JpcHRfZmlsZShzeXNsb2dkX2luaXRyY19leGVjX3QpCiAKQEAgLTM2MCwxNSArMzY3LDE4IEBA
-IGRvbnRhdWRpdCBzeXNsb2dkX3Qgc2VsZjpjYXBhYmlsaXR5IHN5c190dHlfY29uZmlnOwogIyBz
-ZXRybGltaXQgZm9yIHN5c2xvZy1uZwogYWxsb3cgc3lzbG9nZF90IHNlbGY6cHJvY2VzcyB7IHNp
-Z25hbF9wZXJtcyBzZXRwZ2lkIHNldHJsaW1pdCB9OwogIyByZWNlaXZlIG1lc3NhZ2VzIHRvIGJl
-IGxvZ2dlZAotYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQgY3JlYXRlX3Nv
-Y2tldF9wZXJtczsKK2FsbG93IHN5c2xvZ2RfdCBzeXNsb2dkX3NfdDp1bml4X2RncmFtX3NvY2tl
-dCBjcmVhdGVfc29ja2V0X3Blcm1zOwogYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9zdHJlYW1f
-c29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwotYWxsb3cgc3lzbG9nZF90IHNlbGY6
-dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOworYWxsb3cgc3lzbG9nZF90IHN5c2xvZ2Rfc190OnVu
-aXhfZGdyYW1fc29ja2V0IHNlbmR0bzsKIGFsbG93IHN5c2xvZ2RfdCBzZWxmOmZpZm9fZmlsZSBy
-d19maWZvX2ZpbGVfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp1ZHBfc29ja2V0IGNyZWF0
-ZV9zb2NrZXRfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp0Y3Bfc29ja2V0IGNyZWF0ZV9z
-dHJlYW1fc29ja2V0X3Blcm1zOwogCiBhbGxvdyBzeXNsb2dkX3Qgc3lzbG9nX2NvbmZfdDpmaWxl
-IHJlYWRfZmlsZV9wZXJtczsKIAorIyBQRl9VTklYIGRncmFtIHNvY2tldCBjcmVhdGVkIGJ5IHN5
-c2xvZ2RfdCBsYWJlbGVkIGFzIHN5c2xvZ2Rfc190Cit0eXBlX3RyYW5zaXRpb24gc3lzbG9nZF90
-IHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzeXNsb2dkX3NfdDsKKwogIyBDcmVhdGUgYW5k
-IGJpbmQgdG8gL2Rldi9sb2cgb3IgL3Zhci9ydW4vbG9nLgogYWxsb3cgc3lzbG9nZF90IGRldmxv
-Z190OnNvY2tfZmlsZSBtYW5hZ2Vfc29ja19maWxlX3Blcm1zOwogZmlsZXNfcGlkX2ZpbGV0cmFu
-cyhzeXNsb2dkX3QsIGRldmxvZ190LCBzb2NrX2ZpbGUpCg==
-
---_5ac415f8-35e2-424d-9b70-e5eacff0474f_--
+--_734526d3-5718-43ed-8400-5416d1d73f40_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
