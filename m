@@ -1,482 +1,215 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p71LANev005936
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 17:10:37 -0400
-Received: from g4t0016.houston.hp.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p71LAZOa011925
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 21:10:35 GMT
-Subject: [PATCH 2/2] doc: Update the email address for Paul Moore in various
- source files
-To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-From: Paul Moore <paul.moore@hp.com>
-Cc: paul@paul-moore.com
-Date: Mon, 01 Aug 2011 17:10:33 -0400
-Message-ID: <20110801211033.11940.92986.stgit@localhost6.localdomain6>
-In-Reply-To: <20110801210642.11940.49764.stgit@localhost6.localdomain6>
-References: <20110801210642.11940.49764.stgit@localhost6.localdomain6>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p723AbhL020114
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2011 23:10:37 -0400
+Received: from snt0-omc4-s11.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p723AZBn011934
+	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2011 03:10:36 GMT
+Message-ID: <SNT139-W3302BB87F44CE395853050AB3B0@phx.gbl>
+Content-Type: multipart/mixed;
+	boundary="_5ac415f8-35e2-424d-9b70-e5eacff0474f_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <martin.christian@secunet.com>, <selinux@tycho.nsa.gov>
+Subject: RE: Howto transition socket
+Date: Tue, 2 Aug 2011 03:10:34 +0000
+In-Reply-To: <4E36CA2C.8080300@secunet.com>
+References: <4E36CA2C.8080300@secunet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My @hp.com will no longer be valid starting August 5, 2011 so an update is
-necessary.  My new email address is employer independent so we don't have
-to worry about doing this again any time soon.
+--_5ac415f8-35e2-424d-9b70-e5eacff0474f_
+Content-Type: multipart/alternative;
+	boundary="_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_"
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- include/net/cipso_ipv4.h            |    2 +-
- include/net/netlabel.h              |    2 +-
- net/netlabel/Makefile               |    2 --
- net/netlabel/netlabel_addrlist.c    |    2 +-
- net/netlabel/netlabel_addrlist.h    |    2 +-
- net/netlabel/netlabel_cipso_v4.c    |    2 +-
- net/netlabel/netlabel_cipso_v4.h    |    2 +-
- net/netlabel/netlabel_domainhash.c  |    2 +-
- net/netlabel/netlabel_domainhash.h  |    2 +-
- net/netlabel/netlabel_kapi.c        |    2 +-
- net/netlabel/netlabel_mgmt.c        |    2 +-
- net/netlabel/netlabel_mgmt.h        |    2 +-
- net/netlabel/netlabel_unlabeled.c   |    2 +-
- net/netlabel/netlabel_unlabeled.h   |    2 +-
- net/netlabel/netlabel_user.c        |    2 +-
- net/netlabel/netlabel_user.h        |    2 +-
- security/selinux/hooks.c            |    2 +-
- security/selinux/include/netif.h    |    2 +-
- security/selinux/include/netlabel.h |    2 +-
- security/selinux/include/netnode.h  |    2 +-
- security/selinux/include/netport.h  |    2 +-
- security/selinux/netif.c            |    2 +-
- security/selinux/netlabel.c         |    2 +-
- security/selinux/netnode.c          |    2 +-
- security/selinux/netport.c          |    2 +-
- security/selinux/selinuxfs.c        |    2 +-
- security/selinux/ss/ebitmap.c       |    2 +-
- security/selinux/ss/mls.c           |    2 +-
- security/selinux/ss/mls.h           |    2 +-
- security/selinux/ss/policydb.c      |    2 +-
- security/selinux/ss/services.c      |    2 +-
- security/smack/smack_lsm.c          |    2 +-
- 32 files changed, 31 insertions(+), 33 deletions(-)
+--_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-diff --git a/include/net/cipso_ipv4.h b/include/net/cipso_ipv4.h
-index 3b93874..9808877 100644
---- a/include/net/cipso_ipv4.h
-+++ b/include/net/cipso_ipv4.h
-@@ -8,7 +8,7 @@
-  * have chosen to adopt the protocol and over the years it has become a
-  * de-facto standard for labeled networking.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index f21a16e..f674409 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -4,7 +4,7 @@
-  * The NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/Makefile b/net/netlabel/Makefile
-index ea750e9..d2732fc 100644
---- a/net/netlabel/Makefile
-+++ b/net/netlabel/Makefile
-@@ -1,8 +1,6 @@
- #
- # Makefile for the NetLabel subsystem.
- #
--# Feb 9, 2006, Paul Moore <paul.moore@hp.com>
--#
- 
- # base objects
- obj-y	:= netlabel_user.o netlabel_kapi.o
-diff --git a/net/netlabel/netlabel_addrlist.c b/net/netlabel/netlabel_addrlist.c
-index c051913..96b749d 100644
---- a/net/netlabel/netlabel_addrlist.c
-+++ b/net/netlabel/netlabel_addrlist.c
-@@ -6,7 +6,7 @@
-  * system manages static and dynamic label mappings for network protocols such
-  * as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_addrlist.h b/net/netlabel/netlabel_addrlist.h
-index 2b9644e..fdbc1d2 100644
---- a/net/netlabel/netlabel_addrlist.h
-+++ b/net/netlabel/netlabel_addrlist.h
-@@ -6,7 +6,7 @@
-  * system manages static and dynamic label mappings for network protocols such
-  * as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index dd53a36..6bf8783 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_cipso_v4.h b/net/netlabel/netlabel_cipso_v4.h
-index af7f335..d24d774 100644
---- a/net/netlabel/netlabel_cipso_v4.h
-+++ b/net/netlabel/netlabel_cipso_v4.h
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
-index 2aa975e..7d8083c 100644
---- a/net/netlabel/netlabel_domainhash.c
-+++ b/net/netlabel/netlabel_domainhash.c
-@@ -6,7 +6,7 @@
-  * system manages static and dynamic label mappings for network protocols such
-  * as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_domainhash.h b/net/netlabel/netlabel_domainhash.h
-index 0261dda..bfcc0f7 100644
---- a/net/netlabel/netlabel_domainhash.h
-+++ b/net/netlabel/netlabel_domainhash.h
-@@ -6,7 +6,7 @@
-  * system manages static and dynamic label mappings for network protocols such
-  * as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index b528dd9..58107d0 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -5,7 +5,7 @@
-  * system manages static and dynamic label mappings for network protocols such
-  * as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
-index dff8a08..bfa5558 100644
---- a/net/netlabel/netlabel_mgmt.c
-+++ b/net/netlabel/netlabel_mgmt.c
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_mgmt.h b/net/netlabel/netlabel_mgmt.h
-index 8db37f4..5a9f31c 100644
---- a/net/netlabel/netlabel_mgmt.h
-+++ b/net/netlabel/netlabel_mgmt.h
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index f1ecf84..e6e8236 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -5,7 +5,7 @@
-  * NetLabel system.  The NetLabel system manages static and dynamic label
-  * mappings for network protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_unlabeled.h b/net/netlabel/netlabel_unlabeled.h
-index 0bc8dc3..700af49 100644
---- a/net/netlabel/netlabel_unlabeled.h
-+++ b/net/netlabel/netlabel_unlabeled.h
-@@ -5,7 +5,7 @@
-  * NetLabel system.  The NetLabel system manages static and dynamic label
-  * mappings for network protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
-index a3fd75a..9fae63f 100644
---- a/net/netlabel/netlabel_user.c
-+++ b/net/netlabel/netlabel_user.c
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/net/netlabel/netlabel_user.h b/net/netlabel/netlabel_user.h
-index f4fc4c9..8196978 100644
---- a/net/netlabel/netlabel_user.h
-+++ b/net/netlabel/netlabel_user.h
-@@ -5,7 +5,7 @@
-  * NetLabel system manages static and dynamic label mappings for network
-  * protocols such as CIPSO and RIPSO.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a38316b..266a229 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -14,7 +14,7 @@
-  *  Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-  *			    <dgoeddel@trustedcs.com>
-  *  Copyright (C) 2006, 2007, 2009 Hewlett-Packard Development Company, L.P.
-- *	Paul Moore <paul.moore@hp.com>
-+ *	Paul Moore <paul@paul-moore.com>
-  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
-  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
-  *
-diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
-index ce23edd..43d5072 100644
---- a/security/selinux/include/netif.h
-+++ b/security/selinux/include/netif.h
-@@ -8,7 +8,7 @@
-  *
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-- *                    Paul Moore, <paul.moore@hp.com>
-+ *                    Paul Moore <paul@paul-moore.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2,
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index cf2f628..8c59b8f 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -1,7 +1,7 @@
- /*
-  * SELinux interface to the NetLabel subsystem
-  *
-- * Author : Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
-index 1b94450..df7a5ed 100644
---- a/security/selinux/include/netnode.h
-+++ b/security/selinux/include/netnode.h
-@@ -6,7 +6,7 @@
-  * needed to reduce the lookup overhead since most of these queries happen on
-  * a per-packet basis.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
-index 8991752..4d965b8 100644
---- a/security/selinux/include/netport.h
-+++ b/security/selinux/include/netport.h
-@@ -5,7 +5,7 @@
-  * mapping is maintained as part of the normal policy but a fast cache is
-  * needed to reduce the lookup overhead.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-index 58cc481..326f22c 100644
---- a/security/selinux/netif.c
-+++ b/security/selinux/netif.c
-@@ -8,7 +8,7 @@
-  *
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-- *		      Paul Moore <paul.moore@hp.com>
-+ *		      Paul Moore <paul@paul-moore.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2,
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index c3bf3ed..da4b8b2 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -4,7 +4,7 @@
-  * This file provides the necessary glue to tie NetLabel into the SELinux
-  * subsystem.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  */
- 
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index 8b691a8..3bf46ab 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -6,7 +6,7 @@
-  * needed to reduce the lookup overhead since most of these queries happen on
-  * a per-packet basis.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  * This code is heavily based on the "netif" concept originally developed by
-  * James Morris <jmorris@redhat.com>
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index ae76e29..0b62bd1 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -5,7 +5,7 @@
-  * mapping is maintained as part of the normal policy but a fast cache is
-  * needed to reduce the lookup overhead.
-  *
-- * Author: Paul Moore <paul.moore@hp.com>
-+ * Author: Paul Moore <paul@paul-moore.com>
-  *
-  * This code is heavily based on the "netif" concept originally developed by
-  * James Morris <jmorris@redhat.com>
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index de7900e..55d92cb 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2,7 +2,7 @@
-  *
-  *	Added conditional policy language extensions
-  *
-- *  Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *  Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *	Added support for the policy capability bitmap
-  *
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index d42951f..30f119b 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -4,7 +4,7 @@
-  * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-  */
- /*
-- * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ * Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *      Added support to import/export the NetLabel category bitmap
-  *
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index e961742..fbf9c58 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -11,7 +11,7 @@
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
- /*
-- * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ * Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *      Added support to import/export the MLS label from NetLabel
-  *
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 037bf9d..e4369e3 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -11,7 +11,7 @@
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
- /*
-- * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ * Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *	Added support to import/export the MLS label from NetLabel
-  *
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index d246aca..2381d0d 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -13,7 +13,7 @@
-  *
-  *	Added conditional policy language extensions
-  *
-- * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ * Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *      Added support for the policy capability bitmap
-  *
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 973e00e..f6917bc 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -13,7 +13,7 @@
-  *
-  *	Added conditional policy language extensions
-  *
-- * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ * Updated: Hewlett-Packard <paul@paul-moore.com>
-  *
-  *      Added support for NetLabel
-  *      Added support for the policy capability bitmap
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index f375eb2..b9c5e14 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -9,7 +9,7 @@
-  *
-  *  Copyright (C) 2007 Casey Schaufler <casey@schaufler-ca.com>
-  *  Copyright (C) 2009 Hewlett-Packard Development Company, L.P.
-- *                Paul Moore <paul.moore@hp.com>
-+ *                Paul Moore <paul@paul-moore.com>
-  *  Copyright (C) 2010 Nokia Corporation
-  *
-  *	This program is free software; you can redistribute it and/or modify
 
+Hi Martin,
+
+> Date: Mon, 1 Aug 2011 17:45:48 +0200
+> From: martin.christian@secunet.com
+> To: selinux@tycho.nsa.gov
+> Subject: Howto transition socket
+> 
+> Hi,
+> 
+> excuse this very basic question: How can I define a transition for a socket?
+> 
+> Let's assume I've got a process p with label u_t, denoted as p:u_t. The
+> process opens a listening tcp socket s on port 80 (e. g. nc -l -p 80).
+> As far as I understood, s would get the label from the process: s:u_t.
+> However, I would like the socket to have label o_t. Hence, I define a
+> transition:
+> 
+> (u, u) -> o
+> 
+> or in policy syntax;
+> 
+> type_transition u_t u_t:tcp_socket o_t;
+
+Generally speaking, the type_transition rule for socket so that it would have a separate type than its creator works like this. However, other than this type_transition rule, you would also have to grant other necessary allow rules so that the creator could create and use this new socket type, such as:
+
+allow u_t o_t : tcp_socket { create_socket_perms, sendto, .... };
+
+and have the process role able to type with this socket type:
+
+role <process's role> types o_t;
+
+Then you could verify the socket type by the compute_create command, see below example.
+
+I have attached my refpolicy patch to have the unix_dgram_socket created by syslogd_t to be labeled as syslogd_s_t, hope that helps :-)
+
+Cheers,
+Harry
+
+
+
+
+
+	
+	
+	
+	
+
+     
+[root/sysadm_r/s0@~]#
+compute_create system_u:system_r:syslogd_t:s15:c0.c1023    
+system_u:system_r:syslogd_t:s15:c0.c1023 unix_dgram_socket 
+
+     
+system_u:system_r:syslogd_s_t:s15:c0.c1023
+
+
+     
+[root/sysadm_r/s0@~]#
+
+
+> 
+> But this doesn't seem to work. Any ideas?
+> 
+> Regards,
+> 
+> Martin.
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'><div dir='ltr'>
+Hi Martin,<br><br><div>&gt; Date: Mon, 1 Aug 2011 17:45:48 +0200<br>&gt; From: martin.christian@secunet.com<br>&gt; To: selinux@tycho.nsa.gov<br>&gt; Subject: Howto transition socket<br>&gt; <br>&gt; Hi,<br>&gt; <br>&gt; excuse this very basic question: How can I define a transition for a socket?<br>&gt; <br>&gt; Let's assume I've got a process p with label u_t, denoted as p:u_t. The<br>&gt; process opens a listening tcp socket s on port 80 (e. g. nc -l -p 80).<br>&gt; As far as I understood, s would get the label from the process: s:u_t.<br>&gt; However, I would like the socket to have label o_t. Hence, I define a<br>&gt; transition:<br>&gt; <br>&gt; (u, u) -&gt; o<br>&gt; <br>&gt; or in policy syntax;<br>&gt; <br>&gt; type_transition u_t u_t:tcp_socket o_t;<br><br>Generally speaking, the type_transition rule for socket so that it would have a separate type than its creator works like this. However, other than this type_transition rule, you would also have to grant other ne!
+ cessary allow rules so that the creator could create and use this new socket type, such as:<br><br>allow u_t o_t : tcp_socket { create_socket_perms, sendto, .... };<br><br>and have the process role able to type with this socket type:<br><br>role &lt;process's role&gt; types o_t;<br><br>Then you could verify the socket type by the compute_create command, see below example.<br><br>I have attached my refpolicy patch to have the unix_dgram_socket created by syslogd_t to be labeled as syslogd_s_t, hope that helps :-)<br><br>Cheers,<br>Harry<br><br><br>
+
+
+	
+	
+	
+	<style type="text/css">p { margin-bottom: 0.21cm; }</style>
+
+<p style="margin-bottom: 0cm; text-decoration: none;">     
+<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">[root/sysadm_r/s0@~]#
+compute_create system_u:system_r:syslogd_t:s15:c0.c1023    
+system_u:system_r:syslogd_t:s15:c0.c1023 unix_dgram_socket </font></font>
+</p>
+<p style="margin-bottom: 0cm; text-decoration: none;">     
+<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">system_u:system_r:syslogd_s_t:s15:c0.c1023
+</font></font>
+</p>
+<p style="margin-bottom: 0cm; text-decoration: none;">     
+<font face="AR PL UMing HK, sans-serif"><font style="font-size: 9pt;" size="2">[root/sysadm_r/s0@~]#</font></font></p>
+<br><br>&gt; <br>&gt; But this doesn't seem to work. Any ideas?<br>&gt; <br>&gt; Regards,<br>&gt; <br>&gt; Martin.<br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
+</html>
+--_a6bbf06c-052f-421d-8e06-c2e9a55b47c0_--
+
+--_5ac415f8-35e2-424d-9b70-e5eacff0474f_
+Content-Type: text/x-patch
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="separate_sock_for_syslogd_t.patch"
+
+Y29tbWl0IDM2NTA1MTYwZGMxMjc0ZTJiZWMyZmJiODU0YTM5YjhkMjg5MWQwOGMKQXV0aG9yOiBI
+YXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29tPgpEYXRlOiAgIFRodSBGZWIgMjQg
+MTY6MjM6NDIgMjAxMSArMDgwMAoKICAgIFNwZWNpZnkgYSBzZXBhcmF0ZSBzb2NrZXQgdHlwZSBm
+b3Igc3lzbG9nZF90LgogICAgCiAgICBVc2UgYSB0eXBlX3RyYW5zaXRpb24gcnVsZSB0byBzcGVj
+aWZ5IGEgc2VwYXJhdGUgdHlwZSBmb3IgdW5peF9kZ3JhbV9zb2NrZXQKICAgIG9iamVjdCBjcmVh
+dGVkIGJ5IHN5c2xvZ2RfdCwgc28gdGhhdCB0aGUgc29ja2V0IHR5cGUgYWxvbmUgY291bGQgYmUg
+YWRkZWQKICAgIHRvIHRoZSBtbHN0cnVzdGVkb2JqZWN0IGF0dHJidXRlIHRvIGF2b2lkIGJlbG93
+IGVycm9yIG1lc3NhZ2U6CiAgICAKICAgIHR5cGU9MTQwMCBhdWRpdCgxMjk4NTM1MTAxLjY1NDo4
+NjgpOiBhdmM6ICBkZW5pZWQgIHsgc2VuZHRvIH0gZm9yICBwaWQ9Mzg1IGNvbW09Imtsb2dkIiBw
+YXRoPSIvZGV2L2xvZyIgc2NvbnRleHQ9c3lzdGVtX3U6b2JqZWN0X3I6a2xvZ2RfdDpzMCB0Y29u
+dGV4dD1zeXN0ZW1fdTpvYmplY3RfcjpzeXNsb2dkX3Q6czE1OmMwLmMxMDIzIHRjbGFzcz11bml4
+X2RncmFtX3NvY2tldAogICAgCiAgICBUaGlzIGhlbHBzIHRvIGF2b2lkIGFkZGluZyBzeXNsb2dk
+X3QgdG8gdGhpcyBhdHRyaWJ1dGUgd2hpY2ggYWxzbyBpcyB0aGUKICAgIGxhYmVsIGZvciBhbGwg
+c3lzbG9nZCdzIHByb2NmcyBjb250ZW50cy4KICAgIAogICAgQlRXLCBpbiBTRUxpbnV4IGtlcm5l
+bCBkcml2ZXIgdGhlIHNlY3VyaXR5X3RyYW5zaXRpb25fc2lkKCkgc2hvdWxkIGJlCiAgICBjYWxs
+ZWQgdG8gcXVlcnkgYWJvdmUgdHlwZV90cmFuc2l0aW9uIHJ1bGUgZm9yIHRoZSBuZXdseSBjcmVh
+dGVkIHNvY2tldCwKICAgIHdoaWNoIHdpbGwgcmV0YWluIHRoZSBzYW1lIHVzZXIsIHJvbGUgYW5k
+IE1MUyBhdHRyaWJ1dGUgYXMgaXRzIGNyZWF0b3IuCgpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVs
+ZXMvc3lzdGVtL2xvZ2dpbmcuaWYgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZgpp
+bmRleCA4MzFiOTA5Li4wY2FiMzJjIDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0v
+bG9nZ2luZy5pZgorKysgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy5pZgpAQCAtNTI1
+LDE0ICs1MjUsMTQgQEAgaW50ZXJmYWNlKGBsb2dnaW5nX2xvZ19maWxldHJhbnMnLGAKICMKIGlu
+dGVyZmFjZShgbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2cnLGAKIAlnZW5fcmVxdWlyZShgCi0JCXR5
+cGUgc3lzbG9nZF90LCBkZXZsb2dfdDsKKwkJdHlwZSBzeXNsb2dkX3QsIHN5c2xvZ2Rfc190LCBk
+ZXZsb2dfdDsKIAknKQogCiAJYWxsb3cgJDEgZGV2bG9nX3Q6bG5rX2ZpbGUgcmVhZF9sbmtfZmls
+ZV9wZXJtczsKIAlhbGxvdyAkMSBkZXZsb2dfdDpzb2NrX2ZpbGUgd3JpdGVfc29ja19maWxlX3Bl
+cm1zOwogCiAJIyB0aGUgdHlwZSBvZiBzb2NrZXQgZGVwZW5kcyBvbiB0aGUgc3lzbG9nIGRhZW1v
+bgotCWFsbG93ICQxIHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzZW5kdG87CisJYWxsb3cg
+JDEgc3lzbG9nZF9zX3Q6dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOwogCWFsbG93ICQxIHN5c2xv
+Z2RfdDp1bml4X3N0cmVhbV9zb2NrZXQgY29ubmVjdHRvOwogCWFsbG93ICQxIHNlbGY6dW5peF9k
+Z3JhbV9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsKIAlhbGxvdyAkMSBzZWxmOnVuaXhfc3Ry
+ZWFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVs
+ZXMvc3lzdGVtL2xvZ2dpbmcudGUgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZQpp
+bmRleCBiNmVjNTk3Li42ODA0ZGNmIDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0v
+bG9nZ2luZy50ZQorKysgYi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbG9nZ2luZy50ZQpAQCAtNjUs
+NiArNjUsMTMgQEAgdHlwZSBzeXNsb2dkX3Q7CiB0eXBlIHN5c2xvZ2RfZXhlY190OwogaW5pdF9k
+YWVtb25fZG9tYWluKHN5c2xvZ2RfdCwgc3lzbG9nZF9leGVjX3QpCiAKKyMgUEZfVU5JWCBzb2Nr
+ZXQgY3JlYXRlZCBieSBzeXNsb2dkLgorIyBBbnkgc29ja2V0IHdpbGwgcmV0YWluIHRoZSBzYW1l
+IHVzZXIsIHJvbGUgYW5kIE1MUyBhdHRyaWJ1dGUgYXMKKyMgaXRzIGNyZWF0b3IsIHRodXMgdGhl
+IGNyZWF0b3IncyByb2xlIG5lZWRzIHRvIHR5cGUgdGhlIHNvY2tldCB0eXBlLgordHlwZSBzeXNs
+b2dkX3NfdDsKK3JvbGUgc3lzdGVtX3IgdHlwZXMgc3lzbG9nZF9zX3Q7CittbHNfdHJ1c3RlZF9v
+YmplY3Qoc3lzbG9nZF9zX3QpCisKIHR5cGUgc3lzbG9nZF9pbml0cmNfZXhlY190OwogaW5pdF9z
+Y3JpcHRfZmlsZShzeXNsb2dkX2luaXRyY19leGVjX3QpCiAKQEAgLTM2MCwxNSArMzY3LDE4IEBA
+IGRvbnRhdWRpdCBzeXNsb2dkX3Qgc2VsZjpjYXBhYmlsaXR5IHN5c190dHlfY29uZmlnOwogIyBz
+ZXRybGltaXQgZm9yIHN5c2xvZy1uZwogYWxsb3cgc3lzbG9nZF90IHNlbGY6cHJvY2VzcyB7IHNp
+Z25hbF9wZXJtcyBzZXRwZ2lkIHNldHJsaW1pdCB9OwogIyByZWNlaXZlIG1lc3NhZ2VzIHRvIGJl
+IGxvZ2dlZAotYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQgY3JlYXRlX3Nv
+Y2tldF9wZXJtczsKK2FsbG93IHN5c2xvZ2RfdCBzeXNsb2dkX3NfdDp1bml4X2RncmFtX3NvY2tl
+dCBjcmVhdGVfc29ja2V0X3Blcm1zOwogYWxsb3cgc3lzbG9nZF90IHNlbGY6dW5peF9zdHJlYW1f
+c29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOwotYWxsb3cgc3lzbG9nZF90IHNlbGY6
+dW5peF9kZ3JhbV9zb2NrZXQgc2VuZHRvOworYWxsb3cgc3lzbG9nZF90IHN5c2xvZ2Rfc190OnVu
+aXhfZGdyYW1fc29ja2V0IHNlbmR0bzsKIGFsbG93IHN5c2xvZ2RfdCBzZWxmOmZpZm9fZmlsZSBy
+d19maWZvX2ZpbGVfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp1ZHBfc29ja2V0IGNyZWF0
+ZV9zb2NrZXRfcGVybXM7CiBhbGxvdyBzeXNsb2dkX3Qgc2VsZjp0Y3Bfc29ja2V0IGNyZWF0ZV9z
+dHJlYW1fc29ja2V0X3Blcm1zOwogCiBhbGxvdyBzeXNsb2dkX3Qgc3lzbG9nX2NvbmZfdDpmaWxl
+IHJlYWRfZmlsZV9wZXJtczsKIAorIyBQRl9VTklYIGRncmFtIHNvY2tldCBjcmVhdGVkIGJ5IHN5
+c2xvZ2RfdCBsYWJlbGVkIGFzIHN5c2xvZ2Rfc190Cit0eXBlX3RyYW5zaXRpb24gc3lzbG9nZF90
+IHN5c2xvZ2RfdDp1bml4X2RncmFtX3NvY2tldCBzeXNsb2dkX3NfdDsKKwogIyBDcmVhdGUgYW5k
+IGJpbmQgdG8gL2Rldi9sb2cgb3IgL3Zhci9ydW4vbG9nLgogYWxsb3cgc3lzbG9nZF90IGRldmxv
+Z190OnNvY2tfZmlsZSBtYW5hZ2Vfc29ja19maWxlX3Blcm1zOwogZmlsZXNfcGlkX2ZpbGV0cmFu
+cyhzeXNsb2dkX3QsIGRldmxvZ190LCBzb2NrX2ZpbGUpCg==
+
+--_5ac415f8-35e2-424d-9b70-e5eacff0474f_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
