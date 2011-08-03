@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p73L0N4Y008602
-	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 17:00:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p73L165I008823
+	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 17:01:07 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p73L0M1I008390
-	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 21:00:22 GMT
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p73L0LqN030738
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p73L15v1022915
+	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 21:01:06 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p73L15Js022587
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 17:00:21 -0400
-Message-ID: <4E39B6E4.1070000@redhat.com>
-Date: Wed, 03 Aug 2011 17:00:20 -0400
+	for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2011 17:01:05 -0400
+Message-ID: <4E39B710.3090709@redhat.com>
+Date: Wed, 03 Aug 2011 17:01:04 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 037/155] policycoreutils: fixfiles: correct usage for
+Subject: [PATCH 040/155] policycoreutils: setfiles: use glob to handle ~ and
 Content-Type: multipart/mixed;
- boundary="------------080100090504090306050902"
+ boundary="------------080405090905050103090409"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080100090504090306050902
+--------------080405090905050103090409
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -34,18 +34,18 @@ This patch looks good to me. acked.
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk45tuQACgkQrlYvE4MpobMZgQCdFJQoDbCRux95n9eV6ZE6WS0f
-k2EAnjqo+u6ytf6e3t+YNUthCvdnVd6I
-=ns48
+iEYEARECAAYFAk45txAACgkQrlYvE4MpobPoRQCfWj1Hhlo6FDfxUmmq+iLj+kam
+eDQAoOXFBcvkKG/5HmHpyoCYqQ5TJSbt
+=qNvE
 -----END PGP SIGNATURE-----
 
---------------080100090504090306050902
+--------------080405090905050103090409
 Content-Type: text/plain;
- name="0037-policycoreutils-fixfiles-correct-usage-for-r_opts.ro.patch"
+ name="0040-policycoreutils-setfiles-use-glob-to-handle-and-.-in.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0037-policycoreutils-fixfiles-correct-usage-for-r_opts.ro.pa";
+ filename*0="0040-policycoreutils-setfiles-use-glob-to-handle-and-.-in.pa";
  filename*1="tch"
 
 
---------------080100090504090306050902--
+--------------080405090905050103090409--
