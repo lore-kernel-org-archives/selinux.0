@@ -1,65 +1,67 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p74D6rL4017782
-	for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2011 09:06:55 -0400
-Received: from mail.cendio.se (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p74D6sKU019862
-	for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2011 13:06:55 GMT
-Message-ID: <4E3A9969.1040301@cendio.se>
-Date: Thu, 04 Aug 2011 15:06:49 +0200
-From: Aaron Sowry <aaron@cendio.se>
+Message-ID: <4E3A996C.9090107@secunet.com>
+Date: Thu, 04 Aug 2011 15:06:52 +0200
+From: Martin Christian <martin.christian@secunet.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: SELinux policy regarding LD_LIBRARY_PATH
-References: <4E3A8D16.7060807@cendio.se> <CAPzO=NympY1fiqZufFiG5OaMYTn+3JzNu2c66jr3VXHCuFH-ZQ@mail.gmail.com>
-In-Reply-To: <CAPzO=NympY1fiqZufFiG5OaMYTn+3JzNu2c66jr3VXHCuFH-ZQ@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8528368E11FFE8EB5CCF0297"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Howto transition socket
+References: <4E36CA2C.8080300@secunet.com> <1312461045.20973.3.camel@moss-pluto>
+In-Reply-To: <1312461045.20973.3.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8528368E11FFE8EB5CCF0297
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sven, Spencer,
+That explains why RongQings patch doesn't work for me. I'm still using
+kernel 2.6.38. With RongQings patch I can see all the sockets always
+have the label of the process, even with active type transition. So the
+patch is not broken, but the kernel doesn't support it, yet.
 
-> If the fork results in a type transition (say from sysadm_t to mozilla_=
-t),
-> then the environment is cleaned up (see glibc's AT_SECURE setting).
->=20
-> If you do not want the environment to be cleared, allow noatsecure, lik=
-e so:
->=20
-> allow sysadm_t mozilla_t:process noatsecure;
+Thanks,
 
-Thanks for the pointers. I will take a look and let you know if I have
-any further questions.
-
-Regards,
-Aaron
+Martin.
 
 
---------------enig8528368E11FFE8EB5CCF0297
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
+Am 04.08.2011 14:30, schrieb Stephen Smalley:
+> On Mon, 2011-08-01 at 17:45 +0200, Martin Christian wrote:
+>> Hi,
+>>
+>> excuse this very basic question: How can I define a transition for a socket?
+>>
+>> Let's assume I've got a process p with label u_t, denoted as p:u_t. The
+>> process opens a listening tcp socket s on port 80 (e. g. nc -l -p 80).
+>> As far as I understood, s would get the label from the process: s:u_t.
+>> However, I would like the socket to have label o_t. Hence, I define a
+>> transition:
+>>
+>> (u, u) -> o
+>>
+>> or in policy syntax;
+>>
+>> type_transition u_t u_t:tcp_socket o_t;
+>>
+>> But this doesn't seem to work. Any ideas?
+>>
+> 
+> Kernel version?  Support for type transitions on sockets was first
+> introduced in kernel 2.6.39.  Older kernels would always label sockets
+> with their creator's context or with the context specified by the
+> application using setsockcreatecon(3) from libselinux.
+> 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iQEcBAEBAgAGBQJOOpltAAoJECw8YUUfeQL9jU8IAPvt+7cYhQQK/quaAYrPC82a
-q8c1NLG2gyZO0Z6lZofo69138YnUq81N5JU8a4bTcFR5E4IkznqJgbsbrm19D5lJ
-3ac6jFnYJipZXvRedTQcT4DlACcdcNCI68KtrZ+Xa1iNIN4Igs1zgRl6j0O0REnw
-wNUOZvpPl3P0pNPHHeQLeBaqwZWW2ZM/PZHDkvJok/5dXuzNeM1vSLJ4gJdGscwJ
-Yo8DtS3n4UZ8/6R5wwRRZCKNcPLhy1/5KLzuKv6f4ZcFPGUx0ebi7A5wONpWB1PO
-sTqR/cQReBYysVYlx9qtgLt3e01I85xMDFFdaAiYUoj4vhXjgYQCuK33ynAi2nc=
-=IppA
+iQEcBAEBAgAGBQJOOplmAAoJEGpTkDITRjmogmwIALgXSLxICmXof/lnCD/e8F6n
+vDe5Mb+pgwLlw3ONIHB/oGID7GvuddRLVjMDiANitzCFu6ZtfhGVuZhPFGolA7OT
+MuaZPWcY1gIESjfbv0HHFLXX5Ufh6TlRVVsuu6VpOTZWuoEuoFWvMBLktkhao3um
+NeTQdK1UlYqb4NLLtGuR+z/VblwvdIVMb/+oWIfNJ4MSr1Rh/WrWHOGWXZpXKJiX
+eQ8mZFkcx3esYggPNuM+axw7ZOCC0ZP599K70oP5S4lKoOXUYzOg6xDBTLkPiR4+
+c+0FKpypZOr6voCLIFFSkPcXIyvS0iRh9M08DIC80mbIcs98QjG3UkGakgY9960=
+=DFHQ
 -----END PGP SIGNATURE-----
-
---------------enig8528368E11FFE8EB5CCF0297--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
