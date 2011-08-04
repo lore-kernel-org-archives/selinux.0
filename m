@@ -1,27 +1,26 @@
-Subject: Re: [PATCH 032/155] policycoreutils: fixfiles use new kernel
- seclabel
+Subject: Re: [PATCH 040/155] policycoreutils: setfiles: use glob to handle
+ ~ and
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: eparis@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <4E39B680.4000106@redhat.com>
-References: <4E39B680.4000106@redhat.com>
+In-Reply-To: <4E39B710.3090709@redhat.com>
+References: <4E39B710.3090709@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 04 Aug 2011 10:58:05 -0400
-Message-ID: <1312469885.20973.54.camel@moss-pluto>
+Date: Thu, 04 Aug 2011 10:59:51 -0400
+Message-ID: <1312469991.20973.55.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-03 at 16:58 -0400, Daniel J Walsh wrote:
+On Wed, 2011-08-03 at 17:01 -0400, Daniel J Walsh wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
 > 
 > This patch looks good to me. acked.
 
-When similar logic was added to setfiles, we included a kernel version
-check (>= 2.6.30) to ensure that we didn't end up excluding all
-filesystems on older kernels that do not report seclabel.
+I don't quite understand why this isn't handled by the shell before it
+ever reaches setfiles.
 
 -- 
 Stephen Smalley
