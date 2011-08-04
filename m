@@ -1,26 +1,31 @@
-Subject: Re: [PATCH 040/155] policycoreutils: setfiles: use glob to handle
- ~ and
+Subject: Re: [PATCH 006/155] libselinux: do not check fcontext duplicates
+ on use
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: eparis@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <4E39B710.3090709@redhat.com>
-References: <4E39B710.3090709@redhat.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4E3AB236.4000404@redhat.com>
+References: <4E39B41E.8060801@redhat.com>
+	 <1312469298.20973.51.camel@moss-pluto>  <4E3AB236.4000404@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 04 Aug 2011 10:59:51 -0400
-Message-ID: <1312469991.20973.55.camel@moss-pluto>
+Date: Thu, 04 Aug 2011 11:14:58 -0400
+Message-ID: <1312470898.20973.59.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-03 at 17:01 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> This patch looks good to me. acked.
+On Thu, 2011-08-04 at 10:52 -0400, Eric Paris wrote:
+> I don't understand.  Before this patch rec->validating wasn't being used
+> at all and we always checked for dups.  With this patch we actually pay
+> attention to what the application set.  As it turns out
+> restorecon/fixfiles don't set the flag, but semanage fcontext does, so
+> this is actually a case where the programs were right but the underlying
+> library was wrong.  I'm fixing the library to pay attention to the flag.
+>  What am I missing?
 
-I don't quite understand why this isn't handled by the shell before it
-ever reaches setfiles.
+Oops, I read the patch backwards.  Never mind.
+Technically the library was correct in that the original meaning of
+validate was to validate the contexts, but I suppose this fits with the
+sense of it.
 
 -- 
 Stephen Smalley
