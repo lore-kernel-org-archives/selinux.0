@@ -1,90 +1,43 @@
-Message-ID: <4E3B007B.1020502@redhat.com>
-Date: Thu, 04 Aug 2011 16:26:35 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4E3B085D.1050400@redhat.com>
+Date: Thu, 04 Aug 2011 17:00:13 -0400
+From: Eric Paris <eparis@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        selinux@tycho.nsa.gov
 Subject: Re: [PATCH 029/155] policycoreutils: fixfiles clean up /var/run and
-References: <4E39B5E6.8000100@redhat.com>  <1312469767.20973.53.camel@moss-pluto>  <CACLa4ptckXGt6XEqDMnmeZhV3AzVwnL=ktSTtVTFGg+A=Ajcug@mail.gmail.com>  <CACLa4puk2gO=aV=oNj-Kmj=eSmYmquX0skKoCxso6o9tWcf_Ng@mail.gmail.com> <1312486409.20973.66.camel@moss-pluto>
-In-Reply-To: <1312486409.20973.66.camel@moss-pluto>
-Content-Type: multipart/mixed;
- boundary="------------040500090904000205010508"
+References: <4E39B5E6.8000100@redhat.com>  <1312469767.20973.53.camel@moss-pluto>  <CACLa4ptckXGt6XEqDMnmeZhV3AzVwnL=ktSTtVTFGg+A=Ajcug@mail.gmail.com>  <CACLa4puk2gO=aV=oNj-Kmj=eSmYmquX0skKoCxso6o9tWcf_Ng@mail.gmail.com> <1312486409.20973.66.camel@moss-pluto> <4E3B007B.1020502@redhat.com>
+In-Reply-To: <4E3B007B.1020502@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040500090904000205010508
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-On 08/04/2011 03:33 PM, Stephen Smalley wrote:
-> On Thu, 2011-08-04 at 13:59 -0400, Eric Paris wrote:
->> well I guess [selinuxfs]/initial_contexts/unlabeled works for the 
->> first part, but how to come up with the lib_t/var_t I don't
->> know.... more initial sids   :)
+On 08/04/2011 04:26 PM, Daniel J Walsh wrote:
+> On 08/04/2011 03:33 PM, Stephen Smalley wrote:
+>> On Thu, 2011-08-04 at 13:59 -0400, Eric Paris wrote:
+>>> well I guess [selinuxfs]/initial_contexts/unlabeled works for the 
+>>> first part, but how to come up with the lib_t/var_t I don't
+>>> know.... more initial sids   :)
+>>
+>> chcon --reference=/lib ... chcon --reference=/var ...
+>>
+>> Or: chcon `matchpathcon /lib` ...
+>>
+>>
+> 	
 > 
-> chcon --reference=/lib ... chcon --reference=/var ...
-> 
-> Or: chcon `matchpathcon /lib` ...
-> 
-> 
-	
+> How about this patch...
 
-How about this patch...
+If you don't have /selinux mounted in one of those two places secon -t
+will return your process type, which might delete the wrong files.
 
---------------040500090904000205010508
-Content-Type: text/plain;
- name="unlabeled_file.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="unlabeled_file.patch"
+Not that it makes a huge difference, but we don't really need to pare it
+down to just the type with secon -t and then search using *$TYPE*.
 
-ZGlmZiAtLWdpdCBhL3BvbGljeWNvcmV1dGlscy9zY3JpcHRzL2ZpeGZpbGVzIGIvcG9saWN5
-Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKaW5kZXggNmRlNzEwYS4uOWMxZTZkZCAxMDA3
-NTUKLS0tIGEvcG9saWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKKysrIGIvcG9saWN5
-Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKQEAgLTIxLDYgKzIxLDMxIEBACiAjIEZvdW5k
-YXRpb24sIEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUgMzMwLCBCb3N0b24sIE1BICAw
-MjExMS0xMzA3ICBVU0EKIAogIworIyBHZXQgdGhlIGRlZmF1bHQgbGFiZWwgcmV0dXJuZWQg
-ZnJvbSB0aGUga2VybmVsIGZvciBhIGZpbGUgd2l0aCBhIGxhYmxlIHRoZSAKKyMga2VybmVs
-IGRvZXMgbm90IHVuZGVyc3RhbmQKKyMKK2dldF91bmRlZmluZWRfdHlwZSgpIHsKKyAgICBp
-ZiBbIC1lIC9zeXMvZnMvc2VsaW51eC9pbml0aWFsX2NvbnRleHRzL3VubGFiZWxlZCBdOyB0
-aGVuCisJVU5LTk9XTl9MQUJFTD1gY2F0IC9zeXMvZnMvc2VsaW51eC9pbml0aWFsX2NvbnRl
-eHRzL3VubGFiZWxlZGAKKyAgICBlbHNlCisJVU5LTk9XTl9MQUJFTD1gY2F0IC9zZWxpbnV4
-L2luaXRpYWxfY29udGV4dHMvdW5sYWJlbGVkYAorICAgIGZpCisgICAgc2Vjb24gLXQgJFVO
-S05PV05fTEFCRUwKK30KKworIworIyBHZXQgdGhlIGRlZmF1bHQgbGFiZWwgZm9yIGEgZmls
-ZSB3aXRob3V0IGEgbGFiZWwKKyMKK2dldF91bmxhYmVsZWRfdHlwZSgpIHsKKyAgICBpZiBb
-IC1lIC9zeXMvZnMvc2VsaW51eC9pbml0aWFsX2NvbnRleHRzL3VubGFiZWxlZCBdOyB0aGVu
-CisJTk9MQUJFTD1gY2F0IC9zeXMvZnMvc2VsaW51eC9pbml0aWFsX2NvbnRleHRzL2ZpbGVg
-CisgICAgZWxzZQorCU5PTEFCRUw9YGNhdCAvc2VsaW51eC9pbml0aWFsX2NvbnRleHRzL2Zp
-bGVgCisgICAgZmkKKyAgICBzZWNvbiAtdCAkTk9MQUJFTAorfQorCisjCiAjIEdldCBhbGwg
-bW91bnQgcG9pbnRzIHRoYXQgc3VwcG9ydCBzZWNsYWJlbAogIwogZ2V0X2FsbF9sYWJlbGVk
-X21vdW50cygpIHsKQEAgLTIwMCwxMSArMjI1LDEzIEBAIGZpCiAke1NFVEZJTEVTfSAtcSAk
-e1NZU0xPR0ZMQUd9ICR7Rk9SQ0VGTEFHfSAkKiAke0ZDfSAke0ZJTEVTWVNURU1TUld9IDI+
-JjEgfCBjYXQgPj4gJExPR0ZJTEUKIHJtIC1yZiAvdG1wL2djb25mZC0qIC90bXAvcHVsc2Ut
-KiAvdG1wL29yYml0LSogJFRFTVBGQ0ZJTEUKIAotZmluZCAvdG1wIFwoIC1jb250ZXh0ICIq
-OmZpbGVfdCoiIC1vIC1jb250ZXh0ICIqOnVubGFiZWxlZF90KiIgXCkgXCggLXR5cGUgcyAt
-byAtdHlwZSBwIFwpIC1kZWxldGUKLWZpbmQgL3RtcCBcKCAtY29udGV4dCAiKjpmaWxlX3Qq
-IiAtbyAtY29udGV4dCAiKjp1bmxhYmVsZWRfdCoiIFwpIC1leGVjIGNoY29uIC10IHRtcF90
-IHt9IFw7Ci1maW5kIC92YXIvdG1wIFwoIC1jb250ZXh0ICIqOmZpbGVfdCoiIC1vIC1jb250
-ZXh0ICIqOnVubGFiZWxlZF90KiIgXCkgLWV4ZWMgY2hjb24gLXQgdG1wX3Qge30gXDsKLWZp
-bmQgL3Zhci9ydW4gXCggLWNvbnRleHQgIio6ZmlsZV90KiIgLW8gLWNvbnRleHQgIio6dW5s
-YWJlbGVkX3QqIiBcKSAtZXhlYyBjaGNvbiAtdCB2YXJfcnVuX3Qge30gXDsKLVsgLWUgL3Zh
-ci9saWIvZGVidWcgXSAmJiBmaW5kIC92YXIvbGliL2RlYnVnIFwoIC1jb250ZXh0ICIqOmZp
-bGVfdCoiIC1vIC1jb250ZXh0ICIqOnVubGFiZWxlZF90KiIgXCkgLWV4ZWMgY2hjb24gLXQg
-bGliX3Qge30gXDsKK3VuZGVmaW5lZD1gZ2V0X3VuZGVmaW5lZF90eXBlYAordW5sYWJlbGVk
-PWBnZXRfdW5sYWJlbGVkX3R5cGVgCitmaW5kIC90bXAgXCggLWNvbnRleHQgIio6JHt1bmxh
-YmVsZWR9KiIgLW8gLWNvbnRleHQgIio6JHt1bmRlZmluZWR9KiIgXCkgXCggLXR5cGUgcyAt
-byAtdHlwZSBwIFwpIC1kZWxldGUKK2ZpbmQgL3RtcCBcKCAtY29udGV4dCAiKjoke3VubGFi
-ZWxlZH0qIiAtbyAtY29udGV4dCAiKjoke3VuZGVmaW5lZH0qIiBcKSAtZXhlYyBjaGNvbiAt
-LXJlZmVyZW5jZSAvdG1wIHt9IFw7CitmaW5kIC92YXIvdG1wIFwoIC1jb250ZXh0ICIqOiR7
-dW5sYWJlbGVkfSoiIC1vIC1jb250ZXh0ICIqOiR7dW5kZWZpbmVkfSoiIFwpIC1leGVjIGNo
-Y29uIC0tcmVmZXJlbmNlIC92YXIvdG1wIHt9IFw7CitmaW5kIC92YXIvcnVuIFwoIC1jb250
-ZXh0ICIqOiR7dW5sYWJlbGVkfSoiIC1vIC1jb250ZXh0ICIqOiR7dW5kZWZpbmVkfSoiIFwp
-IC1leGVjIGNoY29uIC0tcmVmZXJlbmNlIC92YXIvcnVuIHt9IFw7CitbIC1lIC92YXIvbGli
-L2RlYnVnIF0gJiYgZmluZCAvdmFyL2xpYi9kZWJ1ZyBcKCAtY29udGV4dCAiKjoke3VubGFi
-ZWxlZH0qIiAtbyAtY29udGV4dCAiKjoke3VuZGVmaW5lZH0qIiBcKSAtZXhlYyBjaGNvbiAt
-LXJlZmVyZW5jZSAvbGliIHt9IFw7CiBleGl0ICQ/CiB9CiAK
---------------040500090904000205010508--
+I also question the use of /sys/fs/selinux/ but I'm not sure we have a
+good way to find that in a script.....  Do we have one?
+
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
