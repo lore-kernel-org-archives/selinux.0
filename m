@@ -1,43 +1,111 @@
-Subject: Re: SELinux policy regarding LD_LIBRARY_PATH
+Subject: Re: [PATCH 006/155] libselinux: do not check fcontext duplicates
+ on use
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Aaron Sowry <aaron@cendio.se>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4E3AA12C.9000704@cendio.se>
-References: <4E3A8D16.7060807@cendio.se>
-	 <1312463365.20973.21.camel@moss-pluto>  <4E3AA12C.9000704@cendio.se>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 04 Aug 2011 09:47:29 -0400
-Message-ID: <1312465649.20973.48.camel@moss-pluto>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: eparis@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <4E39B41E.8060801@redhat.com>
+References: <4E39B41E.8060801@redhat.com>
+Content-Type: multipart/mixed; boundary="=-KrduQR1C1v7wnbpn9wvi"
+Date: Thu, 04 Aug 2011 10:48:18 -0400
+Message-ID: <1312469298.20973.51.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-08-04 at 15:39 +0200, Aaron Sowry wrote:
-> > However, the behavior you are seeing might not be related to SELinux, as
-> > Linux also enables AT_SECURE if the uid or gid changes across execve (to
-> > be precise, if the effective identity is not equal to the real identity
-> > after the credential change, as this was the legacy logic from libc).
-> 
-> So if I understand correctly, SELinux expands on AT_SECURE to sanitize
-> environment variables across context changes instead of just
-> setgid/setuid. Makes sense; you live and learn.
-> 
-> In this case I believe it was SELinux performing the sanitization as
-> disabling it solved the problem, but this is helpful to know.
 
-Just to clarify, we introduced AT_SECURE for SELinux.  Prior to SELinux,
-userspace directly used AT_EUID/AT_UID and AT_EGID/AT_GID to decide
-whether to sanitize the environment.  When we wanted a similar mechanism
-for SELinux, Roland McGrath suggested that we create an AT_SECURE flag
-that could be set by the kernel whenever a security-relevant change has
-taken place, and then rework userspace to use that flag when present.
-Thus we have a more general mechanism today that can be used for
-setuid/setgid, capability changes, SELinux security context transitions,
-or any other security module.
+--=-KrduQR1C1v7wnbpn9wvi
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+On Wed, 2011-08-03 at 16:48 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> This patch looks good to me. acked.
+
+>From 576af10294e14d03660708d3f7eddf49e71897d7 Mon Sep 17 00:00:00 2001
+From: Eric Paris <eparis@redhat.com>
+Date: Tue, 28 Jun 2011 21:37:38 -0400
+Subject: [PATCH 006/155] libselinux: do not check fcontext duplicates on use
+
+Tools like restorecon or systemd, which load the fcontext database to
+make labeling decisions do not need to check for duplicate rules.  Only
+the first rule will be used.  Instead we should only check for
+duplicates when new rules are added to the database.  And fail the
+transaction if we find one.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ libselinux/src/label_file.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index af7fd8f..3b8346d 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -485,7 +485,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 					 pass, ++lineno) != 0)
+ 				goto finish;
+ 		}
+-		if (pass == 1) {
++		if (pass == 1 && rec->validating) {
+ 			status = nodups_specs(data, path);
+ 			if (status)
+ 				goto finish;
+
+
+This seems like the wrong fix to me.  rec->validating is set based on
+whether the application passed SELABEL_OPT_VALIDATE in the selinux_opt
+array to selabel_open().  So you should fix the applications that set
+this option if you do not want this behavior.  Not silently ignore what
+they requested while leaving the field and option flag intact.
+
+
 
 -- 
 Stephen Smalley
 National Security Agency
+
+--=-KrduQR1C1v7wnbpn9wvi
+Content-Disposition: attachment; filename="0006-libselinux-do-not-check-fcontext-duplicates-on-use.patch"
+Content-Type: text/x-patch; name="0006-libselinux-do-not-check-fcontext-duplicates-on-use.patch"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+>From 576af10294e14d03660708d3f7eddf49e71897d7 Mon Sep 17 00:00:00 2001
+From: Eric Paris <eparis@redhat.com>
+Date: Tue, 28 Jun 2011 21:37:38 -0400
+Subject: [PATCH 006/155] libselinux: do not check fcontext duplicates on use
+
+Tools like restorecon or systemd, which load the fcontext database to
+make labeling decisions do not need to check for duplicate rules.  Only
+the first rule will be used.  Instead we should only check for
+duplicates when new rules are added to the database.  And fail the
+transaction if we find one.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ libselinux/src/label_file.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index af7fd8f..3b8346d 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -485,7 +485,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 					 pass, ++lineno) != 0)
+ 				goto finish;
+ 		}
+-		if (pass == 1) {
++		if (pass == 1 && rec->validating) {
+ 			status = nodups_specs(data, path);
+ 			if (status)
+ 				goto finish;
+-- 
+1.7.6
+
+
+--=-KrduQR1C1v7wnbpn9wvi--
 
 
 --
