@@ -1,41 +1,59 @@
+Message-ID: <4E3AA12C.9000704@cendio.se>
+Date: Thu, 04 Aug 2011 15:39:56 +0200
+From: Aaron Sowry <aaron@cendio.se>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
 Subject: Re: SELinux policy regarding LD_LIBRARY_PATH
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Aaron Sowry <aaron@cendio.se>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4E3A8D16.7060807@cendio.se>
-References: <4E3A8D16.7060807@cendio.se>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 04 Aug 2011 09:09:25 -0400
-Message-ID: <1312463365.20973.21.camel@moss-pluto>
-Mime-Version: 1.0
+References: <4E3A8D16.7060807@cendio.se> <1312463365.20973.21.camel@moss-pluto>
+In-Reply-To: <1312463365.20973.21.camel@moss-pluto>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC8C4B5DF0E1381B78A5B94DD"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-08-04 at 14:14 +0200, Aaron Sowry wrote:
-> Hi,
-> 
-> It appears that with SELinux enabled, the LD_LIBRARY_PATH environment
-> variable is not inherited by user processes forked by a root process.
-> This is on RHEL6.
-> 
-> What is the general SELinux policy regarding LD_LIBRARY_PATH? Is there
-> any way to change this behaviour? I couldn't find any documentation
-> regarding this.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC8C4B5DF0E1381B78A5B94DD
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-I see that Sven has answered your question, but wanted to clarify one
-point:  this behavior happens on execve, not on fork, and only if the
-process security context changes (whether an automatic transition or
-explicit request by the caller via setexeccon prior to execve).
+> However, the behavior you are seeing might not be related to SELinux, a=
+s
+> Linux also enables AT_SECURE if the uid or gid changes across execve (t=
+o
+> be precise, if the effective identity is not equal to the real identity=
 
-However, the behavior you are seeing might not be related to SELinux, as
-Linux also enables AT_SECURE if the uid or gid changes across execve (to
-be precise, if the effective identity is not equal to the real identity
-after the credential change, as this was the legacy logic from libc).
+> after the credential change, as this was the legacy logic from libc).
 
--- 
-Stephen Smalley
-National Security Agency
+So if I understand correctly, SELinux expands on AT_SECURE to sanitize
+environment variables across context changes instead of just
+setgid/setuid. Makes sense; you live and learn.
 
+In this case I believe it was SELinux performing the sanitization as
+disabling it solved the problem, but this is helpful to know.
+
+/Aaron
+
+
+--------------enigC8C4B5DF0E1381B78A5B94DD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQEcBAEBAgAGBQJOOqEvAAoJECw8YUUfeQL9vtsH/3ZeCk4y4ECQV0fU6vRw8TUJ
+oE93D0WeWttfV9nY+cUdrIS4M+OYHjTKXyu4YpNkOVRZLJrgjylbHJQyflOMNtJ3
+rXiB/xYhXeEpZ7CRzvaAsN40XuStRiU7zk12kmgj2Cn4zjrs+9wsveDTHii4zlNA
+vwt1kHBF05ajoA9KNxPvyTzQFsvRd0RkB++4NZzQX5zvKigINr1KNU5g8FCLaur/
+lMBNUkxpS+/7rpju3ij1jwcegs5rtwnWNLu/zjVvBMrGDMt91WZsLy4DVx458h2+
+vegFlWuultbWWOXgD5tzzVWORWymw9cJw1FY3VGG1nbywE17R0NhoyIry166ma8=
+=qsJl
+-----END PGP SIGNATURE-----
+
+--------------enigC8C4B5DF0E1381B78A5B94DD--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
