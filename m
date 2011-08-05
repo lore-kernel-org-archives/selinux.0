@@ -1,96 +1,87 @@
-Message-ID: <4E3B1416.5020504@redhat.com>
-Date: Thu, 04 Aug 2011 17:50:14 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4E3B441A.1090900@windriver.com>
+Date: Fri, 5 Aug 2011 09:15:06 +0800
+From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: <qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 029/155] policycoreutils: fixfiles clean up /var/run and
-References: <4E39B5E6.8000100@redhat.com>  <1312469767.20973.53.camel@moss-pluto>  <CACLa4ptckXGt6XEqDMnmeZhV3AzVwnL=ktSTtVTFGg+A=Ajcug@mail.gmail.com>  <CACLa4puk2gO=aV=oNj-Kmj=eSmYmquX0skKoCxso6o9tWcf_Ng@mail.gmail.com> <1312486409.20973.66.camel@moss-pluto> <4E3B007B.1020502@redhat.com> <4E3B085D.1050400@redhat.com> <4E3B09CA.30604@redhat.com> <4E3B0AB1.2050707@redhat.com>
-In-Reply-To: <4E3B0AB1.2050707@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------080409080508020603020508"
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>,
+        <refpolicy@oss1.tresys.com>
+Subject: Re: checkpolicy is broken (which is not)
+References: <4E3AEA75.3090602@redhat.com> <4E3B3D39.4020700@windriver.com>
+In-Reply-To: <4E3B3D39.4020700@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080409080508020603020508
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hi Chris,
 
-On 08/04/2011 05:10 PM, Eric Paris wrote:
-> On 08/04/2011 05:06 PM, Daniel J Walsh wrote:
->> On 08/04/2011 05:00 PM, Eric Paris wrote:
-> 
->>> I also question the use of /sys/fs/selinux/ but I'm not sure we
->>> have a good way to find that in a script.....  Do we have one?
->>> 
->> 
->> grep selinuxfs /proc/self/mountinfo | awk '{ print $5 }'
-> 
-> $ grep selinuxfs /proc/self/mountinfo | awk '{ print $5 }' /selinux 
-> /chroot/selinux
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-> quotes as the message.
-> 
-> 
+I think Dan's case below is a good example, that while
+libsepol/checkpolicy/etc upgraded to 2011-07-27 release, people may have
+not upgraded(or don't want/need to for the time being) the refpolicy to
+the 2011-07-26 release accordingly, then people would run into this problem.
 
-Second attempt.
+I am wondering if there is a need to add one note in selinux project
+wiki page that once upgraded to 2011-07-27 release, at least the
+3cbc9727 commit should be cherry-picked to refpolicy, if people still
+prefer to older releases.
 
---------------080409080508020603020508
-Content-Type: text/plain;
- name="unlabeled_file.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="unlabeled_file.patch"
+Thanks,
+Harry
 
-ZGlmZiAtLWdpdCBhL3BvbGljeWNvcmV1dGlscy9zY3JpcHRzL2ZpeGZpbGVzIGIvcG9saWN5
-Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKaW5kZXggNmRlNzEwYS4uODk5ZGNlMiAxMDA3
-NTUKLS0tIGEvcG9saWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKKysrIGIvcG9saWN5
-Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMKQEAgLTIxLDYgKzIxLDIzIEBACiAjIEZvdW5k
-YXRpb24sIEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUgMzMwLCBCb3N0b24sIE1BICAw
-MjExMS0xMzA3ICBVU0EKIAogIworIyBHZXQgdGhlIGRlZmF1bHQgbGFiZWwgcmV0dXJuZWQg
-ZnJvbSB0aGUga2VybmVsIGZvciBhIGZpbGUgd2l0aCBhIGxhYmxlIHRoZSAKKyMga2VybmVs
-IGRvZXMgbm90IHVuZGVyc3RhbmQKKyMKK2dldF91bmRlZmluZWRfdHlwZSgpIHsKKyAgICBT
-RUxJTlVYTU5UPWBncmVwIHNlbGludXhmcyAvcHJvYy9zZWxmL21vdW50aW5mbyB8IGhlYWQg
-LTEgfCBhd2sgJ3sgcHJpbnQgJDUgfSdgCisgICAgY2F0ICR7U0VMSU5VWE1OVH0vaW5pdGlh
-bF9jb250ZXh0cy91bmxhYmVsZWQgfCBzZWNvbiAtdAorfQorCisjCisjIEdldCB0aGUgZGVm
-YXVsdCBsYWJlbCBmb3IgYSBmaWxlIHdpdGhvdXQgYSBsYWJlbAorIworZ2V0X3VubGFiZWxl
-ZF90eXBlKCkgeworICAgIFNFTElOVVhNTlQ9YGdyZXAgc2VsaW51eGZzIC9wcm9jL3NlbGYv
-bW91bnRpbmZvIHwgaGVhZCAtMSB8IGF3ayAneyBwcmludCAkNSB9J2AKKyAgICBjYXQgJFNF
-TElOVVhNTlQvaW5pdGlhbF9jb250ZXh0cy9maWxlIHwgc2Vjb24gLXQgCit9CisKKyMKICMg
-R2V0IGFsbCBtb3VudCBwb2ludHMgdGhhdCBzdXBwb3J0IHNlY2xhYmVsCiAjCiBnZXRfYWxs
-X2xhYmVsZWRfbW91bnRzKCkgewpAQCAtMjAwLDExICsyMTcsMTMgQEAgZmkKICR7U0VURklM
-RVN9IC1xICR7U1lTTE9HRkxBR30gJHtGT1JDRUZMQUd9ICQqICR7RkN9ICR7RklMRVNZU1RF
-TVNSV30gMj4mMSB8IGNhdCA+PiAkTE9HRklMRQogcm0gLXJmIC90bXAvZ2NvbmZkLSogL3Rt
-cC9wdWxzZS0qIC90bXAvb3JiaXQtKiAkVEVNUEZDRklMRQogCi1maW5kIC90bXAgXCggLWNv
-bnRleHQgIio6ZmlsZV90KiIgLW8gLWNvbnRleHQgIio6dW5sYWJlbGVkX3QqIiBcKSBcKCAt
-dHlwZSBzIC1vIC10eXBlIHAgXCkgLWRlbGV0ZQotZmluZCAvdG1wIFwoIC1jb250ZXh0ICIq
-OmZpbGVfdCoiIC1vIC1jb250ZXh0ICIqOnVubGFiZWxlZF90KiIgXCkgLWV4ZWMgY2hjb24g
-LXQgdG1wX3Qge30gXDsKLWZpbmQgL3Zhci90bXAgXCggLWNvbnRleHQgIio6ZmlsZV90KiIg
-LW8gLWNvbnRleHQgIio6dW5sYWJlbGVkX3QqIiBcKSAtZXhlYyBjaGNvbiAtdCB0bXBfdCB7
-fSBcOwotZmluZCAvdmFyL3J1biBcKCAtY29udGV4dCAiKjpmaWxlX3QqIiAtbyAtY29udGV4
-dCAiKjp1bmxhYmVsZWRfdCoiIFwpIC1leGVjIGNoY29uIC10IHZhcl9ydW5fdCB7fSBcOwot
-WyAtZSAvdmFyL2xpYi9kZWJ1ZyBdICYmIGZpbmQgL3Zhci9saWIvZGVidWcgXCggLWNvbnRl
-eHQgIio6ZmlsZV90KiIgLW8gLWNvbnRleHQgIio6dW5sYWJlbGVkX3QqIiBcKSAtZXhlYyBj
-aGNvbiAtdCBsaWJfdCB7fSBcOworVU5ERUZJTkVEPWBnZXRfdW5kZWZpbmVkX3R5cGVgIHx8
-IGV4aXQgJD8KK1VOTEFCRUxFRD1gZ2V0X3VubGFiZWxlZF90eXBlYCB8fCBleGl0ICQ/Citm
-aW5kIC90bXAgXCggLWNvbnRleHQgIio6JHtVTkxBQkVMRUR9KiIgLW8gLWNvbnRleHQgIio6
-JHtVTkRFRklORUR9KiIgXCkgXCggLXR5cGUgcyAtbyAtdHlwZSBwIFwpIC1kZWxldGUKK2Zp
-bmQgL3RtcCBcKCAtY29udGV4dCAiKjoke1VOTEFCRUxFRH0qIiAtbyAtY29udGV4dCAiKjok
-e1VOREVGSU5FRH0qIiBcKSAtZXhlYyBjaGNvbiAtLXJlZmVyZW5jZSAvdG1wIHt9IFw7Citm
-aW5kIC92YXIvdG1wIFwoIC1jb250ZXh0ICIqOiR7VU5MQUJFTEVEfSoiIC1vIC1jb250ZXh0
-ICIqOiR7VU5ERUZJTkVEfSoiIFwpIC1leGVjIGNoY29uIC0tcmVmZXJlbmNlIC92YXIvdG1w
-IHt9IFw7CitmaW5kIC92YXIvcnVuIFwoIC1jb250ZXh0ICIqOiR7VU5MQUJFTEVEfSoiIC1v
-IC1jb250ZXh0ICIqOiR7VU5ERUZJTkVEfSoiIFwpIC1leGVjIGNoY29uIC0tcmVmZXJlbmNl
-IC92YXIvcnVuIHt9IFw7CitbIC1lIC92YXIvbGliL2RlYnVnIF0gJiYgZmluZCAvdmFyL2xp
-Yi9kZWJ1ZyBcKCAtY29udGV4dCAiKjoke1VOTEFCRUxFRH0qIiAtbyAtY29udGV4dCAiKjok
-e1VOREVGSU5FRH0qIiBcKSAtZXhlYyBjaGNvbiAtLXJlZmVyZW5jZSAvbGliIHt9IFw7CiBl
-eGl0ICQ/CiB9CiAK
---------------080409080508020603020508--
+Harry Ciao 写道:
+> Hi Dan,
+>
+> This "problem" had been fixed by Chris when the role attribute support
+> is merged upstream, by adding one line of "role nx_server_r;" in nx.te.
+> Other than that, one extra line of "role $_2;" would have to be added
+> before the role-types rule used in the userdom_base_user_template().
+>
+> The commit id is 3cbc9727, I think you need to cherry-pick it.
+>
+> The reason is that the original role-type rule no longer used to declare
+> a role, but solely focused on associating types with regular role or
+> role attribute, whereas the newly added role-attr rule takes care of
+> declaring regular role or role attribute, and optionally adding them
+> into another role attribute.
+>
+> Thanks,
+> Harry
+>
+> Daniel J Walsh 写道:
+>   
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> This module used to compile and with the latest checkpolicy in upstream
+>> it blows up on the role.
+>>
+>> # make -f /usr/share/selinux/devel/Makefile cat: /selinux/mls: No such
+>> file or directory
+>> Compiling targeted nx module
+>> /usr/bin/checkmodule:  loading policy configuration from tmp/nx.tmp
+>> nx.te":15:ERROR 'unknown role nx_server_r' at token ';' on line 3857:
+>> role nx_server_r types nx_server_t;
+>> # cjp: do we really need this?
+>> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+>> make: *** [tmp/nx.mod] Error 1
+>>
+>>
+>> Something to do with the role patch, I believe.
+>> -----BEGIN PGP SIGNATURE-----
+>> Version: GnuPG v1.4.11 (GNU/Linux)
+>> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+>>
+>> iEYEARECAAYFAk466m0ACgkQrlYvE4MpobOziACgsLrcXj4EHseXsRCf0fA98t+2
+>> hx0An1TPUPcF+z4AAEso7dLgduVW4MNI
+>> =xzsa
+>> -----END PGP SIGNATURE-----
+>>   
+>>     
+>
+>
+>   
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
