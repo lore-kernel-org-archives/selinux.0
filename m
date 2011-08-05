@@ -1,91 +1,90 @@
-Subject: Re: [PATCH 1/5] Define the function to write sock's security
- context to seq_file.
+Subject: Re: [PATCH 029/155] policycoreutils: fixfiles clean up /var/run and
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: rongqing.li@windriver.com
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        lsm
- <linux-security-module@vger.kernel.org>
-In-Reply-To: <1312534686-4099-2-git-send-email-rongqing.li@windriver.com>
-References: <1312534686-4099-1-git-send-email-rongqing.li@windriver.com>
-	 <1312534686-4099-2-git-send-email-rongqing.li@windriver.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 05 Aug 2011 09:56:58 -0400
-Message-ID: <1312552618.19283.51.camel@moss-pluto>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <4E3B1416.5020504@redhat.com>
+References: <4E39B5E6.8000100@redhat.com>
+	 <1312469767.20973.53.camel@moss-pluto>
+	 <CACLa4ptckXGt6XEqDMnmeZhV3AzVwnL=ktSTtVTFGg+A=Ajcug@mail.gmail.com>
+	 <CACLa4puk2gO=aV=oNj-Kmj=eSmYmquX0skKoCxso6o9tWcf_Ng@mail.gmail.com>
+	 <1312486409.20973.66.camel@moss-pluto> <4E3B007B.1020502@redhat.com>
+	 <4E3B085D.1050400@redhat.com> <4E3B09CA.30604@redhat.com>
+	 <4E3B0AB1.2050707@redhat.com>  <4E3B1416.5020504@redhat.com>
+Content-Type: multipart/mixed; boundary="=-pwp0cuEh1IbpTonA2Kka"
+Date: Fri, 05 Aug 2011 10:18:31 -0400
+Message-ID: <1312553911.19283.56.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-08-05 at 16:58 +0800, rongqing.li@windriver.com wrote:
-> From: Roy.Li <rongqing.li@windriver.com>
+
+--=-pwp0cuEh1IbpTonA2Kka
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+On Thu, 2011-08-04 at 17:50 -0400, Daniel J Walsh wrote:
+> On 08/04/2011 05:10 PM, Eric Paris wrote:
+> > On 08/04/2011 05:06 PM, Daniel J Walsh wrote:
+> >> On 08/04/2011 05:00 PM, Eric Paris wrote:
+> > 
+> >>> I also question the use of /sys/fs/selinux/ but I'm not sure we
+> >>> have a good way to find that in a script.....  Do we have one?
+> >>> 
+> >> 
+> >> grep selinuxfs /proc/self/mountinfo | awk '{ print $5 }'
+> > 
+> > $ grep selinuxfs /proc/self/mountinfo | awk '{ print $5 }' /selinux 
+> > /chroot/selinux
+> > 
+> > -- This message was distributed to subscribers of the selinux mailing
+> > list. If you no longer wish to subscribe, send mail to
+> > majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
+> > quotes as the message.
+> > 
+> > 
 > 
-> This function will write the sock's security context to a seq_file
-> and return the error code, and the number of characters successfully
-> written is written in int pointers parameter.
-> 
-> This function will be called when export socket information to proc.
-> 
-> Signed-off-by: Roy.Li <rongqing.li@windriver.com>
-> ---
->  include/net/sock.h |    1 +
->  net/core/sock.c    |   26 ++++++++++++++++++++++++++
->  2 files changed, 27 insertions(+), 0 deletions(-)
+> Second attempt.
 
-> diff --git a/net/core/sock.c b/net/core/sock.c
-> index bc745d0..1126a49 100644
-> --- a/net/core/sock.c
-> +++ b/net/core/sock.c
-> @@ -2254,6 +2254,32 @@ void sk_common_release(struct sock *sk)
->  }
->  EXPORT_SYMBOL(sk_common_release);
->  
-> +int sock_write_secctx(struct sock *sk, struct seq_file *seq, int *len)
-> +{
-> +	struct flowi fl;
-> +	char *ctx = NULL;
-> +	u32 ctxlen;
-> +	int res = 0;
-> +
-> +	*len = 0;
-> +
-> +	if (sk == NULL)
-> +		return -EINVAL;
-
-Is this ever possible?
-
-> +	res = security_socket_getsockname(sk->sk_socket);
-> +	if (res)
-> +		return res;
-
-I'm not sure it is a good idea to output nothing if permission is denied
-to the socket, as opposed to some well-defined string indicating that
-condition.  Particularly if someone later adds another field to
-the /proc files after the context; we don't want the contents of that
-field to be interpreted as the context if permission was denied.
-
-> +
-> +	security_sk_classify_flow(sk, &fl);
-> +
-> +	res = security_secid_to_secctx(fl.flowi_secid, &ctx, &ctxlen);
-> +	if (res)
-> +		return res;
-
-Likewise, if we couldn't map the secid to a secctx for some reason, we
-likely ought to output some well-defined string indicating that
-condition.
-
-> +
-> +	seq_printf(seq, " %s%n", ctx, len);
-> +	security_release_secctx(ctx, ctxlen);
-> +	return res;
-> +}
-> +
->  static DEFINE_RWLOCK(proto_list_lock);
->  static LIST_HEAD(proto_list);
->  
+Technically I think we wanted to encapsulate all references to selinuxfs
+by using libselinux, whether via direct bindings (as from python) or by
+adding utils to libselinux (for shell scripts).  For example:
+$ gcc -lselinux -o getinitialcontext getinitialcontext.c
+$ ./getinitialcontext unlabeled
+system_u:object_r:unlabeled_t:s0
 
 -- 
 Stephen Smalley
 National Security Agency
+
+--=-pwp0cuEh1IbpTonA2Kka
+Content-Disposition: attachment; filename="getinitialcontext.c"
+Content-Type: text/x-csrc; name="getinitialcontext.c"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+#include <selinux/selinux.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int main(int argc, char **argv)
+{
+	int rc;
+	security_context_t con;
+	if (argc != 2) {
+		fprintf(stderr, "usage:  %s sid-name\n", argv[0]);
+		exit(1);
+	}
+	rc = security_get_initial_context(argv[1], &con);
+	if (rc < 0) {
+		perror(argv[1]);
+		exit(2);
+	}
+	printf("%s\n", con);
+	freecon(con);
+	exit(0);
+}
+
+--=-pwp0cuEh1IbpTonA2Kka--
 
 
 --
