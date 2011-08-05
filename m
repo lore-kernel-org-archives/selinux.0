@@ -1,50 +1,67 @@
 Subject: Re: checkpolicy is broken (which is not)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <201108060130.49464.russell@coker.com.au>
-References: <4E3AEA75.3090602@redhat.com>
-	 <1312550851.19283.35.camel@moss-pluto> <4E3C0152.7000105@redhat.com>
-	 <201108060130.49464.russell@coker.com.au>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: qingtao.cao@windriver.com, Eric Paris <eparis@redhat.com>,
+        "Christopher
+ J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Date: Fri, 05 Aug 2011 12:58:32 -0400
+In-Reply-To: <1312548982.19283.14.camel@moss-pluto>
+References: <4E3AEA75.3090602@redhat.com> <4E3B3D39.4020700@windriver.com>
+	 <4E3B441A.1090900@windriver.com> <4E3B5593.7000502@redhat.com>
+	 <4E3B6F5B.40904@windriver.com> <1312548982.19283.14.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 05 Aug 2011 12:20:59 -0400
-Message-ID: <1312561259.19283.76.camel@moss-pluto>
+Message-ID: <1312563512.23489.17.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:
-> I think that the ideal situation for a Debian upgrade (which can and usually 
-> is done in stages unlike a RHEL upgrade) is to support either the old policy 
-> with new user-space or the new policy with the old user-space.  Ideally this 
-> would also include the ability to rebuild the policy packages from source.
+On Fri, 2011-08-05 at 08:56 -0400, Stephen Smalley wrote:
+> On Fri, 2011-08-05 at 12:19 +0800, Harry Ciao wrote:
+> > Hi Eric,
+> > 
+> > Let me explain more about the background story.
+> > 
+> > The existing type rule could declare a type, and optionally associate it
+> > with a list of type attributes. So I invented this "role <regular role>
+> > attribute <a list of role attributes>" rule in the same manner to do the
+> > similar things for roles, since I figure this would make refpolicy rules
+> > similar and easy to remember and use.
+> > 
+> > Now that the above new role-attr rule takes care of declaring roles,
+> > this duty has to be removed from role-type rule in order to avoid
+> > ambiguity, and the role-type rule would be used to only associate types
+> > with roles, which only requires TWO lines of code as in 3cbc9727, since
+> > mostly used roles such as system_r have been declared in kernel.te(in
+> > order to avoid some build failure).
+> > 
+> > In a word, we could preserve the behavior of role-type rule, but this
+> > would introduce discrepancy between that of role-attr rule and type-attr
+> > rule, considering that getting used to the new toolchain only requires
+> > an easy cherry-pick of only 2 lines of change, would it be that
+> > desirable for us to do so?
+> 
+> I don't think we should introduce an incompatible policy language change
+> without very strong reasons.  It is fine to introduce new constructs
+> like your role...attribute construct, but we shouldn't change the
+> meaning of role...type statements and thereby render invalid policies
+> that used to be valid.
+> 
 
-I'm not sure how you could support the latter, as newer policy sources
-will use the language features supported by the latest checkpolicy, and
-thus often won't be compilable by an older checkpolicy.  The former is
-possible, but requires us to preserve the present ambiguity between
-declaring a role and adding types to an existing role.
+In the up and coming CIL compiler, declaration and use are always
+separate, so user, role, and type rules are only used to declare. There
+are typealias, typeattribute, and other such rules to define
+associations. For a role there is a separate roletype rule to associate
+a type with a role.
 
-> In regard to the "role httpd_t types httpd_t;" corner case, aren't there a 
-> heap of other corner cases where someone can accidentally write policy that 
-> doesn't do what they expect?
-
-Certainly, but I think the notion was to provide the same level of
-compile-time checking of roles as we presently get for types.  Users
-would be the last remaining holdout at that point; like roles, we
-allowed multiple declarations when we decomposed the policy into
-per-domain source modules, introducing ambiguity between declaration and
-use.  We had a somewhat similar issue for type attributes, where they
-were originally defined implicitly on first use in a type declaration,
-and then later we added explicit attribute declarations and required
-their use to avoid similar mistakes.
-
-> What about the macros for things like r_file_perms?  How long are we going to 
-> keep that around?  We've already had a couple of releases with the new 
-> version.
+So if roletype and roleattribute rules were created for the current
+toolchain, the current role rule would not have to be changed. Newer
+policies could use the role rule only to declare a role, but it could
+still be used in the old way for backwards compatibility.
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
