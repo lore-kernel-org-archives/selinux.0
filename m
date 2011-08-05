@@ -1,40 +1,52 @@
-Message-ID: <4E3C1030.40406@manicmethod.com>
-Date: Fri, 05 Aug 2011 11:45:52 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, qingtao.cao@windriver.com,
-        Eric Paris <eparis@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
 Subject: Re: checkpolicy is broken (which is not)
-References: <4E3AEA75.3090602@redhat.com> <4E3B3D39.4020700@windriver.com>  <4E3B441A.1090900@windriver.com> <4E3B5593.7000502@redhat.com>  <4E3B6F5B.40904@windriver.com> <1312548982.19283.14.camel@moss-pluto> <4E3BE94F.9010104@redhat.com>
-In-Reply-To: <4E3BE94F.9010104@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <201108060130.49464.russell@coker.com.au>
+References: <4E3AEA75.3090602@redhat.com>
+	 <1312550851.19283.35.camel@moss-pluto> <4E3C0152.7000105@redhat.com>
+	 <201108060130.49464.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 05 Aug 2011 12:20:59 -0400
+Message-ID: <1312561259.19283.76.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-<snip>>>
->
-> Well I will say that I thought the old construct did not make sense,
-> since we have to declare most objects in the lanquage except for roles.
->
+On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:
+> I think that the ideal situation for a Debian upgrade (which can and usually 
+> is done in stages unlike a RHEL upgrade) is to support either the old policy 
+> with new user-space or the new policy with the old user-space.  Ideally this 
+> would also include the ability to rebuild the policy packages from source.
 
-If SDS hadn't smacked it down I would have deprecated implicit role declaration 
-in the original module compiler so it shouldn't be a surprise that I'm fine with 
-this change. Refpolicy has always declared roles explicitly (a capability that 
-didn't even exist before the module compiler) and if it didn't it was a 
-refpolicy bug.
+I'm not sure how you could support the latter, as newer policy sources
+will use the language features supported by the latest checkpolicy, and
+thus often won't be compilable by an older checkpolicy.  The former is
+possible, but requires us to preserve the present ambiguity between
+declaring a role and adding types to an existing role.
 
-> This will help to find problems in the policy also like people doing
->
-> role httpd_t types httpd_t;
->
-> Which I have seen in the past.
->
-> I just got the new toolchain to work with Fedora policy.
->
+> In regard to the "role httpd_t types httpd_t;" corner case, aren't there a 
+> heap of other corner cases where someone can accidentally write policy that 
+> doesn't do what they expect?
+
+Certainly, but I think the notion was to provide the same level of
+compile-time checking of roles as we presently get for types.  Users
+would be the last remaining holdout at that point; like roles, we
+allowed multiple declarations when we decomposed the policy into
+per-domain source modules, introducing ambiguity between declaration and
+use.  We had a somewhat similar issue for type attributes, where they
+were originally defined implicitly on first use in a type declaration,
+and then later we added explicit attribute declarations and required
+their use to avoid similar mistakes.
+
+> What about the macros for things like r_file_perms?  How long are we going to 
+> keep that around?  We've already had a couple of releases with the new 
+> version.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
