@@ -1,43 +1,50 @@
-Subject: RE: checkpolicy is broken (which is not)
+Subject: Re: [PATCH 1/5] Define the function to write sock's security
+ context to seq_file.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: russell@coker.com.au, dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <SNT139-W640BE6F3829A2C5D982BDDAB210@phx.gbl>
-References: <4E3AEA75.3090602@redhat.com>
-	 ,<1312550851.19283.35.camel@moss-pluto> <4E3C0152.7000105@redhat.com>
-	 ,<201108060130.49464.russell@coker.com.au>
-	 ,<1312561259.19283.76.camel@moss-pluto>
-	 <SNT139-W640BE6F3829A2C5D982BDDAB210@phx.gbl>
+To: Rongqing Li <rongqing.li@windriver.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        lsm
+ <linux-security-module@vger.kernel.org>
+In-Reply-To: <4E3FAD40.1020404@windriver.com>
+References: <1312534686-4099-1-git-send-email-rongqing.li@windriver.com>
+	 <1312534686-4099-2-git-send-email-rongqing.li@windriver.com>
+	 <1312552618.19283.51.camel@moss-pluto>  <4E3FAD40.1020404@windriver.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 08 Aug 2011 08:01:55 -0400
-Message-ID: <1312804915.29877.4.camel@moss-pluto>
+Date: Mon, 08 Aug 2011 09:25:36 -0400
+Message-ID: <1312809936.324.8.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-08-08 at 06:41 +0000, HarryCiao wrote:
-> Hi Stephen,
+On Mon, 2011-08-08 at 17:32 +0800, Rongqing Li wrote:
+> On 08/05/2011 09:56 PM, Stephen Smalley wrote:
+> > I'm not sure it is a good idea to output nothing if permission is denied
+> > to the socket, as opposed to some well-defined string indicating that
+> > condition.  Particularly if someone later adds another field to
+> > the /proc files after the context; we don't want the contents of that
+> > field to be interpreted as the context if permission was denied.
+> >
 > 
-> As for removing above "ambiguity between declaration and use", so it
-> would be desirable to remove the association between a regular type
-> and type attributes in the current type-attribute rule, and shrink it
-> to some "type" rule only for type declaration, and request policy
-> writers to setup the association explicitly via the typeattribute
-> rule. 
+>  From your review, I redesign the output information as below.
 > 
-> Also we should handle roles in a similar way: use some "role" rule
-> solely for role declaration and "attribute_role" rule for role
-> attribute declaration, then "roleattribute" rule for setting up their
-> associations.
+> when disable SELinux, print "(none)" in proc
+> when enable  SELinux, no error on getting security context, print the 
+> real security context
+> when enable  SELinux, there is error on getting security context, print 
+> "??"
 > 
-> Is that right?
-> 
-> Also this would introduce significant change to the original
-> type-attribute rule, how would it be easier for the community to
-> accept such change?
+> Do you think it is OK?
 
-I'm not asking for any further changes to the language, just explaining
-the analogy to the type-related statements.
+It appears that netstat presently displays a "-" if it cannot obtain the
+security context or pid/program name information, so perhaps you should
+follow that convention whenever you cannot obtain a security context
+regardless of the particular reason. Note that your logic shouldn't be
+based on whether or not SELinux is enabled/disabled per se, but rather
+based on whether the security module provides security contexts, which
+can be determined by checking whether the secid is set to a non-zero
+value by security_sk_getsecid().  The audit system (kernel/audit*.c)
+uses similar logic to decide whether or not to log task security
+contexts.
 
 -- 
 Stephen Smalley
