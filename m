@@ -1,88 +1,116 @@
-Message-ID: <4E3F7662.8090609@windriver.com>
-Date: Mon, 8 Aug 2011 13:38:42 +0800
-From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
+Message-ID: <SNT139-W640BE6F3829A2C5D982BDDAB210@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <sds@tycho.nsa.gov>, <russell@coker.com.au>
+CC: <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+Subject: RE: checkpolicy is broken (which is not)
+Date: Mon, 8 Aug 2011 06:41:37 +0000
+In-Reply-To: <1312561259.19283.76.camel@moss-pluto>
+References: 
+ <4E3AEA75.3090602@redhat.com>,<1312550851.19283.35.camel@moss-pluto>
+ <4E3C0152.7000105@redhat.com>,<201108060130.49464.russell@coker.com.au>,<1312561259.19283.76.camel@moss-pluto>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux
-	<selinux@tycho.nsa.gov>
-Subject: Re: checkpolicy is broken (which is not)
-References: <4E3AEA75.3090602@redhat.com> <4E3B3D39.4020700@windriver.com>  <4E3B441A.1090900@windriver.com> <4E3B5593.7000502@redhat.com>  <4E3B6F5B.40904@windriver.com> <1312548982.19283.14.camel@moss-pluto> <4E3BE94F.9010104@redhat.com>
-In-Reply-To: <4E3BE94F.9010104@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Dan,
+--_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-Daniel J Walsh å†™é“:
-> On 08/05/2011 08:56 AM, Stephen Smalley wrote:
->   
->> On Fri, 2011-08-05 at 12:19 +0800, Harry Ciao wrote:
->>     
->>> Hi Eric,
->>>
->>> Let me explain more about the background story.
->>>
->>> The existing type rule could declare a type, and optionally 
->>> associate it with a list of type attributes. So I invented this 
->>> "role <regular role> attribute <a list of role attributes>" rule
->>> in the same manner to do the similar things for roles, since I
->>> figure this would make refpolicy rules similar and easy to remember
->>> and use.
->>>
->>> Now that the above new role-attr rule takes care of declaring 
->>> roles, this duty has to be removed from role-type rule in order to 
->>> avoid ambiguity, and the role-type rule would be used to only 
->>> associate types with roles, which only requires TWO lines of code 
->>> as in 3cbc9727, since mostly used roles such as system_r have been 
->>> declared in kernel.te(in order to avoid some build failure).
->>>
->>> In a word, we could preserve the behavior of role-type rule, but 
->>> this would introduce discrepancy between that of role-attr rule
->>> and type-attr rule, considering that getting used to the new
->>> toolchain only requires an easy cherry-pick of only 2 lines of
->>> change, would it be that desirable for us to do so?
->>>       
->> I don't think we should introduce an incompatible policy language 
->> change without very strong reasons.  It is fine to introduce new 
->> constructs like your role...attribute construct, but we shouldn't 
->> change the meaning of role...type statements and thereby render 
->> invalid policies that used to be valid.
->>
->>     
->
-> Well I will say that I thought the old construct did not make sense,
-> since we have to declare most objects in the lanquage except for roles.
->
-> This will help to find problems in the policy also like people doing
->
-> role httpd_t types httpd_t;
->
-> Which I have seen in the past.
->
->   
-During developing role-attribute patchset, I'd discovered two similar
-mistakes after removing implicit role declaration from role-type rule:
 
-1. mozilla_run_plugin(mozilla_t, $2)
-2. seutil_run_semanage(lsassd_t, lsassd_t)
+Hi Stephen,
 
-Both of them had been fixed in the latest refpolicy.
+> Subject: Re: checkpolicy is broken (which is not)
+> From: sds@tycho.nsa.gov
+> To: russell@coker.com.au
+> CC: dwalsh@redhat.com; selinux@tycho.nsa.gov
+> Date: Fri, 5 Aug 2011 12:20:59 -0400
+> 
+> On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:
+> > I think that the ideal situation for a Debian upgrade (which can and usually 
+> > is done in stages unlike a RHEL upgrade) is to support either the old policy 
+> > with new user-space or the new policy with the old user-space.  Ideally this 
+> > would also include the ability to rebuild the policy packages from source.
+> 
+> I'm not sure how you could support the latter, as newer policy sources
+> will use the language features supported by the latest checkpolicy, and
+> thus often won't be compilable by an older checkpolicy.  The former is
+> possible, but requires us to preserve the present ambiguity between
+> declaring a role and adding types to an existing role.
+> 
+> > In regard to the "role httpd_t types httpd_t;" corner case, aren't there a 
+> > heap of other corner cases where someone can accidentally write policy that 
+> > doesn't do what they expect?
+> 
+> Certainly, but I think the notion was to provide the same level of
+> compile-time checking of roles as we presently get for types.  Users
+> would be the last remaining holdout at that point; like roles, we
+> allowed multiple declarations when we decomposed the policy into
+> per-domain source modules, introducing ambiguity between declaration and
+> use.  We had a somewhat similar issue for type attributes, where they
+> were originally defined implicitly on first use in a type declaration,
+> and then later we added explicit attribute declarations and required
+> their use to avoid similar mistakes.
+> 
 
-If people prefer to older refpolicy with the latest toolchain, I would
-suggest them to cherry-pick fixes for above two obvious mistakes.
+I have not understood this question as deep as others :-P
 
-> I just got the new toolchain to work with Fedora policy.
->
->   
-Thanks! Any further issue with the role-attribute rules, just let me know!
+As for removing above "ambiguity between declaration and use", so it would be desirable to remove the association between a regular type and type attributes in the current type-attribute rule, and shrink it to some "type" rule only for type declaration, and request policy writers to setup the association explicitly via the typeattribute rule. 
 
-Cheers,
+Also we should handle roles in a similar way: use some "role" rule solely for role declaration and "attribute_role" rule for role attribute declaration, then "roleattribute" rule for setting up their associations.
+
+Is that right?
+
+Also this would introduce significant change to the original type-attribute rule, how would it be easier for the community to accept such change?
+
+Thanks!
+
+Best regards,
 Harry
 
+
+> > What about the macros for things like r_file_perms?  How long are we going to 
+> > keep that around?  We've already had a couple of releases with the new 
+> > version.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'><div dir='ltr'>
+Hi Stephen,<br><br><div>&gt; Subject: Re: checkpolicy is broken (which is not)<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: russell@coker.com.au<br>&gt; CC: dwalsh@redhat.com; selinux@tycho.nsa.gov<br>&gt; Date: Fri, 5 Aug 2011 12:20:59 -0400<br>&gt; <br>&gt; On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:<br>&gt; &gt; I think that the ideal situation for a Debian upgrade (which can and usually <br>&gt; &gt; is done in stages unlike a RHEL upgrade) is to support either the old policy <br>&gt; &gt; with new user-space or the new policy with the old user-space.  Ideally this <br>&gt; &gt; would also include the ability to rebuild the policy packages from source.<br>&gt; <br>&gt; I'm not sure how you could support the latter, as newer policy sources<br>&gt; will use the language features supported by the latest checkpolicy, and<br>&gt; thus often won't be compilable by an older checkpolicy.  The former is<br>&gt; possible, but requires us to preserve the present ambiguit!
+ y between<br>&gt; declaring a role and adding types to an existing role.<br>&gt; <br>&gt; &gt; In regard to the "role httpd_t types httpd_t;" corner case, aren't there a <br>&gt; &gt; heap of other corner cases where someone can accidentally write policy that <br>&gt; &gt; doesn't do what they expect?<br>&gt; <br>&gt; Certainly, but I think the notion was to provide the same level of<br>&gt; compile-time checking of roles as we presently get for types.  Users<br>&gt; would be the last remaining holdout at that point; like roles, we<br>&gt; allowed multiple declarations when we decomposed the policy into<br>&gt; per-domain source modules, introducing ambiguity between declaration and<br>&gt; use.  We had a somewhat similar issue for type attributes, where they<br>&gt; were originally defined implicitly on first use in a type declaration,<br>&gt; and then later we added explicit attribute declarations and required<br>&gt; their use to avoid similar mistakes.<br>&gt; <br><br>I!
+  have not understood this question as deep as others :-P<br><br>As for
+ removing above "ambiguity between declaration and use", so it would be desirable to remove the association between a regular type and type attributes in the current type-attribute rule, and shrink it to some "type" rule only for type declaration, and request policy writers to setup the association explicitly via the typeattribute rule. <br><br>Also we should handle roles in a similar way: use some "role" rule solely for role declaration and "attribute_role" rule for role attribute declaration, then "roleattribute" rule for setting up their associations.<br><br>Is that right?<br><br>Also this would introduce significant change to the original type-attribute rule, how would it be easier for the community to accept such change?<br><br>Thanks!<br><br>Best regards,<br>Harry<br><br><br>&gt; &gt; What about the macros for things like r_file_perms?  How long are we going to <br>&gt; &gt; keep that around?  We've already had a couple of releases with the new <br>&gt; &gt; version.<b!
+ r>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
+</html>
+--_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
