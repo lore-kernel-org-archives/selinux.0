@@ -1,116 +1,125 @@
-Message-ID: <SNT139-W640BE6F3829A2C5D982BDDAB210@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <sds@tycho.nsa.gov>, <russell@coker.com.au>
-CC: <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
-Subject: RE: checkpolicy is broken (which is not)
-Date: Mon, 8 Aug 2011 06:41:37 +0000
-In-Reply-To: <1312561259.19283.76.camel@moss-pluto>
-References: 
- <4E3AEA75.3090602@redhat.com>,<1312550851.19283.35.camel@moss-pluto>
- <4E3C0152.7000105@redhat.com>,<201108060130.49464.russell@coker.com.au>,<1312561259.19283.76.camel@moss-pluto>
+Message-ID: <4E3FAD40.1020404@windriver.com>
+Date: Mon, 8 Aug 2011 17:32:48 +0800
+From: Rongqing Li <rongqing.li@windriver.com>
 MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
+        lsm
+	<linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Define the function to write sock's security context
+ to seq_file.
+References: <1312534686-4099-1-git-send-email-rongqing.li@windriver.com>	 <1312534686-4099-2-git-send-email-rongqing.li@windriver.com> <1312552618.19283.51.camel@moss-pluto>
+In-Reply-To: <1312552618.19283.51.camel@moss-pluto>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+On 08/05/2011 09:56 PM, Stephen Smalley wrote:
+> On Fri, 2011-08-05 at 16:58 +0800, rongqing.li@windriver.com wrote:
+>> From: Roy.Li<rongqing.li@windriver.com>
+>>
+>> This function will write the sock's security context to a seq_file
+>> and return the error code, and the number of characters successfully
+>> written is written in int pointers parameter.
+>>
+>> This function will be called when export socket information to proc.
+>>
+>> Signed-off-by: Roy.Li<rongqing.li@windriver.com>
+>> ---
+>>   include/net/sock.h |    1 +
+>>   net/core/sock.c    |   26 ++++++++++++++++++++++++++
+>>   2 files changed, 27 insertions(+), 0 deletions(-)
+>
+>> diff --git a/net/core/sock.c b/net/core/sock.c
+>> index bc745d0..1126a49 100644
+>> --- a/net/core/sock.c
+>> +++ b/net/core/sock.c
+>> @@ -2254,6 +2254,32 @@ void sk_common_release(struct sock *sk)
+>>   }
+>>   EXPORT_SYMBOL(sk_common_release);
+>>
+>> +int sock_write_secctx(struct sock *sk, struct seq_file *seq, int *len)
+>> +{
+>> +	struct flowi fl;
+>> +	char *ctx = NULL;
+>> +	u32 ctxlen;
+>> +	int res = 0;
+>> +
+>> +	*len = 0;
+>> +
+>> +	if (sk == NULL)
+>> +		return -EINVAL;
+>
+> Is this ever possible?
+>
+Hi Stephen:
 
+When output the tcp information to proc by tcp4_seq_show and
+tcp state is TCP_SEQ_STATE_TIME_WAIT, the input argument v is
+struct inet_timewait_sock, it seem we can not get the struct sock
+from struct inet_timewait_sock, so I assume the sk is NULL in that
+condition.
 
-Hi Stephen,
-
-> Subject: Re: checkpolicy is broken (which is not)
-> From: sds@tycho.nsa.gov
-> To: russell@coker.com.au
-> CC: dwalsh@redhat.com; selinux@tycho.nsa.gov
-> Date: Fri, 5 Aug 2011 12:20:59 -0400
-> 
-> On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:
-> > I think that the ideal situation for a Debian upgrade (which can and usually 
-> > is done in stages unlike a RHEL upgrade) is to support either the old policy 
-> > with new user-space or the new policy with the old user-space.  Ideally this 
-> > would also include the ability to rebuild the policy packages from source.
-> 
-> I'm not sure how you could support the latter, as newer policy sources
-> will use the language features supported by the latest checkpolicy, and
-> thus often won't be compilable by an older checkpolicy.  The former is
-> possible, but requires us to preserve the present ambiguity between
-> declaring a role and adding types to an existing role.
-> 
-> > In regard to the "role httpd_t types httpd_t;" corner case, aren't there a 
-> > heap of other corner cases where someone can accidentally write policy that 
-> > doesn't do what they expect?
-> 
-> Certainly, but I think the notion was to provide the same level of
-> compile-time checking of roles as we presently get for types.  Users
-> would be the last remaining holdout at that point; like roles, we
-> allowed multiple declarations when we decomposed the policy into
-> per-domain source modules, introducing ambiguity between declaration and
-> use.  We had a somewhat similar issue for type attributes, where they
-> were originally defined implicitly on first use in a type declaration,
-> and then later we added explicit attribute declarations and required
-> their use to avoid similar mistakes.
-> 
-
-I have not understood this question as deep as others :-P
-
-As for removing above "ambiguity between declaration and use", so it would be desirable to remove the association between a regular type and type attributes in the current type-attribute rule, and shrink it to some "type" rule only for type declaration, and request policy writers to setup the association explicitly via the typeattribute rule. 
-
-Also we should handle roles in a similar way: use some "role" rule solely for role declaration and "attribute_role" rule for role attribute declaration, then "roleattribute" rule for setting up their associations.
-
-Is that right?
-
-Also this would introduce significant change to the original type-attribute rule, how would it be easier for the community to accept such change?
-
-Thanks!
-
-Best regards,
-Harry
-
-
-> > What about the macros for things like r_file_perms?  How long are we going to 
-> > keep that around?  We've already had a couple of releases with the new 
-> > version.
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
- 		 	   		  
---_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
+static int tcp4_seq_show(struct seq_file *seq, void *v)
 {
-margin:0px;
-padding:0px
+
+        case TCP_SEQ_STATE_TIME_WAIT:
+                 get_timewait4_sock(v, seq, st->num, &len);
+                 break;
+         }
 }
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'><div dir='ltr'>
-Hi Stephen,<br><br><div>&gt; Subject: Re: checkpolicy is broken (which is not)<br>&gt; From: sds@tycho.nsa.gov<br>&gt; To: russell@coker.com.au<br>&gt; CC: dwalsh@redhat.com; selinux@tycho.nsa.gov<br>&gt; Date: Fri, 5 Aug 2011 12:20:59 -0400<br>&gt; <br>&gt; On Sat, 2011-08-06 at 01:30 +1000, Russell Coker wrote:<br>&gt; &gt; I think that the ideal situation for a Debian upgrade (which can and usually <br>&gt; &gt; is done in stages unlike a RHEL upgrade) is to support either the old policy <br>&gt; &gt; with new user-space or the new policy with the old user-space.  Ideally this <br>&gt; &gt; would also include the ability to rebuild the policy packages from source.<br>&gt; <br>&gt; I'm not sure how you could support the latter, as newer policy sources<br>&gt; will use the language features supported by the latest checkpolicy, and<br>&gt; thus often won't be compilable by an older checkpolicy.  The former is<br>&gt; possible, but requires us to preserve the present ambiguit!
- y between<br>&gt; declaring a role and adding types to an existing role.<br>&gt; <br>&gt; &gt; In regard to the "role httpd_t types httpd_t;" corner case, aren't there a <br>&gt; &gt; heap of other corner cases where someone can accidentally write policy that <br>&gt; &gt; doesn't do what they expect?<br>&gt; <br>&gt; Certainly, but I think the notion was to provide the same level of<br>&gt; compile-time checking of roles as we presently get for types.  Users<br>&gt; would be the last remaining holdout at that point; like roles, we<br>&gt; allowed multiple declarations when we decomposed the policy into<br>&gt; per-domain source modules, introducing ambiguity between declaration and<br>&gt; use.  We had a somewhat similar issue for type attributes, where they<br>&gt; were originally defined implicitly on first use in a type declaration,<br>&gt; and then later we added explicit attribute declarations and required<br>&gt; their use to avoid similar mistakes.<br>&gt; <br><br>I!
-  have not understood this question as deep as others :-P<br><br>As for
- removing above "ambiguity between declaration and use", so it would be desirable to remove the association between a regular type and type attributes in the current type-attribute rule, and shrink it to some "type" rule only for type declaration, and request policy writers to setup the association explicitly via the typeattribute rule. <br><br>Also we should handle roles in a similar way: use some "role" rule solely for role declaration and "attribute_role" rule for role attribute declaration, then "roleattribute" rule for setting up their associations.<br><br>Is that right?<br><br>Also this would introduce significant change to the original type-attribute rule, how would it be easier for the community to accept such change?<br><br>Thanks!<br><br>Best regards,<br>Harry<br><br><br>&gt; &gt; What about the macros for things like r_file_perms?  How long are we going to <br>&gt; &gt; keep that around?  We've already had a couple of releases with the new <br>&gt; &gt; version.<b!
- r>&gt; <br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
-</html>
---_3123d378-2fbd-47c7-bbef-9e7cfe12bc6c_--
+
+
+>> +	res = security_socket_getsockname(sk->sk_socket);
+>> +	if (res)
+>> +		return res;
+>
+> I'm not sure it is a good idea to output nothing if permission is denied
+> to the socket, as opposed to some well-defined string indicating that
+> condition.  Particularly if someone later adds another field to
+> the /proc files after the context; we don't want the contents of that
+> field to be interpreted as the context if permission was denied.
+>
+
+ From your review, I redesign the output information as below.
+
+when disable SELinux, print "(none)" in proc
+when enable  SELinux, no error on getting security context, print the 
+real security context
+when enable  SELinux, there is error on getting security context, print 
+"??"
+
+Do you think it is OK?
+
+Thanks very much
+
+-Roy
+
+>> +
+>> +	security_sk_classify_flow(sk,&fl);
+>> +
+>> +	res = security_secid_to_secctx(fl.flowi_secid,&ctx,&ctxlen);
+>> +	if (res)
+>> +		return res;
+>
+> Likewise, if we couldn't map the secid to a secctx for some reason, we
+> likely ought to output some well-defined string indicating that
+> condition.
+>
+>> +
+>> +	seq_printf(seq, " %s%n", ctx, len);
+>> +	security_release_secctx(ctx, ctxlen);
+>> +	return res;
+>> +}
+>> +
+>>   static DEFINE_RWLOCK(proto_list_lock);
+>>   static LIST_HEAD(proto_list);
+>>
+>
+
+-- 
+Best Reagrds,
+Roy | RongQing Li
 
 --
 This message was distributed to subscribers of the selinux mailing list.
