@@ -1,82 +1,117 @@
 From: <rongqing.li@windriver.com>
 To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
         <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH 5/6] Export the unix sock's security context to proc.
-Date: Tue, 9 Aug 2011 15:28:29 +0800
-Message-ID: <1312874910-31010-6-git-send-email-rongqing.li@windriver.com>
-In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
-References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
+Subject: [v2 PATCH 0/6] Export the sock's security context to proc
+Date: Tue, 9 Aug 2011 15:28:24 +0800
+Message-ID: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Roy.Li <rongqing.li@windriver.com>
-
-Export the unix sock's security context to proc, since it maybe
-different from the sock's owner process security context.
-
-Output '-' on Path column if the addr of unix_sock is NULL, rather 
-than nothing.
-
-Signed-off-by: Roy.Li <rongqing.li@windriver.com>
----
- net/unix/af_unix.c |   20 ++++++++++++++++----
- 1 files changed, 16 insertions(+), 4 deletions(-)
-
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index ec68e1c..9021f9b 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2239,12 +2239,14 @@ static void unix_seq_stop(struct seq_file *seq, void *v)
- 	spin_unlock(&unix_table_lock);
- }
+-------
+    Any review would be much appreciated.
  
-+#define OFFSET_PATH_START	40
- static int unix_seq_show(struct seq_file *seq, void *v)
- {
-+	int len, offset = OFFSET_PATH_START;
- 
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Num       RefCount Protocol Flags    Type St "
--			 "Inode Path\n");
-+			 "Inode Path  SecLabel\n");
- 	else {
- 		struct sock *s = v;
- 		struct unix_sock *u = unix_sk(s);
-@@ -2261,9 +2263,9 @@ static int unix_seq_show(struct seq_file *seq, void *v)
- 			(s->sk_state == TCP_ESTABLISHED ? SS_CONNECTING : SS_DISCONNECTING),
- 			sock_i_ino(s));
- 
-+		seq_putc(seq, ' ');
- 		if (u->addr) {
--			int i, len;
--			seq_putc(seq, ' ');
-+			int i;
- 
- 			i = 0;
- 			len = u->addr->len - sizeof(short);
-@@ -2275,7 +2277,17 @@ static int unix_seq_show(struct seq_file *seq, void *v)
- 			}
- 			for ( ; i < len; i++)
- 				seq_putc(seq, u->addr->name->sun_path[i]);
--		}
-+		} else
-+			seq_printf(seq, " %s%n", "-", &len);
-+
-+		if (offset > len)
-+			offset -= (len + 1);
-+		else
-+			offset = 0;
-+
-+		seq_printf(seq, "%*s", offset, " ");
-+		sock_write_secctx(s, seq);
-+
- 		unix_state_unlock(s);
- 		seq_putc(seq, '\n');
- 	}
--- 
-1.7.1
+Comments:
+--------
+    Export the sock's security context to proc.
+    
+    The element sk_security of struct sock represents the socket
+    security context ID, which is inheriting from the process when
+    creates this socket on most of the time.
+    
+    but when SELinux type_transition rule is applied to socket, or
+    application sets /proc/xxx/attr/createsock, the socket security
+    context would be different from the creating process. on this
+    condition, the "netstat -Z" will return wrong value, since
+    "netstat -Z" only returns the process security context as socket
+    process security.
+    
+    Export the raw sock's security context to proc, so that "netstat -Z"
+    could be fixed by reading procfs.
+
+Test:
+--------
+1. When Enable SELinux.
+
+1.1 check the socket security context has been exported in procfs
+
+root@qemu-host:/root> head -n 3 /proc/net/tcp 
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode seclabel                                            
+   0: 00000000:05FE 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 4723 1 ffff88001b7f8c00 100 0 0 10 -1 system_u:system_r:initrc_t:s0-s15:c0.c1023
+   1: 0100007F:024B 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 5070 1 ffff88001b7f9e00 100 0 0 10 -1 system_u:system_r:sendmail_t:s0-s15:c0.c1023
+     
+root@qemu-host:/root> head -n 3 /proc/net/udp 
+   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode ref pointer drops seclabel                           
+   54: 00000000:03F2 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 4540 2 ffff88001ba30340 0 system_u:system_r:rpcbind_t:s0-s15:c0.c1023
+  133: 00000000:B641 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 4601 2 ffff88001ba30d00 0 system_u:system_r:rpcd_t:s0-s15:c0.c1023         
+
+root@qemu-host:/root> head -n 3 /proc/net/unix
+Num       RefCount Protocol Flags    Type St Inode Path  SecLabel
+ffff88001ea1cc00: 00000002 00000000 00000000 0002 01   972 @/org/kernel/udev/udevd                 system_u:system_r:udev_t:s0-s15:c0.c1023
+ffff88001ea1d500: 00000002 00000000 00010000 0001 01  4371 /var/evlog/evlconfsoc                   system_u:system_r:initrc_t:s0-s15:c0.c1023
+root@qemu-host:/root> 
+
+root@qemu-host:/root> tail -n 3 /proc/net/unix
+ffff88001e0e2300: 00000003 00000000 00000000 0001 03  4706  -                                      system_u:system_r:rpcd_t:s0-s15:c0.c1023
+ffff88001ea1d200: 00000003 00000000 00000000 0002 01   979  -                                      system_u:system_r:udev_t:s0-s15:c0.c1023
+ffff88001ea1cf00: 00000003 00000000 00000000 0002 01   978  -                                      system_u:system_r:udev_t:s0-s15:c0.c1023
+root@qemu-host:/root> 
+
+root@qemu-host:/root> head -n 3 /proc/net/raw  
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt uid  timeout inode ref pointer drops   seclabel
+root@qemu-host:/root> 
+
+1.2 check these patches do not affect the netstat, it can still work
+root@qemu-host:/root> netstat -a
+Active Internet connections (servers and established) Proto Recv-Q Send-Q Local Address               Foreign Address State      
+tcp        0      0 *:1534                      *:* LISTEN      
+tcp        0      0 *:56290                     *:* LISTEN      
+tcp        0      0 localhost:submission        *:* LISTEN      
+tcp        0      0 *:sunrpc                    *:* LISTEN
+...
+
+1.3 When syslog creates socket, and type transition has been applied on them, the security context of
+socket would be syslogd_s_t, not same as its own process security context
+syslogd_t, the "netstat -Z" returns wrong value, but the security context in procfs is correct
+
+root@qemu-host:/etc> cat /proc/net/unix |grep syslog
+ffff88001f856000: 00000002 00000000 00010000 0001 01  6385 /var/lib/syslog-ng/syslog-ng.ctl      system_u:system_r:syslogd_t:s15:c0.c1023
+ffff88001f856300: 00000002 00000000 00000000 0002 01  6383 /dev/log                              system_u:system_r:syslogd_s_t:s15:c0.c1023
+root@qemu-host:/etc> 
+
+root@qemu-host:/etc> netstat -aZ|grep 6383
+unix  2      [ ]         DGRAM                    6383   793/syslog-ng
+system_u:system_r:syslogd_t:s15:c0.c1023          /dev/log
+root@qemu-host:/etc> 
+
+
+
+2. When SElinux is disabled, output - on seclabel column
+
+root@qemu-host:/root> head -n 3 /proc/net/raw  
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode ref pointer drops  seclabel
+
+root@qemu-host:/root> head -n 3 /proc/net/unix
+Num       RefCount Protocol Flags    Type St Inode Path  SecLabel
+ffff88001e118000: 0000000A 00000000 00000000 0002 01  2647 /dev/log                              -
+ffff88001ea1cc00: 00000002 00000000 00000000 0002 01   897 @/org/kernel/udev/udevd               -
+      
+
+root@qemu-host:/root> head -n 3 /proc/net/tcp  
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode seclabel                                            
+   0: 00000000:05FE 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 2935 1 ffff88001d598c00 100 0 0 10 -1 -                   
+   1: 0100007F:024B 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 3201 1 ffff88001d599e00 100 0 0 10 -1 -                     
+
+root@qemu-host:/root> head -n 3 /proc/net/udp 
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode ref pointer drops seclabel                           
+   42: 00000000:03E6 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 2754 2 ffff88001da38340 0 -                               
+   56: 00000000:B5F4 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 2810 2 ffff88001da389c0 0 -                            
+root@qemu-host:/root>
+
+
+3. Disable security module configuration, no compiling error.
+
 
 
 --
