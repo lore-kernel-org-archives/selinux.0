@@ -1,9 +1,9 @@
 From: <rongqing.li@windriver.com>
 To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
         <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH 6/6] Export the tcp sock's security context to proc.
-Date: Tue, 9 Aug 2011 15:28:30 +0800
-Message-ID: <1312874910-31010-7-git-send-email-rongqing.li@windriver.com>
+Subject: [PATCH 3/6] Export the raw sock's security context to proc.
+Date: Tue, 9 Aug 2011 15:28:27 +0800
+Message-ID: <1312874910-31010-4-git-send-email-rongqing.li@windriver.com>
 In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 MIME-Version: 1.0
@@ -13,55 +13,55 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Roy.Li <rongqing.li@windriver.com>
 
-Export the tcp sock's security context to proc, since it maybe
-different from the sock's owner process security context.
+The element sk_security of struct sock represents the socket
+security context ID, which is inheriting from the process when
+creates this socket on most of the time.
+
+but when SELinux type_transition rule is applied to socket, or
+application sets /proc/xxx/attr/createsock, the socket security
+context would be different from the creating process. on this
+condition, the "netstat -Z" will return wrong value, since
+"netstat -Z" only returns the process security context as socket
+process security.
+
+Export the raw sock's security context to proc, so that "netstat -Z"
+could be fixed by reading procfs.
 
 Signed-off-by: Roy.Li <rongqing.li@windriver.com>
 ---
- net/ipv4/tcp_ipv4.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ net/ipv4/raw.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 955b8e6..ddac912 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2479,12 +2479,13 @@ static int tcp4_seq_show(struct seq_file *seq, void *v)
- {
- 	struct tcp_iter_state *st;
- 	int len;
-+	struct sock *s = NULL;
+diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
+index 1457acb..79c17e5 100644
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -979,12 +979,15 @@ static void raw_sock_seq_show(struct seq_file *seq, struct sock *sp, int i)
+ 	      srcp  = inet->inet_num;
  
- 	if (v == SEQ_START_TOKEN) {
- 		seq_printf(seq, "%-*s\n", TMPSZ - 1,
- 			   "  sl  local_address rem_address   st tx_queue "
- 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
--			   "inode");
-+			   "inode seclabel");
- 		goto out;
- 	}
- 	st = seq->private;
-@@ -2493,15 +2494,20 @@ static int tcp4_seq_show(struct seq_file *seq, void *v)
- 	case TCP_SEQ_STATE_LISTENING:
- 	case TCP_SEQ_STATE_ESTABLISHED:
- 		get_tcp4_sock(v, seq, st->num, &len);
-+		s = v;
- 		break;
- 	case TCP_SEQ_STATE_OPENREQ:
- 		get_openreq4(st->syn_wait_sk, v, seq, st->num, st->uid, &len);
-+		s = st->syn_wait_sk;
- 		break;
- 	case TCP_SEQ_STATE_TIME_WAIT:
- 		get_timewait4_sock(v, seq, st->num, &len);
- 		break;
- 	}
--	seq_printf(seq, "%*s\n", TMPSZ - 1 - len, "");
+ 	seq_printf(seq, "%4d: %08X:%04X %08X:%04X"
+-		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %pK %d\n",
++		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %pK %d",
+ 		i, src, srcp, dest, destp, sp->sk_state,
+ 		sk_wmem_alloc_get(sp),
+ 		sk_rmem_alloc_get(sp),
+ 		0, 0L, 0, sock_i_uid(sp), 0, sock_i_ino(sp),
+ 		atomic_read(&sp->sk_refcnt), sp, atomic_read(&sp->sk_drops));
 +
-+	len += sock_write_secctx(s, seq);
-+	len = TMPSZ - 1 - len;
-+	seq_printf(seq, "%*s\n", len > 0 ? len : 0, "");
- out:
- 	return 0;
++	sock_write_secctx(sp, seq);
++	seq_putc(seq, '\n');
  }
+ 
+ static int raw_seq_show(struct seq_file *seq, void *v)
+@@ -992,7 +995,7 @@ static int raw_seq_show(struct seq_file *seq, void *v)
+ 	if (v == SEQ_START_TOKEN)
+ 		seq_printf(seq, "  sl  local_address rem_address   st tx_queue "
+ 				"rx_queue tr tm->when retrnsmt   uid  timeout "
+-				"inode ref pointer drops\n");
++				"inode ref pointer drops  seclabel\n");
+ 	else
+ 		raw_sock_seq_show(seq, v, raw_seq_private(seq)->bucket);
+ 	return 0;
 -- 
 1.7.1
 
