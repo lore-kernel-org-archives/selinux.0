@@ -1,54 +1,82 @@
-Subject: Re: [PATCH 1/5] Define the function to write sock's security
- context to seq_file.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Rongqing Li <rongqing.li@windriver.com>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        lsm
- <linux-security-module@vger.kernel.org>
-In-Reply-To: <4E3FAD40.1020404@windriver.com>
-References: <1312534686-4099-1-git-send-email-rongqing.li@windriver.com>
-	 <1312534686-4099-2-git-send-email-rongqing.li@windriver.com>
-	 <1312552618.19283.51.camel@moss-pluto>  <4E3FAD40.1020404@windriver.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 08 Aug 2011 09:25:36 -0400
-Message-ID: <1312809936.324.8.camel@moss-pluto>
-Mime-Version: 1.0
+From: <rongqing.li@windriver.com>
+To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
+        <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
+Subject: [PATCH 5/6] Export the unix sock's security context to proc.
+Date: Tue, 9 Aug 2011 15:28:29 +0800
+Message-ID: <1312874910-31010-6-git-send-email-rongqing.li@windriver.com>
+In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
+References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-08-08 at 17:32 +0800, Rongqing Li wrote:
-> On 08/05/2011 09:56 PM, Stephen Smalley wrote:
-> > I'm not sure it is a good idea to output nothing if permission is denied
-> > to the socket, as opposed to some well-defined string indicating that
-> > condition.  Particularly if someone later adds another field to
-> > the /proc files after the context; we don't want the contents of that
-> > field to be interpreted as the context if permission was denied.
-> >
-> 
->  From your review, I redesign the output information as below.
-> 
-> when disable SELinux, print "(none)" in proc
-> when enable  SELinux, no error on getting security context, print the 
-> real security context
-> when enable  SELinux, there is error on getting security context, print 
-> "??"
-> 
-> Do you think it is OK?
+From: Roy.Li <rongqing.li@windriver.com>
 
-It appears that netstat presently displays a "-" if it cannot obtain the
-security context or pid/program name information, so perhaps you should
-follow that convention whenever you cannot obtain a security context
-regardless of the particular reason. Note that your logic shouldn't be
-based on whether or not SELinux is enabled/disabled per se, but rather
-based on whether the security module provides security contexts, which
-can be determined by checking whether the secid is set to a non-zero
-value by security_sk_getsecid().  The audit system (kernel/audit*.c)
-uses similar logic to decide whether or not to log task security
-contexts.
+Export the unix sock's security context to proc, since it maybe
+different from the sock's owner process security context.
 
+Output '-' on Path column if the addr of unix_sock is NULL, rather 
+than nothing.
+
+Signed-off-by: Roy.Li <rongqing.li@windriver.com>
+---
+ net/unix/af_unix.c |   20 ++++++++++++++++----
+ 1 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index ec68e1c..9021f9b 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -2239,12 +2239,14 @@ static void unix_seq_stop(struct seq_file *seq, void *v)
+ 	spin_unlock(&unix_table_lock);
+ }
+ 
++#define OFFSET_PATH_START	40
+ static int unix_seq_show(struct seq_file *seq, void *v)
+ {
++	int len, offset = OFFSET_PATH_START;
+ 
+ 	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, "Num       RefCount Protocol Flags    Type St "
+-			 "Inode Path\n");
++			 "Inode Path  SecLabel\n");
+ 	else {
+ 		struct sock *s = v;
+ 		struct unix_sock *u = unix_sk(s);
+@@ -2261,9 +2263,9 @@ static int unix_seq_show(struct seq_file *seq, void *v)
+ 			(s->sk_state == TCP_ESTABLISHED ? SS_CONNECTING : SS_DISCONNECTING),
+ 			sock_i_ino(s));
+ 
++		seq_putc(seq, ' ');
+ 		if (u->addr) {
+-			int i, len;
+-			seq_putc(seq, ' ');
++			int i;
+ 
+ 			i = 0;
+ 			len = u->addr->len - sizeof(short);
+@@ -2275,7 +2277,17 @@ static int unix_seq_show(struct seq_file *seq, void *v)
+ 			}
+ 			for ( ; i < len; i++)
+ 				seq_putc(seq, u->addr->name->sun_path[i]);
+-		}
++		} else
++			seq_printf(seq, " %s%n", "-", &len);
++
++		if (offset > len)
++			offset -= (len + 1);
++		else
++			offset = 0;
++
++		seq_printf(seq, "%*s", offset, " ");
++		sock_write_secctx(s, seq);
++
+ 		unix_state_unlock(s);
+ 		seq_putc(seq, '\n');
+ 	}
 -- 
-Stephen Smalley
-National Security Agency
+1.7.1
 
 
 --
