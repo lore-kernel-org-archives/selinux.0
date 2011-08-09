@@ -1,9 +1,9 @@
 From: <rongqing.li@windriver.com>
 To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
         <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH 1/6] Security: define security_sk_getsecid.
-Date: Tue, 9 Aug 2011 15:28:25 +0800
-Message-ID: <1312874910-31010-2-git-send-email-rongqing.li@windriver.com>
+Subject: [PATCH 4/6] Export the udp sock's security context to proc.
+Date: Tue, 9 Aug 2011 15:28:28 +0800
+Message-ID: <1312874910-31010-5-git-send-email-rongqing.li@windriver.com>
 In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 MIME-Version: 1.0
@@ -13,55 +13,45 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Roy.Li <rongqing.li@windriver.com>
 
-Define security_sk_getsecid to get the security id of a sock.
+Export the udp sock's security context to proc, since it maybe
+different from the sock's owner process security context.
 
 Signed-off-by: Roy.Li <rongqing.li@windriver.com>
 ---
- include/linux/security.h |    6 ++++++
- security/security.c      |    6 ++++++
- 2 files changed, 12 insertions(+), 0 deletions(-)
+ net/ipv4/udp.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ebd2a53..739ac39 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -2560,6 +2560,7 @@ int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
- void security_sk_free(struct sock *sk);
- void security_sk_clone(const struct sock *sk, struct sock *newsk);
- void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
-+void security_sk_getsecid(struct sock *sk, u32 *secid);
- void security_req_classify_flow(const struct request_sock *req, struct flowi *fl);
- void security_sock_graft(struct sock*sk, struct socket *parent);
- int security_inet_conn_request(struct sock *sk,
-@@ -2701,6 +2702,11 @@ static inline void security_sk_classify_flow(struct sock *sk, struct flowi *fl)
- {
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 1b5a193..6a1aff9 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2102,21 +2102,23 @@ static void udp4_format_sock(struct sock *sp, struct seq_file *f,
+ 		0, 0L, 0, sock_i_uid(sp), 0, sock_i_ino(sp),
+ 		atomic_read(&sp->sk_refcnt), sp,
+ 		atomic_read(&sp->sk_drops), len);
++
++	*len += sock_write_secctx(sp, f);
  }
  
-+static inline void security_sk_getsecid(struct sock *sk, u32 *secid)
-+{
-+	*secid = 0;
-+}
-+
- static inline void security_req_classify_flow(const struct request_sock *req, struct flowi *fl)
+ int udp4_seq_show(struct seq_file *seq, void *v)
  {
- }
-diff --git a/security/security.c b/security/security.c
-index 0e4fccf..b0e0825 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1104,6 +1104,12 @@ void security_sk_classify_flow(struct sock *sk, struct flowi *fl)
- }
- EXPORT_SYMBOL(security_sk_classify_flow);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_printf(seq, "%-127s\n",
++		seq_printf(seq, "%-150s\n",
+ 			   "  sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+-			   "inode ref pointer drops");
++			   "inode ref pointer drops seclabel");
+ 	else {
+ 		struct udp_iter_state *state = seq->private;
+ 		int len;
  
-+void security_sk_getsecid(struct sock *sk, u32 *secid)
-+{
-+	security_ops->sk_getsecid(sk, secid);
-+}
-+EXPORT_SYMBOL(security_sk_getsecid);
-+
- void security_req_classify_flow(const struct request_sock *req, struct flowi *fl)
- {
- 	security_ops->req_classify_flow(req, fl);
+ 		udp4_format_sock(v, seq, state->bucket, &len);
+-		seq_printf(seq, "%*s\n", 127 - len, "");
++		seq_printf(seq, "%*s\n", (150 - len) > 0 ? 150 - len : 0, "");
+ 	}
+ 	return 0;
+ }
 -- 
 1.7.1
 
