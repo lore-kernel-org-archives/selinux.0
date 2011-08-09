@@ -1,60 +1,54 @@
-From: <rongqing.li@windriver.com>
-To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
-        <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH 4/6] Export the udp sock's security context to proc.
-Date: Tue, 9 Aug 2011 15:28:28 +0800
-Message-ID: <1312874910-31010-5-git-send-email-rongqing.li@windriver.com>
-In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
-References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
+Message-ID: <4E40F5D6.5060704@windriver.com>
+Date: Tue, 9 Aug 2011 16:54:46 +0800
+From: Rongqing Li <rongqing.li@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: David Miller <davem@davemloft.net>
+CC: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
+        <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 6/6] Export the tcp sock's security context to proc.
+References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>	<1312874910-31010-7-git-send-email-rongqing.li@windriver.com> <20110809.003326.1002501904080430572.davem@davemloft.net>
+In-Reply-To: <20110809.003326.1002501904080430572.davem@davemloft.net>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Roy.Li <rongqing.li@windriver.com>
+On 08/09/2011 03:33 PM, David Miller wrote:
+> From:<rongqing.li@windriver.com>
+> Date: Tue, 9 Aug 2011 15:28:30 +0800
+>
+>>   	if (v == SEQ_START_TOKEN) {
+>>   		seq_printf(seq, "%-*s\n", TMPSZ - 1,
+>>   			   "  sl  local_address rem_address   st tx_queue "
+>>   			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+>> -			   "inode");
+>> +			   "inode seclabel");
+>>   		goto out;
+>>   	}
+>
+> Unfortunately you cannot change the layout of procfs file output in
+> this way.  It has the potential to break programs which are parsing
+> this file in userspace already.
+>
+> The layout hasn't changed in a very long time because it is essentially
+> a uservisible ABI.
+>
+> If you want to export new information you'll have to do it using the
+> facility that is extensible, and that's the netlink based socket dumping
+> facility implemented in inet_diag.c, tcp_diag.c and friends.
+>
+> There, you can simply add a new netlink attribute that gets dumped with
+> the entry, which will provide the security context.
+>
+>
 
-Export the udp sock's security context to proc, since it maybe
-different from the sock's owner process security context.
+Thanks, I see how I should do.
+I will continue to develop it and hope get your help.
+Thanks.
 
-Signed-off-by: Roy.Li <rongqing.li@windriver.com>
----
- net/ipv4/udp.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 1b5a193..6a1aff9 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2102,21 +2102,23 @@ static void udp4_format_sock(struct sock *sp, struct seq_file *f,
- 		0, 0L, 0, sock_i_uid(sp), 0, sock_i_ino(sp),
- 		atomic_read(&sp->sk_refcnt), sp,
- 		atomic_read(&sp->sk_drops), len);
-+
-+	*len += sock_write_secctx(sp, f);
- }
- 
- int udp4_seq_show(struct seq_file *seq, void *v)
- {
- 	if (v == SEQ_START_TOKEN)
--		seq_printf(seq, "%-127s\n",
-+		seq_printf(seq, "%-150s\n",
- 			   "  sl  local_address rem_address   st tx_queue "
- 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
--			   "inode ref pointer drops");
-+			   "inode ref pointer drops seclabel");
- 	else {
- 		struct udp_iter_state *state = seq->private;
- 		int len;
- 
- 		udp4_format_sock(v, seq, state->bucket, &len);
--		seq_printf(seq, "%*s\n", 127 - len, "");
-+		seq_printf(seq, "%*s\n", (150 - len) > 0 ? 150 - len : 0, "");
- 	}
- 	return 0;
- }
 -- 
-1.7.1
-
+Best Reagrds,
+Roy | RongQing Li
 
 --
 This message was distributed to subscribers of the selinux mailing list.
