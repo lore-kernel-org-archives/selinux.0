@@ -1,9 +1,9 @@
 From: <rongqing.li@windriver.com>
 To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
         <linux-security-module@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH 2/6] Define the function to write sock's security context to seq_file.
-Date: Tue, 9 Aug 2011 15:28:26 +0800
-Message-ID: <1312874910-31010-3-git-send-email-rongqing.li@windriver.com>
+Subject: [PATCH 6/6] Export the tcp sock's security context to proc.
+Date: Tue, 9 Aug 2011 15:28:30 +0800
+Message-ID: <1312874910-31010-7-git-send-email-rongqing.li@windriver.com>
 In-Reply-To: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
 MIME-Version: 1.0
@@ -13,68 +13,55 @@ List-Id: selinux@tycho.nsa.gov
 
 From: Roy.Li <rongqing.li@windriver.com>
 
-sock_write_secctx will write the sock's security context to a seq_file
-and return the number of characters successfully written.
-
-This function will be called when export socket information to proc.
+Export the tcp sock's security context to proc, since it maybe
+different from the sock's owner process security context.
 
 Signed-off-by: Roy.Li <rongqing.li@windriver.com>
 ---
- include/net/sock.h |    1 +
- net/core/sock.c    |   28 ++++++++++++++++++++++++++++
- 2 files changed, 29 insertions(+), 0 deletions(-)
+ net/ipv4/tcp_ipv4.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 8e4062f..8bedb0c 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1828,6 +1828,7 @@ static inline struct sock *skb_steal_sock(struct sk_buff *skb)
- extern void sock_enable_timestamp(struct sock *sk, int flag);
- extern int sock_get_timestamp(struct sock *, struct timeval __user *);
- extern int sock_get_timestampns(struct sock *, struct timespec __user *);
-+extern int sock_write_secctx(struct sock *sk, struct seq_file *seq);
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 955b8e6..ddac912 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2479,12 +2479,13 @@ static int tcp4_seq_show(struct seq_file *seq, void *v)
+ {
+ 	struct tcp_iter_state *st;
+ 	int len;
++	struct sock *s = NULL;
  
- /* 
-  *	Enable debug/info messages 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index bc745d0..032ea72 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2254,6 +2254,34 @@ void sk_common_release(struct sock *sk)
+ 	if (v == SEQ_START_TOKEN) {
+ 		seq_printf(seq, "%-*s\n", TMPSZ - 1,
+ 			   "  sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+-			   "inode");
++			   "inode seclabel");
+ 		goto out;
+ 	}
+ 	st = seq->private;
+@@ -2493,15 +2494,20 @@ static int tcp4_seq_show(struct seq_file *seq, void *v)
+ 	case TCP_SEQ_STATE_LISTENING:
+ 	case TCP_SEQ_STATE_ESTABLISHED:
+ 		get_tcp4_sock(v, seq, st->num, &len);
++		s = v;
+ 		break;
+ 	case TCP_SEQ_STATE_OPENREQ:
+ 		get_openreq4(st->syn_wait_sk, v, seq, st->num, st->uid, &len);
++		s = st->syn_wait_sk;
+ 		break;
+ 	case TCP_SEQ_STATE_TIME_WAIT:
+ 		get_timewait4_sock(v, seq, st->num, &len);
+ 		break;
+ 	}
+-	seq_printf(seq, "%*s\n", TMPSZ - 1 - len, "");
++
++	len += sock_write_secctx(s, seq);
++	len = TMPSZ - 1 - len;
++	seq_printf(seq, "%*s\n", len > 0 ? len : 0, "");
+ out:
+ 	return 0;
  }
- EXPORT_SYMBOL(sk_common_release);
- 
-+int sock_write_secctx(struct sock *sk, struct seq_file *seq)
-+{
-+	char *ctx = NULL;
-+	u32 ctxlen, secid;
-+	int len;
-+
-+	if (sk == NULL)
-+		goto error;
-+
-+	if (security_socket_getsockname(sk->sk_socket))
-+		goto error;
-+
-+	security_sk_getsecid(sk, &secid);
-+	if (!secid)
-+		goto error;
-+
-+	if (security_secid_to_secctx(secid, &ctx, &ctxlen))
-+		goto error;
-+
-+	seq_printf(seq, " %s%n", ctx, &len);
-+	security_release_secctx(ctx, ctxlen);
-+	return len;
-+
-+error:
-+	seq_printf(seq, " %s%n", "-", &len);
-+	return len;
-+}
-+
- static DEFINE_RWLOCK(proto_list_lock);
- static LIST_HEAD(proto_list);
- 
 -- 
 1.7.1
 
