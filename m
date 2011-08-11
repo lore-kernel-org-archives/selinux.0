@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7BEunTL002128
-	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:56:49 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7BEvQID002178
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:57:26 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7BEumTk015454
-	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 14:56:49 GMT
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7BEumGk017677
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7BEvOCo016764
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 14:57:25 GMT
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7BEvOIv017827
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:56:48 -0400
-Message-ID: <4E43EDAF.8050704@redhat.com>
-Date: Thu, 11 Aug 2011 10:56:47 -0400
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:57:24 -0400
+Message-ID: <4E43EDD3.7040707@redhat.com>
+Date: Thu, 11 Aug 2011 10:57:23 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 55/96] policycoreutils: semanage: add -e to fcontext usage
+Subject: [PATCH 57/96] policycoreutils: semanage: remove useless empty lines
 Content-Type: multipart/mixed;
- boundary="------------070707040901000802070605"
+ boundary="------------040900080803010501050101"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------070707040901000802070605
+--------------040900080803010501050101
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -34,18 +34,18 @@ This patch looks good to me. acked.
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk5D7a4ACgkQrlYvE4MpobPrGACcDw+R19JyUGF7e0A2/EhnewJp
-AIgAnjlx2indgmJyPZmA/pcCNdqh8y+Z
-=KJNV
+iEYEARECAAYFAk5D7dIACgkQrlYvE4MpobO7sACfd5Ox2EcJ90n1YcV0GWLQogiz
+8mMAoKIKreZH/j1qKAJC15PInRy2wyFA
+=+ZOs
 -----END PGP SIGNATURE-----
 
---------------070707040901000802070605
+--------------040900080803010501050101
 Content-Type: text/plain;
- name="0055-policycoreutils-semanage-add-e-to-fcontext-usage-FIX.patch"
+ name="0057-policycoreutils-semanage-remove-useless-empty-lines.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0055-policycoreutils-semanage-add-e-to-fcontext-usage-FIX.pa";
- filename*1="tch"
+ filename*0="0057-policycoreutils-semanage-remove-useless-empty-lines.pat";
+ filename*1="ch"
 
 
---------------070707040901000802070605--
+--------------040900080803010501050101--
