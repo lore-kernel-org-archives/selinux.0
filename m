@@ -1,76 +1,53 @@
-Subject: Re: [PATCH 1/6] Security: define security_sk_getsecid.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Rongqing Li <rongqing.li@windriver.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-In-Reply-To: <4E41DDEB.9040904@windriver.com>
-References: <1312874910-31010-1-git-send-email-rongqing.li@windriver.com>
-	 <1312874910-31010-2-git-send-email-rongqing.li@windriver.com>
-	 <4E415CB3.8020202@schaufler-ca.com> <4E41D421.1000302@windriver.com>
-	 <4E41D78C.7040007@schaufler-ca.com>  <4E41DDEB.9040904@windriver.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 10 Aug 2011 08:49:53 -0400
-Message-ID: <1312980593.21048.12.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7BE9sG6030728
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:09:54 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7BE9rCo005795
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 14:09:54 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7BE9rRB020408
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Thu, 11 Aug 2011 10:09:53 -0400
+Message-ID: <4E43E2AF.9080005@redhat.com>
+Date: Thu, 11 Aug 2011 10:09:51 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 01/96] checkpolicy: Redo filename/filesystem syntax to
+Content-Type: multipart/mixed;
+ boundary="------------030501060000060309060701"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-10 at 09:24 +0800, Rongqing Li wrote:
-> On 08/10/2011 08:57 AM, Casey Schaufler wrote:
-> > On 8/9/2011 5:43 PM, Rongqing Li wrote:
-> >> On 08/10/2011 12:13 AM, Casey Schaufler wrote:
-> >>> On 8/9/2011 12:28 AM, rongqing.li@windriver.com wrote:
-> >>>> From: Roy.Li<rongqing.li@windriver.com>
-> >>>>
-> >>>> Define security_sk_getsecid to get the security id of a sock.
-> >>>
-> >>> Why are you requesting the secid when you're just going to
-> >>> use it to get the secctx? Why not ask for that directly?
-> >>> Is there ever a case where you only want the secid?
-> >>>
-> >> Hi:
-> >>
-> >> As I know, we have not method to get secctx directly.
-> >
-> > You are defining the method! Ask for what you want!
-> >
-> > The whole notion of secids is a holdover from the bad old
-> > days when SELinux was a user space based enforcement mechanism.
-> > The audit system was implemented when SELinux was the lone LSM
-> > and unfortunately and unnecessarily propagated the use of secids.
-> > If an object has a secid it must also have a secctx. The
-> > interfaces that use secids could just as well use the secctx.
-> > It is wasteful to create a new interface that fetches a secid
-> > just to turn around and ask for the secctx in all cases.
-> >
-> 
-> Do you means I should write a method like below
-> security_sk_getsecctx(struct sock *sk, char *secctx, int *len)?
-> 
-> But secctx only is used to user. secid is used to source code to
-> compute and compare the access permission.
-> 
-> And I do not see the same method like
-> security_task_getsecctx(). but security_task_getsecid() has been
-> implemented in kernel source code.
+This is a multi-part message in MIME format.
+--------------030501060000060309060701
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Unlike Casey, I don't think secids are a bad idea or just a holdover -
-we find them to be quite useful and efficient in SELinux.  But in this
-instance, he is correct that there is no reason to first fetch a secid
-only to convert it into a context.  There are other cases where you do
-in fact want to avoid generating and managing the life cycle of a
-security context string until you truly need it, and thus a secid makes
-sense.  So if you want to add a security_sk_getsecctx() hook, feel free.
-There are some existing examples, e.g. security_inode_getsecctx() for
-inodes, security_getprocattr() for tasks.  Note that they use a slightly
-different interface than what you describe above.
-
--- 
-Stephen Smalley
-National Security Agency
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+This patch looks good to me. acked.
+
+It is working fine with building the latest SELinux policy for Fedora.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk5D4q8ACgkQrlYvE4MpobOaJQCfRVfVQFOA/8m0LyK4TX0v9oYx
+7EoAoNVGJLef3kRCSe8gdAXlDxtUxDUs
+=dvbz
+-----END PGP SIGNATURE-----
+
+--------------030501060000060309060701
+Content-Type: text/plain;
+ name="0001-checkpolicy-Redo-filename-filesystem-syntax-to-suppo.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-checkpolicy-Redo-filename-filesystem-syntax-to-suppo.pa";
+ filename*1="tch"
+
+
+--------------030501060000060309060701--
