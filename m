@@ -1,70 +1,81 @@
-Message-ID: <SNT139-W15EA748D92DCFAA0280F21AB240@phx.gbl>
-Content-Type: multipart/alternative;
-	boundary="_cbec2155-351c-4f51-a13a-4c4bd9c3847d_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <sds@tycho.nsa.gov>, <qingtao.cao@windriver.com>
-CC: <cpebenito@tresys.com>, <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: RE: [v0 PATCH 1/1] Skip writing role attributes for policy.X.
-Date: Sat, 13 Aug 2011 08:42:42 +0000
-In-Reply-To: <1313150384.19123.5.camel@moss-pluto>
-References: 
- <1313129923-23763-1-git-send-email-qingtao.cao@windriver.com>,<1313129923-23763-2-git-send-email-qingtao.cao@windriver.com>,<1313150384.19123.5.camel@moss-pluto>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7D9YMtW025683
+	for <selinux@tycho.nsa.gov>; Sat, 13 Aug 2011 05:34:22 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7D9YLHo017035
+	for <selinux@tycho.nsa.gov>; Sat, 13 Aug 2011 09:34:21 GMT
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: <cpebenito@tresys.com>, <slawrence@tresys.com>
+CC: <selinux@tycho.nsa.gov>
+Subject: v1 Skip role attributes for policy.X
+Date: Sat, 13 Aug 2011 17:34:15 +0800
+Message-ID: <1313228056-11621-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_cbec2155-351c-4f51-a13a-4c4bd9c3847d_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
 
 
-Hi Stephen,
+Differnece from v0
+--------------------
+   Uncount attributes number before converting endianness.
 
-> 
-> Looks like this is wrong for type attributes as well, but shouldn't we
-> uncount the attributes before we convert endianness?  
->
 
-Yep, you are right! I think we should uncount attributes number first then convert endianness.
+Tests I've done
+-----------------
+1. Apply the role attribute test patch from Chris, adding a new test_r
+   role and calls rpm_run() for it.
+   
+2. Use the apol tool to analyze what types the test_r role could type with:
+   (Since the apol installed on Ubuntu so far only support max version .24,
+    we need to setup "policy-version = 24" in semanage.conf)
+   
+Note: there is no role attributes such as portage/semanage/rpm_roles
+      in policy.24
 
-I will send v1 patch to fix this. Thanks!
+test_r (36 types)
+    bootloader_t
+    chfn_t
+    chkpwd_t
+    consoletype_t
+    ddclient_t
+    depmod_t
+    dhcpc_t
+    groupadd_t
+    hostname_t
+    ifconfig_t
+    insmod_t
+    iptables_t
+    ldconfig_t
+    load_policy_t
+    loadkeys_t
+    lvm_t
+    netutils_t
+    newrole_t
+    nscd_t
+    pam_t
+    passwd_t
+    ping_t
+    pppd_t
+    pptp_t
+    prelink_t
+    rpm_script_t
+    rpm_t
+    semanage_t
+    setfiles_t
+    test_t
+    traceroute_t
+    tzdata_t
+    updpwd_t
+    useradd_t
+    usernetctl_t
+    utempter_t
 
-Best regards,
-Harry
- 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
- 		 	   		  
---_cbec2155-351c-4f51-a13a-4c4bd9c3847d_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+3. Use the apol tool to anaylze the domain transitions starting from test_t:
 
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'><div dir='ltr'>
-Hi Stephen,<br><br><div>&gt; <br>&gt; Looks like this is wrong for type attributes as well, but shouldn't we<br>&gt; uncount the attributes before we convert endianness?  <br>&gt;<br><br>Yep, you are right! I think we should uncount attributes number first then convert endianness.<br><br>I will send v1 patch to fix this. Thanks!<br><br>Best regards,<br>Harry<br>&nbsp;<br>&gt; -- <br>&gt; Stephen Smalley<br>&gt; National Security Agency<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
-</html>
---_cbec2155-351c-4f51-a13a-4c4bd9c3847d_--
+   test_t -> rpm_t -> rpm_script_t -> semanage_t -> load_policy_t
+                                                 -> setfiles_t
 
 --
 This message was distributed to subscribers of the selinux mailing list.
