@@ -1,104 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7D9YMtX025683
-	for <selinux@tycho.nsa.gov>; Sat, 13 Aug 2011 05:34:23 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7D9YMHo017038
-	for <selinux@tycho.nsa.gov>; Sat, 13 Aug 2011 09:34:23 GMT
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: <cpebenito@tresys.com>, <slawrence@tresys.com>
-CC: <selinux@tycho.nsa.gov>
-Subject: [v1 PATCH 1/1] Skip writing role attributes for policy.X.
-Date: Sat, 13 Aug 2011 17:34:16 +0800
-Message-ID: <1313228056-11621-2-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1313228056-11621-1-git-send-email-qingtao.cao@windriver.com>
-References: <1313228056-11621-1-git-send-email-qingtao.cao@windriver.com>
+Message-ID: <4E48F6C0.6050003@redhat.com>
+Date: Mon, 15 Aug 2011 06:36:48 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@parisplace.org>, eparis@redhat.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH 032/155] policycoreutils: fixfiles use new kernel seclabel
+References: <4E39B680.4000106@redhat.com>  <1312469885.20973.54.camel@moss-pluto>  <CACLa4pt+cB441dB=oE3_aF=ddV+dP2BiAOUmJd18qaxGFOnKZQ@mail.gmail.com> <1313174643.19123.153.camel@moss-pluto>
+In-Reply-To: <1313174643.19123.153.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Role attributes are redundant for policy.X, their destiny has been
-fulfilled in the expand phase when their types.types ebitmap have
-been populated to that of their sub regular roles.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Deduct the number of role attributes from p_roles.table->nel and
-skip writing them to policy.X.
+On 08/12/2011 02:44 PM, Stephen Smalley wrote:
+> On Fri, 2011-08-12 at 14:22 -0400, Eric Paris wrote:
+>> On Thu, Aug 4, 2011 at 10:58 AM, Stephen Smalley
+>> <sds@tycho.nsa.gov> wrote:
+>>> On Wed, 2011-08-03 at 16:58 -0400, Daniel J Walsh wrote:
+>> 
+>>>> This patch looks good to me. acked.
+>>> 
+>>> When similar logic was added to setfiles, we included a kernel
+>>> version check (>= 2.6.30) to ensure that we didn't end up
+>>> excluding all filesystems on older kernels that do not report
+>>> seclabel.
+>> 
+>> Patch replaced with the attached.
+> 
+> Your version comparison isn't quite right, e.g. consider 2.2.30. If
+> you want a reliable version compare, you probably want to do 
+> something similar to KERNEL_VERSION() from include/linux/version.h
+> and convert both versions to simple integers that can be compared.
+> Or you could do something based on this gem: 
+> http://rubinium.org/blog/archives/2010/04/05/shell-script-version-compare-vercmp/
+>
+>  Or just rewrite fixfiles in a reasonable language ;)
+> 
 
-Also uncount attributes number before converting endianness.
+Or stop supporting really old versions of kernels with the latest tool
+chain.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/write.c |   33 ++++++++++++++++++++++++++++++++-
- 1 files changed, 32 insertions(+), 1 deletions(-)
-
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 290e036..0c5e3b0 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -972,6 +972,14 @@ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 
- 	role = (role_datum_t *) datum;
- 
-+	/*
-+	 * Role attributes are redundant for policy.X, skip them
-+	 * when writing the roles symbol table. Their numbers would
-+	 * be deducted in policydb_write().
-+	 */
-+	if (p->policy_type == POLICY_KERN && role->flavor == ROLE_ATTRIB)
-+		return POLICYDB_SUCCESS;
-+
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
-@@ -1795,6 +1803,19 @@ static int type_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
- 	return 0;
- }
- 
-+static int role_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
-+			     hashtab_datum_t datum, void *args)
-+{
-+	role_datum_t *role = datum;
-+	uint32_t *p_nel = args;
-+
-+	if (role->flavor == ROLE_ATTRIB) {
-+		/* uncount attribute from total number of roles */
-+		(*p_nel)--;
-+	}
-+	return 0;
-+}
-+
- /*
-  * Write the configuration data in a policy database
-  * structure to a policy database binary representation
-@@ -1926,7 +1947,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 	num_syms = info->sym_num;
- 	for (i = 0; i < num_syms; i++) {
- 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
--		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
-+		buf[1] = p->symtab[i].table->nel;
- 
- 		/*
- 		 * A special case when writing type/attribute symbol table.
-@@ -1939,6 +1960,16 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 		    p->policy_type == POLICY_KERN) {
- 			hashtab_map(p->symtab[i].table, type_attr_uncount, &buf[1]);
- 		}
-+
-+		/* 
-+		 * Another special case when writing role/attribute symbol
-+		 * table, role attributes are redundant for policy.X, so
-+		 * deduct their numbers from p_roles.table->nel.
-+		 */
-+		if (i == SYM_ROLES && p->policy_type == POLICY_KERN)
-+			hashtab_map(p->symtab[i].table, role_attr_uncount, &buf[1]);
-+
-+		buf[1] = cpu_to_le32(buf[1]);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
- 			return POLICYDB_ERROR;
--- 
-1.7.0.4
-
+iEYEARECAAYFAk5I9sAACgkQrlYvE4MpobMXqQCdHF3n5u/Yw6bHNteFU3UXOyoh
+i58An2VSHBmLU1dgHGuybzUiU+c0H4zc
+=F4xN
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
