@@ -1,55 +1,123 @@
-Message-ID: <4E48F6C0.6050003@redhat.com>
-Date: Mon, 15 Aug 2011 06:36:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4E493AF2.3020103@redhat.com>
+Date: Mon, 15 Aug 2011 11:27:46 -0400
+From: Eric Paris <eparis@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@parisplace.org>, eparis@redhat.com,
+CC: Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>,
         selinux@tycho.nsa.gov
 Subject: Re: [PATCH 032/155] policycoreutils: fixfiles use new kernel seclabel
 References: <4E39B680.4000106@redhat.com>  <1312469885.20973.54.camel@moss-pluto>  <CACLa4pt+cB441dB=oE3_aF=ddV+dP2BiAOUmJd18qaxGFOnKZQ@mail.gmail.com> <1313174643.19123.153.camel@moss-pluto>
 In-Reply-To: <1313174643.19123.153.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/mixed;
+ boundary="------------050609040404010302040208"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------050609040404010302040208
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 On 08/12/2011 02:44 PM, Stephen Smalley wrote:
 > On Fri, 2011-08-12 at 14:22 -0400, Eric Paris wrote:
->> On Thu, Aug 4, 2011 at 10:58 AM, Stephen Smalley
->> <sds@tycho.nsa.gov> wrote:
+>> On Thu, Aug 4, 2011 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >>> On Wed, 2011-08-03 at 16:58 -0400, Daniel J Walsh wrote:
->> 
+>>
 >>>> This patch looks good to me. acked.
->>> 
->>> When similar logic was added to setfiles, we included a kernel
->>> version check (>= 2.6.30) to ensure that we didn't end up
->>> excluding all filesystems on older kernels that do not report
->>> seclabel.
->> 
+>>>
+>>> When similar logic was added to setfiles, we included a kernel version
+>>> check (>= 2.6.30) to ensure that we didn't end up excluding all
+>>> filesystems on older kernels that do not report seclabel.
+>>
 >> Patch replaced with the attached.
 > 
-> Your version comparison isn't quite right, e.g. consider 2.2.30. If
-> you want a reliable version compare, you probably want to do 
-> something similar to KERNEL_VERSION() from include/linux/version.h
-> and convert both versions to simple integers that can be compared.
-> Or you could do something based on this gem: 
+> Your version comparison isn't quite right, e.g. consider 2.2.30.
+> If you want a reliable version compare, you probably want to do
+> something similar to KERNEL_VERSION() from include/linux/version.h and
+> convert both versions to simple integers that can be compared.  Or you
+> could do something based on this gem:
 > http://rubinium.org/blog/archives/2010/04/05/shell-script-version-compare-vercmp/
->
->  Or just rewrite fixfiles in a reasonable language ;)
 > 
+> Or just rewrite fixfiles in a reasonable language ;)
 
-Or stop supporting really old versions of kernels with the latest tool
-chain.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Decided to go with the gem.
 
-iEYEARECAAYFAk5I9sAACgkQrlYvE4MpobMXqQCdHF3n5u/Yw6bHNteFU3UXOyoh
-i58An2VSHBmLU1dgHGuybzUiU+c0H4zc
-=F4xN
------END PGP SIGNATURE-----
+
+
+
+--------------050609040404010302040208
+Content-Type: text/plain;
+ name="0001-policycoreutils-fixfiles-use-new-kernel-seclabel-opt.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename*0="0001-policycoreutils-fixfiles-use-new-kernel-seclabel-opt.pa";
+ filename*1="tch"
+
+RnJvbSAxZGE3MmVlYTI2NmZkZWUzNjAzMjA0NDIzYWIxZDllNjhmZjA1Zjc5IE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBFcmljIFBhcmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4K
+RGF0ZTogU3VuLCAxMCBKdWwgMjAxMSAxNjowOToxMSArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
+IHBvbGljeWNvcmV1dGlsczogZml4ZmlsZXM6IHVzZSBuZXcga2VybmVsIHNlY2xhYmVsIG9w
+dGlvbgoKVGhlIGtlcm5lbCBub3cgb3V0cHV0cyBhIG1vdW50IG9wdGlvbiBjYWxsZWQgJ3Nl
+Y2xhYmVsJyB3aGljaCBpbmRpY2F0ZXMKaWYgdGhlIGZpbGVzeXN0ZW0gc3VwcG9zZWQgc2Vj
+dXJpdHkgbGFiZWxpbmcuICBVc2UgdGhhdCBpbnN0ZWFkIG9mCmhhdmluZyB0byB1cGRhdGUg
+c29tZSBoYXJkIGNvZGVkIGxpc3Qgb2YgYWNjZXB0YWJsZSBmaWxlc3lzdGVtcyAodGhhdApt
+YXkgb3IgbWF5IG5vdCBiZSBhY2NlcHRhYmxlIGRlcGVuZGluZyBvbiBpZiB0aGV5IHdlcmUg
+Y29tcGlsZWQgd2l0aApzZWN1cml0eSB4YXR0cnMpCgpTaWduZWQtb2ZmLWJ5OiBFcmljIFBh
+cmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4KQWNrZWQtYnk6IERhbiBXYWxzaCA8ZHdhbHNoQHJl
+ZGhhdC5jb20+Ci0tLQogcG9saWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMgfCAgIDQ4
+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KIDEgZmlsZXMgY2hhbmdl
+ZCwgNDYgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9wb2xp
+Y3ljb3JldXRpbHMvc2NyaXB0cy9maXhmaWxlcyBiL3BvbGljeWNvcmV1dGlscy9zY3JpcHRz
+L2ZpeGZpbGVzCmluZGV4IGJhNTlkODcuLjU0MjI2ZWIgMTAwNzU1Ci0tLSBhL3BvbGljeWNv
+cmV1dGlscy9zY3JpcHRzL2ZpeGZpbGVzCisrKyBiL3BvbGljeWNvcmV1dGlscy9zY3JpcHRz
+L2ZpeGZpbGVzCkBAIC0yMCw2ICsyMCw1MCBAQAogIyBhbG9uZyB3aXRoIHRoaXMgcHJvZ3Jh
+bTsgaWYgbm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQogIyBGb3VuZGF0aW9uLCBJ
+bmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwgQm9zdG9uLCBNQSAgMDIxMTEtMTMw
+NyAgVVNBCiAKKyMKKyMgc2VjbGFiZWwgc3VwcG9ydCB3YXMgYWRkZWQgaW4gMi42LjMwLiAg
+VGhpcyBmdW5jdGlvbiB3aWxsIHJldHVybiBhIHBvc2l0aXZlCisjIG51bWJlciBpZiB0aGUg
+Y3VycmVudCBrZXJuZWwgdmVyc2lvbiBpcyBncmVhdGVyIHRoYW4gMi42LjMwLCBhIG5lZ2F0
+aXZlCisjIG51bWJlciBpZiB0aGUgY3VycmVudCBpcyBsZXNzIHRoYW4gMi42LjMwIGFuZCAw
+IGlmIHRoZXkgYXJlIHRoZSBzYW1lLgorIworZnVuY3Rpb24gdXNlc2VjbGFiZWwgeworICAg
+ICAgICBWRVI9YHVuYW1lIC1yYAorICAgICAgICBTVVA9Mi42LjMwCisgICAgICAgIGV4cHIg
+JygnICIkVkVSIiA6ICdcKFteLl0qXCknICcpJyAnLScgJygnICIkU1VQIiA6ICdcKFteLl0q
+XCknICcpJyAnfCcgXAorICAgICAgICAgICAgICcoJyAiJFZFUi4wIiA6ICdbXi5dKlsuXVwo
+W14uXSpcKScgJyknICctJyAnKCcgIiRTVVAuMCIgOiAnW14uXSpbLl1cKFteLl0qXCknICcp
+JyAnfCcgXAorICAgICAgICAgICAgICcoJyAiJFZFUi4wLjAiIDogJ1teLl0qWy5dW14uXSpb
+Ll1cKFteLl0qXCknICcpJyAnLScgJygnICIkU1VQLjAuMCIgOiAnW14uXSpbLl1bXi5dKlsu
+XVwoW14uXSpcKScgJyknCit9CisKKyMKKyMgR2V0IGFsbCBtb3VudCBwb2ludHMgdGhhdCBz
+dXBwb3J0IGxhYmVsaW5nLiAgVXNlIHRoZSAnc2VjbGFiZWwnIGZpZWxkIGlmIGl0CisjIGlz
+IGF2YWlsYWJsZS4gIEVsc2UgZmFsbCBiYWNrIHRvIGtub3duIGZzIHR5cGVzIHdoaWNoIGxp
+a2VseSBzdXBwb3J0IHhhdHRycworIyBhbmQgd2Uga25vdyB3ZXJlIG5vdCBjb250ZXh0IG1v
+dW50ZWQuCisjCitnZXRfYWxsX2xhYmVsZWRfbW91bnRzKCkgeworRlM9ImBjYXQgL3Byb2Mv
+c2VsZi9tb3VudHMgfCBzb3J0IHwgdW5pcSB8IGF3ayAne3ByaW50ICQyfSdgIgorZm9yIGkg
+aW4gJEZTOyBkbworCWlmIFsgYHVzZXNlY2xhYmVsYCAtZ2UgMCBdCisJdGhlbgorCQlncmVw
+ICIgJGkgIiAvcHJvYy9zZWxmL21vdW50cyB8IGF3ayAne3ByaW50ICQ0fScgfCBlZ3JlcCAt
+LXNpbGVudCAnKF58LClzZWNsYWJlbCgsfCQpJyAmJiBlY2hvICRpCisJZWxzZQorCQlncmVw
+ICIgJGkgIiAvcHJvYy9zZWxmL21vdW50cyB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVw
+IC0tc2lsZW50ICcoZXh0WzIzNF18IGV4dDRkZXYgfCBnZnMyIHwgeGZzIHwgamZzIHwgYnRy
+ZnMgKScgJiYgZWNobyAkaQorCWZpCitkb25lCit9CisKK2dldF9yd19sYWJlbGVkX21vdW50
+cygpIHsKK0ZTPWBnZXRfYWxsX2xhYmVsZWRfbW91bnRzIHwgc29ydCB8IHVuaXFgCitmb3Ig
+aSBpbiAkRlM7IGRvCisJZ3JlcCAiICRpICIgL3Byb2Mvc2VsZi9tb3VudHMgfCBhd2sgJ3tw
+cmludCAkNH0nIHwgZWdyZXAgLS1zaWxlbnQgJyhefCwpcncoLHwkKScgJiYgZWNobyAkaQor
+ZG9uZQorfQorCitnZXRfcm9fbGFiZWxlZF9tb3VudHMoKSB7CitGUz1gZ2V0X2FsbF9sYWJl
+bGVkX21vdW50cyB8IHNvcnQgfCB1bmlxYAorZm9yIGkgaW4gJEZTOyBkbworCWdyZXAgIiAk
+aSAiIC9wcm9jL3NlbGYvbW91bnRzIHwgYXdrICd7cHJpbnQgJDR9JyB8IGVncmVwIC0tc2ls
+ZW50ICcoXnwsKXJvKCx8JCknICYmIGVjaG8gJGkKK2RvbmUKK30KKwogZXhjbHVkZV9kaXJz
+X2Zyb21fcmVsYWJlbGxpbmcoKSB7CiAgICAgZXhjbHVkZV9mcm9tX3JlbGFiZWxsaW5nPQog
+ICAgIGlmIFsgLWUgL2V0Yy9zZWxpbnV4L2ZpeGZpbGVzX2V4Y2x1ZGVfZGlycyBdCkBAIC02
+NCw4ICsxMDgsOCBAQCBTWVNMT0dGTEFHPSItbCIKIExPR0dFUj0vdXNyL3NiaW4vbG9nZ2Vy
+CiBTRVRGSUxFUz0vc2Jpbi9zZXRmaWxlcwogUkVTVE9SRUNPTj0vc2Jpbi9yZXN0b3JlY29u
+Ci1GSUxFU1lTVEVNU1JXPWBtb3VudCB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVwIC12
+ICdcKCh8LiosKWJpbmQoLC4qfClcKScgfCBhd2sgJy8oZXh0WzIzNF18IGV4dDRkZXYgfCBn
+ZnMyIHwgeGZzIHwgamZzIHwgYnRyZnMgKS4qXChydy97cHJpbnQgJDN9JztgCi1GSUxFU1lT
+VEVNU1JPPWBtb3VudCB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVwIC12ICdcKCh8Lios
+KWJpbmQoLC4qfClcKScgfCBhd2sgJy8oZXh0WzIzNF18IGV4dDRkZXYgfCBnZnMyIHwgeGZz
+IHwgamZzIHwgYnRyZnMgKS4qXChyby97cHJpbnQgJDN9JztgCitGSUxFU1lTVEVNU1JXPWBn
+ZXRfcndfbGFiZWxlZF9tb3VudHNgCitGSUxFU1lTVEVNU1JPPWBnZXRfcm9fbGFiZWxlZF9t
+b3VudHNgCiBGSUxFU1lTVEVNUz0iJEZJTEVTWVNURU1TUlcgJEZJTEVTWVNURU1TUk8iCiBT
+RUxJTlVYVFlQRT0idGFyZ2V0ZWQiCiBpZiBbIC1lIC9ldGMvc2VsaW51eC9jb25maWcgXTsg
+dGhlbgotLSAKMS43LjYKCg==
+--------------050609040404010302040208--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
