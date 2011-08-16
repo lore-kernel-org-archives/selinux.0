@@ -1,117 +1,118 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7G891k2013528
-	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 04:09:02 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7G891k1013528
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 04:09:01 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7G891dV017376
-	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 08:09:01 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7G890dV017374
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 08:09:00 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v2 PATCH 1/1] Skip writing role attributes for policy.X and downgraded pp.
-Date: Tue, 16 Aug 2011 16:08:52 +0800
-Message-ID: <1313482132-15188-2-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
-References: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
+Subject: v2 Skip role attributes for policy.X and downgraded pp
+Date: Tue, 16 Aug 2011 16:08:51 +0800
+Message-ID: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Role attributes are redundant for policy.X, their destiny has been
-fulfilled in the expand phase when their types.types ebitmap have
-been populated to that of their sub regular roles.
 
-When pp is downgraded, role_datum_t's the flavor flag and roles
-ebitmap would be discarded, resulting in role attributes useless
-at all. So for such case they should also be skipped.
+Differnece from v1
+--------------------
+1. Skip role attributes when pp is downgraded, as well as for policy.X.
 
-Deduct the number of role attributes from p_roles.table->nel when
-they are skipped.
+   When pp is downgraded the flavor flag and roles ebitmap would be
+   discarded, resulting in role attributes useless at all. So in such
+   case role attributes should be skipped for pp too.
 
-Last, uncount attributes number before converting endianness.
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/write.c |   42 +++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 41 insertions(+), 1 deletions(-)
+Tests I've done
+-----------------
+1. Apply the role attribute test patch from Chris, adding a new test_r
+   role and calls rpm_run() for it.
+   
+2. Use the apol tool to analyze what types the test_r role could type with:
+   (Since the apol installed on Ubuntu so far only support max version .24,
+    we need to setup "policy-version = 24" in semanage.conf)
+   
+Note: 
+. There is no role attributes such as portage/semanage/rpm_roles in policy.24
+. By default pp's version is 13.
 
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 290e036..374a952 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -972,6 +972,19 @@ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 
- 	role = (role_datum_t *) datum;
- 
-+	/*
-+	 * Role attributes are redundant for policy.X, skip them
-+	 * when writing the roles symbol table. They are also skipped
-+	 * when pp is downgraded.
-+	 *
-+	 * Their numbers would be deducted in policydb_write().
-+	 */
-+	if ((role->flavor == ROLE_ATTRIB) &&
-+	    ((p->policy_type == POLICY_KERN) ||
-+	     (p->policy_type != POLICY_KERN &&
-+	      p->policyvers < MOD_POLICYDB_VERSION_ROLEATTRIB)))
-+		return POLICYDB_SUCCESS;
-+
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
-@@ -1795,6 +1808,19 @@ static int type_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
- 	return 0;
- }
- 
-+static int role_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
-+			     hashtab_datum_t datum, void *args)
-+{
-+	role_datum_t *role = datum;
-+	uint32_t *p_nel = args;
-+
-+	if (role->flavor == ROLE_ATTRIB) {
-+		/* uncount attribute from total number of roles */
-+		(*p_nel)--;
-+	}
-+	return 0;
-+}
-+
- /*
-  * Write the configuration data in a policy database
-  * structure to a policy database binary representation
-@@ -1926,7 +1952,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 	num_syms = info->sym_num;
- 	for (i = 0; i < num_syms; i++) {
- 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
--		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
-+		buf[1] = p->symtab[i].table->nel;
- 
- 		/*
- 		 * A special case when writing type/attribute symbol table.
-@@ -1939,6 +1965,20 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 		    p->policy_type == POLICY_KERN) {
- 			hashtab_map(p->symtab[i].table, type_attr_uncount, &buf[1]);
- 		}
-+
-+		/* 
-+		 * Another special case when writing role/attribute symbol
-+		 * table, role attributes are redundant for policy.X, or
-+		 * when the pp's version is not big enough. So deduct
-+		 * their numbers from p_roles.table->nel.
-+		 */
-+		if ((i == SYM_ROLES) &&
-+		    ((p->policy_type == POLICY_KERN) ||
-+		     (p->policy_type != POLICY_KERN &&
-+		      p->policyvers < MOD_POLICYDB_VERSION_ROLEATTRIB)))
-+			hashtab_map(p->symtab[i].table, role_attr_uncount, &buf[1]);
-+
-+		buf[1] = cpu_to_le32(buf[1]);
- 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
- 		if (items != 2)
- 			return POLICYDB_ERROR;
--- 
-1.7.0.4
+test_r (36 types)
+    bootloader_t
+    chfn_t
+    chkpwd_t
+    consoletype_t
+    ddclient_t
+    depmod_t
+    dhcpc_t
+    groupadd_t
+    hostname_t
+    ifconfig_t
+    insmod_t
+    iptables_t
+    ldconfig_t
+    load_policy_t
+    loadkeys_t
+    lvm_t
+    netutils_t
+    newrole_t
+    nscd_t
+    pam_t
+    passwd_t
+    ping_t
+    pppd_t
+    pptp_t
+    prelink_t
+    rpm_script_t
+    rpm_t
+    semanage_t
+    setfiles_t
+    test_t
+    traceroute_t
+    tzdata_t
+    updpwd_t
+    useradd_t
+    usernetctl_t
+    utempter_t
 
+3. In write_binary_policy() in checkmodule.c, trigger pp downgrade
+   by adding "policyvers = MOD_POLICYDB_VERSION_MAX - 1;", then use
+   apol to analyze what types the test_r role could type with:
+
+Note:
+. After downgrade, pp's version is 12 now.
+
+test_r (22 types)
+    chfn_t
+    chkpwd_t
+    consoletype_t
+    ddclient_t
+    dhcpc_t
+    hostname_t
+    ifconfig_t
+    insmod_t
+    iptables_t
+    loadkeys_t
+    netutils_t
+    newrole_t
+    pam_t
+    passwd_t
+    ping_t
+    pppd_t
+    pptp_t
+    test_t
+    traceroute_t
+    updpwd_t
+    usernetctl_t
+    utempter_t
+
+   Where we can see that test_r could no longer type with all those
+   types that are typed by rpm_roles and semanage_roles.
+
+   (BTW, this means that once role attributes are endorsed in refpolicy,
+    the influence of pp downgrade could be far-reaching and perhaps
+    undesirable.)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
