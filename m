@@ -1,123 +1,117 @@
-Message-ID: <4E493AF2.3020103@redhat.com>
-Date: Mon, 15 Aug 2011 11:27:46 -0400
-From: Eric Paris <eparis@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7G891k2013528
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 04:09:02 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7G891dV017376
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2011 08:09:01 GMT
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: <slawrence@tresys.com>
+CC: <selinux@tycho.nsa.gov>
+Subject: [v2 PATCH 1/1] Skip writing role attributes for policy.X and downgraded pp.
+Date: Tue, 16 Aug 2011 16:08:52 +0800
+Message-ID: <1313482132-15188-2-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
+References: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 032/155] policycoreutils: fixfiles use new kernel seclabel
-References: <4E39B680.4000106@redhat.com>  <1312469885.20973.54.camel@moss-pluto>  <CACLa4pt+cB441dB=oE3_aF=ddV+dP2BiAOUmJd18qaxGFOnKZQ@mail.gmail.com> <1313174643.19123.153.camel@moss-pluto>
-In-Reply-To: <1313174643.19123.153.camel@moss-pluto>
-Content-Type: multipart/mixed;
- boundary="------------050609040404010302040208"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050609040404010302040208
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Role attributes are redundant for policy.X, their destiny has been
+fulfilled in the expand phase when their types.types ebitmap have
+been populated to that of their sub regular roles.
 
-On 08/12/2011 02:44 PM, Stephen Smalley wrote:
-> On Fri, 2011-08-12 at 14:22 -0400, Eric Paris wrote:
->> On Thu, Aug 4, 2011 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> On Wed, 2011-08-03 at 16:58 -0400, Daniel J Walsh wrote:
->>
->>>> This patch looks good to me. acked.
->>>
->>> When similar logic was added to setfiles, we included a kernel version
->>> check (>= 2.6.30) to ensure that we didn't end up excluding all
->>> filesystems on older kernels that do not report seclabel.
->>
->> Patch replaced with the attached.
-> 
-> Your version comparison isn't quite right, e.g. consider 2.2.30.
-> If you want a reliable version compare, you probably want to do
-> something similar to KERNEL_VERSION() from include/linux/version.h and
-> convert both versions to simple integers that can be compared.  Or you
-> could do something based on this gem:
-> http://rubinium.org/blog/archives/2010/04/05/shell-script-version-compare-vercmp/
-> 
-> Or just rewrite fixfiles in a reasonable language ;)
+When pp is downgraded, role_datum_t's the flavor flag and roles
+ebitmap would be discarded, resulting in role attributes useless
+at all. So for such case they should also be skipped.
 
-Decided to go with the gem.
+Deduct the number of role attributes from p_roles.table->nel when
+they are skipped.
 
+Last, uncount attributes number before converting endianness.
 
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ libsepol/src/write.c |   42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 41 insertions(+), 1 deletions(-)
 
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index 290e036..374a952 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -972,6 +972,19 @@ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 
+ 	role = (role_datum_t *) datum;
+ 
++	/*
++	 * Role attributes are redundant for policy.X, skip them
++	 * when writing the roles symbol table. They are also skipped
++	 * when pp is downgraded.
++	 *
++	 * Their numbers would be deducted in policydb_write().
++	 */
++	if ((role->flavor == ROLE_ATTRIB) &&
++	    ((p->policy_type == POLICY_KERN) ||
++	     (p->policy_type != POLICY_KERN &&
++	      p->policyvers < MOD_POLICYDB_VERSION_ROLEATTRIB)))
++		return POLICYDB_SUCCESS;
++
+ 	len = strlen(key);
+ 	items = 0;
+ 	buf[items++] = cpu_to_le32(len);
+@@ -1795,6 +1808,19 @@ static int type_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
+ 	return 0;
+ }
+ 
++static int role_attr_uncount(hashtab_key_t key __attribute__ ((unused)),
++			     hashtab_datum_t datum, void *args)
++{
++	role_datum_t *role = datum;
++	uint32_t *p_nel = args;
++
++	if (role->flavor == ROLE_ATTRIB) {
++		/* uncount attribute from total number of roles */
++		(*p_nel)--;
++	}
++	return 0;
++}
++
+ /*
+  * Write the configuration data in a policy database
+  * structure to a policy database binary representation
+@@ -1926,7 +1952,7 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+ 	num_syms = info->sym_num;
+ 	for (i = 0; i < num_syms; i++) {
+ 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
+-		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
++		buf[1] = p->symtab[i].table->nel;
+ 
+ 		/*
+ 		 * A special case when writing type/attribute symbol table.
+@@ -1939,6 +1965,20 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+ 		    p->policy_type == POLICY_KERN) {
+ 			hashtab_map(p->symtab[i].table, type_attr_uncount, &buf[1]);
+ 		}
++
++		/* 
++		 * Another special case when writing role/attribute symbol
++		 * table, role attributes are redundant for policy.X, or
++		 * when the pp's version is not big enough. So deduct
++		 * their numbers from p_roles.table->nel.
++		 */
++		if ((i == SYM_ROLES) &&
++		    ((p->policy_type == POLICY_KERN) ||
++		     (p->policy_type != POLICY_KERN &&
++		      p->policyvers < MOD_POLICYDB_VERSION_ROLEATTRIB)))
++			hashtab_map(p->symtab[i].table, role_attr_uncount, &buf[1]);
++
++		buf[1] = cpu_to_le32(buf[1]);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+ 			return POLICYDB_ERROR;
+-- 
+1.7.0.4
 
---------------050609040404010302040208
-Content-Type: text/plain;
- name="0001-policycoreutils-fixfiles-use-new-kernel-seclabel-opt.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-policycoreutils-fixfiles-use-new-kernel-seclabel-opt.pa";
- filename*1="tch"
-
-RnJvbSAxZGE3MmVlYTI2NmZkZWUzNjAzMjA0NDIzYWIxZDllNjhmZjA1Zjc5IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBFcmljIFBhcmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4K
-RGF0ZTogU3VuLCAxMCBKdWwgMjAxMSAxNjowOToxMSArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
-IHBvbGljeWNvcmV1dGlsczogZml4ZmlsZXM6IHVzZSBuZXcga2VybmVsIHNlY2xhYmVsIG9w
-dGlvbgoKVGhlIGtlcm5lbCBub3cgb3V0cHV0cyBhIG1vdW50IG9wdGlvbiBjYWxsZWQgJ3Nl
-Y2xhYmVsJyB3aGljaCBpbmRpY2F0ZXMKaWYgdGhlIGZpbGVzeXN0ZW0gc3VwcG9zZWQgc2Vj
-dXJpdHkgbGFiZWxpbmcuICBVc2UgdGhhdCBpbnN0ZWFkIG9mCmhhdmluZyB0byB1cGRhdGUg
-c29tZSBoYXJkIGNvZGVkIGxpc3Qgb2YgYWNjZXB0YWJsZSBmaWxlc3lzdGVtcyAodGhhdApt
-YXkgb3IgbWF5IG5vdCBiZSBhY2NlcHRhYmxlIGRlcGVuZGluZyBvbiBpZiB0aGV5IHdlcmUg
-Y29tcGlsZWQgd2l0aApzZWN1cml0eSB4YXR0cnMpCgpTaWduZWQtb2ZmLWJ5OiBFcmljIFBh
-cmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4KQWNrZWQtYnk6IERhbiBXYWxzaCA8ZHdhbHNoQHJl
-ZGhhdC5jb20+Ci0tLQogcG9saWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMgfCAgIDQ4
-ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KIDEgZmlsZXMgY2hhbmdl
-ZCwgNDYgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9wb2xp
-Y3ljb3JldXRpbHMvc2NyaXB0cy9maXhmaWxlcyBiL3BvbGljeWNvcmV1dGlscy9zY3JpcHRz
-L2ZpeGZpbGVzCmluZGV4IGJhNTlkODcuLjU0MjI2ZWIgMTAwNzU1Ci0tLSBhL3BvbGljeWNv
-cmV1dGlscy9zY3JpcHRzL2ZpeGZpbGVzCisrKyBiL3BvbGljeWNvcmV1dGlscy9zY3JpcHRz
-L2ZpeGZpbGVzCkBAIC0yMCw2ICsyMCw1MCBAQAogIyBhbG9uZyB3aXRoIHRoaXMgcHJvZ3Jh
-bTsgaWYgbm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQogIyBGb3VuZGF0aW9uLCBJ
-bmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwgQm9zdG9uLCBNQSAgMDIxMTEtMTMw
-NyAgVVNBCiAKKyMKKyMgc2VjbGFiZWwgc3VwcG9ydCB3YXMgYWRkZWQgaW4gMi42LjMwLiAg
-VGhpcyBmdW5jdGlvbiB3aWxsIHJldHVybiBhIHBvc2l0aXZlCisjIG51bWJlciBpZiB0aGUg
-Y3VycmVudCBrZXJuZWwgdmVyc2lvbiBpcyBncmVhdGVyIHRoYW4gMi42LjMwLCBhIG5lZ2F0
-aXZlCisjIG51bWJlciBpZiB0aGUgY3VycmVudCBpcyBsZXNzIHRoYW4gMi42LjMwIGFuZCAw
-IGlmIHRoZXkgYXJlIHRoZSBzYW1lLgorIworZnVuY3Rpb24gdXNlc2VjbGFiZWwgeworICAg
-ICAgICBWRVI9YHVuYW1lIC1yYAorICAgICAgICBTVVA9Mi42LjMwCisgICAgICAgIGV4cHIg
-JygnICIkVkVSIiA6ICdcKFteLl0qXCknICcpJyAnLScgJygnICIkU1VQIiA6ICdcKFteLl0q
-XCknICcpJyAnfCcgXAorICAgICAgICAgICAgICcoJyAiJFZFUi4wIiA6ICdbXi5dKlsuXVwo
-W14uXSpcKScgJyknICctJyAnKCcgIiRTVVAuMCIgOiAnW14uXSpbLl1cKFteLl0qXCknICcp
-JyAnfCcgXAorICAgICAgICAgICAgICcoJyAiJFZFUi4wLjAiIDogJ1teLl0qWy5dW14uXSpb
-Ll1cKFteLl0qXCknICcpJyAnLScgJygnICIkU1VQLjAuMCIgOiAnW14uXSpbLl1bXi5dKlsu
-XVwoW14uXSpcKScgJyknCit9CisKKyMKKyMgR2V0IGFsbCBtb3VudCBwb2ludHMgdGhhdCBz
-dXBwb3J0IGxhYmVsaW5nLiAgVXNlIHRoZSAnc2VjbGFiZWwnIGZpZWxkIGlmIGl0CisjIGlz
-IGF2YWlsYWJsZS4gIEVsc2UgZmFsbCBiYWNrIHRvIGtub3duIGZzIHR5cGVzIHdoaWNoIGxp
-a2VseSBzdXBwb3J0IHhhdHRycworIyBhbmQgd2Uga25vdyB3ZXJlIG5vdCBjb250ZXh0IG1v
-dW50ZWQuCisjCitnZXRfYWxsX2xhYmVsZWRfbW91bnRzKCkgeworRlM9ImBjYXQgL3Byb2Mv
-c2VsZi9tb3VudHMgfCBzb3J0IHwgdW5pcSB8IGF3ayAne3ByaW50ICQyfSdgIgorZm9yIGkg
-aW4gJEZTOyBkbworCWlmIFsgYHVzZXNlY2xhYmVsYCAtZ2UgMCBdCisJdGhlbgorCQlncmVw
-ICIgJGkgIiAvcHJvYy9zZWxmL21vdW50cyB8IGF3ayAne3ByaW50ICQ0fScgfCBlZ3JlcCAt
-LXNpbGVudCAnKF58LClzZWNsYWJlbCgsfCQpJyAmJiBlY2hvICRpCisJZWxzZQorCQlncmVw
-ICIgJGkgIiAvcHJvYy9zZWxmL21vdW50cyB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVw
-IC0tc2lsZW50ICcoZXh0WzIzNF18IGV4dDRkZXYgfCBnZnMyIHwgeGZzIHwgamZzIHwgYnRy
-ZnMgKScgJiYgZWNobyAkaQorCWZpCitkb25lCit9CisKK2dldF9yd19sYWJlbGVkX21vdW50
-cygpIHsKK0ZTPWBnZXRfYWxsX2xhYmVsZWRfbW91bnRzIHwgc29ydCB8IHVuaXFgCitmb3Ig
-aSBpbiAkRlM7IGRvCisJZ3JlcCAiICRpICIgL3Byb2Mvc2VsZi9tb3VudHMgfCBhd2sgJ3tw
-cmludCAkNH0nIHwgZWdyZXAgLS1zaWxlbnQgJyhefCwpcncoLHwkKScgJiYgZWNobyAkaQor
-ZG9uZQorfQorCitnZXRfcm9fbGFiZWxlZF9tb3VudHMoKSB7CitGUz1gZ2V0X2FsbF9sYWJl
-bGVkX21vdW50cyB8IHNvcnQgfCB1bmlxYAorZm9yIGkgaW4gJEZTOyBkbworCWdyZXAgIiAk
-aSAiIC9wcm9jL3NlbGYvbW91bnRzIHwgYXdrICd7cHJpbnQgJDR9JyB8IGVncmVwIC0tc2ls
-ZW50ICcoXnwsKXJvKCx8JCknICYmIGVjaG8gJGkKK2RvbmUKK30KKwogZXhjbHVkZV9kaXJz
-X2Zyb21fcmVsYWJlbGxpbmcoKSB7CiAgICAgZXhjbHVkZV9mcm9tX3JlbGFiZWxsaW5nPQog
-ICAgIGlmIFsgLWUgL2V0Yy9zZWxpbnV4L2ZpeGZpbGVzX2V4Y2x1ZGVfZGlycyBdCkBAIC02
-NCw4ICsxMDgsOCBAQCBTWVNMT0dGTEFHPSItbCIKIExPR0dFUj0vdXNyL3NiaW4vbG9nZ2Vy
-CiBTRVRGSUxFUz0vc2Jpbi9zZXRmaWxlcwogUkVTVE9SRUNPTj0vc2Jpbi9yZXN0b3JlY29u
-Ci1GSUxFU1lTVEVNU1JXPWBtb3VudCB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVwIC12
-ICdcKCh8LiosKWJpbmQoLC4qfClcKScgfCBhd2sgJy8oZXh0WzIzNF18IGV4dDRkZXYgfCBn
-ZnMyIHwgeGZzIHwgamZzIHwgYnRyZnMgKS4qXChydy97cHJpbnQgJDN9JztgCi1GSUxFU1lT
-VEVNU1JPPWBtb3VudCB8IGdyZXAgLXYgImNvbnRleHQ9IiB8IGVncmVwIC12ICdcKCh8Lios
-KWJpbmQoLC4qfClcKScgfCBhd2sgJy8oZXh0WzIzNF18IGV4dDRkZXYgfCBnZnMyIHwgeGZz
-IHwgamZzIHwgYnRyZnMgKS4qXChyby97cHJpbnQgJDN9JztgCitGSUxFU1lTVEVNU1JXPWBn
-ZXRfcndfbGFiZWxlZF9tb3VudHNgCitGSUxFU1lTVEVNU1JPPWBnZXRfcm9fbGFiZWxlZF9t
-b3VudHNgCiBGSUxFU1lTVEVNUz0iJEZJTEVTWVNURU1TUlcgJEZJTEVTWVNURU1TUk8iCiBT
-RUxJTlVYVFlQRT0idGFyZ2V0ZWQiCiBpZiBbIC1lIC9ldGMvc2VsaW51eC9jb25maWcgXTsg
-dGhlbgotLSAKMS43LjYKCg==
---------------050609040404010302040208--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
