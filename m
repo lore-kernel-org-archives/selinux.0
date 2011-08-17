@@ -1,47 +1,39 @@
-Subject: Re: RHEL5, selinux-policy-2.4.6.30-el5, and pidof AVC issue
+Subject: Re: su vs runuser
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: rarob@travelinglightfarm.net
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <5d23aa2d56b118186ba6a735c220f728.squirrel@box559.bluehost.com>
-References: <5d23aa2d56b118186ba6a735c220f728.squirrel@box559.bluehost.com>
+To: Ted Toth <txtoth@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <CAFPpqQEqJChweFaz-HyKVoUeBoL4ibER-dz=+p-FKYczyEFBKg@mail.gmail.com>
+References: 
+	 <CAFPpqQEqJChweFaz-HyKVoUeBoL4ibER-dz=+p-FKYczyEFBKg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 17 Aug 2011 10:45:34 -0400
-Message-ID: <1313592334.28571.18.camel@moss-pluto>
+Date: Wed, 17 Aug 2011 11:09:01 -0400
+Message-ID: <1313593741.28571.36.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-17 at 10:18 -0400, rarob@travelinglightfarm.net wrote:
-> I've been banging my head against this since yesterday.  I have a confined
-> root process that is trying to run the /sbin/pidof and getting an AVC
-> denials (raw AVC messages lower down).  The output from 'audit2allow -a
-> -l' suggests adding the following:
-> 
-> allow myDomain_t crond_t:process ptrace;
-> allow myDomain_t cupsd_t:process ptrace;
-> allow myDomain_t setrans_t:process ptrace;
-> allow myDomain_t src_t:dir { getattr search };
-> allow myDomain_t udev_t:process ptrace;
-> allow myDomain_t unconfined_t:process ptrace;
-> allow myDomain_t xdm_t:process ptrace;
-> 
-> I've explicitly verified that these are present, both by adding them to my
-> policy and using sesearch to show that they are in fact present. 
-> Audit2why indicates the problem may be a constraint, but if so I'm having
-> a hard time understanding how to track down what attribute I need to add
-> to satisfy the constraint.
+On Wed, 2011-08-17 at 09:30 -0500, Ted Toth wrote:
+> I've read that I should use runuser instead of su and I was having a
+> problem getting a script to transition properly until I changed it to
+> use runuser but I'm not clear on why this is. Can someone help me with
+> an elevator speech that I can use when trying to explain this to
+> others?
 
-What exactly do you want myDomain_t to be able to do, and to what target
-processes?  I doubt you want to allow this for all of these domains.
-Which target processes do you want myDomain_t to be able to look up /
-kill?
+runuser runs in the same uid (i.e. it is not setuid-root) and security
+context as the caller - it isn't a trusted application.  It can only be
+used if the caller is already privileged.  It never requires
+authentication, and thus can be easily used in non-interactive scripts.
 
-The relevant constraint here would be in policy/mcs, as your process is
-running with a MCS level of s0 aka SystemLow but the target is running
-s0-s0:c0.c1023 aka SystemHigh.  Type attribute is mcsptraceall,
-refpolicy interface is mcs_ptrace_all().  Alternatively you could run
-your process fully ranged to SystemHigh and avoid the need to add this
-attribute.
+su is a setuid-root program that typically runs in a different security
+context than the caller so that it can read user authentication secrets
+(/etc/shadow) and switch identities even if the caller can't directly do
+so.  Early versions of Fedora/RHEL also put pam_selinux
+into /etc/pam.d/su, causing it to explicitly switch to the new user's
+security context, but that was later removed.  But even without that,
+there is a security context transition when you invoke su (to enter su's
+domain so that you can read /etc/shadow and switch uid) and when su
+invokes the user shell or command (to transition back to the original
+caller's domain).
 
 -- 
 Stephen Smalley
