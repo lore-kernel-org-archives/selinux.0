@@ -1,55 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7HFRRE1008688
-	for <selinux@tycho.nsa.gov>; Wed, 17 Aug 2011 11:27:30 -0400
-Received: from oproxy6-pub.bluehost.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p7HFRTU6021443
-	for <selinux@tycho.nsa.gov>; Wed, 17 Aug 2011 15:27:30 GMT
-Received: from localhost ([127.0.0.1] helo=box559.bluehost.com)
-	by box559.bluehost.com with esmtpa (Exim 4.76)
-	(envelope-from <rarob@travelinglightfarm.net>)
-	id 1Qti1g-0000l9-A4
-	for selinux@tycho.nsa.gov; Wed, 17 Aug 2011 09:27:29 -0600
-Message-ID: <c572d642a1bff2e1c49ce2d881d7eb2f.squirrel@box559.bluehost.com>
-In-Reply-To: <1313592334.28571.18.camel@moss-pluto>
-References: <5d23aa2d56b118186ba6a735c220f728.squirrel@box559.bluehost.com>
-    <1313592334.28571.18.camel@moss-pluto>
-Date: Wed, 17 Aug 2011 11:27:29 -0400
-Subject: Re: RHEL5, selinux-policy-2.4.6.30-el5, and pidof AVC issue
-From: rarob@travelinglightfarm.net
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7HFZd2T009202
+	for <selinux@tycho.nsa.gov>; Wed, 17 Aug 2011 11:35:39 -0400
+Received: from nm22-vm0.bullet.mail.ac4.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p7HFZcU6023625
+	for <selinux@tycho.nsa.gov>; Wed, 17 Aug 2011 15:35:38 GMT
+Message-ID: <4E4BDF8A.5090703@schaufler-ca.com>
+Date: Wed, 17 Aug 2011 08:34:34 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+To: Eric Paris <eparis@parisplace.org>
+CC: selinux@tycho.nsa.gov, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: inclusion of selinux.h in cred.h
+References: <4E4B4CF8.6080800@schaufler-ca.com> <CACLa4psgw+FzdJb_TUZdCmakeFrQMOVaFynsPYEe_93RHQCSrw@mail.gmail.com>
+In-Reply-To: <CACLa4psgw+FzdJb_TUZdCmakeFrQMOVaFynsPYEe_93RHQCSrw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On 8/17/2011 6:35 AM, Eric Paris wrote:
+> On Wed, Aug 17, 2011 at 1:09 AM, Casey Schaufler<casey@schaufler-ca.com>  wrote:
+>> Is there some reason that linux/selinux.h is
+>> #included in linux/cred.h?
+>>
+>> I've been building kernels with the inclusion
+>> commented out and I have encountered no problems.
+>>
+>> It's not a problem, but I am curious.
+> It can be safely moved, but not removed.  This was added when
+> creds_are_invalid() was implemented in the header, which makes SELinux
+> specific calls (see commit ed868a56988464cd31de0302426a5e94d3127f10).
+> This function was moved to kernel/cred.c in commit
+> 74908a0009eb36054190ab80deb9671014efed96 but the header was not moved
+> with it.  If you want to send a patch to move the header from cred.h
+> to cred.c I think that would make a lot of sense.
 
-> What exactly do you want myDomain_t to be able to do, and to what target
-> processes?  I doubt you want to allow this for all of these domains.
-> Which target processes do you want myDomain_t to be able to look up /
-> kill?
+Enlightenment. Thank you.
+
+Since creds_are_invalid() only exists under CONFIG_DEBUG_CREDENTIALS
+I would expect the include of selinux.h to be under that ifdef as well.
+
 >
-> The relevant constraint here would be in policy/mcs, as your process is
-> running with a MCS level of s0 aka SystemLow but the target is running
-> s0-s0:c0.c1023 aka SystemHigh.  Type attribute is mcsptraceall,
-> refpolicy interface is mcs_ptrace_all().  Alternatively you could run
-> your process fully ranged to SystemHigh and avoid the need to add this
-> attribute.
+> -Eric
 >
 > --
-> Stephen Smalley
-> National Security Agency
-
-Stephen,
-  Basically I need to be able to run the equivalent of '/sbin/service *
-status' for any service, and eventually start/stop as well.  I *think* I
-may have cracked a good chunk of it (the status portion) by adding
-'domain_dontaudit_ptrace_all_domains()' and 'allow myDomain_t pidfile:
-{read getattr ioctl}'.
-  I guess my understanding of SELinux is missing how the levels apply to a
-basic targeted policy.  I had thought they didn't apply.  Eventually we
-do want our policy to support MLC/MCS and ultimately the LSPP.  If we're
-not running MCS/MLS does the SystemLow/SystemHigh ranges actually apply?
-
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
