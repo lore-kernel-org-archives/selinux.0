@@ -1,69 +1,74 @@
-Message-ID: <4E4CEC09.5020300@redhat.com>
-Date: Thu, 18 Aug 2011 06:40:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7ICuLNb028854
+	for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2011 08:56:21 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7ICuJT0020510
+	for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2011 12:56:20 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 4375318050
+	for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2011 22:56:10 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: load_policy memory error
+Date: Thu, 18 Aug 2011 22:56:15 +1000
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ted Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: su vs runuser
-References: <CAFPpqQEqJChweFaz-HyKVoUeBoL4ibER-dz=+p-FKYczyEFBKg@mail.gmail.com> <1313593741.28571.36.camel@moss-pluto>
-In-Reply-To: <1313593741.28571.36.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201108182256.15760.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+type=MAC_POLICY_LOAD msg=audit(1313671617.326:131533): policy loaded 
+auid=4294967295 ses=4294967295
+type=SYSCALL msg=audit(1313671617.326:131533): arch=c000003e syscall=1 
+success=no exit=-131941357240360 a0=4 a1=7f9a74e90010 a2=8a8b6 a3=0 items=0 
+ppid=3607 pid=3617 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 
+sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="load_policy" 
+exe="/sbin/load_policy" subj=unconfined_u:unconfined_r:load_policy_t:s0-
+s0:c0.c1023 key=(null)
 
-On 08/17/2011 11:09 AM, Stephen Smalley wrote:
-> On Wed, 2011-08-17 at 09:30 -0500, Ted Toth wrote:
->> I've read that I should use runuser instead of su and I was having
->> a problem getting a script to transition properly until I changed
->> it to use runuser but I'm not clear on why this is. Can someone
->> help me with an elevator speech that I can use when trying to
->> explain this to others?
-> 
-> runuser runs in the same uid (i.e. it is not setuid-root) and
-> security context as the caller - it isn't a trusted application.  It
-> can only be used if the caller is already privileged.  It never
-> requires authentication, and thus can be easily used in
-> non-interactive scripts.
-> 
-> su is a setuid-root program that typically runs in a different
-> security context than the caller so that it can read user
-> authentication secrets (/etc/shadow) and switch identities even if
-> the caller can't directly do so.  Early versions of Fedora/RHEL also
-> put pam_selinux into /etc/pam.d/su, causing it to explicitly switch
-> to the new user's security context, but that was later removed.  But
-> even without that, there is a security context transition when you
-> invoke su (to enter su's domain so that you can read /etc/shadow and
-> switch uid) and when su invokes the user shell or command (to
-> transition back to the original caller's domain).
-> 
+Running Debian/Squeeze in a Xen DomU with stock versions of everything other 
+than the policy I got the below error which corresponded with the above 
+audit.log entries.
 
-The actual first line of runuser.c is
+# semodule -i ./localmilter.pp
+SELinux:  Could not load policy file /etc/selinux/default/policy/policy.24:  
+Invalid argument
+/sbin/load_policy:  Can't load policy:  Invalid argument
+libsemanage.semanage_reload_policy: load_policy returned error code 2.
+semodule:  Failed!
 
-#include "su.c"
+I repeated the same semodule command soon afterward (with no other sysadmin 
+stuff going on in the mean time) and got the following result:
 
-So basically they are the exact same program, except, runuser has its
-own version of the pam stack functions that just return success.
+type=MAC_POLICY_LOAD msg=audit(1313671700.498:131534): policy loaded 
+auid=4294967295 ses=4294967295
+type=SYSCALL msg=audit(1313671700.498:131534): arch=c000003e syscall=1 
+success=no exit=-131941343723560 a0=4 a1=7f30a096e010 a2=8a8c2 a3=0 items=0 
+ppid=3698 pid=3706 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 
+sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="load_policy" 
+exe="/sbin/load_policy" subj=unconfined_u:unconfined_r:load_policy_t:s0-
+s0:c0.c1023 key=(null)
 
-Bottom line.  runuser is su without the pam_stack, it does not try to
-run anything that is in /etc/pam.d/su.
+The kernel message log has the following, it seems that loading a 564K policy 
+on a system with 180M of RAM is causing memory problems.
 
-Pretty much you have to run runuser as root and really should be used in
-init scripts.
+Aug 18 12:46:56 sandbox kernel: [2180669.735670] load_policy: page allocation 
+failure. order:4, mode:0xc0d0
+Aug 18 12:46:56 sandbox kernel: [2180669.735885] Pid: 3614, comm: load_policy 
+Not tainted 2.6.32-5-xen-amd64 #1
+Aug 18 12:46:56 sandbox kernel: [2180669.735902] Call Trace:
 
-If you don't need to use any of the functionality in the pam stack, use
-runuser, if you need to user "setuid" privs and want stuff in the pam
-stack to run use su.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+# free
+             total       used       free     shared    buffers     cached
+Mem:        181084     125704      55380          0       1592      27884
+-/+ buffers/cache:      96228      84856
+Swap:       524280     193512     330768
 
-iEYEARECAAYFAk5M7AkACgkQrlYvE4MpobMVQACfUXL2RVMSMtltRtHnMqsoUgN6
-8TIAn3WfJJy7b4IxPoFU2jFffbcB1+3u
-=1g8T
------END PGP SIGNATURE-----
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
