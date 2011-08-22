@@ -1,130 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7MG9CcR002760
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2011 12:09:12 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7MG9BOt015804
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2011 16:09:11 GMT
-Message-ID: <4E527F26.7090802@tresys.com>
-Date: Mon, 22 Aug 2011 12:09:10 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Harry Ciao <qingtao.cao@windriver.com>
-CC: <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: v2 Skip role attributes for policy.X and downgraded pp
-References: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+In-Reply-To: <1304436800.1587.20.camel@moss-pluto>
+References: <4DC01640.9000206@redhat.com>
+	<1304436800.1587.20.camel@moss-pluto>
+Date: Mon, 22 Aug 2011 13:26:51 -0400
+Message-ID: <CACLa4psD13cYBwzd0qQCa6Dh5JtAe3pdhbCSxROq85uXpyx9zw@mail.gmail.com>
+Subject: Re: libselinux mountpoint changing patch.
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+        Lennart Poettering <lennart@poettering.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/16/11 04:08, Harry Ciao wrote:
-> 
-> Differnece from v1
-> --------------------
-> 1. Skip role attributes when pp is downgraded, as well as for policy.X.
-> 
->    When pp is downgraded the flavor flag and roles ebitmap would be
->    discarded, resulting in role attributes useless at all. So in such
->    case role attributes should be skipped for pp too.
-> 
-> 
-> Tests I've done
-> -----------------
-> 1. Apply the role attribute test patch from Chris, adding a new test_r
->    role and calls rpm_run() for it.
->    
-> 2. Use the apol tool to analyze what types the test_r role could type with:
->    (Since the apol installed on Ubuntu so far only support max version .24,
->     we need to setup "policy-version = 24" in semanage.conf)
->    
-> Note: 
-> . There is no role attributes such as portage/semanage/rpm_roles in policy.24
-> . By default pp's version is 13.
-> 
-> test_r (36 types)
->     bootloader_t
->     chfn_t
->     chkpwd_t
->     consoletype_t
->     ddclient_t
->     depmod_t
->     dhcpc_t
->     groupadd_t
->     hostname_t
->     ifconfig_t
->     insmod_t
->     iptables_t
->     ldconfig_t
->     load_policy_t
->     loadkeys_t
->     lvm_t
->     netutils_t
->     newrole_t
->     nscd_t
->     pam_t
->     passwd_t
->     ping_t
->     pppd_t
->     pptp_t
->     prelink_t
->     rpm_script_t
->     rpm_t
->     semanage_t
->     setfiles_t
->     test_t
->     traceroute_t
->     tzdata_t
->     updpwd_t
->     useradd_t
->     usernetctl_t
->     utempter_t
-> 
-> 3. In write_binary_policy() in checkmodule.c, trigger pp downgrade
->    by adding "policyvers = MOD_POLICYDB_VERSION_MAX - 1;", then use
->    apol to analyze what types the test_r role could type with:
-> 
-> Note:
-> . After downgrade, pp's version is 12 now.
-> 
-> test_r (22 types)
->     chfn_t
->     chkpwd_t
->     consoletype_t
->     ddclient_t
->     dhcpc_t
->     hostname_t
->     ifconfig_t
->     insmod_t
->     iptables_t
->     loadkeys_t
->     netutils_t
->     newrole_t
->     pam_t
->     passwd_t
->     ping_t
->     pppd_t
->     pptp_t
->     test_t
->     traceroute_t
->     updpwd_t
->     usernetctl_t
->     utempter_t
-> 
->    Where we can see that test_r could no longer type with all those
->    types that are typed by rpm_roles and semanage_roles.
-> 
->    (BTW, this means that once role attributes are endorsed in refpolicy,
->     the influence of pp downgrade could be far-reaching and perhaps
->     undesirable.)
+On Tue, May 3, 2011 at 11:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2011-05-03 at 10:50 -0400, Daniel J Walsh wrote:
 
-I would not say this is undesirable, but broken instead.  The attributes
-should be expanded out so the role has the same type set regardless of
-the policydb version.
+>> NOTE:  We added the check for RO, to allow tools like mock to be able to
+>> tell a chroot that SELinux is disabled while enforcing it outside the
+>> chroot.
+>>
+>>
+>> # getenforce
+>> Enabled
+>> # mount -t selinuxfs -o remount,ro selinuxfs /var/chroot/selinux
+>
+> Just to clarify, the right commands to use are:
+> mount --bind /selinux /var/chroot/selinux
+> mount -o remount,ro /var/chroot/selinux
+>
+> Do not use:
+> mount -t selinuxfs -o ro selinuxfs /var/chroot/selinux
+> as this will in fact change the flags on /selinux as well.  Surprise!
+> Result of there only being a single instance (superblock) of selinuxfs,
+> although you can have multiple vfsmounts of it.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+surprise, this doesn't work either!
+# cat mount.F16 | grep selinux
+mount --bind /selinux /mnt/F16/sys/fs/selinux/
+mount -o remount,ro /mnt/F16/sys/fs/selinux/
+
+# cat /proc/mounts | grep selinux
+selinuxfs /selinux selinuxfs ro,relatime 0 0
+selinuxfs /mnt/F16/sys/fs/selinux selinuxfs ro,relatime 0 0
+
+crap.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
