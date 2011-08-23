@@ -1,209 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NAReBg019334
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:27:42 -0400
-Received: from snt0-omc1-s18.snt0.hotmail.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NARfBW017496
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:27:42 GMT
-Message-ID: <SNT139-W51733746CAFD339C4E9177AB2E0@phx.gbl>
-Content-Type: multipart/mixed;
-	boundary="_0d12c44c-e38c-457a-9ae3-2a846a914d70_"
-From: HarryCiao <harrytaurus2002@hotmail.com>
-To: <refpolicy@oss1.tresys.com>, <selinux@tycho.nsa.gov>
-Subject: [refpolicy] My patchset to test "Separating tunables from booleans"
-Date: Tue, 23 Aug 2011 10:27:36 +0000
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NDhi5M029569
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 09:43:44 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NDhhU0005784
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 13:43:43 GMT
+Message-ID: <4E53AE8C.6020707@redhat.com>
+Date: Tue, 23 Aug 2011 09:43:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: Harry Ciao <qingtao.cao@windriver.com>
+CC: cpebenito@tresys.com, slawrence@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [v0 PATCH 6/6] Skip tunable identifier and cond_node_t in expansion.
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_
-Content-Type: multipart/alternative;
-	boundary="_48608c80-cb1b-4126-8700-7e4628a72974_"
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---_48608c80-cb1b-4126-8700-7e4628a72974_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: 8bit
+Eliminating booleans would be great and replacing them with tunables,
+but the tunables must be discoverable, and it must be easy for the
+administrator to discover the "tunable" and turn it on.
+
+Currently audit2allow/audit2why turns on all booleans in a policy and
+checks to see if an AVC would be allowed with any boolean.  Then it
+prints out the booleans that would have allowed the access.  We use
+this functionality within setroubleshoot.  This is critical to making
+selinux policy usable.
+
+User wants to allow ftp to access homedirs, he sets up ftp and SELinux
+blocks the access.  Setroubleshoot comes up and says turn on the
+ftp_home_dir boolean to allow this access.
 
 
-Hi,
+If we can not duplicate this functionality then I NAK the change from
+booleans to tunables.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-This is the refpolicy patchset to test along with new toolchain feature of separating tunables from booleans, generally speaking a "tunable" keyword is introduced and made use of by tunable_policy(), whereas a new boolean_policy() macro would make use of the "bool" keyword.
-
-tunable is indeed a boolean, except that the COND_BOOL_FLAGS_TUNABLE bit would be set in the newly added member of flags in the cond_bool_datum_t structure.
-
-Once the new toolchain feature is welcomed and merged, we could change refpolicy to shrink policy.X size significantly.
-
-Any comments or suggestions as for how to better this new toolchain feature are greatly welcomed.
-
-Thanks!
-
-Harry
- 		 	   		  
---_48608c80-cb1b-4126-8700-7e4628a72974_
-Content-Type: text/html; charset="gb2312"
-Content-Transfer-Encoding: 8bit
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-font-size: 10pt;
-font-family:Î¢ÈíÑÅºÚ
-}
---></style>
-</head>
-<body class='hmmessage'><div dir='ltr'>
-Hi,<br><br>This is the refpolicy patchset to test along with new toolchain feature of separating tunables from booleans, generally speaking a "tunable" keyword is introduced and made use of by tunable_policy(), whereas a new boolean_policy() macro would make use of the "bool" keyword.<br><br>tunable is indeed a boolean, except that the COND_BOOL_FLAGS_TUNABLE bit would be set in the newly added member of flags in the cond_bool_datum_t structure.<br><br>Once the new toolchain feature is welcomed and merged, we could change refpolicy to shrink policy.X size significantly.<br><br>Any comments or suggestions as for how to better this new toolchain feature are greatly welcomed.<br><br>Thanks!<br><br>Harry<br> 		 	   		  </div></body>
-</html>
---_48608c80-cb1b-4126-8700-7e4628a72974_--
-
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="0001-Add-the-definition-of-the-boolean_policy-marcro.patch"
-
-RnJvbSA3N2NlMTgyMTg0NDY3ZDQzNDI4MWM1YWJhMmM4NmM5ZWUxNDQwYTU3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBTdW4sIDIxIEF1ZyAyMDExIDE4OjE5OjQxICswODAwClN1YmplY3Q6IFtyZWZwb2xp
-Y3ldW3YwIFBBVENIIDEvNF0gQWRkIHRoZSBkZWZpbml0aW9uIG9mIHRoZSBib29sZWFuX3BvbGlj
-eSBtYXJjcm8uCgpib29sZWFuX3BvbGljeSBtYWNybyB3b3VsZCBtYWtlIHVzZSBvZiBib29sZWFu
-IGZvciBydW50aW1lIGNvbmRpdGlvbmFscywKd2hpbGUgdHVuYWJsZV9wb2xpY3kgbWFjcm8gd291
-bGQgdXNlIHR1bmFibGUgcmF0aGVyIHRoYW4gYm9vbGVhbiBmb3IKYnVpbGQtdGltZSBjb25kaXRp
-b25hbHMuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIu
-Y29tPgotLS0KIHBvbGljeS9zdXBwb3J0L2xvYWRhYmxlX21vZHVsZS5zcHQgfCAgIDM4ICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKystLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDMzIGluc2Vy
-dGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvcG9saWN5L3N1cHBvcnQvbG9h
-ZGFibGVfbW9kdWxlLnNwdCBiL3BvbGljeS9zdXBwb3J0L2xvYWRhYmxlX21vZHVsZS5zcHQKaW5k
-ZXggMWZlM2FiMy4uMjUxYTVmOSAxMDA2NDQKLS0tIGEvcG9saWN5L3N1cHBvcnQvbG9hZGFibGVf
-bW9kdWxlLnNwdAorKysgYi9wb2xpY3kvc3VwcG9ydC9sb2FkYWJsZV9tb2R1bGUuc3B0CkBAIC0x
-MjAsMTAgKzEyMCwyMyBAQCBkZWZpbmUoYGRmbHRfb3Jfb3ZlcnInLGBpZmRlZihgJDEnLCQxLCQy
-KScpCiAjIFRoaXMgbmVlZHMgdG8gYmUgcmV3b3JrZWQgc28gZXhwcmVzc2lvbnMKICMgd2l0aCBw
-YXJlbnRoZXNlcyBjYW4gd29yay4KIAotZGVmaW5lKGBkZWNsYXJlX3JlcXVpcmVkX3N5bWJvbHMn
-LGAKK2RlZmluZShgZGVjbGFyZV9yZXF1aXJlZF9ib29sZWFucycsYAogaWZlbHNlKHJlZ2V4cCgk
-MSwgYFx3JyksIC0xLCBgJywgYGRubAogYm9vbCByZWdleHAoJDEsIGBcKFx3K1wpJywgYFwxJyk7
-Ci1kZWNsYXJlX3JlcXVpcmVkX3N5bWJvbHMocmVnZXhwKCQxLCBgXHcrXCguKlwpJywgYFwxJykp
-ZG5sCitkZWNsYXJlX3JlcXVpcmVkX2Jvb2xlYW5zKHJlZ2V4cCgkMSwgYFx3K1woLipcKScsIGBc
-MScpKWRubAorJykgZG5sCisnKQorCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKKyMK
-KyMgRXh0cmFjdCB0dW5hYmxlcyBvdXQgb2YgYW4gZXhwcmVzc2lvbi4KKyMgVGhpcyBuZWVkcyB0
-byBiZSByZXdvcmtlZCBzbyBleHByZXNzaW9ucworIyB3aXRoIHBhcmVudGhlc2VzIGNhbiB3b3Jr
-LgorCitkZWZpbmUoYGRlY2xhcmVfcmVxdWlyZWRfdHVuYWJsZXMnLGAKK2lmZWxzZShyZWdleHAo
-JDEsIGBcdycpLCAtMSwgYCcsIGBkbmwKK3R1bmFibGUgcmVnZXhwKCQxLCBgXChcdytcKScsIGBc
-MScpOworZGVjbGFyZV9yZXF1aXJlZF90dW5hYmxlcyhyZWdleHAoJDEsIGBcdytcKC4qXCknLCBg
-XDEnKSlkbmwKICcpIGRubAogJykKIApAQCAtMTMyLDE2ICsxNDUsMzEgQEAgZGVjbGFyZV9yZXF1
-aXJlZF9zeW1ib2xzKHJlZ2V4cCgkMSwgYFx3K1woLipcKScsIGBcMScpKWRubAogIyBUdW5hYmxl
-IGRlY2xhcmF0aW9uCiAjCiBkZWZpbmUoYGdlbl90dW5hYmxlJyxgCi0JYm9vbCAkMSBkZmx0X29y
-X292ZXJyKGAkMSdfY29uZiwkMik7CisJdHVuYWJsZSAkMSBkZmx0X29yX292ZXJyKGAkMSdfY29u
-ZiwkMik7CiAnKQogCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKICMKLSMgVHVuYWJs
-ZSBwb2xpY3kgaGFuZGxpbmcKKyMgQnVpbGQtdGltZSB0dW5hYmxlIHBvbGljeSBoYW5kbGluZwog
-IwogZGVmaW5lKGB0dW5hYmxlX3BvbGljeScsYAogCWdlbl9yZXF1aXJlKGAKLQkJZGVjbGFyZV9y
-ZXF1aXJlZF9zeW1ib2xzKGAkMScpCisJCWRlY2xhcmVfcmVxdWlyZWRfdHVuYWJsZXMoYCQxJykK
-KwknKQorCWlmIChgJDEnKSB7CisJCSQyCisJaWZlbHNlKGAkMycsYCcsYCcsYH0gZWxzZSB7CisJ
-CSQzCisJJyl9CisnKQorCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKKyMKKyMgUnVu
-dGltZSBib29sZWFuIHBvbGljeSBoYW5kbGluZworIworZGVmaW5lKGBib29sZWFuX3BvbGljeScs
-YAorCWdlbl9yZXF1aXJlKGAKKwkJZGVjbGFyZV9yZXF1aXJlZF9ib29sZWFucyhgJDEnKQogCScp
-CiAJaWYgKGAkMScpIHsKIAkJJDIKLS0gCjEuNy4wLjQKCg==
-
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="0002-user_ping-is-a-tunable-use-tunable_policy-for-it.patch"
-
-RnJvbSAxN2I0MWI5ZWEwYjkyYWFkMTQ0YTJiODcxNzRkN2ViNmY5YzM4M2FlIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBTdW4sIDIxIEF1ZyAyMDExIDE5OjM4OjQ2ICswODAwClN1YmplY3Q6IFtyZWZwb2xp
-Y3ldW3YwIFBBVENIIDIvNF0gdXNlcl9waW5nIGlzIGEgdHVuYWJsZSwgdXNlIHR1bmFibGVfcG9s
-aWN5IGZvciBpdC4KCnVzZXJfcGluZyBpcyBhIHR1bmFibGUsIHVzZSB0dW5hYmxlX3BvbGljeSBm
-b3IgaXQuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIu
-Y29tPgotLS0KIHBvbGljeS9tb2R1bGVzL2FkbWluL25ldHV0aWxzLmlmIHwgICAxMCArKysrLS0t
-LS0tCiAxIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKCmRp
-ZmYgLS1naXQgYS9wb2xpY3kvbW9kdWxlcy9hZG1pbi9uZXR1dGlscy5pZiBiL3BvbGljeS9tb2R1
-bGVzL2FkbWluL25ldHV0aWxzLmlmCmluZGV4IGM2Y2E3NjEuLjQxNjQyOTIgMTAwNjQ0Ci0tLSBh
-L3BvbGljeS9tb2R1bGVzL2FkbWluL25ldHV0aWxzLmlmCisrKyBiL3BvbGljeS9tb2R1bGVzL2Fk
-bWluL25ldHV0aWxzLmlmCkBAIC0xODMsMTQgKzE4MywxMyBAQCBpbnRlcmZhY2UoYG5ldHV0aWxz
-X3J1bl9waW5nJyxgCiBpbnRlcmZhY2UoYG5ldHV0aWxzX3J1bl9waW5nX2NvbmQnLGAKIAlnZW5f
-cmVxdWlyZShgCiAJCXR5cGUgcGluZ190OwotCQlib29sIHVzZXJfcGluZzsKIAknKQogCiAJcm9s
-ZSAkMiB0eXBlcyBwaW5nX3Q7CiAKLQlpZiAoIHVzZXJfcGluZyApIHsKKwl0dW5hYmxlX3BvbGlj
-eShgdXNlcl9waW5nJyxgCiAJCW5ldHV0aWxzX2RvbXRyYW5zX3BpbmcoJDEpCi0JfQorCScpCiAn
-KQogCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCkBAIC0yNzcsMTQg
-KzI3NiwxMyBAQCBpbnRlcmZhY2UoYG5ldHV0aWxzX3J1bl90cmFjZXJvdXRlJyxgCiBpbnRlcmZh
-Y2UoYG5ldHV0aWxzX3J1bl90cmFjZXJvdXRlX2NvbmQnLGAKIAlnZW5fcmVxdWlyZShgCiAJCXR5
-cGUgdHJhY2Vyb3V0ZV90OwotCQlib29sIHVzZXJfcGluZzsKIAknKQogCiAJcm9sZSAkMiB0eXBl
-cyB0cmFjZXJvdXRlX3Q7CiAKLQlpZiggdXNlcl9waW5nICkgeworCXR1bmFibGVfcG9saWN5KGB1
-c2VyX3BpbmcnLGAKIAkJbmV0dXRpbHNfZG9tdHJhbnNfdHJhY2Vyb3V0ZSgkMSkKLQl9CisJJykK
-ICcpCiAKICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKLS0gCjEuNy4w
-LjQKCg==
-
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="0003-mmap_low_allowed-is-a-tunable-use-tunable_policy-for.patch"
-
-RnJvbSBmNTBlYTkxMjUwOWU3MDc0NGY1NTAyMDg3OTNiZjM4YjFmOTM3NGU4IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBNb24sIDIyIEF1ZyAyMDExIDE0OjEyOjU1ICswODAwClN1YmplY3Q6IFtyZWZwb2xp
-Y3ldW3YwIFBBVENIIDMvNF0gbW1hcF9sb3dfYWxsb3dlZCBpcyBhIHR1bmFibGUsIHVzZSB0dW5h
-YmxlX3BvbGljeSBmb3IgaXQKCm1tYXBfbG93X2FsbG93ZWQgaXMgYSB0dW5hYmxlLCB1c2UgdHVu
-YWJsZV9wb2xpY3kgZm9yIGl0LgoKU2lnbmVkLW9mZi1ieTogSGFycnkgQ2lhbyA8cWluZ3Rhby5j
-YW9Ad2luZHJpdmVyLmNvbT4KLS0tCiBwb2xpY3kvbW9kdWxlcy9rZXJuZWwvZG9tYWluLmlmIHwg
-ICAgNSArKy0tLQogMSBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25z
-KC0pCgpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVsZXMva2VybmVsL2RvbWFpbi5pZiBiL3BvbGlj
-eS9tb2R1bGVzL2tlcm5lbC9kb21haW4uaWYKaW5kZXggNmExZTRkMS4uODk5YzliZiAxMDA2NDQK
-LS0tIGEvcG9saWN5L21vZHVsZXMva2VybmVsL2RvbWFpbi5pZgorKysgYi9wb2xpY3kvbW9kdWxl
-cy9rZXJuZWwvZG9tYWluLmlmCkBAIC0xNDM0LDE0ICsxNDM0LDEzIEBAIGludGVyZmFjZShgZG9t
-YWluX2VudHJ5X2ZpbGVfc3BlY19kb210cmFucycsYAogaW50ZXJmYWNlKGBkb21haW5fbW1hcF9s
-b3cnLGAKIAlnZW5fcmVxdWlyZShgCiAJCWF0dHJpYnV0ZSBtbWFwX2xvd19kb21haW5fdHlwZTsK
-LQkJYm9vbCBtbWFwX2xvd19hbGxvd2VkOwogCScpCiAKIAl0eXBlYXR0cmlidXRlICQxIG1tYXBf
-bG93X2RvbWFpbl90eXBlOwogCi0JaWYgKCBtbWFwX2xvd19hbGxvd2VkICkgeworCXR1bmFibGVf
-cG9saWN5KGBtbWFwX2xvd19hbGxvd2VkJyxgCiAJCWFsbG93ICQxIHNlbGY6bWVtcHJvdGVjdCBt
-bWFwX3plcm87Ci0JfQorCScpCiAnKQogCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjCi0tIAoxLjcuMC40Cgo=
-
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_
-Content-Type: text/x-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="0004-secure_mode_insmod-is-a-boolean-use-boolean_policy-f.patch"
-
-RnJvbSA0OWU0MTVlZmUxY2Y3ZDJhNGRkYTY2YTEyNDZiNGNmNzMwMzE4MjljIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBDaWFvIDxxaW5ndGFvLmNhb0B3aW5kcml2ZXIuY29t
-PgpEYXRlOiBNb24sIDIyIEF1ZyAyMDExIDE0OjE1OjUyICswODAwClN1YmplY3Q6IFtyZWZwb2xp
-Y3ldW3YwIFBBVENIIDQvNF0gc2VjdXJlX21vZGVfaW5zbW9kIGlzIGEgYm9vbGVhbiwgdXNlIGJv
-b2xlYW5fcG9saWN5IGZvciBpdC4KCnNlY3VyZV9tb2RlX2luc21vZCBpcyBhIGJvb2xlYW4sIHVz
-ZSBib29sZWFuX3BvbGljeSBmb3IgaXQuCgpTaWduZWQtb2ZmLWJ5OiBIYXJyeSBDaWFvIDxxaW5n
-dGFvLmNhb0B3aW5kcml2ZXIuY29tPgotLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9tb2R1dGls
-cy5pZiB8ICAgIDggKystLS0tLS0KIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9tb2R1dGlscy50ZSB8
-ICAgIDggKystLS0tLS0KIDIgZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAxMiBkZWxl
-dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbW9kdXRpbHMuaWYg
-Yi9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vbW9kdXRpbHMuaWYKaW5kZXggOWMwZmFhYi4uNmU3ZTBl
-ZiAxMDA2NDQKLS0tIGEvcG9saWN5L21vZHVsZXMvc3lzdGVtL21vZHV0aWxzLmlmCisrKyBiL3Bv
-bGljeS9tb2R1bGVzL3N5c3RlbS9tb2R1dGlscy5pZgpAQCAtMTUyLDEzICsxNTIsOSBAQCBpbnRl
-cmZhY2UoYG1vZHV0aWxzX2RvbXRyYW5zX2luc21vZF91bmNvbmQnLGAKICMjIDwvcGFyYW0+CiAj
-CiBpbnRlcmZhY2UoYG1vZHV0aWxzX2RvbXRyYW5zX2luc21vZCcsYAotCWdlbl9yZXF1aXJlKGAK
-LQkJYm9vbCBzZWN1cmVfbW9kZV9pbnNtb2Q7Ci0JJykKLQotCWlmICghc2VjdXJlX21vZGVfaW5z
-bW9kKSB7CisJYm9vbGVhbl9wb2xpY3koYCFzZWN1cmVfbW9kZV9pbnNtb2QnLGAKIAkJbW9kdXRp
-bHNfZG9tdHJhbnNfaW5zbW9kX3VuY29uZCgkMSkKLQl9CisJJykKICcpCiAKICMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKZGlmZiAtLWdpdCBhL3BvbGljeS9tb2R1bGVz
-L3N5c3RlbS9tb2R1dGlscy50ZSBiL3BvbGljeS9tb2R1bGVzL3N5c3RlbS9tb2R1dGlscy50ZQpp
-bmRleCBkYTAxNGVkLi4xNDMxMTJhIDEwMDY0NAotLS0gYS9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0v
-bW9kdXRpbHMudGUKKysrIGIvcG9saWN5L21vZHVsZXMvc3lzdGVtL21vZHV0aWxzLnRlCkBAIC0x
-LDkgKzEsNSBAQAogcG9saWN5X21vZHVsZShtb2R1dGlscywgMS4xMS4wKQogCi1nZW5fcmVxdWly
-ZShgCi0JYm9vbCBzZWN1cmVfbW9kZV9pbnNtb2Q7Ci0nKQotCiAjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjCiAjCiAjIERlY2xhcmF0aW9ucwpAQCAtMTc4LDkgKzE3NCw5
-IEBAIHVzZXJkb21fdXNlX3VzZXJfdGVybWluYWxzKGluc21vZF90KQogCiB1c2VyZG9tX2RvbnRh
-dWRpdF9zZWFyY2hfdXNlcl9ob21lX2RpcnMoaW5zbW9kX3QpCiAKLWlmKCAhIHNlY3VyZV9tb2Rl
-X2luc21vZCApIHsKK2Jvb2xlYW5fcG9saWN5KGAhc2VjdXJlX21vZGVfaW5zbW9kJyxgCiAJa2Vy
-bmVsX2RvbXRyYW5zX3RvKGluc21vZF90LCBpbnNtb2RfZXhlY190KQotfQorJykKIAogb3B0aW9u
-YWxfcG9saWN5KGAKIAlhbHNhX2RvbXRyYW5zKGluc21vZF90KQotLSAKMS43LjAuNAoK
-
---_0d12c44c-e38c-457a-9ae3-2a846a914d70_--
+iEYEARECAAYFAk5TrowACgkQrlYvE4MpobPNxgCfZjsoX+jBRoIdG9IT+MfsHmn7
+EjwAoItrrawS+hrhwyKc9pYNq+mSPJfF
+=Y4VF
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
