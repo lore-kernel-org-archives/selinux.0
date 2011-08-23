@@ -1,137 +1,115 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NA8eJo018446
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:08:40 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NA8eJp018446
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:08:43 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NA8cAm022964
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:08:39 GMT
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NA8gAm022968
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:08:42 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: v0 Separate tunables from booleans
-Date: Tue, 23 Aug 2011 18:08:26 +0800
-Message-ID: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 1/6] Indicate when boolean is indeed a tunable.
+Date: Tue, 23 Aug 2011 18:08:27 +0800
+Message-ID: <1314094112-6477-2-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Add flags to cond_bool_datum_t and cond_node_t structures to indicate
+that the boolean and related if-else conditionals are about a tunable.
 
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ libsepol/include/sepol/policydb/conditional.h |    5 +++--
+ libsepol/include/sepol/policydb/policydb.h    |    5 ++++-
+ libsepol/src/policydb.c                       |   14 ++++++++++++++
+ 3 files changed, 21 insertions(+), 3 deletions(-)
 
-Comments
----------
-Separate tunables from booleans.
+diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
+index a8ed694..1fd1638 100644
+--- a/libsepol/include/sepol/policydb/conditional.h
++++ b/libsepol/include/sepol/policydb/conditional.h
+@@ -77,15 +77,16 @@ typedef struct cond_node {
+ 	/* these true/false lists point into te_avtab when that is used */
+ 	cond_av_list_t *true_list;
+ 	cond_av_list_t *false_list;
+-	/* and these are using during parsing and for modules */
++	/* and these are used during parsing and for modules */
+ 	avrule_t *avtrue_list;
+ 	avrule_t *avfalse_list;
+ 	/* these fields are not written to binary policy */
+ 	unsigned int nbools;
+ 	uint32_t bool_ids[COND_MAX_BOOLS];
+ 	uint32_t expr_pre_comp;
+-	/*                                               */
+ 	struct cond_node *next;
++#define	COND_NODE_FLAGS_TUNABLE	0x01	/* a tunable conditional */
++	uint32_t flags;
+ } cond_node_t;
+ 
+ extern int cond_evaluate_expr(policydb_t * p, cond_expr_t * expr);
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 5320bc8..1848a7b 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -210,6 +210,8 @@ typedef struct range_trans {
+ typedef struct cond_bool_datum {
+ 	symtab_datum_t s;
+ 	int state;
++#define COND_BOOL_FLAGS_TUNABLE	0x01	/* is this a tunable? */
++	uint32_t flags;
+ } cond_bool_datum_t;
+ 
+ struct cond_node;
+@@ -683,9 +685,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define MOD_POLICYDB_VERSION_FILENAME_TRANS	11
+ #define MOD_POLICYDB_VERSION_ROLETRANS		12
+ #define MOD_POLICYDB_VERSION_ROLEATTRIB		13
++#define MOD_POLICYDB_VERSION_TUNABLE_SEP	14
+ 
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_ROLEATTRIB
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_TUNABLE_SEP
+ 
+ #define POLICYDB_CONFIG_MLS    1
+ 
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 017aeca..136b450 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -221,6 +221,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_BASE,
++	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -290,6 +297,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = 0,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_MOD,
++	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = 0,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ };
+ 
+ #if 0
+-- 
+1.7.0.4
 
-The effective branch of an if-else conditional that controlled by a tunable
-should be expanded and registered to te_avtab hashtab permanently; while the
-whole if-else conditional that controlled by a boolean should be expaned and
-registered to te_cond_avtab hashtab as normal.
-
-Also nearly all tunables(exceptions see below) would be discarded from
-policy.X.
-
-With this patchset, the size of policy.X would drop significantly from 600+k
-down to 322+k bytes(since most of tunables are default to false, and there is
-no else branch of most conditionals).
-
-Note, so far some tunable would be used along with some boolean in the
-tunable_policy() macro(say pppd_can_insmod), this is not recommended and such
-tunable would have to be transformed as boolean.
-
-
-Tests I've done
-----------------
-1. Apply below patchset for refpolicy to cope with toolchain:
-
-   0001-Add-the-definition-of-the-boolean_policy-marcro.patch
-   0002-user_ping-is-a-tunable-use-tunable_policy-for-it.patch
-   0003-mmap_low_allowed-is-a-tunable-use-tunable_policy-for.patch
-   0004-secure_mode_insmod-is-a-boolean-use-boolean_policy-f.patch
-
-   Mostly these patches would add a new boolean_policy() macro and make
-   the tunable_policy() macro use "tunable" keyword rather than "bool".
-
-2. The refpolicy could be built successfully.
-   The following messages are triggered since the secure_mode_insmod boolean
-   is used in tunable_policy() macro(along with pppd_can_insmod tunable):
-
-   libsepol.bool_copy_callback: ppp: Mismatch between boolean/tunable definition and usage for secure_mode_insmod
-   libsepol.bool_copy_callback: ppp: Mismatch between boolean/tunable definition and usage for secure_mode_insmod
-
-3. We can see the size of policy.X dropped significantly:
-
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$ ls -l
-   total 6312
-   -rw-r--r--. 1 root root 3227130 2011-08-23 15:51 policy.24
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$ 
-
-4. If the console_login tunable defaults to true, after booting up this
-   policy.X, we can see that the type_change rule controlled by it are
-   available, and the /dev/console would be re-labelled properly:
-   
-   [root/sysadm_r/@~]# sesearch -SCT -t console_device_t
-   Found 11 semantic te rules:
-      type_change unconfined_t console_device_t : chr_file user_tty_device_t; 
-      type_change logadm_t console_device_t : chr_file user_tty_device_t; 
-      type_change webadm_t console_device_t : chr_file user_tty_device_t; 
-      type_change dbadm_t console_device_t : chr_file user_tty_device_t; 
-      type_change user_t console_device_t : chr_file user_tty_device_t; 
-      type_change staff_t console_device_t : chr_file user_tty_device_t; 
-      type_change xguest_t console_device_t : chr_file user_tty_device_t; 
-      type_change secadm_t console_device_t : chr_file user_tty_device_t; 
-      type_change auditadm_t console_device_t : chr_file user_tty_device_t; 
-      type_change guest_t console_device_t : chr_file user_tty_device_t; 
-      type_change sysadm_t console_device_t : chr_file user_tty_device_t; 
-   
-   [root/sysadm_r/@~]# tty
-   /dev/console
-   [root/sysadm_r/@~]# ls -Z `tty`
-   crw--w----  root tty root:object_r:user_tty_device_t  /dev/console
-   [root/sysadm_r/@~]# 
-
-5. Also only real booleans would be preserved for policy.X, except that
-   pppd_can_insmod tunable is used along with secure_mode_insmod and it
-   has been transformed as a boolean during link:
-   
-   [root/sysadm_r/@~]# ls /selinux/booleans/ -l
-   total 0
-   -rw-r--r-- 1 root root 0 Aug 23 07:57 pppd_can_insmod
-   -rw-r--r-- 1 root root 0 Aug 23 07:57 secure_mode
-   -rw-r--r-- 1 root root 0 Aug 23 07:57 secure_mode_insmod
-   -rw-r--r-- 1 root root 0 Aug 23 07:57 secure_mode_policyload
-   [root/sysadm_r/@~]# getsebool -a
-   pppd_can_insmod --> off
-   secure_mode --> off
-   secure_mode_insmod --> off
-   secure_mode_policyload --> off
-   [root/sysadm_r/@~]# 
-   
-6. If the console_login tunable defaults to false, rebuild policy.X and
-   we can see that it becomes smaller, with all type_change rule gone and
-   /dev/console not re-labelled:
-   
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$ ls -lt
-   total 6312
-   -rw-r--r--. 1 root root 3226998 2011-08-23 16:38 policy.24
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$ 
-   
-   [root/sysadm_r/@~]# sesearch -SCT -t console_device_t
-   
-   [root/sysadm_r/@~]# tty
-   /dev/console
-   [root/sysadm_r/@~]# ls -Z `tty`
-   crw--w----  root tty root:object_r:console_device_t   /dev/console
-   [root/sysadm_r/@~]# 
-   
-7. Build as monolithic, ok.
-   
-8. Trigger module downgrade, since the flags of cond_bool_datum_t won't
-   be written to a downgraded module, all tunables are regarded as booleans,
-   and we can see that the size of policy.X becomes what it is used to be:
-   
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$ ls -lt
-   total 12268
-   -rw-r--r--. 2 root root 6086586 2011-08-23 17:06 policy.24
-   cao@cao-laptop:/etc/selinux/refpolicy/policy$
 
 --
 This message was distributed to subscribers of the selinux mailing list.
