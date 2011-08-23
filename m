@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NA8eJt018446
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:08:49 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NA8eJr018446
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:08:45 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NA8mAm022984
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:08:48 GMT
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NA8iAm022975
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:08:45 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v0 PATCH 5/6] Copy and check the cond_bool_datum_t.flags during link.
-Date: Tue, 23 Aug 2011 18:08:31 +0800
-Message-ID: <1314094112-6477-6-git-send-email-qingtao.cao@windriver.com>
+Subject: [v0 PATCH 3/6] Write and read TUNABLE flags in related data structures.
+Date: Tue, 23 Aug 2011 18:08:29 +0800
+Message-ID: <1314094112-6477-4-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
 References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -17,52 +17,104 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Copy the TUNABLE flag for cond_bool_datum_t during link, and check
-if there is a mismatch between boolean/tunable declaration and
-usage among modules. In this case an information would be printed.
+All flags in cond_bool_datum_t and cond_node_t structures are
+written/read for policy modules which version is no less than
+MOD_POLICYDB_VERSION_TUNABLE_SEP.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/link.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+ libsepol/src/conditional.c |   21 +++++++++++++++++++--
+ libsepol/src/write.c       |   18 ++++++++++++++++++
+ 2 files changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index de78916..35c075b 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -587,7 +587,17 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		}
- 		state->base->p_bools.nprim++;
- 		base_bool = new_bool;
--
-+		base_bool->flags = booldatum->flags;
-+	} else if ((booldatum->flags & COND_BOOL_FLAGS_TUNABLE) !=
-+		   (base_bool->flags & COND_BOOL_FLAGS_TUNABLE)) {
-+			/* A mismatch between boolean/tunable declaration
-+			 * and usage(for example, a boolean used in the
-+			 * tunable_policy macro), then the tunables would
-+			 * be filtered out and only the effective branch
-+			 * of the cond_node would be preserved. */
-+			INFO(state->handle,
-+			     "%s: Mismatch between boolean/tunable definition "
-+			     "and usage for %s", state->cur_mod_name, id);
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index efdedb0..d9d4fee 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
+ 	return 1;
+ }
+ 
+-int cond_read_bool(policydb_t * p
+-		   __attribute__ ((unused)), hashtab_t h,
++int cond_read_bool(policydb_t * p,
++		   hashtab_t h,
+ 		   struct policy_file *fp)
+ {
+ 	char *key = 0;
+@@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
+ 	if (rc < 0)
+ 		goto err;
+ 	key[len] = 0;
++
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			goto err;
++		booldatum->flags = le32_to_cpu(buf[0]);
++	}
++
+ 	if (hashtab_insert(h, key, booldatum))
+ 		goto err;
+ 
+@@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
+ 		if (avrule_read_list(p, &node->avfalse_list, fp))
+ 			goto err;
+ 	}
++	
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			goto err;
++		node->flags = le32_to_cpu(buf[0]);
++	}
+ 
+ 	return 0;
+       err:
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index 290e036..4284c93 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	unsigned int items, items2;
+ 	struct policy_data *pd = ptr;
+ 	struct policy_file *fp = pd->fp;
++	struct policydb *p = pd->p;
+ 
+ 	booldatum = (cond_bool_datum_t *) datum;
+ 
+@@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+ 		return POLICYDB_ERROR;
++
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		buf[0] = cpu_to_le32(booldatum->flags);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++	}
++
+ 	return POLICYDB_SUCCESS;
+ }
+ 
+@@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
+ 			return POLICYDB_ERROR;
  	}
  
- 	/* Get the scope info for this boolean to see if this is the declaration, 
-@@ -595,9 +605,12 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 	scope = hashtab_search(state->cur->policy->p_bools_scope.table, id);
- 	if (!scope)
- 		return SEPOL_ERR;
--	if (scope->scope == SCOPE_DECL)  
-+	if (scope->scope == SCOPE_DECL) {
- 		base_bool->state = booldatum->state;
--
-+		/* Only the declaration rather than requirement
-+		 * decides if it is a boolean or tunable. */
-+		base_bool->state = booldatum->state;
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {	
++		buf[0] = cpu_to_le32(node->flags);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
 +	}
- 	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
- 	return 0;
++
+ 	return POLICYDB_SUCCESS;
+ }
  
 -- 
 1.7.0.4
