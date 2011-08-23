@@ -1,142 +1,143 @@
-Message-ID: <4E52AC5C.1060101@redhat.com>
-Date: Mon, 22 Aug 2011 15:22:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7N18OKe030198
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2011 21:08:24 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7N18Mvg012620
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 01:08:23 GMT
+Message-ID: <4E52FD86.3030107@windriver.com>
+Date: Tue, 23 Aug 2011 09:08:22 +0800
+From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: <qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        SELinux <selinux@tycho.nsa.gov>,
-        Lennart Poettering <lennart@poettering.net>
-Subject: Re: libselinux mountpoint changing patch.
-References: <4DC01640.9000206@redhat.com>  <1304436800.1587.20.camel@moss-pluto>  <CACLa4psD13cYBwzd0qQCa6Dh5JtAe3pdhbCSxROq85uXpyx9zw@mail.gmail.com>  <1314034402.14217.119.camel@moss-pluto>  <4E529754.6090402@redhat.com> <1314038722.14217.132.camel@moss-pluto> <4E52A581.4090907@redhat.com> <4E52ABAD.4030304@redhat.com>
-In-Reply-To: <4E52ABAD.4030304@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: Re: v2 Skip role attributes for policy.X and downgraded pp
+References: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com> <4E527F26.7090802@tresys.com>
+In-Reply-To: <4E527F26.7090802@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Christopher J. PeBenito 写道:
+> On 08/16/11 04:08, Harry Ciao wrote:
+>   
+>> Differnece from v1
+>> --------------------
+>> 1. Skip role attributes when pp is downgraded, as well as for policy.X.
+>>
+>>    When pp is downgraded the flavor flag and roles ebitmap would be
+>>    discarded, resulting in role attributes useless at all. So in such
+>>    case role attributes should be skipped for pp too.
+>>
+>>
+>> Tests I've done
+>> -----------------
+>> 1. Apply the role attribute test patch from Chris, adding a new test_r
+>>    role and calls rpm_run() for it.
+>>    
+>> 2. Use the apol tool to analyze what types the test_r role could type with:
+>>    (Since the apol installed on Ubuntu so far only support max version .24,
+>>     we need to setup "policy-version = 24" in semanage.conf)
+>>    
+>> Note: 
+>> . There is no role attributes such as portage/semanage/rpm_roles in policy.24
+>> . By default pp's version is 13.
+>>
+>> test_r (36 types)
+>>     bootloader_t
+>>     chfn_t
+>>     chkpwd_t
+>>     consoletype_t
+>>     ddclient_t
+>>     depmod_t
+>>     dhcpc_t
+>>     groupadd_t
+>>     hostname_t
+>>     ifconfig_t
+>>     insmod_t
+>>     iptables_t
+>>     ldconfig_t
+>>     load_policy_t
+>>     loadkeys_t
+>>     lvm_t
+>>     netutils_t
+>>     newrole_t
+>>     nscd_t
+>>     pam_t
+>>     passwd_t
+>>     ping_t
+>>     pppd_t
+>>     pptp_t
+>>     prelink_t
+>>     rpm_script_t
+>>     rpm_t
+>>     semanage_t
+>>     setfiles_t
+>>     test_t
+>>     traceroute_t
+>>     tzdata_t
+>>     updpwd_t
+>>     useradd_t
+>>     usernetctl_t
+>>     utempter_t
+>>
+>> 3. In write_binary_policy() in checkmodule.c, trigger pp downgrade
+>>    by adding "policyvers = MOD_POLICYDB_VERSION_MAX - 1;", then use
+>>    apol to analyze what types the test_r role could type with:
+>>
+>> Note:
+>> . After downgrade, pp's version is 12 now.
+>>
+>> test_r (22 types)
+>>     chfn_t
+>>     chkpwd_t
+>>     consoletype_t
+>>     ddclient_t
+>>     dhcpc_t
+>>     hostname_t
+>>     ifconfig_t
+>>     insmod_t
+>>     iptables_t
+>>     loadkeys_t
+>>     netutils_t
+>>     newrole_t
+>>     pam_t
+>>     passwd_t
+>>     ping_t
+>>     pppd_t
+>>     pptp_t
+>>     test_t
+>>     traceroute_t
+>>     updpwd_t
+>>     usernetctl_t
+>>     utempter_t
+>>
+>>    Where we can see that test_r could no longer type with all those
+>>    types that are typed by rpm_roles and semanage_roles.
+>>
+>>    (BTW, this means that once role attributes are endorsed in refpolicy,
+>>     the influence of pp downgrade could be far-reaching and perhaps
+>>     undesirable.)
+>>     
+>
+> I would not say this is undesirable, but broken instead.  The attributes
+> should be expanded out so the role has the same type set regardless of
+> the policydb version.
+>
+>   
+I agree, originally I would use "broken" too. Since the flavor flag and
+roles ebitmap won't be written into pp while module downgraded for
+compatibility issues, the relationships between role attributes and
+regular roles would be entirely wiped out, no chance could the role
+attributes ever be expanded during link and expansion.
 
-On 08/22/2011 03:19 PM, Daniel J Walsh wrote:
-> On 08/22/2011 02:52 PM, Eric Paris wrote:
->> On 08/22/2011 02:45 PM, Stephen Smalley wrote:
->>> On Mon, 2011-08-22 at 13:52 -0400, Eric Paris wrote:
->>>> On 08/22/2011 01:33 PM, Stephen Smalley wrote:
->>>>> On Mon, 2011-08-22 at 13:26 -0400, Eric Paris wrote:
->>>>>> On Tue, May 3, 2011 at 11:33 AM, Stephen Smalley 
->>>>>> <sds@tycho.nsa.gov> wrote:
->>>>>>> On Tue, 2011-05-03 at 10:50 -0400, Daniel J Walsh
->>>>>>> wrote:
->>>>>> 
->>>>>>>> NOTE:  We added the check for RO, to allow tools
->>>>>>>> like mock to be able to tell a chroot that SELinux
->>>>>>>> is disabled while enforcing it outside the chroot.
->>>>>>>> 
->>>>>>>> 
->>>>>>>> # getenforce Enabled # mount -t selinuxfs -o
->>>>>>>> remount,ro selinuxfs /var/chroot/selinux
->>>>>>> 
->>>>>>> Just to clarify, the right commands to use are: mount 
->>>>>>> --bind /selinux /var/chroot/selinux mount -o
->>>>>>> remount,ro /var/chroot/selinux
->>>>>>> 
->>>>>>> Do not use: mount -t selinuxfs -o ro selinuxfs 
->>>>>>> /var/chroot/selinux as this will in fact change the
->>>>>>> flags on /selinux as well.  Surprise! Result of there
->>>>>>> only being a single instance (superblock) of selinuxfs,
->>>>>>>  although you can have multiple vfsmounts of it.
->>>>>> 
->>>>>> surprise, this doesn't work either! # cat mount.F16 |
->>>>>> grep selinux mount --bind /selinux
->>>>>> /mnt/F16/sys/fs/selinux/ mount -o remount,ro
->>>>>> /mnt/F16/sys/fs/selinux/
->>>>>> 
->>>>>> # cat /proc/mounts | grep selinux selinuxfs /selinux 
->>>>>> selinuxfs ro,relatime 0 0 selinuxfs
->>>>>> /mnt/F16/sys/fs/selinux selinuxfs ro,relatime 0 0
->>>>>> 
->>>>>> crap.
->>>>> 
->>>>> Hmmm...works for me on F14 (yeah, I know - ancient
->>>>> history).
->>>>> 
->>>>> # mkdir -p /var/chroot/selinux # mount --bind /selinux 
->>>>> /var/chroot/selinux # mount -o remount,ro 
->>>>> /var/chroot/selinux # cat /proc/mounts | grep selinux none 
->>>>> /selinux selinuxfs rw,relatime 0 0 none
->>>>> /var/chroot/selinux selinuxfs ro,relatime 0 0 # echo 0 >
->>>>> /selinux/enforce # echo 0 > /var/chroot/selinux/enforce
->>>>> bash: /var/chroot/selinux/enforce: Read-only file system
->>>>> 
->>>>> Did something change recently in the kernel or mount?
->>>> 
->>>> mount(8)
->>>> 
->>>> under F15 mount does: mount("selinuxfs", 
->>>> "/mnt/F16/sys/fs/selinux", 0x7f613d1ce7b0, 
->>>> MS_RDONLY|MS_REMOUNT|MS_RELATIME, NULL) = 0
->>>> 
->>>> whereas under F14 mount does: mount("/sleinux", 
->>>> "/var/chroot/selinux", 0x7ff5f154ea69, 
->>>> NS_MGC_VAL|MS_RDONLY|MS_REMOUNT|MS_BIND, NULL) = 0
->>>> 
->>>> under F15 I can get it to work if I use the command:
->>>> 
->>>> mount -o remount,ro,bind /var/chroot/selinux
->>>> 
->>>> now for me to hunt down who owns mount(8)
->>> 
->>> Does F15 and later have /etc/mtab?  The man page for mount(8)
->>> on F14 says that you have to explicitly pass bind on the
->>> remount if you lack an /etc/mtab on your system, as mount(8)
->>> figures out whether or not it was a bind mount originally from
->>> the /etc/mtab entry.
-> 
->> that's it:
-> 
->> # ls -l /etc/mtab lrwxrwxrwx. 1 root root 12 Aug 19 09:21
->> /etc/mtab -> /proc/mounts
-> 
->> At least now we know.  the right operations (which also work on 
->> F14)
-> 
->> mount --bind /selinux /var/chroot/selinux mount -o
->> remount,ro,bind /var/chroot/selinux
-> 
->> -Eric
-> 
-> 
->> -- This message was distributed to subscribers of the selinux 
->> mailing list. If you no longer wish to subscribe, send mail to 
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" 
->> without quotes as the message.
-> 
-> 
-> 
-> If only the kernel would record this info...
-> 
-> Why not just execute
-> 
-> # mount -t selinuxfs -o ro /selinux /var/chroot/selinux
-> 
-> 
-> 
-> 
-> 
-> 
-> -- This message was distributed to subscribers of the selinux
-> mailing list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
-> without quotes as the message.
+That's why I've decided not to write role attribute at all for
+downgraded modules.
 
-Never mind that breaks.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Agree?
 
-iEYEARECAAYFAk5SrFsACgkQrlYvE4MpobORUwCfU0dMWCt/v2DeMYNHeo/Ax5W8
-PEMAn0BPiOA/6w5t/00dF+AWhCX8JyKi
-=NiiC
------END PGP SIGNATURE-----
+Thanks,
+Harry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
