@@ -1,143 +1,207 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7N18OKe030198
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2011 21:08:24 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7NA8eJq018446
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 06:08:44 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7N18Mvg012620
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 01:08:23 GMT
-Message-ID: <4E52FD86.3030107@windriver.com>
-Date: Tue, 23 Aug 2011 09:08:22 +0800
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7NA8gAm022970
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2011 10:08:43 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
+To: <cpebenito@tresys.com>, <slawrence@tresys.com>
+CC: <selinux@tycho.nsa.gov>
+Subject: [v0 PATCH 2/6] Separate tunable from boolean during compile.
+Date: Tue, 23 Aug 2011 18:08:28 +0800
+Message-ID: <1314094112-6477-3-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: v2 Skip role attributes for policy.X and downgraded pp
-References: <1313482132-15188-1-git-send-email-qingtao.cao@windriver.com> <4E527F26.7090802@tresys.com>
-In-Reply-To: <4E527F26.7090802@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito 写道:
-> On 08/16/11 04:08, Harry Ciao wrote:
->   
->> Differnece from v1
->> --------------------
->> 1. Skip role attributes when pp is downgraded, as well as for policy.X.
->>
->>    When pp is downgraded the flavor flag and roles ebitmap would be
->>    discarded, resulting in role attributes useless at all. So in such
->>    case role attributes should be skipped for pp too.
->>
->>
->> Tests I've done
->> -----------------
->> 1. Apply the role attribute test patch from Chris, adding a new test_r
->>    role and calls rpm_run() for it.
->>    
->> 2. Use the apol tool to analyze what types the test_r role could type with:
->>    (Since the apol installed on Ubuntu so far only support max version .24,
->>     we need to setup "policy-version = 24" in semanage.conf)
->>    
->> Note: 
->> . There is no role attributes such as portage/semanage/rpm_roles in policy.24
->> . By default pp's version is 13.
->>
->> test_r (36 types)
->>     bootloader_t
->>     chfn_t
->>     chkpwd_t
->>     consoletype_t
->>     ddclient_t
->>     depmod_t
->>     dhcpc_t
->>     groupadd_t
->>     hostname_t
->>     ifconfig_t
->>     insmod_t
->>     iptables_t
->>     ldconfig_t
->>     load_policy_t
->>     loadkeys_t
->>     lvm_t
->>     netutils_t
->>     newrole_t
->>     nscd_t
->>     pam_t
->>     passwd_t
->>     ping_t
->>     pppd_t
->>     pptp_t
->>     prelink_t
->>     rpm_script_t
->>     rpm_t
->>     semanage_t
->>     setfiles_t
->>     test_t
->>     traceroute_t
->>     tzdata_t
->>     updpwd_t
->>     useradd_t
->>     usernetctl_t
->>     utempter_t
->>
->> 3. In write_binary_policy() in checkmodule.c, trigger pp downgrade
->>    by adding "policyvers = MOD_POLICYDB_VERSION_MAX - 1;", then use
->>    apol to analyze what types the test_r role could type with:
->>
->> Note:
->> . After downgrade, pp's version is 12 now.
->>
->> test_r (22 types)
->>     chfn_t
->>     chkpwd_t
->>     consoletype_t
->>     ddclient_t
->>     dhcpc_t
->>     hostname_t
->>     ifconfig_t
->>     insmod_t
->>     iptables_t
->>     loadkeys_t
->>     netutils_t
->>     newrole_t
->>     pam_t
->>     passwd_t
->>     ping_t
->>     pppd_t
->>     pptp_t
->>     test_t
->>     traceroute_t
->>     updpwd_t
->>     usernetctl_t
->>     utempter_t
->>
->>    Where we can see that test_r could no longer type with all those
->>    types that are typed by rpm_roles and semanage_roles.
->>
->>    (BTW, this means that once role attributes are endorsed in refpolicy,
->>     the influence of pp downgrade could be far-reaching and perhaps
->>     undesirable.)
->>     
->
-> I would not say this is undesirable, but broken instead.  The attributes
-> should be expanded out so the role has the same type set regardless of
-> the policydb version.
->
->   
-I agree, originally I would use "broken" too. Since the flavor flag and
-roles ebitmap won't be written into pp while module downgraded for
-compatibility issues, the relationships between role attributes and
-regular roles would be entirely wiped out, no chance could the role
-attributes ever be expanded during link and expansion.
+Both boolean and tunable keywords are processed by define_bool_tunable(),
+argument 0 and 1 would be passed for boolean and tunable respectively.
+For tunable, a TUNABLE flag would be set in cond_bool_datum_t.flags.
 
-That's why I've decided not to write role attribute at all for
-downgraded modules.
+Note, when creating an if-else conditional, we can not know if the
+tunable identifier is indeed a tunable(for example, boolean may be
+used in tunable_policy(), optionally along with other tunables), thus
+we can not know if the current if-else conditional is of tunable at
+the compile time(but at link time when all boolean/tunable copied).
 
-Agree?
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ checkpolicy/module_compiler.c |   16 +++++++++++++++-
+ checkpolicy/module_compiler.h |    1 +
+ checkpolicy/policy_define.c   |    4 +++-
+ checkpolicy/policy_define.h   |    2 +-
+ checkpolicy/policy_parse.y    |    8 +++++++-
+ checkpolicy/policy_scan.l     |    2 ++
+ libsepol/src/conditional.c    |    1 +
+ 7 files changed, 30 insertions(+), 4 deletions(-)
 
-Thanks,
-Harry
+diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
+index 1c1d1d5..81ccb00 100644
+--- a/checkpolicy/module_compiler.c
++++ b/checkpolicy/module_compiler.c
+@@ -1045,7 +1045,7 @@ int require_user(int pass)
+ 	}
+ }
+ 
+-int require_bool(int pass)
++static int require_bool_tunable(int pass, int is_tunable)
+ {
+ 	char *id = queue_remove(id_queue);
+ 	cond_bool_datum_t *booldatum = NULL;
+@@ -1063,6 +1063,8 @@ int require_bool(int pass)
+ 		yyerror("Out of memory!");
+ 		return -1;
+ 	}
++	if (is_tunable)
++		booldatum->flags |= COND_BOOL_FLAGS_TUNABLE;
+ 	retval =
+ 	    require_symbol(SYM_BOOLS, id, (hashtab_datum_t *) booldatum,
+ 			   &booldatum->s.value, &booldatum->s.value);
+@@ -1094,6 +1096,16 @@ int require_bool(int pass)
+ 	}
+ }
+ 
++int require_bool(int pass)
++{
++	return require_bool_tunable(pass, 0);
++}
++
++int require_tunable(int pass)
++{
++	return require_bool_tunable(pass, 1);
++}
++
+ int require_sens(int pass)
+ {
+ 	char *id = queue_remove(id_queue);
+@@ -1328,6 +1340,8 @@ void append_cond_list(cond_list_t * cond)
+ 		     tmp = tmp->next) ;
+ 		tmp->next = cond->avfalse_list;
+ 	}
++
++	old_cond->flags |= (cond->flags & COND_NODE_FLAGS_TUNABLE);
+ }
+ 
+ void append_avrule(avrule_t * avrule)
+diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compiler.h
+index 45a21cd..72c2d9b 100644
+--- a/checkpolicy/module_compiler.h
++++ b/checkpolicy/module_compiler.h
+@@ -58,6 +58,7 @@ int require_attribute(int pass);
+ int require_attribute_role(int pass);
+ int require_user(int pass);
+ int require_bool(int pass);
++int require_tunable(int pass);
+ int require_sens(int pass);
+ int require_cat(int pass);
+ 
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index ded27f7..1bf669c 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1494,7 +1494,7 @@ avrule_t *define_cond_compute_type(int which)
+ 	return avrule;
+ }
+ 
+-int define_bool(void)
++int define_bool_tunable(int is_tunable)
+ {
+ 	char *id, *bool_value;
+ 	cond_bool_datum_t *datum;
+@@ -1524,6 +1524,8 @@ int define_bool(void)
+ 		return -1;
+ 	}
+ 	memset(datum, 0, sizeof(cond_bool_datum_t));
++	if (is_tunable)
++		datum->flags |= COND_BOOL_FLAGS_TUNABLE;
+ 	ret = declare_symbol(SYM_BOOLS, id, datum, &value, &value);
+ 	switch (ret) {
+ 	case -3:{
+diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+index fc8cd4d..92a9be7 100644
+--- a/checkpolicy/policy_define.h
++++ b/checkpolicy/policy_define.h
+@@ -21,7 +21,7 @@ cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void* arg2);
+ int define_attrib(void);
+ int define_attrib_role(void);
+ int define_av_perms(int inherits);
+-int define_bool(void);
++int define_bool_tunable(int is_tunable);
+ int define_category(void);
+ int define_class(void);
+ int define_common_perms(void);
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index 0a17bdc..49ac15f 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -101,6 +101,7 @@ typedef int (* require_func_t)();
+ %token ALIAS
+ %token ATTRIBUTE
+ %token BOOL
++%token TUNABLE
+ %token IF
+ %token ELSE
+ %token TYPE_TRANSITION
+@@ -269,6 +270,7 @@ te_decl			: attribute_def
+                         | typeattribute_def
+                         | typebounds_def
+                         | bool_def
++			| tunable_def
+                         | transition_def
+                         | range_trans_def
+                         | te_avtab_def
+@@ -295,8 +297,11 @@ opt_attr_list           : ',' id_comma_list
+ 			| 
+ 			;
+ bool_def                : BOOL identifier bool_val ';'
+-                        {if (define_bool()) return -1;}
++                        { if (define_bool_tunable(0)) return -1; }
+                         ;
++tunable_def		: TUNABLE identifier bool_val ';'
++			{ if (define_bool_tunable(1)) return -1; }
++			;
+ bool_val                : CTRUE
+  			{ if (insert_id("T",0)) return -1; }
+                         | CFALSE
+@@ -820,6 +825,7 @@ require_decl_def        : ROLE        { $$ = require_role; }
+                         | ATTRIBUTE_ROLE   { $$ = require_attribute_role; }
+                         | USER        { $$ = require_user; }
+                         | BOOL        { $$ = require_bool; }
++			| TUNABLE     { $$ = require_tunable; }
+                         | SENSITIVITY { $$ = require_sens; }
+                         | CATEGORY    { $$ = require_cat; }
+                         ;
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index ed27bbe..a61e0db 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -92,6 +92,8 @@ TYPE |
+ type				{ return(TYPE); }
+ BOOL |
+ bool                            { return(BOOL); }
++TUNABLE |
++tunable				{ return(TUNABLE); }
+ IF |
+ if				{ return(IF); }
+ ELSE |
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index 1482387..efdedb0 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -160,6 +160,7 @@ cond_node_t *cond_node_create(policydb_t * p, cond_node_t * node)
+ 		for (i = 0; i < min(node->nbools, COND_MAX_BOOLS); i++)
+ 			new_node->bool_ids[i] = node->bool_ids[i];
+ 		new_node->expr_pre_comp = node->expr_pre_comp;
++		new_node->flags = node->flags;
+ 	}
+ 
+ 	return new_node;
+-- 
+1.7.0.4
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
