@@ -1,33 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OI4g44014120
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 14:04:42 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OI4fCT002915
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 18:04:42 GMT
-Message-ID: <4E553CB4.4080102@manicmethod.com>
-Date: Wed, 24 Aug 2011 14:02:28 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OKOrjq022918
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 16:24:53 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OKOpug004680
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 20:24:52 GMT
+Message-ID: <4E555E0F.7000200@redhat.com>
+Date: Wed, 24 Aug 2011 16:24:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: HarryCiao <harrytaurus2002@hotmail.com>
-CC: cpebenito@tresys.com, dwalsh@redhat.com, qingtao.cao@windriver.com,
+To: Joshua Brindle <method@manicmethod.com>
+CC: Harry Ciao <qingtao.cao@windriver.com>, cpebenito@tresys.com,
         slawrence@tresys.com, selinux@tycho.nsa.gov
 Subject: Re: [v0 PATCH 6/6] Skip tunable identifier and cond_node_t in expansion.
-References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com> <4E53AE8C.6020707@redhat.com>,<4E53B1E8.2050508@tresys.com> <SNT139-W39AB9329AEFF0B29157316AB110@phx.gbl>
-In-Reply-To: <SNT139-W39AB9329AEFF0B29157316AB110@phx.gbl>
-Content-Type: text/plain; charset=GB2312
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com> <4E53AE8C.6020707@redhat.com> <4E553ACC.6020903@manicmethod.com>
+In-Reply-To: <4E553ACC.6020903@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-HarryCiao wrote:
-<snip>
-> The implementation of the save-linked option has no idea about the effort to 
-> separate tunables from booleans, so I am afraid it won't help much.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm not sure about this. The linked policy should have everything that the
-original modules had, with only the value mapping changed. The expansion is
-where things get removed. This behavior should not change for a variety of
-reasons, including the ability to do a full semantic analysis of the linked policy.
+On 08/24/2011 01:54 PM, Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> Eliminating booleans would be great and replacing them with
+>> tunables, but the tunables must be discoverable, and it must be
+>> easy for the administrator to discover the "tunable" and turn it
+>> on.
+>> 
+>> Currently audit2allow/audit2why turns on all booleans in a policy
+>> and checks to see if an AVC would be allowed with any boolean.
+>> Then it prints out the booleans that would have allowed the
+>> access.  We use this functionality within setroubleshoot.  This
+>> is critical to making selinux policy usable.
+>> 
+>> User wants to allow ftp to access homedirs, he sets up ftp and
+>> SELinux blocks the access.  Setroubleshoot comes up and says turn
+>> on the ftp_home_dir boolean to allow this access.
+>> 
+>> 
+>> If we can not duplicate this functionality then I NAK the change
+>> from booleans to tunables.
+> 
+> You could actually force a downgrade to a pre-tunable format and
+> use that policy to do the setroubleshoot lookups. Since the policy
+> is already linked/expanded and just needs to be written out twice
+> it wouldn't add much time to policy building (granted that adding
+> _any_ time to policy building is adding too much...)
+I might not have explained it correctly, I really meant the policy
+would have to toggle each tunable/boolean at a time and see if the AVC
+was allowed.  Recompiling the policy for each tunable/boolean change
+would be not be supportable for Time and CPU reasons.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk5VXg8ACgkQrlYvE4MpobOtmACgmlsz2hzqglhb/P0CN/ubVoqp
+4kwAnjykI9RWDmIQMwYcuwDDRBiMUjnv
+=BTix
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
