@@ -1,125 +1,76 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OCNkfB031395
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 08:23:46 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OCNjet017768
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 12:23:45 GMT
-Message-ID: <4E54ED50.3060802@tresys.com>
-Date: Wed, 24 Aug 2011 08:23:44 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OG2Eg6013875
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 12:02:14 -0400
+Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OG2Djv001666
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 16:02:13 GMT
+Received: by gyg8 with SMTP id 8so1239660gyg.12
+        for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 09:02:13 -0700 (PDT)
 MIME-Version: 1.0
-To: HarryCiao <harrytaurus2002@hotmail.com>
-CC: <refpolicy@oss1.tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy] My patchset to test "Separating tunables from booleans"
-References: <SNT139-W51733746CAFD339C4E9177AB2E0@phx.gbl>,<4E53AEC0.7040009@tresys.com> <SNT139-W1481D4140E5F66541BA29FAB110@phx.gbl>
-In-Reply-To: <SNT139-W1481D4140E5F66541BA29FAB110@phx.gbl>
-Content-Type: text/plain; charset="ISO-8859-1"
+In-Reply-To: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com>
+Date: Wed, 24 Aug 2011 12:02:13 -0400
+Message-ID: <CACLa4pvMmx32JpX=vzOb8TvEqJ7HqTBVK=PNTFQjkiF924sMjA@mail.gmail.com>
+Subject: Re: v0 Separate tunables from booleans
+From: Eric Paris <eparis@parisplace.org>
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: cpebenito@tresys.com, slawrence@tresys.com, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/24/11 01:39, HarryCiao wrote:
->> Date: Tue, 23 Aug 2011 09:44:32 -0400
->> From: cpebenito@tresys.com
->> To: harrytaurus2002@hotmail.com
->> CC: refpolicy@oss1.tresys.com; selinux@tycho.nsa.gov
->> Subject: Re: [refpolicy] My patchset to test "Separating tunables from
-> booleans"
->>
->> On 08/23/11 06:27, HarryCiao wrote:
->> > This is the refpolicy patchset to test along with new toolchain feature
->> > of separating tunables from booleans, generally speaking a "tunable"
->> > keyword is introduced and made use of by tunable_policy(), whereas a new
->> > boolean_policy() macro would make use of the "bool" keyword.
->> >
->> > tunable is indeed a boolean, except that the COND_BOOL_FLAGS_TUNABLE bit
->> > would be set in the newly added member of flags in the cond_bool_datum_t
->> > structure.
->> >
->> > Once the new toolchain feature is welcomed and merged, we could change
->> > refpolicy to shrink policy.X size significantly.
->> >
->> > Any comments or suggestions as for how to better this new toolchain
->> > feature are greatly welcomed.
->>
->> To make sure I understand correctly, a tunable block will have the same
->> token in the raw policy as runtime conditional blocks? e.g.
->>
->> tunable foo false;
->> if (foo) {
->> ....
->> }
->>
->> If tunable blocks use the same token, I think Refpolicy would just drop
->> the tunable_policy() macro.
->>
-> 
-> The tunable identifier won't be written to policy.X.
-> 
-> During link, the logically "true" branch of its if-else branches would
-> be treated as permanent rules and append to the end of decl->avrules
-> list, resulting in expanded and registered into te_avtab hashtab.
-> 
-> As for boolean, the identifier would be written to policy.X and both
-> if-else branches would be expanded and registered to te_cond_avtab
-> hashtab, so is the cond_node_t for boolean.
-> 
-> Both tunable and boolean identifier would share the same
-> cond_bool_datum_t structure, a flag(COND_BOOL_FLAGS_TUNABLE) has been
-> introduced to differentiate them, which would be set only when the
-> identifier is defined/required by "tunable" keyword.
-> 
-> So both "tunable" and "bool" keywords would have to be supported by
-> toolchain, so are tunable_policy() and boolean_policy() macros.
+On Tue, Aug 23, 2011 at 6:08 AM, Harry Ciao <qingtao.cao@windriver.com> wrote:
 
-I don't understand why you say boolean_policy() and tunable_policy()
-macros are needed.  Based on the implementation in your test patch, they
-are not different in the raw policy.  Are you suggesting it for the
-automatic bool/tunable gen_require block generation?
+> With this patchset, the size of policy.X would drop significantly from 600+k
+> down to 322+k bytes(since most of tunables are default to false, and there is
+> no else branch of most conditionals).
 
->> There are no examples of this in Refpolicy, but can you mix Booleans and
->> tunables in an expression? e.g.
->>
->> tunable foo true;
->> boolean bar true;
->> if (foo || bar) {
->> ....
->> }
->>
->> I'd say its not a requirement, I'm just trying to make sure I understand
->> the features.
-> 
-> Yes, there is just one example in refpolicy. As showed in my test
-> results, the pppd_can_ismod identifier is declared by gen_tunable(),
-> however, it is used along with secure_mode_insmod boolean in ppp.te.
-> 
-> Such hybird expression is not welcomed I guess, so some warning
-> information would be printed out during link. In my test result, the
-> secure_mode_insmod would be blamed, since it's declared by gen_bool()
-> but used in tunable_policy(), which would require it as a tunable.
-> (That's also why until all p_bools.table from all modules have been
-> copied during link could we finally determine if a cond_bool_datum_t is
-> indeed a boolean or tunable)
+I should point out that I think you're off by one order of magnitude.
+You went from a 6M policy to a 3.2M policy.  But still.
 
-The reason it has to be like this is because nested conditional policy
-is not supported.  Otherwise it would be written like:
+I decided to do a little playing with this yesterday in Fedora policy
+(where Dan already DRASTICALLY reduced the policy size by changing
+from type sets with removal to using all attributes.  My numbers
+weren't quite as impressive as yours (and I'm not certain I did one
+thing correctly)
 
-tunable_policy(`pppd_can_insmod',`
-	modutils_domtrans_insmod(pppd_t)
-')
-		
+Pre Patch:
+        2148552 bytes    89383 allow rules    193 booleans
+Post Patch (no policy changes)
+        2166328 bytes    89383 allow rules    193 booleans
+Post Patch WITH policy changes
+        2031150 bytes    79685 allow rules    4 booleans
 
-> For such situation since it would be difficult to correctly remove the
-> cond_expr_t for tunables and related operators, I've decided to
-> transform tunable to boolean(just by cleaning the TUNABLE flag bit) then
-> the whole cond_node_t would be treated as normal.
+So our policy grows 0.8% with only the tools change.  Our policy
+shrinks 5.5% with this change.  So it certainly doesn't look like bad
+news.
 
-I think it would be better to error.  Then the user can decided what to
-do about it.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+I did have one problem with my testing however.
+0002-user_ping-is-a-tunable-use-tunable_policy-for-it.patch doesn't
+apply to Fedora.  I tried to fix it up by hand.  We actually have both
+of the following lines inside that if (user_ping)
+        netutils_domtrans_ping($1)
+        allow $1 ping_t:process { signal sigkill };
+
+I turned that into:
+        tunable_policy(`user_ping',`
+                netutils_domtrans_traceroute($1)
+                allow $1 traceroute_t:process { signal sigkill };
+        ')
+
+But that resulted in an error which I didn't bother to figure out.
+Maybe you can tell me what it is?
+
+/usr/share/selinux/devel/include/system/modutils.if: Syntax error on
+line 181095 ` [type=TICK]
+/usr/share/selinux/devel/include/system/modutils.if: Syntax error on
+line 181097 ' [type=SQUOTE]
+
+It's also very possible that it comes from sepolgen-ifgen and it is
+part of the fedora-ism that is setroubleshoot.....
+
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
