@@ -1,88 +1,120 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OCBPYb030746
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 08:11:25 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OCNkfB031395
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 08:23:46 -0400
 Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OCBOet014932
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 12:11:24 GMT
-Message-ID: <4E54EA6B.2030900@tresys.com>
-Date: Wed, 24 Aug 2011 08:11:23 -0400
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OCNjet017768
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 12:23:45 GMT
+Message-ID: <4E54ED50.3060802@tresys.com>
+Date: Wed, 24 Aug 2011 08:23:44 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
 To: HarryCiao <harrytaurus2002@hotmail.com>
-CC: <dwalsh@redhat.com>, <qingtao.cao@windriver.com>, <slawrence@tresys.com>,
-        <selinux@tycho.nsa.gov>
-Subject: Re: [v0 PATCH 6/6] Skip tunable identifier and cond_node_t in expansion.
-References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com> <4E53AE8C.6020707@redhat.com>,<4E53B1E8.2050508@tresys.com> <SNT139-W39AB9329AEFF0B29157316AB110@phx.gbl>
-In-Reply-To: <SNT139-W39AB9329AEFF0B29157316AB110@phx.gbl>
+CC: <refpolicy@oss1.tresys.com>, <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] My patchset to test "Separating tunables from booleans"
+References: <SNT139-W51733746CAFD339C4E9177AB2E0@phx.gbl>,<4E53AEC0.7040009@tresys.com> <SNT139-W1481D4140E5F66541BA29FAB110@phx.gbl>
+In-Reply-To: <SNT139-W1481D4140E5F66541BA29FAB110@phx.gbl>
 Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/24/11 06:32, HarryCiao wrote:
-> Hi Chris,
-> 
->> Date: Tue, 23 Aug 2011 09:58:00 -0400
+On 08/24/11 01:39, HarryCiao wrote:
+>> Date: Tue, 23 Aug 2011 09:44:32 -0400
 >> From: cpebenito@tresys.com
->> To: dwalsh@redhat.com
->> CC: qingtao.cao@windriver.com; slawrence@tresys.com; selinux@tycho.nsa.gov
->> Subject: Re: [v0 PATCH 6/6] Skip tunable identifier and cond_node_t in
-> expansion.
+>> To: harrytaurus2002@hotmail.com
+>> CC: refpolicy@oss1.tresys.com; selinux@tycho.nsa.gov
+>> Subject: Re: [refpolicy] My patchset to test "Separating tunables from
+> booleans"
 >>
->> On 08/23/11 09:43, Daniel J Walsh wrote:
->> > Eliminating booleans would be great and replacing them with tunables,
->> > but the tunables must be discoverable, and it must be easy for the
->> > administrator to discover the "tunable" and turn it on.
+>> On 08/23/11 06:27, HarryCiao wrote:
+>> > This is the refpolicy patchset to test along with new toolchain feature
+>> > of separating tunables from booleans, generally speaking a "tunable"
+>> > keyword is introduced and made use of by tunable_policy(), whereas a new
+>> > boolean_policy() macro would make use of the "bool" keyword.
 >> >
->> > Currently audit2allow/audit2why turns on all booleans in a policy and
->> > checks to see if an AVC would be allowed with any boolean. Then it
->> > prints out the booleans that would have allowed the access. We use
->> > this functionality within setroubleshoot. This is critical to making
->> > selinux policy usable.
+>> > tunable is indeed a boolean, except that the COND_BOOL_FLAGS_TUNABLE bit
+>> > would be set in the newly added member of flags in the cond_bool_datum_t
+>> > structure.
 >> >
-> &g t; > User wants to allow ftp to access homedirs, he sets up ftp and
-> SELinux
->> > blocks the access. Setroubleshoot comes up and says turn on the
->> > ftp_home_dir boolean to allow this access.
+>> > Once the new toolchain feature is welcomed and merged, we could change
+>> > refpolicy to shrink policy.X size significantly.
 >> >
->> >
->> > If we can not duplicate this functionality then I NAK the change from
->> > booleans to tunables.
+>> > Any comments or suggestions as for how to better this new toolchain
+>> > feature are greatly welcomed.
 >>
->> Seems very easy to reproduce, as long as you turn on save-linked in
->> semanage.conf. The linked policy would have all the tunable
->> information, right Harry?
+>> To make sure I understand correctly, a tunable block will have the same
+>> token in the raw policy as runtime conditional blocks? e.g.
+>>
+>> tunable foo false;
+>> if (foo) {
+>> ....
+>> }
+>>
+>> If tunable blocks use the same token, I think Refpolicy would just drop
+>> the tunable_policy() macro.
 >>
 > 
-> The implementation of the save-linked option has no idea about the
-> effort to separate tunables from booleans, so I am afraid  it won't help
-> much.
-
-So you're saying that when the linked policy file is written out, the
-disabled tunables are already gone or all of the tunables information is
-gone?
-
-> However, you did enlighten me to create a new option "handle-tunable"
-> for semanage.conf, then we can specify whether discarding tunable is
-> desirable and its value would be saved into a new member
-> "handle_tunable" in policydb_t. Then in the separation_tunables() in
-> link .c, policydb_t.handle_tunable would be consulted about how to
-> handle tunables.
+> The tunable identifier won't be written to policy.X.
 > 
-> By default this handle-tunable option for semanage.conf could be set to
-> "discard", if audit2allow/audit2why are needed to debug AVC denied
-> messages, we could set this option to "preserve" and rebuild and reload
-> policy.X. When the related tunable is found we could toggle its default
-> value to true and rebuild policy.X with the option back to "discard" again.
+> During link, the logically "true" branch of its if-else branches would
+> be treated as permanent rules and append to the end of decl->avrules
+> list, resulting in expanded and registered into te_avtab hashtab.
 > 
-> This way I think Dan's worries would be addressed. Right?
+> As for boolean, the identifier would be written to policy.X and both
+> if-else branches would be expanded and registered to te_cond_avtab
+> hashtab, so is the cond_node_t for boolean.
 > 
-> BTW, Is this the correct or best way to pass configuration options on to
-> link process? I have created two patches for above logic(see attached),
-> however I am pretty new to semanage and run into syntax error while
-> parsing semanage.conf. Chris, could you please kindly take a look at
-> what has been wrong in my 0007 patch? Many thanks!
+> Both tunable and boolean identifier would share the same
+> cond_bool_datum_t structure, a flag(COND_BOOL_FLAGS_TUNABLE) has been
+> introduced to differentiate them, which would be set only when the
+> identifier is defined/required by "tunable" keyword.
+> 
+> So both "tunable" and "bool" keywords would have to be supported by
+> toolchain, so are tunable_policy() and boolean_policy() macros.
 
-I'll leave this up to the userspace maintainers :)
+I don't understand why you say boolean_policy() and tunable_policy()
+macros are needed.  Based on the implementation in your test patch, they
+are not different in the raw policy.  Are you suggesting it for the
+automatic bool/tunable gen_require block generation?
+
+>> There are no examples of this in Refpolicy, but can you mix Booleans and
+>> tunables in an expression? e.g.
+>>
+>> tunable foo true;
+>> boolean bar true;
+>> if (foo || bar) {
+>> ....
+>> }
+>>
+>> I'd say its not a requirement, I'm just trying to make sure I understand
+>> the features.
+> 
+> Yes, there is just one example in refpolicy. As showed in my test
+> results, the pppd_can_ismod identifier is declared by gen_tunable(),
+> however, it is used along with secure_mode_insmod boolean in ppp.te.
+> 
+> Such hybird expression is not welcomed I guess, so some warning
+> information would be printed out during link. In my test result, the
+> secure_mode_insmod would be blamed, since it's declared by gen_bool()
+> but used in tunable_policy(), which would require it as a tunable.
+> (That's also why until all p_bools.table from all modules have been
+> copied during link could we finally determine if a cond_bool_datum_t is
+> indeed a boolean or tunable)
+
+The reason it has to be like this is because nested conditional policy
+is not supported.  Otherwise it would be written like:
+
+tunable_policy(`pppd_can_insmod',`
+	modutils_domtrans_insmod(pppd_t)
+')
+		
+
+> For such situation since it would be difficult to correctly remove the
+> cond_expr_t for tunables and related operators, I've decided to
+> transform tunable to boolean(just by cleaning the TUNABLE flag bit) then
+> the whole cond_node_t would be treated as normal.
+
+I think it would be better to error.  Then the user can decided what to
+do about it.
 
 -- 
 Chris PeBenito
