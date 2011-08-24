@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OI29ZR013914
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 14:02:17 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7OI4g44014120
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 14:04:42 -0400
 Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OI2GCT002210
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 18:02:16 GMT
-Message-ID: <4E553C23.8050508@manicmethod.com>
-Date: Wed, 24 Aug 2011 14:00:03 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7OI4fCT002915
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2011 18:04:42 GMT
+Message-ID: <4E553CB4.4080102@manicmethod.com>
+Date: Wed, 24 Aug 2011 14:02:28 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: HarryCiao <harrytaurus2002@hotmail.com>
@@ -20,30 +20,14 @@ List-Id: selinux@tycho.nsa.gov
 
 HarryCiao wrote:
 <snip>
-> By default this handle-tunable option for semanage.conf could be set to 
-> "discard", if audit2allow/audit2why are needed to debug AVC denied messages, we 
-> could set this option to "preserve" and rebuild and reload policy.X. When the 
-> related tunable is found we could toggle its default value to true and rebuild 
-> policy.X with the option back to "discard" again.
-> 
-> This way I think Dan's worries would be addressed. Right?
-
-I would say we could use the policycaps bitmap for this but since we already
-have to bump the module version to support the extra field there is no reason we
-can't just add flag.
-
-> 
-> BTW, Is this the correct or best way to pass configuration options on to link 
-> process? I have created two patches for above logic(see attached), however I am 
-> pretty new to semanage and run into syntax error while parsing semanage.conf. 
-> Chris, could you please kindly take a look at what has been wrong in my 0007 
-> patch? Many thanks!
+> The implementation of the save-linked option has no idea about the effort to 
+> separate tunables from booleans, so I am afraid it won't help much.
 > 
 
-
-Your libsemanage would need to have the option added in order to pass that in.
-It could be passed in via the libsepol handle. See how set_disable_dontaudit
-works for an example.
+I'm not sure about this. The linked policy should have everything that the
+original modules had, with only the value mapping changed. The expansion is
+where things get removed. This behavior should not change for a variety of
+reasons, including the ability to do a full semantic analysis of the linked policy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
