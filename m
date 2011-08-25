@@ -1,102 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7P5VNX4013069
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 01:31:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7P6H1pk014591
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 02:17:01 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7P5VMcB023292
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 05:31:22 GMT
-Message-ID: <4E55DE34.2000609@windriver.com>
-Date: Thu, 25 Aug 2011 13:31:32 +0800
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7P6H0cB028865
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 06:17:00 GMT
+Message-ID: <4E55E8E7.1050804@windriver.com>
+Date: Thu, 25 Aug 2011 14:17:11 +0800
 From: Harry Ciao <qingtao.cao@windriver.com>
 Reply-To: <qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, <slawrence@tresys.com>,
-        <selinux@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+CC: <cpebenito@tresys.com>, <slawrence@tresys.com>, <selinux@tycho.nsa.gov>
 Subject: Re: v0 Separate tunables from booleans
-References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <4E553731.20600@tresys.com> <4E553A4F.8000707@manicmethod.com>
-In-Reply-To: <4E553A4F.8000707@manicmethod.com>
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <CACLa4pvMmx32JpX=vzOb8TvEqJ7HqTBVK=PNTFQjkiF924sMjA@mail.gmail.com>
+In-Reply-To: <CACLa4pvMmx32JpX=vzOb8TvEqJ7HqTBVK=PNTFQjkiF924sMjA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle 写道:
-> Christopher J. PeBenito wrote:
->> On 08/23/11 06:08, Harry Ciao wrote:
->>> Comments
->>> ---------
->>> Separate tunables from booleans.
->>>
->>> The effective branch of an if-else conditional that controlled by a
->>> tunable
->>> should be expanded and registered to te_avtab hashtab permanently;
->>> while the
->>> whole if-else conditional that controlled by a boolean should be
->>> expaned and
->>> registered to te_cond_avtab hashtab as normal.
->>>
->>> Also nearly all tunables(exceptions see below) would be discarded from
->>> policy.X.
->>>
->>> With this patchset, the size of policy.X would drop significantly
->>> from 600+k
->>> down to 322+k bytes(since most of tunables are default to false, and
->>> there is
->>> no else branch of most conditionals).
->>>
->>> Note, so far some tunable would be used along with some boolean in the
->>> tunable_policy() macro(say pppd_can_insmod), this is not recommended
->>> and such
->>> tunable would have to be transformed as boolean.
->>
->> I'd say that this is a good first step, but I think it has a problem.
->> It has the same limitations as conditional policy, since you're reusing
->> those data structures. I'd like to be able to put more in tunables than
->> can be put in conditional policy blocks, such as rbac (role, role allow,
->> role_transition) statements and typeattributes statements.
->>
->
-> I'm with Chris on this one. CIL implements tunables as switchable
-> blocks where you can have anything in them you could have in a regular
-> block (declarations, modifiers, rules, etc). This isn't a big deal
-> because CIL tunables will never make it into the policy.XX either.
->
-> However, it does mean that tunables will be different things within
-> not very much time (hopefully anyway) and it doesn't address the major
-> thing we wanted tunables to do, which was allow declarations.
->
-> IMHO if the above numbers are correct and there is really a 50%
-> reduction in size this is certainly worth doing now, just for that,
-> with the understanding that CIL tunables are going to be the desired
-> solution. How confusing this will be to uses remains to be seen.
->
-> It would be much more work to do this with the current toolchain but
-> it isn't hard to conceptualize. Basically add a tunable table to the
-> required index in avrule_block_t and start a new block when you
-> encounter an if(). I don't think the amount of work it would require
-> is justified given that we are actively trying to deprecate the module
-> format.
->
-Hi Joshua,
+Hi Eric,
 
-Honestly speaking I have become kinda confused. If tunable_policy()
-remains as if-else conditionals then what Chris has wanted is to expand
-all RBAC rules into cond_rule_def aside from just AVRULE_AV and
-AVRULE_TYPE rules.
+Eric Paris 写道:
+> On Tue, Aug 23, 2011 at 6:08 AM, Harry Ciao <qingtao.cao@windriver.com> wrote:
+>
+>   
+>> With this patchset, the size of policy.X would drop significantly from 600+k
+>> down to 322+k bytes(since most of tunables are default to false, and there is
+>> no else branch of most conditionals).
+>>     
+>
+> I should point out that I think you're off by one order of magnitude.
+> You went from a 6M policy to a 3.2M policy.  But still.
+>
+> I decided to do a little playing with this yesterday in Fedora policy
+> (where Dan already DRASTICALLY reduced the policy size by changing
+> from type sets with removal to using all attributes.  My numbers
+> weren't quite as impressive as yours (and I'm not certain I did one
+> thing correctly)
+>
+> Pre Patch:
+>         2148552 bytes    89383 allow rules    193 booleans
+> Post Patch (no policy changes)
+>         2166328 bytes    89383 allow rules    193 booleans
+> Post Patch WITH policy changes
+>         2031150 bytes    79685 allow rules    4 booleans
+>
+> So our policy grows 0.8% with only the tools change.  Our policy
+> shrinks 5.5% with this change.  So it certainly doesn't look like bad
+> news.
+>
+>
+>   
+No problem. I am using refpolicy from tresys tree and I have applied my
+test patch to introduce a new keyword of "tunable" and change
+tunable_policy() to use this tunable keyword rather than the current
+"bool" keyword. Since your number of booleans has jumped from 193 down
+to 4, you must have applied this patch correctly :-)
 
-However, if tunable_policy() is to be implemented as a block, then
-what's the major difference between such "tunable block " and the blocks
-already created by optional_block()? The optional_block() already
-supports the else-branch, and only one of the two branches would take
-effect, also if its external requirement won't be satisfied, the whole
-block would not be enabled and skipped over during expansion, which
-sounds to me like a tunable which just has the if-branch and defaults to
-false.
+Since most tunables declared by tunable_policy() would default to false
+and most of these tunable_policy() just has one if branch, then in
+practice none rules would ever be expanded and written to raw policy for
+them, that's why I have witnessed a significant drop from 6M to 3.22M.
 
-Anyway, it's good to know how tunable is handled in CIL, I would have
-better understanding once I get to know more about it.
+So I could only guess in Fedora policy perhaps most tunables default to
+true, or many tunable conditionals have two branches, then the logically
+true branch would be expanded as normal. By whatever, the size of
+policy.X would decrease when all disabled branch of rules are discarded.
+
+> I did have one problem with my testing however.
+> 0002-user_ping-is-a-tunable-use-tunable_policy-for-it.patch doesn't
+> apply to Fedora.  I tried to fix it up by hand.  We actually have both
+> of the following lines inside that if (user_ping)
+>         netutils_domtrans_ping($1)
+>         allow $1 ping_t:process { signal sigkill };
+>
+> I turned that into:
+>         tunable_policy(`user_ping',`
+>                 netutils_domtrans_traceroute($1)
+>                 allow $1 traceroute_t:process { signal sigkill };
+>         ')
+>
+> But that resulted in an error which I didn't bother to figure out.
+> Maybe you can tell me what it is?
+>
+>   
+Sorry I have no idea what this error is. There is no "allow $1
+ping_t/traceroute_t:process ..." rules in these two interface in tresys
+refpolicy, but after added them exactly as yours above still no error
+happens on my side.
+
+Or could you pass me your patch to netutils.if after you've adopted my
+original patch manually?
 
 Thanks,
 Harry
+
+
+> /usr/share/selinux/devel/include/system/modutils.if: Syntax error on
+> line 181095 ` [type=TICK]
+> /usr/share/selinux/devel/include/system/modutils.if: Syntax error on
+> line 181097 ' [type=SQUOTE]
+>
+> It's also very possible that it comes from sepolgen-ifgen and it is
+> part of the fedora-ism that is setroubleshoot.....
+>
+> -Eric
+>
+>   
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
