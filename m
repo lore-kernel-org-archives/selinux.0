@@ -1,48 +1,60 @@
-Subject: Re: SELinux Common Intermediate Language Update
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: Steve Lawrence <slawrence@tresys.com>, SELinux <selinux@tycho.nsa.gov>
-Date: Thu, 25 Aug 2011 12:46:54 -0400
-In-Reply-To: <1314288627.30252.YahooMailClassic@web87016.mail.ird.yahoo.com>
-References: <1314288627.30252.YahooMailClassic@web87016.mail.ird.yahoo.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1314290814.11929.14.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7PJpakQ031433
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 15:51:36 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7PJpZKm021956
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 19:51:35 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7PJpYs9020905
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 15:51:35 -0400
+Message-ID: <4E56A7C5.7050804@redhat.com>
+Date: Thu, 25 Aug 2011 15:51:33 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 01/77] libselinux: python wrapper makefile changes
+Content-Type: multipart/mixed;
+ boundary="------------040904000608000509010508"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-08-25 at 17:10 +0100, Richard Haines wrote:
-> I've been trying to generate a context for a non-mls policy but keep getting the following error:
-> 
-> Building Parse Tree...
-> Building AST from Parse Tree...
-> Invalid context (line: 12)
-> Failed to fill context, rc: -1
-> cil_gen_context failed, rc: -1
-> Failed to process node
-> cil_tree_walk failed, rc: -1
-> Failed to build ast, exiting
-> 
-> I've tried various formats of 'context' but all failed. One example:
-> ( context context1 ( unconfined_u unconfined_r unconfined_t ))
-> 
-> I see plenty of mls context examples in the test files but no non-mls.
-> Could you let me know the correct format please.
-> 
+This is a multi-part message in MIME format.
+--------------040904000608000509010508
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-You always need to specify MLS current and clearance levels in CIL. The
-idea behind CIL is that we want a good foundation for building
-higher-level languages and tools, so we want minimize the special cases
-in the language syntax. Refpolicy already uses gen_context() for
-contexts, so just think of CIL as having gen_context() built in.
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+This patch looks good to me. acked.
+
+This will allow you to build libsemanage with
+
+
+make pywrap
+
+or
+
+make PYTHON=/usr/bin/python3 pywrap
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk5Wp8UACgkQrlYvE4MpobOzKACgoCuQ+XGx2OabNuj24YgROr0Z
+alAAnArB1cvKEOLp/hhpYOp40Y0UFfoh
+=umm1
+-----END PGP SIGNATURE-----
+
+--------------040904000608000509010508
+Content-Type: text/plain;
+ name="0001-libselinux-python-wrapper-makefile-changes.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-libselinux-python-wrapper-makefile-changes.patch"
+
+
+--------------040904000608000509010508--
