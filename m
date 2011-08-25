@@ -1,60 +1,102 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7P4NIos010467
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 00:23:18 -0400
-Received: from manicmethod.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7P4NH5U012733
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 04:23:17 GMT
-Message-ID: <4E55CE04.4080305@manicmethod.com>
-Date: Thu, 25 Aug 2011 00:22:28 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7P5VNX4013069
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 01:31:23 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7P5VMcB023292
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2011 05:31:22 GMT
+Message-ID: <4E55DE34.2000609@windriver.com>
+Date: Thu, 25 Aug 2011 13:31:32 +0800
+From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: <qingtao.cao@windriver.com>
 MIME-Version: 1.0
-To: qingtao.cao@windriver.com
-CC: HarryCiao <harrytaurus2002@hotmail.com>, cpebenito@tresys.com,
-        dwalsh@redhat.com, slawrence@tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [v0 PATCH 6/6] Skip tunable identifier and cond_node_t in expansion.
-References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <1314094112-6477-7-git-send-email-qingtao.cao@windriver.com> <4E53AE8C.6020707@redhat.com>,<4E53B1E8.2050508@tresys.com> <SNT139-W39AB9329AEFF0B29157316AB110@phx.gbl> <4E553CB4.4080102@manicmethod.com> <4E55BFE1.60608@windriver.com>
-In-Reply-To: <4E55BFE1.60608@windriver.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Joshua Brindle <method@manicmethod.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, <slawrence@tresys.com>,
+        <selinux@tycho.nsa.gov>
+Subject: Re: v0 Separate tunables from booleans
+References: <1314094112-6477-1-git-send-email-qingtao.cao@windriver.com> <4E553731.20600@tresys.com> <4E553A4F.8000707@manicmethod.com>
+In-Reply-To: <4E553A4F.8000707@manicmethod.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Harry Ciao wrote:
-> Hi Joshua,
->
-> Joshua Brindle 写道:
->> HarryCiao wrote:
->> <snip>
->>
->>> The implementation of the save-linked option has no idea about the effort to
->>> separate tunables from booleans, so I am afraid it won't help much.
+Joshua Brindle 写道:
+> Christopher J. PeBenito wrote:
+>> On 08/23/11 06:08, Harry Ciao wrote:
+>>> Comments
+>>> ---------
+>>> Separate tunables from booleans.
 >>>
+>>> The effective branch of an if-else conditional that controlled by a
+>>> tunable
+>>> should be expanded and registered to te_avtab hashtab permanently;
+>>> while the
+>>> whole if-else conditional that controlled by a boolean should be
+>>> expaned and
+>>> registered to te_cond_avtab hashtab as normal.
 >>>
->> I'm not sure about this. The linked policy should have everything that the
->> original modules had, with only the value mapping changed. The expansion is
->> where things get removed. This behavior should not change for a variety of
->> reasons, including the ability to do a full semantic analysis of the linked policy.
+>>> Also nearly all tunables(exceptions see below) would be discarded from
+>>> policy.X.
+>>>
+>>> With this patchset, the size of policy.X would drop significantly
+>>> from 600+k
+>>> down to 322+k bytes(since most of tunables are default to false, and
+>>> there is
+>>> no else branch of most conditionals).
+>>>
+>>> Note, so far some tunable would be used along with some boolean in the
+>>> tunable_policy() macro(say pppd_can_insmod), this is not recommended
+>>> and such
+>>> tunable would have to be transformed as boolean.
 >>
+>> I'd say that this is a good first step, but I think it has a problem.
+>> It has the same limitations as conditional policy, since you're reusing
+>> those data structures. I'd like to be able to put more in tunables than
+>> can be put in conditional policy blocks, such as rbac (role, role allow,
+>> role_transition) statements and typeattributes statements.
 >>
-> I can't agree more that the linked module has everything but with the
-> identifiers' value remapped, actually the separate_tunables() is called
-> at the very end of link phase, which would do three operations:
-> 1. change the flags for some cond_bool_datum_t;
-> 2. change the flags for some cond_node_t;
-> 3. re-link the effective branch of a tunable conditional, to the end of
-> its home decl->avrules list;
 >
-> The 1st and 2nd operations won't stand in the way of any analysis, and
-> we could set the "handle-tunable = preserve" option in semanage.conf to
-> bypass the 3rd one.
+> I'm with Chris on this one. CIL implements tunables as switchable
+> blocks where you can have anything in them you could have in a regular
+> block (declarations, modifiers, rules, etc). This isn't a big deal
+> because CIL tunables will never make it into the policy.XX either.
 >
+> However, it does mean that tunables will be different things within
+> not very much time (hopefully anyway) and it doesn't address the major
+> thing we wanted tunables to do, which was allow declarations.
+>
+> IMHO if the above numbers are correct and there is really a 50%
+> reduction in size this is certainly worth doing now, just for that,
+> with the understanding that CIL tunables are going to be the desired
+> solution. How confusing this will be to uses remains to be seen.
+>
+> It would be much more work to do this with the current toolchain but
+> it isn't hard to conceptualize. Basically add a tunable table to the
+> required index in avrule_block_t and start a new block when you
+> encounter an if(). I don't think the amount of work it would require
+> is justified given that we are actively trying to deprecate the module
+> format.
+>
+Hi Joshua,
 
-We should defer the movement of effective rules to the main avrules list 
-until expand, I hate adding even more side effects to link than already 
-exist (it needs to just link, not move stuff around, not remove things, 
-not change the effective policy, etc).
+Honestly speaking I have become kinda confused. If tunable_policy()
+remains as if-else conditionals then what Chris has wanted is to expand
+all RBAC rules into cond_rule_def aside from just AVRULE_AV and
+AVRULE_TYPE rules.
 
-You can do it as a first step to expand, it should entail just moving it 
-from link.c to expand.c and adding it to the expand_module function.
+However, if tunable_policy() is to be implemented as a block, then
+what's the major difference between such "tunable block " and the blocks
+already created by optional_block()? The optional_block() already
+supports the else-branch, and only one of the two branches would take
+effect, also if its external requirement won't be satisfied, the whole
+block would not be enabled and skipped over during expansion, which
+sounds to me like a tunable which just has the if-branch and defaults to
+false.
+
+Anyway, it's good to know how tunable is handled in CIL, I would have
+better understanding once I get to know more about it.
+
+Thanks,
+Harry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
