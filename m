@@ -1,55 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7QIkWwF032729
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2011 14:46:32 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7QIkUS5015796
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2011 18:46:31 GMT
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7QIkUu4005481
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2011 14:46:30 -0400
-Message-ID: <4E57EA05.9010601@redhat.com>
-Date: Fri, 26 Aug 2011 14:46:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7R7lX5a026196
+	for <selinux@tycho.nsa.gov>; Sat, 27 Aug 2011 03:47:33 -0400
+Received: from snt0-omc3-s50.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7R7lWP6023150
+	for <selinux@tycho.nsa.gov>; Sat, 27 Aug 2011 07:47:33 GMT
+Message-ID: <SNT139-W2466F634706440F327039EAB120@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_f00b9c9a-5bcb-4e63-a97c-4324d957ef79_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Toolchain is broken?
+Date: Sat, 27 Aug 2011 07:45:07 +0000
 MIME-Version: 1.0
-To: eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH 76/77] sepolgen: FIXME Allow sepolgen to handle file name
-Content-Type: multipart/mixed;
- boundary="------------000500030905030003020106"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000500030905030003020106
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--_f00b9c9a-5bcb-4e63-a97c-4324d957ef79_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
 
-This patch looks good to me. acked.
+Hi,
 
-This patch is needed to be able to compile policy with filetrans rules.
+When I am improving my patchset to discard unused branches of tunable conditionals these days, I run into a new segfault issue that seems has nothing to do with my patchset. After I checked back to the master branch for both toolchain and refpolicy and pulled the latest codes, the segfault still exist.
 
-Also add open as a valid command.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Turns out the problem lies in genhomedircon.c, the level argument passed to set_fallback_user is NULL, and strdup(NULL) would segfault in the end. Below is the debug message I've seen:
 
-iEYEARECAAYFAk5X6gUACgkQrlYvE4MpobN5ZwCfUUH0NMofG6mpVL2iWkQId3cx
-TOYAoM162KTczTJktCnSYzOrGFGHTbB6
-=Ydc/
------END PGP SIGNATURE-----
+genhomedircon.c Entered set_fallback_user, user = user_u, prefix = user, level = (null)
+Passing NULL to strdup would segfault
+make: *** [load] Segmentation fault
 
---------------000500030905030003020106
-Content-Type: text/plain;
- name="0076-sepolgen-FIXME-Allow-sepolgen-to-handle-file-name-tr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0076-sepolgen-FIXME-Allow-sepolgen-to-handle-file-name-tr.pa";
- filename*1="tch"
+Has anyone else also run into the same problem? I didn't run into it before Aug 23rd, if this is a real problem, then it must have been introduced after that date.
+
+So far I am pretty new to the semanage code, any idea to fix this issue?
+
+Thanks,
+Harry
 
 
---------------000500030905030003020106--
+ 		 	   		  
+--_f00b9c9a-5bcb-4e63-a97c-4324d957ef79_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'><div dir='ltr'>
+Hi,<br><br>When I am improving my patchset to discard unused branches of tunable conditionals these days, I run into a new segfault issue that seems has nothing to do with my patchset. After I checked back to the master branch for both toolchain and refpolicy and pulled the latest codes, the segfault still exist.<br><br>Turns out the problem lies in genhomedircon.c, the level argument passed to set_fallback_user is NULL, and strdup(NULL) would segfault in the end. Below is the debug message I've seen:<br><br>genhomedircon.c Entered set_fallback_user, user = user_u, prefix = user, level = (null)<br>Passing NULL to strdup would segfault<br>make: *** [load] Segmentation fault<br><br>Has anyone else also run into the same problem? I didn't run into it before Aug 23rd, if this is a real problem, then it must have been introduced after that date.<br><br>So far I am pretty new to the semanage code, any idea to fix this issue?<br><br>Thanks,<br>Harry<br><br><br> 		 	   		  </div></b!
+ ody>
+</html>
+--_f00b9c9a-5bcb-4e63-a97c-4324d957ef79_--
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
