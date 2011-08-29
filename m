@@ -1,81 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8OMIe031377
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:24:22 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8OLFQ015931
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:24:21 GMT
-Message-ID: <4E5B4CB2.5020104@windriver.com>
-Date: Mon, 29 Aug 2011 16:24:18 +0800
-From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7TBSwp8006415
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 07:28:58 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7TBSulM007625
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 11:28:57 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Eric Paris <eparis@parisplace.org>
+Subject: Re: Toolchain is broken?
+Date: Mon, 29 Aug 2011 21:28:50 +1000
+Cc: HarryCiao <harrytaurus2002@hotmail.com>, selinux@tycho.nsa.gov
+References: <SNT139-W395A2E93EE6F195040BA93AB120@phx.gbl> <SNT139-W28B6707A5C8557A0CA887EAB120@phx.gbl> <CACLa4pvs1unWyLg5q1dnQ0fH21Ljq7e4MyO7+s9vRO06nEv5RA@mail.gmail.com>
+In-Reply-To: <CACLa4pvs1unWyLg5q1dnQ0fH21Ljq7e4MyO7+s9vRO06nEv5RA@mail.gmail.com>
 MIME-Version: 1.0
-To: <cpebenito@tresys.com>, <slawrence@tresys.com>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: [v1 PATCH 4/7] Copy and check the cond_bool_datum_t.flags during
- link.
-References: <1314604432-12156-2-git-send-email-qingtao.cao@windriver.com> <1314604432-12156-4-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1314604432-12156-4-git-send-email-qingtao.cao@windriver.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_zf3WOKLnlHLO5Nq"
+Message-Id: <201108292128.51104.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please ignore this patch, I would re-send it with 0/7 patch for extra 
-comments for the v1 patchset.
+--Boundary-00=_zf3WOKLnlHLO5Nq
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Sorry for any inconvenience!
+On Sat, 27 Aug 2011, Eric Paris <eparis@parisplace.org> wrote:
+> Must have come from this patch.
+> 
+> commit d784fd71b56cb8f57d5b9fcd784094e004bf7c6a
+> Author: Russell Coker <russell@coker.com.au>
+> Date:   Wed Jan 5 19:30:25 2011 +1100
+> 
+>     libsemanage: patch for MCS/MLS in user files
+> 
 
-Thanks,
-Harry
+What do you think of the attached patch?
 
-On 08/29/2011 03:53 PM, Harry Ciao wrote:
-> Copy the TUNABLE flag for cond_bool_datum_t during link, and check
-> if there is a mismatch between boolean/tunable declaration and
-> usage among modules. If this is the case, bail out with errors.
->
-> Signed-off-by: Harry Ciao<qingtao.cao@windriver.com>
-> ---
->   libsepol/src/link.c |   20 +++++++++++++++++---
->   1 files changed, 17 insertions(+), 3 deletions(-)
->
-> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-> index 421c47b..ee9675b 100644
-> --- a/libsepol/src/link.c
-> +++ b/libsepol/src/link.c
-> @@ -587,7 +587,18 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
->   		}
->   		state->base->p_bools.nprim++;
->   		base_bool = new_bool;
-> -
-> +		base_bool->flags = booldatum->flags;
-> +	} else if ((booldatum->flags&  COND_BOOL_FLAGS_TUNABLE) !=
-> +		   (base_bool->flags&  COND_BOOL_FLAGS_TUNABLE)) {
-> +			/* A mismatch between boolean/tunable declaration
-> +			 * and usage(for example a boolean used in the
-> +			 * tunable_policy() or vice versa).
-> +			 *
-> +			 * This is not allowed and bail out with errors */
-> +			ERR(state->handle,
-> +			    "%s: Mismatch between boolean/tunable definition "
-> +			    "and usage for %s", state->cur_mod_name, id);
-> +			return -1;
->   	}
->
->   	/* Get the scope info for this boolean to see if this is the declaration,
-> @@ -595,9 +606,12 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
->   	scope = hashtab_search(state->cur->policy->p_bools_scope.table, id);
->   	if (!scope)
->   		return SEPOL_ERR;
-> -	if (scope->scope == SCOPE_DECL)
-> +	if (scope->scope == SCOPE_DECL) {
->   		base_bool->state = booldatum->state;
-> -
-> +		/* Only the declaration rather than requirement
-> +		 * decides if it is a boolean or tunable. */
-> +		base_bool->flags = booldatum->flags;
-> +	}
->   	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
->   	return 0;
->
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
+
+--Boundary-00=_zf3WOKLnlHLO5Nq
+Content-Type: text/x-patch;
+  charset="UTF-8";
+  name="diff2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff2"
+
+diff -ru libsemanage-2.0.46.old/src/genhomedircon.c libsemanage-2.0.46/src/genhomedircon.c
+--- libsemanage-2.0.46.old/src/genhomedircon.c	2011-08-29 19:51:05.000000000 +1000
++++ libsemanage-2.0.46/src/genhomedircon.c	2011-08-29 20:18:23.000000000 +1000
+@@ -629,9 +629,12 @@
+ 	home = strdup(h);
+ 	if (!home)
+ 		goto cleanup;
+-	level = strdup(l);
+-	if (!level)
+-		goto cleanup;
++	if(l)
++	{
++		level = strdup(l);
++		if (!level)
++			goto cleanup;
++	}
+ 
+ 	temp->name = name;
+ 	temp->sename = sename;
+@@ -675,15 +678,18 @@
+ {
+ 	char *fallback_user = strdup(user);
+ 	char *fallback_user_prefix = strdup(prefix);
+-	char *fallback_user_level = strdup(level);
++	char *fallback_user_level;
+ 
+-	if (fallback_user == NULL || fallback_user_prefix == NULL || fallback_user_level == NULL) {
++	if (fallback_user == NULL || fallback_user_prefix == NULL) {
+ 		free(fallback_user);
+ 		free(fallback_user_prefix);
+ 		free(fallback_user_level);
+ 		return STATUS_ERR;
+ 	}
+ 
++	if(level)
++		fallback_user_level = strdup(level);
++
+ 	free(s->fallback_user);
+ 	free(s->fallback_user_prefix);
+ 	free(s->fallback_user_level);
+@@ -727,7 +733,7 @@
+ 			if (semanage_user_query(s->h_semanage, key, &the_user) < 0)
+ 			{
+ 				prefix = name;
+-				level = "s0";
++				level = FALLBACK_USER_LEVEL;
+ 			}
+ 			else
+ 			{
+@@ -818,7 +824,7 @@
+ 			level = semanage_user_get_mlslevel(*u);
+ 		} else {
+ 			prefix = name;
+-			level = "s0";
++			level = FALLBACK_USER_LEVEL;
+ 		}
+ 
+ 		retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
+
+--Boundary-00=_zf3WOKLnlHLO5Nq--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
