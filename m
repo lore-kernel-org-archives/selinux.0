@@ -1,128 +1,214 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LIO0031217
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:18 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8Mc2e031307
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:22:38 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LHFQ015570
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:18 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8MaFQ015701
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:22:37 GMT
+Message-ID: <4E5B4C49.6070705@windriver.com>
+Date: Mon, 29 Aug 2011 16:22:33 +0800
 From: Harry Ciao <qingtao.cao@windriver.com>
+Reply-To: <qingtao.cao@windriver.com>
+MIME-Version: 1.0
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v1 PATCH 3/7] Write and read TUNABLE flags in related data structures.
-Date: Mon, 29 Aug 2011 16:21:02 +0800
-Message-ID: <1314606066-12314-4-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
-References: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: Re: [v1 PATCH 2/7] Separate tunable from boolean during compile.
+References: <1314604432-12156-2-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314604432-12156-2-git-send-email-qingtao.cao@windriver.com>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-All flags in cond_bool_datum_t and cond_node_t structures are
-written/read for policy modules which version is no less than
-MOD_POLICYDB_VERSION_TUNABLE_SEP.
+Please ignore this patch, I would re-send it with 0/7 patch for extra 
+comments for the v1 patchset.
 
-Note, for cond_node_t the TUNABLE flag bit would be used only at expand,
-however, it won't hurt to read/write this field for modules(potentially
-for future usage).
+Sorry for any inconvenience!
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/conditional.c |   21 +++++++++++++++++++--
- libsepol/src/write.c       |   18 ++++++++++++++++++
- 2 files changed, 37 insertions(+), 2 deletions(-)
+Thanks,
+Harry
 
-diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-index efdedb0..d9d4fee 100644
---- a/libsepol/src/conditional.c
-+++ b/libsepol/src/conditional.c
-@@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
- 	return 1;
- }
- 
--int cond_read_bool(policydb_t * p
--		   __attribute__ ((unused)), hashtab_t h,
-+int cond_read_bool(policydb_t * p,
-+		   hashtab_t h,
- 		   struct policy_file *fp)
- {
- 	char *key = 0;
-@@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
- 	if (rc < 0)
- 		goto err;
- 	key[len] = 0;
-+
-+	if (p->policy_type != POLICY_KERN &&
-+	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-+		rc = next_entry(buf, fp, sizeof(uint32_t));
-+		if (rc < 0)
-+			goto err;
-+		booldatum->flags = le32_to_cpu(buf[0]);
-+	}
-+
- 	if (hashtab_insert(h, key, booldatum))
- 		goto err;
- 
-@@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
- 		if (avrule_read_list(p, &node->avfalse_list, fp))
- 			goto err;
- 	}
-+	
-+	if (p->policy_type != POLICY_KERN &&
-+	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-+		rc = next_entry(buf, fp, sizeof(uint32_t));
-+		if (rc < 0)
-+			goto err;
-+		node->flags = le32_to_cpu(buf[0]);
-+	}
- 
- 	return 0;
-       err:
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 290e036..4284c93 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	unsigned int items, items2;
- 	struct policy_data *pd = ptr;
- 	struct policy_file *fp = pd->fp;
-+	struct policydb *p = pd->p;
- 
- 	booldatum = (cond_bool_datum_t *) datum;
- 
-@@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
- 		return POLICYDB_ERROR;
-+
-+	if (p->policy_type != POLICY_KERN &&
-+	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-+		buf[0] = cpu_to_le32(booldatum->flags);
-+		items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+		if (items != 1)
-+			return POLICYDB_ERROR;
-+	}
-+
- 	return POLICYDB_SUCCESS;
- }
- 
-@@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
- 			return POLICYDB_ERROR;
- 	}
- 
-+	if (p->policy_type != POLICY_KERN &&
-+	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {	
-+		buf[0] = cpu_to_le32(node->flags);
-+		items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+		if (items != 1)
-+			return POLICYDB_ERROR;
-+	}
-+
- 	return POLICYDB_SUCCESS;
- }
- 
--- 
-1.7.0.4
-
+On 08/29/2011 03:53 PM, Harry Ciao wrote:
+> Both boolean and tunable keywords are processed by define_bool_tunable(),
+> argument 0 and 1 would be passed for boolean and tunable respectively.
+> For tunable, a TUNABLE flag would be set in cond_bool_datum_t.flags.
+>
+> Note, when creating an if-else conditional we can not know if the
+> tunable identifier is indeed a tunable(for example, a boolean may be
+> misused in tunable_policy() or vice versa), thus the TUNABLE flag
+> for cond_node_t would be calculated and used in expansion when all
+> booleans/tunables copied during link.
+>
+> Signed-off-by: Harry Ciao<qingtao.cao@windriver.com>
+> ---
+>   checkpolicy/module_compiler.c |   16 +++++++++++++++-
+>   checkpolicy/module_compiler.h |    1 +
+>   checkpolicy/policy_define.c   |    4 +++-
+>   checkpolicy/policy_define.h   |    2 +-
+>   checkpolicy/policy_parse.y    |    8 +++++++-
+>   checkpolicy/policy_scan.l     |    2 ++
+>   libsepol/src/conditional.c    |    1 +
+>   7 files changed, 30 insertions(+), 4 deletions(-)
+>
+> diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
+> index 1c1d1d5..ffffaf1 100644
+> --- a/checkpolicy/module_compiler.c
+> +++ b/checkpolicy/module_compiler.c
+> @@ -1045,7 +1045,7 @@ int require_user(int pass)
+>   	}
+>   }
+>
+> -int require_bool(int pass)
+> +static int require_bool_tunable(int pass, int is_tunable)
+>   {
+>   	char *id = queue_remove(id_queue);
+>   	cond_bool_datum_t *booldatum = NULL;
+> @@ -1063,6 +1063,8 @@ int require_bool(int pass)
+>   		yyerror("Out of memory!");
+>   		return -1;
+>   	}
+> +	if (is_tunable)
+> +		booldatum->flags |= COND_BOOL_FLAGS_TUNABLE;
+>   	retval =
+>   	    require_symbol(SYM_BOOLS, id, (hashtab_datum_t *) booldatum,
+>   			&booldatum->s.value,&booldatum->s.value);
+> @@ -1094,6 +1096,16 @@ int require_bool(int pass)
+>   	}
+>   }
+>
+> +int require_bool(int pass)
+> +{
+> +	return require_bool_tunable(pass, 0);
+> +}
+> +
+> +int require_tunable(int pass)
+> +{
+> +	return require_bool_tunable(pass, 1);
+> +}
+> +
+>   int require_sens(int pass)
+>   {
+>   	char *id = queue_remove(id_queue);
+> @@ -1328,6 +1340,8 @@ void append_cond_list(cond_list_t * cond)
+>   		     tmp = tmp->next) ;
+>   		tmp->next = cond->avfalse_list;
+>   	}
+> +
+> +	old_cond->flags |= cond->flags;
+>   }
+>
+>   void append_avrule(avrule_t * avrule)
+> diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compiler.h
+> index 45a21cd..72c2d9b 100644
+> --- a/checkpolicy/module_compiler.h
+> +++ b/checkpolicy/module_compiler.h
+> @@ -58,6 +58,7 @@ int require_attribute(int pass);
+>   int require_attribute_role(int pass);
+>   int require_user(int pass);
+>   int require_bool(int pass);
+> +int require_tunable(int pass);
+>   int require_sens(int pass);
+>   int require_cat(int pass);
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index ded27f7..1bf669c 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -1494,7 +1494,7 @@ avrule_t *define_cond_compute_type(int which)
+>   	return avrule;
+>   }
+>
+> -int define_bool(void)
+> +int define_bool_tunable(int is_tunable)
+>   {
+>   	char *id, *bool_value;
+>   	cond_bool_datum_t *datum;
+> @@ -1524,6 +1524,8 @@ int define_bool(void)
+>   		return -1;
+>   	}
+>   	memset(datum, 0, sizeof(cond_bool_datum_t));
+> +	if (is_tunable)
+> +		datum->flags |= COND_BOOL_FLAGS_TUNABLE;
+>   	ret = declare_symbol(SYM_BOOLS, id, datum,&value,&value);
+>   	switch (ret) {
+>   	case -3:{
+> diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+> index fc8cd4d..92a9be7 100644
+> --- a/checkpolicy/policy_define.h
+> +++ b/checkpolicy/policy_define.h
+> @@ -21,7 +21,7 @@ cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void* arg2);
+>   int define_attrib(void);
+>   int define_attrib_role(void);
+>   int define_av_perms(int inherits);
+> -int define_bool(void);
+> +int define_bool_tunable(int is_tunable);
+>   int define_category(void);
+>   int define_class(void);
+>   int define_common_perms(void);
+> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> index 0a17bdc..49ac15f 100644
+> --- a/checkpolicy/policy_parse.y
+> +++ b/checkpolicy/policy_parse.y
+> @@ -101,6 +101,7 @@ typedef int (* require_func_t)();
+>   %token ALIAS
+>   %token ATTRIBUTE
+>   %token BOOL
+> +%token TUNABLE
+>   %token IF
+>   %token ELSE
+>   %token TYPE_TRANSITION
+> @@ -269,6 +270,7 @@ te_decl			: attribute_def
+>                           | typeattribute_def
+>                           | typebounds_def
+>                           | bool_def
+> +			| tunable_def
+>                           | transition_def
+>                           | range_trans_def
+>                           | te_avtab_def
+> @@ -295,8 +297,11 @@ opt_attr_list           : ',' id_comma_list
+>   			|
+>   			;
+>   bool_def                : BOOL identifier bool_val ';'
+> -                        {if (define_bool()) return -1;}
+> +                        { if (define_bool_tunable(0)) return -1; }
+>                           ;
+> +tunable_def		: TUNABLE identifier bool_val ';'
+> +			{ if (define_bool_tunable(1)) return -1; }
+> +			;
+>   bool_val                : CTRUE
+>    			{ if (insert_id("T",0)) return -1; }
+>                           | CFALSE
+> @@ -820,6 +825,7 @@ require_decl_def        : ROLE        { $$ = require_role; }
+>                           | ATTRIBUTE_ROLE   { $$ = require_attribute_role; }
+>                           | USER        { $$ = require_user; }
+>                           | BOOL        { $$ = require_bool; }
+> +			| TUNABLE     { $$ = require_tunable; }
+>                           | SENSITIVITY { $$ = require_sens; }
+>                           | CATEGORY    { $$ = require_cat; }
+>                           ;
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index ed27bbe..a61e0db 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -92,6 +92,8 @@ TYPE |
+>   type				{ return(TYPE); }
+>   BOOL |
+>   bool                            { return(BOOL); }
+> +TUNABLE |
+> +tunable				{ return(TUNABLE); }
+>   IF |
+>   if				{ return(IF); }
+>   ELSE |
+> diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+> index 1482387..efdedb0 100644
+> --- a/libsepol/src/conditional.c
+> +++ b/libsepol/src/conditional.c
+> @@ -160,6 +160,7 @@ cond_node_t *cond_node_create(policydb_t * p, cond_node_t * node)
+>   		for (i = 0; i<  min(node->nbools, COND_MAX_BOOLS); i++)
+>   			new_node->bool_ids[i] = node->bool_ids[i];
+>   		new_node->expr_pre_comp = node->expr_pre_comp;
+> +		new_node->flags = node->flags;
+>   	}
+>
+>   	return new_node;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
