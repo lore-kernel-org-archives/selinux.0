@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LIO2031217
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:22 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LIO3031217
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:24 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LLFQ015582
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:21 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LNFQ015586
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:23 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v1 PATCH 5/7] Permanently discard disabled branches of tunables in expansion.
-Date: Mon, 29 Aug 2011 16:21:04 +0800
-Message-ID: <1314606066-12314-6-git-send-email-qingtao.cao@windriver.com>
+Subject: [v1 PATCH 6/7] Skip tunable identifier and cond_node_t in expansion.
+Date: Mon, 29 Aug 2011 16:21:05 +0800
+Message-ID: <1314606066-12314-7-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
 References: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -17,135 +17,54 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For a cond_node_t in one decl->cond_list queue, append its
-avtrue_list or avfalse_list to the avrules list of its home decl
-depending on its state value, so that these effective rules would
-be permanently added to te_avtab hashtab.
-
-On the other hand, the rules on the disabled unused list won't be
-expanded and written to the raw policy at all.
+The effective branch of a tunable has been appended to its home
+decl->avrules list during link, in expansion we should just skip tunables
+from expanding their rules into te_cond_avtab hashtab and adding to the
+out->cond_list queue.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/expand.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 98 insertions(+), 0 deletions(-)
+ libsepol/src/expand.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
 
 diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 06f11f4..be41243 100644
+index be41243..d5f10a6 100644
 --- a/libsepol/src/expand.c
 +++ b/libsepol/src/expand.c
-@@ -2665,6 +2665,94 @@ int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
- 	return copy_and_expand_avrule_block(&state);
- }
+@@ -1014,6 +1014,11 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 		return 0;
+ 	}
  
-+static void discard_tunables(policydb_t *pol)
-+{
-+	avrule_block_t *block;
-+	avrule_decl_t *decl;
-+	cond_node_t *cur_node;
-+	cond_expr_t *cur_expr;
-+	int cur_state;
-+	avrule_t *tail, *to_be_appended;
-+
-+	/* Iterate through all cond_node of all enabled decls, if a cond_node
-+	 * is about tunable, caculate its state value and concatenate one of
-+	 * its avrule list to the current decl->avrules list.
-+	 *
-+	 * Note, such tunable cond_node would be skipped over in expansion,
-+	 * so we won't have to worry about removing it from decl->cond_list
-+	 * here :-)
-+	 *
-+	 * If tunables and booleans co-exist in the expression of a cond_node,
-+	 * then tunables would be "transformed" as booleans.
-+	 */
-+	for (block = pol->global; block != NULL; block = block->next) {
-+		decl = block->enabled;
-+		if (decl == NULL || decl->enabled == 0)
-+			continue;
-+
-+		tail = decl->avrules;
-+		while (tail && tail->next)
-+			tail = tail->next;
-+
-+		for (cur_node = decl->cond_list; cur_node != NULL;
-+		     cur_node = cur_node->next) {
-+			int booleans, tunables;
-+			cond_bool_datum_t *booldatum;
-+
-+			booleans = tunables = 0;
-+
-+			for (cur_expr = cur_node->expr; cur_expr != NULL;
-+			     cur_expr = cur_expr->next) {
-+				if (cur_expr->expr_type != COND_BOOL)
-+					continue;
-+				booldatum = pol->bool_val_to_struct[cur_expr->bool - 1];
-+				if (booldatum->flags & COND_BOOL_FLAGS_TUNABLE)
-+					tunables++;
-+				else
-+					booleans++;
-+			}
-+
-+			/* bool_copy_callback() at link phase has ensured
-+			 * that no mixture of tunables and booleans in one
-+			 * expression. */
-+			assert(!(booleans && tunables));
-+
-+			if (booleans) {
-+				cur_node->flags &= ~COND_NODE_FLAGS_TUNABLE;
-+			} else {
-+				cur_node->flags |= COND_NODE_FLAGS_TUNABLE;
-+				cur_state = cond_evaluate_expr(pol, cur_node->expr);
-+				if (cur_state == -1) {
-+					printf("Expression result was "
-+					       "undefined, skipping all"
-+					       "rules\n");
-+					continue;
-+				}
-+
-+				to_be_appended = (cur_state == 1) ?
-+					cur_node->avtrue_list : cur_node->avfalse_list;
-+
-+				if (tail)
-+					tail->next = to_be_appended;
-+				else
-+					tail = decl->avrules = to_be_appended;
-+
-+				/* Now that the effective branch has been
-+				 * appended, neutralize its original pointer */
-+				if (cur_state == 1)
-+					cur_node->avtrue_list = NULL;
-+				else
-+					cur_node->avfalse_list = NULL;
-+
-+				/* Update the tail of decl->avrules for
-+				 * further concatenation */
-+				while (tail && tail->next)
-+					tail = tail->next;
-+			}
-+		}
++	if (bool->flags & COND_BOOL_FLAGS_TUNABLE) {
++		/* Skip tunables */
++		return 0;
 +	}
-+}
 +
- /* Linking should always be done before calling expand, even if
-  * there is only a base since all optionals are dealt with at link time
-  * the base passed in should be indexed and avrule blocks should be 
-@@ -2678,6 +2766,16 @@ int expand_module(sepol_handle_t * handle,
- 	expand_state_t state;
- 	avrule_block_t *curblock;
+ 	if (state->verbose)
+ 		INFO(state->handle, "copying boolean %s", id);
  
-+	/* Append tunable's avtrue_list or avfalse_list to the avrules list
-+	 * of its home decl depending on its state value, so that the effect
-+	 * rules of a tunable would be added to te_avtab permanently. Whereas
-+	 * the disabled unused branch would be discarded.
-+	 *
-+	 * Originally this function is called at the very end of link phase,
-+	 * however, we need to keep the linked policy intact for analysis
-+	 * purpose. */
-+	discard_tunables(base);
+@@ -1046,6 +1051,7 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 	state->boolmap[bool->s.value - 1] = new_bool->s.value;
+ 
+ 	new_bool->state = bool->state;
++	new_bool->flags = bool->flags;
+ 
+ 	return 0;
+ }
+@@ -1940,6 +1946,13 @@ static int cond_node_copy(expand_state_t * state, cond_node_t * cn)
+ 	if (cond_node_copy(state, cn->next)) {
+ 		return -1;
+ 	}
++	
++	/* If current cond_node_t is of tunable, its effective branch
++	 * has been appended to its home decl->avrules list during link
++	 * and now we should just skip it. */
++	if (cn->flags & COND_NODE_FLAGS_TUNABLE)
++		return 0;
 +
- 	expand_state_init(&state);
- 
- 	state.verbose = verbose;
+ 	if (cond_normalize_expr(state->base, cn)) {
+ 		ERR(state->handle, "Error while normalizing conditional");
+ 		return -1;
 -- 
 1.7.0.4
 
