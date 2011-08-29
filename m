@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LEYm031191
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:16 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LIO2031217
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:22 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LDFQ015398
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:13 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LLFQ015582
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:21 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
-Subject: [v1 PATCH 1/7] Indicate when boolean is indeed a tunable.
-Date: Mon, 29 Aug 2011 16:21:00 +0800
-Message-ID: <1314606066-12314-2-git-send-email-qingtao.cao@windriver.com>
+Subject: [v1 PATCH 5/7] Permanently discard disabled branches of tunables in expansion.
+Date: Mon, 29 Aug 2011 16:21:04 +0800
+Message-ID: <1314606066-12314-6-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
 References: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -17,97 +17,135 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add flags to cond_bool_datum_t and cond_node_t structures to differentiate
-the tunables' identifiers and conditionals from those of booleans.
+For a cond_node_t in one decl->cond_list queue, append its
+avtrue_list or avfalse_list to the avrules list of its home decl
+depending on its state value, so that these effective rules would
+be permanently added to te_avtab hashtab.
+
+On the other hand, the rules on the disabled unused list won't be
+expanded and written to the raw policy at all.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/include/sepol/policydb/conditional.h |    6 ++++--
- libsepol/include/sepol/policydb/policydb.h    |    5 ++++-
- libsepol/src/policydb.c                       |   14 ++++++++++++++
- 3 files changed, 22 insertions(+), 3 deletions(-)
+ libsepol/src/expand.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 98 insertions(+), 0 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
-index a8ed694..48ec106 100644
---- a/libsepol/include/sepol/policydb/conditional.h
-+++ b/libsepol/include/sepol/policydb/conditional.h
-@@ -77,15 +77,17 @@ typedef struct cond_node {
- 	/* these true/false lists point into te_avtab when that is used */
- 	cond_av_list_t *true_list;
- 	cond_av_list_t *false_list;
--	/* and these are using during parsing and for modules */
-+	/* and these are used during parsing and for modules */
- 	avrule_t *avtrue_list;
- 	avrule_t *avfalse_list;
- 	/* these fields are not written to binary policy */
- 	unsigned int nbools;
- 	uint32_t bool_ids[COND_MAX_BOOLS];
- 	uint32_t expr_pre_comp;
--	/*                                               */
- 	struct cond_node *next;
-+	/* a tunable conditional, calculated and used at expansion */
-+#define	COND_NODE_FLAGS_TUNABLE	0x01
-+	uint32_t flags;
- } cond_node_t;
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 06f11f4..be41243 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2665,6 +2665,94 @@ int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+ 	return copy_and_expand_avrule_block(&state);
+ }
  
- extern int cond_evaluate_expr(policydb_t * p, cond_expr_t * expr);
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 5320bc8..1848a7b 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -210,6 +210,8 @@ typedef struct range_trans {
- typedef struct cond_bool_datum {
- 	symtab_datum_t s;
- 	int state;
-+#define COND_BOOL_FLAGS_TUNABLE	0x01	/* is this a tunable? */
-+	uint32_t flags;
- } cond_bool_datum_t;
++static void discard_tunables(policydb_t *pol)
++{
++	avrule_block_t *block;
++	avrule_decl_t *decl;
++	cond_node_t *cur_node;
++	cond_expr_t *cur_expr;
++	int cur_state;
++	avrule_t *tail, *to_be_appended;
++
++	/* Iterate through all cond_node of all enabled decls, if a cond_node
++	 * is about tunable, caculate its state value and concatenate one of
++	 * its avrule list to the current decl->avrules list.
++	 *
++	 * Note, such tunable cond_node would be skipped over in expansion,
++	 * so we won't have to worry about removing it from decl->cond_list
++	 * here :-)
++	 *
++	 * If tunables and booleans co-exist in the expression of a cond_node,
++	 * then tunables would be "transformed" as booleans.
++	 */
++	for (block = pol->global; block != NULL; block = block->next) {
++		decl = block->enabled;
++		if (decl == NULL || decl->enabled == 0)
++			continue;
++
++		tail = decl->avrules;
++		while (tail && tail->next)
++			tail = tail->next;
++
++		for (cur_node = decl->cond_list; cur_node != NULL;
++		     cur_node = cur_node->next) {
++			int booleans, tunables;
++			cond_bool_datum_t *booldatum;
++
++			booleans = tunables = 0;
++
++			for (cur_expr = cur_node->expr; cur_expr != NULL;
++			     cur_expr = cur_expr->next) {
++				if (cur_expr->expr_type != COND_BOOL)
++					continue;
++				booldatum = pol->bool_val_to_struct[cur_expr->bool - 1];
++				if (booldatum->flags & COND_BOOL_FLAGS_TUNABLE)
++					tunables++;
++				else
++					booleans++;
++			}
++
++			/* bool_copy_callback() at link phase has ensured
++			 * that no mixture of tunables and booleans in one
++			 * expression. */
++			assert(!(booleans && tunables));
++
++			if (booleans) {
++				cur_node->flags &= ~COND_NODE_FLAGS_TUNABLE;
++			} else {
++				cur_node->flags |= COND_NODE_FLAGS_TUNABLE;
++				cur_state = cond_evaluate_expr(pol, cur_node->expr);
++				if (cur_state == -1) {
++					printf("Expression result was "
++					       "undefined, skipping all"
++					       "rules\n");
++					continue;
++				}
++
++				to_be_appended = (cur_state == 1) ?
++					cur_node->avtrue_list : cur_node->avfalse_list;
++
++				if (tail)
++					tail->next = to_be_appended;
++				else
++					tail = decl->avrules = to_be_appended;
++
++				/* Now that the effective branch has been
++				 * appended, neutralize its original pointer */
++				if (cur_state == 1)
++					cur_node->avtrue_list = NULL;
++				else
++					cur_node->avfalse_list = NULL;
++
++				/* Update the tail of decl->avrules for
++				 * further concatenation */
++				while (tail && tail->next)
++					tail = tail->next;
++			}
++		}
++	}
++}
++
+ /* Linking should always be done before calling expand, even if
+  * there is only a base since all optionals are dealt with at link time
+  * the base passed in should be indexed and avrule blocks should be 
+@@ -2678,6 +2766,16 @@ int expand_module(sepol_handle_t * handle,
+ 	expand_state_t state;
+ 	avrule_block_t *curblock;
  
- struct cond_node;
-@@ -683,9 +685,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_FILENAME_TRANS	11
- #define MOD_POLICYDB_VERSION_ROLETRANS		12
- #define MOD_POLICYDB_VERSION_ROLEATTRIB		13
-+#define MOD_POLICYDB_VERSION_TUNABLE_SEP	14
++	/* Append tunable's avtrue_list or avfalse_list to the avrules list
++	 * of its home decl depending on its state value, so that the effect
++	 * rules of a tunable would be added to te_avtab permanently. Whereas
++	 * the disabled unused branch would be discarded.
++	 *
++	 * Originally this function is called at the very end of link phase,
++	 * however, we need to keep the linked policy intact for analysis
++	 * purpose. */
++	discard_tunables(base);
++
+ 	expand_state_init(&state);
  
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_ROLEATTRIB
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_TUNABLE_SEP
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 017aeca..136b450 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -221,6 +221,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -290,6 +297,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- };
- 
- #if 0
+ 	state.verbose = verbose;
 -- 
 1.7.0.4
 
