@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T7s0QY029327
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 03:54:01 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7T8LIO0031217
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 04:21:18 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T7rxBs012542
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 07:54:00 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7T8LHFQ015570
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 08:21:18 GMT
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <cpebenito@tresys.com>, <slawrence@tresys.com>
 CC: <selinux@tycho.nsa.gov>
 Subject: [v1 PATCH 3/7] Write and read TUNABLE flags in related data structures.
-Date: Mon, 29 Aug 2011 15:53:48 +0800
-Message-ID: <1314604432-12156-3-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1314604432-12156-2-git-send-email-qingtao.cao@windriver.com>
-References: <1314604432-12156-2-git-send-email-qingtao.cao@windriver.com>
+Date: Mon, 29 Aug 2011 16:21:02 +0800
+Message-ID: <1314606066-12314-4-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
+References: <1314606066-12314-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
