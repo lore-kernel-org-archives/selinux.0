@@ -1,78 +1,75 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7TGE8cA024302
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 12:14:10 -0400
-Received: from nm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p7TGE65G005101
-	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 16:14:07 GMT
-Message-ID: <1314634446.62996.YahooMailClassic@web87002.mail.ird.yahoo.com>
-Date: Mon, 29 Aug 2011 17:14:06 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: SELinux Common Intermediate Language Update
-To: jwcart2@tycho.nsa.gov
-Cc: Steve Lawrence <slawrence@tresys.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1314290814.11929.14.camel@moss-lions.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7U5VmRO028222
+	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 01:31:48 -0400
+Received: from mail.windriver.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7U5VlEq010557
+	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 05:31:48 GMT
+Received: from ALA-HCA.corp.ad.wrs.com (ala-hca [147.11.189.40])
+	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p7U5VkJV010113
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <selinux@tycho.nsa.gov>; Mon, 29 Aug 2011 22:31:47 -0700 (PDT)
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [v0 PATCH 1/1] Fix compile errors when DEBUG is turned on.
+Date: Tue, 30 Aug 2011 13:31:44 +0800
+Message-ID: <1314682304-21607-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Does this mean that I need to declare the range components as nulls, for example:
+Fix below compile errors if DEBUG is turned on:
 
-(context context1 (unconfined_u  unconfined_r  unconfined_t (() ())))
+matchpathcon.c:110: error: declaration of ‘rc’ shadows a previous local
+matchpathcon.c:48: error: shadowed declaration is here
+matchpathcon.c:48: error: unused variable ‘rc’
 
-or is CIL only for generating MCS/MLS policy.
+seunshare.c:346: error: too many arguments for format
+seunshare.c:275: error: unused variable ‘flag_index’
 
-What I've been trying to do is generate a simple policy based on 'mdp' in CIL and thought I would use secilc to generate the binary. However I found that secilc only supports generating MCS/MLS policy (although I hacked it enough to generate contexts as in the example above).
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ libselinux/utils/matchpathcon.c     |    2 +-
+ policycoreutils/sandbox/seunshare.c |    4 +---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-Richard
-
---- On Thu, 25/8/11, James Carter <jwcart2@tycho.nsa.gov> wrote:
-
-> From: James Carter <jwcart2@tycho.nsa.gov>
-> Subject: Re: SELinux Common Intermediate Language Update
-> To: "Richard Haines" <richard_c_haines@btinternet.com>
-> Cc: "Steve Lawrence" <slawrence@tresys.com>, "SELinux" <selinux@tycho.nsa.gov>
-> Date: Thursday, 25 August, 2011, 17:46
-> On Thu, 2011-08-25 at 17:10 +0100,
-> Richard Haines wrote:
-> > I've been trying to generate a context for a non-mls
-> policy but keep getting the following error:
-> > 
-> > Building Parse Tree...
-> > Building AST from Parse Tree...
-> > Invalid context (line: 12)
-> > Failed to fill context, rc: -1
-> > cil_gen_context failed, rc: -1
-> > Failed to process node
-> > cil_tree_walk failed, rc: -1
-> > Failed to build ast, exiting
-> > 
-> > I've tried various formats of 'context' but all
-> failed. One example:
-> > ( context context1 ( unconfined_u unconfined_r
-> unconfined_t ))
-> > 
-> > I see plenty of mls context examples in the test files
-> but no non-mls.
-> > Could you let me know the correct format please.
-> > 
-> 
-> You always need to specify MLS current and clearance levels
-> in CIL. The
-> idea behind CIL is that we want a good foundation for
-> building
-> higher-level languages and tools, so we want minimize the
-> special cases
-> in the language syntax. Refpolicy already uses
-> gen_context() for
-> contexts, so just think of CIL as having gen_context()
-> built in.
-> 
-> -- 
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
-> 
-> 
+diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpathcon.c
+index 2fa21bc..892e33d 100644
+--- a/libselinux/utils/matchpathcon.c
++++ b/libselinux/utils/matchpathcon.c
+@@ -107,7 +107,7 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 	for (i = optind; i < argc; i++) {
+-		int rc, mode = 0;
++		int mode = 0;
+ 		struct stat buf;
+ 		char *path = argv[i];
+ 		int len = strlen(path);
+diff --git a/policycoreutils/sandbox/seunshare.c b/policycoreutils/sandbox/seunshare.c
+index f9bf12c..a640c56 100644
+--- a/policycoreutils/sandbox/seunshare.c
++++ b/policycoreutils/sandbox/seunshare.c
+@@ -272,7 +272,6 @@ int main(int argc, char **argv) {
+ 
+ 	security_context_t scontext = NULL;
+ 
+-	int flag_index;		/* flag index in argv[] */
+ 	int clflag;		/* holds codes for command line flags */
+ 	char *tmpdir_s = NULL;	/* tmpdir spec'd by user in argv[] */
+ 	char *homedir_s = NULL;	/* homedir spec'd by user in argv[] */
+@@ -342,8 +341,7 @@ int main(int argc, char **argv) {
+ 	}
+ 
+ 	if (! homedir_s && ! tmpdir_s) {
+-		fprintf(stderr, _("Error: tmpdir and/or homedir required \n"),
+-			"%s\n", USAGE_STRING);
++		fprintf(stderr, _("Error: tmpdir and/or homedir required \n %s\n"), USAGE_STRING);
+ 		return -1;
+ 	}
+ 
+-- 
+1.7.0.4
 
 
 --
