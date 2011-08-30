@@ -1,102 +1,53 @@
-Message-ID: <4E5D2EA1.2070607@tresys.com>
-Date: Tue, 30 Aug 2011 14:40:33 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7UKhgbe014016
+	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 16:43:42 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7UKhfbL021986
+	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 20:43:41 GMT
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7UKhfvc009451
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 16:43:41 -0400
+Message-ID: <4E5D4B7C.6020800@redhat.com>
+Date: Tue, 30 Aug 2011 16:43:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>
-CC: <jwcart2@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux Common Intermediate Language Update
-References: <1314634446.62996.YahooMailClassic@web87002.mail.ird.yahoo.com>
-In-Reply-To: <1314634446.62996.YahooMailClassic@web87002.mail.ird.yahoo.com>
-Content-Type: text/plain; charset="UTF-8"
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 38/48] policycoreutils: sandbox: rewrite /tmp handling FIXME
+Content-Type: multipart/mixed;
+ boundary="------------020405040209050604040700"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It actually means you need a valid range component. If you build a
-binary policy without the --mls flag, it just doesn't write any of the
-mls information to the binary. As Jim said, this is just required so as
-to minimize special cases.
+This is a multi-part message in MIME format.
+--------------020405040209050604040700
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-If you don't want to have to specify the range every time you create a
-context, you can create a named levelrange with only one category and
-sensitivity and use that in contexts, for example:
-
-(category c0)
-(categoryorder (c0))
-(sensitivity s0)
-(dominance (s0))
-(sensitivitycategory s0 (c0))
-(levelrange default ((s0 (c0)) (s0 (c0))))
-
-(context context1 (unconfined_u unconfined_r unconfined_t default))
-
-This is similar to the way the gen_context statement in refpolicy works,
-which just discards the range when not building an mls policy.
-
-Also, if you get the simple CIL policy working, we'd love to see it.
-
-- Steve
-
-On 08/29/2011 12:14 PM, Richard Haines wrote:
-> Does this mean that I need to declare the range components as nulls, for example:
-> 
-> (context context1 (unconfined_u  unconfined_r  unconfined_t (() ())))
-> 
-> or is CIL only for generating MCS/MLS policy.
-> 
-> What I've been trying to do is generate a simple policy based on 'mdp' in CIL and thought I would use secilc to generate the binary. However I found that secilc only supports generating MCS/MLS policy (although I hacked it enough to generate contexts as in the example above).
-> 
-> Richard
-> 
-> --- On Thu, 25/8/11, James Carter <jwcart2@tycho.nsa.gov> wrote:
-> 
->> From: James Carter <jwcart2@tycho.nsa.gov>
->> Subject: Re: SELinux Common Intermediate Language Update
->> To: "Richard Haines" <richard_c_haines@btinternet.com>
->> Cc: "Steve Lawrence" <slawrence@tresys.com>, "SELinux" <selinux@tycho.nsa.gov>
->> Date: Thursday, 25 August, 2011, 17:46
->> On Thu, 2011-08-25 at 17:10 +0100,
->> Richard Haines wrote:
->>> I've been trying to generate a context for a non-mls
->> policy but keep getting the following error:
->>>
->>> Building Parse Tree...
->>> Building AST from Parse Tree...
->>> Invalid context (line: 12)
->>> Failed to fill context, rc: -1
->>> cil_gen_context failed, rc: -1
->>> Failed to process node
->>> cil_tree_walk failed, rc: -1
->>> Failed to build ast, exiting
->>>
->>> I've tried various formats of 'context' but all
->> failed. One example:
->>> ( context context1 ( unconfined_u unconfined_r
->> unconfined_t ))
->>>
->>> I see plenty of mls context examples in the test files
->> but no non-mls.
->>> Could you let me know the correct format please.
->>>
->>
->> You always need to specify MLS current and clearance levels
->> in CIL. The
->> idea behind CIL is that we want a good foundation for
->> building
->> higher-level languages and tools, so we want minimize the
->> special cases
->> in the language syntax. Refpolicy already uses
->> gen_context() for
->> contexts, so just think of CIL as having gen_context()
->> built in.
->>
->> -- 
->> James Carter <jwcart2@tycho.nsa.gov>
->> National Security Agency
->>
->>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+This patch looks good to me. acked.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk5dS3wACgkQrlYvE4MpobNwwACguyTbCDjkkUOWjG+qJnS3vPEf
+EhUAnRDpIoqXn5WtaX4Ohc3z2gnOroYZ
+=XniU
+-----END PGP SIGNATURE-----
+
+--------------020405040209050604040700
+Content-Type: text/plain;
+ name="0038-policycoreutils-sandbox-rewrite-tmp-handling-FIXME.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0038-policycoreutils-sandbox-rewrite-tmp-handling-FIXME.patc";
+ filename*1="h"
+
+
+--------------020405040209050604040700--
