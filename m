@@ -1,56 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7UKksfi014150
-	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 16:46:54 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7UKkqbL022550
-	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 20:46:53 GMT
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p7UKkqd3010672
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2011 16:46:52 -0400
-Message-ID: <4E5D4C3B.1080808@redhat.com>
-Date: Tue, 30 Aug 2011 16:46:51 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH 17/48] policycoreutils: setfiles: FIXME Fix potential crash
-Content-Type: multipart/mixed;
- boundary="------------030001050400020804010009"
+In-Reply-To: <4E5D2DBA.9060201@manicmethod.com>
+References: <4E5D2DBA.9060201@manicmethod.com>
+Date: Tue, 30 Aug 2011 22:48:58 +0200
+Message-ID: <CADyhKSVBhXHsfyXVkWZxuJqAZ9-QgPjfhPZOdGyfBEEGb-iVbA@mail.gmail.com>
+Subject: Re: sepgsql and process transition
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030001050400020804010009
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+The reason why we check process:{transition} permission on invocation
+of trusted procedures is an analogy to execution of program with
+domain transition.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In the case of domain transition, it checks process:{transition}
+permission on a pair of source and target domain, and it also checks
+file:{entrypoint execute} permission on the security label of the file
+to be launched.
 
+Let's replace the file by a database object.
+When a trusted procedure is invoked, it checks process:{transition}
+permission on a pair of source and target *domain*. Please note that
+"sepgsql_trusted_proc_t" is a domain, not an object within
+db_procedure class.
+And, it also checks db_procedure:{entrypoint execute} permission on
+the security label of the procedure to be launched.
 
-This patch looks good to me. acked.
-
-FIXME: Would this be somehow a normal condition for an empty directory?
-Don't know the code well enough to tell.
-
-No the code works fine with empty directories.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk5dTDsACgkQrlYvE4MpobPZOwCguShVgT7fhgSDOn3uNstJ7Gv1
-eSEAn0/pNB6SFHvusyQ6LWpl56ENcajE
-=WDFm
------END PGP SIGNATURE-----
-
---------------030001050400020804010009
-Content-Type: text/plain;
- name="0017-policycoreutils-setfiles-FIXME-Fix-potential-crash-u.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0017-policycoreutils-setfiles-FIXME-Fix-potential-crash-u.pa";
- filename*1="tch"
+Also note that sepgsql_trusted_proc_exec_t is a label to be assigned
+on db_procedure class; as an entrypoint of trusted procedure.
 
 
---------------030001050400020804010009--
+2011/8/30 Joshua Brindle <method@manicmethod.com>:
+> Kaigai, I'm taking a look at the latest Postgresql master and I see that you
+> are using process:transition permission to check access to transition from
+> one type to another for trusted procedures.
+>
+> Why didn't you add a transition permission to db_procedure? We are trying
+> not to reuse kernel object classes for userspace object managers these days
+> (I know we haven't been great about that in the past). I know this situation
+> is a little tricky because the beginning type is a process type (domain) and
+> the ending type is a procedure type, which closely maps to a domain type.
+>
+> The beginning type may not always be a domain type though, if a procedure
+> calls another procedure, or if postgres user session types become derived
+> types (user_t -> sepgsql_user_t) we could completely divorce process types
+> from postgres types.
+>
+> Stephen, do you have an opinion on this?
+>
+
+
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
