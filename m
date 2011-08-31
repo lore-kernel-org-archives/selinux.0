@@ -1,92 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7VIO64o005124
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 14:24:06 -0400
-Received: from mail-ey0-f171.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p7VIO5ax006039
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 18:24:05 GMT
-Received: by eyg24 with SMTP id 24so1425824eyg.30
-        for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 11:24:04 -0700 (PDT)
-Date: Wed, 31 Aug 2011 20:24:01 +0200
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
 Subject: Re: CentOS 5 RBAC
-Message-ID: <20110831182400.GD11607@localhost.localdomain>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Roy Badami <roy.badami@roboreus.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1314814992.6850.38.camel@moss-pluto>
 References: <4E5E68DB.1030101@roboreus.com>
- <20110831174805.GC11607@localhost.localdomain>
- <4E5E7A12.9080009@roboreus.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
-In-Reply-To: <4E5E7A12.9080009@roboreus.com>
+	 <1314810951.6850.26.camel@moss-pluto>  <4E5E7757.5030007@roboreus.com>
+	 <1314814992.6850.38.camel@moss-pluto>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 31 Aug 2011 14:25:52 -0400
+Message-ID: <1314815152.6850.39.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2011-08-31 at 14:23 -0400, Stephen Smalley wrote:
+> On Wed, 2011-08-31 at 19:03 +0100, Roy Badami wrote:
+> 
+> > If the allow_sysadm_manage_security boolean was implemented in this
+> > policy then I could simply set that to 'off'.   Given it's not -
+> > what's the best way to grant this permission to secadm_r only?
+> > Presumably I want to set secure_mode_loadpolicy to 'on' as now so that
+> > the shipped policy doesn't give permissions, and then load some custom
+> > TE rules to add the necessary permissions for secadm_r to administer
+> > security policy? 
+> 
+> I think that would work and avoid the need to modify/rebuild the
+> existing policy.
+> 
+> However, be aware that the sysadm vs secadm distinction is largely
+> illusory even if you do this.  See this thread for further discussion:
+> http://marc.info/?t=105457894700002&r=1&w=2
 
---wULyF7TL5taEdwHz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+BTW, if you're looking to further harden your setup, you might want to
+have a look at CLIP,
+http://oss.tresys.com/projects/clip
 
-On Wed, Aug 31, 2011 at 07:14:42PM +0100, Roy Badami wrote:
-> On 31/08/2011 18:48, Dominick Grift wrote:
-> >On Wed, Aug 31, 2011 at 06:01:15PM +0100, Roy Badami wrote:
-> >>I'm trying to understand the RBAC features in the version of the mls
-> >>(and also strict) policies that ship with CentOS 5.6 - I'm not sure
-> >>if this is the best place to ask or if there's a more appropriate
-> >>list.
-> >refpolicy@oss.tresys.com is more appropriate.
->=20
-> Thanks - I'll bear that one in mind.
-> >
-> >When you build mls policy you get a seperate secadm role when you build =
-strict policy then sysadm role also has the capabilities that secadm role i=
-n mls has.
->=20
-> Yes, so looks like it does makes sense for me to use the mls policy
-> in that case.  Unfortunately in the mls policy on el5 it appears
-> that both sysadm_r and secadm_r can both administer security.
-> secadm_r is preveneted from performing other systems administration,
-> but unfortunately sysadm_r is not prevented from changint the
-> selinux policy, etc.  This wasn't how I was hoping it would work :-(
->=20
-> >
-> >well whether the modules are installed (semodule -l | grep secadm) that =
-i guess would be defined manually in the modules.conf for strict. if the se=
-cadm module is installed then it could be that the role is just not mapped =
-to staff_u unless policy is mls ( see above: users file snippet)
-> Ah, I'd been trying to figure out how to verify what modules really
-> were present in the loaded binary policy - that's very useful,
-> thanks!  As as your other pointers to bits of the policy.
+-- 
+Stephen Smalley
+National Security Agency
 
-Well its just an indicator. Some ( core? ) modules are compiled in a single=
- base module, which isnt listed in semodule -l. In a perfect world that wou=
-ld be only about 10 modules or so ( the ones in the kernel layer ) however =
-people have been using the base module as a refuge to hide their broken pol=
-icy ;)
-
-So most modules should be listed with semodule -l, only few arent listed be=
-cause they are in base. Which modules exactly are in base is harder to tell=
-=2E ( you could download the policy source rpm. extract it and look into th=
-e enclosed modules-mls.conf file. grep -i it for base. (example: kernel =3D=
- base)
->=20
-> Regards
->=20
-> roy
-
---wULyF7TL5taEdwHz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-
-iEYEARECAAYFAk5efEAACgkQMlxVo39jgT+NtgCfUC9Rm5SWddKWOeOKbJ1Qw8nv
-tCIAnRwZPW6eO1s0880Y7uXL5TPjzAH/
-=54Gp
------END PGP SIGNATURE-----
-
---wULyF7TL5taEdwHz--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
