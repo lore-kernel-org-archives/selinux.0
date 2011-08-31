@@ -1,82 +1,59 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7V8aO2s009720
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 04:36:24 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7V8aNDq000688
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 08:36:23 GMT
-From: <rongqing.li@windriver.com>
-To: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
-        <linux-security-module@vger.kernel.org>
-Subject: [PATCH 0/2] Dump the sock's security context 
-Date: Wed, 31 Aug 2011 16:36:15 +0800
-Message-ID: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: Re: [PATCH 2/2] Add a netlink attribute INET_DIAG_SECCTX
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: rongqing.li@windriver.com
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <1314779777-12669-3-git-send-email-rongqing.li@windriver.com>
+References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com>
+	 <1314779777-12669-3-git-send-email-rongqing.li@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 31 Aug 2011 08:08:30 -0400
+Message-ID: <1314792510.6850.7.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
--------
-    Any review would be much appreciated.
- 
-Comments:
---------
-    Add a netlink attribute INET_DIAG_SECCTX
-    
-    Add a new netlink attribute INET_DIAG_SECCTX to dump the security
-    context of TCP sockets.
-    
-    The element sk_security of struct sock represents the socket
-    security context ID, which is inherited from the parent process
-    when the socket is created.
-    
-    but when SELinux type_transition rule is applied to socket, or
-    application sets /proc/xxx/attr/createsock, the socket security
-    context would be different from the creating process. For these
-    conditions, the "netstat -Z" would return wrong value, since
-    "netstat -Z" only returns the process security context as socket
-    process security.
+On Wed, 2011-08-31 at 16:36 +0800, rongqing.li@windriver.com wrote:
+> From: Roy.Li <rongqing.li@windriver.com>
+> 
+> Add a new netlink attribute INET_DIAG_SECCTX to dump the security
+> context of TCP sockets.
+> 
+> The element sk_security of struct sock represents the socket
+> security context ID, which is inherited from the parent process
+> when the socket is created.
+> 
+> but when SELinux type_transition rule is applied to socket, or
+> application sets /proc/xxx/attr/createsock, the socket security
+> context would be different from the creating process. For these
+> conditions, the "netstat -Z" will return wrong value, since
+> "netstat -Z" only returns the process security context as socket
+> process security.
+> 
+> Signed-off-by: Roy.Li <rongqing.li@windriver.com>
+> ---
+>  include/linux/inet_diag.h |    3 ++-
+>  net/ipv4/inet_diag.c      |   38 +++++++++++++++++++++++++++++++++-----
+>  2 files changed, 35 insertions(+), 6 deletions(-)
 
+> diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
+> index 389a2e6..1faf752 100644
+> --- a/net/ipv4/inet_diag.c
+> +++ b/net/ipv4/inet_diag.c
+> @@ -34,6 +34,8 @@
+>  
+>  #include <linux/inet_diag.h>
+>  
+> +#define MAX_SECCTX_LEN 128
 
-The application to verify the netlink new attribute.
-------
-See attached file
+We don't impose such a (low) limit on other interfaces for reporting
+security contexts.  Can you just size the buffer appropriately for the
+actual secctx length?
 
-test:
---------
-1. Enable SELinux when compile and startup .
-	root@qemu-host:/root> ./printsocketsec
-	 inode:7141 system_u:system_r:rpcbind_t:s0 
-	 inode:7136 system_u:system_r:rpcbind_t:s0 
-	 inode:7604 system_u:system_r:initrc_t:s0 
-	 inode:7227 system_u:system_r:rpcd_t:s0 
-	 inode:7471 system_u:system_r:sshd_t:s0-s0:c0.c1023 
-	 inode:7469 system_u:system_r:sshd_t:s0-s0:c0.c1023 
-	 inode:7552 system_u:system_r:sendmail_t:s0 
-	 inode:7348 system_u:system_r:initrc_t:s0 
-	 inode:7553 system_u:system_r:sendmail_t:s0 
-	root@qemu-host:/root> 
+-- 
+Stephen Smalley
+National Security Agency
 
-2. Disable SELinux when startup.
-	root@qemu-host:/root> ./printsocketsec 
-	inode:3221 
-	inode:2942 
-	inode:2861 
-	inode:3256 
-	inode:3156 
-	inode:3220 
-	inode:3060
-	root@qemu-host:/root>
-
-3. Disable SELinux when compile and startup
-	root@qemu-host:/root> ./printsocketsec 
-	inode:3221 
-	inode:2942 
-	inode:2861 
-	inode:3256 
-	inode:3156 
-	inode:3220 
-	inode:3060
-	root@qemu-host:/root>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
