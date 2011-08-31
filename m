@@ -1,39 +1,41 @@
-Subject: Re: CentOS 5 RBAC
+Subject: Re: [PATCH 1/2] Define security_sk_getsecctx
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Roy Badami <roy.badami@roboreus.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1314814992.6850.38.camel@moss-pluto>
-References: <4E5E68DB.1030101@roboreus.com>
-	 <1314810951.6850.26.camel@moss-pluto>  <4E5E7757.5030007@roboreus.com>
-	 <1314814992.6850.38.camel@moss-pluto>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: rongqing.li@windriver.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <4E5E568A.4050407@schaufler-ca.com>
+References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com>
+	 <1314779777-12669-2-git-send-email-rongqing.li@windriver.com>
+	 <4E5E568A.4050407@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 31 Aug 2011 14:25:52 -0400
-Message-ID: <1314815152.6850.39.camel@moss-pluto>
+Date: Wed, 31 Aug 2011 14:46:01 -0400
+Message-ID: <1314816361.6850.51.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-31 at 14:23 -0400, Stephen Smalley wrote:
-> On Wed, 2011-08-31 at 19:03 +0100, Roy Badami wrote:
+On Wed, 2011-08-31 at 08:43 -0700, Casey Schaufler wrote:
+> On 8/31/2011 1:36 AM, rongqing.li@windriver.com wrote:
+> > From: Roy.Li <rongqing.li@windriver.com>
+> >
+> > Define security_sk_getsecctx to return the security
+> > context of a sock.
 > 
-> > If the allow_sysadm_manage_security boolean was implemented in this
-> > policy then I could simply set that to 'off'.   Given it's not -
-> > what's the best way to grant this permission to secadm_r only?
-> > Presumably I want to set secure_mode_loadpolicy to 'on' as now so that
-> > the shipped policy doesn't give permissions, and then load some custom
-> > TE rules to add the necessary permissions for secadm_r to administer
-> > security policy? 
-> 
-> I think that would work and avoid the need to modify/rebuild the
-> existing policy.
-> 
-> However, be aware that the sysadm vs secadm distinction is largely
-> illusory even if you do this.  See this thread for further discussion:
-> http://marc.info/?t=105457894700002&r=1&w=2
+> So, what is the intended use of the information
+> coming from this hook? If I wanted to write the
+> Smack hook, which of the "contexts" would I want
+> to return? There are potentially three. If I know
+> what the caller is looking for, I can (hopefully)
+> select the correct information.
 
-BTW, if you're looking to further harden your setup, you might want to
-have a look at CLIP,
-http://oss.tresys.com/projects/clip
+The initial use case is for netstat -Z so that it can reliably show the
+security context of the socket rather than inferring it from the owning
+process, which can be inaccurate for security-aware applications.
+
+In your situation, when in != out, which would you rather see in netstat
+-Z output?  Alternatively, if you want them both, perhaps you could
+combine in and out into a single string that is returned, similar to
+what you proposed for handling multiple xattrs with inode_getsecctx()?
 
 -- 
 Stephen Smalley
