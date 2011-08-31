@@ -5,34 +5,29 @@ Cc: selinux@tycho.nsa.gov
 In-Reply-To: <4E5E68DB.1030101@roboreus.com>
 References: <4E5E68DB.1030101@roboreus.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 31 Aug 2011 13:15:51 -0400
-Message-ID: <1314810951.6850.26.camel@moss-pluto>
+Date: Wed, 31 Aug 2011 13:24:44 -0400
+Message-ID: <1314811484.6850.30.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2011-08-31 at 18:01 +0100, Roy Badami wrote:
-> I'm trying to understand the RBAC features in the version of the mls 
-> (and also strict) policies that ship with CentOS 5.6 - I'm not sure if 
-> this is the best place to ask or if there's a more appropriate list.
+> Just out of interest, I then went and tried the strict policy.  Yet this 
+> policy doesn't even have a secadm_r and again I don't understand why.  
+> The specfile builds it with NAME=strict TYPE=strict-mcs and from my 
+> reading of the makefile an -mcs policy should again set enable_mls.    
+> And kernel.ke continas the following, so I don't quite see why the 
+> policy doesn't end up containing these roles.
 > 
-> Starting with the mls policy, and setting the secure_mode_loadpolicy 
-> boolean to 'on'  I then get that *neither* sysadm_r *nor* secadm_r can 
-> issue commands such as setenforce.
+> ifdef(`enable_mls',`
+>          role secadm_r;
+>          role auditadm_r;
+> ')
 
-secure_mode_policyload = 1 means "Don't allow any further policy
-reloads, changing enforcing mode, or boolean changes (until next
-reboot)."
-
-The logic in selinux_set_enforce_mode() in
-policy/modules/kernel/selinux.if is:
-...
-      if(!secure_mode_policyload) {
-                allow $1 security_t:security setenforce;
-...
-}
-
-Notice the logical negation (!) in the above if statement.  
+At least in the policy sources I am looking at, a policy type that
+includes the mcs suffix causes the policy to be built with -D
+enable_mcs, not -D enable_mls.  Thus those roles don't get included in
+the mcs policy.
 
 -- 
 Stephen Smalley
