@@ -1,158 +1,100 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7VFhlHv001918
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 11:43:47 -0400
-Received: from nm17-vm0.access.bullet.mail.mud.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p7VFhkES011060
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 15:43:46 GMT
-Message-ID: <4E5E568A.4050407@schaufler-ca.com>
-Date: Wed, 31 Aug 2011 08:43:06 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7VH2Vcv007294
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 13:02:31 -0400
+Received: from mx-out-manc2.simplymailsolutions.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7VH2UKk028004
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 17:02:30 GMT
+Received: from [10.1.10.3] (helo=unx-s-manc3.ifeltd.com)
+	by mx-out-manc2.simplymailsolutions.com with esmtp (Exim 4.63)
+	(envelope-from <roy.badami@roboreus.com>)
+	id 1QyoBJ-0002rU-Qt
+	for selinux@tycho.nsa.gov; Wed, 31 Aug 2011 18:02:29 +0100
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by unx-s-manc3.ifeltd.com (Postfix) with ESMTP id C33F38C8019
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 18:02:29 +0100 (BST)
+Received: from unx-s-manc3.ifeltd.com ([127.0.0.1])
+	by localhost (unx-s-manc3.ifeltd.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b3Jmasw7uyHu for <selinux@tycho.nsa.gov>;
+	Wed, 31 Aug 2011 18:02:29 +0100 (BST)
+Received: from [192.168.1.113] (unknown [87.224.85.62])
+	by unx-s-manc3.ifeltd.com (Postfix) with ESMTPSA id 9258C8C8018
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 18:02:29 +0100 (BST)
+Message-ID: <4E5E68DB.1030101@roboreus.com>
+Date: Wed, 31 Aug 2011 18:01:15 +0100
+From: Roy Badami <roy.badami@roboreus.com>
 MIME-Version: 1.0
-To: rongqing.li@windriver.com
-CC: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 1/2] Define security_sk_getsecctx
-References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com> <1314779777-12669-2-git-send-email-rongqing.li@windriver.com>
-In-Reply-To: <1314779777-12669-2-git-send-email-rongqing.li@windriver.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Subject: CentOS 5 RBAC
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/31/2011 1:36 AM, rongqing.li@windriver.com wrote:
-> From: Roy.Li <rongqing.li@windriver.com>
->
-> Define security_sk_getsecctx to return the security
-> context of a sock.
+I'm trying to understand the RBAC features in the version of the mls 
+(and also strict) policies that ship with CentOS 5.6 - I'm not sure if 
+this is the best place to ask or if there's a more appropriate list.
 
-So, what is the intended use of the information
-coming from this hook? If I wanted to write the
-Smack hook, which of the "contexts" would I want
-to return? There are potentially three. If I know
-what the caller is looking for, I can (hopefully)
-select the correct information.
+Starting with the mls policy, and setting the secure_mode_loadpolicy 
+boolean to 'on'  I then get that *neither* sysadm_r *nor* secadm_r can 
+issue commands such as setenforce.  Yet userdomain.te contains the 
+following code:
 
-> Signed-off-by: Roy.Li <rongqing.li@windriver.com>
-> ---
->  include/linux/security.h |   13 +++++++++++++
->  security/capability.c    |    6 ++++++
->  security/security.c      |    6 ++++++
->  security/selinux/hooks.c |    9 +++++++++
->  4 files changed, 34 insertions(+), 0 deletions(-)
->
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index ebd2a53..6bb8e0c 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -959,6 +959,12 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   * @sk_getsecid:
->   *	Retrieve the LSM-specific secid for the sock to enable caching of network
->   *	authorizations.
-> + * @sk_getsecctx:
-> + *	Returns a string containing sock security context information
-> + *	@sk whom we wish to get the security context.
-> + *	@ctx is the address of the pointer to where to place the allocated
-> + *	security context.
-> + *	@ctxlen points to the value of the length of the security context.
->   * @sock_graft:
->   *	Sets the socket's isec sid to the sock's sid.
->   * @inet_conn_request:
-> @@ -1600,6 +1606,7 @@ struct security_operations {
->  	void (*sk_free_security) (struct sock *sk);
->  	void (*sk_clone_security) (const struct sock *sk, struct sock *newsk);
->  	void (*sk_getsecid) (struct sock *sk, u32 *secid);
-> +	int (*sk_getsecctx) (struct sock *sk, void **ctx, u32 *ctxlen);
->  	void (*sock_graft) (struct sock *sk, struct socket *parent);
->  	int (*inet_conn_request) (struct sock *sk, struct sk_buff *skb,
->  				  struct request_sock *req);
-> @@ -2574,6 +2581,7 @@ void security_secmark_refcount_dec(void);
->  int security_tun_dev_create(void);
->  void security_tun_dev_post_create(struct sock *sk);
->  int security_tun_dev_attach(struct sock *sk);
-> +int security_sk_getsecctx(struct sock *sk, void **ctx, u32 *ctxlen);
->  
->  #else	/* CONFIG_SECURITY_NETWORK */
->  static inline int security_unix_stream_connect(struct sock *sock,
-> @@ -2751,6 +2759,11 @@ static inline int security_tun_dev_attach(struct sock *sk)
->  {
->  	return 0;
->  }
-> +
-> +static int security_sk_getsecctx(struct sock *sk, void **ctx, u32 *ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
->  #endif	/* CONFIG_SECURITY_NETWORK */
->  
->  #ifdef CONFIG_SECURITY_NETWORK_XFRM
-> diff --git a/security/capability.c b/security/capability.c
-> index 2984ea4..89256a6 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -664,6 +664,11 @@ static void cap_sk_getsecid(struct sock *sk, u32 *secid)
->  {
->  }
->  
-> +static int cap_sk_getsecctx(struct sock *sk, void **ctx, u32 *ctxlen)
-> +{
-> +	return 0;
-> +}
-> +
->  static void cap_sock_graft(struct sock *sk, struct socket *parent)
->  {
->  }
-> @@ -1032,6 +1037,7 @@ void __init security_fixup_ops(struct security_operations *ops)
->  	set_to_cap_if_null(ops, sk_free_security);
->  	set_to_cap_if_null(ops, sk_clone_security);
->  	set_to_cap_if_null(ops, sk_getsecid);
-> +	set_to_cap_if_null(ops, sk_getsecctx);
->  	set_to_cap_if_null(ops, sock_graft);
->  	set_to_cap_if_null(ops, inet_conn_request);
->  	set_to_cap_if_null(ops, inet_csk_clone);
-> diff --git a/security/security.c b/security/security.c
-> index 0e4fccf..a939f5c 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -757,6 +757,12 @@ void security_task_getsecid(struct task_struct *p, u32 *secid)
->  }
->  EXPORT_SYMBOL(security_task_getsecid);
->  
-> +int security_sk_getsecctx(struct sock *sk, void **ctx, u32 *ctxlen)
-> +{
-> +	return security_ops->sk_getsecctx(sk, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_sk_getsecctx);
-> +
->  int security_task_setnice(struct task_struct *p, int nice)
->  {
->  	return security_ops->task_setnice(p, nice);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 266a229..6e96f01 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4284,6 +4284,14 @@ static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
->  	}
->  }
->  
-> +static int selinux_sk_getsecctx(struct sock *sk, void **ctx, u32 *ctxlen)
-> +{
-> +	u32 secid;
-> +
-> +	selinux_sk_getsecid(sk, &secid);
-> +	return security_sid_to_context(secid, ctx, ctxlen);
-> +}
-> +
->  static void selinux_sock_graft(struct sock *sk, struct socket *parent)
->  {
->  	struct inode_security_struct *isec = SOCK_INODE(parent)->i_security;
-> @@ -5613,6 +5621,7 @@ static struct security_operations selinux_ops = {
->  	.sk_free_security =		selinux_sk_free_security,
->  	.sk_clone_security =		selinux_sk_clone_security,
->  	.sk_getsecid =			selinux_sk_getsecid,
-> +	.sk_getsecctx =                 selinux_sk_getsecctx,
->  	.sock_graft =			selinux_sock_graft,
->  	.inet_conn_request =		selinux_inet_conn_request,
->  	.inet_csk_clone =		selinux_inet_csk_clone,
+ifdef(`strict_policy',`
+[...]
+         optional_policy(`
+                 seutil_run_restorecon(sysadm_t,sysadm_r,admin_terminal)
+                 seutil_run_runinit(sysadm_t,sysadm_r,admin_terminal)
+
+                 ifdef(`enable_mls',`
+                         
+userdom_security_administrator(secadm_t,secadm_r,{ secadm_tty_device_t 
+sysadm_devpts_t })
+#                       tunable_policy(`allow_sysadm_manage_security',`
+                                 
+userdom_security_administrator(sysadm_t,sysadm_r,admin_terminal)
+#                       ')
+                 ', `
+                         
+userdom_security_administrator(sysadm_t,sysadm_r,admin_terminal)
+                 ')
+         ')
+[...]
+')
+
+Now as far as I can see from the specfile the mls policy passes NAME=mls 
+TYPE=strict-mls to the makefile, and the makefile in turn defines 
+strict_policy and enable_mls in response to TYPE=strict-mls - and yet as 
+far as I can tell from running apol the actual binary policy in the 
+selinux-policy-mls RPM ends up not containing any TE rule to allow 
+sysadm_t or secadm_t to run setenforce - despite the fact that it would 
+appear that the userdom_security_administrator macro should appear to 
+expand into such rules.
+
+What am I overlooking here?
+
+Just out of interest, I then went and tried the strict policy.  Yet this 
+policy doesn't even have a secadm_r and again I don't understand why.  
+The specfile builds it with NAME=strict TYPE=strict-mcs and from my 
+reading of the makefile an -mcs policy should again set enable_mls.    
+And kernel.ke continas the following, so I don't quite see why the 
+policy doesn't end up containing these roles.
+
+ifdef(`enable_mls',`
+         role secadm_r;
+         role auditadm_r;
+')
+
+Any pointers to what I'm missing here would be appreciated.
+
+Regards
+
+Roy
+
+
+-- 
+Roy Badami
+Roboreus Ltd
+1 New Oxford Street
+London WC1A 1NU
 
 
 --
