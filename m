@@ -1,45 +1,49 @@
-Subject: Re: [PATCH 1/2] Define security_sk_getsecctx
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: rongqing.li@windriver.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <4E5E568A.4050407@schaufler-ca.com>
-References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com>
-	 <1314779777-12669-2-git-send-email-rongqing.li@windriver.com>
-	 <4E5E568A.4050407@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 31 Aug 2011 14:46:01 -0400
-Message-ID: <1314816361.6850.51.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <4E5E933B.6060604@manicmethod.com>
+Date: Wed, 31 Aug 2011 16:02:03 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: sepgsql and process transition
+References: <4E5D2DBA.9060201@manicmethod.com> <CADyhKSVBhXHsfyXVkWZxuJqAZ9-QgPjfhPZOdGyfBEEGb-iVbA@mail.gmail.com>
+In-Reply-To: <CADyhKSVBhXHsfyXVkWZxuJqAZ9-QgPjfhPZOdGyfBEEGb-iVbA@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-08-31 at 08:43 -0700, Casey Schaufler wrote:
-> On 8/31/2011 1:36 AM, rongqing.li@windriver.com wrote:
-> > From: Roy.Li <rongqing.li@windriver.com>
-> >
-> > Define security_sk_getsecctx to return the security
-> > context of a sock.
-> 
-> So, what is the intended use of the information
-> coming from this hook? If I wanted to write the
-> Smack hook, which of the "contexts" would I want
-> to return? There are potentially three. If I know
-> what the caller is looking for, I can (hopefully)
-> select the correct information.
+Kohei KaiGai wrote:
+> The reason why we check process:{transition} permission on invocation
+> of trusted procedures is an analogy to execution of program with
+> domain transition.
+>
+> In the case of domain transition, it checks process:{transition}
+> permission on a pair of source and target domain, and it also checks
+> file:{entrypoint execute} permission on the security label of the file
+> to be launched.
+>
 
-The initial use case is for netstat -Z so that it can reliably show the
-security context of the socket rather than inferring it from the owning
-process, which can be inaccurate for security-aware applications.
+I think I hit the exact reason why this bothers me today. As 
+staff_t:SystemLow-SystemHigh I wanted a stored procedure that ran at 
+sepgsql_trusted_proc_t:SystemHigh (so that it could read a SystemHigh column and 
+fuzz the results).
 
-In your situation, when in != out, which would you rather see in netstat
--Z output?  Alternatively, if you want them both, perhaps you could
-combine in and out into a single string that is returned, similar to
-what you proposed for handling multiple xattrs with inode_getsecctx()?
+Because of the current process constraint:
+  mlsconstrain process transition
+        (( h1 dom h2 ) and
+         (( l1 eq l2 ) or ( t1 == mlsprocsetsl ) or
+          (( t1 == privrangetrans ) and ( t2 == mlsrangetrans ))));
 
--- 
-Stephen Smalley
-National Security Agency
+it isn't possible unless staff_t is part of privrangetrans and 
+sepgsql_trusted_proc_t is part of mlsrangetrans. I don't mind the latter but the 
+former is clearly a violation of how MLS is suppose to work on multi-level 
+SELinux systems (in general, unprivileged users should not be able to change 
+their level without going through newrole or logging out and back in).
+
+If there was a different object class for procedures-while-executing, akin to 
+process but called something different we could have a different constraint that 
+made more sense for this use case.
+
 
 
 --
