@@ -1,157 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p813TrSi031915
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 23:30:03 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p813Tx06012562
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 03:29:59 GMT
-Received: from ALA-HCA.corp.ad.wrs.com (ala-hca [147.11.189.40])
-	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p813TxT2007143
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:29:59 -0700 (PDT)
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [v2 PATCH 5/8] Permanently discard disabled branches of tunables in expansion.
-Date: Thu, 1 Sep 2011 11:29:44 +0800
-Message-ID: <1314847787-4055-6-git-send-email-qingtao.cao@windriver.com>
-In-Reply-To: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
-References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p814BdFJ001714
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 00:11:39 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p814Bbjt003448
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 04:11:38 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 7E01618022
+	for <selinux@tycho.nsa.gov>; Thu,  1 Sep 2011 14:11:29 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: no new-line in setfiles/restorecon patch
+Date: Thu, 1 Sep 2011 14:11:32 +1000
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_0XwXOpZTkStPBVN"
+Message-Id: <201109011411.32863.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For a cond_node_t in one decl->cond_list queue, append its
-avtrue_list or avfalse_list to the avrules list of its home decl
-depending on its state value, so that these effective rules would
-be permanently added to te_avtab hashtab.
+--Boundary-00=_0XwXOpZTkStPBVN
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-On the other hand, the rules on the disabled unused list won't be
-expanded and written to the raw policy at all.
+New-lines just look ugly when the screen width isn't 80 columns.  Knowing 
+exactly how much progress we have made in increments of 80,000 isn't that 
+useful IMHO.
 
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/expand.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 98 insertions(+), 0 deletions(-)
+As an aside, I've been considering patching it to display "12345" instead of 
+"*****" as the progress.  If you think this is a good idea then let me know 
+and I'll submit a patch to do it.
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 06f11f4..be41243 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2665,6 +2665,94 @@ int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
- 	return copy_and_expand_avrule_block(&state);
- }
- 
-+static void discard_tunables(policydb_t *pol)
-+{
-+	avrule_block_t *block;
-+	avrule_decl_t *decl;
-+	cond_node_t *cur_node;
-+	cond_expr_t *cur_expr;
-+	int cur_state;
-+	avrule_t *tail, *to_be_appended;
-+
-+	/* Iterate through all cond_node of all enabled decls, if a cond_node
-+	 * is about tunable, caculate its state value and concatenate one of
-+	 * its avrule list to the current decl->avrules list.
-+	 *
-+	 * Note, such tunable cond_node would be skipped over in expansion,
-+	 * so we won't have to worry about removing it from decl->cond_list
-+	 * here :-)
-+	 *
-+	 * If tunables and booleans co-exist in the expression of a cond_node,
-+	 * then tunables would be "transformed" as booleans.
-+	 */
-+	for (block = pol->global; block != NULL; block = block->next) {
-+		decl = block->enabled;
-+		if (decl == NULL || decl->enabled == 0)
-+			continue;
-+
-+		tail = decl->avrules;
-+		while (tail && tail->next)
-+			tail = tail->next;
-+
-+		for (cur_node = decl->cond_list; cur_node != NULL;
-+		     cur_node = cur_node->next) {
-+			int booleans, tunables;
-+			cond_bool_datum_t *booldatum;
-+
-+			booleans = tunables = 0;
-+
-+			for (cur_expr = cur_node->expr; cur_expr != NULL;
-+			     cur_expr = cur_expr->next) {
-+				if (cur_expr->expr_type != COND_BOOL)
-+					continue;
-+				booldatum = pol->bool_val_to_struct[cur_expr->bool - 1];
-+				if (booldatum->flags & COND_BOOL_FLAGS_TUNABLE)
-+					tunables++;
-+				else
-+					booleans++;
-+			}
-+
-+			/* bool_copy_callback() at link phase has ensured
-+			 * that no mixture of tunables and booleans in one
-+			 * expression. */
-+			assert(!(booleans && tunables));
-+
-+			if (booleans) {
-+				cur_node->flags &= ~COND_NODE_FLAGS_TUNABLE;
-+			} else {
-+				cur_node->flags |= COND_NODE_FLAGS_TUNABLE;
-+				cur_state = cond_evaluate_expr(pol, cur_node->expr);
-+				if (cur_state == -1) {
-+					printf("Expression result was "
-+					       "undefined, skipping all"
-+					       "rules\n");
-+					continue;
-+				}
-+
-+				to_be_appended = (cur_state == 1) ?
-+					cur_node->avtrue_list : cur_node->avfalse_list;
-+
-+				if (tail)
-+					tail->next = to_be_appended;
-+				else
-+					tail = decl->avrules = to_be_appended;
-+
-+				/* Now that the effective branch has been
-+				 * appended, neutralize its original pointer */
-+				if (cur_state == 1)
-+					cur_node->avtrue_list = NULL;
-+				else
-+					cur_node->avfalse_list = NULL;
-+
-+				/* Update the tail of decl->avrules for
-+				 * further concatenation */
-+				while (tail && tail->next)
-+					tail = tail->next;
-+			}
-+		}
-+	}
-+}
-+
- /* Linking should always be done before calling expand, even if
-  * there is only a base since all optionals are dealt with at link time
-  * the base passed in should be indexed and avrule blocks should be 
-@@ -2678,6 +2766,16 @@ int expand_module(sepol_handle_t * handle,
- 	expand_state_t state;
- 	avrule_block_t *curblock;
- 
-+	/* Append tunable's avtrue_list or avfalse_list to the avrules list
-+	 * of its home decl depending on its state value, so that the effect
-+	 * rules of a tunable would be added to te_avtab permanently. Whereas
-+	 * the disabled unused branch would be discarded.
-+	 *
-+	 * Originally this function is called at the very end of link phase,
-+	 * however, we need to keep the linked policy intact for analysis
-+	 * purpose. */
-+	discard_tunables(base);
-+
- 	expand_state_init(&state);
- 
- 	state.verbose = verbose;
 -- 
-1.7.0.4
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
+--Boundary-00=_0XwXOpZTkStPBVN
+Content-Type: text/x-patch;
+  charset="UTF-8";
+  name="nonl.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nonl.diff"
+
+--- policycoreutils-2.1.0.orig/setfiles/restore.c
++++ policycoreutils-2.1.0/setfiles/restore.c
+@@ -114,10 +114,6 @@
+ 
+ 	if (r_opts->progress) {
+ 		r_opts->count++;
+-		if (r_opts->count % (80 * STAR_COUNT) == 0) {
+-			fprintf(stdout, "\n");
+-			fflush(stdout);
+-		}
+ 		if (r_opts->count % STAR_COUNT == 0) {
+ 			fprintf(stdout, "*");
+ 			fflush(stdout);
+
+--Boundary-00=_0XwXOpZTkStPBVN--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
