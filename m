@@ -1,18 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p813TrSh031915
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p813TrSi031915
 	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 23:30:03 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p813Tw06012559
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 03:29:58 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p813Tx06012562
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 03:29:59 GMT
 Received: from ALA-HCA.corp.ad.wrs.com (ala-hca [147.11.189.40])
-	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p813TvwX007136
+	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p813TxT2007143
 	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:29:57 -0700 (PDT)
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:29:59 -0700 (PDT)
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <selinux@tycho.nsa.gov>
-Subject: [v2 PATCH 4/8] Copy and check the cond_bool_datum_t.flags during link.
-Date: Thu, 1 Sep 2011 11:29:43 +0800
-Message-ID: <1314847787-4055-5-git-send-email-qingtao.cao@windriver.com>
+Subject: [v2 PATCH 5/8] Permanently discard disabled branches of tunables in expansion.
+Date: Thu, 1 Sep 2011 11:29:44 +0800
+Message-ID: <1314847787-4055-6-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
 References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -20,54 +20,135 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Copy the TUNABLE flag for cond_bool_datum_t during link, and check
-if there is a mismatch between boolean/tunable declaration and
-usage among modules. If this is the case, bail out with errors.
+For a cond_node_t in one decl->cond_list queue, append its
+avtrue_list or avfalse_list to the avrules list of its home decl
+depending on its state value, so that these effective rules would
+be permanently added to te_avtab hashtab.
+
+On the other hand, the rules on the disabled unused list won't be
+expanded and written to the raw policy at all.
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/src/link.c |   20 +++++++++++++++++---
- 1 files changed, 17 insertions(+), 3 deletions(-)
+ libsepol/src/expand.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 98 insertions(+), 0 deletions(-)
 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 421c47b..ee9675b 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -587,7 +587,18 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		}
- 		state->base->p_bools.nprim++;
- 		base_bool = new_bool;
--
-+		base_bool->flags = booldatum->flags;
-+	} else if ((booldatum->flags & COND_BOOL_FLAGS_TUNABLE) !=
-+		   (base_bool->flags & COND_BOOL_FLAGS_TUNABLE)) {
-+			/* A mismatch between boolean/tunable declaration
-+			 * and usage(for example a boolean used in the
-+			 * tunable_policy() or vice versa).
-+			 *
-+			 * This is not allowed and bail out with errors */
-+			ERR(state->handle,
-+			    "%s: Mismatch between boolean/tunable definition "
-+			    "and usage for %s", state->cur_mod_name, id);
-+			return -1;
- 	}
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 06f11f4..be41243 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2665,6 +2665,94 @@ int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+ 	return copy_and_expand_avrule_block(&state);
+ }
  
- 	/* Get the scope info for this boolean to see if this is the declaration, 
-@@ -595,9 +606,12 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 	scope = hashtab_search(state->cur->policy->p_bools_scope.table, id);
- 	if (!scope)
- 		return SEPOL_ERR;
--	if (scope->scope == SCOPE_DECL)  
-+	if (scope->scope == SCOPE_DECL) {
- 		base_bool->state = booldatum->state;
--
-+		/* Only the declaration rather than requirement
-+		 * decides if it is a boolean or tunable. */
-+		base_bool->flags = booldatum->flags;
++static void discard_tunables(policydb_t *pol)
++{
++	avrule_block_t *block;
++	avrule_decl_t *decl;
++	cond_node_t *cur_node;
++	cond_expr_t *cur_expr;
++	int cur_state;
++	avrule_t *tail, *to_be_appended;
++
++	/* Iterate through all cond_node of all enabled decls, if a cond_node
++	 * is about tunable, caculate its state value and concatenate one of
++	 * its avrule list to the current decl->avrules list.
++	 *
++	 * Note, such tunable cond_node would be skipped over in expansion,
++	 * so we won't have to worry about removing it from decl->cond_list
++	 * here :-)
++	 *
++	 * If tunables and booleans co-exist in the expression of a cond_node,
++	 * then tunables would be "transformed" as booleans.
++	 */
++	for (block = pol->global; block != NULL; block = block->next) {
++		decl = block->enabled;
++		if (decl == NULL || decl->enabled == 0)
++			continue;
++
++		tail = decl->avrules;
++		while (tail && tail->next)
++			tail = tail->next;
++
++		for (cur_node = decl->cond_list; cur_node != NULL;
++		     cur_node = cur_node->next) {
++			int booleans, tunables;
++			cond_bool_datum_t *booldatum;
++
++			booleans = tunables = 0;
++
++			for (cur_expr = cur_node->expr; cur_expr != NULL;
++			     cur_expr = cur_expr->next) {
++				if (cur_expr->expr_type != COND_BOOL)
++					continue;
++				booldatum = pol->bool_val_to_struct[cur_expr->bool - 1];
++				if (booldatum->flags & COND_BOOL_FLAGS_TUNABLE)
++					tunables++;
++				else
++					booleans++;
++			}
++
++			/* bool_copy_callback() at link phase has ensured
++			 * that no mixture of tunables and booleans in one
++			 * expression. */
++			assert(!(booleans && tunables));
++
++			if (booleans) {
++				cur_node->flags &= ~COND_NODE_FLAGS_TUNABLE;
++			} else {
++				cur_node->flags |= COND_NODE_FLAGS_TUNABLE;
++				cur_state = cond_evaluate_expr(pol, cur_node->expr);
++				if (cur_state == -1) {
++					printf("Expression result was "
++					       "undefined, skipping all"
++					       "rules\n");
++					continue;
++				}
++
++				to_be_appended = (cur_state == 1) ?
++					cur_node->avtrue_list : cur_node->avfalse_list;
++
++				if (tail)
++					tail->next = to_be_appended;
++				else
++					tail = decl->avrules = to_be_appended;
++
++				/* Now that the effective branch has been
++				 * appended, neutralize its original pointer */
++				if (cur_state == 1)
++					cur_node->avtrue_list = NULL;
++				else
++					cur_node->avfalse_list = NULL;
++
++				/* Update the tail of decl->avrules for
++				 * further concatenation */
++				while (tail && tail->next)
++					tail = tail->next;
++			}
++		}
 +	}
- 	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
- 	return 0;
++}
++
+ /* Linking should always be done before calling expand, even if
+  * there is only a base since all optionals are dealt with at link time
+  * the base passed in should be indexed and avrule blocks should be 
+@@ -2678,6 +2766,16 @@ int expand_module(sepol_handle_t * handle,
+ 	expand_state_t state;
+ 	avrule_block_t *curblock;
  
++	/* Append tunable's avtrue_list or avfalse_list to the avrules list
++	 * of its home decl depending on its state value, so that the effect
++	 * rules of a tunable would be added to te_avtab permanently. Whereas
++	 * the disabled unused branch would be discarded.
++	 *
++	 * Originally this function is called at the very end of link phase,
++	 * however, we need to keep the linked policy intact for analysis
++	 * purpose. */
++	discard_tunables(base);
++
+ 	expand_state_init(&state);
+ 
+ 	state.verbose = verbose;
 -- 
 1.7.0.4
 
