@@ -1,77 +1,58 @@
-From: Kohei Kaigai <Kohei.Kaigai@EMEA.NEC.COM>
-To: Kohei KaiGai <kaigai@kaigai.gr.jp>,
-        Joshua Brindle
-	<method@manicmethod.com>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: RE: sepgsql and process transition
-Date: Thu, 1 Sep 2011 09:33:56 +0000
-Message-ID: <D0C1A1F8BF513F469926E6C71461D9EC051E85@EX10MBX02.EU.NEC.COM>
-References: <4E5D2DBA.9060201@manicmethod.com>
-	<CADyhKSVBhXHsfyXVkWZxuJqAZ9-QgPjfhPZOdGyfBEEGb-iVbA@mail.gmail.com>
-	<4E5E933B.6060604@manicmethod.com>
- <CADyhKSVcA2LtxMnVvcAZ5zvWbs8E=RtFrV9bvLYo6ukDpRYc-Q@mail.gmail.com>
-In-Reply-To: <CADyhKSVcA2LtxMnVvcAZ5zvWbs8E=RtFrV9bvLYo6ukDpRYc-Q@mail.gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p81CSKH3025121
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 08:28:20 -0400
+Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p81CSIHG002673
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 12:28:18 GMT
+Received: by wwf10 with SMTP id 10so1521568wwf.30
+        for <selinux@tycho.nsa.gov>; Thu, 01 Sep 2011 05:28:17 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Rongqing Li <rongqing.li@windriver.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 2/2] Add a netlink attribute INET_DIAG_SECCTX
+Date: Thu, 01 Sep 2011 08:28:10 -0400
+Message-ID: <1971656.b979ahlREa@sifl>
+In-Reply-To: <4E5F5153.6070708@windriver.com>
+References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com> <2593215.lUI7et83Qv@sifl> <4E5F5153.6070708@windriver.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > I think I hit the exact reason why this bothers me today. As
-> > staff_t:SystemLow-SystemHigh I wanted a stored procedure that ran at
-> > sepgsql_trusted_proc_t:SystemHigh (so that it could read a SystemHigh column
-> > and fuzz the results).
-> >
-> > Because of the current process constraint:
-> >  mlsconstrain process transition
-> >       (( h1 dom h2 ) and
-> >        (( l1 eq l2 ) or ( t1 == mlsprocsetsl ) or
-> >         (( t1 == privrangetrans ) and ( t2 == mlsrangetrans ))));
-> >
-> > it isn't possible unless staff_t is part of privrangetrans and
-> > sepgsql_trusted_proc_t is part of mlsrangetrans. I don't mind the latter but
-> > the former is clearly a violation of how MLS is suppose to work on
-> > multi-level SELinux systems (in general, unprivileged users should not be
-> > able to change their level without going through newrole or logging out and
-> > back in).
-> >
-> > If there was a different object class for procedures-while-executing, akin
-> > to process but called something different we could have a different
-> > constraint that made more sense for this use case.
-> >
-> Hmm. I'd like to consider this matter for more details.
+On Thursday, September 01, 2011 05:33:07 PM Rongqing Li wrote:
+> On 09/01/2011 05:18 AM, Paul Moore wrote:
+> > On Wednesday, August 31, 2011 04:36:17 PM rongqing.li@windriver.com wrote:
+> >> From: Roy.Li<rongqing.li@windriver.com>
+> >> 
+> >> Add a new netlink attribute INET_DIAG_SECCTX to dump the security
+> >> context of TCP sockets.
+> > 
+> > You'll have to forgive me, I'm not familiar with the netlink code used
+> > by
+> > netstat and friends, but is there anyway to report back the security
+> > context of UDP sockets?  Or does the code below handle that already?
+> > 
+> > In general, AF_INET and AF_INET6 sockets, regardless of any upper level
+> > protocols, have security contexts associated with them and it would be
+> > nice to see them in netstat.
 > 
-I think it is not a situation that we should allow staff_t:SystemLow-SystemHigh
-to translate into sepgsql_trusted_proc_t:SystemHigh, because this rule intends
-to prevent to switch lower range without special attributes, and it eventually
-prevents violated references of information.
-Even if we have individual object class to represent a subject entity of database
-system, its fundamental is not changed, is it?
+> Yes, this is real concern, If the dumping tcp security context can be
+> accepted by netdev, I am planning to implement it for ipv4 udp socket, unix
+> socket. then ipv6..
 
-It seems to me a straightforward solution is to define an individual trusted
-procedure type for MLS range transition (with mlsrangetrans), and restrict
-subject entity to invoke this procedure (using privrangetrans).
+Great, I'm glad to hear you're planning on implementing this for more than 
+just TCP.
 
-> One other point I'm considering is what security label should be delivered to
-> when a database client want to invoke a remote procedure call using functions
-> installed to PostgreSQL. This feature is called 'foreign-data-wrapper' being
-> already merged at v9.1.
-> If we assign a subject entity that performs as an agent of client a security
-> label that is not a part of domain attribute, I'm not certain whether it is an
-> appropriate manner, or not.
-> 
-One other confusable situation is invocation of remote procedure from PostgreSQL.
-If we try to set up multiple SE-PostgreSQL systems that communicate via labeled
-networking each other, I'm afraid that analysis of domain transition becomes hard
-because it allows multiple paths to translate other domains.
+I understand your desire to have the basic idea accepted with only TCP 
+implemented - and that is fine with me - but I would like to see support for 
+all of the protocols merged at the same time.  In other words, seeking the 
+basic ACKs for TCP from the davem, et al is okay but I'd like to defer merging 
+TCP support until you have everything implemented and ready to be merged.
 
-Right now, my opinion is that process:{translate} permission should be checked
-when a subject entity of (operating|database) system tried to be switched.
-
-Thanks,
---
-NEC Europe Ltd, SAP Global Competence Center
-KaiGai Kohei <kohei.kaigai@emea.nec.com>
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
