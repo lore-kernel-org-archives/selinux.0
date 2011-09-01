@@ -1,121 +1,144 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p7VLIrDn015961
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 17:18:53 -0400
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p7VLIqHE018366
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 21:18:52 GMT
-Received: by wwf10 with SMTP id 10so1028582wwf.30
-        for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 14:18:52 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: rongqing.li@windriver.com
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 2/2] Add a netlink attribute INET_DIAG_SECCTX
-Date: Wed, 31 Aug 2011 17:18:47 -0400
-Message-ID: <2593215.lUI7et83Qv@sifl>
-In-Reply-To: <1314779777-12669-3-git-send-email-rongqing.li@windriver.com>
-References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com> <1314779777-12669-3-git-send-email-rongqing.li@windriver.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p810LfUb024542
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:21:41 -0400
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p810Lc2P008285
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 00:21:39 GMT
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 727D718060
+	for <selinux@tycho.nsa.gov>; Thu,  1 Sep 2011 10:21:29 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: policycoreutils man pages patch
+Date: Thu, 1 Sep 2011 10:21:32 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_MAtXOn3E16oT0Zi"
+Message-Id: <201109011021.32754.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, August 31, 2011 04:36:17 PM rongqing.li@windriver.com wrote:
-> From: Roy.Li <rongqing.li@windriver.com>
-> 
-> Add a new netlink attribute INET_DIAG_SECCTX to dump the security
-> context of TCP sockets.
+--Boundary-00=_MAtXOn3E16oT0Zi
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-You'll have to forgive me, I'm not familiar with the netlink code used by 
-netstat and friends, but is there anyway to report back the security context 
-of UDP sockets?  Or does the code below handle that already?
-
-In general, AF_INET and AF_INET6 sockets, regardless of any upper level 
-protocols, have security contexts associated with them and it would be nice to 
-see them in netstat.
-
-> diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
-> index 389a2e6..1faf752 100644
-> --- a/net/ipv4/inet_diag.c
-> +++ b/net/ipv4/inet_diag.c
-> @@ -34,6 +34,8 @@
-> 
->  #include <linux/inet_diag.h>
-> 
-> +#define MAX_SECCTX_LEN 128
-
-I'll echo Stephen's concerns that this is too small.  A MCS/MLS system with a 
-moderate number of categories could bump into this limit without too much 
-difficulty.
-
->  struct inet_diag_entry {
-> @@ -108,6 +110,25 @@ static int inet_csk_diag_fill(struct sock *sk,
->  		       icsk->icsk_ca_ops->name);
->  	}
-> 
-> +	if (ext & (1 << (INET_DIAG_SECCTX - 1))) {
-> +		u32 ctxlen = 0;
-> +		void *secctx;
-> +		int error;
-> +
-> +		error = security_sk_getsecctx(sk, &secctx, &ctxlen);
-> +
-> +		if (!error && ctxlen) {
-> +			if (ctxlen < MAX_SECCTX_LEN) {
-> +				strcpy(INET_DIAG_PUT(skb, INET_DIAG_SECCTX,
-> +					ctxlen + 1), secctx);
-> +			} else {
-> +				strcpy(INET_DIAG_PUT(skb, INET_DIAG_SECCTX,
-> +					2), "-");
-
-Is the "-" string a special value already interpreted by the userspace tools?  
-If not, you might consider using a string that would indicate an out-of-space 
-condition occurred; at first glance I thought the "-" string indicated no 
-context.
-
-> +			}
-> +			security_release_secctx(secctx, ctxlen);
-> +		}
-> +	}
-> +
->  	r->idiag_family = sk->sk_family;
->  	r->idiag_state = sk->sk_state;
->  	r->idiag_timer = 0;
-> @@ -246,7 +267,7 @@ static int sk_diag_fill(struct sock *sk, struct sk_buff
-> *skb, static int inet_diag_get_exact(struct sk_buff *in_skb,
->  			       const struct nlmsghdr *nlh)
->  {
-> -	int err;
-> +	int err, len;
->  	struct sock *sk;
->  	struct inet_diag_req *req = NLMSG_DATA(nlh);
->  	struct sk_buff *rep;
-> @@ -293,10 +314,17 @@ static int inet_diag_get_exact(struct sk_buff *in_skb,
-> goto out;
-> 
->  	err = -ENOMEM;
-> -	rep = alloc_skb(NLMSG_SPACE((sizeof(struct inet_diag_msg) +
-> -				     sizeof(struct inet_diag_meminfo) +
-> -				     handler->idiag_info_size + 64)),
-> -			GFP_KERNEL);
-> +	len = sizeof(struct inet_diag_msg) + 64;
-> +
-> +	len += (req->idiag_ext & (1 << (INET_DIAG_MEMINFO - 1))) ?
-> +		sizeof(struct inet_diag_meminfo) : 0;
-> +	len += (req->idiag_ext & (1 << (INET_DIAG_INFO - 1))) ?
-> +		handler->idiag_info_size : 0;
-> +	len += (req->idiag_ext & (1 << (INET_DIAG_SECCTX - 1))) ?
-> +		MAX_SECCTX_LEN : 0;
-> +
-> +	rep = alloc_skb(NLMSG_SPACE(len), GFP_KERNEL);
-
-How much of a problem would it be if you just allocated an entire page (or 4k 
-in the case of huge pages) and used that?  Is memory usage a concern here?
+The attached patch documents semanage -i, the -p option for setfiles and 
+restorecon, the -0 option for restorecon, and the fact that setfiles and 
+restorecon are the same program.
 
 -- 
-paul moore
-www.paul-moore.com
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
+--Boundary-00=_MAtXOn3E16oT0Zi
+Content-Type: text/x-patch;
+  charset="UTF-8";
+  name="policycoreutils-man.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="policycoreutils-man.diff"
+
+--- policycoreutils-2.1.0.orig/semanage/semanage.8
++++ policycoreutils-2.1.0/semanage/semanage.8
+@@ -21,6 +21,8 @@
+ .br
+ .B semanage permissive \-{a|d} type
+ .br
++.B semanage -i command-file
++.br
+ .B semanage dontaudit [ on | off ]
+ .P
+ 
+@@ -99,6 +101,10 @@
+ .TP
+ .I                \-t, \-\-type       
+ SELinux Type for the object
++.TP
++.I                \-i
++Take a set of commands from a specified file and load them in a single
++transaction.
+ 
+ .SH EXAMPLE
+ .nf
+--- policycoreutils-2.1.0.orig/setfiles/restorecon.8
++++ policycoreutils-2.1.0/setfiles/restorecon.8
+@@ -4,10 +4,10 @@
+ 
+ .SH "SYNOPSIS"
+ .B restorecon
+-.I [\-o outfilename ] [\-R] [\-n] [\-v] [\-e directory ] pathname...
++.I [\-o outfilename ] [\-R] [\-n] [\-v|\-p] [\-e directory ] pathname...
+ .P
+ .B restorecon
+-.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-v] [\-F]
++.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-v|\-p] [\-F]
+ 
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -20,6 +20,10 @@
+ It can be run at any time to correct errors, to add support for
+ new policy, or with the \-n option it can just check whether the file
+ contexts are all as you expect.
++.P
++It is the same executable as
++.BR setfiles
++but operates in a slightly different manner depending on it's argv[0].
+ 
+ .SH "OPTIONS"
+ .TP 
+@@ -46,10 +50,16 @@
+ .TP 
+ .B \-vv
+ show changes in file labels, if type, role, or user are changing.
++.TP
++.B \-p
++show a progress indication in the form of one dot per 1000 files.
+ .TP 
+ .B \-F
+ Force reset of context to match file_context for customizable files, or the user section, if it has changed. 
+ .TP 
++.B \-0
++Input items are terminated by a null character instead of by whitespace,  and the quotes and backslash are not special (every character is taken literally).  Disables the end of file string, which  is  treated  like  any other argument.  Useful when input items might contain white space, quote  marks,  or  backslashes.The  GNU  find  -print0  option produces input suitable for this mode.
++
+ .SH "ARGUMENTS"
+ .B pathname...
+ The pathname for the file(s) to be relabeled. 
+--- policycoreutils-2.1.0.orig/setfiles/setfiles.8
++++ policycoreutils-2.1.0/setfiles/setfiles.8
+@@ -4,7 +4,7 @@
+ 
+ .SH "SYNOPSIS"
+ .B setfiles
+-.I [\-c policy ] [\-d] [\-l] [\-n] [\-e directory ] [\-o filename ] [\-q] [\-s] [\-v] [\-vv] [\-W] [\-F] spec_file pathname...
++.I [\-c policy ] [\-d] [\-l] [\-n] [\-e directory ] [\-o filename ] [\-q] [\-s] [\-v] [\-vv|\-p] [\-W] [\-F] spec_file pathname...
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR setfiles
+@@ -17,6 +17,10 @@
+ It can also be run at any time to correct errors, to add support for
+ new policy, or with the \-n option it can just check whether the file
+ contexts are all as you expect.
++.P
++It is the same executable as 
++.BR setfiles
++but operates in a slightly different manner depending on it's argv[0].
+ 
+ .SH "OPTIONS"
+ .TP 
+@@ -57,6 +61,9 @@
+ .B \-vv
+ show changes in file labels, if type, role, or user are changing.
+ .TP 
++.B \-p
++show a progress indication in the form of one dot per 1000 files.
++.TP
+ .B \-W
+ display warnings about entries that had no matching files.
+ .TP 
+
+--Boundary-00=_MAtXOn3E16oT0Zi--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
