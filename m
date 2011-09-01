@@ -1,138 +1,78 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p819XLAX016095
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 05:33:21 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p819XJLf025943
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 09:33:20 GMT
-Message-ID: <4E5F5153.6070708@windriver.com>
-Date: Thu, 1 Sep 2011 17:33:07 +0800
-From: Rongqing Li <rongqing.li@windriver.com>
+From: Kohei Kaigai <Kohei.Kaigai@EMEA.NEC.COM>
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>,
+        Joshua Brindle
+	<method@manicmethod.com>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: RE: sepgsql and process transition
+Date: Thu, 1 Sep 2011 09:33:56 +0000
+Message-ID: <D0C1A1F8BF513F469926E6C71461D9EC051E85@EX10MBX02.EU.NEC.COM>
+References: <4E5D2DBA.9060201@manicmethod.com>
+	<CADyhKSVBhXHsfyXVkWZxuJqAZ9-QgPjfhPZOdGyfBEEGb-iVbA@mail.gmail.com>
+	<4E5E933B.6060604@manicmethod.com>
+ <CADyhKSVcA2LtxMnVvcAZ5zvWbs8E=RtFrV9bvLYo6ukDpRYc-Q@mail.gmail.com>
+In-Reply-To: <CADyhKSVcA2LtxMnVvcAZ5zvWbs8E=RtFrV9bvLYo6ukDpRYc-Q@mail.gmail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: <netdev@vger.kernel.org>, <selinux@tycho.nsa.gov>,
-        <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Add a netlink attribute INET_DIAG_SECCTX
-References: <1314779777-12669-1-git-send-email-rongqing.li@windriver.com> <1314779777-12669-3-git-send-email-rongqing.li@windriver.com> <2593215.lUI7et83Qv@sifl>
-In-Reply-To: <2593215.lUI7et83Qv@sifl>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/01/2011 05:18 AM, Paul Moore wrote:
-> On Wednesday, August 31, 2011 04:36:17 PM rongqing.li@windriver.com wrote:
->> From: Roy.Li<rongqing.li@windriver.com>
->>
->> Add a new netlink attribute INET_DIAG_SECCTX to dump the security
->> context of TCP sockets.
->
-> You'll have to forgive me, I'm not familiar with the netlink code used by
-> netstat and friends, but is there anyway to report back the security context
-> of UDP sockets?  Or does the code below handle that already?
->
-> In general, AF_INET and AF_INET6 sockets, regardless of any upper level
-> protocols, have security contexts associated with them and it would be nice to
-> see them in netstat.
->
+> > I think I hit the exact reason why this bothers me today. As
+> > staff_t:SystemLow-SystemHigh I wanted a stored procedure that ran at
+> > sepgsql_trusted_proc_t:SystemHigh (so that it could read a SystemHigh column
+> > and fuzz the results).
+> >
+> > Because of the current process constraint:
+> >  mlsconstrain process transition
+> >       (( h1 dom h2 ) and
+> >        (( l1 eq l2 ) or ( t1 == mlsprocsetsl ) or
+> >         (( t1 == privrangetrans ) and ( t2 == mlsrangetrans ))));
+> >
+> > it isn't possible unless staff_t is part of privrangetrans and
+> > sepgsql_trusted_proc_t is part of mlsrangetrans. I don't mind the latter but
+> > the former is clearly a violation of how MLS is suppose to work on
+> > multi-level SELinux systems (in general, unprivileged users should not be
+> > able to change their level without going through newrole or logging out and
+> > back in).
+> >
+> > If there was a different object class for procedures-while-executing, akin
+> > to process but called something different we could have a different
+> > constraint that made more sense for this use case.
+> >
+> Hmm. I'd like to consider this matter for more details.
+> 
+I think it is not a situation that we should allow staff_t:SystemLow-SystemHigh
+to translate into sepgsql_trusted_proc_t:SystemHigh, because this rule intends
+to prevent to switch lower range without special attributes, and it eventually
+prevents violated references of information.
+Even if we have individual object class to represent a subject entity of database
+system, its fundamental is not changed, is it?
 
-Yes, this is real concern, If the dumping tcp security context can be 
-accepted
-by netdev, I am planning to implement it for ipv4 udp socket, unix socket.
-then ipv6..
+It seems to me a straightforward solution is to define an individual trusted
+procedure type for MLS range transition (with mlsrangetrans), and restrict
+subject entity to invoke this procedure (using privrangetrans).
 
->> diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
->> index 389a2e6..1faf752 100644
->> --- a/net/ipv4/inet_diag.c
->> +++ b/net/ipv4/inet_diag.c
->> @@ -34,6 +34,8 @@
->>
->>   #include<linux/inet_diag.h>
->>
->> +#define MAX_SECCTX_LEN 128
->
-> I'll echo Stephen's concerns that this is too small.  A MCS/MLS system with a
-> moderate number of categories could bump into this limit without too much
-> difficulty.
->
+> One other point I'm considering is what security label should be delivered to
+> when a database client want to invoke a remote procedure call using functions
+> installed to PostgreSQL. This feature is called 'foreign-data-wrapper' being
+> already merged at v9.1.
+> If we assign a subject entity that performs as an agent of client a security
+> label that is not a part of domain attribute, I'm not certain whether it is an
+> appropriate manner, or not.
+> 
+One other confusable situation is invocation of remote procedure from PostgreSQL.
+If we try to set up multiple SE-PostgreSQL systems that communicate via labeled
+networking each other, I'm afraid that analysis of domain transition becomes hard
+because it allows multiple paths to translate other domains.
 
-I will reconsider this as Stephen's suggestion, just size the buffer 
-appropriately
-for the actual secctx length, so that, your next question will be fixed 
-since we
-have enough memory to place the security context.
+Right now, my opinion is that process:{translate} permission should be checked
+when a subject entity of (operating|database) system tried to be switched.
 
->>   struct inet_diag_entry {
->> @@ -108,6 +110,25 @@ static int inet_csk_diag_fill(struct sock *sk,
->>   		       icsk->icsk_ca_ops->name);
->>   	}
->>
->> +	if (ext&  (1<<  (INET_DIAG_SECCTX - 1))) {
->> +		u32 ctxlen = 0;
->> +		void *secctx;
->> +		int error;
->> +
->> +		error = security_sk_getsecctx(sk,&secctx,&ctxlen);
->> +
->> +		if (!error&&  ctxlen) {
->> +			if (ctxlen<  MAX_SECCTX_LEN) {
->> +				strcpy(INET_DIAG_PUT(skb, INET_DIAG_SECCTX,
->> +					ctxlen + 1), secctx);
->> +			} else {
->> +				strcpy(INET_DIAG_PUT(skb, INET_DIAG_SECCTX,
->> +					2), "-");
->
-> Is the "-" string a special value already interpreted by the userspace tools?
-> If not, you might consider using a string that would indicate an out-of-space
-> condition occurred; at first glance I thought the "-" string indicated no
-> context.
->
->> +			}
->> +			security_release_secctx(secctx, ctxlen);
->> +		}
->> +	}
->> +
->>   	r->idiag_family = sk->sk_family;
->>   	r->idiag_state = sk->sk_state;
->>   	r->idiag_timer = 0;
->> @@ -246,7 +267,7 @@ static int sk_diag_fill(struct sock *sk, struct sk_buff
->> *skb, static int inet_diag_get_exact(struct sk_buff *in_skb,
->>   			       const struct nlmsghdr *nlh)
->>   {
->> -	int err;
->> +	int err, len;
->>   	struct sock *sk;
->>   	struct inet_diag_req *req = NLMSG_DATA(nlh);
->>   	struct sk_buff *rep;
->> @@ -293,10 +314,17 @@ static int inet_diag_get_exact(struct sk_buff *in_skb,
->> goto out;
->>
->>   	err = -ENOMEM;
->> -	rep = alloc_skb(NLMSG_SPACE((sizeof(struct inet_diag_msg) +
->> -				     sizeof(struct inet_diag_meminfo) +
->> -				     handler->idiag_info_size + 64)),
->> -			GFP_KERNEL);
->> +	len = sizeof(struct inet_diag_msg) + 64;
->> +
->> +	len += (req->idiag_ext&  (1<<  (INET_DIAG_MEMINFO - 1))) ?
->> +		sizeof(struct inet_diag_meminfo) : 0;
->> +	len += (req->idiag_ext&  (1<<  (INET_DIAG_INFO - 1))) ?
->> +		handler->idiag_info_size : 0;
->> +	len += (req->idiag_ext&  (1<<  (INET_DIAG_SECCTX - 1))) ?
->> +		MAX_SECCTX_LEN : 0;
->> +
->> +	rep = alloc_skb(NLMSG_SPACE(len), GFP_KERNEL);
->
-> How much of a problem would it be if you just allocated an entire page (or 4k
-> in the case of huge pages) and used that?  Is memory usage a concern here?
->
+Thanks,
+--
+NEC Europe Ltd, SAP Global Competence Center
+KaiGai Kohei <kohei.kaigai@emea.nec.com>
 
-The memory usage is main concern, or else the 4k page is good idea.
-Other side is that this function is few called, so the 4k maybe acceptable.
-
-
-
--- 
-Best Reagrds,
-Roy | RongQing Li
 
 --
 This message was distributed to subscribers of the selinux mailing list.
