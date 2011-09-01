@@ -1,18 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p813TsYY031916
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 23:30:04 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p813TrSj031915
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 23:30:03 -0400
 Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p813Tr06012553
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 03:29:53 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p813Tx06012564
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 03:30:00 GMT
 Received: from ALA-HCA.corp.ad.wrs.com (ala-hca [147.11.189.40])
-	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p813TqMi007118
+	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id p813TusI007129
 	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:29:52 -0700 (PDT)
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2011 20:29:56 -0700 (PDT)
 From: Harry Ciao <qingtao.cao@windriver.com>
 To: <selinux@tycho.nsa.gov>
-Subject: [v2 PATCH 1/8] Indicate when boolean is indeed a tunable.
-Date: Thu, 1 Sep 2011 11:29:40 +0800
-Message-ID: <1314847787-4055-2-git-send-email-qingtao.cao@windriver.com>
+Subject: [v2 PATCH 3/8] Write and read TUNABLE flags in related data structures.
+Date: Thu, 1 Sep 2011 11:29:42 +0800
+Message-ID: <1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>
 In-Reply-To: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
 References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
 MIME-Version: 1.0
@@ -20,97 +20,109 @@ Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add flags to cond_bool_datum_t and cond_node_t structures to differentiate
-the tunables' identifiers and conditionals from those of booleans.
+All flags in cond_bool_datum_t and cond_node_t structures are written
+or read for policy modules which version is no less than
+MOD_POLICYDB_VERSION_TUNABLE_SEP.
+
+Note, for cond_node_t the TUNABLE flag bit would be used only at expand,
+however, it won't hurt to read/write this field for modules(potentially
+for future usage).
 
 Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 ---
- libsepol/include/sepol/policydb/conditional.h |    6 ++++--
- libsepol/include/sepol/policydb/policydb.h    |    5 ++++-
- libsepol/src/policydb.c                       |   14 ++++++++++++++
- 3 files changed, 22 insertions(+), 3 deletions(-)
+ libsepol/src/conditional.c |   21 +++++++++++++++++++--
+ libsepol/src/write.c       |   18 ++++++++++++++++++
+ 2 files changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
-index a8ed694..48ec106 100644
---- a/libsepol/include/sepol/policydb/conditional.h
-+++ b/libsepol/include/sepol/policydb/conditional.h
-@@ -77,15 +77,17 @@ typedef struct cond_node {
- 	/* these true/false lists point into te_avtab when that is used */
- 	cond_av_list_t *true_list;
- 	cond_av_list_t *false_list;
--	/* and these are using during parsing and for modules */
-+	/* and these are used during parsing and for modules */
- 	avrule_t *avtrue_list;
- 	avrule_t *avfalse_list;
- 	/* these fields are not written to binary policy */
- 	unsigned int nbools;
- 	uint32_t bool_ids[COND_MAX_BOOLS];
- 	uint32_t expr_pre_comp;
--	/*                                               */
- 	struct cond_node *next;
-+	/* a tunable conditional, calculated and used at expansion */
-+#define	COND_NODE_FLAGS_TUNABLE	0x01
-+	uint32_t flags;
- } cond_node_t;
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index efdedb0..d9d4fee 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
+ 	return 1;
+ }
  
- extern int cond_evaluate_expr(policydb_t * p, cond_expr_t * expr);
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 5320bc8..1848a7b 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -210,6 +210,8 @@ typedef struct range_trans {
- typedef struct cond_bool_datum {
- 	symtab_datum_t s;
- 	int state;
-+#define COND_BOOL_FLAGS_TUNABLE	0x01	/* is this a tunable? */
-+	uint32_t flags;
- } cond_bool_datum_t;
+-int cond_read_bool(policydb_t * p
+-		   __attribute__ ((unused)), hashtab_t h,
++int cond_read_bool(policydb_t * p,
++		   hashtab_t h,
+ 		   struct policy_file *fp)
+ {
+ 	char *key = 0;
+@@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
+ 	if (rc < 0)
+ 		goto err;
+ 	key[len] = 0;
++
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			goto err;
++		booldatum->flags = le32_to_cpu(buf[0]);
++	}
++
+ 	if (hashtab_insert(h, key, booldatum))
+ 		goto err;
  
- struct cond_node;
-@@ -683,9 +685,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_FILENAME_TRANS	11
- #define MOD_POLICYDB_VERSION_ROLETRANS		12
- #define MOD_POLICYDB_VERSION_ROLEATTRIB		13
-+#define MOD_POLICYDB_VERSION_TUNABLE_SEP	14
+@@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
+ 		if (avrule_read_list(p, &node->avfalse_list, fp))
+ 			goto err;
+ 	}
++	
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		rc = next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			goto err;
++		node->flags = le32_to_cpu(buf[0]);
++	}
  
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_ROLEATTRIB
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_TUNABLE_SEP
+ 	return 0;
+       err:
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index 290e036..4284c93 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	unsigned int items, items2;
+ 	struct policy_data *pd = ptr;
+ 	struct policy_file *fp = pd->fp;
++	struct policydb *p = pd->p;
  
- #define POLICYDB_CONFIG_MLS    1
+ 	booldatum = (cond_bool_datum_t *) datum;
  
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 017aeca..136b450 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -221,6 +221,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -290,6 +297,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_TUNABLE_SEP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- };
+@@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+ 		return POLICYDB_ERROR;
++
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
++		buf[0] = cpu_to_le32(booldatum->flags);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++	}
++
+ 	return POLICYDB_SUCCESS;
+ }
  
- #if 0
+@@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
+ 			return POLICYDB_ERROR;
+ 	}
+ 
++	if (p->policy_type != POLICY_KERN &&
++	    p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {	
++		buf[0] = cpu_to_le32(node->flags);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++	}
++
+ 	return POLICYDB_SUCCESS;
+ }
+ 
 -- 
 1.7.0.4
 
