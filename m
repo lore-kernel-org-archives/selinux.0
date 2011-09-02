@@ -1,47 +1,37 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p821q4GE007407
-	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2011 21:52:05 -0400
-Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p821q3WR023732
-	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2011 01:52:03 GMT
-Received: by iabz21 with SMTP id z21so3284340iab.12
-        for <selinux@tycho.nsa.gov>; Thu, 01 Sep 2011 18:52:03 -0700 (PDT)
+Message-ID: <4E60BFF0.1070002@roboreus.com>
+Date: Fri, 02 Sep 2011 12:37:20 +0100
+From: Roy Badami <roy.badami@roboreus.com>
 MIME-Version: 1.0
-In-Reply-To: <1314912106.2334.2.camel@vortex>
-References: <201109011509.05872.russell@coker.com.au>
-	<4E5F8BAA.6060208@redhat.com>
-	<1314912106.2334.2.camel@vortex>
-Date: Thu, 1 Sep 2011 21:52:02 -0400
-Message-ID: <CACLa4ptfSU3obZ8OyMVFfKDsqwLQn58-O9YRUbCyU8=mLzn=tA@mail.gmail.com>
-Subject: Re: policycoreutils manpages needed
-From: Eric Paris <eparis@parisplace.org>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: CentOS 5 RBAC
+References: <4E5E68DB.1030101@roboreus.com>	 <1314810951.6850.26.camel@moss-pluto>  <4E5E7757.5030007@roboreus.com> <1314814992.6850.38.camel@moss-pluto>
+In-Reply-To: <1314814992.6850.38.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 1, 2011 at 5:21 PM, Guido Trentalancia
-<guido@trentalancia.com> wrote:
-> On Thu, 2011-09-01 at 09:42 -0400, Daniel J Walsh wrote:
->> On 09/01/2011 01:09 AM, Russell Coker wrote:
->> > Has anyone written manpages for genhomedircon, sepolgen-ifgen, and
->> > seunshare? If not is there someone with some spare time and man
->> > page writing skill?
->> >
->> We have man pages for genhomedircon and seunshare.  Although the
->> genhomedircon man page is rather sparse.
+
+> I think that would work and avoid the need to modify/rebuild the
+> existing policy.
 >
-> If help is needed for manual pages, I can have a look and spare some
-> time. I can start with genhomedircon as suggested by Dan unless other
-> ideas are brought forward...
+> However, be aware that the sysadm vs secadm distinction is largely
+> illusory even if you do this.  See this thread for further discussion:
+> http://marc.info/?t=105457894700002&r=1&w=2
+>
 
-Just make sure you look at the 'queue' branch of the upstream repo
-rather than the 'master' branch.  I'm pretty sure some of the man
-pages Dan mentioned only exist in the queue branch.
+Any idea what it is that gives sysadm_t write access to 
+selinux_config_t:file ?
 
--Eric
+I can see the rule when I opne the binary policy in apol but I haven't 
+had much luck tracking down where it comes from in the policy source.
+
+
+-- 
+Roy Badami
+Roboreus Ltd
+1 New Oxford Street
+London WC1A 1NU
 
 
 --
