@@ -1,18 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87Llihj032120
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:47:44 -0400
-Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87Llh4b021200
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:47:44 GMT
-Received: by gyd10 with SMTP id 10so137765gyd.12
-        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:47:43 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87Lmjas032165
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:48:45 -0400
+Received: from mail-gx0-f180.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87Lmj4b021282
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:48:45 GMT
+Received: by gxk10 with SMTP id 10so425036gxk.39
+        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:48:44 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>
+In-Reply-To: <1314847787-4055-7-git-send-email-qingtao.cao@windriver.com>
 References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
-	<1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>
-Date: Wed, 7 Sep 2011 17:47:43 -0400
-Message-ID: <CACLa4pt0EcnT996uPCjYw2Hepqym4q0hs81t08Fxu_bkFASocA@mail.gmail.com>
-Subject: Re: [v2 PATCH 3/8] Write and read TUNABLE flags in related data structures.
+	<1314847787-4055-7-git-send-email-qingtao.cao@windriver.com>
+Date: Wed, 7 Sep 2011 17:48:44 -0400
+Message-ID: <CACLa4pvaMt+ty-A4KRq=neYQOeH5J2P9U_GLVLUzjcSrJ_i4yg@mail.gmail.com>
+Subject: Re: [v2 PATCH 6/8] Skip tunable identifier and cond_node_t in expansion.
 From: Eric Paris <eparis@parisplace.org>
 To: Harry Ciao <qingtao.cao@windriver.com>
 Cc: selinux@tycho.nsa.gov
@@ -20,116 +20,61 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch contained 2 whitespace errors.  they have been fixed before
-applying it to my queue branch, however please fix them if there is a
-need to resubmit a v3.
+This patch contained a whitespace error.  I have fixed it when
+applying to my queue branch.  Please fix before resending if there is
+a need for a v3.
 
 -Eric
 
 On Wed, Aug 31, 2011 at 11:29 PM, Harry Ciao <qingtao.cao@windriver.com> wrote:
-> All flags in cond_bool_datum_t and cond_node_t structures are written
-> or read for policy modules which version is no less than
-> MOD_POLICYDB_VERSION_TUNABLE_SEP.
->
-> Note, for cond_node_t the TUNABLE flag bit would be used only at expand,
-> however, it won't hurt to read/write this field for modules(potentially
-> for future usage).
+> The effective branch of a tunable has been appended to its home
+> decl->avrules list during link, in expansion we should just skip tunables
+> from expanding their rules into te_cond_avtab hashtab and adding to the
+> out->cond_list queue.
 >
 > Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
 > ---
->  libsepol/src/conditional.c |   21 +++++++++++++++++++--
->  libsepol/src/write.c       |   18 ++++++++++++++++++
->  2 files changed, 37 insertions(+), 2 deletions(-)
+>  libsepol/src/expand.c |   13 +++++++++++++
+>  1 files changed, 13 insertions(+), 0 deletions(-)
 >
-> diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-> index efdedb0..d9d4fee 100644
-> --- a/libsepol/src/conditional.c
-> +++ b/libsepol/src/conditional.c
-> @@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
->        return 1;
->  }
->
-> -int cond_read_bool(policydb_t * p
-> -                  __attribute__ ((unused)), hashtab_t h,
-> +int cond_read_bool(policydb_t * p,
-> +                  hashtab_t h,
->                   struct policy_file *fp)
->  {
->        char *key = 0;
-> @@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
->        if (rc < 0)
->                goto err;
->        key[len] = 0;
-> +
-> +       if (p->policy_type != POLICY_KERN &&
-> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-> +               rc = next_entry(buf, fp, sizeof(uint32_t));
-> +               if (rc < 0)
-> +                       goto err;
-> +               booldatum->flags = le32_to_cpu(buf[0]);
-> +       }
-> +
->        if (hashtab_insert(h, key, booldatum))
->                goto err;
->
-> @@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
->                if (avrule_read_list(p, &node->avfalse_list, fp))
->                        goto err;
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index be41243..d5f10a6 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1014,6 +1014,11 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+>                return 0;
 >        }
-> +
-> +       if (p->policy_type != POLICY_KERN &&
-> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-> +               rc = next_entry(buf, fp, sizeof(uint32_t));
-> +               if (rc < 0)
-> +                       goto err;
-> +               node->flags = le32_to_cpu(buf[0]);
+>
+> +       if (bool->flags & COND_BOOL_FLAGS_TUNABLE) {
+> +               /* Skip tunables */
+> +               return 0;
 > +       }
+> +
+>        if (state->verbose)
+>                INFO(state->handle, "copying boolean %s", id);
+>
+> @@ -1046,6 +1051,7 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+>        state->boolmap[bool->s.value - 1] = new_bool->s.value;
+>
+>        new_bool->state = bool->state;
+> +       new_bool->flags = bool->flags;
 >
 >        return 0;
->       err:
-> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> index 290e036..4284c93 100644
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
->        unsigned int items, items2;
->        struct policy_data *pd = ptr;
->        struct policy_file *fp = pd->fp;
-> +       struct policydb *p = pd->p;
->
->        booldatum = (cond_bool_datum_t *) datum;
->
-> @@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
->        items = put_entry(key, 1, len, fp);
->        if (items != len)
->                return POLICYDB_ERROR;
-> +
-> +       if (p->policy_type != POLICY_KERN &&
-> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-> +               buf[0] = cpu_to_le32(booldatum->flags);
-> +               items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> +               if (items != 1)
-> +                       return POLICYDB_ERROR;
-> +       }
-> +
->        return POLICYDB_SUCCESS;
 >  }
->
-> @@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
->                        return POLICYDB_ERROR;
+> @@ -1940,6 +1946,13 @@ static int cond_node_copy(expand_state_t * state, cond_node_t * cn)
+>        if (cond_node_copy(state, cn->next)) {
+>                return -1;
 >        }
->
-> +       if (p->policy_type != POLICY_KERN &&
-> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
-> +               buf[0] = cpu_to_le32(node->flags);
-> +               items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> +               if (items != 1)
-> +                       return POLICYDB_ERROR;
-> +       }
 > +
->        return POLICYDB_SUCCESS;
->  }
->
+> +       /* If current cond_node_t is of tunable, its effective branch
+> +        * has been appended to its home decl->avrules list during link
+> +        * and now we should just skip it. */
+> +       if (cn->flags & COND_NODE_FLAGS_TUNABLE)
+> +               return 0;
+> +
+>        if (cond_normalize_expr(state->base, cn)) {
+>                ERR(state->handle, "Error while normalizing conditional");
+>                return -1;
 > --
 > 1.7.0.4
 >
