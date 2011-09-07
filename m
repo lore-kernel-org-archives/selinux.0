@@ -1,88 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87LY32h031265
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:34:03 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87Ldc9f031605
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:39:38 -0400
 Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87LY24b019030
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:34:02 GMT
-Received: by gyd10 with SMTP id 10so124177gyd.12
-        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:34:02 -0700 (PDT)
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87Ldb4b019576
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:39:37 GMT
+Received: by gyd10 with SMTP id 10so129750gyd.12
+        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:39:37 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1314682304-21607-1-git-send-email-qingtao.cao@windriver.com>
-References: <1314682304-21607-1-git-send-email-qingtao.cao@windriver.com>
-Date: Wed, 7 Sep 2011 17:34:01 -0400
-Message-ID: <CACLa4pszTDTRH2EO5Eosr8On4Fab_UA7VeTvbvmVGK0bpj3kXQ@mail.gmail.com>
-Subject: Re: [v0 PATCH 1/1] Fix compile errors when DEBUG is turned on.
+In-Reply-To: <SNT139-W3530952732EBAC19C3E5CAB170@phx.gbl>
+References: <SNT139-W395A2E93EE6F195040BA93AB120@phx.gbl>
+	<SNT139-W28B6707A5C8557A0CA887EAB120@phx.gbl>
+	<CACLa4pvs1unWyLg5q1dnQ0fH21Ljq7e4MyO7+s9vRO06nEv5RA@mail.gmail.com>
+	<201108292128.51104.russell@coker.com.au>
+	<SNT139-W3530952732EBAC19C3E5CAB170@phx.gbl>
+Date: Wed, 7 Sep 2011 17:39:37 -0400
+Message-ID: <CACLa4ptyOnMgx8-8RTkzeLTjgsG4iKL3Lb1wBqz6a-N2HFPZ9Q@mail.gmail.com>
+Subject: Re: Toolchain is broken?
 From: Eric Paris <eparis@parisplace.org>
-To: Harry Ciao <qingtao.cao@windriver.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=windows-1252
+To: HarryCiao <harrytaurus2002@hotmail.com>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Not applied to queue branch of the upstream tree as all of these
-appear to already be fixed.
+Russell, thoughts?
 
--Eric
-
-On Tue, Aug 30, 2011 at 1:31 AM, Harry Ciao <qingtao.cao@windriver.com> wrote:
-> Fix below compile errors if DEBUG is turned on:
+2011/8/30 HarryCiao <harrytaurus2002@hotmail.com>:
+> Hi Russell,
 >
-> matchpathcon.c:110: error: declaration of ‘rc’ shadows a previous local
-> matchpathcon.c:48: error: shadowed declaration is here
-> matchpathcon.c:48: error: unused variable ‘rc’
+> Please explicitly set fallback_user_level = NULL; or have
+> "s->fallback_user_level = fallback_user_level;" controlled by if(level) too.
 >
-> seunshare.c:346: error: too many arguments for format
-> seunshare.c:275: error: unused variable ‘flag_index’
+> Unfortunately, this patch won't fix the segfault issue for standard
+> refpolicy(BTW, the MLS refpolicy could be compiled/linked/expanded
+> uneventfully) and I got below backtrace information from gdb:
 >
-> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
-> ---
->  libselinux/utils/matchpathcon.c     |    2 +-
->  policycoreutils/sandbox/seunshare.c |    4 +---
->  2 files changed, 2 insertions(+), 4 deletions(-)
+> Program received signal SIGSEGV, Segmentation fault.
+> 0x00007fb03c2fd052 in ?? () from /lib/libc.so.6
+> (gdb) bt
+> #0  0x00007fb03c2fd052 in ?? () from /lib/libc.so.6
+> #1  0x00007fb03bc4e691 in ustr_replace_cstr () from
+> /usr/lib/libustr-1.0.so.1
+> #2  0x00007fb03c615846 in replace_all (
+>     str=0xac3ab10 "HOME_DIR/.+\tsystem_u:object_r:user_home_t",
+>     repl=0x7fff5d711cd0) at genhomedircon.c:442
+> #3  0x00007fb03c615ad8 in write_home_dir_context (s=0x7fff5d711df0,
+>     out=0x10301f50, tpl=0xe2dc170, user=0xe25cec0 "user_u",
+>     seuser=0xe25cec0 "user_u", home=0xe2913d3 "/home/[^/]*",
+>     role_prefix=0xe261d30 "user", level=0x0) at genhomedircon.c:509
+> #4  0x00007fb03c616b50 in write_context_file (s=0x7fff5d711df0,
+> out=0x10301f50)
+>     at genhomedircon.c:942
+> #5  0x00007fb03c616df0 in semanage_genhomedircon (sh=0x228b790,
+>     policydb=0xaab4370, usepasswd=1) at genhomedircon.c:1017
+> #6  0x00007fb03c611baa in semanage_direct_commit (sh=0x228b790)
+>     at direct_api.c:1008
+> #7  0x00007fb03c617c44 in semanage_commit (sh=0x228b790) at handle.c:435
+> #8  0x0000000000402471 in main ()
+> (gdb)
 >
-> diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpathcon.c
-> index 2fa21bc..892e33d 100644
-> --- a/libselinux/utils/matchpathcon.c
-> +++ b/libselinux/utils/matchpathcon.c
-> @@ -107,7 +107,7 @@ int main(int argc, char **argv)
->                }
->        }
->        for (i = optind; i < argc; i++) {
-> -               int rc, mode = 0;
-> +               int mode = 0;
->                struct stat buf;
->                char *path = argv[i];
->                int len = strlen(path);
-> diff --git a/policycoreutils/sandbox/seunshare.c b/policycoreutils/sandbox/seunshare.c
-> index f9bf12c..a640c56 100644
-> --- a/policycoreutils/sandbox/seunshare.c
-> +++ b/policycoreutils/sandbox/seunshare.c
-> @@ -272,7 +272,6 @@ int main(int argc, char **argv) {
+> I didn't go further than that.
 >
->        security_context_t scontext = NULL;
->
-> -       int flag_index;         /* flag index in argv[] */
->        int clflag;             /* holds codes for command line flags */
->        char *tmpdir_s = NULL;  /* tmpdir spec'd by user in argv[] */
->        char *homedir_s = NULL; /* homedir spec'd by user in argv[] */
-> @@ -342,8 +341,7 @@ int main(int argc, char **argv) {
->        }
->
->        if (! homedir_s && ! tmpdir_s) {
-> -               fprintf(stderr, _("Error: tmpdir and/or homedir required \n"),
-> -                       "%s\n", USAGE_STRING);
-> +               fprintf(stderr, _("Error: tmpdir and/or homedir required \n %s\n"), USAGE_STRING);
->                return -1;
->        }
->
-> --
-> 1.7.0.4
+> Thanks,
+> Harry
 >
 >
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+>> From: russell@coker.com.au
+>> To: eparis@parisplace.org
+>> Subject: Re: Toolchain is broken?
+>> Date: Mon, 29 Aug 2011 21:28:50 +1000
+>> CC: harrytaurus2002@hotmail.com; selinux@tycho.nsa.gov
+>>
+>> On Sat, 27 Aug 2011, Eric Paris <eparis@parisplace.org> wrote:
+>> > Must have come from this patch.
+>> >
+>> > commit d784fd71b56cb8f57d5b9fcd784094e004bf7c6a
+>> > Author: Russell Coker <russell@coker.com.au>
+>> > Date: Wed Jan 5 19:30:25 2011 +1100
+>> >
+>> > libsemanage: patch for MCS/MLS in user files
+>> >
+>>
+>> What do you think of the attached patch?
+>>
+>> --
+>> My Main Blog http://etbe.coker.com.au/
+>> My Documents Blog http://doc.coker.com.au/
 >
 
 
