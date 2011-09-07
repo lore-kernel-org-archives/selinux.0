@@ -1,91 +1,143 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87Ldc9f031605
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:39:38 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p87Llihj032120
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 17:47:44 -0400
 Received: from mail-gy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87Ldb4b019576
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:39:37 GMT
-Received: by gyd10 with SMTP id 10so129750gyd.12
-        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:39:37 -0700 (PDT)
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p87Llh4b021200
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 21:47:44 GMT
+Received: by gyd10 with SMTP id 10so137765gyd.12
+        for <selinux@tycho.nsa.gov>; Wed, 07 Sep 2011 14:47:43 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <SNT139-W3530952732EBAC19C3E5CAB170@phx.gbl>
-References: <SNT139-W395A2E93EE6F195040BA93AB120@phx.gbl>
-	<SNT139-W28B6707A5C8557A0CA887EAB120@phx.gbl>
-	<CACLa4pvs1unWyLg5q1dnQ0fH21Ljq7e4MyO7+s9vRO06nEv5RA@mail.gmail.com>
-	<201108292128.51104.russell@coker.com.au>
-	<SNT139-W3530952732EBAC19C3E5CAB170@phx.gbl>
-Date: Wed, 7 Sep 2011 17:39:37 -0400
-Message-ID: <CACLa4ptyOnMgx8-8RTkzeLTjgsG4iKL3Lb1wBqz6a-N2HFPZ9Q@mail.gmail.com>
-Subject: Re: Toolchain is broken?
+In-Reply-To: <1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>
+References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>
+	<1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>
+Date: Wed, 7 Sep 2011 17:47:43 -0400
+Message-ID: <CACLa4pt0EcnT996uPCjYw2Hepqym4q0hs81t08Fxu_bkFASocA@mail.gmail.com>
+Subject: Re: [v2 PATCH 3/8] Write and read TUNABLE flags in related data structures.
 From: Eric Paris <eparis@parisplace.org>
-To: HarryCiao <harrytaurus2002@hotmail.com>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+To: Harry Ciao <qingtao.cao@windriver.com>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell, thoughts?
+This patch contained 2 whitespace errors.  they have been fixed before
+applying it to my queue branch, however please fix them if there is a
+need to resubmit a v3.
 
-2011/8/30 HarryCiao <harrytaurus2002@hotmail.com>:
-> Hi Russell,
+-Eric
+
+On Wed, Aug 31, 2011 at 11:29 PM, Harry Ciao <qingtao.cao@windriver.com> wrote:
+> All flags in cond_bool_datum_t and cond_node_t structures are written
+> or read for policy modules which version is no less than
+> MOD_POLICYDB_VERSION_TUNABLE_SEP.
 >
-> Please explicitly set fallback_user_level = NULL; or have
-> "s->fallback_user_level = fallback_user_level;" controlled by if(level) too.
+> Note, for cond_node_t the TUNABLE flag bit would be used only at expand,
+> however, it won't hurt to read/write this field for modules(potentially
+> for future usage).
 >
-> Unfortunately, this patch won't fix the segfault issue for standard
-> refpolicy(BTW, the MLS refpolicy could be compiled/linked/expanded
-> uneventfully) and I got below backtrace information from gdb:
+> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> ---
+>  libsepol/src/conditional.c |   21 +++++++++++++++++++--
+>  libsepol/src/write.c       |   18 ++++++++++++++++++
+>  2 files changed, 37 insertions(+), 2 deletions(-)
 >
-> Program received signal SIGSEGV, Segmentation fault.
-> 0x00007fb03c2fd052 in ?? () from /lib/libc.so.6
-> (gdb) bt
-> #0  0x00007fb03c2fd052 in ?? () from /lib/libc.so.6
-> #1  0x00007fb03bc4e691 in ustr_replace_cstr () from
-> /usr/lib/libustr-1.0.so.1
-> #2  0x00007fb03c615846 in replace_all (
->     str=0xac3ab10 "HOME_DIR/.+\tsystem_u:object_r:user_home_t",
->     repl=0x7fff5d711cd0) at genhomedircon.c:442
-> #3  0x00007fb03c615ad8 in write_home_dir_context (s=0x7fff5d711df0,
->     out=0x10301f50, tpl=0xe2dc170, user=0xe25cec0 "user_u",
->     seuser=0xe25cec0 "user_u", home=0xe2913d3 "/home/[^/]*",
->     role_prefix=0xe261d30 "user", level=0x0) at genhomedircon.c:509
-> #4  0x00007fb03c616b50 in write_context_file (s=0x7fff5d711df0,
-> out=0x10301f50)
->     at genhomedircon.c:942
-> #5  0x00007fb03c616df0 in semanage_genhomedircon (sh=0x228b790,
->     policydb=0xaab4370, usepasswd=1) at genhomedircon.c:1017
-> #6  0x00007fb03c611baa in semanage_direct_commit (sh=0x228b790)
->     at direct_api.c:1008
-> #7  0x00007fb03c617c44 in semanage_commit (sh=0x228b790) at handle.c:435
-> #8  0x0000000000402471 in main ()
-> (gdb)
+> diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+> index efdedb0..d9d4fee 100644
+> --- a/libsepol/src/conditional.c
+> +++ b/libsepol/src/conditional.c
+> @@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
+>        return 1;
+>  }
 >
-> I didn't go further than that.
+> -int cond_read_bool(policydb_t * p
+> -                  __attribute__ ((unused)), hashtab_t h,
+> +int cond_read_bool(policydb_t * p,
+> +                  hashtab_t h,
+>                   struct policy_file *fp)
+>  {
+>        char *key = 0;
+> @@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
+>        if (rc < 0)
+>                goto err;
+>        key[len] = 0;
+> +
+> +       if (p->policy_type != POLICY_KERN &&
+> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> +               rc = next_entry(buf, fp, sizeof(uint32_t));
+> +               if (rc < 0)
+> +                       goto err;
+> +               booldatum->flags = le32_to_cpu(buf[0]);
+> +       }
+> +
+>        if (hashtab_insert(h, key, booldatum))
+>                goto err;
 >
-> Thanks,
-> Harry
+> @@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
+>                if (avrule_read_list(p, &node->avfalse_list, fp))
+>                        goto err;
+>        }
+> +
+> +       if (p->policy_type != POLICY_KERN &&
+> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> +               rc = next_entry(buf, fp, sizeof(uint32_t));
+> +               if (rc < 0)
+> +                       goto err;
+> +               node->flags = le32_to_cpu(buf[0]);
+> +       }
+>
+>        return 0;
+>       err:
+> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> index 290e036..4284c93 100644
+> --- a/libsepol/src/write.c
+> +++ b/libsepol/src/write.c
+> @@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+>        unsigned int items, items2;
+>        struct policy_data *pd = ptr;
+>        struct policy_file *fp = pd->fp;
+> +       struct policydb *p = pd->p;
+>
+>        booldatum = (cond_bool_datum_t *) datum;
+>
+> @@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+>        items = put_entry(key, 1, len, fp);
+>        if (items != len)
+>                return POLICYDB_ERROR;
+> +
+> +       if (p->policy_type != POLICY_KERN &&
+> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> +               buf[0] = cpu_to_le32(booldatum->flags);
+> +               items = put_entry(buf, sizeof(uint32_t), 1, fp);
+> +               if (items != 1)
+> +                       return POLICYDB_ERROR;
+> +       }
+> +
+>        return POLICYDB_SUCCESS;
+>  }
+>
+> @@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
+>                        return POLICYDB_ERROR;
+>        }
+>
+> +       if (p->policy_type != POLICY_KERN &&
+> +           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> +               buf[0] = cpu_to_le32(node->flags);
+> +               items = put_entry(buf, sizeof(uint32_t), 1, fp);
+> +               if (items != 1)
+> +                       return POLICYDB_ERROR;
+> +       }
+> +
+>        return POLICYDB_SUCCESS;
+>  }
+>
+> --
+> 1.7.0.4
 >
 >
->> From: russell@coker.com.au
->> To: eparis@parisplace.org
->> Subject: Re: Toolchain is broken?
->> Date: Mon, 29 Aug 2011 21:28:50 +1000
->> CC: harrytaurus2002@hotmail.com; selinux@tycho.nsa.gov
->>
->> On Sat, 27 Aug 2011, Eric Paris <eparis@parisplace.org> wrote:
->> > Must have come from this patch.
->> >
->> > commit d784fd71b56cb8f57d5b9fcd784094e004bf7c6a
->> > Author: Russell Coker <russell@coker.com.au>
->> > Date: Wed Jan 5 19:30:25 2011 +1100
->> >
->> > libsemanage: patch for MCS/MLS in user files
->> >
->>
->> What do you think of the attached patch?
->>
->> --
->> My Main Blog http://etbe.coker.com.au/
->> My Documents Blog http://doc.coker.com.au/
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 >
 
 
