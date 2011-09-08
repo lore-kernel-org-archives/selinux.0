@@ -1,99 +1,202 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8826wpT010252
-	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2011 22:06:59 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8826vJw022645
-	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2011 02:06:57 GMT
-Message-ID: <4E682307.8090004@windriver.com>
-Date: Thu, 8 Sep 2011 10:05:59 +0800
-From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
-MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p888SMHx024675
+	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2011 04:28:22 -0400
+Received: from snt0-omc4-s13.snt0.hotmail.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p888SL3n009749
+	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2011 08:28:21 GMT
+Message-ID: <SNT139-W470DE8D4A03FB695DB5C13AB1E0@phx.gbl>
+Content-Type: multipart/alternative;
+	boundary="_a89507e5-fe0f-4d84-a534-be44921dd1ad_"
+From: HarryCiao <harrytaurus2002@hotmail.com>
+To: <eparis@parisplace.org>
 CC: <selinux@tycho.nsa.gov>
-Subject: Re: [v2 PATCH 6/8] Skip tunable identifier and cond_node_t in expansion.
-References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>	<1314847787-4055-7-git-send-email-qingtao.cao@windriver.com> <CACLa4pvaMt+ty-A4KRq=neYQOeH5J2P9U_GLVLUzjcSrJ_i4yg@mail.gmail.com>
-In-Reply-To: <CACLa4pvaMt+ty-A4KRq=neYQOeH5J2P9U_GLVLUzjcSrJ_i4yg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: RE: [v2 PATCH 3/8] Write and read TUNABLE flags in related data
+ structures.
+Date: Thu, 8 Sep 2011 08:28:14 +0000
+In-Reply-To: 
+ <CACLa4pt0EcnT996uPCjYw2Hepqym4q0hs81t08Fxu_bkFASocA@mail.gmail.com>
+References: 
+ <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com>,<1314847787-4055-4-git-send-email-qingtao.cao@windriver.com>,<CACLa4pt0EcnT996uPCjYw2Hepqym4q0hs81t08Fxu_bkFASocA@mail.gmail.com>
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Eric for pointing this out!ã€€I would certainly fix the whitespace
-errors in v3 patchset if that is desirable.
+--_a89507e5-fe0f-4d84-a534-be44921dd1ad_
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 8bit
+
+
+I just realized that I could use the checkpatch.pl in linux source tree to detect any potential whitespace problems in the userspace patches as well. Although we put less strict constraints on the style of userspace patches than kernel patches, it still would be advisable to run checkpatch.pl.
+
+Maybe we could mention this in the "How to Create A Patch Set" section in the wiki of http://oss.tresys.com/projects/refpolicy/wiki/HowToContribute
 
 Thanks,
 Harry
 
-Eric Paris å†™é“:
-> This patch contained a whitespace error.  I have fixed it when
-> applying to my queue branch.  Please fix before resending if there is
-> a need for a v3.
->
+> Date: Wed, 7 Sep 2011 17:47:43 -0400
+> Subject: Re: [v2 PATCH 3/8] Write and read TUNABLE flags in related data structures.
+> From: eparis@parisplace.org
+> To: qingtao.cao@windriver.com
+> CC: selinux@tycho.nsa.gov
+> 
+> This patch contained 2 whitespace errors.  they have been fixed before
+> applying it to my queue branch, however please fix them if there is a
+> need to resubmit a v3.
+> 
 > -Eric
->
+> 
 > On Wed, Aug 31, 2011 at 11:29 PM, Harry Ciao <qingtao.cao@windriver.com> wrote:
->   
->> The effective branch of a tunable has been appended to its home
->> decl->avrules list during link, in expansion we should just skip tunables
->> from expanding their rules into te_cond_avtab hashtab and adding to the
->> out->cond_list queue.
->>
->> Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
->> ---
->>  libsepol/src/expand.c |   13 +++++++++++++
->>  1 files changed, 13 insertions(+), 0 deletions(-)
->>
->> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
->> index be41243..d5f10a6 100644
->> --- a/libsepol/src/expand.c
->> +++ b/libsepol/src/expand.c
->> @@ -1014,6 +1014,11 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
->>                return 0;
->>        }
->>
->> +       if (bool->flags & COND_BOOL_FLAGS_TUNABLE) {
->> +               /* Skip tunables */
->> +               return 0;
->> +       }
->> +
->>        if (state->verbose)
->>                INFO(state->handle, "copying boolean %s", id);
->>
->> @@ -1046,6 +1051,7 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
->>        state->boolmap[bool->s.value - 1] = new_bool->s.value;
->>
->>        new_bool->state = bool->state;
->> +       new_bool->flags = bool->flags;
->>
->>        return 0;
->>  }
->> @@ -1940,6 +1946,13 @@ static int cond_node_copy(expand_state_t * state, cond_node_t * cn)
->>        if (cond_node_copy(state, cn->next)) {
->>                return -1;
->>        }
->> +
->> +       /* If current cond_node_t is of tunable, its effective branch
->> +        * has been appended to its home decl->avrules list during link
->> +        * and now we should just skip it. */
->> +       if (cn->flags & COND_NODE_FLAGS_TUNABLE)
->> +               return 0;
->> +
->>        if (cond_normalize_expr(state->base, cn)) {
->>                ERR(state->handle, "Error while normalizing conditional");
->>                return -1;
->> --
->> 1.7.0.4
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
->>     
->
->   
+> > All flags in cond_bool_datum_t and cond_node_t structures are written
+> > or read for policy modules which version is no less than
+> > MOD_POLICYDB_VERSION_TUNABLE_SEP.
+> >
+> > Note, for cond_node_t the TUNABLE flag bit would be used only at expand,
+> > however, it won't hurt to read/write this field for modules(potentially
+> > for future usage).
+> >
+> > Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+> > ---
+> > ¨¢libsepol/src/conditional.c | ¨¢ 21 +++++++++++++++++++--
+> > ¨¢libsepol/src/write.c ¨¢ ¨¢ ¨¢ | ¨¢ 18 ++++++++++++++++++
+> > ¨¢2 files changed, 37 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+> > index efdedb0..d9d4fee 100644
+> > --- a/libsepol/src/conditional.c
+> > +++ b/libsepol/src/conditional.c
+> > @@ -564,8 +564,8 @@ static int bool_isvalid(cond_bool_datum_t * b)
+> > ¨¢ ¨¢ ¨¢ ¨¢return 1;
+> > ¨¢}
+> >
+> > -int cond_read_bool(policydb_t * p
+> > - ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢__attribute__ ((unused)), hashtab_t h,
+> > +int cond_read_bool(policydb_t * p,
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢hashtab_t h,
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ struct policy_file *fp)
+> > ¨¢{
+> > ¨¢ ¨¢ ¨¢ ¨¢char *key = 0;
+> > @@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p
+> > ¨¢ ¨¢ ¨¢ ¨¢if (rc < 0)
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;
+> > ¨¢ ¨¢ ¨¢ ¨¢key[len] = 0;
+> > +
+> > + ¨¢ ¨¢ ¨¢ if (p->policy_type != POLICY_KERN &&
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ rc = next_entry(buf, fp, sizeof(uint32_t));
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (rc < 0)
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ goto err;
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ booldatum->flags = le32_to_cpu(buf[0]);
+> > + ¨¢ ¨¢ ¨¢ }
+> > +
+> > ¨¢ ¨¢ ¨¢ ¨¢if (hashtab_insert(h, key, booldatum))
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;
+> >
+> > @@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢if (avrule_read_list(p, &node->avfalse_list, fp))
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;
+> > ¨¢ ¨¢ ¨¢ ¨¢}
+> > +
+> > + ¨¢ ¨¢ ¨¢ if (p->policy_type != POLICY_KERN &&
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ rc = next_entry(buf, fp, sizeof(uint32_t));
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (rc < 0)
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ goto err;
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ node->flags = le32_to_cpu(buf[0]);
+> > + ¨¢ ¨¢ ¨¢ }
+> >
+> > ¨¢ ¨¢ ¨¢ ¨¢return 0;
+> > ¨¢ ¨¢ ¨¢ err:
+> > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> > index 290e036..4284c93 100644
+> > --- a/libsepol/src/write.c
+> > +++ b/libsepol/src/write.c
+> > @@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+> > ¨¢ ¨¢ ¨¢ ¨¢unsigned int items, items2;
+> > ¨¢ ¨¢ ¨¢ ¨¢struct policy_data *pd = ptr;
+> > ¨¢ ¨¢ ¨¢ ¨¢struct policy_file *fp = pd->fp;
+> > + ¨¢ ¨¢ ¨¢ struct policydb *p = pd->p;
+> >
+> > ¨¢ ¨¢ ¨¢ ¨¢booldatum = (cond_bool_datum_t *) datum;
+> >
+> > @@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+> > ¨¢ ¨¢ ¨¢ ¨¢items = put_entry(key, 1, len, fp);
+> > ¨¢ ¨¢ ¨¢ ¨¢if (items != len)
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_ERROR;
+> > +
+> > + ¨¢ ¨¢ ¨¢ if (p->policy_type != POLICY_KERN &&
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ buf[0] = cpu_to_le32(booldatum->flags);
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ items = put_entry(buf, sizeof(uint32_t), 1, fp);
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (items != 1)
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ return POLICYDB_ERROR;
+> > + ¨¢ ¨¢ ¨¢ }
+> > +
+> > ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_SUCCESS;
+> > ¨¢}
+> >
+> > @@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,
+> > ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_ERROR;
+> > ¨¢ ¨¢ ¨¢ ¨¢}
+> >
+> > + ¨¢ ¨¢ ¨¢ if (p->policy_type != POLICY_KERN &&
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ buf[0] = cpu_to_le32(node->flags);
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ items = put_entry(buf, sizeof(uint32_t), 1, fp);
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (items != 1)
+> > + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ return POLICYDB_ERROR;
+> > + ¨¢ ¨¢ ¨¢ }
+> > +
+> > ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_SUCCESS;
+> > ¨¢}
+> >
+> > --
+> > 1.7.0.4
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> >
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+ 		 	   		  
+--_a89507e5-fe0f-4d84-a534-be44921dd1ad_
+Content-Type: text/html; charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Î¢ÈíÑÅºÚ
+}
+--></style>
+</head>
+<body class='hmmessage'><div dir='ltr'>
+I just realized that I could use the checkpatch.pl in linux source tree to detect any potential whitespace problems in the userspace patches as well. Although we put less strict constraints on the style of userspace patches than kernel patches, it still would be advisable to run checkpatch.pl.<br><br>Maybe we could mention this in the "How to Create A Patch Set" section in the wiki of http://oss.tresys.com/projects/refpolicy/wiki/HowToContribute<br><br>Thanks,<br>Harry<br><br><div>&gt; Date: Wed, 7 Sep 2011 17:47:43 -0400<br>&gt; Subject: Re: [v2 PATCH 3/8] Write and read TUNABLE flags in related data structures.<br>&gt; From: eparis@parisplace.org<br>&gt; To: qingtao.cao@windriver.com<br>&gt; CC: selinux@tycho.nsa.gov<br>&gt; <br>&gt; This patch contained 2 whitespace errors.  they have been fixed before<br>&gt; applying it to my queue branch, however please fix them if there is a<br>&gt; need to resubmit a v3.<br>&gt; <br>&gt; -Eric<br>&gt; <br>&gt; On Wed, Aug 31, 2011 at!
+  11:29 PM, Harry Ciao &lt;qingtao.cao@windriver.com&gt; wrote:<br>&gt; &gt; All flags in cond_bool_datum_t and cond_node_t structures are written<br>&gt; &gt; or read for policy modules which version is no less than<br>&gt; &gt; MOD_POLICYDB_VERSION_TUNABLE_SEP.<br>&gt; &gt;<br>&gt; &gt; Note, for cond_node_t the TUNABLE flag bit would be used only at expand,<br>&gt; &gt; however, it won't hurt to read/write this field for modules(potentially<br>&gt; &gt; for future usage).<br>&gt; &gt;<br>&gt; &gt; Signed-off-by: Harry Ciao &lt;qingtao.cao@windriver.com&gt;<br>&gt; &gt; ---<br>&gt; &gt; ¨¢libsepol/src/conditional.c | ¨¢ 21 +++++++++++++++++++--<br>&gt; &gt; ¨¢libsepol/src/write.c ¨¢ ¨¢ ¨¢ | ¨¢ 18 ++++++++++++++++++<br>&gt; &gt; ¨¢2 files changed, 37 insertions(+), 2 deletions(-)<br>&gt; &gt;<br>&gt; &gt; diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c<br>&gt; &gt; index efdedb0..d9d4fee 100644<br>&gt; &gt; --- a/libsepol/src/conditional.c<br>&gt; &gt; !
+ +++ b/libsepol/src/conditional.c<br>&gt; &gt; @@ -564,8 +564,8 @@ stat
+ic int bool_isvalid(cond_bool_datum_t * b)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢return 1;<br>&gt; &gt; ¨¢}<br>&gt; &gt;<br>&gt; &gt; -int cond_read_bool(policydb_t * p<br>&gt; &gt; - ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢__attribute__ ((unused)), hashtab_t h,<br>&gt; &gt; +int cond_read_bool(policydb_t * p,<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢hashtab_t h,<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ struct policy_file *fp)<br>&gt; &gt; ¨¢{<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢char *key = 0;<br>&gt; &gt; @@ -597,6 +597,15 @@ int cond_read_bool(policydb_t * p<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢if (rc &lt; 0)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢key[len] = 0;<br>&gt; &gt; +<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ if (p-&gt;policy_type != POLICY_KERN &amp;&amp;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p-&gt;policyvers &gt;= MOD_POLICYDB_VERSION_TUNABLE_SEP) {<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ rc = next_entry(buf, fp, sizeof(uint32_t));<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (rc &lt; 0)<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ !
+ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ goto err;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ booldatum-&gt;flags = le32_to_cpu(buf[0]);<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ }<br>&gt; &gt; +<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢if (hashtab_insert(h, key, booldatum))<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;<br>&gt; &gt;<br>&gt; &gt; @@ -810,6 +819,14 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢if (avrule_read_list(p, &amp;node-&gt;avfalse_list, fp))<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢goto err;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢}<br>&gt; &gt; +<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ if (p-&gt;policy_type != POLICY_KERN &amp;&amp;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p-&gt;policyvers &gt;= MOD_POLICYDB_VERSION_TUNABLE_SEP) {<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ rc = next_entry(buf, fp, sizeof(uint32_t));<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (rc &lt; 0)<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ goto err;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ node-&gt;flags = le32_to_cpu(buf[0]);!
+ <br>&gt; &gt; + ¨¢ ¨¢ ¨¢ }<br>&gt; &gt;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢return
+ 0;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ err:<br>&gt; &gt; diff --git a/libsepol/src/write.c b/libsepol/src/write.c<br>&gt; &gt; index 290e036..4284c93 100644<br>&gt; &gt; --- a/libsepol/src/write.c<br>&gt; &gt; +++ b/libsepol/src/write.c<br>&gt; &gt; @@ -607,6 +607,7 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢unsigned int items, items2;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢struct policy_data *pd = ptr;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢struct policy_file *fp = pd-&gt;fp;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ struct policydb *p = pd-&gt;p;<br>&gt; &gt;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢booldatum = (cond_bool_datum_t *) datum;<br>&gt; &gt;<br>&gt; &gt; @@ -621,6 +622,15 @@ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢items = put_entry(key, 1, len, fp);<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢if (items != len)<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_ERROR;<br>&gt; &gt; +<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ if (p-&gt;policy_type != P!
+ OLICY_KERN &amp;&amp;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p-&gt;policyvers &gt;= MOD_POLICYDB_VERSION_TUNABLE_SEP) {<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ buf[0] = cpu_to_le32(booldatum-&gt;flags);<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ items = put_entry(buf, sizeof(uint32_t), 1, fp);<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ if (items != 1)<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ return POLICYDB_ERROR;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ }<br>&gt; &gt; +<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_SUCCESS;<br>&gt; &gt; ¨¢}<br>&gt; &gt;<br>&gt; &gt; @@ -727,6 +737,14 @@ static int cond_write_node(policydb_t * p,<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_ERROR;<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢}<br>&gt; &gt;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ if (p-&gt;policy_type != POLICY_KERN &amp;&amp;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ p-&gt;policyvers &gt;= MOD_POLICYDB_VERSION_TUNABLE_SEP) {<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ buf[0] = cpu_to_le32(node-&gt;flags);<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ items = put_!
+ entry(buf, sizeof(uint32_t), 1, fp);<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ 
+¨¢ if (items != 1)<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ ¨¢ return POLICYDB_ERROR;<br>&gt; &gt; + ¨¢ ¨¢ ¨¢ }<br>&gt; &gt; +<br>&gt; &gt; ¨¢ ¨¢ ¨¢ ¨¢return POLICYDB_SUCCESS;<br>&gt; &gt; ¨¢}<br>&gt; &gt;<br>&gt; &gt; --<br>&gt; &gt; 1.7.0.4<br>&gt; &gt;<br>&gt; &gt;<br>&gt; &gt; --<br>&gt; &gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; &gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; &gt; the words "unsubscribe selinux" without quotes as the message.<br>&gt; &gt;<br>&gt; <br>&gt; <br>&gt; --<br>&gt; This message was distributed to subscribers of the selinux mailing list.<br>&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>&gt; the words "unsubscribe selinux" without quotes as the message.<br></div> 		 	   		  </div></body>
+</html>
+--_a89507e5-fe0f-4d84-a534-be44921dd1ad_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
