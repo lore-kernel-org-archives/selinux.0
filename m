@@ -1,54 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89GH5SK021521
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 12:17:05 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p89GH4bB007729
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 16:17:04 GMT
-Message-ID: <4E6A3BFF.70008@tresys.com>
-Date: Fri, 9 Sep 2011 12:17:03 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-To: Robert Lee <robert.lee@chicago.vc>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Refpolicy Mail List
-	<refpolicy@oss1.tresys.com>
-Subject: Re: ANN: Reference Policy contrib repository
-References: <4E6A3225.2090502@tresys.com> <1315583893.23146.5.camel@chooch>
-In-Reply-To: <1315583893.23146.5.camel@chooch>
-Content-Type: text/plain; charset="ISO-8859-1"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89H20fu024247
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 13:02:00 -0400
+Received: from cp-out7.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p89H1xhl009763
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 17:01:59 GMT
+Received: from [192.168.2.2] (151.76.41.242) by cp-out7.libero.it (8.5.133)
+        id 4E68B6BF00358B92 for selinux@tycho.nsa.gov; Fri, 9 Sep 2011 19:01:57 +0200
+Subject: [PATCH] Fix include semanage/handle.h for semanage_set_root() as
+ used by semodule
+From: Guido Trentalancia <guido@trentalancia.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Date: Fri, 09 Sep 2011 19:01:56 +0200
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <1315587716.2170.16.camel@vortex>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/09/11 11:58, Robert Lee wrote:
-> Will this change affect the overall quality of the reference policy from
-> a security/vetting standpoint?
+Hello,
 
-I don't expect it to.  The expectation of the committers is the same as it is for me.  I'll still be looking through commits being made, and the committers should be looking at each other's commits too.  Additionally, the way git submodules work (the same as svn externals, if you're familiar) means that the main Reference Policy repo will pin a particular revision of the contrib repo, so you should always get a known good state, not necessarily the current contrib repo state.  Additionally, changes to the contrib modules are normally less/non controversial, since they're generally the best understood applications (eg apache, samba, etc).
+I am not able to build semodule from the current git unless the
+following patch is applied.
 
-> On Fri, 2011-09-09 at 11:35 -0400, Christopher J. PeBenito wrote:
->> The challenge of Reference Policy has always been balancing the needs of having a well reviewed policy against responding to fairly rapid application development and new user needs in Linux.  If you are not familiar with the differences between the Reference Policy and Fedora policy, it is quite large.  Since Fedora is the largest SELinux-enabled distribution, its development version, rawhide, is on the front lines of seeing new features in apps.  Due to Dan and Miroslav's extensive work, the Fedora policy evolves rapidly.  However, this has proven to be too fast for me to constantly review all the changes and integrate them upstream, resulting in the huge difference between the two policies.
->>
->> To ameliorate this situation, additional contributors with commit access have been added for Reference Policy.  To be specific, a large amount of the policy has been moved into a contrib layer (a git submodule), where these contributors may commit.  The core policy modules will remain in the primary Reference Policy repository, for which I remain the maintainer.  Due to its nature, the contrib repository will be faster moving and less reviewed than the core Reference Policy repository.
->>
->> The core modules are critical modules on the system.  This includes all of the kernel layer, most of the system and roles layers, some admin modules, such as bootloader, su, and sudo, and userspace object managers.  It is possible to build a policy using only the core modules.  It is important to ensure these modules are well reviewed to ensure quality, so Reference Policy can be used as a base for both general-purpose systems (e.g. Linux distributions) and custom systems.  All remaining modules were moved to the contrib repository.  An important thing to note is that in the future, modules may move between core and contrib as necessary.
->>
->> For those that have a current checkout of the repository, you will need to do the following to get the new contrib submodule:
->>
->> $ git pull
->> $ git submodule init
->> $ git submodule update
->>
->> If you are looking to check out the repository for the first time, the instructions are at:
->> http://oss.tresys.com/projects/refpolicy/wiki/RepositoryCheckout
->>
-> 
-> 
+Also, it would still be problematic if an outdated version of handle.h
+is getting picked up directly from the root include directory (as it
+happens now) and not from the local build directory... In other words,
+the Makefile and build system should be modified so that the local
+header files are picked up during each new build rather than the
+system-wide ones from previous installations.
 
+But at least this is a start:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Include <semanage/handle.h> for semodule_set_root() currently used by semodule
+
+--- selinux-05092011/policycoreutils/semodule/semodule.c	2011-09-02 04:19:47.357716917 +0200
++++ selinux-05092011-fix-semanage_set_root/policycoreutils/semodule/semodule.c	2011-09-09 18:41:24.078319022 +0200
+@@ -21,6 +21,7 @@
+ #include <sys/types.h>
+ 
+ #include <semanage/modules.h>
++#include <semanage/handle.h>
+ 
+ enum client_modes { NO_MODE, INSTALL_M, UPGRADE_M, BASE_M, ENABLE_M, DISABLE_M, REMOVE_M,
+ 	LIST_M, RELOAD
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
