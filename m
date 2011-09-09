@@ -1,9 +1,9 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89NPYv6010510
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 19:25:34 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p89NPXeX020003
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 23:25:33 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89NjQob011175
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 19:45:27 -0400
+Received: from cp-out8.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p89NjPvK029750
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 23:45:25 GMT
 Subject: Re: [RFC] Userspace top-level Makefile (was Re: [PATCH] Fix LIBDIR
  usage for load_policy)
 From: Guido Trentalancia <guido@trentalancia.com>
@@ -12,66 +12,70 @@ Cc: Joshua Brindle <method@manicmethod.com>,
         Eric Paris
  <eparis@parisplace.org>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-Date: Sat, 10 Sep 2011 01:25:19 +0200
-In-Reply-To: <4E6A9E26.9080806@redhat.com>
+Date: Sat, 10 Sep 2011 01:45:16 +0200
+In-Reply-To: <1315610720.2482.42.camel@vortex>
 References: <1315587716.2170.16.camel@vortex>
-	    <1315588656.2170.26.camel@vortex>
-	    <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
-	    <1315590383.2170.32.camel@vortex> <1315591143.2170.36.camel@vortex>
-	   <1315603187.2482.22.camel@vortex> <4E6A8707.9080602@manicmethod.com>
-	  <1315607702.2482.28.camel@vortex> <4E6A9C4D.6010303@redhat.com>
+	 <1315588656.2170.26.camel@vortex>
+	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
+	 <1315590383.2170.32.camel@vortex> <1315591143.2170.36.camel@vortex>
+	 <1315603187.2482.22.camel@vortex> <4E6A8707.9080602@manicmethod.com>
+	 <1315607702.2482.28.camel@vortex> <4E6A9C4D.6010303@redhat.com>
 	 <1315609967.2482.39.camel@vortex> <4E6A9E26.9080806@redhat.com>
+	 <1315610720.2482.42.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315610720.2482.42.camel@vortex>
+Message-ID: <1315611916.2482.44.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-09-09 at 19:15 -0400, Eric Paris wrote:
-> On 09/09/2011 07:12 PM, Guido Trentalancia wrote:
-> > On Fri, 2011-09-09 at 19:07 -0400, Eric Paris wrote:
-> >> On 09/09/2011 06:35 PM, Guido Trentalancia wrote:
-> >>> The following patch is probably even better as it actually sorts out the
-> >>> problem rather than just printing out a warning (it can still be
-> >>> combined with the creation of a top-level README file):
-> >>>
-> >>> diff -x '*.po' -x '*.pot' -pru selinux-09092011-orig/checkpolicy/Makefile selinux-09092011-local-headers/checkpolicy/Makefile
-> >>> --- selinux-09092011-orig/checkpolicy/Makefile	2011-09-09 20:12:55.978662153 +0200
-> >>> +++ selinux-09092011-local-headers/checkpolicy/Makefile	2011-09-10 00:21:16.242852130 +0200
-> >>> @@ -12,7 +12,7 @@ YACC = bison -y
-> >>>  
-> >>>  CFLAGS ?= -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
-> >>>  
-> >>> -override CFLAGS += -I. -I${INCLUDEDIR}
-> >>> +override CFLAGS += -I. -I../libsepol/include -I${INCLUDEDIR}
-> >>
-> >> I haven't checked, but can the makefiles then work when there is no
-> >> ../libsepol/include?
+On Sat, 2011-09-10 at 01:25 +0200, Guido Trentalancia wrote:
+> On Fri, 2011-09-09 at 19:15 -0400, Eric Paris wrote:
+> > > But why should libsepol/include be missing from git in the first
+> > > place ??
 > > 
-> > If ../libsepol/include does not exist and libsepol headers are not
-> > installed under the standard location (${INCLUDEDIR}), then the above is
-> > going to fail.
+> > I agree that they must be in one or the other for it to build.  A number
+> > of distros build these packages separately, rather than all at once.
+> > Thus there would be no ../libsepol/include directory at all, but the
+> > headers should be picked up by -I$(INCLUDEDIR).  As long as gcc doesn't
+> > care that the directory doesn't exist, I actually like it.
 > > 
-> > But why should libsepol/include be missing from git in the first
-> > place ??
+> > -Eric
 > 
-> I agree that they must be in one or the other for it to build.  A number
-> of distros build these packages separately, rather than all at once.
-> Thus there would be no ../libsepol/include directory at all, but the
-> headers should be picked up by -I$(INCLUDEDIR).  As long as gcc doesn't
-> care that the directory doesn't exist, I actually like it.
+> gcc should only care that at least one version of the file can be found
+> if #include'd.
 > 
-> -Eric
+> It still needs to be tested though. Can you try building the whole
+> userspace git using that patch ?
 
-gcc should only care that at least one version of the file can be found
-if #include'd.
+I have just tested it again and I am still missing the following bit:
 
-It still needs to be tested though. Can you try building the whole
-userspace git using that patch ?
+--- selinux-09092011-orig2/policycoreutils/semodule/Makefile	2011-09-10 01:40:34.249189544 +0200
++++ selinux-09092011-local-headers/policycoreutils/semodule/Makefile	2011-09-10 01:36:48.420940938 +0200
+@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I../../libsemanage/include -I$(INCLUDEDIR)
+-LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
++LDLIBS = -L../../libselinux/src -L../../libsepol/src -L../../libsemanage/src -lsepol -lselinux -lsemanage
+ SEMODULE_OBJS = semodule.o
+ 
+ all: semodule
+--- selinux-09092011-orig2/policycoreutils/setsebool/Makefile	2011-09-10 01:40:34.252189479 +0200
++++ selinux-09092011-local-headers/policycoreutils/setsebool/Makefile	2011-09-10 01:37:39.281235631 +0200
+@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I../../libselinux/include -I../../libsemanage/include -I$(INCLUDEDIR)
+-LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
++LDLIBS = -L../../libselinux/src -L../../libsepol/src -L../../libsemanage/src -lsepol -lselinux -lsemanage
+ SETSEBOOL_OBJS = setsebool.o
+ 
+ all: setsebool
 
-Regards,
+> Regards,
+> 
+> Guido
 
-Guido
 
 
 --
