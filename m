@@ -1,33 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89HBYYl024839
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 13:11:34 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89HHbHN025105
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 13:17:38 -0400
 Received: from cp-out7.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p89HBXhl012640
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 17:11:34 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p89HHahl014600
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 17:17:37 GMT
 Received: from [192.168.2.2] (151.76.41.242) by cp-out7.libero.it (8.5.133)
-        id 4E68B6BF0035D036 for selinux@tycho.nsa.gov; Fri, 9 Sep 2011 19:11:33 +0200
+        id 4E68B6BF0035FDFE for selinux@tycho.nsa.gov; Fri, 9 Sep 2011 19:17:36 +0200
 Subject: Re: [PATCH] Fix include semanage/handle.h for semanage_set_root()
  as used by semodule
 From: Guido Trentalancia <guido@trentalancia.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
-Date: Fri, 09 Sep 2011 19:11:33 +0200
+Date: Fri, 09 Sep 2011 19:17:36 +0200
 In-Reply-To: <1315587716.2170.16.camel@vortex>
 References: <1315587716.2170.16.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315588293.2170.22.camel@vortex>
+Message-ID: <1315588656.2170.26.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Heads-up. No patch is needed for the semanage files (as the new semanage/modules.h file already includes semanage/handle.h).
-
-It's probably just the build system that needs to be modified to include the local header files during the build process instead of the already installed system-wide ones.
-
-Otherwise the libraries need to be installed beforehand ?
-
-Regards,
-
-Guido
+It only happens when building from git (because it uses the top-level
+Makefile which is not being distributed with the released components).
 
 On Fri, 2011-09-09 at 19:01 +0200, Guido Trentalancia wrote:
 > Hello,
