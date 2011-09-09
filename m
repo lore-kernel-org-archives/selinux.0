@@ -1,87 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p891TLYQ011142
-	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2011 21:29:21 -0400
-Received: from mail.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p891TJMk024405
-	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 01:29:20 GMT
-Message-ID: <4E696BB3.1040004@windriver.com>
-Date: Fri, 9 Sep 2011 09:28:19 +0800
-From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p89FZ3wb019015
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 11:35:03 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p89FZ28w028695
+	for <selinux@tycho.nsa.gov>; Fri, 9 Sep 2011 15:35:03 GMT
+Message-ID: <4E6A3225.2090502@tresys.com>
+Date: Fri, 9 Sep 2011 11:35:01 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: v2 Discard unused tunables from raw policy
-References: <1314847787-4055-1-git-send-email-qingtao.cao@windriver.com> <CACLa4puGPT4Fc7VgTQ3Xkz94E-epJBsWaDDhzhPOuntLfmaA7Q@mail.gmail.com>
-In-Reply-To: <CACLa4puGPT4Fc7VgTQ3Xkz94E-epJBsWaDDhzhPOuntLfmaA7Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+To: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Refpolicy Mail List
+	<refpolicy@oss1.tresys.com>
+Subject: ANN: Reference Policy contrib repository
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Eric,
+The challenge of Reference Policy has always been balancing the needs of having a well reviewed policy against responding to fairly rapid application development and new user needs in Linux.  If you are not familiar with the differences between the Reference Policy and Fedora policy, it is quite large.  Since Fedora is the largest SELinux-enabled distribution, its development version, rawhide, is on the front lines of seeing new features in apps.  Due to Dan and Miroslav's extensive work, the Fedora policy evolves rapidly.  However, this has proven to be too fast for me to constantly review all the changes and integrate them upstream, resulting in the huge difference between the two policies.
 
-Eric Paris 写道:
-> On Wed, Aug 31, 2011 at 11:29 PM, Harry Ciao <qingtao.cao@windriver.com> wrote:
->
->   
->> Differences from v1
->> --------------------
->>
->> The v2 patchset just provides two minor changes from v1:
->>
->> 1. 0008-Preserve-tunables-when-required-by-semodule-program.patch
->>   Extract the codes to make use of sh->preserve_tunables flag in discard_tunable()
->>   from the 0007 patch in v1, and present them in this separate 0008 patch;
->>
->> 2. 0007-Create-a-new-preserve_tunables-flag-in-sepol_handle_.patch
->>   Fix an obvious error to mistakenly set sh->preserve_tunables flag in
->>   semanage_direct_connect(), which should be solely set according to the options
->>   passed for the semodule program.
->>
->>   Then the preserve_tunables flag file in the module store could be properly
->>   removed if no "-P/--preserve_tunables" option used for semodule.
->>     
->
-> I tried to build fedora policy with this patch set and it didn't work
-> out this time.  It complains about:
->
-> libsepol.bool_copy_callback: ppp: Mismatch between boolean/tunable
-> definition and usage for secure_mode_insmod
-> /usr/bin/semodule_link:  Error while linking packages
->
->   
-The directly reason is the secure_mod_insmod boolean is used along with
-pppd_can_insmod tunable in ppp.te in the tunable_policy() macro.
-Apparently ppp.pp is linked first with the assumption of
-secure_mod_insmod being required as a tunable. Later, when the module
-that actually presents the definition of secure_mode_insmod is linked
-the link process would find it is declared as a boolean. That's why you
-have run into above error message.
+To ameliorate this situation, additional contributors with commit access have been added for Reference Policy.  To be specific, a large amount of the policy has been moved into a contrib layer (a git submodule), where these contributors may commit.  The core policy modules will remain in the primary Reference Policy repository, for which I remain the maintainer.  Due to its nature, the contrib repository will be faster moving and less reviewed than the core Reference Policy repository.
 
-I have taken Chris's suggestion to error out rather than just printing
-warning messages about the mixture of any tunable with boolean. In order
-to support this change Chris has transformed the definition of
-pppd_can_insmod from gen_tunable() to gen_bool(), and use an explicit
-if-else conditional to replace the call of tunable_policy(). (BTW, we
-can use the boolean_policy() once the whole patchset is merged since
-both pppd_can_insmod and secure_mode_insmod are booleans now)
+The core modules are critical modules on the system.  This includes all of the kernel layer, most of the system and roles layers, some admin modules, such as bootloader, su, and sudo, and userspace object managers.  It is possible to build a policy using only the core modules.  It is important to ensure these modules are well reviewed to ensure quality, so Reference Policy can be used as a base for both general-purpose systems (e.g. Linux distributions) and custom systems.  All remaining modules were moved to the contrib repository.  An important thing to note is that in the future, modules may move between core and contrib as necessary.
 
-Therefore please try to cherry-pick the commit of 68bbbbde to resolve
-this problem.
+For those that have a current checkout of the repository, you will need to do the following to get the new contrib submodule:
 
-Thanks,
-Harry
+$ git pull
+$ git submodule init
+$ git submodule update
 
-> And then stops building.  I know you mentioned this as a known issue,
-> but previously I don't remember it failing to build.  All I did was
-> apply the 8 patches in this series, then apply the 4 patches to policy
-> you sent a long time ago.  Applying those 4 to fedora policy still
-> meant a couple of minor changes, but nothing directly to ppp.{te,if}
->
-> -Eric
->
->   
+If you are looking to check out the repository for the first time, the instructions are at:
+http://oss.tresys.com/projects/refpolicy/wiki/RepositoryCheckout
 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
