@@ -1,77 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8CLSS9G020486
-	for <selinux@tycho.nsa.gov>; Mon, 12 Sep 2011 17:28:28 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8CLSQsA007260
-	for <selinux@tycho.nsa.gov>; Mon, 12 Sep 2011 21:28:27 GMT
-Subject: Re: policycoreutils manpages needed
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        SE-Linux
-	 <selinux@tycho.nsa.gov>
-Date: Mon, 12 Sep 2011 23:28:04 +0200
-In-Reply-To: <CACLa4ptfSU3obZ8OyMVFfKDsqwLQn58-O9YRUbCyU8=mLzn=tA@mail.gmail.com>
-References: <201109011509.05872.russell@coker.com.au>
-	 <4E5F8BAA.6060208@redhat.com> <1314912106.2334.2.camel@vortex>
-	 <CACLa4ptfSU3obZ8OyMVFfKDsqwLQn58-O9YRUbCyU8=mLzn=tA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315862884.2223.33.camel@vortex>
-Mime-Version: 1.0
+Message-ID: <4E6E8149.30702@redhat.com>
+Date: Mon, 12 Sep 2011 18:01:45 -0400
+From: Eric Paris <eparis@redhat.com>
+MIME-Version: 1.0
+To: Guido Trentalancia <guido@trentalancia.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Fix includes for userspace tools and libraries (was Re:
+ [PATCH] Fix include semanage/handle.h for semanage_set_root() as used by
+ semodule)
+References: <1315587716.2170.16.camel@vortex>  <1315588656.2170.26.camel@vortex>  <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>  <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
+In-Reply-To: <1315859373.2223.19.camel@vortex>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Eric !
-
-On Thu, 2011-09-01 at 21:52 -0400, Eric Paris wrote:
-> On Thu, Sep 1, 2011 at 5:21 PM, Guido Trentalancia
-> <guido@trentalancia.com> wrote:
-> > On Thu, 2011-09-01 at 09:42 -0400, Daniel J Walsh wrote:
-> >> On 09/01/2011 01:09 AM, Russell Coker wrote:
-> >> > Has anyone written manpages for genhomedircon, sepolgen-ifgen, and
-> >> > seunshare? If not is there someone with some spare time and man
-> >> > page writing skill?
-> >> >
-> >> We have man pages for genhomedircon and seunshare.  Although the
-> >> genhomedircon man page is rather sparse.
-> >
-> > If help is needed for manual pages, I can have a look and spare some
-> > time. I can start with genhomedircon as suggested by Dan unless other
-> > ideas are brought forward...
+On 09/12/2011 04:29 PM, Guido Trentalancia wrote:
+> Hi Stephen.
 > 
-> Just make sure you look at the 'queue' branch of the upstream repo
-> rather than the 'master' branch.  I'm pretty sure some of the man
-> pages Dan mentioned only exist in the queue branch.
+> On Mon, 2011-09-12 at 08:57 -0400, Stephen Smalley wrote:
+>> On Fri, 2011-09-09 at 13:31 -0400, Eric Paris wrote:
+>>> I'm also really annoyed by this at times, but I don't know what the
+>>> right answer is.
+>>>
+>>> We really treat it like we have 5+ separate projects which just all
+>>> happen to live in the same git tree.  Thus to build libselinux you
+>>> must have already built and installed libsepol.  And then to build
+>>> libsemanage you need to have done that with both libsepol and
+>>> libselinux.  Then of course to get the builds and install right (on
+>>> Fedora/RHEL) you have to know to use LIBDIR=/usr/lib64 SHLIBDIR=/lib64
+>>> for libsepol and libsepol, but SHLIBDIR=/usr/lib64 for libsemanage.
+>>> Its a mess, but I don't know what to do that's better....
+>>
+>> make DESTDIR=~/out at top-level should work fine - it will build and
+>> install each library into a private tree (as specified by DESTDIR) and
+>> then build and install the programs against those libraries.  Without
+>> needing to clobber the system ones.
+> 
+> At the moment, it does not, until the Makefile(s) are modified or at
+> least until the libraries are manually installed first.
+> 
+> Try by yourself, but do not forget to remove
+> $(PREFIX)/usr/include/{selinux,semanage,sepol} and
+> $(PREFIX){/usr,}/lib/libse{linux,manage,pol}* first !
 
-Apparently, there isn't a massive difference for the manual pages
-between the master and the queue branches.
+I recently added the patch which changed the global to be 'build'
+instead of 'install', so sds might not realize that 'install' is no
+longer the default, however I think Guido is right about the install
+having a number of paces that it hard coded things...
 
-In particular there are no new manual pages being introduced in the
-queue branch (although there are some modifications to existing pages
-mainly due to modifications in the tools).
-
-I would like to take this opportunity to suggest that we create manual
-pages for configuration files where possible (none available at the
-moment ?!?).
-
-For example, the very first one I would like to have is
-semanage.conf.5. 
-
-Then we could also create restorecond.conf.5 and restorecond_user.conf.5
-(both of them should be trivial).
-
-There might be very slight improvements possible for the seunshare
-manual page. The manual pages for sepolgen* are missing and therefore
-will need to be created from scratch. The manual page for sandbox.8
-could be improved by mentioning that a configuration file exists in
-$(DESTDIR)/etc/sysconfig/sandbox (along with a manual page
-sandbox.conf.5).
-
-That said, I am now going to start creating semanage.conf.5...
-
-Regards,
-
-Guido
+-Eric
 
 
 --
