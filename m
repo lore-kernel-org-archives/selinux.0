@@ -1,180 +1,66 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8D5S709005269
-	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2011 01:28:07 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8D5S5Yw000513
-	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2011 05:28:05 GMT
-Subject: Re: [RFC] semanage.conf manual page (was Re: policycoreutils
- manpages needed)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        SELinux
-	 <selinux@tycho.nsa.gov>
-Date: Tue, 13 Sep 2011 07:27:37 +0200
-In-Reply-To: <1315890045.2177.47.camel@vortex>
-References: <201109011509.05872.russell@coker.com.au>
-	 <4E5F8BAA.6060208@redhat.com> <1314912106.2334.2.camel@vortex>
-	 <CACLa4ptfSU3obZ8OyMVFfKDsqwLQn58-O9YRUbCyU8=mLzn=tA@mail.gmail.com>
-	 <1315862884.2223.33.camel@vortex> <1315890045.2177.47.camel@vortex>
+Subject: Re: [PATCH] Fix includes for userspace tools and libraries (was
+ Re: [PATCH] Fix include semanage/handle.h for semanage_set_root() as used
+ by semodule)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: Guido Trentalancia <guido@trentalancia.com>,
+        Eric Paris
+ <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4E6E8149.30702@redhat.com>
+References: <1315587716.2170.16.camel@vortex>
+	 <1315588656.2170.26.camel@vortex>
+	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
+	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
+	 <4E6E8149.30702@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315891657.2177.49.camel@vortex>
+Date: Tue, 13 Sep 2011 08:41:37 -0400
+Message-ID: <1315917697.12522.1.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With the bits to install it:
-
-diff -pruN selinux-13092011-new/policycoreutils/semanage/Makefile selinux-13092011-new-manual-pages/policycoreutils/semanage/Makefile
---- selinux-13092011-new/policycoreutils/semanage/Makefile	2011-09-13 03:10:39.427692261 +0200
-+++ selinux-13092011-new-manual-pages/policycoreutils/semanage/Makefile	2011-09-13 07:22:46.159015090 +0200
-@@ -11,9 +11,11 @@ TARGETS=semanage
- all: $(TARGETS)
- 
- install: all
-+	[ -d $(MANDIR)/man5 ] || mkdir -p $(MANDIR)/man5
- 	[ -d $(MANDIR)/man8 ] || mkdir -p $(MANDIR)/man8
- 	-mkdir -p $(SBINDIR)
- 	install -m 755 semanage $(SBINDIR)
-+	install -m 644 semanage.conf.5 $(MANDIR)/man5
- 	install -m 644 semanage.8 $(MANDIR)/man8
- 	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d $(PYTHONLIBDIR)/site-packages
- 	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
-
-On Tue, 2011-09-13 at 07:00 +0200, Guido Trentalancia wrote:
-> So, here is a first new manual page that I propose to introduce:
-> semanage.conf(5).
-> 
-> On Mon, 2011-09-12 at 23:28 +0200, Guido Trentalancia wrote:
-> > On Thu, 2011-09-01 at 21:52 -0400, Eric Paris wrote:
-> > > On Thu, Sep 1, 2011 at 5:21 PM, Guido Trentalancia
-> > > <guido@trentalancia.com> wrote:
-> > > > On Thu, 2011-09-01 at 09:42 -0400, Daniel J Walsh wrote:
-> > > >> On 09/01/2011 01:09 AM, Russell Coker wrote:
-> > > >> > Has anyone written manpages for genhomedircon, sepolgen-ifgen, and
-> > > >> > seunshare? If not is there someone with some spare time and man
-> > > >> > page writing skill?
-> 
-> [cut]
-> 
-> > I would like to take this opportunity to suggest that we create manual
-> > pages for configuration files where possible (none available at the
-> > moment ?!?).
+On Mon, 2011-09-12 at 18:01 -0400, Eric Paris wrote:
+> On 09/12/2011 04:29 PM, Guido Trentalancia wrote:
+> > Hi Stephen.
 > > 
-> > For example, the very first one I would like to have is
-> > semanage.conf.5. 
+> > On Mon, 2011-09-12 at 08:57 -0400, Stephen Smalley wrote:
+> >> On Fri, 2011-09-09 at 13:31 -0400, Eric Paris wrote:
+> >>> I'm also really annoyed by this at times, but I don't know what the
+> >>> right answer is.
+> >>>
+> >>> We really treat it like we have 5+ separate projects which just all
+> >>> happen to live in the same git tree.  Thus to build libselinux you
+> >>> must have already built and installed libsepol.  And then to build
+> >>> libsemanage you need to have done that with both libsepol and
+> >>> libselinux.  Then of course to get the builds and install right (on
+> >>> Fedora/RHEL) you have to know to use LIBDIR=/usr/lib64 SHLIBDIR=/lib64
+> >>> for libsepol and libsepol, but SHLIBDIR=/usr/lib64 for libsemanage.
+> >>> Its a mess, but I don't know what to do that's better....
+> >>
+> >> make DESTDIR=~/out at top-level should work fine - it will build and
+> >> install each library into a private tree (as specified by DESTDIR) and
+> >> then build and install the programs against those libraries.  Without
+> >> needing to clobber the system ones.
+> > 
+> > At the moment, it does not, until the Makefile(s) are modified or at
+> > least until the libraries are manually installed first.
+> > 
+> > Try by yourself, but do not forget to remove
+> > $(PREFIX)/usr/include/{selinux,semanage,sepol} and
+> > $(PREFIX){/usr,}/lib/libse{linux,manage,pol}* first !
 > 
-> diff -pruN selinux/policycoreutils/semanage/semanage.conf.5 selinux-13092011-new-manual-pages/policycoreutils/semanage/semanage.conf.5
-> --- selinux/policycoreutils/semanage/semanage.conf.5	1970-01-01 01:00:00.000000000 +0100
-> +++ selinux-13092011-new-manual-pages/policycoreutils/semanage/semanage.conf.5	2011-09-13 06:54:47.309754193 +0200
-> @@ -0,0 +1,93 @@
-> +.TH semanage.conf "5" "September 2011" "semanage.conf" "Linux System Administration"
-> +.SH NAME
-> +semanage.conf \- global configuration file for the SELinux Management library
-> +.SH DESCRIPTION
-> +.PP
-> +The
-> +.BR semanage.conf
-> +file is usually located under the directory /etc/selinux and it is used for run-time configuration of the
-> +behavior of the SELinux Management library.
-> +
-> +.PP
-> +Each line should contain a configuration parameter followed by the equal sign ("=") and then followed by the configuration value for that
-> +parameter. Anything after the "#" symbol is ignored similarly to empty lines.
-> +
-> +.PP
-> +The following parameters are allowed:
-> +
-> +.RS
-> +.TP
-> +.B module-store 
-> +Specify how the SELinux Management library should interact with the SELinux policy store. When set to "direct", the SELinux
-> +Management library writes to the SELinux policy module store directly (this is the default setting).
-> +Otherwise a socket path or a server name can be used for the argument.
-> +If the argument begins with "/" (as in "/foo/bar"), it represents the path to a named socket that should be used to connect the policy management
-> +server.
-> +If the argument does not begin with a "/" (as in "foo.com:4242"), it should be interpreted as the name of a remote policy management server
-> +to be used through a TCP connection (default port is 4242 unless a different one is specified after the server name using the colon to separate
-> +the two fields).
-> +
-> +.TP
-> +.B policy-version 
-> +When generating the policy, by default
-> +.BR semanage
-> +will set the policy version to POLICYDB_VERSION_MAX, as defined in <sepol/policydb/policydb.h>. Change this setting if a different
-> +version needs to be set for the policy.
-> +
-> +.TP
-> +.B expand-check
-> +Whether or not to check "neverallow" rules when executing all
-> +.BR semanage
-> +command. It can be set to either "0" (disabled) or "1" (enabled) and by default it is enabled. There might be a large
-> +penalty in execution time if this option is enabled.
-> +
-> +.TP
-> +.B file-mode
-> +By default the permission mode for the run-time policy files is set to 0644.
-> +
-> +.TP
-> +.B save-previous
-> +It controls whether the previous module directory is saved after a successful commit to the policy store and it can be set to
-> +either "true" or "false". By default it is set to "false" (the previous version is deleted).
-> +
-> +.TP
-> +.B save-linked
-> +It controls whether the previously linked module is saved (with name "base.linked") after a successful commit to the policy store.
-> +It can be set to either "true" or "false" and by default it is set to "false" (the previous module is deleted).
-> +
-> +.TP
-> +.B usepasswd 
-> +Whether or not to enable the use getpwent() to obtain a list of home directories to label. It can be set to either "true" or "false".
-> +By default it is set to "true".
-> +
-> +.TP
-> +.B disable-genhomedircon
-> +It controls whether or not the genhomedircon function is executed when using the
-> +.BR semanage
-> +command and it can be set to either "false" or "true". By default the genhomedircon functionality is enabled (equivalent
-> +to this option set to "false").
-> +
-> +.TP
-> +.B handle-unknown
-> +This option controls the kernel behavior for handling permissions defined in the kernel but missing from the actual policy.
-> +It can be set to "deny", "reject" or "allow".
-> +
-> +.TP
-> +.B bzip-blocksize
-> +It should be in the range 0-9. A value of 0 means no compression. By default the bzip block size is set to 9 (actual block
-> +size value is obtained after multiplication by 100000).
-> +
-> +.TP
-> +.B bzip-small
-> +When set to "true", the bzip algorithm shall try to reduce its system memory usage. It can be set to either "true" or "false" and
-> +by default it is set to "false".
-> +
-> +.SH "SEE ALSO"
-> +.TP
-> +semanage(8)
-> +.PP
-> +
-> +.SH AUTHOR
-> +This manual page was written by Guido Trentalancia <guido@trentalancia.com>.
-> +
-> +The SELinux management library was written by Tresys Technology LLC and Red Hat Inc.
-> 
-> Very simple, but possibly useful...
-> 
-> Regards,
-> 
-> Guido
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+> I recently added the patch which changed the global to be 'build'
+> instead of 'install', so sds might not realize that 'install' is no
+> longer the default, however I think Guido is right about the install
+> having a number of paces that it hard coded things...
 
+Well, that's a regression then - it used to work with make DESTDIR=~/out
+just fine.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
