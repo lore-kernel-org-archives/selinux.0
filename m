@@ -1,115 +1,70 @@
-Subject: Re: [PATCH] Fix includes for userspace tools and libraries (was Re:
- [PATCH] Fix include semanage/handle.h for semanage_set_root() as used by
- semodule)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+Subject: Re: [PATCH] Fix includes for userspace tools and libraries (was
+ Re: [PATCH] Fix include semanage/handle.h for semanage_set_root() as used
+ by semodule)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: Guido Trentalancia <guido@trentalancia.com>,
+        Eric Paris
+ <eparis@parisplace.org>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-Date: Tue, 13 Sep 2011 18:31:35 +0200
-In-Reply-To: <1315917697.12522.1.camel@moss-pluto>
+In-Reply-To: <4E6E8149.30702@redhat.com>
 References: <1315587716.2170.16.camel@vortex>
 	 <1315588656.2170.26.camel@vortex>
 	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
 	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
-	 <4E6E8149.30702@redhat.com> <1315917697.12522.1.camel@moss-pluto>
+	 <4E6E8149.30702@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315931495.2248.29.camel@vortex>
+Date: Tue, 13 Sep 2011 13:08:05 -0400
+Message-ID: <1315933685.12522.38.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
-
-thanks for getting back...
-
-On Tue, 2011-09-13 at 08:41 -0400, Stephen Smalley wrote:
-> On Mon, 2011-09-12 at 18:01 -0400, Eric Paris wrote:
-> > On 09/12/2011 04:29 PM, Guido Trentalancia wrote:
-> > > Hi Stephen.
-> > > 
-> > > On Mon, 2011-09-12 at 08:57 -0400, Stephen Smalley wrote:
-> > >> On Fri, 2011-09-09 at 13:31 -0400, Eric Paris wrote:
-> > >>> I'm also really annoyed by this at times, but I don't know what the
-> > >>> right answer is.
-> > >>>
-> > >>> We really treat it like we have 5+ separate projects which just all
-> > >>> happen to live in the same git tree.  Thus to build libselinux you
-> > >>> must have already built and installed libsepol.  And then to build
-> > >>> libsemanage you need to have done that with both libsepol and
-> > >>> libselinux.  Then of course to get the builds and install right (on
-> > >>> Fedora/RHEL) you have to know to use LIBDIR=/usr/lib64 SHLIBDIR=/lib64
-> > >>> for libsepol and libsepol, but SHLIBDIR=/usr/lib64 for libsemanage.
-> > >>> Its a mess, but I don't know what to do that's better....
-> > >>
-> > >> make DESTDIR=~/out at top-level should work fine - it will build and
-> > >> install each library into a private tree (as specified by DESTDIR) and
-> > >> then build and install the programs against those libraries.  Without
-> > >> needing to clobber the system ones.
-> > > 
-> > > At the moment, it does not, until the Makefile(s) are modified or at
-> > > least until the libraries are manually installed first.
-> > > 
-> > > Try by yourself, but do not forget to remove
-> > > $(PREFIX)/usr/include/{selinux,semanage,sepol} and
-> > > $(PREFIX){/usr,}/lib/libse{linux,manage,pol}* first !
+On Mon, 2011-09-12 at 18:01 -0400, Eric Paris wrote:
+> On 09/12/2011 04:29 PM, Guido Trentalancia wrote:
+> > Hi Stephen.
 > > 
-> > I recently added the patch which changed the global to be 'build'
-> > instead of 'install', so sds might not realize that 'install' is no
-> > longer the default, however I think Guido is right about the install
-> > having a number of paces that it hard coded things...
+> > On Mon, 2011-09-12 at 08:57 -0400, Stephen Smalley wrote:
+> >> On Fri, 2011-09-09 at 13:31 -0400, Eric Paris wrote:
+> >>> I'm also really annoyed by this at times, but I don't know what the
+> >>> right answer is.
+> >>>
+> >>> We really treat it like we have 5+ separate projects which just all
+> >>> happen to live in the same git tree.  Thus to build libselinux you
+> >>> must have already built and installed libsepol.  And then to build
+> >>> libsemanage you need to have done that with both libsepol and
+> >>> libselinux.  Then of course to get the builds and install right (on
+> >>> Fedora/RHEL) you have to know to use LIBDIR=/usr/lib64 SHLIBDIR=/lib64
+> >>> for libsepol and libsepol, but SHLIBDIR=/usr/lib64 for libsemanage.
+> >>> Its a mess, but I don't know what to do that's better....
+> >>
+> >> make DESTDIR=~/out at top-level should work fine - it will build and
+> >> install each library into a private tree (as specified by DESTDIR) and
+> >> then build and install the programs against those libraries.  Without
+> >> needing to clobber the system ones.
+> > 
+> > At the moment, it does not, until the Makefile(s) are modified or at
+> > least until the libraries are manually installed first.
+> > 
+> > Try by yourself, but do not forget to remove
+> > $(PREFIX)/usr/include/{selinux,semanage,sepol} and
+> > $(PREFIX){/usr,}/lib/libse{linux,manage,pol}* first !
 > 
-> Well, that's a regression then - it used to work with make DESTDIR=~/out
-> just fine.
+> I recently added the patch which changed the global to be 'build'
+> instead of 'install', so sds might not realize that 'install' is no
+> longer the default, however I think Guido is right about the install
+> having a number of paces that it hard coded things...
 
-For sure, it needs further checking and fixing...
+Your patch was wrong and should have been rejected.  make DESTDIR=~/out
+was the way to build the entire source tree.  It ensured that the right
+headers are picked up (by adding -I~/out/usr/include to CFLAGS, which
+then take precedence over the system ones), and that the right libraries
+are linked against (likewise with LDFLAGS), and it didn't require you to
+be root to build.
 
-But let me just try again pointing out a few further details so that
-everybody would better understand the issue.
-
-It is a maintenance issue with the Makefiles.
-
-The DESTDIR variable does not matter much because the problem is that it
-breaks not only the installation but also the compilation itself (prior
-to the installation) !
-
-So, DESTDIR is generally only used during the installation process (what
-DESTINATION directory shall I write to ?).
-
-The compilation problem being discussed here is twofold: compilation
-itself (from *.c source code to *.o object code) and linking (from *.o
-object code to the tool or shared library executable).
-
-So the first side of the problem (compilation stage) is due to the fact
-that gcc is only allowed to include header files from the system-wide
-header repository (e.g. -I/usr/include) while unfortunately it is not
-allowed/configured to try picking up local header files first (as in
-having -I$(CURDIR)/libselinux/include -I$(CURDIR)/libsepol/include -I
-$(CURDIR)/libsemanage/include before any eventual system-wide
--I/usr/include).
-
-The second side of the problem (linking stage) is due to a somewhat
-similar fact that gcc is only allowed to search dynamic (shared)
-libraries in system-wide repositories (such as -L/usr/lib) while it is
-not allowed/configured to search the local build directories first (as
-in having -L$(CURDIR)/libselinux/src -L$(CURDIR)/libsepol/src -L
-$(CURDIR)/libsemanage/src before any system-wide -L/usr/lib).
-
-For reference: the CURDIR variable is expanded by the GNU make tools to
-the current directory (it is a GNU make functionality). I propose
-exploiting such variable in the top-level Makefile in order to determine
-the top-level SELinux-userspace directory and subsequently pass it
-recursively to lower-level Makefiles (so that it is used in turn as the
-base for the *local* -I include and -L link compiler/linker flags).
-
-That said, I must admit I do not know much about the history, although
-it seems to me from the git logs that the problem has been there since
-the very first git commit.
-
-Hope it helps.
-
-Regards,
-
-Guido
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
