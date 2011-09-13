@@ -1,9 +1,10 @@
 Subject: Re: [PATCH] Fix includes for userspace tools and libraries (and
  possible security issue)
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Eric Paris <eparis@redhat.com>
 To: Guido Trentalancia <guido@trentalancia.com>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
         SELinux Mail List <selinux@tycho.nsa.gov>
+Date: Tue, 13 Sep 2011 16:26:57 -0400
 In-Reply-To: <1315944244.2218.41.camel@vortex>
 References: <1315587716.2170.16.camel@vortex>
 	 <1315588656.2170.26.camel@vortex>
@@ -13,15 +14,40 @@ References: <1315587716.2170.16.camel@vortex>
 	 <1315931495.2248.29.camel@vortex> <1315934421.12522.46.camel@moss-pluto>
 	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
 	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
-	 <1315942469.12522.81.camel@moss-pluto>  <1315944244.2218.41.camel@vortex>
+	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Sep 2011 16:20:26 -0400
-Message-ID: <1315945226.12522.87.camel@moss-pluto>
+Message-ID: <1315945618.2738.13.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Tue, 2011-09-13 at 22:04 +0200, Guido Trentalancia wrote:
+> On Tue, 2011-09-13 at 15:34 -0400, Stephen Smalley wrote:
+> > On Tue, 2011-09-13 at 15:25 -0400, Stephen Smalley wrote:
+> > > On Tue, 2011-09-13 at 21:18 +0200, Guido Trentalancia wrote:
+> > > > Hello again.
+> > > > 
+> > > > The security risk associated with the linkage of an old libsepol.a
+> > > > static library is low due to the fact that the tools are usually built
+> > > > from each component separately after all the libraries have been
+> > > > previously built and installed.
+> > > > 
+> > > > On Tue, 2011-09-13 at 14:48 -0400, Stephen Smalley wrote:
+> > > > > On Tue, 2011-09-13 at 20:33 +0200, Guido Trentalancia wrote:
+> > > > > > No, it doesn't currently ! If you want to try reproducing it, then you
+> > > > > > should do so on a system which hasn't got it already installed (or make
+> > > > > > sure you get temporarily rid of
+> > > > > > $(PREFIX)/include/{selinux,sepol,semanage} and
+> > > > > > $(LIBDIR)/lib{selinux,sepol,semanage}.* first).
+> 
+> [cut]
+> 
+> > I suppose the one thing that might not be clear is that the Makefile
+> > orders the SUBDIRS in order of dependency, so that we build and install
+> > libsepol first, then libselinux, and so on such that the headers and
+> > libraries required to build each component are already installed before
+> > we build that component.
+> 
 > It is up to the maintainer to keep the SUBDIRS variable ordered
 > (according to the dependency relations).
 > 
@@ -29,10 +55,7 @@ On Tue, 2011-09-13 at 22:04 +0200, Guido Trentalancia wrote:
 > 
 > http://www.gnu.org/s/hello/manual/make/Phony-Targets.html#Phony-Targets
 > http://www.gnu.org/s/hello/manual/automake/Subdirectories.html
-
-Ok, we have ordered SUBDIRS in the Makefile in such a manner that each
-component is built before anything that depends on it.
-
+> 
 > > In your case, the sepol headers should have
 > > already been installed before trying to build libselinux, and I don't
 > > know why that didn't happen for you unless your make reorders SUBDIRS
@@ -40,31 +63,40 @@ component is built before anything that depends on it.
 > > wouldn't expect it to proceed in that case).
 > 
 > The make tool should not reorder variables in any case.
-
-Good.
-
+> 
 > I did not issue a "make install" (yet). I did just issue "make" from the
 > top-level directory.
-
-Right, that can't work and never has, which is why 'make' used to invoke
-'make install' until Eric (incorrectly) changed that behavior.
-
+> 
 > I am not building the components separately, I am building the whole
 > bundle (tools + libraries) from the top-level directory of the git
 > version. That's the point.
 
-Understood, and the only way to do that has always been make
-DESTDIR=~/out.  Reverting/fixing the changes that have broken that
-behavior is the right solution.
+I, recently, applied a patch which changed the top level default from
+install to all.  sds says the 'right' way to build the git tree WAS to
+call "make DESTDIR=~/out"  (Remember the default was to install).  Since
+I changed the default target the new way to build out of the tree is to
+call "make DESTDIR=~/out install"
 
-Looking at your last patch, I don't see how it can possibly work in the
-case where one isn't building the entire source tree (e.g. for package
-building), because it encodes a relative path to the static libs in
-LDLIBS.
+I have no plans at this time to revert my commit which changed the
+default from 'install' to 'all'.  It is just flat out totally wrong that
+cloning the git tree and typing make can break your running system.
+Period.  I agree that we must be certain not to break anyone who decides
+to still use 'make DESTDIR=~/out install' method.  Note: I'm fine that
+this means I'm forcing sds to use the install target instead of the
+default target from here out.  The old default target was a very bad
+idea.  If you know you need to type DESTDIR= you can also know to type
+'install.'  If this doesn't work, I need to fix it.  (It doesn't work
+for me, but I'm not certain why just yet)
 
--- 
-Stephen Smalley
-National Security Agency
+Personally, I'd like to see just 'make' at the top level dir build
+properly and I think your patches get us most of the way there without
+(further) breaking the building method that sds prefers.
+
+If you get your best patch which does nothing but allow us to just type
+'make' at the top level dir and it builds everything properly in place,
+I'll review and probably commit such a patch.
+
+-Eric
 
 
 --
