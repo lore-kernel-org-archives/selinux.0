@@ -1,17 +1,10 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8E1Ks4U006550
-	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2011 21:20:54 -0400
-Received: from cp-out8.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8E1KqeV001487
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2011 01:20:52 GMT
-Subject: [PATCH] Change default make target for the man directory of
- policycoreutils/mcstrans (was Re: [PATCH] Change default make target for
- sepolgen)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>
-Date: Wed, 14 Sep 2011 03:20:51 +0200
-In-Reply-To: <1315962616.2218.109.camel@vortex>
+Subject: Re: [PATCH v4] Fix includes for userspace tools and libraries (and
+ possible security issue)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1315951507.2218.91.camel@vortex>
 References: <1315587716.2170.16.camel@vortex>
 	 <1315588656.2170.26.camel@vortex>
 	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
@@ -21,156 +14,54 @@ References: <1315587716.2170.16.camel@vortex>
 	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
 	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
 	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
-	 <1315945618.2738.13.camel@localhost> <1315951507.2218.91.camel@vortex>
-	 <1315956807.2218.98.camel@vortex> <1315961064.2218.103.camel@vortex>
-	 <1315962616.2218.109.camel@vortex>
+	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1315963251.2218.112.camel@vortex>
+Date: Wed, 14 Sep 2011 08:56:05 -0400
+Message-ID: <1316004965.26965.9.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For the sake of completeness, also fix the same issue in policycoreutils
-(for the currently-disabled target mcstrans):
+On Wed, 2011-09-14 at 00:05 +0200, Guido Trentalancia wrote:
+> Hello Eric !
+> 
+> On Tue, 2011-09-13 at 16:26 -0400, Eric Paris wrote:
+> > Personally, I'd like to see just 'make' at the top level dir build
+> > properly and I think your patches get us most of the way there without
+> > (further) breaking the building method that sds prefers.
+> > 
+> > If you get your best patch which does nothing but allow us to just type
+> > 'make' at the top level dir and it builds everything properly in place,
+> > I'll review and probably commit such a patch.
+> 
+> Yes, let's get to the point. The latest version of the patch that you
+> should test is attached below. Please note that it also changes the
+> creation of symbolic links to shared libraries (needs to be
+> double-checked for correctness).
+> 
+> diff -pruN selinux/checkpolicy/Makefile selinux-13092011/checkpolicy/Makefile
+> --- selinux/checkpolicy/Makefile	2011-09-09 20:12:55.978662153 +0200
+> +++ selinux-13092011/checkpolicy/Makefile	2011-09-13 02:58:19.314224502 +0200
+> @@ -19,7 +19,7 @@ CHECKOBJS = y.tab.o lex.yy.o queue.o mod
+>  CHECKPOLOBJS = $(CHECKOBJS) checkpolicy.o
+>  CHECKMODOBJS = $(CHECKOBJS) checkmodule.o
+>  
+> -LDLIBS=$(LIBDIR)/libsepol.a -lfl
+> +LDLIBS=../libsepol/src/libsepol.a -L$(LIBDIR) -lfl
+>  
+>  GENERATED=lex.yy.c y.tab.c y.tab.h
 
---- selinux-13092011-rebuild2/policycoreutils/mcstrans/man/Makefile	2011-09-09 20:12:56.036662576 +0200
-+++ selinux-13092011-rebuild/policycoreutils/mcstrans/man/Makefile	2011-09-14 03:11:39.994807156 +0200
-@@ -1,6 +1,8 @@
- # Installation directories.
- MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
- 
-+all:
-+
- install:
- 	mkdir -p $(MAN8DIR)
- 	install -m 644 man8/*.8 $(MAN8DIR)
+The above will break when building checkpolicy separately.  Ditto for
+the other components that need to reference a static lib.  I think this
+is why we didn't go down this path previously.
 
-On Wed, 2011-09-14 at 03:10 +0200, Guido Trentalancia wrote:
-> And similarly for the "include" and "man" directories available for the
-> libraries:
-> 
-> Change the default "make" target for the libraries from "install" to
-> "all" in *all* makefiles.
-> 
-> --- selinux/libselinux/include/Makefile	2011-09-09 20:12:55.981662183 +0200
-> +++ selinux-13092011-rebuild/libselinux/include/Makefile	2011-09-14 02:48:03.159322088 +0200
-> @@ -2,6 +2,8 @@
->  PREFIX ?= $(DESTDIR)/usr
->  INCDIR ?= $(PREFIX)/include/selinux
->  
-> +all:
-> +
->  install:
->  	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
->  	install -m 644 $(wildcard selinux/*.h) $(INCDIR)
-> --- selinux/libsepol/include/Makefile	2011-09-09 20:12:56.018662447 +0200
-> +++ selinux-13092011-rebuild/libsepol/include/Makefile	2011-09-14 02:48:39.183551143 +0200
-> @@ -2,6 +2,8 @@
->  PREFIX ?= $(DESTDIR)/usr
->  INCDIR ?= $(PREFIX)/include/sepol
->  
-> +all:
-> +
->  install:
->  	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
->  	test -d $(INCDIR)/policydb || install -m 755 -d $(INCDIR)/policydb
-> --- selinux/libsemanage/include/Makefile	2011-09-09 20:12:56.001662322 +0200
-> +++ selinux-13092011-rebuild/libsemanage/include/Makefile	2011-09-14 02:48:23.919454058 +0200
-> @@ -2,6 +2,8 @@
->  PREFIX ?= $(DESTDIR)/usr
->  INCDIR ?= $(PREFIX)/include/semanage
->  
-> +all:
-> +
->  install:
->  	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
->  	install -m 644 $(wildcard semanage/*.h) $(INCDIR)
-> --- selinux-13092011-rebuild2/libselinux/man/Makefile	2011-09-14 03:04:28.573741936 +0200
-> +++ selinux-13092011-rebuild/libselinux/man/Makefile	2011-09-14 02:56:26.626528998 +0200
-> @@ -4,6 +4,8 @@ MAN3DIR ?= $(PREFIX)/share/man/man3
->  MAN5DIR ?= $(PREFIX)/share/man/man5
->  MAN8DIR ?= $(PREFIX)/share/man/man8
->  
-> +all:
-> +
->  install:
->  	mkdir -p $(MAN3DIR)
->  	mkdir -p $(MAN5DIR)
-> --- selinux-13092011-rebuild2/libsepol/man/Makefile	2011-09-14 03:04:36.648799423 +0200
-> +++ selinux-13092011-rebuild/libsepol/man/Makefile	2011-09-14 02:57:38.237986215 +0200
-> @@ -3,6 +3,8 @@ PREFIX ?= $(DESTDIR)/usr
->  MAN3DIR ?= $(PREFIX)/share/man/man3
->  MAN8DIR ?= $(PREFIX)/share/man/man8
->  
-> +all:
-> +
->  install:
->  	mkdir -p $(MAN3DIR)
->  	mkdir -p $(MAN8DIR)
-> --- selinux-13092011-rebuild2/libsemanage/man/Makefile	2011-09-14 03:04:43.361847205 +0200
-> +++ selinux-13092011-rebuild/libsemanage/man/Makefile	2011-09-14 02:57:24.475898336 +0200
-> @@ -3,6 +3,8 @@ PREFIX ?= $(DESTDIR)/usr
->  MAN3DIR ?= $(PREFIX)/share/man/man3
->  MAN5DIR ?= $(PREFIX)/share/man/man5
->  
-> +all:
-> +
->  install:
->  	mkdir -p $(MAN3DIR)
->  	mkdir -p $(MAN5DIR)
-> 
-> On Wed, 2011-09-14 at 02:44 +0200, Guido Trentalancia wrote:
-> > And for the reason mentioned earlier (do not install unless explicitly
-> > required to do so):
-> > 
-> > Change the default "make" target for sepolgen from "install" to "all".
-> > 
-> > --- selinux/sepolgen/src/sepolgen/Makefile	2011-09-09 20:12:56.080662897 +0200
-> > +++ selinux-13092011-rebuild/sepolgen/src/sepolgen/Makefile	2011-09-14 02:30:20.172601736 +0200
-> > @@ -1,7 +1,9 @@
-> >  PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
-> >  PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
-> >  
-> > -install:
-> > +all:
-> > +
-> > +install: all
-> >  	-mkdir -p $(PACKAGEDIR)
-> >  	install -m 644 *.py $(PACKAGEDIR)
-> >  
-> > --- selinux/sepolgen/src/share/Makefile	2011-09-09 20:12:56.082662911 +0200
-> > +++ selinux-13092011-rebuild/sepolgen/src/share/Makefile	2011-09-14 02:36:02.173755672 +0200
-> > @@ -1,8 +1,10 @@
-> >  SHAREDIR ?= $(DESTDIR)/var/lib/sepolgen
-> >  
-> > -install:
-> > +all:
-> > +
-> > +install: all
-> >  	-mkdir -p $(SHAREDIR)
-> >  	install -m 644 perm_map $(SHAREDIR)
-> >  
-> >  clean:
-> > 
-> > Regards,
-> > 
-> > Guido
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> > 
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+BTW, your patch wouldn't quite compile as is for me even aside from this
+issue; you don't seem to have defined LIBDIR in
+policycoreutils/restorecond/Makefile before using it.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
