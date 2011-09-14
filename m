@@ -1,46 +1,28 @@
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, guido@trentalancia.com, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 2/2] libselinux: do not use relative path when creating libselinux symlinks
-Date: Wed, 14 Sep 2011 14:50:39 -0400
-Message-Id: <1316026239-27148-2-git-send-email-eparis@redhat.com>
+MIME-Version: 1.0
 In-Reply-To: <1316026239-27148-1-git-send-email-eparis@redhat.com>
 References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
+Date: Wed, 14 Sep 2011 15:14:00 -0400
+Message-ID: <CACLa4ptONKKd2t6eM+CUPeWOWKjrCteiZFFTYYTRwCKiHfROog@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libselinux: put libselinux.so.1 in /lib not /usr/lib
+From: Eric Paris <eparis@parisplace.org>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, guido@trentalancia.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-At the moment we create a symlink:
+On Wed, Sep 14, 2011 at 2:50 PM, Eric Paris <eparis@redhat.com> wrote:
+> Commit 874bac80bbfbf0a5 incorrectly changed the default install location
+> of libselinux.so.1 from /lib to /usr/lib.  This patch fixes that problem
+> by reverting that portion of the change.
+>
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-/usr/lib/libselinux.so -> ../../lib/libselinux.so.1
+Side note: with this patch the current master branch will again build
+properly with DESTDIR= and install.  (using install instead of the
+default target it still required)
 
-This works if (and only if) $SHLIBDIR and $LIBDIR are different only by
-../../.  Instead create a symlink from
-
-$LIBDIR/libselinux.so->$SHLIBDIR/libselinux.so.1
-
-Thus it works no matter what values one might use for LIBDIR and
-SHLIBDIR.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
- libselinux/src/Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 78874be..bccc777 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -126,7 +126,7 @@ install: all
- 	install -m 755 $(LIBSO) $(SHLIBDIR)
- 	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
- 	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
--	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
-+	ln -sf $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
- 
- install-pywrap: pywrap
- 	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
--- 
-1.7.6.2
+-Eric
 
 
 --
