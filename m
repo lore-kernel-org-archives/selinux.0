@@ -1,15 +1,25 @@
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, guido@trentalancia.com, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 1/2] libselinux: put libselinux.so.1 in /lib not /usr/lib
-Date: Wed, 14 Sep 2011 14:50:38 -0400
-Message-Id: <1316026239-27148-1-git-send-email-eparis@redhat.com>
+Subject: [PATCH 2/2] libselinux: do not use relative path when creating libselinux symlinks
+Date: Wed, 14 Sep 2011 14:50:39 -0400
+Message-Id: <1316026239-27148-2-git-send-email-eparis@redhat.com>
+In-Reply-To: <1316026239-27148-1-git-send-email-eparis@redhat.com>
+References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Commit 874bac80bbfbf0a5 incorrectly changed the default install location
-of libselinux.so.1 from /lib to /usr/lib.  This patch fixes that problem
-by reverting that portion of the change.
+At the moment we create a symlink:
+
+/usr/lib/libselinux.so -> ../../lib/libselinux.so.1
+
+This works if (and only if) $SHLIBDIR and $LIBDIR are different only by
+../../.  Instead create a symlink from
+
+$LIBDIR/libselinux.so->$SHLIBDIR/libselinux.so.1
+
+Thus it works no matter what values one might use for LIBDIR and
+SHLIBDIR.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
@@ -17,18 +27,18 @@ Signed-off-by: Eric Paris <eparis@redhat.com>
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 7680008..78874be 100644
+index 78874be..bccc777 100644
 --- a/libselinux/src/Makefile
 +++ b/libselinux/src/Makefile
-@@ -7,7 +7,7 @@ PYPREFIX ?= $(notdir $(PYTHON))
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
--SHLIBDIR ?= $(PREFIX)/lib
-+SHLIBDIR ?= $(DESTDIR)/lib
- INCLUDEDIR ?= $(PREFIX)/include
- PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
- PYINC ?= $(shell pkg-config --cflags $(PYPREFIX))
+@@ -126,7 +126,7 @@ install: all
+ 	install -m 755 $(LIBSO) $(SHLIBDIR)
+ 	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
+-	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
++	ln -sf $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
+ 
+ install-pywrap: pywrap
+ 	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
 -- 
 1.7.6.2
 
