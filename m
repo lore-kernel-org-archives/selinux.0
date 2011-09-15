@@ -1,81 +1,53 @@
-Subject: Re: [PATCH] policycoreutils: fix sandbox Makefile
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-Date: Thu, 15 Sep 2011 20:15:46 +0200
-In-Reply-To: <1316109048.16483.48.camel@moss-pluto>
-References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
-	 <CACLa4ptONKKd2t6eM+CUPeWOWKjrCteiZFFTYYTRwCKiHfROog@mail.gmail.com>
-	 <1316106835.16483.32.camel@moss-pluto>  <1316108332.2202.49.camel@vortex>
-	 <1316109048.16483.48.camel@moss-pluto>
+Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries (and
+ possible security issue)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1316107603.2202.43.camel@vortex>
+References: <1315587716.2170.16.camel@vortex>
+	 <1315588656.2170.26.camel@vortex>
+	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
+	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
+	 <4E6E8149.30702@redhat.com> <1315917697.12522.1.camel@moss-pluto>
+	 <1315931495.2248.29.camel@vortex> <1315934421.12522.46.camel@moss-pluto>
+	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
+	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
+	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
+	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
+	 <1316004965.26965.9.camel@moss-pluto>  <1316054641.23290.48.camel@vortex>
+	 <1316091385.16483.13.camel@moss-pluto>  <1316102675.2202.23.camel@vortex>
+	 <1316104531.16483.26.camel@moss-pluto>  <1316106206.2202.33.camel@vortex>
+	 <1316106992.16483.35.camel@moss-pluto>  <1316107603.2202.43.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316110547.2202.53.camel@vortex>
+Date: Thu, 15 Sep 2011 14:14:49 -0400
+Message-ID: <1316110489.16483.68.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-15 at 13:50 -0400, Stephen Smalley wrote:
-> On Thu, 2011-09-15 at 19:38 +0200, Guido Trentalancia wrote:
-> > On Thu, 2011-09-15 at 13:13 -0400, Stephen Smalley wrote:
-> > > Fix sandbox Makefile so that make DESTDIR=~/out install works again.
-> > > 
-> > > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > > 
-> > > ---
-> > > 
-> > >  policycoreutils/sandbox/Makefile |    3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
-> > > index 21df0c4..4566810 100644
-> > > --- a/policycoreutils/sandbox/Makefile
-> > > +++ b/policycoreutils/sandbox/Makefile
-> > > @@ -2,6 +2,7 @@
-> > >  PREFIX ?= ${DESTDIR}/usr
-> > >  INITDIR ?= ${DESTDIR}/etc/rc.d/init.d/
-> > >  SYSCONFDIR ?= ${DESTDIR}/etc/sysconfig
-> > > +LIBDIR ?= $(PREFIX)/lib
-> > >  BINDIR ?= $(PREFIX)/bin
-> > >  SBINDIR ?= $(PREFIX)/sbin
-> > >  MANDIR ?= $(PREFIX)/share/man
-> > > @@ -13,7 +14,7 @@ LDLIBS += -lselinux -lcap-ng
-> > >  all: sandbox seunshare sandboxX.sh start
-> > >  
-> > >  seunshare: seunshare.o $(EXTRA_OBJS)
-> > > -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > > +	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) -L$(LIBDIR)
-> > 
-> > EXTRA_OBJS is not defined therefore it is empty unless passed from the
-> > command-line...
-> 
-> I didn't introduce or modify the use of EXTRA_OBJS; that isn't affected
-> by my patch.
+On Thu, 2011-09-15 at 19:26 +0200, Guido Trentalancia wrote:
+> My requirements are that I am on a 64-bit system and therefore I
+> need/want to distiguish between "lib" and "lib64". I do not need/care
+> about distinguishing between SHLIBDIR and LIBDIR. I am fine either
+> without a DESTDIR or with a DESTDIR as you suggested (both are
+> problematic).
 
-So what sort of problem were you getting exactly ? I never experienced
-any problem with that. It is also being done elsewhere I suppose...
+rm -rf ~/out
+make DESTDIR=~/out install
+rm -rf ~/out
+make DESTDIR=~/out LIBDIR=~/out/usr/lib64 SHLIBDIR=~/out/lib64 install
 
-> > Perhaps you meant the -L flag goes before the LDLIBS (which is made just
-> > of -l flags) ?
-> > 
-> > as in: 
-> > 
-> > -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > +	$(CC) $(LDFLAGS) -o $@ $^ -L$(LIBDIR) $(LDLIBS)
-> 
-> It doesn't matter.  Per man ld:
->  "All -L options apply to all -l options, regardless of the order in
-> which the options appear."
+Both work fine for me with current selinux git master branch + Eric's
+patch 1/2 libselinux + my policycoreutils sandbox patch.
 
-You are right.
+> And it breaks again after that...
 
-> And my patch does fix the problem.
+You'd have to show where it fails.  It seems to work for me and Eric.
 
-I am still missing the problem I think. Or perhaps it's just that on my
-system it stops much earlier when not using the patch that I have
-created...
-
-Guido
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
