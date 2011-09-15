@@ -1,72 +1,81 @@
 Subject: Re: [PATCH] policycoreutils: fix sandbox Makefile
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Eric Paris <eparis@parisplace.org>, Eric Paris <eparis@redhat.com>,
         selinux@tycho.nsa.gov
-In-Reply-To: <1316108332.2202.49.camel@vortex>
+Date: Thu, 15 Sep 2011 20:15:46 +0200
+In-Reply-To: <1316109048.16483.48.camel@moss-pluto>
 References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
 	 <CACLa4ptONKKd2t6eM+CUPeWOWKjrCteiZFFTYYTRwCKiHfROog@mail.gmail.com>
 	 <1316106835.16483.32.camel@moss-pluto>  <1316108332.2202.49.camel@vortex>
+	 <1316109048.16483.48.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 15 Sep 2011 13:50:48 -0400
-Message-ID: <1316109048.16483.48.camel@moss-pluto>
+Message-ID: <1316110547.2202.53.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-15 at 19:38 +0200, Guido Trentalancia wrote:
-> On Thu, 2011-09-15 at 13:13 -0400, Stephen Smalley wrote:
-> > Fix sandbox Makefile so that make DESTDIR=~/out install works again.
+On Thu, 2011-09-15 at 13:50 -0400, Stephen Smalley wrote:
+> On Thu, 2011-09-15 at 19:38 +0200, Guido Trentalancia wrote:
+> > On Thu, 2011-09-15 at 13:13 -0400, Stephen Smalley wrote:
+> > > Fix sandbox Makefile so that make DESTDIR=~/out install works again.
+> > > 
+> > > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > > 
+> > > ---
+> > > 
+> > >  policycoreutils/sandbox/Makefile |    3 ++-
+> > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+> > > index 21df0c4..4566810 100644
+> > > --- a/policycoreutils/sandbox/Makefile
+> > > +++ b/policycoreutils/sandbox/Makefile
+> > > @@ -2,6 +2,7 @@
+> > >  PREFIX ?= ${DESTDIR}/usr
+> > >  INITDIR ?= ${DESTDIR}/etc/rc.d/init.d/
+> > >  SYSCONFDIR ?= ${DESTDIR}/etc/sysconfig
+> > > +LIBDIR ?= $(PREFIX)/lib
+> > >  BINDIR ?= $(PREFIX)/bin
+> > >  SBINDIR ?= $(PREFIX)/sbin
+> > >  MANDIR ?= $(PREFIX)/share/man
+> > > @@ -13,7 +14,7 @@ LDLIBS += -lselinux -lcap-ng
+> > >  all: sandbox seunshare sandboxX.sh start
+> > >  
+> > >  seunshare: seunshare.o $(EXTRA_OBJS)
+> > > -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > > +	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) -L$(LIBDIR)
 > > 
-> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > EXTRA_OBJS is not defined therefore it is empty unless passed from the
+> > command-line...
+> 
+> I didn't introduce or modify the use of EXTRA_OBJS; that isn't affected
+> by my patch.
+
+So what sort of problem were you getting exactly ? I never experienced
+any problem with that. It is also being done elsewhere I suppose...
+
+> > Perhaps you meant the -L flag goes before the LDLIBS (which is made just
+> > of -l flags) ?
 > > 
-> > ---
+> > as in: 
 > > 
-> >  policycoreutils/sandbox/Makefile |    3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
-> > index 21df0c4..4566810 100644
-> > --- a/policycoreutils/sandbox/Makefile
-> > +++ b/policycoreutils/sandbox/Makefile
-> > @@ -2,6 +2,7 @@
-> >  PREFIX ?= ${DESTDIR}/usr
-> >  INITDIR ?= ${DESTDIR}/etc/rc.d/init.d/
-> >  SYSCONFDIR ?= ${DESTDIR}/etc/sysconfig
-> > +LIBDIR ?= $(PREFIX)/lib
-> >  BINDIR ?= $(PREFIX)/bin
-> >  SBINDIR ?= $(PREFIX)/sbin
-> >  MANDIR ?= $(PREFIX)/share/man
-> > @@ -13,7 +14,7 @@ LDLIBS += -lselinux -lcap-ng
-> >  all: sandbox seunshare sandboxX.sh start
-> >  
-> >  seunshare: seunshare.o $(EXTRA_OBJS)
 > > -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > +	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) -L$(LIBDIR)
+> > +	$(CC) $(LDFLAGS) -o $@ $^ -L$(LIBDIR) $(LDLIBS)
 > 
-> EXTRA_OBJS is not defined therefore it is empty unless passed from the
-> command-line...
+> It doesn't matter.  Per man ld:
+>  "All -L options apply to all -l options, regardless of the order in
+> which the options appear."
 
-I didn't introduce or modify the use of EXTRA_OBJS; that isn't affected
-by my patch.
+You are right.
 
-> Perhaps you meant the -L flag goes before the LDLIBS (which is made just
-> of -l flags) ?
-> 
-> as in: 
-> 
-> -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> +	$(CC) $(LDFLAGS) -o $@ $^ -L$(LIBDIR) $(LDLIBS)
+> And my patch does fix the problem.
 
-It doesn't matter.  Per man ld:
- "All -L options apply to all -l options, regardless of the order in
-which the options appear."
+I am still missing the problem I think. Or perhaps it's just that on my
+system it stops much earlier when not using the patch that I have
+created...
 
-And my patch does fix the problem.
-
--- 
-Stephen Smalley
-National Security Agency
+Guido
 
 
 --
