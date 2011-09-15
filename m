@@ -1,11 +1,17 @@
-Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries (and
- possible security issue)
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8F4fFJl024744
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 00:41:15 -0400
+Received: from cp-out8.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8F4fD5j012655
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 04:41:13 GMT
+Subject: [PATCH v5] Fix makefiles for the userspace tools and libraries
 From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Date: Thu, 15 Sep 2011 04:44:00 +0200
-In-Reply-To: <1316004965.26965.9.camel@moss-pluto>
+To: Eric Paris <eparis@redhat.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Eric Paris
+	 <eparis@parisplace.org>
+Date: Thu, 15 Sep 2011 06:40:58 +0200
+In-Reply-To: <1316028712.2738.34.camel@localhost>
 References: <1315587716.2170.16.camel@vortex>
 	 <1315588656.2170.26.camel@vortex>
 	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
@@ -15,74 +21,84 @@ References: <1315587716.2170.16.camel@vortex>
 	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
 	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
 	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
-	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
-	 <1316004965.26965.9.camel@moss-pluto>
+	 <1315945618.2738.13.camel@localhost> <1315951507.2218.91.camel@vortex>
+	 <1315956807.2218.98.camel@vortex> <1316028712.2738.34.camel@localhost>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316054641.23290.48.camel@vortex>
+Message-ID: <1316061658.23290.83.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen.
+Hello Eric,
 
-On Wed, 2011-09-14 at 08:56 -0400, Stephen Smalley wrote:
-> On Wed, 2011-09-14 at 00:05 +0200, Guido Trentalancia wrote:
-> > Hello Eric !
-> > 
-> > On Tue, 2011-09-13 at 16:26 -0400, Eric Paris wrote:
-> > > Personally, I'd like to see just 'make' at the top level dir build
-> > > properly and I think your patches get us most of the way there without
-> > > (further) breaking the building method that sds prefers.
-> > > 
-> > > If you get your best patch which does nothing but allow us to just type
-> > > 'make' at the top level dir and it builds everything properly in place,
-> > > I'll review and probably commit such a patch.
-> > 
-> > Yes, let's get to the point. The latest version of the patch that you
-> > should test is attached below. Please note that it also changes the
-> > creation of symbolic links to shared libraries (needs to be
-> > double-checked for correctness).
-> > 
-> > diff -pruN selinux/checkpolicy/Makefile selinux-13092011/checkpolicy/Makefile
-> > --- selinux/checkpolicy/Makefile	2011-09-09 20:12:55.978662153 +0200
-> > +++ selinux-13092011/checkpolicy/Makefile	2011-09-13 02:58:19.314224502 +0200
-> > @@ -19,7 +19,7 @@ CHECKOBJS = y.tab.o lex.yy.o queue.o mod
-> >  CHECKPOLOBJS = $(CHECKOBJS) checkpolicy.o
-> >  CHECKMODOBJS = $(CHECKOBJS) checkmodule.o
-> >  
-> > -LDLIBS=$(LIBDIR)/libsepol.a -lfl
-> > +LDLIBS=../libsepol/src/libsepol.a -L$(LIBDIR) -lfl
-> >  
-> >  GENERATED=lex.yy.c y.tab.c y.tab.h
-> 
-> The above will break when building checkpolicy separately.  
+you are right about the signature and about conforming to the official
+patch style and guidelines. I just wanted to discuss things first.
 
-Yes it will. But it also avoids linking an existing old static library
-when building from the whole git bundle.
+There are still at least two issues that need to be further discussed:
 
-Before creating each release of the separate components, that piece of
-patch could be reverted or otherwise a script could invoke sed on the
-affected Makefiles.
+- link creation to versioned shared libraries executables (directory
+SHLIBDIR versus LIBDIR and relative versus absolute linking so that it
+does not break distribution build scripts and resulting packages);
+- creation of individual released components getting broken because a
+few SELinux static libraries are now linked in from local sources
+instead of from existing system-wide versions.
 
-> Ditto for
-> the other components that need to reference a static lib.  I think this
-> is why we didn't go down this path previously.
+I can sign and repost the whole thing, but I have now removed the diff
+relative to the symbolic link creation:
 
-See above: reverting a patch or running sed
+***
 
-> BTW, your patch wouldn't quite compile as is for me even aside from this
-> issue; you don't seem to have defined LIBDIR in
-> policycoreutils/restorecond/Makefile before using it.
+This is a maintenance patch for further testing. It potentially replaces
+any other patch previously posted in this same and/or other recent
+threads.
 
-You're right. It needs a fix. It wasn't showing up here because I was
-passing LIBDIR from the environment, therefore that was getting passed
-at each "make" recursion. Thanks very much for pointint that out.
+Make sure that the SELinux userspace libraries and tools bundle from the
+git repository can be built from scratch without requiring existing
+SELinux installations (in particular header files) by exploiting the
+CURDIR variable (provided by the make tool itself) in the top-level
+Makefile only.
 
-Here is a revised patch:
+Create a top-level README file which is intended to provide a few
+details about some of the possible environment variables that can be
+configured and passed to the make tool.
 
-diff -pruN selinux/checkpolicy/Makefile selinux-13092011-patch-v5/checkpolicy/Makefile
+Do not hard-code the path to semodule in the genhomedircon script but
+rather generate it each time by using PREFIX. Improve the manual page
+for genhomedircon.
+
+Replace curly brackets with parentheses for some variables such as
+DESTDIR and PREFIX in the Makefiles. Add and make use of LIBDIR and
+INCLUDEDIR where appropriate within the Makefiles. Make use of PREFIX
+for determining the value of LOCALEDIR within some of the Makefiles. Do
+not override the environment variables passed from the command-line for
+some of the Makefiles.
+
+Change the default target for *all* Makefiles (even the "hidden" ones)
+to "all" from "install", as we cannot install anything without the user
+*explicitly* requiring it.
+
+This patch no longer tackles a possible installation issue (creation of
+symbolic links to shared libraries using a wrong target file and in a
+possibly wrong directory for libselinux, libsepol and libsemanage)
+because it needs further discussion/testing/acknowledgement.
+
+Please note that this patch might break the creation of separate
+components distributables (i.e. released components) unless parts of
+this patch (i.e. linkage of the local version of some static libraries
+in certain executables) are reverted (for example by reverting a patch
+created for the purpose or by running sed). Use the make_release.sh
+script on a cloned tree before creating the released archives. The
+original behavior has been modified because otherwise it might create a
+really unwanted and even potentially dangerous sort of "cache" when
+building the whole userspace SELinux from top-level (a previously-built
+static library is used instead of the very latest one) .
+
+Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+
+---
+diff -pruN selinux/checkpolicy/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/checkpolicy/Makefile
 --- selinux/checkpolicy/Makefile	2011-09-09 20:12:55.978662153 +0200
-+++ selinux-13092011-patch-v5/checkpolicy/Makefile	2011-09-15 04:25:47.863171377 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/checkpolicy/Makefile	2011-09-15 05:19:34.850414982 +0200
 @@ -19,7 +19,7 @@ CHECKOBJS = y.tab.o lex.yy.o queue.o mod
  CHECKPOLOBJS = $(CHECKOBJS) checkpolicy.o
  CHECKMODOBJS = $(CHECKOBJS) checkmodule.o
@@ -92,9 +108,9 @@ diff -pruN selinux/checkpolicy/Makefile selinux-13092011-patch-v5/checkpolicy/Ma
  
  GENERATED=lex.yy.c y.tab.c y.tab.h
  
-diff -pruN selinux/checkpolicy/test/Makefile selinux-13092011-patch-v5/checkpolicy/test/Makefile
+diff -pruN selinux/checkpolicy/test/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/checkpolicy/test/Makefile
 --- selinux/checkpolicy/test/Makefile	2011-09-09 20:12:55.980662174 +0200
-+++ selinux-13092011-patch-v5/checkpolicy/test/Makefile	2011-09-15 04:25:47.863171377 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/checkpolicy/test/Makefile	2011-09-15 05:19:34.850414982 +0200
 @@ -9,7 +9,7 @@ INCLUDEDIR ?= $(PREFIX)/include
  CFLAGS ?= -g -Wall -O2 -pipe
  override CFLAGS += -I$(INCLUDEDIR)
@@ -104,9 +120,33 @@ diff -pruN selinux/checkpolicy/test/Makefile selinux-13092011-patch-v5/checkpoli
  
  all: dispol dismod
  
-diff -pruN selinux/libselinux/src/Makefile selinux-13092011-patch-v5/libselinux/src/Makefile
+diff -pruN selinux/libselinux/include/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/include/Makefile
+--- selinux/libselinux/include/Makefile	2011-09-09 20:12:55.981662183 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/include/Makefile	2011-09-15 05:21:20.957262156 +0200
+@@ -2,6 +2,8 @@
+ PREFIX ?= $(DESTDIR)/usr
+ INCDIR ?= $(PREFIX)/include/selinux
+ 
++all:
++
+ install:
+ 	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
+ 	install -m 644 $(wildcard selinux/*.h) $(INCDIR)
+diff -pruN selinux/libselinux/man/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/man/Makefile
+--- selinux/libselinux/man/Makefile	2011-09-09 20:12:55.982662190 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/man/Makefile	2011-09-15 05:21:20.959262094 +0200
+@@ -3,6 +3,8 @@ MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
+ MAN5DIR ?= $(DESTDIR)/usr/share/man/man5
+ MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
+ 
++all:
++
+ install:
+ 	mkdir -p $(MAN3DIR)
+ 	mkdir -p $(MAN5DIR)
+diff -pruN selinux/libselinux/src/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/src/Makefile
 --- selinux/libselinux/src/Makefile	2011-09-09 20:12:55.992662259 +0200
-+++ selinux-13092011-patch-v5/libselinux/src/Makefile	2011-09-15 04:25:47.909171785 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libselinux/src/Makefile	2011-09-15 05:19:34.857415057 +0200
 @@ -102,7 +102,7 @@ $(AUDIT2WHYLOBJ): audit2why.c
  	$(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
  
@@ -116,18 +156,33 @@ diff -pruN selinux/libselinux/src/Makefile selinux-13092011-patch-v5/libselinux/
  
  %.o:  %.c policy.h
  	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
-@@ -126,7 +126,7 @@ install: all
- 	install -m 755 $(LIBSO) $(SHLIBDIR)
- 	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
- 	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
--	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
-+	cd $(SHLIBDIR) && ln -sf $(LIBSO) $(TARGET)
+diff -pruN selinux/libsemanage/include/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/include/Makefile
+--- selinux/libsemanage/include/Makefile	2011-09-09 20:12:56.001662322 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/include/Makefile	2011-09-15 05:21:20.957262156 +0200
+@@ -2,6 +2,8 @@
+ PREFIX ?= $(DESTDIR)/usr
+ INCDIR ?= $(PREFIX)/include/semanage
  
- install-pywrap: pywrap
- 	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
-diff -pruN selinux/libsemanage/src/Makefile selinux-13092011-patch-v5/libsemanage/src/Makefile
++all:
++
+ install:
+ 	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
+ 	install -m 644 $(wildcard semanage/*.h) $(INCDIR)
+diff -pruN selinux/libsemanage/man/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/man/Makefile
+--- selinux/libsemanage/man/Makefile	2011-09-09 20:12:56.003662337 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/man/Makefile	2011-09-15 05:21:20.959262094 +0200
+@@ -1,6 +1,8 @@
+ # Installation directories.
+ MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
+ 
++all:
++
+ install:
+ 	mkdir -p $(MAN3DIR)
+ 	install -m 644 man3/*.3 $(MAN3DIR)
+diff -pruN selinux/libsemanage/src/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/src/Makefile
 --- selinux/libsemanage/src/Makefile	2011-09-09 20:12:56.008662374 +0200
-+++ selinux-13092011-patch-v5/libsemanage/src/Makefile	2011-09-15 04:25:47.956172204 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsemanage/src/Makefile	2011-09-15 05:19:34.858415064 +0200
 @@ -87,7 +87,7 @@ $(LIBA): $(OBJS)
  	$(RANLIB) $@
  
@@ -137,30 +192,33 @@ diff -pruN selinux/libsemanage/src/Makefile selinux-13092011-patch-v5/libsemanag
  	ln -sf $@ $(TARGET)
  
  $(LIBPC): $(LIBPC).in
-@@ -139,7 +139,7 @@ install: all
- 	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
- 	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
- 	test -f $(DEFAULT_SEMANAGE_CONF_LOCATION) || install -m 644 -D semanage.conf $(DEFAULT_SEMANAGE_CONF_LOCATION)
--	cd $(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
-+	cd $(SHLIBDIR) && ln -sf $(LIBSO) $(TARGET)
+diff -pruN selinux/libsepol/include/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsepol/include/Makefile
+--- selinux/libsepol/include/Makefile	2011-09-09 20:12:56.018662447 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsepol/include/Makefile	2011-09-15 05:21:20.957262156 +0200
+@@ -2,6 +2,8 @@
+ PREFIX ?= $(DESTDIR)/usr
+ INCDIR ?= $(PREFIX)/include/sepol
  
- install-pywrap: pywrap 
- 	test -d $(PYLIBDIR)/site-packages || install -m 755 -d $(PYLIBDIR)/site-packages
-diff -pruN selinux/libsepol/src/Makefile selinux-13092011-patch-v5/libsepol/src/Makefile
---- selinux/libsepol/src/Makefile	2011-09-09 20:12:56.021662468 +0200
-+++ selinux-13092011-patch-v5/libsepol/src/Makefile	2011-09-15 04:25:48.012172702 +0200
-@@ -43,7 +43,7 @@ install: all
- 	install -m 755 $(LIBSO) $(SHLIBDIR)
- 	test -d $(LIBDIR)/pkgconfig || install -m 755 -d $(LIBDIR)/pkgconfig
- 	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
--	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
-+	cd $(SHLIBDIR) && ln -sf $(LIBSO) $(TARGET)
++all:
++
+ install:
+ 	test -d $(INCDIR) || install -m 755 -d $(INCDIR)
+ 	test -d $(INCDIR)/policydb || install -m 755 -d $(INCDIR)/policydb
+diff -pruN selinux/libsepol/man/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsepol/man/Makefile
+--- selinux/libsepol/man/Makefile	2011-09-09 20:12:56.021662468 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/libsepol/man/Makefile	2011-09-15 05:21:20.959262094 +0200
+@@ -2,6 +2,8 @@
+ MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
+ MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
  
- relabel:
- 	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
-diff -pruN selinux/Makefile selinux-13092011-patch-v5/Makefile
++all:
++
+ install:
+ 	mkdir -p $(MAN3DIR)
+ 	mkdir -p $(MAN8DIR)
+diff -pruN selinux/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/Makefile
 --- selinux/Makefile	2011-09-09 20:12:55.977662144 +0200
-+++ selinux-13092011-patch-v5/Makefile	2011-09-15 04:25:48.012172702 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/Makefile	2011-09-15 05:19:34.858415064 +0200
 @@ -3,10 +3,15 @@ PYSUBDIRS=libselinux libsemanage
  DISTCLEANSUBIDRS=libselinux libsemanage
  
@@ -179,9 +237,24 @@ diff -pruN selinux/Makefile selinux-13092011-patch-v5/Makefile
  all install relabel clean test indent:
  	@for subdir in $(SUBDIRS); do \
  		(cd $$subdir && $(MAKE) $@) || exit 1; \
-diff -pruN selinux/policycoreutils/audit2allow/Makefile selinux-13092011-patch-v5/policycoreutils/audit2allow/Makefile
+diff -pruN selinux/make_release.sh selinux-14092011-patch-v5-do-not-modify-library-link-creation/make_release.sh
+--- selinux/make_release.sh	1970-01-01 01:00:00.000000000 +0100
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/make_release.sh	2011-09-15 06:05:41.463331729 +0200
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++sed -i 's/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' libselinux/src/Makefile
++sed -i 's/\.\.\/src\/libsemanage\.a/\-L\$(LIBDIR)\/libsemanage.a/g' libsemanage/tests/Makefile
++sed -i 's/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' libsemanage/tests/Makefile
++sed -i 's/\.\.\/\.\.\/libselinux\/src\/libselinux\.a/\-L\$(LIBDIR)\/libselinux\.a/g' libsemanage/tests/Makefile
++sed -i 's/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' checkpolicy/Makefile
++sed -i 's/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' checkpolicy/test/Makefile
++sed -i 's/\.\.\/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' policycoreutils/mcstrans/utils/Makefile
++sed -i 's/\.\.\/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' policycoreutils/mcstrans/src/Makefile
++sed -i 's/\.\.\/\.\.\/libsepol\/src\/libsepol\.a/\-L\$(LIBDIR)\/libsepol\.a/g' policycoreutils/semodule_deps/Makefile
+diff -pruN selinux/policycoreutils/audit2allow/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/audit2allow/Makefile
 --- selinux/policycoreutils/audit2allow/Makefile	2011-09-09 20:12:56.034662561 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/audit2allow/Makefile	2011-09-15 04:25:48.069173246 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/audit2allow/Makefile	2011-09-15 05:19:34.858415064 +0200
 @@ -1,9 +1,9 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -194,9 +267,9 @@ diff -pruN selinux/policycoreutils/audit2allow/Makefile selinux-13092011-patch-v
  
  all: ;
  
-diff -pruN selinux/policycoreutils/audit2why/Makefile selinux-13092011-patch-v5/policycoreutils/audit2why/Makefile
+diff -pruN selinux/policycoreutils/audit2why/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/audit2why/Makefile
 --- selinux/policycoreutils/audit2why/Makefile	2011-09-09 20:12:56.035662568 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/audit2why/Makefile	2011-09-15 04:25:48.135173776 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/audit2why/Makefile	2011-09-15 05:19:34.858415064 +0200
 @@ -1,5 +1,5 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -204,9 +277,9 @@ diff -pruN selinux/policycoreutils/audit2why/Makefile selinux-13092011-patch-v5/
  BINDIR ?= $(PREFIX)/bin
  MANDIR ?= $(PREFIX)/share/man
  
-diff -pruN selinux/policycoreutils/load_policy/Makefile selinux-13092011-patch-v5/policycoreutils/load_policy/Makefile
+diff -pruN selinux/policycoreutils/load_policy/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/load_policy/Makefile
 --- selinux/policycoreutils/load_policy/Makefile	2011-09-09 20:12:56.035662568 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/load_policy/Makefile	2011-09-15 04:25:48.177174157 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/load_policy/Makefile	2011-09-15 05:19:34.859415071 +0200
 @@ -1,13 +1,15 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -227,9 +300,21 @@ diff -pruN selinux/policycoreutils/load_policy/Makefile selinux-13092011-patch-v
  
  TARGETS=$(patsubst %.c,%,$(wildcard *.c))
  
-diff -pruN selinux/policycoreutils/mcstrans/src/Makefile selinux-13092011-patch-v5/policycoreutils/mcstrans/src/Makefile
+diff -pruN selinux/policycoreutils/mcstrans/man/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/man/Makefile
+--- selinux/policycoreutils/mcstrans/man/Makefile	2011-09-09 20:12:56.036662576 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/man/Makefile	2011-09-15 05:20:35.371897173 +0200
+@@ -1,6 +1,8 @@
+ # Installation directories.
+ MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
+ 
++all:
++
+ install:
+ 	mkdir -p $(MAN8DIR)
+ 	install -m 644 man8/*.8 $(MAN8DIR)
+diff -pruN selinux/policycoreutils/mcstrans/src/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/src/Makefile
 --- selinux/policycoreutils/mcstrans/src/Makefile	2011-09-09 20:12:56.040662607 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/mcstrans/src/Makefile	2011-09-15 04:25:48.216174517 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/src/Makefile	2011-09-15 05:19:34.859415071 +0200
 @@ -28,7 +28,7 @@ override CFLAGS += -I../include -D_GNU_S
  all: $(PROG)
  
@@ -239,9 +324,9 @@ diff -pruN selinux/policycoreutils/mcstrans/src/Makefile selinux-13092011-patch-
  
  %.o:  %.c 
  	$(CC) $(CFLAGS) -fPIE -c -o $@ $<
-diff -pruN selinux/policycoreutils/mcstrans/utils/Makefile selinux-13092011-patch-v5/policycoreutils/mcstrans/utils/Makefile
+diff -pruN selinux/policycoreutils/mcstrans/utils/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/utils/Makefile
 --- selinux/policycoreutils/mcstrans/utils/Makefile	2011-09-09 20:12:56.041662614 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/mcstrans/utils/Makefile	2011-09-15 04:25:48.216174517 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/mcstrans/utils/Makefile	2011-09-15 05:19:34.859415071 +0200
 @@ -21,7 +21,7 @@ endif
  
  CFLAGS ?= -Wall
@@ -251,9 +336,9 @@ diff -pruN selinux/policycoreutils/mcstrans/utils/Makefile selinux-13092011-patc
  
  TARGETS=$(patsubst %.c,%,$(wildcard *.c))
  
-diff -pruN selinux/policycoreutils/newrole/Makefile selinux-13092011-patch-v5/policycoreutils/newrole/Makefile
+diff -pruN selinux/policycoreutils/newrole/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/newrole/Makefile
 --- selinux/policycoreutils/newrole/Makefile	2011-09-09 20:12:56.041662614 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/newrole/Makefile	2011-09-15 04:25:48.264174953 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/newrole/Makefile	2011-09-15 05:19:34.859415071 +0200
 @@ -1,9 +1,11 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -279,9 +364,9 @@ diff -pruN selinux/policycoreutils/newrole/Makefile selinux-13092011-patch-v5/po
  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
  	override CFLAGS += -DUSE_PAM
  	EXTRA_OBJS += hashtab.o
-diff -pruN selinux/policycoreutils/restorecond/Makefile selinux-13092011-patch-v5/policycoreutils/restorecond/Makefile
+diff -pruN selinux/policycoreutils/restorecond/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/restorecond/Makefile
 --- selinux/policycoreutils/restorecond/Makefile	2011-09-09 20:12:56.072662837 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/restorecond/Makefile	2011-09-15 04:28:03.435365416 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/restorecond/Makefile	2011-09-15 05:19:34.860415079 +0200
 @@ -1,13 +1,15 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -304,9 +389,9 @@ diff -pruN selinux/policycoreutils/restorecond/Makefile selinux-13092011-patch-v
  
  all: restorecond
  
-diff -pruN selinux/policycoreutils/run_init/Makefile selinux-13092011-patch-v5/policycoreutils/run_init/Makefile
+diff -pruN selinux/policycoreutils/run_init/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/run_init/Makefile
 --- selinux/policycoreutils/run_init/Makefile	2011-09-09 20:12:56.072662837 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/run_init/Makefile	2011-09-15 04:25:48.372175901 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/run_init/Makefile	2011-09-15 05:19:34.860415079 +0200
 @@ -1,16 +1,17 @@
 -
  # Installation directories.
@@ -330,9 +415,9 @@ diff -pruN selinux/policycoreutils/run_init/Makefile selinux-13092011-patch-v5/p
  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
  	override CFLAGS += -DUSE_PAM
  	LDLIBS += -lpam -lpam_misc
-diff -pruN selinux/policycoreutils/sandbox/Makefile selinux-13092011-patch-v5/policycoreutils/sandbox/Makefile
+diff -pruN selinux/policycoreutils/sandbox/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/sandbox/Makefile
 --- selinux/policycoreutils/sandbox/Makefile	2011-09-09 20:12:56.073662844 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/sandbox/Makefile	2011-09-15 04:25:48.448176563 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/sandbox/Makefile	2011-09-15 05:19:34.860415079 +0200
 @@ -1,14 +1,16 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -356,9 +441,9 @@ diff -pruN selinux/policycoreutils/sandbox/Makefile selinux-13092011-patch-v5/po
  
  all: sandbox seunshare sandboxX.sh start
  
-diff -pruN selinux/policycoreutils/scripts/genhomedircon.8 selinux-13092011-patch-v5/policycoreutils/scripts/genhomedircon.8
+diff -pruN selinux/policycoreutils/scripts/genhomedircon.8 selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/scripts/genhomedircon.8
 --- selinux/policycoreutils/scripts/genhomedircon.8	2011-09-09 20:12:56.074662851 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/scripts/genhomedircon.8	2011-09-15 04:25:48.516177230 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/scripts/genhomedircon.8	2011-09-15 05:19:34.860415079 +0200
 @@ -1,37 +1,21 @@
 -.\" Hey, Emacs! This is an -*- nroff -*- source file.
 -.\" Copyright (c) 2010 Dan Walsh <dwalsh@redhat.com>
@@ -409,9 +494,9 @@ diff -pruN selinux/policycoreutils/scripts/genhomedircon.8 selinux-13092011-patc
 +
 +.SH "SEE ALSO"
 +semodule(8), getpwent(3), getpwent_r(3)
-diff -pruN selinux/policycoreutils/scripts/Makefile selinux-13092011-patch-v5/policycoreutils/scripts/Makefile
+diff -pruN selinux/policycoreutils/scripts/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/scripts/Makefile
 --- selinux/policycoreutils/scripts/Makefile	2011-09-09 20:12:56.074662851 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/scripts/Makefile	2011-09-15 04:25:48.573177727 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/scripts/Makefile	2011-09-15 05:19:34.861415088 +0200
 @@ -1,9 +1,9 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -436,9 +521,9 @@ diff -pruN selinux/policycoreutils/scripts/Makefile selinux-13092011-patch-v5/po
  	-mkdir -p $(MANDIR)/man8
  	install -m 644 fixfiles.8 $(MANDIR)/man8/
  	install -m 644 genhomedircon.8 $(MANDIR)/man8/
-diff -pruN selinux/policycoreutils/secon/Makefile selinux-13092011-patch-v5/policycoreutils/secon/Makefile
+diff -pruN selinux/policycoreutils/secon/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/secon/Makefile
 --- selinux/policycoreutils/secon/Makefile	2011-09-09 20:12:56.075662858 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/secon/Makefile	2011-09-15 04:25:48.573177727 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/secon/Makefile	2011-09-15 05:19:34.861415088 +0200
 @@ -1,9 +1,9 @@
  # secon tool - command-line context
 -PREFIX ?= ${DESTDIR}/usr
@@ -451,9 +536,9 @@ diff -pruN selinux/policycoreutils/secon/Makefile selinux-13092011-patch-v5/poli
  
  WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
  VERSION = $(shell cat ../VERSION)
-diff -pruN selinux/policycoreutils/semanage/Makefile selinux-13092011-patch-v5/policycoreutils/semanage/Makefile
+diff -pruN selinux/policycoreutils/semanage/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semanage/Makefile
 --- selinux/policycoreutils/semanage/Makefile	2011-09-09 20:12:56.075662858 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semanage/Makefile	2011-09-15 04:25:48.573177727 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semanage/Makefile	2011-09-15 05:19:34.861415088 +0200
 @@ -1,8 +1,8 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -465,9 +550,9 @@ diff -pruN selinux/policycoreutils/semanage/Makefile selinux-13092011-patch-v5/p
  PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
  PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
  
-diff -pruN selinux/policycoreutils/semodule/Makefile selinux-13092011-patch-v5/policycoreutils/semodule/Makefile
+diff -pruN selinux/policycoreutils/semodule/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule/Makefile
 --- selinux/policycoreutils/semodule/Makefile	2011-09-09 20:12:56.076662865 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semodule/Makefile	2011-09-15 04:25:48.574177731 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule/Makefile	2011-09-15 05:19:34.862415096 +0200
 @@ -2,8 +2,8 @@
  PREFIX ?= $(DESTDIR)/usr
  INCLUDEDIR ?= $(PREFIX)/include
@@ -479,9 +564,9 @@ diff -pruN selinux/policycoreutils/semodule/Makefile selinux-13092011-patch-v5/p
  
  CFLAGS ?= -Werror -Wall -W
  override CFLAGS += -I$(INCLUDEDIR)
-diff -pruN selinux/policycoreutils/semodule_deps/Makefile selinux-13092011-patch-v5/policycoreutils/semodule_deps/Makefile
+diff -pruN selinux/policycoreutils/semodule_deps/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_deps/Makefile
 --- selinux/policycoreutils/semodule_deps/Makefile	2011-09-09 20:12:56.076662865 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semodule_deps/Makefile	2011-09-15 04:25:48.574177731 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_deps/Makefile	2011-09-15 05:19:34.862415096 +0200
 @@ -1,13 +1,13 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -499,9 +584,9 @@ diff -pruN selinux/policycoreutils/semodule_deps/Makefile selinux-13092011-patch
  
  all: semodule_deps
  
-diff -pruN selinux/policycoreutils/semodule_expand/Makefile selinux-13092011-patch-v5/policycoreutils/semodule_expand/Makefile
+diff -pruN selinux/policycoreutils/semodule_expand/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_expand/Makefile
 --- selinux/policycoreutils/semodule_expand/Makefile	2011-09-09 20:12:56.077662873 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semodule_expand/Makefile	2011-09-15 04:25:48.574177731 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_expand/Makefile	2011-09-15 05:19:34.862415096 +0200
 @@ -1,8 +1,8 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -513,9 +598,9 @@ diff -pruN selinux/policycoreutils/semodule_expand/Makefile selinux-13092011-pat
  MANDIR ?= $(PREFIX)/share/man
  
  CFLAGS ?= -Werror -Wall -W
-diff -pruN selinux/policycoreutils/semodule_link/Makefile selinux-13092011-patch-v5/policycoreutils/semodule_link/Makefile
+diff -pruN selinux/policycoreutils/semodule_link/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_link/Makefile
 --- selinux/policycoreutils/semodule_link/Makefile	2011-09-09 20:12:56.077662873 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semodule_link/Makefile	2011-09-15 04:25:48.574177731 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_link/Makefile	2011-09-15 05:19:34.862415096 +0200
 @@ -1,9 +1,9 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -528,9 +613,9 @@ diff -pruN selinux/policycoreutils/semodule_link/Makefile selinux-13092011-patch
  
  CFLAGS ?= -Werror -Wall -W
  override CFLAGS += -I$(INCLUDEDIR)
-diff -pruN selinux/policycoreutils/semodule_package/Makefile selinux-13092011-patch-v5/policycoreutils/semodule_package/Makefile
+diff -pruN selinux/policycoreutils/semodule_package/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_package/Makefile
 --- selinux/policycoreutils/semodule_package/Makefile	2011-09-09 20:12:56.077662873 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/semodule_package/Makefile	2011-09-15 04:25:48.575177734 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/semodule_package/Makefile	2011-09-15 05:19:34.863415104 +0200
 @@ -1,8 +1,8 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -542,9 +627,9 @@ diff -pruN selinux/policycoreutils/semodule_package/Makefile selinux-13092011-pa
  MANDIR ?= $(PREFIX)/share/man
  
  CFLAGS ?= -Werror -Wall -W
-diff -pruN selinux/policycoreutils/sestatus/Makefile selinux-13092011-patch-v5/policycoreutils/sestatus/Makefile
+diff -pruN selinux/policycoreutils/sestatus/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/sestatus/Makefile
 --- selinux/policycoreutils/sestatus/Makefile	2011-09-09 20:12:56.077662873 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/sestatus/Makefile	2011-09-15 04:25:48.575177734 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/sestatus/Makefile	2011-09-15 05:19:34.863415104 +0200
 @@ -1,12 +1,13 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -564,9 +649,9 @@ diff -pruN selinux/policycoreutils/sestatus/Makefile selinux-13092011-patch-v5/p
  LDLIBS = -lselinux -L$(LIBDIR)
  
  all: sestatus
-diff -pruN selinux/policycoreutils/setfiles/Makefile selinux-13092011-patch-v5/policycoreutils/setfiles/Makefile
+diff -pruN selinux/policycoreutils/setfiles/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/setfiles/Makefile
 --- selinux/policycoreutils/setfiles/Makefile	2011-09-09 20:12:56.078662881 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/setfiles/Makefile	2011-09-15 04:25:48.575177734 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/setfiles/Makefile	2011-09-15 05:19:34.863415104 +0200
 @@ -1,12 +1,13 @@
  # Installation directories.
 -PREFIX ?= ${DESTDIR}/usr
@@ -585,9 +670,9 @@ diff -pruN selinux/policycoreutils/setfiles/Makefile selinux-13092011-patch-v5/p
  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
  
  ifeq (${AUDITH}, /usr/include/libaudit.h)
-diff -pruN selinux/policycoreutils/setsebool/Makefile selinux-13092011-patch-v5/policycoreutils/setsebool/Makefile
+diff -pruN selinux/policycoreutils/setsebool/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/setsebool/Makefile
 --- selinux/policycoreutils/setsebool/Makefile	2011-09-09 20:12:56.078662881 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/setsebool/Makefile	2011-09-15 04:25:48.575177734 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/policycoreutils/setsebool/Makefile	2011-09-15 05:19:34.863415104 +0200
 @@ -2,8 +2,8 @@
  PREFIX ?= $(DESTDIR)/usr
  INCLUDEDIR ?= $(PREFIX)/include
@@ -599,9 +684,9 @@ diff -pruN selinux/policycoreutils/setsebool/Makefile selinux-13092011-patch-v5/
  
  CFLAGS ?= -Werror -Wall -W
  override CFLAGS += -I$(INCLUDEDIR)
-diff -pruN selinux/README selinux-13092011-patch-v5/README
+diff -pruN selinux/README selinux-14092011-patch-v5-do-not-modify-library-link-creation/README
 --- selinux/README	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-13092011-patch-v5/README	2011-09-15 04:25:48.576177737 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/README	2011-09-15 05:19:34.864415112 +0200
 @@ -0,0 +1,20 @@
 +INSTALLATION:
 +
@@ -623,33 +708,79 @@ diff -pruN selinux/README selinux-13092011-patch-v5/README
 +specific directory to be used as the root installation directory.
 +
 +Please see the Makefile(s) for other environment variables that can be used.
-
-Or for Eric, if he only needs the relative diff, here it is:
-
-diff -pruN selinux-13092011-patch-v4/policycoreutils/restorecond/Makefile selinux-13092011-patch-v5/policycoreutils/restorecond/Makefile
---- selinux-13092011-patch-v4/policycoreutils/restorecond/Makefile	2011-09-15 04:35:48.832312253 +0200
-+++ selinux-13092011-patch-v5/policycoreutils/restorecond/Makefile	2011-09-15 04:28:03.435365416 +0200
-@@ -2,6 +2,7 @@
- PREFIX ?= $(DESTDIR)/usr
- SBINDIR ?= $(PREFIX)/sbin
- INCLUDEDIR ?= $(PREFIX)/include
-+LIBDIR ?= $(PREFIX)/lib
- MANDIR ?= $(PREFIX)/share/man
- INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
- SELINUXDIR ?= $(DESTDIR)/etc/selinux
-
-I wish to remind you once again that the proposed solution for creating
-the links to the versioned shared libraries has not been fully
-tested/agreed yet.
-
-In fact, as Stephen pointed out there is a risk that using absolute
-symbolic linking instead of relative symbolic linking could actually
-result in broken links being distributed in binary packages (i.e.
-pointing to the full path on the build system).
+diff -pruN selinux/sepolgen/src/sepolgen/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/sepolgen/src/sepolgen/Makefile
+--- selinux/sepolgen/src/sepolgen/Makefile	2011-09-09 20:12:56.080662897 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/sepolgen/src/sepolgen/Makefile	2011-09-15 05:20:22.403798789 +0200
+@@ -1,7 +1,9 @@
+ PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
+ PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
+ 
+-install:
++all:
++
++install: all
+ 	-mkdir -p $(PACKAGEDIR)
+ 	install -m 644 *.py $(PACKAGEDIR)
+ 
+diff -pruN selinux/sepolgen/src/share/Makefile selinux-14092011-patch-v5-do-not-modify-library-link-creation/sepolgen/src/share/Makefile
+--- selinux/sepolgen/src/share/Makefile	2011-09-09 20:12:56.082662911 +0200
++++ selinux-14092011-patch-v5-do-not-modify-library-link-creation/sepolgen/src/share/Makefile	2011-09-15 05:20:22.404798727 +0200
+@@ -1,6 +1,8 @@
+ SHAREDIR ?= $(DESTDIR)/var/lib/sepolgen
+ 
+-install:
++all:
++
++install: all
+ 	-mkdir -p $(SHAREDIR)
+ 	install -m 644 perm_map $(SHAREDIR)
+ 
+After the above patch, other patches are pending: semanage.conf manual
+page (might no longer apply cleanly), libsemanage test fix function's
+arguments.
 
 Regards,
 
 Guido
+
+On Wed, 2011-09-14 at 15:31 -0400, Eric Paris wrote:
+> On Wed, 2011-09-14 at 01:33 +0200, Guido Trentalancia wrote:
+> > Another possible improvement could be as follows (libsemanag):
+> > 
+> > Fix a few calls to semanage_store_access_check() in the libsemanage
+> > tests so that a void function is called.
+> 
+> Please in the future include a line which looks something like the
+> following at the end of the comments with all patches you wish to have
+> committed:
+> 
+> Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+> 
+> The purpose of this line is to indicate that you have the rights to
+> contribute this code to the project and that you agree to license the
+> code according to the license(s) of the file(s) that the patch will be
+> applied to.
+> 
+> I prefer patches in the format like the linux kernel: 
+> https://github.com/torvalds/linux/blob/master/Documentation/SubmittingPatches
+> 
+> Basically that entails the subject line of the e-mail is the short
+> description of the patch (nothing extra except inside the [])
+> 
+> The body should be a complete description of what change you made and in
+> particular why.  You should mention testing and things like that as
+> well.
+> 
+> The signed-off-by line.
+> The last line of the changelog should be just --- (at the beginning of
+> the line)
+> 
+> After the --- line include the patch.
+> 
+> thanks so much!
+> 
+> -Eric
+> 
 
 
 
