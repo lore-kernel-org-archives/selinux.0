@@ -1,64 +1,60 @@
-Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries (and
- possible security issue)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Date: Thu, 15 Sep 2011 19:26:43 +0200
-In-Reply-To: <1316106992.16483.35.camel@moss-pluto>
-References: <1315587716.2170.16.camel@vortex>
-	 <1315588656.2170.26.camel@vortex>
-	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
-	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
-	 <4E6E8149.30702@redhat.com> <1315917697.12522.1.camel@moss-pluto>
-	 <1315931495.2248.29.camel@vortex> <1315934421.12522.46.camel@moss-pluto>
-	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
-	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
-	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
-	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
-	 <1316004965.26965.9.camel@moss-pluto>  <1316054641.23290.48.camel@vortex>
-	 <1316091385.16483.13.camel@moss-pluto>  <1316102675.2202.23.camel@vortex>
-	 <1316104531.16483.26.camel@moss-pluto>  <1316106206.2202.33.camel@vortex>
-	 <1316106992.16483.35.camel@moss-pluto>
+Subject: Re: [PATCH 2/2] libselinux: do not use relative path when creating
+ libselinux symlinks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, guido@trentalancia.com
+In-Reply-To: <1316031697.2738.37.camel@localhost>
+References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
+	 <1316026239-27148-2-git-send-email-eparis@redhat.com>
+	 <1316027881.26965.15.camel@moss-pluto> <1316031697.2738.37.camel@localhost>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316107603.2202.43.camel@vortex>
+Date: Thu, 15 Sep 2011 13:29:54 -0400
+Message-ID: <1316107794.16483.37.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-15 at 13:16 -0400, Stephen Smalley wrote:
-> On Thu, 2011-09-15 at 19:03 +0200, Guido Trentalancia wrote:
-> > Nope, with original from git.
+On Wed, 2011-09-14 at 16:21 -0400, Eric Paris wrote:
+> On Wed, 2011-09-14 at 15:18 -0400, Stephen Smalley wrote:
+> > On Wed, 2011-09-14 at 14:50 -0400, Eric Paris wrote:
+> > > At the moment we create a symlink:
+> > > 
+> > > /usr/lib/libselinux.so -> ../../lib/libselinux.so.1
+> > > 
+> > > This works if (and only if) $SHLIBDIR and $LIBDIR are different only by
+> > > ../../.  Instead create a symlink from
+> > > 
+> > > $LIBDIR/libselinux.so->$SHLIBDIR/libselinux.so.1
+> > > 
+> > > Thus it works no matter what values one might use for LIBDIR and
+> > > SHLIBDIR.
 > > 
-> > With my patch everything works all right. Otherwise why did I create the
-> > patch in the first place ??
-> 
-> I don't know.  As I've said, make DESTDIR=~/out install worked fine
-> until recently, and with Eric's patch 1/2 to fix up the recent breakage
-> of the libselinux Makefile and my just-posted patch for the sandbox
-> Makefile, I can once again do a make DESTDIR=~/out install on a system
-> without the system -devel packages.
-> 
-> > I only forgot to mention the flags that I used:
+> > I'm not sure this works the way you would want.  Consider rpm build of
+> > libselinux - it does:
+> > make DESTDIR="%{buildroot}" LIBDIR="%{buildroot}%{_libdir}"
+> > SHLIBDIR="%{buildroot}/%{_lib}" BINDIR="%{buildroot}%{_sbindir}" install
 > > 
-> > CFLAGS="-O3 -march=corei7 -mtune=corei7" LIBDIR=/usr/lib64
-> > SHLIBDIR=/usr/lib64 DESTDIR=/opt/out make install
+> > And then rpm collects up the files into the package.
+> > But if the symlink encodes the full pathname used at make install time,
+> > then it will be wrong on the final system when the rpm is installed.
+> > Haven't actually tested that theory, but I think it is true.  Welcome to
+> > hell.
 > 
-> So it is picking up the wrong libs because you told it to do so by
-> separately specifying incompatible DESTDIR and LIBDIR/SHLIBDIR
-> definitions.  Either only specify DESTDIR and let it automatically
-> derive LIBDIR/SHLIBDIR underneath, or specify them all with the same
-> prefix.
+> error: Symlink points to BuildRoot: /usr/lib64/libselinux.so
+> -> /root/rpmbuild/BUILDROOT/libselinux-2.1.5-4.fc16.1.eparis.x86_64/lib64/libselinux.so.1
+> 
+> GRRRRRR.   Every other package I see with similar symlinks seems to be
+> an autoconf package and I can't understand how they work.  What we have
+> isn't right, but I don't know how to fix it....
 
-My requirements are that I am on a 64-bit system and therefore I
-need/want to distiguish between "lib" and "lib64". I do not need/care
-about distinguishing between SHLIBDIR and LIBDIR. I am fine either
-without a DESTDIR or with a DESTDIR as you suggested (both are
-problematic).
+Do we really need to change this?  While it is making an assumption
+about LIBDIR and SHLIBDIR relative location, when is that assumption
+false?  We certainly haven't had any complaints about it from any of the
+distros.
 
-And it breaks again after that...
-
-Guido
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
