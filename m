@@ -1,112 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8FHd9Sh010817
-	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 13:39:13 -0400
-Received: from mail-yx0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8FHdCBx027520
-	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 17:39:12 GMT
-Received: by yxk30 with SMTP id 30so2937093yxk.12
-        for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 10:39:12 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8FHmnxP011503
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 13:48:52 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8FHmpBx000439
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 17:48:51 GMT
+Message-ID: <4E723A80.9050905@tresys.com>
+Date: Thu, 15 Sep 2011 13:48:48 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Date: Thu, 15 Sep 2011 13:39:11 -0400
-Message-ID: <CAB04Hprsq9z4qYzO+pTOMYC41ma7d3J7+hrcQ04KSkOQnBEnBQ@mail.gmail.com>
-Subject: [PATCH] policycoreutils: preserve mode bits and ownership of /tmp in seunshare
-From: dave w <nullcore@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: ubuntu-hardened@lists.ubuntu.com
-Content-Type: text/plain; charset=ISO-8859-1
+To: Richard Haines <richard_c_haines@btinternet.com>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: CIL compiler
+References: <1316103664.93555.YahooMailClassic@web87008.mail.ird.yahoo.com>
+In-Reply-To: <1316103664.93555.YahooMailClassic@web87008.mail.ird.yahoo.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On 09/15/2011 12:21 PM, Richard Haines wrote:
+> Thanks for the Initial SID fix. It works fine.
+> 
+> I've been experimenting with CIL using a basic base policy (similar to mdp) and blocks to build binary policy files. I've checked these with apol and loaded them with only two issues found so far:
 
-This patch addresses a flaw in seunshare.c that allows unprivileged
-users to arbitrarily modify the contents of /tmp.  This bug is further
-described in CVE 2011-1011
-(http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1011):
+Great! We love to get feedback.
 
-The seunshare_mount function in sandbox/seunshare.c in seunshare in certain
-Red Hat packages of policycoreutils 2.0.83 and earlier in Red Hat
-Enterprise Linux (RHEL) 6 and earlier, and Fedora 14 and earlier, mounts a
-new directory on top of /tmp without assigning root ownership and the
-sticky bit to this new directory, which allows local users to replace or
-delete arbitrary /tmp files, and consequently cause a denial of service or
-possibly gain privileges, by running a setuid application that relies on
-/tmp, as demonstrated by the ksu application
+> 1) The 'booleanif' does not expand the AV or TYPE rules into the binary. apol does not list anything under 'Conditional Expressions' and the policy will not load.
 
-This patch preserves the mode bits, and thus permissions, and
-ownership of the destination directory of the bind mount performed by
-seunshare.  The permission check in verify_mount() was relaxed for
-directories who originally had the sticky bit set, as root ownership
-is required for these to ensure that unprivileged users cannot unlink
-arbitrary files in the newly bind mounted directory.
+Yes, we discovered that issue this week, and believe we have a fix, but
+are unsure if it's the 'right' fix. Hopefully, we'll have this resolved
+soon.
+
+> 2) The 'optional' sections are not expanded into the binary when the dependencies are resolved. The policy is still loadable.
+
+This seems to work correctly for me. Can you provide the CIL code you're
+using that's not working?
+
+> I also notice that as the CIL dev team work through the changes, the policy requirements change slightly. For example the allow rule format changed because of the permission set changes and the roles for object_r need to be fully defined. These are not an issue - just noting them in case others are testing CIL as well.
+
+Yes, the language is still somewhat in flux so some things will break.
+When we do a release we'll give a full list of what changed. But if
+you're playing with the latest and greatest from git, things might break
+without warning. We'll try to keep the wiki up to date with the current
+git repo though, so that should be a source of what's new (the
+permission set changes haven't made it to the wiki yet, though). If you
+notice anything missing, please let us know and we'll make sure we get
+it fixed.
 
 Thanks,
-David
-
-
-
- policycoreutils/sandbox/seunshare.c |   23 ++++++++++++++++++++++-
- 1 files changed, 22 insertions(+), 1 deletions(-)
-
-diff --git a/policycoreutils/sandbox/seunshare.c
-b/policycoreutils/sandbox/seunshare.c
-index f9bf12c..82b3cb9 100644
---- a/policycoreutils/sandbox/seunshare.c
-+++ b/policycoreutils/sandbox/seunshare.c
-@@ -149,7 +149,9 @@ static int verify_mount(const char *mntdir, struct
-passwd *pwd) {
-        fprintf(stderr, _("Invalid mount point %s: %s\n"), mntdir,
-strerror(errno));
-        return -1;
-    }
--   if (sb.st_uid != pwd->pw_uid) {
-+
-+    /* Owners don't have to match if the sticky bit has been set. */
-+   if (sb.st_uid != pwd->pw_uid && !(sb.st_mode && S_ISVTX)) {
-        errno = EPERM;
-        syslog(LOG_AUTHPRIV | LOG_ALERT, "%s attempted to mount an
-invalid directory, %s", pwd->pw_name, mntdir);
-        perror(_("Invalid mount point, reporting to administrator"));
-@@ -245,8 +247,17 @@ static int verify_shell(const char *shell_name)
- }
-
- static int seunshare_mount(const char *src, const char *dst, struct
-passwd *pwd) {
-+    struct stat buf;
-+
-    if (verbose)
-        printf("Mount %s on %s\n", src, dst);
-+
-+    /* Preserve mode bits and ownership */
-+    if (stat(dst, &buf) < 0) {
-+        fprintf(stderr, _("Failed to stat %s: %s\n"), dst, strerror(errno));
-+        return -1;
-+    }
-+
-    if (mount(dst, dst,  NULL, MS_BIND | MS_REC, NULL) < 0) {
-        fprintf(stderr, _("Failed to mount %s on %s: %s\n"), dst, dst,
-strerror(errno));
-        return -1;
-@@ -262,6 +273,16 @@ static int seunshare_mount(const char *src, const
-char *dst, struct passwd *pwd)
-        return -1;
-    }
-
-+    /* Restore original mode bits and ownership */
-+    if (chmod(dst, buf.st_mode) < 0) {
-+        fprintf(stderr, _("Failed to set permissions on %s: %s\n"),
-dst, strerror(errno));
-+        return -1;
-+    }
-+    if (chown(dst, buf.st_uid, buf.st_gid) < 0) {
-+        fprintf(stderr, _("Failed to set ownership on %s: %s\n"),
-dst, strerror(errno));
-+        return -1;
-+    }
-+
-    if (verify_mount(dst, pwd) < 0)
-        return -1;
- }
+- Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
