@@ -1,10 +1,11 @@
 Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries (and
  possible security issue)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.com>
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
         SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1316106206.2202.33.camel@vortex>
+Date: Thu, 15 Sep 2011 19:26:43 +0200
+In-Reply-To: <1316106992.16483.35.camel@moss-pluto>
 References: <1315587716.2170.16.camel@vortex>
 	 <1315588656.2170.26.camel@vortex>
 	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
@@ -18,39 +19,46 @@ References: <1315587716.2170.16.camel@vortex>
 	 <1316004965.26965.9.camel@moss-pluto>  <1316054641.23290.48.camel@vortex>
 	 <1316091385.16483.13.camel@moss-pluto>  <1316102675.2202.23.camel@vortex>
 	 <1316104531.16483.26.camel@moss-pluto>  <1316106206.2202.33.camel@vortex>
+	 <1316106992.16483.35.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 15 Sep 2011 13:16:31 -0400
-Message-ID: <1316106992.16483.35.camel@moss-pluto>
+Message-ID: <1316107603.2202.43.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-15 at 19:03 +0200, Guido Trentalancia wrote:
-> Nope, with original from git.
+On Thu, 2011-09-15 at 13:16 -0400, Stephen Smalley wrote:
+> On Thu, 2011-09-15 at 19:03 +0200, Guido Trentalancia wrote:
+> > Nope, with original from git.
+> > 
+> > With my patch everything works all right. Otherwise why did I create the
+> > patch in the first place ??
 > 
-> With my patch everything works all right. Otherwise why did I create the
-> patch in the first place ??
-
-I don't know.  As I've said, make DESTDIR=~/out install worked fine
-until recently, and with Eric's patch 1/2 to fix up the recent breakage
-of the libselinux Makefile and my just-posted patch for the sandbox
-Makefile, I can once again do a make DESTDIR=~/out install on a system
-without the system -devel packages.
-
-> I only forgot to mention the flags that I used:
+> I don't know.  As I've said, make DESTDIR=~/out install worked fine
+> until recently, and with Eric's patch 1/2 to fix up the recent breakage
+> of the libselinux Makefile and my just-posted patch for the sandbox
+> Makefile, I can once again do a make DESTDIR=~/out install on a system
+> without the system -devel packages.
 > 
-> CFLAGS="-O3 -march=corei7 -mtune=corei7" LIBDIR=/usr/lib64
-> SHLIBDIR=/usr/lib64 DESTDIR=/opt/out make install
+> > I only forgot to mention the flags that I used:
+> > 
+> > CFLAGS="-O3 -march=corei7 -mtune=corei7" LIBDIR=/usr/lib64
+> > SHLIBDIR=/usr/lib64 DESTDIR=/opt/out make install
+> 
+> So it is picking up the wrong libs because you told it to do so by
+> separately specifying incompatible DESTDIR and LIBDIR/SHLIBDIR
+> definitions.  Either only specify DESTDIR and let it automatically
+> derive LIBDIR/SHLIBDIR underneath, or specify them all with the same
+> prefix.
 
-So it is picking up the wrong libs because you told it to do so by
-separately specifying incompatible DESTDIR and LIBDIR/SHLIBDIR
-definitions.  Either only specify DESTDIR and let it automatically
-derive LIBDIR/SHLIBDIR underneath, or specify them all with the same
-prefix.
+My requirements are that I am on a 64-bit system and therefore I
+need/want to distiguish between "lib" and "lib64". I do not need/care
+about distinguishing between SHLIBDIR and LIBDIR. I am fine either
+without a DESTDIR or with a DESTDIR as you suggested (both are
+problematic).
 
--- 
-Stephen Smalley
-National Security Agency
+And it breaks again after that...
+
+Guido
 
 
 --
