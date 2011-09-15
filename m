@@ -1,85 +1,51 @@
-Subject: Re: [PATCH 2/2] libselinux: do not use relative path when creating
- libselinux symlinks
-From: Guido Trentalancia <guido@trentalancia.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-Date: Thu, 15 Sep 2011 14:53:46 +0200
-In-Reply-To: <4E71EDFB.4040707@tresys.com>
-References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
-	   <1316026239-27148-2-git-send-email-eparis@redhat.com>
-	   <1316027881.26965.15.camel@moss-pluto>
-	  <1316031697.2738.37.camel@localhost> <4E71E8FD.8020505@tresys.com>
-	 <1316088961.2319.36.camel@vortex> <4E71EDFB.4040707@tresys.com>
+Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries (and
+ possible security issue)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1316054641.23290.48.camel@vortex>
+References: <1315587716.2170.16.camel@vortex>
+	 <1315588656.2170.26.camel@vortex>
+	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
+	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
+	 <4E6E8149.30702@redhat.com> <1315917697.12522.1.camel@moss-pluto>
+	 <1315931495.2248.29.camel@vortex> <1315934421.12522.46.camel@moss-pluto>
+	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
+	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
+	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
+	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
+	 <1316004965.26965.9.camel@moss-pluto>  <1316054641.23290.48.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316091226.2319.46.camel@vortex>
+Date: Thu, 15 Sep 2011 08:56:25 -0400
+Message-ID: <1316091385.16483.13.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-15 at 08:22 -0400, Christopher J. PeBenito wrote:
-> On 09/15/11 08:16, Guido Trentalancia wrote:
-> > Hi Christopher !
-> > 
-> > Thanks for the idea.
-> > 
-> > On Thu, 2011-09-15 at 08:01 -0400, Christopher J. PeBenito wrote:
-> >> On 09/14/11 16:21, Eric Paris wrote:
-> >>> On Wed, 2011-09-14 at 15:18 -0400, Stephen Smalley wrote:
-> >>>> On Wed, 2011-09-14 at 14:50 -0400, Eric Paris wrote:
-> >>>>> At the moment we create a symlink:
-> >>>>>
-> >>>>> /usr/lib/libselinux.so -> ../../lib/libselinux.so.1
-> >>>>>
-> >>>>> This works if (and only if) $SHLIBDIR and $LIBDIR are different only by
-> >>>>> ../../.  Instead create a symlink from
-> >>>>>
-> >>>>> $LIBDIR/libselinux.so->$SHLIBDIR/libselinux.so.1
-> >>>>>
-> >>>>> Thus it works no matter what values one might use for LIBDIR and
-> >>>>> SHLIBDIR.
-> >>>>
-> >>>> I'm not sure this works the way you would want.  Consider rpm build of
-> >>>> libselinux - it does:
-> >>>> make DESTDIR="%{buildroot}" LIBDIR="%{buildroot}%{_libdir}"
-> >>>> SHLIBDIR="%{buildroot}/%{_lib}" BINDIR="%{buildroot}%{_sbindir}" install
-> >>>>
-> >>>> And then rpm collects up the files into the package.
-> >>>> But if the symlink encodes the full pathname used at make install time,
-> >>>> then it will be wrong on the final system when the rpm is installed.
-> >>>> Haven't actually tested that theory, but I think it is true.  Welcome to
-> >>>> hell.
-> >>>
-> >>> error: Symlink points to BuildRoot: /usr/lib64/libselinux.so
-> >>> -> /root/rpmbuild/BUILDROOT/libselinux-2.1.5-4.fc16.1.eparis.x86_64/lib64/libselinux.so.1
-> >>>
-> >>> GRRRRRR.   Every other package I see with similar symlinks seems to be
-> >>> an autoconf package and I can't understand how they work.  What we have
-> >>> isn't right, but I don't know how to fix it....
-> >>
-> >> Its easy.  The makefile needs to be tweaked so you don't have to specify %{buildroot} as part of the LIBDIR, SHLIBDIR, and BINDIR variables.  Then when you use those variables, you prepend DESTDIR as necessary.  So if you have usages like
-> >>
-> >> install foo $(BINDIR)
-> >>
-> >> it turns into
-> >>
-> >> install foo $(DESTDIR)(BINDIR)
-> >>
-> >> Then when you have your symlink you can do
-> >>
-> >> ln -s $(SHLIBDIR)/bar.so.1 $(DESTDIR)$(SHLIBDIR)/bar.so
-> > 
-> > Yes, this is even better, although $(DESTDIR) is not necessary in the
-> > target, as SHLIBDIR already includes (begins with) DESTDIR:
-> > 
-> > ln -sf $(SHLIBDIR)/$(LIBSO) $(SHLIBDIR)/$(TARGET)
+On Thu, 2011-09-15 at 04:44 +0200, Guido Trentalancia wrote:
+> > The above will break when building checkpolicy separately.  
 > 
-> I think you're missing the point.  I said you need to stop specifying $(DESTDIR) as part of $(SHLIBDIR).  Otherwise you get the broken symlinks that Eric talks about above.
+> Yes it will. But it also avoids linking an existing old static library
+> when building from the whole git bundle.
 
-In any case, I think it then probably ends up taking more characters
-than using pushd/popd.
+You can already avoid that problem by building with make DESTDIR=~/out
+install (which will then install libsepol.a under ~/out/usr/lib and use
+it rather than the system one when linking subsequent libraries and
+programs), so our current build procedure isn't broken, just the newly
+proposed one.
 
-Guido
+> Before creating each release of the separate components, that piece of
+> patch could be reverted or otherwise a script could invoke sed on the
+> affected Makefiles.
+
+I don't see that as a maintainable solution.  What other upstream
+projects patch their Makefiles before release and thus ship a different
+set of Makefiles than the ones they are using themselves for testing?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
