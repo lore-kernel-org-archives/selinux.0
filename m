@@ -1,53 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8FHmnxP011503
-	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 13:48:52 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8FHmpBx000439
-	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2011 17:48:51 GMT
-Message-ID: <4E723A80.9050905@tresys.com>
-Date: Thu, 15 Sep 2011 13:48:48 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: CIL compiler
-References: <1316103664.93555.YahooMailClassic@web87008.mail.ird.yahoo.com>
-In-Reply-To: <1316103664.93555.YahooMailClassic@web87008.mail.ird.yahoo.com>
+Subject: Re: [PATCH] policycoreutils: fix sandbox Makefile
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: Eric Paris <eparis@parisplace.org>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1316108332.2202.49.camel@vortex>
+References: <1316026239-27148-1-git-send-email-eparis@redhat.com>
+	 <CACLa4ptONKKd2t6eM+CUPeWOWKjrCteiZFFTYYTRwCKiHfROog@mail.gmail.com>
+	 <1316106835.16483.32.camel@moss-pluto>  <1316108332.2202.49.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 15 Sep 2011 13:50:48 -0400
+Message-ID: <1316109048.16483.48.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/15/2011 12:21 PM, Richard Haines wrote:
-> Thanks for the Initial SID fix. It works fine.
+On Thu, 2011-09-15 at 19:38 +0200, Guido Trentalancia wrote:
+> On Thu, 2011-09-15 at 13:13 -0400, Stephen Smalley wrote:
+> > Fix sandbox Makefile so that make DESTDIR=~/out install works again.
+> > 
+> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > 
+> > ---
+> > 
+> >  policycoreutils/sandbox/Makefile |    3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+> > index 21df0c4..4566810 100644
+> > --- a/policycoreutils/sandbox/Makefile
+> > +++ b/policycoreutils/sandbox/Makefile
+> > @@ -2,6 +2,7 @@
+> >  PREFIX ?= ${DESTDIR}/usr
+> >  INITDIR ?= ${DESTDIR}/etc/rc.d/init.d/
+> >  SYSCONFDIR ?= ${DESTDIR}/etc/sysconfig
+> > +LIBDIR ?= $(PREFIX)/lib
+> >  BINDIR ?= $(PREFIX)/bin
+> >  SBINDIR ?= $(PREFIX)/sbin
+> >  MANDIR ?= $(PREFIX)/share/man
+> > @@ -13,7 +14,7 @@ LDLIBS += -lselinux -lcap-ng
+> >  all: sandbox seunshare sandboxX.sh start
+> >  
+> >  seunshare: seunshare.o $(EXTRA_OBJS)
+> > -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > +	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) -L$(LIBDIR)
 > 
-> I've been experimenting with CIL using a basic base policy (similar to mdp) and blocks to build binary policy files. I've checked these with apol and loaded them with only two issues found so far:
+> EXTRA_OBJS is not defined therefore it is empty unless passed from the
+> command-line...
 
-Great! We love to get feedback.
+I didn't introduce or modify the use of EXTRA_OBJS; that isn't affected
+by my patch.
 
-> 1) The 'booleanif' does not expand the AV or TYPE rules into the binary. apol does not list anything under 'Conditional Expressions' and the policy will not load.
+> Perhaps you meant the -L flag goes before the LDLIBS (which is made just
+> of -l flags) ?
+> 
+> as in: 
+> 
+> -	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> +	$(CC) $(LDFLAGS) -o $@ $^ -L$(LIBDIR) $(LDLIBS)
 
-Yes, we discovered that issue this week, and believe we have a fix, but
-are unsure if it's the 'right' fix. Hopefully, we'll have this resolved
-soon.
+It doesn't matter.  Per man ld:
+ "All -L options apply to all -l options, regardless of the order in
+which the options appear."
 
-> 2) The 'optional' sections are not expanded into the binary when the dependencies are resolved. The policy is still loadable.
+And my patch does fix the problem.
 
-This seems to work correctly for me. Can you provide the CIL code you're
-using that's not working?
+-- 
+Stephen Smalley
+National Security Agency
 
-> I also notice that as the CIL dev team work through the changes, the policy requirements change slightly. For example the allow rule format changed because of the permission set changes and the roles for object_r need to be fully defined. These are not an issue - just noting them in case others are testing CIL as well.
-
-Yes, the language is still somewhat in flux so some things will break.
-When we do a release we'll give a full list of what changed. But if
-you're playing with the latest and greatest from git, things might break
-without warning. We'll try to keep the wiki up to date with the current
-git repo though, so that should be a source of what's new (the
-permission set changes haven't made it to the wiki yet, though). If you
-notice anything missing, please let us know and we'll make sure we get
-it fixed.
-
-Thanks,
-- Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
