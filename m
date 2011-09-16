@@ -1,55 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8G7Qrmn026803
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 03:26:53 -0400
-Received: from cp-out8.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8G7QppQ000061
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 07:26:52 GMT
-Subject: Re: policycoreutils manpages needed
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        SE-Linux
-	 <selinux@tycho.nsa.gov>
-Date: Fri, 16 Sep 2011 09:26:26 +0200
-In-Reply-To: <1315862884.2223.33.camel@vortex>
-References: <201109011509.05872.russell@coker.com.au>
-	 <4E5F8BAA.6060208@redhat.com> <1314912106.2334.2.camel@vortex>
-	 <CACLa4ptfSU3obZ8OyMVFfKDsqwLQn58-O9YRUbCyU8=mLzn=tA@mail.gmail.com>
-	 <1315862884.2223.33.camel@vortex>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316157987.2364.65.camel@vortex>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GB7ad5006523
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 07:07:36 -0400
+Received: from mail-pz0-f44.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8GB7Z1l028156
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 11:07:35 GMT
+Received: by pzk36 with SMTP id 36so1404009pzk.3
+        for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 04:07:35 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1316151755.2364.45.camel@vortex>
+References: <CAB04Hprsq9z4qYzO+pTOMYC41ma7d3J7+hrcQ04KSkOQnBEnBQ@mail.gmail.com>
+	<1316117256.2202.104.camel@vortex>
+	<CAB04Hpr23zFfegf2421-N22350p5arDZ9SjRB4pRjt2Bgx64tg@mail.gmail.com>
+	<1316151755.2364.45.camel@vortex>
+Date: Fri, 16 Sep 2011 07:07:34 -0400
+Message-ID: <CAB04HprGNsUi-U8Ae44pih6uVXEqAbF-EwVQ87RXZeuUF3EyuQ@mail.gmail.com>
+Subject: Re: [PATCH] policycoreutils: preserve mode bits and ownership of /tmp
+ in seunshare
+From: dave w <nullcore@gmail.com>
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-09-12 at 23:28 +0200, Guido Trentalancia wrote:
-> I would like to take this opportunity to suggest that we create manual
-> pages for configuration files where possible (none available at the
-> moment ?!?).
+On Fri, Sep 16, 2011 at 1:42 AM, Guido Trentalancia
+<guido@trentalancia.com> wrote:
 
-I would like to stress the above once again.
+<snip>
 
-Further manual pages that I found missing and that would be nice to have
-in the future:
+> So the question now is: CVE-2011-1011 is dated 20110214, how comes this
+> is trying to get sorted out only now for upstream ?
+>
 
-- global /etc/selinux/config (difficult to name, would that be very
-generically config.5) ?
-- /etc/sestatus.conf: why not ?
-- setrans.conf
+Unsure.  I performed a search of activity related to this CVE since
+its original posting on 20110214 and found nothing.  I'm fixing this
+bug on behalf of a distro (Ubuntu) and thought it prudent to upstream
+the changes since nobody else has addressed this CVE.
 
-> For example, the very first one I would like to have is
-> semanage.conf.5. 
+That said, I also found it surprising that the CVE hadn't been
+addressed upstream at all since then.  I thought it could be a result
+of the low priority most distros assigned this issue.
 
-By the way, an initial version of the above has been prepared.
-
-> Then we could also create restorecond.conf.5 and restorecond_user.conf.5
-> (both of them should be trivial).
-
-I shall perhaps starting doing the above next...
-
-Regards,
-
-Guido
+>> > In any case, good practice says nothing should ever be allowed to mount
+>> > under /tmp with suid/exec flags (use noexec,nosuid options in fstab).
+>> >
+>> > That said, have you tested the patch already ? Is it effective ?
+>> >
+>>
+>> Yes, the patch has been effective and with it applied, unprivileged
+>> users cannot delete files other than their own from /tmp, which is the
+>> expected behavior in a directory with the sticky bit set owned by the
+>> superuser.
+>>
+>> > Thanks.
+>> >
+>> > Guido
+>> >
+>> >> The seunshare_mount function in sandbox/seunshare.c in seunshare in certain
+>> >> Red Hat packages of policycoreutils 2.0.83 and earlier in Red Hat
+>> >> Enterprise Linux (RHEL) 6 and earlier, and Fedora 14 and earlier, mounts a
+>> >> new directory on top of /tmp without assigning root ownership and the
+>> >> sticky bit to this new directory, which allows local users to replace or
+>> >> delete arbitrary /tmp files, and consequently cause a denial of service or
+>> >> possibly gain privileges, by running a setuid application that relies on
+>> >> /tmp, as demonstrated by the ksu application
+>
+> What happened exactly for upstream since the CVE was initially
+> released ?
+>
+>> >> This patch preserves the mode bits, and thus permissions, and
+>> >> ownership of the destination directory of the bind mount performed by
+>> >> seunshare.  The permission check in verify_mount() was relaxed for
+>> >> directories who originally had the sticky bit set, as root ownership
+>> >> is required for these to ensure that unprivileged users cannot unlink
+>> >> arbitrary files in the newly bind mounted directory.
+>
+> Is it the first time ever that you post a patch to try sorting out the
+> same issue ?
+>
+>> >> Thanks,
+>> >> David
+>
+> Thanks, Guido.
+>
+>
 
 
 --
