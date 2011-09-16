@@ -1,89 +1,81 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GB7ad5006523
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 07:07:36 -0400
-Received: from mail-pz0-f44.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8GB7Z1l028156
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 11:07:35 GMT
-Received: by pzk36 with SMTP id 36so1404009pzk.3
-        for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 04:07:35 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1316151755.2364.45.camel@vortex>
-References: <CAB04Hprsq9z4qYzO+pTOMYC41ma7d3J7+hrcQ04KSkOQnBEnBQ@mail.gmail.com>
-	<1316117256.2202.104.camel@vortex>
-	<CAB04Hpr23zFfegf2421-N22350p5arDZ9SjRB4pRjt2Bgx64tg@mail.gmail.com>
-	<1316151755.2364.45.camel@vortex>
-Date: Fri, 16 Sep 2011 07:07:34 -0400
-Message-ID: <CAB04HprGNsUi-U8Ae44pih6uVXEqAbF-EwVQ87RXZeuUF3EyuQ@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils: preserve mode bits and ownership of /tmp
- in seunshare
-From: dave w <nullcore@gmail.com>
+Subject: Re: [PATCH v5] Fix includes for userspace tools and libraries
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1316118750.2202.115.camel@vortex>
+References: <1315587716.2170.16.camel@vortex>
+	 <1315588656.2170.26.camel@vortex>
+	 <CACLa4pu2eN1OM_ni5Zssb8O9d0S49CoAZnS4-XKoALNdqunCsA@mail.gmail.com>
+	 <1315832253.17035.5.camel@moss-pluto> <1315859373.2223.19.camel@vortex>
+	 <4E6E8149.30702@redhat.com> <1315917697.12522.1.camel@moss-pluto>
+	 <1315931495.2248.29.camel@vortex> <1315934421.12522.46.camel@moss-pluto>
+	 <1315938784.2218.14.camel@vortex> <1315939689.12522.51.camel@moss-pluto>
+	 <1315941501.2218.26.camel@vortex>  <1315941958.12522.77.camel@moss-pluto>
+	 <1315942469.12522.81.camel@moss-pluto> <1315944244.2218.41.camel@vortex>
+	 <1315945618.2738.13.camel@localhost>  <1315951507.2218.91.camel@vortex>
+	 <1316004965.26965.9.camel@moss-pluto>  <1316054641.23290.48.camel@vortex>
+	 <1316091385.16483.13.camel@moss-pluto>  <1316102675.2202.23.camel@vortex>
+	 <1316104531.16483.26.camel@moss-pluto>  <1316106206.2202.33.camel@vortex>
+	 <1316106992.16483.35.camel@moss-pluto>  <1316107603.2202.43.camel@vortex>
+	 <1316110489.16483.68.camel@moss-pluto>  <1316113928.2202.76.camel@vortex>
+	 <1316116803.16483.106.camel@moss-pluto>  <1316118750.2202.115.camel@vortex>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 16 Sep 2011 08:39:04 -0400
+Message-ID: <1316176744.20456.5.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Sep 16, 2011 at 1:42 AM, Guido Trentalancia
-<guido@trentalancia.com> wrote:
+On Thu, 2011-09-15 at 22:32 +0200, Guido Trentalancia wrote:
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index 7680008..4651616 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -7,7 +7,8 @@ PYPREFIX ?= $(notdir $(PYTHON))
+> >  # Installation directories.
+> >  PREFIX ?= $(DESTDIR)/usr
+> >  LIBDIR ?= $(PREFIX)/lib
+> > -SHLIBDIR ?= $(PREFIX)/lib
+> > +LIBSEPOLSTATIC ?= $(LIBDIR)/libsepol.a
+> 
+> Hopefully the above won't override the exported one from top-level...
 
-<snip>
+It won't, because we use the ?= operator above.  So it will take effect
+if building in the libselinux directory, as for a per-package build, not
+if building from top-level.
 
-> So the question now is: CVE-2011-1011 is dated 20110214, how comes this
-> is trying to get sorted out only now for upstream ?
->
+> > @@ -54,7 +55,7 @@ SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(wildcard *.c))
+> >  OBJS= $(patsubst %.c,%.o,$(SRCS))
+> >  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
+> >  CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
+> > -override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
+> > +override CFLAGS += -I../include -I$(INCLUDEDIR) $(EXTRA_INCLUDES) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
+> 
+> It seems to me that you are giving the precedence to the system-wide
+> includes. We want the EXTRA/LOCAL ones to have precedence over the
+> system-wide ones, with the fall-back only for released components (which
+> won't have EXTRA/LOCAL passed to them from a top-level Makefile).
 
-Unsure.  I performed a search of activity related to this CVE since
-its original posting on 20110214 and found nothing.  I'm fixing this
-bug on behalf of a distro (Ubuntu) and thought it prudent to upstream
-the changes since nobody else has addressed this CVE.
+See the description of -I in the man page for gcc.  The above will have
+the desired effect.
 
-That said, I also found it surprising that the CVE hadn't been
-addressed upstream at all since then.  I thought it could be a result
-of the low priority most distros assigned this issue.
+> > @@ -102,7 +103,7 @@ $(AUDIT2WHYLOBJ): audit2why.c
+> >  	$(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
+> >  
+> >  $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
+> > -	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux ${LIBDIR}/libsepol.a -L$(LIBDIR) -Wl,-soname,$@
+> > +	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L. -lselinux $(LIBSEPOLSTATIC) -L$(LIBDIR) -Wl,-soname,$@
+> 
+> As long as the locally-defined LIBSEPOLSTATIC did not override the
+> top-level exported one for builds from the whole git bundle (see
+> above)...
 
->> > In any case, good practice says nothing should ever be allowed to mount
->> > under /tmp with suid/exec flags (use noexec,nosuid options in fstab).
->> >
->> > That said, have you tested the patch already ? Is it effective ?
->> >
->>
->> Yes, the patch has been effective and with it applied, unprivileged
->> users cannot delete files other than their own from /tmp, which is the
->> expected behavior in a directory with the sticky bit set owned by the
->> superuser.
->>
->> > Thanks.
->> >
->> > Guido
->> >
->> >> The seunshare_mount function in sandbox/seunshare.c in seunshare in certain
->> >> Red Hat packages of policycoreutils 2.0.83 and earlier in Red Hat
->> >> Enterprise Linux (RHEL) 6 and earlier, and Fedora 14 and earlier, mounts a
->> >> new directory on top of /tmp without assigning root ownership and the
->> >> sticky bit to this new directory, which allows local users to replace or
->> >> delete arbitrary /tmp files, and consequently cause a denial of service or
->> >> possibly gain privileges, by running a setuid application that relies on
->> >> /tmp, as demonstrated by the ksu application
->
-> What happened exactly for upstream since the CVE was initially
-> released ?
->
->> >> This patch preserves the mode bits, and thus permissions, and
->> >> ownership of the destination directory of the bind mount performed by
->> >> seunshare.  The permission check in verify_mount() was relaxed for
->> >> directories who originally had the sticky bit set, as root ownership
->> >> is required for these to ensure that unprivileged users cannot unlink
->> >> arbitrary files in the newly bind mounted directory.
->
-> Is it the first time ever that you post a patch to try sorting out the
-> same issue ?
->
->> >> Thanks,
->> >> David
->
-> Thanks, Guido.
->
->
+It won't.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
