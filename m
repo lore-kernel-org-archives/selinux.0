@@ -1,69 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GGBbiY028180
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 12:11:37 -0400
-Received: from cp-out8.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p8GGBawH019633
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 16:11:36 GMT
-Subject: Re: [refpolicy] pam_selinux(gdm-password:session): Security Context
- justin:staff_r:insmod_t:s0 Assigned
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Justin P. Mattock" <justinmattock@yahoo.com>,
-        tresys
-	 <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-Date: Fri, 16 Sep 2011 18:11:29 +0200
-In-Reply-To: <4E737223.1060601@redhat.com>
-References: <1316144432.85313.YahooMailNeo@web114304.mail.gq1.yahoo.com>
-	 <4E736453.8000506@redhat.com> <4E7369AF.3000709@yahoo.com>
-	 <4E737223.1060601@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316189490.2225.53.camel@vortex>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GGFiSY028646
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 12:15:44 -0400
+Received: from nm4-vm0.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id p8GGFhSZ016292
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 16:15:43 GMT
+Message-ID: <1316189741.28111.YahooMailClassic@web87008.mail.ird.yahoo.com>
+Date: Fri, 16 Sep 2011 17:15:41 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: policycoreutils manpages needed
+To: Guido Trentalancia <guido@trentalancia.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
+        SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <1316157987.2364.65.camel@vortex>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-09-16 at 11:58 -0400, Daniel J Walsh wrote:
-> On 09/16/2011 11:22 AM, Justin P. Mattock wrote:
-> > On 09/16/2011 07:59 AM, Daniel J Walsh wrote:
-> >> ps -eZ |grep sshd
-> > I dont have sshd running, but here is ps auxZ to give you an idea
-> > of what I am seeing: http://fpaste.org/u6IB/
-> > 
-> > if I adjust /etc/pam.d/login and add select_context to
-> > pam_selinux.so then do init 3 in lilo I am able to have the
-> > context justin:staff_r:staff_t:s0  the way it should. but as soon
-> > as I init 5 gdm starts up, and everything goes back to
-> > name:staff_r:insmod_t:s0
-> > 
-> > I think I am either missing a boolean to have the transisiton
-> > runing properly, and/or pam.d or some config file somewhere needs
-> > to be adjusted. keep in mind refpolicy has no patches added to
-> > it(not sure if I need any for systemd), just plain git pull
-> > etc...
-> > 
-> > Justin P. Mattock
-> Well since you don't have a init_t running, I think your problem
-> starts there.  Looks like your system is badly mislabeled or something
-> in init is broken.   I take it this is not a Red Hat Based OS?
+I produced an selinux config file man page + others in the following document:
+http://taiga.selinuxproject.org/~rhaines/notebooks/Updated_libselinux_Man_Pages.pdf
 
-Also please post the actual label of the init executable:
+If you think any of them are useful I'm happy to convert them to the man page format (currently in OpenDocument format).
 
-ls -lZ /sbin/init
+Richard
 
-or wherever that is.
+PS
+I've been tracking other config file formats as they change but never get around to publishing them, so if there are specific ones let me know and I'll see what I've got.
 
-It should be init_exec_t.
 
-Init is the father of all processes, if it hasn't transitioned properly
-to init_t soon after booting up, then it all goes tits up...
+--- On Fri, 16/9/11, Guido Trentalancia <guido@trentalancia.com> wrote:
 
-- check the label above;
-- try relabeling the whole filesystem;
-- try the init_systemd boolean if you are using systemd as init.
-
-Please keep up informed on the progress.
-
-Guido
+> From: Guido Trentalancia <guido@trentalancia.com>
+> Subject: Re: policycoreutils manpages needed
+> To: "Eric Paris" <eparis@parisplace.org>
+> Cc: "Daniel J Walsh" <dwalsh@redhat.com>, russell@coker.com.au, "SE-Linux" <selinux@tycho.nsa.gov>
+> Date: Friday, 16 September, 2011, 8:26
+> On Mon, 2011-09-12 at 23:28 +0200,
+> Guido Trentalancia wrote:
+> > I would like to take this opportunity to suggest that
+> we create manual
+> > pages for configuration files where possible (none
+> available at the
+> > moment ?!?).
+> 
+> I would like to stress the above once again.
+> 
+> Further manual pages that I found missing and that would be
+> nice to have
+> in the future:
+> 
+> - global /etc/selinux/config (difficult to name, would that
+> be very
+> generically config.5) ?
+> - /etc/sestatus.conf: why not ?
+> - setrans.conf
+> 
+> > For example, the very first one I would like to have
+> is
+> > semanage.conf.5. 
+> 
+> By the way, an initial version of the above has been
+> prepared.
+> 
+> > Then we could also create restorecond.conf.5 and
+> restorecond_user.conf.5
+> > (both of them should be trivial).
+> 
+> I shall perhaps starting doing the above next...
+> 
+> Regards,
+> 
+> Guido
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux
+> mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the
+> message.
+> 
 
 
 --
