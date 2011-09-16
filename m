@@ -1,82 +1,56 @@
-Subject: Re: [PATCH 11/67] policycoreutils: setfiles: FIXME switch from stat
- to
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, eparis@redhat.com,
-        selinux@tycho.nsa.gov
-Date: Fri, 16 Sep 2011 17:40:52 +0200
-In-Reply-To: <1316185567.20456.41.camel@moss-pluto>
-References: <4E724F22.20402@redhat.com>  <1316157190.2364.57.camel@vortex>
-	 <1316176884.20456.7.camel@moss-pluto>  <1316178458.2211.38.camel@vortex>
-	 <1316185567.20456.41.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316187653.2225.40.camel@vortex>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GFwcxg027117
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 11:58:38 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8GFwbej012302
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 15:58:37 GMT
+Message-ID: <4E737223.1060601@redhat.com>
+Date: Fri, 16 Sep 2011 11:58:27 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Justin P. Mattock" <justinmattock@yahoo.com>
+CC: tresys <refpolicy@oss1.tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] pam_selinux(gdm-password:session): Security Context
+ justin:staff_r:insmod_t:s0 Assigned
+References: <1316144432.85313.YahooMailNeo@web114304.mail.gq1.yahoo.com> <4E736453.8000506@redhat.com> <4E7369AF.3000709@yahoo.com>
+In-Reply-To: <4E7369AF.3000709@yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-09-16 at 11:06 -0400, Stephen Smalley wrote:
-> On Fri, 2011-09-16 at 15:07 +0200, Guido Trentalancia wrote:
-> > On Fri, 2011-09-16 at 08:41 -0400, Stephen Smalley wrote:
-> > > On Fri, 2011-09-16 at 09:13 +0200, Guido Trentalancia wrote:
-> > > > On Thu, 2011-09-15 at 15:16 -0400, Daniel J Walsh wrote:
-> > > > > From 1268e66e94286a55c399383d5959734d3597792d Mon Sep 17 00:00:00 2001
-> > > > > From: Eric Paris <eparis@redhat.com>
-> > > > > Date: Sun, 10 Jul 2011 16:54:25 +0200
-> > > > > Subject: [PATCH 11/67] policycoreutils: setfiles: FIXME switch from
-> > > > > stat to
-> > > > >  stat64
-> > > > > 
-> > > > > This looks bad.  glibc takes care of this.  We should do send this
-> > > > > upstream but I would like to know why you did it in Fedora....
-> > > > > 
-> > > > > NOT-Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > > > ---
-> > > > >  policycoreutils/setfiles/restore.c |    8 ++++----
-> > > > >  1 files changed, 4 insertions(+), 4 deletions(-) 
-> > > > 
-> > > > Perhaps you could exploit a few #ifdef's here ?
-> > > > 
-> > > > Such as _LARGEFILE_SOURCE _LARGEFILE64_SOURCE and/or
-> > > > _FILE_OFFSET_BITS=64 ?
-> > > > 
-> > > > More available from:
-> > > > 
-> > > > info libc 'Feature Test Macros'
-> > > 
-> > > We were doing that before converting setfiles from using nftw(3) to
-> > > using fts(3) for the file tree walk.  But fts.h has this gem:
-> > > /* The fts interface is incompatible with the LFS interface which
-> > >    transparently uses the 64-bit file access functions.  */
-> > > #ifdef __USE_FILE_OFFSET64
-> > > # error "<fts.h> cannot be used with -D_FILE_OFFSET_BITS==64"
-> > > #endif
-> > 
-> > That must be the reason why other projects are moving in the opposite
-> > direction, see for example:
-> > 
-> > http://sourceforge.net/tracker/index.php?func=detail&aid=3126942&group_id=3382&atid=103382
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 09/16/2011 11:22 AM, Justin P. Mattock wrote:
+> On 09/16/2011 07:59 AM, Daniel J Walsh wrote:
+>> ps -eZ |grep sshd
+> I dont have sshd running, but here is ps auxZ to give you an idea
+> of what I am seeing: http://fpaste.org/u6IB/
 > 
-> The discussion of the change for setfiles can be found in the list
-> archives, e.g.
-> http://marc.info/?t=124639081000002&r=1&w=2
-> http://marc.info/?l=selinux&m=124688830500777&w=2
+> if I adjust /etc/pam.d/login and add select_context to
+> pam_selinux.so then do init 3 in lilo I am able to have the
+> context justin:staff_r:staff_t:s0  the way it should. but as soon
+> as I init 5 gdm starts up, and everything goes back to
+> name:staff_r:insmod_t:s0
+> 
+> I think I am either missing a boolean to have the transisiton
+> runing properly, and/or pam.d or some config file somewhere needs
+> to be adjusted. keep in mind refpolicy has no patches added to
+> it(not sure if I need any for systemd), just plain git pull
+> etc...
+> 
+> Justin P. Mattock
+Well since you don't have a init_t running, I think your problem
+starts there.  Looks like your system is badly mislabeled or something
+in init is broken.   I take it this is not a Red Hat Based OS?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Hi Stephen,
-
-thanks for getting back.
-
-Yes, I read that already. I still cannot understand the point since it
-says about the benchmark results: "so not much of a change".
-
-Last thing I can add is that I'm pretty sure I've seen around code
-designed to fall back to the other scheme when _FILE_OFFSET_BITS=64 is
-defined.
-
-Regards,
-
-Guido
-
+iEYEARECAAYFAk5zciMACgkQrlYvE4MpobOs4wCcD/KSvuhb5GxhPCZcMEDGI1dD
+X70AnR2OLyUzsaLlDRmP0jm7ABwzFHBj
+=aH02
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
