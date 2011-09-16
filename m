@@ -1,94 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8G5gbcA021175
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 01:42:37 -0400
-Received: from cp-out9.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8G5gapQ015839
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 05:42:36 GMT
-Subject: Re: [PATCH] policycoreutils: preserve mode bits and ownership of
- /tmp in seunshare
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8G6Aq7m022729
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 02:10:52 -0400
+Received: from cp-out7.libero.it (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8G6AopQ020048
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 06:10:51 GMT
+Subject: Re: [PATCH 33/67] policycoreutils: sandbox: FIXME rewrite /tmp
+ handling
 From: Guido Trentalancia <guido@trentalancia.com>
-To: dave w <nullcore@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 16 Sep 2011 07:42:34 +0200
-In-Reply-To: <CAB04Hpr23zFfegf2421-N22350p5arDZ9SjRB4pRjt2Bgx64tg@mail.gmail.com>
-References: 
-	<CAB04Hprsq9z4qYzO+pTOMYC41ma7d3J7+hrcQ04KSkOQnBEnBQ@mail.gmail.com>
-	 <1316117256.2202.104.camel@vortex>
-	 <CAB04Hpr23zFfegf2421-N22350p5arDZ9SjRB4pRjt2Bgx64tg@mail.gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: eparis@redhat.com, selinux@tycho.nsa.gov
+Date: Fri, 16 Sep 2011 08:10:43 +0200
+In-Reply-To: <4E725512.4080206@redhat.com>
+References: <4E725512.4080206@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1316151755.2364.45.camel@vortex>
+Message-ID: <1316153443.2364.48.camel@vortex>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Dave, thanks for the explanation
-
-On Thu, 2011-09-15 at 17:07 -0400, dave w wrote:
-> On Thu, Sep 15, 2011 at 4:07 PM, Guido Trentalancia
-> <guido@trentalancia.com> wrote:
-> > Hello Dave.
-> >
-> > On Thu, 2011-09-15 at 13:39 -0400, dave w wrote:
-> >> Hi,
-> >>
-> >> This patch addresses a flaw in seunshare.c that allows unprivileged
-> >> users to arbitrarily modify the contents of /tmp.  This bug is further
-> >> described in CVE 2011-1011
-> >> (http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1011):
-> >
-> > seunshare should not be installed by default and, even if it still
-> > needed to be installed by default, its setuid bit should be carefully
-> > re-evaluated in my opinion.
-> >
+On Thu, 2011-09-15 at 15:42 -0400, Daniel J Walsh wrote:
+> From 54ed5929b8f8ffac7bdc48d589c5cb38f6798530 Mon Sep 17 00:00:00 2001
+> From: Eric Paris <eparis@redhat.com>
+> Date: Mon, 15 Aug 2011 19:58:08 -0400
+> Subject: [PATCH 33/67] policycoreutils: sandbox: FIXME rewrite /tmp
+> handling
 > 
-> Perhaps, but distros that install seunshare at present will be made
-> safer with the addition of a patch which eliminates an attack vector
-> to a privilege escalation.
-
-So the question now is: CVE-2011-1011 is dated 20110214, how comes this
-is trying to get sorted out only now for upstream ?
-
-> > In any case, good practice says nothing should ever be allowed to mount
-> > under /tmp with suid/exec flags (use noexec,nosuid options in fstab).
-> >
-> > That said, have you tested the patch already ? Is it effective ?
-> >
+> seunshare now creates a runtime temporary directory owned by root and
+> with the sticky bit set properly.  Files from the user-specified
+> directory
+> are copied to the runtime directory and the changes synced back (using
+> rsync)
+> at the end of the seunshare run.
 > 
-> Yes, the patch has been effective and with it applied, unprivileged
-> users cannot delete files other than their own from /tmp, which is the
-> expected behavior in a directory with the sticky bit set owned by the
-> superuser.
+> review needed to changelog correctness/completeness
 > 
-> > Thanks.
-> >
-> > Guido
-> >
-> >> The seunshare_mount function in sandbox/seunshare.c in seunshare in certain
-> >> Red Hat packages of policycoreutils 2.0.83 and earlier in Red Hat
-> >> Enterprise Linux (RHEL) 6 and earlier, and Fedora 14 and earlier, mounts a
-> >> new directory on top of /tmp without assigning root ownership and the
-> >> sticky bit to this new directory, which allows local users to replace or
-> >> delete arbitrary /tmp files, and consequently cause a denial of service or
-> >> possibly gain privileges, by running a setuid application that relies on
-> >> /tmp, as demonstrated by the ksu application
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Acked-by: Dan Walsh <dwalsh@redhat.com>
+> ---
+>  policycoreutils/sandbox/sandbox     |    8 +-
+>  policycoreutils/sandbox/seunshare.8 |    2 +-
+>  policycoreutils/sandbox/seunshare.c |  488
+> +++++++++++++++++++++++++++--------
+>  3 files changed, 386 insertions(+), 112 deletions(-)
 
-What happened exactly for upstream since the CVE was initially
-released ?
-
-> >> This patch preserves the mode bits, and thus permissions, and
-> >> ownership of the destination directory of the bind mount performed by
-> >> seunshare.  The permission check in verify_mount() was relaxed for
-> >> directories who originally had the sticky bit set, as root ownership
-> >> is required for these to ensure that unprivileged users cannot unlink
-> >> arbitrary files in the newly bind mounted directory.
-
-Is it the first time ever that you post a patch to try sorting out the
-same issue ?
-
-> >> Thanks,
-> >> David
-
-Thanks, Guido.
+Is the above perhaps meant to fix CVE-2011-1011 ?
 
 
 --
