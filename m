@@ -1,68 +1,49 @@
-Subject: Re: [PATCH 11/67] policycoreutils: setfiles: FIXME switch from
- stat to
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8GFATPK024119
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 11:10:29 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8GFASej002044
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2011 15:10:28 GMT
+Subject: Re: [PATCH 35/67] policycoreutils: sandbox: FIXME add level based
+ kill
+From: Eric Paris <eparis@redhat.com>
 To: Guido Trentalancia <guido@trentalancia.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, eparis@redhat.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1316178458.2211.38.camel@vortex>
-References: <4E724F22.20402@redhat.com>  <1316157190.2364.57.camel@vortex>
-	 <1316176884.20456.7.camel@moss-pluto>  <1316178458.2211.38.camel@vortex>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+Date: Fri, 16 Sep 2011 11:10:21 -0400
+In-Reply-To: <1316151193.2364.38.camel@vortex>
+References: <4E7255EB.3000804@redhat.com> <1316148577.2364.28.camel@vortex>
+	 <1316151193.2364.38.camel@vortex>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 16 Sep 2011 11:06:07 -0400
-Message-ID: <1316185567.20456.41.camel@moss-pluto>
+Message-ID: <1316185823.14578.2.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-09-16 at 15:07 +0200, Guido Trentalancia wrote:
-> On Fri, 2011-09-16 at 08:41 -0400, Stephen Smalley wrote:
-> > On Fri, 2011-09-16 at 09:13 +0200, Guido Trentalancia wrote:
-> > > On Thu, 2011-09-15 at 15:16 -0400, Daniel J Walsh wrote:
-> > > > From 1268e66e94286a55c399383d5959734d3597792d Mon Sep 17 00:00:00 2001
-> > > > From: Eric Paris <eparis@redhat.com>
-> > > > Date: Sun, 10 Jul 2011 16:54:25 +0200
-> > > > Subject: [PATCH 11/67] policycoreutils: setfiles: FIXME switch from
-> > > > stat to
-> > > >  stat64
-> > > > 
-> > > > This looks bad.  glibc takes care of this.  We should do send this
-> > > > upstream but I would like to know why you did it in Fedora....
-> > > > 
-> > > > NOT-Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > > ---
-> > > >  policycoreutils/setfiles/restore.c |    8 ++++----
-> > > >  1 files changed, 4 insertions(+), 4 deletions(-) 
-> > > 
-> > > Perhaps you could exploit a few #ifdef's here ?
-> > > 
-> > > Such as _LARGEFILE_SOURCE _LARGEFILE64_SOURCE and/or
-> > > _FILE_OFFSET_BITS=64 ?
-> > > 
-> > > More available from:
-> > > 
-> > > info libc 'Feature Test Macros'
+On Fri, 2011-09-16 at 07:33 +0200, Guido Trentalancia wrote:
+> On Fri, 2011-09-16 at 06:49 +0200, Guido Trentalancia wrote:
+> > On Thu, 2011-09-15 at 15:45 -0400, Daniel J Walsh wrote:
+> > > @@ -941,6 +1011,9 @@ childerr:
+> > >         waitpid(child, &status, 0);
+> > >         status_to_retval(status, status);
+> > >  
+> > > +       if (execcon && kill_all)
+> > > +               killall(execcon);
+> > > +
+> > >         if (tmpdir_r) cleanup_tmpdir(tmpdir_r, tmpdir_s, pwd, 1);
+> > >  
+> > >  err: 
 > > 
-> > We were doing that before converting setfiles from using nftw(3) to
-> > using fts(3) for the file tree walk.  But fts.h has this gem:
-> > /* The fts interface is incompatible with the LFS interface which
-> >    transparently uses the 64-bit file access functions.  */
-> > #ifdef __USE_FILE_OFFSET64
-> > # error "<fts.h> cannot be used with -D_FILE_OFFSET_BITS==64"
-> > #endif
+> > Was it not just "kill" instead of "kill_all" ?
 > 
-> That must be the reason why other projects are moving in the opposite
-> direction, see for example:
-> 
-> http://sourceforge.net/tracker/index.php?func=detail&aid=3126942&group_id=3382&atid=103382
+> I just realised that variable is going to get renamed in another patch
+> ([PATCH 36/67] policycoreutils: sandbox: cntrl-c should kill entire). So
+> I think this patch requires 36/67, that's it but was not evident at
+> first sight.
 
-The discussion of the change for setfiles can be found in the list
-archives, e.g.
-http://marc.info/?t=124639081000002&r=1&w=2
-http://marc.info/?l=selinux&m=124688830500777&w=2
+Thanks, mistake on my part.  Will move the required change from patch
+#36 into patch #35 before committing.
 
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
