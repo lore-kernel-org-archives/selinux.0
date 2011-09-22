@@ -1,43 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8MKQi6r032440
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2011 16:26:47 -0400
-Received: from cp-out7.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8MKQk1V025944
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2011 20:26:46 GMT
-Received: from [192.168.2.2] (151.76.41.242) by cp-out7.libero.it (8.5.133)
-        id 4E68B6BF0239CFF8 for selinux@tycho.nsa.gov; Thu, 22 Sep 2011 22:26:46 +0200
-Message-ID: <1316723205.2259.63.camel@vortex>
-Subject: [PATCH] Indentation error for Python module seobject (fix typo)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Date: Thu, 22 Sep 2011 22:26:45 +0200
+Subject: Re: I would like to change the behavior of MCS label creations in
+ directory.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4E7B9233.6080609@redhat.com>
+References: <4E7B9233.6080609@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 22 Sep 2011 16:31:05 -0400
+Message-ID: <1316723465.2354.6.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello.
+On Thu, 2011-09-22 at 15:53 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Currently if I create a directory labeled
+> 
+> etc_t:s0:c1
+> 
+> And with a process running as unconfined_t:s0-s0:c0.c1023 create a
+> file within the directory, the file gets created with the label
+> etc_t:s0.   I would like to change the behavior to creating the file
+> as etc_t:s0:c1.
+> 
+> That way an administrator could modify files within a sandbox and have
+> the files be labeled correctly.
+> 
+> I believe this behavior differs from MLS but believe this would be
+> what the admin expects.
+> 
+> Is changing this a kernel or policy issue?
 
-I get an IndentationError from Python when running code which imports
-seobject.py (line 182).
+That would be a kernel change, and it would have to be configurable so
+that it can differ for MLS vs MCS.
 
-The following simple patch fixes the problem for current git:
-
---- selinux-22092011/policycoreutils/semanage/seobject.py	2011-09-17 07:03:41.147162393 +0200
-+++ selinux-22092011-fix-indentation-error-in-seobject-python/policycoreutils/semanage/seobject.py	2011-09-22 22:19:19.036640459 +0200
-@@ -182,7 +182,7 @@ class semanageRecords:
- 
-                if not semanageRecords.transaction and store != "":
-                       semanage_select_store(handle, store, SEMANAGE_CON_DIRECT);
--                     semanageRecords.store = store
-+                      semanageRecords.store = store
- 
-                if not semanage_is_managed(handle):
-                       semanage_handle_destroy(handle)
-
-Thanks.
-
-Guido
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
