@@ -1,57 +1,70 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8MKfcfS000941
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2011 16:41:38 -0400
-Received: from cp-out8.libero.it (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8MKfb1V028200
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2011 20:41:37 GMT
-Message-ID: <1316724093.2259.74.camel@vortex>
 Subject: Re: I would like to change the behavior of MCS label creations in
  directory.
-From: Guido Trentalancia <guido@trentalancia.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-Date: Thu, 22 Sep 2011 22:41:33 +0200
-In-Reply-To: <4E7B9233.6080609@redhat.com>
+In-Reply-To: <1316723821.2354.9.camel@moss-pluto>
 References: <4E7B9233.6080609@redhat.com>
+	 <1316723465.2354.6.camel@moss-pluto>  <4E7B9B43.9000400@redhat.com>
+	 <1316723821.2354.9.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 22 Sep 2011 16:42:01 -0400
+Message-ID: <1316724121.2354.12.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-09-22 at 15:53 -0400, Daniel J Walsh wrote:
-> Currently if I create a directory labeled
+On Thu, 2011-09-22 at 16:37 -0400, Stephen Smalley wrote:
+> On Thu, 2011-09-22 at 16:32 -0400, Daniel J Walsh wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > On 09/22/2011 04:31 PM, Stephen Smalley wrote:
+> > > On Thu, 2011-09-22 at 15:53 -0400, Daniel J Walsh wrote:
+> > >> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+> > >> 
+> > >> Currently if I create a directory labeled
+> > >> 
+> > >> etc_t:s0:c1
+> > >> 
+> > >> And with a process running as unconfined_t:s0-s0:c0.c1023 create
+> > >> a file within the directory, the file gets created with the
+> > >> label etc_t:s0.   I would like to change the behavior to creating
+> > >> the file as etc_t:s0:c1.
+> > >> 
+> > >> That way an administrator could modify files within a sandbox and
+> > >> have the files be labeled correctly.
+> > >> 
+> > >> I believe this behavior differs from MLS but believe this would
+> > >> be what the admin expects.
+> > >> 
+> > >> Is changing this a kernel or policy issue?
+> > > 
+> > > That would be a kernel change, and it would have to be configurable
+> > > so that it can differ for MLS vs MCS.
+> > > 
+> > It would seem that we should be able to state the behaviour in policy.
 > 
-> etc_t:s0:c1
-> 
-> And with a process running as unconfined_t:s0-s0:c0.c1023 create a
-> file within the directory, the file gets created with the label
-> etc_t:s0.   I would like to change the behavior to creating the file
-> as etc_t:s0:c1.
+> Yes, that was my meaning - allow the default labeling behavior be
+> configurable in policy.  Ideally for each field of the security context.
+> We already provide significant flexibility through type_transition and
+> range_transition rules, but not quite what you want here.  In effect,
+> you want the same default behavior for levels as we already have for
+> types, i.e. inherit from parent directory.  Meanwhile, I've seen others
+> who wanted inherit-from-creating-process for types.  So providing a
+> policy construct to specify the desired default for each context
+> component would be fine.  I think we've even discussed it before.
 
-It almost seems a bug to me (MCS category of parent directory is not
-inherited upon new file creation)... especially if a user which has not
-access to that specific category was currently able to read/write that
-(uncategorized) file in a categorized directory.
+Here was the prior discussion:
+http://marc.info/?l=selinux&m=129985320617740&w=2
 
-> That way an administrator could modify files within a sandbox and have
-> the files be labeled correctly.
-> 
-> I believe this behavior differs from MLS but believe this would be
-> what the admin expects.
-> 
-> Is changing this a kernel or policy issue?
+For the range field, it is a little more complicated, as you might want
+the low or the high level from either the source or the target.  Or even
+a function of them, e.g. the lub.
 
-What the reference policy perhaps should NOT allow is the creation of a
-file in the first place. I mean eventually the policy should not allow
-the creation of an uncategorized file in a categorized directory.
-Although it's a somewhat different issue, which can eventually be
-defined later. We would first need to tackle the kernel (how things are
-done), then we can eventually adjust the reference policy (define what
-can and what cannot be done).
-
-Regards,
-
-Guido
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
