@@ -1,68 +1,109 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p8QDcZUE026850
+	for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2011 09:38:35 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p8QDcXx1001991
+	for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2011 13:38:33 GMT
+Message-ID: <4E808051.7090208@redhat.com>
+Date: Mon, 26 Sep 2011 09:38:25 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1316790421.10259.70.camel@moss-pluto>
-References: <4E7B9233.6080609@redhat.com>
-	<1316723465.2354.6.camel@moss-pluto>
-	<4E7B9B43.9000400@redhat.com>
-	<1316723821.2354.9.camel@moss-pluto>
-	<1316724121.2354.12.camel@moss-pluto>
-	<4E7C9F3D.9030704@redhat.com>
-	<1316790421.10259.70.camel@moss-pluto>
-Date: Sat, 24 Sep 2011 18:05:20 -0400
-Message-ID: <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com>
-Subject: Re: I would like to change the behavior of MCS label creations in directory.
-From: David Windsor <dwindsor@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Eric Paris <eparis@redhat.com>
+CC: Guido Trentalancia <guido@trentalancia.com>,
+        Eric Paris <eparis@parisplace.org>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] pam_selinux(gdm-password:session): Security Context
+ justin:staff_r:insmod_t:s0 Assigned
+References: <1316144432.85313.YahooMailNeo@web114304.mail.gq1.yahoo.com>  <4E736453.8000506@redhat.com> <4E7369AF.3000709@yahoo.com>  <4E737223.1060601@redhat.com> <1316795427.12007.110.camel@vortex>  <4E7CC41E.5040004@redhat.com> <1316804960.2487.62.camel@vortex>  <CACLa4pvtTeTq3LdY7vgFexDXXxk8ZYU5yBQRQexTyghkoL7B1w@mail.gmail.com>  <1316812338.2487.77.camel@vortex> <1316812634.28696.1.camel@localhost>  <1316817499.2487.89.camel@vortex> <1316819560.2652.2.camel@localhost>
+In-Reply-To: <1316819560.2652.2.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Sep 23, 2011 at 11:07 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-<snip>
+On 09/23/2011 07:12 PM, Eric Paris wrote:
+> On Sat, 2011-09-24 at 00:38 +0200, Guido Trentalancia wrote:
+>> Hello Eric.
+>> 
+>> On Fri, 2011-09-23 at 17:17 -0400, Eric Paris wrote:
+>>> On Fri, 2011-09-23 at 23:12 +0200, Guido Trentalancia wrote:
+>>> 
+>>>> You seem to suggest that load_policy -i (and not the kernel)
+>>>> should make sure that init has transitioned to its designated
+>>>> context...
+>>> 
+>>> Can't speak for Justin's system.
+>> 
+>> That's for sure. But it seems to me that he already stated that
+>> it just loaded plain refpolicy from git on a plain F15 system.
+>> Since we are on the list he might even confirm once again...
+>> 
+>>> But that's not what I said.  I said it's /sbin/init's problem
+>>> to make sure it did the right thing and to handle errors
+>>> correctly if it failed.  If Justin has his box enforcing and
+>>> can boot without loading a policy that's a bug and needs to be 
+>>> filed.
+>> 
+>> He has loaded the policy.
+>> 
+>> The point is that when init does not transition to init_t
+>> nothing happens and the system keeps running with all processes
+>> in kernel_t or insmod_t.
+>> 
+>> It surely use to happen with upstream components and policy back
+>> at the beginning of this year (I did test that and reported it to
+>> the refpolicy mailing list).
+>> 
+>> Apparently it also happens with Fedora 15 according to what
+>> Justin reported on here when he started this thread...
+>> 
+>> Earlier on Daniel Walsh said Fedora and RHEL would crash in such
+>> case (init has not transitioned properly to init_t).
+> 
+> Ahhh, different than I was talking sorry.  In upstream systemd git
+> the code in question looks like so:
+> 
+> /* Transition to the new context */ r =
+> label_get_create_label_from_exe(SYSTEMD_BINARY_PATH, &label); if (r
+> < 0 || label == NULL) { log_open(); log_error("Failed to compute
+> init label, ignoring."); } else { r = setcon(label);
+> 
+> log_open(); if (r < 0) log_error("Failed to transition into init
+> label '%s', ignoring.", label);
+> 
+> label_free(label); }
+> 
+> sds, what do you think, should we make these?  We do know the
+> requisite enforce state in this function...
+> 
+> -Eric
+> 
+> 
+> -- This message was distributed to subscribers of the selinux
+> mailing list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
+> without quotes as the message.
+> 
+> 
 
->>
->>       level_default file fromsource; == MLS;
->>       level_default file fromtarget; == MCS;
->>
->> Anyone want to step forward and implement?  :^)
->
-> Need to distinguish low vs high.  In MLS, you want to inherit the low
-> level of the source/subject/process.
->
-> Also, do you want the MCS behavior for all types or selectively?  For
-> example, if a svirt_t:s0:c256,c387 process creates a file in a :s0
-> directory (is that even possible?), do you really want that file to
-> be :s0?
->
+The failure is in the init load_policy.  It should crash if this
+fails.  If anything fails after that is is out of SELinux hands I
+believe, since you are not sure what the policy writers intention was.
 
-Couldn't you use a range_transition in this case to specify an
-exception to the default behavior for category inheritance?
+I believe we would get to this state if the policy writer wanted to
+run systemd in the initial state (kernel_t) and not transition.
 
-AFAICS, using rules such as (user|role|type|level|range)_default,
-we're only specifying default labeling behaviors for the different
-fields of a context.  More specific *_transition rules can exist in
-policy that should override any defaults defined elsewhere.
+But maybe on failure of this call we should fail the machine in
+enforcing mode.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Thanks,
-David
-
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
-
-
-
--- 
-PGP: 6141 5FFD 11AE 9844 153E  F268 7C98 7268 6B19 6CC9
-
+iEYEARECAAYFAk6AgFEACgkQrlYvE4MpobNv/gCePhYLKIR966T7TLaJIj3hx6Ho
+0EQAoNfIpEQSEKPYIdGRg5qC3xlc2dfM
+=zG/t
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
