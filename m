@@ -1,85 +1,55 @@
-Subject: Re: [refpolicy] pam_selinux(gdm-password:session): Security
- Context justin:staff_r:insmod_t:s0 Assigned
+Subject: Re: I would like to change the behavior of MCS label creations in
+ directory.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: Guido Trentalancia <guido@trentalancia.com>,
-        Eric Paris
- <eparis@parisplace.org>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1316819560.2652.2.camel@localhost>
-References: <1316144432.85313.YahooMailNeo@web114304.mail.gq1.yahoo.com>
-	 <4E736453.8000506@redhat.com> <4E7369AF.3000709@yahoo.com>
-	 <4E737223.1060601@redhat.com> <1316795427.12007.110.camel@vortex>
-	 <4E7CC41E.5040004@redhat.com> <1316804960.2487.62.camel@vortex>
-	 <CACLa4pvtTeTq3LdY7vgFexDXXxk8ZYU5yBQRQexTyghkoL7B1w@mail.gmail.com>
-	 <1316812338.2487.77.camel@vortex> <1316812634.28696.1.camel@localhost>
-	 <1316817499.2487.89.camel@vortex>  <1316819560.2652.2.camel@localhost>
+To: David Windsor <dwindsor@gmail.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com>
+References: <4E7B9233.6080609@redhat.com>
+	 <1316723465.2354.6.camel@moss-pluto> <4E7B9B43.9000400@redhat.com>
+	 <1316723821.2354.9.camel@moss-pluto> <1316724121.2354.12.camel@moss-pluto>
+	 <4E7C9F3D.9030704@redhat.com> <1316790421.10259.70.camel@moss-pluto>
+	 <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 27 Sep 2011 08:46:28 -0400
-Message-ID: <1317127588.22218.0.camel@moss-pluto>
+Date: Tue, 27 Sep 2011 12:06:51 -0400
+Message-ID: <1317139611.22218.9.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-09-23 at 19:12 -0400, Eric Paris wrote:
-> On Sat, 2011-09-24 at 00:38 +0200, Guido Trentalancia wrote:
-> > Hello Eric.
-> > 
-> > On Fri, 2011-09-23 at 17:17 -0400, Eric Paris wrote:
-> > > On Fri, 2011-09-23 at 23:12 +0200, Guido Trentalancia wrote:
-> > > 
-> > > > You seem to suggest that load_policy -i (and not the kernel) should make
-> > > > sure that init has transitioned to its designated context...
-> > > 
-> > > Can't speak for Justin's system.  
-> > 
-> > That's for sure. But it seems to me that he already stated that it just
-> > loaded plain refpolicy from git on a plain F15 system. Since we are on
-> > the list he might even confirm once again...
-> > 
-> > > But that's not what I said.  I said
-> > > it's /sbin/init's problem to make sure it did the right thing and to
-> > > handle errors correctly if it failed.  If Justin has his box enforcing
-> > > and can boot without loading a policy that's a bug and needs to be
-> > > filed.
-> > 
-> > He has loaded the policy.
-> > 
-> > The point is that when init does not transition to init_t nothing
-> > happens and the system keeps running with all processes in kernel_t or
-> > insmod_t.
-> > 
-> > It surely use to happen with upstream components and policy back at the
-> > beginning of this year (I did test that and reported it to the refpolicy
-> > mailing list).
-> > 
-> > Apparently it also happens with Fedora 15 according to what Justin
-> > reported on here when he started this thread...
-> > 
-> > Earlier on Daniel Walsh said Fedora and RHEL would crash in such case
-> > (init has not transitioned properly to init_t).
+On Sat, 2011-09-24 at 18:05 -0400, David Windsor wrote:
+> On Fri, Sep 23, 2011 at 11:07 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> Ahhh, different than I was talking sorry.  In upstream systemd git the
-> code in question looks like so:
+> <snip>
 > 
->                /* Transition to the new context */
->                r = label_get_create_label_from_exe(SYSTEMD_BINARY_PATH, &label);
->                if (r < 0 || label == NULL) {
->                        log_open();
->                        log_error("Failed to compute init label, ignoring.");
->                } else {
->                        r = setcon(label);
+> >>
+> >>       level_default file fromsource; == MLS;
+> >>       level_default file fromtarget; == MCS;
+> >>
+> >> Anyone want to step forward and implement?  :^)
+> >
+> > Need to distinguish low vs high.  In MLS, you want to inherit the low
+> > level of the source/subject/process.
+> >
+> > Also, do you want the MCS behavior for all types or selectively?  For
+> > example, if a svirt_t:s0:c256,c387 process creates a file in a :s0
+> > directory (is that even possible?), do you really want that file to
+> > be :s0?
+> >
 > 
->                        log_open();
->                        if (r < 0)
->                                log_error("Failed to transition into init label '%s', ignoring.", label);
+> Couldn't you use a range_transition in this case to specify an
+> exception to the default behavior for category inheritance?
 > 
->                        label_free(label);
->                }
-> 
-> sds, what do you think, should we make these?  We do know the requisite
-> enforce state in this function...
+> AFAICS, using rules such as (user|role|type|level|range)_default,
+> we're only specifying default labeling behaviors for the different
+> fields of a context.  More specific *_transition rules can exist in
+> policy that should override any defaults defined elsewhere.
 
-These should be fatal errors if enforcing.
+range_transition would only let you specify things like "When files are
+created by a process with domain D in a directory with type T, the range
+should be set to R.".  Not rules of the form "Files created by processes
+in domain D1 should inherit their level from their creator while files
+created by processes in domain D2 should inherit their level from the
+parent directory."
 
 -- 
 Stephen Smalley
