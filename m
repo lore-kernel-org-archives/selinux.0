@@ -1,80 +1,74 @@
-Message-ID: <4E82123C.4070406@redhat.com>
-Date: Tue, 27 Sep 2011 14:13:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p93DxHmn024385
+	for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2011 09:59:17 -0400
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p93DxFrj014678
+	for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2011 13:59:16 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert()
+To: selinux@tycho.nsa.gov
+Cc: netdev@vger.kernel.org, dhowells@redhat.com
+Date: Mon, 03 Oct 2011 14:58:24 +0100
+Message-ID: <20111003135824.15303.10147.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: David Windsor <dwindsor@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: I would like to change the behavior of MCS label creations in
- directory.
-References: <4E7B9233.6080609@redhat.com>  <1316723465.2354.6.camel@moss-pluto> <4E7B9B43.9000400@redhat.com>  <1316723821.2354.9.camel@moss-pluto> <1316724121.2354.12.camel@moss-pluto>  <4E7C9F3D.9030704@redhat.com> <1316790421.10259.70.camel@moss-pluto>  <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com> <1317139611.22218.9.camel@moss-pluto>
-In-Reply-To: <1317139611.22218.9.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Fix the following bug in sel_netport_insert() where rcu_dereference() should
+be rcu_dereference_protected() as sel_netport_lock is held.
 
-On 09/27/2011 12:06 PM, Stephen Smalley wrote:
-> On Sat, 2011-09-24 at 18:05 -0400, David Windsor wrote:
->> On Fri, Sep 23, 2011 at 11:07 AM, Stephen Smalley
->> <sds@tycho.nsa.gov> wrote:
->> 
->> <snip>
->> 
->>>> 
->>>> level_default file fromsource; == MLS; level_default file
->>>> fromtarget; == MCS;
->>>> 
->>>> Anyone want to step forward and implement?  :^)
->>> 
->>> Need to distinguish low vs high.  In MLS, you want to inherit
->>> the low level of the source/subject/process.
->>> 
->>> Also, do you want the MCS behavior for all types or
->>> selectively?  For example, if a svirt_t:s0:c256,c387 process
->>> creates a file in a :s0 directory (is that even possible?), do
->>> you really want that file to be :s0?
->>> 
->> 
->> Couldn't you use a range_transition in this case to specify an 
->> exception to the default behavior for category inheritance?
->> 
->> AFAICS, using rules such as
->> (user|role|type|level|range)_default, we're only specifying
->> default labeling behaviors for the different fields of a context.
->> More specific *_transition rules can exist in policy that should
->> override any defaults defined elsewhere.
-> 
-> range_transition would only let you specify things like "When files
-> are created by a process with domain D in a directory with type T,
-> the range should be set to R.".  Not rules of the form "Files
-> created by processes in domain D1 should inherit their level from
-> their creator while files created by processes in domain D2 should
-> inherit their level from the parent directory."
-> 
+===================================================
+[ INFO: suspicious rcu_dereference_check() usage. ]
+---------------------------------------------------
+security/selinux/netport.c:127 invoked rcu_dereference_check() without protection!
 
-I think this is a different more advanced language construct, that
-frankly I don't care about right now.  Implement it in CIL.
-I have a problem I need to implement in F17/F18 time frame in order
-for it to make RHEL7.
+other info that might help us debug this:
 
-I only need to change the default for MCS to from
-level_default file fromsource; == MLS;
 
-to
-level_default file fromtarget; == MCS;
+rcu_scheduler_active = 1, debug_locks = 0
+1 lock held by ossec-rootcheck/3323:
+ #0:  (sel_netport_lock){+.....}, at: [<ffffffff8117d775>] sel_netport_sid+0xbb/0x226
 
-I can not wait for the theoretical best fix that never comes.
+stack backtrace:
+Pid: 3323, comm: ossec-rootcheck Not tainted 3.1.0-rc8-fsdevel+ #1095
+Call Trace:
+ [<ffffffff8105cfb7>] lockdep_rcu_dereference+0xa7/0xb0
+ [<ffffffff8117d871>] sel_netport_sid+0x1b7/0x226
+ [<ffffffff8117d6ba>] ? sel_netport_avc_callback+0xbc/0xbc
+ [<ffffffff8117556c>] selinux_socket_bind+0x115/0x230
+ [<ffffffff810a5388>] ? might_fault+0x4e/0x9e
+ [<ffffffff810a53d1>] ? might_fault+0x97/0x9e
+ [<ffffffff81171cf4>] security_socket_bind+0x11/0x13
+ [<ffffffff812ba967>] sys_bind+0x56/0x95
+ [<ffffffff81380dac>] ? sysret_check+0x27/0x62
+ [<ffffffff8105b767>] ? trace_hardirqs_on_caller+0x11e/0x155
+ [<ffffffff81076fcd>] ? audit_syscall_entry+0x17b/0x1ae
+ [<ffffffff811b5eae>] ? trace_hardirqs_on_thunk+0x3a/0x3f
+ [<ffffffff81380d7b>] system_call_fastpath+0x16/0x1b
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
-iEYEARECAAYFAk6CEjwACgkQrlYvE4MpobNN/gCghV2LwrfGce50FdX7Iel0Z8pO
-1IoAn3Vf7sXxz9qFsEnpoZQT6yIcjVUH
-=sOyu
------END PGP SIGNATURE-----
+ security/selinux/netport.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index 0b62bd1..39e2138 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -123,7 +123,9 @@ static void sel_netport_insert(struct sel_netport *port)
+ 	if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
+ 		struct sel_netport *tail;
+ 		tail = list_entry(
+-			rcu_dereference(sel_netport_hash[idx].list.prev),
++			rcu_dereference_protected(
++				sel_netport_hash[idx].list.prev,
++				spin_is_locked(&sel_netport_lock)),
+ 			struct sel_netport, list);
+ 		list_del_rcu(&tail->list);
+ 		kfree_rcu(tail, rcu);
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
