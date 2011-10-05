@@ -1,37 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p95HdF0j032053
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 13:39:15 -0400
-Received: from smtp10.mail.ru (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p95HdDVp028609
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 17:39:14 GMT
-Received: from [95.78.147.197] (port=24605 helo=localhost.localdomain)
-	by smtp10.mail.ru with asmtp
-	id 1RBVR1-00077x-00
-	for selinux@tycho.nsa.gov; Wed, 05 Oct 2011 21:39:11 +0400
-From: Hramchenko <hramchenko@bk.ru>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: New HIPS based on SELinux
-Date: Wed, 5 Oct 2011 23:39:10 +0600
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201110052339.10341.hramchenko@bk.ru>
+In-Reply-To: <1317835394.1403.30.camel@moss-pluto>
+References: <4E8C7DCA.3020003@redhat.com>
+	<1317835394.1403.30.camel@moss-pluto>
+Date: Wed, 5 Oct 2011 13:47:11 -0400
+Message-ID: <CACLa4pucvDGoYe-RKcJTPiC1oj8-M_RvH9gt+Wz_YYsL-gqZ5g@mail.gmail.com>
+Subject: Re: I am trying an experiment of making allow_ptrace boolean actually
+ do something useful.
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all. 
+On Wed, Oct 5, 2011 at 1:23 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2011-10-05 at 11:54 -0400, Daniel J Walsh wrote:
 
-I have created new host intrusion prevention system based on SELinux. 
-It's focused on protection user's data. 
-One of the main goals was to create lightweight replacement of 
-setroubleshootd. 
+> With modern kernels, SELinux makes a distinction in its permission
+> checks for ptrace vs /proc/pid but the DAC/capability checks do not.
+> For SELinux, we check :file read access for most /proc/pid files, and
+> only check :process ptrace on specific /proc/pid nodes (originally
+> only /proc/pid/mem, but I see that viro expanded it
+> to /proc/pid/{syscall, stack, personality} as well; not sure whether
+> that is justified or if it should just use PTRACE_MODE_READ there as
+> well).  So you'll see sys_ptrace capability denials but shouldn't
+> see :process ptrace denials from running ps these days.  Older kernels
+> would trigger :process ptrace denials from ps due to environ, but that
+> was switched over to PTRACE_MODE_READ and only triggers :file read now.
 
-I hope my program will be useful for SELinux users. 
+Everything you say is true.  But I'm having trouble deciding best way
+to deal with the CAPABILITY__SYS_PTRACE denials that pop out of the
+use of /proc/pid/stat when run by a process that has CAP_SYS_PTRACE.
+/proc/pid/stat works just fine even if this permission is not granted,
+but we get a denial.  We could dontaudit all of them.  Or maybe I
+could look for some way to make the check in __ptrace_may_access use
+the dontaudit version of the capability checks.  I'm leaning for that
+way, but don't know....
 
-The project home page:  
-https://github.com/Hramchenko/userdatadefence/
+-Eric
 
-With respect, Hramchenko Vitaliy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
