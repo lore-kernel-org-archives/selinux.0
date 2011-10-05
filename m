@@ -1,30 +1,72 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p95DWxpu024962
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 09:32:59 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p95DWwIS029390
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 13:32:59 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <2230709.7n5noARWFd@sifl>
-References: <2230709.7n5noARWFd@sifl> <20111003135824.15303.10147.stgit@warthog.procyon.org.uk>
-To: Paul Moore <paul@paul-moore.com>
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, netdev@vger.kernel.org
-Subject: Re: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert()
-Date: Wed, 05 Oct 2011 14:32:03 +0100
-Message-ID: <1624.1317821523@redhat.com>
+Message-ID: <4E8C7DCA.3020003@redhat.com>
+Date: Wed, 05 Oct 2011 11:54:50 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+Subject: I am trying an experiment of making allow_ptrace boolean actually
+ do something useful.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore <paul@paul-moore.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> We should probably do the same for the security/selinux/netif.c as it uses
-> the same logic; David is this something you want to tackle?
+The idea is, if you turn this boolean off, no domains will be allowed
+to sys_ptrace or ptrace.
 
-netif.c doesn't use any rcu_dereference*() function directly, though it does
-use list_for_each_entry_rcu().  However, I'm not sure that's a problem.  What
-is it you're referring to?
+In doing this, I have noticed that the simplest ps -eZ command
+generates an access violation.
 
-David
+allow sysadm_t self:capability sys_ptrace;
+
+
+# ps
+  PID TTY          TIME CMD
+ 2123 pts/1    00:00:00 sudo
+ 2127 pts/1    00:00:05 sh
+ 4095 pts/1    00:00:00 ps
+sh-4.2# aud
+
+
+#============= sysadm_t ==============
+allow sysadm_t self:capability sys_ptrace;
+
+To me this looks like we are being too strict on the sys_ptrace
+cabability checking, which I believe is a bug in the kernel.
+
+
+If I go into /proc/PID directory of domain with a different UID, I get
+the following, permission denieds:
+
+cat: auxv: Permission denied
+cat: cwd: Permission denied
+cat: environ: Permission denied
+cat: exe: Permission denied
+cat: io: Permission denied
+cat: maps: Permission denied
+cat: numa_maps: Permission denied
+cat: pagemap: Permission denied
+cat: root: Permission denied
+cat: smaps: Permission denied
+cat: cwd: Permission denied
+
+Are all these really needed?  Is knowing a processes current working
+directory the same as executing
+
+gdb -p PID
+
+
+???
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk6MfcoACgkQrlYvE4MpobNHggCfQ0grVjr4ewpfSS8v09rBjHCO
+2REAnjSbZtLgyHuSixIa3+FlSlQ8nnoz
+=K+QE
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
