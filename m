@@ -1,75 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p95BKEOs017216
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 07:20:14 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p95BKs6o017337
+	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 07:20:54 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p95BKDA7017069
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 11:20:13 GMT
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p95BKrA7017216
+	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 11:20:54 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert()
- [ver #3]
-To: selinux@tycho.nsa.gov
-Cc: netdev@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 05 Oct 2011 12:19:19 +0100
-Message-ID: <20111005111919.30551.77529.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20111005110843.30324.19133.stgit@warthog.procyon.org.uk>
+References: <20111005110843.30324.19133.stgit@warthog.procyon.org.uk>
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, netdev@vger.kernel.org
+Subject: Re: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert() [ver #2]
+Date: Wed, 05 Oct 2011 12:19:39 +0100
+Message-ID: <30594.1317813579@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix the following bug in sel_netport_insert() where rcu_dereference() should
-be rcu_dereference_protected() as sel_netport_lock is held.
+David Howells <dhowells@redhat.com> wrote:
 
-===================================================
-[ INFO: suspicious rcu_dereference_check() usage. ]
----------------------------------------------------
-security/selinux/netport.c:127 invoked rcu_dereference_check() without protection!
+> +				spin_is_locked(&sel_netport_lock)),
 
-other info that might help us debug this:
+Oops...  I forgot to commit the change.
 
-
-rcu_scheduler_active = 1, debug_locks = 0
-1 lock held by ossec-rootcheck/3323:
- #0:  (sel_netport_lock){+.....}, at: [<ffffffff8117d775>] sel_netport_sid+0xbb/0x226
-
-stack backtrace:
-Pid: 3323, comm: ossec-rootcheck Not tainted 3.1.0-rc8-fsdevel+ #1095
-Call Trace:
- [<ffffffff8105cfb7>] lockdep_rcu_dereference+0xa7/0xb0
- [<ffffffff8117d871>] sel_netport_sid+0x1b7/0x226
- [<ffffffff8117d6ba>] ? sel_netport_avc_callback+0xbc/0xbc
- [<ffffffff8117556c>] selinux_socket_bind+0x115/0x230
- [<ffffffff810a5388>] ? might_fault+0x4e/0x9e
- [<ffffffff810a53d1>] ? might_fault+0x97/0x9e
- [<ffffffff81171cf4>] security_socket_bind+0x11/0x13
- [<ffffffff812ba967>] sys_bind+0x56/0x95
- [<ffffffff81380dac>] ? sysret_check+0x27/0x62
- [<ffffffff8105b767>] ? trace_hardirqs_on_caller+0x11e/0x155
- [<ffffffff81076fcd>] ? audit_syscall_entry+0x17b/0x1ae
- [<ffffffff811b5eae>] ? trace_hardirqs_on_thunk+0x3a/0x3f
- [<ffffffff81380d7b>] system_call_fastpath+0x16/0x1b
-
-Signed-off-by: David Howells <dhowells@redhat.com>
----
-
- security/selinux/netport.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index 0b62bd1..7b9eb1f 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -123,7 +123,9 @@ static void sel_netport_insert(struct sel_netport *port)
- 	if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
- 		struct sel_netport *tail;
- 		tail = list_entry(
--			rcu_dereference(sel_netport_hash[idx].list.prev),
-+			rcu_dereference_protected(
-+				sel_netport_hash[idx].list.prev,
-+				lockdep_is_held(&sel_netport_lock)),
- 			struct sel_netport, list);
- 		list_del_rcu(&tail->list);
- 		kfree_rcu(tail, rcu);
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
