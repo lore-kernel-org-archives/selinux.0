@@ -1,37 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p95IUKUv002817
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 14:30:20 -0400
-Received: from smtp27.mail.ru (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p95IUIQh016797
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 18:30:19 GMT
-Received: from [95.78.147.197] (port=21379 helo=localhost.localdomain)
-	by smtp27.mail.ru with asmtp
-	id 1RBWEJ-0003XC-00
-	for selinux@tycho.nsa.gov; Wed, 05 Oct 2011 22:30:07 +0400
-To: selinux@tycho.nsa.gov
-Subject: New HIPS based on SELinux
-From: Hramchenko <hramchenko@bk.ru>
-Date: Thu, 6 Oct 2011 00:30:05 +0600
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p960Pixt018875
+	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2011 20:25:44 -0400
+Received: from mout.perfora.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p960PhuQ005130
+	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2011 00:25:43 GMT
+Message-ID: <4E8CF584.2080708@zeff.us>
+Date: Wed, 05 Oct 2011 17:25:40 -0700
+From: Joe Zeff <joe@zeff.us>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201110060030.05639.hramchenko@bk.ru>
+To: selinux@tycho.nsa.gov
+Subject: Puzzling SELinux problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all. 
+I'm running Fedora 14, fully updated, with SELinux.  Off and on I've had 
+SELinux alerts from various WCG projects, but nothing major.  Recently, 
+however, a badly written project started walking parts of /proc that it 
+had no business in, causing large spews of alerts.  (BOINC runs in 
+permissive mode, so nothing got blocked.)  I've dealt with that by 
+unselecting the project.  However, at one point I accidentally clicked 
+on the alert icon twice.  It came up, showing details of the alert then 
+vanished, as a second sealert window came up, blank.  That is, no alerts 
+to show.  Since then, I'm still getting alerts, but none of them show up 
+in the troubleshooter window.  I've tried restarting auditd without 
+effect and deleting the database.  Nothing works.  If anybody on this 
+list knows what I can do to correct this, please let me know.  You can 
+see what I'm describing at http://www.zeff.us/sealert.png
 
-I have created new host intrusion prevention system based on SELinux. 
-It's focused on protection user's data. 
-One of the main goals was to create lightweight replacement of 
-setroubleshootd. 
-
-I hope my program will be useful for SELinux users. 
-
-The project home page:  
-https://github.com/Hramchenko/userdatadefence/
-
-With respect, Hramchenko Vitaliy.
+If this isn't the right list to put this on, please direct me to the 
+right place.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
