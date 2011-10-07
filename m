@@ -1,90 +1,166 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p96Mq8Sa016174
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2011 18:52:08 -0400
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p96Mq7S4018514
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2011 22:52:07 GMT
-Received: by wwp14 with SMTP id 14so4300745wwp.30
-        for <selinux@tycho.nsa.gov>; Thu, 06 Oct 2011 15:52:07 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: David Howells <dhowells@redhat.com>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org
-Subject: Re: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert() [ver #3]
-Date: Thu, 06 Oct 2011 18:52:01 -0400
-Message-ID: <1882445.sqVsvZfAlf@sifl>
-In-Reply-To: <20111005111919.30551.77529.stgit@warthog.procyon.org.uk>
-References: <20111005111919.30551.77529.stgit@warthog.procyon.org.uk>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p978GioK003458
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 04:16:45 -0400
+Received: from smtp28.mail.ru (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p978GhXr006271
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 08:16:43 GMT
+From: Hramchenko <hramchenko@bk.ru>
+To: "Patrick K., ITF" <cto@itechfrontiers.com>, selinux@tycho.nsa.gov
+Subject: Re: New HIPS based on SELinux
+Date: Fri, 7 Oct 2011 14:16:38 +0600
+References: <201110060030.05639.hramchenko@bk.ru> <201110061618.31119.hramchenko@bk.ru> <4E8D822D.3040004@itechfrontiers.com>
+In-Reply-To: <4E8D822D.3040004@itechfrontiers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201110071416.39088.hramchenko@bk.ru>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, October 05, 2011 12:19:19 PM David Howells wrote:
-> Fix the following bug in sel_netport_insert() where rcu_dereference() should
-> be rcu_dereference_protected() as sel_netport_lock is held.
-> 
-> ===================================================
-> [ INFO: suspicious rcu_dereference_check() usage. ]
-> ---------------------------------------------------
-> security/selinux/netport.c:127 invoked rcu_dereference_check() without
-> protection!
-> 
-> other info that might help us debug this:
-> 
-> 
-> rcu_scheduler_active = 1, debug_locks = 0
-> 1 lock held by ossec-rootcheck/3323:
->  #0:  (sel_netport_lock){+.....}, at: [<ffffffff8117d775>]
-> sel_netport_sid+0xbb/0x226
-> 
-> stack backtrace:
-> Pid: 3323, comm: ossec-rootcheck Not tainted 3.1.0-rc8-fsdevel+ #1095
-> Call Trace:
->  [<ffffffff8105cfb7>] lockdep_rcu_dereference+0xa7/0xb0
->  [<ffffffff8117d871>] sel_netport_sid+0x1b7/0x226
->  [<ffffffff8117d6ba>] ? sel_netport_avc_callback+0xbc/0xbc
->  [<ffffffff8117556c>] selinux_socket_bind+0x115/0x230
->  [<ffffffff810a5388>] ? might_fault+0x4e/0x9e
->  [<ffffffff810a53d1>] ? might_fault+0x97/0x9e
->  [<ffffffff81171cf4>] security_socket_bind+0x11/0x13
->  [<ffffffff812ba967>] sys_bind+0x56/0x95
->  [<ffffffff81380dac>] ? sysret_check+0x27/0x62
->  [<ffffffff8105b767>] ? trace_hardirqs_on_caller+0x11e/0x155
->  [<ffffffff81076fcd>] ? audit_syscall_entry+0x17b/0x1ae
->  [<ffffffff811b5eae>] ? trace_hardirqs_on_thunk+0x3a/0x3f
->  [<ffffffff81380d7b>] system_call_fastpath+0x16/0x1b
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> ---
-> 
->  security/selinux/netport.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
+Hello Patrick.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+Statistical analysis is not requirement for IDPS according to NIST Guide to 
+Intrusion Detection and Prevention Systems (IDPS) by Karen Scarfone and Peter 
+Mell :
 
-> diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-> index 0b62bd1..7b9eb1f 100644
-> --- a/security/selinux/netport.c
-> +++ b/security/selinux/netport.c
-> @@ -123,7 +123,9 @@ static void sel_netport_insert(struct sel_netport *port)
-> if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
->  		struct sel_netport *tail;
->  		tail = list_entry(
-> -			rcu_dereference(sel_netport_hash[idx].list.prev),
-> +			rcu_dereference_protected(
-> +				sel_netport_hash[idx].list.prev,
-> +				lockdep_is_held(&sel_netport_lock)),
->  			struct sel_netport, list);
->  		list_del_rcu(&tail->list);
->  		kfree_rcu(tail, rcu);
+The types of events detected by host-based IDPSs vary considerably based 
+primarily on the detection techniques that they use. Some host-based IDPS 
+products offer several of these detection techniques, while others focus on a 
+few or one. 
+
+One of the most important function of HIPS is:
+– System call monitoring. The agent knows which applications and processes 
+should be calling which other applications and processes or performing certain 
+actions.
+
+System call monitoring provided by User Data Defence from SELinux messages. Of 
+course this system need further development and intellectual analysis of 
+events will be appended to this system in the future. But the lack of 
+intellectual analysis does not prohibit refer User Data Defence to intrusion 
+prevention systems.
+
+With respect, Hramchenko Vitaliy.
+
+Patrick K. wrote:
+> Generating alerts is not Anomaly Based analysis, it is simply generating
+> alerts based on SELinux logs,
+> 
+> This is in no way fit into any definition of HIPS/HIDPS as security
+> industry defines it.
+> 
+> There is no such deterministic or non-deterministic statistical analysis
+> going on here, that you put your program into that category, those are
+> based on established Math actually, We use Advanced Statistical Math in
+> Anomaly analysis (in item 2: anomaly analysis you referred it to) taking
+> into account system factors and components
+> 
+> 
+> Best Regards,
+> 
+> Patrick K.
+> 
+> On 10/6/2011 6:18 AM, Hramchenko wrote:
+> > Hello, Patrick
+> > 
+> > Thanks for your reply. I understand your concerns about the term of HIPS.
+> > 
+> > I didn't want to mislead users, but User Data Defence is not new another
+> > policies editor.
+> > 
+> > User Data Defence also provides customizable alerts notification. User
+> > could specify alert look and set its level. This function helps to
+> > filter critical alerts from other messages.
+> > 
+> > I think alerts notification provides detection of program anomalies:
+> > 	2) Anomaly based analysis of threats against the server, in example
+> > 
+> > statistical analysis, Integrity analysis and etc.
+> > 
+> > Of course, User Data Defence is not so powerful as chkrootkit HBIDS, but
+> > it is an attempt to provide simple instrument for blocking attacks to
+> > user mode applications.
+> > 
+> > With respect, Hramchenko Vitaliy.
+> > 
+> > Patrick K. wrote:
+> >> Hello,
+> >> 
+> >> I think you are misusing the term "HIPS" here, (or using your own
+> >> definition actually)
+> >> 
+> >> Sorry to be pedantic but, SELinux as you know is an add-on (platform
+> >> ) to the kernel providing Access Control (RBAC, IBAC, MAC and etc.) and
+> >> MLS (Multi-Level Security)
+> >> 
+> >> While encouraging you for your work but I'm afraid it is as you
+> >> explained yourself:
+> >> 
+> >> " User Data Defence includes set of template policies, which makes
+> >> process of creation SELinux specifications for user mode applications
+> >> simple .... "
+> >> 
+> >> in other words, It is A Graphical user Interface for creating SELinux
+> >> Policies
+> >> 
+> >> 
+> >> BUT, Host based Intrusion Prevention System,  (HIPS)
+> >> 
+> >> or more accurately Host Based Intrusion Detection and Prevention System
+> >> (HIDPS) requires a method to detect attacks and react upon them or
+> >> interact with them (Preemptive approach), taking into account the server
+> >> or workstation parameters and conditions, utilizing either or
+> >> combination of :
+> >> 
+> >> 1) Signature based analysis of threats
+> >> 
+> >> 
+> >> 2) Anomaly based analysis of threats against the server,
+> >> in example statistical analysis, Integrity analysis and etc.
+> >> 
+> >> 
+> >> 3) Protocol Anomaly Analysis
+> >> 
+> >> 
+> >> 4) Heuristic analysis
+> >> combination of methods  using Expert systems or other means in
+> >> Artificial Intelligence/Synthetic Intelligence  such as Petri nets,
+> >> Artificial Neural Networks and etc.
+> >> 
+> >> 
+> >> Best Regards,
+> >> 
+> >> Patrick K.
+> >> 
+> >> On 10/5/2011 2:30 PM, Hramchenko wrote:
+> >>> Hi all.
+> >>> 
+> >>> I have created new host intrusion prevention system based on SELinux.
+> >>> It's focused on protection user's data.
+> >>> One of the main goals was to create lightweight replacement of
+> >>> setroubleshootd.
+> >>> 
+> >>> I hope my program will be useful for SELinux users.
+> >>> 
+> >>> The project home page:
+> >>> https://github.com/Hramchenko/userdatadefence/
+> >>> 
+> >>> With respect, Hramchenko Vitaliy.
+> >>> 
+> >>> --
+> >>> This message was distributed to subscribers of the selinux mailing
+> >>> list. If you no longer wish to subscribe, send mail to
+> >>> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
+> >>> quotes as the message.
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> > with the words "unsubscribe selinux" without quotes as the message.
 > 
 > --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
--- 
-paul moore
-www.paul-moore.com
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with the words "unsubscribe selinux" without quotes as the message.
 
 
 --
