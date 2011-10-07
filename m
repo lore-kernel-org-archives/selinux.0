@@ -1,57 +1,139 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p97IOHWK002000
-	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 14:24:17 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p97IOF6k019103
-	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 18:24:16 GMT
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id p97IOFTq028841
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 14:24:15 -0400
-Received: from [10.16.62.230] (dhcp-10-16-62-230.boston.devel.redhat.com [10.16.62.230])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id p97IOE8O004396
-	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 14:24:15 -0400
-Message-ID: <4E8F43CE.7010605@redhat.com>
-Date: Fri, 07 Oct 2011 14:24:14 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p97KQgJ1008612
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 16:26:42 -0400
+Received: from nm22-vm0.bullet.mail.sp2.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id p97KQfDf015587
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2011 20:26:41 GMT
+Message-ID: <4E8F607E.80600@schaufler-ca.com>
+Date: Fri, 07 Oct 2011 13:26:38 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: I am working to further shrink the size of policy in Fedora 17.
-Content-Type: text/plain; charset=ISO-8859-1
+To: Paul Moore <pmoore@redhat.com>
+CC: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH] bluetooth: Properly clone LSM attributes to newly created
+ child connections
+References: <20111007194059.12345.13398.stgit@sifl>
+In-Reply-To: <20111007194059.12345.13398.stgit@sifl>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 10/7/2011 12:40 PM, Paul Moore wrote:
+> The Bluetooth stack has internal connection handlers for all of the various
+> Bluetooth protocols, and unfortunately, they are currently lacking the LSM
+> hooks found in the core network stack's connection handlers.  I say
+> unfortunately, because this can cause problems for users who have have an
+> LSM enabled and are using certain Bluetooth devices.  See one problem
+> report below:
+>
+>  * http://bugzilla.redhat.com/show_bug.cgi?id=741703
+>
+> In order to keep things simple at this point in time, this patch fixes the
+> problem by cloning the parent socket's LSM attributes to the newly created
+> child socket.  If we decide we need a more elaborate LSM marking mechanism
+> for Bluetooth (I somewhat doubt this) we can always revisit this decision
+> in the future.
+>
+> Reported-by: James M. Cape <jcape@ignore-your.tv>
+> Signed-off-by: Paul Moore <pmoore@redhat.com>
 
-Right now, every domain that transitions to another domain gets the
-following rule written.
+I haven't tested anything out yet, but it's hard to see
+how this would be a problem from the Smack point of view.
 
-   dontaudit SOURCE TARGET : process { noatsecure siginh rlimitinh } ;
+> ---
+>  net/bluetooth/l2cap_sock.c  |    4 ++++
+>  net/bluetooth/rfcomm/sock.c |    3 +++
+>  net/bluetooth/sco.c         |    5 ++++-
+>  security/security.c         |    1 +
+>  4 files changed, 12 insertions(+), 1 deletions(-)
+>
+> diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+> index 61f1f62..e829236 100644
+> --- a/net/bluetooth/l2cap_sock.c
+> +++ b/net/bluetooth/l2cap_sock.c
+> @@ -26,6 +26,8 @@
+>  
+>  /* Bluetooth L2CAP sockets. */
+>  
+> +#include <linux/security.h>
+> +
+>  #include <net/bluetooth/bluetooth.h>
+>  #include <net/bluetooth/hci_core.h>
+>  #include <net/bluetooth/l2cap.h>
+> @@ -933,6 +935,8 @@ static void l2cap_sock_init(struct sock *sk, struct sock *parent)
+>  		chan->force_reliable = pchan->force_reliable;
+>  		chan->flushable = pchan->flushable;
+>  		chan->force_active = pchan->force_active;
+> +
+> +		security_sk_clone(parent, sk);
+>  	} else {
+>  
+>  		switch (sk->sk_type) {
+> diff --git a/net/bluetooth/rfcomm/sock.c b/net/bluetooth/rfcomm/sock.c
+> index 482722b..5417f61 100644
+> --- a/net/bluetooth/rfcomm/sock.c
+> +++ b/net/bluetooth/rfcomm/sock.c
+> @@ -42,6 +42,7 @@
+>  #include <linux/device.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/seq_file.h>
+> +#include <linux/security.h>
+>  #include <net/sock.h>
+>  
+>  #include <asm/system.h>
+> @@ -264,6 +265,8 @@ static void rfcomm_sock_init(struct sock *sk, struct sock *parent)
+>  
+>  		pi->sec_level = rfcomm_pi(parent)->sec_level;
+>  		pi->role_switch = rfcomm_pi(parent)->role_switch;
+> +
+> +		security_sk_clone(parent, sk);
+>  	} else {
+>  		pi->dlc->defer_setup = 0;
+>  
+> diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+> index 8270f05..a324b00 100644
+> --- a/net/bluetooth/sco.c
+> +++ b/net/bluetooth/sco.c
+> @@ -41,6 +41,7 @@
+>  #include <linux/debugfs.h>
+>  #include <linux/seq_file.h>
+>  #include <linux/list.h>
+> +#include <linux/security.h>
+>  #include <net/sock.h>
+>  
+>  #include <asm/system.h>
+> @@ -403,8 +404,10 @@ static void sco_sock_init(struct sock *sk, struct sock *parent)
+>  {
+>  	BT_DBG("sk %p", sk);
+>  
+> -	if (parent)
+> +	if (parent) {
+>  		sk->sk_type = parent->sk_type;
+> +		security_sk_clone(parent, sk);
+> +	}
+>  }
+>  
+>  static struct proto sco_proto = {
+> diff --git a/security/security.c b/security/security.c
+> index 0e4fccf..d9e1533 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1097,6 +1097,7 @@ void security_sk_clone(const struct sock *sk, struct sock *newsk)
+>  {
+>  	security_ops->sk_clone_security(sk, newsk);
+>  }
+> +EXPORT_SYMBOL(security_sk_clone);
+>  
+>  void security_sk_classify_flow(struct sock *sk, struct flowi *fl)
+>  {
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-In Fedora 17 policy right now we have 2152 rules, out of Dontaudit:
-     9415
-
-
-sesearch --dontaudit -p noatsecure | wc -l
-2152
-
-We could rewrite this with one rule.
-
-dontaudit domain domain:process { noatsecure siginh rlimitinh } ;
-
-Of course this is more lenient then what we have now, although since
-it is dontaudit rules, not sure it matters.
-
-Comments?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk6PQ80ACgkQrlYvE4MpobMn5ACeJMpRnEYe5nvpyWjhKbqpANw4
-kB8AnA0ORPBkKS6Ww0AWzedMAnD+Teth
-=Q6g9
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
