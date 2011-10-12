@@ -1,93 +1,90 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9CJ6JRk026267
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 15:06:19 -0400
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9CJ6I9Z003313
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 19:06:19 GMT
-Message-ID: <4E95E528.3040201@redhat.com>
-Date: Wed, 12 Oct 2011 15:06:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: I am working to further shrink the size of policy in Fedora 17.
-References: <4E8F43CE.7010605@redhat.com> <4E9598C0.9080700@tresys.com> <4E95A0E6.9070301@redhat.com> <4E95D057.2040700@tresys.com> <4E95D805.3050507@redhat.com> <4E95E05F.9050108@tresys.com>
-In-Reply-To: <4E95E05F.9050108@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9CJJFvI026959
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 15:19:15 -0400
+Received: from webserver.magitekltd.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9CJJE9Z007382
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 19:19:14 GMT
+Subject: Re: Writing a program to monitor the SELinux log
+From: LC Bruzenak <lenny@MagitekLtd.com>
+To: Jason Axelson <jaxelson@referentia.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <CAC9ii1q_EKnM+akoiApESQfcERYKOx+nxX7iurVPbmrgrvd2Cg@mail.gmail.com>
+References: 
+	 <CAC9ii1q_EKnM+akoiApESQfcERYKOx+nxX7iurVPbmrgrvd2Cg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 12 Oct 2011 14:19:07 -0500
+Message-ID: <1318447147.2457.179.camel@lcb>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2011-10-11 at 17:07 -1000, Jason Axelson wrote:
 
-On 10/12/2011 02:45 PM, Christopher J. PeBenito wrote:
-> On 10/12/11 14:10, Daniel J Walsh wrote:
->> On 10/12/2011 01:37 PM, Christopher J. PeBenito wrote:
->>> On 10/12/11 10:15, Daniel J Walsh wrote:
->>>> On 10/12/2011 09:40 AM, Christopher J. PeBenito wrote:
->>>>> On 10/07/11 14:24, Daniel J Walsh wrote:
->>>>>> Right now, every domain that transitions to another
->>>>>> domain gets the following rule written.
->>>>>> 
->>>>>> dontaudit SOURCE TARGET : process { noatsecure siginh 
->>>>>> rlimitinh } ;
->>>>>> 
->>>>>> In Fedora 17 policy right now we have 2152 rules, out of
->>>>>>  Dontaudit: 9415
->>>>>> 
->>>>>> 
->>>>>> sesearch --dontaudit -p noatsecure | wc -l 2152
->>>>>> 
->>>>>> We could rewrite this with one rule.
->>>>>> 
->>>>>> dontaudit domain domain:process { noatsecure siginh
->>>>>> rlimitinh } ;
->>>>>> 
->>>>>> Of course this is more lenient then what we have now, 
->>>>>> although since it is dontaudit rules, not sure it
->>>>>> matters.
->>>>>> 
->>>>>> Comments?
->>>> 
->>>>> I'm on the fence.  On one hand, I hate to overspecify the 
->>>>> policy, but on the other hand, these perms can only be hit
->>>>> on a domain transition.  How much does this save?
->>>> 
->>>> 
->>>> 2000/90000
->>>> 
->>>> 2% of the size of policy.
->> 
->>> Based on my test of all Refpolicy modules compiled in, the
->>> size went from 4687381 to 4667101, a 20kB difference.  If
->>> someone was trying to squeeze everything out for an embedded
->>> system policy, I could see this change, but otherwise, it
->>> doesn't seem very compelling.
->> 
->> That is because you have not already shrunk your policy to the
->> degree that Fedora has.  F17 is down to this.
-> [...]
->> Allow:           83205    Neverallow:          0 Auditallow:
->> 10    Dontaudit:        6079
 > 
-> I don't understand.  The change in Refpolicy was 1690 dontaudit
-> rules.  If thats a 20kB change in Refpolicy, the 2151 rule change
-> in the Fedora policy would probably be ~25kB.  What is the current
-> size of the Fedora policy (policy.26 on disk)?
+> Is this a valid approach? Is there a better way?
 > 
+> Thanks,
+> Jason
 
-ls -l /etc/selinux/targeted/policy/policy.26
-- -rw-r--r--. 1 root root 1993514 Oct 11 11:14
-/etc/selinux/targeted/policy/policy.26
+Jason,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+I did this exact thing.
+I named it "avcAssassin".
+:)
 
-iEYEARECAAYFAk6V5SgACgkQrlYvE4MpobMPbwCgpskAh3I/i7UX2dLUCk6y6tsY
-uI4An1cbF0C9rPG3M0P4dKus/Mi1zGE3
-=WTYs
------END PGP SIGNATURE-----
+The reason I did this is because when my group delivers a system which
+cannot be easily changed, we need insurance that some untested code path
+cannot launch a crippling stream of useless AVCs. After seeing this
+happen, I wrote the avcAssassin code.
+
+The way I did this is to use the same socket as used by the
+SETroubleshooter but all the code is in C. I do not use the
+troubleshooter for delivered system code.
+
+I use the audit auparse C library.
+I wanted it to use little CPU as possible.
+
+So what I do is this:
+
+Launch a process which just reads the audit stream.
+Launch a child which waits for those events.
+Connect them via non-blocking pipe; it's lossy on purpose. 
+
+Parent looks for avc events and only sends timestamp and PID to child. 
+Child reads avs and keeps a configurable list (default 5) of processes
+generating avcs. There is a timer window (default 2 seconds) where the
+child checks the counts and does something heinous (kills them) if they
+are over the configurable threshold (default is 100/second). Also there
+is a configurable exclusion list in case you don't want them killed.
+
+Everything is asynchronous and non-blocking. If the pipe is full the
+parent doesn't care. 
+
+The child does all the work of matching PID to process name, counting
+AVCs, submitting an audit event about it, etc. 
+
+The idea is that in the end you have a lossy time-sliced sample of avc
+events that are actionable because you have defined it that way. It's a
+brutal approach but then again if you have all your policy coverage
+perfect, it will not do anything. Because it is launched as a service it
+can be disabled easily. Some drawbacks are that it really only works on
+persistent processes. Ones which spawn rapidly and spew avcs will burden
+the child process but not be detected since the PIDs will differ.
+
+Let me know if you want the code; it isn't perfect or ready for the
+world but it does perform as described (so far). 
+Hopefully this helps your decision.
+
+If you are fluent in Python (I'm not) then maybe a SETroubleshoot plugin
+is a better way to go, with the benefit that it might get upstreamed.
+
+R,
+LCB
+
+-- 
+LC (Lenny) Bruzenak
+lenny@magitekltd.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
