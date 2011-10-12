@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9CIo8XD025104
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 14:50:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9CJ6JRk026267
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 15:06:19 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9CIo89Z027717
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 18:50:08 GMT
-Message-ID: <4E95E15E.6080207@redhat.com>
-Date: Wed, 12 Oct 2011 14:50:06 -0400
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9CJ6I9Z003313
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 19:06:19 GMT
+Message-ID: <4E95E528.3040201@redhat.com>
+Date: Wed, 12 Oct 2011 15:06:16 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
@@ -76,15 +76,17 @@ On 10/12/2011 02:45 PM, Christopher J. PeBenito wrote:
 > size of the Fedora policy (policy.26 on disk)?
 > 
 
-I just updated people.redhat.com and the libra.te policy
+ls -l /etc/selinux/targeted/policy/policy.26
+- -rw-r--r--. 1 root root 1993514 Oct 11 11:14
+/etc/selinux/targeted/policy/policy.26
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk6V4V4ACgkQrlYvE4MpobPMtACfRwh0qPmXDPc2+HXFO0bW3Hdx
-aRIAoOnt5iqmrEZ0gAr/s+Vqlh2I0PbG
-=ZkPq
+iEYEARECAAYFAk6V5SgACgkQrlYvE4MpobMPbwCgpskAh3I/i7UX2dLUCk6y6tsY
+uI4An1cbF0C9rPG3M0P4dKus/Mi1zGE3
+=WTYs
 -----END PGP SIGNATURE-----
 
 --
