@@ -1,70 +1,36 @@
-Subject: Re: Upstart not transitioning to target domain
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Damian Gerow <dgerow@afflictions.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1318478183.9025.140258154258765@webmail.messagingengine.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9DE9SZM012388
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2011 10:09:28 -0400
+Received: from out5.smtp.messagingengine.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id p9DE9REu014329
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2011 14:09:28 GMT
+Received: from compute3.internal (compute3.nyi.mail.srv.osa [10.202.2.43])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id D819D21D96
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2011 10:09:26 -0400 (EDT)
+Message-Id: <1318514966.7386.140660985510889@webmail.messagingengine.com>
+From: "Damian Gerow" <dgerow@afflictions.org>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <1318513975.17008.2.camel@moss-pluto>
 References: <1318478183.9025.140258154258765@webmail.messagingengine.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 13 Oct 2011 09:52:55 -0400
-Message-ID: <1318513975.17008.2.camel@moss-pluto>
-Mime-Version: 1.0
+ <1318513975.17008.2.camel@moss-pluto>
+Subject: Re: Upstart not transitioning to target domain
+Date: Thu, 13 Oct 2011 10:09:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-10-12 at 23:56 -0400, Damian Gerow wrote:
-> I've been struggling for a few hours trying to write a new policy on an
-> install of RHEL6.1.  I'm still cutting my teeth on SELinux, so if
-> there's a more appropriate forum for this, I apologize.
+On Thursday, October 13, 2011 9:52 AM, "Stephen Smalley"
+<sds@tycho.nsa.gov> wrote:
+> > What am I doing wrong?
 > 
-> I can't seem to convince upstart to transition to the target domain. 
-> I've tried using init_daemon_domain, domain_auto_trans, and specifying
-> the transition manually, but the resulting daemon continues to run under
-> initrc_t.  Curiously, the logging_log_filetrans macro seems to be
-> working just fine, as log files are created with an appropriate context.
-> 
-> The current policy is quite simple:
-> 
-> -----
-> policy_module(foobar,0.5.7)
-> 
-> require {
->         attribute port_type;
-> };
-> 
-> type foobard_t;
-> type foobard_exec_t;
-> init_daemon_domain(foobard_t, foobard_exec_t)
-> 
-> type foobard_etc_t;
-> files_type(foobard_etc_t)
-> 
-> type foobard_log_t;
-> files_type(foobard_log_t)
-> 
-> type foobard_var_lib_t;
-> files_type(foobard_var_lib_t)
-> 
-> type foobar_port_t, port_type;
-> -----
-> 
-> I've verified that the filesystem is labelled properly, yet the service
-> itself continues to run under initrc_t:
-> 
-> -----
-> system_u:system_r:initrc_t:s0   root      8724  0.0  1.5 694524 15636 ? 
->       Ssl  23:50   0:00 /usr/local/foobar/bin/foobard -a input -f
-> /usr/local/foobar/conf/input.conf
-> -----
-> 
-> What am I doing wrong?
+> Is the filesystem mounted nosuid?  If so, that will suppress the domain
+> transition.
 
-Is the filesystem mounted nosuid?  If so, that will suppress the domain
-transition.
+That was exactly what was causing the problem.  I'm now seeing the
+expected AVC denials for foobard_t.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Thank you!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
