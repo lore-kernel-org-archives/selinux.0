@@ -1,90 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9CJJFvI026959
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 15:19:15 -0400
-Received: from webserver.magitekltd.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9CJJE9Z007382
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 19:19:14 GMT
-Subject: Re: Writing a program to monitor the SELinux log
-From: LC Bruzenak <lenny@MagitekLtd.com>
-To: Jason Axelson <jaxelson@referentia.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <CAC9ii1q_EKnM+akoiApESQfcERYKOx+nxX7iurVPbmrgrvd2Cg@mail.gmail.com>
-References: 
-	 <CAC9ii1q_EKnM+akoiApESQfcERYKOx+nxX7iurVPbmrgrvd2Cg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 12 Oct 2011 14:19:07 -0500
-Message-ID: <1318447147.2457.179.camel@lcb>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9D3uO8P015683
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 23:56:24 -0400
+Received: from out4.smtp.messagingengine.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9D3uOx1012088
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2011 03:56:24 GMT
+Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id CEB8F20B80
+	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2011 23:56:23 -0400 (EDT)
+Message-Id: <1318478183.9025.140258154258765@webmail.messagingengine.com>
+From: "Damian Gerow" <dgerow@afflictions.org>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Subject: Upstart not transitioning to target domain
+Date: Wed, 12 Oct 2011 23:56:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-10-11 at 17:07 -1000, Jason Axelson wrote:
+I've been struggling for a few hours trying to write a new policy on an
+install of RHEL6.1.  I'm still cutting my teeth on SELinux, so if
+there's a more appropriate forum for this, I apologize.
 
-> 
-> Is this a valid approach? Is there a better way?
-> 
-> Thanks,
-> Jason
+I can't seem to convince upstart to transition to the target domain. 
+I've tried using init_daemon_domain, domain_auto_trans, and specifying
+the transition manually, but the resulting daemon continues to run under
+initrc_t.  Curiously, the logging_log_filetrans macro seems to be
+working just fine, as log files are created with an appropriate context.
 
-Jason,
+The current policy is quite simple:
 
-I did this exact thing.
-I named it "avcAssassin".
-:)
+-----
+policy_module(foobar,0.5.7)
 
-The reason I did this is because when my group delivers a system which
-cannot be easily changed, we need insurance that some untested code path
-cannot launch a crippling stream of useless AVCs. After seeing this
-happen, I wrote the avcAssassin code.
+require {
+        attribute port_type;
+};
 
-The way I did this is to use the same socket as used by the
-SETroubleshooter but all the code is in C. I do not use the
-troubleshooter for delivered system code.
+type foobard_t;
+type foobard_exec_t;
+init_daemon_domain(foobard_t, foobard_exec_t)
 
-I use the audit auparse C library.
-I wanted it to use little CPU as possible.
+type foobard_etc_t;
+files_type(foobard_etc_t)
 
-So what I do is this:
+type foobard_log_t;
+files_type(foobard_log_t)
 
-Launch a process which just reads the audit stream.
-Launch a child which waits for those events.
-Connect them via non-blocking pipe; it's lossy on purpose. 
+type foobard_var_lib_t;
+files_type(foobard_var_lib_t)
 
-Parent looks for avc events and only sends timestamp and PID to child. 
-Child reads avs and keeps a configurable list (default 5) of processes
-generating avcs. There is a timer window (default 2 seconds) where the
-child checks the counts and does something heinous (kills them) if they
-are over the configurable threshold (default is 100/second). Also there
-is a configurable exclusion list in case you don't want them killed.
+type foobar_port_t, port_type;
+-----
 
-Everything is asynchronous and non-blocking. If the pipe is full the
-parent doesn't care. 
+I've verified that the filesystem is labelled properly, yet the service
+itself continues to run under initrc_t:
 
-The child does all the work of matching PID to process name, counting
-AVCs, submitting an audit event about it, etc. 
+-----
+system_u:system_r:initrc_t:s0   root      8724  0.0  1.5 694524 15636 ? 
+      Ssl  23:50   0:00 /usr/local/foobar/bin/foobard -a input -f
+/usr/local/foobar/conf/input.conf
+-----
 
-The idea is that in the end you have a lossy time-sliced sample of avc
-events that are actionable because you have defined it that way. It's a
-brutal approach but then again if you have all your policy coverage
-perfect, it will not do anything. Because it is launched as a service it
-can be disabled easily. Some drawbacks are that it really only works on
-persistent processes. Ones which spawn rapidly and spew avcs will burden
-the child process but not be detected since the PIDs will differ.
-
-Let me know if you want the code; it isn't perfect or ready for the
-world but it does perform as described (so far). 
-Hopefully this helps your decision.
-
-If you are fluent in Python (I'm not) then maybe a SETroubleshoot plugin
-is a better way to go, with the benefit that it might get upstreamed.
-
-R,
-LCB
-
--- 
-LC (Lenny) Bruzenak
-lenny@magitekltd.com
-
+What am I doing wrong?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
