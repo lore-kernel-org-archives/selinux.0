@@ -1,195 +1,301 @@
-Message-ID: <4E985BFB.1000806@redhat.com>
-Date: Fri, 14 Oct 2011 11:57:47 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9ICYmqt005340
+	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2011 08:34:49 -0400
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9ICYl9e008079
+	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2011 12:34:48 GMT
+From: Steve Lawrence <slawrence@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH 1/1] libsepol: Move ebitmap_* functions from mcstrans to libsepol
+Date: Tue, 18 Oct 2011 08:34:41 -0400
+Message-ID: <1318941281-21268-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: David Windsor <dwindsor@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: I would like to change the behavior of MCS label creations in
- directory.
-References: <4E7B9233.6080609@redhat.com>  <1316723465.2354.6.camel@moss-pluto> <4E7B9B43.9000400@redhat.com>  <1316723821.2354.9.camel@moss-pluto> <1316724121.2354.12.camel@moss-pluto>  <4E7C9F3D.9030704@redhat.com> <1316790421.10259.70.camel@moss-pluto>  <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com> <1317139611.22218.9.camel@moss-pluto> <4E82123C.4070406@redhat.com>
-In-Reply-To: <4E82123C.4070406@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------000707050908060906010000"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000707050908060906010000
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+This patches moves some ebitmap functions (and, xor, not, etc.) from
+mcstrans into libsepol, where they really belong and could be used by
+other applications (e.g. CIL)
+---
+ libsepol/include/sepol/policydb/ebitmap.h |    6 ++
+ libsepol/src/ebitmap.c                    |   76 ++++++++++++++++++++++++
+ libsepol/src/private.h                    |    3 +
+ policycoreutils/mcstrans/src/mcstrans.c   |   91 ++---------------------------
+ 4 files changed, 91 insertions(+), 85 deletions(-)
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+index 410c15c..214da95 100644
+--- a/libsepol/include/sepol/policydb/ebitmap.h
++++ b/libsepol/include/sepol/policydb/ebitmap.h
+@@ -76,6 +76,12 @@ static inline int ebitmap_node_get_bit(ebitmap_node_t * n, unsigned int bit)
+ extern int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2);
+ extern int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2);
+ extern int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1);
++extern int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
++extern int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
++extern int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit);
++extern int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int maxbit);
++extern unsigned int ebitmap_cardinality(ebitmap_t *e1);
++extern int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2);
+ extern int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src);
+ extern int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2);
+ extern int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit);
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index cc6a915..be6b591 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -71,6 +71,82 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
+ 	return 0;
+ }
+ 
++int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
++{
++	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
++	ebitmap_init(dst);
++	for (i=0; i < length; i++) {
++		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
++			int rc = ebitmap_set_bit(dst, i, 1);
++			if (rc < 0)
++				return rc;
++		}
++	}
++	return 0;
++}
++
++int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
++{
++	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
++	ebitmap_init(dst);
++	for (i=0; i < length; i++) {
++		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
++		int rc = ebitmap_set_bit(dst, i, val);
++		if (rc < 0)
++			return rc;
++	}
++	return 0;
++}
++
++int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit)
++{
++	unsigned int i;
++	ebitmap_init(dst);
++	for (i=0; i < maxbit; i++) {
++		int val = ebitmap_get_bit(e1, i);
++		int rc = ebitmap_set_bit(dst, i, !val);
++		if (rc < 0)
++			return rc;
++	}
++	return 0;
++}
++
++int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int maxbit)
++{
++	ebitmap_t e3;
++	ebitmap_init(dst);
++	int rc = ebitmap_not(&e3, e2, maxbit);
++	if (rc < 0)
++		return rc;
++	rc = ebitmap_and(dst, e1, &e3);
++	ebitmap_destroy(&e3);
++	if (rc < 0)
++		return rc;
++	return 0;
++}
++
++unsigned int ebitmap_cardinality(ebitmap_t *e1)
++{
++	unsigned int i, count = 0;
++	for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
++		if (ebitmap_get_bit(e1, i))
++			count++;
++	return count;
++}
++
++int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2)
++{
++	if (ebitmap_cmp(e1, e2))
++		return 0;
++	ebitmap_t tmp;
++	int rc = ebitmap_xor(&tmp, e1, e2);
++	if (rc < 0)
++		return -1;
++	int distance = ebitmap_cardinality(&tmp);
++	ebitmap_destroy(&tmp);
++	return distance;
++}
++
+ int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2)
+ {
+ 	ebitmap_node_t *n1, *n2;
+diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+index b2b247e..24a544d 100644
+--- a/libsepol/src/private.h
++++ b/libsepol/src/private.h
+@@ -28,6 +28,9 @@
+ #undef min
+ #define min(a,b) (((a) < (b)) ? (a) : (b))
+ 
++#undef max
++#define max(a,b) ((a) >= (b) ? (a) : (b))
++
+ #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+ 
+ /* Policy compatibility information. */
+diff --git a/policycoreutils/mcstrans/src/mcstrans.c b/policycoreutils/mcstrans/src/mcstrans.c
+index 604a378..4d31857 100644
+--- a/policycoreutils/mcstrans/src/mcstrans.c
++++ b/policycoreutils/mcstrans/src/mcstrans.c
+@@ -38,9 +38,6 @@
+ #define N_BUCKETS 1453
+ #define OVECCOUNT (512*3)
+ 
+-#define max(a,b) ((a) >= (b) ? (a) : (b))
+-#define min(a,b) ((a) < (b) ? (a) : (b))
+-
+ #define log_error(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
+ 
+ #ifdef DEBUG
+@@ -51,82 +48,6 @@
+ 
+ static unsigned int maxbit=0;
+ 
+-int
+-ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
+-	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
+-	ebitmap_init(dst);
+-	for (i=0; i < length; i++) {
+-		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
+-			int rc = ebitmap_set_bit(dst, i, 1);
+-			if (rc < 0)
+-				return rc;
+-		}
+-	}
+-	return 0;
+-}
+-
+-int
+-ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
+-	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
+-	ebitmap_init(dst);
+-	for (i=0; i < length; i++) {
+-		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
+-		int rc = ebitmap_set_bit(dst, i, val);
+-		if (rc < 0)
+-			return rc;
+-	}
+-	return 0;
+-}
+-
+-int
+-ebitmap_not(ebitmap_t *dst, ebitmap_t *e1) {
+-	unsigned int i;
+-	ebitmap_init(dst);
+-	for (i=0; i < maxbit; i++) {
+-		int val = ebitmap_get_bit(e1, i);
+-		int rc = ebitmap_set_bit(dst, i, !val);
+-		if (rc < 0)
+-			return rc;
+-	}
+-	return 0;
+-}
+-
+-int
+-ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
+-	ebitmap_t e3;
+-	ebitmap_init(dst);
+-	int rc = ebitmap_not(&e3, e2);
+-	if (rc < 0)
+-		return rc;
+-	rc = ebitmap_and(dst, e1, &e3);
+-	ebitmap_destroy(&e3);
+-	if (rc < 0)
+-		return rc;
+-	return 0;
+-}
+-
+-unsigned int
+-ebitmap_cardinality(ebitmap_t *e1) {
+-	unsigned int i, count = 0;
+-	for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+-		if (ebitmap_get_bit(e1, i))
+-			count++;
+-	return count;
+-}
+-
+-int
+-hamming_distance(ebitmap_t * e1, ebitmap_t * e2) {
+-	if (ebitmap_cmp(e1, e2))
+-		return 0;
+-	ebitmap_t tmp;
+-	int rc = ebitmap_xor(&tmp, e1, e2);
+-	if (rc < 0)
+-		return -1;
+-	int distance = ebitmap_cardinality(&tmp);
+-	ebitmap_destroy(&tmp);
+-	return distance;
+-}
+-
+ /* Define data structures */
+ typedef struct context_map {
+ 	char *raw;
+@@ -517,7 +438,7 @@ add_word(word_group_t *group, char *raw, char *trans) {
+ 		destroy_word(&group->words, word);
+ 		return -1;
+ 	}
+-	if (ebitmap_andnot(&word->normal, &word->cat, &group->def) < 0)
++	if (ebitmap_andnot(&word->normal, &word->cat, &group->def, maxbit) < 0)
+ 		return -1;
+ 
+ 	ebitmap_t temp;
+@@ -1279,7 +1200,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+ 								word_t *w = g->sword[i];
+ 								int wlen = strlen(w->text);
+ 								if (plen >= wlen && !strncmp(w->text, p, strlen(w->text))){
+-									if (ebitmap_andnot(&set, &w->cat, &g->def) < 0) goto err;
++									if (ebitmap_andnot(&set, &w->cat, &g->def, maxbit) < 0) goto err;
+ 
+ 									if (ebitmap_xor(&tmp, &w->cat, &g->def) < 0) goto err;
+ 									if (ebitmap_and(&clear, &tmp, &g->def) < 0) goto err;
+@@ -1288,7 +1209,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+ 									ebitmap_destroy(&tmp);
+ 									if (ebitmap_cpy(&tmp, &mraw->cat) < 0) goto err;
+ 									ebitmap_destroy(&mraw->cat);
+-									if (ebitmap_andnot(&mraw->cat, &tmp, &clear) < 0) goto err;
++									if (ebitmap_andnot(&mraw->cat, &tmp, &clear, maxbit) < 0) goto err;
+ 
+ 									ebitmap_destroy(&tmp);
+ 									ebitmap_destroy(&set);
+@@ -1439,7 +1360,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+ 				ebitmap_t handled, nothandled;
+ 				if (ebitmap_xor(&handled, &unhandled, &orig_unhandled) < 0)
+ 					goto err;
+-				if (ebitmap_not(&nothandled, &handled) < 0)
++				if (ebitmap_not(&nothandled, &handled, maxbit) < 0)
+ 					goto err;
+ 				word_group_t *currentGroup = NULL;
+ 				word_t *currentWord = NULL;
+@@ -1464,7 +1385,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+ 						if (ebitmap_and(&temp, &bit_diff, &unhandled) < 0)
+ 							goto err;
+ 						if (ebitmap_cmp(&bit_diff, &temp)) {
+-							int h = hamming_distance(&bit_diff, &unhandled);
++							int h = ebitmap_hamming_distance(&bit_diff, &unhandled);
+ 							if (h < hamming) {
+ 								hamming = h;
+ 								currentGroup = g;
+@@ -1487,7 +1408,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+ 					if (ebitmap_cpy(&temp, &unhandled) < 0)
+ 						goto err;
+ 					ebitmap_destroy(&unhandled);
+-					if (ebitmap_andnot(&unhandled, &temp, &bit_diff) < 0)
++					if (ebitmap_andnot(&unhandled, &temp, &bit_diff, maxbit) < 0)
+ 						goto err;
+ 
+ 					ebitmap_destroy(&bit_diff);
+-- 
+1.7.4.4
 
-<snip>
-
-Eric and I have come up with the following syntax for this behaviour.
-
-default_trans level dir_file_class_set parent;
-default_trans user dir_file_class_set process;
-default_trans role file parent;
-
-We have developed a patch to checkpolicy that will process this
-syntax, although it does nothing with it yet, need a patch for libsepol...
-
-We have made these commands optional and I am placing them in the
-policy/mcs file.  Default will be current behavior.
-
-
-ifdef(`enable_mcs',`
-default_trans level dir_file_class_set parent;
-
-#
-# Define sensitivities
-#
-# MCS is single-sensitivity.
-
-gen_sens(1)
-
-...
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk6YW/sACgkQrlYvE4MpobNlHACgqYKr4T3Bi5tp4cPb0ee5mw3q
-I2UAn2trAI2BXOGu+JAbSx2RBNPuAvpd
-=MWrk
------END PGP SIGNATURE-----
-
---------------000707050908060906010000
-Content-Type: text/plain;
- name="checkpolicy.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="checkpolicy.patch"
-
-ZGlmZiAtLWdpdCBhL2NoZWNrcG9saWN5L3BvbGljeV9kZWZpbmUuYyBiL2NoZWNrcG9saWN5
-L3BvbGljeV9kZWZpbmUuYwppbmRleCAxYmY2NjljLi43ZWM2NGFhIDEwMDY0NAotLS0gYS9j
-aGVja3BvbGljeS9wb2xpY3lfZGVmaW5lLmMKKysrIGIvY2hlY2twb2xpY3kvcG9saWN5X2Rl
-ZmluZS5jCkBAIC0zMjcsNiArMzI3LDM5IEBAIGludCBkZWZpbmVfaW5pdGlhbF9zaWQodm9p
-ZCkKIAlyZXR1cm4gLTE7CiB9CiAKK2ludCBkZWZpbmVfZGVmYXVsdF90cmFucyhpbnQgY29t
-cG9uZW50LCBpbnQgZnJvbSkKK3sKKwljaGFyICppZDsKKwllYml0bWFwX3QgZV90Y2xhc3Nl
-czsKKwljbGFzc19kYXR1bV90ICpjbGFkYXR1bTsKKworCWlmIChwYXNzID09IDEpIHsKKwkJ
-d2hpbGUgKChpZCA9IHF1ZXVlX3JlbW92ZShpZF9xdWV1ZSkpKQorCQkJZnJlZShpZCk7CisJ
-CXJldHVybiAwOworCX0KKworCWViaXRtYXBfaW5pdCgmZV90Y2xhc3Nlcyk7CisJd2hpbGUg
-KChpZCA9IHF1ZXVlX3JlbW92ZShpZF9xdWV1ZSkpKSB7CisJCWlmICghaXNfaWRfaW5fc2Nv
-cGUoU1lNX0NMQVNTRVMsIGlkKSkgeworCQkJeXllcnJvcjIoImNsYXNzICVzIGlzIG5vdCB3
-aXRoaW4gc2NvcGUiLCBpZCk7CisJCQlyZXR1cm4gLTE7CisJCX0KKwkJY2xhZGF0dW0gPSBo
-YXNodGFiX3NlYXJjaChwb2xpY3lkYnAtPnBfY2xhc3Nlcy50YWJsZSwgaWQpOworCQlpZiAo
-IWNsYWRhdHVtKSB7CisJCQl5eWVycm9yMigidW5rbm93biBjbGFzcyAlcyIsIGlkKTsKKwkJ
-CXJldHVybiAtMTsKKwkJfQorCQlpZiAoZWJpdG1hcF9zZXRfYml0KCZlX3RjbGFzc2VzLCBj
-bGFkYXR1bS0+cy52YWx1ZSAtIDEsIFRSVUUpKSB7CisJCQl5eWVycm9yKCJPdXQgb2YgbWVt
-b3J5Iik7CisJCQlyZXR1cm4gLTE7CisJCX0KKwkJZnJlZShpZCk7CisJfQorCisJcmV0dXJu
-IDA7Cit9CisKIGludCBkZWZpbmVfY29tbW9uX3Blcm1zKHZvaWQpCiB7CiAJY2hhciAqaWQg
-PSAwLCAqcGVybSA9IDA7CmRpZmYgLS1naXQgYS9jaGVja3BvbGljeS9wb2xpY3lfZGVmaW5l
-LmggYi9jaGVja3BvbGljeS9wb2xpY3lfZGVmaW5lLmgKaW5kZXggOTJhOWJlNy4uMmM4ODFl
-MSAxMDA2NDQKLS0tIGEvY2hlY2twb2xpY3kvcG9saWN5X2RlZmluZS5oCisrKyBiL2NoZWNr
-cG9saWN5L3BvbGljeV9kZWZpbmUuaApAQCAtMTMsNiArMTMsMTQgQEAKICNkZWZpbmUgVFJV
-RSAxCiAjZGVmaW5lIEZBTFNFIDAKIAorZW51bSBkdF9lbnVtIHsKKwlEVF9VU0VSLAorCURU
-X1JPTEUsCisJRFRfTEVWRUwsCisJRFRfUFJPQ0VTUywKKwlEVF9QQVJFTlQsCit9OworCiBh
-dnJ1bGVfdCAqZGVmaW5lX2NvbmRfY29tcHV0ZV90eXBlKGludCB3aGljaCk7CiBhdnJ1bGVf
-dCAqZGVmaW5lX2NvbmRfcG9sX2xpc3QoYXZydWxlX3QgKmF2bGlzdCwgYXZydWxlX3QgKnN0
-bXQpOwogYXZydWxlX3QgKmRlZmluZV9jb25kX3RlX2F2dGFiKGludCB3aGljaCk7CkBAIC01
-Miw2ICs2MCw3IEBAIGludCBkZWZpbmVfcm9sZV90eXBlcyh2b2lkKTsKIGludCBkZWZpbmVf
-cm9sZV9hdHRyKHZvaWQpOwogaW50IGRlZmluZV9yb2xlYXR0cmlidXRlKHZvaWQpOwogaW50
-IGRlZmluZV9maWxlbmFtZV90cmFucyh2b2lkKTsKK2ludCBkZWZpbmVfZGVmYXVsdF90cmFu
-cyhpbnQgY29tcG9ubnQsIGludCBmcm9tKTsKIGludCBkZWZpbmVfc2Vucyh2b2lkKTsKIGlu
-dCBkZWZpbmVfdGVfYXZ0YWIoaW50IHdoaWNoKTsKIGludCBkZWZpbmVfdHlwZWFsaWFzKHZv
-aWQpOwpkaWZmIC0tZ2l0IGEvY2hlY2twb2xpY3kvcG9saWN5X3BhcnNlLnkgYi9jaGVja3Bv
-bGljeS9wb2xpY3lfcGFyc2UueQppbmRleCA0OWFjMTVmLi44NmFhNTc0IDEwMDY0NAotLS0g
-YS9jaGVja3BvbGljeS9wb2xpY3lfcGFyc2UueQorKysgYi9jaGVja3BvbGljeS9wb2xpY3lf
-cGFyc2UueQpAQCAtMTQzLDYgKzE0Myw5IEBAIHR5cGVkZWYgaW50ICgqIHJlcXVpcmVfZnVu
-Y190KSgpOwogJXRva2VuIFBPTElDWUNBUAogJXRva2VuIFBFUk1JU1NJVkUKICV0b2tlbiBG
-SUxFU1lTVEVNCisldG9rZW4gREVGQVVMVF9UUkFOUworJXRva2VuIFBST0NFU1MKKyV0b2tl
-biBQQVJFTlQKIAogJWxlZnQgT1IKICVsZWZ0IFhPUgpAQCAtMTU3LDEwICsxNjAsMTAgQEAg
-YmFzZV9wb2xpY3kgICAgICAgICAgICAgOiB7IGlmIChkZWZpbmVfcG9saWN5KHBhc3MsIDAp
-ID09IC0xKSByZXR1cm4gLTE7IH0KICAgICAgICAgICAgICAgICAgICAgICAgICAgY2xhc3Nl
-cyBpbml0aWFsX3NpZHMgYWNjZXNzX3ZlY3RvcnMKICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgeyBpZiAocGFzcyA9PSAxKSB7IGlmIChwb2xpY3lkYl9pbmRleF9jbGFzc2VzKHBvbGlj
-eWRicCkpIHJldHVybiAtMTsgfQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVsc2Ug
-aWYgKHBhc3MgPT0gMikgeyBpZiAocG9saWN5ZGJfaW5kZXhfb3RoZXJzKE5VTEwsIHBvbGlj
-eWRicCwgMCkpIHJldHVybiAtMTsgfX0KLQkJCSAgb3B0X21scyB0ZV9yYmFjIHVzZXJzIG9w
-dF9jb25zdHJhaW50cyAKKwkJCSAgZGVmYXVsdF90cmFuc19ydWxlcyBvcHRfbWxzIHRlX3Ji
-YWMgdXNlcnMgb3B0X2NvbnN0cmFpbnRzIAogICAgICAgICAgICAgICAgICAgICAgICAgIHsg
-aWYgKHBhc3MgPT0gMSkgeyBpZiAocG9saWN5ZGJfaW5kZXhfYm9vbHMocG9saWN5ZGJwKSkg
-cmV0dXJuIC0xO30KIAkJCSAgIGVsc2UgaWYgKHBhc3MgPT0gMikgeyBpZiAocG9saWN5ZGJf
-aW5kZXhfb3RoZXJzKE5VTEwsIHBvbGljeWRicCwgMCkpIHJldHVybiAtMTt9fQotCQkJICBp
-bml0aWFsX3NpZF9jb250ZXh0cyBvcHRfZnNfY29udGV4dHMgb3B0X2ZzX3VzZXMgb3B0X2dl
-bmZzX2NvbnRleHRzIG5ldF9jb250ZXh0cyBvcHRfZGV2X2NvbnRleHRzCisJCQkgIGluaXRp
-YWxfc2lkX2NvbnRleHRzIG9wdF9mc19jb250ZXh0cyBvcHRfZnNfdXNlcyBvcHRfZ2VuZnNf
-Y29udGV4dHMgbmV0X2NvbnRleHRzIG9wdF9kZXZfY29udGV4dHMgCiAJCQk7CiBjbGFzc2Vz
-CQkJOiBjbGFzc19kZWYgCiAJCQl8IGNsYXNzZXMgY2xhc3NfZGVmCkBAIC0xNzYsNiArMTc5
-LDIzIEBAIGluaXRpYWxfc2lkX2RlZgkJOiBTSUQgaWRlbnRpZmllcgogCQkJOwogYWNjZXNz
-X3ZlY3RvcnMJCTogb3B0X2NvbW1vbl9wZXJtcyBhdl9wZXJtcwogCQkJOworZGVmYXVsdF90
-cmFuc19ydWxlcyAgICAgOiBkZWZhdWx0X3RyYW5zX2RlZgorICAgICAgICAgICAgICAgICAg
-ICAgICAgfCBkZWZhdWx0X3RyYW5zX3J1bGVzIGRlZmF1bHRfdHJhbnNfZGVmCisgICAgICAg
-ICAgICAgICAgICAgICAgICB8CisgICAgICAgICAgICAgICAgICAgICAgICA7CitkZWZhdWx0
-X3RyYW5zX2RlZgk6IERFRkFVTFRfVFJBTlMgVVNFUiBuYW1lcyBQUk9DRVNTICc7JworCQkJ
-e2lmIChkZWZpbmVfZGVmYXVsdF90cmFucyhEVF9VU0VSLCBEVF9QUk9DRVNTKSkgcmV0dXJu
-IC0xO30KKwkJCXwgREVGQVVMVF9UUkFOUyBST0xFIG5hbWVzIFBST0NFU1MgJzsnCisJCQl7
-aWYgKGRlZmluZV9kZWZhdWx0X3RyYW5zKERUX1JPTEUsIERUX1BST0NFU1MpKSByZXR1cm4g
-LTE7fQorCQkJfCBERUZBVUxUX1RSQU5TIExFVkVMIG5hbWVzIFBST0NFU1MgJzsnCisJCQl7
-aWYgKGRlZmluZV9kZWZhdWx0X3RyYW5zKERUX0xFVkVMLCBEVF9QUk9DRVNTKSkgcmV0dXJu
-IC0xO30KKwkJCXwgREVGQVVMVF9UUkFOUyBVU0VSIG5hbWVzIFBBUkVOVCAnOycKKwkJCXtp
-ZiAoZGVmaW5lX2RlZmF1bHRfdHJhbnMoRFRfVVNFUiwgRFRfUEFSRU5UKSkgcmV0dXJuIC0x
-O30KKwkJCXwgREVGQVVMVF9UUkFOUyBST0xFIG5hbWVzIFBBUkVOVCAnOycKKwkJCXtpZiAo
-ZGVmaW5lX2RlZmF1bHRfdHJhbnMoRFRfUk9MRSwgRFRfUEFSRU5UKSkgcmV0dXJuIC0xO30K
-KwkJCXwgREVGQVVMVF9UUkFOUyBMRVZFTCBuYW1lcyBQQVJFTlQgJzsnCisJCQl7aWYgKGRl
-ZmluZV9kZWZhdWx0X3RyYW5zKERUX0xFVkVMLCBEVF9QQVJFTlQpKSByZXR1cm4gLTE7fQor
-CQkJOwogb3B0X2NvbW1vbl9wZXJtcyAgICAgICAgOiBjb21tb25fcGVybXMKICAgICAgICAg
-ICAgICAgICAgICAgICAgIHwKICAgICAgICAgICAgICAgICAgICAgICAgIDsKQEAgLTM1Myw3
-ICszNzMsNyBAQCBjb25kX3J1bGVfZGVmICAgICAgICAgICA6IGNvbmRfdHJhbnNpdGlvbl9k
-ZWYKIAkJCXwgcmVxdWlyZV9ibG9jawogCQkJeyAkJCA9IE5VTEw7IH0KICAgICAgICAgICAg
-ICAgICAgICAgICAgIDsKLWNvbmRfdHJhbnNpdGlvbl9kZWYJOiBUWVBFX1RSQU5TSVRJT04g
-bmFtZXMgbmFtZXMgJzonIG5hbWVzIGlkZW50aWZpZXIgZmlsZW5hbWUgJzsnCitjb25kX3Ry
-YW5zaXRpb25fZGVmCTogVFlQRV9UUkFOU0lUSU9OIG5hbWVzIG5hbWVzICc6JyBuYW1lcyBp
-ZGVudGlmaWVyICdcIicgZmlsZW5hbWUgJ1wiJyAnOycKICAgICAgICAgICAgICAgICAgICAg
-ICAgIHsgJCQgPSBkZWZpbmVfY29uZF9maWxlbmFtZV90cmFucygpIDsKICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgaWYgKCQkID09IENPTkRfRVJSKSByZXR1cm4gLTE7fQogCQkJfCBU
-WVBFX1RSQU5TSVRJT04gbmFtZXMgbmFtZXMgJzonIG5hbWVzIGlkZW50aWZpZXIgJzsnCkBA
-IC0zOTEsNyArNDExLDcgQEAgY29uZF9kb250YXVkaXRfZGVmCTogRE9OVEFVRElUIG5hbWVz
-IG5hbWVzICc6JyBuYW1lcyBuYW1lcyAnOycKIAkJCXsgJCQgPSBkZWZpbmVfY29uZF90ZV9h
-dnRhYihBVlJVTEVfRE9OVEFVRElUKTsKICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYg
-KCQkID09IENPTkRfRVJSKSByZXR1cm4gLTE7IH0KIAkJICAgICAgICA7Ci10cmFuc2l0aW9u
-X2RlZgkJOiBUWVBFX1RSQU5TSVRJT04gIG5hbWVzIG5hbWVzICc6JyBuYW1lcyBpZGVudGlm
-aWVyIGZpbGVuYW1lICc7JwordHJhbnNpdGlvbl9kZWYJCTogVFlQRV9UUkFOU0lUSU9OICBu
-YW1lcyBuYW1lcyAnOicgbmFtZXMgaWRlbnRpZmllciAnXCInIGZpbGVuYW1lICdcIicgJzsn
-CiAJCQl7aWYgKGRlZmluZV9maWxlbmFtZV90cmFucygpKSByZXR1cm4gLTE7IH0KIAkJCXwg
-VFlQRV9UUkFOU0lUSU9OIG5hbWVzIG5hbWVzICc6JyBuYW1lcyBpZGVudGlmaWVyICc7Jwog
-ICAgICAgICAgICAgICAgICAgICAgICAge2lmIChkZWZpbmVfY29tcHV0ZV90eXBlKEFWUlVM
-RV9UUkFOU0lUSU9OKSkgcmV0dXJuIC0xO30KQEAgLTc1Myw2ICs3NzMsOCBAQCBuZXN0ZWRf
-aWRfZWxlbWVudCAgICAgICA6IGlkZW50aWZpZXIgfCAnLScgeyBpZiAoaW5zZXJ0X2lkKCIt
-IiwgMCkpIHJldHVybiAtMTsgfQogICAgICAgICAgICAgICAgICAgICAgICAgOwogaWRlbnRp
-ZmllcgkJOiBJREVOVElGSUVSCiAJCQl7IGlmIChpbnNlcnRfaWQoeXl0ZXh0LDApKSByZXR1
-cm4gLTE7IH0KKyAgICAgICAgICAgICAgICAgICAgICAgIHwgUFJPQ0VTUworCQkJeyBpZiAo
-aW5zZXJ0X2lkKHl5dGV4dCwwKSkgcmV0dXJuIC0xOyB9CiAJCQk7CiBwYXRoICAgICAJCTog
-UEFUSAogCQkJeyBpZiAoaW5zZXJ0X2lkKHl5dGV4dCwwKSkgcmV0dXJuIC0xOyB9CmRpZmYg
-LS1naXQgYS9jaGVja3BvbGljeS9wb2xpY3lfc2Nhbi5sIGIvY2hlY2twb2xpY3kvcG9saWN5
-X3NjYW4ubAppbmRleCBhNjFlMGRiLi5lN2JkZjlmIDEwMDY0NAotLS0gYS9jaGVja3BvbGlj
-eS9wb2xpY3lfc2Nhbi5sCisrKyBiL2NoZWNrcG9saWN5L3BvbGljeV9zY2FuLmwKQEAgLTIx
-OSw2ICsyMTksMTIgQEAgaDIgfAogSDIJCQkJeyByZXR1cm4oSDIpOyB9CiBwb2xpY3ljYXAg
-fAogUE9MSUNZQ0FQCQkJeyByZXR1cm4oUE9MSUNZQ0FQKTsgfQorcHJvY2VzcyB8CitQUk9D
-RVNTCQkJCXsgcmV0dXJuKFBST0NFU1MpOyB9CitwYXJlbnQgfAorUEFSRU5UCQkJCXsgcmV0
-dXJuKFBBUkVOVCk7IH0KK2RlZmF1bHRfdHJhbnMgfAorREVGQVVMVF9UUkFOUwkJCXsgcmV0
-dXJuKERFRkFVTFRfVFJBTlMpOyB9CiBwZXJtaXNzaXZlIHwKIFBFUk1JU1NJVkUJCQl7IHJl
-dHVybihQRVJNSVNTSVZFKTsgfQogIi8iKHthbG51bX18W19cLlwtL10pKgkgICAgICAgIHsg
-cmV0dXJuKFBBVEgpOyB9CkBAIC0yMjcsOSArMjMzLDggQEAgUEVSTUlTU0lWRQkJCXsgcmV0
-dXJuKFBFUk1JU1NJVkUpOyB9CiB7ZGlnaXR9ezEsM30oXC57ZGlnaXR9ezEsM30pezN9ICAg
-IHsgcmV0dXJuKElQVjRfQUREUik7IH0KIHtoZXh2YWx9ezAsNH0iOiJ7aGV4dmFsfXswLDR9
-IjoiKHtoZXh2YWx9fFs6Ll0pKiAgeyByZXR1cm4oSVBWNl9BRERSKTsgfQoge2RpZ2l0fSso
-XC4oe2FsbnVtfXxbXy5dKSopPyAgICB7IHJldHVybihWRVJTSU9OX0lERU5USUZJRVIpOyB9
-Ci1cIih7YWxudW19fFtfXC5cLV0pK1wiCQl7IHJldHVybihGSUxFTkFNRSk7IH0KIHthbG51
-bX0qICAgICAgICAgICAgICAgICAgICAgICAgeyByZXR1cm4oRklMRU5BTUUpOyB9Ci1cLih7
-YWxudW19fFtfXC5cLV0pKgkgICAgICAgIHsgcmV0dXJuKEZJTEVOQU1FKTsgfQorXC4oe2Fs
-bnVtfXxbX1wuXC1dKSsJICAgICAgICB7IHJldHVybihGSUxFTkFNRSk7IH0KIHtsZXR0ZXJ9
-KyhbLV9cLl18e2FsbnVtfSkrICAgICAgeyByZXR1cm4oRklMRU5BTUUpOyB9CiAoW19cLl0p
-e2FsbnVtfSsgICAgICAgICAgICAgICAgIHsgcmV0dXJuKEZJTEVOQU1FKTsgfQogI2xpbmVb
-IF0xWyBdXCJbXlxuXSpcIgkJeyBzZXRfc291cmNlX2ZpbGUoeXl0ZXh0KzkpOyB9CkBAIC0y
-NTMsNiArMjU4LDcgQEAgUEVSTUlTU0lWRQkJCXsgcmV0dXJuKFBFUk1JU1NJVkUpOyB9CiAi
-LSIgfAogIi4iIHwKICJdIiB8CisiXCIiIHwKICJ+IiB8CiAiKiIJCQkJeyByZXR1cm4oeXl0
-ZXh0WzBdKTsgfSAKIC4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeyB5eXdhcm4o
-InVucmVjb2duaXplZCBjaGFyYWN0ZXIiKTt9Cg==
---------------000707050908060906010000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
