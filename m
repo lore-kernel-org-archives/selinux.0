@@ -1,301 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id p9ICYmqt005340
-	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2011 08:34:49 -0400
-Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id p9ICYl9e008079
-	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2011 12:34:48 GMT
-From: Steve Lawrence <slawrence@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH 1/1] libsepol: Move ebitmap_* functions from mcstrans to libsepol
-Date: Tue, 18 Oct 2011 08:34:41 -0400
-Message-ID: <1318941281-21268-1-git-send-email-slawrence@tresys.com>
+Message-ID: <4E9D7267.9060004@tresys.com>
+Date: Tue, 18 Oct 2011 08:34:47 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, David Windsor <dwindsor@gmail.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: I would like to change the behavior of MCS label creations in
+ directory.
+References: <4E7B9233.6080609@redhat.com>  <1316723465.2354.6.camel@moss-pluto> <4E7B9B43.9000400@redhat.com>  <1316723821.2354.9.camel@moss-pluto> <1316724121.2354.12.camel@moss-pluto>  <4E7C9F3D.9030704@redhat.com> <1316790421.10259.70.camel@moss-pluto>  <CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com> <1317139611.22218.9.camel@moss-pluto> <4E82123C.4070406@redhat.com> <4E985BFB.1000806@redhat.com>
+In-Reply-To: <4E985BFB.1000806@redhat.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patches moves some ebitmap functions (and, xor, not, etc.) from
-mcstrans into libsepol, where they really belong and could be used by
-other applications (e.g. CIL)
----
- libsepol/include/sepol/policydb/ebitmap.h |    6 ++
- libsepol/src/ebitmap.c                    |   76 ++++++++++++++++++++++++
- libsepol/src/private.h                    |    3 +
- policycoreutils/mcstrans/src/mcstrans.c   |   91 ++---------------------------
- 4 files changed, 91 insertions(+), 85 deletions(-)
+On 10/14/11 11:57, Daniel J Walsh wrote:
+> Eric and I have come up with the following syntax for this behaviour.
+> 
+> default_trans level dir_file_class_set parent;
 
-diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
-index 410c15c..214da95 100644
---- a/libsepol/include/sepol/policydb/ebitmap.h
-+++ b/libsepol/include/sepol/policydb/ebitmap.h
-@@ -76,6 +76,12 @@ static inline int ebitmap_node_get_bit(ebitmap_node_t * n, unsigned int bit)
- extern int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2);
- extern int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2);
- extern int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1);
-+extern int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
-+extern int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2);
-+extern int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit);
-+extern int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int maxbit);
-+extern unsigned int ebitmap_cardinality(ebitmap_t *e1);
-+extern int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2);
- extern int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src);
- extern int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2);
- extern int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit);
-diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-index cc6a915..be6b591 100644
---- a/libsepol/src/ebitmap.c
-+++ b/libsepol/src/ebitmap.c
-@@ -71,6 +71,82 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
- 	return 0;
- }
- 
-+int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
-+{
-+	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
-+	ebitmap_init(dst);
-+	for (i=0; i < length; i++) {
-+		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
-+			int rc = ebitmap_set_bit(dst, i, 1);
-+			if (rc < 0)
-+				return rc;
-+		}
-+	}
-+	return 0;
-+}
-+
-+int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
-+{
-+	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
-+	ebitmap_init(dst);
-+	for (i=0; i < length; i++) {
-+		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
-+		int rc = ebitmap_set_bit(dst, i, val);
-+		if (rc < 0)
-+			return rc;
-+	}
-+	return 0;
-+}
-+
-+int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit)
-+{
-+	unsigned int i;
-+	ebitmap_init(dst);
-+	for (i=0; i < maxbit; i++) {
-+		int val = ebitmap_get_bit(e1, i);
-+		int rc = ebitmap_set_bit(dst, i, !val);
-+		if (rc < 0)
-+			return rc;
-+	}
-+	return 0;
-+}
-+
-+int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int maxbit)
-+{
-+	ebitmap_t e3;
-+	ebitmap_init(dst);
-+	int rc = ebitmap_not(&e3, e2, maxbit);
-+	if (rc < 0)
-+		return rc;
-+	rc = ebitmap_and(dst, e1, &e3);
-+	ebitmap_destroy(&e3);
-+	if (rc < 0)
-+		return rc;
-+	return 0;
-+}
-+
-+unsigned int ebitmap_cardinality(ebitmap_t *e1)
-+{
-+	unsigned int i, count = 0;
-+	for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
-+		if (ebitmap_get_bit(e1, i))
-+			count++;
-+	return count;
-+}
-+
-+int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2)
-+{
-+	if (ebitmap_cmp(e1, e2))
-+		return 0;
-+	ebitmap_t tmp;
-+	int rc = ebitmap_xor(&tmp, e1, e2);
-+	if (rc < 0)
-+		return -1;
-+	int distance = ebitmap_cardinality(&tmp);
-+	ebitmap_destroy(&tmp);
-+	return distance;
-+}
-+
- int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2)
- {
- 	ebitmap_node_t *n1, *n2;
-diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-index b2b247e..24a544d 100644
---- a/libsepol/src/private.h
-+++ b/libsepol/src/private.h
-@@ -28,6 +28,9 @@
- #undef min
- #define min(a,b) (((a) < (b)) ? (a) : (b))
- 
-+#undef max
-+#define max(a,b) ((a) >= (b) ? (a) : (b))
-+
- #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
- 
- /* Policy compatibility information. */
-diff --git a/policycoreutils/mcstrans/src/mcstrans.c b/policycoreutils/mcstrans/src/mcstrans.c
-index 604a378..4d31857 100644
---- a/policycoreutils/mcstrans/src/mcstrans.c
-+++ b/policycoreutils/mcstrans/src/mcstrans.c
-@@ -38,9 +38,6 @@
- #define N_BUCKETS 1453
- #define OVECCOUNT (512*3)
- 
--#define max(a,b) ((a) >= (b) ? (a) : (b))
--#define min(a,b) ((a) < (b) ? (a) : (b))
--
- #define log_error(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
- 
- #ifdef DEBUG
-@@ -51,82 +48,6 @@
- 
- static unsigned int maxbit=0;
- 
--int
--ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
--	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
--	ebitmap_init(dst);
--	for (i=0; i < length; i++) {
--		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
--			int rc = ebitmap_set_bit(dst, i, 1);
--			if (rc < 0)
--				return rc;
--		}
--	}
--	return 0;
--}
--
--int
--ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
--	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
--	ebitmap_init(dst);
--	for (i=0; i < length; i++) {
--		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
--		int rc = ebitmap_set_bit(dst, i, val);
--		if (rc < 0)
--			return rc;
--	}
--	return 0;
--}
--
--int
--ebitmap_not(ebitmap_t *dst, ebitmap_t *e1) {
--	unsigned int i;
--	ebitmap_init(dst);
--	for (i=0; i < maxbit; i++) {
--		int val = ebitmap_get_bit(e1, i);
--		int rc = ebitmap_set_bit(dst, i, !val);
--		if (rc < 0)
--			return rc;
--	}
--	return 0;
--}
--
--int
--ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2) {
--	ebitmap_t e3;
--	ebitmap_init(dst);
--	int rc = ebitmap_not(&e3, e2);
--	if (rc < 0)
--		return rc;
--	rc = ebitmap_and(dst, e1, &e3);
--	ebitmap_destroy(&e3);
--	if (rc < 0)
--		return rc;
--	return 0;
--}
--
--unsigned int
--ebitmap_cardinality(ebitmap_t *e1) {
--	unsigned int i, count = 0;
--	for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
--		if (ebitmap_get_bit(e1, i))
--			count++;
--	return count;
--}
--
--int
--hamming_distance(ebitmap_t * e1, ebitmap_t * e2) {
--	if (ebitmap_cmp(e1, e2))
--		return 0;
--	ebitmap_t tmp;
--	int rc = ebitmap_xor(&tmp, e1, e2);
--	if (rc < 0)
--		return -1;
--	int distance = ebitmap_cardinality(&tmp);
--	ebitmap_destroy(&tmp);
--	return distance;
--}
--
- /* Define data structures */
- typedef struct context_map {
- 	char *raw;
-@@ -517,7 +438,7 @@ add_word(word_group_t *group, char *raw, char *trans) {
- 		destroy_word(&group->words, word);
- 		return -1;
- 	}
--	if (ebitmap_andnot(&word->normal, &word->cat, &group->def) < 0)
-+	if (ebitmap_andnot(&word->normal, &word->cat, &group->def, maxbit) < 0)
- 		return -1;
- 
- 	ebitmap_t temp;
-@@ -1279,7 +1200,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
- 								word_t *w = g->sword[i];
- 								int wlen = strlen(w->text);
- 								if (plen >= wlen && !strncmp(w->text, p, strlen(w->text))){
--									if (ebitmap_andnot(&set, &w->cat, &g->def) < 0) goto err;
-+									if (ebitmap_andnot(&set, &w->cat, &g->def, maxbit) < 0) goto err;
- 
- 									if (ebitmap_xor(&tmp, &w->cat, &g->def) < 0) goto err;
- 									if (ebitmap_and(&clear, &tmp, &g->def) < 0) goto err;
-@@ -1288,7 +1209,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
- 									ebitmap_destroy(&tmp);
- 									if (ebitmap_cpy(&tmp, &mraw->cat) < 0) goto err;
- 									ebitmap_destroy(&mraw->cat);
--									if (ebitmap_andnot(&mraw->cat, &tmp, &clear) < 0) goto err;
-+									if (ebitmap_andnot(&mraw->cat, &tmp, &clear, maxbit) < 0) goto err;
- 
- 									ebitmap_destroy(&tmp);
- 									ebitmap_destroy(&set);
-@@ -1439,7 +1360,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
- 				ebitmap_t handled, nothandled;
- 				if (ebitmap_xor(&handled, &unhandled, &orig_unhandled) < 0)
- 					goto err;
--				if (ebitmap_not(&nothandled, &handled) < 0)
-+				if (ebitmap_not(&nothandled, &handled, maxbit) < 0)
- 					goto err;
- 				word_group_t *currentGroup = NULL;
- 				word_t *currentWord = NULL;
-@@ -1464,7 +1385,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
- 						if (ebitmap_and(&temp, &bit_diff, &unhandled) < 0)
- 							goto err;
- 						if (ebitmap_cmp(&bit_diff, &temp)) {
--							int h = hamming_distance(&bit_diff, &unhandled);
-+							int h = ebitmap_hamming_distance(&bit_diff, &unhandled);
- 							if (h < hamming) {
- 								hamming = h;
- 								currentGroup = g;
-@@ -1487,7 +1408,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
- 					if (ebitmap_cpy(&temp, &unhandled) < 0)
- 						goto err;
- 					ebitmap_destroy(&unhandled);
--					if (ebitmap_andnot(&unhandled, &temp, &bit_diff) < 0)
-+					if (ebitmap_andnot(&unhandled, &temp, &bit_diff, maxbit) < 0)
- 						goto err;
- 
- 					ebitmap_destroy(&bit_diff);
+I think we want this to be "range" instead of "level", since the field is actually a range.
+
+> default_trans user dir_file_class_set process;
+> default_trans role file parent;
+
+Isn't there a better set of tokens than this?  Why not make it default_user, default_role, default_type, and default_range?  Creating an object doesn't really imply a transition, so "trans" seems misleading.
+
 -- 
-1.7.4.4
-
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
