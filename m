@@ -1,49 +1,42 @@
-Subject: Re: passwd, chfn and chsh not reporting AVC's
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4EA01D9D.8050804@redhat.com>
-References: <4EA01D9D.8050804@redhat.com>
+Message-ID: <1319468868.3280.9.camel@localhost>
+Subject: Re: [PATCH 1/2] LSM: Do not apply mmap_min_addr check to PROT_NONE
+ mappings
+From: Eric Paris <eparis@parisplace.org>
+To: Roland McGrath <roland@hack.frob.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        James Morris <jmorris@namei.org>, Stephen
+ Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, John Johansen
+ <john.johansen@canonical.com>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 24 Oct 2011 11:07:48 -0400
+In-Reply-To: <20111023185243.EFE2F2C08F@topped-with-meat.com>
+References: <20111021213916.914462C0A5@topped-with-meat.com>
+	 <CA+55aFy3ALC34AyrsHi9yjBgRMwg9G5w2PhDfr_JVti1M8GbNQ@mail.gmail.com>
+	 <20111022172450.0BCCE2C0A9@topped-with-meat.com>
+	 <CA+55aFx_9D8jY2sqcZ+Tm305W9d8o+ZhEv8XNWuN4--S2bqRwQ@mail.gmail.com>
+	 <20111023185243.EFE2F2C08F@topped-with-meat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 20 Oct 2011 09:42:22 -0400
-Message-ID: <1319118142.29287.31.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2011-10-20 at 09:09 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> In reviewing some bugs on these packages we realize we want to update
-> them to use the latest tool chain.  In order to make this easier, we
-> want to add a new function called selinux_check_access to libselinux.
-> 
-> Please review patch.
+On Sun, 2011-10-23 at 11:52 -0700, Roland McGrath wrote:
 
-For those who are interested in more details, this is in reference to:
-https://bugzilla.redhat.com/show_bug.cgi?id=518268
-and has come up a few times on selinux list as a problem for users due
-to the lack of any AVC audit message upon certain userspace permission
-checks.  These programs were modified for SELinux before the userspace
-AVC existed, and thus directly used security_compute_av().  But even
-with the userspace AVC in existence, they would prefer a simpler
-interface with fewer discrete calls as they are not long-lived processes
-and typically only perform a single permission check.  This is an
-attempt to bundle up everything into a single interface similar to
-security_compute_av (but with string-based classes and permissions so
-that even that lookup is handled internally) that internally uses the
-ACV so that we get the benefits of auditing and permissive
-mode/permissive domain handling that are not provided by
-security_compute_av().  The program still has to call
-selinux_set_callback() to set up the logging callback as we don't want
-to tightly couple libselinux to libaudit, but otherwise is freed from
-any other setup responsibility (avc_open is handled internally on first
-use of the interface via __selinux_once magic).
+> > But that's no reason for the kernel to *allow* the mapping.
+> 
+> I don't have a problem with that.
 
--- 
-Stephen Smalley
-National Security Agency
+I feel like, and it's just a very vague feeling, that the PROT bits
+didn't matter to the kernel.  It would still happily execute stuff on
+page 0 even without PROT_EXEC at some point in the past.  I'm probably
+totally off base, and I could test it, but I sort of feel like I
+remember something like that....
+
+If that's the case, NULL pointer kernel bugs won't be caught if they
+happen while these are mapped by your program...
 
 
 --
