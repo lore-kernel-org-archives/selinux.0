@@ -1,88 +1,67 @@
-Message-ID: <1319765776.2767.15.camel@localhost>
 Subject: Re: [PATCH] SELinux: audit failed attempts to set invalid labels
-From: Eric Paris <eparis@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Kyle Moffett <kyle@moffetthome.net>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
-Date: Thu, 27 Oct 2011 21:36:16 -0400
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, dwalsh@redhat.com
 In-Reply-To: <CAGZ=bqJtuLzaycj9QJQJGxTMA2aRiOrEjGf+Wn39dv5gPQJFwg@mail.gmail.com>
 References: <20111027210531.14866.89071.stgit@paris.rdu.redhat.com>
 	 <CAGZ=bqJtuLzaycj9QJQJGxTMA2aRiOrEjGf+Wn39dv5gPQJFwg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 28 Oct 2011 09:02:52 -0400
+Message-ID: <1319806972.19110.12.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Thu, 2011-10-27 at 21:10 -0400, Kyle Moffett wrote:
-> Hi Eric!
-> 
-> On Thu, Oct 27, 2011 at 17:05, Eric Paris <eparis@redhat.com> wrote:
-> > We know that some yum operation is causing CAP_MAC_ADMIN failures.  This
-> > implies that an RPM is laying down (or attempting to lay down) a file with
-> > an invalid label.  The problem is that we don't have any information to
-> > track down the cause.  This patch with cause such a failure to report the
-> > failed label in an SELINUX_ERR audit message.  This is similar to the
-> > SELINUX_ERR reports on invalid transitions and things like that.  It should
-> > help run down problems on what is trying to set invalid labels in the
-> > future.
-> 
-> So, the existing code seems to do the right thing:
-> >        rc = security_context_to_sid(value, size, &newsid);
-> 
-> But this new code looks very wrong:
-> > +                       audit_log_n_untrustedstring(ab, value, strnlen(value, size));
-> 
-> If somebody stuck a "\0" character in there that would not do what you want.
-
-It does what I want, but maybe you are right that it is still wrong.  On
-a normal setxattr call 'size' is the size of the string including the
-nul.  I know this from testing.  My first attempt at using the audit
-function included the nul in the ouput since I used exactly the line you
-have below (as you noticed the audit function does not expect to include
-the nul).  Which meant that the audit output was encoded rather than a
-readable string since the nul was not a valid audit character.
-
-> I would expect this is the correct way:
->   audit_log_n_untrustedstring(ab, value, size)
-> 
 > I looked at audit_log_n_untrustedstring and
 > security_context_to_sid_core, and both seem to assume that "size" does
 > not include a trailing NUL.
 
-Actually it presumes that it MIGHT not include the nul.  If the nul is
-there it will however politely add a second nul....
+security_context_to_sid_core() is supposed to handle it either way, with
+or without a trailing NUL.  Originally it only took NUL-terminated
+strings (with the original SELinux interfaces), but we had to make it
+more forgiving of its input when we switched to using the xattr APIs.
 
 > Reading through "security_context_to_sid_core()", it appears to have a
 > bug when !ss_initialized:
 >   if (!strcmp(initial_sid_to_string[i], scontext))
 > 
 > Where's the references to scontext_len???
->
+
+Fair enough, we don't seem to have updated that case.  Of course, that
+only happens before policy is loaded and thus anything is allowed
+anyway.
+
 > It looks like it will allow (during early boot) a process to set an
 > invalid xattr on a file yet cache a valid SID for the same file, EG:
 > "system_u:object_r:kernel_t:s0\0HelloWorld", hm?
 
-That is a bit interesting, and is points out the problem that my
-function might have.  Maybe I should instead use
-
-size = (value[size-1] == '\0' ? size-1 : size);
-audit_log_n_untrustedstring(ab, value, size);
-
-So I only avoid the nul if it is at the end of the buffer....
-
-I guess really the question comes down to what that label means.  Is
-"system_u:object_r:kernel_t:s0\0HelloWorld" supposed to be equal to
-"system_u:object_r:kernel_t:s0"?  If the labels are strings those are
-equal....
+Well, technically it will only accept strings with initial SID names
+(e.g. "kernel" or "kernel\0HelloWorld", which aren't even valid contexts
+once the policy has loaded).  And that's merely to ensure that
+security_sid_to_context() followed by security_context_to_sid() on an
+initial SID during bootup yields the right SID.  Those contexts should
+never be stored at all, as selinux_inode_setxattr() won't let you set an
+SELinux label on a filesystem until after policy has loaded.
 
 > Furthermore, the rest of that code is very non-obviously correct
 > regarding checking against the length instead of a NUL character.
 
-I'm still questioning (I only looked 2 seconds) how and if
-string_to_context_struct() works properly if there wasn't already a nul
-in the size....   But I agree the rest of it looks non-obviously
-safe  :)
+That's because the original code only dealt with NUL-terminated strings,
+and we merely changed security_context_to_sid_core() to create a
+NUL-terminated copy for use by the rest of the code (it was already
+copying it to allow modifying it during parsing, so we just extended it
+by a byte and cleared the last byte).  And then
+string_to_context_struct() applies a check against scontext_len just
+before the policydb_context_isvalid() call to ensure that we have
+consumed the entire context value during parsing.
 
--Eric
+So trying to set a context value with content after a NUL will just
+return -1 with errno EINVAL; feel free to try it (I did).
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
