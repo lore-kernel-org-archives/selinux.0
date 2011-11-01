@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1Jk1tS031404
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:46:01 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1JkPRA031461
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:46:25 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1Jk0Hs000850
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:46:00 GMT
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1JjxtB032439
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1JkOOe027452
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:46:24 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1JkNO3029168
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:45:59 -0400
-Message-ID: <4EB04C77.2070304@redhat.com>
-Date: Tue, 01 Nov 2011 15:45:59 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:46:24 -0400
+Message-ID: <4EB04C8F.1070402@redhat.com>
+Date: Tue, 01 Nov 2011 15:46:23 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 50/63] checkpolicy: parse for default_file_trans rules
+Subject: [PATCH 51/63] sepolgen: Return name field in avc data
 Content-Type: multipart/mixed;
- boundary="------------020104080500020902040403"
+ boundary="------------010700000606050001090308"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020104080500020902040403
+--------------010700000606050001090308
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -35,17 +35,17 @@ Hash: SHA1
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk6wTHYACgkQrlYvE4MpobP/wwCePf+mpFHYQ/5uvtuYA1MYA8Yt
-GEoAoLq+aavuux14a6NhsSpg/h2rR61Z
-=fzsp
+iEYEARECAAYFAk6wTI8ACgkQrlYvE4MpobP7RgCgjoo1TthwHBh0W4g1I5pQd2xl
+jEgAnipfEO/Im2ROrTnzHvpf6M4H25na
+=847I
 -----END PGP SIGNATURE-----
 
---------------020104080500020902040403
+--------------010700000606050001090308
 Content-Type: text/plain;
- name="0050-checkpolicy-parse-for-default_file_trans-rules.patch"
+ name="0051-sepolgen-Return-name-field-in-avc-data.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0050-checkpolicy-parse-for-default_file_trans-rules.patch"
+ filename="0051-sepolgen-Return-name-field-in-avc-data.patch"
 
 
---------------020104080500020902040403--
+--------------010700000606050001090308--
