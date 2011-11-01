@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1JpCGp032063
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:51:12 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1JqqEr032158
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:52:52 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1JpAHs001788
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:51:11 GMT
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1JqpHs002007
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:52:51 GMT
 Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1JpA5H028570
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1Jqoqh028880
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:51:10 -0400
-Message-ID: <4EB04DAD.1090903@redhat.com>
-Date: Tue, 01 Nov 2011 15:51:09 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:52:51 -0400
+Message-ID: <4EB04E11.8030702@redhat.com>
+Date: Tue, 01 Nov 2011 15:52:49 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 43/63] policycoreutils: setfiles: close /proc/mounts file
+Subject: [PATCH 44/63] policycoreutils: label_file: style changes to make
 Content-Type: multipart/mixed;
- boundary="------------090908010807090504070502"
+ boundary="------------010003090404050207080002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090908010807090504070502
+--------------010003090404050207080002
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -35,18 +35,18 @@ Hash: SHA1
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk6wTa0ACgkQrlYvE4MpobPKtwCfe4LhQOVD/KWKPCaJg2Bra/OW
-Jv4An0oOS3RQNJvffP+LwuDLi+GNdrGn
-=tGA0
+iEYEARECAAYFAk6wThEACgkQrlYvE4MpobOLRgCfWs8iAjtrApI0v3i6uhhWjKAW
+ynkAoMe2sEhvfJ+kTiLQH8uo5aDIgogG
+=gmJ8
 -----END PGP SIGNATURE-----
 
---------------090908010807090504070502
+--------------010003090404050207080002
 Content-Type: text/plain;
- name="0043-policycoreutils-setfiles-close-proc-mounts-file-when.patch"
+ name="0044-policycoreutils-label_file-style-changes-to-make-Eri.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0043-policycoreutils-setfiles-close-proc-mounts-file-when.pa";
+ filename*0="0044-policycoreutils-label_file-style-changes-to-make-Eri.pa";
  filename*1="tch"
 
 
---------------090908010807090504070502--
+--------------010003090404050207080002--
