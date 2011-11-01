@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1JnI6M031791
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:49:18 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA1JoCXs031924
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:50:12 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1JnHOe028074
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:49:17 GMT
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1JnHCx027543
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pA1JoBOe028243
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 19:50:11 GMT
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA1JoAQf027631
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:49:17 -0400
-Message-ID: <4EB04D3C.40100@redhat.com>
-Date: Tue, 01 Nov 2011 15:49:16 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2011 15:50:11 -0400
+Message-ID: <4EB04D71.9070608@redhat.com>
+Date: Tue, 01 Nov 2011 15:50:09 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 59/63] policycoreutils: setfiles: fix use before initialized
+Subject: [PATCH 40/63] policycoreutils: make use of the new
 Content-Type: multipart/mixed;
- boundary="------------000706090308080307010702"
+ boundary="------------020505070706030707080102"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000706090308080307010702
+--------------020505070706030707080102
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -35,18 +35,18 @@ Hash: SHA1
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk6wTTwACgkQrlYvE4MpobOHkACgzA83IE7Rd2jGbe39XK8jAzFy
-R9EAoJex9vXf9gO7PD2BQ+qPlRAtxXcg
-=K6t+
+iEYEARECAAYFAk6wTXEACgkQrlYvE4MpobPrkACggN6TN2K75r1ni431U9ux4T8H
+k30An1aHieieg1zju4ZrnVg3lKZUiAuw
+=RVbr
 -----END PGP SIGNATURE-----
 
---------------000706090308080307010702
+--------------020505070706030707080102
 Content-Type: text/plain;
- name="0059-policycoreutils-setfiles-fix-use-before-initialized.patch"
+ name="0040-policycoreutils-make-use-of-the-new-realpath_not_fin.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0059-policycoreutils-setfiles-fix-use-before-initialized.pat";
- filename*1="ch"
+ filename*0="0040-policycoreutils-make-use-of-the-new-realpath_not_fin.pa";
+ filename*1="tch"
 
 
---------------000706090308080307010702--
+--------------020505070706030707080102--
