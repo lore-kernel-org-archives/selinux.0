@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA4FEpS9026602
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 11:14:51 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA4FGEgj026685
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 11:16:14 -0400
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA4FEopC002532
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 15:14:50 GMT
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA4FESUt014492
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA4FGCpC003353
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 15:16:13 GMT
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pA4FGCOP012045
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 11:14:28 -0400
-Message-ID: <4EB40153.1080005@redhat.com>
-Date: Fri, 04 Nov 2011 11:14:27 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2011 11:16:12 -0400
+Message-ID: <4EB401BB.3030305@redhat.com>
+Date: Fri, 04 Nov 2011 11:16:11 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 22/24] checkpolicy: dis* fixed signed vs unsigned errors
+Subject: [PATCH 23/24] checkpolicy: dismod: fix unused parameter errors
 Content-Type: multipart/mixed;
- boundary="------------070108010907030405060200"
+ boundary="------------010205030803060907010907"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------070108010907030405060200
+--------------010205030803060907010907
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -35,17 +35,17 @@ Hash: SHA1
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk60AVMACgkQrlYvE4MpobNRHACeJ7YIbSg3nymdgaJpMk2y3vk6
-u7wAnivsutaWlpmDLNyUFoMGZ7Mcork1
-=ai25
+iEYEARECAAYFAk60AbsACgkQrlYvE4MpobMOZwCfdgH5eHJtInU1pKw68kYfe2i9
++skAn1+STAezPP9xxd0JpWcy8BkOW6J4
+=huEt
 -----END PGP SIGNATURE-----
 
---------------070108010907030405060200
+--------------010205030803060907010907
 Content-Type: text/plain;
- name="0022-checkpolicy-dis-fixed-signed-vs-unsigned-errors.patch"
+ name="0023-checkpolicy-dismod-fix-unused-parameter-errors.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0022-checkpolicy-dis-fixed-signed-vs-unsigned-errors.patch"
+ filename*0="0023-checkpolicy-dismod-fix-unused-parameter-errors.patch"
 
 
---------------070108010907030405060200--
+--------------010205030803060907010907--
