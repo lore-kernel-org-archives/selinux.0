@@ -1,46 +1,43 @@
-Subject: Re: SELinux on Android
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Bhargava Shastry <bshas3@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <CAGGozWR6yGyQaxgSED+NdAyLYGzkjDhdWmMxnB=B0qEBAEOtLA@mail.gmail.com>
-References: 
-	 <CAGGozWSLxn-SNzpc-jW+tZuEHAxOX0-Sn9PxDuyd7rLvvwempw@mail.gmail.com>
-	 <1320409924.1015.7.camel@moss-pluto>
-	 <CAGGozWR6yGyQaxgSED+NdAyLYGzkjDhdWmMxnB=B0qEBAEOtLA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 04 Nov 2011 12:59:58 -0400
-Message-ID: <1320425998.1015.31.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pA7NMgO0004866
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2011 18:22:42 -0500
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pA7NMesn006744
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2011 23:22:41 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: refpolicy@oss1.tresys.com, Justin Mattock <justinmattock@yahoo.com>
+Subject: Re: [refpolicy] semodule segfaults with ubuntu
+Date: Tue, 8 Nov 2011 10:22:29 +1100
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+References: <1320681595.98236.YahooMailNeo@web114319.mail.gq1.yahoo.com>
+In-Reply-To: <1320681595.98236.YahooMailNeo@web114319.mail.gq1.yahoo.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201111081022.29910.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2011-11-04 at 17:25 +0100, Bhargava Shastry wrote:
-> Dear Mr. Smalley,
-> 
-> Thanks for your inputs. I did go through the slides of your recent
-> presentation on a case for SELinux enhanced Android phone. You have
-> done a great job re-engineering Android to retrofit SELinux.
-> 
-> I was wondering how much effort it is to actually port a subset of
-> SELinux's userspace (e.g., loadpolicy, chcon and a few others) tools
-> to Android? Does it entail major changes to Android's existing
-> toolchain including modifications to its bionic libc?  Also, I was
-> wondering if you also undertook a port of coreutils as well (to enable
-> the -Z option for utils like ps and ls)?
+On Tue, 8 Nov 2011, Justin Mattock <justinmattock@yahoo.com> wrote:
+> this is really annoying..
+> I am getting a segfault with using git version of refpolicy, but using
+> ubuntu's policy I dont get this. why?
 
-I did need to make some changes to bionic, e.g. adding the xattr system
-calls to SYSCALLS.TXT and re-generating the syscall wrapper functions
-via gensyscalls.py, adding support for the AT_SECURE auxv flag.  Then I
-could port a subset of libselinux. To support the SELinux commands and
--Z option, I modified the Android toolbox with support for ps -Z and ls
--Z and added new commands to it for various SELinux tools.  To date, I
-have added chcon, [gs]etenforce, [gs]etsebool, load_policy, restorecon,
-and runcon.
+Build it with debugging symbols and run it under gdb.
+
+Also this isn't a refpolicy issue, no matter what's wrong with the policy 
+semodule shouldn't SEGV.  There is no excuse for a SEGV, any program which 
+gives one (*) is buggy and needs to be fixed.  Please remove the refpolicy 
+list from follow-ups.
+
+(*) Except of course for the unusual cases where hardware errors cause 
+particular programs to SEGV in which case the hardware needs to be 
+fixed/replaced.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
