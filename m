@@ -1,62 +1,71 @@
-Subject: Re: SELinux on Android
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Bhargava Shastry <bshas3@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, SELinux@tycho.nsa.gov,
-        James Morris
- <jmorris@namei.org>
-In-Reply-To: <CAGGozWQXo5bXgVKa0t3pO+45Vj70LJA12dF2ovX6Hm9KnYNNQQ@mail.gmail.com>
-References: 
-	 <CAGGozWSLxn-SNzpc-jW+tZuEHAxOX0-Sn9PxDuyd7rLvvwempw@mail.gmail.com>
-	 <1320409924.1015.7.camel@moss-pluto>
-	 <CAGGozWR6yGyQaxgSED+NdAyLYGzkjDhdWmMxnB=B0qEBAEOtLA@mail.gmail.com>
-	 <1320425998.1015.31.camel@moss-pluto>
-	 <CAGGozWSziAmmDb-eO3AjVL=eRgeCHzGb6vo-uNpLy_2sxog2tQ@mail.gmail.com>
-	 <1320930750.13691.5.camel@moss-pluto>
-	 <CAGGozWQpW3Tvj00Rt44EEhk1qYn-w8BE07naY+MRQUbXurpYmQ@mail.gmail.com>
-	 <1320942368.13691.7.camel@moss-pluto>
-	 <CAGGozWRK117G=93o1=v0yM6HxdtbDRSZ8sKybDEYNEKjpyHMNA@mail.gmail.com>
-	 <CAGGozWR8pNNC6P1T8cYtbkfqZu56iVty+JdmXwudo3ZaAVbN-g@mail.gmail.com>
-	 <CACLa4puuN_nt+Hw3LU3UjYAJ9gGua=bEzt-ioXGv3=W41=1bBg@mail.gmail.com>
-	 <CAGGozWRxOzUiG33OvmEqX+Y4ywcGTfwx_8bVKuwQ31M_bdtN6Q@mail.gmail.com>
-	 <1321537184.4836.9.camel@moss-pluto>
-	 <CAGGozWT9PP-p4-UA6WJtiZmwHE1ot_Of85pKQRLGeab37e4kaQ@mail.gmail.com>
-	 <1321890697.9385.20.camel@moss-pluto>
-	 <CAGGozWQXo5bXgVKa0t3pO+45Vj70LJA12dF2ovX6Hm9KnYNNQQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 21 Nov 2011 13:32:53 -0500
-Message-ID: <1321900374.9385.39.camel@moss-pluto>
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <1319041597.7667.5.camel@moss-pluto>
+References: <4E7B9233.6080609@redhat.com>
+	<1316723465.2354.6.camel@moss-pluto>
+	<4E7B9B43.9000400@redhat.com>
+	<1316723821.2354.9.camel@moss-pluto>
+	<1316724121.2354.12.camel@moss-pluto>
+	<4E7C9F3D.9030704@redhat.com>
+	<1316790421.10259.70.camel@moss-pluto>
+	<CAEXv5_hX_dG8+YeJPOdxZafxV2Nf2dM=CKpstUf+vzdYaw2TLw@mail.gmail.com>
+	<1317139611.22218.9.camel@moss-pluto>
+	<4E82123C.4070406@redhat.com>
+	<4E985BFB.1000806@redhat.com>
+	<4E9D7267.9060004@tresys.com>
+	<4E9EED35.8070408@manicmethod.com>
+	<1319041597.7667.5.camel@moss-pluto>
+Date: Tue, 22 Nov 2011 13:59:14 -0500
+Message-ID: <CACLa4ptMpMif=DR3-8ppf0Sx-WXFL9WssVV_0usWCvwNqhPy0g@mail.gmail.com>
+Subject: Re: I would like to change the behavior of MCS label creations in directory.
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, David Windsor <dwindsor@gmail.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2011-11-21 at 19:18 +0100, Bhargava Shastry wrote:
->         You need to add a fs_use_xattr statement to your policy
->         configuration
->         for yaffs2.  Similar to the existing statements for ext[234].
-> 
-> Thanks. I have the sources for a reference SELinux policy from the
-> tresys website. Unfortunately, with default policy build options, the
-> resulting monolithic policy is huge. I am using an Ubuntu machine; any
-> hints as to where to start for a minimal policy for Android. I tried
-> selectively building only basic modules but there are intricate
-> dependencies (checkpolicy throws up unresolved symbols error) between
-> modules that is hard to disentangle. 
+On Wed, Oct 19, 2011 at 12:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2011-10-19 at 11:31 -0400, Joshua Brindle wrote:
+>> Christopher J. PeBenito wrote:
+>> > On 10/14/11 11:57, Daniel J Walsh wrote:
+>> >> Eric and I have come up with the following syntax for this behaviour.
+>> >>
+>> >> default_trans level dir_file_class_set parent;
+>> >
+>> > I think we want this to be "range" instead of "level", since the field is actually a range.
+>> >
+>> >> default_trans user dir_file_class_set process;
+>> >> default_trans role file parent;
+>> >
+>> > Isn't there a better set of tokens than this?  Why not make it default_user, default_role, default_type, and default_range?  Creating an object doesn't really imply a transition, so "trans" seems misleading.
+>> >
+>>
+>> I agree with Chris. This will actually let you make things not transition by
+>> default so _trans is misleading. Further, "process" shouldn't be a token since
+>> it is an object class (you couldn't actually parse policy with Eric's patches
+>> could you?). I don't like "parent" as a token either, and SELinux doesn't know
+>> anything about processes and parents anyway. SDS's suggestions a while back are
+>> more appropriate IMO, since SELinux does know what source and target are.
+>
+> Unsurprisingly I agree with my original suggestions.  Also, I don't see
+> that you've addressed the issue of range/level defaults needing to
+> specify whether you want to inherit the low level, the high level or the
+> complete range of the source or the target contexts.
 
-It doesn't make much sense to use the reference policy for Android,
-because the Android userspace is completely different from a typical
-Linux distribution.  I created a policy from scratch for my work.
+A month later and I'm finally back looking at this.  I'm not certain
+looking through the thread what your original suggestions were!  I
+don't see an example of the syntax you want to see.  My best guess is
+people would like to see:
 
-You can generate a minimal policy from the kernel tree (see
-scripts/selinux/mdp).  However, that generated policy will only take you
-so far since it lacks any of the macro definitions/build infrastructure
-and since it places everything in a single type/domain.  So you can
-start there, but you'll likely want to split it out into multiple files,
-add some of the macros from refpolicy or the original example policy,
-and start defining individual domains and types.
+default_user [class_set] {source, target};
+default_role [class_set] {source, target};
+default_type [class_set] {source, target};
+default_range [class_set] {source, target, lub};
 
--- 
-Stephen Smalley
-National Security Agency
+Is this right?
 
 
 --
