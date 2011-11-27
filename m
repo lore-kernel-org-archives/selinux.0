@@ -1,42 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pARG8C9l004111
-	for <selinux@tycho.nsa.gov>; Sun, 27 Nov 2011 11:08:12 -0500
-Received: from nm4-vm0.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id pARG8BPm016660
-	for <selinux@tycho.nsa.gov>; Sun, 27 Nov 2011 16:08:11 GMT
-Message-ID: <1322410090.69485.YahooMailClassic@web87006.mail.ird.yahoo.com>
-Date: Sun, 27 Nov 2011 16:08:10 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pARGA1vu004213
+	for <selinux@tycho.nsa.gov>; Sun, 27 Nov 2011 11:10:01 -0500
+Received: from nm4.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pARG9xFi016472
+	for <selinux@tycho.nsa.gov>; Sun, 27 Nov 2011 16:09:59 GMT
+Message-ID: <1322410198.50334.YahooMailClassic@web87012.mail.ird.yahoo.com>
+Date: Sun, 27 Nov 2011 16:09:58 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] libselinux - return EINVAL if invalid role selected
+Subject: [PATCH 1/1] libselinux - get_default_type now sets EINVAL if no entry.
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For get_default_context_with_role(3) and get_default_context_with_rolelevel(3), return errno = EINVAL if invalid role.
+get_default_type(3) now returns with errno set to EINVAL if the entry does not exist.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/src/get_context_list.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ libselinux/src/get_default_type.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index 37d80f2..e02157c 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -38,8 +38,10 @@ int get_default_context_with_role(const char *user,
+diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_default_type.c
+index 6fd1681..ca3d291 100644
+--- a/libselinux/src/get_default_type.c
++++ b/libselinux/src/get_default_type.c
+@@ -3,6 +3,7 @@
+ #include <string.h>
+ #include <ctype.h>
+ #include "get_default_type_internal.h"
++#include <errno.h>
+ 
+ static int find_default_type(FILE * fp, const char *role, char **type);
+ 
+@@ -32,8 +33,10 @@ static int find_default_type(FILE * fp, const char *role, char **type)
+ 
+ 	len = strlen(role);
+ 	while (!feof_unlocked(fp)) {
+-		if (!fgets_unlocked(buf, sizeof buf, fp))
++		if (!fgets_unlocked(buf, sizeof buf, fp)) {
++			errno = EINVAL;
+ 			return -1;
++		}
+ 		if (buf[strlen(buf) - 1])
+ 			buf[strlen(buf) - 1] = 0;
+ 
+@@ -53,8 +56,10 @@ static int find_default_type(FILE * fp, const char *role, char **type)
+ 		}
  	}
  
- 	rc = -1;
--	if (!(*ptr))
-+	if (!(*ptr)) {
+-	if (!found)
++	if (!found) {
 +		errno = EINVAL;
- 		goto out;
+ 		return -1;
 +	}
- 	*newcon = strdup(*ptr);
- 	if (!(*newcon))
- 		goto out;
+ 
+ 	t = malloc(strlen(buf) - len);
+ 	if (!t)
 -- 
 1.7.7.1
 
