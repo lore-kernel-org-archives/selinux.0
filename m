@@ -1,32 +1,210 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pASEdHcD020920
-	for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2011 09:39:18 -0500
-Received: from nm2-vm0.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id pASEdGZE012322
-	for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2011 14:39:17 GMT
-Message-ID: <1322491154.74761.YahooMailClassic@web87009.mail.ird.yahoo.com>
-Date: Mon, 28 Nov 2011 14:39:14 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pASEf5Of021090
+	for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2011 09:41:05 -0500
+Received: from nm2-vm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pASEf3Kr002100
+	for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2011 14:41:04 GMT
+Message-ID: <1322491263.59641.YahooMailClassic@web87004.mail.ird.yahoo.com>
+Date: Mon, 28 Nov 2011 14:41:03 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 0/1] policycoreutils: Added SELinux config file man page.
+Subject: [PATCH 1/1] policycoreutils: Added SELinux config file man page.
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds an selinux_config(5) man page to policycoreutils. 
+Added new man page selinux_config(5) detailing the SELinux config file
+format to new man/man5 directory plus Makefile.
 
-I hope the name is okay as config(5) has already been taken.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ policycoreutils/Makefile                  |    2 +-
+ policycoreutils/man/Makefile              |    9 ++
+ policycoreutils/man/man5/selinux_config.5 |  142 +++++++++++++++++++++++++++++
+ 3 files changed, 152 insertions(+), 1 deletions(-)
+ create mode 100644 policycoreutils/man/Makefile
+ create mode 100644 policycoreutils/man/man5/selinux_config.5
 
-The man page mentions a couple of configuration files that I will send over
-the next few days. I will add these additions to the libselinux man pages as
-they are really used by the library functions (I'll also send man pages for 
-all the remaining libselinux function config files). 
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index 7244a36..9cfe3bc 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init sandbox secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool po
++SUBDIRS = setfiles semanage load_policy newrole run_init sandbox secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool po man
+ 
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+ 
+diff --git a/policycoreutils/man/Makefile b/policycoreutils/man/Makefile
+new file mode 100644
+index 0000000..ea8242e
+--- /dev/null
++++ b/policycoreutils/man/Makefile
+@@ -0,0 +1,9 @@
++# Installation directories.
++MAN5DIR ?= $(DESTDIR)/usr/share/man/man5
++
++all:
++
++install: all
++	mkdir -p $(MAN5DIR)
++	install -m 644 man5/*.5 $(MAN5DIR)
++
+diff --git a/policycoreutils/man/man5/selinux_config.5 b/policycoreutils/man/man5/selinux_config.5
+new file mode 100644
+index 0000000..c7cdc39
+--- /dev/null
++++ b/policycoreutils/man/man5/selinux_config.5
+@@ -0,0 +1,142 @@
++.TH "selinux_config" "5" "18 Nov 2011" "Security Enhanced Linux" "SELinux configuration file"
++
++.SH "NAME"
++config \- The SELinux sub-system configuration file.
++
++.SH "DESCRIPTION"
++The SELinux \fIconfig\fR file controls the state of SELinux regarding:
++.RS
++.IP "1." 4
++The policy enforcement status \- \fIenforcing\fR, \fIpermissive\fR or \fIdisabled\fR.
++.IP "2." 4
++The policy name or type that forms a path to the policy to be loaded and its supporting configuration files.
++.IP "3." 4
++How local users and booleans will be managed when the policy is loaded (note that this function was used by older releases of SELinux and is now deprecated).
++.IP "4." 4
++How SELinux-aware login applications should behave if no valid SELinux users are configured.
++.IP "5." 4
++Whether the system is to be relabeled or not.
++.RE
++
++The entries controlling these functions are described in the \fBFILE FORMAT\fR section.
++.sp
++The fully qualified path name of the SELinux configuration file is \fI/etc/selinux/config\fR.
++.sp
++If the \fIconfig\fR file is missing or corrupt, then no SELinux policy is loaded (i.e. SELinux is disabled).
++.sp
++The \fBsestatus\fR (8) command and the libselinux function \fBselinux_path\fR (3) will return the location of the \fIconfig\fR file. 
++
++.SH "FILE FORMAT"
++The \fIconfig\fR file supports the following parameters:
++.sp
++.RS
++\fBSELINUX = \fIenforcing\fR | \fIpermissive\fR | \fIdisabled\fR
++.br
++\fBSELINUXTYPE = \fIpolicy_name\fR
++.br
++\fBSETLOCALDEFS = \fI0\fR | \fI1\fR
++.br
++\fBREQUIREUSERS = \fI0\fR | \fI1\fR
++.br
++\fBAUTORELABEL = \fI0\fR | \fI1\fR
++.RE
++.sp
++Where:
++.br
++.B SELINUX
++.RS
++This entry can contain one of three values:
++.RS
++.IP \fIenforcing\fR 4
++SELinux security policy is enforced.
++.IP \fIpermissive\fR 4
++SELinux security policy is not enforced but logs the warnings (i.e. the action is allowed to proceed).
++.IP \fIdisabled\fR
++SELinux is disabled and no policy is loaded.
++.RE
++.sp
++The entry can be determined using the \fBsestatus\fR(8) command or \fBselinux_getenforcemode\fR(3).
++.RE
++.sp
++.B SELINUXTYPE
++.RS
++The \fIpolicy_name\fR entry is used to identify the policy type, and becomes the directory name of where the policy and its configuration files are located.
++.sp
++The entry can be determined using the \fBsestatus\fR(8) command or \fBselinux_getpolicytype\fR(3).
++.sp
++The \fIpolicy_name\fR is relative to a path that is defined within the SELinux subsystem that can be retrieved by using \fBselinux_path\fR(3). An example entry retrieved by \fBselinux_path\fR(3) is:
++.br
++.RS
++.I /etc/selinux/
++.RE
++.sp
++The \fIpolicy_name\fR is then appended to this and becomes the 'policy root' location that can be retrieved by \fBselinux_policy_root_path\fR(3). An example entry retrieved is:
++.RS
++.I /etc/selinux/targeted
++.RE
++.sp
++The actual binary policy is located relative to this directory and also has a policy name pre-allocated. This information can be retrieved using \fBselinux_binary_policy_path\fR(3). An example entry retrieved by \fBselinux_binary_policy_path\fR(3) is:
++.br
++.RS
++.I /etc/selinux/targeted/policy/policy
++.RE
++.sp
++The binary policy name has by convention the SELinux policy version that it supports appended to it. The maximum policy version supported by the kernel can be determined using the \fBsestatus\fR(8) command or \fBsecurity_policyvers\fR(3). An example binary policy file with the version is:
++.br
++.RS
++.I /etc/selinux/targeted/policy/policy.24
++.RE
++.RE
++.sp
++.B SETLOCALDEFS
++.RS
++This entry is deprecated and should be removed or set to \fI0\fR.
++.sp
++If set to \fI1\fR, then \fBselinux_mkload_policy\fR(3) will read the local customisation for booleans (see \fBbooleans\fR(5)) and users (see \fBlocal.users\fR(5)).
++.RE
++.sp
++.B REQUIRESEUSERS
++.RS
++This optional entry can be used to fail a login if there is no matching or default entry in the 
++.BR seusers "(5) file or if the " seusers " file is missing. "
++.sp
++It is checked by \fBgetseuserbyname\fR(3) that is called by SELinux-aware login applications such as \fBPAM\fR(8).
++.sp
++If set to \fI0\fR or the entry missing:
++.RS
++.BR getseuserbyname "(3) will return the GNU / Linux user name as the SELinux user."
++.RE
++.sp
++If set to \fI1\fR:
++.RS
++.BR getseuserbyname "(3) will fail."
++.RE
++.sp
++The \fBgetseuserbyname\fR(3) man page should be consulted for its use. The format of the \fIseusers\fR file is shown in \fBseusers\fR(5).
++.sp
++.RE
++.sp
++.B AUTORELABEL
++.RS
++This is an optional entry that allows the file system to be relabeled.
++.sp
++If set to \fI0\fR and there is a file called \fI.autorelabel\fR in the root directory, then on a reboot, the loader will drop to a shell where a root login is required. An administrator can then manually relabel the file system.
++.sp
++If set to \fI1\fR or no entry present (the default) and there is a \fI.autorelabel\fR file in the root directory, then the file system will be automatically relabeled using \fBfixfiles -F restore\fR
++.sp
++In both cases the \fI/.autorelabel\fR file will be removed so that relabeling is not done again. 
++.RE
++.sp
++
++.SH "EXAMPLE"
++This example \fIconfig\fR file shows the minimum contents for a system to run SELinux in enforcing mode, with a \fIpolicy_name\fR of 'targeted':
++.sp
++.RS
++SELINUX = enforcing
++.br
++SELINUXTYPE = targeted
++.RE
++
++.SH "SEE ALSO"
++.BR selinux "(8), " sestatus "(8), " selinux_path "(3), " selinux_policy_root_path "(3), " selinux_binary_policy_path "(3), " getseuserbyname "(3), " PAM "(8), " fixfiles "(8), " selinux_mkload_policy "(3), " selinux_getpolicytype "(3), " security_policyvers "(3), " selinux_getenforcemode "(3), " seusers "(5), " booleans "(5), " local.users "(5) "
++
+-- 
+1.7.7.1
 
-I've also updated sestatus(8) to give the SELinux root directory where config
-is located plus an sestatus.conf(5) man page - patch to follow.
 
-Richard
+
+
 
 
 --
