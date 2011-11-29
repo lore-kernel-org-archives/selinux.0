@@ -1,141 +1,149 @@
-Message-ID: <4ED50502.1030509@redhat.com>
-Date: Tue, 29 Nov 2011 11:14:58 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4ED507D4.101@t0mb.net>
+Date: Tue, 29 Nov 2011 16:27:00 +0000
+From: Tom <tom@t0mb.net>
 MIME-Version: 1.0
-To: Tom <tom@t0mb.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SELinux@tycho.nsa.gov
 Subject: Re: First forays in to writing a module to lock down PowerDNS.
-References: <4ED500C9.1080509@t0mb.net>
-In-Reply-To: <4ED500C9.1080509@t0mb.net>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <4ED500C9.1080509@t0mb.net> <4ED50502.1030509@redhat.com>
+In-Reply-To: <4ED50502.1030509@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Daniel,
 
-On 11/29/2011 10:56 AM, Tom wrote:
-> Greetings,
-> 
-> This is my first attempt at writing an selinux module.  I've
-> basically done it by trying to confine the powerdns service, and
-> then worked through all of the problems I've had in the audit log.
-> At this point, my powerdns service seems to work well with full
-> functionality, however, I'm sure there's about a million things I
-> could be doing to make it better.  I'm still a bit shaky on the way
-> I've done the domain transition, and also, I'm sure there are a
-> loads of macros which I could be using, although I'm not sure
-> whether those types of things are distribution dependent.  I'm
-> using CentOS 5.7, and have written this to fit in to the targeted
-> polifcy.
-> 
-> I'd be glad of any advice on how to do this type of thing in a
-> more efficient way.
-> 
-> Many thanks.  Tom.
-> 
-> # cat pdns.te # PowerDNS targeted enforcement module
-> 
-> policy_module(pdns,1.0.0)
-> 
-> require { type etc_t; type lib_t; type usr_t; type ld_so_cache_t; 
-> type ld_so_t; type lib_t; type locale_t; type var_run_t; type
-> devlog_t; type syslogd_t; type initrc_var_run_t; type dns_port_t; 
-> type inaddr_any_node_t; type transproxy_port_t; type
-> mysqld_port_t; type mssql_port_t; }
-> 
-> type pdns_t; type pdns_exec_t;
-> 
-> domain_type(pdns_t) domain_entry_file(pdns_t, pdns_exec_t) 
-> init_daemon_domain(pdns_t, pdns_exec_t)
-> 
-> # /etc/pdns/pdns.conf type pdns_conf_t; 
-> files_config_file(pdns_conf_t)
-> 
-> # /var/run/pdns.pid type pdns_var_run_t; 
-> files_pid_file(pdns_var_run_t)
-> 
-> allow pdns_t etc_t:dir search; allow pdns_t etc_t:file { getattr
-> read }; allow pdns_t usr_t:dir search; allow pdns_t usr_t:file {
-> write create read getattr }; allow pdns_t lib_t:dir { search
-> getattr }; allow pdns_t lib_t:lnk_file read; allow pdns_t
-> lib_t:file { read getattr execute }; allow pdns_t
-> ld_so_cache_t:file read; allow pdns_t ld_so_cache_t:file getattr; 
-> allow pdns_t ld_so_t:file { read execute }; allow pdns_t
-> locale_t:file { read getattr }; allow pdns_t pdns_conf_t:file
-> read; allow pdns_t var_run_t:dir { write remove_name add_name }; 
-> allow pdns_t var_run_t:sock_file { unlink create setattr }; allow
-> pdns_t var_run_t:file { write create }; allow pdns_t
-> devlog_t:sock_file write; allow pdns_t syslogd_t:unix_dgram_socket
-> sendto; allow pdns_t initrc_var_run_t:file write; allow pdns_t
-> pdns_exec_t:file execute_no_trans;
-> 
-> allow pdns_t self:process sigkill; allow pdns_t self:fifo_file {
-> getattr read ioctl write }; allow pdns_t self:capability { chown
-> fsetid net_bind_service setuid setgid kill }; allow pdns_t
-> self:unix_dgram_socket { create connect write }; allow pdns_t
-> self:udp_socket { create bind read getattr write }; allow pdns_t
-> self:tcp_socket { create bind read getattr write setopt listen
-> connect shutdown accept getopt ioctl };
-> 
-> allow pdns_t inaddr_any_node_t:udp_socket node_bind; allow pdns_t
-> inaddr_any_node_t:tcp_socket node_bind;
-> 
-> # TCP + UDP Port 53 allow pdns_t dns_port_t:udp_socket name_bind; 
-> allow pdns_t dns_port_t:tcp_socket name_bind;
-> 
-> # TCP 8081 for PDNS Web Server allow pdns_t
-> transproxy_port_t:tcp_socket name_bind;
-> 
-> # DB Connectivity allow pdns_t mysqld_port_t:tcp_socket
-> name_connect; allow pdns_t mssql_port_t:tcp_socket name_connect;
-> 
-> 
-> # cat pdns.fc /usr/sbin/pdns_server    -- 
-> gen_context(system_u:object_r:pdns_exec_t,s0) /var/run/pdns.pid
-> --    gen_context(system_u:object_r:pdns_var_run_t,s0) 
-> /etc/pdns/pdns.conf    --
-> gen_context(system_u:object_r:pdns_conf_t,s0)
-> 
-> 
-> 
-> 
-> 
-> -- This message was distributed to subscribers of the selinux
-> mailing list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
-> without quotes as the message.
+Thanks for this.  I'm just about to leave work, but I'll be looking 
+again in the morning, and I'll get back to you and see what you think of 
+version 1.0.1! :)
+
+Thanks again.  Tom.
 
 
-Tom try to remove the entire require block.  You should be using
-interfaces and not using the types directly in your policy.
+On 29/11/11 16:14, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On 11/29/2011 10:56 AM, Tom wrote:
+>> Greetings,
+>>
+>> This is my first attempt at writing an selinux module.  I've
+>> basically done it by trying to confine the powerdns service, and
+>> then worked through all of the problems I've had in the audit log.
+>> At this point, my powerdns service seems to work well with full
+>> functionality, however, I'm sure there's about a million things I
+>> could be doing to make it better.  I'm still a bit shaky on the way
+>> I've done the domain transition, and also, I'm sure there are a
+>> loads of macros which I could be using, although I'm not sure
+>> whether those types of things are distribution dependent.  I'm
+>> using CentOS 5.7, and have written this to fit in to the targeted
+>> polifcy.
+>>
+>> I'd be glad of any advice on how to do this type of thing in a
+>> more efficient way.
+>>
+>> Many thanks.  Tom.
+>>
+>> # cat pdns.te # PowerDNS targeted enforcement module
+>>
+>> policy_module(pdns,1.0.0)
+>>
+>> require { type etc_t; type lib_t; type usr_t; type ld_so_cache_t;
+>> type ld_so_t; type lib_t; type locale_t; type var_run_t; type
+>> devlog_t; type syslogd_t; type initrc_var_run_t; type dns_port_t;
+>> type inaddr_any_node_t; type transproxy_port_t; type
+>> mysqld_port_t; type mssql_port_t; }
+>>
+>> type pdns_t; type pdns_exec_t;
+>>
+>> domain_type(pdns_t) domain_entry_file(pdns_t, pdns_exec_t)
+>> init_daemon_domain(pdns_t, pdns_exec_t)
+>>
+>> # /etc/pdns/pdns.conf type pdns_conf_t;
+>> files_config_file(pdns_conf_t)
+>>
+>> # /var/run/pdns.pid type pdns_var_run_t;
+>> files_pid_file(pdns_var_run_t)
+>>
+>> allow pdns_t etc_t:dir search; allow pdns_t etc_t:file { getattr
+>> read }; allow pdns_t usr_t:dir search; allow pdns_t usr_t:file {
+>> write create read getattr }; allow pdns_t lib_t:dir { search
+>> getattr }; allow pdns_t lib_t:lnk_file read; allow pdns_t
+>> lib_t:file { read getattr execute }; allow pdns_t
+>> ld_so_cache_t:file read; allow pdns_t ld_so_cache_t:file getattr;
+>> allow pdns_t ld_so_t:file { read execute }; allow pdns_t
+>> locale_t:file { read getattr }; allow pdns_t pdns_conf_t:file
+>> read; allow pdns_t var_run_t:dir { write remove_name add_name };
+>> allow pdns_t var_run_t:sock_file { unlink create setattr }; allow
+>> pdns_t var_run_t:file { write create }; allow pdns_t
+>> devlog_t:sock_file write; allow pdns_t syslogd_t:unix_dgram_socket
+>> sendto; allow pdns_t initrc_var_run_t:file write; allow pdns_t
+>> pdns_exec_t:file execute_no_trans;
+>>
+>> allow pdns_t self:process sigkill; allow pdns_t self:fifo_file {
+>> getattr read ioctl write }; allow pdns_t self:capability { chown
+>> fsetid net_bind_service setuid setgid kill }; allow pdns_t
+>> self:unix_dgram_socket { create connect write }; allow pdns_t
+>> self:udp_socket { create bind read getattr write }; allow pdns_t
+>> self:tcp_socket { create bind read getattr write setopt listen
+>> connect shutdown accept getopt ioctl };
+>>
+>> allow pdns_t inaddr_any_node_t:udp_socket node_bind; allow pdns_t
+>> inaddr_any_node_t:tcp_socket node_bind;
+>>
+>> # TCP + UDP Port 53 allow pdns_t dns_port_t:udp_socket name_bind;
+>> allow pdns_t dns_port_t:tcp_socket name_bind;
+>>
+>> # TCP 8081 for PDNS Web Server allow pdns_t
+>> transproxy_port_t:tcp_socket name_bind;
+>>
+>> # DB Connectivity allow pdns_t mysqld_port_t:tcp_socket
+>> name_connect; allow pdns_t mssql_port_t:tcp_socket name_connect;
+>>
+>>
+>> # cat pdns.fc /usr/sbin/pdns_server    --
+>> gen_context(system_u:object_r:pdns_exec_t,s0) /var/run/pdns.pid
+>> --    gen_context(system_u:object_r:pdns_var_run_t,s0)
+>> /etc/pdns/pdns.conf    --
+>> gen_context(system_u:object_r:pdns_conf_t,s0)
+>>
+>>
+>>
+>>
+>>
+>> -- This message was distributed to subscribers of the selinux
+>> mailing list. If you no longer wish to subscribe, send mail to
+>> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
+>> without quotes as the message.
+>
+> Tom try to remove the entire require block.  You should be using
+> interfaces and not using the types directly in your policy.
+>
+> All interfaces are available under /usr/share/selinux/devel/include/...
+>
+> For example.
+>> allow pdns_t etc_t:dir search; allow pdns_t etc_t:file { getattr
+>> read }; allow pdns_t usr_t:dir search; allow pdns_t usr_t:file {
+>> write create read getattr };
+> Should be
+>
+> files_read_etc_files(pdns_t)
+> files_read_usr_files(pdns_t)
+>
+>
+>> allow pdns_t transproxy_port_t:tcp_socket name_bind;
+> Should be
+>
+> corenet_tcp_bind_transproxy_port(pdns_t)
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.11 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+>
+> iEYEARECAAYFAk7VBQEACgkQrlYvE4MpobNlsQCgzgTOtpHRHWA0Cdu6CCAkffsp
+> WpgAoLxVE0feBnk2hxEmmuIZACR9N6GU
+> =c39n
+> -----END PGP SIGNATURE-----
 
-All interfaces are available under /usr/share/selinux/devel/include/...
-
-For example.
-> allow pdns_t etc_t:dir search; allow pdns_t etc_t:file { getattr
-> read }; allow pdns_t usr_t:dir search; allow pdns_t usr_t:file {
-> write create read getattr };
-
-Should be
-
-files_read_etc_files(pdns_t)
-files_read_usr_files(pdns_t)
-
-
-> allow pdns_t transproxy_port_t:tcp_socket name_bind;
-
-Should be
-
-corenet_tcp_bind_transproxy_port(pdns_t)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk7VBQEACgkQrlYvE4MpobNlsQCgzgTOtpHRHWA0Cdu6CCAkffsp
-WpgAoLxVE0feBnk2hxEmmuIZACR9N6GU
-=c39n
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
