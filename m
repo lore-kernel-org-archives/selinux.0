@@ -1,51 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GOZJT019566
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:24:35 -0500
-Received: from nm4-vm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GOYNl005258
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:24:34 GMT
-Message-ID: <1322756673.17839.YahooMailClassic@web87004.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 16:24:33 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GQKaH019699
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:26:20 -0500
+Received: from nm1-vm1.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GQIif011969
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:26:19 GMT
+Message-ID: <1322756777.85068.YahooMailClassic@web87010.mail.ird.yahoo.com>
+Date: Thu, 1 Dec 2011 16:26:17 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] libselinux: Updated selabel_media(5) man page
+Subject: [PATCH 1/1] libselinux: Updated selabel_x(5) man page
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Updated selabel_media(5) with media context configuration file format and
-added media(5) man page that links to it.
+Updated selabel_x(5) with X-Windows context configuration file format and
+added x_contexts(5) man page that links to it.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/man/man5/media.5         |    1 +
- libselinux/man/man5/selabel_media.5 |   86 ++++++++++++++++++++++++++++-------
- 2 files changed, 70 insertions(+), 17 deletions(-)
- create mode 100644 libselinux/man/man5/media.5
+ libselinux/man/man5/selabel_x.5  |  135 ++++++++++++++++++++++++++++++--------
+ libselinux/man/man5/x_contexts.5 |    1 +
+ 2 files changed, 108 insertions(+), 28 deletions(-)
+ create mode 100644 libselinux/man/man5/x_contexts.5
 
-diff --git a/libselinux/man/man5/media.5 b/libselinux/man/man5/media.5
-new file mode 100644
-index 0000000..14f00f2
---- /dev/null
-+++ b/libselinux/man/man5/media.5
-@@ -0,0 +1 @@
-+.so man5/selabel_media.5
-diff --git a/libselinux/man/man5/selabel_media.5 b/libselinux/man/man5/selabel_media.5
-index 796260f..0df1961 100644
---- a/libselinux/man/man5/selabel_media.5
-+++ b/libselinux/man/man5/selabel_media.5
-@@ -1,37 +1,89 @@
+diff --git a/libselinux/man/man5/selabel_x.5 b/libselinux/man/man5/selabel_x.5
+index 1591c09..6342e36 100644
+--- a/libselinux/man/man5/selabel_x.5
++++ b/libselinux/man/man5/selabel_x.5
+@@ -1,26 +1,36 @@
  .\" Hey Emacs! This file is -*- nroff -*- source.
  .\"
  .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
--.TH "selabel_media" "5" "18 Jun 2007" "" "SELinux API documentation"
-+.TH "selabel_media" "5" "29 Nov 2011" "Security Enhanced Linux" "SELinux API documentation"
+-.TH "selabel_x" "5" "18 Jun 2007" "" "SELinux API documentation"
++.TH "selabel_x" "5" "29 Nov 2011" "Security Enhanced Linux" "SELinux API documentation"
++
  .SH "NAME"
--selabel_media \- userspace SELinux labeling interface: media contexts backend.
+-selabel_x \- userspace SELinux labeling interface: X Window System contexts backend.
 -.SH "SYNOPSIS"
 -.B #include <selinux/selinux.h>
-+selabel_media \- userspace SELinux labeling interface and configuration file format for the media contexts backend.
++selabel_x \- userspace SELinux labeling interface and configuration file format for the X Window System contexts backend. This backend is also used to determine the default context for labeling remotely connected X clients.
  
 +.SH "SYNOPSIS"
  .B #include <selinux/label.h>
@@ -55,30 +49,62 @@ index 796260f..0df1961 100644
  .BI "security_context_t *" context ,
 -
 +.br
-+.BI "const char *" device_name ", int " unused ");"
++.BI "const char *" object_name ", int " object_type ");"
 +.in
 +.sp
 +.BI "int selabel_lookup_raw(struct selabel_handle *" hnd ,
 +.in +\w'int selabel_lookup('u
 +.BI "security_context_t *" context ,
 +.br
- .BI "const char *" device_name ", int " unused ");"
+ .BI "const char *" object_name ", int " object_type ");"
  
  .SH "DESCRIPTION"
--The media contexts backend maps from media device names such as "cdrom" or "floppy" into security contexts.  It is used to find the appropriate context for establishing context mounts on these devices.
+-The X contexts backend maps from X Window System object names into security contexts.  It is used to find the appropriate context for X Window System objects whose significance and/or usage semantics are determined primarily by name.  This backend is also used to determine the default context for labeling remotely connected X clients.
 -
-+The media contexts backend maps from media device names such as "cdrom" or "floppy" into security contexts. It is used to find the appropriate context for establishing context mounts on these devices. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
+-The
+-.I object_type
+-argument should be set to one of the following values:
++The X contexts backend maps from X Window System object names into security contexts. It is used to find the appropriate context for X Window System objects whose significance and/or usage semantics are determined primarily by name. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
 +.br
 +\fBselabel_lookup\fR(3) describes the function with its return and error codes.
 +.sp
- The integer lookup argument is currently unused and should be set to zero.
++This backend is also used to determine the default context for labeling remotely connected X clients.
 +.sp
-+Any messages generated by \fBselabel_lookup\fR are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
++The \fIobject_type\fR argument should be set to one of the following values:
++.RS
+ .TP
+ .B SELABEL_X_PROP
+ The
+@@ -45,37 +55,106 @@ argument specifies the name of an event type, such as "X11:ButtonPress".
+ .B SELABEL_X_CLIENT
+ The
+ .I object_name
+-argument is ignored and should be set to NULL.  The default context for labeling remote X clients is returned.
++argument is ignored, however it should be set to either \fI*\fR (an asterisk or 'wildcard' that will select the default entry) or a specific entry such as "remote" in the X contexts file as shown in the \fBEXAMPLE\fR section. The default context for labeling remote X clients is then returned.
+ .TP
+ .B SELABEL_X_POLYPROP
+ Like
+ .BR SELABEL_X_PROP ,
+-but checks if the property was marked as being polyinstantiated.  See
+-.B NOTES
+-below.
++but checks if the property was marked as being polyinstantiated. See \fBNOTES\fR below.
+ .TP
+ .B SELABEL_X_POLYSELN
+ Like
+ .BR SELABEL_X_SELN ,
+-but checks if the selection was marked as being polyinstantiated.  See
+-.B NOTES
+-below.
++but checks if the selection was marked as being polyinstantiated. See \fBNOTES\fR below.
++.RE
++.sp
++Any messages generated by \fBselabel_lookup\fR(3) are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
 +.sp
 +.B selabel_lookup_raw
 +behaves identically to \fBselabel_lookup\fR but does not perform context translation.
 +.sp
-+The \fBFILES\fR section details the configuration files used to determine the media context.
++The \fBFILES\fR section details the configuration files used to determine the X object context.
  
  .SH "OPTIONS"
 -In addition to the global options described in 
@@ -86,62 +112,101 @@ index 796260f..0df1961 100644
 -this backend recognizes the following options:
 -
 +In addition to the global options described in \fBselabel_open\fR(3), this backend recognizes the following options:
++.RS
  .TP
  .B SELABEL_OPT_PATH
--A non-null value for this option specifies a path to a file that will be opened in lieu of the standard media contexts file.  
-+A non-null value for this option specifies a path to a file that will be opened in lieu of the standard \fImedia\fR contexts file.
- 
--.SH "SEE ALSO"
--.BR selabel_open (3),
--.BR selabel_lookup (3),
--.BR selabel_stats (3),
--.BR selinux (8)
+-A non-null value for this option specifies a path to a file that will be opened in lieu of the standard X contexts file.  
++A non-null value for this option specifies a path to a file that will be opened in lieu of the standard X contexts file (see the \fBFILES\fR section for details).  
++.RE
++
 +.SH "FILES"
-+The media context file used to retrieve a default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\FR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy media contexts location (as returned by \fBselinux_media_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
++The X context file used to retrieve a default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy X contexts location (as returned by \fBselinux_x_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
 +.sp
-+The default media contexts file is:
++The default X object contexts file is:
 +.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/files/media
++.I /etc/selinux/{SELINUXTYPE}/contexts/x_contexts
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
 +.sp
-+Should there not be a valid entry in the \fImedia\fR file, then the default \fIremovable_context\fR file will be read (see \fBremovable_context\fR(5)).
- 
++The entries within the X contexts file are shown in the \fBObject Name String Values\fR and \fBFILE FORMAT\fR sections.
++
++.SH "Object Name String Values"
++The string name assigned to each \fIobject_type\fR argument that can be present in the X contexts file are:
++.TS
++center, allbox, tab(@);
++lI lB
++lB l .
++object_type@Text Name
++SELABEL_X_PROP@property
++SELABEL_X_SELN@selection
++SELABEL_X_EXT@extension
++SELABEL_X_EVENT@event
++SELABEL_X_CLIENT@client
++SELABEL_X_POLYPROP@poly_property
++SELABEL_X_POLYSELN@poly_selection
++.TE
++
 +.SH "FILE FORMAT"
-+Each line within the \fImedia\fR file is as follows:
++Each line within the X contexts file is as follows:
 +.RS
-+.I device_name context
++.I object_type object_name context
 +.RE
 +.sp
 +Where:
 +.RS
-+.I device_name
++.I object_type
 +.RS
-+The media identifier (e.g. cdrom, floppy, disk and usb).
++This is the string representation of the object type shown in the \fBObject Name String Values\fR section.
++There can be multiple lines with the same \fIobject_type\fR string that will form a block of entries (each with a different \fIobject_name\fR entry).
++.RE
++.I object_name
++.RS
++These are the object names of the specific X-server resource such as \fBPRIMARY\fR, \fBCUT_BUFFER0\fR etc. They are generally defined in the X\-server source code (\fIprotocol.txt\fR and \fIBuiltInAtoms\fR in the dix directory of the xorg\-server source package).
++The entry can contain '*' for wildcard matching or '?' for substitution.
++Note that if the '*' is used, then be aware that the order of entries in the file is important. The '*' on its own is used to ensure a default fallback context is assigned and should be the last entry in the \fIobject_type\fR block.
 +.RE
 +.I context
 +.RS
-+The context to be used for labeling the device.
++The security context that will be applied to the object.
 +.RE
 +.RE
 +.sp
-+Example:
-+.RS
-+# contexts/files/media
++Example 1:
++.sp
++# object_type  object_name  context
 +.br
-+cdrom system_u:object_r:removable_device_t
++selection      PRIMARY      system_u:object_r:clipboard_xselection_t:s0
 +.br
-+floppy system_u:object_r:removable_device_t
++selection      *            system_u:object_r:xselection_t:s0
++.sp
++Example 2 \- This example shows how a client entry can be configured to ensure an entry is always found:
++.sp
++# object_type  object_name  context
 +.br
-+disk system_u:object_r:fixed_disk_device_t
-+
-+.SH "NOTES"
-+If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If
-+this is not set, then it is possible for an invalid context to be returned.
-+
-+.SH "SEE ALSO"
-+.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_media_context_path "(3), " freecon "(3), " selinux_config "(5), " removable_context "(5) "
++client         *            system_u:object_r:remote_t:s0
+ 
+ .SH "NOTES"
+-Properties and selections are marked as either polyinstantiated or not.  For these name types, the "POLY" option searches only the names marked as being polyinstantiated, while the other option searches only the names marked as not being polyinstantiated.  Users of the interface should check both mappings, optionally taking action based on the result (e.g. polyinstantiating the object).
++.IP "1." 4
++Properties and selections are marked as either polyinstantiated or not. For these name types, the "POLY" option searches only the names marked as being polyinstantiated, while the other option searches only the names marked as not being polyinstantiated. Users of the interface should check both mappings, optionally taking action based on the result (e.g. polyinstantiating the object).
++.IP "2." 4
++If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
+ 
+ .SH "SEE ALSO"
+-.BR selabel_open (3),
+-.BR selabel_lookup (3),
+-.BR selabel_stats (3),
+-.BR selinux (8)
+-
++.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_x_context_path "(3), " freecon "(3), " selinux_config "(5) "
+diff --git a/libselinux/man/man5/x_contexts.5 b/libselinux/man/man5/x_contexts.5
+new file mode 100644
+index 0000000..3796d2a
+--- /dev/null
++++ b/libselinux/man/man5/x_contexts.5
+@@ -0,0 +1 @@
++.so man5/selabel_x.5
 -- 
 1.7.7.1
 
