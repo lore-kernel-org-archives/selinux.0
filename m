@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1EGqtC008694
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 09:16:52 -0500
-Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pB1EGpBs012041
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 14:16:51 GMT
-Received: by vbbff1 with SMTP id ff1so1601084vbb.12
-        for <selinux@tycho.nsa.gov>; Thu, 01 Dec 2011 06:16:51 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1EIR2x008775
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 09:18:27 -0500
+Received: from mail-vx0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pB1EIQkR022149
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 14:18:26 GMT
+Received: by vcbfl17 with SMTP id fl17so1623295vcb.12
+        for <selinux@tycho.nsa.gov>; Thu, 01 Dec 2011 06:18:26 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1322410297.52977.YahooMailClassic@web87014.mail.ird.yahoo.com>
-References: <1322410297.52977.YahooMailClassic@web87014.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 09:16:51 -0500
-Message-ID: <CACLa4pvpeR=Pv0h0Q57Uai=WaMyfUS89bMpqO+9DRL3Sbv0FAw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] libselinux - Remove assert in security_get_boolean_names(3)
+In-Reply-To: <1322410090.69485.YahooMailClassic@web87006.mail.ird.yahoo.com>
+References: <1322410090.69485.YahooMailClassic@web87006.mail.ird.yahoo.com>
+Date: Thu, 1 Dec 2011 09:18:26 -0500
+Message-ID: <CACLa4ptRqrSCgf4BME4_sgsmBbEn9BAZUtgErxoUbD7fZz5aaQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libselinux - return EINVAL if invalid role selected
 From: Eric Paris <eparis@parisplace.org>
 To: Richard Haines <richard_c_haines@btinternet.com>
 Cc: selinux@tycho.nsa.gov
@@ -19,41 +19,33 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-applied to my devel branch
+Applied to my devel branch
 
-On Sun, Nov 27, 2011 at 11:11 AM, Richard Haines
+On Sun, Nov 27, 2011 at 11:08 AM, Richard Haines
 <richard_c_haines@btinternet.com> wrote:
-> Remove assert in security_get_boolean_names(3) if the len invalid and stop seg fault if names is null. Set EINVAL instead and return error.
+> For get_default_context_with_role(3) and get_default_context_with_rolelevel(3), return errno = EINVAL if invalid role.
 >
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  libselinux/src/booleans.c |    6 ++++--
->  1 files changed, 4 insertions(+), 2 deletions(-)
+>  libselinux/src/get_context_list.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletions(-)
 >
-> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> index bbf8324..1510043 100644
-> --- a/libselinux/src/booleans.c
-> +++ b/libselinux/src/booleans.c
-> @@ -8,7 +8,6 @@
->  #include <sys/types.h>
->  #include <sys/stat.h>
->  #include <fcntl.h>
-> -#include <assert.h>
->  #include <stdlib.h>
->  #include <dirent.h>
->  #include <string.h>
-> @@ -41,7 +40,10 @@ int security_get_boolean_names(char ***names, int *len)
->        struct dirent **namelist;
->        char **n;
+> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+> index 37d80f2..e02157c 100644
+> --- a/libselinux/src/get_context_list.c
+> +++ b/libselinux/src/get_context_list.c
+> @@ -38,8 +38,10 @@ int get_default_context_with_role(const char *user,
+>        }
 >
-> -       assert(len);
-> +       if (!len || names == NULL) {
+>        rc = -1;
+> -       if (!(*ptr))
+> +       if (!(*ptr)) {
 > +               errno = EINVAL;
-> +               return -1;
+>                goto out;
 > +       }
->        if (!selinux_mnt) {
->                errno = ENOENT;
->                return -1;
+>        *newcon = strdup(*ptr);
+>        if (!(*newcon))
+>                goto out;
 > --
 > 1.7.7.1
 >
