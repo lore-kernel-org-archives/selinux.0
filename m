@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1KPdLk001691
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 15:25:39 -0500
-Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pB1KPIK6023209
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 20:25:38 GMT
-Received: by mail-vw0-f53.google.com with SMTP id ff1so2061248vbb.12
-        for <selinux@tycho.nsa.gov>; Thu, 01 Dec 2011 12:25:38 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1KOwKQ001545
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 15:24:58 -0500
+Received: from mail-vx0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pB1KOu0f022045
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 20:24:57 GMT
+Received: by vcbfl17 with SMTP id fl17so2088953vcb.12
+        for <selinux@tycho.nsa.gov>; Thu, 01 Dec 2011 12:24:56 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1322756777.85068.YahooMailClassic@web87010.mail.ird.yahoo.com>
-References: <1322756777.85068.YahooMailClassic@web87010.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 15:25:38 -0500
-Message-ID: <CACLa4puW3HojFN7j7jL32bG2bpgUqpEhuhoqzzOzC4i962GPaw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] libselinux: Updated selabel_x(5) man page
+In-Reply-To: <1322756525.84193.YahooMailClassic@web87006.mail.ird.yahoo.com>
+References: <1322756525.84193.YahooMailClassic@web87006.mail.ird.yahoo.com>
+Date: Thu, 1 Dec 2011 15:24:56 -0500
+Message-ID: <CACLa4psaHzt1Q80Hv3orv8_vHAAShO_Y8Yk=mCVkjk06z9phRQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libselinux: Updated selabel_file(5) man page
 From: Eric Paris <eparis@parisplace.org>
 To: Richard Haines <richard_c_haines@btinternet.com>
 Cc: selinux@tycho.nsa.gov
@@ -19,38 +19,46 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-trailing whitespace in one location.  fixed and applied to devel branch.
+trailing whitespace (whitespace at the end of a line) in 2 places.
+Fixed and applied to my devel branch.  Thanks.
 
-On Thu, Dec 1, 2011 at 11:26 AM, Richard Haines
+On Thu, Dec 1, 2011 at 11:22 AM, Richard Haines
 <richard_c_haines@btinternet.com> wrote:
-> Updated selabel_x(5) with X-Windows context configuration file format and
-> added x_contexts(5) man page that links to it.
+> Updated selabel_file(5) with file context configuration file format and
+> added file_contexts(5) man page that links to it. selabel_file(5) also
+> describes the .local, .homedirs, .subs and .subs_dist configuration file
+> formats.
 >
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  libselinux/man/man5/selabel_x.5  |  135 ++++++++++++++++++++++++++++++--------
->  libselinux/man/man5/x_contexts.5 |    1 +
->  2 files changed, 108 insertions(+), 28 deletions(-)
->  create mode 100644 libselinux/man/man5/x_contexts.5
+>  libselinux/man/man5/file_contexts.5 |    1 +
+>  libselinux/man/man5/selabel_file.5  |  203 +++++++++++++++++++++++++++++++----
+>  2 files changed, 185 insertions(+), 19 deletions(-)
+>  create mode 100644 libselinux/man/man5/file_contexts.5
 >
-> diff --git a/libselinux/man/man5/selabel_x.5 b/libselinux/man/man5/selabel_x.5
-> index 1591c09..6342e36 100644
-> --- a/libselinux/man/man5/selabel_x.5
-> +++ b/libselinux/man/man5/selabel_x.5
-> @@ -1,26 +1,36 @@
+> diff --git a/libselinux/man/man5/file_contexts.5 b/libselinux/man/man5/file_contexts.5
+> new file mode 100644
+> index 0000000..9c022d8
+> --- /dev/null
+> +++ b/libselinux/man/man5/file_contexts.5
+> @@ -0,0 +1 @@
+> +.so man5/selabel_file.5
+> diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
+> index 6cce99e..e7536e8 100644
+> --- a/libselinux/man/man5/selabel_file.5
+> +++ b/libselinux/man/man5/selabel_file.5
+> @@ -1,35 +1,49 @@
 >  .\" Hey Emacs! This file is -*- nroff -*- source.
 >  .\"
 >  .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
-> -.TH "selabel_x" "5" "18 Jun 2007" "" "SELinux API documentation"
-> +.TH "selabel_x" "5" "29 Nov 2011" "Security Enhanced Linux" "SELinux API documentation"
-> +
+> -.TH "selabel_file" "5" "18 Jun 2007" "" "SELinux API documentation"
+> +.TH "selabel_file" "5" "01 Dec 2011" "Security Enhanced Linux" "SELinux API documentation"
 >  .SH "NAME"
-> -selabel_x \- userspace SELinux labeling interface: X Window System contexts backend.
-> -.SH "SYNOPSIS"
+> -selabel_file \- userspace SELinux labeling interface: file contexts backend.
+> +selabel_file \- userspace SELinux labeling interface and configuration file format for the file contexts backend.
+>  .SH "SYNOPSIS"
 > -.B #include <selinux/selinux.h>
-> +selabel_x \- userspace SELinux labeling interface and configuration file format for the X Window System contexts backend. This backend is also used to determine the default context for labeling remotely connected X clients.
->
-> +.SH "SYNOPSIS"
+> -
 >  .B #include <selinux/label.h>
 >  .sp
 >  .BI "int selabel_lookup(struct selabel_handle *" hnd ,
@@ -58,164 +66,218 @@ On Thu, Dec 1, 2011 at 11:26 AM, Richard Haines
 >  .BI "security_context_t *" context ,
 > -
 > +.br
-> +.BI "const char *" object_name ", int " object_type ");"
+> +.BI "const char *" path ", int " mode ");"
 > +.in
 > +.sp
 > +.BI "int selabel_lookup_raw(struct selabel_handle *" hnd ,
 > +.in +\w'int selabel_lookup('u
 > +.BI "security_context_t *" context ,
 > +.br
->  .BI "const char *" object_name ", int " object_type ");"
+>  .BI "const char *" path ", int " mode ");"
 >
 >  .SH "DESCRIPTION"
-> -The X contexts backend maps from X Window System object names into security contexts.  It is used to find the appropriate context for X Window System objects whose significance and/or usage semantics are determined primarily by name.  This backend is also used to determine the default context for labeling remotely connected X clients.
+> -The file contexts backend maps from pathname/mode combinations into security contexts.  It is used to find the appropriate context for each file when relabeling a file system.
 > -
 > -The
-> -.I object_type
-> -argument should be set to one of the following values:
-> +The X contexts backend maps from X Window System object names into security contexts. It is used to find the appropriate context for X Window System objects whose significance and/or usage semantics are determined primarily by name. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
+> -.I path
+> -argument should be set to the full pathname of the file whose assigned context is being checked.  The
+> -.I mode
+> -argument should be set to the mode bits of the file, as determined by
+> -.BR lstat (2).
+> +The file contexts backend maps from pathname/mode combinations into security contexts. It is used to find the appropriate context for each file when relabeling a file system. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
 > +.br
-> +\fBselabel_lookup\fR(3) describes the function with its return and error codes.
-> +.sp
-> +This backend is also used to determine the default context for labeling remotely connected X clients.
-> +.sp
-> +The \fIobject_type\fR argument should be set to one of the following values:
+> +\fBselabel_lookup\fR(3) describes the function with its return and error codes, however the following \fIerrno\fR is clarified further for the file contexts backend:
 > +.RS
->  .TP
->  .B SELABEL_X_PROP
->  The
-> @@ -45,37 +55,106 @@ argument specifies the name of an event type, such as "X11:ButtonPress".
->  .B SELABEL_X_CLIENT
->  The
->  .I object_name
-> -argument is ignored and should be set to NULL.  The default context for labeling remote X clients is returned.
-> +argument is ignored, however it should be set to either \fI*\fR (an asterisk or 'wildcard' that will select the default entry) or a specific entry such as "remote" in the X contexts file as shown in the \fBEXAMPLE\fR section. The default context for labeling remote X clients is then returned.
->  .TP
->  .B SELABEL_X_POLYPROP
->  Like
->  .BR SELABEL_X_PROP ,
-> -but checks if the property was marked as being polyinstantiated.  See
-> -.B NOTES
-> -below.
-> +but checks if the property was marked as being polyinstantiated. See \fBNOTES\fR below.
->  .TP
->  .B SELABEL_X_POLYSELN
->  Like
->  .BR SELABEL_X_SELN ,
-> -but checks if the selection was marked as being polyinstantiated.  See
-> -.B NOTES
-> -below.
-> +but checks if the selection was marked as being polyinstantiated. See \fBNOTES\fR below.
+> +.TP
+> +.B ENOENT
+> +No context corresponding to the \fIpath\fR and \fImode\fR was found - This will also be returned when the file contexts series of files have a context of \fB<<none>>\fR against the \fIpath\fR (see the \fBFILE FORMAT\fR section).
 > +.RE
 > +.sp
-> +Any messages generated by \fBselabel_lookup\fR(3) are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
+> +The \fIpath\fR argument should be set to the full pathname of the file whose assigned context is being checked. The \fImode\fR argument should be set to the mode bits of the file, as determined by \fBlstat\fR(2). \fImode\fR may be zero, however full matching may not occur.
+> +.sp
+> +Any messages generated by \fBselabel_lookup\fR are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
 > +.sp
 > +.B selabel_lookup_raw
 > +behaves identically to \fBselabel_lookup\fR but does not perform context translation.
 > +.sp
-> +The \fBFILES\fR section details the configuration files used to determine the X object context.
+> +The \fBFILES\fR section details the configuration files used to determine a file context.
 >
 >  .SH "OPTIONS"
-> -In addition to the global options described in
-> -.BR selabel_open (3),
-> -this backend recognizes the following options:
+>  In addition to the global options described in
+>  .BR selabel_open (3),
+>  this backend recognizes the following options:
 > -
-> +In addition to the global options described in \fBselabel_open\fR(3), this backend recognizes the following options:
 > +.RS
 >  .TP
 >  .B SELABEL_OPT_PATH
-> -A non-null value for this option specifies a path to a file that will be opened in lieu of the standard X contexts file.
-> +A non-null value for this option specifies a path to a file that will be opened in lieu of the standard X contexts file (see the \fBFILES\fR section for details).
+>  A non-null value for this option specifies a path to a file that will be opened in lieu of the standard file contexts file.  This value is also used as the base name for determining the names of local customization files.
+> @@ -39,10 +53,161 @@ A non-null value for this option indicates that any local customizations to the
+>  .TP
+>  .B SELABEL_OPT_SUBSET
+>  A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications starting with the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix will fail.
 > +.RE
-> +
-> +.SH "FILES"
-> +The X context file used to retrieve a default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy X contexts location (as returned by \fBselinux_x_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
-> +.sp
-> +The default X object contexts file is:
-> +.RS
-> +.I /etc/selinux/{SELINUXTYPE}/contexts/x_contexts
-> +.RE
-> +.sp
-> +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
-> +.sp
-> +The entries within the X contexts file are shown in the \fBObject Name String Values\fR and \fBFILE FORMAT\fR sections.
-> +
-> +.SH "Object Name String Values"
-> +The string name assigned to each \fIobject_type\fR argument that can be present in the X contexts file are:
-> +.TS
-> +center, allbox, tab(@);
-> +lI lB
-> +lB l .
-> +object_type@Text Name
-> +SELABEL_X_PROP@property
-> +SELABEL_X_SELN@selection
-> +SELABEL_X_EXT@extension
-> +SELABEL_X_EVENT@event
-> +SELABEL_X_CLIENT@client
-> +SELABEL_X_POLYPROP@poly_property
-> +SELABEL_X_POLYSELN@poly_selection
-> +.TE
-> +
-> +.SH "FILE FORMAT"
-> +Each line within the X contexts file is as follows:
-> +.RS
-> +.I object_type object_name context
-> +.RE
-> +.sp
-> +Where:
-> +.RS
-> +.I object_type
-> +.RS
-> +This is the string representation of the object type shown in the \fBObject Name String Values\fR section.
-> +There can be multiple lines with the same \fIobject_type\fR string that will form a block of entries (each with a different \fIobject_name\fR entry).
-> +.RE
-> +.I object_name
-> +.RS
-> +These are the object names of the specific X-server resource such as \fBPRIMARY\fR, \fBCUT_BUFFER0\fR etc. They are generally defined in the X\-server source code (\fIprotocol.txt\fR and \fIBuiltInAtoms\fR in the dix directory of the xorg\-server source package).
-> +The entry can contain '*' for wildcard matching or '?' for substitution.
-> +Note that if the '*' is used, then be aware that the order of entries in the file is important. The '*' on its own is used to ensure a default fallback context is assigned and should be the last entry in the \fIobject_type\fR block.
-> +.RE
-> +.I context
-> +.RS
-> +The security context that will be applied to the object.
-> +.RE
-> +.RE
-> +.sp
-> +Example 1:
-> +.sp
-> +# object_type  object_name  context
-> +.br
-> +selection      PRIMARY      system_u:object_r:clipboard_xselection_t:s0
-> +.br
-> +selection      *            system_u:object_r:xselection_t:s0
-> +.sp
-> +Example 2 \- This example shows how a client entry can be configured to ensure an entry is always found:
-> +.sp
-> +# object_type  object_name  context
-> +.br
-> +client         *            system_u:object_r:remote_t:s0
 >
->  .SH "NOTES"
-> -Properties and selections are marked as either polyinstantiated or not.  For these name types, the "POLY" option searches only the names marked as being polyinstantiated, while the other option searches only the names marked as not being polyinstantiated.  Users of the interface should check both mappings, optionally taking action based on the result (e.g. polyinstantiating the object).
-> +.IP "1." 4
-> +Properties and selections are marked as either polyinstantiated or not. For these name types, the "POLY" option searches only the names marked as being polyinstantiated, while the other option searches only the names marked as not being polyinstantiated. Users of the interface should check both mappings, optionally taking action based on the result (e.g. polyinstantiating the object).
-> +.IP "2." 4
-> +If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
->
->  .SH "SEE ALSO"
+> -.SH "SEE ALSO"
 > -.BR selabel_open (3),
 > -.BR selabel_lookup (3),
 > -.BR selabel_stats (3),
 > -.BR selinux (8)
-> -
-> +.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_x_context_path "(3), " freecon "(3), " selinux_config "(5) "
-> diff --git a/libselinux/man/man5/x_contexts.5 b/libselinux/man/man5/x_contexts.5
-> new file mode 100644
-> index 0000000..3796d2a
-> --- /dev/null
-> +++ b/libselinux/man/man5/x_contexts.5
-> @@ -0,0 +1 @@
-> +.so man5/selabel_x.5
+> +.SH "FILES"
+> +The file context files used to retrieve the default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy file contexts location (as returned by \fBselinux_file_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
+> +.sp
+> +If \fBSELABEL_OPT_BASEONLY\fR is set, then the following files will be processed:
+> +.RS
+> +.IP "1." 4
+> +The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
+> +.IP "2." 4
+> +The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file.
+> +.br
+> +These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
+> +.RE
+> +.sp
+> +If the \fBSELABEL_OPT_BASEONLY\fR is not set, then the following files will be processed:
+> +.RS
+> +.IP "1." 4
+> +The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
+> +.IP "2." 4
+> +The optional local customizations file that has the same name as the mandatory file contexts file with the extension \fI.local\fR added.
+> +.br
+> +\fBselinux_file_context_local_path\fR(3) will return the default path to this file.
+> +.IP "3." 4
+> +The optional user home directory customizations file that has the same name as the mandatory file contexts file with the extension \fI.homedirs\fR added.
+> +.br
+> +\fBselinux_file_context_homedir_path\fR(3) will return the default path to this file.
+> +.IP "4." 4
+> +The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file (and the \fI.local\fR and/or \fI.homedirs\fR if present). These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
+> +.br
+> +\fBselinux_file_context_subs_path\fR(3) and \fBselinux_file_context_subs_dist_path\fR(3) will return the default paths to these files.
+> +.RE
+> +.sp
+> +The default file context series of files are:
+> +.RS
+> +.I /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts
+> +.br
+> +.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.local
+> +.br
+> +.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.homedirs
+> +.br
+> +.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs
+> +.br
+> +.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs_dist
+> +.RE
+> +.sp
+> +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
+> +.sp
+> +Only the \fIfile_contexts\fR file is mandatory, the remainder are optional.
+> +.sp
+> +The entries within the file contexts series of files are shown in the \fBFILE FORMAT\fR section.
+> +
+> +.SH "FILE FORMAT"
+> +.sp
+> +.SH "File Contexts Format"
+> +.sp
+> +Each line within the \fIfile_contexts\fR and the two customization files (\fI.local\fR and \fI.homedirs\fR) is as follows:
+> +.sp
+> +.RS
+> +.I pathname [file_type] context
+> +.RE
+> +.sp
+> +Where:
+> +.br
+> +.RS
+> +.I pathname
+> +.RS
+> +An entry that defines the pathname that may be in the form of a regular expression.
+> +.RE
+> +.I file_type
+> +.RS
+> +An optional file type consisting of:
+> +.RS
+> +\fI\-b\fR \- Block Device      \fI\-c\fR \- Character Device
+> +.br
+> +\fI\-d\fR \- Directory         \fI\-p\fR \- Named Pipe
+> +.br
+> +\fI\-l\fR \- Symbolic Link     \fI\-s\fR \- Socket
+> +.br
+> +\fI\-\-\fR \- Ordinary file
+> +.RE
+> +.RE
+> +.I context
+> +.RS
+> +This entry can be either:
+> +.RS
+> +.IP "a." 4
+> +The security context that will be assigned to the file (i.e. returned as \fIcontext\fR).
+> +.IP "b." 4
+> +A value of \fB<<none>>\fR can be used to indicate that the matching files should not be re-labeled and causes \fBselabel_lookup\fR(3) to return \-1 with \fIerrno\fR set to \fBENOENT\fR.
+> +.RE
+> +.RE
+> +.RE
+> +.sp
+> +Example:
+> +.RS
+> +# ./contexts/files/file_contexts
+> +.br
+> +# pathname file_type  context
+> +.br
+> +/.*                   system_u:object_r:default_t:s0
+> +.br
+> +/[^/]+        --      system_u:object_r:etc_runtime_t:s0
+> +.br
+> +/tmp/.*               <<none>>
+> +.RE
+> +.sp
+>
+> +.SH "Substitution File Format"
+> +.sp
+> +Each line within the substitution files (\fI.subs\fR and \fI.subs_dist\fR) is:
+> +.RS
+> +.I pathname subs_pathname
+> +.RE
+> +.sp
+> +Where:
+> +.RS
+> +.I pathname
+> +.RS
+> +A path that matches an entry in one or more of the file contexts files.
+> +.RE
+> +.I subs_pathname
+> +.RS
+> +The path that will be substituted for pathname by the look up process.
+> +.RE
+> +.RE
+> +.sp
+> +Example:
+> +.RS
+> +# ./contexts/files/file_contexts.subs
+> +.br
+> +# pathname  subs_pathname
+> +.br
+> +/myweb      /var/www
+> +.br
+> +/myspool    /var/spool/mail
+> +.sp
+> +Using the above example, when \fBselabel_lookup\fR is passed a path of \fI/myweb/index.html\fR the function will substitute the \fI/myweb\fR component with \fI/var/www\fR, therefore the path used is:
+> +.sp
+> +.RS
+> +.I /var/www/index.html
+> +.RE
+> +.RE
+> +.sp
+> +
+> +.SH "NOTES"
+> +.IP "1." 4
+> +If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
+> +.IP "2." 4
+> +If the size of file contexts series of files contain many entries, then \fBselabel_open\fR(3) may have a delay as it reads in the files, and if
+> +requested validates the entries. If possible use the \fBSELABEL_OPT_SUBSET\fR option to reduce the number of entries processed.
+> +.IP "3." 4
+> +Depending on the version of SELinux it is possible that a \fIfile_contexts.template\fR file may also be present, however this is now deprecated.
+> +.br
+> +The template file has the same format as the \fIfile_contexts\fR file and may also contain the keywords \fBHOME_ROOT\fR, \fBHOME_DIR\fR, \fBROLE\fR and \fBUSER\fR. This functionality has now been moved to the policy store and managed by \fBsemodule\fR(8) and \fBgenhomedircon\fR(8).
+> +
+> +.SH "SEE ALSO"
+> +.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_file_context_path "(3), " freecon "(3), " selinux_config "(5), " lstat "(2), "selinux_file_context_subs_path "(3), " selinux_file_context_subs_dist_path "(3), " selinux_file_context_homedir_path "(3), "selinux_file_context_local_path "(3), " semodule "(8), " genhomedircon "(8) "
 > --
 > 1.7.7.1
 >
