@@ -1,141 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GJrOr019111
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:19:53 -0500
-Received: from nm3-vm1.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GJpif010467
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:19:52 GMT
-Message-ID: <1322756390.65264.YahooMailClassic@web87001.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 16:19:50 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GMCX4019352
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:22:12 -0500
+Received: from nm1-vm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GMBNl004469
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:22:11 GMT
+Message-ID: <1322756525.84193.YahooMailClassic@web87006.mail.ird.yahoo.com>
+Date: Thu, 1 Dec 2011 16:22:05 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] libselinux: Updated selabel_db(5) man page
+Subject: [PATCH 1/1] libselinux: Updated selabel_file(5) man page
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Updated selabel_db(5) with RDBMS context configuration file format and added sepgsql_contexts(5) man page that links to it.
+Updated selabel_file(5) with file context configuration file format and
+added file_contexts(5) man page that links to it. selabel_file(5) also
+describes the .local, .homedirs, .subs and .subs_dist configuration file
+formats.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/man/man5/selabel_db.5       |  175 +++++++++++++++++++++++++-------
- libselinux/man/man5/sepgsql_contexts.5 |    1 +
- 2 files changed, 141 insertions(+), 35 deletions(-)
- create mode 100644 libselinux/man/man5/sepgsql_contexts.5
+ libselinux/man/man5/file_contexts.5 |    1 +
+ libselinux/man/man5/selabel_file.5  |  203 +++++++++++++++++++++++++++++++----
+ 2 files changed, 185 insertions(+), 19 deletions(-)
+ create mode 100644 libselinux/man/man5/file_contexts.5
 
-diff --git a/libselinux/man/man5/selabel_db.5 b/libselinux/man/man5/selabel_db.5
-index b699f39..c809d18 100644
---- a/libselinux/man/man5/selabel_db.5
-+++ b/libselinux/man/man5/selabel_db.5
-@@ -1,38 +1,39 @@
+diff --git a/libselinux/man/man5/file_contexts.5 b/libselinux/man/man5/file_contexts.5
+new file mode 100644
+index 0000000..9c022d8
+--- /dev/null
++++ b/libselinux/man/man5/file_contexts.5
+@@ -0,0 +1 @@
++.so man5/selabel_file.5
+diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
+index 6cce99e..e7536e8 100644
+--- a/libselinux/man/man5/selabel_file.5
++++ b/libselinux/man/man5/selabel_file.5
+@@ -1,35 +1,49 @@
  .\" Hey Emacs! This file is -*- nroff -*- source.
  .\"
- .\" Author: KaiGai Kohei <kaigai@ak.jp.nec.com> 2009
--.TH "selabel_db" "5" "22 Nov 2009" "" "SELinux API documentation"
-+.TH "selabel_db" "5" "01 DEC 2011" "Security Enhanced Linux" "SELinux API documentation"
+ .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
+-.TH "selabel_file" "5" "18 Jun 2007" "" "SELinux API documentation"
++.TH "selabel_file" "5" "01 Dec 2011" "Security Enhanced Linux" "SELinux API documentation"
  .SH "NAME"
--selabel_db \- userspace SELinux labeling interface: DB objects contexts backend.
-+selabel_db \- userspace SELinux labeling interface and configuration file format for the RDBMS objects context backend.
+-selabel_file \- userspace SELinux labeling interface: file contexts backend.
++selabel_file \- userspace SELinux labeling interface and configuration file format for the file contexts backend.
  .SH "SYNOPSIS"
 -.B #include <selinux/selinux.h>
 -
--.B #include <selinux/label.h>
-+..B #include <selinux/label.h>
+ .B #include <selinux/label.h>
  .sp
  .BI "int selabel_lookup(struct selabel_handle *" hnd ,
  .in +\w'int selabel_lookup('u
  .BI "security_context_t *" context ,
 -
 +.br
-+.BI "const char *" object_name ", int " object_type ");"
++.BI "const char *" path ", int " mode ");"
 +.in
 +.sp
 +.BI "int selabel_lookup_raw(struct selabel_handle *" hnd ,
 +.in +\w'int selabel_lookup('u
 +.BI "security_context_t *" context ,
 +.br
- .BI "const char *" object_name ", int " object_type ");"
+ .BI "const char *" path ", int " mode ");"
  
  .SH "DESCRIPTION"
--The DB contexts backend maps from a pair of object name and class into security contexts. It is used to find the appropriate context for database objects when relabeling a certain database.
+-The file contexts backend maps from pathname/mode combinations into security contexts.  It is used to find the appropriate context for each file when relabeling a file system.
 -
 -The
--.I object_name
--should be fully qualified name using the hierarchy of database objects.
--For example, the
--.B pg_class
--table in the
--.B postgres
--database and
--.B pg_catalog
--schema should be qualified as
--.B postgres.pg_catalog.pg_class .
--
--The
--.I object_type
--argument should be set to one of the following values:
-+The DB contexts backend maps from a pair of object name and class into security contexts. It is used to find the appropriate context for database objects when relabeling a certain database. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
+-.I path
+-argument should be set to the full pathname of the file whose assigned context is being checked.  The 
+-.I mode
+-argument should be set to the mode bits of the file, as determined by 
+-.BR lstat (2).
++The file contexts backend maps from pathname/mode combinations into security contexts. It is used to find the appropriate context for each file when relabeling a file system. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3). 
 +.br
-+\fBselabel_lookup\fR(3) describes the function with its return and error codes.
-+.sp
-+The \fIobject_name\fR should be a fully qualified name using the hierarchy of database objects. For example, the \fBpg_class\fR table in the \fBpostgres\fR database and \fBpg_catalog\fR schema should be qualified as:
++\fBselabel_lookup\fR(3) describes the function with its return and error codes, however the following \fIerrno\fR is clarified further for the file contexts backend:
 +.RS
-+.B Bpostgres.pg_catalog.pg_class
++.TP
++.B ENOENT 
++No context corresponding to the \fIpath\fR and \fImode\fR was found - This will also be returned when the file contexts series of files have a context of \fB<<none>>\fR against the \fIpath\fR (see the \fBFILE FORMAT\fR section).
 +.RE
 +.sp
-+The \fBNOTES\fR section has further information on database support for namespace hierarchies.
-+.sp
-+The \fIobject_type\fR argument should be set to one of the following values:
-+.RS
- .TP
- .B SELABEL_DB_DATABASE
- The
-@@ -62,7 +63,7 @@ argument specifies the name of a table object which contains the tuples to be re
- .B SELABEL_DB_PROCEDURE
- The
- .I object_name
--argument specifies the name of a procedure object, such as "postgres.public.my_func". Note that we don't support to lookup individual security contexts for each procedures which have same name but different arguments.
-+argument specifies the name of a procedure object, such as "postgres.public.my_func". Note that we don't support lookup of individual security contexts for procedures which have the same name but different arguments.
- .TP
- .B SELABEL_DB_SEQUENCE
- The
-@@ -73,21 +74,125 @@ argument specifies the name of a sequence object, such as "postgres.public.my_se
- The
- .I object_name
- argument specifies the name of a large object, such as "postgres.16308".
--Note that a large object does not have its name, so it is identified by its identifier value.
-+Note that a large object does not have a name, so it is identified by its identifier value.
-+.TP
-+.B SELABEL_DB_VIEW
-+The
-+.I object_name
-+argument specifies the name of a view object, such as "postgres.public.my_view".
-+.TP
-+.B SELABEL_DB_LANGUAGE
-+The
-+.I object_name
-+argument specifies the name of a language object, such as "postgres.public.tcl".
-+.RE
++The \fIpath\fR argument should be set to the full pathname of the file whose assigned context is being checked. The \fImode\fR argument should be set to the mode bits of the file, as determined by \fBlstat\fR(2). \fImode\fR may be zero, however full matching may not occur.
 +.sp
 +Any messages generated by \fBselabel_lookup\fR are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
 +.sp
 +.B selabel_lookup_raw
 +behaves identically to \fBselabel_lookup\fR but does not perform context translation.
 +.sp
-+The \fBFILES\fR section details the configuration files used to determine the database object context.
++The \fBFILES\fR section details the configuration files used to determine a file context.
  
  .SH "OPTIONS"
--In addition to the global options described in 
--.BR selabel_open (3),
--this backend recognizes the following options:
+ In addition to the global options described in 
+ .BR selabel_open (3),
+ this backend recognizes the following options:
 -
-+In addition to the global options described in \fBselabel_open\fR(3), this backend recognizes the following options:
 +.RS
  .TP
  .B SELABEL_OPT_PATH
- A non-null value for this option specifies a path to a file that will be opened in lieu of the standard DB contexts file.
--It tries to open the specfile designed for SE-PostgreSQL in the default, so if another RDBMS uses this interface, it needs to give an explicit specfile designed for the RDBMS.
-+It tries to open the specfile designed for SE-PostgreSQL as default, so if another RDBMS uses this interface, it needs to give an explicit specfile designed for that RDBMS (see the \fBFILES\fR section for details).
+ A non-null value for this option specifies a path to a file that will be opened in lieu of the standard file contexts file.  This value is also used as the base name for determining the names of local customization files.
+@@ -39,10 +53,161 @@ A non-null value for this option indicates that any local customizations to the
+ .TP
+ .B SELABEL_OPT_SUBSET
+ A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications starting with the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix will fail.
 +.RE
  
 -.SH "SEE ALSO"
@@ -144,105 +113,161 @@ index b699f39..c809d18 100644
 -.BR selabel_stats (3),
 -.BR selinux (8)
 +.SH "FILES"
-+The database context file used to retrieve a context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy database contexts location (as returned by \fBselinux_sepgsql_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used (this option must be used to support databases other than SE-PostgreSQL).
++The file context files used to retrieve the default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy file contexts location (as returned by \fBselinux_file_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
 +.sp
-+The default database object contexts file is:
++If \fBSELABEL_OPT_BASEONLY\fR is set, then the following files will be processed:
 +.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/sepgsql_context
++.IP "1." 4
++The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
++.IP "2." 4
++The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file.
++.br
++These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
++.RE
++.sp
++If the \fBSELABEL_OPT_BASEONLY\fR is not set, then the following files will be processed:
++.RS
++.IP "1." 4
++The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
++.IP "2." 4
++The optional local customizations file that has the same name as the mandatory file contexts file with the extension \fI.local\fR added.
++.br
++\fBselinux_file_context_local_path\fR(3) will return the default path to this file.
++.IP "3." 4
++The optional user home directory customizations file that has the same name as the mandatory file contexts file with the extension \fI.homedirs\fR added.
++.br
++\fBselinux_file_context_homedir_path\fR(3) will return the default path to this file.
++.IP "4." 4
++The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file (and the \fI.local\fR and/or \fI.homedirs\fR if present). These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
++.br
++\fBselinux_file_context_subs_path\fR(3) and \fBselinux_file_context_subs_dist_path\fR(3) will return the default paths to these files.
++.RE
++.sp
++The default file context series of files are:
++.RS
++.I /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts
++.br
++.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.local
++.br
++.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.homedirs
++.br
++.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs
++.br
++.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs_dist
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
 +.sp
-+The entries within the database contexts file are shown in the \fBObject Name String Values\fR and \fBFILE FORMAT\fR sections.
++Only the \fIfile_contexts\fR file is mandatory, the remainder are optional.
++.sp
++The entries within the file contexts series of files are shown in the \fBFILE FORMAT\fR section.
 +
-+.SH "Object Name String Values"
-+The string name assigned to each \fIobject_type\fR argument that can be present in the database contexts file are:
-+.TS
-+center, allbox, tab(@);
-+lI lB
-+lB l .
-+object_type@Text Name
-+SELABEL_DB_DATABASE@db_database
-+SELABEL_DB_SCHEMA@db_schema
-+SELABEL_DB_VIEW@db_view
-+SELABEL_DB_LANGUAGE@db_language
-+SELABEL_DB_TABLE@db_table
-+SELABEL_DB_COLUMN@db_column
-+SELABEL_DB_TUPLE@db_tuple
-+SELABEL_DB_PROCEDURE@db_procedure
-+SELABEL_DB_SEQUENCE@db_sequence
-+SELABEL_DB_BLOB@db_blob
-+.TE
- 
 +.SH "FILE FORMAT"
-+Each line within the database contexts file is as follows:
++.sp
++.SH "File Contexts Format"
++.sp
++Each line within the \fIfile_contexts\fR and the two customization files (\fI.local\fR and \fI.homedirs\fR) is as follows:
++.sp
 +.RS
-+.I object_type object_name context
++.I pathname [file_type] context
++.RE
++.sp
++Where:
++.br
++.RS
++.I pathname
++.RS
++An entry that defines the pathname that may be in the form of a regular expression.
++.RE
++.I file_type
++.RS
++An optional file type consisting of:
++.RS
++\fI\-b\fR \- Block Device      \fI\-c\fR \- Character Device
++.br
++\fI\-d\fR \- Directory         \fI\-p\fR \- Named Pipe
++.br
++\fI\-l\fR \- Symbolic Link     \fI\-s\fR \- Socket
++.br
++\fI\-\-\fR \- Ordinary file
++.RE
++.RE
++.I context
++.RS
++This entry can be either:
++.RS
++.IP "a." 4
++The security context that will be assigned to the file (i.e. returned as \fIcontext\fR).
++.IP "b." 4
++A value of \fB<<none>>\fR can be used to indicate that the matching files should not be re-labeled and causes \fBselabel_lookup\fR(3) to return \-1 with \fIerrno\fR set to \fBENOENT\fR.
++.RE
++.RE
++.RE
++.sp
++Example:
++.RS
++# ./contexts/files/file_contexts
++.br
++# pathname file_type  context
++.br
++/.*                   system_u:object_r:default_t:s0
++.br
++/[^/]+        --      system_u:object_r:etc_runtime_t:s0
++.br
++/tmp/.*               <<none>>
++.RE
++.sp
+ 
++.SH "Substitution File Format"
++.sp
++Each line within the substitution files (\fI.subs\fR and \fI.subs_dist\fR) is:
++.RS
++.I pathname subs_pathname
 +.RE
 +.sp
 +Where:
 +.RS
-+.I object_type
++.I pathname
 +.RS
-+This is the string representation of the object type shown in the \fBObject Name String Values\fR section.
++A path that matches an entry in one or more of the file contexts files.
 +.RE
-+.I object_name
++.I subs_pathname
 +.RS
-+The key used to obtain the context based on the \fIobject_type\fR.
-+.sp
-+The entry can contain '*' for wildcard matching or '?' for substitution.
-+.sp
-+Note that if the '*' is used, then be aware that the order of entries in the file is important. The '*' on its own is used to ensure a default fallback context is assigned and should be the last entry in the \fIobject_type\fR block.
++The path that will be substituted for pathname by the look up process.
 +.RE
-+.I context
++.RE
++.sp
++Example:
 +.RS
-+The security context that will be applied to the object.
++# ./contexts/files/file_contexts.subs
++.br
++# pathname  subs_pathname
++.br
++/myweb      /var/www
++.br
++/myspool    /var/spool/mail
++.sp
++Using the above example, when \fBselabel_lookup\fR is passed a path of \fI/myweb/index.html\fR the function will substitute the \fI/myweb\fR component with \fI/var/www\fR, therefore the path used is:
++.sp
++.RS
++.I /var/www/index.html
 +.RE
 +.RE
 +.sp
-+The following example is for SE-PostgreSQL:
-+.sp
-+# ./contexts/sepgsql_contexts file
-+.br
-+# object_type  object_name   context
-+.br
-+db_database    my_database   system_u:object_r:sepgsql_db_t:s0
-+.br
-+db_database    *             system_u:object_r:sepgsql_db_t:s0
-+.br
-+db_schema      *.*           system_u:object_r:sepgsql_schema_t:s0
-+.br
-+db_tuple       row_low       system_u:object_r:sepgsql_table_t:s0
-+.br
-+db_tuple       row_high      system_u:object_r:sepgsql_table_t:s0:c1023
-+.br
-+db_tuple       *.*.*         system_u:object_r:sepgsql_table_t:s0
 +
 +.SH "NOTES"
 +.IP "1." 4
-+A suitable database contexts file needs to be written for the target RDBMS and the \fBSELABEL_OPT_PATH\fR option must be used in \fBselabel_open\fR(3) to load it.
-+.IP "2." 4
-+The hierarchy of the namespace for database objects depends on the RDBMS, however the \fIselabel*\fR interfaces do not have any specific support for a namespace hierarchy.
-+.sp
-+SE-PostgreSQL has a namespace hierarchy where a database is the top level object with the schema being the next level. Under the schema object there can be other types of objects such as tables and procedures. This hierarchy is supported as follows:
-+.RS
-+.RS
-+.sp
-+If a security context is required for "my_table" table in the "public" schema within the "postgres" database, then the \fBselabel_lookup\fR parameters for \fIobject_type\fR would be \fBSELABEL_DB_TABLE\fR and the \fIobject_name\fR would be "postgres.public.my_table", the security context (if available), would be returned in \fIcontext\fR.
-+.RE
-+.RE
-+.IP "3." 4
 +If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
++.IP "2." 4
++If the size of file contexts series of files contain many entries, then \fBselabel_open\fR(3) may have a delay as it reads in the files, and if
++requested validates the entries. If possible use the \fBSELABEL_OPT_SUBSET\fR option to reduce the number of entries processed.
++.IP "3." 4
++Depending on the version of SELinux it is possible that a \fIfile_contexts.template\fR file may also be present, however this is now deprecated.
++.br
++The template file has the same format as the \fIfile_contexts\fR file and may also contain the keywords \fBHOME_ROOT\fR, \fBHOME_DIR\fR, \fBROLE\fR and \fBUSER\fR. This functionality has now been moved to the policy store and managed by \fBsemodule\fR(8) and \fBgenhomedircon\fR(8).
 +
 +.SH "SEE ALSO"
-+.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_sepgsql_context_path "(3), " freecon "(3), " selinux_config "(5) "
-diff --git a/libselinux/man/man5/sepgsql_contexts.5 b/libselinux/man/man5/sepgsql_contexts.5
-new file mode 100644
-index 0000000..ec2bb47
---- /dev/null
-+++ b/libselinux/man/man5/sepgsql_contexts.5
-@@ -0,0 +1 @@
-+.so man5/selabel_db.5
++.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_file_context_path "(3), " freecon "(3), " selinux_config "(5), " lstat "(2), "selinux_file_context_subs_path "(3), " selinux_file_context_subs_dist_path "(3), " selinux_file_context_homedir_path "(3), "selinux_file_context_local_path "(3), " semodule "(8), " genhomedircon "(8) "
 -- 
 1.7.7.1
 
