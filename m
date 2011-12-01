@@ -1,403 +1,363 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1EL19U009146
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 09:21:01 -0500
-Received: from mail-vw0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pB1EL0kR022798
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 14:21:00 GMT
-Received: by vbbff1 with SMTP id ff1so1605800vbb.12
-        for <selinux@tycho.nsa.gov>; Thu, 01 Dec 2011 06:21:00 -0800 (PST)
+Message-ID: <4ED78DB2.7090206@t0mb.net>
+Date: Thu, 01 Dec 2011 14:22:42 +0000
+From: Tom <tom@t0mb.net>
 MIME-Version: 1.0
-In-Reply-To: <1322491408.86714.YahooMailClassic@web87009.mail.ird.yahoo.com>
-References: <1322491408.86714.YahooMailClassic@web87009.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 09:21:00 -0500
-Message-ID: <CACLa4ptw_OBUK5EgkEhN2gA_KEL+zdVAevBHqbSrC+DWUqGUqA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] policycoreutils: sestatus: Updated sestatus and man pages.
-From: Eric Paris <eparis@parisplace.org>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: First forays in to writing a module to lock down PowerDNS.
+References: <4ED500C9.1080509@t0mb.net> <4ED50502.1030509@redhat.com> <4ED507D4.101@t0mb.net> <4ED60963.7080006@t0mb.net> <4ED65B76.3050107@redhat.com> <4ED76A4A.6000504@t0mb.net> <4ED78CC1.9080706@redhat.com>
+In-Reply-To: <4ED78CC1.9080706@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Applied to my devel branch after whitespace fixups.
+I've just removed that.  It was only there because I had things 
+incorrectly labelled when I first started working on the module, and 
+audit2allow told me i should use that rule accordingly.  I've had no 
+denials since removing it!
 
-thanks!
+Cheers.  Tom.
 
-On Mon, Nov 28, 2011 at 9:43 AM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> sestatus has been modified to present additional information: SELinux root
-> directory, MLS flag and the deny_unknow flag. The man page has been updated
-> to reflect these changes and an sestatus.conf(5) man page has also been added.
+On 01/12/11 14:18, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  policycoreutils/sestatus/Makefile        |    2 +
->  policycoreutils/sestatus/sestatus.8      |   62 ++++++++++++++-----
->  policycoreutils/sestatus/sestatus.c      |   82 ++++++++++++++++++++-----
->  policycoreutils/sestatus/sestatus.conf.5 |   97 ++++++++++++++++++++++++++++++
->  4 files changed, 209 insertions(+), 34 deletions(-)
->  create mode 100644 policycoreutils/sestatus/sestatus.conf.5
+> On 12/01/2011 06:51 AM, Tom wrote:
+>> Hi again,
+>>
+>> Thanks again for all your help.  I'm enjoying refactoring this,
+>> making it better each time!  I've learned a lot so far, and am
+>> starting to look ready for tackling my next module, which will be
+>> for an in-house application we use here at work.
+>>
+>> I'm hoping to test this on a production server very soon.  I'm
+>> also chipping away at my colleagues whose only experience with
+>> selinux is to turn it off!  Some of them aren't too keen on the
+>> idea of me introducing selinux on to our platform, but I'm just
+>> going to introduce it bit by bit and make sure it's all documented
+>> well, and that they understand what I'm up to.
+>>
+>>
+>> # PowerDNS targeted enforcement module
+>>
+>> policy_module(pdns,1.0.2)
+>>
+>> type pdns_t; type pdns_exec_t; can_exec(pdns_t, pdns_exec_t)
+>>
+>> init_daemon_domain(pdns_t, pdns_exec_t)
+>>
+>> # /etc/pdns/pdns.conf type pdns_conf_t;
+>> files_config_file(pdns_conf_t) read_files_pattern(pdns_t,
+>> pdns_conf_t, pdns_conf_t) files_etc_filetrans(pdns_t, pdns_conf_t,
+>> file)
+>>
+>> # /var/run/pdns.pid /var/run/pdns.controlsocket
+>> /var/run/subsys/pdns type pdns_var_run_t;
+>> files_pid_file(pdns_var_run_t) manage_files_pattern(pdns_t,
+>> pdns_var_run_t, pdns_var_run_t) manage_dirs_pattern(pdns_t,
+>> pdns_var_run_t, pdns_var_run_t) manage_sock_files_pattern(pdns_t,
+>> pdns_var_run_t, pdns_var_run_t) files_pid_filetrans(pdns_t,
+>> pdns_var_run_t, { dir file sock_file })
+>>
+>> # General self privs allow pdns_t self:capability { setuid chown
+>> fsetid kill setgid }; allow pdns_t self:fifo_file
+>> rw_fifo_file_perms; allow pdns_t self:process signal_perms; allow
+>> pdns_t self:tcp_socket create_stream_socket_perms; allow pdns_t
+>> self:udp_socket create_socket_perms;
+>>
+>> # General files access Macros files_read_etc_files(pdns_t)
+>> files_read_usr_files(pdns_t) files_read_default_files(pdns_t)
+>> libs_use_lib_files(pdns_t) libs_use_ld_so(pdns_t)
+>> miscfiles_read_localization(pdns_t)
+>>
+>> # General Networky stuff corenet_udp_bind_all_nodes(pdns_t)
+>> corenet_tcp_bind_all_nodes(pdns_t)
+>>
+>> # Syslog logging_send_syslog_msg(pdns_t)
+>>
+>> # Inbound DNS corenet_udp_bind_dns_port(pdns_t)
+>> corenet_udp_sendrecv_dns_port(pdns_t)
+>> corenet_tcp_bind_dns_port(pdns_t)
+>> corenet_tcp_sendrecv_dns_port(pdns_t)
+>>
+>> # Inbound TCP 8081 for PDNS Web Server
+>> corenet_tcp_bind_transproxy_port(pdns_t)
+>> corenet_tcp_sendrecv_transproxy_port(pdns_t)
+>>
+>> # Outbound DB Connectivity corenet_tcp_connect_mysqld_port(pdns_t)
+>> corenet_tcp_connect_mssql_port(pdns_t)
+>>
+>>
+>>
+>>
+>> On 30/11/11 16:36, Daniel J Walsh wrote: On 11/30/2011 05:45 AM,
+>> Tom wrote:
+>>>>> Hi Again,
+>>>>>
+>>>>> I've followed your advice, and I've removed all but one
+>>>>> requirement for var_run_t:sock_file.  I couldn't find any
+>>>>> interfaces which would simply give me access to that, but
+>>>>> it's certainly looking a lot better, and a lot more readable!
+>>>>> It could probably do with some more re-factoring, but it's
+>>>>> working well at the moment!
+>>>>>
+>>>>> I haven't really thought too much about the file labelling.
+>>>>> I've only done the daemon binary, config file and
+>>>>> /var/run/pdns.pid file.  I'm not sure I've followed best
+>>>>> practices there at all.
+>>>>>
+>>>>>
+>> Ok the next rule you need to follow, is if you need to write to a
+>> "Generic" type, then you need to create your own type and
+>> potentially transition to it.
+>>
+>>>>> # PowerDNS targeted enforcement module
+>>>>>
+>>>>> policy_module(pdns,1.0.0)
+>>>>>
+>>>>> require { type var_run_t; }
+>>>>>
+>>>>> type pdns_t; type pdns_exec_t; allow pdns_t pdns_exec_t:file
+>>>>> execute_no_trans;
+>>>>>
+>>>>> init_daemon_domain(pdns_t, pdns_exec_t)
+>>>>>
+>>>>> # /etc/pdns/pdns.conf type pdns_conf_t;
+>>>>> files_config_file(pdns_conf_t)
+>>>>>
+>>>>> # /var/run/pdns.pid type pdns_var_run_t;
+>>>>> files_pid_file(pdns_var_run_t)
+>>>>>
+>>>>> # General self privs allow pdns_t self:capability { setuid
+>>>>> chown fsetid kill setgid }; allow pdns_t self:fifo_file {
+>>>>> read getattr ioctl };
+>> allow pdns_t self:fifo_file rw_fifo_file_perms;
+>>>>> allow pdns_t self:process sigkill;
+>> Might want to just add signal_perms;
+>>>>> allow pdns_t self:tcp_socket { setopt read bind create
+>>>>> accept write ioctl connect getopt listen };
+>> allow pdns_t self:tcp_socket create_stream_socket_perms;
+>>
+>>>>> allow pdns_t self:udp_socket { read bind create write getattr
+>>>>> };
+>> allow pdns_t self:udp_socket create_socket_perms;
+>>>>> # Cannot figure out an interface to use with this one: allow
+>>>>> pdns_t var_run_t:sock_file { create setattr };
+>>>>>
+>> See below
+>>>>> # General files access Macros files_read_etc_files(pdns_t)
+>>>>> files_manage_usr_files(pdns_t)
+>> You should have you own type?  Whar file in /usr are you
+>> rewriting?
+>>
+>>>>> files_read_default_files(pdns_t)
+>>>>> files_rw_generic_pids(pdns_t) files_delete_all_pids(pdns_t)
+>> Are you actually deleting other peoples content in /var/run?  Or
+>> do you have your own content in /var/run?
+>>
+>> For example something like
+>>
+>> manage_dirs_pattern(pdns_t, pdns_var_run_t, pdns_var_run_t)
+>> manage_files_pattern(pdns_t, pdns_var_run_t, pdns_var_run_t)
+>> manage_sock_files_pattern(pdns_t, pdns_var_run_t, pdns_var_run_t)
+>> files_pid_filetrans(pdns_t, pdns_var_run_t, { dir file sock_file
+>> })
+>>
+>> Then add a matching content in the fc file.
+>>
+>>>>> files_read_config_files(pdns_t) libs_use_lib_files(pdns_t)
+>>>>> libs_use_ld_so(pdns_t) miscfiles_read_localization(pdns_t)
+>>>>>
+>>>>> # Core Network corenet_udp_bind_all_nodes(pdns_t)
+>>>>> corenet_tcp_bind_all_nodes(pdns_t)
+>>>>>
+>>>>> # Syslog logging_send_syslog_msg(pdns_t)
+>>>>>
+>>>>> # Inbound DNS corenet_udp_bind_dns_port(pdns_t)
+>>>>> corenet_udp_sendrecv_dns_port(pdns_t)
+>>>>> corenet_tcp_bind_dns_port(pdns_t)
+>>>>> corenet_tcp_sendrecv_dns_port(pdns_t)
+>>>>>
+>>>>> # Inbound TCP 8081 for PDNS Web Server
+>>>>> corenet_tcp_bind_transproxy_port(pdns_t)
+>>>>> corenet_tcp_sendrecv_transproxy_port(pdns_t)
+>>>>>
+>>>>> # Outbound DB Connectivity
+>>>>> corenet_tcp_connect_mysqld_port(pdns_t)
+>>>>> corenet_tcp_connect_mssql_port(pdns_t)
+>>>>>
+>>>>>
+>>>>> Thanks again for your advice.
+>>>>>
+>>>>> Tom.
+>>>>>
+>>>>>
+>>>>> On 29/11/11 16:27, Tom wrote:
+>>>>>> Hi Daniel,
+>>>>>>
+>>>>>> Thanks for this.  I'm just about to leave work, but I'll
+>>>>>> be looking again in the morning, and I'll get back to you
+>>>>>> and see what you think of version 1.0.1! :)
+>>>>>>
+>>>>>> Thanks again.  Tom.
+>>>>>>
+>>>>>>
+>>>>>> On 29/11/11 16:14, Daniel J Walsh wrote:
+>>>>> On 11/29/2011 10:56 AM, Tom wrote:
+>>>>>>>>> Greetings,
+>>>>>>>>>
+>>>>>>>>> This is my first attempt at writing an selinux
+>>>>>>>>> module. I've basically done it by trying to confine
+>>>>>>>>> the powerdns service, and then worked through all of
+>>>>>>>>> the problems I've had in the audit log. At this
+>>>>>>>>> point, my powerdns service seems to work well with
+>>>>>>>>> full functionality, however, I'm sure there's about a
+>>>>>>>>> million things I could be doing to make it better.
+>>>>>>>>> I'm still a bit shaky on the way I've done the domain
+>>>>>>>>> transition, and also, I'm sure there are a loads of
+>>>>>>>>> macros which I could be using, although I'm not sure
+>>>>>>>>> whether those types of things are distribution
+>>>>>>>>> dependent. I'm using CentOS 5.7, and have written
+>>>>>>>>> this to fit in to the targeted polifcy.
+>>>>>>>>>
+>>>>>>>>> I'd be glad of any advice on how to do this type of
+>>>>>>>>> thing in a more efficient way.
+>>>>>>>>>
+>>>>>>>>> Many thanks.  Tom.
+>>>>>>>>>
+>>>>>>>>> # cat pdns.te # PowerDNS targeted enforcement module
+>>>>>>>>>
+>>>>>>>>> policy_module(pdns,1.0.0)
+>>>>>>>>>
+>>>>>>>>> require { type etc_t; type lib_t; type usr_t; type
+>>>>>>>>> ld_so_cache_t; type ld_so_t; type lib_t; type
+>>>>>>>>> locale_t; type var_run_t; type devlog_t; type
+>>>>>>>>> syslogd_t; type initrc_var_run_t; type dns_port_t;
+>>>>>>>>> type inaddr_any_node_t; type transproxy_port_t; type
+>>>>>>>>> mysqld_port_t; type mssql_port_t; }
+>>>>>>>>>
+>>>>>>>>> type pdns_t; type pdns_exec_t;
+>>>>>>>>>
+>>>>>>>>> domain_type(pdns_t) domain_entry_file(pdns_t,
+>>>>>>>>> pdns_exec_t) init_daemon_domain(pdns_t, pdns_exec_t)
+>>>>>>>>>
+>>>>>>>>> # /etc/pdns/pdns.conf type pdns_conf_t;
+>>>>>>>>> files_config_file(pdns_conf_t)
+>>>>>>>>>
+>>>>>>>>> # /var/run/pdns.pid type pdns_var_run_t;
+>>>>>>>>> files_pid_file(pdns_var_run_t)
+>>>>>>>>>
+>>>>>>>>> allow pdns_t etc_t:dir search; allow pdns_t
+>>>>>>>>> etc_t:file { getattr read }; allow pdns_t usr_t:dir
+>>>>>>>>> search; allow pdns_t usr_t:file { write create read
+>>>>>>>>> getattr }; allow pdns_t lib_t:dir { search getattr };
+>>>>>>>>> allow pdns_t lib_t:lnk_file read; allow pdns_t
+>>>>>>>>> lib_t:file { read getattr execute }; allow pdns_t
+>>>>>>>>> ld_so_cache_t:file read; allow pdns_t
+>>>>>>>>> ld_so_cache_t:file getattr; allow pdns_t ld_so_t:file
+>>>>>>>>> { read execute }; allow pdns_t locale_t:file { read
+>>>>>>>>> getattr }; allow pdns_t pdns_conf_t:file read; allow
+>>>>>>>>> pdns_t var_run_t:dir { write remove_name add_name };
+>>>>>>>>> allow pdns_t var_run_t:sock_file { unlink create
+>>>>>>>>> setattr }; allow pdns_t var_run_t:file { write create
+>>>>>>>>> }; allow pdns_t devlog_t:sock_file write; allow
+>>>>>>>>> pdns_t syslogd_t:unix_dgram_socket sendto; allow
+>>>>>>>>> pdns_t initrc_var_run_t:file write; allow pdns_t
+>>>>>>>>> pdns_exec_t:file execute_no_trans;
+>>>>>>>>>
+>>>>>>>>> allow pdns_t self:process sigkill; allow pdns_t
+>>>>>>>>> self:fifo_file { getattr read ioctl write }; allow
+>>>>>>>>> pdns_t self:capability { chown fsetid
+>>>>>>>>> net_bind_service setuid setgid kill }; allow pdns_t
+>>>>>>>>> self:unix_dgram_socket { create connect write };
+>>>>>>>>> allow pdns_t self:udp_socket { create bind read
+>>>>>>>>> getattr write }; allow pdns_t self:tcp_socket {
+>>>>>>>>> create bind read getattr write setopt listen connect
+>>>>>>>>> shutdown accept getopt ioctl };
+>>>>>>>>>
+>>>>>>>>> allow pdns_t inaddr_any_node_t:udp_socket node_bind;
+>>>>>>>>> allow pdns_t inaddr_any_node_t:tcp_socket node_bind;
+>>>>>>>>>
+>>>>>>>>> # TCP + UDP Port 53 allow pdns_t
+>>>>>>>>> dns_port_t:udp_socket name_bind; allow pdns_t
+>>>>>>>>> dns_port_t:tcp_socket name_bind;
+>>>>>>>>>
+>>>>>>>>> # TCP 8081 for PDNS Web Server allow pdns_t
+>>>>>>>>> transproxy_port_t:tcp_socket name_bind;
+>>>>>>>>>
+>>>>>>>>> # DB Connectivity allow pdns_t
+>>>>>>>>> mysqld_port_t:tcp_socket name_connect; allow pdns_t
+>>>>>>>>> mssql_port_t:tcp_socket name_connect;
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> # cat pdns.fc /usr/sbin/pdns_server    --
+>>>>>>>>> gen_context(system_u:object_r:pdns_exec_t,s0)
+>>>>>>>>> /var/run/pdns.pid --
+>>>>>>>>> gen_context(system_u:object_r:pdns_var_run_t,s0)
+>>>>>>>>> /etc/pdns/pdns.conf    --
+>>>>>>>>> gen_context(system_u:object_r:pdns_conf_t,s0)
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> -- This message was distributed to subscribers of
+>>>>>>>>> the selinux mailing list. If you no longer wish to
+>>>>>>>>> subscribe, send mail to majordomo@tycho.nsa.gov with
+>>>>>>>>> the words "unsubscribe selinux" without quotes as the
+>>>>>>>>> message.
+>>>>> Tom try to remove the entire require block.  You should be
+>>>>> using interfaces and not using the types directly in your
+>>>>> policy.
+>>>>>
+>>>>> All interfaces are available under
+>>>>> /usr/share/selinux/devel/include/...
+>>>>>
+>>>>> For example.
+>>>>>>>>> allow pdns_t etc_t:dir search; allow pdns_t
+>>>>>>>>> etc_t:file { getattr read }; allow pdns_t usr_t:dir
+>>>>>>>>> search; allow pdns_t usr_t:file { write create read
+>>>>>>>>> getattr };
+>>>>> Should be
+>>>>>
+>>>>> files_read_etc_files(pdns_t) files_read_usr_files(pdns_t)
+>>>>>
+>>>>>
+>>>>>>>>> allow pdns_t transproxy_port_t:tcp_socket name_bind;
+>>>>> Should be
+>>>>>
+>>>>> corenet_tcp_bind_transproxy_port(pdns_t)
+>>>>>> -- This message was distributed to subscribers of the
+>>>>>> selinux mailing list. If you no longer wish to subscribe,
+>>>>>> send mail to majordomo@tycho.nsa.gov with the words
+>>>>>> "unsubscribe selinux" without quotes as the message.
+>>>>> -- This message was distributed to subscribers of the
+>>>>> selinux mailing list. If you no longer wish to subscribe,
+>>>>> send mail to majordomo@tycho.nsa.gov with the words
+>>>>> "unsubscribe selinux" without quotes as the message.
+>>>>>
+>>>>>
+>>
+>> -- This message was distributed to subscribers of the selinux
+>> mailing list. If you no longer wish to subscribe, send mail to
+>> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
+>> without quotes as the message.
+>>
+>>
+> What default_t files do you have on your system?  default_t means
+> these are files on the system that SELinux has no idea what the
+> content is.  It usually means you added a new directory at /.  If you
+> could classify this data as label and label it correctly you should be
+> able to remove the files_read_default.   Most confined apps are not
+> allowed to use content labeled default_t.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.11 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 >
-> diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/Makefile
-> index 5774e22..c5db7a3 100644
-> --- a/policycoreutils/sestatus/Makefile
-> +++ b/policycoreutils/sestatus/Makefile
-> @@ -15,9 +15,11 @@ sestatus:  sestatus.o
->
->  install: all
->        [ -d $(MANDIR)/man8 ] || mkdir -p $(MANDIR)/man8
-> +       [ -d $(MANDIR)/man5 ] || mkdir -p $(MANDIR)/man5
->        -mkdir -p $(SBINDIR)
->        install -m 755 sestatus $(SBINDIR)
->        install -m 644 sestatus.8 $(MANDIR)/man8
-> +       install -m 644 sestatus.conf.5 $(MANDIR)/man5
->        -mkdir -p $(ETCDIR)
->        install -m 644 sestatus.conf $(ETCDIR)
->
-> diff --git a/policycoreutils/sestatus/sestatus.8 b/policycoreutils/sestatus/sestatus.8
-> index 049892d..2fd5bbb 100644
-> --- a/policycoreutils/sestatus/sestatus.8
-> +++ b/policycoreutils/sestatus/sestatus.8
-> @@ -1,4 +1,4 @@
-> -.TH "sestatus" "8" "2005111103" "" ""
-> +.TH "sestatus" "8" "26 Nov 2011" "Security Enhanced Linux" "SELinux command line documentation"
->  .SH "NAME"
->  sestatus \- SELinux status tool
->
-> @@ -12,38 +12,66 @@ This tool is used to get the status of a system running SELinux.
->  This manual page describes the
->  .BR sestatus
->  program.
-> -.br
-> -This tool is used to get the status of a system running SELinux.  It displays data about whether SELinux is enabled, disabled, the loaded policy and whether it is in enforcing or permissive mode.  It can also be used to display the security context of files and processes listed in the /etc/sestatus.conf file.
-> -
-> +.sp
-> +This tool is used to get the status of a system running SELinux. It displays data about whether SELinux is enabled or disabled, location of key directories, and the loaded policy with its status as shown in the example:
-> +.RS
->  > sestatus
->  .br
-> -SELinux status:         enabled
-> +SELinux status:              enabled
-> +.br
-> +SELinuxfs mount:             /selinux
-> +.br
-> +SELinux root directory:      /etc/selinux
-> +.br
-> +Loaded policy name:          targeted
-> +.br
-> +Current mode:                permissive
-> +.br
-> +Mode from config file:       enforcing
->  .br
-> -SELinuxfs mount:        /selinux
-> +Policy MLS status:           enabled
->  .br
-> -Current Mode:           permissive
-> +Policy deny_unknown status:  allow
->  .br
-> -Policy version:         16
-> +Max kernel policy version:   26
-> +.RE
-> +.sp
-> +\fBsestatus\fR can also be used to display:
-> +.RS
-> +.IP "-" 4
-> +The security context of files and processes listed in the \fI/etc/sestatus.conf\fR file. The format of this file is described in \fBsestatus.conf\fR(5).
-> +.IP "-" 4
-> +The status of booleans.
-> +.RE
->
->  .SH "OPTIONS"
-> -.TP
-> -
->  .B \-v
-> -.P
-> - Checks the contexts of a files , and a processes listed in the /etc/sestatus.conf file.  It also checks the context of the target, in cases of
-> -symlinks.
-> -
-> +.RS
-> +Displays the contexts of files and processes listed in the \fI/etc/sestatus.conf\fR file. It also checks whether the file is a symbolic link, if so then the context of the target file is also shown.
-> +.sp
-> +The following contexts will always be displayed:
-> +.RS
-> +The current process context
-> +.br
-> +The init process context
-> +.br
-> +The controlling terminal file context
-> +.RE
-> +.RE
-> +.sp
->  .B \-b
-> -.P
-> +.RS
->  Display the current state of booleans.
-> -
-> +.RE
->
->  .SH "FILES"
-> -/etc/sestatus.conf
-> +.I /etc/sestatus.conf
->
->  .SH "AUTHOR"
->  This man page was written by Daniel Walsh <dwalsh@redhat.com>.
->  .br
->  The program was written by Chris PeBenito <pebenito@gentoo.org>
->
-> +.SH "SEE ALSO"
-> +.BR selinux "(8), " sestatus.conf "(5)
->
-> diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestatus/sestatus.c
-> index 5617319..54b06c2 100644
-> --- a/policycoreutils/sestatus/sestatus.c
-> +++ b/policycoreutils/sestatus/sestatus.c
-> @@ -172,8 +172,8 @@ void printf_tab(const char *outp)
->  int main(int argc, char **argv)
->  {
->        /* these vars are reused several times */
-> -       int rc, opt, i, c;
-> -       char *context;
-> +       int rc, opt, i, c, size;
-> +       char *context, *root_path;
->
->        /* files that need context checks */
->        char *fc[MAX_CHECK];
-> @@ -193,9 +193,10 @@ int main(int argc, char **argv)
->        int show_bools = 0;
->
->        /* policy */
-> -       const char *pol_name;
-> +       const char *pol_name, *root_dir;
->        char *pol_path;
->
-> +
->        while (1) {
->                opt = getopt(argc, argv, "vb");
->                if (opt == -1)
-> @@ -210,8 +211,8 @@ int main(int argc, char **argv)
->                default:
->                        /* invalid option */
->                        printf("\nUsage: %s [OPTION]\n\n", basename(argv[0]));
-> -                       printf
-> -                           ("  -v  Verbose check of process and file contexts.\n");
-> +                       printf("  -v  Verbose check of process and file contexts.\n");
-> +                       printf("  -b  Display current state of booleans.\n");
->                        printf("\nWithout options, show SELinux status.\n");
->                        return -1;
->                }
-> @@ -242,6 +243,35 @@ int main(int argc, char **argv)
->                return -1;
->        }
->
-> +       printf_tab("SELinux root directory:");
-> +       if ((root_dir = selinux_path()) != NULL) {
-> +               /* The path has a trailing '/' so remove it */
-> +               size = strlen(root_dir);
-> +               root_path = malloc(size);
-> +               if (!root_path) {
-> +                       printf("malloc error (%s)\n", strerror(errno));
-> +                       return -1;
-> +               }
-> +               memset(root_path, 0, size);
-> +               strncpy(root_path, root_dir, (size-1)) ;
-> +               printf("%s\n", root_path);
-> +               free(root_path);
-> +       } else {
-> +                       printf("error (%s)\n", strerror(errno));
-> +               return -1;
-> +       }
-> +
-> +       /* Dump all the path information */
-> +       printf_tab("Loaded policy name:");
-> +       pol_path = strdup(selinux_policy_root());
-> +       if (pol_path) {
-> +               pol_name = basename(pol_path);
-> +               puts(pol_name);
-> +               free(pol_path);
-> +       } else {
-> +               printf("error (%s)\n", strerror(errno));
-> +       }
-> +
->        printf_tab("Current mode:");
->        rc = security_getenforce();
->        switch (rc) {
-> @@ -273,23 +303,41 @@ int main(int argc, char **argv)
->                printf("error (%s)\n", strerror(errno));
->        }
->
-> +       printf_tab("Policy MLS status:");
-> +       rc = is_selinux_mls_enabled();
-> +       switch (rc) {
-> +               case 0:
-> +                       printf("disabled\n");
-> +                       break;
-> +               case 1:
-> +                       printf("enabled\n");
-> +                       break;
-> +               default:
-> +                       printf("error (%s)\n", strerror(errno));
-> +                       break;
-> +       }
-> +
-> +       printf_tab("Policy deny_unknown status:");
-> +       rc = security_deny_unknown();
-> +       switch (rc) {
-> +               case 0:
-> +                       printf("allowed\n");
-> +                       break;
-> +               case 1:
-> +                       printf("denied\n");
-> +                       break;
-> +               default:
-> +                       printf("error (%s)\n", strerror(errno));
-> +                       break;
-> +       }
-> +
->        rc = security_policyvers();
-> -       printf_tab("Policy version:");
-> +       printf_tab("Max kernel policy version:");
->        if (rc < 0)
->                printf("unknown (%s)\n", strerror(errno));
->        else
->                printf("%d\n", rc);
->
-> -       /* Dump all the path information */
-> -       printf_tab("Policy from config file:");
-> -       pol_path = strdup(selinux_policy_root());
-> -       if (pol_path) {
-> -               pol_name = basename(pol_path);
-> -               puts(pol_name);
-> -               free(pol_path);
-> -       } else {
-> -               printf("error (%s)\n", strerror(errno));
-> -       }
->
->        if (show_bools) {
->                /* show booleans */
-> @@ -374,7 +422,7 @@ int main(int argc, char **argv)
->        printf("\nFile contexts:\n");
->
->        /* controlling term */
-> -       printf_tab("Controlling term:");
-> +       printf_tab("Controlling terminal:");
->        if (lgetfilecon(cterm, &context) >= 0) {
->                printf("%s\n", context);
->                freecon(context);
-> diff --git a/policycoreutils/sestatus/sestatus.conf.5 b/policycoreutils/sestatus/sestatus.conf.5
-> new file mode 100644
-> index 0000000..b411ddd
-> --- /dev/null
-> +++ b/policycoreutils/sestatus/sestatus.conf.5
-> @@ -0,0 +1,97 @@
-> +.TH "sestatus.conf" "5" "26-Nov-2011" "Security Enhanced Linux" "sestatus configuration file"
-> +
-> +.SH "NAME"
-> +sestatus.conf \- The \fBsestatus\fR(8) configuration file.
-> +
-> +.SH "DESCRIPTION"
-> +The \fIsestatus.conf\fR file is used by the \fBsestatus\fR(8) command with the \fB\-v\fR option to determine what file and process security contexts should be displayed.
-> +.sp
-> +The fully qualified path name of the configuration file is:
-> +.RS
-> +\fI/etc/sestatus.conf\fR
-> +.RE
-> +.RE
-> +.sp
-> +The file consists of two optional sections as described in the \fBFILE FORMAT\fR section. Whether these exist or not, the following will always be displayed:
-> +.RS
-> +The current process context
-> +.br
-> +The init process context
-> +.br
-> +The controlling terminal file context
-> +.RE
-> +
-> +.SH "FILE FORMAT"
-> +The format consists of two optional sections as follows:
-> +.RS
-> +.B [files]
-> +.br
-> +.I file_name
-> +.br
-> +.I [file_name]
-> +.br
-> +.I ...
-> +.sp
-> +.B [process]
-> +.br
-> +.I executable_file_name
-> +.br
-> +.I [executable_file_name]
-> +.br
-> +.I ...
-> +.RE
-> +.sp
-> +Where:
-> +.RS
-> +.B [files]
-> +.RS
-> +The start of the file list block.
-> +.RE
-> +.I file_name
-> +.RS
-> +One or more fully qualified file names, each on a new line will that will have its context displayed. If the file does not exist, then it is ignored. If the file is a symbolic link, then \fBsestatus -v\fR will also display the target file context.
-> +.RE
-> +.sp
-> +.B [process]
-> +.RS
-> +The start of the process list block.
-> +.RE
-> +.I executable_file_name
-> +.RS
-> +One or more fully qualified executable file names that should it be an active process, have its context displayed. Each entry is on a new line.
-> +.RE
-> +.RE
-> +
-> +.SH "EXAMPLE"
-> +# /etc/sestatus.conf
-> +.br
-> +[files]
-> +.br
-> +/etc/passwd
-> +.br
-> +/etc/shadow
-> +.br
-> +/bin/bash
-> +.br
-> +/bin/login
-> +.br
-> +/lib/libc.so.6
-> +.br
-> +/lib/ld-linux.so.2
-> +.br
-> +/lib/ld.so.1
-> +.sp
-> +[process]
-> +.br
-> +/sbin/mingetty
-> +.br
-> +/sbin/agetty
-> +.br
-> +/usr/sbin/sshd
-> +.RE
-> +
-> +.SH "SEE ALSO"
-> +.BR selinux "(8), " sestatus "(8) "
-> +
-> +
-> +
-> --
-> 1.7.7.1
->
->
->
->
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> iEYEARECAAYFAk7XjMEACgkQrlYvE4MpobO8cQCfddAPnIlVn0yYDjp7Nip8Pd6K
+> QLsAoKqZ6wxXiyAsIOInxBALhPs7Eedc
+> =tVhI
+> -----END PGP SIGNATURE-----
 
 
 --
