@@ -1,54 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GMCX4019352
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:22:12 -0500
-Received: from nm1-vm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GMBNl004469
-	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:22:11 GMT
-Message-ID: <1322756525.84193.YahooMailClassic@web87006.mail.ird.yahoo.com>
-Date: Thu, 1 Dec 2011 16:22:05 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB1GOZJT019566
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 11:24:35 -0500
+Received: from nm4-vm1.bt.bullet.mail.ird.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pB1GOYNl005258
+	for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2011 16:24:34 GMT
+Message-ID: <1322756673.17839.YahooMailClassic@web87004.mail.ird.yahoo.com>
+Date: Thu, 1 Dec 2011 16:24:33 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] libselinux: Updated selabel_file(5) man page
+Subject: [PATCH 1/1] libselinux: Updated selabel_media(5) man page
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Updated selabel_file(5) with file context configuration file format and
-added file_contexts(5) man page that links to it. selabel_file(5) also
-describes the .local, .homedirs, .subs and .subs_dist configuration file
-formats.
+Updated selabel_media(5) with media context configuration file format and
+added media(5) man page that links to it.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/man/man5/file_contexts.5 |    1 +
- libselinux/man/man5/selabel_file.5  |  203 +++++++++++++++++++++++++++++++----
- 2 files changed, 185 insertions(+), 19 deletions(-)
- create mode 100644 libselinux/man/man5/file_contexts.5
+ libselinux/man/man5/media.5         |    1 +
+ libselinux/man/man5/selabel_media.5 |   86 ++++++++++++++++++++++++++++-------
+ 2 files changed, 70 insertions(+), 17 deletions(-)
+ create mode 100644 libselinux/man/man5/media.5
 
-diff --git a/libselinux/man/man5/file_contexts.5 b/libselinux/man/man5/file_contexts.5
+diff --git a/libselinux/man/man5/media.5 b/libselinux/man/man5/media.5
 new file mode 100644
-index 0000000..9c022d8
+index 0000000..14f00f2
 --- /dev/null
-+++ b/libselinux/man/man5/file_contexts.5
++++ b/libselinux/man/man5/media.5
 @@ -0,0 +1 @@
-+.so man5/selabel_file.5
-diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
-index 6cce99e..e7536e8 100644
---- a/libselinux/man/man5/selabel_file.5
-+++ b/libselinux/man/man5/selabel_file.5
-@@ -1,35 +1,49 @@
++.so man5/selabel_media.5
+diff --git a/libselinux/man/man5/selabel_media.5 b/libselinux/man/man5/selabel_media.5
+index 796260f..0df1961 100644
+--- a/libselinux/man/man5/selabel_media.5
++++ b/libselinux/man/man5/selabel_media.5
+@@ -1,37 +1,89 @@
  .\" Hey Emacs! This file is -*- nroff -*- source.
  .\"
  .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
--.TH "selabel_file" "5" "18 Jun 2007" "" "SELinux API documentation"
-+.TH "selabel_file" "5" "01 Dec 2011" "Security Enhanced Linux" "SELinux API documentation"
+-.TH "selabel_media" "5" "18 Jun 2007" "" "SELinux API documentation"
++.TH "selabel_media" "5" "29 Nov 2011" "Security Enhanced Linux" "SELinux API documentation"
  .SH "NAME"
--selabel_file \- userspace SELinux labeling interface: file contexts backend.
-+selabel_file \- userspace SELinux labeling interface and configuration file format for the file contexts backend.
- .SH "SYNOPSIS"
+-selabel_media \- userspace SELinux labeling interface: media contexts backend.
+-.SH "SYNOPSIS"
 -.B #include <selinux/selinux.h>
--
++selabel_media \- userspace SELinux labeling interface and configuration file format for the media contexts backend.
+ 
++.SH "SYNOPSIS"
  .B #include <selinux/label.h>
  .sp
  .BI "int selabel_lookup(struct selabel_handle *" hnd ,
@@ -56,56 +55,41 @@ index 6cce99e..e7536e8 100644
  .BI "security_context_t *" context ,
 -
 +.br
-+.BI "const char *" path ", int " mode ");"
++.BI "const char *" device_name ", int " unused ");"
 +.in
 +.sp
 +.BI "int selabel_lookup_raw(struct selabel_handle *" hnd ,
 +.in +\w'int selabel_lookup('u
 +.BI "security_context_t *" context ,
 +.br
- .BI "const char *" path ", int " mode ");"
+ .BI "const char *" device_name ", int " unused ");"
  
  .SH "DESCRIPTION"
--The file contexts backend maps from pathname/mode combinations into security contexts.  It is used to find the appropriate context for each file when relabeling a file system.
+-The media contexts backend maps from media device names such as "cdrom" or "floppy" into security contexts.  It is used to find the appropriate context for establishing context mounts on these devices.
 -
--The
--.I path
--argument should be set to the full pathname of the file whose assigned context is being checked.  The 
--.I mode
--argument should be set to the mode bits of the file, as determined by 
--.BR lstat (2).
-+The file contexts backend maps from pathname/mode combinations into security contexts. It is used to find the appropriate context for each file when relabeling a file system. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3). 
++The media contexts backend maps from media device names such as "cdrom" or "floppy" into security contexts. It is used to find the appropriate context for establishing context mounts on these devices. The returned \fIcontext\fR must be freed using \fBfreecon\fR(3).
 +.br
-+\fBselabel_lookup\fR(3) describes the function with its return and error codes, however the following \fIerrno\fR is clarified further for the file contexts backend:
-+.RS
-+.TP
-+.B ENOENT 
-+No context corresponding to the \fIpath\fR and \fImode\fR was found - This will also be returned when the file contexts series of files have a context of \fB<<none>>\fR against the \fIpath\fR (see the \fBFILE FORMAT\fR section).
-+.RE
++\fBselabel_lookup\fR(3) describes the function with its return and error codes.
 +.sp
-+The \fIpath\fR argument should be set to the full pathname of the file whose assigned context is being checked. The \fImode\fR argument should be set to the mode bits of the file, as determined by \fBlstat\fR(2). \fImode\fR may be zero, however full matching may not occur.
+ The integer lookup argument is currently unused and should be set to zero.
 +.sp
 +Any messages generated by \fBselabel_lookup\fR are sent to \fIstderr\fR by default, although this can be changed by \fBselinux_set_callback\fR(3).
 +.sp
 +.B selabel_lookup_raw
 +behaves identically to \fBselabel_lookup\fR but does not perform context translation.
 +.sp
-+The \fBFILES\fR section details the configuration files used to determine a file context.
++The \fBFILES\fR section details the configuration files used to determine the media context.
  
  .SH "OPTIONS"
- In addition to the global options described in 
- .BR selabel_open (3),
- this backend recognizes the following options:
+-In addition to the global options described in 
+-.BR selabel_open (3),
+-this backend recognizes the following options:
 -
-+.RS
++In addition to the global options described in \fBselabel_open\fR(3), this backend recognizes the following options:
  .TP
  .B SELABEL_OPT_PATH
- A non-null value for this option specifies a path to a file that will be opened in lieu of the standard file contexts file.  This value is also used as the base name for determining the names of local customization files.
-@@ -39,10 +53,161 @@ A non-null value for this option indicates that any local customizations to the
- .TP
- .B SELABEL_OPT_SUBSET
- A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications starting with the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix will fail.
-+.RE
+-A non-null value for this option specifies a path to a file that will be opened in lieu of the standard media contexts file.  
++A non-null value for this option specifies a path to a file that will be opened in lieu of the standard \fImedia\fR contexts file.
  
 -.SH "SEE ALSO"
 -.BR selabel_open (3),
@@ -113,161 +97,51 @@ index 6cce99e..e7536e8 100644
 -.BR selabel_stats (3),
 -.BR selinux (8)
 +.SH "FILES"
-+The file context files used to retrieve the default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\fR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy file contexts location (as returned by \fBselinux_file_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
++The media context file used to retrieve a default context depends on the \fBSELABEL_OPT_PATH\fR parameter passed to \fBselabel_open\FR(3). If \fINULL\fR, then the \fBSELABEL_OPT_PATH\fR value will default to the active policy media contexts location (as returned by \fBselinux_media_context_path\fR(3)), otherwise the actual \fBSELABEL_OPT_PATH\fR value specified is used.
 +.sp
-+If \fBSELABEL_OPT_BASEONLY\fR is set, then the following files will be processed:
++The default media contexts file is:
 +.RS
-+.IP "1." 4
-+The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
-+.IP "2." 4
-+The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file.
-+.br
-+These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
-+.RE
-+.sp
-+If the \fBSELABEL_OPT_BASEONLY\fR is not set, then the following files will be processed:
-+.RS
-+.IP "1." 4
-+The mandatory file contexts file that is either the fully qualified file name from \fISELABEL_OPT_PATH.value\fR or if \fINULL\fR, then the path returned by \fBselinux_file_context_path\fR(3).
-+.IP "2." 4
-+The optional local customizations file that has the same name as the mandatory file contexts file with the extension \fI.local\fR added.
-+.br
-+\fBselinux_file_context_local_path\fR(3) will return the default path to this file.
-+.IP "3." 4
-+The optional user home directory customizations file that has the same name as the mandatory file contexts file with the extension \fI.homedirs\fR added.
-+.br
-+\fBselinux_file_context_homedir_path\fR(3) will return the default path to this file.
-+.IP "4." 4
-+The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file (and the \fI.local\fR and/or \fI.homedirs\fR if present). These files have the same name as the mandatory file contexts file with the extensions \fI.subs\fR and \fI.subs_dist\fR added.
-+.br
-+\fBselinux_file_context_subs_path\fR(3) and \fBselinux_file_context_subs_dist_path\fR(3) will return the default paths to these files.
-+.RE
-+.sp
-+The default file context series of files are:
-+.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts
-+.br
-+.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.local
-+.br
-+.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.homedirs
-+.br
-+.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs
-+.br
-+.I  /etc/selinux/{SELINUXTYPE}/contexts/files/file_contexts.subs_dist
++.I /etc/selinux/{SELINUXTYPE}/contexts/files/media
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
 +.sp
-+Only the \fIfile_contexts\fR file is mandatory, the remainder are optional.
-+.sp
-+The entries within the file contexts series of files are shown in the \fBFILE FORMAT\fR section.
-+
++Should there not be a valid entry in the \fImedia\fR file, then the default \fIremovable_context\fR file will be read (see \fBremovable_context\fR(5)).
+ 
 +.SH "FILE FORMAT"
-+.sp
-+.SH "File Contexts Format"
-+.sp
-+Each line within the \fIfile_contexts\fR and the two customization files (\fI.local\fR and \fI.homedirs\fR) is as follows:
-+.sp
++Each line within the \fImedia\fR file is as follows:
 +.RS
-+.I pathname [file_type] context
++.I device_name context
 +.RE
 +.sp
 +Where:
-+.br
 +.RS
-+.I pathname
++.I device_name
 +.RS
-+An entry that defines the pathname that may be in the form of a regular expression.
-+.RE
-+.I file_type
-+.RS
-+An optional file type consisting of:
-+.RS
-+\fI\-b\fR \- Block Device      \fI\-c\fR \- Character Device
-+.br
-+\fI\-d\fR \- Directory         \fI\-p\fR \- Named Pipe
-+.br
-+\fI\-l\fR \- Symbolic Link     \fI\-s\fR \- Socket
-+.br
-+\fI\-\-\fR \- Ordinary file
-+.RE
++The media identifier (e.g. cdrom, floppy, disk and usb).
 +.RE
 +.I context
 +.RS
-+This entry can be either:
-+.RS
-+.IP "a." 4
-+The security context that will be assigned to the file (i.e. returned as \fIcontext\fR).
-+.IP "b." 4
-+A value of \fB<<none>>\fR can be used to indicate that the matching files should not be re-labeled and causes \fBselabel_lookup\fR(3) to return \-1 with \fIerrno\fR set to \fBENOENT\fR.
-+.RE
++The context to be used for labeling the device.
 +.RE
 +.RE
 +.sp
 +Example:
 +.RS
-+# ./contexts/files/file_contexts
++# contexts/files/media
 +.br
-+# pathname file_type  context
++cdrom system_u:object_r:removable_device_t
 +.br
-+/.*                   system_u:object_r:default_t:s0
++floppy system_u:object_r:removable_device_t
 +.br
-+/[^/]+        --      system_u:object_r:etc_runtime_t:s0
-+.br
-+/tmp/.*               <<none>>
-+.RE
-+.sp
- 
-+.SH "Substitution File Format"
-+.sp
-+Each line within the substitution files (\fI.subs\fR and \fI.subs_dist\fR) is:
-+.RS
-+.I pathname subs_pathname
-+.RE
-+.sp
-+Where:
-+.RS
-+.I pathname
-+.RS
-+A path that matches an entry in one or more of the file contexts files.
-+.RE
-+.I subs_pathname
-+.RS
-+The path that will be substituted for pathname by the look up process.
-+.RE
-+.RE
-+.sp
-+Example:
-+.RS
-+# ./contexts/files/file_contexts.subs
-+.br
-+# pathname  subs_pathname
-+.br
-+/myweb      /var/www
-+.br
-+/myspool    /var/spool/mail
-+.sp
-+Using the above example, when \fBselabel_lookup\fR is passed a path of \fI/myweb/index.html\fR the function will substitute the \fI/myweb\fR component with \fI/var/www\fR, therefore the path used is:
-+.sp
-+.RS
-+.I /var/www/index.html
-+.RE
-+.RE
-+.sp
++disk system_u:object_r:fixed_disk_device_t
 +
 +.SH "NOTES"
-+.IP "1." 4
-+If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
-+.IP "2." 4
-+If the size of file contexts series of files contain many entries, then \fBselabel_open\fR(3) may have a delay as it reads in the files, and if
-+requested validates the entries. If possible use the \fBSELABEL_OPT_SUBSET\fR option to reduce the number of entries processed.
-+.IP "3." 4
-+Depending on the version of SELinux it is possible that a \fIfile_contexts.template\fR file may also be present, however this is now deprecated.
-+.br
-+The template file has the same format as the \fIfile_contexts\fR file and may also contain the keywords \fBHOME_ROOT\fR, \fBHOME_DIR\fR, \fBROLE\fR and \fBUSER\fR. This functionality has now been moved to the policy store and managed by \fBsemodule\fR(8) and \fBgenhomedircon\fR(8).
++If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If
++this is not set, then it is possible for an invalid context to be returned.
 +
 +.SH "SEE ALSO"
-+.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_file_context_path "(3), " freecon "(3), " selinux_config "(5), " lstat "(2), "selinux_file_context_subs_path "(3), " selinux_file_context_subs_dist_path "(3), " selinux_file_context_homedir_path "(3), "selinux_file_context_local_path "(3), " semodule "(8), " genhomedircon "(8) "
++.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_media_context_path "(3), " freecon "(3), " selinux_config "(5), " removable_context "(5) "
 -- 
 1.7.7.1
 
