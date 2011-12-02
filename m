@@ -1,201 +1,290 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB2Aw6sC002273
-	for <selinux@tycho.nsa.gov>; Fri, 2 Dec 2011 05:58:06 -0500
-Received: from nm2-vm1.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id pB2Aw4Fg007007
-	for <selinux@tycho.nsa.gov>; Fri, 2 Dec 2011 10:58:04 GMT
-Message-ID: <1322823483.77329.YahooMailClassic@web87003.mail.ird.yahoo.com>
-Date: Fri, 2 Dec 2011 10:58:03 +0000 (GMT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pB2AxbBi002333
+	for <selinux@tycho.nsa.gov>; Fri, 2 Dec 2011 05:59:37 -0500
+Received: from nm3-vm1.bt.bullet.mail.ukl.yahoo.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id pB2Axa7x012851
+	for <selinux@tycho.nsa.gov>; Fri, 2 Dec 2011 10:59:36 GMT
+Message-ID: <1322823575.8496.YahooMailClassic@web87002.mail.ird.yahoo.com>
+Date: Fri, 2 Dec 2011 10:59:35 +0000 (GMT)
 From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 2/3] libselinux: Add man/man5 man pages
+Subject: [PATCH 3/3] libselinux: Add man/man5 man pages
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add failsafe_context(5), local.users(5), removable_contexts(5) and
-securetty_types(5) man pages.
+Add service_seusers(5) - those in the ./logins directory, seusers(5),
+user_contexts(5) - those in the ./contexts/users directory,
+virtual_domain_context(5) and virtual_image_context(5) man pages.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/man/man5/failsafe_context.5  |   63 +++++++++++++++++++++++++++++
- libselinux/man/man5/local.users.5       |   67 +++++++++++++++++++++++++++++++
- libselinux/man/man5/removable_context.5 |   37 +++++++++++++++++
- libselinux/man/man5/securetty_types.5   |   44 ++++++++++++++++++++
- 4 files changed, 211 insertions(+), 0 deletions(-)
- create mode 100644 libselinux/man/man5/failsafe_context.5
- create mode 100644 libselinux/man/man5/local.users.5
- create mode 100644 libselinux/man/man5/removable_context.5
- create mode 100644 libselinux/man/man5/securetty_types.5
+ libselinux/man/man5/service_seusers.5        |   66 +++++++++++++++++++++
+ libselinux/man/man5/seusers.5                |   62 ++++++++++++++++++++
+ libselinux/man/man5/user_contexts.5          |   81 ++++++++++++++++++++++++++
+ libselinux/man/man5/virtual_domain_context.5 |   39 ++++++++++++
+ libselinux/man/man5/virtual_image_context.5  |   41 +++++++++++++
+ 5 files changed, 289 insertions(+), 0 deletions(-)
+ create mode 100644 libselinux/man/man5/service_seusers.5
+ create mode 100644 libselinux/man/man5/seusers.5
+ create mode 100644 libselinux/man/man5/user_contexts.5
+ create mode 100644 libselinux/man/man5/virtual_domain_context.5
+ create mode 100644 libselinux/man/man5/virtual_image_context.5
 
-diff --git a/libselinux/man/man5/failsafe_context.5 b/libselinux/man/man5/failsafe_context.5
+diff --git a/libselinux/man/man5/service_seusers.5 b/libselinux/man/man5/service_seusers.5
 new file mode 100644
-index 0000000..ef8e9ac
+index 0000000..59a135a
 --- /dev/null
-+++ b/libselinux/man/man5/failsafe_context.5
-@@ -0,0 +1,63 @@
-+.TH "failsafe_context" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
++++ b/libselinux/man/man5/service_seusers.5
+@@ -0,0 +1,66 @@
++.TH "service_seusers" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
 +
 +.SH "NAME"
-+failsafe_context \- The SELinux fail safe context configuration file.
++service_seusers \- The SELinux GNU/Linux user and service to SELinux user mapping configuration files.
++
++.SH "DESCRIPTION"
++These are optional files that allow services to define an SELinux user when authenticating via SELinux-aware login applications such as
++.BR PAM "(8). "
++.sp
++There is one file for each GNU/Linux user name that will be required to run a service with a specific SELinux user name.
++.sp
++The path for each configuration file is formed by the path returned by
++.BR selinux_policy_root "(3) with  "
++.IR /logins/username
++appended (where \fIusername\fR is a file representing the GNU/Linux user name). The default services directory is located at:
++.RS
++.I /etc/selinux/{SELINUXTYPE}/logins
++.RE
++.sp
++Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
++.sp
++.BR getseuser "(3) reads this file to map services to an SELinux user. "
++
++.SH "FILE FORMAT"
++Each line within the \fIusername\fR file is formatted as follows with each component separated by a colon:
++.RS
++.IB service : seuser \fR[\fB:\fIrange\fR]
++.RE
++.sp
++Where:
++.RS
++.I service
++.RS
++The service name used by the application.
++.RE
++.I seuser
++.RS
++The SELinux user name.
++.RE
++.I range
++.RS
++The range for MCS/MLS policies.
++.RE
++.RE
++
++.SH "EXAMPLES"
++Example 1 \- for the 'root' user:
++.RS
++# ./logins/root
++.br
++ipa:user_u:s0
++.br
++this_service:unconfined_u:s0
++.RE
++.sp
++Example 2 \- for GNU/Linux user 'rch':
++.RS
++# ./logins/rch
++.br
++ipa:unconfined_u:s0
++.br
++that_service:unconfined_u:s0
++.RE
++
++.SH "SEE ALSO"
++.BR selinux "(8), " PAM "(8), " selinux_policy_root "(3), " getseuser "(3), " selinux_config "(5) "
+diff --git a/libselinux/man/man5/seusers.5 b/libselinux/man/man5/seusers.5
+new file mode 100644
+index 0000000..8c99ee8
+--- /dev/null
++++ b/libselinux/man/man5/seusers.5
+@@ -0,0 +1,62 @@
++.TH "seusers" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
++
++.SH "NAME"
++seusers \- The SELinux GNU/Linux user to SELinux user mapping configuration file.
 +
 +.SH "DESCRIPTION"
 +The
-+.I failsafe_context
-+file allows SELinux-aware applications such as
-+.BR PAM "(8) "
-+to obtain a known valid login context for an administrator if no valid default entries can be found elsewhere.
++.I seusers
++file contains a list GNU/Linux user to SELinux user mapping for use by SELinux-aware login applications such as \fBPAM\fR(8).
 +.sp
-+.BR selinux_failsafe_context_path "(3) "
-+will return the active policy path to this file. The default failsafe context file is:
++.BR selinux_usersconf_path "(3) "
++will return the active policy path to this file. The default SELinux users mapping file is located at:
 +.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/failsafe_context
++.I /etc/selinux/{SELINUXTYPE}/seusers
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
 +.sp
-+The following functions read this file from the active policy path if they cannot obtain a default context:
-+.br
-+.RS
-+.BR get_default_context "(3) "
-+.br
-+.BR get_ordered_context_list "(3) "
-+.br
-+.BR get_ordered_context_list_with_level "(3) "
-+.br
-+.BR get_default_context_with_level "(3) "
-+.br
-+.BR get_default_context_with_role "(3) "
-+.br
-+.BR get_default_context_with_rolelevel "(3) "
-+.br
-+.BR query_user_context "(3) "
-+.br
-+.BR manual_user_enter_context "(3) "
-+.RE
++.BR getseuserbyname "(3) reads this file to map a GNU/Linux user or group to an SELinux user. "
 +
 +.SH "FILE FORMAT"
-+The file consists of a single line entry as follows:
++Each line of the
++.I seusers
++configuration file consists of the following:
++.sp
 +.RS
-+\fIrole\fB:\fItype\fR[\fB:\fIrange\fR]
++\fR[\fB%\fIgroup_id\fR]|[\fIuser_id\fR]\fB:\fIseuser_id\fR[\fB:\fIrange\fR]
 +.RE
 +.sp
 +Where:
 +.RS
-+.I role
-+.I type
-+.I range
++\fIgroup_id\fR|\fIuser_id
 +.RS
-+A role, type and optional range (for MCS/MLS), separated by colons (:) to form a valid login process context for an administrator to access the system.
-+.RE
-+.RE
-+
-+.SH "EXAMPLE"
-+# ./contexts/failsafe_context
++\fRThe  GNU/Linux user id, or if preceded by the percentage (\fB%\fR) symbol, then a GNU/Linux group id.
 +.br
-+unconfined_r:unconfined_t:s0
-+
-+.SH "SEE ALSO"
-+.BR selinux "(8), " selinux_failsafe_context_path "(3), " PAM "(8), " selinux_default_type_path "(3), " get_default_context "(3), " get_ordered_context_list "(3), " get_ordered_context_list_with_level "(3), " get_default_context_with_level "(3), " get_default_context_with_role "(3), " get_default_context_with_rolelevel "(3), " query_user_context "(3), " manual_user_enter_context "(3), " selinux_config "(5) "
-diff --git a/libselinux/man/man5/local.users.5 b/libselinux/man/man5/local.users.5
-new file mode 100644
-index 0000000..8347ae8
---- /dev/null
-+++ b/libselinux/man/man5/local.users.5
-@@ -0,0 +1,67 @@
-+.TH "local.users" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
-+
-+.SH "NAME"
-+local.users \- The SELinux local users configuration file.
-+
-+.SH "DESCRIPTION"
-+The file contains local user definitions in the form of policy language user statements and is only found on older SELinux systems as it has been deprecated and replaced by the \fBsemange\fR(8) services.
-+.sp
-+This file is only read by \fBselinux_mkload_policy\fR(3) when \fBSETLOCALDEFS\fR in the SELinux \fIconfig\fR file (see \fBselinux_config\fR(5)) is set to \fI1\fR.
-+.sp
-+.BR selinux_users_path "(3) "
-+will return the active policy path to the directory where this file is located. The default local users file is:
-+.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/users/local.users
-+.RE
-+.sp
-+Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
-+
-+.SH "FILE FORMAT"
-+The file consists of one or more entries terminated with '\fB;\fR', each on a separate line as follows:
-+.RS
-+\fBuser \fIseuser_id \fBroles \fIrole_id\fR [[\fBlevel \fIlevel\fR] [\fBrange \fIrange\fR]]\fB;\fR
-+.RE
-+.sp
-+Where:
-+.RS
-+.B user
-+.RS
-+The user keyword.
++An optional entry set to \fB__default__\fR can be provided as a fall back if required.
 +.RE
 +.I seuser_id
 +.RS
-+The SELinux user identifier.
-+.RE
-+.B roles
-+.RS
-+The roles keyword.
-+.RE
-+.I role_id
-+.RS
-+One or more previously declared role identifiers. Multiple role identifiers consist of a space separated list enclosed in braces '{}'.
-+.RE
-+.B level
-+.RS
-+If MLS/MCS is configured, the level keyword.
-+.RE
-+.I level
-+.RS
-+The users default security level. Note that only the sensitivity component of the level (e.g. s0) is required.
-+.RE
-+.B range
-+.RS
-+If MLS/MCS is configured, the range keyword.
++The SELinux  user identity.
 +.RE
 +.I range
 +.RS
-+The current and clearance levels that the user can run. These are separated by a hyphen '\fB-\fR' as shown in the \fBEXAMPLE\fR section.
++The optional level or range for an MLS/MCS policy.
 +.RE
 +.RE
 +
 +.SH "EXAMPLE"
-+# ./users/local.users
++# ./seusers
 +.br
-+user test_u roles staff_r level s0 range s0 - s15:c0.c1023;
++system_u:system_u:s0\-s15:c0.c255
++.br
++root:root:s0-s15:c0.c255
++.br
++fred:user_u:s0
++.br
++__default__:user_u:s0
++.br
++%user_group:user_u:s0
 +
 +.SH "SEE ALSO"
-+.BR selinux "(8), " semanage "(8), " selinux_users_path "(3), " selinux_config "(5), " selinux_mkload_policy "(3) "
-diff --git a/libselinux/man/man5/removable_context.5 b/libselinux/man/man5/removable_context.5
++.BR selinux "(8), " PAM "(8), " selinux_usersconf_path "(3), " getseuserbyname "(3), " selinux_config "(5) "
+diff --git a/libselinux/man/man5/user_contexts.5 b/libselinux/man/man5/user_contexts.5
 new file mode 100644
-index 0000000..72d3d4c
+index 0000000..2b3df7a
 --- /dev/null
-+++ b/libselinux/man/man5/removable_context.5
-@@ -0,0 +1,37 @@
-+.TH "removable_context" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
++++ b/libselinux/man/man5/user_contexts.5
+@@ -0,0 +1,81 @@
++.TH "user_contexts" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
 +
 +.SH "NAME"
-+removable_context \- The SELinux removable devices context configuration file.
++user_contexts \- The SELinux user contexts configuration files.
 +
 +.SH "DESCRIPTION"
-+This file contains the default label that should be used for removable devices that are not defined in the \fImedia\fR file (that is described in
-+.BR selabel_media "(5)). "
++These optional user context configuration files contain entries that allow SELinux-aware login applications such as
++.BR PAM (8)
++(running in their own process context), to determine the context that a users login session should run under.
 +.sp
-+.BR selinux_removable_context_path "(3) "
-+will return the active policy path to this file. The default removable context file is:
++SELinux-aware login applications generally use one or more of the following libselinux functions that read these files from the active policy path:
 +.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/removable_context
++.BR get_default_context (3)
++.br
++.BR get_ordered_context_list (3)
++.br
++.BR get_ordered_context_list_with_level (3)
++.br
++.BR get_default_context_with_level (3)
++.br
++.BR get_default_context_with_role (3)
++.br
++.BR get_default_context_with_rolelevel (3)
++.br
++.BR query_user_context (3)
++.br
++.BR manual_user_enter_context (3)
++.RE
++.sp
++There can be one file for each SELinux user configured on the system. The file  path is formed using the path returned by
++.BR selinux_user_contexts_path (3)
++for the active policy, with the SELinux user name appended, for example:
++.RS
++.I /etc/selinux/{SELINUXTYPE}/contexts/users/unconfined_u
++.br
++.I /etc/selinux/{SELINUXTYPE}/contexts/users/xguest_u
++.RE
++.sp
++Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
++.sp
++These files contain context information as described in the
++.B FILE FORMAT
++section.
++
++.SH "FILE FORMAT"
++Each line in the user context configuration file consists of the following:
++.RS
++.I login_process user_login_process
++.RE
++.sp
++Where:
++.RS
++.I login_process
++.RS
++This consists of a \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entry that represents the login process context.
++.RE
++.I user_login_process
++.RS
++This consists of a \fIrole\fB:\fItype\fR[\fB:\fIrange\fR] entry that represents the user login process context.
++.RE
++.RE
++
++.SH "EXAMPLE"
++# Example for xguest_u at /etc/selinux/targeted/contexts/users/xguest_u
++.br
++system_r:crond_t:s0			xguest_r:xguest_t:s0
++.br
++system_r:initrc_t:s0		xguest_r:xguest_t:s0
++.br
++system_r:local_login_t:s0	xguest_r:xguest_t:s0
++.br
++system_r:remote_login_t:s0	xguest_r:xguest_t:s0
++.br
++system_r:sshd_t:s0			xguest_r:xguest_t:s0
++.br
++system_r:xdm_t:s0			xguest_r:xguest_t:s0
++.br
++xguest_r:xguest_t:s0		xguest_r:xguest_t:s0
++
++.SH "SEE ALSO"
++.BR selinux "(8), " selinux_user_contexts_path "(3), " PAM "(8), "  get_ordered_context_list "(3), " get_ordered_context_list_with_level "(3), " get_default_context_with_level "(3), " get_default_context_with_role "(3), " get_default_context_with_rolelevel "(3), " query_user_context "(3), " manual_user_enter_context "(3), " selinux_config "(5) "
+diff --git a/libselinux/man/man5/virtual_domain_context.5 b/libselinux/man/man5/virtual_domain_context.5
+new file mode 100644
+index 0000000..6048f98
+--- /dev/null
++++ b/libselinux/man/man5/virtual_domain_context.5
+@@ -0,0 +1,39 @@
++.TH "virtual_domain_context" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
++
++.SH "NAME"
++virtual_domain_context \- The SELinux virtual machine domain context configuration file.
++
++.SH "DESCRIPTION"
++The
++.I virtual_domain_context
++file contains a list of domain contexts that are available for use by the SELinux-aware virtulization API libvirt (see \fBlibvirtd\fR(8)).
++.sp
++.BR selinux_virtual_domain_context_path "(3) "
++will return the active policy path to this file. The default virtual domain context file is:
++.RS
++.I /etc/selinux/{SELINUXTYPE}/contexts/virtual_domain_context
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
 +
 +.SH "FILE FORMAT"
-+The file consists of a single line entry as follows:
++Each line in the file consists of an entry as follows:
 +.RS
 +.IB user : role : type \fR[\fB:\fIrange\fR]
 +.RE
@@ -204,68 +293,67 @@ index 0000000..72d3d4c
 +.RS
 +.I user role type range
 +.RS
-+A user, role, type and optional range (for MCS/MLS) separated by colons (:) that will be applied to removable devices.
++A user, role, type and optional range (for MCS/MLS) separated by colons (:) that can be used as a virtual domain context.
 +.RE
 +.RE
++
 +.SH "EXAMPLE"
-+# ./contexts/removable_contexts
++# ./contexts/virtual_domain_context
 +.br
-+system_u:object_r:removable_t:s0
++system_u:object_r:svirt_t:s0
 +
 +.SH "SEE ALSO"
-+.BR selinux "(8), " selinux_removable_context_path "(3), " selabel_media "(5), " selinux_config "(5) "
-diff --git a/libselinux/man/man5/securetty_types.5 b/libselinux/man/man5/securetty_types.5
++.BR selinux "(8), " libvirtd "(8), " selinux_virtual_domain_context_path "(3), " selinux_config "(5) "
+diff --git a/libselinux/man/man5/virtual_image_context.5 b/libselinux/man/man5/virtual_image_context.5
 new file mode 100644
-index 0000000..3f13fdd
+index 0000000..4e9809b
 --- /dev/null
-+++ b/libselinux/man/man5/securetty_types.5
-@@ -0,0 +1,44 @@
-+.TH "securetty_types" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
++++ b/libselinux/man/man5/virtual_image_context.5
+@@ -0,0 +1,41 @@
++.TH "virtual_image_context" "5" "28-Nov-2011" "Security Enhanced Linux" "SELinux configuration"
 +
 +.SH "NAME"
-+securetty_types \- The SELinux secure tty type configuration file.
++virtual_image_context \- The SELinux virtual machine image context configuration file.
 +
 +.SH "DESCRIPTION"
 +The
-+.I securetty_types
-+file contains a list of types associated to secure tty type that are defined in the policy for use by SELinux-aware applications.
++.I virtual_image_context
++file contains a list of image contexts for use by the SELinux-aware virtulization API libvirt (see \fBlibvirtd\fR(8)).
 +.sp
-+.BR selinux_securetty_types_path "(3) "
-+will return the active policy path to this file. The default securetty types file is:
++.BR selinux_virtual_image_context_path "(3) "
++will return the active policy path to this file. The default virtual image context file is:
 +.RS
-+.I /etc/selinux/{SELINUXTYPE}/contexts/securetty_types
++.I /etc/selinux/{SELINUXTYPE}/contexts/virtual_image_context
 +.RE
 +.sp
 +Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
-+.sp
-+.BR selinux_check_securetty_context "(3) reads this file to determine if a context is for a secure tty defined in the active policy. "
-+.sp
-+SELinux-aware applications such as
-+.BR newrole "(1) use this information to check the status of a tty. "
 +
 +.SH "FILE FORMAT"
-+Each line in the file consists of the following entry:
++Each line in the file consists of an entry as follows:
++.RS
++.IB user : role : type \fR[\fB:\fIrange\fR]
++.RE
 +.sp
++Where:
 +.RS
-+.I type
++.I user role type range
 +.RS
-+One or more type entries that are defined in the policy for secure tty devices.
++A user, role, type and optional range (for MCS/MLS) separated by colons (:) that can be used as a virtual image context.
 +.RE
 +.RE
 +
 +.SH "EXAMPLE"
-+# ./contexts/securetty_types
++# ./contexts/virtual_image_context
 +.br
-+sysadm_tty_device_t
++system_u:object_r:svirt_image_t:s0
 +.br
-+user_tty_device_t
-+.br
-+staff_tty_device_t
++system_u:object_r:svirt_content_t:s0
 +
 +.SH "SEE ALSO"
-+.BR selinux "(8), " selinux_securetty_types_path "(3), " newrole "(1), " selinux_check_securetty_context "(3), " selinux_config "(5) "
++.BR selinux "(8), " libvirtd "(8), " selinux_virtual_image_context_path "(3), " selinux_config "(5) "
 -- 
 1.7.7.1
+
 
 
 
