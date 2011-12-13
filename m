@@ -1,52 +1,91 @@
-Subject: Re: We are seeing more and more programs accessing sysfs_t.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4EE7B79A.7000101@redhat.com>
-References: <4EE7B79A.7000101@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Dec 2011 15:44:15 -0500
-Message-ID: <1323809055.21623.39.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBDNBrP2024408
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 18:11:53 -0500
+Received: from tundra.namei.org (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pBDNBqRx026081
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 23:11:52 GMT
+Date: Wed, 14 Dec 2011 10:11:47 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: David Howells <dhowells@redhat.com>
+cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH] SELinux: Fix RCU deref check warning in
+ sel_netport_insert()
+In-Reply-To: <20111213144904.14176.96568.stgit@warthog.procyon.org.uk>
+Message-ID: <alpine.LRH.2.00.1112141011380.20373@tundra.namei.org>
+References: <20111213144904.14176.96568.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2011-12-13 at 15:37 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Every domain is now reading /sys/devices/system/cpu/online because of
-> changes to glibc.
-> 
-> We are also seeing domains that need write access.
-> 
-> For example
-> 
-> > https://bugzilla.redhat.com/show_bug.cgi?id=685096
-> > 
-> > for https://bugzilla.redhat.com/show_bug.cgi?id=685096 (IP over 
-> > Infiniband support for NetworkManager), NM needs to be able to 
-> > write to /sys/class/net/ib*/mode. audit2allow says:
-> > 
-> > allow NetworkManager_t sysfs_t:file write;
-> 
-> It seems we need a better way of labeling files under /sys.
-> 
-> genfscon only seems to work at the top level.
-> 
-> Allowing all domains to read sysfs_t does not seem like the correct
-> solution, and allow NetworkManager to write anywhere on /sys is
-> probably not good either.
+On Tue, 13 Dec 2011, David Howells wrote:
 
-Modern kernels support setfilecon()/setxattr() on sysfs nodes, so a
-userspace program can set specific types on them.  That was added a
-couple of years ago for libvirt.  Just specify the desired labels in
-file_contexts and restorecon -R /sys at boot.
+> Fix the following bug in sel_netport_insert() where rcu_dereference() should
+> be rcu_dereference_protected() as sel_netport_lock is held.
+> 
+
+Which kernel should this go to?
+
+
+> ===================================================
+> [ INFO: suspicious rcu_dereference_check() usage. ]
+> ---------------------------------------------------
+> security/selinux/netport.c:127 invoked rcu_dereference_check() without protection!
+> 
+> other info that might help us debug this:
+> 
+> 
+> rcu_scheduler_active = 1, debug_locks = 0
+> 1 lock held by ossec-rootcheck/3323:
+>  #0:  (sel_netport_lock){+.....}, at: [<ffffffff8117d775>] sel_netport_sid+0xbb/0x226
+> 
+> stack backtrace:
+> Pid: 3323, comm: ossec-rootcheck Not tainted 3.1.0-rc8-fsdevel+ #1095
+> Call Trace:
+>  [<ffffffff8105cfb7>] lockdep_rcu_dereference+0xa7/0xb0
+>  [<ffffffff8117d871>] sel_netport_sid+0x1b7/0x226
+>  [<ffffffff8117d6ba>] ? sel_netport_avc_callback+0xbc/0xbc
+>  [<ffffffff8117556c>] selinux_socket_bind+0x115/0x230
+>  [<ffffffff810a5388>] ? might_fault+0x4e/0x9e
+>  [<ffffffff810a53d1>] ? might_fault+0x97/0x9e
+>  [<ffffffff81171cf4>] security_socket_bind+0x11/0x13
+>  [<ffffffff812ba967>] sys_bind+0x56/0x95
+>  [<ffffffff81380dac>] ? sysret_check+0x27/0x62
+>  [<ffffffff8105b767>] ? trace_hardirqs_on_caller+0x11e/0x155
+>  [<ffffffff81076fcd>] ? audit_syscall_entry+0x17b/0x1ae
+>  [<ffffffff811b5eae>] ? trace_hardirqs_on_thunk+0x3a/0x3f
+>  [<ffffffff81380d7b>] system_call_fastpath+0x16/0x1b
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> Acked-by: Paul Moore <paul@paul-moore.com>
+> Acked-by: Eric Dumazet <eric.dumazet@gmail.com>
+> ---
+> 
+>  security/selinux/netport.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+> index 0b62bd1..7b9eb1f 100644
+> --- a/security/selinux/netport.c
+> +++ b/security/selinux/netport.c
+> @@ -123,7 +123,9 @@ static void sel_netport_insert(struct sel_netport *port)
+>  	if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
+>  		struct sel_netport *tail;
+>  		tail = list_entry(
+> -			rcu_dereference(sel_netport_hash[idx].list.prev),
+> +			rcu_dereference_protected(
+> +				sel_netport_hash[idx].list.prev,
+> +				lockdep_is_held(&sel_netport_lock)),
+>  			struct sel_netport, list);
+>  		list_del_rcu(&tail->list);
+>  		kfree_rcu(tail, rcu);
+> 
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
