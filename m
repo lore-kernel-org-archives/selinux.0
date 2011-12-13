@@ -1,78 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBDEnFGM023348
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 09:49:15 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBDKbjsn017198
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 15:37:49 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pBDEnD0Z018437
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 14:49:14 GMT
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] SELinux: Fix RCU deref check warning in sel_netport_insert()
-To: jmorris@namei.org, linux-security-module@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, David Howells <dhowells@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>
-Date: Tue, 13 Dec 2011 14:49:04 +0000
-Message-ID: <20111213144904.14176.96568.stgit@warthog.procyon.org.uk>
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pBDKbmRx010655
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 20:37:48 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pBDKblrq019902
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 15:37:47 -0500
+Received: from [10.16.62.208] (dhcp-10-16-62-208.boston.devel.redhat.com [10.16.62.208])
+	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id pBDKbko7008693
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2011 15:37:47 -0500
+Message-ID: <4EE7B79A.7000101@redhat.com>
+Date: Tue, 13 Dec 2011 15:37:46 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: We are seeing more and more programs accessing sysfs_t.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix the following bug in sel_netport_insert() where rcu_dereference() should
-be rcu_dereference_protected() as sel_netport_lock is held.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-===================================================
-[ INFO: suspicious rcu_dereference_check() usage. ]
----------------------------------------------------
-security/selinux/netport.c:127 invoked rcu_dereference_check() without protection!
+Every domain is now reading /sys/devices/system/cpu/online because of
+changes to glibc.
 
-other info that might help us debug this:
+We are also seeing domains that need write access.
 
+For example
 
-rcu_scheduler_active = 1, debug_locks = 0
-1 lock held by ossec-rootcheck/3323:
- #0:  (sel_netport_lock){+.....}, at: [<ffffffff8117d775>] sel_netport_sid+0xbb/0x226
+> https://bugzilla.redhat.com/show_bug.cgi?id=685096
+> 
+> for https://bugzilla.redhat.com/show_bug.cgi?id=685096 (IP over 
+> Infiniband support for NetworkManager), NM needs to be able to 
+> write to /sys/class/net/ib*/mode. audit2allow says:
+> 
+> allow NetworkManager_t sysfs_t:file write;
 
-stack backtrace:
-Pid: 3323, comm: ossec-rootcheck Not tainted 3.1.0-rc8-fsdevel+ #1095
-Call Trace:
- [<ffffffff8105cfb7>] lockdep_rcu_dereference+0xa7/0xb0
- [<ffffffff8117d871>] sel_netport_sid+0x1b7/0x226
- [<ffffffff8117d6ba>] ? sel_netport_avc_callback+0xbc/0xbc
- [<ffffffff8117556c>] selinux_socket_bind+0x115/0x230
- [<ffffffff810a5388>] ? might_fault+0x4e/0x9e
- [<ffffffff810a53d1>] ? might_fault+0x97/0x9e
- [<ffffffff81171cf4>] security_socket_bind+0x11/0x13
- [<ffffffff812ba967>] sys_bind+0x56/0x95
- [<ffffffff81380dac>] ? sysret_check+0x27/0x62
- [<ffffffff8105b767>] ? trace_hardirqs_on_caller+0x11e/0x155
- [<ffffffff81076fcd>] ? audit_syscall_entry+0x17b/0x1ae
- [<ffffffff811b5eae>] ? trace_hardirqs_on_thunk+0x3a/0x3f
- [<ffffffff81380d7b>] system_call_fastpath+0x16/0x1b
+It seems we need a better way of labeling files under /sys.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Acked-by: Eric Dumazet <eric.dumazet@gmail.com>
----
+genfscon only seems to work at the top level.
 
- security/selinux/netport.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+Allowing all domains to read sysfs_t does not seem like the correct
+solution, and allow NetworkManager to write anywhere on /sys is
+probably not good either.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index 0b62bd1..7b9eb1f 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -123,7 +123,9 @@ static void sel_netport_insert(struct sel_netport *port)
- 	if (sel_netport_hash[idx].size == SEL_NETPORT_HASH_BKT_LIMIT) {
- 		struct sel_netport *tail;
- 		tail = list_entry(
--			rcu_dereference(sel_netport_hash[idx].list.prev),
-+			rcu_dereference_protected(
-+				sel_netport_hash[idx].list.prev,
-+				lockdep_is_held(&sel_netport_lock)),
- 			struct sel_netport, list);
- 		list_del_rcu(&tail->list);
- 		kfree_rcu(tail, rcu);
-
+iEYEARECAAYFAk7nt5oACgkQrlYvE4MpobOyfwCfav6hMLyB5kPcAJvW81zhqC7o
+s30AoJv2aI8RmLi8gDq2gGMjadiyLziP
+=PVUp
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
