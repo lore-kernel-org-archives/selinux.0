@@ -1,27 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBJLQiea026970
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:26:44 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBJLRLYS027027
+	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:27:21 -0500
 Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pBJLQX9S010876
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 21:26:43 GMT
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pBJLQWkb026926
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pBJLRJ9S011070
+	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 21:27:20 GMT
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pBJLRJB8019642
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:26:32 -0500
-Message-ID: <4EEFAC08.90708@redhat.com>
-Date: Mon, 19 Dec 2011 16:26:32 -0500
+	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:27:19 -0500
+Message-ID: <4EEFAC36.8080908@redhat.com>
+Date: Mon, 19 Dec 2011 16:27:18 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 14/25] policycoreutils: sandbox: FIXME Add back in .
+Subject: [PATCH 17/25] libsemanage: add ignoredirs config for genhomedircon
 Content-Type: multipart/mixed;
- boundary="------------060501050906060406010808"
+ boundary="------------080604070700040508070507"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------060501050906060406010808
+--------------080604070700040508070507
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -31,24 +31,22 @@ Hash: SHA1
 
    This patch looks good to me. acked.
 
-In order to handle properly the display on boot the sandbox init
-script has to source the functions file.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk7vrAgACgkQrlYvE4MpobNUvACeIgvywd0Coty4TqjbL4Nh6229
-Vs8AnjNPWGU549YreEDNTzU96mtUmKFK
-=KHfr
+iEYEARECAAYFAk7vrDYACgkQrlYvE4MpobPe+ACdHbXEFzCJME5DlJhpTIGtbRJI
+eyEAn0RbakKruxf/TQ+TVtKgFMQm92zJ
+=OY50
 -----END PGP SIGNATURE-----
 
---------------060501050906060406010808
+--------------080604070700040508070507
 Content-Type: text/plain;
- name="0014-policycoreutils-sandbox-FIXME-Add-back-in-.-function.patch"
+ name="0017-libsemanage-add-ignoredirs-config-for-genhomedircon.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0014-policycoreutils-sandbox-FIXME-Add-back-in-.-function.pa";
- filename*1="tch"
+ filename*0="0017-libsemanage-add-ignoredirs-config-for-genhomedircon.pat";
+ filename*1="ch"
 
 
---------------060501050906060406010808--
+--------------080604070700040508070507--
