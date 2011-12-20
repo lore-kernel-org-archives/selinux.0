@@ -1,52 +1,46 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBJLVNVW027578
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:31:23 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pBJLVG6s010874
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 21:31:22 GMT
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id pBJLVGQg000599
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 16:31:16 -0500
-Message-ID: <4EEFAD23.5040404@redhat.com>
-Date: Mon, 19 Dec 2011 16:31:15 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBK4lj6U011328
+	for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2011 23:47:45 -0500
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id pBK4lhdb006231
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2011 04:47:44 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Justin Mattock <justinmattock@yahoo.com>
+Subject: Re: [refpolicy] semodule segfaults with ubuntu
+Date: Tue, 20 Dec 2011 15:47:33 +1100
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+References: <1320681595.98236.YahooMailNeo@web114319.mail.gq1.yahoo.com> <1320764942.66095.YahooMailNeo@web114310.mail.gq1.yahoo.com> <1324356207.34656.YahooMailNeo@web114308.mail.gq1.yahoo.com>
+In-Reply-To: <1324356207.34656.YahooMailNeo@web114308.mail.gq1.yahoo.com>
 MIME-Version: 1.0
-To: eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH 25/25] libselinux: Fix setenforce man page to refer to
-Content-Type: multipart/mixed;
- boundary="------------030605080301010108030708"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201112201547.33428.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030605080301010108030708
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tue, 20 Dec 2011, Justin Mattock <justinmattock@yahoo.com> wrote:
+> hmm... this is odd I just finished with creating a systemd patch(RFC) will
+> send it out after loading, but I cant seem to load due to a segfault like
+> the above. system setup is simple: qemu with fedora 16 and Mainline
+> policy. I am hitting this with my patch, as well as stock unpatched
+> policy..
+> 
+> I will try a bisect on the policy to see if I can find the bad commit, as
+> well as libc to see what/where things are going wrong. in the meantime I
+> will send out my systemd patch in the matter if anybody wants to have a go
+> at it.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Once again, this isn't a policy issue.
 
+Please run the crashing program under gdb and report back to this list.  A 
+SEGV in a program like semodule is a serious issue and needs to be fixed.
 
-   This patch looks good to me. acked.
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk7vrSMACgkQrlYvE4MpobMQGACg2UcXYAo25OX/3MuI75GGXD/Y
-SZMAn3razhZyzGX2Jnlq9fauhU2bmiiV
-=bUgW
------END PGP SIGNATURE-----
-
---------------030605080301010108030708
-Content-Type: text/plain;
- name="0025-libselinux-Fix-setenforce-man-page-to-refer-to-selin.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0025-libselinux-Fix-setenforce-man-page-to-refer-to-selin.pa";
- filename*1="tch"
-
-
---------------030605080301010108030708--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
