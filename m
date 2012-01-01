@@ -1,54 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id pBVAYiGH001888
-	for <selinux@tycho.nsa.gov>; Sat, 31 Dec 2011 05:34:45 -0500
-Received: from mail-ee0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id pBVAYhbQ008349
-	for <selinux@tycho.nsa.gov>; Sat, 31 Dec 2011 10:34:43 GMT
-Received: by eekd41 with SMTP id d41so14148879eek.12
-        for <selinux@tycho.nsa.gov>; Sat, 31 Dec 2011 02:34:42 -0800 (PST)
-Date: Sat, 31 Dec 2011 11:34:15 +0100
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q018SKrx006300
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2012 03:28:21 -0500
+Received: from mail.copilotco.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q018SJMx022455
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2012 08:28:20 GMT
+Date: Sun, 1 Jan 2012 00:28:16 -0800
+From: Tracy Reed <treed@ultraviolet.org>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: transition from crond
-Message-ID: <20111231103415.GA3510@siphos.be>
+Message-ID: <20120101082815.GA10436@tracyreed.org>
 References: <20111230185146.GY10436@tracyreed.org>
+ <20111231103415.GA3510@siphos.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20111230185146.GY10436@tracyreed.org>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20111231103415.GA3510@siphos.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Dec 30, 2011 at 10:51:47AM -0800, Tracy Reed wrote:
-> email2feedback.te:
+On Sat, Dec 31, 2011 at 11:34:15AM +0100, Sven Vermeulen spake thusly:
+> This seems wrong. There's no need for an "ifdef" here. 
 > 
-> policy_module(email2feedback, 1.0.0)
-> type email2feedback_t;
-> type email2feedback_exec_t;
-> 
-> require {
->         type automated_tasks_db_t;
-> }
-> 
-> domain_type(email2feedback_t)
-> domain_entry_file(email2feedback_t, email2feedback_exec_t)
-> 
-> allow email2feedback_t automated_tasks_db_t:file { read getattr ioctl };
-[...]
-> # Let it switch from crond_t to email2feedback_t
-> ifdef(`crond.te', `
->     system_crond_entry(email2feedback_exec_t, email2feedback_t)
->     ')
+> You probably want something like the following in your .te file:
 
-This seems wrong. There's no need for an "ifdef" here. 
+Ah, thanks! I was just copying from the only example I could find of transitioning from crond:
 
-You probably want something like the following in your .te file:
+http://www.linuxtopia.org/online_books/writing_SELinux_policy_guide/case_study_13.html
 
-optional_policy(`
-	cron_system_entry(email2feedback_t, email2feedback_exec_t)
-')
+This is from 2003 or so and very outdated, no doubt. But it is the only such
+example I could find. Is there any better documentation? 
 
-Wkr,
-	Sven Vermeulen
+Also, while your suggestion seems to have worked and I have eliminated quite a
+few avc denials I am still getting this one:
+
+type=AVC msg=audit(1325404861.508:99794): avc:  denied  { getattr } for  pid=5065 comm="perl" path="/automated_tasks/etc/mysql_auth.pm" dev =md0 ino=240014 scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tcontext=system_u:object_r:automated_tasks_db_t:s0 tclass=file
+
+mysql_auth.pm is a perl module included by email2feedback.pl. I would have
+thought that this perl module would have been run under the email2feedback_t
+type of the program it was being used in. What is the correct way to handle
+this?
+
+-- 
+Tracy Reed
 
 --
 This message was distributed to subscribers of the selinux mailing list.
