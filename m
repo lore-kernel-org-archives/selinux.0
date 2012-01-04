@@ -1,182 +1,233 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q048va5s014850
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2012 03:57:36 -0500
-Received: from mail-ww0-f49.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q048vZCs026577
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2012 08:57:35 GMT
-Received: by wgbdt11 with SMTP id dt11so22220837wgb.30
-        for <selinux@tycho.nsa.gov>; Wed, 04 Jan 2012 00:57:34 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q04FhHEQ003975
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2012 10:43:17 -0500
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q04FhFY2019127
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2012 15:43:16 GMT
+Message-ID: <4F047391.202@redhat.com>
+Date: Wed, 04 Jan 2012 10:43:13 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Date: Wed, 4 Jan 2012 16:57:34 +0800
-Message-ID: <CANvtKVYZsPZwzmXjwTv672Usd7zQKiY_dfvht7mp3Rkcn7Gi2g@mail.gmail.com>
-Subject: Use specified semanage.conf for cross compiling
-From: Xin Ouyang <xinpascal@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=000e0cd5b81cbc405504b5b001e0
+To: Xin Ouyang <xinpascal@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Use specified semanage.conf for cross compiling
+References: <CANvtKVYZsPZwzmXjwTv672Usd7zQKiY_dfvht7mp3Rkcn7Gi2g@mail.gmail.com>
+In-Reply-To: <CANvtKVYZsPZwzmXjwTv672Usd7zQKiY_dfvht7mp3Rkcn7Gi2g@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------020200060806070709070308"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---000e0cd5b81cbc405504b5b001e0
+This is a multi-part message in MIME format.
+--------------020200060806070709070308
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-For some cross compiling cases, I need to use semodule to create the
-policy store at build time.
-It is,
-=A0 =A0 =A0 =A0semodule -n -b base.pp -i some.pp .. -p $TARGET_ROOT
+On 01/04/2012 03:57 AM, Xin Ouyang wrote:
+> Hi all,
+> 
+> For some cross compiling cases, I need to use semodule to create
+> the policy store at build time. It is, semodule -n -b base.pp -i
+> some.pp .. -p $TARGET_ROOT
+> 
+> With this, semodule will use /etc/selinux/semanage.conf by calling 
+> semanage_handle_create():
+> 
+> // libsemanage/src/handle.c semanage_handle_t
+> *semanage_handle_create(void) { semanage_handle_t *sh = NULL; const
+> char *conf_name = NULL;
+> 
+> /* Allocate handle */ if ((sh = calloc(1,
+> sizeof(semanage_handle_t))) == NULL) goto err;
+> 
+> if ((conf_name = semanage_conf_path()) == NULL) goto err;
+> 
+> if ((sh->conf = semanage_conf_parse(conf_name)) == NULL) goto err;
+> 
+> While there may be some different options in  semanage.conf for
+> the target, I am trying to specify a special semanage.conf path
+> instead of /etc/selinux/semanage.conf in the build host.
+> 
+> Commit 9cd587f5533456e7b26601e27e65744272e2e783 introduced 
+> semanage_set_root() as an alternate root for policy stores. So I
+> make a patch to use the semanage.conf in the alternate root. After
+> the patch, semodule -p /target will use 
+> /target/etc/selinux/semanage.conf as the config file.
+> 
+> Anyone who has better solutions, please
+> 
+> 
+> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c 
+> index 7adc1cc..ef36152 100644 --- a/libsemanage/src/handle.c +++
+> b/libsemanage/src/handle.c @@ -41,6 +41,7 @@ #include <string.h> 
+> #include <selinux/selinux.h> static char *private_selinux_path =
+> NULL; +static char *private_semanage_conf_path = NULL; static char
+> *private_file_context_path = NULL; static char
+> *private_file_context_local_path = NULL; static char
+> *private_file_context_homedir_path = NULL; @@ -52,6 +53,7 @@ static
+> char *private_policy_root = NULL;
+> 
+> void semanage_free_root() { free(private_selinux_path);
+> private_selinux_path = NULL; +
+> free(private_semanage_conf_path); private_semanage_conf_path =
+> NULL; free(private_file_context_path); private_file_context_path =
+> NULL; free(private_file_context_local_path); 
+> private_file_context_local_path = NULL; 
+> free(private_file_context_homedir_path); 
+> private_file_context_homedir_path = NULL; @@ -68,6 +70,10 @@ int
+> semanage_set_root(const char *path) { goto error; }
+> 
+> +       if ( asprintf(&private_semanage_conf_path, "%s/%s", path, 
+> semanage_conf_path()) < 0 ) { +               goto error; +
+> } + if ( asprintf(&private_file_context_path, "%s/%s", path, 
+> selinux_file_context_path()) < 0 ) { goto error; } @@ -171,6
+> +177,13 @@ const char *semanage_selinux_path(void) { return
+> selinux_path(); }
+> 
+> +const char *semanage_semanage_conf_path(void) { +       if
+> (private_semanage_conf_path +               &&
+> access(private_semanage_conf_path, R_OK) == 0) +
+> return private_semanage_conf_path; +       return
+> semanage_conf_path(); +} + semanage_handle_t
+> *semanage_handle_create(void) { semanage_handle_t *sh = NULL; @@
+> -180,7 +193,7 @@ semanage_handle_t *semanage_handle_create(void) if
+> ((sh = calloc(1, sizeof(semanage_handle_t))) == NULL) goto err;
+> 
+> -       if ((conf_name = semanage_conf_path()) == NULL) +       if
+> ((conf_name = semanage_semanage_conf_path()) == NULL) goto err;
+> 
+> if ((sh->conf = semanage_conf_parse(conf_name)) == NULL)
 
-With this, semodule will use /etc/selinux/semanage.conf by calling
-semanage_handle_create():
 
-// libsemanage/src/handle.c
-semanage_handle_t *semanage_handle_create(void)
-{
-=A0 =A0 =A0 =A0 semanage_handle_t *sh =3D NULL;
-=A0 =A0 =A0 =A0 const char *conf_name =3D NULL;
+How about this patch instead.
 
-=A0 =A0 =A0 =A0 /* Allocate handle */
-=A0 =A0 =A0 =A0 if ((sh =3D calloc(1, sizeof(semanage_handle_t))) =3D=3D NU=
-LL)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err;
 
-=A0 =A0 =A0 =A0 if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-=A0 =A0 =A0 =A0 if ((sh->conf =3D semanage_conf_parse(conf_name)) =3D=3D NU=
-LL)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err;
+iEYEARECAAYFAk8Ec5EACgkQrlYvE4MpobMGUgCfS4IXRl6CslxjlmM1HHpTlwbl
+lMwAoNQBVA6F9mv7spdOE64IsxAx67dx
+=BWGP
+-----END PGP SIGNATURE-----
 
-While there may be some different options in =A0semanage.conf for the
-target, I am trying to specify a special semanage.conf path instead of
-/etc/selinux/semanage.conf in the build host.
-
-Commit=A09cd587f5533456e7b26601e27e65744272e2e783=A0introduced
-semanage_set_root() as=A0an alternate root for policy stores. So I make
-a patch to use the semanage.conf in the=A0alternate root.
-After the patch, semodule -p /target will use
-/target/etc/selinux/semanage.conf as the config file.
-
-Anyone who has better solutions, please
-
+--------------020200060806070709070308
+Content-Type: text/x-patch;
+ name="libsemanage_conf_path.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="libsemanage_conf_path.patch"
 
 diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index 7adc1cc..ef36152 100644
+index 7adc1cc..4b43ba7 100644
 --- a/libsemanage/src/handle.c
 +++ b/libsemanage/src/handle.c
-@@ -41,6 +41,7 @@
-=A0#include <string.h>
-=A0#include <selinux/selinux.h>
-=A0static char *private_selinux_path =3D NULL;
-+static char *private_semanage_conf_path =3D NULL;
-=A0static char *private_file_context_path =3D NULL;
-=A0static char *private_file_context_local_path =3D NULL;
-=A0static char *private_file_context_homedir_path =3D NULL;
-@@ -52,6 +53,7 @@ static char *private_policy_root =3D NULL;
-
-=A0void semanage_free_root() {
-=A0 =A0 =A0 =A0 free(private_selinux_path); private_selinux_path =3D NULL;
-+ =A0 =A0 =A0 free(private_semanage_conf_path); private_semanage_conf_path =
-=3D NULL;
-=A0 =A0 =A0 =A0 free(private_file_context_path); private_file_context_path =
-=3D NULL;
-=A0 =A0 =A0 =A0 free(private_file_context_local_path);
-private_file_context_local_path =3D NULL;
-=A0 =A0 =A0 =A0 free(private_file_context_homedir_path);
-private_file_context_homedir_path =3D NULL;
-@@ -68,6 +70,10 @@ int semanage_set_root(const char *path) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto error;
-=A0 =A0 =A0 =A0 }
-
-+ =A0 =A0 =A0 if ( asprintf(&private_semanage_conf_path, "%s/%s", path,
-semanage_conf_path()) < 0 ) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto error;
-+ =A0 =A0 =A0 }
+@@ -37,10 +37,12 @@
+ #include "semanage_store.h"
+ 
+ #define SEMANAGE_COMMIT_READ_WAIT 5
++#define SEMANAGE_CONF_PATH "/etc/selinux/semanage.conf"
+ 
+ #include <string.h>
+ #include <selinux/selinux.h>
+ static char *private_selinux_path = NULL;
++static char *private_semanage_conf_path = NULL;
+ static char *private_file_context_path = NULL;
+ static char *private_file_context_local_path = NULL;
+ static char *private_file_context_homedir_path = NULL;
+@@ -52,6 +54,7 @@ static char *private_policy_root = NULL;
+ 
+ void semanage_free_root() {
+ 	free(private_selinux_path); private_selinux_path = NULL;
++	free(private_semanage_conf_path); private_semanage_conf_path = NULL;
+ 	free(private_file_context_path); private_file_context_path = NULL;
+ 	free(private_file_context_local_path); private_file_context_local_path = NULL;
+ 	free(private_file_context_homedir_path); private_file_context_homedir_path = NULL;
+@@ -68,6 +71,10 @@ int semanage_set_root(const char *path) {
+ 		goto error;
+ 	}
+ 
++	if ( asprintf(&private_semanage_conf_path, "%s/%s", path, SEMANAGE_CONF_PATH) < 0 ) {
++		goto error;
++	}
 +
-=A0 =A0 =A0 =A0 if ( asprintf(&private_file_context_path, "%s/%s", path,
-selinux_file_context_path()) < 0 ) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto error;
-=A0 =A0 =A0 =A0 }
-@@ -171,6 +177,13 @@ const char *semanage_selinux_path(void) {
-=A0 =A0 =A0 =A0 return selinux_path();
-=A0}
-
-+const char *semanage_semanage_conf_path(void) {
-+ =A0 =A0 =A0 if (private_semanage_conf_path
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 && access(private_semanage_conf_path, R_OK) =
-=3D=3D 0)
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 return private_semanage_conf_path;
-+ =A0 =A0 =A0 return semanage_conf_path();
+ 	if ( asprintf(&private_file_context_path, "%s/%s", path, selinux_file_context_path()) < 0 ) {
+ 		goto error;
+ 	}
+@@ -171,6 +178,20 @@ const char *semanage_selinux_path(void) {
+ 	return selinux_path();
+ }
+ 
++/* Return a fully-qualified path + filename to the semanage
++ * configuration file.  The caller must not alter the string returned
++ * (and hence why this function return type is const).
++ *
++ */
++
++const char *semanage_conf_path(void)
++{
++	if (private_semanage_conf_path)
++		return private_semanage_conf_path;
++
++	return SEMANAGE_CONF_PATH;
 +}
 +
-=A0semanage_handle_t *semanage_handle_create(void)
-=A0{
-=A0 =A0 =A0 =A0 semanage_handle_t *sh =3D NULL;
-@@ -180,7 +193,7 @@ semanage_handle_t *semanage_handle_create(void)
-=A0 =A0 =A0 =A0 if ((sh =3D calloc(1, sizeof(semanage_handle_t))) =3D=3D NU=
-LL)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err;
+ semanage_handle_t *semanage_handle_create(void)
+ {
+ 	semanage_handle_t *sh = NULL;
+diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
+index 723d811..bb12594 100644
+--- a/libsemanage/src/handle.h
++++ b/libsemanage/src/handle.h
+@@ -105,6 +105,8 @@ struct semanage_handle {
+ 	dbase_config_t dbase[DBASE_COUNT];
+ };
+ 
++const char *semanage_conf_path(void);
++
+ /* === Local modifications === */
+ static inline
+     dbase_config_t * semanage_user_base_dbase_local(semanage_handle_t * handle)
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index a223aa7..0e7b71a 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -262,18 +262,6 @@ const char *semanage_path(enum semanage_store_defs store,
+ 	return semanage_paths[store][path_name];
+ }
+ 
+-/* Return a fully-qualified path + filename to the semanage
+- * configuration file.  The caller must not alter the string returned
+- * (and hence why this function return type is const).
+- *
+- * This is going to be hard coded to /etc/selinux/semanage.conf for
+- * the time being. FIXME
+- */
+-const char *semanage_conf_path(void)
+-{
+-	return "/etc/selinux/semanage.conf";
+-}
+-
+ /**************** functions that create module store ***************/
+ 
+ /* Check that the semanage store exists.  If 'create' is non-zero then
+diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+index b451308..98e011d 100644
+--- a/libsemanage/src/semanage_store.h
++++ b/libsemanage/src/semanage_store.h
+@@ -66,7 +66,6 @@ enum semanage_sandbox_defs {
+ /* FIXME: this needs to be made a module store specific init and the
+  * global configuration moved to another file.
+  */
+-const char *semanage_conf_path(void);
+ int semanage_check_init(const char *root);
+ 
+ extern const char *semanage_fname(enum semanage_sandbox_defs file_enum);
 
-- =A0 =A0 =A0 if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
-+ =A0 =A0 =A0 if ((conf_name =3D semanage_semanage_conf_path()) =3D=3D NULL=
-)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err;
-
-=A0 =A0 =A0 =A0 if ((sh->conf =3D semanage_conf_parse(conf_name)) =3D=3D NU=
-LL)
-
---000e0cd5b81cbc405504b5b001e0
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-libsemanage-semanage.conf-with-semanage_set_root.patch"
-Content-Disposition: attachment;
-	filename="0001-libsemanage-semanage.conf-with-semanage_set_root.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gx045ygh0
-
-RnJvbSA4MTFlMTEzYzFlNmZkZGNjY2E3MjlmOGUxMzMzMjFjNDZkYjk1YzgwIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBYaW4gT3V5YW5nIDx4aW5wYXNjYWxAZ21haWwuY29tPgpEYXRl
-OiBXZWQsIDQgSmFuIDIwMTIgMTQ6Mzg6MzYgKzA4MDAKU3ViamVjdDogW1BBVENIXSBsaWJzZW1h
-bmFnZTogc2VtYW5hZ2UuY29uZiB3aXRoIHNlbWFuYWdlX3NldF9yb290LgoKQWxsb3cgYXBwbGlj
-YXRpb25zIHRvIHVzZSBzZW1hbmFnZS5jb25mIGluIHRoZSBhbHRlcm5hdGUgcm9vdCwgaWYKc2Vt
-YW5hZ2Vfc2V0X3Jvb3QgY2FsbGVkLgotLS0KIGxpYnNlbWFuYWdlL3NyYy9oYW5kbGUuYyB8ICAg
-MTUgKysrKysrKysrKysrKystCiAxIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKyksIDEg
-ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGlic2VtYW5hZ2Uvc3JjL2hhbmRsZS5jIGIvbGli
-c2VtYW5hZ2Uvc3JjL2hhbmRsZS5jCmluZGV4IDdhZGMxY2MuLmVmMzYxNTIgMTAwNjQ0Ci0tLSBh
-L2xpYnNlbWFuYWdlL3NyYy9oYW5kbGUuYworKysgYi9saWJzZW1hbmFnZS9zcmMvaGFuZGxlLmMK
-QEAgLTQxLDYgKzQxLDcgQEAKICNpbmNsdWRlIDxzdHJpbmcuaD4KICNpbmNsdWRlIDxzZWxpbnV4
-L3NlbGludXguaD4KIHN0YXRpYyBjaGFyICpwcml2YXRlX3NlbGludXhfcGF0aCA9IE5VTEw7Citz
-dGF0aWMgY2hhciAqcHJpdmF0ZV9zZW1hbmFnZV9jb25mX3BhdGggPSBOVUxMOwogc3RhdGljIGNo
-YXIgKnByaXZhdGVfZmlsZV9jb250ZXh0X3BhdGggPSBOVUxMOwogc3RhdGljIGNoYXIgKnByaXZh
-dGVfZmlsZV9jb250ZXh0X2xvY2FsX3BhdGggPSBOVUxMOwogc3RhdGljIGNoYXIgKnByaXZhdGVf
-ZmlsZV9jb250ZXh0X2hvbWVkaXJfcGF0aCA9IE5VTEw7CkBAIC01Miw2ICs1Myw3IEBAIHN0YXRp
-YyBjaGFyICpwcml2YXRlX3BvbGljeV9yb290ID0gTlVMTDsKIAogdm9pZCBzZW1hbmFnZV9mcmVl
-X3Jvb3QoKSB7CiAJZnJlZShwcml2YXRlX3NlbGludXhfcGF0aCk7IHByaXZhdGVfc2VsaW51eF9w
-YXRoID0gTlVMTDsKKwlmcmVlKHByaXZhdGVfc2VtYW5hZ2VfY29uZl9wYXRoKTsgcHJpdmF0ZV9z
-ZW1hbmFnZV9jb25mX3BhdGggPSBOVUxMOwogCWZyZWUocHJpdmF0ZV9maWxlX2NvbnRleHRfcGF0
-aCk7IHByaXZhdGVfZmlsZV9jb250ZXh0X3BhdGggPSBOVUxMOwogCWZyZWUocHJpdmF0ZV9maWxl
-X2NvbnRleHRfbG9jYWxfcGF0aCk7IHByaXZhdGVfZmlsZV9jb250ZXh0X2xvY2FsX3BhdGggPSBO
-VUxMOwogCWZyZWUocHJpdmF0ZV9maWxlX2NvbnRleHRfaG9tZWRpcl9wYXRoKTsgcHJpdmF0ZV9m
-aWxlX2NvbnRleHRfaG9tZWRpcl9wYXRoID0gTlVMTDsKQEAgLTY4LDYgKzcwLDEwIEBAIGludCBz
-ZW1hbmFnZV9zZXRfcm9vdChjb25zdCBjaGFyICpwYXRoKSB7CiAJCWdvdG8gZXJyb3I7CiAJfQog
-CisJaWYgKCBhc3ByaW50ZigmcHJpdmF0ZV9zZW1hbmFnZV9jb25mX3BhdGgsICIlcy8lcyIsIHBh
-dGgsIHNlbWFuYWdlX2NvbmZfcGF0aCgpKSA8IDAgKSB7CisJCWdvdG8gZXJyb3I7CisJfQorCiAJ
-aWYgKCBhc3ByaW50ZigmcHJpdmF0ZV9maWxlX2NvbnRleHRfcGF0aCwgIiVzLyVzIiwgcGF0aCwg
-c2VsaW51eF9maWxlX2NvbnRleHRfcGF0aCgpKSA8IDAgKSB7CiAJCWdvdG8gZXJyb3I7CiAJfQpA
-QCAtMTcxLDYgKzE3NywxMyBAQCBjb25zdCBjaGFyICpzZW1hbmFnZV9zZWxpbnV4X3BhdGgodm9p
-ZCkgewogCXJldHVybiBzZWxpbnV4X3BhdGgoKTsKIH0KIAorY29uc3QgY2hhciAqc2VtYW5hZ2Vf
-c2VtYW5hZ2VfY29uZl9wYXRoKHZvaWQpIHsKKwlpZiAocHJpdmF0ZV9zZW1hbmFnZV9jb25mX3Bh
-dGgKKwkJJiYgYWNjZXNzKHByaXZhdGVfc2VtYW5hZ2VfY29uZl9wYXRoLCBSX09LKSA9PSAwKQor
-CQlyZXR1cm4gcHJpdmF0ZV9zZW1hbmFnZV9jb25mX3BhdGg7CisJcmV0dXJuIHNlbWFuYWdlX2Nv
-bmZfcGF0aCgpOworfQorCiBzZW1hbmFnZV9oYW5kbGVfdCAqc2VtYW5hZ2VfaGFuZGxlX2NyZWF0
-ZSh2b2lkKQogewogCXNlbWFuYWdlX2hhbmRsZV90ICpzaCA9IE5VTEw7CkBAIC0xODAsNyArMTkz
-LDcgQEAgc2VtYW5hZ2VfaGFuZGxlX3QgKnNlbWFuYWdlX2hhbmRsZV9jcmVhdGUodm9pZCkKIAlp
-ZiAoKHNoID0gY2FsbG9jKDEsIHNpemVvZihzZW1hbmFnZV9oYW5kbGVfdCkpKSA9PSBOVUxMKQog
-CQlnb3RvIGVycjsKIAotCWlmICgoY29uZl9uYW1lID0gc2VtYW5hZ2VfY29uZl9wYXRoKCkpID09
-IE5VTEwpCisJaWYgKChjb25mX25hbWUgPSBzZW1hbmFnZV9zZW1hbmFnZV9jb25mX3BhdGgoKSkg
-PT0gTlVMTCkKIAkJZ290byBlcnI7CiAKIAlpZiAoKHNoLT5jb25mID0gc2VtYW5hZ2VfY29uZl9w
-YXJzZShjb25mX25hbWUpKSA9PSBOVUxMKQotLSAKMS43LjUuNAoK
---000e0cd5b81cbc405504b5b001e0--
+--------------020200060806070709070308--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
