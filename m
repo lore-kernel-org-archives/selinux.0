@@ -1,92 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0C7KCNg013590
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 02:20:12 -0500
-Received: from collab.rosalab.ru (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q0C7KBgB020181
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 07:20:11 GMT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by collab.rosalab.ru (Postfix) with ESMTP id B386D29CF6E
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 11:20:10 +0400 (MSK)
-Received: from collab.rosalab.ru ([127.0.0.1])
-	by localhost (collab.rosalab.ru [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id X17jmbLBtVfk for <selinux@tycho.nsa.gov>;
-	Thu, 12 Jan 2012 11:20:10 +0400 (MSK)
-Received: from collab.rosalab.ru (collab.rosalab.ru [192.168.1.89])
-	by collab.rosalab.ru (Postfix) with ESMTP id 69E2A29CF6B
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 11:20:10 +0400 (MSK)
-Date: Thu, 12 Jan 2012 10:20:10 +0300 (MSK)
-From: Eugene Budanov <eugene.budanov@rosalab.ru>
-To: selinux@tycho.nsa.gov
-Message-ID: <76466968.6308.1326352810378.JavaMail.root@collab.rosalab.ru>
-In-Reply-To: <472823933.6304.1326352630834.JavaMail.root@collab.rosalab.ru>
-Subject: SELinux for Mandriva Linux
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0C9Exn8018830
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 04:14:59 -0500
+Received: from mail-wi0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q0C9ErmI026184
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 09:14:53 GMT
+Received: by wibhr12 with SMTP id hr12so1254782wib.12
+        for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 01:14:52 -0800 (PST)
+Message-ID: <4F0EA482.5050109@gmail.com>
+Date: Thu, 12 Jan 2012 17:14:42 +0800
+From: Xin Ouyang <xinpascal@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: eparis@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 20/25] libsemanage: Fallback_user_level can be NULL if
+ you
+References: <4EEFAC91.6060903@redhat.com>
+In-Reply-To: <4EEFAC91.6060903@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------010101050408030503050601"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+This is a multi-part message in MIME format.
+--------------010101050408030503050601
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-At first, I apologize for my terrible English.
+segfault still not exist.
 
-I'm trying to make a port of SELinux for ROSA/Mandriva Linux from Fedora Linux.
-But a have a problem. In general, the most functions and packages built and works fine but I cannot compile package for selinux policy. It crashes with this error:
-
- tmp/unconfineduser.mod.role
-echo "')" >> tmp/unconfineduser.mod.role
-m4 -D enable_mcs -D distro_redhat -D mls_num_sens=16 -D mls_num_cats=1024 -D mcs_num_cats=1024 -D hide_broken_symptoms -s support/divert.m4 policy/support/file_patterns.spt policy/support/ipc_patterns.spt policy/support/obj_perm_sets.spt policy/support/misc_patterns.spt policy/support/misc_macros.spt policy/support/mls_mcs_macros.spt policy/support/loadable_module.spt support/undivert.m4 tmp/generated_definitions.conf tmp/all_interfaces.conf policy/modules/roles/unconfineduser.te tmp/unconfineduser.mod.role > tmp/unconfineduser.tmp
-/usr/bin/checkmodule -M -m tmp/unconfineduser.tmp -o tmp/unconfineduser.mod
-/usr/bin/checkmodule:  loading policy configuration from tmp/unconfineduser.tmp
-policy/modules/roles/unconfineduser.te":47:ERROR 'unknown role unconfined_r' at token ';' on line 3315:
-#line 47
-        role unconfined_r types unconfined_t;
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make: *** [tmp/unconfineduser.mod] Error 1
-
-Version of selinux-policy package which i tried to build: 3.9.16
-
-Researching tons of mailing lists archives, forums, asking a colleagues couldn't help for me.
-
-Some tech info:
-[root@localhost SPECS]# rpm -qa | grep selinux
-lib64selinux1-2.0.78-3mdv2011.0.x86_64
-python-selinux-2.0.78-3mdv2011.0.x86_64
-lib64selinux-devel-2.0.78-3mdv2011.0.x86_64
-libselinux-devel-2.1.5-5.2-mdv2011.0.x86_64
-libselinux-2.1.5-5.2-mdv2011.0.x86_64
-libselinux-python-2.1.5-5.2-mdv2011.0.x86_64
-libselinux-utils-2.1.5-5.2-mdv2011.0.x86_64
-selinux-policy-3.6.6-3-mdv2011.0.noarch
-selinux-policy-targeted-3.6.6-3-mdv2011.0.noarch
-selinux-policy-minimum-3.6.6-3-mdv2011.0.noarch
-[root@localhost SPECS]# rpm -qa | grep sepol
-libsepol-2.1.1-1-mdv2011.0.x86_64
-libsepol-devel-2.1.1-1-mdv2011.0.x86_64
-libsepol-static-2.1.1-1-mdv2011.0.x86_64
-[root@localhost SPECS]# rpm -qa | grep
-[root@localhost SOURCES]# rpm -qa | grep semanage
-libsemanage1-2.0.43-17.1.32-mdv2011.0.x86_64
-libsemanage-devel-2.0.43-17.1.32-mdv2011.0.x86_64
-python-semanage-2.0.43-17.1.32-mdv2011.0.x86_64
-
-Checkpolicy version: 2.1.3-1.3-mdv2011.0.x86_64.
-
-Important notice. This package was build at Fedora 16 without any problems. What I am wrong?
-
-Ask me any questions if necessary.
-
-Thank you in advance. 
-
----
-Best regards,
-Budanov Eugene
-ROSA Lab.
-Russia, Moscow.
-e-mail : eugene.budanov@rosalab.ru
-phone +79160674716
+1. Download and extract refpolicy-2.20110726.tar.bz2
+2. cd refplicy && edit build.conf
+TYPE = standard
+...
+3. make conf && make policy && make load
+...
+make: *** [load] Segmentation fault (core dumped)
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+The attached patch will be OK. :)
+
+- Pascal O.Y.
+
+
+On 2011年12月20日 05:28, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+>
+>     This patch looks good to me. acked.
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.11 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+>
+> iEYEARECAAYFAk7vrJEACgkQrlYvE4MpobP4ewCfUTl1JHSaXTpPtNUn1yJWDo1j
+> TMgAn0HPi8GRUqi8WdOugTGJReqXBKUV
+> =MQcr
+> -----END PGP SIGNATURE-----
+
+
+--------------010101050408030503050601
+Content-Type: text/x-patch;
+ name="0001-libsemanage-Fix-segfault-for-building-standard-polic.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-libsemanage-Fix-segfault-for-building-standard-polic.pa";
+ filename*1="tch"
+
+
+--------------010101050408030503050601--
