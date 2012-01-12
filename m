@@ -1,66 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0C9YgSV019649
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 04:34:42 -0500
-Received: from mail1.windriver.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q0C9YfmI028778
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2012 09:34:41 GMT
-Message-ID: <4F0EA92B.20400@windriver.com>
-Date: Thu, 12 Jan 2012 17:34:35 +0800
-From: Pascal Ouyang <Xin.Ouyang@windriver.com>
-MIME-Version: 1.0
-To: Xin Ouyang <xinpascal@gmail.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, <eparis@redhat.com>,
-        <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 20/25] libsemanage: Fallback_user_level can be NULL if
- you
-References: <4EEFAC91.6060903@redhat.com> <4F0EA482.5050109@gmail.com>
-In-Reply-To: <4F0EA482.5050109@gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Subject: Re: SELinux for Mandriva Linux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eugene Budanov <eugene.budanov@rosalab.ru>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <76466968.6308.1326352810378.JavaMail.root@collab.rosalab.ru>
+References: <76466968.6308.1326352810378.JavaMail.root@collab.rosalab.ru>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 12 Jan 2012 09:53:04 -0500
+Message-ID: <1326379984.26969.38.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry. That should be "segfault still exists".
+On Thu, 2012-01-12 at 10:20 +0300, Eugene Budanov wrote:
+> Hi!
+> 
+> At first, I apologize for my terrible English.
+> 
+> I'm trying to make a port of SELinux for ROSA/Mandriva Linux from Fedora Linux.
+> But a have a problem. In general, the most functions and packages built and works fine but I cannot compile package for selinux policy. It crashes with this error:
+> 
+>  tmp/unconfineduser.mod.role
+> echo "')" >> tmp/unconfineduser.mod.role
+> m4 -D enable_mcs -D distro_redhat -D mls_num_sens=16 -D mls_num_cats=1024 -D mcs_num_cats=1024 -D hide_broken_symptoms -s support/divert.m4 policy/support/file_patterns.spt policy/support/ipc_patterns.spt policy/support/obj_perm_sets.spt policy/support/misc_patterns.spt policy/support/misc_macros.spt policy/support/mls_mcs_macros.spt policy/support/loadable_module.spt support/undivert.m4 tmp/generated_definitions.conf tmp/all_interfaces.conf policy/modules/roles/unconfineduser.te tmp/unconfineduser.mod.role > tmp/unconfineduser.tmp
+> /usr/bin/checkmodule -M -m tmp/unconfineduser.tmp -o tmp/unconfineduser.mod
+> /usr/bin/checkmodule:  loading policy configuration from tmp/unconfineduser.tmp
+> policy/modules/roles/unconfineduser.te":47:ERROR 'unknown role unconfined_r' at token ';' on line 3315:
+> #line 47
+>         role unconfined_r types unconfined_t;
 
-This patch could fix the segfault without
-"0020-libsemanage-Fallback_user_level-can-be-NULL-if-you-a-1.patch".
+Offhand, I would guess that this is due to a change made in the
+checkpolicy policy compiler that requires you to separately declare
+roles on their own rather than implicitly declaring them as part of any
+role...types declaration.  So you would need to add a:
+role unconfined_r;
+to your policy.
 
-Thanks.
-
-- Pascal O.Y.
-
-On 2012年01月12日 17:14, Xin Ouyang wrote:
-> segfault still not exist.
->
-> 1. Download and extract refpolicy-2.20110726.tar.bz2
-> 2. cd refplicy && edit build.conf
-> TYPE = standard
-> ...
-> 3. make conf && make policy && make load
-> ...
-> make: *** [load] Segmentation fault (core dumped)
->
->
-> The attached patch will be OK. :)
->
-> - Pascal O.Y.
->
->
-> On 2011年12月20日 05:28, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->>
->> This patch looks good to me. acked.
->>
->> -----BEGIN PGP SIGNATURE-----
->> Version: GnuPG v1.4.11 (GNU/Linux)
->> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
->>
->> iEYEARECAAYFAk7vrJEACgkQrlYvE4MpobP4ewCfUTl1JHSaXTpPtNUn1yJWDo1j
->> TMgAn0HPi8GRUqi8WdOugTGJReqXBKUV
->> =MQcr
->> -----END PGP SIGNATURE-----
->
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
