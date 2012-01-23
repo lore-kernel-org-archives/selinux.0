@@ -1,39 +1,56 @@
 From: "Daniel P. Berrange" <berrange@redhat.com>
 To: SELinux@tycho.nsa.gov
-Subject: [PATCH 00/11] Two bug fixes & misc code cleanup fixes
-Date: Mon, 23 Jan 2012 15:41:10 +0000
-Message-Id: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+Cc: "Daniel P. Berrange" <berrange@redhat.com>
+Subject: [PATCH libselinux 05/11] Remove unused flush_class_cache method
+Date: Mon, 23 Jan 2012 15:41:15 +0000
+Message-Id: <1327333281-4223-6-git-send-email-berrange@redhat.com>
+In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was looking at the libselinux code and noticed that it did not
-use much more besides '-Wall' for its default compilation flags.
-As an experiment to see if there were any lurking bugs, I modified
-the Makefile for libselinux to add about 30 other GCC supported
-warnings.  This patch series is the result. I found 2 real bugs,
-one potential use of unitialized variable in an OOM scenario,
-and the other a (benign) format string mistake that meant the
-user would not be told which flag was invalid.
+From: "Daniel P. Berrange" <berrange@redhat.com>
 
-At the same time I fixed const-correctness in several internal
-and public APIs, added more printf format validation annotations,
-removed old style function declarations & removed some dead
-code.
+* stringrep.c: Delete flush_class_cache
+---
+ libselinux/src/stringrep.c |   22 ----------------------
+ 1 files changed, 0 insertions(+), 22 deletions(-)
 
-One warning item that I didn't tackle here is to reduce the maximum
-stack usage. With the -Wframe-larger-than flag I had to set the
-libselinux stack size to 32kb, which is getting very excessive
-IMHO. Most of the excessive stack usage is due to many PATH_MAX
-declarations, the remainders due to a couple of large structs
-placed on the stack. All of these are probably better off in
-the heap long term
-
-Hopefully the first 9 patches are fairly easily accepted. I did
-not know what todo about the last 2 patches which actually add
-the extra CFLAGS warnings. In most projects I would have imported
-GNULIBs m4 macros for detecting support of compiler flags, but
-since none of the selinux libraries use autoconf, I don't see a
-good way/place to detect what compiler flags can be used.
+diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+index f0167e7..176ac34 100644
+--- a/libselinux/src/stringrep.c
++++ b/libselinux/src/stringrep.c
+@@ -305,28 +305,6 @@ err1:
+ 	return NULL;
+ }
+ 
+-void flush_class_cache(void)
+-{
+-	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
+-	size_t i;
+-
+-	while (cur != NULL) {
+-		free(cur->name);
+-
+-		for (i=0 ; i<MAXVECTORS ; i++)
+-			free(cur->perms[i]);
+-
+-		free(cur->perms);
+-
+-		prev = cur;
+-		cur = cur->next;
+-
+-		free(prev);
+-	}
+-
+-	discover_class_cache = NULL;
+-}
+-
+ static security_class_t string_to_security_class_compat(const char *s)
+ {
+ 	unsigned int val;
+-- 
+1.7.7.5
 
 
 --
