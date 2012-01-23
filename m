@@ -1,9 +1,9 @@
 From: "Daniel P. Berrange" <berrange@redhat.com>
 To: SELinux@tycho.nsa.gov
 Cc: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: [PATCH libselinux 05/11] Remove unused flush_class_cache method
-Date: Mon, 23 Jan 2012 15:41:15 +0000
-Message-Id: <1327333281-4223-6-git-send-email-berrange@redhat.com>
+Subject: [PATCH libselinux 08/11] Add printf format attribute annotation to die() method
+Date: Mon, 23 Jan 2012 15:41:18 +0000
+Message-Id: <1327333281-4223-9-git-send-email-berrange@redhat.com>
 In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
 References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,44 +11,34 @@ List-Id: selinux@tycho.nsa.gov
 
 From: "Daniel P. Berrange" <berrange@redhat.com>
 
-* stringrep.c: Delete flush_class_cache
+Annotating the die method as taking printf format exposes
+a bug in error reporting
 ---
- libselinux/src/stringrep.c |   22 ----------------------
- 1 files changed, 0 insertions(+), 22 deletions(-)
+ libselinux/utils/avcstat.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-index f0167e7..176ac34 100644
---- a/libselinux/src/stringrep.c
-+++ b/libselinux/src/stringrep.c
-@@ -305,28 +305,6 @@ err1:
- 	return NULL;
- }
+diff --git a/libselinux/utils/avcstat.c b/libselinux/utils/avcstat.c
+index 772118a..7239ef2 100644
+--- a/libselinux/utils/avcstat.c
++++ b/libselinux/utils/avcstat.c
+@@ -43,7 +43,7 @@ static char buf[DEF_BUF_SIZE];
+ /* selinuxfs mount point */
+ extern char *selinux_mnt;
  
--void flush_class_cache(void)
--{
--	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
--	size_t i;
--
--	while (cur != NULL) {
--		free(cur->name);
--
--		for (i=0 ; i<MAXVECTORS ; i++)
--			free(cur->perms[i]);
--
--		free(cur->perms);
--
--		prev = cur;
--		cur = cur->next;
--
--		free(prev);
--	}
--
--	discover_class_cache = NULL;
--}
--
- static security_class_t string_to_security_class_compat(const char *s)
+-static void die(const char *msg, ...)
++static __attribute__((__format__(printf,1,2))) void die(const char *msg, ...)
  {
- 	unsigned int val;
+ 	va_list args;
+ 
+@@ -118,7 +118,7 @@ int main(int argc, char **argv)
+ 			exit(0);
+ 		default:
+ 			usage();
+-			die("unrecognized parameter", i);
++			die("unrecognized parameter '%c'", i);
+ 		}
+ 	}
+ 
 -- 
 1.7.7.5
 
