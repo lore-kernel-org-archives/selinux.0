@@ -1,36 +1,67 @@
-From: "Daniel P. Berrange" <berrange@redhat.com>
-To: SELinux@tycho.nsa.gov
-Cc: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: [PATCH libselinux 06/11] Add prototype decl for destructor
-Date: Mon, 23 Jan 2012 15:41:16 +0000
-Message-Id: <1327333281-4223-7-git-send-email-berrange@redhat.com>
-In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+Message-ID: <4F1D8B39.4040905@redhat.com>
+Date: Mon, 23 Jan 2012 11:30:49 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Daniel P. Berrange" <berrange@redhat.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: [PATCH 00/11] Two bug fixes & misc code cleanup fixes
 References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: "Daniel P. Berrange" <berrange@redhat.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
----
- libselinux/src/setrans_client.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+On 01/23/2012 10:41 AM, Daniel P. Berrange wrote:
+> I was looking at the libselinux code and noticed that it did not 
+> use much more besides '-Wall' for its default compilation flags. As
+> an experiment to see if there were any lurking bugs, I modified the
+> Makefile for libselinux to add about 30 other GCC supported 
+> warnings.  This patch series is the result. I found 2 real bugs, 
+> one potential use of unitialized variable in an OOM scenario, and
+> the other a (benign) format string mistake that meant the user
+> would not be told which flag was invalid.
+> 
+> At the same time I fixed const-correctness in several internal and
+> public APIs, added more printf format validation annotations, 
+> removed old style function declarations & removed some dead code.
+> 
+> One warning item that I didn't tackle here is to reduce the
+> maximum stack usage. With the -Wframe-larger-than flag I had to set
+> the libselinux stack size to 32kb, which is getting very excessive 
+> IMHO. Most of the excessive stack usage is due to many PATH_MAX 
+> declarations, the remainders due to a couple of large structs 
+> placed on the stack. All of these are probably better off in the
+> heap long term
+> 
+> Hopefully the first 9 patches are fairly easily accepted. I did not
+> know what todo about the last 2 patches which actually add the
+> extra CFLAGS warnings. In most projects I would have imported 
+> GNULIBs m4 macros for detecting support of compiler flags, but 
+> since none of the selinux libraries use autoconf, I don't see a 
+> good way/place to detect what compiler flags can be used.
+> 
+> 
+> -- This message was distributed to subscribers of the selinux
+> mailing list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
+> without quotes as the message.
+> 
+> 
 
-diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
-index e074142..9432f49 100644
---- a/libselinux/src/setrans_client.c
-+++ b/libselinux/src/setrans_client.c
-@@ -253,6 +253,8 @@ static void setrans_thread_destructor(void __attribute__((unused)) *unused)
- 	free(prev_r2c_raw);
- }
- 
-+void __attribute__((destructor)) setrans_lib_destructor(void);
-+
- void __attribute__((destructor)) setrans_lib_destructor(void)
- {
- 	if (destructor_key_initialized)
--- 
-1.7.7.5
+I have added all of your patches to the libselinux-2.1.9-3.fc17
+in Fedora/Rawhide.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk8dizkACgkQrlYvE4MpobPxlQCfefRzBAjs8+R7DeIO2/CiJmLA
+RKAAnjFmjKjEj8CUEO2rTO0Ir3GvyIA/
+=/68v
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
