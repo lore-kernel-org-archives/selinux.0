@@ -1,44 +1,51 @@
 From: "Daniel P. Berrange" <berrange@redhat.com>
 To: SELinux@tycho.nsa.gov
 Cc: "Daniel P. Berrange" <berrange@redhat.com>
-Subject: [PATCH libselinux 01/11] Remove jump over variable declaration
-Date: Mon, 23 Jan 2012 15:41:11 +0000
-Message-Id: <1327333281-4223-2-git-send-email-berrange@redhat.com>
+Subject: [PATCH libselinux 11/11] Enable many more gcc warnings for libselinux/utils builds
+Date: Mon, 23 Jan 2012 15:41:21 +0000
+Message-Id: <1327333281-4223-12-git-send-email-berrange@redhat.com>
 In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
 References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: "Daniel P. Berrange" <berrange@redhat.com>
 
-seusers.c: In function ‘getseuser’:
-seusers.c:273:3: error: jump skips variable initialization [-Werror=jump-misses-init]
-seusers.c:317:2: note: label ‘err’ defined here
-seusers.c:274:8: note: ‘fp’ declared here
-
-* seusers.c: Declare FILE *fp at start of getseuser() method
 ---
- libselinux/src/seusers.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ libselinux/utils/Makefile |   20 +++++++++++++++++++-
+ 1 files changed, 19 insertions(+), 1 deletions(-)
 
-diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
-index b653cad..5cdf6c0 100644
---- a/libselinux/src/seusers.c
-+++ b/libselinux/src/seusers.c
-@@ -269,9 +269,10 @@ int getseuser(const char *username, const char *service,
- 	size_t lineno = 0;
- 	char *rec = NULL;
- 	char *path=NULL;
-+	FILE *fp = NULL;
- 	if (asprintf(&path,"%s/logins/%s", selinux_policy_root(), username) <  0)
- 		goto err;
--	FILE *fp = fopen(path, "r");
-+	fp = fopen(path, "r");
- 	free(path);
- 	if (fp == NULL) goto err;
- 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 6f5aa52..4b2f348 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -4,7 +4,25 @@ LIBDIR ?= $(PREFIX)/lib
+ BINDIR ?= $(PREFIX)/sbin
+ _BINDIR ?= $(DESTDIR)/sbin
+ 
+-CFLAGS ?= -Werror -Wall -W
++MAX_STACK_SIZE=8192
++CFLAGS ?= -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissing-include-dirs \
++          -Wunused -Wunknown-pragmas -Wstrict-aliasing -Wshadow -Wpointer-arith \
++          -Wbad-function-cast -Wcast-align -Wwrite-strings -Wlogical-op -Waggregate-return \
++          -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes \
++          -Wmissing-declarations -Wmissing-noreturn -Wmissing-format-attribute \
++          -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var \
++          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wmudflap -Wpacked-bitfield-compat \
++          -Wsync-nand -Wattributes -Wcoverage-mismatch -Wmultichar -Wcpp \
++          -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -Wendif-labels -Wextra \
++          -Wformat-contains-nul -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
++          -Wnormalized=nfc -Woverflow -Wpointer-to-int-cast -Wpragmas -Wsuggest-attribute=const \
++          -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines \
++          -Wno-missing-field-initializers -Wno-sign-compare -Wjump-misses-init \
++          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE=2 \
++          -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
++          -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
++          -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
++          -Werror -Wno-aggregate-return -Wno-redundant-decls
+ override CFLAGS += -I../include -D_GNU_SOURCE $(EMFLAGS)
+ LDLIBS += -L../src -lselinux -L$(LIBDIR)
+ 
 -- 
 1.7.7.5
 
