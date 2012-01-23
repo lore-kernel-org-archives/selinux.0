@@ -1,67 +1,44 @@
-Message-ID: <4F1D8B39.4040905@redhat.com>
-Date: Mon, 23 Jan 2012 11:30:49 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Daniel P. Berrange" <berrange@redhat.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: [PATCH 00/11] Two bug fixes & misc code cleanup fixes
-References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
+From: "Daniel P. Berrange" <berrange@redhat.com>
+To: SELinux@tycho.nsa.gov
+Cc: "Daniel P. Berrange" <berrange@redhat.com>
+Subject: [PATCH 12/11] Change annotation on include/selinux/avc.h to avoid upsetting SWIG
+Date: Mon, 23 Jan 2012 18:13:53 +0000
+Message-Id: <1327342433-19239-1-git-send-email-berrange@redhat.com>
 In-Reply-To: <1327333281-4223-1-git-send-email-berrange@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <1327333281-4223-1-git-send-email-berrange@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: "Daniel P. Berrange" <berrange@redhat.com>
 
-On 01/23/2012 10:41 AM, Daniel P. Berrange wrote:
-> I was looking at the libselinux code and noticed that it did not 
-> use much more besides '-Wall' for its default compilation flags. As
-> an experiment to see if there were any lurking bugs, I modified the
-> Makefile for libselinux to add about 30 other GCC supported 
-> warnings.  This patch series is the result. I found 2 real bugs, 
-> one potential use of unitialized variable in an OOM scenario, and
-> the other a (benign) format string mistake that meant the user
-> would not be told which flag was invalid.
-> 
-> At the same time I fixed const-correctness in several internal and
-> public APIs, added more printf format validation annotations, 
-> removed old style function declarations & removed some dead code.
-> 
-> One warning item that I didn't tackle here is to reduce the
-> maximum stack usage. With the -Wframe-larger-than flag I had to set
-> the libselinux stack size to 32kb, which is getting very excessive 
-> IMHO. Most of the excessive stack usage is due to many PATH_MAX 
-> declarations, the remainders due to a couple of large structs 
-> placed on the stack. All of these are probably better off in the
-> heap long term
-> 
-> Hopefully the first 9 patches are fairly easily accepted. I did not
-> know what todo about the last 2 patches which actually add the
-> extra CFLAGS warnings. In most projects I would have imported 
-> GNULIBs m4 macros for detecting support of compiler flags, but 
-> since none of the selinux libraries use autoconf, I don't see a 
-> good way/place to detect what compiler flags can be used.
-> 
-> 
-> -- This message was distributed to subscribers of the selinux
-> mailing list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
-> without quotes as the message.
-> 
-> 
+The earlier patch to avc.c put the struct member annotation at
+the end of the line, which works fine for GCC, but upsets SWIG.
+Equivalent code in selinux.h demonstrates how to place the
+annotation without upsetting SWIG.
+---
+ libselinux/include/selinux/avc.h |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-I have added all of your patches to the libselinux-2.1.9-3.fc17
-in Fedora/Rawhide.
+diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
+index 9655957..87a2b12 100644
+--- a/libselinux/include/selinux/avc.h
++++ b/libselinux/include/selinux/avc.h
+@@ -130,7 +130,11 @@ struct avc_memory_callback {
+ 
+ struct avc_log_callback {
+ 	/* log the printf-style format and arguments. */
+-	void (*func_log) (const char *fmt, ...) __attribute__((__format__(printf, 1, 2)));
++	void
++#ifdef __GNUC__
++__attribute__ ((format(printf, 1, 2)))
++#endif
++	(*func_log) (const char *fmt, ...);
+ 	/* store a string representation of auditdata (corresponding
+ 	   to the given security class) into msgbuf. */
+ 	void (*func_audit) (void *auditdata, security_class_t cls,
+-- 
+1.7.7.5
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk8dizkACgkQrlYvE4MpobPxlQCfefRzBAjs8+R7DeIO2/CiJmLA
-RKAAnjFmjKjEj8CUEO2rTO0Ir3GvyIA/
-=/68v
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
