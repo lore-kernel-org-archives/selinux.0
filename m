@@ -1,62 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0OEBWb3003271
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 09:11:32 -0500
-Received: from mail-iy0-f181.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q0OEB6Xg021184
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 14:11:31 GMT
-Received: by mail-iy0-f181.google.com with SMTP id l21so4566311iak.12
-        for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 06:11:31 -0800 (PST)
-Subject: Re: time for a new release?
-From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <201201242257.56184.russell@coker.com.au>
-References: <201201242257.56184.russell@coker.com.au>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-ztQpWIMjbUym3qfyvpR7"
-Date: Tue, 24 Jan 2012 06:11:29 -0800
-Message-ID: <1327414289.22331.137.camel@localhost>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0OGMCNw012478
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 11:22:12 -0500
+Received: from countercultured.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id q0OGMBiC004465
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 16:22:11 GMT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Tue, 24 Jan 2012 11:22:10 -0500
+From: David Quigley <selinux@davequigley.com>
+To: <selinux@lists.fedoraproject.org>, <selinux@tycho.nsa.gov>
+Subject: Recent /proc/pid/mem exploit
+Message-ID: <a2c83875882386021eb7ccd57df283ee@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+So I read through the recent privilege escalation vulnerability using 
+su and gpasswd which exploits weak permission checks in /proc/pid/mem 
+and tried to figure out why we didn't stop it. What it comes down to is 
+that /proc/pid and everything under it is given the same type as the 
+process itself. In the case of the gpasswd that type is groupadd_t. 
+Looking at the kernel code for /proc/pid/mem and its read/write 
+functions it seems that the only permission checking we do on that node 
+is done by the vfs. So from the SELinux perspective you would need allow 
+groupadd_t groupadd_t file:{open read write} to have access to 
+/proc/pid/mem. For some odd reason tons and tons of applications have 
+file:{open read and write} on itself.
 
---=-ztQpWIMjbUym3qfyvpR7
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+One question that should be asked is why is is that we have so many 
+rules that contain sometype_t sometype_t file: {open read write}. Is it 
+necessary or something that is just being pulled in from a macro. If 
+this is necessary for other reasons the followup to this would be should 
+/proc/pid/mem have the same type as the process or should we have some 
+additional requirements permission wise for a process to read and write 
+to its own memory through /proc/pid/mem. What are the valid reasons for 
+a process to be poking around through its memory using /proc/pid/mem?
 
-plus one.
-
-On Tue, 2012-01-24 at 22:57 +1100, Russell Coker wrote:
-> It's been 6 months since the last releases of policy and user-space.  It =
-seems=20
-> like a good idea to have a new release of policy now as there has been a =
-lot=20
-> done (there is always a lot done).  As for user-space, there have been so=
-me=20
-> useful changes and I think it would be good to have a release to keep thi=
-ng=20
-> synchronised.
->=20
-
-
---=-ztQpWIMjbUym3qfyvpR7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQEcBAABAgAGBQJPHrwOAAoJEEyimPmPQm23GiUIALdbY6bv+3c4MZyfSOS/Lg0O
-Xb7z4Y2DLXRm45dnYXilwODBcgMr70ii2k1oTi0hwXYqo9o4xXEH/227B5hg+bzp
-0HwGmdE8VAmfUQCG+DSEr5W9cwynq6CoiOsQjfss5FhOeDfAzzz8jInI/eIGf67y
-EXfk6b7RQLUZW7cXwDko/2dIIC5kUpJllTT7kvfzadeGru1lePymWdpn9bv1T75X
-eU1B0RQqnWOo8pGyN9YbOWW+hAAjav93ZYFt20CiFbd/eBSfqTicdcpz2FRJnNb1
-/FnEct6qzU73mDQLUqZ6fJcn01tWdliSqDAmLHvcRMAUVtrnmCWJzbCV8MLyDcs=
-=FQW1
------END PGP SIGNATURE-----
-
---=-ztQpWIMjbUym3qfyvpR7--
-
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
