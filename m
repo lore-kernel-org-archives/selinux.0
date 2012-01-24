@@ -1,37 +1,33 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0OBt7wq027299
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 06:55:07 -0500
-Received: from mail-lpp01m010-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q0OBt6Ws007909
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 11:55:06 GMT
-Received: by lahd3 with SMTP id d3so1302469lah.12
-        for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 03:55:06 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0OBw2cZ027365
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 06:58:02 -0500
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q0OBvxIx019618
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 11:58:01 GMT
+Received: from xev.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 3EB3718080
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 22:57:54 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: time for a new release?
+Date: Tue, 24 Jan 2012 22:57:55 +1100
 MIME-Version: 1.0
-Date: Tue, 24 Jan 2012 11:55:05 +0000
-Message-ID: <CAHodhts2rLr=kc_ZLNQVgrN4CVNu=abQr1os53nP+=+Enj8kzA@mail.gmail.com>
-Subject: How I download SEandroid?
-From: =?UTF-8?Q?=C3=81lvaro_Castillo?= <midgoon@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201201242257.56184.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-
-I had a problem to download SEAndroid.
-
-http://pastie.org/3240061
-
-or, I have wrong to downloaded it.
-
-Thanks.
+It's been 6 months since the last releases of policy and user-space.  It seems 
+like a good idea to have a new release of policy now as there has been a lot 
+done (there is always a lot done).  As for user-space, there have been some 
+useful changes and I think it would be good to have a release to keep thing 
+synchronised.
 
 -- 
-Álvaro Castillo
-
-http://fedoraproject.org/wiki/User:Netsys
-Linux user #547784
-
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
