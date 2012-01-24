@@ -1,33 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0OBw2cZ027365
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 06:58:02 -0500
-Received: from smtp.sws.net.au (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q0OBvxIx019618
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 11:58:01 GMT
-Received: from xev.localnet (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 3EB3718080
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2012 22:57:54 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: time for a new release?
-Date: Tue, 24 Jan 2012 22:57:55 +1100
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <201201242257.56184.russell@coker.com.au>
+Subject: Re: How I download SEandroid?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: =?ISO-8859-1?Q?=C1lvaro?= Castillo <midgoon@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <CAHodhts2rLr=kc_ZLNQVgrN4CVNu=abQr1os53nP+=+Enj8kzA@mail.gmail.com>
+References: 
+	 <CAHodhts2rLr=kc_ZLNQVgrN4CVNu=abQr1os53nP+=+Enj8kzA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 24 Jan 2012 07:57:59 -0500
+Message-ID: <1327409879.6331.1.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It's been 6 months since the last releases of policy and user-space.  It seems 
-like a good idea to have a new release of policy now as there has been a lot 
-done (there is always a lot done).  As for user-space, there have been some 
-useful changes and I think it would be good to have a release to keep thing 
-synchronised.
+On Tue, 2012-01-24 at 11:55 +0000, Álvaro Castillo wrote:
+> Hello,
+> 
+> I had a problem to download SEAndroid.
+> 
+> http://pastie.org/3240061
+> 
+> or, I have wrong to downloaded it.
+
+You didn't follow the instructions to download it.  First, download AOSP
+in the usual way.  Then copy local_manifest.xml to your .repo
+subdirectory and run repo sync again.  Example:
+
+mkdir seandroid
+cd seandroid
+repo init -u https://android.googlesource.com/platform/manifest
+wget http://selinuxproject.org/~seandroid/local_manifest.xml
+mv local_manifest.xml .repo
+repo sync
+
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
