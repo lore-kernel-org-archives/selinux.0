@@ -1,43 +1,39 @@
-Message-ID: <4F201954.8080004@manicmethod.com>
-Date: Wed, 25 Jan 2012 10:01:40 -0500
+Message-ID: <4F201BE3.1020603@manicmethod.com>
+Date: Wed, 25 Jan 2012 10:12:35 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Bryan Hinton <bryan@bryanhinton.com>, SELinux@tycho.nsa.gov
-Subject: Re: SEAndroid Build for Galaxy Nexus
-References: <CA+XzHePWuxzjF8RjxXzEGd0c8tK5bgW2rEeNC6dkSJ4-jNSOLA@mail.gmail.com> <1327495215.9607.2.camel@moss-pluto>
-In-Reply-To: <1327495215.9607.2.camel@moss-pluto>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: SEAndroid app data labeling
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2012-01-24 at 12:44 -0600, Bryan Hinton wrote:
->> I just completed a 4.0.3 SEAndroid build for the Galaxy Nexus.  The
->> build was clean and it is successfully running on the device.
->> A few general notes:
->> -I ran the following  fastboot commands (in this order) after building
->> AOSP w/ SELinux patches and repacking the boot image:   fastboot erase
->> cache, fastboot flash boot boot.img, fastboot flash system system.img,
->> fastboot flash userdata userdata.img.
->> -I had to mount /system rw after boot and fix the missing, userland
->> ril client library in order to get the cdma/lte radios working.
->> device/samsung/tuna is missing the extract script in AOSP.
->> -permissive and enforced modes are functioning properly according to
->> dmesg output.    phone calls and sms are successful.  I am in the
->> process of relabeling some of the device nodes in the policy to allow
->> access to the radio.
->
-> Glad to hear that you were able to get it up and running.  I don't
-> presently have that device, so I'd be interested in hearing more about
-> your experience, changes you have to make, etc.
->
+I'm working through some denials with SEAndroid on Galaxy Nexus and I'm confused 
+about app data labeling. I thought that the app data would be labeled with the 
+same category as the app, so c13 app would have c13 on the files in /data. I see 
+the note in seapp_contexts that levelfromUID only works on apps. How do you get 
+filesystem separation without labeling the apps with the category?
 
-I also have it running on the Galaxy Nexus. One thing I had to do was /factory 
-was unlabeled after the initial boot. The files in there are all owned by radio 
-so I labeled them u:r:radio_device:s0. Since the default policy only allows 
-chr_file access for radio_device I had to add regular files and directory access 
-to the policy. I'll send up a patch when I've gotten other issues resolved.
+
+Also, I'm getting denials like this, which I'm a little confused about since 
+trusted_app is part of appdomain and appdomain has create_file_perms on 
+app_data_file. I'm not sure how untrusted_app would be able to keep any state 
+since everything in /data/data seems to be labeled app_data_file though:
+
+<5>[   25.067932] type=1400 audit(1327503267.632:59): avc:  denied  { add_name } 
+for  pid=461 comm="ContactsProvide" name="contacts2.db-mj1A7E80AF" 
+scontext=u:r:trusted_app:s0:c0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+<5>[   25.148498] type=1400 audit(1327503267.718:60): avc:  denied  { 
+remove_name } for  pid=461 comm="ContactsProvide" name="contacts2.db-mj1A7E80AF" 
+dev=mmcblk0p12 ino=578665 scontext=u:r:trusted_app:s0:c0 
+tcontext=u:object_r:app_data_file:s0 tclass=dir
+<5>[   26.209320] type=1400 audit(1327503268.773:61): avc:  denied  { write } 
+for  pid=570 comm="viders.calendar" name="calendar.db" dev=mmcblk0p12 ino=578386 
+scontext=u:r:trusted_app:s0:c6 tcontext=u:object_r:app_data_file:s0 tclass=file
+<5>[   26.263183] type=1400 audit(1327503268.828:62): avc:  denied  { setattr } 
+for  pid=570 comm="viders.calendar" name="calendar.db" dev=mmcblk0p12 ino=578386 
+scontext=u:r:trusted_app:s0:c6 tcontext=u:object_r:app_data_file:s0 tclass=file
 
 --
 This message was distributed to subscribers of the selinux mailing list.
