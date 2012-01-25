@@ -1,39 +1,36 @@
-Message-ID: <4F201BE3.1020603@manicmethod.com>
-Date: Wed, 25 Jan 2012 10:12:35 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0PFDLgB014778
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2012 10:13:21 -0500
+Received: from manicmethod.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q0PFDKUH014641
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2012 15:13:20 GMT
+Message-ID: <4F201C0E.2070206@manicmethod.com>
+Date: Wed, 25 Jan 2012 10:13:18 -0500
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: SEAndroid app data labeling
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
+CC: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: time for a new release?
+References: <201201242257.56184.russell@coker.com.au> <1327414289.22331.137.camel@localhost>
+In-Reply-To: <1327414289.22331.137.camel@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm working through some denials with SEAndroid on Galaxy Nexus and I'm confused 
-about app data labeling. I thought that the app data would be labeled with the 
-same category as the app, so c13 app would have c13 on the files in /data. I see 
-the note in seapp_contexts that levelfromUID only works on apps. How do you get 
-filesystem separation without labeling the apps with the category?
+C.J. Adams-Collier KF7BMP wrote:
+> plus one.
+>
+> On Tue, 2012-01-24 at 22:57 +1100, Russell Coker wrote:
+>> It's been 6 months since the last releases of policy and user-space.  It seems
+>> like a good idea to have a new release of policy now as there has been a lot
+>> done (there is always a lot done).  As for user-space, there have been some
+>> useful changes and I think it would be good to have a release to keep thing
+>> synchronised.
+>>
+>
 
-
-Also, I'm getting denials like this, which I'm a little confused about since 
-trusted_app is part of appdomain and appdomain has create_file_perms on 
-app_data_file. I'm not sure how untrusted_app would be able to keep any state 
-since everything in /data/data seems to be labeled app_data_file though:
-
-<5>[   25.067932] type=1400 audit(1327503267.632:59): avc:  denied  { add_name } 
-for  pid=461 comm="ContactsProvide" name="contacts2.db-mj1A7E80AF" 
-scontext=u:r:trusted_app:s0:c0 tcontext=u:object_r:app_data_file:s0 tclass=dir
-<5>[   25.148498] type=1400 audit(1327503267.718:60): avc:  denied  { 
-remove_name } for  pid=461 comm="ContactsProvide" name="contacts2.db-mj1A7E80AF" 
-dev=mmcblk0p12 ino=578665 scontext=u:r:trusted_app:s0:c0 
-tcontext=u:object_r:app_data_file:s0 tclass=dir
-<5>[   26.209320] type=1400 audit(1327503268.773:61): avc:  denied  { write } 
-for  pid=570 comm="viders.calendar" name="calendar.db" dev=mmcblk0p12 ino=578386 
-scontext=u:r:trusted_app:s0:c6 tcontext=u:object_r:app_data_file:s0 tclass=file
-<5>[   26.263183] type=1400 audit(1327503268.828:62): avc:  denied  { setattr } 
-for  pid=570 comm="viders.calendar" name="calendar.db" dev=mmcblk0p12 ino=578386 
-scontext=u:r:trusted_app:s0:c6 tcontext=u:object_r:app_data_file:s0 tclass=file
+We were just talking about this offline, we'll be rolling one soon but we need 
+to do some testing on the stuff that has been added.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
