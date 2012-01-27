@@ -1,44 +1,30 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0QEmSfr016930
-	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2012 09:48:28 -0500
-Received: from collab.rosalab.ru (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q0QEmRsJ015927
-	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2012 14:48:27 GMT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by collab.rosalab.ru (Postfix) with ESMTP id EC47D29C2BC
-	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2012 18:48:26 +0400 (MSK)
-Received: from collab.rosalab.ru ([127.0.0.1])
-	by localhost (collab.rosalab.ru [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aTlOeFObL9Cg for <selinux@tycho.nsa.gov>;
-	Thu, 26 Jan 2012 18:48:25 +0400 (MSK)
-Received: from localhost.localdomain (unknown [192.168.20.123])
-	by collab.rosalab.ru (Postfix) with ESMTPSA id C3CF029C2B7
-	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2012 18:48:25 +0400 (MSK)
-Message-ID: <4F216809.30202@rosalab.ru>
-Date: Thu, 26 Jan 2012 18:49:45 +0400
-From: Budanov Eugene <eugene.budanov@rosalab.ru>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0R7aadx006880
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 02:36:36 -0500
+Received: from countercultured.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with SMTP id q0R7aYbP019951
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 07:36:35 GMT
+Message-ID: <4F225403.3030102@davequigley.com>
+Date: Fri, 27 Jan 2012 02:36:35 -0500
+From: Dave Quigley <selinux@davequigley.com>
 MIME-Version: 1.0
-To: SELinux Upstream <selinux@tycho.nsa.gov>
-Subject: Re: Compiler cannot find ruby.h
-References: <4F2110C5.5060100@rosalab.ru>
-In-Reply-To: <4F2110C5.5060100@rosalab.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Fedora SELinux Users <selinux@lists.fedoraproject.org>,
+        selinux@tycho.nsa.gov
+Subject: SLIDE for RHEL6 and Derivatives
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My fault, sorry.
+<resent as I sent it from the wrong mailing address>
 
-Problem was in our uncorrectly built ruby-devel.
+I am preparing resources for a talk and I'm trying to build a CentOS 6.2 
+VM with all the SELinux tools installed on it. Most of them are easy as 
+they are in the yum repo but I can't seem to find any RPMs for SLIDE. 
+The tresys yum repo relies on things that aren't in RHEL6 or EPEL6 and 
+only seem to be for RHEL 5 at the moment. Has anyone gotten SLIDE 
+installed on RHEL6? Is Tresys working on releasing RHEL 6 rpms for SLIDE?
 
-Sorry for noise.
-
----
-Best regards,
-Budanov Eugene ROSA Lab.
-Russia, Moscow.
-e-mail : eugene.budanov@rosalab.ru
-phone +79160674716 (UTC +4)
-
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
