@@ -1,65 +1,50 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0RG3s2d002613
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 11:03:54 -0500
-Received: from countercultured.net (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with SMTP id q0RG3r4Y015238
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 16:03:53 GMT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Fri, 27 Jan 2012 11:03:52 -0500
-From: David Quigley <selinux@davequigley.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Fedora SELinux Users <selinux@lists.fedoraproject.org>,
-        <selinux@tycho.nsa.gov>
-Subject: Re: SLIDE for RHEL6 and Derivatives
-In-Reply-To: <4F22BB36.2050909@redhat.com>
-References: <4F225403.3030102@davequigley.com> <4F22BB36.2050909@redhat.com>
-Message-ID: <44f5930a85837898416abd3fe8a152ff@countercultured.net>
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0RKo9pl021729
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 15:50:09 -0500
+Subject: Re: SE Android release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
+References: <1325884109.28294.65.camel@moss-pluto>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 27 Jan 2012 15:50:08 -0500
+Message-ID: <1327697408.7597.9.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/27/2012 09:56, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 01/27/2012 02:36 AM, Dave Quigley wrote:
->> <resent as I sent it from the wrong mailing address>
->>
->> I am preparing resources for a talk and I'm trying to build a
->> CentOS 6.2 VM with all the SELinux tools installed on it. Most of
->> them are easy as they are in the yum repo but I can't seem to find
->> any RPMs for SLIDE. The tresys yum repo relies on things that
->> aren't in RHEL6 or EPEL6 and only seem to be for RHEL 5 at the
->> moment. Has anyone gotten SLIDE installed on RHEL6? Is Tresys
->> working on releasing RHEL 6 rpms for SLIDE?
->>
->> Dave
->>
->> -- This message was distributed to subscribers of the selinux
->> mailing list. If you no longer wish to subscribe, send mail to
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
->> without quotes as the message.
->>
->>
-> yum install eclipse-slide
->
-> I thought we shipped it with RHEL6.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.11 (GNU/Linux)
-> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
->
-> iEYEARECAAYFAk8iuzIACgkQrlYvE4MpobNLaACgrPQc5HTcDDTQhQWAotLs0lXX
-> QecAoOtCPMnr5DP+L2vwCBpG0GC2VCO/
-> =yUuI
-> -----END PGP SIGNATURE-----
+On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote:
+> Hi,
+> 
+> We have made an initial public release of SE Android. More information
+> is available at:
+> http://selinuxproject.org/page/SEAndroid
 
-I tried that with Centos 6.2 and it didn't work. Doing a yum search for 
-eclipse-slide doesn't yield any results. If RHEL 6 did ship it then 
-Centos didn't repackage it for some odd reason. I can look for the srpms 
-from Red Hat for RHEL 6 to see if there is a package in there for it.
+We have made further updates to the source code repositories and the
+wiki page.  You can refresh your sources by downloading the latest
+local_manifest.xml file, dropping it into your .repo subdirectory, and
+running repo sync -j1 again.
 
-Dave
+Some of the notable changes:
+- We have added lightly modified versions of libsepol and checkpolicy to
+the tree so that you can build on MacOS X in addition to Linux.  You
+need to download the new local_manifest.xml file to pick up the new
+libsepol and checkpolicy projects.
+
+- All of our changes are now wrapped with HAVE_SELINUX conditionals.
+Therefore, you must add HAVE_SELINUX := true to your BoardConfig.mk or
+specify HAVE_SELINUX=true on the make command line.  We have added
+HAVE_SELINUX := true to the board configs for the emulator, Nexus S, and
+Motorola Xoom (wingray) devices.
+
+- Our changes to the bionic C library have been merged by AOSP.  Thus,
+it is no longer necessary to use our bionic tree, and it has been
+dropped from the local_manifest.xml file.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
