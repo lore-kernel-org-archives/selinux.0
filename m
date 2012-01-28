@@ -1,50 +1,44 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0RKo9pl021729
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2012 15:50:09 -0500
-Subject: Re: SE Android release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
-References: <1325884109.28294.65.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 27 Jan 2012 15:50:08 -0500
-Message-ID: <1327697408.7597.9.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q0SD1KDu029808
+	for <selinux@tycho.nsa.gov>; Sat, 28 Jan 2012 08:01:21 -0500
+Received: from smtp.sws.net.au (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q0SD1IUt018506
+	for <selinux@tycho.nsa.gov>; Sat, 28 Jan 2012 13:01:19 GMT
+Received: from xev.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id EE577180ED
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jan 2012 00:01:03 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: restorecon -R default
+Date: Sun, 29 Jan 2012 00:01:10 +1100
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201201290001.10792.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote:
-> Hi,
-> 
-> We have made an initial public release of SE Android. More information
-> is available at:
-> http://selinuxproject.org/page/SEAndroid
+http://www.youtube.com/watch?v=ZThVfm3JXdM
 
-We have made further updates to the source code repositories and the
-wiki page.  You can refresh your sources by downloading the latest
-local_manifest.xml file, dropping it into your .repo subdirectory, and
-running repo sync -j1 again.
+A few years ago Paul Wayper gave an excellent introductory lecture about SE 
+Linux (see the above URL).  He notes that he habitually uses -R for restorecon 
+every time.
 
-Some of the notable changes:
-- We have added lightly modified versions of libsepol and checkpolicy to
-the tree so that you can build on MacOS X in addition to Linux.  You
-need to download the new local_manifest.xml file to pick up the new
-libsepol and checkpolicy projects.
+It seems to me that the case where -R is not desired will be extremely rare.  
+It seems most uncommon that someone will have a directory with the wrong 
+label, a subdirectory tree that is either too big to scan quickly (and which 
+is known to have the correct labels) or which has labels which by design don't 
+match the file contexts.
 
-- All of our changes are now wrapped with HAVE_SELINUX conditionals.
-Therefore, you must add HAVE_SELINUX := true to your BoardConfig.mk or
-specify HAVE_SELINUX=true on the make command line.  We have added
-HAVE_SELINUX := true to the board configs for the emulator, Nexus S, and
-Motorola Xoom (wingray) devices.
-
-- Our changes to the bionic C library have been merged by AOSP.  Thus,
-it is no longer necessary to use our bionic tree, and it has been
-dropped from the local_manifest.xml file.
+Therefore I think we should make the common case be the default and require 
+that anyone who doesn't want that functionality specifically request it.  
+chcon uses the -h flag for changing the context of a sym-link instead of the 
+target, that might be a reasonable option to use for consistency.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
