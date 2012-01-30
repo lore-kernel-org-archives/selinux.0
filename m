@@ -1,37 +1,60 @@
-Subject: Re: X server in enforcing x_drawable avcs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ted Toth <txtoth@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <CAFPpqQEfm+xyHWZV=1D1oJbqEvPAinQdu0jYZX+cM_Fo3ESc9w@mail.gmail.com>
-References: 
-	 <CAFPpqQEfm+xyHWZV=1D1oJbqEvPAinQdu0jYZX+cM_Fo3ESc9w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 30 Jan 2012 11:12:58 -0500
-Message-ID: <1327939978.23069.12.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <4F26E23C.7080809@redhat.com>
+Date: Mon, 30 Jan 2012 13:32:28 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: restorecon -R default
+References: <201201290001.10792.russell@coker.com.au> <1327939865.23069.10.camel@moss-pluto>
+In-Reply-To: <1327939865.23069.10.camel@moss-pluto>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-01-24 at 13:27 -0600, Ted Toth wrote:
-> I'm seeing x_drawable read denials in Xorg.0.log  on a system with the
-> X server in enforcing. I'm confused about these because the
-> xserver_object_manager boolean is set which gets:
-> allow x_domain xdrawable_type:x_drawable *;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 01/30/2012 11:11 AM, Stephen Smalley wrote:
+> On Sun, 2012-01-29 at 00:01 +1100, Russell Coker wrote:
+>> http://www.youtube.com/watch?v=ZThVfm3JXdM
+>> 
+>> A few years ago Paul Wayper gave an excellent introductory
+>> lecture about SE Linux (see the above URL).  He notes that he
+>> habitually uses -R for restorecon every time.
+>> 
+>> It seems to me that the case where -R is not desired will be
+>> extremely rare. It seems most uncommon that someone will have a
+>> directory with the wrong label, a subdirectory tree that is
+>> either too big to scan quickly (and which is known to have the
+>> correct labels) or which has labels which by design don't match
+>> the file contexts.
+>> 
+>> Therefore I think we should make the common case be the default
+>> and require that anyone who doesn't want that functionality
+>> specifically request it. chcon uses the -h flag for changing the
+>> context of a sym-link instead of the target, that might be a
+>> reasonable option to use for consistency.
 > 
-> and the source context type of the avc is a type in the x_domain
-> attribute and the target context type is in the xdrawable_type
-> attribute which should be allowed by the included allow rule.
+> Seems like it might prove surprising to users, both given the
+> prior default behavior of restorecon and the default behaviors of
+> similar Unix commands like chown/chmod.  I don't think we
+> can/should change it.
+> 
 
-Have you checked whether compute_av (from libselinux/utils) gives the
-expected result?
+I agree, we should not change it.  If a user wants to change the
+default he can easily add
 
-What does audit2why aka audit2allow -w say about the denial?
-Could it be a constraint violation instead of a TE denial?
+alias restorecon='restorecon -R'
 
--- 
-Stephen Smalley
-National Security Agency
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk8m4jwACgkQrlYvE4MpobNnBACeK+GjXZMR8uiHfenHSfoq5rRZ
+ONAAoKdkgR7Px7mvPwmiOrmK0W4R98DB
+=6p5K
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
