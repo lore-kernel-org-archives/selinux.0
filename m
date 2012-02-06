@@ -1,55 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q16FuwnZ027961
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 10:56:58 -0500
-Received: from mail-ee0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q16FuvDo027059
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 15:56:57 GMT
-Received: by eeke51 with SMTP id e51so2149677eek.12
-        for <selinux@tycho.nsa.gov>; Mon, 06 Feb 2012 07:56:56 -0800 (PST)
-Message-ID: <1328543813.1905.2.camel@x220.mydomain.internal>
+Message-ID: <1328545024.7648.12.camel@foxtrot.cjac.ntr.f5net.com>
 Subject: Re: SELinux on Wheezy
-From: Dominick Grift <dominick.grift@gmail.com>
-To: cjac@colliertech.org
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Date: Mon, 06 Feb 2012 16:56:53 +0100
-In-Reply-To: <1328502407.14110.7074.camel@calcifer>
+From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+Date: Mon, 06 Feb 2012 08:17:04 -0800
+In-Reply-To: <1328542762.9705.62.camel@moss-pluto>
 References: <1328502407.14110.7074.camel@calcifer>
-Content-Type: text/plain; charset="UTF-8"
+	 <1328542762.9705.62.camel@moss-pluto>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-yuPFO7AbXhj8AKxjF+vz"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2012-02-05 at 20:26 -0800, C.J. Adams-Collier KF7BMP wrote:
-> Hey folks,
-> 
-> I brought up a wheezy install on an alternate lvm root a couple of weeks
-> ago.  I turned SELinux on shortly thereafter.  I think I updated my
-> kernel, and now X won't start.  Could someone look at these logs with me
-> and help figure out what's going on?  Something showed up during boot
-> that said something about updating labels, but I didn't capture it.
-> Where should I look to find these boot logs, do you think?
-> 
-> http://www.colliertech.org/federal/nsa/selinux-20120205T2023PST.log
-> 
-> Thank you in advance!
-> 
-> C.J.
-> 
-> 
 
-Seems to be an XACE issue.
+--=-yuPFO7AbXhj8AKxjF+vz
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > /var/log/Xorg.56.log.old:[    46.050] SELinux: a property label lookup failed!
-> > /var/log/Xorg.56.log.old:[    46.050] SELinux: Failed to set label property on window!
+On Mon, 2012-02-06 at 10:39 -0500, Stephen Smalley wrote:
+> On Sun, 2012-02-05 at 20:26 -0800, C.J. Adams-Collier KF7BMP wrote:
+> > Hey folks,
+> >=20
+> > I brought up a wheezy install on an alternate lvm root a couple of week=
+s
+> > ago.  I turned SELinux on shortly thereafter.  I think I updated my
+> > kernel, and now X won't start.  Could someone look at these logs with m=
+e
+> > and help figure out what's going on?  Something showed up during boot
+> > that said something about updating labels, but I didn't capture it.
+> > Where should I look to find these boot logs, do you think?
+> >=20
+> > http://www.colliertech.org/federal/nsa/selinux-20120205T2023PST.log
+>=20
+> Are there any avc denials?  If running auditd, then use ausearch -m AVC.
+> Otherwise grep for avc: in your messages file or dmesg output.
+>=20
+> What does sestatus report?
 
-getsebool -a | xserver_object_manager
+Thank you for your quick response, Stephan.
 
-Does it work if you set it to off?
+I'm using Evolution as my MUA and haven't got mutt set up on the new
+system yet, so email and selinux are currently mutually exclusive.  I've
+saved this email to a text file and will re-start the kernel with
+selinux enabled, run these commands > log and re-boot.  I'm waiting on a
+ferry that leaves in 15 minutes, so I won't have the results until I get
+to my desk in Seattle after noon (-0800).
 
-setsebool -P xserver_object_manager off
+C.J.
 
-http://selinuxproject.org/page/NB_XWIN
 
+--=-yuPFO7AbXhj8AKxjF+vz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQEcBAABCAAGBQJPL/0AAAoJEEyimPmPQm23xLEIAJX/skcpPUYcULetyFmhahJL
+6FhMeGIlTgHIIGy99DUTYXwa5oPl9NuI3UsO+o6kIKsrjR6baSXhecVLzdi4+lzi
+3/y9SvbhMxeqS8t9K4X5P0PJl8yCjkdyGsph4R0FBWZB7hYJcYdfAnRfX6cr8MEw
+Y5k2wGj/Nl1ICpI6kydgQb234XSrKPdhKHZ9HBAT57Sn99CvgBxmMnyaW/AxU3LJ
+vEg0QsnoSMIRZ+QHyO6S6cvgQ+ii7LSXUrjwudZgc4rwOpdpRnzhQ9ehMRw5aNlQ
++uNEtRF6QiIDQsLbYW48S++ctygCV2Lu0bY3Muc3Yl78tFs1Z0dOKtPn2mt2ics=
+=d2cD
+-----END PGP SIGNATURE-----
+
+--=-yuPFO7AbXhj8AKxjF+vz--
 
 
 --
