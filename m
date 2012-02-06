@@ -1,64 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q164Qear026529
-	for <selinux@tycho.nsa.gov>; Sun, 5 Feb 2012 23:26:40 -0500
-Received: from smtp.colliertech.org (localhost [127.0.0.1])
-	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q164QY7Z026954
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 04:26:34 GMT
-Received: from calcifer ([172.16.9.40])
-	by smtp.colliertech.org with esmtp (Exim 4.72)
-	(envelope-from <cjac@colliertech.org>)
-	id 1RuG9l-0002Di-Ee
-	for selinux@tycho.nsa.gov; Sun, 05 Feb 2012 20:26:33 -0800
-From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-Reply-To: cjac@colliertech.org
-To: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-96+jpMZPJZYb/LrN+rJg"
-Date: Sun, 05 Feb 2012 20:26:47 -0800
-Message-ID: <1328502407.14110.7074.camel@calcifer>
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q16EoUii023067
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 09:50:30 -0500
+Subject: Re: SE Android release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
+References: <1325884109.28294.65.camel@moss-pluto>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 06 Feb 2012 09:50:30 -0500
+Message-ID: <1328539830.9705.49.camel@moss-pluto>
 Mime-Version: 1.0
-Subject: SELinux on Wheezy
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote:
+> Hi,
+> 
+> We have made an initial public release of SE Android. More information
+> is available at:
+> http://selinuxproject.org/page/SEAndroid
 
---=-96+jpMZPJZYb/LrN+rJg
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+We have updated the source code repositories.  A repo sync -j1 will
+refresh your copy of the source code if you already have a copy.  The
+changes are:
 
-Hey folks,
+- The Settings app can now be used to manage the SELinux enforcing
+status and policy booleans (under Security options).  Changes made via
+the Settings app are not yet saved and restored across reboot; this is
+work in progress.  The ability of the Settings app to manage SELinux can
+be controlled via a new settings_manage_selinux policy boolean. 
 
-I brought up a wheezy install on an alternate lvm root a couple of weeks
-ago.  I turned SELinux on shortly thereafter.  I think I updated my
-kernel, and now X won't start.  Could someone look at these logs with me
-and help figure out what's going on?  Something showed up during boot
-that said something about updating labels, but I didn't capture it.
-Where should I look to find these boot logs, do you think?
+- The JNI bindings for the SELinux APIs have been extended to support
+the new Settings functionality.   They have also been reworked to ensure
+that the framework services and apps can safely call the SELinux APIs
+even when SELinux is disabled.
 
-http://www.colliertech.org/federal/nsa/selinux-20120205T2023PST.log
+- Support for -R has been added to the init chown built-in command so
+that ownership can be set on all SELinux booleans in selinuxfs to permit
+management by the Settings app (which runs in the system UID).  The
+init.rc file has been modified to apply this ownership change at boot.
 
-Thank you in advance!
-
-C.J.
-
-
-
---=-96+jpMZPJZYb/LrN+rJg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQEcBAABAgAGBQJPL1Z/AAoJEEyimPmPQm233x0H/2HAnP8SrLHAgECNw8qdKHJj
-Zx6mL33YySXVS6e4ON0/aGrVZEiuW7bLzgTjYhposFemwQNgmXkNl/xASu4LTqW8
-+t6UlchfgS4ZYEqhUPp2GZgucDED2kTVwjol6Wmd5V0/GahCXxHLV+lNGnsQdOTN
-Xw9v/008BxMNOIrJL/yCodfvFAwArmpJl+O0adN4FqMY66/ZT8e4vkZyNLnWYLxf
-byYOnl3S6dC7j7lhU122eOJo+X+w9/5BAbD6GW+GNy1U/6EhONCTdBTqz4cKJKy+
-DNJWsKsLmtRe9mK/YrdFVxPFrvGGT/a/g51kOoGMdLRmR9aVP3EAWpcBVQbcBRI=
-=y23r
------END PGP SIGNATURE-----
-
---=-96+jpMZPJZYb/LrN+rJg--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
