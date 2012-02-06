@@ -1,12 +1,20 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q16FuwnZ027961
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 10:56:58 -0500
+Received: from mail-ee0-f53.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q16FuvDo027059
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 15:56:57 GMT
+Received: by eeke51 with SMTP id e51so2149677eek.12
+        for <selinux@tycho.nsa.gov>; Mon, 06 Feb 2012 07:56:56 -0800 (PST)
+Message-ID: <1328543813.1905.2.camel@x220.mydomain.internal>
 Subject: Re: SELinux on Wheezy
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Dominick Grift <dominick.grift@gmail.com>
 To: cjac@colliertech.org
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Date: Mon, 06 Feb 2012 16:56:53 +0100
 In-Reply-To: <1328502407.14110.7074.camel@calcifer>
 References: <1328502407.14110.7074.camel@calcifer>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 06 Feb 2012 10:39:22 -0500
-Message-ID: <1328542762.9705.62.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -22,15 +30,26 @@ On Sun, 2012-02-05 at 20:26 -0800, C.J. Adams-Collier KF7BMP wrote:
 > Where should I look to find these boot logs, do you think?
 > 
 > http://www.colliertech.org/federal/nsa/selinux-20120205T2023PST.log
+> 
+> Thank you in advance!
+> 
+> C.J.
+> 
+> 
 
-Are there any avc denials?  If running auditd, then use ausearch -m AVC.
-Otherwise grep for avc: in your messages file or dmesg output.
+Seems to be an XACE issue.
 
-What does sestatus report?
+> > /var/log/Xorg.56.log.old:[    46.050] SELinux: a property label lookup failed!
+> > /var/log/Xorg.56.log.old:[    46.050] SELinux: Failed to set label property on window!
 
--- 
-Stephen Smalley
-National Security Agency
+getsebool -a | xserver_object_manager
+
+Does it work if you set it to off?
+
+setsebool -P xserver_object_manager off
+
+http://selinuxproject.org/page/NB_XWIN
+
 
 
 --
