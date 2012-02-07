@@ -1,81 +1,36 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q17IiuSS022999
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2012 13:44:56 -0500
+Received: from mail-ey0-f181.google.com (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q17Iit5X029586
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2012 18:44:55 GMT
+Received: by eaad1 with SMTP id d1so1003218eaa.12
+        for <selinux@tycho.nsa.gov>; Tue, 07 Feb 2012 10:44:55 -0800 (PST)
+Message-ID: <1328640292.1905.13.camel@x220.mydomain.internal>
 Subject: Re: SELinux on Wheezy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-Cc: Dominick Grift <dominick.grift@gmail.com>,
-        SE-Linux
- <selinux@tycho.nsa.gov>,
-        Russell Coker <russell@coker.com.au>
-In-Reply-To: <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
+From: Dominick Grift <dominick.grift@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Date: Tue, 07 Feb 2012 19:44:52 +0100
+In-Reply-To: <1328636556.2162.59.camel@moss-pluto>
 References: <1328502407.14110.7074.camel@calcifer>
-	 <1328543813.1905.2.camel@x220.mydomain.internal>
-	 <1328545295.7648.14.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328542762.9705.62.camel@moss-pluto>
+	 <1328545024.7648.12.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328570597.4395.36.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328636556.2162.59.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Feb 2012 12:47:06 -0500
-Message-ID: <1328636826.2162.60.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-02-07 at 09:35 -0800, C.J. Adams-Collier KF7BMP wrote:
-> On Mon, 2012-02-06 at 08:21 -0800, C.J. Adams-Collier KF7BMP wrote:
-> > On Mon, 2012-02-06 at 16:56 +0100, Dominick Grift wrote:
-> > > On Sun, 2012-02-05 at 20:26 -0800, C.J. Adams-Collier KF7BMP wrote:
-> > > > Hey folks,
-> > > > 
-> > > > I brought up a wheezy install on an alternate lvm root a couple of weeks
-> > > > ago.  I turned SELinux on shortly thereafter.  I think I updated my
-> > > > kernel, and now X won't start.  Could someone look at these logs with me
-> > > > and help figure out what's going on?  Something showed up during boot
-> > > > that said something about updating labels, but I didn't capture it.
-> > > > Where should I look to find these boot logs, do you think?
-> > > > 
-> > > > http://www.colliertech.org/federal/nsa/selinux-20120205T2023PST.log
-> > > > 
-> > > > Thank you in advance!
-> > > > 
-> > > > C.J.
-> > > > 
-> > > > 
-> > > 
-> > > Seems to be an XACE issue.
-> > > 
-> > > > > /var/log/Xorg.56.log.old:[    46.050] SELinux: a property label lookup failed!
-> > > > > /var/log/Xorg.56.log.old:[    46.050] SELinux: Failed to set label property on window!
-> > > 
-> > > getsebool -a | xserver_object_manager
-> > > 
-> > > Does it work if you set it to off?
-> > > 
-> > > setsebool -P xserver_object_manager off
-> > > 
-> > > http://selinuxproject.org/page/NB_XWIN
-> > 
-> > Thank you Dominick.  I will give this a try when I re-boot.
-> > 
-> > Russell, do you think this is something we should patch in to the xorg
-> > debian packaging?
-> > 
-> 
-> 
-> http://www.colliertech.org/federal/nsa/sebool-20120206T091638.log:
-> cjac@foxtrot:~$ sudo getsebool -a | grep -i xserver_object_manager | wc -l
-> 0
-> cjac@foxtrot:~$ sudo setsebool -P xserver_object_manager off
-> libsemanage.dbase_llist_set: record not found in the database (No such file or directory).
-> libsemanage.dbase_llist_set: could not set record value (No such file or directory).
-> Could not change boolean xserver_object_manager
-> Could not change policy booleans
-> 
-> How do I fill these in?  Is there a .deb with the correct policy
-> modification?
+On Tue, 2012-02-07 at 12:42 -0500, Stephen Smalley wrote:
 
-That's interesting - suggests that you do not have the xserver policy
-module installed.  semodule -l shows what?
+> 
+> The avc message suggests that your processes are not running in the
+> right domains, which in turn suggests that perhaps your filesystems are
+> not correctly labeled.  sestatus -v should provide more information.
+> 
 
--- 
-Stephen Smalley
-National Security Agency
+whoops yes i agree there. rsyslogd runs in the kernel_t domain.
 
 
 --
