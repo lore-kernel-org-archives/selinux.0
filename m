@@ -1,35 +1,39 @@
-Subject: Re: SELinux query
+Subject: Re: SELinux on Wheezy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Devendra Talegaonkar <Devendra.Talegaonkar@kpitcummins.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4F31591B.8090402@redhat.com>
-References: <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF6F78@KCHJEXMB02.kpit.com>
-	 <4F2FE956.3050403@redhat.com>
-	 <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7074@KCHJEXMB02.kpit.com>
-	 <4F31591B.8090402@redhat.com>
+To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+In-Reply-To: <1328570597.4395.36.camel@foxtrot.cjac.ntr.f5net.com>
+References: <1328502407.14110.7074.camel@calcifer>
+	 <1328542762.9705.62.camel@moss-pluto>
+	 <1328545024.7648.12.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328570597.4395.36.camel@foxtrot.cjac.ntr.f5net.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 07 Feb 2012 12:37:51 -0500
-Message-ID: <1328636271.2162.56.camel@moss-pluto>
+Date: Tue, 07 Feb 2012 12:42:36 -0500
+Message-ID: <1328636556.2162.59.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/07/2012 01:00 AM, Devendra Talegaonkar wrote:
-> Problem is solved. I am trying SELinux on IMX-53 QSB target. I am
-> using kernel 2.6.38. Is there any information available about
-> compiling and running SELinux on embedded targets?
+On Mon, 2012-02-06 at 15:23 -0800, C.J. Adams-Collier KF7BMP wrote:
+> Here are the logs you requested:
+> 
+> http://www.colliertech.org/federal/nsa/avc-20120206T090101.log
+> 
+> http://www.colliertech.org/federal/nsa/sestatus-20120206T090618.log
+> 
+> It seems to me that the Debian SELinux docs could use some improvement.
+> To this end, I have submitted an application to join the SELinux project
+> on Alioth.  I will probably make some updates to the wiki pages as well.
+> 
+> I am going to install the packages which provide the tools you and
+> Dominick recommended this morning and dig a little deeper as time
+> permits.
+> 
+> Thank you again for taking the time to help me through this.
 
-Some older resources on embedded SELinux can be found at:
-http://elinux.org/SELinux
-
-Also, in the case of Android, information about using SELinux can be
-found at:
-http://selinuxproject.org/page/SEAndroid
-
-While your target might not be running Android, you may nonetheless find
-parts of our SE Android reference implementation useful, particularly
-with its emphasis on a minimal port of the SELinux userspace and a small
-policy written from scratch.
+The avc message suggests that your processes are not running in the
+right domains, which in turn suggests that perhaps your filesystems are
+not correctly labeled.  sestatus -v should provide more information.
 
 -- 
 Stephen Smalley
