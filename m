@@ -1,51 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q16NmdOr028001
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 18:48:39 -0500
-Received: from mail-ee0-f53.google.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q16NmcWx019560
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2012 23:48:38 GMT
-Received: by eeke51 with SMTP id e51so2293341eek.12
-        for <selinux@tycho.nsa.gov>; Mon, 06 Feb 2012 15:48:36 -0800 (PST)
-Message-ID: <1328572112.1905.10.camel@x220.mydomain.internal>
-Subject: Re: SELinux on Wheezy
-From: Dominick Grift <dominick.grift@gmail.com>
-To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Date: Tue, 07 Feb 2012 00:48:32 +0100
-In-Reply-To: <1328570597.4395.36.camel@foxtrot.cjac.ntr.f5net.com>
-References: <1328502407.14110.7074.camel@calcifer>
-	 <1328542762.9705.62.camel@moss-pluto>
-	 <1328545024.7648.12.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328570597.4395.36.camel@foxtrot.cjac.ntr.f5net.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q17H2N0b015352
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2012 12:02:24 -0500
+Received: from mx1.redhat.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q17H2MIs018722
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2012 17:02:23 GMT
+Message-ID: <4F31591B.8090402@redhat.com>
+Date: Tue, 07 Feb 2012 12:02:19 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Devendra Talegaonkar <Devendra.Talegaonkar@kpitcummins.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: SELinux query
+References: <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF6F78@KCHJEXMB02.kpit.com> <4F2FE956.3050403@redhat.com> <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7074@KCHJEXMB02.kpit.com>
+In-Reply-To: <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7074@KCHJEXMB02.kpit.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Stephen,
+On 02/07/2012 01:00 AM, Devendra Talegaonkar wrote:
+> Thanks a lot Dan,
 > 
-> Here are the logs you requested:
+> Problem is solved. I am trying SELinux on IMX-53 QSB target. I am
+> using kernel 2.6.38. Is there any information available about
+> compiling and running SELinux on embedded targets?
 > 
-> http://www.colliertech.org/federal/nsa/avc-20120206T090101.log
+> 
+You would probably get better response on SELinux
+<selinux@tycho.nsa.gov> mail list
 
-Above logs exposes two bugs in your policy i believe.
-Are you using the latest available policy?
+> Thanks & Regards, Devendra Talegaonkar | Lead Technical Consultant
+> - Automotive & Engineering | KPIT Cummins Infosystems Ltd | Ph: +
+> 91 20 6652 5000 | M: +91 9822860528
+> 
+> -----Original Message----- From: Daniel J Walsh
+> [mailto:dwalsh@redhat.com] Sent: Monday, February 06, 2012 8:23 PM 
+> To: Devendra Talegaonkar Subject: Re: SELinux query
+> 
+> On 02/06/2012 02:19 AM, Devendra Talegaonkar wrote:
+> 
+> Seems like you have a policy /checkpolicy version problem.  IE
+> Newer checkpolicy compiler require roles to be specified before
+> use.
+> 
+> 
+> role system_r;
+> 
+> role system_r type httpd_t;
+> 
+> Older compilers allowed you to just specify the second command.
+> 
+> What policy and what version of checkpolicy are you compiling and
+> is this on fedora?
+> 
+> 
 
-possible temporary fixes:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-echo "avc:  denied  { associate } for  pid=384 comm="restorecon"
-name="shm" dev=devtmpfs ino=5266 scontext=system_u:object_r:tmpfs_t:s0
-tcontext=system_u:object_r:device_t:s0 tclass=filesystem" | audit2allow
--M myfs; sudo semodule -i myfs.pp
-
-echo "avc:  denied  { syslog } for  pid=1824 comm="rsyslogd"
-capability=34  scontext=system_u:system_r:kernel_t:s0
-tcontext=system_u:system_r:kernel_t:s0 tclass=capability2" | audit2allow
--M mykernel; sudo semodule -i mykernel.pp
-
-
-
+iEYEARECAAYFAk8xWRoACgkQrlYvE4MpobOtCgCdGsmOByZ5SusGZp7VM3AguZST
+T1MAn1rwVFjnfj3NUumVZmnJmrLplSUi
+=DUPr
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
