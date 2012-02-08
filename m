@@ -1,75 +1,37 @@
-Subject: Re: SELinux on Wheezy
+Subject: RE: SELinux query
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "C.J. Adams-Collier" <cjac@colliertech.org>
-Cc: Dominick Grift <dominick.grift@gmail.com>,
-        SE-Linux
- <selinux@tycho.nsa.gov>,
-        Russell Coker <russell@coker.com.au>
-In-Reply-To: <20120207210501.GE18478@colliertech.org>
-References: <1328502407.14110.7074.camel@calcifer>
-	 <1328543813.1905.2.camel@x220.mydomain.internal>
-	 <1328545295.7648.14.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636826.2162.60.camel@moss-pluto>
-	 <1328640976.4224.39.camel@foxtrot.cjac.ntr.f5net.com>
-	 <20120207200224.GB18478@colliertech.org>
-	 <1328645305.2162.105.camel@moss-pluto>
-	 <20120207210501.GE18478@colliertech.org>
+To: Devendra Talegaonkar <Devendra.Talegaonkar@kpitcummins.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7253@KCHJEXMB02.kpit.com>
+References: <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF6F78@KCHJEXMB02.kpit.com>
+	 <4F2FE956.3050403@redhat.com>
+	 <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7074@KCHJEXMB02.kpit.com>
+	 <4F31591B.8090402@redhat.com> <1328636271.2162.56.camel@moss-pluto>
+	 <A2F8C1DC917AEC409BE49BB1E1DEF34D1FDF7253@KCHJEXMB02.kpit.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 08 Feb 2012 08:24:30 -0500
-Message-ID: <1328707470.19254.16.camel@moss-pluto>
+Date: Wed, 08 Feb 2012 08:33:52 -0500
+Message-ID: <1328708032.19254.23.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-02-07 at 13:05 -0800, C.J. Adams-Collier wrote:
-> cjac@foxtrot:~$ sudo which seinfo
-> cjac@foxtrot:~$ apt-file search seinfo | grep bin | wc -l
-> 0
+On Wed, 2012-02-08 at 09:50 +0000, Devendra Talegaonkar wrote:
+> Hello,
+> I am trying to load policy in kernel with  load_policy utility.
+> Selinuxfs is mounted on /selinux and there is enough space on the /selinux. But at the time of  mounting it is giving me error as "No space left on device"
+> Can you please guide on this?
 
-seinfo is part of the setools package.
-
-> Sounds reasonable.  Do I get policy from my distribution, or should I
-> generate one myself?
-
-Normally from your distribution, assuming the selinux packages for
-Debian are still being maintained.
-
-IIRC, the Debian selinux policy package tries to minimize the set of
-installed policy modules based on the set of installed packages, but
-that isn't an exact mapping and might be leaving you without a complete
-policy.  Whereas Fedora installs all policy modules unconditionally.
-
-If the .pp files are on your filesystem and just not installed into the
-policy store, you can manually add them by running semodule -i on them.
-Try listing the files installed from your policy packages and see if
-xserver.pp is among them.  
-
-> cjac@foxtrot:~$ dpkg -l | grep selinux-policy
-> ii  selinux-policy-default               2:2.20110726-3                 Strict and Targeted variants of the SELinux policy
-> ii  selinux-policy-dev                   2:2.20110726-3                 Headers from the SELinux reference policy for building modules
-> ii  selinux-policy-doc                   2:2.20110726-3                 Documentation for the SELinux reference policy
-> 
-> cjac@foxtrot:~$ apt-cache search selinux-policy
-> selinux-policy-default - Strict and Targeted variants of the SELinux policy
-> selinux-policy-dev - Headers from the SELinux reference policy for building modules
-> selinux-policy-doc - Documentation for the SELinux reference policy
-> selinux-policy-mls - MLS (Multi Level Security) variant of the SELinux policy
-> selinux-policy-src - Source of the SELinux reference policy for customization
-> 
-> If I'm going to generate one myself, I need to understand them a bit
-> better.  I would like anything I generate to be useable by the rest of
-> the Debian world.  There seem to be some examples I ran review in the
-> selinux-policy-doc and selinux-policy-mls packages.
-> 
-> Regarding re-labeling, every time I boot without the selinux arguments
-> to my kernel and then boot with them, the filesystem seems to get
-> re-labeled.  Is there a better way to do this?
-
-On Fedora, you could touch /.autorelabel or pass "autorelabel" on the
-kernel command line to force a relabel at boot.  You can also run
-fixfiles relabel as a command after booting.  No need to disable SELinux
-and then re-enable it.
+- Need to know what libselinux you are using, e.g. the upstream one (if
+so, what version) or the port to Android.
+- Need to know what load_policy you are using, e.g. the one from
+policycoreutils (if so, what version), the port to busybox (if so, what
+version), or the port to Android toolbox.
+- The actual error message would be helpful.
+- strace of the failed load_policy would be helpful, if you have a
+working strace for that target.
+- libselinux was recently changed to mount selinuxfs on /sys/fs/selinux
+and look for it there first, falling back to /selinux if it isn't there.
+Don't know if that might be making a difference for you.
 
 -- 
 Stephen Smalley
