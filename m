@@ -1,125 +1,105 @@
-Message-ID: <1328808846.5174.41.camel@foxtrot.cjac.ntr.f5net.com>
-Subject: Re: SELinux on Wheezy
-From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Dominick Grift <dominick.grift@gmail.com>,
-        SE-Linux
- <selinux@tycho.nsa.gov>,
-        Russell Coker <russell@coker.com.au>
-Date: Thu, 09 Feb 2012 09:34:06 -0800
-In-Reply-To: <1328795756.6866.30.camel@moss-pluto>
-References: <1328502407.14110.7074.camel@calcifer>
-	 <1328543813.1905.2.camel@x220.mydomain.internal>
-	 <1328545295.7648.14.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636826.2162.60.camel@moss-pluto>
-	 <1328640976.4224.39.camel@foxtrot.cjac.ntr.f5net.com>
-	 <20120207200224.GB18478@colliertech.org>
-	 <1328645305.2162.105.camel@moss-pluto>
-	 <20120207210501.GE18478@colliertech.org>
-	 <1328707470.19254.16.camel@moss-pluto>
-	 <1328722790.23833.9.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328723647.19254.62.camel@moss-pluto>
-	 <1328730315.5174.1.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328732265.19254.95.camel@moss-pluto>
-	 <1328736760.5174.11.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328795756.6866.30.camel@moss-pluto>
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-WZB7/Y/PLSZs2518d27C"
+Subject: Re: [PATCH] Checkpolicy: Allow filesystem names to start with a
+ digit
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Daniel De Graaf <dgdegra@tycho.nsa.gov>
+In-Reply-To: <1294867742.2276.38.camel@moss-lions.epoch.ncsc.mil>
+References: <1294867742.2276.38.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 09 Feb 2012 12:43:19 -0500
+Message-ID: <1328809399.6866.55.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2011-01-12 at 16:29 -0500, James Carter wrote:
+> The patch below allows filesystem names in fs_use_* and genfscon
+> statements to start with a digit, but still requires at least one
+> character to be a letter.  A new token type for filesystem names is
+> created since these names having nothing to do with SELinux.
+> 
+> This patch is needed because some filesystem names (such as 9p) start
+> with a digit.
+> 
+> 
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
---=-WZB7/Y/PLSZs2518d27C
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This causes hex values like 0xfed40 to match FILESYSTEM rather than
+NUMBER, thereby breaking iomemcon object context entries for Xen
+policies.
 
-On Thu, 2012-02-09 at 08:55 -0500, Stephen Smalley wrote:
-> On Wed, 2012-02-08 at 13:32 -0800, C.J. Adams-Collier KF7BMP wrote:
-> > Okay.  Do these ever get purged under any other circumstances?  I noted
-> > that when I booted without selinux enabled and then with it enabled, th=
-e
-> > filesystem was re-labeled.  Does anything else get triggered in this
-> > situation?  Specifically, do policies get removed?
->=20
-> No.
->=20
-> > It looks like the alsa.pp is failing, so my working and slightly
-> > modified command was:
->=20
-> That's interesting, and it might explain why your policy didn't get
-> fully installed originally.  Is that alsa.pp file from the current
-> selinux-policy package or is it a leftover of an older one?  What is the
-> error you get with it?  It should be removed if it doesn't work.
+> 
+> ---
+>  policy_parse.y |   14 ++++++++++----
+>  policy_scan.l  |    1 +
+>  2 files changed, 11 insertions(+), 4 deletions(-)
+> 
+> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> index 8d1bc37..0777238 100644
+> --- a/checkpolicy/policy_parse.y
+> +++ b/checkpolicy/policy_parse.y
+> @@ -138,6 +138,7 @@ typedef int (* require_func_t)();
+>  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+>  %token POLICYCAP
+>  %token PERMISSIVE
+> +%token FILESYSTEM
+>  
+>  %left OR
+>  %left XOR
+> @@ -637,7 +638,7 @@ opt_fs_uses             : fs_uses
+>  fs_uses                 : fs_use_def
+>                          | fs_uses fs_use_def
+>                          ;
+> -fs_use_def              : FSUSEXATTR identifier security_context_def ';'
+> +fs_use_def              : FSUSEXATTR filesystem security_context_def ';'
+>                          {if (define_fs_use(SECURITY_FS_USE_XATTR)) return -1;}
+>                          | FSUSETASK identifier security_context_def ';'
+>                          {if (define_fs_use(SECURITY_FS_USE_TASK)) return -1;}
+> @@ -650,11 +651,11 @@ opt_genfs_contexts      : genfs_contexts
+>  genfs_contexts          : genfs_context_def
+>                          | genfs_contexts genfs_context_def
+>                          ;
+> -genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+> +genfs_context_def	: GENFSCON filesystem path '-' identifier security_context_def
+>  			{if (define_genfs_context(1)) return -1;}
+> -			| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
+> +			| GENFSCON filesystem path '-' '-' {insert_id("-", 0);} security_context_def
+>  			{if (define_genfs_context(1)) return -1;}
+> -                        | GENFSCON identifier path security_context_def
+> +                        | GENFSCON filesystem path security_context_def
+>  			{if (define_genfs_context(0)) return -1;}
+>  			;
+>  ipv4_addr_def		: IPV4_ADDR
+> @@ -728,6 +729,11 @@ nested_id_element       : identifier | '-' { if (insert_id("-", 0)) return -1; }
+>  identifier		: IDENTIFIER
+>  			{ if (insert_id(yytext,0)) return -1; }
+>  			;
+> +filesystem		: FILESYSTEM
+> +                        { if (insert_id(yytext,0)) return -1; }
+> +                        | IDENTIFIER
+> +			{ if (insert_id(yytext,0)) return -1; }
+> +                        ;
+>  path     		: PATH
+>  			{ if (insert_id(yytext,0)) return -1; }
+>  			;
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index 48128a8..65aff8d 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -217,6 +217,7 @@ permissive |
+>  PERMISSIVE			{ return(PERMISSIVE); }
+>  "/"({alnum}|[_\.\-/])*	        { return(PATH); }
+>  {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+> +{alnum}*{letter}{alnum}*        { return(FILESYSTEM); }
+>  {digit}+|0x{hexval}+            { return(NUMBER); }
+>  {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+> 
 
-cjac@foxtrot:~$ locate alsa.pp | xargs dpkg -S | awk -F: '{print $1}' | xar=
-gs debsums | grep alsa.pp
-/usr/share/selinux/default/alsa.pp                                         =
-   OK
-cjac@foxtrot:~$=20
-
-How do I check for an error.  Not on STDOUT or STDERR it seems...  This
-may be one of the strangest, least useful error message I've ever seen.
-But it's got stiff competition.
-
-cjac@foxtrot:~$ locate alsa.pp | xargs dpkg -S | awk -F: '{print $1}' | xar=
-gs debsums | grep alsa.pp | sudo xargs semodule -i
-semodule:  Failed on OK!
-
-
-> >         $ pushd /usr/share/selinux/default
-> >         $ time sudo \
-> >         semodule -i `ls *.pp | grep -v -e 'base.pp' -e 'alsa.pp'`
-> >        =20
-> >         real	0m24.148s
-> >         user	0m23.249s
-> >         sys	0m0.628s
-> >        =20
-> > This seems like it would take slightly less time than piping the output
-> > of ls to xargs, since it only runs semodule once.
-> >=20
-> >         $ time ls *.pp | grep -v -e 'base.pp' -e 'alsa.pp' | \
-> >         xargs sudo semodule -b base.pp -i=20
-> >        =20
-> >         real	0m25.659s
-> >         user	0m24.778s
-> >         sys	0m0.660s
-> >=20
-> > But they both get the job done and the difference in run time is very
-> > small.
-
-Yep.  Might be a potential indicator for performance improvement,
-however.
-
-> Feel free to submit a patch for the EXAMPLES section in the semodule man
-> page.  Even better would be to improve semodule so that it automatically
-> detects the base module and handles it so that you can just do semodule
-> -i *.pp in all cases and not have to worry about filtering the list and
-> handling base specially.
-
-sounds reasonable.  git uri anyone?
-
-
-
---=-WZB7/Y/PLSZs2518d27C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAABCAAGBQJPNAOOAAoJEEyimPmPQm23GLMH/RvztHlBQ5HfUTsoUkEUthV4
-IEYyuUlvWYvQ6vOOeI+KSmhnQcbNH2NNbHEQAFWE33a0k+fhJ1rC8UouMb0siEOq
-GeKMlH0bdTXuRgg+qTgMTASfr2Rj+4cnp9WMw+xIpZmEX0NHsLqT+r/xNK2j7i/E
-/HFBSd0RoxY9S9Bx4whIkZq8SQ+kt1qpie5WQ71PUUhGB5Ii9tWaH+6VxjwmHkw8
-XCrtAOLTMI4DKc+P17+aMbEPGOpk5r8D26yhpdWodZL+DFXLC3mTy5BlxqQDBB3G
-/UiwTveEjd3LA8+gahQtWOg4LSSY1OziSFz5Aztx5o/8WwWilnn/ZGaBhk+na0c=
-=oM5a
------END PGP SIGNATURE-----
-
---=-WZB7/Y/PLSZs2518d27C--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
