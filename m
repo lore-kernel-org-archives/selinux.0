@@ -1,114 +1,83 @@
-Message-ID: <1328736760.5174.11.camel@foxtrot.cjac.ntr.f5net.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
 Subject: Re: SELinux on Wheezy
-From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Dominick Grift <dominick.grift@gmail.com>,
-        SE-Linux
- <selinux@tycho.nsa.gov>,
-        Russell Coker <russell@coker.com.au>
-Date: Wed, 08 Feb 2012 13:32:40 -0800
-In-Reply-To: <1328732265.19254.95.camel@moss-pluto>
-References: <1328502407.14110.7074.camel@calcifer>
-	 <1328543813.1905.2.camel@x220.mydomain.internal>
-	 <1328545295.7648.14.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328636826.2162.60.camel@moss-pluto>
-	 <1328640976.4224.39.camel@foxtrot.cjac.ntr.f5net.com>
-	 <20120207200224.GB18478@colliertech.org>
-	 <1328645305.2162.105.camel@moss-pluto>
-	 <20120207210501.GE18478@colliertech.org>
-	 <1328707470.19254.16.camel@moss-pluto>
-	 <1328722790.23833.9.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328723647.19254.62.camel@moss-pluto>
-	 <1328730315.5174.1.camel@foxtrot.cjac.ntr.f5net.com>
-	 <1328732265.19254.95.camel@moss-pluto>
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-1qGcXVopqxvRJRSmmM3v"
-Mime-Version: 1.0
+Date: Fri, 10 Feb 2012 00:05:26 +1100
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, "SE-Linux" <selinux@tycho.nsa.gov>
+References: <1328502407.14110.7074.camel@calcifer> <1328707470.19254.16.camel@moss-pluto> <1328722790.23833.9.camel@foxtrot.cjac.ntr.f5net.com>
+In-Reply-To: <1328722790.23833.9.camel@foxtrot.cjac.ntr.f5net.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201202100005.26791.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 9 Feb 2012, "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org> wrote:
+> On Wed, 2012-02-08 at 08:24 -0500, Stephen Smalley wrote:
+> > On Tue, 2012-02-07 at 13:05 -0800, C.J. Adams-Collier wrote:
+> > > cjac@foxtrot:~$ sudo which seinfo
+> > > cjac@foxtrot:~$ apt-file search seinfo | grep bin | wc -l
+> > > 0
+> > 
+> > seinfo is part of the setools package.
+> 
+> $ apt-cache search -n setools
+> erlang-parsetools - Erlang/OTP parsing tools
+> 
+> Hmm.
 
---=-1qGcXVopqxvRJRSmmM3v
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+# apt-cache search -n setools
+erlang-parsetools - Erlang/OTP parsing tools
+libsetools-java - SETools Java bindings (architecture-independent)
+libsetools-jni - SETools Java bindings (architecture-dependent)
+libsetools-tcl - SETools Tcl bindings
+python-setools - SETools Python bindings
+setools - tools for Security Enhanced Linux policy analysis
 
-On Wed, 2012-02-08 at 15:17 -0500, Stephen Smalley wrote:
-> On Wed, 2012-02-08 at 11:45 -0800, C.J. Adams-Collier KF7BMP wrote:
-> > > > $ locate xserver.pp
-> > > > /usr/share/selinux/default/xserver.pp
-> > > >=20
-> > > > I'll run semodule -i after this morning's reboot.  I installed mutt
-> > > > yesterday, so I'll work from the console until you folks sign off f=
-or
-> > > > the evening.
-> > >=20
-> > > I'd suggest installing all of the .pp files to ensure you aren't miss=
-ing
-> > > anything else.  The man page for semodule has some examples of how to
-> > > install all modules from a directory.
-> >=20
-> > What's the best way to do this at boot?
->=20
-> You just do it once and it remains until/unless you remove it with
-> semodule -r.  No need to do it on each boot.  Normally it is done when
-> you install the policy package, but since your policy package apparently
-> didn't install all modules, I'm suggesting that you do so manually. =20
->=20
-> cd /usr/share/selinux/default
-> ls *.pp | grep -Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule -b=
- base.pp -i
-> should install them all.
+Works for me when tracking unstable.
 
-Okay.  Do these ever get purged under any other circumstances?  I noted
-that when I booted without selinux enabled and then with it enabled, the
-filesystem was re-labeled.  Does anything else get triggered in this
-situation?  Specifically, do policies get removed?
+http://bugs.debian.org/cgi-bin/pkgreport.cgi?package=setools
 
-It looks like the alsa.pp is failing, so my working and slightly
-modified command was:
+But it's got a grave bug and an important bug.  CJ Would you like to help in 
+fixing these?  It's probably not going to be any more difficult than building 
+your own copy from upstream source.
 
-        $ pushd /usr/share/selinux/default
-        $ time sudo \
-        semodule -i `ls *.pp | grep -v -e 'base.pp' -e 'alsa.pp'`
-       =20
-        real	0m24.148s
-        user	0m23.249s
-        sys	0m0.628s
-       =20
-This seems like it would take slightly less time than piping the output
-of ls to xargs, since it only runs semodule once.
+> > > Sounds reasonable.  Do I get policy from my distribution, or should I
+> > > generate one myself?
+> > 
+> > Normally from your distribution, assuming the selinux packages for
+> > Debian are still being maintained.
 
-        $ time ls *.pp | grep -v -e 'base.pp' -e 'alsa.pp' | \
-        xargs sudo semodule -b base.pp -i=20
-       =20
-        real	0m25.659s
-        user	0m24.778s
-        sys	0m0.660s
+Of course they are still being maintained.
 
-But they both get the job done and the difference in run time is very
-small.
+> I believe they are.  I exchanged email with Russell about it not long
+> ago.  But then, gtkglarea is still officially maintained and I made the
+> first update in nearly a year 36 hours ago.  Perhaps the package needs 1
+> or more co-maintainers to improve coverage.
 
+Yes, more help would be good.
 
---=-1qGcXVopqxvRJRSmmM3v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
+Manoj has disappeared, he has not answered any mail I sent him for a long 
+time.  Everything that lists him as the maintainer needs a new maintainer.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+> > IIRC, the Debian selinux policy package tries to minimize the set of
+> > installed policy modules based on the set of installed packages, but
+> > that isn't an exact mapping and might be leaving you without a complete
+> > policy.  Whereas Fedora installs all policy modules unconditionally.
+> 
+> If the overhead is not too great, perhaps this can be duplicated in
+> Debian.  I do hate paying for things I don't use, though.  Especially
+> when the cost is substantial.  The same is probably true of many other
+> Debian users.
 
-iQEcBAABCAAGBQJPMun4AAoJEEyimPmPQm23JgwH/AmWChuzJkWoJLWnaTMjNXJN
-iaMmAvgerwN/oKstL9MoARxikPpuuS5XRek7g+zF4IHAWmAe3JL2EgntsWnIeh4J
-lnkgZSQJYWn07b0LPyPxGAMJnGyoaVWuhRBZi3UiKbLKvDo1PaaM/7Llb48E2W87
-CG349CVGIwhfZyaDFGAJ8ft64QWRd669HbKg3YlysEEbeHJNk0pK5Vs7Z8QXahOA
-unJKeaoF+4sab1Qj5SFa4Y3Cjx7TB5rlg6dsOdjUMI7jd+AHBJnweSpC0S1nMfjo
-nMrnnf4Mj80bIX0KynTJJnnpfEdoUmlydbhb2eWmzeGdVZvXMnjOfzeklun8kkU=
-=U5JI
------END PGP SIGNATURE-----
+The only problem in Debian in this regard is when you install new packages 
+after installing the SE Linux policy.  I plan to somehow hook into the package 
+installation process to install new policy modules as needed.
 
---=-1qGcXVopqxvRJRSmmM3v--
-
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
