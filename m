@@ -1,101 +1,69 @@
-Subject: Re: [PATCH] Checkpolicy: Allow filesystem names to start with a
- digit
+Subject: Re: SELinux on Wheezy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        Daniel De Graaf <dgdegra@tycho.nsa.gov>
-In-Reply-To: <1294867742.2276.38.camel@moss-lions.epoch.ncsc.mil>
-References: <1294867742.2276.38.camel@moss-lions.epoch.ncsc.mil>
+To: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
+Cc: Dominick Grift <dominick.grift@gmail.com>,
+        SE-Linux
+ <selinux@tycho.nsa.gov>,
+        Russell Coker <russell@coker.com.au>
+In-Reply-To: <1328808846.5174.41.camel@foxtrot.cjac.ntr.f5net.com>
+References: <1328502407.14110.7074.camel@calcifer>
+	 <1328543813.1905.2.camel@x220.mydomain.internal>
+	 <1328545295.7648.14.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328636118.4224.35.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328636826.2162.60.camel@moss-pluto>
+	 <1328640976.4224.39.camel@foxtrot.cjac.ntr.f5net.com>
+	 <20120207200224.GB18478@colliertech.org>
+	 <1328645305.2162.105.camel@moss-pluto>
+	 <20120207210501.GE18478@colliertech.org>
+	 <1328707470.19254.16.camel@moss-pluto>
+	 <1328722790.23833.9.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328723647.19254.62.camel@moss-pluto>
+	 <1328730315.5174.1.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328732265.19254.95.camel@moss-pluto>
+	 <1328736760.5174.11.camel@foxtrot.cjac.ntr.f5net.com>
+	 <1328795756.6866.30.camel@moss-pluto>
+	 <1328808846.5174.41.camel@foxtrot.cjac.ntr.f5net.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 09 Feb 2012 12:43:19 -0500
-Message-ID: <1328809399.6866.55.camel@moss-pluto>
+Date: Thu, 09 Feb 2012 12:53:31 -0500
+Message-ID: <1328810011.6866.65.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2011-01-12 at 16:29 -0500, James Carter wrote:
-> The patch below allows filesystem names in fs_use_* and genfscon
-> statements to start with a digit, but still requires at least one
-> character to be a letter.  A new token type for filesystem names is
-> created since these names having nothing to do with SELinux.
+On Thu, 2012-02-09 at 09:34 -0800, C.J. Adams-Collier KF7BMP wrote:
+> > That's interesting, and it might explain why your policy didn't get
+> > fully installed originally.  Is that alsa.pp file from the current
+> > selinux-policy package or is it a leftover of an older one?  What is the
+> > error you get with it?  It should be removed if it doesn't work.
 > 
-> This patch is needed because some filesystem names (such as 9p) start
-> with a digit.
+> cjac@foxtrot:~$ locate alsa.pp | xargs dpkg -S | awk -F: '{print $1}' | xargs debsums | grep alsa.pp
+> /usr/share/selinux/default/alsa.pp                                            OK
+> cjac@foxtrot:~$ 
 > 
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> How do I check for an error.  Not on STDOUT or STDERR it seems...  This
+> may be one of the strangest, least useful error message I've ever seen.
+> But it's got stiff competition.
+>
+> cjac@foxtrot:~$ locate alsa.pp | xargs dpkg -S | awk -F: '{print $1}' | xargs debsums | grep alsa.pp | sudo xargs semodule -i
+> semodule:  Failed on OK!
 
-This causes hex values like 0xfed40 to match FILESYSTEM rather than
-NUMBER, thereby breaking iomemcon object context entries for Xen
-policies.
+I'm not sure what you are trying to do, but the above command will
+ultimately call semodule -i on both alsa.pp and the "OK" string from the
+output above, and as OK is not a module or even a file it naturally
+fails.  I just wanted to know what semodule -i alsa.pp reports, since
+you said it failed in some way.
 
+> > Feel free to submit a patch for the EXAMPLES section in the semodule man
+> > page.  Even better would be to improve semodule so that it automatically
+> > detects the base module and handles it so that you can just do semodule
+> > -i *.pp in all cases and not have to worry about filtering the list and
+> > handling base specially.
 > 
-> ---
->  policy_parse.y |   14 ++++++++++----
->  policy_scan.l  |    1 +
->  2 files changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-> index 8d1bc37..0777238 100644
-> --- a/checkpolicy/policy_parse.y
-> +++ b/checkpolicy/policy_parse.y
-> @@ -138,6 +138,7 @@ typedef int (* require_func_t)();
->  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
->  %token POLICYCAP
->  %token PERMISSIVE
-> +%token FILESYSTEM
->  
->  %left OR
->  %left XOR
-> @@ -637,7 +638,7 @@ opt_fs_uses             : fs_uses
->  fs_uses                 : fs_use_def
->                          | fs_uses fs_use_def
->                          ;
-> -fs_use_def              : FSUSEXATTR identifier security_context_def ';'
-> +fs_use_def              : FSUSEXATTR filesystem security_context_def ';'
->                          {if (define_fs_use(SECURITY_FS_USE_XATTR)) return -1;}
->                          | FSUSETASK identifier security_context_def ';'
->                          {if (define_fs_use(SECURITY_FS_USE_TASK)) return -1;}
-> @@ -650,11 +651,11 @@ opt_genfs_contexts      : genfs_contexts
->  genfs_contexts          : genfs_context_def
->                          | genfs_contexts genfs_context_def
->                          ;
-> -genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
-> +genfs_context_def	: GENFSCON filesystem path '-' identifier security_context_def
->  			{if (define_genfs_context(1)) return -1;}
-> -			| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
-> +			| GENFSCON filesystem path '-' '-' {insert_id("-", 0);} security_context_def
->  			{if (define_genfs_context(1)) return -1;}
-> -                        | GENFSCON identifier path security_context_def
-> +                        | GENFSCON filesystem path security_context_def
->  			{if (define_genfs_context(0)) return -1;}
->  			;
->  ipv4_addr_def		: IPV4_ADDR
-> @@ -728,6 +729,11 @@ nested_id_element       : identifier | '-' { if (insert_id("-", 0)) return -1; }
->  identifier		: IDENTIFIER
->  			{ if (insert_id(yytext,0)) return -1; }
->  			;
-> +filesystem		: FILESYSTEM
-> +                        { if (insert_id(yytext,0)) return -1; }
-> +                        | IDENTIFIER
-> +			{ if (insert_id(yytext,0)) return -1; }
-> +                        ;
->  path     		: PATH
->  			{ if (insert_id(yytext,0)) return -1; }
->  			;
-> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-> index 48128a8..65aff8d 100644
-> --- a/checkpolicy/policy_scan.l
-> +++ b/checkpolicy/policy_scan.l
-> @@ -217,6 +217,7 @@ permissive |
->  PERMISSIVE			{ return(PERMISSIVE); }
->  "/"({alnum}|[_\.\-/])*	        { return(PATH); }
->  {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
-> +{alnum}*{letter}{alnum}*        { return(FILESYSTEM); }
->  {digit}+|0x{hexval}+            { return(NUMBER); }
->  {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
->  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
-> 
+> sounds reasonable.  git uri anyone?
+
+SELinux userspace lives at http://userspace.selinuxproject.org.
+You can clone via git clone http://oss.tresys.com/git/selinux.git .
+semodule is under policycoreutils.
 
 -- 
 Stephen Smalley
