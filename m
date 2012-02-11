@@ -1,46 +1,41 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1AG05b8007862
-	for <selinux@tycho.nsa.gov>; Fri, 10 Feb 2012 11:00:05 -0500
-Subject: Re: SE Android release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
-References: <1325884109.28294.65.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 10 Feb 2012 11:00:05 -0500
-Message-ID: <1328889605.18498.47.camel@moss-pluto>
-Mime-Version: 1.0
+MIME-Version: 1.0
+From: =?ISO-8859-1?Q?Kovacsics_R=F3bert?= <kovirobi@gmail.com>
+Date: Sat, 11 Feb 2012 13:13:55 +0000
+Message-ID: <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
+Subject: 
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset=windows-1252
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote:
-> Hi,
-> 
-> We have made an initial public release of SE Android. More information
-> is available at:
-> http://selinuxproject.org/page/SEAndroid
+Hello all!
 
-We have updated the source code repositories.  A repo sync -j1 will
-refresh your copy of the source code if you already have a copy.
+I would like to ask for assistance on compiling SELinux (particularly
+policycoreutils 2.1.0)
 
-The major change since the last update is that there is now support for
-setting file security contexts in OTA and update packages.  This
-includes changes to the bootable/recovery, build, and system/extras
-projects.  To test, you can build the images, reflash the recovery
-partition with the new recovery image, do a 'make dist' to generate an
-ota .zip file, push the .zip file to the /sdcard via adb, and then
-reboot into recovery and apply the update from the .zip file.  The
-resulting updated image should have security contexts set properly on
-its files, as shown by ls -Z /system.
+Here is my setup:
+*Linux from scratch running kernel 3.2.5
+*Installed libsepol
+*Installed libselinux
+*Installed libsemanage
+*Installed sepolgen
+*Installed checkpolicy
 
-Also, for users who are unable to use the git protocol to access the
-source code repositories due to firewall restrictions, we have added
-instructions on the wiki and an alternate local_manifest.xml file for
-downloading via http only.
+Error on installing policycoreutils-2.1.0
+Error:
+make[1]: Entering directory
+`/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
+cc  -I/usr/include -DPACKAGE="\"policycoreutils\""   -c -o seunshare.o
+seunshare.c
+seunshare.c: In function ‘main’:
+seunshare.c:242:21: error: ‘CLONE_NEWNS’ undeclared (first use in this function)
+seunshare.c:242:21: note: each undeclared identifier is reported only
+once for each function it appears in
+make[1]: *** [seunshare.o] Error 1
+make[1]: Leaving directory `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
+make: *** [all] Error 1
 
--- 
-Stephen Smalley
-National Security Agency
+Thank you for any assistance
 
 
 --
