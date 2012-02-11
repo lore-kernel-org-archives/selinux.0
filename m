@@ -1,41 +1,68 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1C08ZRt027481
+	for <selinux@tycho.nsa.gov>; Sat, 11 Feb 2012 19:08:35 -0500
+Received: from fallback-in2.mxes.net (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q1C08Y7g024999
+	for <selinux@tycho.nsa.gov>; Sun, 12 Feb 2012 00:08:35 GMT
+Received: from mxout-08.mxes.net (mxout-08.mxes.net [216.86.168.183])
+	by fallback-in1.mxes.net (Postfix) with ESMTP id E5F532FD7AF
+	for <selinux@tycho.nsa.gov>; Sat, 11 Feb 2012 18:52:34 -0500 (EST)
+Received: from wm1.irbs.net (wm1.irbs.net [216.86.168.168])
+	by smtp.mxes.net (Postfix) with ESMTP id D975A50A65
+	for <selinux@tycho.nsa.gov>; Sat, 11 Feb 2012 18:52:15 -0500 (EST)
+Received: from localhost (wm1.irbs.net [216.86.168.168])
+	by wm1.irbs.net (Postfix) with ESMTPA id A62D44FE326
+	for <selinux@tycho.nsa.gov>; Sat, 11 Feb 2012 18:52:15 -0500 (EST)
+Message-ID: <20120211235215.13243ztx045c14w0@webmail.tuffmail.net>
+Date: Sat, 11 Feb 2012 23:52:15 +0000
+From: Martin Orr <martin@martinorr.name>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: role_fix_callback assertion with sysadm in base
+References: <20120209225847.969915sba4w431r4@webmail.tuffmail.net>
+In-Reply-To: <20120209225847.969915sba4w431r4@webmail.tuffmail.net>
 MIME-Version: 1.0
-From: =?ISO-8859-1?Q?Kovacsics_R=F3bert?= <kovirobi@gmail.com>
-Date: Sat, 11 Feb 2012 13:13:55 +0000
-Message-ID: <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
-Subject: 
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+	charset=UTF-8;
+	DelSp="Yes";
+	format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello all!
+On Thu  9 Feb 22:58:47 2012, Martin Orr wrote:
+> I tried to build latest git refpolicy (6da98efd) using latest   
+> checkpolicy and libsepol (339f8079) with the attached modules.conf.   
+>  In particular this puts sysadm into base.pp, and minimal other  
+> things.   I get the following error.
 
-I would like to ask for assistance on compiling SELinux (particularly
-policycoreutils 2.1.0)
+It turns out that this is not just an issue with base vs modules.  If  
+I build refpolicy with the default modules.conf and try to install the  
+same set of modules as I built into base previously, then semodule  
+fails with the same error, whether I use TYPE = standard or mcs.
 
-Here is my setup:
-*Linux from scratch running kernel 3.2.5
-*Installed libsepol
-*Installed libselinux
-*Installed libsemanage
-*Installed sepolgen
-*Installed checkpolicy
+$ sudo semodule $(sudo semodule -l | awk '{ print "-r "$1 }') -b  
+base.pp -i storage.pp sysadm.pp application.pp authlogin.pp init.pp  
+libraries.pp locallogin.pp logging.pp miscfiles.pp modutils.pp  
+selinuxutil.pp sysnetwork.pp userdomain.pp
+semodule: expand.c:700: role_fix_callback: Assertion `new_role !=  
+((void *)0) && new_role->flavor == 1' failed.
 
-Error on installing policycoreutils-2.1.0
-Error:
-make[1]: Entering directory
-`/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
-cc  -I/usr/include -DPACKAGE="\"policycoreutils\""   -c -o seunshare.o
-seunshare.c
-seunshare.c: In function ‘main’:
-seunshare.c:242:21: error: ‘CLONE_NEWNS’ undeclared (first use in this function)
-seunshare.c:242:21: note: each undeclared identifier is reported only
-once for each function it appears in
-make[1]: *** [seunshare.o] Error 1
-make[1]: Leaving directory `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
-make: *** [all] Error 1
+It works if I add enough modules that all role attributes "require"d  
+by optional blocks are present, i.e. the following command, provided I  
+am using an mcs policy.  It seg faults if using a standard policy.
 
-Thank you for any assistance
+$ sudo semodule $(sudo semodule -l | awk '{ print "-r "$1 }') -b  
+base.pp -i storage.pp sysadm.pp application.pp authlogin.pp init.pp  
+libraries.pp locallogin.pp logging.pp miscfiles.pp modutils.pp  
+selinuxutil.pp sysnetwork.pp userdomain.pp portage.pp rsync.pp  
+consoletype.pp usermanage.pp usernetctl.pp bootloader.pp dpkg.pp  
+iptables.pp modutils.pp mount.pp rpm.pp sysnetwork.pp vpn.pp ppp.pp
+
+It appears that requiring role attributes does not work correctly.   
+The seg fault with a non-mcs policy may be an independent problem.
+
+-- 
+Martin Orr
+
 
 
 --
