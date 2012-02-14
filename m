@@ -1,77 +1,40 @@
-Message-ID: <4F3A684B.6010009@redhat.com>
-Date: Tue, 14 Feb 2012 08:57:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1EFTSqX026936
+	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2012 10:29:33 -0500
+Received: from qmta03.westchester.pa.mail.comcast.net (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q1EFTRte012108
+	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2012 15:29:27 GMT
+Message-ID: <4F3A7DCB.3070208@tresys.com>
+Date: Tue, 14 Feb 2012 10:29:15 -0500
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <stephen.smalley@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Currently the kernel is interpreting reading the link file on
- /proc/PID/exe as sys_ptrace for a different UID.
-References: <4F398582.7030004@redhat.com> <CAB9W1A3SHFQ-YQAUDyN=wCx0x3PQvrvmSo90_VzUDd-m5-ZTiw@mail.gmail.com>
-In-Reply-To: <CAB9W1A3SHFQ-YQAUDyN=wCx0x3PQvrvmSo90_VzUDd-m5-ZTiw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Julian Onions <Julian.Onions@nexor.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Building multiple custom modules
+References: <36039C79EF8CEC4EA97F96D6B85706420C76E3B1@AMSPRD0302MB107.eurprd03.prod.outlook.com>
+In-Reply-To: <36039C79EF8CEC4EA97F96D6B85706420C76E3B1@AMSPRD0302MB107.eurprd03.prod.outlook.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 2/13/2012 10:04 AM, Julian Onions wrote:
+> I’m working on a policy for an application made of several modules. I’d really like the policy to use the other modules interface files.
+>
+> The standard Makefile for policy building (/usr/share/selinux/devel/Makefile) doesn’t seem to let you include your own .if files, unless they are under /usr/share/selinux/devel/include or alternatively in the current directory (in which case it needs .te files too).
+>
+> Is there any way to convince it I’d like files that I’m building in project/C/policy to reference the .if files in project/B/policy and project/A/policy without copying them all to project/C/policy?
 
-On 02/13/2012 06:09 PM, Stephen Smalley wrote:
-> On Mon, Feb 13, 2012 at 1:49 PM, Daniel J Walsh <dwalsh@redhat.com>
-> wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->> 
->> I believe this should be DAC_READ_SEARCH.
->> 
->> I am trying to prevent all SYS_PTRACE from any domain on the
->> system but certain apps like dbus, consolekit, policykit,
->> systemd-logger and others like to look /proc/PID/exe to report
->> the path of the executable they are communicating with.  This
->> causes lots of sys_ptrace access being required for domains, that
->> I do not believe need it.
->> 
->> They need DAC_READ_SEARCH because they are trying to read content
->> that is owned by a different UID.  The SYS_PTRACE stuff was put
->> in to prevent apps from reading process memory information stored
->> in /proc.
->> 
->> I think this is a bug in the kernel.
-> 
-> SELinux just mirrors the Linux capability checks.  CAP_SYS_PTRACE
-> is applied when the normal DAC check on ptrace fails (i.e.
-> different uid).  The SELinux MAC check here is the :process ptrace
-> check.  That is what you should focus on - SELinux already
-> distinguishes /proc access from ptrace (except for /proc/pid/mem,
-> which is viewed as equivalent).  dontaudit :capability sys_ptrace
-> where needed, but not :process ptrace.
-> 
-> 
-> -- This message was distributed to subscribers of the selinux
-> mailing list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
-> without quotes as the message.
+You should be able to this, with this structure:
 
+policy/layerA/foo.{te,if,fc}
+policy/layerB/bar.{te,if,fc}
 
+and then you run the make from the top level (the directory that has the directory named "policy").  BTW, the more appropriate place to ask this type of question would be the Reference Policy list.
 
-But I have to allow all these domains capability sys_ptrace then,
-since these domains legitimately want to either use an access check
-based on the executable of the process or in the case of the
-systemd_jounal, want to log it.
-
-If the CAP check on reading a symbolic link in /proc is SYS_PTRACE,
-that seems bogus.  If it was reading /proc/pid/mem or any of the other
-/proc/pid fields that tell you about the memory, then I agree those
-should be SYS_PTRACE.  But this is a DAC_READ_SEARCH check in my opinion.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk86aEoACgkQrlYvE4MpobO0PQCeOICfnYN7KOPFinPDUFGtBWGf
-GE4AnibOo/KpJixmKqktQpGZgE2aDbEx
-=g2rt
------END PGP SIGNATURE-----
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
