@@ -1,40 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1EFTSqX026936
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2012 10:29:33 -0500
-Received: from qmta03.westchester.pa.mail.comcast.net (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q1EFTRte012108
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2012 15:29:27 GMT
-Message-ID: <4F3A7DCB.3070208@tresys.com>
-Date: Tue, 14 Feb 2012 10:29:15 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <4F3AD084.5060304@redhat.com>
+Date: Tue, 14 Feb 2012 16:22:12 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Julian Onions <Julian.Onions@nexor.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Building multiple custom modules
-References: <36039C79EF8CEC4EA97F96D6B85706420C76E3B1@AMSPRD0302MB107.eurprd03.prod.outlook.com>
-In-Reply-To: <36039C79EF8CEC4EA97F96D6B85706420C76E3B1@AMSPRD0302MB107.eurprd03.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+Subject: Force avc_has_perm to return success if enforcing == 0;
+Content-Type: multipart/mixed;
+ boundary="------------010209090208070501070001"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2/13/2012 10:04 AM, Julian Onions wrote:
-> I’m working on a policy for an application made of several modules. I’d really like the policy to use the other modules interface files.
->
-> The standard Makefile for policy building (/usr/share/selinux/devel/Makefile) doesn’t seem to let you include your own .if files, unless they are under /usr/share/selinux/devel/include or alternatively in the current directory (in which case it needs .te files too).
->
-> Is there any way to convince it I’d like files that I’m building in project/C/policy to reference the .if files in project/B/policy and project/A/policy without copying them all to project/C/policy?
+This is a multi-part message in MIME format.
+--------------010209090208070501070001
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-You should be able to this, with this structure:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-policy/layerA/foo.{te,if,fc}
-policy/layerB/bar.{te,if,fc}
+I would like to patch libselinux to always return 0 on avc_has_perm if
+the machine is in permissive mode.
 
-and then you run the make from the top level (the directory that has the directory named "policy").  BTW, the more appropriate place to ask this type of question would be the Reference Policy list.
+This will allow Userspace Object Managers to work even if the system
+is totally mislabeled and processes as running with bad context.
+Currently if a program like dbus asks with a bad process label it can
+get denials even in permissive mode.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Does anyone see a problem with this?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk860IQACgkQrlYvE4MpobNPFwCfVbE1QGJ0M8byHYZlf2U3XpdE
+Ga0An2Z2/wBklr/e6OX+4EYTrFDvL69o
+=btOY
+-----END PGP SIGNATURE-----
+
+--------------010209090208070501070001
+Content-Type: text/x-patch;
+ name="avc_has_perm_permissive.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="avc_has_perm_permissive.patch"
+
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index e7ad31d..2de39b9 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -801,6 +801,7 @@ int avc_has_perm_noaudit(security_id_t ssid,
+ 
+       out:
+ 	avc_release_lock(avc_lock);
++	if (!avc_enforcing) return 0;
+ 	return rc;
+ }
+ 
+
+--------------010209090208070501070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
