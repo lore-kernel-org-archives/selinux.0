@@ -1,61 +1,33 @@
-Message-ID: <4F3AD084.5060304@redhat.com>
-Date: Tue, 14 Feb 2012 16:22:12 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1F84paE013253
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 03:04:56 -0500
+Received: from collab.rosalab.ru (localhost [127.0.0.1])
+	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q1F84oBg011908
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 08:04:50 GMT
+Message-ID: <4F3B6787.6020300@rosalab.ru>
+Date: Wed, 15 Feb 2012 12:06:31 +0400
+From: Budanov Eugene <eugene.budanov@rosalab.ru>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Subject: Force avc_has_perm to return success if enforcing == 0;
-Content-Type: multipart/mixed;
- boundary="------------010209090208070501070001"
+To: SELinux Upstream <selinux@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>
+Subject: libsemanage from fc17
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010209090208070501070001
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi!
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I'm trying to build libsemanage, but rpm says me that 
+libsemanage-rhat.patch from libsemanage-2.1.6-2.fc17.src.rpm is empty.
 
-I would like to patch libselinux to always return 0 on avc_has_perm if
-the machine is in permissive mode.
-
-This will allow Userspace Object Managers to work even if the system
-is totally mislabeled and processes as running with bad context.
-Currently if a program like dbus asks with a bad process label it can
-get denials even in permissive mode.
-
-Does anyone see a problem with this?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk860IQACgkQrlYvE4MpobNPFwCfVbE1QGJ0M8byHYZlf2U3XpdE
-Ga0An2Z2/wBklr/e6OX+4EYTrFDvL69o
-=btOY
------END PGP SIGNATURE-----
-
---------------010209090208070501070001
-Content-Type: text/x-patch;
- name="avc_has_perm_permissive.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="avc_has_perm_permissive.patch"
-
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index e7ad31d..2de39b9 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -801,6 +801,7 @@ int avc_has_perm_noaudit(security_id_t ssid,
- 
-       out:
- 	avc_release_lock(avc_lock);
-+	if (!avc_enforcing) return 0;
- 	return rc;
- }
- 
-
---------------010209090208070501070001--
+I can get it from F16 or fresh version of this patch is exist?
+---
+Best regards,
+Budanov Eugene
+ROSA Laboratory Russia,
+Moscow.
+e-mail : eugene.budanov@rosalab.ru
+phone: +79160674716 (UTC +4)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
