@@ -1,50 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1FF1F0S004491
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 10:01:15 -0500
-Received: from mx1.redhat.com (localhost [127.0.0.1])
-	by msux-gh1-uea01.nsa.gov (8.12.10/8.12.10) with ESMTP id q1FF1CRS019402
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 15:01:13 GMT
-Message-ID: <4F3BC8B4.4080605@redhat.com>
-Date: Wed, 15 Feb 2012 10:01:08 -0500
+Message-ID: <4F3BCE70.6060507@redhat.com>
+Date: Wed, 15 Feb 2012 10:25:36 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Budanov Eugene <eugene.budanov@rosalab.ru>
-CC: SELinux Upstream <selinux@tycho.nsa.gov>
-Subject: Re: libsemanage from fc17
-References: <4F3B6787.6020300@rosalab.ru>
-In-Reply-To: <4F3B6787.6020300@rosalab.ru>
-Content-Type: text/plain; charset=UTF-8
+To: Sven Vermeulen <sven.j.vermeulen@gmail.com>
+CC: SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Force avc_has_perm to return success if enforcing == 0;
+References: <CAPzO=Nw+T8_QkzHPboQ-s399hmdMF0jb0_3ipSrSyqpHztfOfg@mail.gmail.com>
+In-Reply-To: <CAPzO=Nw+T8_QkzHPboQ-s399hmdMF0jb0_3ipSrSyqpHztfOfg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 02/15/2012 03:06 AM, Budanov Eugene wrote:
-> Hi!
+On 02/15/2012 07:50 AM, Sven Vermeulen wrote:
+> On Feb 14, 2012 10:26 PM, "Daniel J Walsh" <dwalsh@redhat.com 
+> <mailto:dwalsh@redhat.com>> wrote:
+>> I would like to patch libselinux to always return 0 on
+>> avc_has_perm if the machine is in permissive mode.
+>> 
+>> This will allow Userspace Object Managers to work even if the
+>> system is totally mislabeled and processes as running with bad
+>> context. Currently if a program like dbus asks with a bad process
+>> label it can get denials even in permissive mode.
 > 
-> I'm trying to build libsemanage, but rpm says me that 
-> libsemanage-rhat.patch from libsemanage-2.1.6-2.fc17.src.rpm is
-> empty.
+> Shouldn't SELinux-aware applications be aware as well that
+> "permissive" exists? I don't know what the impact would be to
+> change the libselinux code here, but if dbus (and other
+> applications that link with libselinux) would check the selinuxtype
+> as well they have full control over what happens.
 > 
-> I can get it from F16 or fresh version of this patch is exist? --- 
-> Best regards, Budanov Eugene ROSA Laboratory Russia, Moscow. e-mail
-> : eugene.budanov@rosalab.ru phone: +79160674716 (UTC +4)
+> A similar thing exists with SELinux-aware applications that call 
+> getexeccon() when their context is wrong. Some of these
+> applications expect this call to always result non-NULL which, in
+> case of permissive runs, yields abnormal behavior (SSHd segfaulting
+> is an example on this, Gentoo's Portage refusing to work is
+> another).
 > 
-> -- This message was distributed to subscribers of the selinux
-> mailing list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux"
-> without quotes as the message.
+> In these cases too, it is much more important imo to have the 
+> application check if the system  is running in permissive mode or
+> not.
+> 
+> Wkr, Sven Vermeulen
+> 
 
-I have no idea how that got checked in.  I just built
-libsemanage-2.1.6-3.fc17
+
+Well this code actually already had a check in there to see if it was
+in permissive mode.  It was just not checking all failure modes.
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk87yLQACgkQrlYvE4MpobMdnACgypmBfk3iRItDMca36JCQHyjP
-0r8AnjzJohm6ft/LmXK2xcqTI6U1oddF
-=5F79
+iEYEARECAAYFAk87znAACgkQrlYvE4MpobPjNwCeJR2x6XWmzJQx6oXuFNeXG4uj
+ZxsAoLUS78u1sP9XJW9dY2PFiOQS076Y
+=60ac
 -----END PGP SIGNATURE-----
 
 --
