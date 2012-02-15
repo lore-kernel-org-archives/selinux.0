@@ -1,63 +1,76 @@
-Message-ID: <4F3BCE70.6060507@redhat.com>
-Date: Wed, 15 Feb 2012 10:25:36 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1FKJjY7019316
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 15:19:45 -0500
+Received: from exchange10.columbia.tresys.com (localhost [127.0.0.1])
+	by msux-gh1-uea02.nsa.gov (8.12.10/8.12.10) with ESMTP id q1FKJimq013118
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2012 20:19:44 GMT
+Message-ID: <4F3C1348.4090003@tresys.com>
+Date: Wed, 15 Feb 2012 15:19:20 -0500
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.j.vermeulen@gmail.com>
-CC: SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Force avc_has_perm to return success if enforcing == 0;
-References: <CAPzO=Nw+T8_QkzHPboQ-s399hmdMF0jb0_3ipSrSyqpHztfOfg@mail.gmail.com>
-In-Reply-To: <CAPzO=Nw+T8_QkzHPboQ-s399hmdMF0jb0_3ipSrSyqpHztfOfg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "refpolicy@oss.tresys.com" <refpolicy@oss1.tresys.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: ANN: Reference Policy Release
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+A new release of the SELinux Reference Policy is now available on the Tresys OSS site, http://oss.tresys.com.  This release reflects the git repository restructuring for core/contrib modules[1].
 
-On 02/15/2012 07:50 AM, Sven Vermeulen wrote:
-> On Feb 14, 2012 10:26 PM, "Daniel J Walsh" <dwalsh@redhat.com 
-> <mailto:dwalsh@redhat.com>> wrote:
->> I would like to patch libselinux to always return 0 on
->> avc_has_perm if the machine is in permissive mode.
->> 
->> This will allow Userspace Object Managers to work even if the
->> system is totally mislabeled and processes as running with bad
->> context. Currently if a program like dbus asks with a bad process
->> label it can get denials even in permissive mode.
-> 
-> Shouldn't SELinux-aware applications be aware as well that
-> "permissive" exists? I don't know what the impact would be to
-> change the libselinux code here, but if dbus (and other
-> applications that link with libselinux) would check the selinuxtype
-> as well they have full control over what happens.
-> 
-> A similar thing exists with SELinux-aware applications that call 
-> getexeccon() when their context is wrong. Some of these
-> applications expect this call to always result non-NULL which, in
-> case of permissive runs, yields abnormal behavior (SSHd segfaulting
-> is an example on this, Gentoo's Portage refusing to work is
-> another).
-> 
-> In these cases too, it is much more important imo to have the 
-> application check if the system  is running in permissive mode or
-> not.
-> 
-> Wkr, Sven Vermeulen
-> 
+The complete change log for this release follows at the end of the email.
+
+For people interested in helping Reference Policy development, the X desktop and role separation needs testing, in addition to general testing.
+
+[1] http://oss.tresys.com/pipermail/refpolicy/2011-September/004619.html
+
+* Wed Feb 15 2012 Chris PeBenito <selinux@tresys.com> - 2.20120215
+- Sshd usage of mkhomedir_helper via oddjob, from Sven Vermeulen.
+- Add slim and lxdm file contexts to xserver, from Sven Vermeulen.
+- Add userdom interfaces for user application domains, user tmp files,
+  and user tmpfs files.
+- Asterisk administration fixes from Sven Vermeulen.
+- Fix makefiles to install files with the correct DAC permissions if the
+  umask is not 022.
+- Remove deprecated support macros.
+- Remove rolemap and per-role template support.
+- Change corenetwork port declaration to apply the reserved port type
+  attribute only, when the type has ports above and below 1024.
+- Change secure_mode_policyload to disable only toggling of this Boolean
+  rather than disabling all Boolean toggling permissions.
+- Use role attributes to assist with domain transitions in interactive
+  programs.
+- Milter ports patch from Paul Howarth.
+- Separate portage fetch rules out of portage_run() and portage_domtrans()
+  from Sven Vermeulen.
+- Enhance corenetwork network_port() macro to support ports that do not have
+  a well defined port number, such as stunnel.
+- Opendkim support in dkim module from Paul Howarth.
+- Wireshark updates from Sven Vermeulen.
+- Change secure_mode_insmod to control sys_module capability rather than
+  controlling domain transitions to insmod.
+- Openrc and portage updates from Sven Vermeulen.
+- Allow user and role changes on dynamic transitions with the same
+  constraints as regular transitions.
+- New git service features from Dominick Grift.
+- Corenetwork policy size optimization from Dan Walsh.
+- Silence spurious udp_socket listen denials.
+- Fix unexpanded MLS/MCS fields in monolithic seusers file.
+- Type transition fix in Postgresql database objects from KaiGai Kohei.
+- Support for file context path substitutions (file_contexts.subs).
+- Added contrib modules:
+        glance (Dan Walsh)
+        rhsmcertd (Dan Walsh)
+        sanlock (Dan Walsh)
+        sblim (Dan Walsh)
+        uuidd (Dan Walsh)
+        vdagent (Dan Walsh)
 
 
-Well this code actually already had a check in there to see if it was
-in permissive mode.  It was just not checking all failure modes.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk87znAACgkQrlYvE4MpobPjNwCeJR2x6XWmzJQx6oXuFNeXG4uj
-ZxsAoLUS78u1sP9XJW9dY2PFiOQS076Y
-=60ac
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
