@@ -1,50 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1GFIcBv010197
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 10:18:38 -0500
-Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 1FD6F208C9
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 10:18:37 -0500 (EST)
-Subject: Re: Force avc_has_perm to return success if enforcing == 0;
-From: Colin Walters <walters@verbum.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Date: Thu, 16 Feb 2012 10:18:08 -0500
-In-Reply-To: <4F3AD084.5060304@redhat.com>
-References: <4F3AD084.5060304@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <1329405489.2867.8.camel@lenny>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] selinux: include flow.h where used rather than get it
+	indirectly
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, pmoore@redhat.com
+Date: Thu, 16 Feb 2012 15:08:13 -0500
+Message-ID: <20120216200813.30665.73074.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-02-14 at 16:22 -0500, Daniel J Walsh wrote:
-> I would like to patch libselinux to always return 0 on avc_has_perm if
-> the machine is in permissive mode.
-> 
-> This will allow Userspace Object Managers to work even if the system
-> is totally mislabeled and processes as running with bad context.
-> Currently if a program like dbus asks with a bad process label it can
-> get denials even in permissive mode.
+We use flow_cache_genid in the selinux xfrm files.  This is declared in
+net/flow.h  However we do not include that file directly anywhere.  We have
+always just gotten it through a long chain of indirect .h file includes.
 
-The patch seems like it could at least use a comment.
+on x86_64:
 
-For reference the previous discussion was here:
+  CC      security/selinux/ss/services.o
+In file included from
+/next/linux-next-20120216/security/selinux/ss/services.c:69:0:
+/next/linux-next-20120216/security/selinux/include/xfrm.h: In function 'selinux_xfrm_notify_policyload':
+/next/linux-next-20120216/security/selinux/include/xfrm.h:51:14: error: 'flow_cache_genid' undeclared (first use in this function)
+/next/linux-next-20120216/security/selinux/include/xfrm.h:51:14: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [security/selinux/ss/services.o] Error 1
 
-http://marc.info/?l=selinux&m=123973525511476&w=2
+Reported-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-I'm not opposed to the proposed patch, but ultimately while it will
-make their system not crash when in permissive, it also won't help
-much in getting people towards an enforcing system.  It seems to me
-we need to improve:
+ net/xfrm/xfrm_policy.c          |    1 +
+ security/selinux/include/xfrm.h |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-1) The notification that the system requires a relabel.  If terminals
-   were HTML, we'd be using <blink>
-2) The process of relabeling.
-   I think fixfiles defaulting to "all files on all mounted filesystems"
-   is kind of wrong.  We should only relabel things installed by RPM
-   first, which should get you back to a clean slate for the system,
-   then you can look at relabeling your custom web content, etc.
-
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 7661576..596f125 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -26,6 +26,7 @@
+ #include <linux/cache.h>
+ #include <linux/audit.h>
+ #include <net/dst.h>
++#include <net/flow.h>
+ #include <net/xfrm.h>
+ #include <net/ip.h>
+ #ifdef CONFIG_XFRM_STATISTICS
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index b43813c..c220f31 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -7,6 +7,8 @@
+ #ifndef _SELINUX_XFRM_H_
+ #define _SELINUX_XFRM_H_
+ 
++#include <net/flow.h>
++
+ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
+ 			      struct xfrm_user_sec_ctx *sec_ctx);
+ int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
 
 
 --
