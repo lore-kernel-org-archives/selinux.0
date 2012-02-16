@@ -1,35 +1,39 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1G6jIMs015163
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 01:45:23 -0500
-Message-ID: <4F3CA658.5050300@rosalab.ru>
-Date: Thu, 16 Feb 2012 10:46:48 +0400
-From: Budanov Eugene <eugene.budanov@rosalab.ru>
-MIME-Version: 1.0
-To: SELinux Upstream <selinux@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: libsemanage from fc17
-References: <4F3B6787.6020300@rosalab.ru> <4F3BC8B4.4080605@redhat.com>
-In-Reply-To: <4F3BC8B4.4080605@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: Force avc_has_perm to return success if enforcing == 0;
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4F3AD084.5060304@redhat.com>
+References: <4F3AD084.5060304@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 16 Feb 2012 09:25:40 -0500
+Message-ID: <1329402340.25057.3.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-15.02.2012 19:01, Daniel J Walsh пишет:
-> I have no idea how that got checked in.  I just built
-> libsemanage-2.1.6-3.fc17
->
-Interesting. Can you send me this file to e-mail if it's not hard for 
-you? Because I cannot find it on rawhide repo.
+On Tue, 2012-02-14 at 16:22 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I would like to patch libselinux to always return 0 on avc_has_perm if
+> the machine is in permissive mode.
+> 
+> This will allow Userspace Object Managers to work even if the system
+> is totally mislabeled and processes as running with bad context.
+> Currently if a program like dbus asks with a bad process label it can
+> get denials even in permissive mode.
+> 
+> Does anyone see a problem with this?
 
-Thank you in advance.
+I'm not fond of it.  Permissive mode is just supposed to control whether
+permission is granted, not to hide other kinds of errors.  Consider how
+difficult debugging of an actual failure will be if it only shows up in
+enforcing mode even though it has nothing to do with policy.
 
----
-Best regards,
-Budanov Eugene
-ROSA Laboratory
-Russia, Moscow.
-e-mail : eugene.budanov@rosalab.ru
-phone: +79160674716 (UTC +4)
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
