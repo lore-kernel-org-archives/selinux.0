@@ -1,75 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1GElGSN007687
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 09:47:16 -0500
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q1GElEuI017875
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 09:47:14 -0500
-Received: from dhcp-189-250.bos.redhat.com (dhcp-10-16-62-208.boston.devel.redhat.com [10.16.62.208])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q1GElDdR013057
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 09:47:13 -0500
-Message-ID: <4F3D16EF.6080904@redhat.com>
-Date: Thu, 16 Feb 2012 09:47:11 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Another change we would like to make to libselinux
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1GFIcBv010197
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 10:18:38 -0500
+Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 1FD6F208C9
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2012 10:18:37 -0500 (EST)
+Subject: Re: Force avc_has_perm to return success if enforcing == 0;
+From: Colin Walters <walters@verbum.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+Date: Thu, 16 Feb 2012 10:18:08 -0500
+In-Reply-To: <4F3AD084.5060304@redhat.com>
+References: <4F3AD084.5060304@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <1329405489.2867.8.camel@lenny>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2012-02-14 at 16:22 -0500, Daniel J Walsh wrote:
+> I would like to patch libselinux to always return 0 on avc_has_perm if
+> the machine is in permissive mode.
+> 
+> This will allow Userspace Object Managers to work even if the system
+> is totally mislabeled and processes as running with bad context.
+> Currently if a program like dbus asks with a bad process label it can
+> get denials even in permissive mode.
 
-Currently we have lots of apps trying to figure out which policy is
-installed on the system,  We have a function
-selinux_binary_policy_path which returns a path like
-'/etc/selinux/targeted/policy'
+The patch seems like it could at least use a comment.
 
-Then these apps do stuff like:
+For reference the previous discussion was here:
 
-VER=`cat /sys/fs/selinux/policyver`
-while [ -e '/etc/selinux/targetd/policy. + $VER' ]; do
-      VER=$VER-1
-done
+http://marc.info/?l=selinux&m=123973525511476&w=2
 
-While we have had /sys/fs/selinux/policy for a while now.
+I'm not opposed to the proposed patch, but ultimately while it will
+make their system not crash when in permissive, it also won't help
+much in getting people towards an enforcing system.  It seems to me
+we need to improve:
 
-I wanted to add an interface to return this path, but I was trying to
-figure out a name selinux_loaded_policy_path for example, but as Eric
-pointed out to me, selinux_binary_policy_path is what most users would
-expect to return this.  If you look at the man page it even suggest this.
-
-man selinux_binary_policy_path
-...
-       selinux_binary_policy_path() - binary policy file loaded into
-kernel
-
-
-Currently the users of this function are the libselinux package,
-setools and policycorutils (sepolgen-ifgen).
+1) The notification that the system requires a relabel.  If terminals
+   were HTML, we'd be using <blink>
+2) The process of relabeling.
+   I think fixfiles defaulting to "all files on all mounted filesystems"
+   is kind of wrong.  We should only relabel things installed by RPM
+   first, which should get you back to a clean slate for the system,
+   then you can look at relabeling your custom web content, etc.
 
 
-I am torn between adding stealing this function to return the
-/sys/fs/selinux/policy and then adding selinux_installed_policy_path
-for the original function, then updating the effected packages.
-
-The problem with this is we would have different behaviour between
-older versions of the library. The other options would be to come up
-with a better name for the new function and fix the man pages.
-
-Suggestions welcomed.
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk89Fu8ACgkQrlYvE4MpobNimgCeIIpi+6Yee+GfyUlRV+n7jvaE
-39MAn064N3sRCAdpyseBKFrGR3+ojrEI
-=+Byb
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
