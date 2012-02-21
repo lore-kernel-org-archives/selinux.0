@@ -1,89 +1,51 @@
-Subject: Re: SE Android Issue Compiling Kernel for the Emulator
+Subject: Re: Force avc_has_perm to return success if enforcing == 0;
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Fullen, Jason" <jason.fullen@cubic.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <99E44A153A242A488492D7FE003CD99D0487B864@bb-corp-ex3.corp.cubic.cub>
-References: 
-	 <99E44A153A242A488492D7FE003CD99D0487B864@bb-corp-ex3.corp.cubic.cub>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4F3D14B3.9090502@redhat.com>
+References: <4F3AD084.5060304@redhat.com>
+	 <1329402340.25057.3.camel@moss-pluto>  <4F3D14B3.9090502@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 21 Feb 2012 09:10:21 -0500
-Message-ID: <1329833421.12501.13.camel@moss-pluto>
+Date: Tue, 21 Feb 2012 15:37:59 -0500
+Message-ID: <1329856679.12501.81.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-02-20 at 09:39 -0800, Fullen, Jason wrote:
-> Hello,
+On Thu, 2012-02-16 at 09:37 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  
+> On 02/16/2012 09:25 AM, Stephen Smalley wrote:
+> > On Tue, 2012-02-14 at 16:22 -0500, Daniel J Walsh wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+> >> 
+> >> I would like to patch libselinux to always return 0 on
+> >> avc_has_perm if the machine is in permissive mode.
+> >> 
+> >> This will allow Userspace Object Managers to work even if the
+> >> system is totally mislabeled and processes as running with bad
+> >> context. Currently if a program like dbus asks with a bad process
+> >> label it can get denials even in permissive mode.
+> >> 
+> >> Does anyone see a problem with this?
+> > 
+> > I'm not fond of it.  Permissive mode is just supposed to control
+> > whether permission is granted, not to hide other kinds of errors.
+> > Consider how difficult debugging of an actual failure will be if it
+> > only shows up in enforcing mode even though it has nothing to do
+> > with policy.
+> > 
+> Well I guess I can only due the return in the audit_has_perm not the
+> audit_has_perm_noaudit, since then the audit message will get
+> generated but dbus,passwd,xserver ... will allow the access.
 > 
-> I am having a problem getting SE Android to compile using Mac OS X
-> 10.6 Snow Leopard. First off, I have successfully built and run AOSP,
-> using the Mac, on the emulator. I have also built and installed Ice
-> Cream Sandwich on the Nexus S phone. So I can pretty much guarantee
-> that my build environment has been configured correctly. 
-> 
->  
-> 
-> I followed the directions on the SE Android wiki and put the
->  local_manifest.xml file into my .repo directory and then ran “repo
-> sync –j1” again. My next step was to use the following four commands
-> from the SE Android wiki to compile the necessary kernel for the
-> emulator:
-> 
->  
-> 
-> export PREFIX=/path/to/your/aospclone
-> 
-> cd $PREFIX/kernel/goldfish
-> 
-> make ARCH=arm goldfish_armv7_defconfig
-> 
-> make ARCH=arm CROSS_COMPILE=
-> $PREFIX/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
-> 
->  
-> 
-> Everything went fine with the first “make” command but the second
-> “make” command that cross compiles with something in that Linux x86
-> directory failed with the following error:
-> 
->  
-> 
-> Imaginuity3:goldfish jfullen$ make ARCH=arm CROSS_COMPILE=
-> $PREFIX/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
-> 
-> /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: cannot execute binary file
-> 
->   CHK     include/linux/version.h
-> 
-> make[1]: `include/asm-arm/mach-types.h' is up to date.
-> 
->   CHK     include/linux/utsrelease.h
-> 
->   SYMLINK include/asm -> include/asm-arm
-> 
->   CC      kernel/bounds.s
-> 
-> /bin/sh: /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: cannot execute binary file
-> 
-> make[1]: *** [kernel/bounds.s] Error 126
-> 
->  
-> 
-> I was kind of confused by the “Cannot Execute Binary File” error. I
-> manually checked and confirmed that I had “read and execute”
-> privileges so my user account should have had sufficient privileges to
-> execute that binary file. Has anyone successfully built SE Android
-> using a Mac and seen this error? If so, how did you get around this
-> error? Otherwise, does anyone have any insight into how this problem
-> might be solved?
+> If an app calls audit_has_perm_noaudit, it will still return failure.
 
-Sorry for the confusion.  On MacOS X, you need to specify the compiler
-toolchain for darwin-x86 rather than linux-x86, as follows:
-make ARCH=arm CROSS_COMPILE=$PREFIX/prebuilt/darwin-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
-
-We'll update the wiki to mention this as well.
+That doesn't help.  The issue is that avc_has_perm can fail for reasons
+other than permission failure (which is why you are making this change),
+but those other reasons are not logged/audited, so if you make them
+succeed in permissive mode, then they won't be seen there.  At all.
 
 -- 
 Stephen Smalley
