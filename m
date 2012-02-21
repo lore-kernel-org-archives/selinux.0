@@ -1,51 +1,48 @@
-Subject: Re: Force avc_has_perm to return success if enforcing == 0;
+Subject: Re: policycoreutils build error
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4F3D14B3.9090502@redhat.com>
-References: <4F3AD084.5060304@redhat.com>
-	 <1329402340.25057.3.camel@moss-pluto>  <4F3D14B3.9090502@redhat.com>
+To: Kovacsics =?ISO-8859-1?Q?R=F3bert?= <kovirobi@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
+References: 
+	 <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 21 Feb 2012 15:37:59 -0500
-Message-ID: <1329856679.12501.81.camel@moss-pluto>
+Date: Tue, 21 Feb 2012 15:33:39 -0500
+Message-ID: <1329856419.12501.78.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-02-16 at 09:37 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sat, 2012-02-11 at 13:13 +0000, Kovacsics Róbert wrote:
+> Hello all!
 > 
-> On 02/16/2012 09:25 AM, Stephen Smalley wrote:
-> > On Tue, 2012-02-14 at 16:22 -0500, Daniel J Walsh wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
-> >> 
-> >> I would like to patch libselinux to always return 0 on
-> >> avc_has_perm if the machine is in permissive mode.
-> >> 
-> >> This will allow Userspace Object Managers to work even if the
-> >> system is totally mislabeled and processes as running with bad
-> >> context. Currently if a program like dbus asks with a bad process
-> >> label it can get denials even in permissive mode.
-> >> 
-> >> Does anyone see a problem with this?
-> > 
-> > I'm not fond of it.  Permissive mode is just supposed to control
-> > whether permission is granted, not to hide other kinds of errors.
-> > Consider how difficult debugging of an actual failure will be if it
-> > only shows up in enforcing mode even though it has nothing to do
-> > with policy.
-> > 
-> Well I guess I can only due the return in the audit_has_perm not the
-> audit_has_perm_noaudit, since then the audit message will get
-> generated but dbus,passwd,xserver ... will allow the access.
+> I would like to ask for assistance on compiling SELinux (particularly
+> policycoreutils 2.1.0)
 > 
-> If an app calls audit_has_perm_noaudit, it will still return failure.
+> Here is my setup:
+> *Linux from scratch running kernel 3.2.5
+> *Installed libsepol
+> *Installed libselinux
+> *Installed libsemanage
+> *Installed sepolgen
+> *Installed checkpolicy
+> 
+> Error on installing policycoreutils-2.1.0
+> Error:
+> make[1]: Entering directory
+> `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
+> cc  -I/usr/include -DPACKAGE="\"policycoreutils\""   -c -o seunshare.o
+> seunshare.c
+> seunshare.c: In function ‘main’:
+> seunshare.c:242:21: error: ‘CLONE_NEWNS’ undeclared (first use in this function)
+> seunshare.c:242:21: note: each undeclared identifier is reported only
+> once for each function it appears in
+> make[1]: *** [seunshare.o] Error 1
+> make[1]: Leaving directory `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
+> make: *** [all] Error 1
 
-That doesn't help.  The issue is that avc_has_perm can fail for reasons
-other than permission failure (which is why you are making this change),
-but those other reasons are not logged/audited, so if you make them
-succeed in permissive mode, then they won't be seen there.  At all.
+$ grep CLONE_NEWNS /usr/include/*/*.h
+/usr/include/bits/sched.h:# define CLONE_NEWNS   0x00020000 /* Set to create new namespace.  */
+/usr/include/linux/sched.h:#define CLONE_NEWNS	0x00020000	/* New namespace group? */
 
 -- 
 Stephen Smalley
