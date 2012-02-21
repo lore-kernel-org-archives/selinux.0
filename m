@@ -1,56 +1,93 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1KLtqi7031336
-	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2012 16:55:52 -0500
-Received: by dady25 with SMTP id y25so7678793dad.12
-        for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2012 13:55:49 -0800 (PST)
-Message-ID: <1329774937.13636.36.camel@foxtrot.cjac.ntr.f5net.com>
-Subject: Re: signed source
-From: "C.J. Adams-Collier KF7BMP" <cjac@colliertech.org>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Date: Mon, 20 Feb 2012 13:55:37 -0800
-In-Reply-To: <201202201518.28510.russell@coker.com.au>
-References: <201202201518.28510.russell@coker.com.au>
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-HJrXi0lnOj9d6b5DGpfK"
+Subject: Re: SE Android Issue Compiling Kernel for the Emulator
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Fullen, Jason" <jason.fullen@cubic.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <99E44A153A242A488492D7FE003CD99D0487B864@bb-corp-ex3.corp.cubic.cub>
+References: 
+	 <99E44A153A242A488492D7FE003CD99D0487B864@bb-corp-ex3.corp.cubic.cub>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 21 Feb 2012 09:10:21 -0500
+Message-ID: <1329833421.12501.13.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2012-02-20 at 09:39 -0800, Fullen, Jason wrote:
+> Hello,
+> 
+>  
+> 
+> I am having a problem getting SE Android to compile using Mac OS X
+> 10.6 Snow Leopard. First off, I have successfully built and run AOSP,
+> using the Mac, on the emulator. I have also built and installed Ice
+> Cream Sandwich on the Nexus S phone. So I can pretty much guarantee
+> that my build environment has been configured correctly. 
+> 
+>  
+> 
+> I followed the directions on the SE Android wiki and put the
+>  local_manifest.xml file into my .repo directory and then ran “repo
+> sync –j1” again. My next step was to use the following four commands
+> from the SE Android wiki to compile the necessary kernel for the
+> emulator:
+> 
+>  
+> 
+> export PREFIX=/path/to/your/aospclone
+> 
+> cd $PREFIX/kernel/goldfish
+> 
+> make ARCH=arm goldfish_armv7_defconfig
+> 
+> make ARCH=arm CROSS_COMPILE=
+> $PREFIX/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
+> 
+>  
+> 
+> Everything went fine with the first “make” command but the second
+> “make” command that cross compiles with something in that Linux x86
+> directory failed with the following error:
+> 
+>  
+> 
+> Imaginuity3:goldfish jfullen$ make ARCH=arm CROSS_COMPILE=
+> $PREFIX/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
+> 
+> /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: cannot execute binary file
+> 
+>   CHK     include/linux/version.h
+> 
+> make[1]: `include/asm-arm/mach-types.h' is up to date.
+> 
+>   CHK     include/linux/utsrelease.h
+> 
+>   SYMLINK include/asm -> include/asm-arm
+> 
+>   CC      kernel/bounds.s
+> 
+> /bin/sh: /Volumes/SEAndroid/WORKING_DIRECTORY/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-gcc: cannot execute binary file
+> 
+> make[1]: *** [kernel/bounds.s] Error 126
+> 
+>  
+> 
+> I was kind of confused by the “Cannot Execute Binary File” error. I
+> manually checked and confirmed that I had “read and execute”
+> privileges so my user account should have had sufficient privileges to
+> execute that binary file. Has anyone successfully built SE Android
+> using a Mac and seen this error? If so, how did you get around this
+> error? Otherwise, does anyone have any insight into how this problem
+> might be solved?
 
---=-HJrXi0lnOj9d6b5DGpfK
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Sorry for the confusion.  On MacOS X, you need to specify the compiler
+toolchain for darwin-x86 rather than linux-x86, as follows:
+make ARCH=arm CROSS_COMPILE=$PREFIX/prebuilt/darwin-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
 
-or sha1sum would be better than nothing.  I noted that some of the folks
-@tycho.nsa.gov have not kept their PGP keys in a state that meets NIST
-guidelines for key length.
+We'll update the wiki to mention this as well.
 
-On Mon, 2012-02-20 at 15:18 +1100, Russell Coker wrote:
-> Would it be possible to have someone produce GPG signatures for the sourc=
-e=20
-> packages for user-space and the policy?
->=20
-
-
---=-HJrXi0lnOj9d6b5DGpfK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAABCAAGBQJPQsFZAAoJEEyimPmPQm23fF8H/RZs18yvUDjUgTnPJYLPYWR2
-ZmSPF6A9nlnm0R/0QHAUoZFwAbseKWiyfHZGHouMlimB7yE+KVrrUGXCk/lpv3M6
-xp6Xsfcj32ZQvBQGlMcFcTW6ccFCTh8xjXrkBMsCSasJKZ0Ww8i32YrDMFCCMPgL
-Ef6RtouZSiZZ0TE3L02CgZVxbhgdIotYC1t4icnXaLWdKXv2q7qgOVjVkVL8tszq
-LgQxOMIPrUWeq+LtNcWn+2gBt9H54lOmA6fcAcqU6J14q2NacahJmYCLJkSPUBTD
-ikx8O0SytEyaInsa33XAQnx8aTEYGLbB+7FS0B9Ub8VPDGymErmtZrxho6QtQDY=
-=Dy7y
------END PGP SIGNATURE-----
-
---=-HJrXi0lnOj9d6b5DGpfK--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
