@@ -1,48 +1,60 @@
-Subject: Re: policycoreutils build error
+Subject: Re: Currently the kernel is interpreting reading the link file on
+ /proc/PID/exe as sys_ptrace for a different UID.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kovacsics =?ISO-8859-1?Q?R=F3bert?= <kovirobi@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
-References: 
-	 <CABPkNKmB6ZdGtT1Avy64sFxce1y1WqAzD73uwZTqF8ij6c4t0w@mail.gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Eric Paris <eparis@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4F3A684B.6010009@redhat.com>
+References: <4F398582.7030004@redhat.com>
+	 <CAB9W1A3SHFQ-YQAUDyN=wCx0x3PQvrvmSo90_VzUDd-m5-ZTiw@mail.gmail.com>
+	 <4F3A684B.6010009@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 21 Feb 2012 15:33:39 -0500
-Message-ID: <1329856419.12501.78.camel@moss-pluto>
+Date: Tue, 21 Feb 2012 15:36:15 -0500
+Message-ID: <1329856575.12501.80.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2012-02-11 at 13:13 +0000, Kovacsics Róbert wrote:
-> Hello all!
+On Tue, 2012-02-14 at 08:57 -0500, Daniel J Walsh wrote:
+> On 02/13/2012 06:09 PM, Stephen Smalley wrote:
+> > On Mon, Feb 13, 2012 at 1:49 PM, Daniel J Walsh <dwalsh@redhat.com>
+> > wrote:
+> >> I believe this should be DAC_READ_SEARCH.
+> >> 
+> >> I am trying to prevent all SYS_PTRACE from any domain on the
+> >> system but certain apps like dbus, consolekit, policykit,
+> >> systemd-logger and others like to look /proc/PID/exe to report
+> >> the path of the executable they are communicating with.  This
+> >> causes lots of sys_ptrace access being required for domains, that
+> >> I do not believe need it.
+> >> 
+> >> They need DAC_READ_SEARCH because they are trying to read content
+> >> that is owned by a different UID.  The SYS_PTRACE stuff was put
+> >> in to prevent apps from reading process memory information stored
+> >> in /proc.
+> >> 
+> >> I think this is a bug in the kernel.
+> > 
+> > SELinux just mirrors the Linux capability checks.  CAP_SYS_PTRACE
+> > is applied when the normal DAC check on ptrace fails (i.e.
+> > different uid).  The SELinux MAC check here is the :process ptrace
+> > check.  That is what you should focus on - SELinux already
+> > distinguishes /proc access from ptrace (except for /proc/pid/mem,
+> > which is viewed as equivalent).  dontaudit :capability sys_ptrace
+> > where needed, but not :process ptrace.
 > 
-> I would like to ask for assistance on compiling SELinux (particularly
-> policycoreutils 2.1.0)
+> But I have to allow all these domains capability sys_ptrace then,
+> since these domains legitimately want to either use an access check
+> based on the executable of the process or in the case of the
+> systemd_jounal, want to log it.
 > 
-> Here is my setup:
-> *Linux from scratch running kernel 3.2.5
-> *Installed libsepol
-> *Installed libselinux
-> *Installed libsemanage
-> *Installed sepolgen
-> *Installed checkpolicy
-> 
-> Error on installing policycoreutils-2.1.0
-> Error:
-> make[1]: Entering directory
-> `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
-> cc  -I/usr/include -DPACKAGE="\"policycoreutils\""   -c -o seunshare.o
-> seunshare.c
-> seunshare.c: In function ‘main’:
-> seunshare.c:242:21: error: ‘CLONE_NEWNS’ undeclared (first use in this function)
-> seunshare.c:242:21: note: each undeclared identifier is reported only
-> once for each function it appears in
-> make[1]: *** [seunshare.o] Error 1
-> make[1]: Leaving directory `/blfs-sources/selinux/policycoreutils-2.1.0/sandbox'
-> make: *** [all] Error 1
+> If the CAP check on reading a symbolic link in /proc is SYS_PTRACE,
+> that seems bogus.  If it was reading /proc/pid/mem or any of the other
+> /proc/pid fields that tell you about the memory, then I agree those
+> should be SYS_PTRACE.  But this is a DAC_READ_SEARCH check in my opinion.
 
-$ grep CLONE_NEWNS /usr/include/*/*.h
-/usr/include/bits/sched.h:# define CLONE_NEWNS   0x00020000 /* Set to create new namespace.  */
-/usr/include/linux/sched.h:#define CLONE_NEWNS	0x00020000	/* New namespace group? */
+What you are asking for is a change to the Linux DAC logic, not a change
+to SELinux.  You can certainly investigate that, but that has to be
+taken up on lkml, not here.
 
 -- 
 Stephen Smalley
