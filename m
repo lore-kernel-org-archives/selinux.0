@@ -1,59 +1,143 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1MK2ant031989
-	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2012 15:02:38 -0500
-Subject: Re: No feedback when cloning `http://oss.tresys.com/git/selinux.git`
-Mime-Version: 1.0 (Apple Message framework v1257)
-Content-Type: text/plain; charset=iso-8859-1
-From: Joe Nall <joe@nall.com>
-In-Reply-To: <4F4546F6.5050603@tresys.com>
-Date: Wed, 22 Feb 2012 14:02:35 -0600
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>, <selinux@tycho.nsa.gov>
-Message-Id: <6BF36172-D831-4087-8096-803DCB9AD957@nall.com>
-References: <1329939142.3296.5.camel@mattotaupa> <4F4546F6.5050603@tresys.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1MNMQwG010371
+	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2012 18:22:26 -0500
+Received: from [192.168.1.38] (unknown [86.67.70.49])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by smtp.mxes.net (Postfix) with ESMTPSA id 8F9C922E25B
+	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2012 18:22:24 -0500 (EST)
+Date: Wed, 22 Feb 2012 23:22:20 +0000
+From: Martin Orr <martin@martinorr.name>
+To: HarryCiao <harrytaurus2002@hotmail.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: role_fix_callback assertion with sysadm in base - base VS
+ loadable module
+Message-ID: <20120222232219.GA15452@claudius.martinorr.name>
+References: <20120209225847.969915sba4w431r4@webmail.tuffmail.net>
+ <SNT139-W2532C1EC901A78581F23C6AB600@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <SNT139-W2532C1EC901A78581F23C6AB600@phx.gbl>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Sorry, I failed to make it clear that the requires causing problems are
+in optional blocks.
 
-On Feb 22, 2012, at 1:50 PM, Christopher J. PeBenito wrote:
+Perhaps might make it clearer if I remove the refpolicy machinery.
+Ignore everything below except the attribute_role stuff - the rest is
+just needed to get something which compiles.
 
-> On 02/22/12 14:32, Paul Menzel wrote:
->> Dear SELinux folks,
->> 
->> 
->> trying to clone the SELinux user space programs [1] I issue
->> 
->> 
->>        $ git clone http://oss.tresys.com/git/selinux.git
->>        Cloning into 'selinux'...
->> 
->> but it just hangs there. So I thought it does not work. Letting it stay
->> for more than a minute it finished. Other Git repositories give some
->> kind of feedback. Are some hooks missing?
+In each case, the base module optionally requires the role attribute
+foo.  This works if the attribute is defined in the base but not
+otherwise.  Both examples work if foo is a type instead of an
+attribute_role.
+
+  $ cat x.te
+class file
+sid kernel
+class file {
+        read
+}
+
+optional {
+        require {
+                attribute_role foo;
+        }
+}
+
+type kernel_t;
+user system_u roles { object_r };
+sid kernel system_u:object_r:kernel_t
+
+  $ checkmodule x.te 
+checkmodule:  loading policy configuration from x.te
+checkmodule: expand.c:700: role_fix_callback: Assertion `new_role != ((void *)0) && new_role->flavor == 1' failed.
+Aborted
+
+  $ cat y.te 
+class file
+sid kernel
+class file {
+        read
+}
+
+attribute_role foo;
+optional {
+        require {
+                attribute_role foo;
+        }
+}
+
+type kernel_t;
+user system_u roles { object_r };
+sid kernel system_u:object_r:kernel_t
+
+  $ checkmodule y.te 
+checkmodule:  loading policy configuration from y.te
+checkmodule:  policy configuration loaded
+
+On Sat, Feb 18, 2012 at 03:02:23PM +0000, HarryCiao wrote:
 > 
-> Are you sure you're waiting long enough?  I was able to clone a fresh copy of the repo using the above command w/o problem.  It took 48s for me.
+> So far I am not 100% sure, but I am extra sure that certain cautions
+> must be taken when requiring a module to be built into base.pp rather
+> than as loadable module. In particular, while building the base module
+> the "self_contained_policy" macro is defined, exactly the same as when
+> building a monolithic policy image, which will influence if the
+> gen_require() macro would be properly expanded to the "require"
+> keyword. Below is the definition of the gen_require() macro:
+> 
+> define(`gen_require',`
+>         ifdef(`self_contained_policy',`
+>                 ifdef(`__in_optional_policy',`
+>                         require {
+>                                 $1
+>                         } # end require
+>                 ')
+>         ',`
+>                 require {
+>                         $1
+>                 } # end require
+>         ')
+> ')
+> 
+> Where we can clearly see that if the "self_contained_policy" is
+> defined,  ONLY WHEN the "__in_optional_policy" is also defined, would
+> gen_require() be expaned to the require keyword. BTW,
+> "__in_optional_policy" is defined only within an optional_policy()
+> block.
+> 
+> That's why I take it for granted that you would have to include the
+> actual definition of a role attribute along with the module that
+> requires it into the base module.
+> 
+> Cheers,
+> Harry
+> 
+> 
+> > Date: Thu, 9 Feb 2012 22:58:47 +0000
+> > From: martin@martinorr.name
+> > To: selinux@tycho.nsa.gov
+> > Subject: role_fix_callback assertion with sysadm in base
+> > 
+> > I tried to build latest git refpolicy (6da98efd) using latest  
+> > checkpolicy and libsepol (339f8079) with the attached modules.conf.   
+> > In particular this puts sysadm into base.pp, and minimal other things.  
+> >   I get the following error.
+> > 
+> > Compiling refpolicy base module
+> > /usr/bin/checkmodule base.conf -o tmp/base.mod
+> > /usr/bin/checkmodule:  loading policy configuration from base.conf
+> > checkmodule: expand.c:700: role_fix_callback: Assertion `new_role !=  
+> > ((void *)0) && new_role->flavor == 1' failed.
+> > make: *** [tmp/base.mod] Aborted
+> > 
+> > -- 
+> > Martin Orr
+>  		 	   		  
 
-I think what he is referring to is:
-
-time git clone http://oss.tresys.com/git/selinux.git
-Cloning into selinux...
-
-real	0m46.487s
-user	0m1.255s
-sys	0m2.326s
-
-time git clone https://github.com/joyent/node.git
-Cloning into node...
-remote: Counting objects: 60958, done.
-remote: Compressing objects: 100% (15947/15947), done.
-Receiving objects:  17% (10687/60958), 16.84 MiB | 820 KiB/s   
-
-the remote: and Receiving objects: lines
-
-joe
-
-
-
+-- 
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
