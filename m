@@ -1,64 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1MJWS90029913
-	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2012 14:32:28 -0500
-Received: from f053034093.adsl.alicedsl.de ([78.53.34.93] helo=[192.168.178.43])
-	by mail.gw90.de with esmtpsa (TLS1.0:RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.69)
-	(envelope-from <paulepanter@users.sourceforge.net>)
-	id 1S0HvS-0007vT-Bv
-	for selinux@tycho.nsa.gov; Wed, 22 Feb 2012 19:32:30 +0000
-Message-ID: <1329939142.3296.5.camel@mattotaupa>
-Subject: No feedback when cloning `http://oss.tresys.com/git/selinux.git`
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-To: selinux@tycho.nsa.gov
-Date: Wed, 22 Feb 2012 20:32:22 +0100
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-	boundary="=-qDK0NGEBYfyfWGXwFN7j"
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1MJoGBp030945
+	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2012 14:50:16 -0500
+Message-ID: <4F4546F6.5050603@tresys.com>
+Date: Wed, 22 Feb 2012 14:50:14 -0500
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+MIME-Version: 1.0
+To: Paul Menzel <paulepanter@users.sourceforge.net>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: No feedback when cloning `http://oss.tresys.com/git/selinux.git`
+References: <1329939142.3296.5.camel@mattotaupa>
+In-Reply-To: <1329939142.3296.5.camel@mattotaupa>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On 02/22/12 14:32, Paul Menzel wrote:
+> Dear SELinux folks,
+> 
+> 
+> trying to clone the SELinux user space programs [1] I issue
+> 
+> 
+>         $ git clone http://oss.tresys.com/git/selinux.git
+>         Cloning into 'selinux'...
+> 
+> but it just hangs there. So I thought it does not work. Letting it stay
+> for more than a minute it finished. Other Git repositories give some
+> kind of feedback. Are some hooks missing?
 
---=-qDK0NGEBYfyfWGXwFN7j
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Are you sure you're waiting long enough?  I was able to clone a fresh copy of the repo using the above command w/o problem.  It took 48s for me.
 
-Dear SELinux folks,
-
-
-trying to clone the SELinux user space programs [1] I issue
-
-
-        $ git clone http://oss.tresys.com/git/selinux.git
-        Cloning into 'selinux'...
-
-but it just hangs there. So I thought it does not work. Letting it stay
-for more than a minute it finished. Other Git repositories give some
-kind of feedback. Are some hooks missing?
-
-
-Thanks,
-
-Paul
-
-
-[1] http://userspace.selinuxproject.org/trac/wiki/Contributing
-
---=-qDK0NGEBYfyfWGXwFN7j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAk9FQsYACgkQPX1aK2wOHViMZgCfWar74jJODB0yJqHGGGpYG+Hf
-HGgAniIRvHfMCvI6WKfsIQf/kBVMBtqF
-=fuGF
------END PGP SIGNATURE-----
-
---=-qDK0NGEBYfyfWGXwFN7j--
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
