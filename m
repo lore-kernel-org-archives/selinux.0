@@ -1,169 +1,293 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NAMi9O004296
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 05:22:44 -0500
-Message-ID: <4F46136E.6050802@windriver.com>
-Date: Thu, 23 Feb 2012 18:22:38 +0800
-From: Harry Ciao <qingtao.cao@windriver.com>
-Reply-To: <qingtao.cao@windriver.com>
-MIME-Version: 1.0
-To: Martin Orr <martin@martinorr.name>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: role_fix_callback assertion with sysadm in base - base VS loadable
- module
-References: <20120209225847.969915sba4w431r4@webmail.tuffmail.net> <SNT139-W2532C1EC901A78581F23C6AB600@phx.gbl> <20120222232219.GA15452@claudius.martinorr.name>
-In-Reply-To: <20120222232219.GA15452@claudius.martinorr.name>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NF52w1021191
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 10:05:02 -0500
+Subject: [PATCH libsepol] Android/MacOS X build support
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 23 Feb 2012 10:05:01 -0500
+Message-ID: <1330009501.27529.30.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Martin,
+Android/MacOS X build support for libsepol.
+Create a Android.mk file for Android build integration.
+Introduce DARWIN ifdefs for building on MacOS X.
 
-On 02/23/2012 07:22 AM, Martin Orr wrote:
-> Sorry, I failed to make it clear that the requires causing problems are
-> in optional blocks.
->
-> Perhaps might make it clearer if I remove the refpolicy machinery.
-> Ignore everything below except the attribute_role stuff - the rest is
-> just needed to get something which compiles.
->
-> In each case, the base module optionally requires the role attribute
-> foo.  This works if the attribute is defined in the base but not
-> otherwise.  Both examples work if foo is a type instead of an
-> attribute_role.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-No comments about why if foo is a type attribute then its declaration 
-could be optional (not momentarily required) in the base module. 
-Hypothetically, base module should be self-contained so that other 
-modules could add on top of it.
+---
+ libsepol/Android.mk        |   97 ++++++++++++++++++++++++++++++++++++++++++++
+ libsepol/src/genbools.c    |   18 ++++++++-
+ libsepol/src/genusers.c    |   19 ++++++++-
+ libsepol/src/node_record.c |    9 ++++-
+ libsepol/src/private.h     |   12 +++++
+ libsepol/utils/chkcon.c    |    2 +
+ 6 files changed, 153 insertions(+), 4 deletions(-)
+ create mode 100644 libsepol/Android.mk
 
-(Perhaps this is a toolchain bug, but I am not sure, need more time to 
-understand why link_modules() failed to find this undeclared symbol)
+diff --git a/libsepol/Android.mk b/libsepol/Android.mk
+new file mode 100644
+index 0000000..e193765
+--- /dev/null
++++ b/libsepol/Android.mk
+@@ -0,0 +1,97 @@
++LOCAL_PATH:= $(call my-dir)
++
++common_src_files := \
++	src/assertion.c \
++	src/avrule_block.c \
++	src/avtab.c \
++	src/boolean_record.c \
++	src/booleans.c \
++	src/conditional.c \
++	src/constraint.c \
++	src/context.c \
++	src/context_record.c \
++	src/debug.c \
++	src/ebitmap.c \
++	src/expand.c \
++	src/genbools.c \
++	src/genusers.c \
++	src/handle.c \
++	src/hashtab.c \
++	src/hierarchy.c \
++	src/iface_record.c \
++	src/interfaces.c \
++	src/link.c \
++	src/mls.c \
++	src/module.c \
++	src/node_record.c \
++	src/nodes.c \
++	src/polcaps.c \
++	src/policydb.c \
++	src/policydb_convert.c \
++	src/policydb_public.c \
++	src/port_record.c \
++	src/ports.c \
++	src/roles.c \
++	src/services.c \
++	src/sidtab.c \
++	src/symtab.c \
++	src/user_record.c \
++	src/users.c \
++	src/util.c \
++	src/write.c
++
++common_cflags := \
++	-Wall -W -Wundef \
++	-Wshadow -Wmissing-noreturn \
++	-Wmissing-format-attribute
++
++ifeq ($(HOST_OS), darwin)
++common_cflags += -DDARWIN
++endif
++
++common_includes := \
++	$(LOCAL_PATH)/include/ \
++	$(LOCAL_PATH)/src/
++
++##
++# libsepol.so
++#
++include $(CLEAR_VARS)
++
++LOCAL_MODULE := libsepol
++LOCAL_MODULE_TAGS := optional
++LOCAL_C_INCLUDES := $(common_includes) 
++LOCAL_CFLAGS := $(common_cflags)
++LOCAL_SRC_FILES := $(common_src_files)
++LOCAL_MODULE_CLASS := SHARED_LIBRARIES
++
++include $(BUILD_HOST_SHARED_LIBRARY)
++
++##
++# libsepol.a
++#
++include $(CLEAR_VARS)
++
++LOCAL_MODULE := libsepol
++LOCAL_MODULE_TAGS := optional
++LOCAL_C_INCLUDES := $(common_includes) 
++LOCAL_CFLAGS := $(common_cflags)
++LOCAL_SRC_FILES := $(common_src_files)
++LOCAL_MODULE_CLASS := STATIC_LIBRARIES
++
++include $(BUILD_HOST_STATIC_LIBRARY)
++
++##
++# chkcon
++#
++include $(CLEAR_VARS)
++
++LOCAL_MODULE := chkcon
++LOCAL_MODULE_TAGS := optional
++LOCAL_C_INCLUDES := $(common_includes) 
++LOCAL_CFLAGS := $(common_cflags)
++LOCAL_SRC_FILES := utils/chkcon.c
++LOCAL_SHARED_LIBRARIES := libsepol
++LOCAL_MODULE_CLASS := EXECUTABLES
++
++include $(BUILD_HOST_EXECUTABLE)
+diff --git a/libsepol/src/genbools.c b/libsepol/src/genbools.c
+index e353ef3..612ff9a 100644
+--- a/libsepol/src/genbools.c
++++ b/libsepol/src/genbools.c
+@@ -79,7 +79,16 @@ static int load_booleans(struct policydb *policydb, const char *path,
+ 	if (boolf == NULL)
+ 		goto localbool;
+ 
++#ifdef DARWIN
++        if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
++          ERR(NULL, "out of memory");
++	  return -1;
++	}
++
++        while(fgets(buffer, 255, boolf) != NULL) {
++#else
+ 	while (getline(&buffer, &size, boolf) > 0) {
++#endif
+ 		int ret = process_boolean(buffer, name, sizeof(name), &val);
+ 		if (ret == -1)
+ 			errors++;
+@@ -101,7 +110,14 @@ static int load_booleans(struct policydb *policydb, const char *path,
+ 	snprintf(localbools, sizeof(localbools), "%s.local", path);
+ 	boolf = fopen(localbools, "r");
+ 	if (boolf != NULL) {
+-		while (getline(&buffer, &size, boolf) > 0) {
++
++#ifdef DARWIN
++
++	  while(fgets(buffer, 255, boolf) != NULL) {
++#else
++
++	    while (getline(&buffer, &size, boolf) > 0) {
++#endif
+ 			int ret =
+ 			    process_boolean(buffer, name, sizeof(name), &val);
+ 			if (ret == -1)
+diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
+index 44f94e9..37528e2 100644
+--- a/libsepol/src/genusers.c
++++ b/libsepol/src/genusers.c
+@@ -1,11 +1,16 @@
+ #include <stdio.h>
+-#include <stdio_ext.h>
++
+ #include <stdlib.h>
+ #include <ctype.h>
+ #include <errno.h>
+ #include <limits.h>
+ 
+ #include <sepol/policydb/policydb.h>
++
++#ifndef DARWIN
++#include <stdio_ext.h>
++#endif
++
+ #include <stdarg.h>
+ 
+ #include "debug.h"
+@@ -41,9 +46,19 @@ static int load_users(struct policydb *policydb, const char *path)
+ 	fp = fopen(path, "r");
+ 	if (fp == NULL)
+ 		return -1;
+-	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+ 
++#ifdef DARWIN
++	if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
++	  ERR(NULL, "out of memory");
++	  return -1;
++	}
++
++	while(fgets(buffer, 255, fp) != NULL) {
++#else
++	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+ 	while ((nread = getline(&buffer, &len, fp)) > 0) {
++#endif
++
+ 		lineno++;
+ 		if (buffer[nread - 1] == '\n')
+ 			buffer[nread - 1] = 0;
+diff --git a/libsepol/src/node_record.c b/libsepol/src/node_record.c
+index b1bd370..bd48ba0 100644
+--- a/libsepol/src/node_record.c
++++ b/libsepol/src/node_record.c
+@@ -70,7 +70,11 @@ static int node_parse_addr(sepol_handle_t * handle,
+ 				return STATUS_ERR;
+ 			}
+ 
++#ifdef DARWIN
++			memcpy(addr_bytes, in_addr.s6_addr, 16);
++#else
+ 			memcpy(addr_bytes, in_addr.s6_addr32, 16);
++#endif
+ 			break;
+ 		}
+ 	default:
+@@ -158,8 +162,11 @@ static int node_expand_addr(sepol_handle_t * handle,
+ 		{
+ 			struct in6_addr addr;
+ 			memset(&addr, 0, sizeof(struct in6_addr));
++#ifdef DARWIN
++			memcpy(&addr.s6_addr[0], addr_bytes, 16);
++#else
+ 			memcpy(&addr.s6_addr32[0], addr_bytes, 16);
+-
++#endif
+ 			if (inet_ntop(AF_INET6, &addr, addr_str,
+ 				      INET6_ADDRSTRLEN) == NULL) {
+ 
+diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+index 24a544d..8a6d4bb 100644
+--- a/libsepol/src/private.h
++++ b/libsepol/src/private.h
+@@ -4,11 +4,23 @@
+ 
+ #include <sepol/policydb/policydb.h>
+ 
++
++#ifdef DARWIN
++#include <sys/types.h>
++#include <machine/endian.h>
++#else
+ #include <byteswap.h>
+ #include <endian.h>
++#endif
++
+ #include <errno.h>
+ #include <dso.h>
+ 
++#ifdef DARWIN
++#define __BYTE_ORDER  BYTE_ORDER
++#define __LITTLE_ENDIAN  LITTLE_ENDIAN
++#endif
++
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+ #define cpu_to_le16(x) (x)
+ #define le16_to_cpu(x) (x)
+diff --git a/libsepol/utils/chkcon.c b/libsepol/utils/chkcon.c
+index 4c23d4c..baa5117 100644
+--- a/libsepol/utils/chkcon.c
++++ b/libsepol/utils/chkcon.c
+@@ -6,6 +6,8 @@
+ #include <string.h>
+ #include <errno.h>
+ 
++void usage(char*) __attribute__((noreturn));
++
+ void usage(char *progname)
+ {
+ 	printf("usage:  %s policy context\n", progname);
+-- 
+1.7.4.4
 
->    $ cat x.te
-> class file
-> sid kernel
-> class file {
->          read
-> }
->
-> optional {
->          require {
->                  attribute_role foo;
->          }
-> }
->
-> type kernel_t;
-> user system_u roles { object_r };
-> sid kernel system_u:object_r:kernel_t
->
->    $ checkmodule x.te
-> checkmodule:  loading policy configuration from x.te
-> checkmodule: expand.c:700: role_fix_callback: Assertion `new_role != ((void *)0)&&  new_role->flavor == 1' failed.
-> Aborted
 
-If you break above assertion into two parts, you will see that it aborts 
-at the criteria of
+-- 
+Stephen Smalley
+National Security Agency
 
-new_role != ((void *)0)
-
-
-The reason is that during expansion any undeclared role identifiers 
-would be skipped (see role_copy_callback > is_id_enabled, which will 
-return 0 if it fails to find a SCOPE_DECL type of scope_datum_t for the 
-current identifier), resulting in the foo attribute won't even be 
-properly copied from the base module to the out module.
-
-At last the expand_module > role_fix_callback will find foo identifier 
-does not exist in out.p_roles hashtab, that's exactly how above 
-assertion is failed.
-
-Last but not least, if you want to build a loadable module, the "-m" 
-option would have to be used for checkmodule, otherwise it will try to 
-build a base module by default and then tries to call link_modules() and 
-expand_module(), which makes no sense for loadable modules.
-
-Thanks,
-Harry
-
->    $ cat y.te
-> class file
-> sid kernel
-> class file {
->          read
-> }
->
-> attribute_role foo;
-> optional {
->          require {
->                  attribute_role foo;
->          }
-> }
->
-> type kernel_t;
-> user system_u roles { object_r };
-> sid kernel system_u:object_r:kernel_t
->
->    $ checkmodule y.te
-> checkmodule:  loading policy configuration from y.te
-> checkmodule:  policy configuration loaded
->
-> On Sat, Feb 18, 2012 at 03:02:23PM +0000, HarryCiao wrote:
->> So far I am not 100% sure, but I am extra sure that certain cautions
->> must be taken when requiring a module to be built into base.pp rather
->> than as loadable module. In particular, while building the base module
->> the "self_contained_policy" macro is defined, exactly the same as when
->> building a monolithic policy image, which will influence if the
->> gen_require() macro would be properly expanded to the "require"
->> keyword. Below is the definition of the gen_require() macro:
->>
->> define(`gen_require',`
->>          ifdef(`self_contained_policy',`
->>                  ifdef(`__in_optional_policy',`
->>                          require {
->>                                  $1
->>                          } # end require
->>                  ')
->>          ',`
->>                  require {
->>                          $1
->>                  } # end require
->>          ')
->> ')
->>
->> Where we can clearly see that if the "self_contained_policy" is
->> defined,  ONLY WHEN the "__in_optional_policy" is also defined, would
->> gen_require() be expaned to the require keyword. BTW,
->> "__in_optional_policy" is defined only within an optional_policy()
->> block.
->>
->> That's why I take it for granted that you would have to include the
->> actual definition of a role attribute along with the module that
->> requires it into the base module.
->>
->> Cheers,
->> Harry
->>
->>
->>> Date: Thu, 9 Feb 2012 22:58:47 +0000
->>> From: martin@martinorr.name
->>> To: selinux@tycho.nsa.gov
->>> Subject: role_fix_callback assertion with sysadm in base
->>>
->>> I tried to build latest git refpolicy (6da98efd) using latest
->>> checkpolicy and libsepol (339f8079) with the attached modules.conf.
->>> In particular this puts sysadm into base.pp, and minimal other things.
->>>    I get the following error.
->>>
->>> Compiling refpolicy base module
->>> /usr/bin/checkmodule base.conf -o tmp/base.mod
->>> /usr/bin/checkmodule:  loading policy configuration from base.conf
->>> checkmodule: expand.c:700: role_fix_callback: Assertion `new_role !=
->>> ((void *)0)&&  new_role->flavor == 1' failed.
->>> make: *** [tmp/base.mod] Aborted
->>>
->>> -- 
->>> Martin Orr
->>   		 	   		
 
 --
 This message was distributed to subscribers of the selinux mailing list.
