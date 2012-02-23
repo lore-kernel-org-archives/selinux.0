@@ -1,285 +1,157 @@
 Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NF52w1021191
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 10:05:02 -0500
-Subject: [PATCH libsepol] Android/MacOS X build support
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NFEDX4021841
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 10:14:13 -0500
+Subject: [PATCH checkpolicy] Android/MacOS X build support
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 23 Feb 2012 10:05:01 -0500
-Message-ID: <1330009501.27529.30.camel@moss-pluto>
+Date: Thu, 23 Feb 2012 10:14:13 -0500
+Message-ID: <1330010053.27529.34.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Android/MacOS X build support for libsepol.
+Android/MacOS X build support for checkpolicy.
 Create a Android.mk file for Android build integration.
 Introduce DARWIN ifdefs for building on MacOS X.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 ---
- libsepol/Android.mk        |   97 ++++++++++++++++++++++++++++++++++++++++++++
- libsepol/src/genbools.c    |   18 ++++++++-
- libsepol/src/genusers.c    |   19 ++++++++-
- libsepol/src/node_record.c |    9 ++++-
- libsepol/src/private.h     |   12 +++++
- libsepol/utils/chkcon.c    |    2 +
- 6 files changed, 153 insertions(+), 4 deletions(-)
- create mode 100644 libsepol/Android.mk
+ checkpolicy/Android.mk      |   62 +++++++++++++++++++++++++++++++++++++++++++
+ checkpolicy/checkpolicy.c   |    4 +++
+ checkpolicy/policy_define.c |    6 ++++
+ checkpolicy/policy_scan.l   |    6 +++-
+ 4 files changed, 77 insertions(+), 1 deletions(-)
+ create mode 100644 checkpolicy/Android.mk
 
-diff --git a/libsepol/Android.mk b/libsepol/Android.mk
+diff --git a/checkpolicy/Android.mk b/checkpolicy/Android.mk
 new file mode 100644
-index 0000000..e193765
+index 0000000..7ab8db7
 --- /dev/null
-+++ b/libsepol/Android.mk
-@@ -0,0 +1,97 @@
++++ b/checkpolicy/Android.mk
+@@ -0,0 +1,62 @@
 +LOCAL_PATH:= $(call my-dir)
 +
 +common_src_files := \
-+	src/assertion.c \
-+	src/avrule_block.c \
-+	src/avtab.c \
-+	src/boolean_record.c \
-+	src/booleans.c \
-+	src/conditional.c \
-+	src/constraint.c \
-+	src/context.c \
-+	src/context_record.c \
-+	src/debug.c \
-+	src/ebitmap.c \
-+	src/expand.c \
-+	src/genbools.c \
-+	src/genusers.c \
-+	src/handle.c \
-+	src/hashtab.c \
-+	src/hierarchy.c \
-+	src/iface_record.c \
-+	src/interfaces.c \
-+	src/link.c \
-+	src/mls.c \
-+	src/module.c \
-+	src/node_record.c \
-+	src/nodes.c \
-+	src/polcaps.c \
-+	src/policydb.c \
-+	src/policydb_convert.c \
-+	src/policydb_public.c \
-+	src/port_record.c \
-+	src/ports.c \
-+	src/roles.c \
-+	src/services.c \
-+	src/sidtab.c \
-+	src/symtab.c \
-+	src/user_record.c \
-+	src/users.c \
-+	src/util.c \
-+	src/write.c
++	policy_parse.y \
++	policy_scan.l \
++	queue.c \
++	module_compiler.c \
++	parse_util.c \
++	policy_define.c
 +
 +common_cflags := \
-+	-Wall -W -Wundef \
-+	-Wshadow -Wmissing-noreturn \
-+	-Wmissing-format-attribute
++	-Wall -Wshadow -O2 \
++	-pipe -fno-strict-aliasing \
++	-Wno-return-type
 +
-+ifeq ($(HOST_OS), darwin)
++ifeq ($(HOST_OS),darwin)
 +common_cflags += -DDARWIN
 +endif
 +
 +common_includes := \
-+	$(LOCAL_PATH)/include/ \
-+	$(LOCAL_PATH)/src/
++	$(LOCAL_PATH)/ \
++	$(LOCAL_PATH)/../libsepol/include/ \
++	$(LOCAL_PATH)/../libsepol/src/ \
 +
 +##
-+# libsepol.so
++# "-x c" forces the lex/yacc files to be compiled as c
++# the build system otherwise forces them to be c++
++yacc_flags := -x c
++
++
++##
++# checkpolicy
 +#
 +include $(CLEAR_VARS)
 +
-+LOCAL_MODULE := libsepol
++LOCAL_MODULE := checkpolicy
 +LOCAL_MODULE_TAGS := optional
 +LOCAL_C_INCLUDES := $(common_includes) 
-+LOCAL_CFLAGS := $(common_cflags)
-+LOCAL_SRC_FILES := $(common_src_files)
-+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-+
-+include $(BUILD_HOST_SHARED_LIBRARY)
-+
-+##
-+# libsepol.a
-+#
-+include $(CLEAR_VARS)
-+
-+LOCAL_MODULE := libsepol
-+LOCAL_MODULE_TAGS := optional
-+LOCAL_C_INCLUDES := $(common_includes) 
-+LOCAL_CFLAGS := $(common_cflags)
-+LOCAL_SRC_FILES := $(common_src_files)
-+LOCAL_MODULE_CLASS := STATIC_LIBRARIES
-+
-+include $(BUILD_HOST_STATIC_LIBRARY)
-+
-+##
-+# chkcon
-+#
-+include $(CLEAR_VARS)
-+
-+LOCAL_MODULE := chkcon
-+LOCAL_MODULE_TAGS := optional
-+LOCAL_C_INCLUDES := $(common_includes) 
-+LOCAL_CFLAGS := $(common_cflags)
-+LOCAL_SRC_FILES := utils/chkcon.c
-+LOCAL_SHARED_LIBRARIES := libsepol
++LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_SRC_FILES := $(common_src_files) checkpolicy.c
++LOCAL_STATIC_LIBRARIES := libsepol
++LOCAL_YACCFLAGS := -v
 +LOCAL_MODULE_CLASS := EXECUTABLES
 +
 +include $(BUILD_HOST_EXECUTABLE)
-diff --git a/libsepol/src/genbools.c b/libsepol/src/genbools.c
-index e353ef3..612ff9a 100644
---- a/libsepol/src/genbools.c
-+++ b/libsepol/src/genbools.c
-@@ -79,7 +79,16 @@ static int load_booleans(struct policydb *policydb, const char *path,
- 	if (boolf == NULL)
- 		goto localbool;
- 
-+#ifdef DARWIN
-+        if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
-+          ERR(NULL, "out of memory");
-+	  return -1;
-+	}
 +
-+        while(fgets(buffer, 255, boolf) != NULL) {
-+#else
- 	while (getline(&buffer, &size, boolf) > 0) {
-+#endif
- 		int ret = process_boolean(buffer, name, sizeof(name), &val);
- 		if (ret == -1)
- 			errors++;
-@@ -101,7 +110,14 @@ static int load_booleans(struct policydb *policydb, const char *path,
- 	snprintf(localbools, sizeof(localbools), "%s.local", path);
- 	boolf = fopen(localbools, "r");
- 	if (boolf != NULL) {
--		while (getline(&buffer, &size, boolf) > 0) {
 +
-+#ifdef DARWIN
++##
++# checkmodule
++#
++include $(CLEAR_VARS)
 +
-+	  while(fgets(buffer, 255, boolf) != NULL) {
-+#else
++LOCAL_MODULE := checkmodule
++LOCAL_MODULE_TAGS := optional
++LOCAL_C_INCLUDES := $(common_includes) 
++LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_SRC_FILES := $(common_src_files) checkmodule.c
++LOCAL_STATIC_LIBRARIES := libsepol
++LOCAL_YACCFLAGS := -v
++LOCAL_MODULE_CLASS := EXECUTABLES
 +
-+	    while (getline(&buffer, &size, boolf) > 0) {
-+#endif
- 			int ret =
- 			    process_boolean(buffer, name, sizeof(name), &val);
- 			if (ret == -1)
-diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
-index 44f94e9..37528e2 100644
---- a/libsepol/src/genusers.c
-+++ b/libsepol/src/genusers.c
-@@ -1,11 +1,16 @@
- #include <stdio.h>
--#include <stdio_ext.h>
-+
- #include <stdlib.h>
- #include <ctype.h>
++include $(BUILD_HOST_EXECUTABLE)
+diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+index a35a749..544f235 100644
+--- a/checkpolicy/checkpolicy.c
++++ b/checkpolicy/checkpolicy.c
+@@ -70,6 +70,10 @@
  #include <errno.h>
- #include <limits.h>
+ #include <sys/mman.h>
  
++#ifdef DARWIN
++#include <ctype.h>
++#endif
++
  #include <sepol/policydb/policydb.h>
-+
-+#ifndef DARWIN
-+#include <stdio_ext.h>
-+#endif
-+
- #include <stdarg.h>
+ #include <sepol/policydb/services.h>
+ #include <sepol/policydb/conditional.h>
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index d19fc61..9f1e5d5 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -4247,8 +4247,14 @@ int define_ipv6_node_context(void)
+ 	}
  
- #include "debug.h"
-@@ -41,9 +46,19 @@ static int load_users(struct policydb *policydb, const char *path)
- 	fp = fopen(path, "r");
- 	if (fp == NULL)
- 		return -1;
--	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 
+ 	memset(newc, 0, sizeof(ocontext_t));
++
 +#ifdef DARWIN
-+	if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
-+	  ERR(NULL, "out of memory");
-+	  return -1;
-+	}
-+
-+	while(fgets(buffer, 255, fp) != NULL) {
++	memcpy(&newc->u.node6.addr[0], &addr.s6_addr[0], 16);
++	memcpy(&newc->u.node6.mask[0], &mask.s6_addr[0], 16);
 +#else
-+	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 	while ((nread = getline(&buffer, &len, fp)) > 0) {
+ 	memcpy(&newc->u.node6.addr[0], &addr.s6_addr32[0], 16);
+ 	memcpy(&newc->u.node6.mask[0], &mask.s6_addr32[0], 16);
 +#endif
-+
- 		lineno++;
- 		if (buffer[nread - 1] == '\n')
- 			buffer[nread - 1] = 0;
-diff --git a/libsepol/src/node_record.c b/libsepol/src/node_record.c
-index b1bd370..bd48ba0 100644
---- a/libsepol/src/node_record.c
-+++ b/libsepol/src/node_record.c
-@@ -70,7 +70,11 @@ static int node_parse_addr(sepol_handle_t * handle,
- 				return STATUS_ERR;
- 			}
  
-+#ifdef DARWIN
-+			memcpy(addr_bytes, in_addr.s6_addr, 16);
+ 	if (parse_security_context(&newc->context[0])) {
+ 		free(newc);
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 9b24db5..22b91a3 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -27,7 +27,11 @@
+ 
+ typedef int (* require_func_t)();
+ 
++#ifdef ANDROID
++#include "policy_parse.h"
 +#else
- 			memcpy(addr_bytes, in_addr.s6_addr32, 16);
+ #include "y.tab.h"
 +#endif
- 			break;
- 		}
- 	default:
-@@ -158,8 +162,11 @@ static int node_expand_addr(sepol_handle_t * handle,
- 		{
- 			struct in6_addr addr;
- 			memset(&addr, 0, sizeof(struct in6_addr));
-+#ifdef DARWIN
-+			memcpy(&addr.s6_addr[0], addr_bytes, 16);
-+#else
- 			memcpy(&addr.s6_addr32[0], addr_bytes, 16);
--
-+#endif
- 			if (inet_ntop(AF_INET6, &addr, addr_str,
- 				      INET6_ADDRSTRLEN) == NULL) {
  
-diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-index 24a544d..8a6d4bb 100644
---- a/libsepol/src/private.h
-+++ b/libsepol/src/private.h
-@@ -4,11 +4,23 @@
+ static char linebuf[2][255];
+ static unsigned int lno = 0;
+@@ -43,7 +47,7 @@ unsigned long policydb_lineno = 1;
+ unsigned int policydb_errors = 0;
+ %}
  
- #include <sepol/policydb/policydb.h>
+-%option noinput nounput
++%option noinput nounput noyywrap
  
-+
-+#ifdef DARWIN
-+#include <sys/types.h>
-+#include <machine/endian.h>
-+#else
- #include <byteswap.h>
- #include <endian.h>
-+#endif
-+
- #include <errno.h>
- #include <dso.h>
- 
-+#ifdef DARWIN
-+#define __BYTE_ORDER  BYTE_ORDER
-+#define __LITTLE_ENDIAN  LITTLE_ENDIAN
-+#endif
-+
- #if __BYTE_ORDER == __LITTLE_ENDIAN
- #define cpu_to_le16(x) (x)
- #define le16_to_cpu(x) (x)
-diff --git a/libsepol/utils/chkcon.c b/libsepol/utils/chkcon.c
-index 4c23d4c..baa5117 100644
---- a/libsepol/utils/chkcon.c
-+++ b/libsepol/utils/chkcon.c
-@@ -6,6 +6,8 @@
- #include <string.h>
- #include <errno.h>
- 
-+void usage(char*) __attribute__((noreturn));
-+
- void usage(char *progname)
- {
- 	printf("usage:  %s policy context\n", progname);
+ %array
+ letter  [A-Za-z]
 -- 
 1.7.4.4
 
