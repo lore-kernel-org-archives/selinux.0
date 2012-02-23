@@ -1,165 +1,77 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NFEDX4021841
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 10:14:13 -0500
-Subject: [PATCH checkpolicy] Android/MacOS X build support
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1NKIf3c008721
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 15:18:41 -0500
+Received: by eeke51 with SMTP id e51so846175eek.12
+        for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2012 12:18:39 -0800 (PST)
+Date: Thu, 23 Feb 2012 21:17:35 +0100
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 23 Feb 2012 10:14:13 -0500
-Message-ID: <1330010053.27529.34.camel@moss-pluto>
-Mime-Version: 1.0
+Subject: libsemanage/libsepol still supported for non-MLS/MCS setups?
+Message-ID: <20120223201735.GA5810@siphos.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Android/MacOS X build support for checkpolicy.
-Create a Android.mk file for Android build integration.
-Introduce DARWIN ifdefs for building on MacOS X.
+Hi guys,
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Is libsemanage (and libsepol) still supported on policies without MLS/MCS?
+For some reason, I get segfaults when using libsemanage-2.1.6 on a "strict"
+policy (one without levels).
 
----
- checkpolicy/Android.mk      |   62 +++++++++++++++++++++++++++++++++++++++++++
- checkpolicy/checkpolicy.c   |    4 +++
- checkpolicy/policy_define.c |    6 ++++
- checkpolicy/policy_scan.l   |    6 +++-
- 4 files changed, 77 insertions(+), 1 deletions(-)
- create mode 100644 checkpolicy/Android.mk
+The backtrace is as follows:
 
-diff --git a/checkpolicy/Android.mk b/checkpolicy/Android.mk
-new file mode 100644
-index 0000000..7ab8db7
---- /dev/null
-+++ b/checkpolicy/Android.mk
-@@ -0,0 +1,62 @@
-+LOCAL_PATH:= $(call my-dir)
-+
-+common_src_files := \
-+	policy_parse.y \
-+	policy_scan.l \
-+	queue.c \
-+	module_compiler.c \
-+	parse_util.c \
-+	policy_define.c
-+
-+common_cflags := \
-+	-Wall -Wshadow -O2 \
-+	-pipe -fno-strict-aliasing \
-+	-Wno-return-type
-+
-+ifeq ($(HOST_OS),darwin)
-+common_cflags += -DDARWIN
-+endif
-+
-+common_includes := \
-+	$(LOCAL_PATH)/ \
-+	$(LOCAL_PATH)/../libsepol/include/ \
-+	$(LOCAL_PATH)/../libsepol/src/ \
-+
-+##
-+# "-x c" forces the lex/yacc files to be compiled as c
-+# the build system otherwise forces them to be c++
-+yacc_flags := -x c
-+
-+
-+##
-+# checkpolicy
-+#
-+include $(CLEAR_VARS)
-+
-+LOCAL_MODULE := checkpolicy
-+LOCAL_MODULE_TAGS := optional
-+LOCAL_C_INCLUDES := $(common_includes) 
-+LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
-+LOCAL_SRC_FILES := $(common_src_files) checkpolicy.c
-+LOCAL_STATIC_LIBRARIES := libsepol
-+LOCAL_YACCFLAGS := -v
-+LOCAL_MODULE_CLASS := EXECUTABLES
-+
-+include $(BUILD_HOST_EXECUTABLE)
-+
-+
-+##
-+# checkmodule
-+#
-+include $(CLEAR_VARS)
-+
-+LOCAL_MODULE := checkmodule
-+LOCAL_MODULE_TAGS := optional
-+LOCAL_C_INCLUDES := $(common_includes) 
-+LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
-+LOCAL_SRC_FILES := $(common_src_files) checkmodule.c
-+LOCAL_STATIC_LIBRARIES := libsepol
-+LOCAL_YACCFLAGS := -v
-+LOCAL_MODULE_CLASS := EXECUTABLES
-+
-+include $(BUILD_HOST_EXECUTABLE)
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index a35a749..544f235 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -70,6 +70,10 @@
- #include <errno.h>
- #include <sys/mman.h>
- 
-+#ifdef DARWIN
-+#include <ctype.h>
-+#endif
-+
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/services.h>
- #include <sepol/policydb/conditional.h>
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index d19fc61..9f1e5d5 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -4247,8 +4247,14 @@ int define_ipv6_node_context(void)
- 	}
- 
- 	memset(newc, 0, sizeof(ocontext_t));
-+
-+#ifdef DARWIN
-+	memcpy(&newc->u.node6.addr[0], &addr.s6_addr[0], 16);
-+	memcpy(&newc->u.node6.mask[0], &mask.s6_addr[0], 16);
-+#else
- 	memcpy(&newc->u.node6.addr[0], &addr.s6_addr32[0], 16);
- 	memcpy(&newc->u.node6.mask[0], &mask.s6_addr32[0], 16);
-+#endif
- 
- 	if (parse_security_context(&newc->context[0])) {
- 		free(newc);
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index 9b24db5..22b91a3 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -27,7 +27,11 @@
- 
- typedef int (* require_func_t)();
- 
-+#ifdef ANDROID
-+#include "policy_parse.h"
-+#else
- #include "y.tab.h"
-+#endif
- 
- static char linebuf[2][255];
- static unsigned int lno = 0;
-@@ -43,7 +47,7 @@ unsigned long policydb_lineno = 1;
- unsigned int policydb_errors = 0;
- %}
- 
--%option noinput nounput
-+%option noinput nounput noyywrap
- 
- %array
- letter  [A-Za-z]
--- 
-1.7.4.4
+(gdb) run -B
+Starting program: /usr/sbin/semodule -B
 
+Program received signal SIGSEGV, Segmentation fault.
+__strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:32
+32      ../sysdeps/x86_64/multiarch/../strlen.S: No such file or directory.
+        in ../sysdeps/x86_64/multiarch/../strlen.S
+(gdb) bt
+#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:32
+#1  0x000003a1d08ddce1 in ustr_replace_cstr () from /usr/lib64/libustr-1.0.so.1
+#2  0x000003a1d1524835 in replace_all (str=0x3a1d88e93c0 "HOME_DIR/.+\tsystem_u:object_r:user_home_t", repl=0x3ffffffde00)
+    at genhomedircon.c:499
+#3  0x000003a1d1524b58 in write_home_dir_context (s=0x3ffffffdf20, out=0x3a1d7444510, tpl=0x3a1d6e1f1b0, 
+    user=0x3a1d71b2680 "user_u", seuser=0x3a1d71b2680 "user_u", home=0x3a1d71e08a3 "/home/[^/]*", 
+    role_prefix=0x3a1d71bafc0 "user", level=0x0) at genhomedircon.c:566
+#4  0x000003a1d1525d68 in write_context_file (s=0x3ffffffdf20, out=0x3a1d7444510) at genhomedircon.c:998
+#5  0x000003a1d1526054 in semanage_genhomedircon (sh=0x3a1d1b6b280, policydb=0x3a1d6e01dd0, usepasswd=1, ignoredirs=0x0)
+    at genhomedircon.c:1076
+#6  0x000003a1d151e30c in semanage_direct_commit (sh=0x3a1d1b6b280) at direct_api.c:994
+#7  0x000003a1d15234fe in semanage_commit (sh=0x3a1d1b6b280) at handle.c:435
+#8  0x000003a1d1969318 in main (argc=<optimized out>, argv=0x3ffffffe278) at semodule.c:466
 
--- 
-Stephen Smalley
-National Security Agency
+As you can see in frame #3, level is 0x0, which is confirmed when
+traversing the &s variable in the write_context_file function:
 
+(gdb) frame 4
+#4  0x000003a1d1525d68 in write_context_file (s=0x3ffffffdf20, out=0x3a1d7444510) at genhomedircon.c:998
+998     genhomedircon.c: No such file or directory.
+        in genhomedircon.c
+(gdb) print s.fallback_user_level
+$1 = 0x0
+(gdb) print s.fallback_user      
+$2 = 0x3a1d71b2680 "user_u"
+(gdb) print s.fallback_user_prefix
+$3 = 0x3a1d71bafc0 "user"
+
+Looking at how this can become 0x0, I think that 
+
+1. write_context_file calls setup_fallback_user
+2. setup_fallback_user calls semanage_user_query (for a default account?)
+   this returns >= 0
+3. setup_fallback_user calls semanage_user_get_mlslevel
+4. semanage_user_get_mlslevel eventually calls sepol_user_get_mlslevel
+5. sepol_user_get_mlslevel returns 0x0
+
+Should sepol_user_get_mlslevel return some default (like "s0") if the
+system doesn't use MLS/MCS? Or shouldn't it be called if one doesn't have
+MCS/MLS?
+
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
