@@ -1,44 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1TIqtia023335
-	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 13:52:55 -0500
-Received: by iaoo28 with SMTP id o28so6278061iao.12
-        for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 10:52:53 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1TKlpQb030497
+	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 15:47:51 -0500
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q1TKlSeF027182
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 15:47:29 -0500
+Received: from dhcp-189-250.bos.redhat.com (dhcp-10-16-62-208.boston.devel.redhat.com [10.16.62.208])
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q1TKlSnU018485
+	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 15:47:28 -0500
+Message-ID: <4F4E8EDF.1030405@redhat.com>
+Date: Wed, 29 Feb 2012 15:47:27 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Date: Wed, 29 Feb 2012 19:52:53 +0100
-Message-ID: <CAPzO=Nyg=3_zgJLkerke29QG4f2Vk=xG=HzsfhsqjoWsGL5yJg@mail.gmail.com>
-Subject: setools' seinfo/sesearch and role_attribute support?
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: SELinux <selinux@tycho.nsa.gov>
+Subject: Suggestion on fixing a old libselinux problem.
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi guys,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Is it possible to update setools (and, more specifically, seinfo and
-sesearch to support role_attribute queries as well? I find those two
-tools very useful to query the policy, often in search for why certain
-things are failing (for instance, see which types match which type
-attributes, which user roles can "be in" particular types, etc.
+One of the oldest bugs/wacki things about SELinux is what happens when
+a login program can not calculate a login context.
 
-With the 20120215 refpolicy release, role attributes are used
-extensively, but there are some quirks here and there that are easily
-solved, but might be a bit more challenging to debug if all you have
-to debug with are the sources. For instance, I found that
-mozilla_plugin_t isn't part of mozilla_roles yet (yes, Chris, I'll
-send up the patch later when most of the testing has been done ;-)
+Right now we have an open bug on confined users.  Basically if you
+setup a confined user guest_u and attempt to login to that user via
+xdm_t, you get a context of guest_u:guest_r:oddjob_mkhomedir_t:s0
 
-If I could do something like:
- ~$ seinfo -tmozilla_t -x
-to see that this one is part of mozilla_roles, and
-  ~$ seinfo -tmozilla_plugin_t -x
-isn't, then I can quickly deduce that this is what I need to patch.
+selinuxdefcon pwalsh system_u:system_r:xdm_t:s0
+guest_u:guest_r:oddjob_mkhomedir_t:s0
 
-Similarly, using sesearch with --role_source supporting role
-attributes would be very nice as well.
+Yech.
 
-Wkr,
-  Sven Vermeulen
+This could be considered a security hole, but it is definitely broken.
+ I have been looking at the libselinux code but this is actually
+expected behavior, and I am not eager to fix it, since it might break
+peoples expectations.
+
+Eric suggested that we might want to move the problem out of
+libselinux and make this a login program problem.  Make the login
+programs pam_selinux a userspace manager.
+
+After libselinux returns a context to pam_selinux it would check for
+the following allow rule.
+
+allow logindomain userdomain:login entrypoint;
+
+Then pam_namespace would check if xdm_t is allowed a login entry point
+into oddjob_mkhomedir_t, if no, blow up the login.
+
+Comments?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEUEARECAAYFAk9Ojt8ACgkQrlYvE4MpobO3qQCXUS4MjJWZf1BFDWN6U7SssAL6
+3gCgtKYcOb9+9A/A+GW1cwiKaR58CZY=
+=Cm5O
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
