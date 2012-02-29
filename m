@@ -1,54 +1,44 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1TFxEG2018681
-	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 10:59:14 -0500
-Subject: Re: SE Android release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
-References: <1325884109.28294.65.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 29 Feb 2012 10:59:13 -0500
-Message-ID: <1330531153.20078.10.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q1TIqtia023335
+	for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 13:52:55 -0500
+Received: by iaoo28 with SMTP id o28so6278061iao.12
+        for <selinux@tycho.nsa.gov>; Wed, 29 Feb 2012 10:52:53 -0800 (PST)
+MIME-Version: 1.0
+Date: Wed, 29 Feb 2012 19:52:53 +0100
+Message-ID: <CAPzO=Nyg=3_zgJLkerke29QG4f2Vk=xG=HzsfhsqjoWsGL5yJg@mail.gmail.com>
+Subject: setools' seinfo/sesearch and role_attribute support?
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote: 
-> Hi,
-> 
-> We have made an initial public release of SE Android. More information
-> is available at:
-> http://selinuxproject.org/page/SEAndroid
+Hi guys,
 
-We have updated the source code repositories and the wiki page.  A repo
-sync -j1 will refresh your copy of the source code if you already have a
-copy.  The changes since the last update are:
+Is it possible to update setools (and, more specifically, seinfo and
+sesearch to support role_attribute queries as well? I find those two
+tools very useful to query the policy, often in search for why certain
+things are failing (for instance, see which types match which type
+attributes, which user roles can "be in" particular types, etc.
 
-- (code) Merged the latest AOSP master branch.  Note that some of our
-changes have been merged into the AOSP master branch since our last
-update.  In particular, the base set of init/ueventd and toolbox changes
-under system/core have been merged.  However, you still need to use our
-system/core tree to pick up some of the subsequent changes that have not
-yet been merged.
+With the 20120215 refpolicy release, role attributes are used
+extensively, but there are some quirks here and there that are easily
+solved, but might be a bit more challenging to debug if all you have
+to debug with are the sources. For instance, I found that
+mozilla_plugin_t isn't part of mozilla_roles yet (yes, Chris, I'll
+send up the patch later when most of the testing has been done ;-)
 
-- (code) Updated libsepol and checkpolicy to the latest upstream
-release.
+If I could do something like:
+ ~$ seinfo -tmozilla_t -x
+to see that this one is part of mozilla_roles, and
+  ~$ seinfo -tmozilla_plugin_t -x
+isn't, then I can quickly deduce that this is what I need to patch.
 
-- (code) Minor cleanups for the chown -R implementation.
+Similarly, using sesearch with --role_source supporting role
+attributes would be very nice as well.
 
-- (wiki) Added instructions for building on MacOS X.
-
-- (wiki) Added links to the slides and video from our talk at the
-Android Builders Summit.
-
-- (wiki) Added a note about the need to generate your own keys for
-production builds to the section on Building for a Device.
-
--- 
-Stephen Smalley
-National Security Agency
-
-
+Wkr,
+  Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
