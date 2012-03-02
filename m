@@ -1,54 +1,57 @@
-MIME-Version: 1.0
-In-Reply-To: <1330702776.2616.43.camel@moss-pluto>
-References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
-	<1330702776.2616.43.camel@moss-pluto>
-Date: Fri, 2 Mar 2012 11:03:44 -0500
-Message-ID: <CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
-Subject: Re: SE Android on Galaxy Nexus
-From: Subramani Venkatesh <selinuxv31@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Suggestion on fixing a old libselinux problem.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <4F4F8AE8.5080703@redhat.com>
+References: <4F4E8EDF.1030405@redhat.com>
+	 <1330550573.20078.24.camel@moss-pluto>
+	 <1330551258.20078.28.camel@moss-pluto>  <4F4F8AE8.5080703@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 02 Mar 2012 12:46:01 -0500
+Message-ID: <1330710361.2616.52.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Stephen,
-I did not add Bryan changes, i will add them now and see the difference.
-Thanks for debug information.
+On Thu, 2012-03-01 at 09:42 -0500, Daniel J Walsh wrote:
+> On 02/29/2012 04:34 PM, Stephen Smalley wrote:
+> > I don't think we want to introduce greater complexity and more
+> > possible failures causes into the mix for determining user
+> > contexts.  Simplest option would be to change
+> > get_ordered_context_list() to return the empty list / fail in that
+> > case rather than return the full reachable list from 
+> > security_compute_user.  But I'd like to get rid of / replace 
+> > security_compute_user with a solution that is mostly userspace, at
+> > most getting the user's authorized roles and default level
+> > information from selinuxfs but not asking the kernel to compute
+> > reachability.
+> > 
+> 
+> 
+> Meaning we should read the contents of
+> /etc/selinux/TYPE/contexts/users/SELINUXUSER and get the types from
+> there that match the type of the login program.
+> If that file does not exist, then fall back to
+> /etc/selinux/TYPE/contexts/default_context and get the type from there.
+> 
+> Then just check with the kernel if LOGINTYPE_T can transition to
+> USERTYPE_T and choose that context. Else go to the next context.  If
+> no context is available to transition return failure.
 
-Regards,
-Subbu
+You can use security_check_context() to see if the context is valid
+(e.g. valid user:role pair) before performing a transition check.
+You'll have to decide how you want it to operate in permissive mode; the
+current security_compute_user() logic ignores permissive mode (via
+AVC_STRICT) and thus will return the same contexts you would get in
+enforcing mode.  Otherwise permissive mode may lead to users logging in
+as sysadm_r rather than user_r if authorized for both.
 
-On Fri, Mar 2, 2012 at 10:39 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2012-03-02 at 10:29 -0500, Subramani Venkatesh wrote:
->> Hi,
->> I got SE Android working on Galaxy Nexus, followed instructions from
->> http://selinuxproject.org/page/SEAndroid
->> After executing "setenforce 1", launching applications works as
->> expected, but it is only short period of time, later it reboots. Would
->> like to debug the issues, Is their any guide to debug SE on Android?
->
-> Did you try the policy changes posted by Bryan Hinton for the Galaxy
-> Nexus?  See:
-> http://marc.info/?l=selinux&m=132752617008734&w=2
->
-> Before running setenforce 1, you should check for any avc messages in
-> your dmesg output, e.g.
-> adb shell dmesg | grep avc
->
-> Such denials need to be addressed through policy changes or labeling
-> changes before you go to enforcing mode.
->
-> You might want to start a process capturing dmesg output just before you
-> go to enforcing mode, e.g.
-> adb shell su 0 cat /proc/kmsg
->
-> adb logcat *:E can also be helpful.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
+There is also the MLS aspect, which is more complex. See
+mls_setup_user_range() in the kernel.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
