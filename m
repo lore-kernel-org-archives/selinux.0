@@ -1,30 +1,47 @@
 MIME-Version: 1.0
-From: =?ISO-8859-1?Q?Kovacsics_R=F3bert?= <kovirobi@gmail.com>
-Date: Fri, 2 Mar 2012 23:00:26 +0000
-Message-ID: <CABPkNKmytMBPwsY_HV5YLbaBzTThGY1KaRFkD0ujt7h1ReA6yA@mail.gmail.com>
-Subject: SETools not compiling, refpolicy modules not loading
-To: SELinux@tycho.nsa.gov
+In-Reply-To: <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
+	<1330702776.2616.43.camel@moss-pluto>
+	<CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
+	<CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
+	<1330719989.2616.100.camel@moss-pluto>
+	<CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+Date: Fri, 2 Mar 2012 18:02:14 -0500
+Message-ID: <CAD8iFzyJSX5XqTKPHxX4E0y9kMaPV_WntwcxppXDeWgiLS+vPw@mail.gmail.com>
+Subject: Re: SE Android on Galaxy Nexus
+From: Subramani Venkatesh <selinuxv31@gmail.com>
+To: Bryan Hinton <bryan@bryanhinton.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+Yes per device file_contexts makes easy, I have GSM modem, so I had to
+label files according to my device. and also Define policy rukes.
+Changes will be emailed soon.
 
-It is me again, and after compiling SELinux, I went on to try to
-compile SETools, as I read, stuff like audit2allow needs it because of
-the python, so anyway it does not want to compile, saying that
-"checking for corrected libsepol boolean expand behavior... configure:
-error: this version of libsepol is incompatible with SETools", and I
-have the latest SELinux, downloaded from the website. I did also try
-with the latest SETools downloaded from SVN.
+Regards,
+Subbu
 
-Also, another problem I have been having, is that when I try to load
-refpolicy, it uses a lot of CPU (about the amount required for
-compilation, then it just hangs there with low CPU after 5 minutes,
-and anything I do to it ends with segfault.
 
-Thank you for helping me,
-Kovacsics Robert
+On Fri, Mar 2, 2012 at 5:16 PM, Bryan Hinton <bryan@bryanhinton.com> wrote:
+> I agree. A per-device file_contexts file makes sense given the
+> variation in radio types between ICS based devices.
+>
+> On Fri, Mar 2, 2012 at 2:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On Fri, 2012-03-02 at 11:51 -0600, Bryan Hinton wrote:
+>>> Here is the latest policy that I am using.
+>>
+>> BTW, I think we will ultimately need some per-device policy files that
+>> get merged into the policy, much as there are per-device
+>> ueventd.<board>.rc and init.<board>.rc files.  At least for
+>> file_contexts, and possibly for policy rules as well.
+>>
+>> --
+>> Stephen Smalley
+>> National Security Agency
+>>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
