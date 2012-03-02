@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q22MD56H025959
-	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2012 17:13:05 -0500
-Received: by obceq6 with SMTP id eq6so2800619obc.12
-        for <selinux@tycho.nsa.gov>; Fri, 02 Mar 2012 14:13:04 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q22MG5XW026093
+	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2012 17:16:05 -0500
+Received: by obceq6 with SMTP id eq6so2803976obc.12
+        for <selinux@tycho.nsa.gov>; Fri, 02 Mar 2012 14:16:04 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1330716665.2616.80.camel@moss-pluto>
+In-Reply-To: <1330719989.2616.100.camel@moss-pluto>
 References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
 	<1330702776.2616.43.camel@moss-pluto>
 	<CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
 	<CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
-	<1330716665.2616.80.camel@moss-pluto>
-Date: Fri, 2 Mar 2012 16:13:03 -0600
-Message-ID: <CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
+	<1330719989.2616.100.camel@moss-pluto>
+Date: Fri, 2 Mar 2012 16:16:04 -0600
+Message-ID: <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
 Subject: Re: SE Android on Galaxy Nexus
 From: Bryan Hinton <bryan@bryanhinton.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -20,299 +20,17 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you for the feedback. An updated patch for inclusion into the
-sepolicy tree, is below.
-My replies to your comments are below the patch.
+I agree. A per-device file_contexts file makes sense given the
+variation in radio types between ICS based devices.
 
-From: Bryan Hinton <bryan@bryanhinton.com>
-Date: Fri, 2 Mar 2012 15:45:06 -0600
-Subject: [PATCH] Updated policy for SCH-i515. These changes placed
-into the public domain.
-
-Change-Id: Ie8776fd6ed6e84c40f545091358d2508e31bd02b
----
- domain.te     |    2 ++
- file.te       |    1 +
- file_contexts |   12 +++++++++++-
- rild.te       |    1 +
- 4 files changed, 15 insertions(+), 1 deletions(-)
-
-diff --git a/domain.te b/domain.te
-index 55c9ecd..cd7f938 100644
---- a/domain.te
-+++ b/domain.te
-@@ -86,6 +86,8 @@ allow domain sysfs:file rw_file_perms;
- }
- allow domain sysfs_writable:file rw_file_perms;
-
-+allow domain sysfs_nfc_power_writable:file rw_file_perms;
-+
- # Read access to pseudo filesystems.
- r_dir_file(domain, proc)
- r_dir_file(domain, sysfs)
-diff --git a/file.te b/file.te
-index 11c3ef6..a530f2c 100644
---- a/file.te
-+++ b/file.te
-@@ -43,6 +43,7 @@ type systemkeys_data_file, file_type, data_file_type;
- type wifi_data_file, file_type, data_file_type;
- type radio_data_file, file_type, data_file_type;
- type nfc_data_file, file_type, data_file_type;
-+type sysfs_nfc_power_writable, fs_type, sysfs_type, mlstrustedobject;
- # /data/data subdirectories - app sandboxes
- type app_data_file, file_type, data_file_type;
- # Default type for anything under /cache
-diff --git a/file_contexts b/file_contexts
-index 92c6bb0..b249004 100644
---- a/file_contexts
-+++ b/file_contexts
-@@ -19,6 +19,8 @@
- /dev/block/loop[0-9]*	u:object_r:loop_device:s0
- /dev/block/ram[0-9]*	u:object_r:ram_device:s0
- /dev/block/mtdblock5	u:object_r:radio_device:s0
-+/dev/cdma_.*   u:object_r:radio_device:s0
-+/dev/lte_.*    u:object_r:radio_device:s0
- /dev/cam		u:object_r:camera_device:s0
- /dev/console		u:object_r:console_device:s0
- /dev/cpuctl(/.*)?	u:object_r:cpuctl_device:s0
-@@ -35,6 +37,7 @@
- /dev/mtd/mtd5ro		u:object_r:radio_device:s0
- /dev/mtp_usb		u:object_r:mtp_device:s0
- /dev/pn544		u:object_r:nfc_device:s0
-+/dev/ttyO3     u:object_r:nfc_device:s0
- /dev/ptmx		u:object_r:ptmx_device:s0
- /dev/pvrsrvkm		u:object_r:powervr_device:s0
- /dev/qemu_.*		u:object_r:qemu_device:s0
-@@ -66,7 +69,8 @@
- /dev/socket/zygote	u:object_r:zygote_socket:s0
- /dev/spdif_out.*	u:object_r:audio_device:s0
- /dev/tegra.*		u:object_r:video_device:s0
--/dev/tty[0-9]*		u:object_r:tty_device:s0
-+/dev/tty[0-2]*		u:object_r:tty_device:s0
-+/dev/tty[4-9]*		u:object_r:tty_device:s0
- /dev/ttyS[0-9]*		u:object_r:serial_device:s0
- /dev/uinput		u:object_r:input_device:s0
- /dev/urandom		u:object_r:urandom_device:s0
-@@ -116,10 +120,15 @@
- /data/misc/wifi(/.*)?		u:object_r:wifi_data_file:s0
- # App sandboxes
- /data/data/.*		u:object_r:app_data_file:s0
-+/data/data/com.android.providers.telephony/databases(/.*)?
-u:object_r:radio_data_file:s0
-+/data/data/com.android.providers.telephony/(optable\.db)?
-u:object_r:radio_data_file:s0
-+
- #############################
- # efs files
- #
- /efs(/.*)?		u:object_r:efs_file:s0
-+/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
-+/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
- #############################
- # Cache files
- #
-@@ -128,3 +137,4 @@
- # sysfs files
- #
- /sys/qemu_trace/process_name	--	u:object_r:sysfs_writable:s0
-+/sys/devices/platform/nfc-power/nfc_power --
-u:object_r:sysfs_nfc_power_writable:s0
-diff --git a/rild.te b/rild.te
-index 2857892..9201d43 100644
---- a/rild.te
-+++ b/rild.te
-@@ -7,6 +7,7 @@ net_domain(rild)
- allow rild kernel:system module_request;
- unix_socket_connect(rild, property, init)
- unix_socket_connect(rild, qemud, qemud)
-+allow rild self:netlink_route_socket { setopt };
- allow rild self:capability { setuid net_admin net_raw };
- allow rild alarm_device:chr_file rw_file_perms;
- allow rild cgroup:dir create_dir_perms;
--- 
-
-
-On Fri, Mar 2, 2012 at 1:31 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Fri, Mar 2, 2012 at 2:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > On Fri, 2012-03-02 at 11:51 -0600, Bryan Hinton wrote:
 >> Here is the latest policy that I am using.
 >
-> Thanks for posting this.  A few comments below.
->
->> diff --git a/device.te b/device.te
->> index 6424db6..08437a5 100644
->> --- a/device.te
->> +++ b/device.te
->> @@ -23,6 +23,7 @@ type log_device, dev_type, mlstrustedobject;
->>  type mtd_device, dev_type;
->>  type mtp_device, dev_type, mlstrustedobject;
->>  type nfc_device, dev_type;
->> +type nfc_ctrl_device, dev_type;
->
-> Types are intended to be used as equivalence classes, so if the same set
-> of domains are going to be allowed to access nfc_ctrl_device with the
-> same permissions as for nfc_device, then just reuse nfc_device rather
-> than introducing a new type.
-
->>>Understood. I removed the nfc_ctrl_device type and reused nfc_device for /dev/ttyO3.
-
->
->> diff --git a/domain.te b/domain.te
->> index 55c9ecd..88fb261 100644
->> --- a/domain.te
->> +++ b/domain.te
->> @@ -85,6 +85,7 @@ if (in_qemu) {
->>  allow domain sysfs:file rw_file_perms;
->>  }
->>  allow domain sysfs_writable:file rw_file_perms;
->> +allow domain sysfs_nfc_power_writable:file rw_file_perms;
->
-> Likewise here, if you truly need to allow all domains rw access to this
-> type, why not just reuse sysfs_writable?  I was wondering though whether
-> we truly should be allowing all domains such access.
-
->>>I'm also thinking that all domains should not have access.
->>>This domain is only used for the label on this file /sys/devices/platform/nfc-power/nfc_power as follows:
->>>u:object_r:sysfs_nfc_power_writable:s0
->>>I think this could use some improvement in terms of increased granularity. ...I'm thinking about how to go about it.
-
->
->> diff --git a/file.te b/file.te
->> index 11c3ef6..ec7a02e 100644
->> --- a/file.te
->> +++ b/file.te
->> @@ -8,6 +8,7 @@ type selinuxfs, fs_type;
->>  type cgroup, fs_type, mlstrustedobject;
->>  type sysfs, fs_type, mlstrustedobject;
->>  type sysfs_writable, fs_type, sysfs_type, mlstrustedobject;
->> +type sysfs_nfc_power_writable, fs_type, sysfs_type, mlstrustedobject;
->
-
->>> Per above item.
-
->
->> @@ -43,6 +44,11 @@ type systemkeys_data_file, file_type, data_file_type;
->>  type wifi_data_file, file_type, data_file_type;
->>  type radio_data_file, file_type, data_file_type;
->>  type nfc_data_file, file_type, data_file_type;
->> +
->> +type radio_nv_data_file, file_type, data_file_type;
->> +type efs_radio_nv_data_file, file_type, data_file_type;
->> +type radio_telephony_data_file, file_type, data_file_type;
->
-> Do we need the distinction between radio_nv_data_file and
-> efs_radio_nv_rdata_file?  Where is that distinction used in the policy
-> allow rules?
-
->>>I removed both and reused radio_data_file.
-
->
->> diff --git a/file_contexts b/file_contexts
->> index 92c6bb0..59bac40 100644
->> --- a/file_contexts
->> +++ b/file_contexts
->> @@ -19,6 +19,16 @@
->>  /dev/block/loop[0-9]*        u:object_r:loop_device:s0
->>  /dev/block/ram[0-9]* u:object_r:ram_device:s0
->>  /dev/block/mtdblock5 u:object_r:radio_device:s0
->> +# rild needs access to the cdma and lte device nodes
->> +/dev/cdma_ipc0 u:object_r:radio_device:s0
->> +/dev/cdma_rmnet5 u:object_r:radio_device:s0
->> +/dev/lte_ipc0 u:object_r:radio_device:s0
->> +/dev/lte_rmnet4 u:object_r:radio_device:s0
->> +/dev/lte_boot0 u:object_r:radio_device:s0
->> +/dev/lte_spi u:object_r:radio_device:s0
->> +/dev/ttyGS1 u:object_r:radio_device:s0
->> +/dev/lte_rfs0 u:object_r:radio_device:s0
->
-> You can shorten this specification by using pathname regexes, e.g.
-> /dev/cdma_.*    u:object_r:radio_device:s0
-> /dev/lte_.*     u:object_r:radio_device:s0
-> /dev/ttyGS[0-9] u:object_r:radio_device:s0
-
->>>Done.
-
->
->> @@ -68,6 +78,7 @@
->>  /dev/tegra.*         u:object_r:video_device:s0
->>  /dev/tty[0-9]*               u:object_r:tty_device:s0
->>  /dev/ttyS[0-9]*              u:object_r:serial_device:s0
->> +/dev/ttyO3           u:object_r:nfc_ctrl_device:s0
->>  /dev/uinput          u:object_r:input_device:s0
->>  /dev/urandom         u:object_r:urandom_device:s0
->>  /dev/vcs[0-9a-z]*    u:object_r:vcs_device:s0
->> @@ -116,10 +127,24 @@
->>  /data/misc/wifi(/.*)?                u:object_r:wifi_data_file:s0
->>  # App sandboxes
->>  /data/data/.*                u:object_r:app_data_file:s0
->> +
->> +# rild needs access to the databases that the android telephony
->> provider manages
->> +/data/data/com.android.providers.telephony/databases(/.*)?
->> u:object_r:radio_telephony_data_file:s0
->> +/data/data/com.android.providers.telephony/optable.db
->> u:object_r:radio_telephony_data_file:s0
->> +/data/data/com.android.providers.telephony/databases/telephony.db
->> u:object_r:radio_telephony_data_file:s0
->> +/data/data/com.android.providers.telephony/databases/telephony.db-journal
->> u:object_r:radio_telephony_data_file:s0
->
-> The first entry (with the (/.*)? suffix) should match the latter two
-> entries already, making them unnecessary.
-
->>>Fixed per above item.
-
->
->> +# rild needs acess to radio image and associated md5 sum on userdata.img
->> +/data/radio/nv_data.bin u:object_r:radio_nv_data_file:s0
->> +/data/radio/nv_data.bin.md5 u:object_r:radio_nv_data_file:s0
->
-> /data/radio/nv_data.bin.* would work here.
->
->> +
->>  #############################
->>  # efs files
->>  #
->>  /efs(/.*)?           u:object_r:efs_file:s0
->> +# rild needs access to radio image and associated md5 sum on
->> /efs(/factory) ext4 image
->> +/factory/nv_data.bin u:object_r:efs_radio_nv_data_file:s0
->> +/factory/nv_data.bin.md5 u:object_r:efs_radio_nv_data_file:s0
->
-> Likewise.  Do we need the efs vs non-efs distinction?
-
->>>I removed both and reused radio_data_file.
-
->
->> diff --git a/seapp_contexts b/seapp_contexts
->> index c301792..52bbfa2 100644
->> --- a/seapp_contexts
->> +++ b/seapp_contexts
->> @@ -32,6 +32,9 @@ isSystemServer=true domain=system
->>  user=system domain=system_app type=system_data_file
->>  user=nfc domain=nfc type=nfc_data_file
->>  user=radio domain=radio type=radio_data_file
->> +user=radio domain=radio type=radio_telephony_data_file
->> +user=radio domain=radio type=radio_nv_data_file
->> +user=radio domain=radio type=efs_radio_nv_data_file
->>  user=app_* domain=untrusted_app type=app_data_file levelFromUid=true
->>  user=app_* seinfo=systemApp domain=trusted_app levelFromUid=true
->>  user=app_* seinfo=systemApp name=com.android.browser
->> domain=browser_app levelFromUid=true
->
-> You can only have one type= specification per user=, and this is only
-> used by installd to label the /data/data/<packagename> directory and
-> files when they are created.  So the additional entries here should be
-> no-ops effectively.  We should likely add a validator program for
-> seapp_contexts to check for these kinds of errors.
-
->>>Removed additional types per above comment, and reused radio_data_file.
-
-Bryan Hinton
-
-
-
-
-
+> BTW, I think we will ultimately need some per-device policy files that
+> get merged into the policy, much as there are per-device
+> ueventd.<board>.rc and init.<board>.rc files.  At least for
+> file_contexts, and possibly for policy rules as well.
 >
 > --
 > Stephen Smalley
