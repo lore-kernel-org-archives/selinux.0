@@ -1,47 +1,64 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2366JWS011712
+	for <selinux@tycho.nsa.gov>; Sat, 3 Mar 2012 01:06:19 -0500
+Received: by vbbfc26 with SMTP id fc26so2349393vbb.12
+        for <selinux@tycho.nsa.gov>; Fri, 02 Mar 2012 22:06:18 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
-References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
-	<1330702776.2616.43.camel@moss-pluto>
-	<CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
-	<CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
-	<1330719989.2616.100.camel@moss-pluto>
-	<CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
-Date: Fri, 2 Mar 2012 18:02:14 -0500
-Message-ID: <CAD8iFzyJSX5XqTKPHxX4E0y9kMaPV_WntwcxppXDeWgiLS+vPw@mail.gmail.com>
-Subject: Re: SE Android on Galaxy Nexus
-From: Subramani Venkatesh <selinuxv31@gmail.com>
-To: Bryan Hinton <bryan@bryanhinton.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+From: Kyle Moffett <kyle@moffetthome.net>
+Date: Fri, 2 Mar 2012 22:05:58 -0800
+Message-ID: <CAGZ=bqKEXNiRp_4YZaTvYEm6JhhAdk0LunwYbgWtuMKWPPAiiA@mail.gmail.com>
+Subject: Performance optimization of libsepol and the need for detailed
+ policydb docs.
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yes per device file_contexts makes easy, I have GSM modem, so I had to
-label files according to my device. and also Define policy rukes.
-Changes will be emailed soon.
+Hello,
 
-Regards,
-Subbu
+I'm dissatisfied with some of the performance characteristics of the
+current policydb code for linking policy modules into a composite
+binary policy, and I would like to try to make some improvements to
+that.  In particular, I would like to make it reasonably possible to
+frequently relink and reload the binary policy on a very granular
+basis.  Unfortunately the new policy language does not help with this
+right now because it still seems to be translated into the old policy
+language for compiling.
 
+For example, I'm interested in the idea of shipping a policy module
+(including interfaces) in each Debian package, so that the policy is
+loaded as part of preinst before the package manager begins
+configuring the package or putting files onto the system and unloaded
+after the package has been purged.
 
-On Fri, Mar 2, 2012 at 5:16 PM, Bryan Hinton <bryan@bryanhinton.com> wrote:
-> I agree. A per-device file_contexts file makes sense given the
-> variation in radio types between ICS based devices.
->
-> On Fri, Mar 2, 2012 at 2:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On Fri, 2012-03-02 at 11:51 -0600, Bryan Hinton wrote:
->>> Here is the latest policy that I am using.
->>
->> BTW, I think we will ultimately need some per-device policy files that
->> get merged into the policy, much as there are per-device
->> ueventd.<board>.rc and init.<board>.rc files.  At least for
->> file_contexts, and possibly for policy rules as well.
->>
->> --
->> Stephen Smalley
->> National Security Agency
->>
+Another possibility would be a "network policy" analogous to "Windows
+Domain Policy", where you have a base policy built as part of the OS
+packages and then it is automatically extended and configured (EG:
+with new policy or booleans) via a daemon communicating with a central
+policy server.  If integrated with PAM, NSS, cgroups, etc, you could
+allow centralized management and configuration of network-wide
+Mandatory Access Control.  A corporate network could easily enforce
+consistent global SELinux labeling of IPsec connections or similar.
 
+In order for any of that to work, however, the incremental policy link
+time would need to be on the order of a few seconds instead of the
+current multiple-minute link-and-load time for a large reference
+policy.
+
+In the past (with my previous employer), I participated in some
+efforts to analyze the performance of libsepol and identified some
+low-hanging fruit in the form of incorrectly sized hash tables (EG: A
+hash table with 2 entries has equivalent performance to a linked list
+except with a lot of extra code on the front end), but we never were
+able to polish up patches for merging.
+
+I would like to potentially take on some of this work, but I'd really
+need to have some better documentation on the various binary policy
+formats (base policy, modules, and linked policy).  Is there any
+existing documentation or should I just start by writing some?
+
+Cheers,
+Kyle Moffett
 
 --
 This message was distributed to subscribers of the selinux mailing list.
