@@ -1,93 +1,57 @@
-Message-ID: <1330962739.1841.42.camel@moss-lions.epoch.ncsc.mil>
-Subject: Re: Performance optimization of libsepol and the need for detailed
- policydb docs.
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Kyle Moffett <kyle@moffetthome.net>
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 05 Mar 2012 10:52:19 -0500
-In-Reply-To: <CAGZ=bqKEXNiRp_4YZaTvYEm6JhhAdk0LunwYbgWtuMKWPPAiiA@mail.gmail.com>
+Subject: Re: SE Android and Finer Grained Permissions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: jwcart2@tycho.nsa.gov
+Cc: noloader@gmail.com, SE Linux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1330960184.1841.17.camel@moss-lions.epoch.ncsc.mil>
 References: 
-	<CAGZ=bqKEXNiRp_4YZaTvYEm6JhhAdk0LunwYbgWtuMKWPPAiiA@mail.gmail.com>
+	 <CAH8yC8kE6fEGijSyjz4_VrqoogbrqLAsHwCXsRQH3qd52e=kVw@mail.gmail.com>
+	 <1330960184.1841.17.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 05 Mar 2012 14:44:38 -0500
+Message-ID: <1330976678.7184.8.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-03-02 at 22:05 -0800, Kyle Moffett wrote:
-> Hello,
+On Mon, 2012-03-05 at 10:09 -0500, James Carter wrote:
+> On Sun, 2012-03-04 at 21:02 -0500, Jeffrey Walton wrote:
+> > Hi All,
+> > 
+> > Forgive my ignorance here.....
+> > 
+> > I was reading the slides at on SE Android at
+> > http://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf.
+> > 
+> > I see the slides point out "[Current Android suffers] limited
+> > granularity, coarse-grained privilege." But I don't see where SE
+> > Android corrected it. For example, it appears READ_PHONE_STATE still
+> > encompasses reading a device serial number, IMEI, SIM ID, call state,
+> > incoming calling number, etc.
+> > 
+> > Does SE Android remediate the coarse grained permissions?
+> > 
 > 
-> I'm dissatisfied with some of the performance characteristics of the
-> current policydb code for linking policy modules into a composite
-> binary policy, and I would like to try to make some improvements to
-> that.  In particular, I would like to make it reasonably possible to
-> frequently relink and reload the binary policy on a very granular
-> basis.  
+> No. Currently, the SE Android policy is only trying to ensure that the
+> existing Android security model is enforced. The Android permissions
+> work exactly the same way.
+> 
+> SE Android is still a work in progress. Our goal is to extend security
+> controls into the application frameworks of Android to better control
+> applications and that could eventually lead to finer-grained control
+> over resources currently controlled by Android permissions.
 
-That would be nice, but it will not be easy to do. Any time a new type
-or role is introduced, or an old one is assigned additional attributes,
-there can potentially be changes anywhere in policy due to the expansion
-of constructs such as set expressions and role attributes. You might
-think that if only allow rules change that you could do it, but you
-cannot tell where a given allow rule in the binary policy comes from,
-nor can you tell if it came from more than one place, so you cannot
-determine whether a given rule can be removed from the binary policy
-without looking at the whole policy.
-
-> Unfortunately the new policy language does not help with this
-> right now because it still seems to be translated into the old policy
-> language for compiling.
-> 
-
-Actually, the intention is to translate Refpolicy into the new policy
-language. Binary policy modules will not exist in this new toolchain.
-This should reduce the time required to compile the policy source into a
-binary. Unfortunately, we are working through a bug discovered while
-trying to compile the translated Refpolicy, so I don't know how fast it
-will be yet.
-
-> For example, I'm interested in the idea of shipping a policy module
-> (including interfaces) in each Debian package, so that the policy is
-> loaded as part of preinst before the package manager begins
-> configuring the package or putting files onto the system and unloaded
-> after the package has been purged.
-> 
-> Another possibility would be a "network policy" analogous to "Windows
-> Domain Policy", where you have a base policy built as part of the OS
-> packages and then it is automatically extended and configured (EG:
-> with new policy or booleans) via a daemon communicating with a central
-> policy server.  If integrated with PAM, NSS, cgroups, etc, you could
-> allow centralized management and configuration of network-wide
-> Mandatory Access Control.  A corporate network could easily enforce
-> consistent global SELinux labeling of IPsec connections or similar.
-> 
-> In order for any of that to work, however, the incremental policy link
-> time would need to be on the order of a few seconds instead of the
-> current multiple-minute link-and-load time for a large reference
-> policy.
-> 
-> In the past (with my previous employer), I participated in some
-> efforts to analyze the performance of libsepol and identified some
-> low-hanging fruit in the form of incorrectly sized hash tables (EG: A
-> hash table with 2 entries has equivalent performance to a linked list
-> except with a lot of extra code on the front end), but we never were
-> able to polish up patches for merging.
-> 
-> I would like to potentially take on some of this work, but I'd really
-> need to have some better documentation on the various binary policy
-> formats (base policy, modules, and linked policy).  Is there any
-> existing documentation or should I just start by writing some?
-> 
-> Cheers,
-> Kyle Moffett
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Just to further clarify, SE Android does in fact address the limitations
+of the kernel layer DAC security model, including overcoming its limited
+granularity and coarse-grained privilege model (which is what you quoted
+above from slide 5).  But addressing the application layer (aka
+middleware layer) security model remains to be done, as noted on slide
+46. Also, you may find the more recent talk we gave at the Android
+Builders Summit to be helpful.  Links to the slides and video from that
+talk are available on the wiki:
+http://selinuxproject.org/page/SEAndroid#Presentations
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
