@@ -1,54 +1,34 @@
-Subject: Re: SE Android and Finer Grained Permissions
+Subject: Re: Performance optimization of libsepol and the need for detailed
+ policydb docs.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jwcart2@tycho.nsa.gov
-Cc: noloader@gmail.com, SE Linux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1330960184.1841.17.camel@moss-lions.epoch.ncsc.mil>
+To: Kyle Moffett <kyle@moffetthome.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <CAGZ=bqKEXNiRp_4YZaTvYEm6JhhAdk0LunwYbgWtuMKWPPAiiA@mail.gmail.com>
 References: 
-	 <CAH8yC8kE6fEGijSyjz4_VrqoogbrqLAsHwCXsRQH3qd52e=kVw@mail.gmail.com>
-	 <1330960184.1841.17.camel@moss-lions.epoch.ncsc.mil>
+	 <CAGZ=bqKEXNiRp_4YZaTvYEm6JhhAdk0LunwYbgWtuMKWPPAiiA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 05 Mar 2012 14:44:38 -0500
-Message-ID: <1330976678.7184.8.camel@moss-pluto>
+Date: Mon, 05 Mar 2012 14:53:01 -0500
+Message-ID: <1330977181.7184.10.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-03-05 at 10:09 -0500, James Carter wrote:
-> On Sun, 2012-03-04 at 21:02 -0500, Jeffrey Walton wrote:
-> > Hi All,
-> > 
-> > Forgive my ignorance here.....
-> > 
-> > I was reading the slides at on SE Android at
-> > http://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf.
-> > 
-> > I see the slides point out "[Current Android suffers] limited
-> > granularity, coarse-grained privilege." But I don't see where SE
-> > Android corrected it. For example, it appears READ_PHONE_STATE still
-> > encompasses reading a device serial number, IMEI, SIM ID, call state,
-> > incoming calling number, etc.
-> > 
-> > Does SE Android remediate the coarse grained permissions?
-> > 
+On Fri, 2012-03-02 at 22:05 -0800, Kyle Moffett wrote:
+> In the past (with my previous employer), I participated in some
+> efforts to analyze the performance of libsepol and identified some
+> low-hanging fruit in the form of incorrectly sized hash tables (EG: A
+> hash table with 2 entries has equivalent performance to a linked list
+> except with a lot of extra code on the front end), but we never were
+> able to polish up patches for merging.
 > 
-> No. Currently, the SE Android policy is only trying to ensure that the
-> existing Android security model is enforced. The Android permissions
-> work exactly the same way.
-> 
-> SE Android is still a work in progress. Our goal is to extend security
-> controls into the application frameworks of Android to better control
-> applications and that could eventually lead to finer-grained control
-> over resources currently controlled by Android permissions.
+> I would like to potentially take on some of this work, but I'd really
+> need to have some better documentation on the various binary policy
+> formats (base policy, modules, and linked policy).  Is there any
+> existing documentation or should I just start by writing some?
 
-Just to further clarify, SE Android does in fact address the limitations
-of the kernel layer DAC security model, including overcoming its limited
-granularity and coarse-grained privilege model (which is what you quoted
-above from slide 5).  But addressing the application layer (aka
-middleware layer) security model remains to be done, as noted on slide
-46. Also, you may find the more recent talk we gave at the Android
-Builders Summit to be helpful.  Links to the slides and video from that
-talk are available on the wiki:
-http://selinuxproject.org/page/SEAndroid#Presentations
+Old, but possibly helpful as a starting point:
+http://securityblog.org/brindle/2006/07/05/selinux-policy-module-primer/
+
 
 -- 
 Stephen Smalley
