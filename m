@@ -1,55 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q26FVTkn027052
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2012 10:31:29 -0500
-Received: by iaoo28 with SMTP id o28so7809112iao.12
-        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2012 07:31:28 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q26GI5GN029804
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2012 11:18:05 -0500
+Received: by yhjj72 with SMTP id j72so2437470yhj.12
+        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2012 08:18:04 -0800 (PST)
 MIME-Version: 1.0
-Reply-To: hanwen@xs4all.nl
-In-Reply-To: <4F560C02.3020805@tresys.com>
-References: <CAOw_e7YkXECVOO9JnP0FvWYMpdZ2PzPBQwEy3ppCd4GcVnwfEw@mail.gmail.com>
-	<4F560C02.3020805@tresys.com>
-Date: Tue, 6 Mar 2012 12:31:27 -0300
-Message-ID: <CAOw_e7Zhb1080TGr2nLxJJz_Zga70TrybZp404THpChs8hthpA@mail.gmail.com>
-Subject: Re: Suppressing selinux label getxattrs on FUSE
-From: Han-Wen Nienhuys <hanwenn@gmail.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAD8iFzzymdbEM=6mZc2GNSawRFji-+FuPQAuMe61ju-UOw6YpA@mail.gmail.com>
+References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
+	<1330702776.2616.43.camel@moss-pluto>
+	<CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
+	<CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
+	<1330719989.2616.100.camel@moss-pluto>
+	<CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+	<CAD8iFzzymdbEM=6mZc2GNSawRFji-+FuPQAuMe61ju-UOw6YpA@mail.gmail.com>
+Date: Tue, 6 Mar 2012 10:18:04 -0600
+Message-ID: <CA+XzHePjHOg=nFs3FTeC4iSHvbODsz3M4QKzm35zqByTJPWVMA@mail.gmail.com>
+Subject: Re: SE Android on Galaxy Nexus
+From: Bryan Hinton <bryan@bryanhinton.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Mar 6, 2012 at 10:07 AM, Christopher J. PeBenito
-<cpebenito@tresys.com> wrote:
-> On 03/06/12 06:51, Han-Wen Nienhuys wrote:
->> Hi there,
->>
->> What is the best way to stop to SELinux from trying read ACL security
->> labels for (FUSE) mounts?
->>
->> Background:
->>
->> From what I read, Selinux is not really working on FUSE filesystems,
->> however, when I run a FUSE filesystem, I see various GETXATTR calls
->> passing by asking for
->
-> SELinux uses the security.selinux xattr.
->
->> security.capability
->
-> I'm guessing this is for fs capabilities.
->
->> system.posix_acl_default
->> system.posix_acl_access
->
-> POSIX ACL.
->
-> You'd presumably have to disable these mechanisms to eliminate this access.
+Yes, you are correct.  That mount point needs a label and the security
+context should be set.
 
-Would you have some pointers to background on these mechanisms?  Sorry
-for the newbie-ish question.
+Bryan Hinton
 
--- 
-Han-Wen Nienhuys - hanwen@xs4all.nl - http://www.xs4all.nl/~hanwen
+
+On Mon, Mar 5, 2012 at 8:42 PM, Subramani Venkatesh
+<selinuxv31@gmail.com> wrote:
+> Hi Bryan,
+> Thanks for the patch you posted earlier, I tried adding your changes,
+> some changes works, some did not take effect for example
+> "+/factory/nv_data.bin.*           u:object_r:radio_data_file:s0", I
+> am seeing /factory directory as unlabeled, not sure what I am missing,
+> do we need to do any change to init.rc file?
+>
+> Regards,
+> Subbu
+>
+>
+>
+>
+>
+> On Fri, Mar 2, 2012 at 5:16 PM, Bryan Hinton <bryan@bryanhinton.com> wrote:
+>> I agree. A per-device file_contexts file makes sense given the
+>> variation in radio types between ICS based devices.
+>>
+>> On Fri, Mar 2, 2012 at 2:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On Fri, 2012-03-02 at 11:51 -0600, Bryan Hinton wrote:
+>>>> Here is the latest policy that I am using.
+>>>
+>>> BTW, I think we will ultimately need some per-device policy files that
+>>> get merged into the policy, much as there are per-device
+>>> ueventd.<board>.rc and init.<board>.rc files.  At least for
+>>> file_contexts, and possibly for policy rules as well.
+>>>
+>>> --
+>>> Stephen Smalley
+>>> National Security Agency
+>>>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
