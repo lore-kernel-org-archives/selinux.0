@@ -1,61 +1,38 @@
-Message-ID: <4F567572.5060705@rubix.com>
-Date: Tue, 06 Mar 2012 21:37:06 +0100
-From: Andy Warner <warner@rubix.com>
-MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Login context for a VNC connection
-Content-Type: multipart/alternative;
- boundary="------------060508040301030300080401"
+Subject: Re: Login context for a VNC connection
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andy Warner <warner@rubix.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <4F567572.5060705@rubix.com>
+References: <4F567572.5060705@rubix.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 06 Mar 2012 15:47:06 -0500
+Message-ID: <1331066826.26027.134.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060508040301030300080401
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2012-03-06 at 21:37 +0100, Andy Warner wrote:
+> I am trying to configure the login context for a user connection
+> through Tiger VNC. I am using RHEL6 with the MLS policy, fully
+> updated. Currently I am getting:
+> 
+> system_u:system_r:initrc_t:SystemLow-SystemHigh
+> 
+> This does not seem correct. Can someone please give me information on
+> hos this context is calculated and how I can configure it so the user
+> receives a context of my choosing. 
 
-I am trying to configure the login context for a user connection through 
-Tiger VNC. I am using RHEL6 with the MLS policy, fully updated. 
-Currently I am getting:
+Most likely means that the Tiger VNC server is not labeled, thus left in
+the caller's context (initrc_t), and either does not try to set the user
+session context at all (i.e. no pam_selinux in its pam config) or fails
+to determine a context because it is starting from a context that is not
+specified as part
+of /etc/selinux/$SELINUXTYPE/contexts/default_contexts.
 
-system_u:system_r:initrc_t:SystemLow-SystemHigh
+-- 
+Stephen Smalley
+National Security Agency
 
-This does not seem correct. Can someone please give me information on 
-hos this context is calculated and how I can configure it so the user 
-receives a context of my choosing.
-
-Thanks,
-
-Andy Warner
-
---------------060508040301030300080401
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <font face="Arial">I am trying to configure the login context for a
-      user connection through Tiger VNC. I am using RHEL6 with the MLS
-      policy, fully updated. Currently I am getting:<br>
-      <br>
-      system_u:system_r:initrc_t:SystemLow-SystemHigh<br>
-      <br>
-      This does not seem correct. Can someone please give me information
-      on hos this context is calculated and how I can configure it so
-      the user receives a context of my choosing. <br>
-      <br>
-      Thanks,<br>
-      <br>
-      Andy Warner<br>
-    </font>
-  </body>
-</html>
-
---------------060508040301030300080401--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
