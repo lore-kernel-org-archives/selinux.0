@@ -2,56 +2,80 @@ Subject: Re: SE Android on Galaxy Nexus
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Bryan Hinton <bryan@bryanhinton.com>
 Cc: Subramani Venkatesh <selinuxv31@gmail.com>, selinux@tycho.nsa.gov
-In-Reply-To: <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+In-Reply-To: <CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
 References: 
 	 <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
 	 <1330702776.2616.43.camel@moss-pluto>
 	 <CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
 	 <CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
-	 <1330719989.2616.100.camel@moss-pluto>
-	 <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+	 <1330716665.2616.80.camel@moss-pluto>
+	 <CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 06 Mar 2012 14:01:46 -0500
-Message-ID: <1331060506.26027.99.camel@moss-pluto>
+Date: Tue, 06 Mar 2012 14:16:36 -0500
+Message-ID: <1331061396.26027.108.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-03-02 at 16:16 -0600, Bryan Hinton wrote: 
-> I agree. A per-device file_contexts file makes sense given the
-> variation in radio types between ICS based devices.
+On Fri, 2012-03-02 at 16:13 -0600, Bryan Hinton wrote:
+> Thank you for the feedback. An updated patch for inclusion into the
+> sepolicy tree, is below.
+> My replies to your comments are below the patch.
 
-Support for per-device .te and .fc files has been added to the sepolicy
-Android.mk file.  Thus, you can place your device-specific additions for
-file_contexts in a sepolicy.fc file or for policy rules in a sepolicy.te
-file under target/board/<device>, device/<vendor>/<device>, or
-vendor/<vendor>/<device> and have it automatically included into the
-policy.
+Thanks, a few comments below.
 
-Since the device-specific .fc files are appended to the end of
-file_contexts, they will take precedence over less specific entries in
-the base file_contexts file (e.g. no need to change the /dev/tty[0-9]
-entry in file_contexts in order to override the context for /dev/tty03;
-you can just add the latter to your .fc file and it should take
-precedence).  The device-specific .te files are likewise appended after
-the base set of .te files, although order there shouldn't matter.
+> @@ -35,6 +37,7 @@
+>  /dev/mtd/mtd5ro		u:object_r:radio_device:s0
+>  /dev/mtp_usb		u:object_r:mtp_device:s0
+>  /dev/pn544		u:object_r:nfc_device:s0
+> +/dev/ttyO3     u:object_r:nfc_device:s0
 
-This is still experimental and may change further.  For example, if we
-wanted to support multiple .fc or .te files per device, we might
-introduce an optional sepolicy subdirectory under the device directories
-that could contain any number of such files.
+I suspect this one should go into a separate sepolicy.fc file for the
+device, now that we have support for such files.
 
-These changes are available in our sepolicy tree, but not yet in the
-AOSP one.  In order to ensure that you use our sepolicy tree, you may
-need to update your local_manifest.xml file.  I have placed updated
-local_manifest.xml (for git-based access) and local_manifest_http.xml
-(for http-based access) files under
-http://selinuxproject.org/~seandroid/
+> @@ -66,7 +69,8 @@
+>  /dev/socket/zygote	u:object_r:zygote_socket:s0
+>  /dev/spdif_out.*	u:object_r:audio_device:s0
+>  /dev/tegra.*		u:object_r:video_device:s0
+> -/dev/tty[0-9]*		u:object_r:tty_device:s0
+> +/dev/tty[0-2]*		u:object_r:tty_device:s0
+> +/dev/tty[4-9]*		u:object_r:tty_device:s0
+
+Not necessary; a fully specified (no regex) pathname will always take
+precedence over a regex, and a later entry will take precedence over an
+earlier one.  So it should suffice to have the /dev/tty03 in your
+sepolicy.fc file for the device.
+
+> @@ -116,10 +120,15 @@
+>  /data/misc/wifi(/.*)?		u:object_r:wifi_data_file:s0
+>  # App sandboxes
+>  /data/data/.*		u:object_r:app_data_file:s0
+> +/data/data/com.android.providers.telephony/databases(/.*)?
+> u:object_r:radio_data_file:s0
+> +/data/data/com.android.providers.telephony/(optable\.db)?
+> u:object_r:radio_data_file:s0
+
+The last pathname regex doesn't seem right.  If you just want
+optable.db, then drop the parens and ?; if you want everything under the
+directory, then you can just use (/.*)?.
+
+Also, your patch was line wrapped and thus can't be applied.
+Make sure you use preformat or equivalent in your mail client or
+directly send via git send-email.
+
+> +
+>  #############################
+>  # efs files
+>  #
+>  /efs(/.*)?		u:object_r:efs_file:s0
+> +/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
+> +/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
+
+I suspect these will go into your sepolicy.fc file for the device.
 
 -- 
 Stephen Smalley
 National Security Agency
-
 
 
 --
