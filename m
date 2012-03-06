@@ -1,45 +1,63 @@
-Subject: Re: SETools not compiling, refpolicy modules not loading
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kovacsics =?ISO-8859-1?Q?R=F3bert?= <kovirobi@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <CABPkNKmytMBPwsY_HV5YLbaBzTThGY1KaRFkD0ujt7h1ReA6yA@mail.gmail.com>
-References: 
-	 <CABPkNKmytMBPwsY_HV5YLbaBzTThGY1KaRFkD0ujt7h1ReA6yA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 05 Mar 2012 14:56:50 -0500
-Message-ID: <1330977410.7184.13.camel@moss-pluto>
-Mime-Version: 1.0
+Message-ID: <4F556212.50303@schaufler-ca.com>
+Date: Mon, 05 Mar 2012 17:02:10 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
+To: noloader@gmail.com
+CC: SE Linux <SELinux@tycho.nsa.gov>, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: SE Android and Finer Grained Permissions
+References: <CAH8yC8kE6fEGijSyjz4_VrqoogbrqLAsHwCXsRQH3qd52e=kVw@mail.gmail.com>
+In-Reply-To: <CAH8yC8kE6fEGijSyjz4_VrqoogbrqLAsHwCXsRQH3qd52e=kVw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-03-02 at 23:00 +0000, Kovacsics Róbert wrote:
-> Hi!
-> 
-> It is me again, and after compiling SELinux, I went on to try to
-> compile SETools, as I read, stuff like audit2allow needs it because of
-> the python, so anyway it does not want to compile, saying that
-> "checking for corrected libsepol boolean expand behavior... configure:
-> error: this version of libsepol is incompatible with SETools", and I
-> have the latest SELinux, downloaded from the website. I did also try
-> with the latest SETools downloaded from SVN.
+On 3/4/2012 6:02 PM, Jeffrey Walton wrote:
+> Hi All,
+>
+> Forgive my ignorance here.....
+>
+> I was reading the slides at on SE Android at
+> http://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf.
+>
+> I see the slides point out "[Current Android suffers] limited
+> granularity, coarse-grained privilege." But I don't see where SE
+> Android corrected it. For example, it appears READ_PHONE_STATE still
+> encompasses reading a device serial number, IMEI, SIM ID, call state,
+> incoming calling number, etc.
+>
+> Does SE Android remediate the coarse grained permissions?
+>
+> Is an application installation still an "all or nothing" proposition
+> with respect to permissions? For example, can I approve an install and
+> later take away the WRITE_CONTACTS permission?
 
-setools isn't required for audit2allow (or anything else needed for
-day-to-day usage of SELinux).  Only for policy analysis.  You likely
-should report problems to their own alias/list or bug tracker.
+I personally applaud the coarser granularity that the Android policy
+has over the Fedora policy. I have long been critical of what I
+consider to be excesses of granularity in SELinux. Do you really want
+to see 900,000 lines of policy for a handset device? And before
+someone starts to claim that the handset system software is somehow
+smaller or less complex than the Fedora distribution I will point to
+Stephen's note about the application enforced policy of Android.
 
-> Also, another problem I have been having, is that when I try to load
-> refpolicy, it uses a lot of CPU (about the amount required for
-> compilation, then it just hangs there with low CPU after 5 minutes,
-> and anything I do to it ends with segfault.
+Fine granularity in access controls are lots of fun for engineers
+and seem like a good idea when you want to turn on a particular
+facility and can't do so because the seemingly unrelated implications
+are too dangerous. But it's a slippery slope, and I seriously doubt
+that anyone would want to truly understand all the relationships
+included in a policy for Android that matches the granularity of the
+policy for Fedora.
 
-You need to provide more details, like the exact versions of
-libsepol/checkpolicy/libsemanage/policycoreutils and refpolicy.  But
-loading the full refpolicy can indeed be slow and require significant
-memory.
+But, that's my well known opinion, and as such you may wish to take
+it with a grain of salt. I will be sad to see the Android policy grow
+with the same unbridled exuberance as the Fedora and reference policies.
 
--- 
-Stephen Smalley
-National Security Agency
+
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
