@@ -1,31 +1,58 @@
-Message-ID: <4F564B76.8080609@tresys.com>
-Date: Tue, 6 Mar 2012 12:37:58 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kovacsics_R=F3bert?= <kovirobi@gmail.com>
-CC: <SELinux@tycho.nsa.gov>
-Subject: Re: SETools not compiling, refpolicy modules not loading
-References: <CABPkNKmytMBPwsY_HV5YLbaBzTThGY1KaRFkD0ujt7h1ReA6yA@mail.gmail.com>
-In-Reply-To: <CABPkNKmytMBPwsY_HV5YLbaBzTThGY1KaRFkD0ujt7h1ReA6yA@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: Re: SE Android on Galaxy Nexus
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Bryan Hinton <bryan@bryanhinton.com>
+Cc: Subramani Venkatesh <selinuxv31@gmail.com>, selinux@tycho.nsa.gov
+In-Reply-To: <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+References: 
+	 <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
+	 <1330702776.2616.43.camel@moss-pluto>
+	 <CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
+	 <CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
+	 <1330719989.2616.100.camel@moss-pluto>
+	 <CA+XzHePXLxhGxpXrtZ6AzmgZNPoZhRN9p7Em+oOStnJXnhaYiw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 06 Mar 2012 14:01:46 -0500
+Message-ID: <1331060506.26027.99.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/02/12 18:00, Kovacsics Róbert wrote:
-> It is me again, and after compiling SELinux, I went on to try to
-> compile SETools, as I read, stuff like audit2allow needs it because of
-> the python, so anyway it does not want to compile, saying that
-> "checking for corrected libsepol boolean expand behavior... configure:
-> error: this version of libsepol is incompatible with SETools", and I
-> have the latest SELinux, downloaded from the website. I did also try
-> with the latest SETools downloaded from SVN.
+On Fri, 2012-03-02 at 16:16 -0600, Bryan Hinton wrote: 
+> I agree. A per-device file_contexts file makes sense given the
+> variation in radio types between ICS based devices.
 
-I committed a fix that handles the new parameter in libsepol's role_set_expand() function, which may have a side effect of fixing your problem compiling SETools.  Can you update your checkout and retry?
+Support for per-device .te and .fc files has been added to the sepolicy
+Android.mk file.  Thus, you can place your device-specific additions for
+file_contexts in a sepolicy.fc file or for policy rules in a sepolicy.te
+file under target/board/<device>, device/<vendor>/<device>, or
+vendor/<vendor>/<device> and have it automatically included into the
+policy.
+
+Since the device-specific .fc files are appended to the end of
+file_contexts, they will take precedence over less specific entries in
+the base file_contexts file (e.g. no need to change the /dev/tty[0-9]
+entry in file_contexts in order to override the context for /dev/tty03;
+you can just add the latter to your .fc file and it should take
+precedence).  The device-specific .te files are likewise appended after
+the base set of .te files, although order there shouldn't matter.
+
+This is still experimental and may change further.  For example, if we
+wanted to support multiple .fc or .te files per device, we might
+introduce an optional sepolicy subdirectory under the device directories
+that could contain any number of such files.
+
+These changes are available in our sepolicy tree, but not yet in the
+AOSP one.  In order to ensure that you use our sepolicy tree, you may
+need to update your local_manifest.xml file.  I have placed updated
+local_manifest.xml (for git-based access) and local_manifest_http.xml
+(for http-based access) files under
+http://selinuxproject.org/~seandroid/
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Stephen Smalley
+National Security Agency
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
