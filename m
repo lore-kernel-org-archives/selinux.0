@@ -1,81 +1,94 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q26JQrLt007786
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2012 14:26:54 -0500
+Received: by obceq6 with SMTP id eq6so6811545obc.12
+        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2012 11:26:52 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1331061396.26027.108.camel@moss-pluto>
+References: <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
+	<1330702776.2616.43.camel@moss-pluto>
+	<CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
+	<CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
+	<1330716665.2616.80.camel@moss-pluto>
+	<CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
+	<1331061396.26027.108.camel@moss-pluto>
+Date: Tue, 6 Mar 2012 13:26:52 -0600
+Message-ID: <CA+XzHeNSpCu8g8GK_Je9RQ9Jvh9ZcyU89P5GOVzn9OpE=dvnMw@mail.gmail.com>
 Subject: Re: SE Android on Galaxy Nexus
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Bryan Hinton <bryan@bryanhinton.com>
+From: Bryan Hinton <bryan@bryanhinton.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Subramani Venkatesh <selinuxv31@gmail.com>, selinux@tycho.nsa.gov
-In-Reply-To: <CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
-References: 
-	 <CAD8iFzx70mZyFbqTju=oVm1uLRx=Nic6Y8drsbiM-Vxqw3F8cw@mail.gmail.com>
-	 <1330702776.2616.43.camel@moss-pluto>
-	 <CAD8iFzycUJLiZynmHGiUR6s2OJVKRvoQda7n-ktUBxTf-RiFwA@mail.gmail.com>
-	 <CA+XzHeMaetu1zmC9KNo1VVnPan20neiXiSVYWwyC9ZmS_rx4=w@mail.gmail.com>
-	 <1330716665.2616.80.camel@moss-pluto>
-	 <CA+XzHeO7S5OYPvRV7jMJXN+3jaEcKtM1RY8Du61-gvv2asfWMg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 06 Mar 2012 14:16:36 -0500
-Message-ID: <1331061396.26027.108.camel@moss-pluto>
-Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-03-02 at 16:13 -0600, Bryan Hinton wrote:
-> Thank you for the feedback. An updated patch for inclusion into the
-> sepolicy tree, is below.
-> My replies to your comments are below the patch.
+Thanks.  I'll make the necessary changes.  I've also made a few other
+small policy changes for the tuna/toro device. I'll get all of that
+cleaned up and resend a bit later.
 
-Thanks, a few comments below.
 
-> @@ -35,6 +37,7 @@
->  /dev/mtd/mtd5ro		u:object_r:radio_device:s0
->  /dev/mtp_usb		u:object_r:mtp_device:s0
->  /dev/pn544		u:object_r:nfc_device:s0
-> +/dev/ttyO3     u:object_r:nfc_device:s0
 
-I suspect this one should go into a separate sepolicy.fc file for the
-device, now that we have support for such files.
-
-> @@ -66,7 +69,8 @@
->  /dev/socket/zygote	u:object_r:zygote_socket:s0
->  /dev/spdif_out.*	u:object_r:audio_device:s0
->  /dev/tegra.*		u:object_r:video_device:s0
-> -/dev/tty[0-9]*		u:object_r:tty_device:s0
-> +/dev/tty[0-2]*		u:object_r:tty_device:s0
-> +/dev/tty[4-9]*		u:object_r:tty_device:s0
-
-Not necessary; a fully specified (no regex) pathname will always take
-precedence over a regex, and a later entry will take precedence over an
-earlier one.  So it should suffice to have the /dev/tty03 in your
-sepolicy.fc file for the device.
-
-> @@ -116,10 +120,15 @@
->  /data/misc/wifi(/.*)?		u:object_r:wifi_data_file:s0
->  # App sandboxes
->  /data/data/.*		u:object_r:app_data_file:s0
-> +/data/data/com.android.providers.telephony/databases(/.*)?
-> u:object_r:radio_data_file:s0
-> +/data/data/com.android.providers.telephony/(optable\.db)?
-> u:object_r:radio_data_file:s0
-
-The last pathname regex doesn't seem right.  If you just want
-optable.db, then drop the parens and ?; if you want everything under the
-directory, then you can just use (/.*)?.
-
-Also, your patch was line wrapped and thus can't be applied.
-Make sure you use preformat or equivalent in your mail client or
-directly send via git send-email.
-
-> +
->  #############################
->  # efs files
->  #
->  /efs(/.*)?		u:object_r:efs_file:s0
-> +/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
-> +/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
-
-I suspect these will go into your sepolicy.fc file for the device.
-
--- 
-Stephen Smalley
-National Security Agency
+On Tue, Mar 6, 2012 at 1:16 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Fri, 2012-03-02 at 16:13 -0600, Bryan Hinton wrote:
+>> Thank you for the feedback. An updated patch for inclusion into the
+>> sepolicy tree, is below.
+>> My replies to your comments are below the patch.
+>
+> Thanks, a few comments below.
+>
+>> @@ -35,6 +37,7 @@
+>>  /dev/mtd/mtd5ro              u:object_r:radio_device:s0
+>>  /dev/mtp_usb         u:object_r:mtp_device:s0
+>>  /dev/pn544           u:object_r:nfc_device:s0
+>> +/dev/ttyO3     u:object_r:nfc_device:s0
+>
+> I suspect this one should go into a separate sepolicy.fc file for the
+> device, now that we have support for such files.
+>
+>> @@ -66,7 +69,8 @@
+>>  /dev/socket/zygote   u:object_r:zygote_socket:s0
+>>  /dev/spdif_out.*     u:object_r:audio_device:s0
+>>  /dev/tegra.*         u:object_r:video_device:s0
+>> -/dev/tty[0-9]*               u:object_r:tty_device:s0
+>> +/dev/tty[0-2]*               u:object_r:tty_device:s0
+>> +/dev/tty[4-9]*               u:object_r:tty_device:s0
+>
+> Not necessary; a fully specified (no regex) pathname will always take
+> precedence over a regex, and a later entry will take precedence over an
+> earlier one.  So it should suffice to have the /dev/tty03 in your
+> sepolicy.fc file for the device.
+>
+>> @@ -116,10 +120,15 @@
+>>  /data/misc/wifi(/.*)?                u:object_r:wifi_data_file:s0
+>>  # App sandboxes
+>>  /data/data/.*                u:object_r:app_data_file:s0
+>> +/data/data/com.android.providers.telephony/databases(/.*)?
+>> u:object_r:radio_data_file:s0
+>> +/data/data/com.android.providers.telephony/(optable\.db)?
+>> u:object_r:radio_data_file:s0
+>
+> The last pathname regex doesn't seem right.  If you just want
+> optable.db, then drop the parens and ?; if you want everything under the
+> directory, then you can just use (/.*)?.
+>
+> Also, your patch was line wrapped and thus can't be applied.
+> Make sure you use preformat or equivalent in your mail client or
+> directly send via git send-email.
+>
+>> +
+>>  #############################
+>>  # efs files
+>>  #
+>>  /efs(/.*)?           u:object_r:efs_file:s0
+>> +/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
+>> +/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
+>
+> I suspect these will go into your sepolicy.fc file for the device.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
 
 
 --
