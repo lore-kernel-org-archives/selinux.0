@@ -1,69 +1,45 @@
-Subject: Re: CTS failure on SEAndroid Galaxy Nexus
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Subramani Venkatesh <selinuxv31@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1331129177.16697.26.camel@moss-pluto>
-References: 
-	 <CAD8iFzxusoJpp=kAMjhT8-toA0N_ejDE=bFTjV7OvsJYyKeDtw@mail.gmail.com>
-	 <1331127372.16697.21.camel@moss-pluto>
-	 <CAD8iFzwjZbUsmPJan6tU-un9goYWxZFbrykqYXr3HU+o6ea1_Q@mail.gmail.com>
-	 <1331129177.16697.26.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 07 Mar 2012 09:40:02 -0500
-Message-ID: <1331131202.16697.39.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q27FFNn7001068
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2012 10:15:23 -0500
+Date: Wed, 7 Mar 2012 23:15:16 +0800 (CST)
+From: Yao <yffbrave@163.com>
+To: SELinux@tycho.nsa.gov
+Message-ID: <14357406.17003.135edba7f47.Coremail.yffbrave@163.com>
+Subject: A few questions
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_255394_94725199.1331133316935"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-07 at 09:06 -0500, Stephen Smalley wrote:
-> On Wed, 2012-03-07 at 08:57 -0500, Subramani Venkatesh wrote:
-> > Hi Stephen,
-> > 
-> > Thanks for the response, my comments are inlined
-> > 
-> > On Wed, Mar 7, 2012 at 8:36 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > On Wed, 2012-03-07 at 08:18 -0500, Subramani Venkatesh wrote:
-> > >> Hi,
-> > >> Trying to execute CTS on SEAndroid with security enforce, but I am not
-> > >> successful getting it working, it crashes at the very beginning with
-> > >> an exeception, is anyone else seeing the same issue?
-> > >
-> > > First, did you make sure that you had no avc messages before going into
-> > > enforcing mode and even trying to run the CTS?  adb shell dmesg | grep
-> > > avc should yield no output.
-> > <Subbu>: I fixed most of it, they were couple of them missing, I will
-> > fix them and try again.
-> > >
-> > > Second, make sure you can run the CTS in permissive mode without any
-> > > difficulties as your baseline.
-> > <Subbu>: Yes CTS executes in permissive mode without any issues.
-> > >
-> > > Third, make sure you enable the android_cts policy boolean before
-> > > running the CTS.  If you have configured the CTS to not reboot the
-> > > device (set maxTestCount to -1 in repository/host_config.xml), then you
-> > > can just do this once via adb shell su 0 setsebool android_cts=1.
-> > > Otherwise, if you want to allow periodic reboots during the CTS, you
-> > > need to add setsebool android_cts=1 and setenforce 1 to your init.rc or
-> > > init.<board>.rc file so that it happens on each boot.
-> > <Subbu>: I did enable android_cts_policy boolean, I shall try changed
-> > my init.rc file to setenforce 1 all the time.
-> 
-> If you can run the CTS while in permissive mode, then you should do that
-> again (leaving it in permissive mode, with android_cts=1) and collect up
-> the denials.
-> 
-> adb shell su 0 cat /proc/kmsg > dmesg.txt
-> 
-> You can then add any necessary rules to cts.te under the boolean.
+------=_Part_255394_94725199.1331133316935
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: 7bit
 
-Just tried this myself, and I see that we'll need to make a few
-adjustments to policy for the current CTS.  Some of those will be made
-unconditionally outside of the android_cts boolean, while others are
-really only appropriate under test conditions and not production use.
+Hi,
+Lately I'm studying SELinux and got some questions  which I want to be clear.
 
--- 
-Stephen Smalley
-National Security Agency
+
+(1)I know SELinux is based on Flask architecture and I know where the SS is, but I'm not sure
+where the OM locates, I guess the variable "security_ops" which belongs to LSM represents the OM, am I right?
+
+
+(2)the struct "selinux_ops" in file hooks.c is declared as "static", why not add "const" qualifier so that 
+the it will be put in read-only data section in the kernel?
+
+
+(3)Is there any way to hack the SELinux, I mean, to disable it on the fly? For example, replace the policy db with a 
+blank file so that any permission is allowed. Is it feasible?
+
+
+Regards,
+Yao
+------=_Part_255394_94725199.1331133316935
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: 7bit
+
+<div style="line-height:1.7;color:#000000;font-size:14px;font-family:arial">Hi,<div>Lately I'm studying SELinux and got some questions &nbsp;which I want to be clear.</div><div><br></div><div>(1)I know SELinux is based on Flask architecture and I know where the SS is, but I'm not sure</div><div>where the OM locates, I guess the variable "security_ops" which belongs to LSM represents the OM, am I right?</div><div><br></div><div>(2)the struct "selinux_ops" in file hooks.c is declared as "static", why not add "const" qualifier so that&nbsp;</div><div>the it will be put in read-only data section in the kernel?</div><div><br></div><div>(3)Is there any way to hack the SELinux, I mean, to disable it on the fly? For example, replace the policy db with a&nbsp;</div><div>blank file so that any permission is allowed. Is it feasible?</div><div><br></div><div>Regards,</div><div>Yao</div></div><br><br><span title="neteasefooter"><span id="netease_mail_footer"></span></span>
+------=_Part_255394_94725199.1331133316935--
 
 
 --
