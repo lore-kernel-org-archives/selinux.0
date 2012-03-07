@@ -1,123 +1,65 @@
-Subject: Re: [PATCH] SELinux: allow default source/target selectors for
- user/role/range
+Subject: Re: CTS failure on SEAndroid Galaxy Nexus
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
+To: Subramani Venkatesh <selinuxv31@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1331080128-26425-1-git-send-email-eparis@redhat.com>
-References: <1331080128-26425-1-git-send-email-eparis@redhat.com>
+In-Reply-To: <1331129177.16697.26.camel@moss-pluto>
+References: 
+	 <CAD8iFzxusoJpp=kAMjhT8-toA0N_ejDE=bFTjV7OvsJYyKeDtw@mail.gmail.com>
+	 <1331127372.16697.21.camel@moss-pluto>
+	 <CAD8iFzwjZbUsmPJan6tU-un9goYWxZFbrykqYXr3HU+o6ea1_Q@mail.gmail.com>
+	 <1331129177.16697.26.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 07 Mar 2012 09:37:20 -0500
-Message-ID: <1331131040.16697.37.camel@moss-pluto>
+Date: Wed, 07 Mar 2012 09:40:02 -0500
+Message-ID: <1331131202.16697.39.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-03-06 at 19:28 -0500, Eric Paris wrote:
-> When new objects are created we have great and flexible rules to
-> determine the type of the new object.  We aren't quite as flexible or
-> mature when it comes to determining the user, role, and range.  This
-> patch adds a new ability to specify the place a new objects user, role,
-> and range should come from.  For users and roles it can come from either
-> the source or the target of the operation.  aka for files the user can
-> either come from the source (the running process and todays default) or
-> it can come from the target (aka the parent directory of the new file)
+On Wed, 2012-03-07 at 09:06 -0500, Stephen Smalley wrote:
+> On Wed, 2012-03-07 at 08:57 -0500, Subramani Venkatesh wrote:
+> > Hi Stephen,
+> > 
+> > Thanks for the response, my comments are inlined
+> > 
+> > On Wed, Mar 7, 2012 at 8:36 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > On Wed, 2012-03-07 at 08:18 -0500, Subramani Venkatesh wrote:
+> > >> Hi,
+> > >> Trying to execute CTS on SEAndroid with security enforce, but I am not
+> > >> successful getting it working, it crashes at the very beginning with
+> > >> an exeception, is anyone else seeing the same issue?
+> > >
+> > > First, did you make sure that you had no avc messages before going into
+> > > enforcing mode and even trying to run the CTS?  adb shell dmesg | grep
+> > > avc should yield no output.
+> > <Subbu>: I fixed most of it, they were couple of them missing, I will
+> > fix them and try again.
+> > >
+> > > Second, make sure you can run the CTS in permissive mode without any
+> > > difficulties as your baseline.
+> > <Subbu>: Yes CTS executes in permissive mode without any issues.
+> > >
+> > > Third, make sure you enable the android_cts policy boolean before
+> > > running the CTS.  If you have configured the CTS to not reboot the
+> > > device (set maxTestCount to -1 in repository/host_config.xml), then you
+> > > can just do this once via adb shell su 0 setsebool android_cts=1.
+> > > Otherwise, if you want to allow periodic reboots during the CTS, you
+> > > need to add setsebool android_cts=1 and setenforce 1 to your init.rc or
+> > > init.<board>.rc file so that it happens on each boot.
+> > <Subbu>: I did enable android_cts_policy boolean, I shall try changed
+> > my init.rc file to setenforce 1 all the time.
 > 
-> examples always are done with
-> directory context: system_u:object_r:mnt_t:s0-s0:c0.c512
-> process context: unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> If you can run the CTS while in permissive mode, then you should do that
+> again (leaving it in permissive mode, with android_cts=1) and collect up
+> the denials.
 > 
-> [no rule]
-> 	unconfined_u:object_r:mnt_t:s0   test_none
-> [default user source]
-> 	unconfined_u:object_r:mnt_t:s0   test_user_source
-> [default user target]
-> 	system_u:object_r:mnt_t:s0       test_user_target
-> [default role source]
-> 	unconfined_u:unconfined_r:mnt_t:s0 test_role_source
-> [default role target]
-> 	unconfined_u:object_r:mnt_t:s0   test_role_target
-> [default range source low]
-> 	unconfined_u:object_r:mnt_t:s0 test_range_source_low
-> [default range source high]
-> 	unconfined_u:object_r:mnt_t:s0:c0.c1023 test_range_source_high
-> [default range source low-high]
-> 	unconfined_u:object_r:mnt_t:s0-s0:c0.c1023 test_range_source_low-high
-> [default range target low]
-> 	unconfined_u:object_r:mnt_t:s0 test_range_target_low
-> [default range target high]
-> 	unconfined_u:object_r:mnt_t:s0:c0.c512 test_range_target_high
-> [default range target low-high]
-> 	unconfined_u:object_r:mnt_t:s0-s0:c0.c512 test_range_target_low-high
+> adb shell su 0 cat /proc/kmsg > dmesg.txt
+> 
+> You can then add any necessary rules to cts.te under the boolean.
 
-Very nice. Harry's point about also supporting configurable defaults
-(source or target) for the type field also makes sense.  Some comments
-below.
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 185f849..579c8b0 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1389,6 +1389,7 @@ static int security_compute_sid(u32 ssid,
->  				u32 *out_sid,
->  				bool kern)
->  {
-> +	struct class_datum *cladatum;
->  	struct context *scontext = NULL, *tcontext = NULL, newcontext;
->  	struct role_trans *roletr = NULL;
->  	struct avtab_key avkey;
-> @@ -1437,12 +1438,17 @@ static int security_compute_sid(u32 ssid,
->  		goto out_unlock;
->  	}
->  
-> +	cladatum = policydb.class_val_to_struct[tclass - 1];
-
-Need to check that tclass is in the legal range first, as in
-context_struct_compute_av() and security_validate_transition().
-
->  	/* Set the user identity. */
->  	switch (specified) {
->  	case AVTAB_TRANSITION:
->  	case AVTAB_CHANGE:
-> -		/* Use the process user identity. */
-> -		newcontext.user = scontext->user;
-> +		if (cladatum->default_user == DEFAULT_TARGET)
-> +			/* Use the process user identity. */
-
-Comment is no longer correct.
-
-> @@ -1450,17 +1456,25 @@ static int security_compute_sid(u32 ssid,
->  		break;
->  	}
->  
-> -	/* Set the role and type to default values. */
-> -	if ((tclass == policydb.process_class) || (sock == true)) {
-> -		/* Use the current role and type of process. */
-> +	/* Set the role to default values. */
-> +	if (cladatum->default_role == DEFAULT_SOURCE) {
->  		newcontext.role = scontext->role;
-> -		newcontext.type = scontext->type;
-> +	} else if (cladatum->default_role == DEFAULT_TARGET) {
-> +		newcontext.role = tcontext->role;
->  	} else {
-> -		/* Use the well-defined object role. */
-> -		newcontext.role = OBJECT_R_VAL;
-> +		if ((tclass == policydb.process_class) || (sock == true))
-> +			newcontext.role = scontext->role;
-> +		else
-> +			newcontext.role = OBJECT_R_VAL;
-> +	}
-> +
-> +	/* Set the type to default values. */
-> +	if ((tclass == policydb.process_class) || (sock == true))
-> +		/* Use the type of process. */
-> +		newcontext.type = scontext->type;
-> +	else
->  		/* Use the type of the related object. */
->  		newcontext.type = tcontext->type;
-> -	}
-
-I guess it isn't required, but isn't it nicer to use { } around the
-block when there is a comment line?  Just for readability?
+Just tried this myself, and I see that we'll need to make a few
+adjustments to policy for the current CTS.  Some of those will be made
+unconditionally outside of the android_cts boolean, while others are
+really only appropriate under test conditions and not production use.
 
 -- 
 Stephen Smalley
