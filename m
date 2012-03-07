@@ -1,54 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q271Q3P4026009
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2012 20:26:03 -0500
-Received: by ghbz13 with SMTP id z13so2788452ghb.12
-        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2012 17:26:01 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q271TU1v026103
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2012 20:29:30 -0500
+Received: by ggni4 with SMTP id i4so2788749ggn.12
+        for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2012 17:29:29 -0800 (PST)
 From: Bryan Hinton <bryan@bryanhinton.com>
 To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
 Cc: Bryan Hinton <bryan@bryanhinton.com>
-Subject: [PATCH] (SCH-i515 US LTE) Added device specific policy and file context files.[PUBLIC DOMAIN]
-Date: Tue,  6 Mar 2012 19:28:42 -0600
-Message-Id: <1331083722-5732-1-git-send-email-bryan@bryanhinton.com>
+Subject: [PATCH] (SCH-i515 US LTE) Modified init.tuna.rc for proper labeling of /factory/* files.[PUBLIC DOMAIN]
+Date: Tue,  6 Mar 2012 19:31:58 -0600
+Message-Id: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change-Id: Iaf0aa012e48dd3084aae6f57c25a022b210308ff
+Change-Id: I48f8623ec24728517597fcd77c9c7f3fab5db9be
 ---
- sepolicy.fc |   13 +++++++++++++
- sepolicy.te |    4 ++++
- 2 files changed, 17 insertions(+), 0 deletions(-)
- create mode 100644 sepolicy.fc
- create mode 100644 sepolicy.te
+ init.tuna.rc |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
 
-diff --git a/sepolicy.fc b/sepolicy.fc
-new file mode 100644
-index 0000000..b2f612b
---- /dev/null
-+++ b/sepolicy.fc
-@@ -0,0 +1,13 @@
-+/dev/cdma_.*   u:object_r:radio_device:s0
-+/dev/lte_.*    u:object_r:radio_device:s0
+diff --git a/init.tuna.rc b/init.tuna.rc
+index 70f1cbe..354c292 100755
+--- a/init.tuna.rc
++++ b/init.tuna.rc
+@@ -23,6 +23,9 @@ on post-fs-data
+ 	mkdir /data/misc/camera 0770 media media
+ 	mkdir /data/misc/camera/R5_MVEN003_LD2_ND0_IR0_SH0_FL1_SVEN003_DCCID1044 0770 media media
+ 
++   # remount factory as read-only
++   mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory ro remount
 +
-+/dev/ttyO3     u:object_r:nfc_device:s0
+ 	setprop vold.post_fs_data_done 1
+ 
+ # LTE
+@@ -56,7 +59,11 @@ on fs
+ 	setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
+ 	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/userdata /data wait noatime nosuid nodev nomblk_io_submit,errors=panic
+ 	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/cache /cache wait noatime nosuid nodev nomblk_io_submit,errors=panic
+-	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory wait ro
++	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory wait
++   chown radio radio /factory
++   restorecon /factory
++   restorecon /factory/nv_data.bin
++   restorecon /factory/nv_data.bin.md5
+ 	setprop ro.crypto.fuse_sdcard true
+ 
+ # change permissions for mtd device
+@@ -82,6 +89,14 @@ on fs
+ 
+ # add symlink for HDCP key
+         symlink /factory/hdcp.keys /system/vendor/firmware/hdcp.keys
++        restorecon /factory/hdcp.keys
++        restorecon /factory/imei
 +
-+/data/data/com.android.providers.telephony/databases(/.*)? u:object_r:radio_data_file:s0
-+/data/data/com.android.providers.telephony/optable.db    u:object_r:radio_data_file:s0
++# wifi
++   restorecon /factory/wifi
 +
-+/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
-+/factory(/.*)?             u:object_r:efs_file:s0
-+/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
-+
-+/sys/devices/platform/nfc-power/nfc_power -- u:object_r:sysfs_nfc_power_writable:s0
-diff --git a/sepolicy.te b/sepolicy.te
-new file mode 100644
-index 0000000..2964ae1
---- /dev/null
-+++ b/sepolicy.te
-@@ -0,0 +1,4 @@
-+type sysfs_nfc_power_writable, fs_type, sysfs_type, mlstrustedobject;
-+
-+allow domain sysfs_nfc_power_writable:file rw_file_perms;
-+allow rild self:netlink_route_socket { setopt };
++# wv
++   restorecon /factory/wv.keys
+ 
+ # nfc
+     setprop ro.nfc.port "COM4"
+@@ -98,6 +113,7 @@ on fs
+ 	chmod 0660 /sys/class/rfkill/rfkill0/state
+ 	chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+ 	chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
++   restorecon /factory/bluetooth
+ 
+ # backlight
+ 	chown system system /sys/class/backlight/s6e8aa0/brightness
 -- 
 1.7.5.4
 
