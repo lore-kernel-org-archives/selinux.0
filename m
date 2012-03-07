@@ -1,50 +1,114 @@
-Message-ID: <1331129563.3040.2.camel@localhost>
+Message-ID: <1331130216.3040.8.camel@localhost>
 Subject: Re: [PATCH] SELinux: allow default source/target selectors for
  user/role/range
 From: Eric Paris <eparis@redhat.com>
 To: qingtao.cao@windriver.com
 Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Date: Wed, 07 Mar 2012 09:12:43 -0500
-In-Reply-To: <4F56CB36.7000700@windriver.com>
+Date: Wed, 07 Mar 2012 09:23:36 -0500
+In-Reply-To: <4F571D9E.5060706@windriver.com>
 References: <1331080128-26425-1-git-send-email-eparis@redhat.com>
-	 <4F56CB36.7000700@windriver.com>
+	 <4F571D9E.5060706@windriver.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-07 at 10:43 +0800, Harry Ciao wrote:
+On Wed, 2012-03-07 at 16:34 +0800, Harry Ciao wrote:
+> Comments embedded below.
+
+[lots of snipping throughout]
+
+> > @@ -530,6 +531,24 @@ int mls_compute_sid(struct context *scontext,
+> >   		r = hashtab_search(policydb.range_tr,&rtr);
+> >   		if (r)
+> >   			return mls_range_set(newcontext, r);
+> > +
+> > +		cladatum = policydb.class_val_to_struct[tclass - 1];
+> > +
+> > +		switch (cladatum->default_range) {
+> > +		case DEFAULT_SOURCE_LOW:
+> > +			return mls_context_cpy_low(newcontext, scontext);
+> > +		case DEFAULT_SOURCE_HIGH:
+> > +			return mls_context_cpy_high(newcontext, scontext);
+> > +		case DEFAULT_SOURCE_LOW_HIGH:
+> > +			return mls_context_cpy(newcontext, scontext);
+> > +		case DEFAULT_TARGET_LOW:
+> > +			return mls_context_cpy_low(newcontext, tcontext);
+> > +		case DEFAULT_TARGET_HIGH:
+> > +			return mls_context_cpy_high(newcontext, tcontext);
+> > +		case DEFAULT_TARGET_LOW_HIGH:
+> > +			return mls_context_cpy(newcontext, tcontext);
 > 
-> On 03/07/2012 08:28 AM, Eric Paris wrote:
-> > When new objects are created we have great and flexible rules to
-> > determine the type of the new object.
+> How about introducing a default case to take care of when default_range 
+> is unset ? where mls_context_cpy_low(newcontext, scontext) could be 
+> leveraged to handle such case.
+
+Notice the fallthrough.  I added a few more lines of context.  We do
+exactly what you ask for.  If unset nothing changes from today.  If set
+we get the defaults policy set.
+
+> > +		}
+> > +
+> >   		/* Fallthrough */
+> >   	case AVTAB_CHANGE:
+> >   		if ((tclass == policydb.process_class) || (sock == true))
+                        /* Use the process MLS attributes. */
+                        return mls_context_cpy(newcontext, scontext);
+                else
+                        /* Use the process effective MLS attributes. */
+                        return mls_context_cpy_low(newcontext, scontext);
+
+> > @@ -1450,17 +1456,25 @@ static int security_compute_sid(u32 ssid,
+> >   		break;
+> >   	}
+> >
+> > -	/* Set the role and type to default values. */
+> > -	if ((tclass == policydb.process_class) || (sock == true)) {
+> > -		/* Use the current role and type of process. */
+> > +	/* Set the role to default values. */
+> > +	if (cladatum->default_role == DEFAULT_SOURCE) {
+> >   		newcontext.role = scontext->role;
+> > -		newcontext.type = scontext->type;
+> > +	} else if (cladatum->default_role == DEFAULT_TARGET) {
+> > +		newcontext.role = tcontext->role;
+> >   	} else {
+> > -		/* Use the well-defined object role. */
+> > -		newcontext.role = OBJECT_R_VAL;
+> > +		if ((tclass == policydb.process_class) || (sock == true))
+> > +			newcontext.role = scontext->role;
+> > +		else
+> > +			newcontext.role = OBJECT_R_VAL;
 > 
-> Shouldn't we introduce a default_type for class_datum as well? So far 
-> the process and various socket classes will inherit the creating 
-> process's domain, that is, DEFAULT_SOURCE as in your example, whilst for 
-> any other classes the type of the newly created object will follow the 
-> containing directory, that is, DEFAULT_TARGET.
+> OBJECT_R_VAL will be fallen back on when the default_role is unset, I 
+> assume the above if-else condition could be eliminated if the 
+> default_role for the process and various socket classes are specifically 
+> defined as DEFAULT_SOURCE.
+
+Yes, it absolutely could.  But we don't want to force a policy upgrade
+to upgrade the kernel.  Thus we can't get rid of the legacy process/sock
+handling.  I feel like any other option here would make the code worse,
+not better looking.
+
+> > +	}
+> > +
+> > +	/* Set the type to default values. */
+> > +	if ((tclass == policydb.process_class) || (sock == true))
+> > +		/* Use the type of process. */
+> > +		newcontext.type = scontext->type;
+> > +	else
 > 
-> Above logic has been hard-coded in security_compute_sid, which is a 
-> matter of policy and should be moved from security server to refpolicy.
+> If default_type would be employed then the process and all socket 
+> classes won't have to be differentiated from other classes. Moreover, 
+> the support for the "socket labeling" behavior would be obsolete now 
+> that we have a much better solution and could be properly reverted.
 
-Agreed, but we cannot remove the old defaults.  They still need to be
-available in case someone loads an old policy.  We could create a new
-policy capability which when enabled would require policy to define all
-of the defaults, but I don't think it's worth it, since any definition
-in policy with this new rule type will overwrite the defaults in the
-security server.
+Yup.  If it only weren't for those blasted users that don't update
+everything every time I might want them to *smile*
 
-A mistake I made was only showing examples of this with files.  The new
-rule syntax is:
-
-default_user { file process } source;
-default_range { socket } target low-high;
-
-So the tclass of the created object is part of the decision.
+Thanks for the comments!  Though, I don't think there is a lot we can do
+to really make the code better while still supporting old systems.
 
 -Eric
-
 
 
 --
