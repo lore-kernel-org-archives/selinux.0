@@ -1,60 +1,42 @@
-Subject: Re: A few questions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Quigley <selinux@davequigley.com>
-Cc: Yao <yffbrave@163.com>, selinux@tycho.nsa.gov
-In-Reply-To: <c7e5c731607a1975c4e24583bdf36d98@countercultured.net>
-References: <14357406.17003.135edba7f47.Coremail.yffbrave@163.com>
-	 <c7e5c731607a1975c4e24583bdf36d98@countercultured.net>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 07 Mar 2012 11:23:55 -0500
-Message-ID: <1331137435.16697.53.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q27GP0mJ005983
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2012 11:25:00 -0500
+Received: by vcge1 with SMTP id e1so4760294vcg.12
+        for <selinux@tycho.nsa.gov>; Wed, 07 Mar 2012 08:24:59 -0800 (PST)
+MIME-Version: 1.0
+Date: Wed, 7 Mar 2012 11:24:59 -0500
+Message-ID: <CAD8iFzxwJSwJ+LGzByLN9sskyy5UiW-6zGWNOmJ0Fu6X1_EsbQ@mail.gmail.com>
+Subject: SEAndroid make_ext4fs fails with new changes
+From: Subramani Venkatesh <selinuxv31@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-07 at 10:57 -0500, David Quigley wrote:
-> On 03/07/2012 10:15, Yao wrote:
-> > Hi,
-> > Lately I'm studying SELinux and got some questions which I want to be
-> > clear.
-> >
-> > (1)I know SELinux is based on Flask architecture and I know where the
-> > SS is, but I'm not sure
-> > where the OM locates, I guess the variable "security_ops" which
-> > belongs to LSM represents the OM, am I right?
-> >
-> > (2)the struct "selinux_ops" in file hooks.c is declared as "static",
-> > why not add "const" qualifier so that
-> > the it will be put in read-only data section in the kernel?
-> >
-> > (3)Is there any way to hack the SELinux, I mean, to disable it on the
-> > fly? For example, replace the policy db with a
-> > blank file so that any permission is allowed. Is it feasible?
-> >
-> > Regards,
-> > Yao
-> 
-> So In order.
-> 
-> I asked (1) when I first started as well and the answer I got was the 
-> kernel itself is the object manager. You'll notice a bunch of security_ 
-> calles through the kernel. These are the enforcement points which query 
-> the security server through the selinux specific hooks behind the LSM 
-> interface.
+Hi,
+I synced SE Android code this morning, facing some issues with
+make_ext4fs, here is the log
 
-In general, the "object manager" is the component that implements the
-object abstraction and operations and is responsible for enforcement of
-the policy decisions.  The kernel can either be viewed as a single
-object manager or as a collection of object managers (e.g. the process
-management subsystem, the vfs and filesystem implementations, the
-networking subsystem, the ipc subsystem, ...).  In the case of the Flask
-microkernel-based OS, the various subsystems were in fact separate tasks
-running on the microkernel.
- 
--- 
-Stephen Smalley
-National Security Agency
+make_ext4fs -s -S out/target/product/maguro/root/file_contexts -l
+14539537408 -a data out/target/product/maguro/userdata.img
+out/target/product/maguro/data
+Creating filesystem with parameters:
+    Size: 14539534336
+    Block size: 4096
+    Blocks per group: 32768
+    Inodes per group: 8144
+    Inode size: 256
+    Journal blocks: 32768
+    Label:
+    Blocks: 3549691
+    Block groups: 109
+    Reserved block group size: 871
+error: make_ext4fs_internal: cannot lookup security context for /data
 
+Is anyone else facing the same issue?
+
+Regards,
+Subbu
 
 --
 This message was distributed to subscribers of the selinux mailing list.
