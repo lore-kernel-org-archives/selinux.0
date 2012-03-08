@@ -1,34 +1,58 @@
-Subject: Re: [SEAndroid] checkpolicy missing
+Subject: Re: [PATCH] (SCH-i515 US LTE) Modified init.tuna.rc for proper
+ labeling of /factory/* files.[PUBLIC DOMAIN]
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Bhargava Shastry <bshas3@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <CAGGozWRbYT9DFqjrpwxSjrZQiaePXAG5jx8ufJ2cVG7xWi+8Eg@mail.gmail.com>
-References: 
-	 <CAGGozWRbYT9DFqjrpwxSjrZQiaePXAG5jx8ufJ2cVG7xWi+8Eg@mail.gmail.com>
+To: Bryan Hinton <bryan@bryanhinton.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
+References: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 08 Mar 2012 08:47:07 -0500
-Message-ID: <1331214427.13585.54.camel@moss-pluto>
+Date: Thu, 08 Mar 2012 10:29:39 -0500
+Message-ID: <1331220579.13585.90.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-03-08 at 14:38 +0100, Bhargava Shastry wrote:
-> Hi,
+On Tue, 2012-03-06 at 19:31 -0600, Bryan Hinton wrote:
+> Change-Id: I48f8623ec24728517597fcd77c9c7f3fab5db9be
+> ---
+>  init.tuna.rc |   18 +++++++++++++++++-
+>  1 files changed, 17 insertions(+), 1 deletions(-)
 > 
-> After a repo sync, make clean and make of SEAndroid sources, I see the
-> following error:
-> 
-> make: *** No rule to make target `out/host/linux-x86/bin/checkpolicy',
-> needed by
-> `out/target/product/crespo/obj/ETC/sepolicy_intermediates/sepolicy.24'.  Stop.
-> 
-> Is the checkpolicy binary supposed to be part of the [SEAndroid]
-> sources? Apologies if I missed a detail on the wiki.
+> diff --git a/init.tuna.rc b/init.tuna.rc
+> index 70f1cbe..354c292 100755
+> --- a/init.tuna.rc
+> +++ b/init.tuna.rc
+> @@ -23,6 +23,9 @@ on post-fs-data
+>  	mkdir /data/misc/camera 0770 media media
+>  	mkdir /data/misc/camera/R5_MVEN003_LD2_ND0_IR0_SH0_FL1_SVEN003_DCCID1044 0770 media media
+>  
+> +   # remount factory as read-only
+> +   mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory ro remount
+> +
 
-Did you grab the latest local_manifest.xml file?  There have been
-changes to it over time to add further projects (e.g. libsepol,
-checkpolicy) and to address the partial merge by AOSP of some of our
-projects and changes.
+Indentation/whitespace should match the rest of the file.  In this file,
+they seem to use tabs rather than spaces.  This applies through the
+changes to this file.
+
+Also, could we do this particular change earlier, right after the
+restorecon calls below?  Any reason to wait until post-fs-data?  Likely
+safer to make it read-only as early as possible.
+
+>  	setprop vold.post_fs_data_done 1
+>  
+>  # LTE
+> @@ -56,7 +59,11 @@ on fs
+>  	setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
+>  	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/userdata /data wait noatime nosuid nodev nomblk_io_submit,errors=panic
+>  	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/cache /cache wait noatime nosuid nodev nomblk_io_submit,errors=panic
+> -	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory wait ro
+> +	mount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/efs /factory wait
+> +   chown radio radio /factory
+
+They do a chown radio radio /factor down further below (along with
+chmod), so you could just move the restorecon calls right after the
+chown/chmod calls.  Seems like the fact that they mount it ro originally
+is a bug since the chown/chmod won't work then either.
 
 -- 
 Stephen Smalley
