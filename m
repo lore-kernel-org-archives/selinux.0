@@ -1,50 +1,46 @@
-Subject: Re: CTS failure on SEAndroid Galaxy Nexus
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Subramani Venkatesh <selinuxv31@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1331131202.16697.39.camel@moss-pluto>
-References: 
-	 <CAD8iFzxusoJpp=kAMjhT8-toA0N_ejDE=bFTjV7OvsJYyKeDtw@mail.gmail.com>
-	 <1331127372.16697.21.camel@moss-pluto>
-	 <CAD8iFzwjZbUsmPJan6tU-un9goYWxZFbrykqYXr3HU+o6ea1_Q@mail.gmail.com>
-	 <1331129177.16697.26.camel@moss-pluto>
-	 <1331131202.16697.39.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 07 Mar 2012 15:28:03 -0500
-Message-ID: <1331152083.16697.73.camel@moss-pluto>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Date: Thu, 8 Mar 2012 14:38:06 +0100
+Message-ID: <CAGGozWRbYT9DFqjrpwxSjrZQiaePXAG5jx8ufJ2cVG7xWi+8Eg@mail.gmail.com>
+Subject: [SEAndroid] checkpolicy missing
+From: Bhargava Shastry <bshas3@gmail.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=e89a8f234567d729cb04babb6249
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-07 at 09:40 -0500, Stephen Smalley wrote:
-> Just tried this myself, and I see that we'll need to make a few
-> adjustments to policy for the current CTS.  Some of those will be made
-> unconditionally outside of the android_cts boolean, while others are
-> really only appropriate under test conditions and not production use.
+--e89a8f234567d729cb04babb6249
+Content-Type: text/plain; charset=ISO-8859-1
 
-I tracked down a subtle issue that was being hidden by a dontaudit rule
-in the policy, and updated sepolicy for various denials that I saw in
-getting the latest CTS started.  No guarantees that it will run all the
-way through, but it certainly gets started now.  Prior to running the
-CTS, I do the following:
+Hi,
 
-adb shell su 0 setsebool android_cts=1
-adb shell su 0 setenforce 1
-adb shell su 0 cat /proc/kmsg > dmesg.txt &
-adb logcat *:E > log.txt &
+After a repo sync, make clean and make of SEAndroid sources, I see the
+following error:
 
-Later you can do something like the following to reduce dmesg.txt to
-just the unique allow rules for easy review, although you would
-typically evaluate each one to decide whether it should be generalized
-(e.g. written in terms of a type attribute or using a macro), changed to
-introduce a new domain or type, or replaced with a dontaudit rule.
+make: *** No rule to make target `out/host/linux-x86/bin/checkpolicy',
+needed by
+`out/target/product/crespo/obj/ETC/sepolicy_intermediates/sepolicy.24'.
+Stop.
 
-audit2allow -p out/target/product/<device>/root/sepolicy.24 < dmesg.txt
+Is the checkpolicy binary supposed to be part of the [SEAndroid] sources?
+Apologies if I missed a detail on the wiki.
 
--- 
-Stephen Smalley
-National Security Agency
 
+Thanks,
+Bhargava Shastry
+
+--e89a8f234567d729cb04babb6249
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi,<br><br>After a repo sync, make clean and make of SEAndroid sources, I s=
+ee the following error:<br><br clear=3D"all">make: *** No rule to make targ=
+et `out/host/linux-x86/bin/checkpolicy&#39;, needed by `out/target/product/=
+crespo/obj/ETC/sepolicy_intermediates/sepolicy.24&#39;.=A0 Stop.<br>
+<br>Is the checkpolicy binary supposed to be part of the [SEAndroid] source=
+s? Apologies if I missed a detail on the wiki.<br><br><br>Thanks,<br>Bharga=
+va Shastry<br>
+
+--e89a8f234567d729cb04babb6249--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
