@@ -1,108 +1,180 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q28LFI4E028460
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2012 16:15:18 -0500
-Received: by yhjj72 with SMTP id j72so575260yhj.12
-        for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2012 13:15:17 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1331221727.13585.104.camel@moss-pluto>
-References: <1331083722-5732-1-git-send-email-bryan@bryanhinton.com>
-	<1331221727.13585.104.camel@moss-pluto>
-Date: Thu, 8 Mar 2012 15:15:16 -0600
-Message-ID: <CA+XzHeM=CZMXm9b3h8gu9va-FG7rntGkyCH=+gA_g=LOx0H1NA@mail.gmail.com>
-Subject: Re: [PATCH] (SCH-i515 US LTE) Added device specific policy and file
- context files.[PUBLIC DOMAIN]
-From: Bryan Hinton <bryan@bryanhinton.com>
+In-Reply-To: <1331131202.16697.39.camel@moss-pluto>
+References: <CAD8iFzxusoJpp=kAMjhT8-toA0N_ejDE=bFTjV7OvsJYyKeDtw@mail.gmail.com>
+	<1331127372.16697.21.camel@moss-pluto>
+	<CAD8iFzwjZbUsmPJan6tU-un9goYWxZFbrykqYXr3HU+o6ea1_Q@mail.gmail.com>
+	<1331129177.16697.26.camel@moss-pluto>
+	<1331131202.16697.39.camel@moss-pluto>
+Date: Fri, 9 Mar 2012 12:37:08 -0800
+Message-ID: <CAE-gBNb0LTW9Ce9K1M4cLsHQ96Qp0GOUxrBhXWBY-E9+b1=Zcg@mail.gmail.com>
+Subject: Re: CTS failure on SEAndroid Galaxy Nexus
+From: Fred Aguirre <2playerfootball@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Subramani Venkatesh <selinuxv31@gmail.com>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=047d7b33d60c42dd3204bad55b0e
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please see comments at bottom.
+--047d7b33d60c42dd3204bad55b0e
+Content-Type: text/plain; charset=ISO-8859-1
 
-On Thu, Mar 8, 2012 at 9:48 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2012-03-06 at 19:28 -0600, Bryan Hinton wrote:
->> Change-Id: Iaf0aa012e48dd3084aae6f57c25a022b210308ff
->> ---
->>  sepolicy.fc |   13 +++++++++++++
->>  sepolicy.te |    4 ++++
->>  2 files changed, 17 insertions(+), 0 deletions(-)
->>  create mode 100644 sepolicy.fc
->>  create mode 100644 sepolicy.te
->>
->> diff --git a/sepolicy.fc b/sepolicy.fc
->> new file mode 100644
->> index 0000000..b2f612b
->> --- /dev/null
->> +++ b/sepolicy.fc
->> @@ -0,0 +1,13 @@
->> +/dev/cdma_.*   u:object_r:radio_device:s0
->> +/dev/lte_.*    u:object_r:radio_device:s0
->> +
->> +/dev/ttyO3     u:object_r:nfc_device:s0
->> +
->> +/data/data/com.android.providers.telephony/databases(/.*)? u:object_r:radio_data_file:s0
->> +/data/data/com.android.providers.telephony/optable.db    u:object_r:radio_data_file:s0
->> +
->> +/data/radio/nv_data.bin.*  u:object_r:radio_data_file:s0
->> +/factory(/.*)?             u:object_r:efs_file:s0
->> +/factory/nv_data.bin.*     u:object_r:radio_data_file:s0
->> +
->> +/sys/devices/platform/nfc-power/nfc_power -- u:object_r:sysfs_nfc_power_writable:s0
+List
+
+On Wed, Mar 7, 2012 at 6:40 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Wed, 2012-03-07 at 09:06 -0500, Stephen Smalley wrote:
+> > On Wed, 2012-03-07 at 08:57 -0500, Subramani Venkatesh wrote:
+> > > Hi Stephen,
+> > >
+> > > Thanks for the response, my comments are inlined
+> > >
+> > > On Wed, Mar 7, 2012 at 8:36 AM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > > > On Wed, 2012-03-07 at 08:18 -0500, Subramani Venkatesh wrote:
+> > > >> Hi,
+> > > >> Trying to execute CTS on SEAndroid with security enforce, but I am
+> not
+> > > >> successful getting it working, it crashes at the very beginning with
+> > > >> an exeception, is anyone else seeing the same issue?
+> > > >
+> > > > First, did you make sure that you had no avc messages before going
+> into
+> > > > enforcing mode and even trying to run the CTS?  adb shell dmesg |
+> grep
+> > > > avc should yield no output.
+> > > <Subbu>: I fixed most of it, they were couple of them missing, I will
+> > > fix them and try again.
+> > > >
+> > > > Second, make sure you can run the CTS in permissive mode without any
+> > > > difficulties as your baseline.
+> > > <Subbu>: Yes CTS executes in permissive mode without any issues.
+> > > >
+> > > > Third, make sure you enable the android_cts policy boolean before
+> > > > running the CTS.  If you have configured the CTS to not reboot the
+> > > > device (set maxTestCount to -1 in repository/host_config.xml), then
+> you
+> > > > can just do this once via adb shell su 0 setsebool android_cts=1.
+> > > > Otherwise, if you want to allow periodic reboots during the CTS, you
+> > > > need to add setsebool android_cts=1 and setenforce 1 to your init.rc
+> or
+> > > > init.<board>.rc file so that it happens on each boot.
+> > > <Subbu>: I did enable android_cts_policy boolean, I shall try changed
+> > > my init.rc file to setenforce 1 all the time.
+> >
+> > If you can run the CTS while in permissive mode, then you should do that
+> > again (leaving it in permissive mode, with android_cts=1) and collect up
+> > the denials.
+> >
+> > adb shell su 0 cat /proc/kmsg > dmesg.txt
+> >
+> > You can then add any necessary rules to cts.te under the boolean.
 >
-> I was thinking some of these could go into the base file_contexts and
-> only the ones that are truly unique to this device would go here.  In
-> particular, /data/data/com.android.providers.telephony seems to be a
-> standard part of Android.  Not sure about the rest.  If the device or
-> file name is relatively standard and would apply to more than one
-> device, then we can add it to file_contexts.  If it is truly unique to
-> that one device or might refer to something completely different on a
-> different device (as with tty03), then it should stay in the per-device
-> file.
->
->> diff --git a/sepolicy.te b/sepolicy.te
->> new file mode 100644
->> index 0000000..2964ae1
->> --- /dev/null
->> +++ b/sepolicy.te
->> @@ -0,0 +1,4 @@
->> +type sysfs_nfc_power_writable, fs_type, sysfs_type, mlstrustedobject;
->> +
->> +allow domain sysfs_nfc_power_writable:file rw_file_perms;
->> +allow rild self:netlink_route_socket { setopt };
->
-> I think at least the last rule can go in the base policy rather than be
-> device-specific.  I'm still not sure whether/why nfc_power needs to be
-> world writable; that worries me a little.  init.tuna.rc sets the mode to
-> 0600, so it isn't world readable/writable as far as DAC is concerned
-> (unless something changes it later - what does ls -l show on the
-> device?).  Is it perhaps opened by the zygote and inherited by all
-> descendants?  Or might it be an unintentional descriptor leak?  What
-> happens if you just dontaudit it rather than allow it?  Does it truly
-> appear for all domains or a particular set (e.g. all app domains, all
-> daemon domains, ...)?
-
-I just looked into what is going on with this and I came to the same conclusion.
-It appears that the internal chip is being sent a power reset command
-over the uart via the object attribute - nfc_power -  in sys/ when nfc
-is turned on (i.e. device wakeup).  It seems that access to this path
-in sys should be tightly confined.  And yes, the open descriptor is a
-problem which I think can be fixed by limiting access to the path in
-sys by setting the label on the file so that only the Nfc system app
-can read/write it.
-Also, when NFC is off, SELinux is in Enforcing mode, and the device
-goes to sleep, then upon device wakeup when you enable NFC via
-Settings -> NFC On, the attempt to enable NFC will fail.  As far as I
-can tell, this is a non-deterministic bug as I have not been able to
-reproduce it every time.
-
-
+> Just tried this myself, and I see that we'll need to make a few
+> adjustments to policy for the current CTS.  Some of those will be made
+> unconditionally outside of the android_cts boolean, while others are
+> really only appropriate under test conditions and not production use.
 >
 > --
 > Stephen Smalley
 > National Security Agency
 >
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
+--047d7b33d60c42dd3204bad55b0e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+List<br><br><div class=3D"gmail_quote">On Wed, Mar 7, 2012 at 6:40 AM, Step=
+hen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@=
+tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote style=3D"margin:0px 0px =
+0px 0.8ex;padding-left:1ex;border-left-color:rgb(204,204,204);border-left-w=
+idth:1px;border-left-style:solid" class=3D"gmail_quote">
+On Wed, 2012-03-07 at 09:06 -0500, Stephen Smalley wrote:<br>
+&gt; On Wed, 2012-03-07 at 08:57 -0500, Subramani Venkatesh wrote:<br>
+&gt; &gt; Hi Stephen,<br>
+&gt; &gt;<br>
+&gt; &gt; Thanks for the response, my comments are inlined<br>
+&gt; &gt;<br>
+&gt; &gt; On Wed, Mar 7, 2012 at 8:36 AM, Stephen Smalley &lt;<a href=3D"ma=
+ilto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
+&gt; &gt; &gt; On Wed, 2012-03-07 at 08:18 -0500, Subramani Venkatesh wrote=
+:<br>
+&gt; &gt; &gt;&gt; Hi,<br>
+&gt; &gt; &gt;&gt; Trying to execute CTS on SEAndroid with security enforce=
+, but I am not<br>
+&gt; &gt; &gt;&gt; successful getting it working, it crashes at the very be=
+ginning with<br>
+&gt; &gt; &gt;&gt; an exeception, is anyone else seeing the same issue?<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; First, did you make sure that you had no avc messages before=
+ going into<br>
+&gt; &gt; &gt; enforcing mode and even trying to run the CTS? =A0adb shell =
+dmesg | grep<br>
+&gt; &gt; &gt; avc should yield no output.<br>
+&gt; &gt; &lt;Subbu&gt;: I fixed most of it, they were couple of them missi=
+ng, I will<br>
+&gt; &gt; fix them and try again.<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; Second, make sure you can run the CTS in permissive mode wit=
+hout any<br>
+&gt; &gt; &gt; difficulties as your baseline.<br>
+&gt; &gt; &lt;Subbu&gt;: Yes CTS executes in permissive mode without any is=
+sues.<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; Third, make sure you enable the android_cts policy boolean b=
+efore<br>
+&gt; &gt; &gt; running the CTS. =A0If you have configured the CTS to not re=
+boot the<br>
+&gt; &gt; &gt; device (set maxTestCount to -1 in repository/host_config.xml=
+), then you<br>
+&gt; &gt; &gt; can just do this once via adb shell su 0 setsebool android_c=
+ts=3D1.<br>
+&gt; &gt; &gt; Otherwise, if you want to allow periodic reboots during the =
+CTS, you<br>
+&gt; &gt; &gt; need to add setsebool android_cts=3D1 and setenforce 1 to yo=
+ur init.rc or<br>
+&gt; &gt; &gt; init.&lt;board&gt;.rc file so that it happens on each boot.<=
+br>
+&gt; &gt; &lt;Subbu&gt;: I did enable android_cts_policy boolean, I shall t=
+ry changed<br>
+&gt; &gt; my init.rc file to setenforce 1 all the time.<br>
+&gt;<br>
+&gt; If you can run the CTS while in permissive mode, then you should do th=
+at<br>
+&gt; again (leaving it in permissive mode, with android_cts=3D1) and collec=
+t up<br>
+&gt; the denials.<br>
+&gt;<br>
+&gt; adb shell su 0 cat /proc/kmsg &gt; dmesg.txt<br>
+&gt;<br>
+&gt; You can then add any necessary rules to cts.te under the boolean.<br>
+<br>
+Just tried this myself, and I see that we&#39;ll need to make a few<br>
+adjustments to policy for the current CTS. =A0Some of those will be made<br=
+>
+unconditionally outside of the android_cts boolean, while others are<br>
+really only appropriate under test conditions and not production use.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br=
+>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
+>
+</font></span></blockquote></div><br>
+
+--047d7b33d60c42dd3204bad55b0e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
