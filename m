@@ -1,25 +1,62 @@
-Subject: Re: SE Android Bug Reports?
+Subject: Re: [PATCH] libselinux init functions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: noloader@gmail.com
-Cc: SE Linux <SELinux@tycho.nsa.gov>
-In-Reply-To: <CAH8yC8=6gxprkRGj0wgDFPt9M5W9CSmkxt+VH3NmQ4QTiNxWmg@mail.gmail.com>
+To: Xin Ouyang <xinpascal@gmail.com>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <CANvtKVZJ7EU3N8M=NMROtmyTKs+VUCZyMT9uJtNmraK7rz-fAA@mail.gmail.com>
 References: 
-	 <CAH8yC8=6gxprkRGj0wgDFPt9M5W9CSmkxt+VH3NmQ4QTiNxWmg@mail.gmail.com>
+	 <CANvtKVZJ7EU3N8M=NMROtmyTKs+VUCZyMT9uJtNmraK7rz-fAA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 12 Mar 2012 09:53:23 -0400
-Message-ID: <1331560403.20879.5.camel@moss-pluto>
+Date: Mon, 12 Mar 2012 10:11:32 -0400
+Message-ID: <1331561492.20879.15.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2012-03-11 at 21:45 -0400, Jeffrey Walton wrote:
-> Hi All,
+On Mon, 2012-03-12 at 18:17 +0800, Xin Ouyang wrote:
+> Hi all,
 > 
-> Where does one file bug reports against SE Android? Google is
-> returning horrible results.
+> I am working on the newest release of SELinux userspace packages and
+> sysvinit, and find there are a defect for init function of libselinux.
+>   * libselinux-2.1.9
+>   * sysvinit-2.88dsf
+> 
+> AFAIK, while sysvinit is configured with SELinux, /sbin/init would be
+> linked to libselinux. So before /sbin/init running, init_selinuxmnt()
+> would be called.
+> 
+> // libselinux-2.1.9/src/init.c
+> 
+> static void init_lib(void) __attribute__ ((constructor));
+> static void init_lib(void)
+> {
+>         selinux_page_size = sysconf(_SC_PAGE_SIZE);
+>         init_selinuxmnt();
+> }
+> 
+> As called before /sbin/init, init_selinuxmnt() is called before any
+> other userspace process.
+> At this time, procfs(/proc) and selinuxfs(/sys/fs/selinux or /selinux)
+> have not been mounted, because kernel do not mount them.
+> 
+> So, after init_lib() -> init_selinuxmnt(), global variable
+> "selinux_mnt" is still null.
+> 
+> /sbin/init would call is_selinux_enabled() to check whether selinux
+> enabled. Because "selinux_mnt" is null, is_selinux_enabled() always
+> return 0.
 
-Just use email.  See:
-http://selinuxproject.org/page/SEAndroid#For_More_Information
+/sbin/init isn't supposed to call is_selinux_enabled() before calling
+selinux_init_load_policy(), as is_selinux_enabled() will always return 0
+if policy has not yet been loaded.  That has always been true.  Sounds
+like you have an incorrect selinux patch for your sysvinit.
+
+selinux_init_load_policy() internally tests whether SELinux is enabled
+in the kernel (by trying to mount selinuxfs) and will correctly return
+-1 with *enforce set to 0 so that the caller knows to proceed despite
+the failure to load.
+
+Certainly the Debian sysvinit did it correctly in the past, as did the
+Fedora sysvinit (back when Fedora used sysvinit).
 
 -- 
 Stephen Smalley
