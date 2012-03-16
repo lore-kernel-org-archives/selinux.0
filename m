@@ -1,37 +1,41 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2GEUb3h015935
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2012 10:30:37 -0400
-Received: by ghbz13 with SMTP id z13so4795433ghb.12
-        for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2012 07:30:37 -0700 (PDT)
+From: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: RE: B2G
+Date: Fri, 16 Mar 2012 14:33:21 +0000
+Message-ID: <33006C99F5A5194A9B7A7715DFA3E3836501BDC4@ALA-MBA.corp.ad.wrs.com>
+References: <CAPweEDzK22daM9ue26tMZ_6HbrFwEZxTfVUXhea31GFO4x0=Qw@mail.gmail.com>,<1331904135.22861.36.camel@moss-pluto>
+In-Reply-To: <1331904135.22861.36.camel@moss-pluto>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <4F634C6B.2090804@tresys.com>
-References: <CAPweEDzK22daM9ue26tMZ_6HbrFwEZxTfVUXhea31GFO4x0=Qw@mail.gmail.com>
-	<4F634C6B.2090804@tresys.com>
-Date: Fri, 16 Mar 2012 14:30:36 +0000
-Message-ID: <CAPweEDx6t_Pz098dmUXVJ66QP0PkJ5tj-f+xTzUrCLPgs=wsBw@mail.gmail.com>
-Subject: Re: B2G
-From: lkcl luke <luke.leighton@gmail.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Mar 16, 2012 at 2:21 PM, Christopher J. PeBenito
-<cpebenito@tresys.com> wrote:
-> On 03/16/12 01:46, lkcl luke wrote:
->> second: did that idea of dynamically allowing bits of binary-compiled
->> se-linux permissions ever get implemented?  last time i was on this
->> list (eek, 2004?), the whole SE/Linux precompiled blob was just that:
->> one huge humungous gelatinous blob that you couldn't mess with, not
->> without doing a tooootal recompile using the m4 macros.
+> From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf of Stephen Smalley [sds@tycho.nsa.gov]
+> Sent: Friday, March 16, 2012 6:22 AM
+> To: lkcl luke
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: B2G
 >
-> Yes, we do have modular policy now.  Right now they are compiled, but hopefully we'll eventually be able to set to text modules.  You compile .pp files that have some compiled policy and optional a .fc, and link them together into the policy.2x
+> <snip>
+>
+> Who provides the policy?  For a mobile device, you typically don't trust
+> the application package (contrast with Linux packages) and thus do not
+> want to simply take policy provided by the packager for that app.
+>
+> --
+> Stephen Smalley
+> National Security Agency
 
- thanks christopher, this is really useful and valuable stuff which
-will help in the evaluation process.
+Hi Stephen
 
-l.
+I see two options to trust a downloaded policy: when it is 
+downloaded from a Device Administrator application, or as part 
+of a system update.
+
+Enjoy!
+
+                                -- radzy
 
 
 --
