@@ -1,83 +1,189 @@
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 2/2] SELinux: add default_type statements
-Date: Fri, 16 Mar 2012 14:11:28 -0400
-Message-Id: <1331921488-20725-2-git-send-email-eparis@redhat.com>
-In-Reply-To: <1331921488-20725-1-git-send-email-eparis@redhat.com>
-References: <1331921488-20725-1-git-send-email-eparis@redhat.com>
+Subject: [PATCH 1/2] SELinux: allow default source/target selectors for user/role/range
+Date: Fri, 16 Mar 2012 14:11:27 -0400
+Message-Id: <1331921488-20725-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Because Fedora shipped userspace based on my development tree we now
-have policy version 27 in the wild defining only default user, role, and
-range.  Thus to add default_type we need a policy.28.
+When new objects are created we have great and flexible rules to
+determine the type of the new object.  We aren't quite as flexible or
+mature when it comes to determining the user, role, and range.  This
+patch adds a new ability to specify the place a new objects user, role,
+and range should come from.  For users and roles it can come from either
+the source or the target of the operation.  aka for files the user can
+either come from the source (the running process and todays default) or
+it can come from the target (aka the parent directory of the new file)
+
+examples always are done with
+directory context: system_u:object_r:mnt_t:s0-s0:c0.c512
+process context: unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+[no rule]
+	unconfined_u:object_r:mnt_t:s0   test_none
+[default user source]
+	unconfined_u:object_r:mnt_t:s0   test_user_source
+[default user target]
+	system_u:object_r:mnt_t:s0       test_user_target
+[default role source]
+	unconfined_u:unconfined_r:mnt_t:s0 test_role_source
+[default role target]
+	unconfined_u:object_r:mnt_t:s0   test_role_target
+[default range source low]
+	unconfined_u:object_r:mnt_t:s0 test_range_source_low
+[default range source high]
+	unconfined_u:object_r:mnt_t:s0:c0.c1023 test_range_source_high
+[default range source low-high]
+	unconfined_u:object_r:mnt_t:s0-s0:c0.c1023 test_range_source_low-high
+[default range target low]
+	unconfined_u:object_r:mnt_t:s0 test_range_target_low
+[default range target high]
+	unconfined_u:object_r:mnt_t:s0:c0.c512 test_range_target_high
+[default range target low-high]
+	unconfined_u:object_r:mnt_t:s0-s0:c0.c512 test_range_target_low-high
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
  security/selinux/include/security.h |    3 ++-
- security/selinux/ss/policydb.c      |   19 +++++++++++++++++++
- security/selinux/ss/policydb.h      |    3 ++-
- security/selinux/ss/services.c      |   14 ++++++++++----
- 4 files changed, 33 insertions(+), 6 deletions(-)
+ security/selinux/ss/context.h       |   20 ++++++++++++++++++++
+ security/selinux/ss/mls.c           |   19 +++++++++++++++++++
+ security/selinux/ss/policydb.c      |   25 +++++++++++++++++++++++++
+ security/selinux/ss/policydb.h      |   13 +++++++++++++
+ security/selinux/ss/services.c      |   32 +++++++++++++++++++++++++-------
+ 6 files changed, 104 insertions(+), 8 deletions(-)
 
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ba53400..dde2005 100644
+index d871e8a..ba53400 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -32,13 +32,14 @@
+@@ -31,13 +31,14 @@
+ #define POLICYDB_VERSION_BOUNDARY	24
  #define POLICYDB_VERSION_FILENAME_TRANS	25
  #define POLICYDB_VERSION_ROLETRANS	26
- #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
-+#define POLICYDB_VERSION_DEFAULT_TYPE	28
++#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
  
  /* Range of policy versions we understand*/
  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
  #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_DEFAULT_TYPE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
  #endif
  
  /* Mask for just the mount related flags */
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 45e8fb0..212e347 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -74,6 +74,26 @@ out:
+ 	return rc;
+ }
+ 
++/*
++ * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
++ */
++static inline int mls_context_cpy_high(struct context *dst, struct context *src)
++{
++	int rc;
++
++	dst->range.level[0].sens = src->range.level[1].sens;
++	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[1].cat);
++	if (rc)
++		goto out;
++
++	dst->range.level[1].sens = src->range.level[1].sens;
++	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[1].cat);
++	if (rc)
++		ebitmap_destroy(&dst->range.level[0].cat);
++out:
++	return rc;
++}
++
+ static inline int mls_context_cmp(struct context *c1, struct context *c2)
+ {
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index fbf9c58..2e3013d 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -517,6 +517,7 @@ int mls_compute_sid(struct context *scontext,
+ {
+ 	struct range_trans rtr;
+ 	struct mls_range *r;
++	struct class_datum *cladatum;
+ 
+ 	if (!policydb.mls_enabled)
+ 		return 0;
+@@ -530,6 +531,24 @@ int mls_compute_sid(struct context *scontext,
+ 		r = hashtab_search(policydb.range_tr, &rtr);
+ 		if (r)
+ 			return mls_range_set(newcontext, r);
++
++		cladatum = policydb.class_val_to_struct[tclass - 1];
++
++		switch (cladatum->default_range) {
++		case DEFAULT_SOURCE_LOW:
++			return mls_context_cpy_low(newcontext, scontext);
++		case DEFAULT_SOURCE_HIGH:
++			return mls_context_cpy_high(newcontext, scontext);
++		case DEFAULT_SOURCE_LOW_HIGH:
++			return mls_context_cpy(newcontext, scontext);
++		case DEFAULT_TARGET_LOW:
++			return mls_context_cpy_low(newcontext, tcontext);
++		case DEFAULT_TARGET_HIGH:
++			return mls_context_cpy_high(newcontext, tcontext);
++		case DEFAULT_TARGET_LOW_HIGH:
++			return mls_context_cpy(newcontext, tcontext);
++		}
++
+ 		/* Fallthrough */
+ 	case AVTAB_CHANGE:
+ 		if ((tclass == policydb.process_class) || (sock == true))
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 2bb9c2f..9cd9b7c 100644
+index a7f61d5..2bb9c2f 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -138,6 +138,11 @@ static struct policydb_compat_info policydb_compat[] = {
+@@ -133,6 +133,11 @@ static struct policydb_compat_info policydb_compat[] = {
  		.sym_num	= SYM_NUM,
  		.ocon_num	= OCON_NUM,
  	},
 +	{
-+		.version	= POLICYDB_VERSION_DEFAULT_TYPE,
++		.version	= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
 +		.sym_num	= SYM_NUM,
 +		.ocon_num	= OCON_NUM,
 +	},
  };
  
  static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -1321,6 +1326,13 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
- 		cladatum->default_range = le32_to_cpu(buf[2]);
+@@ -1306,6 +1311,16 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 			goto bad;
  	}
  
-+	if (p->policyvers >= POLICYDB_VERSION_DEFAULT_TYPE) {
-+		rc = next_entry(buf, fp, sizeof(u32) * 1);
++	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
++		rc = next_entry(buf, fp, sizeof(u32) * 3);
 +		if (rc)
 +			goto bad;
-+		cladatum->default_type = le32_to_cpu(buf[0]);
++
++		cladatum->default_user = le32_to_cpu(buf[0]);
++		cladatum->default_role = le32_to_cpu(buf[1]);
++		cladatum->default_range = le32_to_cpu(buf[2]);
 +	}
 +
  	rc = hashtab_insert(h, key, cladatum);
  	if (rc)
  		goto bad;
-@@ -2857,6 +2869,13 @@ static int class_write(void *vkey, void *datum, void *ptr)
- 			return rc;
- 	}
+@@ -2832,6 +2847,16 @@ static int class_write(void *vkey, void *datum, void *ptr)
+ 	if (rc)
+ 		return rc;
  
-+	if (p->policyvers >= POLICYDB_VERSION_DEFAULT_TYPE) {
-+		buf[0] = cpu_to_le32(cladatum->default_type);
-+		rc = put_entry(buf, sizeof(uint32_t), 1, fp);
++	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
++		buf[0] = cpu_to_le32(cladatum->default_user);
++		buf[1] = cpu_to_le32(cladatum->default_role);
++		buf[2] = cpu_to_le32(cladatum->default_range);
++
++		rc = put_entry(buf, sizeof(uint32_t), 3, fp);
 +		if (rc)
 +			return rc;
 +	}
@@ -86,50 +192,93 @@ index 2bb9c2f..9cd9b7c 100644
  }
  
 diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index a949f1a..da63747 100644
+index b846c03..a949f1a 100644
 --- a/security/selinux/ss/policydb.h
 +++ b/security/selinux/ss/policydb.h
-@@ -60,11 +60,12 @@ struct class_datum {
+@@ -60,6 +60,19 @@ struct class_datum {
  	struct symtab permissions;	/* class-specific permission symbol table */
  	struct constraint_node *constraints;	/* constraints on class permissions */
  	struct constraint_node *validatetrans;	/* special transition rules */
--	/* Options how a new object user and role should be decided */
-+/* Options how a new object user, role, and type should be decided */
- #define DEFAULT_SOURCE         1
- #define DEFAULT_TARGET         2
- 	char default_user;
- 	char default_role;
-+	char default_type;
- /* Options how a new object range should be decided */
- #define DEFAULT_SOURCE_LOW     1
- #define DEFAULT_SOURCE_HIGH    2
++	/* Options how a new object user and role should be decided */
++#define DEFAULT_SOURCE         1
++#define DEFAULT_TARGET         2
++	char default_user;
++	char default_role;
++/* Options how a new object range should be decided */
++#define DEFAULT_SOURCE_LOW     1
++#define DEFAULT_SOURCE_HIGH    2
++#define DEFAULT_SOURCE_LOW_HIGH        3
++#define DEFAULT_TARGET_LOW     4
++#define DEFAULT_TARGET_HIGH    5
++#define DEFAULT_TARGET_LOW_HIGH        6
++	char default_range;
+ };
+ 
+ /* Role attributes */
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index af4db91..b469cbb 100644
+index 185f849..af4db91 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -1472,12 +1472,18 @@ static int security_compute_sid(u32 ssid,
+@@ -1389,6 +1389,7 @@ static int security_compute_sid(u32 ssid,
+ 				u32 *out_sid,
+ 				bool kern)
+ {
++	struct class_datum *cladatum = NULL;
+ 	struct context *scontext = NULL, *tcontext = NULL, newcontext;
+ 	struct role_trans *roletr = NULL;
+ 	struct avtab_key avkey;
+@@ -1437,12 +1438,20 @@ static int security_compute_sid(u32 ssid,
+ 		goto out_unlock;
  	}
  
- 	/* Set the type to default values. */
--	if ((tclass == policydb.process_class) || (sock == true)) {
--		/* Use the type of process. */
-+	if (cladatum && cladatum->default_type == DEFAULT_SOURCE) {
- 		newcontext.type = scontext->type;
--	} else {
--		/* Use the type of the related object. */
-+	} else if (cladatum && cladatum->default_type == DEFAULT_TARGET) {
- 		newcontext.type = tcontext->type;
-+	} else {
-+		if ((tclass == policydb.process_class) || (sock == true)) {
-+			/* Use the type of process. */
-+			newcontext.type = scontext->type;
++	if (tclass && tclass > policydb.p_classes.nprim)
++		cladatum = policydb.class_val_to_struct[tclass - 1];
++
+ 	/* Set the user identity. */
+ 	switch (specified) {
+ 	case AVTAB_TRANSITION:
+ 	case AVTAB_CHANGE:
+-		/* Use the process user identity. */
+-		newcontext.user = scontext->user;
++		if (cladatum && cladatum->default_user == DEFAULT_TARGET) {
++			newcontext.user = tcontext->user;
 +		} else {
-+			/* Use the type of the related object. */
-+			newcontext.type = tcontext->type;
-+		} 
++			/* notice this gets both DEFAULT_SOURCE and unset */
++			/* Use the process user identity. */
++			newcontext.user = scontext->user;
++		}
+ 		break;
+ 	case AVTAB_MEMBER:
+ 		/* Use the related object owner. */
+@@ -1450,14 +1459,23 @@ static int security_compute_sid(u32 ssid,
+ 		break;
  	}
  
- 	/* Look for a type transition/member/change rule. */
+-	/* Set the role and type to default values. */
+-	if ((tclass == policydb.process_class) || (sock == true)) {
+-		/* Use the current role and type of process. */
++	/* Set the role to default values. */
++	if (cladatum && cladatum->default_role == DEFAULT_SOURCE) {
+ 		newcontext.role = scontext->role;
++	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
++		newcontext.role = tcontext->role;
++	} else {
++		if ((tclass == policydb.process_class) || (sock == true))
++			newcontext.role = scontext->role;
++		else
++			newcontext.role = OBJECT_R_VAL;
++	}
++
++	/* Set the type to default values. */
++	if ((tclass == policydb.process_class) || (sock == true)) {
++		/* Use the type of process. */
+ 		newcontext.type = scontext->type;
+ 	} else {
+-		/* Use the well-defined object role. */
+-		newcontext.role = OBJECT_R_VAL;
+ 		/* Use the type of the related object. */
+ 		newcontext.type = tcontext->type;
+ 	}
 -- 
 1.7.1
 
