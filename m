@@ -1,287 +1,73 @@
-From: Eric Paris <eparis@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2HLjYVU007130
+	for <selinux@tycho.nsa.gov>; Sat, 17 Mar 2012 17:45:34 -0400
+Received: by dady25 with SMTP id y25so7472151dad.12
+        for <selinux@tycho.nsa.gov>; Sat, 17 Mar 2012 14:45:33 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 17 Mar 2012 14:45:33 -0700
+Message-ID: <CAFftDdonw_shpO3o1+AE0aYH5gaWBPQxP_=jW4x6-fVXsz6pug@mail.gmail.com>
+Subject: SE Linux file system relabel
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 1/2] SELinux: allow default source/target selectors for user/role/range
-Date: Fri, 16 Mar 2012 14:11:27 -0400
-Message-Id: <1331921488-20725-1-git-send-email-eparis@redhat.com>
+Content-Type: multipart/alternative; boundary=047d7b1601bbadb86b04bb773ee7
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When new objects are created we have great and flexible rules to
-determine the type of the new object.  We aren't quite as flexible or
-mature when it comes to determining the user, role, and range.  This
-patch adds a new ability to specify the place a new objects user, role,
-and range should come from.  For users and roles it can come from either
-the source or the target of the operation.  aka for files the user can
-either come from the source (the running process and todays default) or
-it can come from the target (aka the parent directory of the new file)
+--047d7b1601bbadb86b04bb773ee7
+Content-Type: text/plain; charset=ISO-8859-1
 
-examples always are done with
-directory context: system_u:object_r:mnt_t:s0-s0:c0.c512
-process context: unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+I just stood SE Android up on a Maguro device. I have reviewed the patches
+submitted to the mailing list, but I would like to understand how to do
+some of this myself. I am trying to label the /factory files, currently
+the factory files are labeled as:
 
-[no rule]
-	unconfined_u:object_r:mnt_t:s0   test_none
-[default user source]
-	unconfined_u:object_r:mnt_t:s0   test_user_source
-[default user target]
-	system_u:object_r:mnt_t:s0       test_user_target
-[default role source]
-	unconfined_u:unconfined_r:mnt_t:s0 test_role_source
-[default role target]
-	unconfined_u:object_r:mnt_t:s0   test_role_target
-[default range source low]
-	unconfined_u:object_r:mnt_t:s0 test_range_source_low
-[default range source high]
-	unconfined_u:object_r:mnt_t:s0:c0.c1023 test_range_source_high
-[default range source low-high]
-	unconfined_u:object_r:mnt_t:s0-s0:c0.c1023 test_range_source_low-high
-[default range target low]
-	unconfined_u:object_r:mnt_t:s0 test_range_target_low
-[default range target high]
-	unconfined_u:object_r:mnt_t:s0:c0.c512 test_range_target_high
-[default range target low-high]
-	unconfined_u:object_r:mnt_t:s0-s0:c0.c512 test_range_target_low-high
+drwxrwxr-x radio    radio             u:object_r:unlabeled:s0 factory
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
- security/selinux/include/security.h |    3 ++-
- security/selinux/ss/context.h       |   20 ++++++++++++++++++++
- security/selinux/ss/mls.c           |   19 +++++++++++++++++++
- security/selinux/ss/policydb.c      |   25 +++++++++++++++++++++++++
- security/selinux/ss/policydb.h      |   13 +++++++++++++
- security/selinux/ss/services.c      |   32 +++++++++++++++++++++++++-------
- 6 files changed, 104 insertions(+), 8 deletions(-)
+I modified sepolicy/attributes and included this line:
 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index d871e8a..ba53400 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -31,13 +31,14 @@
- #define POLICYDB_VERSION_BOUNDARY	24
- #define POLICYDB_VERSION_FILENAME_TRANS	25
- #define POLICYDB_VERSION_ROLETRANS	26
-+#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
- #endif
- 
- /* Mask for just the mount related flags */
-diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 45e8fb0..212e347 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -74,6 +74,26 @@ out:
- 	return rc;
- }
- 
-+/*
-+ * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
-+ */
-+static inline int mls_context_cpy_high(struct context *dst, struct context *src)
-+{
-+	int rc;
-+
-+	dst->range.level[0].sens = src->range.level[1].sens;
-+	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[1].cat);
-+	if (rc)
-+		goto out;
-+
-+	dst->range.level[1].sens = src->range.level[1].sens;
-+	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[1].cat);
-+	if (rc)
-+		ebitmap_destroy(&dst->range.level[0].cat);
-+out:
-+	return rc;
-+}
-+
- static inline int mls_context_cmp(struct context *c1, struct context *c2)
- {
- 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index fbf9c58..2e3013d 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -517,6 +517,7 @@ int mls_compute_sid(struct context *scontext,
- {
- 	struct range_trans rtr;
- 	struct mls_range *r;
-+	struct class_datum *cladatum;
- 
- 	if (!policydb.mls_enabled)
- 		return 0;
-@@ -530,6 +531,24 @@ int mls_compute_sid(struct context *scontext,
- 		r = hashtab_search(policydb.range_tr, &rtr);
- 		if (r)
- 			return mls_range_set(newcontext, r);
-+
-+		cladatum = policydb.class_val_to_struct[tclass - 1];
-+
-+		switch (cladatum->default_range) {
-+		case DEFAULT_SOURCE_LOW:
-+			return mls_context_cpy_low(newcontext, scontext);
-+		case DEFAULT_SOURCE_HIGH:
-+			return mls_context_cpy_high(newcontext, scontext);
-+		case DEFAULT_SOURCE_LOW_HIGH:
-+			return mls_context_cpy(newcontext, scontext);
-+		case DEFAULT_TARGET_LOW:
-+			return mls_context_cpy_low(newcontext, tcontext);
-+		case DEFAULT_TARGET_HIGH:
-+			return mls_context_cpy_high(newcontext, tcontext);
-+		case DEFAULT_TARGET_LOW_HIGH:
-+			return mls_context_cpy(newcontext, tcontext);
-+		}
-+
- 		/* Fallthrough */
- 	case AVTAB_CHANGE:
- 		if ((tclass == policydb.process_class) || (sock == true))
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index a7f61d5..2bb9c2f 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -133,6 +133,11 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
- 	},
-+	{
-+		.version	= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	},
- };
- 
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -1306,6 +1311,16 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
- 			goto bad;
- 	}
- 
-+	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
-+		rc = next_entry(buf, fp, sizeof(u32) * 3);
-+		if (rc)
-+			goto bad;
-+
-+		cladatum->default_user = le32_to_cpu(buf[0]);
-+		cladatum->default_role = le32_to_cpu(buf[1]);
-+		cladatum->default_range = le32_to_cpu(buf[2]);
-+	}
-+
- 	rc = hashtab_insert(h, key, cladatum);
- 	if (rc)
- 		goto bad;
-@@ -2832,6 +2847,16 @@ static int class_write(void *vkey, void *datum, void *ptr)
- 	if (rc)
- 		return rc;
- 
-+	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
-+		buf[0] = cpu_to_le32(cladatum->default_user);
-+		buf[1] = cpu_to_le32(cladatum->default_role);
-+		buf[2] = cpu_to_le32(cladatum->default_range);
-+
-+		rc = put_entry(buf, sizeof(uint32_t), 3, fp);
-+		if (rc)
-+			return rc;
-+	}
-+
- 	return 0;
- }
- 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index b846c03..a949f1a 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -60,6 +60,19 @@ struct class_datum {
- 	struct symtab permissions;	/* class-specific permission symbol table */
- 	struct constraint_node *constraints;	/* constraints on class permissions */
- 	struct constraint_node *validatetrans;	/* special transition rules */
-+	/* Options how a new object user and role should be decided */
-+#define DEFAULT_SOURCE         1
-+#define DEFAULT_TARGET         2
-+	char default_user;
-+	char default_role;
-+/* Options how a new object range should be decided */
-+#define DEFAULT_SOURCE_LOW     1
-+#define DEFAULT_SOURCE_HIGH    2
-+#define DEFAULT_SOURCE_LOW_HIGH        3
-+#define DEFAULT_TARGET_LOW     4
-+#define DEFAULT_TARGET_HIGH    5
-+#define DEFAULT_TARGET_LOW_HIGH        6
-+	char default_range;
- };
- 
- /* Role attributes */
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 185f849..af4db91 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1389,6 +1389,7 @@ static int security_compute_sid(u32 ssid,
- 				u32 *out_sid,
- 				bool kern)
- {
-+	struct class_datum *cladatum = NULL;
- 	struct context *scontext = NULL, *tcontext = NULL, newcontext;
- 	struct role_trans *roletr = NULL;
- 	struct avtab_key avkey;
-@@ -1437,12 +1438,20 @@ static int security_compute_sid(u32 ssid,
- 		goto out_unlock;
- 	}
- 
-+	if (tclass && tclass > policydb.p_classes.nprim)
-+		cladatum = policydb.class_val_to_struct[tclass - 1];
-+
- 	/* Set the user identity. */
- 	switch (specified) {
- 	case AVTAB_TRANSITION:
- 	case AVTAB_CHANGE:
--		/* Use the process user identity. */
--		newcontext.user = scontext->user;
-+		if (cladatum && cladatum->default_user == DEFAULT_TARGET) {
-+			newcontext.user = tcontext->user;
-+		} else {
-+			/* notice this gets both DEFAULT_SOURCE and unset */
-+			/* Use the process user identity. */
-+			newcontext.user = scontext->user;
-+		}
- 		break;
- 	case AVTAB_MEMBER:
- 		/* Use the related object owner. */
-@@ -1450,14 +1459,23 @@ static int security_compute_sid(u32 ssid,
- 		break;
- 	}
- 
--	/* Set the role and type to default values. */
--	if ((tclass == policydb.process_class) || (sock == true)) {
--		/* Use the current role and type of process. */
-+	/* Set the role to default values. */
-+	if (cladatum && cladatum->default_role == DEFAULT_SOURCE) {
- 		newcontext.role = scontext->role;
-+	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
-+		newcontext.role = tcontext->role;
-+	} else {
-+		if ((tclass == policydb.process_class) || (sock == true))
-+			newcontext.role = scontext->role;
-+		else
-+			newcontext.role = OBJECT_R_VAL;
-+	}
-+
-+	/* Set the type to default values. */
-+	if ((tclass == policydb.process_class) || (sock == true)) {
-+		/* Use the type of process. */
- 		newcontext.type = scontext->type;
- 	} else {
--		/* Use the well-defined object role. */
--		newcontext.role = OBJECT_R_VAL;
- 		/* Use the type of the related object. */
- 		newcontext.type = tcontext->type;
- 	}
+#All types used for /factory files.
+attribute factory_type;
+
+I then created sepolicy/factory.te file that is this:
+type factory, factory_type;
+
+I then modified sepolicy/file_contexts to include
+# factory files
+/factory(/.*)?  u:object_r:factory:s0
+
+I am trying to figure out how to label that part of the filesystem from
+scratch so I can understand the process a little better. Thanks for any
+help!
+
 -- 
-1.7.1
+Respectfully,
 
+William C Roberts
+
+--047d7b1601bbadb86b04bb773ee7
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<span style>I just stood SE Android up on a Maguro device. I have reviewed =
+the patches submitted to the mailing list, but I would like to understand h=
+ow to do some of this myself. I am trying to label the /factory files, curr=
+ently the=A0factory=A0files are=A0labeled=A0as:</span><div style>
+<br clear=3D"all"><div><div>drwxrwxr-x radio =A0 =A0radio =A0 =A0 =A0 =A0 =
+=A0 =A0 u:object_r:unlabeled:s0 factory</div></div><div><br></div><div>I mo=
+dified sepolicy/attributes and included this line:</div><div><br></div><div=
+>#All types used for /factory files.</div>
+<div>attribute factory_type;</div><div>=A0</div><div>I then created sepolic=
+y/factory.te file that is this:</div><div>type factory, factory_type;<br></=
+div><div><br></div><div>I then modified sepolicy/file_contexts to include</=
+div>
+<div><div># factory files</div><div>/factory(/.*)? =A0u:object_r:factory:s0=
+</div></div><div><br></div><div>I am trying to figure out how to label that=
+ part of the filesystem from scratch so I can understand the process a litt=
+le better. Thanks for any help!</div>
+</div><div><br></div>-- <br>Respectfully,<br><br>William C Roberts<br><br><=
+br>
+
+--047d7b1601bbadb86b04bb773ee7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
