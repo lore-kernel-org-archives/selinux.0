@@ -1,33 +1,28 @@
-MIME-Version: 1.0
-In-Reply-To: <4F673973.5060405@redhat.com>
-References: <201203191716.19321.russell@coker.com.au>
-	<1332159108.23035.1.camel@moss-pluto>
-	<4F673973.5060405@redhat.com>
-Date: Mon, 19 Mar 2012 14:23:28 +0000
-Message-ID: <CAPweEDxvSRYvYgnQcGj1C7KjjtG6u_nL_ZHdhku8JnDQQxir1g@mail.gmail.com>
-Subject: Re: global name 'seinfo' is not defined
-From: lkcl luke <luke.leighton@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] (SCH-i515 US LTE) Modified init.tuna.rc for proper
+ labeling of /factory/* files.[PUBLIC DOMAIN]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Bryan Hinton <bryan@bryanhinton.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
+References: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 19 Mar 2012 16:07:08 -0400
+Message-ID: <1332187628.23035.70.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 19, 2012 at 1:49 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+On Tue, 2012-03-06 at 19:31 -0600, Bryan Hinton wrote:
+> Change-Id: I48f8623ec24728517597fcd77c9c7f3fab5db9be
+> ---
+>  init.tuna.rc |   18 +++++++++++++++++-
+>  1 files changed, 17 insertions(+), 1 deletions(-)
 
-> Here are the appatches to setools that Fedora applies, currently.  If
-> upstream is willing to take them, that would be great.
->
-> http://people.fedoraproject.org/~dwalsh/SELinux/setools/
+Merged, with indentation fixes on top.  Thanks.
 
- ah, crossover.  should have read ahead before doing random google
-searches to find the patches :)  thanks dan.
-
- russell: that was why i cc'd dan, so that he could, if he chose, help
-advise how fedora does it, then you could translate that to debian.
-
- l.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
