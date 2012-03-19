@@ -1,35 +1,25 @@
-Subject: Re: [PATCH] (SCH-i515 US LTE) Added device specific policy and
- file context files.[PUBLIC DOMAIN]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Bryan Hinton <bryan@bryanhinton.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1331083722-5732-1-git-send-email-bryan@bryanhinton.com>
-References: <1331083722-5732-1-git-send-email-bryan@bryanhinton.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 19 Mar 2012 16:08:51 -0400
-Message-ID: <1332187731.23035.72.camel@moss-pluto>
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <1332187628.23035.70.camel@moss-pluto>
+References: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
+	<1332187628.23035.70.camel@moss-pluto>
+Date: Mon, 19 Mar 2012 14:59:13 -0700
+Message-ID: <CAFftDdoinULAij2WFwXr7x-8eyPHMM6cbM1F=VyJkwUhBY5b8Q@mail.gmail.com>
+Subject: Re: [PATCH] (SCH-i515 US LTE) Modified init.tuna.rc for proper
+ labeling of /factory/* files.[PUBLIC DOMAIN]
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Bryan Hinton <bryan@bryanhinton.com>, selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary=047d7b15aedb38dd7904bb9fabb5
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-03-06 at 19:28 -0600, Bryan Hinton wrote:
-> Change-Id: Iaf0aa012e48dd3084aae6f57c25a022b210308ff
-> ---
->  sepolicy.fc |   13 +++++++++++++
->  sepolicy.te |    4 ++++
->  2 files changed, 17 insertions(+), 0 deletions(-)
->  create mode 100644 sepolicy.fc
->  create mode 100644 sepolicy.te
+--047d7b15aedb38dd7904bb9fabb5
+Content-Type: multipart/alternative; boundary=047d7b15aedb38dd7704bb9fabb3
 
-Merged, with some rules integrated into the base policy and some rules
-removed based on our discussion.  Thanks.
+--047d7b15aedb38dd7704bb9fabb3
+Content-Type: text/plain; charset=ISO-8859-1
 
--- 
-Stephen Smalley
-National Security Agency
+Their was some indentations missed, see below patch:
+--047d7b15aedb38dd7704bb9fabb3--
 
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+--047d7b15aedb38dd7904bb9fabb5--
