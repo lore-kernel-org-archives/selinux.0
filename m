@@ -1,73 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2HLjYVU007130
-	for <selinux@tycho.nsa.gov>; Sat, 17 Mar 2012 17:45:34 -0400
-Received: by dady25 with SMTP id y25so7472151dad.12
-        for <selinux@tycho.nsa.gov>; Sat, 17 Mar 2012 14:45:33 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2J6GWxj030600
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2012 02:16:33 -0400
+Received: from athena.localnet (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id F39BD18085
+	for <selinux@tycho.nsa.gov>; Mon, 19 Mar 2012 17:16:19 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: global name 'seinfo' is not defined
+Date: Mon, 19 Mar 2012 17:16:19 +1100
 MIME-Version: 1.0
-Date: Sat, 17 Mar 2012 14:45:33 -0700
-Message-ID: <CAFftDdonw_shpO3o1+AE0aYH5gaWBPQxP_=jW4x6-fVXsz6pug@mail.gmail.com>
-Subject: SE Linux file system relabel
-From: William Roberts <bill.c.roberts@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7b1601bbadb86b04bb773ee7
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201203191716.19321.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b1601bbadb86b04bb773ee7
-Content-Type: text/plain; charset=ISO-8859-1
+I'm stuck on the following error after updating the Debian packages to the 
+latest userspace.  Could someone please tell me where this "seinfo" function 
+is supposed to be defined?  I can probably work out the cause of this if I 
+could find where it's defined.
 
-I just stood SE Android up on a Maguro device. I have reviewed the patches
-submitted to the mailing list, but I would like to understand how to do
-some of this myself. I am trying to label the /factory files, currently
-the factory files are labeled as:
+As an aside, if someone who's good at Python wants to help out with the Debian 
+SE Linux work then that would be greatly appreciated.  Not much work is 
+required, but it's tough for people like me who generally don't do Python.
 
-drwxrwxr-x radio    radio             u:object_r:unlabeled:s0 factory
 
-I modified sepolicy/attributes and included this line:
-
-#All types used for /factory files.
-attribute factory_type;
-
-I then created sepolicy/factory.te file that is this:
-type factory, factory_type;
-
-I then modified sepolicy/file_contexts to include
-# factory files
-/factory(/.*)?  u:object_r:factory:s0
-
-I am trying to figure out how to label that part of the filesystem from
-scratch so I can understand the process a little better. Thanks for any
-help!
+# dmesg|audit2allow 
+Traceback (most recent call last):
+  File "/usr/bin/audit2allow", line 354, in <module>
+    app.main()
+  File "/usr/bin/audit2allow", line 345, in main
+    self.__output()
+  File "/usr/bin/audit2allow", line 315, in __output
+    g.add_access(self.__avs)
+  File "/usr/lib/python2.7/dist-packages/sepolgen/policygen.py", line 211, in 
+add_access
+    self.__add_allow_rules(raw_allow)
+  File "/usr/lib/python2.7/dist-packages/sepolgen/policygen.py", line 179, in 
+__add_allow_rules
+    self.domains = seinfo(ATTRIBUTE, name="domain")[0]["types"]
+NameError: global name 'seinfo' is not defined
 
 -- 
-Respectfully,
-
-William C Roberts
-
---047d7b1601bbadb86b04bb773ee7
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<span style>I just stood SE Android up on a Maguro device. I have reviewed =
-the patches submitted to the mailing list, but I would like to understand h=
-ow to do some of this myself. I am trying to label the /factory files, curr=
-ently the=A0factory=A0files are=A0labeled=A0as:</span><div style>
-<br clear=3D"all"><div><div>drwxrwxr-x radio =A0 =A0radio =A0 =A0 =A0 =A0 =
-=A0 =A0 u:object_r:unlabeled:s0 factory</div></div><div><br></div><div>I mo=
-dified sepolicy/attributes and included this line:</div><div><br></div><div=
->#All types used for /factory files.</div>
-<div>attribute factory_type;</div><div>=A0</div><div>I then created sepolic=
-y/factory.te file that is this:</div><div>type factory, factory_type;<br></=
-div><div><br></div><div>I then modified sepolicy/file_contexts to include</=
-div>
-<div><div># factory files</div><div>/factory(/.*)? =A0u:object_r:factory:s0=
-</div></div><div><br></div><div>I am trying to figure out how to label that=
- part of the filesystem from scratch so I can understand the process a litt=
-le better. Thanks for any help!</div>
-</div><div><br></div>-- <br>Respectfully,<br><br>William C Roberts<br><br><=
-br>
-
---047d7b1601bbadb86b04bb773ee7--
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
