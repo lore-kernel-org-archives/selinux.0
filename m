@@ -1,25 +1,39 @@
-MIME-Version: 1.0
-In-Reply-To: <1332187628.23035.70.camel@moss-pluto>
-References: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
-	<1332187628.23035.70.camel@moss-pluto>
-Date: Mon, 19 Mar 2012 14:59:13 -0700
-Message-ID: <CAFftDdoinULAij2WFwXr7x-8eyPHMM6cbM1F=VyJkwUhBY5b8Q@mail.gmail.com>
 Subject: Re: [PATCH] (SCH-i515 US LTE) Modified init.tuna.rc for proper
  labeling of /factory/* files.[PUBLIC DOMAIN]
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
 Cc: Bryan Hinton <bryan@bryanhinton.com>, selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=047d7b15aedb38dd7904bb9fabb5
+In-Reply-To: <CAFftDdoinULAij2WFwXr7x-8eyPHMM6cbM1F=VyJkwUhBY5b8Q@mail.gmail.com>
+References: <1331083918-5820-1-git-send-email-bryan@bryanhinton.com>
+	 <1332187628.23035.70.camel@moss-pluto>
+	 <CAFftDdoinULAij2WFwXr7x-8eyPHMM6cbM1F=VyJkwUhBY5b8Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 20 Mar 2012 08:56:03 -0400
+Message-ID: <1332248163.693.3.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b15aedb38dd7904bb9fabb5
-Content-Type: multipart/alternative; boundary=047d7b15aedb38dd7704bb9fabb3
+On Mon, 2012-03-19 at 14:59 -0700, William Roberts wrote:
+> Their was some indentations missed, see below patch:
+> 
+> 
+> From c6a562721491441472336efea6590739155e72ea Mon Sep 17 00:00:00 2001
+> From: William Roberts <w.roberts@sta.samsung.com>
+> Date: Mon, 19 Mar 2012 14:51:58 -0700
+> Subject: [PATCH] Fixed indentation
+> 
+> 
+> Change-Id: Ib9643732abd6a7b8321389096f374f873e288abe
 
---047d7b15aedb38dd7704bb9fabb3
-Content-Type: text/plain; charset=ISO-8859-1
+Thanks.  Patch was whitespace-damaged, but I applied it manually.
 
-Their was some indentations missed, see below patch:
---047d7b15aedb38dd7704bb9fabb3--
+-- 
+Stephen Smalley
+National Security Agency
 
---047d7b15aedb38dd7904bb9fabb5--
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
