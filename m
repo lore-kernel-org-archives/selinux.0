@@ -1,100 +1,192 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2KE9WtQ005865
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2012 10:09:32 -0400
-Subject: Re: SE Android release
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2KNIetO010846
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2012 19:18:40 -0400
+Received: by pbcuo1 with SMTP id uo1so393942pbc.12
+        for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2012 16:18:38 -0700 (PDT)
+MIME-Version: 1.0
+Date: Tue, 20 Mar 2012 16:18:38 -0700
+Message-ID: <CAFftDdo1Cn9SWXNkkPPQ+_NH73zy+aENCPRdTA-nmpDgQBAfkg@mail.gmail.com>
+Subject: Maguro SE Manager app crash
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-In-Reply-To: <1325884109.28294.65.camel@moss-pluto>
-References: <1325884109.28294.65.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 20 Mar 2012 10:09:32 -0400
-Message-ID: <1332252572.693.56.camel@moss-pluto>
-Mime-Version: 1.0
+Content-Type: multipart/alternative; boundary=e89a8ff1c12c15698204bbb4e5ad
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-01-06 at 16:08 -0500, Stephen Smalley wrote:
-> Hi,
-> 
-> We have made an initial public release of SE Android. More information
-> is available at:
-> http://selinuxproject.org/page/SEAndroid
+--e89a8ff1c12c15698204bbb4e5ad
+Content-Type: text/plain; charset=ISO-8859-1
 
-We have made further updates to the source code repositories and the
-wiki page.  You can refresh your sources by downloading the latest
-local_manifest.xml file, dropping it into your .repo subdirectory, and
-running repo sync -j1. The changes since the last update are:
+On maguro the SE Manager app crashes, see the logs at the end. Some
+information on the build:
 
-- Merged the latest AOSP master branch.  There are two caveats regarding
-the current state of AOSP master: we had to revert the 64-bit emulator
-change (c7389bd) from external/qemu in order to build, and we had to
-apply https://android-review.googlesource.com/#/c/34210/ to bionic in
-order to resolve a deadlock during boot.  These issues have been
-reported to AOSP and are not related to SE Android in any way.
+I updated my local manifest file at Noon pacific time.
 
-- Merged Bryan Hinton's patches for the Galaxy Nexus, along with a
-cleanup by William Roberts.  Some of the policy changes were directly
-integrated into the base policy, while others were left in the
-per-device sepolicy.* files.  Also defined HAVE_SELINUX := true in the
-tuna BoardConfig.mk so that it will be enabled by default.
+I kept with the instructions in the repo.
 
-- Moved the SELinux management functionality out of the Settings app and
-into a new SEAndroidManager app.  The Settings app now only displays the
-SELinux status under About phone.  Setting the SELinux enforcing mode
-and booleans can only be done via the SEAndroidManager app.  Further,
-the SEAndroidManager app now saves the enforcing status and booleans on
-a (clean) shutdown and restores them at boot so that they are preserved
-across a power cycle. Work is in progress to save the settings
-immediately so that they will be preserved even upon a low-level reboot
-(e.g. adb reboot), and work is planned to migrate more of the
-functionality into the framework services so that the app can ultimately
-run without the system UID.
+I did a clean build.
 
-- Added preliminary support for loading policy files from /data/system
-in order to support runtime policy updates, and for notifying various
-components to reload their policy files.  This is still work in
-progress, but provides the first stages of the underlying infrastructure
-support for runtime policy management of the device. You can exercise a
-portion of this functionality by copying policy files under /data/system
-and can trigger a policy reload at runtime by setting the
-selinux.loadpolicy property to 1 (setprop selinux.loadpolicy 1 from
-init.rc or an adb shell). There is also support for notifying installd
-of an updated seapp_contexts configuration via its command socket, and
-an interface in Installer.java for use by the framework services to
-perform this notification when a new seapp_contexts file is installed
-to /data/system.  This interface is not yet being used, but would
-ultimately be leveraged by the DevicePolicyManager service.
+My guess is that function  SELinux.getBooleanNames() is returning NULL,
 
-- Added a restorecon JNI binding for use by the framework services to
-restore the security context of files, and modified the
-PackageManagerService and WallpaperManagerService to use it.  In the
-case of the PackageManagerService, restorecon is invoked to label the
-vmdl*.tmp files created when installing packages with a type
-(apk_tmp_file) that is writable by the client app, and restorecon is
-then invoked again when the file is renamed to the final apk file so
-that the final apk file is protected against subsequent access.  This
-avoids the need to allow write access to the /data/app type
-(apk_data_file) by the app domains.  In the case of the
-WallpaperManagerService, restorecon is invoked to label the wallpaper
-file with its own type so that apps can be allowed to write to it
-without being able to write to other files under com.android.settings.
+I am debugging it now. Is anyone else having this problem?
 
-- Rewrote the MLS constraints in the sepolicy to only constrain open for
-app_data_file, not read/write.  This is an attempt to allow open fd
-passing by apps for explicit sharing via Binder or local socket IPC
-while prohibiting direct open of the app's private data files by another
-app.  However, we still need to distinguish shared_prefs from files
-given that the former appears to be accessed via direct open and the
-latter via fd passing.
+D/AndroidRuntime(  566): Shutting down VM
+W/dalvikvm(  566): threadid=1: thread exiting with uncaught exception
+(group=0x40a7b1f8)
+I/bluedroid(  196): bt_enable: ret: -1, errno: 19
+E/AndroidRuntime(  566): FATAL EXCEPTION: main
+E/AndroidRuntime(  566): java.lang.RuntimeException: Unable to start
+activity
+ComponentInfo{com.android.seandroid_manager/com.android.seandroid_manager.SEAndroidManager}:
+java.lang.NullPointerException
+E/AndroidRuntime(  566): at
+android.app.ActivityThread.performLaunchActivity(ActivityThread.java:1956)
+E/AndroidRuntime(  566): at
+android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:1981)
+E/AndroidRuntime(  566): at
+android.app.ActivityThread.access$600(ActivityThread.java:123)
+E/AndroidRuntime(  566): at
+android.app.ActivityThread$H.handleMessage(ActivityThread.java:1147)
+E/AndroidRuntime(  566): at
+android.os.Handler.dispatchMessage(Handler.java:99)
+E/AndroidRuntime(  566): at android.os.Looper.loop(Looper.java:137)
+E/AndroidRuntime(  566): at
+android.app.ActivityThread.main(ActivityThread.java:4424)
+E/AndroidRuntime(  566): at java.lang.reflect.Method.invokeNative(Native
+Method)
+E/AndroidRuntime(  566): at java.lang.reflect.Method.invoke(Method.java:511)
+E/AndroidRuntime(  566): at
+com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:784)
+E/AndroidRuntime(  566): at
+com.android.internal.os.ZygoteInit.main(ZygoteInit.java:551)
+E/AndroidRuntime(  566): at dalvik.system.NativeStart.main(Native Method)
+E/AndroidRuntime(  566): Caused by: java.lang.NullPointerException
+E/AndroidRuntime(  566): at
+java.util.Arrays$ArrayList.<init>(Arrays.java:38)
+E/AndroidRuntime(  566): at java.util.Arrays.asList(Arrays.java:154)
+E/AndroidRuntime(  566): at
+android.widget.ArrayAdapter.<init>(ArrayAdapter.java:128)
+E/AndroidRuntime(  566): at
+com.android.seandroid_manager.SEAndroidManager$SELinuxBooleanFragment$myBooleanAdapter.<init>(SEAndroidManager.java:76)
+E/AndroidRuntime(  566): at
+com.android.seandroid_manager.SEAndroidManager$SELinuxBooleanFragment.onCreate(SEAndroidManager.java:119)
+E/AndroidRuntime(  566): at
+android.app.FragmentManagerImpl.moveToState(FragmentManager.java:795)
+E/AndroidRuntime(  566): at
+android.app.FragmentManagerImpl.moveToState(FragmentManager.java:1032)
+E/AndroidRuntime(  566): at
+android.app.BackStackRecord.run(BackStackRecord.java:622)
+E/AndroidRuntime(  566): at
+android.app.FragmentManagerImpl.execPendingActions(FragmentManager.java:1382)
+E/AndroidRuntime(  566): at
+android.app.Activity.performStart(Activity.java:4474)
+E/AndroidRuntime(  566): at
+android.app.ActivityThread.performLaunchActivity(ActivityThread.java:1929)
+E/AndroidRuntime(  566): ... 11 more
+W/ActivityManager(  196):   Force finishing activity
+com.android.seandroid_manager/.SEAndroidManager
+W/ActivityManager(  196):   Force finishing activity
+com.android.seandroid_manager/.SEAndroidManager
 
-- Support for device-specific additions to policy and improved policy
-support for running the Android CTS, as previously discussed on the list
-and documented in the wiki.
+
+
 
 -- 
-Stephen Smalley
-National Security Agency
+Respectfully,
 
+William C Roberts
+
+--e89a8ff1c12c15698204bbb4e5ad
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On maguro the SE Manager app crashes, see the logs at the end. Some informa=
+tion on the build:<div><br></div><div>I updated my local manifest file at N=
+oon pacific time.</div><div><br></div><div>I kept with the instructions in =
+the repo.</div>
+<div><br></div><div>I did a clean build.</div><div><br></div><div>My guess =
+is that function=A0=A0SELinux.getBooleanNames() is returning NULL,=A0</div>=
+<div><br></div><div>I am debugging it now. Is anyone else having this probl=
+em?</div>
+<div><br></div><div><div>D/AndroidRuntime( =A0566): Shutting down VM</div><=
+div>W/dalvikvm( =A0566): threadid=3D1: thread exiting with uncaught excepti=
+on (group=3D0x40a7b1f8)</div><div>I/bluedroid( =A0196): bt_enable: ret: -1,=
+ errno: 19</div>
+<div>E/AndroidRuntime( =A0566): FATAL EXCEPTION: main</div><div>E/AndroidRu=
+ntime( =A0566): java.lang.RuntimeException: Unable to start activity Compon=
+entInfo{com.android.seandroid_manager/com.android.seandroid_manager.SEAndro=
+idManager}: java.lang.NullPointerException</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.ActivityThread.performLaunchActivity(A=
+ctivityThread.java:1956)</div><div>E/AndroidRuntime( =A0566): <span class=
+=3D"Apple-tab-span" style=3D"white-space:pre">	</span>at android.app.Activi=
+tyThread.handleLaunchActivity(ActivityThread.java:1981)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.ActivityThread.access$600(ActivityThre=
+ad.java:123)</div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-=
+span" style=3D"white-space:pre">	</span>at android.app.ActivityThread$H.han=
+dleMessage(ActivityThread.java:1147)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.os.Handler.dispatchMessage(Handler.java:99=
+)</div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=
+=3D"white-space:pre">	</span>at android.os.Looper.loop(Looper.java:137)</di=
+v>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.ActivityThread.main(ActivityThread.jav=
+a:4424)</div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span"=
+ style=3D"white-space:pre">	</span>at java.lang.reflect.Method.invokeNative=
+(Native Method)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at java.lang.reflect.Method.invoke(Method.java:511)</=
+div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D=
+"white-space:pre">	</span>at com.android.internal.os.ZygoteInit$MethodAndAr=
+gsCaller.run(ZygoteInit.java:784)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at com.android.internal.os.ZygoteInit.main(ZygoteInit=
+.java:551)</div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-sp=
+an" style=3D"white-space:pre">	</span>at dalvik.system.NativeStart.main(Nat=
+ive Method)</div>
+<div>E/AndroidRuntime( =A0566): Caused by: java.lang.NullPointerException</=
+div><div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D=
+"white-space:pre">	</span>at java.util.Arrays$ArrayList.&lt;init&gt;(Arrays=
+.java:38)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at java.util.Arrays.asList(Arrays.java:154)</div><div=
+>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"white-s=
+pace:pre">	</span>at android.widget.ArrayAdapter.&lt;init&gt;(ArrayAdapter.=
+java:128)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at com.android.seandroid_manager.SEAndroidManager$SEL=
+inuxBooleanFragment$myBooleanAdapter.&lt;init&gt;(SEAndroidManager.java:76)=
+</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at com.android.seandroid_manager.SEAndroidManager$SEL=
+inuxBooleanFragment.onCreate(SEAndroidManager.java:119)</div><div>E/Android=
+Runtime( =A0566): <span class=3D"Apple-tab-span" style=3D"white-space:pre">=
+	</span>at android.app.FragmentManagerImpl.moveToState(FragmentManager.java=
+:795)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.FragmentManagerImpl.moveToState(Fragme=
+ntManager.java:1032)</div><div>E/AndroidRuntime( =A0566): <span class=3D"Ap=
+ple-tab-span" style=3D"white-space:pre">	</span>at android.app.BackStackRec=
+ord.run(BackStackRecord.java:622)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.FragmentManagerImpl.execPendingActions=
+(FragmentManager.java:1382)</div><div>E/AndroidRuntime( =A0566): <span clas=
+s=3D"Apple-tab-span" style=3D"white-space:pre">	</span>at android.app.Activ=
+ity.performStart(Activity.java:4474)</div>
+<div>E/AndroidRuntime( =A0566): <span class=3D"Apple-tab-span" style=3D"whi=
+te-space:pre">	</span>at android.app.ActivityThread.performLaunchActivity(A=
+ctivityThread.java:1929)</div><div>E/AndroidRuntime( =A0566): <span class=
+=3D"Apple-tab-span" style=3D"white-space:pre">	</span>... 11 more</div>
+<div>W/ActivityManager( =A0196): =A0 Force finishing activity com.android.s=
+eandroid_manager/.SEAndroidManager</div><div>W/ActivityManager( =A0196): =
+=A0 Force finishing activity com.android.seandroid_manager/.SEAndroidManage=
+r</div>
+</div><div><br></div><div><br></div><div><br><div><div><br></div>-- <br>Res=
+pectfully,<br><br>William C Roberts<br><br><br>
+</div></div>
+
+--e89a8ff1c12c15698204bbb4e5ad--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
