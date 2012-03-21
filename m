@@ -1,41 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2LDNofT016697
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 09:23:50 -0400
-Received: by eaa1 with SMTP id 1so348369eaa.12
-        for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 06:23:48 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2LDXGrW017275
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 09:33:16 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Mark Dalton <mdalton@princeton.edu>
+Subject: Re: VirtualGL and selinux
+Date: Thu, 22 Mar 2012 00:33:07 +1100
+Cc: selinux@tycho.nsa.gov
+References: <4F69D204.9070609@princeton.edu>
+In-Reply-To: <4F69D204.9070609@princeton.edu>
 MIME-Version: 1.0
-Date: Wed, 21 Mar 2012 21:23:48 +0800
-Message-ID: <CAL=jxq04myXmTrx7fs-Bg+cHMC9U9SaiXQpvkN5sotWFcY77MA@mail.gmail.com>
-Subject: SEAndroid init.rc
-From: =?GB2312?B?2L++27ui?= <niejuhu@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=0015174c0c16a4c43d04bbc0b3bf
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201203220033.07525.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0015174c0c16a4c43d04bbc0b3bf
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 22 Mar 2012, Mark Dalton <mdalton@princeton.edu> wrote:
+> I was not able to get VirtualGL and selinux to work together.
+> It is something during boot time it seems.  I have tried generating
+> rules based on audit/audit.log.
 
-Hi,
-I was reading the SEAndroid code and I got confused about something.
-There are some restorecon commands like 'restorecon /dev' in the init.rc
-file. I don't know
-which files or folders should be 'restorecon' and why. Can anybody help me?
+When discussing such things it's a good idea to publish the rules you have 
+tried adding, then we can determine whether you are on the right track.
 
---0015174c0c16a4c43d04bbc0b3bf
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> The VirtualGL web http://www.virtualgl.org/Documentation/RHEL6
+> states they don't know how to make it work either.
+> 
+> I have tried in permissive mode after boot and that did not work either,
+> which is why I think it is something during boot time.  Like the device
+> setup. My guess is related to: /dev/dri as it sets up these and then
+> access to the /dev/nvidia0 and /dev/nvidiactl are restricted to vglusers
+> group (in my case it can be configured with/without group restriction).
 
-<div>Hi,</div><div>I was reading the SEAndroid code and I got confused abou=
-t something.=A0</div>
-<div>There are=A0some=A0restorecon commands like &#39;restorecon /dev&#39; =
-in the init.rc=20
-file. I=A0don&#39;t know </div>
-<div>which files or folders should be &#39;restorecon&#39; and why. Can any=
-body help=20
-me?=A0</div>
+Just to be clear, are you saying that it works if you boot with "enforcing=0" 
+on the kernel command line (permissive all the way) but fails if you boot 
+normally but run "setenforce 0" after booting?  If so then check whether all 
+necessary daemons have started correctly.
 
---0015174c0c16a4c43d04bbc0b3bf--
+> Currently, the only known way to make|vglgenkey|work (|vglgenkey|is used 
+> to grant 3D X Server access to members of the|vglusers|group) is to 
+> disable SELinux. With SELinux enabled, the*//usr/bin/xauth/*file is 
+> hidden within the context of the GDM startup scripts, so|vglgenkey|has 
+> no way of generating or importing an xauth key 
+> to*//etc/opt/VirtualGL/vgl_xauth_key/*(and, for that matter, access is 
+> denied to*//etc/opt/VirtualGL/*as well.)
+
+What context is vglgenkey being run from?
+
+The policy is written to support xauth being run from an X login session (GDM 
+etc) and from a user login (IE you ssh to a server and run xauth at the 
+command line).
+
+If you have an X login manager that runs xauth then it should run in the xdm_t 
+domain.  Give it the xdm_exec_t type and it should be fine.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
