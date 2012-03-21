@@ -1,63 +1,292 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2LDXGrW017275
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 09:33:16 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Mark Dalton <mdalton@princeton.edu>
-Subject: Re: VirtualGL and selinux
-Date: Thu, 22 Mar 2012 00:33:07 +1100
-Cc: selinux@tycho.nsa.gov
-References: <4F69D204.9070609@princeton.edu>
-In-Reply-To: <4F69D204.9070609@princeton.edu>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201203220033.07525.russell@coker.com.au>
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Subject: [PATCH 1/2] SELinux: allow default source/target selectors for user/role/range
+Date: Wed, 21 Mar 2012 10:04:58 -0400
+Message-Id: <1332338699-16839-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 22 Mar 2012, Mark Dalton <mdalton@princeton.edu> wrote:
-> I was not able to get VirtualGL and selinux to work together.
-> It is something during boot time it seems.  I have tried generating
-> rules based on audit/audit.log.
+When new objects are created we have great and flexible rules to
+determine the type of the new object.  We aren't quite as flexible or
+mature when it comes to determining the user, role, and range.  This
+patch adds a new ability to specify the place a new objects user, role,
+and range should come from.  For users and roles it can come from either
+the source or the target of the operation.  aka for files the user can
+either come from the source (the running process and todays default) or
+it can come from the target (aka the parent directory of the new file)
 
-When discussing such things it's a good idea to publish the rules you have 
-tried adding, then we can determine whether you are on the right track.
+examples always are done with
+directory context: system_u:object_r:mnt_t:s0-s0:c0.c512
+process context: unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
-> The VirtualGL web http://www.virtualgl.org/Documentation/RHEL6
-> states they don't know how to make it work either.
-> 
-> I have tried in permissive mode after boot and that did not work either,
-> which is why I think it is something during boot time.  Like the device
-> setup. My guess is related to: /dev/dri as it sets up these and then
-> access to the /dev/nvidia0 and /dev/nvidiactl are restricted to vglusers
-> group (in my case it can be configured with/without group restriction).
+[no rule]
+	unconfined_u:object_r:mnt_t:s0   test_none
+[default user source]
+	unconfined_u:object_r:mnt_t:s0   test_user_source
+[default user target]
+	system_u:object_r:mnt_t:s0       test_user_target
+[default role source]
+	unconfined_u:unconfined_r:mnt_t:s0 test_role_source
+[default role target]
+	unconfined_u:object_r:mnt_t:s0   test_role_target
+[default range source low]
+	unconfined_u:object_r:mnt_t:s0 test_range_source_low
+[default range source high]
+	unconfined_u:object_r:mnt_t:s0:c0.c1023 test_range_source_high
+[default range source low-high]
+	unconfined_u:object_r:mnt_t:s0-s0:c0.c1023 test_range_source_low-high
+[default range target low]
+	unconfined_u:object_r:mnt_t:s0 test_range_target_low
+[default range target high]
+	unconfined_u:object_r:mnt_t:s0:c0.c512 test_range_target_high
+[default range target low-high]
+	unconfined_u:object_r:mnt_t:s0-s0:c0.c512 test_range_target_low-high
 
-Just to be clear, are you saying that it works if you boot with "enforcing=0" 
-on the kernel command line (permissive all the way) but fails if you boot 
-normally but run "setenforce 0" after booting?  If so then check whether all 
-necessary daemons have started correctly.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ security/selinux/include/security.h |    3 ++-
+ security/selinux/ss/context.h       |   20 ++++++++++++++++++++
+ security/selinux/ss/mls.c           |   24 ++++++++++++++++++++++++
+ security/selinux/ss/policydb.c      |   25 +++++++++++++++++++++++++
+ security/selinux/ss/policydb.h      |   13 +++++++++++++
+ security/selinux/ss/services.c      |   32 +++++++++++++++++++++++++-------
+ 6 files changed, 109 insertions(+), 8 deletions(-)
 
-> Currently, the only known way to make|vglgenkey|work (|vglgenkey|is used 
-> to grant 3D X Server access to members of the|vglusers|group) is to 
-> disable SELinux. With SELinux enabled, the*//usr/bin/xauth/*file is 
-> hidden within the context of the GDM startup scripts, so|vglgenkey|has 
-> no way of generating or importing an xauth key 
-> to*//etc/opt/VirtualGL/vgl_xauth_key/*(and, for that matter, access is 
-> denied to*//etc/opt/VirtualGL/*as well.)
-
-What context is vglgenkey being run from?
-
-The policy is written to support xauth being run from an X login session (GDM 
-etc) and from a user login (IE you ssh to a server and run xauth at the 
-command line).
-
-If you have an X login manager that runs xauth then it should run in the xdm_t 
-domain.  Give it the xdm_exec_t type and it should be fine.
-
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index d871e8a..ba53400 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -31,13 +31,14 @@
+ #define POLICYDB_VERSION_BOUNDARY	24
+ #define POLICYDB_VERSION_FILENAME_TRANS	25
+ #define POLICYDB_VERSION_ROLETRANS	26
++#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
+ #endif
+ 
+ /* Mask for just the mount related flags */
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 45e8fb0..212e347 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -74,6 +74,26 @@ out:
+ 	return rc;
+ }
+ 
++/*
++ * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
++ */
++static inline int mls_context_cpy_high(struct context *dst, struct context *src)
++{
++	int rc;
++
++	dst->range.level[0].sens = src->range.level[1].sens;
++	rc = ebitmap_cpy(&dst->range.level[0].cat, &src->range.level[1].cat);
++	if (rc)
++		goto out;
++
++	dst->range.level[1].sens = src->range.level[1].sens;
++	rc = ebitmap_cpy(&dst->range.level[1].cat, &src->range.level[1].cat);
++	if (rc)
++		ebitmap_destroy(&dst->range.level[0].cat);
++out:
++	return rc;
++}
++
+ static inline int mls_context_cmp(struct context *c1, struct context *c2)
+ {
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index fbf9c58..40de8d3 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -517,6 +517,8 @@ int mls_compute_sid(struct context *scontext,
+ {
+ 	struct range_trans rtr;
+ 	struct mls_range *r;
++	struct class_datum *cladatum;
++	int default_range = 0;
+ 
+ 	if (!policydb.mls_enabled)
+ 		return 0;
+@@ -530,6 +532,28 @@ int mls_compute_sid(struct context *scontext,
+ 		r = hashtab_search(policydb.range_tr, &rtr);
+ 		if (r)
+ 			return mls_range_set(newcontext, r);
++
++		if (tclass && tclass <= policydb.p_classes.nprim) {
++			cladatum = policydb.class_val_to_struct[tclass - 1];
++			if (cladatum)
++				default_range = cladatum->default_range;
++		}
++
++		switch (default_range) {
++		case DEFAULT_SOURCE_LOW:
++			return mls_context_cpy_low(newcontext, scontext);
++		case DEFAULT_SOURCE_HIGH:
++			return mls_context_cpy_high(newcontext, scontext);
++		case DEFAULT_SOURCE_LOW_HIGH:
++			return mls_context_cpy(newcontext, scontext);
++		case DEFAULT_TARGET_LOW:
++			return mls_context_cpy_low(newcontext, tcontext);
++		case DEFAULT_TARGET_HIGH:
++			return mls_context_cpy_high(newcontext, tcontext);
++		case DEFAULT_TARGET_LOW_HIGH:
++			return mls_context_cpy(newcontext, tcontext);
++		}
++
+ 		/* Fallthrough */
+ 	case AVTAB_CHANGE:
+ 		if ((tclass == policydb.process_class) || (sock == true))
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index a7f61d5..2bb9c2f 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -133,6 +133,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	},
+ };
+ 
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -1306,6 +1311,16 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 			goto bad;
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
++		rc = next_entry(buf, fp, sizeof(u32) * 3);
++		if (rc)
++			goto bad;
++
++		cladatum->default_user = le32_to_cpu(buf[0]);
++		cladatum->default_role = le32_to_cpu(buf[1]);
++		cladatum->default_range = le32_to_cpu(buf[2]);
++	}
++
+ 	rc = hashtab_insert(h, key, cladatum);
+ 	if (rc)
+ 		goto bad;
+@@ -2832,6 +2847,16 @@ static int class_write(void *vkey, void *datum, void *ptr)
+ 	if (rc)
+ 		return rc;
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) {
++		buf[0] = cpu_to_le32(cladatum->default_user);
++		buf[1] = cpu_to_le32(cladatum->default_role);
++		buf[2] = cpu_to_le32(cladatum->default_range);
++
++		rc = put_entry(buf, sizeof(uint32_t), 3, fp);
++		if (rc)
++			return rc;
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index b846c03..a949f1a 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -60,6 +60,19 @@ struct class_datum {
+ 	struct symtab permissions;	/* class-specific permission symbol table */
+ 	struct constraint_node *constraints;	/* constraints on class permissions */
+ 	struct constraint_node *validatetrans;	/* special transition rules */
++	/* Options how a new object user and role should be decided */
++#define DEFAULT_SOURCE         1
++#define DEFAULT_TARGET         2
++	char default_user;
++	char default_role;
++/* Options how a new object range should be decided */
++#define DEFAULT_SOURCE_LOW     1
++#define DEFAULT_SOURCE_HIGH    2
++#define DEFAULT_SOURCE_LOW_HIGH        3
++#define DEFAULT_TARGET_LOW     4
++#define DEFAULT_TARGET_HIGH    5
++#define DEFAULT_TARGET_LOW_HIGH        6
++	char default_range;
+ };
+ 
+ /* Role attributes */
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 185f849..2ea108c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1389,6 +1389,7 @@ static int security_compute_sid(u32 ssid,
+ 				u32 *out_sid,
+ 				bool kern)
+ {
++	struct class_datum *cladatum = NULL;
+ 	struct context *scontext = NULL, *tcontext = NULL, newcontext;
+ 	struct role_trans *roletr = NULL;
+ 	struct avtab_key avkey;
+@@ -1437,12 +1438,20 @@ static int security_compute_sid(u32 ssid,
+ 		goto out_unlock;
+ 	}
+ 
++	if (tclass && tclass <= policydb.p_classes.nprim)
++		cladatum = policydb.class_val_to_struct[tclass - 1];
++
+ 	/* Set the user identity. */
+ 	switch (specified) {
+ 	case AVTAB_TRANSITION:
+ 	case AVTAB_CHANGE:
+-		/* Use the process user identity. */
+-		newcontext.user = scontext->user;
++		if (cladatum && cladatum->default_user == DEFAULT_TARGET) {
++			newcontext.user = tcontext->user;
++		} else {
++			/* notice this gets both DEFAULT_SOURCE and unset */
++			/* Use the process user identity. */
++			newcontext.user = scontext->user;
++		}
+ 		break;
+ 	case AVTAB_MEMBER:
+ 		/* Use the related object owner. */
+@@ -1450,14 +1459,23 @@ static int security_compute_sid(u32 ssid,
+ 		break;
+ 	}
+ 
+-	/* Set the role and type to default values. */
+-	if ((tclass == policydb.process_class) || (sock == true)) {
+-		/* Use the current role and type of process. */
++	/* Set the role to default values. */
++	if (cladatum && cladatum->default_role == DEFAULT_SOURCE) {
+ 		newcontext.role = scontext->role;
++	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
++		newcontext.role = tcontext->role;
++	} else {
++		if ((tclass == policydb.process_class) || (sock == true))
++			newcontext.role = scontext->role;
++		else
++			newcontext.role = OBJECT_R_VAL;
++	}
++
++	/* Set the type to default values. */
++	if ((tclass == policydb.process_class) || (sock == true)) {
++		/* Use the type of process. */
+ 		newcontext.type = scontext->type;
+ 	} else {
+-		/* Use the well-defined object role. */
+-		newcontext.role = OBJECT_R_VAL;
+ 		/* Use the type of the related object. */
+ 		newcontext.type = tcontext->type;
+ 	}
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+1.7.1
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
