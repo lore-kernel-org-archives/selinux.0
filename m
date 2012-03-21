@@ -1,44 +1,41 @@
-Subject: Re: Maguro SE Manager app crash
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <CAFftDdqRJ1huU5EmY6idK_FC+=2jfW4QhsOkr2yz=oLsnVXMpw@mail.gmail.com>
-References: 
-	 <CAFftDdo1Cn9SWXNkkPPQ+_NH73zy+aENCPRdTA-nmpDgQBAfkg@mail.gmail.com>
-	 <CAFftDdqRJ1huU5EmY6idK_FC+=2jfW4QhsOkr2yz=oLsnVXMpw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 21 Mar 2012 09:14:12 -0400
-Message-ID: <1332335652.27512.13.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2LDNofT016697
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 09:23:50 -0400
+Received: by eaa1 with SMTP id 1so348369eaa.12
+        for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 06:23:48 -0700 (PDT)
+MIME-Version: 1.0
+Date: Wed, 21 Mar 2012 21:23:48 +0800
+Message-ID: <CAL=jxq04myXmTrx7fs-Bg+cHMC9U9SaiXQpvkN5sotWFcY77MA@mail.gmail.com>
+Subject: SEAndroid init.rc
+From: =?GB2312?B?2L++27ui?= <niejuhu@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=0015174c0c16a4c43d04bbc0b3bf
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-03-20 at 18:40 -0700, William Roberts wrote:
-> Alright I found the problem (it was my mistake), the manifest file
-> changes included adding a path to device/samsung/tuna which caused my
-> prebuilt kernel file to overwritten with the default kernel which
-> doesn't have se linux enabled in the config. Is their any particular
-> reason we don't make tuna's kernel a selinux enabled kernel and commit
-> that back to the branch? I know it's not hard to set
-> TARGET_PREBUILT_KERNEL or just cp zImage to kernel, just wondering
-> what the communities feelings on that are.
+--0015174c0c16a4c43d04bbc0b3bf
+Content-Type: text/plain; charset=ISO-8859-1
 
-Hmm..still shouldn't crash the app; we'll look into that.
+Hi,
+I was reading the SEAndroid code and I got confused about something.
+There are some restorecon commands like 'restorecon /dev' in the init.rc
+file. I don't know
+which files or folders should be 'restorecon' and why. Can anybody help me?
 
-For crespo and wingray, we modified the LOCAL_KERNEL and
-LOCAL_WIFI_MODULE definitions to point into the appropriate kernel
-source tree (e.g. kernel/samsung/arch/arm/boot/zImage) rather than using
-the prebuilt kernel.  I'll do that for tuna as well.  You'll still have
-to build the SE-enabled tuna kernel from source before building AOSP,
-but the build process will then automatically pick up the right kernel
-rather than the prebuilt one by default.  I suppose we could replace the
-prebuilt one, but we don't generally distribute binaries, just source
-code.
+--0015174c0c16a4c43d04bbc0b3bf
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley
-National Security Agency
+<div>Hi,</div><div>I was reading the SEAndroid code and I got confused abou=
+t something.=A0</div>
+<div>There are=A0some=A0restorecon commands like &#39;restorecon /dev&#39; =
+in the init.rc=20
+file. I=A0don&#39;t know </div>
+<div>which files or folders should be &#39;restorecon&#39; and why. Can any=
+body help=20
+me?=A0</div>
 
+--0015174c0c16a4c43d04bbc0b3bf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
