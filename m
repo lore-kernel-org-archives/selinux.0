@@ -1,35 +1,28 @@
-Subject: Re: SEAndroid init.rc
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2LFYKtn026164
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2012 11:34:20 -0400
+Subject: seandroid-4.0.3 branch created
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: =?UTF-8?Q?=E4=B9=9C=E8=81=9A=E8=99=8E?= <niejuhu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <CAL=jxq04myXmTrx7fs-Bg+cHMC9U9SaiXQpvkN5sotWFcY77MA@mail.gmail.com>
-References: 
-	 <CAL=jxq04myXmTrx7fs-Bg+cHMC9U9SaiXQpvkN5sotWFcY77MA@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1332252572.693.56.camel@moss-pluto>
+References: <1325884109.28294.65.camel@moss-pluto>
+	 <1332252572.693.56.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 21 Mar 2012 10:12:30 -0400
-Message-ID: <1332339150.27512.38.camel@moss-pluto>
+Date: Wed, 21 Mar 2012 11:34:20 -0400
+Message-ID: <1332344060.27512.56.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-21 at 21:23 +0800, 乜聚虎 wrote:
-> Hi,
-> I was reading the SEAndroid code and I got confused about something. 
-> There are some restorecon commands like 'restorecon /dev' in the
-> init.rc file. I don't know 
-> which files or folders should be 'restorecon' and why. Can anybody
-> help me? 
-
-/dev and /dev/socket are created by init before the policy is first
-loaded and thus need to have their security context restored prior to
-starting ueventd.
-
-Some of the directories are created by init.rc (e.g. on first boot or
-after a factory reset) and thus we must perform a restorecon to ensure
-that they get the correct security context if they have a different
-security context than the parent directory. It is analogous to the
-existing chown/chmod commands, but only where we want to make a
-distinction for the policy.
+We have created a seandroid-4.0.3 branch with the SE Android
+modifications relative to the android-4.0.3_r1 tag rather than the
+master branch.  This may be helpful to users who wish to use a stable
+release of Android as their baseline and do not wish to track master.
+Our own development will continue on the seandroid branch relative to
+the master branch, but we will try to back port our changes to the
+seandroid-4.0.3 branches when feasible and as time permits.  Information
+about how to use the seandroid-4.0.3 branch can be found at:
+http://selinuxproject.org/page/SEAndroid#Using_android-4.0.3_r1
 
 -- 
 Stephen Smalley
