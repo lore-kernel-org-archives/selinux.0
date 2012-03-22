@@ -1,76 +1,48 @@
-Subject: Re: VirtualGL and selinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mark Dalton <mdalton@princeton.edu>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2MDir4v020771
+	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2012 09:44:53 -0400
+Message-ID: <1332423869.18538.0.camel@localhost>
+Subject: Re: [next] Null pointer dereference in mls_compute_sid()
+From: Eric Paris <eparis@redhat.com>
+To: Martin Nyhus <martin.nyhus@gmx.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4F69D204.9070609@princeton.edu>
-References: <4F69D204.9070609@princeton.edu>
+Date: Thu, 22 Mar 2012 09:44:29 -0400
+In-Reply-To: <20120321231218.2e40fca9@gmx.com>
+References: <20120321231218.2e40fca9@gmx.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 21 Mar 2012 14:39:57 -0400
-Message-ID: <1332355197.27512.103.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-03-21 at 09:05 -0400, Mark Dalton wrote:
+It should be fixed in today's linux-next!  I'm so sorry about that!
+
+On Wed, 2012-03-21 at 23:12 +0100, Martin Nyhus wrote:
+> Hi,
 > 
-> Thank you for selinux.   I have been trying to run it on our machines
-> especially any public facing and servers.  We use audit2allow and
-> generate mods.
+> while running next-20120321 the class passed in to mls_compute_sid()
+> (tclass) is sometimes 0 which leads to a read from
+> policydb.class_val_to_struct[-1] causing a null pointer dereference
+> when cladatum is used (at mls.c:535).
 > 
-> I did not find a 'dumb users forum'.   Could you point me to a place
-> to find this or suggest how to fix this?   I worked with our local
-> expert
-> on selinux.   (I can repeat this if that helps).
-
-Not a 'dumb users forum', but there are some more user-centric resources
-like the fedora selinux list, the Fedora SELinux User Guide, etc.  But
-it is fine to post such questions here as well.
-
-> I was not able to get VirtualGL and selinux to work together.
-> It is something during boot time it seems.  I have tried generating
-> rules based on audit/audit.log.
-
-If you are still getting avc messages during boot, then post those
-messages. If you are not getting any avc messages during boot, then run
-semodule -DB to remove the dontaudit rules and try again (and then run
-semodule -B afterward), and post those avc messages.  Don't apply
-audit2allow to the avc messages generated while dontaudit rules were
-removed.
-
-> The VirtualGL web http://www.virtualgl.org/Documentation/RHEL6
-> states they don't know how to make it work either.
+> The crash happens on every boot, just after mounting the filesystem.
 > 
-> I have tried in permissive mode after boot and that did not work
-> either,
-> which is why I think it is something during boot time.  Like the
-> device
-> setup. My guess is related to: /dev/dri as it sets up these and then
-> access to the /dev/nvidia0 and /dev/nvidiactl are restricted to
-> vglusers
-> group (in my case it can be configured with/without group
-> restriction).
-
-If so, then you should have some avc denials pertaining to those device
-nodes.  ls -Z /dev/dri /dev/nvidia* might be interesting.
-
-> From VirtualGL website they also have:
+> Calltrace:
+> security_compute_sid.part.7
+> security_compute_sid
+> security_transition_sid_user
+> ? security_context_to_sid
+> sel_write_create
+> ? might_fault
+> ? _raw_spin_unlock
+> ? sel_write_member
+> selinux_transaction_write
+> vfs_write
+> sys_write
+> system_call_fastpath
 > 
-> vglgenkey Issues
-> Currently, the only known way to make vglgenkey work (vglgenkey is
-> used to grant 3D X Server access to members of the vglusers group) is
-> to disable SELinux. With SELinux enabled, the /usr/bin/xauth file is
-> hidden within the context of the GDM startup scripts, so vglgenkey has
-> no way of generating or importing an xauth key
-> to /etc/opt/VirtualGL/vgl_xauth_key (and, for that matter, access is
-> denied to /etc/opt/VirtualGL as well.)
+> 
+> 	Martin Nyhus
 
-If so, then you should have some avc denials pertaining to running xauth
-or reading .Xauthority or accessing /etc/opt/VirtualGL.  ls -Z
-$HOME/.Xauthority might be interesting.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
