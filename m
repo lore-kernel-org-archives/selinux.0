@@ -1,312 +1,273 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2PL4TM7019597
-	for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 17:04:29 -0400
-Received: by vcge1 with SMTP id e1so4636825vcg.12
-        for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 14:04:28 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2PLEquV020004
+	for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 17:14:52 -0400
+Received: by lbok6 with SMTP id k6so3971059lbo.12
+        for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 14:14:50 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: noloader@gmail.com
-In-Reply-To: <CADyhKSUOQWd7mygOPnKPwiydbFguL_z05zSVKzNKVwiaoUPTYA@mail.gmail.com>
-References: <CADyhKSUOQWd7mygOPnKPwiydbFguL_z05zSVKzNKVwiaoUPTYA@mail.gmail.com>
-Date: Sun, 25 Mar 2012 16:59:24 -0400
-Message-ID: <CAH8yC8njJOTuYGdm9podZqmEbfPfX_nFaWwE80_UUbPBoAxpOA@mail.gmail.com>
-Subject: Re: security_compute_create_name(3)
-From: Jeffrey Walton <noloader@gmail.com>
-To: Kohei KaiGai <kaigai@kaigai.gr.jp>
-Cc: SELinux-NSA <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Date: Sun, 25 Mar 2012 23:14:50 +0200
+Message-ID: <CADyhKSUb0q06VGR5hEa5pKB-_n7Gn3OFzB_r5yASuVFGE4AJGQ@mail.gmail.com>
+Subject: [1/4] sepgsql - add connection pooling server support
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: refpolicy@oss1.tresys.com, SELinux-NSA <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Forgive my ignorance, but it looks like the `snpintf` call to build
-the mount path could suffer a silent truncation, possibly leading to
-an incorrect mount. Does an attacker control the path name used?
+This patch provides a new trusted procedure type that allows to
+switch the security label of database client, with interaction of new
+sepgsql_setcon() function being supported at upcoming v9.2 release.
 
-12 	int security_compute_create_raw(security_context_t scon,
-13 	                                security_context_t tcon,
-14 	                                security_class_t tclass,
-15 	                                security_context_t * newcon)
-16 	{
-17 	        char path[PATH_MAX];
-18 	        char *buf;
-19 	        size_t size;
-20 	        int fd, ret;
-21 	
-22 	        if (!selinux_mnt) {
-23 	                errno = ENOENT;
-24 	                return -1;
-25 	        }
-26 	
-27 	        snprintf(path, sizeof path, "%s/create", selinux_mnt);
-28 	        fd = open(path, O_RDWR);
-...
+The original idea was given by Joshua Brindle. The sepgsql_setcon()
+provides an analogy of dynamic domain transition on operating system.
+Although we don't give privileges to switch security label on confined
+domains, but it allows to switch via trusted procedure.
 
-My apologies if
-http://oss.tresys.com/projects/clip/browser/trunk/selinux-usr/libselinux/src/compute_create.c
-is the incorrect file.
+The new sepgsql_ranged_proc_exec_t is an entrypoint of
+sepgsql_ranged_proc_t that has mcssetcats and mlsprocsetsl.
 
-Jeff
+We assume its typical usage is sepgsql_setcon() getting invoked
+via trusted procedure that references secret credential tables at
+beginning of the database session by connection pooling server.
 
-On Sun, Mar 25, 2012 at 4:05 PM, Kohei KaiGai <kaigai@kaigai.gr.jp> wrote:
-> I noticed the security_compute_create_name(3) is not merged yet,
-> although its corresponding kernel feature got merged.
->
-> So, let me remind the patch I sent to the list several months ago.
->
-> I'd like to use this interface to implement special case handling
-> for the default labeling behavior on temporary database objects.
->
-> Thanks,
->
->  Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
-> ---
->  libselinux/include/selinux/selinux.h               |   10 ++
->  libselinux/man/man3/security_compute_av.3          |   17 ++++-
->  libselinux/man/man3/security_compute_create_name.3 |    1 +
->  libselinux/src/compute_create.c                    |   88 +++++++++++++++++---
->  libselinux/src/selinux_internal.h                  |    2 +
->  5 files changed, 105 insertions(+), 13 deletions(-)
->
-> diff --git a/libselinux/include/selinux/selinux.h
-> b/libselinux/include/selinux/selinux.h
-> index 0725b57..d0ddb78 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -211,6 +211,16 @@ extern int security_compute_create_raw(const
-> security_context_t scon,
->                                       const security_context_t tcon,
->                                       security_class_t tclass,
->                                       security_context_t * newcon);
-> +extern int security_compute_create_name(const security_context_t scon,
-> +                                       const security_context_t tcon,
-> +                                       security_class_t tclass,
-> +                                       const char *objname,
-> +                                       security_context_t * newcon);
-> +extern int security_compute_create_name_raw(const security_context_t scon,
-> +                                           const security_context_t tcon,
-> +                                           security_class_t tclass,
-> +                                           const char *objname,
-> +                                           security_context_t * newcon);
->
->  /* Compute a relabeling decision and set *newcon to refer to it.
->    Caller must free via freecon. */
-> diff --git a/libselinux/man/man3/security_compute_av.3
-> b/libselinux/man/man3/security_compute_av.3
-> index f2d9f30..8e821cf 100644
-> --- a/libselinux/man/man3/security_compute_av.3
-> +++ b/libselinux/man/man3/security_compute_av.3
-> @@ -1,6 +1,6 @@
->  .TH "security_compute_av" "3" "1 January 2004" "russell@coker.com.au"
-> "SELinux API documentation"
->  .SH "NAME"
-> -security_compute_av, security_compute_av_flags,
-> security_compute_create, security_compute_relabel,
-> +security_compute_av, security_compute_av_flags,
-> security_compute_create, security_compute_create_name,
-> security_compute_relabel,
->  security_compute_member, security_compute_user,
-> security_get_initial_context \- query
->  the SELinux policy database in the kernel.
->
-> @@ -15,6 +15,8 @@ the SELinux policy database in the kernel.
->  .sp
->  .BI "int security_compute_create(security_context_t "scon ",
-> security_context_t "tcon ", security_class_t "tclass ",
-> security_context_t *" newcon );
->  .sp
-> +.BI "int security_compute_create_name(security_context_t "scon ",
-> security_context_t "tcon ", security_class_t "tclass ", const char
-> *"objname ", security_context_t *" newcon );
-> +.sp
->  .BI "int security_compute_relabel(security_context_t "scon ",
-> security_context_t "tcon ", security_class_t "tclass ",
-> security_context_t *" newcon );
->  .sp
->  .BI "int security_compute_member(security_context_t "scon ",
-> security_context_t "tcon ", security_class_t "tclass ",
-> security_context_t *" newcon );
-> @@ -56,6 +58,19 @@ which indicates the decision is computed on a
-> permissive domain.
->  is used to compute a context to use for labeling a new object in a particular
->  class based on a SID pair.
->
-> +.B security_compute_create_name
-> +is identical to
-> +.B security_compute_create
-> +but also takes name of the new object in creation as an argument.
-> +When
-> +.BR TYPE_TRANSITION
-> +rule on the given class and a SID pair has object name extension,
-> +we shall be able to obtain a correct
-> +.BR newcon
-> +according to the security policy. Note that this interface is only
-> +supported on the linux 2.6.40 or later.
-> +In the older kernel, the object name will be simply ignored.
-> +
->  .B security_compute_relabel
->  is used to compute the new context to use when relabeling an object, it is used
->  in the pam_selinux.so source and the newrole source to determine the correct
-> diff --git a/libselinux/man/man3/security_compute_create_name.3
-> b/libselinux/man/man3/security_compute_create_name.3
-> new file mode 100644
-> index 0000000..a60bca4
-> --- /dev/null
-> +++ b/libselinux/man/man3/security_compute_create_name.3
-> @@ -0,0 +1 @@
-> +.so man3/security_compute_av.3
-> diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
-> index 0bbeeed..3c05be3 100644
-> --- a/libselinux/src/compute_create.c
-> +++ b/libselinux/src/compute_create.c
-> @@ -6,19 +6,58 @@
->  #include <errno.h>
->  #include <string.h>
->  #include <limits.h>
-> +#include <ctype.h>
->  #include "selinux_internal.h"
->  #include "policy.h"
->  #include "mapping.h"
->
-> -int security_compute_create_raw(const security_context_t scon,
-> -                               const security_context_t tcon,
-> -                               security_class_t tclass,
-> -                               security_context_t * newcon)
-> +static int object_name_encode(const char *objname, char *buffer, size_t buflen)
-> +{
-> +       int     code;
-> +       size_t  offset = 0;
-> +
-> +       if (buflen - offset < 1)
-> +               return -1;
-> +       buffer[offset++] = ' ';
-> +
-> +       do {
-> +               code = *objname++;
-> +
-> +               if (isalnum(code) || code == '\0' || code == '-' ||
-> +                   code == '.' || code == '_' || code == '~') {
-> +                       if (buflen - offset < 1)
-> +                               return -1;
-> +                       buffer[offset++] = code;
-> +               } else if (code == ' ') {
-> +                       if (buflen - offset < 1)
-> +                               return -1;
-> +                       buffer[offset++] = '+';
-> +               } else {
-> +                       static const char *table = "0123456789ABCDEF";
-> +                       int     l = (code & 0x0f);
-> +                       int     h = (code & 0xf0) >> 4;
-> +
-> +                       if (buflen - offset < 3)
-> +                               return -1;
-> +                       buffer[offset++] = '%';
-> +                       buffer[offset++] = table[h];
-> +                       buffer[offset++] = table[l];
-> +               }
-> +       } while (code != '\0');
-> +
-> +       return 0;
-> +}
-> +
-> +int security_compute_create_name_raw(const security_context_t scon,
-> +                                    const security_context_t tcon,
-> +                                    security_class_t tclass,
-> +                                    const char *objname,
-> +                                    security_context_t * newcon)
->  {
->        char path[PATH_MAX];
->        char *buf;
->        size_t size;
-> -       int fd, ret;
-> +       int fd, ret, len;
->
->        if (!selinux_mnt) {
->                errno = ENOENT;
-> @@ -36,7 +75,14 @@ int security_compute_create_raw(const
-> security_context_t scon,
->                ret = -1;
->                goto out;
->        }
-> -       snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
-> +       len = snprintf(buf, size, "%s %s %hu",
-> +                      scon, tcon, unmap_class(tclass));
-> +       if (objname &&
-> +           object_name_encode(objname, buf + len, size - len) < 0) {
-> +               errno = ENAMETOOLONG;
-> +               ret = -1;
-> +               goto out2;
-> +       }
->
->        ret = write(fd, buf, strlen(buf));
->        if (ret < 0)
-> @@ -59,13 +105,23 @@ int security_compute_create_raw(const
-> security_context_t scon,
->        close(fd);
->        return ret;
->  }
-> +hidden_def(security_compute_create_name_raw)
->
-> +int security_compute_create_raw(const security_context_t scon,
-> +                               const security_context_t tcon,
-> +                               security_class_t tclass,
-> +                               security_context_t * newcon)
-> +{
-> +       return security_compute_create_name_raw(scon, tcon, tclass,
-> +                                               NULL, newcon);
-> +}
->  hidden_def(security_compute_create_raw)
->
-> -int security_compute_create(const security_context_t scon,
-> -                           const security_context_t tcon,
-> -                           security_class_t tclass,
-> -                           security_context_t * newcon)
-> +int security_compute_create_name(const security_context_t scon,
-> +                                const security_context_t tcon,
-> +                                security_class_t tclass,
-> +                                const char *objname,
-> +                                security_context_t * newcon)
->  {
->        int ret;
->        security_context_t rscon;
-> @@ -79,8 +135,8 @@ int security_compute_create(const security_context_t scon,
->                return -1;
->        }
->
-> -       ret = security_compute_create_raw(rscon, rtcon, tclass, &rnewcon);
-> -
-> +       ret = security_compute_create_name_raw(rscon, rtcon, tclass,
-> +                                              objname, &rnewcon);
->        freecon(rscon);
->        freecon(rtcon);
->        if (!ret) {
-> @@ -90,5 +146,13 @@ int security_compute_create(const security_context_t scon,
->
->        return ret;
->  }
-> +hidden_def(security_compute_create_name)
->
-> +int security_compute_create(const security_context_t scon,
-> +                           const security_context_t tcon,
-> +                           security_class_t tclass,
-> +                           security_context_t * newcon)
-> +{
-> +       return security_compute_create_name(scon, tcon, tclass, NULL, newcon);
-> +}
->  hidden_def(security_compute_create)
-> diff --git a/libselinux/src/selinux_internal.h
-> b/libselinux/src/selinux_internal.h
-> index fdddfaf..3f14955 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -23,6 +23,8 @@ hidden_proto(selinux_mkload_policy)
->     hidden_proto(security_compute_user_raw)
->     hidden_proto(security_compute_create)
->     hidden_proto(security_compute_create_raw)
-> +    hidden_proto(security_compute_create_name)
-> +    hidden_proto(security_compute_create_name_raw)
->     hidden_proto(security_compute_member_raw)
->     hidden_proto(security_compute_relabel_raw)
->     hidden_proto(is_selinux_enabled)
+Usage example)
 
+(*) The credential table is labeled as "sepgsql_secret_table_t",
+     that holds a pair of username, credential and security context.
+
+postgres=# CREATE OR REPLACE FUNCTION client_switch(text)
+    RETURNS bool LANGUAGE sql
+    AS 'SELECT sepgsql_setcon(ucontext) FROM credential
+              WHERE uname = current_user AND ucred = $1';
+CREATE FUNCTION
+postgres=# SECURITY LABEL ON FUNCTION client_switch(text) IS
+'system_u:object_r:sepgsql_ranged_proc_exec_t:s0';
+SECURITY LABEL
+postgres=# CREATE OR REPLACE FUNCTION client_reset()
+    RETURNS bool LANGUAGE sql AS 'SELECT sepgsql_setcon(NULL)';
+CREATE FUNCTION
+postgres=# SECURITY LABEL ON FUNCTION client_reset() IS
+'system_u:object_r:sepgsql_ranged_proc_exec_t:s0';
+SECURITY LABEL
+
+Then, it shows a scenario to switch the client label via trusted procedure.
+
+[alice@iwashi ~]$ psql postgres -q
+postgres=# SELECT sepgsql_getcon();
+       sepgsql_getcon
+----------------------------
+ staff_u:staff_r:staff_t:s0
+(1 row)
+
+postgres=# SELECT * FROM info_c0;
+ERROR:  SELinux: security policy violation
+postgres=# SELECT * FROM info_c1;
+ERROR:  SELinux: security policy violation
+-- client have no permission neither info_c0 nor info_c1
+
+postgres=# SELECT client_switch('6384e2b2184bcbf58eccf10ca7a6563c');
+ client_switch
+---------------
+ t
+(1 row)
+
+postgres=# SELECT sepgsql_getcon();
+        sepgsql_getcon
+-------------------------------
+ staff_u:staff_r:staff_t:s0:c1
+(1 row)
+
+postgres=# SELECT * FROM info_c0;
+ERROR:  SELinux: security policy violation
+postgres=# SELECT * FROM info_c1;
+ a |  b
+---+-----
+ 3 | xxx
+ 4 | yyy
+(2 rows)
+
+-- needless to say, credential table is not visible
+postgres=# SELECT * FROM credential ;
+ERROR:  SELinux: security policy violation
+
+Also see,
+http://git.postgresql.org/gitweb/?p=postgresql.git;a=commit;h=523176cbf14a3414170a83dd43686c0eccdc61c6
+
+ Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
+--
+ policy/modules/services/postgresql.if |   32 +++++++++++++++++++++++++++++++-
+ policy/modules/services/postgresql.te |   32 ++++++++++++++++++++++++++++----
+ 2 files changed, 59 insertions(+), 5 deletions(-)
+
+diff --git a/policy/modules/services/postgresql.if
+b/policy/modules/services/postgresql.if
+index 09aeffa..24e9958 100644
+--- a/policy/modules/services/postgresql.if
++++ b/policy/modules/services/postgresql.if
+@@ -32,6 +32,7 @@ interface(`postgresql_role',`
+ 		attribute sepgsql_schema_type, sepgsql_sysobj_table_type;
+
+ 		type sepgsql_trusted_proc_exec_t, sepgsql_trusted_proc_t;
++		type sepgsql_ranged_proc_exec_t, sepgsql_ranged_proc_t;
+ 		type user_sepgsql_blob_t, user_sepgsql_proc_exec_t;
+ 		type user_sepgsql_schema_t, user_sepgsql_seq_t;
+ 		type user_sepgsql_sysobj_t, user_sepgsql_table_t;
+@@ -45,6 +46,7 @@ interface(`postgresql_role',`
+
+ 	typeattribute $2 sepgsql_client_type;
+ 	role $1 types sepgsql_trusted_proc_t;
++	role $1 types sepgsql_ranged_proc_t;
+
+ 	##############################
+ 	#
+@@ -88,6 +90,10 @@ interface(`postgresql_role',`
+
+ 	allow $2 sepgsql_trusted_proc_t:process transition;
+ 	type_transition $2 sepgsql_trusted_proc_exec_t:process sepgsql_trusted_proc_t;
++
++	allow $2 sepgsql_ranged_proc_t:process transition;
++	type_transition $2 sepgsql_ranged_proc_exec_t:process sepgsql_ranged_proc_t;
++	allow sepgsql_ranged_proc_t $2:process dyntransition;
+ ')
+
+ ########################################
+@@ -223,7 +229,7 @@ interface(`postgresql_view_object',`
+ ## </summary>
+ ## <param name="type">
+ ##	<summary>
+-##	Type marked as a database object type.
++##	Type marked as a procedure object type.
+ ##	</summary>
+ ## </param>
+ #
+@@ -237,6 +243,26 @@ interface(`postgresql_procedure_object',`
+
+ ########################################
+ ## <summary>
++##	Marks as a SE-PostgreSQL trusted procedure object type
++## </summary>
++## <param name="type">
++##	<summary>
++##	Type marked as a trusted procedure object type.
++##	</summary>
++## </param>
++#
++interface(`postgresql_trusted_procedure_object',`
++	gen_require(`
++		attribute sepgsql_procedure_type;
++		attribute sepgsql_trusted_procedure_type;
++	')
++
++	typeattribute $1 sepgsql_procedure_type;
++	typeattribute $1 sepgsql_trusted_procedure_type;
++')
++
++########################################
++## <summary>
+ ##	Marks as a SE-PostgreSQL procedural language object type
+ ## </summary>
+ ## <param name="type">
+@@ -459,6 +485,10 @@ interface(`postgresql_unpriv_client',`
+ 	type_transition $1 sepgsql_trusted_proc_exec_t:process sepgsql_trusted_proc_t;
+ 	allow $1 sepgsql_trusted_proc_t:process transition;
+
++	type_transition $1 sepgsql_ranged_proc_exec_t:process sepgsql_ranged_proc_t;
++	allow $1 sepgsql_ranged_proc_t:process transition;
++	allow sepgsql_ranged_proc_t $1:process dyntransition;
++
+ 	tunable_policy(`sepgsql_enable_users_ddl',`
+ 		allow $1 unpriv_sepgsql_schema_t:db_schema { create drop setattr };
+ 		allow $1 unpriv_sepgsql_table_t:db_table { create drop setattr };
+diff --git a/policy/modules/services/postgresql.te
+b/policy/modules/services/postgresql.te
+index 4d71f89..2457d10 100644
+--- a/policy/modules/services/postgresql.te
++++ b/policy/modules/services/postgresql.te
+@@ -70,6 +70,7 @@ attribute sepgsql_sysobj_table_type;
+ attribute sepgsql_sequence_type;
+ attribute sepgsql_view_type;
+ attribute sepgsql_procedure_type;
++attribute sepgsql_trusted_procedure_type;
+ attribute sepgsql_language_type;
+ attribute sepgsql_blob_type;
+ attribute sepgsql_module_type;
+@@ -122,7 +123,10 @@ type sepgsql_table_t;
+ postgresql_table_object(sepgsql_table_t)
+
+ type sepgsql_trusted_proc_exec_t;
+-postgresql_procedure_object(sepgsql_trusted_proc_exec_t)
++postgresql_trusted_procedure_object(sepgsql_trusted_proc_exec_t)
++
++type sepgsql_ranged_proc_exec_t;
++postgresql_trusted_procedure_object(sepgsql_ranged_proc_exec_t)
+
+ type sepgsql_view_t;
+ postgresql_view_object(sepgsql_view_t)
+@@ -133,6 +137,26 @@ domain_type(sepgsql_trusted_proc_t)
+ postgresql_unconfined(sepgsql_trusted_proc_t)
+ role system_r types sepgsql_trusted_proc_t;
+
++# Ranged Trusted Procedure Domain
++#
++# XXX - the purpose of this domain is to switch security context of
++# the database client using dynamic domain transition; typically,
++# used for connection pooling software that shall assign a security
++# context at beginning of the user session based on the credentials
++# being invisible from unprivileged domains.
++#
++type sepgsql_ranged_proc_t;
++domain_type(sepgsql_ranged_proc_t)
++postgresql_unconfined(sepgsql_ranged_proc_t)
++allow sepgsql_ranged_proc_t self:process { setcurrent };
++role system_r types sepgsql_ranged_proc_t;
++optional_policy(`
++	mcs_process_set_categories(sepgsql_ranged_proc_t)
++')
++optional_policy(`
++	mls_process_set_level(sepgsql_ranged_proc_t)
++')
++
+ # Types for unprivileged client
+ type unpriv_sepgsql_blob_t;
+ postgresql_blob_object(unpriv_sepgsql_blob_t)
+@@ -404,7 +428,7 @@ allow sepgsql_client_type
+sepgsql_seq_t:db_sequence { getattr get_value next_val
+ allow sepgsql_client_type sepgsql_view_t:db_view { getattr expand };
+
+ allow sepgsql_client_type sepgsql_proc_exec_t:db_procedure { getattr
+execute install };
+-allow sepgsql_client_type sepgsql_trusted_proc_exec_t:db_procedure {
+getattr execute entrypoint };
++allow sepgsql_client_type sepgsql_trusted_procedure_type:db_procedure
+{ getattr execute entrypoint };
+
+ allow sepgsql_client_type sepgsql_lang_t:db_language { getattr };
+ allow sepgsql_client_type sepgsql_safe_lang_t:db_language { getattr execute };
+@@ -493,7 +517,7 @@ tunable_policy(`sepgsql_unconfined_dbadm',`
+ 	allow sepgsql_admin_type sepgsql_view_type:db_view *;
+
+ 	allow sepgsql_admin_type sepgsql_proc_exec_t:db_procedure *;
+-	allow sepgsql_admin_type sepgsql_trusted_proc_exec_t:db_procedure ~install;
++	allow sepgsql_admin_type sepgsql_trusted_procedure_type:db_procedure ~install;
+ 	allow sepgsql_admin_type sepgsql_procedure_type:db_procedure ~{
+execute install };
+
+ 	allow sepgsql_admin_type sepgsql_language_type:db_language ~implement;
+@@ -528,7 +552,7 @@ allow sepgsql_unconfined_type sepgsql_view_type:db_view *;
+ # unconfined domain is not allowed to invoke user defined procedure directly.
+ # They have to confirm and relabel it at first.
+ allow sepgsql_unconfined_type sepgsql_proc_exec_t:db_procedure *;
+-allow sepgsql_unconfined_type
+sepgsql_trusted_proc_exec_t:db_procedure ~install;
++allow sepgsql_unconfined_type
+sepgsql_trusted_procedure_type:db_procedure ~install;
+ allow sepgsql_unconfined_type sepgsql_procedure_type:db_procedure ~{
+execute install };
+
+ allow sepgsql_unconfined_type sepgsql_language_type:db_language ~implement;
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
