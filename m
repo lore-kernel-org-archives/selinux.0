@@ -1,300 +1,327 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2PLG93f020133
-	for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 17:16:09 -0400
-Received: by lbok6 with SMTP id k6so3971507lbo.12
-        for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 14:16:07 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2PLTeoW020547
+	for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 17:29:40 -0400
+Received: by lbok6 with SMTP id k6so3975533lbo.12
+        for <selinux@tycho.nsa.gov>; Sun, 25 Mar 2012 14:29:39 -0700 (PDT)
 MIME-Version: 1.0
-Date: Sun, 25 Mar 2012 23:16:07 +0200
-Message-ID: <CADyhKSXLR1rHgOd8Kfb3spNVWZ3Y5-mM9zYECWaC=ebmYvf-=w@mail.gmail.com>
-Subject: [4/4] sepgsql -redefinition of use permission onto system objects
+In-Reply-To: <CAH8yC8njJOTuYGdm9podZqmEbfPfX_nFaWwE80_UUbPBoAxpOA@mail.gmail.com>
+References: <CADyhKSUOQWd7mygOPnKPwiydbFguL_z05zSVKzNKVwiaoUPTYA@mail.gmail.com>
+	<CAH8yC8njJOTuYGdm9podZqmEbfPfX_nFaWwE80_UUbPBoAxpOA@mail.gmail.com>
+Date: Sun, 25 Mar 2012 23:29:39 +0200
+Message-ID: <CADyhKSV-3Y2RuDzjBbxcLWG92RuvL-+8GB_y7niv9BGKW1+g=g@mail.gmail.com>
+Subject: Re: security_compute_create_name(3)
 From: Kohei KaiGai <kaigai@kaigai.gr.jp>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: refpolicy@oss1.tresys.com, SELinux-NSA <selinux@tycho.nsa.gov>
+To: noloader@gmail.com
+Cc: SELinux-NSA <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch might be arguable. It redefines the "use" permission on db_tuple
-class that has marked deprecated for a few years, to control usage of system
-objects but without individual object classes.
+The selinux_mnt is not a variable given by external one, unless
+application does not update it by itself.
 
-We didn't try to port all the supported database object types in PostgreSQL
-into SELinux policy model, because its variation is too large to port and
-less priority in comparison with "major" object classes such as tables.
-
-So, we handle permissions to create, drop and alter these objects as
-permissions to insert, delete or update of system catalogs; labeled as
-sepgsql_sysobj_t, and so on.
-
-On the other hand, some of system objects requires to check permission
-when user "use" these objects, such as data types, tablespaces,
-operators and so on.
-I don't think it is reasonable approach to define individual object classes
-for each object types reflects to PostgreSQL. However, it is preferable
-to have double checks by selinux on strategic points.
-
-So, I try to redefine "use" permission on db_tuple class; that means
-permission to "use" this object when the tuple is an entry of system
-catalog corresponding to a particular database object but don't have
-a particular object class like tables.
-
-The deprecated permissions and rules are not in use for a few years,
-so, it is a time to be utilized or eliminated.
+It is not difficult to modify this part to return ENAMETOOLONG
+when snprintf() returns larger or equal with PATH_MAX. But it
+is not only one point to fix libselinux, if we try.
 
 Thanks,
 
- Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
---
- policy/flask/access_vectors           |    4 +---
- policy/modules/services/postgresql.if |   16 ++++++----------
- policy/modules/services/postgresql.te |   31 +++++++++++--------------------
- 3 files changed, 18 insertions(+), 33 deletions(-)
+2012/3/25 Jeffrey Walton <noloader@gmail.com>:
+> Forgive my ignorance, but it looks like the `snpintf` call to build
+> the mount path could suffer a silent truncation, possibly leading to
+> an incorrect mount. Does an attacker control the path name used?
+>
+> 12      int security_compute_create_raw(security_context_t scon,
+> 13                                      security_context_t tcon,
+> 14                                      security_class_t tclass,
+> 15                                      security_context_t * newcon)
+> 16      {
+> 17              char path[PATH_MAX];
+> 18              char *buf;
+> 19              size_t size;
+> 20              int fd, ret;
+> 21
+> 22              if (!selinux_mnt) {
+> 23                      errno = ENOENT;
+> 24                      return -1;
+> 25              }
+> 26
+> 27              snprintf(path, sizeof path, "%s/create", selinux_mnt);
+> 28              fd = open(path, O_RDWR);
+> ...
+>
+> My apologies if
+> http://oss.tresys.com/projects/clip/browser/trunk/selinux-usr/libselinux/src/compute_create.c
+> is the incorrect file.
+>
+> Jeff
+>
+> On Sun, Mar 25, 2012 at 4:05 PM, Kohei KaiGai <kaigai@kaigai.gr.jp> wrote:
+>> I noticed the security_compute_create_name(3) is not merged yet,
+>> although its corresponding kernel feature got merged.
+>>
+>> So, let me remind the patch I sent to the list several months ago.
+>>
+>> I'd like to use this interface to implement special case handling
+>> for the default labeling behavior on temporary database objects.
+>>
+>> Thanks,
+>>
+>>  Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
+>> ---
+>>  libselinux/include/selinux/selinux.h               |   10 ++
+>>  libselinux/man/man3/security_compute_av.3          |   17 ++++-
+>>  libselinux/man/man3/security_compute_create_name.3 |    1 +
+>>  libselinux/src/compute_create.c                    |   88 +++++++++++++++++---
+>>  libselinux/src/selinux_internal.h                  |    2 +
+>>  5 files changed, 105 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/libselinux/include/selinux/selinux.h
+>> b/libselinux/include/selinux/selinux.h
+>> index 0725b57..d0ddb78 100644
+>> --- a/libselinux/include/selinux/selinux.h
+>> +++ b/libselinux/include/selinux/selinux.h
+>> @@ -211,6 +211,16 @@ extern int security_compute_create_raw(const
+>> security_context_t scon,
+>>                                       const security_context_t tcon,
+>>                                       security_class_t tclass,
+>>                                       security_context_t * newcon);
+>> +extern int security_compute_create_name(const security_context_t scon,
+>> +                                       const security_context_t tcon,
+>> +                                       security_class_t tclass,
+>> +                                       const char *objname,
+>> +                                       security_context_t * newcon);
+>> +extern int security_compute_create_name_raw(const security_context_t scon,
+>> +                                           const security_context_t tcon,
+>> +                                           security_class_t tclass,
+>> +                                           const char *objname,
+>> +                                           security_context_t * newcon);
+>>
+>>  /* Compute a relabeling decision and set *newcon to refer to it.
+>>    Caller must free via freecon. */
+>> diff --git a/libselinux/man/man3/security_compute_av.3
+>> b/libselinux/man/man3/security_compute_av.3
+>> index f2d9f30..8e821cf 100644
+>> --- a/libselinux/man/man3/security_compute_av.3
+>> +++ b/libselinux/man/man3/security_compute_av.3
+>> @@ -1,6 +1,6 @@
+>>  .TH "security_compute_av" "3" "1 January 2004" "russell@coker.com.au"
+>> "SELinux API documentation"
+>>  .SH "NAME"
+>> -security_compute_av, security_compute_av_flags,
+>> security_compute_create, security_compute_relabel,
+>> +security_compute_av, security_compute_av_flags,
+>> security_compute_create, security_compute_create_name,
+>> security_compute_relabel,
+>>  security_compute_member, security_compute_user,
+>> security_get_initial_context \- query
+>>  the SELinux policy database in the kernel.
+>>
+>> @@ -15,6 +15,8 @@ the SELinux policy database in the kernel.
+>>  .sp
+>>  .BI "int security_compute_create(security_context_t "scon ",
+>> security_context_t "tcon ", security_class_t "tclass ",
+>> security_context_t *" newcon );
+>>  .sp
+>> +.BI "int security_compute_create_name(security_context_t "scon ",
+>> security_context_t "tcon ", security_class_t "tclass ", const char
+>> *"objname ", security_context_t *" newcon );
+>> +.sp
+>>  .BI "int security_compute_relabel(security_context_t "scon ",
+>> security_context_t "tcon ", security_class_t "tclass ",
+>> security_context_t *" newcon );
+>>  .sp
+>>  .BI "int security_compute_member(security_context_t "scon ",
+>> security_context_t "tcon ", security_class_t "tclass ",
+>> security_context_t *" newcon );
+>> @@ -56,6 +58,19 @@ which indicates the decision is computed on a
+>> permissive domain.
+>>  is used to compute a context to use for labeling a new object in a particular
+>>  class based on a SID pair.
+>>
+>> +.B security_compute_create_name
+>> +is identical to
+>> +.B security_compute_create
+>> +but also takes name of the new object in creation as an argument.
+>> +When
+>> +.BR TYPE_TRANSITION
+>> +rule on the given class and a SID pair has object name extension,
+>> +we shall be able to obtain a correct
+>> +.BR newcon
+>> +according to the security policy. Note that this interface is only
+>> +supported on the linux 2.6.40 or later.
+>> +In the older kernel, the object name will be simply ignored.
+>> +
+>>  .B security_compute_relabel
+>>  is used to compute the new context to use when relabeling an object, it is used
+>>  in the pam_selinux.so source and the newrole source to determine the correct
+>> diff --git a/libselinux/man/man3/security_compute_create_name.3
+>> b/libselinux/man/man3/security_compute_create_name.3
+>> new file mode 100644
+>> index 0000000..a60bca4
+>> --- /dev/null
+>> +++ b/libselinux/man/man3/security_compute_create_name.3
+>> @@ -0,0 +1 @@
+>> +.so man3/security_compute_av.3
+>> diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
+>> index 0bbeeed..3c05be3 100644
+>> --- a/libselinux/src/compute_create.c
+>> +++ b/libselinux/src/compute_create.c
+>> @@ -6,19 +6,58 @@
+>>  #include <errno.h>
+>>  #include <string.h>
+>>  #include <limits.h>
+>> +#include <ctype.h>
+>>  #include "selinux_internal.h"
+>>  #include "policy.h"
+>>  #include "mapping.h"
+>>
+>> -int security_compute_create_raw(const security_context_t scon,
+>> -                               const security_context_t tcon,
+>> -                               security_class_t tclass,
+>> -                               security_context_t * newcon)
+>> +static int object_name_encode(const char *objname, char *buffer, size_t buflen)
+>> +{
+>> +       int     code;
+>> +       size_t  offset = 0;
+>> +
+>> +       if (buflen - offset < 1)
+>> +               return -1;
+>> +       buffer[offset++] = ' ';
+>> +
+>> +       do {
+>> +               code = *objname++;
+>> +
+>> +               if (isalnum(code) || code == '\0' || code == '-' ||
+>> +                   code == '.' || code == '_' || code == '~') {
+>> +                       if (buflen - offset < 1)
+>> +                               return -1;
+>> +                       buffer[offset++] = code;
+>> +               } else if (code == ' ') {
+>> +                       if (buflen - offset < 1)
+>> +                               return -1;
+>> +                       buffer[offset++] = '+';
+>> +               } else {
+>> +                       static const char *table = "0123456789ABCDEF";
+>> +                       int     l = (code & 0x0f);
+>> +                       int     h = (code & 0xf0) >> 4;
+>> +
+>> +                       if (buflen - offset < 3)
+>> +                               return -1;
+>> +                       buffer[offset++] = '%';
+>> +                       buffer[offset++] = table[h];
+>> +                       buffer[offset++] = table[l];
+>> +               }
+>> +       } while (code != '\0');
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +int security_compute_create_name_raw(const security_context_t scon,
+>> +                                    const security_context_t tcon,
+>> +                                    security_class_t tclass,
+>> +                                    const char *objname,
+>> +                                    security_context_t * newcon)
+>>  {
+>>        char path[PATH_MAX];
+>>        char *buf;
+>>        size_t size;
+>> -       int fd, ret;
+>> +       int fd, ret, len;
+>>
+>>        if (!selinux_mnt) {
+>>                errno = ENOENT;
+>> @@ -36,7 +75,14 @@ int security_compute_create_raw(const
+>> security_context_t scon,
+>>                ret = -1;
+>>                goto out;
+>>        }
+>> -       snprintf(buf, size, "%s %s %hu", scon, tcon, unmap_class(tclass));
+>> +       len = snprintf(buf, size, "%s %s %hu",
+>> +                      scon, tcon, unmap_class(tclass));
+>> +       if (objname &&
+>> +           object_name_encode(objname, buf + len, size - len) < 0) {
+>> +               errno = ENAMETOOLONG;
+>> +               ret = -1;
+>> +               goto out2;
+>> +       }
+>>
+>>        ret = write(fd, buf, strlen(buf));
+>>        if (ret < 0)
+>> @@ -59,13 +105,23 @@ int security_compute_create_raw(const
+>> security_context_t scon,
+>>        close(fd);
+>>        return ret;
+>>  }
+>> +hidden_def(security_compute_create_name_raw)
+>>
+>> +int security_compute_create_raw(const security_context_t scon,
+>> +                               const security_context_t tcon,
+>> +                               security_class_t tclass,
+>> +                               security_context_t * newcon)
+>> +{
+>> +       return security_compute_create_name_raw(scon, tcon, tclass,
+>> +                                               NULL, newcon);
+>> +}
+>>  hidden_def(security_compute_create_raw)
+>>
+>> -int security_compute_create(const security_context_t scon,
+>> -                           const security_context_t tcon,
+>> -                           security_class_t tclass,
+>> -                           security_context_t * newcon)
+>> +int security_compute_create_name(const security_context_t scon,
+>> +                                const security_context_t tcon,
+>> +                                security_class_t tclass,
+>> +                                const char *objname,
+>> +                                security_context_t * newcon)
+>>  {
+>>        int ret;
+>>        security_context_t rscon;
+>> @@ -79,8 +135,8 @@ int security_compute_create(const security_context_t scon,
+>>                return -1;
+>>        }
+>>
+>> -       ret = security_compute_create_raw(rscon, rtcon, tclass, &rnewcon);
+>> -
+>> +       ret = security_compute_create_name_raw(rscon, rtcon, tclass,
+>> +                                              objname, &rnewcon);
+>>        freecon(rscon);
+>>        freecon(rtcon);
+>>        if (!ret) {
+>> @@ -90,5 +146,13 @@ int security_compute_create(const security_context_t scon,
+>>
+>>        return ret;
+>>  }
+>> +hidden_def(security_compute_create_name)
+>>
+>> +int security_compute_create(const security_context_t scon,
+>> +                           const security_context_t tcon,
+>> +                           security_class_t tclass,
+>> +                           security_context_t * newcon)
+>> +{
+>> +       return security_compute_create_name(scon, tcon, tclass, NULL, newcon);
+>> +}
+>>  hidden_def(security_compute_create)
+>> diff --git a/libselinux/src/selinux_internal.h
+>> b/libselinux/src/selinux_internal.h
+>> index fdddfaf..3f14955 100644
+>> --- a/libselinux/src/selinux_internal.h
+>> +++ b/libselinux/src/selinux_internal.h
+>> @@ -23,6 +23,8 @@ hidden_proto(selinux_mkload_policy)
+>>     hidden_proto(security_compute_user_raw)
+>>     hidden_proto(security_compute_create)
+>>     hidden_proto(security_compute_create_raw)
+>> +    hidden_proto(security_compute_create_name)
+>> +    hidden_proto(security_compute_create_name_raw)
+>>     hidden_proto(security_compute_member_raw)
+>>     hidden_proto(security_compute_relabel_raw)
+>>     hidden_proto(is_selinux_enabled)
 
-diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
-index bf24160..f462e95 100644
---- a/policy/flask/access_vectors
-+++ b/policy/flask/access_vectors
-@@ -761,7 +761,6 @@ inherits database
- class db_table
- inherits database
- {
--	use		# deprecated
- 	select
- 	update
- 	insert
-@@ -780,7 +779,6 @@ inherits database
- class db_column
- inherits database
- {
--	use		# deprecated
- 	select
- 	update
- 	insert
-@@ -790,7 +788,7 @@ class db_tuple
- {
- 	relabelfrom
- 	relabelto
--	use		# deprecated
-+	use
- 	select
- 	update
- 	insert
-diff --git a/policy/modules/services/postgresql.if
-b/policy/modules/services/postgresql.if
-index 56fc5fa..71f2572 100644
---- a/policy/modules/services/postgresql.if
-+++ b/policy/modules/services/postgresql.if
-@@ -70,10 +70,9 @@ interface(`postgresql_role',`
- 	type_transition $2 sepgsql_database_type:db_schema user_sepgsql_schema_t;
- 	type_transition $2 sepgsql_database_type:db_schema
-sepgsql_temp_schema_t "pg_temp";
 
--	allow $2 user_sepgsql_table_t:db_table	{ getattr use select update
-insert delete lock };
--	allow $2 user_sepgsql_table_t:db_column { getattr use select update insert };
--	allow $2 user_sepgsql_table_t:db_tuple	{ use select update insert delete };
--	type_transition $2 sepgsql_database_type:db_table
-user_sepgsql_table_t;		# deprecated
-+	allow $2 user_sepgsql_table_t:db_table	{ getattr select update
-insert delete lock };
-+	allow $2 user_sepgsql_table_t:db_column { getattr select update insert };
-+	allow $2 user_sepgsql_table_t:db_tuple	{ select update insert delete };
- 	type_transition $2 {sepgsql_schema_type -
-sepgsql_temp_schema_t}:db_table user_sepgsql_table_t;
- 	type_transition $2 sepgsql_temp_schema_t:db_table sepgsql_temp_table_t;
-
-@@ -89,7 +88,6 @@ interface(`postgresql_role',`
- 	type_transition $2 sepgsql_temp_schema_t:db_view sepgsql_temp_view_t;
-
- 	allow $2 user_sepgsql_proc_exec_t:db_procedure { getattr execute };
--	type_transition $2 sepgsql_database_type:db_procedure
-user_sepgsql_proc_exec_t;	# deprecated
- 	type_transition $2 {sepgsql_schema_type -
-sepgsql_temp_schema_t}:db_procedure user_sepgsql_proc_exec_t;
- 	type_transition $2 sepgsql_temp_schema_t:db_procedure
-sepgsql_temp_proc_exec_t;
-
-@@ -513,10 +511,9 @@ interface(`postgresql_unpriv_client',`
- 	type_transition $1 sepgsql_database_type:db_schema unpriv_sepgsql_schema_t;
- 	type_transition $1 sepgsql_database_type:db_schema
-unpriv_sepgsql_schema_t "pg_temp";
-
--	allow $1 unpriv_sepgsql_table_t:db_table { getattr use select update
-insert delete lock };
--	allow $1 unpriv_sepgsql_table_t:db_column { getattr use select
-update insert };
--	allow $1 unpriv_sepgsql_table_t:db_tuple { use select update insert delete };
--	type_transition $1 sepgsql_database_type:db_table
-unpriv_sepgsql_table_t;	# deprecated
-+	allow $1 unpriv_sepgsql_table_t:db_table { getattr select update
-insert delete lock };
-+	allow $1 unpriv_sepgsql_table_t:db_column { getattr select update insert };
-+	allow $1 unpriv_sepgsql_table_t:db_tuple { select update insert delete };
- 	type_transition $1 {sepgsql_schema_type -
-sepgsql_temp_schema_t}:db_table unpriv_sepgsql_table_t;
- 	type_transition $1 sepgsql_temp_schema_t:db_table sepgsql_temp_table_t;
-
-@@ -532,7 +529,6 @@ interface(`postgresql_unpriv_client',`
- 	type_transition $1 sepgsql_sysobj_table_type:db_tuple unpriv_sepgsql_sysobj_t;
-
- 	allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { getattr execute };
--	type_transition $1 sepgsql_database_type:db_procedure
-unpriv_sepgsql_proc_exec_t; # deprecated
- 	type_transition $1 {sepgsql_schema_type -
-sepgsql_temp_schema_t}:db_procedure unpriv_sepgsql_proc_exec_t;
- 	type_transition $1 sepgsql_temp_schema_t:db_procedure
-sepgsql_temp_proc_exec_t;
-
-diff --git a/policy/modules/services/postgresql.te
-b/policy/modules/services/postgresql.te
-index 8a3c2bd..92d6e66 100644
---- a/policy/modules/services/postgresql.te
-+++ b/policy/modules/services/postgresql.te
-@@ -259,7 +259,6 @@ tunable_policy(`sepgsql_transmit_client_label',`
- ')
-
- allow postgresql_t sepgsql_database_type:db_database *;
--type_transition postgresql_t postgresql_t:db_database
-sepgsql_db_t;		# deprecated
-
- allow postgresql_t sepgsql_module_type:db_database install_module;
- # Database/Loadable module
-@@ -270,7 +269,6 @@ type_transition postgresql_t
-sepgsql_database_type:db_schema sepgsql_schema_t;
- type_transition postgresql_t sepgsql_database_type:db_schema
-sepgsql_temp_schema_t "pg_temp";
-
- allow postgresql_t sepgsql_table_type:{ db_table db_column db_tuple } *;
--type_transition postgresql_t sepgsql_database_type:db_table
-sepgsql_sysobj_t;	# deprecated
- type_transition postgresql_t sepgsql_schema_type:db_table sepgsql_sysobj_t;
-
- allow postgresql_t sepgsql_sequence_type:db_sequence *;
-@@ -280,7 +278,6 @@ allow postgresql_t sepgsql_view_type:db_view *;
- type_transition postgresql_t sepgsql_schema_type:db_view sepgsql_view_t;
-
- allow postgresql_t sepgsql_procedure_type:db_procedure *;
--type_transition postgresql_t sepgsql_database_type:db_procedure
-sepgsql_proc_exec_t;	# deprecated
- type_transition postgresql_t sepgsql_schema_type:db_procedure
-sepgsql_proc_exec_t;
-
- allow postgresql_t sepgsql_blob_type:db_blob *;
-@@ -431,23 +428,23 @@ type_transition sepgsql_client_type
-sepgsql_client_type:db_database sepgsql_db_t
-
- allow sepgsql_client_type sepgsql_schema_t:db_schema { getattr search };
-
--allow sepgsql_client_type sepgsql_fixed_table_t:db_table { getattr
-use select insert lock };
--allow sepgsql_client_type sepgsql_fixed_table_t:db_column { getattr
-use select insert };
--allow sepgsql_client_type sepgsql_fixed_table_t:db_tuple { use select insert };
-+allow sepgsql_client_type sepgsql_fixed_table_t:db_table { getattr
-select insert lock };
-+allow sepgsql_client_type sepgsql_fixed_table_t:db_column { getattr
-select insert };
-+allow sepgsql_client_type sepgsql_fixed_table_t:db_tuple { select insert };
-
--allow sepgsql_client_type sepgsql_table_t:db_table { getattr use
-select update insert delete lock };
--allow sepgsql_client_type sepgsql_table_t:db_column { getattr use
-select update insert };
--allow sepgsql_client_type sepgsql_table_t:db_tuple { use select
-update insert delete };
-+allow sepgsql_client_type sepgsql_table_t:db_table { getattr select
-update insert delete lock };
-+allow sepgsql_client_type sepgsql_table_t:db_column { getattr select
-update insert };
-+allow sepgsql_client_type sepgsql_table_t:db_tuple { select update
-insert delete };
-
--allow sepgsql_client_type sepgsql_ro_table_t:db_table { getattr use
-select lock };
--allow sepgsql_client_type sepgsql_ro_table_t:db_column { getattr use select };
--allow sepgsql_client_type sepgsql_ro_table_t:db_tuple { use select };
-+allow sepgsql_client_type sepgsql_ro_table_t:db_table { getattr select lock };
-+allow sepgsql_client_type sepgsql_ro_table_t:db_column { getattr select };
-+allow sepgsql_client_type sepgsql_ro_table_t:db_tuple { select };
-
- allow sepgsql_client_type sepgsql_secret_table_t:db_table getattr;
- allow sepgsql_client_type sepgsql_secret_table_t:db_column getattr;
-
--allow sepgsql_client_type sepgsql_sysobj_t:db_table { getattr use
-select lock };
--allow sepgsql_client_type sepgsql_sysobj_t:db_column { getattr use select };
-+allow sepgsql_client_type sepgsql_sysobj_t:db_table { getattr select lock };
-+allow sepgsql_client_type sepgsql_sysobj_t:db_column { getattr select };
- allow sepgsql_client_type sepgsql_sysobj_t:db_tuple { use select };
-
- allow sepgsql_client_type sepgsql_temp_table_t:db_table ~{ relabelto
-relabelfrom };
-@@ -503,7 +500,6 @@ tunable_policy(`sepgsql_enable_users_ddl',`
- #
-
- allow sepgsql_admin_type sepgsql_database_type:db_database { create
-drop getattr setattr relabelfrom relabelto access };
--type_transition sepgsql_admin_type sepgsql_admin_type:db_database
-sepgsql_db_t;		# deprecated
-
- allow sepgsql_admin_type sepgsql_schema_type:db_schema { create drop
-getattr setattr relabelfrom relabelto search add_name remove_name };
- type_transition sepgsql_admin_type sepgsql_database_type:db_schema
-sepgsql_schema_t;
-@@ -513,7 +509,6 @@ allow sepgsql_admin_type
-sepgsql_table_type:db_table { create drop getattr setat
- allow sepgsql_admin_type sepgsql_table_type:db_column { create drop
-getattr setattr relabelfrom relabelto };
- allow sepgsql_admin_type sepgsql_sysobj_table_type:db_tuple {
-relabelfrom relabelto select update insert delete };
-
--type_transition sepgsql_admin_type sepgsql_database_type:db_table
-sepgsql_table_t;	# deprecated
- type_transition sepgsql_admin_type sepgsql_schema_type:db_table
-sepgsql_table_t;
-
- allow sepgsql_admin_type sepgsql_sequence_type:db_sequence { create
-drop getattr setattr relabelfrom relabelto get_value next_value
-set_value };
-@@ -527,7 +522,6 @@ type_transition sepgsql_admin_type
-sepgsql_schema_type:db_view sepgsql_view_t;
- allow sepgsql_admin_type sepgsql_procedure_type:db_procedure { create
-drop getattr relabelfrom relabelto };
- allow sepgsql_admin_type sepgsql_proc_exec_t:db_procedure execute;
-
--type_transition sepgsql_admin_type sepgsql_database_type:db_procedure
-sepgsql_proc_exec_t;	# deprecated
- type_transition sepgsql_admin_type sepgsql_schema_type:db_procedure
-sepgsql_proc_exec_t;
-
- allow sepgsql_admin_type sepgsql_language_type:db_language { create
-drop getattr setattr relabelfrom relabelto execute };
-@@ -566,14 +560,11 @@ tunable_policy(`sepgsql_unconfined_dbadm',`
- #
-
- allow sepgsql_unconfined_type sepgsql_database_type:db_database *;
--type_transition sepgsql_unconfined_type
-sepgsql_unconfined_type:db_database sepgsql_db_t;	# deprecated
-
- allow sepgsql_unconfined_type sepgsql_schema_type:db_schema *;
- type_transition sepgsql_unconfined_type
-sepgsql_database_type:db_schema sepgsql_schema_t;
- type_transition sepgsql_unconfined_type
-sepgsql_database_type:db_schema sepgsql_schema_t "pg_temp";
-
--type_transition sepgsql_unconfined_type
-sepgsql_database_type:db_table sepgsql_table_t;		# deprecated
--type_transition sepgsql_unconfined_type
-sepgsql_database_type:db_procedure sepgsql_proc_exec_t;	# deprecated
- type_transition sepgsql_unconfined_type sepgsql_schema_type:db_table
-sepgsql_table_t;
- type_transition sepgsql_unconfined_type
-sepgsql_schema_type:db_sequence sepgsql_seq_t;
- type_transition sepgsql_unconfined_type sepgsql_schema_type:db_view
-sepgsql_view_t;
 
 -- 
 KaiGai Kohei <kaigai@kaigai.gr.jp>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
