@@ -1,75 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2QE7NfW032534
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 10:07:24 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id A14111A15A
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 16:07:23 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
-	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XPkcVYbCrEpu for <selinux@tycho.nsa.gov>;
-	Mon, 26 Mar 2012 16:07:22 +0200 (CEST)
-Received: from eldamar.bigon.be (d54C6D43E.access.telenet.be [84.198.212.62])
-	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(Client did not present a certificate)
-	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id 3B1101A044
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 16:07:22 +0200 (CEST)
-Date: Mon, 26 Mar 2012 16:07:20 +0200
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 4/4] libsemanage -- Allow to build for several ruby version
-Message-ID: <20120326160720.560db3ed@eldamar.bigon.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <18418.1330238913@jrobl>
+References: <18418.1330238913@jrobl> <20120221175721.25235.8901.stgit@warthog.procyon.org.uk>
+To: "J. R. Okajima" <hooanon05@yahoo.co.jp>
+Cc: dhowells@redhat.com, linux-fsdevel@vger.kernel.org,
+        viro@ZenIV.linux.org.uk, valerie.aurora@gmail.com,
+        linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+Subject: Re: copy-up xattr (Re: [RFC][PATCH 00/73] Union Mount [ver #2])
+Date: Mon, 26 Mar 2012 15:22:50 +0100
+Message-ID: <9343.1332771770@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+J. R. Okajima <hooanon05@yahoo.co.jp> wrote:
 
-This allow to build the ruby module for both ruby 1.8 and 1.9.1 (the
-way it's done for the python module)
+> >  (4) Added some code to override the credentials around upper inode
+> >      creation to make sure the inode gets the right UID/GID.  This doesn't
+> >      help if the lower inode has some sort of foreign user identifier.
+> >
+> >      Also, I'm not sure whether the LSM xattrs should be blindly copied up.
+> >      Should the LSM policies applicable to the lower fs's apply to the upper
+> >      fs too?
+> 
+> Obviously the xattr entry may not have its meanings on the upper fs,
 
-Laurent
+True.  I'm not sure what's the best way to deal with that.  Possibly add an
+extra flag to vfs_setxattr() and have the fs vet them...  OTOH, this gives us
+files on the lowerfs that may well differ in appearance to files on the
+upperfs with respect to their xattrs.
 
-Description: Allow to build for several ruby version
-Author: Laurent Bigonville <bigon@debian.org>
-Date: Wed, 07 Mar 2012 13:41:39 +0100
+> or the upper fs may return an error when setting the xattr. Additionally the
+> returned errno may not follow the generic semantics (ENOTSUP, ENOSPC, or
+> EDQUOT) since the fs may return fs-specific error.
 
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -3,6 +3,8 @@
- # targets with "PYPREFIX":
- PYTHON ?= python
- PYPREFIX ?= $(notdir $(PYTHON))
-+RUBY ?= ruby
-+RUBYPREFIX ?= $(notdir $(RUBY))
- 
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
-@@ -13,8 +15,8 @@
- PYINC ?= $(shell pkg-config --cflags $(PYPREFIX))
- PYTHONLIBDIR ?= $(shell pkg-config --libs $(PYPREFIX))
- PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
--RUBYLIBVER ?= $(shell ruby -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
--RUBYPLATFORM ?= $(shell ruby -e 'print RUBY_PLATFORM')
-+RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
-+RUBYPLATFORM ?= $(shell $(RUBY) -e 'print RUBY_PLATFORM')
- RUBYINC ?= $(LIBDIR)/ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
- RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
- LIBBASE=$(shell basename $(LIBDIR))
-@@ -42,10 +44,10 @@
- SWIGCOUT= semanageswig_wrap.c
- SWIGRUBYCOUT= semanageswig_ruby_wrap.c
- SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
--SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT)) 
-+SWIGRUBYLOBJ:= $(patsubst %.c,$(RUBYPREFIX)%.lo,$(SWIGRUBYCOUT)) 
- SWIGSO=$(PYPREFIX)_semanage.so
- SWIGFILES=$(SWIGSO) semanage.py 
--SWIGRUBYSO=_rubysemanage.so
-+SWIGRUBYSO=$(RUBYPREFIX)_rubysemanage.so
- LIBSO=$(TARGET).$(LIBVERSION)
- 
- GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i
+Also true.  It's possible that the best way is just to ignore everything but a
+medium-related error such as EIO, ENOSPC and EDQUOT: We tried...  Oh well.
+
+> On the other hand, users may expect that the all xattrs are copied-up,
+> particulary when he knows that the xattrs works well on the upper fs too.
+> In copy-up, it will be hard to support all cases.
+
+Yeah.  Ideally, the copied-up file would be indistinguishable from the lower
+file, but in practice that's not possible unless inode numbers and other
+physical characteristics of the lower file are recorded in the upper fs (say
+on an xattr).
+
+> In order to leave users how to handle the xattrs, I'd suggest
+> introducing some mount options, which are similar to cp(1).
+> cp(1) has several options
+> 	--preserve=mode,ownership,timestamps,context,links,xattr,all
+> 	('mode' includes acl which are based upon xattr)
+> 
+> Since the mode (without acl), ownership and timestamps should always be
+> copied-up, the new mount options will be something like
+> 	cpup-xattr=acl,context,all
+
+I would suggest 'cpyup' or 'copyup' rather than 'cpup' - the latter looks like
+something to do with CPUs, but yes, it's worth considering.
+
+> And only when the option is specfied, the xattrs are copied up. No
+> special error handling is necessary, all the errors should be returned
+> to users unconditionally.
+
+That's not necessarily good enough.  What if and LSM, say SELinux, is in
+force?  Now SELinux will happily label the files for you - but there's a
+reasonable chance they won't be correct.  OTOH, they may not be correct even
+if they are copied up.
+
+> Does union-mount preserve mtime? If not, it is critical for some
+> applications such like "make" I am afraid.
+
+Ummm...  Interesting question.  If it copies up a file, then that file must
+have been opened for writing.  Is the mtime altered by such an event, or only
+by a write() having been issued?  Also, what about ctime?  That doesn't seem
+to have been copied up either.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
