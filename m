@@ -1,25 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2QJkrO4024977
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 15:46:53 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2QJmDNF025057
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 15:48:13 -0400
 Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id ED4A81A15A
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 21:46:51 +0200 (CEST)
+	by anor.bigon.be (Postfix) with ESMTP id B0EA11A15A
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 21:48:12 +0200 (CEST)
 Received: from anor.bigon.be ([127.0.0.1])
 	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DDiE-HGXYVSx for <selinux@tycho.nsa.gov>;
-	Mon, 26 Mar 2012 21:46:49 +0200 (CEST)
+	with ESMTP id 4kO5Pwur2t0h for <selinux@tycho.nsa.gov>;
+	Mon, 26 Mar 2012 21:48:10 +0200 (CEST)
 Received: from fornost.bigon.be (fornost.bigon.be [IPv6:2001:6f8:303:1:226:18ff:fe08:6073])
 	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
 	(Client did not present a certificate)
 	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id A90371A044
-	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 21:46:49 +0200 (CEST)
-Date: Mon, 26 Mar 2012 21:46:46 +0200
+	by anor.bigon.be (Postfix) with ESMTPSA id 994801A044
+	for <selinux@tycho.nsa.gov>; Mon, 26 Mar 2012 21:48:10 +0200 (CEST)
+Date: Mon, 26 Mar 2012 21:48:07 +0200
 From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 4/8] setools -- Do not built python module with a soname and
- do not create symlinks
-Message-ID: <20120326214646.525d771b@fornost.bigon.be>
+Subject: [PATCH 5/8] setools -- Do not build tcl module with a soname and do
+ not generate symlinks
+Message-ID: <20120326214807.7cb3b06a@fornost.bigon.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -27,162 +27,125 @@ List-Id: selinux@tycho.nsa.gov
 
 Hi,
 
-The python modules shouldn't be created with soname. Also the symlinks
-are useless
+Same as the python module, tcl module shound't have a soname and the
+symlinks are useless.
 
-Cheers,
-Laurent Bigonville
-
-Description: Do not built python module with a soname and do not create symlinks
+Description: Do not build tcl module with a soname and do not generate symlinks
 Author: Laurent Bigonville <bigon@debian.org>
-Date: Tue, 13 Mar 2012 21:15:31 +0100
+Date: Tue, 13 Mar 2012 21:51:04 +0100
 
---- a/libqpol/swig/python/Makefile.am
-+++ b/libqpol/swig/python/Makefile.am
+--- a/libapol/swig/tcl/Makefile.am
++++ b/libapol/swig/tcl/Makefile.am
 @@ -1,4 +1,4 @@
--wrappedso_DATA = _qpol.so.@libqpol_version@
-+wrappedso_DATA = _qpol.so
- wrappedso_SONAME = @libqpol_pyswig_soname@
- wrappedsodir = $(pkgpyexecdir)
- 
-@@ -12,22 +12,16 @@ BUILT_SOURCES = qpol_wrap.c
- AM_CFLAGS = @DEBUGCFLAGS@ @WARNCFLAGS@ @PROFILECFLAGS@ @SELINUX_CFLAGS@ \
- 	-I$(top_builddir) -fpic \
- 	-I$(top_srcdir)/libqpol/include
--AM_LDFLAGS = @DEBUGLDFLAGS@ @WARNLDFLAGS@ @PROFILELDFLAGS@ @QPOL_LIB_FLAG@ @PYTHON_LDFLAGS@
-+AM_LDFLAGS = @DEBUGLDFLAGS@ @WARNLDFLAGS@ @PROFILELDFLAGS@ @QPOL_LIB_FLAG@
- 
- $(BUILT_SOURCES): $(dist_noinst_DATA) $(DEPENDENCIES)
- 	$(SWIG) $(SWIG_PYTHON_OPT) -o $@ $<
+-wrappedso_DATA = libtapol.so.@libapol_version@
++wrappedso_DATA = libtapol.so
+ wrappedso_SONAME = @libapol_tswig_soname@
+ short_name = libtapol.so
+ wrappedsodir = $(libdir)/setools/apol
+@@ -21,9 +21,7 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
+ 	$(SWIG) $(SWIG_TCL_OPT) -pkgversion @libapol_version@ -o $@ -I$(top_srcdir)/libapol/include -I$(top_srcdir)/libqpol/swig $<
  
  $(wrappedso_DATA): $(BUILT_SOURCES)
--	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
+-	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
 -	$(LN_S) -f $@ $(wrappedso_SONAME)
--	$(LN_S) -f $@ _qpol.so
-+	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+-	$(LN_S) -f $@ $(short_name)
++	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
  
- $(wrappedpy_DATA): $(BUILT_SOURCES)
- 
--install-data-hook:
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) $(wrappedso_SONAME)
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) _qpol.so
--
- uninstall-local:
- 	-rm -rf $(DESTDIR)$(wrappedsodir)/$(wrappedso_SONAME) $(DESTDIR)$(wrappedsodir)/_qpol.so
- 
---- a/libsefs/swig/python/Makefile.am
-+++ b/libsefs/swig/python/Makefile.am
+ $(package_SCRIPTS): $(wrappedso_DATA)
+ 	echo "pkg_mkIndex . $^" | LD_LIBRARY_PATH=$(top_builddir)/libqpol/src:$(top_builddir)/libapol/src $(TCLSH_PROG)
+--- a/libpoldiff/swig/tcl/Makefile.am
++++ b/libpoldiff/swig/tcl/Makefile.am
 @@ -1,4 +1,4 @@
--wrappedso_DATA = _sefs.so.@libsefs_version@
-+wrappedso_DATA = _sefs.so
- wrappedso_SONAME = @libsefs_pyswig_soname@
- wrappedsodir = $(pkgpyexecdir)
- 
-@@ -11,7 +11,7 @@ BUILT_SOURCES = sefs_wrap.cc
- AM_CXXFLAGS = @DEBUGCXXFLAGS@ @WARNCXXFLAGS@ @PROFILECFLAGS@ @SELINUX_CFLAGS@ \
- 	@QPOL_CFLAGS@ @APOL_CFLAGS@ -I$(top_builddir) -fpic \
- 	-I$(top_srcdir)/libsefs/include
--AM_LDFLAGS = @DEBUGLDFLAGS@ @WARNLDFLAGS@ @PROFILELDFLAGS@ @PYTHON_LDFLAGS@ \
-+AM_LDFLAGS = @DEBUGLDFLAGS@ @WARNLDFLAGS@ @PROFILELDFLAGS@ \
- 	@APOL_LIB_FLAG@ @QPOL_LIB_FLAG@ @SEFS_LIB_FLAG@ @XML_LIBS@
- DEPENDENCIES = $(top_builddir)/libqpol/src/libqpol.so \
- 	$(top_builddir)/libapol/src/libapol.so \
-@@ -23,16 +23,10 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
- 	-I$(top_srcdir)/libqpol/swig -I$(top_srcdir)/libapol/swig $<
+-wrappedso_DATA = libtpoldiff.so.@libpoldiff_version@
++wrappedso_DATA = libtpoldiff.so
+ wrappedso_SONAME = @libpoldiff_tswig_soname@
+ short_name = libtpoldiff.so
+ wrappedsodir = $(libdir)/setools/poldiff
+@@ -22,9 +22,7 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
+ 	$(SWIG) $(SWIG_TCL_OPT) -pkgversion @libpoldiff_version@ -o $@ -I$(top_srcdir)/libpoldiff/include -I$(top_srcdir)/libapol/include -I$(top_srcdir)/libapol/swig -I$(top_srcdir)/libqpol/swig $<
  
  $(wrappedso_DATA): $(BUILT_SOURCES)
--	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
+-	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
 -	$(LN_S) -f $@ $(wrappedso_SONAME)
--	$(LN_S) -f $@ _sefs.so
-+	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+-	$(LN_S) -f $@ $(short_name)
++	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
  
- $(wrappedpy_DATA): $(BUILT_SOURCES)
- 
--install-data-hook:
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) $(wrappedso_SONAME)
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) _sefs.so
--
- uninstall-local:
- 	-rm -rf $(DESTDIR)$(wrappedsodir)/$(wrappedso_SONAME) $(DESTDIR)$(wrappedsodir)/_sefs.so
- 
---- a/libapol/swig/python/Makefile.am
-+++ b/libapol/swig/python/Makefile.am
+ $(package_SCRIPTS): $(wrappedso_DATA)
+ 	echo "pkg_mkIndex . $^" | LD_LIBRARY_PATH=$(top_builddir)/libqpol/src:$(top_builddir)/libapol/src:$(top_builddir)/libpoldiff/src $(TCLSH_PROG)
+--- a/libqpol/swig/tcl/Makefile.am
++++ b/libqpol/swig/tcl/Makefile.am
 @@ -1,4 +1,4 @@
--wrappedso_DATA = _apol.so.@libapol_version@
-+wrappedso_DATA = _apol.so
- wrappedso_SONAME = @libapol_pyswig_soname@
- wrappedsodir = $(pkgpyexecdir)
- 
-@@ -20,16 +20,10 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
- 	$(SWIG) $(SWIG_PYTHON_OPT) -o $@ -I$(top_srcdir)/libapol/include -I$(top_srcdir)/libqpol/swig $<
+-wrappedso_DATA = libtqpol.so.@libqpol_version@
++wrappedso_DATA = libtqpol.so
+ wrappedso_SONAME = @libqpol_tswig_soname@
+ short_name = libtqpol.so
+ wrappedsodir = $(libdir)/setools/qpol
+@@ -18,9 +18,7 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
+ 	$(SWIG) $(SWIG_TCL_OPT) -pkgversion @libqpol_version@ -o $@ $<
  
  $(wrappedso_DATA): $(BUILT_SOURCES)
--	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
+-	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
 -	$(LN_S) -f $@ $(wrappedso_SONAME)
--	$(LN_S) -f $@ _apol.so
-+	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+-	$(LN_S) -f $@ $(short_name)
++	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
  
- $(wrappedpy_DATA): $(BUILT_SOURCES)
+ libdirs = $(top_builddir)/libqpol/src
  
--install-data-hook:
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) $(wrappedso_SONAME)
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) _apol.so
--
- uninstall-local:
- 	-rm -rf $(DESTDIR)$(wrappedsodir)/$(wrappedso_SONAME) $(DESTDIR)$(wrappedsodir)/_apol.so
- 
---- a/libpoldiff/swig/python/Makefile.am
-+++ b/libpoldiff/swig/python/Makefile.am
+--- a/libseaudit/swig/tcl/Makefile.am
++++ b/libseaudit/swig/tcl/Makefile.am
 @@ -1,4 +1,4 @@
--wrappedso_DATA = _poldiff.so.@libpoldiff_version@
-+wrappedso_DATA = _poldiff.so
- wrappedso_SONAME = @libpoldiff_pyswig_soname@
- wrappedsodir = $(pkgpyexecdir)
- 
-@@ -23,16 +23,10 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
- 	-I$(top_srcdir)/libqpol/swig -I$(top_srcdir)/libapol/swig $<
+-wrappedso_DATA = libtseaudit.so.@libseaudit_version@
++wrappedso_DATA = libtseaudit.so
+ wrappedso_SONAME = @libseaudit_tswig_soname@
+ short_name = libtseaudit.so
+ wrappedsodir = $(libdir)/setools/seaudit
+@@ -22,9 +22,7 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
+ 	$(SWIG) $(SWIG_TCL_OPT) -pkgversion @libseaudit_version@ -o $@ -I$(top_srcdir)/libseaudit/include -I$(top_srcdir)/libapol/include -I$(top_srcdir)/libapol/swig -I$(top_srcdir)/libqpol/swig $<
  
  $(wrappedso_DATA): $(BUILT_SOURCES)
--	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
+-	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
 -	$(LN_S) -f $@ $(wrappedso_SONAME)
--	$(LN_S) -f $@ _poldiff.so
-+	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+-	$(LN_S) -f $@ $(short_name)
++	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
  
- $(wrappedpy_DATA): $(BUILT_SOURCES)
- 
--install-data-hook:
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) $(wrappedso_SONAME)
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) _poldiff.so
--
- uninstall-local:
- 	-rm -rf $(DESTDIR)$(wrappedsodir)/$(wrappedso_SONAME) $(DESTDIR)$(wrappedsodir)/_poldiff.so
- 
---- a/libseaudit/swig/python/Makefile.am
-+++ b/libseaudit/swig/python/Makefile.am
+ $(package_SCRIPTS): $(wrappedso_DATA)
+ 	echo "pkg_mkIndex . $^" | LD_LIBRARY_PATH=$(top_builddir)/libqpol/src:$(top_builddir)/libapol/src:$(top_builddir)/libseaudit/src $(TCLSH_PROG)
+--- a/libsefs/swig/tcl/Makefile.am
++++ b/libsefs/swig/tcl/Makefile.am
 @@ -1,4 +1,4 @@
--wrappedso_DATA = _seaudit.so.@libseaudit_version@
-+wrappedso_DATA = _seaudit.so
- wrappedso_SONAME = @libseaudit_pyswig_soname@
- wrappedsodir = $(pkgpyexecdir)
- 
-@@ -23,16 +23,10 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
- 	-I$(top_srcdir)/libqpol/swig -I$(top_srcdir)/libapol/swig $<
+-wrappedso_DATA = libtsefs.so.@libsefs_version@
++wrappedso_DATA = libtsefs.so
+ wrappedso_SONAME = @libsefs_tswig_soname@
+ short_name = libtsefs.so
+ wrappedsodir = $(libdir)/setools/sefs
+@@ -22,9 +22,7 @@ $(BUILT_SOURCES): $(dist_noinst_DATA) $(
+ 	$(SWIG) -c++ $(SWIG_TCL_OPT) -pkgversion @libsefs_version@ -o $@ -I$(top_srcdir)/libsefs/include -I$(top_srcdir)/libapol/include -I$(top_srcdir)/libapol/swig -I$(top_srcdir)/libqpol/swig $<
  
  $(wrappedso_DATA): $(BUILT_SOURCES)
--	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
+-	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
 -	$(LN_S) -f $@ $(wrappedso_SONAME)
--	$(LN_S) -f $@ _seaudit.so
-+	$(CC) -shared -o $@ $^ $(AM_CFLAGS) $(CFLAGS) $(SWIG_PYTHON_CPPFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+-	$(LN_S) -f $@ $(short_name)
++	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
  
- $(wrappedpy_DATA): $(BUILT_SOURCES)
+ $(package_SCRIPTS): $(wrappedso_DATA)
+ 	echo "pkg_mkIndex . $^" | LD_LIBRARY_PATH=$(top_builddir)/libqpol/src:$(top_builddir)/libapol/src:$(top_builddir)/libsefs/src $(TCLSH_PROG)
+--- a/apol/Makefile.am
++++ b/apol/Makefile.am
+@@ -1,4 +1,4 @@
+-wrappedso_DATA = libapol_tcl.so.@libapol_version@
++wrappedso_DATA = libapol_tcl.so
+ wrappedso_SONAME = $(wrappedso_DATA)
+ wrappedsodir = $(libdir)/setools/apol_tcl
  
--install-data-hook:
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) $(wrappedso_SONAME)
--	cd $(DESTDIR)$(wrappedsodir) && $(LN_S) -f $(wrappedso_DATA) _seaudit.so
--
- uninstall-local:
- 	-rm -rf $(DESTDIR)$(wrappedsodir)/$(wrappedso_SONAME) $(DESTDIR)$(wrappedsodir)/_seaudit.so
+@@ -85,7 +85,7 @@ apol_tcl_wrap.cc: apol_tcl.i $(DEPENDENC
+ 	-I$(top_srcdir)/libqpol/swig $<
  
+ $(wrappedso_DATA): apol_tcl.cc apol_tcl_wrap.cc
+-	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -Wl,-soname,$(wrappedso_SONAME)
++	$(CXX) -shared -o $@ $^ $(AM_CXXFLAGS) $(CXXFLAGS) $(SWIG_TCL_CFLAGS) $(AM_LDFLAGS) $(LDFLAGS)
+ 
+ $(package_SCRIPTS): $(wrappedso_DATA) mkIndex.tcl
+ 	cat mkIndex.tcl | LD_LIBRARY_PATH=$(top_builddir)/libqpol/src:$(top_builddir)/libapol/src:$(top_builddir)/libsefs/src $(TCLSH_PROG)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
