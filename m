@@ -1,36 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RI9XsI008013
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 14:09:33 -0400
-Received: by eekb47 with SMTP id b47so64508eek.12
-        for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:31 -0700 (PDT)
-Date: Tue, 27 Mar 2012 20:07:10 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 34/73] libselinux: Update Makefiles to handle /usrmove
-Message-ID: <20120327180710.GB1468@siphos.be>
-References: <4F71DAAB.8030100@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RIHWdf008563
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 14:17:32 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RIHSvH008181
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 14:17:30 -0400
+Message-ID: <4F71DD1A.9010609@redhat.com>
+Date: Tue, 27 Mar 2012 11:30:34 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <4F71DAAB.8030100@redhat.com>
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 44/73] policycoreutils: mcstrans: creating a pid file
+Content-Type: multipart/mixed;
+ boundary="------------090106080800010004000207"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Mar 27, 2012 at 11:20:11AM -0400, Daniel J Walsh wrote:
-> Move everything into /usr/* and just put links from /*.  The whole /usr
-> thing hasn't really worked in all situations for a long long time.  Just
-> accept that fact and move along.
+This is a multi-part message in MIME format.
+--------------090106080800010004000207
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Actually, I still have a separate /usr (on mdadm raid with lvm)  with no
-initramfs (yet, going to move towards one soon given the recent udev releases)
-and the services that got loaded before my /usr was mounted all run just fine.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Is this a needed patch, or just something to end possible future
-discussions?
 
-Wkr,
-	Sven Vermeulen
+   This patch looks good to me. acked.
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk9x3RoACgkQrlYvE4MpobPi7gCgjQU7joJW6Yyvm5o3dohF6jN0
+7nUAoLFQGAJuK7dCav2pmvNYqbRgF3HP
+=chfS
+-----END PGP SIGNATURE-----
+
+--------------090106080800010004000207
+Content-Type: text/x-patch;
+ name="0044-policycoreutils-mcstrans-creating-a-pid-file.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0044-policycoreutils-mcstrans-creating-a-pid-file.patch"
+
+
+--------------090106080800010004000207--
