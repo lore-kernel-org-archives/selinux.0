@@ -1,24 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF8qcl024784
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF9FdZ024899
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:15 -0400
 Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF8pM3000874
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF9Ela013325
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:51 -0400
-Message-ID: <4F71D802.5030605@redhat.com>
-Date: Tue, 27 Mar 2012 11:08:50 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:14 -0400
+Message-ID: <4F71D819.6020004@redhat.com>
+Date: Tue, 27 Mar 2012 11:09:13 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 24/73] libselinux: Add more printf format annotations
+Subject: [PATCH 25/73] libselinux: Add printf format attribute annotation
+ to
 Content-Type: multipart/mixed;
- boundary="------------080003040406080402010808"
+ boundary="------------080105020902030101080409"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080003040406080402010808
+--------------080105020902030101080409
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,17 +33,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk9x2AIACgkQrlYvE4MpobMrZwCfbNkO4+xLK3fHXh0moYqU83bE
-m8YAn1o9x4LQ5VfI89ipV6dE+pMVdjT3
-=NoQZ
+iEYEARECAAYFAk9x2BkACgkQrlYvE4MpobMligCdH3byLyRVFtfyVQOciXDDZ8ff
+tdsAn23S6D/fcCFrQylZU6TKGLd/avGq
+=cKbw
 -----END PGP SIGNATURE-----
 
---------------080003040406080402010808
+--------------080105020902030101080409
 Content-Type: text/x-patch;
- name="0024-libselinux-Add-more-printf-format-annotations.patch"
+ name="0025-libselinux-Add-printf-format-attribute-annotation-to.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0024-libselinux-Add-more-printf-format-annotations.patch"
+ filename*0="0025-libselinux-Add-printf-format-attribute-annotation-to.pa";
+ filename*1="tch"
 
 
---------------080003040406080402010808--
+--------------080105020902030101080409--
