@@ -1,108 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2R4d3PV017765
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 00:39:03 -0400
-Message-ID: <4F714463.7090508@schaufler-ca.com>
-Date: Mon, 26 Mar 2012 21:38:59 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2R9PPPP001420
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 05:25:25 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Laurent Bigonville <bigon@debian.org>
+Subject: Re: [PATCH 1/2] libselinux -- Hide unnecessarily-exported library destructors
+Date: Tue, 27 Mar 2012 20:25:19 +1100
+Cc: selinux@tycho.nsa.gov
+References: <20120326204549.1127d58b@fornost.bigon.be>
+In-Reply-To: <20120326204549.1127d58b@fornost.bigon.be>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: "J. R. Okajima" <hooanon05@yahoo.co.jp>, linux-fsdevel@vger.kernel.org,
-        viro@ZenIV.linux.org.uk, valerie.aurora@gmail.com,
-        linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        LSM <linux-security-module@vger.kernel.org>
-Subject: Re: copy-up xattr (Re: [RFC][PATCH 00/73] Union Mount [ver #2])
-References: <18418.1330238913@jrobl> <20120221175721.25235.8901.stgit@warthog.procyon.org.uk> <9343.1332771770@redhat.com>
-In-Reply-To: <9343.1332771770@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201203272025.19712.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 3/26/2012 7:22 AM, David Howells wrote:
-> J. R. Okajima <hooanon05@yahoo.co.jp> wrote:
->
->>>  (4) Added some code to override the credentials around upper inode
->>>      creation to make sure the inode gets the right UID/GID.  This doesn't
->>>      help if the lower inode has some sort of foreign user identifier.
->>>
->>>      Also, I'm not sure whether the LSM xattrs should be blindly copied up.
->>>      Should the LSM policies applicable to the lower fs's apply to the upper
->>>      fs too?
->> Obviously the xattr entry may not have its meanings on the upper fs,
-> True.  I'm not sure what's the best way to deal with that.  Possibly add an
-> extra flag to vfs_setxattr() and have the fs vet them...  OTOH, this gives us
-> files on the lowerfs that may well differ in appearance to files on the
-> upperfs with respect to their xattrs.
+On Tue, 27 Mar 2012, Laurent Bigonville <bigon@debian.org> wrote:
+> Description: Hide unnecessarily-exported library destructors
+>  This change was extracted from the old monolithic Debian patch.  I have
+> not been able to find an explanation for why it is needed, but it should
+> be forwarded upstream for review.
+>  .
+> Author: Unknown
 
-Are you suggesting that you would have heterogeneous filesystems
-with different xattr behavior stacked at the same time as you're
-using an LSM that cares about the behavior of xattrs? Oh dear. As
-I typed that sentence I identified a viable use case.
+This is needed because the Debian build system whinges when the list of 
+exports changes.  There was never a need to have them exported so it was best 
+to just make them hidden.
 
->> or the upper fs may return an error when setting the xattr. Additionally the
->> returned errno may not follow the generic semantics (ENOTSUP, ENOSPC, or
->> EDQUOT) since the fs may return fs-specific error.
-> Also true.  It's possible that the best way is just to ignore everything but a
-> medium-related error such as EIO, ENOSPC and EDQUOT: We tried...  Oh well.
->
->> On the other hand, users may expect that the all xattrs are copied-up,
->> particulary when he knows that the xattrs works well on the upper fs too.
->> In copy-up, it will be hard to support all cases.
-> Yeah.  Ideally, the copied-up file would be indistinguishable from the lower
-> file, but in practice that's not possible unless inode numbers and other
-> physical characteristics of the lower file are recorded in the upper fs (say
-> on an xattr).
->
->> In order to leave users how to handle the xattrs, I'd suggest
->> introducing some mount options, which are similar to cp(1).
->> cp(1) has several options
->> 	--preserve=mode,ownership,timestamps,context,links,xattr,all
->> 	('mode' includes acl which are based upon xattr)
->>
->> Since the mode (without acl), ownership and timestamps should always be
->> copied-up, the new mount options will be something like
->> 	cpup-xattr=acl,context,all
-> I would suggest 'cpyup' or 'copyup' rather than 'cpup' - the latter looks like
-> something to do with CPUs, but yes, it's worth considering.
->
->> And only when the option is specfied, the xattrs are copied up. No
->> special error handling is necessary, all the errors should be returned
->> to users unconditionally.
-> That's not necessarily good enough.  What if and LSM, say SELinux, is in
-> force?  Now SELinux will happily label the files for you - but there's a
-> reasonable chance they won't be correct.  OTOH, they may not be correct even
-> if they are copied up.
+I think I wrote the patch in question.
 
-The underlying storage (the "real" file) has to have the xattr attached
-to it.
-Any other behavior is incorrect. If the underlying filesystem does not
-support
-xattrs that lack of support has to be propagated upwards even if the higher
-layer filesystem supports xattrs.
-
-In the case of Smack filesystems that don't support xattrs are still given
-labels based on mount options. If the lower filesystem is NTFS and the upper
-ext4 you've got to respect the NTFS labeling behavior for files there.
-
->> Does union-mount preserve mtime? If not, it is critical for some
->> applications such like "make" I am afraid.
-> Ummm...  Interesting question.  If it copies up a file, then that file must
-> have been opened for writing.  Is the mtime altered by such an event, or only
-> by a write() having been issued?  Also, what about ctime?  That doesn't seem
-> to have been copied up either.
-
-What is the expected behavior of union mounts for all attributes? Is it
-specified anywhere?
-
->
-> David
+> ---
+> Forwarded: no
+> Last-Update: 2011-10-13
+> 
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -291,7 +291,7 @@ static void matchpathcon_thread_destruct
+>  	matchpathcon_fini();
+>  }
+> 
+> -void __attribute__((destructor)) matchpathcon_lib_destructor(void)
+> +void hidden __attribute__((destructor)) matchpathcon_lib_destructor(void)
+>  {
+>  	if (destructor_key_initialized)
+>  		__selinux_key_delete(destructor_key);
+> --- libselinux-2.1.0.orig/src/setrans_client.c
+> +++ libselinux-2.1.0/src/setrans_client.c
+> @@ -253,7 +253,7 @@ static void setrans_thread_destructor(vo
+>  	free(prev_r2c_raw);
+>  }
+> 
+> -void __attribute__((destructor)) setrans_lib_destructor(void)
+> +void hidden __attribute__((destructor)) setrans_lib_destructor(void)
+>  {
+>  	if (destructor_key_initialized)
+>  		__selinux_key_delete(destructor_key);
+> 
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with the words "unsubscribe selinux" without quotes as the message.
 
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
