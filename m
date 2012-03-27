@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF8RRx024713
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:27 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF8RcY001025
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF8qcl024784
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:52 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF8pM3000874
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:27 -0400
-Message-ID: <4F71D7EA.1010601@redhat.com>
-Date: Tue, 27 Mar 2012 11:08:26 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:08:51 -0400
+Message-ID: <4F71D802.5030605@redhat.com>
+Date: Tue, 27 Mar 2012 11:08:50 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 23/73] libselinux: Add prototype decl for destructor
+Subject: [PATCH 24/73] libselinux: Add more printf format annotations
 Content-Type: multipart/mixed;
- boundary="------------050408080107030404040002"
+ boundary="------------080003040406080402010808"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050408080107030404040002
+--------------080003040406080402010808
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,17 +32,17 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk9x1+oACgkQrlYvE4MpobNDvgCfRuKOLCBFkNHDVueX63cEbSXY
-6/0AoInH/n5e4A2oxGaVWErr0hPuP198
-=4fV8
+iEYEARECAAYFAk9x2AIACgkQrlYvE4MpobMrZwCfbNkO4+xLK3fHXh0moYqU83bE
+m8YAn1o9x4LQ5VfI89ipV6dE+pMVdjT3
+=NoQZ
 -----END PGP SIGNATURE-----
 
---------------050408080107030404040002
+--------------080003040406080402010808
 Content-Type: text/x-patch;
- name="0023-libselinux-Add-prototype-decl-for-destructor.patch"
+ name="0024-libselinux-Add-more-printf-format-annotations.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0023-libselinux-Add-prototype-decl-for-destructor.patch"
+ filename*0="0024-libselinux-Add-more-printf-format-annotations.patch"
 
 
---------------050408080107030404040002--
+--------------080003040406080402010808--
