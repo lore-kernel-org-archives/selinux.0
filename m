@@ -1,25 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF9FdZ024899
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:15 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF9Ela013325
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RF9aAX024955
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:36 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RF9aYN013383
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:14 -0400
-Message-ID: <4F71D819.6020004@redhat.com>
-Date: Tue, 27 Mar 2012 11:09:13 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:09:36 -0400
+Message-ID: <4F71D82F.7010800@redhat.com>
+Date: Tue, 27 Mar 2012 11:09:35 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 25/73] libselinux: Add printf format attribute annotation
- to
+Subject: [PATCH 26/73] libselinux: Fix const-ness of parameters & make
 Content-Type: multipart/mixed;
- boundary="------------080105020902030101080409"
+ boundary="------------080205080608010307070506"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080105020902030101080409
+--------------080205080608010307070506
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -33,18 +32,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk9x2BkACgkQrlYvE4MpobMligCdH3byLyRVFtfyVQOciXDDZ8ff
-tdsAn23S6D/fcCFrQylZU6TKGLd/avGq
-=cKbw
+iEYEARECAAYFAk9x2C8ACgkQrlYvE4MpobPkoQCgoXVQzP8KhGv9TqPCz3u1NlB9
+pj8AoLXqlgJCquK7NpGGn124njWYe0st
+=Qwel
 -----END PGP SIGNATURE-----
 
---------------080105020902030101080409
+--------------080205080608010307070506
 Content-Type: text/x-patch;
- name="0025-libselinux-Add-printf-format-attribute-annotation-to.patch"
+ name="0026-libselinux-Fix-const-ness-of-parameters-make-usage-m.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0025-libselinux-Add-printf-format-attribute-annotation-to.pa";
+ filename*0="0026-libselinux-Fix-const-ness-of-parameters-make-usage-m.pa";
  filename*1="tch"
 
 
---------------080105020902030101080409--
+--------------080205080608010307070506--
