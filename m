@@ -1,42 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RIaGQk009735
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 14:36:16 -0400
-Message-ID: <4F720898.2090505@redhat.com>
-Date: Tue, 27 Mar 2012 14:36:08 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RKEowv015758
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 16:14:50 -0400
+Received: by qcsk26 with SMTP id k26so255150qcs.12
+        for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 13:14:49 -0700 (PDT)
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 34/73] libselinux: Update Makefiles to handle /usrmove
-References: <4F71DAAB.8030100@redhat.com> <20120327180710.GB1468@siphos.be>
-In-Reply-To: <20120327180710.GB1468@siphos.be>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1332862097.15547.15.camel@lenny>
+References: <4F71D850.20203@redhat.com>
+	<1332862097.15547.15.camel@lenny>
+Date: Tue, 27 Mar 2012 16:14:49 -0400
+Message-ID: <CACLa4pv98tYgOihbuMu=em_k86DCcNpaHE2YBGqJpG_-zXyofA@mail.gmail.com>
+Subject: Re: [PATCH 27/73] libselinux: Enable many more gcc warnings for
+From: Eric Paris <eparis@parisplace.org>
+To: Colin Walters <walters@verbum.org>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, eparis@redhat.com,
+        selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+We lose part of the message Colin?
 
-On 03/27/2012 02:07 PM, Sven Vermeulen wrote:
-> On Tue, Mar 27, 2012 at 11:20:11AM -0400, Daniel J Walsh wrote:
->> Move everything into /usr/* and just put links from /*.  The whole /usr thing hasn't really worked in all situations for a long long time.  Just accept that fact and move along.
-> 
-> Actually, I still have a separate /usr (on mdadm raid with lvm)  with no initramfs (yet, going to move towards one soon given the recent udev releases) and the services that got loaded before my /usr was mounted all run just fine.
-> 
-> Is this a needed patch, or just something to end possible future discussions?
-> 
-> Wkr, Sven Vermeulen
-> 
-> -- This message was distributed to subscribers of the selinux mailing list. If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes as the message.
-I think you should still be able to override the location of the binaries, by passing options to make.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk9yCJgACgkQrlYvE4MpobMnCgCg4pXwpjJx/+GHtkB3vTYQtr/O
-+ocAnRXJ4Ly8aGGT9DNTKPU/uNTREvKV
-=TpHf
------END PGP SIGNATURE-----
+On Tue, Mar 27, 2012 at 11:28 AM, Colin Walters <walters@verbum.org> wrote:
+> On Tue, 2012-03-27 at 11:10 -0400, Daniel J Walsh wrote:
+>> This patch looks good to me. acked.
+>
+> It's kind of ugly to conflate warnings with the control options like
+> -fasynchronous-unwind-tables -funit-at-a-time
+>
+> Maybe consider splitting them out?
+>
+> Incidentally from the gcc manual:
+>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
