@@ -1,51 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFot8P029428
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:50:55 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RFosQa027443
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:50:54 -0400
-Message-ID: <4F71E1DD.4040803@redhat.com>
-Date: Tue, 27 Mar 2012 11:50:53 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH 43/73] libselinux: avc_netlink_recieve handle EINTR FIXME
-Content-Type: multipart/mixed;
- boundary="------------010008060000000307090206"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFsLc5029669
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:54:21 -0400
+Received: from compute1.internal (compute1.nyi.mail.srv.osa [10.202.2.41])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id BE79E20CC8
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:54:20 -0400 (EDT)
+Message-ID: <1332863630.15547.22.camel@lenny>
+Subject: Re: [PATCH 41/73] policycoreutils: mcstransd: write a pid file FIXME
+From: Colin Walters <walters@verbum.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: eparis@redhat.com, selinux@tycho.nsa.gov
+Date: Tue, 27 Mar 2012 11:53:50 -0400
+In-Reply-To: <4F71E181.80300@redhat.com>
+References: <4F71E181.80300@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010008060000000307090206
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tue, 2012-03-27 at 11:49 -0400, Daniel J Walsh wrote:
+> This patch looks good to me. acked.
+> 
+> systemd expects a pid file to be written by unit services.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+It doesn't if the service is non-forking.  In fact moving to
+non-forking services that don't write pid files is a major
+improvement that systemd brings over sysvinit, because the
+state is 100% reliable.  Pid files create the possibility
+of desynchronization if the service crashes, but the pid
+file remains.
 
-
-   This patch looks good to me. acked.
-
-I think we should do this rather then have applications like dbus
-randomly crash, and people not notice it for years.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk9x4d0ACgkQrlYvE4MpobMo3QCgqaLM8fRuIgAu/4T6VgsZEppA
-ipcAoKLspjezOWW4H2NT8mjcm2UbOuCg
-=pAU/
------END PGP SIGNATURE-----
-
---------------010008060000000307090206
-Content-Type: text/x-patch;
- name="0043-libselinux-avc_netlink_recieve-handle-EINTR-FIXME.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0043-libselinux-avc_netlink_recieve-handle-EINTR-FIXME.patch"
+So a better fix would be to change mcstransd to have a
+--no-fork option, and update the unit file to use it.
 
 
---------------010008060000000307090206--
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
