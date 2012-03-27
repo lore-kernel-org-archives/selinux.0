@@ -1,42 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFhr7m028746
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:43:53 -0400
-Received: by yenq2 with SMTP id q2so38698yen.12
-        for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 08:43:53 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFhr7o028746
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:44:00 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RFhxMt025831
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:43:59 -0400
+Message-ID: <4F71E03E.3090606@redhat.com>
+Date: Tue, 27 Mar 2012 11:43:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20120326204746.260ec002@fornost.bigon.be>
-References: <20120326204746.260ec002@fornost.bigon.be>
-Date: Tue, 27 Mar 2012 16:43:52 +0100
-Message-ID: <CAPweEDw5SVESGq933CEp8SbqAbUUjHcax0esB7sPqMsS+Aq6Wg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libselinux -- Do not link against python library,
- this is considered bad practice in debian
-From: lkcl luke <luke.leighton@gmail.com>
-To: Laurent Bigonville <bigon@debian.org>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 72/73] libselinux -- Hide unnecessarily-exported library
+Content-Type: multipart/mixed;
+ boundary="------------000708030705050708020709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 26, 2012 at 7:47 PM, Laurent Bigonville <bigon@debian.org> wrote:
-> Hi,
->
-> Do not link python module with libpython, the interpreter is already linked against it.
+This is a multi-part message in MIME format.
+--------------000708030705050708020709
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
- ah, that reminds me: does the python debian build infrastructure cope
-with 2.6, 2.7 etc. etc. producing multiple versions of this c-based
-module?  if not i know of a way to do that, but it uses an earlier
-version of the debian helper tools, and also needs automake not just
-autoconf.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- for another project i had to write an m4 automake macro which used
-python2.{insertversion}-config to record the various includes and
-library versions etc.
 
- let me know if this is of any use?
+   This patch looks good to me. acked.
 
- l.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+iEYEARECAAYFAk9x4D4ACgkQrlYvE4MpobMjZACgkTYCLy91++YluozukiLMCRTL
+lR4AnjSYeHkyLZtt0Y+zWuds8QOWX5Zc
+=9Eui
+-----END PGP SIGNATURE-----
+
+--------------000708030705050708020709
+Content-Type: text/x-patch;
+ name="0072-libselinux-Hide-unnecessarily-exported-library-destr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0072-libselinux-Hide-unnecessarily-exported-library-destr.pa";
+ filename*1="tch"
+
+
+--------------000708030705050708020709--
