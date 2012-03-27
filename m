@@ -1,24 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFKCHS026112
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:20:12 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RFKCsX015408
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2RFKo0l026171
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:20:50 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q2RFKnp9017456
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:20:12 -0400
-Message-ID: <4F71DAAB.8030100@redhat.com>
-Date: Tue, 27 Mar 2012 11:20:11 -0400
+	for <selinux@tycho.nsa.gov>; Tue, 27 Mar 2012 11:20:49 -0400
+Message-ID: <4F71DAD1.5050603@redhat.com>
+Date: Tue, 27 Mar 2012 11:20:49 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 34/73] libselinux: Update Makefiles to handle /usrmove
+Subject: [PATCH 36/73] libselinux: utils: Stop separating out matchpathcon
+ as
 Content-Type: multipart/mixed;
- boundary="------------050701090602020906030109"
+ boundary="------------050602080804070201040806"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050701090602020906030109
+--------------050602080804070201040806
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,17 +33,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk9x2qsACgkQrlYvE4MpobPBwgCfTE0E58VfcwfQCx7twKuZbR1V
-EXQAnjjs8IVU95kksGsEMtU9FUK2Gjer
-=Y0wS
+iEYEARECAAYFAk9x2tEACgkQrlYvE4MpobNB4wCZAZjv78V4CcT/M+b2NPdSvTR+
+9IQAnR0+ocICKXlT4ltZ85367fKg35by
+=QjzN
 -----END PGP SIGNATURE-----
 
---------------050701090602020906030109
+--------------050602080804070201040806
 Content-Type: text/x-patch;
- name="0034-libselinux-Update-Makefiles-to-handle-usrmove.patch"
+ name="0036-libselinux-utils-Stop-separating-out-matchpathcon-as.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0034-libselinux-Update-Makefiles-to-handle-usrmove.patch"
+ filename*0="0036-libselinux-utils-Stop-separating-out-matchpathcon-as.pa";
+ filename*1="tch"
 
 
---------------050701090602020906030109--
+--------------050602080804070201040806--
