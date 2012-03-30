@@ -1,36 +1,25 @@
-Subject: Re: Requesting for materials regarding "SE Android"
+Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q2UEcl2i011388
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2012 10:38:47 -0400
+Subject: seandroid-4.0.4 branch created
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Keerthi Kumar K <keerthikumark.ise@gmail.com>
-Cc: selinux@tycho.nsa.gov, seandroid@tycho.nsa.gov
-In-Reply-To: <CANcygcLgHdeJVpMOMDfpV3pYZDwPCL=OY_dgxXvX4pLg+4S-ng@mail.gmail.com>
-References: 
-	 <CANcygcLgHdeJVpMOMDfpV3pYZDwPCL=OY_dgxXvX4pLg+4S-ng@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1332344060.27512.56.camel@moss-pluto>
+References: <1325884109.28294.65.camel@moss-pluto>
+	 <1332252572.693.56.camel@moss-pluto> <1332344060.27512.56.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 30 Mar 2012 08:28:57 -0400
-Message-ID: <1333110537.8293.1.camel@moss-pluto>
+Date: Fri, 30 Mar 2012 10:38:47 -0400
+Message-ID: <1333118327.8293.34.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-03-30 at 09:19 +0530, Keerthi Kumar K wrote:
-> Hi Sir...
-> 
-> Myself final year Engineering student. As a part of academic
-> qualification, we have technical seminar. So i have chosen "Securing
-> Android-Powered Mobile Devices Using SELinux" as my topic. So i kindly
-> request you to provide me with materials related to the above topic,
-> so that i can get prepared for my technical seminar.
+Hi,
 
-I'm not sure what you are looking for, but the source code and
-presentations about SE Android are all available from:
-http://selinuxproject.org/page/SEAndroid
-
-Note however that SE Android was an independent effort from the work
-described in the paper you mention.  I'm not sure if the work by the
-group that authored that paper is still in progress or if it was ever
-released.  But SE Android is an active project and the code is
-available.
-
+We have created a seandroid-4.0.4 branch with the SE Android
+modifications relative to the android-4.0.4_r1.1 tag.  See the
+wiki page, http://selinuxproject.org/page/SEAndroid, for updated
+instructions on how to use the 4.0.4 branch.
 
 -- 
 Stephen Smalley
