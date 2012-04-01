@@ -1,78 +1,92 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q31G2FWp021309
-	for <selinux@tycho.nsa.gov>; Sun, 1 Apr 2012 12:02:15 -0400
-Message-ID: <20120401170208.12056z039tiwvd0k@webmail.tuffmail.net>
-Date: Sun, 01 Apr 2012 17:02:08 +0100
-From: Martin Orr <martin@martinorr.name>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 4/4] policycoreutils -- Make restorecon return 0 when a
-	file has changed context with no error
-References: <20120326174549.07f27c96@eldamar.bigon.be>
-	<CACLa4pt=Y5N+7GmJRsmGV0DavJP8ykhO0ST5RtVd7zss9PNT+w@mail.gmail.com>
-In-Reply-To: <CACLa4pt=Y5N+7GmJRsmGV0DavJP8ykhO0ST5RtVd7zss9PNT+w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	DelSp="Yes";
-	format="flowed"
+Date: Sun, 1 Apr 2012 15:34:25 -0700
+Message-ID: <CADtWkVnyXPv99Hh-xTKz-03Qnv5AueYs7e8CqbQTUzu4dEX47Q@mail.gmail.com>
+Subject: DexOpt freezes on SettingsProvider.apk@classes.dex
+From: michael <0xffdc@gmail.com>
+To: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d042f92880bb98604bca5ad74
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon Mar 26 19:12:12 2012, Eric Paris wrote:
+--f46d042f92880bb98604bca5ad74
+Content-Type: text/plain; charset=ISO-8859-1
 
-> On Mon, Mar 26, 2012 at 11:45 AM, Laurent Bigonville  
-> <bigon@debian.org> wrote:
->> Hi,
->>
->> restorecon should return 0 when a file has changed context with no
->> error. With the last version it's returning 1.
->>
->> I'm not sure if a patch has already been proposed for this issue.
->>
->> Laurent
->>
->> Description: Make restorecon return 0 when a file has changed  
->> context with no error
->> Author: Russell Coker <russell@coker.com.au>
->> Last-Update: 2012-03-07
->> Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=662990
->>
->> ---
->>  setfiles/restore.c |    3 +--
->>  1 files changed, 1 insertions(+), 2 deletions(-)
->>
->> diff --git a/policycoreutils/setfiles/restore.c  
->> b/policycoreutils/setfiles/restore.c
->> index 9a7d315..a378af0 100644
->> --- a/policycoreutils/setfiles/restore.c
->> +++ b/policycoreutils/setfiles/restore.c
->> @@ -218,10 +218,9 @@ static int restore(FTSENT *ftsent)
->>                        r_opts->progname, my_file, newcon, strerror(errno));
->>                goto skip;
->>        }
->> -       ret = 1;
->>  out:
->>        freecon(newcon);
->> -       return ret;
->> +       return 0;
->>  skip:
->>        freecon(newcon);
->>        return SKIP;
->
-> Is this right?  Don't we get to "out" from a number of error cases?
-> Do we always want 0?
+Hello,
 
-The return value of 1 when some file context is changed is needed by  
-restorecond.
+I'm trying to boot SE Android on Samsung/Google Nexus S 4G
+using full_crespo4g-eng configuration.The original AOSP (android-4.0.3_r1
+revision) works just fine, but there are two issues with SE Android (aosp
+master revision + selinuxproject). First of all, it was not possible to
+build emulator because of some errors, so I had to exclude it from
+compilation, I believe that it should not affect booting process. Second,
+after flashing, the device hangs every time during the Android boot process:
 
-This patch fixes the same bug:
-http://permalink.gmane.org/gmane.comp.security.selinux/16793
+(1st reboot)
+01-01 00:00:58.433: I/ActivityThread(168): Pub settings:
+com.android.providers.settings.SettingsProvider
+01-01 00:00:58.433: I/SystemServer(168): System Content Providers
+01-01 00:00:58.437: D/dalvikvm(168): DexOpt: --- BEGIN
+'SettingsProvider.apk' (bootstrap=0) ---
+hang!
 
--- 
-Martin Orr
+(2nd reboot)
+01-01 00:00:21.980: I/ActivityThread(159): Pub settings:
+com.android.providers.settings.SettingsProvider
+01-01 00:00:21.980: I/SystemServer(159): System Content Providers
+01-01 00:00:21.984: D/dalvikvm(159): DexOpt: incorrect opt magic number
+(0xff ff ff ff)
+01-01 00:00:21.984: D/dalvikvm(159): ODEX file is stale or bad; removing
+and retrying (/data/dalvik-cache/system@app@SettingsProvider.apk@classes.dex
+)
+01-01 00:00:21.988: D/dalvikvm(159): DexOpt: --- BEGIN
+'SettingsProvider.apk' (bootstrap=0) ---
+hang!
+
+You can see that DexOpt is causing a system hang while
+optimizing SettingsProvider.apk@classes.dex. The source code
+of SetttingProvider is unchanged and DexOpt works great for many other
+system apps, so it's unclear why it freezes. Thank you in advance for your
+answers. Also, I appreciate any BKMs on how to debug similar issues.
+
+--f46d042f92880bb98604bca5ad74
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<span>Hello,</span><div><br></div><div>I&#39;m trying to boot SE Android on=
+ Samsung/Google Nexus S 4G using=A0full_crespo4g-eng=A0configuration.The or=
+iginal AOSP (android-4.0.3_r1 revision) works just fine, but there are two =
+issues with SE Android (aosp master revision + selinuxproject). First of al=
+l, it was not possible to build emulator=A0because=A0of some=A0errors, so I=
+ had to=A0exclude it from compilation, I believe that it should not affect =
+booting process. Second, after flashing, the device hangs every time during=
+ the Android boot process:</div>
+
+<div><br></div><div>(1st reboot)</div><div><div>01-01 00:00:58.433: I/Activ=
+ityThread(168): Pub settings: com.android.providers.settings.SettingsProvid=
+er</div><div>01-01 00:00:58.433: I/SystemServer(168): System Content Provid=
+ers</div>
+
+<div>01-01 00:00:58.437: D/dalvikvm(168): DexOpt: --- BEGIN &#39;SettingsPr=
+ovider.apk&#39; (bootstrap=3D0) ---</div></div><div>hang!</div><div><br></d=
+iv><div><div>(2nd reboot)</div><div>01-01 00:00:21.980: I/ActivityThread(15=
+9): Pub settings: com.android.providers.settings.SettingsProvider</div>
+
+<div>01-01 00:00:21.980: I/SystemServer(159): System Content Providers</div=
+><div>01-01 00:00:21.984: D/dalvikvm(159): DexOpt: incorrect opt magic numb=
+er (0xff ff ff ff)</div><div>01-01 00:00:21.984: D/dalvikvm(159): ODEX file=
+ is stale or bad; removing and retrying (/data/dalvik-cache/system@app@Sett=
+ingsProvider.apk@classes.dex)</div>
+
+<div>01-01 00:00:21.988: D/dalvikvm(159): DexOpt: --- BEGIN &#39;SettingsPr=
+ovider.apk&#39; (bootstrap=3D0) ---</div></div><div><div>hang!</div><br></d=
+iv><div>You can see that DexOpt is causing a system hang while optimizing=
+=A0SettingsProvider.apk@classes.dex. The source code of=A0SetttingProvider =
+is unchanged and DexOpt works great for many other system apps, so it&#39;s=
+ unclear why it freezes. Thank you in advance for your answers. Also, I=A0a=
+ppreciate=A0any BKMs on how to debug similar issues.</div>
 
 
+--f46d042f92880bb98604bca5ad74--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
