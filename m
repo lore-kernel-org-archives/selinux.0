@@ -1,127 +1,92 @@
-Message-ID: <4F782CBC.2050407@redhat.com>
-Date: Sun, 01 Apr 2012 06:23:56 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: apply a different permission to ptrace a child
- vs non-child
-References: <20120330201334.23363.14917.stgit@paris.rdu.redhat.com> <1333139318.8293.50.camel@moss-pluto> <CACLa4pvRjDgCWZh=RH=9AF7ORE8NE=6wtgtK6XpZfNg4hwVQZw@mail.gmail.com>
-In-Reply-To: <CACLa4pvRjDgCWZh=RH=9AF7ORE8NE=6wtgtK6XpZfNg4hwVQZw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1333110537.8293.1.camel@moss-pluto>
+References: <CANcygcLgHdeJVpMOMDfpV3pYZDwPCL=OY_dgxXvX4pLg+4S-ng@mail.gmail.com>
+	<1333110537.8293.1.camel@moss-pluto>
+Date: Sun, 1 Apr 2012 07:36:06 -0700
+Message-ID: <CAE-gBNbHzNXYiNnkSGL-qh8DhUHBL2YXGRunS33W2PYnb81LMg@mail.gmail.com>
+Subject: Re: Requesting for materials regarding "SE Android"
+From: Fred Aguirre <2playerfootball@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Keerthi Kumar K <keerthikumark.ise@gmail.com>, selinux@tycho.nsa.gov,
+        seandroid@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=047d7b10ce016e997404bc9efe21
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--047d7b10ce016e997404bc9efe21
+Content-Type: text/plain; charset=ISO-8859-1
 
-The weird exception that I have heard of is DRKongi, which is some kind of
-ABRT tool for KDE.  I have no idea how it works.
+List
 
-Currently our biggest pain point with this feature is the anger it provokes in
-uses of strace or gdp without the PID.  I also believe we are breaking the
-current chrome-sandbox tool which is doing some wacky ptrace code trying to
-figure out the pid of the process the sandbox is running.
+On Fri, Mar 30, 2012 at 5:28 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-I think the fix will help with the gdb, ptrace children problem and the chrome
-problem.  Not sure about DRKongi
+> On Fri, 2012-03-30 at 09:19 +0530, Keerthi Kumar K wrote:
+> > Hi Sir...
+> >
+> > Myself final year Engineering student. As a part of academic
+> > qualification, we have technical seminar. So i have chosen "Securing
+> > Android-Powered Mobile Devices Using SELinux" as my topic. So i kindly
+> > request you to provide me with materials related to the above topic,
+> > so that i can get prepared for my technical seminar.
+>
+> I'm not sure what you are looking for, but the source code and
+> presentations about SE Android are all available from:
+> http://selinuxproject.org/page/SEAndroid
+>
+> Note however that SE Android was an independent effort from the work
+> described in the paper you mention.  I'm not sure if the work by the
+> group that authored that paper is still in progress or if it was ever
+> released.  But SE Android is an active project and the code is
+> available.
+>
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-On 03/30/2012 04:37 PM, Eric Paris wrote:
-> I don't really feel like I can know for sure until I try.  The only user I
-> know of for sure of Yama's registration interface is chrome. With chrome we
-> can deal with it intelligently since we can do labeling.  At the moment it
-> would be letting unconfined_execmem_t ptrace chrom_sandbox_t, but Dan can
-> probably work policy magic to run the parent in a better place.  I can do
-> it in Fedora first to flush things out but that means we can't use that
-> policy cap upstream, ever....
-> 
-> Is that preferred?  I just reserve a policy cap upstream and try it in 
-> Fedora to see where the pieces fall?
-> 
-> -Eric
-> 
-> On Fri, Mar 30, 2012 at 4:28 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
->> On Fri, 2012-03-30 at 16:13 -0400, Eric Paris wrote:
->>> Some applications, like gdb, are able to ptrace both children or other 
->>> completely unrelated tasks.  We would like to be able to discern these
->>> two things and to be able to allow gdb to ptrace it's children, but not
->>> to be able to ptrace unrelated tasks for security reasons.
->>> 
->>> This patch implements a new permission ptrace_child which is checked 
->>> INSTEAD of ptrace if and ONLY if the ptrace_child policy capability is 
->>> enabled.  We need a seperate policy cap because we are actually
->>> reducing the scope of ptrace.  If we used the default unknown
->>> permission handler we would run into trouble as new kernel with old
->>> policy would be weaker than old kernel with old policy.
->>> 
->>> Signed-off-by: Eric Paris <eparis@redhat.com> ---
->>> 
->>> security/selinux/hooks.c            |   38
->>> +++++++++++++++++++++++++++++++++++ security/selinux/include/classmap.h
->>> |    2 +- security/selinux/include/security.h |    2 ++ 
->>> security/selinux/selinuxfs.c        |    3 ++- 
->>> security/selinux/ss/services.c      |    3 +++ 5 files changed, 46
->>> insertions(+), 2 deletions(-)
->>> 
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c index
->>> ba74635..5cee787 100644 --- a/security/selinux/hooks.c +++
->>> b/security/selinux/hooks.c @@ -1805,6 +1805,39 @@ static inline u32
->>> open_file_to_av(struct file *file)
->>> 
->>> /* Hook functions begin here. */
->>> 
->>> +/** + * task_is_descendant - walk up a process family tree looking for
->>> a match + * @parent: the process to compare against while walking up
->>> from child + * @child: the process to start from while looking upwards
->>> for parent + * + * Returns 1 if child is a descendant of parent, 0 if
->>> not. + */ +static int task_is_descendant(struct task_struct *parent, +
->>> struct task_struct *child) +{ +     int rc = 0; +     struct
->>> task_struct *walker = child; + +     if (!parent || !child) +
->>> return 0; + +     rcu_read_lock(); +     if
->>> (!thread_group_leader(parent)) +             parent =
->>> rcu_dereference(parent->group_leader); +     while (walker->pid > 0) { 
->>> +             if (!thread_group_leader(walker)) +
->>> walker = rcu_dereference(walker->group_leader); +             if
->>> (walker == parent) { +                     rc = 1; +
->>> break; +             } +             walker =
->>> rcu_dereference(walker->real_parent); +     } +     rcu_read_unlock(); 
->>> + +     return rc; +} + static int selinux_ptrace_access_check(struct
->>> task_struct *child, unsigned int mode) {
->> 
->> Same function as in yama?  So it should go to common code, ideally in the
->> core kernel since it is fairly tightly coupled to the process 
->> implementation.
->> 
->> I guess you decide TRACEME wasn't a sufficient distinguisher.  However, 
->> will this suffice?  Seems like yama had to keep adding exceptions and 
->> allow the task to tell the kernel who to allowed to trace it.  Would hate
->> to add this only to find that it still doesn't allow you to deny ptrace
->> by default, since that was your motivation, right?
->> 
->> -- Stephen Smalley National Security Agency
->> 
->> 
->> -- This message was distributed to subscribers of the selinux mailing
->> list. If you no longer wish to subscribe, send mail to
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
->> quotes as the message.
-> 
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
+--047d7b10ce016e997404bc9efe21
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+List<br><br>
+<div class=3D"gmail_quote">On Fri, Mar 30, 2012 at 5:28 AM, Stephen Smalley=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.g=
+ov</a>&gt;</span> wrote:<br>
+<blockquote style=3D"BORDER-LEFT:#ccc 1px solid;MARGIN:0px 0px 0px 0.8ex;PA=
+DDING-LEFT:1ex" class=3D"gmail_quote">On Fri, 2012-03-30 at 09:19 +0530, Ke=
+erthi Kumar K wrote:<br>&gt; Hi Sir...<br>&gt;<br>&gt; Myself final year En=
+gineering student. As a part of academic<br>
+&gt; qualification, we have technical seminar. So i have chosen &quot;Secur=
+ing<br>&gt; Android-Powered Mobile Devices Using SELinux&quot; as my topic.=
+ So i kindly<br>&gt; request you to provide me with materials related to th=
+e above topic,<br>
+&gt; so that i can get prepared for my technical seminar.<br><br>I&#39;m no=
+t sure what you are looking for, but the source code and<br>presentations a=
+bout SE Android are all available from:<br><a href=3D"http://selinuxproject=
+.org/page/SEAndroid" target=3D"_blank">http://selinuxproject.org/page/SEAnd=
+roid</a><br>
+<br>Note however that SE Android was an independent effort from the work<br=
+>described in the paper you mention. =A0I&#39;m not sure if the work by the=
+<br>group that authored that paper is still in progress or if it was ever<b=
+r>
+released. =A0But SE Android is an active project and the code is<br>availab=
+le.<br><span class=3D"HOEnZb"><font color=3D"#888888"><br><br>--<br>Stephen=
+ Smalley<br>National Security Agency<br><br><br>--<br>This message was dist=
+ributed to subscribers of the selinux mailing list.<br>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with<br>the words &quot;unsubs=
+cribe selinux&quot; without quotes as the message.<br></font></span></block=
+quote>
+</div><br>
 
-iEYEARECAAYFAk94LLwACgkQrlYvE4MpobPrkQCfbNNvddLwjrUFgzQNsHO3Y5uj
-nDkAn0Yh/orUt4GZxAcWSAUid9Ho/+eS
-=Kr7o
------END PGP SIGNATURE-----
+--047d7b10ce016e997404bc9efe21--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
