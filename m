@@ -1,75 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q32FFl3s016247
-	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2012 11:15:47 -0400
-Message-ID: <4F79C2A0.10101@redhat.com>
-Date: Mon, 02 Apr 2012 11:15:44 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q32FJJX3016517
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2012 11:19:19 -0400
+Message-ID: <1333379956.49089.YahooMailClassic@web87014.mail.ird.yahoo.com>
+Date: Mon, 2 Apr 2012 16:19:16 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 1/1] XSELinux: Fix initialisation of polyinstantiated properties and selections
+To: selinux@tycho.nsa.gov, xorg-devel@lists.x.org
 MIME-Version: 1.0
-To: noloader@gmail.com
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Adding a booleans.subs file to selinux policy.
-References: <4F75D80E.4010905@redhat.com> <CAH8yC8kr9v1v6yzFcntoG_zHD=U-TAXqBqmNbQFu-SN0AiaCAA@mail.gmail.com>
-In-Reply-To: <CAH8yC8kr9v1v6yzFcntoG_zHD=U-TAXqBqmNbQFu-SN0AiaCAA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Note: This patch has been generated and tested on xorg-server-1.11.4
 
-On 03/30/2012 08:07 PM, Jeffrey Walton wrote:
-> On Fri, Mar 30, 2012 at 11:58 AM, Daniel J Walsh <dwalsh@redhat.com>
-> wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->> 
->> Basically I am sick of some of the bad names we chose for booleans when
->> we were first writing policy, so I want a mechanism to allow us to change
->> the names but still support the old names.
->> 
->> This patch will allow policy developers to ship a 
->> /etc/selinux/targeted/contexts/booleans.subs
->> 
->> Then libselinux will check if a boolean name exists, if not it will see
->> if there is a substitute name and attempt to use that.
->> 
->> I have attached the libselinux_bools-subs.patch and the first pass at
->> what a booleans.subs file will look like in Fedora 18.
-> +static int bool_open(const char *name, int flag) { ... + +	len =
-> strlen(name) + strlen(selinux_mnt) + sizeof(SELINUX_BOOL_DIR); Calling
-> strlen() on NULL is not valid C, IIRC.
-> 
-> +	snprintf(fname, len, "%s%s%s", selinux_mnt, SELINUX_BOOL_DIR, name); 
-> Silent truncation?
-> 
-> Should work under benign conditions. Will probably fail in a hostile 
-> environment.
-> 
-> Jeff
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
+The specfile (x_contexts) is currently checked for non-poly properties
+or selections first. If an entry should be present that specifies
+a poly entry and there is a default non-poly entry as a fallback, then
+this will be used instead (this is standard practice so that there is
+always a known label added). This patch checks for poly_selection or
+poly_property entries first and then checks non-poly entries.
 
-Ok adding
+Example x_contexts entry for selections:
+poly_selection PRIMARY  system_u:object_r:clipboard_xselection_t:s0
+selection CLIPBOARD     system_u:object_r:clipboard_xselection_t:s0
+selection * system_u:object_r:xselection_t:s0 # default fallback
+
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ Xext/xselinux_label.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/Xext/xselinux_label.c b/Xext/xselinux_label.c
+index e5929fa..ceb5a7e 100644
+--- a/Xext/xselinux_label.c
++++ b/Xext/xselinux_label.c
+@@ -97,16 +97,16 @@ SELinuxAtomToSIDLookup(Atom atom, SELinuxObjectRec *obj, int map, int polymap)
+     security_context_t ctx;
+     int rc = Success;
+ 
+-    obj->poly = 1;
++    obj->poly = 0;
+ 
+     /* Look in the mappings of names to contexts */
+-    if (selabel_lookup_raw(label_hnd, &ctx, name, map) == 0) {
+-	obj->poly = 0;
++    if (selabel_lookup_raw(label_hnd, &ctx, name, polymap) == 0) {
++	obj->poly = 1;
+     } else if (errno != ENOENT) {
+-	ErrorF("SELinux: a property label lookup failed!\n");
++	ErrorF("SELinux: a poly property or selection label lookup failed!\n");
+ 	return BadValue;
+-    } else if (selabel_lookup_raw(label_hnd, &ctx, name, polymap) < 0) {
+-	ErrorF("SELinux: a property label lookup failed!\n");
++    } else if (selabel_lookup_raw(label_hnd, &ctx, name, map) < 0) {
++	ErrorF("SELinux: a property or selection label lookup failed!\n");
+ 	return BadValue;
+     }
+ 
+-- 
+1.7.7.1
 
 
-	if (!name) {
-		errno = EINVAL;
-		return fd;
-	}
-
-At the beginning of bool_open.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk95wqAACgkQrlYvE4MpobOW1gCfWqW9HitmVXgRBG5CVMJRi8U6
-AqUAmwT5g4X4Q5TNWAjwdvTuXe/+7Fgn
-=L56v
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
