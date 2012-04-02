@@ -1,137 +1,75 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q32FFl3s016247
+	for <selinux@tycho.nsa.gov>; Mon, 2 Apr 2012 11:15:47 -0400
+Message-ID: <4F79C2A0.10101@redhat.com>
+Date: Mon, 02 Apr 2012 11:15:44 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CADQgGG1A4YaJGgqAir9TxMutEYY4MAriNNS1cisHK-LyQz_dqA@mail.gmail.com>
-References: <CADtWkVnyXPv99Hh-xTKz-03Qnv5AueYs7e8CqbQTUzu4dEX47Q@mail.gmail.com>
-	<CADQgGG1A4YaJGgqAir9TxMutEYY4MAriNNS1cisHK-LyQz_dqA@mail.gmail.com>
-Date: Sun, 1 Apr 2012 17:50:52 -0700
-Message-ID: <CADtWkVkpY6HmJfPxcUwXRPYwLbhcZH4Sa+p777ciYJOLLvF0kA@mail.gmail.com>
-Subject: Re: DexOpt freezes on SettingsProvider.apk@classes.dex
-From: michael <0xffdc@gmail.com>
-To: Robert Craig <robertpcraig@gmail.com>
-Cc: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=f46d042c647b08e0ec04bca795fb
+To: noloader@gmail.com
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Adding a booleans.subs file to selinux policy.
+References: <4F75D80E.4010905@redhat.com> <CAH8yC8kr9v1v6yzFcntoG_zHD=U-TAXqBqmNbQFu-SN0AiaCAA@mail.gmail.com>
+In-Reply-To: <CAH8yC8kr9v1v6yzFcntoG_zHD=U-TAXqBqmNbQFu-SN0AiaCAA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d042c647b08e0ec04bca795fb
-Content-Type: text/plain; charset=ISO-8859-1
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You're right. Now it works. Thank you.
+On 03/30/2012 08:07 PM, Jeffrey Walton wrote:
+> On Fri, Mar 30, 2012 at 11:58 AM, Daniel J Walsh <dwalsh@redhat.com>
+> wrote:
+>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+>> 
+>> Basically I am sick of some of the bad names we chose for booleans when
+>> we were first writing policy, so I want a mechanism to allow us to change
+>> the names but still support the old names.
+>> 
+>> This patch will allow policy developers to ship a 
+>> /etc/selinux/targeted/contexts/booleans.subs
+>> 
+>> Then libselinux will check if a boolean name exists, if not it will see
+>> if there is a substitute name and attempt to use that.
+>> 
+>> I have attached the libselinux_bools-subs.patch and the first pass at
+>> what a booleans.subs file will look like in Fedora 18.
+> +static int bool_open(const char *name, int flag) { ... + +	len =
+> strlen(name) + strlen(selinux_mnt) + sizeof(SELINUX_BOOL_DIR); Calling
+> strlen() on NULL is not valid C, IIRC.
+> 
+> +	snprintf(fname, len, "%s%s%s", selinux_mnt, SELINUX_BOOL_DIR, name); 
+> Silent truncation?
+> 
+> Should work under benign conditions. Will probably fail in a hostile 
+> environment.
+> 
+> Jeff
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
 
-On Sun, Apr 1, 2012 at 4:59 PM, Robert Craig <robertpcraig@gmail.com> wrote:
-
-> - When's the last time you repo synced? There was a recent fix to solve
-> the very boot deadlock you're seeing.
->  https://android-review.googlesource.com/#/c/34210/
->
-> On Sun, Apr 1, 2012 at 6:34 PM, michael <0xffdc@gmail.com> wrote:
->
->> Hello,
->>
->> I'm trying to boot SE Android on Samsung/Google Nexus S 4G
->> using full_crespo4g-eng configuration.The original AOSP (android-4.0.3_r1
->> revision) works just fine, but there are two issues with SE Android (aosp
->> master revision + selinuxproject). First of all, it was not possible to
->> build emulator because of some errors, so I had to exclude it from
->> compilation, I believe that it should not affect booting process. Second,
->> after flashing, the device hangs every time during the Android boot process:
->>
->> (1st reboot)
->> 01-01 00:00:58.433: I/ActivityThread(168): Pub settings:
->> com.android.providers.settings.SettingsProvider
->> 01-01 00:00:58.433: I/SystemServer(168): System Content Providers
->> 01-01 00:00:58.437: D/dalvikvm(168): DexOpt: --- BEGIN
->> 'SettingsProvider.apk' (bootstrap=0) ---
->> hang!
->>
->> (2nd reboot)
->> 01-01 00:00:21.980: I/ActivityThread(159): Pub settings:
->> com.android.providers.settings.SettingsProvider
->> 01-01 00:00:21.980: I/SystemServer(159): System Content Providers
->> 01-01 00:00:21.984: D/dalvikvm(159): DexOpt: incorrect opt magic number
->> (0xff ff ff ff)
->> 01-01 00:00:21.984: D/dalvikvm(159): ODEX file is stale or bad; removing
->> and retrying (/data/dalvik-cache/system@app
->> @SettingsProvider.apk@classes.dex)
->> 01-01 00:00:21.988: D/dalvikvm(159): DexOpt: --- BEGIN
->> 'SettingsProvider.apk' (bootstrap=0) ---
->> hang!
->>
->> You can see that DexOpt is causing a system hang while
->> optimizing SettingsProvider.apk@classes.dex. The source code
->> of SetttingProvider is unchanged and DexOpt works great for many other
->> system apps, so it's unclear why it freezes. Thank you in advance for your
->> answers. Also, I appreciate any BKMs on how to debug similar issues.
->>
->
->
-
---f46d042c647b08e0ec04bca795fb
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-You&#39;re right. Now it works. Thank you.<br><br><div class=3D"gmail_quote=
-">On Sun, Apr 1, 2012 at 4:59 PM, Robert Craig <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:robertpcraig@gmail.com">robertpcraig@gmail.com</a>&gt;</span> w=
-rote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">- When&#39;s the last time you repo synced? =
-There was a recent fix to solve the very boot deadlock you&#39;re seeing.=
-=A0<div>
-=A0<a href=3D"https://android-review.googlesource.com/#/c/34210/" target=3D=
-"_blank">https://android-review.googlesource.com/#/c/34210/</a>=A0<div><div=
- class=3D"h5"><div>
-<br><div class=3D"gmail_quote">On Sun, Apr 1, 2012 at 6:34 PM, michael <spa=
-n dir=3D"ltr">&lt;<a href=3D"mailto:0xffdc@gmail.com" target=3D"_blank">0xf=
-fdc@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" st=
-yle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-
-<span>Hello,</span><div><br></div><div>I&#39;m trying to boot SE Android on=
- Samsung/Google Nexus S 4G using=A0full_crespo4g-eng=A0configuration.The or=
-iginal AOSP (android-4.0.3_r1 revision) works just fine, but there are two =
-issues with SE Android (aosp master revision + selinuxproject). First of al=
-l, it was not possible to build emulator=A0because=A0of some=A0errors, so I=
- had to=A0exclude it from compilation, I believe that it should not affect =
-booting process. Second, after flashing, the device hangs every time during=
- the Android boot process:</div>
+Ok adding
 
 
+	if (!name) {
+		errno = EINVAL;
+		return fd;
+	}
 
-<div><br></div><div>(1st reboot)</div><div><div>01-01 00:00:58.433: I/Activ=
-ityThread(168): Pub settings: com.android.providers.settings.SettingsProvid=
-er</div><div>01-01 00:00:58.433: I/SystemServer(168): System Content Provid=
-ers</div>
-
-
-
-<div>01-01 00:00:58.437: D/dalvikvm(168): DexOpt: --- BEGIN &#39;SettingsPr=
-ovider.apk&#39; (bootstrap=3D0) ---</div></div><div>hang!</div><div><br></d=
-iv><div><div>(2nd reboot)</div><div>01-01 00:00:21.980: I/ActivityThread(15=
-9): Pub settings: com.android.providers.settings.SettingsProvider</div>
+At the beginning of bool_open.
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-<div>01-01 00:00:21.980: I/SystemServer(159): System Content Providers</div=
-><div>01-01 00:00:21.984: D/dalvikvm(159): DexOpt: incorrect opt magic numb=
-er (0xff ff ff ff)</div><div>01-01 00:00:21.984: D/dalvikvm(159): ODEX file=
- is stale or bad; removing and retrying (/data/dalvik-cache/system@app@Sett=
-ingsProvider.apk@classes.dex)</div>
-
-
-
-<div>01-01 00:00:21.988: D/dalvikvm(159): DexOpt: --- BEGIN &#39;SettingsPr=
-ovider.apk&#39; (bootstrap=3D0) ---</div></div><div><div>hang!</div><br></d=
-iv><div>You can see that DexOpt is causing a system hang while optimizing=
-=A0SettingsProvider.apk@classes.dex. The source code of=A0SetttingProvider =
-is unchanged and DexOpt works great for many other system apps, so it&#39;s=
- unclear why it freezes. Thank you in advance for your answers. Also, I=A0a=
-ppreciate=A0any BKMs on how to debug similar issues.</div>
-
-
-
-</blockquote></div><br></div></div></div></div>
-</blockquote></div><br>
-
---f46d042c647b08e0ec04bca795fb--
+iEYEARECAAYFAk95wqAACgkQrlYvE4MpobOW1gCfWqW9HitmVXgRBG5CVMJRi8U6
+AqUAmwT5g4X4Q5TNWAjwdvTuXe/+7Fgn
+=L56v
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
