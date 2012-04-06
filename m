@@ -1,399 +1,399 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q392bGBY012356
-	for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2012 22:37:16 -0400
-Message-ID: <4F824B4F.8090107@schaufler-ca.com>
-Date: Sun, 08 Apr 2012 19:37:03 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q39DNjh3006288
+	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2012 09:23:45 -0400
+Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.5/8.14.5) with ESMTP id q39DOZG1002919
+	for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2012 09:24:35 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.5/8.14.5/Submit) id q39DOYZx002918
+	for selinux@tycho.nsa.gov; Mon, 9 Apr 2012 09:24:34 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q36KJh0d008197
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2012 16:19:43 -0400
+Message-ID: <4F7F4FD5.30108@tycho.ncsc.mil>
+Date: Fri, 06 Apr 2012 16:19:33 -0400
+From: rpcraig <rpcraig@tycho.ncsc.mil>
 MIME-Version: 1.0
-To: Subodh Nijsure <subodh.nijsure@gmail.com>
-CC: linux-mtd@lists.infradead.org, Artem Bityutskiy <dedekind1@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>, linux-kernel@vger.kernel.org,
-        Subodh Nijsure <snijsure@grid-net.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Add security.selinux XATTR support for the UBIFS. Also
- fix couple of bugs in UBIFS extended attribute length calculation.
-References: <1333892851-10758-1-git-send-email-snijsure@grid-net.com>
-In-Reply-To: <1333892851-10758-1-git-send-email-snijsure@grid-net.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Subject: libselinux: Provide new labeling backend
+Content-Type: multipart/mixed;
+ boundary="------------070109080202070301050805"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/8/2012 6:47 AM, Subodh Nijsure wrote:
-> TESTING: Tested on  MX28 based platforms using Micron MT29F2G08ABAEAH4 NAND
->          With these change we are able to label UBIFS filesystem with security.selinux
->          and run system with selinux enabled.
->          Also ran integck test on UBI filesystem.
->
-> Signed-off-by: Subodh Nijsure <snijsure@grid-net.com>
+This is a multi-part message in MIME format.
+--------------070109080202070301050805
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-There is no reason to restrict xattr support to SELinux.
-SELinux specific behavior belongs within the SELinux LSM.
-This code needs to support the full xattr semantics.
+I have attached a patch which provides a new labeling backend
+directed at the Android property service keys.
 
-Nacked-by: Casey Schaufler <casey@scahufler-ca.com>
+--------------070109080202070301050805
+Content-Type: text/x-patch;
+ name="0001-New-Android-property-labeling-backend.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0001-New-Android-property-labeling-backend.patch"
 
-> ---
->  fs/ubifs/dir.c     |    4 ++
->  fs/ubifs/file.c    |    6 ++
->  fs/ubifs/journal.c |   12 +++-
->  fs/ubifs/super.c   |    3 +
->  fs/ubifs/ubifs.h   |    9 +++
->  fs/ubifs/xattr.c   |  147 ++++++++++++++++++++++++++++++++++++++++++++++++----
->  6 files changed, 167 insertions(+), 14 deletions(-)
->
-> diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-> index ec9f187..f4e06c4 100644
-> --- a/fs/ubifs/dir.c
-> +++ b/fs/ubifs/dir.c
-> @@ -293,6 +293,7 @@ static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
->  	ubifs_release_budget(c, &req);
->  	insert_inode_hash(inode);
->  	d_instantiate(dentry, inode);
-> +	ubifs_init_security(dir, inode, &dentry->d_name);
->  	return 0;
->  
->  out_cancel:
-> @@ -754,6 +755,7 @@ static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
->  
->  	ubifs_release_budget(c, &req);
->  	d_instantiate(dentry, inode);
-> +	ubifs_init_security(dir, inode, &dentry->d_name);
->  	return 0;
->  
->  out_cancel:
-> @@ -831,6 +833,7 @@ static int ubifs_mknod(struct inode *dir, struct dentry *dentry,
->  	ubifs_release_budget(c, &req);
->  	insert_inode_hash(inode);
->  	d_instantiate(dentry, inode);
-> +	ubifs_init_security(dir, inode, &dentry->d_name);
->  	return 0;
->  
->  out_cancel:
-> @@ -907,6 +910,7 @@ static int ubifs_symlink(struct inode *dir, struct dentry *dentry,
->  	ubifs_release_budget(c, &req);
->  	insert_inode_hash(inode);
->  	d_instantiate(dentry, inode);
-> +	ubifs_init_security(dir, inode, &dentry->d_name);
->  	return 0;
->  
->  out_cancel:
-> diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-> index 5c8f6dc..b8e9d66 100644
-> --- a/fs/ubifs/file.c
-> +++ b/fs/ubifs/file.c
-> @@ -1575,6 +1575,12 @@ const struct inode_operations ubifs_symlink_inode_operations = {
->  	.follow_link = ubifs_follow_link,
->  	.setattr     = ubifs_setattr,
->  	.getattr     = ubifs_getattr,
-> +#ifdef CONFIG_UBIFS_FS_XATTR
-> +	.setxattr    = ubifs_symlink_setxattr,
-> +	.getxattr    = ubifs_symlink_getxattr,
-> +	.listxattr   = ubifs_listxattr,
-> +	.removexattr = ubifs_removexattr,
-> +#endif
->  };
->  
->  const struct file_operations ubifs_file_operations = {
-> diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
-> index 2f438ab..725dc17 100644
-> --- a/fs/ubifs/journal.c
-> +++ b/fs/ubifs/journal.c
-> @@ -553,7 +553,8 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
->  
->  	dbg_jnl("ino %lu, dent '%.*s', data len %d in dir ino %lu",
->  		inode->i_ino, nm->len, nm->name, ui->data_len, dir->i_ino);
-> -	ubifs_assert(dir_ui->data_len == 0);
-> +	if (!xent)
-> +		ubifs_assert(dir_ui->data_len == 0);
->  	ubifs_assert(mutex_is_locked(&dir_ui->ui_mutex));
->  
->  	dlen = UBIFS_DENT_NODE_SZ + nm->len + 1;
-> @@ -572,7 +573,11 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
->  
->  	aligned_dlen = ALIGN(dlen, 8);
->  	aligned_ilen = ALIGN(ilen, 8);
-> -	len = aligned_dlen + aligned_ilen + UBIFS_INO_NODE_SZ;
-> +	/* Make sure to account for dir_ui+data_len in length calculation
-> +	 * in case there is extended attribute.
-> +	 */
-> +	len = aligned_dlen + aligned_ilen +
-> +	      UBIFS_INO_NODE_SZ + dir_ui->data_len;
->  	dent = kmalloc(len, GFP_NOFS);
->  	if (!dent)
->  		return -ENOMEM;
-> @@ -649,7 +654,8 @@ int ubifs_jnl_update(struct ubifs_info *c, const struct inode *dir,
->  
->  	ino_key_init(c, &ino_key, dir->i_ino);
->  	ino_offs += aligned_ilen;
-> -	err = ubifs_tnc_add(c, &ino_key, lnum, ino_offs, UBIFS_INO_NODE_SZ);
-> +	err = ubifs_tnc_add(c, &ino_key, lnum, ino_offs,
-> +			    UBIFS_INO_NODE_SZ + dir_ui->data_len);
->  	if (err)
->  		goto out_ro;
->  
-> diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
-> index 76e4e05..c28ac04 100644
-> --- a/fs/ubifs/super.c
-> +++ b/fs/ubifs/super.c
-> @@ -2061,6 +2061,9 @@ static int ubifs_fill_super(struct super_block *sb, void *data, int silent)
->  	if (c->max_inode_sz > MAX_LFS_FILESIZE)
->  		sb->s_maxbytes = c->max_inode_sz = MAX_LFS_FILESIZE;
->  	sb->s_op = &ubifs_super_operations;
-> +#ifdef CONFIG_UBIFS_FS_XATTR
-> +	sb->s_xattr = ubifs_xattr_handlers;
-> +#endif
->  
->  	mutex_lock(&c->umount_mutex);
->  	err = mount_ubifs(c);
-> diff --git a/fs/ubifs/ubifs.h b/fs/ubifs/ubifs.h
-> index 93d59ac..60b57f7 100644
-> --- a/fs/ubifs/ubifs.h
-> +++ b/fs/ubifs/ubifs.h
-> @@ -36,6 +36,7 @@
->  #include <linux/mtd/ubi.h>
->  #include <linux/pagemap.h>
->  #include <linux/backing-dev.h>
-> +#include <linux/security.h>
->  #include "ubifs-media.h"
->  
->  /* Version of this UBIFS implementation */
-> @@ -1454,6 +1455,7 @@ extern spinlock_t ubifs_infos_lock;
->  extern atomic_long_t ubifs_clean_zn_cnt;
->  extern struct kmem_cache *ubifs_inode_slab;
->  extern const struct super_operations ubifs_super_operations;
-> +extern const struct xattr_handler *ubifs_xattr_handlers[];
->  extern const struct address_space_operations ubifs_file_address_operations;
->  extern const struct file_operations ubifs_file_operations;
->  extern const struct inode_operations ubifs_file_inode_operations;
-> @@ -1736,10 +1738,17 @@ int ubifs_getattr(struct vfsmount *mnt, struct dentry *dentry,
->  		  struct kstat *stat);
->  
->  /* xattr.c */
-> +
->  int ubifs_setxattr(struct dentry *dentry, const char *name,
->  		   const void *value, size_t size, int flags);
-> +int ubifs_init_security(struct inode *dentry, struct inode *inode,
-> +			const struct qstr *qstr);
-> +int ubifs_symlink_setxattr(struct dentry *dentry, const char *name,
-> +			   const void *value, size_t size, int flags);
->  ssize_t ubifs_getxattr(struct dentry *dentry, const char *name, void *buf,
->  		       size_t size);
-> +ssize_t ubifs_symlink_getxattr(struct dentry *dentry, const char *name,
-> +			       void *buf, size_t size);
->  ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size);
->  int ubifs_removexattr(struct dentry *dentry, const char *name);
->  
-> diff --git a/fs/ubifs/xattr.c b/fs/ubifs/xattr.c
-> index 85b2722..a402c7d 100644
-> --- a/fs/ubifs/xattr.c
-> +++ b/fs/ubifs/xattr.c
-> @@ -209,11 +209,11 @@ static int change_xattr(struct ubifs_info *c, struct inode *host,
->  		goto out_free;
->  	}
->  	inode->i_size = ui->ui_size = size;
-> -	ui->data_len = size;
->  
->  	mutex_lock(&host_ui->ui_mutex);
->  	host->i_ctime = ubifs_current_time(host);
->  	host_ui->xattr_size -= CALC_XATTR_BYTES(ui->data_len);
-> +	ui->data_len = size;
->  	host_ui->xattr_size += CALC_XATTR_BYTES(size);
->  
->  	/*
-> @@ -293,18 +293,16 @@ static struct inode *iget_xattr(struct ubifs_info *c, ino_t inum)
->  	return ERR_PTR(-EINVAL);
->  }
->  
-> -int ubifs_setxattr(struct dentry *dentry, const char *name,
-> -		   const void *value, size_t size, int flags)
-> +static int __ubifs_setxattr(struct inode *host, const char *name,
-> +			    const void *value, size_t size, int flags)
->  {
-> -	struct inode *inode, *host = dentry->d_inode;
-> +	struct inode *inode;
->  	struct ubifs_info *c = host->i_sb->s_fs_info;
->  	struct qstr nm = { .name = name, .len = strlen(name) };
->  	struct ubifs_dent_node *xent;
->  	union ubifs_key key;
->  	int err, type;
->  
-> -	dbg_gen("xattr '%s', host ino %lu ('%.*s'), size %zd", name,
-> -		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
->  	ubifs_assert(mutex_is_locked(&host->i_mutex));
->  
->  	if (size > UBIFS_MAX_INO_DATA)
-> @@ -356,10 +354,29 @@ out_free:
->  	return err;
->  }
->  
-> -ssize_t ubifs_getxattr(struct dentry *dentry, const char *name, void *buf,
-> -		       size_t size)
-> +int ubifs_symlink_setxattr(struct dentry *dentry, const char *name,
-> +			   const void *value, size_t size, int flags)
->  {
-> -	struct inode *inode, *host = dentry->d_inode;
-> +	struct inode *host = dentry->d_inode;
-> +	dbg_gen("xattr '%s', host ino %lu ('%.*s'), size %zd", name,
-> +		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
-> +	return __ubifs_setxattr(host, name, value, size, flags);
-> +}
-> +
-> +int ubifs_setxattr(struct dentry *dentry, const char *name,
-> +		   const void *value, size_t size, int flags)
-> +{
-> +	struct inode *host = dentry->d_inode;
-> +	dbg_gen("xattr '%s', host ino %lu ('%.*s'), size %zd", name,
-> +		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
-> +	return __ubifs_setxattr(host, name, value, size, flags);
-> +}
-> +
-> +static
-> +ssize_t __ubifs_getxattr(struct inode *host, const char *name, void *buf,
-> +			 size_t size)
-> +{
-> +	struct inode *inode;
->  	struct ubifs_info *c = host->i_sb->s_fs_info;
->  	struct qstr nm = { .name = name, .len = strlen(name) };
->  	struct ubifs_inode *ui;
-> @@ -367,8 +384,8 @@ ssize_t ubifs_getxattr(struct dentry *dentry, const char *name, void *buf,
->  	union ubifs_key key;
->  	int err;
->  
-> -	dbg_gen("xattr '%s', ino %lu ('%.*s'), buf size %zd", name,
-> -		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
-> +	dbg_gen("xattr '%s', ino %lu  buf size %zd", name,
-> +		host->i_ino, size);
->  
->  	err = check_namespace(&nm);
->  	if (err < 0)
-> @@ -416,6 +433,25 @@ out_unlock:
->  	return err;
->  }
->  
-> +ssize_t ubifs_symlink_getxattr(struct dentry *dentry, const char *name,
-> +			       void *buf, size_t size)
-> +{
-> +	struct inode *host = dentry->d_inode;
-> +	dbg_gen("xattr '%s', ino %lu ('%.*s'), buf size %zd", name,
-> +		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
-> +	return __ubifs_getxattr(host, name, buf, size);
-> +}
-> +
-> +ssize_t ubifs_getxattr(struct dentry *dentry, const char *name, void *buf,
-> +		       size_t size)
-> +{
-> +	struct inode *host = dentry->d_inode;
-> +	dbg_gen("xattr '%s', ino %lu ('%.*s'), buf size %zd", name,
-> +		host->i_ino, dentry->d_name.len, dentry->d_name.name, size);
-> +	return __ubifs_getxattr(host, name, buf, size);
-> +}
-> +
-> +
->  ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
->  {
->  	union ubifs_key key;
-> @@ -568,3 +604,92 @@ out_free:
->  	kfree(xent);
->  	return err;
->  }
-> +
-> +size_t
-> +ubifs_security_listxattr(struct dentry *d, char *list, size_t list_size,
-> +			 const char *name, size_t name_len, int flags)
-> +{
-> +	const int prefix_len = XATTR_SECURITY_PREFIX_LEN;
-> +	const size_t total_len = prefix_len + name_len + 1;
-> +	if (list && total_len <= list_size) {
-> +		memcpy(list, XATTR_SECURITY_PREFIX, prefix_len);
-> +		memcpy(list+prefix_len, name, name_len);
-> +		list[prefix_len + name_len] = '\0';
-> +	}
-> +	return total_len;
-> +}
-> +
-> +
-> +int ubifs_security_getxattr(struct dentry *d, const char *name,
-> +			    void *buffer, size_t size, int flags)
-> +{
-> +	if (strcmp(name, "") == 0)
-> +		return -EINVAL;
-> +	return __ubifs_getxattr(d->d_inode, XATTR_NAME_SELINUX, buffer, size);
-> +}
-> +
-> +
-> +int ubifs_security_setxattr(struct dentry *d, const char *name,
-> +			    const void *value, size_t size,
-> +			    int flags, int handler_flags)
-> +{
-> +	if (strcmp(name, "") == 0)
-> +		return -EINVAL;
-> +	return __ubifs_setxattr(d->d_inode, XATTR_NAME_SELINUX, value,
+>From 1116054b1b9f6ab51f197613fa2a6e0d739e6ec8 Mon Sep 17 00:00:00 2001
+From: rpcraig <rpcraig@tycho.ncsc.mil>
+Date: Fri, 6 Apr 2012 15:54:29 -0400
+Subject: [PATCH] New Android property labeling backend
 
-This is silly. If you're supporting xattrs there is no reason
-single out a particular LSM. Make this general so that Smack
-and any other LSM that wants to use xattrs will work.
+---
+ libselinux/include/selinux/label.h      |    2 +
+ libselinux/src/label.c                  |    1 +
+ libselinux/src/label_android_property.c |  296 +++++++++++++++++++++++++++++++
+ libselinux/src/label_internal.h         |    2 +
+ 4 files changed, 301 insertions(+), 0 deletions(-)
+ create mode 100644 libselinux/src/label_android_property.c
 
-Move the changes into the SELinux LSM if you are going to
-hard code it.
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+index 1a54307..8263f32 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -31,6 +31,8 @@ struct selabel_handle;
+ #define SELABEL_CTX_X		2
+ /* db objects */
+ #define SELABEL_CTX_DB		3
++/* Android property service contexts */
++#define SELABEL_CTX_ANDROID_PROP 4
+ 
+ /*
+  * Available options
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index a9e0853..0a5bc39 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -24,6 +24,7 @@ static selabel_initfunc initfuncs[] = {
+ 	&selabel_media_init,
+ 	&selabel_x_init,
+ 	&selabel_db_init,
++	&selabel_property_init,
+ };
+ 
+ static void selabel_subs_fini(struct selabel_sub *ptr)
+diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
+new file mode 100644
+index 0000000..2a4c3b0
+--- /dev/null
++++ b/libselinux/src/label_android_property.c
+@@ -0,0 +1,296 @@
++/*
++ * Property Service contexts backend for labeling Android 
++ * property keys
++ */
++
++#include <stdarg.h>
++#include <string.h>
++#include <ctype.h>
++#include <errno.h>
++#include <limits.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include "callbacks.h"
++#include "label_internal.h"
++
++/* A property security context specification. */
++typedef struct spec {
++	struct selabel_lookup_rec lr;    /* holds contexts for lookup result */
++	char *property_key;              /* property key string */
++} spec_t;
++
++/* Our stored configuration */
++struct saved_data {
++	/*
++	 * The array of specifications is sorted for longest
++	 * prefix match
++	 */
++	spec_t *spec_arr;
++	unsigned int nspec; /* total number of specifications */
++};
++
++static int cmp(const void *A, const void *B)
++{
++	const struct spec *sp1 = A, *sp2 = B;
++
++	if (strncmp(sp1->property_key,"*",1) == 0)
++		return 1;
++	if (strncmp(sp2->property_key,"*",1) == 0)
++		return -1;
++
++	size_t L1 = strlen(sp1->property_key);
++	size_t L2 = strlen(sp2->property_key);
++
++	return (L1 < L2) - (L1 > L2);
++}
++
++/*
++ * Warn about duplicate specifications.
++ */
++static int nodups_specs(struct saved_data *data, const char *path)
++{
++	int rc = 0;
++	unsigned int ii, jj;
++	struct spec *curr_spec, *spec_arr = data->spec_arr;
++
++	for (ii = 0; ii < data->nspec; ii++) {
++		curr_spec = &spec_arr[ii];
++		for (jj = ii + 1; jj < data->nspec; jj++) {
++			if ((!strcmp(spec_arr[jj].property_key, curr_spec->property_key))) {
++				rc = -1;
++				errno = EINVAL;
++				if (strcmp
++				    (spec_arr[jj].lr.ctx_raw,
++				     curr_spec->lr.ctx_raw)) {
++					selinux_log
++						(SELINUX_ERROR,
++						 "%s: Multiple different specifications for %s  (%s and %s).\n",
++						 path, curr_spec->property_key,
++						 spec_arr[jj].lr.ctx_raw,
++						 curr_spec->lr.ctx_raw);
++				} else {
++					selinux_log
++						(SELINUX_ERROR,
++						 "%s: Multiple same specifications for %s.\n",
++						 path, curr_spec->property_key);
++				}
++			}
++		}
++	}
++	return rc;
++}
++
++static int process_line(struct selabel_handle *rec,
++			const char *path, char *line_buf, 
++			int pass, unsigned lineno)
++{
++	int items, len;
++	char buf1[BUFSIZ], buf2[BUFSIZ];
++	char *buf_p, *prop = buf1, *context = buf2;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	spec_t *spec_arr = data->spec_arr;
++	unsigned int nspec = data->nspec;
++
++	len = strlen(line_buf);
++	if (line_buf[len - 1] == '\n')
++		line_buf[len - 1] = 0;
++	buf_p = line_buf;
++	while (isspace(*buf_p))
++		buf_p++;
++	/* Skip comment lines and empty lines. */
++	if (*buf_p == '#' || *buf_p == 0)
++		return 0;
++	items = sscanf(line_buf, "%255s %255s", prop, context);
++	if (items != 2) {
++		selinux_log(SELINUX_WARNING,
++			    "%s:  line %d is missing fields, skipping\n", path,
++			    lineno);
++		return 0;
++	}
++
++	if (pass == 1) {
++		/* On the second pass, process and store the specification in spec. */
++		spec_arr[nspec].property_key = strdup(prop);
++		if (!spec_arr[nspec].property_key) {
++			selinux_log(SELINUX_WARNING,
++				    "%s:  out of memory at line %d on prop %s\n",
++				    path, lineno, prop);
++		return -1;
++	    
++		}
++
++		spec_arr[nspec].lr.ctx_raw = strdup(context);
++		if (!spec_arr[nspec].lr.ctx_raw) {
++			selinux_log(SELINUX_WARNING,
++				    "%s:  out of memory at line %d on context %s\n",
++				    path, lineno, context);
++		return -1;
++		}
++     	}
++
++	data->nspec = ++nspec;
++	return 0;
++}
++
++static int init(struct selabel_handle *rec, struct selinux_opt *opts,
++		unsigned n)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	const char *path = NULL;
++	FILE *fp;
++	char line_buf[BUFSIZ];
++	unsigned int lineno = 0, maxnspec, pass;
++	int status = -1;
++	struct stat sb;
++
++	/* Process arguments */
++	while (n--)
++		switch (opts[n].type) {
++		case SELABEL_OPT_PATH:
++			path = opts[n].value;
++			break;
++		default:
++			selinux_log(SELINUX_WARNING,
++				    "Argument type (%d) not recognized. Skipping\n", opts[n].type);
++			break;
++		}
++
++	/* Open the specification file. */
++	if ((fp = fopen(path, "r")) == NULL)
++		return -1;
++
++	if (fstat(fileno(fp), &sb) < 0)
++		return -1;
++	if (!S_ISREG(sb.st_mode)) {
++		errno = EINVAL;
++		return -1;
++	}
++
++	/*
++	 * Two passes of the specification file. First is to get the size.
++	 * After the first pass, the spec array is malloced to the appropriate 
++	 * size. Second pass is to populate the spec array and check for 
++	 * dups.
++	 */
++	maxnspec = UINT_MAX / sizeof(spec_t);
++	for (pass = 0; pass < 2; pass++) {
++		data->nspec = 0;
++
++		while (fgets(line_buf, sizeof line_buf - 1, fp)
++		       && data->nspec < maxnspec) {
++			if (process_line(rec, path, line_buf, pass, ++lineno) != 0) {
++				goto finish;
++			}
++		}
++
++		if (pass == 1) {
++			status = nodups_specs(data, path);
++	    
++			if (status)
++				goto finish;
++		}
++
++		if (pass == 0) {
++
++			if (data->nspec == 0) {
++				status = 0;
++				goto finish;
++			}
++
++			if (NULL == (data->spec_arr =
++				     malloc(sizeof(spec_t) * data->nspec)))
++				goto finish;
++
++			memset(data->spec_arr, 0, sizeof(spec_t)*data->nspec);
++			maxnspec = data->nspec;
++			rewind(fp);
++		}
++	}
++
++	qsort(data->spec_arr, data->nspec, sizeof(struct spec), cmp);
++
++	status = 0;
++finish:
++	fclose(fp);
++	return status;
++}
++
++/*
++ * Backend interface routines
++ */
++static void closef(struct selabel_handle *rec)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	struct spec *spec;
++	unsigned int i;
++
++	for (i = 0; i < data->nspec; i++) {
++		spec = &data->spec_arr[i];
++		free(spec->property_key);
++		free(spec->lr.ctx_raw);
++		free(spec->lr.ctx_trans);
++	}
++
++	if (data->spec_arr)
++		free(data->spec_arr);
++	
++	free(data);
++}
++
++static struct selabel_lookup_rec *lookup(struct selabel_handle *rec, 
++					 const char *key, 
++					 int __attribute__((unused)) type)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	spec_t *spec_arr = data->spec_arr;
++	unsigned int i;
++	struct selabel_lookup_rec *ret = NULL;
++
++	if (!data->nspec) {
++		errno = ENOENT;
++		goto finish;
++	}
++
++	for (i = 0; i < data->nspec; i++) {
++		if (strncmp(spec_arr[i].property_key, key, 
++		    strlen(spec_arr[i].property_key)) == 0) {
++			break;
++		}
++		if (strncmp(spec_arr[i].property_key, "*", 1) == 0)
++			break;
++	}
++
++	if (i >= data->nspec) {
++		/* No matching specification. */
++		errno = ENOENT;
++		goto finish;
++	}
++
++	ret = &spec_arr[i].lr;
++
++finish:
++	return ret;
++}
++
++static void stats(struct selabel_handle __attribute__((unused)) *rec)
++{
++	selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
++}
++
++int selabel_property_init(struct selabel_handle *rec, struct selinux_opt *opts,
++		      unsigned nopts)
++{
++	struct saved_data *data;
++
++	data = (struct saved_data *)malloc(sizeof(*data));
++	if (!data)
++		return -1;
++	memset(data, 0, sizeof(*data));
++
++	rec->data = data;
++	rec->func_close = &closef;
++	rec->func_stats = &stats;
++	rec->func_lookup = &lookup;
++
++	return init(rec, opts, nopts);
++}
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 79d5495..435ecf2 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -25,6 +25,8 @@ int selabel_x_init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 		   unsigned nopts) hidden;
+ int selabel_db_init(struct selabel_handle *rec,
+ 		    struct selinux_opt *opts, unsigned nopts) hidden;
++int selabel_property_init(struct selabel_handle *rec,
++			  struct selinux_opt *opts, unsigned nopts) hidden;
+ 
+ /*
+  * Labeling internal structures
+-- 
+1.7.5.4
 
-> +				size, flags);
-> +}
-> +
-> +struct xattr_handler ubifs_xattr_security_handler = {
-> +	.prefix = XATTR_SECURITY_PREFIX,
-> +	.list   = ubifs_security_listxattr,
-> +	.get    = ubifs_security_getxattr,
-> +	.set    = ubifs_security_setxattr,
-> +};
-> +
-> +const struct xattr_handler *ubifs_xattr_handlers[] = {
-> +	&ubifs_xattr_security_handler,
-> +	NULL
-> +};
-> +
-> +static int ubifs_initxattrs(struct inode *inode,
-> +			    const struct xattr *xattr_array, void *fs_info)
-> +{
-> +	const struct xattr *xattr;
-> +	char *name;
-> +	int err = 0;
-> +
-> +	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
-> +		name = kmalloc(XATTR_SECURITY_PREFIX_LEN +
-> +			       strlen(xattr->name) + 1, GFP_NOFS);
-> +		if (!name) {
-> +			err = -ENOMEM;
-> +			break;
-> +		}
-> +		strcpy(name, XATTR_SECURITY_PREFIX);
-> +		strcpy(name + XATTR_SECURITY_PREFIX_LEN, xattr->name);
-> +
-> +		err = __ubifs_setxattr(inode, xattr->name, xattr->value,
-> +			       xattr->value_len, 0);
-> +		kfree(name);
-> +		if (err < 0)
-> +			break;
-> +	}
-> +	return err;
-> +}
-> +
-> +int
-> +ubifs_init_security(struct inode *dentry, struct inode *inode,
-> +		   const struct qstr *qstr)
-> +{
-> +	struct ubifs_inode *dir_ui = ubifs_inode(inode);
-> +	int err = 0;
-> +
-> +	mutex_lock(&dir_ui->ui_mutex);
-> +	mutex_lock(&inode->i_mutex);
-> +
-> +	err = security_inode_init_security(inode, dentry, qstr,
-> +					   &ubifs_initxattrs, 0);
-> +	mutex_unlock(&inode->i_mutex);
-> +	mutex_unlock(&dir_ui->ui_mutex);
-> +	return err;
-> +}
+
+--------------070109080202070301050805--
 
 
 --
