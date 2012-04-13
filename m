@@ -1,38 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q3DH0Zeh013702
-	for <selinux@tycho.nsa.gov>; Fri, 13 Apr 2012 13:00:35 -0400
-Received: by eaa1 with SMTP id 1so805794eaa.12
-        for <selinux@tycho.nsa.gov>; Fri, 13 Apr 2012 10:00:35 -0700 (PDT)
-Message-ID: <1334336430.8552.14.camel@q9000.localdomain>
-Subject: Re: Any SELinux policy development/analysis training workshops?
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Jason Axelson <jaxelson@referentia.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Date: Fri, 13 Apr 2012 19:00:30 +0200
-In-Reply-To: <CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+Message-ID: <1334341778.10083.13.camel@moss-lions.epoch.ncsc.mil>
+Subject: Re: [UPDATED] Patch for SE Android Manager AVC logging feature
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        rpcraig
+	 <rpcraig@tycho.ncsc.mil>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Date: Fri, 13 Apr 2012 14:29:38 -0400
+In-Reply-To: <CAFftDdpgZ=X_kEqPMNWNHNqrJd+r8b3wub4Jj6R=5SLZktB4Bg@mail.gmail.com>
 References: 
-	<CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+	<CAFftDdpgZ=X_kEqPMNWNHNqrJd+r8b3wub4Jj6R=5SLZktB4Bg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-04-12 at 11:34 -1000, Jason Axelson wrote:
-> Hi,
-> 
-> Is there currently anywhere to get SELinux policy development and
-> analysis training in a workshop-type form?
+On Wed, 2012-04-11 at 14:05 -0400, William Roberts wrote:
+> This patch enables the avc denied logging feature in the SE
+> Android SEAndroidManager application.
 > 
 
-Not really what you are looking for but one can get help on IRC as well.
+Merged with a couple of minor whitespace fixes.
+I also added policy so that SEAndroidManager can read the syslog.
 
-irc://irc.freenode.org/selinux
-irc://irc.freenode.org/fedora-selinux
+Thanks,
 
-I have also uploaded various tutorials to Youtube that give at least
-some insight. Not professional at all but it will help one get started.
-
-It is not that hard once one is familiar with some of the fundamentals.
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
