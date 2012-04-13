@@ -1,51 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q3DESl2f003941
-	for <selinux@tycho.nsa.gov>; Fri, 13 Apr 2012 10:28:47 -0400
-Message-ID: <4F88381C.7080604@redhat.com>
-Date: Fri, 13 Apr 2012 10:28:44 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Jason Axelson <jaxelson@referentia.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q3DH0Zeh013702
+	for <selinux@tycho.nsa.gov>; Fri, 13 Apr 2012 13:00:35 -0400
+Received: by eaa1 with SMTP id 1so805794eaa.12
+        for <selinux@tycho.nsa.gov>; Fri, 13 Apr 2012 10:00:35 -0700 (PDT)
+Message-ID: <1334336430.8552.14.camel@q9000.localdomain>
 Subject: Re: Any SELinux policy development/analysis training workshops?
-References: <CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+From: Dominick Grift <dominick.grift@gmail.com>
+To: Jason Axelson <jaxelson@referentia.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Date: Fri, 13 Apr 2012 19:00:30 +0200
 In-Reply-To: <CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+References: 
+	<CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/12/2012 05:34 PM, Jason Axelson wrote:
+On Thu, 2012-04-12 at 11:34 -1000, Jason Axelson wrote:
 > Hi,
 > 
-> Is there currently anywhere to get SELinux policy development and analysis
-> training in a workshop-type form?
+> Is there currently anywhere to get SELinux policy development and
+> analysis training in a workshop-type form?
 > 
-> The Tresys training would be great, but it looks like there aren't any 
-> classes currently scheduled ("No classes are currently scheduled for the
-> 2012"): http://www.tresys.com/education.php
-> 
-> There is also this Red Hat training but it looks like it is more focused on
-> system administration and maintenance then on policy development and
-> analysis: 
-> http://www.redhat.com/training/courses/rhs429/course-exam-outline
-> 
-> So are there any other training opportunities out there?
-> 
-> Thanks, Jason
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
 
-I believe the Red Hat three day SELinux training would do a good job, not sure
-when that is offered.
+Not really what you are looking for but one can get help on IRC as well.
 
-There are a couple of sessions at the Red Hat Summit that might help.
+irc://irc.freenode.org/selinux
+irc://irc.freenode.org/fedora-selinux
 
-But I believe this is not rocket science and it is just best to jump in on a
-program that does not have a policy and try to build it.  I usually recommend
-you start with a system service, and work from there.
+I have also uploaded various tutorials to Youtube that give at least
+some insight. Not professional at all but it will help one get started.
+
+It is not that hard once one is familiar with some of the fundamentals.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
