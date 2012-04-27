@@ -1,38 +1,24 @@
-MIME-Version: 1.0
-Date: Fri, 27 Apr 2012 16:55:52 +0800
-Message-ID: <CAO-AVB5UNL6UNk-pMCjxmc1sgkMDJbAe47pvpeYg6Zgy2aKENA@mail.gmail.com>
-Subject: generate the policy for embedded device by seedit-cross
-From: casinee app <appcasinee@gmail.com>
 To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+From: casinee <appcasinee@gmail.com>
+Subject: Re: compile the libselinux for embedded device
+Date: Fri, 27 Apr 2012 09:01:48 +0000 (UTC)
+Message-ID: <loom.20120427T105859-973@post.gmane.org>
+References: <CAO-AVB7q7Wj9gCcbhoz9Rw2TZegkDdqK62Lyg0FZw2yXg2adRA@mail.gmail.com> <4F984FD4.9000807@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-i want to generate the policy for embedded device by seedit-cross. The
-seedit-cross comes from the compiling of seedit. But when i executed
-the command below written in the ducument from the web site
-http://seedit.svn.sourceforge.net/svnroot/seedit/trunk/README.cross,
-it gave the error message like this:
-root@coon:/home/coon/new/seedit-cross# ./seedit-load -v -d
-[: 83: ==: unexpected operator
-[: 88: ==: unexpected operator
-[: 93: ==: unexpected operator
-[: 83: ==: unexpected operator
-[: 88: ==: unexpected operator
-[: 93: ==: unexpected operator
-[: 83: ==: unexpected operator
-[: 88: ==: unexpected operator
-[: 93: ==: unexpected operator
-seedit-load: Success
-Input file open
-error:/usr/share/seedit/sepolicy/confined_domains/sbin/auditctl -d
-exit,always -S chdir  >/dev/null 2>&1
-root@coon:/home/coon/new/seedit-cross# ls
-audit2spdl   dynamic_contexts  seedit       seedit-converter  seedit-load
-base_policy  macros            seedit.conf  seedit-cross.sh   simplified_policy
+Daniel J Walsh <dwalsh@...> writes:
 
-How can i solve this problem?  Thanks a lot.
+> 
+> 
+> Ask on the SELinux <selinux@...> mail list.
+> 
+how to ask on it???
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
