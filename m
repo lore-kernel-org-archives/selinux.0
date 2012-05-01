@@ -1,55 +1,64 @@
-Message-ID: <4F9A9DE8.1010202@redhat.com>
-Date: Fri, 27 Apr 2012 09:23:52 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q41Ir1S4020792
+	for <selinux@tycho.nsa.gov>; Tue, 1 May 2012 14:53:01 -0400
+Message-ID: <4FA0310D.4090004@tresys.com>
+Date: Tue, 1 May 2012 14:53:01 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: casinee app <appcasinee@gmail.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: generate the policy for embedded device by seedit-cross
-References: <CAO-AVB5UNL6UNk-pMCjxmc1sgkMDJbAe47pvpeYg6Zgy2aKENA@mail.gmail.com>
-In-Reply-To: <CAO-AVB5UNL6UNk-pMCjxmc1sgkMDJbAe47pvpeYg6Zgy2aKENA@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: owner-selinux@tycho.nsa.gov
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: <refpolicy@oss1.tresys.com>, SELinux-NSA <selinux@tycho.nsa.gov>
+Subject: Re: [3/4] sepgsql - Add temporary objects support
+References: <CADyhKSWqX5t1UK-zGFYLbqoCjP+9Bf9H3dOM8VHSNwsybg15AA@mail.gmail.com>
+In-Reply-To: <CADyhKSWqX5t1UK-zGFYLbqoCjP+9Bf9H3dOM8VHSNwsybg15AA@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Sender: owner-selinux@tycho.ncsc.mil
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 04/27/2012 04:55 AM, casinee app wrote:
-> Hello, i want to generate the policy for embedded device by seedit-cross.
-> The seedit-cross comes from the compiling of seedit. But when i executed 
-> the command below written in the ducument from the web site 
-> http://seedit.svn.sourceforge.net/svnroot/seedit/trunk/README.cross, it
-> gave the error message like this: root@coon:/home/coon/new/seedit-cross#
-> ./seedit-load -v -d [: 83: ==: unexpected operator [: 88: ==: unexpected
-> operator [: 93: ==: unexpected operator [: 83: ==: unexpected operator [:
-> 88: ==: unexpected operator [: 93: ==: unexpected operator [: 83: ==:
-> unexpected operator [: 88: ==: unexpected operator [: 93: ==: unexpected
-> operator seedit-load: Success Input file open 
-> error:/usr/share/seedit/sepolicy/confined_domains/sbin/auditctl -d 
-> exit,always -S chdir  >/dev/null 2>&1 
-> root@coon:/home/coon/new/seedit-cross# ls audit2spdl   dynamic_contexts
-> seedit       seedit-converter  seedit-load base_policy  macros
-> seedit.conf  seedit-cross.sh   simplified_policy
+On 03/25/12 17:15, Kohei KaiGai wrote:
+> This patch adds a special case handling on creation of temporary
+> schema; "pg_temp". The temporary schema shall be labeled as
+> "sepgsql_temp_schema" in the default, then underlying objects
+> also labeled as temporary objects; that allows confined users
+> to create, drop and so on, even if sepgsql_enable_users_ddl is off.
 > 
-> How can i solve this problem?  Thanks a lot.
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-> 
+> In PostgreSQL, all the temporary objects are deployed on "pg_temp"
+> schema, then they shall be removed at the session end.
+> Thus, it has no possibility to leak any other entities via references to
+> the shared database objects, and no need to prevent creation or
+> deletion of temporary objects by confined domains.
+[...]
 
+> diff --git a/policy/modules/services/postgresql.te
+> b/policy/modules/services/postgresql.te
+> index add0cd6..8a3c2bd 100644
+> --- a/policy/modules/services/postgresql.te
+> +++ b/policy/modules/services/postgresql.te
+> @@ -164,6 +164,22 @@ optional_policy(`
+>  	mls_process_set_level(sepgsql_ranged_proc_t)
+>  ')
+> 
+> +# Types for temporary objects
+> +type sepgsql_temp_schema_t;
+> +postgresql_schema_object(sepgsql_temp_schema_t)
+> +
+> +type sepgsql_temp_table_t;
+> +postgresql_table_object(sepgsql_temp_table_t)
+> +
+> +type sepgsql_temp_seq_t;
+> +postgresql_table_object(sepgsql_temp_seq_t)
+> +
+> +type sepgsql_temp_view_t;
+> +postgresql_view_object(sepgsql_temp_view_t)
+> +
+> +type sepgsql_temp_proc_exec_t;
+> +postgresql_procedure_object(sepgsql_temp_proc_exec_t)
 
-Don't use seedit.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Why do you have a temp type for each of the object classes?  I don't see it gaining anything in the policy and it would be simpler to have a single type.
 
-iEYEARECAAYFAk+anegACgkQrlYvE4MpobPq7wCdFbvZBak5li3BVOq9lMslbcdW
-NZsAn2mEqKWhnBzACAVaT/+uyoUA9gek
-=hBQJ
------END PGP SIGNATURE-----
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
