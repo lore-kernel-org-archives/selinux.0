@@ -1,64 +1,99 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q41Ir1S4020792
-	for <selinux@tycho.nsa.gov>; Tue, 1 May 2012 14:53:01 -0400
-Message-ID: <4FA0310D.4090004@tresys.com>
-Date: Tue, 1 May 2012 14:53:01 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q423XpUY013115
+	for <selinux@tycho.nsa.gov>; Tue, 1 May 2012 23:33:51 -0400
+Received: by pbbrr13 with SMTP id rr13so473634pbb.12
+        for <selinux@tycho.nsa.gov>; Tue, 01 May 2012 20:33:45 -0700 (PDT)
 MIME-Version: 1.0
-To: Kohei KaiGai <kaigai@kaigai.gr.jp>
-CC: <refpolicy@oss1.tresys.com>, SELinux-NSA <selinux@tycho.nsa.gov>
-Subject: Re: [3/4] sepgsql - Add temporary objects support
-References: <CADyhKSWqX5t1UK-zGFYLbqoCjP+9Bf9H3dOM8VHSNwsybg15AA@mail.gmail.com>
-In-Reply-To: <CADyhKSWqX5t1UK-zGFYLbqoCjP+9Bf9H3dOM8VHSNwsybg15AA@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+In-Reply-To: <CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+References: <CAC9ii1pUGn0r6NwZ=XkMOUmJhVkG0EfVMd8iUv3dV38v2hR7mg@mail.gmail.com>
+Date: Tue, 1 May 2012 20:33:45 -0700
+Message-ID: <CAE-gBNaOu3npF_tvyc+EFcpGD3VtWKAkFPJp3eG71ixRjbW+Lw@mail.gmail.com>
+Subject: Re: Any SELinux policy development/analysis training workshops?
+From: Fred Aguirre <2playerfootball@gmail.com>
+To: Jason Axelson <jaxelson@referentia.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=047d7b2e4d6ec8d3c004bf055a86
 Sender: owner-selinux@tycho.ncsc.mil
 List-Id: selinux@tycho.nsa.gov
 
-On 03/25/12 17:15, Kohei KaiGai wrote:
-> This patch adds a special case handling on creation of temporary
-> schema; "pg_temp". The temporary schema shall be labeled as
-> "sepgsql_temp_schema" in the default, then underlying objects
-> also labeled as temporary objects; that allows confined users
-> to create, drop and so on, even if sepgsql_enable_users_ddl is off.
-> 
-> In PostgreSQL, all the temporary objects are deployed on "pg_temp"
-> schema, then they shall be removed at the session end.
-> Thus, it has no possibility to leak any other entities via references to
-> the shared database objects, and no need to prevent creation or
-> deletion of temporary objects by confined domains.
-[...]
+--047d7b2e4d6ec8d3c004bf055a86
+Content-Type: text/plain; charset=ISO-8859-1
 
-> diff --git a/policy/modules/services/postgresql.te
-> b/policy/modules/services/postgresql.te
-> index add0cd6..8a3c2bd 100644
-> --- a/policy/modules/services/postgresql.te
-> +++ b/policy/modules/services/postgresql.te
-> @@ -164,6 +164,22 @@ optional_policy(`
->  	mls_process_set_level(sepgsql_ranged_proc_t)
->  ')
-> 
-> +# Types for temporary objects
-> +type sepgsql_temp_schema_t;
-> +postgresql_schema_object(sepgsql_temp_schema_t)
-> +
-> +type sepgsql_temp_table_t;
-> +postgresql_table_object(sepgsql_temp_table_t)
-> +
-> +type sepgsql_temp_seq_t;
-> +postgresql_table_object(sepgsql_temp_seq_t)
-> +
-> +type sepgsql_temp_view_t;
-> +postgresql_view_object(sepgsql_temp_view_t)
-> +
-> +type sepgsql_temp_proc_exec_t;
-> +postgresql_procedure_object(sepgsql_temp_proc_exec_t)
+List
 
-Why do you have a temp type for each of the object classes?  I don't see it gaining anything in the policy and it would be simpler to have a single type.
+On Thu, Apr 12, 2012 at 2:34 PM, Jason Axelson <jaxelson@referentia.com>wrote:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+> Hi,
+>
+> Is there currently anywhere to get SELinux policy development and
+> analysis training in a workshop-type form?
+>
+> The Tresys training would be great, but it looks like there aren't any
+> classes currently scheduled ("No classes are currently scheduled for
+> the 2012"):
+> http://www.tresys.com/education.php
+>
+> There is also this Red Hat training but it looks like it is more
+> focused on system administration and maintenance then on policy
+> development and analysis:
+> http://www.redhat.com/training/courses/rhs429/course-exam-outline
+>
+> So are there any other training opportunities out there?
+>
+> Thanks,
+> Jason
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
+> the words "unsubscribe selinux" without quotes as the message.
+>
+
+--047d7b2e4d6ec8d3c004bf055a86
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+List<br><br><div class=3D"gmail_quote">On Thu, Apr 12, 2012 at 2:34 PM, Jas=
+on Axelson <span dir=3D"ltr">&lt;<a href=3D"mailto:jaxelson@referentia.com"=
+ target=3D"_blank">jaxelson@referentia.com</a>&gt;</span> wrote:<br><blockq=
+uote style=3D"margin:0px 0px 0px 0.8ex;padding-left:1ex;border-left-color:r=
+gb(204,204,204);border-left-width:1px;border-left-style:solid" class=3D"gma=
+il_quote">
+Hi,<br>
+<br>
+Is there currently anywhere to get SELinux policy development and<br>
+analysis training in a workshop-type form?<br>
+<br>
+The Tresys training would be great, but it looks like there aren&#39;t any<=
+br>
+classes currently scheduled (&quot;No classes are currently scheduled for<b=
+r>
+the 2012&quot;):<br>
+<a href=3D"http://www.tresys.com/education.php" target=3D"_blank">http://ww=
+w.tresys.com/education.php</a><br>
+<br>
+There is also this Red Hat training but it looks like it is more<br>
+focused on system administration and maintenance then on policy<br>
+development and analysis:<br>
+<a href=3D"http://www.redhat.com/training/courses/rhs429/course-exam-outlin=
+e" target=3D"_blank">http://www.redhat.com/training/courses/rhs429/course-e=
+xam-outline</a><br>
+<br>
+So are there any other training opportunities out there?<br>
+<br>
+Thanks,<br>
+Jason<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br=
+>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
+>
+</blockquote></div><br>
+
+--047d7b2e4d6ec8d3c004bf055a86--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
