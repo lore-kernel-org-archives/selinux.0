@@ -1,230 +1,204 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q447wenm007413
-	for <selinux@tycho.nsa.gov>; Fri, 4 May 2012 03:58:40 -0400
-Received: by lahc1 with SMTP id c1so1999726lah.12
-        for <selinux@tycho.nsa.gov>; Fri, 04 May 2012 00:58:39 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q44DEEv6026326
+	for <selinux@tycho.nsa.gov>; Fri, 4 May 2012 09:14:14 -0400
+Received: by lahc1 with SMTP id c1so2176110lah.12
+        for <selinux@tycho.nsa.gov>; Fri, 04 May 2012 06:14:13 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <201205041333.00008.russell@coker.com.au>
-References: <CAO-AVB4KaNM=V97rPjgTDr_x5QuXvyAZnoBv8WJWZDG+2a6RpA@mail.gmail.com>
-	<201205032130.23611.russell@coker.com.au>
-	<CAO-AVB6cO6ZaN9e40oo4uVL2HfU55=N1wOyVOs92qEfop6zpDA@mail.gmail.com>
-	<201205041333.00008.russell@coker.com.au>
-Date: Fri, 4 May 2012 15:58:39 +0800
-Message-ID: <CAO-AVB66CWjtNECedAgXJFinNB2XHZD=2dH5izYGkR9ovoH_vg@mail.gmail.com>
-Subject: Re: Can't login the embedded linux with seliux support
-From: casinee app <appcasinee@gmail.com>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=GB2312
+In-Reply-To: <4FA0310D.4090004@tresys.com>
+References: <CADyhKSWqX5t1UK-zGFYLbqoCjP+9Bf9H3dOM8VHSNwsybg15AA@mail.gmail.com>
+	<4FA0310D.4090004@tresys.com>
+Date: Fri, 4 May 2012 15:14:12 +0200
+Message-ID: <CADyhKSW9m6NvyijBa-ctdd-DyEnsiiQECV79kp1e8FSyDrGS0g@mail.gmail.com>
+Subject: Re: [3/4] sepgsql - Add temporary objects support
+From: Kohei KaiGai <kaigai@kaigai.gr.jp>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: refpolicy@oss1.tresys.com, SELinux-NSA <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary=bcaec553fe945a727e04bf35b22c
 Sender: owner-selinux@tycho.ncsc.mil
 List-Id: selinux@tycho.nsa.gov
 
-2012/5/4, Russell Coker <russell@coker.com.au>:
-> On Fri, 4 May 2012, casinee app <appcasinee@gmail.com> wrote:
->> 2012/5/3, Russell Coker <russell@coker.com.au>:
->> > On Thu, 3 May 2012, casinee app <appcasinee@gmail.com> wrote:
->> >> i build a linux system with selinux support for my embedded device. It
->> >> now can login as the root user automatically when it is powered on.
->> >
->> > What distribution is the embedded system most similar to?  Using
->> > Busybox
->> > makes
->> > things a bit more difficult as some of the programs won't end up in the
->> > correct domains unless you do some work.  But it would be good to know
->> > more about the distro so we can identify other potential problems.
+--bcaec553fe945a727e04bf35b22c
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+2012/5/1 Christopher J. PeBenito <cpebenito@tresys.com>:
+> On 03/25/12 17:15, Kohei KaiGai wrote:
+>> This patch adds a special case handling on creation of temporary
+>> schema; "pg_temp". The temporary schema shall be labeled as
+>> "sepgsql_temp_schema" in the default, then underlying objects
+>> also labeled as temporary objects; that allows confined users
+>> to create, drop and so on, even if sepgsql_enable_users_ddl is off.
 >>
->> Yes, i build the busybox to get the shell tools for the root
->> filesystem. The lib needed are libselinux and libsepol. What's the
->> "unless you do some work" you said means?
+>> In PostgreSQL, all the temporary objects are deployed on "pg_temp"
+>> schema, then they shall be removed at the session end.
+>> Thus, it has no possibility to leak any other entities via references to
+>> the shared database objects, and no need to prevent creation or
+>> deletion of temporary objects by confined domains.
+> [...]
 >
-> The purpose of Busybox is to save disk space by having code shared among
-> multiple applications.  So for example /bin/login and /bin/init will be hard
->
-> links or sym-links to the same executable.  SE Linux has labels based on
-> Inodes so we can't have init labelled as init_exec_t and login labelled as
-> login_exec_t if they are both the same program.
->
-> http://doc.coker.com.au/papers/porting-se-linux-hand-held-devices/
->
-> The above URL explains how I solved this problem on ARM in 2003.  Since 2003
->
-> RAM has become bigger (even in embedded systems) so the down-sides of this
-> are
-> diminished.
->
-
-I read yout paper roughly, and the part of kernel makes me remember
-the change of my kernel source code. When i execute the command
-#restorecon -R / some days ago, the output likes below:
-......
-restorecon: lsetfileconon(/dev/ram3,system_u:object_r:dev_t):
-Operation not supported
-......
-all the restorecon operation failed. The context of the file didn't
-change. So i checked the kernel soource code, and in the file
-linux/security/security.c i found the fouction named
-security_inode_setxattr(). This founction return the value of
-security_ops->inode_setxattr(dentry, name, value, size, flags), the
-value will be 0 if it goes correctly, but it was -95 in my system. So
-i change the statement
-(return security_ops->inode_setxattr(dentry, name, value, size,
-flags); ) to the statment ( return 0;), i wanted to know if this
-operation goes well what will happend.
-surprisingly, the context of the file changed. Now, i doubt that the
-change is not suitable.
-
-
->> > With this automatic login, what is the context of the shell?  "id -Z"
->> > should tell you.
+>> diff --git a/policy/modules/services/postgresql.te
+>> b/policy/modules/services/postgresql.te
+>> index add0cd6..8a3c2bd 100644
+>> --- a/policy/modules/services/postgresql.te
+>> +++ b/policy/modules/services/postgresql.te
+>> @@ -164,6 +164,22 @@ optional_policy(`
+>> =A0 =A0 =A0 mls_process_set_level(sepgsql_ranged_proc_t)
+>> =A0')
 >>
->> 2)some information in and after boot process.
->> ¡­¡­
->> Please press Enter to activate this console.
->> [root@MrExcalibur=/]#dmesg
-> [no AVC messages in the dmesg output]
->> [root@MrExcalibur=/]#restorecon -R /
+>> +# Types for temporary objects
+>> +type sepgsql_temp_schema_t;
+>> +postgresql_schema_object(sepgsql_temp_schema_t)
+>> +
+>> +type sepgsql_temp_table_t;
+>> +postgresql_table_object(sepgsql_temp_table_t)
+>> +
+>> +type sepgsql_temp_seq_t;
+>> +postgresql_table_object(sepgsql_temp_seq_t)
+>> +
+>> +type sepgsql_temp_view_t;
+>> +postgresql_view_object(sepgsql_temp_view_t)
+>> +
+>> +type sepgsql_temp_proc_exec_t;
+>> +postgresql_procedure_object(sepgsql_temp_proc_exec_t)
 >
-> The -v option to restorecon is good in these cases to show whether it's
-> doing
-> something.
+> Why do you have a temp type for each of the object classes?
+> =A0I don't see it gaining anything in the policy and it would be simpler =
+to have a single type.
 >
+I agree with your opinion. See the attached patch.
 
->> [root@MrExcalibur=/]#id -Z
->> id: can't get process context
->
-> That's strange, please run "strace id -Z".
->
+It defines sepgsql_temp_object_t for all the temporary objects being
+constructed on "pg_temp" schema. The temporary schema itself shall
+be also labeled as "sepgsql_temp_object_t" to avoid increasing of
+unnecessary type_transition rules for each underlying object classes.
 
-[root@MrExcalibur=/]#strace id -Z
--/bin/sh: strace: not found
+Thanks,
+--=20
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
->> [root@MrExcalibur=/]#ps -Z
->>   PID CONTEXT                          STAT COMMAND
-> [snip]
->>   881 system_u:system_r:kernel_t       S    -/bin/sh
->>   884 system_u:system_r:kernel_t       R    ps -Z
->
-> OK, you have no domain transition happening.  /sbin/init is not labelled
-> correctly or it doesn't exec itself.
->
+--bcaec553fe945a727e04bf35b22c
+Content-Type: application/octet-stream;
+	name="refpolicy-sepgsql-3of4-temp-database-objects.20120502.patch"
+Content-Disposition: attachment;
+	filename="refpolicy-sepgsql-3of4-temp-database-objects.20120502.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h1t9evwg0
 
->> [root@MrExcalibur=/]#ls -Z
->> drwxr-xr-x system_u:object_r:dir_bin_t      bin
->> drwxr-xr-x system_u:object_r:dir_childdir__t boot
->> drwxr-xr-x system_u:object_r:dir_dev_t      dev
->> drwxr-xr-x system_u:object_r:dir_etc_t      etc
->> drwxr-xr-x system_u:object_r:dir_homedir_rootdir_t home
->> drwxr-xr-x system_u:object_r:dir_lib_t      lib
->> lrwxrwxrwx system_u:object_r:rootdir_t      linuxrc
->> drwxr-xr-x system_u:object_r:dir_childdir__t mnt
->> dr-xr-xr-x system_u:object_r:proc_t         proc
->> drwxr-xr-x system_u:object_r:dir_childdir__t root
->> drwxr-xr-x system_u:object_r:dir_sbin_t     sbin
->> drwxr-xr-x system_u:object_r:security_t     selinux
->> drwxr-xr-x system_u:object_r:sysfs_t        sys
->> drwxr-xr-x system_u:object_r:tmp_t          tmp
->> drwxr-xr-x system_u:object_r:dir_childdir__t tst
->> drwxr-xr-x system_u:object_r:dir_usr_t      usr
->> drwxr-xr-x system_u:object_r:dir_var_t      var
->> [root@MrExcalibur=/]#
->
-> What are all these dir_X_t types?  You've got a very different policy to the
->
-> refernce policy.
->
-
-I use the seedit to generate the policy for my devece.the web site is :
-http://seedit.sourceforge.net/
-
->> >> Then i copy the fiels( shadow ,group and passwd) in my PC linux system
->> >> to the embedded system, and add the login to it. But after i input the
->> >
->> >> username and pass word, it output like this :
->> > So you had a working system but then after copying those three files it
->> > didn't
->> > work?  If so then it probably got the wrong type for one of them.  If
->> > so
->> > then
->> > "restorecon -R -v /etc" will probably fix it.
->>
->> I change the file /etc/inittab to this to add the login program to the
->> system: #etc/inittab
->>
->> ::respawn:-/bin/login
->> ::sysinit:/etc/init.d/rcS
->> ::ctrlaltdel:/sbin/reboot
->> ::shutdown:/bin/umount -a -r
->>
->> Then, when the system start up be required to input the username and
->> password. login:root
->> password:
->> login:Can¡¯t get SID for root
->> The error comes out.
->>
->> >> login:root
->> >> password:
->> >> login:Can¡¯t get SID for root
->> >>
->> >> The output comes from the file  login.c in busybox, how can i sovle
->> >> this problem?
->> >> Does this problem comes from the error in my policy? or the lib
->> >> related to the selinux?
->> >
->> > When there's a problem that prevents logging in then it's often best to
->> > boot
->> >
->> > the system with "enforcing=0" on the kernel command line.
->>
->> How to set  "enforcing=0"?  Do you mean the configuration option of the
->> kernel? [*] NSA SELinux Support
->>      [* ]   NSA SELinux boot parameter
->> and set the NSA SELinux boot parameter as 0?
->
-> No, a parameter on the kernel command line.  It's something you do through
-> the
-> boot loader.
->
-
-I found the way to set the enforcing=0, but when i couldn't find the
-file /boot/grub/grub.conf .
-The web page i found is £º
-http://forums.fedoraforum.org/showthread.php?t=261978
-
->> > Then you can login
->> > and view the contexts of the processes and files in question and also
->> > look at
->> > the audit log (or kernel log for a system without auditd) to see what
->> > would
->> >
->> > have been denied.  All login programs should have special-case code to
->> > allow
->> >
->> > launching a shell in an invalid context when the system is in
->> > permissive
->> > mode.
->>
->> The fiel /etc/selinux/config of the system :
->> [root@MrExcalibur=selinux]#cat config
->> # This file controls the state of SELinux on the system.
->> # SELINUX= can take one of these three values:
->> #       enforcing - SELinux security policy is enforced.
->> #       permissive - SELinux prints warnings instead of enforcing.
->> #       disabled - SELinux is fully disabled.
->> SELINUX=permissive
->> # SELINUXTYPE= type of policy in use. Possible values are:
->> #       targeted - Only targeted network daemons are protected.
->> #       strict - Full SELinux protection.
->> SELINUXTYPE=seedit
->
-> OK, it's already in permissive mode.
->
-> What is the "seedit" type?
->
-> --
-> My Main Blog         http://etbe.coker.com.au/
-> My Documents Blog    http://doc.coker.com.au/
->
-
+IHBvbGljeS9tb2R1bGVzL2NvbnRyaWIgICAgICAgICAgICAgICAgfCAgICAyICstCiBwb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLmlmIHwgICAgNCArKysrCiBwb2xpY3kvbW9kdWxl
+cy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLnRlIHwgICAyNSArKysrKysrKysrKysrKysrKysrKysrKy0t
+CiAzIGZpbGVzIGNoYW5nZWQsIDI4IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZm
+IC0tZ2l0IGEvcG9saWN5L21vZHVsZXMvY29udHJpYiBiL3BvbGljeS9tb2R1bGVzL2NvbnRyaWIK
+aW5kZXggMTcyMTdiMy4uNmMxOTJjNyAxNjAwMDAKLS0tIGEvcG9saWN5L21vZHVsZXMvY29udHJp
+YgorKysgYi9wb2xpY3kvbW9kdWxlcy9jb250cmliCkBAIC0xICsxIEBACi1TdWJwcm9qZWN0IGNv
+bW1pdCAxNzIxN2IzYTdhYjZjMWYyZjc4YjJmODdjNDc3MzA4M2NjNWUwNjEwCitTdWJwcm9qZWN0
+IGNvbW1pdCA2YzE5MmM3NDc4MDJhODY2MDM4ZjQ3MGY4ZjYwZDVkNjY0NTA3YTRmCmRpZmYgLS1n
+aXQgYS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLmlmIGIvcG9saWN5L21vZHVs
+ZXMvc2VydmljZXMvcG9zdGdyZXNxbC5pZgppbmRleCA1OTQ2YjZhLi42ZjMwYjFhIDEwMDY0NAot
+LS0gYS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLmlmCisrKyBiL3BvbGljeS9t
+b2R1bGVzL3NlcnZpY2VzL3Bvc3RncmVzcWwuaWYKQEAgLTM3LDYgKzM3LDcgQEAgaW50ZXJmYWNl
+KGBwb3N0Z3Jlc3FsX3JvbGUnLGAKIAkJdHlwZSB1c2VyX3NlcGdzcWxfc2NoZW1hX3QsIHVzZXJf
+c2VwZ3NxbF9zZXFfdDsKIAkJdHlwZSB1c2VyX3NlcGdzcWxfc3lzb2JqX3QsIHVzZXJfc2VwZ3Nx
+bF90YWJsZV90OwogCQl0eXBlIHVzZXJfc2VwZ3NxbF92aWV3X3Q7CisJCXR5cGUgc2VwZ3NxbF90
+ZW1wX29iamVjdF90OwogCScpCiAKIAkjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjCkBAIC02NSw2ICs2Niw3IEBAIGludGVyZmFjZShgcG9zdGdyZXNxbF9yb2xlJyxgCiAK
+IAlhbGxvdyAkMiB1c2VyX3NlcGdzcWxfc2NoZW1hX3Q6ZGJfc2NoZW1hIHsgZ2V0YXR0ciBzZWFy
+Y2ggYWRkX25hbWUgcmVtb3ZlX25hbWUgfTsKIAl0eXBlX3RyYW5zaXRpb24gJDIgc2VwZ3NxbF9k
+YXRhYmFzZV90eXBlOmRiX3NjaGVtYSB1c2VyX3NlcGdzcWxfc2NoZW1hX3Q7CisJdHlwZV90cmFu
+c2l0aW9uICQyIHNlcGdzcWxfZGF0YWJhc2VfdHlwZTpkYl9zY2hlbWEgc2VwZ3NxbF90ZW1wX29i
+amVjdF90ICJwZ190ZW1wIjsKIAogCWFsbG93ICQyIHVzZXJfc2VwZ3NxbF90YWJsZV90OmRiX3Rh
+YmxlCXsgZ2V0YXR0ciB1c2Ugc2VsZWN0IHVwZGF0ZSBpbnNlcnQgZGVsZXRlIGxvY2sgfTsKIAlh
+bGxvdyAkMiB1c2VyX3NlcGdzcWxfdGFibGVfdDpkYl9jb2x1bW4geyBnZXRhdHRyIHVzZSBzZWxl
+Y3QgdXBkYXRlIGluc2VydCB9OwpAQCAtNDY5LDYgKzQ3MSw3IEBAIGludGVyZmFjZShgcG9zdGdy
+ZXNxbF91bnByaXZfY2xpZW50JyxgCiAJCXR5cGUgdW5wcml2X3NlcGdzcWxfc2NoZW1hX3QsIHVu
+cHJpdl9zZXBnc3FsX3NlcV90OwogCQl0eXBlIHVucHJpdl9zZXBnc3FsX3N5c29ial90LCB1bnBy
+aXZfc2VwZ3NxbF90YWJsZV90OwogCQl0eXBlIHVucHJpdl9zZXBnc3FsX3ZpZXdfdDsKKwkJdHlw
+ZSBzZXBnc3FsX3RlbXBfb2JqZWN0X3Q7CiAJJykKIAogCSMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMKQEAgLTUwMSw2ICs1MDQsNyBAQCBpbnRlcmZhY2UoYHBvc3RncmVz
+cWxfdW5wcml2X2NsaWVudCcsYAogCScpCiAJYWxsb3cgJDEgdW5wcml2X3NlcGdzcWxfc2NoZW1h
+X3Q6ZGJfc2NoZW1hIHsgZ2V0YXR0ciBhZGRfbmFtZSByZW1vdmVfbmFtZSB9OwogCXR5cGVfdHJh
+bnNpdGlvbiAkMSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfc2NoZW1hIHVucHJpdl9zZXBnc3Fs
+X3NjaGVtYV90OworCXR5cGVfdHJhbnNpdGlvbiAkMSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJf
+c2NoZW1hIHNlcGdzcWxfdGVtcF9vYmplY3RfdCAicGdfdGVtcCI7CiAKIAlhbGxvdyAkMSB1bnBy
+aXZfc2VwZ3NxbF90YWJsZV90OmRiX3RhYmxlIHsgZ2V0YXR0ciB1c2Ugc2VsZWN0IHVwZGF0ZSBp
+bnNlcnQgZGVsZXRlIGxvY2sgfTsKIAlhbGxvdyAkMSB1bnByaXZfc2VwZ3NxbF90YWJsZV90OmRi
+X2NvbHVtbiB7IGdldGF0dHIgdXNlIHNlbGVjdCB1cGRhdGUgaW5zZXJ0IH07CmRpZmYgLS1naXQg
+YS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLnRlIGIvcG9saWN5L21vZHVsZXMv
+c2VydmljZXMvcG9zdGdyZXNxbC50ZQppbmRleCBhZGQwY2Q2Li41NzE5M2U1IDEwMDY0NAotLS0g
+YS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3FsLnRlCisrKyBiL3BvbGljeS9tb2R1
+bGVzL3NlcnZpY2VzL3Bvc3RncmVzcWwudGUKQEAgLTE2NCw2ICsxNjQsMTkgQEAgb3B0aW9uYWxf
+cG9saWN5KGAKIAltbHNfcHJvY2Vzc19zZXRfbGV2ZWwoc2VwZ3NxbF9yYW5nZWRfcHJvY190KQog
+JykKIAorIyBUeXBlcyBmb3IgdGVtcG9yYXJ5IG9iamVjdHMKKyMKKyMgWFhYIC0gQWxsIHRoZSB0
+ZW1wb3Jhcnkgb2JqZWN0cyBhcmUgZWxpbWluYXRlZCBhdCBlbmQgb2YgZGF0YWJhc2Ugc2Vzc2lv
+bgorIyBhbmQgaW52aXNpYmxlIGZyb20gb3RoZXIgc2Vzc2lvbnMsIHNvIGl0IGlzIHVubmVjZXNz
+YXJ5IHRvIHJlc3RyaWN0IHVzZXJzCisjIG9wZXJhdGlvbnMgb24gdGVtcG9yYXJ5IG9iamVjdC4g
+Rm9yIHBvbGljeSBzaW1wbGlmaWNhdGlvbiwgb25seSBvbmUgdHlwZQorIyBpcyBkZWZpbmVkIGZv
+ciB0ZW1wb3Jhcnkgb2JqZWN0cyB1bmRlciB0aGUgInBnX3RlbXAiIHNjaGVtYS4KK3R5cGUgc2Vw
+Z3NxbF90ZW1wX29iamVjdF90OworCitwb3N0Z3Jlc3FsX3RhYmxlX29iamVjdChzZXBnc3FsX3Rl
+bXBfb2JqZWN0X3QpCitwb3N0Z3Jlc3FsX3NlcXVlbmNlX29iamVjdChzZXBnc3FsX3RlbXBfb2Jq
+ZWN0X3QpCitwb3N0Z3Jlc3FsX3ZpZXdfb2JqZWN0KHNlcGdzcWxfdGVtcF9vYmplY3RfdCkKK3Bv
+c3RncmVzcWxfcHJvY2VkdXJlX29iamVjdChzZXBnc3FsX3RlbXBfb2JqZWN0X3QpCisKICMgVHlw
+ZXMgZm9yIHVucHJpdmlsZWdlZCBjbGllbnQKIHR5cGUgdW5wcml2X3NlcGdzcWxfYmxvYl90Owog
+cG9zdGdyZXNxbF9ibG9iX29iamVjdCh1bnByaXZfc2VwZ3NxbF9ibG9iX3QpCkBAIC0yNDksOCAr
+MjYyLDkgQEAgYWxsb3cgcG9zdGdyZXNxbF90IHNlcGdzcWxfbW9kdWxlX3R5cGU6ZGJfZGF0YWJh
+c2UgaW5zdGFsbF9tb2R1bGU7CiAjIERhdGFiYXNlL0xvYWRhYmxlIG1vZHVsZQogYWxsb3cgc2Vw
+Z3NxbF9kYXRhYmFzZV90eXBlIHNlcGdzcWxfbW9kdWxlX3R5cGU6ZGJfZGF0YWJhc2UgbG9hZF9t
+b2R1bGU7CiAKLWFsbG93IHBvc3RncmVzcWxfdCBzZXBnc3FsX3NjaGVtYV90eXBlOmRiX3NjaGVt
+YSAqOworYWxsb3cgcG9zdGdyZXNxbF90IHtzZXBnc3FsX3NjaGVtYV90eXBlIHNlcGdzcWxfdGVt
+cF9vYmplY3RfdH06ZGJfc2NoZW1hICo7CiB0eXBlX3RyYW5zaXRpb24gcG9zdGdyZXNxbF90IHNl
+cGdzcWxfZGF0YWJhc2VfdHlwZTpkYl9zY2hlbWEgc2VwZ3NxbF9zY2hlbWFfdDsKK3R5cGVfdHJh
+bnNpdGlvbiBwb3N0Z3Jlc3FsX3Qgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX3NjaGVtYSBzZXBn
+c3FsX3RlbXBfb2JqZWN0X3QgInBnX3RlbXAiOwogCiBhbGxvdyBwb3N0Z3Jlc3FsX3Qgc2VwZ3Nx
+bF90YWJsZV90eXBlOnsgZGJfdGFibGUgZGJfY29sdW1uIGRiX3R1cGxlIH0gKjsKIHR5cGVfdHJh
+bnNpdGlvbiBwb3N0Z3Jlc3FsX3Qgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX3RhYmxlIHNlcGdz
+cWxfc3lzb2JqX3Q7CSMgZGVwcmVjYXRlZApAQCAtNDY2LDYgKzQ4MCw5IEBAIGFsbG93IHNlcGdz
+cWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9zZWNyZXRfYmxvYl90OmRiX2Jsb2IgZ2V0YXR0cjsKICMg
+VGhlcmVmb3JlLCB0aGUgZm9sbG93aW5nIHJ1bGUgaXMgYXBwbGllZCBmb3IgYW55IGRvbWFpbnMg
+d2hpY2ggY2FuIGNvbm5lY3QgU0UtUG9zdGdyZVNRTC4KIGRvbnRhdWRpdCB7IHBvc3RncmVzcWxf
+dCBzZXBnc3FsX2FkbWluX3R5cGUgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3FsX3VuY29uZmlu
+ZWRfdHlwZSB9IHsgc2VwZ3NxbF90YWJsZV90eXBlIC1zZXBnc3FsX3N5c29ial90YWJsZV90eXBl
+IH06ZGJfdHVwbGUgeyB1c2Ugc2VsZWN0IHVwZGF0ZSBpbnNlcnQgZGVsZXRlIH07CiAKKyMgSXQg
+aXMgYWx3YXlzIGFsbG93ZWQgdG8gb3BlcmF0ZSB0ZW1wb3Jhcnkgb2JqZWN0cyBmb3IgYW55IGRh
+dGFiYXNlIGNsaWVudC4KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2VwZ3NxbF90ZW1wX29i
+amVjdF90OntkYl9zY2hlbWEgZGJfdGFibGUgZGJfY29sdW1uIGRiX3R1cGxlIGRiX3NlcXVlbmNl
+IGRiX3ZpZXcgZGJfcHJvY2VkdXJlfSB+eyByZWxhYmVsdG8gcmVsYWJlbGZyb20gfTsKKwogIyBO
+b3RlIHRoYXQgcGVybWlzc2lvbiBvZiBjcmVhdGlvbi9kZWxldGlvbiBhcmUgZXZlbnR1YWxseSBj
+b250cm9sbGVkIGJ5CiAjIGNyZWF0ZSBvciBkcm9wIHBlcm1pc3Npb24gb2YgaW5kaXZpZHVhbCBv
+YmplY3RzIHdpdGhpbiBzaGFyZWQgc2NoZW1hcy4KICMgU28sIGl0IGp1c3QgYWxsb3dzIHRvIGNy
+ZWF0ZS9kcm9wIHVzZXIgc3BlY2lmaWMgdHlwZXMuCkBAIC00ODMsNiArNTAwLDcgQEAgdHlwZV90
+cmFuc2l0aW9uIHNlcGdzcWxfYWRtaW5fdHlwZSBzZXBnc3FsX2FkbWluX3R5cGU6ZGJfZGF0YWJh
+c2Ugc2VwZ3NxbF9kYl90OwogCiBhbGxvdyBzZXBnc3FsX2FkbWluX3R5cGUgc2VwZ3NxbF9zY2hl
+bWFfdHlwZTpkYl9zY2hlbWEgeyBjcmVhdGUgZHJvcCBnZXRhdHRyIHNldGF0dHIgcmVsYWJlbGZy
+b20gcmVsYWJlbHRvIHNlYXJjaCBhZGRfbmFtZSByZW1vdmVfbmFtZSB9OwogdHlwZV90cmFuc2l0
+aW9uIHNlcGdzcWxfYWRtaW5fdHlwZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfc2NoZW1hIHNl
+cGdzcWxfc2NoZW1hX3Q7Cit0eXBlX3RyYW5zaXRpb24gc2VwZ3NxbF9hZG1pbl90eXBlIHNlcGdz
+cWxfZGF0YWJhc2VfdHlwZTpkYl9zY2hlbWEgc2VwZ3NxbF90ZW1wX29iamVjdF90ICJwZ190ZW1w
+IjsKIAogYWxsb3cgc2VwZ3NxbF9hZG1pbl90eXBlIHNlcGdzcWxfdGFibGVfdHlwZTpkYl90YWJs
+ZSB7IGNyZWF0ZSBkcm9wIGdldGF0dHIgc2V0YXR0ciByZWxhYmVsZnJvbSByZWxhYmVsdG8gbG9j
+ayB9OwogYWxsb3cgc2VwZ3NxbF9hZG1pbl90eXBlIHNlcGdzcWxfdGFibGVfdHlwZTpkYl9jb2x1
+bW4geyBjcmVhdGUgZHJvcCBnZXRhdHRyIHNldGF0dHIgcmVsYWJlbGZyb20gcmVsYWJlbHRvIH07
+CkBAIC01MzUsNiArNTUzLDggQEAgdHVuYWJsZV9wb2xpY3koYHNlcGdzcWxfdW5jb25maW5lZF9k
+YmFkbScsYAogCWFsbG93IHNlcGdzcWxfYWRtaW5fdHlwZSBzZXBnc3FsX2Jsb2JfdHlwZTpkYl9i
+bG9iICo7CiAnKQogCithbGxvdyBzZXBnc3FsX2FkbWluX3R5cGUgc2VwZ3NxbF90ZW1wX29iamVj
+dF90OntkYl9zY2hlbWEgZGJfdGFibGUgZGJfY29sdW1uIGRiX3R1cGxlIGRiX3NlcXVlbmNlIGRi
+X3ZpZXcgZGJfcHJvY2VkdXJlfSB+eyByZWxhYmVsdG8gcmVsYWJlbGZyb20gfTsKKwogIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIwogIyBVbmNvbmZpbmVkIGFjY2Vz
+cyB0byB0aGlzIG1vZHVsZQpAQCAtNTQzLDggKzU2Myw5IEBAIHR1bmFibGVfcG9saWN5KGBzZXBn
+c3FsX3VuY29uZmluZWRfZGJhZG0nLGAKIGFsbG93IHNlcGdzcWxfdW5jb25maW5lZF90eXBlIHNl
+cGdzcWxfZGF0YWJhc2VfdHlwZTpkYl9kYXRhYmFzZSAqOwogdHlwZV90cmFuc2l0aW9uIHNlcGdz
+cWxfdW5jb25maW5lZF90eXBlIHNlcGdzcWxfdW5jb25maW5lZF90eXBlOmRiX2RhdGFiYXNlIHNl
+cGdzcWxfZGJfdDsJIyBkZXByZWNhdGVkCiAKLWFsbG93IHNlcGdzcWxfdW5jb25maW5lZF90eXBl
+IHNlcGdzcWxfc2NoZW1hX3R5cGU6ZGJfc2NoZW1hICo7CithbGxvdyBzZXBnc3FsX3VuY29uZmlu
+ZWRfdHlwZSB7c2VwZ3NxbF9zY2hlbWFfdHlwZSBzZXBnc3FsX3RlbXBfb2JqZWN0X3R9OmRiX3Nj
+aGVtYSAqOwogdHlwZV90cmFuc2l0aW9uIHNlcGdzcWxfdW5jb25maW5lZF90eXBlIHNlcGdzcWxf
+ZGF0YWJhc2VfdHlwZTpkYl9zY2hlbWEgc2VwZ3NxbF9zY2hlbWFfdDsKK3R5cGVfdHJhbnNpdGlv
+biBzZXBnc3FsX3VuY29uZmluZWRfdHlwZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfc2NoZW1h
+IHNlcGdzcWxfdGVtcF9vYmplY3RfdCAicGdfdGVtcCI7CiAKIHR5cGVfdHJhbnNpdGlvbiBzZXBn
+c3FsX3VuY29uZmluZWRfdHlwZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfdGFibGUgc2VwZ3Nx
+bF90YWJsZV90OwkJIyBkZXByZWNhdGVkCiB0eXBlX3RyYW5zaXRpb24gc2VwZ3NxbF91bmNvbmZp
+bmVkX3R5cGUgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX3Byb2NlZHVyZSBzZXBnc3FsX3Byb2Nf
+ZXhlY190OwkjIGRlcHJlY2F0ZWQK
+--bcaec553fe945a727e04bf35b22c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
