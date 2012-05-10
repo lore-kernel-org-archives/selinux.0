@@ -1,57 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4AEEbZg006646
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2012 10:14:37 -0400
-Message-ID: <4FABCD55.9000504@schaufler-ca.com>
-Date: Thu, 10 May 2012 07:14:45 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4AK2tPt027811
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2012 16:02:55 -0400
+Received: by qcsk26 with SMTP id k26so1674337qcs.12
+        for <selinux@tycho.nsa.gov>; Thu, 10 May 2012 13:02:55 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: RFC: packet checks always on option
+Date: Thu, 10 May 2012 16:02:09 -0400
+Message-ID: <1540303.QUZeuyPSRI@sifl>
+In-Reply-To: <4FA95098.1050201@tresys.com>
+References: <4FA95098.1050201@tresys.com>
 MIME-Version: 1.0
-To: Mel Gorman <mgorman@suse.de>
-CC: Andrew Morton <akpm@linux-foundation.org>, Linux-MM <linux-mm@kvack.org>,
-        Linux-Netdev <netdev@vger.kernel.org>,
-        Linux-NFS <linux-nfs@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        David Miller <davem@davemloft.net>,
-        Trond Myklebust <Trond.Myklebust@netapp.com>,
-        Neil Brown <neilb@suse.de>, Christoph Hellwig <hch@infradead.org>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Mike Christie <michaelc@cs.wisc.edu>,
-        Eric B Munson <emunson@mgebm.net>,
-        LSM <linux-security-module@vger.kernel.org>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 02/12] selinux: tag avc cache alloc as non-critical
-References: <1336658065-24851-1-git-send-email-mgorman@suse.de> <1336658065-24851-3-git-send-email-mgorman@suse.de>
-In-Reply-To: <1336658065-24851-3-git-send-email-mgorman@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 5/10/2012 6:54 AM, Mel Gorman wrote:
-> Failing to allocate a cache entry will only harm performance not
-> correctness.  Do not consume valuable reserve pages for something
-> like that.
+On Tuesday, May 08, 2012 12:58:00 PM Christopher J. PeBenito wrote:
+> I recently became aware that the packet checks are now disabled when there
+> are no SECMARK rules ...
+>
+> ... this behavior is "allow by default": the opposite of what SELinux stands
+> for.  SELinux doesn't stop file checks if you mount an xattr filesystem that
+> has no labels.  High assurance systems would actually want the old behavior
+> so that networking would be denied if:
+> 
+> * iptables rules fail to load
+> * iptables rules maliciously flushed, e.g. by compromised domain that has
+> net_admin
 
-Copying to the LSM and SELinux lists.
+Ever since secmark was introduced it has required users/admins to ensure, via 
+a secondary mechanism not contained within the SELinux policy, that the 
+netfilter/iptables configuration was both correctly matched to the policy and 
+that is was not tampered with, either maliciously or accidentally.  Failure to 
+do this verification and correctly configure netfilter/iptables could result 
+in the mis-labeling of network traffic via the secmark label.
+
+This applies to both the current behavior and the "old" behavior.
+
+Simply going back to always applying the per-packet secmark access controls 
+does nothing to solve the problem of ensuring correctness.  This is my main 
+problem with your argument.
+
+> * during boot and shutdown you can guarantee no network access
+
+You can do this through a variety of other mechanisms that have nothing to do 
+with secmark labels.
  
->
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Signed-off-by: Mel Gorman <mgorman@suse.de>
-> ---
->  security/selinux/avc.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 8ee42b2..75c2977 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -280,7 +280,7 @@ static struct avc_node *avc_alloc_node(void)
->  {
->  	struct avc_node *node;
->  
-> -	node = kmem_cache_zalloc(avc_node_cachep, GFP_ATOMIC);
-> +	node = kmem_cache_zalloc(avc_node_cachep, GFP_ATOMIC|__GFP_NOMEMALLOC);
->  	if (!node)
->  		goto out;
->  
+> I think this behavior should be restored ...
+
+I disagree.
+
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
