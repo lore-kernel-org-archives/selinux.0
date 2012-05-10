@@ -1,320 +1,109 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4ACktIr000608
-	for <selinux@tycho.nsa.gov>; Thu, 10 May 2012 08:46:55 -0400
-Message-ID: <4FABB8BF.2070201@tresys.com>
-Date: Thu, 10 May 2012 08:46:55 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4AD3cn6001923
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2012 09:03:38 -0400
+Received: from 93-143-176-17.adsl.net.t-com.hr ([93.143.176.17] helo=[192.168.1.152])
+	by hebe.lunarmania.com with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.69)
+	(envelope-from <warner@rubix.com>)
+	id 1SST1t-0003P5-HX
+	for selinux@tycho.nsa.gov; Thu, 10 May 2012 06:03:38 -0700
+Message-ID: <4FABBCA4.8090006@rubix.com>
+Date: Thu, 10 May 2012 15:03:32 +0200
+From: Andy Warner <warner@rubix.com>
 MIME-Version: 1.0
-To: Kohei KaiGai <kaigai@kaigai.gr.jp>
-CC: <refpolicy@oss1.tresys.com>, SELinux-NSA <selinux@tycho.nsa.gov>
-Subject: Re: [4/4] sepgsql -redefinition of use permission onto system objects
-References: <CADyhKSXLR1rHgOd8Kfb3spNVWZ3Y5-mM9zYECWaC=ebmYvf-=w@mail.gmail.com> <CADyhKSUBg4nScZm+CDFX_hcRgbF-OG4y5NSbjk2NOsVK7LHneg@mail.gmail.com> <4FA3FAE4.8010803@tresys.com> <CADyhKSU41BXh9H7FA8WEbKBAX-j9iGpa80CwXWuWSf=ckaWhNg@mail.gmail.com>
-In-Reply-To: <CADyhKSU41BXh9H7FA8WEbKBAX-j9iGpa80CwXWuWSf=ckaWhNg@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: execute system-config-selinux while enforcing
+Content-Type: multipart/alternative;
+ boundary="------------050906060606010406000104"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/04/12 13:24, Kohei KaiGai wrote:
-> 2012/5/4 Christopher J. PeBenito <cpebenito@tresys.com>:
->> On 05/04/12 09:33, Kohei KaiGai wrote:
->>> The patch 3 of 4 also required the 4 of 4 being refreshed to apply correctly.
->>> In addition, I forgot to allow sepgsql_admin_type to allow to "use" system
->>> objects.
->>>
->>> Please check the newer version. Thanks,
->>
->> Looks like the revised patch is missing.
->>
-> Sorry, it is the attached one.
-> 
-> Thanks,
+This is a multi-part message in MIME format.
+--------------050906060606010406000104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This one doesn't apply, the last hunk fails.  I also had a problem with the 3rd patch, as the contrib hunk stopped it from applying too.
- 
->>> 2012/3/25 Kohei KaiGai <kaigai@kaigai.gr.jp>:
->>>> This patch might be arguable. It redefines the "use" permission on db_tuple
->>>> class that has marked deprecated for a few years, to control usage of system
->>>> objects but without individual object classes.
->>>>
->>>> We didn't try to port all the supported database object types in PostgreSQL
->>>> into SELinux policy model, because its variation is too large to port and
->>>> less priority in comparison with "major" object classes such as tables.
->>>>
->>>> So, we handle permissions to create, drop and alter these objects as
->>>> permissions to insert, delete or update of system catalogs; labeled as
->>>> sepgsql_sysobj_t, and so on.
->>>>
->>>> On the other hand, some of system objects requires to check permission
->>>> when user "use" these objects, such as data types, tablespaces,
->>>> operators and so on.
->>>> I don't think it is reasonable approach to define individual object classes
->>>> for each object types reflects to PostgreSQL. However, it is preferable
->>>> to have double checks by selinux on strategic points.
->>>>
->>>> So, I try to redefine "use" permission on db_tuple class; that means
->>>> permission to "use" this object when the tuple is an entry of system
->>>> catalog corresponding to a particular database object but don't have
->>>> a particular object class like tables.
->>>>
->>>> The deprecated permissions and rules are not in use for a few years,
->>>> so, it is a time to be utilized or eliminated.
->>>>
->>>> Thanks,
->>>>
->>>>  Signed-off-by: KaiGai Kohei <kohei.kaigai@emea.nec.com>
->>>> --
->>>>  policy/flask/access_vectors           |    4 +---
->>>>  policy/modules/services/postgresql.if |   16 ++++++----------
->>>>  policy/modules/services/postgresql.te |   31 +++++++++++--------------------
->>>>  3 files changed, 18 insertions(+), 33 deletions(-)
->>>>
->>>> diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
->>>> index bf24160..f462e95 100644
->>>> --- a/policy/flask/access_vectors
->>>> +++ b/policy/flask/access_vectors
->>>> @@ -761,7 +761,6 @@ inherits database
->>>>  class db_table
->>>>  inherits database
->>>>  {
->>>> -       use             # deprecated
->>>>        select
->>>>        update
->>>>        insert
->>>> @@ -780,7 +779,6 @@ inherits database
->>>>  class db_column
->>>>  inherits database
->>>>  {
->>>> -       use             # deprecated
->>>>        select
->>>>        update
->>>>        insert
->>>> @@ -790,7 +788,7 @@ class db_tuple
->>>>  {
->>>>        relabelfrom
->>>>        relabelto
->>>> -       use             # deprecated
->>>> +       use
->>>>        select
->>>>        update
->>>>        insert
->>>> diff --git a/policy/modules/services/postgresql.if
->>>> b/policy/modules/services/postgresql.if
->>>> index 56fc5fa..71f2572 100644
->>>> --- a/policy/modules/services/postgresql.if
->>>> +++ b/policy/modules/services/postgresql.if
->>>> @@ -70,10 +70,9 @@ interface(`postgresql_role',`
->>>>        type_transition $2 sepgsql_database_type:db_schema user_sepgsql_schema_t;
->>>>        type_transition $2 sepgsql_database_type:db_schema
->>>> sepgsql_temp_schema_t "pg_temp";
->>>>
->>>> -       allow $2 user_sepgsql_table_t:db_table  { getattr use select update
->>>> insert delete lock };
->>>> -       allow $2 user_sepgsql_table_t:db_column { getattr use select update insert };
->>>> -       allow $2 user_sepgsql_table_t:db_tuple  { use select update insert delete };
->>>> -       type_transition $2 sepgsql_database_type:db_table
->>>> user_sepgsql_table_t;           # deprecated
->>>> +       allow $2 user_sepgsql_table_t:db_table  { getattr select update
->>>> insert delete lock };
->>>> +       allow $2 user_sepgsql_table_t:db_column { getattr select update insert };
->>>> +       allow $2 user_sepgsql_table_t:db_tuple  { select update insert delete };
->>>>        type_transition $2 {sepgsql_schema_type -
->>>> sepgsql_temp_schema_t}:db_table user_sepgsql_table_t;
->>>>        type_transition $2 sepgsql_temp_schema_t:db_table sepgsql_temp_table_t;
->>>>
->>>> @@ -89,7 +88,6 @@ interface(`postgresql_role',`
->>>>        type_transition $2 sepgsql_temp_schema_t:db_view sepgsql_temp_view_t;
->>>>
->>>>        allow $2 user_sepgsql_proc_exec_t:db_procedure { getattr execute };
->>>> -       type_transition $2 sepgsql_database_type:db_procedure
->>>> user_sepgsql_proc_exec_t;       # deprecated
->>>>        type_transition $2 {sepgsql_schema_type -
->>>> sepgsql_temp_schema_t}:db_procedure user_sepgsql_proc_exec_t;
->>>>        type_transition $2 sepgsql_temp_schema_t:db_procedure
->>>> sepgsql_temp_proc_exec_t;
->>>>
->>>> @@ -513,10 +511,9 @@ interface(`postgresql_unpriv_client',`
->>>>        type_transition $1 sepgsql_database_type:db_schema unpriv_sepgsql_schema_t;
->>>>        type_transition $1 sepgsql_database_type:db_schema
->>>> unpriv_sepgsql_schema_t "pg_temp";
->>>>
->>>> -       allow $1 unpriv_sepgsql_table_t:db_table { getattr use select update
->>>> insert delete lock };
->>>> -       allow $1 unpriv_sepgsql_table_t:db_column { getattr use select
->>>> update insert };
->>>> -       allow $1 unpriv_sepgsql_table_t:db_tuple { use select update insert delete };
->>>> -       type_transition $1 sepgsql_database_type:db_table
->>>> unpriv_sepgsql_table_t; # deprecated
->>>> +       allow $1 unpriv_sepgsql_table_t:db_table { getattr select update
->>>> insert delete lock };
->>>> +       allow $1 unpriv_sepgsql_table_t:db_column { getattr select update insert };
->>>> +       allow $1 unpriv_sepgsql_table_t:db_tuple { select update insert delete };
->>>>        type_transition $1 {sepgsql_schema_type -
->>>> sepgsql_temp_schema_t}:db_table unpriv_sepgsql_table_t;
->>>>        type_transition $1 sepgsql_temp_schema_t:db_table sepgsql_temp_table_t;
->>>>
->>>> @@ -532,7 +529,6 @@ interface(`postgresql_unpriv_client',`
->>>>        type_transition $1 sepgsql_sysobj_table_type:db_tuple unpriv_sepgsql_sysobj_t;
->>>>
->>>>        allow $1 unpriv_sepgsql_proc_exec_t:db_procedure { getattr execute };
->>>> -       type_transition $1 sepgsql_database_type:db_procedure
->>>> unpriv_sepgsql_proc_exec_t; # deprecated
->>>>        type_transition $1 {sepgsql_schema_type -
->>>> sepgsql_temp_schema_t}:db_procedure unpriv_sepgsql_proc_exec_t;
->>>>        type_transition $1 sepgsql_temp_schema_t:db_procedure
->>>> sepgsql_temp_proc_exec_t;
->>>>
->>>> diff --git a/policy/modules/services/postgresql.te
->>>> b/policy/modules/services/postgresql.te
->>>> index 8a3c2bd..92d6e66 100644
->>>> --- a/policy/modules/services/postgresql.te
->>>> +++ b/policy/modules/services/postgresql.te
->>>> @@ -259,7 +259,6 @@ tunable_policy(`sepgsql_transmit_client_label',`
->>>>  ')
->>>>
->>>>  allow postgresql_t sepgsql_database_type:db_database *;
->>>> -type_transition postgresql_t postgresql_t:db_database
->>>> sepgsql_db_t;           # deprecated
->>>>
->>>>  allow postgresql_t sepgsql_module_type:db_database install_module;
->>>>  # Database/Loadable module
->>>> @@ -270,7 +269,6 @@ type_transition postgresql_t
->>>> sepgsql_database_type:db_schema sepgsql_schema_t;
->>>>  type_transition postgresql_t sepgsql_database_type:db_schema
->>>> sepgsql_temp_schema_t "pg_temp";
->>>>
->>>>  allow postgresql_t sepgsql_table_type:{ db_table db_column db_tuple } *;
->>>> -type_transition postgresql_t sepgsql_database_type:db_table
->>>> sepgsql_sysobj_t;       # deprecated
->>>>  type_transition postgresql_t sepgsql_schema_type:db_table sepgsql_sysobj_t;
->>>>
->>>>  allow postgresql_t sepgsql_sequence_type:db_sequence *;
->>>> @@ -280,7 +278,6 @@ allow postgresql_t sepgsql_view_type:db_view *;
->>>>  type_transition postgresql_t sepgsql_schema_type:db_view sepgsql_view_t;
->>>>
->>>>  allow postgresql_t sepgsql_procedure_type:db_procedure *;
->>>> -type_transition postgresql_t sepgsql_database_type:db_procedure
->>>> sepgsql_proc_exec_t;    # deprecated
->>>>  type_transition postgresql_t sepgsql_schema_type:db_procedure
->>>> sepgsql_proc_exec_t;
->>>>
->>>>  allow postgresql_t sepgsql_blob_type:db_blob *;
->>>> @@ -431,23 +428,23 @@ type_transition sepgsql_client_type
->>>> sepgsql_client_type:db_database sepgsql_db_t
->>>>
->>>>  allow sepgsql_client_type sepgsql_schema_t:db_schema { getattr search };
->>>>
->>>> -allow sepgsql_client_type sepgsql_fixed_table_t:db_table { getattr
->>>> use select insert lock };
->>>> -allow sepgsql_client_type sepgsql_fixed_table_t:db_column { getattr
->>>> use select insert };
->>>> -allow sepgsql_client_type sepgsql_fixed_table_t:db_tuple { use select insert };
->>>> +allow sepgsql_client_type sepgsql_fixed_table_t:db_table { getattr
->>>> select insert lock };
->>>> +allow sepgsql_client_type sepgsql_fixed_table_t:db_column { getattr
->>>> select insert };
->>>> +allow sepgsql_client_type sepgsql_fixed_table_t:db_tuple { select insert };
->>>>
->>>> -allow sepgsql_client_type sepgsql_table_t:db_table { getattr use
->>>> select update insert delete lock };
->>>> -allow sepgsql_client_type sepgsql_table_t:db_column { getattr use
->>>> select update insert };
->>>> -allow sepgsql_client_type sepgsql_table_t:db_tuple { use select
->>>> update insert delete };
->>>> +allow sepgsql_client_type sepgsql_table_t:db_table { getattr select
->>>> update insert delete lock };
->>>> +allow sepgsql_client_type sepgsql_table_t:db_column { getattr select
->>>> update insert };
->>>> +allow sepgsql_client_type sepgsql_table_t:db_tuple { select update
->>>> insert delete };
->>>>
->>>> -allow sepgsql_client_type sepgsql_ro_table_t:db_table { getattr use
->>>> select lock };
->>>> -allow sepgsql_client_type sepgsql_ro_table_t:db_column { getattr use select };
->>>> -allow sepgsql_client_type sepgsql_ro_table_t:db_tuple { use select };
->>>> +allow sepgsql_client_type sepgsql_ro_table_t:db_table { getattr select lock };
->>>> +allow sepgsql_client_type sepgsql_ro_table_t:db_column { getattr select };
->>>> +allow sepgsql_client_type sepgsql_ro_table_t:db_tuple { select };
->>>>
->>>>  allow sepgsql_client_type sepgsql_secret_table_t:db_table getattr;
->>>>  allow sepgsql_client_type sepgsql_secret_table_t:db_column getattr;
->>>>
->>>> -allow sepgsql_client_type sepgsql_sysobj_t:db_table { getattr use
->>>> select lock };
->>>> -allow sepgsql_client_type sepgsql_sysobj_t:db_column { getattr use select };
->>>> +allow sepgsql_client_type sepgsql_sysobj_t:db_table { getattr select lock };
->>>> +allow sepgsql_client_type sepgsql_sysobj_t:db_column { getattr select };
->>>>  allow sepgsql_client_type sepgsql_sysobj_t:db_tuple { use select };
->>>>
->>>>  allow sepgsql_client_type sepgsql_temp_table_t:db_table ~{ relabelto
->>>> relabelfrom };
->>>> @@ -503,7 +500,6 @@ tunable_policy(`sepgsql_enable_users_ddl',`
->>>>  #
->>>>
->>>>  allow sepgsql_admin_type sepgsql_database_type:db_database { create
->>>> drop getattr setattr relabelfrom relabelto access };
->>>> -type_transition sepgsql_admin_type sepgsql_admin_type:db_database
->>>> sepgsql_db_t;           # deprecated
->>>>
->>>>  allow sepgsql_admin_type sepgsql_schema_type:db_schema { create drop
->>>> getattr setattr relabelfrom relabelto search add_name remove_name };
->>>>  type_transition sepgsql_admin_type sepgsql_database_type:db_schema
->>>> sepgsql_schema_t;
->>>> @@ -513,7 +509,6 @@ allow sepgsql_admin_type
->>>> sepgsql_table_type:db_table { create drop getattr setat
->>>>  allow sepgsql_admin_type sepgsql_table_type:db_column { create drop
->>>> getattr setattr relabelfrom relabelto };
->>>>  allow sepgsql_admin_type sepgsql_sysobj_table_type:db_tuple {
->>>> relabelfrom relabelto select update insert delete };
->>>>
->>>> -type_transition sepgsql_admin_type sepgsql_database_type:db_table
->>>> sepgsql_table_t;        # deprecated
->>>>  type_transition sepgsql_admin_type sepgsql_schema_type:db_table
->>>> sepgsql_table_t;
->>>>
->>>>  allow sepgsql_admin_type sepgsql_sequence_type:db_sequence { create
->>>> drop getattr setattr relabelfrom relabelto get_value next_value
->>>> set_value };
->>>> @@ -527,7 +522,6 @@ type_transition sepgsql_admin_type
->>>> sepgsql_schema_type:db_view sepgsql_view_t;
->>>>  allow sepgsql_admin_type sepgsql_procedure_type:db_procedure { create
->>>> drop getattr relabelfrom relabelto };
->>>>  allow sepgsql_admin_type sepgsql_proc_exec_t:db_procedure execute;
->>>>
->>>> -type_transition sepgsql_admin_type sepgsql_database_type:db_procedure
->>>> sepgsql_proc_exec_t;    # deprecated
->>>>  type_transition sepgsql_admin_type sepgsql_schema_type:db_procedure
->>>> sepgsql_proc_exec_t;
->>>>
->>>>  allow sepgsql_admin_type sepgsql_language_type:db_language { create
->>>> drop getattr setattr relabelfrom relabelto execute };
->>>> @@ -566,14 +560,11 @@ tunable_policy(`sepgsql_unconfined_dbadm',`
->>>>  #
->>>>
->>>>  allow sepgsql_unconfined_type sepgsql_database_type:db_database *;
->>>> -type_transition sepgsql_unconfined_type
->>>> sepgsql_unconfined_type:db_database sepgsql_db_t;       # deprecated
->>>>
->>>>  allow sepgsql_unconfined_type sepgsql_schema_type:db_schema *;
->>>>  type_transition sepgsql_unconfined_type
->>>> sepgsql_database_type:db_schema sepgsql_schema_t;
->>>>  type_transition sepgsql_unconfined_type
->>>> sepgsql_database_type:db_schema sepgsql_schema_t "pg_temp";
->>>>
->>>> -type_transition sepgsql_unconfined_type
->>>> sepgsql_database_type:db_table sepgsql_table_t;         # deprecated
->>>> -type_transition sepgsql_unconfined_type
->>>> sepgsql_database_type:db_procedure sepgsql_proc_exec_t; # deprecated
->>>>  type_transition sepgsql_unconfined_type sepgsql_schema_type:db_table
->>>> sepgsql_table_t;
->>>>  type_transition sepgsql_unconfined_type
->>>> sepgsql_schema_type:db_sequence sepgsql_seq_t;
->>>>  type_transition sepgsql_unconfined_type sepgsql_schema_type:db_view
->>>> sepgsql_view_t;
+I am running Scientific Linux 6.0, fully updated using the targeted policy.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Is there a method to execute the SELinux admin GUI tool 
+system-config-selinux while in enforcing mode of the targeted policy?
+
+My assumption is that root linux user combined with sysadm_r role would 
+work. However, after creating a shell with sudo -i -r sysadm_r (from the 
+staff_r role), the tool fails to start. I then tried to create a user 
+that would login via the GUI login and receive the sysadm_r role by 
+default. In this case I was unsuccessful in even getting the sysadm_r 
+role to have the sysadm_t upon login. It receives a context of 
+sysadm_u:sysadm_r:oddjob_mkhomedir_t. This despite having the following 
+/etc/selinux/targeted/contexts/users/sysadm_u file:
+
+system_r:local_login_t:s0    sysadm_r:sysadm_t:s0
+system_r:remote_login_t:s0    sysadm_r:sysadm_t:s0
+system_r:sshd_t:s0        sysadm_r:sysadm_t:s0
+system_r:crond_t:s0        sysadm_r:sysadm_t:s0
+system_r:xdm_t:s0        sysadm_r:sysadm_t:s0
+sysadm_r:sysadm_su_t:s0        sysadm_r:sysadm_t:s0
+sysadm_r:sysadm_sudo_t:s0    sysadm_r:sysadm_t:s0
+system_r:initrc_su_t:s0        sysadm_r:sysadm_t:s0
+sysadm_r:sysadm_t:s0        sysadm_r:sysadm_t:s0
+sysadm_r:sysadm_su_t:s0        sysadm_r:sysadm_t:s0
+sysadm_r:sysadm_sudo_t:s0    sysadm_r:sysadm_t:s0
+
+Thanks,
+
+Andy
+
+
+
+--------------050906060606010406000104
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <font face="Arial">I am running Scientific Linux 6.0, fully updated
+      using the targeted policy. <br>
+      <br>
+      Is there a method to execute the SELinux admin GUI tool
+      system-config-selinux while in enforcing mode of the targeted
+      policy? <br>
+      <br>
+      My assumption is that root linux user combined with sysadm_r role
+      would work. However, after creating a shell with sudo -i -r
+      sysadm_r (from the staff_r role), the tool fails to start. I then
+      tried to create a user that would login via the GUI login and
+      receive the sysadm_r role by default. In this case I was
+      unsuccessful in even getting the sysadm_r role to have the
+      sysadm_t upon login. It receives a context of
+      sysadm_u:sysadm_r:oddjob_mkhomedir_t. This despite having the
+      following /etc/selinux/targeted/contexts/users/sysadm_u file:<br>
+      <br>
+      system_r:local_login_t:s0&nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      system_r:remote_login_t:s0&nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      system_r:sshd_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      system_r:crond_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      system_r:xdm_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      sysadm_r:sysadm_su_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      sysadm_r:sysadm_sudo_t:s0&nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      system_r:initrc_su_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      sysadm_r:sysadm_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      sysadm_r:sysadm_su_t:s0&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0 <br>
+      sysadm_r:sysadm_sudo_t:s0&nbsp;&nbsp;&nbsp; sysadm_r:sysadm_t:s0<br>
+      <br>
+      Thanks,<br>
+      <br>
+      Andy<br>
+      <br>
+      <br>
+    </font>
+  </body>
+</html>
+
+--------------050906060606010406000104--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
