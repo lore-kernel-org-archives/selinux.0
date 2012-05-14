@@ -1,46 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4EKslFY006560
-	for <selinux@tycho.nsa.gov>; Mon, 14 May 2012 16:54:47 -0400
-Received: by qcsk26 with SMTP id k26so4112816qcs.12
-        for <selinux@tycho.nsa.gov>; Mon, 14 May 2012 13:54:48 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4ELFYOq008307
+	for <selinux@tycho.nsa.gov>; Mon, 14 May 2012 17:15:34 -0400
+Received: by qcsk26 with SMTP id k26so4127868qcs.12
+        for <selinux@tycho.nsa.gov>; Mon, 14 May 2012 14:15:35 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: Chad Hanson <chanson@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: RFC: packet checks always on option
-Date: Mon, 14 May 2012 16:54:45 -0400
-Message-ID: <1941684.m6pGkLqOxR@sifl>
-In-Reply-To: <C42CE43E0E13AB44A299B62E255003740CC39B@TCSEXCH1.tcs-sec.com>
-References: <4FA95098.1050201@tresys.com> <2254819.3TiCjlmuru@sifl> <C42CE43E0E13AB44A299B62E255003740CC39B@TCSEXCH1.tcs-sec.com>
+Date: Mon, 14 May 2012 17:15:32 -0400
+Message-ID: <12617452.LZMSpbtozB@sifl>
+In-Reply-To: <1337015850.28157.43.camel@moss-pluto>
+References: <4FA95098.1050201@tresys.com> <1337015850.28157.43.camel@moss-pluto>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, May 14, 2012 04:42:06 PM Chad Hanson wrote:
-> > > >> * during boot and shutdown you can guarantee no network access
-> > > > 
-> > > > You can do this through a variety of other mechanisms that have
-> > > > nothing to do with secmark labels.
-> > > 
-> > > No, you can't.
-> > 
-> > Yes, you can. See "netif:{ ingress egress }".
-> 
-> This assumes you have netlabel rules enabled.
+On Monday, May 14, 2012 01:17:30 PM Stephen Smalley wrote:
+> Didn't the old behavior lead to the undesirable result that refpolicy
+> allows every domain (or at least every domain that does networking) to
+> send/recv unlabeled packets, such that you cannot effectively employ
+> SECMARK unless you first modify and rebuild your entire policy to take
+> away the unlabeled packet access?  Whereas with the new behavior one
+> could drop those rules and then when someone does enable SECMARK, they
+> get to fully define the allowable network traffic?
 
-Look at the code a bit closer; it works with both labeled IPsec and NetLabel.
+Yep.
+ 
+> I'm not adverse to making it optional/configurable, but I think a policy
+> capability is how you should do it.  That is what they are for, and they
+> are supposed to provide a more explicit mechanism than either the
+> handle_unknown logic or the old compat_net logic ...
 
-Regardless, I see your point.
+*If* we decide to go this route, I agree, policy capabilities seem to be the 
+best fit.
 
-> I would like to see the configuration option noted as a possibility in
-> netlbl_enabled() to be 1 without a kernel patch. This then would assure that
-> there are always netif checks are active in the absence of secmark rules is
-> this is desired.
-
-*If* we were to do something to enable the per-packet access checks regardless 
-of configuration I agree, we should enable the secmark checks and the peer 
-label checks.
+However, as I said earlier in my emails to Chris, I'm still not certain this 
+actually accomplishes anything useful.
 
 -- 
 paul moore
