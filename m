@@ -1,62 +1,56 @@
-Message-ID: <4FB27A53.4050903@tresys.com>
-Date: Tue, 15 May 2012 11:46:27 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4FFtktm030845
+	for <selinux@tycho.nsa.gov>; Tue, 15 May 2012 11:55:46 -0400
+Message-ID: <4FB27C82.2000005@tresys.com>
+Date: Tue, 15 May 2012 11:55:46 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux Mail List
-	<selinux@tycho.nsa.gov>
-Subject: Re: RFC: packet checks always on option
-References: <4FA95098.1050201@tresys.com> <1423269.qphO9nrW5K@sifl> <4FB26C7D.4020100@tresys.com> <4183776.qZOazSxGrL@sifl>
-In-Reply-To: <4183776.qZOazSxGrL@sifl>
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: Stephen Smalley <sds@tycho.ncsc.mil>, SELinux-NSA <selinux@tycho.nsa.gov>
+Subject: Re: regression test of security policy
+References: <CADyhKSVyfCxx9dAziaR0bcbPvXW4C6FnV4J-Jux7gaMrT+-L+g@mail.gmail.com> <1336140013.24121.13.camel@moss-pluto> <CADyhKSUTP2xpjDW1GbFeYm-pQpDSqpX5bvRvid=1xfzrXw3DjQ@mail.gmail.com> <CADyhKSXeT46RvyUKw_T_96GB3mRNnP0UU=R34Kq9Ho91NcDzRw@mail.gmail.com> <4FABC084.9010604@tresys.com> <CADyhKSU=0nDupacpDFHXcw_ypARGMQdgoGJAXQm7v21jt3MoGQ@mail.gmail.com>
+In-Reply-To: <CADyhKSU=0nDupacpDFHXcw_ypARGMQdgoGJAXQm7v21jt3MoGQ@mail.gmail.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/15/12 11:04, Paul Moore wrote:
-> On Tuesday, May 15, 2012 10:47:25 AM Christopher J. PeBenito wrote:
->> On 05/15/12 10:13, Paul Moore wrote:
->>> On Tuesday, May 15, 2012 09:24:20 AM Christopher J. PeBenito wrote:
->>>> On 05/14/12 17:15, Paul Moore wrote:
->>>>> On Monday, May 14, 2012 01:17:30 PM Stephen Smalley wrote:
->>>>>> I'm not adverse to making it optional/configurable, but I think a
->>>>>> policy
->>>>>> capability is how you should do it.  That is what they are for, and
->>>>>> they
->>>>>> are supposed to provide a more explicit mechanism than either the
->>>>>> handle_unknown logic or the old compat_net logic ...
->>>>>
->>>>> *If* we decide to go this route, I agree, policy capabilities seem to be
->>>>> the best fit.
->>>>>
->>>>> However, as I said earlier in my emails to Chris, I'm still not certain
->>>>> this actually accomplishes anything useful.
->>>>
->>>> I don't understand how you can say this doesn't accomplish anything
->>>> useful.
->>>
->>> See my earlier comments in this thread about being able to verify the
->>> correctness of the secmark labels.  This has always been my core concern
->>> with your argument: you are concerned about the ability for policy to
->>> control network traffic labeled via secmark, but you seem to ignore the
->>> issue that there is no mechanism to verify the correctness of the secmark
->>> labels.  Making strong guarantees about the ability to enforce a given
->>> policy without any assurance that the labels are correct seems a bit
->>> silly to me.
+On 05/11/12 08:59, Kohei KaiGai wrote:
+> 2012/5/10 Christopher J. PeBenito <cpebenito@tresys.com>:
+>> On 05/06/12 14:51, Kohei KaiGai wrote:
+>>> I'd like to have such kind of test in the reference policy, to cover
+>>> wider range test cases at security policy side.
+>>> It helps to improve the quality and to reduce the burden for testing.
+>>> (In fact, I found a few bugs in mcs/mls rules during this development...)
 >>
->> Believe me, as a policy person, I'd never ignore labeling correctness.  I
->> don't think SECMARK rule correctness has anything to do with this
->> discussion, as this is about the mechanism/enforcement itself.
+>> I'm not adverse to this for refpolicy, but what worries me is the size
+>> and maintainability of the tests.  What you have in your patch for
+>> testing sepostgresql looks several times bigger than the sepostgresql
+>> policy itself.  It seems that the tests would be larger than the policy
+>> itself so that the constraints can be checked.  Additionally, the
+>> community (I'm including myself) isn't exactly good about keeping
+>> tests up to date (see tests in the toolchain, for example).
+>>
+> I could understand the maintenance burden.
 > 
-> Perhaps I'm reading the two sentences above wrong, perhaps I'm thinking about 
-> it wrong, or perhaps you didn't write them as intended; but the two sentences 
-> above seem to contradict each other in my mind.  I just don't see how you can 
-> have enforcement via labels without correct application of the labels 
-> themselves.
+> How about your opinion to add Makefile support to run external
+> test cases? It will help contributors test their own patches being
+> submitted.
+> 
+> In my idea, it adds a new make target "regtest" with TESTCASE
+> argument that points to the *.test file.
+> 
+>   $ make TYPE=xxx MONOLITHIC=y TESTCASE=/path/to/testcases regtest
+> 
+> Then, makefile generates a monolithic policy chunk and kicks
+> checkpolicy with the new -s option that takes processed testcase
+> by m4.
+> 
+> The reason why I want refpolicy to provide such kind of infrastructure
+> is utilization of existing macro definitions to generate multiple
+> testcases from a single source.
+> Do you think it is reasonable to improve the quality of policy?
 
-Of course for a system to work right you need correct enforcement, correct policy, and correct labeling.  My whole argument is about the enforcement.  If you have correct labeling and correct policy but wrong enforcement, its still incorrect.  I'm only trying to argue on the enforcement; label correctness is important, just not for this discussion.
-
-I can see if you're saying that a system a SECMARK ruleset that fails to load would have incorrect labels for packets.  I agree with that.  But this is a similar situation to /dev labeling being initialized by udev.  The enforcement on files in /dev starts as soon as the filesystem is mounted, rather than when the labeling is initialized by udev.  If udev fails, then the enforcement still goes on with the initial labels, which is why we have restrictive initial labels, rather than disabled.
+It sounds fine.  We can discuss the implementation on the refpolicy mail list.
 
 -- 
 Chris PeBenito
