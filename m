@@ -1,99 +1,82 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4GKJ1ac011486
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2012 16:19:01 -0400
-Received: from /spool/local
-	by e39.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <selinux@tycho.nsa.gov> from <paulmck@linux.vnet.ibm.com>;
-	Wed, 16 May 2012 14:19:02 -0600
-Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by d03dlp03.boulder.ibm.com (Postfix) with ESMTP id C803C19D8058
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2012 14:18:46 -0600 (MDT)
-Received: from d03av01.boulder.ibm.com (d03av01.boulder.ibm.com [9.17.195.167])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id q4GKIuTK116260
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2012 14:18:58 -0600
-Received: from d03av01.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av01.boulder.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id q4GKIsnc030015
-	for <selinux@tycho.nsa.gov>; Wed, 16 May 2012 14:18:54 -0600
-Date: Wed, 16 May 2012 13:18:53 -0700
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Paul Moore <pmoore@redhat.com>
-Cc: selinux@tycho.nsa.gov, davej@redhat.com
-Subject: Re: [RFC PATCH] selinux: fix a RCU dereference in
- sel_netnode_insert()
-Message-ID: <20120516201852.GM2441@linux.vnet.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20120516201039.15853.97673.stgit@sifl>
+Message-ID: <4FB505DC.4080700@tresys.com>
+Date: Thu, 17 May 2012 10:06:20 -0400
+From: david caplan <dac@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20120516201039.15853.97673.stgit@sifl>
+To: Paul Moore <paul@paul-moore.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley
+	<sds@tycho.nsa.gov>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: RFC: packet checks always on option
+References: <4FA95098.1050201@tresys.com> <4183776.qZOazSxGrL@sifl> <4FB27A53.4050903@tresys.com> <1885958.szbG2AyNTS@sifl>
+In-Reply-To: <1885958.szbG2AyNTS@sifl>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 16, 2012 at 04:10:40PM -0400, Paul Moore wrote:
-> This patch changes the rcu_dereference() call in sel_netnode_insert()
-> to a rcu_dereference_protected() call to solve the problem shown
-> below.
+On 5/15/2012 2:45 PM, Paul Moore wrote:
+> On Tuesday, May 15, 2012 11:46:27 AM Christopher J. PeBenito wrote:
+>> On 05/15/12 11:04, Paul Moore wrote:
+>>> On Tuesday, May 15, 2012 10:47:25 AM Christopher J. PeBenito wrote:
+>>>> On 05/15/12 10:13, Paul Moore wrote:
+>>>>> See my earlier comments in this thread about being able to verify the
+>>>>> correctness of the secmark labels.  This has always been my core concern
+>>>>> with your argument: you are concerned about the ability for policy to
+>>>>> control network traffic labeled via secmark, but you seem to ignore the
+>>>>> issue that there is no mechanism to verify the correctness of the
+>>>>> secmark labels.  Making strong guarantees about the ability to enforce a
+>>>>> given policy without any assurance that the labels are correct seems a
+>>>>> bit silly to me.
+>>>>
+>>>> Believe me, as a policy person, I'd never ignore labeling correctness.  I
+>>>> don't think SECMARK rule correctness has anything to do with this
+>>>> discussion, as this is about the mechanism/enforcement itself.
+>>>
+>>> Perhaps I'm reading the two sentences above wrong, perhaps I'm thinking
+>>> about it wrong, or perhaps you didn't write them as intended; but the two
+>>> sentences above seem to contradict each other in my mind.  I just don't
+>>> see how you can have enforcement via labels without correct application
+>>> of the labels themselves.
+>>
+>> Of course for a system to work right you need correct enforcement, correct
+>> policy, and correct labeling.  My whole argument is about the enforcement. 
+>> If you have correct labeling and correct policy but wrong enforcement, its
+>> still incorrect. I'm only trying to argue on the enforcement; label
+>> correctness is important, just not for this discussion.
 > 
->  ===============================
->  [ INFO: suspicious RCU usage. ]
->  3.4.0-rc7+ #93 Not tainted
->  -------------------------------
->  security/selinux/netnode.c:178 suspicious rcu_dereference_check() usage!
->  other info that might help us debug this:
->  rcu_scheduler_active = 1, debug_locks = 0
->  1 lock held by trinity/25132:
->   #0:  (sel_netnode_lock){+.....}, at:
->        [<ffffffff812db738>] sel_netnode_sid+0x148/0x3c0
->  stack backtrace:
->  Pid: 25132, comm: trinity Not tainted 3.4.0-rc7+ #93
->  Call Trace:
->   [<ffffffff810cc7cd>] lockdep_rcu_suspicious+0xfd/0x130
->   [<ffffffff812db981>] sel_netnode_sid+0x391/0x3c0
->   [<ffffffff812db5f0>] ? sel_netnode_find+0x1a0/0x1a0
->   [<ffffffff812d4a84>] selinux_socket_bind+0x104/0x350
->   [<ffffffff810a6648>] ? sched_clock_cpu+0xb8/0x130
->   [<ffffffff816a47b9>] ? sub_preempt_count+0xa9/0xe0
->   [<ffffffff812cb3e6>] security_socket_bind+0x16/0x20
->   [<ffffffff815468aa>] sys_bind+0x7a/0x100
->   [<ffffffff816a8795>] ? sysret_check+0x22/0x5d
->   [<ffffffff810d149d>] ? trace_hardirqs_on_caller+0x10d/0x1a0
->   [<ffffffff810fc18c>] ? __audit_syscall_entry+0xcc/0x310
->   [<ffffffff8133839e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
->   [<ffffffff816a8769>] system_call_fastpath+0x16/0x1b
-> 
-> Reported-by: Dave Jones <davej@redhat.com>
-> Signed-off-by: Paul Moore <pmoore@redhat.com>
+> My argument is that worrying about enforcement without demonstrating you've 
+> solved the labeling issue is pointless.  It is my opinion that the labels have 
+> to be correct before you can perform any worthwhile enforcement.
 
-Looks good to me!
+I agree that worthwhile enforcement requires correct labels but I'm not
+following how that relates to having a complete non-bypassable
+mechanism. If I understand correctly, when there are no SECMARK rules
+then the related security checks on packets are not performed - i.e. the
+default behavior is to allow any domain access to any packet. Isn't that
+contrary to the behavior of how every other SELinux enforcement point works?
 
-Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+> 
+> If you want to move forward with a policy capability to enable the per-packet 
+> access checks, please provide a mechanism to manage/verify/etc. the secmark 
+> label configuration within the greater scope of the policy.  I think someone 
+> made some effort at this a while back, but I believe it died out fairly 
+> quickly; I can't recall what the approach was exactly (I think it basically 
+> encapsulated the iptables rules somehow) but at least it was a start.
+> 
+>> I can see if you're saying that a system a SECMARK ruleset that fails to
+>> load would have incorrect labels for packets.  I agree with that.
+> 
+> There is also the even more sinister danger of mis-labeling, e.g. "coke" being 
+> labeled as "pepsi".
+> 
 
-> --
-> 
-> I've compiled tested this patch but due to some technical difficulties
-> today I haven't been able to build a full kernel to make sure nothing
-> horrible happens at boot; however, sending this out anyway in case
-> others are having problems and *need* something.
-> ---
->  security/selinux/netnode.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> index 8636585..bb24c5d 100644
-> --- a/security/selinux/netnode.c
-> +++ b/security/selinux/netnode.c
-> @@ -174,7 +174,9 @@ static void sel_netnode_insert(struct sel_netnode *node)
->  	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
->  		struct sel_netnode *tail;
->  		tail = list_entry(
-> -			rcu_dereference(sel_netnode_hash[idx].list.prev),
-> +			rcu_dereference_protected(
-> +				sel_netnode_hash[idx].list.prev,
-> +				lockdep_is_held(&sel_netnode_lock)),
->  			struct sel_netnode, list);
->  		list_del_rcu(&tail->list);
->  		kfree_rcu(tail, rcu);
-> 
+I'm not sure how the potential danger of mislabeling supports the
+argument that the default behavior - with *no* specific labeling - is to
+allow all access.
+
+David
+
+
 
 
 --
