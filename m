@@ -1,69 +1,82 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4HGPuRs006967
-	for <selinux@tycho.nsa.gov>; Thu, 17 May 2012 12:25:56 -0400
-Message-ID: <4FB5268F.3010905@redhat.com>
-Date: Thu, 17 May 2012 12:25:51 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4HGpvQe008719
+	for <selinux@tycho.nsa.gov>; Thu, 17 May 2012 12:51:57 -0400
+Received: by ggnv5 with SMTP id v5so2165698ggn.12
+        for <selinux@tycho.nsa.gov>; Thu, 17 May 2012 09:51:58 -0700 (PDT)
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Trying to support Python 3 but fails on libsemanage
-References: <20120516091736.GA10721@siphos.be>
-In-Reply-To: <20120516091736.GA10721@siphos.be>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <4FB519B7.5010502@tresys.com>
+References: <4FA95098.1050201@tresys.com>
+	<4183776.qZOazSxGrL@sifl>
+	<4FB27A53.4050903@tresys.com>
+	<1885958.szbG2AyNTS@sifl>
+	<4FB505DC.4080700@tresys.com>
+	<CAHC9VhTeBZX116mXvn+wA64Oo+5BgNwg1Zp+h_vAcDHDKva+7w@mail.gmail.com>
+	<4FB519B7.5010502@tresys.com>
+Date: Thu, 17 May 2012 12:51:58 -0400
+Message-ID: <CAHC9VhQHvpMo+1H_js_GSpq1EXyZaCtV0GBBeLxjpjNjeuso3A@mail.gmail.com>
+Subject: Re: RFC: packet checks always on option
+From: Paul Moore <paul@paul-moore.com>
+To: david caplan <dac@tresys.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, May 17, 2012 at 11:31 AM, david caplan <dac@tresys.com> wrote:
+> On 5/17/2012 10:42 AM, Paul Moore wrote:
+>> On Thu, May 17, 2012 at 10:06 AM, david caplan <dac@tresys.com> wrote:
+>>> On 5/15/2012 2:45 PM, Paul Moore wrote:
+>>>> On Tuesday, May 15, 2012 11:46:27 AM Christopher J. PeBenito wrote:
+>>>>> On 05/15/12 11:04, Paul Moore wrote:
+>>>>>> On Tuesday, May 15, 2012 10:47:25 AM Christopher J. PeBenito wrote:
+>>>>>>> On 05/15/12 10:13, Paul Moore wrote:
+>>>>>>>> See my earlier comments in this thread about being able to verify the
+>>>>>>>> correctness of the secmark labels.  This has always been my core concern
+>>>>>>>> with your argument: you are concerned about the ability for policy to
+>>>>>>>> control network traffic labeled via secmark, but you seem to ignore the
+>>>>>>>> issue that there is no mechanism to verify the correctness of the
+>>>>>>>> secmark labels.  Making strong guarantees about the ability to enforce a
+>>>>>>>> given policy without any assurance that the labels are correct seems a
+>>>>>>>> bit silly to me.
+>>>>>>>
+>>>>>>> Believe me, as a policy person, I'd never ignore labeling correctness.  I
+>>>>>>> don't think SECMARK rule correctness has anything to do with this
+>>>>>>> discussion, as this is about the mechanism/enforcement itself.
+>>>>>>
+>>>>>> Perhaps I'm reading the two sentences above wrong, perhaps I'm thinking
+>>>>>> about it wrong, or perhaps you didn't write them as intended; but the two
+>>>>>> sentences above seem to contradict each other in my mind.  I just don't
+>>>>>> see how you can have enforcement via labels without correct application
+>>>>>> of the labels themselves.
+>>>>>
+>>>>> Of course for a system to work right you need correct enforcement, correct
+>>>>> policy, and correct labeling.  My whole argument is about the enforcement.
+>>>>> If you have correct labeling and correct policy but wrong enforcement, its
+>>>>> still incorrect. I'm only trying to argue on the enforcement; label
+>>>>> correctness is important, just not for this discussion.
+>>>>
+>>>> My argument is that worrying about enforcement without demonstrating you've
+>>>> solved the labeling issue is pointless.  It is my opinion that the labels have
+>>>> to be correct before you can perform any worthwhile enforcement.
+>>>
+>>> I agree that worthwhile enforcement requires correct labels but I'm not
+>>> following how that relates to having a complete non-bypassable
+>>> mechanism.
+>>
+>> Either way the security policy isn't enforced correctly.
+>
+> No, if there is no enforcement mechanism then the policy is 100% not
+> enforced. If there is an enforcement mechanism then there is some chance
+> that it is enforced correctly.
 
-On 05/16/2012 05:17 AM, Sven Vermeulen wrote:
-> I'm trying to get Python 3 support up and going with the SELinux userspace 
-> utilities. I'm hitting a compatibility issue that I'm not able to work out 
-> further.
-> 
-> This is the following "test case": semanage fcontext -a -t swapfile_t
-> /swapfile semanage fcontext -d -t swapfile_t /swapfile
-> 
-> With Python 2.7, this works as it should be. With Python 3.2 however, I
-> get the following error while trying to delete the entry:
-> 
-> /usr/sbin/semanage: File context for /swapfile is not defined
-> 
-> The entry is correctly available in the file_contexts.local file. Also, if
-> I switch from Python 3.2 to 2.7 after adding the entry (but before
-> removing), removing the entry works as it should be.
-> 
-> I notice that semanage calls seobject.py which calls semanage.py. All
-> these files are exactly the same (no changes made to those), so I guess it
-> is something to do within the _semanage.so file.
-> 
-> Now, this is a library created through swig magic, which i'm totally
-> unknown to. It looks like all code is C-based, and then transformed into a 
-> Python-compatible call, not?
-> 
-> Is there anyone already running the SELinux userspace tools with Python 3? 
-> If so, how do you build libsemanage (as that provides the _semanage.so 
-> file)?
-> 
-> Wkr, Sven Vermeulen
-> 
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
+Either way you have no guarantee that the policy is enforced correctly.
 
-I have not tried to use python3 with semanage yet, did you actually port the
-python py files to python3?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+-- 
+paul moore
+www.paul-moore.com
 
-iEYEARECAAYFAk+1Jo8ACgkQrlYvE4MpobMRMwCg5sF7qgmNawO3lshoyI0IsBF3
-X+YAn3QnXrfEdnyh9RKL96Qur4pUwcmI
-=yaf9
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
