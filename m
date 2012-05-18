@@ -1,45 +1,56 @@
-Subject: Re: fail to get seandroid code
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ken.masumitsu@accenture.com
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <4FB623F8.2060403@accenture.com>
-References: <4FB623F8.2060403@accenture.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 18 May 2012 07:07:20 -0400
-Message-ID: <1337339240.24439.2.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4IBMAYp027855
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2012 07:22:10 -0400
+Received: by yenl3 with SMTP id l3so2914201yen.12
+        for <selinux@tycho.nsa.gov>; Fri, 18 May 2012 04:22:11 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <4FB5268F.3010905@redhat.com>
+References: <20120516091736.GA10721@siphos.be>
+	<4FB5268F.3010905@redhat.com>
+Date: Fri, 18 May 2012 13:22:10 +0200
+Message-ID: <CAPzO=Nx2SN_7=2-CmEgbmYq=-hRdHDTtvLgv2ZbUuODrVw8QsQ@mail.gmail.com>
+Subject: Re: Trying to support Python 3 but fails on libsemanage
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d04478817725fb004c04dc3f2
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-05-18 at 10:30 +0000, ken.masumitsu@accenture.com wrote:
-> Hi,
-> 
-> When I ran "repo sync" to install seandroid in reference to
-> http://selinuxproject.org/page/SEAndroid, I got an error like
-> ---------------------------------------------------
-> Fetching projects: 10% (24/239) fatal:
-> http://selinuxproject.org/~seandroid/git/device/samsung/tuna/info/refs
-> not found: did you run git update-server-info on the server?
-> ---------------------------------------------------
-> 
-> Though I checked the URL
-> (http://selinuxproject.org/~seandroid/git/device/samsung/tuna/info/refs)
-> by a browser, there is not such a directory.
-> 
-> Why the directory does not exist on the server?
+--f46d04478817725fb004c04dc3f2
+Content-Type: text/plain; charset=ISO-8859-1
 
-Thanks for the report - this should now be fixed.  When we added the
-tuna project, we didn't set up the http-based access for it.
+On May 17, 2012 6:25 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+> I have not tried to use python3 with semanage yet, did you actually port
+the
+> python py files to python3?
 
-BTW, it has been recently pointed out that the tuna/sepolicy.* files
-actually need to be copied over to maguro/ or toro/ in order to be
-picked up during the build.  We'll fix that, but in the interim, you can
-do that manually.
+Yes, and I think that went well (no more failures on print statements or
+indentation mismatches), but now I'm quite stuck. I'm going to debug the
+libselinux code a bit later (esp. the database handling as that's involved
+in this use case) to try and learn about this ;-)
 
--- 
-Stephen Smalley
-National Security Agency
+Wkr,
+  Sven Vermeulen
 
+--f46d04478817725fb004c04dc3f2
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<p>On May 17, 2012 6:25 PM, &quot;Daniel J Walsh&quot; &lt;<a href=3D"mailt=
+o:dwalsh@redhat.com">dwalsh@redhat.com</a>&gt; wrote:<br>
+&gt; I have not tried to use python3 with semanage yet, did you actually po=
+rt the<br>
+&gt; python py files to python3?</p>
+<p>Yes, and I think that went well (no more failures on print statements or=
+ indentation mismatches), but now I&#39;m quite stuck. I&#39;m going to deb=
+ug the libselinux code a bit later (esp. the database handling as that&#39;=
+s involved in this use case) to try and learn about this ;-)</p>
+
+<p>Wkr,<br>
+=A0 Sven Vermeulen</p>
+
+--f46d04478817725fb004c04dc3f2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
