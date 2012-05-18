@@ -1,65 +1,54 @@
-Subject: Re: Tuna policy files
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1337185286.10285.94.camel@moss-pluto>
-References: 
-	 <CAFftDdp=i5a0s=MERWsHjJb3soMEU8s_nKDpT=OHJXu12iBZjw@mail.gmail.com>
-	 <1337185286.10285.94.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 18 May 2012 08:54:04 -0400
-Message-ID: <1337345644.24439.26.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4IIKJKP021341
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2012 14:20:21 -0400
+Message-ID: <4FB692E3.9050704@tresys.com>
+Date: Fri, 18 May 2012 14:20:19 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+MIME-Version: 1.0
+To: Kohei KaiGai <kaigai@kaigai.gr.jp>
+CC: <refpolicy@oss1.tresys.com>, SELinux-NSA <selinux@tycho.nsa.gov>
+Subject: Re: [4/4] sepgsql -redefinition of use permission onto system objects
+References: <CADyhKSXLR1rHgOd8Kfb3spNVWZ3Y5-mM9zYECWaC=ebmYvf-=w@mail.gmail.com> <CADyhKSUBg4nScZm+CDFX_hcRgbF-OG4y5NSbjk2NOsVK7LHneg@mail.gmail.com> <4FA3FAE4.8010803@tresys.com> <CADyhKSU41BXh9H7FA8WEbKBAX-j9iGpa80CwXWuWSf=ckaWhNg@mail.gmail.com> <4FABB8BF.2070201@tresys.com> <CADyhKSUNhZAbwKt+Qq7GJ2CxLs4dPqdDMEK666m4Gac_goejVw@mail.gmail.com>
+In-Reply-To: <CADyhKSUNhZAbwKt+Qq7GJ2CxLs4dPqdDMEK666m4Gac_goejVw@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-05-16 at 12:21 -0400, Stephen Smalley wrote:
-> On Tue, 2012-05-15 at 09:48 -0700, William Roberts wrote:
-> > Should the files in device/samsung/tuna be in maguro and toro
-> > directories? I ask this because when I build maguro, I am still not
-> > seeing factory getting labeled correctly. 
-> > 
-> > 
-> > In externale/sepolicy we have the below line...
-> > LOCAL_POLICY_DIRS := $(SRC_TARGET_DIR)/board/$(TARGET_DEVICE)/
-> > device/*/$(TARGET_DEVICE)/ vendor/*/$(TARGET_DEVICE)/
-> > 
-> > 
-> > Tuna is never really built, maguro and toro inherit their product
-> > makefiles from tuna, so I think we need to move these files and update
-> > the external/sepolicy so thier is no conflict on labeling factory.
-> > 
-> > 
-> > Can someone confirm my sanity?
+On 05/11/12 09:17, Kohei KaiGai wrote:
+> 2012/5/10 Christopher J. PeBenito <cpebenito@tresys.com>:
+>> On 05/04/12 13:24, Kohei KaiGai wrote:
+>>> 2012/5/4 Christopher J. PeBenito <cpebenito@tresys.com>:
+>>>> On 05/04/12 09:33, Kohei KaiGai wrote:
+>>>>> The patch 3 of 4 also required the 4 of 4 being refreshed to apply correctly.
+>>>>> In addition, I forgot to allow sepgsql_admin_type to allow to "use" system
+>>>>> objects.
+>>>>>
+>>>>> Please check the newer version. Thanks,
+>>>>
+>>>> Looks like the revised patch is missing.
+>>>>
+>>> Sorry, it is the attached one.
+>>>
+>>> Thanks,
+>>
+>> This one doesn't apply, the last hunk fails.  I also had a problem with the 3rd patch, as the contrib hunk stopped it from applying too.
+>>
+> Sorry, I generated the series of patches based on the latest refpolicy and
+> contrib tree.
 > 
-> I think you are correct.  We wouldn't have caught it because we don't
-> have Galaxy Nexus ourselves on which to test.  So our changes to
-> BoardConfig.mk, device.mk, and init.tuna.rc are correctly under
-> device/samsung/tuna, but the sepolicy.* files need to be copied to both
-> device/samsung/maguro and device/samsung/toro?  Or possibly we could
-> create sepolicy.te files that merely include the tuna/ ones, e.g.
-> $ cat sepolicy.te
-> include(`device/samsung/tuna/sepolicy.te')
+> And, I added "0of4" patch that fixes bugs in MLS/MCS that I noticed during
+> regression test efforts. MCS rules are defined twice for db_language class
+> in spite of db_schema being forgotten, and "entrypoint" permission was not
+> restricted at both of MCS / MLS policy.
 > 
-> To support that for .fc files, we'd need to apply m4 there as well in
-> the sepolicy Android.mk file.
+> Here is no updates on part-1 ~ part-4 except for patch rebasing.
 
-(cc selinux list)
-
-I have set up git projects for toro and maguro on selinuxproject.org,
-updated the local_manifest.xml files (for master and 4.0.4) to include
-these projects, added trivial sepolicy.{te,fc} files that include the
-tuna files, and modified the sepolicy Android.mk file to apply m4 for
-the .fc files in addition to .te files so that they can use includes.
-
-To update, you'll want to grab the updated local_manifest.xml file and
-run repo sync -j1 again.  If you have locally created the
-sepolicy.{te,fc} files, you may need to move them aside.
+Merged.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
