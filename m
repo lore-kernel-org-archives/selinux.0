@@ -1,56 +1,65 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4IBMAYp027855
-	for <selinux@tycho.nsa.gov>; Fri, 18 May 2012 07:22:10 -0400
-Received: by yenl3 with SMTP id l3so2914201yen.12
-        for <selinux@tycho.nsa.gov>; Fri, 18 May 2012 04:22:11 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <4FB5268F.3010905@redhat.com>
-References: <20120516091736.GA10721@siphos.be>
-	<4FB5268F.3010905@redhat.com>
-Date: Fri, 18 May 2012 13:22:10 +0200
-Message-ID: <CAPzO=Nx2SN_7=2-CmEgbmYq=-hRdHDTtvLgv2ZbUuODrVw8QsQ@mail.gmail.com>
-Subject: Re: Trying to support Python 3 but fails on libsemanage
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Tuna policy files
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=f46d04478817725fb004c04dc3f2
+In-Reply-To: <1337185286.10285.94.camel@moss-pluto>
+References: 
+	 <CAFftDdp=i5a0s=MERWsHjJb3soMEU8s_nKDpT=OHJXu12iBZjw@mail.gmail.com>
+	 <1337185286.10285.94.camel@moss-pluto>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 18 May 2012 08:54:04 -0400
+Message-ID: <1337345644.24439.26.camel@moss-pluto>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d04478817725fb004c04dc3f2
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, 2012-05-16 at 12:21 -0400, Stephen Smalley wrote:
+> On Tue, 2012-05-15 at 09:48 -0700, William Roberts wrote:
+> > Should the files in device/samsung/tuna be in maguro and toro
+> > directories? I ask this because when I build maguro, I am still not
+> > seeing factory getting labeled correctly. 
+> > 
+> > 
+> > In externale/sepolicy we have the below line...
+> > LOCAL_POLICY_DIRS := $(SRC_TARGET_DIR)/board/$(TARGET_DEVICE)/
+> > device/*/$(TARGET_DEVICE)/ vendor/*/$(TARGET_DEVICE)/
+> > 
+> > 
+> > Tuna is never really built, maguro and toro inherit their product
+> > makefiles from tuna, so I think we need to move these files and update
+> > the external/sepolicy so thier is no conflict on labeling factory.
+> > 
+> > 
+> > Can someone confirm my sanity?
+> 
+> I think you are correct.  We wouldn't have caught it because we don't
+> have Galaxy Nexus ourselves on which to test.  So our changes to
+> BoardConfig.mk, device.mk, and init.tuna.rc are correctly under
+> device/samsung/tuna, but the sepolicy.* files need to be copied to both
+> device/samsung/maguro and device/samsung/toro?  Or possibly we could
+> create sepolicy.te files that merely include the tuna/ ones, e.g.
+> $ cat sepolicy.te
+> include(`device/samsung/tuna/sepolicy.te')
+> 
+> To support that for .fc files, we'd need to apply m4 there as well in
+> the sepolicy Android.mk file.
 
-On May 17, 2012 6:25 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
-> I have not tried to use python3 with semanage yet, did you actually port
-the
-> python py files to python3?
+(cc selinux list)
 
-Yes, and I think that went well (no more failures on print statements or
-indentation mismatches), but now I'm quite stuck. I'm going to debug the
-libselinux code a bit later (esp. the database handling as that's involved
-in this use case) to try and learn about this ;-)
+I have set up git projects for toro and maguro on selinuxproject.org,
+updated the local_manifest.xml files (for master and 4.0.4) to include
+these projects, added trivial sepolicy.{te,fc} files that include the
+tuna files, and modified the sepolicy Android.mk file to apply m4 for
+the .fc files in addition to .te files so that they can use includes.
 
-Wkr,
-  Sven Vermeulen
+To update, you'll want to grab the updated local_manifest.xml file and
+run repo sync -j1 again.  If you have locally created the
+sepolicy.{te,fc} files, you may need to move them aside.
 
---f46d04478817725fb004c04dc3f2
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+-- 
+Stephen Smalley
+National Security Agency
 
-<p>On May 17, 2012 6:25 PM, &quot;Daniel J Walsh&quot; &lt;<a href=3D"mailt=
-o:dwalsh@redhat.com">dwalsh@redhat.com</a>&gt; wrote:<br>
-&gt; I have not tried to use python3 with semanage yet, did you actually po=
-rt the<br>
-&gt; python py files to python3?</p>
-<p>Yes, and I think that went well (no more failures on print statements or=
- indentation mismatches), but now I&#39;m quite stuck. I&#39;m going to deb=
-ug the libselinux code a bit later (esp. the database handling as that&#39;=
-s involved in this use case) to try and learn about this ;-)</p>
-
-<p>Wkr,<br>
-=A0 Sven Vermeulen</p>
-
---f46d04478817725fb004c04dc3f2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
