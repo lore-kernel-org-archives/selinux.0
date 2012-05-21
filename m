@@ -1,44 +1,53 @@
-Subject: RE: local_mainfest.xml
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-Cc: William Roberts <bill.c.roberts@gmail.com>,
-        "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>,
-        "seandroid@tycho.nsa.gov" <seandroid@tycho.nsa.gov>
-In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E3836504B4AA@ALA-MBB.corp.ad.wrs.com>
-References: 
-	 <CAFftDdp7eW0swem7kMD589eQm6LT4pN5yf4-at9wMv1T9wY9rQ@mail.gmail.com>
-	 ,<1337622828.28413.106.camel@moss-pluto>
-	 <33006C99F5A5194A9B7A7715DFA3E3836504B4AA@ALA-MBB.corp.ad.wrs.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 21 May 2012 16:32:41 -0400
-Message-ID: <1337632361.28413.183.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4LKxwKm028482
+	for <selinux@tycho.nsa.gov>; Mon, 21 May 2012 17:00:03 -0400
+Received: by wibhm14 with SMTP id hm14so2057819wib.12
+        for <selinux@tycho.nsa.gov>; Mon, 21 May 2012 14:00:01 -0700 (PDT)
+Date: Mon, 21 May 2012 22:58:50 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: sepolgen requires unofficial setools patch
+Message-ID: <20120521205849.GA8511@siphos.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-05-21 at 18:17 +0000, Radzykewycz, T (Radzy) wrote:
-> Sounds like a good organization to me.
-> 
-> You might want to name the branches similar to what AOSP uses, but mayme with "se" or "se_" prepended.  E.g. se_android-4.0.3_r1 instead of seandroid-4.0.3
-> 
-> In the past, there were times I would have liked the history, but I don't need it now.
+Hi guys,
 
-Just to clarify: The reason for using e.g. seandroid-4.0.3 rather than
-seandroid-4.0.3_r1 in our other projects is that seandroid-4.0.3 is a
-branch rather than a tag.  Thus, we can keep back-porting changes from
-our master branch as well as merging subsequent releases of 4.0.3 (e.g.
-going to android-4.0.3_r1.1).  The local_manifest.xml file then just
-refers to seandroid-4.0.3 and doesn't need to be changed each time.
+It looks like the current stable sepolgen release has requirements towards
+an unofficial (well, fedora/rhel only) patch on setools. With the current
+stable setools, it gives the following error when trying to use audit2allow
+on a denial that contains write & open:
 
-So I think we'll just use consistent names with our existing branches in
-other projects; the local_manifest.xml file on the seandroid-4.0.3
-branch will refer to the seandroid-4.0.3 branches of the other projects.
+Traceback (most recent call last):
+ File "/usr/bin/audit2allow-2.7", line 354, in <module>
+   app.main()
+ File "/usr/bin/audit2allow-2.7", line 345, in main
+   self.__output()
+ File "/usr/bin/audit2allow-2.7", line 315, in __output
+   g.add_access(self.__avs)
+ File "/usr/lib64/python2.7/site-packages/sepolgen/policygen.py", line 211, in add_access
+   self.__add_allow_rules(raw_allow)
+ File "/usr/lib64/python2.7/site-packages/sepolgen/policygen.py", line 179, in __add_allow_rules
+   self.domains = seinfo(ATTRIBUTE, name="domain")[0]["types"]
+NameError: global name 'seinfo' is not defined
 
--- 
-Stephen Smalley
-National Security Agency
+The patch that RedHat (and Fedora) provides fixes this in Python 2 systems,
+but doesn't work in Python 3 (because Python 3 has a different setup for
+Extension-based modules). I have a locally-tested patch on that, but I'm not
+sure this is a good way to go forward.
 
+Perhaps it would be wise to remove the dependency towards the setools
+binding and instead include the necessary code in the userspace libraries
+themselves? policygen.py doesn't require the entire set of querying that
+seinfo provides...
+
+The patch that is suggested by RedHat/Fedora doesn't follow the same
+structure as the other bindings do (like libqpol/libapol) in setools too.
+
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
