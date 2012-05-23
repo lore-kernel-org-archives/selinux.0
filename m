@@ -1,113 +1,125 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4NIk7oo001091
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2012 14:46:11 -0400
-Message-ID: <4FBD306C.2000600@redhat.com>
-Date: Wed, 23 May 2012 14:46:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4NKZT5h007187
+	for <selinux@tycho.nsa.gov>; Wed, 23 May 2012 16:35:29 -0400
+Received: by werj55 with SMTP id j55so5745214wer.12
+        for <selinux@tycho.nsa.gov>; Wed, 23 May 2012 13:35:27 -0700 (PDT)
+Date: Wed, 23 May 2012 22:35:19 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: Re: Trying to support Python 3 but fails on libsemanage
+Message-ID: <20120523203519.GA13394@siphos.be>
+References: <20120516091736.GA10721@siphos.be>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Sven Vermeulen <sven.vermeulen@siphos.be>, selinux@tycho.nsa.gov
-Subject: Re: sepolgen requires unofficial setools patch
-References: <20120521205849.GA8511@siphos.be> <4FBD064B.5040707@redhat.com> <4FBD1F48.7030707@tresys.com> <4FBD225F.8080708@redhat.com> <4FBD2C74.3000701@tresys.com>
-In-Reply-To: <4FBD2C74.3000701@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20120516091736.GA10721@siphos.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 05/23/2012 02:29 PM, Christopher J. PeBenito wrote:
-> On 05/23/12 13:46, Daniel J Walsh wrote:
->> On 05/23/2012 01:32 PM, Christopher J. PeBenito wrote:
->>> On 05/23/12 11:46, Daniel J Walsh wrote:
->>>> On 05/21/2012 04:58 PM, Sven Vermeulen wrote:
->>>>> Hi guys,
->>>> 
->>>>> It looks like the current stable sepolgen release has requirements 
->>>>> towards an unofficial (well, fedora/rhel only) patch on setools.
->>>>> With the current stable setools, it gives the following error when
->>>>> trying to use audit2allow on a denial that contains write & open:
->>>> 
->>>>> Traceback (most recent call last): File
->>>>> "/usr/bin/audit2allow-2.7", line 354, in <module> app.main() File
->>>>> "/usr/bin/audit2allow-2.7", line 345, in main self.__output() File
->>>>> "/usr/bin/audit2allow-2.7", line 315, in __output
->>>>> g.add_access(self.__avs) File 
->>>>> "/usr/lib64/python2.7/site-packages/sepolgen/policygen.py", line
->>>>> 211, in add_access self.__add_allow_rules(raw_allow) File 
->>>>> "/usr/lib64/python2.7/site-packages/sepolgen/policygen.py", line
->>>>> 179, in __add_allow_rules self.domains = seinfo(ATTRIBUTE, 
->>>>> name="domain")[0]["types"] NameError: global name 'seinfo' is not 
->>>>> defined
->>>> 
->>>>> The patch that RedHat (and Fedora) provides fixes this in Python 2
->>>>>  systems, but doesn't work in Python 3 (because Python 3 has a 
->>>>> different setup for Extension-based modules). I have a
->>>>> locally-tested patch on that, but I'm not sure this is a good way
->>>>> to go forward.
->>>> 
->>>>> Perhaps it would be wise to remove the dependency towards the
->>>>> setools binding and instead include the necessary code in the
->>>>> userspace libraries themselves? policygen.py doesn't require the
->>>>> entire set of querying that seinfo provides...
->>>> 
->>>>> The patch that is suggested by RedHat/Fedora doesn't follow the
->>>>> same structure as the other bindings do (like libqpol/libapol) in
->>>>> setools too.
->>>> 
->>>>> Wkr, Sven Vermeulen
->>>> 
->>>> Well I am not sure if anyone has ever used the setools python
->>>> binaries other then the setools/sesearch and seinfo bindings.
->>>> 
->>>> I would suggest we drop the general python bindings or deemphasize
->>>> them and work on improving the seinfo/sesearch bindings.
->> 
->>> I don't have a problem with a simpler api, e.g. a single function for
->>> rule searching, rather than the multiple calls to set up a query, but
->>> the current implementation in Fedora isn't acceptable to upstream
->>> setools. Perhaps what should be done is to add a basic query api to the
->>> SELinux userspace upstream, so that you can create all of these tools.
->>> Libqpol in setools tries to do this, but its implementation wouldn't be
->>> acceptable upstream.  Then the extra dependency of sepolgen on setools
->>> could be broken.
->> 
->> 
->> What is not acceptable, the entire idea of setools.sesearch and
->> setools.seinfo or something specific about the design?  Or do you want
->> setools to just be low level calls and want us to build a new package
->> that actualy does something useful with python?
->> 
->> IE Do you want us to just create a new tool called seanalyze or something
->> that includes the python bindings that we find useful.
+On Wed, May 16, 2012 at 11:17:36AM +0200, Sven Vermeulen wrote:
+> I'm trying to get Python 3 support up and going with the SELinux userspace
+> utilities. I'm hitting a compatibility issue that I'm not able to work out
+> further.
 > 
-> Well its up to SELinux upstream to say if they'd accept a libsequery or
-> libseanalyze or augment libsepol.  In the absence of that, the issue with
-> what you have is the implementation.  The preference would be to add the
-> new single function query API to libapol either in the C library sources or
-> in pure python using the existing swig wrappers.  It would also have to be
-> a complete API (i.e. apol could be converted to use it), which is more than
-> sesearch and seinfo support.
+> This is the following "test case":
+> 	semanage fcontext -a -t swapfile_t /swapfile
+> 	semanage fcontext -d -t swapfile_t /swapfile
 > 
-Sure and if they don't do stuff that is useful, then people will ignore
-upstream and do what they want.  Implementing the C Api in python is useless.
+> With Python 2.7, this works as it should be. With Python 3.2 however, I get
+> the following error while trying to delete the entry:
+> 
+> /usr/sbin/semanage: File context for /swapfile is not defined
 
-I am not interested in reinventing sesearch and seinfo from base level
-constructs in python.  I would just rather get the data into a dictionary and
-then do what I want with it.
+I've not been able to debug this much further, but this is as far as I got
+today...
 
-But if upstream is not interested in these tools then other downstreams loose out.
+(1.) semanage (the python script) calls the python seobject class, more
+     specifically the seobject.fcontextRecords class
+(2.) in seobject.fcontextRecords, deleting a file context goes to the
+     __delete function
+(3.) in __delete, semanage_fcontext_key_create(self.sh, target,
+     file_type[fstype]) is called, which returns rc (return code) and k (the
+     key used to interact with libsemanage)
+
+     self.sh is a handle used to keep track of the "transaction", target is
+     the string of the file context to delete (like "/swapfile"),
+     file_type[fstype] here is for specific types of contexts
+
+(4.) semanage_fcontext_key_create() goes to the _semanage.so shared library
+     (through semanage.py which imports _semanage), which is created from the
+     libsemanage code through swig
+
+(5.) The semanage_fcontext_key_create() function is defined in
+     src/fcontext_record.c. It allocates memory, puts in the information
+     (like expression = "/swapfile") and returns the address of this memory
+     location as key
+
+So far I can follow how things go. Since the Python script uses the
+_semanage.so as library, it can (or should) use the memory address without
+problems (no forks or so involved, so the memory address should remain
+correct, right?)
+
+However, what happens next is a bit too unclear to me. 
+
+(6.) In seobject.py, the function "semanage_fcontext_exists_local" is
+     called. The name obviously tells me we're going to see if the file
+     definition is mentioned in the file_contexts.local so that it can be
+     removed. It uses the key as a reference to seek this information.
+(7.) semanage_fcontext_exists_local is defined in src/fcontexts_local.c, but
+     this contains the following:
+
+        dbase_config_t *dconfig = semanage_fcontext_dbase_local(handle);
+        return dbase_exists(handle, dconfig, key, response);
+
+     What is semanage_fcontext_dbase_local(handle)'s job? Is this to define
+     the target database to work with (in our case, for file contexts)?
+(8.) dbase_exists() is defined in src/databqse.c. It calls the following:
+
+        dconfig->dtable->exists(handle, dconfig->dbase, key, response)
+
+     I assume the function "exists" depends on the dtable, which comes from
+     dconfig, and which - in our case - will refer to
+     semanage_fcontext_compare (in src/fcontext_record.c)
+
+Now here's where the fun part comes in.
+
+In both semanage_fcontext_key_create() and semanage_fcontext_compare() I
+have added some debugging statements, namely:
+
+fprintf(stderr, "DEBUG - create: key is %u, expr is \"%s\"\n", key, key->expr);
+and
+fprintf(stderr, "DEBUG - compare: key is %u, expr is \"%s\"\n", key, key->expr);
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+When I run the mentioned use case with Python 2.7, I get the following
+(expected) output:
 
-iEYEARECAAYFAk+9MGsACgkQrlYvE4MpobOttgCglTf4GVP6lSj7NgSyV+IvjjGN
-b/IAnRFlQl6nzCQfScJ/x5Eh8JDKOPo/
-=Mdq7
------END PGP SIGNATURE-----
+DEBUG - create: key is 3216874400, expr is "/swapfile"
+DEBUG - compare: key is 3216874400, expr is "/swapfile"
+DEBUG - compare: key is 3216874400, expr is "/swapfile"
+
+after which it gets deleted (the two compare-debug lines are because the
+file_contexts.local has two entries, and the second one matches).
+
+With Python 3.2, it becomes the following:
+
+DEBUG - create: key is 973543696, expr is "/swapfile"
+DEBUG - compare: key is 973543696, expr is ""�0^\"
+DEBUG - compare: key is 973543696, expr is ""�0^\"
+...
+
+
+Somewhere between creating the key and checking its content, the content of
+the memory is changed (or the target of the pointer pointing to the
+expression). Since the key itself (address) is unchanged, this is done
+somewhere in the libsemanage code, right?
+
+But if it is, and the code doesn't seem to have any #if PY_MAJOR_VERSION ...  #endif
+constructs in it, what can then cause Python 2.7 to behave differently here?
+Is it the swig'ed result that differs from Python 2.7 and Python 3.2? If so,
+is there any way this can be debugged easily?
+
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
