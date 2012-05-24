@@ -1,125 +1,124 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4NKZT5h007187
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2012 16:35:29 -0400
-Received: by werj55 with SMTP id j55so5745214wer.12
-        for <selinux@tycho.nsa.gov>; Wed, 23 May 2012 13:35:27 -0700 (PDT)
-Date: Wed, 23 May 2012 22:35:19 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: Re: Trying to support Python 3 but fails on libsemanage
-Message-ID: <20120523203519.GA13394@siphos.be>
-References: <20120516091736.GA10721@siphos.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20120516091736.GA10721@siphos.be>
+Date: Wed, 23 May 2012 22:46:39 -0700
+Message-ID: <CAFftDdpickqWvZsow+meLh=FSpq7hyzD+f8jM50CqOaSKUMx4g@mail.gmail.com>
+Subject: Patch for bcrm_patchram_plus [DRAFT]
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov, seandroid@tycho.nsa.gov
+Cc: Kalyan Desineni <desineni@gmail.com>
+Content-Type: multipart/mixed; boundary=047d7b33d4ca8ff8ab04c0c1c621
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 16, 2012 at 11:17:36AM +0200, Sven Vermeulen wrote:
-> I'm trying to get Python 3 support up and going with the SELinux userspace
-> utilities. I'm hitting a compatibility issue that I'm not able to work out
-> further.
-> 
-> This is the following "test case":
-> 	semanage fcontext -a -t swapfile_t /swapfile
-> 	semanage fcontext -d -t swapfile_t /swapfile
-> 
-> With Python 2.7, this works as it should be. With Python 3.2 however, I get
-> the following error while trying to delete the entry:
-> 
-> /usr/sbin/semanage: File context for /swapfile is not defined
+--047d7b33d4ca8ff8ab04c0c1c621
+Content-Type: multipart/alternative; boundary=047d7b33d4ca8ff8a104c0c1c61f
 
-I've not been able to debug this much further, but this is as far as I got
-today...
+--047d7b33d4ca8ff8a104c0c1c61f
+Content-Type: text/plain; charset=ISO-8859-1
 
-(1.) semanage (the python script) calls the python seobject class, more
-     specifically the seobject.fcontextRecords class
-(2.) in seobject.fcontextRecords, deleting a file context goes to the
-     __delete function
-(3.) in __delete, semanage_fcontext_key_create(self.sh, target,
-     file_type[fstype]) is called, which returns rc (return code) and k (the
-     key used to interact with libsemanage)
+This is a draft policy patch for SE Android Tuna based devices(Maguro and
+Toro).
 
-     self.sh is a handle used to keep track of the "transaction", target is
-     the string of the file context to delete (like "/swapfile"),
-     file_type[fstype] here is for specific types of contexts
+apply: external_sepolicy.patch to external/sepolicy
+apply: device_samsung_tuna.patch to device/samsung/tuna
 
-(4.) semanage_fcontext_key_create() goes to the _semanage.so shared library
-     (through semanage.py which imports _semanage), which is created from the
-     libsemanage code through swig
+I am still having issues with the tuna init.rc getting it to restorecon
+/factory/bluetooth/bt_addr, any help there would be appreciated.
 
-(5.) The semanage_fcontext_key_create() function is defined in
-     src/fcontext_record.c. It allocates memory, puts in the information
-     (like expression = "/swapfile") and returns the address of this memory
-     location as key
+I also am still debating whether or not the rule in tuna/sepolicy.fc
 
-So far I can follow how things go. Since the Python script uses the
-_semanage.so as library, it can (or should) use the memory address without
-problems (no forks or so involved, so the memory address should remain
-correct, right?)
+/factory/bluetooth/bt_addr     u:object_r:bluetooth_mac_file:s0
 
-However, what happens next is a bit too unclear to me. 
+should go to external/sepolicy/file_contexts, do the other device have the
+same layout, if so can the tuna factory/bluetooth labeling move too?
 
-(6.) In seobject.py, the function "semanage_fcontext_exists_local" is
-     called. The name obviously tells me we're going to see if the file
-     definition is mentioned in the file_contexts.local so that it can be
-     removed. It uses the key as a reference to seek this information.
-(7.) semanage_fcontext_exists_local is defined in src/fcontexts_local.c, but
-     this contains the following:
+Thanks for the review!
 
-        dbase_config_t *dconfig = semanage_fcontext_dbase_local(handle);
-        return dbase_exists(handle, dconfig, key, response);
+-- 
+Respectfully,
 
-     What is semanage_fcontext_dbase_local(handle)'s job? Is this to define
-     the target database to work with (in our case, for file contexts)?
-(8.) dbase_exists() is defined in src/databqse.c. It calls the following:
+William C Roberts
 
-        dconfig->dtable->exists(handle, dconfig->dbase, key, response)
+--047d7b33d4ca8ff8a104c0c1c61f
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-     I assume the function "exists" depends on the dtable, which comes from
-     dconfig, and which - in our case - will refer to
-     semanage_fcontext_compare (in src/fcontext_record.c)
+This is a draft policy patch for SE Android Tuna based devices(Maguro and T=
+oro).=A0<div><br></div><div>apply: external_sepolicy.patch to external/sepo=
+licy</div><div>apply: device_samsung_tuna.patch to device/samsung/tuna</div=
+>
+<div><br></div><div>I am still having issues with the tuna init.rc getting =
+it to restorecon /factory/bluetooth/bt_addr, any help there would be apprec=
+iated.</div><div><br></div><div>I also am still debating whether or not the=
+ rule in tuna/sepolicy.fc</div>
+<div><br></div><div>/factory/bluetooth/bt_addr =A0 =A0 u:object_r:bluetooth=
+_mac_file:s0</div><div><br></div><div>should go to external/sepolicy/file_c=
+ontexts, do the other device have the same layout, if so can the tuna facto=
+ry/bluetooth labeling move too?</div>
+<div><br></div><div><div>Thanks for the review!</div><div><br></div>-- <br>=
+Respectfully,<br><br>William C Roberts<br><br><br>
+</div>
 
-Now here's where the fun part comes in.
+--047d7b33d4ca8ff8a104c0c1c61f--
 
-In both semanage_fcontext_key_create() and semanage_fcontext_compare() I
-have added some debugging statements, namely:
+--047d7b33d4ca8ff8ab04c0c1c621
+Content-Type: application/octet-stream; name="external_sepolicy.patch"
+Content-Disposition: attachment; filename="external_sepolicy.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h2le1zx51
 
-fprintf(stderr, "DEBUG - create: key is %u, expr is \"%s\"\n", key, key->expr);
-and
-fprintf(stderr, "DEBUG - compare: key is %u, expr is \"%s\"\n", key, key->expr);
+ZGlmZiAtLWdpdCBhL2ZpbGUudGUgYi9maWxlLnRlCmluZGV4IGI2ZTNhNWQuLmExM2YwNTggMTAw
+NjQ0Ci0tLSBhL2ZpbGUudGUKKysrIGIvZmlsZS50ZQpAQCAtNTUsNiArNTUsOCBAQCB0eXBlIGNh
+Y2hlX2ZpbGUsIGZpbGVfdHlwZSwgbWxzdHJ1c3RlZG9iamVjdDsKIHR5cGUgZWZzX2ZpbGUsIGZp
+bGVfdHlwZTsKICMgVHlwZSBmb3Igd2FsbHBhcGVyIGZpbGUuCiB0eXBlIHdhbGxwYXBlcl9maWxl
+LCBmaWxlX3R5cGU7Cit0eXBlIGJsdWV0b290aF9tYWNfZmlsZSwgZmlsZV90eXBlOwordHlwZSBo
+Y2lfYXR0YWNoX2RldiwgZGV2X3R5cGU7CiAKICMgU29ja2V0IHR5cGVzCiB0eXBlIGJsdWV0b290
+aF9zb2NrZXQsIGZpbGVfdHlwZTsKZGlmZiAtLWdpdCBhL3JpbGQudGUgYi9yaWxkLnRlCmluZGV4
+IGEwYTRhMzcuLjI2YTMyN2QgMTAwNjQ0Ci0tLSBhL3JpbGQudGUKKysrIGIvcmlsZC50ZQpAQCAt
+MTcsNiArMTcsNyBAQCBhbGxvdyByaWxkIG10ZF9kZXZpY2U6ZGlyIHNlYXJjaDsKIGFsbG93IHJp
+bGQgZWZzX2ZpbGU6ZGlyIGNyZWF0ZV9kaXJfcGVybXM7CiBhbGxvdyByaWxkIGVmc19maWxlOmZp
+bGUgY3JlYXRlX2ZpbGVfcGVybXM7CiBhbGxvdyByaWxkIHNoZWxsX2V4ZWM6ZmlsZSByeF9maWxl
+X3Blcm1zOworYWxsb3cgcmlsZCBibHVldG9vdGhfbWFjX2ZpbGU6ZmlsZSB7IHJlYWQgZ2V0YXR0
+ciBvcGVuIH07CiBkb250YXVkaXQgcmlsZCBzZWxmOmNhcGFiaWxpdHkgc3lzX2FkbWluOwogIyBY
+WFggTGFiZWwgc3lzZnMgZmlsZXMgd2l0aCBhIHNwZWNpZmljIHR5cGU/CiBhbGxvdyByaWxkIHN5
+c2ZzOmZpbGUgcndfZmlsZV9wZXJtczsK
+--047d7b33d4ca8ff8ab04c0c1c621
+Content-Type: application/octet-stream; name="device_samsung_tuna.patch"
+Content-Disposition: attachment; filename="device_samsung_tuna.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h2lefjmi2
 
-
-When I run the mentioned use case with Python 2.7, I get the following
-(expected) output:
-
-DEBUG - create: key is 3216874400, expr is "/swapfile"
-DEBUG - compare: key is 3216874400, expr is "/swapfile"
-DEBUG - compare: key is 3216874400, expr is "/swapfile"
-
-after which it gets deleted (the two compare-debug lines are because the
-file_contexts.local has two entries, and the second one matches).
-
-With Python 3.2, it becomes the following:
-
-DEBUG - create: key is 973543696, expr is "/swapfile"
-DEBUG - compare: key is 973543696, expr is ""�0^\"
-DEBUG - compare: key is 973543696, expr is ""�0^\"
-...
-
-
-Somewhere between creating the key and checking its content, the content of
-the memory is changed (or the target of the pointer pointing to the
-expression). Since the key itself (address) is unchanged, this is done
-somewhere in the libsemanage code, right?
-
-But if it is, and the code doesn't seem to have any #if PY_MAJOR_VERSION ...  #endif
-constructs in it, what can then cause Python 2.7 to behave differently here?
-Is it the swig'ed result that differs from Python 2.7 and Python 3.2? If so,
-is there any way this can be debugged easily?
-
-Wkr,
-	Sven Vermeulen
+ZGlmZiAtLWdpdCBhL2luaXQudHVuYS5yYyBiL2luaXQudHVuYS5yYwppbmRleCAxMzU1MjM3Li4z
+ZTllNDU5IDEwMDc1NQotLS0gYS9pbml0LnR1bmEucmMKKysrIGIvaW5pdC50dW5hLnJjCkBAIC0x
+MTMsNyArMTEzLDggQEAgb24gZnMKIAljaG1vZCAwNjYwIC9zeXMvY2xhc3MvcmZraWxsL3Jma2ls
+bDAvc3RhdGUKIAljaG93biBibHVldG9vdGggYmx1ZXRvb3RoIC9zeXMvY2xhc3MvcmZraWxsL3Jm
+a2lsbDAvc3RhdGUKIAljaG93biBibHVldG9vdGggYmx1ZXRvb3RoIC9zeXMvY2xhc3MvcmZraWxs
+L3Jma2lsbDAvdHlwZQotICAgICAgICByZXN0b3JlY29uIC9mYWN0b3J5L2JsdWV0b290aAorCXJl
+c3RvcmVjb24gL2ZhY3RvcnkvYmx1ZXRvb3RoCisJcmVzdG9yZWNvbiAvZmFjdG9yeS9ibHVldG9v
+dGgvYnRfYWRkcgogCiAjIGJhY2tsaWdodAogCWNob3duIHN5c3RlbSBzeXN0ZW0gL3N5cy9jbGFz
+cy9iYWNrbGlnaHQvczZlOGFhMC9icmlnaHRuZXNzCmRpZmYgLS1naXQgYS9zZXBvbGljeS5mYyBi
+L3NlcG9saWN5LmZjCmluZGV4IGE0OTkxYTIuLjBhYWQzMDMgMTAwNjQ0Ci0tLSBhL3NlcG9saWN5
+LmZjCisrKyBiL3NlcG9saWN5LmZjCkBAIC00LDMgKzQsMTEgQEAKIC9kYXRhL3JhZGlvL252X2Rh
+dGEuYmluLiogIHU6b2JqZWN0X3I6cmFkaW9fZGF0YV9maWxlOnMwCiAvZmFjdG9yeSgvLiopPyAg
+ICAgICAgICAgICB1Om9iamVjdF9yOmVmc19maWxlOnMwCiAvZmFjdG9yeS9udl9kYXRhLmJpbi4q
+ICAgICB1Om9iamVjdF9yOnJhZGlvX2RhdGFfZmlsZTpzMAorL3N5c3RlbS9iaW4vYnJjbV9wYXRj
+aHJhbV9wbHVzICAgICB1Om9iamVjdF9yOmJjcm1fcGF0Y2hyYW1fcGx1c19leGVjOnMwCisKKyNU
+aGUgZGV2aWNlcyBhbmQgZmlsZXMgdXNlZCBieSB0aGUgaGNpYXR0YWNoIHNlcnZpY2UgYXJlIGRl
+dmljZSBzcGVjaWZpYworL2Rldi90dHlPMSAgICAgdTpvYmplY3RfcjpoY2lfYXR0YWNoX2Rldjpz
+MAorCisjWFhYIElzIC9mYWN0b3J5L2JsdWV0b290aC9idF9hZGRyIFR1bmEgc3BlY2lmaWMgdG9v
+IG9yIGNvdWxkIHRoaXMgZ28gdG8KKyNleHRlcm5hbC9zZXBvbGljeT8KKy9mYWN0b3J5L2JsdWV0
+b290aC9idF9hZGRyICAgICB1Om9iamVjdF9yOmJsdWV0b290aF9tYWNfZmlsZTpzMApkaWZmIC0t
+Z2l0IGEvc2Vwb2xpY3kudGUgYi9zZXBvbGljeS50ZQppbmRleCA0ZTZiNjA0Li45ZTIyZWUyIDEw
+MDY0NAotLS0gYS9zZXBvbGljeS50ZQorKysgYi9zZXBvbGljeS50ZQpAQCAtMSwzICsxLDEyIEBA
+CiAjIFRoaXMgc2hvdWxkIGJlIHJlcXVpcmVkIGZvciBhbGwgZG9tYWlucy4KICMgQWRkZWQgYWNj
+ZXNzIHRvIHN5c3RlbS50ZSBhbmQgbmZjLnRlIGluIHRoZSBiYXNlIHBvbGljeS4KICNhbGxvdyBk
+b21haW4gc3lzZnNfbmZjX3Bvd2VyX3dyaXRhYmxlOmZpbGUgcndfZmlsZV9wZXJtczsKKwordHlw
+ZSBiY3JtX3BhdGNocmFtX3BsdXMsIGRvbWFpbjsKK3R5cGUgYmNybV9wYXRjaHJhbV9wbHVzX2V4
+ZWMsIGV4ZWNfdHlwZSwgZmlsZV90eXBlOworCitpbml0X2RhZW1vbl9kb21haW4oYmNybV9wYXRj
+aHJhbV9wbHVzKQorCithbGxvdyBiY3JtX3BhdGNocmFtX3BsdXMgYmx1ZXRvb3RoX21hY19maWxl
+OmZpbGUgeyByZWFkIG9wZW4gfTsKK2FsbG93IGJjcm1fcGF0Y2hyYW1fcGx1cyBoY2lfYXR0YWNo
+X2RldjpjaHJfZmlsZSB7IHJlYWQgd3JpdGUgaW9jdGwgb3BlbiB9OworYWxsb3cgYmNybV9wYXRj
+aHJhbV9wbHVzIGtlcm5lbDpzeXN0ZW0gbW9kdWxlX3JlcXVlc3Q7Cg==
+--047d7b33d4ca8ff8ab04c0c1c621--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
