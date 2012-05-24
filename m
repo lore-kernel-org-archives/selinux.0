@@ -1,91 +1,57 @@
 MIME-Version: 1.0
-Date: Wed, 23 May 2012 22:46:39 -0700
-Message-ID: <CAFftDdpickqWvZsow+meLh=FSpq7hyzD+f8jM50CqOaSKUMx4g@mail.gmail.com>
-Subject: Patch for bcrm_patchram_plus [DRAFT]
+Date: Thu, 24 May 2012 16:47:54 -0700
+Message-ID: <CAFftDdrW0+3Fqbr0Anm6rKxqcE6LhHDa3qd_NG11bskf95Orog@mail.gmail.com>
+Subject: Update patches for hci_attach service in SE Android
 From: William Roberts <bill.c.roberts@gmail.com>
-To: selinux@tycho.nsa.gov, seandroid@tycho.nsa.gov
-Cc: Kalyan Desineni <desineni@gmail.com>
-Content-Type: multipart/mixed; boundary=047d7b33d4ca8ff8ab04c0c1c621
+To: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary=047d7b163089741ac404c0d0e14c
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b33d4ca8ff8ab04c0c1c621
-Content-Type: multipart/alternative; boundary=047d7b33d4ca8ff8a104c0c1c61f
+--047d7b163089741ac404c0d0e14c
+Content-Type: multipart/alternative; boundary=047d7b163089741ac004c0d0e14a
 
---047d7b33d4ca8ff8a104c0c1c61f
+--047d7b163089741ac004c0d0e14a
 Content-Type: text/plain; charset=ISO-8859-1
 
-This is a draft policy patch for SE Android Tuna based devices(Maguro and
-Toro).
+The previous set up patches submitted yesterday got a reworking today with
+the help of Stephen (Thanks).
 
-apply: external_sepolicy.patch to external/sepolicy
-apply: device_samsung_tuna.patch to device/samsung/tuna
-
-I am still having issues with the tuna init.rc getting it to restorecon
-/factory/bluetooth/bt_addr, any help there would be appreciated.
-
-I also am still debating whether or not the rule in tuna/sepolicy.fc
-
-/factory/bluetooth/bt_addr     u:object_r:bluetooth_mac_file:s0
-
-should go to external/sepolicy/file_contexts, do the other device have the
-same layout, if so can the tuna factory/bluetooth labeling move too?
-
-Thanks for the review!
+Here are the most recent changes:
+1. external/sepolicy/hci_attach.te is created. Since all Android devices
+have a hci_attach service, the rules can be allowed in there.
+2. device/samsung/tuna policy.fc Labels the files properly that represent
+the hci_attach service. This varies per device.
+3. General clean up
 
 -- 
 Respectfully,
 
 William C Roberts
 
---047d7b33d4ca8ff8a104c0c1c61f
+--047d7b163089741ac004c0d0e14a
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-This is a draft policy patch for SE Android Tuna based devices(Maguro and T=
-oro).=A0<div><br></div><div>apply: external_sepolicy.patch to external/sepo=
-licy</div><div>apply: device_samsung_tuna.patch to device/samsung/tuna</div=
->
-<div><br></div><div>I am still having issues with the tuna init.rc getting =
-it to restorecon /factory/bluetooth/bt_addr, any help there would be apprec=
-iated.</div><div><br></div><div>I also am still debating whether or not the=
- rule in tuna/sepolicy.fc</div>
-<div><br></div><div>/factory/bluetooth/bt_addr =A0 =A0 u:object_r:bluetooth=
-_mac_file:s0</div><div><br></div><div>should go to external/sepolicy/file_c=
-ontexts, do the other device have the same layout, if so can the tuna facto=
-ry/bluetooth labeling move too?</div>
-<div><br></div><div><div>Thanks for the review!</div><div><br></div>-- <br>=
-Respectfully,<br><br>William C Roberts<br><br><br>
+The previous set up patches=A0submitted=A0yesterday got a reworking today w=
+ith the help of Stephen (Thanks).<div><br></div><div>Here are the most rece=
+nt changes:</div><div>1. external/sepolicy/hci_attach.te is created. Since =
+all Android devices have a hci_attach service, the rules can be allowed in =
+there.</div>
+<div>2. device/samsung/tuna policy.fc Labels the files properly that repres=
+ent the hci_attach service. This varies per device.</div><div>3. General cl=
+ean up<br clear=3D"all"><div><br></div>-- <br>Respectfully,<br><br>William =
+C Roberts<br>
+<br><br>
 </div>
 
---047d7b33d4ca8ff8a104c0c1c61f--
+--047d7b163089741ac004c0d0e14a--
 
---047d7b33d4ca8ff8ab04c0c1c621
-Content-Type: application/octet-stream; name="external_sepolicy.patch"
-Content-Disposition: attachment; filename="external_sepolicy.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h2le1zx51
-
-ZGlmZiAtLWdpdCBhL2ZpbGUudGUgYi9maWxlLnRlCmluZGV4IGI2ZTNhNWQuLmExM2YwNTggMTAw
-NjQ0Ci0tLSBhL2ZpbGUudGUKKysrIGIvZmlsZS50ZQpAQCAtNTUsNiArNTUsOCBAQCB0eXBlIGNh
-Y2hlX2ZpbGUsIGZpbGVfdHlwZSwgbWxzdHJ1c3RlZG9iamVjdDsKIHR5cGUgZWZzX2ZpbGUsIGZp
-bGVfdHlwZTsKICMgVHlwZSBmb3Igd2FsbHBhcGVyIGZpbGUuCiB0eXBlIHdhbGxwYXBlcl9maWxl
-LCBmaWxlX3R5cGU7Cit0eXBlIGJsdWV0b290aF9tYWNfZmlsZSwgZmlsZV90eXBlOwordHlwZSBo
-Y2lfYXR0YWNoX2RldiwgZGV2X3R5cGU7CiAKICMgU29ja2V0IHR5cGVzCiB0eXBlIGJsdWV0b290
-aF9zb2NrZXQsIGZpbGVfdHlwZTsKZGlmZiAtLWdpdCBhL3JpbGQudGUgYi9yaWxkLnRlCmluZGV4
-IGEwYTRhMzcuLjI2YTMyN2QgMTAwNjQ0Ci0tLSBhL3JpbGQudGUKKysrIGIvcmlsZC50ZQpAQCAt
-MTcsNiArMTcsNyBAQCBhbGxvdyByaWxkIG10ZF9kZXZpY2U6ZGlyIHNlYXJjaDsKIGFsbG93IHJp
-bGQgZWZzX2ZpbGU6ZGlyIGNyZWF0ZV9kaXJfcGVybXM7CiBhbGxvdyByaWxkIGVmc19maWxlOmZp
-bGUgY3JlYXRlX2ZpbGVfcGVybXM7CiBhbGxvdyByaWxkIHNoZWxsX2V4ZWM6ZmlsZSByeF9maWxl
-X3Blcm1zOworYWxsb3cgcmlsZCBibHVldG9vdGhfbWFjX2ZpbGU6ZmlsZSB7IHJlYWQgZ2V0YXR0
-ciBvcGVuIH07CiBkb250YXVkaXQgcmlsZCBzZWxmOmNhcGFiaWxpdHkgc3lzX2FkbWluOwogIyBY
-WFggTGFiZWwgc3lzZnMgZmlsZXMgd2l0aCBhIHNwZWNpZmljIHR5cGU/CiBhbGxvdyByaWxkIHN5
-c2ZzOmZpbGUgcndfZmlsZV9wZXJtczsK
---047d7b33d4ca8ff8ab04c0c1c621
+--047d7b163089741ac404c0d0e14c
 Content-Type: application/octet-stream; name="device_samsung_tuna.patch"
 Content-Disposition: attachment; filename="device_samsung_tuna.patch"
 Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h2lefjmi2
+X-Attachment-Id: f_h2mgtym80
 
 ZGlmZiAtLWdpdCBhL2luaXQudHVuYS5yYyBiL2luaXQudHVuYS5yYwppbmRleCAxMzU1MjM3Li4z
 ZTllNDU5IDEwMDc1NQotLS0gYS9pbml0LnR1bmEucmMKKysrIGIvaW5pdC50dW5hLnJjCkBAIC0x
@@ -96,29 +62,53 @@ L3Jma2lsbDAvdHlwZQotICAgICAgICByZXN0b3JlY29uIC9mYWN0b3J5L2JsdWV0b290aAorCXJl
 c3RvcmVjb24gL2ZhY3RvcnkvYmx1ZXRvb3RoCisJcmVzdG9yZWNvbiAvZmFjdG9yeS9ibHVldG9v
 dGgvYnRfYWRkcgogCiAjIGJhY2tsaWdodAogCWNob3duIHN5c3RlbSBzeXN0ZW0gL3N5cy9jbGFz
 cy9iYWNrbGlnaHQvczZlOGFhMC9icmlnaHRuZXNzCmRpZmYgLS1naXQgYS9zZXBvbGljeS5mYyBi
-L3NlcG9saWN5LmZjCmluZGV4IGE0OTkxYTIuLjBhYWQzMDMgMTAwNjQ0Ci0tLSBhL3NlcG9saWN5
-LmZjCisrKyBiL3NlcG9saWN5LmZjCkBAIC00LDMgKzQsMTEgQEAKIC9kYXRhL3JhZGlvL252X2Rh
-dGEuYmluLiogIHU6b2JqZWN0X3I6cmFkaW9fZGF0YV9maWxlOnMwCiAvZmFjdG9yeSgvLiopPyAg
-ICAgICAgICAgICB1Om9iamVjdF9yOmVmc19maWxlOnMwCiAvZmFjdG9yeS9udl9kYXRhLmJpbi4q
-ICAgICB1Om9iamVjdF9yOnJhZGlvX2RhdGFfZmlsZTpzMAorL3N5c3RlbS9iaW4vYnJjbV9wYXRj
-aHJhbV9wbHVzICAgICB1Om9iamVjdF9yOmJjcm1fcGF0Y2hyYW1fcGx1c19leGVjOnMwCisKKyNU
-aGUgZGV2aWNlcyBhbmQgZmlsZXMgdXNlZCBieSB0aGUgaGNpYXR0YWNoIHNlcnZpY2UgYXJlIGRl
-dmljZSBzcGVjaWZpYworL2Rldi90dHlPMSAgICAgdTpvYmplY3RfcjpoY2lfYXR0YWNoX2Rldjpz
-MAorCisjWFhYIElzIC9mYWN0b3J5L2JsdWV0b290aC9idF9hZGRyIFR1bmEgc3BlY2lmaWMgdG9v
-IG9yIGNvdWxkIHRoaXMgZ28gdG8KKyNleHRlcm5hbC9zZXBvbGljeT8KKy9mYWN0b3J5L2JsdWV0
-b290aC9idF9hZGRyICAgICB1Om9iamVjdF9yOmJsdWV0b290aF9tYWNfZmlsZTpzMApkaWZmIC0t
-Z2l0IGEvc2Vwb2xpY3kudGUgYi9zZXBvbGljeS50ZQppbmRleCA0ZTZiNjA0Li45ZTIyZWUyIDEw
-MDY0NAotLS0gYS9zZXBvbGljeS50ZQorKysgYi9zZXBvbGljeS50ZQpAQCAtMSwzICsxLDEyIEBA
-CiAjIFRoaXMgc2hvdWxkIGJlIHJlcXVpcmVkIGZvciBhbGwgZG9tYWlucy4KICMgQWRkZWQgYWNj
-ZXNzIHRvIHN5c3RlbS50ZSBhbmQgbmZjLnRlIGluIHRoZSBiYXNlIHBvbGljeS4KICNhbGxvdyBk
-b21haW4gc3lzZnNfbmZjX3Bvd2VyX3dyaXRhYmxlOmZpbGUgcndfZmlsZV9wZXJtczsKKwordHlw
-ZSBiY3JtX3BhdGNocmFtX3BsdXMsIGRvbWFpbjsKK3R5cGUgYmNybV9wYXRjaHJhbV9wbHVzX2V4
-ZWMsIGV4ZWNfdHlwZSwgZmlsZV90eXBlOworCitpbml0X2RhZW1vbl9kb21haW4oYmNybV9wYXRj
-aHJhbV9wbHVzKQorCithbGxvdyBiY3JtX3BhdGNocmFtX3BsdXMgYmx1ZXRvb3RoX21hY19maWxl
-OmZpbGUgeyByZWFkIG9wZW4gfTsKK2FsbG93IGJjcm1fcGF0Y2hyYW1fcGx1cyBoY2lfYXR0YWNo
-X2RldjpjaHJfZmlsZSB7IHJlYWQgd3JpdGUgaW9jdGwgb3BlbiB9OworYWxsb3cgYmNybV9wYXRj
-aHJhbV9wbHVzIGtlcm5lbDpzeXN0ZW0gbW9kdWxlX3JlcXVlc3Q7Cg==
---047d7b33d4ca8ff8ab04c0c1c621--
+L3NlcG9saWN5LmZjCmluZGV4IGE0OTkxYTIuLmE5NTU4NGUgMTAwNjQ0Ci0tLSBhL3NlcG9saWN5
+LmZjCisrKyBiL3NlcG9saWN5LmZjCkBAIC00LDMgKzQsOCBAQAogL2RhdGEvcmFkaW8vbnZfZGF0
+YS5iaW4uKiAgdTpvYmplY3RfcjpyYWRpb19kYXRhX2ZpbGU6czAKIC9mYWN0b3J5KC8uKik/ICAg
+ICAgICAgICAgIHU6b2JqZWN0X3I6ZWZzX2ZpbGU6czAKIC9mYWN0b3J5L252X2RhdGEuYmluLiog
+ICAgIHU6b2JqZWN0X3I6cmFkaW9fZGF0YV9maWxlOnMwCisvc3lzdGVtL2Jpbi9icmNtX3BhdGNo
+cmFtX3BsdXMgICAgIHU6b2JqZWN0X3I6aGNpX2F0dGFjaF9leGVjOnMwCisKKyNUaGUgZGV2aWNl
+cyBhbmQgZmlsZXMgdXNlZCBieSB0aGUgaGNpYXR0YWNoIHNlcnZpY2UgYXJlIGRldmljZSBzcGVj
+aWZpYworL2Rldi90dHlPMSAgICAgdTpvYmplY3RfcjpoY2lfYXR0YWNoX2RldjpzMAorL2ZhY3Rv
+cnkvYmx1ZXRvb3RoKC8uKik/ICAgICB1Om9iamVjdF9yOmJsdWV0b290aF9lZnNfZmlsZTpzMAo=
+--047d7b163089741ac404c0d0e14c
+Content-Type: application/octet-stream; name="external_sepolicy.patch"
+Content-Disposition: attachment; filename="external_sepolicy.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h2mh27wr2
+
+ZGlmZiAtLWdpdCBhL2RldmljZS50ZSBiL2RldmljZS50ZQppbmRleCA2NDI0ZGI2Li5hYzM0ZDcy
+IDEwMDY0NAotLS0gYS9kZXZpY2UudGUKKysrIGIvZGV2aWNlLnRlCkBAIC0zNywzICszNyw5IEBA
+IHR5cGUgdXJhbmRvbV9kZXZpY2UsIGRldl90eXBlOwogdHlwZSB2aWRlb19kZXZpY2UsIGRldl90
+eXBlOwogdHlwZSB2Y3NfZGV2aWNlLCBkZXZfdHlwZTsKIHR5cGUgemVyb19kZXZpY2UsIGRldl90
+eXBlOworCisjIEFsbCBkZXZpY2VzIGhhdmUgYSB1YXJ0IGZvciB0aGUgaGNpCisjIGF0dGFjaCBz
+ZXJ2aWNlLiBUaGUgdWFydCBkZXYgbm9kZQorIyB2YXJpZXMgcGVyIGRldmljZS4gVGhpcyB0eXBl
+CisjIGlzIHVzZWQgaW4gcGVyIGRldmljZSBwb2xpY3kKK3R5cGUgaGNpX2F0dGFjaF9kZXYsIGRl
+dl90eXBlOwpkaWZmIC0tZ2l0IGEvZmlsZS50ZSBiL2ZpbGUudGUKaW5kZXggYjZlM2E1ZC4uNGUz
+YmQ1MyAxMDA2NDQKLS0tIGEvZmlsZS50ZQorKysgYi9maWxlLnRlCkBAIC01Niw2ICs1NiwxMSBA
+QCB0eXBlIGVmc19maWxlLCBmaWxlX3R5cGU7CiAjIFR5cGUgZm9yIHdhbGxwYXBlciBmaWxlLgog
+dHlwZSB3YWxscGFwZXJfZmlsZSwgZmlsZV90eXBlOwogCisjIEFsbCBkZXZpY2VzIGhhdmUgYmx1
+ZXRvb3RoIGVmcyBmaWxlcy4gQnV0IHRoZXkKKyMgdmFyeSBwZXIgZGV2aWNlLCBzbyB0aGlzIHR5
+cGUgaXMgdXNlZCBpbiBwZXIKKyMgZGVmaWNlIHBvbGljeQordHlwZSBibHVldG9vdGhfZWZzX2Zp
+bGUsIGZpbGVfdHlwZTsKKwogIyBTb2NrZXQgdHlwZXMKIHR5cGUgYmx1ZXRvb3RoX3NvY2tldCwg
+ZmlsZV90eXBlOwogdHlwZSBkYnVzX3NvY2tldCwgZmlsZV90eXBlOwpkaWZmIC0tZ2l0IGEvaGNp
+X2F0dGFjaC50ZSBiL2hjaV9hdHRhY2gudGUKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAw
+MDAwMC4uM2U5ODVhYwotLS0gL2Rldi9udWxsCisrKyBiL2hjaV9hdHRhY2gudGUKQEAgLTAsMCAr
+MSwxMCBAQAordHlwZSBoY2lfYXR0YWNoLCBkb21haW47Cit0eXBlIGhjaV9hdHRhY2hfZXhlYywg
+ZXhlY190eXBlLCBmaWxlX3R5cGU7CisKK2luaXRfZGFlbW9uX2RvbWFpbihoY2lfYXR0YWNoKQor
+CithbGxvdyBoY2lfYXR0YWNoIGtlcm5lbDpzeXN0ZW0gbW9kdWxlX3JlcXVlc3Q7CithbGxvdyBo
+Y2lfYXR0YWNoIGhjaV9hdHRhY2hfZGV2OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7CithbGxvdyBo
+Y2lfYXR0YWNoIGJsdWV0b290aF9lZnNfZmlsZTpkaXIgcl9kaXJfcGVybXM7CithbGxvdyBoY2lf
+YXR0YWNoIGJsdWV0b290aF9lZnNfZmlsZTpmaWxlIHJfZmlsZV9wZXJtczsKKwpkaWZmIC0tZ2l0
+IGEvcmlsZC50ZSBiL3JpbGQudGUKaW5kZXggYTBhNGEzNy4uZTY1ZmMzNiAxMDA2NDQKLS0tIGEv
+cmlsZC50ZQorKysgYi9yaWxkLnRlCkBAIC0xNyw2ICsxNyw3IEBAIGFsbG93IHJpbGQgbXRkX2Rl
+dmljZTpkaXIgc2VhcmNoOwogYWxsb3cgcmlsZCBlZnNfZmlsZTpkaXIgY3JlYXRlX2Rpcl9wZXJt
+czsKIGFsbG93IHJpbGQgZWZzX2ZpbGU6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsKIGFsbG93IHJp
+bGQgc2hlbGxfZXhlYzpmaWxlIHJ4X2ZpbGVfcGVybXM7CithbGxvdyByaWxkIGJsdWV0b290aF9l
+ZnNfZmlsZTpmaWxlIHJfZmlsZV9wZXJtczsKIGRvbnRhdWRpdCByaWxkIHNlbGY6Y2FwYWJpbGl0
+eSBzeXNfYWRtaW47CiAjIFhYWCBMYWJlbCBzeXNmcyBmaWxlcyB3aXRoIGEgc3BlY2lmaWMgdHlw
+ZT8KIGFsbG93IHJpbGQgc3lzZnM6ZmlsZSByd19maWxlX3Blcm1zOwo=
+--047d7b163089741ac404c0d0e14c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
