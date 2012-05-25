@@ -1,114 +1,30 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4P2OsEJ026027
+	for <selinux@tycho.nsa.gov>; Thu, 24 May 2012 22:24:58 -0400
+Received: by pbbrq2 with SMTP id rq2so1107961pbb.6
+        for <selinux@tycho.nsa.gov>; Thu, 24 May 2012 19:24:55 -0700 (PDT)
 MIME-Version: 1.0
-Date: Thu, 24 May 2012 16:47:54 -0700
-Message-ID: <CAFftDdrW0+3Fqbr0Anm6rKxqcE6LhHDa3qd_NG11bskf95Orog@mail.gmail.com>
-Subject: Update patches for hci_attach service in SE Android
-From: William Roberts <bill.c.roberts@gmail.com>
-To: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=047d7b163089741ac404c0d0e14c
+From: Jason Axelson <jaxelson@referentia.com>
+Date: Thu, 24 May 2012 16:24:25 -1000
+Message-ID: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com>
+Subject: Show SELinux packet type of packets
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b163089741ac404c0d0e14c
-Content-Type: multipart/alternative; boundary=047d7b163089741ac004c0d0e14a
+Hi,
 
---047d7b163089741ac004c0d0e14a
-Content-Type: text/plain; charset=ISO-8859-1
+Is there a way to show the SELinux packet types of all packets?
+Ideally tcpdump would have an SELinux specific option that would print
+out the SELinux context of each packet but that seems to be missing.
+Are there any workarounds?
 
-The previous set up patches submitted yesterday got a reworking today with
-the help of Stephen (Thanks).
+Note: this is with SECMARK labeling (such as
+http://james-morris.livejournal.com/11010.html)
 
-Here are the most recent changes:
-1. external/sepolicy/hci_attach.te is created. Since all Android devices
-have a hci_attach service, the rules can be allowed in there.
-2. device/samsung/tuna policy.fc Labels the files properly that represent
-the hci_attach service. This varies per device.
-3. General clean up
-
--- 
-Respectfully,
-
-William C Roberts
-
---047d7b163089741ac004c0d0e14a
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-The previous set up patches=A0submitted=A0yesterday got a reworking today w=
-ith the help of Stephen (Thanks).<div><br></div><div>Here are the most rece=
-nt changes:</div><div>1. external/sepolicy/hci_attach.te is created. Since =
-all Android devices have a hci_attach service, the rules can be allowed in =
-there.</div>
-<div>2. device/samsung/tuna policy.fc Labels the files properly that repres=
-ent the hci_attach service. This varies per device.</div><div>3. General cl=
-ean up<br clear=3D"all"><div><br></div>-- <br>Respectfully,<br><br>William =
-C Roberts<br>
-<br><br>
-</div>
-
---047d7b163089741ac004c0d0e14a--
-
---047d7b163089741ac404c0d0e14c
-Content-Type: application/octet-stream; name="device_samsung_tuna.patch"
-Content-Disposition: attachment; filename="device_samsung_tuna.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h2mgtym80
-
-ZGlmZiAtLWdpdCBhL2luaXQudHVuYS5yYyBiL2luaXQudHVuYS5yYwppbmRleCAxMzU1MjM3Li4z
-ZTllNDU5IDEwMDc1NQotLS0gYS9pbml0LnR1bmEucmMKKysrIGIvaW5pdC50dW5hLnJjCkBAIC0x
-MTMsNyArMTEzLDggQEAgb24gZnMKIAljaG1vZCAwNjYwIC9zeXMvY2xhc3MvcmZraWxsL3Jma2ls
-bDAvc3RhdGUKIAljaG93biBibHVldG9vdGggYmx1ZXRvb3RoIC9zeXMvY2xhc3MvcmZraWxsL3Jm
-a2lsbDAvc3RhdGUKIAljaG93biBibHVldG9vdGggYmx1ZXRvb3RoIC9zeXMvY2xhc3MvcmZraWxs
-L3Jma2lsbDAvdHlwZQotICAgICAgICByZXN0b3JlY29uIC9mYWN0b3J5L2JsdWV0b290aAorCXJl
-c3RvcmVjb24gL2ZhY3RvcnkvYmx1ZXRvb3RoCisJcmVzdG9yZWNvbiAvZmFjdG9yeS9ibHVldG9v
-dGgvYnRfYWRkcgogCiAjIGJhY2tsaWdodAogCWNob3duIHN5c3RlbSBzeXN0ZW0gL3N5cy9jbGFz
-cy9iYWNrbGlnaHQvczZlOGFhMC9icmlnaHRuZXNzCmRpZmYgLS1naXQgYS9zZXBvbGljeS5mYyBi
-L3NlcG9saWN5LmZjCmluZGV4IGE0OTkxYTIuLmE5NTU4NGUgMTAwNjQ0Ci0tLSBhL3NlcG9saWN5
-LmZjCisrKyBiL3NlcG9saWN5LmZjCkBAIC00LDMgKzQsOCBAQAogL2RhdGEvcmFkaW8vbnZfZGF0
-YS5iaW4uKiAgdTpvYmplY3RfcjpyYWRpb19kYXRhX2ZpbGU6czAKIC9mYWN0b3J5KC8uKik/ICAg
-ICAgICAgICAgIHU6b2JqZWN0X3I6ZWZzX2ZpbGU6czAKIC9mYWN0b3J5L252X2RhdGEuYmluLiog
-ICAgIHU6b2JqZWN0X3I6cmFkaW9fZGF0YV9maWxlOnMwCisvc3lzdGVtL2Jpbi9icmNtX3BhdGNo
-cmFtX3BsdXMgICAgIHU6b2JqZWN0X3I6aGNpX2F0dGFjaF9leGVjOnMwCisKKyNUaGUgZGV2aWNl
-cyBhbmQgZmlsZXMgdXNlZCBieSB0aGUgaGNpYXR0YWNoIHNlcnZpY2UgYXJlIGRldmljZSBzcGVj
-aWZpYworL2Rldi90dHlPMSAgICAgdTpvYmplY3RfcjpoY2lfYXR0YWNoX2RldjpzMAorL2ZhY3Rv
-cnkvYmx1ZXRvb3RoKC8uKik/ICAgICB1Om9iamVjdF9yOmJsdWV0b290aF9lZnNfZmlsZTpzMAo=
---047d7b163089741ac404c0d0e14c
-Content-Type: application/octet-stream; name="external_sepolicy.patch"
-Content-Disposition: attachment; filename="external_sepolicy.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h2mh27wr2
-
-ZGlmZiAtLWdpdCBhL2RldmljZS50ZSBiL2RldmljZS50ZQppbmRleCA2NDI0ZGI2Li5hYzM0ZDcy
-IDEwMDY0NAotLS0gYS9kZXZpY2UudGUKKysrIGIvZGV2aWNlLnRlCkBAIC0zNywzICszNyw5IEBA
-IHR5cGUgdXJhbmRvbV9kZXZpY2UsIGRldl90eXBlOwogdHlwZSB2aWRlb19kZXZpY2UsIGRldl90
-eXBlOwogdHlwZSB2Y3NfZGV2aWNlLCBkZXZfdHlwZTsKIHR5cGUgemVyb19kZXZpY2UsIGRldl90
-eXBlOworCisjIEFsbCBkZXZpY2VzIGhhdmUgYSB1YXJ0IGZvciB0aGUgaGNpCisjIGF0dGFjaCBz
-ZXJ2aWNlLiBUaGUgdWFydCBkZXYgbm9kZQorIyB2YXJpZXMgcGVyIGRldmljZS4gVGhpcyB0eXBl
-CisjIGlzIHVzZWQgaW4gcGVyIGRldmljZSBwb2xpY3kKK3R5cGUgaGNpX2F0dGFjaF9kZXYsIGRl
-dl90eXBlOwpkaWZmIC0tZ2l0IGEvZmlsZS50ZSBiL2ZpbGUudGUKaW5kZXggYjZlM2E1ZC4uNGUz
-YmQ1MyAxMDA2NDQKLS0tIGEvZmlsZS50ZQorKysgYi9maWxlLnRlCkBAIC01Niw2ICs1NiwxMSBA
-QCB0eXBlIGVmc19maWxlLCBmaWxlX3R5cGU7CiAjIFR5cGUgZm9yIHdhbGxwYXBlciBmaWxlLgog
-dHlwZSB3YWxscGFwZXJfZmlsZSwgZmlsZV90eXBlOwogCisjIEFsbCBkZXZpY2VzIGhhdmUgYmx1
-ZXRvb3RoIGVmcyBmaWxlcy4gQnV0IHRoZXkKKyMgdmFyeSBwZXIgZGV2aWNlLCBzbyB0aGlzIHR5
-cGUgaXMgdXNlZCBpbiBwZXIKKyMgZGVmaWNlIHBvbGljeQordHlwZSBibHVldG9vdGhfZWZzX2Zp
-bGUsIGZpbGVfdHlwZTsKKwogIyBTb2NrZXQgdHlwZXMKIHR5cGUgYmx1ZXRvb3RoX3NvY2tldCwg
-ZmlsZV90eXBlOwogdHlwZSBkYnVzX3NvY2tldCwgZmlsZV90eXBlOwpkaWZmIC0tZ2l0IGEvaGNp
-X2F0dGFjaC50ZSBiL2hjaV9hdHRhY2gudGUKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAw
-MDAwMC4uM2U5ODVhYwotLS0gL2Rldi9udWxsCisrKyBiL2hjaV9hdHRhY2gudGUKQEAgLTAsMCAr
-MSwxMCBAQAordHlwZSBoY2lfYXR0YWNoLCBkb21haW47Cit0eXBlIGhjaV9hdHRhY2hfZXhlYywg
-ZXhlY190eXBlLCBmaWxlX3R5cGU7CisKK2luaXRfZGFlbW9uX2RvbWFpbihoY2lfYXR0YWNoKQor
-CithbGxvdyBoY2lfYXR0YWNoIGtlcm5lbDpzeXN0ZW0gbW9kdWxlX3JlcXVlc3Q7CithbGxvdyBo
-Y2lfYXR0YWNoIGhjaV9hdHRhY2hfZGV2OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7CithbGxvdyBo
-Y2lfYXR0YWNoIGJsdWV0b290aF9lZnNfZmlsZTpkaXIgcl9kaXJfcGVybXM7CithbGxvdyBoY2lf
-YXR0YWNoIGJsdWV0b290aF9lZnNfZmlsZTpmaWxlIHJfZmlsZV9wZXJtczsKKwpkaWZmIC0tZ2l0
-IGEvcmlsZC50ZSBiL3JpbGQudGUKaW5kZXggYTBhNGEzNy4uZTY1ZmMzNiAxMDA2NDQKLS0tIGEv
-cmlsZC50ZQorKysgYi9yaWxkLnRlCkBAIC0xNyw2ICsxNyw3IEBAIGFsbG93IHJpbGQgbXRkX2Rl
-dmljZTpkaXIgc2VhcmNoOwogYWxsb3cgcmlsZCBlZnNfZmlsZTpkaXIgY3JlYXRlX2Rpcl9wZXJt
-czsKIGFsbG93IHJpbGQgZWZzX2ZpbGU6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsKIGFsbG93IHJp
-bGQgc2hlbGxfZXhlYzpmaWxlIHJ4X2ZpbGVfcGVybXM7CithbGxvdyByaWxkIGJsdWV0b290aF9l
-ZnNfZmlsZTpmaWxlIHJfZmlsZV9wZXJtczsKIGRvbnRhdWRpdCByaWxkIHNlbGY6Y2FwYWJpbGl0
-eSBzeXNfYWRtaW47CiAjIFhYWCBMYWJlbCBzeXNmcyBmaWxlcyB3aXRoIGEgc3BlY2lmaWMgdHlw
-ZT8KIGFsbG93IHJpbGQgc3lzZnM6ZmlsZSByd19maWxlX3Blcm1zOwo=
---047d7b163089741ac404c0d0e14c--
+Thanks,
+Jason
 
 --
 This message was distributed to subscribers of the selinux mailing list.
