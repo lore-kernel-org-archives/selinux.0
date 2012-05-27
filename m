@@ -1,86 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4QGiGrW029964
-	for <selinux@tycho.nsa.gov>; Sat, 26 May 2012 12:44:21 -0400
-Received: by wibhm14 with SMTP id hm14so357276wib.12
-        for <selinux@tycho.nsa.gov>; Sat, 26 May 2012 09:44:19 -0700 (PDT)
-Date: Sat, 26 May 2012 18:44:05 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: Re: Trying to support Python 3 but fails on libsemanage
-Message-ID: <20120526164404.GA16921@siphos.be>
-References: <20120516091736.GA10721@siphos.be>
- <20120523203519.GA13394@siphos.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20120523203519.GA13394@siphos.be>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4RCZQ6d026625
+	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 08:35:26 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id 33EDE1A190
+	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 14:34:51 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pMpFOS7oQb6Q for <selinux@tycho.nsa.gov>;
+	Sun, 27 May 2012 14:34:50 +0200 (CEST)
+Received: from fornost.bigon.be (unknown [IPv6:2a02:578:8500:2601:226:18ff:fe08:6073])
+	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id E6CEF1A0D3
+	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 14:34:49 +0200 (CEST)
+Date: Sun, 27 May 2012 14:34:44 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Assertion failed in checkmodule
+Message-ID: <20120527143444.7dc8cba5@fornost.bigon.be>
+In-Reply-To: <20120513104346.6c188436@fornost.bigon.be>
+References: <20120513104346.6c188436@fornost.bigon.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 23, 2012 at 10:35:19PM +0200, Sven Vermeulen wrote:
-> > This is the following "test case":
-> > 	semanage fcontext -a -t swapfile_t /swapfile
-> > 	semanage fcontext -d -t swapfile_t /swapfile
-> > 
-> > With Python 2.7, this works as it should be. With Python 3.2 however, I get
-> > the following error while trying to delete the entry:
-> > 
-> > /usr/sbin/semanage: File context for /swapfile is not defined
+Le Sun, 13 May 2012 10:43:46 +0200,
+Laurent Bigonville <bigon@debian.org> a écrit :
+
+> Hi,
 > 
-[...]
-> (5.) The semanage_fcontext_key_create() function is defined in
->      src/fcontext_record.c. It allocates memory, puts in the information
->      (like expression = "/swapfile") and returns the address of this memory
->      location as key
-[...]
-> Somewhere between creating the key and checking its content, the content of
-> the memory is changed (or the target of the pointer pointing to the
-> expression). Since the key itself (address) is unchanged, this is done
-> somewhere in the libsemanage code, right?
+> When compiling the latest release of refpolicy I get the following
+> assertion:
 > 
-> But if it is, and the code doesn't seem to have any #if PY_MAJOR_VERSION ...  #endif
-> constructs in it, what can then cause Python 2.7 to behave differently here?
-> Is it the swig'ed result that differs from Python 2.7 and Python 3.2? If so,
-> is there any way this can be debugged easily?
+> checkmodule: expand.c:700: role_fix_callback: Assertion `new_role !=
+> ((void *)0) && new_role->flavor == 1' failed.
+> 
+> Google helps me to find an old discussion about this on the mailing
+> list but it seems that unfortunately nothing has been fixed.
+> 
+> Any clue?
 
-David Malcolm gave me a good hint at what to look for.
+No idea? (shameless ping)
 
-The key that is created contains a link towards a regular expression (in the
-above use case, that expression would be "/swapfile") which is passed on
-from the Python code towards the shared library (through
-semanage_fcontext_key_create). I think that, in Python 2.7, the memory
-allocation for this expression is either not freed at the same time as with
-Python 3.2, or it is freed but not reused (in which case the stale
-information is still there).
+Cheers
 
-If I apply the following patch to libsemanage, the use case works for both
-Python 2.7 and Python 3.2.
-
-Wkr,
-	Sven Vermeulen
-
-diff -ur libsemanage-2.1.6.orig/src/fcontext_record.c libsemanage-2.1.6/src/fcontext_record.c
---- libsemanage-2.1.6.orig/src/fcontext_record.c	2012-05-22 21:50:23.416071391 +0200
-+++ libsemanage-2.1.6/src/fcontext_record.c	2012-05-26 09:08:22.125114161 +0200
-@@ -45,7 +45,11 @@
- 		    "create file context key");
- 		return STATUS_ERR;
- 	}
--	tmp_key->expr = expr;
-+	tmp_key->expr = strdup(expr);
-+	if (!tmp_key->expr) {
-+		ERR(handle, "out of memory, could not create file context key.");
-+		return STATUS_ERR;
-+	}
- 	tmp_key->type = type;
- 
- 	*key_ptr = tmp_key;
-@@ -74,6 +79,7 @@
- 
- void semanage_fcontext_key_free(semanage_fcontext_key_t * key)
- {
-+	free(key->expr);
- 	free(key);
- }
+Laurent Bigonville
 
 
 --
