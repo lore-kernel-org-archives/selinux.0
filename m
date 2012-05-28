@@ -1,52 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4RCZQ6d026625
-	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 08:35:26 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id 33EDE1A190
-	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 14:34:51 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
-	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pMpFOS7oQb6Q for <selinux@tycho.nsa.gov>;
-	Sun, 27 May 2012 14:34:50 +0200 (CEST)
-Received: from fornost.bigon.be (unknown [IPv6:2a02:578:8500:2601:226:18ff:fe08:6073])
-	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(Client did not present a certificate)
-	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id E6CEF1A0D3
-	for <selinux@tycho.nsa.gov>; Sun, 27 May 2012 14:34:49 +0200 (CEST)
-Date: Sun, 27 May 2012 14:34:44 +0200
-From: Laurent Bigonville <bigon@debian.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Assertion failed in checkmodule
-Message-ID: <20120527143444.7dc8cba5@fornost.bigon.be>
-In-Reply-To: <20120513104346.6c188436@fornost.bigon.be>
-References: <20120513104346.6c188436@fornost.bigon.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4SFsYhu022031
+	for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 11:54:34 -0400
+Received: from webmail.harte-lyne.ca (inet04.hamilton.harte-lyne.ca [216.185.71.24])
+	by inet07.hamilton.harte-lyne.ca (8.13.1/8.13.1) with ESMTP id q4SFsQjx017066
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 11:54:26 -0400
+Message-ID: <3cc2271ab50f5f35b273260eda59d356.squirrel@webmail.harte-lyne.ca>
+Date: Mon, 28 May 2012 11:54:26 -0400
+Subject: Where to go for advice on local policy secuirity implications
+From: "James B. Byrne" <byrnejb@harte-lyne.ca>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Le Sun, 13 May 2012 10:43:46 +0200,
-Laurent Bigonville <bigon@debian.org> a écrit :
+We employ a third-party Apache module (passenger aka mod-rails) to
+handle our Ruby-on-Rails web applications.  Because of the lack of
+SELinux awareness built into the module we currently run these on an
+isolated virtual host in SE permissive mode.
 
-> Hi,
-> 
-> When compiling the latest release of refpolicy I get the following
-> assertion:
-> 
-> checkmodule: expand.c:700: role_fix_callback: Assertion `new_role !=
-> ((void *)0) && new_role->flavor == 1' failed.
-> 
-> Google helps me to find an old discussion about this on the mailing
-> list but it seems that unfortunately nothing has been fixed.
-> 
-> Any clue?
+We are in the process of examining whether it is possible to create a
+local policy for Passenger which will allow it to run in enforcing
+mode but not open the system to other exploits. We would like to know
+if there is any on-line venue where the security aspects of specific
+policy elements might be discussed.
 
-No idea? (shameless ping)
+Is there such a resource?  If so, can anyone here provide the reference?
 
-Cheers
 
-Laurent Bigonville
+-- 
+***          E-Mail is NOT a SECURE channel          ***
+James B. Byrne                mailto:ByrneJB@Harte-Lyne.ca
+Harte & Lyne Limited          http://www.harte-lyne.ca
+9 Brockley Drive              vox: +1 905 561 1241
+Hamilton, Ontario             fax: +1 905 561 0757
+Canada  L8E 3C3
 
 
 --
