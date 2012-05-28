@@ -1,41 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4SFsYhu022031
-	for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 11:54:34 -0400
-Received: from webmail.harte-lyne.ca (inet04.hamilton.harte-lyne.ca [216.185.71.24])
-	by inet07.hamilton.harte-lyne.ca (8.13.1/8.13.1) with ESMTP id q4SFsQjx017066
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 11:54:26 -0400
-Message-ID: <3cc2271ab50f5f35b273260eda59d356.squirrel@webmail.harte-lyne.ca>
-Date: Mon, 28 May 2012 11:54:26 -0400
-Subject: Where to go for advice on local policy secuirity implications
-From: "James B. Byrne" <byrnejb@harte-lyne.ca>
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4SKGgNV031598
+	for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 16:16:42 -0400
+Received: by eaae12 with SMTP id e12so818956eaa.12
+        for <selinux@tycho.nsa.gov>; Mon, 28 May 2012 13:16:39 -0700 (PDT)
+Message-ID: <1338236180.15707.18.camel@x220.mydomain.internal>
+Subject: Re: Where to go for advice on local policy secuirity implications
+From: Dominick Grift <dominick.grift@gmail.com>
+To: "James B. Byrne" <byrnejb@harte-lyne.ca>
+Cc: selinux@tycho.nsa.gov
+Date: Mon, 28 May 2012 22:16:20 +0200
+In-Reply-To: <3cc2271ab50f5f35b273260eda59d356.squirrel@webmail.harte-lyne.ca>
+References: 
+	<3cc2271ab50f5f35b273260eda59d356.squirrel@webmail.harte-lyne.ca>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We employ a third-party Apache module (passenger aka mod-rails) to
-handle our Ruby-on-Rails web applications.  Because of the lack of
-SELinux awareness built into the module we currently run these on an
-isolated virtual host in SE permissive mode.
+On Mon, 2012-05-28 at 11:54 -0400, James B. Byrne wrote:
+> We would like to know
+> if there is any on-line venue where the security aspects of specific
+> policy elements might be discussed.
 
-We are in the process of examining whether it is possible to create a
-local policy for Passenger which will allow it to run in enforcing
-mode but not open the system to other exploits. We would like to know
-if there is any on-line venue where the security aspects of specific
-policy elements might be discussed.
+There is a list with many of the security classes and their av
+permissions with small descriptions here:
 
-Is there such a resource?  If so, can anyone here provide the reference?
+http://www.selinuxproject.org/page/ObjectClassesPerms
 
+This information can be used as a guide to more information available on
+Internet.
 
--- 
-***          E-Mail is NOT a SECURE channel          ***
-James B. Byrne                mailto:ByrneJB@Harte-Lyne.ca
-Harte & Lyne Limited          http://www.harte-lyne.ca
-9 Brockley Drive              vox: +1 905 561 1241
-Hamilton, Ontario             fax: +1 905 561 0757
-Canada  L8E 3C3
+There is more information available at www.selinuxproject.org
+
+I hope this helps
+
 
 
 --
