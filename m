@@ -1,51 +1,46 @@
-Subject: RE: local_mainfest.xml
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-Cc: William Roberts <bill.c.roberts@gmail.com>,
-        "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>,
-        "seandroid@tycho.nsa.gov" <seandroid@tycho.nsa.gov>
-In-Reply-To: <1337632361.28413.183.camel@moss-pluto>
-References: 
-	 <CAFftDdp7eW0swem7kMD589eQm6LT4pN5yf4-at9wMv1T9wY9rQ@mail.gmail.com>
-	 ,<1337622828.28413.106.camel@moss-pluto>
-	 <33006C99F5A5194A9B7A7715DFA3E3836504B4AA@ALA-MBB.corp.ad.wrs.com>
-	 <1337632361.28413.183.camel@moss-pluto>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 29 May 2012 16:01:48 -0400
-Message-ID: <1338321708.17627.169.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4TKBngR000738
+	for <selinux@tycho.nsa.gov>; Tue, 29 May 2012 16:11:49 -0400
+Received: by vcbf1 with SMTP id f1so2708837vcb.12
+        for <selinux@tycho.nsa.gov>; Tue, 29 May 2012 13:11:47 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Jason Axelson <jaxelson@referentia.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Show SELinux packet type of packets
+Date: Tue, 29 May 2012 16:11:40 -0400
+Message-ID: <2272243.EJSO74OdnR@sifl>
+In-Reply-To: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com>
+References: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-05-21 at 16:32 -0400, Stephen Smalley wrote:
-> On Mon, 2012-05-21 at 18:17 +0000, Radzykewycz, T (Radzy) wrote:
-> > Sounds like a good organization to me.
-> > 
-> > You might want to name the branches similar to what AOSP uses, but mayme with "se" or "se_" prepended.  E.g. se_android-4.0.3_r1 instead of seandroid-4.0.3
-> > 
-> > In the past, there were times I would have liked the history, but I don't need it now.
+On Thursday, May 24, 2012 04:24:25 PM Jason Axelson wrote:
+> Hi,
 > 
-> Just to clarify: The reason for using e.g. seandroid-4.0.3 rather than
-> seandroid-4.0.3_r1 in our other projects is that seandroid-4.0.3 is a
-> branch rather than a tag.  Thus, we can keep back-porting changes from
-> our master branch as well as merging subsequent releases of 4.0.3 (e.g.
-> going to android-4.0.3_r1.1).  The local_manifest.xml file then just
-> refers to seandroid-4.0.3 and doesn't need to be changed each time.
+> Is there a way to show the SELinux packet types of all packets?
+> Ideally tcpdump would have an SELinux specific option that would print
+> out the SELinux context of each packet but that seems to be missing.
+> Are there any workarounds?
 > 
-> So I think we'll just use consistent names with our existing branches in
-> other projects; the local_manifest.xml file on the seandroid-4.0.3
-> branch will refer to the seandroid-4.0.3 branches of the other projects.
+> Note: this is with SECMARK labeling (such as
+> http://james-morris.livejournal.com/11010.html)
 
-This repository has been created; you can clone it via:
-git clone git://git.selinuxproject.org/~seandroid/manifests
+Since secmark labels do not exist in the packets themselves, they are not 
+visible via tcpdump or any other packet sniffer.  To the best of my knowledge 
+there isn't a tool which will allow you to view local secmark labels.
 
-There are three branches available: master, seandroid-4.0.3, and
-seandroid-4.0.4.
+If you are using labeled IPsec you could use tcpdump to determine the ESP 
+and/or AH SPI and then use that to lookup the SA's SELinux label.
+
+If you are using NetLabel/CIPSO then the label is part of the IP header and is 
+visible using tcpdump.  Modern versions of wireshark understands how to parse 
+the CIPSO label and displays it a more human readable format.
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+www.paul-moore.com
 
 
 --
