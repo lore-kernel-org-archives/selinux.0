@@ -1,55 +1,47 @@
-Subject: Re: Update patches for hci_attach service in SE Android
+Subject: RE: local_mainfest.xml
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <CAFftDdoNQ0NE=Ha4LqK5XH4jutTkX8FYSPMA9YfYCqxi3WSTFw@mail.gmail.com>
+To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+Cc: William Roberts <bill.c.roberts@gmail.com>,
+        "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>,
+        "seandroid@tycho.nsa.gov" <seandroid@tycho.nsa.gov>
+In-Reply-To: <1337632361.28413.183.camel@moss-pluto>
 References: 
-	 <CAFftDdrW0+3Fqbr0Anm6rKxqcE6LhHDa3qd_NG11bskf95Orog@mail.gmail.com>
-	 <CAFftDdoNQ0NE=Ha4LqK5XH4jutTkX8FYSPMA9YfYCqxi3WSTFw@mail.gmail.com>
+	 <CAFftDdp7eW0swem7kMD589eQm6LT4pN5yf4-at9wMv1T9wY9rQ@mail.gmail.com>
+	 ,<1337622828.28413.106.camel@moss-pluto>
+	 <33006C99F5A5194A9B7A7715DFA3E3836504B4AA@ALA-MBB.corp.ad.wrs.com>
+	 <1337632361.28413.183.camel@moss-pluto>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 29 May 2012 15:16:36 -0400
-Message-ID: <1338318996.17627.162.camel@moss-pluto>
+Date: Tue, 29 May 2012 16:01:48 -0400
+Message-ID: <1338321708.17627.169.camel@moss-pluto>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yes, still catching up...
+On Mon, 2012-05-21 at 16:32 -0400, Stephen Smalley wrote:
+> On Mon, 2012-05-21 at 18:17 +0000, Radzykewycz, T (Radzy) wrote:
+> > Sounds like a good organization to me.
+> > 
+> > You might want to name the branches similar to what AOSP uses, but mayme with "se" or "se_" prepended.  E.g. se_android-4.0.3_r1 instead of seandroid-4.0.3
+> > 
+> > In the past, there were times I would have liked the history, but I don't need it now.
+> 
+> Just to clarify: The reason for using e.g. seandroid-4.0.3 rather than
+> seandroid-4.0.3_r1 in our other projects is that seandroid-4.0.3 is a
+> branch rather than a tag.  Thus, we can keep back-porting changes from
+> our master branch as well as merging subsequent releases of 4.0.3 (e.g.
+> going to android-4.0.3_r1.1).  The local_manifest.xml file then just
+> refers to seandroid-4.0.3 and doesn't need to be changed each time.
+> 
+> So I think we'll just use consistent names with our existing branches in
+> other projects; the local_manifest.xml file on the seandroid-4.0.3
+> branch will refer to the seandroid-4.0.3 branches of the other projects.
 
-On Tue, 2012-05-29 at 15:13 -0400, William Roberts wrote:
-> Is anyone reviewing these patches for submission into mainline? 
-> 
-> On Thu, May 24, 2012 at 7:47 PM, William Roberts
-> <bill.c.roberts@gmail.com> wrote:
->         The previous set up patches submitted yesterday got a
->         reworking today with the help of Stephen (Thanks).
->         
->         
->         Here are the most recent changes:
->         1. external/sepolicy/hci_attach.te is created. Since all
->         Android devices have a hci_attach service, the rules can be
->         allowed in there.
->         2. device/samsung/tuna policy.fc Labels the files properly
->         that represent the hci_attach service. This varies per device.
->         3. General clean up
->         
->         
->         -- 
->         Respectfully,
->         
->         William C Roberts
->         
->         
->         
-> 
-> 
-> 
-> 
-> -- 
-> Respectfully,
-> 
-> William C Roberts
-> 
-> 
+This repository has been created; you can clone it via:
+git clone git://git.selinuxproject.org/~seandroid/manifests
+
+There are three branches available: master, seandroid-4.0.3, and
+seandroid-4.0.4.
 
 -- 
 Stephen Smalley
