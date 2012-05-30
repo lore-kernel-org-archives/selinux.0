@@ -1,46 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4TKBngR000738
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2012 16:11:49 -0400
-Received: by vcbf1 with SMTP id f1so2708837vcb.12
-        for <selinux@tycho.nsa.gov>; Tue, 29 May 2012 13:11:47 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Jason Axelson <jaxelson@referentia.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Show SELinux packet type of packets
-Date: Tue, 29 May 2012 16:11:40 -0400
-Message-ID: <2272243.EJSO74OdnR@sifl>
-In-Reply-To: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com>
-References: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4UDMJnv015438
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2012 09:22:19 -0400
+From: Chris PeBenito <cpebenito@tresys.com>
+To: <selinux@tycho.nsa.gov>
+CC: Chris PeBenito <cpebenito@tresys.com>
+Subject: [PATCH 1/1] Add SELinux policy capability for always checking packet class.
+Date: Wed, 30 May 2012 09:22:08 -0400
+Message-ID: <1338384128-14144-1-git-send-email-cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, May 24, 2012 04:24:25 PM Jason Axelson wrote:
-> Hi,
-> 
-> Is there a way to show the SELinux packet types of all packets?
-> Ideally tcpdump would have an SELinux specific option that would print
-> out the SELinux context of each packet but that seems to be missing.
-> Are there any workarounds?
-> 
-> Note: this is with SECMARK labeling (such as
-> http://james-morris.livejournal.com/11010.html)
+Currently the packet class in SELinux is not checked if there are no
+SECMARK rules in the security or mangle netfilter tables.  Some systems
+prefer that packets are always checked, for example, to protect the system
+should the netfilter rules fail to load or if the nefilter rules
+were maliciously flushed.
 
-Since secmark labels do not exist in the packets themselves, they are not 
-visible via tcpdump or any other packet sniffer.  To the best of my knowledge 
-there isn't a tool which will allow you to view local secmark labels.
+Add the always_check_packets policy capability which, when enabled, treats
+SECMARK as enabled, even if there are no netfilter SECMARK rules.
 
-If you are using labeled IPsec you could use tcpdump to determine the ESP 
-and/or AH SPI and then use that to lookup the SA's SELinux label.
+Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+---
+ security/selinux/hooks.c            |    8 ++++++--
+ security/selinux/include/security.h |    2 ++
+ security/selinux/selinuxfs.c        |    3 ++-
+ security/selinux/ss/services.c      |    3 +++
+ 4 files changed, 13 insertions(+), 3 deletions(-)
 
-If you are using NetLabel/CIPSO then the label is part of the IP header and is 
-visible using tcpdump.  Modern versions of wireshark understands how to parse 
-the CIPSO label and displays it a more human readable format.
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index fa2341b..b818b2d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -137,12 +137,16 @@ static struct kmem_cache *sel_inode_cache;
+  * This function checks the SECMARK reference counter to see if any SECMARK
+  * targets are currently configured, if the reference counter is greater than
+  * zero SECMARK is considered to be enabled.  Returns true (1) if SECMARK is
+- * enabled, false (0) if SECMARK is disabled.
++ * enabled, false (0) if SECMARK is disabled.  If the always_check_packets
++ * policy capability is enabled, SECMARK is always considered enabled.
+  *
+  */
+ static int selinux_secmark_enabled(void)
+ {
+-	return (atomic_read(&selinux_secmark_refcount) > 0);
++	if (selinux_policycap_alwayspacket)
++		return 1;
++	else
++		return (atomic_read(&selinux_secmark_refcount) > 0);
+ }
+ 
+ /*
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index dde2005..ff1b0b8 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -68,12 +68,14 @@ extern int selinux_enabled;
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
++	POLICYDB_CAPABILITY_ALWAYSPACKET,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
++extern int selinux_policycap_alwayspacket;
+ 
+ /*
+  * type_datum properties
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 4e93f9e..4a593d0 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -44,7 +44,8 @@
+ /* Policy capability filenames */
+ static char *policycap_names[] = {
+ 	"network_peer_controls",
+-	"open_perms"
++	"open_perms",
++	"always_check_packets"
+ };
+ 
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 4321b8f..d81438a 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -72,6 +72,7 @@
+ 
+ int selinux_policycap_netpeer;
+ int selinux_policycap_openperm;
++int selinux_policycap_alwayspacket;
+ 
+ static DEFINE_RWLOCK(policy_rwlock);
+ 
+@@ -1812,6 +1813,8 @@ static void security_load_policycaps(void)
+ 						  POLICYDB_CAPABILITY_NETPEER);
+ 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_OPENPERM);
++	selinux_policycap_alwayspacket = ebitmap_get_bit(&policydb.policycaps,
++						  POLICYDB_CAPABILITY_ALWAYSPACKET);
+ }
+ 
+ static int security_preserve_bools(struct policydb *p);
 -- 
-paul moore
-www.paul-moore.com
+1.7.8.6
 
 
 --
