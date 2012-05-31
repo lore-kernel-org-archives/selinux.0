@@ -1,38 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4VKgXYg010131
-	for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 16:42:33 -0400
-Received: by ggnv5 with SMTP id v5so1288745ggn.12
-        for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 13:42:31 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Jason Axelson <jaxelson@referentia.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Show SELinux packet type of packets
-Date: Thu, 31 May 2012 16:42:25 -0400
-Message-ID: <1389562.sH0KvzMidg@sifl>
-In-Reply-To: <CAC9ii1qOMdKu7s30QZnb7hSQ6ERaFXqbCOHG2-bC4ZELeWjNuA@mail.gmail.com>
-References: <CAC9ii1oKMKNq5PA1oGLQYSx==s6R4wQ+HEVPu4wb5k9BNAsJaw@mail.gmail.com> <2272243.EJSO74OdnR@sifl> <CAC9ii1qOMdKu7s30QZnb7hSQ6ERaFXqbCOHG2-bC4ZELeWjNuA@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4VKxcnt011096
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 16:59:39 -0400
+Received: by qcsk26 with SMTP id k26so815973qcs.12
+        for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 13:59:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20120526164404.GA16921@siphos.be>
+References: <20120516091736.GA10721@siphos.be>
+	<20120523203519.GA13394@siphos.be>
+	<20120526164404.GA16921@siphos.be>
+Date: Thu, 31 May 2012 16:59:37 -0400
+Message-ID: <CACLa4ps4q2om-3A6KY4RJPE7+=gKrpJQMMJxSA6_BnagTz9tgg@mail.gmail.com>
+Subject: Re: Trying to support Python 3 but fails on libsemanage
+From: Eric Paris <eparis@parisplace.org>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, May 31, 2012 10:30:24 AM Jason Axelson wrote:
-> Hi Paul,
-> 
-> Thanks for the information. Since I'm not using labeled IPsec or CIPSO
-> I've resorted to just removing access to the packet type in the policy
-> to check that those packets have the label I expect based on the
-> generated AVC log. So is it theoretically possible to add secmark
-> support to tcpdump? It sounds like it might require a change in the
-> kernel.
+On Sat, May 26, 2012 at 12:44 PM, Sven Vermeulen
+<sven.vermeulen@siphos.be> wrote:
+> On Wed, May 23, 2012 at 10:35:19PM +0200, Sven Vermeulen wrote:
+> diff -ur libsemanage-2.1.6.orig/src/fcontext_record.c libsemanage-2.1.6/src/fcontext_record.c
+> --- libsemanage-2.1.6.orig/src/fcontext_record.c        2012-05-22 21:50:23.416071391 +0200
+> +++ libsemanage-2.1.6/src/fcontext_record.c     2012-05-26 09:08:22.125114161 +0200
+> @@ -45,7 +45,11 @@
+>                    "create file context key");
+>                return STATUS_ERR;
+>        }
+> -       tmp_key->expr = expr;
+> +       tmp_key->expr = strdup(expr);
+> +       if (!tmp_key->expr) {
+> +               ERR(handle, "out of memory, could not create file context key.");
+> +               return STATUS_ERR;
+> +       }
+>        tmp_key->type = type;
+>
+>        *key_ptr = tmp_key;
+> @@ -74,6 +79,7 @@
+>
+>  void semanage_fcontext_key_free(semanage_fcontext_key_t * key)
+>  {
+> +       free(key->expr);
+>        free(key);
+>  }
 
-Unfortunately, because secmark labels do not exist in the packet itself, it is 
-impossible to add secmark support to tcpdump or any other packet sniffer for 
-that matter.
+key->expr is a const char * so free() is not 'allowed'.  I changed it
+to just a char * (which is what strdup returns) so the code could
+build.  Thanks!
 
--- 
-paul moore
-www.paul-moore.com
+-Eric
 
 
 --
