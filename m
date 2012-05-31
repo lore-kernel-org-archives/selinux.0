@@ -1,37 +1,54 @@
-Subject: Re: SE Android patch for internal fuse sdcard policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, seandroid@tycho.nsa.gov
-In-Reply-To: <CAFftDdqD=SB5YVPMW1s9CKU3ot57PV=yzha0=qDUALiU9TiuaA@mail.gmail.com>
-References: 
-	 <CAFftDdqD=SB5YVPMW1s9CKU3ot57PV=yzha0=qDUALiU9TiuaA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 31 May 2012 09:47:53 -0400
-Message-ID: <1338472073.11009.33.camel@moss-pluto>
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q4VDwXc6017573
+	for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 09:58:33 -0400
+Received: by vbbfc26 with SMTP id fc26so668401vbb.12
+        for <selinux@tycho.nsa.gov>; Thu, 31 May 2012 06:58:33 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/1] Add SELinux policy capability for always checking packet class.
+Date: Thu, 31 May 2012 09:58:29 -0400
+Message-ID: <1479620.Ig8PyPEAh1@sifl>
+In-Reply-To: <4FC75C0E.7040709@tresys.com>
+References: <1338384128-14144-1-git-send-email-cpebenito@tresys.com> <16326289.E5RbHv6gkl@sifl> <4FC75C0E.7040709@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-05-30 at 17:43 -0400, William Roberts wrote:
-> The attached patch handles the policy for /system/bin/sdcard. Most US
-> and European bound Android handsets are moving to 'internal sdcard'
-> which consists of a fuse file system faking the old FAT setup and
-> writing to /data/media. This was tested on a Maguro device, but all
-> other internal sdcard systems should be the same.
+On Thursday, May 31, 2012 07:54:54 AM Christopher J. PeBenito wrote:
+> On 05/30/12 10:30, Paul Moore wrote:
+> > On Wednesday, May 30, 2012 09:22:08 AM Chris PeBenito wrote:
+> >> Currently the packet class in SELinux is not checked if there are no
+> >> SECMARK rules in the security or mangle netfilter tables.  Some systems
+> >> prefer that packets are always checked, for example, to protect the
+> >> system
+> >> should the netfilter rules fail to load or if the nefilter rules
+> >> were maliciously flushed.
+> >> 
+> >> Add the always_check_packets policy capability which, when enabled,
+> >> treats
+> >> SECMARK as enabled, even if there are no netfilter SECMARK rules.
+> > 
+> > I'm against committing this patch without some matching mechanism to
+> > incorporate the secmark labeling configuration in the greater SELinux
+> > policy. I explained why roughly 87 times in the previous RFC email thread
+> > started by Chris so I'll save us all some time and not repeat it here.
+> > 
+> > Ignoring my own objections for a moment and glancing at the patch, I see
+> > that it is incomplete/incorrect as it does not include support for the
+> > network peer labels.  See the original RFC email thread.
 > 
-> 
-> Since sdcard was already in use, I called everything sdcardd*. 
-> 
-> 
-> Also, I labeled /dev/fuse as a fuse_device, since other processes
-> should not require access to the fuse device.  
+> The question is if they should be tied to the same policy capability.  If
+> so, this capability should be renamed.  If not, the patch is fine, as I can
+> just as easily send a second patch.  I'm undecided if they should be tied
+> together.
 
-Thanks, merged.
-
+If you're going to do one, do them all.
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+www.paul-moore.com
 
 
 --
