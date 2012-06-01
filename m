@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51HINsC006054
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 13:18:23 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51HILRG009628
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51HJ0Z9006085
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 13:19:00 -0400
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51HIxgM009734
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 13:18:21 -0400
-Message-ID: <4FC8F95C.4050002@redhat.com>
-Date: Fri, 01 Jun 2012 13:18:20 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 13:18:59 -0400
+Message-ID: <4FC8F982.7080002@redhat.com>
+Date: Fri, 01 Jun 2012 13:18:58 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 45/90] Update translations
+Subject: [PATCH 46/90] libselinux: audit2why: silence -Wmissing-prototypes
 Content-Type: multipart/mixed;
- boundary="------------030006020303070801020704"
+ boundary="------------070207010801090704030006"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030006020303070801020704
+--------------070207010801090704030006
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,18 +32,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk/I+VwACgkQrlYvE4MpobOmWwCgpNiOFjBxfwT0w8UOFOHEFq2K
-BEwAn2Ov7hT/bDezy8XvY/QTMD2vZDAL
-=U/aX
+iEYEARECAAYFAk/I+YIACgkQrlYvE4MpobMBpQCeIgXGhnsVEZEXTWzrGX/GF480
+fvcAoOVIkfIIhvkt/HachsBq5XhYKj05
+=7aHC
 -----END PGP SIGNATURE-----
 
---------------030006020303070801020704
+--------------070207010801090704030006
 Content-Type: text/x-patch;
- name="0045-Update-translations.patch"
+ name="0046-libselinux-audit2why-silence-Wmissing-prototypes-war.patch"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0045-Update-translations.patch"
-Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by mx1.redhat.com id q51HILRG009628
+ filename*0="0046-libselinux-audit2why-silence-Wmissing-prototypes-war.pa";
+ filename*1="tch"
 
 
---------------030006020303070801020704--
+--------------070207010801090704030006--
