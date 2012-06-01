@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51IADeQ010622
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 14:10:13 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51I9wHO010357
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 14:09:58 -0400
 Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51I9r4U004559
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51I9r1Y004559
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 14:10:12 -0400
-Message-ID: <4FC8F6B0.4060304@redhat.com>
-Date: Fri, 01 Jun 2012 13:06:56 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 14:09:57 -0400
+Message-ID: <4FC8FB14.6020401@redhat.com>
+Date: Fri, 01 Jun 2012 13:25:40 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 12/90] policycoreutils: restorecond: wrong options should
+Subject: [PATCH 69/90] Fix boolean handling of = when setting multiple
 Content-Type: multipart/mixed;
- boundary="------------040608030209050403010008"
+ boundary="------------050502070700050605080900"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040608030209050403010008
+--------------050502070700050605080900
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,18 +32,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk/I9rAACgkQrlYvE4MpobN+zwCdGxDegmmjmKVrFTnwofWgfYfq
-9pYAoKlFL5uSJWFkFYg3yal+YgxYmhf4
-=+SYb
+iEYEARECAAYFAk/I+xQACgkQrlYvE4MpobO3YQCbB5DIZ8V6Rm4/vBVvm/RzpaoP
+lhwAoL3ZZz1pBm6LpLVt6Ob/fNmOV9Ce
+=6yrt
 -----END PGP SIGNATURE-----
 
---------------040608030209050403010008
+--------------050502070700050605080900
 Content-Type: text/x-patch;
- name="0012-policycoreutils-restorecond-wrong-options-should-exi.patch"
+ name="0069-Fix-boolean-handling-of-when-setting-multiple-option.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0012-policycoreutils-restorecond-wrong-options-should-exi.pa";
+ filename*0="0069-Fix-boolean-handling-of-when-setting-multiple-option.pa";
  filename*1="tch"
 
 
---------------040608030209050403010008--
+--------------050502070700050605080900--
