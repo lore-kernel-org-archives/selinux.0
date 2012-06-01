@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51JDwRX015604
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 15:13:58 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51JDuDu028798
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51K9u1s018641
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 16:09:56 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51K9sfp008069
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 15:13:56 -0400
-Message-ID: <4FC91473.9080108@redhat.com>
-Date: Fri, 01 Jun 2012 15:13:55 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 16:09:54 -0400
+Message-ID: <4FC91407.7030802@redhat.com>
+Date: Fri, 01 Jun 2012 15:12:07 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 53/90] FIXME NO IDEA!!!
+Subject: [PATCH 52/90] policycoreutils: polgen: FIXME Add mgrepl patch to
 Content-Type: multipart/mixed;
- boundary="------------050006010801070202000504"
+ boundary="------------010701010104020500050505"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050006010801070202000504
+--------------010701010104020500050505
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -26,24 +26,30 @@ Content-Transfer-Encoding: 7bit
 Hash: SHA1
 
 
-   This patch looks good to me. acked.
+Currently sepolgen only looks for the rpm spec file related to the executable
+that has been shipped.  Several Fedora packagers are shipping their systemd
+content in separate rpm spec files, this patch allows us to look to see if
+there is a NAME-systemd rpm associated with a package so we can setup proper
+labeling of the unit files.
 
-This patch just makes source code easier to read.
+Acked by me.
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk/JFHMACgkQrlYvE4MpobOynACgz/hN+sP5R0Nu5oB0Vh8xZQ12
-T2cAoI3GAha9SiPT3CO57xKmYULbrd4s
-=fvMM
+iEYEARECAAYFAk/JFAcACgkQrlYvE4MpobOgWACfS10Pzbmes4Eo7ZElvZcknqCD
+w0UAn3hmGvLKl8gWPAflpfjm+FZrKA3+
+=iqba
 -----END PGP SIGNATURE-----
 
---------------050006010801070202000504
+--------------010701010104020500050505
 Content-Type: text/x-patch;
- name="0053-FIXME-NO-IDEA.patch"
+ name="0052-policycoreutils-polgen-FIXME-Add-mgrepl-patch-to-sea.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0053-FIXME-NO-IDEA.patch"
+ filename*0="0052-policycoreutils-polgen-FIXME-Add-mgrepl-patch-to-sea.pa";
+ filename*1="tch"
 
 
---------------050006010801070202000504--
+--------------010701010104020500050505--
