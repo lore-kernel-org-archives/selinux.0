@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51J2dok014492
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q51J2dol014492
 	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 15:02:40 -0400
 Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51J2T7x027560
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q51J2T89027560
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 15:02:38 -0400
-Message-ID: <4FC8FB90.9090803@redhat.com>
-Date: Fri, 01 Jun 2012 13:27:44 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2012 15:02:39 -0400
+Message-ID: <4FC8FC9D.3040608@redhat.com>
+Date: Fri, 01 Jun 2012 13:32:13 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 76/90] Sven Vermeulen patch for python3.2 support.
+Subject: [PATCH 88/90] libselinux: libsemanage: more ruby python so file
 Content-Type: multipart/mixed;
- boundary="------------050608080609050505000200"
+ boundary="------------030704060800050301080206"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050608080609050505000200
+--------------030704060800050301080206
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,17 +32,18 @@ Hash: SHA1
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk/I+5AACgkQrlYvE4MpobOCgACcC7MvZmLU93HKaMsFE7hicHxp
-XTQAn0kYbyxP3KXzi0CypzPt5aiMLwR7
-=w3lB
+iEYEARECAAYFAk/I/J0ACgkQrlYvE4MpobN6hACgzFwKrPR8Xm9E3yNyp1hy4VBo
+gvMAoKUq6WHYYzkwI+8wZdU3mQJ8sAYU
+=CXEV
 -----END PGP SIGNATURE-----
 
---------------050608080609050505000200
+--------------030704060800050301080206
 Content-Type: text/x-patch;
- name="0076-Sven-Vermeulen-patch-for-python3.2-support.patch"
+ name="0088-libselinux-libsemanage-more-ruby-python-so-file-stan.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0076-Sven-Vermeulen-patch-for-python3.2-support.patch"
+ filename*0="0088-libselinux-libsemanage-more-ruby-python-so-file-stan.pa";
+ filename*1="tch"
 
 
---------------050608080609050505000200--
+--------------030704060800050301080206--
