@@ -1,42 +1,56 @@
-Subject: [PATCH 1/3] SELinux: require open policycap in truncate checks
-To: selinux@tycho.nsa.gov
-From: Eric Paris <eparis@redhat.com>
-Cc: sds@tycho.nsa.gov
-Date: Wed, 06 Jun 2012 11:53:33 -0400
-Message-ID: <20120606155333.32443.15937.stgit@paris.rdu.redhat.com>
+From: Chris PeBenito <cpebenito@tresys.com>
+To: <SELinux@tycho.nsa.gov>
+CC: Chris PeBenito <cpebenito@tresys.com>
+Subject: [PATCH 1/1] libsepol: Add always_check_network policy capability
+Date: Wed, 6 Jun 2012 13:27:10 -0400
+Message-ID: <1339003630-6670-1-git-send-email-cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We were accidentally checking the open permission even on policies that did
-not define the open permission policy capbility.  We should only check open
-if the policy explicitly claims to mediate the 'open' permission.
+Currently the packet class in SELinux is not checked if there are no
+SECMARK rules in the security or mangle netfilter tables.  Similarly, the
+peer class is not checked if there is no NetLabel or labeled IPSEC.  Some
+systems prefer that these classes are always checked, for example, to
+protect the system should the netfilter rules fail to load or if the
+nefilter rules were maliciously flushed.
 
-This was reported as a problem in that a machine with old policy which did not
-define the open policy capbility would boot, but the user was unable to ssh
-into the machine.
+Add the always_check_network policy capability which, when enabled, treats
+these mechanisms as enabled, even if there are no labeling rules.
 
-Reported-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Tested-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
 ---
- security/selinux/hooks.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/include/sepol/policydb/polcaps.h |    1 +
+ libsepol/src/polcaps.c                    |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1e59f47..72df621 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2758,7 +2758,7 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
- 			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
- 		return dentry_has_perm(cred, dentry, FILE__SETATTR);
+diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
+index 40c0a48..ae54198 100644
+--- a/libsepol/include/sepol/policydb/polcaps.h
++++ b/libsepol/include/sepol/policydb/polcaps.h
+@@ -5,6 +5,7 @@
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
++	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
+index 71970b1..7746ac5 100644
+--- a/libsepol/src/polcaps.c
++++ b/libsepol/src/polcaps.c
+@@ -8,6 +8,7 @@
+ static const char *polcap_names[] = {
+ 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
+ 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
++	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
+ 	NULL
+ };
  
--	if (ia_valid & ATTR_SIZE)
-+	if ((ia_valid & ATTR_SIZE) && selinux_policycap_openperm)
- 		av |= FILE__OPEN;
- 
- 	return dentry_has_perm(cred, dentry, av);
+-- 
+1.7.8.6
 
 
 --
