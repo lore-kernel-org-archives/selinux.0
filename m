@@ -1,45 +1,72 @@
-Message-ID: <1338993272.12539.4.camel@lenny>
-Subject: Re: [PATCH]: allow standard compilation of GIT development tree
- (was Re: [PATCH]: do not link static libraries from the system library
- directory)
-From: Colin Walters <walters@verbum.org>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: eparis@parisplace.org, SELinux@tycho.nsa.gov
-Date: Wed, 06 Jun 2012 10:34:32 -0400
-In-Reply-To: <201206042207.q54M7fLJ009293@vivaldi13.register.it>
-References: <201206042207.q54M7fLJ009293@vivaldi13.register.it>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: [PATCH 3/3] SELinux: Fix sel_netnode_insert suspicious rcu
+ dereference
+To: selinux@tycho.nsa.gov
+From: Eric Paris <eparis@redhat.com>
+Cc: sds@tycho.nsa.gov
+Date: Wed, 06 Jun 2012 11:53:44 -0400
+Message-ID: <20120606155344.32443.93187.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20120606155333.32443.15937.stgit@paris.rdu.redhat.com>
+References: <20120606155333.32443.15937.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-06-05 at 00:07 +0200, Guido Trentalancia wrote:
+I reported this a year ago (https://lkml.org/lkml/2011/4/20/308).
+It's still a problem apparently ...
 
-> >I've never really seen something which can get it right 'all the
-> >time'.  Fedora, and I assume other distros actually just use the git
-> >tree subdirectories.  I feel like any such patch to handle this is
-> >going to have to be something set in the top level Makefile and will
-> >have to cause no difficulties for other workflows....
+===============================
+[ INFO: suspicious RCU usage. ]
+3.5.0-rc1+ #63 Not tainted
+-------------------------------
+security/selinux/netnode.c:178 suspicious rcu_dereference_check() usage!
 
-See http://people.gnome.org/~walters/docs/build-api.txt
+other info that might help us debug this:
 
-This patch looks roughly right to me, though it'd make me happier
-if you also added a configure script.  (Note: configure script does
-not have to be implemented with autoconf; see
-http://git.gnome.org/browse/gtk-doc-stub/tree/configure for a minimal
-plain sh one).
 
-> My problem with this patch is that now all of the CFLAGS stuff we have
-> lower in the tree (namely -W* stuff) is not going to get picked up
-> since
-> CFLAGS are already exported...
-> 
-> So how do we solve that one too?
+rcu_scheduler_active = 1, debug_locks = 0
+1 lock held by trinity-child1/8750:
+ #0:  (sel_netnode_lock){+.....}, at: [<ffffffff812d8f8a>] sel_netnode_sid+0x16a/0x3e0
 
-The automake way is to have AM_CFLAGS, AM_CPPFLAGS which are
-build-internal (and always used).  CFLAGS is then something that can
-be added by the builder.
+stack backtrace:
+Pid: 8750, comm: trinity-child1 Not tainted 3.5.0-rc1+ #63
+Call Trace:
+ [<ffffffff810cec2d>] lockdep_rcu_suspicious+0xfd/0x130
+ [<ffffffff812d91d1>] sel_netnode_sid+0x3b1/0x3e0
+ [<ffffffff812d8e20>] ? sel_netnode_find+0x1a0/0x1a0
+ [<ffffffff812d24a6>] selinux_socket_bind+0xf6/0x2c0
+ [<ffffffff810cd1dd>] ? trace_hardirqs_off+0xd/0x10
+ [<ffffffff810cdb55>] ? lock_release_holdtime.part.9+0x15/0x1a0
+ [<ffffffff81093841>] ? lock_hrtimer_base+0x31/0x60
+ [<ffffffff812c9536>] security_socket_bind+0x16/0x20
+ [<ffffffff815550ca>] sys_bind+0x7a/0x100
+ [<ffffffff816c03d5>] ? sysret_check+0x22/0x5d
+ [<ffffffff810d392d>] ? trace_hardirqs_on_caller+0x10d/0x1a0
+ [<ffffffff8133b09e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
+ [<ffffffff816c03a9>] system_call_fastpath+0x16/0x1b
 
+This patch below does what Paul McKenney suggested in the previous thread.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ security/selinux/netnode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index e984d6f..3b66d89 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -174,7 +174,8 @@ static void sel_netnode_insert(struct sel_netnode *node)
+ 	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
+ 		struct sel_netnode *tail;
+ 		tail = list_entry(
+-			rcu_dereference(sel_netnode_hash[idx].list.prev),
++			rcu_dereference_protected(sel_netnode_hash[idx].list.prev,
++						  lockdep_is_held(&sel_netnode_lock)),
+ 			struct sel_netnode, list);
+ 		list_del_rcu(&tail->list);
+ 		kfree_rcu(tail, rcu);
 
 
 --
