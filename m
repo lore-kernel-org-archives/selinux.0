@@ -1,10 +1,9 @@
-Subject: [PATCH 3/3] SELinux: Fix sel_netnode_insert suspicious rcu
- dereference
+Subject: [PATCH 2/3] SELinux: define mapping for new capabilities
 To: selinux@tycho.nsa.gov
 From: Eric Paris <eparis@redhat.com>
 Cc: sds@tycho.nsa.gov
-Date: Wed, 06 Jun 2012 11:53:44 -0400
-Message-ID: <20120606155344.32443.93187.stgit@paris.rdu.redhat.com>
+Date: Wed, 06 Jun 2012 11:53:39 -0400
+Message-ID: <20120606155339.32443.68410.stgit@paris.rdu.redhat.com>
 In-Reply-To: <20120606155333.32443.15937.stgit@paris.rdu.redhat.com>
 References: <20120606155333.32443.15937.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
@@ -12,61 +11,29 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I reported this a year ago (https://lkml.org/lkml/2011/4/20/308).
-It's still a problem apparently ...
+New capabilities were added but the security list was never cc'd on the
+patches.  I missed the patches and thus SELinux does not have the requisite
+names to do userspace policy mapping.  Add those names.
 
-===============================
-[ INFO: suspicious RCU usage. ]
-3.5.0-rc1+ #63 Not tainted
--------------------------------
-security/selinux/netnode.c:178 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-
-rcu_scheduler_active = 1, debug_locks = 0
-1 lock held by trinity-child1/8750:
- #0:  (sel_netnode_lock){+.....}, at: [<ffffffff812d8f8a>] sel_netnode_sid+0x16a/0x3e0
-
-stack backtrace:
-Pid: 8750, comm: trinity-child1 Not tainted 3.5.0-rc1+ #63
-Call Trace:
- [<ffffffff810cec2d>] lockdep_rcu_suspicious+0xfd/0x130
- [<ffffffff812d91d1>] sel_netnode_sid+0x3b1/0x3e0
- [<ffffffff812d8e20>] ? sel_netnode_find+0x1a0/0x1a0
- [<ffffffff812d24a6>] selinux_socket_bind+0xf6/0x2c0
- [<ffffffff810cd1dd>] ? trace_hardirqs_off+0xd/0x10
- [<ffffffff810cdb55>] ? lock_release_holdtime.part.9+0x15/0x1a0
- [<ffffffff81093841>] ? lock_hrtimer_base+0x31/0x60
- [<ffffffff812c9536>] security_socket_bind+0x16/0x20
- [<ffffffff815550ca>] sys_bind+0x7a/0x100
- [<ffffffff816c03d5>] ? sysret_check+0x22/0x5d
- [<ffffffff810d392d>] ? trace_hardirqs_on_caller+0x10d/0x1a0
- [<ffffffff8133b09e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
- [<ffffffff816c03a9>] system_call_fastpath+0x16/0x1b
-
-This patch below does what Paul McKenney suggested in the previous thread.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- security/selinux/netnode.c |    3 ++-
+ security/selinux/include/classmap.h |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index e984d6f..3b66d89 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -174,7 +174,8 @@ static void sel_netnode_insert(struct sel_netnode *node)
- 	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
- 		struct sel_netnode *tail;
- 		tail = list_entry(
--			rcu_dereference(sel_netnode_hash[idx].list.prev),
-+			rcu_dereference_protected(sel_netnode_hash[idx].list.prev,
-+						  lockdep_is_held(&sel_netnode_lock)),
- 			struct sel_netnode, list);
- 		list_del_rcu(&tail->list);
- 		kfree_rcu(tail, rcu);
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 72c08b9..d76eb53 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -145,7 +145,8 @@ struct security_class_mapping secclass_map[] = {
+ 	    "node_bind", "name_connect", NULL } },
+ 	{ "memprotect", { "mmap_zero", NULL } },
+ 	{ "peer", { "recv", NULL } },
+-	{ "capability2", { "mac_override", "mac_admin", "syslog", NULL } },
++	{ "capability2", { "mac_override", "mac_admin", "syslog", "wake_alarm",
++			   "epollwakeup", NULL } },
+ 	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+ 	{ "tun_socket",
+ 	  { COMMON_SOCK_PERMS, NULL } },
 
 
 --
