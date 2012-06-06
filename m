@@ -1,74 +1,95 @@
-Message-Id: <201206051647.q55GlIsE024431@vivaldi36.register.it>
-From: "Guido Trentalancia" <guido@trentalancia.com>
-Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
-To: SELinux@tycho.nsa.gov
-Subject: Re: [PATCH]: allow standard compilation of GIT development tree (was Re: [PATCH]: do not link static libraries from the system library directory)
-Date: Tue, 05 Jun 2012 18:47:18 +0200
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q561YRGE024194
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2012 21:34:27 -0400
+Received: by lbbgk8 with SMTP id gk8so4902711lbb.12
+        for <selinux@tycho.nsa.gov>; Tue, 05 Jun 2012 18:34:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+In-Reply-To: <ff7c28e8f022fc5bd217bb5ed7321fa6@countercultured.net>
+References: <CAO-AVB7hN1sODoEyE3pXv0mz0SN1KagdNFcHrb1Tt24DC+_dDA@mail.gmail.com>
+	<ff7c28e8f022fc5bd217bb5ed7321fa6@countercultured.net>
+Date: Wed, 6 Jun 2012 09:34:25 +0800
+Message-ID: <CAO-AVB4D4=LLMqaifLqOE8v6APndkMkkHwspx4+kazcs3Fo=ow@mail.gmail.com>
+Subject: Re: "operation not support" when execute #restorecon -R /
+From: casinee app <appcasinee@gmail.com>
+To: David Quigley <selinux@davequigley.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=e89a8f22c72b6fd91704c1c3c425
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Eric.
+--e89a8f22c72b6fd91704c1c3c425
+Content-Type: text/plain; charset=ISO-8859-1
 
->On Tue, 2012-06-05 at 00:07 +0200, Guido Trentalancia wrote:
+the NFS. I had applied a patch to the kernel to support the xattr of NFS
+filesystem.
+
+2012/6/5 David Quigley <selinux@davequigley.com>
+
+> On 06/05/2012 02:51, casinee app wrote:
 >
->> Allow standard compilation with separate installation of the SELinux
->> GIT development tree.
->> 
->> To build, just type "make".
->> 
->> To install (after successful build), just type "make install".
->> 
->> During installation, it is possible to pass the variables DESTDIR,
->> LIBDIR and SHLIBDIR to GNU make in order to fine tune the results.
->> 
->> Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
->> 
->> ---
->>  Makefile |   14 ++++++++++++--
->>  1 file changed, 12 insertions(+), 2 deletions(-)
->> 
->> --- selinux/Makefile	2011-09-09 20:12:55.977662144 +0200
->> +++ selinux-04062012/Makefile	2012-06-04 23:35:49.859339267 +0200
->> @@ -2,11 +2,21 @@ SUBDIRS=libsepol libselinux libsemanage
->>  PYSUBDIRS=libselinux libsemanage
->>  DISTCLEANSUBIDRS=libselinux libsemanage
->>  
->> +TOPDIR := $(shell pwd)
->> +
->> +CPPFLAGS ?= -I$(TOPDIR)/libselinux/include -I$(TOPDIR)/libsepol/include -I$(TOPDIR)/libsemanage/include
->> +LDFLAGS ?= -L$(TOPDIR)/libselinux/src -L$(TOPDIR)/libsepol/src -L$(TOPDIR)/libsemanage/src
->> +CFLAGS ?= $(CPPFLAGS)
->> +
->>  ifeq ($(DEBUG),1)
->> -	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
->> -	export LDFLAGS = -g
->> +	CFLAGS += -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
->> +	LDFLAGS += -g
->>  endif
+>> Hi,
+>> when i execute #restorecon -R / , all the output is "... operation
+>> not support".  I had check the source code, and in
+>> linux/security/selinux/hooks.c :
+>>
+>>          ...
+>>  sbsec = inode->i_sb->s_security;
+>>  if (!(sbsec->flags & SE_SBLABELSUPP))
+>>  {
+>>  return -EOPNOTSUPP;
+>>  }
+>>         ...
+>> it returned. The  SE_SBLABELSUPP defined as 0x40, i want to know how
+>> can i do to make the filesystem to support the SecurityContext of
+>> selinux.
+>> Thanks.
+>>
 >
->My problem with this patch is that now all of the CFLAGS stuff we have
->lower in the tree (namely -W* stuff) is not going to get picked up since
->CFLAGS are already exported...
+> Which filesystem is this?
 >
->So how do we solve that one too?
+> Dave
+>
+>
 
-I suppose that happens because you are appending the variables to the make invocation, as in:
+--e89a8f22c72b6fd91704c1c3c425
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-make DEBUG=1
+the NFS. I had=A0applied a patch to the kernel to support the xattr of NFS =
+filesystem.<br><br><div class=3D"gmail_quote">2012/6/5 David Quigley <span =
+dir=3D"ltr">&lt;<a href=3D"mailto:selinux@davequigley.com" target=3D"_blank=
+">selinux@davequigley.com</a>&gt;</span><br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On 0=
+6/05/2012 02:51, casinee app wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+Hi,<br>
+when i execute #restorecon -R / , all the output is &quot;... operation<br>
+not support&quot;. =A0I had check the source code, and in<br>
+linux/security/selinux/hooks.c :<br>
+<br>
+=A0 =A0 =A0 =A0 =A0...<br>
+=A0sbsec =3D inode-&gt;i_sb-&gt;s_security;<br>
+=A0if (!(sbsec-&gt;flags &amp; SE_SBLABELSUPP))<br>
+=A0{<br>
+=A0return -EOPNOTSUPP;<br>
+=A0}<br>
+=A0 =A0 =A0 =A0 ...<br>
+it returned. The=A0=A0SE_SBLABELSUPP defined as 0x40, i want to know how<br=
+>
+can i do to make the filesystem to support the SecurityContext of<br>
+selinux.=A0<br>
+Thanks.<br>
+</blockquote>
+<br></div></div>
+Which filesystem is this?<br>
+<br>
+Dave<br>
+<br>
+</blockquote></div><br>
 
-If you set them in the environment (i.e. set and export them prior to the make invocation) or pre-append them to the make invocation as in:
-
-DEBUG=1 make
-
-then it should work as expected.
-
-Regards,
-
-Guido 
-
+--e89a8f22c72b6fd91704c1c3c425--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
