@@ -1,33 +1,30 @@
-Message-ID: <1339008346.4365.14.camel@lenny>
-Subject: Re: [PATCH]: allow standard compilation of GIT development tree
- (was Re: [PATCH]: do not link static libraries from the system library
- directory)
-From: Colin Walters <walters@verbum.org>
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: SELinux@tycho.nsa.gov
-Date: Wed, 06 Jun 2012 14:45:46 -0400
-In-Reply-To: <1339005512.4365.10.camel@lenny>
-References: <201206061755.q56HtHFF004774@vivaldi48.register.it>
-	 <1339005512.4365.10.camel@lenny>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Paul Moore <paul@paul-moore.com>
+To: SELinux@tycho.nsa.gov
+Cc: Chris PeBenito <cpebenito@tresys.com>
+Subject: Re: [PATCH 2/2] Update SELinux policy capability to always check peer class.
+Date: Thu, 07 Jun 2012 10:28:59 -0400
+Message-ID: <16742766.tXTOYM7uO2@sifl>
+In-Reply-To: <1339003731-6743-2-git-send-email-cpebenito@tresys.com>
+References: <1339003731-6743-1-git-send-email-cpebenito@tresys.com> <1339003731-6743-2-git-send-email-cpebenito@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-06-06 at 13:58 -0400, Colin Walters wrote:
+On Wednesday, June 06, 2012 01:28:51 PM Chris PeBenito wrote:
+> Update the always_check_network policy capability which, when enabled,
+> treats peer labeling as enabled, even if there is no Netlabel or
+> labeled IPSEC configuration.
+> 
+> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
 
-> What I was actually saying is that your patch should explicitly
-> separate BUILD_INTERNAL_CFLAGS from CFLAGS.  Automake calls the former
-> AM_CFLAGS, but you can call it whatever you want in your Makefile.
+I still object to this patchset for all the same old reasons, but I feel 
+obligated to point out that this patchset is still incomplete/incorrect in 
+that it only deals with the socket_sock_rcv_skb hook.
 
-http://marc.info/?l=selinux&m=105830780118085&w=2
-
-9 years later, discussing the CFLAGS handling again =)
-
-Some things change (I now get binaries in .rpm form instead of .debs,
-libselinux has migrated from cvs to svn to git), some things stay the
-same...
-
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
