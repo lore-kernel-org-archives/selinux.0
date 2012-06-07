@@ -1,41 +1,30 @@
-Message-ID: <4FD0D1FF.5070702@tresys.com>
-Date: Thu, 7 Jun 2012 12:08:31 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: <SELinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] Update SELinux policy capability to always check
- peer class.
-References: <1339003731-6743-1-git-send-email-cpebenito@tresys.com> <16742766.tXTOYM7uO2@sifl> <4FD0C844.2070800@tresys.com> <2470358.yNoEqIjIIh@sifl>
-In-Reply-To: <2470358.yNoEqIjIIh@sifl>
-Content-Type: text/plain; charset="ISO-8859-1"
+Message-ID: <1339086100.5297.9.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Patches for maguro denials
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: seandroid@tycho.nsa.gov, selinux@tycho.nsa.gov
+Date: Thu, 07 Jun 2012 12:21:40 -0400
+In-Reply-To: <CAFftDdouY-YnkcWHJV4AvfFc4r3WSdvJ7mYCQsZc2kYnxR+uOg@mail.gmail.com>
+References: 
+	<CAFftDdouY-YnkcWHJV4AvfFc4r3WSdvJ7mYCQsZc2kYnxR+uOg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/07/12 11:33, Paul Moore wrote:
-> On Thursday, June 07, 2012 11:27:00 AM Christopher J. PeBenito wrote:
->> On 06/07/12 10:28, Paul Moore wrote:
->>> On Wednesday, June 06, 2012 01:28:51 PM Chris PeBenito wrote:
->>>> Update the always_check_network policy capability which, when enabled,
->>>> treats peer labeling as enabled, even if there is no Netlabel or
->>>> labeled IPSEC configuration.
->>>>
->>>> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
->>>
->>> I still object to this patchset for all the same old reasons, but I feel
->>> obligated to point out that this patchset is still incomplete/incorrect in
->>> that it only deals with the socket_sock_rcv_skb hook.
->>
->> I found the missing hooks, but does this need to affect selinux_ip_output()?
-> 
-> Nope.
+On Wed, 2012-06-06 at 11:34 -0700, William Roberts wrote:
+> This patchset contains patches that should be applied to the
+> directories externals/sepolicy and device/samsung/tuna respective of
+> their names. The patches remove all the denials caused by rild on Tuna
+> devices and was tested on a Maguro variant.
 
-Is there anything I'm missing other than selinux_ip_forward() and selinux_ip_postroute()?
+Thanks, applied.
+
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
