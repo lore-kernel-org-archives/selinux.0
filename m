@@ -1,119 +1,114 @@
-From: Paul Moore <paul@paul-moore.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/2] Add SELinux policy capability for always checking packet class.
-Date: Fri, 08 Jun 2012 14:55:56 -0400
-Message-ID: <20928751.8CTdyDzEWU@sifl>
-In-Reply-To: <4FD2445C.3070704@tresys.com>
-References: <1339093682-5113-1-git-send-email-cpebenito@tresys.com> <2776660.gCfiz8ed08@sifl> <4FD2445C.3070704@tresys.com>
+Message-ID: <4FD2538D.4030707@schaufler-ca.com>
+Date: Fri, 08 Jun 2012 12:33:33 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Paul Moore <paul@paul-moore.com>, SELinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/2] Add SELinux policy capability for always checking
+ packet class.
+References: <1339093682-5113-1-git-send-email-cpebenito@tresys.com> <2776660.gCfiz8ed08@sifl> <4FD2445C.3070704@tresys.com>
+In-Reply-To: <4FD2445C.3070704@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, June 08, 2012 02:28:44 PM Christopher J. PeBenito wrote:
+On 6/8/2012 11:28 AM, Christopher J. PeBenito wrote:
 > On 06/08/12 13:36, Paul Moore wrote:
-> > On Thursday, June 07, 2012 02:28:01 PM Chris PeBenito wrote:
-> >>  static int selinux_secmark_enabled(void)
-> >>  {
-> >> 
-> >> -	return (atomic_read(&selinux_secmark_refcount) > 0);
-> >> +	if (selinux_policycap_alwaysnetwork)
-> >> +		return 1;
-> >> +	else
-> >> +		return (atomic_read(&selinux_secmark_refcount) > 0);
-> >> 
-> >>  }
-> > 
-> > Nit picky, but why not simply:
-> >   return (selinux_policycap_alwaysnetwork || atomic_read( ...
-> 
-> Sure it can be done that way, but I'd argue that the intent is clearer the
-> way its implemented in the patch.
+>> On Thursday, June 07, 2012 02:28:01 PM Chris PeBenito wrote:
+>>> Currently the packet class in SELinux is not checked if there are no
+>>> SECMARK rules in the security or mangle netfilter tables.  Some systems
+>>> prefer that packets are always checked, for example, to protect the system
+>>> should the netfilter rules fail to load or if the nefilter rules
+>>> were maliciously flushed.
+>>>
+>>> Add the always_check_network policy capability which, when enabled, treats
+>>> SECMARK as enabled, even if there are no netfilter SECMARK rules.
+>>>
+>>> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+>> ...
+>>
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index 372ec65..ec7151b 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>> ...
+>>
+>>>  static int selinux_secmark_enabled(void)
+>>>  {
+>>> -	return (atomic_read(&selinux_secmark_refcount) > 0);
+>>> +	if (selinux_policycap_alwaysnetwork)
+>>> +		return 1;
+>>> +	else
+>>> +		return (atomic_read(&selinux_secmark_refcount) > 0);
+>>>  }
+>> Nit picky, but why not simply:
+>>
+>>   return (selinux_policycap_alwaysnetwork || atomic_read( ...
+> Sure it can be done that way, but I'd argue that the intent is clearer the way its implemented in the patch.
 
-It looks very hacky and inconsistent to me.
+Oh come on, no one does
 
-Oh well, you can sort it out with Eric.
+    if (...)
+            return x;
+    else
+            return y;
 
-> >> diff --git a/security/selinux/include/security.h
-> >> b/security/selinux/include/security.h index dde2005..981c4ac 100644
-> >> --- a/security/selinux/include/security.h
-> >> +++ b/security/selinux/include/security.h
-> >> @@ -68,12 +68,14 @@ extern int selinux_enabled;
-> >> 
-> >>  enum {
-> >>  
-> >>  	POLICYDB_CAPABILITY_NETPEER,
-> >>  	POLICYDB_CAPABILITY_OPENPERM,
-> >> 
-> >> +	POLICYDB_CAPABILITY_ALWAYSNETWORK,
-> >> 
-> >>  	__POLICYDB_CAPABILITY_MAX
-> >>  
-> >>  };
-> >>  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> >>  
-> >>  extern int selinux_policycap_netpeer;
-> >>  extern int selinux_policycap_openperm;
-> >> 
-> >> +extern int selinux_policycap_alwaysnetwork;
-> > 
-> > Also nit picky, but it would seem like "selinux_policycap_netalways" is a
-> > bit more consistent with the other variables.
-> 
-> This response stems on what you wrote on a later cunch about the capability
-> name, so you should probably read below first.
+Much better to do
 
-What?
+    if (...)
+            return x;
+    return y;
 
-I don't believe I ever commented on the capability names until now, please 
-correct me with a link to the archives if I'm mistaken.
+The else is unnecessary.
 
-> I don't agree.  If you go by current capabilities names/variables, based on
-> the ordering of the words in the capability name, the words in the variable
-> are in the same order. e.g.
-> 
+>
+>
+>>>  /*
+>>> diff --git a/security/selinux/include/security.h
+>>> b/security/selinux/include/security.h index dde2005..981c4ac 100644
+>>> --- a/security/selinux/include/security.h
+>>> +++ b/security/selinux/include/security.h
+>>> @@ -68,12 +68,14 @@ extern int selinux_enabled;
+>>>  enum {
+>>>  	POLICYDB_CAPABILITY_NETPEER,
+>>>  	POLICYDB_CAPABILITY_OPENPERM,
+>>> +	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+>>>  	__POLICYDB_CAPABILITY_MAX
+>>>  };
+>>>  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+>>>
+>>>  extern int selinux_policycap_netpeer;
+>>>  extern int selinux_policycap_openperm;
+>>> +extern int selinux_policycap_alwaysnetwork;
+>> Also nit picky, but it would seem like "selinux_policycap_netalways" is a bit 
+>> more consistent with the other variables.
+> This response stems on what you wrote on a later cunch about the capability name, so you should probably read below first.
+>
+> I don't agree.  If you go by current capabilities names/variables, based on the ordering of the words in the capability name, the words in the variable are in the same order. e.g.
+>
 > NETwork_PEER_controls -> selinux_policycap_netpeer
 > OPEN_PERMs -> selinux_policycap_openperm
-> 
+>
 > hence
-> 
+>
 > ALWAYS_check_NETWORK -> selinux_policycap_alwaysnetwork
-
-I look at it as a bit of "namespacing" ... "netpeer" enables the network peer 
-controls, "openperm" affects the open permission.  Since this capability 
-affects the network controls I believe "netalways" makes more sense.
-
-> >> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> >> index 3ad2902..cb893f9 100644
-> >> --- a/security/selinux/selinuxfs.c
-> >> +++ b/security/selinux/selinuxfs.c
-> >> @@ -44,7 +44,8 @@
-> >> 
-> >>  /* Policy capability filenames */
-> >>  static char *policycap_names[] = {
-> >>  
-> >>  	"network_peer_controls",
-> >> 
-> >> -	"open_perms"
-> >> +	"open_perms",
-> >> +	"always_check_network"
-> >> 
-> >>  };
-> > 
-> > Similarly, I think "network_always" is more consistent.
-> 
-> Earlier discussions concluded with this capability name.  (to be specific
-> the discussion resolved with always_check_packets, but that was before the
-> peer class was included)
-
-Once again, I don't believe I ever commented on the name of the capability, 
-but I am now.  Disregard my comments or incorporate them, that is up to you, 
-and ultimately Eric, to decide.
-
--- 
-paul moore
-www.paul-moore.com
+>
+>>> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+>>> index 3ad2902..cb893f9 100644
+>>> --- a/security/selinux/selinuxfs.c
+>>> +++ b/security/selinux/selinuxfs.c
+>>> @@ -44,7 +44,8 @@
+>>>  /* Policy capability filenames */
+>>>  static char *policycap_names[] = {
+>>>  	"network_peer_controls",
+>>> -	"open_perms"
+>>> +	"open_perms",
+>>> +	"always_check_network"
+>>>  };
+>> Similarly, I think "network_always" is more consistent.
+> Earlier discussions concluded with this capability name.  (to be specific the discussion resolved with always_check_packets, but that was before the peer class was included)
+>
+>
 
 
 --
