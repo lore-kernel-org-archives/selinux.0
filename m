@@ -1,53 +1,56 @@
-Message-ID: <4FD255F9.4030904@tresys.com>
-Date: Fri, 8 Jun 2012 15:43:53 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <4FD61901.1010806@redhat.com>
+Date: Mon, 11 Jun 2012 12:12:49 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: <SELinux@tycho.nsa.gov>
-Subject: Re: [PATCH 1/2] Add SELinux policy capability for always checking
- packet class.
-References: <1339093682-5113-1-git-send-email-cpebenito@tresys.com> <2776660.gCfiz8ed08@sifl> <4FD2445C.3070704@tresys.com> <20928751.8CTdyDzEWU@sifl>
-In-Reply-To: <20928751.8CTdyDzEWU@sifl>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Boolean change of names.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 06/08/12 14:55, Paul Moore wrote:
-> On Friday, June 08, 2012 02:28:44 PM Christopher J. PeBenito wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->>>> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
->>>> index 3ad2902..cb893f9 100644
->>>> --- a/security/selinux/selinuxfs.c
->>>> +++ b/security/selinux/selinuxfs.c
->>>> @@ -44,7 +44,8 @@
->>>>
->>>>  /* Policy capability filenames */
->>>>  static char *policycap_names[] = {
->>>>  
->>>>  	"network_peer_controls",
->>>>
->>>> -	"open_perms"
->>>> +	"open_perms",
->>>> +	"always_check_network"
->>>>
->>>>  };
->>>
->>> Similarly, I think "network_always" is more consistent.
->>
->> Earlier discussions concluded with this capability name.  (to be specific
->> the discussion resolved with always_check_packets, but that was before the
->> peer class was included)
-> 
-> Once again, I don't believe I ever commented on the name of the capability, 
-> but I am now.  Disregard my comments or incorporate them, that is up to you, 
-> and ultimately Eric, to decide.
+We have started pushing a boolean change into Fedora 18.
 
-My apologies, you did not comment on the capability name in the previous thread.
+https://fedoraproject.org/wiki/Features/SELinuxBooleansRename
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+The problem we are seeing is that boolean names used within an interface are
+causing the install to fail on rebuild of policy.
+
+IE If I installed a custom policy with a boolean used in it, and the boolean
+changed then the module will blow up the policy compile.
+
+
+interface(`kerberos_manage_host_rcache',`
+	gen_require(`
+		type krb5_host_rcache_t;
+	')
+
+...
+
+	tunable_policy(`allow_kerberos',`
+		allow $1 self:process setfscreate;
+...
+	')
+
+...
+')
+
+And change the allow_kerberos to kerberos_enabled.
+
+One idea would be to pull the translations into the semanage, or would I need
+to do this at a lower level.  Or are we stuck with these bad names forever...
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk/WGQEACgkQrlYvE4MpobOHYQCdEg6dag1f3ucskDiXohzcMITB
+pPQAoM21wP+O5Cgsiu2dmFGR+UcRaFne
+=1UKe
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
