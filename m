@@ -1,35 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5GIvsue006847
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5GIvsuh006847
 	for <selinux@tycho.nsa.gov>; Sat, 16 Jun 2012 14:57:54 -0400
 From: Joshua Brindle <jbrindle@tresys.com>
 To: selinux@tycho.nsa.gov, method@manicmethod.com
 Cc: Joshua Brindle <jbrindle@tresys.com>
-Subject: [PATCH build] add iptables-selinux.sh to SELINUX_DEPENDS
-Date: Sat, 16 Jun 2012 14:56:35 -0400
-Message-Id: <1339872999-30243-2-git-send-email-jbrindle@tresys.com>
+Subject: [PATCH system/core] add iptables secmark labeling script to startup
+Date: Sat, 16 Jun 2012 14:56:36 -0400
+Message-Id: <1339872999-30243-3-git-send-email-jbrindle@tresys.com>
 In-Reply-To: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
 References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Change-Id: I47100243b04d9629d44c8962eafeacabdcd0e6d2
+
 Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
 ---
- core/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ rootdir/init.rc |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/core/Makefile b/core/Makefile
-index 146d56e..ade39ae 100644
---- a/core/Makefile
-+++ b/core/Makefile
-@@ -343,7 +343,7 @@ INTERNAL_RAMDISK_FILES := $(filter $(TARGET_ROOT_OUT)/%, \
- BUILT_RAMDISK_TARGET := $(PRODUCT_OUT)/ramdisk.img
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index 7131095..bd4bc81 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -372,6 +372,10 @@ service console /system/bin/sh
+     user shell
+     group log
  
- ifeq ($(HAVE_SELINUX),true)
--SELINUX_DEPENDS := sepolicy file_contexts seapp_contexts property_contexts
-+SELINUX_DEPENDS := sepolicy file_contexts seapp_contexts property_contexts iptables-selinux.sh
- endif
++service netlabels /system/bin/iptables-selinux.sh
++    class core
++    oneshot
++
+ on property:ro.debuggable=1
+     start console
  
- #ifeq ($(HAVE_MAC),true)
 -- 
 1.7.9.5
 
