@@ -1,56 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5IFNxet001400
-	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 11:23:59 -0400
-Message-ID: <4FDF480C.1020406@tresys.com>
-Date: Mon, 18 Jun 2012 11:23:56 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5IFPVN5001500
+	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 11:25:31 -0400
+Received: by yhp26 with SMTP id 26so4054455yhp.12
+        for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 08:25:30 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+Cc: method@manicmethod.com
+Subject: Re: [PATCH external/sepolicy] Add iptables script to policy
+Date: Mon, 18 Jun 2012 11:25:25 -0400
+Message-ID: <1523270.GXfVyoc8BM@sifl>
+In-Reply-To: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
+References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: <selinux@tycho.nsa.gov>, <method@manicmethod.com>
-Subject: Re: [PATCH system/core] add iptables secmark labeling script to startup
-References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com> <1339872999-30243-3-git-send-email-jbrindle@tresys.com> <10555397.PmF0tPeDBq@sifl>
-In-Reply-To: <10555397.PmF0tPeDBq@sifl>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> On Saturday, June 16, 2012 02:56:36 PM Joshua Brindle wrote:
->> Change-Id: I47100243b04d9629d44c8962eafeacabdcd0e6d2
->>
->> Signed-off-by: Joshua Brindle<jbrindle@tresys.com>
->> ---
->>   rootdir/init.rc |    4 ++++
->>   1 file changed, 4 insertions(+)
->>
->> diff --git a/rootdir/init.rc b/rootdir/init.rc
->> index 7131095..bd4bc81 100644
->> --- a/rootdir/init.rc
->> +++ b/rootdir/init.rc
->> @@ -372,6 +372,10 @@ service console /system/bin/sh
->>       user shell
->>       group log
->>
->> +service netlabels /system/bin/iptables-selinux.sh
->> +    class core
->> +    oneshot
->
-> I don't know much about Android development or the boot process, but I wonder
-> if it would make sense to either change the name of the service or the script
-> it executes.  While the script seems aptly named for its current
-> functionality, the service name might become a problem if an Android user ever
-> needs to enable NetLabel support.
->
-> I would suggest either changing the service name to reflect the
-> secmark/iptables nature of the script or changing the name of the script to
-> something more generic, e.g. selinux-network.sh, so that it is less awkward if
-> the script grows at some point to contain secmark labeling rules, NetLabel
-> configuration, labeled IPsec, etc.
->
+On Saturday, June 16, 2012 02:56:34 PM Joshua Brindle wrote:
+> diff --git a/iptables-selinux.sh b/iptables-selinux.sh
+> new file mode 100755
+> index 0000000..e9ac7d1
+> --- /dev/null
+> +++ b/iptables-selinux.sh
+> @@ -0,0 +1,18 @@
+> +#!/system/bin/sh
+> +
+> +IPTABLES="/system/bin/iptables"
+> +
+> +#$IPTABLES -t mangle -A INPUT -i wlan0 -j SECMARK --selctx ...
 
-That is fine. This script generally should just be the initial network state. I 
-fully expect that VPN apps, etc would have to do runtime label changes, both 
-using secmark and labeled ipsec.
+Perhaps we should use the security table instead of the mangle table?
+
+-- 
+paul moore
+www.paul-moore.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
