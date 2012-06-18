@@ -1,48 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5I846YT010180
-	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 04:04:07 -0400
-Received: from xev.localnet (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id F3B9F18046
-	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 18:03:58 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: KDE and SE Linux
-Date: Mon, 18 Jun 2012 18:03:59 +1000
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5IFI9hV000906
+	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 11:18:09 -0400
+Received: by ggnv5 with SMTP id v5so3890434ggn.12
+        for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 08:18:07 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+Cc: method@manicmethod.com
+Subject: Re: [PATCH system/core] add iptables secmark labeling script to startup
+Date: Mon, 18 Jun 2012 11:18:03 -0400
+Message-ID: <10555397.PmF0tPeDBq@sifl>
+In-Reply-To: <1339872999-30243-3-git-send-email-jbrindle@tresys.com>
+References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com> <1339872999-30243-3-git-send-email-jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <201206181803.59321.russell@coker.com.au>
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current version of KDE in Debian is 4.8.4, it seems that large parts of 
-the KDE environment depend on execmem access, this includes kwin and plasma-
-desktop.  Basically there is no possibility of having a KDE desktop 
-environment without them.
+On Saturday, June 16, 2012 02:56:36 PM Joshua Brindle wrote:
+> Change-Id: I47100243b04d9629d44c8962eafeacabdcd0e6d2
+> 
+> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+> ---
+>  rootdir/init.rc |    4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/rootdir/init.rc b/rootdir/init.rc
+> index 7131095..bd4bc81 100644
+> --- a/rootdir/init.rc
+> +++ b/rootdir/init.rc
+> @@ -372,6 +372,10 @@ service console /system/bin/sh
+>      user shell
+>      group log
+> 
+> +service netlabels /system/bin/iptables-selinux.sh
+> +    class core
+> +    oneshot
 
-Debugging this is difficult as the important programs SEGV when denied execmem 
-access and the KDE crash handler really gets in the way of debugging it - 
-running /usr/bin/plasma-desktop results in the process forking a child and 
-detaching from the gdb session.
+I don't know much about Android development or the boot process, but I wonder 
+if it would make sense to either change the name of the service or the script 
+it executes.  While the script seems aptly named for its current 
+functionality, the service name might become a problem if an Android user ever 
+needs to enable NetLabel support.
 
-The most clear example of an execmem issue in KDE is from the program 
-/usr/lib/kde4/libexec/kwin_opengl_test which gives the following error:
-LLVM ERROR: Allocation failed when allocating new memory in the JIT
-Can't allocate RWX Memory: Permission denied
-
-What should I do?  Obviously setting the allow_execmem makes things work, but 
-that also allows a lot of unwanted stuff.
-
-I could label the programs in question as unconfined_execmem_t, but that would 
-rely on finding all of them and would also give a problem for sessions with 
-the user_t domain.
-
-Is it possible to change the way KDE works or is there any other easy fix?
+I would suggest either changing the service name to reflect the 
+secmark/iptables nature of the script or changing the name of the script to 
+something more generic, e.g. selinux-network.sh, so that it is less awkward if 
+the script grows at some point to contain secmark labeling rules, NetLabel 
+configuration, labeled IPsec, etc.
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+paul moore
+www.paul-moore.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
