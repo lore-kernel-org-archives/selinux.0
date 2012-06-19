@@ -1,45 +1,35 @@
-Message-ID: <1340107289.18291.15.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH kernel/goldfish] enable secmark labeling for SE Android
- network access controls
+Message-ID: <1340108529.18291.19.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH external/sepolicy] Add iptables script to policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, method@manicmethod.com
-Date: Tue, 19 Jun 2012 08:01:29 -0400
-In-Reply-To: <1339872999-30243-6-git-send-email-jbrindle@tresys.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+        method@manicmethod.com
+Date: Tue, 19 Jun 2012 08:22:09 -0400
+In-Reply-To: <1523270.GXfVyoc8BM@sifl>
 References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
-	 <1339872999-30243-6-git-send-email-jbrindle@tresys.com>
+	 <1523270.GXfVyoc8BM@sifl>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2012-06-16 at 14:56 -0400, Joshua Brindle wrote:
-> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
-> ---
->  arch/x86/configs/i386_defconfig |    4 ++++
->  1 file changed, 4 insertions(+)
-
-I would have expected these changes to go into
-arch/x86/configs/goldfish_defconfig,
-arch/arm/configs/goldfish_defconfig, and
-arch/arm/configs/goldfish_armv7_defconfig.
-
+On Mon, 2012-06-18 at 11:25 -0400, Paul Moore wrote:
+> On Saturday, June 16, 2012 02:56:34 PM Joshua Brindle wrote:
+> > diff --git a/iptables-selinux.sh b/iptables-selinux.sh
+> > new file mode 100755
+> > index 0000000..e9ac7d1
+> > --- /dev/null
+> > +++ b/iptables-selinux.sh
+> > @@ -0,0 +1,18 @@
+> > +#!/system/bin/sh
+> > +
+> > +IPTABLES="/system/bin/iptables"
+> > +
+> > +#$IPTABLES -t mangle -A INPUT -i wlan0 -j SECMARK --selctx ...
 > 
-> diff --git a/arch/x86/configs/i386_defconfig b/arch/x86/configs/i386_defconfig
-> index edba00d..09db997 100644
-> --- a/arch/x86/configs/i386_defconfig
-> +++ b/arch/x86/configs/i386_defconfig
-> @@ -2128,6 +2128,10 @@ CONFIG_SECURITY_NETWORK=y
->  CONFIG_SECURITY_FILE_CAPABILITIES=y
->  # CONFIG_SECURITY_ROOTPLUG is not set
->  CONFIG_SECURITY_DEFAULT_MMAP_MIN_ADDR=65536
-> +CONFIG_NETWORK_SECMARK=y
-> +CONFIG_NF_CONNTRACK_SECMARK=y
-> +CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=y
-> +CONFIG_NETFILTER_XT_TARGET_SECMARK=y
->  CONFIG_SECURITY_SELINUX=y
->  CONFIG_SECURITY_SELINUX_BOOTPARAM=y
->  CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+> Perhaps we should use the security table instead of the mangle table?
+
+Yes, assuming that it is supported by the Android iptables.
 
 -- 
 Stephen Smalley
