@@ -1,74 +1,49 @@
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Paul Moore <paul@paul-moore.com>,
-        "selinux@tycho.nsa.gov"
-	<selinux@tycho.nsa.gov>,
-        "method@manicmethod.com" <method@manicmethod.com>
-Subject: Re: [PATCH system/core] add iptables secmark labeling script to
- startup
-Date: Tue, 19 Jun 2012 12:29:00 +0000
-Message-ID: <1340109098.3801.9.camel@fedora>
-References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
-	 <1339872999-30243-3-git-send-email-jbrindle@tresys.com>
-	 <10555397.PmF0tPeDBq@sifl> <4FDF480C.1020406@tresys.com>
-	 <1340108654.18291.21.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1340108654.18291.21.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Message-ID: <1340109645.18291.26.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: KDE and SE Linux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Date: Tue, 19 Jun 2012 08:40:45 -0400
+In-Reply-To: <201206181803.59321.russell@coker.com.au>
+References: <201206181803.59321.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-06-19 at 08:24 -0400, Stephen Smalley wrote:
-> On Mon, 2012-06-18 at 11:23 -0400, Joshua Brindle wrote:
-> > Paul Moore wrote:
-> > > On Saturday, June 16, 2012 02:56:36 PM Joshua Brindle wrote:
-> > >> Change-Id: I47100243b04d9629d44c8962eafeacabdcd0e6d2
-> > >>
-> > >> Signed-off-by: Joshua Brindle<jbrindle@tresys.com>
-> > >> ---
-> > >>   rootdir/init.rc |    4 ++++
-> > >>   1 file changed, 4 insertions(+)
-> > >>
-> > >> diff --git a/rootdir/init.rc b/rootdir/init.rc
-> > >> index 7131095..bd4bc81 100644
-> > >> --- a/rootdir/init.rc
-> > >> +++ b/rootdir/init.rc
-> > >> @@ -372,6 +372,10 @@ service console /system/bin/sh
-> > >>       user shell
-> > >>       group log
-> > >>
-> > >> +service netlabels /system/bin/iptables-selinux.sh
-> > >> +    class core
-> > >> +    oneshot
-> > >
-> > > I don't know much about Android development or the boot process, but I wonder
-> > > if it would make sense to either change the name of the service or the script
-> > > it executes.  While the script seems aptly named for its current
-> > > functionality, the service name might become a problem if an Android user ever
-> > > needs to enable NetLabel support.
-> > >
-> > > I would suggest either changing the service name to reflect the
-> > > secmark/iptables nature of the script or changing the name of the script to
-> > > something more generic, e.g. selinux-network.sh, so that it is less awkward if
-> > > the script grows at some point to contain secmark labeling rules, NetLabel
-> > > configuration, labeled IPsec, etc.
-> > >
-> > 
-> > That is fine. This script generally should just be the initial network state. I 
-> > fully expect that VPN apps, etc would have to do runtime label changes, both 
-> > using secmark and labeled ipsec.
+On Mon, 2012-06-18 at 18:03 +1000, Russell Coker wrote:
+> The current version of KDE in Debian is 4.8.4, it seems that large parts of 
+> the KDE environment depend on execmem access, this includes kwin and plasma-
+> desktop.  Basically there is no possibility of having a KDE desktop 
+> environment without them.
 > 
-> Up to you but if you want the script to cover general selinux network
-> configuration, you'll want to rename it and re-spin all of the userspace
-> patches.  Or you can leave it specific to iptables and just change the
-> name of the service in this one patch to fit that purpose.
+> Debugging this is difficult as the important programs SEGV when denied execmem 
+> access and the KDE crash handler really gets in the way of debugging it - 
+> running /usr/bin/plasma-desktop results in the process forking a child and 
+> detaching from the gdb session.
 > 
+> The most clear example of an execmem issue in KDE is from the program 
+> /usr/lib/kde4/libexec/kwin_opengl_test which gives the following error:
+> LLVM ERROR: Allocation failed when allocating new memory in the JIT
+> Can't allocate RWX Memory: Permission denied
+> 
+> What should I do?  Obviously setting the allow_execmem makes things work, but 
+> that also allows a lot of unwanted stuff.
+> 
+> I could label the programs in question as unconfined_execmem_t, but that would 
+> rely on finding all of them and would also give a problem for sessions with 
+> the user_t domain.
+> 
+> Is it possible to change the way KDE works or is there any other easy fix?
 
+Not sure if this has been discussed anywhere, but looks like the
+_execmem_t domains have gone away in modern Fedora, execmem is allowed
+by default, and there is a deny_execmem boolean for disabling it.  So it
+appears that they at least gave up on restricting it by default.
 
-It makes sense to me to merge 1 service that does selinux network config
-instead of trying to merge in one for every aspect of it. I'll respin
-all the patches since other changes are necessary anyway. 
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
