@@ -1,40 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5IFPVN5001500
-	for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 11:25:31 -0400
-Received: by yhp26 with SMTP id 26so4054455yhp.12
-        for <selinux@tycho.nsa.gov>; Mon, 18 Jun 2012 08:25:30 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-Cc: method@manicmethod.com
-Subject: Re: [PATCH external/sepolicy] Add iptables script to policy
-Date: Mon, 18 Jun 2012 11:25:25 -0400
-Message-ID: <1523270.GXfVyoc8BM@sifl>
-In-Reply-To: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
-References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 18 Jun 2012 22:10:47 -0700
+Message-ID: <CAFftDdrLvViiy2dHyokrZdemJvoEV3+8DTh5HRCfrp8icpC0Tw@mail.gmail.com>
+Subject: SE Android patch -- Fix for bug on factory labeling
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <jbrindle@tresys.com>
+Content-Type: multipart/mixed; boundary=047d7b10ce79254a5804c2cc4e37
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday, June 16, 2012 02:56:34 PM Joshua Brindle wrote:
-> diff --git a/iptables-selinux.sh b/iptables-selinux.sh
-> new file mode 100755
-> index 0000000..e9ac7d1
-> --- /dev/null
-> +++ b/iptables-selinux.sh
-> @@ -0,0 +1,18 @@
-> +#!/system/bin/sh
-> +
-> +IPTABLES="/system/bin/iptables"
-> +
-> +#$IPTABLES -t mangle -A INPUT -i wlan0 -j SECMARK --selctx ...
+--047d7b10ce79254a5804c2cc4e37
+Content-Type: multipart/alternative; boundary=047d7b10ce79254a5004c2cc4e35
 
-Perhaps we should use the security table instead of the mangle table?
+--047d7b10ce79254a5004c2cc4e35
+Content-Type: text/plain; charset=ISO-8859-1
+
+A bug introduced in device/samsung/tuna on
+commit 6fc73cf6d9e05d9e20009bf88c2f028657bc2ebd on branch seandroid caused
+factory bluetooth to get mislabeled and was not caught. I discovered this
+today while using a maguro for awhile. This patch fixes that introduced bug.
 
 -- 
-paul moore
-www.paul-moore.com
+Respectfully,
 
+William C Roberts
+
+--047d7b10ce79254a5004c2cc4e35
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+A bug introduced in device/samsung/tuna on commit=A06fc73cf6d9e05d9e20009bf=
+88c2f028657bc2ebd on branch seandroid caused factory bluetooth to get=A0mis=
+labeled=A0and was not caught. I discovered this today while using a maguro =
+for awhile. This patch fixes that introduced bug.<div>
+<br></div><div>--=A0</div><div>Respectfully,<br><br>William C Roberts<br><b=
+r><br>
+</div>
+
+--047d7b10ce79254a5004c2cc4e35--
+
+--047d7b10ce79254a5804c2cc4e37
+Content-Type: application/octet-stream; name="ordering.patch"
+Content-Disposition: attachment; filename="ordering.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h3milpt20
+
+ZGlmZiAtLWdpdCBhL3NlcG9saWN5LmZjIGIvc2Vwb2xpY3kuZmMKaW5kZXggMWRmODJlZi4uNTk5
+ZmY5MiAxMDA2NDQKLS0tIGEvc2Vwb2xpY3kuZmMKKysrIGIvc2Vwb2xpY3kuZmMKQEAgLTE1LDkg
+KzE1LDkgQEAKIC9kZXYvdW10c19pcGMwCXU6b2JqZWN0X3I6cmFkaW9fZGV2aWNlOnMwCiAvZGV2
+L3VtdHNfcmFtZHVtcDAJdTpvYmplY3RfcjpyYWRpb19kZXZpY2U6czAKIC9kZXYvdW10c19yZnMw
+IHU6b2JqZWN0X3I6cmFkaW9fZGV2aWNlOnMwCisvZmFjdG9yeSgvLiopPyAgICAgICAgICAgICB1
+Om9iamVjdF9yOmVmc19maWxlOnMwCiAvZmFjdG9yeS9ibHVldG9vdGgoLy4qKT8gICAgIHU6b2Jq
+ZWN0X3I6Ymx1ZXRvb3RoX2Vmc19maWxlOnMwCiAvZmFjdG9yeS9udl9kYXRhLmJpbi4qICAgICB1
+Om9iamVjdF9yOnJhZGlvX2RhdGFfZmlsZTpzMAotL2ZhY3RvcnkoLy4qKT8gICAgICAgICAgICAg
+dTpvYmplY3RfcjplZnNfZmlsZTpzMAogCiAjbmZjCiAvZGV2L3R0eU8zICAgICB1Om9iamVjdF9y
+Om5mY19kZXZpY2U6czAK
+--047d7b10ce79254a5804c2cc4e37--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
