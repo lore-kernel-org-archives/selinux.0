@@ -1,25 +1,45 @@
-Message-ID: <1340106887.18291.13.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android patch -- Fix for bug on factory labeling
+Message-ID: <1340107289.18291.15.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH kernel/goldfish] enable secmark labeling for SE Android
+ network access controls
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-Date: Tue, 19 Jun 2012 07:54:47 -0400
-In-Reply-To: <CAFftDdrLvViiy2dHyokrZdemJvoEV3+8DTh5HRCfrp8icpC0Tw@mail.gmail.com>
-References: 
-	<CAFftDdrLvViiy2dHyokrZdemJvoEV3+8DTh5HRCfrp8icpC0Tw@mail.gmail.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, method@manicmethod.com
+Date: Tue, 19 Jun 2012 08:01:29 -0400
+In-Reply-To: <1339872999-30243-6-git-send-email-jbrindle@tresys.com>
+References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
+	 <1339872999-30243-6-git-send-email-jbrindle@tresys.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-06-18 at 22:10 -0700, William Roberts wrote:
-> A bug introduced in device/samsung/tuna on
-> commit 6fc73cf6d9e05d9e20009bf88c2f028657bc2ebd on branch seandroid
-> caused factory bluetooth to get mislabeled and was not caught. I
-> discovered this today while using a maguro for awhile. This patch
-> fixes that introduced bug.
+On Sat, 2012-06-16 at 14:56 -0400, Joshua Brindle wrote:
+> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+> ---
+>  arch/x86/configs/i386_defconfig |    4 ++++
+>  1 file changed, 4 insertions(+)
 
-Thanks, applied.
+I would have expected these changes to go into
+arch/x86/configs/goldfish_defconfig,
+arch/arm/configs/goldfish_defconfig, and
+arch/arm/configs/goldfish_armv7_defconfig.
+
+> 
+> diff --git a/arch/x86/configs/i386_defconfig b/arch/x86/configs/i386_defconfig
+> index edba00d..09db997 100644
+> --- a/arch/x86/configs/i386_defconfig
+> +++ b/arch/x86/configs/i386_defconfig
+> @@ -2128,6 +2128,10 @@ CONFIG_SECURITY_NETWORK=y
+>  CONFIG_SECURITY_FILE_CAPABILITIES=y
+>  # CONFIG_SECURITY_ROOTPLUG is not set
+>  CONFIG_SECURITY_DEFAULT_MMAP_MIN_ADDR=65536
+> +CONFIG_NETWORK_SECMARK=y
+> +CONFIG_NF_CONNTRACK_SECMARK=y
+> +CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=y
+> +CONFIG_NETFILTER_XT_TARGET_SECMARK=y
+>  CONFIG_SECURITY_SELINUX=y
+>  CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+>  CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
 
 -- 
 Stephen Smalley
