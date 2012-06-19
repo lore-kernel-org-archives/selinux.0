@@ -1,65 +1,45 @@
-Message-ID: <4FE074E4.3030909@redhat.com>
-Date: Tue, 19 Jun 2012 08:47:32 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: KDE and SE Linux
-References: <201206181803.59321.russell@coker.com.au> <1340109645.18291.26.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1340109645.18291.26.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1340112403.18291.28.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH kernel/tegra] enable secmark labeling for SE Android
+ network access controls
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, method@manicmethod.com
+Date: Tue, 19 Jun 2012 09:26:43 -0400
+In-Reply-To: <1339872999-30243-4-git-send-email-jbrindle@tresys.com>
+References: <1339872999-30243-1-git-send-email-jbrindle@tresys.com>
+	 <1339872999-30243-4-git-send-email-jbrindle@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 06/19/2012 08:40 AM, Stephen Smalley wrote:
-> On Mon, 2012-06-18 at 18:03 +1000, Russell Coker wrote:
->> The current version of KDE in Debian is 4.8.4, it seems that large parts
->> of the KDE environment depend on execmem access, this includes kwin and
->> plasma- desktop.  Basically there is no possibility of having a KDE
->> desktop environment without them.
->> 
->> Debugging this is difficult as the important programs SEGV when denied
->> execmem access and the KDE crash handler really gets in the way of
->> debugging it - running /usr/bin/plasma-desktop results in the process
->> forking a child and detaching from the gdb session.
->> 
->> The most clear example of an execmem issue in KDE is from the program 
->> /usr/lib/kde4/libexec/kwin_opengl_test which gives the following error: 
->> LLVM ERROR: Allocation failed when allocating new memory in the JIT Can't
->> allocate RWX Memory: Permission denied
->> 
->> What should I do?  Obviously setting the allow_execmem makes things work,
->> but that also allows a lot of unwanted stuff.
->> 
->> I could label the programs in question as unconfined_execmem_t, but that
->> would rely on finding all of them and would also give a problem for
->> sessions with the user_t domain.
->> 
->> Is it possible to change the way KDE works or is there any other easy
->> fix?
+On Sat, 2012-06-16 at 14:56 -0400, Joshua Brindle wrote:
+> Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+> ---
+>  arch/arm/configs/stingray_defconfig |    4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> Not sure if this has been discussed anywhere, but looks like the _execmem_t
-> domains have gone away in modern Fedora, execmem is allowed by default, and
-> there is a deny_execmem boolean for disabling it.  So it appears that they
-> at least gave up on restricting it by default.
-> 
+> diff --git a/arch/arm/configs/stingray_defconfig b/arch/arm/configs/stingray_defconfig
+> index e67e4d5..9fe1fdd 100644
+> --- a/arch/arm/configs/stingray_defconfig
+> +++ b/arch/arm/configs/stingray_defconfig
+> @@ -459,3 +459,7 @@ CONFIG_SECURITY=y
+>  CONFIG_LSM_MMAP_MIN_ADDR=4096
+>  CONFIG_SECURITY_NETWORK=y
+>  CONFIG_SECURITY_SELINUX=y
+> +CONFIG_NETWORK_SECMARK=y
+> +CONFIG_NF_CONNTRACK_SECMARK=y
+> +CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=y
+> +CONFIG_NETFILTER_XT_TARGET_SECMARK=y
 
-Yes for users we have pretty much given up on confining execmem, because so
-many of the modern desktop is building in JRE, along with Firefox/Thunderbird
-requiring it.  It becomes obvious that the memory checks for a desktop user
-conflict totally with the usefulness of the desktop.
+Thanks, merged.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+No samsung kernel patch?
 
-iEYEARECAAYFAk/gdOQACgkQrlYvE4MpobM33gCdH/AYigFpeWVpQ9jagx6RzbHP
-VUYAn1b7kvjglgRod/Ci2srQpSm0Ra0s
-=cGbf
------END PGP SIGNATURE-----
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
