@@ -1,73 +1,88 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5KFwFNn011795
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jun 2012 11:58:16 -0400
-From: jbrindle@tresys.com
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <jbrindle@tresys.com>
-Subject: [PATCH external/sepolicy] Add selinux network script to policy
-Date: Wed, 20 Jun 2012 11:58:01 -0400
-Message-Id: <1340207887-30359-1-git-send-email-jbrindle@tresys.com>
+MIME-Version: 1.0
+In-Reply-To: <1340194736.30096.31.camel@moss-pluto.epoch.ncsc.mil>
+References: <CAFftDdr+nvC3e1bJ62cdB-TWcDeA36QfmrGi3OqTb+oPJ-tqjg@mail.gmail.com>
+	<1340194736.30096.31.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 20 Jun 2012 09:33:05 -0700
+Message-ID: <CAFftDdqOocQfJF4dYGCOxh4kD1RRcW3Y9w=Vb_+iPrC6bEQQxw@mail.gmail.com>
+Subject: Re: [PATCH] ion fix
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=e89a8ff24b3b2037b204c2e9f463
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Joshua Brindle <jbrindle@tresys.com>
+--e89a8ff24b3b2037b204c2e9f463
+Content-Type: text/plain; charset=ISO-8859-1
 
-Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
----
- Android.mk         |   13 +++++++++++++
- selinux-network.sh |   18 ++++++++++++++++++
- 2 files changed, 31 insertions(+)
- create mode 100755 selinux-network.sh
+For right now yes, that is the only thing I have seen requiring access by
+search is by no means exhaustive.
 
-diff --git a/Android.mk b/Android.mk
-index 68f4c69..002a656 100644
---- a/Android.mk
-+++ b/Android.mk
-@@ -85,4 +85,17 @@ $(property_contexts): $(LOCAL_PATH)/property_contexts $(LOCAL_POLICY_PC)
- property_contexts :=
- ##################################
- 
-+##################################
-+include $(CLEAR_VARS)
-+
-+LOCAL_MODULE := selinux-network.sh
-+LOCAL_SRC_FILES := $(LOCAL_MODULE)
-+LOCAL_MODULE_CLASS := EXECUTABLES
-+LOCAL_MODULE_TAGS := optional
-+LOCAL_MODULE_PATH := $(TARGET_OUT_EXECUTABLES)
-+
-+include $(BUILD_PREBUILT)
-+
-+##################################
-+
- endif #ifeq ($(HAVE_SELINUX),true)
-diff --git a/selinux-network.sh b/selinux-network.sh
-new file mode 100755
-index 0000000..7d38623
---- /dev/null
-+++ b/selinux-network.sh
-@@ -0,0 +1,18 @@
-+#!/system/bin/sh
-+
-+IPTABLES="/system/bin/iptables"
-+
-+#$IPTABLES -t security -A INPUT -i wlan0 -j SECMARK --selctx u:object_r:packet:s0
-+#$IPTABLES -t security -A INPUT -i lo -j SECMARK --selctx u:object_r:lo_packet:s0
-+#$IPTABLES -t security -A INPUT -i ppp0 -j SECMARK --selctx u:object_r:ppp0_packet:s0
-+#$IPTABLES -t security -A INPUT -i ppp1 -j SECMARK --selctx u:object_r:ppp1_packet:s0
-+#$IPTABLES -t security -A INPUT -i ppp2 -j SECMARK --selctx u:object_r:ppp2_packet:s0
-+#$IPTABLES -t security -A INPUT -i ppp3 -j SECMARK --selctx u:object_r:ppp3_packet:s0
-+
-+#$IPTABLES -t security -A OUTPUT -o wlan0 -j SECMARK --selctx u:object_r:packet:s0
-+#$IPTABLES -t security -A OUTPUT -o lo -j SECMARK --selctx u:object_r:lo_packet:s0
-+#$IPTABLES -t security -A OUTPUT -o ppp0 -j SECMARK --selctx u:object_r:ppp0_packet:s0
-+#$IPTABLES -t security -A OUTPUT -o ppp1 -j SECMARK --selctx u:object_r:ppp1_packet:s0
-+#$IPTABLES -t security -A OUTPUT -o ppp2 -j SECMARK --selctx u:object_r:ppp2_packet:s0
-+#$IPTABLES -t security -A OUTPUT -o ppp3 -j SECMARK --selctx u:object_r:ppp3_packet:s0
-+
+On Wed, Jun 20, 2012 at 5:18 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Tue, 2012-06-19 at 19:43 -0700, William Roberts wrote:
+> >
+> >
+> > Attached is a patch file that fixes Media Server denial when
+> > accessing /dev/ion
+> >
+> >
+> > Since it is for all ICS devices, I put it in external/sepolicy.
+> >
+> >
+> > http://lwn.net/Articles/480055/
+>
+> Thanks, applied.  Are you sure only mediaserver requires access to it
+> though?
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+
+
 -- 
-1.7.9.5
+Respectfully,
 
+William C Roberts
+
+--e89a8ff24b3b2037b204c2e9f463
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+For right now yes, that is the only thing I have seen requiring access by s=
+earch is by no means exhaustive.=A0<br><br><div class=3D"gmail_quote">On We=
+d, Jun 20, 2012 at 5:18 AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=
+=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</=
+span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On T=
+ue, 2012-06-19 at 19:43 -0700, William Roberts wrote:<br>
+&gt;<br>
+&gt;<br>
+&gt; Attached is a patch file that fixes Media Server denial when<br>
+&gt; accessing /dev/ion<br>
+&gt;<br>
+&gt;<br>
+&gt; Since it is for all ICS devices, I put it in external/sepolicy.<br>
+&gt;<br>
+&gt;<br>
+&gt; <a href=3D"http://lwn.net/Articles/480055/" target=3D"_blank">http://l=
+wn.net/Articles/480055/</a><br>
+<br>
+</div></div>Thanks, applied. =A0Are you sure only mediaserver requires acce=
+ss to it<br>
+though?<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
+r>Respectfully,<br><br>William C Roberts<br><br><br>
+
+--e89a8ff24b3b2037b204c2e9f463--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
