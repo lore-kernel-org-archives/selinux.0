@@ -1,51 +1,45 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5LIEcaI014084
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2012 14:14:38 -0400
-Received: from [192.168.1.64] (151.76.17.105) by cp-out7.libero.it (8.5.133)
-        id 4FD1BC23024866DC for selinux@tycho.nsa.gov; Thu, 21 Jun 2012 20:14:35 +0200
-Message-ID: <1340302475.2992.21.camel@vortex>
-Subject: libsepol segmentation fault on policy load (role expansion)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 21 Jun 2012 20:14:35 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+MIME-Version: 1.0
+Date: Thu, 21 Jun 2012 11:19:40 -0700
+Message-ID: <CAFftDdqJ3XJs8J-OY1Jsom4aS9WaA8QMafyPNni3yfbFWd1YjA@mail.gmail.com>
+Subject: AOSP patches
+From: William Roberts <bill.c.roberts@gmail.com>
+To: seandroid@tycho.nsa.gov, AndroidSupport@tresys.com, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=047d7b10ce7927623004c2ff8f30
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello.
+--047d7b10ce7927623004c2ff8f30
+Content-Type: text/plain; charset=ISO-8859-1
 
-It seems that while loading the latest reference policy semodule causes
-an assertion failure (NULL new_role) and subsequent segmentation fault
-in libsepol/src/expand.c:735 role_fix_callback():
+I am reading the patches submitted in Garret:
 
-Attempting to install module
-'/usr/share/selinux/refpolicy-18062012/zosremote.pp':
-Ok: return value of 0.
-Committing changes:
-new_role = 0xfc4a830
-new_role->flavor = 1
-libsepol.role_fix_callback: fixing role attribute mount_roles
-new_role = 0xfc4a960
-new_role->flavor = 1
-libsepol.role_fix_callback: fixing role attribute usernetctl_roles
-new_role = 0xfc357d0
-new_role->flavor = 1
-libsepol.role_fix_callback: fixing role attribute sysadm_passwd_roles
-new_role = 0xfc36260
-new_role->flavor = 1
-libsepol.role_fix_callback: fixing role attribute groupadd_roles
-new_role = 0xfc36460
-new_role->flavor = 1
-libsepol.role_fix_callback: fixing role attribute portage_roles
-new_role = (nil)
+Change-Id: I166ffc267e8e0543732e7118eb0fd4b031efac3b
 
-Anyone else also hitting anything similar ?
+   What happens if this init script is executed when HAVE_SELINUX:=false in
+the device.mk
+   Will the restorecon's and other selinux commands fail and init just
+moves on?
 
-Regards,
 
-Guido
+-- 
+Respectfully,
 
+William C Roberts
+
+--047d7b10ce7927623004c2ff8f30
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+I am reading the patches submitted in Garret:<div><br></div><div>Change-Id:=
+ I166ffc267e8e0543732e7118eb0fd4b031efac3b</div><div>=A0 =A0</div><div>=A0 =
+=A0What happens if this init script is executed when HAVE_SELINUX:=3Dfalse =
+in the <a href=3D"http://device.mk">device.mk</a></div>
+<div>=A0 =A0Will the restorecon&#39;s and other selinux commands fail and i=
+nit just moves on?</div><div><br></div><div><br></div><div>-- <br>Respectfu=
+lly,<br><br>William C Roberts<br><br><br>
+</div>
+
+--047d7b10ce7927623004c2ff8f30--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
