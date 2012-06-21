@@ -1,111 +1,51 @@
-Message-ID: <4FE333DC.7070109@tresys.com>
-Date: Thu, 21 Jun 2012 10:46:52 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH external/sepolicy] Add selinux network script to policy
-References: <1340207887-30359-1-git-send-email-jbrindle@tresys.com> <1340289811.4234.51.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1340289811.4234.51.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5LIEcaI014084
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jun 2012 14:14:38 -0400
+Received: from [192.168.1.64] (151.76.17.105) by cp-out7.libero.it (8.5.133)
+        id 4FD1BC23024866DC for selinux@tycho.nsa.gov; Thu, 21 Jun 2012 20:14:35 +0200
+Message-ID: <1340302475.2992.21.camel@vortex>
+Subject: libsepol segmentation fault on policy load (role expansion)
+From: Guido Trentalancia <guido@trentalancia.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 21 Jun 2012 20:14:35 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2012-06-20 at 11:58 -0400, jbrindle@tresys.com wrote:
->> From: Joshua Brindle<jbrindle@tresys.com>
->>
->> Signed-off-by: Joshua Brindle<jbrindle@tresys.com>
->> ---
->>   Android.mk         |   13 +++++++++++++
->>   selinux-network.sh |   18 ++++++++++++++++++
->>   2 files changed, 31 insertions(+)
->>   create mode 100755 selinux-network.sh
->
-> Thanks, merged all 7 patches.  A few notes:
-> - I merged these on the master or seandroid branches and then merged
-> master or seandroid onto mmac.  Some of your patches were against mmac
-> so I fixed those by hand.
->
-> - I haven't yet cherry-picked them onto seandroid-4.0.4 and mmac-4.0.4,
-> but will likely do so.
->
-> - Do we want some basic attribute/type definitions and allow rules in
-> the base policy to support this functionality, even though by default
-> the iptables secmark rules are commented out?  Something like the
-> following patch to support at least the wlan0 and lo secmark labeling:
+Hello.
 
-I think the below is fine. I modified the policy here but hadn't gotten around 
-to removing the various vpn types to submit. I wasn't really sure how to handle 
-it since I expect vpn apps to label new interfaces, but we don't want local 
-policy management. Should we just add a handful and the implementers can use 
-them however they want?
+It seems that while loading the latest reference policy semodule causes
+an assertion failure (NULL new_role) and subsequent segmentation fault
+in libsepol/src/expand.c:735 role_fix_callback():
 
->
-> diff --git a/attributes b/attributes
-> index 1016ec6..3bc4a9f 100644
-> --- a/attributes
-> +++ b/attributes
-> @@ -33,6 +33,9 @@ attribute netif_type;
->   # All types used for network ports.
->   attribute port_type;
->
-> +# All types used for secmark packet labeling.
-> +attribute packet_type;
-> +
->   # All types used for property service
->   attribute property_type;
->
-> diff --git a/net.te b/net.te
-> index b10cecd..500e958 100644
-> --- a/net.te
-> +++ b/net.te
-> @@ -2,6 +2,8 @@
->   type node, node_type;
->   type netif, netif_type;
->   type port, port_type;
-> +type packet, packet_type;
-> +type lo_packet, packet_type;
->
->   # Use network sockets.
->   allow netdomain self:{ tcp_socket udp_socket } *;
-> @@ -13,6 +15,9 @@ allow netdomain port_type:udp_socket name_bind;
->   allow netdomain port_type:tcp_socket name_bind;
->   # Get route information.
->   allow netdomain self:netlink_route_socket { create bind read nlmsg_read };
-> +# Send/recv packets.
-> +allow netdomain packet:packet { send recv };
-> +allow netdomain lo_packet:packet { send recv };
->
->   # Talks to netd via dnsproxyd socket.
->   unix_socket_connect(netdomain, dnsproxyd, netd)
-> diff --git a/netd.te b/netd.te
-> index 47687dc..6bfe2e2 100644
-> --- a/netd.te
-> +++ b/netd.te
-> @@ -12,6 +12,7 @@ allow netd self:rawip_socket *;
->   allow netd self:udp_socket *;
->   allow netd node:udp_socket node_bind;
->   allow netd port:udp_socket name_bind;
-> +allow netd lo_packet:packet { send recv };
->   allow netd self:unix_stream_socket *;
->   allow netd shell_exec:file rx_file_perms;
->   allow netd system_file:file x_file_perms;
-> diff --git a/unconfined.te b/unconfined.te
-> index ff53595..21d62c1 100644
-> --- a/unconfined.te
-> +++ b/unconfined.te
-> @@ -20,5 +20,6 @@ allow unconfineddomain netif_type:netif *;
->   allow unconfineddomain port_type:socket_class_set name_bind;
->   allow unconfineddomain port_type:{ tcp_socket dccp_socket } name_connect;
->   allow unconfineddomain domain:peer recv;
-> +allow unconfineddomain packet_type:packet *;
->   allow unconfineddomain domain:binder { call transfer receive };
->   allow unconfineddomain property_type:property_service set;
->
->
->
->
+Attempting to install module
+'/usr/share/selinux/refpolicy-18062012/zosremote.pp':
+Ok: return value of 0.
+Committing changes:
+new_role = 0xfc4a830
+new_role->flavor = 1
+libsepol.role_fix_callback: fixing role attribute mount_roles
+new_role = 0xfc4a960
+new_role->flavor = 1
+libsepol.role_fix_callback: fixing role attribute usernetctl_roles
+new_role = 0xfc357d0
+new_role->flavor = 1
+libsepol.role_fix_callback: fixing role attribute sysadm_passwd_roles
+new_role = 0xfc36260
+new_role->flavor = 1
+libsepol.role_fix_callback: fixing role attribute groupadd_roles
+new_role = 0xfc36460
+new_role->flavor = 1
+libsepol.role_fix_callback: fixing role attribute portage_roles
+new_role = (nil)
+
+Anyone else also hitting anything similar ?
+
+Regards,
+
+Guido
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
