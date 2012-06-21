@@ -1,45 +1,40 @@
-MIME-Version: 1.0
-Date: Thu, 21 Jun 2012 11:19:40 -0700
-Message-ID: <CAFftDdqJ3XJs8J-OY1Jsom4aS9WaA8QMafyPNni3yfbFWd1YjA@mail.gmail.com>
-Subject: AOSP patches
-From: William Roberts <bill.c.roberts@gmail.com>
-To: seandroid@tycho.nsa.gov, AndroidSupport@tresys.com, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7b10ce7927623004c2ff8f30
+Message-ID: <1340303052.4234.98.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: AOSP patches
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: seandroid@tycho.nsa.gov, AndroidSupport@tresys.com, selinux@tycho.nsa.gov
+Date: Thu, 21 Jun 2012 14:24:12 -0400
+In-Reply-To: <CAFftDdqJ3XJs8J-OY1Jsom4aS9WaA8QMafyPNni3yfbFWd1YjA@mail.gmail.com>
+References: 
+	<CAFftDdqJ3XJs8J-OY1Jsom4aS9WaA8QMafyPNni3yfbFWd1YjA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b10ce7927623004c2ff8f30
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 2012-06-21 at 11:19 -0700, William Roberts wrote:
+> I am reading the patches submitted in Garret:
+> 
+> 
+> Change-Id: I166ffc267e8e0543732e7118eb0fd4b031efac3b
+>    
+>    What happens if this init script is executed when
+> HAVE_SELINUX:=false in the device.mk
+>    Will the restorecon's and other selinux commands fail and init just
+> moves on?
 
-I am reading the patches submitted in Garret:
-
-Change-Id: I166ffc267e8e0543732e7118eb0fd4b031efac3b
-
-   What happens if this init script is executed when HAVE_SELINUX:=false in
-the device.mk
-   Will the restorecon's and other selinux commands fail and init just
-moves on?
-
+If you look at the builtins.c code, you'll see that if built with
+HAVE_SELINUX=false, the SELinux commands just always return 0
+immediately.  Similarly, if built with HAVE_SELINUX=true but the kernel
+doesn't have SELinux enabled or the policy was not loaded, then the
+is_selinux_enabled() check at the beginning of each command will fail
+and the command will return 0.  So they become no-ops on a non-SE
+system.
 
 -- 
-Respectfully,
+Stephen Smalley
+National Security Agency
 
-William C Roberts
-
---047d7b10ce7927623004c2ff8f30
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-I am reading the patches submitted in Garret:<div><br></div><div>Change-Id:=
- I166ffc267e8e0543732e7118eb0fd4b031efac3b</div><div>=A0 =A0</div><div>=A0 =
-=A0What happens if this init script is executed when HAVE_SELINUX:=3Dfalse =
-in the <a href=3D"http://device.mk">device.mk</a></div>
-<div>=A0 =A0Will the restorecon&#39;s and other selinux commands fail and i=
-nit just moves on?</div><div><br></div><div><br></div><div>-- <br>Respectfu=
-lly,<br><br>William C Roberts<br><br><br>
-</div>
-
---047d7b10ce7927623004c2ff8f30--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
