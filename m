@@ -1,66 +1,82 @@
-From: <ken.masumitsu@accenture.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: Denials of changing wallpaper on Galaxy Nexus
-Date: Fri, 22 Jun 2012 09:31:13 +0000
-Message-ID: <4FE43B1B.1030602@accenture.com>
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
+Message-ID: <1340368300.14703.35.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Denials of changing wallpaper on Galaxy Nexus
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: ken.masumitsu@accenture.com
+Cc: SELinux@tycho.nsa.gov
+Date: Fri, 22 Jun 2012 08:31:40 -0400
+In-Reply-To: <4FE43B1B.1030602@accenture.com>
+References: <4FE43B1B.1030602@accenture.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Fri, 2012-06-22 at 09:31 +0000, ken.masumitsu@accenture.com wrote:
+> Hi,
+> 
+> I am working SEAndroid 4.0.4 on Galaxy Nexus.
+> 
+> When I tried to change wallpaper, some denials appeared.
+> 
+> ---------------------------------------------------------------------------------------
+> <5>[ 1038.038543] type=1400 audit(1340267126.382:1469): avc:  denied  {
+> write } for  pid=380 comm=42696E646572205468726561642023
+> name="wallpaper" dev=mmcblk0p12 ino=578431 scontext=u:r:system:s0
+> tcontext=u:object_r:wallpaper_file:s0 tclass=file
+> <5>[ 1038.048278] type=1400 audit(1340267126.390:1470): avc:  denied  {
+> write } for  pid=380 comm=42696E646572205468726561642023
+> path="/data/data/com.android.settings/files/wallpaper" dev=mmcblk0p12
+> ino=578431 scontext=u:r:trusted_app:s0:c17
+> tcontext=u:object_r:wallpaper_file:s0 tclass=file
+> ---------------------------------------------------------------------------------------
+> 
+> 
+> Though I added following lines to device/maguro/sepolicy.te,
+> ---------------------------------------------------------------------------------------
+> #============= system ==============
+> # src="system" tgt="wallpaper_file" class="file", perms="write"
+> # comm="2696E64657220546872656164202" exe="" path=""
+> allow system wallpaper_file:file write;
+> 
+> #============= trusted_app ==============
+> # src="trusted_app" tgt="wallpaper_file" class="file", perms="write"
+> # comm="2696E64657220546872656164202" exe="" path=""
+> allow trusted_app wallpaper_file:file write;
+> ---------------------------------------------------------------------------------------
+> 
+> still a denial appeared.
+> ---------------------------------------------------------------------------------------
+> <5>[  508.922760] type=1400 audit(1340350990.015:190): avc:  denied  {
+> write } for  pid=565 comm=42696E646572205468726561642023
+> path="/data/data/com.android.settings/files/wallpaper" dev=mmcblk0p12
+> ino=578429 scontext=u:r:trusted_app:s0:c17
+> tcontext=u:object_r:wallpaper_file:s0 tclass=file
+> ---------------------------------------------------------------------------------------
+> 
+> Do you know that why does the denial appear? and How to resolve it?
 
-I am working SEAndroid 4.0.4 on Galaxy Nexus.
+Need to add mlstrustedobject to wallpaper_file in order for apps at any
+level to write to it.
 
-When I tried to change wallpaper, some denials appeared.
-
----------------------------------------------------------------------------------------
-<5>[ 1038.038543] type=1400 audit(1340267126.382:1469): avc:  denied  {
-write } for  pid=380 comm=42696E646572205468726561642023
-name="wallpaper" dev=mmcblk0p12 ino=578431 scontext=u:r:system:s0
-tcontext=u:object_r:wallpaper_file:s0 tclass=file
-<5>[ 1038.048278] type=1400 audit(1340267126.390:1470): avc:  denied  {
-write } for  pid=380 comm=42696E646572205468726561642023
-path="/data/data/com.android.settings/files/wallpaper" dev=mmcblk0p12
-ino=578431 scontext=u:r:trusted_app:s0:c17
-tcontext=u:object_r:wallpaper_file:s0 tclass=file
----------------------------------------------------------------------------------------
-
-
-Though I added following lines to device/maguro/sepolicy.te,
----------------------------------------------------------------------------------------
-#============= system ==============
-# src="system" tgt="wallpaper_file" class="file", perms="write"
-# comm="2696E64657220546872656164202" exe="" path=""
-allow system wallpaper_file:file write;
-
-#============= trusted_app ==============
-# src="trusted_app" tgt="wallpaper_file" class="file", perms="write"
-# comm="2696E64657220546872656164202" exe="" path=""
-allow trusted_app wallpaper_file:file write;
----------------------------------------------------------------------------------------
-
-still a denial appeared.
----------------------------------------------------------------------------------------
-<5>[  508.922760] type=1400 audit(1340350990.015:190): avc:  denied  {
-write } for  pid=565 comm=42696E646572205468726561642023
-path="/data/data/com.android.settings/files/wallpaper" dev=mmcblk0p12
-ino=578429 scontext=u:r:trusted_app:s0:c17
-tcontext=u:object_r:wallpaper_file:s0 tclass=file
----------------------------------------------------------------------------------------
-
-Do you know that why does the denial appear? and How to resolve it?
-
---
-Ken Masumitsu
+diff --git a/file.te b/file.te
+index 4e3bd53..eb4c792 100644
+--- a/file.te
++++ b/file.te
+@@ -54,7 +54,7 @@ type cache_file, file_type, mlstrustedobject;
+ # Default type for anything under /efs
+ type efs_file, file_type;
+ # Type for wallpaper file.
+-type wallpaper_file, file_type;
++type wallpaper_file, file_type, mlstrustedobject;
+ 
+ # All devices have bluetooth efs files. But they
+ # vary per device, so this type is used in per
 
 
-________________________________
-Subject to local law, communications with Accenture and its affiliates including telephone calls and emails (including content), may be monitored by our systems for the purposes of security and the assessment of internal compliance with Accenture policy.
-______________________________________________________________________________________
 
-www.accenture.com
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
