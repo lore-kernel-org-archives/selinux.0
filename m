@@ -1,38 +1,43 @@
-Message-ID: <1340626369.22057.29.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] hiding SELinux status on Settings app if
- HAVE_SELINUX:=false
+Message-ID: <1340626529.22057.32.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: samsung galaxy nexus
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Date: Mon, 25 Jun 2012 08:12:49 -0400
-In-Reply-To: <CAFftDdqF5WPAx3ESGbzFFaXvW8jb5Qxsk6oqz-f47UH3fqQkyA@mail.gmail.com>
+Date: Mon, 25 Jun 2012 08:15:29 -0400
+In-Reply-To: <CAKi3PurN13FgosvoP600NuegoLOPLqc7ueyd8XaEg4-Z0WQvnw@mail.gmail.com>
 References: 
-	<CAFftDdqF5WPAx3ESGbzFFaXvW8jb5Qxsk6oqz-f47UH3fqQkyA@mail.gmail.com>
+	<CAKi3PurN13FgosvoP600NuegoLOPLqc7ueyd8XaEg4-Z0WQvnw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-06-22 at 13:43 -0700, William Roberts wrote:
-> This should hide the SELinux status in settings if you don't have
-> HAVE_SELINUX:=true during the build.
+On Mon, 2012-06-25 at 13:18 +0200, Alexandra Test wrote:
+> Hi all,
+> I succeed (hopefully) in building the version for my samsung galaxy
+> nexus. 
+> Now I am trying to verify if SEAndroid is also installed. 
 > 
 > 
-> Please verify these patches before merging them. I only tested on
-> Maguro.
 > 
+> Once you have the emulator or a device running SE Android, you can run
+> adb shell and then look for signs that SELinux is present, e.g.
 > 
-> Right now, you must do a CLEAN build to get these to work right. For
-> some reason props doesn't get updated right for me.
+> getenforce
+> ls -Z
+> ps -Z
+> dmesg
 > 
+> What do I have to check? If I send the command getenforce in the adb shell, nothing happens!
 > 
-> These for addressing the issues in Change-Id:
-> I69529fb7a3adfe31eccb16d79740fc4952ff5e68 on garret
+> Can you help me?
 
-I was going to just drop the Settings app change since we now have
-SEAndroidManager and it provides a superset of the Settings app
-functionality (and has the benefit of being easily included/excluded in
-different product builds).
+adb shell getenforce should display one of: Disabled, Enforcing or
+Permissive.
+
+You should also be able to see the SELinux status by looking under About
+Phone tab on the Settings app (last entry), or by running the SEManager
+app.
 
 -- 
 Stephen Smalley
