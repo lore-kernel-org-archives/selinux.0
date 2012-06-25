@@ -1,121 +1,58 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5PJOVNx023640
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jun 2012 15:24:31 -0400
+Received: by dadg9 with SMTP id g9so5478683dad.12
+        for <selinux@tycho.nsa.gov>; Mon, 25 Jun 2012 12:24:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1340626369.22057.29.camel@moss-pluto.epoch.ncsc.mil>
-References: <CAFftDdqF5WPAx3ESGbzFFaXvW8jb5Qxsk6oqz-f47UH3fqQkyA@mail.gmail.com>
-	<1340626369.22057.29.camel@moss-pluto.epoch.ncsc.mil>
-Date: Mon, 25 Jun 2012 09:35:01 -0700
-Message-ID: <CAFftDdpD9ycPA60HSVLBpC_t7P2fcxRoEn2zUEMhhhLzPQVqTA@mail.gmail.com>
-Subject: Re: [PATCH] hiding SELinux status on Settings app if HAVE_SELINUX:=false
+Date: Mon, 25 Jun 2012 12:24:29 -0700
+Message-ID: <CAFftDdpPdN6c6wqJMkj0=GZ_BUcDSPAGkCRgHxPK8G94Ag1tdg@mail.gmail.com>
+Subject: Patch for rild denial
 From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7b10ce793bd33104c34e904b
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary=e89a8ff24b3b48822804c350eedf
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b10ce793bd33104c34e904b
+--e89a8ff24b3b48822804c350eedf
+Content-Type: multipart/alternative; boundary=e89a8ff24b3b48822204c350eedd
+
+--e89a8ff24b3b48822204c350eedd
 Content-Type: text/plain; charset=ISO-8859-1
 
-Ahh your comment in Garret said, "willing to abandon", didn't realize you
-did. How can you go about getting that patchset marked as (abandoned) in
-Garret and can you please do that?
-
-On another note, I see at times that it's hard getting around the
-HAVE_SELINUX in java code since their is no conditional compilation. It
-looks like the build prop is a cleaner way of handling this. Should we keep
-the change in libcore and merge that?
-
-I still think having the selinux status in Settings is useful as it doesn't
-require me to bake in an app for it.
-
-Bill
-
-On Mon, Jun 25, 2012 at 5:12 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Fri, 2012-06-22 at 13:43 -0700, William Roberts wrote:
-> > This should hide the SELinux status in settings if you don't have
-> > HAVE_SELINUX:=true during the build.
-> >
-> >
-> > Please verify these patches before merging them. I only tested on
-> > Maguro.
-> >
-> >
-> > Right now, you must do a CLEAN build to get these to work right. For
-> > some reason props doesn't get updated right for me.
-> >
-> >
-> > These for addressing the issues in Change-Id:
-> > I69529fb7a3adfe31eccb16d79740fc4952ff5e68 on garret
->
-> I was going to just drop the Settings app change since we now have
-> SEAndroidManager and it provides a superset of the Settings app
-> functionality (and has the benefit of being easily included/excluded in
-> different product builds).
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-
+This patch fixes rild trying to access the bluetooth efs dir with read
+perms.
 
 -- 
 Respectfully,
 
 William C Roberts
 
---047d7b10ce793bd33104c34e904b
+--e89a8ff24b3b48822204c350eedd
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Ahh your comment in Garret said, &quot;willing to abandon&quot;, didn&#39;t=
- realize you did. How can you go about getting that patchset marked as (aba=
-ndoned) in Garret and can you please do that?<div><br></div><div>On another=
- note, I see at times that it&#39;s hard getting around the HAVE_SELINUX in=
- java code since their is no conditional compilation. It looks like the bui=
-ld prop is a cleaner way of handling this. Should we keep the change in lib=
-core and merge that?</div>
-<div><br></div><div>I still think having the selinux status in Settings is =
-useful as it doesn&#39;t require me to bake in an app for it.</div><div><br=
-></div><div>Bill</div><div><div><div><br><div class=3D"gmail_quote">On Mon,=
- Jun 25, 2012 at 5:12 AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"=
-mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span=
-> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On F=
-ri, 2012-06-22 at 13:43 -0700, William Roberts wrote:<br>
-&gt; This should hide the SELinux status in settings if you don&#39;t have<=
-br>
-&gt; HAVE_SELINUX:=3Dtrue during the build.<br>
-&gt;<br>
-&gt;<br>
-&gt; Please verify these patches before merging them. I only tested on<br>
-&gt; Maguro.<br>
-&gt;<br>
-&gt;<br>
-&gt; Right now, you must do a CLEAN build to get these to work right. For<b=
-r>
-&gt; some reason props doesn&#39;t get updated right for me.<br>
-&gt;<br>
-&gt;<br>
-&gt; These for addressing the issues in Change-Id:<br>
-&gt; I69529fb7a3adfe31eccb16d79740fc4952ff5e68 on garret<br>
-<br>
-</div></div>I was going to just drop the Settings app change since we now h=
-ave<br>
-SEAndroidManager and it provides a superset of the Settings app<br>
-functionality (and has the benefit of being easily included/excluded in<br>
-different product builds).<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
-r>Respectfully,<br><br>William C Roberts<br><br><br>
-</div></div></div>
+This patch fixes rild trying to access the bluetooth efs dir with read perm=
+s.=A0<br clear=3D"all"><div><br></div>-- <br>Respectfully,<br><br>William C=
+ Roberts<br><br><br>
 
---047d7b10ce793bd33104c34e904b--
+--e89a8ff24b3b48822204c350eedd--
+
+--e89a8ff24b3b48822804c350eedf
+Content-Type: application/octet-stream; name="rild_denial.patch"
+Content-Disposition: attachment; filename="rild_denial.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h3vxqcqd0
+
+ZGlmZiAtLWdpdCBhL3JpbGQudGUgYi9yaWxkLnRlCmluZGV4IDg1Yzg1YTUuLjAzM2ZjODQgMTAw
+NjQ0Ci0tLSBhL3JpbGQudGUKKysrIGIvcmlsZC50ZQpAQCAtMTksNiArMTksNyBAQCBhbGxvdyBy
+aWxkIGVmc19maWxlOmRpciBjcmVhdGVfZGlyX3Blcm1zOwogYWxsb3cgcmlsZCBlZnNfZmlsZTpm
+aWxlIGNyZWF0ZV9maWxlX3Blcm1zOwogYWxsb3cgcmlsZCBzaGVsbF9leGVjOmZpbGUgcnhfZmls
+ZV9wZXJtczsKIGFsbG93IHJpbGQgYmx1ZXRvb3RoX2Vmc19maWxlOmZpbGUgcl9maWxlX3Blcm1z
+OworYWxsb3cgcmlsZCBibHVldG9vdGhfZWZzX2ZpbGU6ZGlyIHJfZGlyX3Blcm1zOwogYWxsb3cg
+cmlsZCByYWRpb19kYXRhX2ZpbGU6ZGlyIHJfZGlyX3Blcm1zOwogYWxsb3cgcmlsZCByYWRpb19k
+YXRhX2ZpbGU6ZmlsZSByd19maWxlX3Blcm1zOwogYWxsb3cgcmlsZCByYWRpb19kZXZpY2U6bG5r
+X2ZpbGUgcl9maWxlX3Blcm1zOwo=
+--e89a8ff24b3b48822804c350eedf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
