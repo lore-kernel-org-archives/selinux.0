@@ -1,37 +1,45 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5QF6HwN013349
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jun 2012 11:06:17 -0400
-Message-ID: <1340723142.29157.40.camel@moss-pluto.epoch.ncsc.mil>
-Subject: SE Android: Install-time MAC update, possible merge to seandroid
+Message-ID: <1340724362.29157.47.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: strange labelling error
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Tue, 26 Jun 2012 11:05:42 -0400
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Date: Tue, 26 Jun 2012 11:26:02 -0400
+In-Reply-To: <201206270101.42198.russell@coker.com.au>
+References: <201206270101.42198.russell@coker.com.au>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, 2012-06-27 at 01:01 +1000, Russell Coker wrote:
+> I was relabelling one of my systems that I've been using for development and 
+> saw the below messages.  I've got no idea how "SystemLow" apparently got into 
+> the contexts of lots of files.  Any ideas?
 
-The install-time MAC support has been updated to allow one to specify
-seinfo strings based on the app certificates in the mac_permissions.xml
-configuration and then map those seinfo string values to SELinux
-security contexts in the seapp_contexts configuration.  This replaces
-the fixed, hardcoded seinfo=systemApp selector (based on whether the app
-was from the system partition) with a more flexible scheme based on
-certificates.  The example mac_permissions.xml configuration defines
-seinfo= strings for each of the AOSP build keys (platform, media,
-shared, release), and the seapp_contexts configuration maps each of
-these seinfo strings to a distinct SELinux domain (replacing the old
-trusted_app domain).  These changes are on the mac-install feature
-branch and merged onto the mmac branch.
+A domain with :capability2 mac_admin permission could set any arbitrary
+value as a file security context, so it would just require a program in
+such a domain (or perhaps any root program in permissive mode) to
+accidentally pass the translated security context to setxattr or
+possibly even to setfilecon if mcstrans wasn't running.
 
-We are contemplating merging the install-time MAC support onto the main
-seandroid branch as this now provides enhanced capabilities for SELinux
-policy and creates a linkage between the two mechanisms.  The permission
-revocation and tag propagation mechanisms would remain separate.
-Comments and feedback on this enhancement and on the proposed merge are
-welcome.
+> I can't reproduce it so I'm not particularly worried, presumably later 
+> versions of the code in question fixed it.  Given the files that were affected 
+> I suspect a bug in dpkg or in the SE Linux libraries it uses.  But it's a 
+> fairly strange one.
+> 
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.gz context 
+> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/NEWS.gz context 
+> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/README.Debian context 
+> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.Debian.gz 
+> context system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/README context 
+> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> restorecon reset /usr/share/doc/xserver-xorg-video-intel/copyright context 
+> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+> 
 
 -- 
 Stephen Smalley
