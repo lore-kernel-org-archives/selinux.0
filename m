@@ -1,105 +1,46 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5QF1rbe013149
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jun 2012 11:01:53 -0400
+Received: from athena.localnet (unknown [10.10.10.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id A6F46180D1
+	for <selinux@tycho.nsa.gov>; Wed, 27 Jun 2012 01:01:40 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: strange labelling error
+Date: Wed, 27 Jun 2012 01:01:41 +1000
 MIME-Version: 1.0
-In-Reply-To: <1340714335.29157.6.camel@moss-pluto.epoch.ncsc.mil>
-References: <CAFftDdo-uftuEXjnpPX=SCfNgSM+hD00p-dP4Jg=5L1TwbRqpg@mail.gmail.com>
-	<1340714140.29157.5.camel@moss-pluto.epoch.ncsc.mil>
-	<1340714335.29157.6.camel@moss-pluto.epoch.ncsc.mil>
-Date: Tue, 26 Jun 2012 07:29:02 -0700
-Message-ID: <CAFftDdoR3SshOR1ZTDJPiEHu3i90scpsTNbcbsThfhRf_rSn6w@mail.gmail.com>
-Subject: Re: SE Android Galaxy Nexus recovery image
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=e89a8ff2439f81209004c360eb94
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <201206270101.42198.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---e89a8ff2439f81209004c360eb94
-Content-Type: text/plain; charset=ISO-8859-1
+I was relabelling one of my systems that I've been using for development and 
+saw the below messages.  I've got no idea how "SystemLow" apparently got into 
+the contexts of lots of files.  Any ideas?
 
-yeah i never used an aosp recovery until today. ive always used
-clockworkmod.
+I can't reproduce it so I'm not particularly worried, presumably later 
+versions of the code in question fixed it.  Given the files that were affected 
+I suspect a bug in dpkg or in the SE Linux libraries it uses.  But it's a 
+fairly strange one.
 
-i syncd today and am on master for maguro device.
-On Jun 26, 2012 5:39 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.gz context 
+system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/NEWS.gz context 
+system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/README.Debian context 
+system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.Debian.gz 
+context system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/README context 
+system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
+restorecon reset /usr/share/doc/xserver-xorg-video-intel/copyright context 
+system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
 
-> On Tue, 2012-06-26 at 08:35 -0400, Stephen Smalley wrote:
-> > On Mon, 2012-06-25 at 13:02 -0700, William Roberts wrote:
-> > > The recovery image is not working and their appears to be no bin...
-> > >
-> > >
-> > > $ adb logcat
-> > > - exec '/system/bin/sh' failed: No such file or directory (2) -
-> > >
-> > >
-> > > Is anyone else getting this?
-> > >
-> > >
-> > > I am looking into it now, but I probably wont have time for a week.
-> >
-> > Wait, why would you expect that to work from recovery?
-> > out/target/product/<device>/recovery/root shows what is available in the
-> > recovery image, and bin/sh isn't part of that.
-> >
-> > That doesn't work for me on Nexus S either, but I don't think it ever
-> > has (or is SE Android related).
->
-> I think the AOSP recovery is pretty minimal; maybe you are used to using
-> Clockwork or similar recoveries instead?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-
---e89a8ff2439f81209004c360eb94
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<p>yeah i never used an aosp recovery until today. ive always used clockwor=
-kmod. </p>
-<p>i syncd today and am on master for maguro device.</p>
-<div class=3D"gmail_quote">On Jun 26, 2012 5:39 AM, &quot;Stephen Smalley&q=
-uot; &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wro=
-te:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"marg=
-in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-On Tue, 2012-06-26 at 08:35 -0400, Stephen Smalley wrote:<br>
-&gt; On Mon, 2012-06-25 at 13:02 -0700, William Roberts wrote:<br>
-&gt; &gt; The recovery image is not working and their appears to be no bin.=
-..<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; $ adb logcat<br>
-&gt; &gt; - exec &#39;/system/bin/sh&#39; failed: No such file or directory=
- (2) -<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Is anyone else getting this?<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; I am looking into it now, but I probably wont have time for a wee=
-k.<br>
-&gt;<br>
-&gt; Wait, why would you expect that to work from recovery?<br>
-&gt; out/target/product/&lt;device&gt;/recovery/root shows what is availabl=
-e in the<br>
-&gt; recovery image, and bin/sh isn&#39;t part of that.<br>
-&gt;<br>
-&gt; That doesn&#39;t work for me on Nexus S either, but I don&#39;t think =
-it ever<br>
-&gt; has (or is SE Android related).<br>
-<br>
-I think the AOSP recovery is pretty minimal; maybe you are used to using<br=
->
-Clockwork or similar recoveries instead?<br>
-<br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</blockquote></div>
-
---e89a8ff2439f81209004c360eb94--
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
