@@ -1,27 +1,24 @@
-Message-ID: <1340802693.32737.14.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Patch for mmac denials
+Message-ID: <1340802641.32737.13.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Patch for rild denial
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: William Roberts <bill.c.roberts@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Date: Wed, 27 Jun 2012 09:11:33 -0400
-In-Reply-To: <CAFftDdqzEUq8Om_KdeCUF1+LW_+2d5y_NkC+dw-cFNc36v85TA@mail.gmail.com>
+Date: Wed, 27 Jun 2012 09:10:41 -0400
+In-Reply-To: <CAFftDdpPdN6c6wqJMkj0=GZ_BUcDSPAGkCRgHxPK8G94Ag1tdg@mail.gmail.com>
 References: 
-	<CAFftDdpyqOBEq8cw9S2R2J2y1WKR976j_Md5o7-cFChauDTCQw@mail.gmail.com>
-	 <CAFftDdqzEUq8Om_KdeCUF1+LW_+2d5y_NkC+dw-cFNc36v85TA@mail.gmail.com>
+	<CAFftDdpPdN6c6wqJMkj0=GZ_BUcDSPAGkCRgHxPK8G94Ag1tdg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-06-25 at 12:42 -0700, William Roberts wrote:
-> Oops I wanted rw not just w.
-> 
-> 
-> media app should have rw access to sdcard dir and files.
+On Mon, 2012-06-25 at 12:24 -0700, William Roberts wrote:
+> This patch fixes rild trying to access the bluetooth efs dir with read
+> perms. 
 
-Thanks, merged.  Yes, we need to work through exactly which permissions
-are required by each kind of app domain now that we have split up the
-system apps.
+Thanks, applied.  Please disable html mail when posting patches, and
+preferably either generate them via git format-patch or inline them into
+the message for easier application.
 
 -- 
 Stephen Smalley
