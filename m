@@ -1,49 +1,71 @@
-Message-ID: <1340724362.29157.47.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: strange labelling error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Date: Tue, 26 Jun 2012 11:26:02 -0400
-In-Reply-To: <201206270101.42198.russell@coker.com.au>
-References: <201206270101.42198.russell@coker.com.au>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: <ken.masumitsu@accenture.com>
+To: <sds@tycho.nsa.gov>
+CC: <SELinux@tycho.nsa.gov>
+Subject: Re: Denials of changing wallpaper on Galaxy Nexus
+Date: Wed, 27 Jun 2012 02:33:06 +0000
+Message-ID: <ECD1E95F29248A4AA3FFC99C6947D66C0A49CB68@048-CH1MPN1-082.048d.mgd.msft.net>
+References: <4FE43B1B.1030602@accenture.com>
+  <1340368300.14703.35.camel@moss-pluto.epoch.ncsc.mil>
+  <1340370788.14703.38.camel@moss-pluto.epoch.ncsc.mil>
+  <ECD1E95F29248A4AA3FFC99C6947D66C0A4917F5@048-CH1MPN1-082.048d.mgd.msft.net>
+ <1340626293.22057.28.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1340626293.22057.28.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-06-27 at 01:01 +1000, Russell Coker wrote:
-> I was relabelling one of my systems that I've been using for development and 
-> saw the below messages.  I've got no idea how "SystemLow" apparently got into 
-> the contexts of lots of files.  Any ideas?
+Hi
 
-A domain with :capability2 mac_admin permission could set any arbitrary
-value as a file security context, so it would just require a program in
-such a domain (or perhaps any root program in permissive mode) to
-accidentally pass the translated security context to setxattr or
-possibly even to setfilecon if mcstrans wasn't running.
+Thanks for your careful explanations.
+I could understand it.
 
-> I can't reproduce it so I'm not particularly worried, presumably later 
-> versions of the code in question fixed it.  Given the files that were affected 
-> I suspect a bug in dpkg or in the SE Linux libraries it uses.  But it's a 
-> fairly strange one.
-> 
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.gz context 
-> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/NEWS.gz context 
-> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/README.Debian context 
-> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/changelog.Debian.gz 
-> context system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/README context 
-> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> restorecon reset /usr/share/doc/xserver-xorg-video-intel/copyright context 
-> system_u:object_r:usr_t:SystemLow->system_u:object_r:usr_t:s0
-> 
 
--- 
-Stephen Smalley
-National Security Agency
+On 2012年06月25日 21:11, Stephen Smalley wrote:
+> On Mon, 2012-06-25 at 02:50 +0000, ken.masumitsu@accenture.com wrote:
+>> Hi,
+>>
+>> Thanks for your comments.
+>> I could change wallpaper by modifying file.te you suggested.
+>>
+>> However, I have one question.
+>> How do you find/investigate the deny comes from MSL?
+>>
+>> Because, though I interpreted the log as
+>>       The object (wallpaper file) had no category and sensitivity of the
+>> object and the subject were same.
+>>       The access was allowed by MLS.
+>> the guess was incorrect.
+>>
+>> ---------------------------------------------------------------------------------------
+>>
+>> <5>[ 508.922760] type=1400 audit(1340350990.015:190): avc: denied {
+>> write } for pid=565 comm=42696E646572205468726561642023
+>> path="/data/data/com.android.settings/files/wallpaper" dev=mmcblk0p12
+>> ino=578429 scontext=u:r:trusted_app:s0:c17
+>> tcontext=u:object_r:wallpaper_file:s0 tclass=file
+>>    ---------------------------------------------------------------------------------------
+> The subject dominated the object due to its category set.  Such a write
+> would have been a write-down and thus violated the BLP *-property.  The
+> relevant constraint in the sepolicy/mls file was:
+> mlsconstrain { file lnk_file sock_file chr_file blk_file } { write
+> setattr append unlink link rename }
+>               (t2 == app_data_file or l1 domby l2 or t1 ==
+> mlstrustedsubject or t2 == mlstrustedobject);
+>
+> Some helpful documentation written by others can be found at:
+> http://selinuxproject.org/page/NB_MLS
+>
+> The book SELinux By Example may also be helpful in understanding the MLS
+> model and constraint syntax for SELinux.
+>
+
+
+________________________________
+Subject to local law, communications with Accenture and its affiliates including telephone calls and emails (including content), may be monitored by our systems for the purposes of security and the assessment of internal compliance with Accenture policy.
+______________________________________________________________________________________
+
+www.accenture.com
 
 
 --
