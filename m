@@ -1,79 +1,51 @@
-Message-ID: <4FEE04DF.2020502@redhat.com>
-Date: Fri, 29 Jun 2012 15:41:19 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5TNxV1R030063
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2012 19:59:31 -0400
+Received: by ggnv5 with SMTP id v5so3441379ggn.12
+        for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2012 16:58:59 -0700 (PDT)
 MIME-Version: 1.0
-To: Laurent Bigonville <bigon@debian.org>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: setools FTBFS in python module
-References: <20120628125629.0fead796@eldamar.bigon.be>
-In-Reply-To: <20120628125629.0fead796@eldamar.bigon.be>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <4FEE0168.70306@redhat.com>
+References: <4FEE0168.70306@redhat.com>
+Date: Sat, 30 Jun 2012 00:58:59 +0100
+Message-ID: <CAPweEDzqzTTRc16bU-GS=f9LutZJTLhi6auGzSU4Xwvup2tnzA@mail.gmail.com>
+Subject: Re: Is it time to move seandroid policy messages off of the selinux
+ lists and onto there own list?
+From: lkcl luke <luke.leighton@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 06/28/2012 06:56 AM, Laurent Bigonville wrote:
-> Hi,
-> 
-> setools is currently FTBFS in debian due to swig 2.0.7 with the following
-> error:
-> 
->> ../../../libqpol/include/qpol/terule_query.h:118:13: note: previous 
->> declaration of 'qpol_terule_get_rule_type' was here qpol_wrap.c: In 
->> function 'qpol_terule_get_rule_type': qpol_wrap.c:4888:3: warning: 
->> passing argument 1 of 'qpol_terule_get_rule_type' from incompatible 
->> pointer type [enabled by default] qpol_wrap.c:4885:16: note: expected 
->> 'struct qpol_terule *' but argument is of type 'struct qpol_policy_t *'
->> qpol_wrap.c:4888:3: warning: passing argument 2 of 
->> 'qpol_terule_get_rule_type' from incompatible pointer type [enabled by
->> default] qpol_wrap.c:4885:16: note: expected 'struct qpol_policy_t *' but
->> argument is of type 'struct qpol_terule *' qpol_wrap.c:4888:3: error: too
->> many arguments to function 'qpol_terule_get_rule_type' 
->> qpol_wrap.c:4885:16: note: declared here qpol_wrap.c: At top level: 
->> qpol_wrap.c:4895:31: error: conflicting types for 
->> 'qpol_terule_get_source_type' In file included from
->> ../../../libqpol/include/qpol/policy.h:60:0, from
->> ../../../libqpol/include/../include/qpol/avrule_query.h:34, from 
->> qpol_wrap.c:3010:
-> 
-> OpenSuse is applying a patch[1] that is fixing the issue. Do you think that
-> this patch could be merged (as well as the other swig patch that fix swig
-> 2.0 detection?).
-> 
-> Also what is the status of setools? It seems that all the distribution 
-> (RedHat, OpenSuse, Debian,...) are applying a bunch of other patches. 
-> Shouldn't all these be merged? Or is setools definitely dead?
-> 
-> Cheers
-> 
-> Laurent Bigonville
-> 
-> [0] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=672040 [1] 
-> https://build.opensuse.org/package/view_file?file=setools-swig-2.0.7.patch&package=setools&project=security%3ASELinux&rev=fa0565dafcc84c3c18514867f92270a1
+On Fri, Jun 29, 2012 at 8:26 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
->  -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-> 
-I guess we need someone to take over upstream for this.  We are actively
-developing it but upstream has not worked on it in a long time and has ignored
-patches.  Eric Paris @ Red Hat has stepped up to take over upstream
-responsibilities on the SELinux user space, and I guess some one needs to
-request that setools be opened up the community.  I would gladly submit the
-Fedora patches to a responsive upstream.
+> We moved off fedora user questions and reference policy...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+ almost certainly, yes.  the popularity of android and the general...
+how-to-say-politely-i-know-lets-use-implicit-tact... level of
+intelligence of the average android user is quite likely to swamp the
+selinux mailing list and reduce its quality to zero.
 
-iEYEARECAAYFAk/uBN8ACgkQrlYvE4MpobOC9ACgtkFq9GZvPru39knmtahivDTv
-k04AoIQWaveZUhcMqjcIQH7DyGwqRJ7V
-=v6/j
------END PGP SIGNATURE-----
+ actually what i'd recommend is, if you want the se/android list to
+have any level of quality as well, to set up a nice pee aitch pee bee
+forum (*1) for all the average se/android users: they will flock to it
+and stay the hell away from "non-pretty / scarey woooo" things like
+mailing lists.
+
+ i could be wrong, though: anyone who actually wants to deploy the
+flask model on top of android has to be a little bit above-average
+intelligence, *but*, the fact that se/android is designed differently
+[viz: "simpler"] does mitigate against that somewhat, so i stand by
+the above recommendations
+
+ l.
+
+(*1 - forum php code obviously *not* running on nsa.gov servers or
+even anywhere remotely associated with the nsa.gov domain.
+http://developers.slashdot.org/story/12/06/29/1458234/the-php-singularity
+)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
