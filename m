@@ -1,58 +1,36 @@
-Message-ID: <1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Welcome to selinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 29 Jun 2012 10:38:04 -0400
-In-Reply-To: <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	 <CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	 <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q5TJQaS4019706
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2012 15:26:36 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q5TJQXMW004306
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2012 15:26:34 -0400
+Received: from dhcp-189-250.bos.redhat.com (vpn-10-61.rdu.redhat.com [10.11.10.61])
+	by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q5TJQWCU014824
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jun 2012 15:26:33 -0400
+Message-ID: <4FEE0168.70306@redhat.com>
+Date: Fri, 29 Jun 2012 15:26:32 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Is it time to move seandroid policy messages off of the selinux lists
+ and onto there own list?
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-06-29 at 15:59 +0200, Alexandra Test wrote:
-> Hi,
-> sorry for all the mails!
-> I installed SeAndroid but I have some problems.
-> - the camera is not working (is it normal?)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's not SE Android related - it is a general AOSP issue; see
-discussions on android-building.  The extract-files.sh script from the
-per-device directory may help you.
+We moved off fedora user questions and reference policy...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-> i would like to install other applications but I really didn't get how
-> to do that.
-> should I install the application and then define new policies?
-
-Yes, although you shouldn't need a new policy for each app; policy is
-written in terms of types (equivalence classes).
-
-> How to define the policies?
-
-If using the middleware MAC support, you would amend the
-external/mac-policy/mac_permissions.xml configuration.  For the SELinux
-policy, you would possibly amend external/sepolicy/seapp_contexts if you
-want to label the app differently and you might amend the rules in
-external/sepolicy/app.te.
-
-> then I notice that I have some residual denials to address in my
-> policy.
-> I hope I will find a way and I am really sorry but I am a beginner! 
-
-Best thing to do is to post the denials and let people help you
-understand what they mean and how to start addressing them.  Once you've
-done it for a few denials, you'll pick it up.
-
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEARECAAYFAk/uAWcACgkQrlYvE4MpobOaSwCfQm2T3KKj2w3fkT5sQTcrRHvL
+KlgAnR3eB8YR/Pi8U0+vjejgPsusz5yT
+=Cx2W
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
