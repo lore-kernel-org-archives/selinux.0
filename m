@@ -1,570 +1,136 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q63HjhjF022417
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2012 13:45:44 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q63HjgGx024661
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q63Hja0c022407
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2012 13:45:37 -0400
+Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q63HjYOi006138
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2012 13:45:42 -0400
-Subject: [RFC PATCH v2 2/2] selinux: redefine a port definition to include
- the IP address
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2012 13:45:35 -0400
+Subject: [RFC PATCH v2 1/2] selinux: cleanup the security_node_sid() function
 To: selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
 Cc: dwalsh@redhat.com, eparis@redhat.com
-Date: Tue, 03 Jul 2012 13:45:39 -0400
-Message-ID: <20120703174539.10504.24614.stgit@sifl>
-In-Reply-To: <20120703174512.10504.97654.stgit@sifl>
-References: <20120703174512.10504.97654.stgit@sifl>
+Date: Tue, 03 Jul 2012 13:45:30 -0400
+Message-ID: <20120703174512.10504.97654.stgit@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[NOTE: this patch is very much a RFC patch intended to solicit
- feedback on the approach; it will compile cleanly but I make no
- claims about it actually producing a working kernel]
-
-The current SELinux port definition does not include an IP address
-which makes it difficult to restrict connect() and bind() operations
-using SELinux.  As an example, how would you allow a process to
-bind() to 127.0.0.1:80 and not 0.0.0.0:80?
-
-This patch fixes this by adding an IP address to the SELinux port
-definition via a SELinux node label.  Not only does this allow us to
-solve problems like the example above, it also brings the SELinux
-port definition in line with the actual usage of network ports;
-ports are always defined by the 3-tuple of address, protocol, and
-port.
-
-It is important to note that this patch does bump the policy version
-number due to changes in how the network ports are defined in
-policy.  Existing policies should continue to work as they do now,
-with the network port access controls effectively ignoring the
-associated IP addresses.  An updated SELinux userspace will be
-needed to take advantage of this new functionality.
+Remove some unnecessary arguments and simplify the function as a
+result.
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
-
---
-CHANGELOG:
-* v2
-- Included missing policydb_compat entry
-- Use the full node context since we can't use portcon statements
-  in a module anyway
-- Eric prefers long lines (>80 char) over split lines so unsplit
-  long lines
-- Subscribed to the SELinux list from this email so this patch
-  actually gets posted
-* v1
-- Initial version
 ---
- security/selinux/hooks.c            |   11 ++-
- security/selinux/include/netport.h  |    2 -
- security/selinux/include/objsec.h   |    9 ++-
- security/selinux/include/security.h |    6 +-
- security/selinux/netport.c          |   49 +++++++++++---
- security/selinux/ss/policydb.c      |   26 ++++++-
- security/selinux/ss/policydb.h      |    2 +
- security/selinux/ss/services.c      |  126 +++++++++++++++++++----------------
- 8 files changed, 151 insertions(+), 80 deletions(-)
+ security/selinux/include/security.h |    3 +--
+ security/selinux/netnode.c          |    6 ++----
+ security/selinux/ss/services.c      |   28 ++++++----------------------
+ 3 files changed, 9 insertions(+), 28 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 372ec65..746535d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3869,8 +3869,9 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
- 			inet_get_local_port_range(&low, &high);
- 
- 			if (snum < max(PROT_SOCK, low) || snum > high) {
--				err = sel_netport_sid(sk->sk_protocol,
--						      snum, &sid);
-+				err = sel_netport_sid(sk->sk_family, addrp,
-+						      sk->sk_protocol, snum,
-+						      &sid);
- 				if (err)
- 					goto out;
- 				ad.type = LSM_AUDIT_DATA_NET;
-@@ -3945,6 +3946,7 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
- 		struct lsm_network_audit net = {0,};
- 		struct sockaddr_in *addr4 = NULL;
- 		struct sockaddr_in6 *addr6 = NULL;
-+		char *addrp;
- 		unsigned short snum;
- 		u32 sid, perm;
- 
-@@ -3952,15 +3954,18 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
- 			addr4 = (struct sockaddr_in *)address;
- 			if (addrlen < sizeof(struct sockaddr_in))
- 				return -EINVAL;
-+			addrp = (char *)&addr4->sin_addr.s_addr;
- 			snum = ntohs(addr4->sin_port);
- 		} else {
- 			addr6 = (struct sockaddr_in6 *)address;
- 			if (addrlen < SIN6_LEN_RFC2133)
- 				return -EINVAL;
-+			addrp = (char *)&addr6->sin6_addr.s6_addr;
- 			snum = ntohs(addr6->sin6_port);
- 		}
- 
--		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
-+		err = sel_netport_sid(sk->sk_family, addrp,
-+				      sk->sk_protocol, snum, &sid);
- 		if (err)
- 			goto out;
- 
-diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
-index 4d965b8..26c55b1 100644
---- a/security/selinux/include/netport.h
-+++ b/security/selinux/include/netport.h
-@@ -26,6 +26,6 @@
- #ifndef _SELINUX_NETPORT_H
- #define _SELINUX_NETPORT_H
- 
--int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
-+int sel_netport_sid(u16 family, void *addrp, u8 protocol, u16 pnum, u32 *sid);
- 
- #endif
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 26c7eee..6ca1484 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -89,9 +89,14 @@ struct netnode_security_struct {
- };
- 
- struct netport_security_struct {
--	u32 sid;			/* SID for this node */
--	u16 port;			/* port number */
-+	u16 family;
-+	union {
-+		__be32 ipv4;		/* IPv4 node address */
-+		struct in6_addr ipv6;	/* IPv6 node address */
-+	} addr;
- 	u8 protocol;			/* transport protocol */
-+	u16 port;			/* port number */
-+	u32 sid;			/* SID for this port */
- };
- 
- struct sk_security_struct {
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 81c5838..57e7996 100644
+index dde2005..81c5838 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -33,13 +33,14 @@
- #define POLICYDB_VERSION_ROLETRANS	26
- #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
- #define POLICYDB_VERSION_DEFAULT_TYPE	28
-+#define POLICYDB_VERSION_PORTADDR	29
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_DEFAULT_TYPE
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PORTADDR
- #endif
- 
- /* Mask for just the mount related flags */
-@@ -140,7 +141,8 @@ int security_context_to_sid_force(const char *scontext, u32 scontext_len,
- int security_get_user_sids(u32 callsid, char *username,
- 			   u32 **sids, u32 *nel);
- 
--int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
-+int security_port_sid(u16 family, void *addrp, u8 protocol, u16 port,
-+		      u32 *out_sid);
+@@ -144,8 +144,7 @@ int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
  
  int security_netif_sid(char *name, u32 *if_sid);
  
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index d353797..78c5bac 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -83,6 +83,8 @@ static unsigned int sel_netport_hashfn(u16 pnum)
+-int security_node_sid(u16 domain, void *addr, u32 addrlen,
+-	u32 *out_sid);
++int security_node_sid(u16 family, void *addr, u32 *out_sid);
  
- /**
-  * sel_netport_find - Search for a port record
-+ * @family: address family
-+ * @addrp: address pointer
-  * @protocol: protocol
-  * @port: pnum
-  *
-@@ -91,15 +93,28 @@ static unsigned int sel_netport_hashfn(u16 pnum)
-  * can not be found in the table return NULL.
-  *
-  */
--static struct sel_netport *sel_netport_find(u8 protocol, u16 pnum)
-+static struct sel_netport *sel_netport_find(u16 family, void *addrp,
-+					    u8 protocol, u16 pnum)
- {
- 	unsigned int idx;
- 	struct sel_netport *port;
- 
- 	idx = sel_netport_hashfn(pnum);
- 	list_for_each_entry_rcu(port, &sel_netport_hash[idx].list, list)
--		if (port->psec.port == pnum && port->psec.protocol == protocol)
--			return port;
-+		if (port->psec.port == pnum &&
-+		    port->psec.protocol == protocol &&
-+		    port->psec.family == family)
-+			switch (family) {
-+			case AF_INET:
-+				if (port->psec.addr.ipv4 == *(__be32 *)addrp)
-+					return port;
-+				break;
-+			case AF_INET6:
-+				if (ipv6_addr_equal(&port->psec.addr.ipv6,
-+						    addrp))
-+					return port;
-+				break;
-+			}
- 
- 	return NULL;
- }
-@@ -135,6 +150,8 @@ static void sel_netport_insert(struct sel_netport *port)
- 
- /**
-  * sel_netport_sid_slow - Lookup the SID of a network address using the policy
-+ * @family: address family
-+ * @addrp: address pointer
-  * @protocol: protocol
-  * @pnum: port
-  * @sid: port SID
-@@ -145,14 +162,15 @@ static void sel_netport_insert(struct sel_netport *port)
-  * queries.  Returns zero on success, negative values on failure.
-  *
-  */
--static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
-+static int sel_netport_sid_slow(u16 family, void *addrp, u8 protocol, u16 pnum,
-+				u32 *sid)
- {
- 	int ret = -ENOMEM;
- 	struct sel_netport *port;
- 	struct sel_netport *new = NULL;
- 
- 	spin_lock_bh(&sel_netport_lock);
--	port = sel_netport_find(protocol, pnum);
-+	port = sel_netport_find(family, addrp, protocol, pnum);
- 	if (port != NULL) {
- 		*sid = port->psec.sid;
- 		spin_unlock_bh(&sel_netport_lock);
-@@ -161,12 +179,21 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
- 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
- 	if (new == NULL)
+ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 				 u16 tclass);
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 28f911c..8d5a490 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -213,13 +213,11 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
  		goto out;
--	ret = security_port_sid(protocol, pnum, sid);
-+	ret = security_port_sid(family, addrp, protocol, pnum, sid);
- 	if (ret != 0)
- 		goto out;
- 
--	new->psec.port = pnum;
-+	new->psec.family = family;
-+	switch (family) {
-+	case AF_INET:
-+		new->psec.addr.ipv4 = *(__be32 *)addrp;
-+		break;
-+	case AF_INET6:
-+		new->psec.addr.ipv6 = *(struct in6_addr *)addrp;
-+		break;
-+	}
- 	new->psec.protocol = protocol;
-+	new->psec.port = pnum;
- 	new->psec.sid = *sid;
- 	sel_netport_insert(new);
- 
-@@ -183,6 +210,8 @@ out:
- 
- /**
-  * sel_netport_sid - Lookup the SID of a network port
-+ * @family: address family
-+ * @addrp: address pointer
-  * @protocol: protocol
-  * @pnum: port
-  * @sid: port SID
-@@ -194,12 +223,12 @@ out:
-  * future queries.  Returns zero on success, negative values on failure.
-  *
-  */
--int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid)
-+int sel_netport_sid(u16 family, void *addrp, u8 protocol, u16 pnum, u32 *sid)
- {
- 	struct sel_netport *port;
- 
- 	rcu_read_lock();
--	port = sel_netport_find(protocol, pnum);
-+	port = sel_netport_find(family, addrp, protocol, pnum);
- 	if (port != NULL) {
- 		*sid = port->psec.sid;
- 		rcu_read_unlock();
-@@ -207,7 +236,7 @@ int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid)
- 	}
- 	rcu_read_unlock();
- 
--	return sel_netport_sid_slow(protocol, pnum, sid);
-+	return sel_netport_sid_slow(family, addrp, protocol, pnum, sid);
- }
- 
- /**
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 9cd9b7c..b8673fc 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -143,6 +143,11 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
- 	},
-+	{
-+		.version	= POLICYDB_VERSION_PORTADDR,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	},
- };
- 
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -2081,7 +2086,7 @@ out:
- static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 			 void *fp)
- {
--	int i, j, rc;
-+	int i, j, k, rc;
- 	u32 nel, len;
- 	__le32 buf[3];
- 	struct ocontext *l, *c;
-@@ -2147,7 +2152,14 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				c->u.port.protocol = le32_to_cpu(buf[0]);
- 				c->u.port.low_port = le32_to_cpu(buf[1]);
- 				c->u.port.high_port = le32_to_cpu(buf[2]);
--				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (p->policyvers >= POLICYDB_VERSION_PORTADDR) {
-+					c->u.port.node_present = 1;
-+					rc = context_read_and_validate(&c->u.port.node_ctx, p, fp);
-+					if (rc)
-+						goto out;
-+				}
-+				rc = context_read_and_validate(&c->context[0],
-+							       p, fp);
- 				if (rc)
- 					goto out;
- 				break;
-@@ -2185,9 +2197,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				if (rc)
- 					goto out;
- 				break;
--			case OCON_NODE6: {
--				int k;
--
-+			case OCON_NODE6:
- 				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
- 				if (rc)
- 					goto out;
-@@ -2200,7 +2210,6 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 					goto out;
- 				break;
- 			}
--			}
- 		}
- 	}
- 	rc = 0;
-@@ -3064,6 +3073,11 @@ static int ocontext_write(struct policydb *p, struct policydb_compat_info *info,
- 				rc = put_entry(buf, sizeof(u32), 3, fp);
- 				if (rc)
- 					return rc;
-+				if (p->policyvers >= POLICYDB_VERSION_PORTADDR) {
-+					rc = context_write(p, &c->u.port.node_ctx, fp);
-+					if (rc)
-+						return rc;
-+				}
- 				rc = context_write(p, &c->context[0], fp);
- 				if (rc)
- 					return rc;
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index da63747..f6db32e 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -164,9 +164,11 @@ struct ocontext {
- 	union {
- 		char *name;	/* name of initial SID, fs, netif, fstype, path */
- 		struct {
-+			u8 node_present;
- 			u8 protocol;
- 			u16 low_port;
- 			u16 high_port;
-+			struct context node_ctx;
- 		} port;		/* TCP or UDP port information */
- 		struct {
- 			u32 addr;
+ 	switch (family) {
+ 	case PF_INET:
+-		ret = security_node_sid(PF_INET,
+-					addr, sizeof(struct in_addr), sid);
++		ret = security_node_sid(PF_INET, addr, sid);
+ 		new->nsec.addr.ipv4 = *(__be32 *)addr;
+ 		break;
+ 	case PF_INET6:
+-		ret = security_node_sid(PF_INET6,
+-					addr, sizeof(struct in6_addr), sid);
++		ret = security_node_sid(PF_INET6, addr, sid);
+ 		new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
+ 		break;
+ 	default:
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e8fd07d..1c523c8 100644
+index 4321b8f..e8fd07d 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -1975,46 +1975,6 @@ size_t security_policydb_len(void)
- }
+@@ -2070,30 +2070,20 @@ static int match_ipv6_addrmask(u32 *input, u32 *addr, u32 *mask)
  
  /**
-- * security_port_sid - Obtain the SID for a port.
-- * @protocol: protocol number
-- * @port: port number
-- * @out_sid: security identifier
-- */
--int security_port_sid(u8 protocol, u16 port, u32 *out_sid)
--{
--	struct ocontext *c;
--	int rc = 0;
--
--	read_lock(&policy_rwlock);
--
--	c = policydb.ocontexts[OCON_PORT];
--	while (c) {
--		if (c->u.port.protocol == protocol &&
--		    c->u.port.low_port <= port &&
--		    c->u.port.high_port >= port)
--			break;
--		c = c->next;
--	}
--
--	if (c) {
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(&sidtab,
--						   &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		*out_sid = c->sid[0];
--	} else {
--		*out_sid = SECINITSID_PORT;
--	}
--
--out:
--	read_unlock(&policy_rwlock);
--	return rc;
--}
--
--/**
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
-@@ -2069,44 +2029,98 @@ static int match_ipv6_addrmask(u32 *input, u32 *addr, u32 *mask)
- }
- 
- /**
-- * security_node_sid - Obtain the SID for a node (host).
-+ * security_node_ctx - Obtain the context for a node (host).
-  * @family: address family
+  * security_node_sid - Obtain the SID for a node (host).
+- * @domain: communication domain aka address family
++ * @family: address family
   * @addrp: address
-- * @out_sid: security identifier
-+ *
-+ * Must be called with the policy lock held.
+- * @addrlen: address length in bytes
+  * @out_sid: security identifier
   */
--int security_node_sid(u16 family, void *addrp, u32 *out_sid)
-+static struct ocontext *security_node_ctx(u16 family, void *addrp)
+-int security_node_sid(u16 domain,
+-		      void *addrp,
+-		      u32 addrlen,
+-		      u32 *out_sid)
++int security_node_sid(u16 family, void *addrp, u32 *out_sid)
  {
--	int rc = 0;
-+	u32 addr;
+-	int rc;
++	int rc = 0;
  	struct ocontext *c;
  
--	read_lock(&policy_rwlock);
+ 	read_lock(&policy_rwlock);
+ 
+-	switch (domain) {
++	switch (family) {
+ 	case AF_INET: {
+-		u32 addr;
 -
- 	switch (family) {
--	case AF_INET: {
--		u32 addr = *((u32 *)addrp);
+-		rc = -EINVAL;
+-		if (addrlen != sizeof(u32))
+-			goto out;
 -
-+	case AF_INET:
-+		addr = *((u32 *)addrp);
+-		addr = *((u32 *)addrp);
++		u32 addr = *((u32 *)addrp);
+ 
  		c = policydb.ocontexts[OCON_NODE];
  		while (c) {
- 			if (c->u.node.addr == (addr & c->u.node.mask))
--				break;
-+				return c;
- 			c = c->next;
- 		}
- 		break;
--	}
--
+@@ -2105,9 +2095,6 @@ int security_node_sid(u16 domain,
+ 	}
+ 
  	case AF_INET6:
+-		rc = -EINVAL;
+-		if (addrlen != sizeof(u64) * 2)
+-			goto out;
  		c = policydb.ocontexts[OCON_NODE6];
  		while (c) {
  			if (match_ipv6_addrmask(addrp, c->u.node6.addr,
- 						c->u.node6.mask))
--				break;
-+				return c;
- 			c = c->next;
- 		}
+@@ -2118,7 +2105,6 @@ int security_node_sid(u16 domain,
  		break;
-+	}
  
--	default:
-+	return NULL;
-+}
-+
-+/**
-+ * security_node_sid - Obtain the SID for a node (host).
-+ * @family: address family
-+ * @addrp: address
-+ * @out_sid: security identifier
-+ */
-+int security_node_sid(u16 family, void *addrp, u32 *out_sid)
-+{
-+	int rc = 0;
-+	struct ocontext *c;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c = security_node_ctx(family, addrp);
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0],
-+						   &c->sid[0]);
-+			if (rc)
-+				goto out;
-+		}
-+		*out_sid = c->sid[0];
-+	} else
+ 	default:
+-		rc = 0;
  		*out_sid = SECINITSID_NODE;
--		goto out;
-+
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
-+}
-+
-+/**
-+ * security_port_sid - Obtain the SID for a port.
-+ * @family : address family
-+ * @addrp : address pointer
-+ * @protocol: protocol number
-+ * @port: port number
-+ * @out_sid: security identifier
-+ */
-+int security_port_sid(u16 family, void *addrp, u8 protocol, u16 port,
-+		      u32 *out_sid)
-+{
-+	int rc = 0;
-+	struct ocontext *c;
-+	struct ocontext *c_node;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c_node = security_node_ctx(family, addrp);
-+	c = policydb.ocontexts[OCON_PORT];
-+	while (c) {
-+		if (c->u.port.protocol == protocol &&
-+		    c->u.port.low_port <= port && c->u.port.high_port >= port &&
-+		    (!c_node || !c->u.port.node_present ||
-+		     context_cmp(&c->u.port.node_ctx, &c_node->context[0])))
-+				break;
-+		c = c->next;
+ 		goto out;
  	}
- 
- 	if (c) {
-@@ -2119,7 +2133,7 @@ int security_node_sid(u16 family, void *addrp, u32 *out_sid)
+@@ -2132,11 +2118,9 @@ int security_node_sid(u16 domain,
+ 				goto out;
  		}
  		*out_sid = c->sid[0];
- 	} else
--		*out_sid = SECINITSID_NODE;
-+		*out_sid = SECINITSID_PORT;
+-	} else {
++	} else
+ 		*out_sid = SECINITSID_NODE;
+-	}
  
+-	rc = 0;
  out:
  	read_unlock(&policy_rwlock);
+ 	return rc;
 
 
 --
