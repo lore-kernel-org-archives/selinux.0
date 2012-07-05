@@ -1,46 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q65Gr0O7003563
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2012 12:53:01 -0400
-Message-ID: <1341506779.56665.YahooMailClassic@web87705.mail.ir2.yahoo.com>
-Date: Thu, 5 Jul 2012 17:46:19 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] dix: Check whether grab allowed by security provider
-To: xorg-devel@lists.x.org, ewalsh@tycho.nsa.gov
-Cc: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q65In11P009573
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2012 14:49:01 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id 626E11A145
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jul 2012 20:48:58 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6GNJJzCod1hp for <selinux@tycho.nsa.gov>;
+	Thu,  5 Jul 2012 20:48:56 +0200 (CEST)
+Received: from fornost.bigon.be (unknown [213.211.144.61])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id 5D3A21A142
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jul 2012 20:48:55 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/3] Patches from the Debian policycoreutils package
+Date: Thu,  5 Jul 2012 20:48:50 +0200
+Message-Id: <cover.1341513795.git.bigon@bigon.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch was created using xorg-server-1.12.2 source.
+Hi,
 
-Call XACE to verify if grab access is allowed.
+Please find here the patches that Russell Coker has applied to the debian
+policycoreutils Debian package.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- dix/events.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Could you please merge them.
 
-diff --git a/dix/events.c b/dix/events.c
-index 86336fe..0ce2140 100644
---- a/dix/events.c
-+++ b/dix/events.c
-@@ -3807,7 +3807,11 @@ CheckPassiveGrab(DeviceIntPtr device, GrabPtr grab, InternalEvent *event,
-             return FALSE;
-     }
- 
--    return TRUE;
-+    /* Finally check whether grab allowed by security provider */
-+    if (XaceHook(XACE_DEVICE_ACCESS, rClient(grab), device, DixGrabAccess) == 0)
-+        return TRUE;
-+    else
-+        return FALSE;
- }
- 
- /**
+Cheers
+
+Laurent Bigonville
+
+Laurent Bigonville (1):
+  Remove policycoreutils/run_init/open_init_pty.c
+
+Russell Coker (2):
+  Patch for mcstrans to not abort when it sees a squeeze config file
+  Add new open_init_pty that doesn't waste CPU time
+
+ policycoreutils/mcstrans/src/mcstrans.c    |    7 +
+ policycoreutils/run_init/Makefile          |   11 +-
+ policycoreutils/run_init/open_init_pty.c   |  399 --------------------------
+ policycoreutils/run_init/open_init_pty.cpp |  423 ++++++++++++++++++++++++++++
+ 4 files changed, 436 insertions(+), 404 deletions(-)
+ delete mode 100644 policycoreutils/run_init/open_init_pty.c
+ create mode 100644 policycoreutils/run_init/open_init_pty.cpp
+
 -- 
-1.7.10.4
-
+1.7.10
 
 
 --
