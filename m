@@ -1,41 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q69L72fE016770
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:07:02 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q69L6xR5024948
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:06:59 -0400
-Received: from [10.3.234.149] (vpn-234-149.phx2.redhat.com [10.3.234.149])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q69L6wki004810
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=NO)
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:06:59 -0400
-From: Gunnar Hellekson <gunnar.hellekson@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Subject: SEAndroid Licensing?
-Date: Mon, 9 Jul 2012 16:06:58 -0500
-Message-Id: <7C889A26-9BF0-42AF-A7A9-DB44FC9720FA@redhat.com>
-To: selinux@tycho.nsa.gov
-Mime-Version: 1.0 (Apple Message framework v1278)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q69LD9Qa017148
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:13:09 -0400
+Received: by vcbf1 with SMTP id f1so8144675vcb.12
+        for <selinux@tycho.nsa.gov>; Mon, 09 Jul 2012 14:13:08 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <7C889A26-9BF0-42AF-A7A9-DB44FC9720FA@redhat.com>
+References: <7C889A26-9BF0-42AF-A7A9-DB44FC9720FA@redhat.com>
+Date: Mon, 9 Jul 2012 14:13:07 -0700
+Message-ID: <CAFftDdpeYEeLbSmXHzYjLRgH3HButUiZQAwbP2QZUY2X3LJfKw@mail.gmail.com>
+Subject: Re: SEAndroid Licensing?
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Gunnar Hellekson <gunnar.hellekson@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec50167279835c904c46c14d7
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--bcaec50167279835c904c46c14d7
+Content-Type: text/plain; charset=ISO-8859-1
 
-Hey all,
+some of it is bsd, some of it is public domain like sepolicy.
 
-I'm helping fill out this list of open source projects that came from government:
+On Jul 9, 2012 2:09 PM, "Gunnar Hellekson" <gunnar.hellekson@redhat.com>
+wrote:
 
-   https://docs.google.com/spreadsheet/ccc?key=0AlXDdNQEU-8fdDI0OFJEVXRYNGhDNVRrVDhUS19LVVE
+--bcaec50167279835c904c46c14d7
+Content-Type: text/html; charset=ISO-8859-1
 
-And hunting through the SEAndroid git repo, I can't seem to find any licensing information. Does it all fall under the Android licensing?
-   
-g
+<p dir="ltr">some of it is bsd, some of it is public domain like sepolicy.<br></p>
+<p dir="ltr">On Jul 9, 2012 2:09 PM, &quot;Gunnar Hellekson&quot; &lt;<a href="mailto:gunnar.hellekson@redhat.com">gunnar.hellekson@redhat.com</a>&gt; wrote:<br>
+</p>
 
--- 
-Gunnar Hellekson            +1 202 507 9027 • @ghelleks
-Chief Technology Strategist http://atechnologyjobisnoexcuse.com
-Red Hat US Public Sector    http://opensource.com/government
-
-
+--bcaec50167279835c904c46c14d7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
