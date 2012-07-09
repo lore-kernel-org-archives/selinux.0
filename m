@@ -1,49 +1,40 @@
-Message-ID: <1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
-Subject: SE Android (Was: Re: Welcome to selinux)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 09 Jul 2012 16:48:58 -0400
-In-Reply-To: <CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	 <CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	 <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-	 <1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q69L72fE016770
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:07:02 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q69L6xR5024948
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:06:59 -0400
+Received: from [10.3.234.149] (vpn-234-149.phx2.redhat.com [10.3.234.149])
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q69L6wki004810
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:06:59 -0400
+From: Gunnar Hellekson <gunnar.hellekson@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Subject: SEAndroid Licensing?
+Date: Mon, 9 Jul 2012 16:06:58 -0500
+Message-Id: <7C889A26-9BF0-42AF-A7A9-DB44FC9720FA@redhat.com>
+To: selinux@tycho.nsa.gov
+Mime-Version: 1.0 (Apple Message framework v1278)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-07-02 at 16:05 +0200, Alexandra Test wrote:
 
-> I tried to install application from the google play website directly
-> from the phone but it is not working. 
+Hey all,
 
-Not sure what you mean by "not working" above.  You have to separately
-install the gapps, but they work for us.  Enforcing or permissive?
+I'm helping fill out this list of open source projects that came from government:
 
-> How to get the formal meaning of the files? I tried to look for it...
+   https://docs.google.com/spreadsheet/ccc?key=0AlXDdNQEU-8fdDI0OFJEVXRYNGhDNVRrVDhUS19LVVE
 
-seapp_contexts is only "documented" by the inline comments at the
-moment.  The SELinux policy language is documented in a variety of
-places, including books (e.g. SELinux by Example, the SELinux Notebook),
-wiki pages (e.g. http://selinuxproject.org/page/PolicyLanguage), and
-technical reports (e.g.
-http://www.nsa.gov/research/selinux/docs.shtml#tech).
-
-> Yes, you are right, but I can't see any deny now... I only have to
-> understand how to go on...  
-
-No avc messages in the output of adb shell dmesg or adb logcat?
-
+And hunting through the SEAndroid git repo, I can't seem to find any licensing information. Does it all fall under the Android licensing?
+   
+g
 
 -- 
-Stephen Smalley
-National Security Agency
+Gunnar Hellekson            +1 202 507 9027 • @ghelleks
+Chief Technology Strategist http://atechnologyjobisnoexcuse.com
+Red Hat US Public Sector    http://opensource.com/government
+
 
 
 --
