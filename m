@@ -1,44 +1,47 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q69LLVj2017702
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2012 17:21:32 -0400
-Subject: Re: SEAndroid Licensing?
-Mime-Version: 1.0 (Apple Message framework v1278)
-Content-Type: text/plain; charset=windows-1252
-From: Gunnar Hellekson <gunnar.hellekson@redhat.com>
-In-Reply-To: <CAFftDdr=R4HVqi0L-_GY1=UA7zVwHOhYcPS5iF_tdiUk1j6Ofg@mail.gmail.com>
-Date: Mon, 9 Jul 2012 16:21:29 -0500
-Cc: selinux@tycho.nsa.gov
-Message-Id: <57E8E4C5-785C-47C1-A4B3-CD6470F3ED62@redhat.com>
-References: <7C889A26-9BF0-42AF-A7A9-DB44FC9720FA@redhat.com> <CAFftDdpeYEeLbSmXHzYjLRgH3HButUiZQAwbP2QZUY2X3LJfKw@mail.gmail.com> <CAFftDdoj8AoCqEHq74J4j6rDncDHqzs9POd7xG76CEn4VHS2SQ@mail.gmail.com> <6C07B925-A381-4AA0-9E6D-40077F36FF1B@redhat.com> <CAFftDdr=R4HVqi0L-_GY1=UA7zVwHOhYcPS5iF_tdiUk1j6Ofg@mail.gmail.com>
-To: William Roberts <bill.c.roberts@gmail.com>
+Message-ID: <1341926211.16964.6.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/2] SELinux: include definition of new capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+Date: Tue, 10 Jul 2012 09:16:51 -0400
+In-Reply-To: <1341598410-29965-1-git-send-email-eparis@redhat.com>
+References: <1341598410-29965-1-git-send-email-eparis@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On 9 Jul 2012, at 16:19, William Roberts wrote:
-
-> No, their are NOTICE files
+On Fri, 2012-07-06 at 14:13 -0400, Eric Paris wrote:
+> The kernel has added CAP_WAKE_ALARM and CAP_EPOLLWAKEUP.  We need to
+> define these in SELinux so they can be mediated by policy.
 > 
-> On Mon, Jul 9, 2012 at 2:17 PM, Gunnar Hellekson <gunnar.hellekson@redhat.com> wrote:
-> 
-> On 9 Jul 2012, at 16:16, William Roberts wrote:
-> > Sorry, scratch BSD. I meant Apache License.
-> >
-> > Public domain works include, but are not limited to:
-> > external/sepolicy
-> > packages/apps/SEAndroidManager
-> 
-> Excellent! Is there a COPYING file that I missed, or am I just the first person to ask? :)
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Thanks for your help!
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-g
+> ---
+>  security/selinux/include/classmap.h |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index b8c5372..0b04fd9 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -145,7 +145,9 @@ struct security_class_mapping secclass_map[] = {
+>  	    "node_bind", "name_connect", NULL } },
+>  	{ "memprotect", { "mmap_zero", NULL } },
+>  	{ "peer", { "recv", NULL } },
+> -	{ "capability2", { "mac_override", "mac_admin", "syslog", NULL } },
+> +	{ "capability2",
+> +	  { "mac_override", "mac_admin", "syslog", "wake_alarm", "epollwakeup",
+> +	    NULL } },
+>  	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+>  	{ "tun_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
 
 -- 
-Gunnar Hellekson            +1 202 507 9027 • @ghelleks
-Chief Technology Strategist http://atechnologyjobisnoexcuse.com
-Red Hat US Public Sector    http://opensource.com/government
-
+Stephen Smalley
+National Security Agency
 
 
 --
