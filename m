@@ -1,82 +1,92 @@
-From: Palarz Thomas-DCJ738 <tom.palarz@motorolasolutions.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: RE: Anon_inodefs denials in SEAndroid with genlock
-Date: Tue, 10 Jul 2012 20:57:18 +0000
-Message-ID: <535CAAB8CFB77F45B4140FC615F0F21E1D2ADA2B@CH1PRD0410MB381.namprd04.prod.outlook.com>
-References: <535CAAB8CFB77F45B4140FC615F0F21E1D2AD9EC@CH1PRD0410MB381.namprd04.prod.outlook.com>
-	 <1341937629.16964.57.camel@moss-pluto.epoch.ncsc.mil>,<1341938716.16964.61.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1341938716.16964.61.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6ALOxh7020972
+	for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2012 17:24:59 -0400
+Received: by pbbrr13 with SMTP id rr13so869602pbb.12
+        for <selinux@tycho.nsa.gov>; Tue, 10 Jul 2012 14:24:58 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1341955378-20471-2-git-send-email-bill.c.roberts@gmail.com>
+References: <1341955378-20471-2-git-send-email-bill.c.roberts@gmail.com>
+Date: Tue, 10 Jul 2012 14:24:58 -0700
+Message-ID: <CAFftDdoiGsZpkLz-Vz3cD5PAUQhjdEra0qn4GKT2S-xGxcgFMw@mail.gmail.com>
+Subject: Fwd: [PATCH] Add build property ro.build.selinux when building
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=e89a8ff1bf64c4c4cd04c4805c7d
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->________________________________________
->From: Stephen Smalley [sds@tycho.nsa.gov]
->Sent: Tuesday, July 10, 2012 11:45 AM
->To: Palarz Thomas-DCJ738
->Cc: selinux@tycho.nsa.gov
->Subject: Re: Anon_inodefs denials in SEAndroid with genlock
->
->On Tue, 2012-07-10 at 12:27 -0400, Stephen Smalley wrote:
->> On Tue, 2012-07-10 at 16:17 +0000, Palarz Thomas-DCJ738 wrote:
->> > I've been working with trying SEAndroid on a Qualcomm dev board that
->> > uses the genlock driver as part of it's integration with
->> > SurfaceFlinger and have seen some denials that I'm having a hard time
->> > tracking down what is going on.
->> >
->> > The anon_inode is showing as unlabeled. Do I need to add some sort of
->> > transition rule?
->> >
->> > Initially, the anon_inodefs was showing as not supporting XATTRs in
->> > the SELinux init output, but I've gotten past that and added a
->> > genfscon (I used inotify as an example).
->> >
->> <snip>
->> > I add the following policy statements to at least allow me to move
->> > forward for the time being, but still get the denials.
->> >
->> > allow trusted_app genlock_device:chr_file write;
->> > allow trusted_app unlabeled:file write;
->> >
->> > I've verified that the above lines do make it into the policy.conf in
->> > the sepolicy_intermediates build output.
->> >
->> > I made the SEAndroid changes to the Qualcomm based on seandroid-4.0.3
->> > and have double-checked the work. The kernel defconfig was rather
->> > different and I did have to add EXT4_FS_SECURITY=y.
->> >
->> > Any help?
->>
->> In modern kernel versions, linux/fs/anon_inodes.c:anon_inode_mkinode()
->> sets the S_PRIVATE flag in inode->i_flags, thereby disabling all
->> permission checking on it as there can be only one.  So I'm guessing you
->> are using an old kernel?  Your TE allow rules don't work because the
->> denial is occurring due to the MLS constraints - you are violating the
->> no-write-down restriction when a process with a category set tries to
->> write to a file with none.
+--e89a8ff1bf64c4c4cd04c4805c7d
+Content-Type: text/plain; charset=ISO-8859-1
 
->Ah, actually, that's a bug in our binder security hooks.  Patch attached
->for seandroid-omap-panda-3.0.
->
+When building with HAVE_SELINUX:=true, this build property will be
+added to the systems properties.
+---
+ core/main.mk |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-That fixed the one. I'm working with a relatively new 3.0.8 kernel and it already had the S_PRIVATE flag. Thanks for the bug fix.
+diff --git a/core/main.mk b/core/main.mk
+index 3d8d6e0..e527160 100644
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -218,6 +218,10 @@ ifneq ($(filter sdk win_sdk
+sdk_addon,$(MAKECMDGOALS)),)
+ is_sdk_build := true
+ endif
 
-I'm still confused on the MLS constraint. There are no objects being labeled with a category as far as I can tell (sensitivity only) and surfaceflinger is an mlstrustedsubject (which I thought would let it write down and was the way for it to bypass the stringent and impractical vanilla BLP).
++## have selinux ##
++ifeq ($(HAVE_SELINUX),true)
++ADDITIONAL_BUILD_PROPERTIES += ro.build.selinux=1
++endif # HAVE_SELINUX
 
-Are there any easy ways (in seapp_contexts maybe?) to effectively turn off the MLS? I started down the paths of either defining num_cats to 1 and removing the -M from the checkpolicy in the Android.mk, but each was its own respective can of worms.
+ ## user/userdebug ##
 
-chcon'ing the dev file to have the c19 category the app was assigned broke access for other apps, so I can't help but wonder what the intent was of adding the categories to trusted apps?
-
->--
->Stephen Smalley
->National Security Agency
+--
+1.7.0.4
 
 
--Tom
 
 
+-- 
+Respectfully,
+
+William C Roberts
+
+--e89a8ff1bf64c4c4cd04c4805c7d
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote">When building with HAVE_SELINUX:=3Dtrue, this bu=
+ild property will be<br>
+added to the systems properties.<br>
+---<br>
+=A0core/<a href=3D"http://main.mk" target=3D"_blank">main.mk</a> | =A0 =A04=
+ ++++<br>
+=A01 files changed, 4 insertions(+), 0 deletions(-)<br>
+<br>
+diff --git a/core/<a href=3D"http://main.mk" target=3D"_blank">main.mk</a> =
+b/core/<a href=3D"http://main.mk" target=3D"_blank">main.mk</a><br>
+index 3d8d6e0..e527160 100644<br>
+--- a/core/<a href=3D"http://main.mk" target=3D"_blank">main.mk</a><br>
++++ b/core/<a href=3D"http://main.mk" target=3D"_blank">main.mk</a><br>
+@@ -218,6 +218,10 @@ ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS))=
+,)<br>
+=A0is_sdk_build :=3D true<br>
+=A0endif<br>
+<br>
++## have selinux ##<br>
++ifeq ($(HAVE_SELINUX),true)<br>
++ADDITIONAL_BUILD_PROPERTIES +=3D ro.build.selinux=3D1<br>
++endif # HAVE_SELINUX<br>
+<br>
+=A0## user/userdebug ##<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+--<br>
+1.7.0.4<br>
+<br>
+</font></span></div><br><br clear=3D"all"><div><br></div>-- <br>Respectfull=
+y,<br><br>William C Roberts<br><br><br>
+
+--e89a8ff1bf64c4c4cd04c4805c7d--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
