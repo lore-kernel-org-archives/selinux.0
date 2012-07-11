@@ -1,39 +1,38 @@
-Message-ID: <1342010691.29461.22.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: external/strace build breakage
+Message-ID: <1342010812.29461.24.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Adding support for ro.build.selinux to Android.os.SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Wed, 11 Jul 2012 08:44:51 -0400
-In-Reply-To: <CAFftDdrwpSDqaPVVpiHDFYrvBK-f-MkaVHcUU5Z+x6=GLqnO=w@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov, rpcraig <rpcraig@tycho.ncsc.mil>
+Date: Wed, 11 Jul 2012 08:46:52 -0400
+In-Reply-To: <CAFftDdo=pXiZQjTNi=EpqqrEd6i4U0Gf3G8kw57wmBmYjT+HdA@mail.gmail.com>
 References: 
-	<CAFftDdrwpSDqaPVVpiHDFYrvBK-f-MkaVHcUU5Z+x6=GLqnO=w@mail.gmail.com>
+	<CAFftDdo=pXiZQjTNi=EpqqrEd6i4U0Gf3G8kw57wmBmYjT+HdA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-10 at 15:57 -0700, William Roberts wrote:
-> I got a build breakage when building SE Android master. It stems from
-> external/strace and it is on branch aosp/master spewing error: #if
-> with no expression.
+On Tue, 2012-07-10 at 16:49 -0700, William Roberts wrote:
+> Wasn't sure if we wanted to move away from going through a JNI binding
+> since we now have access to ro.build.selinux.
 > 
 > 
-> You can apply this patch to fix it:
+> This is some rough draft code, didn't know if we wanted to replace
+> SELinux.isSELinuxEnabled() or augment another function for it.
 > 
 > 
-> git fetch https://android.googlesource.com/platform/external/strace
-> refs/changes/91/38991/1 && git cherry-pick FETCH_HEAD
-> 
-> 
-> https://android-review.googlesource.com/#/c/38991/
-> 
-> 
-> I don't think this the "best" fix as their is
-> another similar patch submitted to the project, but it works for now.
-> I think that macro should be assigned a 1 or 0 vs defined/not defined.
+> Please advise.
 
-I'm not experiencing any build breakage; wondering if this is toolchain
-specific.
+isSELinuxEnabled() is more general; it will return false if:
+- SELinux was disabled in the build,
+- SELinux was enabled in the build but not in the kernel,
+- SELinux was enabled in the build and the kernel but no policy was
+loaded.
+
+In any of those cases, you just want to disable the userspace SELinux
+processing, so a simple check of isSELinuxEnabled() is what you want.  I
+don't see a need to check the build property from userspace aside from
+the special case in the Settings app.
 
 -- 
 Stephen Smalley
