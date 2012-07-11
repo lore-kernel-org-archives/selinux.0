@@ -1,42 +1,39 @@
-Message-ID: <1342010590.29461.21.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Patches to target denies of LocationManager (GPS).
+Message-ID: <1342010691.29461.22.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: external/strace build breakage
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: hqjiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Wed, 11 Jul 2012 08:43:10 -0400
-In-Reply-To: <1341956182-1071-1-git-send-email-hqjiang1988@gmail.com>
-References: <1341956182-1071-1-git-send-email-hqjiang1988@gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Wed, 11 Jul 2012 08:44:51 -0400
+In-Reply-To: <CAFftDdrwpSDqaPVVpiHDFYrvBK-f-MkaVHcUU5Z+x6=GLqnO=w@mail.gmail.com>
+References: 
+	<CAFftDdrwpSDqaPVVpiHDFYrvBK-f-MkaVHcUU5Z+x6=GLqnO=w@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-10 at 14:36 -0700, hqjiang wrote:
-> LocationManger needs to access GPS over UART devices. Two core functionalities are
-> required in order to access GPS. The first one is the uart driver. /dev/ttyO0 is 
-> for UART Driver. It's defined in CSR SiRF policy file. We can find it on both maguro 
-> and toro devices. But it's Samsung tuna board specific. We define it as "gps_device".
+On Tue, 2012-07-10 at 15:57 -0700, William Roberts wrote:
+> I got a build breakage when building SE Android master. It stems from
+> external/strace and it is on branch aosp/master spewing error: #if
+> with no expression.
 > 
-> The second one is the uart rts level ctrl. The uart1 is for GPS and CSR GPS chip 
-> should control uart1 rts level for GPS firmware download. /proc/mcspi1_cs3_ctrl is
-> the proc entry assigned "uart1 rts level" control. It is also Samsung Tuna Board 
-> specific. 
 > 
-> But we find one problem that we cannot label contexts of /proc/mcspi1_cs3_ctrl out
-> of file "ocontext". Could someone help us to label it in the file of 
-> "/device/samsung/tuna/sepolicy.fc" to make it device-specific? 
+> You can apply this patch to fix it:
+> 
+> 
+> git fetch https://android.googlesource.com/platform/external/strace
+> refs/changes/91/38991/1 && git cherry-pick FETCH_HEAD
+> 
+> 
+> https://android-review.googlesource.com/#/c/38991/
+> 
+> 
+> I don't think this the "best" fix as their is
+> another similar patch submitted to the project, but it works for now.
+> I think that macro should be assigned a 1 or 0 vs defined/not defined.
 
-You'd need to modify sepolicy/Android.mk to look for a new file in the
-per-device directories, maybe sepolicy.ocontexts, and merge its contents
-into the base ocontexts configuration.  But it isn't a simple matter of
-concatenating as with the .fc files or .te files as it has multiple
-sections and you can't just intermingle them.  One option would be to
-split up ocontexts into separate files for each kind of statement (as in
-the refpolicy) and then you could in fact just look for a corresponding
-sepolicy.X file in the per-device directory and concatenate it.  The
-individual files would be initial_sid_contexts (the sid statements),
-fs_use (the fs_use_* statements), genfs_contexts (the genfscon
-statements), etc.
+I'm not experiencing any build breakage; wondering if this is toolchain
+specific.
 
 -- 
 Stephen Smalley
