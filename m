@@ -1,41 +1,55 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6BJQO60010738
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2012 15:26:24 -0400
-Message-ID: <1342034724.29461.72.camel@moss-pluto.epoch.ncsc.mil>
-Subject: SE Android: 4.1/JB merged, 4.1.1 branch created
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Wed, 11 Jul 2012 15:25:24 -0400
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <4FFDD7C7.4020703@tresys.com>
+Date: Wed, 11 Jul 2012 15:45:11 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: seandroid and policy version
+References: <4FFCC3C7.8080602@tresys.com> <1342011045.29461.28.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1342011045.29461.28.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Android 4.1/JB was released to AOSP on Monday, and we have now merged it
-into the master seandroid branch.  We have also created a
-seandroid-4.1.1 branch forked from the android-4.1.1_r1 tag.  Make sure
-you update your local manifest file before performing a repo sync.  AOSP
-recommends creating a new client (i.e. repo init and sync in an empty
-directory) for 4.1 to yield smaller clients that will sync faster.  The
-usual instructions apply, as per:
-http://selinuxproject.org/page/SEAndroid
+Stephen Smalley wrote:
+> On Tue, 2012-07-10 at 20:07 -0400, Joshua Brindle wrote:
+>> I was looking at this:
+>> <https://android-review.googlesource.com/#/c/36321/4/init/init.c>
+>>
+>> and remembered that years ago we had a discussion about the .policyver
+>> filename syntax. I kind of get it for SELinux machines where there is
+>> managed policy and could be multiple policies on the system but since
+>> SEAndroid is targeting non-device managed policies, it adds extra code
+>> to search for the right extension and you can tell what version the
+>> policy is as soon as you open it, why not ditch the suffix?
+>
+> First, that patch doesn't introduce the use of the version suffix
+> (that's in the already merged code); it just preserves it in the new
+> logic for reloading policy at runtime.
 
-Proprietary binaries are presently only available for Galaxy Nexus and
-Nexus 7, although Nexus S and Xoom driver support is expected to follow
-once the updates ship.  We have successfully booted 4.1.1 on the Xoom
-with the older drivers but YMMV.  Nexus S does not appear to work with
-the older drivers (boots but no display).
+I know, it just reminded me that I wanted to mention it :)
 
-We have not yet updated the mmac branch, so it is unchanged (i.e. still
-4.0.4/ICS-based).  However, you only need to use the mmac branch now if
-you want to experiment with the permission revocation and/or tag
-propagation mechanisms, as the install-time MAC support has been merged
-to the master seandroid branch (and the seandroid-4.0.4 branch).
+>
+> I'm open to removing the use of the policy version suffix in a follow-on
+> patch, although that would need to be coordinated across sepolicy and
+> system/core.  But the current code is consistent with existing practice
+> in Linux distributions (so follows principle of least surprise) and it
 
--- 
-Stephen Smalley
-National Security Agency
+ From what I can tell most people doing anything with SEAndroid have never been 
+exposed to SELinux so it probably is surprising to them that the file extension 
+would change version to version.
 
+> allows for different versions to be installed simultaneously (thereby
+> supporting booting multiple kernels).  Also, we don't have libsepol on
+
+I don't think this will ever be an issue on mobile devices (and I don't think it 
+ever was an issue on real machines, more likely that stale policies were being 
+enforced if there was some kernel or library change)
+
+> the device so we cannot in fact determine the version when we open it
+> there presently.  So I'm not convinced we should remove the suffix.
+
+We don't need libsepol, just read the first few bytes, a la file.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
