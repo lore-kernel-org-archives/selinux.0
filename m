@@ -1,90 +1,96 @@
-Message-ID: <1342011373.29461.33.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android (Was: Re: Welcome to selinux)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Wed, 11 Jul 2012 08:56:13 -0400
-In-Reply-To: <CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	 <CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	 <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-	 <1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-	 <1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <4FFD8E74.5090601@circletech.net>
+Date: Wed, 11 Jul 2012 16:32:20 +0200
+From: =?UTF-8?B?TWljaGFsIE1hxaFlaw==?= <michal.masek@circletech.net>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, "Craig, Robert P." <rpcraig@tycho.ncsc.mil>
+Subject: Re: SEAndroid: Labels of files in /data/data/APPDIR/lib directory
+References: <4FFC34C1.7000803@circletech.net>  <1341929590.16964.22.camel@moss-pluto.epoch.ncsc.mil>  <4FFC4ED0.8040509@circletech.net> <1341935990.16964.52.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1341935990.16964.52.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-07-11 at 12:39 +0200, Alexandra Test wrote:
-> Thanks for the suggestions, the phone is now working in permissive
-> mode.
-> I would like to set the enforcing mode but I still have some residual
-> denials.
-> The output of the 
-> adb shell dmesg | grep avc 
+On 07/10/2012 05:59 PM, Stephen Smalley wrote:
+> On Tue, 2012-07-10 at 17:48 +0200, Michal Mašek wrote:
+>> On 07/10/2012 04:13 PM, Stephen Smalley wrote:
+>>> The /data/data/APPDIR directory should be labeled with the
+>>> app_data_file
+>>> type (not system_data_file as in your avc denials above) and the same
+>>> category assigned to the app process (i.e. :c38 in the above denial).
+>>
+>> The /data/data/APPDIR is labeled with the app_data_file
+>> type as you say it should be:
+>> # ls -lZ /data/data/
+>> ...
+>> drwxr-x--x app_38 app_38 u:object_r:app_data_file:s0:c38 net.circletech.cc
+>>
+>> However the /data/data/APPDIR/lib and everything in it is labeled with
+>> type system_data_file:
+>> # ls -lZ /data/data/net.circletech.cc/
+>> drwxr-xr-x system system u:object_r:system_data_file:s0 lib
+>>
+>>
+>>> The fact that it is instead system_data_file suggests that you
+>>> installed
+>>> the app when not running SE Android and did not erase and reflash your
+>>> data partition.
+>>
+>> I have built the SEAndroid from sources as full_maguro-eng and I am
+>> running it on Galaxy Nexus. I cleared the cache and userdata before
+>> flashing the system. Getenforce says that the SELinux is running in
+>> permissive mode.
+>>
+>> I checked the /data/data directory before installation and the directory
+>> of our application is not there. Than I installed the application via
+>> "adb install" and the directory was created with the above mentioned
+>> labels. I also tried to download the apk file through the android web
+>> browser and installed it from Downloads app but it had the same effect.
+>>
+>>
+>> Btw. i randomly checked directories of some of the system apps and the
+>> lib subdirectory is always labeled with the system_data_file type, eg.:
+>> # ls -lZ /data/data/com.android.providers.contacts/
+>> drwxrwx--x app_0    app_0  u:object_r:app_data_file:s0:c0 databases
+>> drwxrwx--x app_0    app_0  u:object_r:app_data_file:s0:c0 files
+>> drwxr-xr-x system   system u:object_r:system_data_file:s0 lib
+>> drwxrwx--x app_0    app_0  u:object_r:app_data_file:s0:c0 shared_prefs
+>>
+>>
+>> Isn't it possible that during installation the lib directory is created
+>> somewhere else, somewhere where it would be labeled with
+>> system_data_file type and than moved to /data/data/APPDIR with its label
+>> intact? Or maybe there is something else I am missing?
 > 
-> <5>[84589.029418] type=1400 audit(1341913871.476:458): avc:  denied  { read } for  pid=130 comm="sh" path="/dev/ttyFIQ0" dev=tmpfs ino=2642 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file
-> 
-> <5>[85517.133544] type=1400 audit(1341914799.582:459): avc:  denied  { open } for  pid=10531 comm="SyncAdapterThre" name="ctrl" dev=proc ino=4026533139 scontext=u:r:trusted_app:s0:c46 tcontext=u:object_r:qtaguid:s0 tclass=file
-> 
-> <5>[85519.959869] type=1400 audit(1341914802.410:460): avc:  denied  { read } for  pid=338 comm="ndroid.systemui" name="Gmail.apk" dev=mmcblk0p10 ino=965 scontext=u:r:system_app:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[85519.960449] type=1400 audit(1341914802.410:461): avc:  denied  { open } for  pid=338 comm="ndroid.systemui" name="Gmail.apk" dev=mmcblk0p10 ino=965 scontext=u:r:system_app:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86670.591888] type=1400 audit(1341915953.036:462): avc:  denied  { read } for  pid=10727 comm="id.partnersetup" name="GooglePartnerSetup.apk" dev=mmcblk0p10 ino=971 scontext=u:r:trusted_app:s0:c52 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86670.592193] type=1400 audit(1341915953.036:463): avc:  denied  { open } for  pid=10727 comm="id.partnersetup" name="GooglePartnerSetup.apk" dev=mmcblk0p10 ino=971 scontext=u:r:trusted_app:s0:c52 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86701.210266] type=1400 audit(1341915983.653:464): avc:  denied  { read } for  pid=10754 comm="apters.calendar" name="GoogleCalendarSyncAdapter.apk" dev=mmcblk0p10 ino=967 scontext=u:r:trusted_app:s0:c50 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86701.210571] type=1400 audit(1341915983.653:465): avc:  denied  { open } for  pid=10754 comm="apters.calendar" name="GoogleCalendarSyncAdapter.apk" dev=mmcblk0p10 ino=967 scontext=u:r:trusted_app:s0:c50 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86701.669555] type=1400 audit(1341915984.114:466): avc:  denied  { read } for  pid=10770 comm="SyncAdapterThre" name="xt_qtaguid" dev=tmpfs ino=2623 scontext=u:r:trusted_app:s0:c50 tcontext=u:object_r:device:s0 tclass=chr_file
-> 
-> <5>[86701.669860] type=1400 audit(1341915984.114:467): avc:  denied  { open } for  pid=10770 comm="SyncAdapterThre" name="xt_qtaguid" dev=tmpfs ino=2623 scontext=u:r:trusted_app:s0:c50 tcontext=u:object_r:device:s0 tclass=chr_file
-> 
-> <5>[86701.670349] type=1400 audit(1341915984.114:468): avc:  denied  { open } for  pid=10770 comm="SyncAdapterThre" name="ctrl" dev=proc ino=4026533139 scontext=u:r:trusted_app:s0:c50 tcontext=u:object_r:qtaguid:s0 tclass=file
-> 
-> <5>[86703.330718] type=1400 audit(1341915985.778:469): avc:  denied  { open } for  pid=10777 comm="SyncAdapterThre" name="ctrl" dev=proc ino=4026533139 scontext=u:r:trusted_app:s0:c46 tcontext=u:object_r:qtaguid:s0 tclass=file
-> 
-> <5>[86704.572326] type=1400 audit(1341915987.020:470): avc:  denied  { read } for  pid=10781 comm="e.process.gapps" name="GoogleServicesFramework.apk" dev=mmcblk0p10 ino=973 scontext=u:r:trusted_app:s0:c48 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86704.573242] type=1400 audit(1341915987.020:471): avc:  denied  { open } for  pid=10781 comm="e.process.gapps" name="GoogleServicesFramework.apk" dev=mmcblk0p10 ino=973 scontext=u:r:trusted_app:s0:c48 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86718.670806] type=1400 audit(1341916001.114:472): avc:  denied  { read } for  pid=10820 comm="le.android.talk" name="Talk.apk" dev=mmcblk0p10 ino=980 scontext=u:r:trusted_app:s0:c59 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86718.671112] type=1400 audit(1341916001.114:473): avc:  denied  { open } for  pid=10820 comm="le.android.talk" name="Talk.apk" dev=mmcblk0p10 ino=980 scontext=u:r:trusted_app:s0:c59 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86721.909545] type=1400 audit(1341916004.356:474): avc:  denied  { read } for  pid=10863 comm="ApplicationsPro" name="Gmail.apk" dev=mmcblk0p10 ino=965 scontext=u:r:trusted_app:s0:c0 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> <5>[86721.909851] type=1400 audit(1341916004.356:475): avc:  denied  { open } for  pid=10863 comm="ApplicationsPro" name="Gmail.apk" dev=mmcblk0p10 ino=965 scontext=u:r:trusted_app:s0:c0 tcontext=u:object_r:unlabeled:s0 tclass=file
-> 
-> 
-> Do I need to do something before changing the secure mode?
+> Sorry, my mistake.  We label the lib subdirectories with
+> system_data_file because Android assigns the system UID to them rather
+> than the app UID to them.  So the label is correct, and you just need to
+> adjust your policy.  If you look at app.te, you'll see an app_ndk
+> boolean that is supposed to allow third party apps to execute shared
+> objects from their data directories.  But it appears that the rule is
+> incorrectly written in terms of app_data_file rather than
+> system_data_file.  So switch the type in that rule and then enable that
+> policy boolean via SEManager and you should be good to go.  You could
+> also be more selective by putting your app in a more specific domain.
 
-Yes, you need to work through those denials and resolve them by:
-- Labeling unlabeled files on your device via restorecon,
-- Labeling device nodes that are left in the "device" type with a more
-specific type to permit access by adding entries to file_contexts or the
-device/<vendor>/<board>/sepolicy.fc file.
-- When appropriate, adding allow rules to the .te files in sepolicy or
-to a device/<vendor>/<board>/sepolicy.te file to permit the access.
+Thank you. The app_ndk boolean is exactly what I was looking for.
+However, to resolve all denials, I also had to allow the application to
+"open" the system_data_file, not just to "execute" it:
 
-You can use audit2allow as described on the wiki to generate raw allow
-rules, but often you will want to fix the labels rather than allow the
-permission on the existing types.  And when you add allow rules, you
-shouldn't just add the ones emitted by audit2allow but should instead
-use them as a guide and seek to generalize them using the macros defined
-in *_macros.  Look at the existing .te files for examples.
+diff --git a/app.te b/app.te
+index ed76ccf..137aad7 100644
+--- a/app.te
++++ b/app.te
+@@ -70,7 +70,7 @@ allow untrusted_app sdcard:file create_file_perms;
+ # Native app support.
+ bool app_ndk false;
+ if (app_ndk) {
+-allow untrusted_app app_data_file:file execute;
++allow untrusted_app system_data_file:file { execute open };
+ }
 
--- 
-Stephen Smalley
-National Security Agency
+--
+Michal Mašek
 
 
 --
