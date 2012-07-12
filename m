@@ -1,13 +1,12 @@
-Message-ID: <1342100148.8057.27.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] Correct the denies of android.process.media when
- accessing to mtp_device
+Message-ID: <1342100209.8057.28.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] GPSLocation Provider needs socket connection
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: hqjiang <hqjiang1988@gmail.com>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Thu, 12 Jul 2012 09:35:48 -0400
-In-Reply-To: <1342046389-9271-2-git-send-email-hqjiang1988@gmail.com>
+Date: Thu, 12 Jul 2012 09:36:49 -0400
+In-Reply-To: <1342046389-9271-3-git-send-email-hqjiang1988@gmail.com>
 References: <1342046389-9271-1-git-send-email-hqjiang1988@gmail.com>
-	 <1342046389-9271-2-git-send-email-hqjiang1988@gmail.com>
+	 <1342046389-9271-3-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
@@ -15,22 +14,24 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2012-07-11 at 15:39 -0700, hqjiang wrote:
 > ---
->  seapp_contexts |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+>  system.te |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
 > 
-> diff --git a/seapp_contexts b/seapp_contexts
-> index 502206a..1e98f91 100644
-> --- a/seapp_contexts
-> +++ b/seapp_contexts
-> @@ -38,3 +38,4 @@ user=app_* seinfo=shared domain=shared_app levelFromUid=true
->  user=app_* seinfo=media domain=media_app levelFromUid=true
->  user=app_* seinfo=release domain=release_app levelFromUid=true
->  user=app_* seinfo=release name=com.android.browser domain=browser_app levelFromUid=true
-> +user=app_* name=android.process.media domain=media_app levelFromUid=true
+> diff --git a/system.te b/system.te
+> index 1a94c75..f35e9a2 100644
+> --- a/system.te
+> +++ b/system.te
+> @@ -192,3 +192,6 @@ allow system domain:file r_file_perms;
+>  # to uart driver and ctrl proc entry
+>  allow system gps_device:chr_file rw_file_perms;
+>  allow system gps_control:file rw_file_perms;
+> +
+> +# GpsLocationProvider Connection
+> +allow system rild:unix_stream_socket connectto;
 
-android.process.media was correctly labeled for us on the Xoom.  Need to
-track down the real cause of the problem (if it persists after a
-re-sync), not just hide it via configuration.
+This should be written using the unix_socket_connect() macro, which
+takes three arguments: clientdomain, sockettype, serverdomain.  What
+type is assigned to the socket file?
 
 -- 
 Stephen Smalley
