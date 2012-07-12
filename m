@@ -1,67 +1,41 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6C2A44l028841
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2012 22:10:04 -0400
+Received: by pbbrr13 with SMTP id rr13so2920134pbb.12
+        for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2012 19:10:02 -0700 (PDT)
 MIME-Version: 1.0
-Date: Wed, 11 Jul 2012 19:05:13 -0700
-Message-ID: <CAFftDdqnQXqyDYbAV9ooApg3mCcchyx84sqhnNzx1rNT-VBSYQ@mail.gmail.com>
-Subject: [PATCH] libcore2 and dalvik2 in local_manifest.xml
+Date: Wed, 11 Jul 2012 19:10:02 -0700
+Message-ID: <CAFftDdqD_xvJxjStCoZer8O7bDkbzjiLJhe8MRks9WzHTyN7yQ@mail.gmail.com>
+Subject: Local manifests
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=047d7b10ce79dee0d104c498642b
+Content-Type: multipart/alternative; boundary=e89a8ff1c4f81f3c3a04c498764a
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b10ce79dee0d104c498642b
+--e89a8ff1c4f81f3c3a04c498764a
 Content-Type: text/plain; charset=ISO-8859-1
 
-Previous patch missed libcore being libcore2, this patch addresses dalvik
-and libcore being changed to dalvik2 and libcore2
+As you have seen the patches, I am getting the dalvik/dalvik2 and
+libcore/libcore2 error on other branches as well, am I the only one?
+seandroid-4.0.4
+seandroid-4.1.1
 
-diff --git a/local_manifest.xml b/local_manifest.xml
-index 18bbb02..5fea852 100644
---- a/local_manifest.xml
-+++ b/local_manifest.xml
-@@ -23,10 +23,10 @@
-     <copyfile src="core/root.mk" dest="Makefile" />
-   </project>
 
--  <remove-project name="platform/dalvik"/>
-+  <remove-project name="platform/dalvik2"/>
-   <project path="dalvik" remote="selinuxproject" name="platform/dalvik"
-revision="seandroid-4.1.1" />
 
--  <remove-project name="platform/libcore"/>
-+  <remove-project name="platform/libcore2"/>
-   <project path="libcore" remote="selinuxproject" name="platform/libcore"
-revision="seandroid-4.1.1" />
+-- 
+Respectfully,
 
-   <remove-project name="platform/frameworks/base"/>
+William C Roberts
 
---047d7b10ce79dee0d104c498642b
+--e89a8ff1c4f81f3c3a04c498764a
 Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-Previous patch missed libcore being libcore2, this patch addresses dalvik a=
-nd libcore being changed to dalvik2 and libcore2<div><br></div><div><div>di=
-ff --git a/local_manifest.xml b/local_manifest.xml</div><div>index 18bbb02.=
-.5fea852 100644</div>
-<div>--- a/local_manifest.xml</div><div>+++ b/local_manifest.xml</div><div>=
-@@ -23,10 +23,10 @@</div><div>=A0 =A0 =A0&lt;copyfile src=3D&quot;core/<a h=
-ref=3D"http://root.mk">root.mk</a>&quot; dest=3D&quot;Makefile&quot; /&gt;<=
-/div><div>
-=A0 =A0&lt;/project&gt;</div><div>=A0</div><div>- =A0&lt;remove-project nam=
-e=3D&quot;platform/dalvik&quot;/&gt;</div><div>+ =A0&lt;remove-project name=
-=3D&quot;platform/dalvik2&quot;/&gt;</div><div>=A0 =A0&lt;project path=3D&q=
-uot;dalvik&quot; remote=3D&quot;selinuxproject&quot; name=3D&quot;platform/=
-dalvik&quot; revision=3D&quot;seandroid-4.1.1&quot; /&gt;</div>
-<div>=A0</div><div>- =A0&lt;remove-project name=3D&quot;platform/libcore&qu=
-ot;/&gt;</div><div>+ =A0&lt;remove-project name=3D&quot;platform/libcore2&q=
-uot;/&gt;</div><div>=A0 =A0&lt;project path=3D&quot;libcore&quot; remote=3D=
-&quot;selinuxproject&quot; name=3D&quot;platform/libcore&quot; revision=3D&=
-quot;seandroid-4.1.1&quot; /&gt;</div>
-<div>=A0</div><div>=A0 =A0&lt;remove-project name=3D&quot;platform/framewor=
-ks/base&quot;/&gt;</div><br>
+As you have seen the patches, I am getting the dalvik/dalvik2 and libcore/libcore2 error on other branches as well, am I the only one?<div>seandroid-4.0.4</div><div>seandroid-4.1.1</div><div><br></div><div><br clear="all">
+<div><br></div>-- <br>Respectfully,<br><br>William C Roberts<br><br><br>
 </div>
 
---047d7b10ce79dee0d104c498642b--
+--e89a8ff1c4f81f3c3a04c498764a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
