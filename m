@@ -1,44 +1,40 @@
-Message-ID: <1342101157.8057.29.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Fwd: [PATCH] Add build property ro.build.selinux when building
+Message-ID: <1342101558.8057.30.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SEAndroid: Labels of files in /data/data/APPDIR/lib directory
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Thu, 12 Jul 2012 09:52:37 -0400
-In-Reply-To: <CAFftDdoiGsZpkLz-Vz3cD5PAUQhjdEra0qn4GKT2S-xGxcgFMw@mail.gmail.com>
-References: <1341955378-20471-2-git-send-email-bill.c.roberts@gmail.com>
-	 <CAFftDdoiGsZpkLz-Vz3cD5PAUQhjdEra0qn4GKT2S-xGxcgFMw@mail.gmail.com>
+To: Michal =?UTF-8?Q?Ma=C5=A1ek?= <michal.masek@circletech.net>
+Cc: selinux@tycho.nsa.gov, "Craig, Robert P." <rpcraig@tycho.ncsc.mil>
+Date: Thu, 12 Jul 2012 09:59:18 -0400
+In-Reply-To: <4FFD8E74.5090601@circletech.net>
+References: <4FFC34C1.7000803@circletech.net>
+	 <1341929590.16964.22.camel@moss-pluto.epoch.ncsc.mil>
+	 <4FFC4ED0.8040509@circletech.net>
+	 <1341935990.16964.52.camel@moss-pluto.epoch.ncsc.mil>
+	 <4FFD8E74.5090601@circletech.net>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-10 at 14:24 -0700, William Roberts wrote:
-> When building with HAVE_SELINUX:=true, this build property will be
-> added to the systems properties.
-> ---
->  core/main.mk |    4 ++++
->  1 files changed, 4 insertions(+), 0 deletions(-)
+On Wed, 2012-07-11 at 16:32 +0200, Michal Mašek wrote:
+> Thank you. The app_ndk boolean is exactly what I was looking for.
+> However, to resolve all denials, I also had to allow the application to
+> "open" the system_data_file, not just to "execute" it:
 > 
-> diff --git a/core/main.mk b/core/main.mk
-> index 3d8d6e0..e527160 100644
-> --- a/core/main.mk
-> +++ b/core/main.mk
-> @@ -218,6 +218,10 @@ ifneq ($(filter sdk win_sdk sdk_addon,
-> $(MAKECMDGOALS)),)
->  is_sdk_build := true
->  endif
-> 
-> +## have selinux ##
-> +ifeq ($(HAVE_SELINUX),true)
-> +ADDITIONAL_BUILD_PROPERTIES += ro.build.selinux=1
-> +endif # HAVE_SELINUX
-> 
->  ## user/userdebug ##
+> diff --git a/app.te b/app.te
+> index ed76ccf..137aad7 100644
+> --- a/app.te
+> +++ b/app.te
+> @@ -70,7 +70,7 @@ allow untrusted_app sdcard:file create_file_perms;
+>  # Native app support.
+>  bool app_ndk false;
+>  if (app_ndk) {
+> -allow untrusted_app app_data_file:file execute;
+> +allow untrusted_app system_data_file:file { execute open };
+>  }
 
-Already merged on master (and thus to seandroid). Not sure if you wanted
-it on 4.0.4 or 4.1.1.  Subject line needs to identify target project and
-branch(es).
-
+Thanks.  Patch was corrupted (maybe whitespace-damaged by your mail
+client?) so I had to apply it by hand, but you are still listed as the
+author.
 
 -- 
 Stephen Smalley
