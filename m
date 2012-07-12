@@ -1,37 +1,44 @@
-Message-ID: <1342100209.8057.28.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] GPSLocation Provider needs socket connection
+Message-ID: <1342101157.8057.29.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Fwd: [PATCH] Add build property ro.build.selinux when building
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: hqjiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Thu, 12 Jul 2012 09:36:49 -0400
-In-Reply-To: <1342046389-9271-3-git-send-email-hqjiang1988@gmail.com>
-References: <1342046389-9271-1-git-send-email-hqjiang1988@gmail.com>
-	 <1342046389-9271-3-git-send-email-hqjiang1988@gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Thu, 12 Jul 2012 09:52:37 -0400
+In-Reply-To: <CAFftDdoiGsZpkLz-Vz3cD5PAUQhjdEra0qn4GKT2S-xGxcgFMw@mail.gmail.com>
+References: <1341955378-20471-2-git-send-email-bill.c.roberts@gmail.com>
+	 <CAFftDdoiGsZpkLz-Vz3cD5PAUQhjdEra0qn4GKT2S-xGxcgFMw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-07-11 at 15:39 -0700, hqjiang wrote:
+On Tue, 2012-07-10 at 14:24 -0700, William Roberts wrote:
+> When building with HAVE_SELINUX:=true, this build property will be
+> added to the systems properties.
 > ---
->  system.te |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
+>  core/main.mk |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
 > 
-> diff --git a/system.te b/system.te
-> index 1a94c75..f35e9a2 100644
-> --- a/system.te
-> +++ b/system.te
-> @@ -192,3 +192,6 @@ allow system domain:file r_file_perms;
->  # to uart driver and ctrl proc entry
->  allow system gps_device:chr_file rw_file_perms;
->  allow system gps_control:file rw_file_perms;
-> +
-> +# GpsLocationProvider Connection
-> +allow system rild:unix_stream_socket connectto;
+> diff --git a/core/main.mk b/core/main.mk
+> index 3d8d6e0..e527160 100644
+> --- a/core/main.mk
+> +++ b/core/main.mk
+> @@ -218,6 +218,10 @@ ifneq ($(filter sdk win_sdk sdk_addon,
+> $(MAKECMDGOALS)),)
+>  is_sdk_build := true
+>  endif
+> 
+> +## have selinux ##
+> +ifeq ($(HAVE_SELINUX),true)
+> +ADDITIONAL_BUILD_PROPERTIES += ro.build.selinux=1
+> +endif # HAVE_SELINUX
+> 
+>  ## user/userdebug ##
 
-This should be written using the unix_socket_connect() macro, which
-takes three arguments: clientdomain, sockettype, serverdomain.  What
-type is assigned to the socket file?
+Already merged on master (and thus to seandroid). Not sure if you wanted
+it on 4.0.4 or 4.1.1.  Subject line needs to identify target project and
+branch(es).
+
 
 -- 
 Stephen Smalley
