@@ -1,32 +1,37 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6CD026m024869
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2012 09:00:02 -0400
-Message-ID: <1342097941.8057.18.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android: 4.1/JB merged, 4.1.1 branch created
+Message-ID: <1342100076.8057.26.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Correct denies of rpmsg device when accessing to remote
+ processors.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Thu, 12 Jul 2012 08:59:01 -0400
-In-Reply-To: <1342034724.29461.72.camel@moss-pluto.epoch.ncsc.mil>
-References: <1342034724.29461.72.camel@moss-pluto.epoch.ncsc.mil>
+To: hqjiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
+Date: Thu, 12 Jul 2012 09:34:36 -0400
+In-Reply-To: <1342030865-5825-2-git-send-email-hqjiang1988@gmail.com>
+References: <1342030865-5825-1-git-send-email-hqjiang1988@gmail.com>
+	 <1342030865-5825-2-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-07-11 at 15:25 -0400, Stephen Smalley wrote:
-> Android 4.1/JB was released to AOSP on Monday, and we have now merged it
-> into the master seandroid branch.  We have also created a
-> seandroid-4.1.1 branch forked from the android-4.1.1_r1 tag.  Make sure
-> you update your local manifest file before performing a repo sync.  AOSP
-> recommends creating a new client (i.e. repo init and sync in an empty
-> directory) for 4.1 to yield smaller clients that will sync faster.  The
-> usual instructions apply, as per:
-> http://selinuxproject.org/page/SEAndroid
+On Wed, 2012-07-11 at 11:21 -0700, hqjiang wrote:
+> ---
+>  device.te      |    4 ++++
+>  file_contexts  |    2 ++
+>  mediaserver.te |    3 +++
+>  3 files changed, 9 insertions(+), 0 deletions(-)
 
-We discovered a few problems with the seandroid-4.1.1 local manifest
-file and branches that have now been corrected.  Please obtain an
-updated local manifest file and re-sync if you checked out a copy of the
-4.1.1 branch.
+Merged on seandroid branch. However, when submitting patches:
+- if they are relative to one another, then number them, e.g. [PATCH
+1/2], [PATCH 2/2] to make the order explicit,
+- identify the target directory in which to apply the patch, e.g. [PATCH
+1/2 external/sepolicy].
+- if branch-specific, identify the target branch(es), e.g. master vs
+4.0.4 vs 4.1.1.
+- Make the subject line shorter and include a longer patch description
+in the body before the -- and diffstat output.
+
+Using git format-patch to generate the patch or git send-email might
+make life easier for you.
 
 -- 
 Stephen Smalley
