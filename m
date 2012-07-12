@@ -1,48 +1,37 @@
-Message-ID: <1342102735.8057.36.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] Support for ocontexts per device.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, hqjiang1988@gmail.com,
-        Joshua Brindle
-	 <jbrindle@tresys.com>
-Date: Thu, 12 Jul 2012 10:18:55 -0400
-In-Reply-To: <1342102403.8057.34.camel@moss-pluto.epoch.ncsc.mil>
-References: <1342050398-11896-1-git-send-email-bill.c.roberts@gmail.com>
-	 <1342102117.8057.33.camel@moss-pluto.epoch.ncsc.mil>
-	 <1342102403.8057.34.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6CK1SGK019483
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2012 16:01:29 -0400
+Received: from ALA-HCA.corp.ad.wrs.com (ala-hca [147.11.189.40])
+	by mail.windriver.com (8.14.3/8.14.3) with ESMTP id q6CK1PWH025714
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2012 13:01:26 -0700 (PDT)
+From: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: build failure for SE Android 4.1.1_r1
+Date: Thu, 12 Jul 2012 20:01:24 +0000
+Message-ID: <33006C99F5A5194A9B7A7715DFA3E38365079ECF@ALA-MBB.corp.ad.wrs.com>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-07-12 at 10:13 -0400, Stephen Smalley wrote:
-> On Thu, 2012-07-12 at 10:08 -0400, Stephen Smalley wrote:
-> > On Wed, 2012-07-11 at 16:46 -0700, William Roberts wrote:
-> > > ocontexts was split up into 4 files:
-> > > 1.fs_use
-> > > 2.genfs_contexts
-> > > 3.initial_sid_contexts
-> > > 4.port_contexts
-> > > 
-> > > Each file has their respective declerations in them.
-> > > Devices, in their respective device directory, can now specify sepolicy.fs_use, sepolicy.genfs_contexts, sepolicy.port_contexts, and sepolicy.initial_sid_contexts. These declerations will be added right behind their respective sepolicy counterparts in the concatenated configuration file.
-> > 
-> > Thanks, applied.  Conflicted with hqjiang's patch but I resolved by
-> > dropping his addition to ocontexts.  You can restore them now by
-> > creating a sepolicy.genfs_contexts file in device/samsung/tuna and a
-> > trivial one in the device/samsung/maguro,toro directories that include
-> > the tuna file as with the sepolicy.fc files.
-> 
-> Hmm...spoke too soon.  Something is wrong with the resulting policy;
-> won't load into the kernel.
+Not sure whether this is something I'm doing wrong, but I had a build problem with the JellyBean branch.  I'm using toro, but I think it's probably the same otherwise.
 
-Hmm...you dropped the last initial SID definition (devnull).  Fixed.
-I don't understand though why this wasn't caught by checkpolicy at
-policy build time (upon policydb_load_isids).
+In build, the most recent commit in my tree is:
 
--- 
-Stephen Smalley
-National Security Agency
+commit 30f604e06e91cb640e8d94b768b598aef3780338
+Author: Joshua Brindle <jbrindle@tresys.com>
+Date:   Wed Jun 20 11:58:02 2012 -0400
+
+    add selinux-network.sh to SELINUX_DEPENDS for SELinux network labeling
+    
+    Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+
+ core/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+The problem is that nothing is available in my tree to install selinux-network.sh.  Just reverting that change makes it build.
+
 
 
 --
