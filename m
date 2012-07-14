@@ -1,47 +1,47 @@
-Message-ID: <1342210967.7054.32.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: The criteria for seandroid policies
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 13 Jul 2012 16:22:47 -0400
-In-Reply-To: <CAO-4OdH_vW0TKJDNwKm1HEMxme2DfHzd5YQ5WuGbZOuSO4kvPw@mail.gmail.com>
-References: 
-	<CAO-4OdH_vW0TKJDNwKm1HEMxme2DfHzd5YQ5WuGbZOuSO4kvPw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6EIxWIr009796
+	for <selinux@tycho.nsa.gov>; Sat, 14 Jul 2012 14:59:32 -0400
+Message-ID: <1342292366.87435.YahooMailClassic@web87702.mail.ir2.yahoo.com>
+Date: Sat, 14 Jul 2012 19:59:26 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH 1/1] Android build project: Fix 'mkyaffs2image -f ...' selabel_lookup error
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-13 at 13:15 -0700, Haiqing Jiang wrote:
-> Hi, all
-> 
-> 
-> I have a quick question about the seandroid policies: when we
-> create/add/refine the security policies, is there any
-> principle/model/criteria to follow? For example,
-> how to determine the new policies are secure or not, how to determine
-> the new policies are reasonable or not， how to determine the new
-> policies are user-friendly or not.....
-> 
-> 
-> All those staffs are confusing me. Thanks for your help.  
+When building SE-Android, mkyaffs2image fails with an selabel_lookup error
+as the 'mountpoint' parameter does not match the file_context entry
+(requires a leading '/').
 
-Our goals for the SE Android policy are to confine the privileged
-daemons in Android, ensure that the Android middleware components cannot
-be bypassed, and ensure that apps are truly isolated from one another at
-the kernel layer.  So when you modify the policy, you have to consider
-whether you are subverting one or more of those goals.  When you
-encounter a denial, you have to consider the best way to address it.
-Sometimes that means creating a new domain or type in the policy to
-ensure least privilege.  Sometimes it means altering code, e.g. the
-introduction of restorecon calls to ensure that files are properly
-labeled.  Sometimes you can just allow the access in the policy.  This
-isn't unique to SE Android; you can look to existing documentation,
-wikis, blogs, etc on SELinux policy writing for help.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ tools/releasetools/build_image.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/tools/releasetools/build_image.py b/tools/releasetools/build_image.py
+index a615d1a..2b42d7d 100755
+--- a/tools/releasetools/build_image.py
++++ b/tools/releasetools/build_image.py
+@@ -126,11 +126,11 @@ def main(argv):
+   image_filename = os.path.basename(out_file)
+   mount_point = ""
+   if image_filename == "system.img":
+-    mount_point = "system"
++    mount_point = "/system"
+   elif image_filename == "userdata.img":
+-    mount_point = "data"
++    mount_point = "/data"
+   elif image_filename == "cache.img":
+-    mount_point = "cache"
++    mount_point = "/cache"
+   else:
+     print >> sys.stderr, "error: unknown image file name ", image_filename
+     exit(1)
 -- 
-Stephen Smalley
-National Security Agency
+1.7.10.4
+
 
 
 --
