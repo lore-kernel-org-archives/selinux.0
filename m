@@ -1,48 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6EIxWIr009796
-	for <selinux@tycho.nsa.gov>; Sat, 14 Jul 2012 14:59:32 -0400
-Message-ID: <1342292366.87435.YahooMailClassic@web87702.mail.ir2.yahoo.com>
-Date: Sat, 14 Jul 2012 19:59:26 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 1/1] Android build project: Fix 'mkyaffs2image -f ...' selabel_lookup error
-To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
+References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
+	<CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
+	<1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
+	<CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
+	<CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
+	<CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
+	<1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
+	<CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
+	<1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
+	<CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
+	<CADQgGG35SABA6ZjDneqeGOrvbLT722Pvxsn6=G5S744d-TPxoA@mail.gmail.com>
+	<CAKi3PuqyCBS1fzjhSh1TVRsXCxR2_UnxXJG5ZCFL2XzF91MP4A@mail.gmail.com>
+	<CADQgGG1ry-x+0B2LHjY_SPvDiyUWBq4Pa5BVf6bFVokWvV3=qQ@mail.gmail.com>
+	<CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
+Date: Sun, 15 Jul 2012 00:25:43 -0400
+Message-ID: <CADQgGG2dr4U36Pajg5XY1-vJO0uFszrpA2hXi6B-AwuBzyhbhQ@mail.gmail.com>
+Subject: Re: SE Android (Was: Re: Welcome to selinux)
+From: Robert Craig <robertpcraig@gmail.com>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d04428de8e3943c04c4d6b474
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When building SE-Android, mkyaffs2image fails with an selabel_lookup error
-as the 'mountpoint' parameter does not match the file_context entry
-(requires a leading '/').
+--f46d04428de8e3943c04c4d6b474
+Content-Type: text/plain; charset=ISO-8859-1
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- tools/releasetools/build_image.py |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/tools/releasetools/build_image.py b/tools/releasetools/build_image.py
-index a615d1a..2b42d7d 100755
---- a/tools/releasetools/build_image.py
-+++ b/tools/releasetools/build_image.py
-@@ -126,11 +126,11 @@ def main(argv):
-   image_filename = os.path.basename(out_file)
-   mount_point = ""
-   if image_filename == "system.img":
--    mount_point = "system"
-+    mount_point = "/system"
-   elif image_filename == "userdata.img":
--    mount_point = "data"
-+    mount_point = "/data"
-   elif image_filename == "cache.img":
--    mount_point = "cache"
-+    mount_point = "/cache"
-   else:
-     print >> sys.stderr, "error: unknown image file name ", image_filename
-     exit(1)
--- 
-1.7.10.4
+On Fri, Jul 13, 2012 at 8:50 AM, Alexandra Test <
+testalexandrainstitute@gmail.com> wrote:
 
 
+> I tried to investigate without success, so I decided to try to use the
+> restorecon. is it needed to be root?
+> on which files do I need to use restorecon? how?
+>
+>
+You'll not only have to be root, but you'll also need to remount your
+system partition (android mounts it read only).
+I would try:
+adb shell
+su
+mount -o rw,remount </dev/block path for your device> /system
+restorecon -R /system
+
+--f46d04428de8e3943c04c4d6b474
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div>On Fri, Jul 13, 2012 at 8:50 AM, Alexandra Test <span dir=3D"ltr">&lt;=
+<a href=3D"mailto:testalexandrainstitute@gmail.com" target=3D"_blank">testa=
+lexandrainstitute@gmail.com</a>&gt;</span> wrote:</div><div class=3D"gmail_=
+quote">
+<div>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;=
+border-left:1px #ccc solid;padding-left:1ex">I tried to investigate without=
+ success, so I decided to try to use the restorecon. is it needed to be roo=
+t?<br>
+on which files do I need to use restorecon? how?<br><br></blockquote><div><=
+br></div><div>You&#39;ll not only have to be root, but you&#39;ll also need=
+ to remount your system partition (android mounts it read only).</div><div>
+I would try:</div><div>adb shell</div><div>su</div><div>mount -o rw,remount=
+ &lt;/dev/block path for your device&gt; /system</div><div>restorecon -R /s=
+ystem</div></div>
+
+--f46d04428de8e3943c04c4d6b474--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
