@@ -1,130 +1,55 @@
-From: "Kurt Ellzey" <kurt@idb-sys.com>
-To: <selinux@tycho.nsa.gov>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Subject: SE Android on provider with custom firmware
-Date: Mon, 16 Jul 2012 08:49:49 -0400
-Message-ID: <0b5f01cd6351$7cb749e0$7625dda0$@idb-sys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6GHDbbU007792
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2012 13:13:41 -0400
+Date: Mon, 16 Jul 2012 18:10:06 +0200
+From: Ole Kliemann <ole@plastictree.net>
+To: selinux@tycho.nsa.gov
+Subject: Information about XSELinux
+Message-ID: <20120716161006.GA14824@telvanni>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0B60_01CD632F.F5A64620"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
 
-------=_NextPart_000_0B60_01CD632F.F5A64620
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Good Morning,
-
- 
-
-I was looking into putting SE android onto a new test device but the problem
-is the provider claims to use custom firmware for billing purposes.  Has
-anyone had any experience in installing it in this type of environment?
-
- 
-
- 
-
- 
-
-
-
-
-
- 
-
-
-------=_NextPart_000_0B60_01CD632F.F5A64620
-Content-Type: text/html;
-	charset="us-ascii"
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
-HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
-(filtered medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Tahoma;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman","serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
-	{mso-style-priority:99;
-	mso-style-link:"Balloon Text Char";
-	margin:0in;
-	margin-bottom:.0001pt;
-	font-size:8.0pt;
-	font-family:"Tahoma","sans-serif";}
-span.EmailStyle17
-	{mso-style-type:personal-reply;
-	font-family:"Calibri","sans-serif";
-	color:#1F497D;}
-span.BalloonTextChar
-	{mso-style-name:"Balloon Text Char";
-	mso-style-priority:99;
-	mso-style-link:"Balloon Text";
-	font-family:"Tahoma","sans-serif";}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri","sans-serif";}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>Good Morning,<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'>I was looking into putting SE android onto a new test device but the =
-problem is the provider claims to use custom firmware for billing =
-purposes.&nbsp; Has anyone had any experience in installing it in this =
-type of environment?<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
-D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal =
-style=3D'margin-bottom:12.0pt'><span =
-style=3D'font-size:7.5pt;font-family:"Arial","sans-serif";color:gray'><br=
-><br></span><o:p></o:p></p><div><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></div></body></html>
-------=_NextPart_000_0B60_01CD632F.F5A64620--
+Hi everyone!
 
+I'm desperately trying to implement proper privilege seperation=20
+while using X.
 
+Currently I'm looking into XSELinux but am having a really hard=20
+time finding any information, documention etc.
+
+What's the development status?
+Where can I get it?
+Is it included in any major distributions? (Currently using=20
+Ubuntu 12.04)
+
+Any hint on where to find information would be highly=20
+appreciated!
+
+Many thanks in advance and best regards,
+Ole
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlAEPN4ACgkQS1FjE303ERxuOACfUSkEUG6nu3hkt89ilqsv9TXB
+CbIAn3Ek2f8KHTILl167oy8wSPnMUkAZ
+=jqLs
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
