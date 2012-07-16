@@ -1,125 +1,130 @@
+From: "Kurt Ellzey" <kurt@idb-sys.com>
+To: <selinux@tycho.nsa.gov>
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Subject: SE Android on provider with custom firmware
+Date: Mon, 16 Jul 2012 08:49:49 -0400
+Message-ID: <0b5f01cd6351$7cb749e0$7625dda0$@idb-sys.com>
 MIME-Version: 1.0
-In-Reply-To: <CAKi3PuqfNoefmyOMx5Q0OnnGeBHUVvJP5Ebb1Adh_HpCPwYvtA@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	<CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	<1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	<CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	<CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-	<1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-	<1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
-	<CADQgGG35SABA6ZjDneqeGOrvbLT722Pvxsn6=G5S744d-TPxoA@mail.gmail.com>
-	<CAKi3PuqyCBS1fzjhSh1TVRsXCxR2_UnxXJG5ZCFL2XzF91MP4A@mail.gmail.com>
-	<CADQgGG1ry-x+0B2LHjY_SPvDiyUWBq4Pa5BVf6bFVokWvV3=qQ@mail.gmail.com>
-	<CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
-	<CADQgGG2dr4U36Pajg5XY1-vJO0uFszrpA2hXi6B-AwuBzyhbhQ@mail.gmail.com>
-	<CAKi3PuqfNoefmyOMx5Q0OnnGeBHUVvJP5Ebb1Adh_HpCPwYvtA@mail.gmail.com>
-Date: Mon, 16 Jul 2012 14:40:47 +0200
-Message-ID: <CAKi3Pur20_u_BFEkHm++OydrN4zCm+o0jSzeY04DpmQ+aAOmqA@mail.gmail.com>
-Subject: Re: SE Android (Was: Re: Welcome to selinux)
-From: Alexandra Test <testalexandrainstitute@gmail.com>
-To: Robert Craig <robertpcraig@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=f46d041825bc37d61b04c4f1bd19
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0B60_01CD632F.F5A64620"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d041825bc37d61b04c4f1bd19
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multipart message in MIME format.
 
-My phone is now is in enforcing mode but I can not install anything.
-I tried from google play but after the download, when it tries to install
-says:
-"the download url is not valid"
+------=_NextPart_000_0B60_01CD632F.F5A64620
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Do I have to change the policies? I saw the app.te files in
-external/sepolicy in the build directory, but where can I fine the same
-file on the phone?
-Do I need to rebuild and reflash every time I change the policies?
+Good Morning,
+
+ 
+
+I was looking into putting SE android onto a new test device but the problem
+is the provider claims to use custom firmware for billing purposes.  Has
+anyone had any experience in installing it in this type of environment?
+
+ 
+
+ 
+
+ 
 
 
 
-On Mon, Jul 16, 2012 at 12:47 PM, Alexandra Test <
-testalexandrainstitute@gmail.com> wrote:
 
-> it works, thank you! :-)
->
->
-> On Sun, Jul 15, 2012 at 6:25 AM, Robert Craig <robertpcraig@gmail.com>wrote:
->
->> On Fri, Jul 13, 2012 at 8:50 AM, Alexandra Test <
->> testalexandrainstitute@gmail.com> wrote:
->>
->>
->>> I tried to investigate without success, so I decided to try to use the
->>> restorecon. is it needed to be root?
->>> on which files do I need to use restorecon? how?
->>>
->>>
->> You'll not only have to be root, but you'll also need to remount your
->> system partition (android mounts it read only).
->>  I would try:
->> adb shell
->> su
->> mount -o rw,remount </dev/block path for your device> /system
->> restorecon -R /system
->>
->
->
 
---f46d041825bc37d61b04c4f1bd19
-Content-Type: text/html; charset=ISO-8859-1
+ 
+
+
+------=_NextPart_000_0B60_01CD632F.F5A64620
+Content-Type: text/html;
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-My phone is now is in enforcing mode but I can not install anything.<br>I t=
-ried from google play but after the download, when it tries to install says=
-:<br>&quot;the download url is not valid&quot;<br><br>Do I have to change t=
-he policies? I saw the app.te files in external/sepolicy in the build direc=
-tory, but where can I fine the same file on the phone?<br>
-Do I need to rebuild and reflash every time I change the policies?<br><br><=
-br><div><br><div class=3D"gmail_quote">On Mon, Jul 16, 2012 at 12:47 PM, Al=
-exandra Test <span dir=3D"ltr">&lt;<a href=3D"mailto:testalexandrainstitute=
-@gmail.com" target=3D"_blank">testalexandrainstitute@gmail.com</a>&gt;</spa=
-n> wrote:<br>
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-priority:99;
+	mso-style-link:"Balloon Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";}
+span.EmailStyle17
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+span.BalloonTextChar
+	{mso-style-name:"Balloon Text Char";
+	mso-style-priority:99;
+	mso-style-link:"Balloon Text";
+	font-family:"Tahoma","sans-serif";}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'>Good Morning,<o:p></o:p></span></p><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'>I was looking into putting SE android onto a new test device but the =
+problem is the provider claims to use custom firmware for billing =
+purposes.&nbsp; Has anyone had any experience in installing it in this =
+type of environment?<o:p></o:p></span></p><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497=
+D'><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal =
+style=3D'margin-bottom:12.0pt'><span =
+style=3D'font-size:7.5pt;font-family:"Arial","sans-serif";color:gray'><br=
+><br></span><o:p></o:p></p><div><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></div></body></html>
+------=_NextPart_000_0B60_01CD632F.F5A64620--
 
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">it works, thank you! :-)<div><div><br><br><d=
-iv class=3D"gmail_quote">On Sun, Jul 15, 2012 at 6:25 AM, Robert Craig <spa=
-n dir=3D"ltr">&lt;<a href=3D"mailto:robertpcraig@gmail.com" target=3D"_blan=
-k">robertpcraig@gmail.com</a>&gt;</span> wrote:<br>
 
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div><div>On Fri, Jul 13, 2012 at 8:50 AM, A=
-lexandra Test <span dir=3D"ltr">&lt;<a href=3D"mailto:testalexandrainstitut=
-e@gmail.com" target=3D"_blank">testalexandrainstitute@gmail.com</a>&gt;</sp=
-an> wrote:</div>
-
-
-</div><div class=3D"gmail_quote"><div>
-<div>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;=
-border-left:1px #ccc solid;padding-left:1ex">I tried to investigate without=
- success, so I decided to try to use the restorecon. is it needed to be roo=
-t?<br>
-
-
-
-on which files do I need to use restorecon? how?<br><br></blockquote><div><=
-br></div></div><div>You&#39;ll not only have to be root, but you&#39;ll als=
-o need to remount your system partition (android mounts it read only).</div=
->
-
-
-<div>
-I would try:</div><div>adb shell</div><div>su</div><div>mount -o rw,remount=
- &lt;/dev/block path for your device&gt; /system</div><div>restorecon -R /s=
-ystem</div></div>
-</blockquote></div><br>
-</div></div></blockquote></div><br></div>
-
---f46d041825bc37d61b04c4f1bd19--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
