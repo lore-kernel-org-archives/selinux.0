@@ -1,60 +1,53 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6GMId1O022673
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2012 18:18:39 -0400
-Date: Tue, 17 Jul 2012 00:18:18 +0200
-From: Ole Kliemann <ole@plastictree.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
+Message-ID: <1342546288.10747.14.camel@moss-lions.epoch.ncsc.mil>
 Subject: Re: Information about XSELinux
-Message-ID: <20120716221818.GA16156@telvanni>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Ole Kliemann <ole@plastictree.net>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 17 Jul 2012 13:31:28 -0400
+In-Reply-To: <20120716161006.GA14824@telvanni>
 References: <20120716161006.GA14824@telvanni>
- <201207170423.14495.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-In-Reply-To: <201207170423.14495.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2012-07-16 at 18:10 +0200, Ole Kliemann wrote:
+> Hi everyone!
+> 
+> I'm desperately trying to implement proper privilege seperation 
+> while using X.
+> 
+> Currently I'm looking into XSELinux but am having a really hard 
+> time finding any information, documention etc.
+> 
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some of this could be out of date, but it should get you started.
 
-On Tue, Jul 17, 2012 at 04:23:14AM +1000, Russell Coker wrote:
-> On Tue, 17 Jul 2012, Ole Kliemann <ole@plastictree.net> wrote:
-> > Is it included in any major distributions? (Currently using=20
-> > Ubuntu 12.04)
->=20
-> Unless Ubuntu have done some significant enhancements over my Debian work=
-=20
-> without telling me then it's not going to work.
+http://www.nsa.gov/research/_files/selinux/papers/xorg07-abs.shtml
+http://www.x.org/releases/X11R7.5/doc/security/XACE-Spec.html
+http://selinuxproject.org/page/NB_XWIN
+http://selinuxproject.org/page/Experimenting_With_X-Windows#Calling_the_XSELinux_Functions
 
-I'm no expert, but as far as I can tell, it's just not there in=20
-Ubuntu.
+> What's the development status?
+> Where can I get it?
+> Is it included in any major distributions? (Currently using 
+> Ubuntu 12.04)
+> 
 
-I understood from a bug report on this list that it's included in=20
-Fedora. So I installed it on a test system and could reproduce=20
-the bug (X server fails to start when xserver_object_manager is=20
-set).=20
+It is in Fedora.
+Enable the xserver_object_manager_boolean (setsebool -P
+xserver_object_manager=1) and restart the X server.
 
-I'm willing to switch to whatever distribution is providing the=20
-means to seperate user contexts under X.
+The file /etc/selinux/POLICY/contexts/x_contexts contains an X event to
+context mapping.
 
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+The xserver module contains the current policy for the X server.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
-iEYEARECAAYFAlAEkyoACgkQS1FjE303ERyh8ACfReubYGS5gyc88fXXEyk4Mg9o
-oTsAn0/23Z0cd8qaNlphafmjA+hAvk9v
-=iq7X
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
