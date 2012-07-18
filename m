@@ -1,152 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6I0MMXL000644
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2012 20:22:22 -0400
-Received: by pbbrr13 with SMTP id rr13so1593760pbb.12
-        for <selinux@tycho.nsa.gov>; Tue, 17 Jul 2012 17:22:19 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E3836507E650@ALA-MBB.corp.ad.wrs.com>
-References: <CAFftDdrefoeyaFQsr-OXQdAXU9CRgvqbMg+gZ+WUEuRnb2dfEQ@mail.gmail.com>
-	<33006C99F5A5194A9B7A7715DFA3E3836507E650@ALA-MBB.corp.ad.wrs.com>
-Date: Tue, 17 Jul 2012 17:22:19 -0700
-Message-ID: <CAFftDdr+4CT-MgMoTUOtkeM3rBGw1S7s1N7evE7JXf9E=9meQA@mail.gmail.com>
-Subject: Re: Change-Id: I61d34a9fd6975f23023f70f205a510e3357d843c
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6ILUIbT023322
+	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2012 17:30:22 -0400
+Received: by yenl3 with SMTP id l3so2215332yen.12
+        for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2012 14:30:20 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
-To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        rpcraig <rpcraig@tycho.ncsc.mil>
-Content-Type: multipart/alternative; boundary=047d7b10ce63ee48e404c50fa703
+To: selinux@tycho.nsa.gov
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] Initial support for translatable SEAndroid strings
+Date: Wed, 18 Jul 2012 14:29:38 -0700
+Message-Id: <1342646978-8919-2-git-send-email-w.roberts@sta.samsung.com>
+In-Reply-To: <1342646978-8919-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1342646978-8919-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b10ce63ee48e404c50fa703
-Content-Type: text/plain; charset=ISO-8859-1
+---
+ res/values/strings.xml                           |    5 +++++
+ src/com/android/settings/DeviceInfoSettings.java |   14 +++++++++++---
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
-Yes, it took me a few minutes to realize it was in mac-policy today after
-the "merge" with master. It doesn't make sense there.
-
-Any thoughts on breaking up the change id?
-
-On Tue, Jul 17, 2012 at 5:20 PM, Radzykewycz, T (Radzy) <radzy@windriver.com
-> wrote:
-
-> > I am also wondering if we really need mac_permisions.xml to be
-> > in in it's own repo. I think it should be in sepolicy since it
-> > is part of the policy of the device, like seapp_contexts.
->
-> I would like to see all policy be contained within a single git project.
->  It
-> could be divided into subdirectories, such as external/sepolicy/base and
-> external/sepolicy/mmac or something.  But having it all in one place
-> would be more convenient for overall system policy analysis.
->
-> ________________________________________
-> From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf
-> of William Roberts [bill.c.roberts@gmail.com]
-> Sent: Tuesday, July 17, 2012 4:43 PM
-> To: selinux@tycho.nsa.gov
-> Cc: rpcraig
-> Subject: Change-Id: I61d34a9fd6975f23023f70f205a510e3357d843c
->
-> I think we need to discuss this change id further.
-> Commit sha b263780156624c38b23d638be6a2d8bdd17511f8 on master
-> selinuxproject/master.
->
-> It really provides two functions:
->
-> 1. x.509 cert to seinfo string mapping for seapp_contexts so the zygote
-> spawns it in the right domain...
-> 2. install time permission checking
->
-> I think these should be submitted as two different patch sets to AOSP
-> respective of their functionality. I think the x.509 cert checks will get
-> pulled in and I am not sure on the install time permission checking.
->
-> I am also wondering if we really need mac_permisions.xml to be in in it's
-> own repo. I think it should be in sepolicy since it is part of the policy
-> of the device, like seapp_contexts.
->
-> What are the communities opinions on these comments?
->
-> --
-> Respectfully,
->
-> William C Roberts
->
->
->
-
-
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index fb70aa2..2d2f028 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -3785,5 +3785,10 @@ found in the list of installed apps.</string>
+     from their cell phone carrier. The use of the string is similar to the string
+     "system_update_settings_list_item_title" in this project. [CHAR LIMIT=25] -->
+     <string name="additional_system_update_settings_list_item_title">Additional system updates</string>
++    <!-- SELinux statuses that are displayed if the user has a SE Android enabled
++    device. These are displayed by the settings app in the about section. -->
++    <string name="selinux_status_disabled">"Disabled"</string>
++    <string name="selinux_status_permissive">"Permissive"</string>
++    <string name="selinux_status_enforcing">"Enforcing"</string>
+ 
+ </resources>
+diff --git a/src/com/android/settings/DeviceInfoSettings.java b/src/com/android/settings/DeviceInfoSettings.java
+index c2418b6..a8a5510 100644
+--- a/src/com/android/settings/DeviceInfoSettings.java
++++ b/src/com/android/settings/DeviceInfoSettings.java
+@@ -55,6 +55,7 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
+     private static final String KEY_COPYRIGHT = "copyright";
+     private static final String KEY_SYSTEM_UPDATE_SETTINGS = "system_update_settings";
+     private static final String PROPERTY_URL_SAFETYLEGAL = "ro.url.safetylegal";
++    private static final String PROPERTY_SELINUX_STATUS = "ro.build.selinux";
+     private static final String KEY_KERNEL_VERSION = "kernel_version";
+     private static final String KEY_BUILD_NUMBER = "build_number";
+     private static final String KEY_DEVICE_MODEL = "device_model";
+@@ -77,14 +78,21 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
+         setStringSummary(KEY_DEVICE_MODEL, Build.MODEL + getMsvSuffix());
+         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
+         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
++
+         if (!SELinux.isSELinuxEnabled()) {
+-            setStringSummary(KEY_SELINUX_STATUS, "disabled");
++            String status = getResources().getString(R.string.selinux_status_disabled);
++            setStringSummary(KEY_SELINUX_STATUS, status);
+         } else if (!SELinux.isSELinuxEnforced()) {
+-            setStringSummary(KEY_SELINUX_STATUS, "permissive");
++            String status = getResources().getString(R.string.selinux_status_permissive);
++            setStringSummary(KEY_SELINUX_STATUS, status);
+         } else {
+-            setStringSummary(KEY_SELINUX_STATUS, "enforcing");
++            String status = getResources().getString(R.string.selinux_status_enforcing);
++            setStringSummary(KEY_SELINUX_STATUS, status);
+         }
+ 
++        // Remove selinux information if property is not present
++        removePreferenceIfPropertyMissing(getPreferenceScreen(), "selinux_status", PROPERTY_SELINUX_STATUS);
++
+         // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
+         removePreferenceIfPropertyMissing(getPreferenceScreen(), "safetylegal",
+                 PROPERTY_URL_SAFETYLEGAL);
 -- 
-Respectfully,
+1.7.0.4
 
-William C Roberts
-
---047d7b10ce63ee48e404c50fa703
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Yes, it took me a few minutes to realize it was in mac-policy today after t=
-he &quot;merge&quot; with master. It doesn&#39;t make sense there.<div><br>=
-</div><div>Any thoughts on breaking up the change id?<br><br><div class=3D"=
-gmail_quote">
-On Tue, Jul 17, 2012 at 5:20 PM, Radzykewycz, T (Radzy) <span dir=3D"ltr">&=
-lt;<a href=3D"mailto:radzy@windriver.com" target=3D"_blank">radzy@windriver=
-.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"ma=
-rgin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"im">&gt; I am also wondering if we really need mac_permisions=
-.xml to be<br>
-&gt; in in it&#39;s own repo. I think it should be in sepolicy since it<br>
-&gt; is part of the policy of the device, like seapp_contexts.<br>
-<br>
-</div>I would like to see all policy be contained within a single git proje=
-ct. =A0It<br>
-could be divided into subdirectories, such as external/sepolicy/base and<br=
->
-external/sepolicy/mmac or something. =A0But having it all in one place<br>
-would be more convenient for overall system policy analysis.<br>
-<br>
-________________________________________<br>
-From: <a href=3D"mailto:owner-selinux@tycho.nsa.gov">owner-selinux@tycho.ns=
-a.gov</a> [<a href=3D"mailto:owner-selinux@tycho.nsa.gov">owner-selinux@tyc=
-ho.nsa.gov</a>] on behalf of William Roberts [<a href=3D"mailto:bill.c.robe=
-rts@gmail.com">bill.c.roberts@gmail.com</a>]<br>
-
-Sent: Tuesday, July 17, 2012 4:43 PM<br>
-To: <a href=3D"mailto:selinux@tycho.nsa.gov">selinux@tycho.nsa.gov</a><br>
-Cc: rpcraig<br>
-Subject: Change-Id: I61d34a9fd6975f23023f70f205a510e3357d843c<br>
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
-I think we need to discuss this change id further.<br>
-Commit sha b263780156624c38b23d638be6a2d8bdd17511f8 on master selinuxprojec=
-t/master.<br>
-<br>
-It really provides two functions:<br>
-<br>
-1. x.509 cert to seinfo string mapping for seapp_contexts so the zygote spa=
-wns it in the right domain...<br>
-2. install time permission checking<br>
-<br>
-I think these should be submitted as two different patch sets to AOSP respe=
-ctive of their functionality. I think the x.509 cert checks will get pulled=
- in and I am not sure on the install time permission checking.<br>
-<br>
-I am also wondering if we really need mac_permisions.xml to be in in it&#39=
-;s own repo. I think it should be in sepolicy since it is part of the polic=
-y of the device, like seapp_contexts.<br>
-<br>
-What are the communities opinions on these comments?<br>
-<br>
---<br>
-Respectfully,<br>
-<br>
-William C Roberts<br>
-<br>
-<br>
-</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
-Respectfully,<br><br>William C Roberts<br><br><br>
-</div>
-
---047d7b10ce63ee48e404c50fa703--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
