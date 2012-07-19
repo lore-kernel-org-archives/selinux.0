@@ -1,35 +1,20 @@
-From: Haiqing Jiang <hqjiang1988@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6JNUERa004821
+	for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 19:30:14 -0400
+Received: by yenl3 with SMTP id l3so3590848yen.12
+        for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 16:30:13 -0700 (PDT)
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/6] external/sepolicy: allow media_app more permissions on sdcard
-Date: Thu, 19 Jul 2012 16:07:51 -0700
-Message-Id: <1342739276-1686-2-git-send-email-hqjiang1988@gmail.com>
-In-Reply-To: <Hi, all>
-References: <Hi, all>
+Subject: packages/apps/settings master string localization
+Date: Thu, 19 Jul 2012 16:29:45 -0700
+Message-Id: <1342740586-5079-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- app.te |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+[PATCH] Add support for localization of SEAndroid status
 
-diff --git a/app.te b/app.te
-index 0866e95..a5ff295 100644
---- a/app.te
-+++ b/app.te
-@@ -41,7 +41,7 @@ allow media_app cache_file:dir rw_dir_perms;
- allow media_app cache_file:file create_file_perms;
- # Access sdcard.
- allow media_app sdcard:dir create_dir_perms;
--allow media_app sdcard:file create_file_perms;
-+allow media_app sdcard:file { create_file_perms link_file_perms };
- # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
- allow media_app qtaguid_proc:file rw_file_perms;
- allow media_app qtaguid_device:chr_file r_file_perms;
--- 
-1.7.0.4
-
+This patch is to address the concerns of string localization for the
+SEAndroid/Linux status in the Settings app.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
