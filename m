@@ -1,111 +1,119 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6JEIdQn006931
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 10:18:39 -0400
-Date: Thu, 19 Jul 2012 16:18:23 +0200
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6JEiKbf008639
+	for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 10:44:21 -0400
+Date: Thu, 19 Jul 2012 16:44:05 +0200
 From: Ole Kliemann <ole@plastictree.net>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+        selinux@tycho.nsa.gov
 Subject: Re: Information about XSELinux
-Message-ID: <20120719141823.GA19890@telvanni>
-References: <1342534966.11916.YahooMailClassic@web87705.mail.ir2.yahoo.com>
+Message-ID: <20120719144405.GB19890@telvanni>
+References: <20120716161006.GA14824@telvanni>
+ <201207170423.14495.russell@coker.com.au>
+ <20120716221818.GA16156@telvanni>
+ <1342704589.31048.22.camel@moss-pluto.epoch.ncsc.mil>
+ <50081541.3040909@redhat.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-In-Reply-To: <1342534966.11916.YahooMailClassic@web87705.mail.ir2.yahoo.com>
+	protocol="application/pgp-signature"; boundary="JP+T4n/bALQSJXh8"
+In-Reply-To: <50081541.3040909@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=iso-8859-1
+--JP+T4n/bALQSJXh8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Thanks Richard, your X-setest tool is quite helpful to understand=20
-what's going on.
-
-Under Ubuntu I compiled the xserver-xorg package and manually=20
-enabled --enable-selinux. Now it's working here. (They are at=20
-1.11.4). I'm now writing a simple policy from scratch to extend=20
-traditional linux user seperation to X.
-
-I have one question though: This bug that appears under Fedora=20
-and crashes the Xserver, is that a bug in the xorg sources or=20
-something that came with patches from Fedora?
-
-And how often have things like this happend in the past? I'm=20
-planing on using this on a production system and ask myself how=20
-careful I will have to be with updates to xorg in the future.
-
-On Tue, Jul 17, 2012 at 03:22:46PM +0100, Richard Haines wrote:
-> I've attached some updated XSELinux information that I've been working on=
- for the next version of the SELinux Notebook (old XSELinux stuff at: http:=
-//selinuxproject.org/page/NB_XWIN).
->=20
-> The XSELinux module is in the X source and always included with Fedora - =
-I don't use other distributions so don't know whether they enable it in the=
-ir builds or not. If they do build it, then you need the reference policy m=
-odules and then enable the xserver boolean as follows:
->=20
-> =A0 =A0=A0=A0setsebool xserver_object_manager true
->=20
-> I'm not sure what the current development status is but I've submitted a =
-couple of patches (the last one for xorg-x11-server-1.12.2 as it core dumps=
- when XSELinux is enabled with the above boolean).
->=20
-> I've written a few apps to 'play with XSELinux' that are mentioned in the=
- text. Let me know if you would like the source (tested on Fedora 16/17).
->=20
-> I have not really done anything with the XSELinux reference policy module=
-s as they come with Fedora and seem to work (well for my limited use anyway=
-).
->=20
-> Richard
->=20
-> --- On Mon, 16/7/12, Ole Kliemann <ole@plastictree.net> wrote:
->=20
-> > From: Ole Kliemann <ole@plastictree.net>
-> > Subject: Information about XSELinux
-> > To: selinux@tycho.nsa.gov
-> > Date: Monday, 16 July, 2012, 17:10
-> > Hi everyone!
+On Thu, Jul 19, 2012 at 10:10:09AM -0400, Daniel J Walsh wrote:
+> On 07/19/2012 09:29 AM, Stephen Smalley wrote:
+> > XSELinux is included in Fedora, but they don't enable it by default so =
+it
+> > doesn't get much testing.  They took a different approach for isolating=
+ X
+> > applications via nested Xephyr servers in their sandbox tool.
 > >=20
-> > I'm desperately trying to implement proper privilege
-> > seperation=20
-> > while using X.
-> >=20
-> > Currently I'm looking into XSELinux but am having a really
-> > hard=20
-> > time finding any information, documention etc.
-> >=20
-> > What's the development status?
-> > Where can I get it?
-> > Is it included in any major distributions? (Currently using
-> >=20
-> > Ubuntu 12.04)
-> >=20
-> > Any hint on where to find information would be highly=20
-> > appreciated!
-> >=20
-> > Many thanks in advance and best regards,
-> > Ole
-> >
+>=20
+> My opinion is that XAce or XSELinux works ok with the MLS model, but not =
+with
+> the type enforcement model.  In my opinion isolating applications within =
+the
+> own sandbox/containers is a simpler and more sustainable approach.
+>=20
+> XClients that get a permission denied, are likely to misbehave (die) since
+> they were coded with the assumption that they either get full access to X=
+ or
+> no access to X.
+>=20
+> Finally trying to write confinement policy for a type enforcement model o=
+n X
+> is very difficult, how do I isolate two instances of firefox?  If Firefox
+> execs a open office, how does this libreoffice interact with the existing
+> libreoffice that might be running under a different context.  How does
+> cut/paste work, how about one window obscuring another, transparent windo=
+ws
+> ...  Way too complicated.  Sandbox model is just total separation.  They =
+do
+> not even know the other apps exist.
 
+Xephyr is what I have been using so far under Ubuntu. I don't=20
+know how it runs under Fedora, but I notice here a performance=20
+decrease. Sluggish cursor, sluggish scrolling etc.=20
 
+So I wanted to get away from this. But I think my goals are=20
+simple.
 
---0OAP2g/MAC+5xKAE
+Right now I have one (standard linux) user as main user and=20
+several (standard linux) users as subusers. I have a suid root=20
+program that checks a database on disk and allows the main user=20
+to drop privileges to one of his subusers. I use a subuser for=20
+each job (mail, browser, writing etc.).
+
+Seperation under X is achieved using "terminal-chains" (mainuser=20
+starts a subuser with X access who starts a terminal and a=20
+subuser of his own with no X access who than runs the shell=20
+inside the terminal - an idea my brother had years ago), or using=20
+"xephyr-chains" which I think is more or less how sandbox does=20
+it.
+
+Terminal-chains are fast but have no X, xephyr-chains have X but=20
+lose performance.
+
+What I want to do is to extend the standard linux user seperation=20
+to X. Assign the mainuser and every subuser a context and then=20
+make sure X-applications in one context can't mess with those in=20
+other contexts. Selinux here has only to make sure X is secured.=20
+I'll still be using different linux users for every context.
+
+I don't need no "fancy stuff" like automatic domain transitions=20
+using certain applications as entrypoints. I can perfectly=20
+understand the beauty of this in an integrated desktop=20
+environment. But something in my wants simplicity when it comes=20
+to security concepts. ;-)
+
+I'm not exactly sure how MLS works, but I'd intuitively would=20
+say, my approach is more MLS-like because change of privileges=20
+only goes in one direction. Privileges are only dropped, never=20
+gained. (Mainuser drops to subuser, subuser never elevates back=20
+to mainuser or any other subuser.)
+
+I started working on a policy for X using TE. Do you think, what=20
+I want could be better expressed in MLS?
+
+--JP+T4n/bALQSJXh8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAlAIFy8ACgkQS1FjE303ERxqsACfcKZSS6k3aHRe9T+iZ70K+U9t
-xXcAnj6JiHGiMheVCVBql+l09HPxjo2r
-=Hqiv
+iEYEARECAAYFAlAIHTUACgkQS1FjE303ERz1BQCeMNr/wWX5R5kx4CrJwJj11z9q
+7lsAn3PjJEEwzJdC63NzdyAnYmTAH+07
+=I36v
 -----END PGP SIGNATURE-----
 
---0OAP2g/MAC+5xKAE--
+--JP+T4n/bALQSJXh8--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
