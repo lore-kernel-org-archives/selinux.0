@@ -2,30 +2,48 @@ From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
         Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 2/6] external/sepolicy: mediaserver open application data files
-Date: Thu, 19 Jul 2012 16:07:52 -0700
-Message-Id: <1342739276-1686-3-git-send-email-hqjiang1988@gmail.com>
+Subject: [PATCH 6/6] external/sepolicy: android_cts test denials
+Date: Thu, 19 Jul 2012 16:07:56 -0700
+Message-Id: <1342739276-1686-7-git-send-email-hqjiang1988@gmail.com>
 In-Reply-To: <Hi, all>
 References: <Hi, all>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- mediaserver.te |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ cts.te |   21 +++++++++++++++++++++
+ 1 files changed, 21 insertions(+), 0 deletions(-)
 
-diff --git a/mediaserver.te b/mediaserver.te
-index 057e39d..d3f0334 100644
---- a/mediaserver.te
-+++ b/mediaserver.te
-@@ -25,6 +25,7 @@ allow mediaserver sysfs:file rw_file_perms;
- # XXX Why?
- allow mediaserver apk_data_file:file { read getattr };
- allow mediaserver ion_device:chr_file rw_file_perms;
-+allow mediaserver app_data_file:file open;
+diff --git a/cts.te b/cts.te
+index 3600e94..08b770e 100644
+--- a/cts.te
++++ b/cts.te
+@@ -39,4 +39,25 @@ dontaudit appdomain self:netlink_kobject_uevent_socket create;
  
- # To use remote processor
- allow mediaserver rpmsg_device:chr_file rw_file_perms;
+ # Tries to override DAC restrictions but expects to fail.
+ dontaudit shell self:capability dac_override;
++
++# CTS test denials
++# Allow CTS test apks access to apk_tmp_file and shell_data_file
++allow appdomain apk_tmp_file:file rw_file_perms;
++allow appdomain shell_data_file:file r_file_perms;
++# Allow CTS test apks socket permissions (for testing networking functions (e.g., bluetooth))
++allow untrusted_app self:socket { bind create setopt shutdown listen };
++# Allow CTS Test apks to access to app/system_data_file
++allow appdomain app_data_file:file r_file_perms;
++allow appdomain system_data_file:file { x_file_perms open };
++# android.permission test denies
++allow appdomain block_device:lnk_file r_file_perms;
++allow appdomain cgroup:dir w_file_perms;
++allow appdomain media_app:lnk_file r_file_perms;
++allow appdomain radio_device:lnk_file r_file_perms;
++allow appdomain untrusted_app:lnk_file r_file_perms;
++allow appdomain zygote:netlink_selinux_socket getattr;
++# android.security test deny
++allow appdomain untrusted_app:netlink_route_socket { read bind create };
++# android.util test deny
++allow appdomain log_device:chr_file r_file_perms;
+ }
 -- 
 1.7.0.4
 
