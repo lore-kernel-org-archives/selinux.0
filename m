@@ -1,35 +1,26 @@
 From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        hqjiang <hqjiang1988@gmail.com>
-Subject: [PATCH 3/3] external/sepolicy: system r/w udp_socket of untrusted apps
-Date: Thu, 19 Jul 2012 14:49:23 -0700
-Message-Id: <1342734563-32644-4-git-send-email-hqjiang1988@gmail.com>
-In-Reply-To: <1342734563-32644-1-git-send-email-hqjiang1988@gmail.com>
-References: <1342734563-32644-1-git-send-email-hqjiang1988@gmail.com>
+Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com
+Subject: three patches to external/sepolicy
+Date: Thu, 19 Jul 2012 14:49:20 -0700
+Message-Id: <1342734563-32644-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: hqjiang <hqjiang1988@gmail.com>
+[PATCH 1/3] external/sepolicy: the media apps from third-party are labeled with media_app instead of untrusted_app
+The applications installed from third party, which will be "untrusted_app" (e.g., cts test apks), do not have "seinfo==media".
+Therefore, these applications will not be labeled as "media_app" (policy in seapp_contexts). But these applications will
+call the same permissions of regular media_app. So, we need to add these untrusted_app to media_app class. 
 
----
- system.te |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+Note that those application are for CTS test (currently we do not find others). So a better way should be proposing 
+bool-enabled scheme in seapp_contexts, which has been discussed among us yesterday. We could update later 
+if the new scheme is done. (Waiting for you guys' comments) 
 
-diff --git a/system.te b/system.te
-index a4065cf..5c34f81 100644
---- a/system.te
-+++ b/system.te
-@@ -196,3 +196,6 @@ allow system domain:file r_file_perms;
- # to uart driver and ctrl proc entry
- allow system gps_device:chr_file rw_file_perms;
- allow system gps_control:file rw_file_perms;
-+
-+# system Read/Write udp_socket of untrusted_app
-+allow system untrusted_app:udp_socket { read write };
--- 
-1.7.0.4
+[PATCH 2/3] external/sepolicy: install daemon link/unlink application data files
+the installer daemon get the permissions (link, unlink) the application data files. 
 
+[PATCH 3/3] external/sepolicy: system r/w udp_socket of untrusted apps
+system get the read/write permissions on udp_socket related to untrusted applications. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
