@@ -1,66 +1,141 @@
-Message-ID: <1342728774.5158.8.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] allow camera calibration
+Message-ID: <1342728859.5158.10.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/1] Target the denials/policies over qtaguid file and
+ device: 1. Relabel /proc/net/xt_qtaguid/ctrl from "qtaguid" to
+ "qtaguid_proc"; 2. Label /dev/xt_qtaguid with "qtaguid_device"; 3. Allow
+ mediaserver read/[write] to qtaguid_proc and qtaguid_device; 4. Allow media
+ apps read/[write] to qtaguid_proc and qtaguid_device; 5. Allow system
+ read/[write] to qtaguid_proc and qtaguid_device.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: hqjiang <hqjiang1988@gmail.com>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Thu, 19 Jul 2012 16:12:54 -0400
-In-Reply-To: <1342719279-29505-1-git-send-email-hqjiang1988@gmail.com>
-References: 
-	<We label misc/camera(./*) with specific context (camera_calibration_file),>
-	 <1342719279-29505-1-git-send-email-hqjiang1988@gmail.com>
+Date: Thu, 19 Jul 2012 16:14:19 -0400
+In-Reply-To: <1342721224-29942-1-git-send-email-hqjiang1988@gmail.com>
+References: <1342721224-29942-1-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-07-19 at 10:34 -0700, hqjiang wrote:
+On Thu, 2012-07-19 at 11:07 -0700, hqjiang wrote:
+> Actually, some of policies related to qtaguid have been there already, but
+> we refind existing ones and add new ones.
+
+Applied to external/sepolicy.  Next time, put the project name in the
+subject line, keep the subject line shorter, and put the longer
+description in the body.  Also, try to avoid renaming types unless truly
+justified and consider adding a typealias when doing so to avoid
+breakage on policy reload on a running system.
+
 > ---
->  file.te        |    1 +
+>  app.te         |    6 ++++--
+>  device.te      |    1 +
+>  file.te        |    2 +-
 >  file_contexts  |    1 +
+>  genfs_contexts |    2 +-
 >  mediaserver.te |    4 ++++
->  3 files changed, 6 insertions(+), 0 deletions(-)
-
-Applied to external/sepolicy.  Next time, please put the project name in
-the subject line.  Also, consider using r_dir_file() for this pattern of
-allow rules.
-
+>  system.te      |    3 ++-
+>  7 files changed, 14 insertions(+), 5 deletions(-)
 > 
+> diff --git a/app.te b/app.te
+> index c55f4e0..0866e95 100644
+> --- a/app.te
+> +++ b/app.te
+> @@ -42,7 +42,9 @@ allow media_app cache_file:file create_file_perms;
+>  # Access sdcard.
+>  allow media_app sdcard:dir create_dir_perms;
+>  allow media_app sdcard:file create_file_perms;
+> -
+> +# Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
+> +allow media_app qtaguid_proc:file rw_file_perms;
+> +allow media_app qtaguid_device:chr_file r_file_perms;
+>  # Apps signed with the shared key.
+>  type shared_app, domain;
+>  app_domain(shared_app)
+> @@ -141,7 +143,7 @@ allow appdomain anr_data_file:dir search;
+>  allow appdomain anr_data_file:file { open append };
+>  
+>  # Write to /proc/net/xt_qtaguid/ctrl file.
+> -allow appdomain qtaguid:file write;
+> +allow appdomain qtaguid_proc:file write;
+>  
+>  # Use the Binder.
+>  binder_use(appdomain)
+> diff --git a/device.te b/device.te
+> index c9098e9..7818ce8 100644
+> --- a/device.te
+> +++ b/device.te
+> @@ -40,6 +40,7 @@ type zero_device, dev_type;
+>  type fuse_device, dev_type;
+>  type ion_device, dev_type;
+>  type gps_device, dev_type;
+> +type qtaguid_device, dev_type;
+>  
+>  # All devices have a uart for the hci
+>  # attach service. The uart dev node
 > diff --git a/file.te b/file.te
-> index ba85ca5..e5c8502 100644
+> index e5c8502..9af8ca5 100644
 > --- a/file.te
 > +++ b/file.te
-> @@ -48,6 +48,7 @@ type systemkeys_data_file, file_type, data_file_type;
->  type wifi_data_file, file_type, data_file_type;
->  type radio_data_file, file_type, data_file_type;
->  type nfc_data_file, file_type, data_file_type;
-> +type camera_calibration_file, file_type, data_file_type;
->  # /data/data subdirectories - app sandboxes
->  type app_data_file, file_type, data_file_type;
->  # Default type for anything under /cache
+> @@ -4,7 +4,7 @@ type pipefs, fs_type;
+>  type sockfs, fs_type;
+>  type rootfs, fs_type;
+>  type proc, fs_type;
+> -type qtaguid, fs_type, mlstrustedobject;
+> +type qtaguid_proc, fs_type, mlstrustedobject;
+>  type selinuxfs, fs_type;
+>  type cgroup, fs_type, mlstrustedobject;
+>  type sysfs, fs_type, mlstrustedobject;
 > diff --git a/file_contexts b/file_contexts
-> index bb58efe..39c4363 100644
+> index 39c4363..f7abbb7 100644
 > --- a/file_contexts
 > +++ b/file_contexts
-> @@ -122,6 +122,7 @@
->  /data/misc/vpn(/.*)?		u:object_r:vpn_data_file:s0
->  /data/misc/systemkeys(/.*)?	u:object_r:systemkeys_data_file:s0
->  /data/misc/wifi(/.*)?		u:object_r:wifi_data_file:s0
-> +/data/misc/camera(/.*)?	u:object_r:camera_calibration_file:s0
->  # App sandboxes
->  /data/data/.*		u:object_r:app_data_file:s0
->  # Wallpaper file.
+> @@ -77,6 +77,7 @@
+>  /dev/urandom		u:object_r:urandom_device:s0
+>  /dev/vcs[0-9a-z]*	u:object_r:vcs_device:s0
+>  /dev/video[0-9]*	u:object_r:video_device:s0
+> +/dev/xt_qtaguid	u:object_r:qtaguid_device:s0
+>  /dev/zero		u:object_r:zero_device:s0
+>  #############################
+>  # System files
+> diff --git a/genfs_contexts b/genfs_contexts
+> index 103136c..ff633a7 100644
+> --- a/genfs_contexts
+> +++ b/genfs_contexts
+> @@ -2,7 +2,7 @@
+>  genfscon rootfs / u:object_r:rootfs:s0
+>  # proc labeling can be further refined (longest matching prefix).
+>  genfscon proc / u:object_r:proc:s0
+> -genfscon proc /net/xt_qtaguid/ctrl u:object_r:qtaguid:s0
+> +genfscon proc /net/xt_qtaguid/ctrl u:object_r:qtaguid_proc:s0
+>  # selinuxfs booleans can be individually labeled.
+>  genfscon selinuxfs / u:object_r:selinuxfs:s0
+>  genfscon cgroup / u:object_r:cgroup:s0
 > diff --git a/mediaserver.te b/mediaserver.te
-> index c6af603..8d37fb7 100644
+> index 8d37fb7..057e39d 100644
 > --- a/mediaserver.te
 > +++ b/mediaserver.te
-> @@ -31,3 +31,7 @@ allow mediaserver rpmsg_device:chr_file rw_file_perms;
->  
->  # Inter System processes communicate over named pipe (FIFO)
->  allow mediaserver system:fifo_file r_file_perms;
+> @@ -35,3 +35,7 @@ allow mediaserver system:fifo_file r_file_perms;
+>  # Camera calibration
+>  allow mediaserver camera_calibration_file:dir r_dir_perms;
+>  allow mediaserver camera_calibration_file:file r_file_perms;
 > +
-> +# Camera calibration
-> +allow mediaserver camera_calibration_file:dir r_dir_perms;
-> +allow mediaserver camera_calibration_file:file r_file_perms;
+> +# Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
+> +allow mediaserver qtaguid_proc:file rw_file_perms;
+> +allow mediaserver qtaguid_device:chr_file r_file_perms;
+> diff --git a/system.te b/system.te
+> index 04ff84c..a4065cf 100644
+> --- a/system.te
+> +++ b/system.te
+> @@ -89,7 +89,8 @@ allow system appdomain:dir r_dir_perms;
+>  allow system appdomain:{ file lnk_file } rw_file_perms;
+>  
+>  # Write to /proc/net/xt_qtaguid/ctrl.
+> -allow system qtaguid:file rw_file_perms;
+> +allow system qtaguid_proc:file rw_file_perms;
+> +allow system qtaguid_device:chr_file rw_file_perms;
+>  
+>  # Notify init of death.
+>  allow system init:process sigchld;
 
 -- 
 Stephen Smalley
