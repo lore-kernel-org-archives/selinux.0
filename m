@@ -1,24 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6ILU8Hs023308
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2012 17:30:08 -0400
-Received: by ggnv5 with SMTP id v5so2204459ggn.12
-        for <selinux@tycho.nsa.gov>; Wed, 18 Jul 2012 14:30:07 -0700 (PDT)
+MIME-Version: 1.0
+Date: Wed, 18 Jul 2012 18:28:02 -0700
+Message-ID: <CAFftDdoGP=DTE7Z+y3haF=7FtKZ6iopDBxMctUZ2-NzzSRBB_A@mail.gmail.com>
+Subject: seapp_contexts boolean support
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] Initial support for translatable SEAndroid strings
-Date: Wed, 18 Jul 2012 14:29:37 -0700
-Message-Id: <1342646978-8919-1-git-send-email-w.roberts@sta.samsung.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=f46d042fddc6d0a9fa04c524b08b
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--f46d042fddc6d0a9fa04c524b08b
+Content-Type: text/plain; charset=ISO-8859-1
 
-This patch is to start addressing the concerns of Google when adding
-support for the selinux status in the Settings app. They want the
-strings in the resource file. If you look at the per language resource
-directory, they have strings.xml where strings have msgid fields. I have
-been scouring the net trying to figure out how these are generated so I
-can move onto finishing the multilanguage support, does anyone know how
-to generate msgid values and do multilanguage support in general?
+I was thinking of adding support to enable seboolean control over
+seapp_contexts. We have had to make a weird change to seapp_contexts for
+CTS and it would be nice if that only got pulled in and used when the CTS
+boolean is enabled.
+
+I was thinking is could work like this:
+
+seapp_contexts would have an additional option, sebool, you could set this
+to the name of the seboolean, such as CTS.
+
+When the code that parses the seapp_contexts file
+(selinux_android_setcontext) could check the sebool flag first, and if it
+matches, apply the existing rules to it, else, throw it away as a possible
+match.
+
+Would anyone find this useful, and if so I can code it up tomorrow after I
+submit the Settings app patches to Garrett.
+
+-- 
+Respectfully,
+
+William C Roberts
+
+--f46d042fddc6d0a9fa04c524b08b
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+I was thinking of adding support to enable seboolean control over seapp_con=
+texts. We have had to make a weird change to seapp_contexts for CTS and it =
+would be nice if that only got pulled in and used when the CTS boolean is e=
+nabled.<div>
+<br></div><div>I was thinking is could work like this:</div><div><br></div>=
+<div>seapp_contexts would have an additional option, sebool, you could set =
+this to the name of the seboolean, such as CTS.</div><div><br></div><div>
+When the code that parses the seapp_contexts file (selinux_android_setconte=
+xt) could check the sebool flag first, and if it matches, apply the existin=
+g rules to it, else, throw it away as a possible match.</div><div><br></div=
+>
+<div>Would anyone find this useful, and if so I can code it up=A0tomorrow=
+=A0after I submit the Settings app patches to Garrett.<br clear=3D"all"><di=
+v><br></div>-- <br>Respectfully,<br><br>William C Roberts<br><br><br>
+</div>
+
+--f46d042fddc6d0a9fa04c524b08b--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
