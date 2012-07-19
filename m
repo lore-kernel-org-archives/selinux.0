@@ -2,31 +2,30 @@ From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
         Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 5/6] external/sepolicy: allow media_app read to application data files
-Date: Thu, 19 Jul 2012 16:07:55 -0700
-Message-Id: <1342739276-1686-6-git-send-email-hqjiang1988@gmail.com>
+Subject: [PATCH 2/6] external/sepolicy: mediaserver open application data files
+Date: Thu, 19 Jul 2012 16:07:52 -0700
+Message-Id: <1342739276-1686-3-git-send-email-hqjiang1988@gmail.com>
 In-Reply-To: <Hi, all>
 References: <Hi, all>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- app.te |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ mediaserver.te |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/app.te b/app.te
-index a5ff295..06da29b 100644
---- a/app.te
-+++ b/app.te
-@@ -45,6 +45,8 @@ allow media_app sdcard:file { create_file_perms link_file_perms };
- # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
- allow media_app qtaguid_proc:file rw_file_perms;
- allow media_app qtaguid_device:chr_file r_file_perms;
-+# Read to app_data_file
-+allow media_app app_data_file:file r_file_perms;
- # Apps signed with the shared key.
- type shared_app, domain;
- app_domain(shared_app)
+diff --git a/mediaserver.te b/mediaserver.te
+index 057e39d..d3f0334 100644
+--- a/mediaserver.te
++++ b/mediaserver.te
+@@ -25,6 +25,7 @@ allow mediaserver sysfs:file rw_file_perms;
+ # XXX Why?
+ allow mediaserver apk_data_file:file { read getattr };
+ allow mediaserver ion_device:chr_file rw_file_perms;
++allow mediaserver app_data_file:file open;
+ 
+ # To use remote processor
+ allow mediaserver rpmsg_device:chr_file rw_file_perms;
 -- 
 1.7.0.4
 
