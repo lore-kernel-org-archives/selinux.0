@@ -1,20 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6JNUERa004821
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 19:30:14 -0400
-Received: by yenl3 with SMTP id l3so3590848yen.12
-        for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 16:30:13 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6K5U9nx018904
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2012 01:30:14 -0400
+Received: by ghbz13 with SMTP id z13so3765851ghb.12
+        for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2012 22:30:13 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: packages/apps/settings master string localization
-Date: Thu, 19 Jul 2012 16:29:45 -0700
-Message-Id: <1342740586-5079-1-git-send-email-w.roberts@sta.samsung.com>
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] Fix for build error no support ARM mode `smc #0'
+Date: Thu, 19 Jul 2012 22:29:43 -0700
+Message-Id: <1342762183-22189-2-git-send-email-w.roberts@sta.samsung.com>
+In-Reply-To: <1342762183-22189-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1342762183-22189-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[PATCH] Add support for localization of SEAndroid status
+Fixes build bug
+security/smc/bridge_pub2sec.S:95: Error: selected processor does not support ARM mode `smc #0'
+---
+ security/smc/bridge_pub2sec.S |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-This patch is to address the concerns of string localization for the
-SEAndroid/Linux status in the Settings app.
+diff --git a/security/smc/bridge_pub2sec.S b/security/smc/bridge_pub2sec.S
+index 15cd3b7..30b8b35 100644
+--- a/security/smc/bridge_pub2sec.S
++++ b/security/smc/bridge_pub2sec.S
+@@ -74,6 +74,7 @@ return_from_irq:
+ 	b	label_smc
+ 
+ label_smc:
++	.arch_extension sec
+ 	INVALIDATE_BTB
+ 	dsb
+ 	dmb
+-- 
+1.7.0.4
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
