@@ -1,43 +1,38 @@
-Message-ID: <1342815462.1721.16.camel@moss-lions.epoch.ncsc.mil>
-Subject: RE: Is the CIL project still active
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Fri, 20 Jul 2012 16:17:42 -0400
-In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E38365081B38@ALA-MBB.corp.ad.wrs.com>
-References: <1342809547.74674.YahooMailClassic@web87706.mail.ir2.yahoo.com>
-	 ,<1342811585.1721.5.camel@moss-lions.epoch.ncsc.mil>
-	 <33006C99F5A5194A9B7A7715DFA3E38365081B38@ALA-MBB.corp.ad.wrs.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6KKKn8S003257
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2012 16:20:49 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q6KKKmQ7027385
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2012 16:20:48 -0400
+Received: from [10.11.8.242] (vpn-8-242.rdu.redhat.com [10.11.8.242])
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q6KKKlGJ006184
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jul 2012 16:20:47 -0400
+Message-ID: <5009BD9F.20607@redhat.com>
+Date: Fri, 20 Jul 2012 16:20:47 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: San Diego: libvirt/LXC/systemd/SELinux Integration Hackfest
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-20 at 19:54 +0000, Radzykewycz, T (Radzy) wrote:
-> Can someone provide a reference for those of us who don't already know and find the google search results unsatisfying?
-> 
-CIL (Common Intermediate Language) is an effort to recreate the policy
-toolchain to provide better support for higher-level languages and
-better support for policy customization.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Wiki:
-http://userspace.selinuxproject.org/trac/wiki/CilDesign
+http://0pointer.de/blog/hackfests.html
 
-Previous release:
-http://marc.info/?l=selinux&m=132199954507072&w=2
+Note this is on Tuesday before the LinuxCon/Plumbers/SecurityConference starts.
 
-After we made the previous release, a major bug was found in how CIL
-handled macro definitions that contain multiple calls of a macro
-containing a declaration. That bug has been fixed. But as I mentioned in
-the previous email there are still a couple of issues that need to be
-dealt with before another release is made.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
-
+iEYEARECAAYFAlAJvZ4ACgkQrlYvE4MpobMOdQCbBDxLypDydztvf2MBefDTxgpx
+FZoAoJ+G+cpIqLvCiF6D3N/kTXzL68dJ
+=3Dvr
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
