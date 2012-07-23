@@ -1,13 +1,12 @@
-Message-ID: <1343050007.23118.28.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 3/6] external/sepolicy: mediaserver talk to rild via
- socket
+Message-ID: <1343050097.23118.29.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 4/6] external/sepolicy: system talk to rild via socket
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Haiqing Jiang <hqjiang1988@gmail.com>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Mon, 23 Jul 2012 09:26:47 -0400
-In-Reply-To: <1342739276-1686-4-git-send-email-hqjiang1988@gmail.com>
+Date: Mon, 23 Jul 2012 09:28:17 -0400
+In-Reply-To: <1342739276-1686-5-git-send-email-hqjiang1988@gmail.com>
 References: <Hi, all>
-	 <1342739276-1686-4-git-send-email-hqjiang1988@gmail.com>
+	 <1342739276-1686-5-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
@@ -15,25 +14,23 @@ List-Id: selinux@tycho.nsa.gov
 
 On Thu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:
 > ---
->  mediaserver.te |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
+>  system.te |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 > 
-> diff --git a/mediaserver.te b/mediaserver.te
-> index d3f0334..6dd4d4a 100644
-> --- a/mediaserver.te
-> +++ b/mediaserver.te
-> @@ -40,3 +40,6 @@ allow mediaserver camera_calibration_file:file r_file_perms;
->  # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
->  allow mediaserver qtaguid_proc:file rw_file_perms;
->  allow mediaserver qtaguid_device:chr_file r_file_perms;
-> +
-> +# Talk to rild via socket
-> +unix_socket_connect(mediaserver, rild, rild)
+> diff --git a/system.te b/system.te
+> index 5c34f81..1a25fd3 100644
+> --- a/system.te
+> +++ b/system.te
+> @@ -107,6 +107,7 @@ unix_socket_connect(system, dbus, dbusd)
+>  unix_socket_connect(system, gps, gpsd)
+>  unix_socket_connect(system, bluetooth, bluetoothd)
+>  unix_socket_send(system, wpa, wpa)
+> +unix_socket_connect(system, rild, rild)
+>  
+>  # Communicate over a socket created by surfaceflinger.
+>  allow system surfaceflinger:unix_stream_socket { read write setopt };
 
-Hmm...it used to be that only radio could connect to rild.
-socket perms are 660 root radio, and mediaserver runs as media.
-Doesn't seem like this is possible even under DAC.  Clarification
-requested?
+Same as prior one.
 
 -- 
 Stephen Smalley
