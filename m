@@ -1,49 +1,46 @@
 MIME-Version: 1.0
-In-Reply-To: <1343049641.23118.22.camel@moss-pluto.epoch.ncsc.mil>
-References: <1342734563-32644-1-git-send-email-hqjiang1988@gmail.com>
-	<1342734563-32644-4-git-send-email-hqjiang1988@gmail.com>
-	<1343049641.23118.22.camel@moss-pluto.epoch.ncsc.mil>
-Date: Mon, 23 Jul 2012 09:17:48 -0700
-Message-ID: <CAO-4OdGsumWMtLPyDEDsfpqHynqEoXdaB2v35BFfHuQf8vAQgw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] external/sepolicy: system r/w udp_socket of untrusted apps
+In-Reply-To: <1343049740.23118.24.camel@moss-pluto.epoch.ncsc.mil>
+References: <1342739276-1686-2-git-send-email-hqjiang1988@gmail.com>
+	<1343049740.23118.24.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 23 Jul 2012 09:19:10 -0700
+Message-ID: <CAO-4OdFH2aPRzHMd5g33ZatDCxCKxuJ9=M19Vv=z2WBdCcbFvw@mail.gmail.com>
+Subject: Re: [PATCH 1/6] external/sepolicy: allow media_app more permissions
+ on sdcard
 From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Content-Type: multipart/alternative; boundary=f46d042c5ed73bfa3d04c58196ad
+Content-Type: multipart/alternative; boundary=f46d042c6c4d17863904c5819bbb
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d042c5ed73bfa3d04c58196ad
+--f46d042c6c4d17863904c5819bbb
 Content-Type: text/plain; charset=ISO-8859-1
 
-That will be fine. Appdomain is more general. Thanks.
+I made a mistake. Sorry for that.
 
-On Mon, Jul 23, 2012 at 6:20 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Mon, Jul 23, 2012 at 6:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> On Thu, 2012-07-19 at 14:49 -0700, Haiqing Jiang wrote:
-> > From: hqjiang <hqjiang1988@gmail.com>
-> >
+> On Thu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:
 > > ---
-> >  system.te |    3 +++
-> >  1 files changed, 3 insertions(+), 0 deletions(-)
+> >  app.te |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
 > >
-> > diff --git a/system.te b/system.te
-> > index a4065cf..5c34f81 100644
-> > --- a/system.te
-> > +++ b/system.te
-> > @@ -196,3 +196,6 @@ allow system domain:file r_file_perms;
-> >  # to uart driver and ctrl proc entry
-> >  allow system gps_device:chr_file rw_file_perms;
-> >  allow system gps_control:file rw_file_perms;
-> > +
-> > +# system Read/Write udp_socket of untrusted_app
-> > +allow system untrusted_app:udp_socket { read write };
+> > diff --git a/app.te b/app.te
+> > index 0866e95..a5ff295 100644
+> > --- a/app.te
+> > +++ b/app.te
+> > @@ -41,7 +41,7 @@ allow media_app cache_file:dir rw_dir_perms;
+> >  allow media_app cache_file:file create_file_perms;
+> >  # Access sdcard.
+> >  allow media_app sdcard:dir create_dir_perms;
+> > -allow media_app sdcard:file create_file_perms;
+> > +allow media_app sdcard:file { create_file_perms link_file_perms };
+> >  # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
+> >  allow media_app qtaguid_proc:file rw_file_perms;
+> >  allow media_app qtaguid_device:chr_file r_file_perms;
 >
-> So an app is passing a socket fd to the system_server over Binder and
-> the system_server is then writing to the socket?  Wonder why.  Anyway,
-> rather than writing this only in terms of one app domain
-> (untrusted_app), cover all cases by using the appdomain attribute, i.e.
-> allow system appdomain:udp_socket { read write };
+> create_file_perms already contains link_file_perms, so this does
+> nothing.
 >
 > --
 > Stephen Smalley
@@ -58,43 +55,39 @@ Haiqing Jiang, PH.D student
 
 Computer Science Department, North Carolina State University
 
---f46d042c5ed73bfa3d04c58196ad
+--f46d042c6c4d17863904c5819bbb
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-That will be fine. Appdomain is more general. Thanks.=A0<br><br><div class=
-=3D"gmail_quote">On Mon, Jul 23, 2012 at 6:20 AM, Stephen Smalley <span dir=
-=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tyc=
-ho.nsa.gov</a>&gt;</span> wrote:<br>
+I made a mistake. Sorry for that.=A0<br><br><div class=3D"gmail_quote">On M=
+on, Jul 23, 2012 at 6:22 AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=
+=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</=
+span> wrote:<br>
 <blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
 x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On T=
-hu, 2012-07-19 at 14:49 -0700, Haiqing Jiang wrote:<br>
-&gt; From: hqjiang &lt;<a href=3D"mailto:hqjiang1988@gmail.com">hqjiang1988=
-@gmail.com</a>&gt;<br>
-&gt;<br>
+hu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:<br>
 &gt; ---<br>
-&gt; =A0system.te | =A0 =A03 +++<br>
-&gt; =A01 files changed, 3 insertions(+), 0 deletions(-)<br>
+&gt; =A0app.te | =A0 =A02 +-<br>
+&gt; =A01 files changed, 1 insertions(+), 1 deletions(-)<br>
 &gt;<br>
-&gt; diff --git a/system.te b/system.te<br>
-&gt; index a4065cf..5c34f81 100644<br>
-&gt; --- a/system.te<br>
-&gt; +++ b/system.te<br>
-&gt; @@ -196,3 +196,6 @@ allow system domain:file r_file_perms;<br>
-&gt; =A0# to uart driver and ctrl proc entry<br>
-&gt; =A0allow system gps_device:chr_file rw_file_perms;<br>
-&gt; =A0allow system gps_control:file rw_file_perms;<br>
-&gt; +<br>
-&gt; +# system Read/Write udp_socket of untrusted_app<br>
-&gt; +allow system untrusted_app:udp_socket { read write };<br>
+&gt; diff --git a/app.te b/app.te<br>
+&gt; index 0866e95..a5ff295 100644<br>
+&gt; --- a/app.te<br>
+&gt; +++ b/app.te<br>
+&gt; @@ -41,7 +41,7 @@ allow media_app cache_file:dir rw_dir_perms;<br>
+&gt; =A0allow media_app cache_file:file create_file_perms;<br>
+&gt; =A0# Access sdcard.<br>
+&gt; =A0allow media_app sdcard:dir create_dir_perms;<br>
+&gt; -allow media_app sdcard:file create_file_perms;<br>
+&gt; +allow media_app sdcard:file { create_file_perms link_file_perms };<br=
+>
+&gt; =A0# Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid<br>
+&gt; =A0allow media_app qtaguid_proc:file rw_file_perms;<br>
+&gt; =A0allow media_app qtaguid_device:chr_file r_file_perms;<br>
 <br>
-</div></div>So an app is passing a socket fd to the system_server over Bind=
-er and<br>
-the system_server is then writing to the socket? =A0Wonder why. =A0Anyway,<=
-br>
-rather than writing this only in terms of one app domain<br>
-(untrusted_app), cover all cases by using the appdomain attribute, i.e.<br>
-allow system appdomain:udp_socket { read write };<br>
+</div></div>create_file_perms already contains link_file_perms, so this doe=
+s<br>
+nothing.<br>
 <span class=3D"HOEnZb"><font color=3D"#888888"><br>
 --<br>
 Stephen Smalley<br>
@@ -106,7 +99,7 @@ r><div>-----------------------------------</div>Haiqing Jiang, PH.D student=
 rsity<br>
 <div><br></div></div><br>
 
---f46d042c5ed73bfa3d04c58196ad--
+--f46d042c6c4d17863904c5819bbb--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
