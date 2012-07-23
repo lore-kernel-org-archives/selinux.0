@@ -1,86 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6NCogoA008592
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2012 08:50:42 -0400
-Date: Mon, 23 Jul 2012 14:49:11 +0200
-From: Ole Kliemann <ole@plastictree.net>
-To: selinux@tycho.nsa.gov
-Subject: Writing policy: default_contexts etc.
-Message-ID: <20120723124911.GA6980@telvanni>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Message-ID: <1343049432.23118.19.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/3] external/sepolicy: the media apps from third-party
+ are labeled with media_app instead of untrusted_app
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
+Date: Mon, 23 Jul 2012 09:17:12 -0400
+In-Reply-To: <1342734563-32644-2-git-send-email-hqjiang1988@gmail.com>
+References: <1342734563-32644-1-git-send-email-hqjiang1988@gmail.com>
+	 <1342734563-32644-2-git-send-email-hqjiang1988@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2012-07-19 at 14:49 -0700, Haiqing Jiang wrote:
+> From: hqjiang <hqjiang1988@gmail.com>
+> 
+> ---
+>  seapp_contexts |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/seapp_contexts b/seapp_contexts
+> index 502206a..1e98f91 100644
+> --- a/seapp_contexts
+> +++ b/seapp_contexts
+> @@ -38,3 +38,4 @@ user=app_* seinfo=shared domain=shared_app levelFromUid=true
+>  user=app_* seinfo=media domain=media_app levelFromUid=true
+>  user=app_* seinfo=release domain=release_app levelFromUid=true
+>  user=app_* seinfo=release name=com.android.browser domain=browser_app levelFromUid=true
+> +user=app_* name=android.process.media domain=media_app levelFromUid=true
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wouldn't this allow an arbitrary third party app to run in media_app,
+just by using android.process.media as its package name?
 
-I'm in the process of writing a simple policy from scratch. =20
-Everything works as expected, except for logins.
+-- 
+Stephen Smalley
+National Security Agency
 
-I have a user named tfm on my system.
-/etc/selinux/mypolicy/seusers looks like:
-   =20
-    tfm:tfm_u
-    root:system_u
-
-In my policy I have a user tfm_u with roles tfm_r. tfm_r has=20
-several types, for example xserver_tfm_t. I also have a user=20
-system_u with role unconfined_r and type unconfined_t.
-
-Using runcon I can transition from=20
-system_u:unconfined_r:unconfined_t to tfm_u:tfm_r:xserver_tfm_t.=20
-
-I figured I have to tell the login programs which context to=20
-choose per default. My login programs run as=20
-system_u:unconfined_r:unconfined_t, so I added to=20
-/etc/selinux/mypolicy/contexts/default_contexts the line
-
-    unconfined_r:unconfined_t   tfm_r:xserver_tfm_t
-
-I also have in /etc/selinux/mypolicy/contexts/default_type
-
-    unconfined_r:unconfined_t
-    tfm_r:xserver_tfm_t
-
-I can login as root and have context=20
-system_u:unconfined_r:unconfined_t.
-
-I cannot login as tfm, because:
-
-pam_selinux(login:session): Unable to get valid context for tfm
-
-
-Apparently I am missing something, just can't find what.
-
-In general I find it difficult to find comprehensive=20
-documentation about the userland tools' interaction with the=20
-policy conifguration. On top of that error messages are often=20
-uninformative. (Random example: when the file=20
-/etc/selinux/mypolicy/contexts/files/file_contexts is missing,=20
-useradd without any output exits with return code 12. Which says=20
-'cannot create homedir' but contains no clue about the reason for=20
-the failure.)
-
-So any hint on the above problem or hints on good places I could=20
-read up on the topic would be highly appreciated!
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlANSEcACgkQS1FjE303ERznXgCaAnTIF3+OXEq0kYn4yylbrVTU
-z1wAnR2O6zxKjD41jKRK7TGeespxkv0S
-=dNIY
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
