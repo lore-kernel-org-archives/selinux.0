@@ -1,47 +1,44 @@
 MIME-Version: 1.0
-In-Reply-To: <1343049740.23118.24.camel@moss-pluto.epoch.ncsc.mil>
-References: <1342739276-1686-2-git-send-email-hqjiang1988@gmail.com>
-	<1343049740.23118.24.camel@moss-pluto.epoch.ncsc.mil>
-Date: Mon, 23 Jul 2012 09:19:10 -0700
-Message-ID: <CAO-4OdFH2aPRzHMd5g33ZatDCxCKxuJ9=M19Vv=z2WBdCcbFvw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] external/sepolicy: allow media_app more permissions
- on sdcard
+In-Reply-To: <1343049803.23118.25.camel@moss-pluto.epoch.ncsc.mil>
+References: <1342739276-1686-3-git-send-email-hqjiang1988@gmail.com>
+	<1343049803.23118.25.camel@moss-pluto.epoch.ncsc.mil>
+Date: Mon, 23 Jul 2012 09:22:12 -0700
+Message-ID: <CAO-4OdEgeDCosnK8Nm8HOTFF+Q-tE4242UA5Bw7f-a-on4yRrA@mail.gmail.com>
+Subject: Re: [PATCH 2/6] external/sepolicy: mediaserver open application data files
 From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Content-Type: multipart/alternative; boundary=f46d042c6c4d17863904c5819bbb
+Content-Type: multipart/alternative; boundary=f46d0401730bf4d49804c581a554
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d042c6c4d17863904c5819bbb
+--f46d0401730bf4d49804c581a554
 Content-Type: text/plain; charset=ISO-8859-1
 
-I made a mistake. Sorry for that.
+Thanks. I should be more careful to find the related existing policies.
 
-On Mon, Jul 23, 2012 at 6:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Mon, Jul 23, 2012 at 6:23 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
 > On Thu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:
 > > ---
-> >  app.te |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> >  mediaserver.te |    1 +
+> >  1 files changed, 1 insertions(+), 0 deletions(-)
 > >
-> > diff --git a/app.te b/app.te
-> > index 0866e95..a5ff295 100644
-> > --- a/app.te
-> > +++ b/app.te
-> > @@ -41,7 +41,7 @@ allow media_app cache_file:dir rw_dir_perms;
-> >  allow media_app cache_file:file create_file_perms;
-> >  # Access sdcard.
-> >  allow media_app sdcard:dir create_dir_perms;
-> > -allow media_app sdcard:file create_file_perms;
-> > +allow media_app sdcard:file { create_file_perms link_file_perms };
-> >  # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
-> >  allow media_app qtaguid_proc:file rw_file_perms;
-> >  allow media_app qtaguid_device:chr_file r_file_perms;
+> > diff --git a/mediaserver.te b/mediaserver.te
+> > index 057e39d..d3f0334 100644
+> > --- a/mediaserver.te
+> > +++ b/mediaserver.te
+> > @@ -25,6 +25,7 @@ allow mediaserver sysfs:file rw_file_perms;
+> >  # XXX Why?
+> >  allow mediaserver apk_data_file:file { read getattr };
+> >  allow mediaserver ion_device:chr_file rw_file_perms;
+> > +allow mediaserver app_data_file:file open;
+> >
+> >  # To use remote processor
+> >  allow mediaserver rpmsg_device:chr_file rw_file_perms;
 >
-> create_file_perms already contains link_file_perms, so this does
-> nothing.
->
+> If this is required, then merge it into the existing allow rule for
+> app_data_file, at which point you can just use r_file_perms;
 > --
 > Stephen Smalley
 > National Security Agency
@@ -55,41 +52,38 @@ Haiqing Jiang, PH.D student
 
 Computer Science Department, North Carolina State University
 
---f46d042c6c4d17863904c5819bbb
+--f46d0401730bf4d49804c581a554
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-I made a mistake. Sorry for that.=A0<br><br><div class=3D"gmail_quote">On M=
-on, Jul 23, 2012 at 6:22 AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</=
-span> wrote:<br>
+Thanks. I should be more careful to find the related existing policies.=A0<=
+br><br><div class=3D"gmail_quote">On Mon, Jul 23, 2012 at 6:23 AM, Stephen =
+Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=
+=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>
 <blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
 x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On T=
 hu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:<br>
 &gt; ---<br>
-&gt; =A0app.te | =A0 =A02 +-<br>
-&gt; =A01 files changed, 1 insertions(+), 1 deletions(-)<br>
+&gt; =A0mediaserver.te | =A0 =A01 +<br>
+&gt; =A01 files changed, 1 insertions(+), 0 deletions(-)<br>
 &gt;<br>
-&gt; diff --git a/app.te b/app.te<br>
-&gt; index 0866e95..a5ff295 100644<br>
-&gt; --- a/app.te<br>
-&gt; +++ b/app.te<br>
-&gt; @@ -41,7 +41,7 @@ allow media_app cache_file:dir rw_dir_perms;<br>
-&gt; =A0allow media_app cache_file:file create_file_perms;<br>
-&gt; =A0# Access sdcard.<br>
-&gt; =A0allow media_app sdcard:dir create_dir_perms;<br>
-&gt; -allow media_app sdcard:file create_file_perms;<br>
-&gt; +allow media_app sdcard:file { create_file_perms link_file_perms };<br=
->
-&gt; =A0# Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid<br>
-&gt; =A0allow media_app qtaguid_proc:file rw_file_perms;<br>
-&gt; =A0allow media_app qtaguid_device:chr_file r_file_perms;<br>
+&gt; diff --git a/mediaserver.te b/mediaserver.te<br>
+&gt; index 057e39d..d3f0334 100644<br>
+&gt; --- a/mediaserver.te<br>
+&gt; +++ b/mediaserver.te<br>
+&gt; @@ -25,6 +25,7 @@ allow mediaserver sysfs:file rw_file_perms;<br>
+&gt; =A0# XXX Why?<br>
+&gt; =A0allow mediaserver apk_data_file:file { read getattr };<br>
+&gt; =A0allow mediaserver ion_device:chr_file rw_file_perms;<br>
+&gt; +allow mediaserver app_data_file:file open;<br>
+&gt;<br>
+&gt; =A0# To use remote processor<br>
+&gt; =A0allow mediaserver rpmsg_device:chr_file rw_file_perms;<br>
 <br>
-</div></div>create_file_perms already contains link_file_perms, so this doe=
-s<br>
-nothing.<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
+</div></div>If this is required, then merge it into the existing allow rule=
+ for<br>
+app_data_file, at which point you can just use r_file_perms;<br>
+<span class=3D"HOEnZb"><font color=3D"#888888">--<br>
 Stephen Smalley<br>
 National Security Agency<br>
 <br>
@@ -99,7 +93,7 @@ r><div>-----------------------------------</div>Haiqing Jiang, PH.D student=
 rsity<br>
 <div><br></div></div><br>
 
---f46d042c6c4d17863904c5819bbb--
+--f46d0401730bf4d49804c581a554--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
