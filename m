@@ -1,63 +1,46 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6OCVLgf010835
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 08:31:21 -0400
-Received: by ggnv5 with SMTP id v5so6750510ggn.12
-        for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 05:31:20 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <500D45BB.9060101@redhat.com>
-References: <5009BD9F.20607@redhat.com>
-	<alpine.LRH.2.02.1207231120290.13554@tundra.namei.org>
-	<500D45BB.9060101@redhat.com>
-Date: Tue, 24 Jul 2012 07:31:20 -0500
-Message-ID: <CAFPpqQFpBafsFd1aa77XkFcwH1craJq6D5382zMb=9x+LW0oUw@mail.gmail.com>
-Subject: Re: San Diego: libvirt/LXC/systemd/SELinux Integration Hackfest
-From: Ted Toth <txtoth@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: James Morris <jmorris@namei.org>, SELinux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1343135045.2383.26.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] external/sepolicy: system r/w udp_socket of appdomain
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
+Date: Tue, 24 Jul 2012 09:04:05 -0400
+In-Reply-To: <1343078459-25342-2-git-send-email-hqjiang1988@gmail.com>
+References: <1343078459-25342-1-git-send-email-hqjiang1988@gmail.com>
+	 <1343078459-25342-2-git-send-email-hqjiang1988@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is this really going to start at 3am CDT that's a bit early for me ;)
+On Mon, 2012-07-23 at 14:20 -0700, Haiqing Jiang wrote:
+> From: hqjiang <hqjiang1988@gmail.com>
+> 
+> external/sepolicy: allow media_app more permissions on sdcard
+> 
+> external/sepolicy: allow media_app more permissions on sdcard
 
-Ted
+Patch description did not match content.  Applied with amended message.
 
-On Mon, Jul 23, 2012 at 7:38 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 07/22/2012 09:23 PM, James Morris wrote:
->> On Fri, 20 Jul 2012, Daniel J Walsh wrote:
->>
->>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->>>
->>> http://0pointer.de/blog/hackfests.html
->>>
->>> Note this is on Tuesday before the LinuxCon/Plumbers/SecurityConference
->>> starts.
->>
->> Could you or Eric give a summary at LSS, perhaps in the SELinux update slot
->> on the 31st?
->>
->> http://kernsec.org/wiki/index.php/Linux_Security_Summit_2012/Schedule
->>
->>
->>
-> Yes I will talk about this at my SECure Containers talk at the security summit.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.12 (GNU/Linux)
-> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
->
-> iEYEARECAAYFAlANRbsACgkQrlYvE4MpobNd2ACfes3nIWXe7trda2TcKnwOrGWZ
-> XEEAoOMdSl/VKM6qsZa6mKNDWXwqNr9a
-> =6lnM
-> -----END PGP SIGNATURE-----
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> ---
+>  system.te |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/system.te b/system.te
+> index a4065cf..bfbc35a 100644
+> --- a/system.te
+> +++ b/system.te
+> @@ -196,3 +196,6 @@ allow system domain:file r_file_perms;
+>  # to uart driver and ctrl proc entry
+>  allow system gps_device:chr_file rw_file_perms;
+>  allow system gps_control:file rw_file_perms;
+> +
+> +# system Read/Write udp_socket of untrusted_app
+> +allow system appdomain:udp_socket { read write };
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
