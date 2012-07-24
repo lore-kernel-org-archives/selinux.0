@@ -1,106 +1,68 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6OB6Ce7005953
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 07:06:12 -0400
+Date: Tue, 24 Jul 2012 13:05:51 +0200
+From: Ole Kliemann <ole@plastictree.net>
+To: Ted Toth <txtoth@gmail.com>
+Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+Subject: Re: Information about XSELinux
+Message-ID: <20120724110551.GA2746@telvanni>
+References: <20120719141823.GA19890@telvanni>
+ <1342717308.5578.YahooMailClassic@web87704.mail.ir2.yahoo.com>
+ <CAFPpqQHU_YkQzX9H9SXhA_hyDv3rpghfRrn_Va2aBDjx+tD7aw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1343050007.23118.28.camel@moss-pluto.epoch.ncsc.mil>
-References: <1342739276-1686-4-git-send-email-hqjiang1988@gmail.com>
-	<1343050007.23118.28.camel@moss-pluto.epoch.ncsc.mil>
-Date: Mon, 23 Jul 2012 15:05:09 -0700
-Message-ID: <CAO-4OdG2zH+9dDQYboh2itGN6a5cUMPc23TJO3vJZ6DDaR9TwA@mail.gmail.com>
-Subject: Re: [PATCH 3/6] external/sepolicy: mediaserver talk to rild via socket
-From: Haiqing Jiang <hqjiang1988@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Content-Type: multipart/alternative; boundary=f46d042184d96ea3bc04c58670b2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+In-Reply-To: <CAFPpqQHU_YkQzX9H9SXhA_hyDv3rpghfRrn_Va2aBDjx+tD7aw@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d042184d96ea3bc04c58670b2
-Content-Type: text/plain; charset=ISO-8859-1
 
-If in that case, I don't think it's a good idea to allow permission to
-mediaserver over rild. Thanks for your comments.
-
-On Mon, Jul 23, 2012 at 6:26 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Thu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:
-> > ---
-> >  mediaserver.te |    3 +++
-> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/mediaserver.te b/mediaserver.te
-> > index d3f0334..6dd4d4a 100644
-> > --- a/mediaserver.te
-> > +++ b/mediaserver.te
-> > @@ -40,3 +40,6 @@ allow mediaserver camera_calibration_file:file
-> r_file_perms;
-> >  # Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid
-> >  allow mediaserver qtaguid_proc:file rw_file_perms;
-> >  allow mediaserver qtaguid_device:chr_file r_file_perms;
-> > +
-> > +# Talk to rild via socket
-> > +unix_socket_connect(mediaserver, rild, rild)
->
-> Hmm...it used to be that only radio could connect to rild.
-> socket perms are 660 root radio, and mediaserver runs as media.
-> Doesn't seem like this is possible even under DAC.  Clarification
-> requested?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
-
-
--- 
------------------------------------
-Haiqing Jiang, PH.D student
-
-Computer Science Department, North Carolina State University
-
---f46d042184d96ea3bc04c58670b2
-Content-Type: text/html; charset=ISO-8859-1
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-If in that case, I don&#39;t think it&#39;s a good idea to allow permission=
- to mediaserver over rild. Thanks for your comments.=A0<br><br><div class=
-=3D"gmail_quote">On Mon, Jul 23, 2012 at 6:26 AM, Stephen Smalley <span dir=
-=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tyc=
-ho.nsa.gov</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On T=
-hu, 2012-07-19 at 16:07 -0700, Haiqing Jiang wrote:<br>
-&gt; ---<br>
-&gt; =A0mediaserver.te | =A0 =A03 +++<br>
-&gt; =A01 files changed, 3 insertions(+), 0 deletions(-)<br>
-&gt;<br>
-&gt; diff --git a/mediaserver.te b/mediaserver.te<br>
-&gt; index d3f0334..6dd4d4a 100644<br>
-&gt; --- a/mediaserver.te<br>
-&gt; +++ b/mediaserver.te<br>
-&gt; @@ -40,3 +40,6 @@ allow mediaserver camera_calibration_file:file r_fil=
-e_perms;<br>
-&gt; =A0# Read/[write] to /proc/net/xt_qtaguid/ctrl and /dev/xt_qtaguid<br>
-&gt; =A0allow mediaserver qtaguid_proc:file rw_file_perms;<br>
-&gt; =A0allow mediaserver qtaguid_device:chr_file r_file_perms;<br>
-&gt; +<br>
-&gt; +# Talk to rild via socket<br>
-&gt; +unix_socket_connect(mediaserver, rild, rild)<br>
-<br>
-</div></div>Hmm...it used to be that only radio could connect to rild.<br>
-socket perms are 660 root radio, and mediaserver runs as media.<br>
-Doesn&#39;t seem like this is possible even under DAC. =A0Clarification<br>
-requested?<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
-r><div>-----------------------------------</div>Haiqing Jiang, PH.D student=
-<div><br></div><div>Computer Science Department, North Carolina State Unive=
-rsity<br>
-<div><br></div></div><br>
+On Mon, Jul 23, 2012 at 09:12:37AM -0500, Ted Toth wrote:
+> FWIW we have a custom distro of RHEL 6 running MLS policy with X in
+> enforcing however as you might imagine getting all of this working was
+> non-trival. Because of schedule/budget/complexity we do not run GNOME
+> but rather Openbox, fbpanel and idesk all of which we wrote policy
+> for. Many apps (Firefox, OpenOffice) require policy tweeks with many
+> of those due to our particular security requirements. We have dozens
+> of custom X applications all of which require policy modules. Getting
+> things like copy/paste to work under MLS is particularly challenging
+> because of lack of visibility into what the X server (XACE) is doing.
 
---f46d042184d96ea3bc04c58670b2--
+I'm running X in enforcing too now with a simple setup. There is=20
+a domain for every job (browser, mail, ...). These domains can't=20
+access each other. The WM has access to all of them. Copy/paste=20
+works like a charm with every domain having its own cutbuffer and=20
+a small script called from the WM to copy the cutbuffer to other=20
+domains.
+
+Of course I had to allow some things in X that I do not fully=20
+understand. But there is definitely no more sending synthetic=20
+input events to foreign windows and no more keylogging.
+
+Do you know of any documentation that lists all things in the X=20
+protocol and their possible security implications?=20
+
+Ole
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlAOgY8ACgkQS1FjE303ERwcKACfZDW21UpqYOLf0y3VoyKjl2Wp
+6WAAn3ec3GYep8nEMGhJObRbYIGdyMBt
+=QGpN
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
