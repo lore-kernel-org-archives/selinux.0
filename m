@@ -1,81 +1,63 @@
-Message-ID: <500E9528.2050209@manicmethod.com>
-Date: Tue, 24 Jul 2012 08:29:28 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6OCVLgf010835
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 08:31:21 -0400
+Received: by ggnv5 with SMTP id v5so6750510ggn.12
+        for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 05:31:20 -0700 (PDT)
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>
-CC: jwcart2@tycho.nsa.gov, Jeremy Solt <jsolt@tresys.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: Is the CIL project still active
-References: <1342962360.34427.YahooMailClassic@web87705.mail.ir2.yahoo.com>
-In-Reply-To: <1342962360.34427.YahooMailClassic@web87705.mail.ir2.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <500D45BB.9060101@redhat.com>
+References: <5009BD9F.20607@redhat.com>
+	<alpine.LRH.2.02.1207231120290.13554@tundra.namei.org>
+	<500D45BB.9060101@redhat.com>
+Date: Tue, 24 Jul 2012 07:31:20 -0500
+Message-ID: <CAFPpqQFpBafsFd1aa77XkFcwH1craJq6D5382zMb=9x+LW0oUw@mail.gmail.com>
+Subject: Re: San Diego: libvirt/LXC/systemd/SELinux Integration Hackfest
+From: Ted Toth <txtoth@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Morris <jmorris@namei.org>, SELinux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Richard Haines wrote:
-> Glad to hear its still going as I started converting the Android
-> policy to CIL using the current compiler that works ok so far. However
-> I'm having problems defining 'sets of classes' for example with M4:
+Is this really going to start at 3am CDT that's a bit early for me ;)
 
-Since it is a small policy it should be possible to do a real, semantic 
-conversion (using blocks and ignoring legacy file types). Is that what 
-you are doing?
+Ted
 
-However, I'm not sure if CIL will be able to be in Android anytime soon. 
-It could still be used on the host side like checkpolicy/libsepol are 
-now but since CIL is currently statically linked against libsepol (GPL) 
-it would be prohibited in the AOSP userspace IIUC.
-
+On Mon, Jul 23, 2012 at 7:38 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> define(`dir_file_class_set (dir file lnk_file sock_file fifo_file
-> chr_file blk_file))
->
-> I've tried various methods using classmap/classmapping etc. but failed
-> to work out how to define in CIL:
->
-> mlsconstrain dir_file_class_set { create relabelfrom relabelto }
-> (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject));
->
-> I can produce CIL mlsconstrain statements when I define them with each
-> class separately but not as a set. Is it possible with the current
-> release of CIL ? (if not I'll just produce an entry for each class so
-> I can continue).
->
-> Thanks
-> Richard
->
->
-> --- On Fri, 20/7/12, James Carter<jwcart2@tycho.nsa.gov> wrote:
->
->> From: James Carter<jwcart2@tycho.nsa.gov>
->> Subject: Re: Is the CIL project still active
->> To: "Richard Haines"<richard_c_haines@btinternet.com>
->> Cc: selinux@tycho.nsa.gov
->> Date: Friday, 20 July, 2012, 20:13
->> On Fri, 2012-07-20 at 19:39 +0100,
->> Richard Haines wrote:
->>> Does anyone know the status of the CIL project as it
->> looked useful and would seem ideal for SEAndroid.
+> On 07/22/2012 09:23 PM, James Morris wrote:
+>> On Fri, 20 Jul 2012, Daniel J Walsh wrote:
 >>
->> There are still a few more bugs that need to be fixed so
->> that it can
->> correctly compile a CIL-transformed Refpolicy. Progress has
->> been slow
->> recently, but it is not going to be abandoned.
+>>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+>>>
+>>> http://0pointer.de/blog/hackfests.html
+>>>
+>>> Note this is on Tuesday before the LinuxCon/Plumbers/SecurityConference
+>>> starts.
 >>
->> --
->> James Carter<jwcart2@tycho.nsa.gov>
->> National Security Agency
+>> Could you or Eric give a summary at LSS, perhaps in the SELinux update slot
+>> on the 31st?
+>>
+>> http://kernsec.org/wiki/index.php/Linux_Security_Summit_2012/Schedule
 >>
 >>
+>>
+> Yes I will talk about this at my SECure Containers talk at the security summit.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.12 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 >
+> iEYEARECAAYFAlANRbsACgkQrlYvE4MpobNd2ACfes3nIWXe7trda2TcKnwOrGWZ
+> XEEAoOMdSl/VKM6qsZa6mKNDWXwqNr9a
+> =6lnM
+> -----END PGP SIGNATURE-----
 >
 > --
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
->
 
 --
 This message was distributed to subscribers of the selinux mailing list.
