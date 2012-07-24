@@ -1,55 +1,81 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6OCMN2l010235
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2012 08:22:23 -0400
-Message-ID: <1343132462.2383.14.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android: bitbucket repo created
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Tue, 24 Jul 2012 08:21:02 -0400
-In-Reply-To: <1343132332.2383.12.camel@moss-pluto.epoch.ncsc.mil>
-References: <1343132332.2383.12.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <500E9528.2050209@manicmethod.com>
+Date: Tue, 24 Jul 2012 08:29:28 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Richard Haines <richard_c_haines@btinternet.com>
+CC: jwcart2@tycho.nsa.gov, Jeremy Solt <jsolt@tresys.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: Is the CIL project still active
+References: <1342962360.34427.YahooMailClassic@web87705.mail.ir2.yahoo.com>
+In-Reply-To: <1342962360.34427.YahooMailClassic@web87705.mail.ir2.yahoo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-24 at 08:18 -0400, Stephen Smalley wrote:
-> Hi,
-> 
-> We have made our source repositories available on bitbucket.org as an
-> alternative to selinuxproject.org, as we've seen some issues with load
-> on selinuxproject.org.  To use the bitbucket.org repositories, clone the
-> manifests project as follows:
-> git clone https://seandroid@bitbucket.org/seandroid/manifests.git
+Richard Haines wrote:
+> Glad to hear its still going as I started converting the Android
+> policy to CIL using the current compiler that works ok so far. However
+> I'm having problems defining 'sets of classes' for example with M4:
 
-Sorry, the above should just be:
-git clone https://bitbucket.org/seandroid/manifests.git
+Since it is a small policy it should be possible to do a real, semantic 
+conversion (using blocks and ignoring legacy file types). Is that what 
+you are doing?
 
-> If you want to use the master/seandroid branch, then you can use the
-> manifests/local_manifest.xml file, e.g.
-> cp manifests/local_manifest.xml /path/to/seandroid/.repo
-> 
-> If you want to use the 4.0.4 branch, you can check out the 4.0.4
-> manifest as follows,
-> cd manifests
-> git checkout -b seandroid-4.0.4 origin/seandroid-4.0.4
-> cp local_manifest.xml /path/to/seandroid-4.0.4/.repo
-> 
-> If you want to use the 4.1.1 branch, you can do likewise for the 4.1.1
-> manifest as follows,
-> cd manifests
-> git checkout -b seandroid-4.1.1 origin/seandroid-4.1.1
-> cp local_manifest.xml /path/to/seandroid-4.1.1/.repo
-> 
-> We'll be switching the manifest files on selinuxproject.org over to
-> using bitbucket.org in the future unless we hear that people are
-> experiencing problems with bitbucket.org.
-> 
+However, I'm not sure if CIL will be able to be in Android anytime soon. 
+It could still be used on the host side like checkpolicy/libsepol are 
+now but since CIL is currently statically linked against libsepol (GPL) 
+it would be prohibited in the AOSP userspace IIUC.
 
--- 
-Stephen Smalley
-National Security Agency
-
+>
+> define(`dir_file_class_set (dir file lnk_file sock_file fifo_file
+> chr_file blk_file))
+>
+> I've tried various methods using classmap/classmapping etc. but failed
+> to work out how to define in CIL:
+>
+> mlsconstrain dir_file_class_set { create relabelfrom relabelto }
+> (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject));
+>
+> I can produce CIL mlsconstrain statements when I define them with each
+> class separately but not as a set. Is it possible with the current
+> release of CIL ? (if not I'll just produce an entry for each class so
+> I can continue).
+>
+> Thanks
+> Richard
+>
+>
+> --- On Fri, 20/7/12, James Carter<jwcart2@tycho.nsa.gov> wrote:
+>
+>> From: James Carter<jwcart2@tycho.nsa.gov>
+>> Subject: Re: Is the CIL project still active
+>> To: "Richard Haines"<richard_c_haines@btinternet.com>
+>> Cc: selinux@tycho.nsa.gov
+>> Date: Friday, 20 July, 2012, 20:13
+>> On Fri, 2012-07-20 at 19:39 +0100,
+>> Richard Haines wrote:
+>>> Does anyone know the status of the CIL project as it
+>> looked useful and would seem ideal for SEAndroid.
+>>
+>> There are still a few more bugs that need to be fixed so
+>> that it can
+>> correctly compile a CIL-transformed Refpolicy. Progress has
+>> been slow
+>> recently, but it is not going to be abandoned.
+>>
+>> --
+>> James Carter<jwcart2@tycho.nsa.gov>
+>> National Security Agency
+>>
+>>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
