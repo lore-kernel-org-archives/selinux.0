@@ -1,49 +1,47 @@
-Message-ID: <1343216506.31528.19.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 3/6] external/sepolicy: mediaserver talk to rild via
- socket
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Wed, 25 Jul 2012 07:41:46 -0400
-In-Reply-To: <CAO-4OdEmRH9toR4QX7qnR+h1-fw9742hFUAYv3trwPzW_GbU+w@mail.gmail.com>
-References: <1342739276-1686-4-git-send-email-hqjiang1988@gmail.com>
-	 <1343050007.23118.28.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAO-4OdG2zH+9dDQYboh2itGN6a5cUMPc23TJO3vJZ6DDaR9TwA@mail.gmail.com>
-	 <1343135089.2383.28.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAO-4OdEJJg+gnXwRL75+WdsCFMcwjRLSuWUvQjY8eM2YqAnDyA@mail.gmail.com>
-	 <CAO-4OdEmRH9toR4QX7qnR+h1-fw9742hFUAYv3trwPzW_GbU+w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6PKd2BV006956
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2012 16:39:03 -0400
+Received: by mail-yx0-f181.google.com with SMTP id l3so1282046yen.12
+        for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2012 13:39:02 -0700 (PDT)
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: William Roberts <bill.c.roberts@gmail.com>,
+        William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] Support older compilers by wrapping smc .arch
+Date: Wed, 25 Jul 2012 13:38:15 -0700
+Message-Id: <1343248695-32278-2-git-send-email-w.roberts@sta.samsung.com>
+In-Reply-To: <1343248695-32278-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1343248695-32278-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-24 at 15:32 -0700, Haiqing Jiang wrote:
-> Hi, Stephen
-> 
-> 
-> I find the denial. But have not ideas about the exact object related
-> to the denial. Please let me know your comments. Thanks. 
-> 
-> 
-> #============= mediaserver ==============
-> allow mediaserver rild:unix_stream_socket connectto;
-> 
-> <5>[ 9719.676422] type=1400 audit(1343162276.710:1512): avc:  denied
->  { connectto } for  pid=519 comm=42696E646572205468726561642023
-> path=004D756C7469636C69656E74 scontext=u:r:mediaserver:s0
-> tcontext=u:r:rild:s0 tclass=unix_stream_socket
+From: William Roberts <bill.c.roberts@gmail.com>
 
-Oh, it is a socket in the abstract namespace (path starts with the null
-byte).  So it is not the /dev/socket/rild socket that is in view here.
+Fixes build bug
+security/smc/bridge_pub2sec.S:95: Error: selected processor does not support ARM mode `smc #0'
 
-So I guess you can add:
-	allow mediaserver rild:unix_stream_socket connectto;
-and not use the unix_socket_connect() macro because we do not want to
-allow use of /dev/socket/rild, only the abstract socket connection.
+Signed-off-by: William Roberts <w.roberts@sta.samsung.com>
+---
+ security/smc/bridge_pub2sec.S |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
+diff --git a/security/smc/bridge_pub2sec.S b/security/smc/bridge_pub2sec.S
+index 30b8b35..e433380 100644
+--- a/security/smc/bridge_pub2sec.S
++++ b/security/smc/bridge_pub2sec.S
+@@ -74,7 +74,9 @@ return_from_irq:
+ 	b	label_smc
+ 
+ label_smc:
+-	.arch_extension sec
++#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 6
++        .arch_extension sec
++#endif
+ 	INVALIDATE_BTB
+ 	dsb
+ 	dmb
 -- 
-Stephen Smalley
-National Security Agency
+1.7.0.4
 
 
 --
