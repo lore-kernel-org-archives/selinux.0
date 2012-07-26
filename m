@@ -1,56 +1,23 @@
-MIME-Version: 1.0
-Date: Thu, 26 Jul 2012 14:25:39 -0700
-Message-ID: <CAO-4OdGJhr3H7Q8uJz0JWgEekHqo=K8gS3aU_si__f4y5dzPxQ@mail.gmail.com>
-Subject: Could we set them as "mlstrustedsubject"?
-From: Haiqing Jiang <hqjiang1988@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6QLilgw017295
+	for <selinux@tycho.nsa.gov>; Thu, 26 Jul 2012 17:44:47 -0400
+Received: by yhp26 with SMTP id 26so2659369yhp.12
+        for <selinux@tycho.nsa.gov>; Thu, 26 Jul 2012 14:44:46 -0700 (PDT)
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        William Roberts <bill.c.roberts@gmail.com>
-Content-Type: multipart/alternative; boundary=f46d0401730bb4cf0204c5c23cdd
+Subject: external/libselinux
+Date: Thu, 26 Jul 2012 14:44:04 -0700
+Message-Id: <1343339045-19207-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d0401730bb4cf0204c5c23cdd
-Content-Type: text/plain; charset=ISO-8859-1
+[PATCH] Allow zygote to spawn non matched apps in permissive mode
 
-Hi, all
-
-Currently I am testing Android CTS in SEAndroid. I find several denials are
-related to MLS constraints. The key-signed apps, like "platform_app",
-"release_app",
-"browser_app", "shared_app" and "media_app", need to open app_data_file.
-But because of MLS, they cannot do that. So, could we sign them as
-mlstrusted?
-Currently only daemons are set "mlstrustedsubject". Do you have any ideas?
-Or the better solutions to solve the denials?
-
-Thanks,
-
--- 
------------------------------------
-Haiqing Jiang, PH.D student
-
-Computer Science Department, North Carolina State University
-
---f46d0401730bb4cf0204c5c23cdd
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Hi, all<div><br></div><div>Currently I am testing Android CTS in SEAndroid.=
- I find several denials are related to MLS constraints. The key-signed apps=
-, like &quot;platform_app&quot;, &quot;release_app&quot;,</div><div>&quot;b=
-rowser_app&quot;, &quot;shared_app&quot; and &quot;media_app&quot;, need to=
- open app_data_file. But because of MLS, they cannot do that. So, could we =
-sign them as mlstrusted?=A0</div>
-<div>Currently only daemons are set &quot;mlstrustedsubject&quot;. Do you h=
-ave any ideas? Or the better solutions to solve the denials?=A0</div><div><=
-br></div><div>Thanks,<br clear=3D"all"><div><br></div>-- <br><div>---------=
---------------------------</div>
-Haiqing Jiang, PH.D student<div><br></div><div>Computer Science Department,=
- North Carolina State University<br><div><br></div></div><br>
-</div>
-
---f46d0401730bb4cf0204c5c23cdd--
+Adding support for apps not to be killed on a non-match in seapp
+contexts if the selinux enforcing mode is permissive. Currently
+it sends denials using selinux_log with it set to SELINUX_ERROR,
+but it should probably use the auditing function which currently
+is not implemented.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
