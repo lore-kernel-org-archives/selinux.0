@@ -1,56 +1,101 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6QFWqqe027770
-	for <selinux@tycho.nsa.gov>; Thu, 26 Jul 2012 11:32:56 -0400
-Received: by ghbz13 with SMTP id z13so2183770ghb.12
-        for <selinux@tycho.nsa.gov>; Thu, 26 Jul 2012 08:32:55 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, eparis@redhat.com
-Cc: Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [PATCH] Fix broken peer recv check
-Date: Thu, 26 Jul 2012 11:32:52 -0400
-Message-ID: <1436950.BLQxDVFpHs@sifl>
-In-Reply-To: <C42CE43E0E13AB44A299B62E25500374120AC7@TCSEXCH1.tcs-sec.com>
-References: <C42CE43E0E13AB44A299B62E25500374120AC7@TCSEXCH1.tcs-sec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Message-ID: <1343316928.5186.9.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Support for sebool in seapp_contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
+Date: Thu, 26 Jul 2012 11:35:28 -0400
+In-Reply-To: <1343266208-4869-2-git-send-email-w.roberts@sta.samsung.com>
+References: <1343266208-4869-1-git-send-email-w.roberts@sta.samsung.com>
+	 <1343266208-4869-2-git-send-email-w.roberts@sta.samsung.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, July 20, 2012 09:42:59 PM Chad Hanson wrote:
-> Fix a broken networking check. Return an error if peer recv fails. If
-> secmark is active and the packet recv succeeds the peer recv error is
-> ignored.
-> 
-> Signed-off-by: Chad Hanson <chanson@trustedcs.com>
-
-I would also consider this as reasonable for stable once it it merged.
-
-Acked-by: Paul Moore <paul@paul-moore.com>
-
+On Wed, 2012-07-25 at 18:30 -0700, William Roberts wrote:
+> Change-Id: Ib2f95d526ef20179f113254d4683836bdabdfbea
 > ---
->  hooks.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  src/android.c |   45 +++++++++++++++++++++++++++++++++++++++++++--
+>  1 files changed, 43 insertions(+), 2 deletions(-)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d85b793..64826a0 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4215,8 +4215,10 @@ static int selinux_socket_sock_rcv_skb(struct sock
-> *sk, struct sk_buff *skb) }
->  		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
->  				   PEER__RECV, &ad);
-> -		if (err)
-> +		if (err) {
->  			selinux_netlbl_err(skb, err, 0);
-> +			return err;
+> diff --git a/src/android.c b/src/android.c
+> index 83ba7b7..921e8dc 100644
+> --- a/src/android.c
+> +++ b/src/android.c
+> @@ -53,6 +54,12 @@ static int seapp_context_cmp(const void *A, const void *B)
+>  	const struct seapp_context **sp1 = A, **sp2 = B;
+>  	const struct seapp_context *s1 = *sp1, *s2 = *sp2;
+>  
+> +	/* Give precedence to a specified sebool= over an unspecified sebool=. */
+> +	if (s1->sebool && !s2->sebool)
+> +		return -1;
+> +	if (!s1->sebool && s2->sebool)
+> +		return 1;
+
+I would put this last (i.e. after name) in seapp_context_cmp, i.e. sort
+by the other criteria first, then by sebool.
+
+> @@ -196,6 +203,14 @@ int selinux_android_seapp_context_reload(void)
+>  				cur->level = strdup(value);
+>  				if (!cur->level)
+>  					goto oom;
+> +			} else if (!strcasecmp(name, "sebool")) {
+> +				cur->sebool = strdup(value);
+> +				if (!cur->sebool)
+> +					goto oom;
+> +			} else if (!strcasecmp(name, "sebool")) {
+> +				cur->sebool = strdup(value);
+> +				if (!cur->sebool)
+> +					goto oom;
+
+Duplication?
+
+> @@ -308,6 +324,18 @@ int selinux_android_setfilecon2(const char *pkgdir,
+>  	for (i = 0; i < nspec; i++) {
+>  		cur = seapp_contexts[i];
+>  
+> +		if (cur->sebool) {
+> +			int value = security_get_boolean_active(cur->sebool);
+> +			if(value == 0) {
+> +				continue;
+> +			}
+
+Coding style.  Space between if and opening paren.  No need for curly
+brackets around a single statement.
+
+> +			else if(value == -1) {
+> +				selinux_log(SELINUX_ERROR, \
+> +				"Could not find boolean: %s ", cur->sebool);
+> +				goto err;
+> +			}
 > +		}
->  	}
-> 
->  	if (secmark_active) {
+
+I would put this last, i.e. after name comparison, so that we only read
+the boolean value if the entry matches on all other criteria.  
+
+> @@ -443,6 +471,19 @@ int selinux_android_setcontext(uid_t uid,
+>  
+>  	for (i = 0; i < nspec; i++) {
+>  		cur = seapp_contexts[i];
+> +
+> +		if (cur->sebool) {
+> +			int value = security_get_boolean_active(cur->sebool);
+> +			if(value == 0) {
+> +				continue;
+> +			}
+> +			else if(value == -1) {
+> +                                selinux_log(SELINUX_ERROR, \
+> +                                        "Could not find boolean: %s ", cur->sebool);
+> +				goto err;
+> +			}
+> +		}
+
+Ditto.
+
 
 -- 
-paul moore
-www.paul-moore.com
+Stephen Smalley
+National Security Agency
 
 
 --
