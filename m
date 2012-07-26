@@ -1,43 +1,33 @@
-Message-ID: <1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: [PATCH] Support for sebool in seapp_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
-Date: Thu, 26 Jul 2012 15:29:22 -0400
-In-Reply-To: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
+To: William Roberts <w.roberts@sta.samsung.com>
+Cc: William Roberts <bill.c.roberts@gmail.com>,
+        "selinux@tycho.nsa.gov"
+	 <selinux@tycho.nsa.gov>
+Date: Thu, 26 Jul 2012 16:04:33 -0400
+In-Reply-To: <E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
 References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
+	 <1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-07-26 at 12:15 -0700, William Roberts wrote:
-> You can now specify a sebool= flag in seapp_contexts
-> and that rule will ONLY be applied on a match to that
-> boolean, and only if the boolean is set to true.
+On Thu, 2012-07-26 at 14:58 -0500, William Roberts wrote:
+> I've been thinking of checking the enforcing level. If it is enforcing then it should error, if it is permissive then it should warn and let the app start in the wrong context.
 > 
-> Change-Id: Ifdba35cd3a78ce1c8173786514db649203018e28
-> ---
->  src/android.c |   39 +++++++++++++++++++++++++++++++++++++--
->  1 files changed, 37 insertions(+), 2 deletions(-)
+> When brining the system up on new platforms this is often a problem. I will make this change and resubmit.
 
-> @@ -308,6 +320,17 @@ int selinux_android_setfilecon2(const char *pkgdir,
->  	for (i = 0; i < nspec; i++) {
->  		cur = seapp_contexts[i];
->  
-> +		if (cur->sebool) {
-> +			int value = security_get_boolean_active(cur->sebool);
-> +			if (value == 0)
-> +				continue;
-> +			else if (value == -1) {
-> +				selinux_log(SELINUX_ERROR, \
-> +				"Could not find boolean: %s ", cur->sebool);
-> +				goto err;
-> +			}
+Do you mean in general (i.e. changing the err block to check
+security_getenforce), or just for the case where a boolean isn't
+defined?
 
-I'd suggest just issuing a warning and continuing in the error cases.
-Otherwise a typo in a boolean name or the removal or renaming of a
-boolean in policy could prevent apps from being started at all.
+I have mixed feelings about checking and using security_getenforce() for
+anything other than permission denials, as it can hide problems during
+testing.  Also, in Android, it is a bit harder to switch the system back
+to permissive mode than on a conventional Linux system.
 
 -- 
 Stephen Smalley
