@@ -1,60 +1,56 @@
 MIME-Version: 1.0
-In-Reply-To: <1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
-References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
-	<1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
-	<E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
-	<1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
-Date: Thu, 26 Jul 2012 13:30:24 -0700
-Message-ID: <CAFftDdrJNDh=kNdHFiJ1xRDRed-JujhQfbhWusJC_RpmHR6j0A@mail.gmail.com>
-Subject: Re: [PATCH] Support for sebool in seapp_contexts
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: William Roberts <w.roberts@sta.samsung.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 26 Jul 2012 14:25:39 -0700
+Message-ID: <CAO-4OdGJhr3H7Q8uJz0JWgEekHqo=K8gS3aU_si__f4y5dzPxQ@mail.gmail.com>
+Subject: Could we set them as "mlstrustedsubject"?
+From: Haiqing Jiang <hqjiang1988@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        William Roberts <bill.c.roberts@gmail.com>
+Content-Type: multipart/alternative; boundary=f46d0401730bb4cf0204c5c23cdd
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In general I would like to add this feature. I think it is much more
-palatable checking for denials and errors with the device "working",
-rather then having it freak out at the splash screen. For instance,
-suppose the launcher isn't in the right domain, you fix that, just to
-find out some other app luanched off the launcher would fail too. If
-you could just audit, you could review the denials and then make your
-policy change in one movement.
+--f46d0401730bb4cf0204c5c23cdd
+Content-Type: text/plain; charset=ISO-8859-1
 
-Just doing it for sebool doesn't make sense to me, as adding the
-boolean rule is no different than seinfo or other rules. Either it
-matches or not.
+Hi, all
 
+Currently I am testing Android CTS in SEAndroid. I find several denials are
+related to MLS constraints. The key-signed apps, like "platform_app",
+"release_app",
+"browser_app", "shared_app" and "media_app", need to open app_data_file.
+But because of MLS, they cannot do that. So, could we sign them as
+mlstrusted?
+Currently only daemons are set "mlstrustedsubject". Do you have any ideas?
+Or the better solutions to solve the denials?
 
-
-On Thu, Jul 26, 2012 at 1:04 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2012-07-26 at 14:58 -0500, William Roberts wrote:
->> I've been thinking of checking the enforcing level. If it is enforcing then it should error, if it is permissive then it should warn and let the app start in the wrong context.
->>
->> When brining the system up on new platforms this is often a problem. I will make this change and resubmit.
->
-> Do you mean in general (i.e. changing the err block to check
-> security_getenforce), or just for the case where a boolean isn't
-> defined?
->
-> I have mixed feelings about checking and using security_getenforce() for
-> anything other than permission denials, as it can hide problems during
-> testing.  Also, in Android, it is a bit harder to switch the system back
-> to permissive mode than on a conventional Linux system.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
-
-
+Thanks,
 
 -- 
-Respectfully,
+-----------------------------------
+Haiqing Jiang, PH.D student
 
-William C Roberts
+Computer Science Department, North Carolina State University
+
+--f46d0401730bb4cf0204c5c23cdd
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi, all<div><br></div><div>Currently I am testing Android CTS in SEAndroid.=
+ I find several denials are related to MLS constraints. The key-signed apps=
+, like &quot;platform_app&quot;, &quot;release_app&quot;,</div><div>&quot;b=
+rowser_app&quot;, &quot;shared_app&quot; and &quot;media_app&quot;, need to=
+ open app_data_file. But because of MLS, they cannot do that. So, could we =
+sign them as mlstrusted?=A0</div>
+<div>Currently only daemons are set &quot;mlstrustedsubject&quot;. Do you h=
+ave any ideas? Or the better solutions to solve the denials?=A0</div><div><=
+br></div><div>Thanks,<br clear=3D"all"><div><br></div>-- <br><div>---------=
+--------------------------</div>
+Haiqing Jiang, PH.D student<div><br></div><div>Computer Science Department,=
+ North Carolina State University<br><div><br></div></div><br>
+</div>
+
+--f46d0401730bb4cf0204c5c23cdd--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
