@@ -1,63 +1,55 @@
-Message-ID: <1343419520.17570.104.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/2] Allow zygote to spawn non matched apps in
- permissive mode
+Message-ID: <1343419618.17570.106.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 2/2] You can now specify a sebool= flag in seapp_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: William Roberts <bill.c.roberts@gmail.com>
 Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
-Date: Fri, 27 Jul 2012 16:05:20 -0400
-In-Reply-To: <1343418124-3562-2-git-send-email-w.roberts@sta.samsung.com>
+Date: Fri, 27 Jul 2012 16:06:58 -0400
+In-Reply-To: <1343418124-3562-3-git-send-email-w.roberts@sta.samsung.com>
 References: <1343418124-3562-1-git-send-email-w.roberts@sta.samsung.com>
-	 <1343418124-3562-2-git-send-email-w.roberts@sta.samsung.com>
+	 <1343418124-3562-3-git-send-email-w.roberts@sta.samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, 2012-07-27 at 12:42 -0700, William Roberts wrote:
-> This patch will allow non-matched apps in seapp_contexts to
-> still be spawned via the zygote. An error message will be sent
-> to logcat.
+> and that rule will ONLY be applied on a match to that
+> boolean, and only if the boolean is set to true.
 > 
-> Change-Id: I9fb5dcfeb384a26e6a01d69bffd2ef14af74c51c
+> Change-Id: Ifdba35cd3a78ce1c8173786514db649203018e28
 > Signed-off-by: William Roberts <w.roberts@sta.samsung.com>
 > ---
->  src/android.c |    5 ++---
->  1 files changed, 2 insertions(+), 3 deletions(-)
+>  src/android.c |   41 ++++++++++++++++++++++++++++++++++++++---
+>  1 files changed, 38 insertions(+), 3 deletions(-)
 > 
-> diff --git a/src/android.c b/src/android.c
-> index 83ba7b7..66671e2 100644
-> --- a/src/android.c
-> +++ b/src/android.c
-> @@ -491,8 +491,7 @@ int selinux_android_setcontext(uid_t uid,
->  		selinux_log(SELINUX_ERROR,
->  			    "%s:  No match for app with uid %d, seinfo %s, name %s\n",
->  			    __FUNCTION__, uid, seinfo, pkgname);
-> -		rc = -1;
-> -		goto out;
-> +		goto err;
 
-Falls over when testing with a deliberately broken seapp_contexts
-configuration in enforcing mode.  Test scenario:
-- Comment out line for untrusted_app in seapp_contexts, push to device.
-- Install third party app.
-- Start third party app in permissive mode (works, logs message).
-- Switch to enforcing mode.
-- Try starting third party app (fails with log message followed by
-double free warning, blank screen).
+> @@ -217,12 +228,13 @@ int selinux_android_seapp_context_reload(void)
+>  		int i;
+>  		for (i = 0; i < nspec; i++) {
+>  			cur = seapp_contexts[i];
+> -			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s",
+> +			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s sebool=%s",
+>  				    __FUNCTION__,
+>  				    cur->isSystemServer ? "true" : "false",
+>  				    cur->user, cur->seinfo, cur->name,
+>  				    cur->domain, cur->type, cur->level,
+> -				    cur->levelFromUid ? "true" : "false");
+> +				    cur->levelFromUid ? "true" : "false",
+> +				    cur->sebool);
 
+sebool is an input selector, thus belongs right after name=%s before ->.
 
->  	}
+> @@ -443,6 +466,7 @@ int selinux_android_setcontext(uid_t uid,
 >  
->  	ctx_str = context_str(ctx);
-> @@ -524,7 +523,7 @@ err:
->  			    "%s:  Error setting context for app with uid %d, seinfo %s: %s\n",
->  			    __FUNCTION__, uid, seinfo, strerror(errno));
->  
-> -	rc = -1;
-> +	rc = (security_getenforce() == 0) ? 0 : -1;
->  	goto out;
->  oom:
->  	selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __FUNCTION__);
+>  	for (i = 0; i < nspec; i++) {
+>  		cur = seapp_contexts[i];
+> +
+
+Extraneous whitespace change.
+
+>  		if (cur->isSystemServer != isSystemServer)
+>  			continue;
+>  		if (cur->user) {
 
 -- 
 Stephen Smalley
