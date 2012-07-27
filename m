@@ -2,29 +2,30 @@ From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
         Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH] add read permission over dev_type to appdomain on android_cts enabled
-Date: Fri, 27 Jul 2012 15:40:37 -0700
-Message-Id: <1343428837-6843-1-git-send-email-hqjiang1988@gmail.com>
+Subject: [PATCH 1/1] Appdomain write to cgroup on android_cts enabled
+Date: Fri, 27 Jul 2012 15:51:24 -0700
+Message-Id: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- cts.te |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ cts.te |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
 diff --git a/cts.te b/cts.te
-index 489be1a..ff8a9f0 100644
+index ff8a9f0..7877b19 100644
 --- a/cts.te
 +++ b/cts.te
-@@ -20,7 +20,7 @@ allow appdomain file_type:dir r_dir_perms;
- allow appdomain fs_type:dir r_dir_perms;
- allow appdomain dev_type:dir r_dir_perms;
- allow appdomain file_type:dir_file_class_set getattr;
--allow appdomain dev_type:dir_file_class_set getattr;
-+allow appdomain dev_type:dir_file_class_set { getattr read };
- allow appdomain fs_type:dir_file_class_set getattr;
+@@ -31,6 +31,9 @@ allow appdomain system_file:file rx_file_perms;
+ allow appdomain apk_tmp_file:file rw_file_perms;
+ allow appdomain shell_data_file:file r_file_perms;
  
- # Execute the shell or other system executables.
++# Write to cgroup
++allow appdomain cgroup:dir write;
++
+ # Read routing information.
+ allow netdomain self:netlink_route_socket { create read write nlmsg_read };
+ 
 -- 
 1.7.0.4
 
