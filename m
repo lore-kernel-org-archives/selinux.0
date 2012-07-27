@@ -1,43 +1,31 @@
-Message-ID: <1343414258.17570.72.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/1] allocate perms to platformappdomain over
- system_data_file
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Fri, 27 Jul 2012 14:37:38 -0400
-In-Reply-To: <1343414055-3831-1-git-send-email-hqjiang1988@gmail.com>
-References: <1343414055-3831-1-git-send-email-hqjiang1988@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Haiqing Jiang <hqjiang1988@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
+        Haiqing Jiang <hqjiang1988@gmail.com>
+Subject: [PATCH 1/1] installd unlink platform_app_data_file
+Date: Fri, 27 Jul 2012 11:44:13 -0700
+Message-Id: <1343414653-3998-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-27 at 11:34 -0700, Haiqing Jiang wrote:
-> ---
->  app.te |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/app.te b/app.te
-> index 85de816..dca2e0c 100644
-> --- a/app.te
-> +++ b/app.te
-> @@ -83,6 +83,8 @@ allow platformappdomain platform_app_data_file:notdevfile_class_set create_file_
->  # App sdcard file accesses
->  allow platformappdomain sdcard:dir create_dir_perms;
->  allow platformappdomain sdcard:file create_file_perms;
-> +# System data file accesses XXX????
-> +allow platformappdomain system_data_file:file open;
->  
->  #
->  # Untrusted apps.
+---
+ installd.te |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Need to know more about the denial to diagnose.
-Also, enabling syscall audit may help with getting full pathnames,
-although you likely need the ARM audit patches for that.  
-
+diff --git a/installd.te b/installd.te
+index ce9122b..a2c7bb4 100644
+--- a/installd.te
++++ b/installd.te
+@@ -20,5 +20,6 @@ dontaudit installd self:capability sys_admin;
+ selinux_check_context(installd)
+ # Read /seapp_contexts, presently on the rootfs.
+ allow installd rootfs:file r_file_perms;
+-# Unlink app_data_file
++# Unlink app_data_file and platform_app_data_file
+ allow installd app_data_file:lnk_file unlink;
++allow installd platform_app_data_file:lnk_file unlink;
 -- 
-Stephen Smalley
-National Security Agency
+1.7.0.4
 
 
 --
