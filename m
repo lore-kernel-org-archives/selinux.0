@@ -1,36 +1,45 @@
-Message-ID: <1343415170.17570.83.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/1] installd unlink platform_app_data_file
+Message-ID: <1343415341.17570.85.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Support for sebool in seapp_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Fri, 27 Jul 2012 14:52:50 -0400
-In-Reply-To: <1343414653-3998-1-git-send-email-hqjiang1988@gmail.com>
-References: <1343414653-3998-1-git-send-email-hqjiang1988@gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Fri, 27 Jul 2012 14:55:41 -0400
+In-Reply-To: <1343415004.17570.80.camel@moss-pluto.epoch.ncsc.mil>
+References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
+	 <1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
+	 <1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAFftDdrJNDh=kNdHFiJ1xRDRed-JujhQfbhWusJC_RpmHR6j0A@mail.gmail.com>
+	 <1343396040.17570.9.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAFftDdoQrHs7o5hgBQ6skFvFdPsmWAEJP8oYE7h_tqQrEg8NPQ@mail.gmail.com>
+	 <1343415004.17570.80.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-27 at 11:44 -0700, Haiqing Jiang wrote:
-> ---
->  installd.te |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
+On Fri, 2012-07-27 at 14:50 -0400, Stephen Smalley wrote:
+> On Fri, 2012-07-27 at 11:30 -0700, William Roberts wrote:
+> > Yeah but the Zygote failures will be in logcat, so if you missed them
+> > when you were testing in permissive mode, then its your problem. This
+> > is the same behavior as the rest of the system, we just need to agree
+> > upon a "avc denied" message for Zygote and teach the SEAndroidManager
+> > app to look for those too.
+> > 
+> > I don't think I can advise as to the best message and was looking to
+> > you for a possible formatting for it?
 > 
-> diff --git a/installd.te b/installd.te
-> index ce9122b..a2c7bb4 100644
-> --- a/installd.te
-> +++ b/installd.te
-> @@ -20,5 +20,6 @@ dontaudit installd self:capability sys_admin;
->  selinux_check_context(installd)
->  # Read /seapp_contexts, presently on the rootfs.
->  allow installd rootfs:file r_file_perms;
-> -# Unlink app_data_file
-> +# Unlink app_data_file and platform_app_data_file
->  allow installd app_data_file:lnk_file unlink;
-> +allow installd platform_app_data_file:lnk_file unlink;
+> It isn't an avc denial.  I don't remember now whether we wired up the
+> callback to prefix these messages with SELinux?  If so, then that should
+> suffice as a keyword for filtering the logs.
 
-Just add lnk_file to the earlier rule for data_file_type and drop these
-two rules altogether.
+Commented out the untrusted_app line and tried running a third party
+app.  Got this message in logcat *:E:
+E/SELinux ( 1229): selinux_android_setcontext:  No match for app with
+uid 10055, seinfo default, name com.adobe.reader
+
+So you can already use SELinux as the keyword for filtering, and then
+pull out the relevant fields.  It isn't an AVC message though.
 
 -- 
 Stephen Smalley
