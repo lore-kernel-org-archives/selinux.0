@@ -1,42 +1,62 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6R42O7Y000329
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 00:02:24 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Ole Kliemann <ole@plastictree.net>, selinux@tycho.nsa.gov
+Subject: Re: Information about XSELinux
+Date: Fri, 27 Jul 2012 14:02:15 +1000
+References: <20120716161006.GA14824@telvanni> <50081541.3040909@redhat.com> <20120719144405.GB19890@telvanni>
+In-Reply-To: <20120719144405.GB19890@telvanni>
 MIME-Version: 1.0
-In-Reply-To: <39957192-36AC-4A3E-A0D4-FDF353F202A6@nall.com>
-References: <CAO-4OdHA5cawkDUOqHWMKP9tSqtEKosGincjcycENUr47Qjt3A@mail.gmail.com>
-	<3138EE6F-F894-46F2-A233-E3F014B1257C@nall.com>
-	<CAFftDdqjHjjT2Ond9NHd7qkiYyFaEKYv3CZt2HxrPKsTQU-r8Q@mail.gmail.com>
-	<39957192-36AC-4A3E-A0D4-FDF353F202A6@nall.com>
-Date: Thu, 26 Jul 2012 18:30:27 -0700
-Message-ID: <CAFftDdo4Atgqvnh1QTkrkvo5sJjpemXyYN4d9HtOanCwmKMuqQ@mail.gmail.com>
-Subject: Re: Questions about the MLS to "read down"
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Joe Nall <joe@nall.com>
-Cc: Haiqing Jiang <hqjiang1988@gmail.com>, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201207271402.15812.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Oh ok thanks
+On Fri, 20 Jul 2012, Ole Kliemann <ole@plastictree.net> wrote:
+> I'm not exactly sure how MLS works, but I'd intuitively would 
+> say, my approach is more MLS-like because change of privileges 
+> only goes in one direction. Privileges are only dropped, never 
+> gained. (Mainuser drops to subuser, subuser never elevates back 
+> to mainuser or any other subuser.)
+> 
+> I started working on a policy for X using TE. Do you think, what 
+> I want could be better expressed in MLS?
 
-On Thu, Jul 26, 2012 at 6:21 PM, Joe Nall <joe@nall.com> wrote:
->
-> On Jul 26, 2012, at 8:15 PM, William Roberts <bill.c.roberts@gmail.com> wrote:
->
->> How did you determine that c42 doesn't dominate c16?
->
-> Category dominance is having the same or a superset of the category bits. Using your category bits:
->
-> s0:c16,c42 dominates s0:c16,c42, s0:c16, s0:c42 and s0
-> s0:c42 dominates s0:c42 and s0
-> s0:c16 dominates s0:c16 and s0
->
-> joe
+MLS is about sensitivity levels of data with a theoretical model of allowing 
+processes with a high clearance to read data of a low sensitivity so data can 
+migratre to a higher classification.  While that could be used for standard X 
+access control it probably isn't what most people want.  What you probably 
+want is for example to have mozilla_t not be able to mess with X apps running 
+as user_t or unconfined_t.
 
+In terms of MLS and X access controls I guess you could have different ssh 
+servers configured to have different levels and then run "ssh -X" (or "ssh -Y" 
+- how does that interact with X access controls) to each of the servers from a 
+different level and therefore not allow processes from server A to mess with 
+processes from server B via X on your workstation.
 
+On Tue, 24 Jul 2012, Ole Kliemann <ole@plastictree.net> wrote:
+> I'm running X in enforcing too now with a simple setup. There is 
+> a domain for every job (browser, mail, ...). These domains can't 
+> access each other. The WM has access to all of them. Copy/paste 
+> works like a charm with every domain having its own cutbuffer and 
+> a small script called from the WM to copy the cutbuffer to other 
+> domains.
+> 
+> Of course I had to allow some things in X that I do not fully 
+> understand. But there is definitely no more sending synthetic 
+> input events to foreign windows and no more keylogging.
+
+Could you blog about all the details?
+
+I've wanted to get X access control in Debian for a while.
 
 -- 
-Respectfully,
-
-William C Roberts
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
