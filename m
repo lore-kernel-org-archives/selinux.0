@@ -1,45 +1,49 @@
-Message-ID: <1343400350.17570.56.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Questions about the MLS to "read down"
+Message-ID: <1343407378.17570.60.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Support for sebool in seapp_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 27 Jul 2012 10:45:50 -0400
-In-Reply-To: <CAO-4OdHA5cawkDUOqHWMKP9tSqtEKosGincjcycENUr47Qjt3A@mail.gmail.com>
-References: 
-	<CAO-4OdHA5cawkDUOqHWMKP9tSqtEKosGincjcycENUr47Qjt3A@mail.gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
+Date: Fri, 27 Jul 2012 12:42:58 -0400
+In-Reply-To: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-07-26 at 15:49 -0700, Haiqing Jiang wrote:
-> Hi, all
+On Thu, 2012-07-26 at 12:15 -0700, William Roberts wrote:
+> You can now specify a sebool= flag in seapp_contexts
+> and that rule will ONLY be applied on a match to that
+> boolean, and only if the boolean is set to true.
 > 
-> 
-> I have the following denials. But from my understanding, the
-> reading-down rule is not violated according to the scontext and
-> tcontext. Could you help to explain why? Thanks. 
-> 
-> 
-> <5>[15423.456451] type=1400 audit(1342836229.562:2241): avc:  denied
-> { read } for  pid=2589 comm="ationTestRunner" name="cwd" dev=proc
-> ino=127269 scontext=u:r:release_app:s0:c42
-> tcontext=u:r:shared_app:s0:c16 tclass=lnk_file
+> Change-Id: Ifdba35cd3a78ce1c8173786514db649203018e28
+> ---
+>  src/android.c |   39 +++++++++++++++++++++++++++++++++++++--
+>  1 files changed, 37 insertions(+), 2 deletions(-)
 
-As Joe explained, these levels are incomparable and thus violate the MLS
-restriction.  BTW, I notice that these denials are on /proc/pid files
-rather than app data files, whereas earlier you said you are
-encountering problems with app data files.    And this should be denied
-by DAC.
+> @@ -308,6 +320,17 @@ int selinux_android_setfilecon2(const char *pkgdir,
+>  	for (i = 0; i < nspec; i++) {
+>  		cur = seapp_contexts[i];
+>  
+> +		if (cur->sebool) {
+> +			int value = security_get_boolean_active(cur->sebool);
+> +			if (value == 0)
+> +				continue;
+> +			else if (value == -1) {
+> +				selinux_log(SELINUX_ERROR, \
+> +				"Could not find boolean: %s ", cur->sebool);
+> +				goto err;
+> +			}
+> +		}
 
-adb shell
-ps
-<pick an app pid>
-cat /proc/<pid>/cwd
-/system/bin/sh: cat: /proc/1223/cwd: Permission denied
-
-This can just be dontaudit'd.  Looks like we already do that for :dir
-and :file in cts.te; just need to add lnk_file.
+Move this block after all other selectors have been checked, i.e. after
+the check of cur->name, so that we don't waste time fetching the active
+boolean value if this entry isn't going to match anyway due to one of
+the other selectors.  Ditto for the one in selinux_android_setcontext().
+Might also want to distinguish errno cases, e.g. errno == ENOENT should
+mean that the boolean wasn't defined vs EACCES (not allowed to read
+selinuxfs) vs ENOMEM (memory allocation failure when fetching the
+boolean).
 
 -- 
 Stephen Smalley
