@@ -1,35 +1,85 @@
-Message-ID: <1343415004.17570.80.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] Support for sebool in seapp_contexts
+Message-ID: <1343415126.17570.82.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/1] allocate perms to platformappdomain over
+ system_data_file
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 27 Jul 2012 14:50:04 -0400
-In-Reply-To: <CAFftDdoQrHs7o5hgBQ6skFvFdPsmWAEJP8oYE7h_tqQrEg8NPQ@mail.gmail.com>
-References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
-	 <1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
-	 <1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAFftDdrJNDh=kNdHFiJ1xRDRed-JujhQfbhWusJC_RpmHR6j0A@mail.gmail.com>
-	 <1343396040.17570.9.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAFftDdoQrHs7o5hgBQ6skFvFdPsmWAEJP8oYE7h_tqQrEg8NPQ@mail.gmail.com>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
+Date: Fri, 27 Jul 2012 14:52:06 -0400
+In-Reply-To: <CAO-4OdF=FRiKqUhVwPeucHRrKsYWBNJiRktJJhHnNYf_=V1cwA@mail.gmail.com>
+References: <1343414055-3831-1-git-send-email-hqjiang1988@gmail.com>
+	 <1343414258.17570.72.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAO-4OdF=FRiKqUhVwPeucHRrKsYWBNJiRktJJhHnNYf_=V1cwA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-27 at 11:30 -0700, William Roberts wrote:
-> Yeah but the Zygote failures will be in logcat, so if you missed them
-> when you were testing in permissive mode, then its your problem. This
-> is the same behavior as the rest of the system, we just need to agree
-> upon a "avc denied" message for Zygote and teach the SEAndroidManager
-> app to look for those too.
+On Fri, 2012-07-27 at 11:46 -0700, Haiqing Jiang wrote:
+> This is the denial information. What is your opinion? Thanks. 
 > 
-> I don't think I can advise as to the best message and was looking to
-> you for a possible formatting for it?
+> 
+> 5>[ 2978.206604] type=1400 audit(1342634359.195:1155): avc:  denied
+>  { open } for  pid=10393 comm="android.cts.jni" name="libjnitest.so"
+> dev=mmcblk0p12 ino=578521 scontext=u:r:release_app:s0:c41
+> tcontext=u:object_r:system_data_file:s0 tclass=file
+> <5>[12124.019561] type=1400 audit(1342643505.007:1919): avc:  denied
+> { open } for  pid=24055 comm="ationTestRunner"
+> name="libctspermission_jni.so" dev=mmcblk0p12 ino=578541
+> scontext=u:r:release_app:s0:c41
+> tcontext=u:object_r:system_data_file:s0 tclass=file
 
-It isn't an avc denial.  I don't remember now whether we wired up the
-callback to prefix these messages with SELinux?  If so, then that should
-suffice as a keyword for filtering the logs.
+It is trying to execute a shared object from the lib directory.  So it
+is the same as app_ndk, except for platformappdomain rather than
+untrusted_app.  
+
+> 
+> 
+> On Fri, Jul 27, 2012 at 11:37 AM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+>         On Fri, 2012-07-27 at 11:34 -0700, Haiqing Jiang wrote:
+>         > ---
+>         >  app.te |    2 ++
+>         >  1 files changed, 2 insertions(+), 0 deletions(-)
+>         >
+>         > diff --git a/app.te b/app.te
+>         > index 85de816..dca2e0c 100644
+>         > --- a/app.te
+>         > +++ b/app.te
+>         > @@ -83,6 +83,8 @@ allow platformappdomain
+>         platform_app_data_file:notdevfile_class_set create_file_
+>         >  # App sdcard file accesses
+>         >  allow platformappdomain sdcard:dir create_dir_perms;
+>         >  allow platformappdomain sdcard:file create_file_perms;
+>         > +# System data file accesses XXX????
+>         > +allow platformappdomain system_data_file:file open;
+>         >
+>         >  #
+>         >  # Untrusted apps.
+>         
+>         
+>         Need to know more about the denial to diagnose.
+>         Also, enabling syscall audit may help with getting full
+>         pathnames,
+>         although you likely need the ARM audit patches for that.
+>         
+>         --
+>         Stephen Smalley
+>         National Security Agency
+>         
+> 
+> 
+> 
+> 
+> -- 
+> -----------------------------------
+> Haiqing Jiang, PH.D student
+> 
+> 
+> Computer Science Department, North Carolina State University
+> 
+> 
+> 
+> 
 
 -- 
 Stephen Smalley
