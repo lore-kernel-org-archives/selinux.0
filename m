@@ -1,30 +1,42 @@
-From: Haiqing Jiang <hqjiang1988@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RMHZkC023750
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 18:17:35 -0400
+Received: by ggnv5 with SMTP id v5so3847915ggn.12
+        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 15:17:24 -0700 (PDT)
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/1] socket permissions to untrusted_app
-Date: Fri, 27 Jul 2012 15:16:56 -0700
-Message-Id: <1343427416-6520-1-git-send-email-hqjiang1988@gmail.com>
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] Allow non-matched apps to launch when no match found
+Date: Fri, 27 Jul 2012 15:16:43 -0700
+Message-Id: <1343427403-22826-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- app.te |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Allows the zygote to still spawn apps in the zygote's
+context when no match is found in seapp_contexts. In
+enforcing mode, apps that are not matched will not be
+spawned. A "No match" message will (still) be printed
+to logcat.
 
-diff --git a/app.te b/app.te
-index be0983f..41866d9 100644
---- a/app.te
-+++ b/app.te
-@@ -105,7 +105,7 @@ unix_socket_connect(untrusted_app, dnsproxyd, netd)
- }
- # Bluetooth access.
- bool app_bluetooth false;
--if (app_bluetooth) {
-+if (app_bluetooth or android_cts) {
- # No specific SELinux class for bluetooth sockets presently.
- allow untrusted_app self:socket *;
- }
+Change-Id: Ibe362cc8e168be7acae5162c9ff6a310233fcbe6
+---
+ src/android.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/src/android.c b/src/android.c
+index 7974391..b013110 100644
+--- a/src/android.c
++++ b/src/android.c
+@@ -525,7 +525,8 @@ int selinux_android_setcontext(uid_t uid,
+ 		selinux_log(SELINUX_ERROR,
+ 			    "%s:  No match for app with uid %d, seinfo %s, name %s\n",
+ 			    __FUNCTION__, uid, seinfo, pkgname);
+-		rc = -1;
++
++		rc = (security_getenforce() == 0) ? 0 : -1;
+ 		goto out;
+ 	}
+ 
 -- 
 1.7.0.4
 
