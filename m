@@ -1,62 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6R42O7Y000329
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 00:02:24 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Ole Kliemann <ole@plastictree.net>, selinux@tycho.nsa.gov
-Subject: Re: Information about XSELinux
-Date: Fri, 27 Jul 2012 14:02:15 +1000
-References: <20120716161006.GA14824@telvanni> <50081541.3040909@redhat.com> <20120719144405.GB19890@telvanni>
-In-Reply-To: <20120719144405.GB19890@telvanni>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RBFveT018993
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 07:15:57 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by mail01.circletech.net (circletech mail system) with ESMTP id 39A4848A003
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 13:14:51 +0200 (CEST)
+Received: from mail01.circletech.net ([127.0.0.1])
+	by localhost (beatka.circletech.net [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1W8r-lBE36JT for <selinux@tycho.nsa.gov>;
+	Fri, 27 Jul 2012 13:14:51 +0200 (CEST)
+Received: from [10.103.1.12] (rzt-nat.circletech.net [95.80.216.198])
+	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: michal.masek@circletech.net)
+	by mail01.circletech.net (circletech mail system) with ESMTPSA id 0C33E226229
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 13:14:51 +0200 (CEST)
+Message-ID: <50127869.4070605@circletech.net>
+Date: Fri, 27 Jul 2012 13:15:53 +0200
+From: =?UTF-8?B?TWljaGFsIE1hxaFlaw==?= <michal.masek@circletech.net>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201207271402.15812.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Issue with setting booleans in SEManager app
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Jul 2012, Ole Kliemann <ole@plastictree.net> wrote:
-> I'm not exactly sure how MLS works, but I'd intuitively would 
-> say, my approach is more MLS-like because change of privileges 
-> only goes in one direction. Privileges are only dropped, never 
-> gained. (Mainuser drops to subuser, subuser never elevates back 
-> to mainuser or any other subuser.)
-> 
-> I started working on a policy for X using TE. Do you think, what 
-> I want could be better expressed in MLS?
+Hi,
 
-MLS is about sensitivity levels of data with a theoretical model of allowing 
-processes with a high clearance to read data of a low sensitivity so data can 
-migratre to a higher classification.  While that could be used for standard X 
-access control it probably isn't what most people want.  What you probably 
-want is for example to have mozilla_t not be able to mess with X apps running 
-as user_t or unconfined_t.
+I am unable to set or unset 'app_ndk' boolean using the SEManager app in
+seandroid-4.1.1 branch (in the master branch everything works fine).
+However I can still set it from command line:
+  adb shell su 0 setsebool app_ndk=1
 
-In terms of MLS and X access controls I guess you could have different ssh 
-servers configured to have different levels and then run "ssh -X" (or "ssh -Y" 
-- how does that interact with X access controls) to each of the servers from a 
-different level and therefore not allow processes from server A to mess with 
-processes from server B via X on your workstation.
+The same applies for 'in_qemu' boolean. All other booleans can be set
+just fine. I am running SEAndroid on Galaxy Nexus. Does anyone else have
+this issue?
 
-On Tue, 24 Jul 2012, Ole Kliemann <ole@plastictree.net> wrote:
-> I'm running X in enforcing too now with a simple setup. There is 
-> a domain for every job (browser, mail, ...). These domains can't 
-> access each other. The WM has access to all of them. Copy/paste 
-> works like a charm with every domain having its own cutbuffer and 
-> a small script called from the WM to copy the cutbuffer to other 
-> domains.
-> 
-> Of course I had to allow some things in X that I do not fully 
-> understand. But there is definitely no more sending synthetic 
-> input events to foreign windows and no more keylogging.
+--
+Michal Mašek
 
-Could you blog about all the details?
 
-I've wanted to get X access control in Debian for a while.
-
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
