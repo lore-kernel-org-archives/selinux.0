@@ -3,8 +3,8 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
         Haiqing Jiang <hqjiang1988@gmail.com>
 Subject: [PATCH] add read permission over dev_type to appdomain on android_cts enabled
-Date: Fri, 27 Jul 2012 15:40:27 -0700
-Message-Id: <1343428827-6808-1-git-send-email-hqjiang1988@gmail.com>
+Date: Fri, 27 Jul 2012 15:40:37 -0700
+Message-Id: <1343428837-6843-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
