@@ -1,14 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RKrFWw019756
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 16:53:15 -0400
-Received: by ghbz13 with SMTP id z13so3804446ghb.12
-        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 13:53:14 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RL0dxj020163
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 17:00:39 -0400
+Received: by ggnv5 with SMTP id v5so3793327ggn.12
+        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 14:00:32 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: William Roberts <w.roberts@sta.samsung.com>
 Subject: [PATCH] You can now specify a sebool= flag in seapp_contexts
-Date: Fri, 27 Jul 2012 13:52:33 -0700
-Message-Id: <1343422353-10846-1-git-send-email-w.roberts@sta.samsung.com>
+Date: Fri, 27 Jul 2012 13:59:50 -0700
+Message-Id: <1343422790-11155-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -23,7 +23,7 @@ Signed-off-by: William Roberts <w.roberts@sta.samsung.com>
  1 files changed, 41 insertions(+), 7 deletions(-)
 
 diff --git a/src/android.c b/src/android.c
-index 83ba7b7..b60dd6a 100644
+index 83ba7b7..7974391 100644
 --- a/src/android.c
 +++ b/src/android.c
 @@ -45,6 +45,7 @@ struct seapp_context {
@@ -86,7 +86,7 @@ index 83ba7b7..b60dd6a 100644
 +			if (value == 0)
 +				continue;
 +			else if (value == -1) {
-+				selinux_log(SELINUX_ERROR, \
++				selinux_log(SELINUX_ERROR,
 +				"Could not find boolean: %s ", cur->sebool);
 +				goto err;
 +			}
@@ -121,7 +121,7 @@ index 83ba7b7..b60dd6a 100644
 +			if (value == 0)
 +				continue;
 +			else if (value == -1) {
-+				selinux_log(SELINUX_ERROR, \
++				selinux_log(SELINUX_ERROR,
 +				"Could not find boolean: %s ", cur->sebool);
 +                                goto err;
 +                        }
