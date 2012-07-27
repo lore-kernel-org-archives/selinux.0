@@ -1,26 +1,136 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RJgx3i015936
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 15:42:59 -0400
-Received: by ghbz13 with SMTP id z13so3736285ghb.12
-        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 12:42:58 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RJhEtB015988
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 15:43:14 -0400
+Received: by mail-gh0-f181.google.com with SMTP id z13so3736285ghb.12
+        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 12:43:13 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: external/libselinux
-Date: Fri, 27 Jul 2012 12:42:02 -0700
-Message-Id: <1343418124-3562-1-git-send-email-w.roberts@sta.samsung.com>
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH 2/2] You can now specify a sebool= flag in seapp_contexts
+Date: Fri, 27 Jul 2012 12:42:04 -0700
+Message-Id: <1343418124-3562-3-git-send-email-w.roberts@sta.samsung.com>
+In-Reply-To: <1343418124-3562-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1343418124-3562-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch series enables supoprt for two features:
-1. Allow the specification of an sebool flag in seapp_contexts, cleaned up
-   per Stephen's requests. A specified sebool= is matched over unspecified 
-   sebool=.
+and that rule will ONLY be applied on a match to that
+boolean, and only if the boolean is set to true.
 
-2. Allowing spawned apps to launch in the Zygote's context when SELinux
-   is in permissive mode and a match is not found.
+Change-Id: Ifdba35cd3a78ce1c8173786514db649203018e28
+Signed-off-by: William Roberts <w.roberts@sta.samsung.com>
+---
+ src/android.c |   41 ++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 38 insertions(+), 3 deletions(-)
 
-[PATCH 1/2] Allow zygote to spawn non matched apps in permissive mode
-[PATCH 2/2] You can now specify a sebool= flag in seapp_contexts
+diff --git a/src/android.c b/src/android.c
+index 66671e2..cf57c3b 100644
+--- a/src/android.c
++++ b/src/android.c
+@@ -45,6 +45,7 @@ struct seapp_context {
+ 	char *domain;
+ 	char *type;
+ 	char *level;
++	char *sebool;
+ 	char levelFromUid;
+ };
+ 
+@@ -85,6 +86,12 @@ static int seapp_context_cmp(const void *A, const void *B)
+ 	if (!s1->name && s2->name)
+ 		return 1;
+ 
++        /* Give precedence to a specified sebool= over an unspecified sebool=. */
++        if (s1->sebool && !s2->sebool)
++                return -1;
++        if (!s1->sebool && s2->sebool)
++                return 1;
++
+ 	/* Anything else has equal precedence. */
+ 	return 0;
+ }
+@@ -196,6 +203,10 @@ int selinux_android_seapp_context_reload(void)
+ 				cur->level = strdup(value);
+ 				if (!cur->level)
+ 					goto oom;
++			} else if (!strcasecmp(name, "sebool")) {
++				cur->sebool = strdup(value);
++				if (!cur->sebool)
++					goto oom;
+ 			} else
+ 				goto err;
+ 
+@@ -217,12 +228,13 @@ int selinux_android_seapp_context_reload(void)
+ 		int i;
+ 		for (i = 0; i < nspec; i++) {
+ 			cur = seapp_contexts[i];
+-			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s",
++			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s sebool=%s",
+ 				    __FUNCTION__,
+ 				    cur->isSystemServer ? "true" : "false",
+ 				    cur->user, cur->seinfo, cur->name,
+ 				    cur->domain, cur->type, cur->level,
+-				    cur->levelFromUid ? "true" : "false");
++				    cur->levelFromUid ? "true" : "false",
++				    cur->sebool);
+ 		}
+ 	}
+ #endif
+@@ -335,6 +347,17 @@ int selinux_android_setfilecon2(const char *pkgdir,
+ 		if (!cur->type)
+ 			continue;
+ 
++		if (cur->sebool) {
++			int value = security_get_boolean_active(cur->sebool);
++			if (value == 0)
++				continue;
++			else if (value == -1) {
++				selinux_log(SELINUX_ERROR, \
++				"Could not find boolean: %s ", cur->sebool);
++				goto err;
++			}
++		}	
++
+ 		if (context_type_set(ctx, cur->type))
+ 			goto oom;
+ 
+@@ -348,7 +371,7 @@ int selinux_android_setfilecon2(const char *pkgdir,
+ 			if (context_range_set(ctx, cur->level))
+ 				goto oom;
+ 		}
+-		
++
+ 		break;
+ 	}
+ 
+@@ -443,6 +466,7 @@ int selinux_android_setcontext(uid_t uid,
+ 
+ 	for (i = 0; i < nspec; i++) {
+ 		cur = seapp_contexts[i];
++
+ 		if (cur->isSystemServer != isSystemServer)
+ 			continue;
+ 		if (cur->user) {
+@@ -466,6 +490,17 @@ int selinux_android_setcontext(uid_t uid,
+ 		if (!cur->domain)
+ 			continue;
+ 
++		if (cur->sebool) {
++			int value = security_get_boolean_active(cur->sebool);
++			if (value == 0)
++				continue;
++			else if (value == -1) {
++				selinux_log(SELINUX_ERROR, \
++				"Could not find boolean: %s ", cur->sebool);
++                                goto err;
++                        }
++                }
++
+ 		if (context_type_set(ctx, cur->domain))
+ 			goto oom;
+ 
+-- 
+1.7.0.4
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
