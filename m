@@ -1,73 +1,65 @@
-Message-ID: <1343408307.17570.68.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] Allow zygote to spawn non matched apps in permissive
- mode
+Message-ID: <1343408458.17570.69.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Could we set them as "mlstrustedsubject"?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
-Date: Fri, 27 Jul 2012 12:58:27 -0400
-In-Reply-To: <1343339045-19207-2-git-send-email-w.roberts@sta.samsung.com>
-References: <1343339045-19207-1-git-send-email-w.roberts@sta.samsung.com>
-	 <1343339045-19207-2-git-send-email-w.roberts@sta.samsung.com>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, William Roberts <bill.c.roberts@gmail.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        "Craig, Robert P."
+ <rpcraig@tycho.ncsc.mil>
+Date: Fri, 27 Jul 2012 13:00:58 -0400
+In-Reply-To: <1343399960.17570.52.camel@moss-pluto.epoch.ncsc.mil>
+References: 
+	<CAO-4OdGJhr3H7Q8uJz0JWgEekHqo=K8gS3aU_si__f4y5dzPxQ@mail.gmail.com>
+	 <1343399960.17570.52.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-07-26 at 14:44 -0700, William Roberts wrote:
-> This patch will allow non-matched apps in seapp_contexts to
-> still be spawned via the zygote. An error message will be sent
-> to logcat.
+On Fri, 2012-07-27 at 10:39 -0400, Stephen Smalley wrote:
+> On Thu, 2012-07-26 at 14:25 -0700, Haiqing Jiang wrote:
+> > Hi, all
+> > 
+> > 
+> > Currently I am testing Android CTS in SEAndroid. I find several
+> > denials are related to MLS constraints. The key-signed apps, like
+> > "platform_app", "release_app",
+> > "browser_app", "shared_app" and "media_app", need to open
+> > app_data_file. But because of MLS, they cannot do that. So, could we
+> > sign them as mlstrusted? 
+> > Currently only daemons are set "mlstrustedsubject". Do you have any
+> > ideas? Or the better solutions to solve the denials? 
 > 
-> Change-Id: I9fb5dcfeb384a26e6a01d69bffd2ef14af74c51c
-> ---
->  src/android.c |   12 +++++++++---
->  1 files changed, 9 insertions(+), 3 deletions(-)
+> This would mean that SELinux would no longer be enforcing per-app
+> process and file isolation for the platform (where by platform, I mean
+> any of the apps signed by build keys, i.e. platform|release|shared|
+> media) apps.  You would be back to relying on DAC for per-app separation
+> among the platform apps.
 > 
-> diff --git a/src/android.c b/src/android.c
-> index ef27991..953a213 100644
-> --- a/src/android.c
-> +++ b/src/android.c
-> @@ -526,8 +526,7 @@ int selinux_android_setcontext(uid_t uid,
->  		selinux_log(SELINUX_ERROR,
->  			    "%s:  No match for app with uid %d, seinfo %s, name %s\n",
->  			    __FUNCTION__, uid, seinfo, pkgname);
-> -		rc = -1;
-> -		goto out;
-> +		goto err;
+> Further, I don't think that this change alone would solve the general
+> problem, as the platform app data files will still be labeled with
+> per-app categories and thus I expect you'll see the same problems arise
+> for the third party apps trying to access files created by the platform
+> apps (passed to them by open file descriptor for private files or by
+> pathname for shared prefs over Binder IPC).
+> 
+> So I think in addition to making them mlstrustedsubjects, we would need
+> to introduce a new file type for the platform app data files, make that
+> type a mlstrustedobject, assign that type to the platform apps in
+> seapp_contexts, and remove levelFromUid=true from those entries.  That
+> still means that SELinux will no longer be enforcing per-app isolation
+> for the platform apps, only for third party apps, but now the third
+> party apps can be allowed to read/write files created by the platform
+> apps and passed to them over Binder IPC.  Attached is a patch that
+> demonstrates this approach.  It only defines a single new file type for
+> all of the platform apps; we could alternatively introduce a separate
+> type per domain, but that only makes sense if they don't end up needing
+> access to each other's data types.  Truly testing this patch requires
+> testing some third party apps, not just the platform apps, as you won't
+> see any MLS restrictions come into play now without third party apps.
 
-This was intentional since we log a more specific message above than the
-one in the general err: block.  I guess it does no harm, but you'll end
-up with two log messages in that case.
-
-> @@ -559,7 +558,14 @@ err:
->  			    "%s:  Error setting context for app with uid %d, seinfo %s: %s\n",
->  			    __FUNCTION__, uid, seinfo, strerror(errno));
->  
-> -	rc = -1;
-> +	rc = security_getenforce();
-> +	if(rc == -1)
-
-Coding style.
-
-> +		selinux_log(SELINUX_ERROR,
-> +			    "%s:  Error getting enforcing level: %s\n",
-> +			    __FUNCTION__, strerror(errno));
-> +	else
-> +		rc = -rc;
-
-This seems a bit obscure to me, although it should work correctly.
-I think I'd prefer something like:
-	rc = (security_getenforce() == 0) ? 0 : -1;
-and not bother with separately logging a security_getenforce() failure.
-
-Still need to address the fact that this will make seapp_contexts errors
-largely invisible to developers while in permissive mode; they will have
-to be watching adb logcat *:E output carefully to even notice it.
-
-> +	
->  	goto out;
->  oom:
->  	selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __FUNCTION__);
+I've applied this patch to our sepolicy tree, but we can revert it or
+change it if we decide it isn't the best solution.
 
 -- 
 Stephen Smalley
