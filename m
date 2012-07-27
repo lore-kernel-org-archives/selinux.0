@@ -1,63 +1,127 @@
-MIME-Version: 1.0
-In-Reply-To: <1343415341.17570.85.camel@moss-pluto.epoch.ncsc.mil>
-References: <1343330131-11754-1-git-send-email-w.roberts@sta.samsung.com>
-	<1343330962.5186.21.camel@moss-pluto.epoch.ncsc.mil>
-	<E24EB765E1998A40A0C06DE52672C4820176F6C8A5F5@staex7mb1.telecom.sna.samsung.com>
-	<1343333073.5186.25.camel@moss-pluto.epoch.ncsc.mil>
-	<CAFftDdrJNDh=kNdHFiJ1xRDRed-JujhQfbhWusJC_RpmHR6j0A@mail.gmail.com>
-	<1343396040.17570.9.camel@moss-pluto.epoch.ncsc.mil>
-	<CAFftDdoQrHs7o5hgBQ6skFvFdPsmWAEJP8oYE7h_tqQrEg8NPQ@mail.gmail.com>
-	<1343415004.17570.80.camel@moss-pluto.epoch.ncsc.mil>
-	<1343415341.17570.85.camel@moss-pluto.epoch.ncsc.mil>
-Date: Fri, 27 Jul 2012 12:05:41 -0700
-Message-ID: <CAFftDdqtrrLPB+4g9HnXybFGtDdB=t_hKD4Xftq6GT=c3NcTWg@mail.gmail.com>
-Subject: Re: [PATCH] Support for sebool in seapp_contexts
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RJKDQb014763
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 15:20:13 -0400
+Received: by yhp26 with SMTP id 26so3716946yhp.12
+        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 12:20:13 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] You can now specify a sebool= flag in seapp_contexts
+Date: Fri, 27 Jul 2012 12:19:19 -0700
+Message-Id: <1343416759-32071-2-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yeah IMO the SELinux Error messages in Logact are sufficient and their
-is no need to make it more complex.
-I wasn't sure if we wanted to follow the kernel convention.
+and that rule will ONLY be applied on a match to that
+boolean, and only if the boolean is set to true.
 
-On Fri, Jul 27, 2012 at 11:55 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2012-07-27 at 14:50 -0400, Stephen Smalley wrote:
->> On Fri, 2012-07-27 at 11:30 -0700, William Roberts wrote:
->> > Yeah but the Zygote failures will be in logcat, so if you missed them
->> > when you were testing in permissive mode, then its your problem. This
->> > is the same behavior as the rest of the system, we just need to agree
->> > upon a "avc denied" message for Zygote and teach the SEAndroidManager
->> > app to look for those too.
->> >
->> > I don't think I can advise as to the best message and was looking to
->> > you for a possible formatting for it?
->>
->> It isn't an avc denial.  I don't remember now whether we wired up the
->> callback to prefix these messages with SELinux?  If so, then that should
->> suffice as a keyword for filtering the logs.
->
-> Commented out the untrusted_app line and tried running a third party
-> app.  Got this message in logcat *:E:
-> E/SELinux ( 1229): selinux_android_setcontext:  No match for app with
-> uid 10055, seinfo default, name com.adobe.reader
->
-> So you can already use SELinux as the keyword for filtering, and then
-> pull out the relevant fields.  It isn't an AVC message though.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
+Change-Id: Ifdba35cd3a78ce1c8173786514db649203018e28
+Signed-off-by: William Roberts <w.roberts@sta.samsung.com>
+---
+ src/android.c |   41 ++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 38 insertions(+), 3 deletions(-)
 
-
-
+diff --git a/src/android.c b/src/android.c
+index 83ba7b7..8415742 100644
+--- a/src/android.c
++++ b/src/android.c
+@@ -45,6 +45,7 @@ struct seapp_context {
+ 	char *domain;
+ 	char *type;
+ 	char *level;
++	char *sebool;
+ 	char levelFromUid;
+ };
+ 
+@@ -85,6 +86,12 @@ static int seapp_context_cmp(const void *A, const void *B)
+ 	if (!s1->name && s2->name)
+ 		return 1;
+ 
++        /* Give precedence to a specified sebool= over an unspecified sebool=. */
++        if (s1->sebool && !s2->sebool)
++                return -1;
++        if (!s1->sebool && s2->sebool)
++                return 1;
++
+ 	/* Anything else has equal precedence. */
+ 	return 0;
+ }
+@@ -196,6 +203,10 @@ int selinux_android_seapp_context_reload(void)
+ 				cur->level = strdup(value);
+ 				if (!cur->level)
+ 					goto oom;
++			} else if (!strcasecmp(name, "sebool")) {
++				cur->sebool = strdup(value);
++				if (!cur->sebool)
++					goto oom;
+ 			} else
+ 				goto err;
+ 
+@@ -217,12 +228,13 @@ int selinux_android_seapp_context_reload(void)
+ 		int i;
+ 		for (i = 0; i < nspec; i++) {
+ 			cur = seapp_contexts[i];
+-			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s",
++			selinux_log(SELINUX_INFO, "%s:  isSystemServer=%s user=%s seinfo=%s name=%s -> domain=%s type=%s level=%s levelFromUid=%s sebool=%s",
+ 				    __FUNCTION__,
+ 				    cur->isSystemServer ? "true" : "false",
+ 				    cur->user, cur->seinfo, cur->name,
+ 				    cur->domain, cur->type, cur->level,
+-				    cur->levelFromUid ? "true" : "false");
++				    cur->levelFromUid ? "true" : "false",
++				    cur->sebool);
+ 		}
+ 	}
+ #endif
+@@ -348,7 +360,18 @@ int selinux_android_setfilecon2(const char *pkgdir,
+ 			if (context_range_set(ctx, cur->level))
+ 				goto oom;
+ 		}
+-		
++
++                if (cur->sebool) {
++                        int value = security_get_boolean_active(cur->sebool);
++                        if (value == 0)
++                                continue;
++                        else if (value == -1) {
++                                selinux_log(SELINUX_ERROR, \
++                                "Could not find boolean: %s ", cur->sebool);
++                                goto err;
++                        }
++                }
++
+ 		break;
+ 	}
+ 
+@@ -443,6 +466,7 @@ int selinux_android_setcontext(uid_t uid,
+ 
+ 	for (i = 0; i < nspec; i++) {
+ 		cur = seapp_contexts[i];
++
+ 		if (cur->isSystemServer != isSystemServer)
+ 			continue;
+ 		if (cur->user) {
+@@ -466,6 +490,17 @@ int selinux_android_setcontext(uid_t uid,
+ 		if (!cur->domain)
+ 			continue;
+ 
++		if (cur->sebool) {
++			int value = security_get_boolean_active(cur->sebool);
++			if (value == 0)
++				continue;
++			else if (value == -1) {
++				selinux_log(SELINUX_ERROR, \
++				"Could not find boolean: %s ", cur->sebool);
++                                goto err;
++                        }
++                }
++
+ 		if (context_type_set(ctx, cur->domain))
+ 			goto oom;
+ 
 -- 
-Respectfully,
+1.7.0.4
 
-William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
