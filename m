@@ -1,34 +1,37 @@
-From: Haiqing Jiang <hqjiang1988@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6RMwhXQ025511
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 18:58:43 -0400
+Received: by pbbrr13 with SMTP id rr13so5587511pbb.12
+        for <selinux@tycho.nsa.gov>; Fri, 27 Jul 2012 15:58:42 -0700 (PDT)
+MIME-Version: 1.0
+Date: Fri, 27 Jul 2012 15:58:41 -0700
+Message-ID: <CAFftDdqvjCJY+EoxGN+0QcHPVTv7Gzpg8ykDaPVG2-R32TyzqA@mail.gmail.com>
+Subject: Mirrors
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/1] Appdomain write to cgroup on android_cts enabled
-Date: Fri, 27 Jul 2012 15:51:24 -0700
-Message-Id: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- cts.te |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+Recently, I used a SE Android mirror.
 
-diff --git a/cts.te b/cts.te
-index ff8a9f0..7877b19 100644
---- a/cts.te
-+++ b/cts.te
-@@ -31,6 +31,9 @@ allow appdomain system_file:file rx_file_perms;
- allow appdomain apk_tmp_file:file rw_file_perms;
- allow appdomain shell_data_file:file r_file_perms;
- 
-+# Write to cgroup
-+allow appdomain cgroup:dir write;
-+
- # Read routing information.
- allow netdomain self:netlink_route_socket { create read write nlmsg_read };
- 
+After the repository was initialized with --mirror I had a cron job
+the updated us every night through script. The script would repo init
+(on the appropriate branch) pull the local manifest over .repo and
+sync again. This all worked until the projects moved to bitbucket, now
+for some reason it dies, it literally hangs checking out the objects.
+
+I then merged the local manifest project paths and branches into my
+manifest to other people in my team can just do a checkout with repo
+init -b seandroid (and others)
+
+Did anyone else have something similar setup and did they have similar
+issues? Does anyone possibly know the cause?
+
 -- 
-1.7.0.4
+Respectfully,
 
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
