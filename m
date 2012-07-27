@@ -1,85 +1,36 @@
-Message-ID: <1343415126.17570.82.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/1] allocate perms to platformappdomain over
- system_data_file
+Message-ID: <1343415170.17570.83.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/1] installd unlink platform_app_data_file
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Haiqing Jiang <hqjiang1988@gmail.com>
 Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Fri, 27 Jul 2012 14:52:06 -0400
-In-Reply-To: <CAO-4OdF=FRiKqUhVwPeucHRrKsYWBNJiRktJJhHnNYf_=V1cwA@mail.gmail.com>
-References: <1343414055-3831-1-git-send-email-hqjiang1988@gmail.com>
-	 <1343414258.17570.72.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAO-4OdF=FRiKqUhVwPeucHRrKsYWBNJiRktJJhHnNYf_=V1cwA@mail.gmail.com>
+Date: Fri, 27 Jul 2012 14:52:50 -0400
+In-Reply-To: <1343414653-3998-1-git-send-email-hqjiang1988@gmail.com>
+References: <1343414653-3998-1-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-27 at 11:46 -0700, Haiqing Jiang wrote:
-> This is the denial information. What is your opinion? Thanks. 
+On Fri, 2012-07-27 at 11:44 -0700, Haiqing Jiang wrote:
+> ---
+>  installd.te |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 > 
-> 
-> 5>[ 2978.206604] type=1400 audit(1342634359.195:1155): avc:  denied
->  { open } for  pid=10393 comm="android.cts.jni" name="libjnitest.so"
-> dev=mmcblk0p12 ino=578521 scontext=u:r:release_app:s0:c41
-> tcontext=u:object_r:system_data_file:s0 tclass=file
-> <5>[12124.019561] type=1400 audit(1342643505.007:1919): avc:  denied
-> { open } for  pid=24055 comm="ationTestRunner"
-> name="libctspermission_jni.so" dev=mmcblk0p12 ino=578541
-> scontext=u:r:release_app:s0:c41
-> tcontext=u:object_r:system_data_file:s0 tclass=file
+> diff --git a/installd.te b/installd.te
+> index ce9122b..a2c7bb4 100644
+> --- a/installd.te
+> +++ b/installd.te
+> @@ -20,5 +20,6 @@ dontaudit installd self:capability sys_admin;
+>  selinux_check_context(installd)
+>  # Read /seapp_contexts, presently on the rootfs.
+>  allow installd rootfs:file r_file_perms;
+> -# Unlink app_data_file
+> +# Unlink app_data_file and platform_app_data_file
+>  allow installd app_data_file:lnk_file unlink;
+> +allow installd platform_app_data_file:lnk_file unlink;
 
-It is trying to execute a shared object from the lib directory.  So it
-is the same as app_ndk, except for platformappdomain rather than
-untrusted_app.  
-
-> 
-> 
-> On Fri, Jul 27, 2012 at 11:37 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
->         On Fri, 2012-07-27 at 11:34 -0700, Haiqing Jiang wrote:
->         > ---
->         >  app.te |    2 ++
->         >  1 files changed, 2 insertions(+), 0 deletions(-)
->         >
->         > diff --git a/app.te b/app.te
->         > index 85de816..dca2e0c 100644
->         > --- a/app.te
->         > +++ b/app.te
->         > @@ -83,6 +83,8 @@ allow platformappdomain
->         platform_app_data_file:notdevfile_class_set create_file_
->         >  # App sdcard file accesses
->         >  allow platformappdomain sdcard:dir create_dir_perms;
->         >  allow platformappdomain sdcard:file create_file_perms;
->         > +# System data file accesses XXX????
->         > +allow platformappdomain system_data_file:file open;
->         >
->         >  #
->         >  # Untrusted apps.
->         
->         
->         Need to know more about the denial to diagnose.
->         Also, enabling syscall audit may help with getting full
->         pathnames,
->         although you likely need the ARM audit patches for that.
->         
->         --
->         Stephen Smalley
->         National Security Agency
->         
-> 
-> 
-> 
-> 
-> -- 
-> -----------------------------------
-> Haiqing Jiang, PH.D student
-> 
-> 
-> Computer Science Department, North Carolina State University
-> 
-> 
-> 
-> 
+Just add lnk_file to the earlier rule for data_file_type and drop these
+two rules altogether.
 
 -- 
 Stephen Smalley
