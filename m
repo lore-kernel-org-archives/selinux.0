@@ -2,29 +2,29 @@ From: Haiqing Jiang <hqjiang1988@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
         Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/1] Allow CTS Test apps to access to system_data_file
-Date: Fri, 27 Jul 2012 15:18:59 -0700
-Message-Id: <1343427539-6583-1-git-send-email-hqjiang1988@gmail.com>
+Subject: [PATCH] add read permission over dev_type to appdomain on android_cts enabled
+Date: Fri, 27 Jul 2012 15:40:27 -0700
+Message-Id: <1343428827-6808-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- app.te |    2 +-
+ cts.te |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/app.te b/app.te
-index 41866d9..b9b5a17 100644
---- a/app.te
-+++ b/app.te
-@@ -117,7 +117,7 @@ allow untrusted_app sdcard:file create_file_perms;
- }
- # Native app support.
- bool app_ndk false;
--if (app_ndk) {
-+if (app_ndk or android_cts) {
- allow untrusted_app system_data_file:file { execute open };
- }
+diff --git a/cts.te b/cts.te
+index 489be1a..ff8a9f0 100644
+--- a/cts.te
++++ b/cts.te
+@@ -20,7 +20,7 @@ allow appdomain file_type:dir r_dir_perms;
+ allow appdomain fs_type:dir r_dir_perms;
+ allow appdomain dev_type:dir r_dir_perms;
+ allow appdomain file_type:dir_file_class_set getattr;
+-allow appdomain dev_type:dir_file_class_set getattr;
++allow appdomain dev_type:dir_file_class_set { getattr read };
+ allow appdomain fs_type:dir_file_class_set getattr;
  
+ # Execute the shell or other system executables.
 -- 
 1.7.0.4
 
