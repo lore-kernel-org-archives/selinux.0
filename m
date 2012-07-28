@@ -1,113 +1,80 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6SKSMTW007293
+	for <selinux@tycho.nsa.gov>; Sat, 28 Jul 2012 16:28:22 -0400
+Received: by vbbfc26 with SMTP id fc26so3980487vbb.12
+        for <selinux@tycho.nsa.gov>; Sat, 28 Jul 2012 13:28:21 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
-References: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
-Date: Sat, 28 Jul 2012 12:04:57 -0700
-Message-ID: <CAO-4OdHJAdd-wSnr24F6ZeEbXPmo=6qvrwJhtxfhg5=QcZpB6Q@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Appdomain write to cgroup on android_cts enabled
-From: Haiqing Jiang <hqjiang1988@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Content-Type: multipart/alternative; boundary=f46d0401240b2c96b904c5e88113
+In-Reply-To: <50141AB2.8010407@manicmethod.com>
+References: <CAFftDdqvjCJY+EoxGN+0QcHPVTv7Gzpg8ykDaPVG2-R32TyzqA@mail.gmail.com>
+	<50141AB2.8010407@manicmethod.com>
+Date: Sat, 28 Jul 2012 13:28:20 -0700
+Message-ID: <CAFftDdq9KyfLNXUfGmpf3ywcV01-Wthfdn-BzVb5iTochUBS-A@mail.gmail.com>
+Subject: Re: Mirrors
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d0401240b2c96b904c5e88113
-Content-Type: text/plain; charset=ISO-8859-1
+That's strange because it worked before with stuff that was outside of
+the normal path, like selinux/libselinux. I definitely thing they
+intended to use name as that matches up with he remote
+and not the local checkout path. I started syncing with the new local
+manifest 1 project at a time and it seems to be working ok. Somewhere
+it just hangs and I haven't thrown repo into a debugger to see why.
 
-The denial info is:
+Bill
 
-*<5>[ 2223.830596] type=1400 audit(1342221805.835:19): avc:  denied  {
-write } for  pid=2687 comm="ationTestRunner" name="10038" dev=cgroup
-ino=4532 scontext=u:r:untrusted_app:s0:c38 tcontext=u:object_r:cgroup:s0
-tclass=dir*
-
-I really appreciate your comments. Thanks.
-
-On Fri, Jul 27, 2012 at 3:51 PM, Haiqing Jiang <hqjiang1988@gmail.com>wrote:
-
-> ---
->  cts.te |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
->
-> diff --git a/cts.te b/cts.te
-> index ff8a9f0..7877b19 100644
-> --- a/cts.te
-> +++ b/cts.te
-> @@ -31,6 +31,9 @@ allow appdomain system_file:file rx_file_perms;
->  allow appdomain apk_tmp_file:file rw_file_perms;
->  allow appdomain shell_data_file:file r_file_perms;
->
-> +# Write to cgroup
-> +allow appdomain cgroup:dir write;
-> +
->  # Read routing information.
->  allow netdomain self:netlink_route_socket { create read write nlmsg_read
-> };
->
-> --
-> 1.7.0.4
+On Sat, Jul 28, 2012 at 10:00 AM, Joshua Brindle <method@manicmethod.com> wrote:
+> William Roberts wrote:
+>>
+>> Recently, I used a SE Android mirror.
+>>
+>> After the repository was initialized with --mirror I had a cron job
+>> the updated us every night through script. The script would repo init
+>> (on the appropriate branch) pull the local manifest over .repo and
+>> sync again. This all worked until the projects moved to bitbucket, now
+>> for some reason it dies, it literally hangs checking out the objects.
+>>
+>> I then merged the local manifest project paths and branches into my
+>> manifest to other people in my team can just do a checkout with repo
+>> init -b seandroid (and others)
+>>
+>> Did anyone else have something similar setup and did they have similar
+>> issues? Does anyone possibly know the cause?
 >
 >
+> I'm doing the same thing. The issue I had was that the bitbucket repos are
+> formatted like "device-moto-wingray" instead of device/moto/wingray so my
+> mirror started checking out new repos and generally changing the directory
+> layout of the mirror. I guess I could have copied everything over to the new
+> locations and updated all the manifests but I found it lazier to "fix" repo,
+> I'm not sure if they intended to do this or not:
+>
+> diff --git a/manifest_xml.py b/manifest_xml.py
+> index a46cf24..a4c56e6 100644
+> --- a/manifest_xml.py
+> +++ b/manifest_xml.py
+> @@ -570,9 +570,9 @@ class XmlManifest(object):
+>        groups.append('default')
+>
+>      if self.IsMirror:
+> -      relpath = None
+> +      #relpath = None
+>        worktree = None
+> -      gitdir = os.path.join(self.topdir, '%s.git' % name)
+> +      gitdir = os.path.join(self.topdir, '%s.git' % path)
+>      else:
+>        worktree = os.path.join(self.topdir, path).replace('\\', '/')
+>        gitdir = os.path.join(self.repodir, 'projects/%s.git' % path)
+
 
 
 -- 
------------------------------------
-Haiqing Jiang, PH.D student
+Respectfully,
 
-Computer Science Department, North Carolina State University
-
---f46d0401240b2c96b904c5e88113
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-The denial info is:=A0<div><br></div><div><b id=3D"internal-source-marker_0=
-.03467495436780155" style=3D"font-family:&#39;Times New Roman&#39;;font-siz=
-e:medium;font-weight:normal"><span style=3D"font-size:15px;font-family:Aria=
-l;vertical-align:baseline;white-space:pre-wrap">&lt;5&gt;[ 2223.830596] typ=
-e=3D1400 audit(1342221805.835:19): avc: =A0denied =A0{ write } for =A0pid=
-=3D2687 comm=3D&quot;ationTestRunner&quot; name=3D&quot;10038&quot; dev=3Dc=
-group ino=3D4532 scontext=3Du:r:untrusted_app:s0:c38 tcontext=3Du:object_r:=
-cgroup:s0 tclass=3Ddir</span></b></div>
-<div><font face=3D"Arial"><span style=3D"font-size:15px;white-space:pre-wra=
-p"><br></span></font></div><div><font face=3D"Arial"><span style=3D"font-si=
-ze:15px;white-space:pre-wrap">I really appreciate your comments. Thanks. <b=
-r></span></font><br>
-<div class=3D"gmail_quote">On Fri, Jul 27, 2012 at 3:51 PM, Haiqing Jiang <=
-span dir=3D"ltr">&lt;<a href=3D"mailto:hqjiang1988@gmail.com" target=3D"_bl=
-ank">hqjiang1988@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gm=
-ail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-le=
-ft:1ex">
----<br>
-=A0cts.te | =A0 =A03 +++<br>
-=A01 files changed, 3 insertions(+), 0 deletions(-)<br>
-<br>
-diff --git a/cts.te b/cts.te<br>
-index ff8a9f0..7877b19 100644<br>
---- a/cts.te<br>
-+++ b/cts.te<br>
-@@ -31,6 +31,9 @@ allow appdomain system_file:file rx_file_perms;<br>
-=A0allow appdomain apk_tmp_file:file rw_file_perms;<br>
-=A0allow appdomain shell_data_file:file r_file_perms;<br>
-<br>
-+# Write to cgroup<br>
-+allow appdomain cgroup:dir write;<br>
-+<br>
-=A0# Read routing information.<br>
-=A0allow netdomain self:netlink_route_socket { create read write nlmsg_read=
- };<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-1.7.0.4<br>
-<br>
-</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
-r><div>-----------------------------------</div>Haiqing Jiang, PH.D student=
-<div><br></div><div>Computer Science Department, North Carolina State Unive=
-rsity<br>
-<div><br></div></div><br>
-</div>
-
---f46d0401240b2c96b904c5e88113--
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
