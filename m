@@ -1,145 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6TKBAgQ012230
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jul 2012 16:11:10 -0400
-Message-ID: <1343592651.8495.YahooMailClassic@web87701.mail.ir2.yahoo.com>
-Date: Sun, 29 Jul 2012 21:10:51 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: Is the CIL project still active
-To: Joshua Brindle <method@manicmethod.com>
-Cc: jwcart2@tycho.nsa.gov, Jeremy Solt <jsolt@tresys.com>,
-        selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q6TNFh81018787
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jul 2012 19:15:43 -0400
+Message-ID: <5015C421.10906@manicmethod.com>
+Date: Sun, 29 Jul 2012 19:15:45 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+To: William Roberts <bill.c.roberts@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Mirrors
+References: <CAFftDdqvjCJY+EoxGN+0QcHPVTv7Gzpg8ykDaPVG2-R32TyzqA@mail.gmail.com> <50141AB2.8010407@manicmethod.com> <CAFftDdq9KyfLNXUfGmpf3ywcV01-Wthfdn-BzVb5iTochUBS-A@mail.gmail.com> <CAFftDdoJGaao4wSp-MOx3qXo4p7a0bvmdLxHys8gh-0iNA16dw@mail.gmail.com> <CAFftDdrzA1=Xg63cJUSv=LjgGq=S9pN7O2WzcG3sJdT1vviGEw@mail.gmail.com>
+In-Reply-To: <CAFftDdrzA1=Xg63cJUSv=LjgGq=S9pN7O2WzcG3sJdT1vviGEw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm only planning to run this in the same way as checkpolicy so not
-worried about AOSP etc.
+It is working here:
 
-I'm using the most suitable CIL statements (block, macro etc.), but as
-the policy is limited, not that many. I've converted all modules to
-blocks, figured out the classmap/classmapping statements and almost
-finished, although I'll probably wait for the next CIL release as I
-have come across three minor problems:
+$ repo sync -j8
+Fetching projects: 100% (386/386), done.
 
-1) Cannot call a macro within a booleanif block.
-
-2) The mlsconstrain statements seem to be generated in reverse order but
-   need to check manually as APOL etc doesn't handle them. Are there any
-   utilities that will allow me to compare mlsconstrain statements within
-   a binary policy?
-
-3) Cannot generate a file context without at least one category (example
-   always wants s0:c0-s0:c0 instead of the normal s0).
-
-Otherwise the current CIL compiler is running well.
-
-Richard
-
---- On Tue, 24/7/12, Joshua Brindle <method@manicmethod.com> wrote:
-
-> From: Joshua Brindle <method@manicmethod.com>
-> Subject: Re: Is the CIL project still active
-> To: "Richard Haines" <richard_c_haines@btinternet.com>
-> Cc: jwcart2@tycho.nsa.gov, "Jeremy Solt" <jsolt@tresys.com>, selinux@tycho.nsa.gov
-> Date: Tuesday, 24 July, 2012, 13:29
-> Richard Haines wrote:
-> > Glad to hear its still going as I started converting
-> the Android
-> > policy to CIL using the current compiler that works ok
-> so far. However
-> > I'm having problems defining 'sets of classes' for
-> example with M4:
-> 
-> Since it is a small policy it should be possible to do a
-> real, semantic 
-> conversion (using blocks and ignoring legacy file types). Is
-> that what 
-> you are doing?
-> 
-> However, I'm not sure if CIL will be able to be in Android
-> anytime soon. 
-> It could still be used on the host side like
-> checkpolicy/libsepol are 
-> now but since CIL is currently statically linked against
-> libsepol (GPL) 
-> it would be prohibited in the AOSP userspace IIUC.
-> 
-> >
-> > define(`dir_file_class_set (dir file lnk_file sock_file
-> fifo_file
-> > chr_file blk_file))
-> >
-> > I've tried various methods using classmap/classmapping
-> etc. but failed
-> > to work out how to define in CIL:
-> >
-> > mlsconstrain dir_file_class_set { create relabelfrom
-> relabelto }
-> > (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject));
-> >
-> > I can produce CIL mlsconstrain statements when I define
-> them with each
-> > class separately but not as a set. Is it possible with
-> the current
-> > release of CIL ? (if not I'll just produce an entry for
-> each class so
-> > I can continue).
-> >
-> > Thanks
-> > Richard
-> >
-> >
-> > --- On Fri, 20/7/12, James Carter<jwcart2@tycho.nsa.gov>
-> wrote:
-> >
-> >> From: James Carter<jwcart2@tycho.nsa.gov>
-> >> Subject: Re: Is the CIL project still active
-> >> To: "Richard Haines"<richard_c_haines@btinternet.com>
-> >> Cc: selinux@tycho.nsa.gov
-> >> Date: Friday, 20 July, 2012, 20:13
-> >> On Fri, 2012-07-20 at 19:39 +0100,
-> >> Richard Haines wrote:
-> >>> Does anyone know the status of the CIL project
-> as it
-> >> looked useful and would seem ideal for SEAndroid.
-> >>
-> >> There are still a few more bugs that need to be
-> fixed so
-> >> that it can
-> >> correctly compile a CIL-transformed Refpolicy.
-> Progress has
-> >> been slow
-> >> recently, but it is not going to be abandoned.
-> >>
-> >> --
-> >> James Carter<jwcart2@tycho.nsa.gov>
-> >> National Security Agency
-> >>
-> >>
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the
-> selinux mailing list.
-> > If you no longer wish to subscribe, send mail to
-> > majordomo@tycho.nsa.gov
-> with
-> > the words "unsubscribe selinux" without quotes as the
-> message.
-> >
-> 
-> --
-> This message was distributed to subscribers of the selinux
-> mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the
-> message.
+William Roberts wrote:
+> It looks like repo and tuna are not getting along, with the only thing
+> in the local_manifest.xml file is tuna:
 >
-
-
-
+> git@sta105992:/repo/seandroid$ repo sync -j8
+> remote: Counting objects: 5870, done.
+> remote: Compressing objects: 100% (3180/3180), done.
+> Receiving objects:  95% (5610/5870), 1023.46 MiB | 311 KiB/s
+> 1/5870), 17.44 MiB | 715 KiB/s
+>
+> It is not over a gig....
+>
+> On Sat, Jul 28, 2012 at 3:08 PM, William Roberts
+> <bill.c.roberts@gmail.com>  wrote:
+>> I even tried with -j1 to make sure it wasn't a deadlock in git or the
+>> repo tool and it still would hang. It seems syncing one by one from
+>> the local manifest (even with a high -j option) works fine. Once the
+>> initial mirror sync for master works, ill try it with a full local
+>> manifest and post my results. If it works, then their is some weird
+>> flaw with repo....
+>>
+>> Bill
+>>
+>> On Sat, Jul 28, 2012 at 1:28 PM, William Roberts
+>> <bill.c.roberts@gmail.com>  wrote:
+>>> That's strange because it worked before with stuff that was outside of
+>>> the normal path, like selinux/libselinux. I definitely thing they
+>>> intended to use name as that matches up with he remote
+>>> and not the local checkout path. I started syncing with the new local
+>>> manifest 1 project at a time and it seems to be working ok. Somewhere
+>>> it just hangs and I haven't thrown repo into a debugger to see why.
+>>>
+>>> Bill
+>>>
+>>> On Sat, Jul 28, 2012 at 10:00 AM, Joshua Brindle<method@manicmethod.com>  wrote:
+>>>> William Roberts wrote:
+>>>>> Recently, I used a SE Android mirror.
+>>>>>
+>>>>> After the repository was initialized with --mirror I had a cron job
+>>>>> the updated us every night through script. The script would repo init
+>>>>> (on the appropriate branch) pull the local manifest over .repo and
+>>>>> sync again. This all worked until the projects moved to bitbucket, now
+>>>>> for some reason it dies, it literally hangs checking out the objects.
+>>>>>
+>>>>> I then merged the local manifest project paths and branches into my
+>>>>> manifest to other people in my team can just do a checkout with repo
+>>>>> init -b seandroid (and others)
+>>>>>
+>>>>> Did anyone else have something similar setup and did they have similar
+>>>>> issues? Does anyone possibly know the cause?
+>>>>
+>>>> I'm doing the same thing. The issue I had was that the bitbucket repos are
+>>>> formatted like "device-moto-wingray" instead of device/moto/wingray so my
+>>>> mirror started checking out new repos and generally changing the directory
+>>>> layout of the mirror. I guess I could have copied everything over to the new
+>>>> locations and updated all the manifests but I found it lazier to "fix" repo,
+>>>> I'm not sure if they intended to do this or not:
+>>>>
+>>>> diff --git a/manifest_xml.py b/manifest_xml.py
+>>>> index a46cf24..a4c56e6 100644
+>>>> --- a/manifest_xml.py
+>>>> +++ b/manifest_xml.py
+>>>> @@ -570,9 +570,9 @@ class XmlManifest(object):
+>>>>         groups.append('default')
+>>>>
+>>>>       if self.IsMirror:
+>>>> -      relpath = None
+>>>> +      #relpath = None
+>>>>         worktree = None
+>>>> -      gitdir = os.path.join(self.topdir, '%s.git' % name)
+>>>> +      gitdir = os.path.join(self.topdir, '%s.git' % path)
+>>>>       else:
+>>>>         worktree = os.path.join(self.topdir, path).replace('\\', '/')
+>>>>         gitdir = os.path.join(self.repodir, 'projects/%s.git' % path)
+>>>
+>>>
+>>> --
+>>> Respectfully,
+>>>
+>>> William C Roberts
+>>
+>>
+>> --
+>> Respectfully,
+>>
+>> William C Roberts
+>
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
