@@ -1,33 +1,36 @@
-From: Haiqing Jiang <hqjiang1988@gmail.com>
+MIME-Version: 1.0
+Date: Mon, 30 Jul 2012 16:59:48 -0700
+Message-ID: <CAFftDdoBpZ9ruMjnBwiA9Cxh0L14xJiXh5LXam3V=n-jHTbYkg@mail.gmail.com>
+Subject: Cloning Android repo's from bitbucket
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/1] Allow release_app getattr of netlink_selinux sockets
-Date: Mon, 30 Jul 2012 14:18:14 -0700
-Message-Id: <1343683094-5461-1-git-send-email-hqjiang1988@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- app.te |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+HTTPS checkouts of device-samsung-tuna fail, but the ssh clone worked for me.
 
-diff --git a/app.te b/app.te
-index 139652f..4e002bf 100644
---- a/app.te
-+++ b/app.te
-@@ -63,6 +63,8 @@ net_domain(release_app)
- bluetooth_domain(release_app)
- # Read logs.
- allow release_app log_device:chr_file read;
-+# Use netlink_selinux socket
-+allow release_app zygote:netlink_selinux_socket getattr;
- 
- #
- # An example of a specific domain for a specific app
+Can we get new local_manifest branches, that specify using the git/ssh
+checkout as the fetch url instead of https?
+
+something like this:
+
+master <-- https
+master-ssh <-ssh
+
+Keep is simple and consistent please so scripting is easy.
+
+The only downside is you must have a registered bitbucket account and
+ssh keys set up, but thats not a major problem if people use those
+branches!
+
+Thanks!
+
 -- 
-1.7.0.4
+Respectfully,
 
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
