@@ -1,35 +1,42 @@
-Message-ID: <1343652345.2346.17.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Tuna bitbucket repository wont git clone
+Message-ID: <1343652922.2346.19.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH 1/1] appdomain r/w apk_tmp_file and shell_data_file on
+ android_cts enabled
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
-Date: Mon, 30 Jul 2012 08:45:45 -0400
-In-Reply-To: <CAFftDdpF68z3VKakiXgtLzybuCp34HdwRaBzY5hJASOoPB0oOA@mail.gmail.com>
-References: 
-	<CAFftDdpF68z3VKakiXgtLzybuCp34HdwRaBzY5hJASOoPB0oOA@mail.gmail.com>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
+Date: Mon, 30 Jul 2012 08:55:22 -0400
+In-Reply-To: <1343427185-6377-1-git-send-email-hqjiang1988@gmail.com>
+References: <1343427185-6377-1-git-send-email-hqjiang1988@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2012-07-28 at 15:39 -0700, William Roberts wrote:
-> I really think their is something borked on the device tuna repo, even
-> doing a straight git clone is not working:
-> 
-> git clone --mirror https://bitbucket.org/seandroid/device-samsung-tuna
-> Initialized empty Git repository in /home/git/device-samsung-tuna.git/
-> remote: Counting objects: 5870, done.
-> remote: Compressing objects: 100% (3180/3180), done.
-> Receiving objects:  85% (5040/5870), 326.57 MiB | 658 KiB/s
-> 
-> Is this repo really that big? I have let it get all the way to 1023MB
-> and still git never returns. It sticks at 95% of objects received....
+On Fri, 2012-07-27 at 15:13 -0700, Haiqing Jiang wrote:
+> ---
+>  cts.te |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
 
-du -sh device/samsung/tuna shows it as 1.2G here.
-Maybe we are hitting some bitbucket.org limits as well.
-I see it hanging at 95% (5617/5870), 1.01GiB here.
-If you try to clone the tuna project from selinuxproject.org in the same
-way, does it complete?
+Applied.  However, for each such denial, we need to consider whether
+these should only be allowed for CTS purposes or whether they belong as
+part of the base policy in general (and if the latter, whether they are
+required for all app domains or just some of them).  
+
+> diff --git a/cts.te b/cts.te
+> index 3600e94..489be1a 100644
+> --- a/cts.te
+> +++ b/cts.te
+> @@ -27,6 +27,10 @@ allow appdomain fs_type:dir_file_class_set getattr;
+>  allow appdomain shell_exec:file rx_file_perms;
+>  allow appdomain system_file:file rx_file_perms;
+>  
+> +# Accesses to apk_tmp_file and shell_data_file
+> +allow appdomain apk_tmp_file:file rw_file_perms;
+> +allow appdomain shell_data_file:file r_file_perms;
+> +
+>  # Read routing information.
+>  allow netdomain self:netlink_route_socket { create read write nlmsg_read };
+>  
 
 -- 
 Stephen Smalley
