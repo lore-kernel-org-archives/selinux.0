@@ -1,54 +1,32 @@
-Message-ID: <1343680740.2346.196.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Questions about the following denials
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 30 Jul 2012 16:39:00 -0400
-In-Reply-To: <CAO-4OdF4Kyt7Cg8-9zkb4zY4HdcK=Vg-M-mXm4nNgA03mVrKcA@mail.gmail.com>
-References: 
-	<CAO-4OdF4Kyt7Cg8-9zkb4zY4HdcK=Vg-M-mXm4nNgA03mVrKcA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Haiqing Jiang <hqjiang1988@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
+        Haiqing Jiang <hqjiang1988@gmail.com>
+Subject: [PATCH 1/1] Untrusted_app gets route information
+Date: Mon, 30 Jul 2012 13:51:16 -0700
+Message-Id: <1343681476-5242-1-git-send-email-hqjiang1988@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-07-30 at 13:11 -0700, Haiqing Jiang wrote:
-> Hi, Stephen,
-> 
-> 
-> Could you give me some suggestions for the understanding the denials
-> as shown below?
-> 
-> 
-> #============= release_app ==============
-> allow release_app zygote:netlink_selinux_socket getattr;
-> 
-> <5>[13011.539764] type=1400 audit(1343515886.695:592): avc:  denied
-> { getattr } for  pid=10278 comm="ationTestRunner" path="socket:[1516]"
-> dev=sockfs ino=1516 scontext=u:r:release_app:s0 tcontext=u:r:zygote:s0
-> tclass=netlink_selinux_socket
+---
+ app.te |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Just dontaudit it.  No need for the app to be able to use a
-NETLINK_SELINUX socket.
-
-> #============= untrusted_app ==============
-> allow untrusted_app self:netlink_route_socket create;
-> 
-> <5>[13900.251708] type=1400 audit(1343516775.406:801): avc:  denied
->  { create } for  pid=15089 comm="WebViewCoreThre"
-> scontext=u:r:untrusted_app:s0:c39 tcontext=u:r:untrusted_app:s0:c39
-> tclass=netlink_route_socket
-
-Might be required for some apps; should be added under app_network
-boolean, as:
-# Get route information.
-allow untrusted_app self:netlink_route_socket { create bind read
-nlmsg_read };
-
-
+diff --git a/app.te b/app.te
+index 8b1aa53..139652f 100644
+--- a/app.te
++++ b/app.te
+@@ -102,6 +102,8 @@ allow untrusted_app node_type:{ tcp_socket udp_socket } node_bind;
+ allow untrusted_app port_type:udp_socket name_bind;
+ allow untrusted_app port_type:tcp_socket name_bind;
+ unix_socket_connect(untrusted_app, dnsproxyd, netd)
++# Get route information.
++allow untrusted_app self:netlink_route_socket { create bind read nlmsg_read };
+ }
+ # Bluetooth access.
+ bool app_bluetooth false;
 -- 
-Stephen Smalley
-National Security Agency
+1.7.0.4
 
 
 --
