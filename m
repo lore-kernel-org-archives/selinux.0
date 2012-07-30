@@ -1,173 +1,51 @@
-Message-ID: <1343657120.1722.11.camel@moss-lions.epoch.ncsc.mil>
-Subject: Re: Is the CIL project still active
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: Joshua Brindle <method@manicmethod.com>, Jeremy Solt <jsolt@tresys.com>,
-        selinux@tycho.nsa.gov
-Date: Mon, 30 Jul 2012 10:05:20 -0400
-In-Reply-To: <1343592651.8495.YahooMailClassic@web87701.mail.ir2.yahoo.com>
-References: <1343592651.8495.YahooMailClassic@web87701.mail.ir2.yahoo.com>
+Message-ID: <1343657463.2346.59.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Tuna bitbucket repository wont git clone
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+Date: Mon, 30 Jul 2012 10:11:03 -0400
+In-Reply-To: <1343652345.2346.17.camel@moss-pluto.epoch.ncsc.mil>
+References: 
+	<CAFftDdpF68z3VKakiXgtLzybuCp34HdwRaBzY5hJASOoPB0oOA@mail.gmail.com>
+	 <1343652345.2346.17.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2012-07-29 at 21:10 +0100, Richard Haines wrote:
-> I'm only planning to run this in the same way as checkpolicy so not
-> worried about AOSP etc.
-> 
-> I'm using the most suitable CIL statements (block, macro etc.), but as
-> the policy is limited, not that many. I've converted all modules to
-> blocks, figured out the classmap/classmapping statements and almost
-> finished, although I'll probably wait for the next CIL release as I
-> have come across three minor problems:
-> 
-> 1) Cannot call a macro within a booleanif block.
-> 
-
-That has been fixed at some point since the last release.
-
-> 2) The mlsconstrain statements seem to be generated in reverse order but
->    need to check manually as APOL etc doesn't handle them.
-
-Generated in the binary in reverse order? I don't understand what you
-are referring to here.
-
->  Are there any
->    utilities that will allow me to compare mlsconstrain statements within
->    a binary policy?
-> 
-
-sediff doesn't handle constraints and I don't know of a tool that will
-do that comparison.
-
-> 3) Cannot generate a file context without at least one category (example
->    always wants s0:c0-s0:c0 instead of the normal s0).
-> 
-
-This does need to be fixed.
-
-> Otherwise the current CIL compiler is running well.
-> 
-
-Thanks for your feedback.
-Jim
-
-> Richard
-> 
-> --- On Tue, 24/7/12, Joshua Brindle <method@manicmethod.com> wrote:
-> 
-> > From: Joshua Brindle <method@manicmethod.com>
-> > Subject: Re: Is the CIL project still active
-> > To: "Richard Haines" <richard_c_haines@btinternet.com>
-> > Cc: jwcart2@tycho.nsa.gov, "Jeremy Solt" <jsolt@tresys.com>, selinux@tycho.nsa.gov
-> > Date: Tuesday, 24 July, 2012, 13:29
-> > Richard Haines wrote:
-> > > Glad to hear its still going as I started converting
-> > the Android
-> > > policy to CIL using the current compiler that works ok
-> > so far. However
-> > > I'm having problems defining 'sets of classes' for
-> > example with M4:
+On Mon, 2012-07-30 at 08:45 -0400, Stephen Smalley wrote:
+> On Sat, 2012-07-28 at 15:39 -0700, William Roberts wrote:
+> > I really think their is something borked on the device tuna repo, even
+> > doing a straight git clone is not working:
 > > 
-> > Since it is a small policy it should be possible to do a
-> > real, semantic 
-> > conversion (using blocks and ignoring legacy file types). Is
-> > that what 
-> > you are doing?
+> > git clone --mirror https://bitbucket.org/seandroid/device-samsung-tuna
+> > Initialized empty Git repository in /home/git/device-samsung-tuna.git/
+> > remote: Counting objects: 5870, done.
+> > remote: Compressing objects: 100% (3180/3180), done.
+> > Receiving objects:  85% (5040/5870), 326.57 MiB | 658 KiB/s
 > > 
-> > However, I'm not sure if CIL will be able to be in Android
-> > anytime soon. 
-> > It could still be used on the host side like
-> > checkpolicy/libsepol are 
-> > now but since CIL is currently statically linked against
-> > libsepol (GPL) 
-> > it would be prohibited in the AOSP userspace IIUC.
-> > 
-> > >
-> > > define(`dir_file_class_set (dir file lnk_file sock_file
-> > fifo_file
-> > > chr_file blk_file))
-> > >
-> > > I've tried various methods using classmap/classmapping
-> > etc. but failed
-> > > to work out how to define in CIL:
-> > >
-> > > mlsconstrain dir_file_class_set { create relabelfrom
-> > relabelto }
-> > > (l2 eq h2 and (l1 eq l2 or t1 == mlstrustedsubject));
-> > >
-> > > I can produce CIL mlsconstrain statements when I define
-> > them with each
-> > > class separately but not as a set. Is it possible with
-> > the current
-> > > release of CIL ? (if not I'll just produce an entry for
-> > each class so
-> > > I can continue).
-> > >
-> > > Thanks
-> > > Richard
-> > >
-> > >
-> > > --- On Fri, 20/7/12, James Carter<jwcart2@tycho.nsa.gov>
-> > wrote:
-> > >
-> > >> From: James Carter<jwcart2@tycho.nsa.gov>
-> > >> Subject: Re: Is the CIL project still active
-> > >> To: "Richard Haines"<richard_c_haines@btinternet.com>
-> > >> Cc: selinux@tycho.nsa.gov
-> > >> Date: Friday, 20 July, 2012, 20:13
-> > >> On Fri, 2012-07-20 at 19:39 +0100,
-> > >> Richard Haines wrote:
-> > >>> Does anyone know the status of the CIL project
-> > as it
-> > >> looked useful and would seem ideal for SEAndroid.
-> > >>
-> > >> There are still a few more bugs that need to be
-> > fixed so
-> > >> that it can
-> > >> correctly compile a CIL-transformed Refpolicy.
-> > Progress has
-> > >> been slow
-> > >> recently, but it is not going to be abandoned.
-> > >>
-> > >> --
-> > >> James Carter<jwcart2@tycho.nsa.gov>
-> > >> National Security Agency
-> > >>
-> > >>
-> > >
-> > >
-> > > --
-> > > This message was distributed to subscribers of the
-> > selinux mailing list.
-> > > If you no longer wish to subscribe, send mail to
-> > > majordomo@tycho.nsa.gov
-> > with
-> > > the words "unsubscribe selinux" without quotes as the
-> > message.
-> > >
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux
-> > mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with
-> > the words "unsubscribe selinux" without quotes as the
-> > message.
-> >
+> > Is this repo really that big? I have let it get all the way to 1023MB
+> > and still git never returns. It sticks at 95% of objects received....
 > 
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> du -sh device/samsung/tuna shows it as 1.2G here.
+> Maybe we are hitting some bitbucket.org limits as well.
+> I see it hanging at 95% (5617/5870), 1.01GiB here.
+> If you try to clone the tuna project from selinuxproject.org in the same
+> way, does it complete?
+
+Maybe you could first clone from AOSP, then add the bitbucket remote and
+fetch it.  Then you only need to download our modifications from
+bitbucket and not the entire tree.  e.g.
+
+git clone --mirror https://android.googlesource.com/device/samsung/tuna device-samsung-tuna.git
+cd device-samsung-tuna.git
+git remote add bitbucket https://bitbucket.org/seandroid/device-samsung-tuna
+git fetch bitbucket
+
+Not sure if that would solve the problem for you.
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
