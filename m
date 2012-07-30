@@ -1,32 +1,54 @@
-From: Haiqing Jiang <hqjiang1988@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, bill.c.roberts@gmail.com,
-        Haiqing Jiang <hqjiang1988@gmail.com>
-Subject: [PATCH 1/1] domain writes to cgroup pseudo filesystem
-Date: Mon, 30 Jul 2012 13:20:38 -0700
-Message-Id: <1343679638-3266-1-git-send-email-hqjiang1988@gmail.com>
+Message-ID: <1343680740.2346.196.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Questions about the following denials
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Haiqing Jiang <hqjiang1988@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Mon, 30 Jul 2012 16:39:00 -0400
+In-Reply-To: <CAO-4OdF4Kyt7Cg8-9zkb4zY4HdcK=Vg-M-mXm4nNgA03mVrKcA@mail.gmail.com>
+References: 
+	<CAO-4OdF4Kyt7Cg8-9zkb4zY4HdcK=Vg-M-mXm4nNgA03mVrKcA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- domain.te |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Mon, 2012-07-30 at 13:11 -0700, Haiqing Jiang wrote:
+> Hi, Stephen,
+> 
+> 
+> Could you give me some suggestions for the understanding the denials
+> as shown below?
+> 
+> 
+> #============= release_app ==============
+> allow release_app zygote:netlink_selinux_socket getattr;
+> 
+> <5>[13011.539764] type=1400 audit(1343515886.695:592): avc:  denied
+> { getattr } for  pid=10278 comm="ationTestRunner" path="socket:[1516]"
+> dev=sockfs ino=1516 scontext=u:r:release_app:s0 tcontext=u:r:zygote:s0
+> tclass=netlink_selinux_socket
 
-diff --git a/domain.te b/domain.te
-index 2e9720e..9a59c49 100644
---- a/domain.te
-+++ b/domain.te
-@@ -80,7 +80,7 @@ allow domain cache_file:file { getattr read };
- allow domain cache_file:lnk_file read;
- 
- # For /acct/uid/*/tasks.
--allow domain cgroup:dir search;
-+allow domain cgroup:dir { search write };
- allow domain cgroup:file w_file_perms;
- 
- # For /sys/qemu_trace files in the emulator.
+Just dontaudit it.  No need for the app to be able to use a
+NETLINK_SELINUX socket.
+
+> #============= untrusted_app ==============
+> allow untrusted_app self:netlink_route_socket create;
+> 
+> <5>[13900.251708] type=1400 audit(1343516775.406:801): avc:  denied
+>  { create } for  pid=15089 comm="WebViewCoreThre"
+> scontext=u:r:untrusted_app:s0:c39 tcontext=u:r:untrusted_app:s0:c39
+> tclass=netlink_route_socket
+
+Might be required for some apps; should be added under app_network
+boolean, as:
+# Get route information.
+allow untrusted_app self:netlink_route_socket { create bind read
+nlmsg_read };
+
+
 -- 
-1.7.0.4
+Stephen Smalley
+National Security Agency
 
 
 --
