@@ -1,41 +1,35 @@
-Message-ID: <1343650601.2346.2.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/1] Appdomain write to cgroup on android_cts enabled
+Message-ID: <1343652345.2346.17.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Tuna bitbucket repository wont git clone
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Mon, 30 Jul 2012 08:16:41 -0400
-In-Reply-To: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
-References: <1343429484-6978-1-git-send-email-hqjiang1988@gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+Date: Mon, 30 Jul 2012 08:45:45 -0400
+In-Reply-To: <CAFftDdpF68z3VKakiXgtLzybuCp34HdwRaBzY5hJASOoPB0oOA@mail.gmail.com>
+References: 
+	<CAFftDdpF68z3VKakiXgtLzybuCp34HdwRaBzY5hJASOoPB0oOA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-07-27 at 15:51 -0700, Haiqing Jiang wrote:
-> ---
->  cts.te |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
+On Sat, 2012-07-28 at 15:39 -0700, William Roberts wrote:
+> I really think their is something borked on the device tuna repo, even
+> doing a straight git clone is not working:
 > 
-> diff --git a/cts.te b/cts.te
-> index ff8a9f0..7877b19 100644
-> --- a/cts.te
-> +++ b/cts.te
-> @@ -31,6 +31,9 @@ allow appdomain system_file:file rx_file_perms;
->  allow appdomain apk_tmp_file:file rw_file_perms;
->  allow appdomain shell_data_file:file r_file_perms;
->  
-> +# Write to cgroup
-> +allow appdomain cgroup:dir write;
+> git clone --mirror https://bitbucket.org/seandroid/device-samsung-tuna
+> Initialized empty Git repository in /home/git/device-samsung-tuna.git/
+> remote: Counting objects: 5870, done.
+> remote: Compressing objects: 100% (3180/3180), done.
+> Receiving objects:  85% (5040/5870), 326.57 MiB | 658 KiB/s
+> 
+> Is this repo really that big? I have let it get all the way to 1023MB
+> and still git never returns. It sticks at 95% of objects received....
 
-Likely should get merged into domain.te rule for cgroup:dir.
-Future work: Investigate finer-grained labeling for kernel cgroup pseudo
-filesystem (requires kernel modifications), and use it to only allow
-access to specific cgroup subdirectory.
-
-> +
->  # Read routing information.
->  allow netdomain self:netlink_route_socket { create read write nlmsg_read };
->  
+du -sh device/samsung/tuna shows it as 1.2G here.
+Maybe we are hitting some bitbucket.org limits as well.
+I see it hanging at 95% (5617/5870), 1.01GiB here.
+If you try to clone the tuna project from selinuxproject.org in the same
+way, does it complete?
 
 -- 
 Stephen Smalley
