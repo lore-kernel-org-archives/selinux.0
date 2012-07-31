@@ -1,40 +1,73 @@
-Message-ID: <1343742406.13704.7.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH 1/1] Allow release_app getattr of netlink_selinux sockets
+Message-ID: <1343743408.13704.10.camel@moss-pluto.epoch.ncsc.mil>
+Subject: [PATCH] libselinux: Ensure that we only close the selinux netlink
+ socket once
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Haiqing Jiang <hqjiang1988@gmail.com>
-Cc: selinux@tycho.nsa.gov, bill.c.roberts@gmail.com
-Date: Tue, 31 Jul 2012 09:46:46 -0400
-In-Reply-To: <1343683094-5461-1-git-send-email-hqjiang1988@gmail.com>
-References: <1343683094-5461-1-git-send-email-hqjiang1988@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
+Date: Tue, 31 Jul 2012 10:03:28 -0400
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-07-30 at 14:18 -0700, Haiqing Jiang wrote:
-> ---
->  app.te |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+Ensure that we only close the selinux netlink socket once.
+Taken from our Android libselinux tree.
 
-I think the right fix is to instead close the NETLINK_SELINUX socket in
-the child process.  I've made this change to libselinux.  Can you
-re-test with the new libselinux and see if the permission is still
-required by the test?
+---
+ libselinux/src/avc_internal.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-> 
-> diff --git a/app.te b/app.te
-> index 139652f..4e002bf 100644
-> --- a/app.te
-> +++ b/app.te
-> @@ -63,6 +63,8 @@ net_domain(release_app)
->  bluetooth_domain(release_app)
->  # Read logs.
->  allow release_app log_device:chr_file read;
-> +# Use netlink_selinux socket
-> +allow release_app zygote:netlink_selinux_socket getattr;
->  
->  #
->  # An example of a specific domain for a specific app
+diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+index a07aa7f..d219331 100644
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -53,7 +53,7 @@ int avc_setenforce = 0;
+ int avc_netlink_trouble = 0;
+ 
+ /* netlink socket code */
+-static int fd;
++static int fd = -1;
+ 
+ int avc_netlink_open(int blocking)
+ {
+@@ -69,6 +69,7 @@ int avc_netlink_open(int blocking)
+ 	fcntl(fd, F_SETFD, FD_CLOEXEC);
+ 	if (!blocking && fcntl(fd, F_SETFL, O_NONBLOCK)) {
+ 		close(fd);
++		fd = -1;
+ 		rc = -1;
+ 		goto out;
+ 	}
+@@ -81,6 +82,7 @@ int avc_netlink_open(int blocking)
+ 
+ 	if (bind(fd, (struct sockaddr *)&addr, len) < 0) {
+ 		close(fd);
++		fd = -1;
+ 		rc = -1;
+ 		goto out;
+ 	}
+@@ -90,7 +92,9 @@ int avc_netlink_open(int blocking)
+ 
+ void avc_netlink_close(void)
+ {
+-	close(fd);
++	if (fd >= 0)
++		close(fd);
++	fd = -1;	
+ }
+ 
+ static int avc_netlink_receive(char *buf, unsigned buflen, int blocking)
+@@ -269,6 +273,7 @@ void avc_netlink_loop(void)
+ 	}
+ 
+ 	close(fd);
++	fd = -1;
+ 	avc_netlink_trouble = 1;
+ 	avc_log(SELINUX_ERROR,
+ 		"%s:  netlink thread: errors encountered, terminating\n",
+-- 
+1.7.10.4
+
 
 -- 
 Stephen Smalley
