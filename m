@@ -1,36 +1,22 @@
-Message-ID: <1343737896.13704.2.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Cloning Android repo's from bitbucket
+Message-ID: <1343738821.13704.3.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Nexus 7 not getting past bootloader
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Tue, 31 Jul 2012 08:31:36 -0400
-In-Reply-To: <CAFftDdoBpZ9ruMjnBwiA9Cxh0L14xJiXh5LXam3V=n-jHTbYkg@mail.gmail.com>
-References: 
-	<CAFftDdoBpZ9ruMjnBwiA9Cxh0L14xJiXh5LXam3V=n-jHTbYkg@mail.gmail.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Date: Tue, 31 Jul 2012 08:47:01 -0400
+In-Reply-To: <5016B7A6.4030700@tresys.com>
+References: <5016B7A6.4030700@tresys.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-07-30 at 16:59 -0700, William Roberts wrote:
-> HTTPS checkouts of device-samsung-tuna fail, but the ssh clone worked for me.
-> 
-> Can we get new local_manifest branches, that specify using the git/ssh
-> checkout as the fetch url instead of https?
-> 
-> something like this:
-> 
-> master <-- https
-> master-ssh <-ssh
-> 
-> Keep is simple and consistent please so scripting is easy.
-> 
-> The only downside is you must have a registered bitbucket account and
-> ssh keys set up, but thats not a major problem if people use those
-> branches!
+On Mon, 2012-07-30 at 12:34 -0400, Joshua Brindle wrote:
+> I built the tegra kernel from the seandroid-tegra3-grouper-3.1-jb-fr2 branch 
+> using tegra3_android_defconfig and it never gets past the Google bootloader 
+> screen. Has anyone verified that this kernel/config works?
 
-Done.  master-ssh, seandroid-4.0.4-ssh, seandroid-4.1.1-ssh branches
-created.
+Sorry, I had missed adding CONFIG_EXT4_FS_SECURITY=y.  Try it now.
 
 -- 
 Stephen Smalley
