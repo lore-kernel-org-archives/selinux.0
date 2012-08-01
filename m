@@ -1,34 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7115pOE032605
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2012 21:05:51 -0400
-Received: by vcbfl17 with SMTP id fl17so7082769vcb.12
-        for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2012 18:05:50 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 31 Jul 2012 18:05:50 -0700
-Message-ID: <CAFftDdp7C3tR7NHBfYrHRn2-y9fRNJAPHnXurOb3y4jJEUkKBQ@mail.gmail.com>
-Subject: SE Android ZoneInfo Errors
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q711KtY3000797
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2012 21:20:55 -0400
+Received: by ghbz13 with SMTP id z13so6916572ghb.12
+        for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2012 18:20:54 -0700 (PDT)
 From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] Spelling correction and formatting fixed.
+Date: Tue, 31 Jul 2012 18:20:31 -0700
+Message-Id: <1343784031-23573-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is anyone else getting these when building the newest master for Maguro?
+The following commits introduced the issue:
+75776a76
+482698a6
 
-E/Zygote  (  821): 	at libcore.util.ZoneInfoDB.mapData(ZoneInfoDB.java:109)
-E/Zygote  (  821): 	at libcore.util.ZoneInfoDB.<clinit>(ZoneInfoDB.java:75)
-E/Zygote  (  821): 	... 12 more
-E/Zygote  (  821): Caused by: libcore.io.ErrnoException: open failed:
-ENOENT (No such file or directory)
+Please apply to SEAndroidManager branch master
 
-It was originally bawking about other files not being there, and I
-pushed them from another device, but the list keeps growing...
+Change-Id: Id6f0ca6da33a001cf86b6ad4e83cbc2e523880c7
+---
+ jni/exception.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-I looked at libcore and everything looks up to date...
+diff --git a/jni/exception.c b/jni/exception.c
+index 4189fe2..22bc1a7 100644
+--- a/jni/exception.c
++++ b/jni/exception.c
+@@ -23,10 +23,10 @@ throwNoClassDefError(JNIEnv *env, char *message) {
+ 	exClass = (*env)->FindClass( env, className );
+ 
+ 	if(exClass == NULL) {
+-        ALOGE("Could no throw java/lang/NoClassDefFoundError");
+-        /* If this happens, the program is out of control */
+-        exit(42);
+-    }
++            ALOGE("Could not throw java/lang/NoClassDefFoundError");
++            /* If this happens, the program is out of control */
++            exit(42);
++        }
+ 	return (*env)->ThrowNew( env, exClass, message );
+ }
+ 
 -- 
-Respectfully,
+1.7.0.4
 
-William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
