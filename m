@@ -1,38 +1,50 @@
-Message-ID: <1343822161.20926.6.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Cloning Android repo's from bitbucket
+Message-ID: <1343822361.20926.7.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Spelling correction and formatting fixed.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Wed, 01 Aug 2012 07:56:01 -0400
-In-Reply-To: <CAFftDdoOfz1MVsFKqa3ymCs_+pLhmZWVtrV=HRYzAT-LTA=aLA@mail.gmail.com>
-References: 
-	<CAFftDdoBpZ9ruMjnBwiA9Cxh0L14xJiXh5LXam3V=n-jHTbYkg@mail.gmail.com>
-	 <1343737896.13704.2.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAFftDdoOfz1MVsFKqa3ymCs_+pLhmZWVtrV=HRYzAT-LTA=aLA@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
+Date: Wed, 01 Aug 2012 07:59:21 -0400
+In-Reply-To: <1343784031-23573-1-git-send-email-w.roberts@sta.samsung.com>
+References: <1343784031-23573-1-git-send-email-w.roberts@sta.samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-31 at 18:46 -0700, William Roberts wrote:
-> Stephen,
-> It didn't like the fetch url, this patch fixes it on master.
+On Tue, 2012-07-31 at 18:20 -0700, William Roberts wrote:
+> The following commits introduced the issue:
+> 75776a76
+> 482698a6
 > 
-> diff --git a/local_manifest.xml b/local_manifest.xml
-> index b3d6b49..ba7118d 100644
-> --- a/local_manifest.xml
-> +++ b/local_manifest.xml
-> @@ -1,6 +1,6 @@
->  <manifest>
->    <remote  name="bitbucket"
-> -           fetch="git@bitbucket.org:seandroid" />
-> +           fetch="git+ssh://git@bitbucket.org/seandroid/" />
+> Please apply to SEAndroidManager branch master
 > 
->    <remove-project name="platform/external/libselinux"/>
->    <project path="external/libselinux" remote="bitbucket"
-> name="external-libselinux"/>
+> Change-Id: Id6f0ca6da33a001cf86b6ad4e83cbc2e523880c7
 
-Thanks, fixed on all three branches.
+Thanks, applied.
+
+> ---
+>  jni/exception.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/jni/exception.c b/jni/exception.c
+> index 4189fe2..22bc1a7 100644
+> --- a/jni/exception.c
+> +++ b/jni/exception.c
+> @@ -23,10 +23,10 @@ throwNoClassDefError(JNIEnv *env, char *message) {
+>  	exClass = (*env)->FindClass( env, className );
+>  
+>  	if(exClass == NULL) {
+> -        ALOGE("Could no throw java/lang/NoClassDefFoundError");
+> -        /* If this happens, the program is out of control */
+> -        exit(42);
+> -    }
+> +            ALOGE("Could not throw java/lang/NoClassDefFoundError");
+> +            /* If this happens, the program is out of control */
+> +            exit(42);
+> +        }
+>  	return (*env)->ThrowNew( env, exClass, message );
+>  }
+>  
 
 -- 
 Stephen Smalley
