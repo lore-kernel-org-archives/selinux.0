@@ -1,50 +1,33 @@
-Message-ID: <1343822361.20926.7.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] Spelling correction and formatting fixed.
+Message-ID: <1343822901.20926.9.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SE Android ZoneInfo Errors
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, William Roberts <w.roberts@sta.samsung.com>
-Date: Wed, 01 Aug 2012 07:59:21 -0400
-In-Reply-To: <1343784031-23573-1-git-send-email-w.roberts@sta.samsung.com>
-References: <1343784031-23573-1-git-send-email-w.roberts@sta.samsung.com>
+Cc: selinux@tycho.nsa.gov
+Date: Wed, 01 Aug 2012 08:08:21 -0400
+In-Reply-To: <CAFftDdp7C3tR7NHBfYrHRn2-y9fRNJAPHnXurOb3y4jJEUkKBQ@mail.gmail.com>
+References: 
+	<CAFftDdp7C3tR7NHBfYrHRn2-y9fRNJAPHnXurOb3y4jJEUkKBQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-07-31 at 18:20 -0700, William Roberts wrote:
-> The following commits introduced the issue:
-> 75776a76
-> 482698a6
+On Tue, 2012-07-31 at 18:05 -0700, William Roberts wrote:
+> Is anyone else getting these when building the newest master for Maguro?
 > 
-> Please apply to SEAndroidManager branch master
+> E/Zygote  (  821): 	at libcore.util.ZoneInfoDB.mapData(ZoneInfoDB.java:109)
+> E/Zygote  (  821): 	at libcore.util.ZoneInfoDB.<clinit>(ZoneInfoDB.java:75)
+> E/Zygote  (  821): 	... 12 more
+> E/Zygote  (  821): Caused by: libcore.io.ErrnoException: open failed:
+> ENOENT (No such file or directory)
 > 
-> Change-Id: Id6f0ca6da33a001cf86b6ad4e83cbc2e523880c7
+> It was originally bawking about other files not being there, and I
+> pushed them from another device, but the list keeps growing...
+> 
+> I looked at libcore and everything looks up to date...
 
-Thanks, applied.
-
-> ---
->  jni/exception.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/jni/exception.c b/jni/exception.c
-> index 4189fe2..22bc1a7 100644
-> --- a/jni/exception.c
-> +++ b/jni/exception.c
-> @@ -23,10 +23,10 @@ throwNoClassDefError(JNIEnv *env, char *message) {
->  	exClass = (*env)->FindClass( env, className );
->  
->  	if(exClass == NULL) {
-> -        ALOGE("Could no throw java/lang/NoClassDefFoundError");
-> -        /* If this happens, the program is out of control */
-> -        exit(42);
-> -    }
-> +            ALOGE("Could not throw java/lang/NoClassDefFoundError");
-> +            /* If this happens, the program is out of control */
-> +            exit(42);
-> +        }
->  	return (*env)->ThrowNew( env, exClass, message );
->  }
->  
+I just merged latest AOSP master into seandroid, so you might try again
+and see if it still occurs.
 
 -- 
 Stephen Smalley
