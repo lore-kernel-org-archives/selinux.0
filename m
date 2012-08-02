@@ -1,30 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q71KmUjD019933
-	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2012 16:48:30 -0400
-Received: by vbbfc26 with SMTP id fc26so8191448vbb.12
-        for <selinux@tycho.nsa.gov>; Wed, 01 Aug 2012 13:48:29 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 1 Aug 2012 13:48:29 -0700
-Message-ID: <CAFftDdqABcoJbH+yEoe8dSRUuUxG2M72BCj0e27b=ZsWmYC6aA@mail.gmail.com>
-Subject: init and /data/system policies
-From: William Roberts <bill.c.roberts@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q722XYKC001931
+	for <selinux@tycho.nsa.gov>; Wed, 1 Aug 2012 22:33:34 -0400
+From: Joshua Brindle <method@manicmethod.com>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Joshua Brindle <jbrindle@tresys.com>
+Subject: [PATCH build/] Fix mkyaffs2image call to add a '/' to the mount point
+Date: Wed,  1 Aug 2012 22:32:57 -0400
+Message-Id: <1343874777-12830-1-git-send-email-method@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently the policy file is loaded early in init, before any
-filesystems are mounted. This means that if their is a policy file in
-data/system that should be used instead of the on in the rootdir
-ramfs, and the data/system policy is ignored until you do a reload. I
-was wondering what the security implications are of loading the policy
-after the mount, or is it better just to do a setprop to reload policy
-in an on fs section of init.rc?
+From: Joshua Brindle <jbrindle@tresys.com>
 
+selabel_lookup requires the mountpoint start with a '/' to match specifications in the file_context file. Change mkyaffs2image call to add a '/' to the mount point argument
+
+Change-Id: I255b661822401f9253ef58a2a4bdada85fc96b23
+
+Signed-off-by: Joshua Brindle <jbrindle@tresys.com>
+---
+ tools/releasetools/build_image.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/releasetools/build_image.py b/tools/releasetools/build_image.py
+index a615d1a..9afb6f2 100755
+--- a/tools/releasetools/build_image.py
++++ b/tools/releasetools/build_image.py
+@@ -56,7 +56,7 @@ def BuildImage(in_dir, prop_dict, out_file):
+     build_command.append(out_file)
+     if "selinux_fc" in prop_dict:
+       build_command.append(prop_dict["selinux_fc"])
+-      build_command.append(prop_dict["mount_point"])
++      build_command.append("/" . prop_dict["mount_point"])
+ 
+   print "Running: ", " ".join(build_command)
+   p = subprocess.Popen(build_command);
 -- 
-Respectfully,
+1.7.9.5
 
-William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
