@@ -1,57 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q77HaBjo029371
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2012 13:36:11 -0400
-Message-ID: <50215206.6060504@redhat.com>
-Date: Tue, 07 Aug 2012 13:36:06 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q77LoOBE012051
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2012 17:50:24 -0400
+Received: by qcpx40 with SMTP id x40so68226qcp.12
+        for <selinux@tycho.nsa.gov>; Tue, 07 Aug 2012 14:50:23 -0700 (PDT)
 MIME-Version: 1.0
-To: William Roberts <bill.c.roberts@gmail.com>
-CC: Ole Kliemann <ole@plastictree.net>, selinux@tycho.nsa.gov
-Subject: Re: SELinux performance depending on type count
-References: <20120807130244.GE2085@telvanni> <CAFftDdq9JhRXMTDP4ZSsDOhpUAb5vDAAKPmNJ3Zf_KaeBRzxYw@mail.gmail.com>
-In-Reply-To: <CAFftDdq9JhRXMTDP4ZSsDOhpUAb5vDAAKPmNJ3Zf_KaeBRzxYw@mail.gmail.com>
+In-Reply-To: <50215A7E.8000701@linaro.org>
+References: <50215A7E.8000701@linaro.org>
+Date: Tue, 7 Aug 2012 17:50:23 -0400
+Message-ID: <CAHC9VhTSS8+-OcX9uK0xqnYC3-y0axVGs1m+kuC6+M6HvmSmgg@mail.gmail.com>
+Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
+From: Paul Moore <paul@paul-moore.com>
+To: John Stultz <john.stultz@linaro.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Aug 7, 2012 at 2:12 PM, John Stultz <john.stultz@linaro.org> wrote:
+> Hi,
+>     With my kvm environment using 3.6-rc1+, I'm seeing NULL pointer
+> dereferences in selinux_ip_postroute_compat(). It looks like the sksec value
+> is null and we die in the following line:
+>
+>     if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+>
+> This triggers every time I shutdown the machine, but has also triggered
+> randomly after a few hours.
+>
+> This is on an ubuntu 12.04 image, not using selinux.
 
-On 08/07/2012 01:07 PM, William Roberts wrote:
-> Well as far as caching goes, their are cache misses, so as the amount of
-> data increase and your cache size stays fixed, they may be an issue...
-> 
-> On Tue, Aug 7, 2012 at 6:02 AM, Ole Kliemann <ole@plastictree.net> wrote:
->> I read on some locations (Fedora FAQ...) that there is an overall 
->> performance impact of about 7% when running with SELinux.
->> 
->> Does anyone know if this impact is dependent upon the number of types the
->> policy has? I would assume no: A lot of types only take up memory and
->> caching should prevent any impact on the runtime performance.
->> 
->> But if there was a performance problem with a lot of types, at what
->> number n would it start to hit hard? And how does it increase (linear,
->> quadratic...)?
->> 
->> And would it be better performance-wise to run a MCS-policy with say
->> categories c0.cn than to have types c0_t, ... cn_t?
->> 
->> Ole
-> 
-> 
-> 
-Also 7% is ridiculously high.  I would do your own measuring of SELinux and I
-think for most work loads it is lot closer to unmeasurable difference.
+NOTE: Adding the SELinux list to the CC line
 
+Hi,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+I'm trying to understand this and I was hoping you could you clarify a
+few things for me:
 
-iEYEARECAAYFAlAhUgYACgkQrlYvE4MpobMzcACdEccYKiyfZVeTQYF/06aKwc7i
-tU4An1JeSEo6qcfNsIBzeZBn01fLN8KM
-=Z4gW
------END PGP SIGNATURE-----
+* Is the panic in the Ubuntu 12.04 guest, or the host?  If the host,
+could you share what distribution you are using?
+* When you say you are not using SELinux, could you be more specific?
+It seems odd that you are not using SELinux but the panic is happening
+in a SELinux hook.
+
+Thanks.
+
+> Running with the following kvm line:
+> kvm -nographic -smp 4 -m 1G -hda disk.img -net user -net nic,model=virtio
+> -redir tcp:4400::22 -kernel ./bzImage -initrd initrd.img-1-jstultz  -append
+> "root=UUID=b08aa86a-4b16-488f-a3de-33c2cf335bf0 ro console=ttyS0,115200n8"
+>
+> Two different traces below. Config attached.
+
+-- 
+paul moore
+www.paul-moore.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
