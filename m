@@ -1,68 +1,49 @@
-Message-ID: <1344351171.31665.15.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: seinfo tag label
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Leonard Miyata <l.miyata@sta.samsung.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "Craig, Robert P."
-	 <rpcraig@tycho.ncsc.mil>
-Date: Tue, 07 Aug 2012 10:52:51 -0400
-In-Reply-To: <C1432A7484D61749AF22A060C2B03C5D061854A865@StaEx7mb3.telecom.sna.samsung.com>
-References: 
-	<C1432A7484D61749AF22A060C2B03C5D061854A865@StaEx7mb3.telecom.sna.samsung.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q77H7njE027938
+	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2012 13:07:49 -0400
+Received: by vcbfl17 with SMTP id fl17so4684599vcb.12
+        for <selinux@tycho.nsa.gov>; Tue, 07 Aug 2012 10:07:47 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20120807130244.GE2085@telvanni>
+References: <20120807130244.GE2085@telvanni>
+Date: Tue, 7 Aug 2012 10:07:47 -0700
+Message-ID: <CAFftDdq9JhRXMTDP4ZSsDOhpUAb5vDAAKPmNJ3Zf_KaeBRzxYw@mail.gmail.com>
+Subject: Re: SELinux performance depending on type count
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Ole Kliemann <ole@plastictree.net>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-08-03 at 18:36 -0500, Leonard Miyata wrote:
-> I’ve been tasked with working on the Middleware Flask implementation
-> for the SE Android Project. After spending some time trying to figure
-> out the existing Android Permission enforcement, as well as the
-> current state of the SE Linux/Android implementation, I am starting to
-> develop some concerns on the usefulness of the Middleware
-> implementation of the seinfo tag information.
-> 
->  
-> 
-> The seinfo tag is defined in ‘class ApplicationInfo’. The ‘class
-> ActivityManagerService’ maintains multiple Hash Sets of the current
-> running applications (one indexed by packagename/uid, another indexed
-> by pid) of ‘class ProcessRecord’, which contains a ‘ApplicationInfo
-> info’ field that would contain the seinfo Tag information…
-> 
->  
-> 
-> However, the comment in ‘class ProcessRecord’ for the ‘ApplicationInfo
-> info’ field is “all about the first app in the process” which would
-> seem to imply that you can have other apps, (possibly installed with
-> different Security Properties) associated with the Process, and could
-> be a potential loophole for Middleware Flask enforcement.
+Well as far as caching goes, their are cache misses, so as the amount
+of data increase and your cache size stays fixed, they may be an
+issue...
 
-A given process will only run app components of a given UID (naturally,
-as the process can only have one UID), and thus sharing within a process
-can only occur within a UID.  As a UID can only be shared by apps signed
-with the same certificate, you should never have a situation where a
-different seinfo value (and thus a different SELinux security context)
-would be assigned to an app running in the same process.
+On Tue, Aug 7, 2012 at 6:02 AM, Ole Kliemann <ole@plastictree.net> wrote:
+> I read on some locations (Fedora FAQ...) that there is an overall
+> performance impact of about 7% when running with SELinux.
+>
+> Does anyone know if this impact is dependent upon the number of
+> types the policy has? I would assume no: A lot of types only take
+> up memory and caching should prevent any impact on the runtime
+> performance.
+>
+> But if there was a performance problem with a lot of types, at
+> what number n would it start to hit hard? And how does it
+> increase (linear, quadratic...)?
+>
+> And would it be better performance-wise to run a MCS-policy with
+> say categories c0.cn than to have types c0_t, ... cn_t?
+>
+> Ole
 
-> It could very well be that calling down to the SE Linux Kernel and
-> extracting the Security Context associated with the pid may provide
-> better ‘trust’ for a security ‘tag’, but I have yet to figure out the
-> relationship between the ‘Flask’ labels returned by the SE Linux
-> Security Context, and the X.509 Certs, (and associated digital
-> signatures) used to verify the ‘trust’ levels of installed packages.
 
-The seinfo tag for the package is used to select the security context
-for the process based on seapp_contexts.
-
-The middleware Flask implementation would maintain its own notion of
-security context for each app UID, which will not be the same as the
-SELinux security context at the kernel layer.
 
 -- 
-Stephen Smalley
-National Security Agency
+Respectfully,
 
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
