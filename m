@@ -1,69 +1,77 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78JxYEA006469
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 15:59:34 -0400
-Received: by pbbro2 with SMTP id ro2so1939262pbb.12
-        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 12:59:32 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1344454701.28967.233.camel@edumazet-glaptop>
-References: <50215A7E.8000701@linaro.org>
-	<502198B4.8040503@linaro.org>
-	<5022BAA2.90606@us.ibm.com>
-	<17464273.DGOeQvDGIE@sifl>
-	<1344454701.28967.233.camel@edumazet-glaptop>
-Date: Wed, 8 Aug 2012 15:59:31 -0400
-Message-ID: <CACLa4ptgoge0nnEuov5E9gc2bdR-wjCo+bpB6Auhwo8jSO99oA@mail.gmail.com>
-Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
-From: Eric Paris <eparis@parisplace.org>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, John Stultz <johnstul@us.ibm.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
-        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1344456337.22629.17.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: A filename to label translation daemon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, lennart@poettering.net, dwalsh@redhat.com
+Date: Wed, 08 Aug 2012 16:05:37 -0400
+In-Reply-To: <1344454290.25533.12.camel@localhost>
+References: <1344454290.25533.12.camel@localhost>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 8, 2012 at 3:38 PM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> On Wed, 2012-08-08 at 15:26 -0400, Paul Moore wrote:
+On Wed, 2012-08-08 at 15:31 -0400, Eric Paris wrote:
+> We know that utilities like install disable their SELinux support
+> because of the enormous amount of time it takes to load the matchpathcon
+> regex database.  We know that systemd spends time loading the database
+> at least twice.  Other utilities like the krb5libs complain about the
+> size and time it takes to load the database.  We've added hacks (I
+> believe all in Fedora, but maybe upstream as well) which try to pare
+> down the database to some prefix(es) on database load.  If systemd only
+> needs to label in /var why load all the stuff for /etc?  These prefix
+> hacks don't work particularly well as fallback labels (such as
+> default_t) are hard to capture and the prefixes cannot be long as the
+> regexes are usually quite short.  They also don't work well with label
+> equivalencies.
+> 
+> So today I wrote a little daemon which listens in the abstract namespace
+> for requests and returns the context.  It really really rough, I admit,
+> but it works quite well.  My first perf numbers looking at /home/eparis
+> make sense:
+> 
+> $ ./initonce /home/eparis
+>  0.180 seconds used by the processor.
+> $ ./initalways /home/eparis
+>  19.200 seconds used by the processor.
+> $ ./client /home/eparis
+>  0.570 seconds used by the processor.
+> 
+> If I init the DB one time and do the same lookup (for /home/eparis) 1000
+> times it takes .18 seconds.  Doing 1000 lookups init-ing and fini-ing
+> the db every time it took 19.2.  Connecting to the server and asking
+> 1000 times took .57 seconds.  This means that if you have to do about 48
+> lookups, it's faster to do your own init.  If <48, you should use the
+> server.
+> 
+> The I tried again with a different pathname (and get very different
+> results)
+> 
+> $ ./initonce /var/www/html/cgi-bin
+>  1.510 seconds used by the processor.
+> $ ./initalways /var/www/html/cgi-bin
+>  42.790 seconds used by the processor.
+> $ ./client /var/www/html/cgi-bin
+>  0.600 seconds used by the processor.
+> 
+> These I cannot explain.  How the heck is local slower when the time to
+> init the db is not taken into account at all?  I'm clueless here.  But
+> still, the client server model doesn't look like a bad idea.
+> 
+> I'm attaching my server, my client, and my 2 local test programs.
+> Thoughts?
+> 
+> *having the daemon listen and update the db on policy load is a todo
 
-> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-> index ba39a52..027a331 100644
-> --- a/net/ipv4/ip_output.c
-> +++ b/net/ipv4/ip_output.c
-> @@ -1524,6 +1524,10 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
->         sk->sk_priority = skb->priority;
->         sk->sk_protocol = ip_hdr(skb)->protocol;
->         sk->sk_bound_dev_if = arg->bound_dev_if;
-> +#ifdef CONFIG_SECURITY
-> +       if (!sk->sk_security && security_sk_alloc(sk, PF_INET, GFP_ATOMIC))
-> +                       goto out;
-> +#endif
->         sock_net_set(sk, net);
->         __skb_queue_head_init(&sk->sk_write_queue);
->         sk->sk_sndbuf = sysctl_wmem_default;
-> @@ -1539,7 +1543,7 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
->                 skb_set_queue_mapping(nskb, skb_get_queue_mapping(skb));
->                 ip_push_pending_frames(sk, &fl4);
->         }
-> -
-> +out:
->         put_cpu_var(unicast_sock);
->
->         ip_rt_put(rt);
+Not sure how this helps systemd, as it runs first (by definition) and
+loads the file_contexts configuration before it starts any other
+daemons, right?  Now if you wanted systemd to export this as a service
+to everything else, that might make sense.
 
-Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
-code.  Ifndef CONF_SECURITY then security_sk_alloc() is a static
-inline return 0;   I guess the question is "Where did the sk come
-from"?  Why wasn't security_sk_alloc() called when it was allocated?
-Should it have been updated at some time and that wasn't done either?
-Seems wrong to be putting packets on the queue for a socket where the
-security data was never allocated and was never set to its proper
-state.
+-- 
+Stephen Smalley
+National Security Agency
 
-there must be a bigger bug here...
-
--Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
