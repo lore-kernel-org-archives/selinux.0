@@ -1,87 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78KZDFT008682
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:35:13 -0400
-Received: by ghz3 with SMTP id 3so1336941ghz.12
-        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 13:35:11 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, John Stultz <johnstul@us.ibm.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
-        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
-Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
-Date: Wed, 08 Aug 2012 16:35:08 -0400
-Message-ID: <2294220.dmCbVvF3Tg@sifl>
-In-Reply-To: <1344456578.28967.244.camel@edumazet-glaptop>
-References: <50215A7E.8000701@linaro.org> <CACLa4ptgoge0nnEuov5E9gc2bdR-wjCo+bpB6Auhwo8jSO99oA@mail.gmail.com> <1344456578.28967.244.camel@edumazet-glaptop>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78KiIRH009173
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:44:18 -0400
+Date: Wed, 8 Aug 2012 22:44:01 +0200
+From: Ole Kliemann <ole@plastictree.net>
+To: selinux@tycho.nsa.gov
+Subject: Re: SELinux performance depending on type count
+Message-ID: <20120808204401.GA5403@telvanni>
+References: <20120807130244.GE2085@telvanni>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+In-Reply-To: <20120807130244.GE2085@telvanni>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, August 08, 2012 10:09:38 PM Eric Dumazet wrote:
-> On Wed, 2012-08-08 at 15:59 -0400, Eric Paris wrote:
-> > Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
-> > code.
-> 
-> Sure but it seems include file misses an accessor for this.
-> 
-> We could add it on a future cleanup patch, as Paul mentioned.
 
-Actually, the issue is that the shared socket doesn't have an init/alloc 
-function to do the LSM allocation like we do with other sockets so Eric's 
-patch does it as part of ip_send_unicast_reply().
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If we look at the relevant part of Eric's patch:
+I haven't tested any runtime performance just compile-time and=20
+policy size.
 
- +#ifdef CONFIG_SECURITY
- +       if (!sk->sk_security && security_sk_alloc(sk, PF_INET, GFP_ATOMIC))
- +                       goto out;
- +#endif
+All this is done on my old Dell D410 with a 1.73GHz Pentium M.
 
-... if we were to remove the CONFIG_SECURITY conditional we would end up 
-calling security_sk_alloc() each time through in the CONFIG_SECURITY=n case as 
-sk->sk_security would never be initialized to a non-NULL value.  In the 
-CONFIG_SECURITY=y case it should only be called once as security_sk_alloc() 
-should set sk->sk_security to a LSM blob.
+On Tue, Aug 07, 2012 at 03:02:44PM +0200, Ole Kliemann wrote:
+> But if there was a performance problem with a lot of types, at=20
+> what number n would it start to hit hard? And how does it=20
+> increase (linear, quadratic...)?
 
-> >  Ifndef CONF_SECURITY then security_sk_alloc() is a static
-> > 
-> > inline return 0;   I guess the question is "Where did the sk come
-> > from"?  Why wasn't security_sk_alloc() called when it was allocated?
-> > Should it have been updated at some time and that wasn't done either?
-> > Seems wrong to be putting packets on the queue for a socket where the
-> > security data was never allocated and was never set to its proper
-> > state.
-> 
-> IMHO it seems wrong to even care about security for internal sockets.
->
-> They are per cpu, shared for all users on the machine.
+n=3D10000, i.e. 20000 types, 10000 attributes and a handful of=20
+allows per type and attribute in one module.
 
-The issue, from a security point of view, is that these sockets are sending 
-network traffic; even if it is just resets and timewait ACKs, it is still 
-network traffic and the LSMs need to be able to enforce security policy on 
-this traffic.  After all, what would you say if your firewall let these same 
-packets pass without any filtering?
+compilation is okay, but inserting the said module with=20
+semodule... well at 18min CPU-time I killed the process... who=20
+knows what size this policy would have had...
 
-The issue I'm struggling with at present is how should we handle this traffic 
-from a LSM perspective.  The label based LSMs, e.g. SELinux and Smack, use the 
-LSM blob assigned to locally generated outbound traffic to identify the 
-traffic and apply the security policy, so not only do we have to resolve the 
-issue of ensuring the traffic is labeled correctly, we have to do it with a 
-shared socket (although the patch didn't change the shared nature of the 
-socket).
 
-For those who are interested, I think the reasonable labeling solution here is 
-to go with SECINITSID_KERNEL/kernel_t for SELinux and likely the ambient label 
-for Smack as in both the TCP reset and timewait ACK there shouldn't be any 
-actual user data present.
+n=3D5000, i.e. 10000 types, 5000 attributes and a handful of=20
+allows per type and attribute in one module.
 
--- 
-paul moore
-www.paul-moore.com
+inserting the module in about 5m30s walltime. policy is 13M of=20
+size.
 
+
+n=3D1000, i.e. 2000 types, 1000 attributes and a handful of=20
+allows per type and attribute in one module.
+
+inserting the module in about 9s walltime. policy is 2.5M of=20
+size.
+
+
+Apparently the runtime of inserting the module is fataly steep in=20
+n. Rough estimation would be at least n^2, could be higher=20
+depending on how long n=3D10000 would have actually taken.
+
+> And would it be better performance-wise to run a MCS-policy with=20
+> say categories c0.cn than to have types c0_t, ... cn_t?
+
+n=3D10000, i.e. 10000 categories, one sensitivity and a handful of=20
+mlsconstraints
+
+inserting the module in about 8s walltime. policy is 284K of=20
+size.
+
+
+Of course this is a very rough and inprecise testing. But I guess=20
+one can say that the policy infrastructure get's into trouble=20
+with high type count whereas a high category count seems to be=20
+handled flawlessly.
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlAiz5EACgkQS1FjE303ERwB+wCggxhI8KAh7BH9uqTSL/0AIeVb
+yAkAn3nn6meoZB9cUZCW+9u+oWYQ9wcE
+=dPGt
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
