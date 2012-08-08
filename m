@@ -1,76 +1,86 @@
-Message-ID: <1344456337.22629.17.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: A filename to label translation daemon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, lennart@poettering.net, dwalsh@redhat.com
-Date: Wed, 08 Aug 2012 16:05:37 -0400
-In-Reply-To: <1344454290.25533.12.camel@localhost>
-References: <1344454290.25533.12.camel@localhost>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78KZDFT008682
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:35:13 -0400
+Received: by ghz3 with SMTP id 3so1336941ghz.12
+        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 13:35:11 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>, John Stultz <johnstul@us.ibm.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
+        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
+Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
+Date: Wed, 08 Aug 2012 16:35:08 -0400
+Message-ID: <2294220.dmCbVvF3Tg@sifl>
+In-Reply-To: <1344456578.28967.244.camel@edumazet-glaptop>
+References: <50215A7E.8000701@linaro.org> <CACLa4ptgoge0nnEuov5E9gc2bdR-wjCo+bpB6Auhwo8jSO99oA@mail.gmail.com> <1344456578.28967.244.camel@edumazet-glaptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-08-08 at 15:31 -0400, Eric Paris wrote:
-> We know that utilities like install disable their SELinux support
-> because of the enormous amount of time it takes to load the matchpathcon
-> regex database.  We know that systemd spends time loading the database
-> at least twice.  Other utilities like the krb5libs complain about the
-> size and time it takes to load the database.  We've added hacks (I
-> believe all in Fedora, but maybe upstream as well) which try to pare
-> down the database to some prefix(es) on database load.  If systemd only
-> needs to label in /var why load all the stuff for /etc?  These prefix
-> hacks don't work particularly well as fallback labels (such as
-> default_t) are hard to capture and the prefixes cannot be long as the
-> regexes are usually quite short.  They also don't work well with label
-> equivalencies.
+On Wednesday, August 08, 2012 10:09:38 PM Eric Dumazet wrote:
+> On Wed, 2012-08-08 at 15:59 -0400, Eric Paris wrote:
+> > Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
+> > code.
 > 
-> So today I wrote a little daemon which listens in the abstract namespace
-> for requests and returns the context.  It really really rough, I admit,
-> but it works quite well.  My first perf numbers looking at /home/eparis
-> make sense:
+> Sure but it seems include file misses an accessor for this.
 > 
-> $ ./initonce /home/eparis
->  0.180 seconds used by the processor.
-> $ ./initalways /home/eparis
->  19.200 seconds used by the processor.
-> $ ./client /home/eparis
->  0.570 seconds used by the processor.
-> 
-> If I init the DB one time and do the same lookup (for /home/eparis) 1000
-> times it takes .18 seconds.  Doing 1000 lookups init-ing and fini-ing
-> the db every time it took 19.2.  Connecting to the server and asking
-> 1000 times took .57 seconds.  This means that if you have to do about 48
-> lookups, it's faster to do your own init.  If <48, you should use the
-> server.
-> 
-> The I tried again with a different pathname (and get very different
-> results)
-> 
-> $ ./initonce /var/www/html/cgi-bin
->  1.510 seconds used by the processor.
-> $ ./initalways /var/www/html/cgi-bin
->  42.790 seconds used by the processor.
-> $ ./client /var/www/html/cgi-bin
->  0.600 seconds used by the processor.
-> 
-> These I cannot explain.  How the heck is local slower when the time to
-> init the db is not taken into account at all?  I'm clueless here.  But
-> still, the client server model doesn't look like a bad idea.
-> 
-> I'm attaching my server, my client, and my 2 local test programs.
-> Thoughts?
-> 
-> *having the daemon listen and update the db on policy load is a todo
+> We could add it on a future cleanup patch, as Paul mentioned.
 
-Not sure how this helps systemd, as it runs first (by definition) and
-loads the file_contexts configuration before it starts any other
-daemons, right?  Now if you wanted systemd to export this as a service
-to everything else, that might make sense.
+Actually, the issue is that the shared socket doesn't have an init/alloc 
+function to do the LSM allocation like we do with other sockets so Eric's 
+patch does it as part of ip_send_unicast_reply().
+
+If we look at the relevant part of Eric's patch:
+
+ +#ifdef CONFIG_SECURITY
+ +       if (!sk->sk_security && security_sk_alloc(sk, PF_INET, GFP_ATOMIC))
+ +                       goto out;
+ +#endif
+
+... if we were to remove the CONFIG_SECURITY conditional we would end up 
+calling security_sk_alloc() each time through in the CONFIG_SECURITY=n case as 
+sk->sk_security would never be initialized to a non-NULL value.  In the 
+CONFIG_SECURITY=y case it should only be called once as security_sk_alloc() 
+should set sk->sk_security to a LSM blob.
+
+> >  Ifndef CONF_SECURITY then security_sk_alloc() is a static
+> > 
+> > inline return 0;   I guess the question is "Where did the sk come
+> > from"?  Why wasn't security_sk_alloc() called when it was allocated?
+> > Should it have been updated at some time and that wasn't done either?
+> > Seems wrong to be putting packets on the queue for a socket where the
+> > security data was never allocated and was never set to its proper
+> > state.
+> 
+> IMHO it seems wrong to even care about security for internal sockets.
+>
+> They are per cpu, shared for all users on the machine.
+
+The issue, from a security point of view, is that these sockets are sending 
+network traffic; even if it is just resets and timewait ACKs, it is still 
+network traffic and the LSMs need to be able to enforce security policy on 
+this traffic.  After all, what would you say if your firewall let these same 
+packets pass without any filtering?
+
+The issue I'm struggling with at present is how should we handle this traffic 
+from a LSM perspective.  The label based LSMs, e.g. SELinux and Smack, use the 
+LSM blob assigned to locally generated outbound traffic to identify the 
+traffic and apply the security policy, so not only do we have to resolve the 
+issue of ensuring the traffic is labeled correctly, we have to do it with a 
+shared socket (although the patch didn't change the shared nature of the 
+socket).
+
+For those who are interested, I think the reasonable labeling solution here is 
+to go with SECINITSID_KERNEL/kernel_t for SELinux and likely the ambient label 
+for Smack as in both the TCP reset and timewait ACK there shouldn't be any 
+actual user data present.
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+www.paul-moore.com
 
 
 --
