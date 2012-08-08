@@ -1,103 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78Kl2f7009295
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:47:05 -0400
-Received: by ggmb6 with SMTP id b6so1341419ggm.12
-        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 13:47:04 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>, John Stultz <johnstul@us.ibm.com>,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78KpwPa009631
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:51:58 -0400
+Received: by pbbro2 with SMTP id ro2so2003825pbb.12
+        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 13:51:57 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <2294220.dmCbVvF3Tg@sifl>
+References: <50215A7E.8000701@linaro.org>
+	<CACLa4ptgoge0nnEuov5E9gc2bdR-wjCo+bpB6Auhwo8jSO99oA@mail.gmail.com>
+	<1344456578.28967.244.camel@edumazet-glaptop>
+	<2294220.dmCbVvF3Tg@sifl>
+Date: Wed, 8 Aug 2012 16:51:56 -0400
+Message-ID: <CACLa4pu4SFHp9nxp4RJ1L4a-cz+qPaYrGCULLGXDOGCYAMdqzQ@mail.gmail.com>
+Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
+From: Eric Paris <eparis@parisplace.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, John Stultz <johnstul@us.ibm.com>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         lkml <linux-kernel@vger.kernel.org>,
         James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
         Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
-Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
-Date: Wed, 08 Aug 2012 16:46:59 -0400
-Message-ID: <1610114.P5WAdux1ri@sifl>
-In-Reply-To: <1344457972.28967.251.camel@edumazet-glaptop>
-References: <50215A7E.8000701@linaro.org> <1344456578.28967.244.camel@edumazet-glaptop> <1344457972.28967.251.camel@edumazet-glaptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, August 08, 2012 10:32:52 PM Eric Dumazet wrote:
-> On Wed, 2012-08-08 at 22:09 +0200, Eric Dumazet wrote:
-> > On Wed, 2012-08-08 at 15:59 -0400, Eric Paris wrote:
-> > > Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
-> > > code.
-> > 
-> > Sure but it seems include file misses an accessor for this.
-> > 
-> > We could add it on a future cleanup patch, as Paul mentioned.
-> 
-> I cooked following patch.
-> But smack/smack_lsm.c makes a reference to
-> smk_of_current()... so it seems we are in a hole...
-> 
-> It makes little sense to me to have any kind of security on this
-> internal sockets.
-> 
-> Maybe selinux should not crash if sk->sk_security is NULL ?
+On Wed, Aug 8, 2012 at 4:35 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Wednesday, August 08, 2012 10:09:38 PM Eric Dumazet wrote:
 
-I realize our last emails probably passed each other mid-flight, but hopefully 
-it explains why we can't just pass packets when sk->sk_security is NULL.
+> Actually, the issue is that the shared socket doesn't have an init/alloc
+> function to do the LSM allocation like we do with other sockets so Eric's
+> patch does it as part of ip_send_unicast_reply().
+>
+> If we look at the relevant part of Eric's patch:
+>
+>  +#ifdef CONFIG_SECURITY
+>  +       if (!sk->sk_security && security_sk_alloc(sk, PF_INET, GFP_ATOMIC))
+>  +                       goto out;
+>  +#endif
+>
+> ... if we were to remove the CONFIG_SECURITY conditional we would end up
+> calling security_sk_alloc() each time through in the CONFIG_SECURITY=n case as
+> sk->sk_security would never be initialized to a non-NULL value.  In the
+> CONFIG_SECURITY=y case it should only be called once as security_sk_alloc()
+> should set sk->sk_security to a LSM blob.
 
-Regardless, some quick comments below ...
+Ifndef SECURITY this turns into (because security_sk_alloc is a static
+inline in that case)
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 6c77f63..459eca6 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4289,10 +4289,13 @@ out:
->  	return 0;
->  }
-> 
-> -static int selinux_sk_alloc_security(struct sock *sk, int family, ...
-> +static int selinux_sk_alloc_security(struct sock *sk, int family, ...
->  {
->  	struct sk_security_struct *sksec;
-> 
-> +	if (check && sk->sk_security)
-> +		return 0;
-> +
->  	sksec = kzalloc(sizeof(*sksec), priority);
->  	if (!sksec)
->  		return -ENOMEM;
+if (!sk->sk_security && 0)
+        goto out;
 
-I think I might replace the "check" boolean with a "kern/kernel" boolean so 
-that in addition to the allocation we can also initialize the socket to 
-SECINITSID_KERNEL/kernel_t here in the case when the boolean is set.  The only 
-place that would set the boolean to true would be ip_send_unicast_reply(), all 
-other callers would set it to false.
+Which I'd hope the compiler would optimize.  So that only leaves us
+caring about the case there CONFIG_SECURITY is true.  In that case if
+we need code which does if !alloc'd then alloc it seems we broke the
+model of everything else in the code and added a branch needlessly.
 
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 8221514..8965cf1 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -1754,11 +1754,14 @@ static void smack_task_to_inode(struct task_struct
-> *p, struct inode *inode) *
->   * Returns 0 on success, -ENOMEM is there's no memory
->   */
-> -static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t
-> gfp_flags) +static int smack_sk_alloc_security(struct sock *sk, int family,
-> gfp_t gfp_flags, bool check) {
->  	char *csp = smk_of_current();
->  	struct socket_smack *ssp;
-> 
-> +	if (check && sk->sk_security)
-> +		return 0;
-> +
->  	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
->  	if (ssp == NULL)
->  		return -ENOMEM;
+Could we add a __init function which does the security_sk_alloc() in
+the same file where we declared them?
 
-In the case of Smack, when the kernel boolean is true I think the right 
-solution is to use smack_net_ambient.
+>> IMHO it seems wrong to even care about security for internal sockets.
+>>
+>> They are per cpu, shared for all users on the machine.
+>
+> The issue, from a security point of view, is that these sockets are sending
+> network traffic; even if it is just resets and timewait ACKs, it is still
+> network traffic and the LSMs need to be able to enforce security policy on
+> this traffic.  After all, what would you say if your firewall let these same
+> packets pass without any filtering?
+>
+> The issue I'm struggling with at present is how should we handle this traffic
+> from a LSM perspective.  The label based LSMs, e.g. SELinux and Smack, use the
+> LSM blob assigned to locally generated outbound traffic to identify the
+> traffic and apply the security policy, so not only do we have to resolve the
+> issue of ensuring the traffic is labeled correctly, we have to do it with a
+> shared socket (although the patch didn't change the shared nature of the
+> socket).
+>
+> For those who are interested, I think the reasonable labeling solution here is
+> to go with SECINITSID_KERNEL/kernel_t for SELinux and likely the ambient label
+> for Smack as in both the TCP reset and timewait ACK there shouldn't be any
+> actual user data present.
 
--- 
-paul moore
-www.paul-moore.com
-
+I'm willing to accept that argument from an SELinux perspective.  I'd
+also accept the argument that it is private and do something similar
+to what we do with IS_PRIVATE on inodes.  Although sockets probably
+don't have a good field to use...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
