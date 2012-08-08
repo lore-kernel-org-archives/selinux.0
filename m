@@ -1,44 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78L9I0R010790
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 17:09:21 -0400
-Received: by yhp3 with SMTP id 3so1369450yhp.12
-        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 14:09:20 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1463614.KLCBsoWyCC@sifl>
-References: <50215A7E.8000701@linaro.org>
-	<2294220.dmCbVvF3Tg@sifl>
-	<CACLa4pu4SFHp9nxp4RJ1L4a-cz+qPaYrGCULLGXDOGCYAMdqzQ@mail.gmail.com>
-	<1463614.KLCBsoWyCC@sifl>
-Date: Wed, 8 Aug 2012 17:09:20 -0400
-Message-ID: <CACLa4pvO4C9wUFXMp66CKw0gjXPyyVyik6gGtuAdDY-P5syYNA@mail.gmail.com>
-Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
-From: Eric Paris <eparis@parisplace.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, John Stultz <johnstul@us.ibm.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
-        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1344461186.4612.27.camel@lenny>
+Subject: Re: A filename to label translation daemon
+From: Colin Walters <walters@verbum.org>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, lennart@poettering.net, sds@tycho.nsa.gov,
+        dwalsh@redhat.com
+Date: Wed, 08 Aug 2012 17:26:26 -0400
+In-Reply-To: <1344454290.25533.12.camel@localhost>
+References: <1344454290.25533.12.camel@localhost>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 8, 2012 at 5:03 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Wednesday, August 08, 2012 04:51:56 PM Eric Paris wrote:
+Seems to make sense...though someone could also probably get fairly far
+by writing a regular expression optimizer.  It might not even be that
+hard to write a multi-regexp matching engine which took a set of regexps
+at once and constructed a single matching DFA for them.
 
->> Could we add a __init function which does the security_sk_alloc() in
->> the same file where we declared them?
->
-> Is it safe to call security_sk_alloc() from inside another __init function?  I
-> think in both the case of SELinux and Smack it shouldn't be a problem, but I'm
-> concerned about the more general case of calling a LSM hook potentially before
-> the LSM has been initialized.
->
-> If that isn't an issue we could probably do something in ip_init().
+On Wed, 2012-08-08 at 15:31 -0400, Eric Paris wrote:
+>         /* just to be safe! */
+>         buffer[MAX_REQUEST_LEN] = '\0'; 
 
-The security_initcall() functions should happen way before __init
-functions.  If an LSM busts, it's the LSM initializing itself too late
-not the code here being wrong...
+Should be buffer[len] = '\0';  right?
+
+>                /* calculating the length of the address is magic since it starts with nul.
+>                * there be dragons in here! */
+
+See also https://bugzilla.gnome.org/show_bug.cgi?id=615960
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
