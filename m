@@ -1,89 +1,103 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78KiIRH009173
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:44:18 -0400
-Date: Wed, 8 Aug 2012 22:44:01 +0200
-From: Ole Kliemann <ole@plastictree.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: SELinux performance depending on type count
-Message-ID: <20120808204401.GA5403@telvanni>
-References: <20120807130244.GE2085@telvanni>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q78Kl2f7009295
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 16:47:05 -0400
+Received: by ggmb6 with SMTP id b6so1341419ggm.12
+        for <selinux@tycho.nsa.gov>; Wed, 08 Aug 2012 13:47:04 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>, John Stultz <johnstul@us.ibm.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
+        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com
+Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
+Date: Wed, 08 Aug 2012 16:46:59 -0400
+Message-ID: <1610114.P5WAdux1ri@sifl>
+In-Reply-To: <1344457972.28967.251.camel@edumazet-glaptop>
+References: <50215A7E.8000701@linaro.org> <1344456578.28967.244.camel@edumazet-glaptop> <1344457972.28967.251.camel@edumazet-glaptop>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-In-Reply-To: <20120807130244.GE2085@telvanni>
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wednesday, August 08, 2012 10:32:52 PM Eric Dumazet wrote:
+> On Wed, 2012-08-08 at 22:09 +0200, Eric Dumazet wrote:
+> > On Wed, 2012-08-08 at 15:59 -0400, Eric Paris wrote:
+> > > Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
+> > > code.
+> > 
+> > Sure but it seems include file misses an accessor for this.
+> > 
+> > We could add it on a future cleanup patch, as Paul mentioned.
+> 
+> I cooked following patch.
+> But smack/smack_lsm.c makes a reference to
+> smk_of_current()... so it seems we are in a hole...
+> 
+> It makes little sense to me to have any kind of security on this
+> internal sockets.
+> 
+> Maybe selinux should not crash if sk->sk_security is NULL ?
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I realize our last emails probably passed each other mid-flight, but hopefully 
+it explains why we can't just pass packets when sk->sk_security is NULL.
 
-I haven't tested any runtime performance just compile-time and=20
-policy size.
+Regardless, some quick comments below ...
 
-All this is done on my old Dell D410 with a 1.73GHz Pentium M.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 6c77f63..459eca6 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4289,10 +4289,13 @@ out:
+>  	return 0;
+>  }
+> 
+> -static int selinux_sk_alloc_security(struct sock *sk, int family, ...
+> +static int selinux_sk_alloc_security(struct sock *sk, int family, ...
+>  {
+>  	struct sk_security_struct *sksec;
+> 
+> +	if (check && sk->sk_security)
+> +		return 0;
+> +
+>  	sksec = kzalloc(sizeof(*sksec), priority);
+>  	if (!sksec)
+>  		return -ENOMEM;
 
-On Tue, Aug 07, 2012 at 03:02:44PM +0200, Ole Kliemann wrote:
-> But if there was a performance problem with a lot of types, at=20
-> what number n would it start to hit hard? And how does it=20
-> increase (linear, quadratic...)?
+I think I might replace the "check" boolean with a "kern/kernel" boolean so 
+that in addition to the allocation we can also initialize the socket to 
+SECINITSID_KERNEL/kernel_t here in the case when the boolean is set.  The only 
+place that would set the boolean to true would be ip_send_unicast_reply(), all 
+other callers would set it to false.
 
-n=3D10000, i.e. 20000 types, 10000 attributes and a handful of=20
-allows per type and attribute in one module.
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 8221514..8965cf1 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -1754,11 +1754,14 @@ static void smack_task_to_inode(struct task_struct
+> *p, struct inode *inode) *
+>   * Returns 0 on success, -ENOMEM is there's no memory
+>   */
+> -static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t
+> gfp_flags) +static int smack_sk_alloc_security(struct sock *sk, int family,
+> gfp_t gfp_flags, bool check) {
+>  	char *csp = smk_of_current();
+>  	struct socket_smack *ssp;
+> 
+> +	if (check && sk->sk_security)
+> +		return 0;
+> +
+>  	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
+>  	if (ssp == NULL)
+>  		return -ENOMEM;
 
-compilation is okay, but inserting the said module with=20
-semodule... well at 18min CPU-time I killed the process... who=20
-knows what size this policy would have had...
+In the case of Smack, when the kernel boolean is true I think the right 
+solution is to use smack_net_ambient.
 
+-- 
+paul moore
+www.paul-moore.com
 
-n=3D5000, i.e. 10000 types, 5000 attributes and a handful of=20
-allows per type and attribute in one module.
-
-inserting the module in about 5m30s walltime. policy is 13M of=20
-size.
-
-
-n=3D1000, i.e. 2000 types, 1000 attributes and a handful of=20
-allows per type and attribute in one module.
-
-inserting the module in about 9s walltime. policy is 2.5M of=20
-size.
-
-
-Apparently the runtime of inserting the module is fataly steep in=20
-n. Rough estimation would be at least n^2, could be higher=20
-depending on how long n=3D10000 would have actually taken.
-
-> And would it be better performance-wise to run a MCS-policy with=20
-> say categories c0.cn than to have types c0_t, ... cn_t?
-
-n=3D10000, i.e. 10000 categories, one sensitivity and a handful of=20
-mlsconstraints
-
-inserting the module in about 8s walltime. policy is 284K of=20
-size.
-
-
-Of course this is a very rough and inprecise testing. But I guess=20
-one can say that the policy infrastructure get's into trouble=20
-with high type count whereas a high category count seems to be=20
-handled flawlessly.
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlAiz5EACgkQS1FjE303ERwB+wCggxhI8KAh7BH9uqTSL/0AIeVb
-yAkAn3nn6meoZB9cUZCW+9u+oWYQ9wcE
-=dPGt
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
