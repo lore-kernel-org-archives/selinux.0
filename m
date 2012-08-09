@@ -1,264 +1,82 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7900ULb018211
-	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2012 20:00:30 -0400
-Message-ID: <5022FD9A.4020603@schaufler-ca.com>
-Date: Wed, 08 Aug 2012 17:00:26 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q79Aj7BX012882
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2012 06:45:07 -0400
+Date: Thu, 9 Aug 2012 12:45:00 +0200
+From: Adam Tkac <atkac@redhat.com>
+To: Ole Kliemann <ole@plastictree.net>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux performance depending on type count
+Message-ID: <20120809104459.GA1446@redhat.com>
+References: <20120807130244.GE2085@telvanni>
+ <20120808204401.GA5403@telvanni>
 MIME-Version: 1.0
-To: Eric Dumazet <eric.dumazet@gmail.com>
-CC: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
-        John Stultz <johnstul@us.ibm.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
-        Eric Dumazet <edumazet@google.com>, john.johansen@canonical.com,
-        LSM <linux-security-module@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: NULL pointer dereference in selinux_ip_postroute_compat
-References: <50215A7E.8000701@linaro.org>  <1344456578.28967.244.camel@edumazet-glaptop>  <1344457972.28967.251.camel@edumazet-glaptop>  <1610114.P5WAdux1ri@sifl> <1344462889.28967.328.camel@edumazet-glaptop>
-In-Reply-To: <1344462889.28967.328.camel@edumazet-glaptop>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20120808204401.GA5403@telvanni>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 8/8/2012 2:54 PM, Eric Dumazet wrote:
+On Wed, Aug 08, 2012 at 10:44:01PM +0200, Ole Kliemann wrote:
+> I haven't tested any runtime performance just compile-time and 
+> policy size.
+> 
+> All this is done on my old Dell D410 with a 1.73GHz Pentium M.
+> 
+> On Tue, Aug 07, 2012 at 03:02:44PM +0200, Ole Kliemann wrote:
+> > But if there was a performance problem with a lot of types, at 
+> > what number n would it start to hit hard? And how does it 
+> > increase (linear, quadratic...)?
+> 
+> n=10000, i.e. 20000 types, 10000 attributes and a handful of 
+> allows per type and attribute in one module.
+> 
+> compilation is okay, but inserting the said module with 
+> semodule... well at 18min CPU-time I killed the process... who 
+> knows what size this policy would have had...
+> 
+> 
+> n=5000, i.e. 10000 types, 5000 attributes and a handful of 
+> allows per type and attribute in one module.
+> 
+> inserting the module in about 5m30s walltime. policy is 13M of 
+> size.
+> 
+> 
+> n=1000, i.e. 2000 types, 1000 attributes and a handful of 
+> allows per type and attribute in one module.
+> 
+> inserting the module in about 9s walltime. policy is 2.5M of 
+> size.
+> 
+> 
+> Apparently the runtime of inserting the module is fataly steep in 
+> n. Rough estimation would be at least n^2, could be higher 
+> depending on how long n=10000 would have actually taken.
+> 
+> > And would it be better performance-wise to run a MCS-policy with 
+> > say categories c0.cn than to have types c0_t, ... cn_t?
+> 
+> n=10000, i.e. 10000 categories, one sensitivity and a handful of 
+> mlsconstraints
+> 
+> inserting the module in about 8s walltime. policy is 284K of 
+> size.
+> 
+> 
+> Of course this is a very rough and inprecise testing. But I guess 
+> one can say that the policy infrastructure get's into trouble 
+> with high type count whereas a high category count seems to be 
+> handled flawlessly.
 
-By the way, once this proved to be an issue that involved
-more than just SELinux it needed to go onto the LSM list as
-well.
+I already wrote a patch for this and sent it to the ML some time ago. It is
+currently present in Fedora git tree, you can try it and report if it speeds up
+your operations with SELinux.
 
-> On Wed, 2012-08-08 at 16:46 -0400, Paul Moore wrote:
->> On Wednesday, August 08, 2012 10:32:52 PM Eric Dumazet wrote:
->>> On Wed, 2012-08-08 at 22:09 +0200, Eric Dumazet wrote:
->>>> On Wed, 2012-08-08 at 15:59 -0400, Eric Paris wrote:
->>>>> Seems wrong.  We shouldn't ever need ifdef CONFIG_SECURITY in core
->>>>> code.
->>>> Sure but it seems include file misses an accessor for this.
->>>>
->>>> We could add it on a future cleanup patch, as Paul mentioned.
->>> I cooked following patch.
->>> But smack/smack_lsm.c makes a reference to
->>> smk_of_current()... so it seems we are in a hole...
->>>
->>> It makes little sense to me to have any kind of security on this
->>> internal sockets.
->>>
->>> Maybe selinux should not crash if sk->sk_security is NULL ?
->> I realize our last emails probably passed each other mid-flight, but hopefully 
->> it explains why we can't just pass packets when sk->sk_security is NULL.
->>
->> Regardless, some quick comments below ...
->>
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index 6c77f63..459eca6 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -4289,10 +4289,13 @@ out:
->>>  	return 0;
->>>  }
->>>
->>> -static int selinux_sk_alloc_security(struct sock *sk, int family, ...
->>> +static int selinux_sk_alloc_security(struct sock *sk, int family, ...
->>>  {
->>>  	struct sk_security_struct *sksec;
->>>
->>> +	if (check && sk->sk_security)
->>> +		return 0;
->>> +
->>>  	sksec = kzalloc(sizeof(*sksec), priority);
->>>  	if (!sksec)
->>>  		return -ENOMEM;
->> I think I might replace the "check" boolean with a "kern/kernel" boolean so 
->> that in addition to the allocation we can also initialize the socket to 
->> SECINITSID_KERNEL/kernel_t here in the case when the boolean is set.  The only 
->> place that would set the boolean to true would be ip_send_unicast_reply(), all 
->> other callers would set it to false.
->>
->>> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->>> index 8221514..8965cf1 100644
->>> --- a/security/smack/smack_lsm.c
->>> +++ b/security/smack/smack_lsm.c
->>> @@ -1754,11 +1754,14 @@ static void smack_task_to_inode(struct task_struct
->>> *p, struct inode *inode) *
->>>   * Returns 0 on success, -ENOMEM is there's no memory
->>>   */
->>> -static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t
->>> gfp_flags) +static int smack_sk_alloc_security(struct sock *sk, int family,
->>> gfp_t gfp_flags, bool check) {
->>>  	char *csp = smk_of_current();
->>>  	struct socket_smack *ssp;
->>>
->>> +	if (check && sk->sk_security)
->>> +		return 0;
->>> +
->>>  	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
->>>  	if (ssp == NULL)
->>>  		return -ENOMEM;
->> In the case of Smack, when the kernel boolean is true I think the right 
->> solution is to use smack_net_ambient.
+http://pkgs.fedoraproject.org/cgit/libsepol.git/plain/libsepol-rhat.patch
 
-I confess that my understanding of unicast is limited.
-If the intention is to send an unlabeled packet then
-indeed smack_net_ambient is the way to go.
+Regards, Adam
 
->>
-> cool, here the last version :
->
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 4e5a73c..4d8e454 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1601,7 +1601,7 @@ struct security_operations {
->  	int (*socket_sock_rcv_skb) (struct sock *sk, struct sk_buff *skb);
->  	int (*socket_getpeersec_stream) (struct socket *sock, char __user *optval, int __user *optlen, unsigned len);
->  	int (*socket_getpeersec_dgram) (struct socket *sock, struct sk_buff *skb, u32 *secid);
-> -	int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority);
-> +	int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority, bool kernel);
-
-Is there no information already available in the sock
-that will tell us this is a unicast operation?
-
->  	void (*sk_free_security) (struct sock *sk);
->  	void (*sk_clone_security) (const struct sock *sk, struct sock *newsk);
->  	void (*sk_getsecid) (struct sock *sk, u32 *secid);
-> @@ -2539,7 +2539,7 @@ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
->  int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
->  				      int __user *optlen, unsigned len);
->  int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
-> -int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
-> +int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel);
->  void security_sk_free(struct sock *sk);
->  void security_sk_clone(const struct sock *sk, struct sock *newsk);
->  void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
-> @@ -2667,7 +2667,7 @@ static inline int security_socket_getpeersec_dgram(struct socket *sock, struct s
->  	return -ENOPROTOOPT;
->  }
->  
-> -static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
-> +static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel)
->  {
->  	return 0;
->  }
-> diff --git a/net/core/sock.c b/net/core/sock.c
-> index 8f67ced..e00cadf 100644
-> --- a/net/core/sock.c
-> +++ b/net/core/sock.c
-> @@ -1186,7 +1186,7 @@ static struct sock *sk_prot_alloc(struct proto *prot, gfp_t priority,
->  	if (sk != NULL) {
->  		kmemcheck_annotate_bitfield(sk, flags);
->  
-> -		if (security_sk_alloc(sk, family, priority))
-> +		if (security_sk_alloc(sk, family, priority, false))
->  			goto out_free;
->  
->  		if (!try_module_get(prot->owner))
-> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-> index 76dde25..b233d6e 100644
-> --- a/net/ipv4/ip_output.c
-> +++ b/net/ipv4/ip_output.c
-> @@ -1524,6 +1524,8 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
->  	sk->sk_priority = skb->priority;
->  	sk->sk_protocol = ip_hdr(skb)->protocol;
->  	sk->sk_bound_dev_if = arg->bound_dev_if;
-> +	if (security_sk_alloc(sk, PF_INET, GFP_ATOMIC, true))
-> +		goto out;
->  	sock_net_set(sk, net);
->  	__skb_queue_head_init(&sk->sk_write_queue);
->  	sk->sk_sndbuf = sysctl_wmem_default;
-> @@ -1539,7 +1541,7 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
->  		skb_set_queue_mapping(nskb, skb_get_queue_mapping(skb));
->  		ip_push_pending_frames(sk, &fl4);
->  	}
-> -
-> +out:
->  	put_cpu_var(unicast_sock);
->  
->  	ip_rt_put(rt);
-> diff --git a/security/security.c b/security/security.c
-> index 860aeb3..23cf297 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1146,9 +1146,9 @@ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u
->  }
->  EXPORT_SYMBOL(security_socket_getpeersec_dgram);
->  
-> -int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
-> +int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel)
->  {
-> -	return security_ops->sk_alloc_security(sk, family, priority);
-> +	return security_ops->sk_alloc_security(sk, family, priority, kernel);
->  }
->  
->  void security_sk_free(struct sock *sk)
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 6c77f63..ccd4374 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4289,10 +4289,13 @@ out:
->  	return 0;
->  }
->  
-> -static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
-> +static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority, bool kernel)
->  {
->  	struct sk_security_struct *sksec;
->  
-> +	if (kernel && sk->sk_security)
-> +		return 0;
-> +
->  	sksec = kzalloc(sizeof(*sksec), priority);
->  	if (!sksec)
->  		return -ENOMEM;
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 8221514..207d9cc 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -1749,20 +1749,25 @@ static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
->   * @sk: the socket
->   * @family: unused
->   * @gfp_flags: memory allocation flags
-> + * @kernel: true if we should check sk_security being already set
->   *
->   * Assign Smack pointers to current
->   *
->   * Returns 0 on success, -ENOMEM is there's no memory
->   */
-> -static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags)
-> +static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags, bool kernel)
->  {
->  	char *csp = smk_of_current();
->  	struct socket_smack *ssp;
->  
-> +	if (kernel && sk->sk_security)
-> +		return 0;
-> +
->  	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
->  	if (ssp == NULL)
->  		return -ENOMEM;
-> -
-> +	/* kernel is true if called from ip_send_unicast_reply() */
-> +	csp = kernel ? smack_net_ambient : smk_of_current();
-
-How about ...
-
-        if (kernel)
-            csp = smack_net_ambient;
-
-... as csp is set to smk_of_current() in the declaration.
-That, or change the declaration.
-
->  	ssp->smk_in = csp;
->  	ssp->smk_out = csp;
->  	ssp->smk_packet = NULL;
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+Adam Tkac, Red Hat, Inc.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
