@@ -1,349 +1,482 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q79INYYu008895
-	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2012 14:23:34 -0400
-Received: by vcbfl17 with SMTP id fl17so782995vcb.12
-        for <selinux@tycho.nsa.gov>; Thu, 09 Aug 2012 11:23:32 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q79K6WMx015143
+	for <selinux@tycho.nsa.gov>; Thu, 9 Aug 2012 16:06:32 -0400
+Received: by pbbro2 with SMTP id ro2so1374452pbb.12
+        for <selinux@tycho.nsa.gov>; Thu, 09 Aug 2012 13:06:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAKi3Pup5Om=x28GW=j=LTC9z8GgrcwUoty6w8hQnPJpNaJE91w@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	<CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	<1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	<CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	<CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-	<1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-	<1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
-	<CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
-	<CADQgGG35SABA6ZjDneqeGOrvbLT722Pvxsn6=G5S744d-TPxoA@mail.gmail.com>
-	<CAKi3PuqyCBS1fzjhSh1TVRsXCxR2_UnxXJG5ZCFL2XzF91MP4A@mail.gmail.com>
-	<CADQgGG1ry-x+0B2LHjY_SPvDiyUWBq4Pa5BVf6bFVokWvV3=qQ@mail.gmail.com>
-	<CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
-	<CADQgGG2dr4U36Pajg5XY1-vJO0uFszrpA2hXi6B-AwuBzyhbhQ@mail.gmail.com>
-	<CAKi3PuqfNoefmyOMx5Q0OnnGeBHUVvJP5Ebb1Adh_HpCPwYvtA@mail.gmail.com>
-	<CAKi3Pur20_u_BFEkHm++OydrN4zCm+o0jSzeY04DpmQ+aAOmqA@mail.gmail.com>
-	<CAFftDdrDSKKeXJga_PO0LJiUsqb3VVMjnSNQFWF66K7QrJ43Bg@mail.gmail.com>
-	<CAKi3Puo0PqmsVkcTqJRDhNq5w6J_yVdS=_MPNSC28K0QP0CxXQ@mail.gmail.com>
-	<CAFftDdqD+o=hXRyCP5nKc4OmELX50XLWAL2t-9VPi_vKPB-grA@mail.gmail.com>
-	<CAKi3Pur1UD+_6YrZ6gj9sJ4yef6Yfim=OOi6R-Lek5Beo41LQw@mail.gmail.com>
-	<CAFftDdrUz4NkMKd29rLnhddE1B0dLtJA8DbGZqucovsNbsqo0w@mail.gmail.com>
-	<CAKi3PupwHSYPcRYyUNEeXM3py-FjtbrZUd5nGDUwfdwdKRgVZw@mail.gmail.com>
-	<CAFftDdocfYJd5JukcFMut+CuKmxCQ5TsNnGr=zb29qyRGKvLyA@mail.gmail.com>
-	<CAKi3Pup5Om=x28GW=j=LTC9z8GgrcwUoty6w8hQnPJpNaJE91w@mail.gmail.com>
-Date: Thu, 9 Aug 2012 11:23:32 -0700
-Message-ID: <CAFftDdok-0k8NjvgQkxHWdv=SMGOLYbsAkUVSBsFBz1f8Tm0Kg@mail.gmail.com>
-Subject: Re: SE Android (Was: Re: Welcome to selinux)
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Alexandra Test <testalexandrainstitute@gmail.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1344523833.28967.996.camel@edumazet-glaptop>
+References: <50215A7E.8000701@linaro.org>
+	<1344462889.28967.328.camel@edumazet-glaptop>
+	<5022FD9A.4020603@schaufler-ca.com>
+	<1695034.0lrQgQPOMT@sifl>
+	<1344523833.28967.996.camel@edumazet-glaptop>
+Date: Thu, 9 Aug 2012 16:06:18 -0400
+Message-ID: <CACLa4ptkvKj2GT4ZL+msMuWOHW885Hugk8nz3hvptOoY9-totw@mail.gmail.com>
+Subject: Re: [PATCH] ipv4: tcp: security_sk_alloc() needed for unicast_sock
+From: Eric Paris <eparis@parisplace.org>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, David Miller <davem@davemloft.net>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        John Stultz <johnstul@us.ibm.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov,
+        john.johansen@canonical.com,
+        LSM <linux-security-module@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>
+Content-Type: multipart/mixed; boundary=047d7b339f4dbc296104c6dac2e3
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I dont see any denials being cuase be gapps so thats ok.
+--047d7b339f4dbc296104c6dac2e3
+Content-Type: text/plain; charset=ISO-8859-1
 
-What version if SEAndroid are you running?
+NAK.
 
-You can pipe your denial logs (dmesg) through a tool called
-audit2allow to get a more concise reading. It often helps to make sens
-of things
+I personally think commit be9f4a44e7d41cee should be reverted until it
+is fixed.  Let me explain what all I believe it broke and how.
 
-adb shell dmesg | audit2allow
+Old callchain of the creation of the 'equivalent' socket previous to
+the patch in question just for reference:
 
-It looks like some things are not getting labeled properly
-#============= mediaserver ==============
-allow mediaserver device:chr_file { read write ioctl open };
-allow mediaserver system_data_file:dir { read open };
-allow mediaserver system_data_file:file open;
+    inet_ctl_sock_create
+      sock_create_kern
+        __sock_create
+          pf->create (inet_create)
+            sk_alloc
+              sk_prot_alloc
+                security_sk_alloc()
 
-We dont care about shell
-#============= shell ==============
-allow shell device:chr_file { read write getattr ioctl };
 
-We may need to allow this in the policy...need to put more thought in it.
-#============= system ==============
-allow system proc:file write;
-allow system rild:unix_stream_socket connectto;
+This WAS working properly.  All of it.  The equivalent struct sock was
+being created and allocated in inet_create(), which called to
+sk_alloc->sk_prot_alloc->security_sk_alloc().  We all agree that
+failing to call security_sk_alloc() is the first regression
+introduced.
 
-Denials explained:
-allow system proc:file write is from this denial:
-<5>[   24.782653] type=1400 audit(1344517139.820:6): avc:  denied  {
-write } for  pid=404 comm="LocationManager" name="mcspi1_cs3_ctrl"
-dev=proc ino=4026532651 scontext=u:r:system:s0
-tcontext=u:object_r:proc:s0 tclass=file
-This should be fixed on tuna/maguro device...
+The second regression was the labeling issue.  There was a call to
+security_socket_post_create (from __sock_create) which was properly
+setting the labels on both the socket and sock.  This new patch broke
+that as well.  We don't expose an equivalent
+security_sock_post_create() interface in the LSM currently, and until
+we do, this can't be fixed.  It's why I say it should be reverted.
 
-allow system rild:unix_stream_socket connectto is from this denial
-<5>[   25.809204] type=1400 audit(1344517140.843:7): avc:  denied  {
-connectto } for  pid=460 comm="GpsLocationProv"
-path=004D756C7469636C69656E74 scontext=u:r:system:s0
-tcontext=u:r:rild:s0 tclass=unix_stream_socket
-This should be fixed..
+I have a patch I'm testing right now which takes care of the first
+part the way I like (and yes, I'm doing the allocation on the correct
+number node).  It basically looks like so:
 
-Media server denies
-<5>[   26.586181] type=1400 audit(1344517141.625:8): avc:  denied  {
-read } for  pid=175 comm=42696E646572205468726561642023
-name="rproc_user" dev=tmpfs ino=2868 scontext=u:r:mediaserver:s0
-tcontext=u:object_r:device:s0 tclass=chr_file
-<5>[   26.586364] type=1400 audit(1344517141.625:9): avc:  denied  {
-open } for  pid=175 comm=42696E646572205468726561642023
-name="rproc_user" dev=tmpfs ino=2868 scontext=u:r:mediaserver:s0
-tcontext=u:object_r:device:s0 tclass=chr_file
-<5>[   26.602386] type=1400 audit(1344517141.640:10): avc:  denied  {
-write } for  pid=175 comm=42696E646572205468726561642023
-name="rpmsg-omx1" dev=tmpfs ino=3045 scontext=u:r:mediaserver:s0
-tcontext=u:object_r:device:s0 tclass=chr_file
-<5>[   26.602783] type=1400 audit(1344517141.640:11): avc:  denied  {
-ioctl } for  pid=175 comm=42696E646572205468726561642023
-path="/dev/rpmsg-omx1" dev=tmpfs ino=3045 scontext=u:r:mediaserver:s0
-tcontext=u:object_r:device:s0 tclass=chr_file
++       for_each_possible_cpu(cpu) {
++               sock = &per_cpu(unicast_sock, cpu);
++               rc = security_sk_alloc(&sock->sk, PF_INET, GFP_KERNEL,
+cpu_to_node(cpu));
++               if (rc)
++                       return rc;
++       }
 
-The problem here comes from labeling:
-/dev/rpmsg-omx1 is not labeled properly but should be, it was fixed in
-external/sepolicy commit ee5f4005
+I'm going to work right now on exposing the equivalent struct sock LSM
+interface so we can call that as well.  But it's going to take me a
+bit.  Attached is the patch just to (hopefully untested) shut up the
+panic.
 
-Make sure your seandroid is up to date, I have a feeling you need to
-update your local_manifest.xml file and do a new repo sync..
+-Eric
 
-I am also forwarding this to the public mailing list, so others can
-learn from this and answer problems before they arise. I hope this
-helps, and for now on direct these types of questions back to the
-mailing list to help others out.
-
-Bill
-
-On Thu, Aug 9, 2012 at 6:15 AM, Alexandra Test
-<testalexandrainstitute@gmail.com> wrote:
-> Hi William,
-> I tried again and it did not work again.
-> The reason why I installed from a gapp*.zip files is because it has all the
-> dependencies verified; I tried before to install from the apk, extracted
-> from the phone bu it did not work.
-> I did the restorecon simply with this command:
-> adb shell
-> su
-> mount -o rw,remount /dev/block/platform/omap/omap /system
-> restorecon -R /system
-> It does not work! how is it possible? the phone is still in permissive mode,
-> I cannot change in enforcing mode
-> The list of my denials:
-> <5>[    5.459838] type=1400 audit(1344517120.492:3): avc:  denied  { read
-> write } for  pid=129 comm="sh" name="ttyFIQ0" dev=tmpfs ino=2914
-> scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file
-> <5>[    5.537353] type=1400 audit(1344517120.570:4): avc:  denied  { getattr
-> } for  pid=129 comm="sh" path="/dev/ttyFIQ0" dev=tmpfs ino=2914
-> scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file
-> <5>[    5.538055] type=1400 audit(1344517120.570:5): avc:  denied  { ioctl }
-> for  pid=129 comm="sh" path="/dev/ttyFIQ0" dev=tmpfs ino=2914
-> scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file
-> <5>[   24.782653] type=1400 audit(1344517139.820:6): avc:  denied  { write }
-> for  pid=404 comm="LocationManager" name="mcspi1_cs3_ctrl" dev=proc
-> ino=4026532651 scontext=u:r:system:s0 tcontext=u:object_r:proc:s0
-> tclass=file
-> <5>[   25.809204] type=1400 audit(1344517140.843:7): avc:  denied  {
-> connectto } for  pid=460 comm="GpsLocationProv"
-> path=004D756C7469636C69656E74 scontext=u:r:system:s0 tcontext=u:r:rild:s0
-> tclass=unix_stream_socket
-> <5>[   26.586181] type=1400 audit(1344517141.625:8): avc:  denied  { read }
-> for  pid=175 comm=42696E646572205468726561642023 name="rproc_user" dev=tmpfs
-> ino=2868 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0
-> tclass=chr_file
-> <5>[   26.586364] type=1400 audit(1344517141.625:9): avc:  denied  { open }
-> for  pid=175 comm=42696E646572205468726561642023 name="rproc_user" dev=tmpfs
-> ino=2868 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0
-> tclass=chr_file
-> <5>[   26.602386] type=1400 audit(1344517141.640:10): avc:  denied  { write
-> } for  pid=175 comm=42696E646572205468726561642023 name="rpmsg-omx1"
-> dev=tmpfs ino=3045 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0
-> tclass=chr_file
-> <5>[   26.602783] type=1400 audit(1344517141.640:11): avc:  denied  { ioctl
-> } for  pid=175 comm=42696E646572205468726561642023 path="/dev/rpmsg-omx1"
-> dev=tmpfs ino=3045 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0
-> tclass=chr_file
-> <5>[   26.775054] type=1400 audit(1344517141.812:12): avc:  denied  { read }
-> for  pid=175 comm=42696E646572205468726561642023
-> name="R5_MVEN003_LD2_ND0_IR0_SH0_FL1_SVEN003_DCCID1044" dev=mmcblk0p12
-> ino=138460 scontext=u:r:mediaserver:s0
-> tcontext=u:object_r:system_data_file:s0 tclass=dir
-> <5>[   26.775268] type=1400 audit(1344517141.812:13): avc:  denied  { open }
-> for  pid=175 comm=42696E646572205468726561642023
-> name="R5_MVEN003_LD2_ND0_IR0_SH0_FL1_SVEN003_DCCID1044" dev=mmcblk0p12
-> ino=138460 scontext=u:r:mediaserver:s0
-> tcontext=u:object_r:system_data_file:s0 tclass=dir
-> <5>[   26.775695] type=1400 audit(1344517141.812:14): avc:  denied  { open }
-> for  pid=175 comm=42696E646572205468726561642023 name="calib.bin"
-> dev=mmcblk0p12 ino=138461 scontext=u:r:mediaserver:s0
-> tcontext=u:object_r:system_data_file:s0 tclass=file
+On Thu, Aug 9, 2012 at 10:50 AM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> From: Eric Dumazet <edumazet@google.com>
 >
+> commit be9f4a44e7d41cee (ipv4: tcp: remove per net tcp_sock) added a
+> selinux regression, reported and bisected by John Stultz
 >
-> Thanks for your help
+> selinux_ip_postroute_compat() expect to find a valid sk->sk_security
+> pointer, but this field is NULL for unicast_sock
 >
+> Fix this by adding a new 'kernel' parameter to security_sk_alloc(),
+> set to true if socket might already have a valid sk->sk_security
+> pointer. ip_send_unicast_reply() uses a percpu fake socket, so the first
+> call to security_sk_alloc() will populate sk->sk_security pointer,
+> subsequent ones will reuse existing context.
 >
+> Reported-by: John Stultz <johnstul@us.ibm.com>
+> Bisected-by: John Stultz <johnstul@us.ibm.com>
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: "Serge E. Hallyn" <serge@hallyn.com>
+> ---
+>  include/linux/security.h   |    6 +++---
+>  net/core/sock.c            |    2 +-
+>  net/ipv4/ip_output.c       |    4 +++-
+>  security/security.c        |    4 ++--
+>  security/selinux/hooks.c   |    5 ++++-
+>  security/smack/smack_lsm.c |   10 ++++++++--
+>  6 files changed, 21 insertions(+), 10 deletions(-)
 >
-> On Tue, Aug 7, 2012 at 7:06 PM, William Roberts <bill.c.roberts@gmail.com>
-> wrote:
->>
->> 1. The seapp_contexts, file_contexts, sepolicy.24 and
->> property_contexts are in the ramdisk for the rootfs, which is in
->> boot.img. When a device is running, you will find these files in '/'.
->> (ls / will    show them)
->>
->> 2. You can push any of those files, or all to /system/data and then
->> setprop selinux.reload_policy 1. See the info here:
->> http://selinuxproject.org/page/SEAndroid#SE_Android_Policy
->>
->> 3. You can extract apk's in many ways, this blog has a few:
->>
->> http://mauweb.net/3.0/en/technology/17-android/100-icon-androidextracting-apk-files-from-your-android.html
->>
->> Bill
->>
->> On Tue, Aug 7, 2012 at 1:01 AM, Alexandra Test
->> <testalexandrainstitute@gmail.com> wrote:
->> > I installed the gapp (downloaded here
->> > https://faramir.eriador.org/r/gapps-ics-20120317-signed.zip) as an
->> > indipendent package and then I used restorecon.
->> >
->> > About the policy, I have two files in external/sepolicy/seapp_context
->> > and
->> > property_context
->> > Where can I find these files in the phone memory? do I need every time
->> > to
->> > modify the source files and then provide the system building?
->> > If I want to extract the gapp from the original build how can I do that?
->> >
->> > Thanks for your help
->> >
->> >
->> >
->> > On Mon, Aug 6, 2012 at 7:44 PM, William Roberts
->> > <bill.c.roberts@gmail.com>
->> > wrote:
->> >>
->> >> It should be working, as we wrote alot of the policy for that device
->> >> and didn't experience any denials. If your installing apps from
->> >> recovery (Like gapps), make sure you use the recovery.img that gets
->> >> built and not clock-work mod.
->> >>
->> >> On Mon, Aug 6, 2012 at 3:35 AM, Alexandra Test
->> >> <testalexandrainstitute@gmail.com> wrote:
->> >> > Hi Williams,
->> >> > sorry for the late reply, I was on vacation.
->> >> > I am using a Samsung Galaxy Nexus with the tuna master branch.
->> >> >
->> >> > Thanks for your help!
->> >> > Anna
->> >> >
->> >> >
->> >> > On Wed, Jul 18, 2012 at 7:31 PM, William Roberts
->> >> > <bill.c.roberts@gmail.com>
->> >> > wrote:
->> >> >>
->> >> >> You have a lot of denials. What device and branch of code are you
->> >> >> using?
->> >> >>
->> >> >> I might be able to help you get these fixed.
->> >> >>
->> >> >> On Wed, Jul 18, 2012 at 12:24 AM, Alexandra Test
->> >> >> <testalexandrainstitute@gmail.com> wrote:
->> >> >>>
->> >> >>> Yes, in the attached files you can see the denials.
->> >> >>>
->> >> >>> In permissive mode I can install everything.
->> >> >>>
->> >> >>> Any ideas?
->> >> >>>
->> >> >>> Il giorno 16/lug/2012 18:13, "William Roberts"
->> >> >>> <bill.c.roberts@gmail.com>
->> >> >>> ha scritto:
->> >> >>>
->> >> >>>> do have any denials? does installation work in permissive mode?
->> >> >>>>
->> >> >>>> On Jul 16, 2012 5:44 AM, "Alexandra Test"
->> >> >>>> <testalexandrainstitute@gmail.com> wrote:
->> >> >>>>>
->> >> >>>>> My phone is now is in enforcing mode but I can not install
->> >> >>>>> anything.
->> >> >>>>> I tried from google play but after the download, when it tries to
->> >> >>>>> install says:
->> >> >>>>> "the download url is not valid"
->> >> >>>>>
->> >> >>>>> Do I have to change the policies? I saw the app.te files in
->> >> >>>>> external/sepolicy in the build directory, but where can I fine
->> >> >>>>> the
->> >> >>>>> same file
->> >> >>>>> on the phone?
->> >> >>>>> Do I need to rebuild and reflash every time I change the
->> >> >>>>> policies?
->> >> >>>>>
->> >> >>>>>
->> >> >>>>>
->> >> >>>>> On Mon, Jul 16, 2012 at 12:47 PM, Alexandra Test
->> >> >>>>> <testalexandrainstitute@gmail.com> wrote:
->> >> >>>>>>
->> >> >>>>>> it works, thank you! :-)
->> >> >>>>>>
->> >> >>>>>>
->> >> >>>>>> On Sun, Jul 15, 2012 at 6:25 AM, Robert Craig
->> >> >>>>>> <robertpcraig@gmail.com>
->> >> >>>>>> wrote:
->> >> >>>>>>>
->> >> >>>>>>> On Fri, Jul 13, 2012 at 8:50 AM, Alexandra Test
->> >> >>>>>>> <testalexandrainstitute@gmail.com> wrote:
->> >> >>>>>>>
->> >> >>>>>>>>
->> >> >>>>>>>> I tried to investigate without success, so I decided to try to
->> >> >>>>>>>> use
->> >> >>>>>>>> the restorecon. is it needed to be root?
->> >> >>>>>>>> on which files do I need to use restorecon? how?
->> >> >>>>>>>>
->> >> >>>>>>>
->> >> >>>>>>> You'll not only have to be root, but you'll also need to
->> >> >>>>>>> remount
->> >> >>>>>>> your
->> >> >>>>>>> system partition (android mounts it read only).
->> >> >>>>>>> I would try:
->> >> >>>>>>> adb shell
->> >> >>>>>>> su
->> >> >>>>>>> mount -o rw,remount </dev/block path for your device> /system
->> >> >>>>>>> restorecon -R /system
->> >> >>>>>>
->> >> >>>>>>
->> >> >>>>>
->> >> >>
->> >> >>
->> >> >>
->> >> >> --
->> >> >> Respectfully,
->> >> >>
->> >> >> William C Roberts
->> >> >>
->> >> >>
->> >> >
->> >>
->> >>
->> >>
->> >> --
->> >> Respectfully,
->> >>
->> >> William C Roberts
->> >
->> >
->>
->>
->>
->> --
->> Respectfully,
->>
->> William C Roberts
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 4e5a73c..4d8e454 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1601,7 +1601,7 @@ struct security_operations {
+>         int (*socket_sock_rcv_skb) (struct sock *sk, struct sk_buff *skb);
+>         int (*socket_getpeersec_stream) (struct socket *sock, char __user *optval, int __user *optlen, unsigned len);
+>         int (*socket_getpeersec_dgram) (struct socket *sock, struct sk_buff *skb, u32 *secid);
+> -       int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority);
+> +       int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority, bool kernel);
+>         void (*sk_free_security) (struct sock *sk);
+>         void (*sk_clone_security) (const struct sock *sk, struct sock *newsk);
+>         void (*sk_getsecid) (struct sock *sk, u32 *secid);
+> @@ -2539,7 +2539,7 @@ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+>  int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+>                                       int __user *optlen, unsigned len);
+>  int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
+> -int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
+> +int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel);
+>  void security_sk_free(struct sock *sk);
+>  void security_sk_clone(const struct sock *sk, struct sock *newsk);
+>  void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
+> @@ -2667,7 +2667,7 @@ static inline int security_socket_getpeersec_dgram(struct socket *sock, struct s
+>         return -ENOPROTOOPT;
+>  }
+>
+> -static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
+> +static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel)
+>  {
+>         return 0;
+>  }
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index 8f67ced..e00cadf 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -1186,7 +1186,7 @@ static struct sock *sk_prot_alloc(struct proto *prot, gfp_t priority,
+>         if (sk != NULL) {
+>                 kmemcheck_annotate_bitfield(sk, flags);
+>
+> -               if (security_sk_alloc(sk, family, priority))
+> +               if (security_sk_alloc(sk, family, priority, false))
+>                         goto out_free;
+>
+>                 if (!try_module_get(prot->owner))
+> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+> index 76dde25..b233d6e 100644
+> --- a/net/ipv4/ip_output.c
+> +++ b/net/ipv4/ip_output.c
+> @@ -1524,6 +1524,8 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
+>         sk->sk_priority = skb->priority;
+>         sk->sk_protocol = ip_hdr(skb)->protocol;
+>         sk->sk_bound_dev_if = arg->bound_dev_if;
+> +       if (security_sk_alloc(sk, PF_INET, GFP_ATOMIC, true))
+> +               goto out;
+>         sock_net_set(sk, net);
+>         __skb_queue_head_init(&sk->sk_write_queue);
+>         sk->sk_sndbuf = sysctl_wmem_default;
+> @@ -1539,7 +1541,7 @@ void ip_send_unicast_reply(struct net *net, struct sk_buff *skb, __be32 daddr,
+>                 skb_set_queue_mapping(nskb, skb_get_queue_mapping(skb));
+>                 ip_push_pending_frames(sk, &fl4);
+>         }
+> -
+> +out:
+>         put_cpu_var(unicast_sock);
+>
+>         ip_rt_put(rt);
+> diff --git a/security/security.c b/security/security.c
+> index 860aeb3..23cf297 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1146,9 +1146,9 @@ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u
+>  }
+>  EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+>
+> -int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
+> +int security_sk_alloc(struct sock *sk, int family, gfp_t priority, bool kernel)
+>  {
+> -       return security_ops->sk_alloc_security(sk, family, priority);
+> +       return security_ops->sk_alloc_security(sk, family, priority, kernel);
+>  }
+>
+>  void security_sk_free(struct sock *sk)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 6c77f63..ccd4374 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4289,10 +4289,13 @@ out:
+>         return 0;
+>  }
+>
+> -static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+> +static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority, bool kernel)
+>  {
+>         struct sk_security_struct *sksec;
+>
+> +       if (kernel && sk->sk_security)
+> +               return 0;
+> +
+>         sksec = kzalloc(sizeof(*sksec), priority);
+>         if (!sksec)
+>                 return -ENOMEM;
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 8221514..0b066d0 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -1749,20 +1749,26 @@ static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
+>   * @sk: the socket
+>   * @family: unused
+>   * @gfp_flags: memory allocation flags
+> + * @kernel: true if we should check sk_security being already set
+>   *
+>   * Assign Smack pointers to current
+>   *
+>   * Returns 0 on success, -ENOMEM is there's no memory
+>   */
+> -static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags)
+> +static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags, bool kernel)
+>  {
+> -       char *csp = smk_of_current();
+> +       char *csp;
+>         struct socket_smack *ssp;
+>
+> +       if (kernel && sk->sk_security)
+> +               return 0;
+> +
+>         ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
+>         if (ssp == NULL)
+>                 return -ENOMEM;
+>
+> +       csp = kernel ? smack_net_ambient : smk_of_current();
+> +
+>         ssp->smk_in = csp;
+>         ssp->smk_out = csp;
+>         ssp->smk_packet = NULL;
 >
 >
 
+--047d7b339f4dbc296104c6dac2e3
+Content-Type: application/octet-stream; name="tmp.patch"
+Content-Disposition: attachment; filename="tmp.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h5oa1cro0
 
-
--- 
-Respectfully,
-
-William C Roberts
+Y29tbWl0IGZlYWY0ZmU4YThlNDUwOTU0MDI4Njg5OWQwMmNkODhmMDljMGQzNDMKQXV0aG9yOiBF
+cmljIFBhcmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4KRGF0ZTogICBUaHUgQXVnIDkgMTQ6MDg6MTIg
+MjAxMiAtMDQwMAoKICAgIE5ldHdvcmsvU2VjdXJpdHk6IGFsbG9jYXRlIHNlY3VyaXR5IGRhdGEg
+d2hlbiB3ZSBhbGxvY2F0ZSB1bmljYXN0IHNvY2tldHMKICAgIAogICAgY29tbWl0IGJlOWY0YTQ0
+ZTdkNDFjZWUgKGlwdjQ6IHRjcDogcmVtb3ZlIHBlciBuZXQgdGNwX3NvY2spIGFkZGVkIGEKICAg
+IHJlZ3Jlc3Npb24gYmVjYXVzZSBpdCBkaWQgbm90IHByb3Blcmx5IGluaXRpYWxpemUgdGhlIG5l
+dyBwZXIgY3B1IHNvY2tldHMuCiAgICBUaGlzIHdhcyByZXBvcnRlZCBhbmQgYmlzZWN0ZWQgYnkg
+Sm9obiBTdHVsdHo6CiAgICAKICAgIFsgICA2OS4yNzI5MjddIEJVRzogdW5hYmxlIHRvIGhhbmRs
+ZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IDAwMDAwMDAwMDAwMDAwMTAKICAg
+IFsgICA2OS4yNzMzNzRdIElQOiBbPGZmZmZmZmZmODEzMmU3YzQ+XSBzZWxpbnV4X2lwX3Bvc3Ry
+b3V0ZV9jb21wYXQrMHhhNC8weGUwCiAgICBbICAgNjkuMjczMzc0XSBQR0QgM2E4NWIwNjcgUFVE
+IDNmNTBiMDY3IFBNRCAwCiAgICBbICAgNjkuMjczMzc0XSBPb3BzOiAwMDAwIFsjMV0gUFJFRU1Q
+VCBTTVAKICAgIFsgICA2OS4yNzMzNzRdIENQVSAzCiAgICBbICAgNjkuMjczMzc0XSBQaWQ6IDIz
+OTIsIGNvbW06IGh3Y2xvY2sgTm90IHRhaW50ZWQgMy42LjAtcmMxam9obisgIzEwNiBCb2NocyBC
+b2NocwogICAgWyAgIDY5LjI3MzM3NF0gUklQOiAwMDEwOls8ZmZmZmZmZmY4MTMyZTdjND5dICBb
+PGZmZmZmZmZmODEzMmU3YzQ+XSBzZWxpbnV4X2lwX3Bvc3Ryb3V0ZV9jb21wYXQrMHhhNC8weGUw
+CiAgICBbICAgNjkuMjczMzc0XSBSU1A6IDAwMTg6ZmZmZjg4MDAzZjAwMzcyMCAgRUZMQUdTOiAw
+MDAxMDI0NgogICAgWyAgIDY5LjI3MzM3NF0gUkFYOiAwMDAwMDAwMDAwMDAwMDAwIFJCWDogZmZm
+Zjg4MDAzZjVmYTlkOCBSQ1g6IDAwMDAwMDAwMDAwMDAwMDYKICAgIFsgICA2OS4yNzMzNzRdIFJE
+WDogZmZmZjg4MDAzZjAwMzc0MCBSU0k6IGZmZmY4ODAwM2M2YjI1NmMgUkRJOiBmZmZmODgwMDNm
+NWZhOWQ4CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgWyBPSyBdCiAgICBbICAgNjkuMjczMzc0XSBSQlA6
+IGZmZmY4ODAwM2YwMDM3YTAgUjA4OiAwMDAwMDAwMDAwMDAwMDAwIFIwOTogZmZmZjg4MDAzZjFk
+MGNjMAogICAgWyAgIDY5LjI3MzM3NF0gUjEwOiAwMDAwMDAwMDAwMDAwMDAzIFIxMTogMDAwMDAw
+MDAwMDAwMDAwMCBSMTI6IDAwMDAwMDAwMDAwMDAwMDAKICAgIFsgICA2OS4yNzMzNzRdIFIxMzog
+MDAwMDAwMDAwMDAwMDAwMiBSMTQ6IGZmZmY4ODAwM2YwMDM3YzAgUjE1OiAwMDAwMDAwMDAwMDAw
+MDA0CiAgICBbICAgNjkuMjczMzc0XSBGUzogIDAwMDA3ZmEzOTgyMTE3MDAoMDAwMCkgR1M6ZmZm
+Zjg4MDAzZjAwMDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwCiAgICBbICAgNjkuMjcz
+Mzc0XSBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzCiAg
+ICBbICAgNjkuMjczMzc0XSBDUjI6IDAwMDAwMDAwMDAwMDAwMTAgQ1IzOiAwMDAwMDAwMDNiNTJh
+MDAwIENSNDogMDAwMDAwMDAwMDAwMDZlMAogICAgWyAgIDY5LjI3MzM3NF0gRFIwOiAwMDAwMDAw
+MDAwMDAwMDAwIERSMTogMDAwMDAwMDAwMDAwMDAwMCBEUjI6IDAwMDAwMDAwMDAwMDAwMDAKICAg
+IFsgICA2OS4yNzMzNzRdIERSMzogMDAwMDAwMDAwMDAwMDAwMCBEUjY6IDAwMDAwMDAwZmZmZjBm
+ZjAgRFI3OiAwMDAwMDAwMDAwMDAwNDAwCiAgICBbICAgNjkuMjczMzc0XSBQcm9jZXNzIGh3Y2xv
+Y2sgKHBpZDogMjM5MiwgdGhyZWFkaW5mbyBmZmZmODgwMDNhMGVlMDAwLCB0YXNrIGZmZmY4ODAw
+M2ZhODJiODApCiAgICBbICAgNjkuMjczMzc0XSBTdGFjazoKICAgIFsgICA2OS4yNzMzNzRdICBm
+ZmZmODgwMDNjNmIyNTU4IDAwMDAwMDAwMDAwMDAwMDYgMDAwMDAwMDAwMDAwMDAwMCAwMDAwMTYw
+MDY3ZDcwMDAyCiAgICBbICAgNjkuMjczMzc0XSAgMGYwMjAwMGEwMjAyMDAwYSAwMDAwMDAwMDAw
+MDAwMDAwIDAwMDAwMDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMAogICAgWyAgIDY5LjI3MzM3
+NF0gIGZmZmY4ODAwM2YwMDM4MDIgZmZmZjg4MDAzZjAwMzcyOCBmZmZmODgwMDNmMWQ0MmQwIGZm
+ZmY4ODAwM2Q2YzM1NjAKICAgIFsgICA2OS4yNzMzNzRdIENhbGwgVHJhY2U6CiAgICBbICAgNjku
+MjczMzc0XSAgPElSUT4KICAgIFsgICA2OS4yNzMzNzRdICBbPGZmZmZmZmZmODEzMmVhYWI+XSBz
+ZWxpbnV4X2lwX3Bvc3Ryb3V0ZSsweDJhYi8weDNlMAogICAgWyAgIDY5LjI3MzM3NF0gIFs8ZmZm
+ZmZmZmY4MTMyZWMxYz5dIHNlbGludXhfaXB2NF9wb3N0cm91dGUrMHgxYy8weDIwCiAgICBbICAg
+NjkuMjczMzc0XSAgWzxmZmZmZmZmZjgxOTgyNjVjPl0gbmZfaXRlcmF0ZSsweGFjLzB4MTQwCiAg
+ICBbICAgNjkuMjczMzc0XSAgWzxmZmZmZmZmZjgxOTgyN2E1Pl0gbmZfaG9va19zbG93KzB4YjUv
+MHgyMTAKICAgIFsgICA2OS4yNzMzNzRdICBbPGZmZmZmZmZmODE5OWNiYmE+XSBpcF9vdXRwdXQr
+MHhhYS8weDE1MAogICAgWyAgIDY5LjI3MzM3NF0gIFs8ZmZmZmZmZmY4MTk5YTlhZj5dIGlwX2xv
+Y2FsX291dCsweDdmLzB4MTEwCiAgICBbICAgNjkuMjczMzc0XSAgWzxmZmZmZmZmZjgxOTlkODJl
+Pl0gaXBfc2VuZF9za2IrMHhlLzB4NDAKICAgIFsgICA2OS4yNzMzNzRdICBbPGZmZmZmZmZmODE5
+OWQ4OGI+XSBpcF9wdXNoX3BlbmRpbmdfZnJhbWVzKzB4MmIvMHgzMAogICAgWyAgIDY5LjI3MzM3
+NF0gIFs8ZmZmZmZmZmY4MTk5ZGM5Nz5dIGlwX3NlbmRfdW5pY2FzdF9yZXBseSsweDJjNy8weDNj
+MAogICAgWyAgIDY5LjI3MzM3NF0gIFs8ZmZmZmZmZmY4MTliYjIxNT5dIHRjcF92NF9zZW5kX3Jl
+c2V0KzB4MWY1LzB4M2YwCiAgICBbICAgNjkuMjczMzc0XSAgWzxmZmZmZmZmZjgxOWJmMDRiPl0g
+dGNwX3Y0X3JjdisweDJiYi8weDEwODAKICAgIFsgICA2OS4yNzMzNzRdICBbPGZmZmZmZmZmODE5
+OTRkNzM+XSBpcF9sb2NhbF9kZWxpdmVyX2ZpbmlzaCsweDEzMy8weDRkMAogICAgWyAgIDY5LjI3
+MzM3NF0gIFs8ZmZmZmZmZmY4MTk5NTNlMD5dIGlwX2xvY2FsX2RlbGl2ZXIrMHg5MC8weGEwCiAg
+ICBbICAgNjkuMjczMzc0XSAgWzxmZmZmZmZmZjgxOTk0NWIyPl0gaXBfcmN2X2ZpbmlzaCsweDI2
+Mi8weDhmMAogICAgWyAgIDY5LjI3MzM3NF0gIFs8ZmZmZmZmZmY4MTk5NTc0Mj5dIGlwX3Jjdisw
+eDM1Mi8weDNhMAogICAgWyAgIDY5LjMyMzg0NF0gIFs8ZmZmZmZmZmY4MTkyNTI0ND5dIF9fbmV0
+aWZfcmVjZWl2ZV9za2IrMHhjYjQvMHgxMGUwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZmZmZm
+ZjgxOTJiYTVkPl0gbmV0aWZfcmVjZWl2ZV9za2IrMHgxOGQvMHgyMzAKICAgIFsgICA2OS4zMjM4
+NDRdICBbPGZmZmZmZmZmODE3NDZhYmM+XSB2aXJ0bmV0X3BvbGwrMHg1OGMvMHg3YjAKICAgIFsg
+ICA2OS4zMjM4NDRdICBbPGZmZmZmZmZmODE5MmNmNTk+XSBuZXRfcnhfYWN0aW9uKzB4Mjg5LzB4
+NTUwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZmZmZmZjgxMDU4NDZhPl0gX19kb19zb2Z0aXJx
+KzB4MWRhLzB4NTYwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZmZmZmZjgxYjVjMmJjPl0gY2Fs
+bF9zb2Z0aXJxKzB4MWMvMHgzMAogICAgWyAgIDY5LjMyMzg0NF0gIFs8ZmZmZmZmZmY4MTAwNGQ3
+NT5dIGRvX3NvZnRpcnErMHgxMDUvMHgxZTAKICAgIFsgICA2OS4zMjM4NDRdICBbPGZmZmZmZmZm
+ODEwNThiYmU+XSBpcnFfZXhpdCsweDllLzB4MTAwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZm
+ZmZmZjgxYjVjOWQzPl0gZG9fSVJRKzB4NjMvMHhkMAogICAgWyAgIDY5LjMyMzg0NF0gIFs8ZmZm
+ZmZmZmY4MWI1YTU2Zj5dIGNvbW1vbl9pbnRlcnJ1cHQrMHg2Zi8weDZmCiAgICBbICAgNjkuMzIz
+ODQ0XSAgPEVPST4KICAgIFsgICA2OS4zMjM4NDRdICBbPGZmZmZmZmZmODEwOTkzYWQ+XSBfX21p
+Z2h0X3NsZWVwKzB4MWNkLzB4MjgwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZmZmZmZjgxMTYw
+ZTc0Pl0gbWlnaHRfZmF1bHQrMHgzNC8weGIwCiAgICBbICAgNjkuMzIzODQ0XSAgWzxmZmZmZmZm
+ZjgxMDU2NTdlPl0gc3lzX2dldHRpbWVvZmRheSsweGJlLzB4ZjAKICAgIFsgICA2OS4zMjM4NDRd
+ICBbPGZmZmZmZmZmODFiNWFmZTk+XSBzeXN0ZW1fY2FsbF9mYXN0cGF0aCsweDE2LzB4MWIKICAg
+IFsgICA2OS4zMjM4NDRdIENvZGU6IGMwIDQ1IDMxIGM5IGIxIDAxIGJhIDJhIDAwIDAwIDAwIGU4
+IGE3IDg5IGZmIGZmIDg1IGMwIGI5IDAwIDAwIDZmIDAwIDc0IDBlIDQ4IDgzIGM0IDcwIDg5IGM4
+IDViIDQxIDVjIDVkIGMzIDBmIDFmIDAwIDBmIGI2IDRkIGVmIDw0MT4gOGIgN2MgMjQgMTAgNDgg
+OGQgNTUgYzAgNDggODkgZGUgZTggYWIgNmQgMDEgMDAgODMgZjggMDEgMTkKICAgIFsgICA2OS4z
+MjM4NDRdIFJJUCAgWzxmZmZmZmZmZjgxMzJlN2M0Pl0gc2VsaW51eF9pcF9wb3N0cm91dGVfY29t
+cGF0KzB4YTQvMHhlMAogICAgWyAgIDY5LjMyMzg0NF0gIFJTUCA8ZmZmZjg4MDAzZjAwMzcyMD4K
+ICAgIFsgICA2OS4zMjM4NDRdIENSMjogMDAwMDAwMDAwMDAwMDAxMAogICAgWyAgIDY5LjM1NzQ4
+OV0gLS0tWyBlbmQgdHJhY2UgMGNkM2UxYTYwZGVlNjA5NiBdLS0tCiAgICBbICAgNjkuMzU4MzUz
+XSBLZXJuZWwgcGFuaWMgLSBub3Qgc3luY2luZzogRmF0YWwgZXhjZXB0aW9uIGluIGludGVycnVw
+dAogICAgCiAgICBUaGUgcmVhc29uIGZvciB0aGUgcmVncmVzaW9uIGlzIGJlY2F1c2Ugb2YgaG93
+IHRoZSBuZXcgc29jayBpcyBjcmVhdGVkLiAgVGhlCiAgICBvbGQgc29ja2V0IHdhcyBjcmVhdGVk
+IHVzaW5nIGluZXRfY3RsX3NvY2tfY3JlYXRlKCkgd2hpY2ggdXNlcyBhbGwgZ2VuZXJpYwogICAg
+ZnVuY3Rpb25zIHRvIGVzdGFibGlzaCB0aGUgc3RydWN0IHNvY2tldCwgc3RydWN0IHNvY2ssIGFu
+ZCBkbyBhbGwgb2YgdGhlCiAgICBhbGxvY2F0aW9uIGFuZCBpbml0aWFsaXphdGlvbiBvZiB0aGUg
+c29ja2V0IGFuZCBpdHMgYXBwcm9wcmlhdGUgc2VjdXJpdHkgZGF0YS4KICAgIAogICAgYWthOgog
+ICAgCiAgICBpbmV0X2N0bF9zb2NrX2NyZWF0ZQogICAgICBzb2NrX2NyZWF0ZV9rZXJuCiAgICAg
+ICAgX19zb2NrX2NyZWF0ZQogICAgICAgICAgcGYtPmNyZWF0ZSAoaW5ldF9jcmVhdGUpCiAgICAg
+ICAgICAgIHNrX2FsbG9jCiAgICAgICAgICAgICAgc2tfcHJvdF9hbGxvYwogICAgICAgICAgICAg
+ICAgc2VjX3NrX2FsbG9jKCkKICAgIAogICAgVGhlc2UgbmV3IHBlcl9jcHUgc2tpcCBhbGwgb2Yg
+dGhhdCBpbml0aWFsaXphdGlvbiBhbmQgaW5zdGVhZCB0cnkgdG8gZG8gaXQgYnkKICAgIGhhbmQu
+ICBEb2luZyBpdCBieSBoYW5kIGNhdXNlcyBhIHNlY29uZCByZWdyZXNzaW9uLiAgVGhlIF9fc29j
+a19jcmVhdGUoKQogICAgZnVuY3Rpb24gY2FsbHMgc2VjdXJpdHlfc29ja2V0X3Bvc3RfY3JlYXRl
+KCkgd2hpY2ggaW5pdGlhbGl6ZXMgdGhlIHNlY3VydHkKICAgIHN0YXRlIG9uIGJvdGggdGhlIHNv
+Y2tldCBhbmQgdGhlIHNvY2suICBIb3dldmVyIGhlcmUgd2UgZG9uJ3Qgc2V0IHVwIHRoZQogICAg
+c2VjdXJpdHkgc3RydWN0dXJlLiAgSSdkIGxpa2UgdG8gdXNlIHNlY3VyaXR5X3NvY2tldF9wb3N0
+X2NyZWF0ZSgpIGJ1dCBpdCBuZWVkcwogICAgdGhlIHNvY2tldCBhbmQgaW4gdGhpcyBjYXNlIHdl
+IHNraXBwZWQgc3RyYWlnaHQgdG8gdGhlIHN0cnVjdCBzb2NrLiAgTG9va3MgbGlrZQogICAgdGhp
+cyBjdXN0b20gaGFja2FyeSBpcyBnb2luZyB0byByZXF1aXJlIGEgc2Vjb25kIHBhdGNoIHdoaWNo
+IGV4cG9zZXMgdGhlIGluYXJkcwogICAgb2Ygc2VjdXJpdHlfc29ja2V0X3Bvc3RfY3JlYXRlKCkg
+YXMgc2VjdXJpdHlfc29ja19wb3N0X2NyZWF0ZSgpIHNvIHdlIGNhbiBkbwogICAgdGhlIGxhYmVs
+aW5nIG9mIHRoaXMgY3JlYXRlZCB0aGlzIHdheS4gIEJ1dCBhdCBsZWFzdCB0aGlzIG9uZSB3b24n
+dCBwYW5pYyB0aGUKICAgIGtlcm5lbC4KICAgIAogICAgUmVwb3J0ZWQtYnk6IEpvaG4gU3R1bHR6
+IDxqb2huc3R1bEB1cy5pYm0uY29tPgogICAgQmlzZWN0ZWQtYnk6IEpvaG4gU3R1bHR6IDxqb2hu
+c3R1bEB1cy5pYm0uY29tPgogICAgU2lnbmVkLW9mZi1ieTogRXJpYyBQYXJpcyA8ZXBhcmlzQHJl
+ZGhhdC5jb20+CiAgICBDYzogRXJpYyBEdW1hemV0IDxlZHVtYXpldEBnb29nbGUuY29tPgogICAg
+Q2M6IFBhdWwgTW9vcmUgPHBhdWxAcGF1bC1tb29yZS5jb20+CiAgICBDYzogIlNlcmdlIEUuIEhh
+bGx5biIgPHNlcmdlQGhhbGx5bi5jb20+CgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9zZWN1
+cml0eS5oIGIvaW5jbHVkZS9saW51eC9zZWN1cml0eS5oCmluZGV4IDRlNWE3M2MuLjFlMGM1YTcg
+MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvc2VjdXJpdHkuaAorKysgYi9pbmNsdWRlL2xpbnV4
+L3NlY3VyaXR5LmgKQEAgLTE2MDEsNyArMTYwMSw3IEBAIHN0cnVjdCBzZWN1cml0eV9vcGVyYXRp
+b25zIHsKIAlpbnQgKCpzb2NrZXRfc29ja19yY3Zfc2tiKSAoc3RydWN0IHNvY2sgKnNrLCBzdHJ1
+Y3Qgc2tfYnVmZiAqc2tiKTsKIAlpbnQgKCpzb2NrZXRfZ2V0cGVlcnNlY19zdHJlYW0pIChzdHJ1
+Y3Qgc29ja2V0ICpzb2NrLCBjaGFyIF9fdXNlciAqb3B0dmFsLCBpbnQgX191c2VyICpvcHRsZW4s
+IHVuc2lnbmVkIGxlbik7CiAJaW50ICgqc29ja2V0X2dldHBlZXJzZWNfZGdyYW0pIChzdHJ1Y3Qg
+c29ja2V0ICpzb2NrLCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCB1MzIgKnNlY2lkKTsKLQlpbnQgKCpz
+a19hbGxvY19zZWN1cml0eSkgKHN0cnVjdCBzb2NrICpzaywgaW50IGZhbWlseSwgZ2ZwX3QgcHJp
+b3JpdHkpOworCWludCAoKnNrX2FsbG9jX3NlY3VyaXR5KSAoc3RydWN0IHNvY2sgKnNrLCBpbnQg
+ZmFtaWx5LCBnZnBfdCBwcmlvcml0eSwgaW50IG51bWFfbm9kZSk7CiAJdm9pZCAoKnNrX2ZyZWVf
+c2VjdXJpdHkpIChzdHJ1Y3Qgc29jayAqc2spOwogCXZvaWQgKCpza19jbG9uZV9zZWN1cml0eSkg
+KGNvbnN0IHN0cnVjdCBzb2NrICpzaywgc3RydWN0IHNvY2sgKm5ld3NrKTsKIAl2b2lkICgqc2tf
+Z2V0c2VjaWQpIChzdHJ1Y3Qgc29jayAqc2ssIHUzMiAqc2VjaWQpOwpAQCAtMjUzOSw3ICsyNTM5
+LDcgQEAgaW50IHNlY3VyaXR5X3NvY2tfcmN2X3NrYihzdHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBz
+a19idWZmICpza2IpOwogaW50IHNlY3VyaXR5X3NvY2tldF9nZXRwZWVyc2VjX3N0cmVhbShzdHJ1
+Y3Qgc29ja2V0ICpzb2NrLCBjaGFyIF9fdXNlciAqb3B0dmFsLAogCQkJCSAgICAgIGludCBfX3Vz
+ZXIgKm9wdGxlbiwgdW5zaWduZWQgbGVuKTsKIGludCBzZWN1cml0eV9zb2NrZXRfZ2V0cGVlcnNl
+Y19kZ3JhbShzdHJ1Y3Qgc29ja2V0ICpzb2NrLCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCB1MzIgKnNl
+Y2lkKTsKLWludCBzZWN1cml0eV9za19hbGxvYyhzdHJ1Y3Qgc29jayAqc2ssIGludCBmYW1pbHks
+IGdmcF90IHByaW9yaXR5KTsKK2ludCBzZWN1cml0eV9za19hbGxvYyhzdHJ1Y3Qgc29jayAqc2ss
+IGludCBmYW1pbHksIGdmcF90IHByaW9yaXR5LCBpbnQgbnVtYV9ub2RlKTsKIHZvaWQgc2VjdXJp
+dHlfc2tfZnJlZShzdHJ1Y3Qgc29jayAqc2spOwogdm9pZCBzZWN1cml0eV9za19jbG9uZShjb25z
+dCBzdHJ1Y3Qgc29jayAqc2ssIHN0cnVjdCBzb2NrICpuZXdzayk7CiB2b2lkIHNlY3VyaXR5X3Nr
+X2NsYXNzaWZ5X2Zsb3coc3RydWN0IHNvY2sgKnNrLCBzdHJ1Y3QgZmxvd2kgKmZsKTsKQEAgLTI2
+NjcsNyArMjY2Nyw3IEBAIHN0YXRpYyBpbmxpbmUgaW50IHNlY3VyaXR5X3NvY2tldF9nZXRwZWVy
+c2VjX2RncmFtKHN0cnVjdCBzb2NrZXQgKnNvY2ssIHN0cnVjdCBzCiAJcmV0dXJuIC1FTk9QUk9U
+T09QVDsKIH0KIAotc3RhdGljIGlubGluZSBpbnQgc2VjdXJpdHlfc2tfYWxsb2Moc3RydWN0IHNv
+Y2sgKnNrLCBpbnQgZmFtaWx5LCBnZnBfdCBwcmlvcml0eSkKK3N0YXRpYyBpbmxpbmUgaW50IHNl
+Y3VyaXR5X3NrX2FsbG9jKHN0cnVjdCBzb2NrICpzaywgaW50IGZhbWlseSwgZ2ZwX3QgcHJpb3Jp
+dHksIGludCBudW1hX25vZGUpCiB7CiAJcmV0dXJuIDA7CiB9CmRpZmYgLS1naXQgYS9pbmNsdWRl
+L25ldC9pcC5oIGIvaW5jbHVkZS9uZXQvaXAuaAppbmRleCBiZDVlNDQ0Li4zNDA5MDVkIDEwMDY0
+NAotLS0gYS9pbmNsdWRlL25ldC9pcC5oCisrKyBiL2luY2x1ZGUvbmV0L2lwLmgKQEAgLTEwNSw3
+ICsxMDUsNyBAQCBleHRlcm4gdm9pZAkJaXBfc2VuZF9jaGVjayhzdHJ1Y3QgaXBoZHIgKmlwKTsK
+IGV4dGVybiBpbnQJCV9faXBfbG9jYWxfb3V0KHN0cnVjdCBza19idWZmICpza2IpOwogZXh0ZXJu
+IGludAkJaXBfbG9jYWxfb3V0KHN0cnVjdCBza19idWZmICpza2IpOwogZXh0ZXJuIGludAkJaXBf
+cXVldWVfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgZmxvd2kgKmZsKTsKLWV4dGVy
+biB2b2lkCQlpcF9pbml0KHZvaWQpOworZXh0ZXJuIGludAkJaXBfaW5pdCh2b2lkKTsKIGV4dGVy
+biBpbnQJCWlwX2FwcGVuZF9kYXRhKHN0cnVjdCBzb2NrICpzaywgc3RydWN0IGZsb3dpNCAqZmw0
+LAogCQkJCSAgICAgICBpbnQgZ2V0ZnJhZyh2b2lkICpmcm9tLCBjaGFyICp0bywgaW50IG9mZnNl
+dCwgaW50IGxlbiwKIAkJCQkJCSAgIGludCBvZGQsIHN0cnVjdCBza19idWZmICpza2IpLApkaWZm
+IC0tZ2l0IGEvbmV0L2NvcmUvc29jay5jIGIvbmV0L2NvcmUvc29jay5jCmluZGV4IDhmNjdjZWQ4
+Li4yY2FiNDU1IDEwMDY0NAotLS0gYS9uZXQvY29yZS9zb2NrLmMKKysrIGIvbmV0L2NvcmUvc29j
+ay5jCkBAIC0xMTg2LDcgKzExODYsNyBAQCBzdGF0aWMgc3RydWN0IHNvY2sgKnNrX3Byb3RfYWxs
+b2Moc3RydWN0IHByb3RvICpwcm90LCBnZnBfdCBwcmlvcml0eSwKIAlpZiAoc2sgIT0gTlVMTCkg
+ewogCQlrbWVtY2hlY2tfYW5ub3RhdGVfYml0ZmllbGQoc2ssIGZsYWdzKTsKIAotCQlpZiAoc2Vj
+dXJpdHlfc2tfYWxsb2Moc2ssIGZhbWlseSwgcHJpb3JpdHkpKQorCQlpZiAoc2VjdXJpdHlfc2tf
+YWxsb2Moc2ssIGZhbWlseSwgcHJpb3JpdHksIG51bWFfbm9kZV9pZCgpKSkKIAkJCWdvdG8gb3V0
+X2ZyZWU7CiAKIAkJaWYgKCF0cnlfbW9kdWxlX2dldChwcm90LT5vd25lcikpCmRpZmYgLS1naXQg
+YS9uZXQvaXB2NC9hZl9pbmV0LmMgYi9uZXQvaXB2NC9hZl9pbmV0LmMKaW5kZXggNjY4MWNjZi4u
+M2Y3OWYzNyAxMDA2NDQKLS0tIGEvbmV0L2lwdjQvYWZfaW5ldC5jCisrKyBiL25ldC9pcHY0L2Fm
+X2luZXQuYwpAQCAtMTcyMCw3ICsxNzIwLDggQEAgc3RhdGljIGludCBfX2luaXQgaW5ldF9pbml0
+KHZvaWQpCiAJICoJU2V0IHRoZSBJUCBtb2R1bGUgdXAKIAkgKi8KIAotCWlwX2luaXQoKTsKKwlp
+ZiAoaXBfaW5pdCgpIDwgMCkKKwkJcGFuaWMoIkZhaWxlZCB0byBpbml0aWFsaXplIGlwLlxuIik7
+CiAKIAl0Y3BfdjRfaW5pdCgpOwogCmRpZmYgLS1naXQgYS9uZXQvaXB2NC9pcF9vdXRwdXQuYyBi
+L25ldC9pcHY0L2lwX291dHB1dC5jCmluZGV4IDc2ZGRlMjUuLjRhNzc1YjMgMTAwNjQ0Ci0tLSBh
+L25ldC9pcHY0L2lwX291dHB1dC5jCisrKyBiL25ldC9pcHY0L2lwX291dHB1dC5jCkBAIC0xNTQ1
+LDEyICsxNTQ1LDIzIEBAIHZvaWQgaXBfc2VuZF91bmljYXN0X3JlcGx5KHN0cnVjdCBuZXQgKm5l
+dCwgc3RydWN0IHNrX2J1ZmYgKnNrYiwgX19iZTMyIGRhZGRyLAogCWlwX3J0X3B1dChydCk7CiB9
+CiAKLXZvaWQgX19pbml0IGlwX2luaXQodm9pZCkKK2ludCBfX2luaXQgaXBfaW5pdCh2b2lkKQog
+eworCXN0cnVjdCBpbmV0X3NvY2sgKnNvY2s7CisJaW50IHJjLCBjcHU7CisKIAlpcF9ydF9pbml0
+KCk7CiAJaW5ldF9pbml0cGVlcnMoKTsKIAogI2lmIGRlZmluZWQoQ09ORklHX0lQX01VTFRJQ0FT
+VCkgJiYgZGVmaW5lZChDT05GSUdfUFJPQ19GUykKIAlpZ21wX21jX3Byb2NfaW5pdCgpOwogI2Vu
+ZGlmCisKKwlmb3JfZWFjaF9wb3NzaWJsZV9jcHUoY3B1KSB7CisJCXNvY2sgPSAmcGVyX2NwdSh1
+bmljYXN0X3NvY2ssIGNwdSk7CisJCXJjID0gc2VjdXJpdHlfc2tfYWxsb2MoJnNvY2stPnNrLCBQ
+Rl9JTkVULCBHRlBfS0VSTkVMLCBjcHVfdG9fbm9kZShjcHUpKTsKKwkJaWYgKHJjKQorCQkJcmV0
+dXJuIHJjOworCX0KKwlyZXR1cm4gMDsKIH0KZGlmZiAtLWdpdCBhL3NlY3VyaXR5L2NhcGFiaWxp
+dHkuYyBiL3NlY3VyaXR5L2NhcGFiaWxpdHkuYwppbmRleCA2MTA5NWRmLi4wNTI1ZDI4IDEwMDY0
+NAotLS0gYS9zZWN1cml0eS9jYXBhYmlsaXR5LmMKKysrIGIvc2VjdXJpdHkvY2FwYWJpbGl0eS5j
+CkBAIC02NTAsNyArNjUwLDcgQEAgc3RhdGljIGludCBjYXBfc29ja2V0X2dldHBlZXJzZWNfZGdy
+YW0oc3RydWN0IHNvY2tldCAqc29jaywKIAlyZXR1cm4gLUVOT1BST1RPT1BUOwogfQogCi1zdGF0
+aWMgaW50IGNhcF9za19hbGxvY19zZWN1cml0eShzdHJ1Y3Qgc29jayAqc2ssIGludCBmYW1pbHks
+IGdmcF90IHByaW9yaXR5KQorc3RhdGljIGludCBjYXBfc2tfYWxsb2Nfc2VjdXJpdHkoc3RydWN0
+IHNvY2sgKnNrLCBpbnQgZmFtaWx5LCBnZnBfdCBwcmlvcml0eSwgaW50IG51bWFfbm9kZSkKIHsK
+IAlyZXR1cm4gMDsKIH0KZGlmZiAtLWdpdCBhL3NlY3VyaXR5L3NlY3VyaXR5LmMgYi9zZWN1cml0
+eS9zZWN1cml0eS5jCmluZGV4IDg2MGFlYjMuLjAyYTdmNzYgMTAwNjQ0Ci0tLSBhL3NlY3VyaXR5
+L3NlY3VyaXR5LmMKKysrIGIvc2VjdXJpdHkvc2VjdXJpdHkuYwpAQCAtMTE0Niw5ICsxMTQ2LDkg
+QEAgaW50IHNlY3VyaXR5X3NvY2tldF9nZXRwZWVyc2VjX2RncmFtKHN0cnVjdCBzb2NrZXQgKnNv
+Y2ssIHN0cnVjdCBza19idWZmICpza2IsIHUKIH0KIEVYUE9SVF9TWU1CT0woc2VjdXJpdHlfc29j
+a2V0X2dldHBlZXJzZWNfZGdyYW0pOwogCi1pbnQgc2VjdXJpdHlfc2tfYWxsb2Moc3RydWN0IHNv
+Y2sgKnNrLCBpbnQgZmFtaWx5LCBnZnBfdCBwcmlvcml0eSkKK2ludCBzZWN1cml0eV9za19hbGxv
+YyhzdHJ1Y3Qgc29jayAqc2ssIGludCBmYW1pbHksIGdmcF90IHByaW9yaXR5LCBpbnQgbnVtYV9u
+b2RlKQogewotCXJldHVybiBzZWN1cml0eV9vcHMtPnNrX2FsbG9jX3NlY3VyaXR5KHNrLCBmYW1p
+bHksIHByaW9yaXR5KTsKKwlyZXR1cm4gc2VjdXJpdHlfb3BzLT5za19hbGxvY19zZWN1cml0eShz
+aywgZmFtaWx5LCBwcmlvcml0eSwgbnVtYV9ub2RlKTsKIH0KIAogdm9pZCBzZWN1cml0eV9za19m
+cmVlKHN0cnVjdCBzb2NrICpzaykKZGlmZiAtLWdpdCBhL3NlY3VyaXR5L3NlbGludXgvaG9va3Mu
+YyBiL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwppbmRleCA2Yzc3ZjYzLi5iZGNmZDBjIDEwMDY0
+NAotLS0gYS9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKKysrIGIvc2VjdXJpdHkvc2VsaW51eC9o
+b29rcy5jCkBAIC00Mjg5LDExICs0Mjg5LDEyIEBAIG91dDoKIAlyZXR1cm4gMDsKIH0KIAotc3Rh
+dGljIGludCBzZWxpbnV4X3NrX2FsbG9jX3NlY3VyaXR5KHN0cnVjdCBzb2NrICpzaywgaW50IGZh
+bWlseSwgZ2ZwX3QgcHJpb3JpdHkpCitzdGF0aWMgaW50IHNlbGludXhfc2tfYWxsb2Nfc2VjdXJp
+dHkoc3RydWN0IHNvY2sgKnNrLCBpbnQgZmFtaWx5LCBnZnBfdCBwcmlvcml0eSwKKwkJCQkgICAg
+IGludCBudW1hX25vZGUpCiB7CiAJc3RydWN0IHNrX3NlY3VyaXR5X3N0cnVjdCAqc2tzZWM7CiAK
+LQlza3NlYyA9IGt6YWxsb2Moc2l6ZW9mKCpza3NlYyksIHByaW9yaXR5KTsKKwlza3NlYyA9IGtt
+YWxsb2Nfbm9kZShzaXplb2YoKnNrc2VjKSwgcHJpb3JpdHkgfCBfX0dGUF9aRVJPLCBudW1hX25v
+ZGUpOwogCWlmICghc2tzZWMpCiAJCXJldHVybiAtRU5PTUVNOwogCmRpZmYgLS1naXQgYS9zZWN1
+cml0eS9zbWFjay9zbWFja19sc20uYyBiL3NlY3VyaXR5L3NtYWNrL3NtYWNrX2xzbS5jCmluZGV4
+IDgyMjE1MTQuLmI0M2FlNWQgMTAwNjQ0Ci0tLSBhL3NlY3VyaXR5L3NtYWNrL3NtYWNrX2xzbS5j
+CisrKyBiL3NlY3VyaXR5L3NtYWNrL3NtYWNrX2xzbS5jCkBAIC0xNzU0LDEyICsxNzU0LDE0IEBA
+IHN0YXRpYyB2b2lkIHNtYWNrX3Rhc2tfdG9faW5vZGUoc3RydWN0IHRhc2tfc3RydWN0ICpwLCBz
+dHJ1Y3QgaW5vZGUgKmlub2RlKQogICoKICAqIFJldHVybnMgMCBvbiBzdWNjZXNzLCAtRU5PTUVN
+IGlzIHRoZXJlJ3Mgbm8gbWVtb3J5CiAgKi8KLXN0YXRpYyBpbnQgc21hY2tfc2tfYWxsb2Nfc2Vj
+dXJpdHkoc3RydWN0IHNvY2sgKnNrLCBpbnQgZmFtaWx5LCBnZnBfdCBnZnBfZmxhZ3MpCitzdGF0
+aWMgaW50IHNtYWNrX3NrX2FsbG9jX3NlY3VyaXR5KHN0cnVjdCBzb2NrICpzaywgaW50IGZhbWls
+eSwgZ2ZwX3QgZ2ZwX2ZsYWdzLAorCQkJCSAgIGludCBudW1hX25vZGUpCiB7CiAJY2hhciAqY3Nw
+ID0gc21rX29mX2N1cnJlbnQoKTsKIAlzdHJ1Y3Qgc29ja2V0X3NtYWNrICpzc3A7CiAKLQlzc3Ag
+PSBremFsbG9jKHNpemVvZihzdHJ1Y3Qgc29ja2V0X3NtYWNrKSwgZ2ZwX2ZsYWdzKTsKKwlzc3Ag
+PSBrbWFsbG9jX25vZGUoc2l6ZW9mKHN0cnVjdCBzb2NrZXRfc21hY2spLCBnZnBfZmxhZ3MgfCBf
+X0dGUF9aRVJPLAorCQkJICAgbnVtYV9ub2RlKTsKIAlpZiAoc3NwID09IE5VTEwpCiAJCXJldHVy
+biAtRU5PTUVNOwogCg==
+--047d7b339f4dbc296104c6dac2e3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
