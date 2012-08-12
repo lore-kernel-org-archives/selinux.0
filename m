@@ -1,13 +1,30 @@
-Message-ID: <5027952B.8060405@redhat.com>
-Date: Sun, 12 Aug 2012 07:36:11 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+To: sds@tycho.nsa.gov, pmoore@redhat.com, selinux@tycho.nsa.gov,
+        dwalsh@redhat.com
+From: Eric Paris <eparis@redhat.com>
+Date: Sun, 12 Aug 2012 09:41:54 -0400 (EDT)
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <pmoore@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: I think we need to quiet SELinux in log files on setattr.
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: =?utf-8?B?UkU6IEkgdGhpbmsgd2UgbmVlZCB0byBxdWlldCBTRUxpbnV4IGluIGxvZyBmaWxlcyBvbiBzZXRh?=
+ =?utf-8?B?dHRyLg==?=
+Message-ID: <1848882875.7112155.1344778914020.JavaMail.root@zmail12.collab.prod.int.phx2.redhat.com>
+Content-Type: multipart/mixed;boundary="__1344778929229TOUCHDOWN_BOUNDARY__"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+--__1344778929229TOUCHDOWN_BOUNDARY__
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+I started a patch for this. I'll work on it next week.  
+
+-Eric
+
+
+-----Original Message-----
+From: Daniel J Walsh [dwalsh@redhat.com]
+Received: Sunday, 12 Aug 2012, 7:36am
+To: Eric Paris [eparis@redhat.com]; Stephen Smalley [sds@tycho.nsa.gov]; Paul Moore [pmoore@redhat.com]; SELinux [selinux@tycho.nsa.gov]
+Subject: I think we need to quiet SELinux in log files on setattr.
+
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
@@ -37,6 +54,8 @@ iEYEARECAAYFAlAnlSsACgkQrlYvE4MpobPwzwCfYtAhmbFp6gmpJ6Hg6UAOvQCO
 V7gAn0uiplLNBwQu1rW8VUmGlxVUclce
 =OUmh
 -----END PGP SIGNATURE-----
+
+--__1344778929229TOUCHDOWN_BOUNDARY__--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
