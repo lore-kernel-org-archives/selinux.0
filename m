@@ -1,82 +1,75 @@
-Message-ID: <1344861329.25589.16.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SELinux performance depending on type count
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ole Kliemann <ole@plastictree.net>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Date: Mon, 13 Aug 2012 08:35:29 -0400
-In-Reply-To: <20120810213845.GQ2296@telvanni>
-References: <20120807130244.GE2085@telvanni>
-	 <20120810213845.GQ2296@telvanni>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <50292D3A.3020204@redhat.com>
+Date: Mon, 13 Aug 2012 12:37:14 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Nalin Dahyabhai <nalin@redhat.com>
+CC: Lennart Poettering <lennart@poettering.net>, russell@coker.com.au,
+        Colin Walters <walters@verbum.org>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: A filename to label translation daemon
+References: <1344454290.25533.12.camel@localhost> <201208100037.21877.russell@coker.com.au> <5023EE1C.5060205@redhat.com> <201208101228.11637.russell@coker.com.au> <502500ED.5050502@redhat.com> <20120810140503.GB32076@tango.0pointer.de> <50278D98.5060801@redhat.com> <20120813151821.GB4861@redhat.com>
+In-Reply-To: <20120813151821.GB4861@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-08-10 at 23:38 +0200, Ole Kliemann wrote:
-> On Tue, Aug 07, 2012 at 03:02:44PM +0200, Ole Kliemann wrote:
-> > And would it be better performance-wise to run a MCS-policy with 
-> > say categories c0.cn than to have types c0_t, ... cn_t?
-> 
-> I can measure a performance impact here too using a test analog 
-> to the one used to measure the attribute-spam.
-> 
-> With 10000 categories:
-> 
-> I reside in system_u:system_r:unconfined_t:s0.
-> I run the script. Average walltime is about 6.67sec.
-> 
-> 
-> $ runcon -l s0:c0.c9999
-> 
-> Now I'm system_u:system_r:unconfined_t:s0:c0.c9999.
-> I rerun the script. Average walltime is about 39sec.
-> 
-> Ouch! :-/
-> 
-> 
-> $ runcon -l s0:c0.c999
-> Now I'm system_u:system_r:unconfined_t:s0:c0.c999.
-> I rerun the script. Average walltime is about 7.89sec.
-> 
-> 
-> With 1000 categories:
-> 
-> system_u:system_r:unconfined_t:s0               6.53sec
-> system_u:system_r:unconfined_t:s0:c0.c9         6.63sec
-> system_u:system_r:unconfined_t:s0:c0.c99        6.73sec
-> system_u:system_r:unconfined_t:s0:c0.c999       7.89sec
-> 
-> That's almost 19% increase still at full range!
-> 
-> 
-> But several points:
-> 
-> It's different than with attribute-spam. There is no lag, no 
-> CPU spikes in kworker threads. It's just a smooth increase in 
-> runtime, even at 10k. 
-> 
-> It only matters in what range you run. You seldom will be running 
-> something in the full range. The results for c0.c9 will be the 
-> most realistic for everyday usage. There is no big difference 
-> measurable. (At this point variance comes into play, would need 
-> bigger data base to say something.)
-> 
-> The test script is kind of far away from everyday usage. 
-> 
-> 
-> So bottom line is: Unless one goes berserk with 10k running in 
-> full range, this looks like no problem.
-> 
-> 
-> I attached both versions.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I wonder how much of that time is spent on the chcon calls (i.e.
-getxattr + setxattr) vs the actual accessing of the files.
+On 08/13/2012 11:18 AM, Nalin Dahyabhai wrote:
+> On Sun, Aug 12, 2012 at 07:03:52AM -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+>> 
+>> On 08/10/2012 10:05 AM, Lennart Poettering wrote:
+>>> On Fri, 10.08.12 08:39, Daniel J Walsh (dwalsh@redhat.com) wrote:
+>>> 
+>>>>>>> What benefit are we expecting to get here?
+>>>>>> 
+>>>>>> kerberos library currently does a matchpathcon on /tmp/BLAH
+>>>>>> files and sets the label correctly.  With this change in the
+>>>>>> library we are seeing huge performance hits of apache services
+>>>>>> caused by loading the regex.
+>>>>> 
+>>>>> What is kerberos doing under /tmp and why is it being done
+>>>>> repeatedly by different processes?
+>>>>> 
+>>>> Actually /var/tmp/HOST_0 /var/tmp/HTTP_23 ...  Kerberos Replay
+>>>> Cache. Every time someone contacts an apache server using kerberos it
+>>>> needs to update this file, it does this via mktemp
+>>>> (/tmpHTTPD_23XXXX), rename.
+>>> 
+>>> Hmm, but the ultimate name is still guessable? That sounds really 
+>>> dangerous. Guessable names in /tmp (or /var/tmp) are prone to DoS 
+>>> attacks...
+>>> 
+>>> Lennart .
+>> One would guess that the Kerberos Libraries handle this situation, since
+>> it has been doing it for years.
+> 
+> No, the library pretty much just fails if it detects shenanigans.  You get
+> an error, you call up the admin, they nuke the suspicious file and then go
+> yell at someone.
+> 
+> If /run/user/$UID is available to non-users without them having to log in
+> and trigger its creation first, it's probably worth moving.  Or we should
+> arrange to have $KRB5RCACHEDIR set to a better location when we start a
+> daemon.
+> 
+> Nalin
+> 
+Lennart is there something you can add to the unit file to create a UID
+directory in /run/user?
 
--- 
-Stephen Smalley
-National Security Agency
 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAlApLToACgkQrlYvE4MpobOf1gCePMKaq0ctD5cbzRTbNAblcSrr
+/aUAn00eVbt+Qrlzx/m5n5EG8Z/KK3Mt
+=7+F0
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
