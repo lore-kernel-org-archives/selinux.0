@@ -1,67 +1,33 @@
-Message-ID: <50294233.9070008@redhat.com>
-Date: Mon, 13 Aug 2012 14:06:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7DMgxTa007610
+	for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2012 18:42:59 -0400
+Received: by vbbfc26 with SMTP id fc26so4639159vbb.12
+        for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2012 15:42:58 -0700 (PDT)
 MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: Lennart Poettering <lennart@poettering.net>, russell@coker.com.au,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-Subject: Re: A filename to label translation daemon
-References: <1344454290.25533.12.camel@localhost>  <1344461186.4612.27.camel@lenny> <201208100037.21877.russell@coker.com.au>  <5023EE1C.5060205@redhat.com> <1344534669.8427.11.camel@lenny>  <20120810141101.GC32076@tango.0pointer.de>  <20120810141747.GA909@tango.0pointer.de> <50293B11.9010105@redhat.com> <1344880524.16306.15.camel@lenny>
-In-Reply-To: <1344880524.16306.15.camel@lenny>
-Content-Type: text/plain; charset=UTF-8
+Date: Mon, 13 Aug 2012 15:42:58 -0700
+Message-ID: <CAFftDdqFwJFDjTaBnZ8wfORaVehmSdQw9X2K-Y+baVwgbvnH4w@mail.gmail.com>
+Subject: SEAndroid policy question
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I am still trying to fully understand sensitivity vs category with mls
+constrains. I noticed that files are not labeled with a category, just
+a sensitivity in all the example I looked at (s0). Are categories more
+for "data in motion"?
 
-On 08/13/2012 01:55 PM, Colin Walters wrote:
-> On Mon, 2012-08-13 at 13:36 -0400, Daniel J Walsh wrote:
-> 
->> This seems like the best solution?  If upstream will accept it.  We
->> could rebuild the regex data when semanage modifies the file context.
-> 
-> One thing that will make me mildly sad about this is that now in GNOME 
-> processes we'll have *three* regexp libraries linked in: libc, glib's PCRE
-> fork (it's ancient history now), and PCRE via libselinux.
-> 
-> I wonder how hard it would be to get a pcre_precompile equivalent into 
-> libc.
-> 
-> Really though in the big picture, while the file context regexps were 
-> probably an OK solution way back when SELinux was a "proof of concept" 
-> prototype, the current policy generating 5000 of them is just crazy...
-> 
-> One other possibility - I bet one could get a huge speedup in some cases by
-> splitting up the regexp set based on common prefixes.  For example, if
-> you're trying to match /tmp/krb5cc, there's no reason to run over all 2000
-> regexps which start with /usr.  This solution is kind of an intermediate
-> step between "run 5000 regexps serially" and "write custom code to compile
-> 5000 regexps into a DFA that returns a context".
-> 
-> 
-> 
-> 
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
+ie 2 processes want to share data, they both have allow rules to
+access their own files. App1 has a c0 and app2 is c0,c1 then based on
+mls constraints data con be controlled between them?
 
-We have had a solution for this using prefixes and were trying to add some
-intelligence to the library, but we are now thinking this is not a good
-solution since we are running into potential problems with substitutions.
+Could you label files with categories too? or does that not make sense?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+-- 
+Respectfully,
 
-iEYEARECAAYFAlApQjMACgkQrlYvE4MpobNznACgxFNRIS8PmrgKjSLI+sKisyNn
-elEAoJ7qx9TI7c9lCllt5UOGmMxOEFZ9
-=36+R
------END PGP SIGNATURE-----
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
