@@ -1,77 +1,78 @@
-Message-ID: <1344861108.25589.13.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android (Was: Re: Welcome to selinux)
+Message-ID: <1344861329.25589.16.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SELinux performance depending on type count
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
-Date: Mon, 13 Aug 2012 08:31:48 -0400
-In-Reply-To: <CAKi3PurM8Ps=riqe38vzFL6VD-qSYZHO0UOZjE7mBrygua6toA@mail.gmail.com>
-References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
-	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
-	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
-	 <CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
-	 <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
-	 <1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
-	 <1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
-	 <CADQgGG35SABA6ZjDneqeGOrvbLT722Pvxsn6=G5S744d-TPxoA@mail.gmail.com>
-	 <CAKi3PuqyCBS1fzjhSh1TVRsXCxR2_UnxXJG5ZCFL2XzF91MP4A@mail.gmail.com>
-	 <CADQgGG1ry-x+0B2LHjY_SPvDiyUWBq4Pa5BVf6bFVokWvV3=qQ@mail.gmail.com>
-	 <CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
-	 <CADQgGG2dr4U36Pajg5XY1-vJO0uFszrpA2hXi6B-AwuBzyhbhQ@mail.gmail.com>
-	 <CAKi3PuqfNoefmyOMx5Q0OnnGeBHUVvJP5Ebb1Adh_HpCPwYvtA@mail.gmail.com>
-	 <CAKi3Pur20_u_BFEkHm++OydrN4zCm+o0jSzeY04DpmQ+aAOmqA@mail.gmail.com>
-	 <CAFftDdrDSKKeXJga_PO0LJiUsqb3VVMjnSNQFWF66K7QrJ43Bg@mail.gmail.com>
-	 <CAKi3Puo0PqmsVkcTqJRDhNq5w6J_yVdS=_MPNSC28K0QP0CxXQ@mail.gmail.com>
-	 <CAFftDdqD+o=hXRyCP5nKc4OmELX50XLWAL2t-9VPi_vKPB-grA@mail.gmail.com>
-	 <CAKi3Pur1UD+_6YrZ6gj9sJ4yef6Yfim=OOi6R-Lek5Beo41LQw@mail.gmail.com>
-	 <CAFftDdrUz4NkMKd29rLnhddE1B0dLtJA8DbGZqucovsNbsqo0w@mail.gmail.com>
-	 <CAKi3PupwHSYPcRYyUNEeXM3py-FjtbrZUd5nGDUwfdwdKRgVZw@mail.gmail.com>
-	 <CAFftDdocfYJd5JukcFMut+CuKmxCQ5TsNnGr=zb29qyRGKvLyA@mail.gmail.com>
-	 <CAKi3Pup5Om=x28GW=j=LTC9z8GgrcwUoty6w8hQnPJpNaJE91w@mail.gmail.com>
-	 <CAFftDdok-0k8NjvgQkxHWdv=SMGOLYbsAkUVSBsFBz1f8Tm0Kg@mail.gmail.com>
-	 <CAKi3PurM8Ps=riqe38vzFL6VD-qSYZHO0UOZjE7mBrygua6toA@mail.gmail.com>
+To: Ole Kliemann <ole@plastictree.net>
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Date: Mon, 13 Aug 2012 08:35:29 -0400
+In-Reply-To: <20120810213845.GQ2296@telvanni>
+References: <20120807130244.GE2085@telvanni>
+	 <20120810213845.GQ2296@telvanni>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-08-13 at 10:37 +0200, Alexandra Test wrote:
-> My version was a bit old so I decided to update it.
+On Fri, 2012-08-10 at 23:38 +0200, Ole Kliemann wrote:
+> On Tue, Aug 07, 2012 at 03:02:44PM +0200, Ole Kliemann wrote:
+> > And would it be better performance-wise to run a MCS-policy with 
+> > say categories c0.cn than to have types c0_t, ... cn_t?
 > 
-> Unfortunately it cannot succeed, this is the error:
-> update-apt-xapian-index has closedReceiving objects:  82% (4843/5898),
-> 299.71 Mifatal: The remote end hung up unexpectedly65 MiB | 411
-> KiB/s    
-> fatal: early EOF
-> fatal: index-pack failed
-> remote: Counting objects: 5898, done.
-> remote: Compressing objects: 100% (2778/2778), done.
-> ^Cerror: Cannot fetch device-samsung-tuna77 MiB | 400 KiB/s  
+> I can measure a performance impact here too using a test analog 
+> to the one used to measure the attribute-spam.
 > 
-> I am using the master version. If I look into the folder it did not
-> write anything inside...
+> With 10000 categories:
+> 
+> I reside in system_u:system_r:unconfined_t:s0.
+> I run the script. Average walltime is about 6.67sec.
+> 
+> 
+> $ runcon -l s0:c0.c9999
+> 
+> Now I'm system_u:system_r:unconfined_t:s0:c0.c9999.
+> I rerun the script. Average walltime is about 39sec.
+> 
+> Ouch! :-/
+> 
+> 
+> $ runcon -l s0:c0.c999
+> Now I'm system_u:system_r:unconfined_t:s0:c0.c999.
+> I rerun the script. Average walltime is about 7.89sec.
+> 
+> 
+> With 1000 categories:
+> 
+> system_u:system_r:unconfined_t:s0               6.53sec
+> system_u:system_r:unconfined_t:s0:c0.c9         6.63sec
+> system_u:system_r:unconfined_t:s0:c0.c99        6.73sec
+> system_u:system_r:unconfined_t:s0:c0.c999       7.89sec
+> 
+> That's almost 19% increase still at full range!
+> 
+> 
+> But several points:
+> 
+> It's different than with attribute-spam. There is no lag, no 
+> CPU spikes in kworker threads. It's just a smooth increase in 
+> runtime, even at 10k. 
+> 
+> It only matters in what range you run. You seldom will be running 
+> something in the full range. The results for c0.c9 will be the 
+> most realistic for everyday usage. There is no big difference 
+> measurable. (At this point variance comes into play, would need 
+> bigger data base to say something.)
+> 
+> The test script is kind of far away from everyday usage. 
+> 
+> 
+> So bottom line is: Unless one goes berserk with 10k running in 
+> full range, this looks like no problem.
+> 
+> 
+> I attached both versions.
 
-Previously discussed on list (subject was "Cloning Android repo's from
-bitbucket").  The problem is that the tuna project is very large and
-apparently git clone via https falls over for such a large project from
-bitbucket.org.  Options for resolving:
+I wonder how much of that time is spent on the chcon calls (i.e.
+getxattr + setxattr) vs the actual accessing of the files.
 
-1) Switch to using ssh access.  Requires creating a registered bitbucket
-account first with ssh keys.  To use this approach, create an account on
-bitbucket.org, upload your public ssh key, and switch to the master-ssh
-branch of the manifests project to get the local_manifest.xml file using
-ssh access.
-
--or-
-
-2) Do your repo sync first without the local_manifest.xml file (i.e.
-just download AOSP), then move the local_manifest.xml file into place
-and run repo sync again.  This should fetch the original projects from
-AOSP which in turn should reduce what it has to fetch from bitbucket.org
-to just our changes.
- 
 -- 
 Stephen Smalley
 National Security Agency
