@@ -1,14 +1,14 @@
-Message-ID: <50292D3A.3020204@redhat.com>
-Date: Mon, 13 Aug 2012 12:37:14 -0400
+Message-ID: <50293B11.9010105@redhat.com>
+Date: Mon, 13 Aug 2012 13:36:17 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Nalin Dahyabhai <nalin@redhat.com>
-CC: Lennart Poettering <lennart@poettering.net>, russell@coker.com.au,
-        Colin Walters <walters@verbum.org>, Eric Paris <eparis@redhat.com>,
-        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+To: Lennart Poettering <lennart@poettering.net>
+CC: Colin Walters <walters@verbum.org>, russell@coker.com.au,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov
 Subject: Re: A filename to label translation daemon
-References: <1344454290.25533.12.camel@localhost> <201208100037.21877.russell@coker.com.au> <5023EE1C.5060205@redhat.com> <201208101228.11637.russell@coker.com.au> <502500ED.5050502@redhat.com> <20120810140503.GB32076@tango.0pointer.de> <50278D98.5060801@redhat.com> <20120813151821.GB4861@redhat.com>
-In-Reply-To: <20120813151821.GB4861@redhat.com>
+References: <1344454290.25533.12.camel@localhost> <1344461186.4612.27.camel@lenny> <201208100037.21877.russell@coker.com.au> <5023EE1C.5060205@redhat.com> <1344534669.8427.11.camel@lenny> <20120810141101.GC32076@tango.0pointer.de> <20120810141747.GA909@tango.0pointer.de>
+In-Reply-To: <20120810141747.GA909@tango.0pointer.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,59 +16,39 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 08/13/2012 11:18 AM, Nalin Dahyabhai wrote:
-> On Sun, Aug 12, 2012 at 07:03:52AM -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+On 08/10/2012 10:17 AM, Lennart Poettering wrote:
+> On Fri, 10.08.12 16:11, Lennart Poettering (lennart@poettering.net) wrote:
+> 
+>>> * Your mmap file is in some data format - you can make up your own,
+>>> but I like using
+>>> http://developer.gnome.org/glib/stable/glib-GVariant.html * Check the
+>>> timestamp on the regexp text file versus the cached copy, if newer, use
+>>> the text file * Otherwise, mmap the cached blob, loop through each
+>>> regexp, passing a pointer to the mmap cache file for regexec()
 >> 
->> On 08/10/2012 10:05 AM, Lennart Poettering wrote:
->>> On Fri, 10.08.12 08:39, Daniel J Walsh (dwalsh@redhat.com) wrote:
->>> 
->>>>>>> What benefit are we expecting to get here?
->>>>>> 
->>>>>> kerberos library currently does a matchpathcon on /tmp/BLAH
->>>>>> files and sets the label correctly.  With this change in the
->>>>>> library we are seeing huge performance hits of apache services
->>>>>> caused by loading the regex.
->>>>> 
->>>>> What is kerberos doing under /tmp and why is it being done
->>>>> repeatedly by different processes?
->>>>> 
->>>> Actually /var/tmp/HOST_0 /var/tmp/HTTP_23 ...  Kerberos Replay
->>>> Cache. Every time someone contacts an apache server using kerberos it
->>>> needs to update this file, it does this via mktemp
->>>> (/tmpHTTPD_23XXXX), rename.
->>> 
->>> Hmm, but the ultimate name is still guessable? That sounds really 
->>> dangerous. Guessable names in /tmp (or /var/tmp) are prone to DoS 
->>> attacks...
->>> 
->>> Lennart .
->> One would guess that the Kerberos Libraries handle this situation, since
->> it has been doing it for years.
+>> Well, the main bits are not actually stored in regex_t afaics. They are 
+>> stored in regex_t::buffer. But that makes this kind of caching really 
+>> difficult, because that is a pointer and storing a pointer in an mmap() 
+>> region makes no sense.
+>> 
+>> Dunno, maybe another regex library is more suitable for this...
 > 
-> No, the library pretty much just fails if it detects shenanigans.  You get
-> an error, you call up the admin, they nuke the suspicious file and then go
-> yell at someone.
+> PCRE appears to be perfectly suited for this. See pcreprecompile(3). They
+> have an interface explicitly designed for this. And PCRE is used by
+> numerous projects already, so should be safe to use for SELinux too?
 > 
-> If /run/user/$UID is available to non-users without them having to log in
-> and trigger its creation first, it's probably worth moving.  Or we should
-> arrange to have $KRB5RCACHEDIR set to a better location when we start a
-> daemon.
+> Lennart
 > 
-> Nalin
-> 
-Lennart is there something you can add to the unit file to create a UID
-directory in /run/user?
-
-
+This seems like the best solution?  If upstream will accept it.  We could
+rebuild the regex data when semanage modifies the file context.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAlApLToACgkQrlYvE4MpobOf1gCePMKaq0ctD5cbzRTbNAblcSrr
-/aUAn00eVbt+Qrlzx/m5n5EG8Z/KK3Mt
-=7+F0
+iEYEARECAAYFAlApOxEACgkQrlYvE4MpobOtgwCdGLgwt60AY3L+pHuQzQnrREEW
+eQ4AoIgVktEglFqzInQJSZpUQLfEFk9H
+=YWaU
 -----END PGP SIGNATURE-----
 
 --
