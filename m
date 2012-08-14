@@ -1,38 +1,66 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: A filename to label translation daemon
-Date: Wed, 15 Aug 2012 08:34:51 +1000
-Cc: Eric Paris <eparis@parisplace.org>, Colin Walters <walters@verbum.org>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-References: <1344454290.25533.12.camel@localhost> <CACLa4ptRM3FcqanoagF=xUsvFZ1Ct9kEZW2uyiB7ECGK+zL0fg@mail.gmail.com> <1344962917.5588.61.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1344962917.5588.61.camel@moss-pluto.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201208150834.52281.russell@coker.com.au>
+Date: Tue, 14 Aug 2012 16:15:20 -0700
+Message-ID: <CAFftDdqLJ4KC-4PEQAgJH3VZ-jY7P47L6kCKY7ro5ZiWF=D6vA@mail.gmail.com>
+Subject: Support for device specific seapp_context additions
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 15 Aug 2012, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> You should check that setfiles using glibc regex followed by setfiles
-> using PCRE does not change anything on the filesystem, i.e. run the
-> existing setfiles on all filesystems, then run the setfiles using PCRE
-> with -nv to report any changes that would be made without applying them.
+The patch below enables per device seapp_contexts files.
 
-Of course that test would only really work for files that exist on the current 
-filesystem.  But that should be a good enough approximation to be useful.
+I wasn't sure if we should name the file sepolicy.seapp_contexts or
+just seapp_contexts. I chosed against the current trend of sepolicy.*
+and went with seapp_contexts.
+I also ran it through m4 so we could use the include macro definition.
+That seemed to be working ok.
 
-In terms of breakage in Debian, I'm not too bothered about that.  Before every 
-release we need to do a lot of testing anyway.  The changes in this regard 
-will be a lot less likely to break things than the regular churn of policy and 
-daemon changes.
+diff --git a/Android.mk b/Android.mk
+index 119c6ef..5eb3925 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -20,6 +20,7 @@ LOCAL_POLICY_FS_USE := $(wildcard $(addsuffix
+sepolicy.fs_use, $(LOCAL_POLICY_DI
+ LOCAL_POLICY_PORT_CONTEXTS := $(wildcard $(addsuffix
+sepolicy.port_contexts, $(LOCAL_POLICY_DIRS)))
+ LOCAL_POLICY_GENFS_CONTEXTS := $(wildcard $(addsuffix
+sepolicy.genfs_contexts, $(LOCAL_POLICY_DIRS)))
+ LOCAL_POLICY_INITIAL_SID_CONTEXTS := $(wildcard $(addsuffix
+sepolicy.initial_sid_contexts, $(LOCAL_POLICY_DIRS)))
++LOCAL_POLICY_SC := $(wildcard $(addsuffix seapp_contexts,
+$(LOCAL_POLICY_DIRS)))
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+ ##################################
+ include $(CLEAR_VARS)
+@@ -60,16 +61,22 @@ $(file_contexts): $(LOCAL_PATH)/file_contexts
+$(LOCAL_POLICY_FC)
+ 	$(hide) m4 -s $^ > $@
+
+ file_contexts :=
++
+ ##################################
+ include $(CLEAR_VARS)
+-
+ LOCAL_MODULE := seapp_contexts
+-LOCAL_SRC_FILES := $(LOCAL_MODULE)
+ LOCAL_MODULE_CLASS := ETC
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
+
+-include $(BUILD_PREBUILT)
++include $(BUILD_SYSTEM)/base_rules.mk
++
++seapp_contexts := $(intermediates)/seapp_contexts
++$(seapp_contexts): $(LOCAL_PATH)/seapp_contexts $(LOCAL_POLICY_SC)
++	@mkdir -p $(dir $@)
++	$(hide) m4 -s $^ > $@
++
++seapp_contexts :=
+
+ ##################################
+ include $(CLEAR_VARS)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
