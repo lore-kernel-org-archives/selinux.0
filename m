@@ -1,10 +1,15 @@
-Message-ID: <1344954794.5588.49.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SE Android (Was: Re: Welcome to selinux)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
-Date: Tue, 14 Aug 2012 10:33:14 -0400
-In-Reply-To: <CAKi3PuoLSeTfB208zU4mwUtYTmYMnhbjOWbTSMsyfEhOE1nVFQ@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7EFgUPG025949
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2012 11:46:04 -0400
+Received: from ALA-HCB.corp.ad.wrs.com (ala-hcb [147.11.189.41])
+	by mail.windriver.com (8.14.5/8.14.3) with ESMTP id q7EFcSUE019721
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2012 08:38:28 -0700 (PDT)
+From: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: RE: SE Android (Was: Re: Welcome to selinux)
+Date: Tue, 14 Aug 2012 15:38:27 +0000
+Message-ID: <33006C99F5A5194A9B7A7715DFA3E3836516B314@ALA-MBA.corp.ad.wrs.com>
 References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
 	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
 	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
@@ -33,11 +38,22 @@ References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
 	 <CAFftDdok-0k8NjvgQkxHWdv=SMGOLYbsAkUVSBsFBz1f8Tm0Kg@mail.gmail.com>
 	 <CAKi3PurM8Ps=riqe38vzFL6VD-qSYZHO0UOZjE7mBrygua6toA@mail.gmail.com>
 	 <CAFftDdozQQH7skpco0XtJ2HS_yjd1AYS8tNbFqQLkS9oDWEqYg@mail.gmail.com>
-	 <CAKi3PuoLSeTfB208zU4mwUtYTmYMnhbjOWbTSMsyfEhOE1nVFQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	 <CAKi3PuoLSeTfB208zU4mwUtYTmYMnhbjOWbTSMsyfEhOE1nVFQ@mail.gmail.com>,<1344954794.5588.49.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1344954794.5588.49.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+When I've seen similar problems in the past, it was usually (always?) caused because a git pull or git clone had been interrupted at the wrong place.  My normal workaround is to remove the corrupted project.  In this case, I think that may be "rm -rf .repo/projects/dalvik.git dalvik"
+
+
+________________________________________
+From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf of Stephen Smalley [sds@tycho.nsa.gov]
+Sent: Tuesday, August 14, 2012 7:33 AM
+To: Alexandra Test
+Cc: William Roberts; selinux@tycho.nsa.gov
+Subject: Re: SE Android (Was: Re: Welcome to selinux)
 
 On Tue, 2012-08-14 at 12:42 +0200, Alexandra Test wrote:
 > When I try to check out the aosp, it fails with this error
@@ -65,16 +81,22 @@ On Tue, 2012-08-14 at 12:42 +0200, Alexandra Test wrote:
 > error.GitError: dalvik rev-list
 > ('^938208a28b56f360c6cb0fb3a5e57d6121924a93', 'HEAD', '--'): fatal:
 > bad object HEAD
-> 
-> Any idea? 
+>
+> Any idea?
 
 No, never seen that one.  Try creating a fresh client in an empty
 directory (without any .repo subdirectory) from AOSP.  Might want to
 also make sure you are using an up-to-date version of repo.
 
--- 
+--
 Stephen Smalley
 National Security Agency
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
