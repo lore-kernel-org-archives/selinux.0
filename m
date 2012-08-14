@@ -1,40 +1,76 @@
-Message-ID: <1344954269.5588.47.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SEAndroid policy question
+Message-ID: <1344954794.5588.49.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SE Android (Was: Re: Welcome to selinux)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Tue, 14 Aug 2012 10:24:29 -0400
-In-Reply-To: <CAFftDdqFwJFDjTaBnZ8wfORaVehmSdQw9X2K-Y+baVwgbvnH4w@mail.gmail.com>
-References: 
-	<CAFftDdqFwJFDjTaBnZ8wfORaVehmSdQw9X2K-Y+baVwgbvnH4w@mail.gmail.com>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
+Cc: William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
+Date: Tue, 14 Aug 2012 10:33:14 -0400
+In-Reply-To: <CAKi3PuoLSeTfB208zU4mwUtYTmYMnhbjOWbTSMsyfEhOE1nVFQ@mail.gmail.com>
+References: <201206211329.q5LDT6PW031262@tarius.tycho.ncsc.mil>
+	 <CAKi3Pur-Ne8vAfbw6t4hutrqJO73x=wOaHvTg8dca4W-LUOuLg@mail.gmail.com>
+	 <1340288275.4234.48.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3PuqSFBw8EHLCXuASBxoMEEX4wTuW0MZOdEURO5_GWTVcnA@mail.gmail.com>
+	 <CAKi3PurC2T92r2mhzPKj7WoYb0Rf5Foz3W332Nov=Q5HZ8Ac3g@mail.gmail.com>
+	 <CAKi3Puqf0u=H379cBk+uXtSNCbpQjtM-cDcyTifDGG8CdV93nA@mail.gmail.com>
+	 <1340980684.15948.7.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3PupzMRZsYzPAj_U0ff_QyN1VJUkVB9mciL=D_K3Hinm5AQ@mail.gmail.com>
+	 <1341866938.10134.23.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3Pup04kG+JPu+oudi1Bet2d0S=dz1t1RDwiYuFLLtHkCV4g@mail.gmail.com>
+	 <CADQgGG35SABA6ZjDneqeGOrvbLT722Pvxsn6=G5S744d-TPxoA@mail.gmail.com>
+	 <CAKi3PuqyCBS1fzjhSh1TVRsXCxR2_UnxXJG5ZCFL2XzF91MP4A@mail.gmail.com>
+	 <CADQgGG1ry-x+0B2LHjY_SPvDiyUWBq4Pa5BVf6bFVokWvV3=qQ@mail.gmail.com>
+	 <CAKi3PurKGD7-HibnqcCiJYjFzYMu0Nb2D5BcuGCMCLEE8wbpQg@mail.gmail.com>
+	 <CADQgGG2dr4U36Pajg5XY1-vJO0uFszrpA2hXi6B-AwuBzyhbhQ@mail.gmail.com>
+	 <CAKi3PuqfNoefmyOMx5Q0OnnGeBHUVvJP5Ebb1Adh_HpCPwYvtA@mail.gmail.com>
+	 <CAKi3Pur20_u_BFEkHm++OydrN4zCm+o0jSzeY04DpmQ+aAOmqA@mail.gmail.com>
+	 <CAFftDdrDSKKeXJga_PO0LJiUsqb3VVMjnSNQFWF66K7QrJ43Bg@mail.gmail.com>
+	 <CAKi3Puo0PqmsVkcTqJRDhNq5w6J_yVdS=_MPNSC28K0QP0CxXQ@mail.gmail.com>
+	 <CAFftDdqD+o=hXRyCP5nKc4OmELX50XLWAL2t-9VPi_vKPB-grA@mail.gmail.com>
+	 <CAKi3Pur1UD+_6YrZ6gj9sJ4yef6Yfim=OOi6R-Lek5Beo41LQw@mail.gmail.com>
+	 <CAFftDdrUz4NkMKd29rLnhddE1B0dLtJA8DbGZqucovsNbsqo0w@mail.gmail.com>
+	 <CAKi3PupwHSYPcRYyUNEeXM3py-FjtbrZUd5nGDUwfdwdKRgVZw@mail.gmail.com>
+	 <CAFftDdocfYJd5JukcFMut+CuKmxCQ5TsNnGr=zb29qyRGKvLyA@mail.gmail.com>
+	 <CAKi3Pup5Om=x28GW=j=LTC9z8GgrcwUoty6w8hQnPJpNaJE91w@mail.gmail.com>
+	 <CAFftDdok-0k8NjvgQkxHWdv=SMGOLYbsAkUVSBsFBz1f8Tm0Kg@mail.gmail.com>
+	 <CAKi3PurM8Ps=riqe38vzFL6VD-qSYZHO0UOZjE7mBrygua6toA@mail.gmail.com>
+	 <CAFftDdozQQH7skpco0XtJ2HS_yjd1AYS8tNbFqQLkS9oDWEqYg@mail.gmail.com>
+	 <CAKi3PuoLSeTfB208zU4mwUtYTmYMnhbjOWbTSMsyfEhOE1nVFQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-08-13 at 15:42 -0700, William Roberts wrote:
-> I am still trying to fully understand sensitivity vs category with mls
-> constrains. I noticed that files are not labeled with a category, just
-> a sensitivity in all the example I looked at (s0). Are categories more
-> for "data in motion"?
+On Tue, 2012-08-14 at 12:42 +0200, Alexandra Test wrote:
+> When I try to check out the aosp, it fails with this error
+>  File "/home/ubuntu-user/Selinux/.repo/repo/main.py", line 385, in
+> <module>
+>     _Main(sys.argv[1:])
+>   File "/home/ubuntu-user/Selinux/.repo/repo/main.py", line 365, in
+> _Main
+>     result = repo._Run(argv) or 0
+>   File "/home/ubuntu-user/Selinux/.repo/repo/main.py", line 137, in
+> _Run
+>     result = cmd.Execute(copts, cargs)
+>   File "/home/ubuntu-user/Selinux/.repo/repo/subcmds/sync.py", line
+> 469, in Execute
+>     project.Sync_LocalHalf(syncbuf)
+>   File "/home/ubuntu-user/Selinux/.repo/repo/project.py", line 1049,
+> in Sync_LocalHalf
+>     lost = self._revlist(not_rev(revid), HEAD)
+>   File "/home/ubuntu-user/Selinux/.repo/repo/project.py", line 1791,
+> in _revlist
+>     return self.work_git.rev_list(*a, **kw)
+>   File "/home/ubuntu-user/Selinux/.repo/repo/project.py", line 1936,
+> in rev_list
+>     p.stderr))
+> error.GitError: dalvik rev-list
+> ('^938208a28b56f360c6cb0fb3a5e57d6121924a93', 'HEAD', '--'): fatal:
+> bad object HEAD
 > 
-> ie 2 processes want to share data, they both have allow rules to
-> access their own files. App1 has a c0 and app2 is c0,c1 then based on
-> mls constraints data con be controlled between them?
-> 
-> Could you label files with categories too? or does that not make sense?
+> Any idea? 
 
-Files can be labeled with categories, and files should be labeled by
-default with the same MLS label as the creating process.
-
-If you install a third party app, you should see MLS categories on both
-the app process label (in ps -Z) and on the /data/data directory for
-that app (in ls -Z /data/data).
-
-We disabled per-app category labeling for the system apps based on the
-CTS testing by hqjiang, as they seem to need to be able to directly
-share files.  So you won't see categories on their processes or files,
-only on the third party apps at the moment.
+No, never seen that one.  Try creating a fresh client in an empty
+directory (without any .repo subdirectory) from AOSP.  Might want to
+also make sure you are using an up-to-date version of repo.
 
 -- 
 Stephen Smalley
