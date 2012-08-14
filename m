@@ -1,41 +1,45 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7EE1xBQ018710
-	for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2012 10:01:59 -0400
-Received: by qaas11 with SMTP id s11so1891319qaa.12
-        for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2012 07:01:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CACLa4pss-g6qhtwmEv+pOq-jQG7smPxSEt0RU76UnL7=QPh6Hw@mail.gmail.com>
-References: <1344454290.25533.12.camel@localhost>
-	<50293B11.9010105@redhat.com>
-	<1344880524.16306.15.camel@lenny>
-	<201208142118.42167.russell@coker.com.au>
-	<CACLa4pss-g6qhtwmEv+pOq-jQG7smPxSEt0RU76UnL7=QPh6Hw@mail.gmail.com>
-Date: Tue, 14 Aug 2012 10:01:57 -0400
-Message-ID: <CACLa4ptRM3FcqanoagF=xUsvFZ1Ct9kEZW2uyiB7ECGK+zL0fg@mail.gmail.com>
-Subject: Re: A filename to label translation daemon
-From: Eric Paris <eparis@parisplace.org>
-To: russell@coker.com.au
-Cc: Colin Walters <walters@verbum.org>, Daniel J Walsh <dwalsh@redhat.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1344954269.5588.47.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SEAndroid policy question
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 14 Aug 2012 10:24:29 -0400
+In-Reply-To: <CAFftDdqFwJFDjTaBnZ8wfORaVehmSdQw9X2K-Y+baVwgbvnH4w@mail.gmail.com>
+References: 
+	<CAFftDdqFwJFDjTaBnZ8wfORaVehmSdQw9X2K-Y+baVwgbvnH4w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Initial really really rough testing using pcre:
+On Mon, 2012-08-13 at 15:42 -0700, William Roberts wrote:
+> I am still trying to fully understand sensitivity vs category with mls
+> constrains. I noticed that files are not labeled with a category, just
+> a sensitivity in all the example I looked at (s0). Are categories more
+> for "data in motion"?
+> 
+> ie 2 processes want to share data, they both have allow rules to
+> access their own files. App1 has a c0 and app2 is c0,c1 then based on
+> mls constraints data con be controlled between them?
+> 
+> Could you label files with categories too? or does that not make sense?
 
-Load and free DB 100 times using GLIBC:
- 8.370 seconds used by the processor.
+Files can be labeled with categories, and files should be labeled by
+default with the same MLS label as the creating process.
 
-Load and free DB 100 times using pcre:
- 1.800 seconds used by the processor.
+If you install a third party app, you should see MLS categories on both
+the app process label (in ps -Z) and on the /data/data directory for
+that app (in ls -Z /data/data).
 
-This is just using PCRE to load and compile the DB. Not using an
-mmap'd precompiled version.  That's next on the testing list.  But
-switching to pcre is already a huge time win it seems....
+We disabled per-app category labeling for the system apps based on the
+CTS testing by hqjiang, as they seem to need to be able to directly
+share files.  So you won't see categories on their processes or files,
+only on the third party apps at the moment.
 
--Eric
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
