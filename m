@@ -1,56 +1,80 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Eric Paris <eparis@parisplace.org>
-Subject: Re: A filename to label translation daemon
-Date: Wed, 15 Aug 2012 15:56:44 +1000
-Cc: Colin Walters <walters@verbum.org>, Daniel J Walsh <dwalsh@redhat.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
-        sds@tycho.nsa.gov
-References: <1344454290.25533.12.camel@localhost> <201208142118.42167.russell@coker.com.au> <CACLa4pss-g6qhtwmEv+pOq-jQG7smPxSEt0RU76UnL7=QPh6Hw@mail.gmail.com>
-In-Reply-To: <CACLa4pss-g6qhtwmEv+pOq-jQG7smPxSEt0RU76UnL7=QPh6Hw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201208151556.44770.russell@coker.com.au>
+Message-ID: <1345032834.23766.1.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Support for device specific seapp_context additions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Wed, 15 Aug 2012 08:13:54 -0400
+In-Reply-To: <CAFftDdqLJ4KC-4PEQAgJH3VZ-jY7P47L6kCKY7ro5ZiWF=D6vA@mail.gmail.com>
+References: 
+	<CAFftDdqLJ4KC-4PEQAgJH3VZ-jY7P47L6kCKY7ro5ZiWF=D6vA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 14 Aug 2012, Eric Paris <eparis@parisplace.org> wrote:
-> I have code that does just that.  Dan and I both wrote a version.
-> I'll attach it.  I didn't find the speedups we were hoping for and it
-> didn't work correctly/completely in the face of file context
-> equivalencies.  Although that is likely fixable.  I was just looking
-> at all of the stem code (and wondered who wrote it but it was
-> pre-git).  I'm surprised it made a big difference.  Wouldn't the regex
-> code be able to return extremely quickly if it didn't match?  Anyway.
-> I'm writing some test programs to look at all of the possibilities.
+On Tue, 2012-08-14 at 16:15 -0700, William Roberts wrote:
+> The patch below enables per device seapp_contexts files.
+> 
+> I wasn't sure if we should name the file sepolicy.seapp_contexts or
+> just seapp_contexts. I chosed against the current trend of sepolicy.*
+> and went with seapp_contexts.
+> I also ran it through m4 so we could use the include macro definition.
+> That seemed to be working ok.
 
-At the time I wrote the code I didn't attempt to micro-benchmark it.  As the 
-use case that mattered most was a full relabel of a root filesystem (between 
-40,000 and 120,000 files in the common case) and the number of regexes was 
-smaller than it is today the win was fairly obvious.
+What's an example of how this would be used?  The concern would be that
+there is no way presently to ensure that the per-device definitions take
+precedence over the base definitions if they ever conflict/duplicate
+keys.  
 
->From memory the stem compression change typically improved performance by a 
-factor of 3-5 depending on what you were doing.  That was on systems like a 
-Pentium-166 or P2-400.  The performance benefits on faster systems (800MHz 
-Athlon and better) were less important to me at the time.
-
-Prior to stem compression the relabel was entirely CPU bottlenecked on all 
-systems.  After stem compression and some new CPU releases from Intel and AMD 
-I wrote the code to have two processes doing disk IO (one stat'ing the files 
-and the other applying labels) so that we could have some parallelism between 
-regex checks and seeks on disk.
-
-A theoretical regex library wouldn't be much slower than the integer checks we 
-are doing, it could just use a 32bit integer compare to check the first 4 bytes 
-which would compare to the integer stem check we do.  Does one of the current 
-regex libraries do such optimisations where you have a common case of a non-
-match on a relatively simple regex?
+> 
+> diff --git a/Android.mk b/Android.mk
+> index 119c6ef..5eb3925 100644
+> --- a/Android.mk
+> +++ b/Android.mk
+> @@ -20,6 +20,7 @@ LOCAL_POLICY_FS_USE := $(wildcard $(addsuffix
+> sepolicy.fs_use, $(LOCAL_POLICY_DI
+>  LOCAL_POLICY_PORT_CONTEXTS := $(wildcard $(addsuffix
+> sepolicy.port_contexts, $(LOCAL_POLICY_DIRS)))
+>  LOCAL_POLICY_GENFS_CONTEXTS := $(wildcard $(addsuffix
+> sepolicy.genfs_contexts, $(LOCAL_POLICY_DIRS)))
+>  LOCAL_POLICY_INITIAL_SID_CONTEXTS := $(wildcard $(addsuffix
+> sepolicy.initial_sid_contexts, $(LOCAL_POLICY_DIRS)))
+> +LOCAL_POLICY_SC := $(wildcard $(addsuffix seapp_contexts,
+> $(LOCAL_POLICY_DIRS)))
+> 
+>  ##################################
+>  include $(CLEAR_VARS)
+> @@ -60,16 +61,22 @@ $(file_contexts): $(LOCAL_PATH)/file_contexts
+> $(LOCAL_POLICY_FC)
+>  	$(hide) m4 -s $^ > $@
+> 
+>  file_contexts :=
+> +
+>  ##################################
+>  include $(CLEAR_VARS)
+> -
+>  LOCAL_MODULE := seapp_contexts
+> -LOCAL_SRC_FILES := $(LOCAL_MODULE)
+>  LOCAL_MODULE_CLASS := ETC
+>  LOCAL_MODULE_TAGS := optional
+>  LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
+> 
+> -include $(BUILD_PREBUILT)
+> +include $(BUILD_SYSTEM)/base_rules.mk
+> +
+> +seapp_contexts := $(intermediates)/seapp_contexts
+> +$(seapp_contexts): $(LOCAL_PATH)/seapp_contexts $(LOCAL_POLICY_SC)
+> +	@mkdir -p $(dir $@)
+> +	$(hide) m4 -s $^ > $@
+> +
+> +seapp_contexts :=
+> 
+>  ##################################
+>  include $(CLEAR_VARS)
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Stephen Smalley
+National Security Agency
 
 
 --
