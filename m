@@ -1,70 +1,61 @@
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7FH1Loh009612
-	for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2012 13:01:21 -0400
-Message-ID: <1345049962.23766.41.camel@moss-pluto.epoch.ncsc.mil>
-Subject: SE Android: Recent changes
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7GHtmk6015143
+	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2012 13:55:48 -0400
+Received: by yhp3 with SMTP id 3so3455777yhp.12
+        for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2012 10:55:46 -0700 (PDT)
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Date: Wed, 15 Aug 2012 12:59:22 -0400
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Cc: William Roberts <w.roberts@sta.samsung.com>
+Subject: [PATCH] per device seapp_context support
+Date: Thu, 16 Aug 2012 10:55:05 -0700
+Message-Id: <1345139705-1337-1-git-send-email-w.roberts@sta.samsung.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+---
+ Android.mk |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-A recent change in AOSP master requires that HAVE_SELINUX=true be set
-outside of the build system, either as an environment variable or as a
-command-line argument to make.  Thus, going forward, to build SE Android
-on the master branch, you will need to follow this approach.  We have
-updated the wiki instructions accordingly.
-
-Some other recent changes include:
-
-* We have added a grouper project for the Nexus 7 with some policy files
-and the necessary modifications to use a kernel built from our tree
-rather than the prebuilt kernel.  The kernel must be built from the
-seandroid-tegra3-grouper-3.1-jb-fr2 branch of the kernel/tegra tree;
-note that this is not presently the default branch checked out by the
-local_manifest.xml file (which presently defaults to the kernel branch
-for the Xoom).  We added a table on the wiki showing the right kernel,
-branch, and configuration to use for each device.
-
-* We have made further changes to the tuna project for seandroid
-(master) and seandroid-4.1.1 to restore support for relabeling the
-factory partition (previously broken when we updated to 4.1/JB) and to
-address further policy denials that we have seen in testing of the
-Galaxy Nexus with master and 4.1.1.
-
-* We have made further updates to sepolicy and to libselinux.
-
-* We have updated our seandroid-4.1.1 branch to android-4.1.1_r4.
-
-* We moved mac_permissions.xml from mac-policy to sepolicy since it now
-contains the seinfo tags used to select entries in seapp_contexts.
-
-* To help with creating mac_permissions.xml configurations, we have
-developed a host tool called 'setool'.  In its current form setool helps
-with building certain mac_permissions.xml stanzas.  Future work will
-include the ability to validate supplied apps against an existing
-policy.  To use, first build the tool with 'make setool'. Then, just run
-'setool' to see a usage message.  At present, setool still lives in the
-old mac-policy project, but it will likely be moved in the future to its
-own project.
-
-* AOSP has merged our remaining system/core changes (policy reloading,
-property MAC checks) and refreshed their copies of sepolicy and
-libselinux.  This involved some refactoring of the code, such that most
-of the policy loading logic has moved into libselinux for master and
-4.1.1.  The only remaining open changes presently submitted to AOSP are
-several frameworks/base changes, primarily for the certificate-based
-seinfo support and some restorecon calls.  Beyond those submitted
-changes, we still have changes in our trees for the install-time MAC
-checking and for the kernel/* and device/* changes.
-
+diff --git a/Android.mk b/Android.mk
+index 119c6ef..5eb3925 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -20,6 +20,7 @@ LOCAL_POLICY_FS_USE := $(wildcard $(addsuffix sepolicy.fs_use, $(LOCAL_POLICY_DI
+ LOCAL_POLICY_PORT_CONTEXTS := $(wildcard $(addsuffix sepolicy.port_contexts, $(LOCAL_POLICY_DIRS)))
+ LOCAL_POLICY_GENFS_CONTEXTS := $(wildcard $(addsuffix sepolicy.genfs_contexts, $(LOCAL_POLICY_DIRS)))
+ LOCAL_POLICY_INITIAL_SID_CONTEXTS := $(wildcard $(addsuffix sepolicy.initial_sid_contexts, $(LOCAL_POLICY_DIRS)))
++LOCAL_POLICY_SC := $(wildcard $(addsuffix seapp_contexts, $(LOCAL_POLICY_DIRS)))
+ 
+ ##################################
+ include $(CLEAR_VARS)
+@@ -60,16 +61,22 @@ $(file_contexts): $(LOCAL_PATH)/file_contexts $(LOCAL_POLICY_FC)
+ 	$(hide) m4 -s $^ > $@
+ 
+ file_contexts :=
++
+ ##################################
+ include $(CLEAR_VARS)
+-
+ LOCAL_MODULE := seapp_contexts
+-LOCAL_SRC_FILES := $(LOCAL_MODULE)
+ LOCAL_MODULE_CLASS := ETC
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
+ 
+-include $(BUILD_PREBUILT)
++include $(BUILD_SYSTEM)/base_rules.mk
++
++seapp_contexts := $(intermediates)/seapp_contexts
++$(seapp_contexts): $(LOCAL_PATH)/seapp_contexts $(LOCAL_POLICY_SC)
++	@mkdir -p $(dir $@)
++	$(hide) m4 -s $^ > $@
++
++seapp_contexts :=
+ 
+ ##################################
+ include $(CLEAR_VARS)
 -- 
-Stephen Smalley
-National Security Agency
+1.7.0.4
 
 
 --
