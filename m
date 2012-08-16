@@ -1,38 +1,60 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7GNpNO8000647
+	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2012 19:51:23 -0400
+Received: by obbup19 with SMTP id up19so4920012obb.12
+        for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2012 16:51:13 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1345142166.4222.4.camel@moss-pluto.epoch.ncsc.mil>
-References: <CAFftDdoTt=7Q0iTr4yRKYuTD3w0PsJhzhTDSwcb50S7q+O3F7w@mail.gmail.com>
-	<1345142166.4222.4.camel@moss-pluto.epoch.ncsc.mil>
-Date: Thu, 16 Aug 2012 11:56:24 -0700
-Message-ID: <CAFftDdpX7oysYKgMOCxQ5Oneaf6-U9K95hfbbuWZpcOU-3yK1A@mail.gmail.com>
-Subject: Re: overriding booleans
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
+In-Reply-To: <CACLa4pvLe4Ptucw8GJWZHLeOXenR_osq1s1in0uf-HEj1EOQjg@mail.gmail.com>
+References: <1344454290.25533.12.camel@localhost>
+	<201208142118.42167.russell@coker.com.au>
+	<CACLa4pss-g6qhtwmEv+pOq-jQG7smPxSEt0RU76UnL7=QPh6Hw@mail.gmail.com>
+	<201208151556.44770.russell@coker.com.au>
+	<CACLa4pvLe4Ptucw8GJWZHLeOXenR_osq1s1in0uf-HEj1EOQjg@mail.gmail.com>
+Date: Thu, 16 Aug 2012 19:51:13 -0400
+Message-ID: <CACLa4ptTz2t4=YsMsZwr6=Q+D9ssD4b84dd0cyrh2Eeg1EFbWQ@mail.gmail.com>
+Subject: Re: A filename to label translation daemon
+From: Eric Paris <eparis@parisplace.org>
+To: russell@coker.com.au
+Cc: Colin Walters <walters@verbum.org>, Daniel J Walsh <dwalsh@redhat.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yeah that was my second approach..
+Latest update was trying to decide if keeping Russell's stem work was
+worth the code complexity given the speedups I can get just moving to
+pcre and using a precompiled data format.  I'm thinking they aren't as
+huge a win, but it's still clearly a win.  My testing is:
 
-On Thu, Aug 16, 2012 at 11:36 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2012-08-16 at 11:34 -0700, William Roberts wrote:
->> Is their a way to override the default value of a boolean in another
->> te file in device?
->
-> No, but you can just set the desired default in your init.<board>.rc
-> file using the setsebool built-in command.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
+start timer
+for (i = 0; i < 100; i++)
+    initialize db;
+    look up one path;
+    clean up db
+stop timer
 
+So the stems code will help even more if you do more than 1 lookup per
+db load.  Results at the moment for that testing looks like:
 
+ $ ./glibc
+13.390 seconds used by the processor.
+$ ./glibc-stems
+ 8.750 seconds used by the processor.
+$ ./pcre
+ 2.160 seconds used by the processor.
+$ ./pcre-stems
+ 2.040 seconds used by the processor.
+$ ./pcre-mmap
+ 0.230 seconds used by the processor.
+$ ./pcre-mmap-stems
+ 0.170 seconds used by the processor.
 
--- 
-Respectfully,
+So we're talking about a x50 speedup here for my best case vs
+something analogous to what we are doing today.
 
-William C Roberts
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
