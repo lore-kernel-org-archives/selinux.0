@@ -1,56 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7KJ87dH032737
-	for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2012 15:08:07 -0400
-Received: by wibhq4 with SMTP id hq4so3428096wib.12
-        for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2012 12:08:04 -0700 (PDT)
-Date: Mon, 20 Aug 2012 21:07:32 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and
- higher?)
-Message-ID: <20120820190731.GA16363@siphos.be>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7KLrKnb009554
+	for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2012 17:53:20 -0400
+Received: by weyt57 with SMTP id t57so4782353wey.12
+        for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2012 14:53:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Cesar Maiorino <cesar.maiorino@gmail.com>
+Date: Mon, 20 Aug 2012 17:52:38 -0400
+Message-ID: <CAN93Rk+MnaUMaG_2r-S11TWpsOuDjomCjmZtJ7jiVQ6agLrkEg@mail.gmail.com>
+Subject: Porting seandroid to qualcomm MSM8960
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=000e0cd401c0a6147e04c7b989a1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi guys,
+--000e0cd401c0a6147e04c7b989a1
+Content-Type: text/plain; charset=ISO-8859-1
 
-In Gentoo, I had to patch the setools package' swig interfaces to build with
-the swig-2.0.7 (and probably a few previous ones, version 2.0.4 still seemed
-to build the code properly). The patch is fairly large (228 KiB) so I've put
-it online for now. However, I'm not sure if this is the right way to fix
-things or not.
+I have a Qualcomm "Mobile Development Platform" based on the snapdragon
+MSM8960. I'd like to try to get seandroid running on it. I'll preface my
+questions by saying that I don't have much experience in doing any linux
+modifications, so I understand that this will likely be a steep learning
+curve (and I probably don't even know the right questions to ask).
 
-In any case, the build failures we got were:
+It looks like the seandroid source tree does not have a kernel for this
+chipset family, so I'm guessing that I would extract a patch from one of
+the other kernels (which one?) and try to apply it. Is this even feasible?
+If so, any suggestions on how to proceed would be much appreciated.
 
-../qpol.i:241: Warning 504: Function qpol_module::qpol_module_t(char const
-*) must have a return type. Ignored.
-../qpol.i:244: Warning 521: Illegal destructor name
-qpol_module::~qpol_module_t(). Ignored.
+--000e0cd401c0a6147e04c7b989a1
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-and
+I have a Qualcomm &quot;Mobile Development Platform&quot; based on the snap=
+dragon MSM8960. I&#39;d like to try to get seandroid running on it. I&#39;l=
+l preface my questions by saying that I don&#39;t have much experience in d=
+oing any linux modifications, so I understand that this will likely be a st=
+eep learning curve (and I probably don&#39;t even know the right questions =
+to ask).<br>
 
-qpol_wrap.c:1831:24: error: conflicting types for qpol_module_get_path
-../../../libqpol/include/qpol/module.h:69:13: note: previous declaration of qpol_module_get_path was here
-qpol_wrap.c: In function qpol_module_get_path:
-qpol_wrap.c:1834:3: error: too many arguments to function qpol_module_get_path
-qpol_wrap.c:1831:24: note: declared here
 
-I fixed it by changing the constructors/destructor names to the struct name
-(as in "typedef struct qpol_module {} qpol_module_t" so the
-constructur/destructor uses "qpol_module" rather than "qpol_module_t", and
-by introducing %rename() calls for each collision found during the build
-process.
+<br>It looks like the seandroid source tree does not have a kernel for this=
+ chipset family, so I&#39;m guessing that I would extract a patch from one =
+of the other kernels (which one?) and try to apply it. Is this even feasibl=
+e? If so, any suggestions on how to proceed would be much appreciated.<br>
 
-The patch is at
-http://dev.gentoo.org/~swift/patches/0008-fix_swig_build_failures_bug_430262.patch
 
-If it is the right patch, I hope this saves a few hours of work for the
-other developers ;-)
 
-Wkr,
-	Sven Vermeulen
+--000e0cd401c0a6147e04c7b989a1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
