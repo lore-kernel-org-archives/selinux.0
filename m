@@ -1,166 +1,106 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7JFxofe022130
-	for <selinux@tycho.nsa.gov>; Sun, 19 Aug 2012 11:59:50 -0400
-Message-Id: <201208191559.q7JFxK1G029013@vivaldi06.register.it>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7KAFHMw001298
+	for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2012 06:15:17 -0400
+Message-Id: <201208201015.q7KAFDs5004339@vivaldi42.register.it>
 From: "Guido Trentalancia" <guido@trentalancia.com>
 Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2]: seobject.py must skip comments while reading external configuration files
-Date: Sun, 19 Aug 2012 17:59:20 +0200
+Subject: [PATCH]: libselinux: improve the file_contexts.5 manual page
+Date: Mon, 20 Aug 2012 12:15:13 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->Hello.
->
->Apparently semanage does not work properly when the external configuration file "file_contexts.subs_dist" (from the policy) contains #-comments.
->
->The patch attached below aims to fix this: seobject.py must skip comments while reading the external configuration file "file_contexts.subs_dist".
+Manual page improvements for the file_contexts and related policy
+configuration files (section 5):
 
-I have created an improved version of the patch mentioned in the subject.
-
-Fix fcontextRecords() in policycoreutils/semanage/seobject.py so
-that semanage does not produce an error in fcontext mode when
-the file_contexts.subs_dist file contains comments (prefixed by #).
-
-Properly skip blank lines.
-
-Treat both white space and tab as valid separators for the above
-mentioned policy configuration file (v2). Minimum number of
-changes (v2bis).
+- create links to selabel_file.5 not only for file_contexts.5 but
+  also for the other optional policy configuration files (including
+  the so-called file contexts "substitution" files);
+- clarify the above mentioned manual page(s), in particular relatively
+  to the action performed by the so-called file contexts "substitution"
+  policy configuration files (aliasing/equivalence versus substitution);
+- improve the explanation of the form that the "substitution" files
+  shall have.
 
 Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
-Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 ---
- policycoreutils/semanage/seobject.py |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ libselinux/man/man5/file_contexts.homedirs.5  |    1 +
+ libselinux/man/man5/file_contexts.local.5     |    1 +
+ libselinux/man/man5/file_contexts.subs.5      |    1 +
+ libselinux/man/man5/file_contexts.subs_dist.5 |    1 +
+ libselinux/man/man5/selabel_file.5            |   12 ++++++------
+ 5 files changed, 10 insertions(+), 6 deletions(-)
 
---- selinux-20072012/policycoreutils/semanage/seobject.py	2012-07-20 17:09:41.361112761 +0200
-+++ selinux-20072012-policycoreutils-semanage-seobject_skip_comments-v2bis/policycoreutils/semanage/seobject.py	2012-08-19 19:33:18.822279742 +0200
-@@ -1628,6 +1628,11 @@ class fcontextRecords(semanageRecords):
-                 try:
-                        fd = open(selinux.selinux_file_context_subs_path(), "r")
-                        for i in fd.readlines():
-+                              i = i.strip()
-+                              if len(i) == 0:
-+                                     continue
-+                              if i.startswith("#"):
-+                                     continue
-                               target, substitute = i.split()
-                               self.equiv[target] = substitute
-                        fd.close()
-@@ -1636,6 +1641,11 @@ class fcontextRecords(semanageRecords):
-                 try:
-                        fd = open(selinux.selinux_file_context_subs_dist_path(), "r")
-                        for i in fd.readlines():
-+                              i = i.strip()
-+                              if len(i) == 0:
-+                                     continue
-+                              if i.startswith("#"):
-+                                     continue
-                               target, substitute = i.split()
-                               self.equiv_dist[target] = substitute
-                        fd.close()
-
-
->>On Tue, Aug 14, 2012 at 08:03:58AM -0400, Christopher J. PeBenito wrote:
->>> On 08/10/12 09:13, Guido Trentalancia wrote:
->>> > Add a comment at the top of the configuration file file_contexts.subs_dist
->>> > to clarify that it performs aliasing and not substitutions in the
->>> > strict sense of the word.
->>> > 
->>> > A name change might be considered too, if it proves to lead to further
->>> > confusion.
->>> > 
->>> > There might be pieces of documentation that could benefit from similar
->>> > considerations.
->>> > 
->>> > Also note that a specific manual page is missing.
->>> > 
->>> > Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
->>> > ---
->>> >  config/file_contexts.subs_dist |   10 ++++++++++
->>> >  1 file changed, 10 insertions(+)
->>> > 
->>> > diff -pruN refpolicy-08092012/config/file_contexts.subs_dist refpolicy-08092012-file_contexts.subs_dist-comment/config/file_contexts.subs_dist
->>> > --- refpolicy-08092012/config/file_contexts.subs_dist    2012-06-21 20:10:29.011803405 +0200
->>> > +++ refpolicy-08092012-file_contexts.subs_dist-comment/config/file_contexts.subs_dist 2012-08-10 17:01:36.045451839 +0200
->>> > @@ -1,3 +1,13 @@
->>> > +# This file can is used to configure base path aliases as in:
->>> > +#
->>> > +# /aliased_path /original_path_as_configured_in_file_contexts
->>> > +#
->>> > +# where original_path_as_configured_in_file_contexts is a base
->>> > +# path being used in the main file_contexts configuration file.
->>> > +#
->>> > +# It does not perform substitutions as done by sed(1), for
->>> > +# example, but aliasing.
->>> > +#
->>> >  /lib32 /lib
->>> >  /lib64 /lib
->>> >  /run /var/run
->>> 
->>> Merged.
->>
->>This seems to break policycoreutils:
->>
->># semanage fcontext -l
->>/usr/sbin/semanage: too many values to unpack (expected 2)
->>
->>Undoing the comment change fixes things again.
->
->All is needed is something like this for selinux-userspace (policycoreutils):
->
->Fix fcontextRecords() in policycoreutils/semanage/seobject.py so
->that semanage does not produce an error in fcontext mode when
->the file_contexts.subs_dist file contains comments (prefixed by #).
->
->Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
->Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
-> 
->---
-> policycoreutils/semanage/seobject.py |   18 ++++++++++++++----
-> 1 file changed, 14 insertions(+), 4 deletions(-)
->
->--- selinux-20072012/policycoreutils/semanage/seobject.py	2012-07-20 17:09:41.361112761 +0200
->+++ selinux-20072012-policycoreutils-semanage-seobject_skip_comments/policycoreutils/semanage/seobject.py	2012-08-18 17:11:10.038514334 +0200
->@@ -1627,16 +1627,26 @@ class fcontextRecords(semanageRecords):
->                 self.equal_ind = False
->                 try:
->                        fd = open(selinux.selinux_file_context_subs_path(), "r")
->-                       for i in fd.readlines():
->-                              target, substitute = i.split()
->+                       for i in fd.read().split("n"):
->+                              i = i.strip()
->+                              if len(i) == 0:
->+                                     continue
->+                              if i.startswith("#"):
->+                                     continue
->+                              target, substitute = i.split(" ")
->                               self.equiv[target] = substitute
->                        fd.close()
->                 except IOError:
->                        pass
->                 try:
->                        fd = open(selinux.selinux_file_context_subs_dist_path(), "r")
->-                       for i in fd.readlines():
->-                              target, substitute = i.split()
->+                       for i in fd.read().split("n"):
->+                              i = i.strip()
->+                              if len(i) == 0:
->+                                     continue
->+                              if i.startswith("#"):
->+                                     continue
->+                              target, substitute = i.split(" ")
->                               self.equiv_dist[target] = substitute
->                        fd.close()
->                 except IOError:
-
-Regards,
-
-Guido 
+diff -pruN selinux-20072012/libselinux/man/man5/file_contexts.homedirs.5 selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.homedirs.5
+--- selinux-20072012/libselinux/man/man5/file_contexts.homedirs.5	1970-01-01 01:00:00.000000000 +0100
++++ selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.homedirs.5	2012-08-20 13:35:38.305500851 +0200
+@@ -0,0 +1 @@
++.so man5/selabel_file.5
+diff -pruN selinux-20072012/libselinux/man/man5/file_contexts.local.5 selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.local.5
+--- selinux-20072012/libselinux/man/man5/file_contexts.local.5	1970-01-01 01:00:00.000000000 +0100
++++ selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.local.5	2012-08-20 13:37:22.484434944 +0200
+@@ -0,0 +1 @@
++.so man5/selabel_file.5
+diff -pruN selinux-20072012/libselinux/man/man5/file_contexts.subs.5 selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.subs.5
+--- selinux-20072012/libselinux/man/man5/file_contexts.subs.5	1970-01-01 01:00:00.000000000 +0100
++++ selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.subs.5	2012-08-20 13:39:24.705538673 +0200
+@@ -0,0 +1 @@
++.so man5/selabel_file.5
+diff -pruN selinux-20072012/libselinux/man/man5/file_contexts.subs_dist.5 selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.subs_dist.5
+--- selinux-20072012/libselinux/man/man5/file_contexts.subs_dist.5	1970-01-01 01:00:00.000000000 +0100
++++ selinux-20072012-file_contexts-manual-page/libselinux/man/man5/file_contexts.subs_dist.5	2012-08-20 13:33:40.752437444 +0200
+@@ -0,0 +1 @@
++.so man5/selabel_file.5
+diff -pruN selinux-20072012/libselinux/man/man5/selabel_file.5 selinux-20072012-file_contexts-manual-page/libselinux/man/man5/selabel_file.5
+--- selinux-20072012/libselinux/man/man5/selabel_file.5	2012-06-18 18:54:45.646499176 +0200
++++ selinux-20072012-file_contexts-manual-page/libselinux/man/man5/selabel_file.5	2012-08-20 13:44:35.395339044 +0200
+@@ -63,7 +63,7 @@ If fBSELABEL_OPT_BASEONLYfR is set, th
+ .IP "1." 4
+ The mandatory file contexts file that is either the fully qualified file name from fISELABEL_OPT_PATH.valuefR or if fINULLfR, then the path returned by fBselinux_file_context_pathfR(3).
+ .IP "2." 4
+-The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file.
++The optional local and distribution substitution files that perform path aliasing on the 'in memory' version of the file contexts file.
+ .br
+ These files have the same name as the mandatory file contexts file with the extensions fI.subsfR and fI.subs_distfR added.
+ .RE
+@@ -81,7 +81,7 @@ The optional user home directory customi
+ .br
+ fBselinux_file_context_homedir_pathfR(3) will return the default path to this file.
+ .IP "4." 4
+-The optional local and distribution substitution files that perform any substitutions on the 'in memory' version of the file contexts file (and the fI.localfR and/or fI.homedirsfR if present). These files have the same name as the mandatory file contexts file with the extensions fI.subsfR and fI.subs_distfR added.
++The optional local and distribution substitution files that perform path aliasing on the 'in memory' version of the file contexts file (and the fI.localfR and/or fI.homedirsfR if present). These files have the same name as the mandatory file contexts file with the extensions fI.subsfR and fI.subs_distfR added.
+ .br
+ fBselinux_file_context_subs_pathfR(3) and fBselinux_file_context_subs_dist_pathfR(3) will return the default paths to these files.
+ .RE
+@@ -163,20 +163,20 @@ Example:
+ 
+ .SH "Substitution File Format"
+ .sp
+-Each line within the substitution files (fI.subsfR and fI.subs_distfR) is:
++Each line within the substitution files (fI.subsfR and fI.subs_distfR) has the form:
+ .RS
+-.I pathname subs_pathname
++.I subs_pathname pathname
+ .RE
+ .sp
+ Where:
+ .RS
+ .I pathname
+ .RS
+-A path that matches an entry in one or more of the file contexts files.
++A path that matches an entry in one or more of the file contexts policy configuration file.
+ .RE
+ .I subs_pathname
+ .RS
+-The path that will be substituted for pathname by the look up process.
++The path that will be aliased (considered equivalent) with pathname by the look up process.
+ .RE
+ .RE
+ .sp
+ 
 
 
 --
