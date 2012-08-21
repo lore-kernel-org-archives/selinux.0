@@ -1,61 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7LGFkAi001373
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2012 12:15:47 -0400
-Message-Id: <201208211615.q7LGFg3M000832@vivaldi49.register.it>
-From: "Guido Trentalancia" <guido@trentalancia.com>
-Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
-To: sven.vermeulen@siphos.be, selinux@tycho.nsa.gov
-Subject: Re: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and higher?)
-Date: Tue, 21 Aug 2012 18:15:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-ID: <1345566914.23408.5.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Porting seandroid to qualcomm MSM8960
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Cesar Maiorino <cesar.maiorino@gmail.com>
+Cc: Robert Craig <robertpcraig@gmail.com>, selinux@tycho.nsa.gov
+Date: Tue, 21 Aug 2012 12:35:14 -0400
+In-Reply-To: <CAN93Rk+5OSUiG7KJ-GhLcxNddepN+uYwpn+iXjYDbr9dnW2kQg@mail.gmail.com>
+References: 
+	<CAN93Rk+MnaUMaG_2r-S11TWpsOuDjomCjmZtJ7jiVQ6agLrkEg@mail.gmail.com>
+	 <CADQgGG2_xbPNy-HYjeD6jSf9+3_3Arfhv6FiRBPAT+jVLDzXVA@mail.gmail.com>
+	 <CADQgGG22RppyavV=Mi5ZC99v7pzdpYK-YmdfALPxqXeH08FnXg@mail.gmail.com>
+	 <CAN93Rk+5OSUiG7KJ-GhLcxNddepN+uYwpn+iXjYDbr9dnW2kQg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello.
+On Tue, 2012-08-21 at 09:52 -0400, Cesar Maiorino wrote:
+> I am targeting kernel version 3.0.8, so I guess I will start with one
+> of the 3.0 kernels.
+> Thanks for the detailed reply. It's a big help
 
-For your information. Apparently swig version 2.0.8 has been just released...
+Rather than having to manually identify and extract each patch, you can
+use the branches to help you.  For each regular android-* kernel branch,
+we have a corresponding seandroid-* kernel branch with our patches
+applied, so you can do the following:
+cd kernel/samsung
+git checkout bitbucket/seandroid-samsung-3.0-jb
+git format-patch bitbucket/android-samsung-3.0-jb
+
+Notice that the checked-out branch is the seandroid-* branch, while you
+generate the patches starting from the android-* branch.
+
+You only need the yaffs patches if you are using the yaffs2 filesystem
+on the device.  The defconfig patch has to be ported over to your
+specific board defconfig file.  Disabling the ratelimit on audit
+messages is not strictly necessary, just nice for bringing up policy for
+a new board.  Permission checking for binder is desirable but not
+strictly required for operation.  Secmark labeling and the netfilter
+security table is optional.
 
 
->Hi guys,
->
->In Gentoo, I had to patch the setools package' swig interfaces to build with
->the swig-2.0.7 (and probably a few previous ones, version 2.0.4 still seemed
->to build the code properly). The patch is fairly large (228 KiB) so I've put
->it online for now. However, I'm not sure if this is the right way to fix
->things or not.
->
->In any case, the build failures we got were:
->
->../qpol.i:241: Warning 504: Function qpol_module::qpol_module_t(char const
->*) must have a return type. Ignored.
->../qpol.i:244: Warning 521: Illegal destructor name
->qpol_module::~qpol_module_t(). Ignored.
->
->and
->
->qpol_wrap.c:1831:24: error: conflicting types for qpol_module_get_path
->../../../libqpol/include/qpol/module.h:69:13: note: previous declaration of qpol_module_get_path was here
->qpol_wrap.c: In function qpol_module_get_path:
->qpol_wrap.c:1834:3: error: too many arguments to function qpol_module_get_path
->qpol_wrap.c:1831:24: note: declared here
->
->I fixed it by changing the constructors/destructor names to the struct name
->(as in "typedef struct qpol_module {} qpol_module_t" so the
->constructur/destructor uses "qpol_module" rather than "qpol_module_t", and
->by introducing %rename() calls for each collision found during the build
->process.
->
->The patch is at
->http://dev.gentoo.org/~swift/patches/0008-fix_swig_build_failures_bug_430262.patch
->
->If it is the right patch, I hope this saves a few hours of work for the
->other developers ;-)
->
->Wkr,
->	Sven Vermeulen
- 
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
