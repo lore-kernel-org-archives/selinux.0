@@ -1,105 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7LDr7Cs024077
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2012 09:53:07 -0400
-Received: by wgbez12 with SMTP id ez12so5300490wgb.30
-        for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2012 06:53:04 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7LGFkAi001373
+	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2012 12:15:47 -0400
+Message-Id: <201208211615.q7LGFg3M000832@vivaldi49.register.it>
+From: "Guido Trentalancia" <guido@trentalancia.com>
+Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
+To: sven.vermeulen@siphos.be, selinux@tycho.nsa.gov
+Subject: Re: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and higher?)
+Date: Tue, 21 Aug 2012 18:15:42 +0200
 MIME-Version: 1.0
-In-Reply-To: <CADQgGG22RppyavV=Mi5ZC99v7pzdpYK-YmdfALPxqXeH08FnXg@mail.gmail.com>
-References: <CAN93Rk+MnaUMaG_2r-S11TWpsOuDjomCjmZtJ7jiVQ6agLrkEg@mail.gmail.com>
- <CADQgGG2_xbPNy-HYjeD6jSf9+3_3Arfhv6FiRBPAT+jVLDzXVA@mail.gmail.com> <CADQgGG22RppyavV=Mi5ZC99v7pzdpYK-YmdfALPxqXeH08FnXg@mail.gmail.com>
-From: Cesar Maiorino <cesar.maiorino@gmail.com>
-Date: Tue, 21 Aug 2012 09:52:24 -0400
-Message-ID: <CAN93Rk+5OSUiG7KJ-GhLcxNddepN+uYwpn+iXjYDbr9dnW2kQg@mail.gmail.com>
-Subject: Re: Porting seandroid to qualcomm MSM8960
-To: Robert Craig <robertpcraig@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=f46d043c8188fea91604c7c6f146
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d043c8188fea91604c7c6f146
-Content-Type: text/plain; charset=ISO-8859-1
+Hello.
 
-I am targeting kernel version 3.0.8, so I guess I will start with one of
-the 3.0 kernels.
-Thanks for the detailed reply. It's a big help
+For your information. Apparently swig version 2.0.8 has been just released...
 
-On Mon, Aug 20, 2012 at 10:25 PM, Robert Craig <robertpcraig@gmail.com>wrote:
+
+>Hi guys,
 >
->> What version of the kernel would you be targeting?  The emulator kernel
->> is 2.6.29 and the omap and samsung kernels are 3.0 kernels. You'll need to
->> enable the right options in the kernel config file and apply the right set
->> of patches. However, the set of patches can vary slightly depending on your
->> targeted version. Your best bet is to pick one of the supplied seandroid
->> kernels that matches your kernel version and mimic what was done.  I would
->> try to git format-patch the seandroid specific commits and see if they
->> apply cleanly to your kernel.  You can see this set of commits by running:
->>
->> git log --author=Smalley
->>
->> I would stick to the more recent ones though as Steve Smalley has a long
->> history of commits to the linux kernel.  From here I would pick out each
->> commit with:
->>
->> git format-patch -1 <sha1>
->>
->> then apply them to your tree with
->>
->> git am <patch>
->>
->>
->>
->>
->>
+>In Gentoo, I had to patch the setools package' swig interfaces to build with
+>the swig-2.0.7 (and probably a few previous ones, version 2.0.4 still seemed
+>to build the code properly). The patch is fairly large (228 KiB) so I've put
+>it online for now. However, I'm not sure if this is the right way to fix
+>things or not.
 >
+>In any case, the build failures we got were:
 >
+>../qpol.i:241: Warning 504: Function qpol_module::qpol_module_t(char const
+>*) must have a return type. Ignored.
+>../qpol.i:244: Warning 521: Illegal destructor name
+>qpol_module::~qpol_module_t(). Ignored.
+>
+>and
+>
+>qpol_wrap.c:1831:24: error: conflicting types for qpol_module_get_path
+>../../../libqpol/include/qpol/module.h:69:13: note: previous declaration of qpol_module_get_path was here
+>qpol_wrap.c: In function qpol_module_get_path:
+>qpol_wrap.c:1834:3: error: too many arguments to function qpol_module_get_path
+>qpol_wrap.c:1831:24: note: declared here
+>
+>I fixed it by changing the constructors/destructor names to the struct name
+>(as in "typedef struct qpol_module {} qpol_module_t" so the
+>constructur/destructor uses "qpol_module" rather than "qpol_module_t", and
+>by introducing %rename() calls for each collision found during the build
+>process.
+>
+>The patch is at
+>http://dev.gentoo.org/~swift/patches/0008-fix_swig_build_failures_bug_430262.patch
+>
+>If it is the right patch, I hope this saves a few hours of work for the
+>other developers ;-)
+>
+>Wkr,
+>	Sven Vermeulen
+ 
 
---f46d043c8188fea91604c7c6f146
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-I am targeting kernel version 3.0.8, so I guess I will start with one of th=
-e 3.0 kernels.<br>Thanks for the detailed reply. It&#39;s a big help<br><br=
-><div class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=3D"marg=
-in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-
-<div class=3D"HOEnZb"><div class=3D"h5"><div class=3D"gmail_quote">On Mon, =
-Aug 20, 2012 at 10:25 PM, Robert Craig <span dir=3D"ltr">&lt;<a href=3D"mai=
-lto:robertpcraig@gmail.com" target=3D"_blank">robertpcraig@gmail.com</a>&gt=
-;</span> wrote:<br>
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-What version of the kernel would you be targeting? =A0The emulator kernel i=
-s 2.6.29 and the omap and samsung kernels are 3.0 kernels. You&#39;ll need =
-to enable the right options in the kernel config file and apply the right s=
-et of patches. However, the set of patches can vary slightly depending on y=
-our targeted version. Your best bet is to pick one of the supplied seandroi=
-d kernels that matches your kernel version and mimic what was done. =A0I wo=
-uld try to git format-patch the seandroid specific commits and see if they =
-apply cleanly to your kernel. =A0You can see this set of commits by running=
-:<div>
-
-
-
-<div><br></div><div>git log --author=3DSmalley</div><div><br></div><div>I w=
-ould stick to the more recent ones though as Steve Smalley has a long histo=
-ry of commits to the linux kernel. =A0From here I would pick out each commi=
-t with:</div>
-
-
-
-<div><br></div><div>git format-patch -1 &lt;sha1&gt;</div><div><br></div><d=
-iv>then apply them to your tree with</div><div><br></div><div>git am &lt;pa=
-tch&gt;</div><div><br></div><div><br></div><div><br></div><div><div><div>
-
-
-
-<div>=A0</div></div></div></div></div>
-</blockquote></div><br>
-</div></div></blockquote></div><br>
-
---f46d043c8188fea91604c7c6f146--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
