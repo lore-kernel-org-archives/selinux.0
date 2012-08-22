@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7M7DmYE011149
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2012 03:13:49 -0400
-Message-Id: <201208220713.q7M7DhbO024808@vivaldi36.register.it>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7MAgfKi020877
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2012 06:42:41 -0400
+Message-Id: <201208221042.q7MAgZ8u012821@vivaldi39.register.it>
 From: "Guido Trentalancia" <guido@trentalancia.com>
 Reply-To: "Guido Trentalancia" <guido@trentalancia.com>
-To: pmcclory@tresys.com
-Cc: selinux@tycho.nsa.gov
-Subject: [PATCH v2]: setfiles/restorecon minor improvements
-Date: Wed, 22 Aug 2012 09:13:43 +0200
+To: dwalsh@redhat.com
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: [PATCH v2]: dynamically create genhomedircon (was Re: [PATCH] genhomedircon installation and manual page improvements)
+Date: Wed, 22 Aug 2012 12:42:35 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -16,977 +16,203 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello.
 
-New version (v2) of an already posted patch that supposedly has not been applied yet...
+The following patch had already been proposed (in a slightly
+different and simpler form) on September, 12th 2011.
 
-It fixes a sort of bug in the previous version (erroneous stderr message printout).
----
+It dinamically creates the policycoreutils "genhomedircon"
+script during the build process in order not to hard-code
+the full path to the semodule executable, as in general the
+latter could reside in non-standard SBINDIR/USRSBINDIR
+locations.
 
-Patch (v2) for policycoreutils/setfiles:
+It might not be very stylish or it might appear cumbersome,
+but at least the script should not break as easily as the
+current static one.
 
-- improves the manual page for both setfiles and restorecon (formatting including alphabetical re-ordering of options, undocumented options, references and so on);
-- de-hardcodes a couple of constants in the source files and makes dynamic use of them to create the manual pages after the compilation and just before the installation: more specifically the constants are the number of errors for the setfiles' validation process abort condition and the sensitivity of the progress meter for both programs;
-- improves the usage message for both programs and introduces a more standard -h option (aliased to existing -?) where not already available;
-- prints out the usage message for restorecon when the latter is called without arguments;
-- white-space/tab conversion to get proper indentation towards the end of the main source file.
+The patch also edits the Makefile for the scripts so that
+LOCALEDIR correctly uses $(PREFIX) rather than an absolute
+path.
 
 Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
 ---
- policycoreutils/setfiles/Makefile     |   18 +++++--
- policycoreutils/setfiles/restorecon.8 |   73 +++++++++++++++++++-----------
- policycoreutils/setfiles/setfiles.8   |   81 ++++++++++++++++++++++------------
- policycoreutils/setfiles/setfiles.c   |   38 ++++++++++-----
- 4 files changed, 140 insertions(+), 70 deletions(-)
+ policycoreutils/Makefile              |    2 +-
+ policycoreutils/scripts/Makefile      |   12 ++++++++++--
+ policycoreutils/scripts/genhomedircon |    2 --
+ policycoreutils/semodule/Makefile     |    4 +++-
+ 4 files changed, 14 insertions(+), 6 deletions(-)
 
-diff -pruN selinux-20072012/policycoreutils/setfiles/Makefile selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/Makefile
---- selinux-20072012/policycoreutils/setfiles/Makefile	2012-06-18 18:54:45.764500252 +0200
-+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/Makefile	2012-07-24 12:11:51.656514665 +0200
-@@ -5,6 +5,9 @@ MANDIR = $(PREFIX)/share/man
- LIBDIR ?= $(PREFIX)/lib
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+diff -pruN selinux-20072012/policycoreutils/Makefile selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/Makefile
+--- selinux-20072012/policycoreutils/Makefile	2012-06-18 18:54:45.709499750 +0200
++++ selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/Makefile	2012-08-22 02:29:16.380289327 +0200
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init sandbox secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool po man
++SUBDIRS = setfiles semanage load_policy newrole run_init sandbox secon audit2allow audit2why sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool scripts po man
  
-+PROGRESS_STEP=$(shell grep "^#define STAR_COUNT" restore.h | awk -S '{ print $$3 }')
-+ABORT_ON_ERRORS=$(shell grep "^#define ABORT_ON_ERRORS" setfiles.c | awk -S '{ print $$3 }')
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+ 
+diff -pruN selinux-20072012/policycoreutils/scripts/genhomedircon selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/scripts/genhomedircon
+--- selinux-20072012/policycoreutils/scripts/genhomedircon	2012-06-18 18:54:45.760500216 +0200
++++ selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/scripts/genhomedircon	1970-01-01 01:00:00.000000000 +0100
+@@ -1,2 +0,0 @@
+-#!/bin/sh
+-/usr/sbin/semodule -Bn
+diff -pruN selinux-20072012/policycoreutils/scripts/Makefile selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/scripts/Makefile
+--- selinux-20072012/policycoreutils/scripts/Makefile	2012-06-18 18:54:45.759500206 +0200
++++ selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/scripts/Makefile	2012-08-22 02:49:12.073063168 +0200
+@@ -4,21 +4,29 @@ BINDIR ?= $(PREFIX)/bin
+ USRSBINDIR ?= $(PREFIX)/sbin
+ SBINDIR ?= $(DESTDIR)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+-LOCALEDIR ?= /usr/share/locale
++LOCALEDIR ?= $(PREFIX)/share/locale
+ 
+ all: fixfiles genhomedircon chcat
+ 
++genhomedircon:
++	@echo "#!/bin/sh" > genhomedircon
++	@echo >> genhomedircon
++	@if [ ! -e semodule_path ]; then echo -n "$(USRSBINDIR)/" >> genhomedircon; fi
++	@if [ -e semodule_path ]; then echo -n "`cat semodule_path`/" >> genhomedircon; fi
++	@echo "semodule -Bn" >> genhomedircon
 +
- CFLAGS = -g -Werror -Wall -W
- override CFLAGS += -I$(PREFIX)/include
- LDLIBS = -lselinux -lsepol -L$(LIBDIR)
-@@ -14,25 +17,32 @@ ifeq ($(AUDITH), /usr/include/libaudit.h
- 	LDLIBS += -laudit
- endif
- 
--all: setfiles restorecon
-+all: setfiles restorecon man
- 
- setfiles:  setfiles.o restore.o
- 
- restorecon: setfiles
- 	ln -sf setfiles restorecon
- 
-+man:
-+	@cp -af setfiles.8 setfiles.8.man
-+	@cp -af restorecon.8 restorecon.8.man
-+	@sed -i "s/STAR_COUNT/$(PROGRESS_STEP)/g" setfiles.8.man restorecon.8.man
-+	@sed -i "s/ABORT_ON_ERRORS/$(ABORT_ON_ERRORS)/g" setfiles.8.man
-+ 
  install: all
- 	[ -d $(MANDIR)/man8 ] || mkdir -p $(MANDIR)/man8
- 	-mkdir -p $(SBINDIR)
- 	install -m 755 setfiles $(SBINDIR)
- 	(cd $(SBINDIR) && ln -sf setfiles restorecon)
--	install -m 644 setfiles.8 restorecon.8 $(MANDIR)/man8
-+	install -m 644 setfiles.8.man $(MANDIR)/man8/setfiles.8
-+	install -m 644 restorecon.8.man $(MANDIR)/man8/restorecon.8
+ 	-mkdir -p $(BINDIR)
+ 	install -m 755 chcat $(BINDIR)
+ 	install -m 755 fixfiles $(SBINDIR)
+-	install -m 755 genhomedircon  $(USRSBINDIR)
++	install -m 755 genhomedircon $(USRSBINDIR)
+ 	-mkdir -p $(MANDIR)/man8
+ 	install -m 644 fixfiles.8 $(MANDIR)/man8/
+ 	install -m 644 genhomedircon.8 $(MANDIR)/man8/
+ 	install -m 644 chcat.8 $(MANDIR)/man8/
  
  clean:
--	rm -f setfiles restorecon *.o 
-+	rm -f setfiles restorecon *.o setfiles.8.man restorecon.8.man
++	rm -f genhomedircon
+ 
+ indent:
+ 
+diff -pruN selinux-20072012/policycoreutils/semodule/Makefile selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/semodule/Makefile
+--- selinux-20072012/policycoreutils/semodule/Makefile	2012-06-18 18:54:45.761500225 +0200
++++ selinux-20072012-do-not-hardcode-semodule-path-in-genhomedircon/policycoreutils/semodule/Makefile	2012-08-22 12:45:23.479737622 +0200
+@@ -13,6 +13,8 @@ SEMODULE_OBJS = semodule.o
+ all: semodule
+ 
+ semodule: $(SEMODULE_OBJS)
++	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
++	@echo -n $(SBINDIR) > ../scripts/semodule_path
+ 
+ install: all
+ 	-mkdir -p $(SBINDIR)
+@@ -23,7 +25,7 @@ install: all
+ relabel:
+ 
+ clean:
+-	-rm -f semodule *.o
++	-rm -f semodule *.o ../scripts/semodule_path
  
  indent:
  	../../scripts/Lindent $(wildcard *.[ch])
- 
- relabel: install
--	/sbin/restorecon $(SBINDIR)/setfiles
-+	$(SBINDIR)/restorecon $(SBINDIR)/setfiles
-diff -pruN selinux-20072012/policycoreutils/setfiles/restorecon.8 selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/restorecon.8
---- selinux-20072012/policycoreutils/setfiles/restorecon.8	2012-06-18 18:54:45.764500252 +0200
-+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/restorecon.8	2012-07-24 14:38:51.235431700 +0200
-@@ -4,10 +4,10 @@ restorecon - restore file(s) default SE
- 
- .SH "SYNOPSIS"
- .B restorecon
--.I [-o outfilename ] [-R] [-n] [-p] [-v] [-e directory ] pathname...
-+.I [-o outfilename] [-R] [-n] [-p] [-v] [-e directory] pathname...
- .P
- .B restorecon
--.I -f infilename [-o outfilename ] [-e directory ] [-R] [-n] [-p] [-v] [-F]
-+.I -f infilename [-o outfilename] [-e directory] [-R] [-n] [-p] [-v] [-F]
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -15,49 +15,70 @@ This manual page describes the
- program.
- .P
- This program is primarily used to set the security context
--(extended attributes) on one or more files. 
-+(extended attributes) on one or more files.
- .P
--It can be run at any time to correct errors, to add support for
--new policy, or with the -n option it can just check whether the file
--contexts are all as you expect.
-+It can also be run at any other time to correct inconsistent labels, to add
-+support for newly-installed policy or, by using the -n option, to passively
-+check whether the file contexts are all set as specified by the active policy
-+(default behavior) or by some other policy (see the -c option).
- 
- .SH "OPTIONS"
--.TP 
--.B -i
--ignore files that do not exist
--.TP 
-+.TP
-+.B -e directory
-+exclude a directory (repeat the option to exclude more than one directory).
-+.TP
- .B -f infilename
--infilename contains a list of files to be processed by application. Use - for stdin.
-+infilename contains a list of files to be processed. Use - for stdin.
-+.TP
-+.B -F
-+force reset of context to match file_context for customizable files, or the
-+user section, if it has changed.
-+.TP
-+.B -h, -?
-+display usage information and exit.
- .TP 
--.B -e directory
--directory to exclude (repeat option for more than one directory.)
-+.B -i
-+ignore files that do not exist.
- .TP 
--.B -R -r
--change files and directories file labels recursively
-+.B -R, -r
-+change files and directories file labels recursively (descend directories).
- .TP 
- .B -n
--don't change any file labels.
-+don't change any file labels (passive check).
- .TP 
- .B -o outfilename
- save list of files with incorrect context in outfilename.
- .TP
- .B -p
--show progress by printing * every 1000 files.
--.TP 
-+show progress by printing * every STAR_COUNT files.
-+.TP
-+.B -R, -r
-+change files and directories file labels recursively (descend directories).
-+.TP
- .B -v
--show changes in file labels.
-+show changes in file labels, if type or role are going to be changed.
- .TP 
- .B -vv
--show changes in file labels, if type, role, or user are changing.
--.TP 
--.B -F
--Force reset of context to match file_context for customizable files, or the user section, if it has changed. 
-+show changes in file labels, if type, role or user are going to be changed.
- .TP 
-+.B -0
-+the separator for the input items is assumed to be the null character
-+(instead of the white space).  The quotes and the backslash characters are
-+also treated as normal characters that can form valid input.
-+This option finally also disables the end of file string, which is treated  
-+like any other argument.  Useful when input items might contain white space, 
-+quote marks or backslashes.  The
-+.B -print0
-+option of GNU  
-+.B find  
-+produces input suitable for this mode.
-+.TP
- .SH "ARGUMENTS"
- .B pathname...
--The pathname for the file(s) to be relabeled. 
-+The pathname for the file(s) to be relabeled.
- .SH NOTE
--restorecon does not follow symbolic links.
-+restorecon does not follow symbolic links and by default it does not
-+operate recursively on directories.
- 
- .SH "AUTHOR"
- This man page was written by Dan Walsh <dwalsh@redhat.com>.
-@@ -66,6 +87,6 @@ man page written by Russell Coker <russe
- The program was written by Dan Walsh <dwalsh@redhat.com>.
- 
- .SH "SEE ALSO"
-+.BR setfiles (8),
- .BR load_policy (8),
- .BR checkpolicy (8)
--.BR setfiles (8)
-diff -pruN selinux-20072012/policycoreutils/setfiles/setfiles.8 selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.8
---- selinux-20072012/policycoreutils/setfiles/setfiles.8	2012-07-21 15:14:27.864183912 +0200
-+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.8	2012-07-24 14:40:47.821710368 +0200
-@@ -1,22 +1,24 @@
- .TH "setfiles" "8" "2002031409" "" ""
- .SH "NAME"
--setfiles - set file SELinux security contexts.
-+setfiles - set SELinux file security contexts.
- 
- .SH "SYNOPSIS"
- .B setfiles
--.I [-c policy ] [-d] [-l] [-n] [-e directory ] [-o filename ] [-q] [-s] [-v] [-vv] [-W] [-F] spec_file pathname...
-+.I [-c policy] [-d] [-l] [-n] [-e directory] [-o filename] [-q] [-s] [-v] [-vv] [-W] [-F] spec_file pathname...
- .SH "DESCRIPTION"
- This manual page describes the
- .BR setfiles
- program.
- .P
- This program is primarily used to initialize the security context
--database (extended attributes) on one or more filesystems.  This
--program is initially run as part of the SE Linux installation process.
-+fields (extended attributes) on one or more filesystems (or parts of
-+them).  Usually it is initially run as part of the SELinux installation
-+process (a step commonly known as labeling).
- .P
--It can also be run at any time to correct errors, to add support for
--new policy, or with the -n option it can just check whether the file
--contexts are all as you expect.
-+It can also be run at any other time to correct inconsistent labels, to add
-+support for newly-installed policy or, by using the -n option, to passively 
-+check whether the file contexts are all set as specified by the active policy 
-+(default behavior) or by some other policy (see the -c option).
- 
- .SH "OPTIONS"
- .TP 
-@@ -24,47 +26,66 @@ contexts are all as you expect.
- check the validity of the contexts against the specified binary policy.
- .TP
- .B -d
--show what specification matched each file.
--.TP 
-+show what specification matched each file (do not abort validation
-+after ABORT_ON_ERRORS errors).
-+.TP
-+.B -e directory
-+directory to exclude (repeat option for more than one directory).
-+.TP
-+.B -f
-+take a list of files to be processed from an input file.
-+.TP
-+.B -F
-+force reset of context to match file_context for customizable files.
-+.TP
-+.B -h, -?
-+display usage information and exit.
-+.TP
-+.B -i
-+ignore files that do not exist.
-+.TP
- .B -l
- log changes in file labels to syslog.
- .TP
- .B -n
--don't change any file labels.
-+don't change any file labels (passive check).
-+.TP
-+.B -o filename
-+save list of files with incorrect context in filename.
- .TP
- .B -p
--show progress by printing * every 1000 files.
-+show progress by printing * every STAR_COUNT files.
- .TP 
- .B -q
- suppress non-error output.
- .TP 
- .B -r rootpath
--use an alternate root path
--.TP 
--.B -e directory
--directory to exclude (repeat option for more than one directory.)
--.TP 
--.B -F
--Force reset of context to match file_context for customizable files
--.TP 
--.B -o filename
--save list of files with incorrect context in filename.
-+use an alternate root path.
- .TP 
- .B -s
--take a list of files from standard input instead of using a pathname on the
--command line.
-+take a list of files from standard input instead of using a pathname from the
-+command line (equivalent to -f -).
- .TP
- .B -v
--show changes in file labels, if type or role are changing.
-+show changes in file labels, if type or role are going to be changed.
- .TP 
- .B -vv
--show changes in file labels, if type, role, or user are changing.
-+show changes in file labels, if type, role or user are going to be changed.
- .TP 
- .B -W
- display warnings about entries that had no matching files.
- .TP 
- .B -0
--Input items are terminated by a null character instead of by whitespace,  and the quotes and backslash are not special (every character is taken literally).  Disables the end of file string, which  is  treated  like  any other argument.  Useful when input items might contain white space, quote  marks,  or  backslashes.The  GNU  find  -print0  option produces input suitable for this mode.
-+the separator for the input items is assumed to be the null character
-+(instead of the white space).  The quotes and the backslash characters are
-+also treated as normal characters that can form valid input.
-+This option finally also disables the end of file string, which is treated
-+like any other argument.  Useful when input items might contain white space,
-+quote marks or backslashes.  The
-+.B -print0
-+option of GNU
-+.B find
-+produces input suitable for this mode.
- 
- .SH "ARGUMENTS"
- .B spec_file
-@@ -87,8 +108,13 @@ displayed but the file is still labeled
- specification other than <<none>>.
- .TP 
- .B pathname...
--The pathname for the root directory of each file system to be relabeled. 
-+The pathname for the root directory of each file system to be relabeled
-+or a specific directory within a filesystem that should be recursively
-+descended and relabeled or the pathname of a file that should be
-+relabeled.
- Not used if the
-+.B -f
-+or the
- .B -s
- option is used.
- 
-@@ -97,5 +123,6 @@ This man page was written by Russell Cok
- The program was written by Stephen Smalley <sds@epoch.ncsc.mil>
- 
- .SH "SEE ALSO"
-+.BR restorecon (8),
- .BR load_policy (8),
- .BR checkpolicy (8)
-diff -pruN selinux-20072012/policycoreutils/setfiles/setfiles.c selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.c
---- selinux-20072012/policycoreutils/setfiles/setfiles.c	2012-07-21 15:14:27.864183912 +0200
-+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.c	2012-08-21 23:57:24.363146791 +0200
-@@ -25,7 +25,13 @@ static struct restore_opts r_opts;
- 
- #define STAT_BLOCK_SIZE 1
- 
--
-+/* setfiles will abort its operation after reaching the
-+ * following number of errors (e.g. invalid contexts),
-+ * unless it is used in "debug" mode (-d option).
-+ */
-+#ifndef ABORT_ON_ERRORS
-+#define ABORT_ON_ERRORS	10
-+#endif
- 
- #define SETFILES "setfiles"
- #define RESTORECON "restorecon"
-@@ -39,14 +45,16 @@ void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iFnprRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]n",
--			name);
-+			"usage:  %s [-iFnprRv0] [-e excludedir] [-o filename] pathname...n"
-+			"usage:  %s [-iFnprRv0] [-e excludedir] [-o filename] -f filenamen",
-+			name, name);
- 	} else {
- 		fprintf(stderr,
--			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path ] spec_file pathname...n"
--			"usage:  %s -c policyfile spec_filen"
--			"usage:  %s -s [-dnpqvW] [-o filename ] spec_filen", name, name,
--			name);
-+			"usage:  %s [-dilnpqvFW] [-e excludedir] [-o filename] [-r alt_root_path] spec_file pathname...n"
-+			"usage:  %s [-dilnpqvFW] [-e excludedir] [-o filename] [-r alt_root_path] spec_file -f filename...n"
-+			"usage:  %s -s [-dilnpqvFW] [-o filename] spec_filen"
-+			"usage:  %s -c policyfile spec_filen",
-+			name, name, name, name);
- 	}
- 	exit(1);
- }
-@@ -56,8 +64,8 @@ static int nerr = 0;
- void inc_err()
- {
- 	nerr++;
--	if (nerr > 9 && !r_opts.debug) {
--		fprintf(stderr, "Exiting after 10 errors.n");
-+	if (nerr > ABORT_ON_ERRORS - 1 && !r_opts.debug) {
-+		fprintf(stderr, "Exiting after %d errors.n", ABORT_ON_ERRORS);
- 		exit(1);
- 	}
- }
-@@ -217,7 +225,7 @@ int main(int argc, char **argv)
- 	exclude_non_seclabel_mounts();
- 
- 	/* Process any options. */
--	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
-+	while ((opt = getopt(argc, argv, "c:de:f:hilno:pqrsvFRW0")) > 0) {
- 		switch (opt) {
- 		case 'c':
- 			{
-@@ -266,6 +274,8 @@ int main(int argc, char **argv)
- 			input_filename = optarg;
- 			break;			
- 		case 'd':
-+			if (iamrestorecon)
-+				usage(argv[0]);
- 			r_opts.debug = 1;
- 			break;
- 		case 'i':
-@@ -344,6 +354,7 @@ int main(int argc, char **argv)
- 		case '0':
- 			null_terminated = 1;
- 			break;
-+		case 'h':
- 		case '?':
- 			usage(argv[0]);
- 		}
-@@ -381,7 +392,8 @@ int main(int argc, char **argv)
- 
- 		altpath = argv[optind];
- 		optind++;
--	}
-+	} else if (argc == 1)
-+		usage(argv[0]);
- 
- 	/* Load the file contexts configuration and check it. */
- 	r_opts.selabel_opt_validate = (ctx_validate ? (char *)1 : NULL);
-@@ -433,7 +445,7 @@ int main(int argc, char **argv)
- 	if (r_opts.outfile)
- 		fclose(r_opts.outfile);
- 
--       if (r_opts.progress && r_opts.count >= STAR_COUNT)
--               printf("n");
-+	if (r_opts.progress && r_opts.count >= STAR_COUNT)
-+		printf("n");
- 	exit(errors);
- }
- 
+
+>Hello,
+>
+>the very first thing I would suggest for genhomedircon is to make the
+>installation a bit more robust as follows:
+>
+>Do not hard-code the path to semodule in the genhomedircon script but
+>rather generate it during each installation according to the value of
+>the SBINDIR environment variable.
+>
+>--- selinux/policycoreutils/scripts/Makefile	2011-09-02 04:19:47.355716903 +0200
+>+++ selinux-12092011-master-new/policycoreutils/scripts/Makefile	2011-09-12 05:52:41.334996312 +0200
+>@@ -11,7 +11,10 @@ install: all
+> 	-mkdir -p $(BINDIR)
+> 	install -m 755 chcat $(BINDIR)
+> 	install -m 755 fixfiles $(DESTDIR)/sbin
+>-	install -m 755 genhomedircon  $(SBINDIR)
+>+	@echo "#!/bin/sh" > genhomedircon
+>+	@echo >> genhomedircon
+>+	@echo "$(SBINDIR)/semodule -Bn" >> genhomedircon
+>+	install -m 755 genhomedircon $(SBINDIR)
+> 	-mkdir -p $(MANDIR)/man8
+> 	install -m 644 fixfiles.8 $(MANDIR)/man8/
+> 	install -m 644 genhomedircon.8 $(MANDIR)/man8/
+
+A new version has been created for the manual page too and it will be attached in a separate message to follow.
+
+>The manual page does not seem that bad apart from a possibly unwanted
+>dump from emacs. However, here is a possible improvement:
+>
+>--- selinux/policycoreutils/scripts/genhomedircon.8	2011-09-02 04:19:47.356716910 +0200
+>+++ selinux-12092011-master-new/policycoreutils/scripts/genhomedircon.8	2011-09-12 06:45:01.206251165 +0200
+>@@ -1,37 +1,21 @@
+>-." Hey, Emacs! This is an -*- nroff -*- source file.
+>-." Copyright (c) 2010 Dan Walsh <dwalsh@redhat.com>
+>-."
+>-." This is free documentation; you can redistribute it and/or
+>-." modify it under the terms of the GNU General Public License as
+>-." published by the Free Software Foundation; either version 2 of
+>-." the License, or (at your option) any later version.
+>-."
+>-." The GNU General Public License's references to "object code"
+>-." and "executables" are to be interpreted as the output of any
+>-." document formatting or typesetting system, including
+>-." intermediate and printed output.
+>-."
+>-." This manual is distributed in the hope that it will be useful,
+>-." but WITHOUT ANY WARRANTY; without even the implied warranty of
+>-." MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>-." GNU General Public License for more details.
+>-."
+>-." You should have received a copy of the GNU General Public
+>-." License along with this manual; if not, write to the Free
+>-." Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+>-." USA.
+>-."
+>-."
+>-.TH GENHOMEDIRCON "8" "May 2010" "Security Enhanced Linux" "SELinux"
+>+.TH GENHOMEDIRCON "12" "Sep 2011" "Security Enhanced Linux" "SELinux"
+> .SH NAME
+> genhomedircon - generate SELinux file context configuration entries for user home directories
+> .SH SYNOPSIS
+> .B genhomedircon
+>-is a script that executes semodule to rebuild policy and create the
+>-labels for HOMEDIRS based on home directories returned by the getpw calls.
+>+is a script that executes
+>+.B semodule
+>+to rebuild the SELinux policy and to create the
+>+labels for each user home directory based on directory paths returned by calls to getpwent().
+> 
+>-This functionality is enabled via the usepasswd flag in /etc/selinux/semanage.conf.
+>+This functionality can be disabled by using the "usepasswd" flag in /etc/selinux/semanage.conf
+>+(such flag can either take the value "true" or "false" and by default it is set to "true").
+> 
+> .SH AUTHOR
+> This manual page was written by
+> .I Dan Walsh <dwalsh@redhat.com>
+>+
+>+The supporting functionality in the semanage library was written by Tresys Technology.
+>+
+>+.SH "SEE ALSO"
+>+semodule(8), getpwent(3), getpwent_r(3)
+>
+>Regards,
+>
+>Guido
+>
+>On Thu, 2011-09-01 at 09:42 -0400, Daniel J Walsh wrote:
+>> On 09/01/2011 01:09 AM, Russell Coker wrote:
+>> > Has anyone written manpages for genhomedircon, sepolgen-ifgen, and
+>> > seunshare? If not is there someone with some spare time and man
+>> > page writing skill?
+>> > 
+>> We have man pages for genhomedircon and seunshare.  Although the
+>> genhomedircon man page is rather sparse.
+
+See following message for the manual page patch.
 
 Regards,
 
-Guido
-
->Hello again Pat.
->
->With a little bit more time available, I managed to come to a more
->meaningful, possibly better patch for setfiles/restorecon that:
->
->- improves the manual page for both setfiles and restorecon (formatting
->including alphabetical re-ordering of options, undocumented options,
->references and a few cosmetic changes);
->- de-hardcodes a couple of constants in the source files and makes a
->dynamic use of them to create the manual pages after the compilation and
->prior to the installation: more specifically the constants are the
->number of errors for the setfiles' validation process abort condition
->and the sensitivity of the progress meter for both programs (uses
->external programs grep and awk);
->- improves the usage message for both programs and introduces a -h
->(aliased with currently existing -?) option where not already available;
->- print out the usage message for restorecon when it is called without
->arguments;
->- white-space/tab conversion to get proper indentation towards the end
->of the main source file.
->
->If you and/or others like any part of the patch or just believe it might
->be useful, feel free to apply it. Also, if you believe anything is in
->error, please let me know (as in further inline review, for example) and
->I'll try to amend as required.
->
->Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
->
->---
-> policycoreutils/setfiles/Makefile     |   18 +++++--
-> policycoreutils/setfiles/restorecon.8 |   73 +++++++++++++++++++-----------
-> policycoreutils/setfiles/setfiles.8   |   81 ++++++++++++++++++++++------------
-> policycoreutils/setfiles/setfiles.c   |   34 +++++++++-----
-> 4 files changed, 137 insertions(+), 69 deletions(-)
->
->diff -pruN selinux/policycoreutils/setfiles/Makefile selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/Makefile
->--- selinux/policycoreutils/setfiles/Makefile	2012-06-18 18:54:45.764500252 +0200
->+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/Makefile	2012-07-24 12:11:51.656514665 +0200
->@@ -5,6 +5,9 @@ MANDIR = $(PREFIX)/share/man
-> LIBDIR ?= $(PREFIX)/lib
-> AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-> 
->+PROGRESS_STEP=$(shell grep "^#define STAR_COUNT" restore.h | awk -S '{ print $$3 }')
->+ABORT_ON_ERRORS=$(shell grep "^#define ABORT_ON_ERRORS" setfiles.c | awk -S '{ print $$3 }')
->+
-> CFLAGS = -g -Werror -Wall -W
-> override CFLAGS += -I$(PREFIX)/include
-> LDLIBS = -lselinux -lsepol -L$(LIBDIR)
->@@ -14,25 +17,32 @@ ifeq ($(AUDITH), /usr/include/libaudit.h
-> 	LDLIBS += -laudit
-> endif
-> 
->-all: setfiles restorecon
->+all: setfiles restorecon man
-> 
-> setfiles:  setfiles.o restore.o
-> 
-> restorecon: setfiles
-> 	ln -sf setfiles restorecon
-> 
->+man:
->+	@cp -af setfiles.8 setfiles.8.man
->+	@cp -af restorecon.8 restorecon.8.man
->+	@sed -i "s/STAR_COUNT/$(PROGRESS_STEP)/g" setfiles.8.man restorecon.8.man
->+	@sed -i "s/ABORT_ON_ERRORS/$(ABORT_ON_ERRORS)/g" setfiles.8.man
->+ 
-> install: all
-> 	[ -d $(MANDIR)/man8 ] || mkdir -p $(MANDIR)/man8
-> 	-mkdir -p $(SBINDIR)
-> 	install -m 755 setfiles $(SBINDIR)
-> 	(cd $(SBINDIR) && ln -sf setfiles restorecon)
->-	install -m 644 setfiles.8 restorecon.8 $(MANDIR)/man8
->+	install -m 644 setfiles.8.man $(MANDIR)/man8/setfiles.8
->+	install -m 644 restorecon.8.man $(MANDIR)/man8/restorecon.8
-> 
-> clean:
->-	rm -f setfiles restorecon *.o 
->+	rm -f setfiles restorecon *.o setfiles.8.man restorecon.8.man
-> 
-> indent:
-> 	../../scripts/Lindent $(wildcard *.[ch])
-> 
-> relabel: install
->-	/sbin/restorecon $(SBINDIR)/setfiles
->+	$(SBINDIR)/restorecon $(SBINDIR)/setfiles
->diff -pruN selinux/policycoreutils/setfiles/restorecon.8 selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/restorecon.8
->--- selinux/policycoreutils/setfiles/restorecon.8	2012-06-18 18:54:45.764500252 +0200
->+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/restorecon.8	2012-07-24 14:38:51.235431700 +0200
->@@ -4,10 +4,10 @@ restorecon - restore file(s) default SE
-> 
-> .SH "SYNOPSIS"
-> .B restorecon
->-.I [-o outfilename ] [-R] [-n] [-p] [-v] [-e directory ] pathname...
->+.I [-o outfilename] [-R] [-n] [-p] [-v] [-e directory] pathname...
-> .P
-> .B restorecon
->-.I -f infilename [-o outfilename ] [-e directory ] [-R] [-n] [-p] [-v] [-F]
->+.I -f infilename [-o outfilename] [-e directory] [-R] [-n] [-p] [-v] [-F]
-> 
-> .SH "DESCRIPTION"
-> This manual page describes the
->@@ -15,49 +15,70 @@ This manual page describes the
-> program.
-> .P
-> This program is primarily used to set the security context
->-(extended attributes) on one or more files. 
->+(extended attributes) on one or more files.
-> .P
->-It can be run at any time to correct errors, to add support for
->-new policy, or with the -n option it can just check whether the file
->-contexts are all as you expect.
->+It can also be run at any other time to correct inconsistent labels, to add
->+support for newly-installed policy or, by using the -n option, to passively
->+check whether the file contexts are all set as specified by the active policy
->+(default behavior) or by some other policy (see the -c option).
-> 
-> .SH "OPTIONS"
->-.TP 
->-.B -i
->-ignore files that do not exist
->-.TP 
->+.TP
->+.B -e directory
->+exclude a directory (repeat the option to exclude more than one directory).
->+.TP
-> .B -f infilename
->-infilename contains a list of files to be processed by application. Use - for stdin.
->+infilename contains a list of files to be processed. Use - for stdin.
->+.TP
->+.B -F
->+force reset of context to match file_context for customizable files, or the
->+user section, if it has changed.
->+.TP
->+.B -h, -?
->+display usage information and exit.
-> .TP 
->-.B -e directory
->-directory to exclude (repeat option for more than one directory.)
->+.B -i
->+ignore files that do not exist.
-> .TP 
->-.B -R -r
->-change files and directories file labels recursively
->+.B -R, -r
->+change files and directories file labels recursively (descend directories).
-> .TP 
-> .B -n
->-don't change any file labels.
->+don't change any file labels (passive check).
-> .TP 
-> .B -o outfilename
-> save list of files with incorrect context in outfilename.
-> .TP
-> .B -p
->-show progress by printing * every 1000 files.
->-.TP 
->+show progress by printing * every STAR_COUNT files.
->+.TP
->+.B -R, -r
->+change files and directories file labels recursively (descend directories).
->+.TP
-> .B -v
->-show changes in file labels.
->+show changes in file labels, if type or role are going to be changed.
-> .TP 
-> .B -vv
->-show changes in file labels, if type, role, or user are changing.
->-.TP 
->-.B -F
->-Force reset of context to match file_context for customizable files, or the user section, if it has changed. 
->+show changes in file labels, if type, role or user are going to be changed.
-> .TP 
->+.B -0
->+the separator for the input items is assumed to be the null character
->+(instead of the white space).  The quotes and the backslash characters are
->+also treated as normal characters that can form valid input.
->+This option finally also disables the end of file string, which is treated  
->+like any other argument.  Useful when input items might contain white space, 
->+quote marks or backslashes.  The
->+.B -print0
->+option of GNU  
->+.B find  
->+produces input suitable for this mode.
->+.TP
-> .SH "ARGUMENTS"
-> .B pathname...
->-The pathname for the file(s) to be relabeled. 
->+The pathname for the file(s) to be relabeled.
-> .SH NOTE
->-restorecon does not follow symbolic links.
->+restorecon does not follow symbolic links and by default it does not
->+operate recursively on directories.
-> 
-> .SH "AUTHOR"
-> This man page was written by Dan Walsh <dwalsh@redhat.com>.
->@@ -66,6 +87,6 @@ man page written by Russell Coker <russe
-> The program was written by Dan Walsh <dwalsh@redhat.com>.
-> 
-> .SH "SEE ALSO"
->+.BR setfiles (8),
-> .BR load_policy (8),
-> .BR checkpolicy (8)
->-.BR setfiles (8)
->diff -pruN selinux/policycoreutils/setfiles/setfiles.8 selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.8
->--- selinux/policycoreutils/setfiles/setfiles.8	2012-06-18 18:54:45.764500252 +0200
->+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.8	2012-07-24 14:40:47.821710368 +0200
->@@ -1,22 +1,24 @@
-> .TH "setfiles" "8" "2002031409" "" ""
-> .SH "NAME"
->-setfiles - set file SELinux security contexts.
->+setfiles - set SELinux file security contexts.
-> 
-> .SH "SYNOPSIS"
-> .B setfiles
->-.I [-c policy ] [-d] [-l] [-n] [-e directory ] [-o filename ] [-q] [-s] [-v] [-vv] [-W] [-F] spec_file pathname...
->+.I [-c policy] [-d] [-l] [-n] [-e directory] [-o filename] [-q] [-s] [-v] [-vv] [-W] [-F] spec_file pathname...
-> .SH "DESCRIPTION"
-> This manual page describes the
-> .BR setfiles
-> program.
-> .P
-> This program is primarily used to initialize the security context
->-database (extended attributes) on one or more filesystems.  This
->-program is initially run as part of the SE Linux installation process.
->+fields (extended attributes) on one or more filesystems (or parts of
->+them).  Usually it is initially run as part of the SELinux installation
->+process (a step commonly known as labeling).
-> .P
->-It can also be run at any time to correct errors, to add support for
->-new policy, or with the -n option it can just check whether the file
->-contexts are all as you expect.
->+It can also be run at any other time to correct inconsistent labels, to add
->+support for newly-installed policy or, by using the -n option, to passively 
->+check whether the file contexts are all set as specified by the active policy 
->+(default behavior) or by some other policy (see the -c option).
-> 
-> .SH "OPTIONS"
-> .TP 
->@@ -24,47 +26,66 @@ contexts are all as you expect.
-> check the validity of the contexts against the specified binary policy.
-> .TP
-> .B -d
->-show what specification matched each file.
->-.TP 
->+show what specification matched each file (do not abort validation
->+after ABORT_ON_ERRORS errors).
->+.TP
->+.B -e directory
->+directory to exclude (repeat option for more than one directory).
->+.TP
->+.B -f
->+take a list of files to be processed from an input file.
->+.TP
->+.B -F
->+force reset of context to match file_context for customizable files.
->+.TP
->+.B -h, -?
->+display usage information and exit.
->+.TP
->+.B -i
->+ignore files that do not exist.
->+.TP
-> .B -l
-> log changes in file labels to syslog.
-> .TP
-> .B -n
->-don't change any file labels.
->+don't change any file labels (passive check).
->+.TP
->+.B -o filename
->+save list of files with incorrect context in filename.
-> .TP
-> .B -p
->-show progress by printing * every 1000 files.
->+show progress by printing * every STAR_COUNT files.
-> .TP 
-> .B -q
-> suppress non-error output.
-> .TP 
-> .B -r rootpath
->-use an alternate root path
->-.TP 
->-.B -e directory
->-directory to exclude (repeat option for more than one directory.)
->-.TP 
->-.B -F
->-Force reset of context to match file_context for customizable files
->-.TP 
->-.B -o filename
->-save list of files with incorrect context in filename.
->+use an alternate root path.
-> .TP 
-> .B -s
->-take a list of files from standard input instead of using a pathname on the
->-command line.
->+take a list of files from standard input instead of using a pathname from the
->+command line (equivalent to -f -).
-> .TP
-> .B -v
->-show changes in file labels, if type or role are changing.
->+show changes in file labels, if type or role are going to be changed.
-> .TP 
-> .B -vv
->-show changes in file labels, if type, role, or user are changing.
->+show changes in file labels, if type, role or user are going to be changed.
-> .TP 
-> .B -W
-> display warnings about entries that had no matching files.
-> .TP 
-> .B -0
->-Input items are terminated by a null character instead of by whitespace,  and the quotes and backslash are not special (every character is taken literally).  Disables the end of file string, which  is  treated  like  any other argument.  Useful when input items might contain white space, quote  marks,  or  backslashes.The  GNU  find  -print0  option produces input suitable for this mode.
->+the separator for the input items is assumed to be the null character
->+(instead of the white space).  The quotes and the backslash characters are
->+also treated as normal characters that can form valid input.
->+This option finally also disables the end of file string, which is treated
->+like any other argument.  Useful when input items might contain white space,
->+quote marks or backslashes.  The
->+.B -print0
->+option of GNU
->+.B find
->+produces input suitable for this mode.
-> 
-> .SH "ARGUMENTS"
-> .B spec_file
->@@ -87,8 +108,13 @@ displayed but the file is still labeled
-> specification other than <<none>>.
-> .TP 
-> .B pathname...
->-The pathname for the root directory of each file system to be relabeled. 
->+The pathname for the root directory of each file system to be relabeled
->+or a specific directory within a filesystem that should be recursively
->+descended and relabeled or the pathname of a file that should be
->+relabeled.
-> Not used if the
->+.B -f
->+or the
-> .B -s
-> option is used.
-> 
->@@ -97,5 +123,6 @@ This man page was written by Russell Cok
-> The program was written by Stephen Smalley <sds@epoch.ncsc.mil>
-> 
-> .SH "SEE ALSO"
->+.BR restorecon (8),
-> .BR load_policy (8),
-> .BR checkpolicy (8)
->diff -pruN selinux/policycoreutils/setfiles/setfiles.c selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.c
->--- selinux/policycoreutils/setfiles/setfiles.c	2012-06-18 18:54:45.764500252 +0200
->+++ selinux-20072012-setfiles-minor-fixes/policycoreutils/setfiles/setfiles.c	2012-07-24 14:25:56.638828743 +0200
->@@ -25,7 +25,11 @@ static struct restore_opts r_opts;
-> 
-> #define STAT_BLOCK_SIZE 1
-> 
->-
->+/* setfiles will abort its operation after reaching the
->+ * following number of errors (e.g. invalid contexts),
->+ * unless it is used in "debug" mode (-d option).
->+ */
->+#define ABORT_ON_ERRORS	10
-> 
-> #define SETFILES "setfiles"
-> #define RESTORECON "restorecon"
->@@ -39,14 +43,16 @@ void usage(const char *const name)
-> {
-> 	if (iamrestorecon) {
-> 		fprintf(stderr,
->-			"usage:  %s [-iFnprRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]n",
->-			name);
->+			"usage:  %s [-iFnprRv0] [-e excludedir] [-o filename] pathname...n"
->+			"usage:  %s [-iFnprRv0] [-e excludedir] [-o filename] -f filenamen",
->+			name, name);
-> 	} else {
-> 		fprintf(stderr,
->-			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path ] spec_file pathname...n"
->-			"usage:  %s -c policyfile spec_filen"
->-			"usage:  %s -s [-dnpqvW] [-o filename ] spec_filen", name, name,
->-			name);
->+			"usage:  %s [-dilnpqvFW] [-e excludedir] [-o filename] [-r alt_root_path] spec_file pathname...n"
->+			"usage:  %s [-dilnpqvFW] [-e excludedir] [-o filename] [-r alt_root_path] spec_file -f filename...n"
->+			"usage:  %s -s [-dilnpqvFW] [-o filename] spec_filen"
->+			"usage:  %s -c policyfile spec_filen",
->+			name, name, name, name);
-> 	}
-> 	exit(1);
-> }
->@@ -56,7 +62,7 @@ static int nerr = 0;
-> void inc_err()
-> {
-> 	nerr++;
->-	if (nerr > 9 && !r_opts.debug) {
->+	if (nerr > ABORT_ON_ERRORS - 1 && !r_opts.debug) {
-> 		fprintf(stderr, "Exiting after 10 errors.n");
-> 		exit(1);
-> 	}
->@@ -217,7 +223,7 @@ int main(int argc, char **argv)
-> 	exclude_non_seclabel_mounts();
-> 
-> 	/* Process any options. */
->-	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
->+	while ((opt = getopt(argc, argv, "c:de:f:hilno:pqrsvFRW0")) > 0) {
-> 		switch (opt) {
-> 		case 'c':
-> 			{
->@@ -266,6 +272,8 @@ int main(int argc, char **argv)
-> 			input_filename = optarg;
-> 			break;			
-> 		case 'd':
->+			if (iamrestorecon)
->+				usage(argv[0]);
-> 			r_opts.debug = 1;
-> 			break;
-> 		case 'i':
->@@ -344,6 +352,7 @@ int main(int argc, char **argv)
-> 		case '0':
-> 			null_terminated = 1;
-> 			break;
->+		case 'h':
-> 		case '?':
-> 			usage(argv[0]);
-> 		}
->@@ -381,7 +390,8 @@ int main(int argc, char **argv)
-> 
-> 		altpath = argv[optind];
-> 		optind++;
->-	}
->+	} else if (argc == 1)
->+		usage(argv[0]);
-> 
-> 	/* Load the file contexts configuration and check it. */
-> 	r_opts.selabel_opt_validate = (ctx_validate ? (char *)1 : NULL);
->@@ -433,7 +443,7 @@ int main(int argc, char **argv)
-> 	if (r_opts.outfile)
-> 		fclose(r_opts.outfile);
-> 
->-       if (r_opts.progress && r_opts.count >= STAR_COUNT)
->-               printf("n");
->+	if (r_opts.progress && r_opts.count >= STAR_COUNT)
->+		printf("n");
-> 	exit(errors);
-> }
->
->On Mon, 2012-07-23 at 11:30 -0400, Pat McClory wrote:
->> On 07/21/2012 09:19 AM, Guido Trentalancia wrote:
->> > Add a command-line option to setfiles to disable program abortion
->> > after 10 errors (e.g. invalid contexts).
->> >
->> > Signed-off-by: Guido Trentalancia<guido@trentalancia.com>
->> >
->> > ---
->> >   policycoreutils/setfiles/restore.o  |binary
->> >   policycoreutils/setfiles/restorecon |binary
->> >   policycoreutils/setfiles/setfiles   |binary
->> >   policycoreutils/setfiles/setfiles.8 |    3 +++
->> >   policycoreutils/setfiles/setfiles.c |   11 +++++++----
->> >   policycoreutils/setfiles/setfiles.o |binary
->> >   6 files changed, 10 insertions(+), 4 deletions(-)
->> >
->> 
->> probably don't want object files and executables appearing in the diff.
->> 
->> > diff -pruN selinux-20072012/policycoreutils/setfiles/setfiles.8 selinux-20072012-setfiles-continue-on-errors/policycoreutils/setfiles/setfiles.8
->> > --- selinux-20072012/policycoreutils/setfiles/setfiles.8	2012-06-18 18:54:45.764500252 +0200
->> > +++ selinux-20072012-setfiles-continue-on-errors/policycoreutils/setfiles/setfiles.8	2012-07-21 12:43:04.108000002 +0200
->> > @@ -43,6 +43,9 @@ use an alternate root path
->> >   .TP
->> >   .B -e directory
->> >   directory to exclude (repeat option for more than one directory.)
->> > +.TP
->> > +.B -C
->> > +continue on errors (instead of aborting after 10 errors).
->> >   .TP
->> >   .B -F
->> >   Force reset of context to match file_context for customizable files
->> > diff -pruN selinux-20072012/policycoreutils/setfiles/setfiles.c selinux-20072012-setfiles-continue-on-errors/policycoreutils/setfiles/setfiles.c
->> > --- selinux-20072012/policycoreutils/setfiles/setfiles.c	2012-06-18 18:54:45.764500252 +0200
->> > +++ selinux-20072012-setfiles-continue-on-errors/policycoreutils/setfiles/setfiles.c	2012-07-21 12:42:15.610999907 +0200
->> > @@ -43,9 +43,9 @@ void usage(const char *const name)
->> >   			name);
->> >   	} else {
->> >   		fprintf(stderr,
->> > -			"usage:  %s [-dnpqvW] [-o filename] [-r alt_root_path ] spec_file pathname...n"
->> > +			"usage:  %s [-dnpqvCW] [-o filename] [-r alt_root_path ] spec_file pathname...n"
->> >   			"usage:  %s -c policyfile spec_filen"
->> > -			"usage:  %s -s [-dnpqvW] [-o filename ] spec_filen", name, name,
->> > +			"usage:  %s -s [-dnpqvCW] [-o filename ] spec_filen", name, name,
->> >   			name);
->> >   	}
->> >   	exit(1);
->> > @@ -56,7 +56,7 @@ static int nerr = 0;
->> >   void inc_err()
->> >   {
->> >   	nerr++;
->> > -	if (nerr>  9&&  !r_opts.debug) {
->> > +	if (nerr>  9&&  !r_opts.debug&&  r_opts.abort_on_error) {
->> >   		fprintf(stderr, "Exiting after 10 errors.n");
-
-The above stderr message printout is what has been fixed in the v2 patch attached above.
-
->> >   		exit(1);
->> >   	}
->> > @@ -217,7 +217,7 @@ int main(int argc, char **argv)
->> >   	exclude_non_seclabel_mounts();
->> >
->> >   	/* Process any options. */
->> > -	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0"))>  0) {
->> > +	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:CFRW0"))>  0) {
->> 
->> I think it's confusing that there are now two options that control 
->> whether or not to exit after 10 errors.  I think the man page should be 
->> updated to reflect that -d implies -C.
->> 
->> >   		switch (opt) {
->> >   		case 'c':
->> >   			{
->> > @@ -274,6 +274,9 @@ int main(int argc, char **argv)
->> >   		case 'l':
->> >   			r_opts.logging = 1;
->> >   			break;
->> > +		case 'C':
->> > +			r_opts.abort_on_error = 0;
->> > +			break;
->> 
->> b/c -C is only an option for setfiles, I think there should be an
->> 
->> if (iamrestorecon)
->>      usage(argv[0]);
->> 
->> block in this case (like there is for -c)
->> 
->> >   		case 'F':
->> >   			r_opts.force = 1;
->> >   			break;
->> >
->> >
- 
+Guido 
 
 
 --
