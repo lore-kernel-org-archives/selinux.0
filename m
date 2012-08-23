@@ -1,59 +1,143 @@
-Message-ID: <1345737324.10773.8.camel@moss-pluto.epoch.ncsc.mil>
+MIME-Version: 1.0
+In-Reply-To: <1345723737.10773.6.camel@moss-pluto.epoch.ncsc.mil>
+References: <CAN93RkL87Hscd1pdG8SUKqpNjZiwZ6Xyih=g+8HhL-vtP549Hw@mail.gmail.com>
+	<1345668870.7532.2.camel@moss-pluto.epoch.ncsc.mil>
+	<CAN93Rk+5-kAjSE6rk0qy8Ez_23SQA76+b1+3t3CoXc3FG4a=TQ@mail.gmail.com>
+	<CAFftDdqYRhn4n4r66Jhdazk77hNbY40-g0+0zgVKzS4k6mxsrQ@mail.gmail.com>
+	<CAN93RkKE7Nuy3HLQZU6B7rX+omDG5L174qEKia-mA0sRKVuaYg@mail.gmail.com>
+	<CAFftDdqR4-RukhCVxUCVv9hA3Hc-bnmJq4pyN7Rast7ttvdk=w@mail.gmail.com>
+	<CAFftDdrqw9soo1xA-ysZGRa9knc0RCQxdVTvPvtMovMXKPc0EA@mail.gmail.com>
+	<CAN93RkKztvm9tq-Bf=_SiuG1GpqLThLFA2Ly5qafRe=56aJ0Tw@mail.gmail.com>
+	<1345722246.10773.3.camel@moss-pluto.epoch.ncsc.mil>
+	<1345723737.10773.6.camel@moss-pluto.epoch.ncsc.mil>
+Date: Thu, 23 Aug 2012 12:29:53 -0400
+Message-ID: <CADQgGG2_7w1A6QO+nLN5GprrFWWkJuXExvtYgH-AkBnJbNoEwQ@mail.gmail.com>
 Subject: Re: Problems getting source using repo sync
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Cesar Maiorino <cesar.maiorino@gmail.com>
-Cc: William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
-Date: Thu, 23 Aug 2012 11:55:24 -0400
-In-Reply-To: <CAN93RkKUP7ukTWmKX6bbntoP8M5rsEuCL1m2HHe3-rs681cNPw@mail.gmail.com>
-References: 
-	<CAN93RkL87Hscd1pdG8SUKqpNjZiwZ6Xyih=g+8HhL-vtP549Hw@mail.gmail.com>
-	 <1345668870.7532.2.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAN93Rk+5-kAjSE6rk0qy8Ez_23SQA76+b1+3t3CoXc3FG4a=TQ@mail.gmail.com>
-	 <CAFftDdqYRhn4n4r66Jhdazk77hNbY40-g0+0zgVKzS4k6mxsrQ@mail.gmail.com>
-	 <CAN93RkKE7Nuy3HLQZU6B7rX+omDG5L174qEKia-mA0sRKVuaYg@mail.gmail.com>
-	 <CAFftDdqR4-RukhCVxUCVv9hA3Hc-bnmJq4pyN7Rast7ttvdk=w@mail.gmail.com>
-	 <CAFftDdrqw9soo1xA-ysZGRa9knc0RCQxdVTvPvtMovMXKPc0EA@mail.gmail.com>
-	 <CAN93RkKztvm9tq-Bf=_SiuG1GpqLThLFA2Ly5qafRe=56aJ0Tw@mail.gmail.com>
-	 <1345722246.10773.3.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAN93RkKUP7ukTWmKX6bbntoP8M5rsEuCL1m2HHe3-rs681cNPw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Robert Craig <robertpcraig@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Cesar Maiorino <cesar.maiorino@gmail.com>,
+        William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d043892b18c026c04c7f15ec0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-08-23 at 10:24 -0400, Cesar Maiorino wrote:
-> > You might want to try the ssh-based access instead.  Requires
-> setting up
-> > an account on bitbucket.org and uploading a ssh public key.  Then
-> you
+--f46d043892b18c026c04c7f15ec0
+Content-Type: text/plain; charset=ISO-8859-1
+
+My assumption is that you should be seeing a lot more then just the one
+"v2" error. I've had issues like this in the past. You should still have
+the source downloaded even with those weird errors. I believe those errors
+have to do with incorrectly formatted headers when git creates bundles from
+some repositories .  I would proceed with building as if none of those
+messages were reported.
+
+On Thu, Aug 23, 2012 at 8:08 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Thu, 2012-08-23 at 07:44 -0400, Stephen Smalley wrote:
+> > On Wed, 2012-08-22 at 18:51 -0400, Cesar Maiorino wrote:
+> > > I started clean and  used this sequence of commands (as per
+> > > selinuxproject.org/page/SEAndroid)
+> > >
+> > > git clone -b seandroid-4.0.4
+> https://bitbucket.org/seandroid/manifests.git
+> > > mkdir seandroid-4.0.4
+> > > cd seandroid-4.0.4
+> > > repo init -u https://android.googlesource.com/platform/manifest -b
+> android-4.0.4_r2.1
+> > > repo sync
+> > > cp ../manifests/local_manifest.xml .repo/
+> > > repo sync -j1
+> > >
+> > > local_manifest.xml is configured for bitbucket.
+> >
+> > You might want to try the ssh-based access instead.  Requires setting up
+> > an account on bitbucket.org and uploading a ssh public key.  Then you
 > > can do the following:
 > > cd manifests
 > > git checkout origin/seandroid-4.0.4-ssh
-> 
+> >
 > > and use the local_manifest.xml file that you'll find in that branch.
-> 
-> I'll try this next. Thanks.
-> 
-> BTW, I am using 4.0.4 because that is what is currently supplied by
-> the OEM I am dealing with, and
-> I want to change as little as possible until I get things working.
-> 
-> On that note, I have another question. I'll want to extract patches to
-> apply to my code base. I see
-> an example on selinuxproject.org:
-> cd seandroid-4.0.4/frameworks/base
-> git format-patch android-4.0.4_r2.1
-> 
-> I assume I need to do this for each of the git projects that contain
-> seandroid changes. Is there an easy
-> way to figure out which projects those are?
+>
+> BTW, are you sure you want to use 4.0.4?  4.1.1 is available.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-Yes, they are listed the local_manifest.xml file.
+--f46d043892b18c026c04c7f15ec0
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley
-National Security Agency
+My assumption is that you should be seeing a lot more then just the one &qu=
+ot;v2&quot; error. I&#39;ve had issues like this in the past. You should st=
+ill have the source downloaded even with those weird errors. I believe thos=
+e errors have to do with=A0incorrectly formatted headers when git creates b=
+undles from some repositories=A0. =A0I would proceed with building as if no=
+ne of those messages were reported.<div>
 
+
+<div><div><br><div class=3D"gmail_quote">On Thu, Aug 23, 2012 at 8:08 AM, S=
+tephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" t=
+arget=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote cla=
+ss=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pa=
+dding-left:1ex">
+
+
+<div>On Thu, 2012-08-23 at 07:44 -0400, Stephen Smalley wrote:<br>
+&gt; On Wed, 2012-08-22 at 18:51 -0400, Cesar Maiorino wrote:<br>
+&gt; &gt; I started clean and =A0used this sequence of commands (as per<br>
+&gt; &gt; <a href=3D"http://selinuxproject.org/page/SEAndroid" target=3D"_b=
+lank">selinuxproject.org/page/SEAndroid</a>)<br>
+&gt; &gt;<br>
+&gt; &gt; git clone -b seandroid-4.0.4 <a href=3D"https://bitbucket.org/sea=
+ndroid/manifests.git" target=3D"_blank">https://bitbucket.org/seandroid/man=
+ifests.git</a><br>
+&gt; &gt; mkdir seandroid-4.0.4<br>
+&gt; &gt; cd seandroid-4.0.4<br>
+&gt; &gt; repo init -u <a href=3D"https://android.googlesource.com/platform=
+/manifest" target=3D"_blank">https://android.googlesource.com/platform/mani=
+fest</a> -b android-4.0.4_r2.1<br>
+&gt; &gt; repo sync<br>
+&gt; &gt; cp ../manifests/local_manifest.xml .repo/<br>
+&gt; &gt; repo sync -j1<br>
+&gt; &gt;<br>
+&gt; &gt; local_manifest.xml is configured for bitbucket.<br>
+&gt;<br>
+&gt; You might want to try the ssh-based access instead. =A0Requires settin=
+g up<br>
+&gt; an account on <a href=3D"http://bitbucket.org" target=3D"_blank">bitbu=
+cket.org</a> and uploading a ssh public key. =A0Then you<br>
+&gt; can do the following:<br>
+&gt; cd manifests<br>
+&gt; git checkout origin/seandroid-4.0.4-ssh<br>
+&gt;<br>
+&gt; and use the local_manifest.xml file that you&#39;ll find in that branc=
+h.<br>
+<br>
+</div>BTW, are you sure you want to use 4.0.4? =A04.1.1 is available.<br>
+<div><div><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br=
+>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov" target=3D"_blank">majordomo@tycho.nsa.gov</a> with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
+>
+</div></div></blockquote></div><br></div></div></div>
+
+--f46d043892b18c026c04c7f15ec0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
