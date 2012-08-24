@@ -1,9 +1,9 @@
-Subject: [PATCH 4/7] SELinux: pass a sbsec to security_fs_use
+Subject: [PATCH 3/7] SELinux: define bits in the mask in a header
 To: selinux@tycho.nsa.gov
 From: Eric Paris <eparis@redhat.com>
 Cc: sds@tycho.nsa.gov
-Date: Fri, 24 Aug 2012 15:59:07 -0400
-Message-ID: <20120824195907.22970.73327.stgit@paris.rdu.redhat.com>
+Date: Fri, 24 Aug 2012 15:59:00 -0400
+Message-ID: <20120824195900.22970.80440.stgit@paris.rdu.redhat.com>
 In-Reply-To: <20120824195845.22970.54641.stgit@paris.rdu.redhat.com>
 References: <20120824195845.22970.54641.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
@@ -11,92 +11,46 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Rather than passing pointers to memory locations inside security_fs_use just
-pass the struct itself.  As we need more fields later, this cuts down on
-future argument lists.
+We had this random hard coded value of '8' in the code (I put it there)
+for the number of bits to check for mount options.  This is stupid.  Instead
+put the number of bits in the header so we don't hit problems down the road.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- security/selinux/hooks.c            |    2 +-
- security/selinux/include/security.h |    4 ++--
- security/selinux/ss/services.c      |   18 +++++++-----------
- 3 files changed, 10 insertions(+), 14 deletions(-)
+ security/selinux/hooks.c            |    5 ++++-
+ security/selinux/include/security.h |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e55ff04..8d2bff9 100644
+index 74a738d..e55ff04 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -677,7 +677,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		sbsec->flags |= SE_SBPROC;
+@@ -461,9 +461,12 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 	if (!ss_initialized)
+ 		return -EINVAL;
  
- 	/* Determine the labeling behavior to use for this filesystem type. */
--	rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
-+	rc = security_fs_use(sb->s_type->name, sbsec);
- 	if (rc) {
- 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
- 		       __func__, sb->s_type->name, rc);
++	/* make sure we always check enough bits to cover the mask */
++	BUILD_BUG_ON(SE_MNTMASK >= (1 << SE_MNTMASK_BITS));
++
+ 	tmp = sbsec->flags & SE_MNTMASK;
+ 	/* count the number of mount options for this sb */
+-	for (i = 0; i < 8; i++) {
++	for (i = 0; i < SE_MNTMASK_BITS; i++) {
+ 		if (tmp & 0x01)
+ 			opts->num_mnt_opts++;
+ 		tmp >>= 1;
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 335753b..7142995 100644
+index 927fc14..335753b 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -173,8 +173,8 @@ int security_get_allow_unknown(void);
- #define SECURITY_FS_USE_NONE		5 /* no labeling support */
- #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
+@@ -44,6 +44,7 @@
  
--int security_fs_use(const char *fstype, unsigned int *behavior,
--	u32 *sid);
-+struct superblock_security_struct;
-+int security_fs_use(const char *fstype, struct superblock_security_struct *sbsec);
- 
- int security_genfs_sid(const char *fstype, char *name, u16 sclass,
- 	u32 *sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d12eaf8..295e937 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2327,13 +2327,9 @@ out:
- /**
-  * security_fs_use - Determine how to handle labeling for a filesystem.
-  * @fstype: filesystem type
-- * @behavior: labeling behavior
-- * @sid: SID for filesystem (superblock)
-+ * @sbsec: security structure for the superblock in question
-  */
--int security_fs_use(
--	const char *fstype,
--	unsigned int *behavior,
--	u32 *sid)
-+int security_fs_use(const char *fstype, struct superblock_security_struct *sbsec)
- {
- 	int rc = 0;
- 	struct ocontext *c;
-@@ -2348,21 +2344,21 @@ int security_fs_use(
- 	}
- 
- 	if (c) {
--		*behavior = c->v.behavior;
-+		sbsec->behavior = c->v.behavior;
- 		if (!c->sid[0]) {
- 			rc = sidtab_context_to_sid(&sidtab, &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
- 				goto out;
- 		}
--		*sid = c->sid[0];
-+		sbsec->sid = c->sid[0];
- 	} else {
--		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
-+		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, &sbsec->sid);
- 		if (rc) {
--			*behavior = SECURITY_FS_USE_NONE;
-+			sbsec->behavior = SECURITY_FS_USE_NONE;
- 			rc = 0;
- 		} else {
--			*behavior = SECURITY_FS_USE_GENFS;
-+			sbsec->behavior = SECURITY_FS_USE_GENFS;
- 		}
- 	}
- 
+ /* Mask for just the mount related flags */
+ #define SE_MNTMASK	0x0f
++#define SE_MNTMASK_BITS	4
+ /* Super block security struct flags for mount options */
+ #define CONTEXT_MNT	0x01
+ #define FSCONTEXT_MNT	0x02
 
 
 --
