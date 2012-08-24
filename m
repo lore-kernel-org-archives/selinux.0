@@ -1,10 +1,9 @@
-Subject: [PATCH 2/7] SELinux: make it harder to get the number of mnt opts
- wrong
+Subject: [PATCH 6/7] SELinux: do not handle seclabel as a special flag
 To: selinux@tycho.nsa.gov
 From: Eric Paris <eparis@redhat.com>
 Cc: sds@tycho.nsa.gov
-Date: Fri, 24 Aug 2012 15:58:53 -0400
-Message-ID: <20120824195853.22970.7577.stgit@paris.rdu.redhat.com>
+Date: Fri, 24 Aug 2012 15:59:21 -0400
+Message-ID: <20120824195921.22970.8969.stgit@paris.rdu.redhat.com>
 In-Reply-To: <20120824195845.22970.54641.stgit@paris.rdu.redhat.com>
 References: <20120824195845.22970.54641.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
@@ -12,38 +11,56 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Instead of just hard coding a value, use the enum to out benefit.
+Instead of having special code around the 'non-mount' seclabel mount option
+just handle it like the mount options.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- security/selinux/hooks.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c            |    3 ---
+ security/selinux/include/security.h |   10 +++++-----
+ 2 files changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index df35dd6..74a738d 100644
+index 2121e1d..ffded97 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -96,8 +96,6 @@
- #include "audit.h"
- #include "avc_ss.h"
+@@ -469,9 +469,6 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 			opts->num_mnt_opts++;
+ 		tmp >>= 1;
+ 	}
+-	/* Check if the Label support flag is set */
+-	if (sbsec->flags & SE_SBLABELSUPP)
+-		opts->num_mnt_opts++;
  
--#define NUM_SEL_MNT_OPTS 5
--
- extern struct security_operations *security_ops;
+ 	opts->mnt_opts = kcalloc(opts->num_mnt_opts, sizeof(char *), GFP_ATOMIC);
+ 	if (!opts->mnt_opts) {
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 7142995..238ed4c 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -43,17 +43,17 @@
+ #endif
  
- /* SECMARK reference count */
-@@ -309,8 +307,11 @@ enum {
- 	Opt_defcontext = 3,
- 	Opt_rootcontext = 4,
- 	Opt_labelsupport = 5,
-+	Opt_nextmntopt = 6,
- };
+ /* Mask for just the mount related flags */
+-#define SE_MNTMASK	0x0f
+-#define SE_MNTMASK_BITS	4
++#define SE_MNTMASK	0x1f
++#define SE_MNTMASK_BITS	5
+ /* Super block security struct flags for mount options */
+ #define CONTEXT_MNT	0x01
+ #define FSCONTEXT_MNT	0x02
+ #define ROOTCONTEXT_MNT	0x04
+ #define DEFCONTEXT_MNT	0x08
++#define SE_SBLABELSUPP	0x10
+ /* Non-mount related flags */
+-#define SE_SBINITIALIZED	0x10
+-#define SE_SBPROC		0x20
+-#define SE_SBLABELSUPP	0x40
++#define SE_SBINITIALIZED	0x20
++#define SE_SBPROC		0x40
  
-+#define NUM_SEL_MNT_OPTS	(Opt_nextmntopt - 1)
-+
- static const match_table_t tokens = {
- 	{Opt_context, CONTEXT_STR "%s"},
- 	{Opt_fscontext, FSCONTEXT_STR "%s"},
+ #define CONTEXT_STR	"context="
+ #define FSCONTEXT_STR	"fscontext="
 
 
 --
