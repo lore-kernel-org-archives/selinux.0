@@ -1,86 +1,46 @@
-MIME-Version: 1.0
-In-Reply-To: <CAFftDdrHv2vfmV3dZ7c2sRS2VmowvTUj9t7hDrHp+MtsJrQu_Q@mail.gmail.com>
-References: <CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
-	<5036E824.7030007@manicmethod.com>
-	<CAFftDdrHv2vfmV3dZ7c2sRS2VmowvTUj9t7hDrHp+MtsJrQu_Q@mail.gmail.com>
-Date: Thu, 23 Aug 2012 21:41:05 -0700
-Message-ID: <CAFftDdqqpiLXOgr4=MeHpwExk7HLuVH6N=_Br0d27ZCWM_uVcw@mail.gmail.com>
+Message-ID: <1345809625.18849.9.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: sepol help
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+Date: Fri, 24 Aug 2012 08:00:25 -0400
+In-Reply-To: <CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
+References: 
+	<CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You got me with the cannot link as shared object....I was looking at
-the text section going why wont it link, and then I tried static and
-it worked. I should have paid more attention to that detail in your
-email. So for all those make sure you link sepol statically.
-Otherwise, thanks again.
+On Thu, 2012-08-23 at 19:01 -0700, William Roberts wrote:
+> I am working on a tool for parsing, and allowing overrides to occur in
+> seapp_contexts. I also want it to check the output selectors against
+> the compiled binary. After looking at sepol, it wasn't quite clear to
+> me how to get going with it. Can anyone give me function calls to do
+> something like this?
+> 
+> 1. Load the compiled binary
+> 2. Check to see if a boolean exists
 
-On Thu, Aug 23, 2012 at 7:41 PM, William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> Thanks  I will dig, try that!
->
-> On Thu, Aug 23, 2012 at 7:34 PM, Joshua Brindle <method@manicmethod.com> wrote:
->> William Roberts wrote:
->>>
->>> I am working on a tool for parsing, and allowing overrides to occur in
->>> seapp_contexts. I also want it to check the output selectors against
->>> the compiled binary. After looking at sepol, it wasn't quite clear to
->>> me how to get going with it. Can anyone give me function calls to do
->>> something like this?
->>>
->>> 1. Load the compiled binary
->>
->>
->> look at checkpolicy/test/dispol.c for examples. requires you to be
->> statically linked against libsepol.
->>
->>         fd = open(argv[1], O_RDONLY);
->>         if (fd < 0) {
->> ...        }
->>         if (fstat(fd, &sb) < 0) {
->> ...        }
->>         map =
->>             mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd,
->> 0);
->>         if (map == MAP_FAILED) {
->> ...        }
->>         policy_file_init(&pf);
->>         pf.type = PF_USE_MEMORY;
->>         pf.data = map;
->>         pf.len = sb.st_size;
->>         if (policydb_init(&policydb)) {
->> ...        }
->>         ret = policydb_read(&policydb, &pf, 1);
->>
->>
->>
->>> 2. Check to see if a boolean exists
->>
->>
->> bool = hashtab_search(policydb->p_bools.table, "some_boolean");
->> if (bool == null) {
->>         //no such boolean
->> }
->>
->
->
->
-> --
-> Respectfully,
->
-> William C Roberts
+When possible, try to use the shared library interfaces and exported
+data structures (look for sepol_ prefixes) rather than the private ones.
+For that reason, checkpolicy isn't a good example to use.
 
+libsemanage uses only the shared library APIs.
+libselinux/src/load_policy.c (in upstream selinux) uses only the shared
+library APIs.
+policycoreutils/setfiles/setfiles.c uses only the shared library APIs.
+
+If that doesn't quite get you there, you can look at
+libselinux/src/audit2why.c, which although it does use the static lib,
+it at least tries to use the sepol_ data types and interfaces wherever
+possible.
 
 
 -- 
-Respectfully,
+Stephen Smalley
+National Security Agency
 
-William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
