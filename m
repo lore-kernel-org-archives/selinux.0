@@ -1,59 +1,55 @@
+Message-ID: <5036E824.7030007@manicmethod.com>
+Date: Thu, 23 Aug 2012 22:34:12 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-In-Reply-To: <1343414258.17570.72.camel@moss-pluto.epoch.ncsc.mil>
-References: <1343414055-3831-1-git-send-email-hqjiang1988@gmail.com>
-	<1343414258.17570.72.camel@moss-pluto.epoch.ncsc.mil>
-Date: Thu, 23 Aug 2012 19:28:18 -0700
-Message-ID: <CAFftDdqs9=nt9m4kCd0wva4FtE=wvC2hyUFbcb4gj02GrCo=vQ@mail.gmail.com>
-Subject: Re: [PATCH 1/1] allocate perms to platformappdomain over system_data_file
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Haiqing Jiang <hqjiang1988@gmail.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: William Roberts <bill.c.roberts@gmail.com>
+CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: sepol help
+References: <CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
+In-Reply-To: <CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am trying to locate those patches for auditing, can someone please
-point us in the right direction?
-
-Are these them?
-https://www.redhat.com/archives/linux-audit/2011-October/msg00030.html
-
-
-On Fri, Jul 27, 2012 at 11:37 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2012-07-27 at 11:34 -0700, Haiqing Jiang wrote:
->> ---
->>  app.te |    2 ++
->>  1 files changed, 2 insertions(+), 0 deletions(-)
->>
->> diff --git a/app.te b/app.te
->> index 85de816..dca2e0c 100644
->> --- a/app.te
->> +++ b/app.te
->> @@ -83,6 +83,8 @@ allow platformappdomain platform_app_data_file:notdevfile_class_set create_file_
->>  # App sdcard file accesses
->>  allow platformappdomain sdcard:dir create_dir_perms;
->>  allow platformappdomain sdcard:file create_file_perms;
->> +# System data file accesses XXX????
->> +allow platformappdomain system_data_file:file open;
->>
->>  #
->>  # Untrusted apps.
+William Roberts wrote:
+> I am working on a tool for parsing, and allowing overrides to occur in
+> seapp_contexts. I also want it to check the output selectors against
+> the compiled binary. After looking at sepol, it wasn't quite clear to
+> me how to get going with it. Can anyone give me function calls to do
+> something like this?
 >
-> Need to know more about the denial to diagnose.
-> Also, enabling syscall audit may help with getting full pathnames,
-> although you likely need the ARM audit patches for that.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
+> 1. Load the compiled binary
+
+look at checkpolicy/test/dispol.c for examples. requires you to be 
+statically linked against libsepol.
+
+         fd = open(argv[1], O_RDONLY);
+         if (fd < 0) {
+...        }
+         if (fstat(fd, &sb) < 0) {
+...        }
+         map =
+             mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, 
+fd, 0);
+         if (map == MAP_FAILED) {
+...        }
+         policy_file_init(&pf);
+         pf.type = PF_USE_MEMORY;
+         pf.data = map;
+         pf.len = sb.st_size;
+         if (policydb_init(&policydb)) {
+...        }
+         ret = policydb_read(&policydb, &pf, 1);
 
 
+> 2. Check to see if a boolean exists
 
--- 
-Respectfully,
+bool = hashtab_search(policydb->p_bools.table, "some_boolean");
+if (bool == null) {
+	//no such boolean
+}
 
-William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
