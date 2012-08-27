@@ -1,62 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7PGlZ5F024885
-	for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2012 12:47:35 -0400
-Received: by vcbfl17 with SMTP id fl17so3754532vcb.12
-        for <selinux@tycho.nsa.gov>; Sat, 25 Aug 2012 09:47:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CACLa4puinrGaotQ5f5rqvYusA7mV-0qTaBUaF+teYfRezZE6Rw@mail.gmail.com>
-References: <201208211615.q7LGFg3M000832@vivaldi49.register.it>
-	<CAPzO=Nyqc0=cyeOh6Aj3A-bSbtpbnjSfsXc_Lf-kO3ceeK3w2A@mail.gmail.com>
-	<CACLa4puinrGaotQ5f5rqvYusA7mV-0qTaBUaF+teYfRezZE6Rw@mail.gmail.com>
-Date: Sat, 25 Aug 2012 18:47:33 +0200
-Message-ID: <CAPzO=NwR-7KruhfYYRO+SFGD2=cmuG+w5dNPaqbz=UhiJ4=Ziw@mail.gmail.com>
-Subject: Re: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and higher?)
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: SELinux <selinux@tycho.nsa.gov>
+Date: Mon, 27 Aug 2012 13:15:58 +0300
+Message-ID: <CALrft9_xxAFyNCgfovcpjc0EjTSfDPE6UxECOB1UDQYREMP5WQ@mail.gmail.com>
+Subject: Unified set of RPM security hooks for different LSMs
+From: Elena Reshetova <elena.reshetova@gmail.com>
+To: SELinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 24, 2012 at 7:17 PM, Eric Paris <eparis@parisplace.org> wrote:
-> With your patch does it still build with the old swig version?  I know
-> we put a nasty hack in Fedora which made it build with new swig, but
-> wouldn't build with old swig.
+Hi,
 
-It builds fine with swig-2.* (tested with 2.0.3, 2.0.4, 2.0.7 and now 2.0.8).
+My name is Elena Reshetova, currently I am working for Intel on the
+Tizen OS, where we are using Smack LSM for platform access control and
+RPM is our package manager.
+We have the same need as SELinux to bootstrap the smack policies  for
+applications coming in rpm packages.
+We have an rpm plugin that performs rule creation, file labelling,
+device policy check and other related tasks.
+If you are interested, you can read more about it here:
+https://wiki.tizen.org/wiki/Security/Application_installation_and_Manifest
 
-swig-1.3.40 doesn't, but without my patch it fails with 1.3.40 as well.
+Unfortunately currently we have to use our own set of hooks inside rpm
+for the plugin, because we are using/planning to use more hooks than
+currently available in SELinux implementation.
+You can see the hook description here:
+https://github.com/ereshetova/rpm/wiki/Security-Hooks-for-rpm
 
-make[1]: Entering directory
-`/var/tmp/portage/app-admin/setools-3.3.7-r6/work/setools-3.3.7/libsefs/swig/python-3.2'
-x86_64-pc-linux-gnu-g++ -shared -o _sefs.so.4.0.3 sefs_wrap.cc
--fno-strict-aliasing   -I/usr/include -I/usr/include
--I../../../libqpol/include -I../../../libapol/include -I../../.. -fpic
--I../../../libsefs/include -march=native -ggdb -O2 -pipe
--I/usr/include/python3.2 -lpython3.2 ../../../libapol/src/libapol.so
-../../../libqpol/src/libqpol.so ../../../libsefs/src/libsefs.so
--lsqlite3   -lxml2   -Wl,-O1 -Wl,--as-needed -Wl,-soname,_sefs.so.4
-sefs_wrap.cc: In function 'swig_module_info* SWIG_Python_GetModule()':
-sefs_wrap.cc:2452:51: error: 'PyCObject_Import' was not declared in this scope
-sefs_wrap.cc: In function 'void SWIG_Python_SetModule(swig_module_info*)':
-sefs_wrap.cc:2521:92: error: 'PyCObject_FromVoidPtr' was not declared
-in this scope
-sefs_wrap.cc: In function 'swig_type_info* SWIG_Python_TypeQuery(const char*)':
-sefs_wrap.cc:2544:60: error: 'PyCObject_AsVoidPtr' was not declared in
-this scope
-sefs_wrap.cc:2549:51: error: 'PyCObject_FromVoidPtr' was not declared
-in this scope
+I think it would be very beneficial for everyone if we can define a
+single security plug-in interface for RPM and then adopt our
+implementations to use it. I have written to rpm maintainer about this
+before and he also agreed that having one interface for all LSMs in
+rpm is a good idea.
+Finally the code for our plugin and hooks is located here:
+https://github.com/ereshetova/rpm/tree/security-changes
+I am trying to keep it rebased to latest rpm and also include the
+changes I am constantly making for Tizen (we are still on 4.9.1
+unfortunately L).
 
-We switched building with swig-2 at the time that the latest stable
-SELinux policy utilities (libselinux, libsemanage, policycoreutils,
-...) were released as that was the then stable swig version in Gentoo.
+I am also having a talk at Linux Security Summit this week to show
+what we have done for Smack in rpm and promote a creation of
+unification interface for it.
+Would you be interested to work together in defining the unified set of hooks?
 
-> WTF was swig thinking making a non-backwards compat change like this?!
+I have tried to contact Steve Lawrence (at slawrence@tresys.com) who
+introduced the current SELinux-related functionality to rpm, but
+without any success so far.
 
-It's probably considered to be a bug(fix) than a change - more strict
-checking or so. What is the swig version you build setools with?
 
-Wkr,
-  Sven Vermeulen
+Best Regards,
+Elena.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
