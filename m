@@ -1,54 +1,44 @@
-MIME-Version: 1.0
-Date: Mon, 27 Aug 2012 13:15:58 +0300
-Message-ID: <CALrft9_xxAFyNCgfovcpjc0EjTSfDPE6UxECOB1UDQYREMP5WQ@mail.gmail.com>
-Subject: Unified set of RPM security hooks for different LSMs
-From: Elena Reshetova <elena.reshetova@gmail.com>
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1346070096.2317.2.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: sepol help
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov,
+        Joshua
+	Brindle <jbrindle@tresys.com>
+Date: Mon, 27 Aug 2012 08:21:36 -0400
+In-Reply-To: <CAFftDdrBnacqwOXpDZ4bz5PrWnTQKvt-GaNq3SBAWtJWApX07A@mail.gmail.com>
+References: 
+	<CAFftDdrcyjQ53iEjQBK=tHROVR5fZVEPvC8wRxTT9ddx2j6FVA@mail.gmail.com>
+	 <5036E824.7030007@manicmethod.com>
+	 <CAFftDdrHv2vfmV3dZ7c2sRS2VmowvTUj9t7hDrHp+MtsJrQu_Q@mail.gmail.com>
+	 <CAFftDdqqpiLXOgr4=MeHpwExk7HLuVH6N=_Br0d27ZCWM_uVcw@mail.gmail.com>
+	 <1345810236.18849.16.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAFftDdqOf3frr7bK9vZ3j7uCPdfhdwxbaH6A3UBw=UV8+nEB7Q@mail.gmail.com>
+	 <CAFftDdrJpFsQRwxpg8U=KC0aG16BWcKmR+vmcnEWC78BKqx-vg@mail.gmail.com>
+	 <CAFftDdrBnacqwOXpDZ4bz5PrWnTQKvt-GaNq3SBAWtJWApX07A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Fri, 2012-08-24 at 19:35 -0700, William Roberts wrote:
+> I tried getting mls prefix by doing:
+> 
+> sepol_context_create(pol.handle,&pol.con);
+> char *mls = sepol_context_get_mls(pol.con);
+> 
+> but mls is NULL. Not really sure if I am creating the handle and
+> context properly.
 
-My name is Elena Reshetova, currently I am working for Intel on the
-Tizen OS, where we are using Smack LSM for platform access control and
-RPM is our package manager.
-We have the same need as SELinux to bootstrap the smack policies  for
-applications coming in rpm packages.
-We have an rpm plugin that performs rule creation, file labelling,
-device policy check and other related tasks.
-If you are interested, you can read more about it here:
-https://wiki.tizen.org/wiki/Security/Application_installation_and_Manifest
+sepol_context_create() just creates an empty context record that you
+then have to fill.  If you want to create it from an existing string
+security context, then use sepol_context_from_string() to initialize it
+and then you can use sepol_context_get_* to extract individual fields.
 
-Unfortunately currently we have to use our own set of hooks inside rpm
-for the plugin, because we are using/planning to use more hooks than
-currently available in SELinux implementation.
-You can see the hook description here:
-https://github.com/ereshetova/rpm/wiki/Security-Hooks-for-rpm
+-- 
+Stephen Smalley
+National Security Agency
 
-I think it would be very beneficial for everyone if we can define a
-single security plug-in interface for RPM and then adopt our
-implementations to use it. I have written to rpm maintainer about this
-before and he also agreed that having one interface for all LSMs in
-rpm is a good idea.
-Finally the code for our plugin and hooks is located here:
-https://github.com/ereshetova/rpm/tree/security-changes
-I am trying to keep it rebased to latest rpm and also include the
-changes I am constantly making for Tizen (we are still on 4.9.1
-unfortunately L).
-
-I am also having a talk at Linux Security Summit this week to show
-what we have done for Smack in rpm and promote a creation of
-unification interface for it.
-Would you be interested to work together in defining the unified set of hooks?
-
-I have tried to contact Steve Lawrence (at slawrence@tresys.com) who
-introduced the current SELinux-related functionality to rpm, but
-without any success so far.
-
-
-Best Regards,
-Elena.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
