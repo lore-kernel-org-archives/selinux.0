@@ -1,56 +1,45 @@
-Message-ID: <1346084367.9950.10.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: neverallow and attributes
+Message-ID: <1346084656.9950.15.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: SELinux performance depending on type count
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ole Kliemann <ole@plastictree.net>
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 27 Aug 2012 12:19:27 -0400
-In-Reply-To: <20120827143758.GC2168@telvanni>
-References: <20120827143758.GC2168@telvanni>
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Date: Mon, 27 Aug 2012 12:24:16 -0400
+In-Reply-To: <20120827152843.GD2168@telvanni>
+References: <20120807130244.GE2085@telvanni>
+	 <20120810213845.GQ2296@telvanni>
+	 <1344861329.25589.16.camel@moss-pluto.epoch.ncsc.mil>
+	 <20120827152843.GD2168@telvanni>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-08-27 at 16:37 +0200, Ole Kliemann wrote:
-> If I do:
+On Mon, 2012-08-27 at 17:28 +0200, Ole Kliemann wrote:
+> On Mon, Aug 13, 2012 at 08:35:29AM -0400, Stephen Smalley wrote:
+> > On Fri, 2012-08-10 at 23:38 +0200, Ole Kliemann wrote:
+> > > [...]
+> > >
+> > > $ runcon -l s0:c0.c9999
+> > > 
+> > > Now I'm system_u:system_r:unconfined_t:s0:c0.c9999.
+> > > I rerun the script. Average walltime is about 39sec.
+> > > 
+> > > Ouch! :-/
+> > >
+> > > [...]
+> > 
+> > I wonder how much of that time is spent on the chcon calls (i.e.
+> > getxattr + setxattr) vs the actual accessing of the files.
 > 
->     attribute A;
->     
->     type T1_t;
->     type T2_t;
->     
->     typeattribute T2_t A;
->     
->     allow A T1_t:file read;
->     
->     neverallow T2_t T1_t:file read;
+> I was away for some time, but in case you are still interested:
 > 
-> I can compile and load the corresponding module. I can even do:
+> As can be seen with the attached script, the time it takes 
+> accessing the files remains stable. Only creating and chcon'ing 
+> files and dirs seems to be the problem. 
 > 
->     allow A T1_t:file read;
->     
->     neverallow A T1_t:file read;
-> 
-> without problems.
-> 
-> I cannot do:
-> 
->     allow T2_t T1_t:file read;
->     
->     neverallow A T1_t:file read;
-> 
-> 
-> The neverallow assertion does not find any allows that are 
-> constituted by allowing something for an attribute.
-> 
-> Is this normal behaviour?
+> So for all of my purposes I consider this a non-issue.
 
-I would call that a bug.  However, I'm not surprised, as Fedora disables
-the neverallow checking by default (expand-check=0
-in /etc/selinux/semanage.conf), so it doesn't get much testing these
-days.  Possibly the neverallow checking has never been updated to
-account for preservation of attributes in the kernel policy (originally
-all attributes were expanded at compile-time).
+Yes, that makes more sense to me.
 
 -- 
 Stephen Smalley
