@@ -1,50 +1,28 @@
-Message-ID: <1346084656.9950.15.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: SELinux performance depending on type count
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ole Kliemann <ole@plastictree.net>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Date: Mon, 27 Aug 2012 12:24:16 -0400
-In-Reply-To: <20120827152843.GD2168@telvanni>
-References: <20120807130244.GE2085@telvanni>
-	 <20120810213845.GQ2296@telvanni>
-	 <1344861329.25589.16.camel@moss-pluto.epoch.ncsc.mil>
-	 <20120827152843.GD2168@telvanni>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+MIME-Version: 1.0
+Date: Mon, 27 Aug 2012 18:00:26 -0700
+Message-ID: <CAFftDdrXWFPee+uGy1-UXRYM+4e5ZWxPfJXzE4Ts6Tn84ue_cQ@mail.gmail.com>
+Subject: check_seapp sepolicy integration
+From: William Roberts <bill.c.roberts@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-08-27 at 17:28 +0200, Ole Kliemann wrote:
-> On Mon, Aug 13, 2012 at 08:35:29AM -0400, Stephen Smalley wrote:
-> > On Fri, 2012-08-10 at 23:38 +0200, Ole Kliemann wrote:
-> > > [...]
-> > >
-> > > $ runcon -l s0:c0.c9999
-> > > 
-> > > Now I'm system_u:system_r:unconfined_t:s0:c0.c9999.
-> > > I rerun the script. Average walltime is about 39sec.
-> > > 
-> > > Ouch! :-/
-> > >
-> > > [...]
-> > 
-> > I wonder how much of that time is spent on the chcon calls (i.e.
-> > getxattr + setxattr) vs the actual accessing of the files.
-> 
-> I was away for some time, but in case you are still interested:
-> 
-> As can be seen with the attached script, the time it takes 
-> accessing the files remains stable. Only creating and chcon'ing 
-> files and dirs seems to be the problem. 
-> 
-> So for all of my purposes I consider this a non-issue.
+I have the initial check_seapp tool integrated inted sepolicy, and
+rather then blasting patches back and forth for code review, we can
+use bitbucket and its wiki...
 
-Yes, that makes more sense to me.
+Please visit,
+https://bitbucket.org/billcroberts/external-sepolicy/overview
+
+lets work on getting this up to par, and then I will submit a patch
+back over the mailing list for it's inclusion.
 
 -- 
-Stephen Smalley
-National Security Agency
+Respectfully,
 
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
