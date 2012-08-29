@@ -1,46 +1,49 @@
-Message-ID: <503CA8A4.50802@redhat.com>
-Date: Tue, 28 Aug 2012 07:16:52 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7T2oqQb007553
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2012 22:50:52 -0400
+Received: by vcbfl17 with SMTP id fl17so103824vcb.12
+        for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2012 19:50:30 -0700 (PDT)
 MIME-Version: 1.0
-To: Gaurav Kumar <gk@pivotalsecurity.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: selinux context_new return value question
-References: <CAFUy1TzNKNWDACcXtBn05-CMkxyZzGNTQGNHyjt+XFPAoUQ-3Q@mail.gmail.com> <CAFUy1TwvBNP9UBTK39DRWg5LNnf6tA2UJYuBpPP548oK0GrZxg@mail.gmail.com>
-In-Reply-To: <CAFUy1TwvBNP9UBTK39DRWg5LNnf6tA2UJYuBpPP548oK0GrZxg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Date: Tue, 28 Aug 2012 23:50:30 -0300
+Message-ID: <CAE_4iW8xF5NLvjrXKpSExgstbFx8JKfx38F5PBN0YP3VaPFz4Q@mail.gmail.com>
+Subject: proof selinux
+From: "Raul da Silva {Sp4wn}" <sp4wn.root@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec54d4e0a36943d04c85e9f96
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--bcaec54d4e0a36943d04c85e9f96
+Content-Type: text/plain; charset=ISO-8859-1
 
-On 08/28/2012 05:09 AM, Gaurav Kumar wrote:
-> According to http://linux.die.net/man/3/context_new, "On success, zero is
-> returned" but none of the functions mentioned return 0. They are all
-> returning const char * or void. Can someone please clarify in which case 0
-> will be returned? In other words, how can I find out if call to context_new
-> succeeded?
-> 
-> Thanks, Gaurav
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-> 
-It is a bug.  NULL (0) actually would be the error code.  Since context_new is
-basically doing a malloc of a new structure.
+hi guys,
 
-I will fix the code in Fedora and work to get it upstream.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+I know that we have a lot of ways to prove how effective is SELinux as cgi,
+perl, shell scripts and I know that is effective but I'd like to know if
+someone already tested some kind of exploit of buffer overflow attack as
+demo to show how effective could be SELinux.
+Any information I really appreciate
 
-iEYEARECAAYFAlA8qKQACgkQrlYvE4MpobOp5wCfVOA4K7/MyqeLLWx2rN/9IQIH
-VpUAoI2D8wB0NPHif03SMHYdRSkRuQGD
-=as8V
------END PGP SIGNATURE-----
+Thanks
+
+
+
+Raul Leite
+sp4wn.root@gmail.com
+
+--bcaec54d4e0a36943d04c85e9f96
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+hi guys,<br><br>I know that we have a lot of ways to prove how effective is=
+ SELinux as cgi, perl, shell scripts and I know that is effective but I&#39=
+;d like to know if someone already tested some kind of exploit of buffer ov=
+erflow attack as demo to show how effective could be SELinux.<br>
+Any information I really appreciate<br><br>Thanks<br><br><br><br>Raul Leite=
+<br><a href=3D"mailto:sp4wn.root@gmail.com" target=3D"_blank">sp4wn.root@gm=
+ail.com</a><br><br><br>
+
+--bcaec54d4e0a36943d04c85e9f96--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
