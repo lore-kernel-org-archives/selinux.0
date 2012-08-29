@@ -1,40 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7T7SfFK018758
-	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2012 03:28:42 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Raul da Silva {Sp4wn}" <sp4wn.root@gmail.com>
-Subject: Re: proof selinux
-Date: Wed, 29 Aug 2012 17:28:09 +1000
-Cc: selinux@tycho.nsa.gov
-References: <CAE_4iW8xF5NLvjrXKpSExgstbFx8JKfx38F5PBN0YP3VaPFz4Q@mail.gmail.com>
-In-Reply-To: <CAE_4iW8xF5NLvjrXKpSExgstbFx8JKfx38F5PBN0YP3VaPFz4Q@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7TD3MpQ002948
+	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2012 09:03:23 -0400
+Date: Wed, 29 Aug 2012 15:02:33 +0200
+From: Ole Kliemann <ole@plastictree.net>
+To: selinux@tycho.nsa.gov
+Subject: network packet context
+Message-ID: <20120829130233.GA14196@telmora.telvanni>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Message-Id: <201208291728.10022.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 29 Aug 2012, "Raul da Silva {Sp4wn}" <sp4wn.root@gmail.com> wrote:
-> I know that we have a lot of ways to prove how effective is SELinux as cgi,
-> perl, shell scripts and I know that is effective but I'd like to know if
-> someone already tested some kind of exploit of buffer overflow attack as
-> demo to show how effective could be SELinux.
-> Any information I really appreciate
 
-A simple test of this would be to run a program like telnetd as httpd_t (or 
-some other domain that takes remote connections) and configure it to launch a 
-shell with no password.
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.coker.com.au/selinux/play.html
+I have another one of those 'Is it normal?' questions.
 
-Also I have a Play Machine online right now to demonstrate how the root 
-account can be locked down.
+To begin with my system does not label network packets in any=20
+way, packets are not unlabeled_t, they just seem to be ignored by=20
+LSM. There is no rule of the type 'allow X Y:packet { send recv }'
+required, all domains can access the network.
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+When I introduce just a single iptables rule utilizing SECMARK, say
+
+    iptables -A INPUT -t security -i tun0 -j SECMARK system_u:object_r:sec_=
+tun_t:s0
+
+to label all packets coming in at tun0, then suddenly all traffic=20
+on all devices gets labeled. Those which lack an iptables rule=20
+get unlabeled_t. Suddenly all network is locked down and I need=20
+'allow X Y:packet { send recv }' rules in the policy.
+
+Ole
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlA+EukACgkQS1FjE303ERwKoACggSm0Sh0FDWPl2yZe4VuENuzW
+HPYAn1yU4nCqzvdPf3e+R8aC8uQw5Iqx
+=8dIH
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
