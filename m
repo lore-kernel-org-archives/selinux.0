@@ -1,45 +1,36 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7TF0VaK010225
+	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2012 11:00:31 -0400
+Message-ID: <503E2E8D.2020606@tresys.com>
+Date: Wed, 29 Aug 2012 11:00:29 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdrXWFPee+uGy1-UXRYM+4e5ZWxPfJXzE4Ts6Tn84ue_cQ@mail.gmail.com>
-References: <CAFftDdrXWFPee+uGy1-UXRYM+4e5ZWxPfJXzE4Ts6Tn84ue_cQ@mail.gmail.com>
-Date: Wed, 29 Aug 2012 10:46:30 -0400
-Message-ID: <CAB9W1A2hVSOizbFmDxOZh04GZ1ABQfifZoFSL8FkA5EcJXzP=A@mail.gmail.com>
-Subject: Re: check_seapp sepolicy integration
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and
+ higher?)
+References: <201208211615.q7LGFg3M000832@vivaldi49.register.it> <CAPzO=Nyqc0=cyeOh6Aj3A-bSbtpbnjSfsXc_Lf-kO3ceeK3w2A@mail.gmail.com> <CACLa4puinrGaotQ5f5rqvYusA7mV-0qTaBUaF+teYfRezZE6Rw@mail.gmail.com> <CAPzO=NwR-7KruhfYYRO+SFGD2=cmuG+w5dNPaqbz=UhiJ4=Ziw@mail.gmail.com>
+In-Reply-To: <CAPzO=NwR-7KruhfYYRO+SFGD2=cmuG+w5dNPaqbz=UhiJ4=Ziw@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 27, 2012 at 9:00 PM, William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> I have the initial check_seapp tool integrated inted sepolicy, and
-> rather then blasting patches back and forth for code review, we can
-> use bitbucket and its wiki...
->
-> Please visit,
-> https://bitbucket.org/billcroberts/external-sepolicy/overview
->
-> lets work on getting this up to par, and then I will submit a patch
-> back over the mailing list for it's inclusion.
+On 08/25/12 12:47, Sven Vermeulen wrote:
+> On Fri, Aug 24, 2012 at 7:17 PM, Eric Paris <eparis@parisplace.org> wrote:
+>> With your patch does it still build with the old swig version?  I know
+>> we put a nasty hack in Fedora which made it build with new swig, but
+>> wouldn't build with old swig.
+> 
+> It builds fine with swig-2.* (tested with 2.0.3, 2.0.4, 2.0.7 and now 2.0.8).
+> 
+> swig-1.3.40 doesn't, but without my patch it fails with 1.3.40 as well.
 
-A MLS level is a string consisting of a sensitivity
-level:category-set, e.g. s0:c15.  It is not an integer.  You should be
-able to use sepol_mls_check() to check the validity of a MLS level
-against a given policy.
+As an upstream matter, I'm not sure that we care if it fails with the old swig.  2.* has been out for a few years, right?
 
-It doesn't seem like your two projects are consistent or buildable -
-check_seapp has no Android.mk and would suggest it is named
-check_seapp, whereas sepolicy wants to invoke checkseapp.
-
-I can also throw together a simple checkfc program to check the
-file_contexts against the policy to prevent the kinds of problems you
-encountered when you omitted a MLS level from your file_contexts
-entry.  In normal SELinux, we use setfiles -c for that purpose, but I
-didn't bring setfiles over into the Android tree as a build host tool
-and we don't need all of its functionality anyway.  I can create a
-greatly streamlined version of the setfiles -c functionality as a
-simple program under sepolicy in the Android tree.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
