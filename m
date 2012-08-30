@@ -1,55 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7TIesLR015872
-	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2012 14:40:59 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7ULMOqR030655
+	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2012 17:22:24 -0400
+Received: by vcbfl17 with SMTP id fl17so2876897vcb.12
+        for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2012 14:22:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Wed, 29 Aug 2012 14:40:56 -0400
-From: David Quigley <dpquigl@davequigley.com>
-To: <russell@coker.com.au>
-Cc: Raul da Silva {Sp4wn} <sp4wn.root@gmail.com>, <selinux@tycho.nsa.gov>
-Subject: Re: proof selinux
-In-Reply-To: <201208291728.10022.russell@coker.com.au>
-References: <CAE_4iW8xF5NLvjrXKpSExgstbFx8JKfx38F5PBN0YP3VaPFz4Q@mail.gmail.com>
- <201208291728.10022.russell@coker.com.au>
-Message-ID: <4cee1abc4a7ae191baffce20b516f4f7@countercultured.net>
+Date: Thu, 30 Aug 2012 17:22:21 -0400
+Message-ID: <CAB9W1A30Zvtq+pjpcktaTaeXYbCEpQs7Sc-tVwmw9FVqRdKbEg@mail.gmail.com>
+Subject: [PATCH] libsepol: fix neverallow checking
+From: Stephen Smalley <stephen.smalley@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: Ole Kliemann <ole@plastictree.net>, Eric Paris <eparis@parisplace.org>,
+        Daniel Walsh <dwalsh@redhat.com>
+Content-Type: multipart/mixed; boundary=20cf307f32645979ea04c88245be
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/29/2012 03:28, Russell Coker wrote:
-> On Wed, 29 Aug 2012, "Raul da Silva {Sp4wn}" <sp4wn.root@gmail.com> 
-> wrote:
->> I know that we have a lot of ways to prove how effective is SELinux 
->> as cgi,
->> perl, shell scripts and I know that is effective but I'd like to 
->> know if
->> someone already tested some kind of exploit of buffer overflow 
->> attack as
->> demo to show how effective could be SELinux.
->> Any information I really appreciate
->
-> A simple test of this would be to run a program like telnetd as 
-> httpd_t (or
-> some other domain that takes remote connections) and configure it to
-> launch a
-> shell with no password.
->
-> http://www.coker.com.au/selinux/play.html
->
-> Also I have a Play Machine online right now to demonstrate how the 
-> root
-> account can be locked down.
+--20cf307f32645979ea04c88245be
+Content-Type: text/plain; charset=ISO-8859-1
 
 
-An easier example is what I use for my SELinux talks. Custom file 
-transfer daemon (gets only) which has a very critical flaw in it. It 
-doesn't sanitize the path that is requested for the binary. Because of 
-this you can use .. repeatedly to get where you need to in the 
-filesystem hierarchy and pull any file you want. Once you install the 
-SELinux policy it will only allow you to pull files with the correct 
-content type.
 
-https://github.com/dpquigl/ftransferd
+--20cf307f32645979ea04c88245be
+Content-Type: application/octet-stream;
+	name="0001-libsepol-fix-neverallow-checking.patch"
+Content-Disposition: attachment;
+	filename="0001-libsepol-fix-neverallow-checking.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_h6icy1i60
+
+RnJvbSBmMWNkNzgwYjRlOTY1MmI3MDliZWM3MzhkOTUyYjczY2FlMTlmYThhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0eWNoby5uc2EuZ292PgpE
+YXRlOiBUaHUsIDMwIEF1ZyAyMDEyIDE3OjE3OjM3IC0wNDAwClN1YmplY3Q6IFtQQVRDSF0gbGli
+c2Vwb2w6IGZpeCBuZXZlcmFsbG93IGNoZWNraW5nCgpPbGUgS2xpZW1hbm4gcmVwb3J0ZWQgdGhh
+dCBhbGxvdyBydWxlcyB3cml0dGVuIHVzaW5nIHR5cGUgYXR0cmlidXRlcyB3ZXJlCm5vdCBiZWlu
+ZyBkZXRlY3RlZCBieSBuZXZlcmFsbG93IGFzc2VydGlvbnMgaW4gdGhlIHBvbGljeS4gIEkgdGhp
+bmsgdGhhdAp0aGlzIHdhcyBicm9rZW4gaW4gcG9saWN5LjI0IGFuZCBsYXRlciBkdWUgdG8gY2hh
+bmdlcyBpbiB0aGUgdHlwZSBkYXR1bS4KRml4IHRoZSBleHBhbmQgbG9naWMgdG8gY29ycmVjdGx5
+IGRpc3Rpbmd1aXNoIHR5cGUgYXR0cmlidXRlcyBmcm9tIHR5cGVzLgoKU2lnbmVkLW9mZi1ieTog
+U3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4KLS0tCiBsaWJzZXBvbC9zcmMvZXhw
+YW5kLmMgfCAgIDEyICsrKysrKy0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMo
+KyksIDYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvc3JjL2V4cGFuZC5jIGIv
+bGlic2Vwb2wvc3JjL2V4cGFuZC5jCmluZGV4IGJlZjc1OWMuLjBiMjE3NDkgMTAwNjQ0Ci0tLSBh
+L2xpYnNlcG9sL3NyYy9leHBhbmQuYworKysgYi9saWJzZXBvbC9zcmMvZXhwYW5kLmMKQEAgLTMx
+MDYsMTIgKzMxMDYsMTIgQEAgc3RhdGljIGludCBleHBhbmRfYXZ0YWJfbm9kZShhdnRhYl9rZXlf
+dCAqIGssIGF2dGFiX2RhdHVtX3QgKiBkLCB2b2lkICphcmdzKQogCW5ld2tleS50YXJnZXRfY2xh
+c3MgPSBrLT50YXJnZXRfY2xhc3M7CiAJbmV3a2V5LnNwZWNpZmllZCA9IGstPnNwZWNpZmllZDsK
+IAotCWlmIChzdHlwZSAmJiB0dHlwZSkgeworCWlmIChzdHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRU
+UklCICYmIHR0eXBlLT5mbGF2b3IgIT0gVFlQRV9BVFRSSUIpIHsKIAkJLyogQm90aCBhcmUgaW5k
+aXZpZHVhbCB0eXBlcywgbm8gZXhwYW5zaW9uIHJlcXVpcmVkLiAqLwogCQlyZXR1cm4gZXhwYW5k
+X2F2dGFiX2luc2VydChleHBhLCBrLCBkKTsKIAl9CiAKLQlpZiAoc3R5cGUpIHsKKwlpZiAoc3R5
+cGUtPmZsYXZvciAhPSBUWVBFX0FUVFJJQikgewogCQkvKiBTb3VyY2UgaXMgYW4gaW5kaXZpZHVh
+bCB0eXBlLCB0YXJnZXQgaXMgYW4gYXR0cmlidXRlLiAqLwogCQluZXdrZXkuc291cmNlX3R5cGUg
+PSBrLT5zb3VyY2VfdHlwZTsKIAkJZWJpdG1hcF9mb3JfZWFjaF9iaXQodGF0dHIsIHRub2RlLCBq
+KSB7CkBAIC0zMTI1LDcgKzMxMjUsNyBAQCBzdGF0aWMgaW50IGV4cGFuZF9hdnRhYl9ub2RlKGF2
+dGFiX2tleV90ICogaywgYXZ0YWJfZGF0dW1fdCAqIGQsIHZvaWQgKmFyZ3MpCiAJCXJldHVybiAw
+OwogCX0KIAotCWlmICh0dHlwZSkgeworCWlmICh0dHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRUUklC
+KSB7CiAJCS8qIFRhcmdldCBpcyBhbiBpbmRpdmlkdWFsIHR5cGUsIHNvdXJjZSBpcyBhbiBhdHRy
+aWJ1dGUuICovCiAJCW5ld2tleS50YXJnZXRfdHlwZSA9IGstPnRhcmdldF90eXBlOwogCQllYml0
+bWFwX2Zvcl9lYWNoX2JpdChzYXR0ciwgc25vZGUsIGkpIHsKQEAgLTMyMzYsMTIgKzMyMzYsMTIg
+QEAgaW50IGV4cGFuZF9jb25kX2F2X25vZGUocG9saWN5ZGJfdCAqIHAsCiAJbmV3a2V5LnRhcmdl
+dF9jbGFzcyA9IGstPnRhcmdldF9jbGFzczsKIAluZXdrZXkuc3BlY2lmaWVkID0gay0+c3BlY2lm
+aWVkOwogCi0JaWYgKHN0eXBlICYmIHR0eXBlKSB7CisJaWYgKHN0eXBlLT5mbGF2b3IgIT0gVFlQ
+RV9BVFRSSUIgJiYgdHR5cGUtPmZsYXZvciAhPSBUWVBFX0FUVFJJQikgewogCQkvKiBCb3RoIGFy
+ZSBpbmRpdmlkdWFsIHR5cGVzLCBubyBleHBhbnNpb24gcmVxdWlyZWQuICovCiAJCXJldHVybiBl
+eHBhbmRfY29uZF9pbnNlcnQobmV3bCwgZXhwYSwgaywgZCk7CiAJfQogCi0JaWYgKHN0eXBlKSB7
+CisJaWYgKHN0eXBlLT5mbGF2b3IgIT0gVFlQRV9BVFRSSUIpIHsKIAkJLyogU291cmNlIGlzIGFu
+IGluZGl2aWR1YWwgdHlwZSwgdGFyZ2V0IGlzIGFuIGF0dHJpYnV0ZS4gKi8KIAkJbmV3a2V5LnNv
+dXJjZV90eXBlID0gay0+c291cmNlX3R5cGU7CiAJCWViaXRtYXBfZm9yX2VhY2hfYml0KHRhdHRy
+LCB0bm9kZSwgaikgewpAQCAtMzI1NSw3ICszMjU1LDcgQEAgaW50IGV4cGFuZF9jb25kX2F2X25v
+ZGUocG9saWN5ZGJfdCAqIHAsCiAJCXJldHVybiAwOwogCX0KIAotCWlmICh0dHlwZSkgeworCWlm
+ICh0dHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRUUklCKSB7CiAJCS8qIFRhcmdldCBpcyBhbiBpbmRp
+dmlkdWFsIHR5cGUsIHNvdXJjZSBpcyBhbiBhdHRyaWJ1dGUuICovCiAJCW5ld2tleS50YXJnZXRf
+dHlwZSA9IGstPnRhcmdldF90eXBlOwogCQllYml0bWFwX2Zvcl9lYWNoX2JpdChzYXR0ciwgc25v
+ZGUsIGkpIHsKLS0gCjEuNy43LjYKCg==
+--20cf307f32645979ea04c88245be--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
