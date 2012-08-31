@@ -1,40 +1,57 @@
 From: Eric Paris <eparis@redhat.com>
 To: sds@tycho.nsa.gov
 Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 15/18] libselinux: label_file: struct reorg
-Date: Fri, 31 Aug 2012 10:49:51 -0700
-Message-Id: <1346435394-1954-15-git-send-email-eparis@redhat.com>
+Subject: [PATCH 09/18] libselinux: label_file: fix potential read past buffer in spec_hasMetaChars
+Date: Fri, 31 Aug 2012 10:49:45 -0700
+Message-Id: <1346435394-1954-9-git-send-email-eparis@redhat.com>
 In-Reply-To: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 References: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Use char instead of int, reorder to put the chars together.  Just litle
-things.
+An illegal regex may end with a single \ followed by nul.  This could
+cause us to search past the end of the character array.  The loop
+formation looks like so:
+
+        c = regex_str;
+        len = strlen(c);
+        end = c + len;
+
+        while (c != end) {
+		switch (*c) {
+		...
+                case '\\':      /* skip the next character */
+                        c++;
+                        break;
+		...
+                }
+                c++;
+	}
+
+If the \ is the last character then we will increment c and break from
+the switch.  The while loop will then increment c.  So now c == end+1.
+This means we will keep running into infinity and beyond!  Easy fix.
+Make the loop check (c < end).  Thus even if we jump past end, we still
+exit the loop.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- libselinux/src/label_file.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ libselinux/src/label_file.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 1208d8b..ef97213 100644
+index b839a23..e520acc 100644
 --- a/libselinux/src/label_file.h
 +++ b/libselinux/src/label_file.h
-@@ -12,11 +12,11 @@ struct spec {
- 	char *type_str;		/* type string for diagnostic messages */
- 	pcre *regex;		/* compiled regular expression */
- 	pcre_extra *sd;		/* extra compiled stuff */
--	char regcomp;		/* regex_str has been compiled to regex */
- 	mode_t mode;		/* mode format value */
- 	int matches;		/* number of matching pathnames */
--	int hasMetaChars;	/* regular expression has meta-chars */
- 	int stem_id;		/* indicates which stem-compression item */
-+	char hasMetaChars;	/* regular expression has meta-chars */
-+	char regcomp;		/* regex_str has been compiled to regex */
- };
+@@ -88,7 +88,7 @@ static inline void spec_hasMetaChars(struct spec *spec)
  
- /* A regular expression stem */
+ 	/* Look at each character in the RE specification string for a 
+ 	 * meta character. Return when any meta character reached. */
+-	while (c != end) {
++	while (c < end) {
+ 		switch (*c) {
+ 		case '.':
+ 		case '^':
 -- 
 1.7.11.4
 
