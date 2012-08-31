@@ -1,39 +1,60 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7VI0t2l027101
-	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2012 14:00:56 -0400
-Received: by obbwd18 with SMTP id wd18so6962776obb.12
-        for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2012 11:00:54 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 31 Aug 2012 11:00:53 -0700
-Message-ID: <CACLa4puGhvVECrSKqnYFn2z-YpXEXTf+i=E78-6-SpDe09gAEQ@mail.gmail.com>
-Subject: PCRE work and results
-From: Eric Paris <eparis@parisplace.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+From: Eric Paris <eparis@redhat.com>
+To: sds@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Subject: [PATCH 07/18] libselinux: label_file: drop useless ncomp field from label_file data
+Date: Fri, 31 Aug 2012 10:49:43 -0700
+Message-Id: <1346435394-1954-7-git-send-email-eparis@redhat.com>
+In-Reply-To: <1346435394-1954-1-git-send-email-eparis@redhat.com>
+References: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The PCRE work looks like a huge win.  There is one patch left, to
-autocompile the filecontexts if a user makes an update.  I'll work on
-that.  At the moment you have to run something like
+The libselinux label_file backend counted the number of regexes which
+had been compiled.  We didn't use it and it wasn't useful information.
+Stop doing it.
 
-sefcontext_compile /etc/selinux/targeted/contexts/files/filecontexts
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ libselinux/src/label_file.c | 3 ---
+ libselinux/src/label_file.h | 1 -
+ 2 files changed, 4 deletions(-)
 
-My results for a 'slow' action like restorecon -RvF / went from 14m
-20s to 8m 15s.  This is pretty much all from using pcre instead of
-glibc.  I never knew how much of our time was spent in cpu instead of
-in disk.  But apparently it was noticeable.
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 9c0bfa0..0dc0332 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -148,8 +148,6 @@ static int compile_regex(struct saved_data *data, struct spec *spec, const char
+ 	if (spec->regcomp)
+ 		return 0; /* already done */
+ 
+-	data->ncomp++; /* how many compiled regexes required */
+-
+ 	/* Skip the fixed stem. */
+ 	reg_buf = spec->regex_str;
+ 	if (spec->stem_id >= 0)
+@@ -377,7 +375,6 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 	maxnspec = UINT_MAX / sizeof(struct spec);
+ 	for (pass = 0; pass < 2; pass++) {
+ 		data->nspec = 0;
+-		data->ncomp = 0;
+ 
+ 		lineno = 0;
+ 		while (getline(&line_buf, &line_len, fp) > 0) {
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index de58d1e..560035d 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -33,7 +33,6 @@ struct saved_data {
+ 	 */
+ 	struct spec *spec_arr;
+ 	unsigned int nspec;
+-	unsigned int ncomp;
+ 
+ 	/*
+ 	 * The array of regular expression stems.
+-- 
+1.7.11.4
 
-My results for a 'fast' action like a single matchpathcon seems to go
-from 0.09 sec to 0.02 seconds.  So about 4.5 times faster if the cpu
-time is spent mostly loading and compiling regex's.
-
-restorecon with the old pre-pcre and post-pcre changes found no
-differences.  It doesn't mean we don't have any pattern that was wrong
-or non-pcre compatible, but it at least works fine on an F18 install.
-*smile*
-
-winning.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
