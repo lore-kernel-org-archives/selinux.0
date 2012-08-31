@@ -1,79 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7ULMOqR030655
-	for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2012 17:22:24 -0400
-Received: by vcbfl17 with SMTP id fl17so2876897vcb.12
-        for <selinux@tycho.nsa.gov>; Thu, 30 Aug 2012 14:22:21 -0700 (PDT)
-MIME-Version: 1.0
-Date: Thu, 30 Aug 2012 17:22:21 -0400
-Message-ID: <CAB9W1A30Zvtq+pjpcktaTaeXYbCEpQs7Sc-tVwmw9FVqRdKbEg@mail.gmail.com>
-Subject: [PATCH] libsepol: fix neverallow checking
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Cc: Ole Kliemann <ole@plastictree.net>, Eric Paris <eparis@parisplace.org>,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q7VD7jSo008938
+	for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2012 09:07:45 -0400
+Date: Fri, 31 Aug 2012 15:07:27 +0200
+From: Ole Kliemann <ole@plastictree.net>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
         Daniel Walsh <dwalsh@redhat.com>
-Content-Type: multipart/mixed; boundary=20cf307f32645979ea04c88245be
+Subject: Re: [PATCH] libsepol: fix neverallow checking
+Message-ID: <20120831130727.GC8220@telmora.telvanni>
+References: <CAB9W1A30Zvtq+pjpcktaTaeXYbCEpQs7Sc-tVwmw9FVqRdKbEg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ABTtc+pdwF7KHXCz"
+In-Reply-To: <CAB9W1A30Zvtq+pjpcktaTaeXYbCEpQs7Sc-tVwmw9FVqRdKbEg@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---20cf307f32645979ea04c88245be
-Content-Type: text/plain; charset=ISO-8859-1
 
+--ABTtc+pdwF7KHXCz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Thanks! Fixes the problem for me on Ubuntu 12.04 with=20
+libsepol 2.1.0-1.2
 
---20cf307f32645979ea04c88245be
-Content-Type: application/octet-stream;
-	name="0001-libsepol-fix-neverallow-checking.patch"
-Content-Disposition: attachment;
-	filename="0001-libsepol-fix-neverallow-checking.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h6icy1i60
+Ole
 
-RnJvbSBmMWNkNzgwYjRlOTY1MmI3MDliZWM3MzhkOTUyYjczY2FlMTlmYThhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0eWNoby5uc2EuZ292PgpE
-YXRlOiBUaHUsIDMwIEF1ZyAyMDEyIDE3OjE3OjM3IC0wNDAwClN1YmplY3Q6IFtQQVRDSF0gbGli
-c2Vwb2w6IGZpeCBuZXZlcmFsbG93IGNoZWNraW5nCgpPbGUgS2xpZW1hbm4gcmVwb3J0ZWQgdGhh
-dCBhbGxvdyBydWxlcyB3cml0dGVuIHVzaW5nIHR5cGUgYXR0cmlidXRlcyB3ZXJlCm5vdCBiZWlu
-ZyBkZXRlY3RlZCBieSBuZXZlcmFsbG93IGFzc2VydGlvbnMgaW4gdGhlIHBvbGljeS4gIEkgdGhp
-bmsgdGhhdAp0aGlzIHdhcyBicm9rZW4gaW4gcG9saWN5LjI0IGFuZCBsYXRlciBkdWUgdG8gY2hh
-bmdlcyBpbiB0aGUgdHlwZSBkYXR1bS4KRml4IHRoZSBleHBhbmQgbG9naWMgdG8gY29ycmVjdGx5
-IGRpc3Rpbmd1aXNoIHR5cGUgYXR0cmlidXRlcyBmcm9tIHR5cGVzLgoKU2lnbmVkLW9mZi1ieTog
-U3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4KLS0tCiBsaWJzZXBvbC9zcmMvZXhw
-YW5kLmMgfCAgIDEyICsrKysrKy0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMo
-KyksIDYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvc3JjL2V4cGFuZC5jIGIv
-bGlic2Vwb2wvc3JjL2V4cGFuZC5jCmluZGV4IGJlZjc1OWMuLjBiMjE3NDkgMTAwNjQ0Ci0tLSBh
-L2xpYnNlcG9sL3NyYy9leHBhbmQuYworKysgYi9saWJzZXBvbC9zcmMvZXhwYW5kLmMKQEAgLTMx
-MDYsMTIgKzMxMDYsMTIgQEAgc3RhdGljIGludCBleHBhbmRfYXZ0YWJfbm9kZShhdnRhYl9rZXlf
-dCAqIGssIGF2dGFiX2RhdHVtX3QgKiBkLCB2b2lkICphcmdzKQogCW5ld2tleS50YXJnZXRfY2xh
-c3MgPSBrLT50YXJnZXRfY2xhc3M7CiAJbmV3a2V5LnNwZWNpZmllZCA9IGstPnNwZWNpZmllZDsK
-IAotCWlmIChzdHlwZSAmJiB0dHlwZSkgeworCWlmIChzdHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRU
-UklCICYmIHR0eXBlLT5mbGF2b3IgIT0gVFlQRV9BVFRSSUIpIHsKIAkJLyogQm90aCBhcmUgaW5k
-aXZpZHVhbCB0eXBlcywgbm8gZXhwYW5zaW9uIHJlcXVpcmVkLiAqLwogCQlyZXR1cm4gZXhwYW5k
-X2F2dGFiX2luc2VydChleHBhLCBrLCBkKTsKIAl9CiAKLQlpZiAoc3R5cGUpIHsKKwlpZiAoc3R5
-cGUtPmZsYXZvciAhPSBUWVBFX0FUVFJJQikgewogCQkvKiBTb3VyY2UgaXMgYW4gaW5kaXZpZHVh
-bCB0eXBlLCB0YXJnZXQgaXMgYW4gYXR0cmlidXRlLiAqLwogCQluZXdrZXkuc291cmNlX3R5cGUg
-PSBrLT5zb3VyY2VfdHlwZTsKIAkJZWJpdG1hcF9mb3JfZWFjaF9iaXQodGF0dHIsIHRub2RlLCBq
-KSB7CkBAIC0zMTI1LDcgKzMxMjUsNyBAQCBzdGF0aWMgaW50IGV4cGFuZF9hdnRhYl9ub2RlKGF2
-dGFiX2tleV90ICogaywgYXZ0YWJfZGF0dW1fdCAqIGQsIHZvaWQgKmFyZ3MpCiAJCXJldHVybiAw
-OwogCX0KIAotCWlmICh0dHlwZSkgeworCWlmICh0dHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRUUklC
-KSB7CiAJCS8qIFRhcmdldCBpcyBhbiBpbmRpdmlkdWFsIHR5cGUsIHNvdXJjZSBpcyBhbiBhdHRy
-aWJ1dGUuICovCiAJCW5ld2tleS50YXJnZXRfdHlwZSA9IGstPnRhcmdldF90eXBlOwogCQllYml0
-bWFwX2Zvcl9lYWNoX2JpdChzYXR0ciwgc25vZGUsIGkpIHsKQEAgLTMyMzYsMTIgKzMyMzYsMTIg
-QEAgaW50IGV4cGFuZF9jb25kX2F2X25vZGUocG9saWN5ZGJfdCAqIHAsCiAJbmV3a2V5LnRhcmdl
-dF9jbGFzcyA9IGstPnRhcmdldF9jbGFzczsKIAluZXdrZXkuc3BlY2lmaWVkID0gay0+c3BlY2lm
-aWVkOwogCi0JaWYgKHN0eXBlICYmIHR0eXBlKSB7CisJaWYgKHN0eXBlLT5mbGF2b3IgIT0gVFlQ
-RV9BVFRSSUIgJiYgdHR5cGUtPmZsYXZvciAhPSBUWVBFX0FUVFJJQikgewogCQkvKiBCb3RoIGFy
-ZSBpbmRpdmlkdWFsIHR5cGVzLCBubyBleHBhbnNpb24gcmVxdWlyZWQuICovCiAJCXJldHVybiBl
-eHBhbmRfY29uZF9pbnNlcnQobmV3bCwgZXhwYSwgaywgZCk7CiAJfQogCi0JaWYgKHN0eXBlKSB7
-CisJaWYgKHN0eXBlLT5mbGF2b3IgIT0gVFlQRV9BVFRSSUIpIHsKIAkJLyogU291cmNlIGlzIGFu
-IGluZGl2aWR1YWwgdHlwZSwgdGFyZ2V0IGlzIGFuIGF0dHJpYnV0ZS4gKi8KIAkJbmV3a2V5LnNv
-dXJjZV90eXBlID0gay0+c291cmNlX3R5cGU7CiAJCWViaXRtYXBfZm9yX2VhY2hfYml0KHRhdHRy
-LCB0bm9kZSwgaikgewpAQCAtMzI1NSw3ICszMjU1LDcgQEAgaW50IGV4cGFuZF9jb25kX2F2X25v
-ZGUocG9saWN5ZGJfdCAqIHAsCiAJCXJldHVybiAwOwogCX0KIAotCWlmICh0dHlwZSkgeworCWlm
-ICh0dHlwZS0+Zmxhdm9yICE9IFRZUEVfQVRUUklCKSB7CiAJCS8qIFRhcmdldCBpcyBhbiBpbmRp
-dmlkdWFsIHR5cGUsIHNvdXJjZSBpcyBhbiBhdHRyaWJ1dGUuICovCiAJCW5ld2tleS50YXJnZXRf
-dHlwZSA9IGstPnRhcmdldF90eXBlOwogCQllYml0bWFwX2Zvcl9lYWNoX2JpdChzYXR0ciwgc25v
-ZGUsIGkpIHsKLS0gCjEuNy43LjYKCg==
---20cf307f32645979ea04c88245be--
+--ABTtc+pdwF7KHXCz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlBAtw8ACgkQS1FjE303ERwK8wCeMB99PmQPPrIS11JDJwDCaVLi
+6QUAnjR0/er2WMNcqxAk5Q0tEn9t+VTf
+=YlvS
+-----END PGP SIGNATURE-----
+
+--ABTtc+pdwF7KHXCz--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
