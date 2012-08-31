@@ -1,128 +1,129 @@
 From: Eric Paris <eparis@redhat.com>
 To: sds@tycho.nsa.gov
 Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 08/18] libselinux: label_file: move spec_hasMetaChars to header
-Date: Fri, 31 Aug 2012 10:49:44 -0700
-Message-Id: <1346435394-1954-8-git-send-email-eparis@redhat.com>
+Subject: [PATCH 03/18] libselinux: label_file: move definitions to include file
+Date: Fri, 31 Aug 2012 10:49:39 -0700
+Message-Id: <1346435394-1954-3-git-send-email-eparis@redhat.com>
 In-Reply-To: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 References: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So we can use it in the new compile utility, move the
-spec_hasMetaChars() function, which looks for things like .*?+^$ in
-regular expressions into the internal header file.
+We want to use some label_file internals in a utility to compile
+fcontext files into binary data for fast use.  So start pushing
+structures and such into a header file.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- libselinux/src/label_file.c | 41 -----------------------------------------
- libselinux/src/label_file.h | 41 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+), 41 deletions(-)
+ libselinux/src/label_file.c | 38 +-------------------------------------
+ libselinux/src/label_file.h | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+), 37 deletions(-)
+ create mode 100644 libselinux/src/label_file.h
 
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 0dc0332..8216840 100644
+index f0e3d2a..a3ea934 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
-@@ -96,47 +96,6 @@ static int nodups_specs(struct saved_data *data, const char *path)
- 	return rc;
- }
+@@ -22,49 +22,13 @@
+ #include <unistd.h>
+ #include "callbacks.h"
+ #include "label_internal.h"
++#include "label_file.h"
  
--/* Determine if the regular expression specification has any meta characters. */
--static void spec_hasMetaChars(struct spec *spec)
--{
--	char *c;
+ /*
+  * Internals, mostly moved over from matchpathcon.c
+  */
+ 
+ #define MAX_PREFIX 100
+-/* A file security context specification. */
+-struct spec {
+-	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+-	char *regex_str;	/* regular expession string for diagnostics */
+-	char *type_str;		/* type string for diagnostic messages */
+-	pcre *regex;		/* compiled regular expression */
+-	pcre_extra *sd;		/* extra compiled stuff */
+-	char regcomp;           /* regex_str has been compiled to regex */
+-	mode_t mode;		/* mode format value */
+-	int matches;		/* number of matching pathnames */
+-	int hasMetaChars;	/* regular expression has meta-chars */
+-	int stem_id;		/* indicates which stem-compression item */
+-};
+-
+-/* A regular expression stem */
+-struct stem {
+-	char *buf;
 -	int len;
--	char *end;
+-};
 -
--	c = spec->regex_str;
--	len = strlen(spec->regex_str);
--	end = c + len;
+-/* Our stored configuration */
+-struct saved_data {
+-	/*
+-	 * The array of specifications, initially in the same order as in 
+-	 * the specification file. Sorting occurs based on hasMetaChars.
+-	 */
+-	struct spec *spec_arr;
+-	unsigned int nspec;
+-	unsigned int ncomp;
 -
--	spec->hasMetaChars = 0;
--
--	/* Look at each character in the RE specification string for a 
--	 * meta character. Return when any meta character reached. */
--	while (c != end) {
--		switch (*c) {
--		case '.':
--		case '^':
--		case '$':
--		case '?':
--		case '*':
--		case '+':
--		case '|':
--		case '[':
--		case '(':
--		case '{':
--			spec->hasMetaChars = 1;
--			return;
--		case '\\':	/* skip the next character */
--			c++;
--			break;
--		default:
--			break;
--
--		}
--		c++;
--	}
--	return;
--}
--
- static int compile_regex(struct saved_data *data, struct spec *spec, const char **errbuf)
- {
- 	const char *tmperrbuf;
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 560035d..b839a23 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -73,6 +73,47 @@ static inline mode_t string_to_mode(char *mode)
- 	return 0;
- }
+-	/*
+-	 * The array of regular expression stems.
+-	 */
+-	struct stem *stem_arr;
+-	int num_stems;
+-	int alloc_stems;
+-};
  
-+/* Determine if the regular expression specification has any meta characters. */
-+static inline void spec_hasMetaChars(struct spec *spec)
-+{
-+	char *c;
-+	int len;
-+	char *end;
-+
-+	c = spec->regex_str;
-+	len = strlen(spec->regex_str);
-+	end = c + len;
-+
-+	spec->hasMetaChars = 0;
-+
-+	/* Look at each character in the RE specification string for a 
-+	 * meta character. Return when any meta character reached. */
-+	while (c != end) {
-+		switch (*c) {
-+		case '.':
-+		case '^':
-+		case '$':
-+		case '?':
-+		case '*':
-+		case '+':
-+		case '|':
-+		case '[':
-+		case '(':
-+		case '{':
-+			spec->hasMetaChars = 1;
-+			return;
-+		case '\\':	/* skip the next character */
-+			c++;
-+			break;
-+		default:
-+			break;
-+
-+		}
-+		c++;
-+	}
-+	return;
-+}
-+
  /* Return the length of the text that can be considered the stem, returns 0
   * if there is no identifiable stem */
- static inline int get_stem_from_spec(const char *const buf)
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+new file mode 100644
+index 0000000..da2e350
+--- /dev/null
++++ b/libselinux/src/label_file.h
+@@ -0,0 +1,43 @@
++#ifndef _SELABEL_FILE_H_
++#define _SELABEL_FILE_H_
++
++#include "label_internal.h"
++
++/* A file security context specification. */
++struct spec {
++	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
++	char *regex_str;	/* regular expession string for diagnostics */
++	char *type_str;		/* type string for diagnostic messages */
++	pcre *regex;		/* compiled regular expression */
++	pcre_extra *sd;		/* extra compiled stuff */
++	char regcomp;		/* regex_str has been compiled to regex */
++	mode_t mode;		/* mode format value */
++	int matches;		/* number of matching pathnames */
++	int hasMetaChars;	/* regular expression has meta-chars */
++	int stem_id;		/* indicates which stem-compression item */
++};
++
++/* A regular expression stem */
++struct stem {
++	char *buf;
++	int len;
++};
++
++/* Our stored configuration */
++struct saved_data {
++	/*
++	 * The array of specifications, initially in the same order as in 
++	 * the specification file. Sorting occurs based on hasMetaChars.
++	 */
++	struct spec *spec_arr;
++	unsigned int nspec;
++	unsigned int ncomp;
++
++	/*
++	 * The array of regular expression stems.
++	 */
++	struct stem *stem_arr;
++	int num_stems;
++	int alloc_stems;
++};
++#endif /* _SELABEL_FILE_H_ */
 -- 
 1.7.11.4
 
