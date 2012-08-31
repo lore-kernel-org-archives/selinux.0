@@ -1,138 +1,181 @@
 From: Eric Paris <eparis@redhat.com>
 To: sds@tycho.nsa.gov
 Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 04/18] libselinux: label_file: do string to mode_t conversion in a helper function
-Date: Fri, 31 Aug 2012 10:49:40 -0700
-Message-Id: <1346435394-1954-4-git-send-email-eparis@redhat.com>
+Subject: [PATCH 02/18] libselinux: label_file: remove all typedefs
+Date: Fri, 31 Aug 2012 10:49:38 -0700
+Message-Id: <1346435394-1954-2-git-send-email-eparis@redhat.com>
 In-Reply-To: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 References: <1346435394-1954-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So the string to mode_t conversion in a helper function so it can be
-used later by a regex compilation program.
+I hate them.  They just indirectly you needlessly.  Just use the struct
+definitions.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- libselinux/src/label_file.c | 41 ++---------------------------------------
- libselinux/src/label_file.h | 39 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+), 39 deletions(-)
+ libselinux/src/label_file.c | 40 ++++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index a3ea934..3ae9985 100644
+index 5e7e712..f0e3d2a 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
-@@ -241,7 +241,6 @@ static int compile_regex(struct saved_data *data, struct spec *spec, const char
- 	return 0;
- }
+@@ -29,7 +29,7 @@
  
--
- static int process_line(struct selabel_handle *rec,
- 			const char *path, const char **prefix_array,
- 			char *line_buf, int pass, unsigned lineno)
-@@ -312,45 +311,9 @@ static int process_line(struct selabel_handle *rec,
- 		/* Convert the type string to a mode format */
- 		spec_arr[nspec].type_str = type;
- 		spec_arr[nspec].mode = 0;
--		if (!type)
--			goto skip_type;
--		len = strlen(type);
--		if (type[0] != '-' || len != 2) {
--			COMPAT_LOG(SELINUX_WARNING,
--				    "%s:  line %d has invalid file type %s\n",
--				    path, lineno, type);
--			return 0;
--		}
--		switch (type[1]) {
--		case 'b':
--			spec_arr[nspec].mode = S_IFBLK;
--			break;
--		case 'c':
--			spec_arr[nspec].mode = S_IFCHR;
--			break;
--		case 'd':
--			spec_arr[nspec].mode = S_IFDIR;
--			break;
--		case 'p':
--			spec_arr[nspec].mode = S_IFIFO;
--			break;
--		case 'l':
--			spec_arr[nspec].mode = S_IFLNK;
--			break;
--		case 's':
--			spec_arr[nspec].mode = S_IFSOCK;
--			break;
--		case '-':
--			spec_arr[nspec].mode = S_IFREG;
--			break;
--		default:
--			COMPAT_LOG(SELINUX_WARNING,
--				    "%s:  line %d has invalid file type %s\n",
--				    path, lineno, type);
--			return 0;
--		}
-+		if (type)
-+			spec_arr[nspec].mode = string_to_mode(type, path, lineno);
- 
--	skip_type:
- 		spec_arr[nspec].lr.ctx_raw = context;
- 
- 		/* Determine if specification has 
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index da2e350..297ea25 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -1,6 +1,8 @@
- #ifndef _SELABEL_FILE_H_
- #define _SELABEL_FILE_H_
- 
-+#include <sys/stat.h>
-+
- #include "label_internal.h"
- 
+ #define MAX_PREFIX 100
  /* A file security context specification. */
-@@ -40,4 +42,41 @@ struct saved_data {
+-typedef struct spec {
++struct spec {
+ 	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+ 	char *regex_str;	/* regular expession string for diagnostics */
+ 	char *type_str;		/* type string for diagnostic messages */
+@@ -40,13 +40,13 @@ typedef struct spec {
+ 	int matches;		/* number of matching pathnames */
+ 	int hasMetaChars;	/* regular expression has meta-chars */
+ 	int stem_id;		/* indicates which stem-compression item */
+-} spec_t;
++};
+ 
+ /* A regular expression stem */
+-typedef struct stem {
++struct stem {
+ 	char *buf;
+ 	int len;
+-} stem_t;
++};
+ 
+ /* Our stored configuration */
+ struct saved_data {
+@@ -54,14 +54,14 @@ struct saved_data {
+ 	 * The array of specifications, initially in the same order as in 
+ 	 * the specification file. Sorting occurs based on hasMetaChars.
+ 	 */
+-	spec_t *spec_arr;
++	struct spec *spec_arr;
+ 	unsigned int nspec;
+ 	unsigned int ncomp;
+ 
+ 	/*
+ 	 * The array of regular expression stems.
+ 	 */
+-	stem_t *stem_arr;
++	struct stem *stem_arr;
  	int num_stems;
  	int alloc_stems;
  };
-+
-+static inline mode_t string_to_mode(char *mode, const char *path, unsigned lineno)
-+{
-+	size_t len;
-+
-+	len = strlen(mode);
-+	if (mode[0] != '-' || len != 2) {
-+		COMPAT_LOG(SELINUX_WARNING,
-+			    "%s:  line %d has invalid file type %s\n",
-+			    path, lineno, mode);
-+		return 0;
-+	}
-+	switch (mode[1]) {
-+	case 'b':
-+		return S_IFBLK;
-+	case 'c':
-+		return S_IFCHR;
-+	case 'd':
-+		return S_IFDIR;
-+	case 'p':
-+		return S_IFIFO;
-+	case 'l':
-+		return S_IFLNK;
-+	case 's':
-+		return S_IFSOCK;
-+	case '-':
-+		return S_IFREG;
-+	default:
-+		COMPAT_LOG(SELINUX_WARNING,
-+			    "%s:  line %d has invalid file type %s\n",
-+			    path, lineno, mode);
-+		return 0;
-+	}
-+	/* impossible to get here */
-+	return 0;
-+}
-+
- #endif /* _SELABEL_FILE_H_ */
+@@ -109,10 +109,10 @@ static int find_stem_from_spec(struct saved_data *data, const char *buf)
+ 			return i;
+ 	}
+ 	if (data->alloc_stems == num) {
+-		stem_t *tmp_arr;
++		struct stem *tmp_arr;
+ 		data->alloc_stems = data->alloc_stems * 2 + 16;
+ 		tmp_arr = realloc(data->stem_arr,
+-				  sizeof(stem_t) * data->alloc_stems);
++				  sizeof(*tmp_arr) * data->alloc_stems);
+ 		if (!tmp_arr)
+ 			return -1;
+ 		data->stem_arr = tmp_arr;
+@@ -225,11 +225,11 @@ static void spec_hasMetaChars(struct spec *spec)
+ 	return;
+ }
+ 
+-static int compile_regex(struct saved_data *data, spec_t *spec, const char **errbuf)
++static int compile_regex(struct saved_data *data, struct spec *spec, const char **errbuf)
+ {
+ 	const char *tmperrbuf;
+ 	char *reg_buf, *anchored_regex, *cp;
+-	stem_t *stem_arr = data->stem_arr;
++	struct stem *stem_arr = data->stem_arr;
+ 	size_t len;
+ 	int erroff;
+ 
+@@ -285,7 +285,7 @@ static int process_line(struct selabel_handle *rec,
+ 	int items, len;
+ 	char *buf_p, *regex, *type, *context;
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	spec_t *spec_arr = data->spec_arr;
++	struct spec *spec_arr = data->spec_arr;
+ 	unsigned int nspec = data->nspec;
+ 
+ 	len = strlen(line_buf);
+@@ -423,7 +423,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 	char *line_buf = NULL;
+ 	size_t line_len = 0;
+ 	unsigned int lineno, pass, i, j, maxnspec;
+-	spec_t *spec_copy = NULL;
++	struct spec *spec_copy = NULL;
+ 	int status = -1, baseonly = 0;
+ 	struct stat sb;
+ 
+@@ -491,7 +491,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 	 * The second pass performs detailed validation of the input
+ 	 * and fills in the spec array.
+ 	 */
+-	maxnspec = UINT_MAX / sizeof(spec_t);
++	maxnspec = UINT_MAX / sizeof(struct spec);
+ 	for (pass = 0; pass < 2; pass++) {
+ 		data->nspec = 0;
+ 		data->ncomp = 0;
+@@ -536,7 +536,7 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 				status = 0;
+ 				goto finish;
+ 			}
+-			data->spec_arr = calloc(data->nspec, sizeof(spec_t));
++			data->spec_arr = calloc(data->nspec, sizeof(*data->spec_arr));
+ 			if (!data->spec_arr)
+ 				goto finish;
+ 
+@@ -551,18 +551,18 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 	free(line_buf);
+ 
+ 	/* Move exact pathname specifications to the end. */
+-	spec_copy = malloc(sizeof(spec_t) * data->nspec);
++	spec_copy = malloc(sizeof(*spec_copy) * data->nspec);
+ 	if (!spec_copy)
+ 		goto finish;
+ 	j = 0;
+ 	for (i = 0; i < data->nspec; i++)
+ 		if (data->spec_arr[i].hasMetaChars)
+ 			memcpy(&spec_copy[j++],
+-			       &data->spec_arr[i], sizeof(spec_t));
++			       &data->spec_arr[i], sizeof(spec_copy[j]));
+ 	for (i = 0; i < data->nspec; i++)
+ 		if (!data->spec_arr[i].hasMetaChars)
+ 			memcpy(&spec_copy[j++],
+-			       &data->spec_arr[i], sizeof(spec_t));
++			       &data->spec_arr[i], sizeof(spec_copy[j]));
+ 	free(data->spec_arr);
+ 	data->spec_arr = spec_copy;
+ 
+@@ -617,7 +617,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 					 const char *key, int type)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	spec_t *spec_arr = data->spec_arr;
++	struct spec *spec_arr = data->spec_arr;
+ 	int i, rc, file_stem;
+ 	mode_t mode = (mode_t)type;
+ 	const char *buf;
+@@ -656,7 +656,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 	 * the last matching specification is used.
+ 	 */
+ 	for (i = data->nspec - 1; i >= 0; i--) {
+-		spec_t *spec = &spec_arr[i];
++		struct spec *spec = &spec_arr[i];
+ 		/* if the spec in question matches no stem or has the same
+ 		 * stem as the file AND if the spec in question has no mode
+ 		 * specified or if the mode matches the file mode then we do
+@@ -697,7 +697,7 @@ static void stats(struct selabel_handle *rec)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	unsigned int i, nspec = data->nspec;
+-	spec_t *spec_arr = data->spec_arr;
++	struct spec *spec_arr = data->spec_arr;
+ 
+ 	for (i = 0; i < nspec; i++) {
+ 		if (spec_arr[i].matches == 0) {
 -- 
 1.7.11.4
 
