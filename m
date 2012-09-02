@@ -1,43 +1,104 @@
 MIME-Version: 1.0
-In-Reply-To: <1346435394-1954-1-git-send-email-eparis@redhat.com>
-References: <1346435394-1954-1-git-send-email-eparis@redhat.com>
-Date: Fri, 31 Aug 2012 14:36:26 -0400
-Message-ID: <CAB9W1A0CaS_SEZUC4k2iD1tS43GqQWhghpFRP89Fy9TohH6e6A@mail.gmail.com>
-Subject: Re: [PATCH 01/18] libselinux: label_file: use PCRE instead of glibc
- regex functions
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 2 Sep 2012 04:42:41 -0700
+Message-ID: <CAFUy1Txwvm+iSt1-1qeZDckWPhMH_D3_UwkGPFHp+cS-ub8zKg@mail.gmail.com>
+Subject: Segmentation fault in context_type_get()
+From: Gaurav Kumar <gk@pivotalsecurity.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d044267fecd36ba04c8b685d6
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 31, 2012 at 1:49 PM, Eric Paris <eparis@redhat.com> wrote:
-> The PCRE functions are about x10 faster than the glibc functions.  So
-> use the external library.
->
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
->  libselinux/src/Makefile     |  2 ++
->  libselinux/src/label_file.c | 63 ++++++++++++++++++++++++---------------------
->  2 files changed, 35 insertions(+), 30 deletions(-)
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 74e53bb..ac019df 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -20,6 +20,8 @@ RUBYINC ?= $(shell pkg-config --cflags ruby-$(RUBYLIBVER))
->  RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
->  LIBBASE=$(shell basename $(LIBDIR))
->
-> +LDFLAGS ?= -lpcre
-> +
->  VERSION = $(shell cat ../VERSION)
->  LIBVERSION = 1
+--f46d044267fecd36ba04c8b685d6
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-Minor nit: I think normally it would be added to LDLIBS rather than
-LDFLAGS, so maybe add a LDLIBS += -lselinux -lpcre to the Makefile and
-then replace all instances of -lselinux with $(LDLIBS).
+Hi,
+
+When I try to compile this program http://pastebin.com/VY958hLD (refer
+http://www.internet-goods.com/?p=3D42 for original code)  I get segmentatio=
+n
+fault. Seems to be an issue with *context_type_get*
+
+*root@devUbuntu:/home/user1/dev# gdb ./a.out*
+*GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2) 7.4-2012.04*
+*Copyright (C) 2012 Free Software Foundation, Inc.*
+*License GPLv3+: GNU GPL version 3 or later <
+http://gnu.org/licenses/gpl.html>*
+*This is free software: you are free to change and redistribute it.*
+*There is NO WARRANTY, to the extent permitted by law.  Type "show copying"=
+*
+*and "show warranty" for details.*
+*This GDB was configured as "x86_64-linux-gnu".*
+*For bug reporting instructions, please see:*
+*<http://bugs.launchpad.net/gdb-linaro/>...*
+*Reading symbols from /home/**user1* */dev/a.out...done.*
+*(gdb) run*
+*Starting program: /home/**user1* */dev/a.out*
+*Checking if selinux is enabled=85*
+*this program is not running on a SELinux kernel*
+*getting this program=92s current context=85*
+*this program's security_context_t is: =3D unconfined*
+*
+*
+*Calling context_type_get*
+*
+*
+*Program received signal SIGSEGV, Segmentation fault.*
+*0x00007ffff7bc5a20 in context_type_get () from
+/lib/x86_64-linux-gnu/libselinux.so.1*
+*(gdb)*
+
+
+I am compiling code as "gcc tmp.c -lselinux -ggdb" on Ubuntu 12.04.
+
+Is this an issue with selinux on Ubuntu? If not, can you please provide an
+example of how to call context_type_get()
+
+Thanks,
+Gaurav
+
+--f46d044267fecd36ba04c8b685d6
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+<div>Hi,=A0</div><div><br></div><div>When I try to compile this program=A0<=
+a href=3D"http://pastebin.com/VY958hLD">http://pastebin.com/VY958hLD</a>=A0=
+(refer=A0<a href=3D"http://www.internet-goods.com/?p=3D42">http://www.inter=
+net-goods.com/?p=3D42</a>=A0for original code)=A0=A0I get segmentation faul=
+t. Seems to be an issue with=A0<b>context_type_get</b></div>
+<div><br></div><div><div><i>root@devUbuntu:/home/user1/dev# gdb ./a.out</i>=
+</div><div><i>GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2) 7.4-2012.04</i><=
+/div><div><i>Copyright (C) 2012 Free Software Foundation, Inc.</i></div>
+<div><i>License GPLv3+: GNU GPL version 3 or later &lt;<a href=3D"http://gn=
+u.org/licenses/gpl.html">http://gnu.org/licenses/gpl.html</a>&gt;</i></div>=
+<div><i>This is free software: you are free to change and redistribute it.<=
+/i></div>
+<div><i>There is NO WARRANTY, to the extent permitted by law. =A0Type &quot=
+;show copying&quot;</i></div><div><i>and &quot;show warranty&quot; for deta=
+ils.</i></div><div><i>This GDB was configured as &quot;x86_64-linux-gnu&quo=
+t;.</i></div>
+<div><i>For bug reporting instructions, please see:</i></div><div><i>&lt;<a=
+ href=3D"http://bugs.launchpad.net/gdb-linaro/">http://bugs.launchpad.net/g=
+db-linaro/</a>&gt;...</i></div><div><i>Reading symbols from /home/</i><i>us=
+er1</i>=A0<i>/dev/a.out...done.</i></div>
+<div><i>(gdb) run</i></div><div><i>Starting program: /home/</i><i>user1</i>=
+=A0<i>/dev/a.out</i></div><div><i>Checking if selinux is enabled=85</i></di=
+v><div><i>this program is not running on a SELinux kernel</i></div><div><i>=
+getting this program=92s current context=85</i></div>
+<div><i>this program&#39;s security_context_t is: =3D unconfined</i></div><=
+div><i><br></i></div><div><i>Calling context_type_get</i></div><div><i><br>=
+</i></div><div><i>Program received signal SIGSEGV, Segmentation fault.</i><=
+/div>
+<div><i><b>0x00007ffff7bc5a20 in context_type_get () from /lib/x86_64-linux=
+-gnu/libselinux.so.1</b></i></div><div><i>(gdb)</i></div></div><div><br></d=
+iv><div><br></div><div>I am compiling code as &quot;gcc tmp.c -lselinux -gg=
+db&quot; on Ubuntu 12.04.</div>
+<div><br></div><div>Is this an issue with selinux on Ubuntu? If not, can yo=
+u please provide an example of how to call=A0context_type_get()</div><div><=
+br></div><div>Thanks,</div><div>Gaurav</div><div><br></div><div><br></div>
+<div><br></div>
+
+--f46d044267fecd36ba04c8b685d6--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
