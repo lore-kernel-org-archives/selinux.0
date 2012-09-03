@@ -1,43 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q83CUKwH001284
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2012 08:30:20 -0400
-Received: by wibhq4 with SMTP id hq4so3006828wib.12
-        for <selinux@tycho.nsa.gov>; Mon, 03 Sep 2012 05:30:18 -0700 (PDT)
-MIME-Version: 1.0
-Date: Mon, 3 Sep 2012 14:30:18 +0200
-Message-ID: <CAKi3Pup4-j_z0X3npWYpMpma=5BWHZCMj77t3VmzQk=jLOE-uw@mail.gmail.com>
-Subject: how to extract old files
-From: Alexandra Test <testalexandrainstitute@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q83EoJ8u007368
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2012 10:50:22 -0400
+Message-ID: <1346683819.9228.YahooMailClassic@web87706.mail.ir2.yahoo.com>
+Date: Mon, 3 Sep 2012 15:50:19 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: The SELinux Notebook 3rd Edition
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=f46d04428860ed510c04c8cb4d61
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d04428860ed510c04c8cb4d61
-Content-Type: text/plain; charset=ISO-8859-1
+I've just published the 3rd edition of the SELinux Notebook at:
+http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
+that covers:
+    a) SELinux and its purpose in life.
+    b) The LSM / SELinux architecture, its supporting services and how
+       they are implemented within GNU / Linux.
+    c) SELinux Networking, Virtual Machine, X-Windows, PostgreSQL and
+       Apache/SELinux-Plus SELinux-aware capabilities.
+    d) The core SELinux policy language and how basic policy modules can
+       be constructed for instructional purposes.
+    e) The core SELinux policy management tools with examples of usage.
+    f) The Reference Policy architecture, its supporting services and how
+       it is implemented.
+    g) The integration of SELinux within Android - SEAndroid.
 
-Hi guys,
-in the new version, I can't see any extract_old files script, useful to
-extract proprietary files (camera, i.e) from the phone and insert them in
-the build.
+To demonstrate some of the SELinux capabilities, a supporting Notebook
+source tarball is available (notebook-source-3.0.tar.gz) that contains:
+    a) Building a Basic Policy - Describes how to build monolithic, base
+       and loadable policy modules using core policy language statements
+       and SELinux commands. This expands to a simple message filter
+       using SECMARK, NetLabel and Labeled IPSec that also has a CIL
+       policy version.
+    b) Example libselinux applications - This contains over 100 samples
+       that use all libselinux 2.1.6 functions. There are also some
+       supporting policy modules for the Fedora 16/17 targeted policy
+       to show how the functions work.
+    c) Experimenting with X-Windows - Builds a sample selection manager
+       application, a simple test application for the XSELinux extension
+       Get/Set functions.
+    d) Experimenting with PostgreSQL 9.1 using sepgsql - This shows how
+       to create a simple database that uses SELinux functionality.
+       This is then expanded to demonstrate adding additional functions
+       to support libselinux. There are also demos using Apache with
+       threads (mod_selinux), PHP, Labeled IPSec and NetLabel.
+       The policy modules supplied have been tested using Fedora 16/17
+       targeted policy.
 
-Do you know the new procedure? I am using the master version for Samsung
-Galaxy Nexus.
+I'll start updating the selinuxproject.org site with the new text over
+the next month or so. If you find any errors please let me know.
 
-Thanks for your help,
-Alexandra
+Richard
 
---f46d04428860ed510c04c8cb4d61
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-Hi guys,<div>in the new version, I can&#39;t see any extract_old files scri=
-pt, useful to extract proprietary files (camera, i.e) from the phone and in=
-sert them in the build.</div><div><br></div><div>Do you know the new proced=
-ure? I am using the master version for Samsung Galaxy Nexus.</div>
-<div><br></div><div>Thanks for your help,</div><div>Alexandra</div>
-
---f46d04428860ed510c04c8cb4d61--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
