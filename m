@@ -1,147 +1,128 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q83HxU5u015170
-	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2012 13:59:31 -0400
-Date: Mon, 3 Sep 2012 19:59:04 +0200
-From: Ole Kliemann <ole@plastictree.net>
-To: selinux@tycho.nsa.gov
-Subject: An MCS policy
-Message-ID: <20120903175904.GA25491@telmora.telvanni>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q83MfFPY026489
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2012 18:41:15 -0400
+Received: by vbbfc26 with SMTP id fc26so6628008vbb.12
+        for <selinux@tycho.nsa.gov>; Mon, 03 Sep 2012 15:41:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Date: Mon, 3 Sep 2012 23:41:14 +0100
+Message-ID: <CADxHy9eYOVaVK22ZCi_UregXFwsOwtb1B=Tyygh=87tECsYwhg@mail.gmail.com>
+Subject: RBAC to SELinux policy migration
+From: Marcel Butucea <marcelbutucea@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec502d830d0038b04c8d3d69f
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--bcaec502d830d0038b04c8d3d69f
+Content-Type: text/plain; charset=ISO-8859-1
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ Hello SELinux Team,
+
+As I am a beginner in deciphering the depths of SELinux I come to you with
+the following predicament in hope of guidance and help:
+
+We are migrating an application from Solaris to Linux and the main user is
+allowed, through the use of RBAC roles, to run a few system commands like
+svccfg/svcadm (chkconfig on redhat).
+
+Is it possible, using only SElinux (no sudo), to allow a normal user to run
+chkconfig off/on <service> (basically giving it the ability to add/remove
+services) ?(my ultimate goal would be to allow this user to run other
+"root-only" utilities as well). One of my concerns is that chkconfig might
+have some internal check for the uid of the calling user, ergo blocking
+this account from running the utility irrespective of my selinux policy, is
+my worry legitimate or am I imagining things ?
+
+My approach was to try to create an SElinux user with a corresponding
+SElinux role that manages the app's domain/type and is allowed to
+transition to all other domains required to run chkconfig, tcpdump or any
+other system utility usually restricted to root access only. All my
+attempts so far have failed, so my second question would be where could I
+find good documentation that applies to this specific problem ?
+
+Thank you for your support!
+
+Best Regards,
+
+Marcel
+
+--bcaec502d830d0038b04c8d3d69f
+Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Part of the project I'm working on is an MCS policy that I want=20
-to describe and (hopefully) proof correct in this posting.
+<p style=3D"clear:both;vertical-align:baseline;text-align:left;margin:0px 0=
+px 1em;word-wrap:break-word;border:0px;padding:0px"></p><p style=3D"margin:=
+0px 0px 1em;padding:0px;border:0px;vertical-align:baseline;clear:both;word-=
+wrap:break-word">
 
-I do not expect anyone to read this through, but if maybe someone=20
-is interested in stuff like this, I'd really appreciate any quick=20
-look over it.
+</p><p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:ba=
+seline;clear:both;word-wrap:break-word"></p><p style=3D"margin:0px 0px 1em;=
+padding:0px;border:0px;vertical-align:baseline;clear:both;word-wrap:break-w=
+ord">
 
+</p><p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:ba=
+seline;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation San=
+s, DejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px"=
+>Hello SELinux Team,</span></font></p>
 
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">As =
+I am a beginner in deciphering the depths of SELinux I come to you with the=
+ following predicament in hope of guidance and help:</span></font></p>
 
-These are the specifications I want my policy to meet:
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">We =
+are migrating an application from Solaris to Linux and the main user is all=
+owed, through the use of RBAC roles, to run a few system commands like svcc=
+fg/svcadm (chkconfig on redhat).</span></font></p>
 
-I want a user to have 100 compartments, each one totally
-separated from every other. The user (called main user) has full=20
-access over every compartment. For each compartment C there shall=20
-be 9 subcompartments of C each one totally separated from every=20
-other subcompartment or compartment, but accessible from C.=20
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">Is =
+it possible, using only SElinux (no sudo), to allow a normal user to run ch=
+kconfig off/on &lt;service&gt; (basically giving it the ability to add/remo=
+ve services) ?(my ultimate goal would be to allow this user to run other &q=
+uot;root-only&quot;=A0utilities=A0as well).=A0</span></font><span style=3D"=
+font-size:14px;line-height:18px;font-family:Arial,&#39;Liberation Sans&#39;=
+,&#39;DejaVu Sans&#39;,sans-serif">One of my concerns is that chkconfig mig=
+ht have some internal check for the uid of the calling user, ergo blocking =
+this account from running the utility irrespective of my selinux policy, is=
+ my worry legitimate or am I=A0</span><span style=3D"font-size:14px;line-he=
+ight:18px;font-family:Arial,&#39;Liberation Sans&#39;,&#39;DejaVu Sans&#39;=
+,sans-serif">imagining</span><span style=3D"font-size:14px;line-height:18px=
+;font-family:Arial,&#39;Liberation Sans&#39;,&#39;DejaVu Sans&#39;,sans-ser=
+if">=A0things ?</span></p>
 
-No compartment or subcompartment shall have the possibility to=20
-access or leak data "horizontally", i.e. to any other compartment=20
-or subcompartment that is not of his own.
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">My =
+approach was to try to create an SElinux user with a corresponding SElinux =
+role that manages the app&#39;s domain/type and is allowed to transition to=
+ all other domains required to run chkconfig, tcpdump or any other system u=
+tility usually restricted to root access only. All my attempts so far have =
+failed, so my second question would be where could I find good documentatio=
+n that applies to this specific problem ?</span></font></p>
 
-Neither shall any compartment or subcompartment be able to access=20
-"upwards", i.e. from a subcompartment to its compartment or from=20
-a compartment to the main user.
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">Tha=
+nk you for your support!</span></font></p>
 
-The only allowed data flow is reading, writing and transitioning=20
-=66rom the main user to the compartments and from every compartment=20
-to its subcompartments. (Set aside practical exceptions like=20
-sigchild, fd use, some X11 stuff that needs to be shared among=20
-all compartments etc.)
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><span style=3D"font-size:14px;line-heig=
+ht:18px;font-family:Arial,&#39;Liberation Sans&#39;,&#39;DejaVu Sans&#39;,s=
+ans-serif">Best Regards,</span></p>
 
+<p style=3D"margin:0px 0px 1em;padding:0px;border:0px;vertical-align:baseli=
+ne;clear:both;word-wrap:break-word"><font face=3D"Arial, Liberation Sans, D=
+ejaVu Sans, sans-serif"><span style=3D"font-size:14px;line-height:18px">Mar=
+cel</span></font></p>
 
-My Implementation:
+<p></p><p></p><p></p><p></p>
 
-I have a user user_u with range s0 - s0:c0.c999 starting off as=20
-main_t:s0.=20
-
-main_t is not mcs constrained. main_t can transition to sub_t=20
-which is mcs constrained and has no access to main_t.
-
-I call a range of s0:c(N*10).c((N*10)+9), 0<=3DN<=3D99, a compartment=20
-with id N. E.g. compartment 01 with range s0:c10.c19.=20
-
-I call s0:cI, (N*10) < I <=3D ((N*10)+9), a subcompartment of N=20
-with id I. E.g. subcompartment 5 of compartment 01 with range=20
-s0:c15.
-
-A process of compartment N is run as:
-
-	sub_t:s0:c(N*10) - s0:c(N*10).c((N*10)+9)
-
-A process of subcompartment I of N as:
-=09
-	sub_t:s0:c((N*10)+I)
-
-The mlsconstrain (in princip, set aside practical exceptions) is:
-
-01:		( t1 !=3D is_mcsconstrained )
-02:	or	( t2 !=3D is_mcsconstrained )
-03:	or	(=09
-04:				( l1 domby h1 )=20
-05:			and	( l2 domby h2 )=20
-06:			and	( h1 dom h2 )=20
-07:			and ( h1 dom l2 )=20
-08:			and ( l1 domby l2 )=20
-09:		)
-=09
-
-Proof:
-
-It is sufficient to proof this for any compartment, say=20
-s0:c10.c19. As there is only one sensitivity, the relation of=20
-dominance is that of inclusion of category sets. Set inclusion=20
-shall be denoted by < > =3D <=3D >=3D.
-
-04 and 05 are just to prevent any "weird" contexts. (I'm pretty=20
-sure the kernel already enforces those and gives 'invalid=20
-context' if low range > high range. But definite specifications=20
-are hard to find, so I put them in to be sure.)
-
-It needs to be shown that a process running as
-
-	s0:c10 - s0:c10.c19
-
-can not access any categories -- directly or through transition=20
--- other than c10.c19.
-
-For files created or processes transitioned to it holds true that=20
-low range as well as high range can only be a subset of c10.c19. =20
-This is ensured by 06 and 07. So the process can neither access=20
-nor leak data to either the compartments numerically below hin=20
-(s0:c0.c9) or above him (s0:c20.c29, ...).=20
-
-But note that the empty set is also subset of c10.c19. So the=20
-process would be able to jeopardise his own integrity by=20
-transitioning to or leaking data to s0 -- which in turn would=20
-then be accessible form any other compartment.
-
-So the source low range must always be a subset of the target low=20
-range. This is ensured by 08.
-
-For a subcompartment, say s0:c15, it holds true that the process=20
-
-	s0:c10 - s0:c10.c19
-
-can transition to, give and write files to etc. as c15 > c10 and=20
-c15 < c10.c19.
-
-For any subcompartment it is obvious from the above that it=20
-cannot access or transition to anything else than itself.
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlBE7+gACgkQS1FjE303ERyT6gCdFwZ2Ifx8wpbyB48wkOYN6YJ+
-el0An3jdWIko2B6Uv6UWLgCGvsH9hUjP
-=40Fg
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+--bcaec502d830d0038b04c8d3d69f--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
