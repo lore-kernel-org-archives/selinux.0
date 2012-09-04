@@ -1,81 +1,126 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q84FCuNW008946
-	for <selinux@tycho.nsa.gov>; Tue, 4 Sep 2012 11:12:56 -0400
-Date: Tue, 4 Sep 2012 16:32:12 +0200
-From: Ole Kliemann <ole@plastictree.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: An MCS policy
-Message-ID: <20120904143212.GF2999@telmora.telvanni>
-References: <20120903175904.GA25491@telmora.telvanni>
- <1346767354.30701.35.camel@moss-pluto.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q84IKWXf021614
+	for <selinux@tycho.nsa.gov>; Tue, 4 Sep 2012 14:20:33 -0400
+Message-ID: <5046466A.7060603@redhat.com>
+Date: Tue, 04 Sep 2012 14:20:26 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5Mfx4RzfBqgnTE/w"
-In-Reply-To: <1346767354.30701.35.camel@moss-pluto.epoch.ncsc.mil>
+To: William Roberts <bill.c.roberts@gmail.com>
+CC: "Patrick K., ITF" <cto@itechfrontiers.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: proof selinux
+References: <CAE_4iW8xF5NLvjrXKpSExgstbFx8JKfx38F5PBN0YP3VaPFz4Q@mail.gmail.com> <503D8F58.3010207@itechfrontiers.com> <CAFftDdo1286WZaKfgeJK8xe=N4DE6F3HyQe-X5FM2kpUQD3rxA@mail.gmail.com> <503D9A5D.9090307@itechfrontiers.com> <CAFftDdrfDU69Bpa1VJUvxABMdyg1UmR3NUqeS0xgf2JY7554=Q@mail.gmail.com>
+In-Reply-To: <CAFftDdrfDU69Bpa1VJUvxABMdyg1UmR3NUqeS0xgf2JY7554=Q@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---5Mfx4RzfBqgnTE/w
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 08/29/2012 01:57 AM, William Roberts wrote:
+> I never said it stops an overflow from occurring, it merely mitigates an
+> attack that was accomplished through an overflow....or similar memory
+> corruption error.
+> 
+> On Aug 28, 2012 9:28 PM, "Patrick K., ITF" <cto@itechfrontiers.com 
+> <mailto:cto@itechfrontiers.com>> wrote:
+> 
+> Bill,
+> 
+> The demonstration for SEAndroid you referred to is not to prevent the 
+> overflow, SELinux is not a tool such as StackGuard or ProPolice;
+> 
+> Such prevention is in gaining access and elevation of privileges, SELinux
+> is there to compartmentalize things if correctly used, So technically it is
+> not for preventing from buffer overflow or even preventing exploits, it is
+> to confine, isolate, restrict and limit the damage (in GingerBreak case 
+> preventing Elevation of access -Root access-)
+> 
+> I believe you referred to this page:
+> 
+> http://selinuxproject.org/~__jmorris/lss2011_slides/__caseforseandroid.pdf 
+> <http://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf>
+> 
+> Best Regards,
+> 
+> Patrick K.
+> 
+> On 8/29/2012 12:10 AM, William Roberts wrote:
+> 
+> As far as demo at preventing attacks based on overflow stephen smalley does
+> a nice job showing how SEAndroid prevented ginger break. Look at the
+> SEAndroid web page(Google it)
+> 
+> On Aug 28, 2012 8:45 PM, "Patrick K., ITF" <cto@itechfrontiers.com 
+> <mailto:cto@itechfrontiers.com> <mailto:cto@itechfrontiers.com
+> <mailto:cto@itechfrontiers.com>__>> wrote:
+> 
+> Hi Raul,
+> 
+> I'm not sure if we are on the same page about SELinux.
+> 
+> SELinux is not there to prevent from buffer overflow or such exploits,
+> 
+> If you run a process in some kind of Role or Context, you confine it to the
+> limitations you defined in that context (using SELinux Policies),
+> 
+> How effective SELinux would be, depends on your policies actually.
+> 
+> The effectiveness of SELinux has nothing to do with exploits, unless of
+> course you meant attacking SELinux code or kernel LSM or Kernel itself.
+> 
+> 
+> Testing SELinux is easy, simply assign whatever role or policy you want to
+> a process and user or group,  the ultimate exploit of a process gives total
+> control of that role or policy to that user. So the attackers become as
+> privileged as the role or user or context of the policy.
+> 
+> 
+> Sincerely,
+> 
+> Patrick K.
+> 
+> On 8/28/2012 10:50 PM, Raul da Silva {Sp4wn} wrote:
+> 
+> hi guys,
+> 
+> I know that we have a lot of ways to prove how effective is SELinux as cgi,
+> perl, shell scripts and I know that is effective but I'd like to know if
+> someone already tested some kind of exploit of buffer overflow attack as
+> demo to show how effective could be SELinux. Any information I really
+> appreciate
+> 
+> Thanks
+> 
+> 
+> 
+> Raul Leite sp4wn.root@gmail.com <mailto:sp4wn.root@gmail.com> 
+> <mailto:sp4wn.root@gmail.com <mailto:sp4wn.root@gmail.com>> 
+> <mailto:sp4wn.root@gmail.com <mailto:sp4wn.root@gmail.com> 
+> <mailto:sp4wn.root@gmail.com <mailto:sp4wn.root@gmail.com>>>
+> 
+> 
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov <mailto:majordomo@tycho.nsa.gov> 
+> <mailto:majordomo@tycho.nsa.__gov <mailto:majordomo@tycho.nsa.gov>> with 
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
-On Tue, Sep 04, 2012 at 10:02:34AM -0400, Stephen Smalley wrote:
-> On Mon, 2012-09-03 at 19:59 +0200, Ole Kliemann wrote:
-> > 01:		( t1 !=3D is_mcsconstrained )
-> > 02:	or	( t2 !=3D is_mcsconstrained )
->=20
-> Not sure if you are using TE to prevent this, but one possible concern
-> with using the same invariant for source (t1) and target (t2) is with
-> respect to process ptrace, transition, and dyntransition permissions.
-> You want to ensure that a MCS constrained process cannot ptrace or
-> transition to a MCS-unconstrained domain.
 
-Yes, that's prevented by TE and asserted by neverallow.
+I like this demo.
 
-> > 03:	or	(=09
-> > 04:				( l1 domby h1 )=20
-> > 05:			and	( l2 domby h2 )=20
->=20
-> The kernel (mls_context_isvalid() in security/selinux/ss/mls.c)
-> guarantees these invariants for all security contexts.cd=20
-
-This one I saw coming.
-
->=20
-> > 06:			and	( h1 dom h2 )=20
-> > 07:			and ( h1 dom l2 )=20
->=20
-> Redundant.
-
-This one I totally missed. Under the premise of 04 and 05, the=20
-source high range always dominates the target low range if it=20
-already dominates the target high range -- it's transitive after=20
-all.
-
->=20
-> > 08:			and ( l1 domby l2 )=20
-> > 09:		)
-
-Thanks for having a look!
-
-Ole
-
---5Mfx4RzfBqgnTE/w
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
+http://danwalsh.livejournal.com/44090.html
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
 
-iEYEARECAAYFAlBGEOwACgkQS1FjE303ERwD3QCfcvewyyn6xyCj/pjyNO1vJcP8
-WcgAnj6TDPw6ctRhmXxQU9dQoIwZ0kbw
-=qJlM
+iEUEARECAAYFAlBGRmkACgkQrlYvE4MpobOA1gCfdHK7j+4Bo3yGqpmmFhuc3w3W
+l4YAmLh8nT7VZJ47VICWPqwqJjuXSPg=
+=293q
 -----END PGP SIGNATURE-----
-
---5Mfx4RzfBqgnTE/w--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
