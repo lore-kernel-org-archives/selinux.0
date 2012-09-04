@@ -1,93 +1,65 @@
-Message-ID: <1346767543.30701.39.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Segmentation fault in context_type_get()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Gaurav Kumar <gk@pivotalsecurity.com>
-Cc: SELinux@tycho.nsa.gov
-Date: Tue, 04 Sep 2012 10:05:43 -0400
-In-Reply-To: <CAFUy1Tx+=Og3PnkE+GoyrDXRXsAJ-X9Qk2zaf0GPfSSFix7ggQ@mail.gmail.com>
-References: 
-	<CAFUy1Txwvm+iSt1-1qeZDckWPhMH_D3_UwkGPFHp+cS-ub8zKg@mail.gmail.com>
-	 <CAFUy1Tx+=Og3PnkE+GoyrDXRXsAJ-X9Qk2zaf0GPfSSFix7ggQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q84EXOZn005855
+	for <selinux@tycho.nsa.gov>; Tue, 4 Sep 2012 10:33:24 -0400
+From: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+To: Marcel Butucea <marcelbutucea@gmail.com>,
+        "selinux@tycho.nsa.gov"
+	<selinux@tycho.nsa.gov>
+CC: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+Subject: RE: RBAC to SELinux policy migration
+Date: Tue, 4 Sep 2012 14:33:21 +0000
+Message-ID: <33006C99F5A5194A9B7A7715DFA3E3836518BBC2@ALA-MBB.corp.ad.wrs.com>
+References: <CADxHy9eYOVaVK22ZCi_UregXFwsOwtb1B=Tyygh=87tECsYwhg@mail.gmail.com>,<CADxHy9e0sQu8h82KVUQ8k_q4as46NNW90u0ZH6i5yAk--gu64A@mail.gmail.com>
+In-Reply-To: <CADxHy9e0sQu8h82KVUQ8k_q4as46NNW90u0ZH6i5yAk--gu64A@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2012-09-02 at 06:41 -0700, Gaurav Kumar wrote:
-> Nevermind, I think it is Ubuntu issue. Code works just fine on Fedora
-> & Redhat. I think selinux support in Ubuntu is limited and the library
-> could be buggy- I'll file a bug at launchpad.
+One thing that hasn't yet been mentioned:
 
-Running it under valgrind might be helpful.
+Using DAC, you can always set the file permission on the utilities you need so that the SUID bit is set and the file is owned by root.
 
-> 
-> Cheers,
-> Gaurav
-> 
-> On Sun, Sep 2, 2012 at 4:42 AM, Gaurav Kumar <gk@pivotalsecurity.com>
-> wrote:
->         Hi, 
->         
->         
->         When I try to compile this
->         program http://pastebin.com/VY958hLD (refer http://www.internet-goods.com/?p=42 for original code)  I get segmentation fault. Seems to be an issue with context_type_get
->         
->         
->         root@devUbuntu:/home/user1/dev# gdb ./a.out
->         GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2) 7.4-2012.04
->         Copyright (C) 2012 Free Software Foundation, Inc.
->         License GPLv3+: GNU GPL version 3 or later
->         <http://gnu.org/licenses/gpl.html>
->         This is free software: you are free to change and redistribute
->         it.
->         There is NO WARRANTY, to the extent permitted by law.  Type
->         "show copying"
->         and "show warranty" for details.
->         This GDB was configured as "x86_64-linux-gnu".
->         For bug reporting instructions, please see:
->         <http://bugs.launchpad.net/gdb-linaro/>...
->         Reading symbols from /home/user1 /dev/a.out...done.
->         (gdb) run
->         Starting program: /home/user1 /dev/a.out
->         Checking if selinux is enabled…
->         this program is not running on a SELinux kernel
->         getting this program’s current context…
->         this program's security_context_t is: = unconfined
->         
->         
->         Calling context_type_get
->         
->         
->         Program received signal SIGSEGV, Segmentation fault.
->         0x00007ffff7bc5a20 in context_type_get ()
->         from /lib/x86_64-linux-gnu/libselinux.so.1
->         (gdb)
->         
->         
->         
->         
->         I am compiling code as "gcc tmp.c -lselinux -ggdb" on Ubuntu
->         12.04.
->         
->         
->         Is this an issue with selinux on Ubuntu? If not, can you
->         please provide an example of how to call context_type_get()
->         
->         
->         Thanks,
->         Gaurav
->         
->         
->         
->         
->         
->         
-> 
-> 
+If you "chown root tcpdump ; chmod 4755 tcpdump", then anyone can execute tcpdump, regardless of their UID and without sudo.
 
--- 
-Stephen Smalley
-National Security Agency
+You can then use SELinux to restrict that, so that only some users can use tcpdump, or put other restrictions on it.
+
+This is not a pure SELinux solution, which is what you requested, though.
+
+________________________________________
+From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf of Marcel Butucea [marcelbutucea@gmail.com]
+Sent: Tuesday, September 04, 2012 3:29 AM
+To: selinux@tycho.nsa.gov
+Subject: Re: RBAC to SELinux policy migration
+
+Clarifying to avoid confusion:
+
+1. I assumed I would be able to allow a user the ability to run system utilities like tcpdump, chkconfig, etc. by using selinux (either by using domain transitions or applying a sysadm_u context to the user or ...)
+Is that correct ?
+2. I am not sure capabilities can do that, my understanding was that they work on a per file basis not per user.....
+3. if the uid is checked by the utility I won't be able to workaround that by means of selinux, right ?
+
+Regards,
+Marcel
+
+On 3 September 2012 23:41, Marcel Butucea <marcelbutucea@gmail.com<mailto:marcelbutucea@gmail.com>> wrote:
+
+Hello SELinux Team,
+
+As I am a beginner in deciphering the depths of SELinux I come to you with the following predicament in hope of guidance and help:
+
+We are migrating an application from Solaris to Linux and the main user is allowed, through the use of RBAC roles, to run a few system commands like svccfg/svcadm (chkconfig on redhat).
+
+Is it possible, using only SElinux (no sudo), to allow a normal user to run chkconfig off/on <service> (basically giving it the ability to add/remove services) ?(my ultimate goal would be to allow this user to run other "root-only" utilities as well). One of my concerns is that chkconfig might have some internal check for the uid of the calling user, ergo blocking this account from running the utility irrespective of my selinux policy, is my worry legitimate or am I imagining things ?
+
+My approach was to try to create an SElinux user with a corresponding SElinux role that manages the app's domain/type and is allowed to transition to all other domains required to run chkconfig, tcpdump or any other system utility usually restricted to root access only. All my attempts so far have failed, so my second question would be where could I find good documentation that applies to this specific problem ?
+
+Thank you for your support!
+
+Best Regards,
+
+Marcel
+
 
 
 --
