@@ -1,77 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q85HISip004654
-	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2012 13:18:31 -0400
-Message-ID: <50478962.10303@redhat.com>
-Date: Wed, 05 Sep 2012 13:18:26 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q85HbqNZ023893
+	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2012 13:37:52 -0400
+Message-ID: <50478DE8.5000209@tresys.com>
+Date: Wed, 5 Sep 2012 13:37:44 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: domain_kill_all_domains in login programs
-References: <7C0BFC34-B6A3-4B7A-BD9F-7E3684C79B49@nall.com>
-In-Reply-To: <7C0BFC34-B6A3-4B7A-BD9F-7E3684C79B49@nall.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH/RFC] setools: update swig interfaces for swig-2.0.7 (and
+ higher?)
+References: <20120820190731.GA16363@siphos.be>
+In-Reply-To: <20120820190731.GA16363@siphos.be>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 09/05/2012 11:45 AM, Joe Nall wrote:
-> There is a domain_kill_all_domains in auth_login_pgm_domain that allows
-> sshd and other login programs to send sigkill to auditd and other system
-> processes that were probably not intended.
+On 08/20/12 15:07, Sven Vermeulen wrote:
+> Hi guys,
 > 
-> For auditd, I can create domain_kill_all_domains_except and put auditd in
-> the exception list. This still leaves processes that use
-> auth_login_pgm_domain with the ability to kill many unrelated system
-> processes.
+> In Gentoo, I had to patch the setools package' swig interfaces to build with
+> the swig-2.0.7 (and probably a few previous ones, version 2.0.4 still seemed
+> to build the code properly). The patch is fairly large (228 KiB) so I've put
+> it online for now. However, I'm not sure if this is the right way to fix
+> things or not.
 > 
-> Another approach is to allow login programs to only kill programs with an
-> attribute like userdomain.
+> In any case, the build failures we got were:
 > 
-> Thoughts?
+> ../qpol.i:241: Warning 504: Function qpol_module::qpol_module_t(char const
+> *) must have a return type. Ignored.
+> ../qpol.i:244: Warning 521: Illegal destructor name
+> qpol_module::~qpol_module_t(). Ignored.
 > 
-> joe
+> and
 > 
-> grep through RH policy, refpolicy is similar
+> qpol_wrap.c:1831:24: error: conflicting types for qpol_module_get_path
+> ../../../libqpol/include/qpol/module.h:69:13: note: previous declaration of qpol_module_get_path was here
+> qpol_wrap.c: In function qpol_module_get_path:
+> qpol_wrap.c:1834:3: error: too many arguments to function qpol_module_get_path
+> qpol_wrap.c:1831:24: note: declared here
 > 
-> find . -name \*.if -exec grep -H auth_login_pgm_domain {} \; 
-> ./policy/modules/system/authlogin.if:interface(`auth_login_pgm_domain',` 
-> ./policy/modules/services/ssh.if:	auth_login_pgm_domain($1_t)
+> I fixed it by changing the constructors/destructor names to the struct name
+> (as in "typedef struct qpol_module {} qpol_module_t" so the
+> constructur/destructor uses "qpol_module" rather than "qpol_module_t", and
+> by introducing %rename() calls for each collision found during the build
+> process.
 > 
-> find . -name \*.te -exec grep -H auth_login_pgm_domain {} \; 
-> ./policy/modules/system/locallogin.te:auth_login_pgm_domain(local_login_t) 
-> ./policy/modules/services/xserver.te:auth_login_pgm_domain(xdm_t) 
-> ./policy/modules/services/rshd.te:auth_login_pgm_domain(rshd_t) 
-> ./policy/modules/services/rlogin.te:auth_login_pgm_domain(rlogind_t) 
-> ./policy/modules/services/remotelogin.te:auth_login_pgm_domain(remote_login_t)
->
->  -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
+> The patch is at
+> http://dev.gentoo.org/~swift/patches/0008-fix_swig_build_failures_bug_430262.patch
 > 
-> 
+> If it is the right patch, I hope this saves a few hours of work for the
+> other developers ;-)
 
+I think this can be merged, but I'd need an update to the configure script to check for swig 2.0.
 
-I guess the problem here is killing all domains that a user domain could
-transition to.
-
-It would be better to set this to killall application_domain_types.
-
-
-application_kill_all()
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
-
-iEYEARECAAYFAlBHiWIACgkQrlYvE4MpobNr5gCg3LW8EKJYg7Zsrw9k6D3yG89j
-HhYAoOlxMA/tNqPtfw3qiBBIfGgcO3df
-=kglk
------END PGP SIGNATURE-----
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
