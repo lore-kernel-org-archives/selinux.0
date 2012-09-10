@@ -1,110 +1,89 @@
-Message-ID: <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
- when installing modules
+Message-ID: <1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Security hooks for rpm
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Laurent Bigonville <bigon@debian.org>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        "Christopher J. PeBenito"
-	 <cpebenito@tresys.com>
-Date: Mon, 10 Sep 2012 08:39:46 -0400
-In-Reply-To: <20120909191000.74e83c73@fornost.bigon.be>
-References: <20120909191000.74e83c73@fornost.bigon.be>
-Content-Type: multipart/mixed; boundary="=-0tsAamd7Y0xMfalivXL2"
+To: Elena Reshetova <elena.reshetova@gmail.com>
+Cc: SELinux@tycho.nsa.gov, Steve Lawrence <slawrence@tresys.com>,
+        James
+ Carter <jwcart2@tycho.nsa.gov>
+Date: Mon, 10 Sep 2012 10:44:03 -0400
+In-Reply-To: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
+References: 
+	<CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-0tsAamd7Y0xMfalivXL2
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
-On Sun, 2012-09-09 at 19:10 +0200, Laurent Bigonville wrote:
+On Mon, 2012-09-10 at 11:07 +0300, Elena Reshetova wrote:
 > Hi,
 > 
-> When compiling the GIT HEAD of the refpolicy and then trying to install
-> the base module with the required dependencies (semodule -b base.pp
-> -i ...) , I get the following assertion:
+> As we agreed during the LSS Iet's try to define a unified set of
+> security hooks for rpm.
+> I have promised to post the set of hooks that we are proposing. I
+> think we can try first to agree on the hooks and they arguments and
+> then agree about their place. I can make the needed adjustments on the
+> actual code.
 > 
-> Assertion `new_role != ((void *)0) && new_role->flavor == 1'
-> 
-> I've found a previous discussion[0] on the mailing list from some months
-> ago but unfortunately without any solution.
-> 
-> Does anybody have an idea?
-> 
-> Cheers
-> 
-> Laurent Bigonville
-> 
-> [0] http://www.spinics.net/lists/selinux/msg11809.html
+> Also I have been thinking that since we are talking more and more
+> about stackable LSMs, then security plug-in interface for rpm should
+> support multiple security plug-ins in case package comes with
+> configurations for a number of LSMs (also things like IMA/EVM setup
+> can be moved to a separate plug-in).
+> What do you think about it?
 
-Does this patch fix it?
+I'd agree - I was thinking however that rpm already supports multiple
+plugins.  Is that not the case?  Is there a reason that this needs to
+specifically be security hooks vs. just general plugin hooks?
+
+> All current hooks return rpmRC error code, which is RPMRC_OK, if no
+> errors are detected and RPMRC_FAIL, if failure is detected and
+> installation must be aborted.
+> 
+> And here are the actual hooks:
+> 
+> 1. rpmRC SECURITYHOOK_INIT_FUNC(rpmts ts, const char *opts)
+
+I see that our init func takes a const char *name argument as well; I
+don't know offhand whether it is truly required (Steve or Jim?).
+
+> 7. rpmRC SECURITYHOOK_SCRIPT_EXEC_FUNC(ARGV_const_t argv)
+
+It looks like our rpm_execcon() hook takes more arguments, but they
+aren't truly unique or used, so this seems reasonable to me as a
+simplified interface.
+
+> 8. rpmRC SECURITYHOOK_FSM_OPENED_FUNC(const char* dirName, const char* baseName)
+> 
+> This is first of the three file hooks that are needed by the security
+> plugin to perform an operation of a certain file from the package.
+> This hook is called before the file is read from the archive. The
+> dirName and baseName allow to reconstruct the path of the file to be
+> place to the filesystem.
+> 
+> 9. rpmRC SECURITYHOOK_FSM_UPDATED_FUNC(const struct stat * st, char
+> *buf, size_t len)
+> 
+> This is the second of the file hooks. It is called a number of times
+> depending on the file length every time a new chunk of file is read
+> from the archive to the buffer. The actual buffer and its length is
+> provided in the parameters.
+> 
+> 10. rpmRC SECURITYHOOK_FSM_CLOSED_FUNC(int rpmrc)
+> 
+> The last file hook allows the plugin to finish the file processing. It
+> is called once per each file from the package and after the file has
+> been placed to the filesystem. Can be used to label the file.
+
+I'm not clear on how you can label the file if the only input to this
+hook is the rpmrc value?  We need the selabel handle, file path, and
+file mode as inputs (see fsmSetSELabel, called by fsmCommit).  That is
+also called by fsmMkdirs() to ensure proper labeling of directories not
+explicitly included in the package but part of that path to a given
+file.
 
 -- 
 Stephen Smalley
 National Security Agency
-
---=-0tsAamd7Y0xMfalivXL2
-Content-Type: application/mbox;
-	name*0="[v1_PATCH_1_1]_role_fix_callback_skips_out-of-scope_roles_during_";
-	name*1="expansion..mbox"
-Content-Disposition: attachment;
-	filename*0="[v1_PATCH_1_1]_role_fix_callback_skips_out-of-scope_roles_dur";
-	filename*1="ing_expansion..mbox"
-Content-Transfer-Encoding: 7bit
-
-From: Harry Ciao <qingtao.cao@windriver.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [v1 PATCH 1/1] role_fix_callback skips out-of-scope roles during
- expansion.
-Date: Sat, 25 Feb 2012 09:40:08 +0800
-Message-ID: <1330134008-3259-1-git-send-email-qingtao.cao@windriver.com>
-X-Mailer: git-send-email 1.7.0.4
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: owner-selinux@tycho.nsa.gov
-Precedence: bulk
-X-Mailing-List: selinux-tycho.nsa.gov
-Content-Transfer-Encoding: 8bit
-
-If a role identifier is out of scope it would be skipped over during
-expansion, accordingly, be it a role attribute, it should be skipped
-over as well when role_fix_callback tries to propagate its capability
-to all its sub-roles.
-
-Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
----
- libsepol/src/expand.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 493e478..befb720 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -688,6 +688,11 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		return 0;
- 	}
- 
-+	if (!is_id_enabled(id, state->base, SYM_ROLES)) {
-+		/* identifier's scope is not enabled */
-+		return 0;
-+	}
-+
- 	if (role->flavor != ROLE_ATTRIB)
- 		return 0;
- 
--- 
-1.7.0.4
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
-
---=-0tsAamd7Y0xMfalivXL2--
 
 
 --
