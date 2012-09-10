@@ -1,126 +1,61 @@
-Message-ID: <1347305301.9456.122.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: The SELinux Notebook 3rd Edition
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 10 Sep 2012 15:28:21 -0400
-In-Reply-To: <1346683819.9228.YahooMailClassic@web87706.mail.ir2.yahoo.com>
-References: <1346683819.9228.YahooMailClassic@web87706.mail.ir2.yahoo.com>
-Content-Type: text/plain; charset="UTF-8"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8ANE9mG007228
+	for <selinux@tycho.nsa.gov>; Mon, 10 Sep 2012 19:14:10 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id 20E2C1A056
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 01:14:04 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2q1yQyTlATAY for <selinux@tycho.nsa.gov>;
+	Tue, 11 Sep 2012 01:14:02 +0200 (CEST)
+Received: from eldamar.bigon.be (unknown [IPv6:2a02:578:8500:2601:5a94:6bff:fe3f:6930])
+	(using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id B61611A025
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 01:14:02 +0200 (CEST)
+Date: Tue, 11 Sep 2012 01:13:49 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
+ when installing modules
+Message-ID: <20120911011349.0ecc2f99@eldamar.bigon.be>
+In-Reply-To: <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil>
+References: <20120909191000.74e83c73@fornost.bigon.be>
+	<1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2012-09-03 at 15:50 +0100, Richard Haines wrote:
-> I've just published the 3rd edition of the SELinux Notebook at:
-> http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-> that covers:
->     a) SELinux and its purpose in life.
->     b) The LSM / SELinux architecture, its supporting services and how
->        they are implemented within GNU / Linux.
->     c) SELinux Networking, Virtual Machine, X-Windows, PostgreSQL and
->        Apache/SELinux-Plus SELinux-aware capabilities.
->     d) The core SELinux policy language and how basic policy modules can
->        be constructed for instructional purposes.
->     e) The core SELinux policy management tools with examples of usage.
->     f) The Reference Policy architecture, its supporting services and how
->        it is implemented.
->     g) The integration of SELinux within Android - SEAndroid.
-> 
-> To demonstrate some of the SELinux capabilities, a supporting Notebook
-> source tarball is available (notebook-source-3.0.tar.gz) that contains:
->     a) Building a Basic Policy - Describes how to build monolithic, base
->        and loadable policy modules using core policy language statements
->        and SELinux commands. This expands to a simple message filter
->        using SECMARK, NetLabel and Labeled IPSec that also has a CIL
->        policy version.
->     b) Example libselinux applications - This contains over 100 samples
->        that use all libselinux 2.1.6 functions. There are also some
->        supporting policy modules for the Fedora 16/17 targeted policy
->        to show how the functions work.
->     c) Experimenting with X-Windows - Builds a sample selection manager
->        application, a simple test application for the XSELinux extension
->        Get/Set functions.
->     d) Experimenting with PostgreSQL 9.1 using sepgsql - This shows how
->        to create a simple database that uses SELinux functionality.
->        This is then expanded to demonstrate adding additional functions
->        to support libselinux. There are also demos using Apache with
->        threads (mod_selinux), PHP, Labeled IPSec and NetLabel.
->        The policy modules supplied have been tested using Fedora 16/17
->        targeted policy.
-> 
-> I'll start updating the selinuxproject.org site with the new text over
-> the next month or so. If you find any errors please let me know.
+Le Mon, 10 Sep 2012 08:39:46 -0400,
+Stephen Smalley <sds@tycho.nsa.gov> a écrit :
 
-You are a brave soul to start documenting SE Android ;)  Some minor
-corrections:
+> Does this patch fix it?
 
-* 7.1.2 SEAndroid Project Updates, page 300:  There have been some
-changes/additions to the libselinux interfaces, e.g. _setfilecon2 which
-takes a seinfo argument and the new interfaces for policy loading.
-Also, the reload interface isn't being used anymore (from outside of
-libselinux), as we switched installd from calling it upon a policy
-reload to simply re-starting installd completely.
+It's now unfortunately crashing with the following trace :(
 
-* 7.2 Policy Configuration Files, page 303:  The list of device specific
-files isn't quite right; in particular sepolicy.fs_use,
-sepolicy.genfs_contexts, sepolicy.initial_sid_contexts.  Plus the recent
-addition of a per-device seapp_contexts configuration that is merged
-into the base seapp_contexts via the checkseapp utility.  system.prop
-isn't a SE Android file.  I suspect there will be further changes here
-before we are done, likely ending with a per-device sepolicy
-subdirectory tree that can override/augment any of the base policy
-files.
+#0  __strlen_sse42 () at ../sysdeps/x86_64/multiarch/strlen-sse4.S:32
+#1  0x00007f30554c20b1 in ustr_replace_cstr (s1=0x7fff6721a668, oc=0x7f3055ea4ef9 "s0", nc=0x0, lim=0) at ustr-replace.h:58
+#2  0x00007f3055e8d398 in replace_all (str=0x7f3057796860 "HOME_DIR/.+\tsystem_u:object_r:user_home_t", repl=0x7fff6721a6c0) at genhomedircon.c:513
+#3  0x00007f3055e8d644 in write_home_dir_context (s=0x7fff6721a7d0, out=0x7f305779d9a0, tpl=0x7f305779c260, user=0x7f3057081660 "user_u", seuser=0x7f3057081660 "user_u", home=0x7f3057791ef3 "/home/[^/]*", role_prefix=0x7f3057081640 "user", level=0x0) at genhomedircon.c:580
+#4  0x00007f3055e8e6d2 in write_context_file (s=0x7fff6721a7d0, out=0x7f305779d9a0) at genhomedircon.c:1012
+#5  0x00007f3055e8e977 in semanage_genhomedircon (sh=0x7f30570015b0, policydb=0x7f30576fcbd0, usepasswd=1, ignoredirs=0x0) at genhomedircon.c:1090
+#6  0x00007f3055e8993e in semanage_direct_commit (sh=0x7f30570015b0) at direct_api.c:994
+#7  0x00007f3055e8f7bc in semanage_commit (sh=0x7f30570015b0) at handle.c:435
+#8  0x00007f305674c921 in main (argc=21, argv=0x7fff6721aac8) at semodule.c:479
 
-* Same section, page 304: The property name is selinux.reload_policy.
-Needs to be fixed both in the body and the footnote 64.
+I get this with the userspace version of Debian sid (and libsepol
+patched) and the following command:
 
-* 7.2.1 seapp_context (should be seapp_contexts), page 304:  Looks like
-you have an extra word in item 3 ("user= equal string").  Typically the
-configuration is automatically loaded on first use of one of the
-_setcontext() or _setfilecon() interfaces.
+semodule -v -b base.pp -s refpolicy -n -i init.pp libraries.pp
+logging.pp selinuxutil.pp modutils.pp storage.pp userdomain.pp
+miscfiles.pp sysadm.pp authlogin.pp sysnetwork.pp application.pp
+locallogin.pp
 
-* 7.2.1.1 selinux_android_setcontext, page 304-306:  Not sure this will
-make sense to anyone without an understanding of what the inputs all
-mean, the Android username encoding, and the history of the code
-(particularly the evolution in Android username encodings from app_N to
-uM_aN and uM_iN in the 4.1/JB release).  Also, the username encoding has
-further changed in latest master, so we now have to deal with uM_system
-and the like.  But the Examples section is nice.
+Cheers
 
-* 7.2.1.2, selinux_android_setfilecon, page 307-:  We have replaced this
-with an extended interface, _setfilecon2, that takes the seinfo argument
-as well, thereby allowing labeling the /data/data directory based on
-seinfo.  As the core logic is now essentially the same, might want to
-just describe it once with the differences noted within.
-
-* 7.2.2 property_context, page 309:  Should be property_contexts.
-
-* Same section, page 310:  I think the label backend only supports a
-fixed string (that is used as a prefix match) or a * (that is used to
-cover anything not otherwise specified).  No ? and no string containing
-any meta-characters.
-
-* 7.3, SEAndroid Classes & Permissions, page 312:
-Actual meanings of the binder permissions:
-** impersonate: Perform a binder IPC on behalf of another process. Can A
-impersonate B on an IPC?
-** call: Perform a binder IPC to a given target process.  Can A call B?
-** set_context_mgr:  Register self as the Binder Context Manager aka
-servicemanager (global name service).  Can A set the context manager to
-B, where normally A == B.
-** transfer: Transfer a binder reference to another process.  Can A
-transfer a binder reference owned by B?
-** receive:  Receive a binder reference from another process.  Can A
-receive a binder referenced owned by B?
-
-* Same section, page 313:
-** specifyseinfo:  Specify a seinfo string for use in determining the
-app security label.
-
--- 
-Stephen Smalley
-National Security Agency
+Laurent Bigonville
 
 
 --
