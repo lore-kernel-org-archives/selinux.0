@@ -1,136 +1,111 @@
-MIME-Version: 1.0
-Date: Mon, 10 Sep 2012 11:07:21 +0300
-Message-ID: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
-Subject: Security hooks for rpm
-From: Elena Reshetova <elena.reshetova@gmail.com>
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
+ when installing modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Laurent Bigonville <bigon@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        "Christopher J. PeBenito"
+	 <cpebenito@tresys.com>
+Date: Mon, 10 Sep 2012 08:39:46 -0400
+In-Reply-To: <20120909191000.74e83c73@fornost.bigon.be>
+References: <20120909191000.74e83c73@fornost.bigon.be>
+Content-Type: multipart/mixed; boundary="=-0tsAamd7Y0xMfalivXL2"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-As we agreed during the LSS Iet's try to define a unified set of
-security hooks for rpm.
-I have promised to post the set of hooks that we are proposing. I
-think we can try first to agree on the hooks and they arguments and
-then agree about their place. I can make the needed adjustments on the
-actual code.
+--=-0tsAamd7Y0xMfalivXL2
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-Also I have been thinking that since we are talking more and more
-about stackable LSMs, then security plug-in interface for rpm should
-support multiple security plug-ins in case package comes with
-configurations for a number of LSMs (also things like IMA/EVM setup
-can be moved to a separate plug-in).
-What do you think about it?
+On Sun, 2012-09-09 at 19:10 +0200, Laurent Bigonville wrote:
+> Hi,
+> 
+> When compiling the GIT HEAD of the refpolicy and then trying to install
+> the base module with the required dependencies (semodule -b base.pp
+> -i ...) , I get the following assertion:
+> 
+> Assertion `new_role != ((void *)0) && new_role->flavor == 1'
+> 
+> I've found a previous discussion[0] on the mailing list from some months
+> ago but unfortunately without any solution.
+> 
+> Does anybody have an idea?
+> 
+> Cheers
+> 
+> Laurent Bigonville
+> 
+> [0] http://www.spinics.net/lists/selinux/msg11809.html
 
-All current hooks return rpmRC error code, which is RPMRC_OK, if no
-errors are detected and RPMRC_FAIL, if failure is detected and
-installation must be aborted.
+Does this patch fix it?
 
-And here are the actual hooks:
+-- 
+Stephen Smalley
+National Security Agency
 
-1. rpmRC SECURITYHOOK_INIT_FUNC(rpmts ts, const char *opts)
+--=-0tsAamd7Y0xMfalivXL2
+Content-Type: application/mbox;
+	name*0="[v1_PATCH_1_1]_role_fix_callback_skips_out-of-scope_roles_during_";
+	name*1="expansion..mbox"
+Content-Disposition: attachment;
+	filename*0="[v1_PATCH_1_1]_role_fix_callback_skips_out-of-scope_roles_dur";
+	filename*1="ing_expansion..mbox"
+Content-Transfer-Encoding: 7bit
 
-This hook should be used by the security plug-in to initialize itself
-and its data.
+From: Harry Ciao <qingtao.cao@windriver.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [v1 PATCH 1/1] role_fix_callback skips out-of-scope roles during
+ expansion.
+Date: Sat, 25 Feb 2012 09:40:08 +0800
+Message-ID: <1330134008-3259-1-git-send-email-qingtao.cao@windriver.com>
+X-Mailer: git-send-email 1.7.0.4
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: owner-selinux@tycho.nsa.gov
+Precedence: bulk
+X-Mailing-List: selinux-tycho.nsa.gov
+Content-Transfer-Encoding: 8bit
 
-2. rpmRC SECURITYHOOK_CLEANUP_FUNC(void)
+If a role identifier is out of scope it would be skipped over during
+expansion, accordingly, be it a role attribute, it should be skipped
+over as well when role_fix_callback tries to propagate its capability
+to all its sub-roles.
 
-This hook should be used by the plug-in to free any allocated memory
-and finish its execution.
+Signed-off-by: Harry Ciao <qingtao.cao@windriver.com>
+---
+ libsepol/src/expand.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-3. rpmRC SECURITYHOOK_PRE_TSM_FUNC(rpmts _ts)
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 493e478..befb720 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -688,6 +688,11 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 		return 0;
+ 	}
+ 
++	if (!is_id_enabled(id, state->base, SYM_ROLES)) {
++		/* identifier's scope is not enabled */
++		return 0;
++	}
++
+ 	if (role->flavor != ROLE_ATTRIB)
+ 		return 0;
+ 
+-- 
+1.7.0.4
 
-This hook is called before the beginning of rpm transaction and allows
-the plug-in to perform the pre-checks on the group of packages to be
-installed.
 
-4. rpmRC SECURITYHOOK_POST_TSM_FUNC(rpmts _ts)
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
 
-This hook is called after the rpm transaction has finished. It allows
-the security plug-in to perform any post-transaction checks or
-additional processing.
 
-5. rpmRC SECURITYHOOK_PRE_PSM_FUNC(rpmte _te)
+--=-0tsAamd7Y0xMfalivXL2--
 
-This hook is called before the installation/removal of a single
-package begins. If the rpm transaction contains multiple packages,
-this hook will be called for each package separately. Using this hook
-rpm security plugin is able to do any processing per each package.
-
-6. rpmRC SECURITYHOOK_POST_PSM_FUNC(rpmte _te, int rpmrc)
-
-This hook is called after the installation/removal of a single
-package. If the rpm transaction contains multiple packages, this hook
-will be called for each package separately. This can be a good place
-to do some verification that installation went successfully and
-perform needed cleanups per package-basis if needed.
-
-7. rpmRC SECURITYHOOK_SCRIPT_EXEC_FUNC(ARGV_const_t argv)
-
-This hook is called before any maintainer script is executed and hook
-gets full set of command line script parameters. It is a
-responsibility of the hook to call execution of the script and provide
-the exit status. This hook should be used by a security plug-in to
-setup a proper security context for the script execution and then
-execute the script.
-
-8. rpmRC SECURITYHOOK_FSM_OPENED_FUNC(const char* dirName, const char* baseName)
-
-This is first of the three file hooks that are needed by the security
-plugin to perform an operation of a certain file from the package.
-This hook is called before the file is read from the archive. The
-dirName and baseName allow to reconstruct the path of the file to be
-place to the filesystem.
-
-9. rpmRC SECURITYHOOK_FSM_UPDATED_FUNC(const struct stat * st, char
-*buf, size_t len)
-
-This is the second of the file hooks. It is called a number of times
-depending on the file length every time a new chunk of file is read
-from the archive to the buffer. The actual buffer and its length is
-provided in the parameters.
-
-10. rpmRC SECURITYHOOK_FSM_CLOSED_FUNC(int rpmrc)
-
-The last file hook allows the plugin to finish the file processing. It
-is called once per each file from the package and after the file has
-been placed to the filesystem. Can be used to label the file.
-
-11. rpmRC SECURITYHOOK_VERIFY_FUNC(rpmKeyring keyring, rpmtd sigtd,
-pgpDigParams sig, rpmRC rpmrc)
-
-The main purpose of this hook is to give ability for a security plugin
-to perform its own independent (and potentially stricter) control over
-the package verification. It also allows a security plugin to store
-the information about the package source in its internal metadata
-(potentially stricter controlled) in order to enforce its own
-policies. In MSM security plug-in this hook is used to verify the SW
-source of the package using its internal database of trusted keys. The
-primary reason for having its own database is an ability to strictly
-control the software keys and don't mix them with other keys that
-might be on the system's keyring. In Tizen OS in the future there is a
-plan to use a separate Certificate Manager in order to store and
-manage the system code certificates. This hook can also use the
-keyring to perform similar to rpm verification of package, if no
-internal database of keys exist.
-
-12. rpmRC SECURITYHOOK_FILE_CONFLICT_FUNC(rpmts ts, rpmte te, rpmfi
-fi, Header oldHeader, rpmfi oldFi, int rpmrc)
-
-This hook can be used by the plug-ins in order to enforce stricter
-control over the case when files on the disk can be overwritten by
-newly installed packages. The basic rpm doesn't allow such cases by
-default, but it has an option ("--replacefiles") that allows such
-overwriting to happen. However from the security point of view it
-should not be possible to substitute system binaries or components
-from a package that is coming from an untrusted source. Such hook
-provides a possibility to monitor such cases and deny the
-installation.
-
-Best Regards,
-Elena.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
