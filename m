@@ -1,53 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BKTl8k013291
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 16:29:47 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id 75EB11A056
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 22:29:45 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
-	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hvzXuqOML8Jx for <selinux@tycho.nsa.gov>;
-	Tue, 11 Sep 2012 22:29:44 +0200 (CEST)
-Received: from fornost.bigon.be (unknown [79.132.232.233])
-	(using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(Client did not present a certificate)
-	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id E8AE71A025
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 22:29:43 +0200 (CEST)
-Date: Tue, 11 Sep 2012 22:29:38 +0200
-From: Laurent Bigonville <bigon@debian.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
- when installing modules
-Message-ID: <20120911222938.5a21a150@fornost.bigon.be>
-In-Reply-To: <20120911121903.6ba2825d@eldamar.bigon.be>
-References: <20120909191000.74e83c73@fornost.bigon.be>
-	<1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil>
-	<20120911011349.0ecc2f99@eldamar.bigon.be>
-	<20120911063822.GA4390@telmora.telvanni>
-	<20120911121903.6ba2825d@eldamar.bigon.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BKb1xX013751
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 16:37:03 -0400
+Received: by qcpx40 with SMTP id x40so625599qcp.12
+        for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 13:37:01 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAN93Rk+Q1QSftoKtV=kiJ7gUqq8V-C6uJJmibeUQhjR5-AgiAw@mail.gmail.com>
+References: <CAN93RkJ63JnR-ajfVtKx772+NsFT=-P2_L7Cv3cr4rEAJxMYDg@mail.gmail.com>
+	<CAN93Rk+Q1QSftoKtV=kiJ7gUqq8V-C6uJJmibeUQhjR5-AgiAw@mail.gmail.com>
+Date: Tue, 11 Sep 2012 13:37:01 -0700
+Message-ID: <CAFftDdqD-VRvrFjbvg=jxsFyo8Ucp50bOwS1Cs+0GLAe9vNMFg@mail.gmail.com>
+Subject: Re: Problem with SEManager app on Seandroid 4.0.4
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Cesar Maiorino <cesar.maiorino@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Le Tue, 11 Sep 2012 12:19:03 +0200,
-Laurent Bigonville <bigon@debian.org> a écrit :
+My guess is you need to change the permissions of /selinux/*
+(/selinux/booleans for the booleans) to system system.
+
+the init.rc needs to have chown system system for all of the booleans,
+setenforce etc
+
+    chown system system /selinux/enforce
+    chown -R system system /selinux/booleans
+    chown system system /selinux/commit_pending_bools
+
+You'll need to patch in the recursive support or enumerate all the
+bools. The patch for recursive support can be found:
+https://android-review.googlesource.com/#/c/32220/
+
+Hope this helps.
 
 
-> The patch here: http://marc.info/?l=selinux&m=132636024218187&w=2
-> fixed the segfault when loading the policy with Stephen patch.
-> 
-> BUT, it seems that the initial assertion is not completely fixed.
+On Tue, Sep 11, 2012 at 1:23 PM, Cesar Maiorino
+<cesar.maiorino@gmail.com> wrote:
+> I finally got a version of seandroid (4.0.4) running on my Qualcomm MSM8960
+> Mobile Development Platform. This required some manual intervention as the
+> patch files did not all apply cleanly, so it's possible that I've messed
+> something up in the process.
+>
+> That being said, the SEManager app does not let me change any settings aside
+> from toggling "MAC Mode" on and off. So I can't change '"SELinux Mode"
+> (stuck in permissive), and I can't change any of the Booleans.
+>
+> AVC and MAC logging seem to be working.
+>
+> Any ideas?
+>
 
-OK, I was wrong. I didn't saw that checkpolicy was statically linked
-against libsepol. So, Stephen's patch in conjunction with the patch
-above are actually fixing my issues with both semodule and checkpolicy.
 
-Cheers
 
-Laurent Bigonville
+-- 
+Respectfully,
 
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
