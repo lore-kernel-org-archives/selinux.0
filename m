@@ -1,61 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BKb1xX013751
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 16:37:03 -0400
-Received: by qcpx40 with SMTP id x40so625599qcp.12
-        for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 13:37:01 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BL9m74015602
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 17:09:48 -0400
+Received: from [192.168.1.16] (151.76.17.86) by cp-out7.libero.it (8.5.133)
+        id 50434E5E01811A21 for selinux@tycho.nsa.gov; Tue, 11 Sep 2012 23:09:45 +0200
+Message-ID: <504FA898.3030105@trentalancia.com>
+Date: Tue, 11 Sep 2012 23:09:44 +0200
+From: Guido Trentalancia <guido@trentalancia.com>
 MIME-Version: 1.0
-In-Reply-To: <CAN93Rk+Q1QSftoKtV=kiJ7gUqq8V-C6uJJmibeUQhjR5-AgiAw@mail.gmail.com>
-References: <CAN93RkJ63JnR-ajfVtKx772+NsFT=-P2_L7Cv3cr4rEAJxMYDg@mail.gmail.com>
-	<CAN93Rk+Q1QSftoKtV=kiJ7gUqq8V-C6uJJmibeUQhjR5-AgiAw@mail.gmail.com>
-Date: Tue, 11 Sep 2012 13:37:01 -0700
-Message-ID: <CAFftDdqD-VRvrFjbvg=jxsFyo8Ucp50bOwS1Cs+0GLAe9vNMFg@mail.gmail.com>
-Subject: Re: Problem with SEManager app on Seandroid 4.0.4
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Cesar Maiorino <cesar.maiorino@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
+ when installing modules
+References: <20120909191000.74e83c73@fornost.bigon.be> <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil> <20120911011349.0ecc2f99@eldamar.bigon.be> <20120911063822.GA4390@telmora.telvanni> <20120911121903.6ba2825d@eldamar.bigon.be> <20120911222938.5a21a150@fornost.bigon.be>
+In-Reply-To: <20120911222938.5a21a150@fornost.bigon.be>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My guess is you need to change the permissions of /selinux/*
-(/selinux/booleans for the booleans) to system system.
-
-the init.rc needs to have chown system system for all of the booleans,
-setenforce etc
-
-    chown system system /selinux/enforce
-    chown -R system system /selinux/booleans
-    chown system system /selinux/commit_pending_bools
-
-You'll need to patch in the recursive support or enumerate all the
-bools. The patch for recursive support can be found:
-https://android-review.googlesource.com/#/c/32220/
-
-Hope this helps.
-
-
-On Tue, Sep 11, 2012 at 1:23 PM, Cesar Maiorino
-<cesar.maiorino@gmail.com> wrote:
-> I finally got a version of seandroid (4.0.4) running on my Qualcomm MSM8960
-> Mobile Development Platform. This required some manual intervention as the
-> patch files did not all apply cleanly, so it's possible that I've messed
-> something up in the process.
+On 11/09/2012 22:29, Laurent Bigonville wrote:
+> Le Tue, 11 Sep 2012 12:19:03 +0200,
+> Laurent Bigonville <bigon@debian.org> a écrit :
 >
-> That being said, the SEManager app does not let me change any settings aside
-> from toggling "MAC Mode" on and off. So I can't change '"SELinux Mode"
-> (stuck in permissive), and I can't change any of the Booleans.
 >
-> AVC and MAC logging seem to be working.
+>> The patch here: http://marc.info/?l=selinux&m=132636024218187&w=2
+>> fixed the segfault when loading the policy with Stephen patch.
+>>
+>> BUT, it seems that the initial assertion is not completely fixed.
 >
-> Any ideas?
->
+> OK, I was wrong. I didn't saw that checkpolicy was statically linked
+> against libsepol. So, Stephen's patch in conjunction with the patch
+> above are actually fixing my issues with both semodule and checkpolicy.
 
+It's a problem with changes in libsepol/src/expand.c, it can happen 
+independently of MLS/MCS or standard policy.
 
+It seems to me that latest changes were:
 
--- 
-Respectfully,
+commit dbc9a61819ea9a6b61bb29a2765b319ac974a775 (Aug 2 2011 18:03:53)
 
-William C Roberts
+But I do not know much about it, as I had no time to look at it any closer.
+
+Syncing with Reference Policy might help.
+
+Hopefully there will be a human readable error in release instead of 
+assertion...
+
+Guido
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
