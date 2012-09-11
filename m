@@ -1,100 +1,69 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BCH6dE013387
+	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 08:17:06 -0400
+Message-ID: <504F2BB6.2040406@trentalancia.com>
+Date: Tue, 11 Sep 2012 14:16:54 +0200
+From: Guido Trentalancia <guido@trentalancia.com>
 MIME-Version: 1.0
-In-Reply-To: <1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
-References: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
-	<1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
-Date: Tue, 11 Sep 2012 14:56:40 +0300
-Message-ID: <CALrft98Np4v5Lyhzy+_NEJkf9aqkC60PzMT4fFoYcPgohzyJqQ@mail.gmail.com>
-Subject: Re: Security hooks for rpm
-From: Elena Reshetova <elena.reshetova@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov, Steve Lawrence <slawrence@tresys.com>,
-        James Carter <jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Laurent Bigonville <bigon@debian.org>
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
+ when installing modules
+References: <20120909191000.74e83c73@fornost.bigon.be> <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil> <20120911011349.0ecc2f99@eldamar.bigon.be> <20120911063822.GA4390@telmora.telvanni> <20120911121903.6ba2825d@eldamar.bigon.be>
+In-Reply-To: <20120911121903.6ba2825d@eldamar.bigon.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-
-On Mon, Sep 10, 2012 at 5:44 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Mon, 2012-09-10 at 11:07 +0300, Elena Reshetova wrote:
->> Also I have been thinking that since we are talking more and more
->> about stackable LSMs, then security plug-in interface for rpm should
->> support multiple security plug-ins in case package comes with
->> configurations for a number of LSMs (also things like IMA/EVM setup
->> can be moved to a separate plug-in).
->> What do you think about it?
+On 11/09/2012 12:19, Laurent Bigonville wrote:
+> Le Tue, 11 Sep 2012 08:38:22 +0200,
+> Ole Kliemann <ole@plastictree.net> a écrit :
 >
-> I'd agree - I was thinking however that rpm already supports multiple
-> plugins.  Is that not the case?  Is there a reason that this needs to
-> specifically be security hooks vs. just general plugin hooks?
-
-I agree that it is better to have one plugin interface for rpm that
-can be used either for security or other purposes. However my current
-understanding is that the only interface for plugins that rpm has is a
-"collection plugin". I don't have anything against it, but do we need
-that notion for set of generic security rpm hooks? I don't think every
-plugin needs to be aware about what is a  "collection" and how to
-handle it. I would prefer a simpler approach when a set of hooks is
-defined and then called at different stages of the rpm execution.
-
-Another issue is that I would like to be able to mandate the presence
-of a plugin in a system in some cases. For example for our platform, I
-would like to tell that if loading of our security plugin fails, then
-installation must be aborted. I think current plugin interface doesn't
-provide a way to do it either.
-
->> 10. rpmRC SECURITYHOOK_FSM_CLOSED_FUNC(int rpmrc)
 >>
->> The last file hook allows the plugin to finish the file processing. It
->> is called once per each file from the package and after the file has
->> been placed to the filesystem. Can be used to label the file.
+>> You are building the policy without MLS/MCS, right?
 >
-> I'm not clear on how you can label the file if the only input to this
-> hook is the rpmrc value?  We need the selabel handle, file path, and
-> file mode as inputs (see fsmSetSELabel, called by fsmCommit).  That is
-> also called by fsmMkdirs() to ensure proper labeling of directories not
-> explicitly included in the package but part of that path to a given
-> file.
+> Yes, TYPE = standard in the build.conf
+>
+>>
+>> Educated guess: It's the same here:
+>>
+>>      http://marc.info/?l=selinux&m=133003003018371
+>>
+>> Patch would be (helped on Ubuntu):
+>>
+>>      http://marc.info/?l=selinux&m=132433039902439&w=2
+>
+> Actually this patch is already included in the version of libsemanage
+> I'm using.
+>
+> The patch here: http://marc.info/?l=selinux&m=132636024218187&w=2 fixed
+> the segfault when loading the policy with Stephen patch.
+>
+> BUT, it seems that the initial assertion is not completely fixed.
+>
+> I'm still getting:
+>
+> checkmodule: expand.c:700: role_fix_callback: Assertion `new_role != ((void *)0) && new_role->flavor == 1' failed.
+>
+> When compiling the policy the following way:
+>
+> 1) Take the refpolicy git HEAD
+> 2) make conf
+> 3) edit policy/modules.conf and set the following module as part of the
+>     base: init libraries logging selinuxutil modutils storage userdomain
+>     miscfiles sysadm authlogin sysnetwork application locallogin
+> 4) make policy
+> 5) -> assetion
 
-Yes, you are right, this hook needs changing. The reason why initially
-we didn't need more arguments is that the plugin remembered needed
-info from the FSM_OPENED hook (like path for example) and then in
-FSM_CLOSE used this info. However, I have just changed things a bit
-and I think now the interface can be smth like:
+I had reported something very similar a few months ago, here:
 
-rpmRC SECURITYHOOK_FSM_CLOSED_FUNC(const char* dirName, const char*
-baseName, mode_t mode, int rpmrc)
+http://marc.info/?l=selinux&m=134030286215671&w=2
 
-I have noticed that SELinux uses fsm->path directly, do you prefer to
-have that one passed to the hook or dirName + baseName is ok?
+as far as I remember, it was due to userspace libraries changes 
+introduced back in March but I had no time to look at it any closer...
 
-About the selabel handle: I would prefer to keep any plugin internal
-data outside of actual rpm. It helps to keep the rpm and plugin
-independent with only dependency on the actual hooks. The way we
-handle it in our plugin is that this info is preserved in the plugin
-state while package processing is going. Would any such approach be
-acceptable for selinux?
+Guido
 
-Another option to go about it would be to define a handle for each
-plugin's data as simple void pointer and then pass this handle to the
-plugin in everyhook. Internally plugin can store any stuct behind this
-including any needed handles. But I think this won't be much different
-for the plugin than storing this by itself.
-
-And fsmMkdirs() is actually a good point! I am wondering what would be
-the proper way to handle this part. I think it might make sense to
-define a new hook just for this purpose, because this hook would be
-called only once per package versus the FSM_CLOSED that is called once
-per every file in the package. The interface can be similar to CLOSED
-hook:
-
-rpmRC SECURITYHOOK_FSM_MAKE_DIR_FUNC(const char* dirName, const char*
-baseName, mode_t mode)
-
-What do you think?
-
-Best Regards,
-Elena.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
