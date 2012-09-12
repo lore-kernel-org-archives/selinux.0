@@ -1,122 +1,148 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8CF2EKA002777
+	for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2012 11:02:14 -0400
+Received: by wibhq4 with SMTP id hq4so4375823wib.12
+        for <selinux@tycho.nsa.gov>; Wed, 12 Sep 2012 08:02:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CALrft9_VWLjYZ2+iqBArf9JoUxOimK+A-ZCMaAPp5MEo0sot4Q@mail.gmail.com>
-References: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
-	<1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
-	<CALrft98Np4v5Lyhzy+_NEJkf9aqkC60PzMT4fFoYcPgohzyJqQ@mail.gmail.com>
-	<1347373683.17403.36.camel@moss-pluto.epoch.ncsc.mil>
-	<5834517F-2F20-4A03-9178-E27ADAA73AD8@me.com>
-	<CALrft9_VWLjYZ2+iqBArf9JoUxOimK+A-ZCMaAPp5MEo0sot4Q@mail.gmail.com>
-Date: Wed, 12 Sep 2012 14:49:20 +0300
-Message-ID: <CALrft998bGyRArMoj+1K0tvpECjUKoBrFsotC_=ivifbPZx5DA@mail.gmail.com>
-Subject: Re: Security hooks for rpm
-From: Elena Reshetova <elena.reshetova@gmail.com>
-To: pmatilai@redhat.com
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Steve Lawrence <slawrence@tresys.com>,
-        James Carter <jwcart2@tycho.nsa.gov>, Jeffrey Johnson <n3npq@me.com>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <CAFftDdqD-VRvrFjbvg=jxsFyo8Ucp50bOwS1Cs+0GLAe9vNMFg@mail.gmail.com>
+References: <CAN93RkJ63JnR-ajfVtKx772+NsFT=-P2_L7Cv3cr4rEAJxMYDg@mail.gmail.com>
+ <CAN93Rk+Q1QSftoKtV=kiJ7gUqq8V-C6uJJmibeUQhjR5-AgiAw@mail.gmail.com> <CAFftDdqD-VRvrFjbvg=jxsFyo8Ucp50bOwS1Cs+0GLAe9vNMFg@mail.gmail.com>
+From: Cesar Maiorino <cesar.maiorino@gmail.com>
+Date: Wed, 12 Sep 2012 11:01:31 -0400
+Message-ID: <CAN93RkJ24TMdj7J-yWRE14HhPaGdAYoOMcvLyyA_r0D_eGXzzA@mail.gmail.com>
+Subject: Re: Problem with SEManager app on Seandroid 4.0.4
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=00504502d531b5575a04c98279c7
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Panu,
+--00504502d531b5575a04c98279c7
+Content-Type: text/plain; charset=ISO-8859-1
 
-If you remember we have been discussing a while ago about the
-possibility to define a unified set of security hooks for rpm that we
-can use for our MSM implementation and others can use, too. We have
-finished the discussion around smth that I would need to reach an
-agreement with SELinux team (in CC now) that they can use this set of
-hooks, too.
+I did have these in my init.rc, but my build was not copying init.rc to  to
+the out directory.
+I copied it over manually and rebuilt the boot.img and it now I can change
+the values.
+So that is progress.
+Now, however, when I toggle on SELinux, my device locks up. On reboot it is
+stuck at the
+lock screen.
+Thanks for the help.
 
-We had discussions at LinuxCon just recently and I think we all want
-to have a unified interface. I think we can settle the hooks arguments
-and position inside the code, but there is a bigger question that
-would be great to hear your opinion on.
+On Tue, Sep 11, 2012 at 4:37 PM, William Roberts
+<bill.c.roberts@gmail.com>wrote:
 
-Currently (this is my understanding, so please correct me if I am
-terribly wrong) rpm has only one plugin interface that is defined as
-"collection plugins". It isn't very generic enough to be called the
-"rpm plugin interface". Do you have any plans/roadmap to have smth
-like generic rpm plugin interface in the future? And how should the
-security interface be embedded into rpm? Should we define a notion of
-"security plugin", its set of hooks and be able to load a number of
-these plugins (if a number of security modules is active on the
-system). Or should we rather try to define a generic plugin interface
-that can in the beginning have the hooks related to security,  but
-further be extended with other non-security related hooks?
+> My guess is you need to change the permissions of /selinux/*
+> (/selinux/booleans for the booleans) to system system.
+>
+> the init.rc needs to have chown system system for all of the booleans,
+> setenforce etc
+>
+>     chown system system /selinux/enforce
+>     chown -R system system /selinux/booleans
+>     chown system system /selinux/commit_pending_bools
+>
+> You'll need to patch in the recursive support or enumerate all the
+> bools. The patch for recursive support can be found:
+> https://android-review.googlesource.com/#/c/32220/
+>
+> Hope this helps.
+>
+>
+> On Tue, Sep 11, 2012 at 1:23 PM, Cesar Maiorino
+> <cesar.maiorino@gmail.com> wrote:
+> > I finally got a version of seandroid (4.0.4) running on my Qualcomm
+> MSM8960
+> > Mobile Development Platform. This required some manual intervention as
+> the
+> > patch files did not all apply cleanly, so it's possible that I've messed
+> > something up in the process.
+> >
+> > That being said, the SEManager app does not let me change any settings
+> aside
+> > from toggling "MAC Mode" on and off. So I can't change '"SELinux Mode"
+> > (stuck in permissive), and I can't change any of the Booleans.
+> >
+> > AVC and MAC logging seem to be working.
+> >
+> > Any ideas?
+> >
+>
+>
+>
+> --
+> Respectfully,
+>
+> William C Roberts
+>
 
-Best Regards,
-Elena.
+--00504502d531b5575a04c98279c7
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+I did have these in my init.rc, but my build was not copying init.rc to=A0 =
+to the out directory. <br>I copied it over manually and rebuilt the boot.im=
+g and it now I can change the values.<br>So that is progress.<br>Now, howev=
+er, when I toggle on SELinux, my device locks up. On reboot it is stuck at =
+the<br>
 
+lock screen. <br>Thanks for the help.<br><br><div class=3D"gmail_quote">On =
+Tue, Sep 11, 2012 at 4:37 PM, William Roberts <span dir=3D"ltr">&lt;<a href=
+=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill.c.roberts@gmail=
+.com</a>&gt;</span> wrote:<br>
 
-On Wed, Sep 12, 2012 at 2:36 PM, Elena Reshetova
-<elena.reshetova@gmail.com> wrote:
-> On Tue, Sep 11, 2012 at 6:05 PM, Jeffrey Johnson <n3npq@me.com> wrote:
->> While your POV is perfectly sane and general, the reality is
->> that there are no other RPM modules, nor has there been any
->> attempt to use the existing SELinux module framework except
->> for MSSF.
->
-> True, but I guess everything has its beginning. So, if we are the second user
-> of this interface, we can make it work well for any other potential users.
-> Mimi was considering using some hooks in rpm for bootstrapping the
-> IMA/EVM signatures, so she might be a third user. And after that others
-> might also follow.
->
->>> If not, I don't see why it cannot be made to support that functionality.
->>> It isn't truly unique to security; other kinds of functional plugins may
->>> need/want to be able to abort the installation.
->>>
->>
->> The existing module framework is too narrowly focussed on SE Linux
->> (and MSSF) needs to be generally useful for "package management".
->>
-> Yes, I think we need a generic interface for rpm plugins that can be used
-> for security or package management reasons. However, I don't think we
-> can attempt to define all needed hooks for all generic purposes now, but
-> regarding security together we might have quite close hit.
->
->> Passing a dirname/basename pair instead of a full file path is a flawed API imho. ymmv.
-> I can change it to pass fsm->path. Having these two separated might be useful
-> for some reasons, but it indeed looks better with just one argument that
-> contains both.
->
->> While using a "void *" pointer makes sense for opaque layering design, a
->> shared data structure alleviates the need to reinvent the wheel in modules.
->>
->> E.g. all versions of RPM already make significant use of crypto libraries.
->> Linking modules opaquely to to the same/different crypto libraries forces
->> needless bloat and duplication for the sole purpose of a opaque layering
->> design.
->
-> Sure, but I don't think I was proposing that. I was just trying to
-> make sure the internal,
-> specific only to concrete LSM data, is out of rpm itself. Smack rpm
-> plug-in isn't
-> going to make much use of selinux label handles and vice versa.
->
->> The design issues of a generally useful module framework for RPM need more
->> than a wrapper (with security labeling side-effects) to mkdir(2).
->
-> What kind of functionality do you have in mind for this wrapper apart
-> from labeling?
->
->> More thought and a higher level abstraction than wrapped system calls needs to be
->> considered for a useful module framework for RPM.
->
-> Yes, and this is I think where the problem might be. If we say that
-> our goal is to design
-> a generic module framework for RPM (not only for security purpose),
-> then I am afraid
-> this can take ages and it is quite a big step. I personally don't have
-> any good understanding
-> of needs for rpm modules outside of security ones.
->
-> Let me try to include rpm maintainer into this discussion and see what
-> he thinks about this.
->
-> Best Regards,
-> Elena.
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">My guess is you need to change the permissio=
+ns of /selinux/*<br>
+(/selinux/booleans for the booleans) to system system.<br>
+<br>
+the init.rc needs to have chown system system for all of the booleans,<br>
+setenforce etc<br>
+<br>
+=A0 =A0 chown system system /selinux/enforce<br>
+=A0 =A0 chown -R system system /selinux/booleans<br>
+=A0 =A0 chown system system /selinux/commit_pending_bools<br>
+<br>
+You&#39;ll need to patch in the recursive support or enumerate all the<br>
+bools. The patch for recursive support can be found:<br>
+<a href=3D"https://android-review.googlesource.com/#/c/32220/" target=3D"_b=
+lank">https://android-review.googlesource.com/#/c/32220/</a><br>
+<br>
+Hope this helps.<br>
+<div class=3D"HOEnZb"><div class=3D"h5"><br>
+<br>
+On Tue, Sep 11, 2012 at 1:23 PM, Cesar Maiorino<br>
+&lt;<a href=3D"mailto:cesar.maiorino@gmail.com">cesar.maiorino@gmail.com</a=
+>&gt; wrote:<br>
+&gt; I finally got a version of seandroid (4.0.4) running on my Qualcomm MS=
+M8960<br>
+&gt; Mobile Development Platform. This required some manual intervention as=
+ the<br>
+&gt; patch files did not all apply cleanly, so it&#39;s possible that I&#39=
+;ve messed<br>
+&gt; something up in the process.<br>
+&gt;<br>
+&gt; That being said, the SEManager app does not let me change any settings=
+ aside<br>
+&gt; from toggling &quot;MAC Mode&quot; on and off. So I can&#39;t change &=
+#39;&quot;SELinux Mode&quot;<br>
+&gt; (stuck in permissive), and I can&#39;t change any of the Booleans.<br>
+&gt;<br>
+&gt; AVC and MAC logging seem to be working.<br>
+&gt;<br>
+&gt; Any ideas?<br>
+&gt;<br>
+<br>
+<br>
+<br>
+</div></div><span class=3D"HOEnZb"><font color=3D"#888888">--<br>
+Respectfully,<br>
+<br>
+William C Roberts<br>
+</font></span></blockquote></div><br>
+
+--00504502d531b5575a04c98279c7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
