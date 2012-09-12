@@ -1,51 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8BL9m74015602
-	for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2012 17:09:48 -0400
-Received: from [192.168.1.16] (151.76.17.86) by cp-out7.libero.it (8.5.133)
-        id 50434E5E01811A21 for selinux@tycho.nsa.gov; Tue, 11 Sep 2012 23:09:45 +0200
-Message-ID: <504FA898.3030105@trentalancia.com>
-Date: Tue, 11 Sep 2012 23:09:44 +0200
-From: Guido Trentalancia <guido@trentalancia.com>
 MIME-Version: 1.0
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Assertion `new_role != ((void *)0) && new_role->flavor == 1'
- when installing modules
-References: <20120909191000.74e83c73@fornost.bigon.be> <1347280786.2480.3.camel@moss-pluto.epoch.ncsc.mil> <20120911011349.0ecc2f99@eldamar.bigon.be> <20120911063822.GA4390@telmora.telvanni> <20120911121903.6ba2825d@eldamar.bigon.be> <20120911222938.5a21a150@fornost.bigon.be>
-In-Reply-To: <20120911222938.5a21a150@fornost.bigon.be>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <1347373683.17403.36.camel@moss-pluto.epoch.ncsc.mil>
+References: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
+	<1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
+	<CALrft98Np4v5Lyhzy+_NEJkf9aqkC60PzMT4fFoYcPgohzyJqQ@mail.gmail.com>
+	<1347373683.17403.36.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 12 Sep 2012 14:18:01 +0300
+Message-ID: <CALrft98LUVZgOULx5a47UWDZyjegGNbOZqpTyUtwLZcnDP_K2A@mail.gmail.com>
+Subject: Re: Security hooks for rpm
+From: Elena Reshetova <elena.reshetova@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov, Steve Lawrence <slawrence@tresys.com>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/09/2012 22:29, Laurent Bigonville wrote:
-> Le Tue, 11 Sep 2012 12:19:03 +0200,
-> Laurent Bigonville <bigon@debian.org> a écrit :
->
->
->> The patch here: http://marc.info/?l=selinux&m=132636024218187&w=2
->> fixed the segfault when loading the policy with Stephen patch.
->>
->> BUT, it seems that the initial assertion is not completely fixed.
->
-> OK, I was wrong. I didn't saw that checkpolicy was statically linked
-> against libsepol. So, Stephen's patch in conjunction with the patch
-> above are actually fixing my issues with both semodule and checkpolicy.
+On Tue, Sep 11, 2012 at 5:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> I would tend to view the collection hooks as just part of the overall
+> hook interface for plugins.  You are defining per-transaction,
+> per-package, and per-file hooks, and per-collection hooks are just
+> another case to consider (unless I misunderstand).
 
-It's a problem with changes in libsepol/src/expand.c, it can happen 
-independently of MLS/MCS or standard policy.
+Yes, I think they are certainly making sense as hooks, but the problem is
+that the plug-in interface currently defined as "collection plug-in".
+It would be
+strange to add some per-file hooks to smth that is defined as "collection
+plug-in". Maybe we can rename the whole construction and reorganize it in
+a more generic way? I will ask rpm maintainer about this.
 
-It seems to me that latest changes were:
+> If not, I don't see why it cannot be made to support that functionality.
+> It isn't truly unique to security; other kinds of functional plugins may
+> need/want to be able to abort the installation.
 
-commit dbc9a61819ea9a6b61bb29a2765b319ac974a775 (Aug 2 2011 18:03:53)
+Agree, I guess if we go the path of defining the general rpm plugin interface,
+then this can be included there too.
 
-But I do not know much about it, as I had no time to look at it any closer.
-
-Syncing with Reference Policy might help.
-
-Hopefully there will be a human readable error in release instead of 
-assertion...
-
-Guido
-
+Best Regards,
+Elena.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
