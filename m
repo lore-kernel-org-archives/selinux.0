@@ -1,201 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8DBLoa4025312
-	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 07:21:50 -0400
-Received: by wgbdt14 with SMTP id dt14so1743028wgb.30
-        for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 04:21:49 -0700 (PDT)
-MIME-Version: 1.0
-Date: Thu, 13 Sep 2012 13:21:48 +0200
-Message-ID: <CAKi3PuotsGp5=cAm11oGOPAchpbrqJ5gwpoo9FPwitWwxy0iNg@mail.gmail.com>
-Subject: Re: extract old file (proprietary application, f.e. camera) for
- maguro 4.1.4
-From: Alexandra Test <testalexandrainstitute@gmail.com>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=0016e6d96c366497fc04c99383b9
+Message-ID: <1347543187.15047.23.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: [PATCH] Allow domain access to /dev/ion
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <w.roberts@sta.samsung.com>
+Cc: William Roberts <bill.c.roberts@gmail.com>,
+        "selinux@tycho.nsa.gov"
+	 <selinux@tycho.nsa.gov>
+Date: Thu, 13 Sep 2012 09:33:07 -0400
+In-Reply-To: <E24EB765E1998A40A0C06DE52672C482017B68C84984@staex7mb1.telecom.sna.samsung.com>
+References: <1347486228-12390-1-git-send-email-w.roberts@sta.samsung.com>
+	 <E24EB765E1998A40A0C06DE52672C482017B68C84984@staex7mb1.telecom.sna.samsung.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0016e6d96c366497fc04c99383b9
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, 2012-09-12 at 16:48 -0500, William Roberts wrote:
+> Just wanted to get some feedback before submitting this to AOSP. I think everyone is going to need access to this, it seems to be cropping up more and more. I wrestled with r or rw perms on this, but it looks like rw is the way to go IMO.
+> 
+> If this gets a blessing Ill submit upstream....
 
-Now it works.
-I still have a problem.
-I don't know how to extract the proprietary files from the official
-version. in the previous release there was the file extrac_old_files.sh
-that does not exist anymore.
+Have you looked at the ion driver to see if any of its operations are
+security-sensitive?
 
-Anyone can help me?
+> 
+> -----Original Message-----
+> From: William Roberts [mailto:bill.c.roberts@gmail.com] 
+> Sent: Wednesday, September 12, 2012 2:44 PM
+> To: selinux@tycho.nsa.gov
+> Cc: sds@tycho.nsa.gov; William Roberts
+> Subject: [PATCH] Allow domain access to /dev/ion
+> 
+> Change-Id: I87f81a632ed61f284f2fe09726f5c4529d36f252
+> ---
+>  domain.te      |    3 +++
+>  mediaserver.te |    1 -
+>  2 files changed, 3 insertions(+), 1 deletions(-)
+> 
+> diff --git a/domain.te b/domain.te
+> index 6be7ddd..47ad05a 100644
+> --- a/domain.te
+> +++ b/domain.te
+> @@ -83,6 +83,9 @@ allow domain cache_file:lnk_file read;  allow domain cgroup:dir { search write };  allow domain cgroup:file w_file_perms;
+>  
+> +#Allow access to ion memory allocation device allow domain 
+> +ion_device:chr_file rw_file_perms;
+> +
+>  # For /sys/qemu_trace files in the emulator.
+>  bool in_qemu false;
+>  if (in_qemu) {
+> diff --git a/mediaserver.te b/mediaserver.te index e124db0..4b299a0 100644
+> --- a/mediaserver.te
+> +++ b/mediaserver.te
+> @@ -25,7 +25,6 @@ allow mediaserver qemu_device:chr_file rw_file_perms;  allow mediaserver sysfs:file rw_file_perms;  # XXX Why?
+>  allow mediaserver apk_data_file:file { read getattr }; -allow mediaserver ion_device:chr_file rw_file_perms;
+>  
+>  # To use remote processor
+>  allow mediaserver rpmsg_device:chr_file rw_file_perms;
+> --
+> 1.7.0.4
+> 
 
-On Thu, Sep 13, 2012 at 10:58 AM, William Roberts
-<bill.c.roberts@gmail.com>wrote:
+-- 
+Stephen Smalley
+National Security Agency
 
-> A bunch of services in service manager are dying. Try doing a factory
-> reset.
-> On Sep 13, 2012 1:51 AM, "Alexandra Test" <
-> testalexandrainstitute@gmail.com> wrote:
->
->> The output in the attached file.
->>
->>
->> On Thu, Sep 13, 2012 at 10:37 AM, William Roberts <
->> bill.c.roberts@gmail.com> wrote:
->>
->>> Added mailing list back in. Send us your log cat output.
->>> On Sep 13, 2012 1:35 AM, "Alexandra Test" <
->>> testalexandrainstitute@gmail.com> wrote:
->>>
->>>> Yes, I am.
->>>>
->>>>
->>>> On Thu, Sep 13, 2012 at 10:32 AM, William Roberts <
->>>> bill.c.roberts@gmail.com> wrote:
->>>>
->>>>> Are you able to adb shell into the device or do adb log cat?
->>>>> On Sep 13, 2012 1:21 AM, "Alexandra Test" <
->>>>> testalexandrainstitute@gmail.com> wrote:
->>>>>
->>>>>> Hi all,
->>>>>> I am trying to update my seandroid release on my Samsung Galaxy Nexus.
->>>>>>
->>>>>> Yesterday I compiled the full maguro 4.1.4 and put it in the phone.
->>>>>> The compiling has done well but now the phone can't turn on.
->>>>>>
->>>>>> Do you know what can be the problem?
->>>>>>
->>>>>> This is the procedure I follow.
->>>>>>
->>>>>> git clone -b seandroid-4.1.1 https://bitbucket.org/seandroid/manifests.git
->>>>>> mkdir seandroid-4.1.1
->>>>>> cd seandroid-4.1.1
->>>>>> repo init -u https://android.googlesource.com/platform/manifest -b android-4.1.1_r4
->>>>>> repo sync
->>>>>> cp ../manifests/local_manifest.xml .repo/
->>>>>> repo sync -j1
->>>>>>
->>>>>> export PREFIX=/path/to/your/aospclone
->>>>>> cd $PREFIX/kernel/omap
->>>>>> make ARCH=arm tuna_defconfig
->>>>>> make ARCH=arm CROSS_COMPILE=$PREFIX/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
->>>>>>
->>>>>> cd $PREFIX
->>>>>> source build/envsetup.sh
->>>>>> lunch full_maguro-userdebug
->>>>>> export HAVE_SELINUX=true
->>>>>> make
->>>>>>
->>>>>>
->>>>>> Thanks for your help.
->>>>>>
->>>>>
->>>>
->>
-
---0016e6d96c366497fc04c99383b9
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Now it works.<div>I still have a problem.</div><div>I don&#39;t know how to=
- extract the proprietary files from the official version. in the previous r=
-elease there was the file extrac_old_files.sh that does not exist anymore.<=
-/div>
-<div><br></div><div>Anyone can help me?=A0<br><br><div class=3D"gmail_quote=
-">On Thu, Sep 13, 2012 at 10:58 AM, William Roberts <span dir=3D"ltr">&lt;<=
-a href=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill.c.roberts=
-@gmail.com</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><p dir=3D"ltr">A bunch of services in servic=
-e manager are dying. Try doing a factory reset.</p><div class=3D"HOEnZb"><d=
-iv class=3D"h5">
-
-<div class=3D"gmail_quote">On Sep 13, 2012 1:51 AM, &quot;Alexandra Test&qu=
-ot; &lt;<a href=3D"mailto:testalexandrainstitute@gmail.com" target=3D"_blan=
-k">testalexandrainstitute@gmail.com</a>&gt; wrote:<br type=3D"attribution">=
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-
-The output in the attached file.<br><br><br><div class=3D"gmail_quote">On T=
-hu, Sep 13, 2012 at 10:37 AM, William Roberts <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill.c.roberts@gmail=
-.com</a>&gt;</span> wrote:<br>
-
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><p dir=3D"ltr">Added mailing list back in. S=
-end us your log cat output.</p><div><div>
-<div class=3D"gmail_quote">On Sep 13, 2012 1:35 AM, &quot;Alexandra Test&qu=
-ot; &lt;<a href=3D"mailto:testalexandrainstitute@gmail.com" target=3D"_blan=
-k">testalexandrainstitute@gmail.com</a>&gt; wrote:<br type=3D"attribution">=
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-
-
-
-Yes, I am.<div><br><br><div class=3D"gmail_quote">On Thu, Sep 13, 2012 at 1=
-0:32 AM, William Roberts <span dir=3D"ltr">&lt;<a href=3D"mailto:bill.c.rob=
-erts@gmail.com" target=3D"_blank">bill.c.roberts@gmail.com</a>&gt;</span> w=
-rote:<br>
-
-
-
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><p dir=3D"ltr">Are you able to adb shell int=
-o the device or do adb log cat?</p><div><div>
-<div class=3D"gmail_quote">On Sep 13, 2012 1:21 AM, &quot;Alexandra Test&qu=
-ot; &lt;<a href=3D"mailto:testalexandrainstitute@gmail.com" target=3D"_blan=
-k">testalexandrainstitute@gmail.com</a>&gt; wrote:<br type=3D"attribution">=
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-
-
-
-
-
-Hi all,<div>I am trying to update my seandroid release on my Samsung Galaxy=
- Nexus.</div><div><br></div><div>Yesterday I compiled the full maguro 4.1.4=
- and put it in the phone. The compiling has done well but now the phone can=
-&#39;t turn on.=A0</div>
-
-
-
-
-
-
-<div><br></div><div>Do you know what can be the problem?=A0</div><div><br><=
-/div><div>This is the procedure I follow.</div><div><br></div><div><pre sty=
-le=3D"padding:1em;border:1px dashed rgb(47,111,171);background-color:rgb(24=
-9,249,249);line-height:1.1em">
-git clone -b seandroid-4.1.1 <a href=3D"https://bitbucket.org/seandroid/man=
-ifests.git" target=3D"_blank">https://bitbucket.org/seandroid/manifests.git=
-</a>
-mkdir seandroid-4.1.1
-cd seandroid-4.1.1
-repo init -u <a href=3D"https://android.googlesource.com/platform/manifest"=
- target=3D"_blank">https://android.googlesource.com/platform/manifest</a> -=
-b android-4.1.1_r4
-repo sync
-cp ../manifests/local_manifest.xml .repo/
-repo sync -j1</pre></div><div><pre style=3D"padding:1em;border:1px dashed r=
-gb(47,111,171);background-color:rgb(249,249,249);line-height:1.1em">export =
-PREFIX=3D/path/to/your/aospclone
-cd $PREFIX/kernel/omap
-make ARCH=3Darm tuna_defconfig
-make ARCH=3Darm CROSS_COMPILE=3D$PREFIX/prebuilts/gcc/linux-x86/arm/arm-eab=
-i-4.6/bin/arm-eabi-</pre></div><div><pre style=3D"padding:1em;border:1px da=
-shed rgb(47,111,171);background-color:rgb(249,249,249);line-height:1.1em">c=
-d $PREFIX
-source build/envsetup.sh
-lunch full_maguro-userdebug
-export HAVE_SELINUX=3Dtrue
-make</pre></div><div><br></div><div>Thanks for your help.</div>
-</blockquote></div>
-</div></div></blockquote></div><br></div>
-</blockquote></div>
-</div></div></blockquote></div><br>
-</blockquote></div>
-</div></div></blockquote></div><br></div>
-
---0016e6d96c366497fc04c99383b9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
