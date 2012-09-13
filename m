@@ -1,30 +1,32 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8DKk1KG028117
-	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 16:46:01 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8DKjxfK013196
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 16:45:59 -0400
-Received: from localhost (vpn-9-132.rdu.redhat.com [10.11.9.132])
-	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q8DKjwdB003144
-	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 16:45:59 -0400
-Date: Thu, 13 Sep 2012 16:45:56 -0400
-From: Eric Paris <eparis@redhat.com>
+MIME-Version: 1.0
+Date: Thu, 13 Sep 2012 16:58:59 -0700
+Message-ID: <CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com>
+Subject: Update to docs
+From: William Roberts <bill.c.roberts@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: system without libsepol
-Message-ID: <20120913164556.00d45eb3@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is it reasonable to expect a system without libsepol to be able to load
-policy?  I know the code can do it right now, but does anyone do it?
-I'd like to remove and try to rework some of that code so it is cleaner
-and more obvious.  Anyone see a problem with requiring libspol be
-installed if libselinux was build with shared library expectations?
+Can I get the documentation on the wiki updated under "SE Android
+policy" the second paragraph. I would like to update that you can
+specify genfs_context files and seapp_context files...maybe something
+like below will be sufficient:
 
--Eric
+Device-specific additions for the policy configuration can be placed
+in a sepolicy.te file (for kernel TE policy rules), a sepolicy.fc file
+(for file_contexts entries), a sepolicy.pc file (for property_contexts
+entries), a sepolicy.genfs_contexts file (for genfs entries), or
+seapp_contexts (for seapp rule entries) under any of the
+target/board/<device>, device/<vendor>/<device>, or
+vendor/<vendor>/<device> directories. These files if present are
+merged into the policy during the build.
+
+-- 
+Respectfully,
+
+William C Roberts
 
 --
 This message was distributed to subscribers of the selinux mailing list.
