@@ -1,72 +1,120 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8D8Dg4p016602
-	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 04:13:42 -0400
-Received: by wgbdt14 with SMTP id dt14so1644084wgb.30
-        for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 01:13:41 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8D8blx4017542
+	for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 04:37:47 -0400
+Received: by vbbfc21 with SMTP id fc21so3491996vbb.12
+        for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2012 01:37:46 -0700 (PDT)
 MIME-Version: 1.0
-Date: Thu, 13 Sep 2012 10:13:41 +0200
-Message-ID: <CAKi3Pur6qLVmK5qv4QuWcuYFY_g+GNzcxOQjyQHj0Wxxm4FLcA@mail.gmail.com>
-Subject: maguro 4.1.4
-From: Alexandra Test <testalexandrainstitute@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=e89a8f13ea889bfe0804c990e296
+In-Reply-To: <CAKi3PurX_V+e79bh3xtS1-OMyAMw8caXu+n9iv5ZKoiSiO3bJw@mail.gmail.com>
+References: <CAKi3Pur6qLVmK5qv4QuWcuYFY_g+GNzcxOQjyQHj0Wxxm4FLcA@mail.gmail.com>
+	<CAFftDdqBq-sOd8eDMbNg=sZA+HHVaG270LwJf33Uni1XVO-Fcg@mail.gmail.com>
+	<CAKi3PurX_V+e79bh3xtS1-OMyAMw8caXu+n9iv5ZKoiSiO3bJw@mail.gmail.com>
+Date: Thu, 13 Sep 2012 01:37:46 -0700
+Message-ID: <CAFftDdod91UB6gWT5_QwT_q818fGgpBoU81hjLhwaY37ePjE4Q@mail.gmail.com>
+Subject: Re: maguro 4.1.4
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Alexandra Test <testalexandrainstitute@gmail.com>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=e89a8f503b72bbd21504c99138d5
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---e89a8f13ea889bfe0804c990e296
+--e89a8f503b72bbd21504c99138d5
 Content-Type: text/plain; charset=ISO-8859-1
 
-Hi all,
-I am trying to update my seandroid release on my Samsung Galaxy Nexus.
+Added mailing list back in. Send us your log cat output.
+On Sep 13, 2012 1:35 AM, "Alexandra Test" <testalexandrainstitute@gmail.com>
+wrote:
 
-Yesterday I compiled the full maguro 4.1.4 and put it in the phone. The
-compiling has done well but now the phone can't turn on.
+> Yes, I am.
+>
+>
+> On Thu, Sep 13, 2012 at 10:32 AM, William Roberts <
+> bill.c.roberts@gmail.com> wrote:
+>
+>> Are you able to adb shell into the device or do adb log cat?
+>> On Sep 13, 2012 1:21 AM, "Alexandra Test" <
+>> testalexandrainstitute@gmail.com> wrote:
+>>
+>>> Hi all,
+>>> I am trying to update my seandroid release on my Samsung Galaxy Nexus.
+>>>
+>>> Yesterday I compiled the full maguro 4.1.4 and put it in the phone. The
+>>> compiling has done well but now the phone can't turn on.
+>>>
+>>> Do you know what can be the problem?
+>>>
+>>> This is the procedure I follow.
+>>>
+>>>
+>>> git clone -b seandroid-4.1.1 https://bitbucket.org/seandroid/manifests.git
+>>> mkdir seandroid-4.1.1
+>>> cd seandroid-4.1.1
+>>> repo init -u https://android.googlesource.com/platform/manifest -b android-4.1.1_r4
+>>> repo sync
+>>> cp ../manifests/local_manifest.xml .repo/
+>>> repo sync -j1
+>>>
+>>> export PREFIX=/path/to/your/aospclone
+>>> cd $PREFIX/kernel/omap
+>>> make ARCH=arm tuna_defconfig
+>>> make ARCH=arm CROSS_COMPILE=$PREFIX/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+>>>
+>>> cd $PREFIX
+>>> source build/envsetup.sh
+>>> lunch full_maguro-userdebug
+>>> export HAVE_SELINUX=true
+>>> make
+>>>
+>>>
+>>> Thanks for your help.
+>>>
+>>
+>
 
-Do you know what can be the problem?
-
-This is the procedure I follow.
-
-git clone -b seandroid-4.1.1 https://bitbucket.org/seandroid/manifests.git
-mkdir seandroid-4.1.1
-cd seandroid-4.1.1
-repo init -u https://android.googlesource.com/platform/manifest -b
-android-4.1.1_r4
-repo sync
-cp ../manifests/local_manifest.xml .repo/
-repo sync -j1
-
-export PREFIX=/path/to/your/aospclone
-cd $PREFIX/kernel/omap
-make ARCH=arm tuna_defconfig
-make ARCH=arm CROSS_COMPILE=$PREFIX/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
-
-cd $PREFIX
-source build/envsetup.sh
-lunch full_maguro-userdebug
-export HAVE_SELINUX=true
-make
-
-
-Thanks for your help.
-
---e89a8f13ea889bfe0804c990e296
+--e89a8f503b72bbd21504c99138d5
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">Added mailing list back in. Send us your log cat output.</p>
+<div class=3D"gmail_quote">On Sep 13, 2012 1:35 AM, &quot;Alexandra Test&qu=
+ot; &lt;<a href=3D"mailto:testalexandrainstitute@gmail.com">testalexandrain=
+stitute@gmail.com</a>&gt; wrote:<br type=3D"attribution"><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex">
+Yes, I am.<div><br><br><div class=3D"gmail_quote">On Thu, Sep 13, 2012 at 1=
+0:32 AM, William Roberts <span dir=3D"ltr">&lt;<a href=3D"mailto:bill.c.rob=
+erts@gmail.com" target=3D"_blank">bill.c.roberts@gmail.com</a>&gt;</span> w=
+rote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><p dir=3D"ltr">Are you able to adb shell int=
+o the device or do adb log cat?</p><div><div>
+<div class=3D"gmail_quote">On Sep 13, 2012 1:21 AM, &quot;Alexandra Test&qu=
+ot; &lt;<a href=3D"mailto:testalexandrainstitute@gmail.com" target=3D"_blan=
+k">testalexandrainstitute@gmail.com</a>&gt; wrote:<br type=3D"attribution">=
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+
 
 Hi all,<div>I am trying to update my seandroid release on my Samsung Galaxy=
  Nexus.</div><div><br></div><div>Yesterday I compiled the full maguro 4.1.4=
  and put it in the phone. The compiling has done well but now the phone can=
 &#39;t turn on.=A0</div>
+
+
+
 <div><br></div><div>Do you know what can be the problem?=A0</div><div><br><=
 /div><div>This is the procedure I follow.</div><div><br></div><div><pre sty=
 le=3D"padding:1em;border:1px dashed rgb(47,111,171);background-color:rgb(24=
 9,249,249);line-height:1.1em">
+
 git clone -b seandroid-4.1.1 <a href=3D"https://bitbucket.org/seandroid/man=
-ifests.git">https://bitbucket.org/seandroid/manifests.git</a>
+ifests.git" target=3D"_blank">https://bitbucket.org/seandroid/manifests.git=
+</a>
 mkdir seandroid-4.1.1
 cd seandroid-4.1.1
 repo init -u <a href=3D"https://android.googlesource.com/platform/manifest"=
->https://android.googlesource.com/platform/manifest</a> -b android-4.1.1_r4
+ target=3D"_blank">https://android.googlesource.com/platform/manifest</a> -=
+b android-4.1.1_r4
 repo sync
 cp ../manifests/local_manifest.xml .repo/
 repo sync -j1</pre></div><div><pre style=3D"padding:1em;border:1px dashed r=
@@ -82,8 +130,11 @@ source build/envsetup.sh
 lunch full_maguro-userdebug
 export HAVE_SELINUX=3Dtrue
 make</pre></div><div><br></div><div>Thanks for your help.</div>
+</blockquote></div>
+</div></div></blockquote></div><br></div>
+</blockquote></div>
 
---e89a8f13ea889bfe0804c990e296--
+--e89a8f503b72bbd21504c99138d5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
