@@ -1,32 +1,37 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8EGMDox023058
-	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2012 12:22:13 -0400
-Message-ID: <50535A56.2010209@tresys.com>
-Date: Fri, 14 Sep 2012 12:24:54 -0400
-From: Pat McClory <pmcclory@tresys.com>
-MIME-Version: 1.0
-To: <eparis@redhat.com>, "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: policycoreutils build failure
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Message-ID: <1347640163.11029.61.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Update to docs
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+Cc: William Roberts <bill.c.roberts@gmail.com>,
+        "selinux@tycho.nsa.gov"
+	 <selinux@tycho.nsa.gov>,
+        "Craig, Robert P." <rpcraig@tycho.ncsc.mil>
+Date: Fri, 14 Sep 2012 12:29:23 -0400
+In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E3836519B104@ALA-MBA.corp.ad.wrs.com>
+References: 
+	<CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com>
+	 ,<1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
+	 <33006C99F5A5194A9B7A7715DFA3E3836519B104@ALA-MBA.corp.ad.wrs.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Eric,
+On Fri, 2012-09-14 at 16:19 +0000, Radzykewycz, T (Radzy) wrote:
+> There have been a couple times when I wanted to remove a rule from the
+> system policy for a specific BSP.  So I guess I would vote for
+> override if I need to choose one or the other.  But would it be
+> reasonable to allow both overrides and concatenates ?  That would be
+> my preference.
 
-I tried to build your latest upstream push, and I'm having trouble 
-building policycoreutils:
+Maybe we could provide two variables definitions in the makefiles, one
+for policy files that should replace/override and one for policy files
+that should concatenate/union with the base policy files?
 
-make[1]: Entering directory `/home/pmcclory/selinux/policycoreutils/po'
-make[1]: *** No rule to make target `../gui/selinux.tbl', needed by 
-`policycoreutils.pot'.  Stop.
-make[1]: Leaving directory `/home/pmcclory/selinux/policycoreutils/po'
-make: *** [all] Error 1
+-- 
+Stephen Smalley
+National Security Agency
 
-it looks like policycoreutils/gui/selinux.tbl is added in commit 
-f237aac4506e398367575319e7c0e7741ff7bce0 in the queue branch, but isn't 
-in master.
-
-pat mcclory
 
 --
 This message was distributed to subscribers of the selinux mailing list.
