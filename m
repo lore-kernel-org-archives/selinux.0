@@ -1,60 +1,32 @@
-From: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        William Roberts
-	<bill.c.roberts@gmail.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: RE: Update to docs
-Date: Fri, 14 Sep 2012 16:19:25 +0000
-Message-ID: <33006C99F5A5194A9B7A7715DFA3E3836519B104@ALA-MBA.corp.ad.wrs.com>
-References: <CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com>,<1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8EGMDox023058
+	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2012 12:22:13 -0400
+Message-ID: <50535A56.2010209@tresys.com>
+Date: Fri, 14 Sep 2012 12:24:54 -0400
+From: Pat McClory <pmcclory@tresys.com>
 MIME-Version: 1.0
+To: <eparis@redhat.com>, "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: policycoreutils build failure
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There have been a couple times when I wanted to remove a rule from the system policy for a specific BSP.  So I guess I would vote for override if I need to choose one or the other.  But would it be reasonable to allow both overrides and concatenates ?  That would be my preference.
+Hi Eric,
 
-________________________________________
-From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf of Stephen Smalley [sds@tycho.nsa.gov]
-Sent: Friday, September 14, 2012 5:51 AM
-To: William Roberts
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Update to docs
+I tried to build your latest upstream push, and I'm having trouble 
+building policycoreutils:
 
-On Thu, 2012-09-13 at 16:58 -0700, William Roberts wrote:
-> Can I get the documentation on the wiki updated under "SE Android
-> policy" the second paragraph. I would like to update that you can
-> specify genfs_context files and seapp_context files...maybe something
-> like below will be sufficient:
->
-> Device-specific additions for the policy configuration can be placed
-> in a sepolicy.te file (for kernel TE policy rules), a sepolicy.fc file
-> (for file_contexts entries), a sepolicy.pc file (for property_contexts
-> entries), a sepolicy.genfs_contexts file (for genfs entries), or
-> seapp_contexts (for seapp rule entries) under any of the
-> target/board/<device>, device/<vendor>/<device>, or
-> vendor/<vendor>/<device> directories. These files if present are
-> merged into the policy during the build.
+make[1]: Entering directory `/home/pmcclory/selinux/policycoreutils/po'
+make[1]: *** No rule to make target `../gui/selinux.tbl', needed by 
+`policycoreutils.pot'.  Stop.
+make[1]: Leaving directory `/home/pmcclory/selinux/policycoreutils/po'
+make: *** [all] Error 1
 
-Updated.  However, this is starting to get unwieldy.  I was wondering
-whether we should switch over to a model where we permit a sepolicy
-subdirectory under the device directories that can contain any kind of
-policy file (without requiring a sepolicy. prefix on each one since they
-will be in a subdirectory).  Just need to decide how we would merge
-multiple .te files with the same name, i.e. concatenate/union vs.
-replace/override.
+it looks like policycoreutils/gui/selinux.tbl is added in commit 
+f237aac4506e398367575319e7c0e7741ff7bce0 in the queue branch, but isn't 
+in master.
 
---
-Stephen Smalley
-National Security Agency
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
+pat mcclory
 
 --
 This message was distributed to subscribers of the selinux mailing list.
