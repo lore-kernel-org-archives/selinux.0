@@ -1,42 +1,53 @@
-Message-ID: <1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: Update to docs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 14 Sep 2012 08:51:23 -0400
-In-Reply-To: <CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com>
+Message-ID: <1347630545.12789.5.camel@moss-lions.epoch.ncsc.mil>
+Subject: Re: Security hooks for rpm
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Elena Reshetova <elena.reshetova@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+        Steve
+ Lawrence <slawrence@tresys.com>
+Date: Fri, 14 Sep 2012 09:49:05 -0400
+In-Reply-To: <CALrft9_fR4QPDeH-yT+R7Po9Ufo5D0DvgD0vDwV9msemmEHa=Q@mail.gmail.com>
 References: 
-	<CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com>
+	<CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
+	 <1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
+	 <1347564198.28276.14.camel@moss-lions.epoch.ncsc.mil>
+	 <CALrft9_fR4QPDeH-yT+R7Po9Ufo5D0DvgD0vDwV9msemmEHa=Q@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-09-13 at 16:58 -0700, William Roberts wrote:
-> Can I get the documentation on the wiki updated under "SE Android
-> policy" the second paragraph. I would like to update that you can
-> specify genfs_context files and seapp_context files...maybe something
-> like below will be sufficient:
+On Fri, 2012-09-14 at 14:39 +0300, Elena Reshetova wrote:
+> On Thu, Sep 13, 2012 at 10:23 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+> > On Mon, 2012-09-10 at 10:44 -0400, Stephen Smalley wrote:
+> >> On Mon, 2012-09-10 at 11:07 +0300, Elena Reshetova wrote:
+> >> > And here are the actual hooks:
+> >> >
+> >> > 1. rpmRC SECURITYHOOK_INIT_FUNC(rpmts ts, const char *opts)
+> >>
+> >> I see that our init func takes a const char *name argument as well; I
+> >> don't know offhand whether it is truly required (Steve or Jim?).
+> >>
+> >
+> > This is the name of the collection. It is required so that all the
+> > members of a collection can be grouped together. This is needed because
+> > all SELinux policy must be installed before applications and files that
+> > the policy is for.
 > 
-> Device-specific additions for the policy configuration can be placed
-> in a sepolicy.te file (for kernel TE policy rules), a sepolicy.fc file
-> (for file_contexts entries), a sepolicy.pc file (for property_contexts
-> entries), a sepolicy.genfs_contexts file (for genfs entries), or
-> seapp_contexts (for seapp rule entries) under any of the
-> target/board/<device>, device/<vendor>/<device>, or
-> vendor/<vendor>/<device> directories. These files if present are
-> merged into the policy during the build.
+> I wonder if we can then have a generic init hook for the plugin (as
+> above) and then
+> a separate hook to initialize the collection (that could have
+> collection name and
+> any other needed variables). The plugins that need to use collection
+> (like SELinux)
+> will use this hook, others just ignore it. Would it be reasonable?
+> 
 
-Updated.  However, this is starting to get unwieldy.  I was wondering
-whether we should switch over to a model where we permit a sepolicy
-subdirectory under the device directories that can contain any kind of
-policy file (without requiring a sepolicy. prefix on each one since they
-will be in a subdirectory).  Just need to decide how we would merge
-multiple .te files with the same name, i.e. concatenate/union vs.
-replace/override.
+I think so.
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
