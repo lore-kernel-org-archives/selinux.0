@@ -1,107 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8EFORWY019065
-	for <selinux@tycho.nsa.gov>; Fri, 14 Sep 2012 11:24:27 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <jbrindle@tresys.com>
-Subject: [RFC] Add initial clipboard access control implementation
-Date: Fri, 14 Sep 2012 11:24:16 -0400
-Message-Id: <1347636256-4457-1-git-send-email-jbrindle@tresys.com>
+Message-ID: <50534E6B.2020606@manicmethod.com>
+Date: Fri, 14 Sep 2012 11:34:03 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: William Roberts <bill.c.roberts@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Update to docs
+References: <CAFftDdr2YZiyFWfiyABAD_p81Usfz8SFeqaWBR7Uz40mJMFHhg@mail.gmail.com> <1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <1347627083.11029.12.camel@moss-pluto.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an RFC for clipboard access controls in Android. I still need to do non-SELinux system guards and check for permission when onPrimaryClipChanged() sends notifications to apps listening for clipboard updates. 
+Stephen Smalley wrote:
+> On Thu, 2012-09-13 at 16:58 -0700, William Roberts wrote:
+>> Can I get the documentation on the wiki updated under "SE Android
+>> policy" the second paragraph. I would like to update that you can
+>> specify genfs_context files and seapp_context files...maybe something
+>> like below will be sufficient:
+>>
+>> Device-specific additions for the policy configuration can be placed
+>> in a sepolicy.te file (for kernel TE policy rules), a sepolicy.fc file
+>> (for file_contexts entries), a sepolicy.pc file (for property_contexts
+>> entries), a sepolicy.genfs_contexts file (for genfs entries), or
+>> seapp_contexts (for seapp rule entries) under any of the
+>> target/board/<device>, device/<vendor>/<device>, or
+>> vendor/<vendor>/<device>  directories. These files if present are
+>> merged into the policy during the build.
+>
+> Updated.  However, this is starting to get unwieldy.  I was wondering
+> whether we should switch over to a model where we permit a sepolicy
+> subdirectory under the device directories that can contain any kind of
+> policy file (without requiring a sepolicy. prefix on each one since they
+> will be in a subdirectory).  Just need to decide how we would merge
+> multiple .te files with the same name, i.e. concatenate/union vs.
+> replace/override.
+>
 
-Change-Id: Ib0b6aeca59511ce71832aee1afd4150d1514a63c
----
- .../java/com/android/server/ClipboardService.java  |   25 ++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+I'd prefer something like POLICY_FILES += some-policy-file.te.
 
-diff --git a/services/java/com/android/server/ClipboardService.java b/services/java/com/android/server/ClipboardService.java
-index 8a6a550..5908224 100644
---- a/services/java/com/android/server/ClipboardService.java
-+++ b/services/java/com/android/server/ClipboardService.java
-@@ -36,6 +36,7 @@ import android.os.Parcel;
- import android.os.Process;
- import android.os.RemoteCallbackList;
- import android.os.RemoteException;
-+import android.os.SELinux;
- import android.os.UserId;
- import android.util.Pair;
- import android.util.Slog;
-@@ -62,6 +63,7 @@ public class ClipboardService extends IClipboard.Stub {
-                 = new RemoteCallbackList<IOnPrimaryClipChangedListener>();
- 
-         ClipData primaryClip;
-+        String securityLabel;
- 
-         final HashSet<String> activePermissionOwners
-                 = new HashSet<String>();
-@@ -145,6 +147,8 @@ public class ClipboardService extends IClipboard.Stub {
-             clearActiveOwnersLocked();
-             PerUserClipboard clipboard = getClipboard();
-             clipboard.primaryClip = clip;
-+            clipboard.securityLabel = SELinux.getPidContext(Binder.getCallingPid());
-+            Slog.i(TAG, "Got clip for securityLabel=" + clipboard.securityLabel);
-             final int n = clipboard.primaryClipListeners.beginBroadcast();
-             for (int i = 0; i < n; i++) {
-                 try {
-@@ -162,6 +166,12 @@ public class ClipboardService extends IClipboard.Stub {
-     public ClipData getPrimaryClip(String pkg) {
-         synchronized (this) {
-             addActiveOwnerLocked(Binder.getCallingUid(), pkg);
-+
-+            // Did not add this to addActiveOwnerLocked because throwing an exception
-+            // for an SELinux violation kills the app and is generally not desirable 
-+            if (!checkSELinuxAccess())
-+                return null;
-+
-             return getClipboard().primaryClip;
-         }
-     }
-@@ -169,12 +179,18 @@ public class ClipboardService extends IClipboard.Stub {
-     public ClipDescription getPrimaryClipDescription() {
-         synchronized (this) {
-             PerUserClipboard clipboard = getClipboard();
-+
-+            if (!checkSELinuxAccess())
-+                return null;
-+
-             return clipboard.primaryClip != null ? clipboard.primaryClip.getDescription() : null;
-         }
-     }
- 
-     public boolean hasPrimaryClip() {
-         synchronized (this) {
-+            if (!checkSELinuxAccess())
-+                return false;
-             return getClipboard().primaryClip != null;
-         }
-     }
-@@ -193,6 +209,8 @@ public class ClipboardService extends IClipboard.Stub {
- 
-     public boolean hasClipboardText() {
-         synchronized (this) {
-+            if (!checkSELinuxAccess())
-+                return false;
-             PerUserClipboard clipboard = getClipboard();
-             if (clipboard.primaryClip != null) {
-                 CharSequence text = clipboard.primaryClip.getItemAt(0).getText();
-@@ -308,4 +326,11 @@ public class ClipboardService extends IClipboard.Stub {
-             revokeItemLocked(clipboard.primaryClip.getItemAt(i));
-         }
-     }
-+
-+    private final boolean checkSELinuxAccess() {
-+            String securityLabel = SELinux.getPidContext(Binder.getCallingPid());
-+            Slog.i(TAG, "Get clip for securityLabel=" + securityLabel);
-+            return SELinux.checkSELinuxAccess(securityLabel, getClipboard().securityLabel, "x_application_data", "paste");
-+    }
-+
- }
--- 
-1.7.9.5
-
+The reason is that under my maguro directory I now have a full_maguro.mk 
+that builds a more-or-less upstream maguro and a tresys_maguro.mk that 
+adds stuff we are doing. Right now the policies are all merged because 
+there isn't another option but with a POLICY_FILES variable we could 
+have custom policy per product.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
