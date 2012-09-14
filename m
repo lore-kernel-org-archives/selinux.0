@@ -1,45 +1,33 @@
-MIME-Version: 1.0
-In-Reply-To: <1347564198.28276.14.camel@moss-lions.epoch.ncsc.mil>
-References: <CALrft9-GWLKNZU=4yDBNx6hp=HJbh9qCUEntvYypz3F63Sd==w@mail.gmail.com>
-	<1347288243.9456.53.camel@moss-pluto.epoch.ncsc.mil>
-	<1347564198.28276.14.camel@moss-lions.epoch.ncsc.mil>
-Date: Fri, 14 Sep 2012 14:39:34 +0300
-Message-ID: <CALrft9_fR4QPDeH-yT+R7Po9Ufo5D0DvgD0vDwV9msemmEHa=Q@mail.gmail.com>
-Subject: Re: Security hooks for rpm
-From: Elena Reshetova <elena.reshetova@gmail.com>
-To: jwcart2@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Steve Lawrence <slawrence@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1347626486.11029.8.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: system without libsepol
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Date: Fri, 14 Sep 2012 08:41:26 -0400
+In-Reply-To: <20120913164556.00d45eb3@redhat.com>
+References: <20120913164556.00d45eb3@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 13, 2012 at 10:23 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
-> On Mon, 2012-09-10 at 10:44 -0400, Stephen Smalley wrote:
->> On Mon, 2012-09-10 at 11:07 +0300, Elena Reshetova wrote:
->> > And here are the actual hooks:
->> >
->> > 1. rpmRC SECURITYHOOK_INIT_FUNC(rpmts ts, const char *opts)
->>
->> I see that our init func takes a const char *name argument as well; I
->> don't know offhand whether it is truly required (Steve or Jim?).
->>
->
-> This is the name of the collection. It is required so that all the
-> members of a collection can be grouped together. This is needed because
-> all SELinux policy must be installed before applications and files that
-> the policy is for.
+On Thu, 2012-09-13 at 16:45 -0400, Eric Paris wrote:
+> Is it reasonable to expect a system without libsepol to be able to load
+> policy?  I know the code can do it right now, but does anyone do it?
+> I'd like to remove and try to rework some of that code so it is cleaner
+> and more obvious.  Anyone see a problem with requiring libspol be
+> installed if libselinux was build with shared library expectations?
 
-I wonder if we can then have a generic init hook for the plugin (as
-above) and then
-a separate hook to initialize the collection (that could have
-collection name and
-any other needed variables). The plugins that need to use collection
-(like SELinux)
-will use this hook, others just ignore it. Would it be reasonable?
+SE Android doesn't have libsepol on the device at all (primarily because
+of licensing).  We only build it for the build host and use it to
+compile the policy for the device.  However, we also have our own custom
+policy loading logic for SE Android due to other differences, so it
+likely doesn't matter what you do to the upstream libselinux logic.
 
-Best Regards,
-Elena.
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
