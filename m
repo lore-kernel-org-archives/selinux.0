@@ -1,92 +1,74 @@
-Message-ID: <505451CF.3020308@redhat.com>
-Date: Sat, 15 Sep 2012 06:00:47 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8FDAPJY012906
+	for <selinux@tycho.nsa.gov>; Sat, 15 Sep 2012 09:10:29 -0400
+Received: from XCH21.scidom.de (xch21.helmholtz-muenchen.de [146.107.8.221])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by mta01.helmholtz-muenchen.de (Postfix) with ESMTP id 929AB317725
+	for <selinux@tycho.nsa.gov>; Sat, 15 Sep 2012 15:08:04 +0200 (CEST)
+From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Sat, 15 Sep 2012 15:10:17 +0200
+Subject: ImportError: /usr/lib64/libvirt.so.0: undefined symbol:
+ selinux_virtual_domain_context_path
+Message-ID: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: Pat McClory <pmcclory@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        eparis@redhat.com, "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: policycoreutils build failure
-References: <50535A56.2010209@tresys.com> <1347641987.11029.65.camel@moss-pluto.epoch.ncsc.mil> <50536933.8030009@tresys.com> <CACLa4pvWVLfK=nqL4vsDHB1Mw8k=qbgXKZneyBXrsrpPens9mw@mail.gmail.com>
-In-Reply-To: <CACLa4pvWVLfK=nqL4vsDHB1Mw8k=qbgXKZneyBXrsrpPens9mw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-On 09/14/2012 01:40 PM, Eric Paris wrote:
-> 9f78846a5f7a567e1c2277c7cd05558cd625a868 Seems to be the problem.  I added
-> the Fedora po Makefile, but forgot to remove the one part I refuse to add
-> upstream.  I will not commit selinux.tbl upstream (and have to fight^Wwork
-> with Dan to figure out a good way to handle it)
-> 
-> I'll remove the bad line from the makefile right now.
-> 
-> -Eric
+i don't know if this is the right place for my question, but i hope. I have a problem which is in my belief related to SELinux.
+I try to install the application "virt-manager", which is intendend to be for the control of virtuell domains in KVM.
+My box is SLES 11 SP1, 64bit, kernel 2.6.32.
+But starting the application throws an error:
 
-I agree it should not be added.  This file is basically a list of the boolean
-comments that we want to get translated.  I am not sure if there is a really
-good way of doing this.  We could attempt to create the file from the
-installed policy on the fly, when you do a make update-po and then only people
-who use that command would end up with this file.
+pc56846:~ # Traceback (most recent call last):
+  File "/usr/share/virt-manager/virt-manager.py", line 26, in <module>
+    import libvirt
+  File "/usr/lib64/python2.6/site-packages/libvirt.py", line 25, in <module>
+    raise lib_e
+ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
 
-> On Fri, Sep 14, 2012 at 1:28 PM, Pat McClory <pmcclory@tresys.com> wrote:
->> yes, that works for me.  however just running 'make' (no install)
->> doesn't, for the same reason.
->> 
->> looking at the policycoreutils/po/Makefile I see that the 'all' target
->> has 'update-po' as a dependency, while 'install' does not.  When I try to
->> run 'make update-po' in policycoreutils/po I see the same issue.
->> 
->> pat mcclory
->> 
->> On 09/14/2012 12:59 PM, Stephen Smalley wrote:
->>> 
->>> On Fri, 2012-09-14 at 12:24 -0400, Pat McClory wrote:
->>>> 
->>>> Hi Eric,
->>>> 
->>>> I tried to build your latest upstream push, and I'm having trouble 
->>>> building policycoreutils:
->>>> 
->>>> make[1]: Entering directory
->>>> `/home/pmcclory/selinux/policycoreutils/po' make[1]: *** No rule to
->>>> make target `../gui/selinux.tbl', needed by `policycoreutils.pot'.
->>>> Stop. make[1]: Leaving directory
->>>> `/home/pmcclory/selinux/policycoreutils/po' make: *** [all] Error 1
->>>> 
->>>> it looks like policycoreutils/gui/selinux.tbl is added in commit 
->>>> f237aac4506e398367575319e7c0e7741ff7bce0 in the queue branch, but
->>>> isn't in master.
->>> 
->>> 
->>> Did you clean your tree first?  Try a git clean -fdx and then
->>> building. Works for me.
->>> 
->>> cd selinux git clean -fdx make DESTDIR=~/obj install
->>> 
->> 
->> 
->> -- This message was distributed to subscribers of the selinux mailing
->> list. If you no longer wish to subscribe, send mail to
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
->> quotes as the message.
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
+[1]+  Exit 1                  virt-manager
+pc56846:~ #
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+What I found out is that the package "linux-utils", beginning with version 2.1.9, include two manpages having names related to my error:
+/usr/share/man/man5/virtual_domain_context.5.gz
+/usr/share/man/man5/virtual_image_context.5.gz
 
-iEYEARECAAYFAlBUUc8ACgkQrlYvE4MpobMVQACgj6I3x8Zo+Q0f/ilSmCQd8L0I
-/aAAn0X3ULsnSbzVUUp8fYqVpmGP1Trf
-=mLgF
------END PGP SIGNATURE-----
+I tried to install linux-utils, but didn't find the right version for my box. So I installed the mentioned version, breaking some dependendcies. That didn't help. I don't know if this is not the desired package or if the error is related to the missing dependencies.
+
+Any ideas ?
+
+
+Bernd
+
+--
+Bernd Lentes
+
+Systemadministration
+Institut für Entwicklungsgenetik
+HelmholtzZentrum münchen
+bernd.lentes@helmholtz-muenchen.de
+phone: +49 89 3187 1241
+fax:   +49 89 3187 3826
+http://www.helmholtz-muenchen.de/idg
+
+Wir sollten nicht den Tod fürchten, sondern das schlechte Leben
+
+
+Helmholtz Zentrum München
+Deutsches Forschungszentrum für Gesundheit und Umwelt (GmbH)
+Ingolstädter Landstr. 1
+85764 Neuherberg
+www.helmholtz-muenchen.de
+Aufsichtsratsvorsitzende: MinDir´in Bärbel Brumme-Bothe
+Geschäftsführer: Prof. Dr. Günther Wess und Dr. Nikolaus Blum
+Registergericht: Amtsgericht München HRB 6466
+USt-IdNr: DE 129521671
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
