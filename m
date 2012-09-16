@@ -1,88 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8FLNue7030899
-	for <selinux@tycho.nsa.gov>; Sat, 15 Sep 2012 17:23:56 -0400
-Received: by wibhq4 with SMTP id hq4so945014wib.12
-        for <selinux@tycho.nsa.gov>; Sat, 15 Sep 2012 14:23:54 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8GBjJV7016981
+	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 07:45:23 -0400
+Received: from XCH22.scidom.de (xch22.helmholtz-muenchen.de [146.107.8.222])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by mta02.helmholtz-muenchen.de (Postfix) with ESMTP id 6AB4C317BD9
+	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 13:42:47 +0200 (CEST)
+From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Sun, 16 Sep 2012 13:45:11 +0200
+Subject: RE: ImportError: /usr/lib64/libvirt.so.0: undefined symbol:
+ selinux_virtual_domain_context_path
+Message-ID: <15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
 References: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
-Date: Sat, 15 Sep 2012 17:23:54 -0400
-Message-ID: <CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
-Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
-From: Eric Paris <eparis@parisplace.org>
-To: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+ <CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
+In-Reply-To: <CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-selinux_virtual_domain_context_path comes from libselinux.  I have no
-idea if the version of libselinux in SLES has the required export.  If
-SLES doesn't have a new enough version of libselinux, then it's a
-libvirt bug that they built with SELinux support on your distro.
+Eric wrote:
 
-So either install libselinux, or file a bug against libvirt if you can't....
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On Behalf Of Eric Paris
+> Sent: Saturday, September 15, 2012 11:24 PM
+> To: Lentes, Bernd
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol:
+> selinux_virtual_domain_context_path
+>
+> selinux_virtual_domain_context_path comes from libselinux.  I have no
+> idea if the version of libselinux in SLES has the required export.  If
+> SLES doesn't have a new enough version of libselinux, then it's a
+> libvirt bug that they built with SELinux support on your distro.
+>
+> So either install libselinux, or file a bug against libvirt if you can't....
+>
+[]
+Hi Eric,
 
+thanks for your answer. How do i know if a version of libselinux hast the required export ?
+I installed linux-utils 2.1.9, which include a manpage for  "virtual domain context" (/usr/share/man/man5/virtual_domain_context.5.gz). Is that a hint that this version has the required export ?
+Do I need libselinux or libselinux-utils ? I have already installed libselinux1. Is this the same as libselinux ?
 
-On Sat, Sep 15, 2012 at 9:10 AM, Lentes, Bernd
-<bernd.lentes@helmholtz-muenchen.de> wrote:
-> Hi,
->
-> i don't know if this is the right place for my question, but i hope. I have a problem which is in my belief related to SELinux.
-> I try to install the application "virt-manager", which is intendend to be for the control of virtuell domains in KVM.
-> My box is SLES 11 SP1, 64bit, kernel 2.6.32.
-> But starting the application throws an error:
->
-> pc56846:~ # Traceback (most recent call last):
->   File "/usr/share/virt-manager/virt-manager.py", line 26, in <module>
->     import libvirt
->   File "/usr/lib64/python2.6/site-packages/libvirt.py", line 25, in <module>
->     raise lib_e
-> ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
->
-> [1]+  Exit 1                  virt-manager
-> pc56846:~ #
->
-> What I found out is that the package "linux-utils", beginning with version 2.1.9, include two manpages having names related to my error:
-> /usr/share/man/man5/virtual_domain_context.5.gz
-> /usr/share/man/man5/virtual_image_context.5.gz
->
-> I tried to install linux-utils, but didn't find the right version for my box. So I installed the mentioned version, breaking some dependendcies. That didn't help. I don't know if this is not the desired package or if the error is related to the missing dependencies.
->
-> Any ideas ?
->
->
-> Bernd
->
-> --
-> Bernd Lentes
->
-> Systemadministration
-> Institut f¸r Entwicklungsgenetik
-> HelmholtzZentrum m¸nchen
-> bernd.lentes@helmholtz-muenchen.de
-> phone: +49 89 3187 1241
-> fax:   +49 89 3187 3826
-> http://www.helmholtz-muenchen.de/idg
->
-> Wir sollten nicht den Tod f¸rchten, sondern das schlechte Leben
->
->
-> Helmholtz Zentrum M¸nchen
-> Deutsches Forschungszentrum f¸r Gesundheit und Umwelt (GmbH)
-> Ingolst‰dter Landstr. 1
-> 85764 Neuherberg
-> www.helmholtz-muenchen.de
-> Aufsichtsratsvorsitzende: MinDir¥in B‰rbel Brumme-Bothe
-> Gesch‰ftsf¸hrer: Prof. Dr. G¸nther Wess und Dr. Nikolaus Blum
-> Registergericht: Amtsgericht M¸nchen HRB 6466
-> USt-IdNr: DE 129521671
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Thanks for helping.
+
+Bernd
+
+Helmholtz Zentrum M√ºnchen
+Deutsches Forschungszentrum f√ºr Gesundheit und Umwelt (GmbH)
+Ingolst√§dter Landstr. 1
+85764 Neuherberg
+www.helmholtz-muenchen.de
+Aufsichtsratsvorsitzende: MinDir¬¥in B√§rbel Brumme-Bothe
+Gesch√§ftsf√ºhrer: Prof. Dr. G√ºnther Wess und Dr. Nikolaus Blum
+Registergericht: Amtsgericht M√ºnchen HRB 6466
+USt-IdNr: DE 129521671
 
 
 --
