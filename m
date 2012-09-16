@@ -1,64 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8GBjJV7016981
-	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 07:45:23 -0400
-Received: from XCH22.scidom.de (xch22.helmholtz-muenchen.de [146.107.8.222])
-	(using TLSv1 with cipher AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	by mta02.helmholtz-muenchen.de (Postfix) with ESMTP id 6AB4C317BD9
-	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 13:42:47 +0200 (CEST)
-From: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Sun, 16 Sep 2012 13:45:11 +0200
-Subject: RE: ImportError: /usr/lib64/libvirt.so.0: undefined symbol:
- selinux_virtual_domain_context_path
-Message-ID: <15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
-References: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
- <CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
-In-Reply-To: <CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8GE5fT7022262
+	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 10:05:41 -0400
+Received: by wgbdt14 with SMTP id dt14so626146wgb.30
+        for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 07:05:09 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
+References: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
+	<CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
+	<15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
+Date: Sun, 16 Sep 2012 10:05:09 -0400
+Message-ID: <CACLa4puiBuWqK6C-gFJckMibx+rsRruchAsc0Fygu1qS5Qt3Hw@mail.gmail.com>
+Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
+From: Eric Paris <eparis@parisplace.org>
+To: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric wrote:
+On Sun, Sep 16, 2012 at 7:45 AM, Lentes, Bernd
+<bernd.lentes@helmholtz-muenchen.de> wrote:
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-> On Behalf Of Eric Paris
-> Sent: Saturday, September 15, 2012 11:24 PM
-> To: Lentes, Bernd
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol:
-> selinux_virtual_domain_context_path
->
-> selinux_virtual_domain_context_path comes from libselinux.  I have no
-> idea if the version of libselinux in SLES has the required export.  If
-> SLES doesn't have a new enough version of libselinux, then it's a
-> libvirt bug that they built with SELinux support on your distro.
->
-> So either install libselinux, or file a bug against libvirt if you can't....
->
-[]
-Hi Eric,
+> thanks for your answer. How do i know if a version of libselinux hast the required export ?
+> I installed linux-utils 2.1.9, which include a manpage for  "virtual domain context" (/usr/share/man/man5/virtual_domain_context.5.gz). Is that a hint that this version has the required export ?
+> Do I need libselinux or libselinux-utils ? I have already installed libselinux1. Is this the same as libselinux ?
 
-thanks for your answer. How do i know if a version of libselinux hast the required export ?
-I installed linux-utils 2.1.9, which include a manpage for  "virtual domain context" (/usr/share/man/man5/virtual_domain_context.5.gz). Is that a hint that this version has the required export ?
-Do I need libselinux or libselinux-utils ? I have already installed libselinux1. Is this the same as libselinux ?
+Lets start by saying again, I don't know anything about how SUSE
+packages stuff.  But, libselinux is going to be the package that
+provides /usr/lib(64)/libselinux.so.1.  You should be able to run
+something like:
 
-Thanks for helping.
+$ nm /usr/lib64/libselinux.so.1 -D | grep selinux_virtual_domain_context_path
 
-Bernd
+If you get output, then your library is new enough.  My output looked like:
 
-Helmholtz Zentrum München
-Deutsches Forschungszentrum für Gesundheit und Umwelt (GmbH)
-Ingolstädter Landstr. 1
-85764 Neuherberg
-www.helmholtz-muenchen.de
-Aufsichtsratsvorsitzende: MinDir´in Bärbel Brumme-Bothe
-Geschäftsführer: Prof. Dr. Günther Wess und Dr. Nikolaus Blum
-Registergericht: Amtsgericht München HRB 6466
-USt-IdNr: DE 129521671
+00000038cbe16fe0 T selinux_virtual_domain_context_path
 
+I don't know why the man page is a part of linux-utils.  That's not
+how other distros ship it, but I can promise, "linux-utils" is a red
+herring.  The problem is that the version of libvirt you are using
+requires a version of libselinux which includes
+selinux_virtual_domain_context_path.  Getting a new enough version of
+libselinux installed or getting a version of libvirt which doesn't
+require SELinux is going to be how you get this fixed.  It might be
+best to bring your problem to your SUSE technical support
+representative, since I don't anything about how they package things
+and I don't hear from a lot of SELinux users on SLES on list...
+
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
