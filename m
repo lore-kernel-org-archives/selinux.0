@@ -1,53 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8GE5fT7022262
-	for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 10:05:41 -0400
-Received: by wgbdt14 with SMTP id dt14so626146wgb.30
-        for <selinux@tycho.nsa.gov>; Sun, 16 Sep 2012 07:05:09 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8HDcVuP019772
+	for <selinux@tycho.nsa.gov>; Mon, 17 Sep 2012 09:38:31 -0400
+Message-ID: <505727CF.2040406@redhat.com>
+Date: Mon, 17 Sep 2012 09:38:23 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
-References: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
-	<CACLa4ptTg3OsjFyNBbpAi1BVBCKxfVnoYKgGAjLKf8x2pCM2dA@mail.gmail.com>
-	<15785B7E063D464C86DD482FCAE4EBA5017811671EBB@XCH11.scidom.de>
-Date: Sun, 16 Sep 2012 10:05:09 -0400
-Message-ID: <CACLa4puiBuWqK6C-gFJckMibx+rsRruchAsc0Fygu1qS5Qt3Hw@mail.gmail.com>
-Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
-From: Eric Paris <eparis@parisplace.org>
 To: "Lentes, Bernd" <bernd.lentes@helmholtz-muenchen.de>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: ImportError: /usr/lib64/libvirt.so.0: undefined symbol: selinux_virtual_domain_context_path
+References: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
+In-Reply-To: <15785B7E063D464C86DD482FCAE4EBA5017811671EB9@XCH11.scidom.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 16, 2012 at 7:45 AM, Lentes, Bernd
-<bernd.lentes@helmholtz-muenchen.de> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> thanks for your answer. How do i know if a version of libselinux hast the required export ?
-> I installed linux-utils 2.1.9, which include a manpage for  "virtual domain context" (/usr/share/man/man5/virtual_domain_context.5.gz). Is that a hint that this version has the required export ?
-> Do I need libselinux or libselinux-utils ? I have already installed libselinux1. Is this the same as libselinux ?
+On 09/15/2012 09:10 AM, Lentes, Bernd wrote:
+> Hi,
+> 
+> i don't know if this is the right place for my question, but i hope. I have
+> a problem which is in my belief related to SELinux. I try to install the
+> application "virt-manager", which is intendend to be for the control of
+> virtuell domains in KVM. My box is SLES 11 SP1, 64bit, kernel 2.6.32. But
+> starting the application throws an error:
+> 
+> pc56846:~ # Traceback (most recent call last): File
+> "/usr/share/virt-manager/virt-manager.py", line 26, in <module> import
+> libvirt File "/usr/lib64/python2.6/site-packages/libvirt.py", line 25, in
+> <module> raise lib_e ImportError: /usr/lib64/libvirt.so.0: undefined
+> symbol: selinux_virtual_domain_context_path
+> 
+> [1]+  Exit 1                  virt-manager pc56846:~ #
+> 
+> What I found out is that the package "linux-utils", beginning with version
+> 2.1.9, include two manpages having names related to my error: 
+> /usr/share/man/man5/virtual_domain_context.5.gz 
+> /usr/share/man/man5/virtual_image_context.5.gz
+> 
+> I tried to install linux-utils, but didn't find the right version for my
+> box. So I installed the mentioned version, breaking some dependendcies.
+> That didn't help. I don't know if this is not the desired package or if the
+> error is related to the missing dependencies.
+> 
+> Any ideas ?
+> 
+> 
+> Bernd
+> 
+> -- Bernd Lentes
+> 
+> Systemadministration Institut für Entwicklungsgenetik HelmholtzZentrum
+> münchen bernd.lentes@helmholtz-muenchen.de phone: +49 89 3187 1241 fax:
+> +49 89 3187 3826 http://www.helmholtz-muenchen.de/idg
+> 
+> Wir sollten nicht den Tod fürchten, sondern das schlechte Leben
+> 
+> 
+> Helmholtz Zentrum München Deutsches Forschungszentrum für Gesundheit und
+> Umwelt (GmbH) Ingolstädter Landstr. 1 85764 Neuherberg 
+> www.helmholtz-muenchen.de Aufsichtsratsvorsitzende: MinDir´in Bärbel
+> Brumme-Bothe Geschäftsführer: Prof. Dr. Günther Wess und Dr. Nikolaus Blum 
+> Registergericht: Amtsgericht München HRB 6466 USt-IdNr: DE 129521671
+> 
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+> 
+> 
+Looks like libvirt expects to be linked against libselinux.  If you built
+without SELINUX support then their is a bug in the ifdef code of libvirt that
+should not be making this call.
 
-Lets start by saying again, I don't know anything about how SUSE
-packages stuff.  But, libselinux is going to be the package that
-provides /usr/lib(64)/libselinux.so.1.  You should be able to run
-something like:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
 
-$ nm /usr/lib64/libselinux.so.1 -D | grep selinux_virtual_domain_context_path
+iEYEARECAAYFAlBXJ88ACgkQrlYvE4MpobM6LQCglDCNsgzx9dToivR3Xy4D0LfA
+3o8AoOiQgW+n7T0/pqLQL3rmvJhoRYOs
+=xFmD
+-----END PGP SIGNATURE-----
 
-If you get output, then your library is new enough.  My output looked like:
-
-00000038cbe16fe0 T selinux_virtual_domain_context_path
-
-I don't know why the man page is a part of linux-utils.  That's not
-how other distros ship it, but I can promise, "linux-utils" is a red
-herring.  The problem is that the version of libvirt you are using
-requires a version of libselinux which includes
-selinux_virtual_domain_context_path.  Getting a new enough version of
-libselinux installed or getting a version of libvirt which doesn't
-require SELinux is going to be how you get this fixed.  It might be
-best to bring your problem to your SUSE technical support
-representative, since I don't anything about how they package things
-and I don't hear from a lot of SELinux users on SLES on list...
-
--Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
