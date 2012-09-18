@@ -1,72 +1,81 @@
-Message-ID: <1347988800.31966.58.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] selinux-testsuite:  Allow test domains to read
- /etc/passwd
+Message-ID: <1347989611.31966.66.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: seandroid and policy version
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
-        Eric Paris
-	 <eparis@redhat.com>
-Date: Tue, 18 Sep 2012 13:20:00 -0400
-In-Reply-To: <5058A22E.7010407@redhat.com>
-References: <1347545325.15047.34.camel@moss-pluto.epoch.ncsc.mil>
-	 <5051FB6A.8040106@redhat.com> <20120915022200.GB6438@mail.hallyn.com>
-	 <1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
-	 <5058A22E.7010407@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, William Roberts <bill.c.roberts@gmail.com>,
+        Joman
+	Chu <jcchu@tycho.ncsc.mil>
+Date: Tue, 18 Sep 2012 13:33:31 -0400
+In-Reply-To: <1342036191.29461.75.camel@moss-pluto.epoch.ncsc.mil>
+References: <4FFCC3C7.8080602@tresys.com>
+	 <1342011045.29461.28.camel@moss-pluto.epoch.ncsc.mil>
+	 <4FFDD7C7.4020703@tresys.com>
+	 <1342036191.29461.75.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-09-18 at 12:32 -0400, Daniel J Walsh wrote:
-> On 09/18/2012 09:45 AM, Stephen Smalley wrote:
-> > On Sat, 2012-09-15 at 02:22 +0000, Serge E. Hallyn wrote:
-> >> Quoting Daniel J Walsh (dwalsh@redhat.com):
-> >>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
-> >>> 
-> >>> On 09/13/2012 10:08 AM, Stephen Smalley wrote:
-> >>>> Several test cases require the ability to read /etc/passwd to look
-> >>>> up usernames.  Recent Fedora introduced a separate type on
-> >>>> /etc/passwd and therefore we need to add an interface call to
-> >>>> test_global.te.  Fixes three test failures on Fedora 17.
-> >>>> 
-> >>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov> --- 
-> >>>> policy/test_global.te | 2 ++ 1 file changed, 2 insertions(+)
-> >>>> 
-> >>>> diff --git a/policy/test_global.te b/policy/test_global.te index 
-> >>>> 77121ae..fdfd291 100644 --- a/policy/test_global.te +++ 
-> >>>> b/policy/test_global.te @@ -88,3 +88,5 @@ 
-> >>>> selinux_compute_access_vector(testdomain) 
-> >>>> selinux_compute_create_context(testdomain) 
-> >>>> selinux_compute_relabel_context(testdomain) 
-> >>>> selinux_compute_user_contexts(testdomain) +
-> >>>> +auth_read_passwd(testdomain)
-> >>>> 
-> >>> Probably should use
-> >>> 
-> >>> auth_use_nsswitch(testdomain)
-> >>> 
-> >>> Since this will handle cases where users are listed in ldap or use
-> >>> sssd.
-> >> 
-> >> Stephen, would you like that instead?
+On Wed, 2012-07-11 at 15:49 -0400, Stephen Smalley wrote:
+> On Wed, 2012-07-11 at 15:45 -0400, Joshua Brindle wrote:
+> > Stephen Smalley wrote:
+> > > On Tue, 2012-07-10 at 20:07 -0400, Joshua Brindle wrote:
+> > >> I was looking at this:
+> > >> <https://android-review.googlesource.com/#/c/36321/4/init/init.c>
+> > >>
+> > >> and remembered that years ago we had a discussion about the .policyver
+> > >> filename syntax. I kind of get it for SELinux machines where there is
+> > >> managed policy and could be multiple policies on the system but since
+> > >> SEAndroid is targeting non-device managed policies, it adds extra code
+> > >> to search for the right extension and you can tell what version the
+> > >> policy is as soon as you open it, why not ditch the suffix?
+> > >
+> > > First, that patch doesn't introduce the use of the version suffix
+> > > (that's in the already merged code); it just preserves it in the new
+> > > logic for reloading policy at runtime.
 > > 
-> > No, it doesn't work - you cannot pass an attribute name to that interface.
+> > I know, it just reminded me that I wanted to mention it :)
 > > 
+> > >
+> > > I'm open to removing the use of the policy version suffix in a follow-on
+> > > patch, although that would need to be coordinated across sepolicy and
+> > > system/core.  But the current code is consistent with existing practice
+> > > in Linux distributions (so follows principle of least surprise) and it
+> > 
+> >  From what I can tell most people doing anything with SEAndroid have never been 
+> > exposed to SELinux so it probably is surprising to them that the file extension 
+> > would change version to version.
+> > 
+> > > allows for different versions to be installed simultaneously (thereby
+> > > supporting booting multiple kernels).  Also, we don't have libsepol on
+> > 
+> > I don't think this will ever be an issue on mobile devices (and I don't think it 
+> > ever was an issue on real machines, more likely that stale policies were being 
+> > enforced if there was some kernel or library change)
+> > 
+> > > the device so we cannot in fact determine the version when we open it
+> > > there presently.  So I'm not convinced we should remove the suffix.
+> > 
+> > We don't need libsepol, just read the first few bytes, a la file.
 > 
-> Ahh yes, you can not assign an attribute to an attribute.  That is right up
-> there with no assigning an attribute within a boolean as my least liked things
-> about our policy compiler.
-> 
-> 
-> I guess you need to add auth_use_nsswitch() for each type that gets set to
-> test_domain.
+> We need libsepol at least if we want to support automatic downgrading of
+> the policy to a version supported by the kernel.  So unless we think we
+> can guarantee that Android userspace + kernel are always updated in
+> lock-step and one will never want to support multiple kernels, it seems
+> a bit inflexible to drop the versioning.
 
-That would be rather painful.  For now, let's just use
-auth_read_passwd(testdomain).  Works for me.
+So this issue has come up again in the context of implementing device
+admin APIs and a sample device admin app.  The device admin API
+implementation in the system_server needs to know how to name the file
+it creates under /data/system for the kernel policy, but it has no way
+to determine the actual policy version of the supplied policy.  So it
+doesn't know what suffix to use.  Options:
+- Get rid of the version suffix altogether, or at least for the sepolicy
+file under /data/system.
+- Have the system_server parse the header of the policy image to
+determine the policy version, and use that as the suffix.
 
-auth_use_nsswitch() might have undesirable side effects, like allowing
-every test domain network access.  Which would then prevent testing
-enforcement of the socket permission checks.
+Thoughts?
 
 -- 
 Stephen Smalley
