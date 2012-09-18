@@ -1,109 +1,94 @@
 MIME-Version: 1.0
-In-Reply-To: <1347989611.31966.66.camel@moss-pluto.epoch.ncsc.mil>
-References: <4FFCC3C7.8080602@tresys.com>
-	<1342011045.29461.28.camel@moss-pluto.epoch.ncsc.mil>
-	<4FFDD7C7.4020703@tresys.com>
-	<1342036191.29461.75.camel@moss-pluto.epoch.ncsc.mil>
-	<1347989611.31966.66.camel@moss-pluto.epoch.ncsc.mil>
-Date: Tue, 18 Sep 2012 10:46:29 -0700
-Message-ID: <CAFftDdqjtYd0RGoZ12dcJnyWpD42MPYf_KwkJitwYcaF=+ptgA@mail.gmail.com>
-Subject: Re: seandroid and policy version
+In-Reply-To: <5058A8E4.6080105@manicmethod.com>
+References: <CAFftDdrSzB2Os0YbOZyHWSCoy64SGaaV9-jCTFLw5Ozn3KGSsw@mail.gmail.com>
+	<CADQgGG1735_t8q=mA4hhGDPjkziviHE64hAJf2r0pMgjeiji=Q@mail.gmail.com>
+	<CAFftDdotOM8pyZVJ_g0_56L3382uTvq+JpGsqzioJc+MRdXDKw@mail.gmail.com>
+	<5058A8E4.6080105@manicmethod.com>
+Date: Tue, 18 Sep 2012 10:48:17 -0700
+Message-ID: <CAFftDdp5AgAzh50AwDWz2xSox9XBB_8N0cV1_nGyiC3PHvXtxA@mail.gmail.com>
+Subject: Re: signature clause in mac_permisions
 From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-        Joman Chu <jcchu@tycho.ncsc.mil>
-Content-Type: multipart/alternative; boundary=20cf307c9fd84e0df304c9fd78d5
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Robert Craig <robertpcraig@gmail.com>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=bcaec51b97f9be8a3604c9fd7e6a
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---20cf307c9fd84e0df304c9fd78d5
+--bcaec51b97f9be8a3604c9fd7e6a
 Content-Type: text/plain; charset=ISO-8859-1
 
-How hard is it to parse the header, is it a simple fixed with field?
+Thanks,
+I was playing with opensll myself but couldn't come up with he correct
+commandline foo for it.
+Bill
 
-I could go either way on this, I like have the version number in the file
-name myself.
+On Tue, Sep 18, 2012 at 10:01 AM, Joshua Brindle <method@manicmethod.com>wrote:
 
-On Tue, Sep 18, 2012 at 10:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Wed, 2012-07-11 at 15:49 -0400, Stephen Smalley wrote:
-> > On Wed, 2012-07-11 at 15:45 -0400, Joshua Brindle wrote:
-> > > Stephen Smalley wrote:
-> > > > On Tue, 2012-07-10 at 20:07 -0400, Joshua Brindle wrote:
-> > > >> I was looking at this:
-> > > >> <https://android-review.googlesource.com/#/c/36321/4/init/init.c>
-> > > >>
-> > > >> and remembered that years ago we had a discussion about the
-> .policyver
-> > > >> filename syntax. I kind of get it for SELinux machines where there
-> is
-> > > >> managed policy and could be multiple policies on the system but
-> since
-> > > >> SEAndroid is targeting non-device managed policies, it adds extra
-> code
-> > > >> to search for the right extension and you can tell what version the
-> > > >> policy is as soon as you open it, why not ditch the suffix?
-> > > >
-> > > > First, that patch doesn't introduce the use of the version suffix
-> > > > (that's in the already merged code); it just preserves it in the new
-> > > > logic for reloading policy at runtime.
-> > >
-> > > I know, it just reminded me that I wanted to mention it :)
-> > >
-> > > >
-> > > > I'm open to removing the use of the policy version suffix in a
-> follow-on
-> > > > patch, although that would need to be coordinated across sepolicy and
-> > > > system/core.  But the current code is consistent with existing
-> practice
-> > > > in Linux distributions (so follows principle of least surprise) and
-> it
-> > >
-> > >  From what I can tell most people doing anything with SEAndroid have
-> never been
-> > > exposed to SELinux so it probably is surprising to them that the file
-> extension
-> > > would change version to version.
-> > >
-> > > > allows for different versions to be installed simultaneously (thereby
-> > > > supporting booting multiple kernels).  Also, we don't have libsepol
-> on
-> > >
-> > > I don't think this will ever be an issue on mobile devices (and I
-> don't think it
-> > > ever was an issue on real machines, more likely that stale policies
-> were being
-> > > enforced if there was some kernel or library change)
-> > >
-> > > > the device so we cannot in fact determine the version when we open it
-> > > > there presently.  So I'm not convinced we should remove the suffix.
-> > >
-> > > We don't need libsepol, just read the first few bytes, a la file.
-> >
-> > We need libsepol at least if we want to support automatic downgrading of
-> > the policy to a version supported by the kernel.  So unless we think we
-> > can guarantee that Android userspace + kernel are always updated in
-> > lock-step and one will never want to support multiple kernels, it seems
-> > a bit inflexible to drop the versioning.
+> If you want to go straight from cert to hex encoding without having to
+> sign an app (i.e., you are generating certs and policies at the same time)
+> you can use this:
 >
-> So this issue has come up again in the context of implementing device
-> admin APIs and a sample device admin app.  The device admin API
-> implementation in the system_server needs to know how to name the file
-> it creates under /data/system for the kernel policy, but it has no way
-> to determine the actual policy version of the supplied policy.  So it
-> doesn't know what suffix to use.  Options:
-> - Get rid of the version suffix altogether, or at least for the sepolicy
-> file under /data/system.
-> - Have the system_server parse the header of the policy image to
-> determine the policy version, and use that as the suffix.
+> $openssl x509 -inform PEM -in <certname>.x509.pem -outform DER
 >
-> Thoughts?
+> Script to encode:
 >
-> --
-> Stephen Smalley
-> National Security Agency
+> #!/usr/bin/env python
+>
+> import sys
+> content = sys.stdin.read().strip()
+> foo = content.encode("hex")
+> sys.stdout.write(foo)
 >
 >
+> The script to encode has to be very careful about padding or null
+> terminating, hence why I couldn't just use some random command line tool.
+>
+> William Roberts wrote:
+>
+>> I should have RTFM, it is right on the wiki under install time mac
+>> http://selinuxproject.org/**page/SEAndroid<http://selinuxproject.org/page/SEAndroid>
+>>
+>>
+>>
+>> On Mon, Sep 17, 2012 at 4:22 PM, Robert Craig <robertpcraig@gmail.com
+>> <mailto:robertpcraig@gmail.com**>> wrote:
+>>
+>>     Just run the setool host tool. To build just 'make setool' and then
+>>     to run just 'setool'. The help usage statement will guide you.
+>>
+>>
+>>     On Mon, Sep 17, 2012 at 2:34 PM, William Roberts
+>>     <bill.c.roberts@gmail.com <mailto:bill.c.roberts@gmail.**com<bill.c.roberts@gmail.com>>>
+>> wrote:
+>>
+>>         How did you guys generate the hex encoded x509 string for a
+>>         signature clause in mac_permissions.xml?
+>>
+>>         Did you use the Android "dumpkey.jar"?
+>>
+>>         I have the signed apk's, the keystore used to sign them, .pem
+>>         files which have all the pub keys in them and a p12 and p8 file.
+>>
+>>         Which one should I use?
+>>
+>>         --
+>>         Respectfully,
+>>
+>>         William C Roberts
+>>
+>>
+>>
+>>
+>>
+>>
+>> --
+>> Respectfully,
+>>
+>> William C Roberts
+>>
+>>
+>>
 
 
 -- 
@@ -111,117 +96,99 @@ Respectfully,
 
 William C Roberts
 
---20cf307c9fd84e0df304c9fd78d5
+--bcaec51b97f9be8a3604c9fd7e6a
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-How hard is it to parse the header, is it a simple fixed with field?<div><b=
-r></div><div>I could go either way on this, I like have the version number =
-in the file name myself.<br><br><div class=3D"gmail_quote">On Tue, Sep 18, =
-2012 at 10:33 AM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:s=
-ds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:=
-<br>
+Thanks,<div>I was playing with opensll myself but couldn&#39;t come up=A0wi=
+th=A0he correct commandline foo for it.</div><div>Bill<br><br><div class=3D=
+"gmail_quote">On Tue, Sep 18, 2012 at 10:01 AM, Joshua Brindle <span dir=3D=
+"ltr">&lt;<a href=3D"mailto:method@manicmethod.com" target=3D"_blank">metho=
+d@manicmethod.com</a>&gt;</span> wrote:<br>
 <blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On W=
-ed, 2012-07-11 at 15:49 -0400, Stephen Smalley wrote:<br>
-&gt; On Wed, 2012-07-11 at 15:45 -0400, Joshua Brindle wrote:<br>
-&gt; &gt; Stephen Smalley wrote:<br>
-&gt; &gt; &gt; On Tue, 2012-07-10 at 20:07 -0400, Joshua Brindle wrote:<br>
-&gt; &gt; &gt;&gt; I was looking at this:<br>
-&gt; &gt; &gt;&gt; &lt;<a href=3D"https://android-review.googlesource.com/#=
-/c/36321/4/init/init.c" target=3D"_blank">https://android-review.googlesour=
-ce.com/#/c/36321/4/init/init.c</a>&gt;<br>
-&gt; &gt; &gt;&gt;<br>
-&gt; &gt; &gt;&gt; and remembered that years ago we had a discussion about =
-the .policyver<br>
-&gt; &gt; &gt;&gt; filename syntax. I kind of get it for SELinux machines w=
-here there is<br>
-&gt; &gt; &gt;&gt; managed policy and could be multiple policies on the sys=
-tem but since<br>
-&gt; &gt; &gt;&gt; SEAndroid is targeting non-device managed policies, it a=
-dds extra code<br>
-&gt; &gt; &gt;&gt; to search for the right extension and you can tell what =
-version the<br>
-&gt; &gt; &gt;&gt; policy is as soon as you open it, why not ditch the suff=
-ix?<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; First, that patch doesn&#39;t introduce the use of the versi=
-on suffix<br>
-&gt; &gt; &gt; (that&#39;s in the already merged code); it just preserves i=
-t in the new<br>
-&gt; &gt; &gt; logic for reloading policy at runtime.<br>
-&gt; &gt;<br>
-&gt; &gt; I know, it just reminded me that I wanted to mention it :)<br>
-&gt; &gt;<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; I&#39;m open to removing the use of the policy version suffi=
-x in a follow-on<br>
-&gt; &gt; &gt; patch, although that would need to be coordinated across sep=
-olicy and<br>
-&gt; &gt; &gt; system/core. =A0But the current code is consistent with exis=
-ting practice<br>
-&gt; &gt; &gt; in Linux distributions (so follows principle of least surpri=
-se) and it<br>
-&gt; &gt;<br>
-&gt; &gt; =A0From what I can tell most people doing anything with SEAndroid=
- have never been<br>
-&gt; &gt; exposed to SELinux so it probably is surprising to them that the =
-file extension<br>
-&gt; &gt; would change version to version.<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; allows for different versions to be installed simultaneously=
- (thereby<br>
-&gt; &gt; &gt; supporting booting multiple kernels). =A0Also, we don&#39;t =
-have libsepol on<br>
-&gt; &gt;<br>
-&gt; &gt; I don&#39;t think this will ever be an issue on mobile devices (a=
-nd I don&#39;t think it<br>
-&gt; &gt; ever was an issue on real machines, more likely that stale polici=
-es were being<br>
-&gt; &gt; enforced if there was some kernel or library change)<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; the device so we cannot in fact determine the version when w=
-e open it<br>
-&gt; &gt; &gt; there presently. =A0So I&#39;m not convinced we should remov=
-e the suffix.<br>
-&gt; &gt;<br>
-&gt; &gt; We don&#39;t need libsepol, just read the first few bytes, a la f=
-ile.<br>
-&gt;<br>
-&gt; We need libsepol at least if we want to support automatic downgrading =
-of<br>
-&gt; the policy to a version supported by the kernel. =A0So unless we think=
- we<br>
-&gt; can guarantee that Android userspace + kernel are always updated in<br=
->
-&gt; lock-step and one will never want to support multiple kernels, it seem=
-s<br>
-&gt; a bit inflexible to drop the versioning.<br>
+x #ccc solid;padding-left:1ex">If you want to go straight from cert to hex =
+encoding without having to sign an app (i.e., you are generating certs and =
+policies at the same time) you can use this:<br>
+
 <br>
-</div></div>So this issue has come up again in the context of implementing =
-device<br>
-admin APIs and a sample device admin app. =A0The device admin API<br>
-implementation in the system_server needs to know how to name the file<br>
-it creates under /data/system for the kernel policy, but it has no way<br>
-to determine the actual policy version of the supplied policy. =A0So it<br>
-doesn&#39;t know what suffix to use. =A0Options:<br>
-- Get rid of the version suffix altogether, or at least for the sepolicy<br=
->
-file under /data/system.<br>
-- Have the system_server parse the header of the policy image to<br>
-determine the policy version, and use that as the suffix.<br>
+$openssl x509 -inform PEM -in &lt;certname&gt;.x509.pem -outform DER<br>
 <br>
-Thoughts?<br>
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
+Script to encode:<br>
+<br>
+#!/usr/bin/env python<br>
+<br>
+import sys<br>
+content =3D sys.stdin.read().strip()<br>
+foo =3D content.encode(&quot;hex&quot;)<br>
+sys.stdout.write(foo)<br>
+<br>
+<br>
+The script to encode has to be very careful about padding or null terminati=
+ng, hence why I couldn&#39;t just use some random command line tool.<br>
+<br>
+William Roberts wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"im">
+I should have RTFM, it is right on the wiki under install time mac<br>
+<a href=3D"http://selinuxproject.org/page/SEAndroid" target=3D"_blank">http=
+://selinuxproject.org/<u></u>page/SEAndroid</a><br>
+<br>
+<br>
+<br>
+On Mon, Sep 17, 2012 at 4:22 PM, Robert Craig &lt;<a href=3D"mailto:robertp=
+craig@gmail.com" target=3D"_blank">robertpcraig@gmail.com</a><br></div><div=
+ class=3D"im">
+&lt;mailto:<a href=3D"mailto:robertpcraig@gmail.com" target=3D"_blank">robe=
+rtpcraig@gmail.com</a><u></u>&gt;&gt; wrote:<br>
+<br>
+=A0 =A0 Just run the setool host tool. To build just &#39;make setool&#39; =
+and then<br>
+=A0 =A0 to run just &#39;setool&#39;. The help usage statement will guide y=
+ou.<br>
+<br>
+<br>
+=A0 =A0 On Mon, Sep 17, 2012 at 2:34 PM, William Roberts<br></div><div clas=
+s=3D"im">
+=A0 =A0 &lt;<a href=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">b=
+ill.c.roberts@gmail.com</a> &lt;mailto:<a href=3D"mailto:bill.c.roberts@gma=
+il.com" target=3D"_blank">bill.c.roberts@gmail.<u></u>com</a>&gt;&gt; wrote=
+:<br>
+<br>
+=A0 =A0 =A0 =A0 How did you guys generate the hex encoded x509 string for a=
+<br>
+=A0 =A0 =A0 =A0 signature clause in mac_permissions.xml?<br>
+<br>
+=A0 =A0 =A0 =A0 Did you use the Android &quot;dumpkey.jar&quot;?<br>
+<br>
+=A0 =A0 =A0 =A0 I have the signed apk&#39;s, the keystore used to sign them=
+, .pem<br>
+=A0 =A0 =A0 =A0 files which have all the pub keys in them and a p12 and p8 =
+file.<br>
+<br>
+=A0 =A0 =A0 =A0 Which one should I use?<br>
+<br>
+=A0 =A0 =A0 =A0 --<br>
+=A0 =A0 =A0 =A0 Respectfully,<br>
+<br>
+=A0 =A0 =A0 =A0 William C Roberts<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 --<br>
-Stephen Smalley<br>
-National Security Agency<br>
+Respectfully,<br>
 <br>
-</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
-Respectfully,<br><br>William C Roberts<br><br><br>
+William C Roberts<br>
+<br>
+<br>
+</div></blockquote>
+</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>Respectfully=
+,<br><br>William C Roberts<br><br><br>
 </div>
 
---20cf307c9fd84e0df304c9fd78d5--
+--bcaec51b97f9be8a3604c9fd7e6a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
