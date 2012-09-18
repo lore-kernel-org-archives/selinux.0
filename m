@@ -1,40 +1,57 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8IAS46i018885
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 06:28:04 -0400
-Received: by iebc13 with SMTP id c13so2888559ieb.12
-        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 03:28:02 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 18 Sep 2012 12:28:02 +0200
-Message-ID: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-Subject: seandroid 4.1.1
-From: Alexandra Test <testalexandrainstitute@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=14dae93409f747e0c404c9f758ec
+Message-ID: <1347975644.29192.15.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: clean up in android.c
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 18 Sep 2012 09:40:44 -0400
+In-Reply-To: <CAFftDdrK8sR=HuHxryryzDjfFOSz_GBsLusPrdsGqXe79YVsYA@mail.gmail.com>
+References: 
+	<CAFftDdrK8sR=HuHxryryzDjfFOSz_GBsLusPrdsGqXe79YVsYA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---14dae93409f747e0c404c9f758ec
-Content-Type: text/plain; charset=ISO-8859-1
+On Fri, 2012-09-14 at 17:09 -0700, William Roberts wrote:
+> Would anyone object to me cleaning up the setcon and setfilecon2 code
+> that does the mls level stuff:
+> 
+> 
+> Currently the below code is duplicated:
+<snip>
+> I want to break it up into two functions.
+> 
+> 
+> 1. that gets the normalized username
+> 2. that computes the id, takes username, returns -1 on error
 
-Hi all,
-I update the release of Seandroid on Samsung Galaxy Nexus. Unfortunately
-the camera and the wifi seem to not be working.
+> This way of the username stuff changes again in the future, we can
+> normalize it one spot. The one that computes the id doesn't gain much
+> by putting it in a function, but I think it will make the code more
+> readable.
 
-Anyone has the same problem?
-Any suggestions?
-thanks
+I think the setcon and setfilecon2 code could be further unified so that
+the entire logic for matching an entry is encapsulated in a single
+helper function that takes a bool argument indicating whether it is
+looking for a domain or type entry.
 
---14dae93409f747e0c404c9f758ec
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+We might also want to reconsider how we map the app usernames to a
+string for seapp_contexts.  I just remapped the new format to the app_
+prefix so that there would be no breakage going from ICS to JB, but it
+is a bit misleading.
 
-Hi all,<div>I update the release of Seandroid on Samsung Galaxy Nexus. Unfo=
-rtunately the camera and the wifi seem to not be working.</div><div><br></d=
-iv><div>Anyone has the same problem?=A0</div><div>Any suggestions?</div><di=
-v>
-thanks</div>
+I also think we might want to revisit how we compute the level.
+Rather than only setting a single category, we might want to compute a
+category pair based on the UID to increase the number of possible unique
+levels and avoid any risk that we will run out of unique levels for a
+large number of installed apps.  For comparison, libvirt assigns a
+randomly selected category pair for virtual machines and I heard
+recently that OpenShift is mapping UIDs to category pairs.  
 
---14dae93409f747e0c404c9f758ec--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
