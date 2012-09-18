@@ -1,66 +1,78 @@
+Message-ID: <5058A8E4.6080105@manicmethod.com>
+Date: Tue, 18 Sep 2012 13:01:24 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-In-Reply-To: <1347979342.31966.1.camel@moss-pluto.epoch.ncsc.mil>
-References: <CAFftDdqrZPWj8C3ht1=FGXjh7f2szgamq8qbU1RMwgGh3Lvxkg@mail.gmail.com>
-	<1347979342.31966.1.camel@moss-pluto.epoch.ncsc.mil>
-Date: Tue, 18 Sep 2012 09:35:42 -0700
-Message-ID: <CAFftDdrj0numzkrn1Ot_UE25SadOyapGbPhRqya1OgJPByZd7g@mail.gmail.com>
-Subject: Re: Upstream changes
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=bcaec51b97f938cc5104c9fc7b7e
+To: William Roberts <bill.c.roberts@gmail.com>
+CC: Robert Craig <robertpcraig@gmail.com>, selinux@tycho.nsa.gov,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: signature clause in mac_permisions
+References: <CAFftDdrSzB2Os0YbOZyHWSCoy64SGaaV9-jCTFLw5Ozn3KGSsw@mail.gmail.com> <CADQgGG1735_t8q=mA4hhGDPjkziviHE64hAJf2r0pMgjeiji=Q@mail.gmail.com> <CAFftDdotOM8pyZVJ_g0_56L3382uTvq+JpGsqzioJc+MRdXDKw@mail.gmail.com>
+In-Reply-To: <CAFftDdotOM8pyZVJ_g0_56L3382uTvq+JpGsqzioJc+MRdXDKw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---bcaec51b97f938cc5104c9fc7b7e
-Content-Type: text/plain; charset=ISO-8859-1
+If you want to go straight from cert to hex encoding without having to 
+sign an app (i.e., you are generating certs and policies at the same 
+time) you can use this:
 
-I think we just start dropping ones were not maintaining.
-On Sep 18, 2012 7:45 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+$openssl x509 -inform PEM -in <certname>.x509.pem -outform DER
 
-> On Mon, 2012-09-17 at 20:17 -0700, William Roberts wrote:
-> > Now that changes are going through Gerrit into AOSP's repos, will
-> > selinux/bitbucket version of repositories consistently pull aosp
-> > changes and merge them?
+Script to encode:
+
+#!/usr/bin/env python
+
+import sys
+content = sys.stdin.read().strip()
+foo = content.encode("hex")
+sys.stdout.write(foo)
+
+
+The script to encode has to be very careful about padding or null 
+terminating, hence why I couldn't just use some random command line tool.
+
+William Roberts wrote:
+> I should have RTFM, it is right on the wiki under install time mac
+> http://selinuxproject.org/page/SEAndroid
 >
-> I just updated them.  I'll add them to the set that we pull from aosp
-> periodically now that we are developing directly on aosp.  Or we could
-> drop our local ones from the local_manifest.xml files at this point?
+>
+>
+> On Mon, Sep 17, 2012 at 4:22 PM, Robert Craig <robertpcraig@gmail.com
+> <mailto:robertpcraig@gmail.com>> wrote:
+>
+>     Just run the setool host tool. To build just 'make setool' and then
+>     to run just 'setool'. The help usage statement will guide you.
+>
+>
+>     On Mon, Sep 17, 2012 at 2:34 PM, William Roberts
+>     <bill.c.roberts@gmail.com <mailto:bill.c.roberts@gmail.com>> wrote:
+>
+>         How did you guys generate the hex encoded x509 string for a
+>         signature clause in mac_permissions.xml?
+>
+>         Did you use the Android "dumpkey.jar"?
+>
+>         I have the signed apk's, the keystore used to sign them, .pem
+>         files which have all the pub keys in them and a p12 and p8 file.
+>
+>         Which one should I use?
+>
+>         --
+>         Respectfully,
+>
+>         William C Roberts
+>
+>
+>
+>
+>
 >
 > --
-> Stephen Smalley
-> National Security Agency
+> Respectfully,
+>
+> William C Roberts
 >
 >
-
---bcaec51b97f938cc5104c9fc7b7e
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<p>I think we just start dropping ones were not maintaining.</p>
-<div class=3D"gmail_quote">On Sep 18, 2012 7:45 AM, &quot;Stephen Smalley&q=
-uot; &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wro=
-te:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"marg=
-in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-On Mon, 2012-09-17 at 20:17 -0700, William Roberts wrote:<br>
-&gt; Now that changes are going through Gerrit into AOSP&#39;s repos, will<=
-br>
-&gt; selinux/bitbucket version of repositories consistently pull aosp<br>
-&gt; changes and merge them?<br>
-<br>
-I just updated them. =A0I&#39;ll add them to the set that we pull from aosp=
-<br>
-periodically now that we are developing directly on aosp. =A0Or we could<br=
->
-drop our local ones from the local_manifest.xml files at this point?<br>
-<br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</blockquote></div>
-
---bcaec51b97f938cc5104c9fc7b7e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
