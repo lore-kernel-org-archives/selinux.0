@@ -1,33 +1,40 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8IAS46i018885
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 06:28:04 -0400
+Received: by iebc13 with SMTP id c13so2888559ieb.12
+        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 03:28:02 -0700 (PDT)
 MIME-Version: 1.0
-Date: Mon, 17 Sep 2012 20:17:10 -0700
-Message-ID: <CAFftDdqrZPWj8C3ht1=FGXjh7f2szgamq8qbU1RMwgGh3Lvxkg@mail.gmail.com>
-Subject: Upstream changes
-From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 18 Sep 2012 12:28:02 +0200
+Message-ID: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+Subject: seandroid 4.1.1
+From: Alexandra Test <testalexandrainstitute@gmail.com>
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=047d7b66fb0562281504c9f15366
+Content-Type: multipart/alternative; boundary=14dae93409f747e0c404c9f758ec
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b66fb0562281504c9f15366
+--14dae93409f747e0c404c9f758ec
 Content-Type: text/plain; charset=ISO-8859-1
 
-Now that changes are going through Gerrit into AOSP's repos, will
-selinux/bitbucket version of repositories consistently pull aosp changes
-and merge them?
+Hi all,
+I update the release of Seandroid on Samsung Galaxy Nexus. Unfortunately
+the camera and the wifi seem to not be working.
 
--- 
-Respectfully,
+Anyone has the same problem?
+Any suggestions?
+thanks
 
-William C Roberts
-
---047d7b66fb0562281504c9f15366
+--14dae93409f747e0c404c9f758ec
 Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Now that changes are going through Gerrit into AOSP&#39;s repos, will selinux/bitbucket version of repositories consistently pull aosp changes and merge them?<br clear="all"><div><br></div>-- <br>Respectfully,<br><br>William C Roberts<br>
-<br><br>
+Hi all,<div>I update the release of Seandroid on Samsung Galaxy Nexus. Unfo=
+rtunately the camera and the wifi seem to not be working.</div><div><br></d=
+iv><div>Anyone has the same problem?=A0</div><div>Any suggestions?</div><di=
+v>
+thanks</div>
 
---047d7b66fb0562281504c9f15366--
+--14dae93409f747e0c404c9f758ec--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
