@@ -1,5 +1,5 @@
 MIME-Version: 1.0
-In-Reply-To: <1347992127.31966.93.camel@moss-pluto.epoch.ncsc.mil>
+In-Reply-To: <CAFftDdorhQYcJ4_76cFg-Nj49vLNJYkKHyM=Zz6RvZ+3jH31vw@mail.gmail.com>
 References: <4FFCC3C7.8080602@tresys.com>
 	<1342011045.29461.28.camel@moss-pluto.epoch.ncsc.mil>
 	<4FFDD7C7.4020703@tresys.com>
@@ -8,204 +8,222 @@ References: <4FFCC3C7.8080602@tresys.com>
 	<CAFftDdqjtYd0RGoZ12dcJnyWpD42MPYf_KwkJitwYcaF=+ptgA@mail.gmail.com>
 	<CAFftDdpDkSWWzgKiCyTLuJpAZNRtihgmoRE0WhBcbGa2tdfwPA@mail.gmail.com>
 	<1347992127.31966.93.camel@moss-pluto.epoch.ncsc.mil>
-Date: Tue, 18 Sep 2012 11:25:11 -0700
-Message-ID: <CAFftDdorhQYcJ4_76cFg-Nj49vLNJYkKHyM=Zz6RvZ+3jH31vw@mail.gmail.com>
+	<CAFftDdorhQYcJ4_76cFg-Nj49vLNJYkKHyM=Zz6RvZ+3jH31vw@mail.gmail.com>
+Date: Tue, 18 Sep 2012 11:26:15 -0700
+Message-ID: <CAFftDdqCFVLXQFx-P27msp7Jn4gXDn7u+QS0nvXF6TdHG7zBew@mail.gmail.com>
 Subject: Re: seandroid and policy version
 From: William Roberts <bill.c.roberts@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
         Joman Chu <jcchu@tycho.ncsc.mil>
-Content-Type: multipart/alternative; boundary=20cf303b42f7b9c9a704c9fe0275
+Content-Type: multipart/alternative; boundary=0023544702ec893a1a04c9fe06b0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---20cf303b42f7b9c9a704c9fe0275
+--0023544702ec893a1a04c9fe06b0
 Content-Type: text/plain; charset=ISO-8859-1
 
-Ahh yeah you are correct, it would have to be resident in kernel memory.
-With that argument that api sounds sufficient.
+Yes, I would imagine right now the api is pretty much reload policy, get
+booleans /set boolean type of api.
 
-Could we configure the policy version independent of the makefile. This way
-oem's can control what version they want, maybe something like POLICYVERS
-variable could be overridden too. I think we could just drop the version
-suffix unless it gets us something that we may need in the future. If it
-might be beneficial for unforeseen future growth, then we would keep it an
-have system_server parse the first few bytes out for the version suffix.
+On Tue, Sep 18, 2012 at 11:25 AM, William Roberts
+<bill.c.roberts@gmail.com>wrote:
 
-On Tue, Sep 18, 2012 at 11:15 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Tue, 2012-09-18 at 10:54 -0700, William Roberts wrote:
-> > Actually on second thought, lets ditch the version. Either your have a
-> > supported version or not, and if you don't have a supported version
-> > you've done something very wrong, and can extract dmesg and use
-> > libsepol on the host to solve your problem. I would imagine dmesg
-> > would have "cannot load policy error" and libsepol on the host could
-> > tell your version number.
+> Ahh yeah you are correct, it would have to be resident in kernel memory.
+> With that argument that api sounds sufficient.
 >
-> The reason for the version number suffix is so that you can have
-> multiple versions installed simultaneously for different kernels,
-> allowing you to install a new version for a new kernel yet still back
-> out to the old version/old kernel if necessary.
+> Could we configure the policy version independent of the makefile. This
+> way oem's can control what version they want, maybe something like
+> POLICYVERS variable could be overridden too. I think we could just drop the
+> version suffix unless it gets us something that we may need in the future.
+> If it might be beneficial for unforeseen future growth, then we would keep
+> it an have system_server parse the first few bytes out for the version
+> suffix.
 >
-> If we do drop the version suffix, do we do it only for
-> the /data/system/sepolicy or also for /sepolicy?  Requires a coordinated
-> change across external/sepolicy and external/libselinux (and for 4.0.4,
-> system/core since it still has the old policy loading logic directly
-> within init).
 >
-> Also, do we continue to force the policy version to 24 in
-> external/sepolicy Android.mk or let it go with whatever checkpolicy
-> supports.  We were capping it at policy.24 because that is the least
-> common denominator for all of the AOSP kernels (going back to the
-> emulator kernel), and because that was the latest version supported by
-> Ubuntu 10.04 (but that doesn't matter now that there is a copy of
-> checkpolicy in AOSP, which we might want to get updated btw).
+> On Tue, Sep 18, 2012 at 11:15 AM, Stephen Smalley <sds@tycho.nsa.gov>wrote:
 >
-> > On Tue, Sep 18, 2012 at 10:46 AM, William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> >         How hard is it to parse the header, is it a simple fixed with
-> >         field?
-> >
-> >
-> >         I could go either way on this, I like have the version number
-> >         in the file name myself.
-> >
-> >
-> >         On Tue, Sep 18, 2012 at 10:33 AM, Stephen Smalley
-> >         <sds@tycho.nsa.gov> wrote:
-> >                 On Wed, 2012-07-11 at 15:49 -0400, Stephen Smalley
-> >                 wrote:
-> >                 > On Wed, 2012-07-11 at 15:45 -0400, Joshua Brindle
-> >                 wrote:
-> >                 > > Stephen Smalley wrote:
-> >                 > > > On Tue, 2012-07-10 at 20:07 -0400, Joshua
-> >                 Brindle wrote:
-> >                 > > >> I was looking at this:
-> >                 > > >>
-> >                 <
-> https://android-review.googlesource.com/#/c/36321/4/init/init.c>
-> >                 > > >>
-> >                 > > >> and remembered that years ago we had a
-> >                 discussion about the .policyver
-> >                 > > >> filename syntax. I kind of get it for SELinux
-> >                 machines where there is
-> >                 > > >> managed policy and could be multiple policies
-> >                 on the system but since
-> >                 > > >> SEAndroid is targeting non-device managed
-> >                 policies, it adds extra code
-> >                 > > >> to search for the right extension and you can
-> >                 tell what version the
-> >                 > > >> policy is as soon as you open it, why not ditch
-> >                 the suffix?
-> >                 > > >
-> >                 > > > First, that patch doesn't introduce the use of
-> >                 the version suffix
-> >                 > > > (that's in the already merged code); it just
-> >                 preserves it in the new
-> >                 > > > logic for reloading policy at runtime.
-> >                 > >
-> >                 > > I know, it just reminded me that I wanted to
-> >                 mention it :)
-> >                 > >
-> >                 > > >
-> >                 > > > I'm open to removing the use of the policy
-> >                 version suffix in a follow-on
-> >                 > > > patch, although that would need to be
-> >                 coordinated across sepolicy and
-> >                 > > > system/core.  But the current code is consistent
-> >                 with existing practice
-> >                 > > > in Linux distributions (so follows principle of
-> >                 least surprise) and it
-> >                 > >
-> >                 > >  From what I can tell most people doing anything
-> >                 with SEAndroid have never been
-> >                 > > exposed to SELinux so it probably is surprising to
-> >                 them that the file extension
-> >                 > > would change version to version.
-> >                 > >
-> >                 > > > allows for different versions to be installed
-> >                 simultaneously (thereby
-> >                 > > > supporting booting multiple kernels).  Also, we
-> >                 don't have libsepol on
-> >                 > >
-> >                 > > I don't think this will ever be an issue on mobile
-> >                 devices (and I don't think it
-> >                 > > ever was an issue on real machines, more likely
-> >                 that stale policies were being
-> >                 > > enforced if there was some kernel or library
-> >                 change)
-> >                 > >
-> >                 > > > the device so we cannot in fact determine the
-> >                 version when we open it
-> >                 > > > there presently.  So I'm not convinced we should
-> >                 remove the suffix.
-> >                 > >
-> >                 > > We don't need libsepol, just read the first few
-> >                 bytes, a la file.
-> >                 >
-> >                 > We need libsepol at least if we want to support
-> >                 automatic downgrading of
-> >                 > the policy to a version supported by the kernel.  So
-> >                 unless we think we
-> >                 > can guarantee that Android userspace + kernel are
-> >                 always updated in
-> >                 > lock-step and one will never want to support
-> >                 multiple kernels, it seems
-> >                 > a bit inflexible to drop the versioning.
-> >
-> >
-> >                 So this issue has come up again in the context of
-> >                 implementing device
-> >                 admin APIs and a sample device admin app.  The device
-> >                 admin API
-> >                 implementation in the system_server needs to know how
-> >                 to name the file
-> >                 it creates under /data/system for the kernel policy,
-> >                 but it has no way
-> >                 to determine the actual policy version of the supplied
-> >                 policy.  So it
-> >                 doesn't know what suffix to use.  Options:
-> >                 - Get rid of the version suffix altogether, or at
-> >                 least for the sepolicy
-> >                 file under /data/system.
-> >                 - Have the system_server parse the header of the
-> >                 policy image to
-> >                 determine the policy version, and use that as the
-> >                 suffix.
-> >
-> >                 Thoughts?
-> >
-> >                 --
-> >                 Stephen Smalley
-> >                 National Security Agency
-> >
-> >
-> >
-> >
-> >
-> >
-> >         --
-> >         Respectfully,
-> >
-> >         William C Roberts
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> > --
-> > Respectfully,
-> >
-> > William C Roberts
-> >
-> >
-> >
+>> On Tue, 2012-09-18 at 10:54 -0700, William Roberts wrote:
+>> > Actually on second thought, lets ditch the version. Either your have a
+>> > supported version or not, and if you don't have a supported version
+>> > you've done something very wrong, and can extract dmesg and use
+>> > libsepol on the host to solve your problem. I would imagine dmesg
+>> > would have "cannot load policy error" and libsepol on the host could
+>> > tell your version number.
+>>
+>> The reason for the version number suffix is so that you can have
+>> multiple versions installed simultaneously for different kernels,
+>> allowing you to install a new version for a new kernel yet still back
+>> out to the old version/old kernel if necessary.
+>>
+>> If we do drop the version suffix, do we do it only for
+>> the /data/system/sepolicy or also for /sepolicy?  Requires a coordinated
+>> change across external/sepolicy and external/libselinux (and for 4.0.4,
+>> system/core since it still has the old policy loading logic directly
+>> within init).
+>>
+>> Also, do we continue to force the policy version to 24 in
+>> external/sepolicy Android.mk or let it go with whatever checkpolicy
+>> supports.  We were capping it at policy.24 because that is the least
+>> common denominator for all of the AOSP kernels (going back to the
+>> emulator kernel), and because that was the latest version supported by
+>> Ubuntu 10.04 (but that doesn't matter now that there is a copy of
+>> checkpolicy in AOSP, which we might want to get updated btw).
+>>
+>> > On Tue, Sep 18, 2012 at 10:46 AM, William Roberts
+>> > <bill.c.roberts@gmail.com> wrote:
+>> >         How hard is it to parse the header, is it a simple fixed with
+>> >         field?
+>> >
+>> >
+>> >         I could go either way on this, I like have the version number
+>> >         in the file name myself.
+>> >
+>> >
+>> >         On Tue, Sep 18, 2012 at 10:33 AM, Stephen Smalley
+>> >         <sds@tycho.nsa.gov> wrote:
+>> >                 On Wed, 2012-07-11 at 15:49 -0400, Stephen Smalley
+>> >                 wrote:
+>> >                 > On Wed, 2012-07-11 at 15:45 -0400, Joshua Brindle
+>> >                 wrote:
+>> >                 > > Stephen Smalley wrote:
+>> >                 > > > On Tue, 2012-07-10 at 20:07 -0400, Joshua
+>> >                 Brindle wrote:
+>> >                 > > >> I was looking at this:
+>> >                 > > >>
+>> >                 <
+>> https://android-review.googlesource.com/#/c/36321/4/init/init.c>
+>> >                 > > >>
+>> >                 > > >> and remembered that years ago we had a
+>> >                 discussion about the .policyver
+>> >                 > > >> filename syntax. I kind of get it for SELinux
+>> >                 machines where there is
+>> >                 > > >> managed policy and could be multiple policies
+>> >                 on the system but since
+>> >                 > > >> SEAndroid is targeting non-device managed
+>> >                 policies, it adds extra code
+>> >                 > > >> to search for the right extension and you can
+>> >                 tell what version the
+>> >                 > > >> policy is as soon as you open it, why not ditch
+>> >                 the suffix?
+>> >                 > > >
+>> >                 > > > First, that patch doesn't introduce the use of
+>> >                 the version suffix
+>> >                 > > > (that's in the already merged code); it just
+>> >                 preserves it in the new
+>> >                 > > > logic for reloading policy at runtime.
+>> >                 > >
+>> >                 > > I know, it just reminded me that I wanted to
+>> >                 mention it :)
+>> >                 > >
+>> >                 > > >
+>> >                 > > > I'm open to removing the use of the policy
+>> >                 version suffix in a follow-on
+>> >                 > > > patch, although that would need to be
+>> >                 coordinated across sepolicy and
+>> >                 > > > system/core.  But the current code is consistent
+>> >                 with existing practice
+>> >                 > > > in Linux distributions (so follows principle of
+>> >                 least surprise) and it
+>> >                 > >
+>> >                 > >  From what I can tell most people doing anything
+>> >                 with SEAndroid have never been
+>> >                 > > exposed to SELinux so it probably is surprising to
+>> >                 them that the file extension
+>> >                 > > would change version to version.
+>> >                 > >
+>> >                 > > > allows for different versions to be installed
+>> >                 simultaneously (thereby
+>> >                 > > > supporting booting multiple kernels).  Also, we
+>> >                 don't have libsepol on
+>> >                 > >
+>> >                 > > I don't think this will ever be an issue on mobile
+>> >                 devices (and I don't think it
+>> >                 > > ever was an issue on real machines, more likely
+>> >                 that stale policies were being
+>> >                 > > enforced if there was some kernel or library
+>> >                 change)
+>> >                 > >
+>> >                 > > > the device so we cannot in fact determine the
+>> >                 version when we open it
+>> >                 > > > there presently.  So I'm not convinced we should
+>> >                 remove the suffix.
+>> >                 > >
+>> >                 > > We don't need libsepol, just read the first few
+>> >                 bytes, a la file.
+>> >                 >
+>> >                 > We need libsepol at least if we want to support
+>> >                 automatic downgrading of
+>> >                 > the policy to a version supported by the kernel.  So
+>> >                 unless we think we
+>> >                 > can guarantee that Android userspace + kernel are
+>> >                 always updated in
+>> >                 > lock-step and one will never want to support
+>> >                 multiple kernels, it seems
+>> >                 > a bit inflexible to drop the versioning.
+>> >
+>> >
+>> >                 So this issue has come up again in the context of
+>> >                 implementing device
+>> >                 admin APIs and a sample device admin app.  The device
+>> >                 admin API
+>> >                 implementation in the system_server needs to know how
+>> >                 to name the file
+>> >                 it creates under /data/system for the kernel policy,
+>> >                 but it has no way
+>> >                 to determine the actual policy version of the supplied
+>> >                 policy.  So it
+>> >                 doesn't know what suffix to use.  Options:
+>> >                 - Get rid of the version suffix altogether, or at
+>> >                 least for the sepolicy
+>> >                 file under /data/system.
+>> >                 - Have the system_server parse the header of the
+>> >                 policy image to
+>> >                 determine the policy version, and use that as the
+>> >                 suffix.
+>> >
+>> >                 Thoughts?
+>> >
+>> >                 --
+>> >                 Stephen Smalley
+>> >                 National Security Agency
+>> >
+>> >
+>> >
+>> >
+>> >
+>> >
+>> >         --
+>> >         Respectfully,
+>> >
+>> >         William C Roberts
+>> >
+>> >
+>> >
+>> >
+>> >
+>> >
+>> >
+>> > --
+>> > Respectfully,
+>> >
+>> > William C Roberts
+>> >
+>> >
+>> >
+>>
+>> --
+>> Stephen Smalley
+>> National Security Agency
+>>
+>>
+>
 >
 > --
-> Stephen Smalley
-> National Security Agency
+> Respectfully,
+>
+> William C Roberts
+>
 >
 >
 
@@ -215,25 +233,34 @@ Respectfully,
 
 William C Roberts
 
---20cf303b42f7b9c9a704c9fe0275
+--0023544702ec893a1a04c9fe06b0
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Ahh yeah you are correct, it would have to be resident in kernel memory. Wi=
-th that argument that api sounds sufficient.<div><br></div><div>Could we co=
-nfigure the policy version independent of the makefile. This way oem&#39;s =
-can control what version they want, maybe something like POLICYVERS variabl=
-e could be=A0overridden=A0too. I think we could just drop the version suffi=
-x unless it gets us something that we may need in the future. If it might b=
-e beneficial for=A0unforeseen=A0future growth, then we would keep it an hav=
-e system_server parse the first few bytes out for the version suffix.<br>
+Yes, I would imagine right now the api is pretty much reload policy, get bo=
+oleans /set boolean type of api.<br><br><div class=3D"gmail_quote">On Tue, =
+Sep 18, 2012 at 11:25 AM, William Roberts <span dir=3D"ltr">&lt;<a href=3D"=
+mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill.c.roberts@gmail.com=
+</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">Ahh yeah you are correct, it would have to b=
+e resident in kernel memory. With that argument that api sounds sufficient.=
+<div>
+<br></div><div>Could we configure the policy version independent of the mak=
+efile. This way oem&#39;s can control what version they want, maybe somethi=
+ng like POLICYVERS variable could be=A0overridden=A0too. I think we could j=
+ust drop the version suffix unless it gets us something that we may need in=
+ the future. If it might be beneficial for=A0unforeseen=A0future growth, th=
+en we would keep it an have system_server parse the first few bytes out for=
+ the version suffix.<div>
+<div class=3D"h5"><br>
 <br><div class=3D"gmail_quote">On Tue, Sep 18, 2012 at 11:15 AM, Stephen Sm=
 alley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"=
 _blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gma=
 il_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-lef=
 t:1ex">
-<div class=3D"im">On Tue, 2012-09-18 at 10:54 -0700, William Roberts wrote:=
-<br>
+
+<div>On Tue, 2012-09-18 at 10:54 -0700, William Roberts wrote:<br>
 &gt; Actually on second thought, lets ditch the version. Either your have a=
 <br>
 &gt; supported version or not, and if you don&#39;t have a supported versio=
@@ -264,10 +291,10 @@ common denominator for all of the AOSP kernels (going back to the<br>
 emulator kernel), and because that was the latest version supported by<br>
 Ubuntu 10.04 (but that doesn&#39;t matter now that there is a copy of<br>
 checkpolicy in AOSP, which we might want to get updated btw).<br>
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
+<div><div><br>
 &gt; On Tue, Sep 18, 2012 at 10:46 AM, William Roberts<br>
-&gt; &lt;<a href=3D"mailto:bill.c.roberts@gmail.com">bill.c.roberts@gmail.c=
-om</a>&gt; wrote:<br>
+&gt; &lt;<a href=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill=
+.c.roberts@gmail.com</a>&gt; wrote:<br>
 &gt; =A0 =A0 =A0 =A0 How hard is it to parse the header, is it a simple fix=
 ed with<br>
 &gt; =A0 =A0 =A0 =A0 field?<br>
@@ -279,8 +306,8 @@ ed with<br>
 &gt;<br>
 &gt;<br>
 &gt; =A0 =A0 =A0 =A0 On Tue, Sep 18, 2012 at 10:33 AM, Stephen Smalley<br>
-&gt; =A0 =A0 =A0 =A0 &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa=
-.gov</a>&gt; wrote:<br>
+&gt; =A0 =A0 =A0 =A0 &lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_bl=
+ank">sds@tycho.nsa.gov</a>&gt; wrote:<br>
 &gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 On Wed, 2012-07-11 at 15:49 -0400, Ste=
 phen Smalley<br>
 &gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wrote:<br>
@@ -461,9 +488,11 @@ National Security Agency<br>
 <br>
 </div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
 Respectfully,<br><br>William C Roberts<br><br><br>
-</div>
+</div></div></div>
+</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>Respectfully=
+,<br><br>William C Roberts<br><br><br>
 
---20cf303b42f7b9c9a704c9fe0275--
+--0023544702ec893a1a04c9fe06b0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
