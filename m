@@ -1,70 +1,66 @@
-Message-ID: <5058A22E.7010407@redhat.com>
-Date: Tue, 18 Sep 2012 12:32:46 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <1347979342.31966.1.camel@moss-pluto.epoch.ncsc.mil>
+References: <CAFftDdqrZPWj8C3ht1=FGXjh7f2szgamq8qbU1RMwgGh3Lvxkg@mail.gmail.com>
+	<1347979342.31966.1.camel@moss-pluto.epoch.ncsc.mil>
+Date: Tue, 18 Sep 2012 09:35:42 -0700
+Message-ID: <CAFftDdrj0numzkrn1Ot_UE25SadOyapGbPhRqya1OgJPByZd7g@mail.gmail.com>
+Subject: Re: Upstream changes
+From: William Roberts <bill.c.roberts@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH] selinux-testsuite:  Allow test domains to read /etc/passwd
-References: <1347545325.15047.34.camel@moss-pluto.epoch.ncsc.mil>  <5051FB6A.8040106@redhat.com> <20120915022200.GB6438@mail.hallyn.com> <1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
-In-Reply-To: <1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
-Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec51b97f938cc5104c9fc7b7e
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--bcaec51b97f938cc5104c9fc7b7e
+Content-Type: text/plain; charset=ISO-8859-1
 
-On 09/18/2012 09:45 AM, Stephen Smalley wrote:
-> On Sat, 2012-09-15 at 02:22 +0000, Serge E. Hallyn wrote:
->> Quoting Daniel J Walsh (dwalsh@redhat.com):
->>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->>> 
->>> On 09/13/2012 10:08 AM, Stephen Smalley wrote:
->>>> Several test cases require the ability to read /etc/passwd to look
->>>> up usernames.  Recent Fedora introduced a separate type on
->>>> /etc/passwd and therefore we need to add an interface call to
->>>> test_global.te.  Fixes three test failures on Fedora 17.
->>>> 
->>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov> --- 
->>>> policy/test_global.te | 2 ++ 1 file changed, 2 insertions(+)
->>>> 
->>>> diff --git a/policy/test_global.te b/policy/test_global.te index 
->>>> 77121ae..fdfd291 100644 --- a/policy/test_global.te +++ 
->>>> b/policy/test_global.te @@ -88,3 +88,5 @@ 
->>>> selinux_compute_access_vector(testdomain) 
->>>> selinux_compute_create_context(testdomain) 
->>>> selinux_compute_relabel_context(testdomain) 
->>>> selinux_compute_user_contexts(testdomain) +
->>>> +auth_read_passwd(testdomain)
->>>> 
->>> Probably should use
->>> 
->>> auth_use_nsswitch(testdomain)
->>> 
->>> Since this will handle cases where users are listed in ldap or use
->>> sssd.
->> 
->> Stephen, would you like that instead?
-> 
-> No, it doesn't work - you cannot pass an attribute name to that interface.
-> 
+I think we just start dropping ones were not maintaining.
+On Sep 18, 2012 7:45 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 
-Ahh yes, you can not assign an attribute to an attribute.  That is right up
-there with no assigning an attribute within a boolean as my least liked things
-about our policy compiler.
+> On Mon, 2012-09-17 at 20:17 -0700, William Roberts wrote:
+> > Now that changes are going through Gerrit into AOSP's repos, will
+> > selinux/bitbucket version of repositories consistently pull aosp
+> > changes and merge them?
+>
+> I just updated them.  I'll add them to the set that we pull from aosp
+> periodically now that we are developing directly on aosp.  Or we could
+> drop our local ones from the local_manifest.xml files at this point?
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
+--bcaec51b97f938cc5104c9fc7b7e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I guess you need to add auth_use_nsswitch() for each type that gets set to
-test_domain.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+<p>I think we just start dropping ones were not maintaining.</p>
+<div class=3D"gmail_quote">On Sep 18, 2012 7:45 AM, &quot;Stephen Smalley&q=
+uot; &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wro=
+te:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"marg=
+in:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+On Mon, 2012-09-17 at 20:17 -0700, William Roberts wrote:<br>
+&gt; Now that changes are going through Gerrit into AOSP&#39;s repos, will<=
+br>
+&gt; selinux/bitbucket version of repositories consistently pull aosp<br>
+&gt; changes and merge them?<br>
+<br>
+I just updated them. =A0I&#39;ll add them to the set that we pull from aosp=
+<br>
+periodically now that we are developing directly on aosp. =A0Or we could<br=
+>
+drop our local ones from the local_manifest.xml files at this point?<br>
+<br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+</blockquote></div>
 
-iEYEARECAAYFAlBYoi4ACgkQrlYvE4MpobP60wCgl/6UDWf0MSTnjfr1psB6DsvB
-hdIAoImqV09iWasmP1hnuNAiOl0Mf8O4
-=lf6L
------END PGP SIGNATURE-----
+--bcaec51b97f938cc5104c9fc7b7e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
