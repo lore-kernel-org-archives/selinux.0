@@ -1,30 +1,33 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8IHE07q015738
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 13:14:00 -0400
-Message-ID: <5058ABD5.3000500@manicmethod.com>
-Date: Tue, 18 Sep 2012 13:13:57 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-CC: selinux@tycho.nsa.gov
+Message-ID: <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: seandroid 4.1.1
-References: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 18 Sep 2012 13:13:44 -0400
 In-Reply-To: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: 
+	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Alexandra Test wrote:
+On Tue, 2012-09-18 at 12:28 +0200, Alexandra Test wrote:
 > Hi all,
-> I update the release of Seandroid on Samsung Galaxy Nexus. Unfortunately
-> the camera and the wifi seem to not be working.
->
+> I update the release of Seandroid on Samsung Galaxy Nexus.
+> Unfortunately the camera and the wifi seem to not be working.
+> 
+> 
+> Anyone has the same problem? 
 
-Camera won't work, those binary blobs aren't released by Google (they 
-can't get a distribution license). For all other peripherals you need 
-the blobs from Google:
+I have wifi working.  The camera proprietary binary isn't available for
+AOSP.  You downloaded the jro03h files, expanded them, ran the extract
+scripts, did a make clobber, and then rebuilt?
 
-<https://developers.google.com/android/nexus/drivers>
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
