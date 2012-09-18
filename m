@@ -1,52 +1,25 @@
-Message-ID: <1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: [PATCH] selinux-testsuite:  Allow test domains to read
- /etc/passwd
+Message-ID: <1347979342.31966.1.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: Upstream changes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        Eric Paris
-	 <eparis@redhat.com>
-Date: Tue, 18 Sep 2012 09:45:02 -0400
-In-Reply-To: <20120915022200.GB6438@mail.hallyn.com>
-References: <1347545325.15047.34.camel@moss-pluto.epoch.ncsc.mil>
-	 <5051FB6A.8040106@redhat.com> <20120915022200.GB6438@mail.hallyn.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 18 Sep 2012 10:42:22 -0400
+In-Reply-To: <CAFftDdqrZPWj8C3ht1=FGXjh7f2szgamq8qbU1RMwgGh3Lvxkg@mail.gmail.com>
+References: 
+	<CAFftDdqrZPWj8C3ht1=FGXjh7f2szgamq8qbU1RMwgGh3Lvxkg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2012-09-15 at 02:22 +0000, Serge E. Hallyn wrote:
-> Quoting Daniel J Walsh (dwalsh@redhat.com):
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > On 09/13/2012 10:08 AM, Stephen Smalley wrote:
-> > > Several test cases require the ability to read /etc/passwd to look up
-> > > usernames.  Recent Fedora introduced a separate type on /etc/passwd and
-> > > therefore we need to add an interface call to test_global.te.  Fixes three
-> > > test failures on Fedora 17.
-> > > 
-> > > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov> --- 
-> > > policy/test_global.te | 2 ++ 1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/policy/test_global.te b/policy/test_global.te index
-> > > 77121ae..fdfd291 100644 --- a/policy/test_global.te +++
-> > > b/policy/test_global.te @@ -88,3 +88,5 @@
-> > > selinux_compute_access_vector(testdomain) 
-> > > selinux_compute_create_context(testdomain) 
-> > > selinux_compute_relabel_context(testdomain) 
-> > > selinux_compute_user_contexts(testdomain) + +auth_read_passwd(testdomain)
-> > > 
-> > Probably should use
-> > 
-> > auth_use_nsswitch(testdomain)
-> > 
-> > Since this will handle cases where users are listed in ldap or use sssd.
-> 
-> Stephen, would you like that instead?
+On Mon, 2012-09-17 at 20:17 -0700, William Roberts wrote:
+> Now that changes are going through Gerrit into AOSP's repos, will
+> selinux/bitbucket version of repositories consistently pull aosp
+> changes and merge them?
 
-No, it doesn't work - you cannot pass an attribute name to that
-interface.
+I just updated them.  I'll add them to the set that we pull from aosp
+periodically now that we are developing directly on aosp.  Or we could
+drop our local ones from the local_manifest.xml files at this point?
 
 -- 
 Stephen Smalley
