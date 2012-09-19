@@ -1,35 +1,28 @@
-Message-ID: <1348058438.4107.12.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: seandroid 4.1.1
+Message-ID: <1348061544.4107.25.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: level
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Date: Wed, 19 Sep 2012 08:40:38 -0400
-In-Reply-To: <CAKi3PupU9CDa-DaNBn2_yaskdF4pAqOYKBFdcz=s+bG2XM0NVA@mail.gmail.com>
+Date: Wed, 19 Sep 2012 09:32:24 -0400
+In-Reply-To: <CAFftDdoGiXnOk9qYMvbvzFH=L4muVsNYi1OBGDNmL2x1-D6tDg@mail.gmail.com>
 References: 
-	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PupU9CDa-DaNBn2_yaskdF4pAqOYKBFdcz=s+bG2XM0NVA@mail.gmail.com>
+	<CAFftDdoGiXnOk9qYMvbvzFH=L4muVsNYi1OBGDNmL2x1-D6tDg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2012-09-19 at 10:25 +0200, Alexandra Test wrote:
-> Yes, I did. 
-> I downloaded the proprietary files from the google and extract other
-> proprietary files from the original android version.
-> so it is still not possible to use the camera, right?
-> 
-> About the wifi, the problem is that it finds the network but when it
-> tries to connect, it never succeeds.
-> What do you suggest to do? built it again?
+On Tue, 2012-09-18 at 16:09 -0700, William Roberts wrote:
+> In seapp_contexts when I try to set the level to s0:c56 it works, but
+> if I do s0:c1, it does not, any ideas?
 
-Hmm...might want to look at your dmesg and logcat output.
-Anyway, your issues don't sound like they are specific to SE Android, so
-you should really search the regular android discussion groups, e.g.
-android-building, for answers and if unable to find an answer, post
-questions there.  But first make sure that the same issue occurs if you
-use a vanilla AOSP build without the SE Android modifications.
+This worked for me:
+$ cd external/sepolicy
+$ grep browser seapp_contexts 
+user=app_* seinfo=release name=com.android.browser domain=browser_app type=platform_app_data_file level=s0:c1
+
+$ adb shell su 0 ps -Z | grep browser
+u:r:browser_app:s0:c1          u0_a3     1284  127   com.android.browser
 
 -- 
 Stephen Smalley
