@@ -1,55 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8INQOcR004301
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 19:26:24 -0400
-Received: by lahc1 with SMTP id c1so331274lah.12
-        for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 16:26:22 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8J1voYq010267
+	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 21:57:50 -0400
+Message-ID: <5059269F.8050008@schaufler-ca.com>
+Date: Tue, 18 Sep 2012 18:57:51 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <5058FF67.4020808@davequigley.com>
-References: <c33c9e94951c1feb43d2b4a7cfc81a15@countercultured.net>
-	<5058E62B.1070006@schaufler-ca.com>
-	<5058FF67.4020808@davequigley.com>
-Date: Tue, 18 Sep 2012 19:26:21 -0400
-Message-ID: <CAOPE6PjTGvJftmX9wSYYRDuu+PNi0kLrP2CHa_d2B5dO=kayZQ@mail.gmail.com>
-Subject: Re: SELinux Branded USB Thumb Drives
-From: "Kevin W. Wall" <kevin.w.wall@gmail.com>
-To: Dave Quigley <dpquigl@davequigley.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
+To: LSM <linux-security-module@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>
+CC: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Call for presentations at the 2013 LCA Security Miniconf
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Sep 18, 2012 at 7:10 PM, Dave Quigley <dpquigl@davequigley.com> wrote:
-> On 9/18/2012 5:22 PM, Casey Schaufler wrote:
->>
->> On 9/18/2012 12:12 PM, David Quigley wrote:
->>>
->>> I've been thinking of putting in a bulk order for either 8GB or 16GB
->>> USB thumb drives with special SELinux branding on them. Who would be
->>> interested in participating in the bulk order? We would have to decide
->>> on a design first and then once that was done and I felt I had enough
->>> people on board I could order about 100 of them (which seems to be the
->>> minimum for some places). Nothing is definite yet as I'm just shopping
->>> around the idea.
->>
->>
->> Is that really a good idea? Given the frequency that thumb drives turn
->> up as infection vectors it seems like you're asking for trouble.
->>
-> I intend on getting ones with physical write protection if I can. However I
-> don't see it as being any different from the ones you get from the one of a
-> million AV/Anti-malware companies out there either. I intend on using them
-> for when I give a talk or teach a class and intend on collecting them at the
-> end.
 
-And maybe if you install a live Linux distro with SELinux enabled on them
-before you hand them out, you just might get them back uninfected. ;-)
+Nicked from the LCA Miniconf Wiki:
 
--kevin
--- 
-Blog: http://off-the-wall-security.blogspot.com/
-"The most likely way for the world to be destroyed, most experts agree,
-is by accident. That's where we come in; we're computer professionals.
-We *cause* accidents."        -- Nathaniel Borenstein
+https://lca2013.linux.org.au/wiki/index.php/Miniconfs/AdvancesinLinuxSecurity
+
+
+The Advances in Linux Security Miniconf is accepting proposals for
+presentations. There are a very limited number of slots available for
+long (more than 30 minutes) talks. The majority of the talks should be
+short (30 minutes including questions) to accommodate the limited time
+available. If there is sufficient interest expressed there may also be a
+set of lighting (5 minutes) talks.
+ 
+Early submissions will always be given preference over late ones.
+Interesting, new and novel subject matter will be the highest priority.
+Papers are appreciated but not necessary.
+ 
+Proposals must include:
+
+Abstract
+
+This should be a paragraph describing why someone might want to listen
+to the talk. It should describe the intended audience. The abstract
+should say what is interesting, new or novel about what you've got to
+say. It should include how long you would like to talk.
+ 
+Biography
+
+Treat this as a way to introduce yourself to the program committee. The
+biography will be used along with the abstract to chose the speakers. If
+you sound like an interesting speaker it will improve the chances you
+will get selected.
+ 
+If you are interested in giving a Lightning Talk you can skimp on the
+abstract and biography.
+ 
+Send proposals to: lca2012smc@yahoo.com
+
+(Yes, I realize that the year is wrong in the email address.)
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
