@@ -1,60 +1,87 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8J1voYq010267
-	for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2012 21:57:50 -0400
-Message-ID: <5059269F.8050008@schaufler-ca.com>
-Date: Tue, 18 Sep 2012 18:57:51 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: LSM <linux-security-module@vger.kernel.org>,
-        SE Linux <selinux@tycho.nsa.gov>
-CC: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Call for presentations at the 2013 LCA Security Miniconf
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
+References: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+	<1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
+Date: Wed, 19 Sep 2012 10:25:31 +0200
+Message-ID: <CAKi3PupU9CDa-DaNBn2_yaskdF4pAqOYKBFdcz=s+bG2XM0NVA@mail.gmail.com>
+Subject: Re: seandroid 4.1.1
+From: Alexandra Test <testalexandrainstitute@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d044286e2ff70f604ca09bf35
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--f46d044286e2ff70f604ca09bf35
+Content-Type: text/plain; charset=ISO-8859-1
 
-Nicked from the LCA Miniconf Wiki:
+Yes, I did.
+I downloaded the proprietary files from the google and extract other
+proprietary files from the original android version.
+so it is still not possible to use the camera, right?
 
-https://lca2013.linux.org.au/wiki/index.php/Miniconfs/AdvancesinLinuxSecurity
-
-
-The Advances in Linux Security Miniconf is accepting proposals for
-presentations. There are a very limited number of slots available for
-long (more than 30 minutes) talks. The majority of the talks should be
-short (30 minutes including questions) to accommodate the limited time
-available. If there is sufficient interest expressed there may also be a
-set of lighting (5 minutes) talks.
- 
-Early submissions will always be given preference over late ones.
-Interesting, new and novel subject matter will be the highest priority.
-Papers are appreciated but not necessary.
- 
-Proposals must include:
-
-Abstract
-
-This should be a paragraph describing why someone might want to listen
-to the talk. It should describe the intended audience. The abstract
-should say what is interesting, new or novel about what you've got to
-say. It should include how long you would like to talk.
- 
-Biography
-
-Treat this as a way to introduce yourself to the program committee. The
-biography will be used along with the abstract to chose the speakers. If
-you sound like an interesting speaker it will improve the chances you
-will get selected.
- 
-If you are interested in giving a Lightning Talk you can skimp on the
-abstract and biography.
- 
-Send proposals to: lca2012smc@yahoo.com
-
-(Yes, I realize that the year is wrong in the email address.)
+About the wifi, the problem is that it finds the network but when it tries
+to connect, it never succeeds.
+What do you suggest to do? built it again?
 
 
+On Tue, Sep 18, 2012 at 7:13 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
+> On Tue, 2012-09-18 at 12:28 +0200, Alexandra Test wrote:
+> > Hi all,
+> > I update the release of Seandroid on Samsung Galaxy Nexus.
+> > Unfortunately the camera and the wifi seem to not be working.
+> >
+> >
+> > Anyone has the same problem?
+>
+> I have wifi working.  The camera proprietary binary isn't available for
+> AOSP.  You downloaded the jro03h files, expanded them, ran the extract
+> scripts, did a make clobber, and then rebuilt?
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+
+--f46d044286e2ff70f604ca09bf35
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Yes, I did. <br>I downloaded the proprietary files from the google and extr=
+act other proprietary files from the original android version.<br>so it is =
+still not possible to use the camera, right?<br><br>About the wifi, the pro=
+blem is that it finds the network but when it tries to connect, it never su=
+cceeds.<br>
+What do you suggest to do? built it again?<br><br><br>
+<div class=3D"gmail_quote">On Tue, Sep 18, 2012 at 7:13 PM, Stephen Smalley=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blan=
+k">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_qu=
+ote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex=
+">
+
+<div>On Tue, 2012-09-18 at 12:28 +0200, Alexandra Test wrote:<br>
+&gt; Hi all,<br>
+&gt; I update the release of Seandroid on Samsung Galaxy Nexus.<br>
+&gt; Unfortunately the camera and the wifi seem to not be working.<br>
+&gt;<br>
+&gt;<br>
+&gt; Anyone has the same problem?<br>
+<br>
+</div>I have wifi working. =A0The camera proprietary binary isn&#39;t avail=
+able for<br>
+AOSP. =A0You downloaded the jro03h files, expanded them, ran the extract<br=
+>
+scripts, did a make clobber, and then rebuilt?<br>
+<span><font color=3D"#888888"><br>
+--<br>
+Stephen Smalley<br>
+National Security Agency<br>
+<br>
+</font></span></blockquote></div><br>
+
+--f46d044286e2ff70f604ca09bf35--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
