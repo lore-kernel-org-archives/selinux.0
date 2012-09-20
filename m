@@ -1,10 +1,12 @@
-Message-ID: <1348152509.13835.23.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <1348153961.13835.26.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: seandroid 4.1.1
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Thu, 20 Sep 2012 10:48:29 -0400
-In-Reply-To: <CAKi3Puo9rREhxm_CTEYaRJtZJKf2XdK=EO0-jjDE+cQ12g-Zrg@mail.gmail.com>
+To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
+Cc: Alexandra Test <testalexandrainstitute@gmail.com>,
+        "selinux@tycho.nsa.gov"
+	 <selinux@tycho.nsa.gov>
+Date: Thu, 20 Sep 2012 11:12:41 -0400
+In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E383651A15A2@ALA-MBA.corp.ad.wrs.com>
 References: 
 	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
 	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
@@ -13,36 +15,22 @@ References:
 	 <CAKi3PuokYYQxCwf+SGga7UuguXBR14ZSneFMOfFQ-g0qX5btMA@mail.gmail.com>
 	 <1348149606.13835.21.camel@moss-pluto.epoch.ncsc.mil>
 	 <CAKi3Puo9rREhxm_CTEYaRJtZJKf2XdK=EO0-jjDE+cQ12g-Zrg@mail.gmail.com>
+	 <33006C99F5A5194A9B7A7715DFA3E383651A15A2@ALA-MBA.corp.ad.wrs.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-09-20 at 16:10 +0200, Alexandra Test wrote:
-> effectively I have a problem with dmesg
-> is it possible I don't have the package installed? 
-> this is the output....
-> adb shell su 0 dmsg
-> Usage: su [options] [LOGIN]
-> 
-> Options:
->   -c, --command COMMAND         pass COMMAND to the invoked shell
->   -h, --help                    display this help message and exit
->   -, -l, --login                make the shell a login shell
->   -s, --shell SHELL             use SHELL instead of the default in
-> passwd
->   -v, --version                 display version number and exit
->   -V                            display version code and exit. this is
->                                 used almost exclusively by
-> Superuser.apk
-> root@alexandra:~/new/external/sepolicy# adb shell su 0 dmesg 
+On Thu, 2012-09-20 at 14:48 +0000, Radzykewycz, T (Radzy) wrote:
+> Try using “adb shell dmesg” or “adb shell –c dmesg” or “adb shell su –
+> c dmesg” or “adb shell su 0 –c dmesg”
 
-You aren't using the AOSP-provided su command there - that is
-Superuser.apk from CM.  Anyway, you should be able to do this:
-adb shell
-su
-dmesg
+With 4.1/master, dmesg will only work for root, which is why you have to
+su first.
 
+This is controlled by /proc/sys/kernel/dmesg_restrict, which is set to 1
+by the init.rc file in 4.1 and master.  Only for kernels which support
+it, of course, which would be 2.6.38 and later.
 
 -- 
 Stephen Smalley
