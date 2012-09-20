@@ -1,80 +1,40 @@
-MIME-Version: 1.0
-In-Reply-To: <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
-References: <CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-	<1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
-Date: Thu, 20 Sep 2012 12:19:25 +0200
-Message-ID: <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
+Message-ID: <1348145727.13835.5.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: seandroid 4.1.1
-From: Alexandra Test <testalexandrainstitute@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
 Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=e89a8f6474fd34e24704ca1f75aa
+Date: Thu, 20 Sep 2012 08:55:27 -0400
+In-Reply-To: <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
+References: 
+	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---e89a8f6474fd34e24704ca1f75aa
-Content-Type: text/plain; charset=ISO-8859-1
+On Thu, 2012-09-20 at 12:19 +0200, Alexandra Test wrote:
+> I am sorry... it is working when the device is in permissive mode. 
+> I really cannot understand the way to define the policies.
+> For the wifi, for example, what do I suppose to do?
+> 
+> Thanks for your help
 
-I am sorry... it is working when the device is in permissive mode.
-I really cannot understand the way to define the policies.
-For the wifi, for example, what do I suppose to do?
+Follow the instructions on the wiki,
+http://selinuxproject.org/page/SEAndroid#Getting_Started_with_SE_Android
 
-Thanks for your help
+In particular, capture the dmesg output to see the avc denials, and then
+address those denials in your policy.  If you need help, post the avc
+denials to the list and we can help you decipher them.
 
-On Tue, Sep 18, 2012 at 7:13 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Boot it permissive, use the wifi, and then run adb shell su 0 dmesg |
+grep avc, and post the result.
 
-> On Tue, 2012-09-18 at 12:28 +0200, Alexandra Test wrote:
-> > Hi all,
-> > I update the release of Seandroid on Samsung Galaxy Nexus.
-> > Unfortunately the camera and the wifi seem to not be working.
-> >
-> >
-> > Anyone has the same problem?
->
-> I have wifi working.  The camera proprietary binary isn't available for
-> AOSP.  You downloaded the jro03h files, expanded them, ran the extract
-> scripts, did a make clobber, and then rebuilt?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+-- 
+Stephen Smalley
+National Security Agency
 
---e89a8f6474fd34e24704ca1f75aa
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-I am sorry... it is working when the device is in permissive mode. <br>I re=
-ally cannot understand the way to define the policies.<br>For the wifi, for=
- example, what do I suppose to do?<br><br>Thanks for your help<br><br><div =
-class=3D"gmail_quote">
-On Tue, Sep 18, 2012 at 7:13 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a h=
-ref=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt=
-;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 =
-.8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"im">On Tue, 2012-09-18 at 12:28 +0200, Alexandra Test wrote:<=
-br>
-&gt; Hi all,<br>
-&gt; I update the release of Seandroid on Samsung Galaxy Nexus.<br>
-&gt; Unfortunately the camera and the wifi seem to not be working.<br>
-&gt;<br>
-&gt;<br>
-&gt; Anyone has the same problem?<br>
-<br>
-</div>I have wifi working. =A0The camera proprietary binary isn&#39;t avail=
-able for<br>
-AOSP. =A0You downloaded the jro03h files, expanded them, ran the extract<br=
->
-scripts, did a make clobber, and then rebuilt?<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Stephen Smalley<br>
-National Security Agency<br>
-<br>
-</font></span></blockquote></div><br>
-
---e89a8f6474fd34e24704ca1f75aa--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
