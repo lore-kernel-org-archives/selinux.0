@@ -1,36 +1,47 @@
-Message-ID: <1348153961.13835.26.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: seandroid 4.1.1
+Message-ID: <1348154318.13835.28.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: clean up in android.c
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Radzykewycz, T (Radzy)" <radzy@windriver.com>
-Cc: Alexandra Test <testalexandrainstitute@gmail.com>,
-        "selinux@tycho.nsa.gov"
-	 <selinux@tycho.nsa.gov>
-Date: Thu, 20 Sep 2012 11:12:41 -0400
-In-Reply-To: <33006C99F5A5194A9B7A7715DFA3E383651A15A2@ALA-MBA.corp.ad.wrs.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Thu, 20 Sep 2012 11:18:38 -0400
+In-Reply-To: <1348085999.12435.1.camel@moss-pluto.epoch.ncsc.mil>
 References: 
-	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
-	 <1348145727.13835.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuokYYQxCwf+SGga7UuguXBR14ZSneFMOfFQ-g0qX5btMA@mail.gmail.com>
-	 <1348149606.13835.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Puo9rREhxm_CTEYaRJtZJKf2XdK=EO0-jjDE+cQ12g-Zrg@mail.gmail.com>
-	 <33006C99F5A5194A9B7A7715DFA3E383651A15A2@ALA-MBA.corp.ad.wrs.com>
+	<CAFftDdrK8sR=HuHxryryzDjfFOSz_GBsLusPrdsGqXe79YVsYA@mail.gmail.com>
+	 <1347975644.29192.15.camel@moss-pluto.epoch.ncsc.mil>
+	 <1348083729.11612.4.camel@moss-pluto.epoch.ncsc.mil>
+	 <1348085999.12435.1.camel@moss-pluto.epoch.ncsc.mil>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2012-09-20 at 14:48 +0000, Radzykewycz, T (Radzy) wrote:
-> Try using “adb shell dmesg” or “adb shell –c dmesg” or “adb shell su –
-> c dmesg” or “adb shell su 0 –c dmesg”
+On Wed, 2012-09-19 at 16:19 -0400, Stephen Smalley wrote:
+> On Wed, 2012-09-19 at 15:42 -0400, Stephen Smalley wrote:
+> > On Tue, 2012-09-18 at 09:40 -0400, Stephen Smalley wrote:
+> > > I think the setcon and setfilecon2 code could be further unified so that
+> > > the entire logic for matching an entry is encapsulated in a single
+> > > helper function that takes a bool argument indicating whether it is
+> > > looking for a domain or type entry.
+> > 
+> > So the attached patch does the first part above - unify the seapp
+> > context lookup logic from setcon and setfilecon2, without making any
+> > changes to how the username mapping is performed.
+> > 
+> > > We might also want to reconsider how we map the app usernames to a
+> > > string for seapp_contexts.  I just remapped the new format to the app_
+> > > prefix so that there would be no breakage going from ICS to JB, but it
+> > > is a bit misleading.
+> 
+> And attached is a second patch on top of the first that reworks the
+> mapping of UIDs to avoid the use of getpwuid() and name parsing
+> altogether.
 
-With 4.1/master, dmesg will only work for root, which is why you have to
-su first.
+For those following on the list, these two patches were combined and
+uploaded as:
+https://android-review.googlesource.com/#/c/43210/
 
-This is controlled by /proc/sys/kernel/dmesg_restrict, which is set to 1
-by the init.rc file in 4.1 and master.  Only for kernels which support
-it, of course, which would be 2.6.38 and later.
+And a separate patch for sepolicy to handle isolated services:
+https://android-review.googlesource.com/#/c/43221/
 
 -- 
 Stephen Smalley
