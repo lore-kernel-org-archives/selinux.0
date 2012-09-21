@@ -1,37 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8KHLacc026373
-	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2012 13:21:36 -0400
-Received: from moss-lions.epoch.ncsc.mil (localhost [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.5/8.14.5) with ESMTP id q8KHOMSK012811
-	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2012 13:24:22 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.5/8.14.5/Submit) id q8KHOMhM012810
-	for selinux@tycho.nsa.gov; Thu, 20 Sep 2012 13:24:22 -0400
-Received: from [144.51.25.131] (moss-pluto [144.51.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8KH4Am8025237
-	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2012 13:04:10 -0400
-Message-ID: <1348160471.13835.39.camel@moss-pluto.epoch.ncsc.mil>
-Subject: SE Android:  New list set up
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Thu, 20 Sep 2012 13:01:11 -0400
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8L4oga4027882
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2012 00:50:42 -0400
+Received: from [10.184.248.188] (46.sub-70-197-144.myvzw.com [70.197.144.46])
+	(authenticated bits=0)
+	by adriana.anzavalley.net (8.13.8/8.13.8) with ESMTP id q8L4ocNK010512
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2012 21:50:39 -0700
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----08SSAKEAZZQJTA1MU8FOVQJ9T4IJ50"
+Subject: Source policy files for Tomcat?
+From: "Chris O'Neil" <support@anzavalley.net>
+Date: Thu, 20 Sep 2012 21:50:47 -0700
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <6895ab64-a449-4d80-a8da-5c839fd085b2@email.android.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+------08SSAKEAZZQJTA1MU8FOVQJ9T4IJ50
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-We have set up a new seandroid-list mailing list for SE Android
-discussions. You can subscribe to it by sending an email containing
-"subscribe seandroid-list" as the body (not the subject) to
-majordomo@tycho.nsa.gov.  Going forward, any SE Android specific
-questions should be directed to the seandroid-list, not selinux.
-The wiki has been updated to reflect this change.
+Can anyone tell me where the source policy files for Tomcat are located please?  They are not found in my F17 serefpolicy-3.10.0 source.  I can see the tomcat.pp file in my /etc/selinux/targeted/modules/active/modules/ directory and I have all the .te and .fc files for all the other modules in my BUILD/serefpolicy-3.10.0/policy/modules/ ...
+Thanks!
+-chris
 
 -- 
-Stephen Smalley
-National Security Agency
+Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+------08SSAKEAZZQJTA1MU8FOVQJ9T4IJ50
+Content-Type: text/html;
+ charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><head/><body>Can anyone tell me where the source policy files for Tomcat are located please?  They are not found in my F17 serefpolicy-3.10.0 source.  I can see the tomcat.pp file in my /etc/selinux/targeted/modules/active/modules/ directory and I have all the .te and .fc files for all the other modules in my BUILD/serefpolicy-3.10.0/policy/modules/ ...<br>
+Thanks!<br>
+-chris<br>
+<br>
+-- <br>
+Sent from my Android phone with K-9 Mail. Please excuse my brevity.</body></html>
+------08SSAKEAZZQJTA1MU8FOVQJ9T4IJ50--
 
 
 --
