@@ -1,46 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8L8kGaE005685
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2012 04:46:16 -0400
-Received: by vchn11 with SMTP id n11so4212382vch.12
-        for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2012 01:46:14 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20120920163132.GA24398@mail.hallyn.com>
-References: <1347545325.15047.34.camel@moss-pluto.epoch.ncsc.mil>
-	<5051FB6A.8040106@redhat.com>
-	<20120915022200.GB6438@mail.hallyn.com>
-	<1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
-	<5058A22E.7010407@redhat.com>
-	<1347988800.31966.58.camel@moss-pluto.epoch.ncsc.mil>
-	<20120920163132.GA24398@mail.hallyn.com>
-Date: Fri, 21 Sep 2012 10:46:14 +0200
-Message-ID: <CAPzO=Nw7vE6Q9ncy-vWauQCzTsEBzj75ExREg0j+B-r637+SzA@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Allow test domains to read /etc/passwd
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=20cf307ca332cab6e904ca324581
+Message-ID: <1348234708.9436.12.camel@moss-pluto.epoch.ncsc.mil>
+Subject: Re: seandroid 4.1.1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alexandra Test <testalexandrainstitute@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Date: Fri, 21 Sep 2012 09:38:28 -0400
+In-Reply-To: <CAKi3Puq_+QXKKR+YoNJ1M0niBtdOGJY5JuRV9nP0cnjsAB3qEw@mail.gmail.com>
+References: 
+	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
+	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
+	 <1348145727.13835.5.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3PuokYYQxCwf+SGga7UuguXBR14ZSneFMOfFQ-g0qX5btMA@mail.gmail.com>
+	 <1348149606.13835.21.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3Puo9rREhxm_CTEYaRJtZJKf2XdK=EO0-jjDE+cQ12g-Zrg@mail.gmail.com>
+	 <1348152509.13835.23.camel@moss-pluto.epoch.ncsc.mil>
+	 <CAKi3Puq_+QXKKR+YoNJ1M0niBtdOGJY5JuRV9nP0cnjsAB3qEw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---20cf307ca332cab6e904ca324581
-Content-Type: text/plain; charset=ISO-8859-1
+On Fri, 2012-09-21 at 10:05 +0200, Alexandra Test wrote:
+> The output of 
+> adb shell
+> su
+> dmesg
+> 
+> is 
+> 
+> "klogctl: Operation not permitted"
 
-On Sep 20, 2012 6:34 PM, "Serge E. Hallyn" <serge@hallyn.com> wrote:
-> Thanks, applied.
+That suggests that su didn't work for you?  Earlier you indicated that
+your su program is not the stock AOSP one but rather one from
+Superuser.apk.  I'd recommend building a stock SE Android image without
+Superuser.apk.
 
-Can we please get auth_read_passwd defined in refpolicy then? If anything,
-have it grant read access to etc_t. Otherwise tests in other distributions
-but fedora will fail.
+-- 
+Stephen Smalley
+National Security Agency
 
---20cf307ca332cab6e904ca324581
-Content-Type: text/html; charset=ISO-8859-1
-
-<p><br>
-On Sep 20, 2012 6:34 PM, &quot;Serge E. Hallyn&quot; &lt;<a href="mailto:serge@hallyn.com">serge@hallyn.com</a>&gt; wrote:<br>
-&gt; Thanks, applied.</p>
-<p>Can we please get auth_read_passwd defined in refpolicy then? If anything, have it grant read access to etc_t. Otherwise tests in other distributions but fedora will fail.<br>
-</p>
-
---20cf307ca332cab6e904ca324581--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
