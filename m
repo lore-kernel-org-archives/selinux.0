@@ -1,39 +1,48 @@
-Message-ID: <1348234708.9436.12.camel@moss-pluto.epoch.ncsc.mil>
-Subject: Re: seandroid 4.1.1
+Message-ID: <1348235436.9436.17.camel@moss-pluto.epoch.ncsc.mil>
+Subject: [PATCH] selinux-testsuite: Wrap auth_read_passwd with
+ ifdef(`distro_redhat') .
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexandra Test <testalexandrainstitute@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 21 Sep 2012 09:38:28 -0400
-In-Reply-To: <CAKi3Puq_+QXKKR+YoNJ1M0niBtdOGJY5JuRV9nP0cnjsAB3qEw@mail.gmail.com>
-References: 
-	<CAKi3PupyLSM2UktjTaS8U-WKmiRSpRdSJApn2vRETfEx83qNfg@mail.gmail.com>
-	 <1347988424.31966.56.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Puqw0r=d31S+8N5_=JDN4_bK3TH2EODogOfAxTFxvDsdpg@mail.gmail.com>
-	 <1348145727.13835.5.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3PuokYYQxCwf+SGga7UuguXBR14ZSneFMOfFQ-g0qX5btMA@mail.gmail.com>
-	 <1348149606.13835.21.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Puo9rREhxm_CTEYaRJtZJKf2XdK=EO0-jjDE+cQ12g-Zrg@mail.gmail.com>
-	 <1348152509.13835.23.camel@moss-pluto.epoch.ncsc.mil>
-	 <CAKi3Puq_+QXKKR+YoNJ1M0niBtdOGJY5JuRV9nP0cnjsAB3qEw@mail.gmail.com>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Cc: SELinux <selinux@tycho.nsa.gov>, Serge Hallyn <serge@hallyn.com>
+Date: Fri, 21 Sep 2012 09:50:36 -0400
+In-Reply-To: <CAPzO=Nw7vE6Q9ncy-vWauQCzTsEBzj75ExREg0j+B-r637+SzA@mail.gmail.com>
+References: <1347545325.15047.34.camel@moss-pluto.epoch.ncsc.mil>
+	 <5051FB6A.8040106@redhat.com> <20120915022200.GB6438@mail.hallyn.com>
+	 <1347975902.29192.17.camel@moss-pluto.epoch.ncsc.mil>
+	 <5058A22E.7010407@redhat.com>
+	 <1347988800.31966.58.camel@moss-pluto.epoch.ncsc.mil>
+	 <20120920163132.GA24398@mail.hallyn.com>
+	 <CAPzO=Nw7vE6Q9ncy-vWauQCzTsEBzj75ExREg0j+B-r637+SzA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2012-09-21 at 10:05 +0200, Alexandra Test wrote:
-> The output of 
-> adb shell
-> su
-> dmesg
-> 
-> is 
-> 
-> "klogctl: Operation not permitted"
 
-That suggests that su didn't work for you?  Earlier you indicated that
-your su program is not the stock AOSP one but rather one from
-Superuser.apk.  I'd recommend building a stock SE Android image without
-Superuser.apk.
+Wrap Fedora-specific policy with an ifdef.  Alternative would be to fork
+a copy of the test policy per distro under policy/<distro>/<release> as
+we have already done for redhat 4 and 5.
+But I'd prefer to only do that for long-term stable/enterprise releases
+that won't be changing very often.
+
+---
+ policy/test_global.te | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/policy/test_global.te b/policy/test_global.te
+index fdfd291..b92cc1c 100644
+--- a/policy/test_global.te
++++ b/policy/test_global.te
+@@ -89,4 +89,6 @@ selinux_compute_create_context(testdomain)
+ selinux_compute_relabel_context(testdomain)
+ selinux_compute_user_contexts(testdomain)
+ 
++ifdef(`distro_redhat', `
+ auth_read_passwd(testdomain)
++')
+-- 
+1.7.11.4
+
 
 -- 
 Stephen Smalley
