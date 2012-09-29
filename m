@@ -1,44 +1,36 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8SJJ9iF016372
-	for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2012 15:19:09 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q8SJIZBE010632
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2012 15:18:36 -0400
-Received: from [10.11.10.123] (vpn-10-123.rdu.redhat.com [10.11.10.123])
-	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id q8SJIZiT012629
-	for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2012 15:18:35 -0400
-Message-ID: <1348859914.2845.4.camel@localhost>
-Subject: semanage: should -a imply -m?
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Fri, 28 Sep 2012 15:18:34 -0400
-Content-Type: text/plain; charset="us-ascii"
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q8TCdggH029829
+	for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2012 08:39:42 -0400
+Message-ID: <5066EBED.3060609@hp.com>
+Date: Sat, 29 Sep 2012 08:39:09 -0400
+From: "Sutton, Harry (GSE)" <harry.sutton@hp.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: semanage: should -a imply -m?
+References: <1348859914.2845.4.camel@localhost>
+In-Reply-To: <1348859914.2845.4.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dan has a patch in Fedora which causes semanage -a to act like semanage
--m if the record already exists instead of raising an error and
-aborting.  Example of the patch is below:
+On 09/28/2012 03:18 PM, Eric Paris wrote:
+> What do others think about this?  Should we cause -a to act like -m or
+> should it abort?  Should we force the -a ->  -m logic up to the caller?
+> I guess I'm fine with either.  Is semanage -a enough like semodule -i
+> and -m like -u that this would actually be expected behavior?
+>
+I'm inclined to think it should be the other way around, that is, -m 
+should act like -a.
 
+If you create a new rule using semanage -a that differs in multiple but 
+potentially subtle ways from an existing entry you are unaware of, the 
+result may not be at all what you wanted; in that case, the user should 
+be warned that the record already exists. Maybe a compromise, to improve 
+usability, would be to test for single vs multiple changes before 
+throwing an error.
 
-@@ -493,7 +493,9 @@ class loginRecords(semanageRecords):
-                if rc < 0:
-                        raise ValueError(_("Could not check if login mapping for %s is defined") % name)
-                if exists:
--                       raise ValueError(_("Login mapping for %s is already defined") % name)
-+                       semanage_seuser_key_free(k)
-+                       return self.__modify(name, sename, serange)
-+
-
-What do others think about this?  Should we cause -a to act like -m or
-should it abort?  Should we force the -a -> -m logic up to the caller?
-I guess I'm fine with either.  Is semanage -a enough like semodule -i
-and -m like -u that this would actually be expected behavior?
-
--Eric
-
+     /Harry
 
 --
 This message was distributed to subscribers of the selinux mailing list.
