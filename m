@@ -1,26 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91JP0Ob028446
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 15:25:00 -0400
-Received: by mail-wi0-f171.google.com with SMTP id hj13so2591200wib.12
-        for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2012 12:24:27 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91KU1sw032003
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 16:30:01 -0400
+Received: by mail-wi0-f171.google.com with SMTP id hj13so2661102wib.12
+        for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2012 13:29:46 -0700 (PDT)
 MIME-Version: 1.0
 In-Reply-To: <1349109117-593-5-git-send-email-bigon@debian.org>
 References: <1349109117-593-1-git-send-email-bigon@debian.org>
 	<1349109117-593-5-git-send-email-bigon@debian.org>
-Date: Mon, 1 Oct 2012 15:24:27 -0400
-Message-ID: <CACLa4ptgGmDTQTHzU8Op5JQdCAeiSc0YUUMA9JLAO_ngQ_ZO4w@mail.gmail.com>
+Date: Mon, 1 Oct 2012 16:29:46 -0400
+Message-ID: <CACLa4psUxc-8crv8WgCJZs8gv6raPm=MaQw4Dgj0z9urnzbN1Q@mail.gmail.com>
 Subject: Re: [PATCH 04/15] policycoreutils: Add new open_init_pty that doesn't
  waste CPU time
 From: Eric Paris <eparis@parisplace.org>
 To: Laurent Bigonville <bigon@debian.org>
-Cc: selinux@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I applied all of these to my devel tree except this one.  It's huge
-and I don't know why we need it, or want it, or want C++ or
-whatever...
+Russell, can you review and sign off on this patch?  If it matches
+your expectations I'll push it to the upstream policycoreutils.
 
 -Eric
 
