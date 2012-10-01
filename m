@@ -1,56 +1,92 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q919NLL2024992
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 05:23:22 -0400
-Message-ID: <506960E5.5040609@redhat.com>
-Date: Mon, 01 Oct 2012 05:22:45 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Sutton, Harry (GSE)" <harry.sutton@hp.com>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: semanage: should -a imply -m?
-References: <1348859914.2845.4.camel@localhost> <5066EBED.3060609@hp.com>
-In-Reply-To: <5066EBED.3060609@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91GWubf017392
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 12:32:57 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id 752971AAEE
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:40 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id f0vVJ0YX9dgX for <selinux@tycho.nsa.gov>;
+	Mon,  1 Oct 2012 18:32:39 +0200 (CEST)
+Received: from eldamar.bigon.be (d54C6D43E.access.telenet.be [84.198.212.62])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id 307691A095
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:38 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 12/15] checkpolicy: Fix cases where hyphen were used as minus sign in manpages
+Date: Mon,  1 Oct 2012 18:31:54 +0200
+Message-Id: <1349109117-593-13-git-send-email-bigon@debian.org>
+In-Reply-To: <1349109117-593-1-git-send-email-bigon@debian.org>
+References: <1349109117-593-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: Laurent Bigonville <bigon@bigon.be>
 
-On 09/29/2012 08:39 AM, Sutton, Harry (GSE) wrote:
-> On 09/28/2012 03:18 PM, Eric Paris wrote:
->> What do others think about this?  Should we cause -a to act like -m or 
->> should it abort?  Should we force the -a ->  -m logic up to the caller? I
->> guess I'm fine with either.  Is semanage -a enough like semodule -i and
->> -m like -u that this would actually be expected behavior?
->> 
-> I'm inclined to think it should be the other way around, that is, -m should
-> act like -a.
-> 
-> If you create a new rule using semanage -a that differs in multiple but 
-> potentially subtle ways from an existing entry you are unaware of, the
-> result may not be at all what you wanted; in that case, the user should be
-> warned that the record already exists. Maybe a compromise, to improve
-> usability, would be to test for single vs multiple changes before throwing
-> an error.
-> 
-> /Harry
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-The reason this was added to Fedora was the case of someone adding a port
-definition on file context definition in a post install.  They did not want to
-have to figure out if the definition was there or not.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
+---
+ checkpolicy/checkmodule.8 |    6 +++---
+ checkpolicy/checkpolicy.8 |    4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-iEYEARECAAYFAlBpYOUACgkQrlYvE4MpobNi9QCgpuleyly9bWJx4PmhWpd5OmJr
-tXQAnRd8BdGz5ttYP3jKVQ3TeLwp0K5Q
-=DXZM
------END PGP SIGNATURE-----
+diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
+index 40f73c5..2a7ab5c 100644
+--- a/checkpolicy/checkmodule.8
++++ b/checkpolicy/checkmodule.8
+@@ -3,7 +3,7 @@
+ checkmodule \- SELinux policy module compiler
+ .SH SYNOPSIS
+ .B checkmodule
+-.I "[-h] [-b] [-m] [-M] [-U handle_unknown ] [-V] [-o output_file] [input_file]"
++.I "[\-h] [\-b] [\-m] [\-M] [\-U handle_unknown ] [\-V] [\-o output_file] [input_file]"
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR checkmodule
+@@ -12,7 +12,7 @@ command.
+ .B checkmodule
+ is a program that checks and compiles a SELinux security policy module
+ into a binary representation.  It can generate either a base policy
+-module (default) or a non-base policy module (-m option); typically,
++module (default) or a non-base policy module (\-m option); typically,
+ you would build a non-base policy module to add to an existing module
+ store that already has a base module provided by the base policy.  Use
+ semodule_package to combine this module with its optional file
+@@ -48,7 +48,7 @@ Specify how the kernel should handle unknown classes or permissions (deny, allow
+ .SH EXAMPLE
+ .nf
+ # Build a MLS/MCS-enabled non-base policy module.
+-$ checkmodule -M -m httpd.te -o httpd.mod
++$ checkmodule \-M \-m httpd.te \-o httpd.mod
+ .fi
+ 
+ .SH "SEE ALSO"
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index 6826938..0086bdc 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -3,7 +3,7 @@
+ checkpolicy \- SELinux policy compiler
+ .SH SYNOPSIS
+ .B checkpolicy
+-.I "[-b] [-d] [-M] [-c policyvers] [-o output_file] [input_file]"
++.I "[\-b] [\-d] [\-M] [\-c policyvers] [\-o output_file] [input_file]"
+ .br
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -14,7 +14,7 @@ command.
+ is a program that checks and compiles a SELinux security policy configuration
+ into a binary representation that can be loaded into the kernel.  If no 
+ input file name is specified, checkpolicy will attempt to read from
+-policy.conf or policy, depending on whether the -b flag is specified.
++policy.conf or policy, depending on whether the \-b flag is specified.
+ 
+ .SH OPTIONS
+ .TP
+-- 
+1.7.10.4
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
