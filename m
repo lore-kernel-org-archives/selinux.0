@@ -1,47 +1,56 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q919NLL2024992
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 05:23:22 -0400
+Message-ID: <506960E5.5040609@redhat.com>
+Date: Mon, 01 Oct 2012 05:22:45 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Date: Sun, 30 Sep 2012 19:42:48 -0400
-Message-ID: <CALS9afXC2gZGXyHupkGRySakK+Rmu1qBZ1FYNHSDiyynZqQSZQ@mail.gmail.com>
-Subject: apol permission map weights
-From: Hayawardh Vijayakumar <hvijay@cse.psu.edu>
-To: SELinux@tycho.nsa.gov
+To: "Sutton, Harry (GSE)" <harry.sutton@hp.com>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: semanage: should -a imply -m?
+References: <1348859914.2845.4.camel@localhost> <5066EBED.3060609@hp.com>
+In-Reply-To: <5066EBED.3060609@hp.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dear all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is a question regarding the weights for the permission mappings
-from APOL (the file apol_perm_mapping_ver24 at e.g.,
-http://oss.tresys.com/repos/setools/trunk/apol/perm_maps/apol_perm_mapping_ver24).
-The documentation on page
-http://oss.tresys.com/projects/setools/wiki/helpFiles/iflow_help says
+On 09/29/2012 08:39 AM, Sutton, Harry (GSE) wrote:
+> On 09/28/2012 03:18 PM, Eric Paris wrote:
+>> What do others think about this?  Should we cause -a to act like -m or 
+>> should it abort?  Should we force the -a ->  -m logic up to the caller? I
+>> guess I'm fine with either.  Is semanage -a enough like semodule -i and
+>> -m like -u that this would actually be expected behavior?
+>> 
+> I'm inclined to think it should be the other way around, that is, -m should
+> act like -a.
+> 
+> If you create a new rule using semanage -a that differs in multiple but 
+> potentially subtle ways from an existing entry you are unaware of, the
+> result may not be at all what you wanted; in that case, the user should be
+> warned that the record already exists. Maybe a compromise, to improve
+> usability, would be to test for single vs multiple changes before throwing
+> an error.
+> 
+> /Harry
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+The reason this was added to Fedora was the case of someone adding a port
+definition on file context definition in a post install.  They did not want to
+have to figure out if the definition was there or not.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
 
-"In addition to mapping each permission to read, write, both, or none,
-it is possible to assign the permission a weight between 1 and 10 (the
-default is 10).  Apol uses this weight to rate the importance of the
-information flow this permission represents and allows the user to
-make fine-grained distinctions between high-bandwidth, overt
-information flows and low-bandwidth, or difficult to exploit, covert
-information flows.  For example, the permissions "read" and "write" on
-the file object could be given a weight of 10 because they are very
-high-bandwidth information flows.  Additionally, the "use" permission
-on the fd object (file descriptor) would probably be given a weight of
-1 as it is a very low-bandwidth covert flow at best. "
-
-However, the append permission on class file is given a weight of only
-1, whereas write is given 10:
-
-class file 21
-...
-            append	 w           1
-...
-            write	         w          10
-
-Appending to a file causes a flow of as big a bandwidth as write. Can
-someone please explain why append is given so low a weight?
-
-Thanks,
-Hayawardh
+iEYEARECAAYFAlBpYOUACgkQrlYvE4MpobNi9QCgpuleyly9bWJx4PmhWpd5OmJr
+tXQAnRd8BdGz5ttYP3jKVQ3TeLwp0K5Q
+=DXZM
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
