@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91GWvZx017398
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91GWubd017392
 	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 12:32:57 -0400
 Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id 860B41AAEC
-	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:25 +0200 (CEST)
+	by anor.bigon.be (Postfix) with ESMTP id 8F2541AAED
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:13 +0200 (CEST)
 Received: from anor.bigon.be ([127.0.0.1])
 	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EnSR_dFxI6GU for <selinux@tycho.nsa.gov>;
-	Mon,  1 Oct 2012 18:32:24 +0200 (CEST)
+	with ESMTP id dSA7QW-q-q3B for <selinux@tycho.nsa.gov>;
+	Mon,  1 Oct 2012 18:32:11 +0200 (CEST)
 Received: from eldamar.bigon.be (d54C6D43E.access.telenet.be [84.198.212.62])
 	(using TLSv1 with cipher AES128-SHA (128/128 bits))
 	(Client did not present a certificate)
 	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id 5C7741AAED
-	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:23 +0200 (CEST)
+	by anor.bigon.be (Postfix) with ESMTPSA id D7F3D1AAD9
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:10 +0200 (CEST)
 From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 06/15] libsepol: Allow overriding LIBBASE in src/Makefile
-Date: Mon,  1 Oct 2012 18:31:48 +0200
-Message-Id: <1349109117-593-7-git-send-email-bigon@debian.org>
+Subject: [PATCH 01/15] Policycoreutils: Allow overriding INITDIR in restorecond Makefile
+Date: Mon,  1 Oct 2012 18:31:43 +0200
+Message-Id: <1349109117-593-2-git-send-email-bigon@debian.org>
 In-Reply-To: <1349109117-593-1-git-send-email-bigon@debian.org>
 References: <1349109117-593-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
@@ -27,22 +27,22 @@ List-Id: selinux@tycho.nsa.gov
 From: Laurent Bigonville <bigon@bigon.be>
 
 ---
- libsepol/src/Makefile |    2 +-
+ policycoreutils/restorecond/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index cd8e767..79de6dc 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -3,7 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
- INCLUDEDIR ?= $(PREFIX)/include
- LIBDIR ?= $(PREFIX)/lib
- SHLIBDIR ?= $(DESTDIR)/lib
--LIBBASE=$(shell basename $(LIBDIR))
-+LIBBASE ?= $(shell basename $(LIBDIR))
+diff --git a/policycoreutils/restorecond/Makefile b/policycoreutils/restorecond/Makefile
+index 3074542..23f458d 100644
+--- a/policycoreutils/restorecond/Makefile
++++ b/policycoreutils/restorecond/Makefile
+@@ -7,7 +7,7 @@ AUTOSTARTDIR = $(DESTDIR)/etc/xdg/autostart
+ DBUSSERVICEDIR = $(DESTDIR)/usr/share/dbus-1/services
  
- VERSION = $(shell cat ../VERSION)
- LIBVERSION = 1
+ autostart_DATA = sealertauto.desktop
+-INITDIR = $(DESTDIR)/etc/rc.d/init.d
++INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
+ SELINUXDIR = $(DESTDIR)/etc/selinux
+ 
+ DBUSFLAGS = -DHAVE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/lib/dbus-1.0/include
 -- 
 1.7.10.4
 
