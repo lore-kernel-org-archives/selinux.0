@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91GWubf017392
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 12:32:57 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q91GWubi017392
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2012 12:32:58 -0400
 Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id 752971AAEE
-	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:40 +0200 (CEST)
+	by anor.bigon.be (Postfix) with ESMTP id 75B5D1A095
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:45 +0200 (CEST)
 Received: from anor.bigon.be ([127.0.0.1])
 	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f0vVJ0YX9dgX for <selinux@tycho.nsa.gov>;
-	Mon,  1 Oct 2012 18:32:39 +0200 (CEST)
+	with ESMTP id x9ZT3Bs0svxv for <selinux@tycho.nsa.gov>;
+	Mon,  1 Oct 2012 18:32:44 +0200 (CEST)
 Received: from eldamar.bigon.be (d54C6D43E.access.telenet.be [84.198.212.62])
 	(using TLSv1 with cipher AES128-SHA (128/128 bits))
 	(Client did not present a certificate)
 	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id 307691A095
-	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:38 +0200 (CEST)
+	by anor.bigon.be (Postfix) with ESMTPSA id 5E3AC1AAEC
+	for <selinux@tycho.nsa.gov>; Mon,  1 Oct 2012 18:32:43 +0200 (CEST)
 From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 12/15] checkpolicy: Fix cases where hyphen were used as minus sign in manpages
-Date: Mon,  1 Oct 2012 18:31:54 +0200
-Message-Id: <1349109117-593-13-git-send-email-bigon@debian.org>
+Subject: [PATCH 14/15] libsepol: Fix cases where hyphen were used as minus sign in manpages
+Date: Mon,  1 Oct 2012 18:31:56 +0200
+Message-Id: <1349109117-593-15-git-send-email-bigon@debian.org>
 In-Reply-To: <1349109117-593-1-git-send-email-bigon@debian.org>
 References: <1349109117-593-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
@@ -27,63 +27,47 @@ List-Id: selinux@tycho.nsa.gov
 From: Laurent Bigonville <bigon@bigon.be>
 
 ---
- checkpolicy/checkmodule.8 |    6 +++---
- checkpolicy/checkpolicy.8 |    4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ libsepol/man/man3/sepol_check_context.3 |    2 +-
+ libsepol/man/man3/sepol_genbools.3      |    2 +-
+ libsepol/man/man3/sepol_genusers.3      |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
-index 40f73c5..2a7ab5c 100644
---- a/checkpolicy/checkmodule.8
-+++ b/checkpolicy/checkmodule.8
-@@ -3,7 +3,7 @@
- checkmodule \- SELinux policy module compiler
- .SH SYNOPSIS
- .B checkmodule
--.I "[-h] [-b] [-m] [-M] [-U handle_unknown ] [-V] [-o output_file] [input_file]"
-+.I "[\-h] [\-b] [\-m] [\-M] [\-U handle_unknown ] [\-V] [\-o output_file] [input_file]"
- .SH "DESCRIPTION"
- This manual page describes the
- .BR checkmodule
-@@ -12,7 +12,7 @@ command.
- .B checkmodule
- is a program that checks and compiles a SELinux security policy module
- into a binary representation.  It can generate either a base policy
--module (default) or a non-base policy module (-m option); typically,
-+module (default) or a non-base policy module (\-m option); typically,
- you would build a non-base policy module to add to an existing module
- store that already has a base module provided by the base policy.  Use
- semodule_package to combine this module with its optional file
-@@ -48,7 +48,7 @@ Specify how the kernel should handle unknown classes or permissions (deny, allow
- .SH EXAMPLE
- .nf
- # Build a MLS/MCS-enabled non-base policy module.
--$ checkmodule -M -m httpd.te -o httpd.mod
-+$ checkmodule \-M \-m httpd.te \-o httpd.mod
- .fi
+diff --git a/libsepol/man/man3/sepol_check_context.3 b/libsepol/man/man3/sepol_check_context.3
+index a63cd56..4a3c57d 100644
+--- a/libsepol/man/man3/sepol_check_context.3
++++ b/libsepol/man/man3/sepol_check_context.3
+@@ -22,4 +22,4 @@ policy on a SELinux system, use
+ from libselinux instead.
  
- .SH "SEE ALSO"
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index 6826938..0086bdc 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
-@@ -3,7 +3,7 @@
- checkpolicy \- SELinux policy compiler
- .SH SYNOPSIS
- .B checkpolicy
--.I "[-b] [-d] [-M] [-c policyvers] [-o output_file] [input_file]"
-+.I "[\-b] [\-d] [\-M] [\-c policyvers] [\-o output_file] [input_file]"
- .br
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -14,7 +14,7 @@ command.
- is a program that checks and compiles a SELinux security policy configuration
- into a binary representation that can be loaded into the kernel.  If no 
- input file name is specified, checkpolicy will attempt to read from
--policy.conf or policy, depending on whether the -b flag is specified.
-+policy.conf or policy, depending on whether the \-b flag is specified.
+ .SH "RETURN VALUE"
+-Returns 0 on success or -1 with errno set otherwise.
++Returns 0 on success or \-1 with errno set otherwise.
+diff --git a/libsepol/man/man3/sepol_genbools.3 b/libsepol/man/man3/sepol_genbools.3
+index 0a30137..ca5b5a6 100644
+--- a/libsepol/man/man3/sepol_genbools.3
++++ b/libsepol/man/man3/sepol_genbools.3
+@@ -21,7 +21,7 @@ does likewise, but obtains the boolean settings from the parallel arrays
+ (names, values) with nel elements each.
  
- .SH OPTIONS
- .TP
+ .SH "RETURN VALUE"
+-Returns 0 on success or -1 otherwise, with errno set appropriately.
++Returns 0 on success or \-1 otherwise, with errno set appropriately.
+ An errno of ENOENT indicates that the boolean file did not exist.
+ An errno of EINVAL indicates that one or more booleans listed in the
+ boolean file was undefined in the policy or had an invalid value specified;
+diff --git a/libsepol/man/man3/sepol_genusers.3 b/libsepol/man/man3/sepol_genusers.3
+index 05dff00..1f820ff 100644
+--- a/libsepol/man/man3/sepol_genusers.3
++++ b/libsepol/man/man3/sepol_genusers.3
+@@ -44,7 +44,7 @@ set to 1 prior to calling
+ in order to enable deletion of such users.
+ 
+ .SH "RETURN VALUE"
+-Returns 0 on success or -1 otherwise, with errno set appropriately.
++Returns 0 on success or \-1 otherwise, with errno set appropriately.
+ An errno of ENOENT indicates that one or both of the user
+ configuration files did not exist.  An errno of EINVAL indicates that
+ either the original binary policy image or the generated one were
 -- 
 1.7.10.4
 
