@@ -1,50 +1,41 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q92FAXlo026546
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2012 11:10:33 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by anor.bigon.be (Postfix) with ESMTP id 9EE541AAD9
-	for <selinux@tycho.nsa.gov>; Tue,  2 Oct 2012 17:10:24 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
-	by localhost (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f-RMKbp3mfmb for <selinux@tycho.nsa.gov>;
-	Tue,  2 Oct 2012 17:10:19 +0200 (CEST)
-Received: from eldamar.bigon.be (d54C6D43E.access.telenet.be [84.198.212.62])
-	(using TLSv1 with cipher AES128-SHA (128/128 bits))
-	(Client did not present a certificate)
-	(Authenticated sender: bigon)
-	by anor.bigon.be (Postfix) with ESMTPSA id B3FB21A095
-	for <selinux@tycho.nsa.gov>; Tue,  2 Oct 2012 17:10:18 +0200 (CEST)
+Date: Tue, 2 Oct 2012 17:12:42 +0200
 From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils: Fix semange alternative logging code
-Date: Tue,  2 Oct 2012 17:10:15 +0200
-Message-Id: <1349190615-15198-1-git-send-email-bigon@debian.org>
+To: SELinux@tycho.nsa.gov
+Subject: semanage not properly logging new seuser
+Message-ID: <20121002171242.41f814cd@eldamar.bigon.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Laurent Bigonville <bigon@bigon.be>
+Hi,
 
-Fix semanage logging code when python-audit is not installed
----
- policycoreutils/semanage/seobject.py |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+When running "semanage login -m -s unconfined_u root" the following
+line is logged by audit.
 
-diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-index ad7dc8c..42d246f 100644
---- a/policycoreutils/semanage/seobject.py
-+++ b/policycoreutils/semanage/seobject.py
-@@ -87,7 +87,7 @@ except:
- 			self.log_list=[]
- 
- 		def log(self, msg, name = "", sename = "", serole = "", serange = "", oldsename = "", oldserole = "", oldserange = ""):
--			message += " %s name=%s" % (msg, name)
-+			message = " %s name=%s" % (msg, name)
- 			if sename != "":
- 				message += " sename=" + sename
- 			if oldsename != "":
--- 
-1.7.10.4
+type=ROLE_ASSIGN msg=audit(1349190214.690:761): pid=0 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:semanage_t:s0-s0:c0.c1023 msg='op=login-sename acct="root" old-seuser=unconfined_u old-role=system_r,unconfined_r old-range=s0-s0:c0.c1023 new-seuser=? new-role=system_r,unconfined_r new-range=s0-s0:c0.c1023 exe=/usr/sbin/semanage (hostname=?, addr=?, terminal=pts/1 res=success)'
 
+The line is missing the new-seuser value.
+
+Also note that without python-audit installed (and with the patch I
+just sent), semanage is just crashing with the following traceback:
+
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 569, in <module>
+    process_args(sys.argv[1:])
+  File "/usr/sbin/semanage", line 451, in process_args
+    OBJECT.modify(target, seuser, serange)
+  File "/usr/lib/python2.7/dist-packages/seobject.py", line 595, in modify
+    self.__modify(name, sename, serange)
+  File "/usr/lib/python2.7/dist-packages/seobject.py", line 590, in __modify
+    self.mylog.log("login", name,sename=self.sename,serange=self.serange, serole=",".join(serole), oldserole=",".join(oldserole), oldsename=self.oldsename, oldserange=self.oldserange);
+  File "/usr/lib/python2.7/dist-packages/seobject.py", line 92, in log
+    message += " sename=" + sename
+TypeError: cannot concatenate 'str' and 'NoneType' objects
+
+Cheers
+
+Laurent Bigonville
 
 --
 This message was distributed to subscribers of the selinux mailing list.
