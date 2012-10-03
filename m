@@ -1,78 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q93EXWYN001620
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2012 10:33:32 -0400
-Date: Wed, 3 Oct 2012 14:34:53 +0000
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: selinux@tycho.nsa.gov, serge@hallyn.com, jburke@redhat.com
-Subject: Re: [selinux-testsuite][PATCH] test_ptrace: fix policy to allow
- building with relro
-Message-ID: <20121003143453.GA5612@mail.hallyn.com>
-References: <0c7cd53d9b8658623c10d712f8d0f67b86524cf1.1349084369.git.jstancek@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q93JESuk013265
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2012 15:14:28 -0400
+Received: by vchn11 with SMTP id n11so10167764vch.12
+        for <selinux@tycho.nsa.gov>; Wed, 03 Oct 2012 12:14:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <0c7cd53d9b8658623c10d712f8d0f67b86524cf1.1349084369.git.jstancek@redhat.com>
+In-Reply-To: <CAPzO=NydFKroZ5_+_3NK1QYcn37QqAaDeSMW+7NGjc==iFKZQQ@mail.gmail.com>
+References: <CAPzO=NydFKroZ5_+_3NK1QYcn37QqAaDeSMW+7NGjc==iFKZQQ@mail.gmail.com>
+Date: Wed, 3 Oct 2012 21:14:21 +0200
+Message-ID: <CAPzO=NzdpGtzBA9o7r20sPohwG2rQe78umLp3C1n2yBh6T7HAw@mail.gmail.com>
+Subject: Re: run_init change in latest policycoreutils
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Jan Stancek (jstancek@redhat.com):
-> glibc can apply extra memory protection to certain areas
-> (data sections) when using partial or full RELRO,
-> marking them as read-only using mprotect.
-> 
-> If perl (or some bin_t utility in general) is built with
-> RELRO, ptrace test fails to execute 'wait', because of lack
-> of read permissions on /usr/bin/perl.
-> 
-> read_files_pattern or can_exec should suffice here, but
-> let's match other testcases and allow to execute all helper
-> programs in general.
-> 
-> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+On Sun, Sep 30, 2012 at 7:48 PM, Sven Vermeulen
+<sven.vermeulen@siphos.be> wrote:
+> The "Authenticating root." is normal. The execvp error isn't. I get
+> the following denial, but I don't think this is the cause of the error
+> (mainly because it worked previously):
+>
+> Sep 30 19:44:02 testsys kernel: [20516.783063] type=1400
+> audit(1349027042.720:264): avc:  denied  { entrypoint } for  pid=20672
+> comm="run_init" path="/sbin/rc-service" dev="vda1" ino=2373161
+> scontext=system_u:system_r:initrc_t tcontext=system_u:object_r:bin_t
+> tclass=file
+[...]
 
-thanks, applied.
+OK so allowing the following fixes the behavior, yet I'm still not
+aware why and if this additional rule is really a good idea. Of
+course, without any transition permission, having an entrypoint has no
+real threats with it, does it?
 
-> ---
->  policy/redhat/5/test_ptrace.te |    9 +++++++++
->  policy/test_ptrace.te          |    9 +++++++++
->  2 files changed, 18 insertions(+), 0 deletions(-)
-> 
-> diff --git a/policy/redhat/5/test_ptrace.te b/policy/redhat/5/test_ptrace.te
-> index 50e96fe..b514312 100644
-> --- a/policy/redhat/5/test_ptrace.te
-> +++ b/policy/redhat/5/test_ptrace.te
-> @@ -36,3 +36,12 @@ allow test_ptrace_traced_t test_ptrace_tracer_t:process sigchld;
->  # via a program in the test directory.
->  miscfiles_domain_entry_test_files(ptracedomain)
->  userdom_sysadm_entry_spec_domtrans_to(ptracedomain)
-> +
-> +# Allow execution of helper programs.
-> +corecmd_exec_bin(ptracedomain)
-> +domain_exec_all_entry_files(ptracedomain)
-> +files_exec_etc_files(ptracedomain)
-> +libs_use_ld_so(ptracedomain)
-> +libs_use_shared_libs(ptracedomain)
-> +libs_exec_ld_so(ptracedomain)
-> +libs_exec_lib_files(ptracedomain)
-> diff --git a/policy/test_ptrace.te b/policy/test_ptrace.te
-> index 41d474b..0ab9579 100644
-> --- a/policy/test_ptrace.te
-> +++ b/policy/test_ptrace.te
-> @@ -39,3 +39,12 @@ allow test_ptrace_traced_t test_ptrace_tracer_t:process sigchld;
->  # via a program in the test directory.
->  miscfiles_domain_entry_test_files(ptracedomain)
->  userdom_sysadm_entry_spec_domtrans_to(ptracedomain)
-> +
-> +# Allow execution of helper programs.
-> +corecmd_exec_bin(ptracedomain)
-> +domain_exec_all_entry_files(ptracedomain)
-> +files_exec_etc_files(ptracedomain)
-> +libs_use_ld_so(ptracedomain)
-> +libs_use_shared_libs(ptracedomain)
-> +libs_exec_ld_so(ptracedomain)
-> +libs_exec_lib_files(ptracedomain)
-> -- 
-> 1.7.1
+"""
+allow initrc_t bin_t:file entrypoint;
+"""
+
+Wkr,
+  Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
