@@ -1,41 +1,66 @@
-Date: Tue, 2 Oct 2012 17:12:42 +0200
-From: Laurent Bigonville <bigon@debian.org>
-To: SELinux@tycho.nsa.gov
-Subject: semanage not properly logging new seuser
-Message-ID: <20121002171242.41f814cd@eldamar.bigon.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q93EXWYO001620
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2012 10:33:36 -0400
+Date: Wed, 3 Oct 2012 14:35:03 +0000
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Jan Stancek <jstancek@redhat.com>
+Cc: selinux@tycho.nsa.gov, serge@hallyn.com, jburke@redhat.com
+Subject: Re: [selinux-testsuite][PATCH] corenet_all_recvfrom_unlabeled
+ requires domain
+Message-ID: <20121003143503.GB5612@mail.hallyn.com>
+References: <2cf0fd9176f69f6b74fde9360d71c2ca69355993.1349085660.git.jstancek@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <2cf0fd9176f69f6b74fde9360d71c2ca69355993.1349085660.git.jstancek@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Quoting Jan Stancek (jstancek@redhat.com):
+> Fedora 18 / RHEL7 introduced change to this interface and it no
+> longer allows attributes to be passed in:
+> 
+> interface(`corenet_all_recvfrom_unlabeled',`
+>     gen_require(`
+>                 attribute corenet_unlabeled_type;
+>     ')
+>     typeattribute $1 corenet_unlabeled_type;
+> ')
+> 
+> Bulding of policy failed with:
+>   Compiling targeted test_policy module
+>   test_policy.te":199:ERROR 'unknown type capabledomain' at token ';' on
+>   line 7291:
+>   #line 199
+>     typeattribute capabledomain corenet_unlabeled_type;
+>   /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> 
+> This patch is still using this interface, but it's passing affected
+> domain types.
+> 
 
-When running "semanage login -m -s unconfined_u root" the following
-line is logged by audit.
+Thanks, applied.
 
-type=ROLE_ASSIGN msg=audit(1349190214.690:761): pid=0 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:semanage_t:s0-s0:c0.c1023 msg='op=login-sename acct="root" old-seuser=unconfined_u old-role=system_r,unconfined_r old-range=s0-s0:c0.c1023 new-seuser=? new-role=system_r,unconfined_r new-range=s0-s0:c0.c1023 exe=/usr/sbin/semanage (hostname=?, addr=?, terminal=pts/1 res=success)'
-
-The line is missing the new-seuser value.
-
-Also note that without python-audit installed (and with the patch I
-just sent), semanage is just crashing with the following traceback:
-
-Traceback (most recent call last):
-  File "/usr/sbin/semanage", line 569, in <module>
-    process_args(sys.argv[1:])
-  File "/usr/sbin/semanage", line 451, in process_args
-    OBJECT.modify(target, seuser, serange)
-  File "/usr/lib/python2.7/dist-packages/seobject.py", line 595, in modify
-    self.__modify(name, sename, serange)
-  File "/usr/lib/python2.7/dist-packages/seobject.py", line 590, in __modify
-    self.mylog.log("login", name,sename=self.sename,serange=self.serange, serole=",".join(serole), oldserole=",".join(oldserole), oldsename=self.oldsename, oldserange=self.oldserange);
-  File "/usr/lib/python2.7/dist-packages/seobject.py", line 92, in log
-    message += " sename=" + sename
-TypeError: cannot concatenate 'str' and 'NoneType' objects
-
-Cheers
-
-Laurent Bigonville
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> ---
+>  policy/test_capable_net.te |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
+> diff --git a/policy/test_capable_net.te b/policy/test_capable_net.te
+> index f78528c..fab6650 100644
+> --- a/policy/test_capable_net.te
+> +++ b/policy/test_capable_net.te
+> @@ -30,7 +30,8 @@ corenet_udp_sendrecv_all_nodes(capabledomain)
+>  corenet_raw_sendrecv_all_nodes(capabledomain)
+>  corenet_tcp_sendrecv_all_ports(capabledomain)
+>  corenet_udp_sendrecv_all_ports(capabledomain)
+> -corenet_all_recvfrom_unlabeled(capabledomain)
+> +corenet_all_recvfrom_unlabeled(test_ncap_t)
+> +corenet_all_recvfrom_unlabeled(test_resncap_t)
+>  corenet_tcp_bind_all_nodes(capabledomain)
+>  corenet_udp_bind_all_nodes(capabledomain)
+>  sysnet_read_config(capabledomain)
+> -- 
+> 1.7.1
 
 --
 This message was distributed to subscribers of the selinux mailing list.
