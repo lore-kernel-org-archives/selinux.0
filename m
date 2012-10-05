@@ -1,10 +1,10 @@
-Message-ID: <1349454393.16023.52.camel@moss-pluto.epoch.ncsc.mil>
+Message-ID: <1349454586.16023.55.camel@moss-pluto.epoch.ncsc.mil>
 Subject: Re: [selinux-testsuite][PATCH] use auth_read_passwd only if defined
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Serge E. Hallyn" <serge@hallyn.com>
 Cc: Jan Stancek <jstancek@redhat.com>, selinux@tycho.nsa.gov,
         jburke@redhat.com
-Date: Fri, 05 Oct 2012 12:26:33 -0400
+Date: Fri, 05 Oct 2012 12:29:46 -0400
 In-Reply-To: <20121005142753.GA29202@mail.hallyn.com>
 References: 
 	<4f49eed5e3ce75a790287d42688f7e83ca4689b1.1349434641.git.jstancek@redhat.com>
@@ -39,9 +39,11 @@ On Fri, 2012-10-05 at 14:27 +0000, Serge E. Hallyn wrote:
 > > +    ')
 > >  ')
 
-In that case, should we just dispense with the ifdef(`distro_redhat')
-altogether?  Then it will get enabled for any distro with a policy that
-defines that interface.
+Also, at some point, we will want to fork the test policy for RHEL6
+under redhat/6 as we have already previously done for RHEL4 and 5, as
+the test policy will keep evolving for latest refpolicy and the amount
+of divergence will grow over time.  Might not be justified yet, but
+seems inevitable given life cycle of RHEL.
 
 -- 
 Stephen Smalley
