@@ -1,152 +1,137 @@
 From: "Reshetova, Elena" <elena.reshetova@intel.com>
-To: Panu Matilainen <pmatilai@laiskiainen.org>
+To: Panu Matilainen <pmatilai@laiskiainen.org>,
+        "tero.aho@nixu.com"
+	<tero.aho@nixu.com>
 CC: "rpm-maint@lists.rpm.org" <rpm-maint@lists.rpm.org>,
         "Ware, Ryan R"
 	<ryan.r.ware@intel.com>,
         "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
 Subject: RE: First attempt for the patch on extending the plugin interface
  for rpm
-Date: Mon, 15 Oct 2012 12:18:32 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B1944C1BE@IRSMSX102.ger.corp.intel.com>
+Date: Tue, 16 Oct 2012 16:31:02 +0000
+Message-ID: <2236FBA76BA1254E88B949DDB74E612B1944CA4E@IRSMSX102.ger.corp.intel.com>
 References: <2236FBA76BA1254E88B949DDB74E612B19449DCA@IRSMSX102.ger.corp.intel.com>
  <5073D8D8.2010602@laiskiainen.org>
  <2236FBA76BA1254E88B949DDB74E612B1944A502@IRSMSX102.ger.corp.intel.com>
  <5075845F.9020102@laiskiainen.org>
-In-Reply-To: <5075845F.9020102@laiskiainen.org>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
-	micalg=SHA1; boundary="----=_NextPart_000_0005_01CDAAE8.56223770"
+ <2236FBA76BA1254E88B949DDB74E612B1944C1BE@IRSMSX102.ger.corp.intel.com>
+ <507D3F47.4090100@laiskiainen.org>
+In-Reply-To: <507D3F47.4090100@laiskiainen.org>
+Content-Type: multipart/signed; micalg=SHA1;
+	protocol="application/x-pkcs7-signature";
+	boundary="----=_NextPart_000_0031_01CDABD4.C5F1D870"
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_NextPart_000_0005_01CDAAE8.56223770
+------=_NextPart_000_0031_01CDABD4.C5F1D870
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
-After reading your responses I think we indeed need to break this patch into
-at least two or three parts. It would help us to concentrate on one set of
-the hooks at the time and integrate them separately in steps.
-You mentioned that pre/post tsm/psm hooks are pretty much fine, so we can
-start from them. I would propose to add to them a security plugin loading
-function and macros. Also, if there are no objections I would add here a
-ScriptSetup hook (it is rather simple one and outside of other hooks). This
-can be the first bunch that we can bring into shape to be acceptable for
-merge. 
-Then after the above is hopefully merged I will start attacking the
-file-related hooks (I have already made a number of changes and will look
-into improving them further based on your comments). And at the end we can
-talk about how to integrate the rest.
+>Obviously there needs to be some way of loading the plugins... What kinda 
+>bothers me here is the notion of "security plugin" - except for perhaps the 
+>signature/conflict hooks, there's nothing inherently security-specific here.
 
-I will post the first bunch shortly if there are no objections. 
- 
-Further comments are inline: 
+>The two immediate candidates *are* security-oriented, but they're very, very 
+>different in what they do and how they affect the system. Eg if you disable 
+>SELinux labeling on a system where SELinux is enabled, you'll pretty much 
+>just shoot yourself in the foot (by ending up with a rather screwed up 
+>system) >rather than fundametally bypass system security.
+>"Transaction plugin" or something to that effect would seem to be more 
+>appropriate as these hooks could be used for all sorts of purposes 
+>(additional logging / interaction with other systems like dbus notifications 
+>for somebody ... whatever).
 
->Actually, the ability to sanely disable these things from cli and API is in
-practise a hard requirement. The reason is that rpm is used in a large
-variety of situations beyond the basic "system package management" 
->task: creation of chroot (build-)environments that are nothing like what
-the system might be running, install/live images, certain per-user tasks,
-workarounds for weird setups etc. Plus all the things we never even imagined
-- by now I hope to have learned (the hard way) that no matter how unlikely
-it >seems, the unforeseen oddball (yet legal) cases always exist :)
+Ok, let's call it indeed a "transaction plugin" because security plugin can be 
+considered as a particular case of transaction plugin. I will rename it.
 
->I do realize that needs on an embedded / handheld systems can be
-drastically different from  a general purpose system. How to support "full
-lockdown" where needed but allow disabling for other uses is something to
-think about.
+>The script setup hook is fairly obvious too, just forgot to mention it.
+>The one question with that is (again) the argument(s) it receives:
+>currently its ARGV_t, but does it actually need the entire argv or would just 
+>the actual executable path suffice for the setup?
 
-Hm.. This isn't easy indeed. Can we make a security plugin a special case
-regarding to the cli? Meaning that if the rpm is compiled with
-"ENFORCE_SECURITY", then it isn't possible to disable the security plugin
-from cli and if loading/expanding of security plugin fails, then rpm stops.
-Providing cli or API option to disable additional security enforced by the
-plugin(s) even if security have been compiled in sounds scary for me....
+I am fine with just the path, but looking to SELinux code, the rpm_execcon() 
+func needs the whole argv struct.
 
->What I was thinking was more in the direction of "if plugin X returned
-failure, should we even call the other hooks" (such as falling back to
-something else if one of the involved filesystem doesn't support feature Y),
-but this is now something that neither the plugin or rpm has any way of
-actually knowing. 
->The point perhaps being, the exact semantics for the plugin hooks needs to
-be far more clearly defined sooner or later.
+@ Stephen, do you know how mandatory for SELinux is to have the whole argv 
+struct? Is it just because of rpm_execcon() API or?
 
-I think even if plugin X returns failure on hook Z, we need to call the hook
-Z for all other plugins, because this will make sure that all plugins have
-the same set of hooks that got executed during the rpm transaction. Also, it
-would be up to each plugin to be prepared that rpm transaction can stop and
-fail outside of the plugin (inside rpm itself or inside of other plugins)
-and then be ready that only cleanup hook is called. So, for example, plugin
-might have pre tsm/psm hooks called and they go fine, but then some other
-plugin returns a failure on prepsm hook, so whole transaction goes to
-failure and plugin gets cleanup hook called even if from its point of view
-everything went fine. 
+>Another possibility might be passing an rpmScript "object" (which would need 
+>exporting and probably added interfaces, but that's kinda in the plans anyway 
+>at some point). But perhaps that's best left for later.
 
->FWIW, I've been considering exporting the fd digest API for quite some 
->time. That stuff probably needs a bit of polishing/sanitizing before 
->exporting, but I'm not at all opposed to doing it.
+Yes, I guess there is always a possibility  to change these things when better 
+objects/structs are available. I am quite sure I can make these changes later 
+since I will be responsible for introducing these hooks at the first place :) 
+I don't just plan to dump this on you once and go away!
 
-Yes, I think this would be good and then it can be cleaner from plugin side
-to get digest calculated. 
+>I dunno... There are soooo many different options and API flags that affect 
+>these things, attempting to enforce things from the inside of rpm seems 
+>hopelessly futile: practically every aspect of rpm's behavior is overridable 
+>via cli, API and configuration. Including the paths where rpm loads its 
+>configuration >from. You'd need to have a hard-wired list of mandatory 
+>plugins and theirr non-macro paths compiled rpm to enforce anything at all. 
+>And even then, if you have cli access as root, what's to prevent the user 
+>from just replacing the executable/libraries with something that doesn't 
+>enforce anything?
 
->For now, go for the absolute minimum exposure of rpm "objects". The 
->problem here is different from the other internals (such as fsm in the 
->previous versions) exposure, the issue here is that it exposes a ad-hoc 
->set of things that rpm currently happens to internally use to handle 
->this stuff. Which is not entirely unlike Lucas Arts adventure games of 
->old: you have a rope, two bananas and a fish, and you need to somehow 
->use those to cross the ravine to get the umbrella from the other side 
->that you need to... :)
-
->The fact that the hook breaks in rpm >= 4.10 despite arguments remaining 
->the same kinda underlines the issue. Rpm internals are going through 
->some pretty fundamental changes at the moment, and this is one of the 
->places that will hopefully become saner when its all done (my wishful 
->thinking is to have at least the basics around in rpm 4.11 already). 
->When that happens we can export more, but right now its better to keep 
->things to minimum you can get by with.
-
-Agree, I will take a stronger attempt to reduce the arguments to the actual
-needed once 
-for all the file hooks. I guess the conflict one is the most heavy one at
-the moment, so 
-I will try to address it properly next time I post the patch for file hooks.
+We can prevent user or malicious app from modifying the rpm itself, its 
+plugins, configuration files by using the MAC (as selinux or smack) in 
+run-time and integrity protection (as IMA/EVM) for offline protection. Using 
+librpm directly by user or program actually should be quite safe, because user 
+or malicious app won't get any powerful permissions in the most restrictive 
+setup (no classical root, no posix capabilities). There normally would be some 
+higher level package manager on top of rpm that would have needed permissions 
+and would execute rpm (which would inherit the permissions in this case) with 
+a proper set of cli arguments and environment. If everything goes well, then 
+we don't need to worry that rpm would install smth without a plugin being run. 
+But what if the system gets damaged somehow (not even necessary attacked) and 
+plugin binary happen to disappear? In this case given that we are relying on 
+additional checks for the plugin, it is a very bad idea to proceed without it. 
+It would indeed make the whole system unsecure and in addition also unusable, 
+and this is all even without user understanding that system got corrupted. So, 
+this was the idea behind having this "plugin present" check and stop if failed 
+in place.  I was looking at it as some kind of analogy to sysinit that can 
+make checks during the boot process that needed services (example from 
+security: device lock daemon) are up and if they aren't up, then it can stop 
+the boot and actually go to some recovery mode.
+Does this explanation makes a bit more sense?
 
 
->The signature verification hook is another place where some weird 
->internal bits and pieces get passed around. That might be unavoidable, 
->dunno... but then (and I think I've said this before), signature 
->enforcing mechanism should really be in rpm core (and is sorely missed 
->currently). Plugins might further enhance / implement policy around 
->that, or something. Oh and I know this is hand-wavy and vague :-/
+>Yes, its indeed what the MSM hook does, rather than the hook itself, that 
+>bothers me. And more generally, the fact that such things become possible 
+>with plugins. I guess its not possible to really prevent, given sufficiently 
+>powerful plugin interface, but if nothing else the interfaces should 
+>encourage the >"correct" usage and discourage working behind rpms back. 
+>Whatever that means - I do realize I'm just waving hands again :)
 
-Yes, I think it would be good to think more on this. I understood how you
-would like
- to have it now and agree that this would be an ideal case. I will put this
-on my todo list
-to see how this can be done in a better way. 
+>> I am quite sure I can change it in the plugin itself.
 
->What I referred to above is specifically the file conflict resolution 
->thing (and our previous discussion about that). Eg looking at the MSM 
->plugin, AFAICT it can let conflicts pass at this point, yet deny it deep 
->down from inside when the transaction is already in progress. There 
->always will be cases where a failure cannot be detected before actually 
->trying to install (ie, in fsm), but that should be the absolute last 
->resort, not something you'd ever see in "normal" operation.
+>Ok, that'd be good. I was actually wondering why its done the way it is now - 
+>if there is an actual reason (such insufficient information available at that 
+>point), I'd like to understand it.
 
-Sure, I guess this problem is about the actual hook content, not necessary
-the hook itself. I guess the hook should be redone to not simply log the
-conflict case and decide on it later, but actually decide before starting a
-transaction. 
-I am quite sure I can change it in the plugin itself. 
+My understanding before was that in the current implementation you are able to 
+skip the installation of conflicting files without failing the whole package, 
+but now when I think of this it doesn't seem like a right thing to do.  I have 
+"inherited" these hooks from Tero (in CC now) and while I have done quite some 
+changes to them (some I actually still need to sync to open repo that you get 
+to see them too), I haven't touched the conflict hook at all.
+
+@Tero, do you still remember the reason why the conflict hook was done in this 
+way? Why wasn't it better to check the conflicts before the transaction and 
+fail the whole transaction if conflicts are seen?
 
 Best Regards,
-Elena. 
+Elena.
 
 
-------=_NextPart_000_0005_01CDAAE8.56223770
+
+
+------=_NextPart_000_0031_01CDABD4.C5F1D870
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -264,8 +249,8 @@ N53Hjmt9hyLHjnsHNQQ1XIGV3SIO0nS6Vf0scWhUyI95cLxDw1zsbNJdRtcF9HgeqDeio8jXuA+c
 uLeIu5H0kuLCP5808v8UPke1oCp5v2T91unfvm+IXDSMUXnqLLUxggOGMIIDggIBATBkMFYxCzAJ
 BgNVBAYTAlVTMRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlvbjErMCkGA1UEAxMiSW50ZWwgRXh0
 ZXJuYWwgQmFzaWMgSXNzdWluZyBDQSAzQgIKFK5E0wABAABw3zAJBgUrDgMCGgUAoIIB9zAYBgkq
-hkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMjEwMTUxMjE4MzFaMCMGCSqG
-SIb3DQEJBDEWBBSlfsVpnnBQEtZ/zvLwfrCHYcPomTBzBgkrBgEEAYI3EAQxZjBkMFYxCzAJBgNV
+hkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMjEwMTYxNjMxMDBaMCMGCSqG
+SIb3DQEJBDEWBBQDTzhLZoqr4eAKnNkMHMbjV+iTqDBzBgkrBgEEAYI3EAQxZjBkMFYxCzAJBgNV
 BAYTAlVTMRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlvbjErMCkGA1UEAxMiSW50ZWwgRXh0ZXJu
 YWwgQmFzaWMgSXNzdWluZyBDQSAzQgIKFK2UbgABAABw3jB1BgsqhkiG9w0BCRACCzFmoGQwVjEL
 MAkGA1UEBhMCVVMxGjAYBgNVBAoTEUludGVsIENvcnBvcmF0aW9uMSswKQYDVQQDEyJJbnRlbCBF
@@ -273,13 +258,13 @@ eHRlcm5hbCBCYXNpYyBJc3N1aW5nIENBIDNCAgoUrZRuAAEAAHDeMIGrBgkqhkiG9w0BCQ8xgZ0w
 gZowCwYJYIZIAWUDBAEqMAsGCWCGSAFlAwQBFjAKBggqhkiG9w0DBzALBglghkgBZQMEAQIwDgYI
 KoZIhvcNAwICAgCAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgFAMA0GCCqGSIb3DQMCAgEoMAcGBSsO
 AwIaMAsGCWCGSAFlAwQCAzALBglghkgBZQMEAgIwCwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUA
-BIIBADxdBPWYDBYASnvb4Y7ntVy3Bx0uot7ZdrXeHt1G0VlQbWhqdyZY1MWBCe3sEI0VIhCL8BPS
-NBzRee+wlfXSjQ9fgkjbDHgxlUCtzbM1gqAVGk02edjpW0+Etc1IcG955gWa4SuD/eKRTo38skaY
-eiaL9ylTp/IWzYeidVA0chMkbuofAUmXcPCz/TolJ3vF7OcbdaQj4N7gMJ4Sw9f7APJ5ORt/fpVc
-gUfNl11qWJfdbkuL//1YDwypHxbD4MZxaLBqMzlI8ZONj4onL+7cufrTX7eMM0SaGTHULTzFgdIe
-HbwFOOOY3m5qJLX/lvt2eecfW8ntbZ97MEJpeJ8w5uUAAAAAAAA=
+BIIBAGutYskdqOw5+SeE3FlbPwCY9q+VNaPhqd4CxPu8iQRb+gz2hxfIk7UGPJmTiq4U4CptTmfH
+GfrmyHbV9r564LrMhQ7xlIW2qP4sDeecSMyrS1DaynopbIUGl9PY+KzeHXW1gh9pyYgT6v9ZZyF9
+6hx/1kUy0JIKH42QMzgeqWvQMF9AUH5fU0s/HnQtghNk0EG/IeUoJBT8XZUWcK4c4gvGHu4uKJB2
+TeGDDkUdB7x+dH3scQbjOUGx1RXyUM1CX5TJqGcPYC1KZ8zX//mILg7WZJQlp1pFijS/LPM4kfSH
+Jf4ulQ+qdPX+HnOyI/qLIEr/901iGG5py/NU+gOkKQ8AAAAAAAA=
 
-------=_NextPart_000_0005_01CDAAE8.56223770--
+------=_NextPart_000_0031_01CDABD4.C5F1D870--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
