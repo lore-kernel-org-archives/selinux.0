@@ -1,156 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9MHmQWB009173
-	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2012 13:48:26 -0400
-Message-ID: <508586B4.9070802@schaufler-ca.com>
-Date: Mon, 22 Oct 2012 10:47:32 -0700
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9MKmC8d019750
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2012 16:48:12 -0400
+Message-ID: <5085B0EB.8040805@schaufler-ca.com>
+Date: Mon, 22 Oct 2012 13:47:39 -0700
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
-        john.johansen@canonical.com, selinux@tycho.nsa.gov,
-        keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v5] LSM: Multiple concurrent LSMs
-References: <5081B30F.6090009@schaufler-ca.com> <201210211206.DEI34330.FLFQMtFOOSJOHV@I-love.SAKURA.ne.jp> <201210211337.DAF60411.FMHOVSJOQOFtFL@I-love.SAKURA.ne.jp>
-In-Reply-To: <201210211337.DAF60411.FMHOVSJOQOFtFL@I-love.SAKURA.ne.jp>
+To: LSM <linux-security-module@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Call for presentations LCA2013 Security Miniconf
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/20/2012 9:37 PM, Tetsuo Handa wrote:
-> What about adding "struct security_operations *next;" to
-> "struct security_operations" like below?
 
-This would address the memory leak introduced by my
-version of security_reset_ops.
+The Advances in Linux Security Miniconf is accepting proposals for
+presentations. There are a very limited number of slots available for
+long (more than 30 minutes) talks. The majority of the talks should be
+short (30 minutes including questions) to accommodate the limited time
+available. If there is sufficient interest expressed there may also be a
+set of lighting (5 minutes) talks. Alas, presenting at the miniconf does
+not confer speaker perks for LCA.
+ 
+ Proposals must include:
 
-What is doesn't address is all of the checks to see if
-a particular LSM provides a hook. For that there needs
-to be a list in each hook. A list per hook would complicate
-registration and reset. It would allow cleaner handling
-of the capability hooks.
+Abstract
 
-My inclination is to have a shot at making the changes in
-security.c to do the lists at that level. It's more work,
-but I think it would be a better result.
+This should be a paragraph describing why someone might want to listen
+to the talk. It should describe the intended audience. The abstract
+should say what is interesting, new or novel about what you've got to
+say. It should include how long you would like to talk.
+ 
+Biography
 
->
->  struct security_operations {
->  	char name[SECURITY_NAME_MAX + 1];
-> + 	int index; /* Index number used by lsm_get_blob()/lsm_set_blob(). */
-> + 	struct security_operations *next; /* Next LSM to call if not NULL. */
->  	int foo();
->  	int bar_alloc();
->  	void bar_free();
->  };
->
-> I think the basic change looks like
->
->  int security_foo()
->  {
-> -	return security_ops->foo();
-> +	struct security_operations *ops = security_ops;
-> +	for (ops = security_ops; ops; ops = ops->next)
-> +		if (ops->foo) {
-> +			int rc = ops->foo();
-> +			if (rc)
-> +				return rc;
-> +		}
-> +	return 0;
+Treat this as a way to introduce yourself to the program committee. The
+biography will be used along with the abstract to chose the speakers. If
+you sound like an interesting speaker it will improve the chances you
+will get selected.
+ 
+If you are interested in giving a Lightning Talk you can skimp on the
+abstract and biography.
+ 
+Send proposals to: lca2012smc@yahoo.com by November 3rd, 2012 for
+priority consideration and November 10th at the latest. Early
+submissions will always be given preference over late ones. Interesting,
+new and novel subject matter will be the highest priority. Papers are
+appreciated but not necessary.
 
-Standard list macros should be used. Not that I think they
-add all that much value in this case, but you never know.
+(Yes, I realize that the year is wrong in the email address.)
 
-I still think that we want to "call all" rather than
-"bail on fail".
-
->  }
->
->  int security_bar_alloc()
->  {
-> -	return security_ops->bar_alloc();
-> +	int rc;
-> +	struct security_operations *ops;
-> +	struct security_operations *tmp;
-> +	for (ops = security_ops; ops; ops = ops->next)
-> +		if (ops->bar_alloc) {
-> +			rc = ops->bar_alloc();
-> +			if (rc)
-> +				goto undo;
-> +		}
-> +	return 0;
-> +undo:
-> +	for (tmp = security_ops; tmp != ops; tmp = tmp->next)
-> +		if (tmp->bar_free)
-> +			tmp->bar_free();
-> +	return rc;
-
-Looks about right.
-
->  }
->
->  void security_bar_free()
->  {
-> -	security_ops->bar_free();
-> +	struct security_operations *ops;
-> +	for (ops = security_ops; ops; ops = ops->next)
-> +		if (ops->bar_free)
-> +			ops->bar_free();
->  }
-
-Same for any "void" hook.
-
->
-> and unregistration will look like
->
->  int remove_security_ops(struct security_operations *lsm)
->  {
->  	struct security_operations *ops = security_ops;
->  	struct security_operations *prev = ops;
->  	do {
->  		if (ops == lsm) {
->  			prev->next = lsm->next;
->  			return 0;
->  		}
->  		prev = ops;
->  		ops = ops->next;
->  	} while (ops);
->  	return -ENOENT;
->  }
-
-Very clean, but it's not important that this be clean.
-
->
-> and registration will look like
->
->  int add_security_ops(struct security_operations *lsm)
->  {
->  	static int index;
->  	struct security_operations *ops = security_ops;
->  	while (1) {
->  		if (ops == lsm)
->  			return 0;
->  		if (!ops->next)
->  			break;
->  		ops = ops->next;
->  	}
->  	if (index == COMPOSER_MAX - 1)
->  		return -ENOSPC;
->  	lsm->index = index++;
->  	ops->next = lsm;
->  	return 0;
->  }
-
-Plus conflict checking. Again, it's not really important how
-clean this operation is.
-
->
-> .
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+Casey Schaufler <casey@schaufler-ca.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
