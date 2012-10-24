@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9ODlq8K023636
-	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2012 09:47:52 -0400
-Message-ID: <5087F15E.7080600@redhat.com>
-Date: Wed, 24 Oct 2012 09:47:10 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9ODm9EE023664
+	for <selinux@tycho.nsa.gov>; Wed, 24 Oct 2012 09:48:09 -0400
+Message-ID: <5087ED62.5050605@redhat.com>
+Date: Wed, 24 Oct 2012 09:30:10 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Moyer, Thomas - 0668 - MITLL" <thomas.moyer@ll.mit.edu>
@@ -54,14 +54,20 @@ On 10/23/2012 03:28 PM, Moyer, Thomas - 0668 - MITLL wrote:
 > Technology Groupmobile: (857) 268-0493 MIT Lincoln Laboratoryemail:
 > thomas.moyer@ll.mit.edu <mailto:thomas.moyer@ll.mit.edu> 244 Wood Street 
 > Lexington, MA 02420
+Can you attach all the files  libsemanage seems to be complaining about dnl,
+but not sure if that is really in one of your files.  Also defining context
+for usr_t,  and httpd_sys_content_t should not be required or should be pushed
+to the base httpd package.
 
+- From looking at the file context layout it looks like your app should be
+cleaned up to put content into better directories.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://www.enigmail.net/
 
-iEYEARECAAYFAlCH8V4ACgkQrlYvE4MpobPDWACg5xFkTK7zVH8iGcFiJlhNhL+g
-gAMAmgIWUxhqjNqWPofHJPggPrA5u0mI
-=DjZp
+iEYEARECAAYFAlCH7WIACgkQrlYvE4MpobMNAgCguTt/8z+zEyTNx9nlFAA7EBgP
+9aAAn1gWyEgUoP4yB06o3dan+GjvniJp
+=3avV
 -----END PGP SIGNATURE-----
 
 --
