@@ -1,58 +1,172 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9QGrKHB017172
-	for <selinux@tycho.nsa.gov>; Fri, 26 Oct 2012 12:53:20 -0400
-Message-ID: <508ABFE8.7070708@schaufler-ca.com>
-Date: Fri, 26 Oct 2012 09:52:56 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id q9QK8KNo028412
+	for <selinux@tycho.nsa.gov>; Fri, 26 Oct 2012 16:08:20 -0400
+Received: from LLE2K7-HUB01.mitll.ad.local (LLE2K7-HUB01.mitll.ad.local) by mx2.ll.mit.edu (unknown) with ESMTP id q9QK8GSN010723 for <selinux@tycho.nsa.gov>; Fri, 26 Oct 2012 16:08:18 -0400
+From: "Moyer, Thomas - 0668 - MITLL" <thomas.moyer@ll.mit.edu>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Fri, 26 Oct 2012 16:08:15 -0400
+Subject: Question about SELinux capability
+Message-ID: <CCB065EF.236E%thomas.moyer@ll.mit.edu>
+Content-Type: multipart/signed; protocol="application/pkcs7-signature";
+	micalg=sha1; boundary="B_3434112495_88107967"
 MIME-Version: 1.0
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-CC: keescook@chromium.org, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, john.johansen@canonical.com,
-        selinux@tycho.nsa.gov, Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v5.1] LSM: Multiple concurrent LSMs
-References: <201210242225.EFC43782.FLFQMHOOVFJOSt@I-love.SAKURA.ne.jp> <201210250650.HAJ18213.FMtVQOFHJOLOFS@I-love.SAKURA.ne.jp> <CAGXu5jKdLnDCpDzteY1v3aStAxAezdOykKUN1gDt69BZcBvwEA@mail.gmail.com> <201210252116.DBJ56717.tVFFLJOOOSQHFM@I-love.SAKURA.ne.jp> <201210252128.EGC12919.OFtFSMHQOOVLFJ@I-love.SAKURA.ne.jp> <201210270127.BJF52683.QtMFVOFOLJSFOH@I-love.SAKURA.ne.jp>
-In-Reply-To: <201210270127.BJF52683.QtMFVOFOLJSFOH@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/26/2012 9:27 AM, Tetsuo Handa wrote:
-> This is what I think we can optimize.
-
-I think that I have worked out a list based scheme
-that will address the performance concerns. I hope to
-have a version ready in the next few days. There is a
-lot of typing involved.
-
-> Only compile tested. This may not boot.
->
-> Calls to common cap functions (e.g. cap_bprm_set_creds()) are not yet
-> eliminated from each LSM modules. Common cap functions can be now eliminated from
-> each LSM modules because these common cap functions are called from security/security.c
-> (though I think I've made several mistakes while optimizing).
-
-I don't know that we can do that in every case, but I'll look.
-
-> Revived register_security() so that individual LSM modules can determine
-> whether that module is listed on the activation list or not; and can take
-> appropriate action (probably call panic()) if registration failed when that
-> module is listed on the activation list.
->
-> Updated register_security() to allow control of LSM hook call ordering.
-> Revived CONFIG_DEFAULT_SECURITY so that Linux distributors can specify
-> list of LSM modules which should be enabled by default (e.g. "selinux",
-> "apparmor,yama") while compiling other LSM modules which are not enabled
-> unless explicitly specified by security= kernel boot parameter.
-
-I will definitely try to incorporate this.
-
-> What do you think?
-
-I am going to hold off on specific comments until I've decided
-on the merits of my list based scheme, which will eliminate the
-composer_ops array.
+--B_3434112495_88107967
+Content-type: multipart/alternative;
+	boundary="B_3434112495_88089588"
 
 
+--B_3434112495_88089588
+Content-type: text/plain;
+	charset="US-ASCII"
+Content-transfer-encoding: 7bit
+
+I am working with a piece of embedded hardware that uses raw ethernet frames
+to communicate with another (standard PC). Is it possible to apply SELinux
+labels to those ethernet frames like you can with IP packets using iptables
+and SECMARK?
+
+Thanks!
+
+-Tom
+
+-- 
+Thomas Moyer, Technical Staff voice: (781) 981-1374
+Cyber Systems Technology Group mobile: (857) 268-0493
+MIT Lincoln Laboratory email: thomas.moyer@ll.mit.edu
+244 Wood Street
+Lexington, MA 02420
+
+
+
+--B_3434112495_88089588
+Content-type: text/html;
+	charset="US-ASCII"
+Content-transfer-encoding: quoted-printable
+
+<html><head></head><body style=3D"word-wrap: break-word; -webkit-nbsp-mode: s=
+pace; -webkit-line-break: after-white-space; color: rgb(0, 0, 0); font-size:=
+ 14px; font-family: Calibri, sans-serif; "><div><div><div>I am working with =
+a piece of embedded hardware that uses raw ethernet frames to communicate wi=
+th another (standard PC). Is it possible to apply SELinux labels to those et=
+hernet frames like you can with IP packets using iptables and SECMARK?</div>=
+<div><br></div><div>Thanks!</div><div><br></div><div>-Tom</div><div><br></di=
+v><div><div><div>--&nbsp;</div><div><div><div>Thomas Moyer, Technical Staff<=
+span class=3D"Apple-tab-span" style=3D"white-space:pre">		</span>voice: (781) 98=
+1-1374</div><div>Cyber Systems Technology Group<span class=3D"Apple-tab-span" =
+style=3D"white-space:pre">		</span>mobile: (857) 268-0493</div><div>MIT Lincol=
+n Laboratory<span class=3D"Apple-tab-span" style=3D"white-space:pre">				</span>=
+email:&nbsp;<a href=3D"mailto:thomas.moyer@ll.mit.edu">thomas.moyer@ll.mit.edu=
+</a></div><div>244 Wood Street</div><div>Lexington, MA 02420</div></div></di=
+v></div></div></div></div></body></html>
+
+--B_3434112495_88089588--
+
+--B_3434112495_88107967
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+
+MIIUEgYJKoZIhvcNAQcCoIIUAzCCE/8CAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
+EfUwggTUMIIDvKADAgECAgpbnpTCAAAAAE9nMA0GCSqGSIb3DQEBCwUAMFExCzAJBgNVBAYT
+AlVTMR8wHQYDVQQKExZNSVQgTGluY29sbiBMYWJvcmF0b3J5MQwwCgYDVQQLEwNQS0kxEzAR
+BgNVBAMTCk1JVExMIENBLTIwHhcNMTIwODI0MTMzNzMyWhcNMTMwODI0MTMzNzMyWjBhMQsw
+CQYDVQQGEwJVUzEfMB0GA1UEChMWTUlUIExpbmNvbG4gTGFib3JhdG9yeTEPMA0GA1UECxMG
+UGVvcGxlMSAwHgYDVQQDExdNb3llci5UaG9tYXMuTS41MDAxMjcxNTCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAN2kzL21gle2n6FJ68b7s6rhJUZWK4zTnKN9TD7tGS1mLNuD
+kO55g8tKHf8g+TM5nK89anV960D+4cwbWK4sbs9pQcrrSlzhQJhsZ4QSqMWsT9Gzq2qucaSw
+Tge3LuySmA/8JPbVa3c+sSQNYc6qkbGKg97WYA+CP/CKknN8yS14S2OX1W27GJsTzF4c84Ya
+B1qRBAwfBQMFbd51AfZ5j0c6isk0ov8kJkyYrqHKj4qbOG8WjvmSkPA+pXcbwUEnWXJLtCZZ
+4+aZIQ2Sv7DE35urlrzYjrY6ENUzDV5dy86oFKjf8nJFiIV6NtYVSkRVOK2e5KqsGpIdcAOp
+TJus/y8CAwEAAaOCAZwwggGYMB0GA1UdDgQWBBQVe66M3+xu+px9yukwqwj+SAbDUTAOBgNV
+HQ8BAf8EBAMCBsAwHwYDVR0jBBgwFoAUjkp9iaFjFxyBiDRXNyZFXhmKfiQwMwYDVR0fBCww
+KjAooCagJIYiaHR0cDovL2NybC5sbC5taXQuZWR1L2dldGNybC9MTENBMjBiBggrBgEFBQcB
+AQRWMFQwLQYIKwYBBQUHMAKGIWh0dHA6Ly9jcmwubGwubWl0LmVkdS9nZXR0by9MTENBMjAj
+BggrBgEFBQcwAYYXaHR0cDovL29jc3AubGwubWl0LmVkdS8wDAYDVR0TAQH/BAIwADA9Bgkr
+BgEEAYI3FQcEMDAuBiYrBgEEAYI3FQiDg+Udh+ynZoathxWD6vBFhbahHx2Fy94yh/+KcwIB
+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
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAInOjv4PcQYSwcse3b/iU13ufWpydhGF1zKyWx6V
+xn7EhTdIiVqRZSWEEhUN54ZZvcNCjJigjNc92nS7/DZ6QzHTDuWlIvgi76xgl8bbK6oCKEv8
+0+LBZKd4w3O8G0D3JakwveWWT1jZJXRG0QT6y9Xy4ENiWleon60UAKD5frJtnNu3AH8ElATk
+uh5iPyMzvvZ+dthAeVjyOnYiRTI3/z+8nWrY2Yxd5dumg8YuGP4Xg24lhSzxRFluqflWytRy
+jOabskU4bjjW9MTMhLXDR5P1UG1ilkCG1CK883No8b4QguQhMTCPv4/3vta3E2V3m1APGCJf
+n9GNXaJTi4/369ECAwEAAaOCAZ8wggGbMB0GA1UdDgQWBBQ/lnMko0FQsFkSo7eGshVplcTt
+nDAOBgNVHQ8BAf8EBAMCBSAwHwYDVR0jBBgwFoAUjkp9iaFjFxyBiDRXNyZFXhmKfiQwMwYD
+VR0fBCwwKjAooCagJIYiaHR0cDovL2NybC5sbC5taXQuZWR1L2dldGNybC9MTENBMjBiBggr
+BgEFBQcBAQRWMFQwLQYIKwYBBQUHMAKGIWh0dHA6Ly9jcmwubGwubWl0LmVkdS9nZXR0by9M
+TENBMjAjBggrBgEFBQcwAYYXaHR0cDovL29jc3AubGwubWl0LmVkdS8wDAYDVR0TAQH/BAIw
+ADA9BgkrBgEEAYI3FQcEMDAuBiYrBgEEAYI3FQiDg+Udh+ynZoathxWD6vBFhbahHx2F69Bw
+g+vtIAIBZAIBBDAlBgNVHSUEHjAcBgRVHSUABggrBgEFBQcDBAYKKwYBBAGCNwoDBDAYBgNV
+HSAEETAPMA0GCyqGSIb3EgIBAwEIMCIGA1UdEQQbMBmBF3Rob21hcy5tb3llckBsbC5taXQu
+ZWR1MA0GCSqGSIb3DQEBCwUAA4IBAQBwwPS4BoKbBymCVEqjxedOV4E5Fru8DwWklJ3GD7C+
+wttuGXTKfy51Jdb2fySXLKSrhXZ0hM4c8gdUpOZN8SShDXFFdHt3pc5k4ZW2JBvkTv3MYDr3
+UIJqQMpuKx5S/yZjOgcsIuDHzwa6Wh+YwlEa1eiJJ3KYdqKQiKUht0ogXAJK/UfbUraLTKBr
+HYFAzDC5a2bgDjS4yDGfx7M1hWHAXYEqNcXp9MTPhCayleDpFAeBsNdihvFzuQfXJioY3hHl
+Tf36w7GE4RMfnEHvrZzVvfZ4kDkN0Eta85cj8Oc/YtYN/j9RaFkZzw+MsygDhUDMPuyBVvdn
+P6L1gdK5yCyCMYIB5TCCAeECAQEwXzBRMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWTUlUIExp
+bmNvbG4gTGFib3JhdG9yeTEMMAoGA1UECxMDUEtJMRMwEQYDVQQDEwpNSVRMTCBDQS0yAgpb
+npTCAAAAAE9nMAkGBSsOAwIaBQCgXTAjBgkqhkiG9w0BCQQxFgQUcz/as6fEGP4S1OMw21Tf
+MflPAC4wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTIxMDI2
+MjAwODE1WjANBgkqhkiG9w0BAQEFAASCAQDQnRFLNu6pVz141lKmP+TNOBXySL8NyFeWzFvy
+h2ZC0+xJBzZv7OOQimHbWlncY86eJmfj8C+/uXrNGo40u4tem6FlG3yikppumlhUXFtvKk1p
+kJ+W8PH45A/I2EEwoIOs49gWnKdb4vNVxlBdlAgDQkGGk+2LNb0jwra+dCR5OHnB3bPsGkBN
+30saQAgoJ6XYZgUuSk+la++jSFJux1Ife6nUsBIst7XUD2FuY417P2169tSYZjIrtW3/p38a
+TwzwfYcMuyDeleJ9xZecakePU8ZGtjkkwLlgJQiGTwnozHY0+uIW2gHByyN+B20JWOiKItEW
+LXwvtsEo6n2NBNA7
+
+--B_3434112495_88107967--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
