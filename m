@@ -1,27 +1,90 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA1H9CW3003380
-	for <selinux@tycho.nsa.gov>; Thu, 1 Nov 2012 13:09:12 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA1HG9I7003939
+	for <selinux@tycho.nsa.gov>; Thu, 1 Nov 2012 13:16:09 -0400
 From: "Moyer, Thomas - 0668 - MITLL" <thomas.moyer@ll.mit.edu>
-To: Paul Moore <paul@paul-moore.com>
+To: Bryan Hinton <bryan@bryanhinton.com>, Paul Moore <paul@paul-moore.com>
 CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Thu, 1 Nov 2012 13:09:02 -0400
+Date: Thu, 1 Nov 2012 13:16:02 -0400
 Subject: Re: Question about SELinux capability
-Message-ID: <CCB8247D.243B%thomas.moyer@ll.mit.edu>
-In-Reply-To: <3608707.WxASRDOVXr@sifl>
+Message-ID: <CCB824F1.243C%thomas.moyer@ll.mit.edu>
+In-Reply-To: <F715099C1CA1494F845FAC75C5C298AB1EEEFC48@CH1PRD0610MB355.namprd06.prod.outlook.com>
 Content-Type: multipart/signed; protocol="application/pkcs7-signature";
-	micalg=sha1; boundary="B_3434620142_4449914"
+	micalg=sha1; boundary="B_3434620562_4479874"
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---B_3434620142_4449914
+--B_3434620562_4479874
 Content-type: text/plain;
 	charset="US-ASCII"
 Content-transfer-encoding: 7bit
 
-On 11/1/12 11:58 AM, "Paul Moore" <paul@paul-moore.com> wrote:
 
+On 11/1/12 1:03 PM, "Bryan Hinton" <bryan@bryanhinton.com> wrote:
 
+>Thomas,
+>You had mentioned that you are working with a piece of embedded hardware
+>that uses raw ethernet frames to communicate with another PC.
+>I had a few questions to better understand the problem.
+>Are you manually packing the MAC destination and MAC source address in
+>the ethernet frame?
+
+There is a library that is provided to us that handles the communication.
+I believe the library constructs the ethernet frame manually, including
+the MAC addresses.
+
+>Are you restricted to a specific medium - i.e. ethernet cable?
+
+Yes. The hardware dictates this. We do have the guarantee that the
+interface is direct connection between the PC and the embedded hardware.
+
+>Which embedded Linux distribution are you working with and which version
+>of the Linux kernel are you working with?
+
+The PC runs Red Hat Enterprise Linux 6. The OS on the other side is not
+known (to me). It is treated as a black box.
+
+>Have you explored the MAC filtering capabilities in iptables?
+
+I didn't think that iptables would actually be involved since the ethernet
+frames have no IP header in them.
+
+>Am I correct in assuming that you are trying to dynamically filter MAC
+>addresses?  
+
+Not sure what is meant by the above. The goal is to limit what
+applications running on the system can communicate with the embedded
+hardware connected to the system.
+
+>If not, what parameters constitute a raw ethernet frame that should get
+>labeled?
+
+As above, I'm not sure I follow the question. I think the shortest answer
+I can provide is that this hardware has a protocol that is used in place
+of IP, and we need to do some filtering to enforce the security property
+outlined above (only application X can communicate with the hardware).
+
+>
+>Also, labeling the network interface per prior suggestions sounds like a
+>good idea but was curious regarding the above questions.
+
+I think that is the route we have decided on. On the off chance that we
+test out the connection and iptables will actually identify the traffic, I
+might consider that, but given the other constraints (e.g. The connection
+is a dedicated connection between the system and the embedded device) I
+think the interface labeling will work fine.
+
+>
+>Bryan Hinton
+>
+>________________________________________
+>From: owner-selinux@tycho.nsa.gov [owner-selinux@tycho.nsa.gov] on behalf
+>of Paul Moore [paul@paul-moore.com]
+>Sent: Thursday, November 01, 2012 8:58 AM
+>To: Moyer, Thomas - 0668 - MITLL
+>Cc: selinux@tycho.nsa.gov
+>Subject: Re: Question about SELinux capability
+>
 >On Wednesday, October 31, 2012 08:24:21 AM Moyer, Thomas - 0668 - MITLL
 >wrote:
 >> Yes. That is correct. What I am looking at though is a piece of hardware
@@ -35,14 +98,11 @@ On 11/1/12 11:58 AM, "Paul Moore" <paul@paul-moore.com> wrote:
 >> type of SECMARK support that I would use with iptables.
 >
 >I think I misunderstood your original question; I thought you were
->interested 
+>interested
 >in labeling the ethernet frames on the wire while it sounds like you are
->only 
+>only
 >interested in assigning labels to the network traffic once it has been
 >received by the system - yes?
-
-Correct.
-
 >
 >> I think the best solution that I have come up with is to label the
 >>network
@@ -50,20 +110,11 @@ Correct.
 >> domain being confined to create sockets and bind to that interface.
 >
 >I assume you are talking about the ingress/egress controls?
-
-Also correct.
-
 >
 >If so, a word of caution, they *may* not catch non-IP traffic due to they
->way 
->they are hooked into the network stack.  I'd be interested in hearing
->what 
+>way
+>they are hooked into the network stack.  I'd be interested in hearing what
 >happens in your case.
-
-We are trying to ensure that only specific applications running on the
-system can communicate with the embedded hardware. One way to do this is
-to filter network traffic. At least the "easiest" that I could identify.
-
 >
 >> >On Friday, October 26, 2012 04:08:15 PM Moyer, Thomas - 0668 - MITLL
 >> >
@@ -81,18 +132,26 @@ to filter network traffic. At least the "easiest" that I could identify.
 >>your
 >> >only options at present require an IP header at the very least.
 >
->-- 
+>--
 >paul moore
 >www.paul-moore.com
 >
+>
+>--
+>This message was distributed to subscribers of the selinux mailing list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>with
+>the words "unsubscribe selinux" without quotes as the message.
+>
+>
 -- 
 Thomas Moyer, Technical Staff	voice: (781) 981-1374
-Cyber Systems Technology Group		mobile: (857) 268-0493
-MIT Lincoln Laboratory			email: thomas.moyer@ll.mit.edu
+Cyber Systems Technology Group	mobile: (857) 268-0493
+MIT Lincoln Laboratory		email: thomas.moyer@ll.mit.edu
 244 Wood Street
 Lexington, MA 02420
 
---B_3434620142_4449914
+--B_3434620562_4479874
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -185,16 +244,16 @@ HYFAzDC5a2bgDjS4yDGfx7M1hWHAXYEqNcXp9MTPhCayleDpFAeBsNdihvFzuQfXJioY3hHl
 Tf36w7GE4RMfnEHvrZzVvfZ4kDkN0Eta85cj8Oc/YtYN/j9RaFkZzw+MsygDhUDMPuyBVvdn
 P6L1gdK5yCyCMYIB5TCCAeECAQEwXzBRMQswCQYDVQQGEwJVUzEfMB0GA1UEChMWTUlUIExp
 bmNvbG4gTGFib3JhdG9yeTEMMAoGA1UECxMDUEtJMRMwEQYDVQQDEwpNSVRMTCBDQS0yAgpb
-npTCAAAAAE9nMAkGBSsOAwIaBQCgXTAjBgkqhkiG9w0BCQQxFgQUgb2r+yoEc4AkGjd7HeE3
-Y2u1M98wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTIxMTAx
-MTcwOTAyWjANBgkqhkiG9w0BAQEFAASCAQCwsBC8zGPEUDmFM1nfB5eeVW+0vSaKBmstC8jI
-G2v9GA3jnTqxTzkHcl2LyPcKpOO2OLX3YTEyw/kBI1/pWY0Bsxx48SS5dBuBAQdfSgkXCGMK
-fP1bklcvBeMzAsgyVZseRinHDb2vicGXPxxp/i9oTZZIl1w88+50m2PbZKRAZgkcu6efT+N1
-EzniysERZXpODJQDHmLScn7zOqRrKDuRdeyxKXBGWZhunuJYxf75Y3qL4BJgjf5G961T6nzW
-p39DP4R1d8/QcQ5Ulnd4PWmiMRpPzhH7r6V0FA38fDEdOIqq57SfJL2Y31pUm47YF6XGGYKG
-Mt/zHh6MM5TZKRQ6
+npTCAAAAAE9nMAkGBSsOAwIaBQCgXTAjBgkqhkiG9w0BCQQxFgQUIIXuD2j7IDfEBbddyzwP
+t92JwKUwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTIxMTAx
+MTcxNjAyWjANBgkqhkiG9w0BAQEFAASCAQBUihT63fPI7HPk9ml5T+gRopKjKNZdcSO5+XSu
+vZinOgKojpM2rxqjHJE4Z+x2C7Ur8cjxYm9j1J+599qmIrvHInlj3w4aRHwj68KOKG8ax6ik
+h0rt2MFllqGwPpMRzFU1/TW+L42tqM4RZw/0L/061b1TC73Ct3Zdg796oq87Fw/QPfhJm4Q4
+wEPn+a3Gu7ccrqH/SM9spWU5E16wt2zhVgVotym+GzRTu18mCvqzjkltX4hv8LnpyamTZhVd
+YLgQsUgfclX4ej7SH80kZJb/52X27Bq4m96L/cjdcZMnhI2kfumCCSMrYKF1DkFe7Tacajwr
+KfBVKO8qDWosHGzc
 
---B_3434620142_4449914--
+--B_3434620562_4479874--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
