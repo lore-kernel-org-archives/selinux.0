@@ -1,454 +1,396 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
+To: selinux@tycho.nsa.gov, eparis@parisplace.org
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: [PATCH] Update my email address.
-Date: Fri,  2 Nov 2012 11:25:35 -0400
-Message-Id: <1351869935-15243-1-git-send-email-sds@tycho.nsa.gov>
+Date: Fri,  2 Nov 2012 11:34:13 -0400
+Message-Id: <1351870453-17068-1-git-send-email-sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- checkpolicy/checkmodule.8                     | 2 +-
- checkpolicy/checkpolicy.8                     | 4 ++--
- checkpolicy/checkpolicy.c                     | 2 +-
- checkpolicy/policy_define.c                   | 2 +-
- checkpolicy/policy_parse.y                    | 2 +-
- checkpolicy/policy_scan.l                     | 2 +-
- checkpolicy/queue.c                           | 2 +-
- checkpolicy/queue.h                           | 2 +-
- libselinux/src/avc.c                          | 2 +-
- libsepol/include/sepol/policydb/avtab.h       | 2 +-
- libsepol/include/sepol/policydb/constraint.h  | 2 +-
- libsepol/include/sepol/policydb/context.h     | 2 +-
- libsepol/include/sepol/policydb/ebitmap.h     | 2 +-
- libsepol/include/sepol/policydb/flask_types.h | 2 +-
- libsepol/include/sepol/policydb/hashtab.h     | 2 +-
- libsepol/include/sepol/policydb/mls_types.h   | 2 +-
- libsepol/include/sepol/policydb/policydb.h    | 2 +-
- libsepol/include/sepol/policydb/services.h    | 2 +-
- libsepol/include/sepol/policydb/sidtab.h      | 2 +-
- libsepol/include/sepol/policydb/symtab.h      | 2 +-
- libsepol/man/man3/sepol_genbools.3            | 2 +-
- libsepol/man/man8/genpolbools.8               | 2 +-
- libsepol/src/avtab.c                          | 2 +-
- libsepol/src/ebitmap.c                        | 2 +-
- libsepol/src/hashtab.c                        | 2 +-
- libsepol/src/mls.c                            | 2 +-
- libsepol/src/mls.h                            | 2 +-
- libsepol/src/policydb.c                       | 2 +-
- libsepol/src/services.c                       | 2 +-
- libsepol/src/sidtab.c                         | 2 +-
- libsepol/src/symtab.c                         | 2 +-
- libsepol/src/write.c                          | 2 +-
- policycoreutils/load_policy/load_policy.8     | 2 +-
- policycoreutils/newrole/hashtab.c             | 2 +-
- policycoreutils/newrole/hashtab.h             | 2 +-
- policycoreutils/setfiles/setfiles.8           | 2 +-
- 36 files changed, 37 insertions(+), 37 deletions(-)
+Update my email address in the audit and SELinux code.
 
-diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
-index 40f73c5..b62ddc2 100644
---- a/checkpolicy/checkmodule.8
-+++ b/checkpolicy/checkmodule.8
-@@ -61,4 +61,4 @@ especially "Configuring the SELinux Policy".
- This manual page was copied from the checkpolicy man page 
- written by Arpad Magosanyi <mag@bunuel.tii.matav.hu>, 
- and edited by Dan Walsh <dwalsh@redhat.com>.
--The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
-+The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index 6826938..7bb472c 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
-@@ -52,5 +52,5 @@ especially "Configuring the SELinux Policy".
- 
- .SH AUTHOR
- This manual page was written by Arpad Magosanyi <mag@bunuel.tii.matav.hu>,
--and edited by Stephen Smalley <sds@epoch.ncsc.mil>.
--The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
-+and edited by Stephen Smalley <sds@tycho.nsa.gov>.
-+The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index 544f235..6bb361e 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -1,6 +1,6 @@
- 
- /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
-  */
- 
- /*
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 2c12447..bd24deb 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1,5 +1,5 @@
- /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
-  */
- 
- /*
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index d92cc32..87b8f7c 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -1,6 +1,6 @@
- 
- /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
-  */
- 
- /*
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index 62d03f0..b81fc18 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -1,6 +1,6 @@
- 
- /* 
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
-  */
- 
- /* Updated: David Caplan, <dac@tresys.com>
-diff --git a/checkpolicy/queue.c b/checkpolicy/queue.c
-index 272079c..c06a48d 100644
---- a/checkpolicy/queue.c
-+++ b/checkpolicy/queue.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/checkpolicy/queue.h b/checkpolicy/queue.h
-index 655c94b..60c07fe 100644
---- a/checkpolicy/queue.h
-+++ b/checkpolicy/queue.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index 802a07f..af8e2c3 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ include/linux/lsm_audit.h           | 2 +-
+ security/lsm_audit.c                | 2 +-
+ security/selinux/avc.c              | 2 +-
+ security/selinux/hooks.c            | 2 +-
+ security/selinux/include/avc.h      | 2 +-
+ security/selinux/include/avc_ss.h   | 2 +-
+ security/selinux/include/objsec.h   | 2 +-
+ security/selinux/include/security.h | 2 +-
+ security/selinux/ss/avtab.c         | 2 +-
+ security/selinux/ss/avtab.h         | 2 +-
+ security/selinux/ss/constraint.h    | 2 +-
+ security/selinux/ss/context.h       | 2 +-
+ security/selinux/ss/ebitmap.c       | 2 +-
+ security/selinux/ss/ebitmap.h       | 2 +-
+ security/selinux/ss/hashtab.c       | 2 +-
+ security/selinux/ss/hashtab.h       | 2 +-
+ security/selinux/ss/mls.c           | 2 +-
+ security/selinux/ss/mls.h           | 2 +-
+ security/selinux/ss/mls_types.h     | 2 +-
+ security/selinux/ss/policydb.c      | 2 +-
+ security/selinux/ss/policydb.h      | 2 +-
+ security/selinux/ss/services.c      | 2 +-
+ security/selinux/ss/services.h      | 2 +-
+ security/selinux/ss/sidtab.c        | 2 +-
+ security/selinux/ss/sidtab.h        | 2 +-
+ security/selinux/ss/symtab.c        | 2 +-
+ security/selinux/ss/symtab.h        | 2 +-
+ 27 files changed, 27 insertions(+), 27 deletions(-)
+
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index 1cc89e9..8b1eeea 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
 @@ -4,7 +4,7 @@
-  * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
   *
-  * Derived from the kernel AVC implementation by
-- * Stephen Smalley <sds@epoch.ncsc.mil> and 
-+ * Stephen Smalley <sds@tycho.nsa.gov> and 
-  * James Morris <jmorris@redhat.com>.
+  * Author : Etienne BASSET  <etienne.basset@ensta.org>
+  *
+- * All credits to : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * All credits to : Stephen Smalley, <sds@tycho.nsa.gov>
+  * All BUGS to : Etienne BASSET  <etienne.basset@ensta.org>
   */
- #include <selinux/avc.h>
-diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
-index 6955ecf..cca099f 100644
---- a/libsepol/include/sepol/policydb/avtab.h
-+++ b/libsepol/include/sepol/policydb/avtab.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /*
-  * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
-diff --git a/libsepol/include/sepol/policydb/constraint.h b/libsepol/include/sepol/policydb/constraint.h
-index 4c16ab0..10daf71 100644
---- a/libsepol/include/sepol/policydb/constraint.h
-+++ b/libsepol/include/sepol/policydb/constraint.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/include/sepol/policydb/context.h b/libsepol/include/sepol/policydb/context.h
-index 8d74a25..02459c9 100644
---- a/libsepol/include/sepol/policydb/context.h
-+++ b/libsepol/include/sepol/policydb/context.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
-index 214da95..e1eec78 100644
---- a/libsepol/include/sepol/policydb/ebitmap.h
-+++ b/libsepol/include/sepol/policydb/ebitmap.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/include/sepol/policydb/flask_types.h b/libsepol/include/sepol/policydb/flask_types.h
-index 575c6f2..fda86d9 100644
---- a/libsepol/include/sepol/policydb/flask_types.h
-+++ b/libsepol/include/sepol/policydb/flask_types.h
+ #ifndef _LSM_COMMON_LOGGING_
+diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+index 8d8d97d..6a2a6e2 100644
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
 @@ -2,7 +2,7 @@
- /* -*- linux-c -*- */
- 
+  * common LSM auditing functions
+  *
+  * Based on code written for SELinux by :
+- *			Stephen Smalley, <sds@epoch.ncsc.mil>
++ *			Stephen Smalley, <sds@tycho.nsa.gov>
+  * 			James Morris <jmorris@redhat.com>
+  * Author : Etienne Basset, <etienne.basset@ensta.org>
+  *
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 68d82da..43f1490 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1,7 +1,7 @@
  /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
+  * Implementation of the kernel access vector cache (AVC).
+  *
+- * Authors:  Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Authors:  Stephen Smalley, <sds@tycho.nsa.gov>
+  *	     James Morris <jmorris@redhat.com>
+  *
+  * Update:   KaiGai, Kohei <kaigai@ak.jp.nec.com>
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e94349b..8a1a75b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3,7 +3,7 @@
+  *
+  *  This file contains the SELinux hook function implementations.
+  *
+- *  Authors:  Stephen Smalley, <sds@epoch.ncsc.mil>
++ *  Authors:  Stephen Smalley, <sds@tycho.nsa.gov>
+  *	      Chris Vance, <cvance@nai.com>
+  *	      Wayne Salamon, <wsalamon@nai.com>
+  *	      James Morris <jmorris@redhat.com>
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 92d0ab5..a1429f3 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -1,7 +1,7 @@
+ /*
+  * Access vector cache interface for object managers.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SELINUX_AVC_H_
+ #define _SELINUX_AVC_H_
+diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
+index d5c3284..37d57da 100644
+--- a/security/selinux/include/avc_ss.h
++++ b/security/selinux/include/avc_ss.h
+@@ -1,7 +1,7 @@
+ /*
+  * Access vector cache interface for the security server.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SELINUX_AVC_SS_H_
+ #define _SELINUX_AVC_SS_H_
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 26c7eee..347a6f1 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -3,7 +3,7 @@
+  *
+  *  This file contains the SELinux security data structures for kernel objects.
+  *
+- *  Author(s):  Stephen Smalley, <sds@epoch.ncsc.mil>
++ *  Author(s):  Stephen Smalley, <sds@tycho.nsa.gov>
+  *		Chris Vance, <cvance@nai.com>
+  *		Wayne Salamon, <wsalamon@nai.com>
+  *		James Morris <jmorris@redhat.com>
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index dde2005..7ffeff5 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -1,7 +1,7 @@
+ /*
+  * Security server interface.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  *
   */
  
- #ifndef _SEPOL_POLICYDB_FLASK_TYPES_H_
-diff --git a/libsepol/include/sepol/policydb/hashtab.h b/libsepol/include/sepol/policydb/hashtab.h
-index 1081ff6..e8d1fe3 100644
---- a/libsepol/include/sepol/policydb/hashtab.h
-+++ b/libsepol/include/sepol/policydb/hashtab.h
-@@ -1,5 +1,5 @@
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index a3dd9fa..6864032 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the access vector table type.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ /* Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index 63ce2f9..7a8c55a 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -5,7 +5,7 @@
+  * table is used to represent the type enforcement
+  * tables.
+  *
+- *  Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ *  Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
- /* FLASK */
- 
-diff --git a/libsepol/include/sepol/policydb/mls_types.h b/libsepol/include/sepol/policydb/mls_types.h
-index e491209..b7040ba 100644
---- a/libsepol/include/sepol/policydb/mls_types.h
-+++ b/libsepol/include/sepol/policydb/mls_types.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ /* Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
+diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
+index 149dda7..e7135f8 100644
+--- a/security/selinux/ss/constraint.h
++++ b/security/selinux/ss/constraint.h
+@@ -10,7 +10,7 @@
+  * process from labeling an object with a different user
+  * identity.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_CONSTRAINT_H_
+ #define _SS_CONSTRAINT_H_
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 212e347..a2c0f37c 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -10,7 +10,7 @@
+  * security server and can be changed without affecting
+  * clients of the security server.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_CONTEXT_H_
+ #define _SS_CONTEXT_H_
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 30f119b..642ea93 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the extensible bitmap type.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ /*
+  * Updated: Hewlett-Packard <paul@paul-moore.com>
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 922f8af..d0fd369 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -9,7 +9,7 @@
+  * an explicitly specified starting bit position within
+  * the total bitmap.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_EBITMAP_H_
+ #define _SS_EBITMAP_H_
+diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
+index 933e735..1300dfd 100644
+--- a/security/selinux/ss/hashtab.c
++++ b/security/selinux/ss/hashtab.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the hash table type.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
+index 953872c..009fb5e 100644
+--- a/security/selinux/ss/hashtab.h
++++ b/security/selinux/ss/hashtab.h
+@@ -5,7 +5,7 @@
+  * functions for hash computation and key comparison are
+  * provided by the creator of the table.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_HASHTAB_H_
+ #define _SS_HASHTAB_H_
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 40de8d3..32f0254 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the multi-level security (MLS) policy.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  /*
   * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index e4369e3..0f0a1d6 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -1,7 +1,7 @@
+ /*
+  * Multi-level security (MLS) policy operations.
   *
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index f53a499..9ebf717 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
+index 03bed52..14b081a 100644
+--- a/security/selinux/ss/mls_types.h
++++ b/security/selinux/ss/mls_types.h
+@@ -1,7 +1,7 @@
+ /*
+  * Type definitions for the multi-level security (MLS) policy.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 9cd9b7c..c94ac85 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the policy database.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
  /*
-  * Updated: Joshua Brindle <jbrindle@tresys.com>
-diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
-index aef0c7b..6335e97 100644
---- a/libsepol/include/sepol/policydb/services.h
-+++ b/libsepol/include/sepol/policydb/services.h
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index da63747..3a08467 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
 @@ -2,7 +2,7 @@
- /* -*- linux-c -*- */
- 
- /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
-  */
- 
- #ifndef _SEPOL_POLICYDB_SERVICES_H_
-diff --git a/libsepol/include/sepol/policydb/sidtab.h b/libsepol/include/sepol/policydb/sidtab.h
-index 33c7cb5..b86b652 100644
---- a/libsepol/include/sepol/policydb/sidtab.h
-+++ b/libsepol/include/sepol/policydb/sidtab.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/include/sepol/policydb/symtab.h b/libsepol/include/sepol/policydb/symtab.h
-index c8ad664..d455cf5 100644
---- a/libsepol/include/sepol/policydb/symtab.h
-+++ b/libsepol/include/sepol/policydb/symtab.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/man/man3/sepol_genbools.3 b/libsepol/man/man3/sepol_genbools.3
-index 0a30137..6e209d6 100644
---- a/libsepol/man/man3/sepol_genbools.3
-+++ b/libsepol/man/man3/sepol_genbools.3
-@@ -1,4 +1,4 @@
--.TH "sepol_genbools" "3" "11 August 2004" "sds@epoch.ncsc.mil" "SE Linux binary policy API documentation"
-+.TH "sepol_genbools" "3" "11 August 2004" "sds@tycho.nsa.gov" "SE Linux binary policy API documentation"
- .SH "NAME"
- sepol_genbools \- Rewrite a binary policy with different boolean settings
- .SH "SYNOPSIS"
-diff --git a/libsepol/man/man8/genpolbools.8 b/libsepol/man/man8/genpolbools.8
-index afeaced..fc792c8 100644
---- a/libsepol/man/man8/genpolbools.8
-+++ b/libsepol/man/man8/genpolbools.8
-@@ -1,4 +1,4 @@
--.TH "genpolbools" "8" "11 August 2004" "sds@epoch.ncsc.mil" "SELinux Command Line documentation"
-+.TH "genpolbools" "8" "11 August 2004" "sds@tycho.nsa.gov" "SELinux Command Line documentation"
- .SH "NAME"
- genpolbools \- Rewrite a binary policy with different boolean settings
- .SH "SYNOPSIS"
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index ea947cb..ea062ae 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /*
-  * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
-diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-index be6b591..17993fe 100644
---- a/libsepol/src/ebitmap.c
-+++ b/libsepol/src/ebitmap.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
-index c4be72c..dbf7721 100644
---- a/libsepol/src/hashtab.c
-+++ b/libsepol/src/hashtab.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /*
-  * Updated : Karl MacMillan <kmacmillan@mentalrootkit.com>
-diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-index 1e84bb7..a620018 100644
---- a/libsepol/src/mls.c
-+++ b/libsepol/src/mls.c
-@@ -1,4 +1,4 @@
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+  * A policy database (policydb) specifies the
+  * configuration data for the security policy.
   *
-diff --git a/libsepol/src/mls.h b/libsepol/src/mls.h
-index 98da3d3..13eb48f 100644
---- a/libsepol/src/mls.h
-+++ b/libsepol/src/mls.h
-@@ -1,4 +1,4 @@
--/* Author: Stephen Smalley, <sds@epoch.ncsc.mil> 
-+/* Author: Stephen Smalley, <sds@tycho.nsa.gov> 
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-  * 
-  *      Support for enhanced MLS infrastructure.
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index ff292f6..7cbffb8 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 9c2920c..91cb60c 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -1,6 +1,6 @@
- 
- /*
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov> 
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
   */
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/libsepol/src/sidtab.c b/libsepol/src/sidtab.c
-index 5bd7999..23b2e8f 100644
---- a/libsepol/src/sidtab.c
-+++ b/libsepol/src/sidtab.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/src/symtab.c b/libsepol/src/symtab.c
-index b3a7aa8..f53357e 100644
---- a/libsepol/src/symtab.c
-+++ b/libsepol/src/symtab.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 22e6143..d8d2bd9 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
  
  /*
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 4321b8f..ab4c028 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the security services.
+  *
+- * Authors : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Authors : Stephen Smalley, <sds@tycho.nsa.gov>
+  *	     James Morris <jmorris@redhat.com>
+  *
   * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/policycoreutils/load_policy/load_policy.8 b/policycoreutils/load_policy/load_policy.8
-index f9ca36e..4769912 100644
---- a/policycoreutils/load_policy/load_policy.8
-+++ b/policycoreutils/load_policy/load_policy.8
-@@ -40,4 +40,4 @@ Initial policy load failed and enforcing mode requested
- .SH AUTHORS
- .nf
- This manual page was written by Dan Walsh <dwalsh@redhat.com>.
--The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
-+The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
-diff --git a/policycoreutils/newrole/hashtab.c b/policycoreutils/newrole/hashtab.c
-index 0442ab3..f49dc05 100644
---- a/policycoreutils/newrole/hashtab.c
-+++ b/policycoreutils/newrole/hashtab.c
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/policycoreutils/newrole/hashtab.h b/policycoreutils/newrole/hashtab.h
-index abc80c3..5b6926f 100644
---- a/policycoreutils/newrole/hashtab.h
-+++ b/policycoreutils/newrole/hashtab.h
-@@ -1,5 +1,5 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
- 
- /* FLASK */
- 
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index 7ff54f9..44b49e3 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -123,7 +123,7 @@ option is used.
- 
- .SH "AUTHOR"
- This man page was written by Russell Coker <russell@coker.com.au>.
--The program was written by Stephen Smalley <sds@epoch.ncsc.mil>
-+The program was written by Stephen Smalley <sds@tycho.nsa.gov>
- 
- .SH "SEE ALSO"
- .BR restorecon (8),
+diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
+index e8d907e..12366ef 100644
+--- a/security/selinux/ss/services.h
++++ b/security/selinux/ss/services.h
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the security services.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_SERVICES_H_
+ #define _SS_SERVICES_H_
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 5840a35..9d2fcff 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the SID table type.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index 84dc154..de5d0ea 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -2,7 +2,7 @@
+  * A security identifier table (sidtab) is a hash table
+  * of security context structures indexed by SID value.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_SIDTAB_H_
+ #define _SS_SIDTAB_H_
+diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
+index 160326e..d1a6745 100644
+--- a/security/selinux/ss/symtab.c
++++ b/security/selinux/ss/symtab.c
+@@ -1,7 +1,7 @@
+ /*
+  * Implementation of the symbol table type.
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+diff --git a/security/selinux/ss/symtab.h b/security/selinux/ss/symtab.h
+index ca422b4..0bc12d5 100644
+--- a/security/selinux/ss/symtab.h
++++ b/security/selinux/ss/symtab.h
+@@ -4,7 +4,7 @@
+  * is arbitrary.  The symbol table type is implemented
+  * using the hash table type (hashtab).
+  *
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ #ifndef _SS_SYMTAB_H_
+ #define _SS_SYMTAB_H_
 -- 
 1.7.11.7
 
