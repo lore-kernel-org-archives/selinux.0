@@ -1,37 +1,33 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA9EdXcP008594
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2012 09:39:33 -0500
-Received: by mail-lb0-f181.google.com with SMTP id gg6so3333474lbb.12
-        for <selinux@tycho.nsa.gov>; Fri, 09 Nov 2012 06:39:01 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA9MUM6t008679
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2012 17:30:22 -0500
+Received: from staEX7mb4.telecom.sna.samsung.com ([105.52.12.130]) by cuda3.sta.samsung.com with ESMTP id L486YFhaRzvt6Hpa for <selinux@tycho.nsa.gov>; Fri, 09 Nov 2012 16:26:23 -0600 (CST)
+From: Shuiqing Wang <s.wang@sta.samsung.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Fri, 9 Nov 2012 16:26:22 -0600
+Subject: reload seandroid policy
+Message-ID: <C1432A7484D61749AF22A060C2B03C5D0B537D7F54@StaEx7mb3.telecom.sna.samsung.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <509C5C3F.1050800@schaufler-ca.com>
-References: <50986053.9060105@schaufler-ca.com>
-	<201211062144.CFB09368.JOQMFHFFVSOLtO@I-love.SAKURA.ne.jp>
-	<5099BB81.6000506@schaufler-ca.com>
-	<201211072215.FFD82885.HLVJFMSOOtFFOQ@I-love.SAKURA.ne.jp>
-	<509C5C3F.1050800@schaufler-ca.com>
-Date: Fri, 9 Nov 2012 09:39:00 -0500
-Message-ID: <CACLa4ptK6U7VCUoUzuS2pC+O=AacXPJ=W0acmOE-xBDYVLkJ5w@mail.gmail.com>
-Subject: Re: [PATCH v6] LSM: Multiple concurrent LSMs
-From: Eric Paris <eparis@parisplace.org>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        John Johansen <john.johansen@canonical.com>,
-        Eric Paris <eparis@redhat.com>, Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Nov 8, 2012 at 8:28 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+I am new to SEAndroid and I have a couple of questions about reloading
+policy, on Android 4.0.4.
 
-> How does one go about adding the hooks to the appropriate lists?
-> I came up with one macro based method that made Eric's hair fall
-> out, and he never even saw it.
+1. I read from the SEAndroid wiki that I can copy a new policy file
+to /data/system, and issue a "setprop selinux.reload_policy 1" command
+in adb shell to trigger a reload of policy. I did this but nothing
+happened. How do I know the reload is successful or not? I checked dmesg
+but saw nothing useful.
 
-This is your fault?  You jerk!  I want my hair back!
+2. How to I know which policy file is pointed to by the kernel currently
+if multiple policies exist on my device? Is there a adb shell command or
+log file that can help?
+
+Thanks,
+Shuiqing
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
