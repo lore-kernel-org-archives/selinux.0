@@ -1,55 +1,149 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA8FoV7c021135
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2012 10:50:31 -0500
-Received: by mail-gh0-f181.google.com with SMTP id z22so626388ghb.12
-        for <selinux@tycho.nsa.gov>; Thu, 08 Nov 2012 07:49:59 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qA91T4wa002556
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2012 20:29:04 -0500
+Message-ID: <509C5C3F.1050800@schaufler-ca.com>
+Date: Thu, 08 Nov 2012 17:28:31 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <20121108082623.GA5059@gaara.hadrons.org>
-References: <20121108082623.GA5059@gaara.hadrons.org>
-Date: Thu, 8 Nov 2012 10:49:59 -0500
-Message-ID: <CAB9W1A3cVVSj-PbM73c+vePHt7fVGf8117OXmTrDPf0K0vyYGg@mail.gmail.com>
-Subject: Re: Possible issues with dpkg SELinux support
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org,
-        debian-dpkg@lists.debian.org
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, john.johansen@canonical.com, eparis@redhat.com,
+        keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v6] LSM: Multiple concurrent LSMs
+References: <50986053.9060105@schaufler-ca.com> <201211062144.CFB09368.JOQMFHFFVSOLtO@I-love.SAKURA.ne.jp> <5099BB81.6000506@schaufler-ca.com> <201211072215.FFD82885.HLVJFMSOOtFFOQ@I-love.SAKURA.ne.jp>
+In-Reply-To: <201211072215.FFD82885.HLVJFMSOOtFFOQ@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Nov 8, 2012 at 3:26 AM, Guillem Jover <guillem@debian.org> wrote:
-> Hi!
+On 11/7/2012 5:15 AM, Tetsuo Handa wrote:
+> Reordering the message for explanation...
 >
-> I've had on my TODO for some time to clear out some doubts about the
-> current dpkg SELinux support (which preceded my time), to be able to
-> fix some possible issues with it, and because I've never actually used
-> a SELinux enabled system and my knowledge about it is mostly
-> superficial. So here goes:
->
-> An error from the lsetfilecon_raw() call in [0] does not currently
-> end up in the installation process aborting (just an error message
-> printed out), I think this is wrong as I noted with the XXX there,
-> but I'd like your input on this, in case it actually needs to proceed
-> anyway. Otherwise I'd guess at least ENOTSUP should be ignored.
->
->   [0] <http://anonscm.debian.org/gitweb/?p=dpkg/dpkg.git;a=blob;f=src/archives.c;h=4e363474607bd916813ce772b1e5c4c7359a76fc;hb=HEAD#l479>
->
-> And when invoking package maintainer scripts, dpkg does not set a
-> new execution context, like rpm does with rpm_execcon(), and while
-> skimming over the SELinux policy related to dpkg it seemed like
-> dpkg would need to do so.
->
-> I'd be fixing those, if needed, for dpkg 1.17.x.
+> Casey Schaufler wrote:
+>> On 11/6/2012 4:44 AM, Tetsuo Handa wrote:
+>>> sizeof(*lp) should be 32 rather than 12 on x86_32 unless CONFIG_SLOB=y .
+>> So the reality is that I'd be happy to report the number of lsm_list
+>> blobs rather than the size, if that would be more palatable. Or, not
+>> report a quantity at all, just say "Leaked some bytes while delisting
+>> an LSM" and be done. Do you feel strongly one way or the other? Does
+>> anyone else care?
+> ksize(lp) returns exact size compared to sizeof(*lp).
 
-Agree that lsetfilecon failure other than EOPNOTSUPP should abort
-package installation if SELinux is enabled.  Note that matchpathcon
-and friends are deprecated interfaces; consider converting to
-selabel_open and friends instead, as has already been done in rpm.
-Some mechanism to allow package scriptlets to run in a different
-context than the package manager would be helpful, but rpm_execcon()
-may not be a very good example.  The Tizen folks have been working on
-a more general architecture for rpm security plugins that may be
-relevant/helpful as a guide, see prior discussions on selinux list and
-rpm-maint.
+That was easy to adopt.
+
+> But another approach is
+> to embed "struct list_head" into "struct security_operations", something like
+>
+> 	struct security_operations {
+> 		char name[SECURITY_NAME_MAX + 1];
+> 	
+> 		int (*ptrace_access_check) (struct task_struct *child, unsigned int mode);
+> 		struct list_head ptrace_access_check_list;
+> 		int (*ptrace_traceme) (struct task_struct *parent);
+> 		struct list_head ptrace_traceme_list;
+> 		int (*capget) (struct task_struct *target,
+> 			       kernel_cap_t *effective,
+> 			       kernel_cap_t *inheritable, kernel_cap_t *permitted);
+> 		struct list_head capget_list;
+> 		(...snipped...)
+> 	};
+>
+> so that we can avoid kmalloc()/kfree() upon registration/unregistration.
+
+How does one go about adding the hooks to the appropriate lists?
+I came up with one macro based method that made Eric's hair fall
+out, and he never even saw it. I don't think embedding a list for
+each hook into the security_operations structure gets anything 
+other than bloat. Because of typing you would need a separate
+enlist and delist function for each hook. Try it if you don't
+believe me.
+
+
+>>> Seems unsafe list deletion. I think we need to use _rcu version since somebody
+>>> (kernel threads) may be walking on the list when lsm_delist_ops() is called by
+>>> the init process.
+>> Here's the question, and I don't know the answer. lsm_delist() gets called
+>> under two conditions: an early memory allocation failure that will almost
+>> certainly precede a fatal memory allocation error, or a call to
+>> security_reset_ops(), which is strictly a one-time thing. Might it be
+>> better to have a lock of some sort to deal with the unlikely case of a
+>> call to lsm_delist than to use the _rcu versions? I honestly don't know
+>> what the cost of using _rcu is, so it may not matter.
+> Is list_for_each_entry() safe against concurrent list_del() without locks?
+> If I understand correctly, it isn't safe to call list_for_each_entry() without
+> locks if list elements can be removed by list_del().
+>
+> I considered singly linked list (rather than using doubly linked list with _rcu
+> primitives) so that list traversal without locks becomes safe with regard to
+> list addition/deletion. Concurrent list addition/deletion is not safe, but we
+> can afford using locks only for protecting such case because list
+> addition/deletion happens only upon registration/unregistration.
+
+That would entail fighting with the list macro use purists.
+
+>>> Maybe we want noinline attribute, for inlining lsm_delist() into
+>>> lsm_delist_ops() is a bloat. And so does noinline attribute to lsm_enlist().
+>> I'm hesitant to try to second guess the compilers on this. If a
+>> performance expert told me to do it, I would, but I'd hate to be too
+>> clever.
+> Thinking from how frequently lsm_enlist()/lsm_delist() is called, I think
+> it does not worth inlining lsm_enlist()/lsm_delist() calls.
+
+I agree, I also don't think is worth specifying noinline.
+ 
+
+>>> Overall, this version can eliminate overhead caused by unimplemented hooks.
+>>> Then, I think we can afford allowing legal registration of trivial LKM-based
+>>> LSM modules after the init process starts; LSM modules which wants to use
+>>> lsm_blobs are limited to COMPOSER_MAX but LSM modules which do not need
+>>> lsm_blobs are allowed to chain as many as the administrator wants.
+>> So if an LSM includes no hooks that use blobs none would get
+>> allocated. Yama, for example. There would have to be a separate
+>> load order from blob slot number. I'm tempted to say it's too
+>> rare a case to worry about, but we have the example of Yama
+>> sitting there challenging that assertion.
+>>
+>> I will consider this.
+> Thank you.
+> Does adding 'bool use_blobs' field to "struct security_operations" help?
+
+Only if LSM writers are trustworthy and careful.
+I expect that a check at registration on the hooks that use blobs
+would be sufficient. I will check all the inode, file, cred and such
+hooks and if any are called the LSM gets a slot.
+ 
+
+>
+> There are three reasons I want to allow legal registration of LKM-based LSM
+> modules after the init process starts.
+>
+> First is that many distributions nowadays enable multiple LSM modules. Since
+> LSM modules cannot be a LKM, all possible LSM modules have to be built-in,
+> bloating the vmlinuz file. If LSM modules are allowed to be a LKM, distributors
+> can reduce the size of vmlinuz (making the kernel load time shorter). TOMOYO is
+> sitting here waiting for legal registration of LKM-based LSM modules.
+>
+> Second is that several distributions (e.g. Fedora and RHEL) enable only one LSM
+> module (e.g. SELinux). On such distributions, users who want to use other LSM
+> modules at their own risk have to replace the kernel package; this limitation
+> is a strong psychological barrier and maintenance burden for such users. I'm
+> using AKARI (which is a LKM-based TOMOYO) for troubleshooting RHEL systems
+> because replacing the kernel package (in order to use TOMOYO) is unlikely
+> acceptable for RHEL users.
+>
+> Third is that LSM is not the tool for thought control. LSM should be the tool
+> for minimizing the burden of all subsystems' maintainers.
+> I hope LSM folks have learned that "not everybody can configure SELinux" and
+> "even AppArmor is not configurable for somebody"
+> ( http://events.linuxfoundation.org/images/stories/pdf/lcna_co2012_handa.pdf )
+> and "Yama is sufficient for some users" and other (not yet in-tree) modules may
+> be sufficient for some other users
+> ( http://events.linuxfoundation.org/images/stories/pdf/lcna_co2012_henderson.pdf ).
+>
+> For accelerating the development of custom LSM module which users really want,
+> LSM interface should be opened to allow LKM-based LSM modules.
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
