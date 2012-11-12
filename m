@@ -1,114 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qACEvJkn023045
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 09:57:20 -0500
-Message-ID: <50A10E53.4080206@davequigley.com>
-Date: Mon, 12 Nov 2012 09:57:23 -0500
-From: Dave Quigley <dpquigl@davequigley.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qACFKp7U024799
+	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 10:20:51 -0500
+Received: by mail-ea0-f181.google.com with SMTP id a11so1037628eaa.12
+        for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 07:20:19 -0800 (PST)
 MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: trond.myklebust@netapp.com, sds@tycho.nsa.gov, linux-nfs@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
-        Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>,
-        Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>,
-        Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
-Subject: Re: [PATCH 05/13] KConfig: Add KConfig entries for Labeled NFS
-References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com> <1352700947-3915-6-git-send-email-dpquigl@davequigley.com> <20121112144555.GF30713@fieldses.org>
-In-Reply-To: <20121112144555.GF30713@fieldses.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20121111235001.a3gqhaijmec0gk0g-cebfxv@webmail.spamcop.net>
+References: <20121025101416.v1wilj95q8wkk0os-cebfxv@webmail.spamcop.net>
+	<20121111235001.a3gqhaijmec0gk0g-cebfxv@webmail.spamcop.net>
+Date: Mon, 12 Nov 2012 10:20:18 -0500
+Message-ID: <CACLa4pu4FFwKdoA8ATfmviOj0e0mAQ3U2FNEiJHCv4RfDY4ZoQ@mail.gmail.com>
+Subject: Re: Bisected regression: iterate_fd() selinux change affects flash plugin
+From: Eric Paris <eparis@parisplace.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/12/2012 9:45 AM, J. Bruce Fields wrote:
-> On Mon, Nov 12, 2012 at 01:15:39AM -0500, David Quigley wrote:
->> From: David Quigley <dpquigl@davequigley.com>
->>
->> This patch adds two entries into the fs/KConfig file. The first entry
->> NFS_V4_SECURITY_LABEL enables security label support for the NFSv4 client while
->> the second entry NFSD_V4_SECURITY_LABEL enables security labeling support on
->> the server side.
->>
->> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
->> Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
->> Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
->> Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
->> Signed-off-by: David Quigley <dpquigl@davequigley.com>
->> ---
->>   fs/nfs/Kconfig  | 16 ++++++++++++++++
->>   fs/nfsd/Kconfig | 13 +++++++++++++
->>   2 files changed, 29 insertions(+)
->>
->> diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
->> index 13ca196..0077197 100644
->> --- a/fs/nfs/Kconfig
->> +++ b/fs/nfs/Kconfig
->> @@ -131,6 +131,22 @@ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
->>   	  If the NFS client is unchanged from the upstream kernel, this
->>   	  option should be set to the default "kernel.org".
->>
->> +config NFS_V4_SECURITY_LABEL
->> +	bool "Provide Security Label support for NFSv4 client"
->> +	depends on NFS_V4 && SECURITY
->> +	help
->> +
->> +	Say Y here if you want enable fine-grained security label attribute
->> +	support for NFS version 4.  Security labels allow security modules like
->> +	SELinux and Smack to label files to facilitate enforcement of their policies.
->> +	Without this an NFSv4 mount will have the same label on each file.
->> +
->> +	If you do not wish to enable fine-grained security labels SELinux or
->> +	Smack policies on NFSv4 files, say N.
->
-> Here and below we also need some warning abouot the current state of
-> this: we definitely want to warn any distro that might be tempted to
-> turn this on by default that there's still a chance of
-> backwards-incompatible protocol changes.
->
-> --b.
->
+OMG this +1 -1 stuff is nuts...
 
-Sounds good to me I'll make sure to include that.
+iterate_fd passes fd+1 instead of the fd for the file?  seriously?
+ewwww.  I see how this patch fixes it, but still, wouldn't some magic
+or negative value for no entries found be better than having to
+understand the crazy logics?
 
->> +
->> +
->> +	  If unsure, say N.
->> +
->>   config ROOT_NFS
->>   	bool "Root file system on NFS"
->>   	depends on NFS_FS=y && IP_PNP
->> diff --git a/fs/nfsd/Kconfig b/fs/nfsd/Kconfig
->> index 8df1ea4..75ba894 100644
->> --- a/fs/nfsd/Kconfig
->> +++ b/fs/nfsd/Kconfig
->> @@ -81,6 +81,19 @@ config NFSD_V4
+/me pokes Al.
+
+On Sun, Nov 11, 2012 at 11:50 PM, Pavel Roskin <proski@gnu.org> wrote:
+> Quoting Pavel Roskin <proski@gnu.org>:
+>
+>> Hello, Al!
 >>
->>   	  If unsure, say N.
+>> I have noticed that Mozilla Firefox gets stuck for seconds or minutes
+>> on some sites, in particular on Facebook with Linux 3.7-rc1 and newer
+>> mainline kernels.  Disabling flash plugin fixes the delays.
 >>
->> +config NFSD_V4_SECURITY_LABEL
->> +	bool "Provide Security Label support for NFSv4 server"
->> +	depends on NFSD_V4 && SECURITY
->> +	help
->> +
->> +	Say Y here if you want enable fine-grained security label attribute
->> +	support for NFS version 4.  Security labels allow security modules like
->> +	SELinux and Smack to label files to facilitate enforcement of their policies.
->> +	Without this an NFSv4 mount will have the same label on each file.
->> +
->> +	If you do not wish to enable fine-grained security labels SELinux or
->> +	Smack policies on NFSv4 files, say N.
->> +
->>   config NFSD_FAULT_INJECTION
->>   	bool "NFS server manual fault injection"
->>   	depends on NFSD_V4 && DEBUG_KERNEL
+>> This is a Fedora 17 system with SELinux enabled, on x86_64
+>> architecture, with all updates, with LXDE desktop.  It's not the Fedora
+>> 16 system I mentioned before, it has never had LXDE login problems due
+>> to replace_fd().
+>>
+>> Bisecting lead me to the patch that introduced iterate_fd():
+>>
+>> commit c3c073f808b22dfae15ef8412b6f7b998644139a
+>> Author: Al Viro <viro@zeniv.linux.org.uk>
+>> Date:   Tue Aug 21 22:32:06 2012 -0400
+>>
+>>     new helper: iterate_fd()
+>>
+>>     iterates through the opened files in given descriptor table,
+>>     calling a supplied function; we stop once non-zero is returned.
+>>     Callback gets struct file *, descriptor number and const void *
+>>     argument passed to iterator.  It is called with files->file_lock
+>>     held, so it is not allowed to block.
+>>
+>>     tty_io, netprio_cgroup and selinux flush_unauthorized_files()
+>>     converted to its use.
+>>
+>>     Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+>>
+>> I have found that reverting the changes to security/selinux/hooks.c is
+>> sufficient to restore the correct behavior.
+>>
 >> --
->> 1.7.11.7
->>
+>> Regards,
+>> Pavel Roskin
+>
+>
+> I've made a bugzilla entry for the bug and put a preliminary patch there.
+> https://bugzilla.kernel.org/show_bug.cgi?id=50401
+>
+>
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> Regards,
+> Pavel Roskin
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
