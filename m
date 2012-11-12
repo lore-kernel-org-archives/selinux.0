@@ -1,40 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qACKiRQm009561
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 15:44:29 -0500
-Message-ID: <50A15FAB.9040208@davequigley.com>
-Date: Mon, 12 Nov 2012 15:44:27 -0500
-From: Dave Quigley <dpquigl@davequigley.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qACMNf4k014872
+	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 17:23:42 -0500
+Message-ID: <50A176CE.8010509@schaufler-ca.com>
+Date: Mon, 12 Nov 2012 14:23:10 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: trond.myklebust@netapp.com, sds@tycho.nsa.gov, linux-nfs@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+To: David Quigley <dpquigl@davequigley.com>
+CC: bfields@fieldses.org, trond.myklebust@netapp.com, sds@tycho.nsa.gov,
+        linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Labeled NFS [v5]
-References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com> <20121112163314.GM30713@fieldses.org>
-In-Reply-To: <20121112163314.GM30713@fieldses.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com>
+In-Reply-To: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/12/2012 11:33 AM, J. Bruce Fields wrote:
-> On Mon, Nov 12, 2012 at 01:15:34AM -0500, David Quigley wrote:
->> The NFSv4 working group has finally accepted Labeled NFS as part of the NFSv4.2
->> specification and it has been decided that a reposting of the Labeled NFS code
->> for inclusion into mainline was a good idea. The patches have been rebased onto
->> v3.7-rc2 and have been tested against the SELinux testsuite with the only
->> failures being for features not supported by NFS.
->
-> This will still need support for FATTR4_CHANGE_SEC_LABEL.
->
-> --b.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+On 11/11/2012 10:15 PM, David Quigley wrote:
+> The NFSv4 working group has finally accepted Labeled NFS as part of the NFSv4.2
+> specification and it has been decided that a reposting of the Labeled NFS code
+> for inclusion into mainline was a good idea. The patches have been rebased onto
+> v3.7-rc2 and have been tested against the SELinux testsuite with the only
+> failures being for features not supported by NFS.
 
-That's true. At the time we didn't have FATTR4_CHANGE_SEC_LABEL so it 
-wasn't implemented. This should be a good start at Labeled NFS support 
-but will take more work.
+It's going to take a few days (I'm traveling among other issues)
+before I can have the Smack project comments ready. They are coming.
+
+If you have pointers to test suites you found especially helpful
+I could sure use them.
+
+Thank you.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
