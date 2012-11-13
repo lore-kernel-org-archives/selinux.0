@@ -1,29 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAD1e5St023679
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 20:40:06 -0500
-Message-ID: <50A1A4EE.7030507@davequigley.com>
-Date: Mon, 12 Nov 2012 20:39:58 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAD3GEuV028009
+	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2012 22:16:19 -0500
+Message-ID: <50A1BB75.2000303@davequigley.com>
+Date: Mon, 12 Nov 2012 22:16:05 -0500
 From: Dave Quigley <dpquigl@davequigley.com>
 MIME-Version: 1.0
-To: Steve Dickson <SteveD@redhat.com>
-CC: "J. Bruce Fields" <bfields@fieldses.org>,
-        "David P. Quigley" <selinux@davequigley.com>,
-        trond.myklebust@netapp.com, sds@tycho.nsa.gov,
+To: Casey Schaufler <casey@schaufler-ca.com>
+CC: bfields@fieldses.org, trond.myklebust@netapp.com, sds@tycho.nsa.gov,
         linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
 Subject: Re: Labeled NFS [v5]
-References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com> <20121112152335.GH30713@fieldses.org> <50A116F0.5050404@davequigley.com> <20121112160959.GK30713@fieldses.org> <50A16269.4060601@RedHat.com>
-In-Reply-To: <50A16269.4060601@RedHat.com>
+References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com> <50A176CE.8010509@schaufler-ca.com>
+In-Reply-To: <50A176CE.8010509@schaufler-ca.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If you're ok with non Fedora kernel images I can try to put up a tree 
-either tonight or tomorrow with the patches that you just need to build 
-and install. That plus the one patch for nfs-utils should make 
-everything work.
+On 11/12/2012 5:23 PM, Casey Schaufler wrote:
+> On 11/11/2012 10:15 PM, David Quigley wrote:
+>> The NFSv4 working group has finally accepted Labeled NFS as part of the NFSv4.2
+>> specification and it has been decided that a reposting of the Labeled NFS code
+>> for inclusion into mainline was a good idea. The patches have been rebased onto
+>> v3.7-rc2 and have been tested against the SELinux testsuite with the only
+>> failures being for features not supported by NFS.
+>
+> It's going to take a few days (I'm traveling among other issues)
+> before I can have the Smack project comments ready. They are coming.
+>
+> If you have pointers to test suites you found especially helpful
+> I could sure use them.
+>
+> Thank you.
+>
 
-Dave
+The only testsuite I have is the SELinux one. Unfortunately you're on 
+your own for a smack testsuite.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
