@@ -1,90 +1,84 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qADEgmiq032502
-	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2012 09:42:48 -0500
-Received: by mail-vc0-f181.google.com with SMTP id n11so8544138vch.12
-        for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2012 06:42:17 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Tommi Rantala <tt.rantala@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <james.l.morris@oracle.com>,
-        linux-security-module@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: Fix RCU deref check warning in sel_netnode_insert()
-Date: Tue, 13 Nov 2012 09:42:13 -0500
-Message-ID: <1718634.SNujPArVHZ@sifl>
-In-Reply-To: <1352814760-24451-1-git-send-email-tt.rantala@gmail.com>
-References: <1352814760-24451-1-git-send-email-tt.rantala@gmail.com>
+Message-ID: <50A29C78.2050404@tycho.nsa.gov>
+Date: Tue, 13 Nov 2012 14:16:08 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org,
+        debian-dpkg@lists.debian.org
+Subject: Re: Possible issues with dpkg SELinux support
+References: <20121108082623.GA5059@gaara.hadrons.org> <CAB9W1A3cVVSj-PbM73c+vePHt7fVGf8117OXmTrDPf0K0vyYGg@mail.gmail.com> <20121110031932.GA6217@gaara.hadrons.org>
+In-Reply-To: <20121110031932.GA6217@gaara.hadrons.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, November 13, 2012 03:52:40 PM Tommi Rantala wrote:
-> The following RCU message sometimes can be seen while running the
-> Trinity syscall fuzzer. Apply the same fix as in commit 50345f1e
-> ("SELinux: Fix RCU deref check warning in sel_netport_insert()").
-> 
-> [  167.304447] ===============================
-> [  167.304454] [ INFO: suspicious RCU usage. ]
-> [  167.304464] 3.7.0-rc5+ #12 Not tainted
-> [  167.304472] -------------------------------
-> [  167.304483] security/selinux/netnode.c:178 suspicious
-> rcu_dereference_check() usage! [  167.304492]
-> [  167.304492] other info that might help us debug this:
-> [  167.304492]
-> [  167.304505]
-> [  167.304505] rcu_scheduler_active = 1, debug_locks = 1
-> [  167.304516] 1 lock held by trinity-child1/1894:
-> [  167.304523]  #0:  (sel_netnode_lock){+.....}, at: [<ffffffff812ca151>]
-> sel_netnode_sid_slow+0x31/0x180 [  167.304565]
-> [  167.304565] stack backtrace:
-> [  167.304577] Pid: 1894, comm: trinity-child1 Not tainted 3.7.0-rc5+ #12
-> [  167.304585] Call Trace:
-> [  167.304605]  [<ffffffff810eee67>] lockdep_rcu_suspicious+0xe7/0x130
-> [  167.304620]  [<ffffffff812c9f7a>] sel_netnode_insert+0xea/0x110
-> [  167.304634]  [<ffffffff812ca27d>] sel_netnode_sid_slow+0x15d/0x180
-> [  167.304651]  [<ffffffff812ca3bd>] sel_netnode_sid+0x11d/0x1a0
-> [  167.304668]  [<ffffffff812ca2a0>] ? sel_netnode_sid_slow+0x180/0x180
-> [  167.304688]  [<ffffffff812c41ca>] selinux_socket_bind+0xea/0x2a0
-> [  167.304708]  [<ffffffff81173001>] ? print_vma_addr+0x71/0x120
-> [  167.304724]  [<ffffffff81173135>] ? might_fault+0x85/0x90
-> [  167.304740]  [<ffffffff812bb9f1>] security_socket_bind+0x11/0x20
-> [  167.304755]  [<ffffffff8168e98e>] sys_bind+0x5e/0xc0
-> [  167.304769]  [<ffffffff810ed0cd>] ? trace_hardirqs_on_caller+0x10d/0x1a0
-> [  167.304785]  [<ffffffff813166de>] ? trace_hardirqs_on_thunk+0x3a/0x3f
-> [  167.304802]  [<ffffffff81891669>] system_call_fastpath+0x16/0x1b
-> 
-> Signed-off-by: Tommi Rantala <tt.rantala@gmail.com>
-> ---
->  security/selinux/netnode.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> index 28f911c..6dffd27 100644
-> --- a/security/selinux/netnode.c
-> +++ b/security/selinux/netnode.c
-> @@ -174,7 +174,9 @@ static void sel_netnode_insert(struct sel_netnode *node)
-> if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
->  		struct sel_netnode *tail;
->  		tail = list_entry(
-> -			rcu_dereference(sel_netnode_hash[idx].list.prev),
-> +			rcu_dereference_protected(
-> +				sel_netnode_hash[idx].list.prev,
-> +				lockdep_is_held(&sel_netnode_lock)),
->  			struct sel_netnode, list);
->  		list_del_rcu(&tail->list);
->  		kfree_rcu(tail, rcu);
+On 11/09/2012 10:19 PM, Guillem Jover wrote:
+> Is the "<<none>>" check needed at all? This has bothered me for a
+> while, and it's not clear if calling lsetfilecon_raw() with that would
+> DTRT, or if selabel_lookup_raw() would never return that to start with.
 
-Hey Eric, 27th times the charm, eh?  I'm not sure why this hasn't been merged 
-yet, but we need this patch (or one of the many others posted before this 
-one).
+As you already saw, this check is no longer necessary.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+> Should the code be handling selinux_status_updated(), and reopening
+> the selabel_handle in such case? If so, how often, per extracted file,
+> per package processed (probably this usually happens only after
+> upgrading the refpolicy package?), some other time(s)?
 
--- 
-paul moore
-www.paul-moore.com
+I believe rpm does selinux_status_open() at the beginning of the 
+transaction and selinux_status_close() at the end of the transaction, 
+and during the transaction, checks selinux_status_updated() once per 
+package processed to see whether it needs to re-open the selabel handle. 
+  This ensures that rpm gets a fresh view of file_contexts if it is 
+modified during the transaction by a semodule or semanage command.
+
+> Should the code be ignoring some other SELinux errors or considering
+> them warnings when running in non-enforcing mode, or is that already
+> handled internally by the SELinux interfaces?
+
+This should generally be done within libselinux rather than in the caller.
+
+> Is ignoring errors from lsetfilecon_raw() enough of a grave issue as
+> to warrant a stable dpkg update (can it create security issues, or just
+> wrongful or too restrictive unpacks)? (I'd be preparing updates for the
+> current Debian stable and the just-being-prepared-stable releases in
+> such case.)
+
+It could be a security issue, although obviously no current Debian 
+SELinux users were relying on it.
+
+> Also Elena's proposed plugin system did not seem to be directly related
+> to SELinux, so I've ended adapting rpm_execcon() almost verbatim to the
+> dpkg case. But something that came to mind is if you think it would make
+> sense to refactor that function (I've read it's supposed to disappear
+> anyway) into something slightly more generic so that it could be used by
+> at least both rpm and dpkg (and possibly other package managers or even
+> programs invoking helper programs). Something ressembling the adaptation
+> that I've made in the attached patch, but in addition passing to it (at
+> least) the fallback context type, it could perhaps have a signature
+> similar to something like:
+>
+>    int setexecfilecon(const char *filename, const char *fallback_type);
+>
+> and be called like:
+>
+>    rc = setexecfilecon(path, "dpkg_script_t");
+>    ...
+>    rc = execve(path, argv, envp);
+>
+> ?
+
+That seems reasonable, except that we'd ideally like to get rid of the 
+hardcoded type altogether and get it from a configuration, preferably 
+supplied by the policy.  But the problem of course is what to do  before 
+the policy package is installed.
+
+> If the attached patch looks fine in principle, I'd ask the Debian
+> SELinux folks for some testing (as I've only build tested it), and if
+> they need to somehow adapt the Debian SELinux refpolicy.
+
+Looks mostly correct to me, but the error check for lsetfilecon_raw() 
+should be:
+	if (ret < 0 && errno != EOPNOTSUPP)
+
 
 
 --
