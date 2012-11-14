@@ -1,10 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAEE1bq8020048
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2012 09:01:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAEE4KEL020248
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2012 09:04:20 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
  format=flowed
-Date: Wed, 14 Nov 2012 09:01:36 -0500
+Date: Wed, 14 Nov 2012 09:04:18 -0500
 From: David Quigley <dpquigl@davequigley.com>
 To: "J. Bruce Fields" <bfields@fieldses.org>
 Cc: Steve Dickson <steved@redhat.com>,
@@ -22,7 +22,7 @@ References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com>
  <50A31EF5.1050801@davequigley.com> <20121114134535.GD23604@fieldses.org>
  <624cc90c1bf726d8ff1a1ea0ace5f50f@countercultured.net>
  <20121114135939.GE23604@fieldses.org>
-Message-ID: <6fc201d796587ac166a8b45467b087cc@countercultured.net>
+Message-ID: <80f36fef2a58eb538bce28daba3a862a@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -61,10 +61,13 @@ On 11/14/2012 08:59, J. Bruce Fields wrote:
 >
 > --b.
 
-Hmm... I'll have to look at the patches again to find out. Its been so 
-long since I worked on these full time that I have to go back and check 
-quite a bit. Luckily since i put the tree up for Trond last night I 
-should be able to look at them while at work.
+If we use nfsd_supported_minorversion which I'm guessing is an export 
+option what happens if someone wants to use other 4.2 features but not 
+labeling? I'll switch it over if you guys want it done that way, I think 
+though that this provides more flexibility. Although anything that makes 
+me carry around fewer patches is good in my book.
+
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
