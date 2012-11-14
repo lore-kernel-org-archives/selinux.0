@@ -1,64 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAEDuh7r019280
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2012 08:56:43 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAEE1bq8020048
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2012 09:01:37 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
  format=flowed
-Date: Wed, 14 Nov 2012 08:56:42 -0500
-From: David Quigley <selinux@davequigley.com>
-To: Dave Quigley <dpquigl@davequigley.com>
+Date: Wed, 14 Nov 2012 09:01:36 -0500
+From: David Quigley <dpquigl@davequigley.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
 Cc: Steve Dickson <steved@redhat.com>,
-        "J. Bruce Fields"
- <bfields@fieldses.org>,
+        "David P. Quigley"
+ <selinux@davequigley.com>,
         <trond.myklebust@netapp.com>, <sds@tycho.nsa.gov>,
         <linux-nfs@vger.kernel.org>, <selinux@tycho.nsa.gov>,
         <linux-security-module@vger.kernel.org>
 Subject: Re: Labeled NFS [v5]
-In-Reply-To: <50A31EF5.1050801@davequigley.com>
+In-Reply-To: <20121114135939.GE23604@fieldses.org>
 References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com>
  <20121112152335.GH30713@fieldses.org> <50A116F0.5050404@davequigley.com>
  <20121112160959.GK30713@fieldses.org> <50A16269.4060601@RedHat.com>
  <50A1A4EE.7030507@davequigley.com> <50A24345.8080309@RedHat.com>
- <50A31EF5.1050801@davequigley.com>
-Message-ID: <89250d50cb98ad1e39a9e8259312510c@countercultured.net>
+ <50A31EF5.1050801@davequigley.com> <20121114134535.GD23604@fieldses.org>
+ <624cc90c1bf726d8ff1a1ea0ace5f50f@countercultured.net>
+ <20121114135939.GE23604@fieldses.org>
+Message-ID: <6fc201d796587ac166a8b45467b087cc@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/13/2012 23:32, Dave Quigley wrote:
-> On 11/13/2012 7:55 AM, Steve Dickson wrote:
+On 11/14/2012 08:59, J. Bruce Fields wrote:
+> On Wed, Nov 14, 2012 at 08:50:17AM -0500, David Quigley wrote:
+>> On 11/14/2012 08:45, J. Bruce Fields wrote:
+>> >On Tue, Nov 13, 2012 at 11:32:53PM -0500, Dave Quigley wrote:
+>> >>Ok so if you go to http://www.selinuxproject.org/git you will see 
+>> a
+>> >>repo for lnfs and lnfs-patchset. The instructions at
+>> >>http://www.selinuxproject.org/page/Labeled_NFS give you a better
+>> >>indication on how to pull the trees. I've attached a patch for NFS
+>> >>utils which gives support for security_label/nosecurity_label in
+>> >>your /etc/exports file.
+>> >
+>> >Do we need an export option?  Is there any reason not to make the
+>> >feature available whenever there's support available for it?
 >>
->>
->> On 12/11/12 20:39, Dave Quigley wrote:
->>> If you're ok with non Fedora kernel images I can try to put up a 
->>> tree either tonight or tomorrow with the patches that you just need 
->>> to build and install. That plus the one patch for nfs-utils should 
->>> make everything work.
->> I'm good with that....
->>
->> steved.
->>
+>> I guess we could build it in but I figured an export option allowed
+>> someone to turn off security labeling support if they didn't want it
+>> on that export. What happens to clients when the server returns a
+>> cap that they don't support? Do they mask the bits out?
 >
-> Ok so if you go to http://www.selinuxproject.org/git you will see a
-> repo for lnfs and lnfs-patchset. The instructions at
-> http://www.selinuxproject.org/page/Labeled_NFS give you a better
-> indication on how to pull the trees. I've attached a patch for NFS
-> utils which gives support for security_label/nosecurity_label in your
-> /etc/exports file. I've also attached a script called setup which
-> should build a test directory called /export with a copy of /var/www
-> under it which should be labeled properly. It does all the proper
-> SELinux commands to make sure labeling is correct. Once you have that
-> setup just mount -t nfs localhost:/ /mnt/lnfs (or wherever you want)
-> and you should be good to go. Just ls -Z in /mnt/lnfs/var and check 
-> to
-> make sure the labels are the same as /export/var. It should have the
-> labels showing up in the network transfer. If you have any problems
-> just let me know and I can try to help figure them out.
+> Yeah, they should just ignore it.
 >
-> Dave
+> While this is still experimental it's still nice to have a way to 
+> turn
+> this on and off at runtime so people can experiment without having to
+> have it on for everyone all the time.  But 
+> nfsd_supported_minorversion
+> should be sufficient for that.
+>
+> (I don't think your patches actually dealt yet with the fact that 
+> this
+> is part of minor version 2?  Another for the todo list.)
+>
+> --b.
 
-If you want to run the testsuite we used Serge has a repo on the git 
-page above for the selinux-testsuite. Just copy it onto the nfs export 
-and follow the instructions in the readme.
+Hmm... I'll have to look at the patches again to find out. Its been so 
+long since I worked on these full time that I have to go back and check 
+quite a bit. Luckily since i put the tree up for Trond last night I 
+should be able to look at them while at work.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
