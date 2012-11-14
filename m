@@ -1,112 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qADKEYDP026320
-	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2012 15:14:34 -0500
-Date: Tue, 13 Nov 2012 21:13:53 +0100
-From: Guillem Jover <guillem@debian.org>
-To: selinux@tycho.nsa.gov
-Cc: selinux-devel@lists.alioth.debian.org, debian-dpkg@lists.debian.org
-Subject: Re: Possible issues with dpkg SELinux support
-Message-ID: <20121113201353.GA4202@gaara.hadrons.org>
-References: <20121108082623.GA5059@gaara.hadrons.org>
- <CAB9W1A3cVVSj-PbM73c+vePHt7fVGf8117OXmTrDPf0K0vyYGg@mail.gmail.com>
- <20121110031932.GA6217@gaara.hadrons.org>
- <50A29C78.2050404@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAE4WwEY018962
+	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2012 23:32:59 -0500
+Message-ID: <50A31EF5.1050801@davequigley.com>
+Date: Tue, 13 Nov 2012 23:32:53 -0500
+From: Dave Quigley <dpquigl@davequigley.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <50A29C78.2050404@tycho.nsa.gov>
+To: Steve Dickson <SteveD@redhat.com>
+CC: "J. Bruce Fields" <bfields@fieldses.org>,
+        "David P. Quigley" <selinux@davequigley.com>,
+        trond.myklebust@netapp.com, sds@tycho.nsa.gov,
+        linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: Labeled NFS [v5]
+References: <1352700947-3915-1-git-send-email-dpquigl@davequigley.com> <20121112152335.GH30713@fieldses.org> <50A116F0.5050404@davequigley.com> <20121112160959.GK30713@fieldses.org> <50A16269.4060601@RedHat.com> <50A1A4EE.7030507@davequigley.com> <50A24345.8080309@RedHat.com>
+In-Reply-To: <50A24345.8080309@RedHat.com>
+Content-Type: multipart/mixed;
+ boundary="------------080501030904020300030304"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2012-11-13 at 14:16:08 -0500, Stephen Smalley wrote:
-> On 11/09/2012 10:19 PM, Guillem Jover wrote:
-> >Should the code be handling selinux_status_updated(), and reopening
-> >the selabel_handle in such case? If so, how often, per extracted file,
-> >per package processed (probably this usually happens only after
-> >upgrading the refpolicy package?), some other time(s)?
-> 
-> I believe rpm does selinux_status_open() at the beginning of the
-> transaction and selinux_status_close() at the end of the
-> transaction, and during the transaction, checks
-> selinux_status_updated() once per package processed to see whether
-> it needs to re-open the selabel handle.  This ensures that rpm gets
-> a fresh view of file_contexts if it is modified during the
-> transaction by a semodule or semanage command.
+This is a multi-part message in MIME format.
+--------------080501030904020300030304
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok, I'll handle this in the code then.
+On 11/13/2012 7:55 AM, Steve Dickson wrote:
+>
+>
+> On 12/11/12 20:39, Dave Quigley wrote:
+>> If you're ok with non Fedora kernel images I can try to put up a tree either tonight or tomorrow with the patches that you just need to build and install. That plus the one patch for nfs-utils should make everything work.
+> I'm good with that....
+>
+> steved.
+>
 
-> >Is ignoring errors from lsetfilecon_raw() enough of a grave issue as
-> >to warrant a stable dpkg update (can it create security issues, or just
-> >wrongful or too restrictive unpacks)? (I'd be preparing updates for the
-> >current Debian stable and the just-being-prepared-stable releases in
-> >such case.)
-> 
-> It could be a security issue, although obviously no current Debian
-> SELinux users were relying on it.
+Ok so if you go to http://www.selinuxproject.org/git you will see a repo 
+for lnfs and lnfs-patchset. The instructions at 
+http://www.selinuxproject.org/page/Labeled_NFS give you a better 
+indication on how to pull the trees. I've attached a patch for NFS utils 
+which gives support for security_label/nosecurity_label in your 
+/etc/exports file. I've also attached a script called setup which should 
+build a test directory called /export with a copy of /var/www under it 
+which should be labeled properly. It does all the proper SELinux 
+commands to make sure labeling is correct. Once you have that setup just 
+mount -t nfs localhost:/ /mnt/lnfs (or wherever you want) and you should 
+be good to go. Just ls -Z in /mnt/lnfs/var and check to make sure the 
+labels are the same as /export/var. It should have the labels showing up 
+in the network transfer. If you have any problems just let me know and I 
+can try to help figure them out.
 
-Right, but I'd assume the users might just not know this could happen,
-so as this might be a security issue, I think I'll be preparing those
-updates.
+Dave
 
-> >Also Elena's proposed plugin system did not seem to be directly related
-> >to SELinux, so I've ended adapting rpm_execcon() almost verbatim to the
-> >dpkg case. But something that came to mind is if you think it would make
-> >sense to refactor that function (I've read it's supposed to disappear
-> >anyway) into something slightly more generic so that it could be used by
-> >at least both rpm and dpkg (and possibly other package managers or even
-> >programs invoking helper programs). Something ressembling the adaptation
-> >that I've made in the attached patch, but in addition passing to it (at
-> >least) the fallback context type, it could perhaps have a signature
-> >similar to something like:
-> >
-> >   int setexecfilecon(const char *filename, const char *fallback_type);
-> >
-> >and be called like:
-> >
-> >   rc = setexecfilecon(path, "dpkg_script_t");
-> >   ...
-> >   rc = execve(path, argv, envp);
-> >
-> >?
-> 
-> That seems reasonable, except that we'd ideally like to get rid of
-> the hardcoded type altogether and get it from a configuration,
-> preferably supplied by the policy.  But the problem of course is
-> what to do  before the policy package is installed.
-
-And the type would be applied based on the filename? That makes sense,
-but what about scripts stored on a db that need to be written into
-temporary files before executing them (as I think rpm is doing right
-now)? And the pre-policy bootstrapping problem is tricky indeed. So
-while the hardcoded type might not be pretty, it's at least hardcoded
-on the caller, which seems better than on the function itself. :)
-Any better ideas?
-
-> >If the attached patch looks fine in principle, I'd ask the Debian
-> >SELinux folks for some testing (as I've only build tested it), and if
-> >they need to somehow adapt the Debian SELinux refpolicy.
-> 
-> Looks mostly correct to me, but the error check for
-> lsetfilecon_raw() should be:
-> 	if (ret < 0 && errno != EOPNOTSUPP)
-
-Hmm, I got the ENOTSUP error from the lsetfilecon(3) man page, also
-that's the error code that makes sense given its description of “not
-supported”, while EOPNOTSUPP is “operation not supported on socket”,
-although on Linux it does not make a difference as they are aliased
-to the same value. In any case checking now the code it seems it's
-implemented in means of lsetxattr(2) which is also documented as
-returning ENOTSUP. Grepping though the libselinux code there's the
-*getfilecon functions which seems to be setting EOPNOTSUPP, maybe
-that's why you mentioned it? It might be a good idea to change those
-to ENOTSUP, if only for pedantry? :)
-
-And thanks for the answers and review.
-
-regards,
-guillem
+--------------080501030904020300030304
+Content-Type: text/plain; charset=windows-1252;
+ name="0001-Add-support-to-specify-which-exports-will-provide-La.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Add-support-to-specify-which-exports-will-provide-La.pa";
+ filename*1="tch"
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+--------------080501030904020300030304--
