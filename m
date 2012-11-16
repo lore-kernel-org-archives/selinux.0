@@ -1,9 +1,9 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAG4wFEl018345
-	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2012 23:58:21 -0500
-Message-ID: <50A5C7E4.80902@davequigley.com>
-Date: Thu, 15 Nov 2012 23:58:12 -0500
-From: Dave Quigley <selinux@davequigley.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAG4x1bf018398
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2012 23:59:02 -0500
+Message-ID: <50A5C815.5040002@davequigley.com>
+Date: Thu, 15 Nov 2012 23:59:01 -0500
+From: Dave Quigley <dpquigl@davequigley.com>
 MIME-Version: 1.0
 To: David Quigley <dpquigl@davequigley.com>
 CC: Casey Schaufler <casey@schaufler-ca.com>,
@@ -18,29 +18,30 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> I'm not sure what the proposed hook would be for except to identify it
->> as concerned with nfs. Perhaps the hook could return the names of
->> attributes that it wants nfs to provide.
->>
->
-> I'm not quite sure what you're proposing? I'm sure someone would find
-> another use for this hook though. The inode_getsecctx hook we made for
-> Labeled NFS was already merged because it was needed for providing
-> "persistent" label support for sysfs (meaning that it persisted inode
-> eviction from memory). The problem is that we have no real way to ask in
-> the NFS code if this is an LSM that can be used with Labeled NFS. In the
-> xattr code we have the new ismaclabel hook we add which allows us to
-> verify the xattr used as belonging to a label based LSM however we need
-> an xattr from userspace for that. The reason this is required is that
-> the server will need to fill out its capability mask to indicate it
-> supports security labeling. In addition the client also needs to know if
-> its running a security label based LSM because it will need to mask out
-> the label fattr bit from its getattr calls if it doesn't support it. We
-> can override this in SELinux by giving it a context mount but if we
-> don't then it will need to know whether or not to be pulling security
-> labels back.
->
+ >> I'm not sure what the proposed hook would be for except to identify it
+ >> as concerned with nfs. Perhaps the hook could return the names of
+ >> attributes that it wants nfs to provide.
+ >>
+ >
+ > I'm not quite sure what you're proposing? I'm sure someone would find
+ > another use for this hook though. The inode_getsecctx hook we made for
+ > Labeled NFS was already merged because it was needed for providing
+ > "persistent" label support for sysfs (meaning that it persisted inode
+ > eviction from memory). The problem is that we have no real way to ask in
+ > the NFS code if this is an LSM that can be used with Labeled NFS. In the
+ > xattr code we have the new ismaclabel hook we add which allows us to
+ > verify the xattr used as belonging to a label based LSM however we need
+ > an xattr from userspace for that. The reason this is required is that
+ > the server will need to fill out its capability mask to indicate it
+ > supports security labeling. In addition the client also needs to know if
+ > its running a security label based LSM because it will need to mask out
+ > the label fattr bit from its getattr calls if it doesn't support it. We
+ > can override this in SELinux by giving it a context mount but if we
+ > don't then it will need to know whether or not to be pulling security
+ > labels back.
+ >
 
+[Resending because I sent it from the wrong identity.]
 
 I think the point I'm trying to make is that we need to define the 
 interface which if you implement it you are supported. For label 
