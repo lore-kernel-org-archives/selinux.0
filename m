@@ -1,64 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAKHrCgb019049
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2012 12:53:12 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAKHrsrq019131
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2012 12:53:54 -0500
+Received: from gaara.hadrons.org (85.137.229.25) by resmaa12.ono.com (8.6.048.02) (authenticated as guillemj@ono.com)
+        id 5052D7630150E784 for selinux@tycho.nsa.gov; Tue, 20 Nov 2012 15:31:56 +0100
+Received: from guillem by gaara.hadrons.org with local (Exim 4.80)
+	(envelope-from <guillemj@ono.com>)
+	id 1TanxO-00023i-8y
+	for selinux@tycho.nsa.gov; Tue, 20 Nov 2012 14:33:42 +0100
 From: Guillem Jover <guillem@debian.org>
 To: selinux@tycho.nsa.gov
-Cc: rpm-maint@lists.rpm.org, debian-dpkg@lists.debian.org
-Subject: [PATCH RFC] Package script(let)s SELinux execution context
-Date: Tue, 20 Nov 2012 16:27:54 +0100
-Message-Id: <1353425275-10277-1-git-send-email-guillem@debian.org>
+Subject: [PATCH] libselinux: Use ENOTSUP instead of EOPNOTSUPP for getfilecon functions
+Date: Tue, 20 Nov 2012 14:33:35 +0100
+Message-Id: <1353418415-7884-1-git-send-email-guillem@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+EOPNOTSUPP means "operation not supoorted on socket", and ENOTSUP means
+"not supported", although per POSIX they can be alised to the same
+value and on Linux they do, ENOTSUP seems the more correct error code.
+In addition these functions are documented as returning ENOTSUP, and
+given that they are implemented in means of getxattr(2) which does
+return ENOTSUP too, this just consolidates their behaviour.
 
-Some context for the rpm folks. While looking into improving SELinux
-support in dpkg, I noticed that dpkg is not setting a new execution
-context when running the package maintainer scripts (package scriptlets
-in rpm lingo, I think). And when checking how to implement it, it seemed
-that reusing something like the current rpm_execcon() would be best,
-and Stephen seemed to agree. For more details, see the thread starting
-at <http://marc.info/?t=135236358700001&r=1&w=2>.
+Signed-off-by: Guillem Jover <guillem@debian.org>
+---
+ libselinux/src/fgetfilecon.c | 2 +-
+ libselinux/src/getfilecon.c  | 2 +-
+ libselinux/src/lgetfilecon.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-Having checked the rpm code, and the mailing list, it seems like this
-new function would make it easy to be used there too for stuff like
-the Lua scriptlets (if desired), and might make it easier also to
-switch to the new rpm plugins framework (?).
-
-I've discarded the verified argument for the new function because that
-seemed best handled from the rpm side, and in any case seemed unrelated
-to the execution context. I'm not entirely convinced about the function
-name though, as it could be confused as applying a context to a path on
-the filesystem. And I've not marked rpm_execcon() as deprecated because
-it might be annoying at the beginning, but would change that if you think
-it makes sense.
-
-In any case, here's a patch adding such new function. For dpkg, given
-that it has never set a new context up to now, I'd only make use of the
-function if it's available in libselinux, as I don't think it's worth it
-to ship an embedded copy. For rpm, I guess it could switch to use the
-function also if available and fallback to rpm_execcon() otherwise. After
-a while the rpm_execcon() function could be removed from libselinux, on
-the next ABI break, as I understand was the plan anyway (?).
-
-(The patch might not apply w/o the man page cleanup series.)
-
-So, what do you think?
-
-Thanks,
-Guillem
-
-Guillem Jover (1):
-  libselinux: Refactor rpm_execcon into a new setexecfilecon()
-
- libselinux/Makefile                        |  3 +++
- libselinux/include/selinux/selinux.h       |  4 ++++
- libselinux/man/man3/getexeccon.3           | 23 ++++++++++++++++++++---
- libselinux/src/Makefile                    |  3 ---
- libselinux/src/{rpm.c => setexecfilecon.c} | 27 ++++++++++++++++++++-------
- 5 files changed, 47 insertions(+), 13 deletions(-)
- rename libselinux/src/{rpm.c => setexecfilecon.c} (71%)
-
+diff --git a/libselinux/src/fgetfilecon.c b/libselinux/src/fgetfilecon.c
+index c88d515..3395c9f 100644
+--- a/libselinux/src/fgetfilecon.c
++++ b/libselinux/src/fgetfilecon.c
+@@ -39,7 +39,7 @@ int fgetfilecon_raw(int fd, security_context_t * context)
+       out:
+ 	if (ret == 0) {
+ 		/* Re-map empty attribute values to errors. */
+-		errno = EOPNOTSUPP;
++		errno = ENOTSUP;
+ 		ret = -1;
+ 	}
+ 	if (ret < 0)
+diff --git a/libselinux/src/getfilecon.c b/libselinux/src/getfilecon.c
+index 67e4463..eb2ce8a 100644
+--- a/libselinux/src/getfilecon.c
++++ b/libselinux/src/getfilecon.c
+@@ -39,7 +39,7 @@ int getfilecon_raw(const char *path, security_context_t * context)
+       out:
+ 	if (ret == 0) {
+ 		/* Re-map empty attribute values to errors. */
+-		errno = EOPNOTSUPP;
++		errno = ENOTSUP;
+ 		ret = -1;
+ 	}
+ 	if (ret < 0)
+diff --git a/libselinux/src/lgetfilecon.c b/libselinux/src/lgetfilecon.c
+index a53f56e..58dc807 100644
+--- a/libselinux/src/lgetfilecon.c
++++ b/libselinux/src/lgetfilecon.c
+@@ -39,7 +39,7 @@ int lgetfilecon_raw(const char *path, security_context_t * context)
+       out:
+ 	if (ret == 0) {
+ 		/* Re-map empty attribute values to errors. */
+-		errno = EOPNOTSUPP;
++		errno = ENOTSUP;
+ 		ret = -1;
+ 	}
+ 	if (ret < 0)
 -- 
 1.8.0
 
