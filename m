@@ -1,198 +1,46 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAKFT4qc030888
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2012 10:29:04 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAKHeEfG016961
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2012 12:40:14 -0500
+Received: from gaara.hadrons.org (85.137.229.25) by resmaa12.ono.com (8.6.048.02) (authenticated as guillemj@ono.com)
+        id 5052D7630150E798 for selinux@tycho.nsa.gov; Tue, 20 Nov 2012 15:31:59 +0100
+Received: from guillem by gaara.hadrons.org with local (Exim 4.80)
+	(envelope-from <guillemj@ono.com>)
+	id 1TantB-000227-Hp
+	for selinux@tycho.nsa.gov; Tue, 20 Nov 2012 14:29:21 +0100
 From: Guillem Jover <guillem@debian.org>
 To: selinux@tycho.nsa.gov
-Cc: rpm-maint@lists.rpm.org, debian-dpkg@lists.debian.org
-Subject: [PATCH] libselinux: Refactor rpm_execcon() into a new setexecfilecon()
-Date: Tue, 20 Nov 2012 16:27:55 +0100
-Message-Id: <1353425275-10277-2-git-send-email-guillem@debian.org>
-In-Reply-To: <1353425275-10277-1-git-send-email-guillem@debian.org>
-References: <1353425275-10277-1-git-send-email-guillem@debian.org>
+Subject: =?UTF-8?q?=5BPATCH=200/4=5D=20libselinux=3A=20Man=20pages=20cleanups=20and=20updates?=
+Date: Tue, 20 Nov 2012 14:25:26 +0100
+Message-Id: <1353417930-7707-1-git-send-email-guillem@debian.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This new function allows a process to invoke helper programs with
-a new execution context based on the filename, this is initially
-intended for package managers so that they can easily execute
-package scriptlets or maintainer scripts.
+Hi!
 
-Base rpm_execcon() off this new function.
+While going through the SELinux documentation to improve its support
+in dpkg, I found some issues in the man pages. Here's some patches
+addressing them.
 
-Signed-off-by: Guillem Jover <guillem@debian.org>
----
- libselinux/Makefile                        |  3 +++
- libselinux/include/selinux/selinux.h       |  4 ++++
- libselinux/man/man3/getexeccon.3           | 23 ++++++++++++++++++++---
- libselinux/src/Makefile                    |  3 ---
- libselinux/src/{rpm.c => setexecfilecon.c} | 27 ++++++++++++++++++++-------
- 5 files changed, 47 insertions(+), 13 deletions(-)
- rename libselinux/src/{rpm.c => setexecfilecon.c} (71%)
+I'm not sure the typo fix in “libselinux: Fix typo in man page” is
+entirely correct, being non-native an all. The formatting fixes bring
+the man pages closer in line with the linux-man project's style; I
+didn't split that one into smaller changes, because it didn't seem
+worth it though.
 
-diff --git a/libselinux/Makefile b/libselinux/Makefile
-index fd4f0b1..6142b60 100644
---- a/libselinux/Makefile
-+++ b/libselinux/Makefile
-@@ -16,6 +16,9 @@ endif
- ifeq ($(DISABLE_BOOL),y)
- 	EMFLAGS+= -DDISABLE_BOOL
- endif
-+ifeq ($(DISABLE_RPM),y)
-+	EMFLAGS+= -DDISABLE_RPM
-+endif
- ifeq ($(DISABLE_SETRANS),y)
- 	EMFLAGS+= -DDISABLE_SETRANS
- endif
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 6b9089d..e1e965d 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -565,6 +565,10 @@ int selinuxfs_exists(void);
- /* clear selinuxmnt variable and free allocated memory */
- void fini_selinuxmnt(void);
- 
-+/* Set an appropriate security context based on the filename of a helper
-+ * program, falling back to a new context with the specified type. */
-+extern int setexecfilecon(const char *filename, const char *fallback_type);
-+
- /* Execute a helper for rpm in an appropriate security context. */
- extern int rpm_execcon(unsigned int verified,
- 		       const char *filename,
-diff --git a/libselinux/man/man3/getexeccon.3 b/libselinux/man/man3/getexeccon.3
-index c188a3a..1b66ab6 100644
---- a/libselinux/man/man3/getexeccon.3
-+++ b/libselinux/man/man3/getexeccon.3
-@@ -15,6 +15,8 @@ rpm_execcon \- run a helper for rpm in an appropriate security context
- .sp
- .BI "int setexeccon_raw(security_context_t "context );
- .sp
-+.BI "int setexecfilecon(const char *" filename ", const char *" fallback_type );
-+.sp
- .BI "int rpm_execcon(unsigned int " verified ", const char *" filename ", char *const " argv "[] , char *const " envp "[]);
- .
- .SH "DESCRIPTION"
-@@ -62,7 +64,21 @@ Signal handlers that perform an
- must take care to
- save, reset, and restore the exec context to avoid unexpected behavior.
- 
-+.BR setexecfilecon ()
-+sets the context used for the next
-+.BR execve (2)
-+call, based on the policy for the
-+.IR filename ,
-+and falling back to a new context with a
-+.I fallback_type
-+in case there is no transition.
-+
- .BR rpm_execcon ()
-+is deprecated; please use
-+.BR setexecfilecon ()
-+in conjunction with
-+.BR execve (2)
-+in all new code. This function
- runs a helper for rpm in an appropriate security context.  The
- verified parameter should contain the return code from the signature
- verification (0 == ok, 1 == notfound, 2 == verifyfail, 3 ==
-@@ -76,10 +92,11 @@ environment arrays.
- On error \-1 is returned.
- 
- On success
--.BR getexeccon ()
--and
-+.BR getexeccon (),
- .BR setexeccon ()
--returns 0.
-+and
-+.BR setexecfilecon ()
-+return 0.
- .BR rpm_execcon ()
- only returns upon errors, as it calls
- .BR execve (2).
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index ac019df..a7e5311 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -47,9 +47,6 @@ endif
- ifeq ($(DISABLE_BOOL),y)
- 	UNUSED_SRCS+=booleans.c
- endif
--ifeq ($(DISABLE_RPM),y)
--	UNUSED_SRCS+=rpm.c
--endif
- 
- GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
- SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(wildcard *.c))
-diff --git a/libselinux/src/rpm.c b/libselinux/src/setexecfilecon.c
-similarity index 71%
-rename from libselinux/src/rpm.c
-rename to libselinux/src/setexecfilecon.c
-index b89f1bb..b3afa13 100644
---- a/libselinux/src/rpm.c
-+++ b/libselinux/src/setexecfilecon.c
-@@ -5,15 +5,14 @@
- #include "selinux_internal.h"
- #include "context_internal.h"
- 
--int rpm_execcon(unsigned int verified __attribute__ ((unused)),
--		const char *filename, char *const argv[], char *const envp[])
-+int setexecfilecon(const char *filename, const char *fallback_type)
- {
- 	security_context_t mycon = NULL, fcon = NULL, newcon = NULL;
- 	context_t con = NULL;
- 	int rc = 0;
- 
- 	if (is_selinux_enabled() < 1)
--		return execve(filename, argv, envp);
-+		return 0;
- 
- 	rc = getcon(&mycon);
- 	if (rc < 0)
-@@ -28,12 +27,12 @@ int rpm_execcon(unsigned int verified __attribute__ ((unused)),
- 		goto out;
- 
- 	if (!strcmp(mycon, newcon)) {
--		/* No default transition, use rpm_script_t for now. */
-+		/* No default transition, use fallback_type for now. */
- 		rc = -1;
- 		con = context_new(mycon);
- 		if (!con)
- 			goto out;
--		if (context_type_set(con, "rpm_script_t"))
-+		if (context_type_set(con, fallback_type))
- 			goto out;
- 		freecon(newcon);
- 		newcon = strdup(context_str(con));
-@@ -47,8 +46,8 @@ int rpm_execcon(unsigned int verified __attribute__ ((unused)),
- 		goto out;
-       out:
- 
--	if (rc >= 0 || security_getenforce() < 1)
--		rc = execve(filename, argv, envp);
-+	if (rc < 0 && security_getenforce() == 0)
-+		rc = 0;
- 
- 	context_free(con);
- 	freecon(newcon);
-@@ -56,3 +55,17 @@ int rpm_execcon(unsigned int verified __attribute__ ((unused)),
- 	freecon(mycon);
- 	return rc < 0 ? rc : 0;
- }
-+
-+#ifndef DISABLE_RPM
-+int rpm_execcon(unsigned int verified __attribute__ ((unused)),
-+		const char *filename, char *const argv[], char *const envp[])
-+{
-+	int rc;
-+
-+	rc = setexecfilecon(filename, "rpm_script_t");
-+	if (rc < 0)
-+		return rc;
-+
-+	return execve(filename, argv, envp);
-+}
-+#endif
+Regards,
+Guillem
+
+Guillem Jover (4):
+  libselinux: Fix program synopsis and function prototypes in man pages
+  libselinux: Fix man pages formatting
+  libselinux: Fix typo in man page
+  libselinux: Add references and man page links to _raw function
+    variants
 -- 
 1.8.0
+
 
 
 --
