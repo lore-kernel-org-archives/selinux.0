@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qALKUtNw002806
-	for <selinux@tycho.nsa.gov>; Wed, 21 Nov 2012 15:30:55 -0500
-Message-ID: <50AD39E4.5060307@schaufler-ca.com>
-Date: Wed, 21 Nov 2012 12:30:28 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qAQGY4An029370
+	for <selinux@tycho.nsa.gov>; Mon, 26 Nov 2012 11:34:04 -0500
+Message-ID: <50B399E3.2000207@schaufler-ca.com>
+Date: Mon, 26 Nov 2012 08:33:39 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
@@ -10,68 +10,91 @@ CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, john.johansen@canonical.com, eparis@redhat.com,
         keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [PATCH v8 1/2] LSM: Multiple concurrent LSMs
-References: <50ABE35B.7060103@schaufler-ca.com> <201211212258.IEI34810.FOMOOSLJQFFHVt@I-love.SAKURA.ne.jp>
-In-Reply-To: <201211212258.IEI34810.FOMOOSLJQFFHVt@I-love.SAKURA.ne.jp>
+References: <50ABE35B.7060103@schaufler-ca.com> <201211212258.IEI34810.FOMOOSLJQFFHVt@I-love.SAKURA.ne.jp> <50AD39E4.5060307@schaufler-ca.com> <201211222220.JID30761.OVJtFLOOFHFQSM@I-love.SAKURA.ne.jp> <201211252210.CFJ12903.FtQHSOOFOVMJFL@I-love.SAKURA.ne.jp> <201211262204.GGI04679.FtLJQFHVOOMSFO@I-love.SAKURA.ne.jp>
+In-Reply-To: <201211262204.GGI04679.FtLJQFHVOOMSFO@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/21/2012 5:58 AM, Tetsuo Handa wrote:
-> Casey Schaufler wrote:
->> I have not tried to
->> reintroduce LSMs as loadable modules, in spite of the
->> vigor with which it has been requested. I see that as
->> work for another day, and a seperate battle to fight.
-> Please respond to
+On 11/26/2012 5:04 AM, Tetsuo Handa wrote:
+> Something like this?
+
+I've incorporated several of differences. They'll be in the next (v8) patch.
+
 >
->   Subject: [PATCH 0/5] Allow LKM-based LSM modules.
->   Date: Mon, 19 Nov 2012 22:57:28 +0900
+> int security_getprocattr(struct task_struct *p, char *name, char **value)
+> {
+> 	struct security_operations *sop;
+> 	struct security_operations *note[COMPOSER_MAX];
+> 	char *values[COMPOSER_MAX];
+> 	int rcs[COMPOSER_MAX];
+> 	int i = 0;
+> 	struct security_operations *preferred = lsm_present;
 >
-> posted to LSM-ML if somebody has objections. ;-)
-
-I really have to keep focus on the stacking aspects. I still
-want to get something right rather than trying to get all possible
-scenarios.
-
->> The current implementation of reset_security_ops() is
->> not up to the rigors required of a real load/unload
->> mechanism.
-> Why don't you move commoncap calls from each LSM to common path?
-
-This could be done in general, but there are three cases where it
-can't be done:
-
-mmap_addr
-	AppArmor and Smack specify cap_mmap_addr as the hook.
-	SELinux explicitly wants its check first for audit.
-capget
-	AppArmor replaces cap_capget with its own logic.
-	SELinux does its own check before the cap call.
-bprm_secure_exec
-	AppArmor does a trivial check before the cap call
-	Smack does a trivial check after the cap call.
-	SELinux does a non-trivial check before the cap call.
-
-How about if I change all the cases except for these three
-so that they do your suggested cap_call fail-and-bail. That
-will include changing the LSM hooks.
-
-For security_mmap_addr I can do a special case of calling the cap hook
-last, and only if there's no outstanding denial. AppArmor and Smack
-use the cap_mmap_addr hook as their own. That could be removed.
-
-For security_capget the existing behavior is necessary. This really
-is a replacement hook. AppArmor and SELinux may conflict fatally here.
-
-For security_bprm_secure_exec the same sort of special case used in
-security_mmap_addr, with the cap call last should work.
-
-I will look at pulling the list_empty cap_call out and fixing
-the LSMs to go along with a fail-and-bail cap_call where appropriate.
-
-Anyone want to offer suggestions on the possible conflict between
-SELinux and AppArmor on the capget hooks? I mean something more
-useful than disallowing the combination.
+> 	if (preferred)
+> 		return preferred->getprocattr(p, name, value);
+>
+> 	/*
+> 	 * Find all the LSMs that produce procattrs and call them,
+> 	 * saving the results.
+> 	 */
+> 	for_each_hook(sop, getprocattr) {
+> 		note[i] = sop;
+> 		values[i] = NULL;
+> 		rcs[i] = sop->getprocattr(p, name, &values[i]);
+> 		i++;
+> 	}
+> 	/*
+> 	 * Special cases for 0 and 1 LSMs getting called.
+> 	 * Otherwise, return a composed string.
+> 	 */
+> 	if (!i)
+> 		return -EINVAL;
+> 	if (i == 1) {
+> 		*value = values[0];
+> 		return rcs[0];
+> 	} else {
+> 		char *result;
+> 		int notes = i;
+> 		int total = 0;
+> 		for (i = 0; i < notes; i++) {
+> 			if (rcs[i] < 0)
+> 				total += 6; /* "(null)" */
+> 			else
+> 				total += rcs[i];
+> 			total += strlen(note[i]->name) + 2;
+> 		}
+> 		result = kzalloc(total + 3, GFP_KERNEL);
+> 		*value = result;
+> 		if (!result) {
+> 			for (i = 0; i < notes; i++)
+> 				kfree(values[i]);
+> 			return -ENOMEM;
+> 		}
+> 		for (i = 0; i < notes; i++) {
+> 			char *cp;
+> 			strcat(result, "/");
+> 			strcat(result, note[i]->name);
+> 			strcat(result, "=");
+> 			if (!values[i]) {
+> 				strcat(result, "(null)");
+> 				continue;
+> 			}
+> 			cp = memchr(values[i], '\n', rcs[i]);
+> 			if (cp)
+> 				*cp = '\0';
+> 			strncat(result, values[i], rcs[i]);
+> 			kfree(values[i]);
+> 		}
+> 		strcat(result, "/\n");
+> 		return strlen(result) + 1;
+> 	}
+> }
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 
 --
