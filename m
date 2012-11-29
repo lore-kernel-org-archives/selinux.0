@@ -1,45 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qATM6iUm029187
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2012 17:06:44 -0500
-Subject: [RFC PATCH 1/2] tun: correctly report an error in tun_flow_init()
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qATM6fJi029172
+	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2012 17:06:41 -0500
+Subject: [RFC PATCH 0/2] Fix some multiqueue TUN problems
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
 Cc: jasowang@redhat.com
-Date: Thu, 29 Nov 2012 17:06:29 -0500
-Message-ID: <20121129220629.30020.99947.stgit@sifl>
-In-Reply-To: <20121129215724.30020.69464.stgit@sifl>
-References: <20121129215724.30020.69464.stgit@sifl>
+Date: Thu, 29 Nov 2012 17:06:21 -0500
+Message-ID: <20121129215724.30020.69464.stgit@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On error, the error code from tun_flow_init() is lost inside
-tun_set_iff(), this patch fixes this by assigning the tun_flow_init()
-error code to the "err" variable which is returned by
-the tun_flow_init() function on error.
+A relatively short patchset to fix some problems that have arisen from
+the multiqueue TUN work.  I'm sending this a RFC for now as it changes
+the LSM TUN interfaces and therefore crosses a few boundaries,
+e.g. SELinux, although it does so only in an effort to restore the
+original behavior which was lost in the multiqueue conversion.
 
-Signed-off-by: Paul Moore <pmoore@redhat.com>
+I'm not particularly enthused with the idea of passing a void** as a
+parameter to security_tun_dev_alloc_security() but the alternatives
+would be to move the tun_struct out of tun.c or have the LSM interface
+return a pointer (which would require us to return a "fake" non-NULL
+pointer when the LSM was disabled) ... neither of these seemed like good
+alternatives to me.
+
+I've compiled the code and booted it without drama, but I haven't really
+stressed it too much so buyer beware at this point.  Comments are always
+welcome ...
+
 ---
- drivers/net/tun.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 607a3a5..877ffe2 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1605,7 +1605,8 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
- 
- 		tun_net_init(dev);
- 
--		if (tun_flow_init(tun))
-+		err = tun_flow_init(tun);
-+		if (err < 0)
- 			goto err_free_dev;
- 
- 		dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
+Paul Moore (2):
+      tun: correctly report an error in tun_flow_init()
+      tun: fix LSM/SELinux labeling of tun/tap devices
 
+
+ drivers/net/tun.c                 |   16 ++++++++++----
+ include/linux/security.h          |   37 ++++++++++++++++++++++-----------
+ security/capability.c             |   14 +++++++++---
+ security/security.c               |   22 ++++++++++++-------
+ security/selinux/hooks.c          |   42 +++++++++++++++++++++++--------------
+ security/selinux/include/objsec.h |    4 ++++
+ 6 files changed, 90 insertions(+), 45 deletions(-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
