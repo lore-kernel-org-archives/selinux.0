@@ -1,14 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB3F9E4R005403
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2012 10:09:14 -0500
-Received: by mail-ee0-f53.google.com with SMTP id c50so1784797eek.12
-        for <selinux@tycho.nsa.gov>; Mon, 03 Dec 2012 07:08:45 -0800 (PST)
-Message-ID: <1354547319.13093.2.camel@localhost>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB3FAmhp005990
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2012 10:10:48 -0500
+Received: by mail-ee0-f53.google.com with SMTP id c50so1786242eek.12
+        for <selinux@tycho.nsa.gov>; Mon, 03 Dec 2012 07:10:46 -0800 (PST)
+Message-ID: <1354547440.13093.3.camel@localhost>
 Subject: Re: policy for PowerDNS
 From: grift <dominick.grift@gmail.com>
 To: Sander Hoentjen <sander@hoentjen.eu>
 Cc: selinux@tycho.nsa.gov
-Date: Mon, 03 Dec 2012 16:08:39 +0100
+Date: Mon, 03 Dec 2012 16:10:40 +0100
 In-Reply-To: <50BCB590.8010602@hoentjen.eu>
 References: <50BCB590.8010602@hoentjen.eu>
 Content-Type: text/plain; charset="UTF-8"
@@ -28,6 +28,9 @@ On Mon, 2012-12-03 at 15:22 +0100, Sander Hoentjen wrote:
 > /var/run/pdns.controlsocket -s 
 > gen_context(system_u:object_r:named_var_run_t,s0)
 > /var/run/pdns.pid   -- gen_context(system_u:object_r:named_var_run_t,s0)
+
+escape the periods here though to minimize chances of error
+
 > ===================
 > ======pdns.te======
 > policy_module(pdns,0.0.1)
@@ -69,10 +72,7 @@ On Mon, 2012-12-03 at 15:22 +0100, Sander Hoentjen wrote:
 > tcontext=system_u:object_r:usr_t:s0 tclass=file
 > To allow this I will have to allow read access from named_t to usr_t, 
 > would that be okay?
-
-Yes, the capabilities are a pity, but it is give and take, so all
-considering this looks ok to me
-
+> 
 > Kind regards,
 > 
 > Sander
