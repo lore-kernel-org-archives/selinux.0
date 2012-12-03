@@ -1,89 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB3GMgQX024094
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2012 11:22:44 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Mon, 03 Dec 2012 11:22:29 -0500
-Message-ID: <2549856.XZ72FtkyJK@sifl>
-In-Reply-To: <50BC7BCE.7000502@redhat.com>
-References: <20121129215724.30020.69464.stgit@sifl> <20121129220637.30020.9980.stgit@sifl> <50BC7BCE.7000502@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB3HFvTb004769
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2012 12:15:57 -0500
+Received: by mail-lb0-f181.google.com with SMTP id ge1so2612640lbb.12
+        for <selinux@tycho.nsa.gov>; Mon, 03 Dec 2012 09:15:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <1353425275-10277-1-git-send-email-guillem@debian.org>
+References: <1353425275-10277-1-git-send-email-guillem@debian.org>
+Date: Mon, 3 Dec 2012 12:15:23 -0500
+Message-ID: <CACLa4ps+b=m7rto3wpXWqpOdTr01FzLTTXuKnO-isBM-smQ5hA@mail.gmail.com>
+Subject: Re: [PATCH RFC] Package script(let)s SELinux execution context
+From: Eric Paris <eparis@parisplace.org>
+To: Guillem Jover <guillem@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, rpm-maint@lists.rpm.org,
+        debian-dpkg@lists.debian.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, December 03, 2012 06:15:42 PM Jason Wang wrote:
-> On 11/30/2012 06:06 AM, Paul Moore wrote:
-> > This patch corrects some problems with LSM/SELinux that were introduced
-> > with the multiqueue patchset.  The problem stems from the fact that the
-> > multiqueue work changed the relationship between the tun device and its
-> > associated socket; before the socket persisted for the life of the
-> > device, however after the multiqueue changes the socket only persisted
-> > for the life of the userspace connection (fd open).  For non-persistent
-> > devices this is not an issue, but for persistent devices this can cause
-> > the tun device to lose its SELinux label.
-> > 
-> > We correct this problem by adding an opaque LSM security blob to the
-> > tun device struct which allows us to have the LSM security state, e.g.
-> > SELinux labeling information, persist for the lifetime of the tun
-> > device.
+Anyone have any comments?  I don't see a problem if such a function
+would make your life better...
 
-...
-
-> > -static int selinux_tun_dev_attach(struct sock *sk)
-> > +static int selinux_tun_dev_attach(struct sock *sk, void *security)
-> > 
-> >  {
-> > 
-> > +	struct tun_security_struct *tunsec = security;
-> > 
-> >  	struct sk_security_struct *sksec = sk->sk_security;
-> >  	u32 sid = current_sid();
-> >  	int err;
-> > 
-> > +	/* we don't currently perform any NetLabel based labeling here ...
-> >
-> >  	err = avc_has_perm(sid, sksec->sid, SECCLASS_TUN_SOCKET,
-> >  	
-> >  			   TUN_SOCKET__RELABELFROM, NULL);
-> >  	
-> >  	if (err)
-> >  	
-> >  		return err;
-> > 
-> > -	err = avc_has_perm(sid, sid, SECCLASS_TUN_SOCKET,
-> > +	err = avc_has_perm(sid, tunsec->sid, SECCLASS_TUN_SOCKET,
-> > 
-> >  			   TUN_SOCKET__RELABELTO, NULL);
-> >  	
-> >  	if (err)
-> >  	
-> >  		return err;
-> > 
-> > -	sksec->sid = sid;
-> > +	sksec->sid = tunsec->sid;
-> > +	sksec->sclass = SECCLASS_TUN_SOCKET;
-> 
-> I'm not sure whether this is correct, looks like we need to differ between
-> TUNSETQUEUE and TUNSETIFF. When userspace call TUNSETIFF for persistent
-> device, looks like we need change the sid of tunsec like in the past.
-
-It may be that I'm misunderstanding TUNSETQUEUE and/or TUNSETIFF.  Can you 
-elaborate as to why they should be different?
-
-One thing that I think we probably should change is the relabelto/from 
-permissions in the function above (selinux_tun_dev_attach()); in the case 
-where the socket does not yet have a label, e.g. 'sksec->sid == 0', we should 
-probably skip the relabel permissions since we want to assign the TUN device 
-label regardless in this case.
-
--- 
-paul moore
-security and virtualization @ redhat
-
+On Tue, Nov 20, 2012 at 10:27 AM, Guillem Jover <guillem@debian.org> wrote:
+> Hi!
+>
+> Some context for the rpm folks. While looking into improving SELinux
+> support in dpkg, I noticed that dpkg is not setting a new execution
+> context when running the package maintainer scripts (package scriptlets
+> in rpm lingo, I think). And when checking how to implement it, it seemed
+> that reusing something like the current rpm_execcon() would be best,
+> and Stephen seemed to agree. For more details, see the thread starting
+> at <http://marc.info/?t=135236358700001&r=1&w=2>.
+>
+> Having checked the rpm code, and the mailing list, it seems like this
+> new function would make it easy to be used there too for stuff like
+> the Lua scriptlets (if desired), and might make it easier also to
+> switch to the new rpm plugins framework (?).
+>
+> I've discarded the verified argument for the new function because that
+> seemed best handled from the rpm side, and in any case seemed unrelated
+> to the execution context. I'm not entirely convinced about the function
+> name though, as it could be confused as applying a context to a path on
+> the filesystem. And I've not marked rpm_execcon() as deprecated because
+> it might be annoying at the beginning, but would change that if you think
+> it makes sense.
+>
+> In any case, here's a patch adding such new function. For dpkg, given
+> that it has never set a new context up to now, I'd only make use of the
+> function if it's available in libselinux, as I don't think it's worth it
+> to ship an embedded copy. For rpm, I guess it could switch to use the
+> function also if available and fallback to rpm_execcon() otherwise. After
+> a while the rpm_execcon() function could be removed from libselinux, on
+> the next ABI break, as I understand was the plan anyway (?).
+>
+> (The patch might not apply w/o the man page cleanup series.)
+>
+> So, what do you think?
+>
+> Thanks,
+> Guillem
+>
+> Guillem Jover (1):
+>   libselinux: Refactor rpm_execcon into a new setexecfilecon()
+>
+>  libselinux/Makefile                        |  3 +++
+>  libselinux/include/selinux/selinux.h       |  4 ++++
+>  libselinux/man/man3/getexeccon.3           | 23 ++++++++++++++++++++---
+>  libselinux/src/Makefile                    |  3 ---
+>  libselinux/src/{rpm.c => setexecfilecon.c} | 27 ++++++++++++++++++++-------
+>  5 files changed, 47 insertions(+), 13 deletions(-)
+>  rename libselinux/src/{rpm.c => setexecfilecon.c} (71%)
+>
+> --
+> 1.8.0
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
