@@ -1,73 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB4IHOmJ030604
-	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2012 13:17:24 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Tue, 04 Dec 2012 13:17:13 -0500
-Message-ID: <338664993.8Hd16PoY2S@sifl>
-In-Reply-To: <20121204173625.GA13993@redhat.com>
-References: <20121129215724.30020.69464.stgit@sifl> <8577392.82G063LYx2@sifl> <20121204173625.GA13993@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <1354588382-19083-1-git-send-email-P@draigBrady.com>
+References: <1354588382-19083-1-git-send-email-P@draigBrady.com>
+Date: Tue, 4 Dec 2012 14:05:23 -0500
+Message-ID: <CACLa4puED9wO0jyq1iGUxbBsQx3maLeKu8=1ae37GSjW2dmKeA@mail.gmail.com>
+Subject: Re: [PATCH] doc: context_new(3): fix the return value description
+From: Eric Paris <eparis@parisplace.org>
+To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
+Cc: SE-Linux <SELinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary=f46d0401fbc94da3b104d00b8c18
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, December 04, 2012 07:36:26 PM Michael S. Tsirkin wrote:
-> On Tue, Dec 04, 2012 at 11:18:57AM -0500, Paul Moore wrote:
-> > Okay, based on your explanation of TUNSETQUEUE, the steps below are what I
-> > believe we need to do ... if you disagree speak up quickly please.
-> > 
-> > A. TUNSETIFF (new, non-persistent device)
-> > 
-> > [Allocate and initialize the tun_struct LSM state based on the calling
-> > process, use this state to label the TUN socket.]
-> > 
-> > 1. Call security_tun_dev_create() which authorizes the action.
-> > 2. Call security_tun_dev_alloc_security() which allocates the tun_struct
-> > LSM blob and SELinux sets some internal blob state to record the label of
-> > the calling process.
-> > 3. Call security_tun_dev_attach() which sets the label of the TUN socket
-> > to match the label stored in the tun_struct LSM blob during A2.  No
-> > authorization is done at this point since the socket is new/unlabeled.
-> > 
-> > B. TUNSETIFF (existing, persistent device)
-> > 
-> > [Relabel the existing tun_struct LSM state based on the calling process,
-> > use this state to label the TUN socket.]
-> > 
-> > 1. Attempt to relabel/reset the tun_struct LSM blob from the currently
-> > stored value, set during A2, to the label of the current calling process.
-> > *** THIS IS NOT CURRENTLY DONE IN THE RFC PATCH ***
-> > 2. Call security_tun_dev_attach() which sets the label of the TUN socket
-> > to match the label stored in the tun_struct LSM blob during B1. No
-> > authorization is done at this point since the socket is new/unlabeled.
-> > 
-> > C. TUNSETQUEUE
-> > 
-> > [Use the existing tun_struct LSM state to label the new TUN socket.]
-> > 
-> > 1. Call security_tun_dev_attach() which sets the label of the TUN socket
-> > to match the label stored in the tun_struct LSM blob set during either A2
-> > or B1. No authorization is done at this point since the socket is
-> > new/unlabeled.
->
-> Here's what bothers me. libvirt currently opens tun and passes
-> fd to qemu. What would prevent qemu from attaching fd using TUNSETQUEUE
-> to another device it does not own?
+--f46d0401fbc94da3b104d00b8c18
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-True, assuming all the above is correct and that I'm understanding it 
-correctly (Jason?), we should probably add a new SELinux access control for 
-TUNSETQUEUE.
+On Mon, Dec 3, 2012 at 9:33 PM, P=E1draig Brady <P@draigbrady.com> wrote:
 
-The current DAC code exists in tun_not_capable().
+I applied (and gave you credit for) the following patch.  Does it look
+ok to you?
 
--- 
-paul moore
-security and virtualization @ redhat
+--f46d0401fbc94da3b104d00b8c18
+Content-Type: application/octet-stream; name="tmp.patch"
+Content-Disposition: attachment; filename="tmp.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_habedqcm0
 
+ZGlmZiAtLWdpdCBhL2xpYnNlbGludXgvbWFuL21hbjMvY29udGV4dF9uZXcuMyBiL2xpYnNlbGlu
+dXgvbWFuL21hbjMvY29udGV4dF9uZXcuMwppbmRleCAwMjU3NDQ1Li4zZGFiYWMzIDEwMDY0NAot
+LS0gYS9saWJzZWxpbnV4L21hbi9tYW4zL2NvbnRleHRfbmV3LjMKKysrIGIvbGlic2VsaW51eC9t
+YW4vbWFuMy9jb250ZXh0X25ldy4zCkBAIC02OSw3ICs2OSwxMyBAQCBzdHJ1Y3R1cmUuCiBzZXQg
+YSBjb250ZXh0IGNvbXBvbmVudC4KIC4KIC5TSCAiUkVUVVJOIFZBTFVFIgotT24gc3VjY2Vzcywg
+emVybyBpcyByZXR1cm5lZC4gT24gZmFpbHVyZSwgXC0xIGlzIHJldHVybmVkIGFuZAorT24gZmFp
+bHVyZQorLkJSIGNvbnRleHRfKl9zZXQgKCkKK2Z1bmN0aW9ucyByZXR1cm4gbm9uLXplcm8gYW5k
+IDAgb24gc3VjY2Vzcy4KKworVGhlIG90aGVyIGZ1bmN0aW9ucyByZXR1cm4gTlVMTCBvbiBmYWls
+dXJlIGFuZCBub24tTlVMTCBvbiBzdWNjZXNzLgorCitPbiBmYWlsdXJlCiAuSSBlcnJubwogaXMg
+c2V0IGFwcHJvcHJpYXRlbHkuCiAuCg==
+--f46d0401fbc94da3b104d00b8c18--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
