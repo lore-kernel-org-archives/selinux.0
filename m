@@ -1,103 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB4GJ8Ed022891
-	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2012 11:19:08 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, mst@redhat.com
-Subject: Re: [RFC PATCH 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Tue, 04 Dec 2012 11:18:57 -0500
-Message-ID: <8577392.82G063LYx2@sifl>
-In-Reply-To: <7659411.O2Or69Bf6n@jason-thinkpad-t430s>
-References: <20121129215724.30020.69464.stgit@sifl> <2549856.XZ72FtkyJK@sifl> <7659411.O2Or69Bf6n@jason-thinkpad-t430s>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB4Gcrtx023937
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2012 11:38:53 -0500
+Received: by mail-lb0-f181.google.com with SMTP id ge1so3627859lbb.12
+        for <selinux@tycho.nsa.gov>; Tue, 04 Dec 2012 08:38:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20121204135740.GA32460@gaara.hadrons.org>
+References: <1353417930-7707-1-git-send-email-guillem@debian.org>
+	<CACLa4pt4rRsdJGU6nhkmydKTbs+rsj=Tj-x=92-fDLVdU9Zhxg@mail.gmail.com>
+	<20121204135740.GA32460@gaara.hadrons.org>
+Date: Tue, 4 Dec 2012 11:38:45 -0500
+Message-ID: <CACLa4ptBFmJDEBv_G8=jyDnECPJx-QiXmaszzYDC3BebP4vnVQ@mail.gmail.com>
+Subject: Re: [PATCH 0/4] libselinux: Man pages cleanups and updates
+From: Eric Paris <eparis@parisplace.org>
+To: Guillem Jover <guillem@debian.org>, Eric Paris <eparis@parisplace.org>,
+        SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, December 04, 2012 09:24:43 PM Jason Wang wrote:
-> On Monday, December 03, 2012 11:22:29 AM Paul Moore wrote:
-> > It may be that I'm misunderstanding TUNSETQUEUE and/or TUNSETIFF.  Can you
-> > elaborate as to why they should be different?
-> 
-> If I understand correctly, before multiqueue patchset, TUNSETIFF is used to:
-> 
-> 1) Create the tun/tap network device
-> 2) For persistent device, re-attach the fd to the network device / socket.
-> In this case, we call selinux_tun_dev_attch() to relabel the socket sid (in
-> fact also the device's since the socket were persistent also) to the sid of
-> process that calls TUNSETIFF.
-> 
-> So, after the changes of multiqueue, we need try to preserve those policy.
-> The interesting part is the introducing of TUNSETQUEUE, it's used to attach
-> more file descriptors/sockets to a tun/tap device after at least one file
-> descriptor were attached to the tun/tap device through TUNSETIFF. So I
-> think maybe we need differ those two ioctls. This patch looks fine for
-> TUNSETQUEUE, but for TUNSETIFF, we need relabel the tunsec to the process
-> that calling TUNSETIFF for persistent device?
+Didn't come through again, but I got it from the repo.  thanks.
 
-Okay, based on your explanation of TUNSETQUEUE, the steps below are what I 
-believe we need to do ... if you disagree speak up quickly please.
-
-A. TUNSETIFF (new, non-persistent device)
-
-[Allocate and initialize the tun_struct LSM state based on the calling 
-process, use this state to label the TUN socket.]
-
-1. Call security_tun_dev_create() which authorizes the action.
-2. Call security_tun_dev_alloc_security() which allocates the tun_struct LSM 
-blob and SELinux sets some internal blob state to record the label of the 
-calling process.
-3. Call security_tun_dev_attach() which sets the label of the TUN socket to 
-match the label stored in the tun_struct LSM blob during A2.  No authorization 
-is done at this point since the socket is new/unlabeled.
-
-B. TUNSETIFF (existing, persistent device)
-
-[Relabel the existing tun_struct LSM state based on the calling process, use
-this state to label the TUN socket.]
-
-1. Attempt to relabel/reset the tun_struct LSM blob from the currently stored 
-value, set during A2, to the label of the current calling process. *** THIS IS 
-NOT CURRENTLY DONE IN THE RFC PATCH ***
-2. Call security_tun_dev_attach() which sets the label of the TUN socket to
-match the label stored in the tun_struct LSM blob during B1. No authorization 
-is done at this point since the socket is new/unlabeled.
-
-C. TUNSETQUEUE
-
-[Use the existing tun_struct LSM state to label the new TUN socket.]
-
-1. Call security_tun_dev_attach() which sets the label of the TUN socket to 
-match the label stored in the tun_struct LSM blob set during either A2 or B1.  
-No authorization is done at this point since the socket is new/unlabeled.
-
-> btw. Current code does allow calling TUNSETQUEUE to a persistent tun/tap
-> device with no file attached. It should be a bug and need to be fixed.
-
-Since you wrote that code will you be submitting a patch to fix that problem?
-
-> > One thing that I think we probably should change is the relabelto/from
-> > permissions in the function above (selinux_tun_dev_attach()); in the case
-> > where the socket does not yet have a label, e.g. 'sksec->sid == 0', we
-> > should probably skip the relabel permissions since we want to assign the
-> > TUN device label regardless in this case.
-> 
-> I'm not familiar with the selinux, have a quick glance of the code, looks
-> like the label has been initialized to SECINITSID_KERNEL in
-> selinux_socket_post_create().
-
-Unless I've missed something in your changes, the multiqueue code never calls 
-any socket code which ends up calling {security,selinux}_socket_post_create(); 
-I believe you only call sk_alloc() which ends up calling 
-{security,selinux}_sk_alloc() which sets SECINITSID_UNLABELED (I mistakenly 
-wrote 0 instead in my earlier email which is techincally SECSID_NULL).  Either 
-way, I still think the logic I originally described above is correct.
-
--- 
-paul moore
-security and virtualization @ redhat
-
+On Tue, Dec 4, 2012 at 8:57 AM, Guillem Jover <guillem@debian.org> wrote:
+> On Mon, 2012-12-03 at 12:16:09 -0500, Eric Paris wrote:
+>> I do not see patch 2/4.  Can you resend?
+>
+> Sure, I'm resending it now, but just in case it gets stuck somewhere
+> again (mailing list size limits?), here's a git tree with those
+> patches:
+>
+>   git://git.hadrons.org/git/sys/selinux.git
+>
+> Thanks,
+> Guillem
 
 --
 This message was distributed to subscribers of the selinux mailing list.
