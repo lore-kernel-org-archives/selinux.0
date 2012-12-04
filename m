@@ -1,102 +1,103 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB4EEL2E013805
-	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2012 09:14:21 -0500
-Message-ID: <50BE0529.2090902@redhat.com>
-Date: Tue, 04 Dec 2012 09:14:01 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB4GJ8Ed022891
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2012 11:19:08 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, mst@redhat.com
+Subject: Re: [RFC PATCH 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
+Date: Tue, 04 Dec 2012 11:18:57 -0500
+Message-ID: <8577392.82G063LYx2@sifl>
+In-Reply-To: <7659411.O2Or69Bf6n@jason-thinkpad-t430s>
+References: <20121129215724.30020.69464.stgit@sifl> <2549856.XZ72FtkyJK@sifl> <7659411.O2Or69Bf6n@jason-thinkpad-t430s>
 MIME-Version: 1.0
-To: Sander Hoentjen <sander@hoentjen.eu>
-CC: selinux@tycho.nsa.gov
-Subject: Re: policy for PowerDNS
-References: <50BCB590.8010602@hoentjen.eu> <1354547319.13093.2.camel@localhost> <50BDE094.9010405@hoentjen.eu>
-In-Reply-To: <50BDE094.9010405@hoentjen.eu>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday, December 04, 2012 09:24:43 PM Jason Wang wrote:
+> On Monday, December 03, 2012 11:22:29 AM Paul Moore wrote:
+> > It may be that I'm misunderstanding TUNSETQUEUE and/or TUNSETIFF.  Can you
+> > elaborate as to why they should be different?
+> 
+> If I understand correctly, before multiqueue patchset, TUNSETIFF is used to:
+> 
+> 1) Create the tun/tap network device
+> 2) For persistent device, re-attach the fd to the network device / socket.
+> In this case, we call selinux_tun_dev_attch() to relabel the socket sid (in
+> fact also the device's since the socket were persistent also) to the sid of
+> process that calls TUNSETIFF.
+> 
+> So, after the changes of multiqueue, we need try to preserve those policy.
+> The interesting part is the introducing of TUNSETQUEUE, it's used to attach
+> more file descriptors/sockets to a tun/tap device after at least one file
+> descriptor were attached to the tun/tap device through TUNSETIFF. So I
+> think maybe we need differ those two ioctls. This patch looks fine for
+> TUNSETQUEUE, but for TUNSETIFF, we need relabel the tunsec to the process
+> that calling TUNSETIFF for persistent device?
 
-On 12/04/2012 06:37 AM, Sander Hoentjen wrote:
-> On 12/03/2012 04:08 PM, grift wrote:
->> On Mon, 2012-12-03 at 15:22 +0100, Sander Hoentjen wrote:
->>> Hi all,
->>> 
->>> I had created a policy for PowerDNS (pdns package in Fedora), but
->>> after e-mailing with dwalsh he told me it might be better to just adapt
->>> the named policy a bit. Here is what I have so far: 
->>> ======pdns.fc====== /usr/sbin/pdns_server  --
->>> gen_context(system_u:object_r:named_exec_t,s0) /etc/pdns/pdns.conf
->>> -- gen_context(system_u:object_r:named_conf_t,s0) 
->>> /var/run/pdns.controlsocket -s 
->>> gen_context(system_u:object_r:named_var_run_t,s0) /var/run/pdns.pid
->>> -- gen_context(system_u:object_r:named_var_run_t,s0) 
->>> =================== ======pdns.te====== policy_module(pdns,0.0.1)
->>> 
->>> require{ type named_t; }
->>> 
->>> #gmysql backend: bool pdns_can_connect_db true; 
->>> tunable_policy(`pdns_backend_mysql', ` mysql_read_config(named_t) 
->>> #socket mysql_stream_connect(named_t) ') =================== With this
->>> added pdns works with both the bind-backend and the mysql-backend
->>> (pdns-backend-mysql in Fedora). I do still get some denials, first 2
->>> with both backends: type=AVC msg=audit(12/03/2012 14:30:26.767:597) :
->>> avc:  denied  { fsetid } for  pid=23063 comm=pdns_server
->>> capability=fsetid scontext=system_u:system_r:named_t:s0 
->>> tcontext=system_u:system_r:named_t:s0 tclass=capability
->>> 
->>> type=AVC msg=audit(12/03/2012 14:30:26.735:595) : avc:  denied  { kill
->>> } for  pid=20597 comm=pdns_server capability=kill 
->>> scontext=system_u:system_r:named_t:s0 
->>> tcontext=system_u:system_r:named_t:s0 tclass=capability
->>> 
->>> For this I can add: allow named_t self:capability { fsetid kill }; but
->>> I am not sure if that is okay, can anyone please advise?
->>> 
->>> Last one I get with the mysql backend: type=AVC msg=audit(12/03/2012
->>> 13:37:52.315:545) : avc:  denied  { getattr } for  pid=20772
->>> comm=pdns_server path=/usr/share/mysql/charsets/Index.xml dev="dm-0"
->>> ino=8936 scontext=system_u:system_r:named_t:s0 
->>> tcontext=system_u:object_r:usr_t:s0 tclass=file To allow this I will
->>> have to allow read access from named_t to usr_t, would that be okay?
->> 
->> Yes, the capabilities are a pity, but it is give and take, so all 
->> considering this looks ok to me
->> 
-> Ok, thank you. I was a bit surprised that named_t already had access to a
-> mysql database by the way.
-> 
-> PowerDNS has some more backends, next I have a question about is the pipe
-> backend: This backend executes a file specified in the config, that will
-> echo the response to STDOUT. Should there be a seperate domain for that
-> pipe command, or is it okay to allow exec to bin_t? For now I chose the
-> latter, and my .te looks like this: ======pdns.te====== 
-> policy_module(pdns,0.0.1)
-> 
-> require{ type named_t; }
-> 
-> allow named_t self:capability { kill fsetid };
-> 
-> #gmysql backend: bool pdns_backend_mysql true; 
-> tunable_policy(`pdns_backend_mysql', ` mysql_read_config(named_t) 
-> files_read_usr_files(named_t) #socket mysql_stream_connect(named_t) ')
-> 
-> bool pdns_backend_pipe false; tunable_policy(`pdns_backend_pipe', ` 
-> corecmd_exec_bin(named_t) files_read_usr_files(named_t) ') 
-> =================== This, together with the .fc results in a working
-> powerdns for me. If there are no further objections, what would be the next
-> step to get this accepted in the (Fedora?) policy?
+Okay, based on your explanation of TUNSETQUEUE, the steps below are what I 
+believe we need to do ... if you disagree speak up quickly please.
 
-I don't see why rading usr_files or executing a bin_t file requires a boolean,
-I would just add the access.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with undefined - http://www.enigmail.net/
+A. TUNSETIFF (new, non-persistent device)
 
-iEYEARECAAYFAlC+BSkACgkQrlYvE4MpobNg9gCgijAiMt49CU7e3bzjnUlRlTc8
-b6gAmgJjuwAK5DA41BJYHTT8TL75A8FG
-=ModI
------END PGP SIGNATURE-----
+[Allocate and initialize the tun_struct LSM state based on the calling 
+process, use this state to label the TUN socket.]
+
+1. Call security_tun_dev_create() which authorizes the action.
+2. Call security_tun_dev_alloc_security() which allocates the tun_struct LSM 
+blob and SELinux sets some internal blob state to record the label of the 
+calling process.
+3. Call security_tun_dev_attach() which sets the label of the TUN socket to 
+match the label stored in the tun_struct LSM blob during A2.  No authorization 
+is done at this point since the socket is new/unlabeled.
+
+B. TUNSETIFF (existing, persistent device)
+
+[Relabel the existing tun_struct LSM state based on the calling process, use
+this state to label the TUN socket.]
+
+1. Attempt to relabel/reset the tun_struct LSM blob from the currently stored 
+value, set during A2, to the label of the current calling process. *** THIS IS 
+NOT CURRENTLY DONE IN THE RFC PATCH ***
+2. Call security_tun_dev_attach() which sets the label of the TUN socket to
+match the label stored in the tun_struct LSM blob during B1. No authorization 
+is done at this point since the socket is new/unlabeled.
+
+C. TUNSETQUEUE
+
+[Use the existing tun_struct LSM state to label the new TUN socket.]
+
+1. Call security_tun_dev_attach() which sets the label of the TUN socket to 
+match the label stored in the tun_struct LSM blob set during either A2 or B1.  
+No authorization is done at this point since the socket is new/unlabeled.
+
+> btw. Current code does allow calling TUNSETQUEUE to a persistent tun/tap
+> device with no file attached. It should be a bug and need to be fixed.
+
+Since you wrote that code will you be submitting a patch to fix that problem?
+
+> > One thing that I think we probably should change is the relabelto/from
+> > permissions in the function above (selinux_tun_dev_attach()); in the case
+> > where the socket does not yet have a label, e.g. 'sksec->sid == 0', we
+> > should probably skip the relabel permissions since we want to assign the
+> > TUN device label regardless in this case.
+> 
+> I'm not familiar with the selinux, have a quick glance of the code, looks
+> like the label has been initialized to SECINITSID_KERNEL in
+> selinux_socket_post_create().
+
+Unless I've missed something in your changes, the multiqueue code never calls 
+any socket code which ends up calling {security,selinux}_socket_post_create(); 
+I believe you only call sk_alloc() which ends up calling 
+{security,selinux}_sk_alloc() which sets SECINITSID_UNLABELED (I mistakenly 
+wrote 0 instead in my earlier email which is techincally SECSID_NULL).  Either 
+way, I still think the logic I originally described above is correct.
+
+-- 
+paul moore
+security and virtualization @ redhat
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
