@@ -1,48 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB5KQPHC011854
-	for <selinux@tycho.nsa.gov>; Wed, 5 Dec 2012 15:26:29 -0500
-Subject: [RFC PATCH v2 0/3] Fix some multiqueue TUN problems
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB5KQPHF011854
+	for <selinux@tycho.nsa.gov>; Wed, 5 Dec 2012 15:26:36 -0500
+Subject: [RFC PATCH v2 2/3] selinux: add the "create_queue" permission to
+ the "tun_socket" class
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
 Cc: jasowang@redhat.com, mst@redhat.com
-Date: Wed, 05 Dec 2012 15:25:56 -0500
-Message-ID: <20121205202144.18626.61966.stgit@localhost>
+Date: Wed, 05 Dec 2012 15:26:11 -0500
+Message-ID: <20121205202611.18626.46545.stgit@localhost>
+In-Reply-To: <20121205202144.18626.61966.stgit@localhost>
+References: <20121205202144.18626.61966.stgit@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Second draft of the LSM/SELinux fixes to the upcoming multiqueue TUN
-functionality.  This draft incorporates all the comments/decisions
-from the first draft, notably the new LSM and SELinux hook for the
-TUNSETQUEUE operation.  Other LSMs do not provide TUN controls so they
-are not affected.
+Add a new permission to align with the new TUN multiqueue support,
+"tun_socket:create_queue".
 
-Once we decide this is the right approach I'll push the associated
-SELinux policy FLASK definitions upstream; for those who are interested
-the SELinux policy diff in included in the description of patch 1/2.
+The corresponding SELinux reference policy patch is show below:
 
-I don't expect this to be the final patch, just a starting point for
-further discussion so I didn't really do any testing, simply making
-sure that it compiled cleanly.
+ diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+ index 28802c5..a0664a1 100644
+ --- a/policy/flask/access_vectors
+ +++ b/policy/flask/access_vectors
+ @@ -827,6 +827,9 @@ class kernel_service
 
+  class tun_socket
+  inherits socket
+ +{
+ +       create_queue
+ +}
+
+  class x_pointer
+  inherits x_device
+
+Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
+ security/selinux/include/classmap.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Paul Moore (3):
-      tun: correctly report an error in tun_flow_init()
-      selinux: add the "create_queue" permission to the "tun_socket" class
-      tun: fix LSM/SELinux labeling of tun/tap devices
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index df2de54..7e9a3d1 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -150,6 +150,6 @@ struct security_class_mapping secclass_map[] = {
+ 	    NULL } },
+ 	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+ 	{ "tun_socket",
+-	  { COMMON_SOCK_PERMS, NULL } },
++	  { COMMON_SOCK_PERMS, "create_queue", NULL } },
+ 	{ NULL }
+   };
 
-
- drivers/net/tun.c                   |   29 +++++++++++++----
- include/linux/security.h            |   59 +++++++++++++++++++++++++++--------
- security/capability.c               |   24 ++++++++++++--
- security/security.c                 |   28 ++++++++++++++---
- security/selinux/hooks.c            |   50 +++++++++++++++++++++++-------
- security/selinux/include/classmap.h |    2 +
- security/selinux/include/objsec.h   |    4 ++
- 7 files changed, 156 insertions(+), 40 deletions(-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
