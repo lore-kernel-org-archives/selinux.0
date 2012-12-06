@@ -1,56 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6FkjWj016267
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 10:46:45 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6Gvf3p022401
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 11:57:41 -0500
 From: Paul Moore <pmoore@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, mst@redhat.com
-Subject: Re: [RFC PATCH v2 1/3] tun: correctly report an error in tun_flow_init()
-Date: Thu, 06 Dec 2012 10:46:42 -0500
-Message-ID: <1925714.MfFlfY86Ce@sifl>
-In-Reply-To: <2215330.qi9iHRh0XG@jason-thinkpad-t430s>
-References: <20121205202144.18626.61966.stgit@localhost> <20121205202604.18626.71229.stgit@localhost> <2215330.qi9iHRh0XG@jason-thinkpad-t430s>
+        selinux@tycho.nsa.gov, jasowang@redhat.com
+Subject: Re: [RFC PATCH v2 3/3] tun: fix LSM/SELinux labeling of tun/tap devices
+Date: Thu, 06 Dec 2012 11:56:45 -0500
+Message-ID: <6001427.qD54i2BbtH@sifl>
+In-Reply-To: <20121206161200.GA4340@redhat.com>
+References: <20121205202144.18626.61966.stgit@localhost> <7448004.siKCIqQqTi@sifl> <20121206161200.GA4340@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, December 06, 2012 06:31:29 PM Jason Wang wrote:
-> On Wednesday, December 05, 2012 03:26:04 PM Paul Moore wrote:
-> > On error, the error code from tun_flow_init() is lost inside
-> > tun_set_iff(), this patch fixes this by assigning the tun_flow_init()
-> > error code to the "err" variable which is returned by
-> > the tun_flow_init() function on error.
+On Thursday, December 06, 2012 06:12:00 PM Michael S. Tsirkin wrote:
+> On Thu, Dec 06, 2012 at 10:46:11AM -0500, Paul Moore wrote:
+> > On Thursday, December 06, 2012 12:33:25 PM Michael S. Tsirkin wrote:
+> > > OK so just to verify: this can be used to ensure that qemu
+> > > process that has the queue fd can only attach it to
+> > > a specific device, right?
 > > 
-> > Signed-off-by: Paul Moore <pmoore@redhat.com>
-> > ---
+> > Whenever a new queue is created via TUNSETQUEUE/tun_set_queue() the
+> > security_tun_dev_create_queue() LSM hook is called.  When SELinux is
+> > enabled this hook ends up calling selinux_tun_dev_create_queue() which
+> > checks that the calling process (process_t) is allowed to create a new
+> > queue on the specified device (tundev_t) .  If you are familiar with
+> > SELinux security policy, the allow rule would look like this:
+> >
+> >   allow process_t tundev_t:tun_socket create_queue;
 > > 
-> >  drivers/net/tun.c |    3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > In practice, if we assume libvirt is creating the TUN device and running
+> > with a SELinux label of virtd_t and that QEMU instances are running with
+> > a SELinux label of svirt_t then the allow rule would look like this:
+> >
+> >   allow svirt_t virtd_t:tun_socket create_queue;
 > > 
-> > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> > index a1b2389..14a0454 100644
-> > --- a/drivers/net/tun.c
-> > +++ b/drivers/net/tun.c
-> > @@ -1591,7 +1591,8 @@ static int tun_set_iff(struct net *net, struct file
-> > *file, struct ifreq *ifr)
-> > 
-> >                 tun_net_init(dev);
-> > 
-> > -               if (tun_flow_init(tun))
-> > +               err = tun_flow_init(tun);
-> > +               if (err < 0)
-> > 
-> >                         goto err_free_dev;
-> >                 
-> >                 dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
-> > 
-> > --
+> > There is also the matter of the MLS/MCS constraints providing additional
+> > separation but that is another level of detail which I don't believe is
+> > important for our discussion.
 > 
-> Looks fine, we can separate this out of this series and replace the RFC with
-> net-next to let David apply it soon.
+> Hmm. How do the rules for SETIFF look ATM?
+> I am just checking default policy does not let qemu do with
+> SETQUEUE something with a device which it can not
+> attach to using SETIFF.
 
-Will do shortly.
+The SETQUEUE/tun_socket:create_queue permissions do not yet exist in any 
+released SELinux policy as we are just now adding them with this patchset.  
+With current policies loaded into a kernel with this patchset applied the 
+SETQUEUE/tun_socket:create_queue permission would be treated according to the 
+policy's unknown permission setting.
 
 -- 
 paul moore
