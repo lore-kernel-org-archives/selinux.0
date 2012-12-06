@@ -1,49 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB5KxfOo013869
-	for <selinux@tycho.nsa.gov>; Wed, 5 Dec 2012 15:59:41 -0500
-Subject: [PATCH v2] selinux: fix problems in netnode when BUG() is compiled
- out
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6FaI2T015416
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 10:36:23 -0500
 From: Paul Moore <pmoore@redhat.com>
-Cc: geert@linux-m68k.org
-Date: Wed, 05 Dec 2012 15:59:36 -0500
-Message-ID: <20121205205936.22352.62272.stgit@localhost>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, mst@redhat.com
+Subject: Re: [RFC PATCH v2 3/3] tun: fix LSM/SELinux labeling of tun/tap devices
+Date: Thu, 06 Dec 2012 10:36:11 -0500
+Message-ID: <10346047.LWlqqejLmO@sifl>
+In-Reply-To: <9040763.QsllgCP7TP@jason-thinkpad-t430s>
+References: <20121205202144.18626.61966.stgit@localhost> <20121205202619.18626.98778.stgit@localhost> <9040763.QsllgCP7TP@jason-thinkpad-t430s>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When the BUG() macro is disabled at compile time it can cause some
-problems in the SELinux netnode code: invalid return codes and
-uninitialized variables.  This patch fixes this by making sure we take
-some corrective action after the BUG() macro.
+On Thursday, December 06, 2012 06:29:54 PM Jason Wang wrote:
+> On Wednesday, December 05, 2012 03:26:19 PM Paul Moore wrote:
+> > This patch corrects some problems with LSM/SELinux that were introduced
+> > with the multiqueue patchset.  The problem stems from the fact that the
+> > multiqueue work changed the relationship between the tun device and its
+> > associated socket; before the socket persisted for the life of the
+> > device, however after the multiqueue changes the socket only persisted
+> > for the life of the userspace connection (fd open).  For non-persistent
+> > devices this is not an issue, but for persistent devices this can cause
+> > the tun device to lose its SELinux label.
+> > 
+> > We correct this problem by adding an opaque LSM security blob to the
+> > tun device struct which allows us to have the LSM security state, e.g.
+> > SELinux labeling information, persist for the lifetime of the tun
+> > device.  In the process we tweak the LSM hooks to work with this new
+> > approach to TUN device/socket labeling and introduce a new LSM hook,
+> > security_tun_dev_create_queue(), to approve requests to create a new
+> > TUN queue via TUNSETQUEUE.
+> > 
+> > The SELinux code has been adjusted to match the new LSM hooks, the
+> > other LSMs do not make use of the LSM TUN controls.  This patch makes
+> > use of the recently added "tun_socket:create_queue" permission to
+> > restrict access to the TUNSETQUEUE operation.  On older SELinux
+> > policies which do not define the "tun_socket:create_queue" permission
+> > the access control decision for TUNSETQUEUE will be handled according
+> > to the SELinux policy's unknown permission setting.
+> > 
+> > Signed-off-by: Paul Moore <pmoore@redhat.com>
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/netnode.c |    2 ++
- 1 file changed, 2 insertions(+)
+...
 
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index c5454c0..03a72c3 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
- 		break;
- 	default:
- 		BUG();
-+		return;
- 	}
+> > @@ -4425,20 +4452,19 @@ static void selinux_tun_dev_post_create(struct
+> > sock
+> > *sk) * cause confusion to the TUN user that had no idea network labeling *
+> > protocols were being used */
+> > 
+> > -	/* see the comments in selinux_tun_dev_create() about why we ...
+> > -
+> > -	sksec->sid = current_sid();
+> > +	sksec->sid = tunsec->sid;
+> 
+> Since both tun_set_iff() and tun_set_queue() would call this. I wonder when
+> it is called by tun_set_queue() we need some checking just like what we
+> done in v1, otherwise it's unconditionally in TUNSETQUEUE. Or we can add
+> them in selinux_tun_dev_create_queue()?
+
+In all the cases that call tun_attach() we have a new socket which needs to be 
+labeled based on the tun->security label, yes?  That is what the 
+security_tun_dev_attach() code does, there is no need for access control at 
+this point as the operation has already been authorized by either 
+security_tun_dev_create() (new device), security_tun_dev_create_queue() (new 
+queue), or security_tun_dev_open() (opening persistent device).
+
+I think we are all set, or am I missing something?
  
- 	/* we need to impose a limit on the growth of the hash table so check
-@@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
- 		break;
- 	default:
- 		BUG();
-+		ret = -EINVAL;
- 	}
- 	if (ret != 0)
- 		goto out;
+> >  	sksec->sclass = SECCLASS_TUN_SOCKET;
+> > 
+> > +
+> > +	return 0;
+> > 
+> >  }
+
+-- 
+paul moore
+security and virtualization @ redhat
 
 
 --
