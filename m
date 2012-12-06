@@ -1,22 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6FaI2T015416
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 10:36:23 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6FkE11016167
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 10:46:15 -0500
 From: Paul Moore <pmoore@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, mst@redhat.com
+        selinux@tycho.nsa.gov, jasowang@redhat.com
 Subject: Re: [RFC PATCH v2 3/3] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Thu, 06 Dec 2012 10:36:11 -0500
-Message-ID: <10346047.LWlqqejLmO@sifl>
-In-Reply-To: <9040763.QsllgCP7TP@jason-thinkpad-t430s>
-References: <20121205202144.18626.61966.stgit@localhost> <20121205202619.18626.98778.stgit@localhost> <9040763.QsllgCP7TP@jason-thinkpad-t430s>
+Date: Thu, 06 Dec 2012 10:46:11 -0500
+Message-ID: <7448004.siKCIqQqTi@sifl>
+In-Reply-To: <20121206103325.GG10837@redhat.com>
+References: <20121205202144.18626.61966.stgit@localhost> <20121205202619.18626.98778.stgit@localhost> <20121206103325.GG10837@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, December 06, 2012 06:29:54 PM Jason Wang wrote:
-> On Wednesday, December 05, 2012 03:26:19 PM Paul Moore wrote:
+On Thursday, December 06, 2012 12:33:25 PM Michael S. Tsirkin wrote:
+> On Wed, Dec 05, 2012 at 03:26:19PM -0500, Paul Moore wrote:
 > > This patch corrects some problems with LSM/SELinux that were introduced
 > > with the multiqueue patchset.  The problem stems from the fact that the
 > > multiqueue work changed the relationship between the tun device and its
@@ -43,39 +43,29 @@ On Thursday, December 06, 2012 06:29:54 PM Jason Wang wrote:
 > > to the SELinux policy's unknown permission setting.
 > > 
 > > Signed-off-by: Paul Moore <pmoore@redhat.com>
-
-...
-
-> > @@ -4425,20 +4452,19 @@ static void selinux_tun_dev_post_create(struct
-> > sock
-> > *sk) * cause confusion to the TUN user that had no idea network labeling *
-> > protocols were being used */
-> > 
-> > -	/* see the comments in selinux_tun_dev_create() about why we ...
-> > -
-> > -	sksec->sid = current_sid();
-> > +	sksec->sid = tunsec->sid;
 > 
-> Since both tun_set_iff() and tun_set_queue() would call this. I wonder when
-> it is called by tun_set_queue() we need some checking just like what we
-> done in v1, otherwise it's unconditionally in TUNSETQUEUE. Or we can add
-> them in selinux_tun_dev_create_queue()?
+> OK so just to verify: this can be used to ensure that qemu
+> process that has the queue fd can only attach it to
+> a specific device, right?
 
-In all the cases that call tun_attach() we have a new socket which needs to be 
-labeled based on the tun->security label, yes?  That is what the 
-security_tun_dev_attach() code does, there is no need for access control at 
-this point as the operation has already been authorized by either 
-security_tun_dev_create() (new device), security_tun_dev_create_queue() (new 
-queue), or security_tun_dev_open() (opening persistent device).
+Whenever a new queue is created via TUNSETQUEUE/tun_set_queue() the 
+security_tun_dev_create_queue() LSM hook is called.  When SELinux is enabled 
+this hook ends up calling selinux_tun_dev_create_queue() which checks that the 
+calling process (process_t) is allowed to create a new queue on the specified 
+device (tundev_t) .  If you are familiar with SELinux security policy, the 
+allow rule would look like this:
 
-I think we are all set, or am I missing something?
- 
-> >  	sksec->sclass = SECCLASS_TUN_SOCKET;
-> > 
-> > +
-> > +	return 0;
-> > 
-> >  }
+  allow process_t tundev_t:tun_socket create_queue;
+
+In practice, if we assume libvirt is creating the TUN device and running with 
+a SELinux label of virtd_t and that QEMU instances are running with a SELinux 
+label of svirt_t then the allow rule would look like this:
+
+  allow svirt_t virtd_t:tun_socket create_queue;
+
+There is also the matter of the MLS/MCS constraints providing additional 
+separation but that is another level of detail which I don't believe is 
+important for our discussion.
 
 -- 
 paul moore
