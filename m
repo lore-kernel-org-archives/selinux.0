@@ -1,72 +1,87 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB6L9smC010408
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 16:09:55 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, jasowang@redhat.com
-Subject: Re: [RFC PATCH v2 3/3] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Thu, 06 Dec 2012 16:09:51 -0500
-Message-ID: <1761265.vEQbM1ySnW@sifl>
-In-Reply-To: <20121206205716.GA6576@redhat.com>
-References: <20121205202144.18626.61966.stgit@localhost> <6001427.qD54i2BbtH@sifl> <20121206205716.GA6576@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qB71LgU4027228
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2012 20:21:42 -0500
+Message-ID: <50C1448F.90404@schaufler-ca.com>
+Date: Thu, 06 Dec 2012 17:21:19 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Kees Cook <keescook@chromium.org>
+CC: John Johansen <john.johansen@canonical.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        eparis@redhat.comc, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v9 1/2] LSM: Multiple concurrent LSMs
+References: <201212042243.BJG73463.LFHFQFSJOOVOMt@I-love.SAKURA.ne.jp> <50BE92ED.9000400@schaufler-ca.com> <50BE9E22.9000104@canonical.com> <201212052341.IEB26527.FVJOLHOtMOSQFF@I-love.SAKURA.ne.jp> <50BFC078.8090509@canonical.com> <201212062249.IJC51548.OOtSJLOQHFFVMF@I-love.SAKURA.ne.jp> <50C0CED0.1000107@canonical.com> <CAGXu5j+jLx9y=MfBumy5sy8C=goWdicZ9dngqZVe2mjP=LoU3w@mail.gmail.com>
+In-Reply-To: <CAGXu5j+jLx9y=MfBumy5sy8C=goWdicZ9dngqZVe2mjP=LoU3w@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, December 06, 2012 10:57:16 PM Michael S. Tsirkin wrote:
-> On Thu, Dec 06, 2012 at 11:56:45AM -0500, Paul Moore wrote:
-> > The SETQUEUE/tun_socket:create_queue permissions do not yet exist in any
-> > released SELinux policy as we are just now adding them with this patchset.
-> > With current policies loaded into a kernel with this patchset applied the
-> > SETQUEUE/tun_socket:create_queue permission would be treated according to
-> > the policy's unknown permission setting.
-> 
-> OK I think we need to rethink what we are doing here: what you sent
-> addresses the problem as stated but I think we mis-stated it.  Let me
-> try to restate the problem: it is not just selinux problem. Let's assume
-> qemu wants to use tun, I (libvirt) don't want to run it as root.
-> 
-> 1. TUNSETIFF: I can open tun, attach an fd and pass it to qemu.
-> Now, qemu does not invoke TUNSETIFF so it can run without
-> kernel priveledges.
+On 12/6/2012 9:11 AM, Kees Cook wrote:
+> On Thu, Dec 6, 2012 at 8:58 AM, John Johansen
+> <john.johansen@canonical.com> wrote:
+>> On 12/06/2012 05:49 AM, Tetsuo Handa wrote:
+>>> John Johansen wrote:
+>>>> This is not
+>>>> something I want to do but if that is what is necessary to get stacking done
+>>>> I will do it.
+>>> Sharing existing interfaces by managing the format is a thorny path.
+>>> Future LSM modules, if they are to use existing interfaces, might want to allow
+>>> attributes up to 4000 bytes when overall length is limited to 4096 bytes.
+>>>
+>>>> Of course modifying apparmor doesn't take care of other LSMs so either certain
+>>>> restrictions have to be part of the api for this interface or as Tetsuo suggests
+>>>> a new interface would be needed.
+>>> TOMOYO uses /sys/kernel/security/tomoyo/self_domain (handled by stateless
+>>> tomoyo_read_self()/tomoyo_write_self()) for reading/updating current thread's
+>>> attribute and /sys/kernel/security/tomoyo/.process_status (handled by
+>>> stateful tomoyo_write_pid()/tomoyo_read_pid()) for reading arbitrary thread's
+>>> attribute. I think that most programs will, if need to access attribute
+>>> information, need to access only current thread's attribute. Therefore,
+>>> /sys/kernel/security/tomoyo/self_domain handles only current thread and
+>>> /sys/kernel/security/tomoyo/.process_status handles arbitrary threads.
+>>>
+>>> If AppArmor can migrate from existing /proc/pid/attr/ to its own interfaces
+>>> like TOMOYO does, we can immediately get LSM stacking with "optionally either
+>>> SELinux or SMACK" + "optionally AppArmor" + "optionally TOMOYO" + "optionally
+>>> Yama" + "optionally other LSM modules". SELinux and SMACK are forever exclusive
+>>> due to conflicts on other hooks.
+>>>
+>> So moving apparmor to use its own interface for setting values is reasonable,
+>> though being able to fall back to /proc/<pid>/attr/* for none stacking cases
+>> to support older userspace releases would be good.
+>>
+>> However getprocattr is a little more problematic as leveraging standard tools
+>> that have been modified to support the security context (eg. ps -Z, etc) has
+>> been standard practice, and is used a lot more than writing to /proc/<pid>/attr/*
+>> Moving to our own interface looses this standard tool support.
+>>
+>> There are possible solutions, like multiplexing reading of /proc/<pid>/attr/*,
+>> but not writes (yes I know its still problematic).
+> Does it make sense to make attr read-only and leave its output
+> multiplexed so "ps -Z" output is human readable?
 
-Correct me if I'm wrong, but I believe libvirt does this while running as 
-root.  Assuming that is the case, why not simply setuid()/setgid() to the same 
-credentials as the QEMU instance before creating the TUN device?  You can 
-always (re)configure the device afterwards while running as 
-root/CAP_NET_ADMIN.
- 
-> 2. TUNSETQUEUE - I can open tun and attach a queue but this
-> is not what is needed since this automatically switches
-> to multiqueue mode - we want to change number of queues
-> on the fly.
-> So qemu needs to be allowed to run TUNSETQUEUE.
-> Since this checks tun_not_capable(tun) we would need
-> to give qemu these priveledges, and we want to avoid this
-> (I can go into why if it's not obvious).
+This may work long term, but would break backward compatibility.
 
-If libvirt creates the TUN device while its effective credentials match those 
-of the QEMU instance then the QEMU instance should be able to perform a 
-TUNSETQUEUE, yes?
+> Regardless, how about we just give attr to the "primary"
 
-> How can we slove this?
-> I don't see a way without extending the interface.
-> Here's a simple way to extend it: pass a flag to TUNSETQUEUE
-> that enables/disables TX on this queue.
-> If TX is disabled, ignore this queue for flow steering decisions.
-> Allow TUNSETQUEUE for a non priveledged user if it
-> it already bound to the currect tun and only changes this flag.
-> 
-> Now I open tun and SETQUEUE with TX disabled flag. Pass it to qemu.
-> qemu calls SETQUEUE with TX enabled flag.
-> 
-> Jason? Want to try implementing and see what people think?
+I much prefer referring to this as the "presented" LSM than
+as the "primary". All LSMs are equal, one just gets to talk louder.
 
--- 
-paul moore
-security and virtualization @ redhat
+> LSM for now,
+
+The disadvantage is that ps -Z, which simply reads /proc/pid/attr/current
+has to get smarter all of a sudden.
+
+> just to land this patch series? It's already a big patch, and I think
+> it would be beneficial to get the bulk of the stacking logic in. We
+> can improve the attr handling going forward, since that doesn't seem
+> to affect the _structure_ of the changes.
+
+For my next trick I'll try using the CONFIG_SECURITY_PRESENT value
+if provided and the first LSM that includes a getprocattr hook otherwise.
+
+Let me know if that sounds stupid.
 
 
 --
