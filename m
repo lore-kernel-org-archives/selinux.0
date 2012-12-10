@@ -1,134 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBAKtl83012981
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2012 15:55:47 -0500
-Message-ID: <50C64C3E.4080606@schaufler-ca.com>
-Date: Mon, 10 Dec 2012 12:55:26 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: John Johansen <john.johansen@canonical.com>
-CC: Eric Paris <eparis@parisplace.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>, James Morris <jmorris@namei.org>,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBAMLpcL019976
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2012 17:22:00 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+        Linux Netdev List <netdev@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
-        SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v9 1/2] LSM: Multiple concurrent LSMs
-References: <CAGXu5j+jLx9y=MfBumy5sy8C=goWdicZ9dngqZVe2mjP=LoU3w@mail.gmail.com> <50C1448F.90404@schaufler-ca.com> <50C15380.7030304@canonical.com> <201212072351.DBH43251.MFFHLOFQtVSJOO@I-love.SAKURA.ne.jp> <50C25E74.1050807@canonical.com> <201212081318.AFJ18222.FtMFFVQOHSLOOJ@I-love.SAKURA.ne.jp> <CACLa4pvsgnOzyhOPBSyQZF0+pXQ7wPyXg7yXHhjzpYLua7fzmA@mail.gmail.com> <50C622B9.6080006@canonical.com>
-In-Reply-To: <50C622B9.6080006@canonical.com>
-Content-Type: text/plain; charset=ISO-8859-1
+        SE-Linux <selinux@tycho.nsa.gov>, jasowang@redhat.com
+Subject: Re: [RFC PATCH v2 3/3] tun: fix LSM/SELinux labeling of tun/tap devices
+Date: Mon, 10 Dec 2012 17:21:44 -0500
+Message-ID: <2030873.8I84M3f4cr@sifl>
+In-Reply-To: <CACLa4pu6UCpzKfscVoEPzLySHitta1yTqPa7cA0d=xUj5ws6HA@mail.gmail.com>
+References: <20121205202144.18626.61966.stgit@localhost> <20121210175035.GA31856@redhat.com> <CACLa4pu6UCpzKfscVoEPzLySHitta1yTqPa7cA0d=xUj5ws6HA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/10/2012 9:58 AM, John Johansen wrote:
-> On 12/10/2012 06:06 AM, Eric Paris wrote:
->> On Fri, Dec 7, 2012 at 11:18 PM, Tetsuo Handa
->> <penguin-kernel@i-love.sakura.ne.jp> wrote:
->>> John Johansen wrote:
->>> (1) Start LSM stacking with a limitation that only one LSM module can use
->>>     /proc/pid/attr/* interface.
->>>
->>> (2) Introduce /proc/pid/attributes interface which contains all of the content
->>>     of /proc/pid/attr/* with the name of each LSM module
->>>     (i.e. $type $lsmname $value format).
->>>     The content looks like
->>>
->>>       $ cat /proc/pid/attributes
->>>       current smack current_foo
->>>       prev smack prev_foo
->>>       exec smack exec_foo
->>>       fscreate smack fscreate_foo
->>>       keycreate smack keycreate_foo
->>>       sockcreate smack sockcreate_foo
->>>       current apparmor current_bar
->>>       prev apparmor prev_bar
->>>       exec apparmor exec_bar
->>>       fscreate apparmor fscreate_bar
->>>       keycreate apparmor keycreate_bar
->>>       sockcreate apparmor sockcreate_bar
->>>
->>>     and the operation for -Z option looks like
->>>
->>>       awk ' { if ($1 == "current" ) print $2"="$3; } ' /proc/pid/attributes
->>>
->>>     . When writing, the operation looks like
->>>
->>>       $ echo 'current smack new_current_foo' > /proc/self/attributes
->> That sounds great as a toy used as nothing but a developer to play
->> with, but text file processing kind of sucks to do pragmatically.  How
->> often do you want to see another process's sockcreate, vs current?
->> Every time we want to know the current smack label we'd have to
->> process sockcreate for apparmor and all of the rest of this text file?
->>  No thank you.  We could make such a text file for admins if there is
->> a need, but I'd much rather see /proc/pid/attr/[LSM]/* than most of
->> these proposals.  Have 1 presenting LSM which uses /proc/pid/attr/*
->> and if people want to stack they gotta move to a new interface...
->>
->>> (4) Add WARN_ONCE() upon accessing /proc/pid/attr/* in order to tell that
->>>     /proc/pid/attr/* interface was replaced by /proc/self/attributes interface.
->>>
->>> (5) Remove /proc/pid/attr/ and remove the limitation that only one LSM module
->>>     can use /proc/pid/attr/* interface.
->> Not sure this is a ever possible.  akpm runs really really really old
->> userspace and gets mighty pissed at me if I break anything to do with
->> SELinux.
->>
-> right we need to keep backwards compatibility with the old interface at
-> least when not stacking.
->
->>> (6) Eventually, userspace tools will forget about /proc/pid/attr/* .
->> [....]
->>
->>> Keeping old and new interfaces within the same filesystem makes it easier for
->>> userspace tools to check and fall back.
->> Tools don't care.  Heck, most tools ALREADY look at /proc/pid/attr/*
->> and /sys/fs.  Seems like a moot point.
->>
->>> Centralizing information to /proc/pid/attributes would be more suitable for
->>> handling a per-pid data than separated interfaces which the -Z option have to
->>> know the location and protocol for each LSM module's (e.g. selinuxfs, smackfs)
->>> mount point.
->> /proc/pid/ is definitely a better place than [lsm]fs.  Things like ps
->> -Z need to know the context of other pids, not just self.  So we at
->> least agree that a replacement interface needs to be in /proc.
->>
-> yeah I agree /proc is better for this as well
+On Monday, December 10, 2012 01:42:12 PM Eric Paris wrote:
+> Let me abstract a little here Paul.  Lets say user A starts an
+> unclassified process and a top secret process.  SELinux policy darn
+> well better be able to enforce that they can not attach to the same
+> tun.
+> 
+> Am I missing something here?
 
+Relax, all the SELinux enforced separation still exists, and works.  We're 
+just fixing the LSM/SELinux stuff that was broken with the multiqueue addition 
+and adding a new SELinux permission to control access to the new queue 
+command.
 
-There are a some options for adding the requisite /proc
-interfaces.
+What we are currently discussing is DAC only.  While Michael have different 
+opinions on how to solve the DAC issues, we agree that SELinux works 
+correctly.
 
-1. Statically add all of them. This is an extension of what's
-   done today and the easiest.
-   A. Use CONFIG_SECURITY_XXX and ifdef out unused interfaces.
-      On a system without SELinux you see no attr/sockcreate.
-   B. Put the LSM specific files in subdirectories,
-      for example attr/smack/current.
-   C. Put the LSM specific files directly in attr. This is how it
-      is done today (e.g. attr/sockcreate). Use a prefix convention
-      (attr/smack-current attr/apparmor-current) to identify the
-      LSM.
-   D. Like C, but use a suffix (e.g. selinux.current).
-2. Add a security_addprocfs hook so that LSMs can add interfaces
-   without changing the procfs code each time. This would be lots
-   more work and could result in an attr directory filled with
-   junk.
-   A. Leave it all up to the LSMs and don't create any entries
-      unless requested to.
-   B. Create the "traditional" entries always.
-
-My initial thought is 1AD.
-
->> My opinion is that ps -Z should NOT be responsible in any way for
->> parsing files.  It should make library calls to get answers about
->> LSMs.  It might need to make 1 library call per LSM but that library
->> should understand how to retrieve the information it needs and every
->> library shouldn't be re-parsing the same text file over and over
->> again...
->>
-> agreed
-
-% echo `cat /proc/<pid>/attr/*.current`
-
+-- 
+paul moore
+security and virtualization @ redhat
 
 
 --
