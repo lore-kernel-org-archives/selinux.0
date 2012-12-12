@@ -1,51 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBCJx1W5027824
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2012 14:59:06 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBCKjktQ030769
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2012 15:45:46 -0500
+Message-ID: <50C8ED0C.2010904@schaufler-ca.com>
+Date: Wed, 12 Dec 2012 12:46:04 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Wed, 12 Dec 2012 14:58:28 -0500
-From: David Quigley <dpquigl@davequigley.com>
-To: <selinux@tycho.nsa.gov>
-Subject: semanage cleanup
-Message-ID: <21751d382c2cacb70f450cd1483cecdd@countercultured.net>
+To: Eric Paris <eparis@parisplace.org>
+CC: Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SE-Linux <selinux@tycho.nsa.gov>,
+        John Johansen <john.johansen@canonical.com>,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v10] LSM: Multiple concurrent LSMs
+References: <50C65DE2.5090909@schaufler-ca.com> <201212112128.ADI26010.OQJVLOFSOFtHMF@I-love.SAKURA.ne.jp> <50C751D3.60409@schaufler-ca.com> <201212122159.CEC09839.HMOFtQFLJSVFOO@I-love.SAKURA.ne.jp> <50C8A757.3050907@schaufler-ca.com> <1355327754.3527.37.camel@localhost> <50C8AFD1.1070905@schaufler-ca.com> <1355330026.3527.44.camel@localhost> <50C8B919.2060102@schaufler-ca.com> <1355332292.3527.48.camel@localhost> <50C8BF7A.6060506@schaufler-ca.com> <CACLa4pvAhASKuKH6uH7+6iEt1dqfUrQZKAC2CSmYzAtyVOgf4w@mail.gmail.com> <50C8CC2D.7030108@schaufler-ca.com> <CACLa4pu89Sc7hiTE3aDhrLG0Q9ikwwdb2nkyBBfLm3zpa0hyrw@mail.gmail.com>
+In-Reply-To: <CACLa4pu89Sc7hiTE3aDhrLG0Q9ikwwdb2nkyBBfLm3zpa0hyrw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've given a few talks on SELinux over the past year and I've spoken to 
-a bunch of people on google+ about SELinux and one topic keeps coming 
-up. Many people find semanage to be large and convoluted with the help 
-text being way to large to sort through. The latter part of the 
-complaint is easy to address. The code for argument parsing in semanage 
-(last time I checked) doesn't use things like argparse. If we switched 
-it over to argparse we could get per sub-command help messages that 
-would be more useful to people when they messed up a sub-command. Would 
-anyone be opposed if I spent the time to migrate semanage argument 
-parsing and help messages over to argparse or a similar library?
+On 12/12/2012 10:47 AM, Eric Paris wrote:
+> On Wed, Dec 12, 2012 at 1:25 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+>> Configure None as the presented LSM and all legacy userspace
+>> will fail. Trouble for all.
+> I think the question is when and how it fails.  I'd like SELinux to
+> fail really early and in some clean way if it is non-present and you
+> don't have new userspace.  I'd rather it fail on policy load than on
+> some later /proc/*/attr/ issue.  I can do it myself even if you don't
+> want to do it as part of the stacking work.
 
-The second problem some people have is that semanage is a multiplexed 
-command. I'm not sure what the right way to approach this is. If we look 
-at other applications which are multiplexers we get a few examples. 
-Busybox is the first example and covers most of the discussion. The two 
-ways of invoking busybox is either busybox command_name arguments or 
-command_name arguments where command_name is a symlink to the busybox 
-binary. If we chose the latter way of handling it we would need to 
-decide on one of two ways of naming the sub-commands. The first method 
-would be to come up with a naming convention for the subcommands to 
-avoid collisions like selogin for semanage login or seusers for semanage 
-users etc. The second method would be to do what git use to do which is 
-prepend the tool name onto the subcommand. For example 
-semanage-fcontext, semanage-login, semanage-users etc... If we chose 
-this route then we'd need to investigate what git's reason for moving 
-away from it was and decide if it applies to our situation as well.
+So the problem would be old userspace (new userspace can query
+/sys/kernel/security/lsm and /sys/kernel/security/present) with
+a kernel configured with present=apparmor.
 
-If we convert over to argparse for argument parsing it should be 
-trivial to do some processing on argv[0] to extract out a subcommand 
-from a name and use the correct routines. I'm not sure that solving the 
-second problem gets us substantial gains or if having help messages that 
-are specific to each subcommand will help users more.
+You want loading SELinux policy to fail in this case, because
+you know that the system isn't going to work properly. You are
+suggesting a kernel change that inhibits loading the SELinux
+policy unless userspace tells the kernel it is OK to do so
+if present is not selinux.
 
-Does anyone have any thoughts about this?
+I have no objection to such. You could look at CONFIG_PRESENT_SECURITY
+in the SELinux initialization code and set a "don't load" trigger if
+it isn't "selinux". Your selinuxfs (or some other) interface could
+allow the trigger to get unset by the updated userspace.
+
+ 
+
+>
+> My current thought is a required ioctl before policy load if
+> non-present otherwise reject policy load instead of the entirely new
+> policy load file.
+>
+> -Eric
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
