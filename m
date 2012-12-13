@@ -1,59 +1,81 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBDGVTGE003014
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2012 11:31:36 -0500
-Message-ID: <50CA02FA.4020508@schaufler-ca.com>
-Date: Thu, 13 Dec 2012 08:31:54 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBDGcM8L003412
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2012 11:38:27 -0500
+Message-ID: <50CA0495.2060706@schaufler-ca.com>
+Date: Thu, 13 Dec 2012 08:38:45 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Eric Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        John Johansen <john.johansen@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+CC: eparis@redhat.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        john.johansen@canonical.com, keescook@chromium.org,
         Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [PATCH v10] LSM: Multiple concurrent LSMs
-References: <50C8A757.3050907@schaufler-ca.com> <1355327754.3527.37.camel@localhost> <50C8AFD1.1070905@schaufler-ca.com> <1355330026.3527.44.camel@localhost> <50C8B919.2060102@schaufler-ca.com> <201212132106.AFI82338.QMFHFLSJOtOOFV@I-love.SAKURA.ne.jp> <CACLa4psaVNf8-WvSX9F6oj3zyyJJpvK80RvQVGAmjH7SiQUAqA@mail.gmail.com>
-In-Reply-To: <CACLa4psaVNf8-WvSX9F6oj3zyyJJpvK80RvQVGAmjH7SiQUAqA@mail.gmail.com>
+References: <50C8A757.3050907@schaufler-ca.com> <1355327754.3527.37.camel@localhost> <50C8AFD1.1070905@schaufler-ca.com> <1355330026.3527.44.camel@localhost> <50C8B919.2060102@schaufler-ca.com> <201212132106.AFI82338.QMFHFLSJOtOOFV@I-love.SAKURA.ne.jp>
+In-Reply-To: <201212132106.AFI82338.QMFHFLSJOtOOFV@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/13/2012 8:12 AM, Eric Paris wrote:
-> On Thu, Dec 13, 2012 at 7:06 AM, Tetsuo Handa
-> <penguin-kernel@i-love.sakura.ne.jp> wrote:
->> Casey Schaufler wrote:
->>>       /proc/.../attr/current
->>>       /proc/.../attr/selinux.current
->>>       /proc/.../attr/apparmor.current
->>>       /proc/.../attr/keycreate
->>>       /proc/.../attr/selinux.keycreate
->>>
->> Can we use prctl() interface instead of /proc/$pid/attr/$lsmname.$type ?
->> I simply don't want to see flood of entries when "find /proc/" runs. ;-)
+On 12/13/2012 4:06 AM, Tetsuo Handa wrote:
+> Casey Schaufler wrote:
+>> You're suggesting that we don't change the kernel until the
+>> applications are fixed. No one is going to change the applications
+>> until the kernel is fixed.
+> People *can* change the applications before the kernel is changed if clear
+> specification is provided. That's why my approach has migration period.
+
+Of course they *can*, they just *won't*. The whole discussion
+is based on the fact that people resist change so strenuously.
+
+>> I have also added LSM identified files in /proc/.../attr:
 >>
->> prctl() can tell the caller whether specified LSM is enabled/presented or not
->> via its return value.
-> I don't much care for or understand Casey's reason for using selinux.*
-> instead of selinux/*
+>> 	/proc/.../attr/current
+>> 	/proc/.../attr/selinux.current
+>> 	/proc/.../attr/apparmor.current
+>> 	/proc/.../attr/keycreate
+>> 	/proc/.../attr/selinux.keycreate
+>>
+>> SELinux applications and libraries can use simple logic to determine
+>> what to do:
+>>
+>> 	if /sys/kernel/security/lsm does not contain "selinux"
+>> 		Stop! No SELinux here!
+>> 	if /sys/kernel/security/present does not contain "selinux"
+>> 		Use selinux.current
+>> 	else
+>> 		Use current if you like.
+>>
+> Can we use prctl() interface instead of /proc/$pid/attr/$lsmname.$type ?
+> I simply don't want to see flood of entries when "find /proc/" runs. ;-)
 
-I asked opinions and all I heard were crickets. It's an easy change.
-Does anyone else have a preference?
+That cat is so long out of the bag that it's been adopted and spayed.
 
-> but at least it means we can interact with these
-> interfaces in a shell.  prctl() means you can't use tools like cat or
-> echo.  Everything has to be a utility.  That just does not seem as
-> nice for admins.
-
-Most programming is being done in scripting languages these days.
-Eric is correct. It is much more sensible to burden the C programmer
-than the HTML5 programmer. For many, many reasons.
-
-> In my opinion you want to do things pragmatically, use a library, and
-> if you want to do things as a human, use the tools that already exist.
 >
-> -Eric
+> prctl() can tell the caller whether specified LSM is enabled/presented or not
+> via its return value.
+>
+> I think we can provide a simple utility that maps
+>
+>   echo something > /proc/pid/attr/selinux.current
+>
+> to
+>
+>   prctl(PR_SET_SECURITY, pid, "selinux", "current", "something")
+>
+> and
+>
+>   cat /proc/pid/attr/selinux.current
+>
+> to
+>
+>   prctl(PR_GET_SECURITY, pid, "selinux", "current", buffer)
+>
+> for calling prctl() from script programs.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
 
 
