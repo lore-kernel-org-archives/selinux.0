@@ -1,93 +1,55 @@
-Message-ID: <50C9EB8D.1000002@tycho.nsa.gov>
-Date: Thu, 13 Dec 2012 09:51:57 -0500
+Message-ID: <50C9EE3D.70902@tycho.nsa.gov>
+Date: Thu, 13 Dec 2012 10:03:25 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: David Quigley <dpquigl@davequigley.com>
 CC: selinux@tycho.nsa.gov
-Subject: Re: Reachable SIDs given a context
-References: <20121213091512.GA10211@siphos.be>
-In-Reply-To: <20121213091512.GA10211@siphos.be>
+Subject: Re: semanage cleanup
+References: <21751d382c2cacb70f450cd1483cecdd@countercultured.net>
+In-Reply-To: <21751d382c2cacb70f450cd1483cecdd@countercultured.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/13/2012 04:15 AM, Sven Vermeulen wrote:
-> tl;dr How does the policy dictate what the valid SIDs are that can be
->        reached given a certain context (like system_r:crond_t)? And how
->        can a policy writer/developer work on this?
+On 12/12/2012 02:58 PM, David Quigley wrote:
+> I've given a few talks on SELinux over the past year and I've spoken to
+> a bunch of people on google+ about SELinux and one topic keeps coming
+> up. Many people find semanage to be large and convoluted with the help
+> text being way to large to sort through. The latter part of the
+> complaint is easy to address. The code for argument parsing in semanage
+> (last time I checked) doesn't use things like argparse. If we switched
+> it over to argparse we could get per sub-command help messages that
+> would be more useful to people when they messed up a sub-command. Would
+> anyone be opposed if I spent the time to migrate semanage argument
+> parsing and help messages over to argparse or a similar library?
 >
-> I'm trying to understand how to work with the contexts/default_contexts and
-> contexts/users/* files. As I understood it, the file give the default
-> contexts to use if a logon-like process (or any process that sets up a PAM
-> session for a user where PAM triggers pam_selinux.so) is used.
+> The second problem some people have is that semanage is a multiplexed
+> command. I'm not sure what the right way to approach this is. If we look
+> at other applications which are multiplexers we get a few examples.
+> Busybox is the first example and covers most of the discussion. The two
+> ways of invoking busybox is either busybox command_name arguments or
+> command_name arguments where command_name is a symlink to the busybox
+> binary. If we chose the latter way of handling it we would need to
+> decide on one of two ways of naming the sub-commands. The first method
+> would be to come up with a naming convention for the subcommands to
+> avoid collisions like selogin for semanage login or seusers for semanage
+> users etc. The second method would be to do what git use to do which is
+> prepend the tool name onto the subcommand. For example
+> semanage-fcontext, semanage-login, semanage-users etc... If we chose
+> this route then we'd need to investigate what git's reason for moving
+> away from it was and decide if it applies to our situation as well.
 >
-> However, it seems like just modifying the files isn't sufficient. I try
-> reproducing stuff using getseuser command. For instance:
+> If we convert over to argparse for argument parsing it should be trivial
+> to do some processing on argv[0] to extract out a subcommand from a name
+> and use the correct routines. I'm not sure that solving the second
+> problem gets us substantial gains or if having help messages that are
+> specific to each subcommand will help users more.
 >
-> # getseuser root system_u:system_r:crond_t
-> seuser:  root, level (null)
-> Context 0       root:sysadm_r:cronjob_t
-> Context 1       root:staff_r:cronjob_t
->
-> This still matches what is in the default_contexts file for the crond_t
-> domain (and in the specific user file in contexts/users/root):
->
-> system_r:crond_t        unconfined_r:unconfined_t sysadm_r:cronjob_t
-> 			staff_r:cronjob_t user_r:cronjob_t
->
-> As the root Linux user maps on the root SELinux user, which has staff_r and
-> sysadm_r as allowed roles, and because of the order in the file, I get the
-> sysadm_r:cronjob_t first and then staff_r:cronjob_t.
->
-> However, when I try to modify the contexts/root file so that another domain
-> should be used (say portage_t), getseuser still returns the standard
-> cronjob_t domains:
->
-> ~# grep crond_t users/root
-> system_r:crond_t        unconfined_r:unconfined_t sysadm_r:portage_t
-> 			staff_r:portage_t user_r:cronjob_t
->
-> ~# getseuser root system_u:system_r:crond_t
-> seuser:  root, level (null)
-> Context 0       root:staff_r:cronjob_t
-> Context 1       root:sysadm_r:cronjob_
->
-> If I strace getseuser, I notice it first asks the SELinux in-kernel code on
-> what the contexts are that crond_t can return to for the user (the SIDs),
-> and then it reads the users/root and default_contexts files.
->
-> The kernel (through /sys/fs/selinux/user) returns
-> 3715  read(3, "2\0root:staff_r:cronjob_t\0root:sysadm_r:cronjob_t\0", 4095) = 49
->
-> In the kernel code I "read" (interpret might be better ;) that the policy is
-> checked to see what valid SIDs can be reached from the given context (the
-> system_r:crond_t context) which are then translated into contexts and
-> returned. I assume that getseuser then sees if one of the files (users/root
-> and default_contexts) sais the same. When one match occurs, then that is
-> returned. If none occur, then the value returned by the kernel is used.
->
-> How does the kernel know what the valid, reachable SIDs are? I first thought
-> it was the domains that can be transitioned to, but crond_t can transition
-> to portage_t, and portage_t is allowed for the sysadm_r role.
+> Does anyone have any thoughts about this?
 
-Yes, I think the only thing you are missing is that the kernel also 
-applies any constraint checking when it checks the transition 
-permission, and we have this in policy/constraints:
-         or ( t1 == cron_source_domain and ( t2 == cron_job_domain or u2 
-== system_u ) )
-
-So you need domain_cron_exemption_target(portage_t) in your policy.
-
-BTW, we'd like to get rid of the usage of /selinux/user altogether; that 
-has been previously discussed on list.  Preferably simplifying the logic 
-and moving it to userspace.
-
-
-
-
-
-
-
+I think having context-sensitive help (i.e. sub-command help) and 
+improving the man page would be the best way of addressing it.  I don't 
+think splitting them out into separate programs is useful.
 
 
 
