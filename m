@@ -1,54 +1,100 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBG35xxb000747
-	for <selinux@tycho.nsa.gov>; Sat, 15 Dec 2012 22:05:59 -0500
-Message-ID: <50CD3AA9.3050008@schaufler-ca.com>
-Date: Sat, 15 Dec 2012 19:06:17 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBIJhFiY008572
+	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2012 14:43:16 -0500
+Message-ID: <50D0C6EB.1040108@redhat.com>
+Date: Tue, 18 Dec 2012 14:41:31 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Kees Cook <keescook@chromium.org>
-CC: Eric Paris <eparis@parisplace.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Eric Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v10] LSM: Multiple concurrent LSMs
-References: <50C8A757.3050907@schaufler-ca.com> <1355327754.3527.37.camel@localhost> <50C8AFD1.1070905@schaufler-ca.com> <1355330026.3527.44.camel@localhost> <50C8B919.2060102@schaufler-ca.com> <201212132106.AFI82338.QMFHFLSJOtOOFV@I-love.SAKURA.ne.jp> <CACLa4psaVNf8-WvSX9F6oj3zyyJJpvK80RvQVGAmjH7SiQUAqA@mail.gmail.com> <50CA02FA.4020508@schaufler-ca.com> <CAGXu5jJf4NEvs6TjVCBxgd9e8cGwag_-viEntgTBUq85fULr8w@mail.gmail.com>
-In-Reply-To: <CAGXu5jJf4NEvs6TjVCBxgd9e8cGwag_-viEntgTBUq85fULr8w@mail.gmail.com>
+To: Eric Paris <eparis@parisplace.org>
+CC: Guillem Jover <guillem@debian.org>, debian-dpkg@lists.debian.org,
+        rpm-maint@lists.rpm.org, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [Rpm-maint] [PATCH RFC] Package script(let)s SELinux execution
+ context
+References: <1353425275-10277-1-git-send-email-guillem@debian.org> <CACLa4ps+b=m7rto3wpXWqpOdTr01FzLTTXuKnO-isBM-smQ5hA@mail.gmail.com>
+In-Reply-To: <CACLa4ps+b=m7rto3wpXWqpOdTr01FzLTTXuKnO-isBM-smQ5hA@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/13/2012 9:13 AM, Kees Cook wrote:
-> On Thu, Dec 13, 2012 at 8:31 AM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 12/13/2012 8:12 AM, Eric Paris wrote:
->>> On Thu, Dec 13, 2012 at 7:06 AM, Tetsuo Handa
->>> <penguin-kernel@i-love.sakura.ne.jp> wrote:
->>>> Casey Schaufler wrote:
->>>>>       /proc/.../attr/current
->>>>>       /proc/.../attr/selinux.current
->>>>>       /proc/.../attr/apparmor.current
->>>>>       /proc/.../attr/keycreate
->>>>>       /proc/.../attr/selinux.keycreate
->>>>>
->>>> Can we use prctl() interface instead of /proc/$pid/attr/$lsmname.$type ?
->>>> I simply don't want to see flood of entries when "find /proc/" runs. ;-)
->>>>
->>>> prctl() can tell the caller whether specified LSM is enabled/presented or not
->>>> via its return value.
->>> I don't much care for or understand Casey's reason for using selinux.*
->>> instead of selinux/*
->> I asked opinions and all I heard were crickets. It's an easy change.
->> Does anyone else have a preference?
-> Like Eric, I prefer directories. It complicates things slightly
-> because then LSMs can't be named "current", etc...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have been digging at the code and "selinux.current" is a whole
-lot simpler than "selinux/current". fs/proc/base.c is where to look
-at the code. For now I'm sticking with my original plan. If someone
-cares enough to suggest an implementation, I'm wide open to it.
+On 12/03/2012 12:15 PM, Eric Paris wrote:
+> Anyone have any comments?  I don't see a problem if such a function would
+> make your life better...
+> 
+I have no problem with it.
+> On Tue, Nov 20, 2012 at 10:27 AM, Guillem Jover <guillem@debian.org>
+> wrote:
+>> Hi!
+>> 
+>> Some context for the rpm folks. While looking into improving SELinux 
+>> support in dpkg, I noticed that dpkg is not setting a new execution 
+>> context when running the package maintainer scripts (package scriptlets 
+>> in rpm lingo, I think). And when checking how to implement it, it seemed 
+>> that reusing something like the current rpm_execcon() would be best, and
+>> Stephen seemed to agree. For more details, see the thread starting at
+>> <http://marc.info/?t=135236358700001&r=1&w=2>.
+>> 
+>> Having checked the rpm code, and the mailing list, it seems like this new
+>> function would make it easy to be used there too for stuff like the Lua
+>> scriptlets (if desired), and might make it easier also to switch to the
+>> new rpm plugins framework (?).
+>> 
+>> I've discarded the verified argument for the new function because that 
+>> seemed best handled from the rpm side, and in any case seemed unrelated 
+>> to the execution context. I'm not entirely convinced about the function 
+>> name though, as it could be confused as applying a context to a path on 
+>> the filesystem. And I've not marked rpm_execcon() as deprecated because 
+>> it might be annoying at the beginning, but would change that if you
+>> think it makes sense.
+>> 
+>> In any case, here's a patch adding such new function. For dpkg, given 
+>> that it has never set a new context up to now, I'd only make use of the 
+>> function if it's available in libselinux, as I don't think it's worth it 
+>> to ship an embedded copy. For rpm, I guess it could switch to use the 
+>> function also if available and fallback to rpm_execcon() otherwise.
+>> After a while the rpm_execcon() function could be removed from
+>> libselinux, on the next ABI break, as I understand was the plan anyway
+>> (?).
+>> 
+>> (The patch might not apply w/o the man page cleanup series.)
+>> 
+>> So, what do you think?
+>> 
+>> Thanks, Guillem
+>> 
+>> Guillem Jover (1): libselinux: Refactor rpm_execcon into a new
+>> setexecfilecon()
+>> 
+>> libselinux/Makefile                        |  3 +++ 
+>> libselinux/include/selinux/selinux.h       |  4 ++++ 
+>> libselinux/man/man3/getexeccon.3           | 23 ++++++++++++++++++++--- 
+>> libselinux/src/Makefile                    |  3 --- libselinux/src/{rpm.c
+>> => setexecfilecon.c} | 27 ++++++++++++++++++++------- 5 files changed, 47
+>> insertions(+), 13 deletions(-) rename libselinux/src/{rpm.c =>
+>> setexecfilecon.c} (71%)
+>> 
+>> -- 1.8.0
+>> 
+>> 
+>> -- This message was distributed to subscribers of the selinux mailing
+>> list. If you no longer wish to subscribe, send mail to
+>> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
+>> quotes as the message.
+> _______________________________________________ Rpm-maint mailing list 
+> Rpm-maint@lists.rpm.org http://lists.rpm.org/mailman/listinfo/rpm-maint
+> 
+> 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with undefined - http://www.enigmail.net/
+
+iEYEARECAAYFAlDQxusACgkQrlYvE4MpobO84QCgkrExxyhcACGfA+G6xSD4xWgK
+zOEAoOtbDyO38jL9Rw6S+4S1hT416gMe
+=lbln
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
