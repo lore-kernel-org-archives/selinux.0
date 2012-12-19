@@ -1,79 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIdMpN009036
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:39:22 -0500
-Message-ID: <50D2093E.7090409@schaufler-ca.com>
-Date: Wed, 19 Dec 2012 10:36:46 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIuvL3010207
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:56:58 -0500
 MIME-Version: 1.0
-To: LSM <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>
-CC: Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Eric Paris <eparis@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: [PATCH v11 5/9] LSM: Multiple concurrent LSMs
-References: <50D205E2.9010203@schaufler-ca.com>
-In-Reply-To: <50D205E2.9010203@schaufler-ca.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Wed, 19 Dec 2012 13:56:14 -0500
+From: David Quigley <dpquigl@davequigley.com>
+To: <selinux@tycho.nsa.gov>, <selinux@lists.fedoraproject.org>,
+        <linux-nfs@vger.kernel.org>
+Subject: Labeled NFS Linux Prototype Meeting
+Message-ID: <e1d1d7c4a81e914c9f6e70da00cf3630@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Subject: [PATCH v11 5/9] LSM: Multiple concurrent LSMs
+Hello Everyone,
 
-Change the infrastructure for Linux Security Modules (LSM)s
-from a single vector of hook handlers to a list based method
-for handling multiple concurrent modules. 
+     I will be meeting with several of the member of the team in 
+Singapore that is helping me with work on Labeled NFS. Because they are 
+13 hours ahead of East Coast time I will be meeting with them at 10pm On 
+Thursday EST(or is it EDT) which is 11am their time Friday. We normally 
+meet over skype. If anyone else is interesting in participating either 
+by listening in on what the steps are or want to know what our progress 
+is because they are implementing a secondary prototype you are welcome 
+to join. Skype should be able to support several users connecting in at 
+once. If it doesn't work out we will try to migrate over to a Google+ 
+hangout instead since that can handle lots of users. I've never done one 
+of those so we'll see. An alternative is if one of the participants has 
+an adobe connect setup we could use that but for now we'll start with 
+skype and move to a more robust solution if necessary. Depending on what 
+we identify at this meeting and what people attend we may consider 
+making this an every other week meeting. As of right now the agenda is 
+listed below.
 
-Add per-LSM interfaces in /proc/*/attr as it is infeasible
-to share them when more than one LSM is active.
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Agenda:
 
----
- fs/proc/base.c |   28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+1. Discuss merge windows and which one we'd like to target.
+2. Discuss current feedback from Bruce Fields.
+3. Discuss current feedback from Trond Myklebust.
+4. Discuss implementing remaining features from NFSv4.2 specification.
+5. Discuss viability of future every other week meetings.
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 9e28356..d1eaa83 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2223,12 +2223,28 @@ static const struct file_operations proc_pid_attr_operations = {
- };
- 
- static const struct pid_entry attr_dir_stuff[] = {
--	REG("current",    S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("prev",       S_IRUGO,	   proc_pid_attr_operations),
--	REG("exec",       S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("current",            S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("prev",               S_IRUGO,	   proc_pid_attr_operations),
-+	REG("exec",               S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("fscreate",           S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("keycreate",          S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("sockcreate",         S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+#ifdef CONFIG_SECURITY_SELINUX
-+	REG("selinux.current",    S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("selinux.prev",       S_IRUGO,	   proc_pid_attr_operations),
-+	REG("selinux.exec",       S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("selinux.fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("selinux.keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("selinux.sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+#endif
-+#ifdef CONFIG_SECURITY_SMACK
-+	REG("smack.current",      S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+#endif
-+#ifdef CONFIG_SECURITY_APPARMOR
-+	REG("apparmor.current",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	REG("apparmor.prev",      S_IRUGO,	   proc_pid_attr_operations),
-+	REG("apparmor.exec",      S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+#endif
- };
- 
- static int proc_attr_dir_readdir(struct file * filp,
+If anyone would like to participate and has other topics they would 
+like to discuss let me know. I'm going to try to get a hold of Rodel 
+tonight and use a google+ hangout for the meeting. If we decide it would 
+be better to use google+ I'll send out those details tonight. If you'd 
+like my skype details for the meeting email me privately and I'll send 
+you my skype name for the meeting.
 
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
