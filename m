@@ -1,239 +1,140 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIc3O5008872
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:38:03 -0500
-Message-ID: <50D2095C.30305@schaufler-ca.com>
-Date: Wed, 19 Dec 2012 10:37:16 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIc3O7008872
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:38:04 -0500
+Message-ID: <50D2096A.7040001@schaufler-ca.com>
+Date: Wed, 19 Dec 2012 10:37:30 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Casey Schaufler <casey@schaufler-ca.com>
-CC: LSM <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
+To: LSM <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>
+CC: Casey Schaufler <casey@schaufler-ca.com>,
         John Johansen <john.johansen@canonical.com>,
         Eric Paris <eparis@redhat.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
         Kees Cook <keescook@chromium.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: [PATCH v11 8/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v11 9/9] LSM: Multiple concurrent LSMs
 References: <50D205E2.9010203@schaufler-ca.com>
 In-Reply-To: <50D205E2.9010203@schaufler-ca.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Subject: [PATCH v11 8/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v11 9/9] LSM: Multiple concurrent LSMs
 
 Change the infrastructure for Linux Security Modules (LSM)s
 from a single vector of hook handlers to a list based method
 for handling multiple concurrent modules. 
 
-Abstract access to security blobs.
-Remove commoncap calls.
+Remove special case Yama stacking. Remove commoncap calls.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 ---
- security/tomoyo/common.h        |    6 +++--
- security/tomoyo/domain.c        |    2 +-
- security/tomoyo/securityfs_if.c |    9 +++++---
- security/tomoyo/tomoyo.c        |   47 ++++++++++++++++++++++-----------------
- 4 files changed, 38 insertions(+), 26 deletions(-)
+ security/yama/Kconfig    |    7 -------
+ security/yama/yama_lsm.c |   33 +++------------------------------
+ 2 files changed, 3 insertions(+), 37 deletions(-)
 
-diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
-index d4f166b..ef0cdcc 100644
---- a/security/tomoyo/common.h
-+++ b/security/tomoyo/common.h
-@@ -28,6 +28,7 @@
- #include <linux/in.h>
- #include <linux/in6.h>
- #include <linux/un.h>
-+#include <linux/lsm.h>
- #include <net/sock.h>
- #include <net/af_unix.h>
- #include <net/ip.h>
-@@ -1079,6 +1080,7 @@ extern struct list_head tomoyo_domain_list;
- extern struct list_head tomoyo_name_list[TOMOYO_MAX_HASH];
- extern struct list_head tomoyo_namespace_list;
- extern struct mutex tomoyo_policy_lock;
-+extern struct security_operations tomoyo_security_ops;
- extern struct srcu_struct tomoyo_ss;
- extern struct tomoyo_domain_info tomoyo_kernel_domain;
- extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
-@@ -1202,7 +1204,7 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
-  */
- static inline struct tomoyo_domain_info *tomoyo_domain(void)
+diff --git a/security/yama/Kconfig b/security/yama/Kconfig
+index 20ef514..a99aa1d 100644
+--- a/security/yama/Kconfig
++++ b/security/yama/Kconfig
+@@ -12,10 +12,3 @@ config SECURITY_YAMA
+ 
+ 	  If you are unsure how to answer this question, answer N.
+ 
+-config SECURITY_YAMA_STACKED
+-	bool "Yama stacked with other LSMs"
+-	depends on SECURITY_YAMA
+-	default n
+-	help
+-	  When Yama is built into the kernel, force it to stack with the
+-	  selected primary LSM.
+diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
+index b4c2984..aab02f2 100644
+--- a/security/yama/yama_lsm.c
++++ b/security/yama/yama_lsm.c
+@@ -119,13 +119,9 @@ void yama_task_free(struct task_struct *task)
+ int yama_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			   unsigned long arg4, unsigned long arg5)
  {
--	return current_cred()->security;
-+	return lsm_get_cred(current_cred(), &tomoyo_security_ops);
- }
+-	int rc;
++	int rc = -ENOSYS;
+ 	struct task_struct *myself = current;
  
- /**
-@@ -1215,7 +1217,7 @@ static inline struct tomoyo_domain_info *tomoyo_domain(void)
- static inline struct tomoyo_domain_info *tomoyo_real_domain(struct task_struct
- 							    *task)
- {
--	return task_cred_xxx(task, security);
-+	return lsm_get_cred(__task_cred(task), &tomoyo_security_ops);
- }
- 
- /**
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index 3865145..15042e7 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -840,7 +840,7 @@ force_jump_domain:
- 		domain = old_domain;
- 	/* Update reference count on "struct tomoyo_domain_info". */
- 	atomic_inc(&domain->users);
--	bprm->cred->security = domain;
-+	lsm_set_cred(bprm->cred, domain, &tomoyo_security_ops);
- 	kfree(exename.name);
- 	if (!retval) {
- 		ee->r.domain = domain;
-diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
-index 8592f2f..37feaf5 100644
---- a/security/tomoyo/securityfs_if.c
-+++ b/security/tomoyo/securityfs_if.c
-@@ -75,8 +75,10 @@ static ssize_t tomoyo_write_self(struct file *file, const char __user *buf,
- 					error = -ENOMEM;
- 				} else {
- 					struct tomoyo_domain_info *old_domain =
--						cred->security;
--					cred->security = new_domain;
-+						lsm_get_cred(cred,
-+							&tomoyo_security_ops);
-+					lsm_set_cred(cred, new_domain,
-+							&tomoyo_security_ops);
- 					atomic_inc(&new_domain->users);
- 					atomic_dec(&old_domain->users);
- 					commit_creds(cred);
-@@ -242,7 +244,8 @@ static int __init tomoyo_initerface_init(void)
- 	struct dentry *tomoyo_dir;
- 
- 	/* Don't create securityfs entries unless registered. */
--	if (current_cred()->security != &tomoyo_kernel_domain)
-+	if (lsm_get_cred(current_cred(), &tomoyo_security_ops) !=
-+			&tomoyo_kernel_domain)
- 		return 0;
- 
- 	tomoyo_dir = securityfs_create_dir("tomoyo", NULL);
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index a2ee362..b2a58ae 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -17,7 +17,7 @@
-  */
- static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
- {
--	new->security = NULL;
-+	lsm_set_cred(new, NULL, &tomoyo_security_ops);
- 	return 0;
- }
- 
-@@ -33,8 +33,10 @@ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
- static int tomoyo_cred_prepare(struct cred *new, const struct cred *old,
- 			       gfp_t gfp)
- {
--	struct tomoyo_domain_info *domain = old->security;
--	new->security = domain;
-+	struct tomoyo_domain_info *domain;
-+
-+	domain = lsm_get_cred(old, &tomoyo_security_ops);
-+	lsm_set_cred(new, domain, &tomoyo_security_ops);
- 	if (domain)
- 		atomic_inc(&domain->users);
- 	return 0;
-@@ -58,9 +60,13 @@ static void tomoyo_cred_transfer(struct cred *new, const struct cred *old)
-  */
- static void tomoyo_cred_free(struct cred *cred)
- {
--	struct tomoyo_domain_info *domain = cred->security;
--	if (domain)
-+	struct tomoyo_domain_info *domain;
-+
-+	domain = lsm_get_cred(cred, &tomoyo_security_ops);
-+	if (domain) {
- 		atomic_dec(&domain->users);
-+		lsm_set_cred(cred, NULL, &tomoyo_security_ops);
-+	}
- }
- 
- /**
-@@ -72,12 +78,6 @@ static void tomoyo_cred_free(struct cred *cred)
-  */
- static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+-	rc = cap_task_prctl(option, arg2, arg3, arg4, arg5);
+-	if (rc != -ENOSYS)
+-		return rc;
+-
+ 	switch (option) {
+ 	case PR_SET_PTRACER:
+ 		/* Since a thread can call prctl(), find the group leader
+@@ -246,14 +242,7 @@ static int ptracer_exception_found(struct task_struct *tracer,
+ int yama_ptrace_access_check(struct task_struct *child,
+ 				    unsigned int mode)
  {
 -	int rc;
 -
--	rc = cap_bprm_set_creds(bprm);
+-	/* If standard caps disallows it, so does Yama.  We should
+-	 * only tighten restrictions further.
+-	 */
+-	rc = cap_ptrace_access_check(child, mode);
 -	if (rc)
 -		return rc;
++	int rc = 0;
+ 
+ 	/* require ptrace target be a child of ptracer on attach */
+ 	if (mode == PTRACE_MODE_ATTACH) {
+@@ -295,14 +284,7 @@ int yama_ptrace_access_check(struct task_struct *child,
+  */
+ int yama_ptrace_traceme(struct task_struct *parent)
+ {
+-	int rc;
 -
- 	/*
- 	 * Do only if this function is called for the first time of an execve
- 	 * operation.
-@@ -98,13 +98,13 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
- 	 * stored inside "bprm->cred->security" will be acquired later inside
- 	 * tomoyo_find_next_domain().
- 	 */
--	atomic_dec(&((struct tomoyo_domain_info *)
--		     bprm->cred->security)->users);
-+	atomic_dec(&((struct tomoyo_domain_info *)lsm_get_cred(bprm->cred,
-+						&tomoyo_security_ops))->users);
- 	/*
- 	 * Tell tomoyo_bprm_check_security() is called for the first time of an
- 	 * execve operation.
- 	 */
--	bprm->cred->security = NULL;
-+	lsm_set_cred(bprm->cred, NULL, &tomoyo_security_ops);
- 	return 0;
+-	/* If standard caps disallows it, so does Yama.  We should
+-	 * only tighten restrictions further.
+-	 */
+-	rc = cap_ptrace_traceme(parent);
+-	if (rc)
+-		return rc;
++	int rc = 0;
+ 
+ 	/* Only disallow PTRACE_TRACEME on more aggressive settings. */
+ 	switch (ptrace_scope) {
+@@ -324,7 +306,6 @@ int yama_ptrace_traceme(struct task_struct *parent)
+ 	return rc;
  }
  
-@@ -117,8 +117,9 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
-  */
- static int tomoyo_bprm_check_security(struct linux_binprm *bprm)
- {
--	struct tomoyo_domain_info *domain = bprm->cred->security;
-+	struct tomoyo_domain_info *domain;
+-#ifndef CONFIG_SECURITY_YAMA_STACKED
+ static struct security_operations yama_ops = {
+ 	.name =			"yama",
  
-+	domain = lsm_get_cred(bprm->cred, &tomoyo_security_ops);
- 	/*
- 	 * Execute permission is checked against pathname passed to do_execve()
- 	 * using current domain.
-@@ -503,7 +504,7 @@ static int tomoyo_socket_sendmsg(struct socket *sock, struct msghdr *msg,
-  * tomoyo_security_ops is a "struct security_operations" which is used for
-  * registering TOMOYO.
-  */
--static struct security_operations tomoyo_security_ops = {
-+struct security_operations tomoyo_security_ops = {
- 	.name                = "tomoyo",
- 	.cred_alloc_blank    = tomoyo_cred_alloc_blank,
- 	.cred_prepare        = tomoyo_cred_prepare,
-@@ -545,16 +546,22 @@ struct srcu_struct tomoyo_ss;
-  */
- static int __init tomoyo_init(void)
- {
-+	int rc;
- 	struct cred *cred = (struct cred *) current_cred();
+@@ -333,7 +314,6 @@ static struct security_operations yama_ops = {
+ 	.task_prctl =		yama_task_prctl,
+ 	.task_free =		yama_task_free,
+ };
+-#endif
  
-+	/* register ourselves with the security framework */
- 	if (!security_module_enable(&tomoyo_security_ops))
+ #ifdef CONFIG_SYSCTL
+ static int yama_dointvec_minmax(struct ctl_table *table, int write,
+@@ -380,18 +360,11 @@ static struct ctl_table yama_sysctl_table[] = {
+ 
+ static __init int yama_init(void)
+ {
+-#ifndef CONFIG_SECURITY_YAMA_STACKED
+ 	if (!security_module_enable(&yama_ops))
  		return 0;
--	/* register ourselves with the security framework */
--	if (register_security(&tomoyo_security_ops) ||
--	    init_srcu_struct(&tomoyo_ss))
-+
-+	if (init_srcu_struct(&tomoyo_ss))
- 		panic("Failure registering TOMOYO Linux");
- 	printk(KERN_INFO "TOMOYO Linux initialized\n");
--	cred->security = &tomoyo_kernel_domain;
-+
-+	rc = lsm_set_init_cred(cred, &tomoyo_kernel_domain,
-+				&tomoyo_security_ops);
-+	if (rc)
-+		panic("Failure allocating credential for TOMOYO Linux");
-+
- 	tomoyo_mm_init();
- 	return 0;
- }
+-#endif
+ 
+ 	printk(KERN_INFO "Yama: becoming mindful.\n");
+ 
+-#ifndef CONFIG_SECURITY_YAMA_STACKED
+-	if (register_security(&yama_ops))
+-		panic("Yama: kernel registration failed.\n");
+-#endif
+-
+ #ifdef CONFIG_SYSCTL
+ 	if (!register_sysctl_paths(yama_sysctl_path, yama_sysctl_table))
+ 		panic("Yama: sysctl registration failed.\n");
 
 
 --
