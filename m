@@ -1,60 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJGwLYM010589
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 11:58:25 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH v3 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
-Date: Wed, 19 Dec 2012 11:58:10 -0500
-Message-ID: <2374585.ppB8RWyPuB@sifl>
-In-Reply-To: <50D154B1.4010909@redhat.com>
-References: <20121218225001.16104.34454.stgit@localhost> <20121218230808.GC1135@redhat.com> <50D154B1.4010909@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIMxEU004197
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:22:59 -0500
+Message-ID: <50D205E2.9010203@schaufler-ca.com>
+Date: Wed, 19 Dec 2012 10:22:26 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: LSM <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>
+CC: John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: [PATCH v11 0/9] LSM: Multiple concurrent LSMs
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, December 19, 2012 01:46:25 PM Jason Wang wrote:
-> On 12/19/2012 07:08 AM, Michael S. Tsirkin wrote:
-> > On Tue, Dec 18, 2012 at 05:53:52PM -0500, Paul Moore wrote:
-> >> This patch corrects some problems with LSM/SELinux that were introduced
-> >> with the multiqueue patchset.  The problem stems from the fact that the
-> >> multiqueue work changed the relationship between the tun device and its
-> >> associated socket; before the socket persisted for the life of the
-> >> device, however after the multiqueue changes the socket only persisted
-> >> for the life of the userspace connection (fd open).  For non-persistent
-> >> devices this is not an issue, but for persistent devices this can cause
-> >> the tun device to lose its SELinux label.
-> >> 
-> >> We correct this problem by adding an opaque LSM security blob to the
-> >> tun device struct which allows us to have the LSM security state, e.g.
-> >> SELinux labeling information, persist for the lifetime of the tun
-> >> device.  In the process we tweak the LSM hooks to work with this new
-> >> approach to TUN device/socket labeling and introduce a new LSM hook,
-> >> security_tun_dev_attach_queue(), to approve requests to attach to a
-> >> TUN queue via TUNSETQUEUE.
-> >> 
-> >> The SELinux code has been adjusted to match the new LSM hooks, the
-> >> other LSMs do not make use of the LSM TUN controls.  This patch makes
-> >> use of the recently added "tun_socket:attach_queue" permission to
-> >> restrict access to the TUNSETQUEUE operation.  On older SELinux
-> >> policies which do not define the "tun_socket:attach_queue" permission
-> >> the access control decision for TUNSETQUEUE will be handled according
-> >> to the SELinux policy's unknown permission setting.
-> >> 
-> >> Signed-off-by: Paul Moore <pmoore@redhat.com>
-> > 
-> > Looks good to me. A comment not directly related to this patch, below.
-> 
-> Good to me too, will do some test on this.
+Subject: [PATCH v11 0/9] LSM: Multiple concurrent LSMs
 
-Great.  I'll do some more testing and make sure the LSM and SELinux crowd are 
-okay with the changes.
+Change the infrastructure for Linux Security Modules (LSM)s
+from a single vector of hook handlers to a list based method
+for handling multiple concurrent modules. 
 
--- 
-paul moore
-security and virtualization @ redhat
+A level of indirection has been introduced in the handling of
+security blobs. LSMs no longer access ->security fields directly,
+instead they use an abstraction provided by lsm_[gs]et field
+functions. 
+
+The XFRM hooks are only used by SELinux and it is not clear
+that they can be shared. The First LSM that registers using
+those hooks gets to use them. Any subsequent LSM that uses
+those hooks is denied registration. 
+
+Secids have not been made shareable. Only one LSM that uses
+secids (SELinux and Smack) can be used at a time. The first
+to register wins.
+
+The "security=" boot option takes a comma separated list of
+LSMs, registering them in the order presented. The LSM hooks
+will be executed in the order registered. Hooks that return
+errors are not short circuited. All hooks are called even
+if one of the LSM hooks fails. The result returned will be
+that of the last LSM hook that failed.
+
+Some hooks don't fit that model. setprocattr, getprocattr,
+and a few others are special cased. All behavior from
+security/capability.c has been moved into the hook handling.
+The security/commoncap functions used to get called from
+the LSM specific code. The handling of the capability
+functions has been moved out of the LSMs and into the
+hook handling.
+
+The /proc/*/attr interfaces are given to one LSM. This
+can be done by setting CONFIG_SECURITY_PRESENT. Additional
+interfaces have been created in /proc/*/attr so that
+each LSM has its own named interfaces.
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+---
+ fs/proc/base.c                      |   28 +-
+ include/linux/lsm.h                 |  174 ++++
+ include/linux/security.h            |  254 +++++-
+ security/Kconfig                    |   79 +-
+ security/Makefile                   |    3 +-
+ security/apparmor/context.c         |   10 +-
+ security/apparmor/domain.c          |   19 +-
+ security/apparmor/include/context.h |   13 +-
+ security/apparmor/lsm.c             |   66 +-
+ security/capability.c               | 1075 -------------------------
+ security/commoncap.c                |    6 -
+ security/inode.c                    |   78 +-
+ security/security.c                 | 1481 ++++++++++++++++++++++++++++-------
+ security/selinux/hooks.c            |  410 +++++-----
+ security/selinux/include/objsec.h   |    2 +
+ security/selinux/include/xfrm.h     |    2 +-
+ security/selinux/netlabel.c         |   13 +-
+ security/selinux/selinuxfs.c        |    6 +-
+ security/selinux/xfrm.c             |    9 +-
+ security/smack/smack.h              |   14 +-
+ security/smack/smack_access.c       |    2 +-
+ security/smack/smack_lsm.c          |  367 ++++-----
+ security/smack/smackfs.c            |   16 +-
+ security/tomoyo/common.h            |    6 +-
+ security/tomoyo/domain.c            |    2 +-
+ security/tomoyo/securityfs_if.c     |    9 +-
+ security/tomoyo/tomoyo.c            |   47 +-
+ security/yama/Kconfig               |    7 -
+ security/yama/yama_lsm.c            |   33 +-
+ 29 files changed, 2213 insertions(+), 2018 deletions(-)
 
 
 --
