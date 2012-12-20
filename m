@@ -1,54 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBJIuvL3010207
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2012 13:56:58 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBKHTVSp014491
+	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2012 12:29:31 -0500
+Message-ID: <50D34ADB.4000709@schaufler-ca.com>
+Date: Thu, 20 Dec 2012 09:28:59 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Wed, 19 Dec 2012 13:56:14 -0500
-From: David Quigley <dpquigl@davequigley.com>
-To: <selinux@tycho.nsa.gov>, <selinux@lists.fedoraproject.org>,
-        <linux-nfs@vger.kernel.org>
-Subject: Labeled NFS Linux Prototype Meeting
-Message-ID: <e1d1d7c4a81e914c9f6e70da00cf3630@countercultured.net>
+To: Kees Cook <keescook@chromium.org>
+CC: LSM <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        SE Linux <selinux@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v11 3/9] LSM: Multiple concurrent LSMs
+References: <50D205E2.9010203@schaufler-ca.com> <50D20931.8000705@schaufler-ca.com> <CAGXu5jK3J=QZmXetv0hv_sXcJdkHJ+hc2MAx0QQ=0f=bTMNppA@mail.gmail.com>
+In-Reply-To: <CAGXu5jK3J=QZmXetv0hv_sXcJdkHJ+hc2MAx0QQ=0f=bTMNppA@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Everyone,
+On 12/20/2012 9:04 AM, Kees Cook wrote:
+> On Wed, Dec 19, 2012 at 10:36 AM, Casey Schaufler
+> <casey@schaufler-ca.com> wrote:
+>> Subject: [PATCH v11 3/9] LSM: Multiple concurrent LSMs
+>>
+>> Change the infrastructure for Linux Security Modules (LSM)s
+>> from a single vector of hook handlers to a list based method
+>> for handling multiple concurrent modules.
+>>
+>> Handle any preconditions in the hooks directly.
+>> Treat allocation and procattr hooks specially.
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>
+>> ---
+>>  security/security.c | 1481 ++++++++++++++++++++++++++++++++++++++++-----------
+>>  1 file changed, 1180 insertions(+), 301 deletions(-)
+>>
+>> diff --git a/security/security.c b/security/security.c
+>> index 8dcd4ae..75e2f6e 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> [...]
+>> +       lsm_enlist(sop, LSM_kernel_module_request, sop->kernel_module_request);
+> kernel_module_from_file needs to get added too, now that the new
+> syscall has been merged in Linus's tree.
 
-     I will be meeting with several of the member of the team in 
-Singapore that is helping me with work on Labeled NFS. Because they are 
-13 hours ahead of East Coast time I will be meeting with them at 10pm On 
-Thursday EST(or is it EDT) which is 11am their time Friday. We normally 
-meet over skype. If anyone else is interesting in participating either 
-by listening in on what the steps are or want to know what our progress 
-is because they are implementing a secondary prototype you are welcome 
-to join. Skype should be able to support several users connecting in at 
-once. If it doesn't work out we will try to migrate over to a Google+ 
-hangout instead since that can handle lots of users. I've never done one 
-of those so we'll see. An alternative is if one of the participants has 
-an adobe connect setup we could use that but for now we'll start with 
-skype and move to a more robust solution if necessary. Depending on what 
-we identify at this meeting and what people attend we may consider 
-making this an every other week meeting. As of right now the agenda is 
-listed below.
+That will be in the next version of the patch.
 
 
-Agenda:
 
-1. Discuss merge windows and which one we'd like to target.
-2. Discuss current feedback from Bruce Fields.
-3. Discuss current feedback from Trond Myklebust.
-4. Discuss implementing remaining features from NFSv4.2 specification.
-5. Discuss viability of future every other week meetings.
-
-If anyone would like to participate and has other topics they would 
-like to discuss let me know. I'm going to try to get a hold of Rodel 
-tonight and use a google+ hangout for the meeting. If we decide it would 
-be better to use google+ I'll send out those details tonight. If you'd 
-like my skype details for the meeting email me privately and I'll send 
-you my skype name for the meeting.
-
-Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
