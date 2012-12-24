@@ -1,77 +1,108 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBKLxIaX030907
-	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2012 16:59:18 -0500
-Received: by mail-ee0-f54.google.com with SMTP id c13so2088733eek.41
-        for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2012 13:58:45 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id qBOCnElG005779
+	for <selinux@tycho.nsa.gov>; Mon, 24 Dec 2012 07:49:14 -0500
+Message-ID: <50D84F10.4060401@hoentjen.eu>
+Date: Mon, 24 Dec 2012 13:48:16 +0100
+From: Sander Hoentjen <sander@hoentjen.eu>
 MIME-Version: 1.0
-In-Reply-To: <2374585.ppB8RWyPuB@sifl>
-References: <20121218225001.16104.34454.stgit@localhost>
-	<20121218230808.GC1135@redhat.com>
-	<50D154B1.4010909@redhat.com>
-	<2374585.ppB8RWyPuB@sifl>
-Date: Thu, 20 Dec 2012 16:58:45 -0500
-Message-ID: <CACLa4pvLjfPoFjkC2kyYoeKndTfNvaNRSwWSWqJVdYC2jPGKyw@mail.gmail.com>
-Subject: Re: [RFC PATCH v3 2/2] tun: fix LSM/SELinux labeling of tun/tap devices
-From: Eric Paris <eparis@parisplace.org>
-To: Paul Moore <pmoore@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+CC: Sven Vermeulen <sven.vermeulen@siphos.be>
+Subject: Re: policy for PowerDNS
+References: <50BCB590.8010602@hoentjen.eu> <1354547319.13093.2.camel@localhost> <50BDE094.9010405@hoentjen.eu> <50BE0529.2090902@redhat.com> <CAPzO=NyBgG7q8yqzxzQGnePN6FyuxRi_5YEKLc+t4tuH3Kao3w@mail.gmail.com> <50BF355A.3090708@redhat.com> <20121205192426.GA6594@siphos.be>
+In-Reply-To: <20121205192426.GA6594@siphos.be>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You may add my Ack to the series.
-
--Eric
-
-On Wed, Dec 19, 2012 at 11:58 AM, Paul Moore <pmoore@redhat.com> wrote:
-> On Wednesday, December 19, 2012 01:46:25 PM Jason Wang wrote:
->> On 12/19/2012 07:08 AM, Michael S. Tsirkin wrote:
->> > On Tue, Dec 18, 2012 at 05:53:52PM -0500, Paul Moore wrote:
->> >> This patch corrects some problems with LSM/SELinux that were introduced
->> >> with the multiqueue patchset.  The problem stems from the fact that the
->> >> multiqueue work changed the relationship between the tun device and its
->> >> associated socket; before the socket persisted for the life of the
->> >> device, however after the multiqueue changes the socket only persisted
->> >> for the life of the userspace connection (fd open).  For non-persistent
->> >> devices this is not an issue, but for persistent devices this can cause
->> >> the tun device to lose its SELinux label.
->> >>
->> >> We correct this problem by adding an opaque LSM security blob to the
->> >> tun device struct which allows us to have the LSM security state, e.g.
->> >> SELinux labeling information, persist for the lifetime of the tun
->> >> device.  In the process we tweak the LSM hooks to work with this new
->> >> approach to TUN device/socket labeling and introduce a new LSM hook,
->> >> security_tun_dev_attach_queue(), to approve requests to attach to a
->> >> TUN queue via TUNSETQUEUE.
->> >>
->> >> The SELinux code has been adjusted to match the new LSM hooks, the
->> >> other LSMs do not make use of the LSM TUN controls.  This patch makes
->> >> use of the recently added "tun_socket:attach_queue" permission to
->> >> restrict access to the TUNSETQUEUE operation.  On older SELinux
->> >> policies which do not define the "tun_socket:attach_queue" permission
->> >> the access control decision for TUNSETQUEUE will be handled according
->> >> to the SELinux policy's unknown permission setting.
->> >>
->> >> Signed-off-by: Paul Moore <pmoore@redhat.com>
->> >
->> > Looks good to me. A comment not directly related to this patch, below.
+On 12/05/2012 08:24 PM, Sven Vermeulen wrote:
+> On Wed, Dec 05, 2012 at 06:51:54AM -0500, Daniel J Walsh wrote:
+>>> If named by default doesn't require this access, doesn't it make sense to
+>>> keep it restricted? Remote code execution vulnerabilities might be
+>>> mitigated if the policy prohibits execution of common binaries
+>>>
+>>> Reading /usr however seems less problematic (I'm even surprised it doesn't 
+>>> require this already).
 >>
->> Good to me too, will do some test on this.
->
-> Great.  I'll do some more testing and make sure the LSM and SELinux crowd are
-> okay with the changes.
->
-> --
-> paul moore
-> security and virtualization @ redhat
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Perhaps but if you have enough control over a process to execute random
+>> binaries, one would guess you have enough control to call other syscalls
+>> implemented in those binaries.
+> 
+> I can follow your reasoning, but I disagree.
+> 
+> Remote command execution can be done either in a very simple way (for
+> instance, user input that is not correctly sanitized and that is directly
+> used for spawning specific commands) or through memory manipulation.
+> 
+> Let's say it is memory manipulation, then there are imho two ways this can
+> lead to a remote command execution: data memory or execution memory.
+> 
+> Either the memory is data (non-executable) and is used by the application
+> for its flows, logic and what else. In this case, you won't have the
+> ability to invoke syscalls yourself (through the exploit) but you can
+> manipulate the application, which underlyingly might use the data to
+> spawn commands.
+> 
+> Or the memory is code (executable). In this case, if you can manipulate
+> this, then you indeed have control over the application completely and can
+> invoke system calls yourself.
+> 
+> The majority of Remote Code Execution vulnerabilities, imho, plays in the
+> data memory, not in the executable memory. For one, because executable
+> memory shouldn't be writeable in the first place (you can use PaX or other
+> constraints for that). It is also harder to manipulate this code to the
+> extend that you can do useful things with it.
+> 
+> But if we're talking about data memory manipulation/corruption, then the
+> syscalls don't play a role, and SELinux can reduce the impact of such
+> vulnerabilities if you can downplay what the domain is allowed to do. Such
+> as executing generic binaries.
+> 
+> Of course, an even better way to handle this is to chroot the named daemon
+> itself so that there are no binaries to execute beyond those that are
+> already needed. I do believe that chrooting named is still a very useful
+> approach even if you use SELinux [1], but there are people that think
+> differently.
+> 
+Trying to move the policy for pdns forward, do I understand correctly
+that the following additions to the policy would be ok:
+======pdns.fc======
+/usr/sbin/pdns_server           --
+gen_context(system_u:object_r:named_exec_t,s0)
+/etc/pdns/pdns\.conf            --
+gen_context(system_u:object_r:named_conf_t,s0)
+/var/run/pdns\.controlsocket    -s
+gen_context(system_u:object_r:named_var_run_t,s0)
+/var/run/pdns\.pid              --
+gen_context(system_u:object_r:named_var_run_t,s0)
+===================
+======pdns.te======
+policy_module(pdns,0.0.1)
+
+require{
+	type named_t;
+}
+
+#only needed if using the guardian
+allow named_t self:capability { kill };
+
+#gmysql backend:
+mysql_read_config(named_t)
+files_read_usr_files(named_t)
+mysql_stream_connect(named_t)
+
+#postgres backend:
+postgresql_stream_connect(named_t)
+===================
+
+But the following addition to the .te is under discussion:
+#pipe backend:
+corecmd_exec_bin(named_t)
+
+If i am correct up till this point, I would be okay with either having
+corecmd_exec_bin in a boolean, or use a new type for this and add
+documentation to pdns showing what type you need to make your pipe backend.
+
+What do you guys think?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
