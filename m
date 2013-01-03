@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r03DrGZY009708
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2013 08:53:16 -0500
-Message-ID: <50E58D38.5060509@redhat.com>
-Date: Thu, 03 Jan 2013 08:52:56 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r03Gg9oU020768
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2013 11:42:10 -0500
+Message-ID: <50E5B490.3010206@redhat.com>
+Date: Thu, 03 Jan 2013 11:40:48 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Sander Hoentjen <sander@hoentjen.eu>
@@ -143,16 +143,21 @@ On 01/03/2013 08:47 AM, Sander Hoentjen wrote:
 > [1] 
 > http://wiki.powerdns.com/trac/browser/trunk/pdns/modules/pipebackend/backend.pl
 >
+>  -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
 > 
-Well we could setup a label for these scripts so that users could label them
-with an unconfined type, Or allow admins to write policy specific for the script.
+
+Yes the question is do you expect admin to modify this script to do nutty
+things or do you envision this script to only be used as is.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 Comment: Using GnuPG with undefined - http://www.enigmail.net/
 
-iEYEARECAAYFAlDljTgACgkQrlYvE4MpobPtCwCgqH99UiRGnFR8cpGNDY6lY/6L
-DucAn2GZY86xenf1lgWMBbsTqTg1eaGg
-=Ba+N
+iEYEARECAAYFAlDltI8ACgkQrlYvE4MpobPKrwCcCZX3H1XHf4DmR2z+7LRlquGn
+MZEAn1QAoGnQ6Bn1bT73wkOYObs8x0+e
+=FOeI
 -----END PGP SIGNATURE-----
 
 --
