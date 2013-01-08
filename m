@@ -1,171 +1,74 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r08HESfk000611
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jan 2013 12:14:28 -0500
-Message-ID: <50EC53E3.6070606@schaufler-ca.com>
-Date: Tue, 08 Jan 2013 09:14:11 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <50EC5BCD.9000908@tycho.nsa.gov>
+Date: Tue, 08 Jan 2013 12:47:57 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: Stephen Rothwell <sfr@canb.auug.org.au>,
+To: Casey Schaufler <casey@schaufler-ca.com>
+CC: James Morris <jmorris@namei.org>,
         LSM <linux-security-module@vger.kernel.org>,
         LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
         John Johansen <john.johansen@canonical.com>,
         Eric Paris <eparis@redhat.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
+        Kees Cook <keescook@chromium.org>
 Subject: Re: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
-References: <50EB7C50.3070605@schaufler-ca.com> <20130108140159.83c07fa6a680e355f024970f@canb.auug.org.au> <50EB9A5E.1080306@schaufler-ca.com> <alpine.LRH.2.02.1301081942030.24212@tundra.namei.org>
-In-Reply-To: <alpine.LRH.2.02.1301081942030.24212@tundra.namei.org>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <50EB7C50.3070605@schaufler-ca.com>
+In-Reply-To: <50EB7C50.3070605@schaufler-ca.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/8/2013 1:12 AM, James Morris wrote:
-> On Mon, 7 Jan 2013, Casey Schaufler wrote:
+On 01/07/2013 08:54 PM, Casey Schaufler wrote:
+> Subject: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
 >
->> There has been an amazing amount of development in system security
->> over the past three years. Almost none of it has been in the kernel.
->> One important reason that it is not getting done in the kernel is
->> that the current single LSM restriction requires an all or nothing
->> approach to security. Either you address all your needs with a single
->> LSM or you have to go with a user space solution, in which case you
->> may as well do everything in user space.
-> This sounds like a very spurious argument.  If the development is better 
-> done in userspace, then do it there.
+> Change the infrastructure for Linux Security Modules (LSM)s
+> from a single vector of hook handlers to a list based method
+> for handling multiple concurrent modules.
+>
+> A level of indirection has been introduced in the handling of
+> security blobs. LSMs no longer access ->security fields directly,
+> instead they use an abstraction provided by lsm_[gs]et field
+> functions.
+>
+> The XFRM hooks are only used by SELinux and it is not clear
+> that they can be shared. The First LSM that registers using
+> those hooks gets to use them. Any subsequent LSM that uses
+> those hooks is denied registration.
+>
+> Secids have not been made shareable. Only one LSM that uses
+> secids (SELinux and Smack) can be used at a time. The first
+> to register wins.
+>
+> The "security=" boot option takes a comma separated list of
+> LSMs, registering them in the order presented. The LSM hooks
+> will be executed in the order registered. Hooks that return
+> errors are not short circuited. All hooks are called even
+> if one of the LSM hooks fails. The result returned will be
+> that of the last LSM hook that failed.
+>
+> Some hooks don't fit that model. setprocattr, getprocattr,
+> and a few others are special cased. All behavior from
+> security/capability.c has been moved into the hook handling.
+> The security/commoncap functions used to get called from
+> the LSM specific code. The handling of the capability
+> functions has been moved out of the LSMs and into the
+> hook handling.
+>
+> The /proc/*/attr interfaces are given to one LSM. This
+> can be done by setting CONFIG_SECURITY_PRESENT. Additional
+> interfaces have been created in /proc/*/attr so that
+> each LSM has its own named interfaces.
+>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
-When the security scheme is better implemented in user space
-because it requires information available in user space I agree.
-When the security scheme is implemented in user space because
-the environment for building it in the kernel is not up to
-modern development paradigms I disagree. If you can't work on
-two aspects of your security independently you're not going
-to keep up with the Jones'.
+Have you run any benchmarks, particularly to compare performance 
+overhead in the simple case of a single LSM?
 
-> There's no way to address all your security needs with an LSM in any case, 
-> for any practical system.
+IIRC, the AppArmor devs indicated that they plan to start using secids, 
+which would mean that it would not be possible to stack AppArmor with 
+Smack or SELinux using this mechanism.  So eventually that would have to 
+be addressed in order for this to even support the AppArmor+Smack or 
+AppArmor+SELinux use cases.
 
-Please review the arguments made in support of dropping the
-LSM entirely in favor of SELinux as *the* Linux security
-infrastructure.
-
-I certainly agree that no one LSM covers all need today.
-I also agree that no single LSM will ever meet everyone's
-needs. My solution is to allow multiple LSMs so that it is
-easier to approach the goal.
-
-> LSM is an API for making security decisions 
-> about kernel flow, usually as part of implementing access control 
-> mechanisms.  It is not meant to provide any kind of total security 
-> solution, and the argument that you can't do some security in userspace is 
-> totally illogical.
-
-What I was hoping to say, and apparently didn't, is that people
-are developing "total" solutions in user space, when some of the
-work ought to be done in an LSM. Work that is appropriate to the
-kernel is being done in user space. Often badly, because the
-kernel provides too many mechanisms to circumvent user space
-based access controls.
-
-> Development should be done in userspace unless it must be done in the 
-> kernel.
-
-And we'll be arguing what "must" means long after penguins get the vote.
-
-User space code does not have the opportunity to control the
-objects that the kernel manages. Nor should it. Files, sockets,
-network packets and signals all must be managed in the kernel.
-Some of the user space attempts we're seeing are pretty scary.
-
->> Multiple concurrent LSMs allows a system to be developed incrementally
->> and to combine a variety of approaches that meet new and interesting
->> needs. It allows for systems that are based on an LSM that does not
->> meet all of the requirements but that can be supplemented by another
->> LSM that fills the gaps. It allows an LSM like Smack that implements
->> label based access controls to remain true to its purpose even in the
->> face of pressure to add controls based on other mechanisms.
->>
->> I have had requests for running Smack and AppArmor together Tetsuo has
->> long had need to put SELinux and TOMOYO on the same box. Yama was
->> recently special cased for stackability.
-> I'd say we need to see the actual use-case for Smack and Apparmor being 
-> used together, along with at least one major distro committing to support 
-> this.
-
-Or SELinux and TOMOYO. Or AppArmor and TOMOYO.
-
-And before we get too far, distros are no longer the driving force
-for Linux development. I suggest that "operating systems", including
-ChromiumOS, Android and Tizen are every bit as important. I suggest
-that if Android wants to use SELinux and AppArmor those wild and
-crazy folks in Mountain View ought to be able to do so.
-
-> Yama is special-cased and can stay that way.
-
-Yama is *not* a special case, it is an example. It is the kind
-of new thing that provides security that is not access control.
-It was special cased at the request of distros because there was
-no general mechanism for including it along with the primary
-LSM.
-
-> SELinux and Tomoyo together makes no sense to me, and similarly, I would 
-> like to see the specific use-case for it and distro commitment to support 
-> it.
-
-I'm not the advocate for that particular combination.
-The point is that there are advocates. And distros are not
-the only drivers. I agree that some consumer (distro, "OS")
-needs to step forward.
-
->> We are looking at security from different directions than ever before.
->> What good is a UID on a cell phone? I hear complaints about Android's
->> "abuse" of the UID. 
-> What is the UID issue and how does LSM stacking address it?
-
-Android utilizes UIDs in a way that has often been referred to as
-"hijacking". The UID mechanism supports much of what they want,
-but clearly isn't complete. Now that Android is moving to multi-user
-support they're hitting conflicts with their use of the UID 
-attribute. They really ought to be using an LSM that implements
-the security policy they want rather than hacking around the
-behavior of UID based controls.
-
->> With the option of independent groups creating smallish LSMs and 
->> integrating them by stacking we have the ability to make the security 
->> systems modern devices require using a architecturally clean model 
->> rather than hijacking existing mechanisms that work a little bit like 
->> what you want to do.
-> This is speculative.
-
-That multiple LSMs provides the tool is not speculation.
-That new development would ensue is indeed speculative.
-Or at least not yet public.
-
->> I used to believe in a single, integrated security module that addressed
->> all the issues. Now that Linux is supporting everything from real time
->> tire pressure gauges in tricycles to the global no-fly list that just
->> doesn't seem reasonable. We need better turn around on supplemental 
->> mechanisms. That means collections of smaller, simpler LSMs instead of
->> monoliths that only a few select individuals or organizations have any
->> hope of configuring properly.
-> If you're trying to say that only a few select individuals or orgs can 
-> configure things like SELinux and AppArmor properly, you're wrong, and the 
-> evidence for that is overwhelming.
-
-Disto & OS vendors have the knowledge and tools to do this right.
-
-> Also, are you saying that security mechanisms are inherently easier to 
-> configure if they're composed from a variety of distinct modules vs. a 
-> monolithic scheme? 
-
-Nope. I'm saying that for specific use cases including but not limited to
-telephones, TVs and surveillance networks it is simpler and more appropriate
-to create the access control and security schemes that directly address
-the needs than to attempt to squeeze them into corsets designed in the
-1990's.
-
-And to top it off, Yama has no configuration. It's lots easier to configure.
 
 
 --
