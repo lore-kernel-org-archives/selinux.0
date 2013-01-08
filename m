@@ -1,58 +1,71 @@
-Message-ID: <50EC3644.2000600@tycho.nsa.gov>
-Date: Tue, 08 Jan 2013 10:07:48 -0500
+Message-ID: <50EC37E2.2000705@tycho.nsa.gov>
+Date: Tue, 08 Jan 2013 10:14:42 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Alice Chu <alice.chu@sta.samsung.com>
 CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
         "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: Re: Fixing external/checkpolicy issues found by Klocwork
-References: <C1432A7484D61749AF22A060C2B03C5D1632046A18@StaEx7mb3.telecom.sna.samsung.com>
-In-Reply-To: <C1432A7484D61749AF22A060C2B03C5D1632046A18@StaEx7mb3.telecom.sna.samsung.com>
+Subject: Re: Fixing external/libsepol issues found by Klocwork
+References: <C1432A7484D61749AF22A060C2B03C5D1632046A1B@StaEx7mb3.telecom.sna.samsung.com>
+In-Reply-To: <C1432A7484D61749AF22A060C2B03C5D1632046A1B@StaEx7mb3.telecom.sna.samsung.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/07/2013 08:29 PM, Alice Chu wrote:
+On 01/07/2013 08:51 PM, Alice Chu wrote:
 > Hello,
 >
-> Attached you will find the Klocwork report on seandroid master branch external/checkpolicy. The following is the fix for issues found in policy_define.c.
+> Attached you will find the Klocwork report on seandroid master branch external/libsepol. The following is the fix.
 > Please review and give me your feedback.
 >
 > Thank you very much,
 > Alice Chu
->
-> ============================================================================
->>From 18555451c5831fd95044e665d3dc514eb69e3b75 Mon Sep 17 00:00:00 2001
+> ======================================================================================
+>>From 1b6465ee62e9d5f1b5c7ef5c69b97bc572472f78 Mon Sep 17 00:00:00 2001
 > From: Alice Chu <alice.chu@sta.samsung.com>
-> Date: Mon, 7 Jan 2013 15:29:29 -0800
+> Date: Fri, 4 Jan 2013 15:51:37 -0800
 > Subject: [PATCH] Fix issues found by Klocwork
 >
-> Change-Id: Ic3a01364b6855529f6b58a8820c6011a22c21841
+> Change-Id: I055d851c95de6326a6833b02a40261f282847c7b
 > ---
->   policy_define.c |   24 +++++++++++++++++++-----
->   1 files changed, 19 insertions(+), 5 deletions(-)
+>   include/sepol/policydb/symtab.h |    1 +
+>   src/expand.c                    |   13 +++++++++++++
+>   src/genusers.c                  |   11 ++++++++++-
+>   src/hierarchy.c                 |    1 +
+>   src/link.c                      |    7 ++++++-
+>   src/policydb.c                  |    6 ++++--
+>   src/policydb_convert.c          |    1 +
+>   src/services.c                  |    2 ++
+>   src/symtab.c                    |    9 +++++++++
+>   src/write.c                     |    1 +
+>   10 files changed, 48 insertions(+), 4 deletions(-)
 >
-> diff --git a/policy_define.c b/policy_define.c
-> index 2c12447..504af69 100644
-> --- a/policy_define.c
-> +++ b/policy_define.c
-> @@ -3583,6 +3591,11 @@ static int parse_security_context(context_struct_t * c)
->   	}
->
->   	context_init(c);
-> +	/* check context c to make sure ok to dereference c later */
-> +	if (c == NULL) {
-> +		yyerror("null context pointer!");
-> +		goto bad;
-> +	}
->
->   	/* extract the user */
->   	id = queue_remove(id_queue);
 
-I think you want this check before context_init(), as it dereferences c.
-And then just return -1 in the error path.
-This btw is an illegal state as NULL should only be passed if pass == 1.
+> diff --git a/src/symtab.c b/src/symtab.c
+> index b3a7aa8..87046b2 100644
+> --- a/src/symtab.c
+> +++ b/src/symtab.c
+> @@ -46,4 +46,13 @@ int symtab_init(symtab_t * s, unsigned int size)
+>   	return 0;
+>   }
+>
+> +void symtab_destroy(symtab_t * s)
+> +{
+> +	if (!s)
+> +		return;
+> +	if (s->table)
+> +		hashtab_destroy(s->table);
+> +	free(s);
+> +	return;
+> +}
+>   /* FLASK */
 
+symtab_init() does not allocate s, so symtab_destroy() should not free 
+it.  It isn't separately allocated from the containing structure.  Also, 
+if you truly want to fully free the symtab, you'll need to pass in a 
+destroy function to symtab_destroy and invoke hashtab_map() on the table 
+with that destroy function - see for example symtabs_destroy(), 
+class_destroy(), etc in policydb.c.
 
 
 
