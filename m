@@ -1,32 +1,60 @@
-Message-ID: <50EC31AE.5040807@tycho.nsa.gov>
-Date: Tue, 08 Jan 2013 09:48:14 -0500
+Message-ID: <50EC3644.2000600@tycho.nsa.gov>
+Date: Tue, 08 Jan 2013 10:07:48 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Ondrej Oprala <ooprala@redhat.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: setfscreatecon optimizations
-References: <50EC1D32.3090607@redhat.com>
-In-Reply-To: <50EC1D32.3090607@redhat.com>
+To: Alice Chu <alice.chu@sta.samsung.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Subject: Re: Fixing external/checkpolicy issues found by Klocwork
+References: <C1432A7484D61749AF22A060C2B03C5D1632046A18@StaEx7mb3.telecom.sna.samsung.com>
+In-Reply-To: <C1432A7484D61749AF22A060C2B03C5D1632046A18@StaEx7mb3.telecom.sna.samsung.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/08/2013 08:20 AM, Ondrej Oprala wrote:
-> Hi, there have been some attempts on the coreutils mailing list at
-> optimizing cp copying by caching the selinux security context ( please
-> see: http://lists.gnu.org/archive/html/coreutils/2013-01/msg00012.html ).
-> Would it be possible to perform some kind of caching inside
-> setfscreatecon? For example not going through the whole process of
-> setfscreatecon if the context to be set equals the current one?
+On 01/07/2013 08:29 PM, Alice Chu wrote:
+> Hello,
+>
+> Attached you will find the Klocwork report on seandroid master branch external/checkpolicy. The following is the fix for issues found in policy_define.c.
+> Please review and give me your feedback.
+>
+> Thank you very much,
+> Alice Chu
+>
+> ============================================================================
+>>From 18555451c5831fd95044e665d3dc514eb69e3b75 Mon Sep 17 00:00:00 2001
+> From: Alice Chu <alice.chu@sta.samsung.com>
+> Date: Mon, 7 Jan 2013 15:29:29 -0800
+> Subject: [PATCH] Fix issues found by Klocwork
+>
+> Change-Id: Ic3a01364b6855529f6b58a8820c6011a22c21841
+> ---
+>   policy_define.c |   24 +++++++++++++++++++-----
+>   1 files changed, 19 insertions(+), 5 deletions(-)
+>
+> diff --git a/policy_define.c b/policy_define.c
+> index 2c12447..504af69 100644
+> --- a/policy_define.c
+> +++ b/policy_define.c
+> @@ -3583,6 +3591,11 @@ static int parse_security_context(context_struct_t * c)
+>   	}
+>
+>   	context_init(c);
+> +	/* check context c to make sure ok to dereference c later */
+> +	if (c == NULL) {
+> +		yyerror("null context pointer!");
+> +		goto bad;
+> +	}
+>
+>   	/* extract the user */
+>   	id = queue_remove(id_queue);
 
-I think that should be possible.  The relevant code that would need to 
-be modified is in libselinux/src/procattr.c.  You would likely want to 
-modify the common helper for all of the set*con functions, 
-setprocattrcon_raw().  A conceptually similar cache exists in 
-libselinux/src/setrans_client.c; note the methods used to make it 
-thread-safe and to ensure that it is properly freed.  You would need a 
-separate cache for each kind of attribute that can be set, i.e. current, 
-exec, fscreate, keycreate, sockcreate.  You could likely also cache the tid.
+I think you want this check before context_init(), as it dereferences c.
+And then just return -1 in the error path.
+This btw is an illegal state as NULL should only be passed if pass == 1.
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
