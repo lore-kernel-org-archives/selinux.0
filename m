@@ -1,32 +1,99 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r081pXJY016729
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 20:51:33 -0500
-From: Alice Chu <alice.chu@sta.samsung.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-CC: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Date: Mon, 7 Jan 2013 19:51:30 -0600
-Subject: Fixing external/libsepol issues found by Klocwork
-Message-ID: <C1432A7484D61749AF22A060C2B03C5D1632046A1B@StaEx7mb3.telecom.sna.samsung.com>
-Content-Type: multipart/mixed;
-	boundary="_002_C1432A7484D61749AF22A060C2B03C5D1632046A1BStaEx7mb3tele_"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r081sgOE016885
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 20:54:42 -0500
+Message-ID: <50EB7C50.3070605@schaufler-ca.com>
+Date: Mon, 07 Jan 2013 17:54:24 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+CC: LSM <linux-security-module@vger.kernel.org>,
+        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---_002_C1432A7484D61749AF22A060C2B03C5D1632046A1BStaEx7mb3tele_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Subject: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
 
-Hello,
+Change the infrastructure for Linux Security Modules (LSM)s
+from a single vector of hook handlers to a list based method
+for handling multiple concurrent modules. 
 
-Attached you will find the Klocwork report on seandroid master branch exter=
-nal/libsepol. The following is the fix.
-Please review and give me your feedback.
+A level of indirection has been introduced in the handling of
+security blobs. LSMs no longer access ->security fields directly,
+instead they use an abstraction provided by lsm_[gs]et field
+functions. 
 
-Thank you very much,
-Alice Chu
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---_002_C1432A7484D61749AF22A060C2B03C5D1632046A1BStaEx7mb3tele_--
+The XFRM hooks are only used by SELinux and it is not clear
+that they can be shared. The First LSM that registers using
+those hooks gets to use them. Any subsequent LSM that uses
+those hooks is denied registration. 
+
+Secids have not been made shareable. Only one LSM that uses
+secids (SELinux and Smack) can be used at a time. The first
+to register wins.
+
+The "security=" boot option takes a comma separated list of
+LSMs, registering them in the order presented. The LSM hooks
+will be executed in the order registered. Hooks that return
+errors are not short circuited. All hooks are called even
+if one of the LSM hooks fails. The result returned will be
+that of the last LSM hook that failed.
+
+Some hooks don't fit that model. setprocattr, getprocattr,
+and a few others are special cased. All behavior from
+security/capability.c has been moved into the hook handling.
+The security/commoncap functions used to get called from
+the LSM specific code. The handling of the capability
+functions has been moved out of the LSMs and into the
+hook handling.
+
+The /proc/*/attr interfaces are given to one LSM. This
+can be done by setting CONFIG_SECURITY_PRESENT. Additional
+interfaces have been created in /proc/*/attr so that
+each LSM has its own named interfaces.
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+---
+ fs/proc/base.c                      |   28 +-
+ include/linux/lsm.h                 |  174 ++++
+ include/linux/security.h            |  255 +++++-
+ security/Kconfig                    |   79 +-
+ security/Makefile                   |    3 +-
+ security/apparmor/context.c         |   10 +-
+ security/apparmor/domain.c          |   19 +-
+ security/apparmor/include/context.h |   13 +-
+ security/apparmor/lsm.c             |   66 +-
+ security/capability.c               | 1081 -------------------------
+ security/commoncap.c                |    6 -
+ security/inode.c                    |   79 +-
+ security/security.c                 | 1496 ++++++++++++++++++++++++++++-------
+ security/selinux/hooks.c            |  410 +++++-----
+ security/selinux/include/objsec.h   |    2 +
+ security/selinux/include/xfrm.h     |    2 +-
+ security/selinux/netlabel.c         |   13 +-
+ security/selinux/selinuxfs.c        |    6 +-
+ security/selinux/xfrm.c             |    9 +-
+ security/smack/smack.h              |   14 +-
+ security/smack/smack_access.c       |    2 +-
+ security/smack/smack_lsm.c          |  367 ++++-----
+ security/smack/smackfs.c            |   16 +-
+ security/tomoyo/common.h            |    6 +-
+ security/tomoyo/domain.c            |    2 +-
+ security/tomoyo/securityfs_if.c     |    9 +-
+ security/tomoyo/tomoyo.c            |   47 +-
+ security/yama/Kconfig               |    7 -
+ security/yama/yama_lsm.c            |   33 +-
+ 29 files changed, 2226 insertions(+), 2028 deletions(-)
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
